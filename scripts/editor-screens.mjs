@@ -455,17 +455,30 @@ async function checkListsAndBlocks(width) {
   const left = (await tops()).join();
   if (left !== 'ul,p,ul') problems.push(`${label}: Backspace at the start of a list item gives ${left}, not ul,p,ul`);
   await page.keyboard.press('Control+z');
-  // A list item is not a heading and a list has no text size: those controls are not offered in a list, on the first line or under the arrow.
+  // A list item is not a heading, so the heading controls are not offered in a list, on the first line or under the arrow.
   if (await page.locator('[aria-label="Show more tools"]:visible').count())
     await page.locator('[aria-label="Show more tools"]:visible').first().click();
   const offered = await page
     .locator('.editor-tools button:visible')
-    .evaluateAll((b) =>
-      b
-        .map((x) => x.getAttribute('aria-label'))
-        .filter((n) => /^(Page heading|Heading|Subheading|Body (small|medium|large))\b/.test(n ?? '')),
-    );
+    .evaluateAll((b) => b.map((x) => x.getAttribute('aria-label')).filter((n) => /^(Page heading|Heading|Subheading)\b/.test(n ?? '')));
   if (offered.length) problems.push(`${label}: the toolbar offers ${offered.join(', ')} in a list item`);
+  // A text size picked in a list keeps the list: the text of the item gets the size (a span), and Body medium takes it away.
+  await page.locator('.ProseMirror li > p').nth(0).click();
+  const pick = async (name) => {
+    const direct = page.locator(`.editor-tools [aria-label="${name}"]:visible`);
+    if (await direct.count()) await direct.first().click();
+    else {
+      await page.locator('.editor-tools [aria-label^="Text style"]:visible').first().click();
+      await page.locator('[role=menu] button, [role=menuitem], [role=menuitemradio]').filter({ hasText: name }).first().click();
+    }
+  };
+  await pick('Body small');
+  const sized = await page.locator('.ProseMirror ul li span.body-small').count();
+  if (sized !== 1 || (await tops()).join() !== 'ul')
+    problems.push(`${label}: Body small in a list item gives ${sized} sized items and ${await tops()}, not 1 and ul`);
+  await pick('Body medium');
+  if (await page.locator('.ProseMirror ul li span.body-small').count())
+    problems.push(`${label}: Body medium in a list item leaves its size`);
   if (await page.locator('[aria-label="Show fewer tools"]:visible').count())
     await page.locator('[aria-label="Show fewer tools"]:visible').first().click();
   // A block inserted in the first item ends the list there, at the top level, and the rest follows it.
