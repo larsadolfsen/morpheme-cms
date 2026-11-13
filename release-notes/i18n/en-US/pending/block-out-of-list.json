@@ -1,0 +1,5 @@
+{
+  "id": "block-out-of-list",
+  "kind": "line",
+  "text": "A block inserted in a list ends the list instead of being indented in it, and Backspace at the start of a list item leaves the list"
+}
