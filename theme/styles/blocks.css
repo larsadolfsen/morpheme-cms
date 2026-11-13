@@ -1426,11 +1426,11 @@
   /* "Table": Material 3 has no table component, so the dimensions are Material 2's data table (m2.material.io/components/data-tables:
      rows 52 dp and the header row 56 dp, 16 dp of space at the sides of a cell, a header name in a medium weight, a 1 dp outline,
      no elevation, a row's background on hover) and everything else is Material 3's: the body and label type scales, the surface container
-     (header), the outline variant (container and dividers), the small shape and the theme's hover state layer. The box is a region the
+     (header), the outline variant (container and dividers), the cards' own corner radius (--card-radius) and the theme's hover state layer. The box is a region the
      keyboard can scroll (a focus ring in the accent); a table with many columns scrolls instead of crushing them. */
   .block-table-grid {
     border: 1px solid var(--block-line);
-    border-radius: var(--block-radius-small);
+    border-radius: var(--card-radius, var(--block-radius-small));
     color: var(--block-text);
   }
   .block-table-grid:focus-visible {

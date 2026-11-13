@@ -2120,6 +2120,37 @@ async function checkInlineTable(width, height) {
   await page.close();
 }
 
+/** The Table's outer box has the same corner radius as a card (the Cards block's `.card`: both read the theme's --card-radius), with its header clipped to it, on the built site at 375 and 1280 px. */
+async function checkTableRadius(width, height) {
+  const label = `${width}px table radius`;
+  const page = await browser.newPage({ viewport: { width, height } });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await page.goto(new URL('/blocks/', site).href);
+  const got = await page.evaluate(() => {
+    const card = document.querySelector('.card.block-card');
+    const host = card?.parentElement;
+    if (!host) return null;
+    const box = document.createElement('div');
+    box.className = 'block-table block-table-grid';
+    box.innerHTML = '<table><thead><tr><th>A</th><th>B</th></tr></thead><tbody><tr><td>1</td><td>2</td></tr></tbody></table>';
+    host.append(box);
+    const c = getComputedStyle(box);
+    return {
+      card: getComputedStyle(card).borderTopLeftRadius,
+      table: c.borderTopLeftRadius,
+      overflowX: c.overflowX,
+      overflowY: c.overflowY,
+    };
+  });
+  if (!got) problems.push(`${label}: no card on /blocks/ to compare with`);
+  else {
+    if (got.card !== got.table) problems.push(`${label}: the table's radius is ${got.table}, the card's ${got.card}`);
+    if (got.overflowX === 'visible' || got.overflowY === 'visible')
+      problems.push(`${label}: the table's box does not clip its header to the radius`);
+  }
+  await page.close();
+}
+
 /** The icon picker of a List row (the slot before the title, a sheet on a phone): the first view has the "No icon" tile and the 28 icons, the search field finds an icon of the whole set, Material Symbols' ("arrow back") and Phosphor's ("acorn"), a picked one is drawn in the slot (stored by its name, drawn by the site as the fallback), a search without a hit says so, a category filters (with the search too) 100 icons at a time with "Show more", and the sheet fits the width. */
 async function checkIconSearch(width, height) {
   const label = `${width}px icon search`;
@@ -3185,6 +3216,8 @@ await checkOwnList(375, 740);
 await checkOwnList(1280, 900);
 await checkInlineTable(375, 740);
 await checkInlineTable(1280, 800);
+await checkTableRadius(375, 740);
+await checkTableRadius(1280, 800);
 for (const [width, height] of [
   [360, 740],
   [375, 740],
