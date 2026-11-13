@@ -300,6 +300,18 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
         edit: openerEdit(at),
       };
   }
+  // A default page (the front page, the 404 page and the rest) is needed by the site until another is picked for it.
+  if (collection.id === 'pages') {
+    const used = standardPages.find((p) => standardFile(files, p.key)?.path === file.path);
+    if (used)
+      return {
+        text: siteText('{page} is a default page, so it cannot be deleted. Pick another page under "Default pages" first.', {
+          page: siteText(used.the),
+        }),
+        error: true,
+        edit: { to: config.standardPages, text: siteText('Edit the default pages') },
+      };
+  }
   const home = standardFile(files, 'front');
   const front = Object.fromEntries(
     (home ? (blocksIn(home.text) as { type: string; props: Record<string, unknown> }[]) : []).map((b) => [b.type, b.props]),

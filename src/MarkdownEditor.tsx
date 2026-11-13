@@ -1173,6 +1173,7 @@ function blockCard(
             focus={focus}
             onChange={change}
             onSettings={settings}
+            onEdit={() => void edit()}
             onProps={(patch) => {
               const here = at();
               if (here)

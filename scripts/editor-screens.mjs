@@ -263,6 +263,67 @@ function hintContrasts(page, selector, pseudo) {
   );
 }
 
+/** On a phone, a press and hold on a row of the pages list selects it (and the blog's the same), and the top bar's Delete asks before it deletes; a default page (the front page) is not deleted, with the reason. */
+async function checkLongPressDelete() {
+  const page = await browser.newPage({ viewport: { width: 390, height: 800 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`long press: ${e.message}`));
+  await openEditor(page, site);
+  const cdp = await page.context().newCDPSession(page);
+  for (const list of ['pages', 'blog']) {
+    await page.evaluate((l) => (location.hash = `#list/${l}`), list);
+    await page.waitForSelector('main a.list-item-container');
+    await page.waitForTimeout(500);
+    const rows = page.locator('main a.list-item-container');
+    // A row that is not a default page.
+    const row = list === 'pages' ? rows.filter({ hasText: 'Get started' }).first() : rows.last();
+    await row.scrollIntoViewIfNeeded();
+    const box = await row.boundingBox();
+    const [x, y] = [box.x + box.width / 2, box.y + box.height / 2];
+    const hold = async () => {
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+      await page.waitForTimeout(800);
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      await page.waitForTimeout(300);
+    };
+    const here = await page.evaluate(() => location.hash);
+    await hold();
+    if ((await page.evaluate(() => location.hash)) !== here)
+      problems.push(`long press (${list}): a press and hold opened the row instead of selecting it`);
+    const del = page.getByRole('button', { name: /^Delete 1 selected$/ });
+    if (!(await del.count())) {
+      problems.push(`long press (${list}): a press and hold on a row does not select it (no "Delete 1 selected" in the top bar)`);
+      continue;
+    }
+    await del.click();
+    const sure = page.getByRole('dialog').getByRole('button', { name: 'Delete', exact: true });
+    await sure.waitFor({ timeout: 3000 }).catch(() => problems.push(`long press (${list}): Delete does not ask before it deletes`));
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+  }
+  // The front page: a press and hold selects it, but Delete says why it is kept.
+  await page.reload();
+  await page.evaluate(() => (location.hash = '#list/pages'));
+  await page.waitForSelector('main a.list-item-container');
+  await page.waitForTimeout(500);
+  const home = page.locator('main a.list-item-container', { hasText: 'Home' }).first();
+  if (await home.count()) {
+    await home.scrollIntoViewIfNeeded();
+    const box = await home.boundingBox();
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x: box.x + box.width / 2, y: box.y + box.height / 2 }],
+    });
+    await page.waitForTimeout(800);
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await page.waitForTimeout(300);
+    await page.getByRole('button', { name: /^Delete 1 selected$/ }).click();
+    await page.waitForTimeout(500);
+    if (!(await page.getByText('is a default page', { exact: false }).count()))
+      problems.push('long press: deleting the front page did not say it is a default page');
+  }
+  await page.close();
+}
+
 /** On a phone, a tap on the hint under a page's only heading (Type text, or tap Insert …) puts the cursor in an empty paragraph after it. */
 async function checkEmptyHint() {
   const page = await browser.newPage({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -399,7 +460,15 @@ const inlineBlocks = [
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true, start: 3 },
   { name: 'pricecards', hint: 'Prices with what is included.', add: 'Add price card', surface: true, field: 'name' },
   { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
-  { name: 'faq', hint: 'Questions that expand to answers.', add: 'Add question', field: 'question', open: true, surface: true },
+  {
+    name: 'faq',
+    hint: 'Questions that expand to answers.',
+    add: 'Add question',
+    field: 'question',
+    open: true,
+    surface: true,
+    listButton: true,
+  },
   // An app's block (the demo's Inline example app): typed in place from its own Inline.tsx, not from the editor's list of views.
   { name: 'tickets', hint: 'Rows with a heading and a text, typed where they stand.', add: 'Add ticket' },
 ];
@@ -458,7 +527,11 @@ async function checkInlineSingle(width, height, { name, hint, field, text, slot 
 }
 
 /** `surface`: the item is a card with a container of its own, so it has a background colour. `start`: how many empty, faded items a new block starts with (the first active; typing in one makes the first item, and the others go). */
-async function checkInlineBlock(width, height, { name, hint, add, surface, noEdit, rowButtons, field = 'title', open, start = 1 }) {
+async function checkInlineBlock(
+  width,
+  height,
+  { name, hint, add, surface, noEdit, rowButtons, listButton, field = 'title', open, start = 1 },
+) {
   const label = `${width}px inline ${name}`;
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
@@ -610,6 +683,32 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   if (noEdit)
     for (const name of ['Link', 'Edit'])
       if (one.bar.some((b) => b.label === name)) problems.push(`${label}: the toolbar has "${name}" although the block has no settings`);
+  // A text button under the whole list (the FAQ's): while the block is active its text is typed in a field under `Add` with a slot for its
+  // page; it shows as the site draws it when the block is not active, and an empty field takes it away.
+  if (listButton) {
+    const field = page.locator('.inline-faq-button [data-field="button"]');
+    if ((await field.count()) !== 1) problems.push(`${label}: no field for the button under the list in the active block`);
+    else {
+      if ((await page.locator('.inline-faq-button .inline-list-slot').count()) !== 1)
+        problems.push(`${label}: no slot for the page of the button under the list`);
+      await field.click();
+      await page.keyboard.type('More questions');
+      await page.waitForTimeout(300);
+      await page.click('.ProseMirror p');
+      await page.waitForTimeout(300);
+      const shown = await page.locator('.site-block-inline .block-list-button').allTextContents();
+      if (shown.map((x) => x.trim()).join() !== 'More questions')
+        problems.push(`${label}: the button under the list is "${shown}" when the block is not active, not "More questions"`);
+      await page.click('.site-block-inline [data-field="question"]');
+      await page.locator('.inline-faq-button [data-field="button"]').fill('');
+      await page.waitForTimeout(300);
+      await page.click('.ProseMirror p');
+      await page.waitForTimeout(300);
+      if (await page.locator('.site-block-inline .block-list-button').count())
+        problems.push(`${label}: the button under the list is still there after its text was cleared`);
+      await page.click('.site-block-inline [data-field="question"]');
+    }
+  }
   // A row's buttons: under the active row's text the text button `rowButtons` adds a button whose text is typed there.
   if (rowButtons) {
     const adds = await page.locator('[data-add-button]').allTextContents();
@@ -623,6 +722,27 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       .inputValue()
       .catch(() => null);
     if (typed !== 'More') problems.push(`${label}: the text typed in a row's new button is "${typed}", not "More"`);
+    // A row has at most one button: with one, `Add button` is gone and Enter in its text adds no second.
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(300);
+    if ((await page.locator('[data-add-button]').count()) !== 0)
+      problems.push(`${label}: "${rowButtons}" stays although the row has a button`);
+    if ((await page.locator('.inline-segmented-button').count()) !== 1) problems.push(`${label}: a row got a second button`);
+  }
+  if (phone) {
+    // A touch screen has no hover (hover: none), but the browser leaves :hover on what was tapped: the add button stays a text button, without the pointed-at background.
+    const session = await page.context().newCDPSession(page);
+    await session.send('Emulation.setEmulatedMedia', { features: [{ name: 'hover', value: 'none' }] });
+    await page.locator('[data-add-row]').hover();
+    await page.waitForTimeout(400);
+    const sticky = await page.evaluate(() => {
+      const b = document.querySelector('[data-add-row]');
+      const c = getComputedStyle(b);
+      return { pointed: b.matches(':hover'), background: c.backgroundColor, shadow: c.boxShadow };
+    });
+    if (!sticky.pointed || sticky.background !== 'rgba(0, 0, 0, 0)' || sticky.shadow !== 'none')
+      problems.push(`${label}: "${add}" tapped on a touch screen is no longer a text button (${JSON.stringify(sticky)})`);
+    await session.send('Emulation.setEmulatedMedia', { features: [] });
   }
   await page.click('[data-add-row]');
   await page.waitForTimeout(300);
@@ -1693,6 +1813,16 @@ async function checkFoldRows(width, height) {
     if (Math.abs(arrow.y + arrow.height / 2 - centre) > 1)
       problems.push(`${width}px accordion row "${title_}": the arrow is not centred on the title`);
     if (box.height < 48) problems.push(`${width}px accordion row "${title_}": ${box.height}px tall, should be 48px or more`);
+    // The line above the title is the divider under the section before it: nothing may sit between them (a parent's `space-y` gave 24px, twice as far above the title as below it).
+    const gap = await button.evaluate((el) => {
+      const before = el.closest('section').previousElementSibling;
+      if (!before?.matches('section[aria-labelledby]')) return 0;
+      return el.closest('section').getBoundingClientRect().top - before.getBoundingClientRect().bottom;
+    });
+    if (Math.abs(gap) > 1)
+      problems.push(
+        `${width}px accordion row "${title_}": ${gap}px between the divider above and the row, so the title is farther from the line above than from the line below`,
+      );
   }
   if (!shown.length) problems.push(`${width}px accordion rows: none measured`);
   console.log(`${width}px accordion rows (above, below, height): ${JSON.stringify(shown)}`);
@@ -2240,6 +2370,7 @@ for (const [width, height] of [
 ])
   await checkDraftsCard(width, height);
 await checkEmptyHint();
+await checkLongPressDelete();
 for (const [width, height] of [
   [375, 740],
   [1280, 900],
