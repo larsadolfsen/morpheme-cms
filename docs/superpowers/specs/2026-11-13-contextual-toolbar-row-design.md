@@ -90,38 +90,40 @@ for the 700 ms (a pill popping over the line you type on) is gone because the ro
 
 ## 4. "The main toolbar only shows global values"
 
-I do not know which of the two things the owner means, so here are both. **This is open question 1.**
+**Decided by the owner:** "So bold and italic would move in the contextual bar." So everything about the selection moves
+to the contextual row, and the main toolbar keeps only what is about the whole text.
 
-What the main toolbar shows today, and what each is about:
+| Tool | About | Goes to |
+| --- | --- | --- |
+| Undo, Redo | the whole text | stays in the main toolbar |
+| Insert (+) | the whole text, at the cursor | stays in the main toolbar |
+| Section settings | the section the heading starts | stays in the main toolbar |
+| Preview, save state | the whole page | already in the page header and save bar; not this bar |
+| Bold, Italic, Link | the selection | contextual row |
+| Heading (H), Bulleted / Check / Numbered list | the line under the cursor | contextual row |
+| Text size (T), Alignment, colour | the line or selection | contextual row |
 
-| Tool | About |
-| --- | --- |
-| Undo, Redo | the whole text (global) |
-| Insert (+) | the whole text, at the cursor (global) |
-| Section settings | the section the heading starts (global for the page) |
-| Preview, save state | the whole page (global; they live in the page header, not this bar) |
-| Bold, Italic, Link | the selection |
-| Heading (H), Bulleted / Check / Numbered list | the line under the cursor |
-| Text size (T), Alignment | the line or selection |
-
-**Reading A (my best reading): global = about the whole text.** The main toolbar keeps only Undo, Redo, Insert and Section
-settings. Everything about the selection (Bold, Italic, Link, Heading, lists, Text size, Alignment, colour) moves to the
-contextual row and is there as soon as the cursor is in text, with no wait. This also explains "remove the delay": the
-selection tools get their own docked row, so nothing floats over the text.
+**What the row shows.** Text selected, or the cursor in text: Bold, Italic, Link, Heading, Text size, Alignment (phone: lists
+and colour under `⋮` → More). A block or row selected: that block's tools (section 5). Nothing in the editor focused: the text
+tools, dimmed, the same height.
 
 ```
-READING A                              READING B
-main:  [+][Undo][Redo]   [Section]     main:  [B][I][Link][H][T][Align]  [+][Undo][Redo]
-ctx :  [B][I][Link][H][T][Align][⋮]    ctx :  (text: nothing, a hint)  /  (block: [row↑][row↓][⚙][⋮])
+MAIN TOOLBAR (global), phone and computer
+[ + Insert ] [ Undo ] [ Redo ]                    [ Section settings ]
+
+CONTEXTUAL ROW, text selected            CONTEXTUAL ROW, a block selected
+[B][I][Link][H][T][Align][⋮]            [row↑][row↓][Link][⚙][⋮]
 ```
 
-**Reading B: global = works the same everywhere in the text.** Bold, Italic, Link, Heading, Text size and Alignment stay in
-the main toolbar (they apply wherever the cursor is), and the contextual row holds only what belongs to a selected **block**
-or row (Table, List, Cards, Image …). In text the row is empty or shows a hint. Smaller change, but the text-tool pill
-disappears with no replacement near the selection, and the row is mostly empty while writing.
+**375 px.** Main toolbar: 4 buttons at 48 dp = 192 dp, one line, no arrow. Text row: 6 tools + `⋮` = 7 × 48 = 336 dp, fits in
+375 with 16 px edges only if gaps are 0; so Align goes under `⋮` on a phone (5 + `⋮` = 288 dp), and the row scrolls
+sideways as a fallback.
 
-Recommendation: **A**. It gives the main toolbar a short, steady set of tools, removes the double Bold/Italic/Link, and the
-row is never empty. The rest of this spec is written for A; under B the "Text" line of section 5 is simply not moved.
+**Is the main toolbar then too thin?** Four tools is little, and it leaves two bars to draw for a short list. Options:
+(a) keep it, one slim line (recommended: it is steady, and is the only place for global things);
+(b) put Insert, Undo and Redo at the start of the contextual row and drop the main toolbar: one bar, but the global tools then
+move around with the context;
+(c) add more global tools to it (Find in text, Word count, Preview) which today are not in the editor. This is open question 1.
 
 ## 5. What moves where, by block
 
@@ -179,14 +181,14 @@ four become its buttons, so there is one place for block actions. Image/Card/Lis
 
 ## 7. Open questions for the owner (the PM asks them one at a time)
 
-1. **What does "global values" mean?** Reading A: the main toolbar keeps Undo, Redo, Insert and Section settings; Bold, Italic,
-   Link, Heading, Text size and Alignment move to the contextual row. Reading B: those stay in the main toolbar and the
-   row has only block actions. Recommendation: A.
+Decided: bold, italic and the other selection tools move to the contextual row (section 4).
+
+1. **Is a main toolbar with only Insert, Undo, Redo and Section settings enough?** (a) keep it as one slim line; (b) drop it
+   and put those four at the start of the contextual row; (c) add more global tools. Recommendation: (a).
 2. **What does the row show when the cursor is in text and nothing is selected?** The text tools (acting on the word at the
-   cursor, no wait), or nothing until text is selected. Recommendation: always the text tools; it is never empty and never
-   jumps.
+   cursor, no wait), or nothing until text is selected. Recommendation: always the text tools; never empty, never jumps.
 3. **On a phone, scroll the row sideways or fold tools under `⋮`?** Recommendation: scroll for block rows (Table), fold only
-   the rare text tools (colour, alignment, lists) under `⋮` → More; Delete is never folded.
-4. **Keep the row sticky with the main toolbar while the page scrolls?** Recommendation: yes, one sticky box. Cost: about 100 dp of a short screen.
-5. **One fade (`--motion-effects`) when the row's buttons change, or none?** Recommendation: a fade of 0 to 1 only; the height never moves.
+   the rare text tools (Align, lists, colour) under `⋮` → More; Delete is never folded.
+4. **Keep both rows sticky while the page scrolls?** Recommendation: yes, one sticky box. Cost: about 100 dp of a short screen.
+5. **One fade (`--motion-effects`) when the row's buttons change, or none?** Recommendation: a fade 0 to 1 only; the height never moves.
 6. **The block pop-up (Edit, Hide, Move, Remove) on blocks not typed in place:** becomes row buttons (recommended) or stays a pop-up?
