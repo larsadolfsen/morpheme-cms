@@ -71,6 +71,13 @@ const shown = completeColors(withMaterialNames(colors), colorRoles);
         }
       } catch {}
     </script>
+    <!-- Density as picked on "Account" (packages/editor/src/density.ts), before the page is drawn: Large 1, Small -1 (the theme's base.css). -->
+    <script is:inline>
+      try {
+        const density = localStorage.getItem('editor-density');
+        if (density === 'large' || density === 'small') document.documentElement.dataset.density = density === 'large' ? '1' : '-1';
+      } catch {}
+    </script>
     <title>{config.name}</title>
   </head>
   <body>
