@@ -14,6 +14,9 @@ import InlineItems, { InlineField, InlineSlot, type Item } from './InlineItems';
 import { SiteButton } from './themeUi';
 import type { InlineViewProps } from './inlineViews';
 
+/** A row has at most one text button (its `buttons` field, `maxItems`); extra ones from before show and can be deleted. */
+export const maxButtons = 1;
+
 export default function InlineSegmented({ items, props, active, focus, onChange, onSettings, onIcon }: InlineViewProps) {
   const all = props.show === 'all';
   const twoLines = active !== null || items.some((r) => r.text);
@@ -51,7 +54,8 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
               onKeys={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
                   e.preventDefault();
-                  if (b.label?.trim()) set([...list.slice(0, n + 1), { label: '', href: '' }, ...list.slice(n + 1)], n + 1);
+                  if (b.label?.trim() && list.length < maxButtons)
+                    set([...list.slice(0, n + 1), { label: '', href: '' }, ...list.slice(n + 1)], n + 1);
                 }
                 if (e.key === 'Backspace' && !b.label) {
                   e.preventDefault();
@@ -64,9 +68,11 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
             />
           </span>
         ))}
-        <SiteButton kind="text" data-add-button="" onClick={() => set([...list, { label: '', href: '' }], list.length)}>
-          {t.blocks.segmented.addButton}
-        </SiteButton>
+        {list.length < maxButtons && (
+          <SiteButton kind="text" data-add-button="" onClick={() => set([...list, { label: '', href: '' }], list.length)}>
+            {t.blocks.segmented.addButton}
+          </SiteButton>
+        )}
       </div>
     );
   };

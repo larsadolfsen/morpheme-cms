@@ -44,6 +44,8 @@ export const blocks: Messages['blocks'] = {
     button: 'Knaptekst',
     buttonHint: 'En tekstknap under det sidste spørgsmål. Hvis feltet er tomt, er der ingen knap.',
     buttonHref: 'Knapside',
+    /** The button typed in place under the questions: the empty field's text. */
+    buttonPlaceholder: 'Knaptekst',
     addQuestion: 'Tilføj spørgsmål',
     newQuestion: 'Nyt spørgsmål',
     questionOf: (n: number, total: number) => `Spørgsmål ${n} af ${total}`,
@@ -76,6 +78,8 @@ export const blocks: Messages['blocks'] = {
     maxRowsHint: 'Hvor mange rækker der vises først. En knap under dem viser resten. Hvis feltet er tomt, vises alle rækker.',
     showMore: 'Knaptekst (vis mere)',
     showMoreText: 'Vis mere',
+    /** The link in an open row, without the row's heading (in the site's language). */
+    readMore: 'Læs mere',
     button: 'Knaptekst',
     buttonHint: 'En tekstknap under den sidste række. Hvis feltet er tomt, er der ingen knap.',
     buttonHref: 'Knapside',

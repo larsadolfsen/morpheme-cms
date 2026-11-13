@@ -50,6 +50,8 @@ export const blocks = {
     button: 'Button text',
     buttonHint: 'A text button under the last question. If empty, there is no button.',
     buttonHref: 'Button page',
+    /** The button typed in place under the questions: the empty field's text. */
+    buttonPlaceholder: 'Button text',
     /** A question typed in place: the add button, the faded question of an empty block, the floating toolbar, a question's place for screen readers. */
     addQuestion: 'Add question',
     newQuestion: 'New question',
@@ -84,6 +86,8 @@ export const blocks = {
     maxRowsHint: 'How many rows show at first. A button under them shows the rest. If empty, all rows show.',
     showMore: 'Button text (show more)',
     showMoreText: 'Show more',
+    /** The link in an open row, without the row's heading (in the site's language). */
+    readMore: 'Read more',
     button: 'Button text',
     buttonHint: 'A text button under the last row. If empty, there is no button.',
     buttonHref: 'Button page',

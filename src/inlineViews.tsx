@@ -34,6 +34,8 @@ export type InlineViewProps = {
   onIcon: (item: number) => void;
   /** Changes the block's own props (a card's media kind). */
   onProps: (patch: BlockProps) => void;
+  /** Opens the block's Edit sheet (a block with a setting that is not typed in place, like the FAQ's button page). */
+  onEdit?: () => void;
 };
 
 export const inlineViews: Record<string, ComponentType<InlineViewProps>> = {
