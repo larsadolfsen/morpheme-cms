@@ -2395,6 +2395,8 @@ async function checkTableAlign(width, height) {
   if (/columns[^\]]*right/.test(text)) problems.push(`${label}: an automatic column was saved with a fixed alignment`);
   const two = await saved();
   if (two.length && two.join() !== one.join()) problems.push(`${label}: a second save wrote another text`);
+  await page.close();
+}
 
 /** The Table's outer box has the same corner radius as a card (the Cards block's `.card`: both read the theme's --card-radius), with its header clipped to it, on the built site at 375 and 1280 px. */
 async function checkTableRadius(width, height) {
