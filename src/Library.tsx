@@ -99,7 +99,7 @@ import { kindAndName, savedText } from './deploy';
 import { togglePath } from './bulkDelete.mjs';
 import { shortDate, when } from './when';
 import { isEntryPath } from '../lib/ownList.mjs';
-import { untilTime } from '../lib/notice.mjs';
+import { isOver, untilTime } from '../lib/notice.mjs';
 import { savedTheme, setTheme, shownMode, type Theme } from './theme';
 import { browserLocale, locale, localeName, locales, savedLocale, setLocale, siteLocale, siteT, siteText, t, type Locale } from './i18n';
 import { appType, EDITOR_TYPES, setDevice, setOn, useNotificationChoices } from './notificationData';
@@ -926,7 +926,13 @@ const STATES: State[] = ['published', 'draft', 'scheduled'];
 // `w`: its waiting version in src/drafts/ (pageVersions.mjs waitingOf): a draft with a time on it is Scheduled.
 type Waiting = { publishAt?: string } | undefined;
 const stateOf = (d: Record<string, unknown>, w?: Waiting): State =>
-  d.status === 'draft' ? (w?.publishAt ? 'scheduled' : 'draft') : d.status === 'scheduled' ? 'scheduled' : 'published';
+  d.status === 'draft'
+    ? w?.publishAt
+      ? 'scheduled'
+      : 'draft'
+    : d.status === 'scheduled' && !isOver(String(d.publishAt ?? ''))
+      ? 'scheduled'
+      : 'published';
 
 // What a page or post is when not simply published (`status`, packages/editor/lib/status.mjs): "Draft", "Scheduled Nov 1 at 8:00 AM", or
 // "Unpublished changes" (a published one with changes waiting in src/drafts/, `w`; "Scheduled changes Nov 1 at 8:00 AM" with a time).
@@ -937,7 +943,9 @@ function statusOf(d: Record<string, unknown>, w?: Waiting): string | undefined {
   };
   if (d.status === 'draft')
     return w?.publishAt ? timed(w.publishAt, t.library.status.scheduledAt, t.library.status.scheduled) : t.library.status.draft;
-  if (d.status === 'scheduled') return timed(d.publishAt, t.library.status.scheduledAt, t.library.status.scheduled);
+  // A stored Scheduled whose time has passed is on the site (lib/status.mjs stateOf): published, with no status line.
+  if (d.status === 'scheduled' && !isOver(String(d.publishAt ?? '')))
+    return timed(d.publishAt, t.library.status.scheduledAt, t.library.status.scheduled);
   if (!w) return undefined;
   return timed(w.publishAt, t.library.status.scheduledChanges, t.library.status.unpublishedChanges);
 }
