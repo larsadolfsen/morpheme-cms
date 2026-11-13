@@ -1359,7 +1359,7 @@
     flex-shrink: 0;
     width: var(--chip-avatar-size, 1.5rem);
     height: var(--chip-avatar-size, 1.5rem);
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     object-fit: cover;
   }
   .chip:has(.chip-avatar) {
@@ -1390,7 +1390,7 @@
     width: 1.75rem;
     height: 1.75rem;
     margin-block: -0.5rem;
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     transition: background-color var(--motion-effects);
   }
   .chip-remove:hover {
@@ -1772,7 +1772,7 @@
     content: '';
     width: 3rem;
     height: 0.375rem;
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     background: var(--bottom-sheet-handle, var(--block-line));
   }
   /* The handle shows its focus by a darker bar, as M3's does: a focus ring is cut off by the sheet's rounded top and
@@ -2120,7 +2120,7 @@
     display: block;
     width: var(--carousel-dot-size, 0.5rem);
     height: var(--carousel-dot-size, 0.5rem);
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     background: var(--carousel-dot-colour, var(--block-line));
     transition: all var(--motion-spatial);
   }
@@ -2561,7 +2561,7 @@
     width: var(--list-item-avatar-size, 2.5rem);
     height: var(--list-item-avatar-size, 2.5rem);
     place-items: center;
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     background: var(--list-item-avatar-surface, var(--mo-primary-container));
     color: var(--list-item-avatar-text, var(--mo-on-primary-container));
     font-weight: 500;
@@ -2988,7 +2988,7 @@
     width: var(--top-app-bar-avatar-size, 2rem);
     height: var(--top-app-bar-avatar-size, 2rem);
     margin-inline: 0.5rem;
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     object-fit: cover;
   }
   .top-app-bar-headline-group,
@@ -3510,7 +3510,7 @@
     flex: 1;
     align-items: center;
     gap: var(--navigation-drawer-item-gap, 0.75rem);
-    border-radius: var(--navigation-drawer-item-radius, 9999px);
+    border-radius: var(--navigation-drawer-item-radius, var(--mo-shape-full));
     padding: var(--navigation-drawer-item-padding, 0 1rem);
     color: var(--navigation-drawer-item-text, var(--block-muted));
     text-decoration: none;
@@ -3676,7 +3676,7 @@
     height: var(--navigation-drawer-toggle-size, 2.75rem);
     flex-shrink: 0;
     place-items: center;
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     cursor: pointer;
     transition: background-color var(--motion-effects-fast);
   }
@@ -4271,7 +4271,7 @@
     border-end-start-radius: var(--split-button-inner);
   }
   .split-button > .split-button-trailing[aria-expanded='true'] {
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
   }
   .split-button-arrow {
     transition: rotate var(--motion-spatial);
@@ -4582,7 +4582,7 @@
     width: 100%;
     height: 100%;
     margin: 0;
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     background: var(--switch-track-surface, color-mix(in srgb, var(--block-muted) 40%, var(--block-line)));
     box-shadow: inset 0 0 0 var(--switch-track-line-width, 0px) var(--switch-track-line, transparent);
     cursor: inherit;
@@ -4600,7 +4600,7 @@
     width: var(--switch-handle-size, 1.25rem);
     height: var(--switch-handle-size, 1.25rem);
     place-items: center;
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     background: var(--switch-handle-surface, var(--block-surface));
     box-shadow: var(--switch-handle-shadow, var(--mo-elevation-1-rest-shadow));
     color: var(--switch-icon-color, var(--block-muted));
@@ -4704,7 +4704,7 @@
     --slider-track-thickness: var(--slider-track-height, 0.375rem);
     --slider-handle-length: var(--slider-handle-height, 1.25rem);
     --slider-room: var(--slider-height, 2.75rem);
-    --slider-track-corner: var(--slider-track-radius, 9999px);
+    --slider-track-corner: var(--slider-track-radius, var(--mo-shape-full));
     --slider-icon-length: 1rem;
     display: grid;
     gap: 0.25rem;
@@ -4713,21 +4713,21 @@
   /* The sizes (M3 Expressive): a thicker track, and a handle and room that grow with it. */
   .slider-small {
     --slider-track-thickness: var(--slider-small-track-height, 0.75rem);
-    --slider-track-corner: var(--slider-small-track-radius, var(--slider-track-radius, 9999px));
+    --slider-track-corner: var(--slider-small-track-radius, var(--slider-track-radius, var(--mo-shape-full)));
   }
   .slider-medium {
     --slider-track-thickness: var(--slider-medium-track-height, 1.5rem);
-    --slider-track-corner: var(--slider-medium-track-radius, var(--slider-track-radius, 9999px));
+    --slider-track-corner: var(--slider-medium-track-radius, var(--slider-track-radius, var(--mo-shape-full)));
     --slider-icon-length: var(--slider-medium-icon-size, 1rem);
   }
   .slider-large {
     --slider-track-thickness: var(--slider-large-track-height, 2.25rem);
-    --slider-track-corner: var(--slider-large-track-radius, var(--slider-track-radius, 9999px));
+    --slider-track-corner: var(--slider-large-track-radius, var(--slider-track-radius, var(--mo-shape-full)));
     --slider-icon-length: var(--slider-large-icon-size, 1.25rem);
   }
   .slider-xlarge {
     --slider-track-thickness: var(--slider-xlarge-track-height, 3.5rem);
-    --slider-track-corner: var(--slider-xlarge-track-radius, var(--slider-track-radius, 9999px));
+    --slider-track-corner: var(--slider-xlarge-track-radius, var(--slider-track-radius, var(--mo-shape-full)));
     --slider-icon-length: var(--slider-xlarge-icon-size, 1.75rem);
   }
   .slider-small,
@@ -4811,7 +4811,7 @@
     left: calc(var(--slider-reach) + var(--slider-stop) * (100% - 2 * var(--slider-reach)));
     width: var(--slider-stop-size, 0.25rem);
     height: var(--slider-stop-size, 0.25rem);
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     background: var(--slider-stop-color, var(--block-muted));
     translate: -50% -50%;
   }
@@ -4907,7 +4907,7 @@
     margin-top: calc((var(--slider-room) - var(--slider-handle-length)) / 2);
     appearance: none;
     border: var(--slider-handle-line-width, 0.1875rem) solid var(--slider-handle-line, var(--block-surface));
-    border-radius: var(--slider-handle-radius, 9999px);
+    border-radius: var(--slider-handle-radius, var(--mo-shape-full));
     background: var(--slider-handle-surface, var(--block-accent));
     box-shadow: var(--slider-handle-shadow, var(--mo-elevation-1-rest-shadow));
     pointer-events: auto;
@@ -4918,7 +4918,7 @@
     width: var(--slider-handle-width, 1.25rem);
     height: var(--slider-handle-length);
     border: var(--slider-handle-line-width, 0.1875rem) solid var(--slider-handle-line, var(--block-surface));
-    border-radius: var(--slider-handle-radius, 9999px);
+    border-radius: var(--slider-handle-radius, var(--mo-shape-full));
     background: var(--slider-handle-surface, var(--block-accent));
     box-shadow: var(--slider-handle-shadow, var(--mo-elevation-1-rest-shadow));
     pointer-events: auto;
@@ -5182,7 +5182,7 @@
     flex-shrink: 0;
     align-items: center;
     justify-content: center;
-    border-radius: var(--badge-radius, 9999px);
+    border-radius: var(--badge-radius, var(--mo-shape-full));
     background: var(--badge-surface, var(--block-accent));
     color: var(--badge-text, var(--block-on-accent));
     pointer-events: none;
@@ -5253,7 +5253,7 @@
     place-items: center;
     width: var(--loading-indicator-size, 3rem);
     height: var(--loading-indicator-size, 3rem);
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
   }
   .loading-indicator-contained {
     background: var(--loading-indicator-container, var(--block-tint));
@@ -5277,7 +5277,7 @@
     width: 100%;
     height: var(--linear-progress-indicator-height, 0.375rem);
     overflow: hidden;
-    border-radius: var(--linear-progress-indicator-radius, 9999px);
+    border-radius: var(--linear-progress-indicator-radius, var(--mo-shape-full));
   }
   .linear-progress-indicator-active,
   .linear-progress-indicator-track {
@@ -5305,7 +5305,7 @@
     width: var(--linear-progress-indicator-stop-size, 0px);
     height: var(--linear-progress-indicator-stop-size, 0px);
     translate: 0 -50%;
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     background: var(--linear-progress-indicator-active, var(--block-accent));
   }
   .linear-progress-indicator-indeterminate {
@@ -5388,7 +5388,7 @@
     inset-block: auto;
     top: 50%;
     height: var(--linear-progress-indicator-height, 0.375rem);
-    border-radius: var(--linear-progress-indicator-radius, 9999px);
+    border-radius: var(--linear-progress-indicator-radius, var(--mo-shape-full));
     translate: 0 -50%;
   }
   .linear-progress-indicator-wave {
@@ -5916,7 +5916,7 @@
   .navigation-bar-icon {
     width: var(--navigation-bar-indicator-width, 4rem);
     height: var(--navigation-bar-indicator-height, 2rem);
-    border-radius: var(--navigation-bar-indicator-radius, 9999px);
+    border-radius: var(--navigation-bar-indicator-radius, var(--mo-shape-full));
   }
   .navigation-bar-icon > svg,
   .navigation-rail-icon > svg {
@@ -5975,7 +5975,7 @@
     height: var(--navigation-bar-horizontal-indicator-height, 2.5rem);
     align-items: center;
     gap: var(--navigation-bar-horizontal-gap, 0.5rem);
-    border-radius: var(--navigation-bar-indicator-radius, 9999px);
+    border-radius: var(--navigation-bar-indicator-radius, var(--mo-shape-full));
     padding-inline: var(--navigation-bar-horizontal-indicator-padding, 1rem);
     transition:
       background-color var(--motion-effects),
@@ -6026,7 +6026,7 @@
       height: var(--navigation-bar-horizontal-indicator-height, 2.5rem);
       align-items: center;
       gap: var(--navigation-bar-horizontal-gap, 0.5rem);
-      border-radius: var(--navigation-bar-indicator-radius, 9999px);
+      border-radius: var(--navigation-bar-indicator-radius, var(--mo-shape-full));
       padding-inline: var(--navigation-bar-horizontal-indicator-padding, 1rem);
       transition:
         background-color var(--motion-effects),
@@ -6230,7 +6230,7 @@
   .navigation-rail-icon {
     width: var(--navigation-rail-indicator-width, 3.5rem);
     height: var(--navigation-rail-indicator-height, 2rem);
-    border-radius: var(--navigation-rail-indicator-radius, 9999px);
+    border-radius: var(--navigation-rail-indicator-radius, var(--mo-shape-full));
   }
   .navigation-rail-item:hover .navigation-rail-icon {
     background: var(--navigation-rail-indicator-hover, color-mix(in srgb, currentColor 8%, transparent));
@@ -6255,7 +6255,7 @@
     height: var(--navigation-rail-expanded-indicator-height, 3.5rem);
     align-items: center;
     gap: 0.75rem;
-    border-radius: var(--navigation-rail-indicator-radius, 9999px);
+    border-radius: var(--navigation-rail-indicator-radius, var(--mo-shape-full));
     padding: 0 1.5rem 0 1rem;
     transition: background-color var(--motion-effects);
   }
@@ -6476,7 +6476,7 @@
   /* Floating: a pill over the page with its shadow, across or down. */
   .toolbar-floating {
     display: inline-flex;
-    border-radius: var(--toolbar-floating-radius, 9999px);
+    border-radius: var(--toolbar-floating-radius, var(--mo-shape-full));
     padding: var(--toolbar-floating-padding, 0.5rem);
     box-shadow:
       0 0 0 1px var(--toolbar-floating-line, var(--block-line)),
@@ -6722,7 +6722,7 @@
     min-height: 2.5rem;
     padding: 0 0.5rem;
     border: 0;
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     background: transparent;
     color: var(--date-picker-menu-button-text, var(--block-text));
     font: inherit;
@@ -6780,7 +6780,7 @@
     width: var(--date-picker-day-size, 2.5rem);
     height: var(--date-picker-day-size, 2.5rem);
     border: 0;
-    border-radius: var(--date-picker-day-radius, 9999px);
+    border-radius: var(--date-picker-day-radius, var(--mo-shape-full));
     background: transparent;
     color: var(--date-picker-day-text, var(--block-text));
     font: inherit;
@@ -6858,7 +6858,7 @@
     min-height: 3rem;
     padding: 0 1rem;
     border: 0;
-    border-radius: var(--date-picker-day-radius, 9999px);
+    border-radius: var(--date-picker-day-radius, var(--mo-shape-full));
     background: transparent;
     color: var(--date-picker-day-text, var(--block-text));
     font: inherit;
@@ -6982,7 +6982,7 @@
     width: var(--time-picker-dial-size, 16rem);
     height: var(--time-picker-dial-size, 16rem);
     margin-top: 1.5rem;
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     background: var(--time-picker-dial-surface, var(--block-tint));
     color: var(--time-picker-dial-text, var(--block-text));
     touch-action: none;
@@ -7040,7 +7040,7 @@
     left: -0.1875rem;
     width: 0.5rem;
     height: 0.5rem;
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     background: var(--time-picker-hand, var(--block-accent));
   }
   .time-picker-dial-knob {
@@ -7049,7 +7049,7 @@
     left: calc(1px - var(--time-picker-dial-knob, 3rem) / 2);
     width: var(--time-picker-dial-knob, 3rem);
     height: var(--time-picker-dial-knob, 3rem);
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     background: var(--time-picker-hand, var(--block-accent));
   }
   /* A minute between the fives: a dot in the circle, where its number would be. */
@@ -7057,7 +7057,7 @@
     content: '';
     position: absolute;
     inset: calc(50% - 0.125rem);
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     background: var(--time-picker-hand-text, var(--block-on-accent));
   }
   .time-picker-dial:focus-visible {
