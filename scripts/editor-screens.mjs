@@ -364,6 +364,14 @@ async function checkTextBar(width = 360) {
     problems.push(`${label}: the Text style menu has ${style.length} rows or one is under 44 dp`);
   if (!style.some((x) => x.name === 'Main heading') || style.some((x) => x.name === 'Subheading'))
     problems.push(`${label}: a page's first heading should offer Main heading only (${style.map((x) => x.name).join(', ')})`);
+  // A divider under the headings and another between the body styles and Quote, the same divider part.
+  const order = await page.evaluate(() =>
+    [...document.querySelectorAll('[role=menu] > li')].map((li) => (li.classList.contains('menu-divider') ? '-' : li.textContent.trim())),
+  );
+  if (order.join('|') !== 'Main heading|-|Body small|Body medium|Body large|-|Quote')
+    problems.push(
+      `${label}: the Text style menu reads ${order.join(' | ')}, not Main heading | - | Body small | Body medium | Body large | - | Quote`,
+    );
   for (const name of ['Body small', 'Body medium', 'Body large', 'Quote'])
     if (!style.some((x) => x.name === name)) problems.push(`${label}: the Text style menu lacks ${name}`);
   // In a heading: no Quote, no list rows (on the bar's ⋮ or the List menu).
