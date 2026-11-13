@@ -428,6 +428,178 @@ async function checkLongPressDelete() {
   await page.close();
 }
 
+/**
+ * Selecting several rows (useSelection.ts, SelectionBar.tsx) on the pages list and in the notifications' sheet. At 375 with
+ * touch: a press and hold selects, a tap adds without opening the row, unselecting all or Close ends it, a press that
+ * moves does nothing, the count is announced, the bar's buttons are at least 44 px. At 1280 with a mouse: a mouse
+ * press and hold does nothing, Space toggles, Shift+click adds a range, Ctrl+A selects all, Escape unselects (in the
+ * sheet it does not close it), and a click on a row with nothing selected opens it.
+ */
+async function checkSelection() {
+  const seed = () =>
+    localStorage.setItem(
+      'editor-notifications',
+      JSON.stringify({
+        items: [3, 2, 1].map((n) => ({ text: `Selection check ${n}`, type: 'saved', at: Date.now() - n * 60000 })),
+        seen: 0,
+        told: [],
+      }),
+    );
+  const count = (page) =>
+    page
+      .locator('[role=status]')
+      .filter({ hasText: /\d+ selected/ })
+      .first()
+      .textContent();
+  const checked = (page, scope) => page.locator(`${scope} [role=checkbox][aria-checked=true]`).count();
+  for (const w of [375, 1280]) {
+    const touch = w < 600;
+    const label = `selection ${w}`;
+    const page = await browser.newPage({ viewport: { width: w, height: 800 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await page.addInitScript(seed);
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#list/pages'));
+    await page.waitForSelector('main a.list-item-container');
+    await page.waitForTimeout(500);
+    const rows = page.locator('main a.list-item-container');
+    const centre = async (i) => {
+      const row = rows.nth(i);
+      await row.scrollIntoViewIfNeeded();
+      const b = await row.boundingBox();
+      return [b.x + b.width / 2, b.y + b.height / 2];
+    };
+    const hash = () => page.evaluate(() => location.hash);
+    const here = await hash();
+    if (touch) {
+      const cdp = await page.context().newCDPSession(page);
+      const hold = async (x, y, move = 0) => {
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+        await page.waitForTimeout(250);
+        if (move) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y + move }] });
+        await page.waitForTimeout(500);
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+        await page.waitForTimeout(300);
+      };
+      const [x0, y0] = await centre(0);
+      await hold(x0, y0, 20);
+      if ((await checked(page, 'main')) || (await hash()) !== here)
+        problems.push(`${label}: a press and hold that moves 20 px selected or opened the row`);
+      await hold(x0, y0);
+      if ((await rows.nth(0).getAttribute('aria-checked')) !== 'true') problems.push(`${label}: a press and hold does not select the row`);
+      if ((await hash()) !== here) problems.push(`${label}: a press and hold opened the row`);
+      if (!/^1 selected$/.test((await count(page)) ?? '')) problems.push(`${label}: the count is not announced ("1 selected")`);
+      const [x1, y1] = await centre(1);
+      await page.touchscreen.tap(x1, y1);
+      await page.waitForTimeout(300);
+      if ((await hash()) !== here) problems.push(`${label}: a tap on a second row opened it while selecting`);
+      if ((await checked(page, 'main')) !== 2) problems.push(`${label}: a tap on a second row does not add it`);
+      for (const name of ['Close selection', /^Delete 2 selected$/]) {
+        const b = await page.getByRole('button', { name }).first().boundingBox();
+        if (!b || b.width < 44 || b.height < 44) problems.push(`${label}: "${name}" is smaller than 44 px (${b?.width}x${b?.height})`);
+      }
+      await page.touchscreen.tap(x0, y0);
+      await page.touchscreen.tap(x1, y1);
+      await page.waitForTimeout(300);
+      if (await page.getByRole('button', { name: /^Delete \d+ selected$/ }).count())
+        problems.push(`${label}: unselecting all does not end selecting`);
+      await hold(x0, y0);
+      await page.getByRole('button', { name: 'Close selection' }).click();
+      if (await checked(page, 'main')) problems.push(`${label}: Close selection does not unselect`);
+      // Back leaves selecting first and stays on the list; a second Back leaves the list. Close left no step behind.
+      await hold(x0, y0);
+      await page.goBack();
+      await page.waitForTimeout(400);
+      if ((await hash()) !== here || (await checked(page, 'main')) || (await page.getByRole('button', { name: 'Close selection' }).count()))
+        problems.push(`${label}: Back does not leave selecting first and stay on the list (${await hash()})`);
+      await page.goBack();
+      await page.waitForTimeout(400);
+      if ((await hash()) === here) problems.push(`${label}: a second Back does not leave the list (Close or Back left a step behind)`);
+    } else {
+      const [x0, y0] = await centre(0);
+      await page.mouse.move(x0, y0);
+      await page.mouse.down();
+      await page.waitForTimeout(700);
+      await page.mouse.up();
+      await page.waitForTimeout(300);
+      // A mouse press and hold is a click (it follows the link), never a selection.
+      if (await checked(page, 'main')) problems.push(`${label}: a mouse press and hold selected the row`);
+      if ((await hash()) !== here) {
+        await page.evaluate((h) => (location.hash = h), here);
+        await page.waitForSelector('main a.list-item-container');
+        await page.waitForTimeout(500);
+      }
+      await rows.nth(0).focus();
+      await page.keyboard.press('Space');
+      if (await checked(page, 'main')) problems.push(`${label}: Space selected a row before selecting had started`);
+      // Space on a link scrolls the page, as it does today.
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.getByRole('button', { name: 'Select', exact: true }).click();
+      await rows.nth(0).focus();
+      await page.keyboard.press('Space');
+      if ((await rows.nth(0).getAttribute('aria-checked')) !== 'true') problems.push(`${label}: Space does not select the row in focus`);
+      if (!/^1 selected$/.test((await count(page)) ?? '')) problems.push(`${label}: the count is not announced ("1 selected")`);
+      await rows.nth(2).click({ modifiers: ['Shift'] });
+      if ((await checked(page, 'main')) !== 3 || (await hash()) !== here)
+        problems.push(`${label}: Shift+click does not select the range (${await checked(page, 'main')})`);
+      await page.keyboard.press('Control+a');
+      const all = await rows.count();
+      if ((await checked(page, 'main')) !== all) problems.push(`${label}: Ctrl+A does not select all shown rows`);
+      await page.keyboard.press('Escape');
+      if (await checked(page, 'main')) problems.push(`${label}: Escape does not unselect`);
+      if (await page.getByRole('button', { name: 'Close selection' }).count()) problems.push(`${label}: Escape does not end selecting`);
+      await rows.nth(0).focus();
+      await page.keyboard.press('Shift+ArrowDown');
+      if ((await checked(page, 'main')) !== 2) problems.push(`${label}: Shift+Arrow does not select a range`);
+      await page.keyboard.press('Escape');
+      await rows.nth(0).click();
+      await page.waitForTimeout(300);
+      if ((await hash()) === here) problems.push(`${label}: a click on a row with nothing selected does not open it`);
+    }
+    // The notifications' sheet.
+    await page.evaluate(() => (location.hash = '#'));
+    await page
+      .getByRole('button', { name: /^Notifications/ })
+      .first()
+      .click();
+    const sheet = page.getByRole('dialog', { name: 'Notifications' });
+    await sheet.waitFor();
+    await page.waitForTimeout(600);
+    const items = sheet.locator('[role=checkbox], .list-item-container', { hasText: /Selection check/ });
+    if ((await items.count()) !== 3) {
+      problems.push(`${label}: the notifications sheet does not show the three seeded notifications`);
+    } else if (touch) {
+      const cdp = await page.context().newCDPSession(page);
+      const b = await items.nth(0).boundingBox();
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: b.x + b.width / 2, y: b.y + b.height / 2 }] });
+      await page.waitForTimeout(800);
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      await page.waitForTimeout(300);
+      if ((await checked(page, 'dialog')) !== 1) problems.push(`${label}: a press and hold does not select a notification`);
+      const b2 = await items.nth(1).boundingBox();
+      await page.touchscreen.tap(b2.x + b2.width / 2, b2.y + b2.height / 2);
+      await page.waitForTimeout(300);
+      if (!/^2 selected$/.test((await count(page)) ?? ''))
+        problems.push(`${label}: the notifications' count is not announced ("2 selected")`);
+      await sheet.getByRole('button', { name: 'Cancel' }).click();
+      if (await checked(page, 'dialog')) problems.push(`${label}: Cancel does not unselect the notifications`);
+    } else {
+      await items.nth(0).focus();
+      await page.keyboard.press('Space');
+      if (await checked(page, 'dialog')) problems.push(`${label}: Space selected a notification before selecting had started`);
+      await items.nth(0).click({ modifiers: ['Shift'] });
+      await items.nth(1).focus();
+      await page.keyboard.press('Space');
+      if ((await checked(page, 'dialog')) !== 2) problems.push(`${label}: Shift+click and Space do not select notifications`);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
+      if (await checked(page, 'dialog')) problems.push(`${label}: Escape does not unselect the notifications`);
+      if (!(await sheet.isVisible())) problems.push(`${label}: Escape with some selected closed the notifications' sheet`);
+    }
+    await page.close();
+  }
+}
+
 /** On a phone, a tap on the hint under a page's only heading (Type text, or tap Insert …) puts the cursor in an empty paragraph after it. */
 async function checkEmptyHint() {
   const page = await browser.newPage({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -1878,8 +2050,12 @@ async function checkOwnList(width, height) {
     await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
     const sheet = page.locator('dialog[open]').filter({ hasText: 'Fields' });
     await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: Edit list did not open its sheet`));
+    // The list was made in the first format (fields as kind names): it reads as it did. Each of its five fields has the owner's own `Shown` switch (on) and `Remove field`; and `Add field` is there.
     const switches = await sheet.locator('input[type="checkbox"]').count();
-    if (switches !== 6) problems.push(`${label}: Edit list has ${switches} switches, not 6`);
+    if (switches !== 5) problems.push(`${label}: Edit list has ${switches} switches, not 5`);
+    const removes = await sheet.getByRole('button', { name: 'Remove field' }).count();
+    if (removes !== 5) problems.push(`${label}: Edit list has ${removes} Remove field buttons, not 5`);
+    if (!(await sheet.getByRole('button', { name: 'Add field' }).count())) problems.push(`${label}: Edit list has no Add field`);
     if (!(await sheet.getByRole('button', { name: 'Delete list' }).count())) problems.push(`${label}: Edit list has no Delete list`);
     if (!(await sheet.getByLabel('Name').count())) problems.push(`${label}: Edit list has no name field`);
     await sheet.locator('[aria-label="Close"]').first().click();
@@ -1898,7 +2074,10 @@ async function checkOwnList(width, height) {
   }
 }
 
-/** `New list` on the Lists screen (batch 7): the button opens the dialog (name, the six fields, `Cancel` outlined, `Create` filled, no initial focus); a name that is taken is refused; `Create` makes the list, which opens, and shows under Lists and in Rows from. No horizontal overflow. */
+/** The text of a committed file: the commit proxy gets it base64 encoded. */
+const decoded = (content) => Buffer.from(content ?? '', 'base64').toString() || '{}';
+
+/** `New list` on the Lists screen: the button opens the dialog (the name only, `Cancel` outlined, `Create` filled, no initial focus); a name that is taken is refused; `Create` makes a list with no fields, which opens saying so with `Add field`; two body text fields are added, a row is typed in both and both values are saved and shown; the list shows under Lists and in Rows from. No horizontal overflow. */
 async function checkNewList(width, height, label) {
   label = `${label} new`;
   const phone = width < 600;
@@ -1916,9 +2095,9 @@ async function checkNewList(width, height, label) {
     const button = page.getByRole('button', { name: 'New list' }).first();
     await button.waitFor({ timeout: 15000 }).catch(() => problems.push(`${label}: no New list button on Lists`));
     await button.click();
-    const dialog = page.locator('dialog[open]').filter({ hasText: 'Fields' });
+    const dialog = page.locator('dialog[open][aria-label="New list"]');
     await dialog.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: New list did not open its dialog`));
-    if ((await dialog.locator('input[type="checkbox"]').count()) !== 6) problems.push(`${label}: the dialog has not 6 field switches`);
+    if ((await dialog.locator('input[type="checkbox"]').count()) !== 0) problems.push(`${label}: the dialog still has field switches`);
     const state = await page.evaluate(() => {
       const d = document.querySelector('dialog[open]');
       const kind = (name) =>
@@ -1949,9 +2128,66 @@ async function checkNewList(width, height, label) {
     await page
       .waitForFunction(() => location.hash === '#list/zz-fresh-list', null, { timeout: 15000 })
       .catch(() => problems.push(`${label}: Create did not open the new list (${'#' + new URL(page.url()).hash})`));
+    // The list starts empty: its page says so and has `Add field`; the definition has no field.
     await page
-      .waitForSelector('.inline-list-row-next, .inline-list-row[data-row]', { timeout: 15000 })
-      .catch(() => problems.push(`${label}: the new list's page has no row`));
+      .getByText('This list has no fields yet. Add the first one.')
+      .waitFor({ timeout: 15000 })
+      .catch(() => problems.push(`${label}: the new list's page does not say it has no fields`));
+    if (await page.locator('.inline-list-row').locator('visible=true').count()) problems.push(`${label}: an empty list shows a row`);
+    const made = commits[0]?.changes.find((x) => x.path.endsWith('_list.json'));
+    if (JSON.parse(decoded(made?.content)).fields?.length !== 0)
+      problems.push(`${label}: the new list's definition is not empty (${made?.content})`);
+    // Two body texts: the empty page's Add field, then Body text; the second through Edit list (the empty page's button is gone once there is a field).
+    const pick = async (n) => {
+      await page
+        .getByRole('menuitem', { name: 'Body text' })
+        .locator('visible=true')
+        .first()
+        .click()
+        .catch(() => problems.push(`${label}: Add field has no Body text (${n})`));
+      await page.waitForTimeout(700);
+    };
+    await page
+      .getByRole('button', { name: 'Add field' })
+      .first()
+      .click()
+      .catch(() => problems.push(`${label}: no Add field on the empty list`));
+    await pick(0);
+    await page.getByRole('button', { name: 'List menu' }).first().click();
+    await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
+    const edit = page.locator('dialog[open]').filter({ hasText: 'Fields' });
+    await edit.getByRole('button', { name: 'Add field' }).click();
+    await pick(1);
+    if ((await edit.locator('input[type="checkbox"]').count()) !== 2)
+      problems.push(`${label}: Edit list does not show two fields with a switch each`);
+    await edit.locator('[aria-label="Close"]').first().click();
+    await page.waitForTimeout(300);
+    await page
+      .waitForSelector('.inline-list-row-next [data-field="text"]', { timeout: 15000 })
+      .catch(() => problems.push(`${label}: the first body text field did not show on the list's page`));
+    // The name is inside the text field; the second body text is numbered.
+    await page.locator('.inline-list-row-next [data-field="text"]').first().click();
+    await page
+      .waitForSelector('.inline-list-row-active [data-field="text-2"]', { timeout: 15000 })
+      .catch(() => problems.push(`${label}: two body text fields did not show on the active row`));
+    const names = await page.evaluate(() =>
+      [...document.querySelectorAll('.inline-list-row-active [data-field]')].map((f) => f.getAttribute('placeholder')),
+    );
+    if (names.join() !== 'Body text,Body text 2') problems.push(`${label}: the fields are not named Body text and Body text 2 (${names})`);
+    // A row typed in both fields: both values are saved (one file, both ids) and shown.
+    await page.keyboard.type('First line');
+    await page.keyboard.press('Enter');
+    await page.keyboard.type('Second line');
+    await page.waitForTimeout(1800);
+    const entry = commits.flatMap((c) => c.changes).find((x) => /src\/data\/zz-fresh-list\/(?!_)[^/]+\.json$/.test(x.path));
+    const saved = JSON.parse(decoded(entry?.content));
+    if (saved.text !== 'First line' || saved['text-2'] !== 'Second line')
+      problems.push(`${label}: the row was not saved with both body texts (${entry?.content})`);
+    const shown = await page.evaluate(() => [...document.querySelectorAll('.inline-list-row [data-field]')].map((f) => f.value));
+    if (!shown.includes('First line') || !shown.includes('Second line'))
+      problems.push(`${label}: the row does not show both values (${shown})`);
+    if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
+      problems.push(`${label}: the list page scrolls sideways with two fields`);
     // It shows under Lists and in Rows from.
     await page.evaluate(() => (location.hash = '#lists'));
     await page
@@ -1961,8 +2197,8 @@ async function checkNewList(width, height, label) {
       .catch(() => problems.push(`${label}: the new list does not show under Lists`));
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) problems.push(`${label}: Lists scrolls sideways`);
     const paths = commits.flatMap((c) => c.changes.map((x) => x.path));
-    if (commits.length !== 1 || !paths.some((p) => p.endsWith('src/data/zz-fresh-list/_list.json')))
-      problems.push(`${label}: Create did not commit the definition once (${commits.length} commits: ${paths})`);
+    if (!paths.some((p) => p.endsWith('src/data/zz-fresh-list/_list.json')))
+      problems.push(`${label}: Create did not commit the definition (${paths})`);
     // Rows from offers it: a list typed on a new page, its dynamic settings, the choice of lists.
     await page.evaluate(() => (location.hash = '#new/pages'));
     await page.waitForSelector('.ProseMirror');
@@ -2082,14 +2318,35 @@ async function checkCardsCarousel(width, height) {
     if (m.indicator !== 'none' || m.showAll !== 'none')
       problems.push(`${label}: on a computer the dots (${m.indicator}) or "Show all" (${m.showAll}) show`);
   }
+  // A card's media (image or video still) sits flush against the card's top and sides: no padding or margin above it.
+  const flush = await page.evaluate(() =>
+    [...document.querySelectorAll('.block-card')].flatMap((card) => {
+      const media = card.querySelector('.block-card-picture, .block-card-video');
+      if (!media) return [];
+      const c = card.getBoundingClientRect();
+      const m = media.getBoundingClientRect();
+      const border = parseFloat(getComputedStyle(card).borderTopWidth);
+      const gaps = [m.top - c.top - border, m.left - c.left - border, c.right - border - m.right].map((n) => Math.round(n * 10) / 10);
+      return gaps.some((g) => Math.abs(g) > 0.5)
+        ? [`${card.querySelector('.block-card-title')?.textContent}: top, left, right gaps ${gaps}`]
+        : [];
+    }),
+  );
+  for (const f of flush) problems.push(`${label}: a card's media is not flush with the card (${f})`);
   await page.close();
 }
 
 /** The color of an icon (`iconColor`): the row's icon picker has the choice next to the icon (Primary, Secondary, Tertiary); a picked color is on the row (`data-icon-color`) and drawn in the theme's color role, in the editor like on the site. */
-async function checkIconColor(width, height) {
-  const label = `${width}px icon color`;
+async function checkIconColor(width, height, scheme = 'light') {
+  const label = `${width}px icon color (${scheme})`;
   const phone = width < 600;
-  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  const page = await browser.newPage({
+    viewport: { width, height },
+    hasTouch: phone,
+    isMobile: phone,
+    locale: 'en-US',
+    colorScheme: scheme,
+  });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#new/pages'));
@@ -2173,7 +2430,70 @@ async function checkIconColor(width, height) {
       `${label}: the chips changed width when the choice changed (${before.map((c) => c.width)} to ${after.map((c) => c.width)})`,
     );
   if (after.some((c) => !c.circle || c.check)) problems.push(`${label}: after the choice changed a chip lost its circle or got a check`);
-  await page.screenshot({ path: join(shots, `icon-color-${width}.png`) });
+  await page.screenshot({ path: join(shots, `icon-color-${width}${scheme === 'dark' ? '-dark' : ''}.png`) });
+  // The picker's grid draws its icons in the picked color (the chosen icon keeps its own colors): Secondary now, then Tertiary, then Primary (the default, not a role's color).
+  const gridColors = () =>
+    page.evaluate(() => {
+      const grid = [...document.querySelectorAll('[role="group"][aria-label="Icon"]')].pop();
+      const probe = document.createElement('i');
+      document.body.append(probe);
+      const roleColor = (role) => {
+        probe.style.color = `var(--mo-${role})`;
+        return getComputedStyle(probe).color;
+      };
+      const tiles = [...(grid?.querySelectorAll('button:not([aria-pressed="true"])') ?? [])].filter((b) => b.querySelector('svg'));
+      const colors = [...new Set(tiles.map((b) => getComputedStyle(b).color))];
+      // The contrast of the icons on what is behind the tile (WCAG, 3:1 for an icon), as the pixels are painted.
+      const pixel = (css) => {
+        const c = document.createElement('canvas').getContext('2d');
+        c.canvas.width = c.canvas.height = 1;
+        c.fillStyle = '#000';
+        c.fillRect(0, 0, 1, 1);
+        c.fillStyle = css;
+        c.fillRect(0, 0, 1, 1);
+        return [...c.getImageData(0, 0, 1, 1).data];
+      };
+      const lum = ([r, g, b]) =>
+        [r, g, b]
+          .map((v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
+          .reduce((a, v, i) => a + v * [0.2126, 0.7152, 0.0722][i], 0);
+      let behind = 'rgb(0, 0, 0)';
+      for (let n = tiles[0]; n; n = n.parentElement) {
+        const bg = getComputedStyle(n).backgroundColor;
+        if (n !== tiles[0] && pixel(bg).join() !== '0,0,0,255' && !/rgba\(.*, 0\)|transparent/.test(bg)) {
+          behind = bg;
+          break;
+        }
+      }
+      const [a, b] = [lum(pixel(colors[0] ?? '#000')), lum(pixel(behind))].sort((x, y) => y - x);
+      const out = {
+        contrast: (a + 0.05) / (b + 0.05),
+        count: tiles.length,
+        colors,
+        secondary: roleColor('secondary'),
+        tertiary: roleColor('tertiary'),
+      };
+      probe.remove();
+      return out;
+    });
+  const grid = await gridColors();
+  if (grid.count < 5) problems.push(`${label}: the picker's grid has only ${grid.count} unchosen icons`);
+  else if (grid.colors.join() !== grid.secondary)
+    problems.push(`${label}: after Secondary the grid's icons are ${grid.colors.join(' / ')}, not the secondary color ${grid.secondary}`);
+  console.log(`icon grid contrast ${width}px ${scheme} secondary: ${grid.contrast.toFixed(2)}`);
+  if (grid.contrast < 3) problems.push(`${label}: the secondary icons on the grid have contrast ${grid.contrast.toFixed(2)}:1, under 3:1`);
+  await page.getByRole('button', { name: 'Tertiary', exact: true }).click();
+  await page.waitForTimeout(300);
+  const tertiary = await gridColors();
+  console.log(`icon grid contrast ${width}px ${scheme} tertiary: ${tertiary.contrast.toFixed(2)}`);
+  if (tertiary.contrast < 3)
+    problems.push(`${label}: the tertiary icons on the grid have contrast ${tertiary.contrast.toFixed(2)}:1, under 3:1`);
+  if (tertiary.colors.join() !== tertiary.tertiary)
+    problems.push(
+      `${label}: after Tertiary the grid's icons are ${tertiary.colors.join(' / ')}, not the tertiary color ${tertiary.tertiary}`,
+    );
+  await page.getByRole('button', { name: 'Secondary', exact: true }).click();
+  await page.waitForTimeout(300);
   await page
     .locator('dialog[open] button[aria-label="Close"]')
     .click({ timeout: 2000 })
@@ -2235,6 +2555,7 @@ async function checkInlineTable(width, height) {
         label: b.getAttribute('aria-label'),
         title: b.title,
         svg: !!b.querySelector('svg path'),
+        icon: [...b.querySelectorAll('svg path')].map((p) => p.getAttribute('d')).join('|'),
       })),
     }));
   const press = async (name) => {
@@ -2272,7 +2593,11 @@ async function checkInlineTable(width, height) {
     );
   if (more.extra || more.faded) problems.push(`${label}: the table has "Next row", "Next column" or "Add row" in it after adding`);
   for (const name of ['Delete row', 'Delete column'])
-    if (!more.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the menu has no icon button "${name}"`);
+    if (!more.bar.some((b) => b.label === name && b.svg && b.title === name))
+      problems.push(`${label}: the menu has no icon button "${name}"`);
+  const icons = more.bar.map((b) => b.icon);
+  const same = more.bar.filter((b, i) => b.icon && icons.indexOf(b.icon) !== i).map((b) => b.label);
+  if (same.length) problems.push(`${label}: the Table bar draws the same icon for two actions (${same.join(', ')})`);
   await press('Delete row');
   await press('Delete column');
   const less = await state();
@@ -2330,6 +2655,139 @@ async function checkInlineTable(width, height) {
   // The added rows and columns are empty, so the table keeps only what was typed; the kept cells are the same on every redraw.
   if (after.rows < 1 || after.cols < 1)
     problems.push(`${label}: the table lost its cells after leaving (${after.rows} rows of ${after.cols})`);
+  await page.close();
+}
+
+/** A Table's column alignment (375 and 1280 px): a column of numbers is right-aligned, header and cells, and a text column left, in the editor typed in place and on the built site (/blocks/); the bar's Align column left, Centre column, Align column right and Align column automatically change the column of the active cell (the pressed one shown), and the choice is saved with the block (`columns`, a second save writes the same text). */
+async function checkTableAlign(width, height) {
+  const label = `${width}px table alignment`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  // The built site: the demo's Table has a column of numbers (Editors) and text columns.
+  await page.goto(`${site}/blocks/`);
+  const built = await page.evaluate(() => {
+    const at = (sel) => getComputedStyle(document.querySelector(sel)).textAlign;
+    return {
+      textHead: at('.block-table-grid thead th:nth-child(1)'),
+      textCell: at('.block-table-grid tbody tr:first-child td:nth-child(1)'),
+      numberHead: at('.block-table-grid thead th:nth-child(3)'),
+      numberCell: at('.block-table-grid tbody tr:first-child td:nth-child(3)'),
+      mixedCell: at('.block-table-grid tbody tr:first-child td:nth-child(2)'),
+    };
+  });
+  const start = (v) => v === 'start' || v === 'left';
+  const end = (v) => v === 'end' || v === 'right';
+  if (!start(built.textHead) || !start(built.textCell))
+    problems.push(`${label}: the site's text column is not left-aligned (${built.textHead}, ${built.textCell})`);
+  if (!end(built.numberHead) || !end(built.numberCell))
+    problems.push(`${label}: the site's number column is not right-aligned (${built.numberHead}, ${built.numberCell})`);
+  if (!start(built.mixedCell)) problems.push(`${label}: a column with a word in it is not left-aligned on the site (${built.mixedCell})`);
+  await openEditor(page, site);
+  const commits = [];
+  await page.route('**/api/github/commit', (r) => {
+    commits.push(JSON.parse(r.request().postData() || '{}'));
+    return r.fulfill({ contentType: 'application/json', body: JSON.stringify({ commit: 'head', blobs: {} }) });
+  });
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
+  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
+  await page.waitForSelector('.inline-table-cell-active textarea');
+  const cellField = (r, c) => page.locator(`.inline-table-box [data-row="${r}"] [data-field="${c}"]`);
+  const menu = async (name) => {
+    await page
+      .locator(`.contextual-menu button[aria-label="${name}"]`)
+      .first()
+      .evaluate((b) => b.click());
+    await page.waitForTimeout(250);
+  };
+  // The table is made with the menu (no Next row or Next column in it): Text | Number, and two rows under them.
+  await page.keyboard.type('Text');
+  await menu('Add column after');
+  await page.keyboard.type('Number');
+  await menu('Add row below');
+  await page.keyboard.type('7');
+  await menu('Add row below');
+  await page.keyboard.type('7');
+  await cellField(1, 0).click();
+  await page.keyboard.type('a');
+  const aligns = () =>
+    page.evaluate(() => {
+      const at = (sel) => getComputedStyle(document.querySelector(sel)).textAlign;
+      return {
+        textHead: at('.inline-table-box thead th:nth-child(1)'),
+        numberHead: at('.inline-table-box thead th:nth-child(2)'),
+        numberCell: at('.inline-table-box [data-row="1"] td:nth-child(2)'),
+        numberField: at('.inline-table-box [data-row="1"] td:nth-child(2) textarea'),
+      };
+    });
+  const auto = await aligns();
+  if (!start(auto.textHead)) problems.push(`${label}: the editor's text column is not left-aligned (${auto.textHead})`);
+  if (!end(auto.numberHead) || !end(auto.numberCell) || !end(auto.numberField))
+    problems.push(`${label}: the editor's number column is not right-aligned (${JSON.stringify(auto)})`);
+  // The bar changes the column of the active cell.
+  const bar = () =>
+    page.evaluate(() =>
+      Object.fromEntries(
+        [...document.querySelectorAll('.contextual-menu button[aria-pressed]')]
+          .filter((b) => /column/.test(b.getAttribute('aria-label')) && /lign|entre/.test(b.getAttribute('aria-label')))
+          .map((b) => [b.getAttribute('aria-label'), b.getAttribute('aria-pressed')]),
+      ),
+    );
+  await cellField(1, 1).click();
+  const names = ['Align column left', 'Centre column', 'Align column right', 'Align column automatically'];
+  const first = await bar();
+  for (const n of names) if (!(n in first)) problems.push(`${label}: the bar has no "${n}" button (${Object.keys(first)})`);
+  if (first['Align column automatically'] !== 'true')
+    problems.push(`${label}: Automatic is not shown pressed on a column without a choice`);
+  const press = async (name) => {
+    await page
+      .getByRole('button', { name, exact: true })
+      .first()
+      .evaluate((b) => b.click());
+    await page.waitForTimeout(300);
+  };
+  await press('Align column left');
+  const left = await aligns();
+  if (!start(left.numberHead) || !start(left.numberCell))
+    problems.push(`${label}: Align column left left the number column ${JSON.stringify(left)}`);
+  if (!start(left.textHead)) problems.push(`${label}: another column changed with Align column left (${left.textHead})`);
+  if ((await bar())['Align column left'] !== 'true') problems.push(`${label}: Align column left is not shown pressed after it was chosen`);
+  await press('Centre column');
+  if ((await aligns()).numberCell !== 'center') problems.push(`${label}: Centre column did not centre the number column`);
+  await page.screenshot({ path: join(shots, `table-align-${width}.png`) });
+  await press('Align column right');
+  await press('Align column automatically');
+  if (!end((await aligns()).numberCell))
+    problems.push(`${label}: Align column automatically did not bring back the right alignment of numbers`);
+  // Centre the text column and save: the choice is in the saved text, and a second save writes the same.
+  await cellField(0, 0).click();
+  await press('Centre column');
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(300);
+  const saved = async () => {
+    const before = commits.length;
+    // A page with nothing changed has no Save draft to press: nothing is written a second time.
+    if (!(await page.locator('button', { hasText: /^Save draft$/ }).count())) return [];
+    await page
+      .locator('button', { hasText: /^Save draft$/ })
+      .first()
+      .evaluate((b) => b.click());
+    await page.waitForTimeout(900);
+    return commits.slice(before).flatMap((c) => c.changes.map((x) => Buffer.from(x.content ?? '', 'base64').toString('utf8')));
+  };
+  const one = await saved();
+  const text = one.find((t) => t.includes('data-block="table"')) ?? '';
+  if (!/columns[^\]]*center/.test(text)) problems.push(`${label}: the saved page does not carry the column's alignment`);
+  if (/columns[^\]]*right/.test(text)) problems.push(`${label}: an automatic column was saved with a fixed alignment`);
+  const two = await saved();
+  if (two.length && two.join() !== one.join()) problems.push(`${label}: a second save wrote another text`);
   await page.close();
 }
 
@@ -2821,6 +3279,28 @@ async function checkTapBelowSection(width, touch) {
   await page.close();
 }
 
+/** The editor's footer links (Support, System status, the legal links, Licenses) are touch targets of at least 48px high at 375px with touch, 44px with a pointer (m3.material.io/foundations/designing/structure), and the lines of a wrapped row are 8px apart or more. */
+async function checkFooterTargets(touch) {
+  const width = touch ? 375 : 1280;
+  const page = await browser.newPage({ viewport: { width, height: touch ? 800 : 900 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px footer links: ${e.message}`));
+  await openEditor(page, site);
+  await page.waitForSelector('footer nav a');
+  const boxes = await page.evaluate(() =>
+    [...document.querySelectorAll('footer nav a')].map((a) => ({ name: a.textContent.trim(), ...a.getBoundingClientRect().toJSON() })),
+  );
+  const min = touch ? 48 : 44;
+  if (boxes.length < 4) problems.push(`${width}px footer links: only ${boxes.length} found`);
+  for (const b of boxes)
+    if (b.height < min - 0.5 || b.width < min - 0.5)
+      problems.push(`${width}px footer link "${b.name}": ${b.width}x${b.height}px, should be ${min}px or more each way`);
+  for (const a of boxes)
+    for (const b of boxes)
+      if (a !== b && b.top >= a.bottom - 0.5 && b.top - a.bottom < 8 - 0.5 && b.left < a.right && b.right > a.left)
+        problems.push(`${width}px footer links "${a.name}" and "${b.name}": ${b.top - a.bottom}px apart, should be 8px or more`);
+  await page.close();
+}
+
 /** A page's accordion rows (FoldSection): between its divider lines the title has the same space above and below it (within 1px, measured on the pixels of the first capital, not the line box), the arrow is centred on the title, and the row stays 48px tall or more (360, 375, 390, 414 px and a computer). */
 async function checkFoldRows(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US', deviceScaleFactor: 2 });
@@ -2909,6 +3389,48 @@ async function checkEntrySettings(width, height) {
       const section = page.locator('section[aria-labelledby]').filter({ has: page.locator('h2', { hasText: folds }) });
       const text = await section.first().textContent();
       for (const label of fields) if (!text.includes(label)) problems.push(`${width}px ${hash}: "${folds}" lacks "${label}"`);
+    }
+    await page.close();
+  }
+}
+
+/** "Search engines" of a new page and a new post has the switch "No follow" (off) directly after "No index" (width, height). */
+async function checkNofollowSwitch(width, height) {
+  for (const hash of ['#new/pages', '#new/blog']) {
+    const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${width}px ${hash} nofollow: ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate((h) => (location.hash = h), hash);
+    const buttons = page.locator('section[aria-labelledby] > h2 > button[aria-expanded]');
+    await buttons.first().waitFor();
+    await page.waitForTimeout(300);
+    const seo = buttons.filter({ hasText: 'Search engines' });
+    if (!(await seo.count())) {
+      problems.push(`${width}px ${hash} nofollow: no "Search engines" fold`);
+      await page.close();
+      continue;
+    }
+    if ((await seo.first().getAttribute('aria-expanded')) !== 'true') await seo.first().click();
+    const section = page
+      .locator('section[aria-labelledby]')
+      .filter({ has: page.locator('h2', { hasText: 'Search engines' }) })
+      .first();
+    const labels = await section
+      .locator('[role="switch"], input[type="checkbox"]')
+      .evaluateAll((els) =>
+        els.map((el) => (el.closest('label') ?? el.parentElement)?.textContent?.trim() ?? el.getAttribute('aria-label') ?? ''),
+      );
+    const at = (text) => labels.findIndex((l) => l.includes(text));
+    const [hide, follow] = [at('No index'), at('No follow')];
+    if (hide < 0) problems.push(`${width}px ${hash} nofollow: no "No index" switch (${labels.join(' | ')})`);
+    else if (follow !== hide + 1)
+      problems.push(`${width}px ${hash} nofollow: "No follow" is not the switch right after "No index" (${labels.join(' | ')})`);
+    else {
+      const on = await section
+        .locator('[role="switch"], input[type="checkbox"]')
+        .nth(follow)
+        .evaluate((el) => el.getAttribute('aria-checked') ?? String(el.checked));
+      if (on !== 'false') problems.push(`${width}px ${hash} nofollow: the switch is not off by default`);
     }
     await page.close();
   }
@@ -3458,13 +3980,14 @@ for (const [width, height] of [
   await checkDraftsCard(width, height);
 await checkEmptyHint();
 await checkLongPressDelete();
+await checkSelection();
 await checkUnlistedPost();
 for (const [width, height] of [
   [375, 740],
   [1280, 900],
 ]) {
   await checkCardsCarousel(width, height);
-  await checkIconColor(width, height);
+  for (const scheme of ['light', 'dark']) await checkIconColor(width, height, scheme);
 }
 for (const [width, height] of [
   [375, 740],
@@ -3503,6 +4026,9 @@ await checkOwnList(375, 740);
 await checkOwnList(1280, 900);
 await checkInlineTable(375, 740);
 await checkInlineTable(1280, 800);
+await checkTableAlign(375, 740);
+await checkTableAlign(1280, 800);
+
 await checkTableRadius(375, 740);
 await checkTableRadius(1280, 800);
 for (const [width, height] of [
@@ -3528,7 +4054,10 @@ for (const [width, height] of [
 ]) {
   await checkFoldRows(width, height);
   await checkEntrySettings(width, height);
+  await checkNofollowSwitch(width, height);
 }
+await checkFooterTargets(true);
+await checkFooterTargets(false);
 await checkToolbarBox();
 await checkPreviewSection();
 await checkFullSection();

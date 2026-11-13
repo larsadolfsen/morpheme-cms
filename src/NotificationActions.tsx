@@ -1,8 +1,9 @@
 // The buttons at the bottom of the notifications' side sheet (Notifications.tsx): while some are selected, one deletes
 // them and one unselects them; else one clears all and one opens "Account" to choose the types. Exposes NotificationActions.
-// Uses Button and LinkButton (ui.tsx) and the texts in t.library.
-import { SlidersHorizontal, Trash, X } from '@phosphor-icons/react';
+// Uses SelectionBar, Button and LinkButton (ui.tsx) and the texts in t.library.
+import { SlidersHorizontal, Trash } from '@phosphor-icons/react';
 import { Button, LinkButton } from './ui';
+import SelectionBar from './SelectionBar';
 import { t } from './i18n';
 
 export default function NotificationActions({
@@ -20,14 +21,11 @@ export default function NotificationActions({
   onClear: () => void;
 }) {
   return selected ? (
-    <>
+    <SelectionBar kind="buttons" count={selected} onClose={onUnselect}>
       <Button kind="text" icon={Trash} onClick={onDelete}>
         {t.library.deleteSelected(selected)}
       </Button>
-      <Button kind="text" icon={X} onClick={onUnselect}>
-        {t.library.cancelSelection}
-      </Button>
-    </>
+    </SelectionBar>
   ) : (
     <>
       <Button kind="text" icon={Trash} disabled={!hasItems} onClick={onClear}>

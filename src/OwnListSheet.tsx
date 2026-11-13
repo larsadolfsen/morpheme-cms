@@ -1,17 +1,31 @@
-// `Edit list` (docs/superpowers/plans/2026-11-12-new-list.md, batch 6): a bottom sheet over the page of a list the owner made, with its name, a switch for
-// each of the six fields (the title is always on) and `Delete list` at the bottom. A name is saved when the field is left, a switch at once, each in its
-// own commit of `_list.json`. A field switched off is only hidden (`dropped`): its data stays in the items, and the sheet says in how many, with
-// `Remove data` (it asks, then takes the key out of every item and out of the definition in one commit). `Delete list` is refused while a page or an
+// `Edit list` (docs/superpowers/plans/2026-11-12-new-list.md, batch 6; the owner's decision of 13 November): a bottom sheet over the page of a list the owner
+// made, with its name, its fields (each with a name the owner can change and `Remove field`; `Add field` adds one of any kind, as many of a kind as wanted)
+// and `Delete list` at the bottom. A name is saved when the field is left, each change in its own commit of `_list.json`. A field belongs to the list and is on
+// by default; only the owner's own `Shown` switch hides it (`dropped`): its data stays in the items, and the sheet says in how many, with `Remove data`.
+// `Remove field` asks, then takes the field and its data out of every item in one commit. `Delete list` is refused while a page or an
 // app reads the list; else it asks, then deletes the entries and the definition in one commit (they stay in the history, under Deleted). The rules
 // are lib/ownList.mjs and lib/ownListEdit.mjs.
 import { useEffect, useImperativeHandle, useRef, useState, type CSSProperties, type Ref } from 'react';
 import { BottomSheet, Button, SheetBody, SheetTitle, SwitchRow, SupportingText, TextField } from './ui';
+import AddFieldMenu from './AddFieldMenu';
+import { kindNames } from './ownLists';
 import { ask } from './ask';
 import { ConflictError, type RepoFile } from './github';
 import { siteT, t } from './i18n';
 import { kindAndName, lower, savedText } from './deploy';
-import { FIELDS, parseDefinition } from '../lib/ownList.mjs';
-import { confirmDrop, definitionText, entriesIn, filesOfList, heldBy, listUses, renamed, toggleField } from '../lib/ownListEdit.mjs';
+import { nameOf, parseDefinition } from '../lib/ownList.mjs';
+import {
+  addField,
+  confirmDrop,
+  definitionText,
+  entriesIn,
+  filesOfList,
+  heldBy,
+  listUses,
+  renamed,
+  renameField,
+  toggleField,
+} from '../lib/ownListEdit.mjs';
 import type { OwnedList } from './schema';
 import type { Env } from './App';
 
@@ -23,10 +37,11 @@ export default function OwnListSheet({
   onClose,
   onRemoved,
   onDeleting,
+  onAdded,
   ref,
 }: {
   /** `remove`: the list menu's `Delete list`, which asks and deletes without opening the sheet. */
-  ref?: Ref<{ remove: () => void }>;
+  ref?: Ref<{ remove: () => void; add: (kind: string) => void }>;
   collection: OwnedList;
   files: RepoFile[];
   env: Env;
@@ -36,6 +51,8 @@ export default function OwnListSheet({
   onRemoved: (field: string, saved: { path: string; oid: string; text: string }[]) => void;
   /** The list is being deleted: the page stops saving it. */
   onDeleting: () => void;
+  /** A field was added. */
+  onAdded?: () => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const path = `${collection.folder}/_list.json`;
@@ -44,6 +61,8 @@ export default function OwnListSheet({
   const definition = file ? parseDefinition(file.text).definition : undefined;
   const [label, setLabel] = useState(definition?.label ?? collection.label);
   const [busy, setBusy] = useState(false);
+  const addAt = useRef<HTMLSpanElement>(null);
+  const [adding, setAdding] = useState(false);
   useEffect(() => {
     const sheet = dialog.current;
     if (open && sheet && !sheet.open) sheet.showModal();
@@ -85,7 +104,14 @@ export default function OwnListSheet({
     }
   }
 
-  useImperativeHandle(ref, () => ({ remove: () => void deleteList() }));
+  useImperativeHandle(ref, () => ({ remove: () => void deleteList(), add: (kind: string) => void add(kind) }));
+
+  /** Adds a field of a kind at the end (any number of one kind) and saves the definition. */
+  async function add(kind: string) {
+    if (!definition) return;
+    const saved = await write(addField(definition, kind).definition);
+    if (saved) onAdded?.();
+  }
 
   const rename = () => {
     if (!definition) return;
@@ -97,11 +123,12 @@ export default function OwnListSheet({
   const dropped = definition.dropped ?? [];
   const entries = entriesIn(files, collection.folder);
 
-  async function remove(field: string) {
-    const name = FIELDS.some((f) => f.id === field) ? t.ownList[field as keyof typeof t.ownList] : field;
+  async function remove(field: string, confirm: string) {
+    const f = definition!.fields.find((x: { id: string }) => x.id === field);
+    const name = f ? nameOf(definition!, f, kindNames()) : field;
     const n = heldBy(entries, field);
-    if (!(await ask(t.ownList.removeDataAsk(String(name), n), t.ownList.removeData))) return;
-    const done = confirmDrop(definition, field, entries);
+    if (!(await ask(t.ownList.removeDataAsk(String(name), n), confirm))) return;
+    const done = confirmDrop(definition!, field, entries);
     const saved = await write(done.definition, done.entries);
     if (saved) onRemoved(field, saved);
   }
@@ -151,16 +178,25 @@ export default function OwnListSheet({
         />
         <div>
           <p className="mb-1 font-medium">{t.ownList.fields}</p>
-          {FIELDS.map((f) => {
-            const on = definition.fields.includes(f.id) && !dropped.includes(f.id);
-            const held = dropped.includes(f.id) ? heldBy(entries, f.id) : 0;
+          {definition.fields.map((f: { id: string; kind: string; label?: string }) => {
+            const off = dropped.includes(f.id);
+            const held = off ? heldBy(entries, f.id) : 0;
             return (
-              <div key={f.id}>
+              <div key={f.id} className="mb-3">
+                <FieldName
+                  kind={t.ownList[f.kind as 'icon']}
+                  value={nameOf(definition, f, kindNames())}
+                  disabled={busy}
+                  onSave={(name) => {
+                    const own = name.trim() === nameOf(definition, { ...f, label: undefined }, kindNames()) ? '' : name;
+                    if (own !== (f.label ?? '')) void write(renameField(definition, f.id, own));
+                  }}
+                />
                 <SwitchRow
-                  label={t.ownList[f.id as 'icon']}
-                  selected={on}
-                  disabled={busy || f.id === 'title'}
-                  // Off: nothing to keep when no item has data for it, so it is removed at once; else it is hidden until the data is removed.
+                  label={t.ownList.shown}
+                  selected={!off}
+                  disabled={busy}
+                  // The owner's own choice, on for every new field. Off: nothing to keep when no item has data for it, so it is removed at once; else it is hidden until the data is removed.
                   onChange={(selected) =>
                     void write(
                       selected || heldBy(entries, f.id) > 0
@@ -169,20 +205,29 @@ export default function OwnListSheet({
                     )
                   }
                 />
-                {f.id === 'title' && <SupportingText className="mt-1">{t.ownList.titleOn}</SupportingText>}
-                {dropped.includes(f.id) && (
+                {off ? (
                   <div className="mb-2">
                     <SupportingText>{t.ownList.held(held)}</SupportingText>
                     {held > 0 && (
-                      <Button kind="text" disabled={busy} onClick={() => void remove(f.id)}>
+                      <Button kind="text" disabled={busy} onClick={() => void remove(f.id, t.ownList.removeData)}>
                         {t.ownList.removeData}
                       </Button>
                     )}
                   </div>
+                ) : (
+                  <Button kind="text" disabled={busy} onClick={() => void remove(f.id, t.ownList.removeField)}>
+                    {t.ownList.removeField}
+                  </Button>
                 )}
               </div>
             );
           })}
+          <span ref={addAt} className="inline-block">
+            <Button kind="outlined" disabled={busy} aria-haspopup="menu" aria-expanded={adding} onClick={() => setAdding(!adding)}>
+              {t.ownList.addField}
+            </Button>
+          </span>
+          <AddFieldMenu anchor={adding ? addAt.current : null} onPick={(kind) => void add(kind)} onClose={() => setAdding(false)} />
         </div>
         <Button
           kind="text"
@@ -194,5 +239,21 @@ export default function OwnListSheet({
         </Button>
       </SheetBody>
     </BottomSheet>
+  );
+}
+
+/** A field's name: typed, and saved when the box is left or Enter is pressed. */
+function FieldName({ kind, value, disabled, onSave }: { kind: string; value: string; disabled: boolean; onSave: (name: string) => void }) {
+  const [text, setText] = useState(value);
+  useEffect(() => setText(value), [value]);
+  return (
+    <TextField
+      label={`${t.ownList.fieldName} (${kind.toLowerCase()})`}
+      value={text}
+      disabled={disabled}
+      onChange={(e) => setText(e.target.value)}
+      onBlur={() => onSave(text)}
+      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), onSave(text))}
+    />
   );
 }

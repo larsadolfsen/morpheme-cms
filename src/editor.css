@@ -951,6 +951,26 @@ html {
   margin-bottom: 0.25rem;
 }
 
+/* A row of a list the owner made: its fields stacked in the order they were added; a slot has its name above it. */
+.editor-text .inline-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  white-space: normal;
+}
+
+.editor-text .inline-field-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+}
+
+.editor-text .inline-field-name {
+  color: var(--mo-on-surface-variant);
+  font-size: var(--type-body-small-size, 0.75rem);
+}
+
 /* The icon and link slots before the heading of the active row of a Segmented list. */
 .editor-text .inline-segmented-slots {
   display: inline-flex;
@@ -1047,6 +1067,11 @@ html {
 /* In a list the row's icon button is the heading's colour, as the icon is on the site (blocks.css, .block-list). */
 .block-list .inline-list-slot:not([data-icon-color]) {
   color: var(--block-text);
+}
+
+/* The icon picker's grid draws its icons in the color picked in the Icon color field (IconPicker, iconColor); the chosen one keeps its own colors. */
+[data-icon-grid][data-icon-color] .icon-button:not([aria-pressed='true']) {
+  color: var(--icon-color);
 }
 
 .inline-list-slot:hover,
@@ -1567,6 +1592,10 @@ dialog {
    column (shown while the block is active) are faded until typed in. */
 .editor-text .inline-table-box :is(th, td) {
   height: auto;
+}
+
+.editor-text .inline-table-box textarea {
+  text-align: inherit;
 }
 
 .editor-text .inline-table-box .inline-table-cell-active {

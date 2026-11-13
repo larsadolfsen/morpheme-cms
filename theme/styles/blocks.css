@@ -1458,6 +1458,16 @@
     font-weight: var(--type-label-large-weight);
     letter-spacing: var(--type-label-large-tracking);
   }
+  /* A column's alignment (view.ts): numbers right, text left, or the owner's choice. */
+  .block-table-grid :is(th, td).block-table-left {
+    text-align: start;
+  }
+  .block-table-grid :is(th, td).block-table-center {
+    text-align: center;
+  }
+  .block-table-grid :is(th, td).block-table-right {
+    text-align: end;
+  }
   .block-table-grid tr:last-child :is(th, td) {
     border-bottom: 0;
   }
@@ -2025,6 +2035,12 @@
      over each other left the title at 3.8:1. */
   .prose .block-card-video .video-facade:not(.video-facade-still) {
     background: transparent;
+  }
+  /* In a card the video is its media: flush against the card's top and sides (the card's wrapper clips the corners), none of the text's margin
+     above or below it, which left a gap over the still. */
+  .prose .block-card-video .video-facade {
+    margin-block: 0;
+    border-radius: 0;
   }
   .prose .video-facade svg {
     color: var(--block-accent);
