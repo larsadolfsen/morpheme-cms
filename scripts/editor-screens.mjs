@@ -672,6 +672,67 @@ async function checkInlineSingle(width, height, { name, hint, field, text, slot 
   await page.close();
 }
 
+/** A Segmented list whose rows are always open draws an arrow on a closed row that has a link; tapping it makes that row active and opens the row's link settings in one tap. */
+async function checkSegmentedArrow(width, height) {
+  const label = `${width}px inline segmented arrow`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().click();
+  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await page.locator('dialog[open] button', { hasText: 'Rows that expand, with a link.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]', { timeout: 8000 });
+  await page.keyboard.type('First');
+  await page.waitForTimeout(300);
+  // Row 1 gets a page (its link), in the row's settings.
+  if (phone) await page.locator('.contextual-menu button[aria-label="Edit"]').first().click();
+  await page.locator('[aria-label="Row settings"] button.text-field-input, .editor-side-sheet button.text-field-input').first().click();
+  await page.getByText('About Morpheme', { exact: true }).locator('visible=true').last().click();
+  await page.waitForTimeout(400);
+  if (phone) await page.locator('dialog[open] [aria-label="Close"]').first().click();
+  await page.waitForTimeout(400);
+  // The rows are always open ("Always open" in the block's settings), so a closed row draws its arrow.
+  await page.locator('.contextual-menu button[aria-label="Segmented list"]').first().click();
+  await page.locator('.site-block-menu button[aria-label="Edit"]').click();
+  await page.waitForTimeout(600);
+  await page.getByText('Always open', { exact: true }).locator('visible=true').last().click();
+  await page.getByRole('button', { name: 'Save', exact: true }).locator('visible=true').last().click();
+  await page.waitForTimeout(500);
+  await page.click('[data-add-row]');
+  await page.keyboard.type('Second');
+  await page.click('[data-add-row]');
+  await page.keyboard.type('Third');
+  await page.waitForTimeout(400);
+  const arrows = await page.evaluate(() => ({
+    row: [...document.querySelectorAll('.inline-list-row[data-row]:not(.inline-list-row-next)')].map(
+      (r) => r.querySelectorAll('[data-row-arrow]').length,
+    ),
+    name: document.querySelector('[data-row-arrow]')?.getAttribute('aria-label'),
+    tag: document.querySelector('[data-row-arrow]')?.tagName,
+  }));
+  if (arrows.row.join() !== '1,0,0')
+    problems.push(`${label}: the arrows by row are ${arrows.row}, not 1,0,0 (only a closed row with a link has one)`);
+  if (arrows.tag !== 'BUTTON' || arrows.name !== 'Link')
+    problems.push(`${label}: the arrow is a ${arrows.tag} named "${arrows.name}", not a button named "Link"`);
+  if (process.env.SHOTS_FULL) await page.screenshot({ path: `${process.env.SHOTS_FULL}-segmented-arrow-${width}.png` });
+  // One tap on the arrow: row 1 is the active one and its link settings are open (the sheet on a phone, the side panel on a computer).
+  await page.locator('[data-row="0"] [data-row-arrow]').click();
+  await page.waitForTimeout(600);
+  const tapped = await page.evaluate(() => document.querySelector('.inline-list-row-active')?.dataset.row);
+  if (tapped !== '0') problems.push(`${label}: the arrow did not make its row active (row ${tapped})`);
+  const settings = phone ? page.locator('dialog[open][aria-label="Row settings"]') : page.locator('.editor-side-sheet');
+  if (!(await settings.getByText('Page', { exact: true }).count()) || !(await settings.getByText('About Morpheme').count()))
+    problems.push(`${label}: the arrow did not open the row's link settings with its page`);
+  await page.close();
+}
 /** `surface`: the item is a card with a container of its own, so it has a background colour. `start`: how many empty, faded items a new block starts with (the first active; typing in one makes the first item, and the others go). */
 async function checkInlineBlock(
   width,
@@ -2545,6 +2606,11 @@ for (const block of inlineBlocks) await checkInlineBlock(375, 740, block);
 // On a computer too: the row's settings are in the side panel at once (a card's: its page and its buttons).
 for (const block of inlineSingles) for (const w of [375, 1280]) await checkInlineSingle(w, w < 600 ? 740 : 900, block);
 for (const block of inlineBlocks) await checkInlineBlock(1280, 900, block);
+for (const [w, h] of [
+  [375, 740],
+  [1280, 900],
+])
+  await checkSegmentedArrow(w, h);
 for (const block of liveLists) for (const w of [375, 1280]) await checkLiveList(w, w < 600 ? 740 : 900, block);
 await checkInsertNeverOpensSheet(375, 740);
 await checkInsertNeverOpensSheet(1280, 900);

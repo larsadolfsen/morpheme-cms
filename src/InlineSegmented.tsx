@@ -9,7 +9,7 @@ import { Plus } from '@phosphor-icons/react';
 import { Glyph, Svg } from './icon';
 import { iconColorOf } from './iconColor';
 import { t } from './i18n';
-import { SiteList, SiteListItem } from './themeUi';
+import { SiteIconButton, SiteList, SiteListItem } from './themeUi';
 import InlineItems, { InlineField, InlineSlot, type Item } from './InlineItems';
 import { SiteButton } from './themeUi';
 import type { InlineViewProps } from './inlineViews';
@@ -122,7 +122,20 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
                   )
                 ) : undefined
               }
-              trailingIcon={here || !item.href ? undefined : 'caret-right'}
+              trailing={
+                here || !item.href ? undefined : (
+                  // The row's link: one tap makes the row active and opens its link settings (the same as `Link` at the bottom of the active row).
+                  <SiteIconButton
+                    icon="caret-right"
+                    label={t.blocks.segmented.link}
+                    data-row-arrow=""
+                    onClick={() => {
+                      onChange({ active: i });
+                      onSettings(i);
+                    }}
+                  />
+                )
+              }
             />
           );
         // Open while it is the active row (a tap on the summary does not fold it: the heading is typed there).
