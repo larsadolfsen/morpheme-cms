@@ -5,7 +5,7 @@
 // selecting a tap or a click toggles it), and the marks the keys find the row by. The keys, which the rules of
 // selectionRules.mjs decide (tested): Space toggles the row in focus, Shift+click and Shift+Arrow add a range, Ctrl or
 // Cmd+A selects all shown, Escape unselects and ends the mode; focus stays on the row last toggled, goes back to it on
-// close, and goes to the row that took the place of deleted ones (`removed()`). Keys apply only inside `root` when it is
+// close, and goes to the row that took the place of deleted ones (`removed()`). Back leaves selecting first (a list outside a sheet). Keys apply only inside `root` when it is
 // given, else only when no modal dialog is open (a sheet over the list has its own). Exposes useSelection.
 // Uses selectionRules.mjs. Thin wiring over the rules: checked by `check:screens` (editor-screens.mjs).
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type RefObject } from 'react';
@@ -81,6 +81,22 @@ export function useSelection({
     const list = rows();
     list[Math.min(at, list.length - 1)]?.focus();
   }, [order]);
+
+  // Back (a phone's gesture or button) leaves selecting first and stays on the screen, as a sheet's Back closes the sheet
+  // (useSheetBack.ts): while selecting the list has a step of its own in the history. Not for a list in a sheet (`root`):
+  // there Back closes the sheet, which unselects.
+  useEffect(() => {
+    if (!enabled || !selecting || root) return;
+    history.pushState({ ...history.state, selection: true }, '');
+    const onPop = () => {
+      if (!(history.state as { selection?: boolean } | null)?.selection) clear();
+    };
+    window.addEventListener('popstate', onPop);
+    return () => {
+      window.removeEventListener('popstate', onPop);
+      if ((history.state as { selection?: boolean } | null)?.selection) history.back();
+    };
+  }, [enabled, selecting, root, clear]);
 
   useEffect(() => {
     if (!enabled) return;

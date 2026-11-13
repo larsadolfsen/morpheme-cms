@@ -442,6 +442,15 @@ async function checkSelection() {
       await hold(x0, y0);
       await page.getByRole('button', { name: 'Close selection' }).click();
       if (await checked(page, 'main')) problems.push(`${label}: Close selection does not unselect`);
+      // Back leaves selecting first and stays on the list; a second Back leaves the list. Close left no step behind.
+      await hold(x0, y0);
+      await page.goBack();
+      await page.waitForTimeout(400);
+      if ((await hash()) !== here || (await checked(page, 'main')) || (await page.getByRole('button', { name: 'Close selection' }).count()))
+        problems.push(`${label}: Back does not leave selecting first and stay on the list (${await hash()})`);
+      await page.goBack();
+      await page.waitForTimeout(400);
+      if ((await hash()) === here) problems.push(`${label}: a second Back does not leave the list (Close or Back left a step behind)`);
     } else {
       const [x0, y0] = await centre(0);
       await page.mouse.move(x0, y0);
