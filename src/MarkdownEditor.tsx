@@ -86,6 +86,7 @@ import { describe, htmlBlock, type BlockProps } from './blocks';
 import { RowsFromList } from './InlineList';
 import { typedInPlace } from './typedInPlace.mjs';
 import type { Change, Focus, Item as Row } from './InlineItems';
+import { leaveOut } from './pageEmptyRows';
 import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
 import { addColumnAt, addRowAt, removeColumnAt, removeRowAt, trimmed } from './inlineGrid.mjs';
 import { editorRows } from './standard/rows/view';
@@ -146,6 +147,10 @@ export type MarkdownHandle = {
   setH1: (text: string) => void;
   /** Whether the text has nothing but its H1 and blocks: no other text, so a title typed may write the H1. */
   bare: () => boolean;
+  /** Scrolls to the block (its number among the text's blocks) and marks it as wrong, as a field is (`.editor-wrong`), until the next try. */
+  showBlock: (at: number) => void;
+  /** Leaves the empty rows out of the block (its number), or of every block without one (emptyRows.mjs); a block left with no row it must have is removed. */
+  removeEmptyRows: (at?: number) => void;
 };
 
 // addImage: asks for an image (the gallery, Media.tsx); its address on the site. Its description is
@@ -1778,6 +1783,36 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           if (node !== h1Node && node.type.name !== 'siteBlock' && node.textContent.trim()) bare = false;
         });
         return bare;
+      }),
+    showBlock: (at) =>
+      editor.current?.action((ctx) => {
+        const view = ctx.get(editorViewCtx);
+        let n = -1;
+        view.state.doc.forEach((node, pos) => {
+          if (node.type.name !== 'siteBlock' || ++n !== at) return;
+          const el = view.nodeDOM(pos);
+          if (!(el instanceof HTMLElement)) return;
+          for (const old of view.dom.querySelectorAll('.editor-wrong')) old.classList.remove('editor-wrong');
+          void el.offsetWidth;
+          el.classList.add('editor-wrong');
+          el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+        });
+      }),
+    removeEmptyRows: (at) =>
+      editor.current?.action((ctx) => {
+        const view = ctx.get(editorViewCtx);
+        let tr = view.state.tr;
+        let n = -1;
+        // From the end, so the places of the blocks before it stay.
+        const blocks: { pos: number; node: Node; at: number }[] = [];
+        view.state.doc.forEach((node, pos) => node.type.name === 'siteBlock' && blocks.push({ pos, node, at: ++n }));
+        for (const { pos, node, at: i } of blocks.reverse()) {
+          if (node.attrs.props?.hidden || (at !== undefined && at !== i)) continue;
+          const left = leaveOut(node.attrs.type, node.attrs.props);
+          if (left === undefined) continue;
+          tr = left === null ? tr.delete(pos, pos + node.nodeSize) : tr.setNodeMarkup(pos, undefined, { ...node.attrs, props: left });
+        }
+        if (tr.docChanged) view.dispatch(tr);
       }),
     setH1: (text) =>
       editor.current?.action((ctx) => {

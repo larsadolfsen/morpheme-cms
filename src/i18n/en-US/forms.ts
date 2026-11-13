@@ -176,6 +176,9 @@ export const forms = {
       `Another ${post ? 'post' : 'page'} has this title. Save with the suggested title, or write your own.`,
     titleStillTaken: 'Another file has that title too. Try this one, or write your own.',
     titleLabel: 'Title',
+    /** An empty row in a block typed in place when the page is saved; `name`: the block ("Segmented list"), `word`: its row ("row"). */
+    emptyRow: (name: string, word: string) => `You have an empty ${name.toLowerCase()} ${word}.`,
+    removeItem: 'Remove item',
     titleNeedsLetters: 'The title must have letters or digits.',
     /** Planlagt (scheduled), with a time that has passed. */
     scheduledPast: 'The time has already passed. Choose a later time, or choose Published.',

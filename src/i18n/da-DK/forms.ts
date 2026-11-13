@@ -138,6 +138,8 @@ export const forms: Messages['forms'] = {
       `${post ? 'Et andet indlæg' : 'En anden side'} har denne titel. Gem med den foreslåede titel, eller skriv din egen.`,
     titleStillTaken: 'En anden fil har også den titel. Prøv denne, eller skriv din egen.',
     titleLabel: 'Titel',
+    emptyRow: (name, word) => `Der er en tom plads (${word}) i ${name.toLowerCase()}.`,
+    removeItem: 'Fjern element',
     titleNeedsLetters: 'Titlen skal have bogstaver eller tal.',
     scheduledPast: 'Tidspunktet er allerede passeret. Vælg et senere tidspunkt, eller vælg Udgivet.',
     standardPage: (label, where) => `Siden er valgt som ${label} under ${where} og skal være udgivet. Vælg en anden side dér først.`,
