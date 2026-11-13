@@ -2418,6 +2418,139 @@ async function checkInlineTable(width, height) {
   await page.close();
 }
 
+/** A Table's column alignment (375 and 1280 px): a column of numbers is right-aligned, header and cells, and a text column left, in the editor typed in place and on the built site (/blocks/); the bar's Align column left, Centre column, Align column right and Align column automatically change the column of the active cell (the pressed one shown), and the choice is saved with the block (`columns`, a second save writes the same text). */
+async function checkTableAlign(width, height) {
+  const label = `${width}px table alignment`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  // The built site: the demo's Table has a column of numbers (Editors) and text columns.
+  await page.goto(`${site}/blocks/`);
+  const built = await page.evaluate(() => {
+    const at = (sel) => getComputedStyle(document.querySelector(sel)).textAlign;
+    return {
+      textHead: at('.block-table-grid thead th:nth-child(1)'),
+      textCell: at('.block-table-grid tbody tr:first-child td:nth-child(1)'),
+      numberHead: at('.block-table-grid thead th:nth-child(3)'),
+      numberCell: at('.block-table-grid tbody tr:first-child td:nth-child(3)'),
+      mixedCell: at('.block-table-grid tbody tr:first-child td:nth-child(2)'),
+    };
+  });
+  const start = (v) => v === 'start' || v === 'left';
+  const end = (v) => v === 'end' || v === 'right';
+  if (!start(built.textHead) || !start(built.textCell))
+    problems.push(`${label}: the site's text column is not left-aligned (${built.textHead}, ${built.textCell})`);
+  if (!end(built.numberHead) || !end(built.numberCell))
+    problems.push(`${label}: the site's number column is not right-aligned (${built.numberHead}, ${built.numberCell})`);
+  if (!start(built.mixedCell)) problems.push(`${label}: a column with a word in it is not left-aligned on the site (${built.mixedCell})`);
+  await openEditor(page, site);
+  const commits = [];
+  await page.route('**/api/github/commit', (r) => {
+    commits.push(JSON.parse(r.request().postData() || '{}'));
+    return r.fulfill({ contentType: 'application/json', body: JSON.stringify({ commit: 'head', blobs: {} }) });
+  });
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
+  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
+  await page.waitForSelector('.inline-table-cell-active textarea');
+  const cellField = (r, c) => page.locator(`.inline-table-box [data-row="${r}"] [data-field="${c}"]`);
+  const menu = async (name) => {
+    await page
+      .locator(`.contextual-menu button[aria-label="${name}"]`)
+      .first()
+      .evaluate((b) => b.click());
+    await page.waitForTimeout(250);
+  };
+  // The table is made with the menu (no Next row or Next column in it): Text | Number, and two rows under them.
+  await page.keyboard.type('Text');
+  await menu('Add column after');
+  await page.keyboard.type('Number');
+  await menu('Add row below');
+  await page.keyboard.type('7');
+  await menu('Add row below');
+  await page.keyboard.type('7');
+  await cellField(1, 0).click();
+  await page.keyboard.type('a');
+  const aligns = () =>
+    page.evaluate(() => {
+      const at = (sel) => getComputedStyle(document.querySelector(sel)).textAlign;
+      return {
+        textHead: at('.inline-table-box thead th:nth-child(1)'),
+        numberHead: at('.inline-table-box thead th:nth-child(2)'),
+        numberCell: at('.inline-table-box [data-row="1"] td:nth-child(2)'),
+        numberField: at('.inline-table-box [data-row="1"] td:nth-child(2) textarea'),
+      };
+    });
+  const auto = await aligns();
+  if (!start(auto.textHead)) problems.push(`${label}: the editor's text column is not left-aligned (${auto.textHead})`);
+  if (!end(auto.numberHead) || !end(auto.numberCell) || !end(auto.numberField))
+    problems.push(`${label}: the editor's number column is not right-aligned (${JSON.stringify(auto)})`);
+  // The bar changes the column of the active cell.
+  const bar = () =>
+    page.evaluate(() =>
+      Object.fromEntries(
+        [...document.querySelectorAll('.contextual-menu button[aria-pressed]')]
+          .filter((b) => /column/.test(b.getAttribute('aria-label')) && /lign|entre/.test(b.getAttribute('aria-label')))
+          .map((b) => [b.getAttribute('aria-label'), b.getAttribute('aria-pressed')]),
+      ),
+    );
+  await cellField(1, 1).click();
+  const names = ['Align column left', 'Centre column', 'Align column right', 'Align column automatically'];
+  const first = await bar();
+  for (const n of names) if (!(n in first)) problems.push(`${label}: the bar has no "${n}" button (${Object.keys(first)})`);
+  if (first['Align column automatically'] !== 'true')
+    problems.push(`${label}: Automatic is not shown pressed on a column without a choice`);
+  const press = async (name) => {
+    await page
+      .getByRole('button', { name, exact: true })
+      .first()
+      .evaluate((b) => b.click());
+    await page.waitForTimeout(300);
+  };
+  await press('Align column left');
+  const left = await aligns();
+  if (!start(left.numberHead) || !start(left.numberCell))
+    problems.push(`${label}: Align column left left the number column ${JSON.stringify(left)}`);
+  if (!start(left.textHead)) problems.push(`${label}: another column changed with Align column left (${left.textHead})`);
+  if ((await bar())['Align column left'] !== 'true') problems.push(`${label}: Align column left is not shown pressed after it was chosen`);
+  await press('Centre column');
+  if ((await aligns()).numberCell !== 'center') problems.push(`${label}: Centre column did not centre the number column`);
+  await page.screenshot({ path: join(shots, `table-align-${width}.png`) });
+  await press('Align column right');
+  await press('Align column automatically');
+  if (!end((await aligns()).numberCell))
+    problems.push(`${label}: Align column automatically did not bring back the right alignment of numbers`);
+  // Centre the text column and save: the choice is in the saved text, and a second save writes the same.
+  await cellField(0, 0).click();
+  await press('Centre column');
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(300);
+  const saved = async () => {
+    const before = commits.length;
+    // A page with nothing changed has no Save draft to press: nothing is written a second time.
+    if (!(await page.locator('button', { hasText: /^Save draft$/ }).count())) return [];
+    await page
+      .locator('button', { hasText: /^Save draft$/ })
+      .first()
+      .evaluate((b) => b.click());
+    await page.waitForTimeout(900);
+    return commits.slice(before).flatMap((c) => c.changes.map((x) => Buffer.from(x.content ?? '', 'base64').toString('utf8')));
+  };
+  const one = await saved();
+  const text = one.find((t) => t.includes('data-block="table"')) ?? '';
+  if (!/columns[^\]]*center/.test(text)) problems.push(`${label}: the saved page does not carry the column's alignment`);
+  if (/columns[^\]]*right/.test(text)) problems.push(`${label}: an automatic column was saved with a fixed alignment`);
+  const two = await saved();
+  if (two.length && two.join() !== one.join()) problems.push(`${label}: a second save wrote another text`);
+  await page.close();
+}
+
 /** The Table's outer box has the same corner radius as a card (the Cards block's `.card`: both read the theme's --card-radius), with its header clipped to it, on the built site at 375 and 1280 px. */
 async function checkTableRadius(width, height) {
   const label = `${width}px table radius`;
@@ -3588,6 +3721,9 @@ await checkOwnList(375, 740);
 await checkOwnList(1280, 900);
 await checkInlineTable(375, 740);
 await checkInlineTable(1280, 800);
+await checkTableAlign(375, 740);
+await checkTableAlign(1280, 800);
+
 await checkTableRadius(375, 740);
 await checkTableRadius(1280, 800);
 for (const [width, height] of [
