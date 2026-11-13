@@ -218,16 +218,15 @@ four become its buttons, so there is one place for block actions. Image/Card/Lis
 ## 8. Open questions for the owner (the PM asks them one at a time)
 
 Decided by the owner: (1) bold, italic and the other selection tools move to the contextual row (section 5); (2) the main
-toolbar keeps just Insert, Undo, Redo and Section settings (4 tools).
+toolbar keeps just Insert, Undo, Redo and Section settings (4 tools); (3) with the cursor in text, selection or not,
+the text tools always show in the row.
 
 1. **Two rows on a phone, against Material?** M3 says "Don't use multiple toolbars in compact windows ... use one toolbar for
    all actions", and puts contextual actions in the *floating* toolbar, not a docked one. Your idea is two docked rows on a
    phone too. Options: (a) two rows as you said, and write the deviation down; (b) on a phone one row: the contextual tools
    with Insert, Undo and Redo behind `⋮`, and two rows only on larger screens. Recommendation: (a), because one row at 375 px
    cannot hold both sets, and you decided it; the deviation is listed.
-2. **What does the row show when the cursor is in text and nothing is selected?** The text tools (acting on the word at the
-   cursor, no wait), or nothing until text is selected. Recommendation: always the text tools; never empty, never jumps.
-3. **When tools do not fit on a phone: an overflow menu `⋮` (M3's way), with Table's Delete row and Delete column inside it?**
+2. **When tools do not fit on a phone: an overflow menu `⋮` (M3's way), with Table's Delete row and Delete column inside it?**
    Recommendation: yes; sideways scrolling is not in M3, and Undo takes a delete back.
-4. **Keep both rows sticky while the page scrolls?** Recommendation: yes (M3 allows it). Cost: about 100 dp of a short screen.
-5. **The block pop-up (Edit, Hide, Move, Remove) on blocks not typed in place:** becomes row buttons (recommended) or stays a pop-up?
+3. **Keep both rows sticky while the page scrolls?** Recommendation: yes (M3 allows it). Cost: about 100 dp of a short screen.
+4. **The block pop-up (Edit, Hide, Move, Remove) on blocks not typed in place:** becomes row buttons (recommended) or stays a pop-up?
