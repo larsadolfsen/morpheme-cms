@@ -13,8 +13,14 @@ const describe = (type: string, props: Record<string, any>) => {
   if (!block || !spec || !typedInPlace(block) || spec.single || spec.grid || !spec.item) return null;
   const field = block.fields.find((f) => f.name === spec.item);
   if (!field || !inUse(field, block.fields, props)) return null;
-  const texts = (t.blocks as unknown as Record<string, { item?: string }>)[type];
-  return { key: spec.item, required: !!field.required, name: block.label, word: texts?.item ?? spec.texts.row.toLowerCase() };
+  const texts = (t.blocks as unknown as Record<string, { item?: string; items?: string }>)[type];
+  return {
+    key: spec.item,
+    required: !!field.required,
+    name: block.label,
+    word: texts?.item ?? spec.texts.row.toLowerCase(),
+    items: (texts?.items ?? spec.texts.row).toLowerCase(),
+  };
 };
 
 export const firstEmptyRow = (text: string) => first(describe, text);

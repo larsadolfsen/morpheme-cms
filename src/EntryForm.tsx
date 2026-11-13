@@ -742,20 +742,22 @@ function Form({
     if (emptyRow) {
       goTo('content', textBox.current);
       text.current?.showBlock(emptyRow.at);
+      const action = intent === 'publish' ? 'Publish' : intent === 'schedule' ? 'Schedule' : 'Save';
+      const labels = {
+        Publish: [t.forms.versions.publish, t.forms.entry.deleteAndPublish],
+        Schedule: [t.forms.versions.schedule, t.forms.entry.deleteAndSchedule],
+        Save: [t.forms.versions.saveDraft, t.forms.entry.deleteAndSave],
+      }[action];
+      // A block with no row at all has its own question: the block goes (nothing to remove first). Else an empty row among the rows.
+      const whole = emptyRow.kind === 'block';
       const answer = await choose({
-        text: t.forms.entry.emptyRow(emptyRow.name, emptyRow.word),
-        choices: [
-          { value: 'remove', label: t.forms.entry.removeItem },
-          {
-            value: 'save',
-            label:
-              intent === 'publish'
-                ? t.forms.versions.publish
-                : intent === 'schedule'
-                  ? t.forms.versions.schedule
-                  : t.forms.versions.saveDraft,
-          },
-        ],
+        text: whole ? t.forms.entry.emptyBlock(emptyRow.name, emptyRow.items) : t.forms.entry.emptyRow(emptyRow.name, emptyRow.word),
+        choices: whole
+          ? [{ value: 'save', label: labels[1] }]
+          : [
+              { value: 'remove', label: t.forms.entry.removeItem },
+              { value: 'save', label: labels[0] },
+            ],
       });
       if (!answer) return;
       if (answer.choice === 'remove') return text.current?.removeEmptyRows(emptyRow.at);

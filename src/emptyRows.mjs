@@ -10,9 +10,9 @@ import { isEmptyRow, withoutEmpty } from './inlineRows.mjs';
 /** @typedef {Record<string, any>} Props */
 /** What a block typed in place with rows says of them: the list field's name, whether the rows are required, the block's name and its word for a row;
  * null for any other block (one with no rows, one that reads a list).
- * @typedef {(type: string, props: Props) => { key: string; required: boolean; name: string; word: string } | null} Describe */
+ * @typedef {(type: string, props: Props) => { key: string; required: boolean; name: string; word: string; items: string } | null} Describe */
 /** Which block of the text it is in, counted over every block (hidden ones too, as the editor's blocks are), and its name and word for a row.
- * @typedef {{ at: number; type: string; name: string; word: string }} EmptyRow */
+ * @typedef {{ at: number; type: string; kind: 'row' | 'block'; name: string; word: string; items: string }} EmptyRow */
 
 /** The block's props without its empty rows, or null when the block is to go (its rows are required and none is left); undefined when there is
  * nothing to leave out (a block with no rows that are not required has nothing to leave out either).
@@ -34,9 +34,11 @@ export function firstEmptyRow(describe, text) {
     const block = parseBlock(line);
     if (!block) continue;
     at++;
-    if (block.props.hidden || leaveOut(describe, block.type, block.props) === undefined) continue;
-    const { name, word } = describe(block.type, block.props);
-    return { at, type: block.type, name, word };
+    const left = block.props.hidden ? undefined : leaveOut(describe, block.type, block.props);
+    if (left === undefined) continue;
+    const { name, word, items } = describe(block.type, block.props);
+    // `block`: it has no row at all (the faded "New row" of a new block, left empty): the block itself goes, a row cannot.
+    return { at, type: block.type, kind: left === null ? 'block' : 'row', name, word, items };
   }
   return null;
 }

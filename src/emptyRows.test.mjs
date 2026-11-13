@@ -5,9 +5,9 @@ import { firstEmptyRow, leaveOut, withoutEmptyRows } from './emptyRows.mjs';
 
 // The blocks as the registry describes them: List and Segmented have required rows, Faq does not; Notice has no rows.
 const facts = {
-  list: { key: 'items', required: true, name: 'List', word: 'row' },
-  segmented: { key: 'items', required: true, name: 'Segmented list', word: 'row' },
-  faq: { key: 'items', required: false, name: 'FAQ list', word: 'question' },
+  list: { key: 'items', required: true, name: 'List', word: 'row', items: 'rows' },
+  segmented: { key: 'items', required: true, name: 'Segmented list', word: 'row', items: 'rows' },
+  faq: { key: 'items', required: false, name: 'FAQ list', word: 'question', items: 'questions' },
 };
 const describe = (type) => facts[type] ?? null;
 const page = (...blocks) => ['# Title', ...blocks.map((b) => blockHtml(b.type, b.props)), 'Text'].join('\n\n');
@@ -22,7 +22,14 @@ test('an empty row between or before content is found and left out', () => {
   const props = { items: [{ title: '' }, { title: 'A' }, { title: '' }, { title: 'B' }] };
   assert.deepEqual(leaveOut(describe, 'segmented', props), { items: [{ title: 'A' }, { title: 'B' }] });
   const text = page({ type: 'list', props: { items: [{ title: 'A' }] } }, { type: 'segmented', props });
-  assert.deepEqual(firstEmptyRow(describe, text), { at: 1, type: 'segmented', name: 'Segmented list', word: 'row' });
+  assert.deepEqual(firstEmptyRow(describe, text), {
+    at: 1,
+    type: 'segmented',
+    kind: 'row',
+    name: 'Segmented list',
+    word: 'row',
+    items: 'rows',
+  });
 });
 
 test('the block of a row with an icon or a link is not empty', () => {
@@ -34,7 +41,8 @@ test('a block with no row at all, whose rows are required, counts as one empty r
   assert.equal(leaveOut(describe, 'segmented', {}), null);
   assert.equal(leaveOut(describe, 'segmented', { items: [] }), null);
   assert.equal(leaveOut(describe, 'segmented', { items: [{ title: '' }] }), null);
-  assert.equal(firstEmptyRow(describe, page({ type: 'segmented', props: {} }))?.type, 'segmented');
+  assert.equal(firstEmptyRow(describe, page({ type: 'segmented', props: {} }))?.kind, 'block');
+  assert.equal(firstEmptyRow(describe, page({ type: 'segmented', props: { items: [{ title: '' }, { title: 'A' }] } }))?.kind, 'row');
 });
 
 test('rows that are not required: no row is nothing, empty rows are left out', () => {

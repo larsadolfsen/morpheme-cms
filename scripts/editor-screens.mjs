@@ -626,39 +626,37 @@ async function checkEmptyRow(width, height) {
   const buttons = () => dialog.getByRole('button').allTextContents();
   const sayOf = () => dialog.locator('p').first().textContent();
   const sent = (n) => commits.slice(n).flatMap((c) => c.changes.map((x) => Buffer.from(x.content ?? '', 'base64').toString('utf8')));
-  // The block's one row is still empty: Publish asks, with the block marked and in view.
+  // The block has no row at all (the faded "New row", left empty): Publish asks to delete the block, with the block marked and in view.
   await press('Publish');
-  if (!(await dialog.count())) problems.push(`${label}: an empty row on Publish did not open a dialog`);
+  if (!(await dialog.count())) problems.push(`${label}: a block with no row on Publish did not open a dialog`);
   else {
-    if ((await sayOf()) !== 'You have an empty segmented list row.') problems.push(`${label}: the dialog says "${await sayOf()}"`);
+    if ((await sayOf()) !== 'Segmented list has no rows. The block will be deleted.')
+      problems.push(`${label}: the dialog says "${await sayOf()}"`);
     const got = await buttons();
-    if (got.join('|') !== 'Remove item|Publish|Cancel')
-      problems.push(`${label}: the dialog has "${got.join('|')}", not "Remove item|Publish|Cancel"`);
+    if (got.join('|') !== 'Delete and publish|Cancel')
+      problems.push(`${label}: the dialog has "${got.join('|')}", not "Delete and publish|Cancel"`);
     const kinds = await dialog.getByRole('button').evaluateAll((b) => b.map((x) => x.className));
-    if (new Set(kinds).size !== 2 || kinds[1] !== kinds[2])
-      problems.push(`${label}: only the main choice is filled (${kinds.length} buttons, ${new Set(kinds).size} looks)`);
+    if (kinds.length !== 2 || kinds[0] === kinds[1]) problems.push(`${label}: the main choice is not the only filled button`);
     if (await dialog.locator('button:focus').count()) problems.push(`${label}: a button has the focus`);
     const marked = await page.evaluate(() => {
-      const el =
-        document.querySelector('.site-block-inline')?.closest('.editor-wrong, [class*="editor-wrong"]') ??
-        document.querySelector('.editor-wrong');
+      const el = document.querySelector('.editor-wrong');
       const r = el?.getBoundingClientRect();
       return !!el && r.bottom > 0 && r.top < innerHeight;
     });
     if (!marked) problems.push(`${label}: the block is not marked and in view behind the dialog`);
-    await page.screenshot({ path: join(shots, `empty-row-${width}.png`) });
+    await page.screenshot({ path: join(shots, `empty-block-${width}.png`) });
     // Cancel closes it and changes nothing.
     await dialog.getByRole('button', { name: 'Cancel' }).tap();
     await page.waitForTimeout(300);
     if ((await dialog.count()) || commits.length || (await blocks()) !== 1)
       problems.push(`${label}: Cancel changed something (commits ${commits.length}, blocks ${await blocks()})`);
-    // Remove item: the block has only that row, so it goes; nothing is saved, and the page stays.
+    // Delete and publish: the block goes and the page is saved without it.
     await press('Publish');
-    await dialog.getByRole('button', { name: 'Remove item' }).tap();
-    await page.waitForTimeout(400);
-    if ((await dialog.count()) || commits.length || (await blocks()) !== 0)
+    await dialog.getByRole('button', { name: 'Delete and publish' }).tap();
+    await page.waitForTimeout(1200);
+    if ((await dialog.count()) || !commits.length || (await blocks()) !== 0 || /data-block/.test(sent(0).join('\n')))
       problems.push(
-        `${label}: Remove item on a block's only row left ${await blocks()} blocks, ${commits.length} commits, dialog ${await dialog.count()}`,
+        `${label}: Delete and publish left ${await blocks()} blocks, ${commits.length} commits, dialog ${await dialog.count()}`,
       );
   }
   // A list with an empty row between its rows: Remove item takes that row, Save draft saves without it.
