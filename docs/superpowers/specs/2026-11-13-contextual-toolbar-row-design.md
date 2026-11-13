@@ -297,7 +297,59 @@ Move, Remove). Actions are today's, from the inline spec; this spec only moves t
 - **Release note:** yes, one **paragraph** (it changes how the editor looks): "Find the tools in one place" (English and Danish, with
   the `release-notes` skill). It goes with step 1, when the owner first sees it.
 
-## 8. Open questions for the owner (the PM asks them one at a time)
+## 8. Owner input: editor menus
+
+Owner's advice: (a) in an editor the UI around the content should take as little room as possible, so high density (-2/-3) fits
+toolbars; (b) icons drawn 20 to 24 dp, hit area still 44 dp with a mouse and 48 dp on touch; (c) icon-only buttons need clear hover
+states and tooltips that show the keyboard shortcut; (d) do not put everything in one long scrolling drop-down: a quick toolbar (top
+actions only), context menus where the user works, and a command palette (Cmd/Ctrl+K) when there are many functions. Checked
+against M3 (Playwright: `/foundations/layout/understanding-layout/density`, `/components/tooltips/guidelines`,
+`/components/icon-buttons/specs` and `accessibility`, `/components/menus/guidelines`) and the code. The one-bar decision is unchanged.
+
+**(a) Density.** M3: "The density scale is numbered, starting at 0 ... (-1, -2, -3) as space decreases"; "Higher density is typically
+applied by decreasing the top and bottom padding or overall height by 4dp"; "Don't apply component scaling by default if it would result
+in a target below 48x48 CSS pixels"; "Accessible targets should retain a minimum of 48x48dp, even if the visual element, such as an
+icon, is smaller"; "Density shouldn't automatically change across breakpoints or orientation unless a person changes it"; "Don't
+increase density in UIs that involve focused tasks, such as selecting from a menu." So M3 allows -2/-3, but only as something a person
+chooses, and the hit area stays 48 dp. The density spec (PR #518) offers three names: Large (+1), Medium (0, today's look), Small (-1);
+-2 and -3 stay in the mechanism but the editor does not offer them. Recommendation: the bar is built on #518's step tokens, so it
+follows the user's density setting (Small makes the bar 4 dp lower); the default stays Medium; -2/-3 are not offered unless the
+owner widens #518. Not read: M3 gives density numbers for the segmented button only; none for toolbars.
+
+**(b) Icon size and hit area.** M3: "Extra small and small icon buttons must have a target size of 48x48dp or larger to be accessible";
+"Consider making touch targets at least 48 x 48dp ... about 9mm". The icon-button page has an "Icon size" heading, but the values are in
+images, so I could not read the sizes as text; I wrote none. M3 gives no smaller target for a mouse: the 44 dp is not on the M3 pages I read, and I did not check where that figure comes from. Today the editor draws icons at 24 dp in the bar (`contextualMenu.ts`) and 20 dp
+in the block's card menu, with a 48 dp button (`min-width: 3rem; height: 3rem`). Recommendation: one hit area for mouse and touch, 48 dp (M3's), with the icon at 24 dp; a separate 44 dp for the mouse would be a deviation from M3 that gains nothing, because the bar is 48 dp high anyway. Icon sizes below 24 dp wait until M3's values can be read.
+
+**(c) Hover states and tooltips with the shortcut.** M3: "Hovered (8% state layer)" on icon buttons (icon-buttons/specs); "When
+applicable, a tooltip should be available to help describe the icon button's purpose" and "On web, icon buttons should display a
+tooltip with an accessibility label" (accessibility). Plain tooltips "are best used for labelling UI elements with no text, like
+icon-only buttons"; "Avoid wrapping text to multiple lines or including many pieces of information"; they disappear "1.5 seconds after
+navigating away". M3 says nothing about showing a keyboard shortcut in a tooltip (not found); menu items may have "keyboard commands"
+as trailing text (menus/guidelines: "Menu items can include label text, leading icons, trailing icons, and keyboard commands").
+**The editor today:** every button of the main toolbar (`ToolbarButton`, `useTooltip` in `src/ui.tsx`) has the theme's plain tooltip
+with its name, shown after a moment under the mouse and at once on keyboard focus, not on a phone; hover state from the theme's
+icon button. **No tooltip shows a shortcut, and no button has `aria-keyshortcuts`.** The text engine (Milkdown's commonmark and history
+presets) has keys: `Mod-b`, `Mod-i`, `Mod-e`, `Mod-z`, `Mod-y`, `Shift-Mod-z`, `Mod-Alt-5` to `Mod-Alt-8`, `Mod-Shift-b`, `Mod-Alt-c`.
+I found these key names in the preset files and have not tested each in the editor, and I found none for Link. Recommendation: add
+the shortcut to the plain tooltip after the name ("Bold  Ctrl+B", "Bold  ⌘B" on a Mac) and `aria-keyshortcuts` for the tools that
+have a tested key; Link and the rest get none until they have one. This is a small, separate change (the tooltip text is built in one
+place). Note that the tooltip itself waits "a moment" before it shows; that is the tooltip's own delay and not the bar's, so it stays.
+
+**(d) Quick toolbar, context menus, command palette.** M3: "Use a menu to show a temporary set of actions. To show actions on screen
+at all times, use a toolbar instead"; "Context menus provide actions for a specific element ... A secondary click ... opens a context
+menu"; "Don't use gaps in scrollable menus"; menus "can scroll when all menu items can't display at once". So M3 backs both: a
+toolbar for what is always at hand, a menu for the rest, a context menu on a secondary click. **What the editor does with this:** the one
+bar already is the "context where the user works": its contextual tools are text actions on text and the block's actions on a block
+(Image: Change image, Crop; Table: row and column actions). The `⋮` is not one long menu: Text has three items (Alignment, Lists,
+Colour, the existing *More* sheet with its group titles), a block has its few extra actions, then a divider, then Hide, Move, Remove.
+It stays short because each context fills it with only what applies, and it never scrolls. A right-click context menu on text or a
+block (M3's secondary click) on a computer, showing the same actions as the bar, is possible later and reuses `Menu`; it is not part of
+this spec. **A command palette (Cmd/Ctrl+K)**: M3 has no such component (it is not a Material part; I found no M3 page for it in the
+pages I read). It fits "many functions", but it is a separate feature with its own design (what is searched, which actions are listed, the shortcut). Recommendation: do not design it here;
+write it as a later, separate spec if the owner wants it.
+
+## 9. Open questions for the owner (the PM asks them one at a time)
 
 Decided by the owner: one bar, no second row; the contextual tools slide in from the left, push the main tools right and out, and
 roll back; a divider between them; the main part is Insert, Undo, Redo, Section settings; text tools always show with the cursor in
