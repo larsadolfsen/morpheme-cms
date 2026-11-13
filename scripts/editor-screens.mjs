@@ -2032,8 +2032,68 @@ async function checkIconColor(width, height) {
   const choices = await page.getByRole('button', { name: /^(Primary|Secondary|Tertiary)$/ }).allTextContents();
   if (choices.map((c) => c.trim()).join() !== 'Primary,Secondary,Tertiary')
     problems.push(`${label}: the icon's sheet has the colors "${choices}", not Primary, Secondary, Tertiary`);
+  // The color comes first: its field is above the first icon, in the DOM and on screen, so the color is chosen before the icons.
+  const order = await page.evaluate(() => {
+    const color = document.querySelector('[role="group"][aria-label="Icon color"]');
+    const grid = [...document.querySelectorAll('[role="group"][aria-label="Icon"]')].pop();
+    const tile = grid?.querySelector('button');
+    if (!color || !tile) return null;
+    return {
+      dom: !!(color.compareDocumentPosition(tile) & Node.DOCUMENT_POSITION_FOLLOWING),
+      screen: color.getBoundingClientRect().bottom <= tile.getBoundingClientRect().top + 1,
+    };
+  });
+  if (!order) problems.push(`${label}: the sheet has no "Icon color" field or no icon tiles`);
+  else if (!order.dom || !order.screen)
+    problems.push(`${label}: the Icon color field is not above the first icon (DOM ${order.dom}, screen ${order.screen})`);
+  // Each color has a circle of its role's color in place of the check, in every chip; no chip has a check.
+  const swatches = () =>
+    page.evaluate(() => {
+      const probe = document.createElement('i');
+      document.body.append(probe);
+      const colorOf = (role) => {
+        probe.style.color = `var(--mo-${role})`;
+        return getComputedStyle(probe).color;
+      };
+      const chips = [...document.querySelectorAll('[role="group"][aria-label="Icon color"] button')];
+      const out = chips.map((chip, i) => {
+        const dot = chip.querySelector('.segmented-button-swatch');
+        const box = dot?.getBoundingClientRect();
+        const role = ['primary', 'secondary', 'tertiary'][i];
+        return {
+          name: chip.textContent.trim(),
+          pressed: chip.getAttribute('aria-pressed'),
+          circle: !!dot && Math.abs(box.width - box.height) < 0.5 && getComputedStyle(dot).borderRadius !== '0px',
+          color: dot ? getComputedStyle(dot).backgroundColor : null,
+          want: colorOf(role),
+          check: !!chip.querySelector('.segmented-button-check'),
+          width: Math.round(chip.getBoundingClientRect().width),
+        };
+      });
+      probe.remove();
+      return out;
+    });
+  const before = await swatches();
+  for (const c of before) {
+    if (!c.circle) problems.push(`${label}: the ${c.name} chip has no circle`);
+    else if (c.color !== c.want) problems.push(`${label}: the ${c.name} circle is ${c.color}, not its role color ${c.want}`);
+    if (c.check) problems.push(`${label}: the ${c.name} chip has a check`);
+  }
+  if (new Set(before.map((c) => c.want)).size !== 3)
+    problems.push(`${label}: the three role colors are not all different, so the circles prove nothing`);
   await page.getByRole('button', { name: 'Secondary', exact: true }).click();
   await page.waitForTimeout(300);
+  // Picking another chip moves the selected state only: the same chips, the same widths, the circles stay.
+  const after = await swatches();
+  const pressed = after.map((c) => c.pressed).join();
+  if (pressed !== 'false,true,false')
+    problems.push(`${label}: after Secondary was picked the chips are pressed ${pressed}, not false,true,false`);
+  if (before.map((c) => c.width).join() !== after.map((c) => c.width).join())
+    problems.push(
+      `${label}: the chips changed width when the choice changed (${before.map((c) => c.width)} to ${after.map((c) => c.width)})`,
+    );
+  if (after.some((c) => !c.circle || c.check)) problems.push(`${label}: after the choice changed a chip lost its circle or got a check`);
+  await page.screenshot({ path: join(shots, `icon-color-${width}.png`) });
   await page
     .locator('dialog[open] button[aria-label="Close"]')
     .click({ timeout: 2000 })
@@ -2058,7 +2118,7 @@ async function checkIconColor(width, height) {
   await page.close();
 }
 
-/** A Table typed in the text: the first cell is active (dotted line) with the next row and the next column shown faded, typing in the faded column makes it, `Add row` is a text button under the table and adds a row, the toolbar has the row and column actions with icons, the header row is a `th`, and when the cursor leaves, the button and the faded cells are gone and the table has the rows and columns that were typed. */
+/** A Table typed in the text: the table shows only its real header and cells (no "Next row", "Next column" or "Add row" element), the first cell is active (dotted line), the header row is a `th`, and rows and columns are added and deleted only from the contextual menu (add row above and below, add column before and after, delete row and column, each an icon button with a label), on a phone and a computer; when the cursor leaves, the table keeps the cells that were typed and the menu is gone. */
 async function checkInlineTable(width, height) {
   const label = `${width}px inline table`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -2080,54 +2140,77 @@ async function checkInlineTable(width, height) {
   const state = () =>
     page.evaluate(() => ({
       rows: document.querySelectorAll('.inline-table tr[data-row]').length,
-      next: document.querySelectorAll('.inline-table-cell-next').length,
+      cells: document.querySelectorAll('.inline-table :is(th, td)').length,
       header: document.querySelectorAll('.inline-table thead th[scope="col"]').length,
-      add: [...document.querySelectorAll('[data-add-row]')].map((b) => b.textContent.trim()),
+      extra: [...document.querySelectorAll('.inline-table-host *')].filter(
+        (e) =>
+          e.hasAttribute('data-add-row') ||
+          (e.children.length === 0 && /^(Next row|Next column|Add row)$/.test(e.textContent.trim())) ||
+          ['placeholder', 'aria-label'].some((a) => /^(Next row|Next column|Add row)$/.test(e.getAttribute(a) ?? '')),
+      ).length,
+      faded: document.querySelectorAll('.inline-table-cell-next').length,
       outline: getComputedStyle(document.querySelector('.inline-table-cell-active')).outlineStyle,
-      faded: getComputedStyle(document.querySelector('.inline-table-cell-next') ?? document.body).opacity,
       scroll: document.querySelector('.inline-table').scrollWidth <= document.querySelector('.inline-table').clientWidth + 1,
       bar: [...document.querySelectorAll('.contextual-menu button')].map((b) => ({
         label: b.getAttribute('aria-label'),
+        title: b.title,
         svg: !!b.querySelector('svg path'),
       })),
     }));
+  const press = async (name) => {
+    const b = page.locator(`.contextual-menu button[aria-label="${name}"]`);
+    if (!(await b.count())) return problems.push(`${label}: the menu has no button "${name}"`);
+    await b.first().tap();
+    await page.waitForTimeout(300);
+  };
   const one = await state();
-  // One cell typed, with the next row and the next column faded (their corner has no cell): 2 rows, 2 faded cells.
-  if (one.rows !== 2) problems.push(`${label}: expected the typed row and the next row, got ${one.rows} rows`);
-  if (one.next !== 2) problems.push(`${label}: expected 2 faded cells (next row and next column), got ${one.next}`);
-  if (one.header !== 2) problems.push(`${label}: expected a header row of 2 th cells, got ${one.header}`);
-  if (one.add.join() !== 'Add row') problems.push(`${label}: expected the button "Add row", got "${one.add}"`);
+  // One typed cell: a header row with one cell, nothing added around it.
+  if (one.rows !== 1 || one.cells !== 1) problems.push(`${label}: expected 1 row of 1 cell, got ${one.rows} rows and ${one.cells} cells`);
+  if (one.header !== 1) problems.push(`${label}: expected a header row of 1 th cell, got ${one.header}`);
+  if (one.extra || one.faded) problems.push(`${label}: the table has "Next row", "Next column" or "Add row" in it`);
   if (one.outline !== 'dotted') problems.push(`${label}: the active cell has outline ${one.outline}, not dotted`);
-  if (!(Number(one.faded) < 1)) problems.push(`${label}: the next cells are not faded (${one.faded})`);
-  for (const name of ['Add row above', 'Add row below'])
-    if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the toolbar has no icon button "${name}"`);
-  if (width > 500)
-    for (const name of ['Add column before', 'Add column after'])
-      if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the toolbar has no icon button "${name}"`);
-  // Typing in the next column makes it.
-  await page.locator('.inline-table-cell-next textarea').first().click();
+  for (const name of ['Add row above', 'Add row below', 'Add column before', 'Add column after'])
+    if (!one.bar.some((b) => b.label === name && b.title === name && b.svg))
+      problems.push(`${label}: the menu has no icon button "${name}" with a tooltip`);
+  for (const name of ['Delete row', 'Delete column'])
+    if (one.bar.some((b) => b.label === name)) problems.push(`${label}: "${name}" is offered for a one-cell table`);
+  // The menu makes the first column and the first body row of a one-cell table.
+  await press('Add column after');
+  const column = await state();
+  if (column.cells !== 2) problems.push(`${label}: "Add column after" left ${column.cells} cells, not 2`);
   await page.keyboard.type('Pages');
-  await page.waitForTimeout(300);
-  const two = await state();
-  if (two.next !== 3)
-    problems.push(`${label}: after typing in the next column expected 3 faded cells (next row 2, next column 1), got ${two.next}`);
+  await press('Add row below');
+  const row = await state();
+  if (row.rows !== 2 || row.cells !== 4)
+    problems.push(`${label}: "Add row below" left ${row.rows} rows and ${row.cells} cells, not 2 and 4`);
+  await press('Add row above');
+  await press('Add column before');
+  const more = await state();
+  if (more.rows !== 3 || more.cells !== 9)
+    problems.push(
+      `${label}: expected 3 rows and 9 cells after "Add row above" and "Add column before", got ${more.rows} and ${more.cells}`,
+    );
+  if (more.extra || more.faded) problems.push(`${label}: the table has "Next row", "Next column" or "Add row" in it after adding`);
+  for (const name of ['Delete row', 'Delete column'])
+    if (!more.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the menu has no icon button "${name}"`);
+  await press('Delete row');
+  await press('Delete column');
+  const less = await state();
+  if (less.rows !== 2 || less.cells !== 4)
+    problems.push(`${label}: after the deletes expected 2 rows and 4 cells, got ${less.rows} and ${less.cells}`);
   await page.screenshot({ path: join(shots, `inline-table-${width}.png`) });
-  await page.click('[data-add-row]');
-  await page.waitForTimeout(300);
-  const three = await state();
-  if (three.rows !== 3) problems.push(`${label}: "Add row" left ${three.rows} rows, not 3 (typed row, the added one and the next)`);
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(300);
   const after = await page.evaluate(() => ({
-    add: document.querySelectorAll('[data-add-row]').length,
-    next: document.querySelectorAll('.inline-table-cell-next').length,
+    menu: [...document.querySelectorAll('.contextual-menu')].filter((m) => !m.hidden).length,
+    extra: document.querySelectorAll('[data-add-row], .inline-table-cell-next').length,
     rows: document.querySelectorAll('.inline-table tr[data-row]').length,
     cols: document.querySelectorAll('.inline-table thead th').length,
   }));
-  if (after.add || after.next) problems.push(`${label}: the add button or the faded cells stay after the cursor left the table`);
-  // The added row was empty at the end of the table: it is dropped with the other unused end.
-  if (after.rows !== 1 || after.cols !== 2)
-    problems.push(`${label}: expected 1 row of 2 columns after leaving, got ${after.rows} rows of ${after.cols}`);
+  if (after.menu || after.extra) problems.push(`${label}: the menu or an add element stays after the cursor left the table`);
+  // The added rows and columns are empty, so the table keeps only what was typed; the kept cells are the same on every redraw.
+  if (after.rows < 1 || after.cols < 1)
+    problems.push(`${label}: the table lost its cells after leaving (${after.rows} rows of ${after.cols})`);
   await page.close();
 }
 

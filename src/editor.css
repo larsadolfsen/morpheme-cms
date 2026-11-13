@@ -1569,15 +1569,10 @@ dialog {
   outline-offset: -2px;
 }
 
-.editor-text .inline-table .inline-table-cell-next:not(.inline-table-cell-active) {
-  opacity: 0.55;
-}
-
-/* The table over its `Add row` button, the table the full width of the text. */
+/* The table the full width of the text. */
 .editor-text .inline-table-host {
   display: grid;
   justify-items: start;
-  gap: 0.5rem;
 }
 
 .editor-text .inline-table-host > .inline-table {
