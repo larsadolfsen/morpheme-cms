@@ -5467,19 +5467,19 @@
   /* A snackbar (m3.material.io/components/snackbar): the standard look a dark surface seen through, the same in light
      and dark mode (as a shadow's colour, the one written here), in the middle of the screen. */
   .snackbar {
-    --button-text-text: var(--snackbar-action-text, var(--snackbar-text, rgb(255 255 255)));
+    --button-text-text: var(--snackbar-action-text, var(--snackbar-text, var(--mo-inverse-on-surface)));
     --button-text-hover: var(--snackbar-action-hover, color-mix(in srgb, currentColor 12%, transparent));
     --icon-button-size: var(--snackbar-close-size, 2.5rem);
     --icon-button-standard-surface: transparent;
     --icon-button-standard-line: transparent;
-    --icon-button-standard-text: var(--snackbar-close-text, var(--snackbar-text, rgb(255 255 255)));
+    --icon-button-standard-text: var(--snackbar-close-text, var(--snackbar-text, var(--mo-inverse-on-surface)));
     pointer-events: auto;
     max-width: var(--snackbar-max-width, 28rem);
     cursor: default;
     border-radius: var(--snackbar-radius, 1rem);
-    background: var(--snackbar-surface, rgb(0 0 0 / 0.8));
+    background: var(--snackbar-surface, var(--mo-inverse-surface));
     padding: var(--snackbar-padding-block, 0.75rem) var(--snackbar-padding-inline, 1rem);
-    color: var(--snackbar-text, rgb(255 255 255));
+    color: var(--snackbar-text, var(--mo-inverse-on-surface));
     font-size: var(--snackbar-font-size, var(--type-body-medium-size));
     letter-spacing: var(--type-body-medium-tracking);
     line-height: var(--snackbar-line-height, var(--type-body-medium-line-height));
