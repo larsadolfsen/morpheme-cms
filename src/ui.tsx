@@ -1652,7 +1652,7 @@ export function SegmentedButton<T extends string>({
   /** What is chosen, for screen readers. */
   label: string;
   value: T;
-  options: { value: T; label: string; icon?: Icon }[];
+  options: { value: T; label: string; icon?: Icon; swatch?: string }[];
   /** It cannot be changed now (the place of R2 caching's bucket while it is on): grey, and it stays. */
   disabled?: boolean;
   onChange: (v: T) => void;
@@ -1660,9 +1660,10 @@ export function SegmentedButton<T extends string>({
   return (
     <SiteSegmentedButton
       label={label}
-      segments={options.map(({ value: v, label: name, icon: Glyph }) => ({
+      segments={options.map(({ value: v, label: name, icon: Glyph, swatch }) => ({
         label: name,
         icon: Glyph && <Glyph />,
+        swatch,
         value: v,
         selected: v === value,
         disabled,

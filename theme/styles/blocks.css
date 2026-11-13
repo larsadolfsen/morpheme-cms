@@ -995,6 +995,12 @@
     line-height: var(--type-body-medium-line-height, 1.25rem);
     color: var(--block-muted);
   }
+  /* A list's row icon and arrow are the row heading's colour (the block's text, which a coloured section swaps to its on-colour), as the
+     section's other text is; only the supporting line stays the quieter --block-muted. A row icon with its own colour (below) keeps it. */
+  .block-list {
+    --list-item-leading-icon-color: var(--block-text);
+    --list-item-trailing-text: var(--block-text);
+  }
   /* The color of an icon in a row or a card (`iconColor`, src/iconColor.ts): one of the theme's color roles, Primary (the icon's own) without one. */
   [data-icon-color='secondary'] {
     --list-item-leading-icon-color: var(--mo-secondary, var(--block-secondary));

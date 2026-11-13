@@ -101,6 +101,8 @@ export default defineBlock({
       summary: 'title',
       required: true,
       fields: [
+        // The color comes first, so it is chosen before the icons below it.
+        { ...iconColorField, only: { field: 'media', is: ['icon'], and: { field: 'icon', is: [''], not: true } } },
         {
           name: 'icon',
           label: t.blocks.cards.icon,
@@ -109,7 +111,6 @@ export default defineBlock({
           options: iconOptions(t.blocks.icons),
           only: { field: 'media', is: ['icon'] },
         },
-        { ...iconColorField, only: { field: 'media', is: ['icon'], and: { field: 'icon', is: [''], not: true } } },
         { name: 'image', label: t.blocks.cards.image, type: 'image', only: { field: 'media', is: ['image'] } },
         {
           name: 'video',

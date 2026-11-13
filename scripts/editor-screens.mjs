@@ -1244,11 +1244,23 @@ async function checkInlineBlock(
           placeholder: ratio(ph.color, top, parseFloat(ph.opacity), field),
           slot: slot ? ratio(getComputedStyle(slot).color, top, 1, slot) : null,
           outline: ratio(line.outlineColor, top, 1, row),
+          // A list row's heading is the section's own text colour, as on the site (checkListRowColors).
+          heading: name === 'list' ? [getComputedStyle(row.querySelector('[data-field="title"]')).color, getComputedStyle(top).color, slot && !slot.hasAttribute('data-icon-color') ? getComputedStyle(slot).color : null] : null,
         };
       }
       top.removeAttribute('data-section-color');
       top.removeAttribute('data-section-box');
       return out; })()`);
+    for (const [color, got] of Object.entries(colors))
+      if (got.heading && got.heading[0] !== got.heading[1])
+        problems.push(
+          `${label} (${scheme}): the row heading on a ${color} section is ${got.heading[0]}, not the section's text ${got.heading[1]}`,
+        );
+    for (const [color, got] of Object.entries(colors))
+      if (got.heading?.[2] && got.heading[2] !== got.heading[0])
+        problems.push(
+          `${label} (${scheme}): the row icon on a ${color} section is ${got.heading[2]}, not the row heading's ${got.heading[0]}`,
+        );
     for (const [color, got] of Object.entries(colors))
       for (const [part, min] of [
         ['text', 4.5],
@@ -1981,8 +1993,68 @@ async function checkIconColor(width, height) {
   const choices = await page.getByRole('button', { name: /^(Primary|Secondary|Tertiary)$/ }).allTextContents();
   if (choices.map((c) => c.trim()).join() !== 'Primary,Secondary,Tertiary')
     problems.push(`${label}: the icon's sheet has the colors "${choices}", not Primary, Secondary, Tertiary`);
+  // The color comes first: its field is above the first icon, in the DOM and on screen, so the color is chosen before the icons.
+  const order = await page.evaluate(() => {
+    const color = document.querySelector('[role="group"][aria-label="Icon color"]');
+    const grid = [...document.querySelectorAll('[role="group"][aria-label="Icon"]')].pop();
+    const tile = grid?.querySelector('button');
+    if (!color || !tile) return null;
+    return {
+      dom: !!(color.compareDocumentPosition(tile) & Node.DOCUMENT_POSITION_FOLLOWING),
+      screen: color.getBoundingClientRect().bottom <= tile.getBoundingClientRect().top + 1,
+    };
+  });
+  if (!order) problems.push(`${label}: the sheet has no "Icon color" field or no icon tiles`);
+  else if (!order.dom || !order.screen)
+    problems.push(`${label}: the Icon color field is not above the first icon (DOM ${order.dom}, screen ${order.screen})`);
+  // Each color has a circle of its role's color in place of the check, in every chip; no chip has a check.
+  const swatches = () =>
+    page.evaluate(() => {
+      const probe = document.createElement('i');
+      document.body.append(probe);
+      const colorOf = (role) => {
+        probe.style.color = `var(--mo-${role})`;
+        return getComputedStyle(probe).color;
+      };
+      const chips = [...document.querySelectorAll('[role="group"][aria-label="Icon color"] button')];
+      const out = chips.map((chip, i) => {
+        const dot = chip.querySelector('.segmented-button-swatch');
+        const box = dot?.getBoundingClientRect();
+        const role = ['primary', 'secondary', 'tertiary'][i];
+        return {
+          name: chip.textContent.trim(),
+          pressed: chip.getAttribute('aria-pressed'),
+          circle: !!dot && Math.abs(box.width - box.height) < 0.5 && getComputedStyle(dot).borderRadius !== '0px',
+          color: dot ? getComputedStyle(dot).backgroundColor : null,
+          want: colorOf(role),
+          check: !!chip.querySelector('.segmented-button-check'),
+          width: Math.round(chip.getBoundingClientRect().width),
+        };
+      });
+      probe.remove();
+      return out;
+    });
+  const before = await swatches();
+  for (const c of before) {
+    if (!c.circle) problems.push(`${label}: the ${c.name} chip has no circle`);
+    else if (c.color !== c.want) problems.push(`${label}: the ${c.name} circle is ${c.color}, not its role color ${c.want}`);
+    if (c.check) problems.push(`${label}: the ${c.name} chip has a check`);
+  }
+  if (new Set(before.map((c) => c.want)).size !== 3)
+    problems.push(`${label}: the three role colors are not all different, so the circles prove nothing`);
   await page.getByRole('button', { name: 'Secondary', exact: true }).click();
   await page.waitForTimeout(300);
+  // Picking another chip moves the selected state only: the same chips, the same widths, the circles stay.
+  const after = await swatches();
+  const pressed = after.map((c) => c.pressed).join();
+  if (pressed !== 'false,true,false')
+    problems.push(`${label}: after Secondary was picked the chips are pressed ${pressed}, not false,true,false`);
+  if (before.map((c) => c.width).join() !== after.map((c) => c.width).join())
+    problems.push(
+      `${label}: the chips changed width when the choice changed (${before.map((c) => c.width)} to ${after.map((c) => c.width)})`,
+    );
+  if (after.some((c) => !c.circle || c.check)) problems.push(`${label}: after the choice changed a chip lost its circle or got a check`);
+  await page.screenshot({ path: join(shots, `icon-color-${width}.png`) });
   await page
     .locator('dialog[open] button[aria-label="Close"]')
     .click({ timeout: 2000 })
@@ -2341,6 +2413,49 @@ const ratioOf = `
       const front = pixel(markCss, 'rgb(' + back + ')', opacity);
       return (Math.max(lum(front), lum(back)) + 0.05) / (Math.min(lum(front), lum(back)) + 0.05);
     };`;
+
+/** A list row's heading is the same colour as the section's heading and text, on every section colour, light and dark, on a phone and a computer; its icon and arrow too (and the supporting text on a coloured section; on Surface it is the quieter, as the section's other secondary text). */
+async function checkListRowColors() {
+  for (const scheme of ['light', 'dark']) {
+    for (const width of [375, 1280]) {
+      const page = await browser.newPage({ viewport: { width, height: 740 }, colorScheme: scheme, locale: 'en-US' });
+      page.on('pageerror', (e) => problems.push(`${width}px list row colours: ${e.message}`));
+      await page.goto(`${site}/`);
+      const got = await page.evaluate(() => {
+        const out = {};
+        for (const color of ['surface', 'primary', 'secondary', 'tertiary']) {
+          const section = document.createElement('section');
+          section.className = 'text-section text-section-' + color;
+          section.innerHTML =
+            '<div class="prose"><h1>H1</h1><p>Text</p></div><div class="list block-list"><a class="list-item-container" href="#"><span class="list-item-leading list-item-leading-icon"><svg viewBox="0 0 10 10"></svg></span><span class="list-item-content"><span class="list-item-headline">Heading</span><span class="list-item-supporting">Text</span></span><span class="list-item-trailing"><svg viewBox="0 0 10 10"></svg></span></a></div>';
+          document.querySelector('main').append(section);
+          const c = (sel) => getComputedStyle(section.querySelector(sel)).color;
+          out[color] = {
+            h1: c('h1'),
+            text: c('p'),
+            heading: c('.list-item-headline'),
+            supporting: c('.list-item-supporting'),
+            icon: c('.list-item-leading'),
+            chevron: c('.list-item-trailing'),
+          };
+          section.remove();
+        }
+        return out;
+      });
+      for (const [color, c] of Object.entries(got)) {
+        if (c.heading !== c.h1 || c.heading !== c.text)
+          problems.push(
+            `${width}px ${scheme} list row on a ${color} section: the heading is ${c.heading}, the section's heading ${c.h1} and text ${c.text}`,
+          );
+        if (c.icon !== c.heading || c.chevron !== c.heading || (color !== 'surface' && c.supporting !== c.heading))
+          problems.push(
+            `${width}px ${scheme} list row on a ${color} section: the icon ${c.icon}, arrow ${c.chevron} or (not on Surface) text ${c.supporting} is not the heading's ${c.heading}`,
+          );
+      }
+      await page.close();
+    }
+  }
+}
 
 /** The marks of a check list in a text (`- [x]`) keep 3:1 (WCAG, a graphic) against their section, on every section colour, light and dark, in the editor and on the site. */
 async function checkChecklistMarks() {
@@ -3285,6 +3400,7 @@ for (const [w, h] of [
 ])
   await checkSegmentedArrow(w, h);
 for (const block of liveLists) for (const w of [375, 1280]) await checkLiveList(w, w < 600 ? 740 : 900, block);
+await checkListRowColors();
 await checkInsertNeverOpensSheet(375, 740);
 await checkEmptyRow(375, 740);
 await checkInsertNeverOpensSheet(1280, 900);

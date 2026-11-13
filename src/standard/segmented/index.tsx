@@ -48,8 +48,9 @@ export default defineBlock({
       summary: 'title',
       required: true,
       fields: [
-        { name: 'icon', label: t.blocks.segmented.icon, type: 'select', icons: true, options: iconOptions(t.blocks.icons) },
+        // The color comes first, so it is chosen before the icons below it.
         iconColorField,
+        { name: 'icon', label: t.blocks.segmented.icon, type: 'select', icons: true, options: iconOptions(t.blocks.icons) },
         { name: 'title', label: t.blocks.segmented.title, type: 'string', required: true },
         { name: 'text', label: t.blocks.segmented.text, type: 'text' },
         { name: 'href', label: t.blocks.segmented.href, type: 'relation', to: 'pages', hint: t.blocks.segmented.hrefHint },
