@@ -2028,13 +2028,13 @@ async function checkInlineTable(width, height) {
   await page.waitForTimeout(300);
   const state = () =>
     page.evaluate(() => ({
-      rows: document.querySelectorAll('.inline-table tr[data-row]').length,
+      rows: document.querySelectorAll('.inline-table-box tr[data-row]').length,
       next: document.querySelectorAll('.inline-table-cell-next').length,
-      header: document.querySelectorAll('.inline-table thead th[scope="col"]').length,
+      header: document.querySelectorAll('.inline-table-box thead th[scope="col"]').length,
       add: [...document.querySelectorAll('[data-add-row]')].map((b) => b.textContent.trim()),
       outline: getComputedStyle(document.querySelector('.inline-table-cell-active')).outlineStyle,
       faded: getComputedStyle(document.querySelector('.inline-table-cell-next') ?? document.body).opacity,
-      scroll: document.querySelector('.inline-table').scrollWidth <= document.querySelector('.inline-table').clientWidth + 1,
+      scroll: document.querySelector('.inline-table-box').scrollWidth <= document.querySelector('.inline-table-box').clientWidth + 1,
       bar: [...document.querySelectorAll('.contextual-menu button')].map((b) => ({
         label: b.getAttribute('aria-label'),
         svg: !!b.querySelector('svg path'),
@@ -2070,8 +2070,8 @@ async function checkInlineTable(width, height) {
   const after = await page.evaluate(() => ({
     add: document.querySelectorAll('[data-add-row]').length,
     next: document.querySelectorAll('.inline-table-cell-next').length,
-    rows: document.querySelectorAll('.inline-table tr[data-row]').length,
-    cols: document.querySelectorAll('.inline-table thead th').length,
+    rows: document.querySelectorAll('.inline-table-box tr[data-row]').length,
+    cols: document.querySelectorAll('.inline-table-box thead th').length,
   }));
   if (after.add || after.next) problems.push(`${label}: the add button or the faded cells stay after the cursor left the table`);
   // The added row was empty at the end of the table: it is dropped with the other unused end.
