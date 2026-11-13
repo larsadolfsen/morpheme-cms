@@ -19,6 +19,7 @@ import { activeTheme, installedThemes } from '@morphemecms/cms/site/theme.mjs';
 import { binOf } from './bin.mjs';
 import { buildOutDir } from './build-out.mjs';
 import { openEditor, serveBuilt } from './built-site.mjs';
+import { blockHtml } from '../lib/blocks.mjs';
 
 const ROOT = `${process.cwd()}/`;
 const PAGE = 'src/content/pages/contrast-test.md';
@@ -194,8 +195,18 @@ function unique(records, view) {
 // The test page: the Blocks page on each section colour, one after the other.
 const blocksText = readFileSync(join(ROOT, 'src/content/pages/blocks.md'), 'utf8');
 const body = blocksText.replace(/^---[\s\S]*?---\n/, '');
+// Every kind of button (Material's five), whatever the Blocks page shows.
+const kinds = `## Button kinds\n\n${blockHtml('buttons', {
+  items: ['filled', 'tonal', 'elevated', 'outlined', 'text'].map((kind) => ({
+    label: kind,
+    to: 'page',
+    href: '/about/',
+    kind,
+    icon: 'arrow-right',
+  })),
+})}\n`;
 // A section runs from its marker to the next H1 or H2, so each heading gets the marker.
-const on = (c) => body.replace(/^(#{1,2} )/gm, `<div data-section="${c}"></div>\n\n$1`);
+const on = (c) => `${body}\n${kinds}`.replace(/^(#{1,2} )/gm, `<div data-section="${c}"></div>\n\n$1`);
 const testPage = `---\ntitle: "Contrast test"\ndescription: "Made by check:contrast, never saved."\n---\n\n${SECTIONS.map(on).join('\n\n')}\n`;
 
 const pages = ['/contrast-test/', '/', '/contact/', '/about/', '/get-started/', '/app-store/', '/blog-page/', '/privacy-policy/'];
