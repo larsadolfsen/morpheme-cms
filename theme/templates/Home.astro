@@ -44,7 +44,7 @@ const panel = sections.find((s) => s.type === 'top');
     const first = i === 0 ? 'theme-home-first' : undefined;
     if (s.type === 'top')
       return (
-        <Container class="pt-8 medium:pt-16">
+        <Container class={s.settings.color || s.settings.image ? '[&>.text-section]:mt-0' : 'pt-8 medium:pt-16'}>
           <section
             class={s.settings.color || s.settings.image || s.settings.width ? sectionClass(s.settings.color, s.settings) : undefined}
             data-editor="h1-section"

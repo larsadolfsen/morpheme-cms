@@ -8,7 +8,13 @@ export default function Table({ view }: { view: TableView }) {
   const body = view.header ? rest : view.rows;
   return (
     // A scroll box the keyboard can reach, named for a screen reader.
-    <div className={useInText('block-table', 'block-table-grid')} role="region" aria-label={view.label} tabIndex={0}>
+    <div
+      className={useInText('block-table', 'block-table-grid')}
+      role="region"
+      aria-label={view.label}
+      tabIndex={0}
+      data-striped={view.striped || undefined}
+    >
       <table>
         {view.header && (
           <thead>

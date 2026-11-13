@@ -540,6 +540,57 @@ async function checkPreviewSection() {
   await page.close();
 }
 
+/** A page whose H1 section has a background (a colour or an image) has it start right under the navigation bar (gap 0 ±1px), on the site and in the Preview at 390 and 600; a page whose H1 section has none keeps its space under the bar. */
+async function checkH1SectionGap() {
+  const path = 'src/content/pages/about.md';
+  if (!existsSync(join(ROOT, path))) return;
+  const source = readFileSync(join(ROOT, path), 'utf8');
+  const picture = '/images/uploads/2026/10/earth-from-space.webp';
+  const variants = [
+    { name: 'colour', marker: '<div data-section="tertiary"></div>\n\n', background: true },
+    { name: 'image', marker: `<div data-section="" data-picture="${picture}" data-alt="Earth"></div>\n\n`, background: true },
+    { name: 'none', marker: '', background: false },
+  ];
+  const measure = () => {
+    const bar = document.querySelector('header[data-header]')?.getBoundingClientRect();
+    const h1 = document.querySelector('article h1');
+    const section = document.querySelector('[data-editor="h1-section"]');
+    const top = (section || h1)?.getBoundingClientRect().top;
+    return bar && top !== undefined ? { gap: top - bar.bottom, section: Boolean(section) } : null;
+  };
+  const verify = (label, m, background) => {
+    if (!m) return problems.push(`${label}: the page has no navigation bar or heading`);
+    if (background && !m.section) return problems.push(`${label}: there is no H1 section`);
+    if (background && Math.abs(m.gap) > 1)
+      problems.push(`${label}: the H1 section's background is ${Math.round(m.gap)}px below the navigation bar, not 0`);
+    if (!background && m.gap < 16)
+      problems.push(`${label}: a heading without a background has lost its space under the bar (${Math.round(m.gap)}px)`);
+  };
+  for (const { name, marker, background } of variants) {
+    const text = source.replace(/(\n)(# [^\n]+)/, `$1${marker}$2`);
+    const page = await browser.newPage({ viewport: { width: 1700, height: 1000 }, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`H1 section gap: ${e.message}`));
+    await openEditor(page, site, { [path]: text });
+    await page.goto(`${site}/editor/#${path}`);
+    await page.getByRole('button', { name: 'Preview' }).first().click({ timeout: 30_000 });
+    await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+    const slider = page.locator('dialog[open] [role="slider"]').first();
+    const width = async () => Number(await slider.getAttribute('aria-valuenow'));
+    for (const w of [390, 600]) {
+      await slider.focus();
+      await page.keyboard.press('Home');
+      while ((await width()) < w) await page.keyboard.press('ArrowRight');
+      while ((await width()) > w) await page.keyboard.press('ArrowLeft');
+      await page.waitForTimeout(600);
+      const frame = page.frames().find((f) => f !== page.mainFrame());
+      await frame.waitForSelector('article h1', { timeout: 30_000 });
+      if (background) await frame.waitForSelector('[data-editor="h1-section"]', { timeout: 30_000 });
+      verify(`${w}px Preview, H1 section ${name}`, await frame.evaluate(measure), background);
+    }
+    await page.close();
+  }
+}
+
 /** A full-width section has the whole width only as its background: on the built site and in the Preview, its content has the same left edge as the page's text, inside the centred container, at 840, 1200 and 1600, and nothing overflows sideways at 375. */
 async function checkFullSection() {
   const path = 'src/content/pages/about.md';
@@ -2100,9 +2151,9 @@ async function checkInlineTable(width, height) {
   await page.waitForTimeout(300);
   const state = () =>
     page.evaluate(() => ({
-      rows: document.querySelectorAll('.inline-table tr[data-row]').length,
-      cells: document.querySelectorAll('.inline-table :is(th, td)').length,
-      header: document.querySelectorAll('.inline-table thead th[scope="col"]').length,
+      rows: document.querySelectorAll('.inline-table-box tr[data-row]').length,
+      cells: document.querySelectorAll('.inline-table-box :is(th, td)').length,
+      header: document.querySelectorAll('.inline-table-box thead th[scope="col"]').length,
       extra: [...document.querySelectorAll('.inline-table-host *')].filter(
         (e) =>
           e.hasAttribute('data-add-row') ||
@@ -2111,7 +2162,7 @@ async function checkInlineTable(width, height) {
       ).length,
       faded: document.querySelectorAll('.inline-table-cell-next').length,
       outline: getComputedStyle(document.querySelector('.inline-table-cell-active')).outlineStyle,
-      scroll: document.querySelector('.inline-table').scrollWidth <= document.querySelector('.inline-table').clientWidth + 1,
+      scroll: document.querySelector('.inline-table-box').scrollWidth <= document.querySelector('.inline-table-box').clientWidth + 1,
       bar: [...document.querySelectorAll('.contextual-menu button')].map((b) => ({
         label: b.getAttribute('aria-label'),
         title: b.title,
@@ -2160,13 +2211,52 @@ async function checkInlineTable(width, height) {
   if (less.rows !== 2 || less.cells !== 4)
     problems.push(`${label}: after the deletes expected 2 rows and 4 cells, got ${less.rows} and ${less.cells}`);
   await page.screenshot({ path: join(shots, `inline-table-${width}.png`) });
+  // Two typed body rows (they stay when the block is not active) for the stripes below.
+  await press('Add row below');
+  await page.keyboard.type('Row');
+  await press('Add row below');
+  await page.keyboard.type('More');
+  // The header's square corners never poke out past the box's rounded border: the box is a block that clips (overflow not visible) with a radius,
+  // and no table class collides with a Tailwind utility (display: inline-table made the box a table that did not clip).
+  const box = await page.evaluate(() => {
+    const e = document.querySelector('.inline-table-box');
+    const c = getComputedStyle(e);
+    return { display: c.display, overflowX: c.overflowX, overflowY: c.overflowY, radius: parseFloat(c.borderTopLeftRadius) };
+  });
+  if (box.display !== 'block' || box.overflowX === 'visible' || box.overflowY === 'visible' || !(box.radius > 0))
+    problems.push(`${label}: the table's box does not clip its header to the rounded corner (${JSON.stringify(box)})`);
+  // The gear has "Striped rows" (off), and turning it on gives every second body row a background that the others and the header do not have.
+  const rowBg = () =>
+    page.evaluate(() => [...document.querySelectorAll('.inline-table-box tbody tr')].map((r) => getComputedStyle(r).backgroundColor));
+  const plain = await rowBg();
+  // The table's own button in the toolbar (on a computer) shows the block's frame with its Edit button.
+  if (width > 600) await page.locator('button[aria-label="Table"]:visible').first().click();
+  await page.locator('button[aria-label="Edit"]:visible').first().click();
+  const stripes = page.locator('dialog[open], .editor-side-sheet').getByRole('switch', { name: 'Striped rows' });
+  await stripes.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the table's settings have no "Striped rows" switch`));
+  if ((await stripes.count()) && (await stripes.isChecked())) problems.push(`${label}: "Striped rows" is not off by default`);
+  await stripes.click({ timeout: 3000 }).catch(() => {});
+  await page
+    .getByRole('button', { name: 'Save', exact: true })
+    .last()
+    .click({ timeout: 3000 })
+    .catch(() => {});
+  await page.waitForTimeout(400);
+  const striped = await rowBg();
+  if (!(await page.locator('.inline-table-box[data-striped]').count()))
+    problems.push(`${label}: "Striped rows" on does not mark the table`);
+  if (new Set(plain).size !== 1) problems.push(`${label}: rows have different backgrounds before "Striped rows" is on (${plain})`);
+  if (striped.length < 2 || striped[0] === striped[1])
+    problems.push(`${label}: with "Striped rows" on, the second body row has no background of its own (${striped})`);
+  // Back in the table: a click in its first cell makes the block active again.
+  await page.locator('.inline-table-box th textarea').first().click();
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(300);
   const after = await page.evaluate(() => ({
     menu: [...document.querySelectorAll('.contextual-menu')].filter((m) => !m.hidden).length,
     extra: document.querySelectorAll('[data-add-row], .inline-table-cell-next').length,
-    rows: document.querySelectorAll('.inline-table tr[data-row]').length,
-    cols: document.querySelectorAll('.inline-table thead th').length,
+    rows: document.querySelectorAll('.inline-table-box tr[data-row]').length,
+    cols: document.querySelectorAll('.inline-table-box thead th').length,
   }));
   if (after.menu || after.extra) problems.push(`${label}: the menu or an add element stays after the cursor left the table`);
   // The added rows and columns are empty, so the table keeps only what was typed; the kept cells are the same on every redraw.
@@ -2305,6 +2395,35 @@ async function checkTableAlign(width, height) {
   if (/columns[^\]]*right/.test(text)) problems.push(`${label}: an automatic column was saved with a fixed alignment`);
   const two = await saved();
   if (two.length && two.join() !== one.join()) problems.push(`${label}: a second save wrote another text`);
+
+/** The Table's outer box has the same corner radius as a card (the Cards block's `.card`: both read the theme's --card-radius), with its header clipped to it, on the built site at 375 and 1280 px. */
+async function checkTableRadius(width, height) {
+  const label = `${width}px table radius`;
+  const page = await browser.newPage({ viewport: { width, height } });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await page.goto(new URL('/blocks/', site).href);
+  const got = await page.evaluate(() => {
+    const card = document.querySelector('.card.block-card');
+    const host = card?.parentElement;
+    if (!host) return null;
+    const box = document.createElement('div');
+    box.className = 'block-table block-table-grid';
+    box.innerHTML = '<table><thead><tr><th>A</th><th>B</th></tr></thead><tbody><tr><td>1</td><td>2</td></tr></tbody></table>';
+    host.append(box);
+    const c = getComputedStyle(box);
+    return {
+      card: getComputedStyle(card).borderTopLeftRadius,
+      table: c.borderTopLeftRadius,
+      overflowX: c.overflowX,
+      overflowY: c.overflowY,
+    };
+  });
+  if (!got) problems.push(`${label}: no card on /blocks/ to compare with`);
+  else {
+    if (got.card !== got.table) problems.push(`${label}: the table's radius is ${got.table}, the card's ${got.card}`);
+    if (got.overflowX === 'visible' || got.overflowY === 'visible')
+      problems.push(`${label}: the table's box does not clip its header to the radius`);
+  }
   await page.close();
 }
 
@@ -3419,6 +3538,9 @@ await checkInlineTable(375, 740);
 await checkInlineTable(1280, 800);
 await checkTableAlign(375, 740);
 await checkTableAlign(1280, 800);
+
+await checkTableRadius(375, 740);
+await checkTableRadius(1280, 800);
 for (const [width, height] of [
   [360, 740],
   [375, 740],
@@ -3444,6 +3566,7 @@ for (const [width, height] of [
 await checkToolbarBox();
 await checkPreviewSection();
 await checkFullSection();
+await checkH1SectionGap();
 for (const w of [375, 1280]) await checkListMarkers(w);
 for (const w of [375, 1280]) await checkListsAndBlocks(w);
 for (const w of [360, 375, 390, 414]) await checkPreviewDraft(w);
