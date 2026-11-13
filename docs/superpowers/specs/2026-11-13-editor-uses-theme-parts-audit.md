@@ -22,6 +22,9 @@ Date: 2026-11-13. Audit only, no code changed. Written for the owner, who reads 
   bottom of the screen on pages and blocks, it should use the bottom sheet design and not its own custom design." It
   becomes a theme part, one part for every form that shows it. The blur is dropped; it is not asked again. Which theme
   part fits is compared in "The save bar" below.
+- Same rule everywhere (owner, on the save bar: "also do it other places this fits in"): every bottom bar, bottom panel,
+  sheet and docked or floating bar in the editor uses the theme's part and has no custom design. All of them are listed in
+  "Other bars, sheets and panels" below.
 - Motion already has tokens (`--motion-spatial-*`, `--motion-effects-*`, `--motion-ease`). Spacing has none yet
   (`docs/material-deviations.md`, CSS sweep 8): the first step of row 11 is to add them to the theme.
 
@@ -104,6 +107,32 @@ What the sheet lacks for this, to be added to the theme part (not to the editor)
 
 Size: medium (the actions form and variables in the theme: small to medium; moving `FormFrame` and removing the class
 couplings: small). Order stays row 7, after the toolbar, image tile and dialog work.
+
+### Other bars, sheets and panels the editor draws itself
+
+Found by searching `src/*.tsx` and `src/editor.css` for `fixed`, `sticky`, `inset-x-0`, `bottom-0`, `editor-*` bars and
+`<dialog>`. Same rule for each: the theme's part, no custom design. Parts: **Sheet (standard)** is the theme's non-modal
+bottom sheet, **Sheet (modal)** its modal one, **Toolbar (docked)** its docked bar. Rows 13 and 14 overlap with the
+contextual toolbar spec (session `session_01GGzusQCFpwd8WrtCR2dPKR`, reviewed separately by the owner); that spec decides
+the design of the docked row, this one only says what the code has to stop drawing itself. The two must agree: one docked
+`Toolbar` row below the main toolbar, no floating bar anywhere.
+
+| # | What the editor draws | Where | Theme part it should use | Size | Order |
+| - | --- | --- | --- | --- | --- |
+| 13 | The three floating bars (text selection, contextual, block menu): the same as row 2 | `.editor-selection-menu`, `.contextual-menu`, `.site-block-menu` | Toolbar (docked), as the contextual spec says | medium | with row 2 |
+| 14 | The text tools bar at the top of the Markdown editor. It is a theme `Toolbar` already, but overridden: its own border and corners (`border`, `rounded-t-panel`), a sticky position, about 50 lines of `.editor-tools-*` CSS, and code that reads its class to place the cursor (`MarkdownEditor.tsx:486`, `1007`) | `MarkdownEditor.tsx:2211`, `editor.css` 1102-1150 | The same docked Toolbar row, with no override classes; the placement code reads a theme variable instead of a class | medium | with row 2 |
+| 15 | The save bar: row 7 | `FormFrame.tsx:236` | Sheet (standard), actions form | medium | 7 |
+| 16 | The messages area (snackbar stack) is moved up and over by class name for the save bar, the FAB, the rail, the drawer and the side panel (6 rules) | `editor.css` 602-660 | The theme's Snackbar, placed by the theme from `--bottom-bar-height` and the start and end insets (row 7, step 5 and 4) | small | 7 |
+| 17 | The corner buttons (FAB and FAB menu) are placed by the editor (`position: fixed`, offsets, dimming when busy, lifted above the save bar) | `.editor-fab`, `editor.css` 607-640 | The theme's FAB placement (a corner kind that takes the same insets and the bar height), disabled state from the theme | small | 7 |
+| 18 | The editor's own enter and leave motion for sheets, dialogs, the drawer and the save bar: `editor-sheet-in`, `editor-pop`, `editor-fade`, `editor-rise` and a drawer slide. The theme's sheets and dialogs have motion too | `editor.css` 360-373, 439-520 | The theme's motion for each part (`--motion-*` on the part), nothing added by the editor | medium | after 2, 3, 6, 7 |
+| 19 | Extra classes on the theme's modal sheet: `editor-sheet` (a tall limit, the extra animation), `editor-side-panel` (the side panel's width and place). Sheets are the More sheet, the insert and block sheets (`BlockDialog.tsx`), the choice and field sheets | `ui.tsx:3515-3529`, `editor.css` 430-456, 739-780 | Sheet (modal): the height rule and the side-panel kind move into the theme part (`wide: 'side-sheet'` exists); the animation goes with row 18 | small to medium | after 18 |
+| 20 | The side panel on a computer: `.editor-side-sheet` is `position: fixed` with its own width | `editor.css` 775-785, `BlockDialog.tsx:467` | Theme SideSheet (modal and standard kinds exist) with the width from one theme variable | small | with row 19 |
+| 21 | A menu over the page: `<div class="editor-menu fixed z-30">` (a field's drop-down, a button's menu) | `ui.tsx:2012`, `editor.css` 1097 | The theme's Menu with its own placement; the editor only forces the menu shadow, which the theme should set | small | 4 |
+| 22 | The Preview screen: row 6 | `pagePreview.tsx:231` | Dialog (full-screen kind), top bar a Toolbar | medium | 6 |
+| 23 | The wrappers round the navigation rail and drawer (`aside … sticky top-0 h-dvh`, `.editor-main-rail-frame`) | `ui.tsx:2996`, `3066` | Theme Navigation Rail and Drawer already; the wrapper only places them, so this is layout (row 11, step d) | small | 11 |
+
+Not a finding: the editor's tooltip is the theme's tooltip, only positioned by a script (`.editor-tooltip`); the dialogs
+that ask a question use the theme's Dialog; the More, insert and block sheets are the theme's modal sheet.
 
 ### What a theme author cannot style today
 
