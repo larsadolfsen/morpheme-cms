@@ -78,6 +78,52 @@ for (const [name, pages] of missingOn) {
 
 const { server, site } = await serveBuilt(DIST);
 
+// A site is not the demo: what a check needs and the site does not have (a page, a post, a list), the check makes itself, as
+// files in src/ that the editor reads (answered here, never saved) and removes at the end. A site that has the thing is left alone.
+const made = [];
+const make = (path, text) => {
+  const file = join(ROOT, path);
+  mkdirSync(join(file, '..'), { recursive: true });
+  writeFileSync(file, text);
+  made.push(file);
+};
+const clean = () => {
+  for (const file of made.splice(0)) rmSync(file, { force: true });
+};
+process.on('exit', clean);
+const has = (path) => existsSync(join(ROOT, path)) && readdirSync(join(ROOT, path)).length > 0;
+/** The title of a page the long press, the link and the lists checks use: the demo's, or the one made here. */
+const FIXTURE_PAGE = 'Check page';
+make(
+  'src/content/pages/zz-check-page.md',
+  `---\ntitle: "${FIXTURE_PAGE}"\n---\n\n# ${FIXTURE_PAGE}\n\nMade by check:screens, never saved.\n`,
+);
+/** A post that is not on the blog: the demo's, or the one made here. */
+const UNLISTED_POST = existsSync(join(ROOT, 'src/content/blog/not-on-the-blog.md'))
+  ? 'A post only for those with the link'
+  : 'Check post only for those with the link';
+make('src/content/blog/zz-check-post.md', `---\ntitle: "Check post"\ndate: 2026-01-01\n---\n\nMade by check:screens, never saved.\n`);
+make(
+  'src/content/blog/zz-check-unlisted.md',
+  `---\ntitle: "${UNLISTED_POST}"\ndate: 2026-01-02\nunlisted: true\n---\n\nMade by check:screens, never saved.\n`,
+);
+// The lists the dynamic List checks read: the demo's Testimonials and Highlights, or two made here with the same names.
+if (!has('src/data/highlights')) {
+  make(
+    'src/data/highlights/_list.json',
+    JSON.stringify({ version: 1, label: 'Highlights', fields: ['icon', 'title', 'text', 'href'], dropped: [] }),
+  );
+  make('src/data/highlights/one.json', JSON.stringify({ order: 1, icon: 'star', title: 'First highlight', text: 'Made by check:screens' }));
+  make(
+    'src/data/highlights/two.json',
+    JSON.stringify({ order: 2, icon: 'heart', title: 'Second highlight', text: 'Made by check:screens' }),
+  );
+}
+if (!has('src/data/testimonials')) {
+  make('src/data/testimonials/_list.json', JSON.stringify({ version: 1, label: 'Testimonials', fields: ['title', 'text'], dropped: [] }));
+  make('src/data/testimonials/one.json', JSON.stringify({ order: 1, title: 'A customer', text: 'Made by check:screens' }));
+}
+
 // CHROMIUM_PATH: another Chromium than Playwright's own (one installed for another version of Playwright).
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
 // SCREENS_DIR (the temporary folder's morpheme-screens by default): where the images go.
@@ -290,14 +336,14 @@ function hintContrasts(page, selector, pseudo) {
   );
 }
 
-/** A blog post that is not on the blog (`unlisted: true`, the demo's "A post only for those with the link") shows its status in the posts list, and the Status filter offers it. */
+/** A blog post that is not on the blog (`unlisted: true`, the demo's "A post only for those with the link", or the one the check makes) shows its status in the posts list, and the Status filter offers it. */
 async function checkUnlistedPost() {
   const page = await browser.newPage({ viewport: { width: 1200, height: 900 }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`hidden post: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#list/blog'));
   await page.waitForSelector('main a.list-item-container');
-  const row = page.locator('main a.list-item-container').filter({ hasText: 'A post only for those with the link' });
+  const row = page.locator('main a.list-item-container').filter({ hasText: UNLISTED_POST });
   if (!(await row.count())) return problems.push('hidden post: the posts list has no row for the post that is not on the blog');
   if (!(await row.first().innerText()).includes('Hidden')) problems.push('hidden post: the posts list does not say "Hidden" on its row');
   await page.close();
@@ -315,7 +361,7 @@ async function checkLongPressDelete() {
     await page.waitForTimeout(500);
     const rows = page.locator('main a.list-item-container');
     // A row that is not a default page.
-    const row = list === 'pages' ? rows.filter({ hasText: 'Get started' }).first() : rows.last();
+    const row = list === 'pages' ? rows.filter({ hasText: FIXTURE_PAGE }).first() : rows.filter({ hasText: 'Check post' }).first();
     await row.scrollIntoViewIfNeeded();
     const box = await row.boundingBox();
     const [x, y] = [box.x + box.width / 2, box.y + box.height / 2];
@@ -1093,7 +1139,7 @@ async function checkSegmentedArrow(width, height) {
   // Row 1 gets a page (its link), in the row's settings.
   if (phone) await page.locator('.contextual-menu button[aria-label="Edit"]').first().click();
   await page.locator('[aria-label="Row settings"] button.text-field-input, .editor-side-sheet button.text-field-input').first().click();
-  await page.getByText('About Morpheme', { exact: true }).locator('visible=true').last().click();
+  await page.getByText(FIXTURE_PAGE, { exact: true }).locator('visible=true').last().click();
   await page.waitForTimeout(400);
   if (phone) await page.locator('dialog[open] [aria-label="Close"]').first().click();
   await page.waitForTimeout(400);
@@ -1127,7 +1173,7 @@ async function checkSegmentedArrow(width, height) {
   const tapped = await page.evaluate(() => document.querySelector('.inline-list-row-active')?.dataset.row);
   if (tapped !== '0') problems.push(`${label}: the arrow did not make its row active (row ${tapped})`);
   const settings = phone ? page.locator('dialog[open][aria-label="Row settings"]') : page.locator('.editor-side-sheet');
-  if (!(await settings.getByText('Page', { exact: true }).count()) || !(await settings.getByText('About Morpheme').count()))
+  if (!(await settings.getByText('Page', { exact: true }).count()) || !(await settings.getByText(FIXTURE_PAGE).count()))
     problems.push(`${label}: the arrow did not open the row's link settings with its page`);
   await page.close();
 }
@@ -1932,13 +1978,21 @@ async function checkNewList(width, height, label) {
   }
 }
 
+/** Opens the demo's Blocks page (/blocks/), which these checks measure. A site that is not the demo has none: the check says it is skipped, and nothing fails. */
+async function onDemoBlocksPage(page, label) {
+  const response = await page.goto(new URL('/blocks/', site).href).catch(() => null);
+  if (response && response.status() < 400) return true;
+  console.log(`${label}: skipped, the site has no Blocks page (/blocks/) to measure, which the demo has.`);
+  return false;
+}
+
 /** Cards that are a carousel on phones (`phone`, on the demo's Blocks page): at 375 px the row scrolls sideways with one card whole and the next peeking in, as Material 3's uncontained carousel is measured (gap 8, 8 above and below, 16 from the edge, corners 28), a dot for each card, labelled; `Show all` stacks the cards in place and `Show fewer` returns them, focus kept; the arrow keys move between the cards. At 1280 px the same block is the grid, with no dots and no button. */
 async function checkCardsCarousel(width, height) {
   const label = `${width}px cards carousel`;
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  await page.goto(new URL('/blocks/', site).href);
+  if (!(await onDemoBlocksPage(page, label))) return page.close();
   const root = page.locator('[data-cards-carousel]').first();
   if (!(await root.count())) return (problems.push(`${label}: no Cards carousel on the Blocks page`), page.close());
   await root.scrollIntoViewIfNeeded();
@@ -2270,7 +2324,7 @@ async function checkTableRadius(width, height) {
   const label = `${width}px table radius`;
   const page = await browser.newPage({ viewport: { width, height } });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  await page.goto(new URL('/blocks/', site).href);
+  if (!(await onDemoBlocksPage(page, label))) return page.close();
   const got = await page.evaluate(() => {
     const card = document.querySelector('.card.block-card');
     const host = card?.parentElement;
