@@ -292,6 +292,10 @@ export function useBlockDialog(
     })();
   };
 
+  /** The fields of the block's sheet (the gear): the ones typed where the block stands (a list's heading and subheading) are not repeated. */
+  const settingsFields = (b: NonNullable<typeof block>) =>
+    typedInPlace(b) && b.inline?.single && b.inline.blockSettings ? b.fields.filter((f) => !b.inline!.fields.includes(f.name)) : b.fields;
+
   const asker: BlockAsk = {
     list,
     template,
@@ -494,7 +498,7 @@ export function useBlockDialog(
               )}
               {block?.preview && <Preview>{preview(block.type, values, data)}</Preview>}
               <WrongField.Provider value={wrongField.field}>
-                <FieldList fields={block!.fields} value={values} onChange={(v) => setValues(v as BlockProps)} />
+                <FieldList fields={settingsFields(block!)} value={values} onChange={(v) => setValues(v as BlockProps)} />
               </WrongField.Provider>
               {block!.type === IMAGE && crop && !data.page && !!values.src && (
                 <CropField
