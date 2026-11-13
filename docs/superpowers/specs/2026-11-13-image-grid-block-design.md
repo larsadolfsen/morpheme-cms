@@ -94,7 +94,7 @@ text for everywhere, the owner edits it in the Library.
 
 **What exists.** The Image in a text, the hero and section images and the post's top image already have a local alt text
 (and `Decorative image`), so the local level exists today. What is new is only the Library's base text and the fall-back to
-it. The same rule is written once, in a small pure function (`altFor(local, record)`), used by every image use, with a
+it. The same rule is written once, in a small pure function (the shared alt rule, PR 0), used by every image use, with a
 unit test, so the uses cannot differ. Moving the existing uses to it is a follow-up (PR 3b), without changing a saved page.
 
 **The grid.** The grid has no local text per image in its card (many images, one block). It draws each image's base text from
@@ -103,31 +103,14 @@ which wins by the rule above. Most grids will use the base texts only.
 
 ## 3b. Images with no alt text: the SEO score, not a warning
 
-Owner decision: no warning on the block or on the Library tile. A missing alt text shows in the page's **SEO score** (the
-SEO counter in the editor).
+Owner decision: no warning on the block or on the Library tile. A missing alt text shows in the page's **SEO score**.
 
-**What exists.** `src/seo.ts` already has the check: `images(body)` finds the images, and `seoRating` adds `r.noAlt(n)` with
-the fix `r.fixAlt`, or `r.allAlt` ("all images have alt text"). But `images()` reads only Markdown images and `<img>` in the
-text and **skips blocks** (`<div data-block=…>`, its own comment says so). So an image inside any block is not counted
-today. That is a gap beyond the grid.
-
-**What changes.** The check also counts the images of the page's blocks, by the one rule of section 3a (local text, else the
-Library's base text, else missing; `alt=""` / decorative counts as fine). Same messages and fix text, one count for the page.
-
-**How the check reaches block data.** `seoRating` is pure and takes `input.body` (Markdown with the blocks written in it as
-`<div data-block=…>`). `lib/blocks.mjs` already reads them: `blocksIn(body, true)` gives `{ type, props }` for every block,
-also those inside another block's text. The new `blockImages(body, defs, records)` walks them and, for each block, takes
-the images from its definition: every field of type `image` (and the grid's picked images). Each gives `{ src, local alt,
-decorative }`. Then `altFor(local, record)` gives its text. The Library's base texts come in as `input.records` (the
-file records, `recordsIn(files, config.fileRecords)`, which the editor already has as `env.files`); `seoInputOf` takes them
-as one more argument, and the Markdown images of the text use the same fall-back, so the whole page follows one rule.
-`fileRating` (the build's check) reads the record files the same way.
-
-**Beyond the grid.** Yes: the Cards (`image` field) and Testimonials (`image` field) have images with **no alt field at all**
-today (found: no `alt` in either block's fields), the Hero and sections have their own. So the SEO check would find them
-all missing. That needs a decision per block (an alt field next to the image, or the Library's text only). It is its own
-small pull request, **before the grid** (PR 0 below): the check, `altFor`, `input.records`, and a Library-text fall-back,
-with a test per block that has an image. Adding alt fields to Cards and Testimonials is a second small PR (0b).
+The SEO score must read the images inside blocks too (today `images()` in `src/seo.ts` skips them). That is **not designed
+here**: it is its own small pull request, started by the PM (patch, `src/seo.ts`), with one exported rule for "the alt text
+of an image use": the use's local text, else the Library's base text, else missing; decorative (`alt=""`) counts as fine.
+This spec only says: **the grid's images use that rule, and the SEO score counts them.** The grid draws an image with no
+text at all as `alt=""`. The rule in section 3a is the same one; if the two differ, that pull request wins and this spec
+follows it.
 
 ## 4. The block's settings
 
@@ -247,16 +230,15 @@ and grid layout, since both are theme parts. Not in this work.
 
 ## 8. Pull requests
 
-Order matters: PR 0 (the SEO check) and the tile first.
+Order matters: the SEO rule (PR 0, separate) and the tile first.
 
 | # | Pull request | Size | Needs |
 | - | --- | --- | --- |
-| 0 | SEO alt check counts images in blocks: `blockImages`, `altFor`, `input.records`, tests (section 3b) | small to medium | PR 3 for the Library text (the local-text part can go first) |
-| 0b | Alt field next to the image in Cards and Testimonials | small | 0 |
+| 0 | The SEO alt rule and the score reading images in blocks (separate pull request, not part of this work) | small | before 4 |
 | 1 | Media slot and selected state on the theme's `Card`, `ImageTile` as its wrapper, and the staggered grid layout (audit row 3); Library moves to it | medium to large | the audit PR #515 |
 | 2 | `width` and `height` in `thumbnails.json` (and use in the Library tile) | small | 1 (can go with it) |
-| 3 | Base alt text (and caption) on the file record: schema, `fileRecords.mjs`, Library field, `altFor` and its unit test | medium | none |
-| 3b | Every image use falls back to the Library's text by `altFor`, local text kept; hints in the sheets | small to medium | 3 |
+| 3 | Base alt text (and caption) on the file record: schema, `fileRecords.mjs`, Library field, and the Library-text part of the shared alt rule | medium | PR 0 |
+| 3b | Every image use fall back to the Library's text by the shared alt rule, local text kept; hints in the sheets | small to medium | 3 |
 | 4 | Standard block `imagegrid`: contract, `Card shows` and `Card style` settings, `load.ts`, `view.ts`, `filter.mjs` + unit test, texts (en and da), `View.tsx` without script (all images, links) | medium | 1, 2, 3 |
 | 5 | Filter and lightbox script (`script.ts`), chips, keys, `aria-live` | medium | 4 and the full-screen `Dialog` (exists) |
 | 6 | Editor side: inline card, `Add images`, settings sheet, `check:screens` entry; demo section; release-note paragraph | small to medium | 4 |
