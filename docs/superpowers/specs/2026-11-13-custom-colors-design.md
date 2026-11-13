@@ -1,7 +1,7 @@
 # Custom colors: set Primary, Secondary and Tertiary freely (design)
 
 Status: ready for the owner's read. Design only, no code. Open questions are in section 10, each with a recommendation.
-Built **after 0.17 is released** (owner decision: 0.17 is not extended). Written 2026-11-13.
+Built **in 0.17** (owner decision of 2026-11-13). Written 2026-11-13.
 
 Owner's ask: "Add custom setting that lets set all three colors freely."
 
@@ -186,8 +186,8 @@ surfaces. **Harmony** of the neutrals: Primary's hue, so grey surfaces tint towa
 7. **Contrast list for Secondary and Tertiary as text on Surface**: `colorPairs` does not check Secondary or Tertiary on Surface
    today. Add them for every site, or only inside Custom's correction? *Recommend* **only inside Custom** (the correction
    guarantees 4.5:1); adding them to `colorPairs` could stop sites with hand-edited colors from saving.
-8. **Branch and version**: build after 0.17 in the collecting branch the PM names (`0.18`; `minor` allowed there, never `major`).
-   Into `main` only `patch` or empty until 0.15.1, so Custom does not go to `main` first. *Recommend* 0.18.
+8. **Branch and version**: build into the `0.17` branch (`minor` allowed there, never `major`, so it stays below `1.0.0`). Not into
+   `main`: there only `patch` or empty is allowed until 0.15.1 is released. *Recommend* `0.17`, as decided.
 
 ## 11. Not in this spec
 
@@ -195,7 +195,10 @@ Static (extra) colors such as Success, and custom color roles (Material's *Defin
 audit already lists status colors as "a later decision" (`docs/material-deviations.md`, colour sweep 1). Dragging dots on the
 wheel, a neutral picker, and per-section custom colors are also left out.
 
-## 12. Build plan (small pull requests, in order, after 0.17)
+## 12. Build plan (small pull requests into `0.17`, in order)
+
+Step A needs no decision beyond questions 1 to 3 and 7, and can start as soon as the owner has read this spec; each later step
+starts when the one before it is merged.
 
 - **A. Engine** (`lib/dynamic-colors.ts`): `harmony: 'custom'`, `schemeOf` branch, fidelity and correction, `customAdjustments()`
   for the UI, `dynamicProblems`, the sweep test. No UI. Empty changeset.
