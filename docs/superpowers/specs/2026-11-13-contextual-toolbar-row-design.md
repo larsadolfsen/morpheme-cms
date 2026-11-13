@@ -136,14 +136,38 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
   The other choice for question 1, Undo only, frees one slot: the contextual tools get a fifth (Text: Text size; List: Link; Table: Table
   settings; Image and the single blocks: nothing more to add), and Redo goes into `⋮`.
 
-  **How long the `⋮` list gets.** Rows are 44 dp (the same hit area). The longest list is Text with Section settings: Text size,
-  Alignment, Bulleted, Check, Numbered, Colour, Insert, Section settings = 8 rows, about 352 dp plus one divider. Table and List have 7
-  rows (about 308 dp) plus 2 dividers. A 375 × 667 px phone has about 667 − 40 (bar) − 24 (status bar) = 600 dp under the bar with no
-  keyboard: it fits whole. With the keyboard open (about 290 dp high, not read from a source: my estimate for a phone) about 300 dp are left:
-  6 rows, so Text just misses. Opening a sheet or a menu can close the keyboard (a dialog takes the focus), and the existing *More*
-  bottom sheet does so; so on a phone the `⋮` opens the bottom sheet (M3: "Consider adapting menus into bottom sheets on small screens"), not
-  a popover menu (question 2). On a computer it is a `Menu` under the button; there everything fits and the list is short (Hide, Move, Remove,
-  plus what does not fit in a narrow window).
+  **The `⋮` on a phone is a pop-up menu (owner decision), not a bottom sheet.** The theme's `Menu` part, anchored to the `⋮` button: it opens
+  under the button, its trailing edge on the button's trailing edge, 8 dp from the screen edge, as wide as `--menu-width` (18rem) allows
+  within the screen, and opens downwards (M3: "If opened at the top of the screen, it expands downwards to avoid being cropped"). Rows are
+  44 dp (`--menu-item-height: 2.75rem` in `theme/styles/global.css` already). It **closes** on a tap outside, on Escape, and when a row is
+  chosen (a toggle row, such as a list kind, closes it too); focus returns to the `⋮`, and the text cursor does not move: the rows cancel mouse
+  and touch down like the bar's buttons, as the editor's alignment and text-style menus already do, so the selection stays and the keyboard stays
+  open. **The bottom sheet is not used for `⋮`.** The existing *More* sheet (`moreSheet`, 14 rows) was opened only by the selection pill's
+  *More* button (`MarkdownEditor.tsx`, `selectionMenu`); with the pill deleted nothing opens it, and its rows (text styles, lists,
+  alignment, colours) are in `⋮`. Recommendation: delete the *More* sheet in step 1 unless the owner wants it for something else.
+
+  **How long the `⋮` list gets (heights are estimates where marked).** Row 44 dp, menu padding 8 dp above and below. Longest: Text, with
+  Section settings = 8 rows (352 dp) + one divider + padding ≈ 378 dp. Table and List: 7 rows + 2 dividers ≈ 342 dp. The other blocks: 3 to 6
+  rows. Room under the bar (bar 40 dp; status bar 24 dp, my estimate; keyboard 290 dp portrait and about 160 dp landscape, my
+  estimates, not read from a device):
+
+  | Phone | Room for the pop-up | Text (≈ 378) | Table, List (≈ 342) |
+  | --- | --- | --- | --- |
+  | 375 × 667, portrait, no keyboard | 667 − 24 − 40 ≈ 603 dp | fits | fits |
+  | 375 × 667, portrait, keyboard open | 667 − 290 − 24 − 40 ≈ 313 dp, minus 8 dp margin ≈ 305 | scrolls: 6 rows show | scrolls: 6 rows show |
+  | 667 × 375, landscape, no keyboard | 375 − 40 ≈ 335 dp (status bar assumed hidden in landscape, an estimate), minus 8 ≈ 327 | scrolls: 7 rows show | nearly fits: 7 rows |
+  | 667 × 375, landscape, keyboard open | 375 − 160 − 40 ≈ 175 dp, minus 8 ≈ 167 | scrolls: 3 rows show | scrolls: 3 rows show |
+
+  **The keyboard is usually open** when the `⋮` is used in text (the bar's buttons keep the cursor, so the keyboard stays), so the realistic cases
+  are the second and fourth rows: the Text list does not fit and must scroll, in portrait after 6 rows. The pop-up is placed inside the
+  visible screen (`visualViewport`, the bar is at the top so it opens downward into the room above the keyboard), with `max-height` set to the room,
+  not to the theme's `calc(100dvh - 2rem)`. **Recommendation on scrolling (question 3):** yes, let it scroll. The theme's `.menu` already has
+  `overflow-y: auto`. M3 says "Menus can scroll when all menu items can't display at once. In this state, menus show a persistent scrollbar."
+  The theme sets no scrollbar rule on `.menu`, so on a phone the browser's overlay scrollbar hides when idle: not a persistent one. To meet M3,
+  the editor's menu sets `scrollbar-width: thin` and `scrollbar-gutter: stable` (a desktop browser then keeps it visible; a phone's overlay
+  scrollbar cannot be forced). Our cue on a phone: the list shows a half-cut row at the bottom, and the most used rows come first (Text size,
+  Alignment, Lists, Colour), so Insert and Section settings are the ones that scroll into view. To reduce scrolling: the Undo-only option of
+  question 1 would not help (it moves a row out of the bar, not out of the list).
 - **The divider** is the theme's `Divider` part (`theme/ui/Divider.tsx`), vertical, in the theme's outline-variant colour, between the
   contextual and main tools. It is hidden when there is no context (idle). In the `⋮` list a `MenuDivider` (also the theme's
   `Divider`) separates the groups.
@@ -206,8 +230,8 @@ which tools go in the menu is our choice.
 
 **Is there a drop-down part to reuse?** Yes, no new part is needed. The theme has `Menu` and `MenuItem` (`theme/ui/Menu.tsx`, with
 groups, dividers, `checked`, `disabled`, submenus) and `DropdownMenu` (a button that opens a menu on the site, `dropdownMenu.script.ts`). The editor
-already opens a `Menu` from a toolbar button (the alignment and text-style menus in `MarkdownEditor.tsx`) and has a bottom sheet
-for *More* (`moreSheet`). On a phone a menu becomes that bottom sheet (M3: "adapting menus into bottom sheets").
+already opens a `Menu` from a toolbar button (the alignment and text-style menus in `MarkdownEditor.tsx`). M3 would let a menu become a bottom
+sheet on a phone; the owner decided on a pop-up menu for `⋮` (section 3).
 
 **Decision:** an overflow `⋮` as M3 says; the bar never scrolls; the main tools that the push moves out are in `⋮`, with Undo kept on the
 bar. Not read: any M3 text that says which actions to put in an overflow menu (it gives none; "Choose the most essential actions to show
@@ -285,17 +309,16 @@ Move, Remove). Actions are today's, from the inline spec; this spec only moves t
 ## 7. Risks, checks, size
 
 - **Risks:** (1) iOS keyboard and a sticky top bar (section 3); (2) a tool the owner is used to (Redo, Insert, Section settings) is one tap deeper in `⋮` while a context is active on a phone: Undo
-  stays on the bar, the rest is in the sheet (question 1); (3) the bar must keep the context while a sheet it opened (More,
-  Settings) is open, because opening a dialog blurs the text: the context is held while a sheet from the bar is open, and ends the
-  moment it closes with the focus elsewhere; (4) the push moves main tools the owner expects at one place (Undo): acceptable
+  stays on the bar, the rest is in the `⋮` menu (question 1); (3) the bar must keep the context while the Settings sheet it opens
+  is open, because opening a dialog blurs the text: the context is held while a sheet from the bar is open, and ends the
+  moment it closes with the focus elsewhere (the `⋮` pop-up keeps the focus in the text, so it needs no such rule); (4) the push moves main tools the owner expects at one place (Undo): acceptable
   because on idle and on wide screens they are where they were; (5) a theme that styles `Toolbar` badly breaks the whole editor:
   the bar uses only `--toolbar-*` tokens and the `Divider` part; (6) the old bars' tests (`.contextual-menu` in
   `scripts/editor-screens.mjs`) must move; (7) the invisible hit area reaches 2 dp over the text box's edge (section 8): a tap in that strip must hit the tool, and
   `check:screens` measures it.
 - **Checks:** `check:screens` at 375 and 1280: one bar, 40 dp high, the same height idle, in text and on every block; the divider
   shows only with a context; at 375 the bar holds exactly the lists of section 3 (Text, Table, List, Image: tool names read from the bar and from the
-  `⋮` sheet), never scrolls (`scrollWidth` equals `clientWidth`), and Undo stays on it and works; the `⋮` sheet lists Redo, Insert
-  and the rest; at 1280 both groups fit and are visible; no hit area of the bar, the `⋮` or its rows under 44 dp (the `::before` hit area is measured, not the visible 40 dp); no horizontal page scroll; the slide runs with `prefers-reduced-motion: no-preference` (assert the
+  `⋮` menu), never scrolls (`scrollWidth` equals `clientWidth`), and Undo stays on it and works; the `⋮` menu (opened at 375 px, with and without the keyboard) lists the rest and scrolls when it does not fit; at 1280 both groups fit and are visible; no hit area of the bar, the `⋮` or its rows under 44 dp (the `::before` hit area is measured, not the visible 40 dp); no horizontal page scroll; the slide runs with `prefers-reduced-motion: no-preference` (assert the
   animation exists, with the theme's duration) and is absent with `reduce`; `check:contrast` and `check:editor-colors` on the bar in each
   section colour; `check:css-values` finds no literal motion or spacing in the new CSS. Not covered by the scripts: the keyboard on a
   real phone, and how a theme looks; both by hand. The Preview of the branch cannot sign in, so the owner reads screenshots from
@@ -303,7 +326,7 @@ Move, Remove). Actions are today's, from the inline spec; this spec only moves t
 - **Size and order (PRs into `main`, each with a changeset):**
   1. *Medium:* the one-bar shell. The main toolbar becomes the bar: main tools, divider, a slot for the contextual group; the text
      tools move into the slot; the selection pill, the second line and its arrow, `stillTimer` and `STILL_MS` are removed. The bar's overflow into `⋮`
-     (sheet on a phone, menu on a computer). No slide yet. Empty changeset until visible.
+     (the same pop-up `Menu` on a phone and a computer; the *More* sheet and its opener are deleted). No slide yet. Empty changeset until visible.
      **The 44 dp hit area goes in with this step, so no check fails:** (a) `check:screens` has rules written for 48:
      `scripts/editor-screens.mjs` line 218 (the text menu's buttons "smaller than 48 dp", for the pill that is deleted) goes with the pill, and
      line 1644 (`.contextual-menu button` height under 47.5) is replaced by one rule for the bar: every button of the bar, the `⋮` and its
@@ -387,28 +410,47 @@ timer. The exact lists are in section 3.
 **Not read:** the icon sizes of the icon button (images), density numbers for toolbars (M3 gives them for the segmented button only),
 and any M3 text on shortcuts in tooltips.
 
+### Our longest menus today (counted from the code, 13 November 2026)
+
+| # | Menu | Rows | Fed by | Where |
+| --- | --- | --- | --- | --- |
+| 1 | Choice fields (`Select`, `ChoiceMenu`): a menu under the field on a computer, **already a bottom sheet with search on a phone** | the field's options, no cap; I did not count a real site | a field's options, a loaded list of pages or an app's tools | `src/ui.tsx` (3960 to 4042), `fields.tsx`, `ToolSelect.tsx` |
+| 2 | *More* sheet (a sheet, not a `Menu`) | 14: 5 text styles, 3 lists, 3 alignments, 2 colours, No color | fixed lists | `MarkdownEditor.tsx` (`moreSheet`) |
+| 3 | Insert sheet (a sheet, A to Z with search) | about 20 block types (not counted exactly; `theme/blocks` has 24 entries, some helpers) | the block registry | `MarkdownEditor.tsx` (`blocks.insert`) |
+| 4 | Language picker (a sheet with search) | 2 today (`da-DK`, `en-US`) | `locales = Object.keys(messages)` | `Library.tsx` (890), `src/i18n/index.ts` |
+| 5 | Add field menu (`Menu`) | 6 field kinds | fixed | `AddFieldMenu.tsx` |
+| | Dashboard card menu | about 5 (move up, move down, settings, divider, more) | the card | `DashboardEdit.tsx` |
+| | Editor text menus: Alignment 3, Text style 5, List 3, Heading 3 | 3 to 5 | fixed | `MarkdownEditor.tsx` |
+| | `FabMenu` (create) | the start screen 2 (pages, blog); a list one per kind | the site's lists | `StartFab.tsx`, `ListFab.tsx` |
+
+The longest real `Menu` today has 6 rows; the long lists are sheets and data-driven choices. The planned `⋮` menu (7 to 8 rows) would be the
+longest `Menu` we have. **How the theme `Menu` behaves when long:** `.menu` has `max-height: var(--menu-max-height, none)` and
+`overflow-y: auto` (`theme/styles/ui.css:3076-3081`); the popover form has `max-height: var(--menu-max-height, calc(100dvh - 2rem))` (:3274); the
+site's dropdown menu `min(20rem, calc(100dvh - 2rem))` (:3398). So it scrolls when too tall. The theme sets no scrollbar rule on `.menu` (the only
+`scrollbar-width: none` rules are for chips, the carousel and tabs), so it shows the browser's default, an overlay scrollbar on a phone that hides
+when idle. M3: "In this state, menus show a persistent scrollbar." So it does **not** match M3 on a phone. Menu rows are already 44 dp
+(`--menu-item-height: 2.75rem`, `theme/styles/global.css:262`).
+
 ## 9. Open questions for the owner (the PM asks them one at a time)
 
 Decided by the owner: one bar, no second row; the contextual tools slide in from the left, push the main tools right and out, and
 roll back; a divider between them; the main part is Insert, Undo, Redo, Section settings; text tools always show with the cursor in
-text; the bar and its menus are fixed at high density, outside the user's density choice (section 8); the bar never scrolls and what does not fit is in `⋮` (the `⋮` holds tools; question 1 of the earlier list); no sticky
+text; the bar and its menus are fixed at high density, outside the user's density choice (section 8); the bar never scrolls and what does not fit is in `⋮` (the `⋮` holds tools); on a phone the `⋮` is a pop-up menu, not a bottom sheet; the editor's bar and menus use a 44 × 44 dp hit area and are fixed at high density; no sticky
 question (one bar stays at the top).
 
 1. **Which main tools stay on the bar on a phone while a context is active?** With 44 dp hit areas there are 7 slots, so there is room for
    two. Recommendation: **Undo and Redo** (they are a pair, and an editor needs both at hand), with 4 contextual tools and `⋮` (Insert and
    Section settings in `⋮`). Options: Undo only (one more contextual tool on the bar, Redo in `⋮`), or none (all in `⋮`). This changed from my
    earlier recommendation of Undo only, which was for 6 slots.
-2. **On a phone, does `⋮` open the bottom sheet (the existing *More*) or a popover menu under the bar?** Recommendation: the bottom
-   sheet: it has room for up to 10 rows, it closes the keyboard, and M3 says "Consider adapting menus into bottom sheets on small
-   screens". On a computer it is a menu.
-3. **May the `⋮` list scroll if it is long** (more rows than the screen has, for example with the keyboard open)? Recommendation: yes, in
-   the sheet only, with the group titles staying in order; M3 allows it ("Menus can scroll when all menu items can't display at once",
-   with a scrollbar and dividers, not gaps). With the sheet closing the keyboard, it is rarely needed.
-4. **On a wide screen, are the main tools pushed out of sight too, or do both groups stay visible; and when idle, are the main tools
+2. **May the `⋮` pop-up scroll when it does not fit?** (Section 3 has the heights with and without the keyboard.) Recommendation: yes: the
+   Text list does not fit with the keyboard open (6 rows show of 8 in portrait), the theme's `Menu` already scrolls, and the editor's menu
+   gets `scrollbar-width: thin` and `scrollbar-gutter: stable` so M3's "persistent scrollbar" holds where the browser allows it; a half-cut last row is
+   the cue on a phone. The other choice is a shorter list with no scroll (move Colour and Lists to a second pop-up).
+3. **On a wide screen, are the main tools pushed out of sight too, or do both groups stay visible; and when idle, are the main tools
    at the left edge or centred as today?** Recommendation: both stay visible when they fit, and the main tools stand at the left edge when
    idle, so the slide-in from the left reads as a push.
-5. **Two small behaviours.** (a) Moving from one context to another (text to a Table, Table to Cards): a fade in place, not another slide
+4. **Two small behaviours.** (a) Moving from one context to another (text to a Table, Table to Cards): a fade in place, not another slide
    (recommendation), so the bar is calm while you click around. (b) When focus goes to the page header, a sheet or another screen: the bar
    rolls back at once, but not while a sheet that the bar opened (More, Settings) is open (recommendation).
-6. **Which density step for the bar and menus: -2 (40 dp tall, recommended) or -3 (36 dp)?** M3 has both; each takes 4 dp off the height. With
+5. **Which density step for the bar and menus: -2 (40 dp tall, recommended) or -3 (36 dp)?** M3 has both; each takes 4 dp off the height. With
    -2 a 24 dp icon keeps 8 dp of air above and below; with -3, 6 dp. The hit areas are 44 dp either way.
