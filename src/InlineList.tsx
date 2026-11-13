@@ -4,13 +4,12 @@
 // list has no row there is one, empty and faded: typing in it starts the first row; while it is active and has rows, a text button
 // below the last row (`Add list row`) adds one. The parts, the keys and what is kept are the shared ones of InlineItems.tsx and
 // src/inlineRows.mjs; this is the List's markup on them. Depends on the theme's List (themeUi.ts).
-import { ImageSquare, LinkSimple, Plus, Tag } from '@phosphor-icons/react';
+import { ImageSquare, LinkSimple, Tag } from '@phosphor-icons/react';
 import type { MouseEvent } from 'react';
-import { Glyph } from './icon';
 import { iconColorOf } from './iconColor';
 import { t } from './i18n';
 import { SiteButton, SiteList, SiteListItem } from './themeUi';
-import InlineItems, { InlineSlot, type Change, type Focus, type Item } from './InlineItems';
+import InlineItems, { InlineIcon, InlineSlot, type Change, type Focus, type Item } from './InlineItems';
 
 export type { Change, Focus };
 export type Row = {
@@ -72,15 +71,18 @@ export default function InlineList({
             aria-current={here ? 'true' : undefined}
             aria-label={next ? t.blocks.list.newRow : t.blocks.list.rowOf(i + 1, items.length)}
             className={['inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next'].filter(Boolean).join(' ')}
-            // The active row has its icon slot, empty or not; the others their icon, as the site draws them.
+            // The icon is the shared control: empty (a plus) while the row is active, and its icon, a tap on which opens the picker, on any row that has one.
             leading={
-              here && withIcon ? (
-                <InlineSlot label={t.blocks.list.icon} onClick={() => onIcon(i)}>
-                  {r.icon ? <Glyph icon={r.icon} size={24} /> : <Plus size={24} />}
-                </InlineSlot>
+              withIcon ? (
+                <InlineIcon
+                  label={t.blocks.list.icon}
+                  icon={r.icon}
+                  here={here}
+                  iconColor={r.icon ? iconColorOf(r.iconColor) : undefined}
+                  onClick={() => onIcon(i)}
+                />
               ) : undefined
             }
-            leadingIcon={here || !withIcon ? undefined : r.icon || undefined}
             data-icon-color={r.icon ? iconColorOf(r.iconColor) : undefined}
             headline={field('title', t.blocks.list.title, next ? t.blocks.list.newRow : t.blocks.list.title)}
             supporting={

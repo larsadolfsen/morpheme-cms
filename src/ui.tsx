@@ -1017,6 +1017,46 @@ export function ShownValue({ id, icon, muted, children }: { id?: string; icon?: 
   );
 }
 
+/** The round control of an icon, an image or a link, the same in a typed-in-place row and in a form: a 40 dp button with what is picked
+ * (the icon) or a plus while nothing is. A tap opens its picker. Rows use it through InlineSlot and InlineIcon (InlineItems.tsx), the
+ * icon field (IconPicker) uses it itself, so every place that picks an icon has this one control. */
+export function SlotButton({
+  label,
+  onClick,
+  pressed,
+  expanded,
+  controls,
+  iconColor,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  /** One of several kinds, and the one that is chosen. */
+  pressed?: boolean;
+  /** It opens something below it, shown or not. */
+  expanded?: boolean;
+  controls?: string;
+  /** The color role of the icon it shows (src/iconColor.ts), as the site draws it. */
+  iconColor?: string;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      className="inline-list-slot"
+      aria-label={label}
+      aria-pressed={pressed}
+      aria-expanded={expanded}
+      aria-controls={controls}
+      data-icon-color={iconColor}
+      title={label}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}
+
 /** One of many icons: the chosen one with its name, and a button that unfolds them in a grid to tap (ChoiceTile, the
  * chosen one marked); a tap picks one and folds them again. The choice with the value '' is no icon (a cross). `icon`
  * draws an icon by its value. The grid starts with `options`; the search field over it looks in `all` as well (the names of
@@ -1085,13 +1125,16 @@ export function IconPicker({
   return (
     <div id={id}>
       <div className="flex items-center gap-3">
-        {value && <LeadingIcon>{icon(value, 24)}</LeadingIcon>}
+        {/* The icon, or a plus while there is none: the round control of the rows (SlotButton); a tap opens the icons. */}
+        <SlotButton
+          label={value ? t.forms.changeIcon : t.forms.pickIcon}
+          expanded={open}
+          controls={grid}
+          onClick={() => setOpen((o) => !o)}
+        >
+          {value ? icon(value, 24) : <Plus size={24} />}
+        </SlotButton>
         <span className="min-w-0 flex-1 truncate">{chosen ? chosen.label : value ? iconLabel(value) : t.forms.noIconYet}</span>
-        {!open && (
-          <Button kind="outlined" size="small" aria-expanded={open} aria-controls={grid} onClick={() => setOpen(true)}>
-            {value ? t.forms.changeIcon : t.forms.pickIcon}
-          </Button>
-        )}
       </div>
       {open && (
         <div id={grid} className="editor-reveal mt-3">

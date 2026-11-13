@@ -770,6 +770,68 @@ async function checkInlineSingle(width, height, { name, hint, field, text, slot 
   await page.close();
 }
 
+/** Every block that picks an icon has the same control for it (the round button of ui.tsx, SlotButton): a plus while the row is active and has none, the icon once it
+ * has one, and a tap on the icon of a row that is not the active one opens the icon picker for that row and makes it the active one, in one tap. */
+async function checkIconSlots(width, height, { name, hint, add, field }) {
+  const label = `${width}px icon control in ${name}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().click();
+  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await page.locator('dialog[open] button', { hasText: hint }).first().click();
+  await page.waitForSelector(`.inline-list-row-active [data-field="${field}"]`, { timeout: 8000 });
+  await page.keyboard.type('One');
+  await page.waitForTimeout(300);
+  await page.locator('[data-add-row]').click();
+  await page.waitForTimeout(300);
+  await page.keyboard.type('Two');
+  await page.waitForTimeout(300);
+  const slotOf = (row) => page.locator(`[data-row="${row}"] .inline-list-slot[aria-label="Icon"]`);
+  // The active row has the control, empty: a plus, as a round button.
+  if ((await slotOf(1).count()) !== 1) problems.push(`${label}: the active row has no icon control`);
+  else if (!(await slotOf(1).evaluate((b) => b.tagName === 'BUTTON' && b.querySelectorAll('svg').length === 1)))
+    problems.push(`${label}: the icon control of the active row is not a button with its plus`);
+  if (await slotOf(0).count()) problems.push(`${label}: a row with no icon that is not active shows an icon control`);
+  // The first row gets an icon from its own control.
+  await page.locator(`[data-row="0"] [data-field="${field}"]`).click();
+  await slotOf(0).click();
+  const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
+  await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon control did not open the icon picker`));
+  await picker.getByRole('button').nth(1).click();
+  await page.waitForTimeout(400);
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  // Another row is active: the first row's icon is still the control, and one tap on it opens the picker and makes that row active.
+  await page.locator(`[data-row="1"] [data-field="${field}"]`).click();
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[data-row="1"].inline-list-row-active').count())) problems.push(`${label}: the second row is not active`);
+  if ((await slotOf(0).count()) !== 1) problems.push(`${label}: a row with an icon that is not active has no icon control`);
+  else {
+    await slotOf(0).click();
+    await page.waitForTimeout(400);
+    if (
+      !(await page
+        .getByRole('group', { name: 'Icon', exact: true })
+        .last()
+        .isVisible()
+        .catch(() => false))
+    )
+      problems.push(`${label}: a tap on the icon of a row that is not active does not open the icon picker`);
+    if (!(await page.locator('[data-row="0"].inline-list-row-active').count()))
+      problems.push(`${label}: a tap on the icon of a row that is not active does not make it the active row`);
+  }
+  await page.close();
+}
+
 /** `surface`: the item is a card with a container of its own, so it has a background colour. `start`: how many empty, faded items a new block starts with (the first active; typing in one makes the first item, and the others go). */
 async function checkInlineBlock(
   width,
@@ -2703,6 +2765,16 @@ for (const [width, height] of [
   await checkCardsCarousel(width, height);
   await checkIconColor(width, height);
 }
+for (const [width, height] of [
+  [375, 740],
+  [1280, 900],
+])
+  for (const name of ['list', 'segmented', 'buttons'])
+    await checkIconSlots(
+      width,
+      height,
+      inlineBlocks.find((b) => b.name === name),
+    );
 for (const block of inlineBlocks) await checkInlineBlock(375, 740, block);
 // On a computer too: the row's settings are in the side panel at once (a card's: its page and its buttons).
 for (const block of inlineSingles) for (const w of [375, 1280]) await checkInlineSingle(w, w < 600 ? 740 : 900, block);

@@ -1015,7 +1015,7 @@ html {
   color: var(--mo-on-surface-variant);
 }
 
-.editor-text .inline-list-slot {
+.inline-list-slot {
   display: grid;
   width: 2.5rem;
   height: 2.5rem;
@@ -1024,8 +1024,12 @@ html {
   color: var(--mo-on-surface-variant);
 }
 
-.editor-text .inline-list-slot:hover,
-.editor-text .inline-list-slot:focus-visible {
+.inline-list-slot[data-icon-color] {
+  color: var(--icon-color);
+}
+
+.inline-list-slot:hover,
+.inline-list-slot:focus-visible {
   background: var(--mo-surface-container-high);
   outline: none;
 }

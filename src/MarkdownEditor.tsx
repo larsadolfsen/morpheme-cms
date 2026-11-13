@@ -1189,8 +1189,9 @@ function blockCard(
                 );
             }}
             onIcon={(row) => {
-              // The row's icon slot: the icon picker at once, not the settings.
+              // The row's icon slot, also on a row that is not active: the row becomes the active one and its icon picker opens at once, not the settings.
               iconOf = row;
+              if (active !== row) change({ active: row, focus: null });
               syncRow(true);
             }}
           />,
