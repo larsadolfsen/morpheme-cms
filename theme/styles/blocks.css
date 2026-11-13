@@ -75,7 +75,7 @@
   --block-radius: 0.75rem;
   --block-radius-small: 1rem;
   --block-control-radius: 0.5rem;
-  --block-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  --block-shadow: 0 1px 3px color-mix(in srgb, var(--mo-shadow) 12%, transparent);
   --motion-spatial-fast: 230ms cubic-bezier(0.2, 0, 0, 1);
   --motion-spatial: 320ms cubic-bezier(0.2, 0, 0, 1);
   --motion-spatial-slow: 490ms cubic-bezier(0.2, 0, 0, 1);

@@ -45,7 +45,8 @@
   --radius: 0.75rem;
   /* The corners of something smaller in or beside a panel: an image in a list, a row in a menu, an icon's square. */
   --radius-small: 1rem;
-  --panel-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px -12px rgb(0 0 0 / 0.18);
+  --panel-shadow:
+    0 1px 2px color-mix(in srgb, var(--mo-shadow) 6%, transparent), 0 8px 24px -12px color-mix(in srgb, var(--mo-shadow) 18%, transparent);
   /* The motion scheme's curve (blocks.css, lib/motion.ts). */
   --ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
 
@@ -83,7 +84,9 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --panel-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 20px 40px -24px rgb(0 0 0 / 0.7);
+    --panel-shadow:
+      0 1px 2px color-mix(in srgb, var(--mo-shadow) 30%, transparent),
+      0 20px 40px -24px color-mix(in srgb, var(--mo-shadow) 70%, transparent);
   }
 }
 
@@ -96,7 +99,8 @@
 }
 
 :root[data-theme='dark'] {
-  --panel-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 20px 40px -24px rgb(0 0 0 / 0.7);
+  --panel-shadow:
+    0 1px 2px color-mix(in srgb, var(--mo-shadow) 30%, transparent), 0 20px 40px -24px color-mix(in srgb, var(--mo-shadow) 70%, transparent);
 }
 
 @layer fallback {
