@@ -26,14 +26,20 @@ on the thing you point at. A **part** is a ready-made piece of the theme (`theme
   text) and never on a list screen (there it starts selection, #529).
 - **Nothing new is drawn.** Menu and Search are theme parts. Two parts are missing and must be added to the theme: a menu that
   opens at a point (`Menu` with `at`), and a Search view that React can drive (the one today is only drawn in the editor).
-- **M3 has no command palette page.** The nearest is *Search*. That is a deviation, listed in section 9.
+- **M3 has no command palette page.** The palette is the owner's request (their words are quoted above), so it is built from what M3
+  does print: the Search view, a List, a top app bar icon button, tooltips. Everything the pages do not print is marked **M3 silent**
+  in section 1b, with the nearest M3 pattern, and is not presented as M3.
+- **The owner's rule (PM, 13 November): M3 everywhere except the editor's own workspace.** The workspace is the bar, its `⋮`, and the
+  text and block menus: there, and only there, a deviation is allowed, listed in section 9 with the M3 quote. The palette, the top-bar
+  button, the Search view, the lists in it and every theme part are **outside** the workspace: they follow what M3 prints.
 
 ## 1. What Material says (read 13 November 2026 with Playwright)
 
-Pages read (`goto` with `networkidle`, 4 s wait, `document.body.innerText`): `m3.material.io/components/menus/` overview, specs,
-guidelines, accessibility; `/components/search/` overview, guidelines, specs, accessibility; `/components/dialogs/` guidelines,
-accessibility; `/components/bottom-sheets/guidelines`; `/components/tooltips/guidelines`; `/foundations/interaction/inputs` and
-`/gestures`. Quotes are exact.
+Pages read (`goto` with `networkidle`, 3 to 4 s wait, `document.body.innerText`): `m3.material.io/components/menus/` guidelines, specs,
+accessibility; `/components/search/` overview, guidelines, specs, accessibility; `/components/lists/` guidelines, specs,
+accessibility; `/components/top-app-bar/guidelines`; `/components/icon-buttons/accessibility`; `/components/dialogs/` guidelines,
+accessibility; `/components/bottom-sheets/` guidelines, accessibility; `/components/tooltips/` guidelines, accessibility;
+`/foundations/interaction/inputs` and `/gestures`. Quotes are exact.
 
 **Menus** (guidelines)
 - "Use a menu to show a temporary set of actions. To show actions on screen at all times, use a toolbar instead."
@@ -78,6 +84,18 @@ accessibility; `/components/bottom-sheets/guidelines`; `/components/tooltips/gui
   the first interactive element ... If there's no leading icon, focus lands on the text field." Keys: "Arrows: Navigate between
   search result items". The hint text is the accessibility label; results are a list.
 
+**Top app bar** (guidelines): "The information and actions in the app bar should be contextual and specific to a page, but can also
+include global product controls, such as search or notifications." "App bars should only have one action, two if necessary." "If the
+product has many actions, place those in a toolbar."
+
+**Icon buttons** (accessibility): "On web, icon buttons should display a tooltip with an accessibility label." "The target size of each
+icon button should be at least 48dp". "Don't apply density to icon buttons by default."
+
+**Lists** (guidelines, accessibility): list items can have "Label text", "Supporting text", "Trailing text", "Leading icon"; "A leading icon
+should provide a quick visual cue that relates to the item's label text". "The first element in a list should always receive focus, unless
+the list has a selected element"; "navigate within the list using arrow keys"; "All list items must be able to be activated using the Space
+or Enter key." Lists specs: "Target size must be at least 48x48dp."
+
 **Dialogs** (guidelines)
 - "Dialogs are purposefully interruptive, so they should be used sparingly. A less disruptive alternative is to use a dropdown
   menu." "Use dialogs for prompts that block an app's normal operation, and for critical information that requires a specific
@@ -104,8 +122,26 @@ to multiple lines or including many pieces of information"; they "disappear 1.5 
   below the search bar"; it says nothing for a view opened by a key or an icon button. I wrote none.
 - The menus **web** status: the Search page says Web is "Unavailable" and the Menus page says gaps are not on web; the theme's parts
   are our own build of the design.
+- **The Search specs' measurements and tokens** (docked width and height, margins other than the two the guidelines print: "Unfocused:
+  24dp, Focused: 12dp"): the token tables are collapsed script modules and I did not expand them. I wrote **no size** for the palette;
+  it takes the theme's own Search view sizes (`--search-*`).
 - The images, videos and token tables of every page above (script-drawn, no text); the side-sheet pages (not read; the palette
-  does not use one); anything on keyboard shortcut labelling in tooltips (not found).
+  does not use one); anything on keyboard shortcuts (opening search, labelling them in tooltips: not found); web ARIA roles for search
+  (the page names Android and iOS roles only); the dialogs specs and top app bar accessibility pages (fetched, not relied on).
+
+### 1b. What is M3 and what is ours (M3 silent)
+
+So nothing of ours is read as M3. "Nearest M3" is the pattern I used where the pages say nothing.
+
+| Piece of the palette | M3 prints | Where M3 is silent: ours, and the nearest M3 pattern |
+| --- | --- | --- |
+| A palette that runs actions | Search "helps people find information quickly" in "products with many items to manage" | **No M3 page for running actions from a search.** Owner's request. Nearest: Search (focused search, results in a list) |
+| Entry | "Search icon button: Use when search is a secondary action"; the top app bar "can also include global product controls, such as search" | The key `Ctrl+K`: **M3 silent** on shortcuts for search. Nearest: none; owner's words. The app bar "should only have one action, two if necessary": the number of actions the top bar has today decides whether the button fits (question 5) |
+| Layout | Full-screen is the default for compact; docked "best for medium and expanded" and it "opens a list below the search bar" | Docked **without a bar**: M3 silent. Nearest: the theme's Search view as it is (it docks where the bar is); where that is for a button, not a bar, is question 10 |
+| Before typing | "Show historical suggestions before typing"; "Category labels, like Recent, ... or Suggestions" | How many (our 5 and 6), and which stored: ours |
+| Results | A list, "Leading icons", "Category labels", "Use gaps to separate a list of suggestions or results into groups", a clear icon, back icon; trailing text on a list item | The ranking, the 30 cap, folding `æøå`, the fuzzy rule and every score in 4.3: **ours**, tuning values for step 1, not M3 |
+| Keys | Arrows between results; Tab; Space or Enter activate (Search, Lists accessibility); Escape "dismiss elements" (Inputs) | `aria-activedescendant`, `Home`/`End`, `Enter` runs: ours, WAI-ARIA practice. M3 gives no web role for search |
+| Announcement | "the screen reader must announce the change" | The wording of the live region: ours |
 
 ## 2. What the editor has today
 
@@ -211,7 +247,7 @@ PHONE 375 px (full screen)               COMPUTER 1280 px (docked, scrim behind)
   (Bold: checked).
 - **Actions that cannot run now.** Only the **current context's** actions that are unavailable are shown, disabled, with the reason
   under the name ("Nothing to redo", "Select text first"): M3 "disabled rather than removed". Actions of a context you are not in
-  (table actions with the cursor in a paragraph) are not listed at all: they would be noise (deviation 3, section 9).
+  (table actions with the cursor in a paragraph) are not listed at all: they would be noise (deviation 2, section 9: allowed in the workspace; in the palette the current-context rule keeps M3's disabled items, and other contexts are left out as M3 silent on searches).
 - **Empty result:** "Nothing found for “x”". The field stays focused.
 
 ### 4.2 Opening, closing, running
@@ -270,8 +306,9 @@ the code, #529 says so too).
 - It is opened by the **top-bar search button** (no key on a phone). A text action from the palette on a phone works the same way (the
   selection is restored), though most phone users will use the bar; the palette still lists them (question 6).
 - Closing: the back gesture closes the palette before it leaves the screen (`useSheetBack`).
-- **From medium and wider:** docked at the top centre of the window under the top app bar, about 40 rem wide, with the scrim behind
-  (M3 does not say where a docked view stands without a search bar, see "could not read").
+- **From medium and wider:** the theme's Search view in its **docked** layout, with its own sizes and scrim, unchanged (M3: "Docked layout:
+  Best for medium and expanded windows"). Where it stands when a button and not a search bar opens it is **M3 silent** (1b); I give no
+  position or width. Question 10.
 
 ### 4.6 Recent actions
 
@@ -283,7 +320,9 @@ the code, #529 says so too).
 ### 4.7 Accessibility
 
 - **Container:** the theme's search view, a modal `<dialog>` (inert page behind, scrim, focus trapped; `lib/focusTrap.mjs` exists),
-  `aria-label` "Search actions". Escape closes. Not the *alert dialog* role of M3's dialog page: it is not a decision.
+  `aria-label` "Search actions". Escape closes (Inputs page: "People typically expect the Escape key ... to dismiss elements"). M3's
+  *alert dialog* role is for its basic dialog ("critical information"), which this is not. M3 names no web role for search (Android and iOS
+  only), so the roles below are the ones the theme's `Search` view already draws plus WAI-ARIA practice: **ours, not M3**.
 - **Field:** `role="combobox"`, `aria-expanded="true"`, `aria-controls` the list, `aria-autocomplete="list"`, **`aria-activedescendant`** the
   highlighted option (the focus stays in the field while arrows move through the list: M3 "Arrows: Navigate between search result
   items"). Initial focus on the field.
@@ -415,26 +454,27 @@ is a proposal for the owner to read; the build PR writes it in `da-DK/` and `che
 
 ## 9. Deviations from Material (entries for `docs/material-deviations.md`, added in the PR that builds each one)
 
-Each: Material says / we do / why / date / PR (PR number filled in when built).
+Each: Material says / we do / why / date / PR (PR number filled in when built). The PM's rule: a deviation is allowed only in the editor
+workspace (the bar, its `⋮`, the text and block menus), or when the owner says so in words. Entry 1 is outside the workspace and rests on the owner's
+words; entries 2 and 3 are inside it. What the pages are silent on is **not** a deviation: it is listed in 1b and in question 10.
 
-1. **A command palette is built from the Search view.**
+1. **A command palette is built from the Search view** (outside the workspace; owner's words).
+   - **Owner:** "a command palette: if the editor has dozens of functions, a floating search bar (Cmd/Ctrl+K, like VS Code, Figma, Notion) where the
+     user types the action" (13 November).
    - **Material:** "Use search for products with many items to manage, such as files or messages." and "Search helps people find
      information quickly." M3 has no page for running actions from a search; I found no command palette page.
-   - **We do:** the Search view lists and runs the editor's actions as well as finding content.
+   - **We do:** the Search view lists and runs the editor's actions as well as finding content; every other part is M3's (a List, an icon
+     button with a tooltip, menus).
    - **Why:** the owner's request (the editor has dozens of functions); Search is the closest M3 part, and a dialog is the wrong one ("Dialogs
      are purposefully interruptive ... used sparingly"). **Date:** 2026-11-13. **PR:** step 4.
-2. **The docked search view has no search bar behind it.**
-   - **Material:** "Docked: opens a list below the search bar, with a scrim covering main content."
-   - **We do:** a key (`Ctrl+K`) or the top bar's search icon button opens the view, docked at the top centre from medium, full screen on compact.
-   - **Why:** a bar for actions would take room the content needs (the owner: content first). M3 says nothing for a view opened by a key.
-     **Date:** 2026-11-13. **PR:** step 4.
-3. **A context menu shows only the target's actions, not every action disabled.**
+2. **A context menu shows only the target's actions, not every action disabled** (editor workspace).
    - **Material:** "When a menu item can only be used under specific conditions, it should appear disabled rather than be removed."
    - **We do:** within the target's own actions that rule holds (Redo is disabled, not removed). Actions that belong to another target (table
      actions on a paragraph, block actions on selected text) are not in the menu or the palette's current-context list at all.
    - **Why:** the owner's rule that selected text shows only text actions; a menu of every action disabled would be the long list the owner
-     does not want. **Date:** 2026-11-13. **PR:** steps 4 and 6.
-4. **Our menu replaces the browser's on selected text only, and never on a link or field.**
+     does not want. **Date:** 2026-11-13. **PR:** step 6. (The palette keeps M3's rule: a current-context action that cannot run is shown
+     disabled, section 4.1.)
+3. **Our menu replaces the browser's on selected text only, and never on a link or field** (editor workspace).
    - **Material:** "A secondary click ... opens a context menu." and, for text, "When using a mouse, trackpad, or stylus, show the I-beam and context menu".
    - **We do:** only on selected text, blocks, images, table cells and the empty line. A link, a text field and a collapsed caret keep the
      browser's menu. **Why:** the browser's menu has "Open in new tab", spelling and paste we cannot replace. **Date:** 2026-11-13. **PR:** step 6 (depends on question 3).
@@ -453,12 +493,12 @@ S = a day or less, M = a day or two. All are patch or empty changesets until ste
 3. **M, theme: a controlled Search view, grouped results, menu at a point (`at`).** In `theme/ui/` with the parts page (`#developer/parts`) updated, a
    `check:screens` entry, tokens only, and the shared type-ahead. Minor or patch (the owner decides).
 4. **M, the palette.** `CommandPalette.tsx`, the top-bar search button, `Ctrl/⌘+K`, recent, navigation, page and settings actions, phone full screen, focus
-   return, live region, the Danish texts. Deviation entries 1 and 2. **One release note paragraph** (it changes how the editor is used; `release-notes`
+   return, live region, the Danish texts. Deviation entry 1. **One release note paragraph** (it changes how the editor is used; `release-notes`
    skill, English and Danish): for example "Find anything with one key".
 5. **M, text and block actions in the registry.** `MarkdownEditor.tsx` and `contextualMenu.ts` register their actions (the bar reads them; with #519 steps 1
    and 2 not yet landed this is an adapter, and the bar's order is today's). The palette lists them. Shortcuts in tooltips and `aria-keyshortcuts`.
 6. **M, context menus.** Blocks, images, tables, list rows and the empty line: right click, `Shift+F10`, long press on blocks and images (phone
-   bottom sheet). Deviation entries 3 and 4.
+   bottom sheet). Deviation entries 2 and 3.
 7. **S, selected text.** Our menu with Cut, Copy and Paste (the clipboard calls), only after question 3 is answered.
 8. **S, polish.** Clear recent on sign-out, *Keyboard shortcuts* list, files as a provider (if the owner wants, question 2).
 
@@ -488,10 +528,16 @@ S = a day or less, M = a day or two. All are patch or empty changesets until ste
    right click gives the browser's (I could not confirm every browser does that). Recommendation: **(a)**, built last (step 7) so the rest ships first.
 4. **A right click on a list row or a link stays the browser's** (as #529 says), and the row's actions stay in the selection bar. Recommendation: **yes** for
    now; a row menu with Open, Select, Delete can come later.
-5. **A search icon button in the top bar on every screen size?** Recommendation: **yes**: a phone has no key, and it shows the feature exists.
+5. **A search icon button in the top app bar on every screen size?** M3 prints that an app bar "can also include global product controls, such as
+   search" and that it "should only have one action, two if necessary". Recommendation: **yes, if the top bar has room for it under that
+   rule** (step 4 counts today's actions on each screen); a phone has no key. If it is full, the button goes in the main menu's header instead.
 6. **On a phone, does the palette list the text actions?** Recommendation: **yes** (the selection is restored), so one list works everywhere.
 7. **Recent actions** kept in the browser only, cleared on sign-out and by *Clear recent actions*? Recommendation: **yes**.
 8. **Actions that do not exist yet:** Resize an image and Duplicate a block are in your examples and in neither the code nor #519 or #529. Recommendation: **not in
    this work**; Crop is listed. If you want them, each is its own small spec (resize needs a rule for how images are sized on the site).
 9. **Other shortcuts** (Save `Ctrl+S`, New page, Go to page)? The editor autosaves and has none now. Recommendation: **none beyond `Ctrl+K`** until you ask;
    the registry and its conflict test make adding one a one-line change.
+10. **Where does the docked palette stand on a computer?** M3 prints only that a docked view "opens a list below the search bar"; it says nothing for a
+    view opened by a button or a key, and the Search size tokens could not be read. Options: (a) the theme's Search view as it is built now (it docks
+    where a bar would be); (b) full screen on every size, which M3 prints for compact and needs no bar. Recommendation: **(a)**, so no size or place is
+    invented; if it looks wrong in the screens, (b).
