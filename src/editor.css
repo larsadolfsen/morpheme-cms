@@ -1550,7 +1550,7 @@ dialog {
 
 .editor-text .inline-buttons .inline-button .inline-list-field::placeholder {
   color: inherit;
-  opacity: 0.92;
+  opacity: 1;
 }
 
 .editor-text .inline-buttons-shared {
