@@ -2,4 +2,4 @@
 '@morphemecms/cms': minor
 ---
 
-Pages and posts have a Don’t follow links switch under Search engines, right after Hide from search engines. It is off by default, and when it is on the page tells search engines not to follow its links.
+Search engines have two switches on pages and posts: Hide from search engines is now called No index, and the new No follow, off by default, tells search engines not to follow the page’s links.

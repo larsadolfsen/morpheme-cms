@@ -1,5 +1,5 @@
 {
   "id": "nofollow-setting",
   "kind": "line",
-  "text": "Pages and posts have a Don’t follow links switch under Search engines"
+  "text": "Hide from search engines is now called No index, and a new No follow switch comes after it"
 }

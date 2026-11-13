@@ -70,7 +70,7 @@ const canonical: Field = {
 // Not for search engines: noindex, and not in the sitemap. Under "Search engines" too.
 const noindex: Field = {
   name: 'noindex',
-  label: 'Hide from search engines',
+  label: 'No index',
   type: 'boolean',
   hint: 'The page is not shown in Google.',
 };
@@ -78,13 +78,13 @@ const noindex: Field = {
 // Right after noindex: search engines do not follow the page's links (the robots meta tag says `nofollow`). Under "Search engines" too.
 const nofollow: Field = {
   name: 'nofollow',
-  label: 'Don’t follow links',
+  label: 'No follow',
   type: 'boolean',
   hint: 'Google does not follow the links on the page.',
 };
 
 // A post only: kept out of the blog and every list of posts, but open at its address, in Google and in the sitemap (not
-// `noindex`, "Hide from search engines"). In the settings with the status (EntryForm.tsx; packages/editor/lib/status.mjs).
+// `noindex`, "No index"). In the settings with the status (EntryForm.tsx; packages/editor/lib/status.mjs).
 const unlisted: Field = {
   name: 'unlisted',
   label: 'Hidden',

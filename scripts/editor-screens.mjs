@@ -2915,7 +2915,7 @@ async function checkEntrySettings(width, height) {
   }
 }
 
-/** "Search engines" of a new page and a new post has the switch "Don’t follow links" (off) directly after "Hide from search engines" (width, height). */
+/** "Search engines" of a new page and a new post has the switch "No follow" (off) directly after "No index" (width, height). */
 async function checkNofollowSwitch(width, height) {
   for (const hash of ['#new/pages', '#new/blog']) {
     const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
@@ -2942,12 +2942,10 @@ async function checkNofollowSwitch(width, height) {
         els.map((el) => (el.closest('label') ?? el.parentElement)?.textContent?.trim() ?? el.getAttribute('aria-label') ?? ''),
       );
     const at = (text) => labels.findIndex((l) => l.includes(text));
-    const [hide, follow] = [at('Hide from search engines'), at('Don’t follow links')];
-    if (hide < 0) problems.push(`${width}px ${hash} nofollow: no "Hide from search engines" switch (${labels.join(' | ')})`);
+    const [hide, follow] = [at('No index'), at('No follow')];
+    if (hide < 0) problems.push(`${width}px ${hash} nofollow: no "No index" switch (${labels.join(' | ')})`);
     else if (follow !== hide + 1)
-      problems.push(
-        `${width}px ${hash} nofollow: "Don’t follow links" is not the switch right after "Hide from search engines" (${labels.join(' | ')})`,
-      );
+      problems.push(`${width}px ${hash} nofollow: "No follow" is not the switch right after "No index" (${labels.join(' | ')})`);
     else {
       const on = await section
         .locator('[role="switch"], input[type="checkbox"]')

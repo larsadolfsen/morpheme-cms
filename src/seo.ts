@@ -27,7 +27,7 @@ export type SeoInput = {
   h1?: string;
   /** "Main keyword". */
   keyword?: string;
-  /** "Hide from search engines (noindex)". */
+  /** "No index" (noindex). */
   noindex?: boolean;
   /** "Canonical URL": the address of the page Google should count as the original. */
   canonical?: string;
