@@ -6,6 +6,6 @@ type Props = HTMLAttributes<'section'> & { as?: 'section' | 'div' | 'header' };
 const { as: Tag = 'section', class: className, ...rest } = Astro.props;
 ---
 
-<Tag class:list={['mx-auto max-w-6xl px-5 medium:px-8', className]} {...rest}>
+<Tag class:list={['mx-auto max-w-6xl px-4 medium:px-6', className]} {...rest}>
   <slot />
 </Tag>
