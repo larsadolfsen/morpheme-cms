@@ -18,7 +18,7 @@ export type Change = {
   active?: number | null;
   focus?: Focus | null;
   /** A grid's active column (the Table). */ col?: number | null;
-  /** Props of the block to set with the items (a Table's column alignment); `undefined` removes one. */
+  /** Props of the block to set with the items (a Table's `columns`); `undefined` removes one. */
   props?: Record<string, unknown>;
 };
 

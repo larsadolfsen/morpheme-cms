@@ -2175,7 +2175,7 @@ async function checkInlineTable(width, height) {
   await page.close();
 }
 
-/** A Table's column alignment (375 and 1280 px): a column of numbers is right-aligned, header and cells, and a text column left, in the editor typed in place and on the built site (/blocks/); the bar's Align column left, Centre column, Align column right and Align column automatically change the column of the active cell (the pressed one shown), and the choice is saved with the block (`align`, a second save writes the same text). */
+/** A Table's column alignment (375 and 1280 px): a column of numbers is right-aligned, header and cells, and a text column left, in the editor typed in place and on the built site (/blocks/); the bar's Align column left, Centre column, Align column right and Align column automatically change the column of the active cell (the pressed one shown), and the choice is saved with the block (`columns`, a second save writes the same text). */
 async function checkTableAlign(width, height) {
   const label = `${width}px table alignment`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -2301,8 +2301,8 @@ async function checkTableAlign(width, height) {
   };
   const one = await saved();
   const text = one.find((t) => t.includes('data-block="table"')) ?? '';
-  if (!/align[^\]]*center/.test(text)) problems.push(`${label}: the saved page does not carry the column's alignment`);
-  if (/align[^\]]*right/.test(text)) problems.push(`${label}: an automatic column was saved with a fixed alignment`);
+  if (!/columns[^\]]*center/.test(text)) problems.push(`${label}: the saved page does not carry the column's alignment`);
+  if (/columns[^\]]*right/.test(text)) problems.push(`${label}: an automatic column was saved with a fixed alignment`);
   const two = await saved();
   if (two.length && two.join() !== one.join()) problems.push(`${label}: a second save wrote another text`);
   await page.close();

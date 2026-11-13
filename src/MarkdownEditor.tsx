@@ -90,7 +90,7 @@ import type { Change, Focus, Item as Row } from './InlineItems';
 import { leaveOut } from './pageEmptyRows';
 import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
 import { addColumnAt, addRowAt, removeColumnAt, removeRowAt, trimmed } from './inlineGrid.mjs';
-import { alignAddedAt, alignCut, alignRemovedAt, chosenAlign, withAlign } from './standard/table/rows.mjs';
+import { chosenAlign, columnAddedAt, columnRemovedAt, columnsCut, withAlign } from './standard/table/rows.mjs';
 import { editorRows } from './standard/rows/view';
 import { fromLine, listPageOf } from './standard/rows/fields';
 import { sourceOf, withPart } from './standard/rows/rows.mjs';
@@ -1348,9 +1348,9 @@ function blockCard(
       const list = saved.length ? saved : [['']];
       const [r, c] = [active, col ?? 0];
       const width = list[0]?.length ?? 1;
-      const own = node.attrs.props.align;
-      const go = (cells: string[][], row: number, column: number, align: unknown = own) =>
-        change({ items: cells as unknown as Row[], props: { align }, active: row, col: column, focus: { row, field: String(column) } });
+      const own = node.attrs.props.columns;
+      const go = (cells: string[][], row: number, column: number, columns: unknown = own) =>
+        change({ items: cells as unknown as Row[], props: { columns }, active: row, col: column, focus: { row, field: String(column) } });
       // The alignment of the column of the active cell (`null`: automatic, by the cells); it stays in step as columns are added and deleted.
       const chosen = c < width ? chosenAlign(own, width)[c] : null;
       const aligned = (value: 'left' | 'center' | 'right' | null, kind: BarAction['kind'], label: string): BarAction => ({
@@ -1362,11 +1362,11 @@ function blockCard(
       return [
         { kind: 'above', label: spec!.texts.addAbove, action: () => go(addRowAt(list, r), r, c) },
         { kind: 'below', label: spec!.texts.addBelow, action: () => go(addRowAt(list, r + 1), r + 1, c) },
-        { kind: 'column-before', label: g.addColumnBefore, action: () => go(addColumnAt(list, c), r, c, alignAddedAt(own, width, c)) },
+        { kind: 'column-before', label: g.addColumnBefore, action: () => go(addColumnAt(list, c), r, c, columnAddedAt(own, width, c)) },
         {
           kind: 'column-after',
           label: g.addColumnAfter,
-          action: () => go(addColumnAt(list, c + 1), r, c + 1, alignAddedAt(own, width, c + 1)),
+          action: () => go(addColumnAt(list, c + 1), r, c + 1, columnAddedAt(own, width, c + 1)),
         },
         ...(list.length > 1 && r < list.length
           ? [{ kind: 'delete' as const, label: g.deleteRow, action: () => go(removeRowAt(list, r), Math.min(r, list.length - 2), c) }]
@@ -1376,7 +1376,7 @@ function blockCard(
               {
                 kind: 'delete' as const,
                 label: g.deleteColumn,
-                action: () => go(removeColumnAt(list, c), r, Math.min(c, width - 2), alignRemovedAt(own, width, c)),
+                action: () => go(removeColumnAt(list, c), r, Math.min(c, width - 2), columnRemovedAt(own, width, c)),
               },
             ]
           : []),
@@ -1579,13 +1579,13 @@ function blockCard(
       const list = rows();
       // A grid loses the empty rows and columns at its end (what was started in the next one and left); a list its empty rows.
       const kept = spec!.grid ? (trimmed(list as unknown as string[][]) as unknown as Row[]) : single ? list : withoutEmpty(list);
-      const cut = spec!.grid ? alignCut(node.attrs.props.align, (kept as unknown as string[][])[0].length) : undefined;
+      const cut = spec!.grid ? columnsCut(node.attrs.props.columns, (kept as unknown as string[][])[0].length) : undefined;
       if (
         spec!.grid
-          ? JSON.stringify(kept) !== JSON.stringify(list) || JSON.stringify(cut) !== JSON.stringify(node.attrs.props.align)
+          ? JSON.stringify(kept) !== JSON.stringify(list) || JSON.stringify(cut) !== JSON.stringify(node.attrs.props.columns)
           : kept !== list
       )
-        setItems(kept, spec!.grid ? { align: cut } : undefined);
+        setItems(kept, spec!.grid ? { columns: cut } : undefined);
       else draw();
     };
     document.addEventListener('pointerdown', away, true);

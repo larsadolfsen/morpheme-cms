@@ -110,7 +110,7 @@ export type InlineSpec = {
     addColumnAfter: string;
     deleteRow: string;
     deleteColumn: string;
-    /** The column of the active cell: left, centre, right, or automatic (by its cells); saved as the block's `align`, one per column. */
+    /** The column of the active cell: left, centre, right, or automatic (by its cells); saved in the block's `columns`, one entry per column. */
     alignLeft: string;
     alignCenter: string;
     alignRight: string;

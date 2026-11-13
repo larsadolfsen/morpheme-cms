@@ -24,48 +24,61 @@ const numeric = /^[-+−]?\s*[$€£¥kr.]*\s*\d[\d\s.,']*\s*(%|[a-zA-Z.]{0,3})?
 export const isNumber = (text) => numeric.test(text.trim());
 
 /**
- * The alignment the owner chose per column, as saved: `left`, `center` or `right`, and `null` (or missing) for automatic. Anything else is automatic.
- * @param {unknown} align
+ * The block's `columns`, one entry per column (`{ align?: 'left' | 'center' | 'right' }`, more keys later), as wide as the rows: a missing
+ * `columns`, a missing or a broken entry is an empty entry, which is automatic.
+ * @param {unknown} columns
  * @param {number} width
- * @returns {(Align | null)[]}
+ * @returns {{ align?: Align }[]}
  */
-export const chosenAlign = (align, width) =>
+export const columnsOf = (columns, width) =>
   Array.from({ length: width }, (_, c) => {
-    const v = Array.isArray(align) ? align[c] : null;
-    return v === 'left' || v === 'center' || v === 'right' ? v : null;
+    const e = Array.isArray(columns) ? columns[c] : null;
+    const entry = e && typeof e === 'object' ? { ...e } : {};
+    if (entry.align !== 'left' && entry.align !== 'center' && entry.align !== 'right') delete entry.align;
+    return entry;
   });
+
+/** The alignment the owner chose for each column (`null`: automatic). @param {unknown} columns @param {number} width @returns {(Align | null)[]} */
+export const chosenAlign = (columns, width) => columnsOf(columns, width).map((e) => e.align ?? null);
 
 /**
  * The alignment of each column as it is drawn: the owner's choice, else automatic: right when every cell of the column under the header is
  * a number (at least one), else left (Material 3: numbers right, text left).
  * @param {string[][]} rows rectangular
  * @param {boolean} header the first row is the header
- * @param {unknown} align the saved choice
+ * @param {unknown} columns the saved `columns`
  * @returns {Align[]}
  */
-export function alignOf(rows, header, align) {
+export function alignOf(rows, header, columns) {
   const body = header ? rows.slice(1) : rows;
-  return chosenAlign(align, rows[0].length).map((chosen, c) => {
+  return chosenAlign(columns, rows[0].length).map((chosen, c) => {
     if (chosen) return chosen;
     const cells = body.map((r) => r[c]).filter((v) => v.trim() !== '');
     return cells.length && cells.every(isNumber) ? 'right' : 'left';
   });
 }
 
-/** The saved choice as it is kept: nothing when every column is automatic (a table never touched is saved as before). @param {(Align | null)[]} align @returns {(Align | null)[] | undefined} */
-export const keptAlign = (align) => (align.some(Boolean) ? align : undefined);
+/** `columns` as it is kept: nothing when no column has a choice (a table never touched is saved as before). @param {{ align?: Align }[]} entries */
+export const keptColumns = (entries) => (entries.some((e) => Object.keys(e).length) ? entries : undefined);
 
-/** The choice with column `c` set (`null`: automatic). @param {unknown} align @param {number} width @param {number} c @param {Align | null} value */
-export const withAlign = (align, width, c, value) => keptAlign(chosenAlign(align, width).map((v, i) => (i === c ? value : v)));
+/** `columns` with the alignment of column `c` set (`null`: automatic). @param {unknown} columns @param {number} width @param {number} c @param {Align | null} value */
+export const withAlign = (columns, width, c, value) =>
+  keptColumns(
+    columnsOf(columns, width).map((e, i) => {
+      if (i !== c) return e;
+      const { align: _was, ...rest } = e;
+      return value ? { ...rest, align: value } : rest;
+    }),
+  );
 
-/** The choice after a column was put in at `at` (automatic). @param {unknown} align @param {number} width the width before @param {number} at */
-export const alignAddedAt = (align, width, at) => {
-  const now = chosenAlign(align, width);
-  return keptAlign([...now.slice(0, at), null, ...now.slice(at)]);
+/** `columns` after a column was put in at `at`. @param {unknown} columns @param {number} width the width before @param {number} at */
+export const columnAddedAt = (columns, width, at) => {
+  const now = columnsOf(columns, width);
+  return keptColumns([...now.slice(0, at), {}, ...now.slice(at)]);
 };
 
-/** The choice after column `c` was dropped. @param {unknown} align @param {number} width the width before @param {number} c */
-export const alignRemovedAt = (align, width, c) => keptAlign(chosenAlign(align, width).filter((_, i) => i !== c));
+/** `columns` after column `c` was dropped. @param {unknown} columns @param {number} width the width before @param {number} c */
+export const columnRemovedAt = (columns, width, c) => keptColumns(columnsOf(columns, width).filter((_, i) => i !== c));
 
-/** The choice cut to `width` columns (the grid lost its empty columns at the end). @param {unknown} align @param {number} width */
-export const alignCut = (align, width) => keptAlign(chosenAlign(align, width));
+/** `columns` cut to `width` columns (the grid lost its empty columns at the end). @param {unknown} columns @param {number} width */
+export const columnsCut = (columns, width) => keptColumns(columnsOf(columns, width));

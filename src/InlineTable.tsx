@@ -19,7 +19,7 @@ export default function InlineTable({ items, props, active, col, focus, onChange
   const width = rows[0].length;
   const header = props.header !== false;
   // Each column as the site draws it: the owner's choice, else numbers right and text left.
-  const align = alignOf(rows, header, props.align);
+  const align = alignOf(rows, header, props.columns);
   // The grid as it is saved: the rows the block has (a new block has no rows, which is one empty cell).
   const saved = items as unknown as string[][];
   useEffect(() => {
