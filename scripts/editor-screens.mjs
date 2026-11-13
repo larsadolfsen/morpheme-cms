@@ -680,6 +680,34 @@ async function checkLiveList(width, height, { name, hint, items }) {
   if (await page.locator('dialog[open]').count()) problems.push(`${label}: Insert opened a sheet`);
   if (!(await page.locator(`.site-block-inline ${items}`).count())) problems.push(`${label}: the block shows none of the demo's items`);
   await page.keyboard.type('Our list');
+  // The gear opens the settings: they do not repeat the heading and subheading typed in place, and still hold the rest.
+  if (phone)
+    await page
+      .locator('.contextual-menu button[aria-label="Edit"]')
+      .first()
+      .evaluate((b) => b.click());
+  else {
+    await page
+      .locator(
+        '.contextual-menu > button:last-child, .contextual-menu [aria-label="Testimonials"], .contextual-menu [aria-label="Blog posts"]',
+      )
+      .last()
+      .evaluate((b) => b.click());
+    await page.waitForTimeout(200);
+    await page.getByRole('menuitem', { name: 'Edit', exact: true }).first().click();
+  }
+  await page.waitForTimeout(500);
+  const settings = await page.evaluate(() =>
+    [
+      ...document.querySelectorAll('dialog[open] :is(label, legend, [data-field-label]), [data-side-sheet-container] :is(label, legend)'),
+    ].map((e) => e.textContent.trim()),
+  );
+  if (settings.some((x) => /^(heading|subheading)$/i.test(x)))
+    problems.push(`${label}: the settings repeat the typed heading or subheading (${settings.join(', ')})`);
+  if (!settings.length) problems.push(`${label}: the settings show no field`);
+  await page.screenshot({ path: join(shots, `live-list-settings-${name}-${width}.png`) });
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(300);
   const drawn = await page.evaluate(
