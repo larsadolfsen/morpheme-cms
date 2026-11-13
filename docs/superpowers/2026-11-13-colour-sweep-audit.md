@@ -28,3 +28,9 @@ the likely source of the computed contrast failures (the contrast worker owns th
 
 Check: `npm run check:colors` (`scripts/check-colors.mjs`, allow-list `scripts/check-colors.allow.mjs`, entries marked `todo`
 go with their fix PR).
+
+## Later decision: status colours
+
+The status badges (`--badge-ok`, `--badge-minor`, `--badge-major`) stay on the allow-list: Material 3 has no success or warning role.
+The M3 way is custom (extended) colours: a seed colour for each status, harmonised with the scheme's primary, generating its own
+four roles (colour, on-colour, container, on-container). A later decision; not built now.
