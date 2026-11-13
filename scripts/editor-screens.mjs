@@ -2932,7 +2932,7 @@ const ratioOf = `
 
 /** A section on an image (no colour): the text, the placeholder, the icons and the arrow of a list row typed in place are the theme's colour for text on an image, as on the site, and read on the image's scrim (4.5:1 for text, 3:1 for an icon), on a dark and on a bright photo, light and dark mode, on a phone and a computer. The contrast is taken against the scrim as drawn (the shade over the photo's average colour at the height of the part), so a part drawn in the page's own colours instead (dark on the dark scrim) fails. */
 async function checkSectionOnImage() {
-  const path = 'src/content/pages/about.md';
+  const path = BUILT_PAGE;
   const list =
     '<div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;List heading&quot;,&quot;text&quot;:&quot;Hej&quot;,&quot;href&quot;:&quot;/about/&quot;}]}"></div>';
   const photos = { dark: '/images/uploads/2026/10/moon.webp', bright: '/images/uploads/2026/10/earth-from-space.webp' };
@@ -2942,6 +2942,12 @@ async function checkSectionOnImage() {
         const label = `${width}px ${scheme} section on a ${photo} image`;
         const page = await browser.newPage({ viewport: { width, height: 900 }, colorScheme: scheme, locale: 'en-US' });
         page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+        // The photos are the demo's (the package carries them): a site that does not have them gets them here.
+        await page.route(`**${image}`, (route) => {
+          const own = join(DIST, image);
+          const file = existsSync(own) ? own : fileURLToPath(new URL(`../demo/public${image}`, import.meta.url));
+          return route.fulfill({ body: readFileSync(file), contentType: 'image/webp' });
+        });
         const text = `---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<div data-section="" data-picture="${image}" data-alt="A photo"></div>\n\n## Her kommer indhold\n\nBody text.\n\n${list}\n\n## Plain\n\nPlain.\n`;
         await openEditor(page, site, { [path]: text });
         await page.goto(`${site}/editor/#${path}`);
