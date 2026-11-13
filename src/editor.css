@@ -1533,6 +1533,10 @@ dialog {
   text-align: center;
 }
 
+.editor-text .inline-buttons .inline-button .inline-list-slot {
+  color: inherit;
+}
+
 .editor-text .inline-buttons-shared {
   display: contents;
   cursor: text;

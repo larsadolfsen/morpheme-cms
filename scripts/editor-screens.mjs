@@ -505,6 +505,25 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     if (fields.join() !== 'title,subhead,text')
       problems.push(`${label}: the typed fields of a card are "${fields}", not "title,subhead,text"`);
   }
+  if (name === 'buttons') {
+    // The active button has its icon area, empty while it has no icon; a tap on it opens the icon picker and a choice sets the icon.
+    const slot = page.locator('.inline-list-row-active .inline-list-slot[aria-label="Icon"]');
+    if ((await slot.count()) !== 1) problems.push(`${label}: the active button has no icon area`);
+    else {
+      if ((await slot.locator('svg').count()) !== 1) problems.push(`${label}: the empty icon area has no placeholder`);
+      await slot.click();
+      const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
+      await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon area did not open the icon picker`));
+      await picker.getByRole('button').nth(1).click();
+      await page.waitForTimeout(400);
+      // The sheet that is left open (a phone's) is closed to get back to the button.
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(400);
+      await page.locator('.inline-list-row [data-field="label"]').first().click();
+      if ((await page.locator('.inline-list-row-active .inline-list-slot[aria-label="Icon"] svg').count()) !== 1)
+        problems.push(`${label}: the chosen icon is not shown in the active button's icon area`);
+    }
+  }
   await page.keyboard.type('First');
   await page.waitForTimeout(300);
   const state = () =>
