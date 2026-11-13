@@ -1245,7 +1245,7 @@ async function checkInlineBlock(
           slot: slot ? ratio(getComputedStyle(slot).color, top, 1, slot) : null,
           outline: ratio(line.outlineColor, top, 1, row),
           // A list row's heading is the section's own text colour, as on the site (checkListRowColors).
-          heading: name === 'list' ? [getComputedStyle(row.querySelector('[data-field="title"]')).color, getComputedStyle(top).color] : null,
+          heading: name === 'list' ? [getComputedStyle(row.querySelector('[data-field="title"]')).color, getComputedStyle(top).color, slot && !slot.hasAttribute('data-icon-color') ? getComputedStyle(slot).color : null] : null,
         };
       }
       top.removeAttribute('data-section-color');
@@ -1255,6 +1255,11 @@ async function checkInlineBlock(
       if (got.heading && got.heading[0] !== got.heading[1])
         problems.push(
           `${label} (${scheme}): the row heading on a ${color} section is ${got.heading[0]}, not the section's text ${got.heading[1]}`,
+        );
+    for (const [color, got] of Object.entries(colors))
+      if (got.heading?.[2] && got.heading[2] !== got.heading[0])
+        problems.push(
+          `${label} (${scheme}): the row icon on a ${color} section is ${got.heading[2]}, not the row heading's ${got.heading[0]}`,
         );
     for (const [color, got] of Object.entries(colors))
       for (const [part, min] of [
@@ -2193,7 +2198,7 @@ const ratioOf = `
       return (Math.max(lum(front), lum(back)) + 0.05) / (Math.min(lum(front), lum(back)) + 0.05);
     };`;
 
-/** A list row's heading is the same colour as the section's heading and text, on every section colour, light and dark, on a phone and a computer; on a coloured section its icon, arrow and supporting text too (on Surface the supporting text is the quieter, as the section's other secondary text). */
+/** A list row's heading is the same colour as the section's heading and text, on every section colour, light and dark, on a phone and a computer; its icon and arrow too (and the supporting text on a coloured section; on Surface it is the quieter, as the section's other secondary text). */
 async function checkListRowColors() {
   for (const scheme of ['light', 'dark']) {
     for (const width of [375, 1280]) {
@@ -2226,9 +2231,9 @@ async function checkListRowColors() {
           problems.push(
             `${width}px ${scheme} list row on a ${color} section: the heading is ${c.heading}, the section's heading ${c.h1} and text ${c.text}`,
           );
-        if (color !== 'surface' && (c.icon !== c.heading || c.chevron !== c.heading || c.supporting !== c.heading))
+        if (c.icon !== c.heading || c.chevron !== c.heading || (color !== 'surface' && c.supporting !== c.heading))
           problems.push(
-            `${width}px ${scheme} list row on a ${color} section: the icon ${c.icon}, text ${c.supporting} or arrow ${c.chevron} is not the heading's ${c.heading}`,
+            `${width}px ${scheme} list row on a ${color} section: the icon ${c.icon}, arrow ${c.chevron} or (not on Surface) text ${c.supporting} is not the heading's ${c.heading}`,
           );
       }
       await page.close();
