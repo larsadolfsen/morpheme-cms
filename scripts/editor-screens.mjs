@@ -721,6 +721,36 @@ async function checkFoldRows(width, height) {
   await page.close();
 }
 
+/** A page's and a post's form has no "Other fields" fold: "Page settings" ("Post settings") holds the URL, the Short description and the Tags, and no "For review" box is lost to it (width, height). */
+async function checkEntrySettings(width, height) {
+  for (const [hash, folds, fields] of [
+    ['#new/pages', 'Page settings', ['URL', 'Short description', 'Tags']],
+    ['#new/blog', 'Post settings', ['URL', 'Short description']],
+  ]) {
+    const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${width}px ${hash} settings: ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate((h) => (location.hash = h), hash);
+    const buttons = page.locator('section[aria-labelledby] > h2 > button[aria-expanded]');
+    await buttons.first().waitFor();
+    await page.waitForTimeout(300);
+    const titles = (await buttons.allTextContents()).map((t) => t.trim());
+    if (titles.some((t) => t.startsWith('Other fields')))
+      problems.push(`${width}px ${hash}: still has an "Other fields" fold (${titles.join(', ')})`);
+    if (titles.some((t) => t.startsWith('Earlier versions')))
+      problems.push(`${width}px ${hash}: "Earlier versions" is called "History" now`);
+    const settings = buttons.filter({ hasText: folds });
+    if (!(await settings.count())) problems.push(`${width}px ${hash}: no "${folds}" fold (${titles.join(', ')})`);
+    else {
+      if ((await settings.first().getAttribute('aria-expanded')) !== 'true') await settings.first().click();
+      const section = page.locator('section[aria-labelledby]').filter({ has: page.locator('h2', { hasText: folds }) });
+      const text = await section.first().textContent();
+      for (const label of fields) if (!text.includes(label)) problems.push(`${width}px ${hash}: "${folds}" lacks "${label}"`);
+    }
+    await page.close();
+  }
+}
+
 /** Settings lists the seven screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
 async function checkSettingsAndMenu(width, height) {
   const label = `${width}px`;
@@ -1278,8 +1308,10 @@ for (const [width, height] of [
   [390, 844],
   [414, 896],
   [1280, 900],
-])
+]) {
   await checkFoldRows(width, height);
+  await checkEntrySettings(width, height);
+}
 await checkToolbarBox();
 await checkPreviewSection();
 for (const w of [360, 375, 390, 414]) await checkPreviewDraft(w);
