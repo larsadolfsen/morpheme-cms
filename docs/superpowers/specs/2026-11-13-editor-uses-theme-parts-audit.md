@@ -17,6 +17,11 @@ Date: 2026-11-13. Audit only, no code changed. Written for the owner, who reads 
   replaces today's square crops (`aspect-square`).
 - Preview screen (question 4): **yes**, add a full-screen kind to the theme's `Dialog` and use it for the Preview. After the
   toolbar work, its top bar uses the same `Toolbar` part. The plan order stays (row 6 after rows 2 and 3).
+- Save bar (question 5): the bar at the bottom of pages, blocks and every other form (`FormFrame.tsx`, `.editor-save-bar`) must
+  **not** have its own design: no see-through blur, no bar built from Tailwind classes. Owner: "If it's the same bar at the
+  bottom of the screen on pages and blocks, it should use the bottom sheet design and not its own custom design." It
+  becomes a theme part, one part for every form that shows it. The blur is dropped; it is not asked again. Which theme
+  part fits is compared in "The save bar" below.
 - Motion already has tokens (`--motion-spatial-*`, `--motion-effects-*`, `--motion-ease`). Spacing has none yet
   (`docs/material-deviations.md`, CSS sweep 8): the first step of row 11 is to add them to the theme.
 
@@ -52,7 +57,7 @@ Size: small = under a day, medium = a day or two, large = a week or a design dec
 | 4 | Plain buttons used as rows or controls: `MarkdownEditor.tsx:752` (menu-like row), `ui.tsx:2898` (`SectionList` item, class `.section-list-item`), `ui.tsx:2538` (`FoldSection` header), `ui.tsx:1044` (`SlotButton`, class `.inline-list-slot`), `UpdatesNotice.tsx:80` (info button), `ui.tsx:763` (colour swatch button) | Each is a `<button>` with its own Tailwind classes for size, corner, hover and focus ring. Each has a theme part that fits: `MenuItem`/`ListItem`, a navigation item, the accordion's header, `IconButton`. | small each (six small fixes) | 4 |
 | 5 | `ChoiceCards` and `ChoiceTile` (`ui.tsx:1702`) | A `<label>` that wears the theme's outlined-card class and then sets the card's private variables (`--card-outlined-line`, `--card-outlined-surface`) from the editor to show "selected". A theme that changes the card's insides breaks this. | medium (a selectable card kind in `theme/ui/Card`) | 5 |
 | 6 | Preview screen (decided: a full-screen kind of the theme `Dialog`, its top bar the same `Toolbar` part as row 2): `<dialog class="editor-preview-screen">` in `pagePreview.tsx:231`, `editor.css:1483` | A full-screen dialog drawn by the editor. M3 has a full-screen dialog; the theme's `Dialog` has no such kind. | medium | 6 |
-| 7 | Save bar: `FormFrame.tsx:236`, `.editor-save-bar` | A fixed bar built from Tailwind (`border-t bg-surface-container-lowest/90 backdrop-blur-md`) with its own slide-in. M3 calls this a bottom app bar or docked toolbar; the theme has `Toolbar` kind `docked`. The blur and the 90% see-through are not M3. | small to medium | 7 |
+| 7 | Save bar (decided: a theme part, the standard bottom sheet; see "The save bar" below): `FormFrame.tsx:236`, `.editor-save-bar` | A fixed bar built from Tailwind (`border-t bg-surface-container-lowest/90 backdrop-blur-md`) with its own slide-in, and seven places in `editor.css` and one in `MarkdownEditor.tsx` that move other things out of its way by its class name. The blur and the 90% see-through are not M3. | medium (a docked actions form of the sheet, then `FormFrame` and the offsets) | 7 |
 | 8 | `ScoreRing` (`ui.tsx:2597`) | Draws its own SVG ring and tone classes. The theme already has `CircularProgressIndicator` (`theme/ui/ProgressIndicator.tsx`). | small | 8 |
 | 9 | Tables and lists: `InlineTable.tsx` (editor's table block), the Library, Files, Redirects and own lists (`ListItem` rows with columns) | The table block already shares the block's CSS (`.block-table-grid` in `blocks.css`), but the editor adds `.inline-table-box` rules (`editor.css:1568-1585`). The lists are built from `ListItem`, not a table. | large, already planned: the owner's `DataTable` in `theme/ui/` | by the owner's plan |
 | 10 | Editor-only parts with no theme version: `FoldSection`/`FoldList`, `SectionPane`, `ColorWheel`, `ColorSwatches`, `IconPicker`, `IconSwatches`, `CheckList`, `ShownValue`, `FormColumns`, `Group`, `Notice`'s layout | Drawn in the editor from tokens, but a theme author cannot restyle them as parts. Candidates to move: `FoldSection` (becomes the accordion part), `CheckList` (a list kind), `Group` and `FormColumns` (layout only, can stay). The colour and icon pickers are editor tools and can stay. | medium (decide per part) | 9 |
@@ -63,6 +68,42 @@ Already recorded and not repeated here (`docs/material-deviations.md`): the sect
 PageSpeed and Google preview colours, the colour picker, the Preview frame on white, the video still, the dialog and menu
 corners, hero button and row sizes, the 48 dp icon button, the focus ring, and the editor's page preview using the site's
 text sizes (CSS sweep 9).
+
+### The save bar
+
+What it is: one bar at the bottom of the screen on a page, a block and every other form that has unsaved changes
+(`FormFrame.tsx`, used by most forms). It holds Save, Cancel-type buttons and Preview, and comes and goes with the
+form's changes.
+
+| | Theme `BottomSheet`, kind `standard` | Theme `Toolbar`, kind `docked` |
+| --- | --- | --- |
+| What M3 says it is for | A surface at the bottom with content or actions, usable page behind it, no scrim (M3 "standard bottom sheet") | A row of actions for the content on the screen (M3 Expressive toolbar; replaces the old bottom app bar) |
+| Already in the theme? | Yes: non-modal, docked, no scrim, states `collapsed`, `half-expanded`, `expanded`, `hidden`; one fixed state with `states={['expanded']}`; handle and header can be left out; from medium it is a side sheet (`wide: 'side-sheet'`, the default) or stays a bottom sheet with margins (`wide: 'sheet'`) | Yes: full width at the bottom, standard or vibrant colour, `role="toolbar"` with arrow-key moves |
+| Same surface, corner and shadow as the editor's other sheets | Yes (`--bottom-sheet-*`), one design for every sheet | No, its own `--toolbar-*` look |
+| Holds a Save and Cancel row | Needs a place for buttons: its `footer` is a `<p>`, which is wrong for buttons | Yes, built for buttons |
+| Owner's rule | Matches the owner's words (bottom sheet design) | Not what the owner asked for |
+
+**Recommendation: the standard bottom sheet**, as the owner said. It is the part that is already a non-modal, docked sheet,
+it looks like the editor's other sheets, and a theme styles the Save area with the same `--bottom-sheet-*` tokens as the
+rest. The docked `Toolbar` stays for the contextual row (decision 2). One part serves pages, blocks and every other form,
+because they all go through `FormFrame`.
+
+What the sheet lacks for this, to be added to the theme part (not to the editor):
+1. An **actions form**: a fixed sheet with no handle and no header that is only as tall as its button row, plus the safe-area
+   gap at the bottom (`dragHandle={false}`, one state, `wide='sheet'` today gives most of this; the sizing needs a check).
+2. A **`footer` that can hold buttons**: a `<div>` slot (an `actions` prop) instead of the `<p>` footer.
+3. **Appear and disappear** with the form's changes (state `hidden` to its shown state, with the theme's motion token), so
+   `FormFrame` does not draw its own `editor-rise` animation.
+4. **Wide screens**: stay a bottom bar from medium (`wide='sheet'`) and sit beside the navigation rail or drawer. Today
+   `editor.css` moves the bar by `--navigation-rail-width`, `--navigation-drawer-width`, the "on this page" pane and the
+   side panel (lines 650, 658, 735, 771). The part should take those from one theme variable (a start and end inset), so the
+   editor sets two variables and a theme can restyle the rest.
+5. A **stacking order** with the FAB and the snackbar stack: today `editor.css` lifts the FAB and the messages above the bar
+   by class name (lines 602-640, and its slide-in at 360-373) and `MarkdownEditor.tsx:1008` reads `.editor-save-bar`'s position. These should read a
+   `--bottom-bar-height` variable the part sets, so no screen names the bar's class.
+
+Size: medium (the actions form and variables in the theme: small to medium; moving `FormFrame` and removing the class
+couplings: small). Order stays row 7, after the toolbar, image tile and dialog work.
 
 ### What a theme author cannot style today
 
@@ -113,8 +154,7 @@ Extend `check:css-values` (it already reads `theme/`, `src/`, `pages/` and runs 
 2. ~~Floating menus~~ Decided by the owner: yes, the theme's `Toolbar`, as a docked row below the main toolbar (see Decisions above).
 3. ~~Image tile part~~ Decided by the owner: yes, image only, staggered grid in the image's own proportions (see Decisions above and row 3).
 4. ~~Full-screen dialog kind for the Preview~~ Decided by the owner: yes (see Decisions above and row 6).
-5. **Should the save bar's see-through blur stay?** It is not M3. Recommendation: drop it and use the theme's docked
-   toolbar, then record it in the deviations file if the owner wants it kept.
+5. ~~Save bar blur~~ Decided by the owner: no blur, no custom bar; it becomes the bottom sheet part (see Decisions and row 7).
 6. **Which editor-only parts should become theme parts (row 10)?** Recommendation: only `FoldSection` (use the accordion
    part), `CheckList` and `ScoreRing` (use the circular progress). Keep the colour and icon pickers in the editor.
 7. **Turn on the "parts" rule (section 4) in the same pull request that fixes the first rows, or first as a list that
