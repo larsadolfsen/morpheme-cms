@@ -1935,7 +1935,7 @@ async function checkNewList(width, height, label) {
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
       problems.push(`${label}: the dialog scrolls sideways`);
     // A name that is taken ("Blog posts" folder, a collection) is refused.
-    await dialog.getByLabel('Name').fill('Categories');
+    await dialog.getByLabel('Name').fill('Blog posts');
     await dialog.getByRole('button', { name: 'Create' }).click();
     await dialog
       .getByText('A list with this name exists. Choose another name.')
