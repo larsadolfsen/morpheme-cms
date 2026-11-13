@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { demoBlocksPage, demoBlocksProblems, editorBlocks, legacyBlocks, typesOnPage } from './demo-blocks.mjs';
+import {
+  demoBlocksPage,
+  demoBlocksProblems,
+  editorBlocks,
+  legacyBlocks,
+  offeredValues,
+  styleProblems,
+  typesOnPage,
+} from './demo-blocks.mjs';
 
 const editor = { offered: ['list', 'steps'], former: ['points'] };
 const legacy = { points: 'old' };
@@ -33,4 +41,25 @@ test('typesOnPage lists each type once', () => {
 
 test('the real Blocks page matches the real editor', () => {
   assert.deepEqual(demoBlocksProblems(demoBlocksPage(), editorBlocks(), legacyBlocks), []);
+});
+
+test('offeredValues reads the values of a field from the code', () => {
+  assert.deepEqual(
+    offeredValues("{ name: 'x',\n      options: [\n        { label: 'A', value: '' },\n        { label: 'B', value: 'b' },\n      ],", 'x'),
+    ['', 'b'],
+  );
+  assert.deepEqual(offeredValues('', 'x'), []);
+});
+
+test('the real Blocks page shows every style the editor offers', () => {
+  assert.deepEqual(styleProblems(demoBlocksPage()), []);
+});
+
+test('a missing button kind or card design is reported', () => {
+  const text = demoBlocksPage()
+    .replaceAll('&quot;kind&quot;:&quot;text&quot;', '&quot;kind&quot;:&quot;filled&quot;')
+    .replaceAll('&quot;design&quot;:&quot;elevated&quot;', '&quot;design&quot;:&quot;filled&quot;');
+  const problems = styleProblems(text);
+  assert.ok(problems.some((p) => /"text" button/.test(p)));
+  assert.ok(problems.some((p) => /"cards" with design "elevated"/.test(p)));
 });

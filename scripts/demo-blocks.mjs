@@ -53,4 +53,60 @@ export function demoBlocksProblems(text, { offered, former }, legacy = legacyBlo
   return problems;
 }
 
+/** The values of the choices a field offers, read from the block's code: `buttonKinds` (src/standard/view.tsx) or the `options` of the field `name` in the block's index.tsx. */
+export function offeredValues(source, name) {
+  const at = source.search(new RegExp(`name:\\s*'${name}'`));
+  if (at < 0) return [];
+  const from = source.indexOf('options: [', at);
+  const end = from < 0 ? -1 : source.indexOf('\n      ],', from);
+  if (end < 0) return [];
+  return [...source.slice(from, end).matchAll(/value:\s*'([^']*)'/g)].map((m) => m[1]);
+}
+
+/** The styles that must each be shown: [block, prop, the value an empty prop stands for]; the values come from the editor's code. */
+export const styleChecks = [
+  ['cards', 'design', ''],
+  ['cards', 'color', ''],
+  ['cards', 'media', 'icon'],
+  ['cards', 'phone', ''],
+  ['segmented', 'show', ''],
+  ['posts', 'design', ''],
+  ['posts', 'show', 'categories'],
+  ['testimonials', 'layout', 'cards'],
+];
+
+const propsOf = (text, type) =>
+  [...text.matchAll(/data-block="([^"]+)" data-props="([^"]*)"/g)]
+    .filter((m) => m[1] === type)
+    .map((m) => JSON.parse(m[2].replaceAll('&quot;', '"').replaceAll('&amp;', '&')));
+
+/** What the page does not show of the styles a block offers: every button kind, and each value of the choices in styleChecks, plus a table with and without header and rows with a background. */
+export function styleProblems(text, dir = join(root, 'src/standard')) {
+  const problems = [];
+  const buttons = propsOf(text, 'buttons').flatMap((p) => p.items ?? []);
+  const view = readFileSync(join(dir, 'view.tsx'), 'utf8');
+  const kinds = [...(view.match(/buttonKinds = \[([^\]]*)\]/)?.[1] ?? '').matchAll(/'([^']+)'/g)].map((m) => m[1]);
+  if (!kinds.length) problems.push('buttonKinds not found in src/standard/view.tsx.');
+  for (const k of kinds) {
+    if (!buttons.some((b) => (b.kind ?? 'filled') === k)) problems.push(`The Buttons example shows no "${k}" button.`);
+  }
+  for (const [type, prop, empty] of styleChecks) {
+    const file = join(dir, type, 'index.tsx');
+    const values = existsSync(file) ? offeredValues(readFileSync(file, 'utf8'), prop) : [];
+    if (!values.length) {
+      problems.push(`No options found for "${prop}" of "${type}" in its code; fix styleChecks (scripts/demo-blocks.mjs).`);
+      continue;
+    }
+    const blocks = propsOf(text, type);
+    for (const v of values) {
+      if (!blocks.some((p) => (p[prop] || empty) === v))
+        problems.push(`The Blocks page shows no "${type}" with ${prop} "${v || 'default'}".`);
+    }
+  }
+  const tables = propsOf(text, 'table');
+  if (!tables.some((p) => p.header === false)) problems.push('The Blocks page shows no table without a header row.');
+  if (!tables.some((p) => p.striped === true)) problems.push('The Blocks page shows no striped table.');
+  return problems;
+}
+
 export const demoBlocksPage = () => readFileSync(join(root, 'demo/src/content/pages/blocks.md'), 'utf8');
