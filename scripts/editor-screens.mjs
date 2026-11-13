@@ -2188,8 +2188,10 @@ async function checkTableAlign(width, height) {
   await page.waitForTimeout(300);
   const saved = async () => {
     const before = commits.length;
+    // A page with nothing changed has no Save draft to press: nothing is written a second time.
+    if (!(await page.locator('button', { hasText: /^Save draft$/ }).count())) return [];
     await page
-      .getByRole('button', { name: 'Save draft', exact: true })
+      .locator('button', { hasText: /^Save draft$/ })
       .first()
       .evaluate((b) => b.click());
     await page.waitForTimeout(900);
