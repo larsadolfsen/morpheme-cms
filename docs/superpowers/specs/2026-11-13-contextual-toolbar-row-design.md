@@ -59,7 +59,7 @@ Pages read: `m3.material.io/components/toolbars/` overview, specs, guidelines, a
   owner's design and not in M3. Deviation.
 - **Sizes and targets.** "By default all toolbars are 64dp high ... minimum outside padding of 16dp." "All elements need a
   minimum 48x48dp target area." "Consider making touch targets at least 48 x 48dp" (foundations/structure). "Only shrink the height
-  and use extra small buttons if vertical space is limited." Our bar is 40 dp high (step -2, section 8), with 44 dp targets (the owner's decision, a deviation).
+  and use extra small buttons if vertical space is limited." Our bar is 44 dp high (section 8): its buttons are 44 × 44 dp, the owner's decision, a deviation.
 - **Keyboard and role.** "On web, the toolbar container should have the toolbar role." "Tab or Arrows: Navigate between
   interactive elements; Space or Enter: Activate." The theme's `Toolbar` has one Tab stop with arrows inside.
 - **Tabs instead of a menu.** See section 3: not used.
@@ -75,8 +75,8 @@ so the theme's `Toolbar` is our own build of the design.
    (the bar stays with the text). Why: it belongs to the text box; the bottom is the keyboard and the save bar.
 3. *Contextual tools slide in and push the main tools out.* M3: no such behaviour is described. We: the contextual tools slide in
    from the leading side and push the main tools out of view; they slide back when the context is left. Why: owner's decision.
-4. *Bar height 40 dp, not 64 dp.* M3 allows shorter "if vertical space is limited". We: 40 dp on every screen size (step -2; the density
-   entries are in section 8). Why: it
+4. *Bar height 44 dp, not 64 dp.* M3 allows shorter "if vertical space is limited". We: 44 dp on every screen size (the button size, no extra
+   padding; section 8). Why: it sits over the text; a phone is short.
    sits over the text; a phone is short.
 
 ## 3. The bar
@@ -85,7 +85,7 @@ Decided by the owner: the bar never scrolls sideways ("No scroll in the menu" re
 in the `⋮` drop-down, and the `⋮` holds tools). Whether the `⋮` list may scroll when it is long was decided: yes, it may scroll (section 3).
 
 ```
-PHONE 375 px (room: 343 dp = 375 minus two 16 dp edges; 7 hit areas of 44 dp = 308 dp, 35 dp left for the divider and gaps)
+PHONE 375 px (room: 343 dp = 375 minus two 16 dp edges; 7 buttons of 44 dp = 308 dp, plus the divider 17 dp = 325 dp, 18 dp left)
 
 Idle (focus outside the text and blocks): all four fit, no ⋮
 +--------------------------------------------+
@@ -115,7 +115,7 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
   (the order in the lists below; a `ResizeObserver` measures the bar like `useToolbarLines` does now, and no timer is used). This is
   M3's own rule ("put them in an overflow menu in the trailing slot", "become visible again at larger sizes"), so the scroll
   deviation of the earlier drafts is gone.
-- **The rule at 375 px (owner: one 44 × 44 hit area, section 8).** `slots = floor((width − 32 − divider) / 44)`: 343 / 44 = 7.8, so **7
+- **The rule at 375 px (owner: 44 × 44 buttons, section 8).** `slots = floor((width − 32 − divider) / 44)`: 343 / 44 = 7.8, so **7
   slots at 375 px**, and 7 at 360 px too (328 / 44 = 7.45). A slot is a tool, Undo, Redo or `⋮`. A context's own tools come first, then the
   divider, **Undo and Redo** (the main tools kept in view; decided by the owner), then `⋮`. Everything else of the context and of the main tools is
   in `⋮`, in groups: the context's tools first, then the page tools, then (blocks) Hide, Move, Remove. At 320 px (288 dp) 6 slots fit and
@@ -148,15 +148,15 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
 
   **How long the `⋮` list gets (heights are estimates where marked).** Row 44 dp, menu padding 8 dp above and below. Longest: Text, with
   Section settings = 8 rows (352 dp) + one divider + padding ≈ 378 dp. Table and List: 7 rows + 2 dividers ≈ 342 dp. The other blocks: 3 to 6
-  rows. Room under the bar (bar 40 dp; status bar 24 dp, my estimate; keyboard 290 dp portrait and about 160 dp landscape, my
+  rows. Room under the bar (bar 44 dp; status bar 24 dp, my estimate; keyboard 290 dp portrait and about 160 dp landscape, my
   estimates, not read from a device):
 
   | Phone | Room for the pop-up | Text (≈ 378) | Table, List (≈ 342) |
   | --- | --- | --- | --- |
-  | 375 × 667, portrait, no keyboard | 667 − 24 − 40 ≈ 603 dp | fits | fits |
-  | 375 × 667, portrait, keyboard open | 667 − 290 − 24 − 40 ≈ 313 dp, minus 8 dp margin ≈ 305 | scrolls: 6 rows show | scrolls: 6 rows show |
-  | 667 × 375, landscape, no keyboard | 375 − 40 ≈ 335 dp (status bar assumed hidden in landscape, an estimate), minus 8 ≈ 327 | scrolls: 7 rows show | nearly fits: 7 rows |
-  | 667 × 375, landscape, keyboard open | 375 − 160 − 40 ≈ 175 dp, minus 8 ≈ 167 | scrolls: 3 rows show | scrolls: 3 rows show |
+  | 375 × 667, portrait, no keyboard | 667 − 24 − 44 ≈ 599 dp | fits | fits |
+  | 375 × 667, portrait, keyboard open | 667 − 290 − 24 − 44 ≈ 309 dp, minus 8 dp margin ≈ 301 | scrolls: 6 rows show | scrolls: 6 rows show |
+  | 667 × 375, landscape, no keyboard | 375 − 44 ≈ 331 dp (status bar assumed hidden in landscape, an estimate), minus 8 ≈ 323 | scrolls: 7 rows show | nearly fits: 7 rows |
+  | 667 × 375, landscape, keyboard open | 375 − 160 − 44 ≈ 171 dp, minus 8 ≈ 163 | scrolls: 3 rows show | scrolls: 3 rows show |
 
   **The keyboard is usually open** when the `⋮` is used in text (the bar's buttons keep the cursor, so the keyboard stays), so the realistic cases
   are the second and fourth rows: the Text list does not fit and must scroll, in portrait after 6 rows. The pop-up is placed inside the
@@ -172,7 +172,7 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
   contextual and main tools. It is hidden when there is no context (idle). In the `⋮` list a `MenuDivider` (also the theme's
   `Divider`) separates the groups.
 - **Idle.** Only the main tools. At the left (leading) edge on every screen size (decided), so the slide-in from the left reads as a push. The bar keeps its height
-  (40 dp), so the page never jumps.
+  (44 dp), so the page never jumps.
 - **Entering a context** (the cursor goes into text, or a block or row becomes active): the contextual tools slide in from the left
   and the main tools are pushed to the right and out of view (section 4); the tools that do not fit are then in `⋮`, and Undo stays at
   its place after the divider. **Leaving it:** the same movement the other way. **Changing from one context to another** is not a slide: the
@@ -317,9 +317,9 @@ Move, Remove). Actions are today's, from the inline spec; this spec only moves t
   moment it closes with the focus elsewhere (the `⋮` pop-up keeps the focus in the text, so it needs no such rule); (4) the push moves main tools the owner expects at one place (Undo): acceptable
   because on idle and on wide screens they are where they were; (5) a theme that styles `Toolbar` badly breaks the whole editor:
   the bar uses only `--toolbar-*` tokens and the `Divider` part; (6) the old bars' tests (`.contextual-menu` in
-  `scripts/editor-screens.mjs`) must move; (7) the invisible hit area reaches 2 dp over the text box's edge (section 8): a tap in that strip must hit the tool, and
-  `check:screens` measures it.
-- **Checks:** `check:screens` at 375 and 1280: one bar, 40 dp high, the same height idle, in text and on every block; the divider
+  `scripts/editor-screens.mjs`) must move; (7) 44 dp buttons are below M3's 48 dp: the deviation is
+  recorded (section 8), and every other part of the editor stays on 48.
+- **Checks:** `check:screens` at 375 and 1280: one bar, 44 dp high, the same height idle, in text and on every block; the divider
   shows only with a context; at 375 the bar holds exactly the lists of section 3 (Text, Table, List, Image: tool names read from the bar and from the
   `⋮` menu), never scrolls (`scrollWidth` equals `clientWidth`), and Undo stays on it and works; the `⋮` menu (opened at 375 px, with and without the keyboard) lists the rest and scrolls when it does not fit; at 1280 both groups fit and are visible; no hit area of the bar, the `⋮` or its rows under 44 dp (the `::before` hit area is measured, not the visible 40 dp); no horizontal page scroll; the slide runs with `prefers-reduced-motion: no-preference` (assert the
   animation exists, with the theme's duration) and is absent with `reduce`; `check:contrast` and `check:editor-colors` on the bar in each
@@ -330,10 +330,10 @@ Move, Remove). Actions are today's, from the inline spec; this spec only moves t
   1. *Medium:* the one-bar shell. The main toolbar becomes the bar: main tools, divider, a slot for the contextual group; the text
      tools move into the slot; the selection pill, the second line and its arrow, `stillTimer` and `STILL_MS` are removed. The bar's overflow into `⋮`
      (the same pop-up `Menu` on a phone and a computer; the *More* sheet and its opener are deleted). No slide yet. Empty changeset until visible.
-     **The 44 dp hit area goes in with this step, so no check fails:** (a) `check:screens` has rules written for 48:
+     **The 44 × 44 dp buttons go in with this step, so no check fails:** (a) `check:screens` has rules written for 48:
      `scripts/editor-screens.mjs` line 218 (the text menu's buttons "smaller than 48 dp", for the pill that is deleted) goes with the pill, and
      line 1644 (`.contextual-menu button` height under 47.5) is replaced by one rule for the bar: every button of the bar, the `⋮` and its
-     rows has a hit area of at least 44 × 44 dp (measured through the `::before`), and no other part of the editor drops under 48; (b) the bar's
+     rows has a hit area of at least 44 × 44 dp (the real button, which is 44 × 44 dp itself), and no other part of the editor drops under 48; (b) the bar's
      CSS (`.contextual-menu button` and `.editor-selection-menu button` are 3rem today) gives way to the bar's own tokens: the theme's icon
      button box defaults to `var(--icon-button-size, 2.75rem)` (`theme/styles/ui.css:642`, 44 px), while `docs/material-deviations.md` (CSS
      sweep 4) says the icon button is drawn at 48 dp; I did not trace which value is live, step 1 does; the bar sets `--icon-button-size`
@@ -350,34 +350,30 @@ Move, Remove). Actions are today's, from the inline spec; this spec only moves t
 
 ## 8. Owner input: editor menus (decisions)
 
-Owner's advice: (a) in an editor the UI around the content should take as little room as possible, so high density (-2/-3) fits
-toolbars; (b) icons drawn 20 to 24 dp, hit area still 44 dp with a mouse and 48 dp on touch; (c) icon-only buttons need clear hover
-states and tooltips that show the keyboard shortcut; (d) do not put everything in one long scrolling drop-down: a quick toolbar (top
-actions only), context menus where the user works, and a command palette. **Owner decision (13 November): "Let us make the editor
-menu an exception to the user choice and follow what I gave you."** So the editor's bar and menus do **not** follow the per-user
-density choice of PR #518; they are fixed as below. Checked against M3 (Playwright: `/foundations/layout/understanding-layout/density`,
-`/components/tooltips/guidelines`, `/components/icon-buttons/specs` and `accessibility`, `/components/menus/guidelines`) and the code.
+Owner's advice: (a) in an editor the UI around the content should take as little room as possible; (b) icons drawn 20 to 24 dp, buttons 44 ×
+44 (Apple); (c) icon-only buttons need clear hover states and tooltips that show the keyboard shortcut; (d) do not put everything in one long
+scrolling drop-down: a quick toolbar (top actions only), context menus where the user works, and a command palette. **Owner decisions
+(13 November):** "Let us make the editor menu an exception to the user choice and follow what I gave you." and "Let's make the editor menu 44x44 px,
+breaking the MD3 rules, but following Apple" (and: "I said 44px like Apple recommend", so the buttons are really 44 × 44, not a smaller look
+with a 44 hit area behind it). So the editor's bar and menus are **fixed** at that size and do **not** follow the per-user density choice of
+PR #518. Checked against M3 (Playwright: `/foundations/layout/understanding-layout/density`, `/components/tooltips/guidelines`,
+`/components/icon-buttons/specs` and `accessibility`, `/components/menus/guidelines`), Apple's Human Interface Guidelines and the code.
 
 **What is decided**
 
-1. **Fixed high density for the bar, the `⋮` list and the formatting menus.** They read their own density tokens (set to step -2 in the
-   editor's CSS), not the user's density setting, and not the theme's default. A theme can still restyle them through the same tokens.
-2. **Step -2, not -3 (my proposal, owner decides the step: question 1).** M3: each step takes 4 dp off the height ("Higher density is
-   typically applied by decreasing the top and bottom padding or overall height by 4dp"). The bar is 48 dp tall at step 0 in this spec
-   (the button height, no extra padding; the height the theme's `Toolbar` draws today I have not measured, its docked padding is a
-   token, to be measured in step 1). **-2 makes the bar 40 dp tall, -3 makes it 36 dp.** A 24 dp icon in 40 dp leaves 8 dp above and
-   below; in 36 dp only 6 dp, or a 20 dp icon. Recommendation: -2 with 24 dp icons (the owner's range is 20 to 24 dp: the
-   card menu draws 20 dp icons today; whether the `⋮` rows use 20 or 24 dp is decided in step 1).
-3. **One hit area of 44 × 44 dp, on mouse and on touch, for the bar's buttons and the `⋮` rows (owner decision: "Let's make the editor
-   menu 44x44 px, breaking the MD3 rules, but following Apple").** Only the editor's bar, its `⋮` and the rows of its menu or sheet; every
-   other part of the editor and of the theme stays on M3's 48 dp. The visible button is 40 dp tall (the bar); its hit area is extended by an
-   invisible `::before` (pointer events on, no background) to 44 × 44 dp, 2 dp above and below the bar. At the bottom it covers the first 2 dp
-   of the text box's edge, and the bar wins a tap there. The hit areas never overlap each other (the pitch along the bar is 44 dp).
-   **Apple, read 13 November 2026 on `developer.apple.com/design/human-interface-guidelines/buttons`:** "As a general rule, a button needs a
-   hit region of at least 44x44 pt — in visionOS, 60x60 pt — to ensure that people can select it easily, whether they use a fingertip, a
-   pointer, their eyes, or a remote." and, on `/accessibility`, a table "Default control size | Minimum control size": iOS and iPadOS 44x44 pt
-   | 28x28 pt. Apple's 44 applies to a pointer as well as a finger, which is why one size serves mouse and touch. (The toolbars page of the
-   Human Interface Guidelines gave no number I could read; the 44 is the buttons page's.)
+1. **Fixed size, outside the user's density choice.** The bar, the `⋮` list and the formatting menus have one fixed size (below). They do not read
+   #518's density setting; a theme can still restyle them through the bar's own tokens.
+2. **Real 44 × 44 dp buttons, 24 dp icons.** Every button of the bar and every row of the `⋮` menu and the formatting menus is 44 dp high and at
+   least 44 dp wide: the visible button itself, with no hit area drawn beyond it. The icon is 24 dp (10 dp of air round it). The bar's height is
+   that 44: **bar padding above and below 0, so the bar is 44 dp tall (plus the theme's 1 px edge line)** (my recommendation: the least padding that
+   keeps 44; any padding adds to the bar and takes room from the text). Side padding 16 dp (M3: "minimum outside padding of 16dp"); no gap
+   between buttons; the divider has 8 dp each side. Menu rows are 44 dp already (`--menu-item-height: 2.75rem`, `theme/styles/global.css:262`). Every
+   other part of the editor and the theme stays on M3's 48 dp.
+3. **Apple, read 13 November 2026 on `developer.apple.com/design/human-interface-guidelines/buttons`:** "As a general rule, a button needs a hit region
+   of at least 44x44 pt — in visionOS, 60x60 pt — to ensure that people can select it easily, whether they use a fingertip, a pointer, their eyes, or
+   a remote." and, on `/accessibility`, a table "Default control size | Minimum control size": iOS and iPadOS 44x44 pt | 28x28 pt. Apple's 44 applies
+   to a pointer as well as a finger, so one size serves mouse and touch. (The toolbars page of the Human Interface Guidelines gave no number I
+   could read; the 44 is the buttons page's.)
 4. **Hover and focus:** M3's 8% state layer on hover (read: "Hovered (8% state layer)") and the focus ring, from the theme's icon
    button; the pressed state of a toggle (Bold) is clear.
 5. **A tooltip on every icon-only button of the bar and its menus**, as today (the theme's plain tooltip, `useTooltip` in
@@ -390,28 +386,26 @@ density choice of PR #518; they are fixed as below. Checked against M3 (Playwrig
    block's actions on a block (section 6), and the `⋮` is grouped, never one long list. A right-click context menu and a command palette
    are not part of this spec: they are a separate spec (the PM starts it).
 
-**Slots at 375 px with 44 dp hit areas (real numbers).** The bar is 40 dp tall; the width is set by the hit area, 44 dp. Room is 343 dp
-(375 − 2 × 16): 343 / 44 = 7.8, so **7 slots fit at 375 px** (308 dp, 35 dp left for the divider and gaps), **7 at 360 px** (328 / 44 =
-7.45) and 6 at 320 px. With 48 dp it would have been 6. The rule the bar uses: `slots = floor((width − 32 − divider) / 44)`, measured, never a
-timer. The exact lists are in section 3.
+**Slots at 375 px with 44 dp buttons (real numbers).** Room is 343 dp (375 − 2 × 16). 7 buttons are 308 dp, and the divider with 8 dp each side
+is 17 dp: 325 dp, so **7 slots fit at 375 px** (18 dp left) and **at 360 px** (328 dp of room: 3 dp left, so no gap between buttons), and 6 at 320
+px. With 48 dp it would have been 6. The rule the bar uses: `slots = floor((width − 32 − divider) / 44)`, measured, never a timer. The exact
+lists are in section 3.
 
 **M3 deviations of this exception** (entries for `docs/material-deviations.md`, with step 1):
-- *Editor bar and menus ignore the user's density.* **M3 says:** "People can change density as long as the density controls are
-  accessible" and "Density shouldn't automatically change across breakpoints or orientation unless a person changes it" (density
-  page). **We do:** the bar, the `⋮` list and the formatting menus are fixed at step -2 whatever the person chooses in #518's
-  setting. **Why:** owner's decision, 13 November: an editor's own UI should take little room. Date 2026-11-13.
-- *Step -2 on a toolbar and its menus.* **M3 says:** "Don't increase density in UIs that involve focused tasks, such as selecting from a
-  menu. It reduces usability by limiting selectable space." **We do:** the `⋮` list rows and the formatting menus are also at step -2,
-  but each row keeps its 44 dp hit height, so the space to select is not reduced. **Why:** same.
-- *44 × 44 hit area in the editor's bar and menus.* **M3 says:** "All elements need a minimum 48x48dp target area to be accessible." (toolbars/guidelines,
-  Anatomy) and "For most platforms, consider making touch targets at least 48 x 48dp." (foundations/structure). **We do:** 44 × 44 dp on mouse
-  and touch, only for the editor's bar, its `⋮` and the rows of its menu or sheet; everything else stays on 48. **Why:** owner's decision, 13
-  November, following Apple's Human Interface Guidelines ("a button needs a hit region of at least 44x44 pt"). Date 2026-11-13.
+- *Editor bar and menus ignore the user's density choice.* **M3 says:** "People can change density as long as the density controls are accessible"
+  and "Density shouldn't automatically change across breakpoints or orientation unless a person changes it" (density page). **We do:** the bar, the
+  `⋮` list and the formatting menus have one fixed size (44 × 44 dp buttons and rows) whatever the person chooses in #518's setting. **Why:**
+  owner's decision, 13 November: an editor's own UI should take little room. Date 2026-11-13.
+- *44 × 44 buttons in the editor's bar and menus, not 48.* **M3 says:** "All elements need a minimum 48x48dp target area to be accessible."
+  (toolbars/guidelines, Anatomy), "For most platforms, consider making touch targets at least 48 x 48dp." (foundations/structure) and, on the
+  density page, "Accessible targets should retain a minimum of 48x48dp, even if the visual element, such as an icon, is smaller." **We do:** the
+  buttons and rows are 44 × 44 dp themselves, on mouse and touch, only in the editor's bar, its `⋮` and its menus; everything else stays on 48.
+  **Why:** owner's decision, following Apple's Human Interface Guidelines ("a button needs a hit region of at least 44x44 pt"). Date 2026-11-13.
 - *Overlay scrollbar of the `⋮` pop-up on a phone.* **M3 says:** "Menus can scroll when all menu items can't display at once. In this state, menus show a persistent scrollbar." (menus/guidelines, Scrolling.) **We do:** `scrollbar-width: thin` and `scrollbar-gutter: stable` on the editor's menu, so a persistent scrollbar shows where the browser allows it (a computer); on a phone the browser's overlay scrollbar hides when idle and cannot be forced, so there we do not match; the cue is a half-cut last row. **Why:** the platform. Date 2026-11-13. M3 also says "Don't use gaps in scrollable menus": the `⋮` menu uses dividers only.
 - Not a deviation: the tooltip with a shortcut. M3's plain tooltip "briefly describe[s] a UI element" and says nothing for or against a
   shortcut; menu items may carry "keyboard commands" as trailing text.
 
-**Not read:** the icon sizes of the icon button (images), density numbers for toolbars (M3 gives them for the segmented button only),
+**Not read:** the icon sizes of the icon button (images),
 and any M3 text on shortcuts in tooltips.
 
 ### Our longest menus today (counted from the code, 13 November 2026)
@@ -439,8 +433,7 @@ when idle. M3: "In this state, menus show a persistent scrollbar." So it does **
 
 Decided by the owner: one bar, no second row; the contextual tools slide in from the left, push the main tools right and out, and
 roll back; a divider between them; the main part is Insert, Undo, Redo, Section settings; text tools always show with the cursor in
-text; the bar and its menus are fixed at high density, outside the user's density choice (section 8); the bar never scrolls and what does not fit is in `⋮` (the `⋮` holds tools); on a phone the `⋮` is a pop-up menu, not a bottom sheet; the editor's bar and menus use a 44 × 44 dp hit area and are fixed at high density; Undo and Redo stay on the bar next to `⋮` while a context is active; between contexts the tools fade in place (no second slide; only the first entry from nothing slides; theme spring and effects tokens, no delay, reduced motion = no slide); the bar rolls back at once when focus or selection leaves, except while a sheet that the bar opened (Settings) is open; the main tools stand at the left edge when idle on every screen size, and on a wide screen all tools show at once (nothing hidden, nothing scrolls; the main tools still slide right when a context starts); the `⋮` pop-up may scroll when it does not fit, with a persistent scrollbar where the platform allows, dividers (no gaps) in it, the most used rows first and a half-cut last row as the cue on a phone; no sticky
+text; the bar and its menus are fixed at 44 × 44 dp buttons with 24 dp icons (bar 44 dp tall, no extra padding), outside the user's density choice (section 8); the bar never scrolls and what does not fit is in `⋮` (the `⋮` holds tools); on a phone the `⋮` is a pop-up menu, not a bottom sheet; the editor's bar and menus use a 44 × 44 dp hit area and are fixed at high density; Undo and Redo stay on the bar next to `⋮` while a context is active; between contexts the tools fade in place (no second slide; only the first entry from nothing slides; theme spring and effects tokens, no delay, reduced motion = no slide); the bar rolls back at once when focus or selection leaves, except while a sheet that the bar opened (Settings) is open; the main tools stand at the left edge when idle on every screen size, and on a wide screen all tools show at once (nothing hidden, nothing scrolls; the main tools still slide right when a context starts); the `⋮` pop-up may scroll when it does not fit, with a persistent scrollbar where the platform allows, dividers (no gaps) in it, the most used rows first and a half-cut last row as the cue on a phone; no sticky
 question (one bar stays at the top).
 
-1. **Which density step for the bar and menus: -2 (40 dp tall, recommended) or -3 (36 dp)?** M3 has both; each takes 4 dp off the height. With
-   -2 a 24 dp icon keeps 8 dp of air above and below; with -3, 6 dp. The hit areas are 44 dp either way.
+None. Every question has an owner answer.
