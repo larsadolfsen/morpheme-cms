@@ -230,11 +230,12 @@ and grid layout, since both are theme parts. Not in this work.
 
 ## 8. Pull requests
 
-Order matters: the SEO rule (PR 0, separate) and the tile first.
+Order matters: the SEO rule (PR 0, separate), the alt fields (PR 0b, separate) and the tile first.
 
 | # | Pull request | Size | Needs |
 | - | --- | --- | --- |
-| 0 | The SEO alt rule and the score reading images in blocks (separate pull request, not part of this work) | small | before 4 |
+| 0 | The SEO alt rule and the score reading images in blocks (built by another session, not part of this work) | small | before 4 |
+| 0b | Alt field next to the image in Cards and Testimonials (they have none today; separate pull request, started by the PM) | small | PR 0; before 4 |
 | 1 | Media slot and selected state on the theme's `Card`, `ImageTile` as its wrapper, and the staggered grid layout (audit row 3); Library moves to it | medium to large | the audit PR #515 |
 | 2 | `width` and `height` in `thumbnails.json` (and use in the Library tile) | small | 1 (can go with it) |
 | 3 | Base alt text (and caption) on the file record: schema, `fileRecords.mjs`, Library field, and the Library-text part of the shared alt rule | medium | PR 0 |
