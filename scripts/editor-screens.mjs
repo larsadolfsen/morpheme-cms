@@ -2007,7 +2007,7 @@ async function checkIconColor(width, height) {
   await page.close();
 }
 
-/** A Table typed in the text: the first cell is active (dotted line) with the next row and the next column shown faded, typing in the faded column makes it, `Add row` is a text button under the table and adds a row, the toolbar has the row and column actions with icons, the header row is a `th`, and when the cursor leaves, the button and the faded cells are gone and the table has the rows and columns that were typed. */
+/** A Table typed in the text: the table shows only its real header and cells (no "Next row", "Next column" or "Add row" element), the first cell is active (dotted line), the header row is a `th`, and rows and columns are added and deleted only from the contextual menu (add row above and below, add column before and after, delete row and column, each an icon button with a label), on a phone and a computer; when the cursor leaves, the table keeps the cells that were typed and the menu is gone. */
 async function checkInlineTable(width, height) {
   const label = `${width}px inline table`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -2029,54 +2029,77 @@ async function checkInlineTable(width, height) {
   const state = () =>
     page.evaluate(() => ({
       rows: document.querySelectorAll('.inline-table tr[data-row]').length,
-      next: document.querySelectorAll('.inline-table-cell-next').length,
+      cells: document.querySelectorAll('.inline-table :is(th, td)').length,
       header: document.querySelectorAll('.inline-table thead th[scope="col"]').length,
-      add: [...document.querySelectorAll('[data-add-row]')].map((b) => b.textContent.trim()),
+      extra: [...document.querySelectorAll('.inline-table-host *')].filter(
+        (e) =>
+          e.hasAttribute('data-add-row') ||
+          (e.children.length === 0 && /^(Next row|Next column|Add row)$/.test(e.textContent.trim())) ||
+          ['placeholder', 'aria-label'].some((a) => /^(Next row|Next column|Add row)$/.test(e.getAttribute(a) ?? '')),
+      ).length,
+      faded: document.querySelectorAll('.inline-table-cell-next').length,
       outline: getComputedStyle(document.querySelector('.inline-table-cell-active')).outlineStyle,
-      faded: getComputedStyle(document.querySelector('.inline-table-cell-next') ?? document.body).opacity,
       scroll: document.querySelector('.inline-table').scrollWidth <= document.querySelector('.inline-table').clientWidth + 1,
       bar: [...document.querySelectorAll('.contextual-menu button')].map((b) => ({
         label: b.getAttribute('aria-label'),
+        title: b.title,
         svg: !!b.querySelector('svg path'),
       })),
     }));
+  const press = async (name) => {
+    const b = page.locator(`.contextual-menu button[aria-label="${name}"]`);
+    if (!(await b.count())) return problems.push(`${label}: the menu has no button "${name}"`);
+    await b.first().tap();
+    await page.waitForTimeout(300);
+  };
   const one = await state();
-  // One cell typed, with the next row and the next column faded (their corner has no cell): 2 rows, 2 faded cells.
-  if (one.rows !== 2) problems.push(`${label}: expected the typed row and the next row, got ${one.rows} rows`);
-  if (one.next !== 2) problems.push(`${label}: expected 2 faded cells (next row and next column), got ${one.next}`);
-  if (one.header !== 2) problems.push(`${label}: expected a header row of 2 th cells, got ${one.header}`);
-  if (one.add.join() !== 'Add row') problems.push(`${label}: expected the button "Add row", got "${one.add}"`);
+  // One typed cell: a header row with one cell, nothing added around it.
+  if (one.rows !== 1 || one.cells !== 1) problems.push(`${label}: expected 1 row of 1 cell, got ${one.rows} rows and ${one.cells} cells`);
+  if (one.header !== 1) problems.push(`${label}: expected a header row of 1 th cell, got ${one.header}`);
+  if (one.extra || one.faded) problems.push(`${label}: the table has "Next row", "Next column" or "Add row" in it`);
   if (one.outline !== 'dotted') problems.push(`${label}: the active cell has outline ${one.outline}, not dotted`);
-  if (!(Number(one.faded) < 1)) problems.push(`${label}: the next cells are not faded (${one.faded})`);
-  for (const name of ['Add row above', 'Add row below'])
-    if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the toolbar has no icon button "${name}"`);
-  if (width > 500)
-    for (const name of ['Add column before', 'Add column after'])
-      if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the toolbar has no icon button "${name}"`);
-  // Typing in the next column makes it.
-  await page.locator('.inline-table-cell-next textarea').first().click();
+  for (const name of ['Add row above', 'Add row below', 'Add column before', 'Add column after'])
+    if (!one.bar.some((b) => b.label === name && b.title === name && b.svg))
+      problems.push(`${label}: the menu has no icon button "${name}" with a tooltip`);
+  for (const name of ['Delete row', 'Delete column'])
+    if (one.bar.some((b) => b.label === name)) problems.push(`${label}: "${name}" is offered for a one-cell table`);
+  // The menu makes the first column and the first body row of a one-cell table.
+  await press('Add column after');
+  const column = await state();
+  if (column.cells !== 2) problems.push(`${label}: "Add column after" left ${column.cells} cells, not 2`);
   await page.keyboard.type('Pages');
-  await page.waitForTimeout(300);
-  const two = await state();
-  if (two.next !== 3)
-    problems.push(`${label}: after typing in the next column expected 3 faded cells (next row 2, next column 1), got ${two.next}`);
+  await press('Add row below');
+  const row = await state();
+  if (row.rows !== 2 || row.cells !== 4)
+    problems.push(`${label}: "Add row below" left ${row.rows} rows and ${row.cells} cells, not 2 and 4`);
+  await press('Add row above');
+  await press('Add column before');
+  const more = await state();
+  if (more.rows !== 3 || more.cells !== 9)
+    problems.push(
+      `${label}: expected 3 rows and 9 cells after "Add row above" and "Add column before", got ${more.rows} and ${more.cells}`,
+    );
+  if (more.extra || more.faded) problems.push(`${label}: the table has "Next row", "Next column" or "Add row" in it after adding`);
+  for (const name of ['Delete row', 'Delete column'])
+    if (!more.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the menu has no icon button "${name}"`);
+  await press('Delete row');
+  await press('Delete column');
+  const less = await state();
+  if (less.rows !== 2 || less.cells !== 4)
+    problems.push(`${label}: after the deletes expected 2 rows and 4 cells, got ${less.rows} and ${less.cells}`);
   await page.screenshot({ path: join(shots, `inline-table-${width}.png`) });
-  await page.click('[data-add-row]');
-  await page.waitForTimeout(300);
-  const three = await state();
-  if (three.rows !== 3) problems.push(`${label}: "Add row" left ${three.rows} rows, not 3 (typed row, the added one and the next)`);
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(300);
   const after = await page.evaluate(() => ({
-    add: document.querySelectorAll('[data-add-row]').length,
-    next: document.querySelectorAll('.inline-table-cell-next').length,
+    menu: [...document.querySelectorAll('.contextual-menu')].filter((m) => !m.hidden).length,
+    extra: document.querySelectorAll('[data-add-row], .inline-table-cell-next').length,
     rows: document.querySelectorAll('.inline-table tr[data-row]').length,
     cols: document.querySelectorAll('.inline-table thead th').length,
   }));
-  if (after.add || after.next) problems.push(`${label}: the add button or the faded cells stay after the cursor left the table`);
-  // The added row was empty at the end of the table: it is dropped with the other unused end.
-  if (after.rows !== 1 || after.cols !== 2)
-    problems.push(`${label}: expected 1 row of 2 columns after leaving, got ${after.rows} rows of ${after.cols}`);
+  if (after.menu || after.extra) problems.push(`${label}: the menu or an add element stays after the cursor left the table`);
+  // The added rows and columns are empty, so the table keeps only what was typed; the kept cells are the same on every redraw.
+  if (after.rows < 1 || after.cols < 1)
+    problems.push(`${label}: the table lost its cells after leaving (${after.rows} rows of ${after.cols})`);
   await page.close();
 }
 
@@ -2122,16 +2145,23 @@ async function checkTableAlign(width, height) {
   await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
   await page.waitForSelector('.inline-table-cell-active textarea');
   const cellField = (r, c) => page.locator(`.inline-table [data-row="${r}"] [data-field="${c}"]`);
-  const type = async (r, c, v) => {
-    await cellField(r, c).click();
-    await page.keyboard.type(v);
-    await page.waitForTimeout(150);
+  const menu = async (name) => {
+    await page
+      .locator(`.contextual-menu button[aria-label="${name}"]`)
+      .first()
+      .evaluate((b) => b.click());
+    await page.waitForTimeout(250);
   };
-  await type(0, 0, 'Text');
-  await type(0, 1, 'Number');
-  await type(1, 0, 'a');
-  await type(1, 1, '7');
-  await type(2, 1, '7');
+  // The table is made with the menu (no Next row or Next column in it): Text | Number, and two rows under them.
+  await page.keyboard.type('Text');
+  await menu('Add column after');
+  await page.keyboard.type('Number');
+  await menu('Add row below');
+  await page.keyboard.type('7');
+  await menu('Add row below');
+  await page.keyboard.type('7');
+  await cellField(1, 0).click();
+  await page.keyboard.type('a');
   const aligns = () =>
     page.evaluate(() => {
       const at = (sel) => getComputedStyle(document.querySelector(sel)).textAlign;

@@ -208,7 +208,6 @@ export const blocks = {
     hint: 'Rows and columns of text.',
     header: 'Header row',
     headerToggle: ['On', 'Off'] as [string, string],
-    addRow: 'Add row',
     addAbove: 'Add row above',
     addBelow: 'Add row below',
     addColumnBefore: 'Add column before',
@@ -222,8 +221,6 @@ export const blocks = {
     cell: 'Cell',
     rowsColumns: 'Rows and columns',
     cellOf: (row: number, column: number) => `Row ${row}, column ${column}`,
-    newRow: 'Next row',
-    newColumn: 'Next column',
     settings: 'Table',
   },
   steps: {
