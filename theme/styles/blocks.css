@@ -1999,6 +1999,11 @@
     text-align: center;
     text-decoration: none;
   }
+  /* A video without a still has no tint of its own in a card: the card's surface is already a tone (in a coloured section a veil), and two veils
+     over each other left the title at 3.8:1. */
+  .prose .block-card-video .video-facade:not(.video-facade-still) {
+    background: transparent;
+  }
   .prose .video-facade svg {
     color: var(--block-accent);
     transition: transform var(--motion-spatial);
