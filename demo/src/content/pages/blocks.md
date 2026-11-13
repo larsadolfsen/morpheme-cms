@@ -102,7 +102,13 @@ A message that stands out, and can disappear on its own on a date you set.
 
 The newest posts, a random few or the ones you choose, with a link to the rest.
 
+### Blog posts: List
+
 <div data-block="posts" data-props="{&quot;show&quot;:&quot;picked&quot;,&quot;picked&quot;:[&quot;build-a-page-from-blocks&quot;,&quot;switch-themes-without-losing-anything&quot;,&quot;colors-everyone-can-read&quot;],&quot;link&quot;:&quot;design&quot;}"></div>
+
+### Blog posts: Newest large
+
+<div data-block="posts" data-props="{&quot;design&quot;:&quot;featured&quot;,&quot;show&quot;:&quot;picked&quot;,&quot;picked&quot;:[&quot;build-a-page-from-blocks&quot;,&quot;switch-themes-without-losing-anything&quot;,&quot;colors-everyone-can-read&quot;],&quot;link&quot;:&quot;design&quot;}"></div>
 
 ## Video
 
