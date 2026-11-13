@@ -22,7 +22,7 @@ export const text = {
   image: 'Image',
   undo: 'Undo',
   redo: 'Redo',
-  /** The kinds of text as one button, when the toolbar is too short. */
+  /** Text style: the heading levels and the text styles as one button of the bar. */
   kind: 'Text style',
   kindIs: (kind: string) => `Text style: ${kind}`,
   list: 'List',
@@ -33,12 +33,10 @@ export const text = {
   alignLeft: 'Align left',
   alignCenter: 'Align center',
   alignRight: 'Align right',
-  /** The button at the end of the toolbar when its tools do not fit on one line: the second line shown or hidden. */
-  moreTools: 'Show more tools',
+  /** The two groups of the bar, for screen readers: the tools for the text under the cursor, and the main tools; `more` is the name of the ⋮ button. */
   more: 'More',
-  fewerTools: 'Show fewer tools',
-  /** The menu over a selection. */
-  selection: 'Selected text',
+  textTools: 'Text tools',
+  pageTools: 'Page tools',
   /** The colours a selection can have there (packages/editor/lib/text-colors.mjs), by the names under "Colors". */
   color: 'Color',
   colors: { accent: 'Primary', muted: 'On surface variant' },

@@ -34,7 +34,7 @@ export function cardDesignProblems(css) {
   return problems;
 }
 
-/** The CSS files under a folder, joined (a built site's _astro/). */
+/** The CSS of a built site under a folder, joined: its .css files and the <style> blocks of its pages (the build inlines its stylesheets, `inlineStylesheets: 'always'`, so the CSS is in the pages, not in _astro/). */
 export function cssIn(folder) {
   const out = [];
   const walk = (dir) => {
@@ -42,6 +42,8 @@ export function cssIn(folder) {
       const path = join(dir, name);
       if (statSync(path).isDirectory()) walk(path);
       else if (name.endsWith('.css')) out.push(readFileSync(path, 'utf8'));
+      else if (name.endsWith('.html'))
+        for (const m of readFileSync(path, 'utf8').matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)) out.push(m[1]);
     }
   };
   walk(folder);

@@ -65,6 +65,8 @@ export function useSelection({
   }, []);
   const start = useCallback(() => setMode(true), []);
   const selectAll = useCallback(() => setPicked(selectAllKeys(latest.current.order)), []);
+  /** Unselects every row but stays in selection mode (the bar's select-all box, unticked). */
+  const unselectAll = useCallback(() => setPicked([]), []);
   /** Call after the selected rows were deleted: ends the mode and moves focus to the row in their place. */
   const removed = useCallback(() => {
     const first = Math.min(...latest.current.keys.map((k: string) => latest.current.order.indexOf(k)).filter((i: number) => i >= 0));
@@ -163,5 +165,5 @@ export function useSelection({
         }
       : {};
 
-  return { keys, count: keys.length, selecting, row, start, clear, selectAll, removed };
+  return { keys, count: keys.length, selecting, row, start, clear, selectAll, unselectAll, removed, total: order.length };
 }
