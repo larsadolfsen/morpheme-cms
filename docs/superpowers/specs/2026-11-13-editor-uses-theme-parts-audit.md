@@ -7,6 +7,11 @@ Date: 2026-11-13. Audit only, no code changed. Written for the owner, who reads 
 - A theme can style **everything** in the editor: colours, corners, type, parts, and also spacing (margins, padding, gaps),
   border radius and speed of motion. Spacing and motion tokens are in scope, not "later".
 - So rows 1 and 11 below are no longer optional. They are planned work, sized, and the check in section 4 covers them.
+- Floating menus: yes, use the theme's `Toolbar` for the editor's floating menus (question 2).
+- The contextual toolbar becomes a **docked row below the main toolbar**, replacing the floating bar everywhere, with no
+  delay. A design spec for it is being written in another session. So the three floating menus (`.contextual-menu`,
+  `.site-block-menu`, `.editor-selection-menu`) are replaced by the theme `Toolbar` in its docked form, not its floating one.
+- The image-tile question (question 3) is still open with the owner.
 - Motion already has tokens (`--motion-spatial-*`, `--motion-effects-*`, `--motion-ease`). Spacing has none yet
   (`docs/material-deviations.md`, CSS sweep 8): the first step of row 11 is to add them to the theme.
 
@@ -37,7 +42,7 @@ Size: small = under a day, medium = a day or two, large = a week or a design dec
 | # | Surface or file | What is not shared | Size | Order |
 | - | --- | --- | --- | --- |
 | 1 | Check coverage: `scripts/check-css-values.allow.mjs`, `check-editor-colors.mjs` | The blanket pass for `font-size`, `line-height`, `letter-spacing` in `editor.css` (about 32 literal type values); no check on spacing, z-index, opacity, motion or arbitrary Tailwind sizes (`w-[…]`, `p-[…]`, about 30 in `src/*.tsx`); `check-editor-colors` only reads `editor.css` and `Inline*.tsx`. See section 3. | small | 1 (first step now; the spacing and motion part follows with row 11) |
-| 2 | Floating menus: `.contextual-menu`, `.site-block-menu`, `.editor-selection-menu` in `src/editor.css` (lines 877-1240) | Three hand-made toolbars (corner, border, background, shadow, button size 40 and 48 px all written in the editor). Their surface and shadow come from `--editor-menu-surface` and `--editor-menu-shadow`, defined in `editor.css:8-9`, not in the theme. The theme already has a floating `Toolbar` (`theme/ui/Toolbar.tsx`, kind `floating`). | medium | 2 |
+| 2 | Floating menus (decided: become the theme `Toolbar` as a docked row below the main toolbar; design spec in progress elsewhere): `.contextual-menu`, `.site-block-menu`, `.editor-selection-menu` in `src/editor.css` (lines 877-1240) | Three hand-made toolbars (corner, border, background, shadow, button size 40 and 48 px all written in the editor). Their surface and shadow come from `--editor-menu-surface` and `--editor-menu-shadow`, defined in `editor.css:8-9`, not in the theme. The theme already has a `Toolbar` (`theme/ui/Toolbar.tsx`, kinds `docked` and `floating`); the plan uses `docked`. | medium | 2 |
 | 3 | Image tiles: `Media.tsx:183`, `MediaProviderPicker.tsx:136`, `ui.tsx:2764` (`ImageCarousel`), `fields.tsx:231` (`ImagePick`) | A plain `<button>` with `aspect-square rounded-lg bg-surface-container-high` and a hand-made selected ring. There is no theme part for a tappable image, so a theme cannot change the tile's corner, ring or hover. | medium (one new theme part, four users) | 3 |
 | 4 | Plain buttons used as rows or controls: `MarkdownEditor.tsx:752` (menu-like row), `ui.tsx:2898` (`SectionList` item, class `.section-list-item`), `ui.tsx:2538` (`FoldSection` header), `ui.tsx:1044` (`SlotButton`, class `.inline-list-slot`), `UpdatesNotice.tsx:80` (info button), `ui.tsx:763` (colour swatch button) | Each is a `<button>` with its own Tailwind classes for size, corner, hover and focus ring. Each has a theme part that fits: `MenuItem`/`ListItem`, a navigation item, the accordion's header, `IconButton`. | small each (six small fixes) | 4 |
 | 5 | `ChoiceCards` and `ChoiceTile` (`ui.tsx:1702`) | A `<label>` that wears the theme's outlined-card class and then sets the card's private variables (`--card-outlined-line`, `--card-outlined-surface`) from the editor to show "selected". A theme that changes the card's insides breaks this. | medium (a selectable card kind in `theme/ui/Card`) | 5 |
@@ -100,8 +105,7 @@ Extend `check:css-values` (it already reads `theme/`, `src/`, `pages/` and runs 
 ## 5. Open questions for the owner
 
 1. ~~Spacing and speed~~ Decided by the owner: yes, themes style everything (see Decisions above).
-2. **Replace the three hand-made floating menus with the theme's floating `Toolbar`?** Recommendation: yes. It is the
-   biggest block of editor-only CSS and the theme part already exists.
+2. ~~Floating menus~~ Decided by the owner: yes, the theme's `Toolbar`, as a docked row below the main toolbar (see Decisions above).
 3. **Add a theme part for a tappable image (a tile)?** Recommendation: yes, one small part used in four places, with a
    selected state, so a theme can style the Library's images.
 4. **Add a full-screen dialog kind to the theme's `Dialog` for the Preview?** Recommendation: yes, M3 has it; do it after the
