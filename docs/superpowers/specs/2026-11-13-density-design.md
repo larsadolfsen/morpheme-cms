@@ -1,0 +1,180 @@
+# Density: more or less space in the editor and the theme (design proposal)
+
+Status: proposal for the owner. No code. Written for a phone: plain words, short.
+
+**Density** means how much fits on a screen. Dense: smaller rows and buttons, more on screen. Not dense: more air, less on screen.
+
+Owner's words: M3 has "three different spacings, where the middle one is the standard … compact and wide or something like that. And I
+wanted to support that as well … in the editor, this could be a setting. In the front end, it's up to the theme designer if it should
+be a setting." And: "We use the density names from MD3."
+
+## 1. What Material 3 says
+
+Read on 2026-11-13, rendered with Chromium. Pages: m3.material.io/foundations/layout/grids-spacing/density (also
+`/spacing`), `/foundations/layout/breakpoints/overview`, the Specs page of segmented buttons, lists, chips, text fields, buttons and
+icon buttons; github.com/material-components/material-web.
+
+**The PM's belief was right, with one more fact.** M3 density has **numbers, not names**, and **no looser step**.
+
+- "The density scale is numbered, starting at 0 for a component's default density. The scale moves to negative numbers (-1, -2, -3)
+  as space decreases, creating higher density."
+- "Higher density is typically applied by decreasing the top and bottom padding or overall height by 4dp."
+- Segmented button spec: height 40dp; "Density is only applied to the height. Each step down in density removes 4dp from the height."
+  This is the only component page that gives its own density numbers. The others (chip 32dp, text field 56dp) give only the default
+  size.
+- "Text size shouldn't change as the container size scales." Content stays centred in the container.
+- Two kinds of density: **layout** density (margins, spacers, padding of lists, tables, long forms) and **component** density (the
+  size of one part). "Information density can be achieved through layout and design decisions without using component scaling."
+- "Density shouldn't automatically change across breakpoints or orientation unless a person changes it." "People should be able to opt
+  in to dense layouts and components … in settings."
+- "Don't apply component scaling by default if it would result in a target below 48x48 CSS pixels." "Accessible targets should retain
+  a minimum of 48x48dp, even if the visual element, such as an icon, is smaller." The settings that change density must themselves
+  "use default target sizes (48x48 CSS pixels)".
+- Don't use density for focused choices (a menu) or for parts that alert (snackbar, dialog).
+- **compact, medium, expanded are breakpoints (window sizes), not density.** Compact is under 600dp, medium 600-839dp, expanded
+  840-1199dp (plus large and extra-large). They are unrelated to density.
+- **material-web has no density tokens.** Its roadmap lists "Density and spacing tokens" as work not done. Its component tokens
+  (for example `--md-filled-button-container-height`) are one fixed height each.
+
+So M3 gives numbers (0, -1, -2, -3), the 4dp step and the 48dp rule. It gives **no names** and **no "wide" step**. The owner asked for
+"the density names from MD3": there are none. See question 1.
+
+## 2. The design
+
+### 2.1 The setting in the editor
+
+- A **Density** choice with four steps: `0`, `-1`, `-2`, `-3` (labels: question 1). Default `0`: today's look, exactly.
+- Where: the account settings in the Library screen, beside Light / Auto / Dark (`src/Library.tsx`, `setTheme`). It is the same kind of
+  thing: a taste of the person at that screen.
+- Stored: **per user on the device**, in `localStorage` key `editor-density`, as the theme choice is (`src/theme.ts`, key
+  `editor-theme`). Not per site: a phone and a desktop want different answers (M3: "Consider density settings in the context of a
+  device"). A script in the head sets it before the first paint, so the page does not jump.
+- It applies to the editor's own screens only. Never to the page preview of a site (the preview shows the site as visitors see it).
+- No automatic change on a small screen (M3 rule above). The choice is the same on a phone and a computer, unless the person picks it
+  there.
+- The settings rows that hold this choice always stay at step `0` size, so a person can always go back (M3 rule above).
+
+### 2.2 How the theme's parts read it
+
+One attribute on `<html>`: `data-density="0 | -1 | -2 | -3"`. The theme turns it into one number:
+
+```css
+:root { --mo-density: 0; --mo-density-step: 4px; }
+:root[data-density="-1"] { --mo-density: -1; }   /* -2, -3 the same */
+```
+
+A part writes its size as `calc(<default> + var(--mo-density) * var(--mo-density-step))`. At `0` the sum is the default, so a part
+that does nothing about density never changes. Only the steps move, in M3's 4dp: the height or the top and bottom padding, never the
+text size.
+
+What each part does per step, from M3's numbers (default, then -1, -2, -3):
+
+| Part | Default | -1 | -2 | -3 | Note |
+| --- | --- | --- | --- | --- | --- |
+| Segmented button | 40 | 36 | 32 | 28 | M3's own spec |
+| Chip | 32 | 28 | 24 | 20 | from the rule "4dp per step" |
+| Button (medium) | 40 | 36 | 32 | 28 | same rule |
+| Text field | 56 | 52 | 48 | 44 | label stays centred |
+| List row | today's 56 / 72 / 88 | -4 | -8 | -12 | padding, not text |
+| Table row (`DataTable`) | 52 | 48 | 44 | 40 | replaces the table's `density` (section 3) |
+| Gaps between rows and sections in the editor | today's | -4 | -8 | -12 | layout density, from the spacing tokens |
+
+The sizes in the table are the rule applied by us; only the segmented button is a number M3 prints. The PR that builds a part checks
+it against the Specs page of that part and corrects this table.
+
+Not changed at any step (M3: "Don't increase density" here): menus and their items, dialogs, snackbars, the density setting's own
+rows, the navigation parts' targets.
+
+### 2.3 The 48dp rule
+
+On a touch screen (`pointer: coarse`) every tappable part keeps a 48 × 48 dp target at every step. The picture shrinks; an invisible
+hit area (a `::after` of 48 dp) keeps the target. Where two small targets would then overlap, the gap between them grows back to
+keep them apart. The existing 48 dp icon button (`docs/material-deviations.md`, CSS sweep 4) already does this.
+
+On a mouse screen (`pointer: fine`) the target may follow the visual size, but never below 32 dp. (M3 says 48 as the default and
+allows density as an opt-in. 32 is our floor; question 3.)
+
+### 2.4 The site's front end
+
+**The theme designer decides.** The editor owner is not asked to choose density for visitors. The package gives the *mechanism*; it
+does not turn it on.
+
+- A theme that does nothing about density works as today: `data-density` is not set on the site, so every part is at `0`.
+- A theme that wants density may read `--mo-density` in its own parts, and may list a setting in its `theme.json` (a switch or a
+  choice) that sets `data-density` on the site's root. Where the setting lives and what it changes is the theme's own.
+- **The default theme `Material`: recommendation, no site setting for now.** M3's own advice is "Apply density thoughtfully; not every
+  layout needs it", and a public page is not a data screen. The site's blocks stay at `0`. The only exception is the Table block's rows
+  (section 3), which can offer a `density` per table, because a table is where M3 says density helps ("such as a data table").
+  If the owner wants a site-wide setting later, it is one more theme setting with no change to the mechanism.
+- The editor's density and the site's density are separate. The editor's choice (on the device) never reaches the site.
+- Other themes in the store need no change. The only contract is: `--mo-density` is a number the theme *may* read, and missing means 0.
+
+## 3. The table spec's `density`
+
+PR 3 of `2026-11-13-table-md2-design.md` (#502) adds `density: comfortable | compact`, as a table prop. This design replaces the idea of
+two private levels with the one M3 rule.
+
+What the PM should change in that spec (I did not edit it):
+
+- PR 3: instead of `Comfortable` / `Compact`, the table block has `density` with M3's steps `0`, `-1`, `-2`, `-3` (names: question 1).
+  Default `0` = today's 52 dp row. Rows go 52 / 48 / 44 / 40; the header row 56 / 52 / 48 / 44. The MD2 "6 dp / 8 dp minimized padding" is a
+  second MD2 spec that we do not use as a separate level.
+- The row of the table is built **in the `DataTable` part (PR 0)** as `calc(52px + var(--mo-density) * 4px)`, so the editor and the site
+  share the same rule. The Table block's own `density` prop sets `--mo-density` on the table only.
+- In the editor (a table inside the editor, if one ever comes), the table follows the editor's density unless the block sets its own.
+- The "Storage" cell stays: adds `density` (a step), absent is `0`. A note on the 48 dp rule: table rows hold no tap targets except
+  links (a link is its own target; its text is at least 24 dp tall under WCAG 2.2, 2.5.8; M3's 48 dp applies on touch with a hit area).
+- Release note: line (as before).
+
+## 4. Order of work
+
+Cost: small is under a day, medium a few days, large a week or more. All of it builds on #515 and the Material 3 audit, so it starts
+after the first step of #515's row 11.
+
+| # | PR | Cost | Depends on |
+| --- | --- | --- | --- |
+| 0 | **Spacing tokens** (#515 row 11, step a): `--mo-space-*` on M3's 4dp grid, and the one switch `--mo-density` / `--mo-density-step` plus `data-density` on the root. At `0` nothing changes. | small | none; this *is* step (a) of #515's row 11 and adds only the density switch to it |
+| 1 | The setting in the Library: four steps, `localStorage`, head script. Does nothing visible until a part reads it. | small | PR 0 |
+| 2 | Parts read it: segmented button, chip, button, text field, list row, in `theme/ui/` (each from M3's Specs page, 48 dp hit area on touch) | medium | PR 0, PR 1 |
+| 3 | Layout density: the editor's gaps and paddings use `--mo-space-*` times density | large | #515 row 11 steps (c) and (d) (moving the 73 CSS lines and the Tailwind sizes to tokens); until then the editor's layout has nothing to scale |
+| 4 | The table's density (the `DataTable` part and the Table block's `density`) | small | PR 0, `DataTable` (table spec PR 0), PR 3 of #502 changed as in section 3 |
+| 5 | A check (below) | small | PR 2 |
+
+Order: 0, 1, 2 (can be in parallel with #515's other rows), 4 after `DataTable`, 3 after #515 (c) and (d), 5 last. The Material 3
+conformance audit (not a PR yet) should list density as a part-size rule so its sizes agree with section 2.2; PR 2 takes the
+audit's sizes where they differ.
+
+**Checks** (`check:screens` and a new `check:density`):
+
+- Every editor screen opens at 375 px and 1280 px at each of the four steps with no error, no overflow and no text cut off. Four
+  steps × two widths of the existing screens.
+- Touch targets: at 375 px (`pointer: coarse`) every tappable part is at least 48 × 48 dp at every step, measured on the hit area.
+- Contrast: unchanged by density, but `check:contrast` runs once at `-3` to see that tighter rows keep the section colours.
+- A part that has a literal height or padding and not the density formula fails the check, once #515's spacing rule (its step 3 of
+  section 4) exists. Until then the list of parts in 2.2 is the list.
+
+**Release notes** (English first, Danish when written, as the `release-notes` skill says):
+
+- The setting in the editor (PR 1 and 2): a **paragraph**: it changes how the editor looks and is a thing a site owner will use
+  ("Choose how much fits on screen").
+- The table's density: a **line**.
+- A theme that offers a site setting: that theme's own note, not this package's.
+- The spacing tokens (PR 0) and the check: empty changeset, nothing visible changes.
+
+## 5. Open questions for the owner
+
+The PM asks them one at a time.
+
+1. **Names.** M3 has only numbers (0, -1, -2, -3) and no names; compact / medium / expanded are window sizes. What do we call the steps
+   in the editor? **Recommendation:** use M3's numbers with a plain word, shown as `Default`, `Dense 1`, `Dense 2`, `Dense 3`. M3 words
+   are "default" and "higher density", so nothing is invented. If the owner wants three short words: `Default`, `Compact`, `Dense`
+   (a shorter list, fewer steps); then we offer `0`, `-1` and `-2` only.
+2. **A looser step ("wide").** M3 has none. The owner said "compact and wide or something". Do we add a `+1` (looser)? **Recommendation:**
+   no. Stay with M3: the default is the loosest step and a theme can make its default looser. A `+1` would be our own invention and
+   would go in `docs/material-deviations.md`. (If yes: +4 dp per step up, same rules.)
+3. **How low on a mouse screen.** On a computer with a mouse, how small may a target get? **Recommendation:** 32 dp, with the 48 dp
+   hit area kept on any touch screen. M3 allows density as an opt-in, with 48 dp as the default.
+4. **Default theme: a site setting?** **Recommendation:** no site setting in `Material` now; only the Table block's own `density`.
+   A theme author can add one. (Say yes if the owner wants visitors' pages denser by site.)
+5. **Where it is kept.** **Recommendation:** per user on the device (`localStorage`, like Light / Dark): no sign-in needed, a phone
+   and a computer can differ. The other choice is per site, stored in the site's settings, so everyone who edits it sees the same.
