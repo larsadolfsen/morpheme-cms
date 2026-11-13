@@ -42,6 +42,8 @@
   (colorPairs in @site/colors). Everything here uses them by name.
 */
 :root {
+  /* M3's full corner (a pill or a circle): the fallback for a theme that does not set the corner steps (global.css sets all ten). */
+  --mo-shape-full: 9999px;
   --radius: 0.75rem;
   /* The corners of something smaller in or beside a panel: an image in a list, a row in a menu, an icon's square. */
   --radius-small: 1rem;
@@ -67,7 +69,7 @@
   --block-line: var(--mo-outline-variant);
   --block-radius: var(--radius);
   --block-radius-small: var(--radius-small);
-  --block-control-radius: 9999px;
+  --block-control-radius: var(--mo-shape-full);
   --block-shadow: var(--panel-shadow);
   --block-ease: var(--ease);
   /* How far a carousel reaches out to the edges of a phone's screen (ui.css): Container.astro's gutter there (px-5). */
@@ -393,7 +395,7 @@
     flex-shrink: 0;
     width: 0.5rem;
     height: 0.5rem;
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     background-color: var(--mo-primary);
   }
 
