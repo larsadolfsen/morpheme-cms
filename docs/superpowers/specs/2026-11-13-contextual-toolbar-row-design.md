@@ -286,7 +286,8 @@ Move, Remove). Actions are today's, from the inline spec; this spec only moves t
   moment it closes with the focus elsewhere; (4) the push moves main tools the owner expects at one place (Undo): acceptable
   because on idle and on wide screens they are where they were; (5) a theme that styles `Toolbar` badly breaks the whole editor:
   the bar uses only `--toolbar-*` tokens and the `Divider` part; (6) the old bars' tests (`.contextual-menu` in
-  `scripts/editor-screens.mjs`) must move.
+  `scripts/editor-screens.mjs`) must move; (7) the invisible hit area reaches 4 dp over the text box's edge (section 8): a tap in that strip must hit the tool, and
+  `check:screens` measures it.
 - **Checks:** `check:screens` at 375 and 1280: one bar, 40 dp high, the same height idle, in text and on every block; the divider
   shows only with a context; at 375 the bar holds exactly the lists of section 3 (Text, Table, List, Image: tool names read from the bar and from the
   `⋮` sheet), never scrolls (`scrollWidth` equals `clientWidth`), and Undo stays on it and works; the `⋮` sheet lists Redo, Insert
@@ -325,8 +326,8 @@ density choice of PR #518; they are fixed as below. Checked against M3 (Playwrig
    typically applied by decreasing the top and bottom padding or overall height by 4dp"). The bar is 48 dp tall at step 0 in this spec
    (the button height, no extra padding; the height the theme's `Toolbar` draws today I have not measured, its docked padding is a
    token, to be measured in step 1). **-2 makes the bar 40 dp tall, -3 makes it 36 dp.** A 24 dp icon in 40 dp leaves 8 dp above and
-   below; in 36 dp only 6 dp, or a 20 dp icon. Recommendation: -2 with 24 dp icons (the owner's range is 20 to 24 dp: 20 dp only
-   in the `⋮` list rows and the card menu, as today).
+   below; in 36 dp only 6 dp, or a 20 dp icon. Recommendation: -2 with 24 dp icons (the owner's range is 20 to 24 dp: the
+   card menu draws 20 dp icons today; whether the `⋮` rows use 20 or 24 dp is decided in step 1).
 3. **Hit areas: 48 dp on touch, 44 dp with a mouse, whatever the bar looks like.** The visible button is 40 dp tall, its hit area is
    extended by an invisible `::before` (pointer events on, no background): 48 × 48 dp when `(pointer: coarse)`, 44 × 44 dp when
    `(pointer: fine)`. It reaches 4 dp (2 dp for a mouse) above and below the bar; at the bottom it covers the first 4 dp of the text
@@ -371,7 +372,7 @@ and any M3 text on shortcuts in tooltips.
 
 Decided by the owner: one bar, no second row; the contextual tools slide in from the left, push the main tools right and out, and
 roll back; a divider between them; the main part is Insert, Undo, Redo, Section settings; text tools always show with the cursor in
-text; the bar never scrolls and what does not fit is in `⋮` (the `⋮` holds tools; question 1 of the earlier list); no sticky
+text; the bar and its menus are fixed at high density, outside the user's density choice (section 8); the bar never scrolls and what does not fit is in `⋮` (the `⋮` holds tools; question 1 of the earlier list); no sticky
 question (one bar stays at the top).
 
 1. **Which main tool stays on the bar on a phone while a context is active?** Recommendation: Undo only (the others, Redo, Insert and
