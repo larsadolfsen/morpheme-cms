@@ -103,12 +103,15 @@ export function Svg({
   weight,
   className,
   label,
+  iconColor,
 }: {
   name: string;
   size?: number;
   weight?: 'fill';
   className?: string;
   label?: string;
+  /** A color role of the site (src/iconColor.ts): `data-icon-color`, drawn by the theme. */
+  iconColor?: string;
 }) {
   const found = resolveIcon(name, weight, { list: iconFile, material: materialLookup(), phosphor: phosphorLookup() });
   useMaterialLoaded(!!found.pending);
@@ -121,6 +124,7 @@ export function Svg({
       size={size}
       className={className}
       label={label}
+      iconColor={iconColor}
     />
   );
 }
@@ -179,6 +183,7 @@ function Drawn({
   size,
   className,
   label,
+  iconColor,
 }: {
   file: string | undefined;
   fallback?: string;
@@ -187,6 +192,7 @@ function Drawn({
   size: number;
   className?: string;
   label?: string;
+  iconColor?: string;
 }) {
   const parts = svgParts(file);
   const shown = pending ? { viewBox: MATERIAL_VIEWBOX, inner: '' } : (parts ?? svgParts(iconFile(MISSING)));
@@ -199,6 +205,7 @@ function Drawn({
       {...(label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': true })}
       {...(parts || pending ? {} : { 'data-icon-missing': missing ?? '' })}
       {...(parts && fallback !== undefined ? { 'data-icon-fallback': fallback } : {})}
+      {...(iconColor ? { 'data-icon-color': iconColor } : {})}
       suppressHydrationWarning={pending}
       className={className}
       xmlns="http://www.w3.org/2000/svg"

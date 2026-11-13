@@ -11,11 +11,27 @@ import linkIcon from '@phosphor-icons/core/assets/regular/link-simple.svg?raw';
 import dynamicIcon from '@material-symbols/svg-400/outlined/dynamic_feed.svg?raw';
 import rowAboveIcon from '@material-symbols/svg-400/outlined/add_row_above.svg?raw';
 import rowBelowIcon from '@material-symbols/svg-400/outlined/add_row_below.svg?raw';
+import columnBeforeIcon from '@material-symbols/svg-400/outlined/add_column_left.svg?raw';
+import columnAfterIcon from '@material-symbols/svg-400/outlined/add_column_right.svg?raw';
+import deleteIcon from '@material-symbols/svg-400/outlined/delete.svg?raw';
 import caretDownIcon from '@phosphor-icons/core/assets/bold/caret-down-bold.svg?raw';
 
-export type BarAction = { label: string; kind: 'above' | 'below' | 'up' | 'down' | 'link'; action: () => void };
+export type BarAction = {
+  label: string;
+  kind: 'above' | 'below' | 'up' | 'down' | 'link' | 'column-before' | 'column-after' | 'delete';
+  action: () => void;
+};
 
-const icons = { above: rowAboveIcon, below: rowBelowIcon, up: arrowUpIcon, down: arrowDownIcon, link: linkIcon };
+const icons = {
+  above: rowAboveIcon,
+  below: rowBelowIcon,
+  up: arrowUpIcon,
+  down: arrowDownIcon,
+  link: linkIcon,
+  'column-before': columnBeforeIcon,
+  'column-after': columnAfterIcon,
+  delete: deleteIcon,
+};
 const svg = (s: string, size = 24) => s.replace('<svg', `<svg width="${size}" height="${size}" fill="currentColor" aria-hidden="true"`);
 
 export function inlineBar(opts: {

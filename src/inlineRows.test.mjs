@@ -6,6 +6,8 @@ import { addAt, isEmptyRow, linesFromPaste, moveBy, removeAt, setField, withoutE
 test('a row is empty only with no icon, link, heading and text', () => {
   assert.equal(isEmptyRow({ title: '' }), true);
   assert.equal(isEmptyRow({ title: '  ', text: '' }), true);
+  assert.equal(isEmptyRow({ title: '', buttons: [] }), true);
+  assert.equal(isEmptyRow({ title: '', buttons: [{ label: 'Go' }] }), false);
   assert.equal(isEmptyRow(undefined), true);
   assert.equal(isEmptyRow({ title: '', icon: 'clock' }), false);
   assert.equal(isEmptyRow({ title: '', href: '/a/' }), false);
@@ -58,6 +60,18 @@ test('another block names its first typed field, and any field with text makes a
   assert.deepEqual(setField([{ name: 'A', note: 'x' }], 0, 'note', '', 'name'), [{ name: 'A' }]);
   assert.deepEqual(setField([], 0, 'note', 'x', 'name'), [{ name: '', note: 'x' }]);
   assert.equal(isEmptyRow({ name: '', price: '5 kr' }), false);
+});
+
+test('a list or a switch in a row is content, and empty lines of a list are dropped on leaving', () => {
+  assert.equal(isEmptyRow({ name: '', features: ['a'] }), false);
+  assert.equal(isEmptyRow({ name: '', features: [''] }), true);
+  assert.equal(isEmptyRow({ name: '', buttons: [{ label: 'Go' }] }), false);
+  assert.equal(isEmptyRow({ name: '', featured: true }), false);
+  assert.deepEqual(withoutEmpty([{ name: 'A', features: ['x', '', ' '] }]), [{ name: 'A', features: ['x'] }]);
+  const same = [{ name: 'A', features: ['x'] }];
+  assert.equal(withoutEmpty(same), same);
+  assert.deepEqual(setField([{ name: 'A' }], 0, 'featured', true, 'name'), [{ name: 'A', featured: true }]);
+  assert.deepEqual(setField([{ name: 'A', featured: true }], 0, 'featured', false, 'name'), [{ name: 'A' }]);
 });
 
 test('lines pasted become items, but not when the paste has headings among its lines', () => {

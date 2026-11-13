@@ -204,6 +204,19 @@ export const blocks = {
     hint: 'Rows and columns of text.',
     header: 'Header row',
     headerToggle: ['On', 'Off'] as [string, string],
+    addRow: 'Add row',
+    addAbove: 'Add row above',
+    addBelow: 'Add row below',
+    addColumnBefore: 'Add column before',
+    addColumnAfter: 'Add column after',
+    deleteRow: 'Delete row',
+    deleteColumn: 'Delete column',
+    cell: 'Cell',
+    rowsColumns: 'Rows and columns',
+    cellOf: (row: number, column: number) => `Row ${row}, column ${column}`,
+    newRow: 'Next row',
+    newColumn: 'Next column',
+    settings: 'Table',
   },
   steps: {
     label: 'Steps',
@@ -440,17 +453,31 @@ export const blocks = {
     label: 'Cards',
     hint: 'Cards that link to pages.',
     edit: 'Edit default texts',
-    /** The card's type, as Material 3 names them, and the color of a filled card. */
-    kind: 'Type',
-    kindOutlined: 'Outlined',
-    kindFilled: 'Filled',
-    kindElevated: 'Elevated',
+    /** The cards' design, as Material 3 names its three cards, and the container color of a filled card. */
+    design: 'Design',
+    designOutlined: 'Outlined',
+    designFilled: 'Filled',
+    designElevated: 'Elevated',
+    /** How the cards show on a phone: stacked, or swiped sideways in a carousel (Material 3's uncontained layout). */
+    phone: 'On phones',
+    phoneStacked: 'Stacked',
+    phoneCarousel: 'Carousel',
+    phoneHint: 'Cards are swiped sideways on a phone. Larger screens show them together.',
+    carouselChip: 'Carousel on phones',
+    /** On the site and in the drawings (in the site's language): for screen readers and the button under the carousel. */
+    carousel: 'carousel',
+    slide: 'card',
+    slideOf: (n: number, of: number) => `${n} of ${of}`,
+    showCard: (n: number, title: string) => `Show card ${n}${title ? `: ${title}` : ''}`,
+    showAll: 'Show all',
+    showFewer: 'Show fewer',
+    cardsLabel: 'Cards',
     color: 'Color',
-    colorStandard: 'Standard',
+    colorSurface: 'Surface',
     colorPrimary: 'Primary',
     colorSecondary: 'Secondary',
     colorTertiary: 'Tertiary',
-    /** What is at the top of a card. */
+    /** What is at the top of every card: one choice for the whole block. */
     media: 'Media',
     mediaNone: 'None',
     mediaIcon: 'Icon',
@@ -459,7 +486,9 @@ export const blocks = {
     video: 'Video link',
     buttons: 'Buttons',
     button: 'button',
-    buttonsHint: 'A card with a page is one link and has no buttons.',
+    buttonText: 'Button text',
+    addButton: 'Add button',
+    buttonsHint: 'A card with buttons has no link.',
     items: 'Cards',
     item: 'card',
     /** A card typed in place: the add button, the faded card of an empty block, the floating toolbar, a card's place for screen readers. */
@@ -472,11 +501,12 @@ export const blocks = {
     cardMenu: 'Card',
     cardSettings: 'Card settings',
     title: 'Heading',
+    subhead: 'Subhead',
     text: 'Text',
     icon: 'Icon',
     image: 'Image',
     href: 'Page',
-    hrefHint: 'With a page, the whole card is the link. Without one, it can have buttons.',
+    hrefHint: 'With a page, the whole card is the link and has no buttons.',
     /** The shared text ("Blocks" › "Cards"), and what it starts as on a site in this language. */
     more: 'Link text',
     moreText: 'Read more',
@@ -487,6 +517,13 @@ export const blocks = {
     ],
   },
   /** The icons to pick from (iconNames in ../../icon.tsx), by their names. */
+  /** The color of an icon (a row's or a card's): the site's colors, Primary when none is picked. */
+  iconColor: {
+    label: 'Icon color',
+    primary: 'Primary',
+    secondary: 'Secondary',
+    tertiary: 'Tertiary',
+  },
   icons: {
     certificate: 'Diploma',
     heart: 'Heart',
@@ -554,6 +591,19 @@ export const blocks = {
     featuredToggle: ['On', 'Off'] as [string, string],
     badge: 'Label',
     badgeHint: 'If empty, no label is shown.',
+    /** The floating toolbar and the cards of Price cards typed in place. */
+    addAbove: 'Add above',
+    addBelow: 'Add below',
+    settingsAction: 'Settings',
+    card: 'Card',
+    cardSettings: 'Card settings',
+    addCard: 'Add price card',
+    newCard: 'New card',
+    addFeature: 'Add feature',
+    newFeature: 'New point',
+    newButton: 'Button text',
+    /** A card typed in place: its place, for screen readers (card 2 of 4). */
+    cardOf: (n: number, total: number) => `Card ${n} of ${total}`,
     /** The cards it is shown with where no page has it (in the site's language): the middle one highlighted. */
     example: [
       {

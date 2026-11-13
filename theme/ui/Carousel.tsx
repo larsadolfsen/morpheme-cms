@@ -28,7 +28,8 @@ import {
 } from '@theme/ui/carouselLayout';
 
 export type { CarouselAlignment, CarouselLayout };
-export type CarouselItem = { key: string; label: string; content: ReactNode };
+/** `focusable`: the item is a tab stop itself (an item with nothing to focus in it). */
+export type CarouselItem = { key: string; label: string; content: ReactNode; focusable?: boolean };
 
 /** The layouts of a carousel, as Material 3 names them. */
 export const carouselLayouts: CarouselLayout[] = ['multi-browse', 'uncontained', 'hero', 'full-screen'];
@@ -92,6 +93,7 @@ export default function Carousel({
             aria-roledescription={itemRoleDescription}
             aria-label={item.label}
             data-carousel-item=""
+            tabIndex={item.focusable ? 0 : undefined}
           >
             {contained ? (
               <div className="carousel-item-mask" data-carousel-mask="">

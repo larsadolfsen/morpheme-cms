@@ -1,0 +1,11 @@
+{
+  "api": 5,
+  "label": "Inline example",
+  "publisher": "Morpheme",
+  "license": "MIT",
+  "icon": "list-numbers",
+  "hint": "A block typed in place, to check that an app's block can be.",
+  "description": "The demo's own app: one block, Tickets, with a heading and a text per row, typed where it stands in the text. check:screens opens it on a phone and a computer.",
+  "category": "content",
+  "version": "1.0.0"
+}

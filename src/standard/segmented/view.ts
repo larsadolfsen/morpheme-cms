@@ -14,12 +14,14 @@ import { editorRows } from '../rows/view';
 import { withRows } from '../rows/rows.mjs';
 import { headOf, type HeadView } from '../head';
 import type { ListRow } from '../list/view';
+import { iconColorOf } from '../../iconColor';
 
 /** A row that folds out: its heading, its text as HTML (empty without one), its icon and its page with the link's text. */
 export type FoldRow = {
   label: string;
   html: string;
   icon?: string;
+  iconColor?: string;
   href?: string;
   link?: string;
   buttons?: { label: string; href: string }[];
@@ -79,6 +81,7 @@ export const segmentedOf = (
       label: r.title,
       html: paragraphs(r.text ?? ''),
       icon: r.icon || undefined,
+      iconColor: r.icon ? iconColorOf(r.iconColor) : undefined,
       href: r.href || undefined,
       link: r.href ? linkFor(more, r.title) : undefined,
       buttons: buttonsOf(r.buttons),

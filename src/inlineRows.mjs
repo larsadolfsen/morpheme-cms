@@ -6,19 +6,37 @@
 
 /** @typedef {Record<string, unknown>} Row */
 
-const has = (v) => (typeof v === 'string' ? v.trim() !== '' : Array.isArray(v) && v.length > 0);
+/** Has content: a text, a list or an object with some, or a switch that is on (a card's `featured`, its `buttons`, its `features`). */
+const has = (v) =>
+  typeof v === 'string'
+    ? v.trim() !== ''
+    : Array.isArray(v)
+      ? v.some(has)
+      : v && typeof v === 'object'
+        ? Object.values(v).some(has)
+        : v === true;
 
-/** A row with nothing in it (no icon, link, heading or text: an icon or a link counts as content; any field with text does). @param {Row | undefined} row */
+/** A row with nothing in it (no icon, link, heading or text: an icon or a link counts as content; any field with text does, and a list with something in it, a card's buttons). @param {Row | undefined} row */
 export const isEmptyRow = (row) => !row || !Object.values(row).some(has);
 
 /** The rows without the completely empty ones. @param {Row[]} rows */
-export const withoutEmpty = (rows) => (rows.some(isEmptyRow) ? rows.filter((r) => !isEmptyRow(r)) : rows);
+export function withoutEmpty(rows) {
+  const kept = rows.filter((r) => !isEmptyRow(r)).map(tidy);
+  return kept.length === rows.length && kept.every((r, i) => r === rows[i]) ? rows : kept;
+}
+
+/** A row without the empty lines of a list of texts in it (a price card's points); the same row when it has none. @param {Row} row */
+const tidy = (row) => {
+  const lists = Object.entries(row).filter(([, v]) => Array.isArray(v) && v.some((x) => typeof x === 'string' && !has(x)));
+  if (!lists.length) return row;
+  return { ...row, ...Object.fromEntries(lists.map(([k, v]) => [k, v.filter((x) => typeof x !== 'string' || has(x))])) };
+};
 
 /** The rows with one field of a row set (a row at the end, past the last, is the next empty one: it becomes a row). A field that is
  * emptied is left out of the row, but the title stays as typed.
  * @param {Row[]} rows @param {number} i @param {string} field @param {unknown} value @param {string} [first] the field that stays as typed */
 export function setField(rows, i, field, value, first = 'title') {
-  // `value` is a text, or a list (a row's buttons) that is kept while it has an entry.
+  // (a value is a text, or what a settings sheet keeps as it is: a switch or a list.)
   const next = rows.slice();
   const row = { ...(next[i] ?? { [first]: '' }), [field]: value };
   if (field !== first && !has(value)) delete row[field];

@@ -10,7 +10,12 @@ import { addAt, isEmptyRow, linesFromPaste, removeAt, setField } from './inlineR
 
 export type Item = Record<string, any>;
 export type Focus = { row: number; field: string };
-export type Change = { items?: Item[]; active?: number | null; focus?: Focus | null };
+export type Change = {
+  items?: Item[];
+  active?: number | null;
+  focus?: Focus | null;
+  /** A grid's active column (the Table). */ col?: number | null;
+};
 
 // A textarea that has the height of its text: the browser's own where it can (CSS field-sizing), else set here.
 const fits = typeof CSS !== 'undefined' && CSS.supports?.('field-sizing', 'content');
@@ -52,9 +57,20 @@ export function InlineField({
 }
 
 /** A button in the active item that picks what is not typed: an icon or an image (its picker), or a link (the item's settings). */
-export function InlineSlot({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) {
+export function InlineSlot({
+  label,
+  onClick,
+  pressed,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  /** One of several kinds, and the one that is chosen. */
+  pressed?: boolean;
+  children: ReactNode;
+}) {
   return (
-    <button type="button" className="inline-list-slot" aria-label={label} title={label} onClick={onClick}>
+    <button type="button" className="inline-list-slot" aria-label={label} aria-pressed={pressed} title={label} onClick={onClick}>
       {children}
     </button>
   );
@@ -90,6 +106,8 @@ export default function InlineItems({
   onChange,
   renderItem,
   wrap,
+  max,
+  start = 1,
   paste,
 }: {
   items: Item[];
@@ -105,6 +123,11 @@ export default function InlineItems({
   renderItem: (c: ItemContext) => ReactNode;
   /** The block's own element round its items (the theme's list). */
   wrap?: (items: ReactNode) => ReactNode;
+  /** The most items the block can have: no item is added past it (Enter in the last field, the add button). */
+  max?: number;
+  /** How many empty, faded items a block shows while it has none (Cards start with three, the first active; else one). Typing in any of
+   * them makes the first item. */
+  start?: number;
   /** Lines pasted into the first field of an empty block make one item each (the line in the first field), unless the pasted text has
    * headings among its lines (linesFromPaste). */
   paste?: boolean;
@@ -127,14 +150,18 @@ export default function InlineItems({
 
   const editing = active !== null;
   // The empty, faded item that a tap starts is only there while the block has no item; with items, `Add below` and Enter make the next.
-  const shown: Item[] = items.length ? items : [{}];
-  const addAfter = (i: number) => onChange({ items: addAt(items, i + 1, first), active: i + 1, focus: { row: i + 1, field: first } });
+  const shown: Item[] = items.length ? items : Array.from({ length: start }, () => ({}));
+  const room = max === undefined || items.length < max;
+  // The item a shown one is: an empty, faded one past the last is the first (or next) item once it is typed in.
+  const slot = (i: number) => Math.min(i, items.length);
+  const addAfter = (i: number) =>
+    room && onChange({ items: addAt(items, i + 1, first), active: i + 1, focus: { row: i + 1, field: first } });
 
   const keys = (i: number, name: string, e: KeyboardEvent<HTMLTextAreaElement>) => {
     const item = items[i];
     if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault();
-      if (name !== last) return onChange({ active: i, focus: { row: i, field: fields[fields.indexOf(name) + 1] } });
+      if (name !== last) return onChange({ active: slot(i), focus: { row: i, field: fields[fields.indexOf(name) + 1] } });
       // The last field: an item below (not from the next empty one, which has nothing yet).
       if (item && !isEmptyRow(item)) addAfter(i);
     }
@@ -154,11 +181,11 @@ export default function InlineItems({
   };
 
   const body = shown.map((item, i) => {
-    const next = i === items.length;
+    const next = i >= items.length;
     return renderItem({
       item,
       index: i,
-      here: i === active,
+      here: next ? i === 0 && active === 0 : i === active,
       next,
       editing,
       field: (name, label, placeholder) => (
@@ -167,8 +194,15 @@ export default function InlineItems({
           value={String(item[name] ?? '')}
           label={label}
           placeholder={placeholder}
-          onType={(v) => onChange({ items: setField(items, i, name, v, first), active: i })}
-          onFocus={() => active !== i && onChange({ active: i })}
+          // Typed in a faded one past the first: it is the item that is made, so the cursor goes there.
+          onType={(v) =>
+            onChange({
+              items: setField(items, i, name, v, first),
+              active: slot(i),
+              ...(slot(i) !== i ? { focus: { row: slot(i), field: name } } : {}),
+            })
+          }
+          onFocus={() => active !== slot(i) && onChange({ active: slot(i) })}
           onKeys={(e) => keys(i, name, e)}
           onPaste={paste ? (e) => pasted(name, e) : undefined}
         />
@@ -179,7 +213,7 @@ export default function InlineItems({
   return (
     <div ref={root} className="inline-list-host">
       {wrap ? wrap(body) : body}
-      {editing && items.length > 0 && <InlineAdd label={add} onClick={() => addAfter(items.length - 1)} />}
+      {editing && items.length > 0 && room && <InlineAdd label={add} onClick={() => addAfter(items.length - 1)} />}
     </div>
   );
 }

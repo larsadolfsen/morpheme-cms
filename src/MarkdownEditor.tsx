@@ -87,6 +87,7 @@ import { RowsFromList } from './InlineList';
 import { typedInPlace } from './typedInPlace.mjs';
 import type { Change, Focus, Item as Row } from './InlineItems';
 import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
+import { addColumnAt, addRowAt, removeColumnAt, removeRowAt, trimmed } from './inlineGrid.mjs';
 import { editorRows } from './standard/rows/view';
 import { fromLine, listPageOf } from './standard/rows/fields';
 import { sourceOf, withPart } from './standard/rows/rows.mjs';
@@ -1081,6 +1082,8 @@ function blockCard(
   // Typed in place: which row is active (null: none, the block shows its live look), and the field to put the cursor in.
   let active: number | null = null;
   let focus: Focus | null = null;
+  // A grid (the Table): the column of the active cell.
+  let col: number | null = null;
   // Its floating toolbar (made below, with the block's menu).
   let bar: ReturnType<typeof inlineBar> | null = null;
   let syncRow: (open: boolean) => void = () => {};
@@ -1123,6 +1126,7 @@ function blockCard(
     if ('active' in c) active = c.active ?? null;
     if (active !== null) dynOpen = false;
     if ('focus' in c) focus = c.focus ?? null;
+    if ('col' in c) col = c.col ?? null;
     if (c.items) setItems(c.items);
     else draw();
   };
@@ -1165,9 +1169,17 @@ function blockCard(
             props={node.attrs.props}
             data={ask.data}
             active={active}
+            col={col}
             focus={focus}
             onChange={change}
             onSettings={settings}
+            onProps={(patch) => {
+              const here = at();
+              if (here)
+                view.dispatch(
+                  view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props: { ...node.attrs.props, ...patch } }),
+                );
+            }}
             onIcon={(row) => {
               // The row's icon slot: the icon picker at once, not the settings.
               iconOf = row;
@@ -1260,26 +1272,86 @@ function blockCard(
     const itemNames = spec!.settings ?? (spec!.link ? [spec!.link] : []);
     const slotNames = spec!.media ?? (spec!.icon ? [spec!.icon] : []);
     const itemFields = rowFieldsOf(itemNames);
-    // The icon slot of a List opens the icon picker; a card's media slot has the media fields (its kind and what it shows).
-    const iconFields = rowFieldsOf(slotNames).map((f) => (spec!.media ? f : { ...f, iconsOpen: true }));
-    const valueOf = (row: Row, names: string[]) =>
-      Object.fromEntries(names.map((n) => [n, row[n] ?? rowFieldsOf([n])[0]?.default ?? (rowFieldsOf([n])[0]?.type === 'list' ? [] : '')]));
+    // The icon slot of a List opens the icon picker; a card's media sheet has the media fields (what it shows, the icon picker open at once), and the first card's has the
+    // block's one media choice for every card too (`blockMedia`).
+    const iconFields = rowFieldsOf(slotNames).map((f) => ({ ...f, iconsOpen: true }));
+    const blockNames = spec!.blockMedia ?? [];
+    const blockFields = (block?.fields ?? []).filter((f) => blockNames.includes(f.name));
+    // The block's own values that the item's fields depend on (a card's icon, picture or video by the block's media).
+    const blockValue = () =>
+      Object.fromEntries(blockNames.map((n) => [n, node.attrs.props[n] ?? blockFields.find((f) => f.name === n)?.default ?? '']));
+    const valueOf = (row: Row, names: string[]) => ({
+      ...blockValue(),
+      ...Object.fromEntries(
+        names.map((n) => {
+          const field = rowFieldsOf([n])[0];
+          // A list (a card's buttons) is none, not an empty text; a switch is off.
+          return [n, row[n] ?? field?.default ?? (field?.type === 'list' ? [] : field?.type === 'boolean' ? false : '')];
+        }),
+      ),
+    });
     const setFields = (list: Row[], i: number, names: string[], v: BlockProps) =>
       single
         ? [{ ...list[0], ...Object.fromEntries(names.map((n) => [n, String(v[n] ?? '')])) }]
-        : names.reduce((items, n) => setField(items, i, n, Array.isArray(v[n]) ? v[n] : String(v[n] ?? ''), spec!.fields[0]), list);
+        : names.reduce(
+            // A switch or a list (a price card's Highlighted and button) is kept as it is, a text as text.
+            (items, n) =>
+              setField(items, i, n, typeof v[n] === 'boolean' || Array.isArray(v[n]) ? v[n] : String(v[n] ?? ''), spec!.fields[0]),
+            list,
+          );
+    // The block's props with its own media choice changed (from the first card's sheet) and the items changed, in one step.
+    const setBlockAndItems = (items: Row[], v: BlockProps) => {
+      const here = at();
+      if (!here) return;
+      const own = Object.fromEntries(blockNames.map((n) => [n, v[n]]));
+      const props = { ...node.attrs.props, ...own, [spec!.item]: items };
+      view.dispatch(view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props }));
+    };
     // A block with no link, settings or icon (Steps) has no item sheet: no Link action, and no gear unless it has block settings.
     const compact = () => !atLeastNow('expanded');
     // The active row has something in it (the row actions are for a row, not for the empty one being started).
+    // A grid (the Table): a row or a column of the active cell is added (before or after) or deleted; the cursor stays in the cell.
+    const gridActions = (g: NonNullable<typeof spec>['grid'] & object, list: string[][]): BarAction[] => {
+      if (active === null) return [];
+      const [r, c] = [active, col ?? 0];
+      const go = (cells: string[][], row: number, column: number) =>
+        change({ items: cells as unknown as Row[], active: row, col: column, focus: { row, field: String(column) } });
+      return [
+        { kind: 'above', label: spec!.texts.addAbove, action: () => go(addRowAt(list, r), r, c) },
+        { kind: 'below', label: spec!.texts.addBelow, action: () => go(addRowAt(list, r + 1), r + 1, c) },
+        { kind: 'column-before', label: g.addColumnBefore, action: () => go(addColumnAt(list, c), r, c) },
+        { kind: 'column-after', label: g.addColumnAfter, action: () => go(addColumnAt(list, c + 1), r, c + 1) },
+        ...(list.length > 1 && r < list.length
+          ? [{ kind: 'delete' as const, label: g.deleteRow, action: () => go(removeRowAt(list, r), Math.min(r, list.length - 2), c) }]
+          : []),
+        ...((list[0]?.length ?? 1) > 1 && c < (list[0]?.length ?? 1)
+          ? [
+              {
+                kind: 'delete' as const,
+                label: g.deleteColumn,
+                action: () => go(removeColumnAt(list, c), r, Math.min(c, (list[0]?.length ?? 1) - 2)),
+              },
+            ]
+          : []),
+      ];
+    };
     const rowActions = (): BarAction[] => {
       const list = rows();
+      if (spec!.grid) return gridActions(spec!.grid, list as unknown as string[][]);
+      // A card's link is the bar's Link, also while the card is still empty (its sheet has the page and the buttons).
+      if (!single && !isDynamic() && active !== null && spec!.settings && (active >= list.length || isEmptyRow(list[active])))
+        return [{ kind: 'link', label: spec!.texts.link ?? '', action: settings }];
       if (single || isDynamic() || active === null || active >= list.length || isEmptyRow(list[active])) return [];
       const i = active;
       const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: spec!.fields[0] } });
       return [
         ...(itemNames.length ? [{ kind: 'link' as const, label: spec!.texts.link ?? '', action: settings }] : []),
-        { kind: 'above', label: spec!.texts.addAbove, action: () => go(addAt(list, i, spec!.fields[0]), i) },
-        { kind: 'below', label: spec!.texts.addBelow, action: () => go(addAt(list, i + 1, spec!.fields[0]), i + 1) },
+        ...(spec!.max === undefined || list.length < spec!.max
+          ? [
+              { kind: 'above' as const, label: spec!.texts.addAbove, action: () => go(addAt(list, i, spec!.fields[0]), i) },
+              { kind: 'below' as const, label: spec!.texts.addBelow, action: () => go(addAt(list, i + 1, spec!.fields[0]), i + 1) },
+            ]
+          : []),
         ...(i > 0 ? [{ kind: 'up' as const, label: t.common.moveUp, action: () => go(moveBy(list, i, -1), i - 1) }] : []),
         ...(i < list.length - 1 ? [{ kind: 'down' as const, label: t.common.moveDown, action: () => go(moveBy(list, i, 1), i + 1) }] : []),
       ];
@@ -1407,13 +1479,14 @@ function blockCard(
       if (iconOf === i)
         return {
           headline: spec!.texts.icon ?? '',
-          fields: iconFields,
+          fields: i === 0 ? [...blockFields, ...iconFields] : iconFields,
           value: valueOf(row, slotNames),
           // The icon picker closes when an icon is picked; the media fields stay open for the next choice.
           closes: !spec!.media,
           onChange: (v: BlockProps) => {
             if (!spec!.media) iconOf = null;
-            setItems(setFields(rows(), i, slotNames, v));
+            if (i === 0 && blockNames.length) setBlockAndItems(setFields(rows(), i, slotNames, v), v);
+            else setItems(setFields(rows(), i, slotNames, v));
           },
         };
       return {
@@ -1430,15 +1503,19 @@ function blockCard(
       (dom.contains(target) || bar!.el.contains(target) || !!target.closest('.editor-side-sheet, dialog[open]'));
     const away = (e: Event) => {
       if ((active === null && !dynSelected) || inside(e.target)) return;
+      // A dynamic block has no row being typed in: the focus going back to the text (as a sheet opens or closes) is not leaving it, only a tap elsewhere is.
+      if (e.type === 'focusin' && active === null) return;
       active = null;
+      col = null;
       iconOf = null;
       focus = null;
       dynSelected = false;
       dynOpen = false;
       asker()?.row(null);
       const list = rows();
-      const kept = single ? list : withoutEmpty(list);
-      if (kept !== list) setItems(kept);
+      // A grid loses the empty rows and columns at its end (what was started in the next one and left); a list its empty rows.
+      const kept = spec!.grid ? (trimmed(list as unknown as string[][]) as unknown as Row[]) : single ? list : withoutEmpty(list);
+      if (spec!.grid ? JSON.stringify(kept) !== JSON.stringify(list) : kept !== list) setItems(kept);
       else draw();
     };
     document.addEventListener('pointerdown', away, true);
