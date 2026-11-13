@@ -614,6 +614,12 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     const adds = await page.locator('[data-add-button]').allTextContents();
     if (adds.map((s) => s.trim()).join() !== rowButtons)
       problems.push(`${label}: expected the button "${rowButtons}" in the active row, got "${adds}"`);
+    // No Link at the top of the row (its slots or the toolbar): the row's page is set by `Link` at the bottom, where the site draws it.
+    if (await page.locator('.inline-segmented-slots [aria-label="Link"], .inline-list-row-active > [aria-label="Link"]').count())
+      problems.push(`${label}: the top of the row has a Link slot`);
+    if ((await state()).bar.some((b) => b.label === 'Link')) problems.push(`${label}: the toolbar has a Link button`);
+    if ((await page.locator('.inline-list-row-active [data-row-link]').count()) !== 1)
+      problems.push(`${label}: the bottom of the active row has no Link button`);
     await page.click('[data-add-button]');
     await page.keyboard.type('More');
     await page.waitForTimeout(300);
@@ -628,6 +634,13 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     if ((await page.locator('[data-add-button]').count()) !== 0)
       problems.push(`${label}: "${rowButtons}" stays although the row has a button`);
     if ((await page.locator('.inline-segmented-button').count()) !== 1) problems.push(`${label}: a row got a second button`);
+    // `Link` at the bottom opens the row's sheet, which has the page (and it can be cleared there).
+    await page.locator('.inline-list-row-active [data-row-link]').click();
+    await page.waitForTimeout(500);
+    if (!(await page.getByText('Page', { exact: true }).count()))
+      problems.push(`${label}: the bottom Link did not open the row's page field`);
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
   }
   await page.click('[data-add-row]');
   await page.waitForTimeout(300);
