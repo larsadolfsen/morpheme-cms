@@ -220,6 +220,15 @@ All wording in UI components, buttons and fields follows the specific guidelines
   - Document status: `Draft`, `Published`. A page is scheduled with a date on `Publish` (`Schedule`); `Hidden` is the SEO setting `Hide from search engines`.
   - Action buttons: Active verbs without filler words (`Add tag`, `Edit page`, `Save`).
 
+## Follow Material 3 everywhere except the editor
+
+Owner, 13 Nov 2026: "We follow MD3 everywhere except the editor. You need to look up every page and check it. I don't want to tell you more times to follow MD3."
+
+1. Outside the editor's own workspace (its toolbar/bar, overflow menu, text and block menus) every design choice follows what m3.material.io prints.
+2. Before a spec or a change, read the real pages of every component involved (they are script-rendered: use Playwright, which is pre-installed; expand collapsed token tables; read specs, guidelines and accessibility pages) and quote them. Never write from memory. If a page can't be read, say so plainly instead of guessing.
+3. Never invent a part, mark, size or behaviour M3 does not print. Where M3 is silent, say so and use the nearest M3 pattern.
+4. A deviation is allowed only in the editor workspace or when the owner says so in words. Record it with the M3 quote in `docs/material-deviations.md` if it exists in your checkout, otherwise in the spec or PR.
+
 ## Colours in editor-drawn block parts
 
 Colours in the editor's block parts (`src/editor.css`, `src/Inline*.tsx`) come only from the theme's context tokens: the `--mo-*`
