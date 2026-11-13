@@ -306,3 +306,19 @@ A second paragraph follows the first, with the space the theme puts between para
 <p class="body-small">Body small is for small print, notes and dates.</p>
 
 #### Heading 4: **bold**, *italic*, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
+
+<div data-section="" data-picture="/images/uploads/2026/10/moon.webp" data-alt="The moon over a dark sky"></div>
+
+## Text on a dark image
+
+Text, lists and buttons on a photo take the colour of the text on an image, so they read on a dark photo.
+
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;moon&quot;,&quot;title&quot;:&quot;A dark photo&quot;,&quot;text&quot;:&quot;The row reads on the moon.&quot;,&quot;href&quot;:&quot;/about/&quot;}]}"></div>
+
+<div data-section="" data-picture="/images/uploads/2026/10/earth-from-space.webp" data-alt="The Earth seen from space, a bright photo"></div>
+
+## Text on a bright image
+
+The same section on a bright photo.
+
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;sun&quot;,&quot;title&quot;:&quot;A bright photo&quot;,&quot;text&quot;:&quot;The row reads on the bright photo.&quot;,&quot;href&quot;:&quot;/about/&quot;}]}"></div>

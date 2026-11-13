@@ -2,9 +2,8 @@
 // (`link`: its text, e.g. "Read more about prices", the shared text of "Expandable list"), and links to more specific pages
 // (`more`, e.g. "Depression som ung", as chips). The standard block "Expandable list", and a site's own rows (this site's front
 // page, home/Topics.astro).
-import { Svg } from '@morphemecms/cms/src/icon';
 import type { PageRowView } from '@morphemecms/cms/src/standard/accordion/view';
-import { Link } from '@morphemecms/cms/src/standard/view';
+import Button from '@theme/ui/Button';
 import Chip from '@theme/ui/Chip';
 
 export default function PageRow(row: PageRowView) {
@@ -12,10 +11,9 @@ export default function PageRow(row: PageRowView) {
     <>
       <p className="block-row-text">{row.text}</p>
       <div className="block-row-links">
-        <Link href={row.href} className="block-link block-row-link">
+        <Button kind="text" href={row.href}>
           {row.link}
-          <Svg name="arrow-right" size={18} />
-        </Link>
+        </Button>
         {row.more?.map((m) => (
           <Chip key={m.href} href={m.href} label={m.label} />
         ))}
