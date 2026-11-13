@@ -16,9 +16,9 @@ export const iconColorField: Field = {
   type: 'select',
   segments: true,
   options: [
-    { label: t.blocks.iconColor.primary, value: '' },
-    { label: t.blocks.iconColor.secondary, value: 'secondary' },
-    { label: t.blocks.iconColor.tertiary, value: 'tertiary' },
+    { label: t.blocks.iconColor.primary, value: '', swatch: 'var(--mo-primary)' },
+    { label: t.blocks.iconColor.secondary, value: 'secondary', swatch: 'var(--mo-secondary)' },
+    { label: t.blocks.iconColor.tertiary, value: 'tertiary', swatch: 'var(--mo-tertiary)' },
   ],
   only: { field: 'icon', is: [''], not: true },
 };

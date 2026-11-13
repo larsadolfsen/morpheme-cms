@@ -1044,6 +1044,11 @@ html {
   color: var(--icon-color);
 }
 
+/* In a list the row's icon button is the heading's colour, as the icon is on the site (blocks.css, .block-list). */
+.block-list .inline-list-slot:not([data-icon-color]) {
+  color: var(--block-text);
+}
+
 .inline-list-slot:hover,
 .inline-list-slot:focus-visible {
   background: var(--mo-surface-container-high);
@@ -1560,27 +1565,22 @@ dialog {
 
 /* The Table typed in place: the cells as the site draws them, each a field; the active cell has the dotted line, and the next row and the next
    column (shown while the block is active) are faded until typed in. */
-.editor-text .inline-table :is(th, td) {
+.editor-text .inline-table-box :is(th, td) {
   height: auto;
 }
 
-.editor-text .inline-table .inline-table-cell-active {
+.editor-text .inline-table-box .inline-table-cell-active {
   outline: var(--editor-section-frame);
   outline-offset: -2px;
 }
 
-.editor-text .inline-table .inline-table-cell-next:not(.inline-table-cell-active) {
-  opacity: 0.55;
-}
-
-/* The table over its `Add row` button, the table the full width of the text. */
+/* The table the full width of the text. */
 .editor-text .inline-table-host {
   display: grid;
   justify-items: start;
-  gap: 0.5rem;
 }
 
-.editor-text .inline-table-host > .inline-table {
+.editor-text .inline-table-host > .inline-table-box {
   width: 100%;
 }
 
