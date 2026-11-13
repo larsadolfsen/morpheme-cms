@@ -191,7 +191,7 @@ What the spec does with it:
   two targets would overlap, the gap grows to keep them at least 8 dp apart.
 - **Mouse** (`pointer: fine`): M3 names 44 × 44 dp as the minimum. The spec uses **44** (it was 32 in the first draft, which was
   ours and not M3's).
-- **How it fits the steps.** The steps change the picture only: height and vertical padding, by 4dp, down to -3 (12dp). The target
+- **How it fits the steps.** The steps change the image only: height and vertical padding, by 4dp, down to -3 (12dp). The target
   stays 48 on touch and 44 for a mouse at every step. A part that is already near the target (a 40dp button at -1 is 36dp) keeps the
   rest of the target as invisible hit area, so no step ever shrinks a target.
 - The density setting's own rows are always at the default size.
