@@ -9,12 +9,9 @@
 import {
   type CSSProperties,
   forwardRef,
-  Fragment as ReactFragment,
   type MouseEvent as ReactMouseEvent,
-  type ReactNode,
   useEffect,
   useLayoutEffect,
-  useId,
   useImperativeHandle,
   useRef,
   useState,
@@ -45,13 +42,13 @@ import { lift } from '@milkdown/kit/prose/commands';
 import {
   ArrowUUpLeft,
   ArrowUUpRight,
-  CaretDown,
-  CaretUp,
+  DotsThreeVertical,
   Image,
   LinkSimple,
   ListBullets,
   ListChecks,
   ListNumbers,
+  Palette,
   Quotes,
   Tag,
   TextAa,
@@ -65,7 +62,9 @@ import {
   TextItalic,
   TextT,
 } from '@phosphor-icons/react';
-import { LIST_KINDS, STYLE_KINDS, headingKindOf, listKindOf, styleKindOf } from './styleKind.mjs';
+import { listKindOf, styleOf } from './styleKind.mjs';
+import { listRows, styleRows } from './styleMenu.mjs';
+import { planBar, slotsFor } from './textBar.mjs';
 import { sizeListText, sizeOfList } from './listSize.mjs';
 import { HTML, insertBlock, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
 import { firstHeading, topHeadings } from './firstHeading.mjs';
@@ -76,11 +75,9 @@ import { sectionHeading, setSection } from './sectionState.mjs';
 import { sectionFrame } from './sectionFrame';
 import { IMAGE, type BlockAsk } from './BlockDialog';
 import SectionSettingsIcon from './SectionSettingsIcon';
-import { arrangeTools, nextArrangement } from './toolbarOrder.mjs';
 import { askLink } from './LinkSheet';
-import { atLeastNow, BottomSheet, Menu, MenuItem, SheetBody, SheetGroupTitle, SheetTitle, Toolbar, ToolbarButton } from './ui';
+import { atLeastNow, Menu, MenuDivider, MenuItem, Toolbar, ToolbarButton, ToolbarDivider } from './ui';
 import { editsInPanel } from './sheetPlacement.mjs';
-import { useToolbarLines } from './useToolbarLines';
 import { shownAt } from './images';
 import { cropStyle, joinPicture, splitPicture } from '../lib/crop.mjs';
 import { describe, htmlBlock, type BlockProps } from './blocks';
@@ -102,8 +99,6 @@ import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { t } from './i18n';
 import { motionTiming } from '../lib/motion';
-import { stillTimer } from '../lib/still-timer.mjs';
-import { STILL_MS, wordRange } from './stillCursor.mjs';
 import { hasLabel, labelledHeading, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
 import { WidgetsIcon } from './icon';
@@ -113,28 +108,7 @@ import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw'
 import arrowUpIcon from '@phosphor-icons/core/assets/regular/arrow-up.svg?raw';
 import arrowDownIcon from '@phosphor-icons/core/assets/regular/arrow-down.svg?raw';
 import trashIcon from '@phosphor-icons/core/assets/regular/trash.svg?raw';
-import boldIcon from '@phosphor-icons/core/assets/regular/text-b.svg?raw';
-import italicIcon from '@phosphor-icons/core/assets/regular/text-italic.svg?raw';
-import linkIcon from '@phosphor-icons/core/assets/regular/link-simple.svg?raw';
-import h1Icon from '@phosphor-icons/core/assets/regular/text-h-one.svg?raw';
-import h2Icon from '@phosphor-icons/core/assets/regular/text-h-two.svg?raw';
-import h3Icon from '@phosphor-icons/core/assets/regular/text-h-three.svg?raw';
-import textLargeIcon from './icons/text-t-large.svg?raw';
-import textMediumIcon from './icons/text-t-medium.svg?raw';
-import textSmallIcon from './icons/text-t-small.svg?raw';
-import { TextHPlainIcon, TextLargeIcon, TextMediumIcon, TextSmallIcon } from './TextSizeIcons';
-import textHIcon from './icons/text-h-plain.svg?raw';
-import textTIcon from '@phosphor-icons/core/assets/regular/text-t.svg?raw';
-import alignLeftIcon from '@phosphor-icons/core/assets/regular/text-align-left.svg?raw';
-import alignCenterIcon from '@phosphor-icons/core/assets/regular/text-align-center.svg?raw';
-import alignRightIcon from '@phosphor-icons/core/assets/regular/text-align-right.svg?raw';
-import bulletIcon from '@phosphor-icons/core/assets/regular/list-bullets.svg?raw';
-import orderedIcon from '@phosphor-icons/core/assets/regular/list-numbers.svg?raw';
-import quoteIcon from '@phosphor-icons/core/assets/regular/quotes.svg?raw';
-import dotsIcon from '@phosphor-icons/core/assets/regular/dots-three-vertical.svg?raw';
-import caretDownIcon from '@phosphor-icons/core/assets/bold/caret-down-bold.svg?raw';
-import checkIcon from '@phosphor-icons/core/assets/regular/list-checks.svg?raw';
-import tagIcon from '@phosphor-icons/core/assets/regular/tag.svg?raw';
+import { TextLargeIcon, TextMediumIcon, TextSmallIcon } from './TextSizeIcons';
 // ProseMirror's own styles: keep its invisible helpers (around images, at the end of lines) out of the layout.
 import '@milkdown/kit/prose/view/style/prosemirror.css';
 
@@ -719,60 +693,29 @@ export function paint(view: EditorView, color: string | null) {
   view.focus();
 }
 
-// The three groups of kinds of text, each a button with a menu when there is little room: the headings, the text styles
-// (T) and the lists.
-// The icon of each text style, once, for both toolbars: the raw one the floating row draws and the component the top toolbar
-// and the style menu draw. Its names are STYLE_KINDS (styleKind.mjs), checked by styleKind.test.mjs.
+// The icon of each text style and list kind, for the bar's Text style and List menus (the names are STYLE_KINDS, styleKind.mjs).
 const KIND_ICONS = {
-  small: { raw: textSmallIcon, node: TextSmallIcon },
-  medium: { raw: textMediumIcon, node: TextMediumIcon },
-  large: { raw: textLargeIcon, node: TextLargeIcon },
-  label: { raw: tagIcon, node: Tag },
-  quote: { raw: quoteIcon, node: Quotes },
-  bullet: { raw: bulletIcon, node: ListBullets },
-  check: { raw: checkIcon, node: ListChecks },
-  ordered: { raw: orderedIcon, node: ListNumbers },
+  small: { node: TextSmallIcon },
+  medium: { node: TextMediumIcon },
+  large: { node: TextLargeIcon },
+  label: { node: Tag },
+  quote: { node: Quotes },
+  bullet: { node: ListBullets },
+  check: { node: ListChecks },
+  ordered: { node: ListNumbers },
 };
-// The icons of the three buttons when their style is not on: the general text (T), heading (H) and list icons.
-// The text styles in the "More" sheet, in the toolbar's order (the headings are the H button's).
-const TEXT_KINDS_IN_SHEET = ['small', 'medium', 'large', 'label', 'quote'];
 
-// A choice in the "More" sheet: its icon and name, checked when it is the one there is.
-function SheetChoice({
-  icon: Glyph,
-  selected,
-  onClick,
-  children,
-}: {
-  icon?: typeof TextB;
-  selected: boolean;
-  onClick: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={selected}
-      onClick={onClick}
-      className="flex min-h-12 w-full items-center gap-3 rounded-full px-4 text-left text-on-surface hover:bg-surface-container-high aria-pressed:bg-surface-container-high aria-pressed:font-medium"
-    >
-      {Glyph && <Glyph aria-hidden="true" size={24} />}
-      {children}
-    </button>
-  );
-}
-
+// The icon of a button when its style is not on: the general text (T) and list icons.
 const GENERIC_ICONS = {
-  text: { raw: textTIcon, node: TextT },
-  heading: { raw: textHIcon, node: TextHPlainIcon },
-  list: { raw: bulletIcon, node: ListBullets },
+  text: { node: TextT },
+  list: { node: ListBullets },
 };
 
 // The alignments of a paragraph or a smaller heading (lib/text-align.mjs), each with its icon and name; left is the text's own.
 const ALIGN_FACES = {
-  left: { raw: alignLeftIcon, node: TextAlignLeft },
-  center: { raw: alignCenterIcon, node: TextAlignCenter },
-  right: { raw: alignRightIcon, node: TextAlignRight },
+  left: { node: TextAlignLeft },
+  center: { node: TextAlignCenter },
+  right: { node: TextAlignRight },
 };
 type Align = keyof typeof ALIGN_FACES;
 const alignLabel = (align: Align) => ({ left: t.text.alignLeft, center: t.text.alignCenter, right: t.text.alignRight })[align];
@@ -802,26 +745,7 @@ export function alignSelection(view: EditorView, align: Align) {
   view.focus();
 }
 
-type KindGroup = 'headings' | 'text' | 'list';
-
-// A button's icon (a raw svg) and its name.
-type Face = { icon: string; label: string };
-
-// shows: an icon and a name that follow the selection (a group of kinds of text shows the one there is). on: marked
-// when it applies (aria-pressed); without it the button is never marked. off: not there for the selection (the button is
-// hidden). word: at a still cursor it acts on the word the cursor is in, which is selected first. menu: it opens a menu,
-// so it has an arrow down after its icon.
-type Look = (Face | { shows: (state: EditorView['state']) => Face }) & {
-  on?: (state: EditorView['state']) => boolean;
-  action: (button: HTMLElement) => void;
-  off?: (state: EditorView['state']) => boolean;
-  // Not there (the marks in a block with none).
-  dim?: (state: EditorView['state']) => boolean;
-  // Shown but not usable now.
-  disabled?: (state: EditorView['state']) => boolean;
-  word?: boolean;
-  menu?: boolean;
-};
+type KindGroup = 'style' | 'list';
 
 // The levels of the top-level headings of a document, in order.
 const levelsOf = (doc: EditorView['state']['doc']): number[] => topHeadings(doc).map(({ node }) => node.attrs.level);
@@ -837,221 +761,6 @@ function inSectionHeading(state: EditorView['state']) {
 // Whether the cursor is in a label above a heading (eyebrow.mjs), which has no bold, italic, link or colour.
 const inLabel = (state: EditorView['state']) =>
   ['eyebrow', 'bodyLarge', 'bodyMedium', 'bodySmall'].includes(state.selection.$from.parent.type.name);
-
-// When a word or more is selected, or the cursor has stood still in a word (STILL_MS, stillCursor.mjs): one row of icons
-// over it, never two: bold, italic, link, the headings (H, a menu with the levels headingChoices gives for the text; a
-// page's H1 alone is that heading's own button) and "More" (three dots), which
-// opens a sheet from the bottom with the rest: the colours, the text styles, the lists and the alignment. At a still
-// cursor, bold, italic and link act on the whole word, the headings on the line; a move or a keypress hides the row. On a
-// phone, where the phone's own menu is over the selection and its handles under it, the row is at the bottom of the
-// screen, over the keyboard.
-function selectionMenu(ctx: Ctx, h1: boolean, kinds: (button: HTMLElement, group: KindGroup) => void, more: () => void) {
-  return new Plugin({
-    view(view) {
-      const menu = document.body.appendChild(document.createElement('div'));
-      menu.className = 'editor-selection-menu';
-      menu.setAttribute('role', 'toolbar');
-      menu.setAttribute('aria-label', t.text.selection);
-      menu.hidden = true;
-      const run = <T,>(command: { key: CmdKey<T> }, payload?: T) => void callCommand(command.key, payload)(ctx);
-      const marked = (state: EditorView['state'], name: string) => activeOf(state).has(name);
-      // On a page the Heading button also stands for the H1 (firstHeading.mjs).
-      const heading = (state: EditorView['state'], level: number) =>
-        activeOf(state).has(`h${level}`) || (h1 && level === 2 && activeOf(state).has('h1'));
-      // The heading levels offered: on a page only those headingChoices gives (H1 until the text has one, then H2 and
-      // H3); a blog post has H2 and H3.
-      const levels = (state: EditorView['state']) => (h1 ? headingChoices(levelsOf(state.doc)) : [2, 3]);
-      const headingFace = (level: number): Face => ({
-        icon: [h1Icon, h2Icon, h3Icon][level - 1],
-        label: [t.text.pageHeading, t.text.heading, t.text.subheading][level - 1],
-      });
-      const looks: Look[] = [
-        {
-          icon: boldIcon,
-          label: t.text.bold,
-          on: (s) => marked(s, 'strong'),
-          action: () => run(toggleStrongCommand),
-          dim: inLabel,
-          word: true,
-        },
-        {
-          icon: italicIcon,
-          label: t.text.italic,
-          on: (s) => marked(s, 'emphasis'),
-          action: () => run(toggleEmphasisCommand),
-          dim: inLabel,
-          word: true,
-        },
-        {
-          icon: linkIcon,
-          label: t.text.link,
-          on: (s) => marked(s, 'link'),
-          action: () => void editLink(view).then(() => update(view)),
-          dim: inLabel,
-          word: true,
-        },
-        // The only heading offered (H1, while a page has none): its own button, marked when it is one; again to make it
-        // text.
-        {
-          shows: (s) => ({ icon: GENERIC_ICONS.heading.raw, label: headingFace(levels(s)[0]).label }),
-          on: (s) => heading(s, levels(s)[0]),
-          action: () => {
-            const [level] = levels(view.state);
-            if (heading(view.state, level)) run(turnIntoTextCommand);
-            else run(wrapInHeadingCommand, level);
-          },
-          off: (s) => levels(s).length > 1 || inListItem(s),
-        },
-        // The headings offered, in a menu: a plain H (the menu marks the level there is, the button's name says it). Not
-        // marked: it is the one control that shows the heading's level.
-        {
-          shows: (s) => {
-            const level = levels(s).find((l) => heading(s, l));
-            return {
-              icon: GENERIC_ICONS.heading.raw,
-              label: level === undefined ? t.text.heading : headingFace(level).label,
-            };
-          },
-          action: (button) => kinds(button, 'headings'),
-          off: (s) => levels(s).length < 2 || inListItem(s),
-          menu: true,
-        },
-        // The rest, in a sheet from the bottom.
-        { icon: dotsIcon, label: t.text.more, action: () => more() },
-      ];
-      // Where the cursor stood still in a word, so the row is shown for that word; null after a move. A change made by
-      // a button (acting) is no move.
-      let stillAt: number | null = null;
-      let acting = false;
-      const still = stillTimer(STILL_MS, () => {
-        if (!view.hasFocus() || !wordRange(view.state)) return;
-        stillAt = view.state.selection.from;
-        update(view);
-      });
-      const stillWord = (state: EditorView['state']) => (stillAt === state.selection.from ? wordRange(state) : null);
-      // The state as if the word at a still cursor were selected, so the buttons are marked as for the word.
-      const asShown = (state: EditorView['state']) => {
-        const word = stillWord(state);
-        return word ? state.apply(state.tr.setSelection(TextSelection.create(state.doc, word.from, word.to))) : state;
-      };
-      const faceOf = (look: Look, state: EditorView['state']) => ('shows' in look ? look.shows(state) : look);
-      // Draws a button's icon and name when they are not what it shows already; a button that opens a menu (the colours,
-      // the kinds of text) has a small arrow down after its icon (editor.css).
-      const drawn = new Map<HTMLButtonElement, string>();
-      const draw = (b: HTMLButtonElement, look: Look, { icon, label }: Face) => {
-        b.title = label;
-        b.setAttribute('aria-label', label);
-        if (drawn.get(b) === icon) return;
-        drawn.set(b, icon);
-        b.innerHTML = icon.replace('<svg', '<svg width="20" height="20" fill="currentColor" aria-hidden="true"');
-        if (look.menu)
-          b.insertAdjacentHTML(
-            'beforeend',
-            caretDownIcon.replace('<svg', '<svg width="12" height="12" fill="currentColor" aria-hidden="true" class="editor-menu-arrow"'),
-          );
-      };
-      const buttons = looks.map((look, i) => {
-        const b = menu.appendChild(document.createElement('button'));
-        b.type = 'button';
-        if (look.menu) b.setAttribute('aria-haspopup', 'menu');
-        draw(b, look, faceOf(look, view.state));
-        const act = () => {
-          const word = look.word ? stillWord(view.state) : null;
-          if (word) view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, word.from, word.to)));
-          acting = true;
-          try {
-            look.action(b);
-          } finally {
-            acting = false;
-          }
-          update(view);
-          // Again when "Save changes" has come after the first change.
-          setTimeout(follow, 100);
-        };
-        // The selection stays: no focus taken with the mouse, and a tap does not end the selection
-        // (its click is the phone's, so the tap acts itself).
-        b.addEventListener('mousedown', (e) => e.preventDefault());
-        b.addEventListener('click', act);
-        b.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
-        b.addEventListener('touchend', (e) => {
-          e.preventDefault();
-          act();
-        });
-        return b;
-      });
-      function update(view: EditorView) {
-        const { selection, doc } = view.state;
-        const word = stillWord(view.state);
-        const selected =
-          selection instanceof TextSelection && !selection.empty && doc.textBetween(selection.from, selection.to).trim() !== '';
-        const shown = view.hasFocus() && (selected || !!word);
-        menu.hidden = !shown;
-        if (!shown) return;
-        const state = asShown(view.state);
-        // A button that does not apply there (the marks in a block with none) is left out, on a phone too: the row floats by the text.
-        looks.forEach((look, i) => {
-          buttons[i].hidden = !!look.off?.(state) || !!look.dim?.(state);
-          if (buttons[i].hidden) return;
-          if ('shows' in look) draw(buttons[i], look, look.shows(state));
-          buttons[i].disabled = !!look.disabled?.(state);
-          if (look.on) buttons[i].setAttribute('aria-pressed', String(look.on(state)));
-        });
-        const screen = visualViewport ?? { offsetLeft: 0, offsetTop: 0, width: innerWidth, height: innerHeight };
-        const { offsetWidth: width, offsetHeight: height } = menu;
-        const text = view.dom.getBoundingClientRect();
-        const { from, to } = word ?? selection;
-        const start = view.coordsAtPos(from);
-        const end = view.coordsAtPos(to);
-        const middle = start.top === end.top ? (start.left + end.right) / 2 : text.left + text.width / 2;
-        // Over the selection; under it when there is no room over it (the top toolbar, or the top of the visible screen). Always
-        // inside the visible screen (the visual viewport: not under the keyboard) and above "Save changes".
-        const bar = document.querySelector('.editor-tools')?.getBoundingClientRect().bottom ?? 0;
-        const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? Infinity;
-        const floor = Math.max(bar, screen.offsetTop);
-        const ceiling = Math.min(screen.offsetTop + screen.height, save);
-        const over = start.top - height - 10;
-        const under = end.bottom + 10;
-        const left = screen.offsetLeft + 4;
-        menu.style.left = `${Math.max(left, Math.min(middle - width / 2, screen.offsetLeft + screen.width - width - 4))}px`;
-        menu.style.top = `${Math.max(screen.offsetTop, Math.min(over > floor ? over : under, ceiling - height - 4))}px`;
-      }
-      // Gone when the text is left (not for a tap on the menu itself, which keeps the focus).
-      const refresh = () => setTimeout(() => update(view));
-      // Where it is follows the page and the keyboard.
-      // Again a frame and a quarter of a second later: the page (and "Save changes") has moved by then when the keyboard opened.
-      const follow = () => {
-        if (menu.hidden) return;
-        update(view);
-        requestAnimationFrame(() => menu.hidden || update(view));
-        setTimeout(() => menu.hidden || update(view), 250);
-      };
-      view.dom.addEventListener('blur', refresh);
-      view.dom.addEventListener('focus', refresh);
-      addEventListener('scroll', follow, { passive: true });
-      visualViewport?.addEventListener('resize', follow);
-      visualViewport?.addEventListener('scroll', follow);
-      return {
-        // A move or a keypress hides the row at a still cursor and waits again.
-        update: (view: EditorView, prev: EditorState) => {
-          if (!acting && (!prev.selection.eq(view.state.selection) || !prev.doc.eq(view.state.doc))) {
-            stillAt = null;
-            still.restart();
-          }
-          update(view);
-        },
-        destroy: () => {
-          still.stop();
-          view.dom.removeEventListener('blur', refresh);
-          view.dom.removeEventListener('focus', refresh);
-          removeEventListener('scroll', follow);
-          visualViewport?.removeEventListener('resize', follow);
-          visualViewport?.removeEventListener('scroll', follow);
-          menu.remove();
-        },
-      };
-    },
-  });
-}
 
 // The blocks just put in that are typed in place (blockCard starts the first row of each).
 const fresh = new WeakSet<object>();
@@ -1669,20 +1378,19 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const [inText, setInText] = useState(false);
   // The heading levels the toolbar offers on a page (headingChoices): [1] while the text has no H1, then [2, 3].
   const [choices, setChoices] = useState<number[]>([1]);
-  // The sheet from the bottom behind the selection menu's "More" (three dots): the colours, the text styles, the lists and
-  // the alignment. `noColor`: the words there have none (a label above a heading, the name of a section).
-  const moreSheet = useRef<HTMLDialogElement>(null);
+  // The words there have no colour (a label above a heading, the name of a section): the Color tool is off.
   const [noColor, setNoColor] = useState(false);
-  const moreRef = useRef(() => {});
-  // The button that opened a menu with kinds of text, and its group, while it is open: in the toolbar, or over the
-  // selection (word), whose button says it is open as the colour button does.
-  const [kindsAt, setKindsAt] = useState<{ at: HTMLElement; group: KindGroup; word?: boolean } | null>(null);
-  useEffect(() => {
-    if (!kindsAt?.word) return;
-    kindsAt.at.setAttribute('aria-expanded', 'true');
-    return () => kindsAt.at.setAttribute('aria-expanded', 'false');
-  }, [kindsAt]);
-  // The alignment button that opened its menu (over the selection or in the toolbar), while it is open.
+  // A sheet that the bar opened (Settings, a link, Insert) is open: it blurs the text, but the bar keeps its text tools until it closes.
+  const [holding, setHolding] = useState(false);
+  // The button that opened a menu with the kinds of text (Text style, List), while it is open.
+  const [kindsAt, setKindsAt] = useState<{ at: HTMLElement; group: KindGroup } | null>(null);
+  // The `⋮` button, and the menu under it while it is open; the Alignment and Color menus of its rows open under it too.
+  const moreButton = useRef<HTMLButtonElement>(null);
+  const [moreAt, setMoreAt] = useState<HTMLElement | null>(null);
+  const [colorAt, setColorAt] = useState<HTMLElement | null>(null);
+  // The bar's width, in dp, measured with a ResizeObserver (never a timer): how many tools fit (textBar.mjs).
+  const [barWidth, setBarWidth] = useState(0);
+  // The alignment button that opened its menu, while it is open.
   const [alignAt, setAlignAt] = useState<HTMLElement | null>(null);
   useEffect(() => {
     alignAt?.setAttribute('aria-expanded', 'true');
@@ -1721,6 +1429,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
                 // On a page the first heading is the H1 by itself (firstHeading.mjs); the Heading button stands for it.
                 const now = [...activeOf(view.state)].map((name) => (h1 && name === 'h1' ? 'h2' : name)).sort();
                 setActive((was) => (was.join() === now.join() ? was : now));
+                setNoColor(inLabel(view.state) || (!!sections && inSectionHeading(view.state)));
               },
             };
           },
@@ -1740,14 +1449,6 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
             },
           }),
         }),
-    );
-    const selecting = $prose((ctx) =>
-      selectionMenu(
-        ctx,
-        !!h1,
-        (button, group) => setKindsAt((open) => (open?.at === button ? null : { at: button, group, word: true })),
-        () => moreRef.current(),
-      ),
     );
     const imageView = $view(imageSchema.node, () => (node, view, getPos) => imageCard(node, view, getPos, () => sheeted.current));
     const cardView = $view(
@@ -1778,7 +1479,6 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     let made = makeEditor(root.current, value)
       .use(cardView)
       .use(imageView)
-      .use(selecting)
       .use(cardDeletes)
       .use(marking)
       .use(onEdit)
@@ -1985,26 +1685,22 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   }
 
   function link() {
-    editor.current?.action((ctx) => void editLink(ctx.get(editorViewCtx)));
+    editor.current?.action((ctx) => void holdWhile(editLink(ctx.get(editorViewCtx))));
   }
 
   function color(name: string | null) {
     editor.current?.action((ctx) => paint(ctx.get(editorViewCtx), name));
   }
 
-  // Opens the sheet behind "More" (what applies there is marked, from `active`); a choice closes it and gives the text its focus back.
-  moreRef.current = () => {
-    editor.current?.action((ctx) => {
-      const state = ctx.get(editorViewCtx).state;
-      setNoColor(inLabel(state) || (!!sections && inSectionHeading(state)));
-    });
-    moreSheet.current?.showModal();
-  };
-  const chosen = (change: () => void) => {
-    moreSheet.current?.close();
-    change();
-    editor.current?.action((ctx) => ctx.get(editorViewCtx).focus());
-  };
+  // Runs what a sheet from the bar asks (Settings, a link, Insert): the bar keeps its text tools while it is open.
+  async function holdWhile<T>(task: Promise<T>) {
+    setHolding(true);
+    try {
+      return await task;
+    } finally {
+      setHolding(false);
+    }
+  }
 
   // The sheet with the settings of the section the cursor is in (its colour, image and width), then those set.
   async function sectionSettings() {
@@ -2012,7 +1708,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     editor.current?.action((ctx) => void (current = sectionHeading(ctx.get(editorViewCtx).state)));
     const at = current as ReturnType<typeof sectionHeading>;
     if (!at) return;
-    const answered = await (blocks ?? sheetProp)?.section(at, { image: true });
+    const answered = await holdWhile(Promise.resolve((blocks ?? sheetProp)?.section(at, { image: true })));
     if (!answered) return;
     editor.current?.action((ctx) => {
       const view = ctx.get(editorViewCtx);
@@ -2024,7 +1720,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // A new image from the gallery, then the sheet with it and what it shows, where it can still be
   // changed or left out (the browser's own box for what it shows without a sheet).
   async function image() {
-    const src = await addImage!();
+    const src = await holdWhile(addImage!());
     if (!src) return;
     const sheet = blocks ?? sheetProp;
     const picked = await sheet?.edit(IMAGE, { src, alt: '' }, true);
@@ -2042,7 +1738,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       have = blocksOf(doc).map((b) => b.type);
       doc.descendants((n) => void (n.type.name === 'image' && have.push(IMAGE)));
     });
-    const chosen = await blocks!.choose({ image: !!addImage, have });
+    const chosen = await holdWhile(blocks!.choose({ image: !!addImage, have }));
     if (!chosen) return;
     if (chosen.type === IMAGE) return image();
     editor.current?.action((ctx) => {
@@ -2072,265 +1768,191 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     });
   }
 
-  // Not a heading control in a list item: it cannot be a heading. A text size stays: it sizes the text of the items.
-  const inList = ['bullet', 'check', 'ordered'].some((name) => active.includes(name));
-  const allTools: {
-    label: string;
-    icon: typeof TextB;
-    action: (e: ReactMouseEvent<HTMLButtonElement>) => void;
-    on?: string;
-    large?: boolean;
-    role?: string;
-  }[] = [
-    // The settings of the section the cursor's H1 or H2 starts (not a fixed page's text, whose H2s are its sections' names; the front
-    // page has it for its H2s, but not for its H1, which stays the banner without a colour). It is 48 dp, as a
-    // tap needs, and `tools` below puts it last on the first line, before the tools that may go under the arrow.
-    ...(framed && active.includes('section') && !(sections && active.includes('section-h1')) && (blocks ?? sheetProp)
-      ? [{ label: t.text.sectionSettings, icon: SectionSettingsIcon, action: sectionSettings, large: true, role: 'settings' }]
-      : []),
-    { label: t.text.bold, icon: TextB, action: () => run(toggleStrongCommand), on: 'strong' },
-    { label: t.text.italic, icon: TextItalic, action: () => run(toggleEmphasisCommand), on: 'emphasis', role: 'italic' },
-    { label: t.text.link, icon: LinkSimple, action: link, on: 'link', role: 'link' },
-    // On a page the levels in choices (H1 until the text has one); a blog post has H2 and H3.
-    ...(inList ? [] : h1 ? choices : [2, 3]).map((level) => ({
-      label: [t.text.pageHeading, t.text.heading, t.text.subheading][level - 1],
-      icon: [TextHOne, TextHTwo, TextHThree][level - 1],
-      action: () => setKind(`h${level}`),
-      on: `h${level}`,
-    })),
-    { label: t.text.bodySmall, icon: KIND_ICONS.small.node, action: () => setKind('small'), on: 'small' },
-    { label: t.text.bodyMedium, icon: KIND_ICONS.medium.node, action: () => setKind('medium'), on: 'medium' },
-    { label: t.text.bodyLarge, icon: KIND_ICONS.large.node, action: () => setKind('large'), on: 'large' },
-    { label: t.text.label, icon: KIND_ICONS.label.node, action: () => setKind('label'), on: 'label' },
-    { label: t.text.quote, icon: KIND_ICONS.quote.node, action: () => setKind('quote'), on: 'quote' },
-    { label: t.text.bulletList, icon: KIND_ICONS.bullet.node, action: () => setKind('bullet'), on: 'bullet', role: 'list' },
-    { label: t.text.checkList, icon: KIND_ICONS.check.node, action: () => setKind('check'), on: 'check', role: 'list' },
-    { label: t.text.orderedList, icon: KIND_ICONS.ordered.node, action: () => setKind('ordered'), on: 'ordered', role: 'list' },
-    // The alignment of the paragraph or smaller heading, a menu (the icon follows the block's).
-    { label: t.text.alignmentIs(alignLabel(alignIn(active))), icon: ALIGN_FACES[alignIn(active)].node, action: () => {}, role: 'align' },
-    // An image and the blocks are put in with Insert (a sheet with them all); without blocks (a blog
-    // post) an image has its own button.
-    ...(blocks
-      ? [{ label: t.text.insert, icon: WidgetsIcon, action: block }]
-      : addImage
-        ? [{ label: t.text.image, icon: Image, action: image }]
-        : []),
-    { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand), role: 'undo' },
-    { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand), role: 'redo' },
-  ];
-
-  const all = allTools;
-
-  // The tools in their order (toolbarOrder.mjs): Section settings last on the first line, and what may go under the arrow at the
-  // end, Undo and Redo first, then the link, so Insert stays on the first line. The arrangement is tried from the widest:
-  // 'all' on one line, 'mid' with Section settings before Undo and Redo, 'priority' with the link behind it too, 'bare' with Italic and the lists as well (the last to go).
-  const [arrangement, setArrangement] = useState<'all' | 'mid' | 'priority' | 'bare'>('all');
-  const tools = arrangeTools(all, arrangement);
-
-  // When the toolbar is too short for all its buttons, the kinds of text are two buttons: the headings (H1, H2, H3) and the
-  // rest (T, the bulleted and the numbered list and the quote), so a heading and T both show from the start. Each shows
-  // the kind where the cursor is (else its first: the heading the text can have next, and T), with an arrow and the
-  // others of its group under it; a group of one (H1, while a page has none) is that button itself.
-  const hasSettings = tools.some((item) => item.role === 'settings');
-  const kinds = tools.filter((t) => ['h1', 'h2', 'h3', ...STYLE_KINDS].includes(t.on ?? ''));
-  const isList = (t: (typeof kinds)[number]) => LIST_KINDS.includes(t.on!);
-  const kindGroups = [
-    kinds.filter((t) => /^h\d$/.test(t.on!)),
-    kinds.filter((t) => !/^h\d$/.test(t.on!) && !isList(t)),
-    kinds.filter(isList),
-  ].filter((g) => g.length);
-  const groupOf = (group: typeof kinds): KindGroup => (/^h\d$/.test(group[0].on!) ? 'headings' : isList(group[0]) ? 'list' : 'text');
-  const shownOf = (group: typeof kinds) => group.find((t) => active.includes(t.on!)) ?? group.find((t) => t.on === 'medium') ?? group[0];
-  const [narrow, setNarrow] = useState(false);
-  const kindsShown = kindsAt ? (kindGroups.find((group) => groupOf(group) === kindsAt.group) ?? []) : [];
-  useEffect(() => {
-    const bar = toolbar.current!;
-    // A button is 2.5rem, with 0.125rem between them and 0.25rem around them, and each of the lines
-    // between the groups 0.5rem (the classes below).
-    const fits = () => setNarrow(bar.clientWidth < tools.length * 42 + 6 + (3 + (hasSettings ? 1 : 0)) * 10 + (hasSettings ? 8 : 0));
-    const watch = new ResizeObserver(fits);
-    watch.observe(bar);
-    return () => watch.disconnect();
-  }, [tools.length, hasSettings]);
-  // When the tools do not fit on one line even so, the line keeps those that fit and a button at its end (an arrow) shows
-  // the rest on a second line, instead of the toolbar scrolling sideways. The tools past the first line are marked
-  // data-wrapped (hidden, out of reach of Tab, while it is closed), and a line between groups that starts or ends a line
-  // data-line-start or data-line-end (not drawn).
-  const line = useRef<HTMLDivElement>(null);
-  const lineId = useId();
-  const { overflows, expanded, setExpanded } = useToolbarLines(toolbar, line, [tools.map((item) => item.label).join('|'), narrow]);
-  const open = overflows && expanded;
-  // After each measure: which arrangement shows what must stay on the first line (tools wrapped that may not wrap: not
-  // Undo, Redo or the link, and not the arrow). A change of the width starts again from all on one line.
+  // The one bar (textBar.mjs): the text tools while the cursor is in the text (or a sheet of the bar is open), a divider, then the main tools
+  // (Insert, Undo, Redo, Section settings). It never scrolls: the tools that do not fit are in the `⋮` menu.
+  const inContext = inText || holding;
+  const headingLevels = h1 ? choices : [2, 3];
+  const alignOn = active.includes('alignable');
+  const alignNow = alignIn(active);
+  const styleKey = styleOf(active, true);
+  const listKey = listKindOf(active, true);
+  const STYLE_FACES: Record<string, { label: string; icon: typeof TextB }> = {
+    h1: { label: t.text.pageHeading, icon: TextHOne },
+    h2: { label: t.text.heading, icon: TextHTwo },
+    h3: { label: t.text.subheading, icon: TextHThree },
+    small: { label: t.text.bodySmall, icon: KIND_ICONS.small.node },
+    medium: { label: t.text.bodyMedium, icon: KIND_ICONS.medium.node },
+    large: { label: t.text.bodyLarge, icon: KIND_ICONS.large.node },
+    label: { label: t.text.label, icon: KIND_ICONS.label.node },
+    quote: { label: t.text.quote, icon: KIND_ICONS.quote.node },
+  };
+  const LIST_FACES: Record<string, { label: string; icon: typeof TextB }> = {
+    bullet: { label: t.text.bulletList, icon: KIND_ICONS.bullet.node },
+    check: { label: t.text.checkList, icon: KIND_ICONS.check.node },
+    ordered: { label: t.text.orderedList, icon: KIND_ICONS.ordered.node },
+  };
+  const styleFace = STYLE_FACES[styleKey] ?? { label: t.text.kind, icon: GENERIC_ICONS.text.node };
+  const styleLabel = STYLE_FACES[styleKey] ? t.text.kindIs(styleFace.label) : t.text.kind;
+  const listFace = LIST_FACES[listKey];
+  const lists = listRows(active);
+  const settingsShown =
+    framed && active.includes('section') && !(sections && active.includes('section-h1')) && !!(blocks ?? sheetProp) && inContext;
+  const insertLabel = blocks ? t.text.insert : t.text.image;
+  const hasInsert = !!blocks || !!addImage;
+  const contextIds = inContext ? ['bold', 'italic', 'link', 'style', ...(lists.length ? ['list'] : []), 'align', 'color'] : [];
+  const mainIds = [...(hasInsert ? ['insert'] : []), 'undo', 'redo', ...(settingsShown ? ['settings'] : [])];
   useLayoutEffect(() => {
-    const wrapped = [...(line.current?.querySelectorAll<HTMLElement>('button[data-wrapped]') ?? [])];
-    const listLabels = [t.text.list, t.text.bulletList, t.text.checkList, t.text.orderedList];
-    const mayWrap = (label: string) =>
-      [t.text.undo, t.text.redo, t.text.link].includes(label) ||
-      label.startsWith(t.text.alignmentIs('')) ||
-      (arrangement === 'bare' && (listLabels.includes(label) || label.startsWith(t.text.listIs(''))));
-    const next = nextArrangement(arrangement, {
-      any: wrapped.length > 0,
-      kept: wrapped.some((el) => !mayWrap(el.getAttribute('aria-label') ?? '')),
-    });
-    if (next !== arrangement) setArrangement(next);
-  });
-  const barWidth = useRef(0);
-  useEffect(() => {
     const bar = toolbar.current!;
-    const watch = new ResizeObserver(() => {
-      if (Math.abs(bar.clientWidth - barWidth.current) < 1) return;
-      barWidth.current = bar.clientWidth;
-      setArrangement('all');
-    });
+    const measure = () => setBarWidth(bar.clientWidth);
+    measure();
+    const watch = new ResizeObserver(measure);
     watch.observe(bar);
     return () => watch.disconnect();
   }, []);
-
-  const tool = ({ label, icon, action, on, large, role }: (typeof tools)[number]) =>
-    role === 'align' ? (
-      <ToolbarButton
-        key="align"
-        icon={icon}
-        label={label}
-        menu={!!alignAt && alignAt.closest('.editor-selection-menu') === null}
-        onClick={(e) => setAlignAt(alignAt === e.currentTarget ? null : e.currentTarget)}
-      />
-    ) : (
-      <ToolbarButton key={label} icon={icon} label={label} selected={on ? active.includes(on) : undefined} large={large} onClick={action} />
-    );
-
-  // The lines between the marks on the text, the kinds of text, Insert (or "Image") and "Undo".
-  const lineBefore = (item: (typeof tools)[number]) =>
-    item.role === 'settings' || item === kinds[0] || item.icon === WidgetsIcon || item.icon === Image || item.icon === ArrowUUpLeft;
-  // A button of the toolbar; when it is too short, each group of kinds of text is one button (at its first), with a menu.
-  const button = (item: (typeof tools)[number]) => {
-    if (!narrow || !kinds.includes(item)) return tool(item);
-    const members = kindGroups.find((g) => g[0] === item);
-    if (!members) return null;
-    if (members.length === 1) return tool(item);
-    const group = groupOf(members);
-    const generic =
-      (group === 'headings' && headingKindOf(active, inText) === 'generic') ||
-      (group === 'text' && styleKindOf(active, inText) === 'generic') ||
-      (group === 'list' && listKindOf(active, inText) === 'generic');
-    const shown = shownOf(members);
-    const [genericIcon, genericLabel, labelIs] =
-      group === 'list'
-        ? [GENERIC_ICONS.list.node, t.text.list, t.text.listIs]
-        : group === 'headings'
-          ? [GENERIC_ICONS.heading.node, t.text.heading, t.text.kindIs]
-          : [GENERIC_ICONS.text.node, t.text.kind, t.text.kindIs];
-    const opened = kindsAt?.group === group && !kindsAt.word;
-    // Not marked: it always shows a kind of its group (the menu under it marks the one there is).
+  const plan = planBar({ slots: slotsFor(barWidth, contextIds.length > 0), context: contextIds, main: mainIds });
+  // What a tool does and how it looks; the bar draws it as a button, the `⋮` menu as a row.
+  const toolOf = (id: string): { label: string; icon: typeof TextB; action: () => void; on?: string; disabled?: boolean } => {
+    switch (id) {
+      case 'bold':
+        return { label: t.text.bold, icon: TextB, action: () => run(toggleStrongCommand), on: 'strong' };
+      case 'italic':
+        return { label: t.text.italic, icon: TextItalic, action: () => run(toggleEmphasisCommand), on: 'emphasis' };
+      case 'link':
+        return { label: t.text.link, icon: LinkSimple, action: link, on: 'link' };
+      case 'insert':
+        return { label: insertLabel, icon: blocks ? WidgetsIcon : Image, action: blocks ? block : image };
+      case 'undo':
+        return { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand) };
+      case 'redo':
+        return { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand) };
+      default:
+        return { label: t.text.sectionSettings, icon: SectionSettingsIcon, action: sectionSettings };
+    }
+  };
+  const menuOf = (id: string) => ({ style: 'style', list: 'list' })[id] as KindGroup | undefined;
+  // A button of the bar. Text style, List, Alignment and Color open a menu under them; the others act.
+  const barButton = (id: string) => {
+    if (id === 'style' || id === 'list') {
+      const group = menuOf(id)!;
+      const opened = kindsAt?.group === group;
+      const [icon, label] =
+        group === 'style'
+          ? [styleFace.icon, styleLabel]
+          : [listFace?.icon ?? GENERIC_ICONS.list.node, listFace ? t.text.listIs(listFace.label) : t.text.list];
+      return (
+        <ToolbarButton
+          key={id}
+          icon={icon}
+          label={label}
+          menu={opened}
+          onClick={(e) => setKindsAt(opened ? null : { at: e.currentTarget, group })}
+        />
+      );
+    }
+    if (id === 'align')
+      return (
+        <ToolbarButton
+          key={id}
+          icon={ALIGN_FACES[alignNow].node}
+          label={t.text.alignmentIs(alignLabel(alignNow))}
+          menu={!!alignAt && alignAt.closest('.editor-tools') !== null && alignAt !== moreButton.current}
+          disabled={!alignOn}
+          onClick={(e) => setAlignAt(alignAt === e.currentTarget ? null : e.currentTarget)}
+        />
+      );
+    if (id === 'color')
+      return (
+        <ToolbarButton
+          key={id}
+          icon={Palette}
+          label={t.text.color}
+          menu={!!colorAt && colorAt !== moreButton.current}
+          disabled={noColor}
+          onClick={(e) => setColorAt(colorAt === e.currentTarget ? null : e.currentTarget)}
+        />
+      );
+    const { label, icon, action, on } = toolOf(id);
+    return <ToolbarButton key={id} icon={icon} label={label} selected={on ? active.includes(on) : undefined} onClick={action} />;
+  };
+  // A row of the `⋮` menu. Text style, Alignment and Color open their own menu, under the `⋮` button.
+  const moreRows = (id: string) => {
+    const under = (open: () => void) => () => {
+      open();
+    };
+    if (id === 'style')
+      return (
+        <MenuItem key={id} icon={styleFace.icon} onClick={under(() => setKindsAt({ at: moreButton.current!, group: 'style' }))}>
+          {styleLabel}
+        </MenuItem>
+      );
+    if (id === 'list')
+      return lists.map((kind) => (
+        <MenuItem key={kind} icon={LIST_FACES[kind].icon} selected={active.includes(kind)} onClick={() => setKind(kind)}>
+          {LIST_FACES[kind].label}
+        </MenuItem>
+      ));
+    if (id === 'align')
+      return (
+        <MenuItem key={id} icon={ALIGN_FACES[alignNow].node} disabled={!alignOn} onClick={under(() => setAlignAt(moreButton.current))}>
+          {t.text.alignmentIs(alignLabel(alignNow))}
+        </MenuItem>
+      );
+    if (id === 'color')
+      return (
+        <MenuItem key={id} icon={Palette} disabled={noColor} onClick={under(() => setColorAt(moreButton.current))}>
+          {t.text.color}
+        </MenuItem>
+      );
+    const { label, icon, action, on } = toolOf(id);
     return (
-      <ToolbarButton
-        key={`kinds-${group}`}
-        icon={generic ? genericIcon : shown.icon}
-        label={generic ? genericLabel : labelIs(shown.label)}
-        menu={opened}
-        onClick={(e) => setKindsAt(opened ? null : { at: e.currentTarget, group })}
-      />
+      <MenuItem key={id} icon={icon} selected={on ? active.includes(on) : undefined} onClick={action}>
+        {label}
+      </MenuItem>
     );
   };
+  // In the `⋮` menu the context's tools come first, then a divider, then the main tools.
+  const MORE_ORDER = ['bold', 'italic', 'link', 'style', 'align', 'list', 'color'];
+  const moreContext = [...plan.more.context].sort((a, b) => MORE_ORDER.indexOf(a) - MORE_ORDER.indexOf(b));
+  const moreMain = plan.more.main.length ? plan.more.main : [];
 
   return (
     <div className="rounded-panel bg-surface-container-lowest">
-      {/* The top edge of the text's box: it draws its own border and rounded corners, so the box's side lines start under it and never run past it when it sticks; no shadow. Stays at the top of the screen while scrolling through the text (under the safe area, as the top bar scrolls away). The buttons are centred on one line; when they do not fit, the line starts at the left and
-          the arrow at its end shows the rest on a second line (measure above). */}
+      {/* The top edge of the text's box: it draws its own border and rounded corners, so the box's side lines start under it and never run past it when it sticks; no shadow. Stays at the top of the screen while scrolling through the text (under the safe area, as the top bar scrolls away). One row, 44 dp high: the text tools, a divider and the main tools; the `⋮` at its end has what does not fit (textBar.mjs). */}
       <Toolbar
         ref={toolbar}
         label={t.text.tools}
-        className="editor-tools sticky top-[env(safe-area-inset-top)] z-10 items-start rounded-t-panel border border-outline-variant pb-(--toolbar-docked-padding-block)"
+        className="editor-tools sticky top-[env(safe-area-inset-top)] z-10 rounded-t-panel border border-outline-variant pb-(--toolbar-docked-padding-block)"
       >
-        <div
-          ref={line}
-          id={lineId}
-          className={[
-            'editor-tools-line flex min-w-0 flex-1 flex-wrap items-center gap-[0.125rem]',
-            overflows ? 'justify-start' : 'justify-center',
-            !open && 'editor-tools-closed',
-            hasSettings && 'editor-tools-tall',
-            arrangement !== 'all' && 'editor-tools-compact',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-        >
-          {tools.map((tool) => (
-            <ReactFragment key={tool.label}>
-              {lineBefore(tool) && <span aria-hidden="true" className="mx-1 my-2 w-px shrink-0 self-stretch bg-outline-variant" />}
-              {button(tool)}
-            </ReactFragment>
-          ))}
+        {plan.bar.context.length > 0 && (
+          <div role="group" aria-label={t.text.textTools} className="editor-tools-group">
+            {plan.bar.context.map(barButton)}
+          </div>
+        )}
+        {plan.bar.context.length > 0 && <ToolbarDivider />}
+        <div role="group" aria-label={t.text.pageTools} className="editor-tools-group">
+          {plan.bar.main.map(barButton)}
         </div>
-        {overflows && (
+        {plan.overflow && (
           <ToolbarButton
-            icon={open ? CaretUp : CaretDown}
-            label={open ? t.text.fewerTools : t.text.moreTools}
-            expanded={open}
-            controls={lineId}
-            onClick={() => setExpanded(!open)}
+            ref={moreButton}
+            icon={DotsThreeVertical}
+            label={t.text.more}
+            popup={!!moreAt}
+            onClick={(e) => setMoreAt(moreAt ? null : e.currentTarget)}
           />
         )}
       </Toolbar>
-      {/* The rest of the selection menu: the site's colours (text-colors.mjs), each named in its colour, as it is in the text
-          (its class), and "No color" in the text's own, last; before it the text styles, the lists and the alignment. */}
-      <BottomSheet ref={moreSheet} aria-label={t.text.more}>
-        <SheetTitle title={t.text.more} onClose={() => moreSheet.current?.close()} />
-        <SheetBody>
-          {(
-            [
-              [t.text.kind, all.filter(({ on }) => TEXT_KINDS_IN_SHEET.includes(on ?? ''))],
-              [t.text.list, all.filter(({ on }) => LIST_KINDS.includes(on ?? ''))],
-            ] as const
-          ).map(([title, items]) => (
-            <ReactFragment key={title}>
-              <SheetGroupTitle>{title}</SheetGroupTitle>
-              {items
-                .filter(({ on }) => on !== 'label' || active.includes('labelable'))
-                .map(({ label, icon: Glyph, on }) => (
-                  <SheetChoice key={label} icon={Glyph} selected={active.includes(on!)} onClick={() => chosen(() => setKind(on!))}>
-                    {label}
-                  </SheetChoice>
-                ))}
-            </ReactFragment>
-          ))}
-          {active.includes('alignable') && (
-            <>
-              <SheetGroupTitle>{t.text.alignment}</SheetGroupTitle>
-              {(Object.keys(ALIGN_FACES) as Align[]).map((align) => (
-                <SheetChoice
-                  key={align}
-                  icon={ALIGN_FACES[align].node}
-                  selected={alignIn(active) === align}
-                  onClick={() => chosen(() => editor.current?.action((ctx) => alignSelection(ctx.get(editorViewCtx), align)))}
-                >
-                  {alignLabel(align)}
-                </SheetChoice>
-              ))}
-            </>
-          )}
-          {!noColor && (
-            <>
-              <SheetGroupTitle>{t.text.color}</SheetGroupTitle>
-              {TEXT_COLORS.map((name) => (
-                <SheetChoice key={name} selected={active.includes(colorClass(name))} onClick={() => chosen(() => color(name))}>
-                  <span className={colorClass(name)}>{t.text.colors[name as keyof typeof t.text.colors]}</span>
-                </SheetChoice>
-              ))}
-              <SheetChoice selected={!active.includes('textColor')} onClick={() => chosen(() => color(null))}>
-                <span className="text-on-surface">{t.text.noColor}</span>
-              </SheetChoice>
-            </>
-          )}
-        </SheetBody>
-      </BottomSheet>
-      <Menu anchor={alignAt} label={t.text.alignment} onClose={() => setAlignAt(null)}>
+      <Menu popup="end" anchor={moreAt} label={t.text.more} onClose={() => setMoreAt(null)}>
+        {moreContext.map(moreRows)}
+        {moreContext.length > 0 && moreMain.length > 0 && <MenuDivider />}
+        {moreMain.map(moreRows)}
+      </Menu>
+      <Menu popup="start" anchor={alignAt} label={t.text.alignment} onClose={() => setAlignAt(null)}>
         {(Object.keys(ALIGN_FACES) as Align[]).map((align) => (
           <MenuItem
             key={align}
             icon={ALIGN_FACES[align].node}
-            selected={alignIn(active) === align}
+            selected={alignNow === align}
             onClick={() => {
               setAlignAt(null);
               editor.current?.action((ctx) => alignSelection(ctx.get(editorViewCtx), align));
@@ -2340,12 +1962,38 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           </MenuItem>
         ))}
       </Menu>
-      <Menu anchor={kindsAt?.at ?? null} label={kindsAt?.group === 'list' ? t.text.list : t.text.kind} onClose={() => setKindsAt(null)}>
-        {kindsShown
-          .filter(({ on }) => on !== 'label' || active.includes('labelable'))
-          .map(({ label, icon, action, on }) => (
-            <MenuItem key={label} icon={icon} selected={active.includes(on!)} onClick={action as () => void}>
-              {label}
+      {/* The site's colours (text-colors.mjs), each named in its colour, as it is in the text (its class), and "No color" in the text's own, last. */}
+      <Menu popup="start" anchor={colorAt} label={t.text.color} onClose={() => setColorAt(null)}>
+        {TEXT_COLORS.map((name) => (
+          <MenuItem key={name} selected={active.includes(colorClass(name))} onClick={() => color(name)}>
+            <span className={colorClass(name)}>{t.text.colors[name as keyof typeof t.text.colors]}</span>
+          </MenuItem>
+        ))}
+        <MenuItem selected={!active.includes('textColor')} onClick={() => color(null)}>
+          <span className="text-on-surface">{t.text.noColor}</span>
+        </MenuItem>
+      </Menu>
+      {/* Text style: the heading levels the text may have, a divider, then the body sizes, Label and Quote; the rows that do not apply (a heading in a list item, a list or Quote in a heading) are hidden (styleMenu.mjs). */}
+      <Menu
+        popup="start"
+        anchor={kindsAt?.at ?? null}
+        label={kindsAt?.group === 'list' ? t.text.list : t.text.kind}
+        onClose={() => setKindsAt(null)}
+      >
+        {kindsAt?.group === 'style' &&
+          styleRows(active, headingLevels).map((row, i) =>
+            row === '-' ? (
+              <MenuDivider key={`-${i}`} />
+            ) : (
+              <MenuItem key={row} icon={STYLE_FACES[row].icon} selected={active.includes(row)} onClick={() => setKind(row)}>
+                {STYLE_FACES[row].label}
+              </MenuItem>
+            ),
+          )}
+        {kindsAt?.group === 'list' &&
+          lists.map((kind) => (
+            <MenuItem key={kind} icon={LIST_FACES[kind].icon} selected={active.includes(kind)} onClick={() => setKind(kind)}>
+              {LIST_FACES[kind].label}
             </MenuItem>
           ))}
       </Menu>
