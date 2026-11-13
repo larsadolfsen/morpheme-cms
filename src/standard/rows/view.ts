@@ -1,5 +1,5 @@
 // "Rows from" in the editor: the rows a list block gets from the list it reads, drawn from the site's data (BlockData), and the choices
-// of `Rows from`. The same rows as the site's (load.ts), but of the data the editor has: posts without their addresses.
+// of `Rows from`. The same rows as the site's (load.ts), but of the data the editor has, so the Preview of a page shows the same rows as the site.
 import type { BlockData } from '../../blocks';
 import { rowLists } from './lists';
 import { PARTS, fieldOfPart, fieldsForPart, inlineRowsOf, itemOfEntry } from './rows.mjs';
@@ -23,7 +23,7 @@ export const rowSources = (labels: { posts: string; testimonials: string }): Row
 /** The items of a source as the editor has them. */
 export const sourceItems = (id: string, data: BlockData): SourceItem[] => {
   if (id === 'posts')
-    return data.site.posts.map((p) => ({ title: p.title, text: p.description, href: undefined, tags: p.categories }) as SourceItem);
+    return data.site.posts.map((p) => ({ title: p.title, text: p.description, href: `/${p.slug}/`, tags: p.categories }) as SourceItem);
   if (id === 'testimonials')
     return data.testimonials.map((t) => ({
       title: t.name,

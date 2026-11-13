@@ -951,6 +951,26 @@ html {
   margin-bottom: 0.25rem;
 }
 
+/* A row of a list the owner made: its fields stacked in the order they were added; a slot has its name above it. */
+.editor-text .inline-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  white-space: normal;
+}
+
+.editor-text .inline-field-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+}
+
+.editor-text .inline-field-name {
+  color: var(--mo-on-surface-variant);
+  font-size: var(--type-body-small-size, 0.75rem);
+}
+
 /* The icon and link slots before the heading of the active row of a Segmented list. */
 .editor-text .inline-segmented-slots {
   display: inline-flex;

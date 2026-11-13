@@ -16,6 +16,6 @@ Your change becomes one commit, with a message describing what you did. Cloudfla
 
 ## Going back is one tap
 
-Every save is listed under Earlier versions, and you can restore your site exactly as it was. Deleted photos and files can be restored from Deleted files.
+Every save is listed under History, and you can restore your site exactly as it was. Deleted photos and files can be restored from Deleted files.
 
 <div data-block="notice" data-props="{&quot;text&quot;:&quot;The editor talks to GitHub through your site’s own server, so your sign-in is never stored in the browser.&quot;}"></div>

@@ -16,6 +16,8 @@ import alignLeftIcon from '@material-symbols/svg-400/outlined/format_align_left.
 import alignCenterIcon from '@material-symbols/svg-400/outlined/format_align_center.svg?raw';
 import alignRightIcon from '@material-symbols/svg-400/outlined/format_align_right.svg?raw';
 import alignAutoIcon from '@material-symbols/svg-400/outlined/autorenew.svg?raw';
+import rowDeleteIcon from '@material-symbols/svg-400/outlined/playlist_remove.svg?raw';
+import columnDeleteIcon from '@material-symbols/svg-400/outlined/variable_remove.svg?raw';
 import deleteIcon from '@material-symbols/svg-400/outlined/delete.svg?raw';
 
 export type BarAction = {
@@ -28,6 +30,8 @@ export type BarAction = {
     | 'link'
     | 'column-before'
     | 'column-after'
+    | 'delete-row'
+    | 'delete-column'
     | 'delete'
     | 'align-left'
     | 'align-center'
@@ -46,6 +50,8 @@ const icons = {
   link: linkIcon,
   'column-before': columnBeforeIcon,
   'column-after': columnAfterIcon,
+  'delete-row': rowDeleteIcon,
+  'delete-column': columnDeleteIcon,
   delete: deleteIcon,
   'align-left': alignLeftIcon,
   'align-center': alignCenterIcon,

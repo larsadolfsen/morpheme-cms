@@ -1369,12 +1369,12 @@ function blockCard(
           action: () => go(addColumnAt(list, c + 1), r, c + 1, columnAddedAt(own, width, c + 1)),
         },
         ...(list.length > 1 && r < list.length
-          ? [{ kind: 'delete' as const, label: g.deleteRow, action: () => go(removeRowAt(list, r), Math.min(r, list.length - 2), c) }]
+          ? [{ kind: 'delete-row' as const, label: g.deleteRow, action: () => go(removeRowAt(list, r), Math.min(r, list.length - 2), c) }]
           : []),
         ...((list[0]?.length ?? 1) > 1 && c < (list[0]?.length ?? 1)
           ? [
               {
-                kind: 'delete' as const,
+                kind: 'delete-column' as const,
                 label: g.deleteColumn,
                 action: () => go(removeColumnAt(list, c), r, Math.min(c, width - 2), columnRemovedAt(own, width, c)),
               },
