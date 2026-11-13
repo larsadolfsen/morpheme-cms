@@ -266,14 +266,15 @@ async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300) {
 async function pressTool(page, name, how = 'click') {
   const direct = page.locator(`.editor-tools button[aria-label="${name}"]:visible`);
   if (await direct.count()) return void (await direct.first()[how]());
-  await pressMore(page, name, how);
+  await pressMore(page, name, how, 'first');
 }
 
 /** A row of the bar's ⋮ menu by its name (the block's own menu: Edit, Hide on the page, Move up, Move down, Remove; and the tools that did not fit). */
-async function pressMore(page, name, how = 'click') {
+async function pressMore(page, name, how = 'click', which = 'last') {
   await page.locator('.editor-tools [aria-label="More"]:visible').first()[how]();
   const row = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${name}$`) });
-  await row.first()[how]();
+  // `last`: the block's own menu, which is last in the ⋮ (a gear named Edit may stand before it); `first`: a tool of the bar that did not fit.
+  await row[which]()[how]();
 }
 
 /** The bar's Insert block (always on the bar, never in the ⋮ menu). */
