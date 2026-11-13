@@ -63,7 +63,14 @@ choices.
 - Stored: **per user on the device**, in `localStorage` key `editor-density`, as the theme choice is (`src/theme.ts`, key
   `editor-theme`). Not per site: a phone and a desktop want different answers (M3: "Consider density settings in the context of a
   device"). A script in the head sets it before the first paint, so the page does not jump.
-- It applies to the editor's own screens only. Never to the page preview of a site (the preview shows the site as visitors see it).
+- **Scope (owner, 2026-11-13).** It applies to the whole editor **except the editing area of a page and a blog post**. What is typed in
+  place there (text, and the blocks as drawn on the page) must stay as close to the real site as possible, so density never changes how
+  that content is drawn: it keeps the theme's own spacing for the site, at every step. Everything around it follows density: menus,
+  sheets, settings forms, lists, toolbars, the Library, the start screen and all other screens.
+- **The line.** The content area is the box that holds the page's own blocks (the typed-in-place canvas and the page Preview).
+  Density is switched off inside it by setting `--mo-density: 0` on that box, so a part inside it (a block drawn by the theme) reads
+  the default even though `data-density` is on the root. The editor's own tools drawn over the content (the floating text toolbar, the
+  block menu, the add-block buttons) are editor parts and follow density.
 - No automatic change on a small screen (M3 rule above). The choice is the same on a phone and a computer, unless the person picks it
   there.
 - The settings rows that hold this choice always stay at step `0` size, so a person can always go back (M3 rule above).
@@ -91,7 +98,7 @@ What each part does per step, from M3's numbers (Medium = default, Small = -1, t
 | Text field | 56 | 52 | 48 | 44 | label stays centred |
 | List row | today's 56 / 72 / 88 | -4 | -8 | -12 | padding, not text |
 | Table row (`DataTable`) | 52 | 48 | 44 | 40 | replaces the table's `density` (section 3) |
-| Gaps between rows and sections in the editor | today's | -4 | -8 | -12 | layout density, from the spacing tokens |
+| Gaps between rows and sections in the editor, outside the page and post editing area | today's | -4 | -8 | -12 | layout density, from the spacing tokens |
 
 The sizes in the table are the rule applied by us; only the segmented button is a number M3 prints. The PR that builds a part checks
 it against the Specs page of that part and corrects this table.
@@ -162,6 +169,9 @@ audit's sizes where they differ.
 
 - Every editor screen opens at 375 px and 1280 px at each of the three steps with no error, no overflow and no text cut off. Three
   steps × two widths of the existing screens.
+- **Content area is identical.** For a page and a blog post, the typed-in-place content area is the same at Large, Medium and Small: its
+  computed sizes (height, padding, margin, gap of every block) and its screenshot at 375 px and 1280 px match pixel for pixel between
+  the three steps. This is the proof that density never reaches the content. It also runs on a page with every block kind.
 - Touch targets: at 375 px (`pointer: coarse`) every tappable part is at least 48 × 48 dp at every step, measured on the hit area.
 - Contrast: unchanged by density, but `check:contrast` runs once at `Small` to see that tighter rows keep the section colours.
 - A part that has a literal height or padding and not the density formula fails the check, once #515's spacing rule (its step 3 of
