@@ -1829,7 +1829,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const insertLabel = blocks ? t.text.insert : t.text.image;
   const hasInsert = !!blocks || !!addImage;
   const contextIds = block_
-    ? blockToolIds(block_)
+    ? blockToolIds(block_).map((id) => `block:${id}`)
     : textContext
       ? ['bold', 'italic', 'link', 'style', ...(lists.length ? ['list'] : []), 'align', 'color']
       : [];
@@ -1850,7 +1850,22 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     more: blockMenu.length > 0,
   });
   // What a tool does and how it looks; the bar draws it as a button, the `⋮` menu as a row.
+  const blockTool = (id: string) => {
+    if (id === 'gear') return { label: block_!.edit!.label, icon: rawIcon(barIcons.gear), action: block_!.edit!.action };
+    if (id === 'dynamic')
+      return {
+        label: block_!.dynamic!.label,
+        icon: rawIcon(barIcons.dynamic),
+        action: block_!.dynamic!.action,
+        pressed: block_!.dynamic!.on,
+      };
+    // One of the active block's row actions (Add above, Move down, the Table's column actions ...).
+    const row = block_!.actions.find((a) => a.kind === id)!;
+    return { label: row.label, icon: rawIcon(barIcons[row.kind]), action: row.action, pressed: row.pressed };
+  };
   const toolOf = (id: string): { label: string; icon: typeof TextB; action: () => void; on?: string; pressed?: boolean } => {
+    // The block's tools are named 'block:<kind>' (not the text's 'link').
+    if (id.startsWith('block:')) return blockTool(id.slice(6));
     switch (id) {
       case 'bold':
         return { label: t.text.bold, icon: TextB, action: () => run(toggleStrongCommand), on: 'strong' };
@@ -1864,22 +1879,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         return { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand) };
       case 'redo':
         return { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand) };
-      case 'settings':
+      default:
         return { label: t.text.sectionSettings, icon: SectionSettingsIcon, action: sectionSettings };
-      case 'gear':
-        return { label: block_!.edit!.label, icon: rawIcon(barIcons.gear), action: block_!.edit!.action };
-      case 'dynamic':
-        return {
-          label: block_!.dynamic!.label,
-          icon: rawIcon(barIcons.dynamic),
-          action: block_!.dynamic!.action,
-          pressed: block_!.dynamic!.on,
-        };
-      default: {
-        // One of the active block's row actions (Add above, Move down, the Table's column actions ...).
-        const row = block_!.actions.find((a) => a.kind === id)!;
-        return { label: row.label, icon: rawIcon(barIcons[row.kind]), action: row.action, pressed: row.pressed };
-      }
     }
   };
   const menuOf = (id: string) => ({ style: 'style', list: 'list' })[id] as KindGroup | undefined;
