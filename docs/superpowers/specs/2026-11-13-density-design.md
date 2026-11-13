@@ -79,8 +79,8 @@ read, the spec says so (section 2.2).
   that content is drawn: it keeps the theme's own spacing for the site, at every step. Everything around it follows density: menus,
   sheets, settings forms, lists, toolbars, the Library, the start screen and all other screens.
 - **The line.** The content area is the box that holds the page's own blocks (the typed-in-place canvas and the page Preview).
-  Density is switched off inside it by setting `--mo-density: 0` on that box, so a part inside it (a block drawn by the theme) reads
-  the default even though `data-density` is on the root. The editor's own tools drawn over the content (the floating text toolbar, the
+  Density is switched off inside it by setting `--mo-density-user: 0` on that box, so a block drawn there reads only the theme's own
+  step (`--mo-density-base`), exactly as on the site, even though `data-density` is on the root. The editor's own tools drawn over the content (the floating text toolbar, the
   block menu, the add-block buttons) are editor parts and follow density.
 - No automatic change on a small screen (M3 rule above). The choice is the same on a phone and a computer, unless the person picks it
   there.
@@ -88,15 +88,32 @@ read, the spec says so (section 2.2).
 
 ### 2.2 How the theme's parts read it
 
-One attribute on `<html>`: `data-density="1 | 0 | -1 | -2 | -3"`. The theme turns it into one number:
+The theme carries density (owner, 2026-11-13: "We need to support density in the styling, so we need to have it in the theme"). Two
+numbers add up to one:
+
+- the **theme's own step**, `--mo-density-base`: what a theme author sets, `0` (Medium) unless the theme chooses otherwise;
+- the **person's step**, `--mo-density-user`: set only by the editor's setting, through one attribute on `<html>`,
+  `data-density="1 | 0 | -1"` (Large, Medium, Small). A site has no such attribute, so it is `0` there.
 
 ```css
-:root { --mo-density: 0; --mo-density-step: 4px; }
-:root[data-density="-1"] { --mo-density: -1; }   /* 1, -2, -3 the same */
+:root {
+  --mo-density-base: 0;   /* a theme author sets this; 1 = Large, -1 = Small, down to -3 */
+  --mo-density-user: 0;   /* the editor's setting, below */
+  --mo-density-step: 4px;
+  --mo-density: clamp(-3, calc(var(--mo-density-base) + var(--mo-density-user)), 1);          /* data-heavy parts */
+  --mo-density-layout: clamp(-1, calc(var(--mo-density-base) + var(--mo-density-user)), 1);   /* layout */
+  --mo-density-focus: clamp(0, calc(var(--mo-density-base) + var(--mo-density-user)), 1);     /* focused single-task: never denser than Medium */
+}
+:root[data-density="-1"] { --mo-density-user: -1; }   /* "1" the same */
 ```
 
-A part writes its size as `calc(<default> + var(--mo-density) * var(--mo-density-step))`. At `0` the sum is the default, so a part
-that does nothing about density never changes. Only the steps move, in M3's 4dp: the height or the top and bottom padding, never the
+(A unitless number inside `clamp()` and `calc()` is valid CSS; PR 0 checks it in Chromium, Firefox and Safari before relying on it.)
+
+The group a part is in (the table below) decides which of the three it reads. Same step, different limits: a menu is never denser than
+Medium (M3's rule 5), a list can go to -3.
+
+A part writes its size as `calc(<default> + var(--mo-density) * var(--mo-density-step))` (or `-layout`, `-focus`). At `0` the sum is the
+default, so a part that does nothing about density never changes. Only the steps move, in M3's 4dp: the height or the top and bottom padding, never the
 text size.
 
 **The rules (owner, 2026-11-13), and what the M3 page says about each.**
@@ -198,18 +215,27 @@ What the spec does with it:
 
 ### 2.4 The site's front end
 
-**The theme designer decides.** The editor owner is not asked to choose density for visitors. The package gives the *mechanism*; it
-does not turn it on.
+**The theme carries density; the site has no visitor setting** (owner, 2026-11-13: "I don't think we have to have a front-end version of it
+(no visitor-facing setting), but we need to have it in the theme").
 
-- A theme that does nothing about density works as today: `data-density` is not set on the site, so every part is at `0`.
-- A theme that wants density may read `--mo-density` in its own parts, and may list a setting in its `theme.json` (a switch or a
-  choice) that sets `data-density` on the site's root. Where the setting lives and what it changes is the theme's own.
-- **The default theme `Material`: recommendation, no site setting for now.** M3's own advice is "Apply density thoughtfully; not every
-  layout needs it", and a public page is not a data screen. The site's blocks stay at `0`. The only exception is the Table block's rows
-  (section 3), which can offer a `density` per table, because a table is where M3 says density helps ("such as a data table").
-  If the owner wants a site-wide setting later, it is one more theme setting with no change to the mechanism.
-- The editor's density and the site's density are separate. The editor's choice (kept on the user) never reaches the site.
-- **When a theme offers density to visitors (owner, 2026-11-13): a cookie in the browser.** There are no front-end sign-ins and none
+- **Which theme files hold it.** `theme/styles/base.css`: the `--mo-density*` variables above, the contract every theme shares (`--mo-…`).
+  `theme/styles/ui.css`: the parts' sizes (button, chip, segmented button, text field, list item …) written as the default plus the
+  density term. `theme/styles/blocks.css`: the blocks' own spacing, first the Table block's rows (`.block-table-grid`, via the shared
+  `DataTable`). `theme/styles/global.css`: the standard theme's own value of `--mo-density-base` (`0`).
+- **What a theme author sets.** One CSS variable in `:root` of the theme's `styles/global.css`: `--mo-density-base: -1;` gives a denser
+  theme (Small), `1` a looser one (Large), `0` is Medium. Nothing goes in `theme.json` (that file is the store's description of the
+  theme, and a CSS variable works the same in the editor and on the site). A theme that sets nothing is at `0`: its look is today's,
+  exactly.
+- **The editor reads it from the theme.** The editor draws with the same CSS as the site (shared theme principle in CLAUDE.md), so it
+  already has the theme's `--mo-density-base`. The editor's Large / Medium / Small is added to it (section 2.2): Medium means "the
+  theme's own", Small one step denser, Large one step looser. A theme with base `-1` is still Medium in the editor's menu.
+- **The default theme `Material`** has base `0` and offers **no setting to visitors**: no cookie, no switch. The site is drawn at the theme's
+  own step, whatever a person picked in the editor (the editor's choice never reaches the site).
+- **The Table block has no density setting of its own.** Its rows follow the theme's density like every other part (section 3).
+- Other themes in the store need no change: missing means `0`.
+- The cookie design below is kept as "later, if a theme wants it". It is not built now.
+
+- **Later, if a theme wants a visitor setting: a cookie in the browser (not built now).** There are no front-end sign-ins and none
   planned, so nothing is kept per visitor on a server. What I found in the code:
   - The default theme already remembers a visitor's light or dark choice, but in `localStorage` (key `theme`), not a cookie:
     `theme/layouts/Base.astro` has an inline script in `<head>` that reads it and sets `data-theme` on `<html>` before the first
@@ -230,23 +256,26 @@ does not turn it on.
     it. **I cannot tell from the code whether the law needs a yes for a cookie that only keeps a layout choice**, and that is not
     something the code decides; the owner or the site's privacy owner has to say. If a yes is needed, the theme needs a way to declare
     its cookie (a `cookies.json` as an app has), which is a separate piece of work.
-- Other themes in the store need no change. The only contract is: `--mo-density` is a number the theme *may* read, and missing means 0.
 
 ## 3. The table spec's `density`
 
-PR 3 of `2026-11-13-table-md2-design.md` (#502) adds `density: comfortable | compact`, as a table prop. This design replaces the idea of
-two private levels with the one M3 rule.
+PR 3 of `2026-11-13-table-md2-design.md` (#502) adds `density: comfortable | compact` as a Table block setting. The owner has decided the
+theme carries density, with no visitor setting. So the Table block gets **no density setting at all**: this one rule replaces it.
 
 What the PM should change in that spec (I did not edit it):
 
-- PR 3: instead of `Comfortable` / `Compact`, the table block has `density` with the same three names: `Large` (+1), `Medium` (0, default) and `Small` (-1).
-  Default `Medium` = today's 52 dp row. Large 56, Small 48 (M3's -2 and -3 would be 44 and 40); the header row 56 / 52 / 48 / 44. The MD2 "6 dp / 8 dp minimized padding" is a
-  second MD2 spec that we do not use as a separate level.
-- The row of the table is built **in the `DataTable` part (PR 0)** as `calc(52px + var(--mo-density) * 4px)`, so the editor and the site
-  share the same rule. The Table block's own `density` prop sets `--mo-density` on the table only.
-- In the editor (a table inside the editor, if one ever comes), the table follows the editor's density unless the block sets its own.
-- The "Storage" cell stays: adds `density` (a step), absent is Medium (0). A note on the 48 dp rule: a link in a cell is its own tap target; on touch it keeps a 48 dp hit area (section 2.3), whatever the row height.
-- Release note: line (as before).
+- **Drop PR 3 as a block setting.** No `density` prop, no `Comfortable` / `Compact`, nothing stored in the block, so no migration and no
+  "Storage" cell. The row is built in the `DataTable` part (PR 0) as `calc(52px + var(--mo-density) * 4px)`: Medium 52 dp (today),
+  Large 56, Small 48 (-2 and -3 would be 44 and 40); the header row 56 / 52 / 48 / 44. A table is a data-heavy part (section 2.2), so it
+  reads `--mo-density`, the one that reaches -3. The MD2 "6 dp / 8 dp minimized padding" is a second MD2 spec that we do not use as a level.
+- PR 3 becomes "`DataTable` reads `--mo-density`", small, in the spec's order after PR 0. It is the same work as PR 4 here, so the two
+  are one PR.
+- The site's tables follow the theme's step (`--mo-density-base`). A site owner cannot choose a denser table for one table; a theme can
+  make all of them denser.
+- In the editor, a table drawn in an editor screen (outside the page and post editing area) follows the person's step; inside the page
+  area it is drawn as on the site.
+- A link in a cell is its own tap target; on touch it keeps a 48 dp hit area (section 2.3), whatever the row height.
+- Release note: none of its own; the line for density is in section 4.
 
 ## 4. Order of work
 
@@ -255,11 +284,11 @@ after the first step of #515's row 11.
 
 | # | PR | Cost | Depends on |
 | --- | --- | --- | --- |
-| 0 | **Spacing tokens** (#515 row 11, step a): `--mo-space-*` on M3's 4dp grid, and the one switch `--mo-density` / `--mo-density-step` plus `data-density` on the root. At `0` nothing changes. | small | none; this *is* step (a) of #515's row 11 and adds only the density switch to it |
+| 0 | **Spacing tokens** (#515 row 11, step a): `--mo-space-*` on M3's 4dp grid, and the density variables of section 2.2 in `theme/styles/base.css` (`--mo-density-base` with `0` in `global.css`). At `0` nothing changes. | small | none; this *is* step (a) of #515's row 11 and adds only the density switch to it |
 | 1 | The setting in the Library: three steps, kept on the user (`/api/settings` in the Worker, like the dashboard) with a copy on the device and a head script. Does nothing visible until a part reads it. | medium | PR 0 |
 | 2 | Parts read it: segmented button, chip, button, text field, list row, in `theme/ui/` (each from M3's Specs page, 48 dp hit area on touch) | medium | PR 0, PR 1 |
 | 3 | Layout density: the editor's gaps and paddings use `--mo-space-*` times density | large | #515 row 11 steps (c) and (d) (moving the 73 CSS lines and the Tailwind sizes to tokens); until then the editor's layout has nothing to scale |
-| 4 | The table's density (the `DataTable` part and the Table block's `density`) | small | PR 0, `DataTable` (table spec PR 0), PR 3 of #502 changed as in section 3 |
+| 4 | The table's rows read the density (the `DataTable` part; no Table block setting, section 3) | small | PR 0, `DataTable` (table spec PR 0), PR 3 of #502 dropped as in section 3 |
 | 5 | A check (below) | small | PR 2 |
 
 Order: 0, 1, 2 (can be in parallel with #515's other rows), 4 after `DataTable`, 3 after #515 (c) and (d), 5 last. The Material 3
@@ -282,11 +311,11 @@ audit's sizes where they differ.
 
 - The setting in the editor (PR 1 and 2): a **paragraph**: it changes how the editor looks and is a thing a site owner will use
   ("Choose how much fits on screen").
-- The table's density: a **line**.
-- A theme that offers a site setting: that theme's own note, not this package's.
+- The table's rows follow density (PR 4): a **line**.
+- A theme author's `--mo-density-base` (PR 0 and 2): a **line**, for theme authors, in the same note.
 - The spacing tokens (PR 0) and the check: empty changeset, nothing visible changes.
 
-## 5. Decided, and open questions for the owner
+## 5. Decided, and open questions
 
 **Decided (owner, 2026-11-13):** Large is a looser step than Medium. Large = +1 (our own extension of M3's numbers; the PR that
 builds it adds the entry to `docs/material-deviations.md`), Medium = 0 (standard), Small = -1. The names are the ones on M3's density
@@ -296,19 +325,14 @@ Also decided (owner, 2026-11-13): follow the M3 density page and nothing beyond 
 applies (section 2.2). The editor's menu offers the three steps; -2 and -3 are for data-heavy parts in themes (our proposal, not
 asked).
 
-Also decided (owner, 2026-11-13): where it is kept. In the editor it is per user, kept on the user (section 2.1). On the site, when a
-theme offers density, it is a cookie in the browser (section 2.4); no front-end sign-ins.
+Also decided (owner, 2026-11-13): where it is kept. In the editor it is per user, kept on the user (section 2.1). On the site there is no visitor setting; if a theme ever wants one,
+it is a cookie in the browser (section 2.4, later); no front-end sign-ins.
 
 Also decided (owner, 2026-11-13): follow M3 exactly for targets: 48 x 48 dp on touch, 44 x 44 dp for a mouse (pointer). The 32 dp idea
 is gone (section 2.3).
 
-Open question. The PM asks it.
+Also decided (owner, 2026-11-13): the theme carries density (the `--mo-density` variables and the 4dp-per-step rules in the shared parts, for
+the editor and for theme authors, Large / Medium / Small). The default theme offers **no** visitor-facing setting on the site: no cookie
+and no switch for now (section 2.4). The Table block has no density setting of its own; this rule replaces it (section 3).
 
-1. **Does the default theme `Material` offer density to visitors?** M3's density page says: "Apply density thoughtfully; not every layout
-   needs it." "Lower density can be better for sites prioritizing aesthetics, a focused message, less information, or easier
-   navigation"; higher density suits "data-rich products where people expect to scan lots of information quickly. Examples: News,
-   financial portals, dashboards." Also: "People should be able to opt in to dense layouts and components", and a person's density
-   should not change by itself across breakpoints. A public site made with `Material` is mostly pages to read, not a data screen.
-   **Recommendation:** no site setting in `Material` now. Visitors get the Medium look, as today. The Table block keeps its own
-   `density` (a table is M3's own example of where density helps). A theme author can still offer a setting through the cookie in
-   section 2.4. Say yes only if the owner wants visitors to pick a density on every page.
+**Open questions: none.** Every question is decided.
