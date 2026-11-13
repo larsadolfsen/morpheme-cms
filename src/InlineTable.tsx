@@ -9,9 +9,9 @@ import { InlineAdd, InlineField } from './InlineItems';
 import type { InlineViewProps } from './inlineViews';
 import { addRowAt, setCell } from './inlineGrid.mjs';
 import { rectangle } from './standard/table/rows.mjs';
+import { oneLine } from '../lib/one-line.mjs';
 
 const fits = typeof CSS !== 'undefined' && CSS.supports?.('field-sizing', 'content');
-const oneLine = (v: string) => v.replace(/\s*[\r\n]+\s*/g, ' ');
 
 export default function InlineTable({ items, props, active, col, focus, onChange }: InlineViewProps) {
   const root = useRef<HTMLDivElement>(null);
