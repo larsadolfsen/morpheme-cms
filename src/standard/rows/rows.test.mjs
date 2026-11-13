@@ -124,10 +124,11 @@ test('the fields that can fill each part, the field now shown, and the map after
     { name: 'flag', label: 'Flag', type: 'boolean' },
   ];
   const names = (/** @type {any} */ part) => fieldsForPart(fields, part).map((f) => f.name);
-  assert.deepEqual(PARTS, ['title', 'text', 'icon', 'href']);
+  assert.deepEqual(PARTS, ['title', 'text', 'icon', 'href', 'tags']);
   assert.deepEqual(names('title'), ['name', 'about', 'kind']);
   assert.deepEqual(names('icon'), ['name', 'icon']);
   assert.deepEqual(names('href'), ['name', 'page', 'tags']);
+  assert.deepEqual(names('tags'), []);
   const asRows = { title: 'name', text: 'about', icon: 'icon' };
   assert.equal(fieldOfPart(asRows, undefined, 'text'), 'about');
   assert.equal(fieldOfPart(asRows, { text: 'kind' }, 'text'), 'kind');
@@ -138,4 +139,72 @@ test('the fields that can fill each part, the field now shown, and the map after
   assert.deepEqual(withPart(asRows, { text: 'kind' }, 'icon', ''), { text: 'kind', icon: '' });
   assert.equal(withPart(asRows, { icon: '' }, 'icon', 'icon'), undefined);
   assert.equal(withPart(asRows, undefined, 'href', ''), undefined);
+});
+
+test('an own list offers each part only the fields of its kinds, several of one kind each', () => {
+  const fields = [
+    { name: 'title', label: 'Title', type: 'string' },
+    { name: 'text', label: 'Body text', type: 'text' },
+    { name: 'text-2', label: 'Role', type: 'text' },
+    { name: 'icon', label: 'Icon', type: 'string' },
+    { name: 'icon-2', label: 'Icon 2', type: 'string' },
+    { name: 'image', label: 'Image', type: 'image' },
+    { name: 'href', label: 'Link', type: 'string' },
+    { name: 'tags', label: 'Tags', type: 'relation', multiple: true },
+    { name: 'tags-2', label: 'Audience', type: 'relation', multiple: true },
+  ];
+  const kinds = {
+    title: 'title',
+    text: 'text',
+    'text-2': 'text',
+    icon: 'icon',
+    'icon-2': 'icon',
+    image: 'image',
+    href: 'href',
+    tags: 'tags',
+    'tags-2': 'tags',
+  };
+  const names = (/** @type {any} */ part) => fieldsForPart(fields, part, kinds).map((f) => f.name);
+  assert.deepEqual(names('title'), ['title', 'text', 'text-2']);
+  assert.deepEqual(names('text'), ['title', 'text', 'text-2']);
+  assert.deepEqual(names('icon'), ['icon', 'icon-2']);
+  assert.deepEqual(names('href'), ['href']);
+  assert.deepEqual(names('tags'), ['tags', 'tags-2']);
+  // the image is never offered for a text part
+  assert.equal(names('text').includes('image'), false);
+  // without kinds (an app's list) a tags part takes the relations with several
+  assert.deepEqual(
+    fieldsForPart(fields, 'tags').map((f) => f.name),
+    ['tags', 'tags-2'],
+  );
+});
+
+test('the tags slot: the block filters on the field it maps; a field the entry lacks gives no tags', () => {
+  const entry = { title: 'A', 'tags-2': ['x'], tags: ['y'] };
+  const items = [itemOfEntry(entry, { title: 'title', tags: 'tags' })];
+  assert.equal(rowsFromItems(items, { tags: ['y'] }).length, 1);
+  assert.equal(rowsFromItems(items, { tags: ['x'] }).length, 0);
+  assert.equal(rowsFromItems(items, { map: { tags: 'tags-2' }, tags: ['x'] }).length, 1);
+  assert.equal(rowsFromItems(items, { map: { tags: 'tags-2' }, tags: ['y'] }).length, 0);
+  assert.equal(rowsFromItems(items, { map: { tags: 'gone' }, tags: ['x'] }).length, 0);
+  assert.deepEqual(mapOf({ tags: ' tags-2 ' }), { tags: 'tags-2' });
+  assert.equal(withPart({ title: 'title', tags: 'tags' }, undefined, 'tags', 'tags'), undefined);
+  assert.deepEqual(withPart({ title: 'title', tags: 'tags' }, undefined, 'tags', 'tags-2'), { tags: 'tags-2' });
+});
+
+test('mapping is per place: one list, two blocks, two maps, different rows', () => {
+  const entry = { title: 'Anna', text: 'Lead', 'text-2': 'anna@example.com', icon: 'user', 'icon-2': 'mail', href: '/anna/' };
+  const asRows = { title: 'title', text: 'text', icon: 'icon', href: 'href' };
+  const items = [itemOfEntry(entry, asRows)];
+  // nothing mapped: the first field of each kind fills the slots
+  assert.deepEqual(rowsFromItems(items, {})[0], { title: 'Anna', text: 'Lead', icon: 'user', href: '/anna/' });
+  // one place maps the bottom line to the second body text and the icon to the second icon; another place leaves them
+  const here = rowsFromItems(items, { map: { text: 'text-2', icon: 'icon-2' } })[0];
+  const there = rowsFromItems(items, { map: { title: 'text' } })[0];
+  assert.deepEqual(here, { title: 'Anna', text: 'anna@example.com', icon: 'mail', href: '/anna/' });
+  assert.deepEqual(there, { title: 'Lead', text: 'Lead', icon: 'user', href: '/anna/' });
+  // a field unused in one place is used in another: the list is the same object
+  assert.equal(items[0].entry, entry);
+  // a mapped field the entry has no value for shows nothing in that slot
+  assert.equal(rowsFromItems(items, { map: { icon: 'icon-9' } })[0].icon, undefined);
 });

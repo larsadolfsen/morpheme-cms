@@ -41,15 +41,17 @@ export const editorRows = (props: Record<string, any>, data: BlockData): RowsFro
   return found ? { source: found.source, rows: found.rows } : undefined;
 };
 
-/** The parts of a row the owner can set to a field of the list the block reads, each with the field now shown and the fields to pick from
- * (the list's own `asRows` and the block's `map`). Undefined for the blog's posts and the testimonials, which have fixed parts. */
+/** The parts of a row the owner can set to a field of the list the block reads, each with the field now shown, whether that field is gone from the list
+ * (removed or hidden: the row shows nothing there until the owner picks another) and the fields to pick from (the list's own `asRows` and the block's
+ * `map`, per place). Undefined for the blog's posts and the testimonials, which have fixed parts. */
 export const rowParts = (props: Record<string, any>) => {
   const list = asRowsLists().find((l) => l.id === (typeof props.from === 'string' ? props.from.trim() : ''));
   if (!list?.asRows) return undefined;
   const asRows = list.asRows;
   return PARTS.map((part) => {
-    const choices = fieldsForPart(list.fields ?? [], part);
+    const choices = fieldsForPart(list.fields ?? [], part, list.fieldKinds);
     const now = fieldOfPart(asRows, props.map, part);
-    return { part, now, nowLabel: choices.find((c) => c.name === now)?.label ?? now ?? '', choices, asRows };
+    const removed = !!now && !(list.fields ?? []).some((f) => f.name === now);
+    return { part, now, removed, nowLabel: choices.find((c) => c.name === now)?.label ?? now ?? '', choices, asRows };
   }).filter((p) => p.choices.length > 0 || p.now);
 };

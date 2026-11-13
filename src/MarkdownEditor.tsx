@@ -1170,7 +1170,7 @@ function blockCard(
               undo={dropped ? { note: t.blocks.rows.typedHidden, label: t.text.undo, run: undoDynamic } : undefined}
               parts={rowParts(node.attrs.props)?.map((p) => ({
                 part: p.part,
-                text: `${t.blocks.rows.parts[p.part]}: ${p.nowLabel || t.blocks.rows.noField}`,
+                text: `${t.blocks.rows.parts[p.part]}: ${p.removed ? t.blocks.rows.removedField : p.nowLabel || t.blocks.rows.noField}`,
               }))}
               onPart={rowParts(node.attrs.props) ? (part) => pickPart(part) : undefined}
               rows={dynamic.rows}

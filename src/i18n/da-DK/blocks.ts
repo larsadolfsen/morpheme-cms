@@ -142,7 +142,8 @@ export const blocks: Messages['blocks'] = {
     dynamicTip: 'Udfyld fra en liste',
     typedHidden: 'Dine skrevne rækker er gemt, men vises ikke.',
     /** The parts of a row a dynamic block can fill with a field of its list. */
-    parts: { title: 'Øverste linje', text: 'Nederste linje', icon: 'Ikon', href: 'Link' },
+    parts: { title: 'Øverste linje', text: 'Nederste linje', icon: 'Ikon', href: 'Link', tags: 'Tags at filtrere på' },
+    removedField: 'Fjernet felt',
     noField: 'Ingen',
     fieldShown: 'Felt der vises',
     editList: 'Rediger liste',
