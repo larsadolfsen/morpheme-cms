@@ -29,7 +29,6 @@ import {
   SignOut,
   Sun,
   Trash,
-  X,
   type Icon,
 } from '@phosphor-icons/react';
 import { byText, entryData, type Collection, type Part, type PartScreen } from './schema';
@@ -96,7 +95,8 @@ import { fileRating } from './seo';
 import { dateName, headed, letterOf } from './Sheet';
 import type { Env } from './App';
 import { kindAndName, savedText } from './deploy';
-import { togglePath } from './bulkDelete.mjs';
+import { useSelection } from './useSelection';
+import SelectionBar from './SelectionBar';
 import { shortDate, when } from './when';
 import { isEntryPath } from '../lib/ownList.mjs';
 import { CreateFab } from './CreateFab';
@@ -1138,10 +1138,6 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
   // The move that runs (row and target row, null: none); only its arrow shows busy, all arrows stay disabled meanwhile.
   const [moving, setMoving] = useState<{ from: number; to: number } | null>(null);
   const busy = moving !== null;
-  // Pages and posts can be deleted several at once: a press and hold on a row (a phone) or "Select" (a computer) starts
-  // selecting; then a tap selects or unselects, and the top bar has the count, close and delete (as the notifications do).
-  const [chosen, setChosen] = useState<string[]>([]);
-  const [selectMode, setSelectMode] = useState(false);
   const [deletingMany, setDeletingMany] = useState(false);
   const items = useMemo(() => itemsOf(collection, files), [collection, files]);
   const pages = collection.id === 'pages';
@@ -1389,25 +1385,19 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
           ? letterOf(item.title)
           : (item.date ?? '').slice(0, 7),
   );
+  // Pages and posts can be deleted several at once: a press and hold on a row (a phone) or "Select" (a computer) starts
+  // selecting; then a tap selects or unselects, and the top bar has the count, close and delete (as the notifications do).
   const canSelect = collection.kind === 'markdown' && !!collection.deletable;
-  const live = chosen.filter((p) => items.some((i) => i.file?.path === p));
-  const selecting = canSelect && (selectMode || live.length > 0);
-  const closeSelection = () => {
-    setChosen([]);
-    setSelectMode(false);
-  };
-  // Escape unselects.
-  useEffect(() => {
-    if (!selecting) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closeSelection();
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [selecting]);
+  const selection = useSelection({
+    order: items.flatMap((i) => (i.file ? [i.file.path] : [])),
+    enabled: canSelect,
+  });
+  const { selecting, keys: live } = selection;
   async function deleteChosen() {
     const files = items.flatMap((i) => (i.file && live.includes(i.file.path) ? [i.file] : []));
     setDeletingMany(true);
     try {
-      if (await env.removeMany(collection as Parameters<Env['removeMany']>[0], files)) closeSelection();
+      if (await env.removeMany(collection as Parameters<Env['removeMany']>[0], files)) selection.removed();
     } finally {
       setDeletingMany(false);
     }
@@ -1418,14 +1408,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
     return (
       <ListItem
         key={item.href}
-        {...(canSelect && path
-          ? {
-              selectable: true,
-              selecting,
-              selected: live.includes(path),
-              onSelectedChange: () => setChosen((c) => togglePath(c, path)),
-            }
-          : {})}
+        {...(path ? selection.row(path) : {})}
         href={item.href}
         leading={ring(item)}
         headline={item.title}
@@ -1448,7 +1431,8 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
         count={item.count}
         arrow={!orderable}
         actions={
-          orderable && (
+          orderable &&
+          !selecting && (
             <span className="flex shrink-0 pr-2">
               <IconButton
                 icon={ArrowUp}
@@ -1500,8 +1484,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
       actions={
         <>
           {selecting ? (
-            <>
-              <IconButton icon={X} label={t.library.closeSelection} onClick={closeSelection} />
+            <SelectionBar count={live.length} onClose={selection.clear}>
               <IconButton
                 icon={Trash}
                 label={t.library.deleteSelected(live.length)}
@@ -1509,11 +1492,11 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
                 busy={deletingMany}
                 onClick={deleteChosen}
               />
-            </>
+            </SelectionBar>
           ) : (
             canSelect &&
             !tree &&
-            items.length > 0 && <IconButton icon={ListChecks} label={t.library.selectEntries} onClick={() => setSelectMode(true)} />
+            items.length > 0 && <IconButton icon={ListChecks} label={t.library.selectEntries} onClick={selection.start} />
           )}
           {/* What was deleted from the list, as in "Files". */}
           {restorable(collection) && (
