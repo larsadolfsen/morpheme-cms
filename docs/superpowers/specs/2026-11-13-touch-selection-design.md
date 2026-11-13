@@ -14,16 +14,16 @@ buttons swapped for the count, Close and the actions while a list is in selectio
 ## Short answer: where touch selection goes and what it does
 
 Touch means: a long press (or a tap on the row's image or icon) starts selection; a tap adds more; the top bar swaps its title and buttons for the
-count, Close and the actions; unselecting the last one, or Close, ends it. On a computer a checkbox shows on hover (on all rows once one is
+count, Close and the actions; unselecting the last one, or Close, ends it. A selected list row has a tinted surface and its leading mark turns from an outline into a filled check (owner decision, section 3.4). On a computer the leading mark shows on hover (on all rows once one is
 selected); Escape ends it.
 
 | Place | Touch | Computer | Recommendation |
 | --- | --- | --- | --- |
-| Pages and posts lists | Long press or tap the ring; tap adds; Delete | Hover checkbox; *Select* button | **Keep and improve** (exists today) |
-| Notifications | Same; Delete | Hover checkbox | **Keep and improve** (exists today) |
-| Files (images and other files) | Long press or tap the thumbnail; Delete (files in use are kept) | Hover checkbox | **Build** (needs the image tile) |
-| Deleted files and pages | Same; Restore | Checkboxes always shown (primary) | **Build** |
-| Redirects, own-list entries | Same; Delete | Hover checkbox | **Build, later** |
+| Pages and posts lists | Long press or tap the ring; tap adds; Delete | Hover mark; *Select* button | **Keep and improve** (exists today) |
+| Notifications | Same; Delete | Hover mark | **Keep and improve** (exists today) |
+| Files (images and other files) | Long press or tap the thumbnail; Delete (files in use are kept) | Hover mark | **Build** (needs the image tile; its selected look is still open, section 3.4) |
+| Deleted files and pages | Same; Restore | Marks always shown (primary) | **Build** |
+| Redirects, own-list entries | Same; Delete | Hover mark | **Build, later** |
 | Apps, categories, tags, keywords | Nothing: each item is its own control | Nothing | **No selection** |
 | Blocks of a page | One active block, the row shows its actions | Same | **No batch select** (long press is the OS's in text) |
 | Table cells and rows, List-block rows | One active cell or row, the row's actions | Same | **No batch select** |
@@ -129,7 +129,7 @@ Selection is for **lists of many like things where an action applies to several 
 ### 3.2 Touch (phone, or any touch or pen input — by pointer type, not screen width)
 
 1. **Enter:** long press on a row or tile (500 ms, as now) or **tap its leading image, icon or avatar** (the shortcut). The shortcut exists only where a row has a leading image or icon: a page's ring, a notification's icon, a file's thumbnail. The shortcut's tap target is the leading slot, at least 48 × 48 dp, and it opens nothing else.
-2. **Then:** every row shows its checkbox at the leading edge (the theme's `Checkbox` inside `ListItem`'s `control`, replacing the leading icon, as the tick does now). A tap anywhere on a row toggles it ("Users should be able to select either the text label or the checkbox", checkbox accessibility). A row's own trailing buttons (unfold, arrow, switch) are hidden or disabled while selecting.
+2. **Then:** every row shows its leading mark (section 3.4: an outlined circle that becomes a filled check; it replaces the leading icon or avatar, as the tick does now, and there is no checkbox column). A tap anywhere on a row toggles it. A row's own trailing buttons (unfold, arrow, switch) are hidden or disabled while selecting.
 3. **Exit:** unselect the last one; or tap an action (it runs, then the mode ends if the action consumed the items, as Delete does); or the close button in the row; or Back (the device's back gesture exits selection before it leaves the screen — `useSheetBack.ts` already does this for sheets).
 4. **Long press and drag across rows** (batch): **not in the first versions**, see question 4. When built: after the long press fires, moving the finger over other rows toggles each to the state of the first (select or unselect); the page does not scroll during the drag (`touch-action: none` only on the rows' container while the drag runs); a drag that ends at the screen edge auto-scrolls. Off on every screen that has a drag handle.
 5. **Two-finger touch:** not built. The web has no reliable two-finger press, and long press plus the shortcut are what the Selection page lists first. Question 7.
@@ -137,17 +137,20 @@ Selection is for **lists of many like things where an action applies to several 
 
 ### 3.3 Mouse and keyboard (desktop, or any mouse, trackpad or stylus)
 
-- **Primary or secondary.** Pages, posts, files, notifications, redirects, entries: **secondary**. The checkbox shows **on hover or keyboard focus of that row** (in the place of its leading icon, so nothing moves) and **on every row once one is selected**. Deleted files and pages: **primary**, checkboxes always visible.
-- **Checkbox click** toggles; a click anywhere else on the row opens it, as now. Once one is selected, a click anywhere toggles (selection mode, as on touch).
+- **Primary or secondary.** Pages, posts, files, notifications, redirects, entries: **secondary**. The leading mark shows **on hover or keyboard focus of that row** (in the place of its leading icon, so nothing moves) and **on every row once one is selected** (the Selection page: "checkboxes (or other indicators)"). Deleted files and pages: **primary**, marks always visible.
+- **Click on the mark** toggles; a click anywhere else on the row opens it, as now. Once one is selected, a click anywhere toggles (selection mode, as on touch).
 - **Select button.** The top bar's *Select* (`ListChecks`) stays, for discoverability and for people who do not hover. It enters selection mode with nothing selected.
 - **Keys:** Tab reaches the list; arrow keys move between rows (M3 lists accessibility); **Enter** opens a row (primary); **Space** toggles the focused row (enters selection mode if needed); **Shift+click** and **Shift+Arrow** select a range; **Ctrl/Cmd+A** selects all shown rows while in selection mode; **Escape** exits and clears (Inputs page: "clear selections"). Escape already unselects in the Library and in Notifications; it must do so on every selection screen.
 - **Right click** is the browser's menu on a row; we do not take it. (M3 says a secondary click "should activate a context menu"; a row context menu is out of this spec.)
-- **Hover** only where the device can hover (`@media (hover: hover)`), so a phone never gets a stuck hover checkbox.
+- **Hover** only where the device can hover (`@media (hover: hover)`), so a phone never gets a stuck hover mark.
 
 ### 3.4 Indicators (theme tokens only)
 
-- **Two cues, never colour alone** (lists accessibility): (1) the checkbox, or a check mark on a tile; (2) the theme's selected surface and corner (`--list-item-selected-surface`, `--list-item-selected-text`, `--list-item-selected-radius`, 16 dp all round, "shape morphing"). Today's tick plus surface is already two cues; the checkbox replaces the tick.
-- **Tiles** (Files grid): the same two cues, a check mark in the tile's corner and a selected ring and surface from the part's tokens (audit #515, row 3, `ImageTile`).
+- **Lists (decided by the owner, 13 November):** selection looks like Material's multi-select list. Two cues: (1) **a tinted, rounded surface** on the whole row (the theme's `--list-item-selected-surface`, which is the secondary container, and `--list-item-selected-text`; corner 16 dp all round instead of 4 dp inner / 16 dp outer, `--list-item-selected-radius`, "shape morphing"); (2) **the leading mark changes from outlined to filled**: unselected rows in selection mode show an outlined circle, a selected row shows a filled check circle. **No separate checkbox column.** This is the lists accessibility advice "a leading checkmark and filled color".
+  What I could read and what I could not (`/components/lists/specs`, `/guidelines`): the text gives the shape change ("Unselected corner radius: 4dp inner, 16dp outer; Selected corner radius: 16dp"), "The selected state applies to the entire list item", "Use segmented gaps and filled list items to define a list group", and a state row "Selected list items: Enabled, Disabled, Hovered, Focused, Pressed, Dragged". It does **not** print, as text, the selected container's colour role, the gap size, or the outlined-to-filled icon change: the token tables are drawn from script and the page lists only the unselected roles (Surface, On surface, On surface variant). The tint and the icon change are therefore taken from the owner's screenshot of the Lists page ("A single-select list", "A multi-select list") and from the theme's own tokens (`--list-item-selected-surface: var(--mo-secondary-container)`, `global.css` 224). The only M3 text on outlined to filled is for toggle icon buttons: "Toggle buttons should use an outlined icon when unselected, and a filled version of the icon when selected" (`/components/icon-buttons/guidelines`).
+- **Cards: no selected state.** `/components/cards/specs` lists the outlined card's states as Hovered, Focused, Pressed, Dragged, Disabled; `/accessibility` says "A focus indicator appears around actionable elements when tabbing through cards". The outline ring is the **focus** indicator, not a selected look. This spec keeps the focus ring for focus only; a selected card has no M3 look to copy (open question 10).
+- **Tiles** (Files grid): **still open** (question 11). M3 has no selected tile. Options: (a) a tinted surface behind the tile with the 16 dp corner and the filled check mark in the corner, over an outlined circle while selecting; (b) a ring. Recommendation: (a), the same two cues as a list, from the part's tokens (audit #515, row 3, `ImageTile`).
+- **Table rows** (the Table block is not selected; a data table, if one comes in lists such as Redirects, see `2026-11-13-table-md2-design.md`): **still open** (question 12). The Selection page's table caption says "Checkboxes are visible by default in this table because selection is a primary activity", which is a checkbox column. Recommendation: where a screen becomes a real table (columns), use a leading checkbox column with the indeterminate select-all in the header, and the same tinted row; lists keep the mark.
 - Nothing is drawn in the editor's own CSS: no fixed colours (`check:editor-colors`), no literal values (`check:css-values`).
 
 ### 3.5 The selection toolbar
@@ -174,12 +177,12 @@ PHONE 375 px                                COMPUTER 1280 px
 - Rows in selection mode keep `role="checkbox"` with `aria-checked`, or `aria-pressed` on a button (`List.tsx`). **`aria-selected` and `aria-multiselectable` are not used on these rows:** they belong to `listbox`, `grid`, `tree` and `tablist`, and our rows are links and buttons that act as checkboxes. If the Files grid becomes `role="grid"`, `aria-multiselectable="true"` goes on it and its cells use `aria-selected`; until then tiles are `role="checkbox"` buttons in selection mode. (Reasoning stated so a reviewer can disagree; the M3 pages do not say which ARIA to use.)
 - The list gets `role="group"` with `aria-label` while selecting, and the live count in the row tells the number.
 - **Focus:** long press or the shortcut keeps focus on the row; the first toggle by keyboard keeps focus on that row; after **Delete** focus moves to the row that took its place, or to the list heading if none is left; after **Close** or Escape focus returns to the row last toggled (lists accessibility: focus to the selected item).
-- **Voice** ("Selection can be performed via ... voice"): the checkbox has the row's headline as its accessible name, so "tap <name>" works.
+- **Voice** ("Selection can be performed via ... voice"): the row (`role="checkbox"`) has its headline as its accessible name, so "tap <name>" works.
 - **Reduced motion:** the shape morph and the row's swap use the theme's `--motion-*` tokens, which already honour it.
 
 ### 3.7 Targets and density
 
-- Touch: the checkbox, the leading shortcut slot, the row's close, select all and every action in the row: **48 × 48 dp**. Rows 56 dp and up (M3 lists: "at least 48x48dp"). No density on checkboxes (checkbox accessibility).
+- Touch: the leading mark and shortcut slot (one 48 × 48 dp target), the row's close, select all and every action in the row: **48 × 48 dp**. Rows 56 dp and up (M3 lists: "at least 48x48dp"). No density on checkboxes (checkbox accessibility).
 - Pointer: 44 dp is the M3 minimum; our 48 satisfies both, so there is no separate pointer size. Hover and focus states use the theme's state layers (8%, 10%).
 - Check at 375 and 1280 (section 5).
 
@@ -188,11 +191,11 @@ PHONE 375 px                                COMPUTER 1280 px
 | Need | Exists? |
 | --- | --- |
 | Top app bar that can swap its title and buttons | **Yes**: `Screen` `title` and `actions` (the Library does it) |
-| Row that can be selected, with a leading checkbox, tick and selected surface | **Yes**: `ListItem` (`selectable`, `control: {type: 'checkbox', at: 'leading'}`, `list-item-selected-*` tokens) |
+| Row that can be selected, with a leading mark and selected surface | **Partly**: `ListItem` (`selectable`: a filled `CheckCircle` replaces the leading icon when selected; `list-item-selected-*` tokens). There is no outlined mark for unselected rows yet |
 | Long press that selects | **Yes**: `useLongPress` (`theme/ui/longPress.ts`) |
 | Checkbox, with indeterminate | **Yes**: `Checkbox` |
 | Icon buttons for close, delete | Yes |
-| **A checkbox that is shown on hover and always once selecting** (the M3 desktop rule) | **Missing.** Today a checkbox control is always drawn. Needs a `ListItem` option (`selection: 'hover' \| 'always'`) and CSS with `@media (hover: hover)`; a part change in the theme, with tokens |
+| **An outlined mark on every row while selecting, shown on hover otherwise** (the M3 desktop rule) | **Missing.** Needs a `ListItem` option (`selection: 'hover' \| 'always'`), the outlined `Circle` before the filled `CheckCircle`, and CSS with `@media (hover: hover)`; a part change in the theme, with tokens |
 | **Tap the leading image or icon to select** (the shortcut) | **Missing.** A `ListItem` option (`selectOnLeading`) that gives the leading slot its own 48 dp target and a handler |
 | **Hide the row's own trailing actions while selecting** | **Missing.** A `ListItem` rule when `selecting` is true |
 | **Corner change when selected** (4 → 16 dp) | Token exists (`--list-item-selected-radius`); check each theme honours it on these rows |
@@ -211,16 +214,16 @@ Material says: the three entry gestures (long press, two-finger, shortcut), tap 
 Into `main`, each with a changeset. S = a day or less, M = a day or two, L = more.
 
 1. **S — one `useSelection` hook, no look change.** Move Library and Notifications to it; add Space, Shift range, Ctrl/Cmd+A, Escape on both; focus rules; `aria-live` count; hide a row's trailing buttons while selecting. Patch changeset. *Unit tests* for the rules (`node --test`, like `longPressRules.test.mjs`).
-2. **M — theme `ListItem`: checkbox shown on hover and always while selecting; leading-slot shortcut; shape change.** Pages and posts and notifications use it. Screens in `theme/ui` parts page. Patch (or minor, the owner decides) changeset.
+2. **M — theme `ListItem`: outlined mark on all rows while selecting, on hover otherwise, filled check when selected; leading-slot shortcut; shape change.** Pages and posts and notifications use it. Screens in `theme/ui` parts page. Patch (or minor, the owner decides) changeset.
 3. **M — `SelectionBar`.** One shared component for the swapped top bar (count, Close, Select all with the indeterminate checkbox, actions), used by every list screen.
 4. **M — Files.** `ImageTile` with a selected state (after #515 row 3's part), selection mode on the Library, delete several (files in use are skipped and counted; one commit; records of tags go with them as `fileRecords.mjs` does for one). Release note.
-5. **S each — Deleted files and pages (primary: checkboxes always visible, Restore), Redirects (secondary, Delete), own-list entries (secondary, Delete).**
+5. **S each — Deleted files and pages (primary: marks always visible, Restore), Redirects (secondary, Delete), own-list entries (secondary, Delete).**
 6. **M, optional — long press and drag across rows** on lists with no drag handle. Question 4.
 
 **What the checks must prove** (`scripts/editor-screens.mjs`, run by `check:screens`; and `node --test`):
 - **At 375 with touch emulation** (Playwright context `hasTouch`, `isMobile`; a long press made with real touch events through CDP `Input.dispatchTouchEvent`: touchStart, 600 ms, touchEnd): the row becomes selected (`aria-checked="true"`, selected surface), the top bar swaps to "1 selected", a tap on a second row toggles it **without opening it** (the URL hash is unchanged), a tap on the leading icon of a third row on a fresh list enters the mode, unselecting the last ends the mode and removes the bar, the close button ends it; a long press that moves more than 10 px does nothing; a mouse press of 600 ms does nothing.
-- **At 1280 with a mouse and hover:** no checkbox before hover; hover shows exactly one; after one is selected all rows show theirs; click on the row opens it with nothing selected and toggles with one selected; Space toggles, Shift+Arrow selects a range, Ctrl+A selects all, Escape clears; Deleted screens show checkboxes from the start.
-- **Both:** every checkbox, the leading shortcut, and every button in the bar measure at least 48 × 48 CSS px; the swapped bar never overflows or scrolls sideways; `check:contrast` and `check:editor-colors` pass on the selected surface in each section colour; `check:css-values` finds no literal value in the new CSS; focus is on the row after entering and on the next row after Delete.
+- **At 1280 with a mouse and hover:** no mark before hover; hover shows exactly one; after one is selected all rows show theirs; click on the row opens it with nothing selected and toggles with one selected; Space toggles, Shift+Arrow selects a range, Ctrl+A selects all, Escape clears; Deleted screens show marks from the start; a selected row has the tinted surface, a 16 dp corner and the filled mark (computed style), an unselected row in selection mode the outlined one.
+- **Both:** every mark, the leading shortcut, and every button in the bar measure at least 48 × 48 CSS px; the swapped bar never overflows or scrolls sideways; `check:contrast` and `check:editor-colors` pass on the selected surface in each section colour; `check:css-values` finds no literal value in the new CSS; focus is on the row after entering and on the next row after Delete.
 - **A text check that long press in the page text is not taken:** at 375, a 600 ms touch inside a text block does not toggle any selection and does not stop the browser's own text selection.
 - *Not covered:* the real OS long press and haptics on a phone, VoiceOver and TalkBack; both by hand, by the owner or the PM on a real phone.
 
@@ -229,11 +232,14 @@ Into `main`, each with a changeset. S = a day or less, M = a day or two, L = mor
 ## 6. Questions for the owner (the PM asks them one at a time)
 
 1. ~~Where does the selection bar go?~~ **Decided by the owner:** it swaps the top bar's title and buttons (count, Close, actions), not the docked row of #519.
-2. **Touch: show a checkbox on every row once you start selecting, or only a check mark on the selected ones?** Material allows both. Recommendation: **a checkbox on every row**: the mode is obvious and the target is 48 dp, the same look as on a computer.
-3. **Computer: are pages, posts, files and notifications "secondary" (a checkbox on hover, and on all rows after one is selected), and the Deleted screens "primary" (always visible)?** Recommendation: **yes**.
+2. ~~Touch: a checkbox on every row?~~ **Decided by the owner for lists** (pages, posts, notifications, files list): the M3 multi-select look, a tinted rounded surface plus a leading mark that turns from an outline into a filled check; two cues, no checkbox column.
+3. **Computer: are pages, posts, files and notifications "secondary" (the mark on hover, and on all rows after one is selected), and the Deleted screens "primary" (always visible)?** Recommendation: **yes**.
 4. **Long press and drag across rows to select a batch?** Nothing in the editor moves by drag today, so it would not clash. It conflicts with scrolling and is hard to make reliable. Recommendation: **not now**; build only for the Files grid later if long lists need it.
 5. **Delete several files when some are in use?** (a) Skip the used ones and say how many were skipped; (b) refuse the whole delete. Recommendation: **(a)**; a message "2 of 5 files are used on pages and were kept".
 6. **Select several blocks of a page (move, delete, duplicate together)?** Blocks and text are typed in place, where a long press is the OS's. Recommendation: **no**: one active block with the row; revisit with *Duplicate* if owners ask. Tables and List-block rows likewise stay on one row or cell.
 7. **Two-finger touch as another way in?** Recommendation: **no**; long press and the tap-the-icon shortcut are enough.
-8. **Keep the *Select* button in the top bar on a computer next to the hover checkboxes?** Recommendation: **yes**, for people who do not hover and for the keyboard.
+8. **Keep the *Select* button in the top bar on a computer next to the hover marks?** Recommendation: **yes**, for people who do not hover and for the keyboard.
 9. **Does the Back gesture on a phone leave selection mode first?** Recommendation: **yes**, as sheets do.
+10. **Cards: keep the outline ring for focus only?** M3's cards list no selected state. Recommendation: **yes**, as decided; a selected card, if one ever comes, is the tinted surface plus the filled mark.
+11. **Files grid tiles:** how does a selected tile look? Recommendation: the same two cues as a list (tint with a 16 dp corner, and the filled check in the corner, an outline circle while selecting), not a ring.
+12. **Table rows:** a checkbox column for a real table (with select-all in the header), while lists use the mark? Recommendation: **yes**, only where a screen becomes a table (Material's own table caption shows a checkbox column).
