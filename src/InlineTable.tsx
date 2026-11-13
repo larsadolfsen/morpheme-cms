@@ -1,11 +1,11 @@
 // The Table block typed in place (finding 18): the cells are drawn as the site draws them (the theme's table, the markup of its
-// blocks/table/View.tsx) and each cell is typed where it stands. While the block is active, the next row and the next column are shown empty
-// and faded: typing in one makes it. The active cell has the dotted outline, and a text button `Add row` is under the table. The cells,
+// blocks/table/View.tsx) and each cell is typed where it stands. The table shows only its real cells: rows and columns are added and deleted
+// from the contextual menu (MarkdownEditor.tsx gridActions), never in the table. The active cell has the dotted outline. The cells,
 // rows and columns are the plain functions of src/inlineGrid.mjs; the header row is the block's own setting (its sheet). Enter goes to the
 // cell below (a new row after the last); Tab and Shift+Tab are the browser's. Depends on the parts of InlineItems.tsx.
 import { useEffect, useLayoutEffect, useRef, type KeyboardEvent } from 'react';
 import { t } from './i18n';
-import { InlineAdd, InlineField } from './InlineItems';
+import { InlineField } from './InlineItems';
 import type { InlineViewProps } from './inlineViews';
 import { addRowAt, setCell } from './inlineGrid.mjs';
 import { rectangle } from './standard/table/rows.mjs';
@@ -18,7 +18,6 @@ export default function InlineTable({ items, props, active, col, focus, onChange
   const rows = rectangle(items);
   const width = rows[0].length;
   const header = props.header !== false;
-  const editing = active !== null;
   // The grid as it is saved: the rows the block has (a new block has no rows, which is one empty cell).
   const saved = items as unknown as string[][];
   useEffect(() => {
@@ -40,7 +39,7 @@ export default function InlineTable({ items, props, active, col, focus, onChange
     if (e.key !== 'Enter' || e.shiftKey || e.nativeEvent.isComposing) return;
     e.preventDefault();
     const last = r === rows.length - 1;
-    // Past the last row: a row after it, but not from an empty one (the next row is already shown).
+    // Past the last row: a row after it, but not from an empty one.
     if (last && !rows[r][c].trim() && rows[r].every((v) => !v.trim())) return;
     onChange({
       items: (last ? addRowAt(grid(), r + 1) : grid()) as never,
@@ -50,7 +49,6 @@ export default function InlineTable({ items, props, active, col, focus, onChange
     });
   };
   const cell = (r: number, c: number) => {
-    const next = r === rows.length || c === width;
     const here = r === active && c === col;
     const Tag = header && r === 0 ? 'th' : 'td';
     const text = rows[r]?.[c] ?? '';
@@ -58,13 +56,13 @@ export default function InlineTable({ items, props, active, col, focus, onChange
       <Tag
         key={c}
         scope={Tag === 'th' ? 'col' : undefined}
-        className={['inline-table-cell', here && 'inline-table-cell-active', next && 'inline-table-cell-next'].filter(Boolean).join(' ')}
+        className={['inline-table-cell', here && 'inline-table-cell-active'].filter(Boolean).join(' ')}
       >
         <InlineField
           name={String(c)}
           value={text}
           label={t.blocks.table.cellOf(r + 1, c + 1)}
-          placeholder={next ? (r === rows.length ? t.blocks.table.newRow : t.blocks.table.newColumn) : ''}
+          placeholder=""
           onType={(v) => type(r, c, v)}
           onFocus={() => (active !== r || col !== c) && onChange({ active: r, col: c })}
           onKeys={(e) => keys(r, c, e)}
@@ -72,15 +70,12 @@ export default function InlineTable({ items, props, active, col, focus, onChange
       </Tag>
     );
   };
-  // While the block is active, one more row and one more column, empty and faded (not their corner).
-  const shown = editing ? rows.length + 1 : rows.length;
-  const across = editing ? width + 1 : width;
   const line = (r: number) => (
     <tr key={r} data-row={r} className={r === active ? 'inline-table-row-active' : undefined}>
-      {Array.from({ length: across }, (_, c) => (r === rows.length && c === width ? <td key={c} aria-hidden="true" /> : cell(r, c)))}
+      {Array.from({ length: width }, (_, c) => cell(r, c))}
     </tr>
   );
-  const all = Array.from({ length: shown }, (_, r) => r);
+  const all = Array.from({ length: rows.length }, (_, r) => r);
   return (
     <div ref={root} className="inline-list-host inline-table-host">
       <div className="block-table block-table-grid inline-table" role="region" aria-label={t.blocks.table.label}>
@@ -89,19 +84,6 @@ export default function InlineTable({ items, props, active, col, focus, onChange
           <tbody>{all.slice(header ? 1 : 0).map(line)}</tbody>
         </table>
       </div>
-      {editing && (
-        <InlineAdd
-          label={t.blocks.table.addRow}
-          onClick={() =>
-            onChange({
-              items: addRowAt(grid(), rows.length) as never,
-              active: rows.length,
-              col: col ?? 0,
-              focus: { row: rows.length, field: String(col ?? 0) },
-            })
-          }
-        />
-      )}
     </div>
   );
 }
