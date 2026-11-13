@@ -1244,11 +1244,18 @@ async function checkInlineBlock(
           placeholder: ratio(ph.color, top, parseFloat(ph.opacity), field),
           slot: slot ? ratio(getComputedStyle(slot).color, top, 1, slot) : null,
           outline: ratio(line.outlineColor, top, 1, row),
+          // A list row's heading is the section's own text colour, as on the site (checkListRowColors).
+          heading: name === 'list' ? [getComputedStyle(row.querySelector('[data-field="title"]')).color, getComputedStyle(top).color] : null,
         };
       }
       top.removeAttribute('data-section-color');
       top.removeAttribute('data-section-box');
       return out; })()`);
+    for (const [color, got] of Object.entries(colors))
+      if (got.heading && got.heading[0] !== got.heading[1])
+        problems.push(
+          `${label} (${scheme}): the row heading on a ${color} section is ${got.heading[0]}, not the section's text ${got.heading[1]}`,
+        );
     for (const [color, got] of Object.entries(colors))
       for (const [part, min] of [
         ['text', 4.5],
@@ -2185,6 +2192,49 @@ const ratioOf = `
       const front = pixel(markCss, 'rgb(' + back + ')', opacity);
       return (Math.max(lum(front), lum(back)) + 0.05) / (Math.min(lum(front), lum(back)) + 0.05);
     };`;
+
+/** A list row's heading is the same colour as the section's heading and text, on every section colour, light and dark, on a phone and a computer; on a coloured section its icon, arrow and supporting text too (on Surface the supporting text is the quieter, as the section's other secondary text). */
+async function checkListRowColors() {
+  for (const scheme of ['light', 'dark']) {
+    for (const width of [375, 1280]) {
+      const page = await browser.newPage({ viewport: { width, height: 740 }, colorScheme: scheme, locale: 'en-US' });
+      page.on('pageerror', (e) => problems.push(`${width}px list row colours: ${e.message}`));
+      await page.goto(`${site}/`);
+      const got = await page.evaluate(() => {
+        const out = {};
+        for (const color of ['surface', 'primary', 'secondary', 'tertiary']) {
+          const section = document.createElement('section');
+          section.className = 'text-section text-section-' + color;
+          section.innerHTML =
+            '<div class="prose"><h1>H1</h1><p>Text</p></div><div class="list block-list"><a class="list-item-container" href="#"><span class="list-item-leading list-item-leading-icon"><svg viewBox="0 0 10 10"></svg></span><span class="list-item-content"><span class="list-item-headline">Heading</span><span class="list-item-supporting">Text</span></span><span class="list-item-trailing"><svg viewBox="0 0 10 10"></svg></span></a></div>';
+          document.querySelector('main').append(section);
+          const c = (sel) => getComputedStyle(section.querySelector(sel)).color;
+          out[color] = {
+            h1: c('h1'),
+            text: c('p'),
+            heading: c('.list-item-headline'),
+            supporting: c('.list-item-supporting'),
+            icon: c('.list-item-leading'),
+            chevron: c('.list-item-trailing'),
+          };
+          section.remove();
+        }
+        return out;
+      });
+      for (const [color, c] of Object.entries(got)) {
+        if (c.heading !== c.h1 || c.heading !== c.text)
+          problems.push(
+            `${width}px ${scheme} list row on a ${color} section: the heading is ${c.heading}, the section's heading ${c.h1} and text ${c.text}`,
+          );
+        if (color !== 'surface' && (c.icon !== c.heading || c.chevron !== c.heading || c.supporting !== c.heading))
+          problems.push(
+            `${width}px ${scheme} list row on a ${color} section: the icon ${c.icon}, text ${c.supporting} or arrow ${c.chevron} is not the heading's ${c.heading}`,
+          );
+      }
+      await page.close();
+    }
+  }
+}
 
 /** The marks of a check list in a text (`- [x]`) keep 3:1 (WCAG, a graphic) against their section, on every section colour, light and dark, in the editor and on the site. */
 async function checkChecklistMarks() {
@@ -3129,6 +3179,7 @@ for (const [w, h] of [
 ])
   await checkSegmentedArrow(w, h);
 for (const block of liveLists) for (const w of [375, 1280]) await checkLiveList(w, w < 600 ? 740 : 900, block);
+await checkListRowColors();
 await checkInsertNeverOpensSheet(375, 740);
 await checkEmptyRow(375, 740);
 await checkInsertNeverOpensSheet(1280, 900);
