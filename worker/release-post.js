@@ -1,6 +1,6 @@
 // A site that posts the CMS's releases on its blog (its setting `releasePosts`, site/defineSite.mjs; Morpheme's own site,
 // getmorpheme.com): each minute the Worker asks npm for the newest @morphemecms/cms, and when a new released version has
-// release notes and the site has no post for it, it commits the post and its pictures (lib/releasePost.mjs) in one commit,
+// release notes and the site has no post for it, it commits the post and its images (lib/releasePost.mjs) in one commit,
 // which builds the site. So the post is out minutes after the owner has approved the release on npm. Exposes
 // postRelease. Needs GITHUB_PUBLISH_TOKEN and the KV binding PUSH, where it keeps `cms:release-post`: the version it last
 // looked at, and whether it was posted, had no notes, or failed (tried again after an hour). Depends on github.js and

@@ -1,7 +1,20 @@
 // Tests "Rows from" of the list blocks (rows.mjs). Run: node --test src/standard/rows/rows.test.mjs
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { inlineRowsOf, chosenFrom, howManyOf, itemOfEntry, mapOf, rowOf, rowsFromItems, sourceOf } from './rows.mjs';
+import {
+  PARTS,
+  fieldOfPart,
+  fieldsForPart,
+  withPart,
+  inlineRowsOf,
+  chosenFrom,
+  howManyOf,
+  itemOfEntry,
+  mapOf,
+  rowOf,
+  rowsFromItems,
+  sourceOf,
+} from './rows.mjs';
 
 test('no source means typed rows', () => {
   assert.equal(sourceOf(undefined), undefined);
@@ -98,4 +111,31 @@ test("a block's `map` picks the field of the list for each part; no or broken ma
   assert.equal(rowsFromItems([{ title: 'Post', tags: ['x'] }], { map: { title: 'alt' } })[0].title, 'Post');
   assert.equal(rowsFromItems(items, { map: { title: 'alt' }, tags: ['home'] })[0].title, 'Cut');
   assert.equal(rowsFromItems(items, { map: { title: 'alt' }, tags: ['nope'] }).length, 0);
+});
+
+test('the fields that can fill each part, the field now shown, and the map after a pick', () => {
+  const fields = [
+    { name: 'name', label: 'Name', type: 'string' },
+    { name: 'about', label: 'About', type: 'text' },
+    { name: 'kind', label: 'Kind', type: 'select' },
+    { name: 'icon', label: 'Icon', type: 'select', icons: true },
+    { name: 'page', label: 'Page', type: 'relation' },
+    { name: 'tags', label: 'Tags', type: 'relation' },
+    { name: 'flag', label: 'Flag', type: 'boolean' },
+  ];
+  const names = (/** @type {any} */ part) => fieldsForPart(fields, part).map((f) => f.name);
+  assert.deepEqual(PARTS, ['title', 'text', 'icon', 'href']);
+  assert.deepEqual(names('title'), ['name', 'about', 'kind']);
+  assert.deepEqual(names('icon'), ['name', 'icon']);
+  assert.deepEqual(names('href'), ['name', 'page', 'tags']);
+  const asRows = { title: 'name', text: 'about', icon: 'icon' };
+  assert.equal(fieldOfPart(asRows, undefined, 'text'), 'about');
+  assert.equal(fieldOfPart(asRows, { text: 'kind' }, 'text'), 'kind');
+  assert.equal(fieldOfPart(asRows, { text: '' }, 'text'), undefined);
+  assert.equal(fieldOfPart(asRows, undefined, 'href'), undefined);
+  assert.deepEqual(withPart(asRows, undefined, 'text', 'kind'), { text: 'kind' });
+  assert.equal(withPart(asRows, { text: 'kind' }, 'text', 'about'), undefined);
+  assert.deepEqual(withPart(asRows, { text: 'kind' }, 'icon', ''), { text: 'kind', icon: '' });
+  assert.equal(withPart(asRows, { icon: '' }, 'icon', 'icon'), undefined);
+  assert.equal(withPart(asRows, undefined, 'href', ''), undefined);
 });

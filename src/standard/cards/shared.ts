@@ -6,19 +6,31 @@ import { defineShared } from '../../shared';
 /** The cards it is shown with where no page has it: its screen under "Blocks" and "Available
  * blocks" (index.tsx). In the site's language, like the drawing. With a page, so the link's text,
  * which is edited there, is on them. */
-export const example = { items: siteT.blocks.cards.example.map((c) => ({ ...c, media: 'icon', href: '/' })) };
+export const example = { items: siteT.blocks.cards.example.map((c) => ({ ...c, href: '/' })) };
 
 export default defineShared({
   fields: [{ name: 'more', label: t.blocks.cards.more, type: 'string', required: true, max: 30 }],
   values: { more: siteT.blocks.cards.moreText },
-  // The three types, each under its name, and the filled one in a colour.
+  // The three designs, each under its name, and the filled one in each colour.
   preview: {
     props: example,
     variants: [
-      { label: t.blocks.cards.kindOutlined, props: {} },
-      { label: t.blocks.cards.kindFilled, props: { kind: 'filled' } },
-      { label: t.blocks.cards.kindElevated, props: { kind: 'elevated' } },
-      { label: `${t.blocks.cards.kindFilled}, ${t.blocks.cards.colorPrimary.toLowerCase()}`, props: { kind: 'filled', color: 'primary' } },
+      { label: t.blocks.cards.phoneCarousel, props: { phone: 'carousel' } },
+      { label: t.blocks.cards.designOutlined, props: {} },
+      { label: t.blocks.cards.designFilled, props: { design: 'filled' } },
+      { label: t.blocks.cards.designElevated, props: { design: 'elevated' } },
+      {
+        label: `${t.blocks.cards.designFilled}, ${t.blocks.cards.colorPrimary.toLowerCase()}`,
+        props: { design: 'filled', color: 'primary' },
+      },
+      {
+        label: `${t.blocks.cards.designFilled}, ${t.blocks.cards.colorSecondary.toLowerCase()}`,
+        props: { design: 'filled', color: 'secondary' },
+      },
+      {
+        label: `${t.blocks.cards.designFilled}, ${t.blocks.cards.colorTertiary.toLowerCase()}`,
+        props: { design: 'filled', color: 'tertiary' },
+      },
     ],
   },
 });

@@ -48,6 +48,7 @@ import SectionSettings, { type SectionValues } from './SectionSettings';
 import { sheetLook } from './sheetPlacement.mjs';
 import { setPanelOpen } from './sidePanel';
 import { SiteSideSheet, siteSideSheet, siteSideSheetDialogClass, siteStandardSideSheet } from './themeUi';
+import { typedInPlace } from './typedInPlace.mjs';
 
 export type BlockAsk = {
   list: SiteBlock[];
@@ -56,15 +57,15 @@ export type BlockAsk = {
   /** What the cards say about the blocks comes from (describe in blocks.ts). */
   data: BlockData;
   /** Which block to put in, with its fields filled in; null when cancelled. A block can be put in more
-   * than once, unless the template says how many (have: the types in the text now, one for each, IMAGE for a picture).
-   * image: a picture is offered first, and chosen as the type IMAGE. */
+   * than once, unless the template says how many (have: the types in the text now, one for each, IMAGE for an image).
+   * image: an image is offered first, and chosen as the type IMAGE. */
   choose: (offer?: { image?: boolean; have?: string[] }) => Promise<{ type: string; props: BlockProps } | null>;
   /** New props for a block in the text; null when cancelled. isNew: one about to be put in ("Insert"). removable: the
    * card may be removed, so the side panel has "Remove"; 'remove' when it is tapped (never when removable is not true). */
   edit: (type: string, props: BlockProps, isNew?: boolean, removable?: boolean) => Promise<BlockProps | 'remove' | null>;
-  /** The settings of the section the cursor is in (its colour, null: none, and an H2's picture, its description and width); the new
-   * ones, or null when cancelled. picture: the section can have a picture and a width (an H2's). */
-  section: (current: SectionSettingsOf, options?: { picture?: boolean }) => Promise<SectionSettingsOf | null>;
+  /** The settings of the section the cursor is in (its colour, null: none, and an H2's image, its description and width); the new
+   * ones, or null when cancelled. image: the section can have an image and a width (an H2's). */
+  section: (current: SectionSettingsOf, options?: { image?: boolean }) => Promise<SectionSettingsOf | null>;
   /** The settings of a row of a block typed in place (a List's icon and link; `inline` in blocks.ts): in the side panel from expanded, kept
    * open and updated while a row is active, and a bottom sheet below it. Live: each change is told to `onChange` at once, with no Save and no
    * Cancel of its own. Not shown while another sheet is open. null closes it. `open` false: only update the settings if they are open already. */
@@ -82,17 +83,17 @@ export type RowSpec = {
 };
 
 /** A section's settings in the text: null for what it has not. */
-export type SectionSettingsOf = { color: string | null; picture?: string | null; alt?: string | null; width?: string | null };
+export type SectionSettingsOf = { color: string | null; image?: string | null; alt?: string | null; width?: string | null };
 
 type Open =
   | { step: 'choose'; image?: boolean; have?: string[] }
   | { step: 'fields'; type: string; isNew: boolean; removable?: boolean }
-  | { step: 'section'; picture: boolean }
+  | { step: 'section'; image: boolean }
   | { step: 'row' };
 
 const sectionValues = (v: BlockProps): SectionValues => ({
   color: String(v.color ?? ''),
-  picture: String(v.picture ?? ''),
+  image: String(v.image ?? ''),
   alt: String(v.alt ?? ''),
   width: String(v.width ?? ''),
 });
@@ -100,13 +101,13 @@ const sectionValues = (v: BlockProps): SectionValues => ({
 /** The type a section's settings are answered with (not a block's). */
 const SECTION = 'section';
 
-/** The choice of a picture in the sheet ("+" in the toolbar, MarkdownEditor.tsx), and a picture in the
+/** The choice of an image in the sheet ("+" in the toolbar, MarkdownEditor.tsx), and an image in the
  * text, which is changed here like a block's fields: another from the gallery, and its description, or
  * that it is decorative (then it has none, marked in its address: crop.mjs);
- * and its format and crop (Crop.tsx, props format and crop), but not on a fixed page, whose pictures
+ * and its format and crop (Crop.tsx, props format and crop), but not on a fixed page, whose images
  * are the sections' own (sections.mjs). */
 export const IMAGE = 'image';
-const picture: SiteBlock = {
+const image: SiteBlock = {
   type: IMAGE,
   group: 'media',
   label: t.blocks.picture.label,
@@ -121,7 +122,7 @@ const picture: SiteBlock = {
       toggle: t.blocks.picture.decorativeToggle,
       hint: t.blocks.picture.decorativeHint,
     },
-    // Only for a picture that is not decorative (false, or not set).
+    // Only for an image that is not decorative (false, or not set).
     {
       name: 'alt',
       label: t.blocks.picture.alt,
@@ -144,19 +145,19 @@ type InsertSort = 'az' | 'za' | 'group';
 const INSERT_SORTS: InsertSort[] = ['az', 'za', 'group'];
 const INSERT_SORT_KEY = 'editor-sort-insert';
 
-// A block's group: the app's name for an app's block, otherwise the standard blocks (also the picture and HTML).
+// A block's group: the app's name for an app's block, otherwise the standard blocks (also the image and HTML).
 // The standard blocks are in groups by what they do (`group`), the same in `Insert`'s headings and its filter.
 const groupOf = (b: SiteBlock) => (b.app ? (apps.find((a) => a.id === b.app)?.label ?? b.app) : t.blockSettings.groups[b.group ?? 'media']);
 const standardGroups: string[] = blockGroups.map((g) => t.blockSettings.groups[g]);
 
-/** crop: a picture can be cut to a format (not in a "Banner"'s text, whose picture the theme lays out). */
+/** crop: an image can be cut to a format (not in a "Banner"'s text, whose image the theme lays out). */
 export function useBlockDialog(
   list: SiteBlock[] = siteBlocks,
   data: BlockData,
   template?: Template,
   { crop = true } = {},
 ): [BlockAsk, ReactElement] {
-  const blockOf = (type: string) => (type === IMAGE ? picture : type === HTML ? htmlBlock : list.find((b) => b.type === type));
+  const blockOf = (type: string) => (type === IMAGE ? image : type === HTML ? htmlBlock : list.find((b) => b.type === type));
   const dialog = useRef<HTMLDialogElement>(null);
   // The modal side sheet's <dialog> (below expanded) and its controls; the standard one's box (from expanded).
   const sideDialog = useRef<HTMLDialogElement>(null);
@@ -291,6 +292,10 @@ export function useBlockDialog(
     })();
   };
 
+  /** The fields of the block's sheet (the gear): the ones typed where the block stands (a list's heading and subheading) are not repeated. */
+  const settingsFields = (b: NonNullable<typeof block>) =>
+    typedInPlace(b) && b.inline?.single && b.inline.blockSettings ? b.fields.filter((f) => !b.inline!.fields.includes(f.name)) : b.fields;
+
   const asker: BlockAsk = {
     list,
     template,
@@ -300,10 +305,10 @@ export function useBlockDialog(
       return answered === 'remove' ? null : answered;
     },
     section: async (current, options) => {
-      const answered = await ask({ step: 'section', picture: !!options?.picture }, sectionValues(current as BlockProps));
+      const answered = await ask({ step: 'section', image: !!options?.image }, sectionValues(current as BlockProps));
       if (!answered || answered === 'remove') return null;
       const v = sectionValues(answered.props);
-      return { color: v.color || null, picture: v.picture || null, alt: v.alt || null, width: v.width || null };
+      return { color: v.color || null, image: v.image || null, alt: v.alt || null, width: v.width || null };
     },
     row: (spec, show_ = true) => {
       if (!spec) {
@@ -338,8 +343,8 @@ export function useBlockDialog(
   function pick(type: string) {
     const fields = blockOf(type)!.fields;
     if (!fields.length) return done({ type, props: {} });
-    // A block typed in place goes in at once, with its first row active (MarkdownEditor.tsx): no sheet.
-    if (blockOf(type)?.inline) return done({ type, props: newValue(fields) });
+    // A block typed in place goes in at once, with its first row active (MarkdownEditor.tsx): no sheet. One with `inline` but no view to draw it (an app's block without Inline.tsx) has its sheet.
+    if (typedInPlace(blockOf(type))) return done({ type, props: newValue(fields) });
     shown.current = asWritten(type, newValue(fields));
     setValues(newValue(fields));
     show({ step: 'fields', type, isNew: true });
@@ -390,10 +395,10 @@ export function useBlockDialog(
   }
 
   const block = open?.step === 'fields' ? blockOf(open.type) : undefined;
-  // The blocks to choose from (not a section of text, which is written in the text), with the picture
+  // The blocks to choose from (not a section of text, which is written in the text), with the image
   // when it is offered, in alphabetical order and as far as the search finds them. Only those the
   // template allows, and not one the text has as many of as it may.
-  // A picture by the template's most of them alone (a page's template does not name it among its blocks).
+  // An image by the template's most of them alone (a page's template does not name it among its blocks).
   const room = (b: SiteBlock) => {
     const max = template?.max?.[b.type];
     const have = open?.step === 'choose' ? (open.have ?? []).filter((t) => t === b.type).length : 0;
@@ -401,7 +406,7 @@ export function useBlockDialog(
   };
   const offered =
     open?.step === 'choose'
-      ? [...(open.image && room(picture) ? [picture] : []), ...list.filter((b) => !b.written && !b.former && room(b))].sort((a, b) =>
+      ? [...(open.image && room(image) ? [image] : []), ...list.filter((b) => !b.written && !b.former && room(b))].sort((a, b) =>
           byText(a.label, b.label),
         )
       : [];
@@ -446,7 +451,7 @@ export function useBlockDialog(
   const sectionSettings = (
     <SectionSettings
       values={sectionValues(values)}
-      picture={open?.step === 'section' && open.picture}
+      image={open?.step === 'section' && open.image}
       onChange={(next) => setValues({ ...next })}
     />
   );
@@ -493,7 +498,7 @@ export function useBlockDialog(
               )}
               {block?.preview && <Preview>{preview(block.type, values, data)}</Preview>}
               <WrongField.Provider value={wrongField.field}>
-                <FieldList fields={block!.fields} value={values} onChange={(v) => setValues(v as BlockProps)} />
+                <FieldList fields={settingsFields(block!)} value={values} onChange={(v) => setValues(v as BlockProps)} />
               </WrongField.Provider>
               {block!.type === IMAGE && crop && !data.page && !!values.src && (
                 <CropField

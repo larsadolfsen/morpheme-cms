@@ -4,13 +4,21 @@
 // `InlineField` where a text stands and `InlineSlot` where an icon, image or link is picked. `InlineAdd` is the text button under the last
 // item. What is changed is told to `onChange`; the node view in MarkdownEditor.tsx (blockCard) keeps it as the block's props. Which item is
 // empty, and the items added, moved or dropped: src/inlineRows.mjs.
-import { useEffect, useLayoutEffect, useRef, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, type ClipboardEvent, type KeyboardEvent, type ReactNode } from 'react';
+import { Plus } from '@phosphor-icons/react';
+import { Glyph } from './icon';
+import { SlotButton } from './ui';
 import { SiteButton } from './themeUi';
-import { addAt, isEmptyRow, removeAt, setField } from './inlineRows.mjs';
+import { addAt, isEmptyRow, linesFromPaste, removeAt, setField } from './inlineRows.mjs';
 
 export type Item = Record<string, any>;
 export type Focus = { row: number; field: string };
-export type Change = { items?: Item[]; active?: number | null; focus?: Focus | null };
+export type Change = {
+  items?: Item[];
+  active?: number | null;
+  focus?: Focus | null;
+  /** A grid's active column (the Table). */ col?: number | null;
+};
 
 // A textarea that has the height of its text: the browser's own where it can (CSS field-sizing), else set here.
 const fits = typeof CSS !== 'undefined' && CSS.supports?.('field-sizing', 'content');
@@ -24,6 +32,7 @@ export function InlineField({
   onType,
   onFocus,
   onKeys,
+  onPaste,
 }: {
   name: string;
   value: string;
@@ -32,6 +41,7 @@ export function InlineField({
   onType: (value: string) => void;
   onFocus: () => void;
   onKeys: (e: KeyboardEvent<HTMLTextAreaElement>) => void;
+  onPaste?: (e: ClipboardEvent<HTMLTextAreaElement>) => void;
 }) {
   return (
     <textarea
@@ -44,16 +54,59 @@ export function InlineField({
       onChange={(e) => onType(e.target.value)}
       onFocus={onFocus}
       onKeyDown={onKeys}
+      onPaste={onPaste}
     />
   );
 }
 
-/** A button in the active item that picks what is not typed: an icon or an image (its picker), or a link (the item's settings). */
-export function InlineSlot({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) {
+/** A button in the active item that picks what is not typed: an icon or an image (its picker), or a link (the item's settings). It is the
+ * round control of ui.tsx (SlotButton), the one every place that picks an icon has. */
+export function InlineSlot({
+  label,
+  onClick,
+  pressed,
+  iconColor,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  /** One of several kinds, and the one that is chosen. */
+  pressed?: boolean;
+  /** The color role of the icon it shows. */
+  iconColor?: string;
+  children: ReactNode;
+}) {
   return (
-    <button type="button" className="inline-list-slot" aria-label={label} title={label} onClick={onClick}>
+    <SlotButton label={label} pressed={pressed} iconColor={iconColor} onClick={onClick}>
       {children}
-    </button>
+    </SlotButton>
+  );
+}
+
+/** The icon of an item, for every block that has one: while the item is active the control is there empty (a plus) or with its icon, and
+ * on an item that has an icon, active or not, the icon is the control: one tap on it opens the icon picker (the item becomes the active
+ * one). An item with no icon that is not active shows nothing. `size` is the icon's. */
+export function InlineIcon({
+  label,
+  icon,
+  here,
+  iconColor,
+  size = 24,
+  onClick,
+}: {
+  label: string;
+  icon?: string;
+  here: boolean;
+  /** The color role of the icon (src/iconColor.ts): shown while the item is not active, as the site draws it. */
+  iconColor?: string;
+  size?: number;
+  onClick: () => void;
+}) {
+  if (!here && !icon) return null;
+  return (
+    <InlineSlot label={label} iconColor={here ? undefined : iconColor} onClick={onClick}>
+      {icon ? <Glyph icon={icon} size={size} /> : <Plus size={size} />}
+    </InlineSlot>
   );
 }
 
@@ -87,6 +140,9 @@ export default function InlineItems({
   onChange,
   renderItem,
   wrap,
+  max,
+  start = 1,
+  paste,
 }: {
   items: Item[];
   /** The item being edited; null while the block is not. */
@@ -101,6 +157,14 @@ export default function InlineItems({
   renderItem: (c: ItemContext) => ReactNode;
   /** The block's own element round its items (the theme's list). */
   wrap?: (items: ReactNode) => ReactNode;
+  /** The most items the block can have: no item is added past it (Enter in the last field, the add button). */
+  max?: number;
+  /** How many empty, faded items a block shows while it has none (Cards start with three, the first active; else one). Typing in any of
+   * them makes the first item. */
+  start?: number;
+  /** Lines pasted into the first field of an empty block make one item each (the line in the first field), unless the pasted text has
+   * headings among its lines (linesFromPaste). */
+  paste?: boolean;
 }) {
   const root = useRef<HTMLDivElement>(null);
   const [first, last] = [fields[0], fields[fields.length - 1]];
@@ -120,14 +184,18 @@ export default function InlineItems({
 
   const editing = active !== null;
   // The empty, faded item that a tap starts is only there while the block has no item; with items, `Add below` and Enter make the next.
-  const shown: Item[] = items.length ? items : [{}];
-  const addAfter = (i: number) => onChange({ items: addAt(items, i + 1, first), active: i + 1, focus: { row: i + 1, field: first } });
+  const shown: Item[] = items.length ? items : Array.from({ length: start }, () => ({}));
+  const room = max === undefined || items.length < max;
+  // The item a shown one is: an empty, faded one past the last is the first (or next) item once it is typed in.
+  const slot = (i: number) => Math.min(i, items.length);
+  const addAfter = (i: number) =>
+    room && onChange({ items: addAt(items, i + 1, first), active: i + 1, focus: { row: i + 1, field: first } });
 
   const keys = (i: number, name: string, e: KeyboardEvent<HTMLTextAreaElement>) => {
     const item = items[i];
     if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault();
-      if (name !== last) return onChange({ active: i, focus: { row: i, field: fields[fields.indexOf(name) + 1] } });
+      if (name !== last) return onChange({ active: slot(i), focus: { row: i, field: fields[fields.indexOf(name) + 1] } });
       // The last field: an item below (not from the next empty one, which has nothing yet).
       if (item && !isEmptyRow(item)) addAfter(i);
     }
@@ -138,12 +206,20 @@ export default function InlineItems({
     }
   };
 
+  const pasted = (name: string, e: ClipboardEvent<HTMLTextAreaElement>) => {
+    if (!paste || name !== first || items.some((r) => !isEmptyRow(r))) return;
+    const lines = linesFromPaste(e.clipboardData.getData('text/plain'), e.clipboardData.getData('text/html'));
+    if (!lines) return;
+    e.preventDefault();
+    onChange({ items: lines.map((line) => ({ [first]: line })), active: lines.length - 1, focus: { row: lines.length - 1, field: last } });
+  };
+
   const body = shown.map((item, i) => {
-    const next = i === items.length;
+    const next = i >= items.length;
     return renderItem({
       item,
       index: i,
-      here: i === active,
+      here: next ? i === 0 && active === 0 : i === active,
       next,
       editing,
       field: (name, label, placeholder) => (
@@ -152,9 +228,17 @@ export default function InlineItems({
           value={String(item[name] ?? '')}
           label={label}
           placeholder={placeholder}
-          onType={(v) => onChange({ items: setField(items, i, name, v, first), active: i })}
-          onFocus={() => active !== i && onChange({ active: i })}
+          // Typed in a faded one past the first: it is the item that is made, so the cursor goes there.
+          onType={(v) =>
+            onChange({
+              items: setField(items, i, name, v, first),
+              active: slot(i),
+              ...(slot(i) !== i ? { focus: { row: slot(i), field: name } } : {}),
+            })
+          }
+          onFocus={() => active !== slot(i) && onChange({ active: slot(i) })}
           onKeys={(e) => keys(i, name, e)}
+          onPaste={paste ? (e) => pasted(name, e) : undefined}
         />
       ),
     });
@@ -163,7 +247,7 @@ export default function InlineItems({
   return (
     <div ref={root} className="inline-list-host">
       {wrap ? wrap(body) : body}
-      {editing && items.length > 0 && <InlineAdd label={add} onClick={() => addAfter(items.length - 1)} />}
+      {editing && items.length > 0 && room && <InlineAdd label={add} onClick={() => addAfter(items.length - 1)} />}
     </div>
   );
 }

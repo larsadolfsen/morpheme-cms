@@ -13,6 +13,7 @@ import { common } from './common';
 import { company } from './company';
 import { consents } from './consents';
 import { dashboard } from './dashboard';
+import { ownList } from './ownList';
 import { forms } from './forms';
 import { footer } from './footer';
 import { history } from './history';
@@ -43,6 +44,7 @@ export const enUS = {
   redirects,
   consents,
   dashboard,
+  ownList,
   footer,
   seo,
   keywords,

@@ -8,7 +8,7 @@ spec and a changeset (`patch` or empty into `main`, else the owner decides).
 
 1. Shared parts for typing a block in place: `InlineItems`, `InlineField`, `InlineSlot`, `InlineAdd`; a block says how it is typed with
    `inline: { item, fields, icon, link, media, settings, blockSettings, texts }` (`src/blocks.ts`); its drawing is in `src/inlineViews.tsx`.
-2. Cards on Material 3: media per card (icon, picture or video), types Outlined, Filled, Elevated; buttons on a card without a page.
+2. Cards on Material 3: media per card (icon, image or video), types Outlined, Filled, Elevated; buttons on a card without a page.
    Old cards migrate (`FORMER.cards` in `lib/blocks.mjs`), the demo is migrated.
 3. Cards typed in place (`src/InlineCards.tsx`): headline and text where they stand; Media and Link slots on the active card.
 
@@ -18,7 +18,7 @@ Not yet checked there: `check:demo`, `check:starter`, and a look at the typed ca
 
 - Follow Material 3. Card types Outlined (default), Filled, Elevated. Filled starts with Material's own color; Primary, Secondary and
   Tertiary are extra.
-- Media is an icon, a picture or a video (a still with a play button). A video card is not a link.
+- Media is an icon, an image or a video (a still with a play button). A video card is not a link.
 - A card with a page is one link and has no buttons. A card without a page may have buttons.
 - The old Colored background becomes Filled in the primary color.
 

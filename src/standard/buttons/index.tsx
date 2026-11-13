@@ -13,6 +13,22 @@ export default defineBlock({
   icon: CursorClick,
   hint: t.blocks.buttons.hint,
   edit: { to: 'blocks/buttons', text: t.blocks.buttons.edit },
+  // Typed in place (InlineButtons.tsx): the label on the button itself; where it leads and its style are in the button's settings, its icon in the icon slot.
+  inline: {
+    item: 'items',
+    fields: ['label'],
+    icon: 'icon',
+    settings: ['to', 'open', 'href', 'kind'],
+    blockSettings: true,
+    texts: {
+      addAbove: t.blocks.buttons.addAbove,
+      addBelow: t.blocks.buttons.addBelow,
+      link: t.blocks.buttons.settingsAction,
+      row: t.blocks.buttons.button,
+      settings: t.blocks.buttons.buttonSettings,
+      icon: t.blocks.buttons.icon,
+    },
+  },
   fields: [{ ...buttonList, hint: t.blocks.buttons.itemsHint }],
   preview: true,
   detail: (p) => [

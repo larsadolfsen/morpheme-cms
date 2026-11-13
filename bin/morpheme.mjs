@@ -6,7 +6,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const COMMANDS = {
-  /** Before the site is built or served: the pictures' smaller sizes and the videos' stills. */
+  /** Before the site is built or served: the images' smaller sizes and the videos' stills. */
   images: ['responsive-images', 'video-thumbnails'],
   /** After the site is built: what the Worker and the editor read from dist/. */
   'after-build': ['scheduled-list', 'link-counts', 'page-colors'],
@@ -27,6 +27,7 @@ const COMMANDS = {
   ],
   'check:screens': ['editor-screens'],
   'check:themes': ['check-themes'],
+  'check:contrast': ['check-contrast'],
   'check:demo': ['check-demo'],
   'compare-html': ['compare-html'],
   'app-workers': ['app-workers'],

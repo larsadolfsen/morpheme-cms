@@ -91,7 +91,7 @@ export type RepoFile = { path: string; oid: string; text: string };
 /** The commit the branch is at, and its root tree (the files in it). */
 export type Head = { commit: string; tree: string };
 
-// A file as the Worker lists it: its blob id, and whether GitHub calls it binary (a picture: no text).
+// A file as the Worker lists it: its blob id, and whether GitHub calls it binary (an image: no text).
 type Listed = { path: string; oid: string; binary: boolean };
 
 // The texts of the files this browser has, by their blob ids (a blob id's text never changes): those it loaded and
@@ -103,7 +103,7 @@ export function rememberTexts(files: RepoFile[]) {
   for (const f of files) known.set(f.oid, f.text);
 }
 
-// The files with their text: '' for a picture, the rest from this browser or the Worker, 100 at a time.
+// The files with their text: '' for an image, the rest from this browser or the Worker, 100 at a time.
 async function withTexts(listed: Listed[]): Promise<RepoFile[]> {
   const wanted = [...new Set(listed.filter((f) => !f.binary && !known.has(f.oid)).map((f) => f.oid))];
   const parts = [];
@@ -142,7 +142,7 @@ export async function loadFolders<K extends string>(
   };
 }
 
-// Some single files at the branch's head (`tree`: at another root tree), with their text ('' for a picture). A file that
+// Some single files at the branch's head (`tree`: at another root tree), with their text ('' for an image). A file that
 // is not there is left out.
 export async function loadFiles(paths: string[], tree?: string): Promise<RepoFile[]> {
   const listed = await listFiles({ tree, paths });
@@ -174,9 +174,9 @@ export async function loadFrom(repo: Repo, ref: string, paths: string[]): Promis
   });
 }
 
-// A file's bytes by its blob id: a picture, which GraphQL gives no content for (renaming one in
-// Files). Checked against the id, so a picture is never saved broken. `repo`: another repository than the site's
-// (a picture of an app in the store).
+// A file's bytes by its blob id: an image, which GraphQL gives no content for (renaming one in
+// Files). Checked against the id, so an image is never saved broken. `repo`: another repository than the site's
+// (an image of an app in the store).
 export async function loadBytes(oid: string, address?: string, repo: Repo = REPO): Promise<Uint8Array> {
   // First from the site itself (the same file, no request to the Worker), when it has it unchanged.
   if (address) {
@@ -186,12 +186,12 @@ export async function loadBytes(oid: string, address?: string, repo: Repo = REPO
   }
   const other = repo.owner !== REPO.owner || repo.name !== REPO.name;
   const res = await fetch(`/api/github/blob/${oid}${other ? `?repo=${repo.owner}/${repo.name}` : ''}`).catch(() => {
-    throw new Error(t.app.pictureNotLoaded);
+    throw new Error(t.app.imageNotLoaded);
   });
   if (res.status === 401) throw new AuthError(t.app.loggedOut);
   if (!res.ok) throw new Error(t.app.githubAnswered(res.status));
   const bytes = new Uint8Array(await res.arrayBuffer());
-  if ((await blobId(bytes)) !== oid) throw new Error(t.app.pictureNotWhole);
+  if ((await blobId(bytes)) !== oid) throw new Error(t.app.imageNotWhole);
   return bytes;
 }
 
@@ -296,7 +296,7 @@ export async function versionText(version: Version, path: string): Promise<strin
   return file ? file.text : null;
 }
 
-/** A file that was deleted: its path, its last content (blob id, and text unless it is a picture),
+/** A file that was deleted: its path, its last content (blob id, and text unless it is an image),
  * and when and by whom it was deleted. */
 export type DeletedFile = { path: string; oid: string; text: string; at: Date; by: string };
 
@@ -315,8 +315,8 @@ async function foldersAt(at: { root: string; path: string }[]): Promise<({ oid: 
 
 /** The files deleted from a folder (and the folders in it) in its last `last` commits, newest first,
  * each once, and not one that is there again. A file that went in a commit that also added one to the
- * folder moved (a new address, a picture's new name) and is not counted. `text`: whether to get the
- * files' text (not for pictures). */
+ * folder moved (a new address, an image's new name) and is not counted. `text`: whether to get the
+ * files' text (not for images). */
 export async function deletedFiles(folder: string, { last = 40, text = true } = {}): Promise<DeletedFile[]> {
   const history = await graphql<{
     repository: { ref: { target: { history: { nodes: (HistoryNode & { parents: { nodes: { tree: { oid: string } }[] } })[] } } } };

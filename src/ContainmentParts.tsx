@@ -1,6 +1,6 @@
 // "Parts" › "UI components" (BlockParts.tsx), the group "Dialogs, sheets and carousel": the theme's dialog, bottom sheet and
 // carousel (packages/editor/theme/ui/, through @site/editor) as the site draws them, with made-up texts and the plain
-// picture: a basic dialog, one with an icon, a list and a divider, the container alone (a pop-up's box) and a
+// image: a basic dialog, one with an icon, a list and a divider, the container alone (a pop-up's box) and a
 // full-screen one; the modal bottom sheet, three times, one per wide (a button opens it in a real dialog: on a phone at
 // half height, pulled up to full height; on a computer a dialog, a side sheet or a sheet with margins) and the standard
 // one collapsed, half expanded and expanded (and with the resize and collapse buttons) at the bottom of a frame with a
@@ -12,7 +12,7 @@ import { SiteBottomSheet, SiteButton, SiteCarousel, SiteCheckbox, SiteDialog, Si
 import ModalSheetSample from './ModalSheetSample';
 import { Part } from './PartsShown';
 import { Preview } from './ui';
-import { examplePicture } from './examples';
+import { exampleImage } from './examples';
 import { t } from './i18n';
 
 const say = t.parts.screens.containment;
@@ -28,13 +28,13 @@ function Shown({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-/** The plain picture with its number, which fades as its item shrinks (--carousel-mask, carouselLayout.ts). */
-function Picture({ n }: { n: number }) {
+/** The plain image with its number, which fades as its item shrinks (--carousel-mask, carouselLayout.ts). */
+function Image({ n }: { n: number }) {
   return (
     <>
-      <img src={examplePicture} alt="" />
+      <img src={exampleImage} alt="" />
       <span className="absolute bottom-3 left-4 font-medium" style={{ opacity: 'calc(1 - 3 * var(--carousel-mask, 0))' }}>
-        {say.picture(n)}
+        {say.image(n)}
       </span>
     </>
   );
@@ -63,7 +63,7 @@ function Dialogs() {
       </Shown>
       <Shown label={say.dialogKinds.container}>
         <SiteDialog className="p-6">
-          <p className="text-lg font-medium">{say.heading}</p>
+          <p className="text-body-large font-medium">{say.heading}</p>
           <p className="mt-2 text-on-surface-variant">{say.text}</p>
         </SiteDialog>
       </Shown>
@@ -175,15 +175,15 @@ function BottomSheets() {
 }
 
 function Carousels() {
-  const pictures = (layout: 'multi-browse' | 'hero' | 'full-screen', alignment?: 'center') => (
+  const images = (layout: 'multi-browse' | 'hero' | 'full-screen', alignment?: 'center') => (
     <SiteCarousel
       layout={layout}
       alignment={alignment}
       label={say.roleDescription}
       roleDescription={say.roleDescription}
       itemRoleDescription={say.item}
-      items={numbers.map((n) => ({ key: String(n), label: say.picture(n), content: <Picture n={n} /> }))}
-      indicatorLabels={numbers.map((n) => say.showPicture(n))}
+      items={numbers.map((n) => ({ key: String(n), label: say.image(n), content: <Image n={n} /> }))}
+      indicatorLabels={numbers.map((n) => say.showImage(n))}
     />
   );
   return (
@@ -206,10 +206,10 @@ function Carousels() {
           indicatorLabels={numbers.slice(0, 5).map((n) => say.show(n))}
         />
       </Shown>
-      <Shown label={say.layouts.multiBrowse}>{pictures('multi-browse')}</Shown>
-      <Shown label={say.layouts.hero}>{pictures('hero')}</Shown>
-      <Shown label={say.layouts.heroCenter}>{pictures('hero', 'center')}</Shown>
-      <Shown label={say.layouts.fullScreen}>{pictures('full-screen')}</Shown>
+      <Shown label={say.layouts.multiBrowse}>{images('multi-browse')}</Shown>
+      <Shown label={say.layouts.hero}>{images('hero')}</Shown>
+      <Shown label={say.layouts.heroCenter}>{images('hero', 'center')}</Shown>
+      <Shown label={say.layouts.fullScreen}>{images('full-screen')}</Shown>
     </div>
   );
 }

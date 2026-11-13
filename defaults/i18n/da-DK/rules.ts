@@ -47,11 +47,14 @@ export const rules: Record<string, string> = {
     'Tagget er valgt i en blok i blogindlægget "{page}". Vælg et andet først.',
   'The tag is picked in a block on the page "{page}". Pick another one first.':
     'Tagget er valgt i en blok på siden "{page}". Vælg et andet først.',
+  '{page} is a default page, so it cannot be deleted. Pick another page under "Default pages" first.':
+    '{page} er en standardside og kan ikke slettes. Vælg en anden side under "Standardsider" først.',
+  'Edit the default pages': 'Rediger standardsiderne',
   'Edit the post': 'Rediger indlægget',
   'the front page': 'forsiden',
   'the blog': 'bloggen',
   'the page "{name}" ({address})': 'siden "{name}" ({address})',
   'the blog post "{name}" ({address})': 'blogindlægget "{name}" ({address})',
   'the tag "{name}" on the blog ({address})': 'tagget "{name}" på bloggen ({address})',
-  'the picture {name}': 'billedet {name}',
+  'the image {name}': 'billedet {name}',
 };

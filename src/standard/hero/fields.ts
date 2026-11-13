@@ -1,6 +1,6 @@
 // The parts of a "Banner"'s text (its `text`, Markdown), as view.ts and load.ts show them, and a theme's own front
-// page (its home/Hero.astro): a heading at the very top ("## …") is its heading (an H2), the first picture in it,
-// wherever it is, its picture, its "Buttons" block its buttons, the text before that block the subtitle and the
+// page (its home/Hero.astro): a heading at the very top ("## …") is its heading (an H2), the first image in it,
+// wherever it is, its image, its "Buttons" block its buttons, the text before that block the subtitle and the
 // introduction, and the text after it the text under the buttons. Without a "Buttons" block (or with a hidden one) it has
 // no buttons, and all of its text is before them. No React here, so the site and the build can use it.
 import { cutAtBlock, parseBlock } from '../../../lib/blocks.mjs';
@@ -9,19 +9,19 @@ import { plainHeading } from '../../sections.mjs';
 
 export type HeroParts = {
   heading?: string;
-  /** The text before the buttons, without its heading and its picture (Markdown). */
+  /** The text before the buttons, without its heading and its image (Markdown). */
   text: string;
-  /** The picture: its own address (without a format, crop or decorative mark) and its description ('' when it is
+  /** The image: its own address (without a format, crop or decorative mark) and its description ('' when it is
    * decorative, crop.mjs). */
-  picture?: { src: string; alt: string };
+  image?: { src: string; alt: string };
   /** The props of its "Buttons" block (`items`: its own buttons, else the shared ones); none without one. */
   buttons?: Record<string, unknown>;
   /** The text after the buttons (Markdown). */
   after: string;
 };
 
-// A picture in Markdown, as Milkdown writes it (with a title, if it has one): its description and its address.
-const PICTURE = /!\[((?:\\.|[^\]])*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/;
+// An image in Markdown, as Milkdown writes it (with a title, if it has one): its description and its address.
+const IMAGE = /!\[((?:\\.|[^\]])*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/;
 const HEADING = /^ {0,3}##(?!#)(?:[ \t]+(.*?))?(?:[ \t]+#+)?[ \t]*(?:\r?\n|$)/;
 const unescape = (s: string) => s.replace(/\\([!-/:-@[-`{-~])/g, '$1');
 const tidy = (s: string) => s.replace(/\n{3,}/g, '\n\n').trim();
@@ -36,13 +36,13 @@ export function heroParts(markdown: unknown): HeroParts {
   const top = text.match(HEADING);
   const heading = top ? plainHeading(top[1] ?? '') || undefined : undefined;
   if (top) text = text.slice(top[0].length);
-  let picture: HeroParts['picture'];
-  const m = text.match(PICTURE) ?? after.match(PICTURE);
+  let image: HeroParts['image'];
+  const m = text.match(IMAGE) ?? after.match(IMAGE);
   if (m) {
     const { src, decorative } = splitPicture(m[2]);
-    picture = { src, alt: decorative ? '' : unescape(m[1]) };
-    if (text.match(PICTURE)) text = text.replace(PICTURE, '');
-    else after = after.replace(PICTURE, '');
+    image = { src, alt: decorative ? '' : unescape(m[1]) };
+    if (text.match(IMAGE)) text = text.replace(IMAGE, '');
+    else after = after.replace(IMAGE, '');
   }
-  return { heading, text: tidy(text), picture, buttons: block && !block.hidden ? block : undefined, after: tidy(after) };
+  return { heading, text: tidy(text), image, buttons: block && !block.hidden ? block : undefined, after: tidy(after) };
 }

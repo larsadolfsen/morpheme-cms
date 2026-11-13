@@ -130,7 +130,7 @@ import { menuLayout } from '../lib/menu-layout.mjs';
 
 /** The theme's button (Material 3's buttons): filled, the one thing to do; tonal, an important step that is not the
  * main one; elevated, one on a coloured background; outlined, another choice beside it ("Cancel" too); text, a small
- * step on the side (Remove, Add). medium (the default): the width of its text on every screen (Save changes); small: in a line of text or by a field (Change picture, Add tag). */
+ * step on the side (Remove, Add). medium (the default): the width of its text on every screen (Save changes); small: in a line of text or by a field (Change image, Add tag). */
 export type { ButtonKind };
 export type ButtonSize = 'medium' | 'small';
 
@@ -859,7 +859,7 @@ export function SearchBar({
 }: {
   value: string;
   onChange: (value: string) => void;
-  /** What is searched, for screen readers ("Search the pictures"). */
+  /** What is searched, for screen readers ("Search the images"). */
   label: string;
   className?: string;
   inputRef?: Ref<HTMLInputElement>;
@@ -910,7 +910,7 @@ export function SearchRow({
   );
 }
 
-/** The theme's slider, with its name over it (the zoom when cropping a picture): a value between `min` and `max`. */
+/** The theme's slider, with its name over it (the zoom when cropping an image): a value between `min` and `max`. */
 export function Slider(props: {
   label: string;
   min: number;
@@ -1017,6 +1017,46 @@ export function ShownValue({ id, icon, muted, children }: { id?: string; icon?: 
   );
 }
 
+/** The round control of an icon, an image or a link, the same in a typed-in-place row and in a form: a 40 dp button with what is picked
+ * (the icon) or a plus while nothing is. A tap opens its picker. Rows use it through InlineSlot and InlineIcon (InlineItems.tsx), the
+ * icon field (IconPicker) uses it itself, so every place that picks an icon has this one control. */
+export function SlotButton({
+  label,
+  onClick,
+  pressed,
+  expanded,
+  controls,
+  iconColor,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  /** One of several kinds, and the one that is chosen. */
+  pressed?: boolean;
+  /** It opens something below it, shown or not. */
+  expanded?: boolean;
+  controls?: string;
+  /** The color role of the icon it shows (src/iconColor.ts), as the site draws it. */
+  iconColor?: string;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      className="inline-list-slot"
+      aria-label={label}
+      aria-pressed={pressed}
+      aria-expanded={expanded}
+      aria-controls={controls}
+      data-icon-color={iconColor}
+      title={label}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}
+
 /** One of many icons: the chosen one with its name, and a button that unfolds them in a grid to tap (ChoiceTile, the
  * chosen one marked); a tap picks one and folds them again. The choice with the value '' is no icon (a cross). `icon`
  * draws an icon by its value. The grid starts with `options`; the search field over it looks in `all` as well (the names of
@@ -1085,13 +1125,16 @@ export function IconPicker({
   return (
     <div id={id}>
       <div className="flex items-center gap-3">
-        {value && <LeadingIcon>{icon(value, 24)}</LeadingIcon>}
+        {/* The icon, or a plus while there is none: the round control of the rows (SlotButton); a tap opens the icons. */}
+        <SlotButton
+          label={value ? t.forms.changeIcon : t.forms.pickIcon}
+          expanded={open}
+          controls={grid}
+          onClick={() => setOpen((o) => !o)}
+        >
+          {value ? icon(value, 24) : <Plus size={24} />}
+        </SlotButton>
         <span className="min-w-0 flex-1 truncate">{chosen ? chosen.label : value ? iconLabel(value) : t.forms.noIconYet}</span>
-        {!open && (
-          <Button kind="outlined" size="small" aria-expanded={open} aria-controls={grid} onClick={() => setOpen(true)}>
-            {value ? t.forms.changeIcon : t.forms.pickIcon}
-          </Button>
-        )}
       </div>
       {open && (
         <div id={grid} className="editor-reveal mt-3">
@@ -1163,7 +1206,7 @@ export function IconPicker({
 }
 const PAGE = 100;
 
-/** A picture: a small one of it (`src`), the button that picks one, from Files or a new one, or another,
+/** An image: a small one of it (`src`), the button that picks one, from Files or a new one, or another,
  * and with `onRemove` (when it may be left out) the button that takes it away. */
 export function ImagePick({ id, src, onPick, onRemove }: { id?: string; src?: string; onPick: () => void; onRemove?: () => void }) {
   return (
@@ -1564,7 +1607,7 @@ export function ChipSet({ label, scroll = false, children }: { label: string; sc
   );
 }
 
-/** The theme's filter chip: one of a few choices side by side (a picture's format), the chosen one marked. Many choices
+/** The theme's filter chip: one of a few choices side by side (an image's format), the chosen one marked. Many choices
  * go in a sheet instead (Choice). */
 export function FilterChip({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: ReactNode }) {
   return <SiteChip kind="filter" label={children} selected={selected} onClick={onClick} />;
@@ -2165,7 +2208,7 @@ export function ColorsPreview({ colors, title }: { colors: Record<string, string
       role="img"
       className="space-y-3 rounded-2xl border border-outline-variant bg-surface p-4 text-on-surface"
     >
-      <p className="text-lg font-medium tracking-tight">{p.heading}</p>
+      <p className="text-body-large font-medium">{p.heading}</p>
       <p className="text-sm text-on-surface-variant">{p.text}</p>
       <p>
         <span className="link">{p.link}</span>
@@ -2405,7 +2448,7 @@ export function ChoiceRow({
 // ---------------------------------------------------------------------------------------------------
 // Lists of rows
 
-/** The classes of a list of rows (in Group, and alone in a sheet: where a picture is used): the theme's segmented list
+/** The classes of a list of rows (in Group, and alone in a sheet: where an image is used): the theme's segmented list
  * (Material 3 Expressive's), each row on its own surface. */
 export const listClass = siteListClasses('segmented');
 
@@ -2415,7 +2458,7 @@ export const plainListClass = siteListClasses('standard');
 /** The small heading over a Group, and over what stands as one (the themes on Account): in Material 3's title small, as
  * written (not in capitals, Material 2's subheader), muted as a group's heading in a sheet (SheetGroupTitle). */
 export function GroupTitle({ children }: { children: ReactNode }) {
-  return <h2 className="mb-2 px-4 text-sm font-medium tracking-[0.00625rem] text-on-surface-variant">{children}</h2>;
+  return <h2 className="mb-2 px-4 text-title-small text-on-surface-variant">{children}</h2>;
 }
 
 /** The theme's ripple on every part the editor draws that is pressed (its buttons, rows, chips …), as on the site:
@@ -2461,12 +2504,12 @@ export function ProblemNote({ alert, children }: { alert?: boolean; children: Re
 /** A heading over fields in a form (Other fields, SEO); `first` at the top of a column, without the space
  * above it on a wide screen. */
 export function FormHeading({ first, children }: { first?: boolean; children: ReactNode }) {
-  return <h2 className={`pt-4 text-xl font-semibold ${first ? 'large:pt-0' : ''}`}>{children}</h2>;
+  return <h2 className={`pt-4 text-title-large font-semibold ${first ? 'large:pt-0' : ''}`}>{children}</h2>;
 }
 
 /** A section of a long form that folds in and out (the sections of a page; Material 3 has no accordion, so it has its
  * own name): its heading, as large as a FormHeading, is a button with the arrow at its right, which turns while the
- * section is open, and a line under each section. The title's box is trimmed to the capitals and the baseline, so the space above and below the letters is equal. Folded, only the heading is shown; what is in it stays (hidden), so
+ * section is open, and a line under each section. The title's box is trimmed to the capitals and the baseline, so the space above and below the letters is equal; sections that follow each other touch (no gap from a parent's `space-y`), so the line above a title is as far from it as the line below. Folded, only the heading is shown; what is in it stays (hidden), so
  * the text and the fields keep what was written, and it shows softly when opened (.editor-reveal). It stops under the
  * top bar when the page scrolls to it. `ref`: the section, for what scrolls to it and marks it. */
 export function FoldSection({
@@ -2487,7 +2530,8 @@ export function FoldSection({
     <section
       ref={ref}
       aria-labelledby={`${id}-title`}
-      className="scroll-mt-[calc(5rem+env(safe-area-inset-top))] border-b border-outline-variant"
+      data-fold-section=""
+      className="scroll-mt-[calc(5rem+env(safe-area-inset-top))] border-b border-outline-variant [&:has(+[data-fold-section])]:mb-0 [[data-fold-section]+&]:mt-0"
     >
       <h2>
         <button
@@ -2495,7 +2539,7 @@ export function FoldSection({
           id={`${id}-title`}
           aria-expanded={open}
           aria-controls={`${id}-body`}
-          className="-mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-(--block-radius-small) px-3 py-[1.125rem] text-left text-xl font-semibold transition-colors hover:bg-surface-container-high focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+          className="-mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-(--block-radius-small) px-3 py-[1.125rem] text-left text-title-large font-semibold transition-colors hover:bg-surface-container-high focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
           onClick={onToggle}
         >
           <span className="min-w-0 flex-1 [text-box:trim-both_cap_alphabetic]">{title}</span>
@@ -2664,11 +2708,11 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
               className={`transition-[stroke-dasharray] duration-[1200ms] ease-out motion-reduce:transition-none ${seen && score > 0 ? '' : 'opacity-0'} ${tone.stroke}`}
             />
           </svg>
-          <span aria-hidden="true" className={`absolute inset-0 grid place-items-center text-4xl tabular-nums ${tone.text}`}>
+          <span aria-hidden="true" className={`absolute inset-0 grid place-items-center text-display-small tabular-nums ${tone.text}`}>
             {shown}
           </span>
         </div>
-        {title && <h3 className="text-xl font-medium">{title}</h3>}
+        {title && <h3 className="text-title-large font-medium">{title}</h3>}
         <span className="sr-only">{t.common.check.score(good.length, items.length)}</span>
       </div>
       {bad.length > 0 && <Group title={`${t.common.check.notOk} (${bad.length})`}>{bad.map(row)}</Group>}
@@ -2677,7 +2721,7 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
   );
 }
 
-/** How a link to a page looks when it is shared on social media (Facebook, LinkedIn, a message), as a card: its picture
+/** How a link to a page looks when it is shared on social media (Facebook, LinkedIn, a message), as a card: its image
  * cut to 1.91:1 (one on its side or square keeps its upper part, as the site cuts it), the site's domain in small
  * capitals, the title and the description, each cut off after two lines. It is never wider than 500 px, the width of a link
  * card in the Facebook feed, and sits at the start of its column. Material 3 has none, so it has its own name. */
@@ -2700,7 +2744,7 @@ export function SharePreview({ image, domain, title, description }: { image: str
   );
 }
 
-/** Pictures in the theme's carousel (a theme's or an app's screenshots), each opening a sheet with it whole, under its
+/** Images in the theme's carousel (a theme's or an app's screenshots), each opening a sheet with it whole, under its
  * name. */
 export function ImageCarousel({ label, images }: { label: string; images: { src: string; label: string }[] }) {
   const sheet = useRef<HTMLDialogElement>(null);
@@ -3400,8 +3444,8 @@ export function LeadingIcon({ icon: Glyph, selected = false, children }: { icon?
   );
 }
 
-/** A picture before a name in a row, as a ListItem's `leading` (Material's leading image): small and square, with the
- * corners of a field, beside its row's first two lines, as an icon; the picture a page's colours came from ("Colors" ›
+/** An image before a name in a row, as a ListItem's `leading` (Material's leading image): small and square, with the
+ * corners of a field, beside its row's first two lines, as an icon; the image a page's colours came from ("Colors" ›
  * "Pages"). `alt` empty when the row's text says what it is. */
 export function LeadingImage({ src, alt = '' }: { src: string; alt?: string }) {
   return (

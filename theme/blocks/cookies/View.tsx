@@ -6,7 +6,7 @@ import { useInText } from '@morphemecms/cms/src/standard/view';
 export default function Cookies({ view }: { view: CookiesView }) {
   const { texts } = view;
   return (
-    <div className={useInText('block-table')}>
+    <div className={useInText('block-table', 'block-table-cookies')}>
       <table>
         <thead>
           <tr>

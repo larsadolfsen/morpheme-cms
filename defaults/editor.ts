@@ -101,8 +101,8 @@ export const seoParts = [internalLinks];
 export const siteName = site.name;
 
 /** What a page shared on social media shows when it has nothing of its own (Base.astro): the site's name after its
- * title, its description and its picture (the owner's, config.picture). For the preview under "Social media" (sharedAs in seo.ts). */
-export const sharing = { name: site.name, description: site.description, picture: site.portrait };
+ * title, its description and its image (the owner's, config.image). For the preview under "Social media" (sharedAs in seo.ts). */
+export const sharing = { name: site.name, description: site.description, image: site.portrait };
 
 /** The icon of each part on the start screen and in the sidebar, by its id. */
 export const icons: Record<string, Icon> = {
@@ -175,7 +175,7 @@ export const appearance: Part[] = [
 // Appearance, Block settings, Caching and builds, Components, Morpheme and Privacy are not sections of the menu: they are the rows of the Settings
 // screen (`settings` below), opened by the cog at the bottom of the drawer and the rail.
 // Each part is a collection (collections.ts), except those named above, "privacy"'s (partScreens) and the editor's own
-// "company" (companyParts), "blocks" (blockParts), id files (the pictures, PDFs, videos and zip files), "header", "lists"
+// "company" (companyParts), "blocks" (blockParts), id files (the images, PDFs, videos and zip files), "header", "lists"
 // and "block-settings" (BlockSettings.tsx).
 // `flat` (Apps) has no list of its own: its rows stand under its label on the first level. An app installed is not a row:
 // it is on the page of its role (Connectors, Plugins) or under Themes.

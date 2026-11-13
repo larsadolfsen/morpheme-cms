@@ -66,7 +66,8 @@ import {
   TextT,
 } from '@phosphor-icons/react';
 import { LIST_KINDS, STYLE_KINDS, headingKindOf, listKindOf, styleKindOf } from './styleKind.mjs';
-import { HTML, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
+import { sizeListText, sizeOfList } from './listSize.mjs';
+import { HTML, insertBlock, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
 import { firstHeading, topHeadings } from './firstHeading.mjs';
 import { h1Of, h1TextOf, h1Written } from './titleH1.mjs';
 import { headingChoices } from '../lib/heading-levels.mjs';
@@ -84,12 +85,16 @@ import { shownAt } from './images';
 import { cropStyle, joinPicture, splitPicture } from '../lib/crop.mjs';
 import { describe, htmlBlock, type BlockProps } from './blocks';
 import { RowsFromList } from './InlineList';
-import { inlineViews } from './inlineViews';
+import { typedInPlace } from './typedInPlace.mjs';
 import type { Change, Focus, Item as Row } from './InlineItems';
+import { leaveOut } from './pageEmptyRows';
 import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
+import { addColumnAt, addRowAt, removeColumnAt, removeRowAt, trimmed } from './inlineGrid.mjs';
 import { editorRows } from './standard/rows/view';
 import { fromLine, listPageOf } from './standard/rows/fields';
-import { inlineBar, type BarAction } from './inlineBar';
+import { sourceOf, withPart } from './standard/rows/rows.mjs';
+import { rowParts } from './standard/rows/view';
+import { contextualMenu, type BarAction } from './contextualMenu';
 import { preview } from './registry';
 import { leaveTo } from './FormFrame';
 import { createRoot } from 'react-dom/client';
@@ -129,7 +134,7 @@ import dotsIcon from '@phosphor-icons/core/assets/regular/dots-three-vertical.sv
 import caretDownIcon from '@phosphor-icons/core/assets/bold/caret-down-bold.svg?raw';
 import checkIcon from '@phosphor-icons/core/assets/regular/list-checks.svg?raw';
 import tagIcon from '@phosphor-icons/core/assets/regular/tag.svg?raw';
-// ProseMirror's own styles: keep its invisible helpers (around pictures, at the end of lines) out of the layout.
+// ProseMirror's own styles: keep its invisible helpers (around images, at the end of lines) out of the layout.
 import '@milkdown/kit/prose/view/style/prosemirror.css';
 
 // parts: the text in parts, for a fixed page's sections (partsOf in markdown.mjs). h1: the text of the page's H1 (its first
@@ -143,10 +148,14 @@ export type MarkdownHandle = {
   setH1: (text: string) => void;
   /** Whether the text has nothing but its H1 and blocks: no other text, so a title typed may write the H1. */
   bare: () => boolean;
+  /** Scrolls to the block (its number among the text's blocks) and marks it as wrong, as a field is (`.editor-wrong`), until the next try. */
+  showBlock: (at: number) => void;
+  /** Leaves the empty rows out of the block (its number), or of every block without one (emptyRows.mjs); a block left with no row it must have is removed. */
+  removeEmptyRows: (at?: number) => void;
 };
 
-// addImage: asks for a picture (the gallery, Media.tsx); its address on the site. Its description is
-// asked in the sheet. Without it there is no picture button. blocks: asks which block to put in and its fields (BlockDialog);
+// addImage: asks for an image (the gallery, Media.tsx); its address on the site. Its description is
+// asked in the sheet. Without it there is no image button. blocks: asks which block to put in and its fields (BlockDialog);
 // without it there is no block button; with it a free line is kept between two blocks, and before
 // and after them (spacing in markdown.mjs). short: a smaller field, for a short text. h1: a page's text, where the
 // first heading is the page's H1 by itself (firstHeading.mjs); a blog post's H1 is its title.
@@ -155,7 +164,7 @@ type Props = {
   onChange: () => void;
   addImage?: () => Promise<string | null>;
   blocks?: BlockAsk;
-  /** The sheet a picture or HTML is changed in, when there are no blocks (a blog post). */
+  /** The sheet an image or HTML is changed in, when there are no blocks (a blog post). */
   sheet?: BlockAsk;
   short?: boolean;
   h1?: boolean;
@@ -190,7 +199,7 @@ const lookItem = (node: Node): LookItem =>
 // An empty paragraph: a free line between two blocks, which the arrows on a card skip.
 const isGap = (node: Node) => node.type.name === 'paragraph' && node.content.size === 0;
 
-// A card: a block, or a picture (in a paragraph of its own).
+// A card: a block, or an image (in a paragraph of its own).
 const isCard = (node: Node | null | undefined) => !!node && (node.type.name === 'siteBlock' || node.type.name === 'image');
 
 // Whether deleting back (or forward) from the cursor reaches a card: one is selected, right before
@@ -266,6 +275,46 @@ const hintTap = $prose(
     }),
 );
 
+// A tap in the white below a section's last part, or between two sections (the text's own padding, no node there), puts the cursor in a
+// free line there: the empty paragraph that is already after the part, or a new one that exists only in the editor (markdownOf leaves
+// an empty paragraph out of the saved text, so nothing is written unless something is typed in it).
+const tapBelow = $prose(
+  () =>
+    new Plugin({
+      props: {
+        handleDOMEvents: {
+          click: (view, event) => {
+            if (event.target !== view.dom) return false;
+            const { doc, schema } = view.state;
+            const y = (event as MouseEvent).clientY;
+            const sections = (node: Node) => node.type.name === 'heading' && node.attrs.level <= 2;
+            let hit: { node: Node; pos: number; next: Node | null } | null = null;
+            doc.forEach((node, pos, i) => {
+              const dom = view.nodeDOM(pos);
+              if (dom instanceof HTMLElement && dom.getBoundingClientRect().bottom <= y) hit = { node, pos, next: doc.maybeChild(i + 1) };
+            });
+            const at = hit as { node: Node; pos: number; next: Node | null } | null;
+            if (!at) return false;
+            let h2 = false;
+            doc.forEach((node) => void (h2 ||= node.type.name === 'heading' && node.attrs.level === 2));
+            // The end of the text (when it has sections), or the end of a section: the next part is the heading that starts another.
+            if (at.next ? !sections(at.next) : !h2) return false;
+            let tr = view.state.tr;
+            let free = at.pos + 1;
+            if (!isGap(at.node)) {
+              free = at.pos + at.node.nodeSize + 1;
+              tr = tr.insert(at.pos + at.node.nodeSize, schema.nodes.paragraph.create()).setMeta('addToHistory', false);
+            }
+            view.dispatch(tr.setSelection(Selection.near(tr.doc.resolve(free), -1)).scrollIntoView());
+            view.focus();
+            event.preventDefault();
+            return true;
+          },
+        },
+      },
+    }),
+);
+
 // A tap on the box of a check list item (its ::before, in the padding left of the text; editor.css) checks or unchecks it.
 const checkToggle = $prose(
   () =>
@@ -295,7 +344,7 @@ let closeOpenMenu: (() => void) | null = null;
 type CardItem = { icon: string; label: string; action: (keyboard: boolean) => void; danger?: boolean };
 
 // The part of the text at the top level before or after the one at index i (a block, or a paragraph
-// with a picture), skipping the free lines between; null at the start or end.
+// with an image), skipping the free lines between; null at the start or end.
 function neighbour(doc: Node, i: number, by: -1 | 1) {
   let j = i + by;
   while (doc.maybeChild(j) && isGap(doc.child(j))) j += by;
@@ -339,7 +388,7 @@ function move(view: EditorView, i: number, by: -1 | 1): number | null {
       el.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], motionTiming('spatial'));
   });
   if (at < 0) return null;
-  // Where it went, in view (one step: past one block, paragraph, heading or picture).
+  // Where it went, in view (one step: past one block, paragraph, heading or image).
   const moved = partDOM(view, at);
   requestAnimationFrame(() => moved?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' }));
   return at;
@@ -380,7 +429,7 @@ const moves = (view: EditorView, i: number | null, locked: string[] = []): CardI
   ];
 };
 
-// The row of icons on a card (a block or a picture) in the text, opened by tapping it: items, as
+// The row of icons on a card (a block or an image) in the text, opened by tapping it: items, as
 // they are when it opens (no row when there are none). `tap` runs first on a tap that opens the row (not on one that
 // closes it): from expanded it opens the card's side panel. Returns how to close it.
 function cardMenu(
@@ -471,9 +520,9 @@ function cardMenu(
   return close;
 }
 
-// The address of a picture from its sheet: with its format and crop after it, and marked when it is decorative
+// The address of an image from its sheet: with its format and crop after it, and marked when it is decorative
 // (crop.mjs).
-const pictureSrc = (props: BlockProps) =>
+const imageSrc = (props: BlockProps) =>
   joinPicture(
     String(props.src),
     String(props.format ?? ''),
@@ -481,11 +530,11 @@ const pictureSrc = (props: BlockProps) =>
     props.decorative === true,
   );
 
-// A picture in the text as a card like a block's, cut to its format, with a menu to change it
-// (another picture, its description for screen readers, its format), move it with its paragraph and
+// An image in the text as a card like a block's, cut to its format, with a menu to change it
+// (another image, its description for screen readers, its format), move it with its paragraph and
 // remove it.
 // sheet: where it is changed (the sheet of the blocks, BlockDialog.tsx).
-function pictureCard(node: Node, view: EditorView, getPos: () => number | undefined, sheet: () => BlockAsk | undefined) {
+function imageCard(node: Node, view: EditorView, getPos: () => number | undefined, sheet: () => BlockAsk | undefined) {
   const dom = document.createElement('span');
   dom.className = 'site-block site-picture';
   dom.contentEditable = 'false';
@@ -513,14 +562,14 @@ function pictureCard(node: Node, view: EditorView, getPos: () => number | undefi
     const pos = getPos();
     if (!props || pos === undefined) return;
     view.dispatch(
-      view.state.tr.setNodeMarkup(pos, undefined, { ...node.attrs, src: pictureSrc(props), alt: String(props.alt ?? '').trim() }),
+      view.state.tr.setNodeMarkup(pos, undefined, { ...node.attrs, src: imageSrc(props), alt: String(props.alt ?? '').trim() }),
     );
   };
   const remove = () => {
     const pos = getPos();
     if (pos !== undefined) view.dispatch(view.state.tr.delete(pos, pos + node.nodeSize));
   };
-  // From expanded a picture's sheet is the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
+  // From expanded an image's sheet is the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
   const inPanelNow = () => editsInPanel(atLeastNow('expanded'), true);
   const close = cardMenu(
     view,
@@ -613,6 +662,11 @@ export function activeOf(state: EditorView['state']): Set<string> {
     if ($from.parent.attrs.align === 'center' || $from.parent.attrs.align === 'right') on.add(`align-${$from.parent.attrs.align}`);
   }
   if (ancestors.includes('bullet_list')) on.add(isCheckItem(state) ? 'check' : 'bullet');
+  // The size of the text of a list item (the mark textSize): small, large, or medium when it has none.
+  if (inListItem(state)) {
+    const size = sizeOfList(state);
+    on.add(size ?? 'medium');
+  }
   if (ancestors.includes('ordered_list')) on.add('ordered');
   if (ancestors.includes('blockquote')) on.add('quote');
   if ($from.parent.type.name === 'paragraph' && !on.has('bullet') && !on.has('check') && !on.has('ordered') && !on.has('quote'))
@@ -624,6 +678,13 @@ export function activeOf(state: EditorView['state']): Set<string> {
     if (section.color) on.add(`section-${section.color}`);
   }
   return on;
+}
+
+// Whether the cursor is in a list item of any kind: a list item is not a heading, so the heading controls are not offered there.
+function inListItem(state: EditorView['state']) {
+  const { $from } = state.selection;
+  for (let d = $from.depth; d > 0; d--) if ($from.node(d).type.name === 'list_item') return true;
+  return false;
 }
 
 // Whether the cursor is in an item of a check list (a list item with a box, `- [ ]`).
@@ -838,7 +899,7 @@ function selectionMenu(ctx: Ctx, h1: boolean, kinds: (button: HTMLElement, group
             if (heading(view.state, level)) run(turnIntoTextCommand);
             else run(wrapInHeadingCommand, level);
           },
-          off: (s) => levels(s).length > 1,
+          off: (s) => levels(s).length > 1 || inListItem(s),
         },
         // The headings offered, in a menu: a plain H (the menu marks the level there is, the button's name says it). Not
         // marked: it is the one control that shows the heading's level.
@@ -851,7 +912,7 @@ function selectionMenu(ctx: Ctx, h1: boolean, kinds: (button: HTMLElement, group
             };
           },
           action: (button) => kinds(button, 'headings'),
-          off: (s) => levels(s).length < 2,
+          off: (s) => levels(s).length < 2 || inListItem(s),
           menu: true,
         },
         // The rest, in a sheet from the bottom.
@@ -1013,9 +1074,9 @@ function blockCard(
   // A block gone from the site by itself (a notice whose time is over) is greyed like a hidden one.
   const over = !!block?.over?.(node.attrs.props);
   // A block typed in place (InlineList.tsx): its card is not a button to tap but the block itself, with its menu on a handle.
-  const inline = !!block?.inline && !!inlineViews[node.attrs.type] && node.attrs.type !== HTML;
+  const inline = typedInPlace(block) && node.attrs.type !== HTML;
   const spec = block?.inline;
-  const Inline = inlineViews[node.attrs.type];
+  const Inline = block?.inlineView!; // drawn only when `inline` (typedInPlace: it has a view)
   const dom = document.createElement('div');
   dom.className = hidden || over ? 'site-block site-block-hidden' : 'site-block';
   dom.contentEditable = 'false';
@@ -1033,25 +1094,47 @@ function blockCard(
   }
   const shown = card.appendChild(document.createElement('div'));
   shown.className = ask?.data.page ? 'site-block-preview site-block-section not-prose' : 'site-block-preview not-prose';
-  // What is typed in place is for screen readers too; the picture of any other block is not.
+  // What is typed in place is for screen readers too; the image of any other block is not.
   if (!inline) shown.setAttribute('aria-hidden', 'true');
   const root = createRoot(shown);
   // Typed in place: which row is active (null: none, the block shows its live look), and the field to put the cursor in.
   let active: number | null = null;
   let focus: Focus | null = null;
-  // Its floating toolbar (made below, with the block's menu).
-  let bar: ReturnType<typeof inlineBar> | null = null;
+  // A grid (the Table): the column of the active cell.
+  let col: number | null = null;
+  // Its contextual menu (made below, with the block's menu).
+  let bar: ReturnType<typeof contextualMenu> | null = null;
   let syncRow: (open: boolean) => void = () => {};
   // The row whose icon picker is open instead of its settings.
   let iconOf: number | null = null;
   const settings = () => {
     iconOf = null;
+    dynOpen = false;
     syncRow(true);
   };
+  // A block that can read a list ("Rows from"): the dynamic block is selected (its contextual menu shows) and its dynamic settings are in
+  // the panel or sheet (`dynOpen`); `dropped`: its typed rows were just set aside by switching to a list, and Undo brings them back.
+  let dynSelected = false;
+  let dynOpen = false;
+  let dropped = false;
   let stopAway = () => {};
-  const rows = () => (node.attrs.props[spec?.item ?? 'items'] as Row[] | undefined) ?? [];
+  let syncDynamic: () => void = () => {};
+  let undoDynamic: () => void = () => {};
+  let pickPart: (part: string) => void = () => {};
+  // A block with no list (Notice, Video): its props are its one item.
+  const single = !!spec?.single;
+  const rows = () => (single ? [node.attrs.props as Row] : ((node.attrs.props[spec?.item ?? 'items'] as Row[] | undefined) ?? []));
   const setItems = (items: Row[]) => {
     const here = at();
+    if (here && single) {
+      // The typed fields of the one item are put in the props; one that is emptied is left out, as the text of the block would be.
+      const props: BlockProps = { ...node.attrs.props };
+      for (const [name, value] of Object.entries(items[0] ?? {})) {
+        if (value === '' || value === undefined) delete props[name];
+        else props[name] = value;
+      }
+      return void view.dispatch(view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props }));
+    }
     if (here)
       view.dispatch(
         view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props: { ...node.attrs.props, [spec?.item ?? 'items']: items } }),
@@ -1059,7 +1142,9 @@ function blockCard(
   };
   const change = (c: Change) => {
     if ('active' in c) active = c.active ?? null;
+    if (active !== null) dynOpen = false;
     if ('focus' in c) focus = c.focus ?? null;
+    if ('col' in c) col = c.col ?? null;
     if (c.items) setItems(c.items);
     else draw();
   };
@@ -1077,6 +1162,12 @@ function blockCard(
         flushSync(() =>
           root.render(
             <RowsFromList
+              undo={dropped ? { note: t.blocks.rows.typedHidden, label: t.text.undo, run: undoDynamic } : undefined}
+              parts={rowParts(node.attrs.props)?.map((p) => ({
+                part: p.part,
+                text: `${t.blocks.rows.parts[p.part]}: ${p.nowLabel || t.blocks.rows.noField}`,
+              }))}
+              onPart={rowParts(node.attrs.props) ? (part) => pickPart(part) : undefined}
               rows={dynamic.rows}
               line={fromLine(node.attrs.props, ask.data)[0] ?? ''}
               empty={dynamic.rows.length === 0}
@@ -1084,9 +1175,11 @@ function blockCard(
             />,
           ),
         );
-        bar?.refresh(false);
+        syncDynamic();
+        bar?.refresh(dynSelected);
         return;
       }
+      dropped = false;
       flushSync(() =>
         root.render(
           <Inline
@@ -1094,32 +1187,42 @@ function blockCard(
             props={node.attrs.props}
             data={ask.data}
             active={active}
+            col={col}
             focus={focus}
             onChange={change}
             onSettings={settings}
+            onEdit={() => void edit()}
+            onProps={(patch) => {
+              const here = at();
+              if (here)
+                view.dispatch(
+                  view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props: { ...node.attrs.props, ...patch } }),
+                );
+            }}
             onIcon={(row) => {
-              // The row's icon slot: the icon picker at once, not the settings.
+              // The row's icon slot, also on a row that is not active: the row becomes the active one and its icon picker opens at once, not the settings.
               iconOf = row;
+              if (active !== row) change({ active: row, focus: null });
               syncRow(true);
             }}
           />,
         ),
       );
       syncRow(false);
-      bar?.refresh(active !== null);
+      bar?.refresh(active !== null || dynSelected);
       return;
     }
     const lines = block ? describe(block, node.attrs.props, ask.data) : [];
     card.setAttribute('aria-description', [hidden ? t.text.hiddenOnPage : '', ...lines].filter(Boolean).join('. '));
-    // Without a picture of it, what is in it, in lines.
-    const picture = preview(node.attrs.type, node.attrs.props, ask.data) ?? (
+    // Without an image of it, what is in it, in lines.
+    const image = preview(node.attrs.type, node.attrs.props, ask.data) ?? (
       <div className="site-block-lines">
         {lines.map((line, i) => (
           <span key={i}>{line}</span>
         ))}
       </div>
     );
-    flushSync(() => root.render(picture));
+    flushSync(() => root.render(image));
   };
   // A block just put in (a new List) starts with its first row active and the cursor in it (known by its props, which the new node keeps).
   // The sheet it came from is closing and gives the focus back to what had it: wait until no sheet is open.
@@ -1180,67 +1283,249 @@ function blockCard(
   // only edited, and the last shown one of a block the page must have cannot be hidden or removed.
   // From expanded the block's fields are in the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
   const inPanelNow = () => !inline && editsInPanel(atLeastNow('expanded'), !!block?.fields.length);
-  // Typed in place: the floating toolbar (inlineBar.ts) has the row actions, and its last button opens the block's own menu below.
+  // Typed in place: the contextual menu (contextualMenu.ts) has the row actions, and its last button opens the block's own menu below.
   let handle = card;
   if (inline) {
     const rowFieldsOf = (names: string[]) =>
-      (block?.fields.find((f) => f.name === spec!.item)?.fields ?? []).filter((f) => names.includes(f.name));
+      (single ? block!.fields : (block?.fields.find((f) => f.name === spec!.item)?.fields ?? [])).filter((f) => names.includes(f.name));
     // The settings (link and small heading) and the icon picker, which the row's icon slot opens.
     const itemNames = spec!.settings ?? (spec!.link ? [spec!.link] : []);
     const slotNames = spec!.media ?? (spec!.icon ? [spec!.icon] : []);
     const itemFields = rowFieldsOf(itemNames);
-    // The icon slot of a List opens the icon picker; a card's media slot has the media fields (its kind and what it shows).
-    const iconFields = rowFieldsOf(slotNames).map((f) => (spec!.media ? f : { ...f, iconsOpen: true }));
-    const valueOf = (row: Row, names: string[]) => Object.fromEntries(names.map((n) => [n, row[n] ?? rowFieldsOf([n])[0]?.default ?? '']));
+    // The icon slot of a List opens the icon picker; a card's media sheet has the media fields (what it shows, the icon picker open at once), and the first card's has the
+    // block's one media choice for every card too (`blockMedia`).
+    const iconFields = rowFieldsOf(slotNames).map((f) => ({ ...f, iconsOpen: true }));
+    const blockNames = spec!.blockMedia ?? [];
+    const blockFields = (block?.fields ?? []).filter((f) => blockNames.includes(f.name));
+    // The block's own values that the item's fields depend on (a card's icon, image or video by the block's media).
+    const blockValue = () =>
+      Object.fromEntries(blockNames.map((n) => [n, node.attrs.props[n] ?? blockFields.find((f) => f.name === n)?.default ?? '']));
+    const valueOf = (row: Row, names: string[]) => ({
+      ...blockValue(),
+      ...Object.fromEntries(
+        names.map((n) => {
+          const field = rowFieldsOf([n])[0];
+          // A list (a card's buttons) is none, not an empty text; a switch is off.
+          return [n, row[n] ?? field?.default ?? (field?.type === 'list' ? [] : field?.type === 'boolean' ? false : '')];
+        }),
+      ),
+    });
     const setFields = (list: Row[], i: number, names: string[], v: BlockProps) =>
-      names.reduce((items, n) => setField(items, i, n, String(v[n] ?? ''), spec!.fields[0]), list);
+      single
+        ? [
+            {
+              ...list[0],
+              // A switch or a list (a block's tags) is kept as it is, a text as text.
+              ...Object.fromEntries(names.map((n) => [n, typeof v[n] === 'boolean' || Array.isArray(v[n]) ? v[n] : String(v[n] ?? '')])),
+            },
+          ]
+        : names.reduce(
+            // A switch or a list (a price card's Highlighted and button) is kept as it is, a text as text.
+            (items, n) =>
+              setField(items, i, n, typeof v[n] === 'boolean' || Array.isArray(v[n]) ? v[n] : String(v[n] ?? ''), spec!.fields[0]),
+            list,
+          );
+    // The block's props with its own media choice changed (from the first card's sheet) and the items changed, in one step.
+    const setBlockAndItems = (items: Row[], v: BlockProps) => {
+      const here = at();
+      if (!here) return;
+      const own = Object.fromEntries(blockNames.map((n) => [n, v[n]]));
+      const props = { ...node.attrs.props, ...own, [spec!.item]: items };
+      view.dispatch(view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props }));
+    };
+    // A block with no link, settings or icon (Steps) has no item sheet: no Link action, and no gear unless it has block settings.
     const compact = () => !atLeastNow('expanded');
     // The active row has something in it (the row actions are for a row, not for the empty one being started).
+    // A grid (the Table): a row or a column of the active cell is added (before or after) or deleted; the cursor stays in the cell.
+    const gridActions = (g: NonNullable<typeof spec>['grid'] & object, list: string[][]): BarAction[] => {
+      if (active === null) return [];
+      const [r, c] = [active, col ?? 0];
+      const go = (cells: string[][], row: number, column: number) =>
+        change({ items: cells as unknown as Row[], active: row, col: column, focus: { row, field: String(column) } });
+      return [
+        { kind: 'above', label: spec!.texts.addAbove, action: () => go(addRowAt(list, r), r, c) },
+        { kind: 'below', label: spec!.texts.addBelow, action: () => go(addRowAt(list, r + 1), r + 1, c) },
+        { kind: 'column-before', label: g.addColumnBefore, action: () => go(addColumnAt(list, c), r, c) },
+        { kind: 'column-after', label: g.addColumnAfter, action: () => go(addColumnAt(list, c + 1), r, c + 1) },
+        ...(list.length > 1 && r < list.length
+          ? [{ kind: 'delete' as const, label: g.deleteRow, action: () => go(removeRowAt(list, r), Math.min(r, list.length - 2), c) }]
+          : []),
+        ...((list[0]?.length ?? 1) > 1 && c < (list[0]?.length ?? 1)
+          ? [
+              {
+                kind: 'delete' as const,
+                label: g.deleteColumn,
+                action: () => go(removeColumnAt(list, c), r, Math.min(c, (list[0]?.length ?? 1) - 2)),
+              },
+            ]
+          : []),
+      ];
+    };
     const rowActions = (): BarAction[] => {
       const list = rows();
-      if (active === null || active >= list.length || isEmptyRow(list[active])) return [];
+      if (spec!.grid) return gridActions(spec!.grid, list as unknown as string[][]);
+      // A card's link is the bar's Link, also while the card is still empty (its sheet has the page and the buttons).
+      if (
+        !single &&
+        !isDynamic() &&
+        active !== null &&
+        spec!.settings &&
+        spec!.barLink !== false &&
+        (active >= list.length || isEmptyRow(list[active]))
+      )
+        return [{ kind: 'link', label: spec!.texts.link ?? '', action: settings }];
+      if (single || isDynamic() || active === null || active >= list.length || isEmptyRow(list[active])) return [];
       const i = active;
       const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: spec!.fields[0] } });
       return [
-        ...(itemNames.length ? [{ kind: 'link' as const, label: spec!.texts.link, action: settings }] : []),
-        { kind: 'above', label: spec!.texts.addAbove, action: () => go(addAt(list, i, spec!.fields[0]), i) },
-        { kind: 'below', label: spec!.texts.addBelow, action: () => go(addAt(list, i + 1, spec!.fields[0]), i + 1) },
+        ...(itemNames.length && spec!.barLink !== false
+          ? [{ kind: 'link' as const, label: spec!.texts.link ?? '', action: settings }]
+          : []),
+        ...(spec!.max === undefined || list.length < spec!.max
+          ? [
+              { kind: 'above' as const, label: spec!.texts.addAbove, action: () => go(addAt(list, i, spec!.fields[0]), i) },
+              { kind: 'below' as const, label: spec!.texts.addBelow, action: () => go(addAt(list, i + 1, spec!.fields[0]), i + 1) },
+            ]
+          : []),
         ...(i > 0 ? [{ kind: 'up' as const, label: t.common.moveUp, action: () => go(moveBy(list, i, -1), i - 1) }] : []),
         ...(i < list.length - 1 ? [{ kind: 'down' as const, label: t.common.moveDown, action: () => go(moveBy(list, i, 1), i + 1) }] : []),
       ];
     };
-    bar = inlineBar({
+    // The dynamic settings: where the rows come from (the block's `Rows from`, tags and How many, its own fields), live in the panel or sheet.
+    // Only a block with `Rows from` has them. Switching to a list sets the typed rows aside (they stay in the file) and offers Undo.
+    const dynamicNames = ['from', 'tags', 'howMany', 'button'];
+    const dynamicFields = (block?.fields ?? []).filter((f) => dynamicNames.includes(f.name));
+    const canDynamic = dynamicFields.some((f) => f.name === 'from');
+    const isDynamic = () => !!sourceOf(node.attrs.props.from);
+    const setProps = (props: BlockProps) => {
+      const here = at();
+      if (here) view.dispatch(view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props }));
+    };
+    const dynamicSpec = () => {
+      const props = node.attrs.props;
+      return {
+        headline: block?.nameOf?.(props) ?? block?.label ?? node.attrs.type,
+        fields: dynamicFields,
+        value: Object.fromEntries(dynamicFields.map((f) => [f.name, props[f.name] ?? (f.multiple ? [] : '')])),
+        onChange: (v: BlockProps) => {
+          const now_ = node.attrs.props;
+          const was = sourceOf(now_.from);
+          const next = { ...now_ };
+          for (const f of dynamicFields) {
+            const value = v[f.name];
+            if (value === undefined || value === '' || (Array.isArray(value) && !value.length)) delete next[f.name];
+            else next[f.name] = value;
+          }
+          const now = sourceOf(next.from);
+          // Another list has other tags and other fields: the tags and the choice of fields start over.
+          if (was !== now) {
+            delete next.tags;
+            delete next.map;
+          }
+          dropped = !was && !!now && rows().some((r) => !isEmptyRow(r));
+          if (!now) dropped = false;
+          setProps(next);
+        },
+      };
+    };
+    // Updates the panel when it shows these settings (not another block's row).
+    syncDynamic = () => {
+      if (dynOpen) asker()?.row(dynamicSpec(), false);
+    };
+    const openDynamic = () => {
+      iconOf = null;
+      active = null;
+      focus = null;
+      dynSelected = true;
+      dynOpen = true;
+      asker()?.row(dynamicSpec(), true);
+      draw();
+    };
+    undoDynamic = () => {
+      dropped = false;
+      const { from: _from, tags: _tags, howMany: _howMany, map: _map, ...rest } = node.attrs.props;
+      setProps(rest);
+      syncDynamic();
+    };
+    // A part of a row (top line, bottom line, icon, link) set to a field of the list: the choice is in the panel or sheet (a select, as the list is),
+    // and changes the block at once. The block keeps only a choice the list does not make itself (`map`).
+    pickPart = (part: string) => {
+      const info = rowParts(node.attrs.props)?.find((p) => p.part === part);
+      if (!info) return;
+      const none = part !== 'title' ? [{ label: t.blocks.rows.noField, value: '' }] : [];
+      iconOf = null;
+      dynSelected = true;
+      dynOpen = false;
+      asker()?.row(
+        {
+          headline: t.blocks.rows.parts[part as keyof typeof t.blocks.rows.parts],
+          fields: [
+            {
+              name: 'field',
+              label: t.blocks.rows.fieldShown,
+              type: 'select',
+              options: [...none, ...info.choices.map((c) => ({ label: c.label, value: c.name }))],
+            },
+          ],
+          value: { field: info.now ?? '' },
+          closes: true,
+          onChange: (v: BlockProps) => {
+            const map = withPart(info.asRows, node.attrs.props.map, part as 'title', String(v.field ?? ''));
+            const { map: _old, ...rest } = node.attrs.props;
+            setProps(map ? { ...rest, map } : rest);
+          },
+        },
+        true,
+      );
+      draw();
+    };
+    if (canDynamic)
+      dom.addEventListener('pointerdown', () => {
+        if (!isDynamic() || dynSelected) return;
+        dynSelected = true;
+        draw();
+      });
+    bar = contextualMenu({
       name,
       dom,
       rowActions,
-      // A block with nothing to set on an item (the FAQ list) has the block's own settings behind the gear.
-      edit: itemNames.length || slotNames.length ? settings : () => void edit(),
+      // A block that reads a list has the dynamic settings behind the gear; a block with nothing to set on an item has the block's own
+      // settings behind it (the FAQ list), or no gear (Steps).
+      edit: isDynamic()
+        ? openDynamic
+        : itemNames.length || slotNames.length
+          ? settings
+          : spec!.blockSettings === true
+            ? () => void edit()
+            : undefined,
       compact,
-      labels: { row: spec!.texts.row, edit: t.common.edit },
+      labels: { edit: t.common.edit },
+      dynamic: canDynamic ? { label: t.blocks.rows.dynamicTip, on: isDynamic, action: openDynamic } : undefined,
     });
     handle = bar.block;
     // The settings of the active row (its icon and link), live: from expanded in the side panel while a row is active, below it in a bottom
     // sheet that Edit opens (`open`: a row's slot or Edit; else only an open sheet is updated).
     syncRow = (open) => {
       const sheet = asker();
-      if (sheet && active !== null && (itemNames.length || slotNames.length)) sheet.row(specOf(active), open || !compact());
+      if (sheet && active !== null && !dynOpen && (itemNames.length || slotNames.length)) sheet.row(specOf(active), open || !compact());
     };
     const specOf = (i: number) => {
       const row = rows()[i] ?? {};
       if (iconOf === i)
         return {
-          headline: spec!.texts.icon,
-          fields: iconFields,
+          headline: spec!.texts.icon ?? '',
+          fields: i === 0 ? [...blockFields, ...iconFields] : iconFields,
           value: valueOf(row, slotNames),
           // The icon picker closes when an icon is picked; the media fields stay open for the next choice.
           closes: !spec!.media,
           onChange: (v: BlockProps) => {
             if (!spec!.media) iconOf = null;
-            setItems(setFields(rows(), i, slotNames, v));
+            if (i === 0 && blockNames.length) setBlockAndItems(setFields(rows(), i, slotNames, v), v);
+            else setItems(setFields(rows(), i, slotNames, v));
           },
         };
       return {
-        headline: spec!.texts.settings,
+        headline: spec!.texts.settings ?? '',
         fields: itemFields,
         value: valueOf(row, itemNames),
         onChange: (v: BlockProps) => setItems(setFields(rows(), i, itemNames, v)),
@@ -1252,14 +1537,20 @@ function blockCard(
       target instanceof Element &&
       (dom.contains(target) || bar!.el.contains(target) || !!target.closest('.editor-side-sheet, dialog[open]'));
     const away = (e: Event) => {
-      if (active === null || inside(e.target)) return;
+      if ((active === null && !dynSelected) || inside(e.target)) return;
+      // A dynamic block has no row being typed in: the focus going back to the text (as a sheet opens or closes) is not leaving it, only a tap elsewhere is.
+      if (e.type === 'focusin' && active === null) return;
       active = null;
+      col = null;
       iconOf = null;
       focus = null;
+      dynSelected = false;
+      dynOpen = false;
       asker()?.row(null);
       const list = rows();
-      const kept = withoutEmpty(list);
-      if (kept !== list) setItems(kept);
+      // A grid loses the empty rows and columns at its end (what was started in the next one and left); a list its empty rows.
+      const kept = spec!.grid ? (trimmed(list as unknown as string[][]) as unknown as Row[]) : single ? list : withoutEmpty(list);
+      if (spec!.grid ? JSON.stringify(kept) !== JSON.stringify(list) : kept !== list) setItems(kept);
       else draw();
     };
     document.addEventListener('pointerdown', away, true);
@@ -1279,8 +1570,13 @@ function blockCard(
       const { rules, locked, stays } = keeps();
       return [
         block?.fields.length
-          ? (!inline || spec?.blockSettings) && !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
+          ? (!inline || (typeof spec?.blockSettings === 'function' ? spec.blockSettings(node.attrs.props) : spec?.blockSettings)) &&
+            !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
           : block?.edit && { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
+        // A block typed in place that reads a list of the site (Testimonials, Blog posts): the page of the list is in its menu too.
+        inline && block?.fields.length && block.edit
+          ? { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) }
+          : undefined,
         block?.shown || (stays && hidden === false)
           ? undefined
           : { icon: hidden ? eyeIcon : eyeSlashIcon, label: hidden ? t.text.showOnPage : t.text.hideOnPage, action: toggle },
@@ -1418,7 +1714,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         () => moreRef.current(),
       ),
     );
-    const pictureView = $view(imageSchema.node, () => (node, view, getPos) => pictureCard(node, view, getPos, () => sheeted.current));
+    const imageView = $view(imageSchema.node, () => (node, view, getPos) => imageCard(node, view, getPos, () => sheeted.current));
     const cardView = $view(
       siteBlockSchema.node,
       () => (node, view, getPos) => blockCard(node, view, getPos, () => sheeted.current, cards.current),
@@ -1446,7 +1742,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     );
     let made = makeEditor(root.current, value)
       .use(cardView)
-      .use(pictureView)
+      .use(imageView)
       .use(selecting)
       .use(cardDeletes)
       .use(marking)
@@ -1455,6 +1751,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(sectionFrame(framed))
       .use(gapHere)
       .use(hintTap)
+      .use(tapBelow)
       .use(checkToggle)
       .use(history)
       .use(clipboard);
@@ -1501,6 +1798,36 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         });
         return bare;
       }),
+    showBlock: (at) =>
+      editor.current?.action((ctx) => {
+        const view = ctx.get(editorViewCtx);
+        let n = -1;
+        view.state.doc.forEach((node, pos) => {
+          if (node.type.name !== 'siteBlock' || ++n !== at) return;
+          const el = view.nodeDOM(pos);
+          if (!(el instanceof HTMLElement)) return;
+          for (const old of view.dom.querySelectorAll('.editor-wrong')) old.classList.remove('editor-wrong');
+          void el.offsetWidth;
+          el.classList.add('editor-wrong');
+          el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+        });
+      }),
+    removeEmptyRows: (at) =>
+      editor.current?.action((ctx) => {
+        const view = ctx.get(editorViewCtx);
+        let tr = view.state.tr;
+        let n = -1;
+        // From the end, so the places of the blocks before it stay.
+        const blocks: { pos: number; node: Node; at: number }[] = [];
+        view.state.doc.forEach((node, pos) => node.type.name === 'siteBlock' && blocks.push({ pos, node, at: ++n }));
+        for (const { pos, node, at: i } of blocks.reverse()) {
+          if (node.attrs.props?.hidden || (at !== undefined && at !== i)) continue;
+          const left = leaveOut(node.attrs.type, node.attrs.props);
+          if (left === undefined) continue;
+          tr = left === null ? tr.delete(pos, pos + node.nodeSize) : tr.setNodeMarkup(pos, undefined, { ...node.attrs, props: left });
+        }
+        if (tr.docChanged) view.dispatch(tr);
+      }),
     setH1: (text) =>
       editor.current?.action((ctx) => {
         const view = ctx.get(editorViewCtx);
@@ -1531,6 +1858,11 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       const outOfQuotes = () => {
         for (let i = 0; i < 10 && is('quote') && lift(view.state, view.dispatch); i++);
       };
+      // A size picked in a list item keeps the list: the text of the items has the size (a mark, lib/text-sizes.mjs).
+      if (['small', 'medium', 'large'].includes(kind) && (is('bullet') || is('check') || is('ordered'))) {
+        sizeListText(view, kind);
+        return view.focus();
+      }
       if (kind === 'label') {
         toggleLabel(view);
         return view.focus();
@@ -1639,13 +1971,13 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     editor.current?.action((ctx) => ctx.get(editorViewCtx).focus());
   };
 
-  // The sheet with the settings of the section the cursor is in (its colour, picture and width), then those set.
+  // The sheet with the settings of the section the cursor is in (its colour, image and width), then those set.
   async function sectionSettings() {
     let current: ReturnType<typeof sectionHeading> = null;
     editor.current?.action((ctx) => void (current = sectionHeading(ctx.get(editorViewCtx).state)));
     const at = current as ReturnType<typeof sectionHeading>;
     if (!at) return;
-    const answered = await (blocks ?? sheetProp)?.section(at, { picture: true });
+    const answered = await (blocks ?? sheetProp)?.section(at, { image: true });
     if (!answered) return;
     editor.current?.action((ctx) => {
       const view = ctx.get(editorViewCtx);
@@ -1654,21 +1986,21 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     });
   }
 
-  // A new picture from the gallery, then the sheet with it and what it shows, where it can still be
+  // A new image from the gallery, then the sheet with it and what it shows, where it can still be
   // changed or left out (the browser's own box for what it shows without a sheet).
   async function image() {
     const src = await addImage!();
     if (!src) return;
     const sheet = blocks ?? sheetProp;
     const picked = await sheet?.edit(IMAGE, { src, alt: '' }, true);
-    if (picked && picked !== 'remove') run(insertImageCommand, { src: pictureSrc(picked), alt: String(picked.alt ?? '').trim() });
+    if (picked && picked !== 'remove') run(insertImageCommand, { src: imageSrc(picked), alt: String(picked.alt ?? '').trim() });
   }
 
   // Puts the chosen block where the cursor is (a paragraph is split around it), or after the block
   // that is selected. With no text after it, an empty paragraph follows, where the cursor goes, so
   // the next text or block comes after it instead of replacing it.
   async function block() {
-    // The blocks and pictures in the text now, for how many of a type there may be (the template).
+    // The blocks and images in the text now, for how many of a type there may be (the template).
     let have: string[] = [];
     editor.current?.action((ctx) => {
       const doc = ctx.get(editorViewCtx).state.doc;
@@ -1682,17 +2014,10 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       const view = ctx.get(editorViewCtx);
       const { state } = view;
       const node = siteBlockSchema.type(ctx).create({ type: chosen.type, props: chosen.props });
-      if (blocks!.list.find((b) => b.type === chosen.type)?.inline) fresh.add(chosen.props);
-      let tr = state.tr;
-      // Where the new block ends, when the cursor must be moved past it (-1: it is in text already).
-      let end = -1;
-      if (state.selection instanceof NodeSelection) {
-        tr = tr.insert(state.selection.to, node);
-        end = state.selection.to + node.nodeSize;
-      } else {
-        tr = tr.replaceSelectionWith(node);
-        if (tr.selection instanceof NodeSelection) end = tr.selection.to;
-      }
+      if (typedInPlace(blocks!.list.find((b) => b.type === chosen.type))) fresh.add(chosen.props);
+      // At the top level of the text, never inside a list item or a quote (a block there is drawn indented and written indented).
+      // `end`: where the new block ends, when the cursor must be moved past it (-1: it is in text already).
+      let { tr, end } = insertBlock(state, node);
       if (end >= 0) {
         if (!tr.doc.resolve(end).nodeAfter?.isTextblock) tr = tr.insert(end, state.schema.nodes.paragraph.create());
         tr = tr.setSelection(TextSelection.create(tr.doc, end + 1));
@@ -1701,7 +2026,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       const chosenBlock = blocks!.list.find((b) => b.type === chosen.type);
       if (chosenBlock?.lead?.heading) {
         let at = -1;
-        tr.doc.forEach((n, offset) => void (n === node && (at = offset)));
+        tr.doc.forEach((n: Node, offset: number) => void (n === node && (at = offset)));
         if (at >= 0) {
           tr = tr.insert(at, state.schema.nodes.heading.create({ level: 2 }, state.schema.text(chosenBlock.label)));
           tr = tr.setSelection(TextSelection.create(tr.doc, at + 1, at + 1 + chosenBlock.label.length));
@@ -1712,7 +2037,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     });
   }
 
-  const all: {
+  // Not a heading control in a list item: it cannot be a heading. A text size stays: it sizes the text of the items.
+  const inList = ['bullet', 'check', 'ordered'].some((name) => active.includes(name));
+  const allTools: {
     label: string;
     icon: typeof TextB;
     action: (e: ReactMouseEvent<HTMLButtonElement>) => void;
@@ -1730,7 +2057,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     { label: t.text.italic, icon: TextItalic, action: () => run(toggleEmphasisCommand), on: 'emphasis', role: 'italic' },
     { label: t.text.link, icon: LinkSimple, action: link, on: 'link', role: 'link' },
     // On a page the levels in choices (H1 until the text has one); a blog post has H2 and H3.
-    ...(h1 ? choices : [2, 3]).map((level) => ({
+    ...(inList ? [] : h1 ? choices : [2, 3]).map((level) => ({
       label: [t.text.pageHeading, t.text.heading, t.text.subheading][level - 1],
       icon: [TextHOne, TextHTwo, TextHThree][level - 1],
       action: () => setKind(`h${level}`),
@@ -1746,8 +2073,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     { label: t.text.orderedList, icon: KIND_ICONS.ordered.node, action: () => setKind('ordered'), on: 'ordered', role: 'list' },
     // The alignment of the paragraph or smaller heading, a menu (the icon follows the block's).
     { label: t.text.alignmentIs(alignLabel(alignIn(active))), icon: ALIGN_FACES[alignIn(active)].node, action: () => {}, role: 'align' },
-    // A picture and the blocks are put in with Insert (a sheet with them all); without blocks (a blog
-    // post) a picture has its own button.
+    // An image and the blocks are put in with Insert (a sheet with them all); without blocks (a blog
+    // post) an image has its own button.
     ...(blocks
       ? [{ label: t.text.insert, icon: WidgetsIcon, action: block }]
       : addImage
@@ -1756,6 +2083,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand), role: 'undo' },
     { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand), role: 'redo' },
   ];
+
+  const all = allTools;
 
   // The tools in their order (toolbarOrder.mjs): Section settings last on the first line, and what may go under the arrow at the
   // end, Undo and Redo first, then the link, so Insert stays on the first line. The arrangement is tried from the widest:
@@ -1836,7 +2165,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       <ToolbarButton key={label} icon={icon} label={label} selected={on ? active.includes(on) : undefined} large={large} onClick={action} />
     );
 
-  // The lines between the marks on the text, the kinds of text, Insert (or "Picture") and "Undo".
+  // The lines between the marks on the text, the kinds of text, Insert (or "Image") and "Undo".
   const lineBefore = (item: (typeof tools)[number]) =>
     item.role === 'settings' || item === kinds[0] || item.icon === WidgetsIcon || item.icon === Image || item.icon === ArrowUUpLeft;
   // A button of the toolbar; when it is too short, each group of kinds of text is one button (at its first), with a menu.

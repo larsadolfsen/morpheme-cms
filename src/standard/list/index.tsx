@@ -4,6 +4,7 @@
 import { ListBullets } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { iconOptions } from '../../icon';
+import { iconColorField } from '../../iconColor';
 import { t } from '../../i18n';
 import { fromLine, nameWith, rowsFromFields, typed } from '../rows/fields';
 
@@ -18,7 +19,7 @@ export default defineBlock({
   inline: {
     item: 'items',
     fields: ['title', 'text'],
-    icon: 'icon',
+    media: ['icon', 'iconColor'],
     link: 'href',
     texts: {
       addAbove: t.blocks.list.addAbove,
@@ -41,6 +42,7 @@ export default defineBlock({
       required: true,
       fields: [
         { name: 'icon', label: t.blocks.list.icon, type: 'select', icons: true, options: iconOptions(t.blocks.icons) },
+        iconColorField,
         { name: 'title', label: t.blocks.list.title, type: 'string', hint: t.blocks.list.titleHint },
         { name: 'text', label: t.blocks.list.text, type: 'text' },
         { name: 'href', label: t.blocks.list.href, type: 'relation', to: 'pages', hint: t.blocks.list.hrefHint },

@@ -8,16 +8,16 @@ export const blocks = {
   gone: (type: string) => `The block "${type}" no longer exists. Remove it from the text.`,
   /** A block whose fields cannot be saved, and why (a message from check.ts). */
   notSaved: (why: string) => `The block can't be saved yet. ${why}`,
-  /** A picture, chosen and changed like a block. */
+  /** An image, chosen and changed like a block. */
   picture: {
-    label: 'Picture',
-    hint: 'Choose or upload a picture.',
-    src: 'Picture',
+    label: 'Image',
+    hint: 'Choose or upload an image.',
+    src: 'Image',
     alt: 'Alt text',
-    altHint: 'Describe the picture in a few words, for people who can’t see it.',
-    /** A picture that is only decoration: drawn with alt="", without an alternative text. */
-    decorative: 'Decorative picture',
-    decorativeHint: 'Screen readers skip the picture.',
+    altHint: 'Describe the image in a few words, for people who can’t see it.',
+    /** An image that is only decoration: drawn with alt="", without an alternative text. */
+    decorative: 'Decorative image',
+    decorativeHint: 'Screen readers skip the image.',
     decorativeToggle: ['On', 'Off'] as [string, string],
   },
   /** The lines of the testimonials on the cards. */
@@ -50,6 +50,8 @@ export const blocks = {
     button: 'Button text',
     buttonHint: 'A text button under the last question. If empty, there is no button.',
     buttonHref: 'Button page',
+    /** The button typed in place under the questions: the empty field's text. */
+    buttonPlaceholder: 'Button text',
     /** A question typed in place: the add button, the faded question of an empty block, the floating toolbar, a question's place for screen readers. */
     addQuestion: 'Add question',
     newQuestion: 'New question',
@@ -84,6 +86,8 @@ export const blocks = {
     maxRowsHint: 'How many rows show at first. A button under them shows the rest. If empty, all rows show.',
     showMore: 'Button text (show more)',
     showMoreText: 'Show more',
+    /** The link in an open row, without the row's heading (in the site's language). */
+    readMore: 'Read more',
     button: 'Button text',
     buttonHint: 'A text button under the last row. If empty, there is no button.',
     buttonHref: 'Button page',
@@ -91,11 +95,24 @@ export const blocks = {
     more: 'Read more about {topic}',
     exampleTitle: 'Heading',
     exampleText: 'A short text about the row.',
+    /** The floating toolbar of a Segmented list typed in place. */
+    addAbove: 'Add above',
+    addBelow: 'Add below',
+    row: 'Row',
+    rowSettings: 'Row settings',
+    link: 'Link',
+    addRow: 'Add row',
+    newRow: 'New row',
+    addButton: 'Add button',
+    buttonText: 'Button text',
+    /** A row typed in place: its place, for screen readers (row 2 of 4). */
+    rowOf: (n: number, total: number) => `Row ${n} of ${total}`,
   },
   notice: {
     label: 'Notice',
     hint: 'A highlighted message.',
     text: 'Text',
+    placeholder: 'Notice text',
     until: 'Show until',
     untilHint: 'If empty, the notice is always shown.',
     shownUntil: (day: string, time: string) => `Shown until ${day} at ${time}`,
@@ -136,6 +153,12 @@ export const blocks = {
         ...(tags.length ? [`${tags.length === 1 ? 'tag' : 'tags'} ${tags.join(', ')}`] : []),
         `${count} ${count === 1 ? 'item' : 'items'}`,
       ].join(' · '),
+    dynamicTip: 'Fill from a list',
+    typedHidden: 'Your typed rows are kept, not shown.',
+    /** The parts of a row a dynamic block can fill with a field of its list. */
+    parts: { title: 'Top line', text: 'Bottom line', icon: 'Icon', href: 'Link' },
+    noField: 'None',
+    fieldShown: 'Field shown',
     editList: 'Edit list',
     map: 'Fields in a row',
     empty: 'No items in the list match, so nothing shows on the page.',
@@ -180,6 +203,25 @@ export const blocks = {
     exampleTitle: 'Heading',
     exampleText: 'A short text about the point.',
   },
+  table: {
+    label: 'Table',
+    hint: 'Rows and columns of text.',
+    header: 'Header row',
+    headerToggle: ['On', 'Off'] as [string, string],
+    addRow: 'Add row',
+    addAbove: 'Add row above',
+    addBelow: 'Add row below',
+    addColumnBefore: 'Add column before',
+    addColumnAfter: 'Add column after',
+    deleteRow: 'Delete row',
+    deleteColumn: 'Delete column',
+    cell: 'Cell',
+    rowsColumns: 'Rows and columns',
+    cellOf: (row: number, column: number) => `Row ${row}, column ${column}`,
+    newRow: 'Next row',
+    newColumn: 'Next column',
+    settings: 'Table',
+  },
   steps: {
     label: 'Steps',
     hint: 'Numbered steps.',
@@ -187,13 +229,21 @@ export const blocks = {
     item: 'step',
     title: 'Heading',
     text: 'Text',
+    /** The text button under the last step, the empty faded step, and the floating toolbar of Steps typed in place. */
+    step: 'Step',
+    addStep: 'Add step',
+    newStep: 'New step',
+    addAbove: 'Add above',
+    addBelow: 'Add below',
+    /** A step typed in place: its place, for screen readers (step 2 of 4). */
+    stepOf: (n: number, total: number) => `Step ${n} of ${total}`,
   },
   hero: {
     label: 'Banner',
     hint: 'Page top with text and buttons.',
     text: 'Text',
-    textHint: 'The first paragraph is the subtitle. Add a picture and buttons with +.',
-    placement: 'Placement (picture)',
+    textHint: 'The first paragraph is the subtitle. Add an image and buttons with +.',
+    placement: 'Placement (image)',
     placementBeside: 'Beside',
     placementBehind: 'Behind the text',
     width: 'Width',
@@ -240,11 +290,21 @@ export const blocks = {
     hrefHint: 'When the button leads to a page.',
     kind: 'Style',
     /** The kinds of a button, as Material 3 names them (buttonKinds). */
-    kinds: { filled: 'Filled', tonal: 'Tonal', elevated: 'Elevated', outlined: 'Outlined', text: 'Text only' },
+    kinds: { filled: 'Filled', tonal: 'Tonal', elevated: 'Elevated', outlined: 'Outlined', text: 'Text' },
     icon: 'Icon',
     iconHint: 'The arrow is shown after the text, the other icons before it.',
     arrow: 'Arrow',
     calendar: 'Calendar',
+    /** The floating toolbar of Buttons typed in place. */
+    addAbove: 'Add above',
+    addBelow: 'Add below',
+    settingsAction: 'Settings',
+    button: 'Button',
+    buttonSettings: 'Button settings',
+    addButton: 'Add button',
+    newButton: 'New button',
+    /** A button typed in place: its place, for screen readers (button 2 of 4). */
+    buttonOf: (n: number, total: number) => `Button ${n} of ${total}`,
   },
   cookies: {
     label: 'Cookie list',
@@ -328,7 +388,7 @@ export const blocks = {
       singular: 'testimonial',
       create: 'New testimonial',
       name: 'Name',
-      image: 'Picture',
+      image: 'Image',
       context: 'Introduction',
       quote: 'Testimonial',
       createTag: 'Create a tag',
@@ -397,26 +457,42 @@ export const blocks = {
     label: 'Cards',
     hint: 'Cards that link to pages.',
     edit: 'Edit default texts',
-    /** The card's type, as Material 3 names them, and the color of a filled card. */
-    kind: 'Type',
-    kindOutlined: 'Outlined',
-    kindFilled: 'Filled',
-    kindElevated: 'Elevated',
+    /** The cards' design, as Material 3 names its three cards, and the container color of a filled card. */
+    design: 'Design',
+    designOutlined: 'Outlined',
+    designFilled: 'Filled',
+    designElevated: 'Elevated',
+    /** How the cards show on a phone: stacked, or swiped sideways in a carousel (Material 3's uncontained layout). */
+    phone: 'On phones',
+    phoneStacked: 'Stacked',
+    phoneCarousel: 'Carousel',
+    phoneHint: 'Cards are swiped sideways on a phone. Larger screens show them together.',
+    carouselChip: 'Carousel on phones',
+    /** On the site and in the drawings (in the site's language): for screen readers and the button under the carousel. */
+    carousel: 'carousel',
+    slide: 'card',
+    slideOf: (n: number, of: number) => `${n} of ${of}`,
+    showCard: (n: number, title: string) => `Show card ${n}${title ? `: ${title}` : ''}`,
+    showAll: 'Show all',
+    showFewer: 'Show fewer',
+    cardsLabel: 'Cards',
     color: 'Color',
-    colorStandard: 'Standard',
+    colorSurface: 'Surface',
     colorPrimary: 'Primary',
     colorSecondary: 'Secondary',
     colorTertiary: 'Tertiary',
-    /** What is at the top of a card. */
+    /** What is at the top of every card: one choice for the whole block. */
     media: 'Media',
     mediaNone: 'None',
     mediaIcon: 'Icon',
-    mediaImage: 'Picture',
+    mediaImage: 'Image',
     mediaVideo: 'Video',
     video: 'Video link',
     buttons: 'Buttons',
     button: 'button',
-    buttonsHint: 'A card with a page is one link and has no buttons.',
+    buttonText: 'Button text',
+    addButton: 'Add button',
+    buttonsHint: 'A card with buttons has no link.',
     items: 'Cards',
     item: 'card',
     /** A card typed in place: the add button, the faded card of an empty block, the floating toolbar, a card's place for screen readers. */
@@ -429,11 +505,12 @@ export const blocks = {
     cardMenu: 'Card',
     cardSettings: 'Card settings',
     title: 'Heading',
+    subhead: 'Subhead',
     text: 'Text',
     icon: 'Icon',
-    image: 'Picture',
+    image: 'Image',
     href: 'Page',
-    hrefHint: 'With a page, the whole card is the link. Without one, it can have buttons.',
+    hrefHint: 'With a page, the whole card is the link and has no buttons.',
     /** The shared text ("Blocks" › "Cards"), and what it starts as on a site in this language. */
     more: 'Link text',
     moreText: 'Read more',
@@ -444,6 +521,13 @@ export const blocks = {
     ],
   },
   /** The icons to pick from (iconNames in ../../icon.tsx), by their names. */
+  /** The color of an icon (a row's or a card's): the site's colors, Primary when none is picked. */
+  iconColor: {
+    label: 'Icon color',
+    primary: 'Primary',
+    secondary: 'Secondary',
+    tertiary: 'Tertiary',
+  },
   icons: {
     certificate: 'Diploma',
     heart: 'Heart',
@@ -511,6 +595,19 @@ export const blocks = {
     featuredToggle: ['On', 'Off'] as [string, string],
     badge: 'Label',
     badgeHint: 'If empty, no label is shown.',
+    /** The floating toolbar and the cards of Price cards typed in place. */
+    addAbove: 'Add above',
+    addBelow: 'Add below',
+    settingsAction: 'Settings',
+    card: 'Card',
+    cardSettings: 'Card settings',
+    addCard: 'Add price card',
+    newCard: 'New card',
+    addFeature: 'Add feature',
+    newFeature: 'New point',
+    newButton: 'Button text',
+    /** A card typed in place: its place, for screen readers (card 2 of 4). */
+    cardOf: (n: number, total: number) => `Card ${n} of ${total}`,
     /** The cards it is shown with where no page has it (in the site's language): the middle one highlighted. */
     example: [
       {

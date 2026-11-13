@@ -8,7 +8,7 @@
 
     :root { --block-accent: var(--mo-primary); --block-radius: 1.5rem; }
 
-  Without them, the blocks have a plain look of their own (the values below). Sizes and spacing are
+  Without them, the blocks take the site's colour roles (the values below) and have a plain look of their own. Sizes and spacing are
   the blocks' own, in rem; their text has the site's font. Every theme imports this file into its CSS
   (styles/global.css: the standard theme's, another theme's …), which the editor uses too.
 
@@ -24,7 +24,7 @@
     --block-tint       a light background (a notice, a video before it is played)
     --block-line       lines between rows and along the steps, the edge of a card
     --block-radius     the corners of a panel
-    --block-radius-small  the corners of something smaller in or beside a panel (a picture in a list, a row, a badge's
+    --block-radius-small  the corners of something smaller in or beside a panel (an image in a list, a row, a badge's
                        square, a step on a time line)
     --block-control-radius  the corners of a button and a tag (a pill when large)
     --block-shadow     the shadow of a raised panel
@@ -34,7 +34,7 @@
     --block-ease       the easing of motion (else the motion scheme's, --motion-ease)
     --block-ease-quick the easing of a quick change of state (a colour, an arrow that turns or moves; else the motion
                        scheme's, --motion-ease-quick)
-    --block-hero-shade, --block-hero-on-shade  (optional) the colour a picture behind a hero's text is darkened with,
+    --block-hero-shade, --block-hero-on-shade  (optional) the colour an image behind a hero's text is darkened with,
                        and the text's on it; without them the text's colour and the surface's
     --block-page-width, --block-gutter  the page's container (its width, gutters included, and its gutter at the
                        side), whose left edge the text starts at: how far a banner across the whole width reaches out
@@ -58,24 +58,24 @@
   its logo).
 */
 :where(:root) {
-  --block-text: #1f2328;
-  --block-muted: #59636e;
-  --block-accent: #0969da;
-  --block-accent-hover: #0550ae;
-  --block-on-accent: #ffffff;
-  --block-primary: var(--block-accent);
-  --block-on-primary: var(--block-on-accent);
-  --block-secondary: #565f71;
-  --block-on-secondary: #ffffff;
-  --block-tertiary: #6f5676;
-  --block-on-tertiary: #ffffff;
-  --block-surface: #ffffff;
-  --block-tint: #f2f4f7;
-  --block-line: #d8dee4;
+  --block-text: var(--mo-on-surface);
+  --block-muted: var(--mo-on-surface-variant);
+  --block-accent: var(--mo-primary);
+  --block-accent-hover: color-mix(in srgb, var(--mo-on-primary) 8%, var(--mo-primary));
+  --block-on-accent: var(--mo-on-primary);
+  --block-primary: var(--mo-primary);
+  --block-on-primary: var(--mo-on-primary);
+  --block-secondary: var(--mo-secondary);
+  --block-on-secondary: var(--mo-on-secondary);
+  --block-tertiary: var(--mo-tertiary);
+  --block-on-tertiary: var(--mo-on-tertiary);
+  --block-surface: var(--mo-surface-container-lowest);
+  --block-tint: var(--mo-surface-container-high);
+  --block-line: var(--mo-outline-variant);
   --block-radius: 0.75rem;
   --block-radius-small: 1rem;
   --block-control-radius: 0.5rem;
-  --block-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  --block-shadow: 0 1px 3px color-mix(in srgb, var(--mo-shadow) 12%, transparent);
   --motion-spatial-fast: 230ms cubic-bezier(0.2, 0, 0, 1);
   --motion-spatial: 320ms cubic-bezier(0.2, 0, 0, 1);
   --motion-spatial-slow: 490ms cubic-bezier(0.2, 0, 0, 1);
@@ -111,20 +111,22 @@
     margin-block: 2rem;
   }
 
-  /* A section of a page's or post's text with a colour, a picture or the whole width of the window (lib/text-sections.mjs,
+  /* A section of a page's or post's text with a colour, an image or the whole width of the window (lib/text-sections.mjs,
      RichText.astro): a panel the width of the text column, from its heading to the next (its first and last parts' margins: at
      the end of the file). The colours are Surface and the theme's Primary, Secondary and Tertiary (--block-primary and the
      like, with their text colours --block-on-primary …). A section from before Tint is Surface, and Accent is Primary. */
   .text-section {
-    margin-block: var(--block-section-margin);
+    margin-block: var(--block-section-margin) 0;
     border-radius: var(--block-radius);
     padding: var(--block-section-padding);
+    /* The space below belongs inside the colour: it runs down to the next section, or to the end of the text. */
+    padding-block-end: calc(var(--block-section-padding) + var(--block-section-margin));
   }
   .text-section-surface {
     background: var(--block-surface);
     box-shadow: var(--block-shadow);
   }
-  /* A picture behind the section (<img class="text-section-image"> first in it, RichText.astro): it fills the panel, darkened
+  /* An image behind the section (<img class="text-section-image"> first in it, RichText.astro): it fills the panel, darkened
      from below with the section's colour (Surface: --block-surface; none: --block-hero-shade, the text's colour unless the theme
      sets it) so the text on it can be read. Without a colour the text is --block-hero-on-shade, the surface's. */
   .text-section-picture {
@@ -165,18 +167,24 @@
   .text-section-primary {
     --section-fill: var(--block-primary);
     --section-on-fill: var(--block-on-primary);
+    --section-container: var(--mo-primary-container, var(--block-tint));
+    --section-on-container: var(--mo-on-primary-container, var(--block-text));
   }
   .text-section-secondary {
     --section-fill: var(--block-secondary);
     --section-on-fill: var(--block-on-secondary);
+    --section-container: var(--mo-secondary-container, var(--block-tint));
+    --section-on-container: var(--mo-on-secondary-container, var(--block-text));
   }
   .text-section-tertiary {
     --section-fill: var(--block-tertiary);
     --section-on-fill: var(--block-on-tertiary);
+    --section-container: var(--mo-tertiary-container, var(--block-tint));
+    --section-on-container: var(--mo-on-tertiary-container, var(--block-text));
   }
   /* Across the whole width of the window (`width` full): without corners; it reaches out of the text to the window's edges, from
-     where the text starts at the left of the page's container (--block-page-width, --block-gutter), and its content starts there
-     again and ends at the container's right edge. The page is clipped at the window's edges while it has one (100vw is a
+     where the text starts at the left of the page's container (--block-page-width, --block-gutter), and its content stays in the text
+     column from there (the rule below). The page is clipped at the window's edges while it has one (100vw is a
      scrollbar wider). */
   .text-section-full {
     --section-inset: calc(max(0px, (100vw - var(--block-page-width)) / 2) + var(--block-gutter));
@@ -187,10 +195,15 @@
     border-radius: 0;
     padding-inline: var(--section-inset);
   }
+  /* Only the background is the whole width: the content stays in the page's text column, as the text outside a section does (the
+     page's text keeps its paragraphs and headings at 66ch, PageLayout.astro; blocks, not-prose, span the container). */
+  .text-section-full > :not(.not-prose, .text-section-image) {
+    max-width: 66ch;
+  }
   body:has(.text-section-full) {
     overflow-x: clip;
   }
-  /* On a colour with its own text colour (and on a picture without Surface) everything in the text is that colour, links
+  /* On a colour with its own text colour (and on an image without Surface) everything in the text is that colour, links
      too: they are underlined by the prose style. The section's real colours are kept in private variables first
      (--section-…): the blocks in it get the variables swapped (below), and a variable cannot swap with another on the
      same element. */
@@ -217,9 +230,11 @@
   /* The blocks in it read as an inverted theme on the accent: text, lines and the accent itself are the text-on-primary
      colour, a surface is a veil of it, and what was text-on-primary (a filled button's label, a step number) is the
      accent. Dark mode follows, as the variables do. */
-  :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > * {
+  :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+  /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+  .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
     --block-text: var(--section-on-accent);
-    --block-muted: color-mix(in srgb, var(--section-on-accent) 80%, transparent);
+    --block-muted: var(--section-on-accent);
     --block-accent: var(--section-on-accent);
     --block-accent-hover: color-mix(in srgb, var(--section-on-accent) 88%, var(--section-accent));
     --block-on-accent: var(--section-accent);
@@ -227,7 +242,7 @@
     --block-tint: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
     --block-line: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
     --block-shadow: none;
-    /* A hero with its picture behind the text is darkened with the section's own text colour, in its own surface. */
+    /* A hero with its image behind the text is darkened with the section's own text colour, in its own surface. */
     --block-hero-shade: var(--section-text);
     --block-hero-on-shade: var(--section-surface);
   }
@@ -275,7 +290,7 @@
     height: 3rem;
     flex-shrink: 0;
     place-items: center;
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     background: var(--block-accent);
     color: var(--block-on-accent);
     font-size: var(--type-title-medium-size);
@@ -409,7 +424,7 @@
     text-underline-offset: 0.25em;
   }
   /* "Hero" (hero/): its heading, the subtitle (the first paragraph, larger) and the introduction, the buttons, a text
-     under them and a quote, beside the picture on a computer, under it on a phone. */
+     under them and a quote, beside the image on a computer, under it on a phone. */
   .block-hero {
     display: grid;
     gap: 2rem;
@@ -479,7 +494,7 @@
     object-position: 50% 22%;
     border-radius: var(--block-radius);
   }
-  /* The picture behind the text ("Hero", `placement` 'behind'): it fills a panel, darkened from below (--block-hero-shade,
+  /* The image behind the text ("Hero", `placement` 'behind'): it fills a panel, darkened from below (--block-hero-shade,
      the text's colour unless the theme sets it) so the text on it (--block-hero-on-shade, the surface's) can be read. */
   .block-hero-behind {
     position: relative;
@@ -528,7 +543,7 @@
   .block-hero-behind :is(.block-link, .block-hero-note a) {
     color: inherit;
   }
-  /* Across the whole width of the window ("Banner", `width` 'full'): without corners, and without a picture behind it on
+  /* Across the whole width of the window ("Banner", `width` 'full'): without corners, and without an image behind it on
      a band in the tint, its content in a readable width. On the site (in the text, .block-in-text) it reaches out of
      the text to the window's edges, from where the text starts at the left of the page's container (--block-page-width,
      --block-gutter), and its content starts there again and ends at the container's right edge; the page is clipped at
@@ -787,12 +802,12 @@
   .block-testimonial-mark {
     display: none;
   }
-  /* A testimonial's picture before the name: small and round. */
+  /* A testimonial's image before the name: small and round. */
   .block-testimonial-picture {
     width: 2.5rem;
     height: 2.5rem;
     flex-shrink: 0;
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     object-fit: cover;
   }
   .js [data-clamp] {
@@ -831,7 +846,7 @@
     gap: 0.5rem;
   }
 
-  /* "Cards": Material 3's cards (.card in ui.css: outlined, filled or elevated), each with an icon, a picture, a video or nothing at
+  /* "Cards": Material 3's cards (.card in ui.css: outlined, filled or elevated), each with an icon, an image, a video or nothing at
      the top and either a link (the whole card) or buttons, two side by side from small screens (cards/LinkCards.tsx). */
   .block-cards {
     display: grid;
@@ -843,7 +858,7 @@
     display: flex;
     height: 100%;
     flex-direction: column;
-    /* Its edge a border (the outlined card's line, none on the others), so a picture at the top stays inside it. */
+    /* Its edge a border (the outlined card's line, none on the others), so an image at the top stays inside it. */
     border: 1px solid transparent;
     /* The card's shadow as it is now (ui.css: at rest, pointed at, dragged), without its line. */
     box-shadow: var(--card-shadow, 0 0 #0000);
@@ -861,7 +876,7 @@
   .block-card-icon {
     color: var(--block-accent);
   }
-  /* A video at the top fills it as a picture does, with its play button. */
+  /* A video at the top fills it as an image does, with its play button. */
   .block-card-video {
     display: block;
     margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0.25rem;
@@ -876,7 +891,7 @@
     gap: 0.5rem;
     padding-top: 1.25rem;
   }
-  /* The picture fills the top of the card, out to its edges. */
+  /* The image fills the top of the card, out to its edges. */
   .block-card-picture {
     display: block;
     margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0.25rem;
@@ -919,24 +934,112 @@
   .block-card-arrow {
     transition: translate var(--motion-spatial);
   }
-  /* A filled card in one of the section's colours ("Cards", `color`): the whole card in it, its text and icon in the colour that is
-     read on it. Without a colour it is Material's own filled card. */
+  /* "Cards" on a phone as a carousel (`phone`, LinkCards.tsx): Material 3's uncontained layout (m3.material.io/components/carousel), which M3 gives to
+     text-heavy items. Below 600 px the cards are swiped sideways: items 8 dp apart, 8 dp above and below (room for an elevated card's shadow),
+     corners of 28 dp, the first 16 dp from the screen's edge, the next one peeking in; `Show all` under the dots turns it into the stacked cards
+     in place (data-expanded, set by script.ts). From 600 px the cards are the grid, with no dots and no button. */
+  .block-cards-carousel .block-card {
+    border-radius: var(--carousel-item-radius, var(--mo-shape-extra-large, 1.75rem));
+  }
+  .block-cards-show-all {
+    display: none;
+  }
+  @media (width < theme(--breakpoint-medium)) {
+    .block-cards-carousel .carousel-items {
+      overflow-x: auto;
+      gap: var(--carousel-gap, 0.5rem);
+      padding-block: 0.5rem;
+      padding-inline: 1rem;
+      scroll-padding-inline: 1rem;
+    }
+    .block-cards-carousel .carousel-item {
+      width: 85%;
+    }
+    .js .block-cards-show-all {
+      display: flex;
+      justify-content: center;
+      padding: 0.25rem;
+    }
+    .block-cards-carousel[data-expanded] .carousel-items {
+      display: grid;
+      overflow-x: visible;
+      margin: 0;
+      padding-inline: 0;
+      scroll-padding-inline: 0;
+    }
+    .block-cards-carousel[data-expanded] .carousel-item {
+      width: auto;
+    }
+    .block-cards-carousel[data-expanded] .carousel-indicator {
+      display: none;
+    }
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .block-cards-carousel .carousel-items {
+      display: grid;
+      overflow-x: visible;
+      gap: var(--card-gap, 0.5rem);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .block-cards-carousel .carousel-item {
+      width: auto;
+    }
+    .block-cards-carousel .carousel-indicator {
+      display: none;
+    }
+  }
+  /* The subhead: the small line under the headline (a byline, a date, a place). */
+  .block-card-subhead {
+    margin-top: 0.125rem;
+    font-size: var(--type-body-medium-size, 0.875rem);
+    line-height: var(--type-body-medium-line-height, 1.25rem);
+    color: var(--block-muted);
+  }
+  /* The color of an icon in a row or a card (`iconColor`, src/iconColor.ts): one of the theme's color roles, Primary (the icon's own) without one. */
+  [data-icon-color='secondary'] {
+    --list-item-leading-icon-color: var(--mo-secondary, var(--block-secondary));
+    --icon-color: var(--mo-secondary, var(--block-secondary));
+  }
+  [data-icon-color='tertiary'] {
+    --list-item-leading-icon-color: var(--mo-tertiary, var(--block-tertiary));
+    --icon-color: var(--mo-tertiary, var(--block-tertiary));
+  }
+  .block-accordion-lead[data-icon-color],
+  .block-card .block-card-icon[data-icon-color] {
+    color: var(--icon-color);
+  }
+  /* A filled card on one of Material's containers ("Cards", `color`): the primary, secondary or tertiary container, its text and icon in the
+     colour that is read on it. Without a colour it is the surface container (--card-filled-surface, below). A theme that has no container
+     role has the block's own colours. */
   :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary) .block-card {
     --card-filled-line: transparent;
   }
   .block-cards-primary .block-card {
-    --card-filled-surface: var(--block-primary);
-    color: var(--block-on-primary);
+    --card-filled-surface: var(--mo-primary-container, var(--block-primary));
+    color: var(--mo-on-primary-container, var(--block-on-primary));
+    /* What is read on the container (a text button, its icon) follows it, also in a section on a colour, where these roles are swapped. */
+    --mo-on-surface: var(--mo-on-primary-container, var(--block-on-primary));
+    --mo-on-surface-variant: var(--mo-on-primary-container, var(--block-on-primary));
+    --mo-primary: var(--mo-on-primary-container, var(--block-on-primary));
   }
   .block-cards-secondary .block-card {
-    --card-filled-surface: var(--block-secondary);
-    color: var(--block-on-secondary);
+    --card-filled-surface: var(--mo-secondary-container, var(--block-secondary));
+    color: var(--mo-on-secondary-container, var(--block-on-secondary));
+    /* What is read on the container (a text button, its icon) follows it, also in a section on a colour, where these roles are swapped. */
+    --mo-on-surface: var(--mo-on-secondary-container, var(--block-on-secondary));
+    --mo-on-surface-variant: var(--mo-on-secondary-container, var(--block-on-secondary));
+    --mo-primary: var(--mo-on-secondary-container, var(--block-on-secondary));
   }
   .block-cards-tertiary .block-card {
-    --card-filled-surface: var(--block-tertiary);
-    color: var(--block-on-tertiary);
+    --card-filled-surface: var(--mo-tertiary-container, var(--block-tertiary));
+    color: var(--mo-on-tertiary-container, var(--block-on-tertiary));
+    /* What is read on the container (a text button, its icon) follows it, also in a section on a colour, where these roles are swapped. */
+    --mo-on-surface: var(--mo-on-tertiary-container, var(--block-on-tertiary));
+    --mo-on-surface-variant: var(--mo-on-tertiary-container, var(--block-on-tertiary));
+    --mo-primary: var(--mo-on-tertiary-container, var(--block-on-tertiary));
   }
-  :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary) :is(.block-card-icon, .block-card-text, .block-card-more) {
+  :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary)
+    :is(.block-card-icon, .block-card-text, .block-card-subhead, .block-card-more) {
     color: inherit;
   }
   /* A panel (Panel.tsx): an outlined card (.card in ui.css) for a block that is one box (e.g. an app's about
@@ -1020,7 +1123,7 @@
   .block-checklist .list-item-leading {
     max-height: var(--list-item-headline-line-height, 1lh);
   }
-  /* A picture with a heading, a text and buttons, beside it where there is room for 22rem each, else under it
+  /* An image with a heading, a text and buttons, beside it where there is room for 22rem each, else under it
      (e.g. an app's address block). */
   .block-media {
     display: grid;
@@ -1189,7 +1292,7 @@
     }
   }
 
-  /* A person: a small picture beside the name and a title under it. */
+  /* A person: a small image beside the name and a title under it. */
   .block-person {
     display: flex;
     align-items: center;
@@ -1272,14 +1375,14 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* A table: quiet headings over rows with a thin line between them, the first column (each row's name) a little
-     heavier; wider than the screen, it scrolls sideways ("Cookie list"). */
+  /* A table (.block-table, the base of every table block): a box that scrolls sideways when the table is wider than the screen,
+     with the cells' text in the body scale and a thin line (outline variant) under each row. Each block adds its own look:
+     .block-table-cookies ("Cookie list": quiet headings, the first column heavier) and .block-table-grid ("Table"). */
   .block-table {
     overflow-x: auto;
   }
   .block-table table {
     width: 100%;
-    min-width: 40rem;
     border-collapse: collapse;
     font-size: var(--type-body-medium-size);
     line-height: var(--type-body-medium-line-height);
@@ -1287,27 +1390,72 @@
     letter-spacing: var(--type-body-medium-tracking);
   }
   .block-table :is(th, td) {
-    padding: 0.625rem 1rem 0.625rem 0;
     border-bottom: 1px solid var(--block-line);
     text-align: left;
     vertical-align: top;
   }
-  .block-table thead th {
+
+  /* "Cookie list": quiet headings over rows, the first column (each row's name) a little heavier. */
+  .block-table-cookies table {
+    min-width: 40rem;
+  }
+  .block-table-cookies :is(th, td) {
+    padding: 0.625rem 1rem 0.625rem 0;
+  }
+  .block-table-cookies thead th {
     font-size: var(--type-label-large-size);
     line-height: var(--type-label-large-line-height);
     font-weight: var(--type-label-large-weight);
     letter-spacing: var(--type-label-large-tracking);
     color: var(--block-muted);
   }
-  .block-table tbody th {
+  .block-table-cookies tbody th {
     font-weight: 500;
     white-space: nowrap;
   }
-  .block-table td:not(:nth-child(3)) {
+  .block-table-cookies td:not(:nth-child(3)) {
     white-space: nowrap;
   }
-  .block-table td:nth-child(3) {
+  .block-table-cookies td:nth-child(3) {
     min-width: 14rem;
+  }
+
+  /* "Table": Material 3 has no table component, so the dimensions are Material 2's data table (m2.material.io/components/data-tables:
+     rows 52 dp and the header row 56 dp, 16 dp of space at the sides of a cell, a header name in a medium weight, a 1 dp outline,
+     no elevation, a row's background on hover) and everything else is Material 3's: the body and label type scales, the surface container
+     (header), the outline variant (container and dividers), the small shape and the theme's hover state layer. The box is a region the
+     keyboard can scroll (a focus ring in the accent); a table with many columns scrolls instead of crushing them. */
+  .block-table-grid {
+    border: 1px solid var(--block-line);
+    border-radius: var(--block-radius-small);
+    color: var(--block-text);
+  }
+  .block-table-grid:focus-visible {
+    outline: 3px solid var(--block-accent);
+    outline-offset: 2px;
+  }
+  .block-table-grid :is(th, td) {
+    min-width: 6rem;
+    height: 3.25rem;
+    padding: 0.5rem 1rem;
+    vertical-align: middle;
+    font-weight: inherit;
+  }
+  .block-table-grid thead th {
+    height: 3.5rem;
+    background: var(--block-tint);
+    font-size: var(--type-label-large-size);
+    line-height: var(--type-label-large-line-height);
+    font-weight: var(--type-label-large-weight);
+    letter-spacing: var(--type-label-large-tracking);
+  }
+  .block-table-grid tr:last-child :is(th, td) {
+    border-bottom: 0;
+  }
+  @media (hover: hover) {
+    .block-table-grid tbody tr:hover {
+      background: var(--mo-hover, color-mix(in srgb, var(--block-text) 8%, transparent));
+    }
   }
 
   /* A badge: a small word over a number in a light square ("Spar / 10%"), and a text beside one. */
@@ -1381,7 +1529,7 @@
     transform: translateX(3px);
   }
 
-  /* An invitation, a filled card (.card in ui.css): a picture, a heading and a text, and buttons under each other
+  /* An invitation, a filled card (.card in ui.css): an image, a heading and a text, and buttons under each other
      (e.g. an app's booking block); on a computer the three side by side. */
   .block-cta {
     display: grid;
@@ -1851,6 +1999,11 @@
     text-align: center;
     text-decoration: none;
   }
+  /* A video without a still has no tint of its own in a card: the card's surface is already a tone (in a coloured section a veil), and two veils
+     over each other left the title at 3.8:1. */
+  .prose .block-card-video .video-facade:not(.video-facade-still) {
+    background: transparent;
+  }
   .prose .video-facade svg {
     color: var(--block-accent);
     transition: transform var(--motion-spatial);
@@ -2024,7 +2177,7 @@
   /* A word or more in one of the site's colours, in a text (packages/editor/lib/text-colors.mjs, the colour button in the
    editor): the accent, or the quiet text's, both readable on the background, the surfaces and the tint (the site's
    pairs of colours, checked under "Colors"). Bold, italic and a link in it have its colour. Outside the layers, as it
-   is in the text's style (.prose), whose colours of bold text and links it goes over. On a picture behind a hero's
+   is in the text's style (.prose), whose colours of bold text and links it goes over. On an image behind a hero's
    text, where only the text's colour can be read, it is the text's. */
   .color-accent,
   .color-accent :is(strong, em, a) {

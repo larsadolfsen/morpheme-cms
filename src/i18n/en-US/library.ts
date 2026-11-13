@@ -10,7 +10,7 @@ export const library = {
   firstRunTitle: 'Get started',
   firstRunPage: 'Write a page',
   firstRunPost: 'Write a blog post',
-  firstRunPicture: 'Add a picture',
+  firstRunImage: 'Add an image',
   /** The start screen's FAB menu (StartFab.tsx), which makes a new page or blog post. */
   createNew: 'Create',
   /** On the start screen (widgets/continue.tsx): the card with the last three pages and blog posts saved. */
@@ -106,7 +106,7 @@ export const library = {
   /** By the theme it is changed to, until the website is updated: under "Themes", and on its page. */
   themeNext: 'Changing to this theme',
   themeChanging: (name: string) => `Changing to ${name} in a few minutes`,
-  /** On a theme's page: the pictures of the site in it (packages/editor/scripts/theme-screenshots.mjs), each by what it shows. */
+  /** On a theme's page: the images of the site in it (packages/editor/scripts/theme-screenshots.mjs), each by what it shows. */
   themeLooks: 'What your website looks like',
   themeShots: {
     front: 'The front page',
@@ -205,6 +205,8 @@ export const library = {
   orderNotSaved: (error: string) => `Couldn’t save the order: ${error}`,
   status: {
     draft: 'Draft',
+    /** A blog post that is open at its address, in Google and in the sitemap, but not on the blog or in a list of posts. */
+    unlisted: 'Hidden',
     scheduled: 'Scheduled',
     /** "Planlagt 1. nov. kl. 8.00" (`when`, when.ts). */
     scheduledAt: (when: string) => `Scheduled ${when}`,
@@ -215,7 +217,14 @@ export const library = {
   /** The filter over the pages and posts that shows only those with one status. */
   statusFilter: 'Status',
   /** Its choices: all, and each status there is. */
-  statusShown: { unfinished: 'Drafts', all: 'All', published: 'Published', draft: 'Draft', scheduled: 'Scheduled' },
+  statusShown: {
+    unfinished: 'Drafts',
+    all: 'All',
+    published: 'Published',
+    draft: 'Draft',
+    unlisted: 'Hidden',
+    scheduled: 'Scheduled',
+  },
   sort: 'Sort',
   sorts: {
     newest: 'Newest first',

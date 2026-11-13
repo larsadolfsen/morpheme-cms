@@ -4,12 +4,12 @@
 // - 'uncontained' (the default): every item as wide as the others, as many as fit and the next one cut off at the edge,
 //   reaching out to a phone's edges: one with the next peeking in, two on a tablet, three on a computer.
 // - 'multi-browse': large items from the start, then a medium and a small one, as high as the theme says; each grows
-//   and shrinks as it passes (carouselLayout.ts), for leafing quickly through many pictures.
+//   and shrinks as it passes (carouselLayout.ts), for leafing quickly through many images.
 // - 'hero': one large item (more on a wide screen) and a small one after it (`alignment` 'start', the default) or
-//   between two small ones (`alignment` 'center'), for pictures to look at one by one, with the next one in sight.
+//   between two small ones (`alignment` 'center'), for images to look at one by one, with the next one in sight.
 // - 'full-screen': one item at a time, as wide as the carousel, out to a phone's edges.
 // In the contained layouts (all but 'uncontained') an item's `content` fills its mask (.carousel-item-mask), as a
-// picture should; a text on it can fade as it shrinks with --carousel-mask (0 to 1). Under them the theme's addition to
+// image should; a text on it can fade as it shrinks with --carousel-mask (0 to 1). Under them the theme's addition to
 // M3's carousel, a page indicator: a dot for each item (`indicatorLabels`, what each says to a screen reader), which
 // follows the scroll position and jumps to an item. On the site carousel.script.ts makes it work and shows it and lays
 // out multi-browse and hero, in the editor it works here. No autoplay: the visitor decides the pace. `label`: what the
@@ -28,7 +28,8 @@ import {
 } from '@theme/ui/carouselLayout';
 
 export type { CarouselAlignment, CarouselLayout };
-export type CarouselItem = { key: string; label: string; content: ReactNode };
+/** `focusable`: the item is a tab stop itself (an item with nothing to focus in it). */
+export type CarouselItem = { key: string; label: string; content: ReactNode; focusable?: boolean };
 
 /** The layouts of a carousel, as Material 3 names them. */
 export const carouselLayouts: CarouselLayout[] = ['multi-browse', 'uncontained', 'hero', 'full-screen'];
@@ -92,6 +93,7 @@ export default function Carousel({
             aria-roledescription={itemRoleDescription}
             aria-label={item.label}
             data-carousel-item=""
+            tabIndex={item.focusable ? 0 : undefined}
           >
             {contained ? (
               <div className="carousel-item-mask" data-carousel-mask="">

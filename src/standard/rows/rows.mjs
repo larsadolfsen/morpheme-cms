@@ -57,6 +57,40 @@ export const mapOf = (map) => {
   return Object.keys(out).length ? out : undefined;
 };
 
+/** The parts of a row a block's `map` can set, in the order the owner meets them: the top line, the bottom line, the icon and the link. */
+export const PARTS = /** @type {const} */ (['title', 'text', 'icon', 'href']);
+
+/** The fields of a list that can fill a part of a row: text for the lines, an icon choice (or a typed icon name) for the icon, a page or an address for the link.
+ * @param {{ name: string, label: string, type: string, icons?: boolean }[]} fields @param {'icon' | 'title' | 'text' | 'href'} part
+ * @returns {{ name: string, label: string }[]} */
+export const fieldsForPart = (fields, part) =>
+  fields
+    .filter((f) =>
+      part === 'icon'
+        ? (f.type === 'select' && !!f.icons) || f.type === 'string'
+        : part === 'href'
+          ? f.type === 'relation' || f.type === 'string'
+          : ['string', 'text', 'number'].includes(f.type) || (f.type === 'select' && !f.icons),
+    )
+    .map((f) => ({ name: f.name, label: f.label }));
+
+/** The field that fills a part: the block's own choice (`map`), else the list's (`asRows`); undefined for none.
+ * @param {{ title: string, text?: string, icon?: string, href?: string }} asRows @param {unknown} map @param {'icon' | 'title' | 'text' | 'href'} part */
+export const fieldOfPart = (asRows, map, part) => {
+  const own = mapOf(map)?.[part];
+  return (own === undefined ? asRows[part] : own) || undefined;
+};
+
+/** The `map` after a part was set to a field (`''`: none): a choice the list has already is not kept, and no choice at all is no `map`.
+ * @param {{ title: string, text?: string, icon?: string, href?: string }} asRows @param {unknown} map @param {'icon' | 'title' | 'text' | 'href'} part @param {string} field
+ * @returns {Partial<Record<'icon' | 'title' | 'text' | 'href', string>> | undefined} */
+export const withPart = (asRows, map, part, field) => {
+  const next = { ...mapOf(map) };
+  if (field === (asRows[part] ?? '')) delete next[part];
+  else next[part] = field;
+  return Object.keys(next).length ? next : undefined;
+};
+
 /** An item with the block's `map` applied: the parts it names are read from the item's entry (items of posts and testimonials have none, and
  * stay as they are). @template {{ entry?: Record<string, unknown> }} T @param {T} item @param {ReturnType<typeof mapOf>} map */
 export const mapped = (item, map) => {

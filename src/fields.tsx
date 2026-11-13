@@ -51,7 +51,8 @@ import PagePicker, { PageListItem } from './PagePicker';
 import SectionsField from './SectionsField';
 import { leaveTo } from './FormFrame';
 import { shownAt } from './images';
-import { drawnAddress, isSafePicture } from '../lib/section-marker.mjs';
+import { oneLine } from '../lib/one-line.mjs';
+import { drawnAddress, isSafeImage } from '../lib/section-marker.mjs';
 import { addressOf } from './addresses';
 import { LinkList } from './LinkList';
 import { ToolSelect } from './ToolSelect';
@@ -86,7 +87,7 @@ export type ListRows = Record<string, Record<string, unknown>[]>;
 export type TestimonialRow = {
   slug: string;
   name: string;
-  /** Its picture (optional), by the name. */
+  /** Its image (optional), by the name. */
   image?: string;
   context?: string;
   quote: string;
@@ -95,7 +96,7 @@ export type TestimonialRow = {
 };
 
 // What fields need from the editor: the choices for relations, the lists' rows and the testimonials, and
-// pictures (the gallery, Media.tsx).
+// images (the gallery, Media.tsx).
 export type FieldContext = {
   relations: Record<Relation, Option[]>;
   lists: ListRows;
@@ -104,8 +105,8 @@ export type FieldContext = {
   site: SiteData;
   /** The address of the page being edited (a relation with `onPage` offers what is shown there). */
   page?: string;
-  /** Asks for a picture from the gallery or a new one (useMediaPicker); its address on the site. Also
-   * for a text (MarkdownEditor); without it, no picture button. */
+  /** Asks for an image from the gallery or a new one (useMediaPicker); its address on the site. Also
+   * for a text (MarkdownEditor); without it, no image button. */
   pickImage?: () => Promise<string | null>;
   /** The address of a field's page of its own (Field.page), by its name, in a form that has them (CompanyForm.tsx). */
   pageOf?: (field: string) => string;
@@ -205,22 +206,22 @@ export function HeadTitle(props: Props) {
         placeholder={props.field.label}
         className="theme-title block w-full resize-none overflow-hidden bg-transparent text-on-surface outline-none placeholder:text-on-surface-variant/60"
         onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
-        onChange={(e) => onChange(e.target.value.replace(/\s*\n\s*/g, ' '))}
+        onChange={(e) => onChange(oneLine(e.target.value))}
       />
     </div>
   );
 }
 
-/** A post's top picture drawn in the text as the site draws it (PostLayout.astro: wide, rounded by the theme's picture radius,
- * 16:9 from the medium width): a tap on it changes it, and Remove (a picture that is not required) takes it away. Without a
- * picture, one box to tap. */
-export function HeadPicture(props: Props) {
+/** A post's top image drawn in the text as the site draws it (PostLayout.astro: wide, rounded by the theme's image radius,
+ * 16:9 from the medium width): a tap on it changes it, and Remove (an image that is not required) takes it away. Without a
+ * image, one box to tap. */
+export function HeadImage(props: Props) {
   const { box, onChange } = useMarked<HTMLDivElement>(props);
   const context = useContext(Fields)!;
   const { field } = props;
   const text = props.value == null ? '' : String(props.value);
   // Only an address the section marker's validator accepts is drawn, rebuilt from the allowed characters (lib/section-marker.mjs).
-  const drawn = text && isSafePicture(text) ? drawnAddress(shownAt(text), location.origin) : null;
+  const drawn = text && isSafeImage(text) ? drawnAddress(shownAt(text), location.origin) : null;
   const pick = async () => {
     const src = await context.pickImage?.();
     if (src) onChange(src);
@@ -395,7 +396,9 @@ function FieldControl({ field, value, onChange }: Props) {
         );
       // An option that needs a choice on the page (Field.options' onPage) only while there is one, or it is chosen.
       const offered = field.options!.filter(
-        (o) => !o.onPage || o.value === text || onThePage(context.relations[o.onPage] ?? [], context.page).length > 0,
+        (o) =>
+          (!o.stored || o.value === text) &&
+          (!o.onPage || o.value === text || onThePage(context.relations[o.onPage] ?? [], context.page).length > 0),
       );
       if (field.locked) {
         // The kind of an entry: what it is, not changed here (its hint under the label says more).
@@ -651,8 +654,8 @@ function MarkdownField({ value, onChange }: { value: string; onChange: (v: unkno
   );
 }
 
-// The same with the blocks its template allows (Field.template: a "Banner"'s picture and "Buttons"), put in with "+"
-// as in a page's text, in the sheet of the blocks (BlockDialog.tsx) over the sheet or form the field is in. A picture
+// The same with the blocks its template allows (Field.template: a "Banner"'s image and "Buttons"), put in with "+"
+// as in a page's text, in the sheet of the blocks (BlockDialog.tsx) over the sheet or form the field is in. An image
 // only when the template has 'image', without a format or crop of its own.
 function MarkdownWithBlocks({ value, template, onChange }: { value: string; template: Template; onChange: (v: unknown) => void }) {
   const editor = useRef<MarkdownHandle>(null);
@@ -663,7 +666,7 @@ function MarkdownWithBlocks({ value, template, onChange }: { value: string; temp
     template,
     { crop: false },
   );
-  const pictures = !template.blocks || template.blocks.includes(IMAGE);
+  const images = !template.blocks || template.blocks.includes(IMAGE);
   return (
     <>
       <MarkdownEditor
@@ -671,7 +674,7 @@ function MarkdownWithBlocks({ value, template, onChange }: { value: string; temp
         short
         value={value}
         blocks={blocks}
-        addImage={pictures ? context.pickImage : undefined}
+        addImage={images ? context.pickImage : undefined}
         onChange={() => {
           const markdown = editor.current?.markdown();
           if (markdown != null) onChange(markdown.trimEnd());

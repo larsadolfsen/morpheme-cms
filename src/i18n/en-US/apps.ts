@@ -10,7 +10,7 @@ export const apps = {
   deactivated: 'Deactivated',
   /** Under its name on its page: who made it. */
   publisher: (name: string) => `Developer: ${name}`,
-  /** On its page: its pictures (each opening it whole), what it does more fully, what it needs of the site
+  /** On its page: its images (each opening it whole), what it does more fully, what it needs of the site
    * (needsOf in store.ts), the cookies it sets and who made it, with a row to their page. */
   screenshots: 'Screenshots',
   about: 'About the app',
@@ -56,12 +56,12 @@ export const apps = {
   /** A page of installed connectors, plugins or themes with none: where to find more. */
   noneInstalled: (what: string) => `No ${what.toLowerCase()} installed yet. Find some in the Store.`,
   noDeveloper: 'There are no apps from that developer',
-  /** In the check before the build: a picture in an app's index.ts that shows nothing it has (shotOf), one without
+  /** In the check before the build: an image in an app's index.ts that shows nothing it has (shotOf), one without
    * its file (screenshots/, packages/editor/scripts/app-screenshots.mjs), and a file there index.ts does not name. */
   unknownScreenshot: (shows: string) =>
-    `The picture "${shows}" shows nothing the app has: block:<type>, kind:<list>:<variant>, list:<id>, settings or page.`,
-  noScreenshot: (file: string) => `${file} doesn’t exist. Take the pictures with npx morpheme app-screenshots.`,
-  unlistedScreenshot: 'The picture isn’t under screenshots in the app’s index.ts.',
+    `The image "${shows}" shows nothing the app has: block:<type>, kind:<list>:<variant>, list:<id>, settings or page.`,
+  noScreenshot: (file: string) => `${file} doesn’t exist. Take the images with npx morpheme app-screenshots.`,
+  unlistedScreenshot: 'The image isn’t under screenshots in the app’s index.ts.',
   /** In the check before the build: a widget in an app's index.ts (AppDefinition.widgets) that has no component. */
   widgetNoComponent: (key: string) => `The widget "${key}" has no component.`,
   install: 'Install',

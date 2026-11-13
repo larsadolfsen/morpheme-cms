@@ -4,7 +4,16 @@ import type { ComponentType } from 'react';
 import InlineList from './InlineList';
 import type { BlockData, BlockProps } from './blocks';
 import InlineCards from './InlineCards';
+import InlineTable from './InlineTable';
+import InlineNotice from './InlineNotice';
+import InlineVideo from './InlineVideo';
+import InlineSteps from './InlineSteps';
+import InlineSegmented from './InlineSegmented';
+import InlineButtons from './InlineButtons';
 import InlineFaq from './InlineFaq';
+import InlinePriceCards from './InlinePriceCards';
+import InlineTestimonials from './InlineTestimonials';
+import InlinePosts from './InlinePosts';
 import type { Change, Focus, Item } from './InlineItems';
 
 export type InlineViewProps = {
@@ -14,6 +23,8 @@ export type InlineViewProps = {
   data: BlockData;
   /** The item being edited; null while the block is not. */
   active: number | null;
+  /** A grid's active column (the Table); null while no cell is. */
+  col: number | null;
   /** The field to put the cursor in, once (a new object asks again). */
   focus: Focus | null;
   onChange: (change: Change) => void;
@@ -21,10 +32,23 @@ export type InlineViewProps = {
   onSettings: (item: number) => void;
   /** The icon (or image) slot of an item is tapped: its picker. */
   onIcon: (item: number) => void;
+  /** Changes the block's own props (a card's media kind). */
+  onProps: (patch: BlockProps) => void;
+  /** Opens the block's Edit sheet (a block with a setting that is not typed in place, like the FAQ's button page). */
+  onEdit?: () => void;
 };
 
 export const inlineViews: Record<string, ComponentType<InlineViewProps>> = {
   list: InlineList as ComponentType<InlineViewProps>,
   cards: InlineCards,
+  table: InlineTable,
+  notice: InlineNotice,
+  video: InlineVideo,
+  steps: InlineSteps,
+  segmented: InlineSegmented,
+  buttons: InlineButtons,
   faq: InlineFaq,
+  pricecards: InlinePriceCards,
+  testimonials: InlineTestimonials,
+  posts: InlinePosts,
 };

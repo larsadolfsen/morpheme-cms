@@ -5,6 +5,7 @@
 import { Rows, SquaresFour } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { iconOptions } from '../../icon';
+import { iconColorField } from '../../iconColor';
 import { t } from '../../i18n';
 import { headFields } from '../head';
 import { fromLine, nameWith, rowsFromFields, typed } from '../rows/fields';
@@ -17,6 +18,24 @@ export default defineBlock({
   icon: SquaresFour,
   nameOf: (p) => nameWith(t.blocks.segmented.label, p),
   hint: t.blocks.segmented.hint,
+  // Typed in place (InlineSegmented.tsx): the heading and text where they stand; the icon is picked in a slot, the page and the buttons in the
+  // row's sheet. Edit keeps the block's own settings (Only one open, Rows, Max rows, the text button).
+  inline: {
+    item: 'items',
+    fields: ['title', 'text'],
+    media: ['icon', 'iconColor'],
+    settings: ['href', 'buttons'],
+    blockSettings: true,
+    barLink: false,
+    texts: {
+      addAbove: t.blocks.segmented.addAbove,
+      addBelow: t.blocks.segmented.addBelow,
+      link: t.blocks.segmented.link,
+      row: t.blocks.segmented.row,
+      settings: t.blocks.segmented.rowSettings,
+      icon: t.blocks.segmented.icon,
+    },
+  },
   fields: [
     ...headFields,
     ...rowsFromFields,
@@ -30,18 +49,19 @@ export default defineBlock({
       required: true,
       fields: [
         { name: 'icon', label: t.blocks.segmented.icon, type: 'select', icons: true, options: iconOptions(t.blocks.icons) },
+        iconColorField,
         { name: 'title', label: t.blocks.segmented.title, type: 'string', required: true },
         { name: 'text', label: t.blocks.segmented.text, type: 'text' },
         { name: 'href', label: t.blocks.segmented.href, type: 'relation', to: 'pages', hint: t.blocks.segmented.hrefHint },
-        // Text buttons at the bottom of an open row (the "more" links of an old Expandable list); not in a list whose rows are always open.
+        // Text buttons at the bottom of an open row (the "more" links of an old Expandable list); drawn in a list that folds out.
         {
           name: 'buttons',
           label: t.blocks.segmented.rowButtons,
           singular: t.blocks.segmented.rowButton,
           hint: t.blocks.segmented.rowButtonsHint,
           type: 'list',
+          maxItems: 1,
           summary: 'label',
-          only: { field: 'show', is: ['all'], not: true },
           fields: [
             { name: 'label', label: t.blocks.segmented.rowButtonText, type: 'string', max: 30, required: true },
             { name: 'href', label: t.blocks.segmented.href, type: 'relation', to: 'pages', required: true },

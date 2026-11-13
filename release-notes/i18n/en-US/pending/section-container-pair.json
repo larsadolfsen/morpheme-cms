@@ -1,0 +1,6 @@
+{
+  "id": "section-container-pair",
+  "kind": "paragraph",
+  "title": "Section containers",
+  "text": "Text on filled cards in a section with a colour is easier to read. A filled card takes that colour's container and its matching text colour, in light and dark mode. Cards outside coloured sections look as before."
+}

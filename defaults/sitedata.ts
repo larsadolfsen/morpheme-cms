@@ -7,7 +7,7 @@ import type { StandardSiteData } from '../src/standard/site';
 import { categoryOf } from '../lib/cookieCategories.mjs';
 import { readFields, splitFrontmatter } from '../src/frontmatter.mjs';
 import { readingMinutes } from '../site/format';
-import { stateOf } from '../lib/status.mjs';
+import { isUnlisted, stateOf } from '../lib/status.mjs';
 import { blockTexts } from '../site/site';
 import { config } from '@site/config';
 
@@ -73,7 +73,7 @@ export function siteOf(files: RepoFile[]): SiteData {
       body,
     })),
     posts: md('src/content/blog')
-      .filter(({ data }) => stateOf(data) === 'published')
+      .filter(({ data }) => stateOf(data) === 'published' && !isUnlisted(data))
       .map(({ file, data, body }) => ({
         slug: file,
         title: text(data.title),

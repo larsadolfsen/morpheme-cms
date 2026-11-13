@@ -16,7 +16,7 @@ test('a page with a paragraph first stays unsplit', () => {
   assert.deepEqual(leadFill('<p>Hi</p><h2>A</h2>', false), { lead: '', rest: '<p>Hi</p><h2>A</h2>' });
 });
 
-test('a post without a picture, text starting with a paragraph, has a lead', () => {
+test('a post without an image, text starting with a paragraph, has a lead', () => {
   const isPost = isPostPage({ post: true });
   assert.deepEqual(leadFill('<p>Hi</p>', isPost), { lead: '<p>Hi</p>', rest: '' });
 });

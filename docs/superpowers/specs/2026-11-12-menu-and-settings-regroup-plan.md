@@ -61,21 +61,21 @@ Where each name shows up today (all read from `src/i18n/en-US|da-DK/common.ts` u
 | Logo and icon | Business, first | `BrandForm.tsx` | → Business | `Library.tsx Company` first row, `colors.ts` hint, `movedRoutes.mjs`, 0.13.0 note |
 | Dynamic lists | Content | `Dynamic lists` (`Lists()`) | → start | `Library.tsx` 1395 (back from list screens), `apps.ts lists`, 0.14.0 note ("Lists in the menu is now Dynamic lists") |
 | Block templates | Blocks | `Block templates` (`Blocks()`) | → start | `defaults/blockTexts.ts` back link, da-DK `blockTexts.ts` key, `site.ts` 148 |
-| Files | Content | `Files` (`Media()`) | → start | `deleted/files`, picker texts (`media.pick`, "Upload a new picture"), "Get started › Add a picture" |
+| Files | Content | `Files` (`Media()`) | → start | `deleted/files`, picker texts (`media.pick`, "Upload a new image"), "Get started › Add an image" |
 | Business | section | `Business` (`Company()`) | → start | `CompanyForm.tsx`, `BrandForm.tsx`, `AppList.tsx`, `collections.ts` ("CVR number") |
 
 Findings from the screens:
 
 1. **Phone, Settings** (`settings-m`): six rows, no hint of what is inside; Appearance is the biggest, behind the cog (the owner keeps it there).
-2. **Business** (`company-m`, `company-logo-m`): Logo and icon is a picture upload, not a fact about the company; it is
+2. **Business** (`company-m`, `company-logo-m`): Logo and icon is an image upload, not a fact about the company; it is
    the only row there that is about looks.
 3. **Blocks** (`menu-blocks-m`, `blocks-m`): the section `Blocks` has the row `Block templates` (the texts every copy of a
    block has) next to `Block settings` (which blocks can be inserted). "Templates" also means page templates in
    `forms.ts` (the side-panel templates), a second meaning.
 4. **Dynamic lists** (`lists-m`): on the demo it is a hub with one row (`Testimonials`); "Dynamic" is the owner's own word
    from 0.14, and batch 16 builds it into block names (`Dynamic` in the block name, `Rows from`).
-5. **Files** (`files-m`, `files-d`): the screen is pictures, PDFs, videos and zip files with search, sort, filter and a
-   date filter. The title says only "Files"; the picker flows say "picture".
+5. **Files** (`files-m`, `files-d`): the screen is images, PDFs, videos and zip files with search, sort, filter and a
+   date filter. The title says only "Files"; the picker flows say "image".
 6. **Developer** (`developer-m`): two rows; `Caching and builds` holds `Faster editor` and the build switches, which an
    owner with R2 meets, so it is not purely developer work.
 
@@ -144,7 +144,7 @@ Ids, routes and `common.parts.*` keys stay; only the section's title changes.
 | 2 | `Parts` (Settings row, `common.parts.editorParts`) | `Components` | `Dele` | `Komponenter` | Owner's decision, with `Developer` gone it is a Settings row of its own. | **Mixed.** `Components` is Material 3's own word for buttons, fields and lists, so it is the right word for the theme's parts; but it is a designer's word, not an owner's, and the screen's first child is already `UI components` (da `UI-komponenter`), so the owner reads "Components › UI components". `Parts` was plain but vague. Recommended: `Components` (da `Komponenter`) and rename the child to `Theme components` (da `Temaets komponenter`), or drop "UI". Passes M3 for short, active, no filler; fails "universal" slightly. |
 | 3 | `Block templates`, `Files`, `Dynamic lists`, `Business`, `Virksomheden`, `Appearance`, `Caching and builds`, `Logo and icon`, `Colors` | no change | no change | no change | Owner's decision. | `Block templates` keeps "templates" (a template builder comes here later). |
 
-Withdrawn from the first draft: `Block texts`, `Pictures and files`, `Virksomhed`.
+Withdrawn from the first draft: `Block texts`, `Images and files`, `Virksomhed`.
 
 ## 5. Routes that change, and old links
 
@@ -203,7 +203,7 @@ Not changed: `worker/*`, themes, blocks, apps, `lib/footerLinks.mjs`.
 6a. **The cog's mark for `#developer/*`.** `currentPart` finds `developer` by prefix; if it is not remapped (section 6) the cog is unmarked on Caching and builds and every Components screen.
 6b. **`Components` twice**: Settings › Components › UI components (see the rename table).
 6. **Licenses has one door.** The footer link is the only way in: it must stay in `FOOTER_LINKS` (`href` not `null`) and show on every screen (`Screen.tsx` says it does). Edition photo credits stay one tap from the update notice. The cog is no longer marked on `#licenses` (right: the footer opened it).
-7. **Colors is the theme's own look** (Material roles, the generator, dynamic colours from a picture); under Business it can read as "my brand colours" only. The screen's text must not say "theme". Check `colors.ts` for it.
+7. **Colors is the theme's own look** (Material roles, the generator, dynamic colours from an image); under Business it can read as "my brand colours" only. The screen's text must not say "theme". Check `colors.ts` for it.
 8. **`Block settings` in Settings** reads as an owner or developer setting among Morpheme and Privacy; A–Z rule only.
 9. **Release notes and docs** of 0.13 and 0.14 name old places (history, stay).
 10. **Danish**: `Globale dele` is new and needs the owner's eye.

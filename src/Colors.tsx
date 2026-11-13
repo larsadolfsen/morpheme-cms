@@ -9,14 +9,14 @@
 // fields: it
 // makes all of them, in both modes, from one source colour, Material 3's way (dynamic colour,
 // lib/dynamic-colors.ts, each colour by its role, colorRoles): the source colour picked or taken from a
-// picture, or dragged on a colour wheel (ColorWheel), a colour harmony (HARMONIES: where the secondary and tertiary
+// image, or dragged on a colour wheel (ColorWheel), a colour harmony (HARMONIES: where the secondary and tertiary
 // colours are on the wheel from it) and a contrast level, kept in the file with the colours. Choosing one of them makes
-// the colours from them; changing a colour by hand turns it off. Material's other source of dynamic colour, each page's own picture, is an app ("Content-based
+// the colours from them; changing a colour by hand turns it off. Material's other source of dynamic colour, each page's own image, is an app ("Content-based
 // colors", src/apps/content-colors/: pageColors in packages/editor/site/pageColors.ts). While an app installed changes the pages'
 // colours (hooks/page-colors.ts), each mode shows the pages' colours instead (PageColors), as the site was last built
 // (/editor/page-colors.json, packages/editor/scripts/page-colors.mjs): first a notice that the apps give them, with a button to the
 // site's own, which are only the fallback ("Fallback colors", #company/colors/fallback-colors, a page of the same form, so
-// what is unsaved stays), then the apps, each to its settings, the pages with colours from a picture (the picture, the
+// what is unsaved stays), then the apps, each to its settings, the pages with colours from an image (the image, the
 // page and its colours in the mode open), and those with the site's own. Saved with "Save changes" in one commit; the
 // editor shows the new colours at once (theme.ts applyColors), the site when it is built again.
 import { useEffect, useMemo, useState } from 'react';
@@ -64,7 +64,7 @@ import {
   type Dynamic,
 } from '../lib/dynamic-colors';
 import { colorRoles, config, defaultColors } from '@site/editor';
-import { colorsInPicture, pickImage, shownAt } from './images';
+import { colorsInImage, pickImage, shownAt } from './images';
 import { holdTheme, shownMode } from './theme';
 import { locale, siteT, t } from './i18n';
 import { colorFields, colorPairs, apps as siteApps } from './site';
@@ -165,16 +165,16 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
   const update = (change: (d: Dynamic) => Dynamic) => setColors((c) => ({ ...c, ...madeFrom(change(choiceOf(c))) }));
   const setDynamic = (change: Partial<Dynamic>) => update((d) => ({ ...d, ...change }));
 
-  async function fromPicture() {
+  async function fromImage() {
     const file = await pickImage();
     if (!file) return;
     try {
-      const found = await colorsInPicture(file);
-      if (!found.length) return notify({ text: d.noColorInPicture, error: true });
+      const found = await colorsInImage(file);
+      if (!found.length) return notify({ text: d.noColorInImage, error: true });
       setDynamic({ source: found[0] });
-      notify({ text: d.fromPictureDone });
+      notify({ text: d.fromImageDone });
     } catch {
-      notify({ text: t.app.pictureNotOpened, error: true });
+      notify({ text: t.app.imageNotOpened, error: true });
     }
   }
 
@@ -294,8 +294,8 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
                       }),
                     }))}
                   />
-                  <Button kind="outlined" size="small" icon={Image} onClick={fromPicture}>
-                    {d.fromPicture}
+                  <Button kind="outlined" size="small" icon={Image} onClick={fromImage}>
+                    {d.fromImage}
                   </Button>
                 </div>
               </FormField>
@@ -394,14 +394,14 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
 }
 
 /** A page's colours as the site was last built (packages/editor/scripts/page-colors.mjs): its address, its colours in both modes, and,
- * when an app changed them, the app (its id) and the picture they came from. */
-type BuiltPage = { path: string; light: Record<string, string>; dark: Record<string, string>; app?: string; picture?: string };
+ * when an app changed them, the app (its id) and the image they came from. */
+type BuiltPage = { path: string; light: Record<string, string>; dark: Record<string, string>; app?: string; image?: string };
 
 // The colours shown of a page, by their names: the accent colour, the light colour, the background and the text.
 const SHOWN = ['primary', 'surface-container-high', 'surface', 'on-surface'];
 
 /** "Pages": the apps that change the pages' colours, each to its settings, and each page's colours as the site was last
- * built, those from a picture first. */
+ * built, those from an image first. */
 function PageColors({ env, files, apps, mode }: { env: Env; files: RepoFile[]; apps: SiteApp[]; mode: Mode }) {
   const p = t.colors.pages;
   // undefined while they are fetched, null when the site has none (not built since, or not built at all).
@@ -438,7 +438,7 @@ function PageColors({ env, files, apps, mode }: { env: Env; files: RepoFile[]; a
   const row = (page: BuiltPage) => (
     <ListItem
       key={page.path}
-      leading={page.picture && <LeadingImage src={shownAt(splitPicture(page.picture).src)} />}
+      leading={page.image && <LeadingImage src={shownAt(splitPicture(page.image).src)} />}
       headline={nameAt(page.path)}
       supporting={page.path}
       truncate

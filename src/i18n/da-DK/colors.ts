@@ -23,9 +23,9 @@ export const colors: Messages['colors'] = {
   dynamic: {
     tab: 'Generator',
     source: 'Kildefarve',
-    fromPicture: 'Fra et billede',
-    fromPictureDone: 'Kildefarven er taget fra billedet.',
-    noColorInPicture: 'Billedet har ingen farve, der kan bruges som kildefarve.',
+    fromImage: 'Fra et billede',
+    fromImageDone: 'Kildefarven er taget fra billedet.',
+    noColorInImage: 'Billedet har ingen farve, der kan bruges som kildefarve.',
     base: 'Farver',
     harmony: 'Harmoni',
     harmonyHint: 'Træk i den store prik, så følger de andre farver efter harmonien.',

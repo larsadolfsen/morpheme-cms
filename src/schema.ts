@@ -17,6 +17,18 @@ import { locale } from './i18n';
  * together with the pages (a field with `fixed`). */
 export type Relation = string;
 
+/** A field in use only while another field next to it has one of `is` (`not`: none of them), and, with `and`, while this holds too (a card's
+ * link: not with a video, and not with buttons). */
+export type Only = {
+  field: string;
+  is: string[];
+  /** In use while the field has none of `is` (any value but those). */
+  not?: boolean;
+  /** Also while that field is itself not in use (its own `only` says no): a card's buttons by its link, which a video has not. */
+  loose?: boolean;
+  and?: Only;
+};
+
 export type Field = {
   name: string;
   label: string;
@@ -63,8 +75,9 @@ export type Field = {
   /** `icon`: shown before its name (only with `segments`; with `cards` over it). `hint`: shown under the label while it is
    * chosen, in place of the field's own (the status of a page: what each one means). `onPage`: offered only while
    * that relation has a choice on the page being edited (a button that opens a promotion); chosen, it is still shown.
+   * `stored`: a value an older site may still have stored: accepted when saved, but not offered to choose (shown while chosen).
    * `disabled`: shown, greyed, but not to choose (with `cards`: a side-panel template while no block is chosen for the side column). */
-  options?: { label: string; value: string; icon?: Icon; hint?: string; onPage?: Relation; disabled?: boolean }[];
+  options?: { label: string; value: string; icon?: Icon; hint?: string; onPage?: Relation; disabled?: boolean; stored?: boolean }[];
   /** select: the options come from a tool of the app's MCP server (`options.from` in app.json): `app`, the tool, and the keys of an item
    * that give each option's label and value. The field loads them through the Worker (fields.tsx, ToolSelect). */
   optionsFrom?: { app: string; tool: string; label: string; value: string };
@@ -88,7 +101,7 @@ export type Field = {
    * picked when it is made). */
   locked?: boolean;
   /** select: the choices on a page of their own under the form, at its address with the field's name after it
-   * (#apps/content-colors/settings/variant), in place of the sheet, drawn by this with what each gives (a picture of
+   * (#apps/content-colors/settings/variant), in place of the sheet, drawn by this with what each gives (an image of
    * it); the field links there. Only a field of a part's own form (CompanyForm.tsx: an app's settings), not one in a
    * group or a list; elsewhere the choices are in the sheet. */
   page?: ComponentType<FieldPageProps>;
@@ -126,7 +139,7 @@ export type Field = {
   missing?: unknown;
   /** Shown, checked and saved only while another field next to it (a select) has one of these values,
    * and that field is itself in use. */
-  only?: { field: string; is: string[]; /** In use while the field has none of `is` (any value but those). */ not?: boolean };
+  only?: Only;
   /** boolean: shown as a switch, with what it says when on and when off. */
   toggle?: [string, string];
   /** Its value changes how the page is laid out (its template): "Preview" shows a page whose value
@@ -143,7 +156,7 @@ export type Field = {
    * headings and texts, written in the text above their cards, sections.mjs); its own blocks have theirs (Block.lead). */
   leads?: Record<string, Lead>;
   /** blocks: what the page may have of them (Template). markdown: the blocks that can be put in its text with "+", and
-   * how many (Template `blocks` and `max`; 'image' a picture); without it, none. */
+   * how many (Template `blocks` and `max`; 'image' an image); without it, none. */
   template?: Template;
 };
 
@@ -198,12 +211,12 @@ export type Block = {
   /** Edited elsewhere: "Edit" goes there (without fields), or a link there over its fields. */
   edit?: Edit;
   fields: Field[];
-  /** Its own text and picture are written in the page's text, above its card (sections.mjs): */
+  /** Its own text and image are written in the page's text, above its card (sections.mjs): */
   lead?: Lead;
 };
 
 /** heading: the field of the heading (a "Heading", H2); body: the field of the text under it, one
- * text (paragraphs) or, with `list`, one item per paragraph; image: a picture (`image`, `imageAlt`, `imageDecorative`)
+ * text (paragraphs) or, with `list`, one item per paragraph; image: an image (`image`, `imageAlt`, `imageDecorative`)
  * above the heading, in place of the design's own; upTo: only the body's text before its first block of this type is
  * written above the card (the front page's "Banner": its "Buttons" block), the block and the text after it stay in the
  * field, which the card has too. */
@@ -259,7 +272,7 @@ export type FolderCollection = Base & {
   /** The boolean field that turns an entry on and off (a promotion's "Turned on"/"Turned off"): the list
    * can then be filtered by it, the choices its `toggle` (Library.tsx List). */
   onOff?: string;
-  /** The list's own fields one of its own kinds does not have, by the kind (a bar has no picture or
+  /** The list's own fields one of its own kinds does not have, by the kind (a bar has no image or
    * heading), as AppKind.omit for an app's kinds (apps.ts withKinds). */
   omit?: Record<string, string[]>;
   /** How an entry of one of the list's own kinds looks on the site, by the kind, drawn beside its form
@@ -305,7 +318,7 @@ export type OwnedList = FolderCollection & {
   /** The names of the entry's fields that fill a row of a list block that reads this list ("Rows from"): the title (required), and
    * the text, icon, page link and tags (the relation `categories`) when the list has them. A list without it is not offered there. */
   asRows?: { title: string; text?: string; icon?: string; href?: string; tags?: string };
-  /** Made-up rows, as the files have them, for the parts under "Parts" and an app's pictures for the store (examples.ts). */
+  /** Made-up rows, as the files have them, for the parts under "Parts" and an app's images for the store (examples.ts). */
   examples?: Record<string, unknown>[];
 };
 
