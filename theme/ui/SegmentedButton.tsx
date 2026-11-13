@@ -1,6 +1,8 @@
 // A segmented button (m3.material.io/components/segmented-buttons, .segmented-button in ../styles/ui.css): a few
 // choices side by side in one frame (`segments`), each a button with its label and evt. an icon, the chosen ones with
-// aria-pressed="true" and a check before the label (in the icon's place when it has one; the theme shows it or not).
+// aria-pressed="true" and a check before the label (in the icon's place when it has one; the theme shows it or not). A segment with a
+// `swatch` (a CSS colour) shows a filled circle of it in every segment instead, in the check's place and with no check: the chosen one
+// is shown by its fill alone, and nothing moves when the choice changes (the colours of an icon).
 // Single-select (one chosen) or multi-select (`multiple`: any of them, data-multiple); the group has its name (`label`,
 // read by screen readers). Which one is chosen, and what that does, is the script of the block that shows it (by a
 // segment's `value`, data-value), or, in the editor, the segment's own attributes (onClick), which go on its button.
@@ -8,7 +10,10 @@
 // Astro component gives its elements the same classes with segmentedButtonClass and segmentedButtonSegmentClass.
 import { Glyph, Svg, type IconRef } from '@morphemecms/cms/src/icon';
 
-export type Segment = { label: string; icon?: IconRef; value?: string; selected?: boolean; disabled?: boolean } & Record<string, unknown>;
+export type Segment = { label: string; icon?: IconRef; swatch?: string; value?: string; selected?: boolean; disabled?: boolean } & Record<
+  string,
+  unknown
+>;
 
 /** A segmented button's class, and its segments'. */
 export const segmentedButtonClass = 'segmented-button';
@@ -29,7 +34,7 @@ export default function SegmentedButton({
       data-multiple={multiple || undefined}
       {...rest}
     >
-      {segments.map(({ label: name, icon, value, selected, disabled, ...own }) => (
+      {segments.map(({ label: name, icon, swatch, value, selected, disabled, ...own }) => (
         <button
           key={value ?? name}
           type="button"
@@ -39,7 +44,11 @@ export default function SegmentedButton({
           data-value={value}
           {...own}
         >
-          <Svg name="check" size={18} className="segmented-button-check" />
+          {swatch ? (
+            <span className="segmented-button-swatch" style={{ background: swatch }} aria-hidden="true" />
+          ) : (
+            <Svg name="check" size={18} className="segmented-button-check" />
+          )}
           {icon && <Glyph icon={icon} size={18} className="segmented-button-icon" />}
           <span className="segmented-button-label">{name}</span>
         </button>
