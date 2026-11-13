@@ -2664,24 +2664,26 @@ async function checkTableAlign(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   // The built site: the demo's Table has a column of numbers (Editors) and text columns.
-  await page.goto(`${site}/blocks/`);
-  const built = await page.evaluate(() => {
-    const at = (sel) => getComputedStyle(document.querySelector(sel)).textAlign;
-    return {
-      textHead: at('.block-table-grid thead th:nth-child(1)'),
-      textCell: at('.block-table-grid tbody tr:first-child td:nth-child(1)'),
-      numberHead: at('.block-table-grid thead th:nth-child(3)'),
-      numberCell: at('.block-table-grid tbody tr:first-child td:nth-child(3)'),
-      mixedCell: at('.block-table-grid tbody tr:first-child td:nth-child(2)'),
-    };
-  });
+  const built =
+    (await onDemoBlocksPage(page, label)) &&
+    (await page.evaluate(() => {
+      const at = (sel) => getComputedStyle(document.querySelector(sel)).textAlign;
+      return {
+        textHead: at('.block-table-grid thead th:nth-child(1)'),
+        textCell: at('.block-table-grid tbody tr:first-child td:nth-child(1)'),
+        numberHead: at('.block-table-grid thead th:nth-child(3)'),
+        numberCell: at('.block-table-grid tbody tr:first-child td:nth-child(3)'),
+        mixedCell: at('.block-table-grid tbody tr:first-child td:nth-child(2)'),
+      };
+    }));
   const start = (v) => v === 'start' || v === 'left';
   const end = (v) => v === 'end' || v === 'right';
-  if (!start(built.textHead) || !start(built.textCell))
+  if (built && (!start(built.textHead) || !start(built.textCell)))
     problems.push(`${label}: the site's text column is not left-aligned (${built.textHead}, ${built.textCell})`);
-  if (!end(built.numberHead) || !end(built.numberCell))
+  if (built && (!end(built.numberHead) || !end(built.numberCell)))
     problems.push(`${label}: the site's number column is not right-aligned (${built.numberHead}, ${built.numberCell})`);
-  if (!start(built.mixedCell)) problems.push(`${label}: a column with a word in it is not left-aligned on the site (${built.mixedCell})`);
+  if (built && !start(built.mixedCell))
+    problems.push(`${label}: a column with a word in it is not left-aligned on the site (${built.mixedCell})`);
   await openEditor(page, site);
   const commits = [];
   await page.route('**/api/github/commit', (r) => {
