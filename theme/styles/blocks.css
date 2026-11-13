@@ -167,14 +167,20 @@
   .text-section-primary {
     --section-fill: var(--block-primary);
     --section-on-fill: var(--block-on-primary);
+    --section-container: var(--mo-primary-container, var(--block-tint));
+    --section-on-container: var(--mo-on-primary-container, var(--block-text));
   }
   .text-section-secondary {
     --section-fill: var(--block-secondary);
     --section-on-fill: var(--block-on-secondary);
+    --section-container: var(--mo-secondary-container, var(--block-tint));
+    --section-on-container: var(--mo-on-secondary-container, var(--block-text));
   }
   .text-section-tertiary {
     --section-fill: var(--block-tertiary);
     --section-on-fill: var(--block-on-tertiary);
+    --section-container: var(--mo-tertiary-container, var(--block-tint));
+    --section-on-container: var(--mo-on-tertiary-container, var(--block-text));
   }
   /* Across the whole width of the window (`width` full): without corners; it reaches out of the text to the window's edges, from
      where the text starts at the left of the page's container (--block-page-width, --block-gutter), and its content starts there
