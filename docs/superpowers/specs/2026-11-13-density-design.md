@@ -299,10 +299,16 @@ asked).
 Also decided (owner, 2026-11-13): where it is kept. In the editor it is per user, kept on the user (section 2.1). On the site, when a
 theme offers density, it is a cookie in the browser (section 2.4); no front-end sign-ins.
 
-Open questions. The PM asks them one at a time, in this order.
+Also decided (owner, 2026-11-13): follow M3 exactly for targets: 48 x 48 dp on touch, 44 x 44 dp for a mouse (pointer). The 32 dp idea
+is gone (section 2.3).
 
-1. **The smallest target for a mouse.** M3 says touch targets at least 48 x 48 dp and "pointer targets minimums 44 x 44dp", with 8dp
-   between targets (section 2.3). I found no width exception. Do we follow M3 exactly: 48 on touch, 44 for a mouse?
-   **Recommendation:** yes. If the owner knows the page with the width rule, send it and the spec will quote it.
-2. **Default theme: a site setting?** **Recommendation:** no site setting in `Material` now; only the Table block's own `density`.
-   A theme author can add one. (Say yes if the owner wants visitors' pages denser by site.)
+Open question. The PM asks it.
+
+1. **Does the default theme `Material` offer density to visitors?** M3's density page says: "Apply density thoughtfully; not every layout
+   needs it." "Lower density can be better for sites prioritizing aesthetics, a focused message, less information, or easier
+   navigation"; higher density suits "data-rich products where people expect to scan lots of information quickly. Examples: News,
+   financial portals, dashboards." Also: "People should be able to opt in to dense layouts and components", and a person's density
+   should not change by itself across breakpoints. A public site made with `Material` is mostly pages to read, not a data screen.
+   **Recommendation:** no site setting in `Material` now. Visitors get the Medium look, as today. The Table block keeps its own
+   `density` (a table is M3's own example of where density helps). A theme author can still offer a setting through the cookie in
+   section 2.4. Say yes only if the owner wants visitors to pick a density on every page.
