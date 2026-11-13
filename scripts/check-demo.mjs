@@ -8,9 +8,13 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { binOf } from './bin.mjs';
 import { demoSite } from './demo-site.mjs';
-import { demoBlocksPage, demoBlocksProblems, editorBlocks } from './demo-blocks.mjs';
+import { demoBlocksPage, demoBlocksProblems, editorBlocks, exampleProblems, styleProblems } from './demo-blocks.mjs';
 
-const blockProblems = demoBlocksProblems(demoBlocksPage(), editorBlocks());
+const blockProblems = [
+  ...demoBlocksProblems(demoBlocksPage(), editorBlocks()),
+  ...styleProblems(demoBlocksPage()),
+  ...exampleProblems(demoBlocksPage()),
+];
 if (blockProblems.length) {
   console.error(blockProblems.join('\n'));
   console.error("\nThe demo's Blocks page and the editor disagree (scripts/demo-blocks.mjs).");

@@ -18,6 +18,8 @@ export type Change = {
   active?: number | null;
   focus?: Focus | null;
   /** A grid's active column (the Table). */ col?: number | null;
+  /** Props of the block to set with the items (a Table's `columns`); `undefined` removes one. */
+  props?: Record<string, unknown>;
 };
 
 // A textarea that has the height of its text: the browser's own where it can (CSS field-sizing), else set here.
