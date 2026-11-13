@@ -200,10 +200,14 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   // A page stored as Scheduled (an older site) can be edited and saved, as a draft and as published, on a phone: its status is accepted.
   const old = 'src/content/pages/old-scheduled.md';
   await page.goto(`${site}/editor/#${old}`);
-  await page.waitForSelector('[contenteditable=true]').catch(async (e) => {
-    XX;
-  });
-  for (const name of ['Save draft', 'Publish']) {
+  const opened = await page.waitForSelector('[contenteditable=true]', { timeout: 15_000 }).then(
+    () => true,
+    async () => {
+      fail.push(`a page stored as Scheduled did not open in the editor: ${(await toast()).slice(0, 120)}`);
+      return false;
+    },
+  );
+  for (const name of opened ? ['Save draft', 'Publish'] : []) {
     await type(` ${name}`);
     const before = repo.answered.length;
     await page.getByRole('button', { name, exact: true }).click();
