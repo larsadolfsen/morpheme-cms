@@ -42,25 +42,103 @@ The second paragraph says the next thing, with the space your theme sets between
 
 ## Text styles
 
-The T menu sets the style of a paragraph.
+Each text style is shown with one paragraph and then with two paragraphs in a row. The T menu sets the style.
 
-<p class="body-large">Body large: an intro for the page or a section.</p>
+### Body large
 
-Body medium: the plain paragraph, the default.
+<p class="body-large">One paragraph in Body large. It is the intro of a text, a little larger than the rest, and it wraps with the width of the screen.</p>
 
-<p class="body-small">Body small: small print, notes and dates.</p>
+<p class="body-large">Two paragraphs in a row, the first in Body large. It says one thing and stops.</p>
 
-> Quote: a line that stands out from the text.
+<p class="body-large">The second paragraph follows with the space your theme sets between paragraphs.</p>
 
-In a list, the T menu sets the size of the words instead.
+### Body medium
+
+One paragraph in Body medium, the plain text and the default. It wraps with the width of the screen, so you can see how the lines break and how tall they are.
+
+Two paragraphs in a row, the first in Body medium. It says one thing and stops.
+
+The second paragraph follows with the space your theme sets between paragraphs.
+
+### Body small
+
+<p class="body-small">One paragraph in Body small, for small print, notes and dates. It wraps like the others, a little smaller.</p>
+
+<p class="body-small">Two paragraphs in a row, the first in Body small. It says one thing and stops.</p>
+
+<p class="body-small">The second paragraph follows with the space your theme sets between paragraphs.</p>
+
+### Quote
+
+> One paragraph in a quote. It stands out from the text with a line beside it.
+
+> Two paragraphs in a quote, the first of them like this one.
+>
+> The second paragraph stays inside the same quote.
+
+### Label
+
+<p class="label-medium">One label above a heading</p>
+
+#### Heading under a label
+
+<p class="label-medium">A second label</p>
+
+#### Another heading under a label
+
+## Formatting in paragraphs
+
+Every format the toolbar offers, on one word and on several words. One paragraph:
+
+A paragraph with **bold**, *italic*, ***bold and italic***, a [link](/about/), `code`, <span class="color-accent">accent color</span> and <span class="color-muted">muted color</span> on single words, and with **several bold words**, *several italic words*, ***several bold and italic words***, [several link words](/about/), `several code words`, <span class="color-accent">several accent words</span> and <span class="color-muted">several muted words</span>.
+
+Two paragraphs in a row, the first with **bold** and *italic* words.
+
+The second with a [link](/about/), `code` and <span class="color-accent">accent</span> words, and ***bold and italic*** together.
+
+In a list, the T menu sets the size of the words:
 
 - Small words: <span class="body-small">Opening hours may change</span>
 - Medium words: the plain text
 - Large words: <span class="body-large">Welcome to the shop</span>
 
-## Marks and links
+The editor has no marker, highlight, underline, strikethrough or free text color. Text can have the accent color or the muted color, nothing else.
 
-Select words and use the toolbar: **bold**, *italic*, ***bold and italic***, a [link to a page](/about/), an [external link](https://astro.build) and `inline code`.
+## Formatting in headings
+
+Each heading level three ways: plain, one word in each format, and several words in each format. Heading 2 names a section, so it stays plain text: the editor cannot format words in it.
+
+# Heading 1: plain
+
+# One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
+
+# Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="color-accent">accent words here</span>, <span class="color-muted">muted words here</span>
+
+## Heading 2: plain
+
+### Heading 3: plain
+
+### One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
+
+### Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="color-accent">accent words here</span>, <span class="color-muted">muted words here</span>
+
+#### Heading 4: plain
+
+#### One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
+
+#### Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="color-accent">accent words here</span>, <span class="color-muted">muted words here</span>
+
+##### Heading 5: plain
+
+##### One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
+
+##### Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="color-accent">accent words here</span>, <span class="color-muted">muted words here</span>
+
+###### Heading 6: plain
+
+###### One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
+
+###### Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="color-accent">accent words here</span>, <span class="color-muted">muted words here</span>
 
 ## Alignment
 
@@ -179,6 +257,8 @@ A second paragraph follows the first, with the space the theme puts between para
 
 <p class="body-small">Body small is for small print, notes and dates.</p>
 
+#### Heading 4: **bold**, *italic*, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
+
 <div data-section="primary"></div>
 
 <p class="label-medium">Label on primary</p>
@@ -192,6 +272,8 @@ A paragraph in Body medium is the plain text. It wraps with the width of the scr
 A second paragraph follows the first, with the space the theme puts between paragraphs.
 
 <p class="body-small">Body small is for small print, notes and dates.</p>
+
+#### Heading 4: **bold**, *italic*, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
 
 <div data-section="secondary"></div>
 
@@ -207,6 +289,8 @@ A second paragraph follows the first, with the space the theme puts between para
 
 <p class="body-small">Body small is for small print, notes and dates.</p>
 
+#### Heading 4: **bold**, *italic*, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
+
 <div data-section="tertiary"></div>
 
 <p class="label-medium">Label on tertiary</p>
@@ -220,3 +304,5 @@ A paragraph in Body medium is the plain text. It wraps with the width of the scr
 A second paragraph follows the first, with the space the theme puts between paragraphs.
 
 <p class="body-small">Body small is for small print, notes and dates.</p>
+
+#### Heading 4: **bold**, *italic*, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
