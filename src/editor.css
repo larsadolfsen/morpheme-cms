@@ -1020,9 +1020,9 @@ html {
   background: var(--mo-secondary-container);
   color: var(--mo-on-secondary-container);
 }
-/* A card's next button: empty and faded until it is made (Cards, InlineCards.tsx). */
+/* A card's next button: empty and quiet (on-surface-variant, not an opacity, which kept it under 3:1) until it is made (Cards, InlineCards.tsx). */
 .editor-text .inline-card-next-button {
-  opacity: 0.55;
+  color: var(--mo-on-surface-variant);
 }
 
 .editor-text .inline-list-slot {
