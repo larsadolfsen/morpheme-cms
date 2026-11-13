@@ -228,7 +228,7 @@
   /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
   .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
     --block-text: var(--section-on-accent);
-    --block-muted: color-mix(in srgb, var(--section-on-accent) 80%, transparent);
+    --block-muted: var(--section-on-accent);
     --block-accent: var(--section-on-accent);
     --block-accent-hover: color-mix(in srgb, var(--section-on-accent) 88%, var(--section-accent));
     --block-on-accent: var(--section-accent);

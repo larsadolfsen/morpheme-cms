@@ -486,7 +486,7 @@
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
 .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   --mo-on-surface: var(--section-on-accent);
-  --mo-on-surface-variant: color-mix(in srgb, var(--section-on-accent) 80%, transparent);
+  --mo-on-surface-variant: var(--section-on-accent);
   --mo-outline-variant: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
   --mo-outline: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
   --mo-surface: var(--section-accent);
