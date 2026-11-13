@@ -1717,13 +1717,6 @@
     color: var(--block-text);
     overflow: visible;
   }
-  /* Never a margin above or under it: a sheet inside a Tailwind space-y-* container (the editor's: ColorTiles on Colors) would
-     get margin-block-end from it, which lifts it off the bottom (and off the keyboard) with a strip of the page below. */
-  @media (width < theme(--breakpoint-medium)) {
-    .bottom-sheet {
-      margin-block: 0 !important;
-    }
-  }
   /* A menu on a phone, in a sheet from the bottom (the editor's): its items on the sheet, without a surface of its own. */
   .bottom-sheet .menu {
     width: auto;

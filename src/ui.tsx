@@ -3537,7 +3537,8 @@ export function BottomSheet({
   ...rest
 }: DialogHTMLAttributes<HTMLDialogElement> & { ref?: Ref<HTMLDialogElement>; full?: boolean; panel?: boolean }) {
   const sheet = full ? siteBottomSheetFullClass : siteBottomSheetFitClass;
-  // Lifted above the on-screen keyboard, for every sheet of the editor (followKeyboard, in the theme).
+  // Lifted above the on-screen keyboard, for every sheet of the editor (followKeyboard, in the theme). On a phone it has no
+  // vertical margin (the medium width is 37.5rem): a space-y-* parent would give it one and lift it off the bottom.
   const own = useCallback(
     (el: HTMLDialogElement | null) => {
       if (typeof ref === 'function') ref(el);
@@ -3553,7 +3554,11 @@ export function BottomSheet({
     [ref],
   );
   return (
-    <dialog ref={own} className={[sheet, 'editor-sheet', panel && 'editor-side-panel', className].filter(Boolean).join(' ')} {...rest}>
+    <dialog
+      ref={own}
+      className={[sheet, 'editor-sheet', '[@media(width<37.5rem)]:my-0', panel && 'editor-side-panel', className].filter(Boolean).join(' ')}
+      {...rest}
+    >
       <div className={siteBottomSheetContainerClass()} data-wide={panel ? 'side-sheet' : undefined}>
         {children}
       </div>
