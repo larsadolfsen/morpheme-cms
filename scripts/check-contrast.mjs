@@ -23,7 +23,8 @@ import { blockHtml } from '../lib/blocks.mjs';
 
 const ROOT = `${process.cwd()}/`;
 const PAGE = 'src/content/pages/contrast-test.md';
-const SECTIONS = ['surface', 'primary', 'secondary', 'tertiary'];
+// CONTRAST_SECTIONS=surface,tint,accent: the section colours of an older version (v0.16.0 has no primary, secondary or tertiary).
+const SECTIONS = process.env.CONTRAST_SECTIONS ? process.env.CONTRAST_SECTIONS.split(',') : ['surface', 'primary', 'secondary', 'tertiary'];
 const SIZES = [
   [375, 740],
   [1280, 900],
