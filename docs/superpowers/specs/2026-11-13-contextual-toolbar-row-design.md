@@ -367,7 +367,7 @@ PR #518. Checked against M3 (Playwright: `/foundations/layout/understanding-layo
    least 44 dp wide: the visible button itself, with no hit area drawn beyond it. The icon is 20 dp, in the bar's buttons and in the rows of the `⋮` menu and the formatting menus alike (12 dp of air round it). The bar's height is
    that 44: **bar padding above and below 0, so the bar is 44 dp tall (plus the theme's 1 px edge line)** (my recommendation: the least padding that
    keeps 44; any padding adds to the bar and takes room from the text). Side padding 16 dp (M3: "minimum outside padding of 16dp"); no gap
-   between buttons; the divider has 8 dp each side. Menu rows are 44 dp already (`--menu-item-height: 2.75rem`, `theme/styles/global.css:262`). Every
+   between buttons; the divider has 8 dp each side. Menu rows are 44 dp already (`--menu-item-height: 2.75rem`, `theme/styles/global.css:262`), which is M3 Expressive's "Menu item height 44dp". Every
    other part of the editor and the theme stays on M3's 48 dp.
 3. **Apple, read 13 November 2026 on `developer.apple.com/design/human-interface-guidelines/buttons`:** "As a general rule, a button needs a hit region
    of at least 44x44 pt — in visionOS, 60x60 pt — to ensure that people can select it easily, whether they use a fingertip, a pointer, their eyes, or
@@ -401,12 +401,19 @@ lists are in section 3.
   density page, "Accessible targets should retain a minimum of 48x48dp, even if the visual element, such as an icon, is smaller." **We do:** the
   buttons and rows are 44 × 44 dp themselves, on mouse and touch, only in the editor's bar, its `⋮` and its menus; everything else stays on 48.
   **Why:** owner's decision, following Apple's Human Interface Guidelines ("a button needs a hit region of at least 44x44 pt"). Date 2026-11-13.
-- *20 dp icons in the editor's bar and menu rows.* **M3 says** (Menus specs, baseline menu, read 13 November 2026 on `m3.material.io/components/menus/specs`): "Leading/trailing icon size 24dp" (with "List item height 48dp"). The Lists specs page prints "24dp" for its icons too. **We do:** 20 dp icons in the bar's buttons and the `⋮` rows, in 44 dp buttons and rows. **Does it match M3?** Not the page text I could read: the baseline menu prints 24. The audit PR #520 says the M3 Expressive list spec prints 20 for list icons ("icons 20 as the Expressive spec says"); I could not reproduce that: the vertical menus' (Expressive) specs on the Menus page are in images and token tables with no text, and I found no "20dp" in the text of the Menus or Lists specs pages. So 20 is a deviation from the printed baseline value, and may match Expressive; unconfirmed. **Why:** owner's decision. Date 2026-11-13.
+- *20 dp icons in the editor's bar and menu rows: matches M3 Expressive for the menu rows; not a deviation there.* Read 13 November 2026 on
+  `m3.material.io/components/menus/specs`, token set **Menus - Common**, group Layout, Layout / Default: "Menu item height 44dp", "Menu item
+  leading icon size 20dp", "Menu item trailing icon size 20dp". The **baseline** token set on the same page ("Menu (baseline)", marked with a
+  warning) says 24dp for its icons and the baseline menu's spec table says "List item height 48dp". So the `⋮` rows at 44 dp with 20 dp icons
+  **match** M3 Expressive's menu tokens; only the baseline menu says 24 and 48. **The bar's buttons are not menu rows:** their 20 dp icon is the
+  owner's choice; I did not read M3's icon size for an icon button in a toolbar (the Icon buttons spec page has an "Icon size" heading with the
+  numbers in images and token tables I could not read), so for the bar's buttons I cannot say whether 20 matches. The audit PR #520 says the Expressive
+  list spec also prints 20; I did not re-read the Lists token tables, so I confirm it only for menus. Date 2026-11-13.
 - *Overlay scrollbar of the `⋮` pop-up on a phone.* **M3 says:** "Menus can scroll when all menu items can't display at once. In this state, menus show a persistent scrollbar." (menus/guidelines, Scrolling.) **We do:** `scrollbar-width: thin` and `scrollbar-gutter: stable` on the editor's menu, so a persistent scrollbar shows where the browser allows it (a computer); on a phone the browser's overlay scrollbar hides when idle and cannot be forced, so there we do not match; the cue is a half-cut last row. **Why:** the platform. Date 2026-11-13. M3 also says "Don't use gaps in scrollable menus": the `⋮` menu uses dividers only.
 - Not a deviation: the tooltip with a shortcut. M3's plain tooltip "briefly describe[s] a UI element" and says nothing for or against a
   shortcut; menu items may carry "keyboard commands" as trailing text.
 
-**Not read:** the icon size of the icon button and the vertical (Expressive) menu's icon size (images and token tables),
+**Not read:** the icon size of an icon button in a toolbar (images and token tables),
 and any M3 text on shortcuts in tooltips.
 
 ### Our longest menus today (counted from the code, 13 November 2026)
