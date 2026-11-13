@@ -92,6 +92,37 @@ A part writes its size as `calc(<default> + var(--mo-density) * var(--mo-density
 that does nothing about density never changes. Only the steps move, in M3's 4dp: the height or the top and bottom padding, never the
 text size.
 
+**The rules (owner, 2026-11-13), and what the M3 page says about each.**
+
+1. Strict 4dp steps on component heights and on top and bottom (vertical) padding. M3 page: "Higher density is typically applied by
+   decreasing the top and bottom padding or overall height by 4dp." (Read.)
+2. Medium (0) is standard. Small (-1) removes 4dp of vertical space, -2 removes 8dp, -3 removes 12dp. Large (+1) adds 4dp. M3 page:
+   the scale starts at 0 and goes to -1, -2, -3. (Read; Large is ours.)
+3. Horizontal padding (leading and trailing) is the same at every step, so text alignment and grids stay consistent. **I could not
+   find this on the M3 page**: its text says only "Center the grouped element within the component container" and "Text size shouldn't
+   change as the container size scales". It is the owner's rule and the spec follows it; it is not an M3 quote. Only height and vertical
+   padding use `--mo-density`; left and right padding never do.
+4. The image may shrink, the invisible touch target stays at least 48 × 48 dp (section 2.3). M3 page: "Accessible targets should
+   retain a minimum of 48x48dp, even if the visual element … is smaller." (Read.)
+5. No high density on focused single-task parts; use it on data-heavy screens. M3 page: "Don't increase density in UIs that involve
+   focused tasks, such as selecting from a menu" and "in components that alert a person of changes, such as snackbars or dialogs";
+   "Consider using higher density information design when people need to scan lots of information" (a data table is the page's own
+   example). (Read.)
+
+**How rule 5 and the owner's scope fit together.** Every part is in one of three groups. The three names work everywhere in the
+editor outside the page and post editing area, except where a group says otherwise:
+
+| Group | Parts | Large (+1) | Medium (0) | Small (-1) | -2 and -3 |
+| --- | --- | --- | --- | --- | --- |
+| **Data-heavy** (people scan a lot) | list rows (the Library, Files, Redirects, the start screen's page and post lists, own lists), tables (`DataTable`), the headers and filter chips directly above a list | +4 | standard | -4 | yes, -8 and -12, but only for a theme that asks; the editor's menu does not offer them |
+| **Layout** (space around things) | gaps between sections, screen and column padding, toolbars, tabs, chip rows, buttons outside a dialog or menu | +4 | standard | -4 | no |
+| **Focused single-task** | menus and dropdowns (including the exposed dropdown), dialogs, bottom and side sheets, snackbars, date, time, colour and icon pickers, the fields and switches inside a settings form (the form's gaps are Layout), the density setting's own rows, the FAB | +4 | standard | stays standard | never |
+
+So Large is allowed on every group (it is less dense, which M3 does not warn against). Small and below never shrink a focused
+single-task part: at Small a menu is still a Medium menu. The page and post editing area is outside all three groups: density never
+reaches it.
+
+
 What each part does per step, in dp (Medium = default, Small = -1, then -2 and -3 for themes):
 
 | Part | Default | -1 | -2 | -3 | Source of the default |
@@ -100,7 +131,7 @@ What each part does per step, in dp (Medium = default, Small = -1, then -2 and -
 | Chip | 32 | 28 | 24 | 20 | read on M3's chips Specs page |
 | Text field | 56 | 52 | 48 | 44 | read on M3's text-field Specs page ("Container height 56dp") |
 | Table row (`DataTable`) | 52 | 48 | 44 | 40 | MD2's data-table spec, as in the table spec; M3 has no table |
-| Button, list row, gaps | not read | -4 | -8 | -12 | see below |
+| Button, list row, gaps | not read | -4 | -8 | -12 | see below (the -2 and -3 columns apply to data-heavy parts only) |
 
 Large (+1) adds 4 to each default. Only the segmented button's density rule is printed by M3 (the 4dp step and "only applied to the
 height"). For every other part the sizes are **our application of M3's general sentence** ("Higher density is typically applied by
@@ -111,12 +142,9 @@ not render with the container height as text), so this spec gives no number for 
 `theme/ui/` and subtracts 4dp per step, and checks it against M3 by hand in a browser. The gap between rows and sections in the editor
 (outside the page and post editing area) is likewise today's value minus 4dp per step, from the spacing tokens.
 
-Not changed at any step (M3: "Don't increase density" here): menus and their items, dialogs, snackbars, the density setting's own
-rows, the navigation parts' targets.
-
 ### 2.3 The 48dp rule
 
-On a touch screen (`pointer: coarse`) every tappable part keeps a 48 × 48 dp target at every step. The image shrinks; an invisible
+On a touch screen (`pointer: coarse`) every tappable part keeps a 48 × 48 dp target at every step (rule 4). The image shrinks; an invisible
 hit area (a `::after` of 48 dp) keeps the target. Where two small targets would then overlap, the gap between them grows back to
 keep them apart. The existing 48 dp icon button (`docs/material-deviations.md`, CSS sweep 4) already does this.
 
@@ -200,8 +228,10 @@ page, as the owner's screenshot shows.
 
 Open questions. The PM asks them one at a time, in this order.
 
-1. **Which steps does the editor offer?** **Recommendation:** only the three. Steps -2 and -3 exist for themes. M3 says dense is an
-   opt-in, and three names fit a phone menu.
+1. **Forms at Small.** A settings form (several fields on one screen) is a focused task, so M3 says its controls should not get denser.
+   At Small, do the form's text fields and switches stay at their Medium size, with only the space between fields shrinking?
+   **Recommendation:** yes. Small then tightens screens, lists and tables, and leaves menus, dialogs and the controls in forms
+   alone. (Folded in: the editor offers three steps only. M3's -2 and -3 exist for data-heavy parts in themes, not in the editor's menu.)
 2. **Where it is kept.** **Recommendation:** per user on the device (`localStorage`, like Light / Dark): no sign-in needed, a phone
    and a computer can differ. The other choice is per site, stored in the site's settings, so everyone who edits it sees the same.
 3. **How low on a mouse screen.** On a computer with a mouse, how small may a target get? **Recommendation:** 32 dp, with the 48 dp
