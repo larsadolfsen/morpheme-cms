@@ -7,8 +7,9 @@ other sessions now in flight: per-column `align` and `striped` (sessions `sessio
 
 ## Short answer
 
-No. Our Table has text cells only. MD2 describes more, but most of it is for apps, not for page content. Seven additions fit a
-website table; selection checkboxes, row actions and inline inputs do not.
+No. Our Table has text cells only. MD2 describes more. Seven additions fit a website table. Selection checkboxes,
+row actions and inline inputs do not belong in a site's Table block, but they do belong in the editor's lists. So the proposal is
+one shared `DataTable` in `theme/ui/` (built first), a content table for the site and an interactive table for the editor.
 
 ## Material 3 and Material 2
 
@@ -67,9 +68,51 @@ silent, this says so.
 | Filter chips, search field | none | missing | no, for now (see question 5) |
 | Progress bar while sorting | none | missing | no: sorting is instant on a page |
 
+## The editor is a second user of a data table
+
+Added at the owner's request: judge each MD2 feature for the editor too, not only for a site. The editor already draws with the
+theme's parts (`theme/ui/`, through `src/themeUi.ts` and `src/ui.tsx`, same tokens), and its parts page shows them (`Parts` ›
+`UI components`, `src/BlockParts.tsx`). Today no editor screen has a table: all of them are M3 lists (`SiteList` and
+`SiteListItem`). Row selection exists once, as bulk delete in the Library (`src/bulkDelete.mjs`).
+
+### Where the editor shows tabular data (from `src/`, not a full audit)
+
+| Screen | Rows are | MD2 features it would use |
+| :--- | :--- | :--- |
+| Library (`Library.tsx`): pages, posts, files, tags | content entries with status, tags, date | selection (bulk delete today), sort (kept per browser today), filter chips (status, tags), density, pagination or load more |
+| Files and images (`Media.tsx`) | files with size, kind, date | sort (`new`, `old`, `name` today), image kind, selection, row actions |
+| Redirects (`Redirects.tsx`): all, not found | address, target, visits | sort by visits, search, row action (open sheet), inline edit of target |
+| Own lists (`OwnListPage.tsx`) | the entries of a list the owner made | all of the site's kinds, plus inline editing (it is a typed-in List today) |
+| Versions (`Versions.tsx`), Deleted (`Deleted.tsx`) | commits; deleted entries | date kind, row action (restore), pagination (20 at a time today) |
+| Notifications, Consents, Licenses, Keywords | events; consents; licenses; keywords | sort, filter, row actions |
+| Apps and store (`AppList.tsx`, `ThemeStore*.tsx`) | apps, themes | image/avatar kind, chips, row actions |
+| Form submissions (when a form app stores them) | one submission per row | sort by date, filter, pagination, export |
+
+This is why selection, row actions, pagination, filtering and inline editing do belong in the product, even though they do not
+belong in a site's Table block.
+
+### One shared part, two uses
+
+Add `DataTable` to `theme/ui/` (M3 names, tokens only, shown on the parts page under `#udseende/dele/ui`), drawn by the site and
+the editor from the same markup. One base, two feature sets:
+
+| | Content table (site) | Interactive table (editor) |
+| :--- | :--- | :--- |
+| Base | `table`, header row, 52/56 dp rows, hover, outline, scroll box, `columns` with `kind` and `align` | the same |
+| Cell kinds | all of the kinds above | the same, plus input and menu in a cell |
+| Sort, sticky header, density | yes (progressive script) | yes (state in React) |
+| Pagination | only past 25 rows (progressive) | yes, with rows per page |
+| Selection, header checkbox, selected-row colour | no | yes |
+| Row actions, inline editing, filter chips, search | no | yes |
+
+The base takes its features as props, so a site never ships the selection or editing code. What stays site-only: the Table
+block, its `columns` storage and typed-in-place editing (`InlineTable.tsx`). What stays editor-only: selection state, row
+actions, inline editing and the screens' own data. Accessibility follows MD2's Web page (WAI-ARIA table pattern, `aria-sort`,
+checkbox labels).
+
 ## Recommendation
 
-Build what a visitor reads and scans; leave what an app user operates. The table stays static page content: saved as block
+For the site, build what a visitor reads and scans. The Table block stays static page content: saved as block
 props, drawn by the theme with M3 tokens, typed in place with the contextual menu, and working without JavaScript.
 
 ### Data model
@@ -108,15 +151,20 @@ Cost: small is under a day, medium a few days, large a week or more.
 | 6 | Kinds `icon` and `image` | medium | none beyond `kind`; images are stored as other blocks store them, so the image pipeline and `check:content` apply | paragraph: it changes how the table looks |
 | 7 | Pagination, only when rows exceed a limit (proposal: 25), with MD2's range text and previous/next, no rows-per-page menu | large | adds `pageSize` (default off); progressive: all rows without the script, so search engines see them | line |
 
-Order: 1, then 2 and 3 in any order, then 4, 5, 6, 7. Each is its own PR with a patch or minor changeset (on `0.17`, minor
+Order: first the shared part (PR 0 below), then 1, then 2 and 3 in any order, then 4, 5, 6, 7. Each is its own PR with a patch or minor changeset (on `0.17`, minor
 is allowed) and the release note named; the paragraph rule of CLAUDE.md applies (what changes how the
 site looks).
 
-### Not recommended
+PR 0 comes first: move the Table block's markup and CSS (`.block-table-grid`) into `DataTable` in `theme/ui/` with the parts-page
+entry and no change to what a site shows (cost: medium; storage: none; release note: none, empty changeset). The editor
+screens then move to it one by one as separate PRs after PR 1 (the Library first, as it has selection and sort already; then
+Files, Redirects, own lists), each its own cost and note. The editor's screens are not part of this spec's seven.
+
+### Not for the site's Table block
 
 Selection checkboxes (with the header checkbox and the selected-row colour), row actions, inline menus and inputs, the
-progress bar and header truncation with tooltip. A published page has nothing to select or act on, and each needs a backend or
-an app. An app can draw its own table with the same M3 tokens (contract 4); the block stays content.
+progress bar and header truncation with tooltip. A published page has nothing to select or act on. They are for the interactive
+table of the editor, above; an app can also draw its own table with the same M3 tokens (contract 4).
 
 ## Open questions for the owner
 
@@ -131,5 +179,8 @@ an app. An app can draw its own table with the same M3 tokens (contract 4); the 
    and pagination first, and only if sites ask.
 6. **Kinds in one release or spread?** Recommendation: spread as in the order above, so the first release already fixes
    numbers, the common complaint.
-7. **Danish release notes:** each paragraph or line written in both languages per the `release-notes` skill when its PR is
+7. **Shared `DataTable` in `theme/ui/` before any feature?** Recommendation: yes (PR 0), so the site and the editor never
+   grow two tables.
+8. **Which editor screen moves first?** Recommendation: the Library, which already has selection and sort.
+9. **Danish release notes:** each paragraph or line written in both languages per the `release-notes` skill when its PR is
    built; this spec adds no note itself.
