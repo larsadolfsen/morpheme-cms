@@ -64,6 +64,7 @@ import {
   SiteListItemLeadingIcon,
   SiteMenu,
   SiteMenuItem,
+  SiteMenuDivider,
   sitePlaceMenu,
   SiteCarousel,
   SiteCheckbox,
@@ -214,39 +215,38 @@ export function IconLink({
   );
 }
 
-/** A tool in the text's toolbar (MarkdownEditor.tsx): the theme's icon button a little smaller (its --icon-button-size),
- * so the toolbar fits on a phone, and it keeps the cursor in the text while it is tapped. The only other size. With
- * `menu` it opens a Menu under it (the kinds of text, when the toolbar is too short): the theme's text button with the
- * icon and a small arrow after it. With `expanded` it shows or hides more of the toolbar (`controls`: the id of what it
- * shows). */
+/** A tool in the text's bar (MarkdownEditor.tsx): the theme's icon button, 44 by 44 dp with a 20 dp icon (owner decision, 13 Nov: the
+ * editor's bar and menus are 44, not 48), and it keeps the cursor in the text while it is tapped. With `menu` it opens a Menu
+ * under it (Text style, List, Alignment, Color): the theme's text button with the icon and a small arrow after it. With `popup` it is the
+ * bar's `⋮`: an icon button that opens a menu (aria-haspopup, aria-expanded). `disabled`: it does not apply now. */
 export function ToolbarButton({
+  ref,
   icon: Glyph,
   label,
   selected,
   menu,
-  expanded,
-  controls,
-  large,
+  popup,
+  disabled,
   onClick,
 }: {
+  ref?: Ref<HTMLButtonElement>;
   icon: Icon;
   label: string;
-  /** The theme's full size, 48 dp (a tool a phone must be able to hit: Section settings). */
-  large?: boolean;
   /** Marked while it applies where the cursor is (bold); undefined for a tool that is not on or off. */
   selected?: boolean;
-  /** It opens a Menu: whether the menu is open. */
+  /** It opens a Menu, with an arrow after its icon: whether the menu is open. */
   menu?: boolean;
-  /** It shows or hides more of the toolbar: whether that is shown. */
-  expanded?: boolean;
-  controls?: string;
+  /** It is the `⋮` with a menu and no arrow: whether the menu is open. */
+  popup?: boolean;
+  disabled?: boolean;
   onClick: (e: MouseEvent<HTMLButtonElement>) => void;
 }) {
   const tooltip = useTooltip(label);
   const own = {
     'aria-pressed': selected,
-    'aria-expanded': menu ?? expanded,
-    'aria-controls': controls,
+    'aria-expanded': menu ?? popup,
+    'aria-haspopup': popup === undefined && menu === undefined ? undefined : ('menu' as const),
+    disabled,
     onMouseDown: (e: MouseEvent) => e.preventDefault(),
     onClick,
     ...tooltip.on,
@@ -254,15 +254,14 @@ export function ToolbarButton({
   return (
     <>
       {menu === undefined ? (
-        <SiteIconButton icon={<Glyph />} label={label} selected={selected} style={large ? undefined : toolbarSize} {...own} />
+        <SiteIconButton ref={ref} icon={<Glyph />} label={label} selected={selected} style={toolbarSize} {...own} />
       ) : (
         <SiteButton
           kind="text"
           size="xsmall"
           icon={<Glyph />}
-          trailingIcon={<CaretDown />}
+          trailingIcon={<CaretDown size={12} />}
           aria-label={label}
-          aria-haspopup="menu"
           className="toolbar-menu-button"
           style={toolbarMenuSize}
           {...own}
@@ -273,6 +272,11 @@ export function ToolbarButton({
       {tooltip.tip}
     </>
   );
+}
+
+/** The divider of the text's bar between the contextual and the main tools: the theme's Divider, vertical, 8 dp each side. */
+export function ToolbarDivider() {
+  return <SiteDivider vertical className="editor-tools-divider" />;
 }
 
 /** The theme's toolbar (Material 3's, docked) with the text's tools (MarkdownEditor.tsx), close round them, without the
@@ -299,18 +303,25 @@ export function Toolbar({
 // top edge from these two variables, so the edge is the same line as the sides (MarkdownEditor.tsx) whichever of the two
 // rules wins, and never the theme's "no line" (0), which left the top edge and the rounded top corners open.
 const closeToolbar = {
-  '--toolbar-gap': '0.125rem',
-  '--toolbar-docked-padding-block': '0.25rem',
-  '--toolbar-docked-padding-inline': '0.25rem',
+  '--toolbar-gap': '0',
+  '--toolbar-docked-padding-block': '0',
+  '--toolbar-docked-padding-inline': '0',
   '--toolbar-docked-line-width': '1px',
   '--toolbar-docked-line': 'var(--color-outline-variant)',
 } as CSSProperties;
 
-// A tool's size in the text's toolbar.
-const toolbarSize = { '--icon-button-size': '2.5rem' } as CSSProperties;
+// A tool's size in the text's bar: 44 by 44 dp with a 20 dp icon, outside the user's density choice (owner decision, 13 Nov; docs/material-deviations.md).
+const toolbarSize = { '--icon-button-size': '2.75rem', '--icon-button-icon-size': '1.25rem' } as CSSProperties;
 // A tool with a menu there: as high as the others, its icon where an icon button's is (0.625rem in from its start) and
 // the arrow close after it, not a text button's room round a label it does not have (as over the selection, editor.css).
-const toolbarMenuSize = { minHeight: '2.5rem', paddingInline: '0.625rem 0.375rem', gap: '0.125rem' } as CSSProperties;
+const toolbarMenuSize = {
+  width: '2.75rem',
+  minHeight: '2.75rem',
+  justifyContent: 'center',
+  paddingInline: '0.125rem',
+  gap: '0.125rem',
+  '--button-icon-size': '1.25rem',
+} as CSSProperties;
 
 // ---------------------------------------------------------------------------------------------------
 // Tooltips
@@ -1919,12 +1930,16 @@ export function Menu({
   label,
   attached,
   keyboard,
+  popup,
   onClose,
   children,
 }: {
   anchor: HTMLElement | null;
   /** What the choices are, for screen readers, and the sheet's title on a phone. */
   label: string;
+  /** The bar's menus (MarkdownEditor.tsx): a pop-up under the button on a phone too, never a sheet (the text keeps its cursor and the keyboard), as high as the
+   * visible screen allows (it scrolls when it does not fit) and inside it: `start` has its leading edge on the button's, `end` its trailing edge. */
+  popup?: 'start' | 'end';
   attached?: boolean;
   /** With `attached`: it was opened with the keyboard, so a choice has the focus (and its ring); else the menu has it. */
   keyboard?: boolean;
@@ -1933,7 +1948,7 @@ export function Menu({
 }) {
   const menu = useRef<HTMLUListElement>(null);
   const sheet = useRef<HTMLDialogElement>(null);
-  const wide = useAtLeast('medium');
+  const wide = useAtLeast('medium') || !!popup;
   useEffect(() => {
     if (wide) return;
     const el = sheet.current;
@@ -1972,6 +1987,7 @@ export function Menu({
         });
       }
       sitePlaceMenu(menu.current, anchor);
+      if (popup) placePopup(menu.current, anchor, popup);
       if (attached) {
         // Wider than the field: it grows from the field's end edge, inside the screen.
         const box = anchor.getBoundingClientRect();
@@ -1994,7 +2010,7 @@ export function Menu({
       removeEventListener('scroll', place, { capture: true });
       removeEventListener('resize', place);
     };
-  }, [anchor, wide, attached, keyboard]);
+  }, [anchor, wide, attached, keyboard, popup]);
   if (!wide)
     return (
       <BottomSheet
@@ -2033,6 +2049,21 @@ export function Menu({
   );
 }
 
+// A bar menu (`popup` of Menu): under the button, opening downwards (M3: "If opened at the top of the screen, it expands downwards to avoid being
+// cropped"), inside the visible screen (the visual viewport: not under the keyboard), with a height that leaves 8 dp to the edge, so a list
+// that is too long scrolls.
+function placePopup(menu: HTMLElement, anchor: HTMLElement, side: 'start' | 'end') {
+  const box = anchor.getBoundingClientRect();
+  const screen = visualViewport ?? { offsetLeft: 0, offsetTop: 0, width: innerWidth, height: innerHeight };
+  const top = box.bottom + 4;
+  menu.style.maxHeight = `${Math.max(88, screen.offsetTop + screen.height - top - 8)}px`;
+  const { offsetWidth } = menu;
+  const at = side === 'end' ? box.right - offsetWidth : box.left;
+  menu.style.top = `${top}px`;
+  menu.style.bottom = 'auto';
+  menu.style.left = `${Math.max(screen.offsetLeft + 8, Math.min(at, screen.offsetLeft + screen.width - offsetWidth - 8))}px`;
+}
+
 // The keys of an attached menu: the arrow keys (round), Home and End go between its choices.
 function moveInMenu(e: KeyboardEvent<HTMLElement>) {
   const items = [...e.currentTarget.querySelectorAll<HTMLElement>('[role^="menuitem"]:not(:disabled)')];
@@ -2042,6 +2073,9 @@ function moveInMenu(e: KeyboardEvent<HTMLElement>) {
   e.preventDefault();
   items[(to + items.length) % items.length]?.focus();
 }
+
+/** A line between the groups of a Menu (the theme's Divider). */
+export const MenuDivider = SiteMenuDivider;
 
 /** A choice in a Menu: the theme's menu item, with its icon before it; `selected`: the one that is chosen now, marked
  * (the kind of text where the cursor is). A tap on it keeps the cursor where it is in a text. */

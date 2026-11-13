@@ -1160,92 +1160,32 @@ html {
   background: radial-gradient(circle at 0 100%, transparent var(--radius-panel), var(--mo-surface) var(--radius-panel));
 }
 
-/* Its tools on one line, and the rest on a second while it is open (the arrow at its end, MarkdownEditor.tsx). Closed,
-   the line is one button high and those past it are hidden (not clipped, so the focus ring of a tool is whole). */
-.editor-tools-closed {
-  max-height: 2.5rem;
+/* The bar is one row, 44 dp high: the tools of the text, a divider, then the main tools, the `⋮` last. It never scrolls (textBar.mjs picks what is
+   on it; the rest is in the `⋮` menu). The buttons are 44 by 44 dp with no gap between them (owner decision, 13 Nov), the idle tools stand at the
+   leading edge, and the groups are boxes in a row (their buttons are the bar's). */
+.editor-tools.toolbar {
+  min-height: 2.75rem;
+  justify-content: flex-start;
 }
 
-.editor-tools-tall.editor-tools-closed {
-  max-height: 3rem;
-}
-
-/* When the tools do not all fit on one line, the lines between the groups go, so the tools that must stay (the kinds of text,
-   "+" and Section settings) have the room (MarkdownEditor.tsx, toolbarOrder.mjs). */
-.editor-tools-compact > span[aria-hidden='true'] {
-  display: none;
-}
-
-.editor-tools-closed > [data-wrapped],
-.editor-tools-line > span[data-line-start],
-.editor-tools-line > span[data-line-end] {
-  visibility: hidden;
-}
-
-/* The one row of icons over the selected text, on a phone too (selectionMenu in MarkdownEditor.tsx): floating by the text, 48 dp targets on a phone. */
-.editor-selection-menu {
-  position: fixed;
-  z-index: 40;
+.editor-tools-group {
   display: flex;
-  flex-wrap: nowrap;
-  max-width: calc(100vw - 0.5rem);
-  gap: 0.125rem;
-  border: 1px solid var(--mo-outline-variant);
-  border-radius: var(--mo-shape-full);
-  background: var(--editor-menu-surface);
-  padding: 0.25rem;
-  box-shadow: var(--editor-menu-shadow);
-}
-
-.editor-selection-menu[hidden],
-.editor-selection-menu button[hidden] {
-  display: none;
-}
-
-.editor-selection-menu button {
-  display: grid;
-  width: var(--selection-button, 2.5rem);
-  height: var(--selection-button, 2.5rem);
-  place-items: center;
-  border-radius: var(--mo-shape-full);
-  color: var(--icon-button-standard-text, var(--mo-on-surface-variant));
-}
-
-.editor-selection-menu {
-  --selection-button: 2.5rem;
-}
-
-/* On a phone the buttons are 48 dp, centred in the one row (the rest is under "More"). */
-@media (pointer: coarse) {
-  .editor-selection-menu {
-    --selection-button: 3rem;
-    justify-content: center;
-    border-radius: var(--mo-shape-extra-large);
-  }
-
-  .editor-selection-menu button,
-  .editor-selection-menu button[aria-haspopup='menu'] {
-    flex: none;
-    min-width: 3rem;
-    height: 3rem;
-    padding-inline: 0.25rem;
-  }
-}
-
-.editor-selection-menu button:hover,
-.editor-selection-menu button:focus-visible {
-  outline: none;
-  background: var(--mo-surface-container-high);
-  color: var(--mo-on-surface);
-}
-
-/* A button there that opens a menu (the colours): its icon with a small arrow down after it, a little wider. */
-.editor-selection-menu button[aria-haspopup='menu'] {
-  display: flex;
+  flex: none;
   align-items: center;
-  width: auto;
-  gap: 0.125rem;
-  padding-inline: 0.5rem 0.375rem;
+}
+
+/* The divider between the text tools and the main tools: 8 dp each side, 1 dp line, the theme's outline-variant. */
+.editor-tools-divider {
+  flex: none;
+  height: 1.5rem;
+  margin-inline: 0.5rem;
+}
+
+/* A menu of the bar, the `⋮` or Text style, on a phone: when it is too long for the room it scrolls, with the scrollbar kept in view where the platform
+   allows (M3: "In this state, menus show a persistent scrollbar"); a phone's overlay scrollbar cannot be forced. */
+.editor-menu {
+  scrollbar-width: thin;
+  scrollbar-gutter: stable;
 }
 
 /* A tool with a menu in the top toolbar (ToolbarButton in ui.tsx) is the theme's text button, which is in the accent; it
@@ -1253,24 +1193,6 @@ html {
 .toolbar-menu-button,
 .toolbar-menu-button:hover {
   color: var(--icon-button-standard-text, var(--block-text));
-}
-
-.editor-selection-menu .editor-menu-arrow {
-  transition: rotate var(--motion-spatial-fast);
-}
-
-.editor-selection-menu button[aria-expanded='true'] .editor-menu-arrow {
-  rotate: 180deg;
-}
-
-.editor-selection-menu button:disabled {
-  opacity: 0.38;
-  pointer-events: none;
-}
-
-.editor-selection-menu button[aria-pressed='true'] {
-  background: var(--mo-surface-container-high);
-  color: var(--icon-button-standard-selected-text, var(--block-accent));
 }
 
 /* Only drawn: the taps go to the card. */

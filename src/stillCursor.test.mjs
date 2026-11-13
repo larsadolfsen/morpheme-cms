@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Schema } from '@milkdown/kit/prose/model';
 import { EditorState, TextSelection } from '@milkdown/kit/prose/state';
-import { STILL_MS, wordRange } from './stillCursor.mjs';
+import { wordRange } from './stillCursor.mjs';
 
 const schema = new Schema({
   nodes: {
@@ -19,7 +19,6 @@ const doc = schema.node('doc', null, [
 ]);
 const at = (from, to = from) => EditorState.create({ doc, selection: TextSelection.create(doc, from, to) });
 
-test('waits 700 ms', () => assert.equal(STILL_MS, 700));
 test('the word after an image', () => assert.deepEqual(wordRange(at(9)), { from: 7, to: 13 }));
 test('the word before an image', () => assert.deepEqual(wordRange(at(2)), { from: 1, to: 4 }));
 test('no word next to the image', () => assert.equal(wordRange(at(5)), null));
