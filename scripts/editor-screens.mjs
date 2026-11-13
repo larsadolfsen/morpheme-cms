@@ -460,7 +460,15 @@ const inlineBlocks = [
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true, start: 3 },
   { name: 'pricecards', hint: 'Prices with what is included.', add: 'Add price card', surface: true, field: 'name' },
   { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
-  { name: 'faq', hint: 'Questions that expand to answers.', add: 'Add question', field: 'question', open: true, surface: true },
+  {
+    name: 'faq',
+    hint: 'Questions that expand to answers.',
+    add: 'Add question',
+    field: 'question',
+    open: true,
+    surface: true,
+    listButton: true,
+  },
   // An app's block (the demo's Inline example app): typed in place from its own Inline.tsx, not from the editor's list of views.
   { name: 'tickets', hint: 'Rows with a heading and a text, typed where they stand.', add: 'Add ticket' },
 ];
@@ -519,7 +527,11 @@ async function checkInlineSingle(width, height, { name, hint, field, text, slot 
 }
 
 /** `surface`: the item is a card with a container of its own, so it has a background colour. `start`: how many empty, faded items a new block starts with (the first active; typing in one makes the first item, and the others go). */
-async function checkInlineBlock(width, height, { name, hint, add, surface, noEdit, rowButtons, field = 'title', open, start = 1 }) {
+async function checkInlineBlock(
+  width,
+  height,
+  { name, hint, add, surface, noEdit, rowButtons, listButton, field = 'title', open, start = 1 },
+) {
   const label = `${width}px inline ${name}`;
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
@@ -671,6 +683,32 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   if (noEdit)
     for (const name of ['Link', 'Edit'])
       if (one.bar.some((b) => b.label === name)) problems.push(`${label}: the toolbar has "${name}" although the block has no settings`);
+  // A text button under the whole list (the FAQ's): while the block is active its text is typed in a field under `Add` with a slot for its
+  // page; it shows as the site draws it when the block is not active, and an empty field takes it away.
+  if (listButton) {
+    const field = page.locator('.inline-faq-button [data-field="button"]');
+    if ((await field.count()) !== 1) problems.push(`${label}: no field for the button under the list in the active block`);
+    else {
+      if ((await page.locator('.inline-faq-button .inline-list-slot').count()) !== 1)
+        problems.push(`${label}: no slot for the page of the button under the list`);
+      await field.click();
+      await page.keyboard.type('More questions');
+      await page.waitForTimeout(300);
+      await page.click('.ProseMirror p');
+      await page.waitForTimeout(300);
+      const shown = await page.locator('.site-block-inline .block-list-button').allTextContents();
+      if (shown.map((x) => x.trim()).join() !== 'More questions')
+        problems.push(`${label}: the button under the list is "${shown}" when the block is not active, not "More questions"`);
+      await page.click('.site-block-inline [data-field="question"]');
+      await page.locator('.inline-faq-button [data-field="button"]').fill('');
+      await page.waitForTimeout(300);
+      await page.click('.ProseMirror p');
+      await page.waitForTimeout(300);
+      if (await page.locator('.site-block-inline .block-list-button').count())
+        problems.push(`${label}: the button under the list is still there after its text was cleared`);
+      await page.click('.site-block-inline [data-field="question"]');
+    }
+  }
   // A row's buttons: under the active row's text the text button `rowButtons` adds a button whose text is typed there.
   if (rowButtons) {
     const adds = await page.locator('[data-add-button]').allTextContents();

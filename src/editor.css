@@ -1575,3 +1575,11 @@ dialog {
 .editor-text .inline-plans .inline-button-faded:not(:focus-within) {
   opacity: 0.55;
 }
+
+/* The FAQ's text button typed in place under its questions (while the block is active): its text, then the slot for its page. */
+.editor-text .inline-faq-button {
+  display: flex;
+  min-height: 2.5rem;
+  align-items: center;
+  gap: var(--mo-space-8, 8px);
+}
