@@ -263,6 +263,67 @@ function hintContrasts(page, selector, pseudo) {
   );
 }
 
+/** On a phone, a press and hold on a row of the pages list selects it (and the blog's the same), and the top bar's Delete asks before it deletes; a default page (the front page) is not deleted, with the reason. */
+async function checkLongPressDelete() {
+  const page = await browser.newPage({ viewport: { width: 390, height: 800 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`long press: ${e.message}`));
+  await openEditor(page, site);
+  const cdp = await page.context().newCDPSession(page);
+  for (const list of ['pages', 'blog']) {
+    await page.evaluate((l) => (location.hash = `#list/${l}`), list);
+    await page.waitForSelector('main a.list-item-container');
+    await page.waitForTimeout(500);
+    const rows = page.locator('main a.list-item-container');
+    // A row that is not a default page.
+    const row = list === 'pages' ? rows.filter({ hasText: 'Get started' }).first() : rows.last();
+    await row.scrollIntoViewIfNeeded();
+    const box = await row.boundingBox();
+    const [x, y] = [box.x + box.width / 2, box.y + box.height / 2];
+    const hold = async () => {
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+      await page.waitForTimeout(800);
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      await page.waitForTimeout(300);
+    };
+    const here = await page.evaluate(() => location.hash);
+    await hold();
+    if ((await page.evaluate(() => location.hash)) !== here)
+      problems.push(`long press (${list}): a press and hold opened the row instead of selecting it`);
+    const del = page.getByRole('button', { name: /^Delete 1 selected$/ });
+    if (!(await del.count())) {
+      problems.push(`long press (${list}): a press and hold on a row does not select it (no "Delete 1 selected" in the top bar)`);
+      continue;
+    }
+    await del.click();
+    const sure = page.getByRole('dialog').getByRole('button', { name: 'Delete', exact: true });
+    await sure.waitFor({ timeout: 3000 }).catch(() => problems.push(`long press (${list}): Delete does not ask before it deletes`));
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+  }
+  // The front page: a press and hold selects it, but Delete says why it is kept.
+  await page.reload();
+  await page.evaluate(() => (location.hash = '#list/pages'));
+  await page.waitForSelector('main a.list-item-container');
+  await page.waitForTimeout(500);
+  const home = page.locator('main a.list-item-container', { hasText: 'Home' }).first();
+  if (await home.count()) {
+    await home.scrollIntoViewIfNeeded();
+    const box = await home.boundingBox();
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x: box.x + box.width / 2, y: box.y + box.height / 2 }],
+    });
+    await page.waitForTimeout(800);
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await page.waitForTimeout(300);
+    await page.getByRole('button', { name: /^Delete 1 selected$/ }).click();
+    await page.waitForTimeout(500);
+    if (!(await page.getByText('is a default page', { exact: false }).count()))
+      problems.push('long press: deleting the front page did not say it is a default page');
+  }
+  await page.close();
+}
+
 /** On a phone, a tap on the hint under a page's only heading (Type text, or tap Insert …) puts the cursor in an empty paragraph after it. */
 async function checkEmptyHint() {
   const page = await browser.newPage({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -424,6 +485,71 @@ async function checkPreviewSection() {
   await page.close();
 }
 
+/** A full-width section has the whole width only as its background: on the built site and in the Preview, its content has the same left edge as the page's text, inside the centred container, at 840, 1200 and 1600, and nothing overflows sideways at 375. */
+async function checkFullSection() {
+  const path = 'src/content/pages/about.md';
+  if (!existsSync(join(ROOT, path))) return;
+  const text = readFileSync(join(ROOT, path), 'utf8').replace(
+    /(\n)(## [^\n]+)/,
+    '$1<div data-section="tertiary" data-width="full"></div>\n\n$2',
+  );
+  const measure = () => {
+    const box = (e) => (e ? e.getBoundingClientRect() : null);
+    const section = document.querySelector('section.text-section-full');
+    const column = box(document.querySelector('[data-editor="text"]'));
+    const [h2, p] = [section?.querySelector('h2'), section?.querySelector('p')].map(box);
+    const intro = box(document.querySelector('[data-editor="text"] > p'));
+    return { width: innerWidth, scroll: document.documentElement.scrollWidth, section: box(section), column, h2, p, intro };
+  };
+  const verify = (label, m) => {
+    if (!m.section) return problems.push(`${label}: there is no full-width section`);
+    if (m.scroll > m.width) problems.push(`${label}: the page scrolls sideways (${m.scroll} > ${m.width})`);
+    if (Math.abs(m.section.left) > 0.5 || Math.abs(m.section.right - m.width) > 0.5)
+      problems.push(`${label}: the background does not reach both edges (${m.section.left}-${m.section.right})`);
+    for (const [name, b] of [
+      ['heading', m.h2],
+      ['text', m.p],
+    ])
+      if (Math.abs(b.left - m.column.left) > 0.5)
+        problems.push(`${label}: the section's ${name} starts at ${b.left}, not at the page text's ${m.column.left}`);
+    // The column is centred in the window, and a section's lines are shorter than the column (66ch) while the column is wider.
+    if (Math.abs(m.column.left - (m.width - m.column.right)) > 1) problems.push(`${label}: the page column is not centred`);
+    if (m.width > 600 && m.p.width >= m.column.width - 1)
+      problems.push(`${label}: the section's text runs the whole column (${Math.round(m.p.width)}px)`);
+  };
+  const page = await browser.newPage({ viewport: { width: 1700, height: 1000 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`Full section: ${e.message}`));
+  await openEditor(page, site, { [path]: text });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
+  await page.getByRole('button', { name: 'Preview' }).first().click();
+  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  const slider = page.locator('dialog[open] [role="slider"]').first();
+  const width = async () => Number(await slider.getAttribute('aria-valuenow'));
+  for (const w of [840, 1200, 1600]) {
+    await slider.focus();
+    await page.keyboard.press('Home');
+    while ((await width()) < w) await page.keyboard.press('Shift+ArrowRight');
+    while ((await width()) > w) await page.keyboard.press('ArrowLeft');
+    await page.waitForTimeout(500);
+    const frame = page.frames().find((f) => f !== page.mainFrame());
+    await frame.waitForSelector('section.text-section-full', { timeout: 30_000 });
+    verify(`${w}px Preview full section`, await frame.evaluate(measure));
+  }
+  await page.close();
+  // On a phone the Preview is as wide as the screen: the section's background is the window, and nothing scrolls sideways.
+  const phone = await browser.newPage({ viewport: { width: 375, height: 800 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  await openEditor(phone, site, { [path]: text });
+  await phone.goto(`${site}/editor/#${path}`);
+  await phone.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
+  await phone.getByRole('button', { name: 'Preview' }).first().click();
+  await phone.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  const small = phone.frames().find((f) => f !== phone.mainFrame());
+  await small.waitForSelector('section.text-section-full', { timeout: 30_000 });
+  verify('375px Preview full section', await small.evaluate(measure));
+  await phone.close();
+}
+
 /** The Preview of a draft page (not on the site, so its own address answers 404) opens without an error text, and its bar of window sizes keeps its bar of window sizes inside the screen, scrolling, and apart from the caption, at phone widths. */
 async function checkPreviewDraft(width) {
   const label = `${width}px draft Preview`;
@@ -468,7 +594,15 @@ const inlineBlocks = [
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true, start: 3 },
   { name: 'pricecards', hint: 'Prices with what is included.', add: 'Add price card', surface: true, field: 'name' },
   { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
-  { name: 'faq', hint: 'Questions that expand to answers.', add: 'Add question', field: 'question', open: true, surface: true },
+  {
+    name: 'faq',
+    hint: 'Questions that expand to answers.',
+    add: 'Add question',
+    field: 'question',
+    open: true,
+    surface: true,
+    listButton: true,
+  },
   // An app's block (the demo's Inline example app): typed in place from its own Inline.tsx, not from the editor's list of views.
   { name: 'tickets', hint: 'Rows with a heading and a text, typed where they stand.', add: 'Add ticket' },
 ];
@@ -478,6 +612,40 @@ const inlineSingles = [
   { name: 'notice', hint: 'A highlighted message.', field: 'text', text: 'Hello **there**', slot: false },
   { name: 'video', hint: 'A YouTube or Vimeo video.', field: 'title', text: 'My film', slot: true },
 ];
+
+/** Insert of every block typed in place (the lists above and the Table) puts the block in the text, on an empty page and after a line of text: it never opens a sheet. A new typed-in-place block goes in `inlineBlocks`, `inlineSingles` or here. */
+async function checkInsertNeverOpensSheet(width, height) {
+  const phone = width < 600;
+  const hints = [...inlineBlocks, ...inlineSingles, { name: 'table', hint: 'Rows and columns of text.' }];
+  for (const { name, hint } of hints) {
+    for (const typed of [false, true]) {
+      const label = `${width}px Insert of ${name}${typed ? '' : ' on an empty page'}`;
+      const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+      page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+      await openEditor(page, site);
+      await page.evaluate(() => (location.hash = '#new/pages'));
+      await page.waitForSelector('.ProseMirror');
+      await page.click('.ProseMirror');
+      if (typed) {
+        await page.keyboard.type('Hello');
+        await page.keyboard.press('Enter');
+        await page.waitForTimeout(300);
+      }
+      if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+        await page.locator('[aria-label="Show more tools"]:visible').first().click();
+      await page.locator('[aria-label="Insert"]:visible').first().click();
+      await page.locator('dialog[open] button', { hasText: hint }).first().click();
+      await page.waitForTimeout(800);
+      const state = await page.evaluate(() => ({
+        sheet: document.querySelectorAll('dialog[open]').length,
+        inline: !!document.querySelector('.site-block-inline'),
+      }));
+      if (state.sheet) problems.push(`${label}: Insert opened a sheet, it must put the block in the text`);
+      else if (!state.inline) problems.push(`${label}: Insert put no block typed in place in the text`);
+      await page.close();
+    }
+  }
+}
 
 async function checkInlineSingle(width, height, { name, hint, field, text, slot }) {
   const label = `${width}px inline ${name}`;
@@ -527,7 +695,11 @@ async function checkInlineSingle(width, height, { name, hint, field, text, slot 
 }
 
 /** `surface`: the item is a card with a container of its own, so it has a background colour. `start`: how many empty, faded items a new block starts with (the first active; typing in one makes the first item, and the others go). */
-async function checkInlineBlock(width, height, { name, hint, add, surface, noEdit, rowButtons, field = 'title', open, start = 1 }) {
+async function checkInlineBlock(
+  width,
+  height,
+  { name, hint, add, surface, noEdit, rowButtons, listButton, field = 'title', open, start = 1 },
+) {
   const label = `${width}px inline ${name}`;
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
@@ -565,7 +737,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     const next = await page.locator('.inline-list-row-active .block-card-actions .inline-card-next-button').allTextContents();
     if (next.join() !== 'Add button')
       problems.push(`${label}: the active card's action area has "${next}", not the text button "Add button"`);
-    if (width >= 1000 && !(await page.locator('.site-block-toolbar button[aria-label="Link"]').count()))
+    if (width >= 1000 && !(await page.locator('.contextual-menu button[aria-label="Link"]').count()))
       problems.push(`${label}: the toolbar has no Link while the card is still empty`);
     // The header line of a card is a headline and ONE optional subhead, both typed in place; no badge, date or tags.
     const fields = await page.evaluate(() =>
@@ -584,12 +756,17 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       outline: getComputedStyle(document.querySelector('.inline-list-row-active')).outlineStyle,
       background: getComputedStyle(document.querySelector('.inline-list-row-active')).backgroundColor,
       activeRow: document.querySelector('.inline-list-row-active').dataset.row,
-      bar: [...document.querySelectorAll('.site-block-toolbar button')].map((b) => ({
+      bar: [...document.querySelectorAll('.contextual-menu button')].map((b) => ({
         label: b.getAttribute('aria-label'),
         svg: !!b.querySelector('svg path'),
       })),
+      // A dropdown is a button with a text label and a chevron; the contextual menu has none, only icon buttons.
+      dropdowns: [...document.querySelectorAll('.contextual-menu button')]
+        .filter((b) => b.textContent.trim() || b.querySelector('svg[width="12"]'))
+        .map((b) => b.getAttribute('aria-label')),
     }));
   const one = await state();
+  if (one.dropdowns.length) problems.push(`${label}: the contextual menu has a dropdown (${one.dropdowns}); it holds icon buttons only`);
   if (one.next) problems.push(`${label}: the faded empty item shows although the block has an item`);
   if (one.add.join() !== add) problems.push(`${label}: expected the button "${add}" under an active block, got "${one.add}"`);
   if (one.outline !== 'dotted') problems.push(`${label}: the active row has outline ${one.outline}, not dotted`);
@@ -640,7 +817,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   // The card's settings (the toolbar's gear on a phone, a sheet; the panel on a computer already) open with its page and buttons, never an empty page.
   const cardSettings = async (when) => {
     if (width >= 1000) return;
-    await page.locator('.site-block-toolbar button[aria-label="Edit"]').click();
+    await page.locator('.contextual-menu button[aria-label="Edit"]').click();
     const sheet = page.locator('dialog[open][aria-label="Card settings"]');
     await sheet.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the card's settings do not open (${when})`));
     if (!(await sheet.getByText(/^(Page|Buttons)$/).count())) problems.push(`${label}: the card's settings are empty (${when})`);
@@ -679,6 +856,32 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   if (noEdit)
     for (const name of ['Link', 'Edit'])
       if (one.bar.some((b) => b.label === name)) problems.push(`${label}: the toolbar has "${name}" although the block has no settings`);
+  // A text button under the whole list (the FAQ's): while the block is active its text is typed in a field under `Add` with a slot for its
+  // page; it shows as the site draws it when the block is not active, and an empty field takes it away.
+  if (listButton) {
+    const field = page.locator('.inline-faq-button [data-field="button"]');
+    if ((await field.count()) !== 1) problems.push(`${label}: no field for the button under the list in the active block`);
+    else {
+      if ((await page.locator('.inline-faq-button .inline-list-slot').count()) !== 1)
+        problems.push(`${label}: no slot for the page of the button under the list`);
+      await field.click();
+      await page.keyboard.type('More questions');
+      await page.waitForTimeout(300);
+      await page.click('.ProseMirror p');
+      await page.waitForTimeout(300);
+      const shown = await page.locator('.site-block-inline .block-list-button').allTextContents();
+      if (shown.map((x) => x.trim()).join() !== 'More questions')
+        problems.push(`${label}: the button under the list is "${shown}" when the block is not active, not "More questions"`);
+      await page.click('.site-block-inline [data-field="question"]');
+      await page.locator('.inline-faq-button [data-field="button"]').fill('');
+      await page.waitForTimeout(300);
+      await page.click('.ProseMirror p');
+      await page.waitForTimeout(300);
+      if (await page.locator('.site-block-inline .block-list-button').count())
+        problems.push(`${label}: the button under the list is still there after its text was cleared`);
+      await page.click('.site-block-inline [data-field="question"]');
+    }
+  }
   // A row's buttons: under the active row's text the text button `rowButtons` adds a button whose text is typed there.
   if (rowButtons) {
     const adds = await page.locator('[data-add-button]').allTextContents();
@@ -840,8 +1043,7 @@ async function checkSteps(width, height) {
   // Moving a step renumbers.
   await page.locator('.inline-steps [data-row="0"] [data-field="title"]').click();
   await page.waitForTimeout(200);
-  const down = page.locator('.site-block-toolbar button[aria-label="Move down"]');
-  if (phone) await page.locator('.site-block-toolbar button[aria-label="Step"]').click();
+  const down = page.locator('.contextual-menu button[aria-label="Move down"]');
   await down.first().click();
   await page.waitForTimeout(200);
   now = await steps();
@@ -888,7 +1090,7 @@ async function checkSteps(width, height) {
   }
 }
 
-/** The dynamic List (the owner's flow): the dynamic icon in the floating toolbar opens the dynamic settings (a bottom sheet on a phone, the side panel on a computer) with `Rows from`; picking a list turns the block into a "Dynamic list" with its state line, `Edit list` and an `Undo` that brings the typed rows back; the toolbar then has no row actions and stays inside the screen. */
+/** The dynamic List (the owner's flow): the dynamic icon in the contextual menu opens the dynamic settings (a bottom sheet on a phone, the side panel on a computer) with `Rows from`; picking a list turns the block into a "Dynamic list" with its state line, `Edit list` and an `Undo` that brings the typed rows back; the toolbar then has no row actions and stays inside the screen. */
 async function checkDynamicList(width, height) {
   const label = `${width}px dynamic list`;
   const phone = width < 600;
@@ -910,19 +1112,19 @@ async function checkDynamicList(width, height) {
   await page.waitForTimeout(300);
   const bar = () =>
     page.evaluate(() => {
-      const el = document.querySelector('.site-block-toolbar');
+      const el = document.querySelector('.contextual-menu');
       const r = el && !el.hidden ? el.getBoundingClientRect() : null;
       return {
-        labels: [...document.querySelectorAll('.site-block-toolbar button')].map((b) => b.getAttribute('aria-label')),
+        labels: [...document.querySelectorAll('.contextual-menu button')].map((b) => b.getAttribute('aria-label')),
         inside: !r || (r.left >= 0 && r.right <= innerWidth + 0.5),
-        small: [...document.querySelectorAll('.site-block-toolbar button')].some((b) => b.getBoundingClientRect().height < 47.5),
+        small: [...document.querySelectorAll('.contextual-menu button')].some((b) => b.getBoundingClientRect().height < 47.5),
       };
     });
   const typed = await bar();
   if (!typed.labels.includes('Fill from a list')) problems.push(`${label}: the toolbar has no dynamic icon`);
   if (!typed.inside) problems.push(`${label}: the toolbar reaches outside the screen`);
   if (typed.small) problems.push(`${label}: a toolbar button is under 48 px high`);
-  await page.locator('.site-block-toolbar [aria-label="Fill from a list"]').click();
+  await page.locator('.contextual-menu [aria-label="Fill from a list"]').click();
   const panel = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Rows from' }).first();
   await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
   await panel.locator('button.text-field-input').first().click();
@@ -964,7 +1166,7 @@ async function checkDynamicPicker(width, height) {
   await page.locator('[aria-label="Insert"]:visible').first().click();
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
-  await page.locator('.site-block-toolbar [aria-label="Fill from a list"]').click();
+  await page.locator('.contextual-menu [aria-label="Fill from a list"]').click();
   const panel = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Rows from' }).first();
   await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
   await panel.locator('button.text-field-input').first().click();
@@ -1053,7 +1255,7 @@ async function checkOwnList(width, height) {
     if (!(await page.getByRole('button', { name: 'Add list row' }).count()))
       problems.push(`${label}: no "Add list row" under the active list`);
     const labels = await page.evaluate(() =>
-      [...document.querySelectorAll('.site-block-toolbar button')].map((b) => b.getAttribute('aria-label')),
+      [...document.querySelectorAll('.contextual-menu button')].map((b) => b.getAttribute('aria-label')),
     );
     for (const need of ['Add above', 'Add below'])
       if (!labels.includes(need)) problems.push(`${label}: the toolbar has no "${need}" (${labels})`);
@@ -1277,7 +1479,7 @@ async function checkInlineTable(width, height) {
       outline: getComputedStyle(document.querySelector('.inline-table-cell-active')).outlineStyle,
       faded: getComputedStyle(document.querySelector('.inline-table-cell-next') ?? document.body).opacity,
       scroll: document.querySelector('.inline-table').scrollWidth <= document.querySelector('.inline-table').clientWidth + 1,
-      bar: [...document.querySelectorAll('.site-block-toolbar button')].map((b) => ({
+      bar: [...document.querySelectorAll('.contextual-menu button')].map((b) => ({
         label: b.getAttribute('aria-label'),
         svg: !!b.querySelector('svg path'),
       })),
@@ -1783,6 +1985,16 @@ async function checkFoldRows(width, height) {
     if (Math.abs(arrow.y + arrow.height / 2 - centre) > 1)
       problems.push(`${width}px accordion row "${title_}": the arrow is not centred on the title`);
     if (box.height < 48) problems.push(`${width}px accordion row "${title_}": ${box.height}px tall, should be 48px or more`);
+    // The line above the title is the divider under the section before it: nothing may sit between them (a parent's `space-y` gave 24px, twice as far above the title as below it).
+    const gap = await button.evaluate((el) => {
+      const before = el.closest('section').previousElementSibling;
+      if (!before?.matches('section[aria-labelledby]')) return 0;
+      return el.closest('section').getBoundingClientRect().top - before.getBoundingClientRect().bottom;
+    });
+    if (Math.abs(gap) > 1)
+      problems.push(
+        `${width}px accordion row "${title_}": ${gap}px between the divider above and the row, so the title is farther from the line above than from the line below`,
+      );
   }
   if (!shown.length) problems.push(`${width}px accordion rows: none measured`);
   console.log(`${width}px accordion rows (above, below, height): ${JSON.stringify(shown)}`);
@@ -2330,6 +2542,7 @@ for (const [width, height] of [
 ])
   await checkDraftsCard(width, height);
 await checkEmptyHint();
+await checkLongPressDelete();
 for (const [width, height] of [
   [375, 740],
   [1280, 900],
@@ -2341,6 +2554,8 @@ for (const block of inlineBlocks) await checkInlineBlock(375, 740, block);
 // On a computer too: the row's settings are in the side panel at once (a card's: its page and its buttons).
 for (const block of inlineSingles) for (const w of [375, 1280]) await checkInlineSingle(w, w < 600 ? 740 : 900, block);
 for (const block of inlineBlocks) await checkInlineBlock(1280, 900, block);
+await checkInsertNeverOpensSheet(375, 740);
+await checkInsertNeverOpensSheet(1280, 900);
 for (const [width, height] of [
   [375, 740],
   [1280, 900],
@@ -2378,6 +2593,7 @@ for (const [width, height] of [
   await checkFoldRows(width, height);
 await checkToolbarBox();
 await checkPreviewSection();
+await checkFullSection();
 for (const w of [375, 1280]) await checkListMarkers(w);
 for (const w of [375, 1280]) await checkListsAndBlocks(w);
 for (const w of [360, 375, 390, 414]) await checkPreviewDraft(w);

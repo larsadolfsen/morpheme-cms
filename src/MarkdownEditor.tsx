@@ -92,7 +92,7 @@ import { editorRows } from './standard/rows/view';
 import { fromLine, listPageOf } from './standard/rows/fields';
 import { sourceOf, withPart } from './standard/rows/rows.mjs';
 import { rowParts } from './standard/rows/view';
-import { inlineBar, type BarAction } from './inlineBar';
+import { contextualMenu, type BarAction } from './contextualMenu';
 import { preview } from './registry';
 import { leaveTo } from './FormFrame';
 import { createRoot } from 'react-dom/client';
@@ -1091,8 +1091,8 @@ function blockCard(
   let focus: Focus | null = null;
   // A grid (the Table): the column of the active cell.
   let col: number | null = null;
-  // Its floating toolbar (made below, with the block's menu).
-  let bar: ReturnType<typeof inlineBar> | null = null;
+  // Its contextual menu (made below, with the block's menu).
+  let bar: ReturnType<typeof contextualMenu> | null = null;
   let syncRow: (open: boolean) => void = () => {};
   // The row whose icon picker is open instead of its settings.
   let iconOf: number | null = null;
@@ -1101,7 +1101,7 @@ function blockCard(
     dynOpen = false;
     syncRow(true);
   };
-  // A block that can read a list ("Rows from"): the dynamic block is selected (its floating toolbar shows) and its dynamic settings are in
+  // A block that can read a list ("Rows from"): the dynamic block is selected (its contextual menu shows) and its dynamic settings are in
   // the panel or sheet (`dynOpen`); `dropped`: its typed rows were just set aside by switching to a list, and Undo brings them back.
   let dynSelected = false;
   let dynOpen = false;
@@ -1180,6 +1180,7 @@ function blockCard(
             focus={focus}
             onChange={change}
             onSettings={settings}
+            onEdit={() => void edit()}
             onProps={(patch) => {
               const here = at();
               if (here)
@@ -1270,7 +1271,7 @@ function blockCard(
   // only edited, and the last shown one of a block the page must have cannot be hidden or removed.
   // From expanded the block's fields are in the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
   const inPanelNow = () => !inline && editsInPanel(atLeastNow('expanded'), !!block?.fields.length);
-  // Typed in place: the floating toolbar (inlineBar.ts) has the row actions, and its last button opens the block's own menu below.
+  // Typed in place: the contextual menu (contextualMenu.ts) has the row actions, and its last button opens the block's own menu below.
   let handle = card;
   if (inline) {
     const rowFieldsOf = (names: string[]) =>
@@ -1457,7 +1458,7 @@ function blockCard(
         dynSelected = true;
         draw();
       });
-    bar = inlineBar({
+    bar = contextualMenu({
       name,
       dom,
       rowActions,
@@ -1471,7 +1472,7 @@ function blockCard(
             ? () => void edit()
             : undefined,
       compact,
-      labels: { row: spec!.texts.row, edit: t.common.edit },
+      labels: { edit: t.common.edit },
       dynamic: canDynamic ? { label: t.blocks.rows.dynamicTip, on: isDynamic, action: openDynamic } : undefined,
     });
     handle = bar.block;
