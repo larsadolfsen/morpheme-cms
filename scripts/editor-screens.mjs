@@ -154,16 +154,55 @@ async function checkStartSubtitle() {
   }
 }
 
-/** The bar's Insert: on the bar, or in the ⋮ menu when it did not fit (a phone with the cursor in text). `how`: 'click' or 'tap'. */
-async function pressInsert(page, how = 'click') {
-  const direct = page.locator('.editor-tools [aria-label="Insert"]:visible');
+/** A tool of the text's one bar by its name: its button on the bar, or its row in the ⋮ menu when it did not fit (a phone). `how`: 'click' or 'tap'. The bar's buttons keep the cursor where it is. */
+async function pressTool(page, name, how = 'click') {
+  const direct = page.locator(`.editor-tools button[aria-label="${name}"]:visible`);
   if (await direct.count()) return void (await direct.first()[how]());
+  await pressMore(page, name, how);
+}
+
+/** A row of the bar's ⋮ menu by its name (the block's own menu: Edit, Hide on the page, Move up, Move down, Remove; and the tools that did not fit). */
+async function pressMore(page, name, how = 'click') {
   await page.locator('.editor-tools [aria-label="More"]:visible').first()[how]();
-  await page
-    .locator('[role=menu] [role^=menuitem]')
-    .filter({ hasText: /^Insert$/ })
-    .first()
-    [how]();
+  const row = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${name}$`) });
+  await row.first()[how]();
+}
+
+/** The bar's Insert (on the bar, or in the ⋮ menu when it did not fit). */
+const pressInsert = (page, how = 'click') => pressTool(page, 'Insert', how);
+
+/** What the bar and its ⋮ menu hold now: `bar` its buttons (name, title, icon, size, pressed), `more` the rows of the ⋮ menu (opened and closed again by its button, so the cursor stays in its field). */
+async function barTools(page) {
+  const bar = await page.evaluate(() =>
+    [...document.querySelectorAll('.editor-tools button:not([hidden])')].map((b) => {
+      const r = b.getBoundingClientRect();
+      return {
+        label: b.getAttribute('aria-label'),
+        title: b.title,
+        svg: !!b.querySelector('svg path'),
+        icon: [...b.querySelectorAll('svg path')].map((p) => p.getAttribute('d')).join('|'),
+        pressed: b.getAttribute('aria-pressed'),
+        width: r.width,
+        height: r.height,
+        text: b.textContent.trim(),
+        chevron: !!b.querySelector('svg[width="12"]'),
+      };
+    }),
+  );
+  let more = [];
+  const button = page.locator('.editor-tools [aria-label="More"]:visible');
+  if (await button.count()) {
+    await button.first().click();
+    more = await page.evaluate(() =>
+      [...document.querySelectorAll('[role=menu][aria-label="More"] [role^=menuitem]')].map((x) => ({
+        label: x.textContent.trim(),
+        pressed: x.getAttribute('aria-checked'),
+        height: x.getBoundingClientRect().height,
+      })),
+    );
+    await button.first().click();
+  }
+  return { bar, more, names: [...bar.map((b) => b.label), ...more.map((m) => m.label)] };
 }
 
 /** The text's one bar (docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md, PR 1). On a phone, with the cursor in text: one bar, 44 dp tall, every button 44 x 44 dp, never scrolling, with the divider, Undo and Redo and the ⋮ at its end (at 360 and 375 px exactly Bold, Italic, Link, Text style, Undo, Redo, More); the ⋮ is a pop-up menu (not a sheet) inside the visible screen, with rows of 44 dp, which keeps the cursor and closes on Escape; Undo works; the bar has the same height idle (no divider then); the Text style menu has at most 8 rows of 44 dp, a page's first heading offers Main heading, a blog post Heading and Subheading, a list item no heading rows and no Quote, a heading no list rows and no Quote. On a computer all tools are on the bar and there is no ⋮. */
@@ -342,6 +381,59 @@ async function checkTextBar(width = 360) {
   if (!blogRows.includes('Heading') || !blogRows.includes('Subheading') || blogRows.includes('Main heading'))
     problems.push(`${label} (blog): a post offers ${blogRows.join(', ')}, not Heading and Subheading`);
   await blog.close();
+}
+
+/** A block typed in place has its tools on the text's one bar (PR 2 of the contextual toolbar plan): with a List active the bar has the block's group (named by the block), Add above and Add below as 44 x 44 dp buttons, no floating bar anywhere, the block's own menu (Hide on the page, Remove) in the ⋮ (never a second ⋮ on the card), Undo and Redo, no scrolling; the cursor back in the text brings the text tools back. */
+async function checkBlockBar(width, height = 800) {
+  const phone = width < 600;
+  const label = `${width}px block bar`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.keyboard.type('Typed row');
+  await page.waitForTimeout(300);
+  const { bar, more, names } = await barTools(page);
+  const group = await page.evaluate(() =>
+    [...document.querySelectorAll('.editor-tools [role=group]')].map((g) => g.getAttribute('aria-label')),
+  );
+  if (group[0] === 'Text tools' || !group.length) problems.push(`${label}: the bar's first group is "${group}", not the block's name`);
+  for (const name of ['Add above', 'Add below', 'Undo', 'Redo'])
+    if (!bar.some((b) => b.label === name && b.svg))
+      problems.push(`${label}: the bar has no icon button "${name}" (${bar.map((b) => b.label)})`);
+  if (bar.some((b) => b.height < 43.4 || b.width < 43.4)) problems.push(`${label}: a button of the block's bar is under 44 x 44 dp`);
+  if (!more.length) problems.push(`${label}: the ⋮ has no rows`);
+  for (const name of ['Hide on the page', 'Remove'])
+    if (!names.includes(name)) problems.push(`${label}: the block's own menu has no "${name}" (${names})`);
+  if (bar.filter((b) => b.label === 'More').length !== 1)
+    problems.push(`${label}: the bar has ${bar.filter((b) => b.label === 'More').length} ⋮ buttons, not 1`);
+  const state = await page.evaluate(() => ({
+    floating: document.querySelectorAll('.contextual-menu').length,
+    handle: document.querySelectorAll('.site-block-inline [aria-haspopup="menu"]').length,
+    scrolls: document.querySelector('.editor-tools').scrollWidth > document.querySelector('.editor-tools').clientWidth + 2,
+    pageScrolls: document.documentElement.scrollWidth > innerWidth,
+  }));
+  if (state.floating) problems.push(`${label}: a floating contextual menu is on the page`);
+  if (state.handle) problems.push(`${label}: the card has a menu handle of its own`);
+  if (state.scrolls || state.pageScrolls) problems.push(`${label}: the bar or the page scrolls sideways`);
+  // Undo on the bar works while the block is active.
+  await pressTool(page, 'Undo', phone ? 'tap' : 'click');
+  await page.waitForTimeout(200);
+  // The cursor back in the text: the text tools return.
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(300);
+  const back = await page.evaluate(() => [...document.querySelectorAll('.editor-tools button')].map((b) => b.getAttribute('aria-label')));
+  if (!back.includes('Bold') || back.includes('Add above'))
+    problems.push(`${label}: after leaving the block the bar has ${back} and not the text tools`);
+  await page.close();
 }
 
 /** On a computer (1280 px) all tools are on the one bar, in two groups with the divider between, 44 dp tall, with no ⋮; idle only the main tools. */
@@ -1095,21 +1187,9 @@ async function checkLiveList(width, height, { name, hint, items }) {
   if (!(await page.locator(`.site-block-inline ${items}`).count())) problems.push(`${label}: the block shows none of the demo's items`);
   await page.keyboard.type('Our list');
   // The gear opens the settings: they do not repeat the heading and subheading typed in place, and still hold the rest.
-  if (phone)
-    await page
-      .locator('.contextual-menu button[aria-label="Edit"]')
-      .first()
-      .evaluate((b) => b.click());
-  else {
-    await page
-      .locator(
-        '.contextual-menu > button:last-child, .contextual-menu [aria-label="Testimonials"], .contextual-menu [aria-label="Blog posts"]',
-      )
-      .last()
-      .evaluate((b) => b.click());
-    await page.waitForTimeout(200);
-    await page.getByRole('menuitem', { name: 'Edit', exact: true }).first().click();
-  }
+  // On a phone the bar's gear; on a computer the block's own menu in the bar's ⋮.
+  if (phone) await pressTool(page, 'Edit');
+  else await pressMore(page, 'Edit');
   await page.waitForTimeout(500);
   const settings = await page.evaluate(() =>
     [
@@ -1429,15 +1509,15 @@ async function checkSegmentedArrow(width, height) {
   await page.keyboard.type('First');
   await page.waitForTimeout(300);
   // Row 1 gets a page (its link), in the row's settings.
-  if (phone) await page.locator('.contextual-menu button[aria-label="Edit"]').first().click();
+  if (phone) await pressTool(page, 'Edit');
   await page.locator('[aria-label="Row settings"] button.text-field-input, .editor-side-sheet button.text-field-input').first().click();
   await page.getByText('About Morpheme', { exact: true }).locator('visible=true').last().click();
   await page.waitForTimeout(400);
   if (phone) await page.locator('dialog[open] [aria-label="Close"]').first().click();
   await page.waitForTimeout(400);
   // The rows are always open ("Always open" in the block's settings), so a closed row draws its arrow.
-  await page.locator('.contextual-menu button[aria-label="Segmented list"]').first().click();
-  await page.locator('.site-block-menu button[aria-label="Edit"]').click();
+  // The block's own Edit is in the bar's ⋮ menu.
+  await pressMore(page, 'Edit');
   await page.waitForTimeout(600);
   await page.getByText('Always open', { exact: true }).locator('visible=true').last().click();
   await page.getByRole('button', { name: 'Save', exact: true }).locator('visible=true').last().click();
@@ -1510,7 +1590,7 @@ async function checkInlineBlock(
     const next = await page.locator('.inline-list-row-active .block-card-actions .inline-card-next-button').allTextContents();
     if (next.join() !== 'Add button')
       problems.push(`${label}: the active card's action area has "${next}", not the text button "Add button"`);
-    if (width >= 1000 && !(await page.locator('.contextual-menu button[aria-label="Link"]').count()))
+    if (width >= 1000 && !(await page.locator('.editor-tools button[aria-label="Link"]').count()))
       problems.push(`${label}: the toolbar has no Link while the card is still empty`);
     // The header line of a card is a headline and ONE optional subhead, both typed in place; no badge, date or tags.
     const fields = await page.evaluate(() =>
@@ -1539,8 +1619,7 @@ async function checkInlineBlock(
         problems.push(`${label}: the ${kind} button's hint is ${hintColor} and its text ${fieldColor}, not its own ${rowColor}`);
     {
       // The contextual menu's Settings, a plain icon button on a computer and a phone.
-      const link = page.locator('.contextual-menu [aria-label="Settings"]:visible').first();
-      await link.click({ timeout: 4000 }).catch(() => problems.push(`${label}: the toolbar has no way to open the button's settings`));
+      await pressTool(page, 'Settings').catch(() => problems.push(`${label}: the toolbar has no way to open the button's settings`));
       const kinds = ['Filled', 'Tonal', 'Elevated', 'Outlined', 'Text'];
       const group = page.locator('[role="group"][aria-label="Style"], [aria-label="Style"]').last();
       await group.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's settings have no Style choice`));
@@ -1591,12 +1670,12 @@ async function checkInlineBlock(
       outline: getComputedStyle(document.querySelector('.inline-list-row-active')).outlineStyle,
       background: getComputedStyle(document.querySelector('.inline-list-row-active')).backgroundColor,
       activeRow: document.querySelector('.inline-list-row-active').dataset.row,
-      bar: [...document.querySelectorAll('.contextual-menu button')].map((b) => ({
+      bar: [...document.querySelectorAll('.editor-tools button')].map((b) => ({
         label: b.getAttribute('aria-label'),
         svg: !!b.querySelector('svg path'),
       })),
-      // A dropdown is a button with a text label and a chevron; the contextual menu has none, only icon buttons.
-      dropdowns: [...document.querySelectorAll('.contextual-menu button')]
+      // A dropdown is a button with a text label and a chevron; a block's tools on the bar have none, only icon buttons.
+      dropdowns: [...document.querySelectorAll('.editor-tools button')]
         .filter((b) => b.textContent.trim() || b.querySelector('svg[width="12"]'))
         .map((b) => b.getAttribute('aria-label')),
     }));
@@ -1664,7 +1743,7 @@ async function checkInlineBlock(
   // The card's settings (the toolbar's gear on a phone, a sheet; the panel on a computer already) open with its page and buttons, never an empty page.
   const cardSettings = async (when) => {
     if (width >= 1000) return;
-    await page.locator('.contextual-menu button[aria-label="Edit"]').click();
+    await pressTool(page, 'Edit');
     const sheet = page.locator('dialog[open][aria-label="Card settings"]');
     await sheet.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the card's settings do not open (${when})`));
     if (!(await sheet.getByText(/^(Page|Buttons)$/).count())) problems.push(`${label}: the card's settings are empty (${when})`);
@@ -1901,8 +1980,7 @@ async function checkSteps(width, height) {
   // Moving a step renumbers.
   await page.locator('.inline-steps [data-row="0"] [data-field="title"]').click();
   await page.waitForTimeout(200);
-  const down = page.locator('.contextual-menu button[aria-label="Move down"]');
-  await down.first().click();
+  await pressTool(page, 'Move down');
   await page.waitForTimeout(200);
   now = await steps();
   if (now[1]?.title !== 'Order' || now.map((s) => s.number).join() !== '1,2,3')
@@ -1964,21 +2042,24 @@ async function checkDynamicList(width, height) {
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
   await page.keyboard.type('Typed row');
   await page.waitForTimeout(300);
-  const bar = () =>
-    page.evaluate(() => {
-      const el = document.querySelector('.contextual-menu');
-      const r = el && !el.hidden ? el.getBoundingClientRect() : null;
-      return {
-        labels: [...document.querySelectorAll('.contextual-menu button')].map((b) => b.getAttribute('aria-label')),
-        inside: !r || (r.left >= 0 && r.right <= innerWidth + 0.5),
-        small: [...document.querySelectorAll('.contextual-menu button')].some((b) => b.getBoundingClientRect().height < 47.5),
-      };
+  // The block's tools are on the one bar (44 x 44 dp buttons, never scrolling) or in its ⋮ menu (rows of 44 dp).
+  const bar = async () => {
+    const { bar: buttons, more, names } = await barTools(page);
+    const box = await page.evaluate(() => {
+      const el = document.querySelector('.editor-tools');
+      return { scrolls: el.scrollWidth > el.clientWidth + 2 };
     });
+    return {
+      labels: names,
+      inside: !box.scrolls,
+      small: [...buttons, ...more].some((b) => b.height < 43.4 || (b.width !== undefined && b.width < 43.4)),
+    };
+  };
   const typed = await bar();
   if (!typed.labels.includes('Fill from a list')) problems.push(`${label}: the toolbar has no dynamic icon`);
   if (!typed.inside) problems.push(`${label}: the toolbar reaches outside the screen`);
-  if (typed.small) problems.push(`${label}: a toolbar button is under 48 px high`);
-  await page.locator('.contextual-menu [aria-label="Fill from a list"]').click();
+  if (typed.small) problems.push(`${label}: a toolbar button is under 44 dp`);
+  await pressTool(page, 'Fill from a list');
   const panel = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Rows from' }).first();
   await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
   await panel.locator('button.text-field-input').first().click();
@@ -2018,7 +2099,7 @@ async function checkDynamicPicker(width, height) {
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
-  await page.locator('.contextual-menu [aria-label="Fill from a list"]').click();
+  await pressTool(page, 'Fill from a list');
   const panel = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Rows from' }).first();
   await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
   await panel.locator('button.text-field-input').first().click();
@@ -2306,7 +2387,7 @@ async function checkNewList(width, height, label) {
     await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
     await page.waitForSelector('.inline-list-row-active [data-field="title"]');
     await page.keyboard.type('Typed row');
-    await page.locator('.contextual-menu [aria-label="Fill from a list"]').click();
+    await pressTool(page, 'Fill from a list');
     const panel = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Rows from' }).first();
     await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
     await panel.locator('button.text-field-input').first().click();
@@ -2633,7 +2714,7 @@ async function checkInlineTable(width, height) {
       faded: document.querySelectorAll('.inline-table-cell-next').length,
       outline: getComputedStyle(document.querySelector('.inline-table-cell-active')).outlineStyle,
       scroll: document.querySelector('.inline-table-box').scrollWidth <= document.querySelector('.inline-table-box').clientWidth + 1,
-      bar: [...document.querySelectorAll('.contextual-menu button')].map((b) => ({
+      bar: [...document.querySelectorAll('.editor-tools button')].map((b) => ({
         label: b.getAttribute('aria-label'),
         title: b.title,
         svg: !!b.querySelector('svg path'),
@@ -2641,9 +2722,7 @@ async function checkInlineTable(width, height) {
       })),
     }));
   const press = async (name) => {
-    const b = page.locator(`.contextual-menu button[aria-label="${name}"]`);
-    if (!(await b.count())) return problems.push(`${label}: the menu has no button "${name}"`);
-    await b.first().tap();
+    await pressTool(page, name, 'tap').catch(() => problems.push(`${label}: the bar has no button "${name}"`));
     await page.waitForTimeout(300);
   };
   const one = await state();
@@ -2728,7 +2807,7 @@ async function checkInlineTable(width, height) {
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(300);
   const after = await page.evaluate(() => ({
-    menu: [...document.querySelectorAll('.contextual-menu')].filter((m) => !m.hidden).length,
+    menu: document.querySelectorAll('.editor-tools [aria-label="Add row above"]').length,
     extra: document.querySelectorAll('[data-add-row], .inline-table-cell-next').length,
     rows: document.querySelectorAll('.inline-table-box tr[data-row]').length,
     cols: document.querySelectorAll('.inline-table-box thead th').length,
@@ -2781,10 +2860,7 @@ async function checkTableAlign(width, height) {
   await page.waitForSelector('.inline-table-cell-active textarea');
   const cellField = (r, c) => page.locator(`.inline-table-box [data-row="${r}"] [data-field="${c}"]`);
   const menu = async (name) => {
-    await page
-      .locator(`.contextual-menu button[aria-label="${name}"]`)
-      .first()
-      .evaluate((b) => b.click());
+    await pressTool(page, name);
     await page.waitForTimeout(250);
   };
   // The table is made with the menu (no Next row or Next column in it): Text | Number, and two rows under them.
@@ -2812,14 +2888,16 @@ async function checkTableAlign(width, height) {
   if (!end(auto.numberHead) || !end(auto.numberCell) || !end(auto.numberField))
     problems.push(`${label}: the editor's number column is not right-aligned (${JSON.stringify(auto)})`);
   // The bar changes the column of the active cell.
-  const bar = () =>
-    page.evaluate(() =>
-      Object.fromEntries(
-        [...document.querySelectorAll('.contextual-menu button[aria-pressed]')]
-          .filter((b) => /column/.test(b.getAttribute('aria-label')) && /lign|entre/.test(b.getAttribute('aria-label')))
-          .map((b) => [b.getAttribute('aria-label'), b.getAttribute('aria-pressed')]),
-      ),
+  // The pressed alignment: the bar's buttons (aria-pressed) on a computer, the rows of its ⋮ menu (aria-checked) on a phone.
+  const bar = async () => {
+    const { bar: buttons, more } = await barTools(page);
+    return Object.fromEntries(
+      [
+        ...buttons.filter((b) => b.pressed !== null).map((b) => [b.label, b.pressed]),
+        ...more.filter((m) => m.pressed !== null).map((m) => [m.label, m.pressed]),
+      ].filter(([name]) => /column/.test(name) && /lign|entre/.test(name)),
     );
+  };
   await cellField(1, 1).click();
   const names = ['Align column left', 'Centre column', 'Align column right', 'Align column automatically'];
   const first = await bar();
@@ -2827,10 +2905,7 @@ async function checkTableAlign(width, height) {
   if (first['Align column automatically'] !== 'true')
     problems.push(`${label}: Automatic is not shown pressed on a column without a choice`);
   const press = async (name) => {
-    await page
-      .getByRole('button', { name, exact: true })
-      .first()
-      .evaluate((b) => b.click());
+    await pressTool(page, name);
     await page.waitForTimeout(300);
   };
   await press('Align column left');
@@ -4115,6 +4190,7 @@ await checkStartSubtitle();
 
 for (const width of [360, 375, 390, 414]) await checkTextBar(width);
 await checkTextBarWide();
+for (const width of [375, 1280]) await checkBlockBar(width);
 for (const [width, height] of [
   [360, 740],
   [375, 800],

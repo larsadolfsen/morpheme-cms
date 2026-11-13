@@ -47,3 +47,17 @@ test('a medium bar shows what fits, keeps the order, and puts the rest in the â‹
   assert.deepEqual(plan.bar.context, ['bold', 'italic', 'link', 'style', 'list', 'align']);
   assert.deepEqual(plan.more, { context: ['color'], main: ['insert', 'settings'] });
 });
+
+test('a block always has the â‹® (its own menu): it takes a slot even when every tool fits', () => {
+  const plan = planBar({ slots: 11, context: ['above', 'below', 'up', 'down'], main: ['insert', 'undo', 'redo'], more: true });
+  assert.equal(plan.overflow, true);
+  assert.deepEqual(plan.more, { context: [], main: [] });
+  const tight = planBar({
+    slots: 7,
+    context: ['above', 'below', 'up', 'down', 'link', 'gear'],
+    main: ['insert', 'undo', 'redo'],
+    more: true,
+  });
+  assert.deepEqual(tight.bar, { context: ['above', 'below', 'up', 'down'], main: ['undo', 'redo'] });
+  assert.deepEqual(tight.more, { context: ['link', 'gear'], main: ['insert'] });
+});

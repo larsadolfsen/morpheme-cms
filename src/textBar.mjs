@@ -17,11 +17,13 @@ export function slotsFor(width, divider = true) {
  * `main` the main tools (Insert, Undo, Redo, Section settings). What the bar keeps first, in this order: the first `primary` contextual tools,
  * Undo, Redo, then the other contextual tools, then the other main tools. When everything fits, nothing is in `⋮`; else `⋮` takes a slot, and the
  * tools past what fits go into it, the contextual ones first, then the main ones. The bar keeps the order the tools were given in.
- * @param {{ slots: number, context: string[], main: string[], primary?: number }} input
+ * `more`: the `⋮` is on the bar even when everything fits (a block's own menu: Hide, Move, Remove), so it takes a slot.
+ * @param {{ slots: number, context: string[], main: string[], primary?: number, more?: boolean }} input
  * @returns {{ bar: { context: string[], main: string[] }, more: { context: string[], main: string[] }, overflow: boolean }}
  */
-export function planBar({ slots, context, main, primary = 4 }) {
-  if (context.length + main.length <= slots) return { bar: { context, main }, more: { context: [], main: [] }, overflow: false };
+export function planBar({ slots, context, main, primary = 4, more = false }) {
+  if (context.length + main.length + (more ? 1 : 0) <= slots)
+    return { bar: { context, main }, more: { context: [], main: [] }, overflow: more };
   const history = main.filter((id) => id === 'undo' || id === 'redo');
   const priority = [
     ...context.slice(0, primary),
