@@ -1337,8 +1337,10 @@ function blockCard(
     const compact = () => !atLeastNow('expanded');
     // The active row has something in it (the row actions are for a row, not for the empty one being started).
     // A grid (the Table): a row or a column of the active cell is added (before or after) or deleted; the cursor stays in the cell.
-    const gridActions = (g: NonNullable<typeof spec>['grid'] & object, list: string[][]): BarAction[] => {
+    const gridActions = (g: NonNullable<typeof spec>['grid'] & object, saved: string[][]): BarAction[] => {
       if (active === null) return [];
+      // A new table has no rows yet: it is one empty cell, so the first row and column come from the menu too.
+      const list = saved.length ? saved : [['']];
       const [r, c] = [active, col ?? 0];
       const go = (cells: string[][], row: number, column: number) =>
         change({ items: cells as unknown as Row[], active: row, col: column, focus: { row, field: String(column) } });

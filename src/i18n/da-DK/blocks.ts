@@ -194,7 +194,6 @@ export const blocks: Messages['blocks'] = {
     striped: 'Stribede rækker',
     stripedToggle: ['Til', 'Fra'] as [string, string],
     stripedHint: 'Giver hver anden række en baggrund.',
-    addRow: 'Tilføj række',
     addAbove: 'Tilføj række over',
     addBelow: 'Tilføj række under',
     addColumnBefore: 'Tilføj kolonne før',
@@ -204,8 +203,6 @@ export const blocks: Messages['blocks'] = {
     cell: 'Celle',
     rowsColumns: 'Rækker og kolonner',
     cellOf: (row: number, column: number) => `Række ${row}, kolonne ${column}`,
-    newRow: 'Næste række',
-    newColumn: 'Næste kolonne',
     settings: 'Tabel',
   },
   steps: {

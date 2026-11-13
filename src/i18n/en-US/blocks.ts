@@ -211,7 +211,6 @@ export const blocks = {
     striped: 'Striped rows',
     stripedToggle: ['On', 'Off'] as [string, string],
     stripedHint: 'Gives every second row a background.',
-    addRow: 'Add row',
     addAbove: 'Add row above',
     addBelow: 'Add row below',
     addColumnBefore: 'Add column before',
@@ -221,8 +220,6 @@ export const blocks = {
     cell: 'Cell',
     rowsColumns: 'Rows and columns',
     cellOf: (row: number, column: number) => `Row ${row}, column ${column}`,
-    newRow: 'Next row',
-    newColumn: 'Next column',
     settings: 'Table',
   },
   steps: {
