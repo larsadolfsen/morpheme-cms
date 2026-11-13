@@ -30,6 +30,9 @@ Date: 2026-11-13. Audit only, no code changed. Written for the owner, who reads 
   becomes a list kind (yes). The **score ring stays the editor's own**, an intentional editor-only part (owner: "it is a
   very specific component that is not reusable in front end"), so it is dropped from the plan. The colour and icon pickers
   also stay in the editor. The ring is recorded in `docs/material-deviations.md`.
+- The "parts" rule (question 7): it **fails the check from the start**. Today's cases go in its allow-list, each with its
+  reason and the row of this spec that will remove it, so nothing new can come in while the rows are fixed. The list only
+  shrinks. All seven questions are decided; the spec is ready for the owner's read.
 - Motion already has tokens (`--motion-spatial-*`, `--motion-effects-*`, `--motion-ease`). Spacing has none yet
   (`docs/material-deviations.md`, CSS sweep 8): the first step of row 11 is to add them to the theme.
 
@@ -176,7 +179,7 @@ Extend `check:css-values` (it already reads `theme/`, `src/`, `pages/` and runs 
 
 1. Raw elements: fail on `<button`, `<input`, `<select`, `<textarea`, `<dialog`, `<table`, `<details` in `src/*.tsx` outside
    `src/ui.tsx` and `src/Inline*.tsx`, unless the file and line are in an allow-list with a reason. Today that is about 15
-   lines, all listed in rows 3-7 above. When a row is fixed, its allow-list entry is removed, so the list only shrinks.
+   lines, all listed in rows 3-7 above. The rule fails the check from the start (owner decision). Each allow-list entry carries its reason and the number of the row that removes it, and the pull request that fixes a row deletes its entries, so the list only shrinks and nothing new can come in meanwhile.
 2. Tokens: remove the blanket type pass for `editor.css` and add `z-index`, `opacity` and `transition`/`animation` durations
    to the literal check, with a short allow-list (the 38% disabled opacity is M3's own and stays).
 
@@ -190,6 +193,4 @@ Extend `check:css-values` (it already reads `theme/`, `src/`, `pages/` and runs 
 4. ~~Full-screen dialog kind for the Preview~~ Decided by the owner: yes (see Decisions above and row 6).
 5. ~~Save bar blur~~ Decided by the owner: no blur, no custom bar; it becomes the bottom sheet part (see Decisions and row 7).
 6. ~~Which editor-only parts become theme parts~~ Decided by the owner: the rule is "only if the front end could reuse it"; `FoldSection` and `CheckList` yes, the score ring and the colour and icon pickers stay in the editor (see Decisions and rows 8 and 10).
-7. **Turn on the "parts" rule (section 4) in the same pull request that fixes the first rows, or first as a list that
-   only warns?** Recommendation (the rule now includes spacing, step 3, once the tokens exist): add it failing from the start with today's lines in the allow-list, so nothing new
-   can come in while the fixes are made.
+7. ~~Turn on the "parts" rule failing from the start~~ Decided by the owner: yes, failing from the start, with today's cases in the allow-list (each with its reason and the row that removes it).
