@@ -113,3 +113,15 @@ test('entriesOf: a published page with a waiting version carries it, with its ti
     ],
   );
 });
+
+test('entriesOf reads a stored Scheduled page whose time has passed as published', () => {
+  const [past, future] = entriesOf(
+    [
+      file('src/content/pages/past.md', 'title: "Past"\nstatus: scheduled\npublishAt: "2020-01-01T08:00"'),
+      file('src/content/pages/future.md', 'title: "Future"\nstatus: scheduled\npublishAt: "2099-01-01T08:00"'),
+    ],
+    collections,
+  );
+  assert.equal(past.status, 'published');
+  assert.equal(future.status, 'scheduled');
+});

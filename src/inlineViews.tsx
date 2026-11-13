@@ -12,6 +12,8 @@ import InlineSegmented from './InlineSegmented';
 import InlineButtons from './InlineButtons';
 import InlineFaq from './InlineFaq';
 import InlinePriceCards from './InlinePriceCards';
+import InlineTestimonials from './InlineTestimonials';
+import InlinePosts from './InlinePosts';
 import type { Change, Focus, Item } from './InlineItems';
 
 export type InlineViewProps = {
@@ -47,4 +49,6 @@ export const inlineViews: Record<string, ComponentType<InlineViewProps>> = {
   buttons: InlineButtons,
   faq: InlineFaq,
   pricecards: InlinePriceCards,
+  testimonials: InlineTestimonials,
+  posts: InlinePosts,
 };

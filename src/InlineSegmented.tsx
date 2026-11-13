@@ -2,10 +2,10 @@
 // them, folded (the theme's rows that fold out, as in Accordion.tsx) or, for a list whose rows are always open (`show` 'all'), each on its own
 // surface (the theme's segmented list), and each row's heading and text are typed where they stand. The active row is shown open, so its text can
 // be typed; the others are closed, as on the site. A row's icon and its page and buttons are not typed: the active row has two slots, the icon (its
-// picker) and the link (its sheet, which has the page and the buttons). The block's own settings (`Only one open`, `Rows`, `Max rows`, the text
+// picker); the row's page and its one button are at the bottom of the active row, where the site draws them (`Link` opens the row's sheet, the button's text is typed). The block's own settings (`Only one open`, `Rows`, `Max rows`, the text
 // button) are in Edit. The parts, the keys and what is kept are InlineItems.tsx and src/inlineRows.mjs; the empty, faded row, `Add row` and the dotted
 // line are as in the List. A Segmented list that reads a list ("Rows from") is drawn by RowsFromList (InlineList.tsx), not typed.
-import { LinkSimple, Plus } from '@phosphor-icons/react';
+import { Plus } from '@phosphor-icons/react';
 import { Glyph, Svg } from './icon';
 import { iconColorOf } from './iconColor';
 import { t } from './i18n';
@@ -25,9 +25,6 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
       <InlineSlot label={t.blocks.segmented.icon} onClick={() => onIcon(i)}>
         {icon ? <Glyph icon={icon} size={24} /> : <Plus size={24} />}
       </InlineSlot>
-      <InlineSlot label={t.blocks.segmented.link} onClick={() => onSettings(i)}>
-        <LinkSimple size={24} />
-      </InlineSlot>
     </>
   );
   // The active row's buttons at the bottom of its text: each button's text is typed where it stands (its page is in the row's sheet, the link
@@ -42,6 +39,9 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
       });
     return (
       <div className="block-row-links inline-segmented-buttons">
+        <SiteButton kind="text" data-row-link="" aria-label={t.blocks.segmented.link} onClick={() => onSettings(i)}>
+          {t.blocks.segmented.link}
+        </SiteButton>
         {list.map((b, n) => (
           <span key={n} className="inline-segmented-button">
             <InlineField
@@ -110,7 +110,18 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
               leadingIcon={here ? undefined : item.icon || undefined}
               data-icon-color={item.icon ? iconColorOf(item.iconColor) : undefined}
               headline={title}
-              supporting={twoLines ? text : undefined}
+              supporting={
+                twoLines ? (
+                  here ? (
+                    <>
+                      {text}
+                      {buttonsOf(i, item)}
+                    </>
+                  ) : (
+                    text
+                  )
+                ) : undefined
+              }
               trailingIcon={here || !item.href ? undefined : 'caret-right'}
             />
           );

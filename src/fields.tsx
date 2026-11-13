@@ -396,7 +396,9 @@ function FieldControl({ field, value, onChange }: Props) {
         );
       // An option that needs a choice on the page (Field.options' onPage) only while there is one, or it is chosen.
       const offered = field.options!.filter(
-        (o) => !o.onPage || o.value === text || onThePage(context.relations[o.onPage] ?? [], context.page).length > 0,
+        (o) =>
+          (!o.stored || o.value === text) &&
+          (!o.onPage || o.value === text || onThePage(context.relations[o.onPage] ?? [], context.page).length > 0),
       );
       if (field.locked) {
         // The kind of an entry: what it is, not changed here (its hint under the label says more).
