@@ -2783,9 +2783,8 @@ async function checkInlineTable(width, height) {
   const rowBg = () =>
     page.evaluate(() => [...document.querySelectorAll('.inline-table-box tbody tr')].map((r) => getComputedStyle(r).backgroundColor));
   const plain = await rowBg();
-  // The table's own button in the toolbar (on a computer) shows the block's frame with its Edit button.
-  if (width > 600) await page.locator('button[aria-label="Table"]:visible').first().click();
-  await page.locator('button[aria-label="Edit"]:visible').first().click();
+  // The table's settings: the block's Edit, in the bar's ⋮ menu.
+  await pressMore(page, 'Edit');
   const stripes = page.locator('dialog[open], .editor-side-sheet').getByRole('switch', { name: 'Striped rows' });
   await stripes.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the table's settings have no "Striped rows" switch`));
   if ((await stripes.count()) && (await stripes.isChecked())) problems.push(`${label}: "Striped rows" is not off by default`);
