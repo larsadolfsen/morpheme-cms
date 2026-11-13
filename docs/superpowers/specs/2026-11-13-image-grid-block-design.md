@@ -6,7 +6,7 @@ Owner's words: "the image grid that we are making would also be a nice block to 
 use it in the front end as well to show images."
 
 Words used here: a **tile** is one image in the grid. A **tag** is a label on an image (like a post's tag). A **filter
-chip** is a small button above the grid that shows only the images with one tag. **Lightbox** means tapping a image to see
+chip** is a small button above the grid that shows only the images with that tag. **Lightbox** means tapping an image to see
 it bigger over the page.
 
 ## 1. What the block is
@@ -121,9 +121,9 @@ sheet on insert, like the Image block.
 | --- | --- | --- |
 | `Images` | `All images with tags` (pick tags) or `Picked images` (pick in the Library, drag to order) | All with tags; no tag picked = all images |
 | `Show filter` | on / off | on, only when 2 or more tags exist in the shown images |
-| `Start with` | `All` or one tag | All |
+| `Start with` | `All` or one or more tags | All |
 | `Order` | `Newest`, `Oldest`, `Library order` (picked), `Random each build` | Newest |
-| `Open images bigger` | on / off | on |
+| `Open images bigger` | on / off | on (on the site; in the editor a tap opens the image's settings) |
 | `Card shows` | any of `Caption`, `Tags`, `Credit` (the image is always shown) | none: image only |
 | `Card style` | `Filled`, `Elevated`, `Outlined` | Filled |
 | `Columns` | `Auto` or `2`, `3`, `4` on a computer | Auto |
@@ -179,13 +179,44 @@ shown, so the owner's reference look stays.
 
 ## 5. How it behaves on the site
 
-- **Filter.** `Chip` (filter kind, selected state). First chip `All`. Tapping a selected tag chip again clears it (back to
-  `All`). One tag at a time (question 2). Chips carry `aria-pressed`. Hidden images get `hidden`, so they are out of the
-  tab order and the screen reader. The count is announced politely (`aria-live`): "12 images".
-- **Lightbox.** Tap a image: the theme's full-screen `Dialog` (audit decision 4) opens with the image, `Previous`, `Next`
-  and `Close`. Keys: `Left` and `Right` move, `Escape` closes, focus is trapped and goes back to the tile. It moves only among
-  the images the filter shows. The image is the 1200 px copy; alt text is read, the caption (if on) is shown under it.
-  Without JavaScript a tile is a link to the image itself, so it still opens.
+- **Filter (owner decision: several tags, AND).** `Chip` in its filter kind, one per tag, each toggles on and off
+  (`selected`, `aria-pressed`). A visitor can choose more than one tag, and an image shows only if it has **all** the
+  chosen tags. With none chosen, all images show. The first chip, `All`, clears every choice (it is selected when none is
+  chosen). The chips wrap onto more lines on a phone (a `ChipSet`, 48 dp targets), they do not scroll sideways.
+- **A tag that would show nothing.** After each choice, a tag chip whose addition would leave no image is `disabled` (greyed,
+  not removed, so the row does not jump), so the visitor cannot reach an empty grid by tapping. The counts are not drawn on
+  the chips. If the grid is still empty (the block's `Start with` tags have no common image), it shows the text `No images
+  have all these tags.` (a `siteT` text) and a `Clear tags` button. Hidden images get `hidden`, so they are out of the tab
+  order and the screen reader; the count is announced politely (`aria-live`): "12 images".
+- **Link state.** The chosen tags are kept in the page address (`#tags=sea,food`, the fragment, so the server and the cache
+  are not involved and nothing is sent anywhere). A visitor can share the link or press Back, and the page opens with those
+  tags chosen. A tag that does not exist is ignored. The fragment is read once on load and written by the script on each
+  choice, without adding history entries (`replaceState`).
+- **Without JavaScript.** The chips are not drawn (they need the script), so every image shows in one grid; nothing is
+  hidden that a visitor cannot get back. Search engines see every image.
+- **Lightbox (owner decision: on by default, can be turned off).** Tap an image on the site and the large image opens over a
+  dark layer. In M3 terms the dark layer is the **scrim**, the large view is a **modal dialog**. No lightbox part exists in
+  `theme/ui/` today (searched: none). PR 5a adds a theme part `Lightbox` (`theme/ui/Lightbox.tsx`), built on the theme's
+  `Dialog` (the same modal `<dialog>`, `dialogControl.ts`, focus trap, Escape and focus return that the theme already
+  has) and its scrim token `--dialog-scrim`, with these parts:
+  - the large image (the 1200 px copy, its `srcset`, `sizes` so a phone gets a smaller one), centred, its own proportions,
+    never cropped; its alt text, and the caption under it when there is one;
+  - a `Close` icon button at the top (`data-dialog-close`), `Previous` and `Next` icon buttons at the sides on a computer
+    (hidden on a phone, where swiping is the way, and drawn again for a keyboard or switch user);
+  - keys: `Escape` closes, `Left` and `Right` move, focus is trapped and goes back to the tile that opened it;
+  - **swipe between images** with CSS only: the images sit in one horizontal scroll track (`scroll-snap-type: x mandatory`),
+    so a finger swipe, a trackpad and the arrow keys all scroll one image at a time; the buttons call `scrollBy`. No touch
+    library;
+  - it moves only among the images the filter shows, and the count (`3 of 12`) is announced;
+  - the scrim is the theme's token, so a theme restyles it; no fixed colour.
+
+  It needs no outside script: it is part of `script.ts`, loaded like the other block scripts, so the CSP stays as it is (no
+  inline script, no outside address). Without JavaScript a card is a link to the image itself, so it still opens. If the
+  owner turns `Open images bigger` off, the card is not a link and not a button.
+  `docs/material-deviations.md` gets an entry: Material 3 has no lightbox; this is its modal dialog with a scrim and
+  without a surface or headline.
+- **In the editor** a tap on an image opens **that image's settings** (alt text, and the rest of its fields), never the large
+  view (section 6).
 - **Alt text.** Every card's image has `alt` by the rule in section 3a (the block's local text, else the Library's). A
   decorative image has `alt=""`.
 - **Captions.** Off by default (the owner said tiles without names). When `Caption` is on in `Card shows`, it shows on the
@@ -214,6 +245,8 @@ shown, so the owner's reference look stays.
   settings sheet), and the text button under the grid is `Add images` (opens the Library picker). No new inline kind.
 - The filter chips in the editor are drawn but inert (tapping one does not filter), so a tap selects the block. Preview
   shows the real behaviour.
+- **A tap on an image in the grid opens that image's settings sheet** (owner decision): its alt text (local, with the
+  Library's text as the hint, section 3a), its caption and its other fields. The large view is the site's only.
 - The Library picker is the one the Library uses, in the same staggered grid with the `ImageTile` selected state.
 - **Texts.** English is the source (`src/i18n/en-US/blocks.ts`, `t.blocks.imageGrid.*`); Danish in `da-DK`. Public texts the
   site shows (`All`, `Previous`, `Next`, `Close`, `12 images`) are in `siteT`, so they follow the site's language.
@@ -241,7 +274,8 @@ Order matters: the SEO rule (PR 0, separate), the alt fields (PR 0b, separate) a
 | 3 | Base alt text (and caption) on the file record: schema, `fileRecords.mjs`, Library field, and the Library-text part of the shared alt rule | medium | PR 0 |
 | 3b | Every image use fall back to the Library's text by the shared alt rule, local text kept; hints in the sheets | small to medium | 3 |
 | 4 | Standard block `imagegrid`: contract, `Card shows` and `Card style` settings, `load.ts`, `view.ts`, `filter.mjs` + unit test, texts (en and da), `View.tsx` without script (all images, links) | medium | 1, 2, 3 |
-| 5 | Filter and lightbox script (`script.ts`), chips, keys, `aria-live` | medium | 4 and the full-screen `Dialog` (exists) |
+| 5a | Theme part `Lightbox` (on `Dialog` and the scrim token): large image, close, previous, next, keys, swipe by scroll-snap, caption; deviation entry | medium | the `Dialog` (exists) |
+| 5 | Filter script (`script.ts`): multi-select AND chips, disabled empty tags, address state, `aria-live`, and wiring the lightbox | medium | 4, 5a |
 | 6 | Editor side: inline card, `Add images`, settings sheet, `check:screens` entry; demo section; release-note paragraph | small to medium | 4 |
 
 Each pull request adds a changeset; PRs 4–6 are `minor` into `0.17`, never `major`. Checks to run:
@@ -249,16 +283,15 @@ Each pull request adds a changeset; PRs 4–6 are `minor` into `0.17`, never `ma
 - `npm run check` (includes `check:language`, `check:editor-colors`, `check:css-values`, `check:content`, `check:demo`).
 - `check:screens` at **375 px** and **1280 px**: the grid, the chips, the lightbox open and closed, the editor card.
 - `npm run check:contrast` on every section colour (chips, tile surface, lightbox controls), light and dark.
-- A unit test of the filter logic (`filter.mjs`): all, one tag, no match, tag removed from the shown set, order, limit.
+- A unit test of the filter logic (`filter.mjs`): all, one tag, several tags (AND), tags that would leave nothing, no match, the address fragment, order, limit.
 - A test that no tile renders without `alt`, `width`, `height` and that the no-JavaScript HTML lists every image.
 - Record the grid's deviations in `docs/material-deviations.md` if any (for example the grid is not an M3 carousel).
 
 ## 9. Open questions for the owner (one at a time)
 
 1. ~~Where does the alt text live?~~ Decided by the owner: a base text on the Library record, changeable locally on the page, post or block; the local text wins (section 3a).
-2. **Can a visitor pick more than one tag at once?** *Recommendation:* no, one tag at a time, tap again to clear. It is the
-   simplest to understand on a phone.
+2. ~~Can a visitor pick more than one tag at once?~~ Decided by the owner: yes, and an image shows only if it has all the chosen tags (section 5).
 3. ~~What if an image has no alt text?~~ Decided by the owner: no warning on the block or the Library tile; it shows in the SEO score (section 3b). The grid draws such an image with `alt=""`.
-4. **Should tapping a image open it bigger by default?** *Recommendation:* yes, on by default; the owner can turn it off.
+4. ~~Should tapping an image open it bigger?~~ Decided by the owner: yes, on by default, can be turned off; in the editor a tap opens the image's settings (section 5).
 5. **How many images show at first?** *Recommendation:* 12, then a `Show more` button; the owner can choose `All`.
 6. **Do posts get the same grid later?** *Recommendation:* not now; reuse the tile part later if wanted (section 7).
