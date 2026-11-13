@@ -1069,6 +1069,11 @@ html {
   color: var(--block-text);
 }
 
+/* The icon picker's grid draws its icons in the color picked in the Icon color field (IconPicker, iconColor); the chosen one keeps its own colors. */
+[data-icon-grid][data-icon-color] .icon-button:not([aria-pressed='true']) {
+  color: var(--icon-color);
+}
+
 .inline-list-slot:hover,
 .inline-list-slot:focus-visible {
   background: var(--mo-surface-container-high);
@@ -1587,6 +1592,10 @@ dialog {
    column (shown while the block is active) are faded until typed in. */
 .editor-text .inline-table-box :is(th, td) {
   height: auto;
+}
+
+.editor-text .inline-table-box textarea {
+  text-align: inherit;
 }
 
 .editor-text .inline-table-box .inline-table-cell-active {

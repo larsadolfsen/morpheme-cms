@@ -12,13 +12,33 @@ import rowAboveIcon from '@material-symbols/svg-400/outlined/add_row_above.svg?r
 import rowBelowIcon from '@material-symbols/svg-400/outlined/add_row_below.svg?raw';
 import columnBeforeIcon from '@material-symbols/svg-400/outlined/add_column_left.svg?raw';
 import columnAfterIcon from '@material-symbols/svg-400/outlined/add_column_right.svg?raw';
+import alignLeftIcon from '@material-symbols/svg-400/outlined/format_align_left.svg?raw';
+import alignCenterIcon from '@material-symbols/svg-400/outlined/format_align_center.svg?raw';
+import alignRightIcon from '@material-symbols/svg-400/outlined/format_align_right.svg?raw';
+import alignAutoIcon from '@material-symbols/svg-400/outlined/autorenew.svg?raw';
 import rowDeleteIcon from '@material-symbols/svg-400/outlined/playlist_remove.svg?raw';
 import columnDeleteIcon from '@material-symbols/svg-400/outlined/variable_remove.svg?raw';
 import deleteIcon from '@material-symbols/svg-400/outlined/delete.svg?raw';
 
 export type BarAction = {
   label: string;
-  kind: 'above' | 'below' | 'up' | 'down' | 'link' | 'column-before' | 'column-after' | 'delete-row' | 'delete-column' | 'delete';
+  kind:
+    | 'above'
+    | 'below'
+    | 'up'
+    | 'down'
+    | 'link'
+    | 'column-before'
+    | 'column-after'
+    | 'delete-row'
+    | 'delete-column'
+    | 'delete'
+    | 'align-left'
+    | 'align-center'
+    | 'align-right'
+    | 'align-auto';
+  /** A choice among others (a column's alignment): shown pressed when it is the current one. */
+  pressed?: boolean;
   action: () => void;
 };
 
@@ -33,6 +53,10 @@ const icons = {
   'delete-row': rowDeleteIcon,
   'delete-column': columnDeleteIcon,
   delete: deleteIcon,
+  'align-left': alignLeftIcon,
+  'align-center': alignCenterIcon,
+  'align-right': alignRightIcon,
+  'align-auto': alignAutoIcon,
 };
 const svg = (s: string, size = 24) => s.replace('<svg', `<svg width="${size}" height="${size}" fill="currentColor" aria-hidden="true"`);
 
@@ -93,7 +117,13 @@ export function contextualMenu(opts: {
       d.classList.toggle('contextual-menu-on', opts.dynamic.on());
     }
     // Plain icon buttons on a phone too (no dropdown); the menu wraps to a second line there when 375 px is not enough.
-    for (const r of rows) button(r.label, icons[r.kind], null, r.action);
+    for (const r of rows) {
+      const b = button(r.label, icons[r.kind], null, r.action);
+      if (r.pressed !== undefined) {
+        b.setAttribute('aria-pressed', String(r.pressed));
+        b.classList.toggle('contextual-menu-on', r.pressed);
+      }
+    }
     if (opts.compact() && opts.edit) button(opts.labels.edit, gearIcon, null, opts.edit);
     el.appendChild(block);
   }

@@ -105,7 +105,17 @@ export type InlineSpec = {
   blockSettings?: boolean | ((props: BlockProps) => boolean);
   /** The block is a grid of cells (the Table): `item` is its list of rows, each a list of texts; the cursor is in a cell (row and column), and
    * the toolbar has these actions of its own (a row is added with `addAbove` and `addBelow`). */
-  grid?: { addColumnBefore: string; addColumnAfter: string; deleteRow: string; deleteColumn: string };
+  grid?: {
+    addColumnBefore: string;
+    addColumnAfter: string;
+    deleteRow: string;
+    deleteColumn: string;
+    /** The column of the active cell: left, centre, right, or automatic (by its cells); saved in the block's `columns`, one entry per column. */
+    alignLeft: string;
+    alignCenter: string;
+    alignRight: string;
+    alignAuto: string;
+  };
   texts: {
     addAbove: string;
     addBelow: string;
