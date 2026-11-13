@@ -37,6 +37,15 @@ export default defineBlock({
   label: t.blocks.testimonials.label,
   icon: Quotes,
   hint: t.blocks.testimonials.hint,
+  // Typed in place (InlineLiveList.tsx): drawn as the site draws it, with the site's own items; the heading and subheading are typed above them,
+  // the rest (which items, layout, tags, design) is in Edit.
+  inline: {
+    item: '',
+    single: true,
+    fields: ['heading', 'intro'],
+    blockSettings: true,
+    texts: { addAbove: '', addBelow: '', row: t.blocks.testimonials.label },
+  },
   edit: { to: `list/${config.lists.testimonials}`, text: t.blocks.testimonials.edit },
   fields: [
     ...headFields,

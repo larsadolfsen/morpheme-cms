@@ -1293,7 +1293,13 @@ function blockCard(
     });
     const setFields = (list: Row[], i: number, names: string[], v: BlockProps) =>
       single
-        ? [{ ...list[0], ...Object.fromEntries(names.map((n) => [n, String(v[n] ?? '')])) }]
+        ? [
+            {
+              ...list[0],
+              // A switch or a list (a block's tags) is kept as it is, a text as text.
+              ...Object.fromEntries(names.map((n) => [n, typeof v[n] === 'boolean' || Array.isArray(v[n]) ? v[n] : String(v[n] ?? '')])),
+            },
+          ]
         : names.reduce(
             // A switch or a list (a price card's Highlighted and button) is kept as it is, a text as text.
             (items, n) =>
@@ -1340,13 +1346,22 @@ function blockCard(
       const list = rows();
       if (spec!.grid) return gridActions(spec!.grid, list as unknown as string[][]);
       // A card's link is the bar's Link, also while the card is still empty (its sheet has the page and the buttons).
-      if (!single && !isDynamic() && active !== null && spec!.settings && (active >= list.length || isEmptyRow(list[active])))
+      if (
+        !single &&
+        !isDynamic() &&
+        active !== null &&
+        spec!.settings &&
+        spec!.barLink !== false &&
+        (active >= list.length || isEmptyRow(list[active]))
+      )
         return [{ kind: 'link', label: spec!.texts.link ?? '', action: settings }];
       if (single || isDynamic() || active === null || active >= list.length || isEmptyRow(list[active])) return [];
       const i = active;
       const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: spec!.fields[0] } });
       return [
-        ...(itemNames.length ? [{ kind: 'link' as const, label: spec!.texts.link ?? '', action: settings }] : []),
+        ...(itemNames.length && spec!.barLink !== false
+          ? [{ kind: 'link' as const, label: spec!.texts.link ?? '', action: settings }]
+          : []),
         ...(spec!.max === undefined || list.length < spec!.max
           ? [
               { kind: 'above' as const, label: spec!.texts.addAbove, action: () => go(addAt(list, i, spec!.fields[0]), i) },
@@ -1539,6 +1554,10 @@ function blockCard(
           ? (!inline || (typeof spec?.blockSettings === 'function' ? spec.blockSettings(node.attrs.props) : spec?.blockSettings)) &&
             !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
           : block?.edit && { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
+        // A block typed in place that reads a list of the site (Testimonials, Blog posts): the page of the list is in its menu too.
+        inline && block?.fields.length && block.edit
+          ? { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) }
+          : undefined,
         block?.shown || (stays && hidden === false)
           ? undefined
           : { icon: hidden ? eyeIcon : eyeSlashIcon, label: hidden ? t.text.showOnPage : t.text.hideOnPage, action: toggle },

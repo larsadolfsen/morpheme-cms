@@ -77,13 +77,6 @@ export const allow = [
   // todo: each group has its own fix pull request.
   {
     kind: 'fixed-colour',
-    file: /^theme\/styles\/(base|global|ui|blocks)\.css$/,
-    line: /shadow/,
-    reason: 'todo (shadows): use the shadow role',
-    todo: true,
-  },
-  {
-    kind: 'fixed-colour',
     file: /^theme\/styles\/blocks\.css$/,
     line: /^\s*--block-/,
     reason: 'todo (block fallback palette): use the roles',
