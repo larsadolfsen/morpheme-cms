@@ -51,6 +51,7 @@ import PagePicker, { PageListItem } from './PagePicker';
 import SectionsField from './SectionsField';
 import { leaveTo } from './FormFrame';
 import { shownAt } from './images';
+import { oneLine } from '../lib/one-line.mjs';
 import { drawnAddress, isSafeImage } from '../lib/section-marker.mjs';
 import { addressOf } from './addresses';
 import { LinkList } from './LinkList';
@@ -205,7 +206,7 @@ export function HeadTitle(props: Props) {
         placeholder={props.field.label}
         className="theme-title block w-full resize-none overflow-hidden bg-transparent text-on-surface outline-none placeholder:text-on-surface-variant/60"
         onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
-        onChange={(e) => onChange(e.target.value.replace(/\s*\n\s*/g, ' '))}
+        onChange={(e) => onChange(oneLine(e.target.value))}
       />
     </div>
   );

@@ -1277,7 +1277,7 @@ function blockCard(
     const iconFields = rowFieldsOf(slotNames).map((f) => ({ ...f, iconsOpen: true }));
     const blockNames = spec!.blockMedia ?? [];
     const blockFields = (block?.fields ?? []).filter((f) => blockNames.includes(f.name));
-    // The block's own values that the item's fields depend on (a card's icon, picture or video by the block's media).
+    // The block's own values that the item's fields depend on (a card's icon, image or video by the block's media).
     const blockValue = () =>
       Object.fromEntries(blockNames.map((n) => [n, node.attrs.props[n] ?? blockFields.find((f) => f.name === n)?.default ?? '']));
     const valueOf = (row: Row, names: string[]) => ({

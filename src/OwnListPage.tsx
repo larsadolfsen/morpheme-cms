@@ -76,9 +76,9 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
   const chain = useRef<Promise<unknown>>(Promise.resolve());
   const host = useRef<HTMLDivElement>(null);
 
-  // A picture is picked from the gallery, or uploaded; an uploaded one is saved in the commit of the entry that uses it (as in DataForm.tsx).
-  const pictures = useUploads(env.notify);
-  const [pickImage, picker] = useMediaPicker(env.media, pictures, env.files);
+  // An image is picked from the gallery, or uploaded; an uploaded one is saved in the commit of the entry that uses it (as in DataForm.tsx).
+  const images = useUploads(env.notify);
+  const [pickImage, picker] = useMediaPicker(env.media, images, env.files);
   const context: FieldContext = { relations: env.relations, lists: env.lists, testimonials: env.testimonials, site: env.site, pickImage };
   const listBlock = siteBlocks.find((b) => b.type === 'list');
   const [asker, dialog] = useBlockDialog(siteBlocks, {
@@ -95,7 +95,7 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
       const plan = savePlan({ folder, rows: now.current.items, known: known.current, slugs: slugs.current, visible: names });
       if (!plan.writes.length && !plan.deletes.length) return;
       const change = t.app.changes.edited(lower(collection.label));
-      const used = plan.writes.flatMap((w) => pictures.usedIn(w.content));
+      const used = plan.writes.flatMap((w) => images.usedIn(w.content));
       const records = creditChanges([], recordsIn(env.files, config.fileRecords), config.fileRecords, creditedIn(used));
       const changes = [
         ...plan.writes.map((w) => ({ path: w.path, content: w.content, oid: w.oid })),
@@ -111,7 +111,7 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
           known.current.set(w.path, { oid: oids[w.path], text: w.content });
           env.onSaved({ path: w.path, oid: oids[w.path], text: w.content });
         }
-        pictures.markSaved(used);
+        images.markSaved(used);
         for (const c of records) if (typeof c.content === 'string') env.onSaved({ path: c.path, oid: oids[c.path], text: c.content });
         for (const d of plan.deletes) known.current.delete(d.path);
         if (plan.deletes.length) env.forget(plan.deletes.map((d) => d.path));
@@ -144,7 +144,7 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
   // The icon and link of the active row: the List block's own fields, in the sheet or the side panel (BlockDialog.tsx `row`).
   const rowFields = (fields: string[]) =>
     (listBlock?.fields.find((f) => f.name === 'items')?.fields ?? []).filter((f) => fields.includes(f.name));
-  // The image and the tags are the list's own fields (the picture from the gallery, the tags of the relation `categories`).
+  // The image and the tags are the list's own fields (the image from the gallery, the tags of the relation `categories`).
   const SLOTS = { icon: 'icon', link: 'href', image: 'image', tags: 'tags' } as const;
   const settingsOf = (i: number, slot: keyof typeof SLOTS): RowSpec => {
     const name = SLOTS[slot];
