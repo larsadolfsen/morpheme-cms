@@ -20,7 +20,7 @@ No Tailwind palette class except 3 (picker thumb, Preview frame). No undefined `
 | Video still: white and black over an image | 6 | `blocks.css:2010-2043` | scrim over an image | allow-list |
 | Colour picker, swatches, text on a swatch | 22 | `ui.tsx`, `Parts.tsx`, `Testimonial.tsx` (mask) | owner's choice / tool | allow-list |
 | Google preview, PageSpeed ratings | 33 | `editor.css` | other products' looks | allow-list (already allowed) |
-| Brand mark, example image, scheme seeds, texts | 18 | favicons, `examples.ts`, `colors.ts`, i18n | pictures / words | allow-list |
+| Brand mark, example image, scheme seeds, texts | 18 | favicons, `examples.ts`, `colors.ts`, i18n | images / words | allow-list |
 
 Other state layers: `--mo-hover` and `--mo-pressed` are used for the rest; section-colour mixes (`global.css:484-505`,
 `blocks.css:152-232`, 14-35% of the on-colour) are tonal derivations for a coloured section, not state layers: left, but they are
