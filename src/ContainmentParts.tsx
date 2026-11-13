@@ -63,7 +63,7 @@ function Dialogs() {
       </Shown>
       <Shown label={say.dialogKinds.container}>
         <SiteDialog className="p-6">
-          <p className="text-lg font-medium">{say.heading}</p>
+          <p className="text-body-large font-medium">{say.heading}</p>
           <p className="mt-2 text-on-surface-variant">{say.text}</p>
         </SiteDialog>
       </Shown>

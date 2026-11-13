@@ -76,7 +76,7 @@ export default function Assistants() {
             <p className="my-3 flex items-center gap-2">
               <code
                 aria-label={t.assistants.address}
-                className="min-w-0 flex-1 rounded-md bg-surface-container px-3 py-2 text-sm break-all select-all"
+                className="min-w-0 flex-1 rounded-lg bg-surface-container px-3 py-2 text-sm break-all select-all"
               >
                 {state.address}
               </code>
