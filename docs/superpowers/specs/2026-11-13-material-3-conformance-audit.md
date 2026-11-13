@@ -43,7 +43,7 @@ Rule (owner, 2026-11-13): every icon is 24dp unless the component's M3 page prin
 
 | # | Where | What we have | What Material says | Fix | Recorded |
 | - | ----- | ------------ | ------------------ | --- | -------- |
-| 6 | Footer links (Support, System status, Report security issues, Privacy policy, Licenses), every phone screen (`min-h-6`) | 24px high | m3.material.io/foundations/designing/structure: touch targets at least 48 by 48dp; pointer targets at least 44; 8dp between targets (WCAG 2.2 AA only needs 24) | small | no |
+| 6 | Footer links (Support, System status, Report security issues, Privacy policy, Licenses), every phone screen (`min-h-6`) | 24px high | m3.material.io/foundations/designing/structure: touch targets at least 48 by 48dp; pointer targets at least 44; 8dp between targets (WCAG 2.2 AA only needs 24) | small | decided (owner: 48px), implemented in its own PR |
 | 7 | Parts screen and field editors: 23 standard icon buttons at 40 by 40, chip remove 28 by 28, inline chip 20 high, section list rows 36 high, segmented segment 38 | below 44 or 48 | Same page | medium | no |
 
 ### Type (the 15 role tokens are exact; their use is not)
@@ -127,7 +127,7 @@ Add these (after the owner agrees), and correct entry 12 of the colour sweep.
 2. **Elevation values**: replace colour sweep 12 with: "The Material theme's shadows are Material's (checked 2026-11-13). The fallback shadows in `ui.css` are softer; used by themes that do not set their own." (or fix row 16 and delete the sentence).
 3. **Icon button 48px** (row 3): add the XS and medium sizes (36 and 60) if they are meant, with the 48px target as the reason.
 4. **Table block** (rows 21 to 23): if the owner prefers its look, record: "The Table block follows Material 2's data table for size and type, and our card look for corner, header and hover, so it sits with the cards."
-5. **Footer links 24px high** (row 6): only if the owner says so (WCAG 2.2 AA allows it); otherwise fix.
+5. **Footer links 24px high** (row 6): not needed; the owner decided to make them 48px.
 6. **Settle times** (row 18): if kept, record that the springs are Material's but the duration is where the curve is 0.1% from its end, not Material's rounded 350, 500, 650.
 
 ## 4. Proposed order and one check
@@ -148,7 +148,7 @@ One check: extend **`check:css-values`** (`scripts/check-css-values.mjs`). It al
 1. **Button sizes (rows 1 and 2):** make the five sizes exactly Material 3 Expressive's (32, 40, 56, 96, 136) and the default Small with 16 padding? Recommendation: yes. It is the largest visible change: the default button keeps its 40 height but loses 8px of padding each side, and "medium" becomes 56 (which the hero already uses). Do it in its own pull request with screens.
 2. **Shadows at rest (row 17):** keep colour-only elevation? Recommendation: keep, record it; add a shadow only to the menu, the dialog and the snackbar, which float over the page.
 3. **Icon sizes (row 5): decided by the owner:** every icon is 24dp unless the component's own M3 page prints another size, quoted in the section "Icons" above; no split is recommended beyond what those pages print. To do: text field icons and the select's arrow to 24, the FAB menu's close icon to 20.
-4. **Footer links at 24px (row 6):** pad them to 48px? Recommendation: yes, on phones only.
+4. **Footer links (row 6): decided by the owner:** 48px, implemented in its own pull request (not in this one).
 5. **Table block (rows 21 to 23):** make it exactly Material 2 (4px corner, plain header, 4% hover) or keep the card look? Recommendation: 4% hover and plain header with a divider, and keep the 12px corner so the table sits with the cards.
 6. **"Hidden" (row 27): decided by the owner.** "Hidden" stays the status name, not "Unlisted"; the search engine setting is "No index" (and "No follow" beside it). To do: (a) fix the demo's two texts to the sentence below; (b) rename the setting "Hide from search engines" to "No index", add "No follow", and update the CLAUDE.md line that calls Hidden the SEO setting (a product change, its own pull request). Proposed help text for Hidden: English "Not listed on the blog or in lists of posts. It still opens at its address; the No index setting keeps it out of Google." Danish: "Vises ikke på bloggen eller i lister over indlæg. Siden kan stadig åbnes på sin adresse; indstillingen No index holder den ude af Google." (the Danish name of the setting is not decided, so the sentence names it in English).
 7. **Full stops on hints (row 30):** none on fragments? Recommendation: yes, and the check in section 4 keeps it so.
