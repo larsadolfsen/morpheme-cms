@@ -169,7 +169,7 @@ Owner: "If Material Design 3 wants drop-downs, I guess we need to implement that
   possible." (top-app-bar/guidelines.) That is about the top app bar, not the toolbar, but it shows M3 prefers a toolbar of
   many actions over a menu in the bar.
 
-**Not read:** the pictures of the menus, and any M3 text that says which actions to put in an overflow menu: it gives no rule for
+**Not read:** the images of the menus, and any M3 text that says which actions to put in an overflow menu: it gives no rule for
 that, only "the most essential actions" (floating toolbar, "Choose the most essential actions to show on screen by default"). So
 which tools go in the menu is our choice.
 
