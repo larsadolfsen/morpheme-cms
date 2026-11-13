@@ -1518,6 +1518,21 @@ dialog {
   text-align: center;
 }
 
+.editor-text .inline-buttons .inline-button .inline-list-slot {
+  color: inherit;
+}
+
+/* The text of an empty button, and its hint, are the button kind's own on-colour (filled on-primary, tonal on-secondary-container, elevated
+   and outlined primary), the hint at the placeholder emphasis; never the text colour of the page. */
+.editor-text .inline-buttons .inline-button .inline-list-field {
+  color: inherit;
+}
+
+.editor-text .inline-buttons .inline-button .inline-list-field::placeholder {
+  color: inherit;
+  opacity: 0.92;
+}
+
 .editor-text .inline-buttons-shared {
   display: contents;
   cursor: text;
