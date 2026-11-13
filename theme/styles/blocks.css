@@ -845,16 +845,10 @@
     gap: 0.75rem 1.5rem;
     margin-top: 1rem;
   }
-  /* Text buttons under a row's text (faq/Accordion.tsx): the same shift, so their labels line up with the text above. */
+  /* Text buttons under a row's text (faq/Accordion.tsx, accordion/PageRow.tsx): the same shift, so their labels line up with the text above. */
   .block-row-links:has(> .button-text) {
     margin-inline-start: calc(-1 * var(--button-text-padding, 1rem));
     column-gap: 0.5rem;
-  }
-  .block-row-link {
-    display: inline-flex;
-    min-height: 2.75rem;
-    align-items: center;
-    gap: 0.5rem;
   }
 
   /* "Cards": Material 3's cards (.card in ui.css: outlined, filled or elevated), each with an icon, an image, a video or nothing at
