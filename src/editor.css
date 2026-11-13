@@ -852,27 +852,29 @@ html {
   border-color: var(--mo-primary);
 }
 
-/* The floating toolbar of a block typed in place (inlineBar.ts): over the block on a computer, docked above the keyboard on a phone; every
+/* The contextual menu of a block typed in place (contextualMenu.ts): over the block on a computer, docked above the keyboard on a phone; every
    button a 48 dp target. */
-.site-block-toolbar {
+.contextual-menu {
   position: fixed;
   z-index: 40;
   display: flex;
   max-width: calc(100vw - 1rem);
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
   gap: 0.125rem;
   border: 1px solid var(--mo-outline-variant);
-  border-radius: 9999px;
+  border-radius: 1.75rem;
   background: var(--editor-menu-surface);
   padding: 0.25rem;
   box-shadow: var(--editor-menu-shadow);
 }
 
-.site-block-toolbar[hidden] {
+.contextual-menu[hidden] {
   display: none;
 }
 
-.site-block-toolbar button {
+.contextual-menu button {
   display: inline-flex;
   min-width: 3rem;
   height: 3rem;
@@ -887,28 +889,11 @@ html {
   white-space: nowrap;
 }
 
-.site-block-toolbar button:hover,
-.site-block-toolbar button:focus-visible,
-.site-block-toolbar button[aria-expanded='true'] {
+.contextual-menu button:hover,
+.contextual-menu button:focus-visible,
+.contextual-menu button[aria-expanded='true'] {
   outline: none;
   background: var(--mo-surface-container-high);
-}
-
-.site-block-toolbar-menu {
-  position: absolute;
-  bottom: calc(100% + 0.5rem);
-  left: 0;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--mo-outline-variant);
-  border-radius: 1rem;
-  background: var(--editor-menu-surface);
-  padding: 0.25rem;
-  box-shadow: var(--editor-menu-shadow);
-}
-
-.site-block-toolbar-menu button {
-  justify-content: flex-start;
 }
 
 /* A field typed in a row: no frame of its own, the text of the row as the site draws it, and the height of its text. */
