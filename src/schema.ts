@@ -102,6 +102,8 @@ export type Field = {
   /** select: the options side by side in a bar, the chosen one raised (SegmentedButton in ui.tsx), for two or
    * three short ones. */
   segments?: boolean;
+  /** Only with `segments` and a `swatch` on each option: the options are shown as their dots only; the name stays as the accessible label. */
+  dots?: boolean;
   /** select: the options as cards side by side, each with its icon over its name, the chosen one marked (ChoiceCards in
    * ui.tsx): a page's template. */
   cards?: boolean;

@@ -414,7 +414,7 @@ function FieldControl({ field, value, onChange }: Props) {
       if (field.segments) {
         // Without a value (saved before the field was there), its default, as the fields that depend on it have it (inUse).
         const shown = text || String(field.default ?? '');
-        control = <SegmentedButton label={field.label} value={shown} options={offered} onChange={onChange} />;
+        control = <SegmentedButton label={field.label} value={shown} options={offered} dots={field.dots} onChange={onChange} />;
         break;
       }
       if (field.cards) {

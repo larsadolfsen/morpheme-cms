@@ -1079,6 +1079,28 @@ html {
   color: var(--block-text);
 }
 
+/* The chosen icon's tile in the grid is filled with the picked color (Text, without one) and its icon is read on it. */
+[data-icon-grid] {
+  --tile-fill: var(--mo-on-surface);
+  --tile-on: var(--mo-surface);
+}
+[data-icon-grid][data-icon-color='primary'] {
+  --tile-fill: var(--mo-primary);
+  --tile-on: var(--mo-on-primary);
+}
+[data-icon-grid][data-icon-color='secondary'] {
+  --tile-fill: var(--mo-secondary);
+  --tile-on: var(--mo-on-secondary);
+}
+[data-icon-grid][data-icon-color='tertiary'] {
+  --tile-fill: var(--mo-tertiary);
+  --tile-on: var(--mo-on-tertiary);
+}
+[data-icon-grid] .icon-button[aria-pressed='true'] {
+  background: var(--tile-fill);
+  color: var(--tile-on);
+}
+
 /* The icon picker's grid draws its icons in the color picked in the Icon color field (IconPicker, iconColor); the chosen one keeps its own colors. */
 [data-icon-grid][data-icon-color] .icon-button:not([aria-pressed='true']) {
   color: var(--icon-color);

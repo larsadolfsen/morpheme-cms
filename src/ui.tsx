@@ -1204,7 +1204,7 @@ export function IconPicker({
             {hits.slice(0, shown).map((o) => (
               <ChoiceTile
                 key={o.value || 'none'}
-                selected={o.value === value}
+                selected={o.value !== '' && o.value === value}
                 label={o.label}
                 onClick={() => {
                   onChange(o.value);
@@ -1675,6 +1675,7 @@ export function SegmentedButton<T extends string>({
   value,
   options,
   disabled,
+  dots,
   onChange,
 }: {
   /** What is chosen, for screen readers. */
@@ -1683,6 +1684,8 @@ export function SegmentedButton<T extends string>({
   options: { value: T; label: string; icon?: Icon; swatch?: string }[];
   /** It cannot be changed now (the place of R2 caching's bucket while it is on): grey, and it stays. */
   disabled?: boolean;
+  /** Only the `swatch` dots are shown; each name is its accessible label (M3: a segment without label text is named for what it does). */
+  dots?: boolean;
   onChange: (v: T) => void;
 }) {
   return (
@@ -1692,6 +1695,7 @@ export function SegmentedButton<T extends string>({
         label: name,
         icon: Glyph && <Glyph />,
         swatch,
+        dots,
         value: v,
         selected: v === value,
         disabled,

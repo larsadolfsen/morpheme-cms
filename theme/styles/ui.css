@@ -4251,6 +4251,16 @@
     box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 30%, transparent);
   }
 
+  /* A segment shown as its dot only (Segment.dots): the name stays for screen readers. */
+  .segmented-button-label-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   /* Split buttons (m3.material.io/components/split-button): the main action and its arrow, joined. */
   .split-button {
     position: relative;

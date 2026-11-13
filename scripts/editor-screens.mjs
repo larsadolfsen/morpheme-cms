@@ -2552,11 +2552,35 @@ async function checkIconColor(width, height, scheme = 'light') {
   await page.locator('.inline-list-row-active .inline-list-slot').first().click();
   const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
   await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon picker did not open`));
+  // With no icon picked the Icon color row is there (Text chosen, the default), and no tile of the grid is selected, not even the cross of No icon.
+  const colorState = () =>
+    page.evaluate(() => {
+      const group = document.querySelector('[role="group"][aria-label="Icon color"]');
+      const grid = [...document.querySelectorAll('[role="group"][aria-label="Icon"]')].pop();
+      return {
+        rows: document.querySelectorAll('[role="group"][aria-label="Icon color"]').length,
+        names: [...(group?.querySelectorAll('button') ?? [])].map((b) => b.getAttribute('aria-label')),
+        visible: [...(group?.querySelectorAll('button') ?? [])].map((b) => b.innerText.trim()).join(''),
+        pressed: [...(group?.querySelectorAll('button') ?? [])]
+          .filter((b) => b.getAttribute('aria-pressed') === 'true')
+          .map((b) => b.getAttribute('aria-label')),
+        tiles: [...(grid?.querySelectorAll('button[aria-pressed="true"]') ?? [])].length,
+      };
+    });
+  const none = await colorState();
+  if (none.rows !== 1) problems.push(`${label}: with no icon picked the sheet has ${none.rows} "Icon color" rows, not 1`);
+  if (none.pressed.join() !== 'Text') problems.push(`${label}: with no color chosen "${none.pressed}" is selected, not Text`);
+  if (none.tiles) problems.push(`${label}: with no icon picked ${none.tiles} tile(s) of the grid are selected`);
+  if (none.visible) problems.push(`${label}: the colors show names ("${none.visible}"), not dots only`);
   await picker.getByRole('button').nth(1).click();
   await page.waitForTimeout(300);
-  const choices = await page.getByRole('button', { name: /^(Primary|Secondary|Tertiary)$/ }).allTextContents();
-  if (choices.map((c) => c.trim()).join() !== 'Primary,Secondary,Tertiary')
-    problems.push(`${label}: the icon's sheet has the colors "${choices}", not Primary, Secondary, Tertiary`);
+  const choices = (await colorState()).names;
+  if (choices.join() !== 'Text,Primary,Secondary,Tertiary')
+    problems.push(`${label}: the icon's sheet has the colors "${choices}", not Text, Primary, Secondary, Tertiary`);
+  const picked = await colorState();
+  if (picked.pressed.join() !== 'Text')
+    problems.push(`${label}: with an icon and no color chosen "${picked.pressed}" is selected, not Text`);
+  if (picked.tiles !== 1) problems.push(`${label}: with an icon picked ${picked.tiles} tiles are selected, not 1`);
   // The color comes first: its field is above the first icon, in the DOM and on screen, so the color is chosen before the icons.
   const order = await page.evaluate(() => {
     const color = document.querySelector('[role="group"][aria-label="Icon color"]');
@@ -2584,7 +2608,7 @@ async function checkIconColor(width, height, scheme = 'light') {
       const out = chips.map((chip, i) => {
         const dot = chip.querySelector('.segmented-button-swatch');
         const box = dot?.getBoundingClientRect();
-        const role = ['primary', 'secondary', 'tertiary'][i];
+        const role = ['on-surface', 'primary', 'secondary', 'tertiary'][i];
         return {
           name: chip.textContent.trim(),
           pressed: chip.getAttribute('aria-pressed'),
@@ -2604,15 +2628,27 @@ async function checkIconColor(width, height, scheme = 'light') {
     else if (c.color !== c.want) problems.push(`${label}: the ${c.name} circle is ${c.color}, not its role color ${c.want}`);
     if (c.check) problems.push(`${label}: the ${c.name} chip has a check`);
   }
-  if (new Set(before.map((c) => c.want)).size !== 3)
-    problems.push(`${label}: the three role colors are not all different, so the circles prove nothing`);
+  if (new Set(before.map((c) => c.want)).size !== 4)
+    problems.push(`${label}: the four colors are not all different, so the circles prove nothing`);
   await page.getByRole('button', { name: 'Secondary', exact: true }).click();
   await page.waitForTimeout(300);
   // Picking another chip moves the selected state only: the same chips, the same widths, the circles stay.
   const after = await swatches();
   const pressed = after.map((c) => c.pressed).join();
-  if (pressed !== 'false,true,false')
-    problems.push(`${label}: after Secondary was picked the chips are pressed ${pressed}, not false,true,false`);
+  if (pressed !== 'false,false,true,false')
+    problems.push(`${label}: after Secondary was picked the chips are pressed ${pressed}, not false,false,true,false`);
+  // The chosen icon's tile is filled with the chosen color.
+  const tile = await page.evaluate(() => {
+    const grid = [...document.querySelectorAll('[role="group"][aria-label="Icon"]')].pop();
+    const probe = document.createElement('i');
+    probe.style.color = 'var(--mo-secondary)';
+    document.body.append(probe);
+    const want = getComputedStyle(probe).color;
+    probe.remove();
+    const on = grid?.querySelector('button[aria-pressed="true"]');
+    return { fill: on ? getComputedStyle(on).backgroundColor : null, want };
+  });
+  if (tile.fill !== tile.want) problems.push(`${label}: the chosen icon's tile is ${tile.fill}, not the Secondary color ${tile.want}`);
   if (before.map((c) => c.width).join() !== after.map((c) => c.width).join())
     problems.push(
       `${label}: the chips changed width when the choice changed (${before.map((c) => c.width)} to ${after.map((c) => c.width)})`,

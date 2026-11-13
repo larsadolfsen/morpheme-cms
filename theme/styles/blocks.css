@@ -1006,7 +1006,11 @@
     --list-item-leading-icon-color: var(--block-text);
     --list-item-trailing-text: var(--block-text);
   }
-  /* The color of an icon in a row or a card (`iconColor`, src/iconColor.ts): one of the theme's color roles, Primary (the icon's own) without one. */
+  /* The color of an icon in a row or a card (`iconColor`, src/iconColor.ts): one of the theme's color roles; without one, the theme's own (Text in a row, the accent in a card). */
+  [data-icon-color='primary'] {
+    --list-item-leading-icon-color: var(--mo-primary, var(--block-accent));
+    --icon-color: var(--mo-primary, var(--block-accent));
+  }
   [data-icon-color='secondary'] {
     --list-item-leading-icon-color: var(--mo-secondary, var(--block-secondary));
     --icon-color: var(--mo-secondary, var(--block-secondary));
