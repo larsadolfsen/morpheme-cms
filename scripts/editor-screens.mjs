@@ -552,13 +552,20 @@ async function checkDensity(width, height) {
         probe.style.height = 'calc(52px + var(--mo-density) * var(--mo-density-step))';
         document.body.append(probe);
         const style = getComputedStyle(root);
+        // A variable's text is not resolved (clamp(…)): a margin of 1px per step is, and may be negative.
+        const step = (name) => {
+          probe.style.marginLeft = `calc(var(${name}) * 1px)`;
+          return parseFloat(getComputedStyle(probe).marginLeft);
+        };
         const got = {
-          all: style.getPropertyValue('--mo-density').trim(),
-          layout: style.getPropertyValue('--mo-density-layout').trim(),
-          focus: style.getPropertyValue('--mo-density-focus').trim(),
-          row: probe.getBoundingClientRect().height,
+          all: step('--mo-density'),
+          layout: step('--mo-density-layout'),
+          focus: step('--mo-density-focus'),
+          row: 0,
           space: style.getPropertyValue('--mo-space-100').trim(),
         };
+        probe.style.marginLeft = '';
+        got.row = probe.getBoundingClientRect().height;
         probe.remove();
         root.removeAttribute('data-density');
         root.style.removeProperty('--mo-density-base');
