@@ -104,11 +104,16 @@
 */
 :where(:root) {
   --mo-elevation-0-shadow: 0 0 #0000;
-  --mo-elevation-1-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 4px 12px -6px rgb(0 0 0 / 0.14);
-  --mo-elevation-2-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 20px -8px rgb(0 0 0 / 0.18);
-  --mo-elevation-3-shadow: 0 2px 4px rgb(0 0 0 / 0.07), 0 12px 28px -10px rgb(0 0 0 / 0.22);
-  --mo-elevation-4-shadow: 0 2px 6px rgb(0 0 0 / 0.08), 0 16px 36px -12px rgb(0 0 0 / 0.26);
-  --mo-elevation-5-shadow: 0 4px 8px rgb(0 0 0 / 0.09), 0 20px 44px -12px rgb(0 0 0 / 0.3);
+  --mo-elevation-1-shadow:
+    0 1px 2px color-mix(in srgb, var(--mo-shadow) 6%, transparent), 0 4px 12px -6px color-mix(in srgb, var(--mo-shadow) 14%, transparent);
+  --mo-elevation-2-shadow:
+    0 1px 2px color-mix(in srgb, var(--mo-shadow) 6%, transparent), 0 8px 20px -8px color-mix(in srgb, var(--mo-shadow) 18%, transparent);
+  --mo-elevation-3-shadow:
+    0 2px 4px color-mix(in srgb, var(--mo-shadow) 7%, transparent), 0 12px 28px -10px color-mix(in srgb, var(--mo-shadow) 22%, transparent);
+  --mo-elevation-4-shadow:
+    0 2px 6px color-mix(in srgb, var(--mo-shadow) 8%, transparent), 0 16px 36px -12px color-mix(in srgb, var(--mo-shadow) 26%, transparent);
+  --mo-elevation-5-shadow:
+    0 4px 8px color-mix(in srgb, var(--mo-shadow) 9%, transparent), 0 20px 44px -12px color-mix(in srgb, var(--mo-shadow) 30%, transparent);
   --mo-elevation-0-color: var(--mo-surface);
   --mo-elevation-1-color: var(--mo-surface-container-low, var(--block-surface));
   --mo-elevation-2-color: var(--mo-surface-container, var(--block-surface));
@@ -123,19 +128,32 @@
 }
 @media (prefers-color-scheme: dark) {
   :where(:root:not([data-theme='light'])) {
-    --mo-elevation-1-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 12px -6px rgb(0 0 0 / 0.5);
-    --mo-elevation-2-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 20px -8px rgb(0 0 0 / 0.55);
-    --mo-elevation-3-shadow: 0 2px 4px rgb(0 0 0 / 0.32), 0 12px 28px -10px rgb(0 0 0 / 0.6);
-    --mo-elevation-4-shadow: 0 2px 6px rgb(0 0 0 / 0.34), 0 16px 36px -12px rgb(0 0 0 / 0.65);
-    --mo-elevation-5-shadow: 0 4px 8px rgb(0 0 0 / 0.36), 0 20px 44px -12px rgb(0 0 0 / 0.7);
+    --mo-elevation-1-shadow:
+      0 1px 2px color-mix(in srgb, var(--mo-shadow) 30%, transparent), 0 4px 12px -6px color-mix(in srgb, var(--mo-shadow) 50%, transparent);
+    --mo-elevation-2-shadow:
+      0 1px 2px color-mix(in srgb, var(--mo-shadow) 30%, transparent), 0 8px 20px -8px color-mix(in srgb, var(--mo-shadow) 55%, transparent);
+    --mo-elevation-3-shadow:
+      0 2px 4px color-mix(in srgb, var(--mo-shadow) 32%, transparent),
+      0 12px 28px -10px color-mix(in srgb, var(--mo-shadow) 60%, transparent);
+    --mo-elevation-4-shadow:
+      0 2px 6px color-mix(in srgb, var(--mo-shadow) 34%, transparent),
+      0 16px 36px -12px color-mix(in srgb, var(--mo-shadow) 65%, transparent);
+    --mo-elevation-5-shadow:
+      0 4px 8px color-mix(in srgb, var(--mo-shadow) 36%, transparent),
+      0 20px 44px -12px color-mix(in srgb, var(--mo-shadow) 70%, transparent);
   }
 }
 :where(:root[data-theme='dark']) {
-  --mo-elevation-1-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 12px -6px rgb(0 0 0 / 0.5);
-  --mo-elevation-2-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 20px -8px rgb(0 0 0 / 0.55);
-  --mo-elevation-3-shadow: 0 2px 4px rgb(0 0 0 / 0.32), 0 12px 28px -10px rgb(0 0 0 / 0.6);
-  --mo-elevation-4-shadow: 0 2px 6px rgb(0 0 0 / 0.34), 0 16px 36px -12px rgb(0 0 0 / 0.65);
-  --mo-elevation-5-shadow: 0 4px 8px rgb(0 0 0 / 0.36), 0 20px 44px -12px rgb(0 0 0 / 0.7);
+  --mo-elevation-1-shadow:
+    0 1px 2px color-mix(in srgb, var(--mo-shadow) 30%, transparent), 0 4px 12px -6px color-mix(in srgb, var(--mo-shadow) 50%, transparent);
+  --mo-elevation-2-shadow:
+    0 1px 2px color-mix(in srgb, var(--mo-shadow) 30%, transparent), 0 8px 20px -8px color-mix(in srgb, var(--mo-shadow) 55%, transparent);
+  --mo-elevation-3-shadow:
+    0 2px 4px color-mix(in srgb, var(--mo-shadow) 32%, transparent), 0 12px 28px -10px color-mix(in srgb, var(--mo-shadow) 60%, transparent);
+  --mo-elevation-4-shadow:
+    0 2px 6px color-mix(in srgb, var(--mo-shadow) 34%, transparent), 0 16px 36px -12px color-mix(in srgb, var(--mo-shadow) 65%, transparent);
+  --mo-elevation-5-shadow:
+    0 4px 8px color-mix(in srgb, var(--mo-shadow) 36%, transparent), 0 20px 44px -12px color-mix(in srgb, var(--mo-shadow) 70%, transparent);
 }
 
 /* ---- Typography ----
