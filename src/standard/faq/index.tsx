@@ -13,8 +13,8 @@ export default defineBlock({
   icon: Question,
   nameOf: (p) => nameWith(t.blocks.faq.label, p),
   hint: t.blocks.faq.hint,
-  // Typed in place (InlineFaq.tsx): the question in the summary line, the answer in the open panel. `Only one open`, the button and `Rows
-  // from` stay in Edit; the head (heading, intro) is drawn when filled in and is set in Edit.
+  // Typed in place (InlineFaq.tsx): the question in the summary line, the answer in the open panel. `Only one open` and `Rows
+  // from` stay in Edit (the button text is typed in place, its page is in Edit); the head (heading, intro) is drawn when filled in and is set in Edit.
   inline: {
     item: 'items',
     fields: ['question', 'answer'],
