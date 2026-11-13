@@ -12,11 +12,13 @@ import rowAboveIcon from '@material-symbols/svg-400/outlined/add_row_above.svg?r
 import rowBelowIcon from '@material-symbols/svg-400/outlined/add_row_below.svg?raw';
 import columnBeforeIcon from '@material-symbols/svg-400/outlined/add_column_left.svg?raw';
 import columnAfterIcon from '@material-symbols/svg-400/outlined/add_column_right.svg?raw';
+import rowDeleteIcon from '@material-symbols/svg-400/outlined/playlist_remove.svg?raw';
+import columnDeleteIcon from '@material-symbols/svg-400/outlined/variable_remove.svg?raw';
 import deleteIcon from '@material-symbols/svg-400/outlined/delete.svg?raw';
 
 export type BarAction = {
   label: string;
-  kind: 'above' | 'below' | 'up' | 'down' | 'link' | 'column-before' | 'column-after' | 'delete';
+  kind: 'above' | 'below' | 'up' | 'down' | 'link' | 'column-before' | 'column-after' | 'delete-row' | 'delete-column' | 'delete';
   action: () => void;
 };
 
@@ -28,6 +30,8 @@ const icons = {
   link: linkIcon,
   'column-before': columnBeforeIcon,
   'column-after': columnAfterIcon,
+  'delete-row': rowDeleteIcon,
+  'delete-column': columnDeleteIcon,
   delete: deleteIcon,
 };
 const svg = (s: string, size = 24) => s.replace('<svg', `<svg width="${size}" height="${size}" fill="currentColor" aria-hidden="true"`);
