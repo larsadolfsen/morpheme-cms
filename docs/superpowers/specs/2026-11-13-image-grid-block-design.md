@@ -101,6 +101,34 @@ unit test, so the uses cannot differ. Moving the existing uses to it is a follow
 the Library. A block can still set a local text for one image in its sheet (`Images`, pick an image, `Describe the image`),
 which wins by the rule above. Most grids will use the base texts only.
 
+## 3b. Images with no alt text: the SEO score, not a warning
+
+Owner decision: no warning on the block or on the Library tile. A missing alt text shows in the page's **SEO score** (the
+SEO counter in the editor).
+
+**What exists.** `src/seo.ts` already has the check: `images(body)` finds the images, and `seoRating` adds `r.noAlt(n)` with
+the fix `r.fixAlt`, or `r.allAlt` ("all images have alt text"). But `images()` reads only Markdown images and `<img>` in the
+text and **skips blocks** (`<div data-block=…>`, its own comment says so). So an image inside any block is not counted
+today. That is a gap beyond the grid.
+
+**What changes.** The check also counts the images of the page's blocks, by the one rule of section 3a (local text, else the
+Library's base text, else missing; `alt=""` / decorative counts as fine). Same messages and fix text, one count for the page.
+
+**How the check reaches block data.** `seoRating` is pure and takes `input.body` (Markdown with the blocks written in it as
+`<div data-block=…>`). `lib/blocks.mjs` already reads them: `blocksIn(body, true)` gives `{ type, props }` for every block,
+also those inside another block's text. The new `blockImages(body, defs, records)` walks them and, for each block, takes
+the images from its definition: every field of type `image` (and the grid's picked images). Each gives `{ src, local alt,
+decorative }`. Then `altFor(local, record)` gives its text. The Library's base texts come in as `input.records` (the
+file records, `recordsIn(files, config.fileRecords)`, which the editor already has as `env.files`); `seoInputOf` takes them
+as one more argument, and the Markdown images of the text use the same fall-back, so the whole page follows one rule.
+`fileRating` (the build's check) reads the record files the same way.
+
+**Beyond the grid.** Yes: the Cards (`image` field) and Testimonials (`image` field) have images with **no alt field at all**
+today (found: no `alt` in either block's fields), the Hero and sections have their own. So the SEO check would find them
+all missing. That needs a decision per block (an alt field next to the image, or the Library's text only). It is its own
+small pull request, **before the grid** (PR 0 below): the check, `altFor`, `input.records`, and a Library-text fall-back,
+with a test per block that has an image. Adding alt fields to Cards and Testimonials is a second small PR (0b).
+
 ## 4. The block's settings
 
 Everything that is not text sits in the settings sheet (the inline rule). The block has no typed text, so it opens its
@@ -219,10 +247,12 @@ and grid layout, since both are theme parts. Not in this work.
 
 ## 8. Pull requests
 
-Order matters: the tile first.
+Order matters: PR 0 (the SEO check) and the tile first.
 
 | # | Pull request | Size | Needs |
 | - | --- | --- | --- |
+| 0 | SEO alt check counts images in blocks: `blockImages`, `altFor`, `input.records`, tests (section 3b) | small to medium | PR 3 for the Library text (the local-text part can go first) |
+| 0b | Alt field next to the image in Cards and Testimonials | small | 0 |
 | 1 | Media slot and selected state on the theme's `Card`, `ImageTile` as its wrapper, and the staggered grid layout (audit row 3); Library moves to it | medium to large | the audit PR #515 |
 | 2 | `width` and `height` in `thumbnails.json` (and use in the Library tile) | small | 1 (can go with it) |
 | 3 | Base alt text (and caption) on the file record: schema, `fileRecords.mjs`, Library field, `altFor` and its unit test | medium | none |
@@ -245,8 +275,7 @@ Each pull request adds a changeset; PRs 4–6 are `minor` into `0.17`, never `ma
 1. ~~Where does the alt text live?~~ Decided by the owner: a base text on the Library record, changeable locally on the page, post or block; the local text wins (section 3a).
 2. **Can a visitor pick more than one tag at once?** *Recommendation:* no, one tag at a time, tap again to clear. It is the
    simplest to understand on a phone.
-3. **What if an image has no alt text?** *Recommendation:* the editor shows a warning on the block and the Library tile, and
-   the grid draws it as decorative (`alt=""`). It never invents text.
+3. ~~What if an image has no alt text?~~ Decided by the owner: no warning on the block or the Library tile; it shows in the SEO score (section 3b). The grid draws such an image with `alt=""`.
 4. **Should tapping a image open it bigger by default?** *Recommendation:* yes, on by default; the owner can turn it off.
 5. **How many images show at first?** *Recommendation:* 12, then a `Show more` button; the owner can choose `All`.
 6. **Do posts get the same grid later?** *Recommendation:* not now; reuse the tile part later if wanted (section 7).
