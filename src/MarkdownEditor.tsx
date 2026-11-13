@@ -102,7 +102,7 @@ import { t } from './i18n';
 import { motionTiming } from '../lib/motion';
 import { hasLabel, labelledHeading, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
-import { MoreVertIcon, WidgetsIcon } from './icon';
+import { AaIcon, MoreVertIcon, WidgetsIcon } from './icon';
 import pencilIcon from '@phosphor-icons/core/assets/regular/pencil-simple.svg?raw';
 import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
 import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
@@ -1819,6 +1819,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     check: { label: t.text.checkList, icon: KIND_ICONS.check.node },
     ordered: { label: t.text.orderedList, icon: KIND_ICONS.ordered.node },
   };
+  // In the Text style menu the three body styles share one icon, Aa; the labels tell them apart (the bar's own button shows the style's T).
+  const rowIcon = (row: string) => (['small', 'medium', 'large'].includes(row) ? AaIcon : STYLE_FACES[row].icon);
   const styleFace = STYLE_FACES[styleKey] ?? { label: t.text.kind, icon: GENERIC_ICONS.text.node };
   const styleLabel = STYLE_FACES[styleKey] ? t.text.kindIs(styleFace.label) : t.text.kind;
   const listFace = LIST_FACES[listKey];
@@ -2062,7 +2064,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
             row === '-' ? (
               <MenuDivider key={`-${i}`} />
             ) : (
-              <MenuItem key={row} icon={STYLE_FACES[row].icon} selected={active.includes(row)} onClick={() => setKind(row)}>
+              <MenuItem key={row} icon={rowIcon(row)} selected={active.includes(row)} onClick={() => setKind(row)}>
                 {STYLE_FACES[row].label}
               </MenuItem>
             ),
