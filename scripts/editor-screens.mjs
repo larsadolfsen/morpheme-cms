@@ -715,6 +715,8 @@ async function checkSelection() {
       await rows.nth(0).focus();
       await page.keyboard.press('Space');
       await barCheck(page, label, rows, false);
+      await rows.nth(0).focus();
+      await page.keyboard.press('Space');
       await page.getByRole('button', { name: 'Close selection' }).click();
       await rows.nth(0).focus();
       await page.keyboard.press('Shift+ArrowDown');
