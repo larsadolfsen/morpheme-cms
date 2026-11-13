@@ -39,7 +39,7 @@ export function CardMedia({ card }: { card: LinkCard }) {
           <Video view={card.video} />
         </span>
       )}
-      {card.media === 'icon' && card.icon && <Svg name={card.icon ?? ''} size={28} className="block-card-icon" />}
+      {card.media === 'icon' && card.icon && <Svg name={card.icon} size={28} className="block-card-icon" iconColor={card.iconColor} />}
     </>
   );
 }

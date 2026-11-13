@@ -984,6 +984,19 @@
     line-height: var(--type-body-medium-line-height, 1.25rem);
     color: var(--block-muted);
   }
+  /* The color of an icon in a row or a card (`iconColor`, src/iconColor.ts): one of the theme's color roles, Primary (the icon's own) without one. */
+  [data-icon-color='secondary'] {
+    --list-item-leading-icon-color: var(--mo-secondary, var(--block-secondary));
+    --icon-color: var(--mo-secondary, var(--block-secondary));
+  }
+  [data-icon-color='tertiary'] {
+    --list-item-leading-icon-color: var(--mo-tertiary, var(--block-tertiary));
+    --icon-color: var(--mo-tertiary, var(--block-tertiary));
+  }
+  .block-accordion-lead[data-icon-color],
+  .block-card .block-card-icon[data-icon-color] {
+    color: var(--icon-color);
+  }
   /* A filled card on one of Material's containers ("Cards", `color`): the primary, secondary or tertiary container, its text and icon in the
      colour that is read on it. Without a colour it is the surface container (--card-filled-surface, below). A theme that has no container
      role has the block's own colours. */

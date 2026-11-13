@@ -397,6 +397,7 @@ const inlineBlocks = [
   { name: 'steps', hint: 'Numbered steps.', add: 'Add step', noEdit: true },
   { name: 'segmented', hint: 'Rows that expand, with a link.', add: 'Add row', rowButtons: 'Add button' },
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true, start: 3 },
+  { name: 'pricecards', hint: 'Prices with what is included.', add: 'Add price card', surface: true, field: 'name' },
   { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
   { name: 'faq', hint: 'Questions that expand to answers.', add: 'Add question', field: 'question', open: true, surface: true },
   // An app's block (the demo's Inline example app): typed in place from its own Inline.tsx, not from the editor's list of views.
@@ -1012,6 +1013,59 @@ async function checkCardsCarousel(width, height) {
     if (m.indicator !== 'none' || m.showAll !== 'none')
       problems.push(`${label}: on a computer the dots (${m.indicator}) or "Show all" (${m.showAll}) show`);
   }
+  await page.close();
+}
+
+/** The color of an icon (`iconColor`): the row's icon picker has the choice next to the icon (Primary, Secondary, Tertiary); a picked color is on the row (`data-icon-color`) and drawn in the theme's color role, in the editor like on the site. */
+async function checkIconColor(width, height) {
+  const label = `${width}px icon color`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().click();
+  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.keyboard.type('First');
+  await page.locator('.inline-list-row-active .inline-list-slot').first().click();
+  const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
+  await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon picker did not open`));
+  await picker.getByRole('button').nth(1).click();
+  await page.waitForTimeout(300);
+  const choices = await page.getByRole('button', { name: /^(Primary|Secondary|Tertiary)$/ }).allTextContents();
+  if (choices.map((c) => c.trim()).join() !== 'Primary,Secondary,Tertiary')
+    problems.push(`${label}: the icon's sheet has the colors "${choices}", not Primary, Secondary, Tertiary`);
+  await page.getByRole('button', { name: 'Secondary', exact: true }).click();
+  await page.waitForTimeout(300);
+  await page
+    .locator('dialog[open] button[aria-label="Close"]')
+    .click({ timeout: 2000 })
+    .catch(() => {});
+  await page.waitForTimeout(300);
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(400);
+  const drawn = await page.evaluate(() => {
+    const row = document.querySelector('.inline-list-row[data-icon-color="secondary"]');
+    const probe = document.createElement('i');
+    probe.style.color = 'var(--mo-secondary)';
+    document.body.append(probe);
+    const want = getComputedStyle(probe).color;
+    probe.style.color = 'var(--mo-primary)';
+    const primary = getComputedStyle(probe).color;
+    probe.remove();
+    return { row: !!row, icon: row ? getComputedStyle(row.querySelector('.list-item-leading-icon')).color : null, want, primary };
+  });
+  if (!drawn.row) problems.push(`${label}: the row has no data-icon-color="secondary" after Secondary was picked`);
+  else if (drawn.icon !== drawn.want) problems.push(`${label}: the icon is ${drawn.icon}, not the secondary color ${drawn.want}`);
+  else if (drawn.want === drawn.primary) problems.push(`${label}: secondary and primary are the same color, so the check proves nothing`);
   await page.close();
 }
 
@@ -2026,8 +2080,10 @@ await checkEmptyHint();
 for (const [width, height] of [
   [375, 740],
   [1280, 900],
-])
+]) {
   await checkCardsCarousel(width, height);
+  await checkIconColor(width, height);
+}
 for (const block of inlineBlocks) await checkInlineBlock(375, 740, block);
 // On a computer too: the row's settings are in the side panel at once (a card's: its page and its buttons).
 for (const block of inlineSingles) for (const w of [375, 1280]) await checkInlineSingle(w, w < 600 ? 740 : 900, block);

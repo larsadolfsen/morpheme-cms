@@ -5,6 +5,7 @@
 import { Rows, SquaresFour } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { iconOptions } from '../../icon';
+import { iconColorField } from '../../iconColor';
 import { t } from '../../i18n';
 import { headFields } from '../head';
 import { fromLine, nameWith, rowsFromFields, typed } from '../rows/fields';
@@ -22,7 +23,7 @@ export default defineBlock({
   inline: {
     item: 'items',
     fields: ['title', 'text'],
-    icon: 'icon',
+    media: ['icon', 'iconColor'],
     settings: ['href', 'buttons'],
     blockSettings: true,
     texts: {
@@ -47,6 +48,7 @@ export default defineBlock({
       required: true,
       fields: [
         { name: 'icon', label: t.blocks.segmented.icon, type: 'select', icons: true, options: iconOptions(t.blocks.icons) },
+        iconColorField,
         { name: 'title', label: t.blocks.segmented.title, type: 'string', required: true },
         { name: 'text', label: t.blocks.segmented.text, type: 'text' },
         { name: 'href', label: t.blocks.segmented.href, type: 'relation', to: 'pages', hint: t.blocks.segmented.hrefHint },

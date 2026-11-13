@@ -8,6 +8,7 @@
 import { Cards, Circle, Image as ImageIcon, Prohibit, Shapes, Square, VideoCamera } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { iconOptions } from '../../icon';
+import { iconColorField } from '../../iconColor';
 import { t } from '../../i18n';
 import { headFields } from '../head';
 import { buttonList } from '../buttons/fields';
@@ -24,7 +25,7 @@ export default defineBlock({
   inline: {
     item: 'items',
     fields: ['title', 'subhead', 'text'],
-    media: ['icon', 'image', 'video'],
+    media: ['icon', 'iconColor', 'image', 'video'],
     blockMedia: ['media'],
     settings: ['href', 'buttons'],
     blockSettings: true,
@@ -108,6 +109,7 @@ export default defineBlock({
           options: iconOptions(t.blocks.icons),
           only: { field: 'media', is: ['icon'] },
         },
+        { ...iconColorField, only: { field: 'media', is: ['icon'], and: { field: 'icon', is: [''], not: true } } },
         { name: 'image', label: t.blocks.cards.image, type: 'image', only: { field: 'media', is: ['image'] } },
         {
           name: 'video',
