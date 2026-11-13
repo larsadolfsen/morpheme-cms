@@ -7,13 +7,14 @@ Status: proposal for the owner. Design only, no code. Written for a phone: plain
 2. **No custom right-click (context) menu anywhere in the editor:** "So we keep the no right click menu." The browser's or the operating system's own menu
    stays in text, on blocks, images, table cells, rows, files and links. (The owner first said "Right click opens the contextual menu", asked about Cut, Copy
    and Paste, and then reversed it after hearing that the browser and the phone already do those. Only the last word stands.) Section 5.
-Still open with the owner: resize an image and duplicate a block, the palette's search scope, the top-bar search button, and whether the phone palette lists text
-actions (section 11).
+3. **Tools that do not exist in the editor today (Resize image, Duplicate block, and any other) are postponed past 0.17, each with a separate spec.** Owner: write specs for the missing
+   things, but do not build them in 0.17 and do not extend 0.17. The palette lists **only actions that exist today** (an action is registered only when its feature exists, section 3).
+Still open with the owner: the palette's search scope, the top-bar search button, and whether the phone palette lists text actions (section 11).
 
 Owner's words (editor menus, 13 November): editor interfaces are content-first, so the UI around the content takes little room.
 Do not stuff every feature into one scrolling drop-down or drawer. Three layers: (1) a **quick toolbar** with only the top actions
 (the one bar of PR #519, not redone here); (2) **context menus** (right click, secondary click) with the actions where the user
-works: text selected, only text actions; an image selected, crop and resize actions (**later decided against**, see above and section 5); (3) a **command palette** (Cmd/Ctrl+K, like
+works: text selected, only text actions; an image selected, crop and resize actions (**the menu was decided against**, see above and section 5; **resize is postponed past 0.17**); (3) a **command palette** (Cmd/Ctrl+K, like
 VS Code, Figma, Notion): a floating search bar where the user types the action. Icon-only buttons get tooltips with the keyboard
 shortcut.
 
@@ -142,7 +143,7 @@ So nothing of ours is read as M3. "Nearest M3" is the pattern I used where the p
 | Piece of the palette | M3 prints | Where M3 is silent: ours, and the nearest M3 pattern |
 | --- | --- | --- |
 | A palette that runs actions | Search "helps people find information quickly" in "products with many items to manage" | **No M3 page for running actions from a search.** Owner's request. Nearest: Search (focused search, results in a list) |
-| Entry | "Search icon button: Use when search is a secondary action"; the top app bar "can also include global product controls, such as search" | The key `Ctrl+K`: **M3 silent** on shortcuts for search. Nearest: none; owner's words. The app bar "should only have one action, two if necessary": the number of actions the top bar has today decides whether the button fits (question 3) |
+| Entry | "Search icon button: Use when search is a secondary action"; the top app bar "can also include global product controls, such as search" | The key `Ctrl+K`: **M3 silent** on shortcuts for search. Nearest: none; owner's words. The app bar "should only have one action, two if necessary": the number of actions the top bar has today decides whether the button fits (question 2) |
 | Layout | Full-screen is the default for compact; docked "best for medium and expanded" and it "opens a list below the search bar" | Docked **without a bar**: M3 silent. Nearest: the theme's Search view as it is (it docks where the bar is); where that is for a button, not a bar, is default 3 in section 11 |
 | Before typing | "Show historical suggestions before typing"; "Category labels, like Recent, ... or Suggestions" | How many (our 5 and 6), and which stored: ours |
 | Results | A list, "Leading icons", "Category labels", "Use gaps to separate a list of suggestions or results into groups", a clear icon, back icon; trailing text on a list item | The ranking, the 30 cap, folding `æøå`, the fuzzy rule and every score in 4.3: **ours**, tuning values for step 1, not M3 |
@@ -298,19 +299,20 @@ folding, the context boost, recent ordering, the 30 cap and the stable order.
 | Section | Section settings, Section colour, Background image, Width | `t.text.section*` |
 | Block | Add above, Add below, Move up, Move down, Link, Settings, Fill from a list, Hide, Show, Remove, Edit | `BarAction`, `cardMenu`, `moves` |
 | Table | Row above, Row below, Column before, Column after, Delete row, Delete column, Align column left, centre, right, auto | `BarAction`, `gridActions` |
-| Image | Change image, Crop, Alt text | #519 section 3 |
-| List screens | Delete N selected, Restore N selected, Select all, Close selection (only while a selection exists) | #529 |
+| Image | Edit (opens the image sheet: image, alt text, format and Crop). Separate *Change image*, *Crop* and *Alt text* tools only when #519 adds them to the bar | `imageView` in `MarkdownEditor.tsx` (`describe`), #519 section 3 |
+| List screens | Delete N selected, Close selection (exist today, only while a selection exists). *Select all* and *Restore N selected* only once #529 lands | `Library.tsx`, `Notifications.tsx`; #529 |
 
-*Resize* for an image is **not** in the code: the editor has Crop (the zoom slider in `Crop.tsx`), no resize action. The owner's
-example "crop/resize" therefore lists Crop only, and a resize is a new feature (question 1). The same goes for *Duplicate* (none in
-the code, #529 says so too).
+**Postponed past 0.17 (owner, 13 November), spec separate:** *Resize image* (the editor has Crop, the zoom in `Crop.tsx`, and no resize action) and *Duplicate block*
+(none in the code today; #529 says so too: when the #529 work builds a single-block Duplicate and it has landed, it is registered and the palette lists it then, not before).
+The same rule holds for any other tool the editor does not have today: it is not in the 0.17 build plan, the examples or the palette until its own work has landed. A separate
+spec session writes Resize image. The registry makes this free: an action appears in the palette only when its feature registers it.
 
 ### 4.5 Phone
 
 - **Full screen** on compact (M3: "Full-screen layout: Default for compact breakpoints"): the back arrow, the field, the clear button, then the
   results, each row 48 dp or more. The keyboard opens with the sheet; the results scroll above it.
 - It is opened by the **top-bar search button** (no key on a phone). A text action from the palette on a phone works the same way (the
-  selection is restored), though most phone users will use the bar; the palette still lists them (question 4).
+  selection is restored), though most phone users will use the bar; the palette still lists them (question 3).
 - Closing: the back gesture closes the palette before it leaves the screen (`useSheetBack`).
 - **From medium and wider:** the theme's Search view in its **docked** layout, with its own sizes and scrim, unchanged (M3: "Docked layout:
   Best for medium and expanded windows"). Where it stands when a button and not a search bar opens it is **M3 silent** (1b); I give no
@@ -363,7 +365,7 @@ The same registry entries, shown by the one bar of #519 (its contextual group, t
 | Target | On the bar and in `⋮` (#519 sections 3 and 6) | In the palette (group) |
 | --- | --- | --- |
 | Text | Bold, Italic, Link, Heading, Text size, Alignment, Lists, Colour | Text |
-| Image | Change image, Crop, Alt text, Settings; Hide, Move, Remove in `⋮` | Image, Block |
+| Image | Edit (the image sheet: image, alt text, format, Crop); Move up and down, Remove (today); the #519 tools Change image, Crop, Alt text when they land | Image, Block |
 | Table cell | Row above and below, Column before and after, Delete row, Delete column, Settings | Table |
 | Row of a List, Cards, Points, Steps, Checklist, Accordion, Price cards, Buttons | Add above and below, Move up and down, Link, Settings, Fill from a list; Hide, Move, Remove in `⋮` | List, Block |
 | Other block (Video, Notice, Testimonials, Posts, HTML, Banner) | Settings or Edit; Hide, Move, Remove in `⋮` | Block |
@@ -435,7 +437,7 @@ is a proposal for the owner to read; the build PR writes it in `da-DK/` and `che
   palette "as a later, separate spec": this is that spec, and the owner has since ruled out the right-click menu (section 5).
   #519's questions (what stays on a phone bar, sheet or popover, scrolling `⋮`) are not decided here and do not block the registry.
 - **#529 (selection).** A long press on a list screen selects; this spec adds no long press and never takes it. A right click on a list row stays the
-  browser's, as #529 section 3.3 says, and now everywhere else too. While a list selection exists its actions (*Delete N selected*, *Restore*, *Select all*, *Close selection*) are
+  browser's, as #529 section 3.3 says, and now everywhere else too. While a list selection exists its actions (*Delete N selected*, *Close selection* today; *Restore* and *Select all* when #529 lands) are
   registry entries with a `selection` context, so the palette offers them, and the selection bar (#529's docked row) is another view of
   the same entries. Text and block selection (#519) and list selection (#529) are different `Ctx` states, never both at once.
 - **#515 and #520** (theme parts audit, Material conformance) are named in #529; I did not read them for this spec. The one missing part
@@ -482,7 +484,7 @@ S = a day or less, M = a day or two. All are patch or empty changesets until ste
    skill, English and Danish): for example "Find anything with one key".
 5. **M, text and block actions in the registry.** `MarkdownEditor.tsx` and `contextualMenu.ts` register their actions (the bar reads them; with #519 steps 1
    and 2 not yet landed this is an adapter, and the bar's order is today's). The palette lists them. Shortcuts in tooltips and `aria-keyshortcuts`.
-6. **S, polish.** Clear recent on sign-out, *Keyboard shortcuts* list, files as a provider (if the owner wants, question 2).
+6. **S, polish.** Clear recent on sign-out, *Keyboard shortcuts* list, files as a provider (if the owner wants, question 1).
 
 **What the checks must prove** (`scripts/editor-screens.mjs` through `check:screens`; `node --test`):
 - **Unit tests:** every rule of section 4.3, the registry (context filter, a disabled action, dispose), the shortcut format on both platforms and the
@@ -498,17 +500,16 @@ S = a day or less, M = a day or two. All are patch or empty changesets until ste
 ## 11. For the owner (the PM asks them one at a time)
 
 **Decided:** (D1) `Ctrl+K` / `⌘K` always opens the palette, also in text; *Link* keeps no key. (D2) No custom right-click menu anywhere; the browser's or the OS's stays.
+(D3) Resize image, Duplicate block and any other tool that does not exist today: specs are written separately, building is postponed past 0.17, and the palette lists only what exists today.
 
 **Open, in the order to ask:**
 
-1. **Resize an image and duplicate a block** are in your examples and in neither the code nor #519 or #529. Recommendation: **not in this work**; Crop is listed. If you
-   want them, each is its own small spec (resize needs a rule for how images are sized on the site).
-2. **What does the first palette search?** (a) actions only; (b) actions, navigation and page and post titles; (c) also files. Recommendation: **(b)**; files
+1. **What does the first palette search?** (a) actions only; (b) actions, navigation and page and post titles; (c) also files. Recommendation: **(b)**; files
    later (a provider, step 6).
-3. **A search icon button in the top app bar on every screen size?** M3 prints that an app bar "can also include global product controls, such as
+2. **A search icon button in the top app bar on every screen size?** M3 prints that an app bar "can also include global product controls, such as
    search" and that it "should only have one action, two if necessary". Recommendation: **yes, if the top bar has room for it under that
    rule** (step 4 counts today's actions on each screen); a phone has no key. If it is full, the button goes in the main menu's header instead.
-4. **On a phone, does the palette list the text actions?** Recommendation: **yes** (the selection is restored), so one list works everywhere. Other choice: leave them out on a phone, where the bar has them.
+3. **On a phone, does the palette list the text actions?** Recommendation: **yes** (the selection is restored), so one list works everywhere. Other choice: leave them out on a phone, where the bar has them.
 
 **Defaults, no owner decision needed unless you want one:**
 - (1) **Recent actions** kept in this browser only, cleared at sign-out and by *Clear recent actions*.
