@@ -40,7 +40,7 @@
     --block-page-width, --block-gutter  the page's container (its width, gutters included, and its gutter at the
                        side), whose left edge the text starts at: how far a banner across the whole width reaches out
                        of the text to the window's edges, and where its content starts again (the standard theme's
-                       Container.astro: 72rem, 1.25rem and 2rem from the medium width)
+                       Container.astro: 72rem, 1rem and 1.5rem from the medium width)
 
   How things move is the site's motion scheme (Material 3's, chosen under "Appearance" › "Motion"; lib/motion.ts), which
   Base.astro writes into the <head> as springs, each its duration and curve, for `transition` and `animation`:
@@ -96,13 +96,13 @@
   --block-ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
   --block-ease-quick: var(--motion-ease-quick, cubic-bezier(0.2, 0, 0, 1));
   --block-page-width: 72rem;
-  --block-gutter: 1.25rem;
+  --block-gutter: 1rem;
   --block-section-padding: 1.5rem;
   --block-section-margin: 2rem;
 }
 @media (width >= theme(--breakpoint-medium)) {
   :where(:root) {
-    --block-gutter: 2rem;
+    --block-gutter: 1.5rem;
   }
 }
 
