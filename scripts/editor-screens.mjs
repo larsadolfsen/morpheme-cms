@@ -1981,8 +1981,68 @@ async function checkIconColor(width, height) {
   const choices = await page.getByRole('button', { name: /^(Primary|Secondary|Tertiary)$/ }).allTextContents();
   if (choices.map((c) => c.trim()).join() !== 'Primary,Secondary,Tertiary')
     problems.push(`${label}: the icon's sheet has the colors "${choices}", not Primary, Secondary, Tertiary`);
+  // The color comes first: its field is above the first icon, in the DOM and on screen, so the color is chosen before the icons.
+  const order = await page.evaluate(() => {
+    const color = document.querySelector('[role="group"][aria-label="Icon color"]');
+    const grid = [...document.querySelectorAll('[role="group"][aria-label="Icon"]')].pop();
+    const tile = grid?.querySelector('button');
+    if (!color || !tile) return null;
+    return {
+      dom: !!(color.compareDocumentPosition(tile) & Node.DOCUMENT_POSITION_FOLLOWING),
+      screen: color.getBoundingClientRect().bottom <= tile.getBoundingClientRect().top + 1,
+    };
+  });
+  if (!order) problems.push(`${label}: the sheet has no "Icon color" field or no icon tiles`);
+  else if (!order.dom || !order.screen)
+    problems.push(`${label}: the Icon color field is not above the first icon (DOM ${order.dom}, screen ${order.screen})`);
+  // Each color has a circle of its role's color in place of the check, in every chip; no chip has a check.
+  const swatches = () =>
+    page.evaluate(() => {
+      const probe = document.createElement('i');
+      document.body.append(probe);
+      const colorOf = (role) => {
+        probe.style.color = `var(--mo-${role})`;
+        return getComputedStyle(probe).color;
+      };
+      const chips = [...document.querySelectorAll('[role="group"][aria-label="Icon color"] button')];
+      const out = chips.map((chip, i) => {
+        const dot = chip.querySelector('.segmented-button-swatch');
+        const box = dot?.getBoundingClientRect();
+        const role = ['primary', 'secondary', 'tertiary'][i];
+        return {
+          name: chip.textContent.trim(),
+          pressed: chip.getAttribute('aria-pressed'),
+          circle: !!dot && Math.abs(box.width - box.height) < 0.5 && getComputedStyle(dot).borderRadius !== '0px',
+          color: dot ? getComputedStyle(dot).backgroundColor : null,
+          want: colorOf(role),
+          check: !!chip.querySelector('.segmented-button-check'),
+          width: Math.round(chip.getBoundingClientRect().width),
+        };
+      });
+      probe.remove();
+      return out;
+    });
+  const before = await swatches();
+  for (const c of before) {
+    if (!c.circle) problems.push(`${label}: the ${c.name} chip has no circle`);
+    else if (c.color !== c.want) problems.push(`${label}: the ${c.name} circle is ${c.color}, not its role color ${c.want}`);
+    if (c.check) problems.push(`${label}: the ${c.name} chip has a check`);
+  }
+  if (new Set(before.map((c) => c.want)).size !== 3)
+    problems.push(`${label}: the three role colors are not all different, so the circles prove nothing`);
   await page.getByRole('button', { name: 'Secondary', exact: true }).click();
   await page.waitForTimeout(300);
+  // Picking another chip moves the selected state only: the same chips, the same widths, the circles stay.
+  const after = await swatches();
+  const pressed = after.map((c) => c.pressed).join();
+  if (pressed !== 'false,true,false')
+    problems.push(`${label}: after Secondary was picked the chips are pressed ${pressed}, not false,true,false`);
+  if (before.map((c) => c.width).join() !== after.map((c) => c.width).join())
+    problems.push(
+      `${label}: the chips changed width when the choice changed (${before.map((c) => c.width)} to ${after.map((c) => c.width)})`,
+    );
+  if (after.some((c) => !c.circle || c.check)) problems.push(`${label}: after the choice changed a chip lost its circle or got a check`);
+  await page.screenshot({ path: join(shots, `icon-color-${width}.png`) });
   await page
     .locator('dialog[open] button[aria-label="Close"]')
     .click({ timeout: 2000 })
