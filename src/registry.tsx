@@ -20,7 +20,7 @@ import { config, everyFixedPage, fixedPages, standardPages, standardPaths, Texts
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { partsOfMarkdown, sectionsFromParts } from './sections.mjs';
 import { blockViews } from './standard/themeBlocks';
-import { InEditor, type View, type ViewOf } from './standard/view';
+import { InEditor, OnSite, type View, type ViewOf } from './standard/view';
 import { appBlocks, appInlines, appViewOfs, appViews } from './appFiles';
 import { inlineViews } from './inlineViews';
 import { blocksIn, splitBlocks } from '../lib/blocks.mjs';
@@ -161,17 +161,19 @@ export function blockProblems(text: string, template?: Template, leads?: Record<
 /** The block as it looks on the site, or null when there is no image of it. On a fixed page its
  * sections (the theme's previews.tsx), or the block of the section's type (Book an appointment); a section can
  * draw a block by its type too (`block`, the prices on the prices page), so the theme never imports one. */
-export function preview(type: string, props: BlockProps, data: BlockData) {
+export function preview(type: string, props: BlockProps, data: BlockData, onSite = false) {
   const file = data.page?.file;
   const drawOf = (t: string) => siteBlocks.find((b) => b.type === t)?.draw;
   const block: DrawBlock = (t, p) => drawOf(t)?.(p, data) ?? null;
   const draw = file ? (fixedPages[file]?.[type] ?? everyFixedPage[type] ?? drawOf(type)) : drawOf(type);
+  // `onSite`: as the built page draws it (the Preview of a page, pagePreview.tsx), not as the editor's image of the block.
+  const Where = onSite ? OnSite : InEditor;
   return draw ? (
-    <InEditor>
+    <Where>
       <Texts.Provider value={data.site}>
         <Drawn draw={draw} props={props as Props} data={data} block={block} />
       </Texts.Provider>
-    </InEditor>
+    </Where>
   ) : null;
 }
 

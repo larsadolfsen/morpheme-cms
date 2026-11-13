@@ -1,7 +1,7 @@
 import type { Messages } from '../en-US';
 
 export const history: Messages['history'] = {
-  versions: 'Tidligere versioner',
+  versions: 'Historik',
   loading: 'Henter versionerne…',
   notLoaded: (error) => `Kunne ikke hente versionerne: ${error}`,
   none: 'Der er ingen tidligere versioner',
