@@ -2116,6 +2116,7 @@ async function checkInlineTable(width, height) {
         label: b.getAttribute('aria-label'),
         title: b.title,
         svg: !!b.querySelector('svg path'),
+        icon: [...b.querySelectorAll('svg path')].map((p) => p.getAttribute('d')).join('|'),
       })),
     }));
   const press = async (name) => {
@@ -2153,7 +2154,11 @@ async function checkInlineTable(width, height) {
     );
   if (more.extra || more.faded) problems.push(`${label}: the table has "Next row", "Next column" or "Add row" in it after adding`);
   for (const name of ['Delete row', 'Delete column'])
-    if (!more.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the menu has no icon button "${name}"`);
+    if (!more.bar.some((b) => b.label === name && b.svg && b.title === name))
+      problems.push(`${label}: the menu has no icon button "${name}"`);
+  const icons = more.bar.map((b) => b.icon);
+  const same = more.bar.filter((b, i) => b.icon && icons.indexOf(b.icon) !== i).map((b) => b.label);
+  if (same.length) problems.push(`${label}: the Table bar draws the same icon for two actions (${same.join(', ')})`);
   await press('Delete row');
   await press('Delete column');
   const less = await state();
