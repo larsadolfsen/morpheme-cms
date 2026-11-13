@@ -4071,7 +4071,8 @@
   Segmented button (SegmentedButton, segmentedButtonClass, segmentedButtonSegmentClass): .segmented-button, the frame
   (the whole width on a phone, as wide as its choices from the medium width), with a .segmented-button-segment for each (the chosen with aria-pressed="true"), in it .segmented-button-check (shown
   on the chosen), optionally .segmented-button-icon (hidden on the chosen, the check in its place) and
-  .segmented-button-label.
+  .segmented-button-label. A segment with a colour (Segment.swatch) has .segmented-button-swatch, a filled circle of it in every
+  segment, in place of the check.
     --segmented-button-height, -padding, -gap, -radius, -font-size, -icon-size   (the button's where it has none)
     --segmented-button-surface, -text, -line, -hover
     --segmented-button-selected-surface, -selected-text, -selected-hover
@@ -4240,6 +4241,14 @@
   }
   .segmented-button-segment[aria-pressed='true'] > .segmented-button-icon {
     display: var(--segmented-button-selected-icon, none);
+  }
+  /* A colour's circle (Segment.swatch): in every segment, in the check's place, with a thin edge so it reads on any surface. */
+  .segmented-button-swatch {
+    flex-shrink: 0;
+    width: var(--segmented-button-icon-size, 1.125rem);
+    height: var(--segmented-button-icon-size, 1.125rem);
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 30%, transparent);
   }
 
   /* Split buttons (m3.material.io/components/split-button): the main action and its arrow, joined. */
