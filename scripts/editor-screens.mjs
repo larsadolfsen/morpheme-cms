@@ -1656,7 +1656,7 @@ async function checkIconColor(width, height) {
     probe.style.color = 'var(--mo-primary)';
     const primary = getComputedStyle(probe).color;
     probe.remove();
-    return { row: !!row, icon: row ? getComputedStyle(row.querySelector('.list-item-leading-icon')).color : null, want, primary };
+    return { row: !!row, icon: row ? getComputedStyle(row.querySelector('.inline-list-slot')).color : null, want, primary };
   });
   if (!drawn.row) problems.push(`${label}: the row has no data-icon-color="secondary" after Secondary was picked`);
   else if (drawn.icon !== drawn.want) problems.push(`${label}: the icon is ${drawn.icon}, not the secondary color ${drawn.want}`);
