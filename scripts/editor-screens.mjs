@@ -124,7 +124,7 @@ const PAGE_SOURCE = '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n
 const FIXTURE_PAGE = 'Check page';
 make(
   'src/content/pages/zz-check-page.md',
-  `---\ntitle: "${FIXTURE_PAGE}"\nstatus: "draft"\n---\n\n# ${FIXTURE_PAGE}\n\nMade by check:screens, never saved.\n`,
+  `---\ntitle: "${FIXTURE_PAGE}"\n---\n\n# ${FIXTURE_PAGE}\n\nMade by check:screens, never saved.\n`,
 );
 /** A post that is not on the blog: the demo's, or the one made here. */
 const UNLISTED_POST = existsSync(join(ROOT, 'src/content/blog/not-on-the-blog.md'))

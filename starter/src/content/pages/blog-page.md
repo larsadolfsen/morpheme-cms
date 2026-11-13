@@ -1,6 +1,5 @@
 ---
 title: "Blog"
-path: "/blog-page/"
 ---
 
 # Blog
