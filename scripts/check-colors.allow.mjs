@@ -105,13 +105,6 @@ export const allow = [
   },
   {
     kind: 'state-layer',
-    file: /^theme\/styles\/ui\.css$/,
-    line: /segmented-(hover|pressed)|tab-(hover|pressed)/,
-    reason: "todo (state layers): hover is Material's 8%",
-    todo: true,
-  },
-  {
-    kind: 'state-layer',
     file: /^src\/pagePreview\.tsx$/,
     line: /outline: 2px dotted/,
     reason: 'an outline hint in the Preview, not a state layer',

@@ -2769,13 +2769,13 @@
   }
   .list-segmented > li > :is(a, button:enabled).list-item-container:hover,
   .list-segmented > li > .list-item-with-control:not(.list-item-disabled):hover {
-    background: var(--list-segmented-hover-surface, color-mix(in srgb, var(--block-text) 5%, transparent));
+    background: var(--list-segmented-hover-surface, color-mix(in srgb, var(--block-text) 8%, transparent));
   }
   .list-segmented > li > :is(a, button:enabled).list-item-container:active,
   .list-segmented > li > .list-item-with-control:not(.list-item-disabled):active {
     background: var(
       --list-segmented-pressed-surface,
-      var(--list-segmented-hover-surface, color-mix(in srgb, var(--block-text) 5%, transparent))
+      var(--list-segmented-hover-surface, color-mix(in srgb, var(--block-text) 8%, transparent))
     );
   }
   .list-segmented > li > :is(a, button:enabled).list-item-container:focus-visible,
@@ -2783,19 +2783,19 @@
   .list-segmented > li > .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:focus-visible) {
     background: var(
       --list-item-focus-surface,
-      var(--list-segmented-pressed-surface, var(--list-segmented-hover-surface, color-mix(in srgb, var(--block-text) 5%, transparent)))
+      var(--list-segmented-pressed-surface, var(--list-segmented-hover-surface, color-mix(in srgb, var(--block-text) 8%, transparent)))
     );
   }
   .list-segmented > li > .list-item-multi-action {
     border-radius: inherit;
   }
   .list-segmented > li > .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:hover) {
-    background: var(--list-segmented-hover-surface, color-mix(in srgb, var(--block-text) 5%, transparent));
+    background: var(--list-segmented-hover-surface, color-mix(in srgb, var(--block-text) 8%, transparent));
   }
   .list-segmented > li > .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:active) {
     background: var(
       --list-segmented-pressed-surface,
-      var(--list-segmented-hover-surface, color-mix(in srgb, var(--block-text) 5%, transparent))
+      var(--list-segmented-hover-surface, color-mix(in srgb, var(--block-text) 8%, transparent))
     );
   }
   /* A disabled item on its own surface (M3 Expressive: a faint layer of the text's colour). */
@@ -3717,7 +3717,7 @@
       color var(--motion-effects);
   }
   .tab:hover {
-    background: var(--tab-hover-surface, color-mix(in srgb, var(--block-text) 6%, transparent));
+    background: var(--tab-hover-surface, color-mix(in srgb, var(--block-text) 8%, transparent));
     color: var(--tab-hover-text, var(--block-text));
   }
   .tab:focus-visible {
@@ -3776,7 +3776,7 @@
     justify-content: center;
   }
   :is(.tabs-primary, .tabs-secondary) .tab:active {
-    background: var(--tab-pressed-surface, var(--tab-hover-surface, color-mix(in srgb, var(--block-text) 6%, transparent)));
+    background: var(--tab-pressed-surface, var(--tab-hover-surface, color-mix(in srgb, var(--block-text) 8%, transparent)));
   }
   :is(.tabs-primary, .tabs-secondary) .tab:is(:disabled, [aria-disabled='true']) {
     opacity: var(--tab-disabled-opacity, 0.45);
