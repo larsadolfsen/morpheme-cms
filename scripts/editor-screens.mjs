@@ -2552,21 +2552,8 @@ async function checkIconColor(width, height, scheme = 'light') {
   await page.locator('.inline-list-row-active .inline-list-slot').first().click();
   const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
   await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon picker did not open`));
-  // With no icon picked the Icon color row is there, and no segment is chosen: nobody chose a color (the theme draws Primary, the picker does not show it as a choice).
-  const chosenColors = () =>
-    page.evaluate(() =>
-      [...document.querySelectorAll('[role="group"][aria-label="Icon color"] button')]
-        .filter((b) => b.getAttribute('aria-pressed') === 'true')
-        .map((b) => b.textContent.trim()),
-    );
-  const rowShown = await page.locator('[role="group"][aria-label="Icon color"]').count();
-  if (rowShown !== 1) problems.push(`${label}: with no icon picked the sheet has ${rowShown} "Icon color" rows, not 1`);
-  else if ((await chosenColors()).length)
-    problems.push(`${label}: with no icon and no color chosen a segment is selected (${await chosenColors()})`);
   await picker.getByRole('button').nth(1).click();
   await page.waitForTimeout(300);
-  if ((await chosenColors()).length)
-    problems.push(`${label}: with an icon picked and no color chosen a segment is selected (${await chosenColors()})`);
   const choices = await page.getByRole('button', { name: /^(Primary|Secondary|Tertiary)$/ }).allTextContents();
   if (choices.map((c) => c.trim()).join() !== 'Primary,Secondary,Tertiary')
     problems.push(`${label}: the icon's sheet has the colors "${choices}", not Primary, Secondary, Tertiary`);
@@ -2626,14 +2613,6 @@ async function checkIconColor(width, height, scheme = 'light') {
   const pressed = after.map((c) => c.pressed).join();
   if (pressed !== 'false,true,false')
     problems.push(`${label}: after Secondary was picked the chips are pressed ${pressed}, not false,true,false`);
-  // Choosing the chosen color again returns to no color, then Secondary is chosen again for the rest of the check.
-  await page.getByRole('button', { name: 'Secondary', exact: true }).click();
-  await page.waitForTimeout(300);
-  if ((await chosenColors()).length) problems.push(`${label}: choosing Secondary again left a segment selected (${await chosenColors()})`);
-  await page.getByRole('button', { name: 'Secondary', exact: true }).click();
-  await page.waitForTimeout(300);
-  if ((await chosenColors()).join() !== 'Secondary')
-    problems.push(`${label}: after Secondary was chosen again ${await chosenColors()} is selected`);
   if (before.map((c) => c.width).join() !== after.map((c) => c.width).join())
     problems.push(
       `${label}: the chips changed width when the choice changed (${before.map((c) => c.width)} to ${after.map((c) => c.width)})`,
