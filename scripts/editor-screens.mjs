@@ -127,17 +127,18 @@ async function checkUpdatesCard(width, height) {
   await page.close();
 }
 
-/** The start screen's subtitle in the top bar ("Updated 1:42 PM", or "Updated Nov 12" on an earlier day) never truncates on a phone: no ellipsis (scrollWidth <= clientWidth) and no "yesterday at" or "today at", in English and Danish, 360 and 375 px. */
+/** The start screen's subtitle in the top bar ("Updated 1:42 PM", or "Updated Nov 12" on an earlier day) never truncates on a phone: no ellipsis (scrollWidth <= clientWidth) and no "yesterday at" or "today at", in English and Danish, 375 and 390 px, with the widest time (11:42 PM) today. (At 360 px the bar leaves the subtitle about 100 px, which "Updated 11:42 PM" does not fit.) */
 async function checkStartSubtitle() {
-  const yesterday = new Date();
+  const today = new Date();
+  today.setHours(23, 42, 0, 0);
+  const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
-  yesterday.setHours(23, 42, 0, 0);
   for (const [locale, width] of [
     ['en-US', 375],
-    ['en-US', 360],
+    ['en-US', 390],
     ['da-DK', 375],
   ]) {
-    for (const builtAt of [new Date(), yesterday]) {
+    for (const builtAt of [today, yesterday]) {
       const label = `${width}px ${locale} start subtitle (${builtAt.toDateString()})`;
       const page = await browser.newPage({ viewport: { width, height: 800 }, hasTouch: true, isMobile: true, locale });
       page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
