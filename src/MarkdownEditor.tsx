@@ -66,6 +66,7 @@ import {
   TextT,
 } from '@phosphor-icons/react';
 import { LIST_KINDS, STYLE_KINDS, headingKindOf, listKindOf, styleKindOf } from './styleKind.mjs';
+import { sizeListText, sizeOfList } from './listSize.mjs';
 import { HTML, insertBlock, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
 import { firstHeading, topHeadings } from './firstHeading.mjs';
 import { h1Of, h1TextOf, h1Written } from './titleH1.mjs';
@@ -661,6 +662,11 @@ export function activeOf(state: EditorView['state']): Set<string> {
     if ($from.parent.attrs.align === 'center' || $from.parent.attrs.align === 'right') on.add(`align-${$from.parent.attrs.align}`);
   }
   if (ancestors.includes('bullet_list')) on.add(isCheckItem(state) ? 'check' : 'bullet');
+  // The size of the text of a list item (the mark textSize): small, large, or medium when it has none.
+  if (inListItem(state)) {
+    const size = sizeOfList(state);
+    on.add(size ?? 'medium');
+  }
   if (ancestors.includes('ordered_list')) on.add('ordered');
   if (ancestors.includes('blockquote')) on.add('quote');
   if ($from.parent.type.name === 'paragraph' && !on.has('bullet') && !on.has('check') && !on.has('ordered') && !on.has('quote'))
@@ -1851,8 +1857,11 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       const outOfQuotes = () => {
         for (let i = 0; i < 10 && is('quote') && lift(view.state, view.dispatch); i++);
       };
-      // A list has no size: a size picked in a list item leaves the list as it is (the controls are not offered there either).
-      if (['small', 'medium', 'large'].includes(kind) && (is('bullet') || is('check') || is('ordered'))) return view.focus();
+      // A size picked in a list item keeps the list: the text of the items has the size (a mark, lib/text-sizes.mjs).
+      if (['small', 'medium', 'large'].includes(kind) && (is('bullet') || is('check') || is('ordered'))) {
+        sizeListText(view, kind);
+        return view.focus();
+      }
       if (kind === 'label') {
         toggleLabel(view);
         return view.focus();
@@ -2027,8 +2036,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     });
   }
 
-  // Not a heading control and no text size in a list item: it cannot be a heading, and a list has no size (choosing one took the
-  // text out of the list, which the owner did not mean).
+  // Not a heading control in a list item: it cannot be a heading. A text size stays: it sizes the text of the items.
   const inList = ['bullet', 'check', 'ordered'].some((name) => active.includes(name));
   const allTools: {
     label: string;
@@ -2075,7 +2083,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand), role: 'redo' },
   ];
 
-  const all = inList ? allTools.filter(({ on }) => !['small', 'medium', 'large'].includes(on ?? '')) : allTools;
+  const all = allTools;
 
   // The tools in their order (toolbarOrder.mjs): Section settings last on the first line, and what may go under the arrow at the
   // end, Undo and Redo first, then the link, so Insert stays on the first line. The arrangement is tried from the widest:

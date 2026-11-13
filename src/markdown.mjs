@@ -9,6 +9,7 @@ import { canSplit } from '@milkdown/kit/prose/transform';
 import { liftListItem } from '@milkdown/kit/prose/schema-list';
 import { blockHtml, parseBlock } from '../lib/blocks.mjs';
 import { COLOR_CLOSE, TEXT_COLORS, colorClass, colorOpen, colorOpened } from '../lib/text-colors.mjs';
+import { SIZE_CLOSE, TEXT_SIZES, sizeClass, sizeOpen, sizeOpened } from '../lib/text-sizes.mjs';
 import { isLabelLine, markerHtml, parseMarker } from '../lib/section-marker.mjs';
 import { EMPHASIZE } from '../lib/rehype-emphasize.mjs';
 import { eyebrowText } from '../lib/eyebrow.mjs';
@@ -140,6 +141,35 @@ function colorRuns(children) {
   return out;
 }
 
+// The same for a size (lib/text-sizes.mjs): `<span class="body-small">…</span>` is the text with the mark textSize.
+function sizeRuns(children) {
+  const out = [];
+  for (let i = 0; i < children.length; i++) {
+    const size = children[i].type === 'html' ? sizeOpened(children[i].value) : null;
+    let end = -1;
+    for (let j = i + 1, depth = 0; size && j < children.length && end < 0; j++) {
+      const node = children[j];
+      if (node.type !== 'html') continue;
+      if (/^<span\b/.test(node.value)) depth++;
+      else if (node.value === SIZE_CLOSE && depth-- === 0) end = j;
+    }
+    if (end < 0) out.push(children[i]);
+    else {
+      out.push({ type: 'textSize', size, children: children.slice(i + 1, end) });
+      i = end;
+    }
+  }
+  return out;
+}
+
+function textSizeMarkdown(node, _, state, info) {
+  const tracker = state.createTracker(info);
+  let value = tracker.move(sizeOpen(node.size));
+  value += tracker.move(state.containerPhrasing(node, { ...tracker.current(), before: '>', after: '<' }));
+  return value + tracker.move(SIZE_CLOSE);
+}
+textSizeMarkdown.peek = () => '<';
+
 function textColorMarkdown(node, _, state, info) {
   const tracker = state.createTracker(info);
   let value = tracker.move(colorOpen(node.color));
@@ -153,10 +183,10 @@ const remarkTextColors = $remark(
   () =>
     function () {
       const data = this.data();
-      (data.toMarkdownExtensions ??= []).push({ handlers: { textColor: textColorMarkdown } });
+      (data.toMarkdownExtensions ??= []).push({ handlers: { textColor: textColorMarkdown, textSize: textSizeMarkdown } });
       const walk = (node) => {
         if (!node.children) return;
-        node.children = colorRuns(node.children);
+        node.children = sizeRuns(colorRuns(node.children));
         node.children.forEach(walk);
       };
       return walk;
@@ -180,6 +210,27 @@ export const textColorSchema = $markSchema('textColor', () => ({
     match: (mark) => mark.type.name === 'textColor',
     runner: (state, mark) => {
       state.withMark(mark, 'textColor', undefined, { color: mark.attrs.color });
+    },
+  },
+}));
+
+/** @type {import('@milkdown/kit/utils').$MarkSchema<'textSize'>} */
+export const textSizeSchema = $markSchema('textSize', () => ({
+  attrs: { size: { default: TEXT_SIZES[0] } },
+  parseDOM: TEXT_SIZES.map((size) => ({ tag: `span.${sizeClass(size)}`, attrs: { size } })),
+  toDOM: (mark) => ['span', { class: sizeClass(mark.attrs.size) }],
+  parseMarkdown: {
+    match: (node) => node.type === 'textSize',
+    runner: (state, node, markType) => {
+      state.openMark(markType, { size: node.size });
+      state.next(node.children);
+      state.closeMark(markType);
+    },
+  },
+  toMarkdown: {
+    match: (mark) => mark.type.name === 'textSize',
+    runner: (state, mark) => {
+      state.withMark(mark, 'textSize', undefined, { size: mark.attrs.size });
     },
   },
 }));
@@ -345,6 +396,7 @@ export function makeEditor(root, markdown) {
       .use(siteBlockSchema)
       .use(remarkTextColors)
       .use(textColorSchema)
+      .use(textSizeSchema)
       .use(bodyLargeSchema)
       .use(bodyMediumSchema)
       .use(bodySmallSchema)

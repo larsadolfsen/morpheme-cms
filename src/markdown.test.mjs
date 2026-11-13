@@ -255,3 +255,53 @@ test('Backspace at the start of a list item leaves the list one step', async () 
   const text = await edit('- a\n', 'a', { run });
   assert.deepEqual(text.nodes, ['bullet_list']);
 });
+
+// --- A size for the text of list items (lib/text-sizes.mjs): the list stays a list ---
+test('a list item with a size comes back as it was, and the list and the item stay', async () => {
+  for (const text of [
+    '-   <span class="body-small">small</span>\n-   plain\n',
+    '1.  <span class="body-large">large <strong>bold</strong></span>\n2.  plain\n',
+    '-   [ ] <span class="body-small">box</span>\n-   [x] done\n',
+    '-   <span class="color-accent"><span class="body-small">both</span></span>\n',
+  ]) {
+    const { saved, nodes } = await through(text);
+    assert.equal(saved, text);
+    assert.ok(nodes[0].endsWith('_list'), nodes.join());
+  }
+});
+
+test('a size around a colour is written with the colour around the size', async () => {
+  const { saved } = await through('-   <span class="body-small"><span class="color-accent">both</span></span>\n');
+  assert.equal(saved, '-   <span class="color-accent"><span class="body-small">both</span></span>\n');
+});
+
+test('a size chosen in a list sizes the touched items and keeps the list; medium takes it away', async () => {
+  const { sizeListText } = await import('./listSize.mjs');
+  const editor = await makeEditor(document.createElement('div'), '- a\n- b\n  - c\n- d\n').create();
+  const out = editor.action((ctx) => {
+    const view = ctx.get(editorViewCtx);
+    const at = (text) => {
+      let pos = -1;
+      view.state.doc.descendants((n, p) => {
+        if (pos < 0 && n.isTextblock && n.textContent === text) pos = p + 1;
+      });
+      return pos;
+    };
+    view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, at('a') + 1)));
+    sizeListText(view, 'small');
+    const one = markdownOf(ctx);
+    view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, at('a') + 1, at('d') + 1)));
+    sizeListText(view, 'large');
+    const many = markdownOf(ctx);
+    sizeListText(view, 'medium');
+    return { one, many, none: markdownOf(ctx), kinds: view.state.doc.child(0).type.name };
+  });
+  await editor.destroy();
+  assert.match(out.one, /^-\s+<span class="body-small">a<\/span>\n-\s+b\n/);
+  assert.match(out.many, /<span class="body-large">a<\/span>/);
+  assert.match(out.many, /<span class="body-large">b<\/span>/);
+  assert.match(out.many, /<span class="body-large">c<\/span>/);
+  assert.match(out.many, /<span class="body-large">d<\/span>/);
+  assert.ok(!out.none.includes('<span'), out.none);
+  assert.equal(out.kinds, 'bullet_list');
+});
