@@ -3301,22 +3301,6 @@ async function checkHints() {
 
 /** The text's toolbar and field read as one closed box on a phone, empty, with the keyboard open and stuck at the top of the screen: the toolbar has a border on its top edge and on each side, and rounded top corners that keep the border. */
 async function checkToolbarBox() {
-  // TEMP-DEBUG
-  if (process.env.ONLY_BLOCK) {
-    for (const [w, h] of [
-      [375, 740],
-      [1280, 900],
-    ])
-      await checkInlineBlock(
-        w,
-        h,
-        inlineBlocks.find((b) => b.name === process.env.ONLY_BLOCK),
-      );
-    await browser.close();
-    server.close();
-    console.log(problems.join('\n') || 'ok');
-    process.exit(0);
-  }
   for (const [width, height] of [
     [360, 740],
     [375, 740],
