@@ -6,7 +6,7 @@
 // Base.astro does: the title, else the "Short description", else the site's own.
 import { siteLocale, t } from './i18n';
 import { isVague, vagueLinksOf } from './vagueLink';
-import { decorativeOf } from '../lib/crop.mjs';
+import { images, altUseOk, outsideCode, paragraphs, plain, LABEL, DEST } from './seoImages';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { searchedAs } from './googleResult.mjs';
 
@@ -112,23 +112,6 @@ export const DESCRIPTION_MAX = 160;
 
 const H1 = /^ {0,3}#(?!#)[ \t]+\S/;
 const HEADING = /^ {0,3}#{1,6}([ \t]|$)/;
-const FENCE = /^ {0,3}(`{3,}|~{3,})/;
-
-/** The lines of a text outside fenced code, with their numbers. */
-function outsideCode(body: string): { line: string; at: number }[] {
-  const lines = body.split(/\r?\n/);
-  const out: { line: string; at: number }[] = [];
-  let fence: string | null = null;
-  lines.forEach((line, at) => {
-    const opens = FENCE.exec(line)?.[1];
-    if (fence) {
-      if (opens && opens[0] === fence[0] && opens.length >= fence.length) fence = null;
-    } else if (opens) fence = opens;
-    else out.push({ line, at });
-  });
-  return out;
-}
-
 /** The H1 headings of a text (ATX lines "# …", not in fenced code), as plain text, with their line numbers. */
 export function h1s(body: string): { text: string; at: number }[] {
   return outsideCode(body)
@@ -160,18 +143,6 @@ export function firstParagraph(body: string): string {
   return plain(paragraph.join(' '));
 }
 
-/** Markdown as plain text: without links' addresses, images and the marks for bold, italic and code. */
-export function plain(markdown: string): string {
-  return markdown
-    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replace(/<[^>]+>/g, '')
-    .replace(/[*_`~]+/g, '')
-    .replace(/\\(.)/g, '$1')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
 /** The number of characters in a text, as Google counts them (an emoji is one). */
 export const lengthOf = (text: string) => [...text.trim()].length;
 
@@ -179,46 +150,8 @@ export const lengthOf = (text: string) => [...text.trim()].length;
 export const hasWord = (text: string, word: string) =>
   !!word.trim() && plain(text).toLocaleLowerCase().includes(word.trim().replace(/\s+/g, ' ').toLocaleLowerCase());
 
-/** The text of a body outside fenced code, code spans and HTML comments, in paragraphs, so a link or an image
- * is never read across two of them. */
-function paragraphs(body: string): string[] {
-  const kept = new Set(outsideCode(body).map(({ at }) => at));
-  return body
-    .split(/\r?\n/)
-    .map((line, at) => (kept.has(at) ? line : ''))
-    .join('\n')
-    .replace(/<!--[\s\S]*?-->/g, '')
-    .split(/\n[ \t]*\n/)
-    .map((p) => p.replace(/(?<!`)(`+)(?!`)[\s\S]*?(?<!`)\1(?!`)/g, ''));
-}
-
-// A link's or an image's text in brackets (with escapes and one level of brackets in it, as an image in a link),
-// and its address in parentheses (maybe in <>, with a title after it), as Milkdown writes them: the text the first
-// group, the address the second.
-const LABEL = String.raw`((?:\\.|[^\\\[\]]|\[(?:\\.|[^\\\[\]])*\])*)`;
-const DEST = String.raw`\(\s*(<[^>\n]*>|(?:\\.|[^\\()\s]|\((?:\\.|[^\\()\s])*\))*)(?:\s+(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\((?:\\.|[^()\\])*\)))?\s*\)`;
-const IMAGE = new RegExp(String.raw`(?<!\\)!\[${LABEL}\]${DEST}`, 'g');
 const LINK = new RegExp(String.raw`(?<![\\!])\[${LABEL}\]${DEST}`, 'g');
-const IMG = /(?<!\\)<img\b[^>]*>/gi;
-const ALT = /\salt\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/i;
 const A = /(?<!\\)<a\b[^>]*>([\s\S]*?)<\/a\s*>/gi;
-
-/** The images in a text (`![…](…)`, and `<img>` in its HTML), each by its alternative text, as plain text (empty
- * when it has none), and whether it is decorative: marked so in its address ("Decorative image", crop.mjs), or in
- * HTML with alt="". The blocks (`<div data-block=…>`) are not images of the text. */
-export function images(body: string): { alt: string; decorative: boolean }[] {
-  return paragraphs(body).flatMap((p) => [
-    ...[...p.matchAll(IMAGE)].map((m) => ({
-      alt: plain(m[1]),
-      decorative: decorativeOf(m[2].replace(/^<(.*)>$/, '$1')).decorative,
-    })),
-    ...[...p.matchAll(IMG)].map((m) => {
-      const attribute = ALT.exec(m[0]);
-      const alt = (attribute?.[1] ?? attribute?.[2] ?? attribute?.[3] ?? '').trim();
-      return { alt, decorative: !!attribute && !alt };
-    }),
-  ]);
-}
 
 /** The links in a text (`[…](…)`, and `<a>` in its HTML), each by its text, as plain text. */
 export function links(body: string): string[] {
@@ -303,7 +236,7 @@ export function seoRating(input: SeoInput): SeoCheck[] {
   }
   const shown = images(input.body);
   if (shown.length) {
-    const without = shown.filter((image) => !image.alt && !image.decorative).length;
+    const without = shown.filter((image) => !altUseOk(image)).length;
     checks.push(without ? { ok: false, text: r.noAlt(without), fix: r.fixAlt } : { ok: true, text: r.allAlt });
   }
   const texts = links(input.body);
@@ -313,3 +246,5 @@ export function seoRating(input: SeoInput): SeoCheck[] {
   }
   return checks;
 }
+
+export { images, altUseOk, plain };
