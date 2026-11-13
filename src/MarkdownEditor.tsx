@@ -66,7 +66,7 @@ import {
   TextT,
 } from '@phosphor-icons/react';
 import { LIST_KINDS, STYLE_KINDS, headingKindOf, listKindOf, styleKindOf } from './styleKind.mjs';
-import { HTML, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
+import { HTML, insertBlock, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
 import { firstHeading, topHeadings } from './firstHeading.mjs';
 import { h1Of, h1TextOf, h1Written } from './titleH1.mjs';
 import { headingChoices } from '../lib/heading-levels.mjs';
@@ -669,6 +669,13 @@ export function activeOf(state: EditorView['state']): Set<string> {
   return on;
 }
 
+// Whether the cursor is in a list item of any kind: a list item is not a heading, so the heading controls are not offered there.
+function inListItem(state: EditorView['state']) {
+  const { $from } = state.selection;
+  for (let d = $from.depth; d > 0; d--) if ($from.node(d).type.name === 'list_item') return true;
+  return false;
+}
+
 // Whether the cursor is in an item of a check list (a list item with a box, `- [ ]`).
 function isCheckItem(state: EditorView['state']) {
   const { $from } = state.selection;
@@ -881,7 +888,7 @@ function selectionMenu(ctx: Ctx, h1: boolean, kinds: (button: HTMLElement, group
             if (heading(view.state, level)) run(turnIntoTextCommand);
             else run(wrapInHeadingCommand, level);
           },
-          off: (s) => levels(s).length > 1,
+          off: (s) => levels(s).length > 1 || inListItem(s),
         },
         // The headings offered, in a menu: a plain H (the menu marks the level there is, the button's name says it). Not
         // marked: it is the one control that shows the heading's level.
@@ -894,7 +901,7 @@ function selectionMenu(ctx: Ctx, h1: boolean, kinds: (button: HTMLElement, group
             };
           },
           action: (button) => kinds(button, 'headings'),
-          off: (s) => levels(s).length < 2,
+          off: (s) => levels(s).length < 2 || inListItem(s),
           menu: true,
         },
         // The rest, in a sheet from the bottom.
@@ -1789,6 +1796,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       const outOfQuotes = () => {
         for (let i = 0; i < 10 && is('quote') && lift(view.state, view.dispatch); i++);
       };
+      // A list has no size: a size picked in a list item leaves the list as it is (the controls are not offered there either).
+      if (['small', 'medium', 'large'].includes(kind) && (is('bullet') || is('check') || is('ordered'))) return view.focus();
       if (kind === 'label') {
         toggleLabel(view);
         return view.focus();
@@ -1941,16 +1950,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       const { state } = view;
       const node = siteBlockSchema.type(ctx).create({ type: chosen.type, props: chosen.props });
       if (typedInPlace(blocks!.list.find((b) => b.type === chosen.type))) fresh.add(chosen.props);
-      let tr = state.tr;
-      // Where the new block ends, when the cursor must be moved past it (-1: it is in text already).
-      let end = -1;
-      if (state.selection instanceof NodeSelection) {
-        tr = tr.insert(state.selection.to, node);
-        end = state.selection.to + node.nodeSize;
-      } else {
-        tr = tr.replaceSelectionWith(node);
-        if (tr.selection instanceof NodeSelection) end = tr.selection.to;
-      }
+      // At the top level of the text, never inside a list item or a quote (a block there is drawn indented and written indented).
+      // `end`: where the new block ends, when the cursor must be moved past it (-1: it is in text already).
+      let { tr, end } = insertBlock(state, node);
       if (end >= 0) {
         if (!tr.doc.resolve(end).nodeAfter?.isTextblock) tr = tr.insert(end, state.schema.nodes.paragraph.create());
         tr = tr.setSelection(TextSelection.create(tr.doc, end + 1));
@@ -1970,6 +1972,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     });
   }
 
+  // Not a heading control and no text size in a list item: it cannot be a heading, and a list has no size (choosing one took the
+  // text out of the list, which the owner did not mean).
+  const inList = ['bullet', 'check', 'ordered'].some((name) => active.includes(name));
   const all: {
     label: string;
     icon: typeof TextB;
@@ -1988,15 +1993,15 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     { label: t.text.italic, icon: TextItalic, action: () => run(toggleEmphasisCommand), on: 'emphasis', role: 'italic' },
     { label: t.text.link, icon: LinkSimple, action: link, on: 'link', role: 'link' },
     // On a page the levels in choices (H1 until the text has one); a blog post has H2 and H3.
-    ...(h1 ? choices : [2, 3]).map((level) => ({
+    ...(inList ? [] : h1 ? choices : [2, 3]).map((level) => ({
       label: [t.text.pageHeading, t.text.heading, t.text.subheading][level - 1],
       icon: [TextHOne, TextHTwo, TextHThree][level - 1],
       action: () => setKind(`h${level}`),
       on: `h${level}`,
     })),
-    { label: t.text.bodySmall, icon: KIND_ICONS.small.node, action: () => setKind('small'), on: 'small' },
-    { label: t.text.bodyMedium, icon: KIND_ICONS.medium.node, action: () => setKind('medium'), on: 'medium' },
-    { label: t.text.bodyLarge, icon: KIND_ICONS.large.node, action: () => setKind('large'), on: 'large' },
+    ...(inList ? [] : [{ label: t.text.bodySmall, icon: KIND_ICONS.small.node, action: () => setKind('small'), on: 'small' }]),
+    ...(inList ? [] : [{ label: t.text.bodyMedium, icon: KIND_ICONS.medium.node, action: () => setKind('medium'), on: 'medium' }]),
+    ...(inList ? [] : [{ label: t.text.bodyLarge, icon: KIND_ICONS.large.node, action: () => setKind('large'), on: 'large' }]),
     { label: t.text.label, icon: KIND_ICONS.label.node, action: () => setKind('label'), on: 'label' },
     { label: t.text.quote, icon: KIND_ICONS.quote.node, action: () => setKind('quote'), on: 'quote' },
     { label: t.text.bulletList, icon: KIND_ICONS.bullet.node, action: () => setKind('bullet'), on: 'bullet', role: 'list' },
