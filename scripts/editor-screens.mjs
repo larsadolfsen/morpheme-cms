@@ -802,6 +802,84 @@ async function checkDensitySetting(width, height) {
   await page.close();
 }
 
+/** The parts read density (theme/styles/ui.css): at Large, Medium and Small a button, a chip, a segmented button and a text field are 4 px taller or lower (the chip 2 px a side), a list row follows the data-heavy step, a target keeps its size (an invisible area of at least --mo-target, 48 on a phone and 44 on a computer), a part in the page editing area or in a row that picks the density does not change, and a menu stays at Medium. */
+async function checkDensityParts(width, height, touch) {
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px density parts: ${e.message}`));
+  await openEditor(page, site);
+  const parts = `
+    <button class="button" data-part="button">Label</button>
+    <button class="chip" data-part="chip">Label</button>
+    <div class="segmented-button"><button class="segmented-button-segment" data-part="segment">One</button><button class="segmented-button-segment">Two</button></div>
+    <div class="text-field text-field-outlined"><div class="text-field-container"><input class="text-field-input" data-part="field"></div></div>
+    <div class="list-item-container" data-part="row"><div class="list-item-content"><span class="list-item-headline">Row</span></div></div>
+    <div class="menu-item" data-part="menu-item">Item</div>`;
+  const measure = (attr) =>
+    page.evaluate(
+      ([attr, parts]) => {
+        const root = document.documentElement;
+        if (attr === null) root.removeAttribute('data-density');
+        else root.setAttribute('data-density', attr);
+        const host = document.createElement('div');
+        host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
+        host.innerHTML = `<div data-where="screen">${parts}</div><div class="editor-text"><div class="ProseMirror" data-where="content">${parts}</div></div><div data-density-fixed data-where="fixed">${parts}</div>`;
+        document.body.append(host);
+        const got = {};
+        for (const where of host.querySelectorAll('[data-where]'))
+          for (const part of where.querySelectorAll('[data-part]')) {
+            const box = part.getBoundingClientRect().height;
+            const after = parseFloat(getComputedStyle(part, '::after').height);
+            got[`${where.dataset.where}/${part.dataset.part}`] = [Math.round(box * 100) / 100, Number.isNaN(after) ? 0 : after];
+          }
+        got.target = parseFloat(getComputedStyle(root).getPropertyValue('--mo-target'));
+        host.remove();
+        root.removeAttribute('data-density');
+        return got;
+      },
+      [attr, parts],
+    );
+  const [large, medium, small] = [await measure('1'), await measure('0'), await measure('-1')];
+  const target = medium.target;
+  if (target !== (touch ? 48 : 44)) problems.push(`${width}px density parts: --mo-target is ${target}, not ${touch ? 48 : 44}`);
+  const expect = (what, ok) => ok || problems.push(`${width}px density parts: ${what}`);
+  for (const part of ['button', 'chip', 'segment', 'field']) {
+    const key = `screen/${part}`;
+    expect(
+      `${part} is ${large[key][0]} / ${medium[key][0]} / ${small[key][0]} px at Large / Medium / Small, not 4 px apart`,
+      large[key][0] - medium[key][0] === 4 && medium[key][0] - small[key][0] === 4,
+    );
+  }
+  // The row: a data-heavy part, 4 px a step, never below the target.
+  expect(
+    `a list row is ${large['screen/row'][0]} / ${medium['screen/row'][0]} / ${small['screen/row'][0]} px, not 4 px apart`,
+    large['screen/row'][0] - medium['screen/row'][0] === 4 && medium['screen/row'][0] - small['screen/row'][0] === 4,
+  );
+  expect(`a list row at Small is ${small['screen/row'][0]} px, below the target ${target}`, small['screen/row'][0] >= target);
+  // A target keeps its size: the part or its invisible area is at least --mo-target, at every step.
+  for (const [name, m] of [
+    ['Large', large],
+    ['Medium', medium],
+    ['Small', small],
+  ])
+    for (const part of ['button', 'chip', 'segment'])
+      expect(
+        `${part} at ${name} has a target of ${Math.max(...m[`screen/${part}`])} px, below ${target}`,
+        Math.max(...m[`screen/${part}`]) >= target,
+      );
+  // The page editing area and the rows that pick the density are drawn the same at every step; a menu stays at Medium.
+  for (const where of ['content', 'fixed'])
+    for (const part of ['button', 'chip', 'segment', 'field', 'row'])
+      expect(
+        `${part} in ${where} is ${large[`${where}/${part}`][0]} / ${medium[`${where}/${part}`][0]} / ${small[`${where}/${part}`][0]} px, not the same at every step`,
+        large[`${where}/${part}`][0] === medium[`${where}/${part}`][0] && medium[`${where}/${part}`][0] === small[`${where}/${part}`][0],
+      );
+  expect(
+    `a menu item changes with the step (${large['screen/menu-item'][0]} / ${medium['screen/menu-item'][0]} / ${small['screen/menu-item'][0]} px): it must not get denser than Medium`,
+    small['screen/menu-item'][0] === medium['screen/menu-item'][0],
+  );
+  await page.close();
+}
+
 /** The density variables (theme/styles/base.css) work in the browser: a person's step (data-density on <html>) and a theme's step add up, each group clamps them, and a part's calc() gives its default at 0 and 4px per step. */
 async function checkDensity(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
@@ -4360,6 +4438,8 @@ await checkFooterTargets(false);
 await checkToolbarBox();
 await checkDensity(375, 740);
 await checkDensity(1280, 900);
+await checkDensityParts(375, 740, true);
+await checkDensityParts(1280, 900, false);
 await checkDensitySetting(375, 740);
 await checkDensitySetting(1280, 900);
 await checkPreviewSection();
