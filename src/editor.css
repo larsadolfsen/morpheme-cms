@@ -1569,3 +1569,30 @@ dialog {
   align-items: center;
   gap: 0.5rem;
 }
+
+/* The select-all box of the swapped top bar (SelectionBar.tsx): a 48 px target with its name after it, only the box on a
+   phone (the name stays for a screen reader). */
+.selection-bar-all {
+  align-items: center;
+  min-height: 3rem;
+  min-width: 3rem;
+  padding-inline: 0.5rem 0.75rem;
+  border-radius: var(--mo-shape-full);
+}
+.selection-bar-all .checkbox-box {
+  margin: 0;
+}
+@media (max-width: 599.98px) {
+  .selection-bar-all .checkbox-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .selection-bar-all {
+    gap: 0;
+    padding-inline: 0.5rem;
+  }
+}
