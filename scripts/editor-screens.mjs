@@ -2185,12 +2185,11 @@ async function checkNewList(width, height, label) {
     await field.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Bottom line choice did not open`));
     await field.locator('button.text-field-input').first().click();
     const offered = await page.evaluate(() => {
-      // The open choice: the last visible menu or list of options on the page.
-      const menus = [...document.querySelectorAll('[role="listbox"], [role="menu"]')].filter((m) => m.getClientRects().length);
-      const menu = menus[menus.length - 1];
-      return menu
-        ? [...menu.querySelectorAll('[role="menuitem"], [role="option"], [role="menuitemradio"]')].map((o) => o.textContent.trim())
-        : [];
+      // The open choice is labelled with the field's name (Field shown), as a menu or a sheet of options.
+      const choices = [...document.querySelectorAll('[aria-label="Field shown"]')].flatMap((m) =>
+        [...m.querySelectorAll('[role="menuitem"], [role="option"], [role="menuitemradio"], li')].map((o) => o.textContent.trim()),
+      );
+      return choices;
     });
     if (!offered.includes('Body text') || !offered.includes('Body text 2') || offered.includes('Image'))
       problems.push(`${label}: the Bottom line offers the wrong fields (${offered})`);
