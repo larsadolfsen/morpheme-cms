@@ -4,9 +4,7 @@
 // buttons of its own shows the default ones, as the site does; a tap on them starts its own first button. The parts, the keys and what is kept
 // are InlineItems.tsx and src/inlineRows.mjs; `Add button`, the faded empty button and the dotted line are as in the List.
 import { t } from './i18n';
-import { Plus } from '@phosphor-icons/react';
-import { Glyph } from './icon';
-import InlineItems, { InlineSlot } from './InlineItems';
+import InlineItems, { InlineIcon } from './InlineItems';
 import type { InlineViewProps } from './inlineViews';
 import Buttons from '@theme/blocks/buttons/Buttons';
 import { buttonClass } from '@theme/ui/Button';
@@ -55,16 +53,14 @@ export default function InlineButtons({ items, data, active, focus, onChange, on
               .filter(Boolean)
               .join(' ')}
           >
-            {/* The active button has its icon slot, empty or not (its picker); the others their icon, as the site draws it. */}
-            {here ? (
-              <InlineSlot label={t.blocks.buttons.icon} onClick={() => onIcon(i)}>
-                {icon ? <Glyph icon={icon} size={24} /> : <Plus size={24} />}
-              </InlineSlot>
-            ) : (
-              icon && icon !== 'arrow-right' && <Glyph icon={icon} size={20} />
+            {/* The icon is the shared control: empty (a plus) while the button is active, and its icon, a tap on which opens the picker, on any button that has one. */}
+            {(here || icon !== 'arrow-right') && (
+              <InlineIcon label={t.blocks.buttons.icon} icon={icon} here={here} size={here ? 24 : 20} onClick={() => onIcon(i)} />
             )}
             {field('label', t.blocks.buttons.text, b?.text || t.blocks.buttons.newButton)}
-            {!here && icon === 'arrow-right' && <Glyph icon={icon} size={18} className="button-trailing-icon" />}
+            {!here && icon === 'arrow-right' && (
+              <InlineIcon label={t.blocks.buttons.icon} icon={icon} here={false} size={18} onClick={() => onIcon(i)} />
+            )}
           </span>
         );
       }}

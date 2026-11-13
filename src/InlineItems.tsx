@@ -5,6 +5,9 @@
 // item. What is changed is told to `onChange`; the node view in MarkdownEditor.tsx (blockCard) keeps it as the block's props. Which item is
 // empty, and the items added, moved or dropped: src/inlineRows.mjs.
 import { useEffect, useLayoutEffect, useRef, type ClipboardEvent, type KeyboardEvent, type ReactNode } from 'react';
+import { Plus } from '@phosphor-icons/react';
+import { Glyph } from './icon';
+import { SlotButton } from './ui';
 import { SiteButton } from './themeUi';
 import { addAt, isEmptyRow, linesFromPaste, removeAt, setField } from './inlineRows.mjs';
 
@@ -56,23 +59,54 @@ export function InlineField({
   );
 }
 
-/** A button in the active item that picks what is not typed: an icon or an image (its picker), or a link (the item's settings). */
+/** A button in the active item that picks what is not typed: an icon or an image (its picker), or a link (the item's settings). It is the
+ * round control of ui.tsx (SlotButton), the one every place that picks an icon has. */
 export function InlineSlot({
   label,
   onClick,
   pressed,
+  iconColor,
   children,
 }: {
   label: string;
   onClick: () => void;
   /** One of several kinds, and the one that is chosen. */
   pressed?: boolean;
+  /** The color role of the icon it shows. */
+  iconColor?: string;
   children: ReactNode;
 }) {
   return (
-    <button type="button" className="inline-list-slot" aria-label={label} aria-pressed={pressed} title={label} onClick={onClick}>
+    <SlotButton label={label} pressed={pressed} iconColor={iconColor} onClick={onClick}>
       {children}
-    </button>
+    </SlotButton>
+  );
+}
+
+/** The icon of an item, for every block that has one: while the item is active the control is there empty (a plus) or with its icon, and
+ * on an item that has an icon, active or not, the icon is the control: one tap on it opens the icon picker (the item becomes the active
+ * one). An item with no icon that is not active shows nothing. `size` is the icon's. */
+export function InlineIcon({
+  label,
+  icon,
+  here,
+  iconColor,
+  size = 24,
+  onClick,
+}: {
+  label: string;
+  icon?: string;
+  here: boolean;
+  /** The color role of the icon (src/iconColor.ts): shown while the item is not active, as the site draws it. */
+  iconColor?: string;
+  size?: number;
+  onClick: () => void;
+}) {
+  if (!here && !icon) return null;
+  return (
+    <InlineSlot label={label} iconColor={here ? undefined : iconColor} onClick={onClick}>
+      {icon ? <Glyph icon={icon} size={size} /> : <Plus size={size} />}
+    </InlineSlot>
   );
 }
 
