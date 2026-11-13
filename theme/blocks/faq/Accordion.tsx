@@ -9,7 +9,6 @@
 import { useId } from 'react';
 import PageRow from '@theme/blocks/accordion/PageRow';
 import { Svg } from '@morphemecms/cms/src/icon';
-import { Link } from '@morphemecms/cms/src/standard/view';
 import Button from '@theme/ui/Button';
 import type { AccordionRow } from '@morphemecms/cms/src/standard/faq/view';
 
@@ -45,23 +44,21 @@ export default function Accordion({
             {'html' in row ? (
               <>
                 {row.html && <div className="block-accordion-answer" dangerouslySetInnerHTML={{ __html: row.html }} />}
-                {row.href && row.link && (
+                {(row.href && row.link) || ('buttons' in row && row.buttons) ? (
                   <div className="block-row-links">
-                    <Link href={row.href} className="block-link block-row-link">
-                      {row.link}
-                      <Svg name="arrow-right" size={18} />
-                    </Link>
-                  </div>
-                )}
-                {'buttons' in row && row.buttons && (
-                  <div className="block-row-links">
-                    {row.buttons.map((b, n) => (
-                      <Button key={n} kind="text" href={b.href}>
-                        {b.label}
+                    {row.href && row.link && (
+                      <Button kind="text" href={row.href}>
+                        {row.link}
                       </Button>
-                    ))}
+                    )}
+                    {'buttons' in row &&
+                      row.buttons?.map((b, n) => (
+                        <Button key={n} kind="text" href={b.href}>
+                          {b.label}
+                        </Button>
+                      ))}
                   </div>
-                )}
+                ) : null}
               </>
             ) : (
               <PageRow {...row.page} />
