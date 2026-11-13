@@ -506,6 +506,53 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       problems.push(`${label}: the typed fields of a card are "${fields}", not "title,subhead,text"`);
   }
   if (name === 'buttons') {
+    // An empty button's hint is the button kind's own text colour (never the page's), for every kind, and its settings offer the five kinds side by side.
+    const hint = await page.evaluate(() => {
+      const row = document.querySelector('.inline-list-row-active');
+      const field = row.querySelector('.inline-list-field');
+      const out = {};
+      const was = row.className;
+      for (const kind of ['filled', 'tonal', 'elevated', 'outlined', 'text']) {
+        row.classList.remove('button-filled', 'button-tonal', 'button-elevated', 'button-outlined', 'button-text');
+        row.classList.add(`button-${kind}`);
+        out[kind] = [getComputedStyle(field, '::placeholder').color, getComputedStyle(row).color, getComputedStyle(field).color];
+      }
+      row.className = was;
+      return out;
+    });
+    for (const [kind, [hintColor, rowColor, fieldColor]] of Object.entries(hint))
+      if (hintColor !== rowColor || fieldColor !== rowColor)
+        problems.push(`${label}: the ${kind} button's hint is ${hintColor} and its text ${fieldColor}, not its own ${rowColor}`);
+    {
+      // On a computer the toolbar's Settings; on a phone the "Button" menu's Settings.
+      if (width < 1000)
+        await page
+          .locator('.site-block-toolbar button[aria-label="Button"]')
+          .click({ timeout: 4000 })
+          .catch(() => {});
+      const link = page.locator('.site-block-toolbar [aria-label="Settings"]:visible').first();
+      await link.click({ timeout: 4000 }).catch(() => problems.push(`${label}: the toolbar has no way to open the button's settings`));
+      const kinds = ['Filled', 'Tonal', 'Elevated', 'Outlined', 'Text'];
+      const group = page.locator('[role="group"][aria-label="Style"], [aria-label="Style"]').last();
+      await group.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's settings have no Style choice`));
+      const names = await group
+        .getByRole('button')
+        .allTextContents()
+        .catch(() => []);
+      if (names.map((n) => n.trim()).join() !== kinds.join()) problems.push(`${label}: the button's styles are "${names}", not "${kinds}"`);
+      await group
+        .getByRole('button', { name: 'Outlined', exact: true })
+        .click({ timeout: 3000 })
+        .catch(() => {});
+      await page.waitForTimeout(300);
+      if (!(await page.locator('.inline-list-row-active.button-outlined').count()))
+        problems.push(`${label}: choosing Outlined does not change the active button's style`);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
+      await page.locator('.inline-list-row [data-field="label"]').first().click();
+      // The pointer is away from the button: a state layer for a button pointed at is a passing state.
+      await page.mouse.move(0, 0);
+    }
     // The active button has its icon area, empty while it has no icon; a tap on it opens the icon picker and a choice sets the icon.
     const slot = page.locator('.inline-list-row-active .inline-list-slot[aria-label="Icon"]');
     if ((await slot.count()) !== 1) problems.push(`${label}: the active button has no icon area`);
@@ -522,6 +569,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       await page.locator('.inline-list-row [data-field="label"]').first().click();
       if ((await page.locator('.inline-list-row-active .inline-list-slot[aria-label="Icon"] svg').count()) !== 1)
         problems.push(`${label}: the chosen icon is not shown in the active button's icon area`);
+      await page.mouse.move(0, 0);
     }
   }
   await page.keyboard.type('First');
