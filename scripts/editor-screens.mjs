@@ -169,7 +169,11 @@ async function pressMore(page, name, how = 'click') {
 }
 
 /** The bar's Insert (on the bar, or in the ⋮ menu when it did not fit). */
-const pressInsert = (page, how = 'click') => pressTool(page, 'Insert', how);
+async function pressInsert(page, how = 'click') {
+  const direct = page.locator('.editor-tools button[aria-label="Insert"]:visible');
+  if (await direct.count()) return void (await direct.first()[how]());
+  await pressMore(page, 'Insert block', how);
+}
 
 /** What the bar and its ⋮ menu hold now: `bar` its buttons (name, title, icon, size, pressed), `more` the rows of the ⋮ menu (opened and closed again by its button, so the cursor stays in its field). */
 async function barTools(page) {
@@ -300,7 +304,7 @@ async function checkTextBar(width = 360) {
     problems.push(`${label}: the ⋮ menu is outside the visible screen or not under its button`);
   if (menu.rows.some((x) => x.h < 43.4)) problems.push(`${label}: a row of the ⋮ menu is under 44 dp`);
   const listOnBar = inText.names.some((n) => n === 'List' || n.startsWith('List:'));
-  for (const name of [...(listOnBar ? [] : ['Bullet list', 'Check list', 'Numbered list']), 'Color', 'Insert'])
+  for (const name of [...(listOnBar ? [] : ['Bullet list', 'Check list', 'Numbered list']), 'Color', 'Insert block'])
     if (!menu.rows.some((x) => x.name === name))
       problems.push(`${label}: the ⋮ menu lacks "${name}" (${menu.rows.map((x) => x.name).join(', ')})`);
   if (!menu.rows.some((x) => x.name === 'Align left'))

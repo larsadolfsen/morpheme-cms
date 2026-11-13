@@ -1962,7 +1962,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     const { label, icon, action, on, pressed } = toolOf(id);
     return (
       <MenuItem key={id} icon={icon} selected={on ? active.includes(on) : pressed} onClick={action}>
-        {label}
+        {id === 'insert' && blocks ? t.text.insertBlock : label}
       </MenuItem>
     );
   };

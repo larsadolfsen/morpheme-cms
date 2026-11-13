@@ -19,6 +19,8 @@ export const text = {
   orderedList: 'Numbered list',
   quote: 'Quote',
   insert: 'Insert',
+  /** The Insert row of the bar's ⋮ menu (the bar's own button is just Insert). */
+  insertBlock: 'Insert block',
   image: 'Image',
   undo: 'Undo',
   redo: 'Redo',

@@ -17,6 +17,7 @@ export const text: Messages['text'] = {
   orderedList: 'Nummereret liste',
   quote: 'Citat',
   insert: 'Indsæt',
+  insertBlock: 'Indsæt blok',
   image: 'Billede',
   undo: 'Fortryd',
   redo: 'Gentag',
