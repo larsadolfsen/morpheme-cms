@@ -3912,6 +3912,23 @@ async function checkSettingsAndMenu(width, height) {
   )
     problems.push(`${label} #settings: forkerte links: ${names}`);
 
+  // Icon packs: the three system packs (Material Symbols, Phosphor, Lucide) are listed, each with its samples, and one is in use.
+  // A site takes the package from node_modules, where a glob that skips it leaves the list empty.
+  await go('appearance/icon-packs');
+  await page.waitForTimeout(150);
+  const packs = await page.evaluate(() =>
+    [...document.querySelectorAll('main [role=img][aria-label] svg')]
+      .map((svg) => svg.closest('[role=img]'))
+      .filter((el, i, all) => all.indexOf(el) === i)
+      .map((el) => ({ label: el.getAttribute('aria-label'), icons: el.querySelectorAll('svg').length })),
+  );
+  const packNames = ['Material Symbols', 'Phosphor', 'Lucide'];
+  for (const name of packNames) {
+    const found = packs.find((p) => p.label === daLibrary.iconPackSamples(name));
+    if (!found) problems.push(`${label} #appearance/icon-packs: the system pack ${name} is not listed (${packs.length} packs listed)`);
+    else if (found.icons < 1) problems.push(`${label} #appearance/icon-packs: ${name} shows no sample icons`);
+  }
+
   // The drawer's first level (in the page at both widths: the standard drawer, or the modal one, shut): no link to the moved screens.
   await go('');
   const drawerLinks = await page.evaluate(() =>
