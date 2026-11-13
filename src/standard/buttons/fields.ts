@@ -64,6 +64,7 @@ export const buttonList: Field = {
       name: 'kind',
       label: t.blocks.buttons.kind,
       type: 'select',
+      segments: true,
       required: true,
       default: 'filled',
       options: buttonKinds.map((k) => ({ label: t.blocks.buttons.kinds[k], value: k })),

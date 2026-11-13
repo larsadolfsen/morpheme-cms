@@ -79,7 +79,7 @@ export function Ask() {
           if (choices[0]) answer(choices[0].value);
         }}
       >
-        {question?.title && <h2 className="mb-2 text-lg font-medium">{question.title}</h2>}
+        {question?.title && <h2 className="mb-2 text-body-large font-medium">{question.title}</h2>}
         {!!question?.notes?.length && (
           <div className="-mx-6 max-h-[50vh] space-y-4 overflow-y-auto px-6">
             {question.notes.map((n) => (

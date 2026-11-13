@@ -267,7 +267,7 @@ export const blocks: Messages['blocks'] = {
     hrefHint: 'Når knappen fører til en side.',
     kind: 'Stil',
     /** The kinds of a button, as Material 3 names them (buttonKinds). */
-    kinds: { filled: 'Fyldt', tonal: 'Tonet', elevated: 'Hævet', outlined: 'Med ramme', text: 'Kun tekst' },
+    kinds: { filled: 'Fyldt', tonal: 'Tonet', elevated: 'Hævet', outlined: 'Med ramme', text: 'Tekst' },
     icon: 'Ikon',
     iconHint: 'Pilen vises efter teksten, de øvrige ikoner foran.',
     arrow: 'Pil',

@@ -74,35 +74,6 @@ export const allow = [
     line: /--badge-(ok|minor|major)/,
     reason: 'status badges: Material 3 has no success or warning role',
   },
-  // todo: each group has its own fix pull request.
-  {
-    kind: 'fixed-colour',
-    file: /^theme\/styles\/ui\.css$/,
-    line: /snackbar/,
-    reason: 'todo (snackbar fallbacks): use the inverse roles',
-    todo: true,
-  },
-  {
-    kind: 'fixed-colour',
-    file: /^theme\/styles\/blocks\.css$/,
-    line: /^\s*--block-/,
-    reason: 'todo (block fallback palette): use the roles',
-    todo: true,
-  },
-  {
-    kind: 'fixed-colour',
-    file: /^worker\/mcp-oauth\.js$/,
-    line: any,
-    reason: 'todo (the sign-in page of the AI connection has its own fixed palette)',
-    todo: true,
-  },
-  {
-    kind: 'state-layer',
-    file: /^theme\/styles\/ui\.css$/,
-    line: /segmented-(hover|pressed)|tab-(hover|pressed)/,
-    reason: "todo (state layers): hover is Material's 8%",
-    todo: true,
-  },
   {
     kind: 'state-layer',
     file: /^src\/pagePreview\.tsx$/,

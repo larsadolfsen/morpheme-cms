@@ -290,7 +290,7 @@ export const blocks = {
     hrefHint: 'When the button leads to a page.',
     kind: 'Style',
     /** The kinds of a button, as Material 3 names them (buttonKinds). */
-    kinds: { filled: 'Filled', tonal: 'Tonal', elevated: 'Elevated', outlined: 'Outlined', text: 'Text only' },
+    kinds: { filled: 'Filled', tonal: 'Tonal', elevated: 'Elevated', outlined: 'Outlined', text: 'Text' },
     icon: 'Icon',
     iconHint: 'The arrow is shown after the text, the other icons before it.',
     arrow: 'Arrow',

@@ -435,6 +435,90 @@ async function checkListMarkers(width) {
   await page.close();
 }
 
+/** A block put in a list item, or after a list, is a block of the page (never indented in the list), and Backspace at the start of a list item leaves the list. */
+async function checkListsAndBlocks(width) {
+  const label = `${width}px text lists`;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('- one');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('two');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('three');
+  await page.waitForTimeout(300);
+  const tops = () =>
+    page.evaluate(() =>
+      [...document.querySelector('.ProseMirror').children].map(
+        (c) => c.tagName.toLowerCase() + (c.matches('.site-block, [data-site-block]') || c.querySelector('.site-block') ? ':block' : ''),
+      ),
+    );
+  if ((await tops()).join() !== 'ul') {
+    problems.push(`${label}: typing "- " does not start a list (${await tops()})`);
+    return page.close();
+  }
+  // Backspace at the start of the second item takes it out of the list: a paragraph between two lists.
+  await page.locator('.ProseMirror li > p').nth(1).click();
+  await page.keyboard.press('Home');
+  // The editor reads the moved cursor from the page a moment later.
+  await page.waitForTimeout(150);
+  await page.keyboard.press('Backspace');
+  const left = (await tops()).join();
+  if (left !== 'ul,p,ul') problems.push(`${label}: Backspace at the start of a list item gives ${left}, not ul,p,ul`);
+  await page.keyboard.press('Control+z');
+  // A list item is not a heading, so the heading controls are not offered in a list, on the first line or under the arrow.
+  if (await page.locator('[aria-label="Show more tools"]:visible').count())
+    await page.locator('[aria-label="Show more tools"]:visible').first().click();
+  const offered = await page
+    .locator('.editor-tools button:visible')
+    .evaluateAll((b) => b.map((x) => x.getAttribute('aria-label')).filter((n) => /^(Page heading|Heading|Subheading)\b/.test(n ?? '')));
+  if (offered.length) problems.push(`${label}: the toolbar offers ${offered.join(', ')} in a list item`);
+  // A text size picked in a list keeps the list: the text of the item gets the size (a span), and Body medium takes it away.
+  await page.locator('.ProseMirror li > p').nth(0).click();
+  const pick = async (name) => {
+    const direct = page.locator(`.editor-tools [aria-label="${name}"]:visible`);
+    if (await direct.count()) await direct.first().click();
+    else {
+      await page.locator('.editor-tools [aria-label^="Text style"]:visible').first().click();
+      await page.locator('[role=menu] button, [role=menuitem], [role=menuitemradio]').filter({ hasText: name }).first().click();
+    }
+  };
+  await pick('Body small');
+  const sized = await page.locator('.ProseMirror ul li span.body-small').count();
+  if (sized !== 1 || (await tops()).join() !== 'ul')
+    problems.push(`${label}: Body small in a list item gives ${sized} sized items and ${await tops()}, not 1 and ul`);
+  await pick('Body medium');
+  if (await page.locator('.ProseMirror ul li span.body-small').count())
+    problems.push(`${label}: Body medium in a list item leaves its size`);
+  if (await page.locator('[aria-label="Show fewer tools"]:visible').count())
+    await page.locator('[aria-label="Show fewer tools"]:visible').first().click();
+  // A block inserted in the first item ends the list there, at the top level, and the rest follows it.
+  await page.locator('.ProseMirror li > p').nth(0).click();
+  await page.keyboard.press('End');
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().click();
+  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await page.locator('dialog[open] button', { hasText: 'Numbered steps.' }).first().click();
+  await page.waitForSelector('.ProseMirror .site-block, .ProseMirror [data-site-block]', { timeout: 8000 }).catch(() => {});
+  const shape = await page.evaluate(() =>
+    [...document.querySelector('.ProseMirror').children].map((c) =>
+      c.tagName === 'UL'
+        ? `ul${c.querySelectorAll(':scope > li').length}`
+        : c.className.includes('site-block') || c.querySelector('.site-block')
+          ? 'block'
+          : c.tagName.toLowerCase(),
+    ),
+  );
+  const joined = shape.join();
+  if (!/^ul1,block(,p)?,ul\d$/.test(joined))
+    problems.push(`${label}: a block inserted in a list item is not at the top level of the page (${joined})`);
+  if (await page.locator('.ProseMirror li .site-block').count()) problems.push(`${label}: a block is drawn inside a list item`);
+  await page.close();
+}
+
 /** The Preview (the binoculars) draws a section's background from the page's text as saved, also when the built site does not have the section yet (it is rebuilt after a save), and with the colour the editor shows. */
 async function checkPreviewSection() {
   const path = 'src/content/pages/about.md';
@@ -632,6 +716,137 @@ const inlineSingles = [
   { name: 'video', hint: 'A YouTube or Vimeo video.', field: 'title', text: 'My film', slot: true },
 ];
 
+/** An empty row in a block typed in place (the Segmented list's "New row" left empty) is not a snackbar and a page that cannot be saved: Save draft or Publish scrolls to the block and asks (375 px, touch): "You have an empty segmented list row." with Remove item (the row goes, nothing is saved), the action tapped (the page is saved without the empty rows) and Cancel (nothing changes). A page without an empty row saves as before, with no question. */
+async function checkEmptyRow(width, height) {
+  const label = `${width}px empty row`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  const commits = [];
+  await page.route('**/api/github/commit', (r) => {
+    commits.push(JSON.parse(r.request().postData() || '{}'));
+    return r.fulfill({ contentType: 'application/json', body: JSON.stringify({ commit: 'head', blobs: {} }) });
+  });
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
+  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await page.locator('dialog[open] button', { hasText: 'Rows that expand, with a link.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  const dialog = page.locator('dialog[open]');
+  const rows = () => page.locator('.inline-list-row[data-row]:not(.inline-list-row-next)').count();
+  const blocks = () => page.locator('.site-block-inline').count();
+  // A tap on the bar's button; `keys`: the button pressed with the cursor still in the block (a key, not a tap), so the empty row is still there.
+  const press = async (name, keys) => {
+    const button = page.getByRole('button', { name, exact: true }).first();
+    if (keys) await button.evaluate((b) => b.click());
+    else await button.tap();
+    await page.waitForTimeout(700);
+  };
+  const buttons = () => dialog.getByRole('button').allTextContents();
+  const sayOf = () => dialog.locator('p').first().textContent();
+  const sent = (n) => commits.slice(n).flatMap((c) => c.changes.map((x) => Buffer.from(x.content ?? '', 'base64').toString('utf8')));
+  // The block has no row at all (the faded "New row", left empty): Publish asks to delete the block, with the block marked and in view.
+  await press('Publish');
+  if (!(await dialog.count())) problems.push(`${label}: a block with no row on Publish did not open a dialog`);
+  else {
+    if ((await sayOf()) !== 'Segmented list has no rows. The block will be deleted.')
+      problems.push(`${label}: the dialog says "${await sayOf()}"`);
+    const got = await buttons();
+    if (got.join('|') !== 'Cancel|Delete and publish')
+      problems.push(`${label}: the dialog has "${got.join('|')}", not "Cancel|Delete and publish"`);
+    const kinds = await dialog.getByRole('button').evaluateAll((b) => b.map((x) => x.className));
+    if (kinds.length !== 2 || kinds[0] === kinds[1]) problems.push(`${label}: the main choice is not the only filled button`);
+    if (await dialog.locator('button:focus').count()) problems.push(`${label}: a button has the focus`);
+    const marked = await page.evaluate(() => {
+      const el = document.querySelector('.editor-wrong');
+      const r = el?.getBoundingClientRect();
+      return !!el && r.bottom > 0 && r.top < innerHeight;
+    });
+    if (!marked) problems.push(`${label}: the block is not marked and in view behind the dialog`);
+    await page.screenshot({ path: join(shots, `empty-block-${width}.png`) });
+    // Cancel closes it and changes nothing.
+    await dialog.getByRole('button', { name: 'Cancel' }).tap();
+    await page.waitForTimeout(300);
+    if ((await dialog.count()) || commits.length || (await blocks()) !== 1)
+      problems.push(`${label}: Cancel changed something (commits ${commits.length}, blocks ${await blocks()})`);
+    // Delete and publish: the block goes and the page is saved without it.
+    await press('Publish');
+    await dialog.getByRole('button', { name: 'Delete and publish' }).tap();
+    await page.waitForTimeout(1200);
+    if ((await dialog.count()) || !commits.length || (await blocks()) !== 0 || /data-block/.test(sent(0).join('\n')))
+      problems.push(
+        `${label}: Delete and publish left ${await blocks()} blocks, ${commits.length} commits, dialog ${await dialog.count()}`,
+      );
+  }
+  // A list with an empty row between its rows: Remove item takes that row, Save draft saves without it.
+  const first = commits.length;
+  const makeList = async () => {
+    await page.click('.ProseMirror > p');
+    await page.keyboard.press('Enter');
+    if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+      await page.locator('[aria-label="Show more tools"]:visible').first().tap();
+    await page.locator('[aria-label="Insert"]:visible').first().tap();
+    await page.locator('dialog[open] button', { hasText: 'Rows that expand, with a link.' }).first().click();
+    await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+    await page.keyboard.type('First');
+    for (const word of ['Second', 'Third']) {
+      await page.locator('[data-add-row]').tap();
+      await page.waitForTimeout(200);
+      await page.keyboard.type(word);
+    }
+    // The middle row is emptied (Delete, not Backspace, which would drop an empty row).
+    await page.locator('.inline-list-row[data-row="1"] [data-field="title"]').click();
+    await page.keyboard.press('Control+A');
+    await page.keyboard.press('Delete');
+    await page.waitForTimeout(200);
+  };
+  await makeList();
+  if ((await rows()) !== 3) problems.push(`${label}: expected 3 rows before saving, got ${await rows()}`);
+  await press('Save draft', true);
+  if (!(await dialog.count())) problems.push(`${label}: an empty row between rows on Save draft did not open a dialog`);
+  else {
+    const got = await buttons();
+    if (got.join('|') !== 'Remove item|Save draft|Cancel')
+      problems.push(`${label}: the dialog has "${got.join('|')}", not "Remove item|Save draft|Cancel"`);
+    await dialog.getByRole('button', { name: 'Remove item' }).tap();
+    await page.waitForTimeout(400);
+    if (commits.length !== first || (await rows()) !== 2 || (await blocks()) !== 1)
+      problems.push(`${label}: Remove item left ${await rows()} rows (not 2), ${commits.length} commits`);
+  }
+  // Saved as it is now: no question, and no empty row in the file.
+  await press('Save draft', true);
+  if (await dialog.count()) problems.push(`${label}: a list without an empty row still asked`);
+  if (commits.length === first) problems.push(`${label}: a list without an empty row was not saved`);
+  else if (/"title":""/.test(sent(first).join('\n'))) problems.push(`${label}: the saved page has an empty row`);
+  // An empty row again, and the third button: the page is saved with the row left out, and the list in the editor has two.
+  const before = commits.length;
+  await page
+    .locator('[data-add-row]')
+    .count()
+    .catch(() => 0);
+  await page.locator('.inline-list-row[data-row="0"] [data-field="title"]').click();
+  await page.keyboard.type(' again');
+  await page.locator('[data-add-row]').tap();
+  await page.waitForTimeout(300);
+  if ((await rows()) !== 3) problems.push(`${label}: expected 3 rows with a new empty one, got ${await rows()}`);
+  await press('Save draft', true);
+  if (!(await dialog.count())) problems.push(`${label}: the new empty row did not open the dialog`);
+  else {
+    await dialog.getByRole('button', { name: 'Save draft' }).tap();
+    await page.waitForTimeout(1200);
+    if (commits.length === before) problems.push(`${label}: Save draft in the dialog saved nothing`);
+    else if (/"title":""/.test(sent(before).join('\n'))) problems.push(`${label}: Save draft in the dialog saved the empty row`);
+    if ((await rows()) !== 2) problems.push(`${label}: after Save draft in the dialog the list has ${await rows()} rows, not 2`);
+  }
+  await page.close();
+}
+
 /** Insert of every block typed in place (the lists above and the Table) puts the block in the text, on an empty page and after a line of text: it never opens a sheet. A new typed-in-place block goes in `inlineBlocks`, `inlineSingles` or here. */
 async function checkInsertNeverOpensSheet(width, height) {
   const phone = width < 600;
@@ -713,6 +928,131 @@ async function checkInlineSingle(width, height, { name, hint, field, text, slot 
   await page.close();
 }
 
+/** Every block that picks an icon has the same control for it (the round button of ui.tsx, SlotButton): a plus while the row is active and has none, the icon once it
+ * has one, and a tap on the icon of a row that is not the active one opens the icon picker for that row and makes it the active one, in one tap. */
+async function checkIconSlots(width, height, { name, hint, field = 'title' }) {
+  const label = `${width}px icon control in ${name}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().click();
+  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await page.locator('dialog[open] button', { hasText: hint }).first().click();
+  await page.waitForSelector(`.inline-list-row-active [data-field="${field}"]`, { timeout: 8000 });
+  await page.keyboard.type('One');
+  await page.waitForTimeout(300);
+  await page.locator('[data-add-row]').click();
+  await page.waitForTimeout(300);
+  await page.keyboard.type('Two');
+  await page.waitForTimeout(300);
+  const slotOf = (row) => page.locator(`[data-row="${row}"] .inline-list-slot[aria-label="Icon"]`);
+  // A card that has its media shows it as the button (a tap on it opens the picker); the other blocks show the round control.
+  const controlOf = (row) => (name === 'cards' ? page.locator(`[data-row="${row}"] .inline-card-media`) : slotOf(row));
+  // The active row has the control, empty: a plus, as a round button.
+  if ((await slotOf(1).count()) !== 1) problems.push(`${label}: the active row has no icon control`);
+  else if (!(await slotOf(1).evaluate((b) => b.tagName === 'BUTTON' && b.querySelectorAll('svg').length === 1)))
+    problems.push(`${label}: the icon control of the active row is not a button with its plus`);
+  if (await slotOf(0).count()) problems.push(`${label}: a row with no icon that is not active shows an icon control`);
+  // The first row gets an icon from its own control.
+  await page.locator(`[data-row="0"] [data-field="${field}"]`).click();
+  await slotOf(0).click();
+  const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
+  await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon control did not open the icon picker`));
+  await picker.getByRole('button').nth(1).click();
+  await page.waitForTimeout(400);
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  // Another row is active: the first row's icon is still the control, and one tap on it opens the picker and makes that row active.
+  await page.locator(`[data-row="1"] [data-field="${field}"]`).click();
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[data-row="1"].inline-list-row-active').count())) problems.push(`${label}: the second row is not active`);
+  if ((await controlOf(0).count()) !== 1) problems.push(`${label}: a row with an icon that is not active has no icon control`);
+  else {
+    await controlOf(0).click();
+    await page.waitForTimeout(400);
+    if (
+      !(await page
+        .getByRole('group', { name: 'Icon', exact: true })
+        .last()
+        .isVisible()
+        .catch(() => false))
+    )
+      problems.push(`${label}: a tap on the icon of a row that is not active does not open the icon picker`);
+    if (!(await page.locator('[data-row="0"].inline-list-row-active').count()))
+      problems.push(`${label}: a tap on the icon of a row that is not active does not make it the active row`);
+  }
+  await page.close();
+}
+
+/** A Segmented list whose rows are always open draws an arrow on a closed row that has a link; tapping it makes that row active and opens the row's link settings in one tap. */
+async function checkSegmentedArrow(width, height) {
+  const label = `${width}px inline segmented arrow`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().click();
+  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await page.locator('dialog[open] button', { hasText: 'Rows that expand, with a link.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]', { timeout: 8000 });
+  await page.keyboard.type('First');
+  await page.waitForTimeout(300);
+  // Row 1 gets a page (its link), in the row's settings.
+  if (phone) await page.locator('.contextual-menu button[aria-label="Edit"]').first().click();
+  await page.locator('[aria-label="Row settings"] button.text-field-input, .editor-side-sheet button.text-field-input').first().click();
+  await page.getByText('About Morpheme', { exact: true }).locator('visible=true').last().click();
+  await page.waitForTimeout(400);
+  if (phone) await page.locator('dialog[open] [aria-label="Close"]').first().click();
+  await page.waitForTimeout(400);
+  // The rows are always open ("Always open" in the block's settings), so a closed row draws its arrow.
+  await page.locator('.contextual-menu button[aria-label="Segmented list"]').first().click();
+  await page.locator('.site-block-menu button[aria-label="Edit"]').click();
+  await page.waitForTimeout(600);
+  await page.getByText('Always open', { exact: true }).locator('visible=true').last().click();
+  await page.getByRole('button', { name: 'Save', exact: true }).locator('visible=true').last().click();
+  await page.waitForTimeout(500);
+  await page.click('[data-add-row]');
+  await page.keyboard.type('Second');
+  await page.click('[data-add-row]');
+  await page.keyboard.type('Third');
+  await page.waitForTimeout(400);
+  const arrows = await page.evaluate(() => ({
+    row: [...document.querySelectorAll('.inline-list-row[data-row]:not(.inline-list-row-next)')].map(
+      (r) => r.querySelectorAll('[data-row-arrow]').length,
+    ),
+    name: document.querySelector('[data-row-arrow]')?.getAttribute('aria-label'),
+    tag: document.querySelector('[data-row-arrow]')?.tagName,
+  }));
+  if (arrows.row.join() !== '1,0,0')
+    problems.push(`${label}: the arrows by row are ${arrows.row}, not 1,0,0 (only a closed row with a link has one)`);
+  if (arrows.tag !== 'BUTTON' || arrows.name !== 'Link')
+    problems.push(`${label}: the arrow is a ${arrows.tag} named "${arrows.name}", not a button named "Link"`);
+  if (process.env.SHOTS_FULL) await page.screenshot({ path: `${process.env.SHOTS_FULL}-segmented-arrow-${width}.png` });
+  // One tap on the arrow: row 1 is the active one and its link settings are open (the sheet on a phone, the side panel on a computer).
+  await page.locator('[data-row="0"] [data-row-arrow]').click();
+  await page.waitForTimeout(600);
+  const tapped = await page.evaluate(() => document.querySelector('.inline-list-row-active')?.dataset.row);
+  if (tapped !== '0') problems.push(`${label}: the arrow did not make its row active (row ${tapped})`);
+  const settings = phone ? page.locator('dialog[open][aria-label="Row settings"]') : page.locator('.editor-side-sheet');
+  if (!(await settings.getByText('Page', { exact: true }).count()) || !(await settings.getByText('About Morpheme').count()))
+    problems.push(`${label}: the arrow did not open the row's link settings with its page`);
+  await page.close();
+}
 /** `surface`: the item is a card with a container of its own, so it has a background colour. `start`: how many empty, faded items a new block starts with (the first active; typing in one makes the first item, and the others go). */
 async function checkInlineBlock(
   width,
@@ -764,6 +1104,68 @@ async function checkInlineBlock(
     );
     if (fields.join() !== 'title,subhead,text')
       problems.push(`${label}: the typed fields of a card are "${fields}", not "title,subhead,text"`);
+  }
+  if (name === 'buttons') {
+    // An empty button's hint is the button kind's own text colour (never the page's), for every kind, and its settings offer the five kinds side by side.
+    const hint = await page.evaluate(() => {
+      const row = document.querySelector('.inline-list-row-active');
+      const field = row.querySelector('.inline-list-field');
+      const out = {};
+      const was = row.className;
+      for (const kind of ['filled', 'tonal', 'elevated', 'outlined', 'text']) {
+        row.classList.remove('button-filled', 'button-tonal', 'button-elevated', 'button-outlined', 'button-text');
+        row.classList.add(`button-${kind}`);
+        out[kind] = [getComputedStyle(field, '::placeholder').color, getComputedStyle(row).color, getComputedStyle(field).color];
+      }
+      row.className = was;
+      return out;
+    });
+    for (const [kind, [hintColor, rowColor, fieldColor]] of Object.entries(hint))
+      if (hintColor !== rowColor || fieldColor !== rowColor)
+        problems.push(`${label}: the ${kind} button's hint is ${hintColor} and its text ${fieldColor}, not its own ${rowColor}`);
+    {
+      // The contextual menu's Settings, a plain icon button on a computer and a phone.
+      const link = page.locator('.contextual-menu [aria-label="Settings"]:visible').first();
+      await link.click({ timeout: 4000 }).catch(() => problems.push(`${label}: the toolbar has no way to open the button's settings`));
+      const kinds = ['Filled', 'Tonal', 'Elevated', 'Outlined', 'Text'];
+      const group = page.locator('[role="group"][aria-label="Style"], [aria-label="Style"]').last();
+      await group.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's settings have no Style choice`));
+      const names = await group
+        .getByRole('button')
+        .allTextContents()
+        .catch(() => []);
+      if (names.map((n) => n.trim()).join() !== kinds.join()) problems.push(`${label}: the button's styles are "${names}", not "${kinds}"`);
+      await group
+        .getByRole('button', { name: 'Outlined', exact: true })
+        .click({ timeout: 3000 })
+        .catch(() => {});
+      await page.waitForTimeout(300);
+      if (!(await page.locator('.inline-list-row-active.button-outlined').count()))
+        problems.push(`${label}: choosing Outlined does not change the active button's style`);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
+      await page.locator('.inline-list-row [data-field="label"]').first().click();
+      // The pointer is away from the button: a state layer for a button pointed at is a passing state.
+      await page.mouse.move(0, 0);
+    }
+    // The active button has its icon area, empty while it has no icon; a tap on it opens the icon picker and a choice sets the icon.
+    const slot = page.locator('.inline-list-row-active .inline-list-slot[aria-label="Icon"]');
+    if ((await slot.count()) !== 1) problems.push(`${label}: the active button has no icon area`);
+    else {
+      if ((await slot.locator('svg').count()) !== 1) problems.push(`${label}: the empty icon area has no placeholder`);
+      await slot.click();
+      const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
+      await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon area did not open the icon picker`));
+      await picker.getByRole('button').nth(1).click();
+      await page.waitForTimeout(400);
+      // The sheet that is left open (a phone's) is closed to get back to the button.
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(400);
+      await page.locator('.inline-list-row [data-field="label"]').first().click();
+      if ((await page.locator('.inline-list-row-active .inline-list-slot[aria-label="Icon"] svg').count()) !== 1)
+        problems.push(`${label}: the chosen icon is not shown in the active button's icon area`);
+      await page.mouse.move(0, 0);
+    }
   }
   await page.keyboard.type('First');
   await page.waitForTimeout(300);
@@ -1475,7 +1877,7 @@ async function checkIconColor(width, height) {
     probe.style.color = 'var(--mo-primary)';
     const primary = getComputedStyle(probe).color;
     probe.remove();
-    return { row: !!row, icon: row ? getComputedStyle(row.querySelector('.list-item-leading-icon')).color : null, want, primary };
+    return { row: !!row, icon: row ? getComputedStyle(row.querySelector('.inline-list-slot')).color : null, want, primary };
   });
   if (!drawn.row) problems.push(`${label}: the row has no data-icon-color="secondary" after Secondary was picked`);
   else if (drawn.icon !== drawn.want) problems.push(`${label}: the icon is ${drawn.icon}, not the secondary color ${drawn.want}`);
@@ -2585,12 +2987,28 @@ for (const [width, height] of [
   await checkCardsCarousel(width, height);
   await checkIconColor(width, height);
 }
+for (const [width, height] of [
+  [375, 740],
+  [1280, 900],
+])
+  for (const name of ['list', 'segmented', 'buttons', 'cards'])
+    await checkIconSlots(
+      width,
+      height,
+      inlineBlocks.find((b) => b.name === name),
+    );
 for (const block of inlineBlocks) await checkInlineBlock(375, 740, block);
 // On a computer too: the row's settings are in the side panel at once (a card's: its page and its buttons).
 for (const block of inlineSingles) for (const w of [375, 1280]) await checkInlineSingle(w, w < 600 ? 740 : 900, block);
 for (const block of inlineBlocks) await checkInlineBlock(1280, 900, block);
+for (const [w, h] of [
+  [375, 740],
+  [1280, 900],
+])
+  await checkSegmentedArrow(w, h);
 for (const block of liveLists) for (const w of [375, 1280]) await checkLiveList(w, w < 600 ? 740 : 900, block);
 await checkInsertNeverOpensSheet(375, 740);
+await checkEmptyRow(375, 740);
 await checkInsertNeverOpensSheet(1280, 900);
 for (const [width, height] of [
   [375, 740],
@@ -2631,6 +3049,7 @@ await checkToolbarBox();
 await checkPreviewSection();
 await checkFullSection();
 for (const w of [375, 1280]) await checkListMarkers(w);
+for (const w of [375, 1280]) await checkListsAndBlocks(w);
 for (const w of [360, 375, 390, 414]) await checkPreviewDraft(w);
 
 await browser.close();

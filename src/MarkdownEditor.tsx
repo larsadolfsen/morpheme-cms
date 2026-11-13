@@ -66,7 +66,8 @@ import {
   TextT,
 } from '@phosphor-icons/react';
 import { LIST_KINDS, STYLE_KINDS, headingKindOf, listKindOf, styleKindOf } from './styleKind.mjs';
-import { HTML, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
+import { sizeListText, sizeOfList } from './listSize.mjs';
+import { HTML, insertBlock, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
 import { firstHeading, topHeadings } from './firstHeading.mjs';
 import { h1Of, h1TextOf, h1Written } from './titleH1.mjs';
 import { headingChoices } from '../lib/heading-levels.mjs';
@@ -86,6 +87,7 @@ import { describe, htmlBlock, type BlockProps } from './blocks';
 import { RowsFromList } from './InlineList';
 import { typedInPlace } from './typedInPlace.mjs';
 import type { Change, Focus, Item as Row } from './InlineItems';
+import { leaveOut } from './pageEmptyRows';
 import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
 import { addColumnAt, addRowAt, removeColumnAt, removeRowAt, trimmed } from './inlineGrid.mjs';
 import { editorRows } from './standard/rows/view';
@@ -146,6 +148,10 @@ export type MarkdownHandle = {
   setH1: (text: string) => void;
   /** Whether the text has nothing but its H1 and blocks: no other text, so a title typed may write the H1. */
   bare: () => boolean;
+  /** Scrolls to the block (its number among the text's blocks) and marks it as wrong, as a field is (`.editor-wrong`), until the next try. */
+  showBlock: (at: number) => void;
+  /** Leaves the empty rows out of the block (its number), or of every block without one (emptyRows.mjs); a block left with no row it must have is removed. */
+  removeEmptyRows: (at?: number) => void;
 };
 
 // addImage: asks for an image (the gallery, Media.tsx); its address on the site. Its description is
@@ -656,6 +662,11 @@ export function activeOf(state: EditorView['state']): Set<string> {
     if ($from.parent.attrs.align === 'center' || $from.parent.attrs.align === 'right') on.add(`align-${$from.parent.attrs.align}`);
   }
   if (ancestors.includes('bullet_list')) on.add(isCheckItem(state) ? 'check' : 'bullet');
+  // The size of the text of a list item (the mark textSize): small, large, or medium when it has none.
+  if (inListItem(state)) {
+    const size = sizeOfList(state);
+    on.add(size ?? 'medium');
+  }
   if (ancestors.includes('ordered_list')) on.add('ordered');
   if (ancestors.includes('blockquote')) on.add('quote');
   if ($from.parent.type.name === 'paragraph' && !on.has('bullet') && !on.has('check') && !on.has('ordered') && !on.has('quote'))
@@ -667,6 +678,13 @@ export function activeOf(state: EditorView['state']): Set<string> {
     if (section.color) on.add(`section-${section.color}`);
   }
   return on;
+}
+
+// Whether the cursor is in a list item of any kind: a list item is not a heading, so the heading controls are not offered there.
+function inListItem(state: EditorView['state']) {
+  const { $from } = state.selection;
+  for (let d = $from.depth; d > 0; d--) if ($from.node(d).type.name === 'list_item') return true;
+  return false;
 }
 
 // Whether the cursor is in an item of a check list (a list item with a box, `- [ ]`).
@@ -881,7 +899,7 @@ function selectionMenu(ctx: Ctx, h1: boolean, kinds: (button: HTMLElement, group
             if (heading(view.state, level)) run(turnIntoTextCommand);
             else run(wrapInHeadingCommand, level);
           },
-          off: (s) => levels(s).length > 1,
+          off: (s) => levels(s).length > 1 || inListItem(s),
         },
         // The headings offered, in a menu: a plain H (the menu marks the level there is, the button's name says it). Not
         // marked: it is the one control that shows the heading's level.
@@ -894,7 +912,7 @@ function selectionMenu(ctx: Ctx, h1: boolean, kinds: (button: HTMLElement, group
             };
           },
           action: (button) => kinds(button, 'headings'),
-          off: (s) => levels(s).length < 2,
+          off: (s) => levels(s).length < 2 || inListItem(s),
           menu: true,
         },
         // The rest, in a sheet from the bottom.
@@ -1182,8 +1200,9 @@ function blockCard(
                 );
             }}
             onIcon={(row) => {
-              // The row's icon slot: the icon picker at once, not the settings.
+              // The row's icon slot, also on a row that is not active: the row becomes the active one and its icon picker opens at once, not the settings.
               iconOf = row;
+              if (active !== row) change({ active: row, focus: null });
               syncRow(true);
             }}
           />,
@@ -1779,6 +1798,36 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         });
         return bare;
       }),
+    showBlock: (at) =>
+      editor.current?.action((ctx) => {
+        const view = ctx.get(editorViewCtx);
+        let n = -1;
+        view.state.doc.forEach((node, pos) => {
+          if (node.type.name !== 'siteBlock' || ++n !== at) return;
+          const el = view.nodeDOM(pos);
+          if (!(el instanceof HTMLElement)) return;
+          for (const old of view.dom.querySelectorAll('.editor-wrong')) old.classList.remove('editor-wrong');
+          void el.offsetWidth;
+          el.classList.add('editor-wrong');
+          el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+        });
+      }),
+    removeEmptyRows: (at) =>
+      editor.current?.action((ctx) => {
+        const view = ctx.get(editorViewCtx);
+        let tr = view.state.tr;
+        let n = -1;
+        // From the end, so the places of the blocks before it stay.
+        const blocks: { pos: number; node: Node; at: number }[] = [];
+        view.state.doc.forEach((node, pos) => node.type.name === 'siteBlock' && blocks.push({ pos, node, at: ++n }));
+        for (const { pos, node, at: i } of blocks.reverse()) {
+          if (node.attrs.props?.hidden || (at !== undefined && at !== i)) continue;
+          const left = leaveOut(node.attrs.type, node.attrs.props);
+          if (left === undefined) continue;
+          tr = left === null ? tr.delete(pos, pos + node.nodeSize) : tr.setNodeMarkup(pos, undefined, { ...node.attrs, props: left });
+        }
+        if (tr.docChanged) view.dispatch(tr);
+      }),
     setH1: (text) =>
       editor.current?.action((ctx) => {
         const view = ctx.get(editorViewCtx);
@@ -1809,6 +1858,11 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       const outOfQuotes = () => {
         for (let i = 0; i < 10 && is('quote') && lift(view.state, view.dispatch); i++);
       };
+      // A size picked in a list item keeps the list: the text of the items has the size (a mark, lib/text-sizes.mjs).
+      if (['small', 'medium', 'large'].includes(kind) && (is('bullet') || is('check') || is('ordered'))) {
+        sizeListText(view, kind);
+        return view.focus();
+      }
       if (kind === 'label') {
         toggleLabel(view);
         return view.focus();
@@ -1961,16 +2015,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       const { state } = view;
       const node = siteBlockSchema.type(ctx).create({ type: chosen.type, props: chosen.props });
       if (typedInPlace(blocks!.list.find((b) => b.type === chosen.type))) fresh.add(chosen.props);
-      let tr = state.tr;
-      // Where the new block ends, when the cursor must be moved past it (-1: it is in text already).
-      let end = -1;
-      if (state.selection instanceof NodeSelection) {
-        tr = tr.insert(state.selection.to, node);
-        end = state.selection.to + node.nodeSize;
-      } else {
-        tr = tr.replaceSelectionWith(node);
-        if (tr.selection instanceof NodeSelection) end = tr.selection.to;
-      }
+      // At the top level of the text, never inside a list item or a quote (a block there is drawn indented and written indented).
+      // `end`: where the new block ends, when the cursor must be moved past it (-1: it is in text already).
+      let { tr, end } = insertBlock(state, node);
       if (end >= 0) {
         if (!tr.doc.resolve(end).nodeAfter?.isTextblock) tr = tr.insert(end, state.schema.nodes.paragraph.create());
         tr = tr.setSelection(TextSelection.create(tr.doc, end + 1));
@@ -1979,7 +2026,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       const chosenBlock = blocks!.list.find((b) => b.type === chosen.type);
       if (chosenBlock?.lead?.heading) {
         let at = -1;
-        tr.doc.forEach((n, offset) => void (n === node && (at = offset)));
+        tr.doc.forEach((n: Node, offset: number) => void (n === node && (at = offset)));
         if (at >= 0) {
           tr = tr.insert(at, state.schema.nodes.heading.create({ level: 2 }, state.schema.text(chosenBlock.label)));
           tr = tr.setSelection(TextSelection.create(tr.doc, at + 1, at + 1 + chosenBlock.label.length));
@@ -1990,7 +2037,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     });
   }
 
-  const all: {
+  // Not a heading control in a list item: it cannot be a heading. A text size stays: it sizes the text of the items.
+  const inList = ['bullet', 'check', 'ordered'].some((name) => active.includes(name));
+  const allTools: {
     label: string;
     icon: typeof TextB;
     action: (e: ReactMouseEvent<HTMLButtonElement>) => void;
@@ -2008,7 +2057,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     { label: t.text.italic, icon: TextItalic, action: () => run(toggleEmphasisCommand), on: 'emphasis', role: 'italic' },
     { label: t.text.link, icon: LinkSimple, action: link, on: 'link', role: 'link' },
     // On a page the levels in choices (H1 until the text has one); a blog post has H2 and H3.
-    ...(h1 ? choices : [2, 3]).map((level) => ({
+    ...(inList ? [] : h1 ? choices : [2, 3]).map((level) => ({
       label: [t.text.pageHeading, t.text.heading, t.text.subheading][level - 1],
       icon: [TextHOne, TextHTwo, TextHThree][level - 1],
       action: () => setKind(`h${level}`),
@@ -2034,6 +2083,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand), role: 'undo' },
     { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand), role: 'redo' },
   ];
+
+  const all = allTools;
 
   // The tools in their order (toolbarOrder.mjs): Section settings last on the first line, and what may go under the arrow at the
   // end, Undo and Redo first, then the link, so Insert stays on the first line. The arrangement is tried from the widest:

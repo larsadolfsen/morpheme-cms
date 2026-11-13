@@ -103,8 +103,8 @@ export default function InlineCards({ items, props, data, active, focus, onChang
                   .filter(Boolean)
                   .join(' ')}
               >
-                {card && here && hasMedia(card) ? (
-                  // A media that is set is changed by a tap on it: its picker, to replace or remove it.
+                {card && hasMedia(card) ? (
+                  // A media that is set is changed by a tap on it, on any card: its picker, to replace or remove it, and the card is the active one.
                   <button type="button" className="inline-card-media" aria-label={t.blocks.cards.media} onClick={() => onIcon(i)}>
                     <CardMedia card={card} />
                   </button>

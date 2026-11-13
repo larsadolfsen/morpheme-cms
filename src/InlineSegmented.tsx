@@ -5,12 +5,11 @@
 // picker); the row's page and its one button are at the bottom of the active row, where the site draws them (`Link` opens the row's sheet, the button's text is typed). The block's own settings (`Only one open`, `Rows`, `Max rows`, the text
 // button) are in Edit. The parts, the keys and what is kept are InlineItems.tsx and src/inlineRows.mjs; the empty, faded row, `Add row` and the dotted
 // line are as in the List. A Segmented list that reads a list ("Rows from") is drawn by RowsFromList (InlineList.tsx), not typed.
-import { Plus } from '@phosphor-icons/react';
-import { Glyph, Svg } from './icon';
+import { Svg } from './icon';
 import { iconColorOf } from './iconColor';
 import { t } from './i18n';
-import { SiteList, SiteListItem } from './themeUi';
-import InlineItems, { InlineField, InlineSlot, type Item } from './InlineItems';
+import { SiteIconButton, SiteList, SiteListItem } from './themeUi';
+import InlineItems, { InlineField, InlineIcon, InlineSlot, type Item } from './InlineItems';
 import { SiteButton } from './themeUi';
 import type { InlineViewProps } from './inlineViews';
 
@@ -22,9 +21,7 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
   const twoLines = active !== null || items.some((r) => r.text);
   const slots = (i: number, icon?: string) => (
     <>
-      <InlineSlot label={t.blocks.segmented.icon} onClick={() => onIcon(i)}>
-        {icon ? <Glyph icon={icon} size={24} /> : <Plus size={24} />}
-      </InlineSlot>
+      <InlineIcon label={t.blocks.segmented.icon} icon={icon} here onClick={() => onIcon(i)} />
     </>
   );
   // The active row's buttons at the bottom of its text: each button's text is typed where it stands (its page is in the row's sheet, the link
@@ -106,8 +103,19 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
               aria-current={here ? 'true' : undefined}
               aria-label={label}
               className={classes}
-              leading={here ? <span className="inline-segmented-slots">{slots(i, item.icon)}</span> : undefined}
-              leadingIcon={here ? undefined : item.icon || undefined}
+              leading={
+                here ? (
+                  <span className="inline-segmented-slots">{slots(i, item.icon)}</span>
+                ) : (
+                  <InlineIcon
+                    label={t.blocks.segmented.icon}
+                    icon={item.icon}
+                    here={false}
+                    iconColor={item.icon ? iconColorOf(item.iconColor) : undefined}
+                    onClick={() => onIcon(i)}
+                  />
+                )
+              }
               data-icon-color={item.icon ? iconColorOf(item.iconColor) : undefined}
               headline={title}
               supporting={
@@ -122,7 +130,20 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
                   )
                 ) : undefined
               }
-              trailingIcon={here || !item.href ? undefined : 'caret-right'}
+              trailing={
+                here || !item.href ? undefined : (
+                  // The row's link: one tap makes the row active and opens its link settings (the same as `Link` at the bottom of the active row).
+                  <SiteIconButton
+                    icon="caret-right"
+                    label={t.blocks.segmented.link}
+                    data-row-arrow=""
+                    onClick={() => {
+                      onChange({ active: i });
+                      onSettings(i);
+                    }}
+                  />
+                )
+              }
             />
           );
         // Open while it is the active row (a tap on the summary does not fold it: the heading is typed there).
@@ -139,7 +160,13 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
               {here ? (
                 <span className="inline-segmented-slots">{slots(i, item.icon)}</span>
               ) : (
-                item.icon && <Svg name={item.icon} size={24} className="block-accordion-lead" iconColor={iconColorOf(item.iconColor)} />
+                <InlineIcon
+                  label={t.blocks.segmented.icon}
+                  icon={item.icon}
+                  here={false}
+                  iconColor={item.icon ? iconColorOf(item.iconColor) : undefined}
+                  onClick={() => onIcon(i)}
+                />
               )}
               <span className="block-accordion-title">{title}</span>
               <Svg name="caret-down" size={20} className="block-accordion-icon" />

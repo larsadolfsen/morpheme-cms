@@ -17,6 +17,7 @@ import { addressOf, moveRedirects, REDIRECTS, retarget } from './addresses';
 import { changesOf, flatten, readAll, REDIRECT_FILES, setRedirect } from './redirectData';
 import { TAB_ROUTES } from './Redirects';
 import { choose } from './ask';
+import { firstEmptyRow, withoutEmptyRows } from './pageEmptyRows';
 import { freeTitle } from '../lib/freeTitle.mjs';
 import { offeredTemplatesOf, shownTemplate, templateFieldOf } from './templateField';
 import { templateOf, templateWritten } from '../lib/page-template.mjs';
@@ -740,7 +741,36 @@ function Form({
       goTo('content', textBox.current);
       return notify({ text: t.forms.entry.empty(post), error: true });
     }
-    const body = markdown == null ? parts.body : `\n${markdown.trim()}\n`;
+    let body = markdown == null ? parts.body : `\n${markdown.trim()}\n`;
+    // An empty row in a block typed in place: the page is shown there and the owner chooses to remove it, or to save without it (every
+    // empty row of the page is left out, as the site draws none).
+    const emptyRow = firstEmptyRow(body);
+    if (emptyRow) {
+      goTo('content', textBox.current);
+      text.current?.showBlock(emptyRow.at);
+      const action = intent === 'publish' ? 'Publish' : intent === 'schedule' ? 'Schedule' : 'Save';
+      const labels = {
+        Publish: [t.forms.versions.publish, t.forms.entry.deleteAndPublish],
+        Schedule: [t.forms.versions.schedule, t.forms.entry.deleteAndSchedule],
+        Save: [t.forms.versions.saveDraft, t.forms.entry.deleteAndSave],
+      }[action];
+      // A block with no row at all has its own question: the block goes (nothing to remove first). Else an empty row among the rows.
+      const whole = emptyRow.kind === 'block';
+      const answer = await choose({
+        text: whole ? t.forms.entry.emptyBlock(emptyRow.name, emptyRow.items) : t.forms.entry.emptyRow(emptyRow.name, emptyRow.word),
+        choices: whole
+          ? [{ value: 'save', label: labels[1] }]
+          : [
+              { value: 'remove', label: t.forms.entry.removeItem },
+              { value: 'save', label: labels[0] },
+            ],
+      });
+      if (!answer) return;
+      if (answer.choice === 'remove') return text.current?.removeEmptyRows(emptyRow.at);
+      text.current?.removeEmptyRows();
+      const now = markdown == null ? null : text.current?.markdown();
+      body = now == null ? withoutEmptyRows(body) : `\n${now.trim()}\n`;
+    }
     // The blocks in the text by their own fields and the template, as the site checks them before it is built.
     const [wrongBlock] = blockProblems(body, template, front ? frontLeads : undefined);
     if (wrongBlock) {
