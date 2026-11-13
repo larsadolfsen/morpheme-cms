@@ -1,6 +1,6 @@
 # Selecting things in the editor, on touch and with a mouse (design)
 
-Status: ready for the owner's read. Design only, no code. Every question in section 7 is decided (by the owner or by what M3 prints); the one open choice that remains is #519's "Undo only", which belongs to that spec. Written for a phone: plain words, short.
+Status: ready for the owner's read. Design only, no code. Every question in section 7 is decided (by the owner or by what M3 prints); nothing is open. Written for a phone: plain words, short.
 
 Owner's ask: "How should we implement touch in the backend?" That is: how the editor (`/editor/`) lets people select items on
 touch screens and with a mouse, following Material 3 Selection. Builds on the contextual toolbar spec (PR #519, "the one bar") and
@@ -320,7 +320,7 @@ Only actions that make sense for many are offered (the same blocks must all allo
 - **Close and the count are one control** of two slots (88 dp, "✕" and the number, "3"): a tap clears the selection (the same as Escape); its accessible name and `aria-live` text say "3 blocks selected". Two slots because the count needs room; it is a deviation inside the editor workspace, so allowed.
 - **On the bar:** Move up, Move down. Undo and Redo stay (the owner's decision in #519).
 - **In `⋮` (a pop-up menu, #519's):** with **one** block selected: Duplicate, Hide / Show on page, Remove, a divider, Select all; with **two or more**: Hide / Show on page, Remove, a divider, Select all (Duplicate is hidden). `⋮` keeps #519's order of groups: the context's tools, then the page tools, then (blocks) Hide, Move, Remove; Select all is the group's first row.
-- **If the owner chooses "Undo only"** (#519's open choice, which frees one slot): with one block selected **Duplicate** takes the freed slot, with two or more **Hide / Show** does, and Redo goes into `⋮`.
+- **Undo and Redo both stay in the bar** (the owner's decision on #519), so the phone layout above is final: no tool takes a freed slot.
 - **On a wide screen all tools show at once** (#519's rule): the count control, Move up, Move down, Duplicate (only with one block selected), Hide / Show, Remove, then the divider and the main tools; `⋮` holds only Select all.
 - **Nothing selected, or a Table or List active:** the bar is #519's, unchanged. Selecting blocks replaces the contextual group in place with the theme's fade (`--motion-effects`); the bar's height never changes.
 - **Focus and names:** Tab reaches the bar as one stop with arrow keys inside (the theme's `Toolbar`, as #519); Escape clears the selection and returns the focus to the last toggled block.
