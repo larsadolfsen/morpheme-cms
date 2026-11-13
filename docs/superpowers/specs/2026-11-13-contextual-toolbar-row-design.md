@@ -118,7 +118,7 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
   deviation of the earlier drafts is gone.
 - **The rule at 375 px (owner: 44 × 44 buttons, section 8).** `slots = floor((width − 32 − divider) / 44)`: 343 / 44 = 7.8, so **7
   slots at 375 px**, and 7 at 360 px too (328 / 44 = 7.45). A slot is a tool, Undo, Redo or `⋮`. A context's own tools come first, then the
-  divider, **Undo and Redo** (the main tools kept in view; decided by the owner), then `⋮`. Everything else of the context and of the main tools is
+  divider, **Undo and Redo** (the main tools kept in view; decided by the owner: both), then `⋮`. Everything else of the context and of the main tools is
   in `⋮`, in groups: the context's tools first, then the page tools, then (blocks) Hide, Move, Remove. At 320 px (288 dp) 6 slots fit and
   the bar drops Redo into `⋮`.
 - **Exact lists at 375 px** (bar | in `⋮`). The bar lists are the tools to show first; in a narrower window the last tool of a list moves into `⋮` first.
@@ -134,8 +134,8 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
 | Image | Change image, Crop, Alt text, Settings, divider, Undo, Redo, `⋮` | Insert; divider; Hide, Move, Remove |
 | Video, Notice, Testimonials, Posts, HTML, Banner | Settings (Video: Change address first; Testimonials and Posts: Edit), divider, Undo, Redo, `⋮` | Insert; divider; Hide, Move, Remove |
 
-  A rejected choice, Undo only, frees one slot: the contextual tools get a fifth (Text: Alignment; List: Link; Table: Table
-  settings; Image and the single blocks: nothing more to add), and Redo goes into `⋮`.
+  **Decided by the owner: both Undo and Redo stay on the bar** ("Both"). There is no spare slot at 375 px: nothing else takes one (the touch-selection
+  spec's Duplicate action does not get a freed slot).
 
   **The `⋮` on a phone is a pop-up menu (owner decision), not a bottom sheet.** The theme's `Menu` part, anchored to the `⋮` button: it opens
   under the button, its trailing edge on the button's trailing edge, 8 dp from the screen edge, as wide as `--menu-width` (18rem) allows
@@ -167,8 +167,7 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
   The theme sets no scrollbar rule on `.menu`, so on a phone the browser's overlay scrollbar hides when idle: not a persistent one. To meet M3,
   the editor's menu sets `scrollbar-width: thin` and `scrollbar-gutter: stable` (a desktop browser then keeps it visible; a phone's overlay
   scrollbar cannot be forced). Our cue on a phone: the list shows a half-cut row at the bottom, and the most used rows come first (Alignment,
-  Lists, Colour), so Insert and Section settings are the ones that scroll into view. To reduce scrolling: the Undo-only option of
-  the Undo-only choice would not help (it moves a row out of the bar, not out of the list).
+  Lists, Colour), so Insert and Section settings are the ones that scroll into view.
   **Headings and text styles are one "Text style" button (owner decision, 13 November: "Yes, merge them"). This is the editor workspace; M3 does not
   print it.** Today the bar has a headings button (H1, H2, H3) and a text button (small, medium, large, label, quote) as separate groups
   (`MarkdownEditor.tsx`: `kindGroups` has three groups, `'headings'`, `'text'` and `'list'`, `KindGroup`, and `GENERIC_ICONS.heading` and
