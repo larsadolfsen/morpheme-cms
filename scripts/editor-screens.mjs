@@ -715,6 +715,12 @@ async function checkOwnList(width, height) {
   );
   writeFileSync(join(folder, 'web-design.json'), JSON.stringify({ order: 1, title: 'Web design', text: 'Sites that last' }));
   writeFileSync(join(folder, 'hosting.json'), JSON.stringify({ order: 2, title: 'Hosting' }));
+  // A page that reads the list, so `Delete list` is refused.
+  const pagePath = join(ROOT, 'src/content/pages/zz-reads-services.md');
+  writeFileSync(
+    pagePath,
+    '---\ntitle: "Reads services"\n---\n\n# Reads services\n\n<div data-block="list" data-props="{&quot;from&quot;:&quot;services&quot;}"></div>\n',
+  );
   try {
     const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
     page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
@@ -780,8 +786,26 @@ async function checkOwnList(width, height) {
     if (await page.locator('.inline-list-row-active').count()) problems.push(`${label}: the row is still active after the cursor left`);
     if (await page.getByRole('button', { name: 'Add list row' }).count())
       problems.push(`${label}: "Add list row" stays after the cursor left`);
+    // The list's menu: `Edit list` opens the sheet with the name, the six switches and `Delete list`; `Delete list` is refused while a page reads the list.
+    await page.getByRole('button', { name: 'List menu' }).first().click();
+    await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
+    const sheet = page.locator('dialog[open]').filter({ hasText: 'Fields' });
+    await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: Edit list did not open its sheet`));
+    const switches = await sheet.locator('input[type="checkbox"]').count();
+    if (switches !== 6) problems.push(`${label}: Edit list has ${switches} switches, not 6`);
+    if (!(await sheet.getByRole('button', { name: 'Delete list' }).count())) problems.push(`${label}: Edit list has no Delete list`);
+    if (!(await sheet.getByLabel('Name').count())) problems.push(`${label}: Edit list has no name field`);
+    await sheet.locator('[aria-label="Close"]').first().click();
+    await page.getByRole('button', { name: 'List menu' }).first().click();
+    await page.getByRole('menuitem', { name: 'Delete list' }).first().click();
+    await page
+      .getByText('The list is used on 1 page. Remove it from there first.')
+      .first()
+      .waitFor({ timeout: 5000 })
+      .catch(() => problems.push(`${label}: Delete list was not refused while a page reads the list`));
     await page.close();
   } finally {
+    rmSync(pagePath, { force: true });
     rmSync(folder, { recursive: true, force: true });
   }
 }

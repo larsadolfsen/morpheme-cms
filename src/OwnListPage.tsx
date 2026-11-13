@@ -4,12 +4,14 @@
 // row-to-file saving (lib/ownListSave.mjs, saved a moment after typing stops, as one commit) and the sheet of a row's icon and link.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Screen from './Screen';
+import OwnListSheet from './OwnListSheet';
+import { DotsThreeVertical, PencilSimple, Trash } from '@phosphor-icons/react';
 import InlineList, { type Row } from './InlineList';
 import type { Change, Focus, Item } from './InlineItems';
 import { inlineBar, type BarAction } from './inlineBar';
 import { useBlockDialog, type RowSpec } from './BlockDialog';
 import { siteBlocks } from './registry';
-import { atLeastNow } from './ui';
+import { atLeastNow, IconButton, Menu, MenuItem } from './ui';
 import { isEntryPath, rowOfEntry } from '../lib/ownList.mjs';
 import { savePlan } from '../lib/ownListSave.mjs';
 import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
@@ -75,6 +77,16 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const chain = useRef<Promise<unknown>>(Promise.resolve());
   const host = useRef<HTMLDivElement>(null);
+  // The list's menu (`Edit list`, `Delete list`) and its sheet.
+  const menuAt = useRef<HTMLSpanElement>(null);
+  const [menu, setMenu] = useState(false);
+  const [editing, setEditing] = useState(false);
+  // The list is being deleted: nothing more is saved.
+  const gone = useRef(false);
+  // The fields the list has now (an edit of the list changes them while the page is open).
+  const visible = useRef(names);
+  visible.current = names;
+  const sheet = useRef<{ remove: () => void }>(null);
 
   // A picture is picked from the gallery, or uploaded; an uploaded one is saved in the commit of the entry that uses it (as in DataForm.tsx).
   const pictures = useUploads(env.notify);
@@ -92,7 +104,8 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
   const flush = () => {
     clearTimeout(timer.current);
     chain.current = chain.current.then(async () => {
-      const plan = savePlan({ folder, rows: now.current.items, known: known.current, slugs: slugs.current, visible: names });
+      if (gone.current) return;
+      const plan = savePlan({ folder, rows: now.current.items, known: known.current, slugs: slugs.current, visible: visible.current });
       if (!plan.writes.length && !plan.deletes.length) return;
       const change = t.app.changes.edited(lower(collection.label));
       const used = plan.writes.flatMap((w) => pictures.usedIn(w.content));
@@ -245,6 +258,17 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
         title={collection.label}
         back={{ href: '#lists', label: t.common.parts.lists }}
         status={saving ? t.app.busy.saving : undefined}
+        pageActions={
+          <span ref={menuAt}>
+            <IconButton
+              icon={DotsThreeVertical}
+              label={t.ownList.menu}
+              aria-haspopup="menu"
+              aria-expanded={menu}
+              onClick={() => setMenu(!menu)}
+            />
+          </span>
+        }
       >
         <div className="editor-text" ref={host}>
           <InlineList
@@ -261,6 +285,45 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
         </div>
         {dialog}
         {picker}
+        <Menu anchor={menu ? menuAt.current : null} label={t.ownList.menu} onClose={() => setMenu(false)}>
+          <MenuItem
+            icon={PencilSimple}
+            onClick={() => {
+              setMenu(false);
+              setEditing(true);
+            }}
+          >
+            {t.ownList.edit}
+          </MenuItem>
+          <MenuItem
+            icon={Trash}
+            onClick={() => {
+              setMenu(false);
+              sheet.current?.remove();
+            }}
+          >
+            {t.ownList.delete}
+          </MenuItem>
+        </Menu>
+        <OwnListSheet
+          ref={sheet}
+          collection={collection}
+          files={files}
+          env={env}
+          open={editing}
+          onClose={() => setEditing(false)}
+          onDeleting={() => {
+            gone.current = true;
+            clearTimeout(timer.current);
+          }}
+          onRemoved={(field, saved) => {
+            for (const s of saved) known.current.set(s.path, { oid: s.oid, text: s.text });
+            setItems(
+              (list) =>
+                list.map((r) => (field in r ? Object.fromEntries(Object.entries(r).filter(([k]) => k !== field)) : r)) as KeyedRow[],
+            );
+          }}
+        />
       </Screen>
     </Fields.Provider>
   );
