@@ -1481,34 +1481,34 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
             }
           : undefined
       }
+      selection={
+        selecting ? (
+          <SelectionBar
+            count={live.length}
+            total={selection.total}
+            onSelectAll={(all) => (all ? selection.selectAll() : selection.unselectAll())}
+            onClose={selection.clear}
+          >
+            <IconButton
+              icon={Trash}
+              label={t.library.deleteSelected(live.length)}
+              disabled={!live.length || deletingMany}
+              busy={deletingMany}
+              onClick={deleteChosen}
+            />
+          </SelectionBar>
+        ) : undefined
+      }
       actions={
         <>
-          {selecting ? (
-            <SelectionBar
-              count={live.length}
-              total={selection.total}
-              onSelectAll={(all) => (all ? selection.selectAll() : selection.unselectAll())}
-              onClose={selection.clear}
-            >
-              <IconButton
-                icon={Trash}
-                label={t.library.deleteSelected(live.length)}
-                disabled={!live.length || deletingMany}
-                busy={deletingMany}
-                onClick={deleteChosen}
-              />
-            </SelectionBar>
-          ) : (
-            canSelect &&
-            !tree &&
-            items.length > 0 && <IconButton icon={ListChecks} label={t.library.selectEntries} onClick={selection.start} />
+          {canSelect && !tree && items.length > 0 && (
+            <IconButton icon={ListChecks} label={t.library.selectEntries} onClick={selection.start} />
           )}
           {/* What was deleted from the list, as in "Files". */}
           {restorable(collection) && (
             <IconButton
               icon={ClockCounterClockwise}
               label={t.history.deletedOf(collection.label)}
-
               onClick={() => (location.hash = `deleted/${collection.id}`)}
             />
           )}
