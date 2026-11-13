@@ -2088,7 +2088,7 @@
   /* A carousel: its items in a row to swipe, and the page indicator under them. */
   .carousel-items {
     display: flex;
-    gap: var(--carousel-gap, 1rem);
+    gap: var(--carousel-gap, 0.5rem);
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;

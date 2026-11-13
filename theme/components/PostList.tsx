@@ -31,7 +31,7 @@ export default function PostList({
   return (
     <>
       <ul
-        className={['grid gap-x-12 expanded:grid-cols-2', className].filter(Boolean).join(' ')}
+        className={['grid gap-x-6 expanded:grid-cols-2', className].filter(Boolean).join(' ')}
         data-random-posts={random ? count : undefined}
       >
         {posts.map((post, i) => (
