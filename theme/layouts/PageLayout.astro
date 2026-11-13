@@ -62,6 +62,8 @@ const html = withoutH1(text);
 // are one panel.
 const h1Settings = h1Section(text);
 const h1Color = h1Settings ? h1Settings.color : null;
+// An H1 section with a colour or an image has a background: it starts right under the navigation bar, with no space above it.
+const h1Background = Boolean(h1Settings && (h1Settings.color || h1Settings.image));
 const end = endBlock(html);
 // The questions in the text's "Questions and answers" blocks (not the hidden ones), for the structured data
 // (an FAQPage, packages/editor/site/schema.ts); the answers as HTML, as on the page (the block's load.ts).
@@ -111,7 +113,7 @@ const textClass = side
   questions={questions}
 >
   <article data-template={template}>
-    <Container as="header" class="pt-8 medium:pt-14">
+    <Container as="header" class={h1Background ? '[&>.text-section]:mt-0' : 'pt-8 medium:pt-14'}>
       {h1Settings ? (
         <section class={sectionClass(h1Color, h1Settings)} data-editor="h1-section">
           {h1Settings.image && (

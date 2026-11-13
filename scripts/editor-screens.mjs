@@ -540,6 +540,57 @@ async function checkPreviewSection() {
   await page.close();
 }
 
+/** A page whose H1 section has a background (a colour or an image) has it start right under the navigation bar (gap 0 ±1px), on the site and in the Preview at 390 and 600; a page whose H1 section has none keeps its space under the bar. */
+async function checkH1SectionGap() {
+  const path = 'src/content/pages/about.md';
+  if (!existsSync(join(ROOT, path))) return;
+  const source = readFileSync(join(ROOT, path), 'utf8');
+  const picture = '/images/uploads/2026/10/earth-from-space.webp';
+  const variants = [
+    { name: 'colour', marker: '<div data-section="tertiary"></div>\n\n', background: true },
+    { name: 'image', marker: `<div data-section="" data-picture="${picture}" data-alt="Earth"></div>\n\n`, background: true },
+    { name: 'none', marker: '', background: false },
+  ];
+  const measure = () => {
+    const bar = document.querySelector('header[data-header]')?.getBoundingClientRect();
+    const h1 = document.querySelector('article h1');
+    const section = document.querySelector('[data-editor="h1-section"]');
+    const top = (section || h1)?.getBoundingClientRect().top;
+    return bar && top !== undefined ? { gap: top - bar.bottom, section: Boolean(section) } : null;
+  };
+  const verify = (label, m, background) => {
+    if (!m) return problems.push(`${label}: the page has no navigation bar or heading`);
+    if (background && !m.section) return problems.push(`${label}: there is no H1 section`);
+    if (background && Math.abs(m.gap) > 1)
+      problems.push(`${label}: the H1 section's background is ${Math.round(m.gap)}px below the navigation bar, not 0`);
+    if (!background && m.gap < 16)
+      problems.push(`${label}: a heading without a background has lost its space under the bar (${Math.round(m.gap)}px)`);
+  };
+  for (const { name, marker, background } of variants) {
+    const text = source.replace(/(\n)(# [^\n]+)/, `$1${marker}$2`);
+    const page = await browser.newPage({ viewport: { width: 1700, height: 1000 }, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`H1 section gap: ${e.message}`));
+    await openEditor(page, site, { [path]: text });
+    await page.goto(`${site}/editor/#${path}`);
+    await page.getByRole('button', { name: 'Preview' }).first().click({ timeout: 30_000 });
+    await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+    const slider = page.locator('dialog[open] [role="slider"]').first();
+    const width = async () => Number(await slider.getAttribute('aria-valuenow'));
+    for (const w of [390, 600]) {
+      await slider.focus();
+      await page.keyboard.press('Home');
+      while ((await width()) < w) await page.keyboard.press('ArrowRight');
+      while ((await width()) > w) await page.keyboard.press('ArrowLeft');
+      await page.waitForTimeout(600);
+      const frame = page.frames().find((f) => f !== page.mainFrame());
+      await frame.waitForSelector('article h1', { timeout: 30_000 });
+      if (background) await frame.waitForSelector('[data-editor="h1-section"]', { timeout: 30_000 });
+      verify(`${w}px Preview, H1 section ${name}`, await frame.evaluate(measure), background);
+    }
+    await page.close();
+  }
+}
+
 /** A full-width section has the whole width only as its background: on the built site and in the Preview, its content has the same left edge as the page's text, inside the centred container, at 840, 1200 and 1600, and nothing overflows sideways at 375. */
 async function checkFullSection() {
   const path = 'src/content/pages/about.md';
@@ -3170,6 +3221,7 @@ for (const [width, height] of [
 await checkToolbarBox();
 await checkPreviewSection();
 await checkFullSection();
+await checkH1SectionGap();
 for (const w of [375, 1280]) await checkListMarkers(w);
 for (const w of [375, 1280]) await checkListsAndBlocks(w);
 for (const w of [360, 375, 390, 414]) await checkPreviewDraft(w);
