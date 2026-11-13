@@ -531,6 +531,7 @@ export const blocks = {
     primary: 'Primary',
     secondary: 'Secondary',
     tertiary: 'Tertiary',
+    low: (name: string) => `This icon color (${name}) now has low contrast on the page.`,
   },
   icons: {
     certificate: 'Diploma',

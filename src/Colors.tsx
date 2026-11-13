@@ -54,6 +54,7 @@ import {
   dynamicColors,
   dynamicProblems,
   BASE_COLORS,
+  CUSTOM,
   HARMONIES,
   canSetBaseColor,
   withBaseColor,
@@ -88,11 +89,15 @@ export function colorsOf(files: RepoFile[]): ColorsData & { unreadable?: boolean
 const fileOf = (colors: ColorsData) => {
   const sets = Object.fromEntries(MODES.map((m) => [m, Object.fromEntries(names.map((n) => [n, colors[m][n]]))]));
   const d = colors.dynamic;
+  // Custom has its own two colours, `kept` (Primary kept as chosen) and no lock (nothing there moves a colour but its own pen).
+  const custom = d?.harmony === CUSTOM;
   const dynamic = d && {
     source: d.source,
     ...(d.harmony ? { harmony: d.harmony } : { variant: d.variant }),
+    ...(custom && { secondary: d.secondary, tertiary: d.tertiary }),
     contrast: d.contrast,
-    ...(d.sourceLocked && { sourceLocked: true }),
+    ...(!custom && d.sourceLocked && { sourceLocked: true }),
+    ...(custom && d.kept?.length && { kept: d.kept }),
   };
   return `${JSON.stringify({ ...sets, ...(dynamic && { dynamic }) }, null, 2)}\n`;
 };
@@ -146,7 +151,10 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
   const text = fileOf(colors);
   // Not changed while they are the file's (with the colours one written before them did not have, which a save adds).
   const dirty = text !== file?.text && (!!loaded.unreadable || text !== fileOf(loaded));
-  const low = Object.fromEntries(MODES.map((m) => [m, lowContrast(colors[m], colorPairs)])) as Record<Mode, ReturnType<typeof lowContrast>>;
+  const low = Object.fromEntries(MODES.map((m) => [m, lowContrast(colors[m], colorPairs, colors.dynamic?.kept)])) as Record<
+    Mode,
+    ReturnType<typeof lowContrast>
+  >;
   const isDefault = text === fileOf(defaultColors);
   // The colours to pick from in a colour's sheet: the site's own, in both modes, and the ones it was made with.
   const swatches = [...new Set([colors, defaultColors].flatMap((c) => MODES.flatMap((m) => names.map((n) => c[m][n].toLowerCase()))))];
