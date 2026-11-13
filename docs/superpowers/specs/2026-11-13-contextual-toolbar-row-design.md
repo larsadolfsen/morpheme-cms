@@ -42,9 +42,10 @@ Pages read: `m3.material.io/components/toolbars/` overview, specs, guidelines, a
   Instead, use one toolbar for all actions." (Presentation.) M3's example of several toolbars is a larger window, with the bars on
   opposite edges and a different style each. Two stacked rows on a phone go against this. That is the owner's idea; it is a
   deviation and **open question 1**.
-- **Overflow is a menu, not a scroll.** "If there's not enough space for all items, put them in an overflow menu in the trailing
-  slot." (Adaptive design, floating.) For docked: "Be cautious of including too many controls." M3 does not describe sideways
-  scrolling for a toolbar. So this spec uses an overflow menu, not scrolling.
+- **Overflow is a menu in M3; the owner chose scrolling.** "If there's not enough space for all items, put them in an overflow
+  menu in the trailing slot." (Adaptive design, floating.) For docked: "Be cautious of including too many controls." M3 does not
+  describe sideways scrolling for a toolbar. The owner decided "Scroll." for a phone, so the row scrolls sideways: a deliberate
+  deviation (below).
 - **Sizes.** "By default all toolbars are 64dp high ... minimum outside padding of 16dp." "All elements need a minimum 48x48dp
   target area." (Specs, Measurements; Anatomy.) For the docked toolbar on large screens: "Only shrink the height and use extra
   small buttons if vertical space is limited." Our 48 dp rows are shorter than 64 dp: allowed only when space is limited,
@@ -65,7 +66,7 @@ update note says "Web: Unavailable" for toolbar code, so the theme's `Toolbar` i
 
 **Deviations from this (to add to `docs/material-deviations.md` with step 1):** (1) contextual actions in a docked toolbar
 (M3: floating); (2) docked toolbars at the top (M3: bottom; already true of the main toolbar); (3) two stacked toolbars on a
-phone (M3: one); (4) 48 dp height instead of 64 dp (allowed only for limited space).
+phone (M3: one); (4) 48 dp height instead of 64 dp (allowed only for limited space); (5) on a phone the row scrolls sideways when its tools do not fit (M3: overflow menu in the trailing slot; owner decision, 13 November). Wording for `docs/material-deviations.md`: *Material says: "If there's not enough space for all items, put them in an overflow menu in the trailing slot." We do: the row scrolls sideways on a phone. Why: owner's choice. Date: 2026-11-13.*
 
 ## 3. Layout
 
@@ -83,8 +84,8 @@ PHONE 375 px                         COMPUTER 1280 px
 |  save bar (docked)        |        |                                                 |
 +---------------------------+        +-------------------------------------------------+
 
-A Table is selected (phone, 7 actions, two under the overflow):
-| [row↑][row↓][col←][col→] [⚙] [⋮ → Delete row, Delete column] |   (6 buttons x 48 dp = 288 dp)
+A Table is selected (phone, 7 actions, the row scrolls sideways):
+| [row↑][row↓][col←][col→][del row][del col][⚙] ⋮ |→  (7 x 48 dp = 336 dp, scrolls)
 ```
 
 - **Two docked rows, one box.** The contextual row is a second `Toolbar` part (kind `docked`, colour `standard`) directly
@@ -98,17 +99,17 @@ A Table is selected (phone, 7 actions, two under the overflow):
   `visualViewport` and timers). iOS Safari can pan the page when the keyboard opens and a sticky top bar then slides away:
   if the device check shows this, a tiny listener sets one CSS variable from `visualViewport.offsetTop` (no timer, applied in
   the event itself). This needs a check on a real phone before the work is closed.
-- **375 px and overflow.** The row never wraps and never scrolls sideways (M3 uses an overflow menu in the trailing slot,
-  section 2). When the tools do not fit, the last button `⋮` opens a menu with the rest. The text row folds the rarer tools
-  (alignment, lists, colour) under `⋮` → the existing *More* sheet. The block rows keep today's phone folding (`Row` for Move and
-  Link). Targets stay 48 dp, edges 16 dp.
+- **375 px and overflow (owner: "Scroll.").** The row never wraps. When the tools do not fit it scrolls sideways (with
+  `scroll-snap`; the end fades; the scroll bar is hidden), and the focus ring of a button scrolls into view. Nothing is folded
+  to hide it; the existing *More* sheet stays as a tool of the text row, not as an overflow. The block rows keep today's phone
+  folding (`Row` for Move and Link). Targets stay 48 dp, edges 16 dp. Wider than the screen is the point: the first and last
+  tools are always reachable by scrolling, and a fade at the cut edge shows there is more.
 - **Focus order and names.** Tab: main toolbar (one stop, arrow keys inside, as the theme's `Toolbar` already does; M3 says "Tab or Arrows") → contextual
   row (one stop) → the text. `role="toolbar"`, `aria-label` = the block's name ("Table", "Cards") or "Text tools"; every button keeps its
   `aria-label` and `title`; toggles keep `aria-pressed`. Escape in the row returns the focus to where the cursor was.
   A tap on the row never takes the cursor (mouse and touch down are cancelled, as `press()` does today).
 - **Table.** Seven actions: Add row above, Add row below, Add column before, Add column after, Delete row, Delete column,
-  Settings. Seven buttons are 336 dp, which with 16 dp edges does not fit 375 px (343 dp of room, no gaps). So on a phone the two
-  Delete actions go under `⋮` (a menu, and Undo is there to take it back); the other five stay on the row. On a computer all seven show.
+  Settings. All seven stay in the row; on a phone (336 dp against 343 dp of room, and with gaps more) the row scrolls.
 
 ## 4. Remove the delay
 
@@ -158,7 +159,7 @@ CONTEXTUAL ROW, text selected            CONTEXTUAL ROW, a block selected
 ```
 
 **375 px.** Main toolbar: 4 buttons at 48 dp = 192 dp, one line, no arrow. Text row: 6 tools + `⋮` = 7 × 48 = 336 dp; 375 minus
-two 16 dp edges leaves 343 dp, so it only fits with no gaps; so Align goes under `⋮` on a phone (5 + `⋮` = 288 dp).
+two 16 dp edges leaves 343 dp, so it barely fits with no gaps; with the lists and colour it is wider and scrolls (owner: "Scroll.").
 
 **Is the main toolbar then too thin?** Four tools is little, but the owner decided to keep exactly these four as one slim line.
 
@@ -169,8 +170,8 @@ The row's content follows the selection. "Row" = the active row or item of a rep
 
 | Block | Contextual row (phone: what folds under `⋮` or `Row`) |
 | --- | --- |
-| Text (cursor or selection) | Bold, Italic, Link, Heading, Lists, Text size, Alignment, Colour (phone: lists, alignment, colour under `⋮` → More) |
-| Table | Row above, Row below, Column before, Column after, Delete row, Delete column, Settings, `⋮` (phone: the two Delete actions under `⋮`) |
+| Text (cursor or selection) | Bold, Italic, Link, Heading, Lists, Text size, Alignment, Colour (phone: the row scrolls) |
+| Table | Row above, Row below, Column before, Column after, Delete row, Delete column, Settings, `⋮` (phone: the row scrolls) |
 | List | Add above, Add below, Move up, Move down, Link, Settings, Fill from a list, `⋮` (phone: Move and Link under `Row`) |
 | Cards | Add above, Add below, Move up/down, Link, Settings, `⋮` |
 | Points, Segmented list | the same as Cards; Segmented also Fill from a list |
@@ -198,7 +199,7 @@ four become its buttons, so there is one place for block actions. Image/Card/Lis
   (`.contextual-menu` in `scripts/editor-screens.mjs`) must be moved.
 - **Checks:** `check:screens` at 375 and 1280: the rows are one box and sticky after scrolling; the row has the same height
   with nothing selected, in text and on each block; no button is under 48 dp; no horizontal page scroll; the Table's seven
-  actions are all reachable at 375 (two in the `⋮` menu); the row never overlaps the text; `check:contrast` and `check:editor-colors` on
+  actions are all reachable at 375 (by scrolling the row); the row never overlaps the text; `check:contrast` and `check:editor-colors` on
   the row in each section colour; `check:css-values` finds no literal motion or spacing in the new CSS. Not covered by the
   scripts: the keyboard on a real phone, and how a theme looks; both by hand, with the Preview of the branch (login does not
   work there, so the owner reads screenshots from `check:screens`).
@@ -206,7 +207,7 @@ four become its buttons, so there is one place for block actions. Image/Card/Lis
   1. *Small:* the row shell: a second docked `Toolbar` under the main one, filled with the text tools; the selection pill and
      `stillTimer` removed. Empty changeset until visible.
   2. *Medium:* the main toolbar cut down to the global tools (reading A); the second line and its arrow removed; phone overflow
-     (the `⋮` overflow menu).
+     (sideways scroll).
   3. *Medium:* the block bar moves in (`contextualMenu.ts` becomes the row; `BarAction` stays); Table's seven actions; the
      tests move. The floating `.contextual-menu` CSS is deleted.
   4. *Small:* the card pop-up `.site-block-menu` becomes row buttons; the Image, Video, Notice items.
@@ -219,14 +220,13 @@ four become its buttons, so there is one place for block actions. Image/Card/Lis
 
 Decided by the owner: (1) bold, italic and the other selection tools move to the contextual row (section 5); (2) the main
 toolbar keeps just Insert, Undo, Redo and Section settings (4 tools); (3) with the cursor in text, selection or not,
-the text tools always show in the row.
+the text tools always show in the row; (4) on a phone the row scrolls sideways when tools do not fit (a deviation from M3's
+overflow menu, section 2).
 
 1. **Two rows on a phone, against Material?** M3 says "Don't use multiple toolbars in compact windows ... use one toolbar for
    all actions", and puts contextual actions in the *floating* toolbar, not a docked one. Your idea is two docked rows on a
    phone too. Options: (a) two rows as you said, and write the deviation down; (b) on a phone one row: the contextual tools
-   with Insert, Undo and Redo behind `⋮`, and two rows only on larger screens. Recommendation: (a), because one row at 375 px
+   with Insert, Undo and Redo behind `⋮`, and two rows only on larger screens. Either way the row scrolls (decided). Recommendation: (a), because one row at 375 px
    cannot hold both sets, and you decided it; the deviation is listed.
-2. **When tools do not fit on a phone: an overflow menu `⋮` (M3's way), with Table's Delete row and Delete column inside it?**
-   Recommendation: yes; sideways scrolling is not in M3, and Undo takes a delete back.
-3. **Keep both rows sticky while the page scrolls?** Recommendation: yes (M3 allows it). Cost: about 100 dp of a short screen.
-4. **The block pop-up (Edit, Hide, Move, Remove) on blocks not typed in place:** becomes row buttons (recommended) or stays a pop-up?
+2. **Keep both rows sticky while the page scrolls?** Recommendation: yes (M3 allows it). Cost: about 100 dp of a short screen.
+3. **The block pop-up (Edit, Hide, Move, Remove) on blocks not typed in place:** becomes row buttons (recommended) or stays a pop-up?
