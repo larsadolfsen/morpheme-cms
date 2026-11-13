@@ -171,15 +171,18 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
 - **The divider** is the theme's `Divider` part (`theme/ui/Divider.tsx`), vertical, in the theme's outline-variant colour, between the
   contextual and main tools. It is hidden when there is no context (idle). In the `⋮` list a `MenuDivider` (also the theme's
   `Divider`) separates the groups.
-- **Idle.** Only the main tools, from the leading edge, so the slide-in reads as a push from the left. The bar keeps its height
+- **Idle.** Only the main tools. On a phone, from the leading edge, so the slide-in reads as a push from the left; on a wide screen at the trailing end (question 1). The bar keeps its height
   (40 dp), so the page never jumps.
 - **Entering a context** (the cursor goes into text, or a block or row becomes active): the contextual tools slide in from the left
   and the main tools are pushed to the right and out of view (section 4); the tools that do not fit are then in `⋮`, and Undo stays at
   its place after the divider. **Leaving it:** the same movement the other way. **Changing from one context to another** is not a slide: the
   contextual tools change in place with the theme's fade (`--motion-effects`); question 2.
-- **Wide screens** (my recommendation, question 1): when the contextual and main tools both fit, nothing is pushed out of sight: the
-  contextual tools slide in at the left, the main tools shift right only as far as the room needs and stay visible, with the divider
-  between, and no `⋮` for tools (only the block's Hide, Move, Remove). When they do not fit (a narrow window) it behaves as on a phone.
+- **Wide screens (decided by the owner): all tools show at once, no slide and no push when everything fits.** The contextual group, the
+  divider and the main tools are all on the bar; the slide and push happen only when there is not room (a phone, or a narrow window).
+  Consequence for the layout: for nothing to move, the main tools must keep one place whatever the context. On a wide screen they stand at the
+  trailing end of the bar and the contextual group fills the leading side (a context only fades in with `--motion-effects`, as when
+  one context changes to another); the divider is between them. This is why question 1 asks where the main tools stand when idle. `⋮` holds only
+  the block's Hide, Move, Remove there. When the tools do not fit (a narrow window) the bar behaves as on a phone.
 - **Sticky.** The bar stays at the top while the text scrolls, as the main toolbar does today (M3: "Docked toolbars can either
   remain on the screen during scroll"). With one bar there is no pair to keep together, so this is not a question.
 - **Phone keyboard.** The bar is at the top, so the keyboard cannot cover it (today's bars are placed with `visualViewport`
@@ -436,12 +439,14 @@ when idle. M3: "In this state, menus show a persistent scrollbar." So it does **
 
 Decided by the owner: one bar, no second row; the contextual tools slide in from the left, push the main tools right and out, and
 roll back; a divider between them; the main part is Insert, Undo, Redo, Section settings; text tools always show with the cursor in
-text; the bar and its menus are fixed at high density, outside the user's density choice (section 8); the bar never scrolls and what does not fit is in `⋮` (the `⋮` holds tools); on a phone the `⋮` is a pop-up menu, not a bottom sheet; the editor's bar and menus use a 44 × 44 dp hit area and are fixed at high density; Undo and Redo stay on the bar next to `⋮` while a context is active; the `⋮` pop-up may scroll when it does not fit, with a persistent scrollbar where the platform allows, dividers (no gaps) in it, the most used rows first and a half-cut last row as the cue on a phone; no sticky
+text; the bar and its menus are fixed at high density, outside the user's density choice (section 8); the bar never scrolls and what does not fit is in `⋮` (the `⋮` holds tools); on a phone the `⋮` is a pop-up menu, not a bottom sheet; the editor's bar and menus use a 44 × 44 dp hit area and are fixed at high density; Undo and Redo stay on the bar next to `⋮` while a context is active; on a wide screen all tools show at once and nothing slides (the slide and push only where there is no room); the `⋮` pop-up may scroll when it does not fit, with a persistent scrollbar where the platform allows, dividers (no gaps) in it, the most used rows first and a half-cut last row as the cue on a phone; no sticky
 question (one bar stays at the top).
 
-1. **On a wide screen, are the main tools pushed out of sight too, or do both groups stay visible; and when idle, are the main tools
-   at the left edge or centred as today?** Recommendation: both stay visible when they fit, and the main tools stand at the left edge when
-   idle, so the slide-in from the left reads as a push.
+1. **Where do the main tools stand when idle on a wide screen?** (Decided: on a wide screen all tools show at once and nothing slides.)
+   Recommendation: at the trailing end of the bar, with the contextual group filling the leading side, so that no tool moves when a context
+   starts (the contextual group only fades in). The other choices: at the leading edge (then the contextual group must push them, a small slide
+   even though everything fits, against the decision), or centred as today (they move when the contextual group appears). On a phone the main
+   tools stand at the leading edge and are pushed out.
 2. **Two small behaviours.** (a) Moving from one context to another (text to a Table, Table to Cards): a fade in place, not another slide
    (recommendation), so the bar is calm while you click around. (b) When focus goes to the page header, a sheet or another screen: the bar
    rolls back at once, but not while a sheet that the bar opened (More, Settings) is open (recommendation).
