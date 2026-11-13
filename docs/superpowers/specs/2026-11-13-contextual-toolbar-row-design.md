@@ -160,11 +160,7 @@ CONTEXTUAL ROW, text selected            CONTEXTUAL ROW, a block selected
 **375 px.** Main toolbar: 4 buttons at 48 dp = 192 dp, one line, no arrow. Text row: 6 tools + `⋮` = 7 × 48 = 336 dp; 375 minus
 two 16 dp edges leaves 343 dp, so it only fits with no gaps; so Align goes under `⋮` on a phone (5 + `⋮` = 288 dp).
 
-**Is the main toolbar then too thin?** Four tools is little, and it leaves two bars to draw for a short list. Options:
-(a) keep it, one slim line (recommended: it is steady, and is the only place for global things);
-(b) put Insert, Undo and Redo at the start of the contextual row and drop the main toolbar: one bar, but the global tools then
-move around with the context;
-(c) add more global tools to it (Find in text, Word count, Preview) which today are not in the editor. This is open question 1.
+**Is the main toolbar then too thin?** Four tools is little, but the owner decided to keep exactly these four as one slim line.
 
 ## 6. What moves where, by block
 
@@ -221,18 +217,17 @@ four become its buttons, so there is one place for block actions. Image/Card/Lis
 
 ## 8. Open questions for the owner (the PM asks them one at a time)
 
-Decided: bold, italic and the other selection tools move to the contextual row (section 5).
+Decided by the owner: (1) bold, italic and the other selection tools move to the contextual row (section 5); (2) the main
+toolbar keeps just Insert, Undo, Redo and Section settings (4 tools).
 
 1. **Two rows on a phone, against Material?** M3 says "Don't use multiple toolbars in compact windows ... use one toolbar for
    all actions", and puts contextual actions in the *floating* toolbar, not a docked one. Your idea is two docked rows on a
    phone too. Options: (a) two rows as you said, and write the deviation down; (b) on a phone one row: the contextual tools
    with Insert, Undo and Redo behind `⋮`, and two rows only on larger screens. Recommendation: (a), because one row at 375 px
    cannot hold both sets, and you decided it; the deviation is listed.
-2. **Is a main toolbar with only Insert, Undo, Redo and Section settings enough?** (a) keep it as one slim line; (b) drop it
-   and put those four at the start of the contextual row; (c) add more global tools. Recommendation: (a).
-3. **What does the row show when the cursor is in text and nothing is selected?** The text tools (acting on the word at the
+2. **What does the row show when the cursor is in text and nothing is selected?** The text tools (acting on the word at the
    cursor, no wait), or nothing until text is selected. Recommendation: always the text tools; never empty, never jumps.
-4. **When tools do not fit on a phone: an overflow menu `⋮` (M3's way), with Table's Delete row and Delete column inside it?**
+3. **When tools do not fit on a phone: an overflow menu `⋮` (M3's way), with Table's Delete row and Delete column inside it?**
    Recommendation: yes; sideways scrolling is not in M3, and Undo takes a delete back.
-5. **Keep both rows sticky while the page scrolls?** Recommendation: yes (M3 allows it). Cost: about 100 dp of a short screen.
-6. **The block pop-up (Edit, Hide, Move, Remove) on blocks not typed in place:** becomes row buttons (recommended) or stays a pop-up?
+4. **Keep both rows sticky while the page scrolls?** Recommendation: yes (M3 allows it). Cost: about 100 dp of a short screen.
+5. **The block pop-up (Edit, Hide, Move, Remove) on blocks not typed in place:** becomes row buttons (recommended) or stays a pop-up?
