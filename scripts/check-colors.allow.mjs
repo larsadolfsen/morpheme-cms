@@ -91,13 +91,6 @@ export const allow = [
   },
   {
     kind: 'fixed-colour',
-    file: /^theme\/styles\/blocks\.css$/,
-    line: /^\s*--block-/,
-    reason: 'todo (block fallback palette): use the roles',
-    todo: true,
-  },
-  {
-    kind: 'fixed-colour',
     file: /^worker\/mcp-oauth\.js$/,
     line: any,
     reason: 'todo (the sign-in page of the AI connection has its own fixed palette)',

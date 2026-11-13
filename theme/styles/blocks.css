@@ -8,7 +8,7 @@
 
     :root { --block-accent: var(--mo-primary); --block-radius: 1.5rem; }
 
-  Without them, the blocks have a plain look of their own (the values below). Sizes and spacing are
+  Without them, the blocks take the site's colour roles (the values below) and have a plain look of their own. Sizes and spacing are
   the blocks' own, in rem; their text has the site's font. Every theme imports this file into its CSS
   (styles/global.css: the standard theme's, another theme's …), which the editor uses too.
 
@@ -58,20 +58,20 @@
   its logo).
 */
 :where(:root) {
-  --block-text: #1f2328;
-  --block-muted: #59636e;
-  --block-accent: #0969da;
-  --block-accent-hover: #0550ae;
-  --block-on-accent: #ffffff;
-  --block-primary: var(--block-accent);
-  --block-on-primary: var(--block-on-accent);
-  --block-secondary: #565f71;
-  --block-on-secondary: #ffffff;
-  --block-tertiary: #6f5676;
-  --block-on-tertiary: #ffffff;
-  --block-surface: #ffffff;
-  --block-tint: #f2f4f7;
-  --block-line: #d8dee4;
+  --block-text: var(--mo-on-surface);
+  --block-muted: var(--mo-on-surface-variant);
+  --block-accent: var(--mo-primary);
+  --block-accent-hover: color-mix(in srgb, var(--mo-on-primary) 8%, var(--mo-primary));
+  --block-on-accent: var(--mo-on-primary);
+  --block-primary: var(--mo-primary);
+  --block-on-primary: var(--mo-on-primary);
+  --block-secondary: var(--mo-secondary);
+  --block-on-secondary: var(--mo-on-secondary);
+  --block-tertiary: var(--mo-tertiary);
+  --block-on-tertiary: var(--mo-on-tertiary);
+  --block-surface: var(--mo-surface-container-lowest);
+  --block-tint: var(--mo-surface-container-high);
+  --block-line: var(--mo-outline-variant);
   --block-radius: 0.75rem;
   --block-radius-small: 1rem;
   --block-control-radius: 0.5rem;
