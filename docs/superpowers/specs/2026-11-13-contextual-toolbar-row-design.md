@@ -59,7 +59,7 @@ Pages read: `m3.material.io/components/toolbars/` overview, specs, guidelines, a
   owner's design and not in M3. Deviation.
 - **Sizes and targets.** "By default all toolbars are 64dp high ... minimum outside padding of 16dp." "All elements need a
   minimum 48x48dp target area." "Consider making touch targets at least 48 x 48dp" (foundations/structure). "Only shrink the height
-  and use extra small buttons if vertical space is limited." Our bar is 48 dp high.
+  and use extra small buttons if vertical space is limited." Our bar is 40 dp high (step -2, section 8), with 48 dp targets on touch.
 - **Keyboard and role.** "On web, the toolbar container should have the toolbar role." "Tab or Arrows: Navigate between
   interactive elements; Space or Enter: Activate." The theme's `Toolbar` has one Tab stop with arrows inside.
 - **Tabs instead of a menu.** See section 3: not used.
@@ -75,7 +75,8 @@ so the theme's `Toolbar` is our own build of the design.
    (the bar stays with the text). Why: it belongs to the text box; the bottom is the keyboard and the save bar.
 3. *Contextual tools slide in and push the main tools out.* M3: no such behaviour is described. We: the contextual tools slide in
    from the leading side and push the main tools out of view; they slide back when the context is left. Why: owner's decision.
-4. *Bar height 48 dp, not 64 dp.* M3 allows shorter "if vertical space is limited". We: 48 dp on every screen size. Why: it
+4. *Bar height 40 dp, not 64 dp.* M3 allows shorter "if vertical space is limited". We: 40 dp on every screen size (step -2; the density
+   entries are in section 8). Why: it
    sits over the text; a phone is short.
 
 ## 3. The bar
@@ -143,7 +144,7 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
   contextual and main tools. It is hidden when there is no context (idle). In the `⋮` list a `MenuDivider` (also the theme's
   `Divider`) separates the groups.
 - **Idle.** Only the main tools, from the leading edge, so the slide-in reads as a push from the left. The bar keeps its height
-  (48 dp), so the page never jumps.
+  (40 dp), so the page never jumps.
 - **Entering a context** (the cursor goes into text, or a block or row becomes active): the contextual tools slide in from the left
   and the main tools are pushed to the right and out of view (section 4); the tools that do not fit are then in `⋮`, and Undo stays at
   its place after the divider. **Leaving it:** the same movement the other way. **Changing from one context to another** is not a slide: the
@@ -286,10 +287,10 @@ Move, Remove). Actions are today's, from the inline spec; this spec only moves t
   because on idle and on wide screens they are where they were; (5) a theme that styles `Toolbar` badly breaks the whole editor:
   the bar uses only `--toolbar-*` tokens and the `Divider` part; (6) the old bars' tests (`.contextual-menu` in
   `scripts/editor-screens.mjs`) must move.
-- **Checks:** `check:screens` at 375 and 1280: one bar, 48 dp high, the same height idle, in text and on every block; the divider
+- **Checks:** `check:screens` at 375 and 1280: one bar, 40 dp high, the same height idle, in text and on every block; the divider
   shows only with a context; at 375 the bar holds exactly the lists of section 3 (Text, Table, List, Image: tool names read from the bar and from the
   `⋮` sheet), never scrolls (`scrollWidth` equals `clientWidth`), and Undo stays on it and works; the `⋮` sheet lists Redo, Insert
-  and the rest; at 1280 both groups fit and are visible; no button under 48 dp; no horizontal page scroll; the slide runs with `prefers-reduced-motion: no-preference` (assert the
+  and the rest; at 1280 both groups fit and are visible; no hit area under 48 dp on touch (44 dp with a mouse; a `::before` hit area is measured, not the visible 40 dp); no horizontal page scroll; the slide runs with `prefers-reduced-motion: no-preference` (assert the
   animation exists, with the theme's duration) and is absent with `reduce`; `check:contrast` and `check:editor-colors` on the bar in each
   section colour; `check:css-values` finds no literal motion or spacing in the new CSS. Not covered by the scripts: the keyboard on a
   real phone, and how a theme looks; both by hand. The Preview of the branch cannot sign in, so the owner reads screenshots from
@@ -306,56 +307,65 @@ Move, Remove). Actions are today's, from the inline spec; this spec only moves t
 - **Release note:** yes, one **paragraph** (it changes how the editor looks): "Find the tools in one place" (English and Danish, with
   the `release-notes` skill). It goes with step 1, when the owner first sees it.
 
-## 8. Owner input: editor menus
+## 8. Owner input: editor menus (decisions)
 
 Owner's advice: (a) in an editor the UI around the content should take as little room as possible, so high density (-2/-3) fits
 toolbars; (b) icons drawn 20 to 24 dp, hit area still 44 dp with a mouse and 48 dp on touch; (c) icon-only buttons need clear hover
 states and tooltips that show the keyboard shortcut; (d) do not put everything in one long scrolling drop-down: a quick toolbar (top
-actions only), context menus where the user works, and a command palette (Cmd/Ctrl+K) when there are many functions. Checked
-against M3 (Playwright: `/foundations/layout/understanding-layout/density`, `/components/tooltips/guidelines`,
-`/components/icon-buttons/specs` and `accessibility`, `/components/menus/guidelines`) and the code. The one-bar decision is unchanged.
+actions only), context menus where the user works, and a command palette. **Owner decision (13 November): "Let us make the editor
+menu an exception to the user choice and follow what I gave you."** So the editor's bar and menus do **not** follow the per-user
+density choice of PR #518; they are fixed as below. Checked against M3 (Playwright: `/foundations/layout/understanding-layout/density`,
+`/components/tooltips/guidelines`, `/components/icon-buttons/specs` and `accessibility`, `/components/menus/guidelines`) and the code.
 
-**(a) Density.** M3: "The density scale is numbered, starting at 0 ... (-1, -2, -3) as space decreases"; "Higher density is typically
-applied by decreasing the top and bottom padding or overall height by 4dp"; "Don't apply component scaling by default if it would result
-in a target below 48x48 CSS pixels"; "Accessible targets should retain a minimum of 48x48dp, even if the visual element, such as an
-icon, is smaller"; "Density shouldn't automatically change across breakpoints or orientation unless a person changes it"; "Don't
-increase density in UIs that involve focused tasks, such as selecting from a menu." So M3 allows -2/-3, but only as something a person
-chooses, and the hit area stays 48 dp. The density spec (PR #518) offers three names: Large (+1), Medium (0, today's look), Small (-1);
--2 and -3 stay in the mechanism but the editor does not offer them. Recommendation: the bar is built on #518's step tokens, so it
-follows the user's density setting (Small makes the bar 4 dp lower); the default stays Medium; -2/-3 are not offered unless the
-owner widens #518. Not read: M3 gives density numbers for the segmented button only; none for toolbars.
+**What is decided**
 
-**(b) Icon size and hit area.** M3: "Extra small and small icon buttons must have a target size of 48x48dp or larger to be accessible";
-"Consider making touch targets at least 48 x 48dp ... about 9mm". The icon-button page has an "Icon size" heading, but the values are in
-images, so I could not read the sizes as text; I wrote none. M3 gives no smaller target for a mouse: the 44 dp is not on the M3 pages I read, and I did not check where that figure comes from. Today the editor draws icons at 24 dp in the bar (`contextualMenu.ts`) and 20 dp
-in the block's card menu, with a 48 dp button (`min-width: 3rem; height: 3rem`). Recommendation: one hit area for mouse and touch, 48 dp (M3's), with the icon at 24 dp; a separate 44 dp for the mouse would be a deviation from M3 that gains nothing, because the bar is 48 dp high anyway. Icon sizes below 24 dp wait until M3's values can be read.
+1. **Fixed high density for the bar, the `⋮` list and the formatting menus.** They read their own density tokens (set to step -2 in the
+   editor's CSS), not the user's density setting, and not the theme's default. A theme can still restyle them through the same tokens.
+2. **Step -2, not -3 (my proposal, owner decides the step: question 6).** M3: each step takes 4 dp off the height ("Higher density is
+   typically applied by decreasing the top and bottom padding or overall height by 4dp"). The bar is 48 dp tall at step 0 in this spec
+   (the button height, no extra padding; the height the theme's `Toolbar` draws today I have not measured, its docked padding is a
+   token, to be measured in step 1). **-2 makes the bar 40 dp tall, -3 makes it 36 dp.** A 24 dp icon in 40 dp leaves 8 dp above and
+   below; in 36 dp only 6 dp, or a 20 dp icon. Recommendation: -2 with 24 dp icons (the owner's range is 20 to 24 dp: 20 dp only
+   in the `⋮` list rows and the card menu, as today).
+3. **Hit areas: 48 dp on touch, 44 dp with a mouse, whatever the bar looks like.** The visible button is 40 dp tall, its hit area is
+   extended by an invisible `::before` (pointer events on, no background): 48 × 48 dp when `(pointer: coarse)`, 44 × 44 dp when
+   `(pointer: fine)`. It reaches 4 dp (2 dp for a mouse) above and below the bar; at the bottom it covers the first 4 dp of the text
+   box's edge, and the bar wins a tap there. The hit areas never overlap each other (the pitch along the bar is the hit width).
+4. **Hover and focus:** M3's 8% state layer on hover (read: "Hovered (8% state layer)") and the focus ring, from the theme's icon
+   button; the pressed state of a toggle (Bold) is clear.
+5. **A tooltip on every icon-only button of the bar and its menus**, as today (the theme's plain tooltip, `useTooltip` in
+   `src/ui.tsx`), **now with the keyboard shortcut after the name** ("Bold  Ctrl+B", "Bold  ⌘B" on a Mac) **and `aria-keyshortcuts`**,
+   for every tool that has a key. Today no tooltip shows a shortcut and no button has `aria-keyshortcuts`. The text engine has
+   `Mod-b`, `Mod-i`, `Mod-e`, `Mod-z`, `Mod-y`, `Shift-Mod-z`, `Mod-Alt-5` to `Mod-Alt-8`, `Mod-Shift-b`, `Mod-Alt-c` (key names
+   found in the Milkdown preset files, not tested in the editor, none found for Link). A tool with no key shows the name only; giving
+   Link and the others a key is a separate small change.
+6. **A quick bar and context where the user works.** The one bar is both: its contextual tools are the text actions on text and the
+   block's actions on a block (section 6), and the `⋮` is grouped, never one long list. A right-click context menu and a command palette
+   are not part of this spec: they are a separate spec (the PM starts it).
 
-**(c) Hover states and tooltips with the shortcut.** M3: "Hovered (8% state layer)" on icon buttons (icon-buttons/specs); "When
-applicable, a tooltip should be available to help describe the icon button's purpose" and "On web, icon buttons should display a
-tooltip with an accessibility label" (accessibility). Plain tooltips "are best used for labelling UI elements with no text, like
-icon-only buttons"; "Avoid wrapping text to multiple lines or including many pieces of information"; they disappear "1.5 seconds after
-navigating away". M3 says nothing about showing a keyboard shortcut in a tooltip (not found); menu items may have "keyboard commands"
-as trailing text (menus/guidelines: "Menu items can include label text, leading icons, trailing icons, and keyboard commands").
-**The editor today:** every button of the main toolbar (`ToolbarButton`, `useTooltip` in `src/ui.tsx`) has the theme's plain tooltip
-with its name, shown after a moment under the mouse and at once on keyboard focus, not on a phone; hover state from the theme's
-icon button. **No tooltip shows a shortcut, and no button has `aria-keyshortcuts`.** The text engine (Milkdown's commonmark and history
-presets) has keys: `Mod-b`, `Mod-i`, `Mod-e`, `Mod-z`, `Mod-y`, `Shift-Mod-z`, `Mod-Alt-5` to `Mod-Alt-8`, `Mod-Shift-b`, `Mod-Alt-c`.
-I found these key names in the preset files and have not tested each in the editor, and I found none for Link. Recommendation: add
-the shortcut to the plain tooltip after the name ("Bold  Ctrl+B", "Bold  ⌘B" on a Mac) and `aria-keyshortcuts` for the tools that
-have a tested key; Link and the rest get none until they have one. This is a small, separate change (the tooltip text is built in one
-place). Note that the tooltip itself waits "a moment" before it shows; that is the tooltip's own delay and not the bar's, so it stays.
+**Slots at 375 px with the new height (real numbers).** The bar is 40 dp tall, but the width is set by the hit area, not by how the
+buttons look: a touch button needs a 48 dp hit width, so the pitch is 48 dp on a phone. Room is 343 dp (375 − 2 × 16): **7 hit areas of
+48 dp fit only if there is no gap at all (336 dp + a 1 dp divider = 337 dp); 6 fit with 49 dp to spare, and at 360 px (328 dp of room)
+only 6 fit.** So the lists of section 3 stay at 6 slots; the lower density gives the page more height, not the bar more tools. With a
+mouse the pitch is 44 dp: a narrow desktop window of 500 px has 468 dp, which is 10 slots. The rule the bar uses:
+`slots = floor((width − 32 − divider) / pitch)`, with the pitch 48 (touch) or 44 (mouse), measured, never a timer.
 
-**(d) Quick toolbar, context menus, command palette.** M3: "Use a menu to show a temporary set of actions. To show actions on screen
-at all times, use a toolbar instead"; "Context menus provide actions for a specific element ... A secondary click ... opens a context
-menu"; "Don't use gaps in scrollable menus"; menus "can scroll when all menu items can't display at once". So M3 backs both: a
-toolbar for what is always at hand, a menu for the rest, a context menu on a secondary click. **What the editor does with this:** the one
-bar already is the "context where the user works": its contextual tools are text actions on text and the block's actions on a block
-(Image: Change image, Crop; Table: row and column actions). The `⋮` is grouped, not one long list (section 3): the context's own overflow tools, a divider, the page tools (Redo, Insert), a divider, then for a block Hide, Move, Remove; on a phone it is the existing *More* bottom sheet with group titles.
-It stays short because each context fills it with only what applies (about 9 rows at most, section 3); whether it may scroll is question 3. A right-click context menu on text or a
-block (M3's secondary click) on a computer, showing the same actions as the bar, is possible later and reuses `Menu`; it is not part of
-this spec. **A command palette (Cmd/Ctrl+K)**: M3 has no such component (it is not a Material part; I found no M3 page for it in the
-pages I read). It fits "many functions", but it is a separate feature with its own design (what is searched, which actions are listed, the shortcut). Recommendation: do not design it here;
-write it as a later, separate spec if the owner wants it.
+**M3 deviations of this exception** (entries for `docs/material-deviations.md`, with step 1):
+- *Editor bar and menus ignore the user's density.* **M3 says:** "People can change density as long as the density controls are
+  accessible" and "Density shouldn't automatically change across breakpoints or orientation unless a person changes it" (density
+  page). **We do:** the bar, the `⋮` list and the formatting menus are fixed at step -2 whatever the person chooses in #518's
+  setting. **Why:** owner's decision, 13 November: an editor's own UI should take little room. Date 2026-11-13.
+- *Step -2 on a toolbar and its menus.* **M3 says:** "Don't increase density in UIs that involve focused tasks, such as selecting from a
+  menu. It reduces usability by limiting selectable space." **We do:** the `⋮` list rows and the formatting menus are also at step -2,
+  but each row keeps its 48 dp (touch) or 44 dp (mouse) hit height, so the space to select is not reduced. **Why:** same.
+- *44 dp mouse target.* **M3 says:** "For most platforms, consider making touch targets at least 48 x 48dp." **We do:** 44 × 44 dp
+  with a mouse, 48 × 48 dp on touch (`pointer: coarse`). **Why:** owner's decision. (Not read: whether any M3 page gives a separate,
+  smaller target for a mouse; I found none.)
+- Not a deviation: the tooltip with a shortcut. M3's plain tooltip "briefly describe[s] a UI element" and says nothing for or against a
+  shortcut; menu items may carry "keyboard commands" as trailing text.
+
+**Not read:** the icon sizes of the icon button (images), density numbers for toolbars (M3 gives them for the segmented button only),
+and any M3 text on shortcuts in tooltips.
 
 ## 9. Open questions for the owner (the PM asks them one at a time)
 
@@ -376,7 +386,8 @@ question (one bar stays at the top).
 4. **On a wide screen, are the main tools pushed out of sight too, or do both groups stay visible; and when idle, are the main tools
    at the left edge or centred as today?** Recommendation: both stay visible when they fit, and the main tools stand at the left edge when
    idle, so the slide-in from the left reads as a push.
-5. **Moving from one context to another (text to a Table, Table to Cards): slide again, or change in place with a fade?**
-   Recommendation: a fade in place; the slide only on entering or leaving, so the bar is calm while you click around.
-6. **When you tap the page header, a sheet or another screen, how fast does the bar roll back?** Recommendation: at once when the focus
-   goes elsewhere, but not while a sheet that the bar opened (More, Settings) is open.
+5. **Two small behaviours.** (a) Moving from one context to another (text to a Table, Table to Cards): a fade in place, not another slide
+   (recommendation), so the bar is calm while you click around. (b) When focus goes to the page header, a sheet or another screen: the bar
+   rolls back at once, but not while a sheet that the bar opened (More, Settings) is open (recommendation).
+6. **Which density step for the bar and menus: -2 (40 dp tall, recommended) or -3 (36 dp)?** M3 has both; each takes 4 dp off the height. With
+   -2 a 24 dp icon keeps 8 dp of air above and below; with -3, 6 dp. The hit areas stay 48 dp (touch) and 44 dp (mouse) either way.
