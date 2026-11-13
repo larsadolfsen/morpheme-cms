@@ -412,8 +412,10 @@ async function checkSelection() {
       problems.push(`${label}: ticking select all does not select all ${total} rows`);
     await box.click();
     await page.waitForTimeout(200);
-    if ((await checked(page, 'main')) !== 0 || (await box.count()) !== 1)
-      problems.push(`${label}: unticking select all does not unselect all and stay in selecting`);
+    if ((await checked(page, 'main')) !== 0 || (await box.count()) !== (stays ? 1 : 0))
+      problems.push(
+        `${label}: unticking select all does not unselect all ${stays ? 'and stay in selecting (started with Select)' : 'and end selecting (started on a row)'}`,
+      );
   };
   for (const w of [375, 1280]) {
     const touch = w < 600;
