@@ -124,7 +124,7 @@ const PAGE_SOURCE = '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n
 const FIXTURE_PAGE = 'Check page';
 make(
   'src/content/pages/zz-check-page.md',
-  `---\ntitle: "${FIXTURE_PAGE}"\n---\n\n# ${FIXTURE_PAGE}\n\nMade by check:screens, never saved.\n`,
+  `---\ntitle: "${FIXTURE_PAGE}"\nstatus: "draft"\n---\n\n# ${FIXTURE_PAGE}\n\nMade by check:screens, never saved.\n`,
 );
 /** A post that is not on the blog: the demo's, or the one made here. */
 const UNLISTED_POST = existsSync(join(ROOT, 'src/content/blog/not-on-the-blog.md'))
@@ -136,31 +136,11 @@ make(
   `---\ntitle: "${UNLISTED_POST}"\ndate: 2026-01-02\nunlisted: true\n---\n\nMade by check:screens, never saved.\n`,
 );
 // The lists the dynamic List checks read: the demo's Testimonials and Highlights, or two made here with the same names.
-if (!has('src/data/highlights')) {
-  make(
-    'src/data/highlights/_list.json',
-    JSON.stringify({ version: 1, label: 'Highlights', fields: ['icon', 'title', 'text', 'href'], dropped: [] }),
-  );
-  make('src/data/highlights/one.json', JSON.stringify({ order: 1, icon: 'star', title: 'First highlight', text: 'Made by check:screens' }));
-  make(
-    'src/data/highlights/two.json',
-    JSON.stringify({ order: 2, icon: 'heart', title: 'Second highlight', text: 'Made by check:screens' }),
-  );
-}
-if (!has('src/data/testimonials')) {
-  // (Testimonials is the editor's own list: items only, no _list.json.)
-  make(
-    'src/data/testimonials/one.json',
-    JSON.stringify({
-      order: 1,
-      name: 'A customer',
-      context: 'Made by check:screens',
-      quote: 'It works.',
-      categories: [],
-      frontPage: false,
-    }),
-  );
-}
+for (const list of ['highlights', 'testimonials'])
+  if (!has(`src/data/${list}`)) {
+    const from = fileURLToPath(new URL(`../demo/src/data/${list}/`, import.meta.url));
+    for (const name of readdirSync(from)) make(`src/data/${list}/${name}`, readFileSync(join(from, name), 'utf8'));
+  }
 
 // CHROMIUM_PATH: another Chromium than Playwright's own (one installed for another version of Playwright).
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
