@@ -105,6 +105,8 @@ const builtPages = existsSync(join(ROOT, 'src/content/pages'))
       .sort()
   : [];
 const BUILT_PAGE = `src/content/pages/${builtPages.includes('about.md') ? 'about.md' : (builtPages[0] ?? 'about.md')}`;
+/** A page's text of our own for the checks that put a section on a heading: a site's page need not have one. */
+const PAGE_SOURCE = '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n## Tinted\n\nTinted text.\n';
 /** The title of a page the long press, the link and the lists checks use: the demo's, or the one made here. */
 const FIXTURE_PAGE = 'Check page';
 make(
@@ -473,7 +475,6 @@ async function checkEmptyHint() {
 /** The rows of a List, Segmented list and FAQ are Material's: no list marker (list-style, ::marker), in the editor and in the Preview (where the page's text style, prose, must not reach them) and on the site. */
 async function checkListMarkers(width) {
   const path = BUILT_PAGE;
-  if (!existsSync(join(ROOT, path))) return;
   const markers = () =>
     [...document.querySelectorAll('ul.list')].flatMap((ul) =>
       [ul, ...ul.children].flatMap((el) => {
@@ -590,8 +591,9 @@ async function checkListsAndBlocks(width) {
 /** The Preview (the binoculars) draws a section's background from the page's text as saved, also when the built site does not have the section yet (it is rebuilt after a save), and with the colour the editor shows. */
 async function checkPreviewSection() {
   const path = BUILT_PAGE;
-  if (!existsSync(join(ROOT, path))) return;
-  const text = readFileSync(join(ROOT, path), 'utf8').replace(/(\n)(## [^\n]+)/, '$1<div data-section="tertiary"></div>\n\n$2');
+  // (A text of its own: a site's page need not have a heading to put the section on.)
+  const text =
+    '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<div data-section="tertiary"></div>\n\n## Tinted\n\nTinted text.\n';
   const page = await browser.newPage({ viewport: { width: 390, height: 800 }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`Preview section: ${e.message}`));
   await openEditor(page, site, { [path]: text });
@@ -612,8 +614,7 @@ async function checkPreviewSection() {
 /** A page whose H1 section has a background (a colour or an image) has it start right under the navigation bar (gap 0 ±1px), on the site and in the Preview at 390 and 600; a page whose H1 section has none keeps its space under the bar. */
 async function checkH1SectionGap() {
   const path = BUILT_PAGE;
-  if (!existsSync(join(ROOT, path))) return;
-  const source = readFileSync(join(ROOT, path), 'utf8');
+  const source = PAGE_SOURCE;
   const picture = '/images/uploads/2026/10/earth-from-space.webp';
   const variants = [
     { name: 'colour', marker: '<div data-section="tertiary"></div>\n\n', background: true },
@@ -663,11 +664,7 @@ async function checkH1SectionGap() {
 /** A full-width section has the whole width only as its background: on the built site and in the Preview, its content has the same left edge as the page's text, inside the centred container, at 840, 1200 and 1600, and nothing overflows sideways at 375. */
 async function checkFullSection() {
   const path = BUILT_PAGE;
-  if (!existsSync(join(ROOT, path))) return;
-  const text = readFileSync(join(ROOT, path), 'utf8').replace(
-    /(\n)(## [^\n]+)/,
-    '$1<div data-section="tertiary" data-width="full"></div>\n\n$2',
-  );
+  const text = PAGE_SOURCE.replace(/(\n)(## [^\n]+)/, '$1<div data-section="tertiary" data-width="full"></div>\n\n$2');
   const measure = () => {
     const box = (e) => (e ? e.getBoundingClientRect() : null);
     const section = document.querySelector('section.text-section-full');
