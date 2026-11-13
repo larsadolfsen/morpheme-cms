@@ -308,6 +308,27 @@ async function checkTextBar(width = 360) {
   if (!menu.kept) problems.push(`${label}: the ⋮ took the cursor out of the text`);
   await page.keyboard.press('Escape');
   if (await page.locator('[role=menu][aria-label="More"]').count()) problems.push(`${label}: Escape did not close the ⋮ menu`);
+  // A row of the ⋮ opens its own menu under the ⋮ button (the ⋮ menu closes); a tap on the ⋮ closes that menu and does not draw the ⋮ menu behind it.
+  await more.click();
+  await page
+    .locator('[role=menu][aria-label="More"] [role^=menuitem]')
+    .filter({ hasText: /^Align left$/ })
+    .first()
+    .click();
+  await page
+    .waitForSelector('[role=menu][aria-label="Alignment"]', { timeout: 3000 })
+    .catch(() => problems.push(`${label}: the Alignment row did not open its menu`));
+  if (await page.locator('[role=menu][aria-label="More"]').count())
+    problems.push(`${label}: the ⋮ menu stays open behind its Alignment menu`);
+  await more.click();
+  await page.waitForTimeout(200);
+  const left = await page.locator('[role=menu]').count();
+  if (left) problems.push(`${label}: a tap on the ⋮ with its Alignment menu open leaves ${left} menu(s) on the screen, not none`);
+  await more.click();
+  await page
+    .waitForSelector('[role=menu][aria-label="More"]', { timeout: 3000 })
+    .catch(() => problems.push(`${label}: the ⋮ does not open its menu again`));
+  await page.keyboard.press('Escape');
   // With the keyboard open (a short screen) the menu stays inside what is visible and scrolls.
   await page.setViewportSize({ width, height: 420 });
   await page.waitForTimeout(300);

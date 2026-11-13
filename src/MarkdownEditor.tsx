@@ -1843,6 +1843,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     watch.observe(bar);
     return () => watch.disconnect();
   }, []);
+  // A menu of one of the ⋮ menu's rows is open under the ⋮ button.
+  const underMore = [kindsAt?.at, alignAt, colorAt].some((at) => !!at && at === moreButton.current);
   const plan = planBar({
     slots: slotsFor(barWidth, contextIds.length > 0),
     context: contextIds,
@@ -1991,8 +1993,21 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
             ref={moreButton}
             icon={DotsThreeVertical}
             label={t.text.more}
-            popup={!!moreAt}
-            onClick={(e) => setMoreAt(moreAt ? null : e.currentTarget)}
+            popup={!!moreAt || underMore}
+            onClick={(e) => {
+              // A tap on the ⋮ while one of its rows' menus (Text style, Alignment, Color) is open closes that menu and does not open the ⋮
+              // menu behind it; else it opens or closes the ⋮ menu, with none of the others open.
+              if (underMore) {
+                setKindsAt(null);
+                setAlignAt(null);
+                setColorAt(null);
+                return setMoreAt(null);
+              }
+              setKindsAt(null);
+              setAlignAt(null);
+              setColorAt(null);
+              setMoreAt(moreAt ? null : e.currentTarget);
+            }}
           />
         )}
       </Toolbar>
