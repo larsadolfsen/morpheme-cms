@@ -176,8 +176,11 @@ four become its buttons, so there is one place for block actions. Image/Card/Lis
   5. *Small:* the iOS variable, the fade, the deviations entry, the release note.
 - **Release note:** yes, one **paragraph** (it changes how the editor looks): "Find the tools in one place" (English and Danish,
   with the `release-notes` skill). Not in a changeset of its own: it goes with step 2, when the owner first sees it.
-- `docs/material-deviations.md`: the row is M3's docked toolbar; a second one directly under the first is a combination M3
-  does not show. One entry when step 1 lands.
+- **Material pages not read.** I did not open m3.material.io for this spec. The statements that the row is M3's docked toolbar,
+  that M3 has no pair of stacked toolbars, and the 48 dp targets come from the theme's own `Toolbar` comment and the existing
+  code, not from the M3 pages. Before step 1, a session reads the Toolbars pages (with Playwright, they are script-rendered) and
+  fixes this spec if they say otherwise.
+- `docs/material-deviations.md`: one entry when step 1 lands, if the M3 pages confirm that a second docked toolbar under the first is not a pattern.
 
 ## 7. Open questions for the owner (the PM asks them one at a time)
 
