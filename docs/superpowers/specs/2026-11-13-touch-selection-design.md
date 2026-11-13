@@ -22,7 +22,7 @@ selected); Escape ends it.
 | Pages and posts lists | Long press or tap the ring; tap adds; Delete | Hover checkbox; *Select* button | **Keep and improve** (exists today) |
 | Notifications | Same; Delete | Hover checkbox | **Keep and improve** (exists today) |
 | Files (images and other files) | Long press or tap the thumbnail; Delete (files in use are kept) | Hover checkbox | **Build** (needs the image tile; a checkbox on the tile, section 3.4) |
-| Deleted files and pages | Same; Restore | Checkboxes always shown (primary) | **Build** |
+| Deleted files and pages | Same; Restore | Always shown or on hover: **not decided** (question 13) | **Build** |
 | Redirects, own-list entries | Same; Delete | Hover checkbox | **Build, later** |
 | Apps, categories, tags, keywords | Nothing: each item is its own control | Nothing | **No selection** |
 | Blocks of a page | One active block, the row shows its actions | Same | **No batch select** (long press is the OS's in text) |
@@ -119,7 +119,7 @@ Selection is for **lists of many like things where an action applies to several 
 | Pages, posts, own-list entries | yes (exists for pages and posts) | Delete; later Hide/Show, Publish | **secondary** (opening is the main thing) |
 | Files (images and other files) | yes, new | Delete (skip files in use, say how many) ; later Tag | **secondary** |
 | Notifications | yes (exists) | Delete | secondary |
-| Deleted files / pages | yes, new | Restore | **primary** (the screen exists to bring things back) |
+| Deleted files / pages | yes, new | Restore | not decided: always visible (primary) or hover first (question 13) |
 | Redirects | yes, new, late | Delete | secondary |
 | Apps, categories, tags, keywords | **no** — each item is its own control or a chip; nothing is done to many | — | — |
 | Blocks of a page | **no batch selection in this spec.** One active block with the row (#519). Open question 6 | — | — |
@@ -137,7 +137,7 @@ Selection is for **lists of many like things where an action applies to several 
 
 ### 3.3 Mouse and keyboard (desktop, or any mouse, trackpad or stylus)
 
-- **Primary or secondary.** Pages, posts, files, notifications, redirects, entries: **secondary**. The checkbox shows **on hover or keyboard focus of that row** (in the slot it will have, so nothing moves) and **on every row once one is selected**. Deleted files and pages: **primary**, checkboxes always visible.
+- **Primary or secondary (decided by the owner).** Pages, posts, files, notifications, redirects, entries: selection is **secondary**, so the checkbox shows **on hover or keyboard focus of that row** (in the slot it will have, so nothing moves). "When one item is selected the selection becomes the primary activity": **on every row and tile once one is selected**, and hover-only again when none is. Whether the Deleted files and pages screens show them always is **not decided** (question 13).
 - **Click on the checkbox** toggles; a click anywhere else on the row opens it, as now. Once one is selected, a click anywhere toggles (selection mode, as on touch).
 - **Select button.** The top bar's *Select* (`ListChecks`) stays, for discoverability and for people who do not hover. It enters selection mode with nothing selected.
 - **Keys:** Tab reaches the list; arrow keys move between rows (M3 lists accessibility); **Enter** opens a row (primary); **Space** toggles the focused row (enters selection mode if needed); **Shift+click** and **Shift+Arrow** select a range; **Ctrl/Cmd+A** selects all shown rows while in selection mode; **Escape** exits and clears (Inputs page: "clear selections"). Escape already unselects in the Library and in Notifications; it must do so on every selection screen.
@@ -224,12 +224,12 @@ Into `main`, each with a changeset. S = a day or less, M = a day or two, L = mor
 2. **M — theme `ListItem`: trailing checkbox shown on hover and on all rows while selecting (leading for a text-only row); leading-slot shortcut; selected shape change; no filled-tick swap.** Pages and posts and notifications use it. Screens in `theme/ui` parts page. Patch (or minor, the owner decides) changeset.
 3. **M — `SelectionBar`.** One shared component for the swapped top bar (count, Close, Select all with the indeterminate checkbox, actions), used by every list screen.
 4. **M — Files.** `ImageTile` with a selected state (after #515 row 3's part), selection mode on the Library, delete several (files in use are skipped and counted; one commit; records of tags go with them as `fileRecords.mjs` does for one). Release note.
-5. **S each — Deleted files and pages (primary: checkboxes always visible, Restore), Redirects (secondary, Delete), own-list entries (secondary, Delete).**
+5. **S each — Deleted files and pages (Restore; checkbox rule: question 13), Redirects (secondary, Delete), own-list entries (secondary, Delete).**
 6. **M, optional — long press and drag across rows** on lists with no drag handle. Question 4.
 
 **What the checks must prove** (`scripts/editor-screens.mjs`, run by `check:screens`; and `node --test`):
 - **At 375 with touch emulation** (Playwright context `hasTouch`, `isMobile`; a long press made with real touch events through CDP `Input.dispatchTouchEvent`: touchStart, 600 ms, touchEnd): the row becomes selected (`aria-checked="true"`, selected surface), the top bar swaps to "1 selected", a tap on a second row toggles it **without opening it** (the URL hash is unchanged), a tap on the leading icon of a third row on a fresh list enters the mode, unselecting the last ends the mode and removes the bar, the close button ends it; a long press that moves more than 10 px does nothing; a mouse press of 600 ms does nothing.
-- **At 1280 with a mouse and hover:** no checkbox before hover; hover shows exactly one; after one is selected all rows show theirs; click on the row opens it with nothing selected and toggles with one selected; Space toggles, Shift+Arrow selects a range, Ctrl+A selects all, Escape clears; Deleted screens show checkboxes from the start; a selected row has the theme's selected surface, a 16 dp corner and a checked checkbox (computed style); the leading icon, ring or image is unchanged.
+- **At 1280 with a mouse and hover:** no checkbox before hover; hover shows exactly one; after one is selected all rows show theirs; click on the row opens it with nothing selected and toggles with one selected; Space toggles, Shift+Arrow selects a range, Ctrl+A selects all, Escape clears; the Deleted screens follow question 13; a selected row has the theme's selected surface, a 16 dp corner and a checked checkbox (computed style); the leading icon, ring or image is unchanged.
 - **Both:** every checkbox, the leading shortcut, and every button in the bar measure at least 48 × 48 CSS px; the swapped bar never overflows or scrolls sideways; `check:contrast` and `check:editor-colors` pass on the selected surface in each section colour; `check:css-values` finds no literal value in the new CSS; focus is on the row after entering and on the next row after Delete.
 - **A text check that long press in the page text is not taken:** at 375, a 600 ms touch inside a text block does not toggle any selection and does not stop the browser's own text selection.
 - *Not covered:* the real OS long press and haptics on a phone, VoiceOver and TalkBack; both by hand, by the owner or the PM on a real phone.
@@ -240,7 +240,7 @@ Into `main`, each with a changeset. S = a day or less, M = a day or two, L = mor
 
 1. ~~Where does the selection bar go?~~ **Decided by the owner:** it swaps the top bar's title and buttons (count, Close, actions), not the docked row of #519.
 2. **How does selection look in a list?** M3 prints the variants "With leading icon and trailing checkbox" and "With leading checkbox", the selected surface and the 16 dp corner, and one selection interaction per row. Recommendation: **a trailing checkbox on rows that have a leading icon, ring or image (all four list screens), a leading checkbox on text-only rows, plus the selected surface; the leading icon does not change.** Alternative, not printed by M3: a filled leading icon and a tinted row with no checkbox (the Lists screenshot); I do not recommend it, because the pages do not describe it and a screen reader and a mouse user have no control to find.
-3. **Computer: are pages, posts, files and notifications "secondary" (the checkbox on hover, and on all rows after one is selected), and the Deleted screens "primary" (always visible)?** Recommendation: **yes**.
+3. ~~Computer: when is the checkbox shown?~~ **Decided by the owner:** on a computer a checkbox shows on hover (selection is secondary). "When one item is selected the selection becomes the primary activity": once one is selected, all rows and tiles show their checkbox (M3: "For all items after one item is selected"; "checkboxes are always visible when selection is the primary activity"), and it is hover-only again when nothing is selected.
 4. **Long press and drag across rows to select a batch?** Nothing in the editor moves by drag today, so it would not clash. It conflicts with scrolling and is hard to make reliable. Recommendation: **not now**; build only for the Files grid later if long lists need it.
 5. **Delete several files when some are in use?** (a) Skip the used ones and say how many were skipped; (b) refuse the whole delete. Recommendation: **(a)**; a message "2 of 5 files are used on pages and were kept".
 6. **Select several blocks of a page (move, delete, duplicate together)?** Blocks and text are typed in place, where a long press is the OS's. Recommendation: **no**: one active block with the row; revisit with *Duplicate* if owners ask. Tables and List-block rows likewise stay on one row or cell.
@@ -250,3 +250,4 @@ Into `main`, each with a changeset. S = a day or less, M = a day or two, L = mor
 10. **Cards: keep the outline ring for focus only?** M3's cards list no selected state (Hovered, Focused, Pressed, Dragged, Disabled). Recommendation: **yes**. A selected card is the theme's selected surface plus a checkbox on the card.
 11. **Files grid tiles:** a checkbox on the tile (M3: "Cards can also include ... checkboxes"), top-left on its own contained surface, plus the selected surface? Recommendation: **yes**; M3 is silent on where it sits, so this is our choice.
 12. **Table rows:** a checkbox column with select-all in the header, only where a screen becomes a real table (Material's own table caption shows one)? Recommendation: **yes**.
+13. **Deleted files and pages on a computer: checkboxes always visible (selection primary there), or hover first like the other lists?** Recommendation: **always visible**, because the only thing that screen does is bring several things back; M3 says "always visible when selection is the primary activity".
