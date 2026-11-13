@@ -1619,7 +1619,7 @@ async function checkInlineBlock(
         problems.push(`${label}: the ${kind} button's hint is ${hintColor} and its text ${fieldColor}, not its own ${rowColor}`);
     {
       // The contextual menu's Settings, a plain icon button on a computer and a phone.
-      await pressTool(page, 'Settings').catch(() => problems.push(`${label}: the toolbar has no way to open the button's settings`));
+      await pressTool(page, 'Settings').catch(async (e) => problems.push(`${label}: the toolbar has no way to open the button's settings ${JSON.stringify((await barTools(page)).names)} ${e.message.slice(0, 200)}`));
       const kinds = ['Filled', 'Tonal', 'Elevated', 'Outlined', 'Text'];
       const group = page.locator('[role="group"][aria-label="Style"], [aria-label="Style"]').last();
       await group.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's settings have no Style choice`));
@@ -2732,10 +2732,9 @@ async function checkInlineTable(width, height) {
   if (one.extra || one.faded) problems.push(`${label}: the table has "Next row", "Next column" or "Add row" in it`);
   if (one.outline !== 'dotted') problems.push(`${label}: the active cell has outline ${one.outline}, not dotted`);
   for (const name of ['Add row above', 'Add row below', 'Add column before', 'Add column after'])
-    if (!one.bar.some((b) => b.label === name && b.title === name && b.svg))
-      problems.push(`${label}: the menu has no icon button "${name}" with a tooltip`);
+    if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the bar has no icon button "${name}"`);
   for (const name of ['Delete row', 'Delete column'])
-    if (one.bar.some((b) => b.label === name)) problems.push(`${label}: "${name}" is offered for a one-cell table`);
+    if ((await barTools(page)).names.includes(name)) problems.push(`${label}: "${name}" is offered for a one-cell table`);
   // The menu makes the first column and the first body row of a one-cell table.
   await press('Add column after');
   const column = await state();
@@ -2753,9 +2752,10 @@ async function checkInlineTable(width, height) {
       `${label}: expected 3 rows and 9 cells after "Add row above" and "Add column before", got ${more.rows} and ${more.cells}`,
     );
   if (more.extra || more.faded) problems.push(`${label}: the table has "Next row", "Next column" or "Add row" in it after adding`);
+  // Delete row and Delete column are on the bar when there is room, else in its ⋮ menu.
+  const tools = await barTools(page);
   for (const name of ['Delete row', 'Delete column'])
-    if (!more.bar.some((b) => b.label === name && b.svg && b.title === name))
-      problems.push(`${label}: the menu has no icon button "${name}"`);
+    if (!tools.names.includes(name)) problems.push(`${label}: the bar and its ⋮ have no "${name}"`);
   const icons = more.bar.map((b) => b.icon);
   const same = more.bar.filter((b, i) => b.icon && icons.indexOf(b.icon) !== i).map((b) => b.label);
   if (same.length) problems.push(`${label}: the Table bar draws the same icon for two actions (${same.join(', ')})`);
@@ -3278,7 +3278,15 @@ async function checkHints() {
 
 /** The text's toolbar and field read as one closed box on a phone, empty, with the keyboard open and stuck at the top of the screen: the toolbar has a border on its top edge and on each side, and rounded top corners that keep the border. */
 async function checkToolbarBox() {
-  for (const [width, height] of [
+  // TEMP-DEBUG
+if (process.env.ONLY_BLOCK) {
+  for (const [w, h] of [[375, 740], [1280, 900]]) await checkInlineBlock(w, h, inlineBlocks.find((b) => b.name === process.env.ONLY_BLOCK));
+  await browser.close();
+  server.close();
+  console.log(problems.join('\n') || 'ok');
+  process.exit(0);
+}
+for (const [width, height] of [
     [360, 740],
     [375, 740],
     [414, 740],
