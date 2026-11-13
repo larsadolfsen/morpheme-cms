@@ -3,12 +3,12 @@
 Status: proposal for the owner. Design only, no code. Written for a phone: plain words, short.
 
 Owner's ask: "How should we implement touch in the backend?" That is: how the editor (`/editor/`) lets people select items on
-touch screens and with a mouse, following Material 3 Selection. Builds on the contextual toolbar spec (PR #519, "the row") and
-the two audits (PR #515 "theme parts", PR #520 "Material conformance"). The text and block tools live in #519's docked row; the
+touch screens and with a mouse, following Material 3 Selection. Builds on the contextual toolbar spec (PR #519, "the one bar") and
+the two audits (PR #515 "theme parts", PR #520 "Material conformance"). The text and block tools live in #519's one bar; the
 selection bar on list screens is a different thing and **swaps the top bar** (owner decision, section 3.5).
 
 Words: **selection mode** is the state where a tap on an item adds it to the selection instead of opening it. The **row** is the
-docked contextual toolbar under the main toolbar in the text editor (#519). The **selection bar** is the top app bar's title and
+editor's one toolbar (#519: main tools, a divider, a group of contextual tools that follows the selection, and a `⋮`; 44 dp buttons, 20 dp icons). The **selection bar** is the top app bar's title and
 buttons swapped for the count, Close and the actions while a list is in selection mode. A **part** is a ready-made piece of the theme (`theme/ui/`).
 
 ## Short answer: where touch selection goes and what it does
@@ -26,8 +26,8 @@ selected); Escape ends it.
 | Redirects, own-list entries | Same; Delete | Hover checkbox | **Build, later** |
 | Apps, categories, tags, keywords | Nothing: each item is its own control | Nothing | **No selection** |
 | Blocks of a page (page editor) | Long press on a block's handle or card, or its handle menu; tap adds; Move, Duplicate, Hide, Remove together | Hover checkbox on the card; all blocks after one is selected | **Build, after the lists** (section 6; the page editor is the editor workspace) |
-| Table cells and rows, List-block rows | One active cell or row, the row's actions | Same | **No batch select** |
-| Text | The OS handles and magnifier; the row's text tools | Mouse select, double and triple click | **Not this model** |
+| Table cells and rows, List-block rows | One active cell or row, the bar's actions | Same | **No batch select** |
+| Text | The OS handles and magnifier; the bar's text tools | Mouse select, double and triple click | **Not this model** |
 
 ## 1. What Material says (read 13 November 2026 with Playwright)
 
@@ -134,7 +134,7 @@ Selection is for **lists of many like things where an action applies to several 
 | Apps, categories, tags, keywords | **no** — each item is its own control or a chip; nothing is done to many | — | — |
 | Blocks of a page | **yes, section 6** (owner: "Add block selection"): Move as a group, Duplicate, Hide/Show, Remove | — | secondary; checkbox on hover, all after one is selected |
 | Table cells, rows; List-block rows | **no.** One active cell or row; actions on it (#519). A range of cells is a later question | — | — |
-| Text | **not this model.** The OS or the browser selects; the row's text tools act on it (#519, Inputs page) | — | — |
+| Text | **not this model.** The OS or the browser selects; the bar's text tools act on it (#519, Inputs page) | — | — |
 
 ### 3.2 Touch (phone, or any touch or pen input — by pointer type, not screen width)
 
@@ -173,7 +173,7 @@ Selection is for **lists of many like things where an action applies to several 
 ### 3.5 The selection toolbar
 
 **Decided by the owner (question 1): the selection bar swaps the top bar's title and buttons**, as the Library does now. It is not the
-docked contextual row of #519. List screens have no docked tool row anyway: that row belongs to the text editor.
+one bar of #519. List screens have no such bar anyway: it belongs to the text editor.
 
 ```
 PHONE 375 px                                COMPUTER 1280 px
@@ -192,14 +192,14 @@ PHONE 375 px                                COMPUTER 1280 px
 ### 3.6 Screen readers and focus
 
 - Rows in selection mode keep `role="checkbox"` with `aria-checked`, or `aria-pressed` on a button (`List.tsx`). **`aria-selected` and `aria-multiselectable` are not used on these rows:** they belong to `listbox`, `grid`, `tree` and `tablist`, and our rows are links and buttons that act as checkboxes. If the Files grid becomes `role="grid"`, `aria-multiselectable="true"` goes on it and its cells use `aria-selected`; until then tiles are `role="checkbox"` buttons in selection mode. (Reasoning stated so a reviewer can disagree; the M3 pages do not say which ARIA to use.)
-- The list gets `role="group"` with `aria-label` while selecting, and the live count in the row tells the number.
+- The list gets `role="group"` with `aria-label` while selecting, and the live count in the bar tells the number.
 - **Focus:** long press or the shortcut keeps focus on the row; the first toggle by keyboard keeps focus on that row; after **Delete** focus moves to the row that took its place, or to the list heading if none is left; after **Close** or Escape focus returns to the row last toggled (lists accessibility: focus to the selected item).
 - **Voice** ("Selection can be performed via ... voice"): the row (`role="checkbox"`) has its headline as its accessible name, so "tap <name>" works.
 - **Reduced motion:** the shape morph and the row's swap use the theme's `--motion-*` tokens, which already honour it.
 
 ### 3.7 Targets and density
 
-- Touch: the checkbox, the leading shortcut slot (the icon, ring or image), the row's close, select all and every action in the row: **48 × 48 dp**. Rows 56 dp and up (M3 lists: "at least 48x48dp"). No density on checkboxes (checkbox accessibility).
+- Touch: the checkbox, the leading shortcut slot (the icon, ring or image), the bar's close, select all and every action in the bar: **48 × 48 dp**. Rows 56 dp and up (M3 lists: "at least 48x48dp"). No density on checkboxes (checkbox accessibility).
 - Pointer: 44 dp is the M3 minimum; our 48 satisfies both, so there is no separate pointer size. Hover and focus states use the theme's state layers (8%, 10%).
 - Check at 375 and 1280 (section 5).
 
@@ -237,7 +237,7 @@ Into `main`, each with a changeset. S = a day or less, M = a day or two, L = mor
 5. **S each — Deleted files and pages (primary: checkboxes always visible, Restore), Redirects (secondary, Delete), own-list entries (secondary, Delete).**
 6. **M — long press and drag across rows** (decided: follow M3), after PR 2 and 3, on every selection list (none of them moves items by drag); the touch-move scroll guard and the edge auto-scroll of 3.2 item 4.
 7. **S — two-finger touch** in the same hook as the long press (3.2 item 5), together with PR 2 or on its own.
-8. **M/L — selecting several blocks of a page** (section 6), after PRs 1 to 5 and after #519 step 3.
+8. **M/L — selecting several blocks of a page** (section 6), after PRs 1 to 5 and after #519's one-bar shell.
 
 **What the checks must prove** (`scripts/editor-screens.mjs`, run by `check:screens`; and `node --test`):
 - **At 375 with touch emulation** (Playwright context `hasTouch`, `isMobile`; a long press made with real touch events through CDP `Input.dispatchTouchEvent`: touchStart, 600 ms, touchEnd): the row becomes selected (`aria-checked="true"`, selected surface), the top bar swaps to "1 selected", a tap on a second row toggles it **without opening it** (the URL hash is unchanged), a tap on the leading icon of a third row on a fresh list enters the mode, unselecting the last ends the mode and removes the bar, the close button ends it; a long press that moves more than 10 px does nothing; a mouse press of 600 ms does nothing.
@@ -290,20 +290,36 @@ Only actions that make sense for many are offered (the same blocks must all allo
 | **Remove** | yes | A **dialog with the count** (the theme's Dialog: "Remove 3 blocks?", the block names listed if five or fewer, *Remove* and *Cancel*, destructive style). Locked and staying blocks are skipped, named, and stay selected; the text's Undo takes the removal back in one step |
 | Edit (sheet or panel), Settings, Link, Fill from a list, Add above/below, row actions, the list page | **no** | They are about one block's own fields or one row |
 
-### 6.5 Where the actions sit: the bar
+### 6.5 Where the actions sit: the one bar of #519 (decided by the owner)
 
-The page editor has one contextual bar (#519: the docked **row** under the main toolbar, with a group of tools that follows the selection and a `⋮`).
-**Recommendation: the multi-block actions are that row's contextual group** (not the swapped top bar of lists): the row already is "what applies to the selection", the main toolbar keeps the global tools (Insert, Undo, Redo) and the page header keeps Save and Preview, so swapping the top bar would hide them. The group starts with **Close** and the count (**"3 blocks selected"**, `aria-live`), then Move up, Move down, Duplicate, Hide/Show, and `⋮` with Remove and Select all. On a phone: Close 48 dp, the count as the row's label, four tools and `⋮` of 48 dp each fit the 343 dp of #519's 375 px rule with the count shortened ("3 selected"). #519 is a proposal still; this PR follows its step 3 (the block bar moves into the row) and does not start before it. If #519 changes, merge main.
+**Decided by the owner (question 15, "Yes, use the one toolbar"):** the multi-block actions are the **contextual group of #519's one bar**, not the swapped top bar of lists; Save and Preview stay visible in the page header. Read from #519's latest head (`290394a`): one `Toolbar` (docked, standard colour, `role="toolbar"`), **44 × 44 dp buttons, 20 dp icons**, never scrolls, contextual tools first, then a divider, then **Undo and Redo**, then `⋮` (a pop-up menu on a phone). The slots: `floor((width − 32 − divider) / 44)`, so **7 slots at 375 px** (and at 360). A slot is a tool, Undo, Redo or `⋮`.
+
+**The group for several blocks, at 375 px (7 slots, 343 dp):**
+
+```
+[ ✕  3 ] [Move up] [Move down] ▏ [Undo] [Redo] [⋮]
+   2 slots (88 dp)    1         1         divider  1     1    1   = 7 slots
+⋮ : Duplicate, Hide / Show on page, Remove, Select all
+```
+
+- **Close and the count are one control** of two slots (88 dp, "✕" and the number, "3"): a tap clears the selection (the same as Escape); its accessible name and `aria-live` text say "3 blocks selected". Two slots because the count needs room; it is a deviation inside the editor workspace, so allowed.
+- **On the bar:** Move up, Move down. Undo and Redo stay (the owner's decision in #519).
+- **In `⋮` (a pop-up menu, #519's):** Duplicate, Hide / Show on page, Remove, a divider, Select all. `⋮` keeps #519's order of groups: the context's tools, then the page tools, then (blocks) Hide, Move, Remove; Select all is the group's first row.
+- **If the owner chooses "Undo only"** (#519's open choice, which frees one slot): **Duplicate** takes the freed slot and Redo goes into `⋮`.
+- **On a wide screen all tools show at once** (#519's rule): the count control, Move up, Move down, Duplicate, Hide / Show, Remove, then the divider and the main tools; `⋮` holds only Select all.
+- **Nothing selected, or a Table or List active:** the bar is #519's, unchanged. Selecting blocks replaces the contextual group in place with the theme's fade (`--motion-effects`); the bar's height never changes.
+- **Focus and names:** Tab reaches the bar as one stop with arrow keys inside (the theme's `Toolbar`, as #519); Escape clears the selection and returns the focus to the last toggled block.
+- **Dependency:** PR 8 follows #519's step 1 (the one-bar shell) and the step that moves the block tools in; if #519's head changes, merge main and re-read it.
 
 ### 6.6 PR and checks
 
-**PR 8 — M/L, after PRs 1 to 5 and #519 step 3:** the handle and checkbox on `blockCard`, the selection state of the page's blocks (one hook, `useSelection`, with the block's index as key), the group actions in the row, the Remove dialog, Duplicate, and the text read-only rule. Release note: part of the selection paragraph, or a line of its own.
+**PR 8 — M/L, after PRs 1 to 5 and #519's one-bar shell:** the handle and checkbox on `blockCard`, the selection state of the page's blocks (one hook, `useSelection`, with the block's index as key), the group actions in the row, the Remove dialog, Duplicate, and the text read-only rule. Release note: part of the selection paragraph, or a line of its own.
 Checks (`check:screens`, 375 with touch emulation and 1280, the demo's Blocks page):
-- Long press (CDP touch events, 600 ms) on a non-typed block's card and on a typed-in-place block's handle selects it and shows "1 selected" in the row; a long press in typed-in-place text starts no selection and the browser's own text selection works; a tap on a second block toggles it **without opening its sheet**; the text cursor is gone and the keyboard is closed.
+- Long press (CDP touch events, 600 ms) on a non-typed block's card and on a typed-in-place block's handle selects it and shows "1" with "1 block selected" as its accessible name in the bar; a long press in typed-in-place text starts no selection and the browser's own text selection works; a tap on a second block toggles it **without opening its sheet**; the text cursor is gone and the keyboard is closed.
 - 1280: no checkbox before hover; hover shows one; after one is selected all blocks show theirs; Shift+Click selects the range; Shift+Arrow extends; Escape clears; Back clears first.
 - *Move down* moves two next-to-each-other blocks together (the saved Markdown shows the new order); not next to each other, the buttons are disabled; a locked block is not passed.
 - *Duplicate* adds N copies after the last selected block; *Hide on page* hides all and a `stays` block is named and skipped; *Remove* shows the dialog with the count, removes, one *Undo* restores all, and a locked block stays selected with its name in the message.
-- The row never overflows at 375 and every button is at least 48 dp (#519's checks), contrast and colours pass (`check:contrast`, `check:editor-colors`).
+- The bar never overflows or scrolls at 375, the bar's group has exactly 7 slots (Close with count of 2, Move up, Move down, Undo, Redo, `⋮`), `⋮` lists Duplicate, Hide / Show, Remove and Select all, every button is 44 × 44 dp as #519 says (the block cards' checkboxes are 48 dp), contrast and colours pass (`check:contrast`, `check:editor-colors`).
 
 ## 7. Questions for the owner (the PM asks them one at a time)
 
@@ -321,7 +337,7 @@ Checks (`check:screens`, 375 with touch emulation and 1280, the demo's Blocks pa
 12. **Table rows:** a checkbox column with select-all in the header, only where a screen becomes a real table (Material's own table caption shows one)? Recommendation: **yes**.
 13. ~~Deleted files and pages on a computer~~ **Decided by the owner:** "On deleted selection is the primary": checkboxes are always visible there.
 14. **Move up and Move down when the selected blocks are not next to each other?** (a) Disabled, with the reason as the tooltip; (b) they gather next to each other first. Recommendation: **(a)**, no surprise.
-15. **Block selection: the #519 row (recommended) or the swapped top bar as on lists?** The page editor is the workspace; swapping would hide Save and Preview. Recommendation: **the row**.
+15. ~~Block selection: the #519 bar or the swapped top bar?~~ **Decided by the owner ("Yes, use the one toolbar")**: the contextual group of #519's one bar (section 6.5).
 16. **Entry on touch:** a long press on the block's handle or on a non-typed card, plus a *Select* menu item? Recommendation: **yes, both**; no long press inside typed text.
 17. **Duplicate:** the copies go right after the last selected block and become the selection? Recommendation: **yes**.
 18. **Hide with a mix of shown and hidden blocks:** hide all if any is shown (recommended), or follow the first block?
