@@ -364,6 +364,178 @@ async function checkLongPressDelete() {
   await page.close();
 }
 
+/**
+ * Selecting several rows (useSelection.ts, SelectionBar.tsx) on the pages list and in the notifications' sheet. At 375 with
+ * touch: a press and hold selects, a tap adds without opening the row, unselecting all or Close ends it, a press that
+ * moves does nothing, the count is announced, the bar's buttons are at least 44 px. At 1280 with a mouse: a mouse
+ * press and hold does nothing, Space toggles, Shift+click adds a range, Ctrl+A selects all, Escape unselects (in the
+ * sheet it does not close it), and a click on a row with nothing selected opens it.
+ */
+async function checkSelection() {
+  const seed = () =>
+    localStorage.setItem(
+      'editor-notifications',
+      JSON.stringify({
+        items: [3, 2, 1].map((n) => ({ text: `Selection check ${n}`, type: 'saved', at: Date.now() - n * 60000 })),
+        seen: 0,
+        told: [],
+      }),
+    );
+  const count = (page) =>
+    page
+      .locator('[role=status]')
+      .filter({ hasText: /\d+ selected/ })
+      .first()
+      .textContent();
+  const checked = (page, scope) => page.locator(`${scope} [role=checkbox][aria-checked=true]`).count();
+  for (const w of [375, 1280]) {
+    const touch = w < 600;
+    const label = `selection ${w}`;
+    const page = await browser.newPage({ viewport: { width: w, height: 800 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await page.addInitScript(seed);
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#list/pages'));
+    await page.waitForSelector('main a.list-item-container');
+    await page.waitForTimeout(500);
+    const rows = page.locator('main a.list-item-container');
+    const centre = async (i) => {
+      const row = rows.nth(i);
+      await row.scrollIntoViewIfNeeded();
+      const b = await row.boundingBox();
+      return [b.x + b.width / 2, b.y + b.height / 2];
+    };
+    const hash = () => page.evaluate(() => location.hash);
+    const here = await hash();
+    if (touch) {
+      const cdp = await page.context().newCDPSession(page);
+      const hold = async (x, y, move = 0) => {
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+        await page.waitForTimeout(250);
+        if (move) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y + move }] });
+        await page.waitForTimeout(500);
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+        await page.waitForTimeout(300);
+      };
+      const [x0, y0] = await centre(0);
+      await hold(x0, y0, 20);
+      if ((await checked(page, 'main')) || (await hash()) !== here)
+        problems.push(`${label}: a press and hold that moves 20 px selected or opened the row`);
+      await hold(x0, y0);
+      if ((await rows.nth(0).getAttribute('aria-checked')) !== 'true') problems.push(`${label}: a press and hold does not select the row`);
+      if ((await hash()) !== here) problems.push(`${label}: a press and hold opened the row`);
+      if (!/^1 selected$/.test((await count(page)) ?? '')) problems.push(`${label}: the count is not announced ("1 selected")`);
+      const [x1, y1] = await centre(1);
+      await page.touchscreen.tap(x1, y1);
+      await page.waitForTimeout(300);
+      if ((await hash()) !== here) problems.push(`${label}: a tap on a second row opened it while selecting`);
+      if ((await checked(page, 'main')) !== 2) problems.push(`${label}: a tap on a second row does not add it`);
+      for (const name of ['Close selection', /^Delete 2 selected$/]) {
+        const b = await page.getByRole('button', { name }).first().boundingBox();
+        if (!b || b.width < 44 || b.height < 44) problems.push(`${label}: "${name}" is smaller than 44 px (${b?.width}x${b?.height})`);
+      }
+      await page.touchscreen.tap(x0, y0);
+      await page.touchscreen.tap(x1, y1);
+      await page.waitForTimeout(300);
+      if (await page.getByRole('button', { name: /^Delete \d+ selected$/ }).count())
+        problems.push(`${label}: unselecting all does not end selecting`);
+      await hold(x0, y0);
+      await page.getByRole('button', { name: 'Close selection' }).click();
+      if (await checked(page, 'main')) problems.push(`${label}: Close selection does not unselect`);
+      // Back leaves selecting first and stays on the list; a second Back leaves the list. Close left no step behind.
+      await hold(x0, y0);
+      await page.goBack();
+      await page.waitForTimeout(400);
+      if ((await hash()) !== here || (await checked(page, 'main')) || (await page.getByRole('button', { name: 'Close selection' }).count()))
+        problems.push(`${label}: Back does not leave selecting first and stay on the list (${await hash()})`);
+      await page.goBack();
+      await page.waitForTimeout(400);
+      if ((await hash()) === here) problems.push(`${label}: a second Back does not leave the list (Close or Back left a step behind)`);
+    } else {
+      const [x0, y0] = await centre(0);
+      await page.mouse.move(x0, y0);
+      await page.mouse.down();
+      await page.waitForTimeout(700);
+      await page.mouse.up();
+      await page.waitForTimeout(300);
+      // A mouse press and hold is a click (it follows the link), never a selection.
+      if (await checked(page, 'main')) problems.push(`${label}: a mouse press and hold selected the row`);
+      if ((await hash()) !== here) {
+        await page.evaluate((h) => (location.hash = h), here);
+        await page.waitForSelector('main a.list-item-container');
+        await page.waitForTimeout(500);
+      }
+      await rows.nth(0).focus();
+      await page.keyboard.press('Space');
+      if (await checked(page, 'main')) problems.push(`${label}: Space selected a row before selecting had started`);
+      // Space on a link scrolls the page, as it does today.
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.getByRole('button', { name: 'Select', exact: true }).click();
+      await rows.nth(0).focus();
+      await page.keyboard.press('Space');
+      if ((await rows.nth(0).getAttribute('aria-checked')) !== 'true') problems.push(`${label}: Space does not select the row in focus`);
+      if (!/^1 selected$/.test((await count(page)) ?? '')) problems.push(`${label}: the count is not announced ("1 selected")`);
+      await rows.nth(2).click({ modifiers: ['Shift'] });
+      if ((await checked(page, 'main')) !== 3 || (await hash()) !== here)
+        problems.push(`${label}: Shift+click does not select the range (${await checked(page, 'main')})`);
+      await page.keyboard.press('Control+a');
+      const all = await rows.count();
+      if ((await checked(page, 'main')) !== all) problems.push(`${label}: Ctrl+A does not select all shown rows`);
+      await page.keyboard.press('Escape');
+      if (await checked(page, 'main')) problems.push(`${label}: Escape does not unselect`);
+      if (await page.getByRole('button', { name: 'Close selection' }).count()) problems.push(`${label}: Escape does not end selecting`);
+      await rows.nth(0).focus();
+      await page.keyboard.press('Shift+ArrowDown');
+      if ((await checked(page, 'main')) !== 2) problems.push(`${label}: Shift+Arrow does not select a range`);
+      await page.keyboard.press('Escape');
+      await rows.nth(0).click();
+      await page.waitForTimeout(300);
+      if ((await hash()) === here) problems.push(`${label}: a click on a row with nothing selected does not open it`);
+    }
+    // The notifications' sheet.
+    await page.evaluate(() => (location.hash = '#'));
+    await page
+      .getByRole('button', { name: /^Notifications/ })
+      .first()
+      .click();
+    const sheet = page.getByRole('dialog', { name: 'Notifications' });
+    await sheet.waitFor();
+    await page.waitForTimeout(600);
+    const items = sheet.locator('[role=checkbox], .list-item-container', { hasText: /Selection check/ });
+    if ((await items.count()) !== 3) {
+      problems.push(`${label}: the notifications sheet does not show the three seeded notifications`);
+    } else if (touch) {
+      const cdp = await page.context().newCDPSession(page);
+      const b = await items.nth(0).boundingBox();
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: b.x + b.width / 2, y: b.y + b.height / 2 }] });
+      await page.waitForTimeout(800);
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      await page.waitForTimeout(300);
+      if ((await checked(page, 'dialog')) !== 1) problems.push(`${label}: a press and hold does not select a notification`);
+      const b2 = await items.nth(1).boundingBox();
+      await page.touchscreen.tap(b2.x + b2.width / 2, b2.y + b2.height / 2);
+      await page.waitForTimeout(300);
+      if (!/^2 selected$/.test((await count(page)) ?? ''))
+        problems.push(`${label}: the notifications' count is not announced ("2 selected")`);
+      await sheet.getByRole('button', { name: 'Cancel' }).click();
+      if (await checked(page, 'dialog')) problems.push(`${label}: Cancel does not unselect the notifications`);
+    } else {
+      await items.nth(0).focus();
+      await page.keyboard.press('Space');
+      if (await checked(page, 'dialog')) problems.push(`${label}: Space selected a notification before selecting had started`);
+      await items.nth(0).click({ modifiers: ['Shift'] });
+      await items.nth(1).focus();
+      await page.keyboard.press('Space');
+      if ((await checked(page, 'dialog')) !== 2) problems.push(`${label}: Shift+click and Space do not select notifications`);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
+      if (await checked(page, 'dialog')) problems.push(`${label}: Escape does not unselect the notifications`);
+      if (!(await sheet.isVisible())) problems.push(`${label}: Escape with some selected closed the notifications' sheet`);
+    }
+    await page.close();
+  }
+}
+
 /** On a phone, a tap on the hint under a page's only heading (Type text, or tap Insert …) puts the cursor in an empty paragraph after it. */
 async function checkEmptyHint() {
   const page = await browser.newPage({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -3740,6 +3912,7 @@ for (const [width, height] of [
   await checkDraftsCard(width, height);
 await checkEmptyHint();
 await checkLongPressDelete();
+await checkSelection();
 await checkUnlistedPost();
 for (const [width, height] of [
   [375, 740],

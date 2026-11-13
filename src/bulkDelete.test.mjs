@@ -1,11 +1,11 @@
 /**
  * Tests for deleting several pages or posts at once.
- * Exposes test cases for `bulkDeletion` and `togglePath`.
+ * Exposes test cases for `bulkDeletion`.
  * Depends on `node:test`, `node:assert/strict`, and `./bulkDelete.mjs`.
  */
 import { test } from 'node:test';
 import * as assert from 'node:assert/strict';
-import { bulkDeletion, togglePath } from './bulkDelete.mjs';
+import { bulkDeletion } from './bulkDelete.mjs';
 
 const a = { path: 'src/content/pages/a.md', oid: '1' };
 const b = { path: 'src/content/pages/b.md', oid: '2' };
@@ -34,9 +34,4 @@ test('nothing selected gives no changes', () => {
     bulkDeletion([], () => null),
     { changes: [], kept: [] },
   );
-});
-
-test('togglePath adds and removes', () => {
-  assert.deepEqual(togglePath([], 'x'), ['x']);
-  assert.deepEqual(togglePath(['x', 'y'], 'x'), ['y']);
 });
