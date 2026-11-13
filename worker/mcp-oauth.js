@@ -54,7 +54,7 @@ const escapeHtml = (s) =>
 /** A page of the sign-in (for a person, never for the assistant): no framing, no caching, no scripts. */
 function page(title, body, status = 200, cookies = [], formAction = "'self'") {
   const html = `<!doctype html><html lang="${langOf(config.locale)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>${escapeHtml(title)}</title>
-<style>body{font-family:system-ui,sans-serif;max-width:32rem;margin:0 auto;padding:2rem 1rem;line-height:1.5}h1{font-size:1.5rem}form{display:flex;gap:.75rem;margin-top:1.5rem}button{font:inherit;padding:.6rem 1.25rem;border-radius:2rem;border:1px solid #888;background:#fff;cursor:pointer}button.allow{background:#1a56db;border-color:#1a56db;color:#fff}</style></head>
+<style>:root{color-scheme:light dark}body{font-family:system-ui,sans-serif;max-width:32rem;margin:0 auto;padding:2rem 1rem;line-height:1.5}h1{font-size:1.5rem}form{display:flex;gap:.75rem;margin-top:1.5rem}button{font:inherit;padding:.6rem 1.25rem;border-radius:2rem;border:1px solid GrayText;background:ButtonFace;color:ButtonText;cursor:pointer}button.allow{background:AccentColor;border-color:AccentColor;color:AccentColorText}</style></head>
 <body><h1>${escapeHtml(title)}</h1>${body}</body></html>`;
   const headers = new Headers({
     'content-type': 'text/html; charset=utf-8',
