@@ -111,6 +111,44 @@ A Table is selected (phone, 7 actions, the row scrolls sideways):
 - **Table.** Seven actions: Add row above, Add row below, Add column before, Add column after, Delete row, Delete column,
   Settings. All seven stay in the row; on a phone (336 dp against 343 dp of room, and with gaps more) the row scrolls.
 
+### Phone: three ways to fit many tools (owner's question, 13 November)
+
+Owner: "Either we make it a scroll, or dropdowns, or we could use tabs as well. Maybe a tab that says Text when you're in text,
+and Blog (block) when you're in a block ... Would that be an option, or do we need a long scroll menu instead?" Scroll is the
+current choice until the owner decides (question 2).
+
+The case: text has 10 tools (Bold, Italic, Link, Heading, Text size, Alignment, Bulleted, Check and Numbered list, Colour).
+At 375 px there is room for 7 buttons of 48 dp (343 dp, 16 dp edges).
+
+What Material says about tabs (read with Playwright, `m3.material.io/components/tabs/` overview, guidelines, accessibility):
+"Tabs organize groups of related content that are at the same level of hierarchy." "Secondary tabs are used within a content
+area to further separate related content." "Tabs control the UI region displayed below them." "Avoid using more than four tabs at
+once. At five or more tabs, the container becomes cramped." "When a set of tabs cannot fit on screen, use scrollable tabs."
+"Place tabs next to each other as peers" (overview). "Don't use tabs to move through sequential content" (guidelines). On
+scrollable tabs: "Offset the first scrollable tab 52dp from the leading edge so it's clear that more content is available."
+Not read: the tab height and other numbers (they are images and token tables, no text) and any M3 text that puts tabs inside a
+toolbar. I found none; the Toolbars pages do not mention tabs.
+
+| | A. Scroll sideways (current) | B. Overflow menu `⋮` (M3's text for toolbars) | C. Context tabs |
+| --- | --- | --- | --- |
+| Taps to reach a tool | 0 for the 6 or 7 shown; a swipe, then 1 tap for the rest | 1 for the 6 shown; 2 (open `⋮`, pick) for the rest, and the menu hides state such as Bold *on* | 1 for the tools of the open group; 2 (change tab, tap) for another group |
+| Visible at once at 375 px | 7 of 10 text tools; Table 7 of 7 barely | 6 of 10 plus `⋮` | one group, 4 to 5 tools, plus up to 4 tab labels |
+| Discoverability | Weak: hidden tools are guessed from a cut-off button at the edge | Medium: `⋮` is a known sign, but the contents are hidden | Best: the labels say what is there ("Format", "Paragraph") |
+| One-handed | The row is at the top of the screen, far from the thumb; a swipe on it is easy, a reach is not | Same top reach; the menu opens near the top | Same top reach; two bars to reach into |
+| Height used on a phone | 1 row (48 dp) | 1 row (48 dp) | 2 rows (tabs + tools), so three bars with the main toolbar, about 150 dp |
+| Fit with the theme's parts | `Toolbar` only | `Toolbar` + `Menu` | `Toolbar` + `Tabs` (kind `secondary`, scrollable) |
+| M3 | Deviation (no sideways scroll in a toolbar) | Conforms | Tabs organise related content, not tool sets; M3 says four tabs at most; the active context changes by itself with the selection while a tab is chosen by the user, so "Text" and "Table" are not peers a person picks |
+
+Two readings of C. **C1, a context label only** (a chip at the start of the row that says "Text" or "Table"): it is not a
+tab, takes about 70 dp of the 343 dp, and shows what the row is about. **C2, tab groups inside one context** (Format |
+Paragraph | Insert for text): a real use of the Tabs part, only for Text (the one block with more than 7 tools); blocks keep one row.
+
+Recommendation in plain words: **A, scroll**, with the first six text tools being the most used (Bold, Italic, Link, Heading,
+Text size, Alignment) and a half-visible seventh button at the right edge as the sign that there is more (our version of M3's
+52 dp offset). It is the fewest taps, no new part, and the Table fits. Take C2 only if a phone check shows people missing the
+hidden lists and colour; C1 is cheap and can be added to any option later. B is the safe choice for Material, but costs a tap
+and hides the pressed state.
+
 ## 4. Remove the delay
 
 Every wait before the bar appears, moves or follows, found in the code:
@@ -220,13 +258,17 @@ four become its buttons, so there is one place for block actions. Image/Card/Lis
 
 Decided by the owner: (1) bold, italic and the other selection tools move to the contextual row (section 5); (2) the main
 toolbar keeps just Insert, Undo, Redo and Section settings (4 tools); (3) with the cursor in text, selection or not,
-the text tools always show in the row; (4) on a phone the row scrolls sideways when tools do not fit (a deviation from M3's
-overflow menu, section 2).
+the text tools always show in the row; (4) for now, on a phone the row scrolls sideways when tools do not fit (a deviation from M3's
+overflow menu, section 2); the owner has reopened this (question 2).
 
 1. **Two rows on a phone, against Material?** M3 says "Don't use multiple toolbars in compact windows ... use one toolbar for
    all actions", and puts contextual actions in the *floating* toolbar, not a docked one. Your idea is two docked rows on a
    phone too. Options: (a) two rows as you said, and write the deviation down; (b) on a phone one row: the contextual tools
-   with Insert, Undo and Redo behind `⋮`, and two rows only on larger screens. Either way the row scrolls (decided). Recommendation: (a), because one row at 375 px
+   with Insert, Undo and Redo behind `⋮`, and two rows only on larger screens. How the tools fit is question 2. Recommendation: (a), because one row at 375 px
    cannot hold both sets, and you decided it; the deviation is listed.
-2. **Keep both rows sticky while the page scrolls?** Recommendation: yes (M3 allows it). Cost: about 100 dp of a short screen.
-3. **The block pop-up (Edit, Hide, Move, Remove) on blocks not typed in place:** becomes row buttons (recommended) or stays a pop-up?
+2. **How should many tools fit on a phone?** (A) the row scrolls sideways (current); (B) an overflow menu `⋮` (M3's way);
+   (C) context tabs: C1 a label for the context, C2 tab groups for Text (section 3, with the comparison). Recommendation: A,
+   with the six most used text tools first and a half-visible button at the edge; add C2 for Text only if a phone check shows
+   hidden tools are missed.
+3. **Keep both rows sticky while the page scrolls?** Recommendation: yes (M3 allows it). Cost: about 100 dp of a short screen.
+4. **The block pop-up (Edit, Hide, Move, Remove) on blocks not typed in place:** becomes row buttons (recommended) or stays a pop-up?
