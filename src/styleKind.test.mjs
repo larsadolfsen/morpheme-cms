@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { LIST_KINDS, STYLE_KINDS, TEXT_KINDS, headingKindOf, listKindOf, styleKindOf } from './styleKind.mjs';
+import { LIST_KINDS, STYLE_KINDS, TEXT_KINDS, listKindOf, styleKindOf, styleOf } from './styleKind.mjs';
 
 test('outside the text both buttons show their generic icon, whatever the cursor was in', () => {
   assert.equal(styleKindOf(['check'], false), 'generic');
@@ -38,37 +38,19 @@ test('in a heading Text style is generic, never a body style, and List is generi
   }
 });
 
-// The "More" sheet and the top toolbar draw each style's icon from one table (KIND_ICONS in MarkdownEditor.tsx), so a style
-// never has two icons, and every style of STYLE_KINDS has one.
-test('both toolbars take each text style icon from the same table', () => {
+// The bar's menus draw each style's icon from one table (KIND_ICONS in MarkdownEditor.tsx), so a style never has two icons, and every style of
+// STYLE_KINDS has one, in the order of STYLE_KINDS.
+test('the bar menus take each text style icon from the same table', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
   const table = source.match(/const KIND_ICONS = \{([\s\S]*?)\n\};/)[1];
-  const names = [...table.matchAll(/^ {2}(\w+): \{ raw: (\w+), node: (\w+) \}/gm)];
+  const names = [...table.matchAll(/^ {2}(\w+): \{ node: (\w+) \}/gm)];
   assert.deepEqual(
     names.map((m) => m[1]),
     STYLE_KINDS,
   );
   assert.equal(new Set(names.map((m) => m[2])).size, STYLE_KINDS.length, 'each style has its own icon');
-  for (const [, name] of names) {
-    assert.match(
-      source,
-      new RegExp(`icon: KIND_ICONS\\.${name}\\.node, action: \\(\\) => setKind\\('${name}'\\)`),
-      `the top toolbar draws ${name} from the table`,
-    );
-  }
-});
-
-// One order everywhere: the body styles from small to large, then Label and the quote, then the lists (the sheet, the top toolbar's
-// menu, STYLE_KINDS and KIND_ICONS).
-test('every list of the text styles is in the order of STYLE_KINDS', () => {
-  const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
-  const order = (re) => [...source.matchAll(re)].map((m) => m[1]);
-  assert.deepEqual(
-    order(/^ {4}\{ label: [\w.]+, icon: KIND_ICONS\.\w+\.node, action: \(\) => setKind\('(\w+)'\)/gm),
-    STYLE_KINDS,
-    'the top toolbar and the sheet',
-  );
-  assert.match(source, /\['h1', 'h2', 'h3', \.\.\.STYLE_KINDS\]\.includes\(t\.on/, "the list that picks the sheet's styles is STYLE_KINDS");
+  for (const [, name] of names)
+    assert.match(source, new RegExp(`icon: KIND_ICONS\\.${name}\\.node`), `the bar menus draw ${name} from the table`);
 });
 
 // The three body icons are one family: a T at three sizes with Phosphor's stroke (16 on the 256 grid) and one baseline.
@@ -92,13 +74,12 @@ test('the body icons are one T at three sizes on one baseline', () => {
   assert.ok(tall.small / tall.large > 0.5 && tall.large - tall.medium === tall.medium - tall.small, 'three even steps');
 });
 
-// Two controls, Text style and List, each with its own general icon and a label that names the current choice.
+// Two controls, Text style (headings and text styles as one) and List, each with its own general icon and a label that names the current choice.
 test('Text style and List are two buttons that name their choice', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
-  assert.match(source, /list: \{ raw: bulletIcon, node: ListBullets \}/, 'the list button shows the bullet list icon');
-  assert.match(source, /<SheetGroupTitle>\{title\}<\/SheetGroupTitle>/, 'the More sheet names Text style and List');
-  assert.match(source, /\[t\.text\.list, all\.filter/, 'the More sheet has the lists');
-  assert.match(source, /group === 'list'\s*\? \[GENERIC_ICONS\.list\.node, t\.text\.list, t\.text\.listIs\]/, 'the top toolbar: "List: …"');
+  assert.match(source, /list: \{ node: ListBullets \}/, 'the list button shows the bullet list icon');
+  assert.match(source, /t\.text\.listIs\(listFace\.label\)/, 'the bar: "List: …"');
+  assert.match(source, /t\.text\.kindIs\(styleFace\.label\)/, 'the bar: "Text style: …"');
   for (const locale of ['en-US', 'da-DK']) {
     const text = readFileSync(new URL(`./i18n/${locale}/text.ts`, import.meta.url), 'utf8');
     assert.match(text, /\n  list: '/);
@@ -107,42 +88,38 @@ test('Text style and List are two buttons that name their choice', () => {
   assert.match(readFileSync(new URL('./i18n/en-US/text.ts', import.meta.url), 'utf8'), /listIs: \(kind: string\) => `List: \$\{kind\}`/);
 });
 
-// Every style of STYLE_KINDS can be picked in both places and is named there: the top toolbar's tools (all) have its icon and a label, and the menus and the More sheet are made from that tools list.
-test('every style has an icon and a label in the toolbar, which the More sheet lists', () => {
+// Every style of STYLE_KINDS can be picked and is named: the Text style menu and the List menu are made from the faces of MarkdownEditor.tsx.
+test('every style has an icon and a label in the bar menus', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
   for (const name of STYLE_KINDS) {
     assert.match(
       source,
-      new RegExp(`label: t\\.text\\.\\w+, icon: KIND_ICONS\\.${name}\\.node, action: \\(\\) => setKind\\('${name}'\\), on: '${name}'`),
-      `the toolbar has no tool with icon and label for ${name}`,
+      new RegExp(`${name}: \\{ label: t\\.text\\.\\w+, icon: KIND_ICONS\\.${name}\\.node \\}`),
+      `no face with icon and label for ${name}`,
     );
   }
-  assert.match(source, /TEXT_KINDS_IN_SHEET\.includes/, 'the More sheet lists the text styles from the tools');
-  assert.match(source, /kinds\(button, 'headings'\)/, 'the floating heading button opens the menu');
 });
 
-test('the heading button shows a level only while a heading is on, else its generic icon', () => {
-  for (const level of ['h1', 'h2', 'h3']) assert.equal(headingKindOf([level, 'strong'], true), level);
-  for (const kind of [...TEXT_KINDS, ...LIST_KINDS]) assert.equal(headingKindOf([kind], true), 'generic');
-  assert.equal(headingKindOf([], true), 'generic');
-  assert.equal(headingKindOf(['h2'], false), 'generic');
+test('the one Text style button shows a heading level while a heading is on, else the text style, else its generic icon', () => {
+  for (const level of ['h1', 'h2', 'h3']) assert.equal(styleOf([level, 'strong'], true), level);
+  for (const kind of TEXT_KINDS) assert.equal(styleOf([kind], true), kind);
+  assert.equal(styleOf([], true), 'medium');
+  assert.equal(styleOf(['h2'], false), 'generic');
 });
 
-test('the generic icons are the general T and H, and the bullet list, of Phosphor', () => {
+test('the generic icons are the general T and the bullet list, of Phosphor', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
-  assert.match(source, /text: \{ raw: textTIcon, node: TextT \}/);
-  assert.match(source, /heading: \{ raw: textHIcon, node: TextHPlainIcon \}/);
-  assert.match(source, /list: \{ raw: bulletIcon, node: ListBullets \}/);
+  assert.match(source, /text: \{ node: TextT \}/);
+  assert.match(source, /list: \{ node: ListBullets \}/);
 });
 
-// The alignment button (lib/text-align.mjs) is in both the floating row's More sheet and the top toolbar, with Phosphor's three alignment icons.
-test('the alignment has a choice in the More sheet and a button in the toolbar', () => {
+// The alignment button (lib/text-align.mjs) is on the bar with Phosphor's three alignment icons; a row of the `⋮` menu opens its menu on a phone.
+test('the alignment has a button on the bar and a row in the ⋮ menu', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
-  assert.match(source, /left: \{ raw: alignLeftIcon, node: TextAlignLeft \}/);
-  assert.match(source, /center: \{ raw: alignCenterIcon, node: TextAlignCenter \}/);
-  assert.match(source, /right: \{ raw: alignRightIcon, node: TextAlignRight \}/);
-  assert.match(source, /<SheetChoice\s+key=\{align\}/, 'the More sheet');
-  assert.match(source, /role: 'align'/, 'the top toolbar');
+  assert.match(source, /left: \{ node: TextAlignLeft \}/);
+  assert.match(source, /center: \{ node: TextAlignCenter \}/);
+  assert.match(source, /right: \{ node: TextAlignRight \}/);
+  assert.match(source, /if \(id === 'align'\)/, 'the bar and the ⋮ menu');
 });
 
 // Every toolbar icon is drawn at the same size and stroke: the T icons of the three body styles (src/icons/text-t-*.svg) are Phosphor's
@@ -172,14 +149,11 @@ test('the T icons have the same weight and size as Bold and Italic', () => {
   assert.match(readFileSync(new URL('./TextSizeIcons.tsx', import.meta.url), 'utf8'), /size = 20/);
 });
 
-test('the heading control and the text control never both show a style', () => {
+test('the one Text style button never shows a text style in a heading, nor a heading outside one', () => {
   const states = [[], ...['h1', 'h2', 'h3', ...TEXT_KINDS, ...LIST_KINDS].map((kind) => [kind, 'strong'])];
   for (const active of states) {
-    const heading = headingKindOf(active, true);
-    const text = styleKindOf(active, true);
-    assert.ok(heading === 'generic' || text === 'generic', `${active.join()} shows ${heading} and ${text}`);
-    // In a heading only the heading control shows the style; in a text block only the text control does.
-    if (/^h\d$/.test(active[0] ?? '')) assert.equal(heading, active[0]);
-    if (TEXT_KINDS.includes(active[0])) assert.equal(heading, 'generic');
+    const shown = styleOf(active, true);
+    if (/^h\d$/.test(active[0] ?? '')) assert.equal(shown, active[0]);
+    else assert.ok(!/^h\d$/.test(shown), `${active.join()} shows ${shown}`);
   }
 });
