@@ -456,6 +456,11 @@ async function checkSelection() {
         await page.waitForSelector('main a.list-item-container');
         await page.waitForTimeout(500);
       }
+      await rows.nth(0).focus();
+      await page.keyboard.press('Space');
+      if (await checked(page, 'main')) problems.push(`${label}: Space selected a row before selecting had started`);
+      // Space on a link scrolls the page, as it does today.
+      await page.evaluate(() => window.scrollTo(0, 0));
       await page.getByRole('button', { name: 'Select', exact: true }).click();
       await rows.nth(0).focus();
       await page.keyboard.press('Space');
@@ -508,8 +513,11 @@ async function checkSelection() {
     } else {
       await items.nth(0).focus();
       await page.keyboard.press('Space');
-      await items.nth(1).click({ modifiers: ['Shift'] });
-      if ((await checked(page, 'dialog')) !== 2) problems.push(`${label}: Space and Shift+click do not select notifications`);
+      if (await checked(page, 'dialog')) problems.push(`${label}: Space selected a notification before selecting had started`);
+      await items.nth(0).click({ modifiers: ['Shift'] });
+      await items.nth(1).focus();
+      await page.keyboard.press('Space');
+      if ((await checked(page, 'dialog')) !== 2) problems.push(`${label}: Shift+click and Space do not select notifications`);
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);
       if (await checked(page, 'dialog')) problems.push(`${label}: Escape does not unselect the notifications`);
