@@ -16,6 +16,11 @@
   and none else. The page is on --mo-surface. They are M3's own when the colours are made from a source colour (dynamic
   colour), and every text on them keeps the contrast the editor checks (colorPairs), in light and dark mode.
 */
+/* Material is Medium: its own density step is 0 (base.css explains density). A theme sets another here: 1 is Large, -1 Small. */
+:root {
+  --mo-density-base: 0;
+}
+
 :root,
 :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
