@@ -59,7 +59,7 @@ Pages read: `m3.material.io/components/toolbars/` overview, specs, guidelines, a
 - **Rounded corners.** "Avoid applying rounded corners to the container" of a docked toolbar; but "On web and large screens,
   the docked toolbar can be rounded".
 
-**What I could not read:** the toolbar pages' pictures and the token tables (the page draws them from script and Playwright got
+**What I could not read:** the toolbar pages' images and the token tables (the page draws them from script and Playwright got
 no text for them), the Figma kit, and a page named `accessibility-basics`, which gives "page not found". The Expressive
 update note says "Web: Unavailable" for toolbar code, so the theme's `Toolbar` is our own build of the design, not a port.
 
