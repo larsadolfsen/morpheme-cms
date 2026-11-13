@@ -15,18 +15,14 @@ import path from 'node:path';
 import { parse } from 'yaml';
 import { isPreview, livePath } from './noindex.mjs';
 import { stateOf } from '@morphemecms/cms/lib/status.mjs';
+import { autoLinkTree, linkPattern } from '@morphemecms/cms/lib/autolink-tree.mjs';
 
-// The hast node type of an HTML element, as an escape: the language check reads the plain word as a Danish one.
-const ELEMENT = 'el\u0065ment';
 const FILE = path.resolve('src/data/internal-links.json');
 // The front page, the blog page and the 404 page ("Settings" › "Appearance" › "Default pages",
 // packages/editor/defaults/standardPages.ts): the front page's address sends on to /, the blog page's to /blog/, and the 404 page has none.
 const STANDARD = path.resolve('src/data/standard-pages.json');
 const PAGES = path.resolve('src/content/pages');
 const POSTS = path.resolve('src/content/blog');
-// What a word may not touch to be linked: a letter, a digit, or a hyphen joining it to another word.
-const LETTER = '\\p{L}\\p{N}-';
-const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const split = (text) =>
   String(text ?? '')
     .split(',')
@@ -100,14 +96,10 @@ export function loadLinks() {
       else if (words.get(key) !== href) console.warn(`internal links: "${word}" links to ${words.get(key)}, not ${href}`);
     }
   // One regex for all words, longest first so "tryg tilknytning" wins over shorter matches.
-  const all = [...words.keys()].sort((a, b) => b.length - a.length).map(escape);
-  const pattern = new RegExp(`(?<![${LETTER}])(${all.join('|')})(?![${LETTER}])`, 'giu');
+  const pattern = linkPattern(words.keys());
   cached = { enabled, maxPerPage, words, pattern };
   return cached;
 }
-
-// Not inside links, headings, code, or the offer and price boxes.
-const SKIP = new Set(['aside', 'a', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'code', 'pre', 'button', 'figcaption', 'dl']);
 
 /** The URL of the page being rendered: front matter `path` (pages) or /<file name>/ (posts). A new
  * version of a page (/new/…) counts as the page it is for, so it links as it will once it replaces it. */
@@ -116,28 +108,6 @@ function pagePath(file) {
   if (fm?.path) return linked(livePath(fm.path));
   const name = path.basename(file.path ?? '', '.md');
   return name ? linked(`/${name}/`) : '';
-}
-
-/** The pages a block in the text links to (packages/editor/lib/blocks.mjs): its `href` fields (topics, price cards,
- * buttons, cards), the links in its texts (questions and answers) and the posts it picks. */
-function blockLinks(node) {
-  let props;
-  try {
-    props = JSON.parse(String(node.properties.dataProps ?? '{}'));
-  } catch {
-    return [];
-  }
-  const links = [];
-  const visit = (value, key) => {
-    if (typeof value === 'string') {
-      if (key === 'href' && value.startsWith('/')) links.push(value.split('#')[0]);
-      for (const m of value.matchAll(/\]\((\/[^)\s#]*)/g)) links.push(m[1]);
-    } else if (Array.isArray(value)) value.forEach((v) => visit(v, key));
-    else if (value && typeof value === 'object') Object.entries(value).forEach(([k, v]) => visit(v, k));
-  };
-  visit(props);
-  if (node.properties.dataBlock === 'posts' && Array.isArray(props.picked)) links.push(...props.picked.map((id) => `/${id}/`));
-  return links;
 }
 
 /** What every page's links are made from: the words and where each links to, whether they are on and how many there
@@ -152,47 +122,7 @@ export function linksDigest() {
 
 /** Rehype plugin; `digest` (linksDigest) is not used here. */
 export function rehypeAutoLinks() {
-  return (tree, file) => {
-    const { enabled, maxPerPage, words, pattern } = loadLinks();
-    if (!enabled || !words.size) return;
-    const self = pagePath(file);
-    const used = new Set([self]);
-    // Targets the text already links to by hand, or a block on the page links to, are not linked again.
-    const collect = (node) => {
-      if (node.type === ELEMENT && node.tagName === 'a') used.add(String(node.properties?.href ?? '').split('#')[0]);
-      if (node.type === ELEMENT && node.properties?.dataBlock) blockLinks(node).forEach((href) => used.add(href));
-      node.children?.forEach(collect);
-    };
-    collect(tree);
-    let count = 0;
-
-    const walk = (node) => {
-      if (!node.children || count >= maxPerPage) return;
-      if (node.type === ELEMENT && SKIP.has(node.tagName)) return;
-      const out = [];
-      for (const child of node.children) {
-        if (child.type !== 'text' || count >= maxPerPage) {
-          walk(child);
-          out.push(child);
-          continue;
-        }
-        let last = 0;
-        for (const m of child.value.matchAll(pattern)) {
-          const href = words.get(m[1].toLowerCase());
-          if (used.has(href) || count >= maxPerPage) continue;
-          used.add(href);
-          count++;
-          if (m.index > last) out.push({ type: 'text', value: child.value.slice(last, m.index) });
-          // data-link="auto": counted after the build (packages/editor/scripts/link-counts.mjs), for the editor's list of keywords.
-          out.push({ type: ELEMENT, tagName: 'a', properties: { href, dataLink: 'auto' }, children: [{ type: 'text', value: m[1] }] });
-          last = m.index + m[1].length;
-        }
-        if (last < child.value.length) out.push({ type: 'text', value: child.value.slice(last) });
-      }
-      node.children = out;
-    };
-    walk(tree);
-  };
+  return (tree, file) => autoLinkTree(tree, pagePath(file), loadLinks());
 }
 
 /** For the migration: turn links whose text is one of the words back into plain text. */
