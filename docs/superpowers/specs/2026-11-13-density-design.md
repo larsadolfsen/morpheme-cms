@@ -118,6 +118,12 @@ editor outside the page and post editing area, except where a group says otherwi
 | **Layout** (space around things) | gaps between sections, screen and column padding, toolbars, tabs, chip rows, buttons outside a dialog or menu | +4 | standard | -4 | no |
 | **Focused single-task** | menus and dropdowns (including the exposed dropdown), dialogs, bottom and side sheets, snackbars, date, time, colour and icon pickers, the fields and switches inside a settings form (the form's gaps are Layout), the density setting's own rows, the FAB | +4 | standard | stays standard | never |
 
+**Where M3 is silent.** M3 names menus, selecting from a menu, snackbars and dialogs as no-go. It says nothing about text fields,
+switches and other controls inside a settings form, or about toolbars, tabs and chips. For these the spec applies the page's general
+rule (use density where people scan a lot, not in focused tasks) and records the choice here so the owner can see it: the controls in
+a settings form are a focused task and stay Medium; toolbars, tabs, chips, buttons and the gaps between form fields are layout and
+follow the three steps. The owner decided to follow M3 (2026-11-13).
+
 So Large is allowed on every group (it is less dense, which M3 does not warn against). Small and below never shrink a focused
 single-task part: at Small a menu is still a Medium menu. The page and post editing area is outside all three groups: density never
 reaches it.
@@ -149,7 +155,7 @@ hit area (a `::after` of 48 dp) keeps the target. Where two small targets would 
 keep them apart. The existing 48 dp icon button (`docs/material-deviations.md`, CSS sweep 4) already does this.
 
 On a mouse screen (`pointer: fine`) the target may follow the visual size, but never below 32 dp. (M3 says 48 as the default and
-allows density as an opt-in. 32 is our floor; question 3.)
+allows density as an opt-in. 32 is our floor; question 2.)
 
 ### 2.4 The site's front end
 
@@ -226,15 +232,15 @@ audit's sizes where they differ.
 builds it adds the entry to `docs/material-deviations.md`), Medium = 0 (standard), Small = -1. The names are the ones on M3's density
 page, as the owner's screenshot shows.
 
+Also decided (owner, 2026-11-13): follow the M3 density page and nothing beyond it. Where M3 is silent, the page's general rule
+applies (section 2.2). The editor's menu offers the three steps; -2 and -3 are for data-heavy parts in themes (our proposal, not
+asked).
+
 Open questions. The PM asks them one at a time, in this order.
 
-1. **Forms at Small.** A settings form (several fields on one screen) is a focused task, so M3 says its controls should not get denser.
-   At Small, do the form's text fields and switches stay at their Medium size, with only the space between fields shrinking?
-   **Recommendation:** yes. Small then tightens screens, lists and tables, and leaves menus, dialogs and the controls in forms
-   alone. (Folded in: the editor offers three steps only. M3's -2 and -3 exist for data-heavy parts in themes, not in the editor's menu.)
-2. **Where it is kept.** **Recommendation:** per user on the device (`localStorage`, like Light / Dark): no sign-in needed, a phone
+1. **Where it is kept.** **Recommendation:** per user on the device (`localStorage`, like Light / Dark): no sign-in needed, a phone
    and a computer can differ. The other choice is per site, stored in the site's settings, so everyone who edits it sees the same.
-3. **How low on a mouse screen.** On a computer with a mouse, how small may a target get? **Recommendation:** 32 dp, with the 48 dp
+2. **How low on a mouse screen.** On a computer with a mouse, how small may a target get? **Recommendation:** 32 dp, with the 48 dp
    hit area kept on any touch screen. M3 allows density as an opt-in, with 48 dp as the default.
-4. **Default theme: a site setting?** **Recommendation:** no site setting in `Material` now; only the Table block's own `density`.
+3. **Default theme: a site setting?** **Recommendation:** no site setting in `Material` now; only the Table block's own `density`.
    A theme author can add one. (Say yes if the owner wants visitors' pages denser by site.)
