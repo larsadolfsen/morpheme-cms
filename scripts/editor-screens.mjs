@@ -154,103 +154,221 @@ async function checkStartSubtitle() {
   }
 }
 
-/** On a phone the text's row floats by the selected text (never a docked sheet): inside the visible screen (above the keyboard and "Save changes"), Bold, Italic and Link first, 48 dp buttons centred in their rows (a second row when they do not fit), and it follows the line the cursor is on. */
-async function checkTextSheet(width = 360) {
+/** The bar's Insert: on the bar, or in the ⋮ menu when it did not fit (a phone with the cursor in text). `how`: 'click' or 'tap'. */
+async function pressInsert(page, how = 'click') {
+  const direct = page.locator('.editor-tools [aria-label="Insert"]:visible');
+  if (await direct.count()) return void (await direct.first()[how]());
+  await page.locator('.editor-tools [aria-label="More"]:visible').first()[how]();
+  await page
+    .locator('[role=menu] [role^=menuitem]')
+    .filter({ hasText: /^Insert$/ })
+    .first()
+    [how]();
+}
+
+/** The text's one bar (docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md, PR 1). On a phone, with the cursor in text: one bar, 44 dp tall, every button 44 x 44 dp, never scrolling, with the divider, Undo and Redo and the ⋮ at its end (at 360 and 375 px exactly Bold, Italic, Link, Text style, Undo, Redo, More); the ⋮ is a pop-up menu (not a sheet) inside the visible screen, with rows of 44 dp, which keeps the cursor and closes on Escape; Undo works; the bar has the same height idle (no divider then); the Text style menu has at most 8 rows of 44 dp, a page's first heading offers Main heading, a blog post Heading and Subheading, a list item no heading rows and no Quote, a heading no list rows and no Quote. On a computer all tools are on the bar and there is no ⋮. */
+async function checkTextBar(width = 360) {
   const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
-  page.on('pageerror', (e) => problems.push(`${width}px text menu: ${e.message}`));
+  const label = `${width}px text bar`;
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#new/pages'));
   await page.waitForSelector('.ProseMirror');
   await page.click('.ProseMirror');
   await page.keyboard.type('Fro');
-  const read = () =>
+  await page.waitForSelector('.editor-tools hr[aria-orientation="vertical"]', { timeout: 5000 }).catch(() => {});
+  const readBar = () =>
     page.evaluate(() => {
-      const m = document.querySelector('.editor-selection-menu');
-      const r = m.getBoundingClientRect();
-      const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? visualViewport.height;
-      const sel = getSelection().getRangeAt(0).getBoundingClientRect();
-      const names = [...m.querySelectorAll('button:not([hidden])')].map((b) => b.getAttribute('aria-label'));
-      const buttons = [...m.querySelectorAll('button:not([hidden])')].map((b) => ({
+      const bar = document.querySelector('.editor-tools');
+      const buttons = [...bar.querySelectorAll('button:not([hidden])')].map((b) => ({
+        name: b.getAttribute('aria-label'),
         ...b.getBoundingClientRect().toJSON(),
       }));
+      const divider = bar.querySelector('hr[aria-orientation="vertical"]');
       return {
-        shown: !m.hidden,
-        sheet: m.classList.contains('editor-selection-sheet'),
-        r: r.toJSON(),
-        save,
-        sel: sel.toJSON(),
-        names,
+        height: bar.getBoundingClientRect().height,
+        names: buttons.map((b) => b.name),
         buttons,
-        scrolls: m.scrollWidth > m.clientWidth,
-        vh: visualViewport.height,
+        scrolls: bar.scrollWidth > bar.clientWidth,
+        divider: !!divider && divider.getBoundingClientRect().height > 0,
+        pageScrolls: document.documentElement.scrollWidth > innerWidth,
+        groups: [...bar.querySelectorAll('[role=group]')].map((g) => g.getAttribute('aria-label')),
+        kept: document.activeElement?.closest('.ProseMirror') !== null,
       };
     });
-  await page.waitForTimeout(1200);
-  const first = await read();
-  await page.keyboard.type(' and more');
-  await page.keyboard.press('Enter');
-  for (let i = 0; i < 4; i++) await page.keyboard.press('Enter');
-  await page.keyboard.type('Next');
-  await page.waitForTimeout(1200);
-  const second = await read();
-  for (const [name, now] of [
-    ['first line', first],
-    ['later line', second],
-  ]) {
-    if (!now.shown) problems.push(`${width}px text menu: not shown at the ${name}`);
-    else if (now.sheet || now.r.width > width - 1) problems.push(`${width}px text menu: a docked sheet at the ${name}, not a floating row`);
-    else if (now.r.left < 0 || now.r.right > width || now.r.bottom > Math.min(now.save, now.vh) + 1)
-      problems.push(`${width}px text menu: outside the visible screen at the ${name}`);
-    else if (Math.min(Math.abs(now.r.bottom - now.sel.top), Math.abs(now.r.top - now.sel.bottom)) > 40)
-      problems.push(`${width}px text menu: not by the text at the ${name}`);
-    if (
-      !now.names.some((n) => n.endsWith('heading') || n.endsWith('Heading')) ||
-      now.names.includes('Insert') ||
-      now.names.at(-1) !== 'More'
-    )
-      problems.push(`${width}px text menu: Heading and More (three dots, last) are not all there, or Insert is at the ${name}`);
+  const inText = await readBar();
+  const slots = Math.floor((width - 32 - 17) / 44);
+  if (inText.height < 44 || inText.height > 46)
+    problems.push(`${label}: the bar is ${inText.height} px tall, not 44 (plus its 1 px edges)`);
+  if (inText.scrolls || inText.pageScrolls) problems.push(`${label}: the bar or the page scrolls sideways`);
+  if (inText.buttons.some((b) => Math.abs(b.height - 44) > 0.6 || b.width < 43.4))
+    problems.push(
+      `${label}: a button of the bar is not 44 x 44 dp (${inText.buttons.map((b) => `${b.name} ${b.width}x${b.height}`).join(', ')})`,
+    );
+  if (!inText.divider) problems.push(`${label}: no divider between the text tools and the main tools`);
+  if (inText.names.length > slots) problems.push(`${label}: ${inText.names.length} buttons but room for ${slots}`);
+  if (inText.names.slice(0, 3).join() !== 'Bold,Italic,Link' || !inText.names[3]?.startsWith('Text style'))
+    problems.push(`${label}: Bold, Italic, Link and Text style are not the first four (${inText.names.join(', ')})`);
+  if (!inText.names.includes('Undo') || !inText.names.includes('Redo') || inText.names.at(-1) !== 'More')
+    problems.push(`${label}: Undo, Redo and More (last) are not all there (${inText.names.join(', ')})`);
+  if (width === 360 || width === 375) {
+    const want = 'Bold,Italic,Link,Text style: Body medium,Undo,Redo,More';
+    if (inText.names.join() !== want) problems.push(`${label}: the bar has ${inText.names.join()}, not ${want}`);
   }
-  // Bold, Italic and Link come first, every button is 48 dp, nothing scrolls, and each row is centred (a second row when they do not fit).
-  if (first.names.slice(0, 3).join() !== 'Bold,Italic,Link')
-    problems.push(`${width}px text menu: Bold, Italic and Link are not the first three buttons`);
-  if (first.scrolls || first.buttons.some((b) => b.left < first.r.left - 1 || b.right > first.r.right + 1))
-    problems.push(`${width}px text menu: a button is outside the menu or the menu scrolls`);
-  if (first.buttons.some((b) => b.width < 47.5 || b.height < 47.5)) problems.push(`${width}px text menu: a button is smaller than 48 dp`);
-  const rows = Object.values(Object.groupBy(first.buttons, (b) => Math.round(b.top)));
-  for (const row of rows) {
-    const left = Math.min(...row.map((b) => b.left)) - first.r.left;
-    const right = first.r.right - Math.max(...row.map((b) => b.right));
-    if (Math.abs(left - right) > 2) problems.push(`${width}px text menu: a row of buttons is not centred (${left} left, ${right} right)`);
-  }
-  // Never two rows: one row at every width (the rest is under More).
-  if (rows.length !== 1) problems.push(`${width}px text menu: ${rows.length} rows, not one`);
-  if (first.r.top === second.r.top) problems.push(`${width}px text menu: it did not follow the cursor to another line`);
-  await page.setViewportSize({ width, height: 420 });
-  await page.waitForTimeout(500);
-  const keyboard = await read();
-  if (keyboard.r.bottom > Math.min(keyboard.save, keyboard.vh) + 1) problems.push(`${width}px text menu: it is under the keyboard`);
-  // More opens the sheet from the bottom with the text styles, the lists, the alignment and last the colours.
-  await page.setViewportSize({ width, height: 740 });
-  await page.waitForTimeout(300);
-  await page.click('.editor-selection-menu button[aria-label="More"]');
-  await page.waitForTimeout(500);
-  const sheetText = await page.evaluate(() => document.querySelector('dialog[open][aria-label="More"]')?.textContent ?? '');
-  for (const word of ['Color', 'Text style', 'List'])
-    if (!sheetText.includes(word)) problems.push(`${width}px text menu: the More sheet lacks "${word}"`);
-  if (sheetText.indexOf('Color') < sheetText.indexOf('Text style'))
-    problems.push(`${width}px text menu: Color is not last in the More sheet`);
-  if (!sheetText) problems.push(`${width}px text menu: More does not open its sheet`);
+  if (inText.groups.join() !== 'Text tools,Page tools') problems.push(`${label}: the groups are ${inText.groups.join()}`);
+  // Undo works.
+  const typed = await page.locator('.ProseMirror').innerText();
+  await page.keyboard.type(' more');
+  await page.locator('.editor-tools [aria-label="Undo"]').click();
+  const undone = await page.locator('.ProseMirror').innerText();
+  if (undone.length >= typed.length + ' more'.length) problems.push(`${label}: Undo on the bar did not take back the typing`);
+  await page.locator('.ProseMirror').click();
+  // The ⋮ is a pop-up menu under its button, inside the screen, rows of 44 dp, and the cursor stays.
+  const more = page.locator('.editor-tools [aria-label="More"]');
+  await more.click();
+  await page.waitForSelector('[role=menu][aria-label="More"]', { timeout: 3000 });
+  const menu = await page.evaluate(() => {
+    const m = document.querySelector('[role=menu][aria-label="More"]');
+    const r = m.getBoundingClientRect();
+    const b = document.querySelector('.editor-tools [aria-label="More"]').getBoundingClientRect();
+    return {
+      sheet: !!m.closest('dialog'),
+      r: r.toJSON(),
+      buttonBottom: b.bottom,
+      rows: [...m.querySelectorAll('[role^=menuitem]')].map((x) => ({ name: x.textContent.trim(), h: x.getBoundingClientRect().height })),
+      kept: document.activeElement?.closest('.ProseMirror') !== null,
+      vh: visualViewport.height,
+    };
+  });
+  if (menu.sheet) problems.push(`${label}: the ⋮ is a sheet, not a pop-up menu`);
+  if (menu.r.left < 0 || menu.r.right > width || menu.r.bottom > menu.vh + 1 || menu.r.top < menu.buttonBottom - 1)
+    problems.push(`${label}: the ⋮ menu is outside the visible screen or not under its button`);
+  if (menu.rows.some((x) => x.h < 43.4)) problems.push(`${label}: a row of the ⋮ menu is under 44 dp`);
+  for (const name of ['Bullet list', 'Check list', 'Numbered list', 'Color', 'Insert'])
+    if (!menu.rows.some((x) => x.name === name))
+      problems.push(`${label}: the ⋮ menu lacks "${name}" (${menu.rows.map((x) => x.name).join(', ')})`);
+  if (!menu.rows.some((x) => x.name.startsWith('Alignment'))) problems.push(`${label}: the ⋮ menu lacks Alignment`);
+  if (!menu.kept) problems.push(`${label}: the ⋮ took the cursor out of the text`);
   await page.keyboard.press('Escape');
+  if (await page.locator('[role=menu][aria-label="More"]').count()) problems.push(`${label}: Escape did not close the ⋮ menu`);
+  // With the keyboard open (a short screen) the menu stays inside what is visible and scrolls.
+  await page.setViewportSize({ width, height: 420 });
+  await page.waitForTimeout(300);
+  await more.click();
+  const short = await page.evaluate(() => {
+    const m = document.querySelector('[role=menu][aria-label="More"]');
+    return {
+      bottom: m.getBoundingClientRect().bottom,
+      vh: visualViewport.height,
+      scrolls: m.scrollHeight > m.clientHeight,
+      overflow: getComputedStyle(m).overflowY,
+    };
+  });
+  if (short.bottom > short.vh + 1) problems.push(`${label}: the ⋮ menu is under the bottom of a short screen`);
+  if (short.overflow !== 'auto' && short.overflow !== 'scroll')
+    problems.push(`${label}: the ⋮ menu does not scroll when it is too long (${short.overflow})`);
+  await page.keyboard.press('Escape');
+  await page.setViewportSize({ width, height: 740 });
+  await page.waitForTimeout(200);
+  // The Text style menu: one button, at most 8 rows of 44 dp, a page's first heading is Main heading.
+  const rowsOf = () =>
+    page.evaluate(() =>
+      [...document.querySelectorAll('[role=menu] [role^=menuitem]')].map((x) => ({
+        name: x.textContent.trim(),
+        h: x.getBoundingClientRect().height,
+      })),
+    );
+  const styleButtons = await page.locator('.editor-tools [aria-label^="Text style"]:visible').count();
+  if (styleButtons !== 1) problems.push(`${label}: ${styleButtons} Text style buttons on the bar, not 1`);
+  await page.locator('.editor-tools [aria-label^="Text style"]:visible').first().click();
+  const style = await rowsOf();
+  if (style.length > 8 || style.some((x) => x.h < 43.4))
+    problems.push(`${label}: the Text style menu has ${style.length} rows or one is under 44 dp`);
+  if (!style.some((x) => x.name === 'Main heading') || style.some((x) => x.name === 'Subheading'))
+    problems.push(`${label}: a page's first heading should offer Main heading only (${style.map((x) => x.name).join(', ')})`);
+  for (const name of ['Body small', 'Body medium', 'Body large', 'Quote'])
+    if (!style.some((x) => x.name === name)) problems.push(`${label}: the Text style menu lacks ${name}`);
+  // In a heading: no Quote, no list rows (on the bar's ⋮ or the List menu).
+  await page
+    .locator('[role=menu] [role^=menuitem]')
+    .filter({ hasText: /^Main heading$/ })
+    .first()
+    .click();
+  await page.keyboard.type('Title');
+  await page.locator('.editor-tools [aria-label^="Text style"]:visible').first().click();
+  if ((await rowsOf()).some((x) => x.name === 'Quote')) problems.push(`${label}: Quote is offered in a heading`);
+  await page.keyboard.press('Escape');
+  await more.click();
+  const inHeading = await rowsOf();
+  if (inHeading.some((x) => /list$/.test(x.name)))
+    problems.push(`${label}: list rows are offered in a heading (${inHeading.map((x) => x.name).join(', ')})`);
+  await page.keyboard.press('Escape');
+  // Idle: the cursor leaves the text; the main tools only, no divider, the same bar height, nothing scrolls.
+  await page.evaluate(() => document.activeElement?.blur());
+  await page.waitForTimeout(200);
+  const idle = await readBar();
+  if (idle.divider || idle.names.join() !== 'Insert,Undo,Redo')
+    problems.push(`${label}: idle the bar has ${idle.names.join()}${idle.divider ? ' and a divider' : ''}, not Insert, Undo, Redo`);
+  if (Math.abs(idle.height - inText.height) > 0.6)
+    problems.push(`${label}: the bar is ${idle.height} px tall idle and ${inText.height} in text`);
   if (width !== 360) return void (await page.close());
-  // The top toolbar's tools rest in one colour (the kind menus too), and a menu button is never in the accent.
+  // The bar's tools rest in one colour (the menu buttons too), and a menu button is never in the accent.
+  await page.click('.ProseMirror');
   const colours = await page.evaluate(() => [
     ...new Set(
-      [...document.querySelectorAll('.editor-tools button:not([aria-pressed="true"])')]
+      [...document.querySelectorAll('.editor-tools button:not([aria-pressed="true"]):not(:disabled)')]
         .filter((b) => b.querySelector('svg'))
         .map((b) => getComputedStyle(b).color),
     ),
   ]);
   if (colours.length > 1) problems.push(`${width}px text toolbar: its tools rest in ${colours.length} colours (${colours.join(', ')})`);
+  await page.close();
+  // A blog post: the first heading offers Heading and Subheading (H2, H3), no Main heading.
+  const blog = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  blog.on('pageerror', (e) => problems.push(`${label} (blog): ${e.message}`));
+  await openEditor(blog, site);
+  await blog.evaluate(() => (location.hash = '#new/blog'));
+  await blog.waitForSelector('.ProseMirror');
+  await blog.click('.ProseMirror');
+  await blog.keyboard.type('Fro');
+  await blog.locator('.editor-tools [aria-label^="Text style"]:visible').first().click();
+  const blogRows = await blog.evaluate(() =>
+    [...document.querySelectorAll('[role=menu] [role^=menuitem]')].map((x) => x.textContent.trim()),
+  );
+  if (!blogRows.includes('Heading') || !blogRows.includes('Subheading') || blogRows.includes('Main heading'))
+    problems.push(`${label} (blog): a post offers ${blogRows.join(', ')}, not Heading and Subheading`);
+  await blog.close();
+}
+
+/** On a computer (1280 px) all tools are on the one bar, in two groups with the divider between, 44 dp tall, with no ⋮; idle only the main tools. */
+async function checkTextBarWide() {
+  const page = await browser.newPage({ viewport: { width: 1280, height: 800 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`1280px text bar: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Fro');
+  const got = await page.evaluate(() => {
+    const bar = document.querySelector('.editor-tools');
+    const buttons = [...bar.querySelectorAll('button:not([hidden])')];
+    return {
+      height: bar.getBoundingClientRect().height,
+      names: buttons.map((b) => b.getAttribute('aria-label')),
+      small: buttons.filter((b) => Math.abs(b.getBoundingClientRect().height - 44) > 0.6 || b.getBoundingClientRect().width < 43.4).length,
+      scrolls: bar.scrollWidth > bar.clientWidth,
+      divider: !!bar.querySelector('hr[aria-orientation="vertical"]'),
+    };
+  });
+  const want = ['Bold', 'Italic', 'Link', 'Text style', 'List', 'Alignment', 'Color', 'Insert', 'Undo', 'Redo'];
+  for (const name of want)
+    if (!got.names.some((n) => n === name || n.startsWith(`${name}:`)))
+      problems.push(`1280px text bar: no ${name} (${got.names.join(', ')})`);
+  if (got.names.includes('More')) problems.push('1280px text bar: a ⋮ on a bar where everything fits');
+  if (got.height < 44 || got.height > 46 || got.small || got.scrolls || !got.divider)
+    problems.push(
+      `1280px text bar: height ${got.height}, ${got.small} buttons not 44 x 44, scrolls ${got.scrolls}, divider ${got.divider}`,
+    );
   await page.close();
 }
 
@@ -640,13 +758,14 @@ async function checkListsAndBlocks(width) {
   const left = (await tops()).join();
   if (left !== 'ul,p,ul') problems.push(`${label}: Backspace at the start of a list item gives ${left}, not ul,p,ul`);
   await page.keyboard.press('Control+z');
-  // A list item is not a heading, so the heading controls are not offered in a list, on the first line or under the arrow.
-  if (await page.locator('[aria-label="Show more tools"]:visible').count())
-    await page.locator('[aria-label="Show more tools"]:visible').first().click();
+  // A list item is not a heading, so the Text style menu has no heading rows in a list (they are hidden, not disabled), and no Quote.
+  await page.locator('.ProseMirror li > p').nth(0).click();
+  await page.locator('.editor-tools [aria-label^="Text style"]:visible').first().click();
   const offered = await page
-    .locator('.editor-tools button:visible')
-    .evaluateAll((b) => b.map((x) => x.getAttribute('aria-label')).filter((n) => /^(Page heading|Heading|Subheading)\b/.test(n ?? '')));
-  if (offered.length) problems.push(`${label}: the toolbar offers ${offered.join(', ')} in a list item`);
+    .locator('[role=menu] [role^=menuitem]:visible')
+    .evaluateAll((rows) => rows.map((x) => x.textContent.trim()).filter((n) => /^(Main heading|Heading|Subheading|Quote)\b/.test(n ?? '')));
+  if (offered.length) problems.push(`${label}: the Text style menu offers ${offered.join(', ')} in a list item`);
+  await page.keyboard.press('Escape');
   // A text size picked in a list keeps the list: the text of the item gets the size (a span), and Body medium takes it away.
   await page.locator('.ProseMirror li > p').nth(0).click();
   const pick = async (name) => {
@@ -664,14 +783,10 @@ async function checkListsAndBlocks(width) {
   await pick('Body medium');
   if (await page.locator('.ProseMirror ul li span.body-small').count())
     problems.push(`${label}: Body medium in a list item leaves its size`);
-  if (await page.locator('[aria-label="Show fewer tools"]:visible').count())
-    await page.locator('[aria-label="Show fewer tools"]:visible').first().click();
   // A block inserted in the first item ends the list there, at the top level, and the rest follows it.
   await page.locator('.ProseMirror li > p').nth(0).click();
   await page.keyboard.press('End');
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().click();
-  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Numbered steps.' }).first().click();
   await page.waitForSelector('.ProseMirror .site-block, .ProseMirror [data-site-block]', { timeout: 8000 }).catch(() => {});
   const shape = await page.evaluate(() =>
@@ -903,9 +1018,7 @@ async function checkLiveList(width, height, { name, hint, items }) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().click();
-  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
   try {
     await page.waitForSelector('.site-block-inline [data-field="heading"]', { timeout: 8000 });
@@ -983,9 +1096,7 @@ async function checkEmptyRow(width, height) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
-  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await pressInsert(page, 'tap');
   await page.locator('dialog[open] button', { hasText: 'Rows that expand, with a link.' }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
   const dialog = page.locator('dialog[open]');
@@ -1039,9 +1150,7 @@ async function checkEmptyRow(width, height) {
   const makeList = async () => {
     await page.click('.ProseMirror > p');
     await page.keyboard.press('Enter');
-    if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-      await page.locator('[aria-label="Show more tools"]:visible').first().tap();
-    await page.locator('[aria-label="Insert"]:visible').first().tap();
+    await pressInsert(page, 'tap');
     await page.locator('dialog[open] button', { hasText: 'Rows that expand, with a link.' }).first().click();
     await page.waitForSelector('.inline-list-row-active [data-field="title"]');
     await page.keyboard.type('First');
@@ -1115,9 +1224,7 @@ async function checkInsertNeverOpensSheet(width, height) {
         await page.keyboard.press('Enter');
         await page.waitForTimeout(300);
       }
-      if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-        await page.locator('[aria-label="Show more tools"]:visible').first().click();
-      await page.locator('[aria-label="Insert"]:visible').first().click();
+      await pressInsert(page, 'click');
       await page.locator('dialog[open] button', { hasText: hint }).first().click();
       await page.waitForTimeout(800);
       const state = await page.evaluate(() => ({
@@ -1142,9 +1249,7 @@ async function checkInlineSingle(width, height, { name, hint, field, text, slot 
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
-  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await pressInsert(page, 'tap');
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
   await page.waitForSelector(`.site-block-inline [data-field="${field}"]`);
   await page.keyboard.type(text);
@@ -1192,9 +1297,7 @@ async function checkIconSlots(width, height, { name, hint, field = 'title' }) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().click();
-  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
   await page.waitForSelector(`.inline-list-row-active [data-field="${field}"]`, { timeout: 8000 });
   await page.keyboard.type('One');
@@ -1255,9 +1358,7 @@ async function checkSegmentedArrow(width, height) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().click();
-  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Rows that expand, with a link.' }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]', { timeout: 8000 });
   await page.keyboard.type('First');
@@ -1320,10 +1421,8 @@ async function checkInlineBlock(
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  // The tools that do not fit are under "Show more tools".
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().click();
-  await page.locator('[aria-label="Insert"]:visible').first().click();
+  // The tools that do not fit are in the ⋮ menu.
+  await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
   try {
     await page.waitForSelector(`.inline-list-row-active [data-field="${field}"]`, { timeout: 8000 });
@@ -1687,9 +1786,7 @@ async function checkSteps(width, height) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().click();
-  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Numbered steps.' }).first().click();
   await page.waitForSelector('.inline-steps .inline-list-row-active [data-field="title"]');
   const steps = () =>
@@ -1760,9 +1857,7 @@ async function checkSteps(width, height) {
     await p2.keyboard.type('Hello');
     await p2.keyboard.press('Enter');
     await p2.waitForTimeout(300);
-    if (!(await p2.locator('[aria-label="Insert"]:visible').count()))
-      await p2.locator('[aria-label="Show more tools"]:visible').first().click();
-    await p2.locator('[aria-label="Insert"]:visible').first().click();
+    await pressInsert(p2, 'click');
     await p2.locator('dialog[open] button', { hasText: 'Numbered steps.' }).first().click();
     await p2.waitForSelector('.inline-steps .inline-list-row-active [data-field="title"]');
     const taken = await p2.evaluate(
@@ -1799,9 +1894,7 @@ async function checkDynamicList(width, height) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
-  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
   await page.keyboard.type('Typed row');
@@ -1857,9 +1950,7 @@ async function checkDynamicPicker(width, height) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
-  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
   await page.locator('.contextual-menu [aria-label="Fill from a list"]').click();
@@ -2146,9 +2237,7 @@ async function checkNewList(width, height, label) {
     await page.keyboard.type('Hello');
     await page.keyboard.press('Enter');
     await page.waitForTimeout(300);
-    if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-      await page.locator('[aria-label="Show more tools"]:visible').first().tap();
-    await page.locator('[aria-label="Insert"]:visible').first().click();
+    await pressInsert(page, 'click');
     await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
     await page.waitForSelector('.inline-list-row-active [data-field="title"]');
     await page.keyboard.type('Typed row');
@@ -2287,9 +2376,7 @@ async function checkIconColor(width, height, scheme = 'light') {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().click();
-  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
   await page.keyboard.type('First');
@@ -2462,9 +2549,7 @@ async function checkInlineTable(width, height) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
-  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await pressInsert(page, 'tap');
   await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
   await page.waitForSelector('.inline-table-cell-active textarea');
   await page.keyboard.type('Plan');
@@ -2626,9 +2711,7 @@ async function checkTableAlign(width, height) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
-  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await pressInsert(page, 'tap');
   await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
   await page.waitForSelector('.inline-table-cell-active textarea');
   const cellField = (r, c) => page.locator(`.inline-table-box [data-row="${r}"] [data-field="${c}"]`);
@@ -2766,9 +2849,7 @@ async function checkIconSearch(width, height) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
-  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await pressInsert(page, 'tap');
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
   await page.keyboard.type('First');
@@ -3903,7 +3984,8 @@ for (const [width, height] of [
 
 await checkStartSubtitle();
 
-for (const width of [360, 375, 390, 414]) await checkTextSheet(width);
+for (const width of [360, 375, 390, 414]) await checkTextBar(width);
+await checkTextBarWide();
 for (const [width, height] of [
   [360, 740],
   [375, 800],
