@@ -10,7 +10,7 @@ contextual menu slides in from the left and pushes the main menu to the right (t
 goes right and out of the screen. When you leave it, it rolls back. There needs to be a divider between the two. So just one
 navigation bar with all the buttons in it."
 
-Also decided: the selection tools (Bold, Italic, Link, Heading, Text size, Alignment, lists, colour) belong to the contextual
+Also decided: the selection tools (Bold, Italic, Link, Text style, Alignment, lists, colour) belong to the contextual
 part; the main part keeps only Insert, Undo, Redo and Section settings; with the cursor in text, selection or not, the text tools
 always show; on a phone the bar never scrolls and what does not fit is in a `⋮` drop-down; the editor's floating menus use the theme's own `Toolbar` part.
 
@@ -95,7 +95,7 @@ Idle (focus outside the text and blocks): all four fit, no ⋮
 
 Cursor in text: text tools slide in from the left, the main tools are pushed out; Undo and Redo stay, the rest is in ⋮
 +--------------------------------------------+
-| [B] [I] [Link] [H]  ▏  [Undo] [Redo] [⋮]   |
+| [B] [I] [Link] [Style▾]  ▏  [Undo] [Redo] [⋮] |
 +--------------------------------------------+
 
 A Table is active:
@@ -105,7 +105,7 @@ A Table is active:
 
 COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Remove, and is absent in text):
 +----------------------------------------------------------------------------------+
-| [B][I][Link][H][T][Align][Lists][Colour]  ▏  [+] [Undo] [Redo] [Section settings]|
+| [B][I][Link][Style▾][List▾][Align][Colour]  ▏  [+] [Undo] [Redo] [Section settings]|
 +----------------------------------------------------------------------------------+
 ```
 
@@ -126,7 +126,7 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
 | State | On the bar (7 slots) | In `⋮` (groups in order, a divider between groups) |
 | --- | --- | --- |
 | Nothing active | Insert, Undo, Redo, divider, Section settings (when it applies) | no `⋮` |
-| Text | Bold, Italic, Link, Heading, divider, Undo, Redo, `⋮` | Text size, Alignment, Lists (Bulleted, Check, Numbered), Colour; divider; Insert, Section settings (when it applies) |
+| Text | Bold, Italic, Link, **Text style**, divider, Undo, Redo, `⋮` | Alignment, Lists (Bulleted, Check, Numbered), Colour; divider; Insert, Section settings (when it applies) |
 | Table | Row above, Row below, Column before, Column after, divider, Undo, Redo, `⋮` | Table settings, Delete row, Delete column; divider; Insert; divider; Hide, Move, Remove |
 | List, Cards, Points, Segmented list | Add above, Add below, Move up, Move down, divider, Undo, Redo, `⋮` | Link, Settings, Fill from a list (List, Segmented list); divider; Insert; divider; Hide, Move, Remove |
 | Steps, Checklist | Add above, Add below, Move up, Move down, divider, Undo, Redo, `⋮` | Insert; divider; Hide, Move, Remove |
@@ -134,7 +134,7 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
 | Image | Change image, Crop, Alt text, Settings, divider, Undo, Redo, `⋮` | Insert; divider; Hide, Move, Remove |
 | Video, Notice, Testimonials, Posts, HTML, Banner | Settings (Video: Change address first; Testimonials and Posts: Edit), divider, Undo, Redo, `⋮` | Insert; divider; Hide, Move, Remove |
 
-  A rejected choice, Undo only, frees one slot: the contextual tools get a fifth (Text: Text size; List: Link; Table: Table
+  A rejected choice, Undo only, frees one slot: the contextual tools get a fifth (Text: Alignment; List: Link; Table: Table
   settings; Image and the single blocks: nothing more to add), and Redo goes into `⋮`.
 
   **The `⋮` on a phone is a pop-up menu (owner decision), not a bottom sheet.** The theme's `Menu` part, anchored to the `⋮` button: it opens
@@ -147,28 +147,41 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
   *More* button (`MarkdownEditor.tsx`, `selectionMenu`); with the pill deleted nothing opens it, and its rows (text styles, lists,
   alignment, colours) are in `⋮`. Recommendation: delete the *More* sheet in step 1 unless the owner wants it for something else.
 
-  **How long the `⋮` list gets (heights are estimates where marked).** Row 44 dp, menu padding 8 dp above and below. Longest: Text, with
-  Section settings = 8 rows (352 dp) + one divider + padding ≈ 378 dp. Table and List: 7 rows + 2 dividers ≈ 342 dp. The other blocks: 3 to 6
-  rows. Room under the bar (bar 44 dp; status bar 24 dp, my estimate; keyboard 290 dp portrait and about 160 dp landscape, my
+  **How long the `⋮` list gets (heights are estimates where marked).** Row 44 dp, menu padding 8 dp above and below. Longest: Table and
+  List, 7 rows + 2 dividers + padding ≈ 342 dp. Text, with Section settings: Alignment, Bulleted, Check, Numbered, Colour, Insert, Section settings
+  = 7 rows (308 dp) + one divider + padding ≈ 333 dp; without Section settings (6 rows) ≈ 289 dp. The other blocks: 3 to 6 rows. Room under the bar (bar 44 dp; status bar 24 dp, my estimate; keyboard 290 dp portrait and about 160 dp landscape, my
   estimates, not read from a device):
 
-  | Phone | Room for the pop-up | Text (≈ 378) | Table, List (≈ 342) |
+  | Phone | Room for the pop-up | Text (≈ 333; 289 without Section settings) | Table, List (≈ 342) |
   | --- | --- | --- | --- |
   | 375 × 667, portrait, no keyboard | 667 − 24 − 44 ≈ 599 dp | fits | fits |
-  | 375 × 667, portrait, keyboard open | 667 − 290 − 24 − 44 ≈ 309 dp, minus 8 dp margin ≈ 301 | scrolls: 6 rows show | scrolls: 6 rows show |
-  | 667 × 375, landscape, no keyboard | 375 − 44 ≈ 331 dp (status bar assumed hidden in landscape, an estimate), minus 8 ≈ 323 | scrolls: 7 rows show | nearly fits: 7 rows |
+  | 375 × 667, portrait, keyboard open | 667 − 290 − 24 − 44 ≈ 309 dp, minus 8 dp margin ≈ 301 | scrolls a little with Section settings (6 of 7 rows show); fits without it | scrolls: 6 rows show |
+  | 667 × 375, landscape, no keyboard | 375 − 44 ≈ 331 dp (status bar assumed hidden in landscape, an estimate), minus 8 ≈ 323 | nearly fits (7 rows, 333 against 323) | nearly fits: 7 rows |
   | 667 × 375, landscape, keyboard open | 375 − 160 − 44 ≈ 171 dp, minus 8 ≈ 163 | scrolls: 3 rows show | scrolls: 3 rows show |
 
   **The keyboard is usually open** when the `⋮` is used in text (the bar's buttons keep the cursor, so the keyboard stays), so the realistic cases
-  are the second and fourth rows: the Text list does not fit and must scroll, in portrait after 6 rows. The pop-up is placed inside the
+  are the second and fourth rows: the Text list now almost fits in portrait (it scrolls only by Section settings) and the block lists scroll after 6 rows. The pop-up is placed inside the
   visible screen (`visualViewport`, the bar is at the top so it opens downward into the room above the keyboard), with `max-height` set to the room,
   not to the theme's `calc(100dvh - 2rem)`. **Decided by the owner: yes, the pop-up may scroll when it does not fit.** The theme's `.menu` already has
   `overflow-y: auto`. M3 says "Menus can scroll when all menu items can't display at once. In this state, menus show a persistent scrollbar."
   The theme sets no scrollbar rule on `.menu`, so on a phone the browser's overlay scrollbar hides when idle: not a persistent one. To meet M3,
   the editor's menu sets `scrollbar-width: thin` and `scrollbar-gutter: stable` (a desktop browser then keeps it visible; a phone's overlay
-  scrollbar cannot be forced). Our cue on a phone: the list shows a half-cut row at the bottom, and the most used rows come first (Text size,
-  Alignment, Lists, Colour), so Insert and Section settings are the ones that scroll into view. To reduce scrolling: the Undo-only option of
+  scrollbar cannot be forced). Our cue on a phone: the list shows a half-cut row at the bottom, and the most used rows come first (Alignment,
+  Lists, Colour), so Insert and Section settings are the ones that scroll into view. To reduce scrolling: the Undo-only option of
   the Undo-only choice would not help (it moves a row out of the bar, not out of the list).
+  **Headings and text styles are one "Text style" button (owner decision, 13 November: "Yes, merge them"). This is the editor workspace; M3 does not
+  print it.** Today the bar has a headings button (H1, H2, H3) and a text button (small, medium, large, label, quote) as separate groups
+  (`MarkdownEditor.tsx`: `kindGroups` has three groups, `'headings'`, `'text'` and `'list'`, `KindGroup`, and `GENERIC_ICONS.heading` and
+  `GENERIC_ICONS.text` for the icon when the cursor is not in text; one menu `Menu` under `kindsAt` shows the group). They become **one group
+  `'style'`**: one button that shows the current style by name and icon (for example "Heading 2" or "Body medium"; the generic icon when the cursor is not in
+  text) and opens one menu: the heading levels the text may have (`headingChoices`: a page, H1 while it has none, then H2 and H3; a blog post H2
+  and H3), a divider, then Body small, Body medium, Body large, Label (only where the line can be a label: `labelable`) and Quote; the current row
+  is marked (`selected`), 44 dp rows, 20 dp icons, each row's shortcut as trailing text where there is one. At most 8 rows (3 + 3 + label + quote), about
+  350 dp, so it fits on a phone without scrolling in every case except the keyboard-open landscape one. **Lists stay separate** (Bulleted, Check,
+  Numbered): on a phone they are in `⋮` as a group, because all 7 slots are in use; on a wide screen, where a slot is free, they are **one "List" button** with a
+  menu of the three (as today's list group), showing the current kind. The tooltip of the Text style button is its name and the current style ("Text style, Body
+  medium"); the keys `Mod-Alt-5` to `Mod-Alt-8` (found in the engine; the PM says they are headings: I found the key names, not which command each runs)
+  show as trailing text in the menu rows they belong to, once tested.
 - **The divider** is the theme's `Divider` part (`theme/ui/Divider.tsx`), vertical, in the theme's outline-variant colour, between the
   contextual and main tools. It is hidden when there is no context (idle). In the `⋮` list a `MenuDivider` (also the theme's
   `Divider`) separates the groups.
@@ -280,8 +293,8 @@ are about the whole page and live in the page header and save bar already, not i
 | Insert (+) | the whole text, at the cursor | main part |
 | Section settings | the section the heading starts | main part |
 | Bold, Italic, Link | the selection | contextual part |
-| Heading (H), Bulleted / Check / Numbered list | the line under the cursor | contextual part |
-| Text size (T), Alignment, colour | the line or selection | contextual part |
+| Text style (headings, body sizes, label, quote: one button), Bulleted / Check / Numbered list | the line under the cursor | contextual part |
+| Alignment, colour | the line or selection | contextual part |
 
 The main part is short, so on a phone it fits on screen when idle, and on a wide screen it always fits beside the contextual tools.
 
@@ -292,7 +305,7 @@ Move, Remove). Actions are today's, from the inline spec; this spec only moves t
 
 | Block | Contextual tools |
 | --- | --- |
-| Text (cursor or selection) | Bold, Italic, Link, Heading, Text size, Alignment, Lists, Colour |
+| Text (cursor or selection) | Bold, Italic, Link, Text style, List, Alignment, Colour |
 | Table | Row above, Row below, Column before, Column after, Delete row, Delete column, Settings, `⋮` |
 | List | Add above, Add below, Move up, Move down, Link, Settings, Fill from a list, `⋮` |
 | Cards | Add above, Add below, Move up/down, Link, Settings, `⋮` |
@@ -341,6 +354,15 @@ Move, Remove). Actions are today's, from the inline spec; this spec only moves t
      for itself; (c) the deviation entry of section 8 goes into `docs/material-deviations.md` in the same pull request, so the deviation
      check does not flag it; (d) `check:contrast` and the other checks do not look at target size, and the line-385 and line-3088 rules of
      `editor-screens.mjs` (the empty hint, the accordion row) are other parts and stay at 48.
+     **The Text style merge also goes in with step 1** (`MarkdownEditor.tsx`): `kindGroups` loses `'headings'` and `'text'` for one `'style'` group (with
+     `headingKindOf` and `styleKindOf` joined into one `styleOf`, and one generic icon), the menu under `kindsAt` lists the heading levels, a divider
+     and the body sizes, label and quote. **In a list item** the heading rows are shown **disabled, not removed** (M3 prints this for menus: "When a
+     menu item can only be used under specific conditions, it should appear disabled rather than be removed"; today the controls are left out). The
+     `check:screens` rules that must change: line 476 (`/^(Page heading|Heading|Subheading)\b/` buttons "in a list item": the heading rows of the Text
+     style menu are disabled there instead), lines 207 to 211 and 238 to 240 (the selection pill's "Heading and More" and the *More* sheet's group
+     titles: both go with the pill and the sheet). The `pick` helper at line 484 (`[aria-label^="Text style"]`, then a menu row by its name) keeps
+     working if the merged button's name begins with "Text style". New rules: one Text style button on the bar in text; its menu has at most 8 rows,
+     the current one marked, each row 44 dp; a page's first heading offers H1, a blog post offers H2 and H3.
   2. *Medium:* blocks move in. `contextualMenu.ts` becomes the bar's contextual group (`BarAction` stays); the Table's seven; the
      tests move; the floating `.contextual-menu` CSS is deleted. The touch-selection worker's `SelectionBar` plugs in here.
   3. *Small:* the slide and push (FLIP with `motionTiming`), the fade between contexts, reduced motion.
@@ -427,7 +449,7 @@ and any M3 text on shortcuts in tooltips.
 | 4 | Language picker (a sheet with search) | 2 today (`da-DK`, `en-US`) | `locales = Object.keys(messages)` | `Library.tsx` (890), `src/i18n/index.ts` |
 | 5 | Add field menu (`Menu`) | 6 field kinds | fixed | `AddFieldMenu.tsx` |
 | | Dashboard card menu | about 5 (move up, move down, settings, divider, more) | the card | `DashboardEdit.tsx` |
-| | Editor text menus: Alignment 3, Text style 5, List 3, Heading 3 | 3 to 5 | fixed | `MarkdownEditor.tsx` |
+| | Editor text menus: **Text style (merged headings and styles) up to 8**, Alignment 3, List 3 | 3 to 8 | fixed | `MarkdownEditor.tsx` |
 | | `FabMenu` (create) | the start screen 2 (pages, blog); a list one per kind | the site's lists | `StartFab.tsx`, `ListFab.tsx` |
 
 The longest real `Menu` today has 6 rows; the long lists are sheets and data-driven choices. The planned `⋮` menu (7 to 8 rows) would be the
