@@ -77,13 +77,6 @@ export const allow = [
   // todo: each group has its own fix pull request.
   {
     kind: 'fixed-colour',
-    file: /^theme\/styles\/ui\.css$/,
-    line: /snackbar/,
-    reason: 'todo (snackbar fallbacks): use the inverse roles',
-    todo: true,
-  },
-  {
-    kind: 'fixed-colour',
     file: /^theme\/styles\/blocks\.css$/,
     line: /^\s*--block-/,
     reason: 'todo (block fallback palette): use the roles',
