@@ -772,7 +772,7 @@ async function checkInlineSingle(width, height, { name, hint, field, text, slot 
 
 /** Every block that picks an icon has the same control for it (the round button of ui.tsx, SlotButton): a plus while the row is active and has none, the icon once it
  * has one, and a tap on the icon of a row that is not the active one opens the icon picker for that row and makes it the active one, in one tap. */
-async function checkIconSlots(width, height, { name, hint, add, field }) {
+async function checkIconSlots(width, height, { name, hint, field = 'title' }) {
   const label = `${width}px icon control in ${name}`;
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
