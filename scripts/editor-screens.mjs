@@ -2018,10 +2018,16 @@ async function checkCardsCarousel(width, height) {
 }
 
 /** The color of an icon (`iconColor`): the row's icon picker has the choice next to the icon (Primary, Secondary, Tertiary); a picked color is on the row (`data-icon-color`) and drawn in the theme's color role, in the editor like on the site. */
-async function checkIconColor(width, height) {
-  const label = `${width}px icon color`;
+async function checkIconColor(width, height, scheme = 'light') {
+  const label = `${width}px icon color (${scheme})`;
   const phone = width < 600;
-  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  const page = await browser.newPage({
+    viewport: { width, height },
+    hasTouch: phone,
+    isMobile: phone,
+    locale: 'en-US',
+    colorScheme: scheme,
+  });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#new/pages'));
@@ -2105,7 +2111,70 @@ async function checkIconColor(width, height) {
       `${label}: the chips changed width when the choice changed (${before.map((c) => c.width)} to ${after.map((c) => c.width)})`,
     );
   if (after.some((c) => !c.circle || c.check)) problems.push(`${label}: after the choice changed a chip lost its circle or got a check`);
-  await page.screenshot({ path: join(shots, `icon-color-${width}.png`) });
+  await page.screenshot({ path: join(shots, `icon-color-${width}${scheme === 'dark' ? '-dark' : ''}.png`) });
+  // The picker's grid draws its icons in the picked color (the chosen icon keeps its own colors): Secondary now, then Tertiary, then Primary (the default, not a role's color).
+  const gridColors = () =>
+    page.evaluate(() => {
+      const grid = [...document.querySelectorAll('[role="group"][aria-label="Icon"]')].pop();
+      const probe = document.createElement('i');
+      document.body.append(probe);
+      const roleColor = (role) => {
+        probe.style.color = `var(--mo-${role})`;
+        return getComputedStyle(probe).color;
+      };
+      const tiles = [...(grid?.querySelectorAll('button:not([aria-pressed="true"])') ?? [])].filter((b) => b.querySelector('svg'));
+      const colors = [...new Set(tiles.map((b) => getComputedStyle(b).color))];
+      // The contrast of the icons on what is behind the tile (WCAG, 3:1 for an icon), as the pixels are painted.
+      const pixel = (css) => {
+        const c = document.createElement('canvas').getContext('2d');
+        c.canvas.width = c.canvas.height = 1;
+        c.fillStyle = '#000';
+        c.fillRect(0, 0, 1, 1);
+        c.fillStyle = css;
+        c.fillRect(0, 0, 1, 1);
+        return [...c.getImageData(0, 0, 1, 1).data];
+      };
+      const lum = ([r, g, b]) =>
+        [r, g, b]
+          .map((v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
+          .reduce((a, v, i) => a + v * [0.2126, 0.7152, 0.0722][i], 0);
+      let behind = 'rgb(0, 0, 0)';
+      for (let n = tiles[0]; n; n = n.parentElement) {
+        const bg = getComputedStyle(n).backgroundColor;
+        if (n !== tiles[0] && pixel(bg).join() !== '0,0,0,255' && !/rgba\(.*, 0\)|transparent/.test(bg)) {
+          behind = bg;
+          break;
+        }
+      }
+      const [a, b] = [lum(pixel(colors[0] ?? '#000')), lum(pixel(behind))].sort((x, y) => y - x);
+      const out = {
+        contrast: (a + 0.05) / (b + 0.05),
+        count: tiles.length,
+        colors,
+        secondary: roleColor('secondary'),
+        tertiary: roleColor('tertiary'),
+      };
+      probe.remove();
+      return out;
+    });
+  const grid = await gridColors();
+  if (grid.count < 5) problems.push(`${label}: the picker's grid has only ${grid.count} unchosen icons`);
+  else if (grid.colors.join() !== grid.secondary)
+    problems.push(`${label}: after Secondary the grid's icons are ${grid.colors.join(' / ')}, not the secondary color ${grid.secondary}`);
+  console.log(`icon grid contrast ${width}px ${scheme} secondary: ${grid.contrast.toFixed(2)}`);
+  if (grid.contrast < 3) problems.push(`${label}: the secondary icons on the grid have contrast ${grid.contrast.toFixed(2)}:1, under 3:1`);
+  await page.getByRole('button', { name: 'Tertiary', exact: true }).click();
+  await page.waitForTimeout(300);
+  const tertiary = await gridColors();
+  console.log(`icon grid contrast ${width}px ${scheme} tertiary: ${tertiary.contrast.toFixed(2)}`);
+  if (tertiary.contrast < 3)
+    problems.push(`${label}: the tertiary icons on the grid have contrast ${tertiary.contrast.toFixed(2)}:1, under 3:1`);
+  if (tertiary.colors.join() !== tertiary.tertiary)
+    problems.push(
+      `${label}: after Tertiary the grid's icons are ${tertiary.colors.join(' / ')}, not the tertiary color ${tertiary.tertiary}`,
+    );
+  await page.getByRole('button', { name: 'Secondary', exact: true }).click();
+  await page.waitForTimeout(300);
   await page
     .locator('dialog[open] button[aria-label="Close"]')
     .click({ timeout: 2000 })
@@ -3366,7 +3435,7 @@ for (const [width, height] of [
   [1280, 900],
 ]) {
   await checkCardsCarousel(width, height);
-  await checkIconColor(width, height);
+  for (const scheme of ['light', 'dark']) await checkIconColor(width, height, scheme);
 }
 for (const [width, height] of [
   [375, 740],
