@@ -2166,6 +2166,14 @@ async function checkNewList(width, height, label) {
     // bottom line can be set to the first body text (this block only), and no image or other kind is offered for it.
     await page.getByText('ZZ Fresh list', { exact: true }).locator('visible=true').last().click();
     const part = (name) => page.getByRole('button', { name: new RegExp(`^${name}:`) }).first();
+    // On a phone the dynamic settings are a sheet over the block: close it to reach the parts.
+    if (phone)
+      await page
+        .locator('dialog[open] [aria-label="Close"]')
+        .first()
+        .click()
+        .catch(() => {});
+    await page.waitForTimeout(400);
     await part('Bottom line')
       .waitFor({ timeout: 8000 })
       .catch(() => problems.push(`${label}: the picked list shows no Bottom line part`));
