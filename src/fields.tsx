@@ -58,6 +58,7 @@ import { LinkList } from './LinkList';
 import { ToolSelect } from './ToolSelect';
 import { MoveButtons } from './MoveButtons';
 import { movedList } from './moveItem.mjs';
+import { iconColorOf } from './iconColor';
 import { clean, inPairs, inUse, newItem, phoneParts, phoneText, problemAt, problemOf, type Around, type Problem } from './check';
 import { Icon, useAllIconNames } from './icon';
 import { t } from './i18n';
@@ -1080,8 +1081,11 @@ function IconField({ id, field, text, onChange }: { id?: string; field: Field; t
   const [wanted, setWanted] = useState(false);
   const all = useAllIconNames(wanted);
   const choices = [...(field.required ? [] : [{ label: t.forms.noIcon, value: '' }]), ...field.options!];
+  // The color picked next to the icon (iconColor, src/iconColor.ts): the grid draws its icons in it.
+  const around = useContext(AroundHere);
   return (
     <IconPicker
+      iconColor={field.name === 'icon' ? iconColorOf(around?.value?.iconColor) : undefined}
       id={id}
       label={field.label}
       value={text}

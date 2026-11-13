@@ -2026,6 +2026,12 @@
   .prose .block-card-video .video-facade:not(.video-facade-still) {
     background: transparent;
   }
+  /* In a card the video is its media: flush against the card's top and sides (the card's wrapper clips the corners), none of the text's margin
+     above or below it, which left a gap over the still. */
+  .prose .block-card-video .video-facade {
+    margin-block: 0;
+    border-radius: 0;
+  }
   .prose .video-facade svg {
     color: var(--block-accent);
     transition: transform var(--motion-spatial);
