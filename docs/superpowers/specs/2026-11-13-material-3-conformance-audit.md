@@ -23,9 +23,9 @@ Fix size: small is one or a few lines, medium is one part or one file, large is 
 
 | # | Where | What we have | What Material says (source) | Fix | Recorded |
 | - | ----- | ------------ | --------------------------- | --- | -------- |
-| 1 | Button sizes (`--button-xsmall-*`, `-large-*`, `-xlarge-*`, `ui.css`, `global.css` 123 to 142), measured | XS 40 high, padding 16, gap 8, icon 18. L 64 high, padding 36, gap 12, icon 24. XL 88 high, padding 48, gap 16, icon 32 | m3.material.io/components/buttons/specs, Size token sets: XS 32 high, 12 padding, 4 gap, 20 icon. L 96, 48, 12, 32. XL 136, 64, 16, 40 | medium | no |
-| 2 | The default button (no size class), measured | 40 high, padding 24, icon 20 | Same page: Small (default) is 40 high with 16 padding and a 20 icon; Medium is 56 high with 24 padding and a 24 icon. "Small button padding 24dp: Not recommended. Use 16dp". The hero's 56 (`global.css` 606) is Medium | medium | no |
-| 3 | Icon button sizes, measured | XS 36, small 48, medium 60. Narrow and wide small: 38 and 62 wide. Large 96, XL 136 and all icon sizes are right | m3.material.io/components/icon-buttons/specs: XS 32, small 40, medium 56; small narrow 32 and wide 52 wide (4, 8, 14 side space with a 24 icon) | small | small 48 only (CSS sweep 4: 48px box for the 48px target) |
+| 1 | Button sizes (`--button-xsmall-*`, `-large-*`, `-xlarge-*`, `ui.css`, `global.css` 123 to 142), measured | XS 40 high, padding 16, gap 8, icon 18. L 64 high, padding 36, gap 12, icon 24. XL 88 high, padding 48, gap 16, icon 32 | m3.material.io/components/buttons/specs, Size token sets: XS 32 high, 12 padding, 4 gap, 20 icon. L 96, 48, 12, 32. XL 136, 64, 16, 40 | medium | decided (owner), Material only: section 6 |
+| 2 | The default button (no size class), measured | 40 high, padding 24, icon 20 | Same page: Small (default) is 40 high with 16 padding and a 20 icon; Medium is 56 high with 24 padding and a 24 icon. "Small button padding 24dp: Not recommended. Use 16dp". The hero's 56 (`global.css` 606) is Medium | medium | decided (owner), Material only: section 6 |
+| 3 | Icon button sizes, measured | XS 36, small 48, medium 60. Narrow and wide small: 38 and 62 wide. Large 96, XL 136 and all icon sizes are right | m3.material.io/components/icon-buttons/specs: XS 32, small 40, medium 56; small narrow 32 and wide 52 wide (4, 8, 14 side space with a 24 icon) | small | small 48 only (CSS sweep 4: 48px box for the 48px target); decided (owner): section 6 |
 | 4 | Button group: gap between buttons; connected XS inner corner (`--button-group-*`) | 12 for every size; XS inner corner 4 | m3.material.io/components/button-groups/specs: gap 18 (XS), 12 (S), 8 (M, L, XL); connected inner corner 8 for XS, S, M (pressed 4), 16 L, 20 XL | small | no |
 | 5 | Icon sizes that differ from what the component page prints: text field icons and the select's arrow (`.text-field-container`, `.exposed-dropdown-menu-icon`; 22 measured at 20px); the FAB menu's close icon (CSS says 24, not drawn on any screen measured) | 20px; 24px | Text fields page: leading and trailing icon 24dp. FAB menu page: "FAB menu close button icon size 20dp" | small | no |
 
@@ -152,10 +152,48 @@ One check: extend **`check:css-values`** (`scripts/check-css-values.mjs`). It al
 
 ## 5. Questions for the owner
 
-1. **Button sizes (rows 1 and 2):** make the five sizes exactly Material 3 Expressive's (32, 40, 56, 96, 136) and the default Small with 16 padding? Recommendation: yes. It is the largest visible change: the default button keeps its 40 height but loses 8px of padding each side, and "medium" becomes 56 (which the hero already uses). Do it in its own pull request with screens.
+1. **Button sizes (rows 1 to 3): decided by the owner:** "Yes, match Material 3 sizes. That should not change size on themes that have their own sizes." The default theme (Material) buttons and icon buttons move to M3's sizes and padding; a theme that sets its own sizes keeps them. The plan is in section 6.
 2. **Shadows at rest (row 17):** keep colour-only elevation? Recommendation: keep, record it; add a shadow only to the menu, the dialog and the snackbar, which float over the page.
 3. **Icon sizes (row 5): decided by the owner:** every icon is 24dp unless the component's own M3 page prints another size, quoted in the section "Icons" above; no split is recommended beyond what those pages print. To do: text field icons and the select's arrow to 24, the FAB menu's close icon to 20.
 4. **Footer links (row 6): decided by the owner:** 48px, implemented in its own pull request (not in this one).
 5. **Table block: decided by the owner:** adapt it to MD3 styles (structure from Material 2, look from M3 tokens). Nothing is left to change in the Table block today; see "Data tables".
 6. **"Hidden" (row 27): decided by the owner.** "Hidden" stays the status name, not "Unlisted"; the search engine setting is "No index" (and "No follow" beside it). To do: (a) fix the demo's two texts to the sentence below; (b) rename the setting "Hide from search engines" to "No index", add "No follow", and update the CLAUDE.md line that calls Hidden the SEO setting (a product change, its own pull request). Proposed help text for Hidden: English "Not listed on the blog or in lists of posts. It still opens at its address; the No index setting keeps it out of Google." Danish: "Vises ikke på bloggen eller i lister over indlæg. Siden kan stadig åbnes på sin adresse; indstillingen No index holder den ude af Google." (the Danish name of the setting is not decided, so the sentence names it in English).
 7. **Full stops on hints (row 30): decided by the owner on what M3 says.** M3 says to avoid a period on a single sentence and to use periods on several sentences or long, complex ones (quotes in row 30). So: remove the full stop from every single sentence or fragment (hints, labels, tooltips, dialog text, 313 strings in en-US, 349 in da-DK, 41 field hints in `defaults/collections.ts`); keep it on strings of several sentences (156 and 157), where every sentence ends with one. The repo's own rule that a help text is one short sentence lives in the skill `site-editor-writing` in `morpheme-website`, which this session cannot read, so how the two fit is: a hint that is one short sentence has no stop under M3; a hint that needs two sentences keeps its stops. Not read: the M3 pages name no rule for supporting text beyond the general one.
+
+## 6. Build plan: Material's buttons and icon buttons at M3 sizes (decided, not started)
+
+Owner, 2026-11-13: "Yes, match Material 3 sizes. That should not change size on themes that have their own sizes." Spec only; no code in this pull request.
+
+**The target** (read on `m3.material.io/components/buttons/specs` and `/icon-buttons/specs`, size token sets; height, side padding, icon-label gap, icon):
+
+| Size | Button | Icon button (height, icon; side space narrow, default, wide) |
+| ---- | ------ | ------------------------------------------------------------ |
+| XS | 32, 12, 4, 20 | 32, 20; 4, 6, 10 |
+| S (the default) | 40, 16, 8, 20 | 40, 24; 4, 8, 14 |
+| M | 56, 24, 8, 24 | 56, 24; 12, 16, 24 |
+| L | 96, 48, 12, 32 | 96, 32; 16, 32, 48 |
+| XL | 136, 64, 16, 40 | 136, 40; 32, 48, 72 |
+
+What the theme draws today (measured): buttons XS 40, S 40, none 40 (padding 24), L 64, XL 88; icon buttons XS 36, none 48, M 60, L 96, XL 136.
+
+**How the sizes are set.** Sizes are variables (`--button-xsmall-height` and the rest, `--icon-button-*`), so the change is a set of new values plus one class:
+
+1. In `theme/styles/global.css` (the default theme's own tokens, where `--button-height: 2.5rem` is today) write the table's values for every size, and make "no class" the M3 default, Small (40 high, 16 padding). Add `.button-medium` and use it for the hero's 56 (today a `--button-height` override at `global.css` 606). Icon buttons: the small size draws the 40px circle and keeps a 48px touch target with a pseudo-element, which retires deviation CSS sweep 4 ("we draw 48").
+2. The sites that use Material get the new sizes on their next update; that is a visible change, so the pull request needs a changeset and a release note paragraph (look and feel).
+3. Not read: the label type role per size (the M3 page shows it as a sample, "Aa"). The theme's L and XL labels are 24 and 32; check them against the Expressive roles before building.
+
+**The problem to solve first.** `themes/venus/styles/global.css` starts with `@import '@morphemecms/cms/theme/styles/global.css'`: a theme builds on Material's file and overrides what it wants. So any size variable that Material's `global.css` newly sets and a theme does not set itself changes in that theme too. Two ways:
+
+- **A (recommended): scope the new sizes to the default theme.** Write the M3 sizes under a selector that only matches when Material is the theme in use (for example the site writes `data-site-theme="material"` on `<html>`, next to the colour and motion CSS it already writes), so no other theme, whatever it imports, sees them. Nothing in any theme changes, by construction.
+- **B: pin in each theme.** Write the M3 sizes unscoped, and have each theme pin the values it has today. Every theme that is not edited changes, so this fails the owner's rule for a store theme that nobody updates. Not recommended.
+
+**Which themes set their own sizes today.** In `larsadolfsen/morpheme-apps` (read, commit `2378cf4`): one theme, **Venus** 1.3.0. `themes/venus/styles/controls.css` sets `--button-height` 3rem, `--button-padding`, `--button-gap`, `--button-small-height` and `-padding`, `--button-xsmall-height`, `-padding` and `-gap`, `--button-text-padding`, `--button-font-size`, `--icon-button-size` 2.75rem, `--chip-height`, `--text-field-height`; `footer.css` sets a smaller button (2rem). It does **not** set the L and XL button sizes, the icon button XS, M, L and XL sizes, or any icon size, so under B those would change in Venus (L 64 to 96, XL 88 to 136, icon buttons XS, M). Under A nothing changes in Venus. The repo `morpheme-cms` installs no other theme (`demo/src/themes` does not exist). Not checked: other store themes in `morpheme-appstore` and `morpheme-staging` (no access from this session).
+
+**How to prove no other theme changed.**
+
+1. **Before and after sizes.** A script (a new check, `scripts/check-theme-sizes.mjs`, in `npm run check`) opens a built site for each installed theme, draws every button size (shape round and square, with and without an icon), icon button size, FAB, extended FAB and chip, and writes each one's width, height, padding, gap, corner and icon size. The baseline is captured on `main` before the change and committed (`scripts/theme-sizes.baseline.json`). After the change the check fails on any difference for a theme that is not Material; for Material it compares with the table above.
+2. **A theme with its own sizes in this repo's CI.** No theme is installed here, so `check:themes` runs on nothing. Add a fixture theme under `scripts/fixtures/` that sets exactly Venus's size variables (copied, not imported), installed by the check for the run. That gives the before/after check a theme with its own sizes without a store theme.
+3. **The real Venus.** `morpheme-apps` copies Venus into its site and runs `check:themes` (`scripts/check.mjs`) against its pinned `@morphemecms/cms` (`0.16.0-next-20261111130251`); when its pin is bumped to the version with the change, that check builds Venus and opens every screen, and the same before/after script can run there against Venus's own baseline.
+4. `check:screens` (375px and 1280px) for Material, as today, to catch a layout that depended on the old 48px icon button (`--icon-button-size` is read in `global.css`, `ui.css` and `src/ui.tsx`).
+
+Order: (a) the `data-site-theme` attribute and the baseline, in one pull request with no visible change; (b) the sizes and the class, behind the attribute, with the release note; (c) Venus checked in `morpheme-apps` when its pin moves.
