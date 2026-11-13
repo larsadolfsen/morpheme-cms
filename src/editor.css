@@ -1013,6 +1013,7 @@ html {
 }
 .editor-text .inline-list-slot[aria-pressed='true'] {
   background: var(--mo-secondary-container);
+  color: var(--mo-on-secondary-container);
 }
 /* A card's buttons while it is active: the text of each is typed on the button itself (InlineCards.tsx), drawn as a tonal pill. */
 .editor-text .inline-card-button {
