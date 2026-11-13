@@ -35,7 +35,8 @@ Rule (owner, 2026-11-13): every icon is 24dp unless the component's M3 page prin
 
 - `m3.material.io/styles/icons/designing-icons`: "Standard icons are displayed as 24dp x 24dp." and "Icons support additional sizes: 20dp, 40dp, and 48dp, with 20dp primarily for desktop, dense layouts, and small scale visuals, and 40dp and 48dp optimized for display or headline type".
 - Printed as 24: text fields (leading, trailing), cards, dialogs, tabs, top app bars, navigation bar, rail and drawer, search, snackbar, toolbars, FAB menu items, FAB (regular), extended FAB (small), medium buttons and the small icon button.
-- Printed as another size, which the theme follows: buttons (XS 20, S 20, M 24, L 32, XL 40 on `/components/buttons/specs`), icon buttons (XS 20, S 24, M 24, L 32, XL 40), FAB medium 28 and large 36, chips 18, segmented buttons 18, checkbox 18, radio 20, switch 16, menu items 20 ("item leading icon size 20dp" on `/components/menus/specs`), lists in Expressive 20 ("item leading icon expressive size 20dp", "item trailing icon expressive size 20dp" on `/components/lists/specs`; the baseline 24 is printed beside them).
+- Where a page prints two sizes, the page's own text first, then its token tables. **Menus** (`/components/menus/specs`): the spec table at the top says "List item height 48dp" and "Leading/trailing icon size 24dp" (that is the baseline menu); the token set "Menus - Common" says "Menu item height 44dp", "Menu item leading icon size 20dp" and "Menu item trailing icon size 20dp"; the token set "Menu (baseline)" says "Menu icon size 24dp", "Menu list item leading icon size 24dp", "Menu list item trailing icon size 24dp" (marked with a warning sign). **Lists** (`/components/lists/specs`): the token set "List - Common" says "List list item leading icon size 24dp" and, on the next line, "List list item leading icon expressive size 20dp"; the same for trailing (24dp, then "trailing icon expressive size 20dp"). So both pages print 20 for the Expressive set and 24 for the baseline; whoever read only the spec table at the top of the Menus page saw only 24.
+- Printed as another size, which the theme follows: buttons (XS 20, S 20, M 24, L 32, XL 40 on `/components/buttons/specs`), icon buttons (XS 20, S 24, M 24, L 32, XL 40), FAB medium 28 and large 36, chips 18, segmented buttons 18, checkbox 18, radio 20, switch 16, menu items 20 and lists 20 (the Expressive token sets quoted above; the baseline 24 is printed beside them). The theme draws the Expressive sizes in the menu and the list. If the owner wants 24 there, that is a decision against the Expressive set, to record in the deviations list.
 - Differs in the theme: text fields and the select's arrow (20, page says 24), XS button icon (18, page says 20; row 1), L and XL button icons (24 and 32, page says 32 and 40; row 1), and the FAB menu close icon (row 5).
 - Measured live and equal: icons in top app bar, search bar, navigation drawer, tabs, toolbar, icon button, FAB, list rows, chips, segmented button. **Not measured:** icons in snackbar, dialog, navigation bar, rail, menu, FAB menu: none was on the screens opened, so only their CSS defaults were read. **Not read:** the Material Symbols font's optical-size axis (20, 24, 40, 48): whether the theme sets it with the icon size was not checked.
 
@@ -75,8 +76,8 @@ Equal and not listed: 70 uses of 8%, 15 of 10%, 4 of 12% (the rest are the recor
 
 | # | Where | What we have | What Material says (source) | Fix | Recorded |
 | - | ----- | ------------ | --------------------------- | --- | -------- |
-| 16 | The fallback shadows in `ui.css` 106 to 116, used by every theme that sets none: key shadow 6 to 9%, big negative spread | softer than Material | The Material theme (`global.css` 29 to 38) has Material's two-layer shadows at all 5 levels; the fallback should too | small | out of date: colour sweep 12 says the Material theme's shadows are "softer"; they are Material's |
-| 17 | Parts at rest in the Material theme (`--mo-elevation-N-rest-shadow` all 0, only the FAB has a shadow) | colour only | m3.material.io/styles/elevation/tokens, resting level 1: elevated button, elevated card, elevated chip, modal bottom sheet, side sheet and drawer. 2: menu, navigation bar, rich tooltip, toolbar, scrolled app bar. 3: dialog, FAB, extended FAB, search, date and time pickers | medium | no |
+| 16 | The fallback shadows in `ui.css` 106 to 116, used by every theme that sets none: key shadow 6 to 9%, big negative spread | softer than Material | The Material theme (`global.css` 29 to 38) has Material's two-layer shadows at all 5 levels; the fallback should too | small | out of date: colour sweep 12 says the Material theme's shadows are "softer"; they are Material's; decided (owner): Material's, section 7 |
+| 17 | Parts at rest in the Material theme (`--mo-elevation-N-rest-shadow` all 0, only the FAB has a shadow) | colour only | m3.material.io/styles/elevation/tokens, resting level 1: elevated button, elevated card, elevated chip, modal bottom sheet, side sheet and drawer. 2: menu, navigation bar, rich tooltip, toolbar, scrolled app bar. 3: dialog, FAB, extended FAB, search, date and time pickers | medium | decided (owner), section 7 |
 
 ### Motion (owner rule: springs only)
 
@@ -153,7 +154,7 @@ One check: extend **`check:css-values`** (`scripts/check-css-values.mjs`). It al
 ## 5. Questions for the owner
 
 1. **Button sizes (rows 1 to 3): decided by the owner:** "Yes, match Material 3 sizes. That should not change size on themes that have their own sizes." The default theme (Material) buttons and icon buttons move to M3's sizes and padding; a theme that sets its own sizes keeps them. The plan is in section 6.
-2. **Shadows at rest (row 17):** keep colour-only elevation? Recommendation: keep, record it; add a shadow only to the menu, the dialog and the snackbar, which float over the page.
+2. **Shadows at rest (row 17): decided by the owner:** "Yes, add shadows to those three." Parts at rest stay colour-only; the menu, the dialog and the snackbar, which float over the page, get Material's two-layer shadow: menu level 2, dialog level 3 (the M3 elevation page: resting level 2 lists the menu, level 3 the modal dialog). The snackbar: the M3 snackbar page names a "container elevation" token but prints no level, and the elevation page's resting list does not name the snackbar, so the level could not be read there; `@material/web`'s snackbar token is level 3, which is used.
 3. **Icon sizes (row 5): decided by the owner:** every icon is 24dp unless the component's own M3 page prints another size, quoted in the section "Icons" above; no split is recommended beyond what those pages print. To do: text field icons and the select's arrow to 24, the FAB menu's close icon to 20.
 4. **Footer links (row 6): decided by the owner:** 48px, implemented in its own pull request (not in this one).
 5. **Table block: decided by the owner:** adapt it to MD3 styles (structure from Material 2, look from M3 tokens). Nothing is left to change in the Table block today; see "Data tables".
@@ -197,3 +198,27 @@ What the theme draws today (measured): buttons XS 40, S 40, none 40 (padding 24)
 4. `check:screens` (375px and 1280px) for Material, as today, to catch a layout that depended on the old 48px icon button (`--icon-button-size` is read in `global.css`, `ui.css` and `src/ui.tsx`).
 
 Order: (a) the `data-site-theme` attribute and the baseline, in one pull request with no visible change; (b) the sizes and the class, behind the attribute, with the release note; (c) Venus checked in `morpheme-apps` when its pin moves.
+
+## 7. Shadows at rest (decided) and the proposed build pull requests
+
+**Shadows (rows 16 and 17), owner: "Yes, add shadows to those three."** Parts at rest keep colour-only elevation: record it in `docs/material-deviations.md` with the M3 quote ("Resting level" lists elevated cards, buttons and chips at level 1, and so on, on `/styles/elevation/tokens`; we show those levels by colour). The menu (level 2), the dialog (level 3) and the snackbar (level 3, from `@material/web`; the M3 pages print no level for it) get the Material theme's two-layer shadow (`--mo-elevation-2-shadow`, `-3-`). The fallback shadows in `ui.css` 106 to 116 become Material's too (they now equal `global.css`), and colour sweep 12 is corrected. Build: set the three parts' `box-shadow` from the level tokens in `ui.css`, delete the soft fallback values, add the two deviation lines; check with the screens (a menu, a dialog and a snackbar open) and `check:colors`.
+
+**Proposed build pull requests** (each its own pull request, in this order; fix sizes from section 2):
+
+| # | Pull request | Rows | Size |
+| - | ------------ | ---- | ---- |
+| 1 | Deviations doc: the lines of section 3 (rest shadows, icons 20, table rule, settle times), colour sweep 12 corrected | 16, 17, 3, 18 | small |
+| 2 | Button and icon button sizes at M3 (section 6): step (a) the `data-site-theme` attribute and the size baseline, step (b) the sizes and `.button-medium`, step (c) Venus checked | 1, 2, 3, 4 | large, three steps |
+| 3 | Icons: text fields and the select's arrow to 24, the FAB menu's close icon to 20 | 5 | small |
+| 4 | Shadows: menu, dialog, snackbar, and the fallback shadows | 16, 17 | small |
+| 5 | Hint full stops: remove them from single sentences in `en-US`, `da-DK` and `defaults/collections.ts`, with the check | 30 | medium |
+| 6 | Hidden: fix the demo's two texts; rename "Hide from search engines" to "No index" and add "No follow" (a product change with its own release note and a CLAUDE.md line) | 27 | medium |
+| 7 | Table: no code; align `docs/superpowers/specs/2026-11-13-table-md2-design.md` (corner medium 12dp) | none | small |
+| 8 | Motion: the five hand-written animations, the fallback `--motion-*`, and the settle times | 18, 19, 20 | small |
+| 9 | Disabled and hover values: 38% and 10%, search bar hover 8%; the check rule | 14, 15 | small |
+| 10 | Tap targets: the parts screen and field editors (the footer links are already their own pull request) | 7 | medium |
+| 11 | Type: loose Tailwind sizes and weights to the role classes, the inherited tracking, weight 600, small button and label line heights; screen by screen | 8 to 12 | large |
+| 12 | Spacing: the fractional rem values | 13 | small |
+| 13 | Words: "canceled", apostrophes, On/Off wording, the unsaved-changes question, "dialog" and "menu", then the passive texts | 24 to 26, 28, 29, 31 | large, many small edits |
+
+Questions still open for the owner: none. Questions 1 to 7 are decided.
