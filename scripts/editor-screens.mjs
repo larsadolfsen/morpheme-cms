@@ -2306,7 +2306,7 @@ async function checkTableAlign(width, height) {
   await page.locator('[aria-label="Insert"]:visible').first().tap();
   await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
   await page.waitForSelector('.inline-table-cell-active textarea');
-  const cellField = (r, c) => page.locator(`.inline-table [data-row="${r}"] [data-field="${c}"]`);
+  const cellField = (r, c) => page.locator(`.inline-table-box [data-row="${r}"] [data-field="${c}"]`);
   const menu = async (name) => {
     await page
       .locator(`.contextual-menu button[aria-label="${name}"]`)
@@ -2328,10 +2328,10 @@ async function checkTableAlign(width, height) {
     page.evaluate(() => {
       const at = (sel) => getComputedStyle(document.querySelector(sel)).textAlign;
       return {
-        textHead: at('.inline-table thead th:nth-child(1)'),
-        numberHead: at('.inline-table thead th:nth-child(2)'),
-        numberCell: at('.inline-table [data-row="1"] td:nth-child(2)'),
-        numberField: at('.inline-table [data-row="1"] td:nth-child(2) textarea'),
+        textHead: at('.inline-table-box thead th:nth-child(1)'),
+        numberHead: at('.inline-table-box thead th:nth-child(2)'),
+        numberCell: at('.inline-table-box [data-row="1"] td:nth-child(2)'),
+        numberField: at('.inline-table-box [data-row="1"] td:nth-child(2) textarea'),
       };
     });
   const auto = await aligns();

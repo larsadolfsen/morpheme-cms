@@ -1569,7 +1569,7 @@ dialog {
   height: auto;
 }
 
-.editor-text .inline-table textarea {
+.editor-text .inline-table-box textarea {
   text-align: inherit;
 }
 
