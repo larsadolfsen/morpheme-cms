@@ -321,7 +321,7 @@ Move, Remove). Actions are today's, from the inline spec; this spec only moves t
   recorded (section 8), and every other part of the editor stays on 48.
 - **Checks:** `check:screens` at 375 and 1280: one bar, 44 dp high, the same height idle, in text and on every block; the divider
   shows only with a context; at 375 the bar holds exactly the lists of section 3 (Text, Table, List, Image: tool names read from the bar and from the
-  `⋮` menu), never scrolls (`scrollWidth` equals `clientWidth`), and Undo stays on it and works; the `⋮` menu (opened at 375 px, with and without the keyboard) lists the rest and scrolls when it does not fit; at 1280 both groups fit and are visible; no hit area of the bar, the `⋮` or its rows under 44 dp (the `::before` hit area is measured, not the visible 40 dp); no horizontal page scroll; the slide runs with `prefers-reduced-motion: no-preference` (assert the
+  `⋮` menu), never scrolls (`scrollWidth` equals `clientWidth`), and Undo stays on it and works; the `⋮` menu (opened at 375 px, with and without the keyboard) lists the rest and scrolls when it does not fit; at 1280 both groups fit and are visible; no button of the bar and no row of the `⋮` under 44 × 44 dp, and the bar 44 dp tall; no horizontal page scroll; the slide runs with `prefers-reduced-motion: no-preference` (assert the
   animation exists, with the theme's duration) and is absent with `reduce`; `check:contrast` and `check:editor-colors` on the bar in each
   section colour; `check:css-values` finds no literal motion or spacing in the new CSS. Not covered by the scripts: the keyboard on a
   real phone, and how a theme looks; both by hand. The Preview of the branch cannot sign in, so the owner reads screenshots from
