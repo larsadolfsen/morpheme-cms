@@ -154,6 +154,50 @@ async function checkStartSubtitle() {
   }
 }
 
+/** A modal sheet with a text field on a phone with its on-screen keyboard up (the Source color sheet on Colors, the shared
+ * BottomSheet, followKeyboard() in theme/ui/bottomSheetControl.ts): a keyboard shrinks only the visual viewport, which is
+ * emulated here by a smaller visualViewport. The sheet must end exactly at the keyboard's top (no strip of the page
+ * between), and its hex field and its buttons (Use and lock, Cancel, Use color) must be visible and inside the visible screen. */
+async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300) {
+  const label = `${width}px keyboard sheet`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#company/colors'));
+  await page.getByRole('button', { name: 'Source color: pick a color' }).click();
+  const sheet = page.locator('dialog[open][aria-label="Source color"]');
+  await sheet.waitFor();
+  const code = sheet.getByRole('textbox', { name: 'Color code' });
+  await code.focus();
+  // The keyboard: the visual viewport gets shorter, the layout viewport stays (what a phone does).
+  await page.evaluate((h) => {
+    const screen = visualViewport;
+    for (const key of ['height']) Object.defineProperty(screen, key, { configurable: true, get: () => h });
+    screen.dispatchEvent(new Event('resize'));
+  }, height - keyboard);
+  await page.waitForTimeout(400);
+  const got = await page.evaluate(() => {
+    const dialog = document.querySelector('dialog[open][aria-label="Source color"]');
+    const box = (el) => el.getBoundingClientRect();
+    const buttons = [...dialog.querySelectorAll('button')].filter((b) => /^(Use and lock|Cancel|Use color)$/.test(b.textContent.trim()));
+    const field = dialog.querySelector('input[aria-label="Color code"], input');
+    return {
+      visible: visualViewport.height,
+      sheet: box(dialog.querySelector('.bottom-sheet-container')),
+      buttons: buttons.map((b) => [b.textContent.trim(), box(b)]),
+      field: box(field),
+    };
+  });
+  if (Math.abs(got.sheet.bottom - got.visible) > 1)
+    problems.push(`${label}: the sheet ends at ${got.sheet.bottom}, not at the keyboard's top (${got.visible})`);
+  if (got.buttons.length !== 3) problems.push(`${label}: ${got.buttons.length} of the 3 buttons are in the sheet`);
+  for (const [name, r] of got.buttons)
+    if (r.top < 0 || r.bottom > got.visible + 1) problems.push(`${label}: "${name}" is outside the visible screen`);
+  if (got.field.top < 0 || got.field.bottom > got.visible + 1)
+    problems.push(`${label}: the color code field is outside the visible screen`);
+  await page.close();
+}
+
 /** On a phone the text's row floats by the selected text (never a docked sheet): inside the visible screen (above the keyboard and "Save changes"), Bold, Italic and Link first, 48 dp buttons centred in their rows (a second row when they do not fit), and it follows the line the cursor is on. */
 async function checkTextSheet(width = 360) {
   const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -3904,6 +3948,7 @@ for (const [width, height] of [
 await checkStartSubtitle();
 
 for (const width of [360, 375, 390, 414]) await checkTextSheet(width);
+await checkSheetKeyboard(375);
 for (const [width, height] of [
   [360, 740],
   [375, 800],
