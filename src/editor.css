@@ -1594,6 +1594,10 @@ dialog {
   height: auto;
 }
 
+.editor-text .inline-table-box textarea {
+  text-align: inherit;
+}
+
 .editor-text .inline-table-box .inline-table-cell-active {
   outline: var(--editor-section-frame);
   outline-offset: -2px;
