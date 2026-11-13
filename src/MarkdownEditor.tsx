@@ -1340,13 +1340,22 @@ function blockCard(
       const list = rows();
       if (spec!.grid) return gridActions(spec!.grid, list as unknown as string[][]);
       // A card's link is the bar's Link, also while the card is still empty (its sheet has the page and the buttons).
-      if (!single && !isDynamic() && active !== null && spec!.settings && (active >= list.length || isEmptyRow(list[active])))
+      if (
+        !single &&
+        !isDynamic() &&
+        active !== null &&
+        spec!.settings &&
+        spec!.barLink !== false &&
+        (active >= list.length || isEmptyRow(list[active]))
+      )
         return [{ kind: 'link', label: spec!.texts.link ?? '', action: settings }];
       if (single || isDynamic() || active === null || active >= list.length || isEmptyRow(list[active])) return [];
       const i = active;
       const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: spec!.fields[0] } });
       return [
-        ...(itemNames.length ? [{ kind: 'link' as const, label: spec!.texts.link ?? '', action: settings }] : []),
+        ...(itemNames.length && spec!.barLink !== false
+          ? [{ kind: 'link' as const, label: spec!.texts.link ?? '', action: settings }]
+          : []),
         ...(spec!.max === undefined || list.length < spec!.max
           ? [
               { kind: 'above' as const, label: spec!.texts.addAbove, action: () => go(addAt(list, i, spec!.fields[0]), i) },
