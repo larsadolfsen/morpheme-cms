@@ -305,7 +305,7 @@ export function Toolbar({
 const closeToolbar = {
   '--toolbar-gap': '0',
   '--toolbar-docked-padding-block': '0',
-  '--toolbar-docked-padding-inline': '1rem',
+  '--toolbar-docked-padding-inline': '0',
   '--toolbar-docked-line-width': '1px',
   '--toolbar-docked-line': 'var(--color-outline-variant)',
 } as CSSProperties;

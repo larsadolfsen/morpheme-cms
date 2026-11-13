@@ -187,6 +187,7 @@ async function checkTextBar(width = 360) {
       const divider = bar.querySelector('hr[aria-orientation="vertical"]');
       return {
         height: bar.getBoundingClientRect().height,
+        barWidth: bar.clientWidth,
         names: buttons.map((b) => b.name),
         buttons,
         scrolls: bar.scrollWidth > bar.clientWidth,
@@ -197,8 +198,20 @@ async function checkTextBar(width = 360) {
       };
     });
   const inText = await readBar();
-  if (process.env.ONLY_BAR) console.log(width, await page.evaluate(() => { const b=document.querySelector('.editor-tools'); return [b.clientWidth, b.scrollWidth, getComputedStyle(b).paddingLeft, [...b.querySelectorAll('button')].map(x=>Math.round(x.getBoundingClientRect().width)).join('/')].join(' '); }));
-  const slots = Math.floor((width - 32 - 17) / 44);
+  if (process.env.ONLY_BAR)
+    console.log(
+      width,
+      await page.evaluate(() => {
+        const b = document.querySelector('.editor-tools');
+        return [
+          b.clientWidth,
+          b.scrollWidth,
+          getComputedStyle(b).paddingLeft,
+          [...b.querySelectorAll('button')].map((x) => Math.round(x.getBoundingClientRect().width)).join('/'),
+        ].join(' ');
+      }),
+    );
+  const slots = Math.floor((inText.barWidth - 17) / 44);
   if (inText.height < 44 || inText.height > 46)
     problems.push(`${label}: the bar is ${inText.height} px tall, not 44 (plus its 1 px edges)`);
   if (inText.scrolls || inText.pageScrolls) problems.push(`${label}: the bar or the page scrolls sideways`);
@@ -354,6 +367,7 @@ async function checkTextBarWide() {
     const bar = document.querySelector('.editor-tools');
     const buttons = [...bar.querySelectorAll('button:not([hidden])')];
     return {
+      width: bar.clientWidth,
       height: bar.getBoundingClientRect().height,
       names: buttons.map((b) => b.getAttribute('aria-label')),
       small: buttons.filter((b) => Math.abs(b.getBoundingClientRect().height - 44) > 0.6 || b.getBoundingClientRect().width < 43.4).length,

@@ -5,12 +5,11 @@ import { slotsFor, planBar } from './textBar.mjs';
 const TEXT = ['bold', 'italic', 'link', 'style', 'list', 'align', 'color'];
 const MAIN = ['insert', 'undo', 'redo', 'settings'];
 
-test('the slots: 7 at 375 px and at 360 px, 6 at 320 px; the divider is counted', () => {
-  assert.equal(slotsFor(375), 7);
-  assert.equal(slotsFor(360), 7);
-  assert.equal(slotsFor(320), 6);
-  assert.equal(slotsFor(375, false), 7);
-  assert.equal(slotsFor(1280), 27);
+test('the slots: 7 in the bar of a 375 px and of a 360 px phone, 6 at 320 px; the divider is counted', () => {
+  assert.equal(slotsFor(341), 7);
+  assert.equal(slotsFor(326), 7);
+  assert.equal(slotsFor(286), 6);
+  assert.equal(slotsFor(341, false), 7);
   assert.equal(slotsFor(10), 0);
 });
 
@@ -30,14 +29,14 @@ test('at 320 px Redo moves into the ⋮ first', () => {
 });
 
 test('on a wide bar everything fits and there is no ⋮', () => {
-  const plan = planBar({ slots: slotsFor(1280), context: TEXT, main: MAIN });
+  const plan = planBar({ slots: slotsFor(1200), context: TEXT, main: MAIN });
   assert.deepEqual(plan.bar, { context: TEXT, main: MAIN });
   assert.equal(plan.overflow, false);
   assert.deepEqual(plan.more, { context: [], main: [] });
 });
 
 test('idle: only the main tools, all on the bar at 375 px, no ⋮', () => {
-  const plan = planBar({ slots: slotsFor(375, false), context: [], main: ['insert', 'undo', 'redo'] });
+  const plan = planBar({ slots: slotsFor(341, false), context: [], main: ['insert', 'undo', 'redo'] });
   assert.deepEqual(plan.bar.main, ['insert', 'undo', 'redo']);
   assert.equal(plan.overflow, false);
 });

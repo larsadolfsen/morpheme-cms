@@ -1,15 +1,15 @@
 // The text's one bar (MarkdownEditor.tsx, docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md, section 3): which tools stand
-// on the bar and which are in its `⋮` menu, from the bar's width. Its buttons are 44 dp wide (owner decision, spec section 8), the room round them
-// 16 dp on each side, the divider between the contextual and the main tools 17 dp (1 dp line and 8 dp each side). The bar never scrolls and
-// uses no timer: a slot is a tool, Undo, Redo or the `⋮`. Exposes BUTTON, EDGE, DIVIDER, slotsFor(width, divider), planBar(...). No browser.
+// on the bar and which are in its `⋮` menu, from the bar's own width (the box's, which sits inside the page's 16 dp edges: 343 dp at 375 px, in
+// the spec's numbers). Its buttons are 44 dp wide (owner decision, spec section 8), the divider between the contextual and the main tools 17 dp
+// (1 dp line and 8 dp each side). The bar never scrolls and
+// uses no timer: a slot is a tool, Undo, Redo or the `⋮`. Exposes BUTTON, DIVIDER, slotsFor(width, divider), planBar(...). No browser.
 
 export const BUTTON = 44;
-export const EDGE = 16;
 export const DIVIDER = 17;
 
-/** How many 44 dp slots fit in a bar `width` dp wide: 7 at 375 and at 360, 6 at 320. `divider`: the divider is drawn (a context is on). */
+/** How many 44 dp slots fit in a bar `width` dp wide (its inside width): the bar of a 375 px phone is 341 wide (7 slots), of a 360 px phone 326 (7), of a 320 px phone 286 (6). `divider`: the divider is drawn (a context is on). */
 export function slotsFor(width, divider = true) {
-  return Math.max(0, Math.floor((width - 2 * EDGE - (divider ? DIVIDER : 0)) / BUTTON));
+  return Math.max(0, Math.floor((width - (divider ? DIVIDER : 0)) / BUTTON));
 }
 
 /**
