@@ -362,7 +362,7 @@ density choice of PR #518; they are fixed as below. Checked against M3 (Playwrig
 
 1. **Fixed high density for the bar, the `⋮` list and the formatting menus.** They read their own density tokens (set to step -2 in the
    editor's CSS), not the user's density setting, and not the theme's default. A theme can still restyle them through the same tokens.
-2. **Step -2, not -3 (my proposal, owner decides the step: question 2).** M3: each step takes 4 dp off the height ("Higher density is
+2. **Step -2, not -3 (my proposal, owner decides the step: question 1).** M3: each step takes 4 dp off the height ("Higher density is
    typically applied by decreasing the top and bottom padding or overall height by 4dp"). The bar is 48 dp tall at step 0 in this spec
    (the button height, no extra padding; the height the theme's `Toolbar` draws today I have not measured, its docked padding is a
    token, to be measured in step 1). **-2 makes the bar 40 dp tall, -3 makes it 36 dp.** A 24 dp icon in 40 dp leaves 8 dp above and
@@ -439,11 +439,8 @@ when idle. M3: "In this state, menus show a persistent scrollbar." So it does **
 
 Decided by the owner: one bar, no second row; the contextual tools slide in from the left, push the main tools right and out, and
 roll back; a divider between them; the main part is Insert, Undo, Redo, Section settings; text tools always show with the cursor in
-text; the bar and its menus are fixed at high density, outside the user's density choice (section 8); the bar never scrolls and what does not fit is in `⋮` (the `⋮` holds tools); on a phone the `⋮` is a pop-up menu, not a bottom sheet; the editor's bar and menus use a 44 × 44 dp hit area and are fixed at high density; Undo and Redo stay on the bar next to `⋮` while a context is active; between contexts the tools fade in place (no second slide; only the first entry from nothing slides; theme spring and effects tokens, no delay, reduced motion = no slide); the main tools stand at the left edge when idle on every screen size, and on a wide screen all tools show at once (nothing hidden, nothing scrolls; the main tools still slide right when a context starts); the `⋮` pop-up may scroll when it does not fit, with a persistent scrollbar where the platform allows, dividers (no gaps) in it, the most used rows first and a half-cut last row as the cue on a phone; no sticky
+text; the bar and its menus are fixed at high density, outside the user's density choice (section 8); the bar never scrolls and what does not fit is in `⋮` (the `⋮` holds tools); on a phone the `⋮` is a pop-up menu, not a bottom sheet; the editor's bar and menus use a 44 × 44 dp hit area and are fixed at high density; Undo and Redo stay on the bar next to `⋮` while a context is active; between contexts the tools fade in place (no second slide; only the first entry from nothing slides; theme spring and effects tokens, no delay, reduced motion = no slide); the bar rolls back at once when focus or selection leaves, except while a sheet that the bar opened (Settings) is open; the main tools stand at the left edge when idle on every screen size, and on a wide screen all tools show at once (nothing hidden, nothing scrolls; the main tools still slide right when a context starts); the `⋮` pop-up may scroll when it does not fit, with a persistent scrollbar where the platform allows, dividers (no gaps) in it, the most used rows first and a half-cut last row as the cue on a phone; no sticky
 question (one bar stays at the top).
 
-1. **When does the bar roll back?** When focus goes to the page header, a sheet or another screen. Recommendation: at once when the focus
-   goes elsewhere, but not while a sheet that the bar opened (Settings) is open. (The `⋮` pop-up keeps the focus in the text, so it needs no
-   rule.)
-2. **Which density step for the bar and menus: -2 (40 dp tall, recommended) or -3 (36 dp)?** M3 has both; each takes 4 dp off the height. With
+1. **Which density step for the bar and menus: -2 (40 dp tall, recommended) or -3 (36 dp)?** M3 has both; each takes 4 dp off the height. With
    -2 a 24 dp icon keeps 8 dp of air above and below; with -3, 6 dp. The hit areas are 44 dp either way.
