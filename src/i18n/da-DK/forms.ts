@@ -62,7 +62,7 @@ export const forms: Messages['forms'] = {
     fixDescription: 'Skriv en Google-beskrivelse på ca. 140–155 tegn.',
     fixKeywordInH1: (post) => `Brug søgeordet i ${post ? 'titlen' : 'hovedoverskriften'}.`,
     fixKeywordInText: 'Brug søgeordet i første afsnit.',
-    fixNoindex: (post) => `Fjern fluebenet ved Skjul for søgemaskiner, hvis ${post ? 'indlægget' : 'siden'} skal kunne findes.`,
+    fixNoindex: (post) => `Slå Ingen indeksering fra, hvis ${post ? 'indlægget' : 'siden'} skal kunne findes.`,
     fixCanonical: 'Vælg en side, der findes, eller vælg Ingen side.',
     fixAlt: 'Skriv en alternativ tekst til hvert billede (tryk på billedet › Rediger).',
     fixLink: 'Skriv, hvad linket fører til, fx "Se priserne".',

@@ -16,7 +16,7 @@ import EndBlock from '@theme/components/EndBlock.astro';
 import Block from '@morphemecms/cms/src/standard/Block.astro';
 import { blockLoads, endBlock, sideBlock } from '@morphemecms/cms/src/standard/views';
 import { getPages, h1Section, pageHeading, pageHeadingHtml, parentPage, withoutH1, type Page } from '@morphemecms/cms/site/content';
-import { hiddenFromSearch } from '@morphemecms/cms/lib/status.mjs';
+import { hiddenFromSearch, nofollowLinks } from '@morphemecms/cms/lib/status.mjs';
 import { blockTexts, nav } from '@morphemecms/cms/site/site';
 import { firstPicture, picturesOf } from '@morphemecms/cms/site/images.mjs';
 import { splitBlocks } from '@morphemecms/cms/lib/blocks.mjs';
@@ -103,6 +103,7 @@ const textClass = side
   seoDescription={page.data.seoDescription}
   canonical={page.data.canonical}
   noindex={hiddenFromSearch(page.data)}
+  nofollow={nofollowLinks(page.data)}
   image={image?.src}
   imageAlt={image?.alt}
   images={picturesOf(page.body)}
