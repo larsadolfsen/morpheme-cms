@@ -1070,6 +1070,7 @@ export function IconPicker({
   onSearch,
   icon,
   startOpen = false,
+  iconColor,
   onChange,
 }: {
   id?: string;
@@ -1083,6 +1084,8 @@ export function IconPicker({
   icon: (value: string, size: number) => ReactElement;
   /** The grid is open from the start (and stays open after a pick). */
   startOpen?: boolean;
+  /** The color role the icons are drawn in (src/iconColor.ts), so the grid shows what the icon will look like. */
+  iconColor?: string;
   onChange: (value: string) => void;
 }) {
   const [open, setOpen] = useState(startOpen);
@@ -1131,6 +1134,7 @@ export function IconPicker({
           expanded={open}
           controls={grid}
           onClick={() => setOpen((o) => !o)}
+          iconColor={iconColor}
         >
           {value ? icon(value, 24) : <Plus size={24} />}
         </SlotButton>
@@ -1172,7 +1176,13 @@ export function IconPicker({
               </ChipSet>
             </div>
           )}
-          <div role="group" aria-label={label} className="mt-3 grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-2">
+          <div
+            role="group"
+            aria-label={label}
+            data-icon-grid
+            data-icon-color={iconColor}
+            className="mt-3 grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-2"
+          >
             {hits.slice(0, shown).map((o) => (
               <ChoiceTile
                 key={o.value || 'none'}

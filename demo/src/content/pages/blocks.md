@@ -151,15 +151,19 @@ A message that stands out, and can disappear on its own on a date you set.
 
 The newest posts, a random few, all of a tag or the ones you choose, as a list or with the newest large on top.
 
-### Blog posts you choose
+### Blog posts: List
 
 <div data-block="posts" data-props="{&quot;show&quot;:&quot;picked&quot;,&quot;picked&quot;:[&quot;build-a-page-from-blocks&quot;,&quot;switch-themes-without-losing-anything&quot;,&quot;colors-everyone-can-read&quot;],&quot;link&quot;:&quot;design&quot;}"></div>
 
-### Blog posts with the newest large
+### Blog posts: Newest large
 
-<div data-block="posts" data-props="{&quot;design&quot;:&quot;featured&quot;,&quot;show&quot;:&quot;categories&quot;,&quot;count&quot;:&quot;3&quot;,&quot;order&quot;:&quot;newest&quot;}"></div>
+<div data-block="posts" data-props="{&quot;design&quot;:&quot;featured&quot;,&quot;show&quot;:&quot;picked&quot;,&quot;picked&quot;:[&quot;build-a-page-from-blocks&quot;,&quot;switch-themes-without-losing-anything&quot;,&quot;colors-everyone-can-read&quot;],&quot;link&quot;:&quot;design&quot;}"></div>
 
-### All blog posts with a tag
+### Blog posts: Latest by count
+
+<div data-block="posts" data-props="{&quot;show&quot;:&quot;categories&quot;,&quot;count&quot;:&quot;3&quot;,&quot;order&quot;:&quot;newest&quot;}"></div>
+
+### Blog posts: All of a tag
 
 <div data-block="posts" data-props="{&quot;show&quot;:&quot;all&quot;,&quot;categories&quot;:[&quot;security&quot;]}"></div>
 
