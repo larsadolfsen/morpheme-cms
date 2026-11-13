@@ -975,11 +975,16 @@ export function Checkbox({
   label,
   hint,
   checked,
+  indeterminate,
+  className,
   onChange,
 }: {
   label: string;
   hint?: ReactNode;
   checked: boolean;
+  /** Neither ticked nor not: some of the choices it stands over are ticked. */
+  indeterminate?: boolean;
+  className?: string;
   onChange: (checked: boolean) => void;
 }) {
   return (
@@ -987,6 +992,8 @@ export function Checkbox({
       label={label}
       supporting={hint}
       checked={checked}
+      indeterminate={indeterminate}
+      className={className}
       onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.checked)}
     />
   );

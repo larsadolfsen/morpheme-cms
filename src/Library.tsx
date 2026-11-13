@@ -1484,7 +1484,12 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
       actions={
         <>
           {selecting ? (
-            <SelectionBar count={live.length} onClose={selection.clear}>
+            <SelectionBar
+              count={live.length}
+              total={selection.total}
+              onSelectAll={(all) => (all ? selection.selectAll() : selection.unselectAll())}
+              onClose={selection.clear}
+            >
               <IconButton
                 icon={Trash}
                 label={t.library.deleteSelected(live.length)}

@@ -388,6 +388,33 @@ async function checkSelection() {
       .first()
       .textContent();
   const checked = (page, scope) => page.locator(`${scope} [role=checkbox][aria-checked=true]`).count();
+  // The swapped top bar's select-all box (SelectionBar.tsx), with one row selected: indeterminate, 48 px, the bar never
+  // scrolls sideways; ticking selects all, unticking selects none and keeps the mode, and the bar's buttons are 48 px.
+  const barCheck = async (page, label, rows, stays) => {
+    const box = page.getByRole('checkbox', { name: 'Select all' });
+    if ((await box.count()) !== 1) return problems.push(`${label}: the top bar has no select-all checkbox`);
+    if (!(await box.evaluate((el) => el.indeterminate)))
+      problems.push(`${label}: the select-all checkbox is not indeterminate with one row selected`);
+    const target = await box.evaluate((el) => {
+      const r = el.closest('label').getBoundingClientRect();
+      return [r.width, r.height];
+    });
+    if (target[0] < 48 || target[1] < 48) problems.push(`${label}: the select-all target is ${target[0]}x${target[1]}, under 48 px`);
+    for (const name of ['Close selection', /^Delete 1 selected$/]) {
+      const b = await page.getByRole('button', { name }).first().boundingBox();
+      if (!b || b.width < 48 || b.height < 48) problems.push(`${label}: "${name}" is under 48 px (${b?.width}x${b?.height})`);
+    }
+    if (await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth))
+      problems.push(`${label}: the page scrolls sideways while selecting`);
+    await box.check();
+    const total = await rows.count();
+    if ((await checked(page, 'main')) !== total || (await box.evaluate((el) => el.indeterminate || !el.checked)))
+      problems.push(`${label}: ticking select all does not select all ${total} rows`);
+    await box.click();
+    await page.waitForTimeout(200);
+    if ((await checked(page, 'main')) !== 0 || (await box.count()) !== 1)
+      problems.push(`${label}: unticking select all does not unselect all and stay in selecting`);
+  };
   for (const w of [375, 1280]) {
     const touch = w < 600;
     const label = `selection ${w}`;
@@ -442,6 +469,8 @@ async function checkSelection() {
       await hold(x0, y0);
       await page.getByRole('button', { name: 'Close selection' }).click();
       if (await checked(page, 'main')) problems.push(`${label}: Close selection does not unselect`);
+      await hold(x0, y0);
+      await barCheck(page, label, rows, false);
       // Back leaves selecting first and stays on the list; a second Back leaves the list. Close left no step behind.
       await hold(x0, y0);
       await page.goBack();
@@ -484,6 +513,11 @@ async function checkSelection() {
       await page.keyboard.press('Escape');
       if (await checked(page, 'main')) problems.push(`${label}: Escape does not unselect`);
       if (await page.getByRole('button', { name: 'Close selection' }).count()) problems.push(`${label}: Escape does not end selecting`);
+      await page.getByRole('button', { name: 'Select', exact: true }).click();
+      await rows.nth(0).focus();
+      await page.keyboard.press('Space');
+      await barCheck(page, label, rows, true);
+      await page.getByRole('button', { name: 'Close selection' }).click();
       await rows.nth(0).focus();
       await page.keyboard.press('Shift+ArrowDown');
       if ((await checked(page, 'main')) !== 2) problems.push(`${label}: Shift+Arrow does not select a range`);
