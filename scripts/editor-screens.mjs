@@ -2560,7 +2560,9 @@ async function checkIconColor(width, height, scheme = 'light') {
       return {
         rows: document.querySelectorAll('[role="group"][aria-label="Icon color"]').length,
         names: [...(group?.querySelectorAll('button') ?? [])].map((b) => b.getAttribute('aria-label')),
-        visible: [...(group?.querySelectorAll('button') ?? [])].map((b) => b.innerText.trim()).join(''),
+        visible: [...(group?.querySelectorAll('button') ?? [])]
+          .map((b) => (b.querySelector('.segmented-button-label').getBoundingClientRect().width > 2 ? b.textContent.trim() : ''))
+          .join(''),
         pressed: [...(group?.querySelectorAll('button') ?? [])]
           .filter((b) => b.getAttribute('aria-pressed') === 'true')
           .map((b) => b.getAttribute('aria-label')),
