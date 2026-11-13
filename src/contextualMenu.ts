@@ -1,8 +1,7 @@
-// The floating toolbar of a block typed in place (batch 5, owner decision 6, S3's recommendation): one bar, context aware, with the
+// The contextual menu of a block typed in place (batch 5, owner decision 6, S3's recommendation): one bar, context aware, with the
 // block's row actions (`Add above`, `Add below`, `Move up`, `Move down`, shown while the active row has content) and the block's own menu
 // (its handle: Hide, Move, Remove, MarkdownEditor.tsx cardMenu). Targets are 48 dp. On a computer it sits over the block; on a phone (compact)
-// it is docked above the keyboard (the visual viewport) and above the page's save bar, and folds the other row actions (Link, Move up, Move down) under one `Row` button
-// beside `Edit` (the row's settings sheet), so it never overflows 375 px. No dependencies but the icons and the browser.
+// it is docked above the keyboard (the visual viewport) and above the page's save bar, and wraps to a second line when 375 px is not enough. It has no dropdown: choices live in the settings sheet (the gear) or the block's own menu. No dependencies but the icons and the browser.
 import arrowDownIcon from '@phosphor-icons/core/assets/regular/arrow-down.svg?raw';
 import arrowUpIcon from '@phosphor-icons/core/assets/regular/arrow-up.svg?raw';
 import dotsIcon from '@phosphor-icons/core/assets/regular/dots-three-vertical.svg?raw';
@@ -14,7 +13,6 @@ import rowBelowIcon from '@material-symbols/svg-400/outlined/add_row_below.svg?r
 import columnBeforeIcon from '@material-symbols/svg-400/outlined/add_column_left.svg?raw';
 import columnAfterIcon from '@material-symbols/svg-400/outlined/add_column_right.svg?raw';
 import deleteIcon from '@material-symbols/svg-400/outlined/delete.svg?raw';
-import caretDownIcon from '@phosphor-icons/core/assets/bold/caret-down-bold.svg?raw';
 
 export type BarAction = {
   label: string;
@@ -34,19 +32,19 @@ const icons = {
 };
 const svg = (s: string, size = 24) => s.replace('<svg', `<svg width="${size}" height="${size}" fill="currentColor" aria-hidden="true"`);
 
-export function inlineBar(opts: {
+export function contextualMenu(opts: {
   name: string;
   dom: HTMLElement;
   rowActions: () => BarAction[];
   /** The gear button (the item's settings); a block with no settings has none. */
   edit?: () => void;
   compact: () => boolean;
-  labels: { row: string; edit: string };
+  labels: { edit: string };
   /** The dynamic icon (a shortcut to the block's `Rows from` settings): its label, and whether the block reads a list now (shown pressed). Missing for a block that cannot. */
   dynamic?: { label: string; on: () => boolean; action: () => void };
 }) {
   const el = document.body.appendChild(document.createElement('div'));
-  el.className = 'site-block-toolbar';
+  el.className = 'contextual-menu';
   el.setAttribute('role', 'toolbar');
   el.setAttribute('aria-label', opts.name);
   el.hidden = true;
@@ -56,11 +54,6 @@ export function inlineBar(opts: {
   block.title = opts.name;
   block.setAttribute('aria-label', opts.name);
   block.innerHTML = svg(dotsIcon);
-  let popup: HTMLElement | null = null;
-  const closePopup = () => {
-    popup?.remove();
-    popup = null;
-  };
 
   // A tap on the bar keeps the cursor where it is.
   const press = (b: HTMLButtonElement, run: () => void) => {
@@ -75,8 +68,8 @@ export function inlineBar(opts: {
     b.addEventListener('mouseup', (e) => e.detail > 0 && run());
     return b;
   };
-  const button = (label: string, icon: string | null, text: string | null, run: () => void, parent: HTMLElement = el) => {
-    const b = press(parent.appendChild(document.createElement('button')), run);
+  const button = (label: string, icon: string | null, text: string | null, run: () => void) => {
+    const b = press(el.appendChild(document.createElement('button')), run);
     b.title = label;
     b.setAttribute('aria-label', label);
     b.innerHTML = `${icon ? svg(icon) : ''}${text ? `<span>${text}</span>` : ''}`;
@@ -84,7 +77,6 @@ export function inlineBar(opts: {
   };
 
   function draw() {
-    closePopup();
     el.replaceChildren();
     const all = opts.rowActions();
     // Add above and Add below are buttons of their own, on a phone too; the rest (Link, Move up, Move down) fold under Row there.
@@ -94,35 +86,11 @@ export function inlineBar(opts: {
     if (opts.dynamic) {
       const d = button(opts.dynamic.label, dynamicIcon, null, opts.dynamic.action);
       d.setAttribute('aria-pressed', String(opts.dynamic.on()));
-      d.classList.toggle('site-block-toolbar-on', opts.dynamic.on());
+      d.classList.toggle('contextual-menu-on', opts.dynamic.on());
     }
-    if (opts.compact()) {
-      if (rows.length) {
-        const row = button(opts.labels.row, null, opts.labels.row, () => {
-          if (popup) return closePopup();
-          popup = el.appendChild(document.createElement('div'));
-          popup.className = 'site-block-toolbar-menu';
-          popup.setAttribute('role', 'menu');
-          for (const r of rows)
-            button(
-              r.label,
-              icons[r.kind],
-              r.label,
-              () => {
-                closePopup();
-                r.action();
-              },
-              popup,
-            ).setAttribute('role', 'menuitem');
-          place();
-        });
-        row.insertAdjacentHTML('beforeend', svg(caretDownIcon, 12));
-        row.setAttribute('aria-haspopup', 'menu');
-      }
-      if (opts.edit) button(opts.labels.edit, gearIcon, null, opts.edit);
-    } else {
-      for (const r of rows) button(r.label, icons[r.kind], null, r.action);
-    }
+    // Plain icon buttons on a phone too (no dropdown); the menu wraps to a second line there when 375 px is not enough.
+    for (const r of rows) button(r.label, icons[r.kind], null, r.action);
+    if (opts.compact() && opts.edit) button(opts.labels.edit, gearIcon, null, opts.edit);
     el.appendChild(block);
   }
 
@@ -132,7 +100,7 @@ export function inlineBar(opts: {
     const { offsetWidth: width, offsetHeight: height } = el;
     const box = opts.dom.getBoundingClientRect();
     const screen = visualViewport ?? { offsetLeft: 0, offsetTop: 0, width: innerWidth, height: innerHeight };
-    el.classList.toggle('site-block-toolbar-docked', opts.compact());
+    el.classList.toggle('contextual-menu-docked', opts.compact());
     if (opts.compact()) {
       el.style.left = `${screen.offsetLeft + (screen.width - width) / 2}px`;
       const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? Infinity;
@@ -157,7 +125,7 @@ export function inlineBar(opts: {
     /** Redraws the buttons (the active row or its content changed) and shows or hides the bar. */
     refresh(shown: boolean) {
       el.hidden = !shown;
-      if (!shown) return closePopup();
+      if (!shown) return;
       draw();
       place();
     },
