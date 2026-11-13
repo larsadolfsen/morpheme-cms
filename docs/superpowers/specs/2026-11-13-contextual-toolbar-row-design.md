@@ -1,216 +1,208 @@
-# The contextual toolbar as a row under the main toolbar (design)
+# One toolbar: the contextual tools slide in from the left (design)
 
 Status: proposal for the owner. Design only, no code. Written for a phone: plain words, short.
+(The file name still says "row": the first idea was a second row. The owner replaced it, see below.)
 
-Owner's words: "One thought I had on the contextual toolbar is to show it as a row below the main toolbar." It replaces the
-floating bar everywhere, on phone and larger screens. "Remove the delay, and the main toolbar only shows global values."
-Related decision (audit, PR #515): the editor's floating menus use the theme's own `Toolbar` part, so a theme can style them.
+Owner's words, first idea: "show it as a row below the main toolbar", replacing the floating bar, with "the delay removed"
+and "the main toolbar only shows global values". **Decision of 13 November, replacing the second row:** "No, we shouldn't keep two
+rows. Just one menu up there. When you are in nothing, it shows the main menu. When you enter a text area or a block, the
+contextual menu slides in from the left and pushes the main menu to the right (the icons, not a full menu), so the main menu
+goes right and out of the screen. When you leave it, it rolls back. There needs to be a divider between the two. So just one
+navigation bar with all the buttons in it."
 
-Words: the **main toolbar** is the bar at the top of the text editor (`editor-tools`, `MarkdownEditor.tsx`). The **contextual
-bar** is the bar that follows what is selected: the text under the cursor, or the block or row you tapped
-(`src/contextualMenu.ts` for blocks, the selection pill in `selectionMenu()` for text). A **part** is a ready-made piece of the
-theme (`theme/ui/Toolbar.tsx`) that a theme can restyle.
+Also decided: the selection tools (Bold, Italic, Link, Heading, Text size, Alignment, lists, colour) belong to the contextual
+part; the main part keeps only Insert, Undo, Redo and Section settings; with the cursor in text, selection or not, the text tools
+always show; on a phone the bar scrolls sideways; the editor's floating menus use the theme's own `Toolbar` part.
+
+Words: the **bar** is the one toolbar at the top of the text editor (`editor-tools`, `MarkdownEditor.tsx`). Its **main tools**
+are Insert, Undo, Redo, Section settings. Its **contextual tools** are what applies to the text under the cursor or to the
+block or row you tapped. A **part** is a ready-made piece of the theme (`theme/ui/`) that a theme can restyle. A
+**spring** is the theme's motion (`--motion-spatial-fast`, `motionTiming`, `motionSpring` in `lib/motion.ts`).
 
 This spec does not change inline block editing (`2026-11-12-inline-block-editing-design.md`): the same actions, the same
-`BarAction` list, only a new place and shell for the bar.
+`BarAction` list, only a new place and shell. The touch-selection spec (PR #529) has a `SelectionBar`; it becomes this same
+bar's contextual part (a list screen's selection actions slide in where a block's would), not a second bar.
 
 ## 1. What exists today
 
 - **Main toolbar** (sticky at the top of the text box): Section settings (when it applies), Bold, Italic, Link, Heading (H),
   Bulleted / Check / Numbered list, Text size (T), Alignment, Insert (+), Undo, Redo, and an arrow that opens a second line
   when the tools do not fit.
-- **Three floating bars**, all hand-made in `src/editor.css`:
+- **Three floating bars**, hand-made in `src/editor.css`:
   - the **selection pill** (Bold, Italic, Link, H, More), over selected text; on a phone at the bottom, above the keyboard;
-  - the **block bar** `.contextual-menu` (Add above/below, Move up/down, Link, the gear, Fill from a list, then the block's
-    `⋮` menu), over the block; on a phone docked above the keyboard and the save bar, wrapping to two lines;
-  - the **block's card menu** `.site-block-menu` (Edit, Hide, Move, Remove), a small pop-up on blocks not typed in place.
+  - the **block bar** `.contextual-menu` (Add above/below, Move up/down, Link, the gear, Fill from a list, then the block's `⋮`
+    menu), over the block; on a phone docked above the keyboard and the save bar, wrapping to two lines;
+  - the **block's card menu** `.site-block-menu` (Edit, Hide, Move, Remove), a pop-up on blocks not typed in place.
 - Bold, Italic and Link are on screen twice while text is selected (the owner's own finding in the intuitive-editor spec).
 
 ## 2. What Material says (read 13 November 2026 with Playwright)
 
-Pages read: `m3.material.io/components/toolbars/` overview, specs, guidelines, accessibility, and
-`m3.material.io/foundations/designing/structure` (touch targets). Quotes are from those pages.
+Pages read: `m3.material.io/components/toolbars/` overview, specs, guidelines, accessibility (read again for this version),
+`/components/tabs/` overview, guidelines, accessibility, and `/foundations/designing/structure` (touch targets).
 
 - **Docked = global, floating = contextual.** "Docked toolbar: Spans the full width of the window. It's best used for global
   actions that remain the same across multiple pages. Floating toolbar: Floats above the body content. It's best used for
-  contextual actions relevant to the body content or the specific page." (guidelines, Usage.) So the owner's "main toolbar only
-  shows global values" is exactly M3's docked toolbar. Putting *contextual* actions in a second **docked** row is **not** what M3
-  says: M3 would make the contextual bar the floating one. That is a deviation (listed below).
-- **Docked toolbars go at the bottom.** "Only place docked toolbars at the bottom of the window." (Position & orientation.) Ours
-  is at the top of the text box already; the same deviation, not new.
-- **No two toolbars on a phone.** "Don't use multiple toolbars in compact windows. There typically isn't enough room on screen.
-  Instead, use one toolbar for all actions." (Presentation.) M3's example of several toolbars is a larger window, with the bars on
-  opposite edges and a different style each. Two stacked rows on a phone go against this. That is the owner's idea; it is a
-  deviation and **open question 1**.
-- **Overflow is a menu in M3; the owner chose scrolling.** "If there's not enough space for all items, put them in an overflow
-  menu in the trailing slot." (Adaptive design, floating.) For docked: "Be cautious of including too many controls." M3 does not
-  describe sideways scrolling for a toolbar. The owner decided "Scroll." for a phone, so the row scrolls sideways: a deliberate
-  deviation (below).
-- **Sizes.** "By default all toolbars are 64dp high ... minimum outside padding of 16dp." "All elements need a minimum 48x48dp
-  target area." (Specs, Measurements; Anatomy.) For the docked toolbar on large screens: "Only shrink the height and use extra
-  small buttons if vertical space is limited." Our 48 dp rows are shorter than 64 dp: allowed only when space is limited,
-  which a phone is.
-- **Scrolling.** "Docked toolbars can either remain on the screen during scroll, or animate offscreen." Sticky is allowed.
-- **Colour.** Standard is "a low-emphasis color scheme best used for focusing attention on the body content". Vibrant "can also
-  indicate a temporary change in the page behavior, such as entering edit mode".
-- **Keyboard and roles.** "On web, the toolbar container should have the toolbar role." Keys: "Tab or Arrows: Navigate between
-  interactive elements; Space or Enter: Activate". Initial focus lands on the first interactive element. The theme's `Toolbar`
-  uses one Tab stop with arrows inside, which is not quite the same as "Tab or Arrows"; it is the theme's existing choice.
-- **Touch target.** "Consider making touch targets at least 48 x 48dp" (foundations, structure). So 48 dp is M3's, checked.
-- **Rounded corners.** "Avoid applying rounded corners to the container" of a docked toolbar; but "On web and large screens,
-  the docked toolbar can be rounded".
+  contextual actions relevant to the body content or the specific page." (toolbars/guidelines, Usage.) The owner's main part is
+  M3's docked idea. Putting *contextual* tools in the same docked bar is not what M3 says. Deviation.
+- **One toolbar on a phone.** "Don't use multiple toolbars in compact windows. There typically isn't enough room on screen.
+  Instead, use one toolbar for all actions." (Presentation.) The owner's one bar agrees with this. It also drops the earlier
+  deviation of two stacked rows.
+- **Docked at the bottom.** "Only place docked toolbars at the bottom of the window." Ours is at the top, as today's main toolbar
+  already is. Deviation, not new.
+- **Divider.** "On web and large screens, the docked toolbar can be rounded. Dividers can be used to organize large amounts of
+  items." (Adaptive design.) A divider between groups is in line with this.
+- **Overflow.** "If there's not enough space for all items, put them in an overflow menu in the trailing slot." (floating
+  toolbar.) The owner chose sideways scrolling for a phone. Deviation (owner's choice).
+- **Transitions.** I looked for text on how a toolbar animates when its items change and found none. The only motion text:
+  "Docked toolbars can either remain on the screen during scroll, or animate offscreen", the floating toolbar can "collapse into a
+  single, high-emphasis action on scroll", and "Don't collapse actions and scroll at the same time." The slide-in and push is the
+  owner's design and not in M3. Deviation.
+- **Sizes and targets.** "By default all toolbars are 64dp high ... minimum outside padding of 16dp." "All elements need a
+  minimum 48x48dp target area." "Consider making touch targets at least 48 x 48dp" (foundations/structure). "Only shrink the height
+  and use extra small buttons if vertical space is limited." Our bar is 48 dp high.
+- **Keyboard and role.** "On web, the toolbar container should have the toolbar role." "Tab or Arrows: Navigate between
+  interactive elements; Space or Enter: Activate." The theme's `Toolbar` has one Tab stop with arrows inside.
+- **Tabs and a menu instead of scrolling.** See section 3, last part: not used.
 
-**What I could not read:** the toolbar pages' images and the token tables (the page draws them from script and Playwright got
-no text for them), the Figma kit, and a page named `accessibility-basics`, which gives "page not found". The Expressive
-update note says "Web: Unavailable" for toolbar code, so the theme's `Toolbar` is our own build of the design, not a port.
+**What I could not read:** the images and token tables of the toolbar and tabs pages (script-drawn, no text), the Figma kit,
+and a page named `accessibility-basics` ("page not found"). The Expressive note says toolbar code for the Web is "Unavailable",
+so the theme's `Toolbar` is our own build of the design.
 
-**Deviations from this (to add to `docs/material-deviations.md` with step 1):** (1) contextual actions in a docked toolbar
-(M3: floating); (2) docked toolbars at the top (M3: bottom; already true of the main toolbar); (3) two stacked toolbars on a
-phone (M3: one); (4) 48 dp height instead of 64 dp (allowed only for limited space); (5) on a phone the row scrolls sideways when its tools do not fit (M3: overflow menu in the trailing slot; owner decision, 13 November). Wording for `docs/material-deviations.md`: *Material says: "If there's not enough space for all items, put them in an overflow menu in the trailing slot." We do: the row scrolls sideways on a phone. Why: owner's choice. Date: 2026-11-13.*
+**Deviations to add to `docs/material-deviations.md` with step 1** (each: Material says / we do / why / date 2026-11-13):
+1. *Contextual tools in the docked toolbar.* M3: contextual actions go in the floating toolbar. We: one docked bar holds
+   the main and the contextual tools. Why: owner's decision, one bar for everything.
+2. *Docked toolbar at the top.* M3: "Only place docked toolbars at the bottom of the window." We: top of the text editor
+   (the bar stays with the text). Why: it belongs to the text box; the bottom is the keyboard and the save bar.
+3. *Contextual tools slide in and push the main tools out.* M3: no such behaviour is described. We: the contextual tools slide in
+   from the leading side and push the main tools out of view; they slide back when the context is left. Why: owner's decision.
+4. *Scroll instead of an overflow menu.* M3: "put them in an overflow menu in the trailing slot". We: the bar scrolls sideways
+   on a phone. Why: owner's choice, 13 November.
+5. *Bar height 48 dp, not 64 dp.* M3 allows shorter "if vertical space is limited". We: 48 dp on every screen size. Why: it
+   sits over the text; a phone is short.
 
-## 3. Layout
+## 3. The bar
 
 ```
-PHONE 375 px                         COMPUTER 1280 px
-+---------------------------+        +-------------------------------------------------+
-| main toolbar (global)     |        | main toolbar (global)                           |
-| [+] [Undo][Redo] [Section]|        | [+] [Undo][Redo]  [Section settings]            |
-+---------------------------+        +-------------------------------------------------+
-| contextual row            |        | contextual row (follows the selection)          |
-| [B][I][Link][H][T][⋮]     |        | [B][I][Link][H][Lists][T][Align][Colour] [⋮]    |
-+---------------------------+        +-------------------------------------------------+
-|  the page text ...        |        |  the page text ...                              |
-|  [ block card ]           |        |  [ block card ]                                 |
-|  save bar (docked)        |        |                                                 |
-+---------------------------+        +-------------------------------------------------+
+PHONE 375 px
 
-A Table is selected (phone, 7 actions, the row scrolls sideways):
-| [row↑][row↓][col←][col→][del row][del col][⚙] ⋮ |→  (7 x 48 dp = 336 dp, scrolls)
+Nothing active (focus outside the text and blocks):
++--------------------------------------------+
+| [+] [Undo] [Redo]  ▏ [Section settings]    |   main tools, from the left
++--------------------------------------------+
+
+Cursor in text: the text tools slide in from the left, the main tools are pushed right and out:
++--------------------------------------------+
+| [B] [I] [Link] [H] [T] [Align] [Lis ▏ ->   |   scroll right to reach: lists, colour,
++--------------------------------------------+   then ▏ divider, then [+] [Undo] [Redo] [Section]
+
+A Table is active: its tools slide in, all seven:
++--------------------------------------------+
+| [row↑] [row↓] [col←] [col→] [del row] [de ▏ ->
++--------------------------------------------+
+
+COMPUTER 1280 px (both fit, nothing is pushed out of sight):
++----------------------------------------------------------------------------------+
+| [B][I][Link][H][Lists][T][Align][Colour]  ▏  [+] [Undo] [Redo] [Section settings]|
++----------------------------------------------------------------------------------+
 ```
 
-- **Two docked rows, one box.** The contextual row is a second `Toolbar` part (kind `docked`, colour `standard`) directly
-  under the main one. The two stick together at the top while the text scrolls (they are the same sticky box, so they never
-  separate). The floating `.contextual-menu` and the selection pill are deleted. The block's `⋮` keeps its pop-up (a menu is a
-  menu, not a toolbar) and is the row's last button.
-- **Nothing selected.** The row is always there once the editor is on the screen, so the page never jumps. With the cursor in
-  text it shows the text tools; with a block or row active it shows that block's tools; with the focus outside the editor it
-  shows the text tools dimmed (disabled), the same height. Recommendation: one fixed height (48 dp) in all cases.
-- **Phone keyboard.** The rows sit at the top, so the keyboard cannot cover them (today's bar fights it and is placed with
-  `visualViewport` and timers). iOS Safari can pan the page when the keyboard opens and a sticky top bar then slides away:
-  if the device check shows this, a tiny listener sets one CSS variable from `visualViewport.offsetTop` (no timer, applied in
-  the event itself). This needs a check on a real phone before the work is closed.
-- **375 px and overflow (owner: "Scroll.").** The row never wraps. When the tools do not fit it scrolls sideways (with
-  `scroll-snap`; the end fades; the scroll bar is hidden), and the focus ring of a button scrolls into view. Nothing is folded
-  to hide it; the existing *More* sheet stays as a tool of the text row, not as an overflow. The block rows keep today's phone
-  folding (`Row` for Move and Link). Targets stay 48 dp, edges 16 dp. Wider than the screen is the point: the first and last
-  tools are always reachable by scrolling, and a fade at the cut edge shows there is more.
-- **Focus order and names.** Tab: main toolbar (one stop, arrow keys inside, as the theme's `Toolbar` already does; M3 says "Tab or Arrows") → contextual
-  row (one stop) → the text. `role="toolbar"`, `aria-label` = the block's name ("Table", "Cards") or "Text tools"; every button keeps its
-  `aria-label` and `title`; toggles keep `aria-pressed`. Escape in the row returns the focus to where the cursor was.
-  A tap on the row never takes the cursor (mouse and touch down are cancelled, as `press()` does today).
-- **Table.** Seven actions: Add row above, Add row below, Add column before, Add column after, Delete row, Delete column,
-  Settings. All seven stay in the row; on a phone (336 dp against 343 dp of room, and with gaps more) the row scrolls.
+- **One bar, one row, one `Toolbar` part** (kind `docked`, colour `standard`, `role="toolbar"`). Inside it is one strip:
+  contextual tools, divider, main tools. The strip is the scroll area. The floating `.contextual-menu` and selection pill are
+  deleted; there is no second row, no second sticky bar and no arrow that opens a second line.
+- **The divider** is the theme's `Divider` part (`theme/ui/Divider.tsx`), vertical, with the theme's outline-variant colour. It
+  stays between the groups while the contextual tools are there, and is hidden when there are none (idle).
+- **Idle.** Only the main tools, from the leading edge, so the slide-in reads as a push from the left. The bar keeps its height
+  (48 dp), so the page never jumps.
+- **Entering a context** (the cursor goes into text, or a block or row becomes active): the contextual tools slide in from the
+  left and the main tools move right by the same distance (section 4). The strip is at its start (`scrollLeft` 0) so the first
+  contextual tool is in view. **Leaving it:** the same movement the other way. **Changing from one context to another** (text to a
+  Table, or a Table to another block) is not a slide: the contextual tools change in place with the theme's fade
+  (`--motion-effects`); this is open question 3.
+- **Phone: scroll.** The strip scrolls sideways (`scroll-snap`, scroll bar hidden, a fade on the cut edge). The main tools are
+  pushed past the right edge and are reached by scrolling right. They stay in the page and in the tab order (not `inert`); an arrow
+  key or Tab into them scrolls them into view. If the owner scrolled right to use Undo while in text, moving the cursor inside the
+  same text does not scroll back; it resets only when the context changes.
+- **Wide screens** (this is my recommendation, question 1): when the contextual and main tools both fit, nothing is pushed out of
+  sight: the contextual tools slide in at the left, the main tools shift right only as far as the room needs and stay visible,
+  with the divider between. When they do not fit (a narrow window), it behaves as on a phone.
+- **Sticky.** The bar stays at the top while the text scrolls, as the main toolbar does today (M3: "Docked toolbars can either
+  remain on the screen during scroll"). With one bar there is no pair to keep together, so this is not a question.
+- **Phone keyboard.** The bar is at the top, so the keyboard cannot cover it (today's bars are placed with `visualViewport`
+  and timers). iOS Safari can pan the page when the keyboard opens and a sticky top bar then slides away: if the device check
+  shows this, a tiny listener sets one CSS variable from `visualViewport.offsetTop` (no timer, applied in the event). This needs a
+  check on a real phone before the work is closed.
+- **375 px.** The first six contextual tools of Text (Bold, Italic, Link, Heading, Text size, Alignment) are visible at 48 dp each
+  = 288 dp of the 343 dp (16 dp edges); a part of the seventh shows at the edge as the hint that there is more (our version of M3
+  tabs' "Offset the first scrollable tab 52dp from the leading edge so it's clear that more content is available"). The Table's
+  seven tools are 336 dp: all of them in the strip, the last one cut by the edge.
+- **Focus order and names.** One Tab stop for the bar, arrow keys inside (the theme's `Toolbar`, M3: "Tab or Arrows"), moving
+  through the contextual group, the divider (skipped) and the main group. Each group is `role="group"` with its name (the
+  block's name, "Table" or "Cards", or "Text tools"; and "Page tools" for the main tools). The divider is a separator. Every button
+  keeps its `aria-label` and `title`; toggles keep `aria-pressed`. Escape returns the focus to the cursor. A tap on the bar never
+  takes the cursor (mouse and touch down are cancelled, as `press()` does today).
+- **Block pop-up.** The card menu `.site-block-menu` (Edit, Hide, Move, Remove) and the block's `⋮` become buttons at the end of the
+  contextual group, before the divider. Where Remove or Hide have no room on a phone they are reached by scrolling.
 
-### Phone: three ways to fit many tools (owner's question, 13 November)
+**Why not tabs or a menu (the owner's question, answered).** Tabs "organize groups of related content" and M3 says "Avoid using more
+than four tabs at once"; the active context here changes by itself with the selection, while a tab is chosen by the user; the
+Toolbars pages say nothing about tabs in a toolbar; and tabs add a row, which the owner has now removed. An overflow menu is
+M3's text for toolbars but costs a tap and hides the pressed state of a tool such as Bold. Scrolling, with the main tools reachable
+by scroll, is the owner's choice and uses only the `Toolbar` part.
 
-Owner: "Either we make it a scroll, or dropdowns, or we could use tabs as well. Maybe a tab that says Text when you're in text,
-and Blog (block) when you're in a block ... Would that be an option, or do we need a long scroll menu instead?" Scroll is the
-current choice until the owner decides (question 2).
-
-The case: text has 10 tools (Bold, Italic, Link, Heading, Text size, Alignment, Bulleted, Check and Numbered list, Colour).
-At 375 px there is room for 7 buttons of 48 dp (343 dp, 16 dp edges).
-
-What Material says about tabs (read with Playwright, `m3.material.io/components/tabs/` overview, guidelines, accessibility):
-"Tabs organize groups of related content that are at the same level of hierarchy." "Secondary tabs are used within a content
-area to further separate related content." "Tabs control the UI region displayed below them." "Avoid using more than four tabs at
-once. At five or more tabs, the container becomes cramped." "When a set of tabs cannot fit on screen, use scrollable tabs."
-"Place tabs next to each other as peers" (overview). "Don't use tabs to move through sequential content" (guidelines). On
-scrollable tabs: "Offset the first scrollable tab 52dp from the leading edge so it's clear that more content is available."
-Not read: the tab height and other numbers (they are images and token tables, no text) and any M3 text that puts tabs inside a
-toolbar. I found none; the Toolbars pages do not mention tabs.
-
-| | A. Scroll sideways (current) | B. Overflow menu `⋮` (M3's text for toolbars) | C. Context tabs |
-| --- | --- | --- | --- |
-| Taps to reach a tool | 0 for the 6 or 7 shown; a swipe, then 1 tap for the rest | 1 for the 6 shown; 2 (open `⋮`, pick) for the rest, and the menu hides state such as Bold *on* | 1 for the tools of the open group; 2 (change tab, tap) for another group |
-| Visible at once at 375 px | 7 of 10 text tools; Table 7 of 7 barely | 6 of 10 plus `⋮` | one group, 4 to 5 tools, plus up to 4 tab labels |
-| Discoverability | Weak: hidden tools are guessed from a cut-off button at the edge | Medium: `⋮` is a known sign, but the contents are hidden | Best: the labels say what is there ("Format", "Paragraph") |
-| One-handed | The row is at the top of the screen, far from the thumb; a swipe on it is easy, a reach is not | Same top reach; the menu opens near the top | Same top reach; two bars to reach into |
-| Height used on a phone | 1 row (48 dp) | 1 row (48 dp) | 2 rows (tabs + tools), so three bars with the main toolbar, about 150 dp |
-| Fit with the theme's parts | `Toolbar` only | `Toolbar` + `Menu` | `Toolbar` + `Tabs` (kind `secondary`, scrollable) |
-| M3 | Deviation (no sideways scroll in a toolbar) | Conforms | Tabs organise related content, not tool sets; M3 says four tabs at most; the active context changes by itself with the selection while a tab is chosen by the user, so "Text" and "Table" are not peers a person picks |
-
-Two readings of C. **C1, a context label only** (a chip at the start of the row that says "Text" or "Table"): it is not a
-tab, takes about 70 dp of the 343 dp, and shows what the row is about. **C2, tab groups inside one context** (Format |
-Paragraph | Insert for text): a real use of the Tabs part, only for Text (the one block with more than 7 tools); blocks keep one row.
-
-Recommendation in plain words: **A, scroll**, with the first six text tools being the most used (Bold, Italic, Link, Heading,
-Text size, Alignment) and a half-visible seventh button at the right edge as the sign that there is more (our version of M3's
-52 dp offset). It is the fewest taps, no new part, and the Table fits. Take C2 only if a phone check shows people missing the
-hidden lists and colour; C1 is cheap and can be added to any option later. B is the safe choice for Material, but costs a tap
-and hides the pressed state.
-
-## 4. Remove the delay
+## 4. Remove the delay, and the motion
 
 Every wait before the bar appears, moves or follows, found in the code:
 
 | Where | What it is for | What the owner sees | Proposal |
 | --- | --- | --- | --- |
-| `STILL_MS = 700`, `stillTimer` (`stillCursor.mjs`, `lib/still-timer.mjs`) | The selection pill waits until the cursor has stood still 700 ms in a word, so it does not flash while typing. Restarts on every key and move. | Put the cursor in a word: nothing for 0.7 s, then the pill. Type: it vanishes. | **Remove.** The text row is always there, so there is nothing to wait for. Bold, Italic and Link still act on the word at the cursor (`wordRange` stays). Delete `stillTimer`, `STILL_MS` and their tests. |
-| `setTimeout(follow, 100)` after a tool is pressed | Moves the pill again once the *Save changes* bar has appeared and pushed the floor up. | The pill hops a moment after a tap. | **Remove.** Docked rows do not depend on the save bar. |
-| `follow`: `requestAnimationFrame` + `setTimeout(…, 250)` on scroll and `visualViewport` resize | Places the pill again after the keyboard has finished opening. | The pill slides to its place after the keyboard, 0.25 s late. | **Remove.** Nothing to place. |
-| `refresh = setTimeout(() => update(view))` on focus and blur | Waits one tick so a tap on the pill keeps the focus before the pill decides to hide. | The pill stays one tick after you leave the text. | **Remove.** The row never hides; it only dims. |
-| `contextualMenu.ts` `place()` on every scroll, resize, `visualViewport` event | The block bar follows the block (and hides when the block is off screen). | The bar trails the page a little while scrolling. | **Remove** with the floating bar. |
-| `blockCard` `setTimeout(start, 50)` up to 30 times | A new block waits for the closing Insert sheet to give back the focus, then puts the cursor in its first row. | Up to 1.5 s before the cursor appears in a new block. | **Keep.** It is about focus, not the bar. Can later be an event ("sheet closed"); not part of this work. |
-| `blockCard` `pointerdown` lock, 1000 ms | A finger on a block card must not open the phone's keyboard. | None you can see. | **Keep.** Not the bar. |
-| Animations on the bar | None today (no `transition` on `.contextual-menu` or the pill). | Bars appear and vanish at once, which also reads as a flicker. | **Add one**, from tokens only: the row's buttons swap with `var(--motion-effects)` (fade, 0 → 1); the row's height never animates. `prefers-reduced-motion`: none. M3 says nothing about this; it is our choice, not a question. |
+| `STILL_MS = 700`, `stillTimer` (`stillCursor.mjs`, `lib/still-timer.mjs`) | The selection pill waits until the cursor has stood still 700 ms in a word, so it does not flash while typing. | Put the cursor in a word: nothing for 0.7 s, then the pill. Type: it vanishes. | **Remove.** The text tools are in the bar the moment the cursor is in text. Bold, Italic and Link still act on the word at the cursor (`wordRange` stays). Delete `stillTimer`, `STILL_MS` and their tests. |
+| `setTimeout(follow, 100)` after a tool is pressed | Moves the pill again once the *Save changes* bar has appeared. | The pill hops a moment after a tap. | **Remove.** The bar does not depend on the save bar. |
+| `follow`: `requestAnimationFrame` + `setTimeout(…, 250)` on scroll and `visualViewport` resize | Places the pill again after the keyboard has opened. | The pill slides to its place 0.25 s late. | **Remove.** Nothing to place. |
+| `refresh = setTimeout(() => update(view))` on focus and blur | Waits one tick so a tap on the pill keeps the focus before the pill hides. | The pill stays one tick after you leave the text. | **Remove.** The context changes in the same event; taps on the bar are cancelled so the focus stays. |
+| `contextualMenu.ts` `place()` on every scroll, resize, `visualViewport` event | The block bar follows the block. | The bar trails the page while scrolling. | **Remove** with the floating bar. |
+| `blockCard` `setTimeout(start, 50)` up to 30 times | A new block waits for the closing Insert sheet to give back the focus, then puts the cursor in its first row. | Up to 1.5 s before the cursor appears in a new block. | **Keep.** Focus, not the bar; not part of this work. |
+| `blockCard` `pointerdown` lock, 1000 ms | A finger on a block card must not open the phone's keyboard. | Nothing you can see. | **Keep.** Not the bar. |
+| Animations on the bar | None today. | Bars appear and vanish at once, which reads as a flicker. | **Add the slide** below. |
 
-**What keeps it from flickering without the wait:** the row does not mount and unmount. Its buttons change in place:
-buttons that do not apply are hidden with `hidden` (no layout change, the height is fixed), changes are made in one frame, and
-a button that is only about the selection (Bold *on*) changes its `aria-pressed` without redrawing the row. The old reason
-for the 700 ms (a pill popping over the line you type on) is gone because the row is not over the text.
+**The slide.** Spring from the theme only: `motionTiming('spatial', 'fast')` (the same call that `MarkdownEditor.tsx` already uses
+for a moved block, with the same `el.animate` and the same `prefers-reduced-motion` check), which is `var(--motion-spatial-fast)`.
+No delay. The bar is built once with both groups in it. On entering a context the contextual group's width is measured, then in
+one frame the contextual group animates `translateX(-width) → 0` and the main group the same `translateX(-width) → 0`, so the
+main tools are pushed by the incoming ones (a "FLIP" move: no layout change is animated, so nothing reflows and the bar's height
+does not move). Leaving is the same in reverse. An unfinished slide is reversed from where it is (the Web Animations API allows
+`reverse()`), so quick taps in and out do not flicker. With reduced motion there is no slide: the groups swap at once. A change
+from one context to another uses `var(--motion-effects)` (a fade).
 
-## 5. "The main toolbar only shows global values"
+**What keeps it from flickering without the wait:** the bar never mounts or unmounts; only the contextual group's content
+changes. Tools that do not apply are `hidden` (the height is fixed), a toggle changes `aria-pressed` without a redraw. The old
+reason for the 700 ms (a pill over the line you type on) is gone because the bar is not over the text.
 
-**Decided by the owner:** "So bold and italic would move in the contextual bar." So everything about the selection moves
-to the contextual row, and the main toolbar keeps only what is about the whole text.
+## 5. The main part: global values
 
-| Tool | About | Goes to |
+Decided: **Insert, Undo, Redo, Section settings** (the last only when the heading starts a section). Preview and the save state
+are about the whole page and live in the page header and save bar already, not in this bar.
+
+| Tool | About | Where |
 | --- | --- | --- |
-| Undo, Redo | the whole text | stays in the main toolbar |
-| Insert (+) | the whole text, at the cursor | stays in the main toolbar |
-| Section settings | the section the heading starts | stays in the main toolbar |
-| Preview, save state | the whole page | already in the page header and save bar; not this bar |
-| Bold, Italic, Link | the selection | contextual row |
-| Heading (H), Bulleted / Check / Numbered list | the line under the cursor | contextual row |
-| Text size (T), Alignment, colour | the line or selection | contextual row |
+| Undo, Redo | the whole text | main part |
+| Insert (+) | the whole text, at the cursor | main part |
+| Section settings | the section the heading starts | main part |
+| Bold, Italic, Link | the selection | contextual part |
+| Heading (H), Bulleted / Check / Numbered list | the line under the cursor | contextual part |
+| Text size (T), Alignment, colour | the line or selection | contextual part |
 
-**What the row shows.** Text selected, or the cursor in text: Bold, Italic, Link, Heading, Text size, Alignment (phone: lists
-and colour under `⋮` → More). A block or row selected: that block's tools (section 6). Nothing in the editor focused: the text
-tools, dimmed, the same height.
-
-```
-MAIN TOOLBAR (global), phone and computer
-[ + Insert ] [ Undo ] [ Redo ]                    [ Section settings ]
-
-CONTEXTUAL ROW, text selected            CONTEXTUAL ROW, a block selected
-[B][I][Link][H][T][Align][⋮]            [row↑][row↓][Link][⚙][⋮]
-```
-
-**375 px.** Main toolbar: 4 buttons at 48 dp = 192 dp, one line, no arrow. Text row: 6 tools + `⋮` = 7 × 48 = 336 dp; 375 minus
-two 16 dp edges leaves 343 dp, so it barely fits with no gaps; with the lists and colour it is wider and scrolls (owner: "Scroll.").
-
-**Is the main toolbar then too thin?** Four tools is little, but the owner decided to keep exactly these four as one slim line.
+The main part is short, so on a phone it fits on screen when idle, and on a wide screen it always fits beside the contextual tools.
 
 ## 6. What moves where, by block
 
-The row's content follows the selection. "Row" = the active row or item of a repeating block. `⋮` = the block's own menu
-(Hide, Move, Remove). Actions are today's, taken from the inline spec; this spec only moves them.
+The contextual part follows the selection. "Row" = the active row or item of a repeating block. `⋮` = the block's own menu (Hide,
+Move, Remove). Actions are today's, from the inline spec; this spec only moves them. On a phone every row scrolls.
 
-| Block | Contextual row (phone: what folds under `⋮` or `Row`) |
+| Block | Contextual tools |
 | --- | --- |
-| Text (cursor or selection) | Bold, Italic, Link, Heading, Lists, Text size, Alignment, Colour (phone: the row scrolls) |
-| Table | Row above, Row below, Column before, Column after, Delete row, Delete column, Settings, `⋮` (phone: the row scrolls) |
-| List | Add above, Add below, Move up, Move down, Link, Settings, Fill from a list, `⋮` (phone: Move and Link under `Row`) |
+| Text (cursor or selection) | Bold, Italic, Link, Heading, Text size, Alignment, Lists, Colour |
+| Table | Row above, Row below, Column before, Column after, Delete row, Delete column, Settings, `⋮` |
+| List | Add above, Add below, Move up, Move down, Link, Settings, Fill from a list, `⋮` |
 | Cards | Add above, Add below, Move up/down, Link, Settings, `⋮` |
 | Points, Segmented list | the same as Cards; Segmented also Fill from a list |
 | Steps, Checklist | Add above, Add below, Move up/down, `⋮` (no Link, no gear) |
@@ -224,51 +216,51 @@ The row's content follows the selection. "Row" = the active row or item of a rep
 | Testimonials, Posts | Edit (opens the list page), Settings, `⋮` |
 | HTML | Settings, `⋮` |
 | Banner (section) | Section settings, `⋮` |
-
-The block's card pop-up `.site-block-menu` (Edit, Hide, Move, Remove on blocks not typed in place) becomes the same row: those
-four become its buttons, so there is one place for block actions. Image/Card/List "menus" are the same bar with other items.
+| A list screen's selection (PR #529) | the selection's actions and a close button, in the same place |
 
 ## 7. Risks, checks, size
 
-- **Risks:** (1) iOS keyboard and sticky top (section 3); (2) the two rows take about 100 dp of a short phone screen; the
-  main toolbar shrinks to one line (no second-line arrow) because it now holds few tools, which gives most of it back;
-  (3) a phone has no hover, so the row is the only way to see what applies: `aria-pressed` must be right; (4) a theme that
-  styles `Toolbar` badly breaks the editor: both rows use only `--toolbar-*` tokens; (5) the old bars' tests
-  (`.contextual-menu` in `scripts/editor-screens.mjs`) must be moved.
-- **Checks:** `check:screens` at 375 and 1280: the rows are one box and sticky after scrolling; the row has the same height
-  with nothing selected, in text and on each block; no button is under 48 dp; no horizontal page scroll; the Table's seven
-  actions are all reachable at 375 (by scrolling the row); the row never overlaps the text; `check:contrast` and `check:editor-colors` on
-  the row in each section colour; `check:css-values` finds no literal motion or spacing in the new CSS. Not covered by the
-  scripts: the keyboard on a real phone, and how a theme looks; both by hand, with the Preview of the branch (login does not
-  work there, so the owner reads screenshots from `check:screens`).
+- **Risks:** (1) iOS keyboard and a sticky top bar (section 3); (2) the owner may scroll right and not find the contextual tools
+  again: the strip resets to the left when the context changes; (3) the bar must keep the context while a sheet it opened (More,
+  Settings) is open, because opening a dialog blurs the text: the context is held while a sheet from the bar is open, and ends the
+  moment it closes with the focus elsewhere; (4) the push moves main tools the owner expects at one place (Undo): acceptable
+  because on idle and on wide screens they are where they were; (5) a theme that styles `Toolbar` badly breaks the whole editor:
+  the bar uses only `--toolbar-*` tokens and the `Divider` part; (6) the old bars' tests (`.contextual-menu` in
+  `scripts/editor-screens.mjs`) must move.
+- **Checks:** `check:screens` at 375 and 1280: one bar, 48 dp high, the same height idle, in text and on every block; the divider
+  shows only with a context; at 375 the main tools are off screen in a context and reachable by scrolling (scroll the strip, then the
+  Undo button is visible and works); at 1280 both groups fit and are visible; the first six text tools at 375; the Table's seven;
+  no button under 48 dp; no horizontal page scroll; the slide runs with `prefers-reduced-motion: no-preference` (assert the
+  animation exists, with the theme's duration) and is absent with `reduce`; `check:contrast` and `check:editor-colors` on the bar in each
+  section colour; `check:css-values` finds no literal motion or spacing in the new CSS. Not covered by the scripts: the keyboard on a
+  real phone, and how a theme looks; both by hand. The Preview of the branch cannot sign in, so the owner reads screenshots from
+  `check:screens`.
 - **Size and order (PRs into `main`, each with a changeset):**
-  1. *Small:* the row shell: a second docked `Toolbar` under the main one, filled with the text tools; the selection pill and
-     `stillTimer` removed. Empty changeset until visible.
-  2. *Medium:* the main toolbar cut down to the global tools (reading A); the second line and its arrow removed; phone overflow
-     (sideways scroll).
-  3. *Medium:* the block bar moves in (`contextualMenu.ts` becomes the row; `BarAction` stays); Table's seven actions; the
-     tests move. The floating `.contextual-menu` CSS is deleted.
-  4. *Small:* the card pop-up `.site-block-menu` becomes row buttons; the Image, Video, Notice items.
-  5. *Small:* the iOS variable, the fade, the deviations entry, the release note.
-- **Release note:** yes, one **paragraph** (it changes how the editor looks): "Find the tools in one place" (English and Danish,
-  with the `release-notes` skill). Not in a changeset of its own: it goes with step 2, when the owner first sees it.
-- **Material:** read, see section 2. The four deviations go into `docs/material-deviations.md` in the same PR as step 1.
+  1. *Medium:* the one-bar shell. The main toolbar becomes the bar: main tools, divider, a slot for the contextual group; the text
+     tools move into the slot; the selection pill, the second line and its arrow, `stillTimer` and `STILL_MS` are removed. Scroll on
+     a phone. No slide yet. Empty changeset until visible.
+  2. *Medium:* blocks move in. `contextualMenu.ts` becomes the bar's contextual group (`BarAction` stays); the Table's seven; the
+     tests move; the floating `.contextual-menu` CSS is deleted. The touch-selection worker's `SelectionBar` plugs in here.
+  3. *Small:* the slide and push (FLIP with `motionTiming`), the fade between contexts, reduced motion, the scroll reset.
+  4. *Small:* the card pop-up `.site-block-menu` becomes bar buttons; the Image, Video, Notice items.
+  5. *Small:* the iOS variable (if needed), the five deviation entries, the release note.
+- **Release note:** yes, one **paragraph** (it changes how the editor looks): "Find the tools in one place" (English and Danish, with
+  the `release-notes` skill). It goes with step 1, when the owner first sees it.
 
 ## 8. Open questions for the owner (the PM asks them one at a time)
 
-Decided by the owner: (1) bold, italic and the other selection tools move to the contextual row (section 5); (2) the main
-toolbar keeps just Insert, Undo, Redo and Section settings (4 tools); (3) with the cursor in text, selection or not,
-the text tools always show in the row; (4) for now, on a phone the row scrolls sideways when tools do not fit (a deviation from M3's
-overflow menu, section 2); the owner has reopened this (question 2).
+Decided by the owner: one bar, no second row; the contextual tools slide in from the left, push the main tools right and out, and
+roll back; a divider between them; the main part is Insert, Undo, Redo, Section settings; text tools always show with the cursor in
+text; phone: the bar scrolls; no sticky question (one bar stays at the top).
 
-1. **Two rows on a phone, against Material?** M3 says "Don't use multiple toolbars in compact windows ... use one toolbar for
-   all actions", and puts contextual actions in the *floating* toolbar, not a docked one. Your idea is two docked rows on a
-   phone too. Options: (a) two rows as you said, and write the deviation down; (b) on a phone one row: the contextual tools
-   with Insert, Undo and Redo behind `⋮`, and two rows only on larger screens. How the tools fit is question 2. Recommendation: (a), because one row at 375 px
-   cannot hold both sets, and you decided it; the deviation is listed.
-2. **How should many tools fit on a phone?** (A) the row scrolls sideways (current); (B) an overflow menu `⋮` (M3's way);
-   (C) context tabs: C1 a label for the context, C2 tab groups for Text (section 3, with the comparison). Recommendation: A,
-   with the six most used text tools first and a half-visible button at the edge; add C2 for Text only if a phone check shows
-   hidden tools are missed.
-3. **Keep both rows sticky while the page scrolls?** Recommendation: yes (M3 allows it). Cost: about 100 dp of a short screen.
-4. **The block pop-up (Edit, Hide, Move, Remove) on blocks not typed in place:** becomes row buttons (recommended) or stays a pop-up?
+1. **On a wide screen, are the main tools pushed out of sight too, or do both groups stay visible?** My recommendation: both stay
+   visible when they fit (the push only moves the main tools as far as needed), because nothing needs hiding when there is room.
+   The other option: the same push as on a phone, so the main tools disappear on a computer too.
+2. **When idle, are the main tools at the left edge or centred as today?** Recommendation: at the left edge, so the slide-in from
+   the left reads as a push. (M3: "In medium breakpoints and larger ... centering all elements" is allowed, not required.)
+3. **Moving from one context to another (text to a Table, Table to Cards): slide again, or change in place with a fade?**
+   Recommendation: a fade in place; the slide only on entering or leaving, so the bar is calm while you click around.
+4. **When you tap the page header, a sheet or another screen, how fast does the bar roll back?** Recommendation: at once when the focus
+   goes elsewhere, but not while a sheet that the bar opened (More, Settings) is open.
+5. **A half-visible tool at the edge of the phone bar as the hint that there is more, and a fade on the cut edge?** Recommendation:
+   yes (section 3); the alternative is no hint.
