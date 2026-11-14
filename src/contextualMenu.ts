@@ -8,7 +8,7 @@
 import arrowDownIcon from '@phosphor-icons/core/assets/regular/arrow-down.svg?raw';
 import arrowUpIcon from '@phosphor-icons/core/assets/regular/arrow-up.svg?raw';
 import dotsIcon from '@phosphor-icons/core/assets/regular/dots-three-vertical.svg?raw';
-import gearIcon from '@phosphor-icons/core/assets/regular/gear.svg?raw';
+import { settingsHereIcon } from './meaningIcons';
 import linkIcon from '@phosphor-icons/core/assets/regular/link-simple.svg?raw';
 import dynamicIcon from '@material-symbols/svg-400/outlined/dynamic_feed.svg?raw';
 import rowAboveIcon from '@material-symbols/svg-400/outlined/add_row_above.svg?raw';
@@ -48,9 +48,9 @@ export type BarAction = {
   action: () => void;
 };
 
-/** The icon (raw SVG) of each bar action, and of the gear and the dynamic button. */
+/** The icon (raw SVG) of each bar action, and of the settings button (`gear`, drawn as tune: one icon per meaning) and the dynamic button. */
 export const barIcons = {
-  gear: gearIcon,
+  gear: settingsHereIcon,
   dynamic: dynamicIcon,
   above: rowAboveIcon,
   below: rowBelowIcon,
@@ -133,7 +133,7 @@ export function contextualMenu(opts: {
         b.classList.toggle('contextual-menu-on', r.pressed);
       }
     }
-    if (opts.compact() && opts.edit) button(opts.labels.edit, gearIcon, null, opts.edit);
+    if (opts.compact() && opts.edit) button(opts.labels.edit, settingsHereIcon, null, opts.edit);
     el.appendChild(block);
   }
 
