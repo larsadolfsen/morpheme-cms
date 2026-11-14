@@ -935,6 +935,15 @@ html {
   background: color-mix(in srgb, var(--mo-on-surface) 8%, transparent);
 }
 
+.editor-text .site-block-row-button[aria-disabled] {
+  color: color-mix(in srgb, var(--mo-on-surface) 38%, transparent);
+  cursor: default;
+}
+
+.editor-text .site-block-row-button[aria-disabled]:hover {
+  background: transparent;
+}
+
 .editor-text .site-block-row-button:focus-visible {
   outline: 2px solid var(--mo-primary);
   outline-offset: -2px;
@@ -950,13 +959,6 @@ html {
   right: 0.625rem;
   opacity: 1;
   background: transparent;
-}
-
-/* A touch sees the handle only in the row of the active block: nothing lies over the content of the other blocks. */
-@media (hover: none) {
-  .editor-text .site-block:not(.site-block-has-row) > .site-block-handle {
-    display: none;
-  }
 }
 
 /* Disabled while several blocks are selected: the theme's disabled colours, no grab cursor. */

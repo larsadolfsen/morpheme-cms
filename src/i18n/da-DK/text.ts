@@ -60,6 +60,11 @@ export const text: Messages['text'] = {
   moveAtTop: 'Blokken er allerede øverst',
   moveAtBottom: 'Blokken er allerede nederst',
   dragOff: 'Træk er slået fra, mens flere blokke er valgt',
+  /** Why a block's Move up or Move down is off (its action row). */
+  blockSettings: 'Blokindstillinger',
+  moveFirst: 'Denne blok står allerede først',
+  moveLast: 'Denne blok står allerede sidst',
+  moveLocked: 'Blokken ved siden af er låst',
   blocksSelected: (count) => (count === 1 ? '1 blok valgt' : `${count} blokke valgt`),
   clearBlockSelection: (count) => `Ryd markering, ${count === 1 ? '1 blok valgt' : `${count} blokke valgt`}`,
   selectBlock: 'Vælg',

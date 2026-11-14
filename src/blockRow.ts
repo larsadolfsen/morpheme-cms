@@ -42,11 +42,16 @@ function draw(el: HTMLElement, row: BlockRow, name: string) {
       button.className = 'site-block-row-button';
       button.dataset.row = item.kind;
       button.setAttribute('aria-label', item.label);
-      button.title = item.label;
+      // Disabled (a block that cannot move further): shown, still in its place, with the reason (the M3 disabled state, as the bar's Move buttons while blocks are selected).
+      if (item.disabled) {
+        button.setAttribute('aria-disabled', 'true');
+        button.setAttribute('aria-description', item.disabled.reason);
+        button.title = item.disabled.reason;
+      } else button.title = item.label;
       button.innerHTML = item.icon;
       // The block stays active and keeps its focus: the button is pressed, nothing is selected.
       button.addEventListener('mousedown', (e) => e.preventDefault());
-      button.addEventListener('click', (e) => item.action(e.detail === 0));
+      button.addEventListener('click', (e) => !item.disabled && item.action(e.detail === 0));
       return button;
     }),
   );

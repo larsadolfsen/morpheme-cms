@@ -4,7 +4,14 @@
 import type { BarAction } from './contextualMenu';
 
 /** A row of the block's own menu (Edit, Hide, Move up, Move down, Remove): a raw SVG icon, its name, what it does (`keyboard`: chosen with the keyboard). */
-export type CardRow = { icon: string; label: string; action: (keyboard: boolean) => void; danger?: boolean };
+export type CardRow = {
+  icon: string;
+  label: string;
+  action: (keyboard: boolean) => void;
+  danger?: boolean;
+  /** It does not apply now (a block that cannot move further), with `reason` for screen readers and the mouse: shown, not hidden. */
+  disabled?: { reason: string };
+};
 
 /** A button of the block's action row (blockRow.ts): the block's own actions above its top item. `kind` says which. */
 export type RowItem = CardRow & { kind: 'up' | 'down' | 'visibility' | 'settings' };

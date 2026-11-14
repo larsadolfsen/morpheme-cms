@@ -103,7 +103,7 @@ import { t } from './i18n';
 import { motionReduced, motionTiming } from '../lib/motion';
 import { barSlideKind } from './barMotion.mjs';
 import { dragSteps, limitSteps } from './blockDrag.mjs';
-import { blockHandleIcon, blockMarkIcon, duplicateIcon, selectAllBlocksIcon } from './blockHandleIcon';
+import { blockHandleIcon, blockMarkIcon, blockSettingsIcon, duplicateIcon, selectAllBlocksIcon } from './blockHandleIcon';
 import { blockSelection } from './blockSelection';
 import { allOf, hideChoice, range, removeChoice, groupMove } from './blockSelectionRules.mjs';
 import { ask } from './ask';
@@ -357,7 +357,7 @@ function move(view: EditorView, i: number, by: -1 | 1): number | null {
 }
 
 // Selects the card at the top level at index k again (after it moved, it is a new card), so its tools are on the bar still and it can be moved again at once.
-type CardHost = HTMLElement & { select?: () => void };
+type CardHost = HTMLElement & { select?: () => void; refresh?: () => void };
 function reopen(view: EditorView, k: number) {
   const el = partDOM(view, k);
   const host = (el?.matches('.site-block') ? el : el?.querySelector('.site-block')) as CardHost | null;
@@ -416,15 +416,24 @@ const moves = (view: EditorView, i: number | null, locked: string[] = []): CardI
     const at = move(view, i, by);
     if (at !== null) reopen(view, at);
   };
-  const can = (by: -1 | 1) => {
+  // Why it cannot move that way, or undefined: shown disabled in the block's action row, not left out (the buttons keep their places).
+  const why = (by: -1 | 1) => {
     const j = neighbour(view.state.doc, i, by);
-    const next = j === null ? null : view.state.doc.child(j);
-    return !!next && !(next.type.name === 'siteBlock' && locked.includes(next.attrs.type));
+    if (j === null) return by < 0 ? t.text.moveFirst : t.text.moveLast;
+    const next = view.state.doc.child(j);
+    return next.type.name === 'siteBlock' && locked.includes(next.attrs.type) ? t.text.moveLocked : undefined;
   };
-  return [
-    ...(can(-1) ? [{ icon: arrowUpIcon, label: t.common.moveUp, action: step(-1), row: 'up' as const }] : []),
-    ...(can(1) ? [{ icon: arrowDownIcon, label: t.common.moveDown, action: step(1), row: 'down' as const }] : []),
-  ];
+  const item = (by: -1 | 1): CardItem => {
+    const reason = why(by);
+    return {
+      icon: by < 0 ? arrowUpIcon : arrowDownIcon,
+      label: by < 0 ? t.common.moveUp : t.common.moveDown,
+      action: step(by),
+      row: by < 0 ? 'up' : 'down',
+      ...(reason ? { disabled: { reason } } : {}),
+    };
+  };
+  return [item(-1), item(1)];
 };
 
 // The places of the blocks (siteBlock) at the top level of the text, in order.
@@ -878,7 +887,7 @@ function cardBar(
     const all = items().filter((it): it is CardItem => !!it);
     const edit = all.find((it) => it.icon === pencilIcon);
     // The row (blockRow.ts) has Move up, Move down, Hide or Show and, Settings (when it has any); the bar's `⋮` has the rest.
-    const split = splitRow(all.map((it) => (it === edit ? { ...it, row: 'settings' as const, icon: barIcons.gear } : it)));
+    const split = splitRow(all.map((it) => (it === edit ? { ...it, row: 'settings' as const, icon: blockSettingsIcon } : it)));
     blockBar.show(owner, {
       name,
       actions: [],
@@ -918,6 +927,7 @@ function cardBar(
     show();
   }
   (dom as CardHost).select = select;
+  (dom as CardHost).refresh = () => selected && show();
   card.setAttribute('aria-pressed', 'false');
   card.addEventListener('mousedown', (e) => e.preventDefault());
   // While a finger is on the card, the text cannot be written in: a phone does not put the cursor in
@@ -1478,7 +1488,7 @@ function blockCard(
     return [
       block?.fields.length
         ? (!inline || (typeof spec?.blockSettings === 'function' ? spec.blockSettings(node.attrs.props) : spec?.blockSettings)) &&
-          !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit, row: 'settings' as const }
+          !inPanelNow() && { icon: pencilIcon, label: t.text.blockSettings, action: edit, row: 'settings' as const }
         : block?.edit && { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
       // A block typed in place that reads a list of the site (Testimonials, Blog posts): the page of the list is in its menu too.
       inline && block?.fields.length && block.edit
@@ -1745,7 +1755,7 @@ function blockCard(
         const split = splitRow(
           menuItems()
             .filter((it): it is CardItem => !!it)
-            .map((it) => (it.row === 'settings' ? { ...it, icon: barIcons.gear } : it)),
+            .map((it) => (it.row === 'settings' ? { ...it, icon: blockSettingsIcon } : it)),
         );
         const state: BlockBarState = {
           name,
@@ -1829,7 +1839,24 @@ function blockCard(
     dom,
     // Typed in place: the same block with other rows is kept (the cursor stays in the row); anything else is drawn again.
     update: (next: Node) => {
-      if (!inline || next.type !== node.type || next.attrs.type !== node.attrs.type) return false;
+      if (next.type !== node.type || next.attrs.type !== node.attrs.type) return false;
+      // A card that is not typed in place is drawn again by any change, except hiding or showing it: the same card stays, selected, so its action row stays open.
+      if (!inline) {
+        const { hidden: was, ...before } = node.attrs.props ?? {};
+        const { hidden: now, ...after } = next.attrs.props ?? {};
+        if ((was === true) === (now === true) || JSON.stringify(before) !== JSON.stringify(after)) return false;
+        node = next;
+        hidden = now === true;
+        paintHidden();
+        card.setAttribute(
+          'aria-description',
+          [hidden ? t.text.hiddenOnPage : '', ...(block ? describe(block, node.attrs.props, asker()?.data) : [])]
+            .filter(Boolean)
+            .join('. '),
+        );
+        (dom as CardHost).refresh?.();
+        return true;
+      }
       node = next;
       if ((next.attrs.props.hidden === true) !== hidden) {
         hidden = !hidden;
