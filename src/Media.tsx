@@ -1000,7 +1000,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
         <>
           <div className="space-y-4">{details(src, true)}</div>
           {total > 1 && (
-            <SiteToolbar label={t.media.fileTools} kind="docked" className="sticky bottom-0 mt-6">
+            <SiteToolbar label={t.media.fileTools} kind="docked" className="sticky bottom-0 -mx-4 mt-6 medium:-mx-6">
               <IconButton icon="caret-left" label={t.media.previous} disabled={at <= 0} onClick={() => step(-1)} />
               <span className="text-on-surface-variant" aria-live="polite">
                 {t.media.position(at + 1, total)}
