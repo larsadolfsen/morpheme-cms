@@ -10,8 +10,7 @@ import { t } from './i18n';
 import { collectionsFor } from './site';
 import { DEFINITION_VERSION, idOf } from '../lib/ownList.mjs';
 import { definitionText } from '../lib/ownListEdit.mjs';
-import { draftText } from '../lib/ownListDraft.mjs';
-import { listDraftIds, setListDraft } from './listDraft';
+import { editListDraft, listDraftIds } from './listDraft';
 
 export default function NewListDialog({ files, open, onClose }: { files: RepoFile[]; open: boolean; onClose: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -40,7 +39,7 @@ export default function NewListDialog({ files, open, onClose }: { files: RepoFil
     const named = idOf(label, taken());
     if (!named.id) return setProblem(named.suggestion ? t.ownList.nameTaken : t.ownList.nameNeeded);
     const text = definitionText({ version: DEFINITION_VERSION, label: label.trim(), fields: [], dropped: [] });
-    setListDraft(named.id, draftText({ definition: text, rows: [] }));
+    editListDraft(named.id, text);
     dialog.current?.close();
     location.hash = `#list/${named.id}`;
   }
