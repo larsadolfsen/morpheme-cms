@@ -86,9 +86,9 @@ export function blockToolIds(state: BlockBarState): string[] {
 }
 
 /** Splits the block's items into its action row (the ones that carry a `row` kind, in the row's order) and the bar's `⋮` (the rest). Each action is in one
- * place only. `settings` says whether the block's Settings button is in the row (BLOCK_ROW_SETTINGS) or stays in the `⋮`. */
-export function splitRow<T extends CardRow & { row?: RowItem['kind'] }>(items: T[], settings: boolean) {
-  const order: RowItem['kind'][] = ['up', 'down', 'visibility', ...(settings ? (['settings'] as const) : [])];
+ * place only. The block's Settings is in the row when it has any. */
+export function splitRow<T extends CardRow & { row?: RowItem['kind'] }>(items: T[]) {
+  const order: RowItem['kind'][] = ['up', 'down', 'visibility', 'settings'];
   const inRow = (it: T) => !!it.row && order.includes(it.row);
   const row = items
     .filter(inRow)

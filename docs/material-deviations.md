@@ -171,6 +171,6 @@ Source: `src/blockRow.ts`, `src/editor.css` (`.site-block-row`), `src/blockBar.t
 ### The active block has a row of its own actions above its top item
 
 - **Material:** a toolbar groups the actions of one context; M3 prints no rule for a second row of actions on an item.
-- **We do:** while a block is active, a 44 dp row opens right above it, right-aligned: Move up, Move down, Hide or Show, Settings (one constant, `BLOCK_ROW_SETTINGS` in `src/blockRow.ts`) and the drag handle. These actions leave the bar's `⋮`; Remove, Select and other settings stay there. The row opens by its height with the spatial spring (`motionTiming('spatial', 'fast')`), so the page below makes room; under reduced motion it opens at once. On a touch screen the handle shows only in the active block's row.
+- **We do:** while a block is active, a 44 dp row opens right above it, right-aligned: Move up, Move down, Hide or Show, Settings (only when the block has settings; it opens the block's settings) and the drag handle. These actions leave the bar's `⋮`; Remove, Select and other settings stay there. The row opens by its height with the spatial spring (`motionTiming('spatial', 'fast')`), so the page below makes room; under reduced motion it opens at once. On a touch screen the handle shows only in the active block's row.
 - **Why:** owner idea, 14 Nov 2026: the bar keeps the text and design tools, the block's own actions sit at the block, each action in one place.
 - **Date:** 2026-11-14. **PR:** the draft pull request that adds this entry.

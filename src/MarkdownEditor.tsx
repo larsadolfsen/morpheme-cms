@@ -94,7 +94,7 @@ import { sourceOf, withPart } from './standard/rows/rows.mjs';
 import { rowParts } from './standard/rows/view';
 import { barIcons, type BarAction } from './contextualMenu';
 import { blockBar, blockToolIds, splitRow, type BlockBarState, type CardRow } from './blockBar';
-import { BLOCK_ROW_SETTINGS } from './blockRow';
+import './blockRow';
 import { preview } from './registry';
 import { leaveTo } from './FormFrame';
 import { createRoot } from 'react-dom/client';
@@ -877,17 +877,11 @@ function cardBar(
   const show = () => {
     const all = items().filter((it): it is CardItem => !!it);
     const edit = all.find((it) => it.icon === pencilIcon);
-    // The row (blockRow.ts) has Move up, Move down, Hide or Show and, by BLOCK_ROW_SETTINGS, Settings; the bar's `⋮` has the rest.
-    const split = splitRow(
-      all
-        .filter((it) => it !== edit || BLOCK_ROW_SETTINGS)
-        .map((it) => (it === edit ? { ...it, row: 'settings' as const, icon: barIcons.gear } : it)),
-      BLOCK_ROW_SETTINGS,
-    );
+    // The row (blockRow.ts) has Move up, Move down, Hide or Show and, Settings (when it has any); the bar's `⋮` has the rest.
+    const split = splitRow(all.map((it) => (it === edit ? { ...it, row: 'settings' as const, icon: barIcons.gear } : it)));
     blockBar.show(owner, {
       name,
       actions: [],
-      edit: edit && !BLOCK_ROW_SETTINGS ? { label: edit.label, action: () => edit.action(false) } : undefined,
       row: { host: dom, items: split.row },
       menu: split.menu,
     });
@@ -1751,8 +1745,7 @@ function blockCard(
         const split = splitRow(
           menuItems()
             .filter((it): it is CardItem => !!it)
-            .map((it) => (it.row === 'settings' && BLOCK_ROW_SETTINGS ? { ...it, icon: barIcons.gear } : it)),
-          BLOCK_ROW_SETTINGS,
+            .map((it) => (it.row === 'settings' ? { ...it, icon: barIcons.gear } : it)),
         );
         const state: BlockBarState = {
           name,

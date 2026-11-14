@@ -1,13 +1,10 @@
 // The active block's action row (docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md; owner idea, 14 Nov): a small row right above the block's top
-// item, right-aligned, with the block's own actions (Move up, Move down, Hide or Show, Settings) and, at its end, the block's drag handle (drawn there by
+// item, right-aligned, with the block's own actions (Move up, Move down, Hide or Show, Settings, only when the block has settings) and, at its end, the block's drag handle (drawn there by
 // CSS: `.site-block-has-row`). It shows only while a block is active and opens by its height, with the editor's spatial spring (motionTiming) and not at all
 // under reduced motion. The buttons are real buttons with the labels the menu rows had; the bar's `⋮` keeps the rest (Remove, other settings).
 // The block (a node view, not React) tells blockBar its row; this module draws it. No dependencies but blockBar and the motion helpers.
 import { motionReduced, motionTiming } from '../lib/motion';
 import { blockBar, type BlockRow } from './blockBar';
-
-/** Owner choice open (14 Nov): whether the block's Settings is a button of the row (true) or a row of the bar's `⋮` (false). One constant, so both can be seen. */
-export const BLOCK_ROW_SETTINGS = true;
 
 /** The row's height and its buttons': the editor's one touch size, 44 dp. */
 const SIZE = 44;
