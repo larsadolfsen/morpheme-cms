@@ -22,17 +22,22 @@ function Picture({ image, index, sizes }: { image: GridImage; index: number; siz
   const first = index < FIRST_ROW;
   return (
     <CardMedia ratio={image.width && image.height ? image.width / image.height : undefined}>
-      <img
-        src={image.src}
-        srcSet={image.srcset}
-        sizes={image.srcset ? sizes : undefined}
-        width={image.width}
-        height={image.height}
-        alt={image.alt}
-        loading={first ? 'eager' : 'lazy'}
-        decoding="async"
-        fetchPriority={index === 0 ? 'high' : undefined}
-      />
+      {/* In a <picture>: React 19 puts a <link rel="preload"> into the text before an eager image it renders on the server, which breaks the
+          prose's spacing after a heading (h3 + h2) and shows only on the site, never in the Preview. It makes no preload for an image in a
+          <picture>, and the browser's own priority (loading, fetchpriority) does the work. */}
+      <picture>
+        <img
+          src={image.src}
+          srcSet={image.srcset}
+          sizes={image.srcset ? sizes : undefined}
+          width={image.width}
+          height={image.height}
+          alt={image.alt}
+          loading={first ? 'eager' : 'lazy'}
+          decoding="async"
+          fetchPriority={index === 0 ? 'high' : undefined}
+        />
+      </picture>
     </CardMedia>
   );
 }
