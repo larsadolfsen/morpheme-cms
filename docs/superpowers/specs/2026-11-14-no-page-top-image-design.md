@@ -39,8 +39,8 @@ image can be one of two things, and they need different work (question 1).
 - **Sitemap, RSS, cards of pages, `Rows from` pages:** no page image key is read anywhere. RSS lists posts only.
 - **Sites:** the owner says only Sara's site could use one. The 0.18 PM checked it (`saravafaiblom/Sarashjemmesidedata`,
   `src/content/pages/`, 78 page files, `origin/main` on 14 Nov 2026): no page has a top-image key. Its only image keys are
-  one `shareImage` with its `imageAlt`, the share image, which stays. Whether any of its pages has an H1 marker with
-  `data-picture` (section 1.4) was not part of that check; it decides how much Path A would change there.
+  one `shareImage` with its `imageAlt`, the share image, which stays. The PM also checked for H1 markers with an image: no page file
+  contains `data-picture` (0 of 78), so no page there has an H1 section background image either.
 - **`demo/` and `starter/`:** no page file has `image:` in its front matter (checked: `grep '^image:'` finds only the nine
   demo blog posts).
 
@@ -77,8 +77,8 @@ The only image a page can show at its top that is not an image in its text:
 
 ### 1.5 Other themes
 
-`morpheme-apps` (Venus) could not be read from this session (access to that repository was not granted). The PM should
-check whether Venus's page layout calls `h1Section()` and draws its `image`. The code is not changed here either way.
+The 0.18 PM checked `morpheme-apps` (`origin/main`, `themes/`, 14 Nov 2026): no theme uses `h1Section` or `data-picture`, so
+Venus does not draw the H1 section's image. Path A needs no pull request there.
 
 ## 2. Migration: no site loses content
 
@@ -122,8 +122,8 @@ since it becomes the first `![]()` in the text (`site/images.mjs`). The migratio
 
 - **Path B:** no contract change. `THEME_API` stays 4, `APP_API` stays 5.
 - **Path A:** no contract change either. `h1Section()` keeps its shape (`{ color, image, alt, width }`); after the
-  read-time migration `image` is simply always `null` for a page, so a theme that draws it (the default theme, maybe
-  Venus) draws nothing and breaks nothing. The default theme's drawing code (`PageLayout.astro`, `Home.astro`) can be
+  read-time migration `image` is simply always `null` for a page, so a theme that draws it (only the default theme;
+  Venus does not) draws nothing and breaks nothing. The default theme's drawing code (`PageLayout.astro`, `Home.astro`) can be
   removed in a later `patch`. Never `major`: an old site keeps working because the read-time migration runs before any
   theme sees the text.
 
@@ -188,8 +188,7 @@ under `scripts/` (not in `demo/src/content/`) for `check:screens` to open an old
 and after (375, 1280); a page with a former H1 image on the site before and after.
 
 **PR 4, `patch`, no screenshots.** Remove the now-dead H1 image drawing from `PageLayout.astro`, `Home.astro`,
-`pagePreview.tsx` and `pageH1Panel.mjs` (the colour panel stays). `check:themes`. Tell the PM which `morpheme-apps`
-theme still reads `h1Section().image`, for a pull request there.
+`pagePreview.tsx` and `pageH1Panel.mjs` (the colour panel stays). `check:themes`.
 
 ## 7. Questions for the owner
 
