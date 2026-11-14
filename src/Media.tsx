@@ -51,6 +51,7 @@ import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { fileKindOf, pickedKindOf, pickImage, prepareFile, prepareImage, publicPath, showMoved, shownAt, type Uploads } from './images';
 import { fileIcons, FileView, KINDS, kindOf, type Kind } from './FileView';
 import MediaTags from './MediaTags';
+import { SiteCard, SiteImageTile } from './themeUi';
 import MediaProviderPicker from './MediaProviderPicker';
 import { providerFile, trackProviderDownload, type MediaItem } from './mediaProviders';
 import { activeApps, mediaProvidersOf } from './apps';
@@ -108,13 +109,18 @@ const endingOf = (src: string) => fileName(src).slice(stemOf(src).length);
 const readdress = (text: string, from: string, to: string) =>
   text.replace(new RegExp(`${from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w.-])`, 'g'), to);
 
-// The small copies of the images the site has (thumbnails.json, made when it is built), by their
-// address; {} when they could not be asked (then the images themselves are shown).
-let small: Promise<Record<string, string>> | null = null;
+// The images the site has (thumbnails.json, made when it is built), by their address: the real `width` and `height`
+// (the tile's box is there before the image loads) and the small copy `src`; {} when they could not be asked (then the
+// images themselves are shown, as squares).
+type Small = { width?: number; height?: number; src?: string };
+let small: Promise<Record<string, Small>> | null = null;
 const thumbnails = () =>
   (small ??= fetch('/editor/thumbnails.json')
-    .then((r) => (r.ok ? (r.json() as Promise<Record<string, string>>) : {}))
+    .then((r) => (r.ok ? (r.json() as Promise<Record<string, Small>>) : {}))
     .catch(() => ({})));
+
+// An image's proportions (width / height) from its record, 1 (square) when the site has none (one uploaded in this visit).
+const ratioOf = (info?: Small) => (info?.width && info.height ? info.width / info.height : 1);
 
 // The nearest box around an element that scrolls (the sheet's), or null for the page.
 function scrollerOf(el: Element) {
@@ -126,7 +132,7 @@ function scrollerOf(el: Element) {
 // An image in the grid, fetched only when it is about to be scrolled into view (a screen's height
 // before), and as its small copy when there is one: an image from this visit (shownAt) as it is,
 // a renamed one by its old address. The image itself, if the copy cannot be fetched.
-function Thumb({ src, thumbs }: { src: string; thumbs: Record<string, string> | null }) {
+function Thumb({ src, thumbs }: { src: string; thumbs: Record<string, Small> | null }) {
   const ref = useRef<HTMLImageElement>(null);
   const [near, setNear] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -145,50 +151,55 @@ function Thumb({ src, thumbs }: { src: string; thumbs: Record<string, string> | 
     return () => observer.disconnect();
   }, []);
   const shown = shownAt(src);
-  const thumb = !failed && thumbs?.[shown];
+  const thumb = !failed && thumbs?.[shown]?.src;
   return (
     <img
       ref={ref}
       src={near && thumbs ? thumb || shown : undefined}
       alt=""
       decoding="async"
-      className="editor-fade-in size-full object-cover transition-transform duration-(--motion-spatial-duration) ease-(--motion-ease) group-hover:scale-105"
+      className="editor-fade-in size-full object-cover"
       onLoad={(e) => e.currentTarget.setAttribute('data-loaded', '')}
       onError={() => thumb && setFailed(true)}
     />
   );
 }
 
-// A PDF, a video or a zip file in the grid: its icon and its name.
-function FileTile({ src }: { src: string }) {
+// A PDF, a video or a zip file in the grid: its icon and its name, on a card of its own shape.
+function FileTile({ src, selected, onPick }: { src: string; selected?: boolean; onPick: () => void }) {
   const Icon = fileIcons[fileKindOf(src)!];
   return (
-    <span className="flex size-full flex-col items-center justify-center gap-2 p-2 text-center">
-      <Icon size={36} className="shrink-0 text-on-surface-variant" />
-      <span className="line-clamp-2 text-xs break-all text-on-surface-variant">{nameOfSrc(src)}</span>
-    </span>
+    <SiteCard as="button" kind="filled" selected={selected} aria-label={nameOfSrc(src)} aria-pressed={selected} onClick={onPick}>
+      <span className="flex flex-col items-center justify-center gap-2 p-2 text-center">
+        <Icon size={36} className="shrink-0 text-on-surface-variant" />
+        <span className="line-clamp-2 text-xs break-all text-on-surface-variant">{nameOfSrc(src)}</span>
+      </span>
+    </SiteCard>
   );
 }
 
-// The images (and the other files) as squares, by their address on the site: three to four in a row
-// on a phone, as many as there is room for on a computer. picked: the one shown beside the grid (Filer
-// on a computer), marked.
+// The images (and the other files) as the theme's image tiles in a staggered grid (.image-grid): each image in its own
+// proportions, 2 columns on a phone, 3 on a tablet, 4 on a computer. picked: the one shown beside the grid (Filer on a
+// computer), marked.
 function Grid({ srcs, picked, onPick }: { srcs: string[]; picked?: string | null; onPick: (src: string) => void }) {
-  const [thumbs, setThumbs] = useState<Record<string, string> | null>(null);
+  const [thumbs, setThumbs] = useState<Record<string, Small> | null>(null);
   useEffect(() => void thumbnails().then(setThumbs), []);
   return (
-    <ul className="grid grid-cols-3 gap-1.5 medium:grid-cols-4 expanded:grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] expanded:gap-2">
+    <ul className="image-grid">
       {srcs.map((src) => (
         <li key={src}>
-          <button
-            type="button"
-            className={`group block aspect-square w-full overflow-hidden rounded-lg bg-surface-container-high ${src === picked ? 'ring-offset-bg ring-2 ring-primary ring-offset-2' : ''}`}
-            aria-label={nameOfSrc(src)}
-            aria-pressed={picked === undefined ? undefined : src === picked}
-            onClick={() => onPick(src)}
-          >
-            {fileKindOf(src) ? <FileTile src={src} /> : <Thumb src={src} thumbs={thumbs} />}
-          </button>
+          {fileKindOf(src) ? (
+            <FileTile src={src} selected={picked === undefined ? undefined : src === picked} onPick={() => onPick(src)} />
+          ) : (
+            <SiteImageTile
+              label={nameOfSrc(src)}
+              ratio={ratioOf(thumbs?.[shownAt(src)])}
+              selected={picked === undefined ? undefined : src === picked}
+              onClick={() => onPick(src)}
+            >
+              <Thumb src={src} thumbs={thumbs} />
+            </SiteImageTile>
+          )}
         </li>
       ))}
     </ul>
