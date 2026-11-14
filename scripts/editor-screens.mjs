@@ -2127,7 +2127,15 @@ async function checkBlockMove(width) {
     // Shift+Arrow extends from the focused card.
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
-    await blocks.nth(0).locator('.site-block-card').focus();
+    // A card typed in place takes no focus itself (its rows do), so the check gives it one; a card that is a button has it already.
+    await blocks
+      .nth(0)
+      .locator('.site-block-card')
+      .first()
+      .evaluate((el) => {
+        if (!el.matches('button')) el.tabIndex = 0;
+        el.focus();
+      });
     await page.keyboard.press(' ');
     await page.keyboard.press('Shift+ArrowDown');
     await page.waitForTimeout(300);
