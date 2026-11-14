@@ -119,8 +119,8 @@ owner still releases every version.
 
 Short, English only (`CLAUDE.md`), and only what the owner has to do or decide. A pull request the owner has to act on is always assigned to them, and the report gives its link.
 
-Every suggestion, question or decision the PM puts to the owner has three short parts, one or two sentences each, in
-this order:
+Every suggestion, question or decision the PM puts to the owner follows Simon Sinek's Golden Circle ("Start with Why"):
+three short parts, one or two sentences each, always in this order, starting with why:
 
 - **Why:** the reason the PM suggests it, the problem or the chance, in plain words.
 - **How:** how it would be done: what changes, and which session or pull request does it.
