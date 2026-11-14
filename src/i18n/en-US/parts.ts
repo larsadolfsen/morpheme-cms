@@ -762,6 +762,19 @@ export const parts = {
         address: '/an-address/',
         sendsTo: 'Beside it on a wide screen',
       },
+      dataTable:
+        'Rows of data in columns under a header row, text at the start and numbers at the end, also striped. It scrolls sideways when it is wider than the screen.',
+      table: {
+        label: 'Plans',
+        striped: 'Plans, striped',
+        head: ['Plan', 'Pages', 'Price'],
+        rows: [
+          ['Small', '5', '$9'],
+          ['Medium', '25', '$19'],
+          ['Large', '100', '$49'],
+          ['Unlimited', '1,000', '$129'],
+        ],
+      },
     },
     /** The theme's date and time pickers (PickerParts.tsx; DatePicker.tsx, TimePicker.tsx in packages/editor/theme/ui/). */
     pickers: {
