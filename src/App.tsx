@@ -90,9 +90,11 @@ import {
 import { readCache, writeCache } from './cache';
 import { forgetNotFound, loadNotFound, type Missing } from './notFound';
 import { isEntryPath } from '../lib/ownList.mjs';
-import { collectionOf, slugOf, type Collection, type FolderCollection, type Part, type Relation } from './schema';
+import { collectionOf, slugOf, type Collection, type FolderCollection, type OwnedList, type Part, type Relation } from './schema';
 import OwnList from './OwnList';
-import { listDraftOf, pendingOf, restoreKeptLists, settleListDrafts, useListDrafts, withListDrafts } from './listDraft';
+import OwnListEdit, { LockedListEdit } from './OwnListEdit';
+import { editPageOf } from '../lib/ownListEdit.mjs';
+import { discardListDraft, listDraftOf, pendingOf, restoreKeptLists, settleListDrafts, useListDrafts, withListDrafts } from './listDraft';
 import EntryForm, { newMarkdown } from './EntryForm';
 import DataForm from './DataForm';
 import CompanyForm from './CompanyForm';
@@ -925,11 +927,20 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
             const extra = pendingOf(id, files).filter((c) => !changes.some((x) => x.path === c.path));
             const oids = await env.commit(message, [...changes, ...extra], change, onSite);
             for (const c of extra) env.onSaved({ path: c.path, oid: oids[c.path], text: c.content });
+            // The whole waiting version was in this commit (also the items that lose a field's data): nothing waits any more.
+            discardListDraft(id);
             return oids;
           },
         };
   const [, listId, listTab, ...below] = route.split('/');
   const listed = route.startsWith('list/') && !below.length && collectionsFor(shownFiles).find((c) => c.id === listId);
+  // The edit page of a list (list/<id>/edit): the whole page for a list the owner made, the page without the field bar for a locked one (lib/ownListEdit.mjs editPageOf).
+  const editing =
+    route.startsWith('list/') && listTab === 'edit' && !below.length && collectionsFor(shownFiles).find((c) => c.id === listId);
+  const editPage =
+    editing && editing.kind === 'folder' && editPageOf({ own: isOwnList(shownFiles, editing.id), locked: (editing as OwnedList).locked });
+  if (editPage && editPage.fieldBar) return <OwnListEdit key={listId} id={listId} files={shownFiles} saved={files} env={env} />;
+  if (editing && editPage) return <LockedListEdit key={listId} collection={editing as OwnedList} />;
   if (listed && listed.kind === 'folder' && isOwnList(shownFiles, listed.id))
     return <OwnList key={listId} id={listId} files={shownFiles} saved={files} env={env} />;
   if (listed) return <List key={listed.id} collection={listed} tab={listTab} files={files} env={env} />;

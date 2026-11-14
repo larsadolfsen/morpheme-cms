@@ -339,6 +339,9 @@ export type OwnedList = FolderCollection & {
   fieldKinds?: Record<string, string>;
   /** Made-up rows, as the files have them, for the parts under "Parts" and an app's images for the store (examples.ts). */
   examples?: Record<string, unknown>[];
+  /** The list's fields are fixed in code (the testimonials'): its round button is `Edit list`, and its edit page (`#list/<id>/edit`, src/OwnListEdit.tsx
+   * LockedListEdit) shows the fields without the bar that adds one, and nothing there renames, moves or removes them (lib/ownListEdit.mjs editPageOf). */
+  locked?: boolean;
 };
 
 export type DataFile = {

@@ -1,0 +1,6 @@
+{
+  "id": "sheet-close-hide-wording",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Closing a sheet with changes asks whether to keep them in the page"
+}

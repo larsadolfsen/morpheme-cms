@@ -23,6 +23,7 @@ export const THEME_PARTS = [
   { id: 'Tabs', group: 'ui', prefixes: ['tabs', 'tab'] },
   { id: 'ButtonGroup', group: 'ui', prefixes: ['button-group'] },
   { id: 'SegmentedButton', group: 'ui', prefixes: ['segmented-button'] },
+  { id: 'ChoiceGroup', group: 'ui', prefixes: ['choice-group'] },
   { id: 'SplitButton', group: 'ui', prefixes: ['split-button'] },
   { id: 'Switch', group: 'ui', prefixes: ['switch'] },
   { id: 'SettingRow', group: 'ui', prefixes: ['setting-row', 'setting-list'] },

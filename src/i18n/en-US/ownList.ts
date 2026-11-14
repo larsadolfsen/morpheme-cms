@@ -1,4 +1,4 @@
-// The lists an owner makes (lib/ownList.mjs, src/ownLists.ts, src/OwnListSheet.tsx): the names of the fixed fields, the words of an entry, and
+// The lists an owner makes (lib/ownList.mjs, src/ownLists.ts, src/OwnListEdit.tsx): the names of the fixed fields, the words of an entry, and
 // `Edit list`.
 export const ownList = {
   icon: 'Icon',
@@ -22,17 +22,22 @@ export const ownList = {
   nameTaken: 'A list with this name exists. Choose another name.',
   edit: 'Edit list',
   delete: 'Delete list',
-  menu: 'List menu',
   name: 'Name',
   fields: 'Fields',
   addField: 'Add field',
   /** What an empty list's page says, above its `Add field` button. */
   noFields: 'This list has no fields yet. Add the first one.',
+  /** On the edit page of a locked list (its fields are fixed, the testimonials'). */
+  fixedFields: 'The fields of this list are fixed.',
   /** A field's name in `Edit list` (the kind's name until the owner changes it). */
   fieldName: 'Field name',
   shown: 'Shown',
   /** Under a field that was switched off: its data is still in the items. */
   held: (n: number) => `The data in ${n} ${n === 1 ? 'item' : 'items'} stays until you remove it.`,
+  moveFieldUp: (name: string) => `Move ${name.toLowerCase()} up`,
+  moveFieldDown: (name: string) => `Move ${name.toLowerCase()} down`,
+  addKind: (kind: string) => `Add ${kind.toLowerCase()}`,
+  fieldTools: 'Fields you can add',
   removeField: 'Remove field',
   removeData: 'Remove data',
   removeDataAsk: (field: string, n: number) => `Remove ${field.toLowerCase()} from ${n} ${n === 1 ? 'item' : 'items'} for good?`,
