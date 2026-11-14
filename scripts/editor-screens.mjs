@@ -4689,6 +4689,82 @@ async function checkInlinePaste(width, height, block) {
   await page.close();
 }
 
+/** Pasting into an empty Table (spec 2026-11-14-paste-and-change-to-design.md, section 2, The Table): a spreadsheet's lines with tabs make
+ * its rows and cells, the first line the header row (the setting stays on); a document's `<table>` gives the rows of its html; a paste with a
+ * `#` line, and a paste into a Table with content, are the browser's own; Ctrl+Z gives the empty Table back. */
+async function checkTablePaste(width, height) {
+  const label = `${width}px paste in table`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
+  await page.waitForSelector('.inline-table-cell-active textarea');
+  // Pastes into the cell at row `r`, column `c`; true when the Table took the paste over (preventDefault).
+  const paste = (r, c, plain, html = '') =>
+    page.evaluate(
+      ([r, c, plain, html]) => {
+        const data = new DataTransfer();
+        data.setData('text/plain', plain);
+        if (html) data.setData('text/html', html);
+        const field = document.querySelector(`.inline-table-box [data-row="${r}"] [data-field="${c}"]`);
+        field.focus();
+        return !field.dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+      },
+      [r, c, plain, html],
+    );
+  const grid = () =>
+    page.evaluate(() => ({
+      rows: [...document.querySelectorAll('.inline-table-box tr[data-row]')].map((tr) =>
+        [...tr.querySelectorAll('textarea')].map((f) => f.value),
+      ),
+      header: document.querySelectorAll('.inline-table-box thead th').length,
+      cursor: (() => {
+        const el = document.activeElement;
+        return `${el?.closest('[data-row]')?.getAttribute('data-row')} ${el?.getAttribute('data-field')}`;
+      })(),
+    }));
+  if (await paste(0, 0, '# Prices\tNow\nTea\t4')) problems.push(`${label}: a paste with a heading line was taken over`);
+  if (!(await paste(0, 0, 'Product\tPrice\r\nTea\t4\nCake\t5\n')))
+    problems.push(`${label}: a spreadsheet's lines were left to the browser`);
+  await page.waitForTimeout(300);
+  let now = await grid();
+  const want = JSON.stringify([
+    ['Product', 'Price'],
+    ['Tea', '4'],
+    ['Cake', '5'],
+  ]);
+  if (JSON.stringify(now.rows) !== want) problems.push(`${label}: the pasted lines made ${JSON.stringify(now.rows)}, not ${want}`);
+  if (now.header !== 2) problems.push(`${label}: the first pasted line is not the header row (${now.header} header cells)`);
+  if (now.cursor !== '2 1') problems.push(`${label}: after the paste the cursor is in ${now.cursor}, not in the last cell`);
+  // A Table with content: the paste is the browser's own, into the one cell.
+  if (await paste(1, 0, 'Pie\t6\nBun\t2')) problems.push(`${label}: a paste into a Table with content was taken over`);
+  // Ctrl+Z takes the paste back as one step: the empty Table.
+  await page.keyboard.press('Control+z');
+  await page.waitForTimeout(300);
+  now = await grid();
+  if (now.rows.flat().some((v) => v)) problems.push(`${label}: Ctrl+Z after the paste left ${JSON.stringify(now.rows)}`);
+  // A document's table (Google Docs, Word): its html gives the rows, not its plain text (one cell per line).
+  const html =
+    '<meta charset="utf-8"><table><tbody><tr><td><p><span>Day</span></p></td><td><p><span>Hours</span></p></td></tr><tr><td><p>Mon&nbsp;&ndash;&nbsp;Fri</p></td><td><p>9&ndash;17</p></td></tr></tbody></table>';
+  if (!(await paste(0, 0, 'Day\nHours\nMon – Fri\n9–17', html))) problems.push(`${label}: a document's table was left to the browser`);
+  await page.waitForTimeout(300);
+  now = await grid();
+  const doc = JSON.stringify([
+    ['Day', 'Hours'],
+    ['Mon – Fri', '9–17'],
+  ]);
+  if (JSON.stringify(now.rows) !== doc) problems.push(`${label}: a document's table made ${JSON.stringify(now.rows)}, not ${doc}`);
+  await page.close();
+}
+
 /** The dynamic List (the owner's flow): the dynamic icon in the contextual menu opens the dynamic settings (a bottom sheet on a phone, the side panel on a computer) with `Rows from`; picking a list turns the block into a "Dynamic list" with its state line, `Edit list` and an `Undo` that brings the typed rows back; the toolbar then has no row actions and stays inside the screen. */
 async function checkDynamicList(width, height) {
   const label = `${width}px dynamic list`;
@@ -7552,6 +7628,7 @@ for (const [width, height] of [
   await unit(`checkSteps ${width}`, () => checkSteps(width, height));
 for (const block of pasteBlocks)
   for (const w of [375, 1280]) await unit(`checkInlinePaste ${w} ${block.name}`, () => checkInlinePaste(w, w < 600 ? 740 : 900, block));
+for (const w of [375, 1280]) await unit(`checkInlinePaste ${w} table`, () => checkTablePaste(w, w < 600 ? 740 : 900));
 await unit('checkDynamicList 375', () => checkDynamicList(375, 740));
 await unit('checkDynamicList 1280', () => checkDynamicList(1280, 900));
 await unit('checkDynamicPicker 375', () => checkDynamicPicker(375, 740));
