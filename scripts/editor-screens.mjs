@@ -1895,6 +1895,56 @@ async function checkDensityLayout(width, height) {
   await page.close();
 }
 
+/** A table's rows read density (theme/styles/blocks.css, the data-heavy step): the body row is 52 px at Medium and the header row 56, 4 px a step (Large +4, Small -4); in the page editing area and in a row that picks the density it is the same at every step. */
+async function checkDensityTable(width, height) {
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px density table: ${e.message}`));
+  await openEditor(page, site);
+  const table =
+    '<div class="block-table block-table-grid"><table><thead><tr><th>Head</th></tr></thead><tbody><tr><td data-part="row">Cell</td></tr></tbody></table></div>';
+  const measure = (attr) =>
+    page.evaluate(
+      ([attr, table]) => {
+        const root = document.documentElement;
+        if (attr === null) root.removeAttribute('data-density');
+        else root.setAttribute('data-density', attr);
+        const host = document.createElement('div');
+        host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
+        host.innerHTML = `<div data-where="screen">${table}</div><div class="editor-text"><div class="ProseMirror" data-where="content">${table}</div></div><div data-density-fixed data-where="fixed">${table}</div>`;
+        document.body.append(host);
+        const got = {};
+        for (const where of host.querySelectorAll('[data-where]'))
+          got[where.dataset.where] = [where.querySelector('thead th'), where.querySelector('[data-part="row"]')].map(
+            (e) => Math.round(e.getBoundingClientRect().height * 100) / 100,
+          );
+        host.remove();
+        root.removeAttribute('data-density');
+        return got;
+      },
+      [attr, table],
+    );
+  const [large, medium, small] = [await measure('1'), await measure('0'), await measure('-1')];
+  const expect = (what, ok) => ok || problems.push(`${width}px density table: ${what}`);
+  expect(
+    `at Medium the header is ${medium.screen[0]} px and a row ${medium.screen[1]}, not 56 and 52`,
+    medium.screen[0] === 56 && medium.screen[1] === 52,
+  );
+  for (const [i, name] of [
+    [0, 'header'],
+    [1, 'row'],
+  ])
+    expect(
+      `the ${name} is ${large.screen[i]} / ${medium.screen[i]} / ${small.screen[i]} px at Large / Medium / Small, not 4 px apart`,
+      large.screen[i] - medium.screen[i] === 4 && medium.screen[i] - small.screen[i] === 4,
+    );
+  for (const where of ['content', 'fixed'])
+    expect(
+      `the table in ${where} is ${large[where]} / ${medium[where]} / ${small[where]} px, not the same at every step`,
+      large[where].join() === medium[where].join() && medium[where].join() === small[where].join(),
+    );
+  await page.close();
+}
+
 /** The density variables (theme/styles/base.css) work in the browser: a person's step (data-density on <html>) and a theme's step add up, each group clamps them, and a part's calc() gives its default at 0 and 4px per step. */
 async function checkDensity(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
@@ -5864,6 +5914,8 @@ await unit('checkDensityParts 375', () => checkDensityParts(375, 740, true));
 await unit('checkDensityParts 1280', () => checkDensityParts(1280, 900, false));
 await unit('checkDensityLayout 375', () => checkDensityLayout(375, 740));
 await unit('checkDensityLayout 1280', () => checkDensityLayout(1280, 900));
+await unit('checkDensityTable 375', () => checkDensityTable(375, 740));
+await unit('checkDensityTable 1280', () => checkDensityTable(1280, 900));
 await unit('checkDensitySetting 375', () => checkDensitySetting(375, 740));
 await unit('checkDensitySetting 1280', () => checkDensitySetting(1280, 900));
 await unit('checkPreviewSection', () => checkPreviewSection());
