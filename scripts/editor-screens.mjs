@@ -2191,7 +2191,10 @@ async function checkSectionCardContrast() {
     ]) {
       const page = await browser.newPage({ viewport: { width, height }, colorScheme: scheme, locale: 'en-US' });
       page.on('pageerror', (e) => problems.push(`Section card contrast: ${e.message}`));
-      await page.goto(`${site}/blocks/`);
+      if (!(await onDemoBlocksPage(page, `Section card contrast (${scheme}, ${width})`))) {
+        await page.close();
+        continue;
+      }
       const found = await page.evaluate(() => {
         const colors = ['primary', 'secondary', 'tertiary'];
         const html = colors
