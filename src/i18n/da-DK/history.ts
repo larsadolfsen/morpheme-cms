@@ -28,8 +28,14 @@ export const history: Messages['history'] = {
   restoreTaken: (reason) => `${reason} Den kan ikke gendannes på sin gamle adresse.`,
   notRestored: (error) => `Kunne ikke gendanne: ${error}`,
   open: 'Åbn',
+  restoreSelected: (count) => `Gendan ${count} valgte`,
+  preview: 'Vis',
+  restoreMany: (count, what) => `Gendan ${count} ${what}?`,
+  restoredMany: (count, what) => `${count} ${what} gendannet`,
+  notRestoredSome: (count, names) => `${count} blev ikke gendannet, fordi deres adresser er optaget: ${names}`,
   commit: {
     restoreVersion: (what, when) => `Editor: gendan ${what} fra ${when}`,
     restoreDeleted: (singular, what) => `Editor: gendan ${singular} ${what}`,
+    restoreMany: (count, what) => `Editor: gendan ${count} ${what}`,
   },
 };
