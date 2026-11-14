@@ -999,6 +999,20 @@ async function checkCardBar(width, height = 800) {
  * buttons (Move up, Move down, Hide or Show, and the handle at its end), Move down is disabled with its reason on the last block and Move up on the first, Hide turns into
  * Show and the row stays, the bar has none of these, the row does not lie under the bar (also with the on-screen keyboard open: a short window), and under reduced motion it is
  * there at once, with no animation. */
+/** How far the selection mark's centre is from the point on the outline's corner curve (the 45 degree point of the card's corner, its 1.5px line centred): {dx, dy} in px. */
+const markOffset = (page) =>
+  page.evaluate(() => {
+    const card = document.querySelector('.site-block-card.site-block-inline');
+    const mark = card.parentElement.querySelector(':scope > .site-block-mark');
+    const c = card.getBoundingClientRect();
+    const m = mark.getBoundingClientRect();
+    const r = parseFloat(getComputedStyle(card).borderTopLeftRadius);
+    const border = parseFloat(getComputedStyle(card).borderTopWidth);
+    const rc = r - border / 2;
+    const into = r - rc * Math.SQRT1_2;
+    return { dx: m.left + m.width / 2 - (c.left + into), dy: m.top + m.height / 2 - (c.top + into) };
+  });
+
 async function checkBlockRow(width, options = {}) {
   const phone = width < 600;
   const { height = 800, reduced = false } = options;
@@ -1102,6 +1116,13 @@ async function checkBlockRow(width, options = {}) {
     problems.push(`${label}: the outline's corner radius is ${frame.radius[0]}, not the Card's ${frame.radius[1]}`);
   if (frame.padding[0] !== frame.padding[1] || frame.padding[2] !== frame.padding[3])
     problems.push(`${label}: the outline's padding is ${frame.padding.slice(0, 2)}/${frame.padding.slice(2)}, not the Card's`);
+  // The row hugs the top of the outline: its space above is the Card's small gap, well under the Card's padding.
+  if (frame.row && frame.row.top - frame.card.top - frame.border > 12)
+    problems.push(`${label}: the row is ${frame.row.top - frame.card.top - frame.border} px below the outline's top edge, too far`);
+  // The selection mark is centred on the outline's corner curve (active).
+  const markActive = await markOffset(page);
+  if (Math.abs(markActive.dx) > 0.75 || Math.abs(markActive.dy) > 0.75)
+    problems.push(`${label}: the selection mark is off the corner curve while active (${JSON.stringify(markActive)})`);
   // The row's buttons are the theme's icon buttons: no class of their own, and the hover is a probe standard icon button's.
   const classes = await page
     .locator('.site-block-row:not(.site-block-row-hover) [data-row]')
@@ -1190,8 +1211,11 @@ async function checkBlockRow(width, options = {}) {
         row: r?.toJSON(),
       };
     });
+    const markDrag = await markOffset(page);
     await page.mouse.up();
     await page.waitForTimeout(300);
+    if (Math.abs(markDrag.dx) > 0.75 || Math.abs(markDrag.dy) > 0.75)
+      problems.push(`${label}: the selection mark is off the corner curve while dragged (${JSON.stringify(markDrag)})`);
     if (!lifted) problems.push(`${label}: dragging the handle did not lift the block`);
     else {
       if (!lifted.shadowOn) problems.push(`${label}: the lifted block's outline has no shadow`);
@@ -1282,6 +1306,15 @@ async function checkBlockRow(width, options = {}) {
         problems.push(`${label}: the pointed block's buttons are not the theme icon button (${hovered.classes})`);
       if (!hovered.handle) problems.push(`${label}: the pointed block shows no drag handle`);
     }
+    const markHover = await markOffset(page);
+    if (Math.abs(markHover.dx) > 0.75 || Math.abs(markHover.dy) > 0.75)
+      problems.push(`${label}: the selection mark is off the corner curve while pointed at (${JSON.stringify(markHover)})`);
+    const hoverRow = await page.evaluate(() => {
+      const row = document.querySelector('.site-block-row-hover').getBoundingClientRect();
+      const card = document.querySelector('.site-block-card.site-block-inline').getBoundingClientRect();
+      return row.top - card.top;
+    });
+    if (hoverRow > 14) problems.push(`${label}: the pointed block's row is ${hoverRow} px below the outline's top edge, too far`);
     const moved = await flow();
     if (Math.abs(moved.top - calm.top) > 0.5 || moved.height !== calm.height || moved.y !== calm.y)
       problems.push(`${label}: pointing at a block moves the page (${JSON.stringify({ calm, moved })})`);

@@ -903,12 +903,18 @@ html {
   block-size: 2.75rem;
 }
 
+/* The row hugs the top of the outline: it is pulled up into the card's padding, so the space above it is the Card's gap (the theme's small step), not its full padding; the
+   sides and the space below the content keep the Card's padding. Its margin opens with its height (blockRow.ts), so the block below moves by one smooth amount. */
+.editor-text .site-block-row:not(.site-block-row-hover) {
+  margin-block-start: calc(var(--card-gap, 0.5rem) - var(--card-padding, 1rem));
+}
+
 /* The row of a block a mouse points at (not the active one): over the top of the block's content, inside its outline, in no flow, so pointing at a block never moves the page.
    It sits on the surface, as wide as its buttons and the handle, so the content under it stays readable; only the buttons take the pointer. */
 .editor-text .site-block-row-hover {
   position: absolute;
   z-index: 1;
-  inset-block-start: calc(1.5px + var(--card-padding, 1rem));
+  inset-block-start: calc(1.5px + var(--card-gap, 0.5rem));
   inset-inline: calc(1.5px + var(--card-padding, 1rem));
   pointer-events: none;
 }
@@ -945,7 +951,7 @@ html {
 
 .editor-text :is(.site-block-has-row, .site-block-has-hover) > .site-block-handle {
   /* In the row's end: the card's border and padding in from its top and right edge (the card is 0.625rem wider than the block on each side). */
-  top: calc(1.5px + var(--card-padding, 1rem));
+  top: calc(1.5px + var(--card-gap, 0.5rem));
   right: calc(var(--card-padding, 1rem) + 1.5px - 0.625rem);
   opacity: 1;
   background: transparent;
@@ -974,8 +980,11 @@ html {
    while the block is selected; a mouse sees it on the block pointed at, every block shows it once some block is selected (a touch never before that). Its target is 48 dp. */
 .editor-text .site-block-mark {
   position: absolute;
-  top: -1.5rem;
-  left: -1.5rem;
+  /* Centred on the outline's corner curve: the card is 0.625rem wider than the block on each side, and the 45 degree point of a corner with the Card's radius r (its
+     1.5px line centred) lies r * (1 - cos 45) + 0.53px in from the corner, along both edges. */
+  --mark-in: calc(var(--card-radius, var(--block-radius)) * 0.2929 + 0.53px);
+  top: calc(var(--mark-in) - 1.5rem);
+  left: calc(var(--mark-in) - 0.625rem - 1.5rem);
   z-index: 2;
   display: flex;
   align-items: center;

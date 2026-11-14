@@ -56,11 +56,22 @@ const hold = (anchor: HTMLElement | null, top: number | undefined, el: HTMLEleme
 };
 
 const grow = (el: HTMLElement, from: number, to: number, done?: () => void) => {
+  const opening = to > 0;
+  // The row is pulled up into the card's top padding by its margin (CSS), which opens and closes with its height, so the content below moves by one smooth amount.
+  const current = parseFloat(getComputedStyle(el).marginBlockStart) || 0;
   for (const running of el.getAnimations()) running.cancel();
   el.style.height = `${to}px`;
+  el.style.marginBlockStart = opening ? '' : '0px';
+  const pulled = opening ? parseFloat(getComputedStyle(el).marginBlockStart) || 0 : 0;
   if (motionReduced() || from === to) return done?.();
   el.classList.add('site-block-row-moving');
-  const run = el.animate([{ height: `${from}px` }, { height: `${to}px` }], motionTiming('spatial', 'fast'));
+  const run = el.animate(
+    [
+      { height: `${from}px`, marginBlockStart: `${opening && from === 0 ? 0 : current}px` },
+      { height: `${to}px`, marginBlockStart: `${pulled}px` },
+    ],
+    motionTiming('spatial', 'fast'),
+  );
   const end = () => {
     el.classList.remove('site-block-row-moving');
     done?.();
@@ -69,11 +80,12 @@ const grow = (el: HTMLElement, from: number, to: number, done?: () => void) => {
 };
 
 const close = (it: { host: HTMLElement; el: HTMLElement }) => {
-  it.host.classList.remove('site-block-has-row');
   const { el } = it;
   const now = el.getBoundingClientRect().height;
+  // Measured before the class goes: it also sets the card's padding above the row.
   const anchor = anchorOf(it.host);
   const top = anchor?.getBoundingClientRect().top;
+  it.host.classList.remove('site-block-has-row');
   el.setAttribute('inert', '');
   grow(el, now, 0, () => el.remove());
   hold(anchor, top, el);
