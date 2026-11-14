@@ -26,7 +26,7 @@ Group related ideas with an icon, a photo or just text, each linking to a page i
 
 ### Filled cards without media
 
-<div data-block="cards" data-props="{&quot;design&quot;:&quot;filled&quot;,&quot;color&quot;:&quot;primary&quot;,&quot;media&quot;:&quot;none&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Just text&quot;,&quot;text&quot;:&quot;No icon, no photo. Here a filled card on the primary container.&quot;,&quot;subhead&quot;:&quot;Design Filled&quot;},{&quot;title&quot;:&quot;One design&quot;,&quot;text&quot;:&quot;The design, the color and the media apply to every card in the block.&quot;}]}"></div>
+<div data-block="cards" data-props="{&quot;design&quot;:&quot;filled&quot;,&quot;color&quot;:&quot;primary&quot;,&quot;media&quot;:&quot;none&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Just text&quot;,&quot;text&quot;:&quot;No icon, no photo. Here a filled card on the primary container.&quot;,&quot;subhead&quot;:&quot;Design Filled&quot;},{&quot;title&quot;:&quot;One design&quot;,&quot;text&quot;:&quot;The design, the color and the media apply to every card in the block.&quot;},{&quot;title&quot;:&quot;Only a headline&quot;}]}"></div>
 
 ### Filled cards with icons
 
@@ -80,7 +80,7 @@ Rows under each other, as your theme draws a list. A row can have an icon, a tex
 
 ## Segmented list
 
-Rows that fold out with a text and a link, with a text button under the last row. A row with a page and no text shows the beginning of the page. With `Max rows`, only the first rows show and a text button shows the rest.
+Rows that fold out with a text and a link, with a text button under the last row. A row with a page and no text shows the beginning of the page. With `Maximum rows`, only the first rows show and a text button shows the rest.
 
 ### Segmented list with all rows open
 
@@ -127,7 +127,7 @@ Questions that unfold to reveal the answer, ready for Google to show in search r
 
 A numbered sequence, for a process or a plan.
 
-<div data-block="steps" data-props="{&quot;heading&quot;:&quot;Three steps to a page&quot;,&quot;intro&quot;:&quot;A heading and a short intro can sit above any block.&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Pick a block&quot;,&quot;text&quot;:&quot;Tap + in the text and choose one.&quot;},{&quot;title&quot;:&quot;Fill it in&quot;,&quot;text&quot;:&quot;The preview updates as you type.&quot;},{&quot;title&quot;:&quot;Save&quot;,&quot;text&quot;:&quot;The editor checks the page and publishes it.&quot;}]}"></div>
+<div data-block="steps" data-props="{&quot;heading&quot;:&quot;Three steps to a page&quot;,&quot;intro&quot;:&quot;A heading and a short intro can sit above any block.&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Pick a block&quot;,&quot;text&quot;:&quot;Tap + in the text and choose one.&quot;,&quot;subhead&quot;:&quot;Kept from Cards, never on the site&quot;,&quot;answer&quot;:&quot;Kept from a **FAQ list**, never on the site&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Fill it in&quot;,&quot;text&quot;:&quot;The preview updates as you type.&quot;},{&quot;title&quot;:&quot;Save&quot;,&quot;text&quot;:&quot;The editor checks the page and publishes it.&quot;}]}"></div>
 
 ## Table
 

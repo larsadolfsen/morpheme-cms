@@ -174,7 +174,8 @@ export function LinkButton({
  * tick); `selected`: marked, while what it does applies (a filter, the open one); `badge`: how many are new (a
  * number), or that something is (true), which `label` says too, as the label is the button's name. */
 type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'type'> & {
-  icon: Icon;
+  /** A Phosphor-shaped icon, or a Material Symbols name (drawn by the shared Icon, in the pack in use). */
+  icon: Icon | string;
   /** What it does: its name for screen readers and its tooltip. */
   label: string;
   kind?: IconButtonKind;
@@ -189,7 +190,7 @@ export function IconButton({ icon: Glyph, label, ...rest }: IconButtonProps) {
   const tooltip = useTooltip(label, rest);
   return (
     <>
-      <SiteIconButton icon={<Glyph />} label={label} {...rest} {...tooltip.on} />
+      <SiteIconButton icon={typeof Glyph === 'string' ? Glyph : <Glyph />} label={label} {...rest} {...tooltip.on} />
       {tooltip.tip}
     </>
   );
@@ -202,7 +203,7 @@ export function IconLink({
   href = '',
   ...rest
 }: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'type'> & {
-  icon: Icon;
+  icon: Icon | string;
   label: string;
   kind?: IconButtonKind;
   selected?: boolean;
@@ -211,7 +212,7 @@ export function IconLink({
   const tooltip = useTooltip(label, rest);
   return (
     <>
-      <SiteIconButton icon={<Glyph />} label={label} href={href} {...rest} {...tooltip.on} />
+      <SiteIconButton icon={typeof Glyph === 'string' ? Glyph : <Glyph />} label={label} href={href} {...rest} {...tooltip.on} />
       {tooltip.tip}
     </>
   );
@@ -2046,7 +2047,11 @@ export function Menu({
         ref={sheet}
         tabIndex={-1}
         aria-label={label}
-        onClick={(e) => (e.target === sheet.current || (e.target as Element).closest('[role^="menuitem"]')) && sheet.current?.close()}
+        onClick={(e) =>
+          (e.target === sheet.current ||
+            ((e.target as Element).closest('[role^="menuitem"]') && !(e.target as Element).closest('[data-menu-stays]'))) &&
+          sheet.current?.close()
+        }
         onClose={(e) => e.target === e.currentTarget && onClose()}
         className="focus:outline-none"
       >
@@ -2067,7 +2072,8 @@ export function Menu({
       className="editor-menu fixed z-30 focus:outline-none"
       tabIndex={attached ? -1 : undefined}
       onClick={(e: MouseEvent) => {
-        if (!(e.target as Element).closest('[role^="menuitem"]')) return;
+        // A row that opens the next level, or goes back from it, keeps the menu open.
+        if (!(e.target as Element).closest('[role^="menuitem"]') || (e.target as Element).closest('[data-menu-stays]')) return;
         if (attached) anchor.querySelector<HTMLElement>('button')?.focus();
         onClose();
       }}
@@ -2112,6 +2118,9 @@ export function MenuItem({
   icon: Glyph,
   selected,
   disabled,
+  opens,
+  back,
+  onKeyDown,
   onClick,
   children,
 }: {
@@ -2120,6 +2129,11 @@ export function MenuItem({
   selected?: boolean;
   /** It cannot be chosen now (Move up on the first card). */
   disabled?: boolean;
+  /** It opens the menu's next level (a submenu, Change to): an arrow at its end, and the menu stays open; Right arrow opens it too. */
+  opens?: boolean;
+  /** The row back from the next level: the menu stays open; Left arrow anywhere in that level goes back too (`onKeyDown` of its rows). */
+  back?: boolean;
+  onKeyDown?: (e: KeyboardEvent<HTMLElement>) => void;
   onClick: () => void;
   children: ReactNode;
 }) {
@@ -2128,7 +2142,18 @@ export function MenuItem({
       icon={Glyph && <Glyph />}
       selected={selected}
       disabled={disabled}
+      trailingIcon={opens ? 'caret-right' : undefined}
+      aria-haspopup={opens ? 'menu' : undefined}
+      aria-expanded={opens ? false : undefined}
+      data-menu-stays={opens || back || undefined}
       onMouseDown={(e: MouseEvent) => e.preventDefault()}
+      onKeyDown={(e: KeyboardEvent<HTMLElement>) => {
+        if (opens && e.key === 'ArrowRight') {
+          e.preventDefault();
+          onClick();
+        }
+        onKeyDown?.(e);
+      }}
       onClick={onClick}
     >
       {children}

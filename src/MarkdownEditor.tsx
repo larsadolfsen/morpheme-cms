@@ -33,6 +33,7 @@ import {
 } from '@milkdown/kit/preset/commonmark';
 import { history, redoCommand, undoCommand } from '@milkdown/kit/plugin/history';
 import { closeHistory } from '@milkdown/kit/prose/history';
+import { undo as undoHistory } from '@milkdown/kit/prose/history';
 import { clipboard } from '@milkdown/kit/plugin/clipboard';
 import { $prose, $view, callCommand } from '@milkdown/kit/utils';
 import { Fragment } from '@milkdown/kit/prose/model';
@@ -99,11 +100,22 @@ import { preview } from './registry';
 import { leaveTo } from './FormFrame';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
+import { snackbar } from '../lib/snackbar';
+import { SiteSnackbar } from './themeUi';
+import { changeTo, targets } from '../lib/changeTo.mjs';
 import { t } from './i18n';
 import { motionReduced, motionTiming } from '../lib/motion';
 import { barSlideKind } from './barMotion.mjs';
 import { dragSteps, limitSteps } from './blockDrag.mjs';
-import { blockHandleIcon, blockMarkIcon, blockSettingsIcon, duplicateIcon, selectAllBlocksIcon } from './blockHandleIcon';
+import {
+  blockHandleIcon,
+  blockMarkIcon,
+  blockSettingsIcon,
+  changeToIcon,
+  duplicateIcon,
+  selectAllBlocksIcon,
+  submenuBackIcon,
+} from './blockHandleIcon';
 import { blockSelection } from './blockSelection';
 import { allOf, hideChoice, range, removeChoice, groupMove } from './blockSelectionRules.mjs';
 import { ask } from './ask';
@@ -1238,8 +1250,23 @@ function inSectionHeading(state: EditorView['state']) {
 const inLabel = (state: EditorView['state']) =>
   ['eyebrow', 'bodyLarge', 'bodyMedium', 'bodySmall'].includes(state.selection.$from.parent.type.name);
 
-// The blocks just put in that are typed in place (blockCard starts the first row of each).
-const fresh = new WeakSet<object>();
+// A message with Undo (after Change to): the theme's snackbar, its action a text button. Drawn once (it is not React once shown).
+function undoSnackbar(text: string, undo: () => void) {
+  const host = document.createElement('div');
+  const root = createRoot(host);
+  flushSync(() => root.render(<SiteSnackbar text={text} action={{ label: t.text.undo }} />));
+  const el = host.firstElementChild!.cloneNode(true) as HTMLElement;
+  root.unmount();
+  el.querySelector('.snackbar-action')?.addEventListener('click', () => {
+    undo();
+    el.remove();
+  });
+  snackbar({ text, element: el });
+}
+
+// The blocks just put in that are typed in place, by their props, with the row each starts with active (blockCard starts it): 0 for a block
+// from Insert, the row that was active for a block made by Change to (and for the block it was, should Undo bring it back).
+const fresh = new WeakMap<object, number>();
 
 // A block in the text as a card: the block as it looks on the site (its draw, src/apps/<app>/blocks/), in a thin frame;
 // for screen readers its name and what is in it (describe in blocks.ts). Tapping it opens a row of
@@ -1425,11 +1452,14 @@ function blockCard(
   };
   // A block just put in (a new List) starts with its first row active and the cursor in it (known by its props, which the new node keeps).
   // The sheet it came from is closing and gives the focus back to what had it: wait until no sheet is open.
-  if (inline && fresh.delete(node.attrs.props)) {
+  const startAt = inline ? fresh.get(node.attrs.props) : undefined;
+  if (startAt !== undefined) {
+    fresh.delete(node.attrs.props);
     let tries = 0;
     const start = () => {
       if (document.querySelector('dialog[open]') && tries++ < 30) return void setTimeout(start, 50);
-      change({ active: 0, focus: { row: 0, field: spec!.fields[0] } });
+      const row = Math.max(0, Math.min(startAt, rows().length - 1));
+      change({ active: row, focus: { row, field: spec!.fields[0] } });
     };
     setTimeout(start);
   }
@@ -1476,6 +1506,35 @@ function blockCard(
     const here = at();
     if (here) view.dispatch(view.state.tr.delete(here.pos, here.pos + node.nodeSize));
   };
+  // Change to (lib/changeTo.mjs, docs/superpowers/specs/2026-11-14-paste-and-change-to-design.md): the block made into another list block, where
+  // it is, in one step of its own; its items' titles and texts move over and what the new block cannot show stays in its props. It stays active
+  // at the same row, and a snackbar offers Undo. The Table is not among them yet.
+  const changeBlock = (to: string, label: string) => {
+    const here = at();
+    if (!here) return;
+    const byPath = new Map((asker()?.data.site.pages ?? []).map((p) => [p.path, p.title]));
+    const before = node.attrs.props;
+    const props = changeTo(node.attrs.type, to, before, (item) => (typeof item.href === 'string' ? byPath.get(item.href) : undefined));
+    const row = active ?? 0;
+    fresh.set(props, row);
+    fresh.set(before, row);
+    view.dispatch(closeHistory(view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, type: to, props })));
+    view.dispatch(closeHistory(view.state.tr));
+    undoSnackbar(t.text.changedTo(label), () => undoHistory(view.state, view.dispatch));
+  };
+  // The menu's Change to, with the blocks this one can become (targets: by `from` and the template); none for any other block.
+  const changeRow = (): CardRow | undefined => {
+    const { rules, stays } = keeps();
+    const have: Record<string, number> = {};
+    for (const b of blocksOf(view.state.doc)) have[b.type] = (have[b.type] ?? 0) + 1;
+    const to =
+      node.attrs.type === 'table' ? [] : targets(node.attrs.type, node.attrs.props, { ...rules, have, stays }).filter((b) => b !== 'table');
+    const submenu = to.flatMap((type) => {
+      const target = asker()?.list.find((b) => b.type === type);
+      return target ? [{ icon: target.icon, label: target.label, action: () => changeBlock(type, target.label) }] : [];
+    });
+    return submenu.length ? { icon: changeToIcon, label: t.text.changeTo, action: () => {}, submenu } : undefined;
+  };
 
   // The choices that can be made here: no "Edit" without fields (but to where it is edited instead,
   // Block.edit), no move past the start or end. By the template (collections.ts): a locked block is
@@ -1496,6 +1555,7 @@ function blockCard(
       inline && block?.fields.length && block.edit
         ? { icon: editElsewhereIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) }
         : undefined,
+      changeRow(),
       block?.shown || (stays && hidden === false)
         ? undefined
         : {
@@ -1924,6 +1984,16 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // The `⋮` button, and the menu under it while it is open; the Alignment and Color menus of its rows open under it too.
   const moreButton = useRef<HTMLButtonElement>(null);
   const [moreAt, setMoreAt] = useState<HTMLElement | null>(null);
+  // The ⋮ menu's next level (a row's submenu: Change to), shown in place of its rows with a back row; null: its own rows.
+  const [moreLevel, setMoreLevel] = useState<CardRow | null>(null);
+  useEffect(() => void (!moreAt && setMoreLevel(null)), [moreAt]);
+  // The first row of the level that was opened or gone back to has the focus, so the keyboard goes on from there.
+  const levelShown = useRef(false);
+  useEffect(() => {
+    if (!levelShown.current && !moreLevel) return;
+    levelShown.current = !!moreLevel;
+    document.querySelector<HTMLElement>('.editor-menu [role^="menuitem"]')?.focus({ preventScroll: true });
+  }, [moreLevel]);
   const [colorAt, setColorAt] = useState<HTMLElement | null>(null);
   // The bar's width, in dp, measured with a ResizeObserver (never a timer): how many tools fit (textBar.mjs).
   const [barWidth, setBarWidth] = useState(0);
@@ -2282,7 +2352,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       const view = ctx.get(editorViewCtx);
       const { state } = view;
       const node = siteBlockSchema.type(ctx).create({ type: chosen.type, props: chosen.props });
-      if (typedInPlace(blocks!.list.find((b) => b.type === chosen.type))) fresh.add(chosen.props);
+      if (typedInPlace(blocks!.list.find((b) => b.type === chosen.type))) fresh.set(chosen.props, 0);
       // At the top level of the text, never inside a list item or a quote (a block there is drawn indented and written indented).
       // `end`: where the new block ends, when the cursor must be moved past it (-1: it is in text already).
       let { tr, end } = insertBlock(state, node);
@@ -2649,16 +2719,43 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           </div>
         </div>
       </Toolbar>
-      <Menu popup="end" anchor={moreAt} label={t.text.more} onClose={() => setMoreAt(null)}>
-        {moreContext.map(moreRows)}
-        {moreContext.length > 0 && moreMain.length > 0 && <MenuDivider />}
-        {moreMain.map(moreRows)}
-        {blockMenu.length > 0 && (moreContext.length > 0 || moreMain.length > 0) && <MenuDivider />}
-        {blockMenu.map((row) => (
-          <MenuItem key={row.label} icon={rawIcon(row.icon)} onClick={() => row.action(false)}>
-            {row.label}
-          </MenuItem>
-        ))}
+      <Menu popup="end" anchor={moreAt} label={moreLevel?.label ?? t.text.more} onClose={() => setMoreAt(null)}>
+        {moreLevel ? (
+          <>
+            {/* The next level: back to the menu's rows (Left arrow too), then the submenu's rows. */}
+            <MenuItem icon={rawIcon(submenuBackIcon)} back onClick={() => setMoreLevel(null)}>
+              {moreLevel.label}
+            </MenuItem>
+            <MenuDivider />
+            {moreLevel.submenu!.map((sub) => (
+              <MenuItem
+                key={sub.label}
+                icon={sub.icon}
+                onKeyDown={(e) => e.key === 'ArrowLeft' && (e.preventDefault(), setMoreLevel(null))}
+                onClick={sub.action}
+              >
+                {sub.label}
+              </MenuItem>
+            ))}
+          </>
+        ) : (
+          <>
+            {moreContext.map(moreRows)}
+            {moreContext.length > 0 && moreMain.length > 0 && <MenuDivider />}
+            {moreMain.map(moreRows)}
+            {blockMenu.length > 0 && (moreContext.length > 0 || moreMain.length > 0) && <MenuDivider />}
+            {blockMenu.map((row) => (
+              <MenuItem
+                key={row.label}
+                icon={rawIcon(row.icon)}
+                opens={!!row.submenu}
+                onClick={() => (row.submenu ? setMoreLevel(row) : row.action(false))}
+              >
+                {row.label}
+              </MenuItem>
+            ))}
+          </>
+        )}
       </Menu>
       <Menu popup="start" anchor={alignAt} label={t.text.alignment} onClose={() => setAlignAt(null)}>
         {(Object.keys(ALIGN_FACES) as Align[]).map((align) => (

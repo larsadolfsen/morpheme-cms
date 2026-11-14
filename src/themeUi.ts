@@ -15,7 +15,11 @@ export { default as SiteCheckbox } from '@theme/ui/Checkbox';
 export { default as SiteChip, chipKinds } from '@theme/ui/Chip';
 export { default as SiteChipSet, chipSetLayouts } from '@theme/ui/ChipSet';
 export { bottomSheet as siteBottomSheet, followKeyboard as siteFollowKeyboard } from '@theme/ui/bottomSheetControl';
-export { default as SiteDialog, dialogModalClass as siteDialogModalClass } from '@theme/ui/Dialog';
+export {
+  default as SiteDialog,
+  dialogModalClass as siteDialogModalClass,
+  dialogFullScreenModalClass as siteDialogFullScreenModalClass,
+} from '@theme/ui/Dialog';
 export {
   default as SiteBottomSheet,
   BottomSheetHeader as SiteBottomSheetHeader,
@@ -62,10 +66,11 @@ export {
 } from '@theme/ui/NavigationDrawer';
 export { Tabs as SiteTabs, Tab as SiteTab, tabsClass as siteTabsClass, tabClass as siteTabClass } from '@theme/ui/Tabs';
 export { Fab as SiteFab, ExtendedFab as SiteExtendedFab, fabKinds, fabSizes, extendedFabSizes } from '@theme/ui/Fab';
-/** The theme's action parts (button groups, segmented buttons, split buttons, the FAB menu), for "Parts" › "UI components"
+/** The theme's action parts (button groups, segmented buttons, choice groups, split buttons, the FAB menu), for "Parts" › "UI components"
  * (ActionParts.tsx). */
 export { default as SiteButtonGroup, buttonGroupKinds } from '@theme/ui/ButtonGroup';
 export { default as SiteSegmentedButton } from '@theme/ui/SegmentedButton';
+export { default as SiteChoiceGroup, type Choice as SiteChoice } from '@theme/ui/ChoiceGroup';
 export { default as SiteSplitButton, splitButtonKinds } from '@theme/ui/SplitButton';
 export { default as SiteFabMenu, fabMenuKinds } from '@theme/ui/FabMenu';
 export { setUpFabMenu } from '@theme/ui/fabMenu.script';
