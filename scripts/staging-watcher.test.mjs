@@ -11,7 +11,7 @@ function setup({ next = '0.17.0-next-2', last, hook = 'https://hook', hookStatus
   };
   const fetchFn = async (url, init) => {
     calls.push(url);
-    if (String(url).includes('registry.npmjs.org')) return Response.json({ latest: '0.16.0', next });
+    if (new URL(url).hostname === 'registry.npmjs.org') return Response.json({ latest: '0.16.0', next });
     return new Response('', { status: hookStatus });
   };
   return { env, fetchFn, kv, calls };
