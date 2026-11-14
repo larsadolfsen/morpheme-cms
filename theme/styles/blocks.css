@@ -749,7 +749,7 @@
     letter-spacing: var(--type-label-large-tracking);
   }
   .block-testimonial-text {
-    margin: 0.75rem 0 0;
+    margin: var(--card-text-gap, 0.5rem) 0 0;
     font-size: var(--type-body-large-size);
     line-height: var(--type-body-large-line-height);
     font-weight: var(--type-body-large-weight);
@@ -802,7 +802,7 @@
     align-items: center;
     gap: 0.75rem;
     margin-top: auto;
-    padding-top: 1.5rem;
+    padding-top: var(--card-action-gap, 1rem);
     font-weight: 500;
   }
   .block-testimonial-mark {
@@ -1659,7 +1659,7 @@
     font-variant-numeric: tabular-nums;
   }
   .block-price-unit {
-    margin-top: 0.25rem;
+    margin-top: var(--card-subhead-gap, 0.25rem);
     color: var(--block-muted);
   }
   /* A punch card's offer in a price card, a filled card with smaller corners. */
@@ -1678,7 +1678,7 @@
     color: var(--block-accent);
   }
   .block-price-extra-text {
-    margin-top: 0.25rem;
+    margin-top: var(--card-subhead-gap, 0.25rem);
     color: var(--block-muted);
   }
   .block-price-extra-text strong {
@@ -1688,7 +1688,7 @@
   }
   .block-price-card > .block-arrow-link {
     align-self: flex-start;
-    margin-top: 1.5rem;
+    margin-top: var(--card-action-gap, 1rem);
   }
   .block-price-list {
     margin: 0;
@@ -1788,9 +1788,6 @@
     }
   }
   @media (width >= theme(--breakpoint-medium)) {
-    .block-testimonial {
-      --card-padding: 1.75rem;
-    }
     .block-row-text {
       font-size: var(--type-body-large-size);
       line-height: var(--type-body-large-line-height);
