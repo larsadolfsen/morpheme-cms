@@ -26,8 +26,9 @@ export default function SelectionBar({
   total?: number;
   /** Ticks (true) or unticks (false) the select-all box: selects all rows or none. Without it there is no box. */
   onSelectAll?: (all: boolean) => void;
-  /** `icons`: the close button first, as icon buttons (a top bar); `buttons`: the actions first, "Cancel" last (a sheet). */
-  kind?: 'icons' | 'buttons';
+  /** `icons`: the close button first, as icon buttons (a top bar); `buttons`: the actions first, "Cancel" last (a sheet);
+   * `actions`: only the actions, the way out is elsewhere (the count control above the files' grid, Media.tsx). */
+  kind?: 'icons' | 'buttons' | 'actions';
   children?: ReactNode;
 }) {
   return (
@@ -35,7 +36,9 @@ export default function SelectionBar({
       <span className="sr-only" role="status" aria-live="polite">
         {t.library.selectedCount(count)}
       </span>
-      {kind === 'icons' ? (
+      {kind === 'actions' ? (
+        children
+      ) : kind === 'icons' ? (
         <>
           <IconButton icon={X} label={t.library.closeSelection} onClick={onClose} />
           {onSelectAll && total ? (
