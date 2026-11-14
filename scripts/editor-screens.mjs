@@ -2478,6 +2478,62 @@ async function checkSelection() {
   }
 }
 
+/** A file's details in Filer on a phone (Media.tsx): a full-screen dialog over the whole screen, never a bottom sheet over the grid;
+ * its header has the close icon, the file name and Download; the image is the first thing under it, in view; the toolbar says
+ * "1 of N" from the English texts, and Next moves to the next file. */
+async function checkFilesDialog() {
+  const label = 'files dialog 375';
+  const page = await browser.newPage({ viewport: { width: 375, height: 800 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#files'));
+  const some = await page
+    .waitForSelector('main [data-media-tile]', { timeout: 8000 })
+    .then(() => true)
+    .catch(() => false);
+  if (!some) return void (await page.close());
+  await page.waitForTimeout(800);
+  const first = page.locator('main [data-media-tile]').first();
+  const isImage = (await first.locator('img').count()) > 0;
+  await first.click();
+  await page
+    .waitForSelector('dialog[open] .dialog-full-screen', { timeout: 5000 })
+    .catch(() => problems.push(`${label}: no full-screen dialog`));
+  await page.waitForTimeout(500);
+  const look = await page.evaluate(() => {
+    const d = document.querySelector('dialog[open]');
+    if (!d) return null;
+    const r = d.getBoundingClientRect();
+    const img = d.querySelector('.dialog-content img');
+    const ir = img?.getBoundingClientRect();
+    const first = d.querySelector('.dialog-content > div > :first-child');
+    return {
+      full: r.left <= 0 && r.top <= 0 && r.width >= innerWidth - 1 && r.height >= innerHeight - 1,
+      title: d.querySelector('.dialog-headline')?.textContent ?? '',
+      download: !!d.querySelector('.dialog-header-actions a[download]'),
+      imageFirst: !!img && first === img,
+      imageInView: !!ir && ir.top >= 0 && ir.top < innerHeight / 2 && ir.height > 50,
+      count: d.querySelector('[role=toolbar] [aria-live]')?.textContent ?? '',
+    };
+  });
+  if (!look) problems.push(`${label}: no dialog open`);
+  else {
+    if (!look.full) problems.push(`${label}: the dialog does not fill the screen`);
+    if (!look.title.trim()) problems.push(`${label}: the dialog has no file name as headline`);
+    if (!look.download) problems.push(`${label}: no Download in the dialog's header`);
+    if (isImage && !look.imageFirst) problems.push(`${label}: the image is not the first thing in the dialog`);
+    if (isImage && !look.imageInView) problems.push(`${label}: the image is not in view at the top`);
+    if (look.count && !/^1 of \d+$/.test(look.count)) problems.push(`${label}: the position says "${look.count}", not "1 of N"`);
+    if (look.count) {
+      await page.locator('dialog[open] [role=toolbar] button').last().click();
+      await page.waitForTimeout(300);
+      const now = await page.locator('dialog[open] [role=toolbar] [aria-live]').textContent();
+      if (!/^2 of \d+$/.test(now ?? '')) problems.push(`${label}: Next does not move to the second file ("${now}")`);
+    }
+  }
+  await page.close();
+}
+
 /** Selecting files in Filer (Media.tsx): a long press on a tile (phone) or the mark on hover (computer) selects it; the tiles show
  * the Selection page's photo-grid mark (an empty circle, a filled one with a check), every tile once one is selected; a tap while
  * selecting toggles instead of opening; the count control above the grid says "N" and clears; Delete keeps a file a page uses. */
@@ -5497,6 +5553,82 @@ async function checkChangeTo(width, height) {
   await page.close();
 }
 
+/** Pasting into an empty Table (spec 2026-11-14-paste-and-change-to-design.md, section 2, The Table): a spreadsheet's lines with tabs make
+ * its rows and cells, the first line the header row (the setting stays on); a document's `<table>` gives the rows of its html; a paste with a
+ * `#` line, and a paste into a Table with content, are the browser's own; Ctrl+Z gives the empty Table back. */
+async function checkTablePaste(width, height) {
+  const label = `${width}px paste in table`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
+  await page.waitForSelector('.inline-table-cell-active textarea');
+  // Pastes into the cell at row `r`, column `c`; true when the Table took the paste over (preventDefault).
+  const paste = (r, c, plain, html = '') =>
+    page.evaluate(
+      ([r, c, plain, html]) => {
+        const data = new DataTransfer();
+        data.setData('text/plain', plain);
+        if (html) data.setData('text/html', html);
+        const field = document.querySelector(`.inline-table-box [data-row="${r}"] [data-field="${c}"]`);
+        field.focus();
+        return !field.dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+      },
+      [r, c, plain, html],
+    );
+  const grid = () =>
+    page.evaluate(() => ({
+      rows: [...document.querySelectorAll('.inline-table-box tr[data-row]')].map((tr) =>
+        [...tr.querySelectorAll('textarea')].map((f) => f.value),
+      ),
+      header: document.querySelectorAll('.inline-table-box thead th').length,
+      cursor: (() => {
+        const el = document.activeElement;
+        return `${el?.closest('[data-row]')?.getAttribute('data-row')} ${el?.getAttribute('data-field')}`;
+      })(),
+    }));
+  if (await paste(0, 0, '# Prices\tNow\nTea\t4')) problems.push(`${label}: a paste with a heading line was taken over`);
+  if (!(await paste(0, 0, 'Product\tPrice\r\nTea\t4\nCake\t5\n')))
+    problems.push(`${label}: a spreadsheet's lines were left to the browser`);
+  await page.waitForTimeout(300);
+  let now = await grid();
+  const want = JSON.stringify([
+    ['Product', 'Price'],
+    ['Tea', '4'],
+    ['Cake', '5'],
+  ]);
+  if (JSON.stringify(now.rows) !== want) problems.push(`${label}: the pasted lines made ${JSON.stringify(now.rows)}, not ${want}`);
+  if (now.header !== 2) problems.push(`${label}: the first pasted line is not the header row (${now.header} header cells)`);
+  if (now.cursor !== '2 1') problems.push(`${label}: after the paste the cursor is in ${now.cursor}, not in the last cell`);
+  // A Table with content: the paste is the browser's own, into the one cell.
+  if (await paste(1, 0, 'Pie\t6\nBun\t2')) problems.push(`${label}: a paste into a Table with content was taken over`);
+  // Ctrl+Z takes the paste back as one step: the empty Table.
+  await page.keyboard.press('Control+z');
+  await page.waitForTimeout(300);
+  now = await grid();
+  if (now.rows.flat().some((v) => v)) problems.push(`${label}: Ctrl+Z after the paste left ${JSON.stringify(now.rows)}`);
+  // A document's table (Google Docs, Word): its html gives the rows, not its plain text (one cell per line).
+  const html =
+    '<meta charset="utf-8"><table><tbody><tr><td><p><span>Day</span></p></td><td><p><span>Hours</span></p></td></tr><tr><td><p>Mon&nbsp;&ndash;&nbsp;Fri</p></td><td><p>9&ndash;17</p></td></tr></tbody></table>';
+  if (!(await paste(0, 0, 'Day\nHours\nMon – Fri\n9–17', html))) problems.push(`${label}: a document's table was left to the browser`);
+  await page.waitForTimeout(300);
+  now = await grid();
+  const doc = JSON.stringify([
+    ['Day', 'Hours'],
+    ['Mon – Fri', '9–17'],
+  ]);
+  if (JSON.stringify(now.rows) !== doc) problems.push(`${label}: a document's table made ${JSON.stringify(now.rows)}, not ${doc}`);
+  await page.close();
+}
+
 /** The dynamic List (the owner's flow): the dynamic icon in the contextual menu opens the dynamic settings (a bottom sheet on a phone, the side panel on a computer) with `Rows from`; picking a list turns the block into a "Dynamic list" with its state line, `Edit list` and an `Undo` that brings the typed rows back; the toolbar then has no row actions and stays inside the screen. */
 async function checkDynamicList(width, height) {
   const label = `${width}px dynamic list`;
@@ -8306,6 +8438,7 @@ await unit('checkAppTestPages', () => checkAppTestPages());
 await unit('checkSelection', () => checkSelection());
 await unit('checkSelectionBox', () => checkSelectionBox());
 await unit('checkFilesSelection', () => checkFilesSelection());
+await unit('checkFilesDialog', () => checkFilesDialog());
 await unit('checkRedirectsSelection', () => checkRedirectsSelection());
 await unit('checkDragSelect', () => checkDragSelect());
 await unit('checkTwoFinger', () => checkTwoFinger());
@@ -8366,6 +8499,7 @@ for (const [width, height] of [
   await unit(`checkSteps ${width}`, () => checkSteps(width, height));
 for (const block of pasteBlocks)
   for (const w of [375, 1280]) await unit(`checkInlinePaste ${w} ${block.name}`, () => checkInlinePaste(w, w < 600 ? 740 : 900, block));
+for (const w of [375, 1280]) await unit(`checkInlinePaste ${w} table`, () => checkTablePaste(w, w < 600 ? 740 : 900));
 for (const w of [375, 1280]) await unit(`checkChangeTo ${w}`, () => checkChangeTo(w, w < 600 ? 740 : 900));
 for (const w of [375, 1280]) await unit(`checkCardHeadline ${w}`, () => checkCardHeadline(w, w < 600 ? 740 : 900));
 await unit('checkDynamicList 375', () => checkDynamicList(375, 740));
