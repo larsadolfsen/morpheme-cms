@@ -6,6 +6,8 @@ export const redirects = {
   toSelf: 'An address can’t redirect to itself.',
   pageHas: (from: string) => `There’s a page with the address ${from}. Give the page a new address instead.`,
   alreadyRedirects: (from: string) => `There’s already a redirect from ${from}. Edit it in the list.`,
+  deleteManyAsk: (count: number) => `Delete ${count} redirects? Their addresses then show the not-found page.`,
+  manyOf: (count: number) => `${count} redirects`,
   /** Deleting one; `via`: how many other addresses send on through it. */
   deleteAsk: (from: string, via: number) => `Delete the redirect from ${from}? The address then shows the not-found page.`,
   /** redirectData.ts: the addresses that come back to one, joined by arrows. */
@@ -62,5 +64,6 @@ export const redirects = {
     add: (from: string, to: string) => `Editor: redirect ${from} to ${to}`,
     change: (from: string, to: string) => `Editor: ${from} now redirects to ${to}`,
     delete: (from: string) => `Editor: delete the redirect from ${from}`,
+    deleteMany: (count: number) => `Editor: delete ${count} redirects`,
   },
 };
