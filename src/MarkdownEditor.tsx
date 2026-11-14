@@ -15,6 +15,7 @@ import {
   useImperativeHandle,
   useRef,
   useState,
+  useSyncExternalStore,
 } from 'react';
 import { editorViewCtx, type Editor } from '@milkdown/kit/core';
 import type { CmdKey } from '@milkdown/kit/core';
@@ -42,7 +43,6 @@ import { lift } from '@milkdown/kit/prose/commands';
 import {
   ArrowUUpLeft,
   ArrowUUpRight,
-  DotsThreeVertical,
   Image,
   LinkSimple,
   ListBullets,
@@ -92,7 +92,8 @@ import { editorRows } from './standard/rows/view';
 import { fromLine, listPageOf } from './standard/rows/fields';
 import { sourceOf, withPart } from './standard/rows/rows.mjs';
 import { rowParts } from './standard/rows/view';
-import { contextualMenu, type BarAction } from './contextualMenu';
+import { barIcons, type BarAction } from './contextualMenu';
+import { blockBar, blockToolIds, type BlockBarState } from './blockBar';
 import { preview } from './registry';
 import { leaveTo } from './FormFrame';
 import { createRoot } from 'react-dom/client';
@@ -101,7 +102,7 @@ import { t } from './i18n';
 import { motionTiming } from '../lib/motion';
 import { hasLabel, labelledHeading, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
-import { WidgetsIcon } from './icon';
+import { AaIcon, AddIcon, MoreVertIcon } from './icon';
 import pencilIcon from '@phosphor-icons/core/assets/regular/pencil-simple.svg?raw';
 import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
 import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
@@ -693,6 +694,20 @@ export function paint(view: EditorView, color: string | null) {
   view.focus();
 }
 
+// An icon given as raw SVG (the block's tools, contextualMenu.ts), as the component a bar button wants: drawn at 20 dp, once per SVG.
+const rawIcons = new Map<string, typeof TextB>();
+function rawIcon(svg: string): typeof TextB {
+  let icon = rawIcons.get(svg);
+  if (!icon) {
+    const html = svg.replace('<svg', '<svg width="20" height="20" fill="currentColor" aria-hidden="true"');
+    icon = (() => (
+      <span aria-hidden="true" className="inline-flex" dangerouslySetInnerHTML={{ __html: html }} />
+    )) as unknown as typeof TextB;
+    rawIcons.set(svg, icon);
+  }
+  return icon;
+}
+
 // The icon of each text style and list kind, for the bar's Text style and List menus (the names are STYLE_KINDS, styleKind.mjs).
 const KIND_ICONS = {
   small: { node: TextSmallIcon },
@@ -812,8 +827,8 @@ function blockCard(
   let focus: Focus | null = null;
   // A grid (the Table): the column of the active cell.
   let col: number | null = null;
-  // Its contextual menu (made below, with the block's menu).
-  let bar: ReturnType<typeof contextualMenu> | null = null;
+  // Its tools in the text's one bar (blockBar.ts), made below: shown while a row is active.
+  let bar: { refresh: (shown: boolean) => void; destroy: () => void } | null = null;
   let syncRow: (open: boolean) => void = () => {};
   // The row whose icon picker is open instead of its settings.
   let iconOf: number | null = null;
@@ -992,12 +1007,33 @@ function blockCard(
     if (here) view.dispatch(view.state.tr.delete(here.pos, here.pos + node.nodeSize));
   };
 
-  // The choices that can be made here: no "Ret" without fields (but to where it is edited instead,
+  // The choices that can be made here: no "Edit" without fields (but to where it is edited instead,
   // Block.edit), no move past the start or end. By the template (collections.ts): a locked block is
   // only edited, and the last shown one of a block the page must have cannot be hidden or removed.
   // From expanded the block's fields are in the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
   const inPanelNow = () => !inline && editsInPanel(atLeastNow('expanded'), !!block?.fields.length);
-  // Typed in place: the contextual menu (contextualMenu.ts) has the row actions, and its last button opens the block's own menu below.
+  // The block's own menu: Edit, Hide or Show, Move up and down, Remove. A block typed in place has these in the text bar's `⋮` (blockBar.ts); any other block
+  // opens them as a row on its card.
+  const menuItems = () => {
+    const i = top();
+    const { rules, locked, stays } = keeps();
+    return [
+      block?.fields.length
+        ? (!inline || (typeof spec?.blockSettings === 'function' ? spec.blockSettings(node.attrs.props) : spec?.blockSettings)) &&
+          !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
+        : block?.edit && { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
+      // A block typed in place that reads a list of the site (Testimonials, Blog posts): the page of the list is in its menu too.
+      inline && block?.fields.length && block.edit
+        ? { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) }
+        : undefined,
+      block?.shown || (stays && hidden === false)
+        ? undefined
+        : { icon: hidden ? eyeIcon : eyeSlashIcon, label: hidden ? t.text.showOnPage : t.text.hideOnPage, action: toggle },
+      ...(locked ? [] : moves(view, i, rules?.locked)),
+      stays || inPanelNow() ? undefined : { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
+    ];
+  };
+  // Typed in place: its tools are in the text's one bar (blockBar.ts), and its own menu is in the bar's `⋮`.
   let handle = card;
   if (inline) {
     const rowFieldsOf = (names: string[]) =>
@@ -1223,24 +1259,36 @@ function blockCard(
         dynSelected = true;
         draw();
       });
-    bar = contextualMenu({
-      name,
-      dom,
-      rowActions,
-      // A block that reads a list has the dynamic settings behind the gear; a block with nothing to set on an item has the block's own
-      // settings behind it (the FAQ list), or no gear (Steps).
-      edit: isDynamic()
-        ? openDynamic
-        : itemNames.length || slotNames.length
-          ? settings
-          : spec!.blockSettings === true
-            ? () => void edit()
-            : undefined,
-      compact,
-      labels: { edit: t.common.edit },
-      dynamic: canDynamic ? { label: t.blocks.rows.dynamicTip, on: isDynamic, action: openDynamic } : undefined,
-    });
-    handle = bar.block;
+    // A block that reads a list has the dynamic settings behind the gear; a block with nothing to set on an item has the block's own
+    // settings behind it (the FAQ list), or no gear (Steps). From expanded the settings are in the side panel, so no gear there.
+    const gear = () =>
+      !compact()
+        ? undefined
+        : isDynamic()
+          ? openDynamic
+          : itemNames.length || slotNames.length
+            ? settings
+            : spec!.blockSettings === true
+              ? () => void edit()
+              : undefined;
+    const owner = {};
+    bar = {
+      refresh(shown) {
+        if (!shown) return blockBar.hide(owner);
+        const action = gear();
+        const state: BlockBarState = {
+          name,
+          actions: rowActions(),
+          edit: action && { label: t.common.edit, action },
+          dynamic: canDynamic ? { label: t.blocks.rows.dynamicTip, on: isDynamic(), action: openDynamic } : undefined,
+          menu: menuItems().filter((it): it is CardItem => !!it),
+        };
+        blockBar.show(owner, state);
+      },
+      destroy: () => blockBar.hide(owner),
+    };
+    // The card has no handle of its own: the menu is in the bar's `⋮`. A detached button stands in for what cardMenu wants to attach to.
+    handle = document.createElement('button');
     // The settings of the active row (its icon and link), live: from expanded in the side panel while a row is active, below it in a bottom
     // sheet that Edit opens (`open`: a row's slot or Edit; else only an open sheet is updated).
     syncRow = (open) => {
@@ -1273,7 +1321,7 @@ function blockCard(
     // its settings close, and a row with nothing in it is dropped.
     const inside = (target: EventTarget | null) =>
       target instanceof Element &&
-      (dom.contains(target) || bar!.el.contains(target) || !!target.closest('.editor-side-sheet, dialog[open]'));
+      (dom.contains(target) || !!target.closest('.editor-tools, .editor-menu, .editor-side-sheet, dialog[open]'));
     const away = (e: Event) => {
       if ((active === null && !dynSelected) || inside(e.target)) return;
       // A dynamic block has no row being typed in: the focus going back to the text (as a sheet opens or closes) is not leaving it, only a tap elsewhere is.
@@ -1304,32 +1352,9 @@ function blockCard(
       document.removeEventListener('focusin', away, true);
     };
   }
-  const close = cardMenu(
-    view,
-    dom,
-    handle,
-    name,
-    () => {
-      const i = top();
-      const { rules, locked, stays } = keeps();
-      return [
-        block?.fields.length
-          ? (!inline || (typeof spec?.blockSettings === 'function' ? spec.blockSettings(node.attrs.props) : spec?.blockSettings)) &&
-            !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
-          : block?.edit && { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
-        // A block typed in place that reads a list of the site (Testimonials, Blog posts): the page of the list is in its menu too.
-        inline && block?.fields.length && block.edit
-          ? { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) }
-          : undefined,
-        block?.shown || (stays && hidden === false)
-          ? undefined
-          : { icon: hidden ? eyeIcon : eyeSlashIcon, label: hidden ? t.text.showOnPage : t.text.hideOnPage, action: toggle },
-        ...(locked ? [] : moves(view, i, rules?.locked)),
-        stays || inPanelNow() ? undefined : { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
-      ];
-    },
-    () => inPanelNow() && void edit(),
-  );
+  const close = cardMenu(view, dom, handle, name, menuItems, () => inPanelNow() && void edit());
+  // A moved block is a new card: the bar's `⋮` does not reopen as the card's row did.
+  if (inline) delete (dom as CardHost).openMenu;
   // A changed block is drawn anew (update false); taps on the card and its menu are not ProseMirror's.
   return {
     dom,
@@ -1770,7 +1795,10 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
 
   // The one bar (textBar.mjs): the text tools while the cursor is in the text (or a sheet of the bar is open), a divider, then the main tools
   // (Insert, Undo, Redo, Section settings). It never scrolls: the tools that do not fit are in the `⋮` menu.
-  const inContext = inText || holding;
+  // A block typed in place that is active (blockBar.ts) has its tools on the bar instead of the text's.
+  const block_ = useSyncExternalStore(blockBar.subscribe, blockBar.get);
+  const textContext = !block_ && (inText || holding);
+  const inContext = textContext || !!block_;
   const headingLevels = h1 ? choices : [2, 3];
   const alignOn = active.includes('alignable');
   const alignNow = alignIn(active);
@@ -1791,16 +1819,24 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     check: { label: t.text.checkList, icon: KIND_ICONS.check.node },
     ordered: { label: t.text.orderedList, icon: KIND_ICONS.ordered.node },
   };
+  // In the Text style menu the three body styles share one icon, Aa; the labels tell them apart (the bar's own button shows the style's T).
+  const rowIcon = (row: string) => (['small', 'medium', 'large'].includes(row) ? AaIcon : STYLE_FACES[row].icon);
   const styleFace = STYLE_FACES[styleKey] ?? { label: t.text.kind, icon: GENERIC_ICONS.text.node };
   const styleLabel = STYLE_FACES[styleKey] ? t.text.kindIs(styleFace.label) : t.text.kind;
   const listFace = LIST_FACES[listKey];
   const lists = listRows(active);
   const settingsShown =
-    framed && active.includes('section') && !(sections && active.includes('section-h1')) && !!(blocks ?? sheetProp) && inContext;
-  const insertLabel = blocks ? t.text.insert : t.text.image;
+    framed && active.includes('section') && !(sections && active.includes('section-h1')) && !!(blocks ?? sheetProp) && textContext;
+  const insertLabel = blocks ? t.text.insertBlock : t.text.image;
   const hasInsert = !!blocks || !!addImage;
-  const contextIds = inContext ? ['bold', 'italic', 'link', 'style', ...(lists.length ? ['list'] : []), 'align', 'color'] : [];
-  const mainIds = [...(hasInsert ? ['insert'] : []), 'undo', 'redo', ...(settingsShown ? ['settings'] : [])];
+  const contextIds = block_
+    ? blockToolIds(block_).map((id) => `block:${id}`)
+    : textContext
+      ? ['bold', 'italic', 'link', 'style', ...(lists.length ? ['list'] : []), 'align', 'color']
+      : [];
+  const blockMenu = block_?.menu ?? [];
+  // Undo, Redo and Section settings, a divider, then Insert block (never in the ⋮) and the ⋮.
+  const mainIds = ['undo', 'redo', ...(settingsShown ? ['settings'] : []), ...(hasInsert ? ['insert'] : [])];
   useLayoutEffect(() => {
     const bar = toolbar.current!;
     const measure = () => setBarWidth(bar.clientWidth);
@@ -1809,9 +1845,31 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     watch.observe(bar);
     return () => watch.disconnect();
   }, []);
-  const plan = planBar({ slots: slotsFor(barWidth, contextIds.length > 0), context: contextIds, main: mainIds });
+  // A menu of one of the ⋮ menu's rows is open under the ⋮ button.
+  const underMore = [kindsAt?.at, alignAt, colorAt].some((at) => !!at && at === moreButton.current);
+  const plan = planBar({
+    slots: slotsFor(barWidth, (contextIds.length > 0 ? 1 : 0) + (hasInsert ? 1 : 0)),
+    context: contextIds,
+    main: mainIds,
+    more: blockMenu.length > 0,
+  });
   // What a tool does and how it looks; the bar draws it as a button, the `⋮` menu as a row.
-  const toolOf = (id: string): { label: string; icon: typeof TextB; action: () => void; on?: string; disabled?: boolean } => {
+  const blockTool = (id: string) => {
+    if (id === 'gear') return { label: block_!.edit!.label, icon: rawIcon(barIcons.gear), action: block_!.edit!.action };
+    if (id === 'dynamic')
+      return {
+        label: block_!.dynamic!.label,
+        icon: rawIcon(barIcons.dynamic),
+        action: block_!.dynamic!.action,
+        pressed: block_!.dynamic!.on,
+      };
+    // One of the active block's row actions (Add above, Move down, the Table's column actions ...).
+    const row = block_!.actions.find((a) => a.kind === id)!;
+    return { label: row.label, icon: rawIcon(barIcons[row.kind]), action: row.action, pressed: row.pressed };
+  };
+  const toolOf = (id: string): { label: string; icon: typeof TextB; action: () => void; on?: string; pressed?: boolean } => {
+    // The block's tools are named 'block:<kind>' (not the text's 'link').
+    if (id.startsWith('block:')) return blockTool(id.slice(6));
     switch (id) {
       case 'bold':
         return { label: t.text.bold, icon: TextB, action: () => run(toggleStrongCommand), on: 'strong' };
@@ -1820,7 +1878,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       case 'link':
         return { label: t.text.link, icon: LinkSimple, action: link, on: 'link' };
       case 'insert':
-        return { label: insertLabel, icon: blocks ? WidgetsIcon : Image, action: blocks ? block : image };
+        return { label: insertLabel, icon: blocks ? AddIcon : Image, action: blocks ? block : image };
       case 'undo':
         return { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand) };
       case 'redo':
@@ -1871,8 +1929,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           onClick={(e) => setColorAt(colorAt === e.currentTarget ? null : e.currentTarget)}
         />
       );
-    const { label, icon, action, on } = toolOf(id);
-    return <ToolbarButton key={id} icon={icon} label={label} selected={on ? active.includes(on) : undefined} onClick={action} />;
+    const { label, icon, action, on, pressed } = toolOf(id);
+    return <ToolbarButton key={id} icon={icon} label={label} selected={on ? active.includes(on) : pressed} onClick={action} />;
   };
   // A row of the `⋮` menu. Text style, Alignment and Color open their own menu, under the `⋮` button.
   const moreRows = (id: string) => {
@@ -1894,7 +1952,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     if (id === 'align')
       return (
         <MenuItem key={id} icon={ALIGN_FACES[alignNow].node} disabled={!alignOn} onClick={under(() => setAlignAt(moreButton.current))}>
-          {t.text.alignmentIs(alignLabel(alignNow))}
+          {alignLabel(alignNow)}
         </MenuItem>
       );
     if (id === 'color')
@@ -1903,9 +1961,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           {t.text.color}
         </MenuItem>
       );
-    const { label, icon, action, on } = toolOf(id);
+    const { label, icon, action, on, pressed } = toolOf(id);
     return (
-      <MenuItem key={id} icon={icon} selected={on ? active.includes(on) : undefined} onClick={action}>
+      <MenuItem key={id} icon={icon} selected={on ? active.includes(on) : pressed} onClick={action}>
         {label}
       </MenuItem>
     );
@@ -1924,21 +1982,36 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         className="editor-tools sticky top-[env(safe-area-inset-top)] z-10 rounded-t-panel border border-outline-variant pb-(--toolbar-docked-padding-block)"
       >
         {plan.bar.context.length > 0 && (
-          <div role="group" aria-label={t.text.textTools} className="editor-tools-group">
+          <div role="group" aria-label={block_?.name ?? t.text.textTools} className="editor-tools-group">
             {plan.bar.context.map(barButton)}
           </div>
         )}
         {plan.bar.context.length > 0 && <ToolbarDivider />}
         <div role="group" aria-label={t.text.pageTools} className="editor-tools-group">
-          {plan.bar.main.map(barButton)}
+          {plan.bar.main.filter((id) => id !== 'insert').map(barButton)}
+          {plan.bar.main.includes('insert') && plan.bar.main.length > 1 && <ToolbarDivider />}
+          {plan.bar.main.filter((id) => id === 'insert').map(barButton)}
         </div>
         {plan.overflow && (
           <ToolbarButton
             ref={moreButton}
-            icon={DotsThreeVertical}
+            icon={MoreVertIcon}
             label={t.text.more}
-            popup={!!moreAt}
-            onClick={(e) => setMoreAt(moreAt ? null : e.currentTarget)}
+            popup={!!moreAt || underMore}
+            onClick={(e) => {
+              // A tap on the ⋮ while one of its rows' menus (Text style, Alignment, Color) is open closes that menu and does not open the ⋮
+              // menu behind it; else it opens or closes the ⋮ menu, with none of the others open.
+              if (underMore) {
+                setKindsAt(null);
+                setAlignAt(null);
+                setColorAt(null);
+                return setMoreAt(null);
+              }
+              setKindsAt(null);
+              setAlignAt(null);
+              setColorAt(null);
+              setMoreAt(moreAt ? null : e.currentTarget);
+            }}
           />
         )}
       </Toolbar>
@@ -1946,6 +2019,12 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         {moreContext.map(moreRows)}
         {moreContext.length > 0 && moreMain.length > 0 && <MenuDivider />}
         {moreMain.map(moreRows)}
+        {blockMenu.length > 0 && (moreContext.length > 0 || moreMain.length > 0) && <MenuDivider />}
+        {blockMenu.map((row) => (
+          <MenuItem key={row.label} icon={rawIcon(row.icon)} onClick={() => row.action(false)}>
+            {row.label}
+          </MenuItem>
+        ))}
       </Menu>
       <Menu popup="start" anchor={alignAt} label={t.text.alignment} onClose={() => setAlignAt(null)}>
         {(Object.keys(ALIGN_FACES) as Align[]).map((align) => (
@@ -1985,7 +2064,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
             row === '-' ? (
               <MenuDivider key={`-${i}`} />
             ) : (
-              <MenuItem key={row} icon={STYLE_FACES[row].icon} selected={active.includes(row)} onClick={() => setKind(row)}>
+              <MenuItem key={row} icon={rowIcon(row)} selected={active.includes(row)} onClick={() => setKind(row)}>
                 {STYLE_FACES[row].label}
               </MenuItem>
             ),

@@ -19,6 +19,8 @@ export const text = {
   orderedList: 'Numbered list',
   quote: 'Quote',
   insert: 'Insert',
+  /** The bar's Insert button: it inserts a block (an image on a blog post). It is never in the ⋮ menu. */
+  insertBlock: 'Insert block',
   image: 'Image',
   undo: 'Undo',
   redo: 'Redo',

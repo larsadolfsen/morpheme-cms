@@ -563,6 +563,17 @@ export function wheelColor(x: number, y: number): string {
   return hexFromArgb(Hct.from(hue, chroma * Math.min(1, Math.hypot(x, y)), tone).toInt());
 }
 
+/** A colour's tone (0 to 100), for the wheel's `wheelColorAt`. */
+export const toneOf = (hex: string): number => Hct.fromInt(argbFromHex(hex)).tone;
+
+/** A colour at a point on the colour wheel in a given tone (Custom: a dragged dot keeps its tone, so a cream stays light): its
+ * hue follows the point's angle and its chroma the distance from the middle, as far as the tone can have that chroma in sRGB
+ * (a light tone has less than the wheel's edge asks), so the dot sits where its colour can be. */
+export function wheelColorAt(x: number, y: number, tone: number): string {
+  const hue = sanitizeDegreesDouble((Math.atan2(x, -y) * 180) / Math.PI);
+  return hexFromArgb(Hct.from(hue, mostChroma(hue).chroma * Math.min(1, Math.hypot(x, y)), tone).toInt());
+}
+
 /** The colours round the colour wheel's edge, from the top clockwise (`steps` of them), and the grey in its middle. */
 export function wheelColors(steps = 36): { edge: string[]; middle: string } {
   const edge = Array.from({ length: steps }, (_, i) => onWheel((i * 360) / steps, 200).color);

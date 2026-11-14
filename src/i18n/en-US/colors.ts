@@ -50,6 +50,30 @@ export const colors = {
     contrast: 'Contrast',
     contrastHint: 'Higher contrast makes the text easier to read.',
     contrasts: { standard: 'Standard', medium: 'Medium', high: 'High' },
+    /** Custom, the generator's sixth choice (lib/dynamic-colors.ts CUSTOM): Primary, Secondary and Tertiary chosen freely. */
+    custom: 'Custom',
+    customHint: 'Pick Primary, Secondary and Tertiary yourself. The other colors are made from them.',
+    /** The first base color's name in Custom (else it is the source color). */
+    primary: 'Primary',
+    /** A dot on the color wheel in Custom, named by its color. */
+    wheelDot: (name: string) => `${name}: drag to change this color`,
+    wheelHintCustom: 'Drag a dot to change only that color.',
+    /** The question about Primary (it is used as text): a notice with Fix and Keep. */
+    fixTitle: 'Fix this to improve accessibility?',
+    hardText: (name: string, ratio: string, min: string) => `${name} is hard to read as text on Surface: ${ratio}, at least ${min} needed.`,
+    fix: 'Fix',
+    keep: 'Keep',
+    /** Under Primary's tile after Keep. */
+    kept: (name: string) => `${name} is kept as you chose it. It may be hard to read.`,
+    /** A save while the question about Primary is open. */
+    answerFirst: 'Answer the question about Primary first.',
+    /** The colors Fix changed, a row each: chosen, used, hex, mode. */
+    adjustedTitle: 'Adjusted for contrast',
+    adjusted: (name: string, mode: string, direction: string, used: string) =>
+      `${name} is ${direction} in ${mode} so it can be seen: ${used}.`,
+    directions: { darker: 'darker', lighter: 'lighter' },
+    /** A note by the Secondary or Tertiary tile whose color is below 3:1 on the page. */
+    lowOnPage: (name: string) => `${name} has low contrast on the page, so it is not offered as an icon color. It is still used for fills.`,
     /** A color changed by hand while they are made from the source color. */
     turnedOff: 'The generator no longer makes the colors, so you can change them yourself',
     /** checkSite.ts: a wrong value in the choice in the file ('dynamic.variant: "red"'). */

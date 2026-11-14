@@ -253,7 +253,7 @@
   /* "Notice": a short notice in a box with the accent along its left edge (notice/). */
   .block-notice {
     border-left: 4px solid var(--block-accent);
-    border-radius: var(--block-radius);
+    border-radius: var(--card-radius, var(--block-radius));
     background: var(--block-tint);
     padding: 1rem 1.25rem;
     font-size: var(--type-body-large-size);
@@ -320,7 +320,7 @@
   /* "Questions and answers": rows that fold out, one open at a time (faq/Accordion.tsx). */
   .block-accordion {
     max-width: 48rem;
-    border-radius: var(--block-radius);
+    border-radius: var(--list-expand-radius, var(--card-radius, var(--block-radius)));
     background: var(--block-surface);
     box-shadow: var(--block-shadow);
   }
@@ -498,7 +498,7 @@
     aspect-ratio: 4 / 5;
     object-fit: cover;
     object-position: 50% 22%;
-    border-radius: var(--block-radius);
+    border-radius: var(--card-radius, var(--block-radius));
   }
   /* The image behind the text ("Hero", `placement` 'behind'): it fills a panel, darkened from below (--block-hero-shade,
      the text's colour unless the theme sets it) so the text on it (--block-hero-on-shade, the surface's) can be read. */
@@ -511,7 +511,7 @@
     align-items: stretch;
     justify-content: flex-end;
     overflow: hidden;
-    border-radius: var(--block-radius);
+    border-radius: var(--card-radius, var(--block-radius));
     padding: 2rem 1.5rem;
     color: var(--block-hero-on-shade, var(--block-surface));
   }
@@ -1443,7 +1443,7 @@
      keyboard can scroll (a focus ring in the accent); a table with many columns scrolls instead of crushing them. */
   .block-table-grid {
     border: 1px solid var(--block-line);
-    border-radius: var(--card-radius, var(--block-radius-small));
+    border-radius: var(--card-radius, var(--block-radius));
     color: var(--block-text);
   }
   .block-table-grid:focus-visible {
@@ -2033,7 +2033,7 @@
     aspect-ratio: 16 / 9;
     margin-block: 2em;
     padding: 1.5rem;
-    border-radius: var(--block-radius);
+    border-radius: var(--card-radius, var(--block-radius));
     background: var(--block-tint);
     color: var(--block-text);
     text-align: center;

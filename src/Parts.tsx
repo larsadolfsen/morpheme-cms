@@ -100,7 +100,7 @@ import {
 } from './ui';
 import { FieldList, Fields, useWrongField, WrongField, type FieldContext } from './fields';
 import { newValue, problemAt } from './check';
-import { Icon, iconOptions, useAllIconNames, WidgetsIcon } from './icon';
+import { Icon, iconOptions, useAllIconNames, AddIcon } from './icon';
 import { exampleImage, exampleData } from './examples';
 import { exampleOf } from './blocks';
 import { siteBlocks } from './registry';
@@ -199,7 +199,7 @@ export default function Parts({ env }: { env: Env }) {
             <Part name="ToolbarButton" use={use.toolbarButton}>
               <div className="flex gap-0.5">
                 <ToolbarButton icon={TextB} label={sample.bold} selected onClick={() => {}} />
-                <ToolbarButton icon={WidgetsIcon} label={sample.insert} onClick={() => {}} />
+                <ToolbarButton icon={AddIcon} label={sample.insert} onClick={() => {}} />
                 <ToolbarButton icon={TextT} label={t.text.kind} menu={false} onClick={() => {}} />
               </div>
             </Part>

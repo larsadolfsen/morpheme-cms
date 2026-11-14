@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { styleRows, listRows, inListItem, inHeading } from './styleMenu.mjs';
 
-test('in plain text: the heading levels, a divider, the sizes and Quote', () => {
-  assert.deepEqual(styleRows([], [2, 3]), ['h2', 'h3', '-', 'small', 'medium', 'large', 'quote']);
-  assert.deepEqual(styleRows(['medium'], [1]), ['h1', '-', 'small', 'medium', 'large', 'quote']);
+test('in plain text: the heading levels, a divider, the sizes, a divider and Quote', () => {
+  assert.deepEqual(styleRows([], [2, 3]), ['h2', 'h3', '-', 'small', 'medium', 'large', '-', 'quote']);
+  assert.deepEqual(styleRows(['medium'], [1]), ['h1', '-', 'small', 'medium', 'large', '-', 'quote']);
   assert.equal(styleRows([], [2, 3]).length - 1 <= 8, true, 'at most 8 rows and a divider');
 });
 
