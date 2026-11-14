@@ -60,6 +60,7 @@ export const text: Messages['text'] = {
   moveAtTop: 'Blokken er allerede øverst',
   moveAtBottom: 'Blokken er allerede nederst',
   dragOff: 'Træk er slået fra, mens flere blokke er valgt',
+  blockSettings: 'Blokindstillinger',
   blocksSelected: (count) => (count === 1 ? '1 blok valgt' : `${count} blokke valgt`),
   clearBlockSelection: (count) => `Ryd markering, ${count === 1 ? '1 blok valgt' : `${count} blokke valgt`}`,
   selectBlock: 'Vælg',
