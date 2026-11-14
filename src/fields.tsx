@@ -63,6 +63,7 @@ import { clean, inPairs, inUse, newItem, phoneParts, phoneText, problemAt, probl
 import { Icon, useAllIconNames } from './icon';
 import { t } from './i18n';
 import { shownLibraryAlt } from './imageAlt.mjs';
+import type { ImageItem } from './standard/imagegrid/view';
 import { snackbar } from '../lib/snackbar';
 
 /** A choice of a relation. `on`: where it is shown on the site (a promotion), for a field with `onPage`; `text`: what a
@@ -112,6 +113,8 @@ export type FieldContext = {
   /** What the Library says of an image (its base alt text, or that it is decorative), by its address, for an alt text field's hint
    * (Field.libraryText). */
   libraryAlt?: (src: string) => { alt?: string; decorative?: boolean } | undefined;
+  /** The images of Files with their records' tags, text, caption and credit, for the "Image grid" drawn in a text (BlockData.libraryImages). */
+  libraryImages?: ImageItem[];
   /** Asks for an image from the gallery or a new one (useMediaPicker); its address on the site. Also
    * for a text (MarkdownEditor); without it, no image button. */
   pickImage?: () => Promise<string | null>;
