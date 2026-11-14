@@ -107,7 +107,7 @@ import { blockSelection } from './blockSelection';
 import { allOf, hideChoice, range, removeChoice, groupMove } from './blockSelectionRules.mjs';
 import { ask } from './ask';
 import { canPress, edgeScroll, movedAway } from '@theme/ui/longPressRules.mjs';
-import { hasLabel, labelledHeading, toggleLabel } from './eyebrowState.mjs';
+import { canLabel, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
 import { AaIcon, AddIcon, BodyA1Icon, BodyA2Icon, BodyA3Icon, CloseIcon, MoreVertIcon } from './icon';
 import pencilIcon from '@phosphor-icons/core/assets/regular/pencil-simple.svg?raw';
@@ -1070,7 +1070,7 @@ export function activeOf(state: EditorView['state']): Set<string> {
   if (color) on.add(colorClass(color));
   const ancestors = Array.from({ length: $from.depth }, (_, i) => $from.node(i + 1).type.name);
   if ($from.parent.type.name === 'heading') on.add(`h${$from.parent.attrs.level}`);
-  if (labelledHeading(state)) on.add('labelable');
+  if (canLabel(state)) on.add('labelable');
   // Body medium is the plain paragraph (and a paragraph stored as body-medium, which draws the same).
   if (['bodyLarge', 'bodyMedium', 'bodySmall'].includes($from.parent.type.name))
     on.add({ bodyLarge: 'large', bodyMedium: 'medium', bodySmall: 'small' }[$from.parent.type.name as 'bodyLarge']);

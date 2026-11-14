@@ -3,12 +3,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Schema } from '@milkdown/kit/prose/model';
 import { EditorState, TextSelection } from '@milkdown/kit/prose/state';
-import { enterInLabel, hasLabel, labelledHeading, looseLabels, toggleLabel } from './eyebrowState.mjs';
+import { canLabel, enterInLabel, hasLabel, labelledHeading, toggleLabel } from './eyebrowState.mjs';
 
 const schema = new Schema({
   nodes: {
     doc: { content: 'block+' },
     paragraph: { group: 'block', content: 'text*' },
+    blockquote: { group: 'block', content: 'block+' },
+    bodyLarge: { group: 'block', content: 'text*' },
     heading: { group: 'block', content: 'text*', attrs: { level: { default: 2 } } },
     eyebrow: { group: 'block', content: 'text*' },
     siteBlock: { group: 'block', atom: true },
@@ -20,15 +22,6 @@ const node = (type, text, attrs) => schema.node(type, attrs, text ? [schema.text
 const labelled = () => schema.node('doc', null, [node('eyebrow', 'Label'), node('heading', 'Title'), node('paragraph', 'x')]);
 const stateAt = (doc, pos) => EditorState.create({ doc, selection: TextSelection.create(doc, pos) });
 
-test('a label before its heading is not loose', () => assert.deepEqual(looseLabels(labelled()), []));
-test('a label before a block is not loose', () => {
-  const doc = schema.node('doc', null, [node('eyebrow', 'Label'), schema.node('siteBlock'), node('paragraph', 'x')]);
-  assert.deepEqual(looseLabels(doc), []);
-});
-test('a label without a heading after it is loose', () => {
-  const doc = schema.node('doc', null, [node('eyebrow', 'Label'), node('paragraph', 'x'), node('eyebrow', 'End')]);
-  assert.deepEqual(looseLabels(doc), [0, 10]);
-});
 test('Enter in a label goes to the start of its heading', () => {
   let next;
   assert.equal(
@@ -37,6 +30,17 @@ test('Enter in a label goes to the start of its heading', () => {
   );
   assert.equal(next.selection.from, 8);
   assert.equal(next.doc.childCount, 3);
+});
+test('Enter in a label with no heading after it adds a line below', () => {
+  const doc = schema.node('doc', null, [node('paragraph', 'x'), node('eyebrow', 'End')]);
+  let next;
+  assert.equal(
+    enterInLabel(stateAt(doc, 5), (tr) => (next = tr)),
+    true,
+  );
+  assert.equal(next.doc.childCount, 3);
+  assert.equal(next.doc.child(2).type.name, 'paragraph');
+  assert.equal(next.selection.from, 9);
 });
 test('Enter elsewhere is not the label’s', () =>
   assert.equal(
@@ -68,16 +72,39 @@ test('adds an empty label with the cursor in it', () => {
   assert.equal(view.state.doc.child(1).textContent, 'Title');
   assert.equal(view.state.selection.from, 1);
 });
-test('takes the label away, from the heading or from the label', () => {
-  for (const pos of [9, 3]) {
-    const view = viewOf(stateAt(labelled(), pos));
+test('takes the label away from the heading', () => {
+  const view = viewOf(stateAt(labelled(), 9));
+  toggleLabel(view);
+  assert.equal(view.state.doc.child(0).type.name, 'heading');
+  assert.equal(view.state.doc.childCount, 2);
+});
+test('a label picked again is a plain line again, with its text', () => {
+  const view = viewOf(stateAt(labelled(), 3));
+  toggleLabel(view);
+  assert.equal(view.state.doc.child(0).type.name, 'paragraph');
+  assert.equal(view.state.doc.child(0).textContent, 'Label');
+  assert.equal(view.state.doc.childCount, 3);
+  assert.equal(view.state.selection.from, 3);
+});
+test('a plain line becomes a label with its text, on any line', () => {
+  for (const type of ['paragraph', 'bodyLarge']) {
+    const doc = schema.node('doc', null, [node('heading', 'Title'), node(type, 'Hello')]);
+    const view = viewOf(stateAt(doc, 10));
     toggleLabel(view);
-    assert.equal(view.state.doc.child(0).type.name, 'heading');
-    assert.equal(view.state.doc.childCount, 2);
+    assert.equal(view.state.doc.child(1).type.name, 'eyebrow');
+    assert.equal(view.state.doc.child(1).textContent, 'Hello');
+    assert.equal(view.state.selection.from, 10);
   }
 });
-test('does nothing in a paragraph', () => {
-  const view = viewOf(stateAt(labelled(), 15));
+test('an empty last line becomes an empty label', () => {
+  const doc = schema.node('doc', null, [node('paragraph', 'x'), node('paragraph', '')]);
+  const view = viewOf(stateAt(doc, 4));
   toggleLabel(view);
-  assert.equal(view.state.doc.childCount, 3);
+  assert.equal(view.state.doc.child(1).type.name, 'eyebrow');
+  assert.equal(view.state.selection.from, 4);
+});
+test('Label applies at the top of the text only', () => {
+  assert.equal(canLabel(stateAt(labelled(), 15)), true);
+  const nested = schema.node('doc', null, [schema.node('blockquote', null, [node('paragraph', 'q')])]);
+  assert.equal(canLabel(stateAt(nested, 3)), false);
 });

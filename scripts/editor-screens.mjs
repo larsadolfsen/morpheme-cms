@@ -826,9 +826,9 @@ async function checkTextBar(width = 360) {
   const order = await page.evaluate(() =>
     [...document.querySelectorAll('[role=menu] > li')].map((li) => (li.classList.contains('menu-divider') ? '-' : li.textContent.trim())),
   );
-  if (order.join('|') !== 'Main heading|-|Body small|Body medium|Body large|-|Quote')
+  if (order.join('|') !== 'Main heading|-|Body small|Body medium|Body large|Label|-|Quote')
     problems.push(
-      `${label}: the Text style menu reads ${order.join(' | ')}, not Main heading | - | Body small | Body medium | Body large | - | Quote`,
+      `${label}: the Text style menu reads ${order.join(' | ')}, not Main heading | - | Body small | Body medium | Body large | Label | - | Quote`,
     );
   for (const name of ['Body small', 'Body medium', 'Body large', 'Quote'])
     if (!style.some((x) => x.name === name)) problems.push(`${label}: the Text style menu lacks ${name}`);
@@ -2988,6 +2988,95 @@ async function checkListMarkers(width) {
   await frame.waitForSelector('ul.block-list', { timeout: 30_000 });
   const inPreview = await frame.evaluate(markers);
   if (inPreview.length) problems.push(`${width}px Preview: a List row has a list marker (${[...new Set(inPreview)].join('; ')})`);
+  await page.close();
+}
+
+/** Label is a style of any top-level line of text (owner decision, 14 Nov): the Text style menu has the Label row on a plain line and on an empty last line, choosing it makes the line a label drawn in the label role (12 px) with its text kept and no heading after it, picking it again gives the plain line back, and a lone label saved in a page is drawn the same in the Preview. */
+async function checkLabelOnAnyLine(width) {
+  const label = `${width}px label on any line`;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Intro');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('Opening hours');
+  await page.waitForTimeout(300);
+  const rowNames = () => page.locator('[role=menu] [role^=menuitem]:visible').evaluateAll((rows) => rows.map((x) => x.textContent.trim()));
+  const labelNow = () =>
+    page.evaluate(() => {
+      const el = document.querySelector('.ProseMirror p.label-medium');
+      return el
+        ? { text: el.textContent, size: getComputedStyle(el).fontSize, tops: [...el.parentElement.children].map((c) => c.tagName) }
+        : null;
+    });
+  await openStyleMenu(page);
+  if (!(await rowNames()).some((n) => /^Label\b/.test(n)))
+    problems.push(`${label}: the Text style menu has no Label row on a plain line (${(await rowNames()).join(', ')})`);
+  await page
+    .locator('[role=menu] [role^=menuitem]')
+    .filter({ hasText: /^Label\b/ })
+    .first()
+    .click();
+  await page.waitForTimeout(200);
+  const made = await labelNow();
+  if (!made || made.text !== 'Opening hours')
+    problems.push(`${label}: Label on a plain line does not make it a label with its text (${JSON.stringify(made)})`);
+  else if (made.size !== '12px') problems.push(`${label}: the label is drawn at ${made.size}, not the label role's 12px`);
+  else if (made.tops.join() !== 'P,P') problems.push(`${label}: the label's line changed the page's shape (${made.tops})`);
+  // Picked again, it is the plain line again.
+  await openStyleMenu(page);
+  await page
+    .locator('[role=menu] [role^=menuitem]')
+    .filter({ hasText: /^Label\b/ })
+    .first()
+    .click();
+  await page.waitForTimeout(200);
+  if (await labelNow()) problems.push(`${label}: Label picked again does not give the plain line back`);
+  if ((await page.locator('.ProseMirror p').nth(1).textContent()) !== 'Opening hours')
+    problems.push(`${label}: the line lost its text going back from a label`);
+  // An empty last line has the row too.
+  await page.keyboard.press('End');
+  await page.keyboard.press('Enter');
+  await openStyleMenu(page);
+  if (!(await rowNames()).some((n) => /^Label\b/.test(n))) problems.push(`${label}: no Label row on an empty last line`);
+  await page.keyboard.press('Escape');
+  await page.close();
+  // A lone label of a saved page is read as a label and drawn the same in the Preview (a page of its own, as the other checks).
+  const saved = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  saved.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  return checkSavedLabel(saved, width);
+}
+
+async function checkSavedLabel(page, width) {
+  const label = `${width}px label on any line (saved page)`;
+  const labelNow = () =>
+    page.evaluate(() => {
+      const el = document.querySelector('.ProseMirror p.label-medium');
+      return el ? { text: el.textContent, size: getComputedStyle(el).fontSize } : null;
+    });
+  const path = BUILT_PAGE;
+  const text =
+    '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<p class="label-medium">Opening hours</p>\n\nMonday to Friday.\n';
+  await openEditor(page, site, { [path]: text });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('.ProseMirror p.label-medium', { timeout: 30_000 });
+  const inEditor = await labelNow();
+  if (!inEditor || inEditor.size !== '12px')
+    problems.push(`${label}: a saved lone label is not a label in the editor (${JSON.stringify(inEditor)})`);
+  await page.getByRole('button', { name: 'Preview' }).first().click();
+  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  const frame = page.frames().find((f) => f !== page.mainFrame());
+  await frame.waitForSelector('[data-editor="text"] .label-medium', { timeout: 30_000 });
+  const drawn = await frame.evaluate(() => {
+    const el = document.querySelector('[data-editor="text"] .label-medium');
+    const next = el.nextElementSibling;
+    return { size: getComputedStyle(el).fontSize, gap: next ? next.getBoundingClientRect().top - el.getBoundingClientRect().bottom : -1 };
+  });
+  if (drawn.size !== '12px') problems.push(`${label}: a lone label is drawn at ${drawn.size} on the site, not 12px`);
+  if (drawn.gap < 0 || drawn.gap > 16) problems.push(`${label}: the text under a lone label is ${drawn.gap}px below it, not close`);
   await page.close();
 }
 
@@ -7071,6 +7160,7 @@ await unit('checkH1SectionGap', () => checkH1SectionGap());
 await unit('checkSectionCardContrast', () => checkSectionCardContrast());
 for (const w of [375, 1280]) await unit(`checkListMarkers ${w}`, () => checkListMarkers(w));
 for (const w of [375, 1280]) await unit(`checkListsAndBlocks ${w}`, () => checkListsAndBlocks(w));
+for (const w of [375, 1280]) await unit(`checkLabelOnAnyLine ${w}`, () => checkLabelOnAnyLine(w));
 for (const w of [360, 375, 390, 414]) await unit(`checkPreviewDraft ${w}`, () => checkPreviewDraft(w));
 
 await browser.close();
