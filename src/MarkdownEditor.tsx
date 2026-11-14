@@ -840,10 +840,11 @@ function blockHandle(
   handle.addEventListener('pointerdown', (e) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     e.preventDefault();
+    // Disabled while several blocks are selected: it does nothing (no drag, no long press, no tap).
+    if (several()) return;
     handle.setPointerCapture(e.pointerId);
     settle();
     pending = { id: e.pointerId, x: e.clientX, y: e.clientY, long: false, timer: 0 };
-    if (several()) return;
     if (select && canPress(e.pointerType, e.isPrimary))
       pending.timer = window.setTimeout(() => {
         if (!pending) return;
