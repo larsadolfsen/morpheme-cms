@@ -36,7 +36,9 @@ import { buildTestSite } from './test-site.mjs';
 const i18nDir = fileURLToPath(new URL('../src/i18n/da-DK/', import.meta.url));
 const bundled = await build({
   stdin: {
-    contents: ['apps', 'app', 'cms', 'dashboard', 'common', 'library'].map((name) => `export { ${name} } from './${name}.ts';`).join('\n'),
+    contents: ['apps', 'app', 'cms', 'dashboard', 'common', 'library', 'text', 'blocks']
+      .map((name) => `export { ${name} } from './${name}.ts';`)
+      .join('\n'),
     resolveDir: i18nDir,
     loader: 'ts',
   },
@@ -47,7 +49,16 @@ const bundled = await build({
   logLevel: 'silent',
 });
 const texts = await import(`data:text/javascript;base64,${Buffer.from(bundled.outputFiles[0].text).toString('base64')}`);
-const { apps: da, app: daApp, cms: daCms, dashboard: daDashboard, common: daCommon, library: daLibrary } = texts;
+const {
+  apps: da,
+  app: daApp,
+  cms: daCms,
+  dashboard: daDashboard,
+  common: daCommon,
+  library: daLibrary,
+  text: daText,
+  blocks: daBlocks,
+} = texts;
 
 // The theme's springs (lib/motion.ts, TypeScript too): what the bar's slide and fade must last and follow.
 const motionBundle = await build({
@@ -269,27 +280,13 @@ async function checkStartSubtitle() {
   }
 }
 
-/** The theme's choice group (theme/ui/ChoiceGroup.tsx, spec docs/superpowers/specs/2026-11-14-choice-group-design.md) on "Parts" ›
- * "UI components" (ActionParts.tsx), on a phone and a computer, in English and Danish: in every group no two choices overlap and
- * no label is cut off; it is the buttons only when every button fits; a list row is at least 48 px high and a button's target at
- * least 48 px; the group is named (role=group with its name, or the fieldset's legend). The group forced to the list has a
- * sample on each row, the one in the 320 px frame is the list, and in the list the arrow keys choose, in the buttons they move
- * and Enter chooses. */
-async function checkChoiceGroupParts(width, locale) {
-  const label = `${width}px ${locale} choice group parts`;
-  const touch = width < 600;
-  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: touch, isMobile: touch, locale });
-  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  await openEditor(page, site);
-  await page.evaluate(() => (location.hash = '#developer/parts/ui'));
-  const part = page.locator('[data-part="ChoiceGroup"]');
-  await part.waitFor({ timeout: 30_000 }).catch(() => problems.push(`${label}: the ChoiceGroup part is not on the page`));
-  if (!(await part.count())) return page.close();
-  await part.scrollIntoViewIfNeeded();
-  await page.evaluate(() => document.fonts.ready);
-  await page.waitForTimeout(300);
-  const groups = await part.evaluate((p) =>
-    [...p.querySelectorAll('.choice-group')].map((g) => {
+/** Every visible choice group (.choice-group) in `root`, measured in the page: its form, its choices' boxes, whether two overlap
+ * or a label is cut off, what the buttons need against the room they get, the targets (buttons) and row heights (list), its
+ * name, and its samples. Run with locator.evaluate. */
+function choiceGroupsIn(root) {
+  return [...root.querySelectorAll('.choice-group')]
+    .filter((g) => g.getClientRects().length > 0)
+    .map((g) => {
       const form = g.dataset.form;
       const visible =
         form === 'buttons' ? g.querySelector(':scope > .choice-group-buttons') : g.querySelector(':scope > .choice-group-list');
@@ -302,7 +299,9 @@ async function checkChoiceGroupParts(width, locale) {
         form === 'buttons'
           ? items.map((b) => b.querySelector('.choice-group-label'))
           : items.map((r) => r.querySelector('.list-item-headline'));
-      const clipped = labels.filter((l) => l && l.scrollWidth > l.clientWidth + 0.5).map((l) => l.textContent);
+      const clipped = labels
+        .filter((l) => l && !l.classList.contains('choice-group-label-hidden') && l.scrollWidth > l.clientWidth + 0.5)
+        .map((l) => l.textContent);
       const measured = [...g.querySelectorAll(':scope > .choice-group-measure > *')].map((b) => b.getBoundingClientRect().width);
       const row = g.querySelector(':scope > .choice-group-measure');
       const room = row ? row.getBoundingClientRect().width : 0;
@@ -332,11 +331,14 @@ async function checkChoiceGroupParts(width, locale) {
         heights,
         name,
       };
-    }),
-  );
-  if (groups.length !== 3) problems.push(`${label}: ${groups.length} choice groups, not 3`);
+    });
+}
+
+/** The rules every choice group keeps (choiceGroupsIn): no overlap, no label cut off, buttons only when they fit, 48 px targets
+ * and rows, a name. */
+function checkChoiceGroups(label, groups) {
   groups.forEach((g, i) => {
-    const at = `${label} group ${i + 1} (${g.form})`;
+    const at = `${label} group ${i + 1} "${g.name}" (${g.form})`;
     if (g.overlap) problems.push(`${at}: two choices overlap`);
     if (g.clipped.length) problems.push(`${at}: cut off: ${g.clipped.join(', ')}`);
     if (!g.name.trim()) problems.push(`${at}: the group has no name`);
@@ -345,6 +347,173 @@ async function checkChoiceGroupParts(width, locale) {
     if (g.targets.some((t) => t < 47.5)) problems.push(`${at}: a button's target is below 48 px (${g.targets.join(', ')})`);
     if (g.heights.some((h) => h < 47.5)) problems.push(`${at}: a row is below 48 px (${g.heights.join(', ')})`);
   });
+}
+
+/** A page with every block whose settings have a choice of a few (the choice group's places, spec section 4): Banner, Blog posts,
+ * Testimonials, Cards (Filled, so Color shows), Image grid, Segmented list and Buttons. */
+const CHOICE_PAGE = [
+  '---\ntitle: "Choices"\ndescription: "d"\n---\n\n# Choices\n\nIntro.\n',
+  block('hero', { title: 'Welcome' }),
+  block('posts', {}),
+  block('testimonials', { show: 'all', heading: 'Kind words' }),
+  block('cards', { design: 'filled', items: [{ title: 'One', text: 'First' }] }),
+  block('imagegrid', {}),
+  block('segmented', { items: [{ title: 'Row', text: 'Text' }] }),
+  block('buttons', { items: [{ label: 'Book a time', to: 'page', kind: 'filled' }] }),
+].join('\n\n');
+
+/** The choice groups of the editor's fields (fields.tsx, `segments: true`) in their places, on a phone (the 271 px modal sheet) and a
+ * computer (the 312 px side sheet), in English and Danish: each block's Block settings, and a button's Settings. Every group keeps the
+ * rules of checkChoiceGroups. The owner's case by name: Buttons › Settings › Style is the list with five samples at both widths, and
+ * in the list the arrow keys choose. */
+async function checkChoiceGroupFields(width, locale) {
+  const label = `${width}px ${locale} choice group fields`;
+  const touch = width < 600;
+  const say =
+    locale === 'da-DK'
+      ? { block: daText.blockSettings, settings: daBlocks.buttons.settingsAction, style: daBlocks.buttons.kind }
+      : { block: 'Block settings', settings: 'Settings', style: 'Style' };
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: touch, isMobile: touch, locale });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  const path = 'src/content/pages/zz-choices.md';
+  await openEditor(page, site, { [path]: CHOICE_PAGE });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('.ProseMirror .site-block-card', { timeout: 30_000 });
+  const sheet = () =>
+    page
+      .locator('dialog[open], .editor-side-sheet')
+      .filter({ has: page.locator('.choice-group') })
+      .last();
+  // A sheet is closed by its Cancel (nothing was changed), else by Escape (the side panel on a computer).
+  const close = async () => {
+    const cancel = page.locator(
+      'dialog[open] .side-sheet-actions button, dialog[open] [aria-label="Close"], dialog[open] [aria-label="Luk"]',
+    );
+    const named = cancel.filter({ hasText: /^(Cancel|Annuller)$/ });
+    if (await named.count()) await named.last().click();
+    else if (await cancel.count()) await cancel.last().click();
+    else await page.keyboard.press('Escape');
+    await page.waitForFunction(() => !document.querySelector('dialog[open]'), null, { timeout: 3000 }).catch(() => {});
+    await page.waitForTimeout(300);
+  };
+  const cards = page.locator('.ProseMirror > .site-block > .site-block-card');
+  const count = await cards.count();
+  const seen = [];
+  for (let i = 0; i < count; i++) {
+    const card = cards.nth(i);
+    const name = await card.getAttribute('aria-label');
+    // At the top of the screen, clear of the save bar over the bottom (a phone).
+    await card.evaluate((el) => el.scrollIntoView({ block: 'start' }));
+    await page.waitForTimeout(200);
+    await (touch ? card.tap({ timeout: 5000 }) : card.click({ timeout: 5000 })).catch(() =>
+      problems.push(`${label}: the ${name} block could not be selected`),
+    );
+    // The row opens by its height on the spring: wait for it to stand still.
+    await page.waitForTimeout(800);
+    // A tap on a block that is not typed in place opens its sheet at once on a phone; otherwise Block settings in the active block's
+    // row, or in the row of the block pointed at.
+    if (!(await sheet().count())) {
+      const active = rowButton(page, say.block);
+      let button = (await active.count()) ? active : page.locator(`.site-block-row [data-row][aria-label="${say.block}"]:visible`);
+      if (!(await button.count()) && touch) {
+        // A block drawn empty here (no testimonials picked on the page) is too low to tap: the keyboard opens it, as for a screen reader.
+        await card.focus();
+        await page.keyboard.press('Enter');
+        await page.waitForTimeout(800);
+        button = page.locator(`.site-block-row [data-row][aria-label="${say.block}"]:visible`);
+      }
+      // Buttons has no block-level choice: its Style is in each button's Settings (below).
+      if (!(await button.count()) && !(await sheet().count())) {
+        if (/^(Buttons|Knapper)$/.test(name)) continue;
+        problems.push(`${label}: ${name} has no ${say.block}`);
+        if (process.env.CHOICE_DEBUG) await page.screenshot({ path: `${process.env.CHOICE_DEBUG}-${width}-${i}.png` });
+        continue;
+      }
+      if (await button.count())
+        if (
+          !(await button
+            .first()
+            .click({ timeout: 5000 })
+            .then(
+              () => true,
+              () => false,
+            ))
+        ) {
+          problems.push(`${label}: ${say.block} of ${name} could not be pressed`);
+          continue;
+        }
+    }
+    const here = sheet();
+    if (
+      !(await here.waitFor({ timeout: 4000 }).then(
+        () => true,
+        () => false,
+      ))
+    ) {
+      await close();
+      continue;
+    }
+    await page.waitForTimeout(300);
+    const groups = await here.evaluate(choiceGroupsIn);
+    seen.push(...groups.map((g) => g.name));
+    checkChoiceGroups(`${label} ${name}`, groups);
+    if (process.env.SHOTS_FULL) await here.screenshot({ path: `${process.env.SHOTS_FULL}-fields-${width}-${locale}-${i}.png` });
+    await close();
+  }
+  if (seen.length < 10)
+    problems.push(`${label}: only ${seen.length} choice groups in the blocks' settings (${seen.join(', ')}), not the 10 of section 4`);
+  // The owner's case: a button's Style, the list with a sample of each style.
+  await page.locator('.ProseMirror [data-field="label"]').last().click();
+  await page.waitForTimeout(300);
+  await pressTool(page, say.settings).catch(() => problems.push(`${label}: the button has no ${say.settings}`));
+  const style = page.getByRole('group', { name: say.style, exact: true }).last();
+  if (
+    !(await style.waitFor({ timeout: 4000 }).then(
+      () => true,
+      () => false,
+    ))
+  )
+    problems.push(`${label}: the button's settings have no ${say.style}`);
+  else {
+    const g = (await sheet().evaluate(choiceGroupsIn)).find((x) => x.name === say.style);
+    if (!g || g.form !== 'list' || g.samples !== 5)
+      problems.push(
+        `${label}: Buttons › ${say.settings} › ${say.style} is not the list with five samples (${g?.form}, ${g?.samples} samples)`,
+      );
+    checkChoiceGroups(`${label} button style`, g ? [g] : []);
+    await style.locator('input[type="radio"]:checked').focus();
+    await page.keyboard.press('ArrowDown');
+    const chosen = await style.evaluate((l) => [...l.querySelectorAll('input[type="radio"]')].findIndex((r) => r.checked));
+    if (chosen !== 1) problems.push(`${label}: ArrowDown in ${say.style} did not choose the second style (${chosen})`);
+    if (!(await page.locator('.inline-list-row-active.button-tonal, .ProseMirror .button-tonal').count()))
+      problems.push(`${label}: choosing Tonal by the arrow key did not change the button`);
+    if (process.env.SHOTS_FULL) await sheet().screenshot({ path: `${process.env.SHOTS_FULL}-button-style-${width}-${locale}.png` });
+  }
+  await page.close();
+}
+
+/** The theme's choice group (theme/ui/ChoiceGroup.tsx, spec docs/superpowers/specs/2026-11-14-choice-group-design.md) on "Parts" ›
+ * "UI components" (ActionParts.tsx), on a phone and a computer, in English and Danish: in every group no two choices overlap and
+ * no label is cut off; it is the buttons only when every button fits; a list row is at least 48 px high and a button's target at
+ * least 48 px; the group is named (role=group with its name, or the fieldset's legend). The group forced to the list has a
+ * sample on each row, the one in the 320 px frame is the list, and in the list the arrow keys choose, in the buttons they move
+ * and Enter chooses. */
+async function checkChoiceGroupParts(width, locale) {
+  const label = `${width}px ${locale} choice group parts`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: touch, isMobile: touch, locale });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#developer/parts/ui'));
+  const part = page.locator('[data-part="ChoiceGroup"]');
+  await part.waitFor({ timeout: 30_000 }).catch(() => problems.push(`${label}: the ChoiceGroup part is not on the page`));
+  if (!(await part.count())) return page.close();
+  await part.scrollIntoViewIfNeeded();
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(300);
+  const groups = await part.evaluate(choiceGroupsIn);
+  if (groups.length !== 3) problems.push(`${label}: ${groups.length} choice groups, not 3`);
+  checkChoiceGroups(label, groups);
   const [auto, forced, narrow] = groups;
   if (width >= 1280 && auto?.form !== 'buttons') problems.push(`${label}: three short choices are not side by side at ${width} px`);
   if (forced && (forced.form !== 'list' || forced.samples !== forced.n))
@@ -4756,15 +4925,22 @@ async function checkInlineBlock(
         ),
       );
       const kinds = ['Filled', 'Tonal', 'Elevated', 'Outlined', 'Text'];
-      const group = page.locator('[role="group"][aria-label="Style"], [aria-label="Style"]').last();
+      // The choice group (ChoiceGroup): its buttons, or its list of radio buttons when they do not fit.
+      const group = page.getByRole('group', { name: 'Style', exact: true }).last();
       await group.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's settings have no Style choice`));
-      const names = await group
-        .getByRole('button')
-        .allTextContents()
-        .catch(() => []);
+      const radios = await group.getByRole('radio').count();
+      const names = radios
+        ? await group.locator('.list-item-headline').allTextContents()
+        : await group
+            .getByRole('button')
+            .allTextContents()
+            .catch(() => []);
       if (names.map((n) => n.trim()).join() !== kinds.join()) problems.push(`${label}: the button's styles are "${names}", not "${kinds}"`);
-      await group
-        .getByRole('button', { name: 'Outlined', exact: true })
+      await (
+        radios
+          ? group.locator('.list-item-content', { hasText: /^Outlined$/ })
+          : group.getByRole('button', { name: 'Outlined', exact: true })
+      )
         .click({ timeout: 3000 })
         .catch(() => {});
       await page.waitForTimeout(300);
@@ -6149,7 +6325,7 @@ async function checkIconColor(width, height, scheme = 'light') {
         rows: document.querySelectorAll('[role="group"][aria-label="Icon color"]').length,
         names: [...(group?.querySelectorAll('button') ?? [])].map((b) => b.getAttribute('aria-label')),
         visible: [...(group?.querySelectorAll('button') ?? [])]
-          .map((b) => (b.querySelector('.segmented-button-label').getBoundingClientRect().width > 2 ? b.textContent.trim() : ''))
+          .map((b) => (b.querySelector('.choice-group-label').getBoundingClientRect().width > 2 ? b.textContent.trim() : ''))
           .join(''),
         pressed: [...(group?.querySelectorAll('button') ?? [])]
           .filter((b) => b.getAttribute('aria-pressed') === 'true')
@@ -6196,7 +6372,7 @@ async function checkIconColor(width, height, scheme = 'light') {
       };
       const chips = [...document.querySelectorAll('[role="group"][aria-label="Icon color"] button')];
       const out = chips.map((chip, i) => {
-        const dot = chip.querySelector('.segmented-button-swatch');
+        const dot = chip.querySelector('.choice-group-swatch');
         const box = dot?.getBoundingClientRect();
         const role = ['on-surface', 'primary', 'secondary', 'tertiary'][i];
         return {
@@ -6205,7 +6381,7 @@ async function checkIconColor(width, height, scheme = 'light') {
           circle: !!dot && Math.abs(box.width - box.height) < 0.5 && getComputedStyle(dot).borderRadius !== '0px',
           color: dot ? getComputedStyle(dot).backgroundColor : null,
           want: colorOf(role),
-          check: !!chip.querySelector('.segmented-button-check'),
+          check: !!chip.querySelector('.segmented-button-check, .choice-group-check'),
           width: Math.round(chip.getBoundingClientRect().width),
         };
       });
@@ -8062,6 +8238,9 @@ for (const [width, height] of [
 await unit('checkStartSubtitle', () => checkStartSubtitle());
 for (const width of [375, 1280])
   for (const locale of ['en-US', 'da-DK']) await unit(`choice-group parts ${width} ${locale}`, () => checkChoiceGroupParts(width, locale));
+for (const width of [375, 1280])
+  for (const locale of ['en-US', 'da-DK'])
+    await unit(`choice-group fields ${width} ${locale}`, () => checkChoiceGroupFields(width, locale));
 
 for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
 await unit('checkTextBarWide', () => checkTextBarWide());

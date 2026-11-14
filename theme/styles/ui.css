@@ -4543,7 +4543,8 @@
   the choice's name) with a .list, each choice a .list-item-with-control with its .radio-button leading, at least 48 dp
   high at every density, and on its right its .choice-group-sample (a small, inert drawing of the look) or its
   .choice-group-swatch (a filled circle of a colour, also before the label in the buttons; with dots only the circles
-  show, the names in .choice-group-label-hidden). .choice-group-measure is the buttons at their natural width, hidden,
+  show, the names in .choice-group-label-hidden; with data-label-hidden the list's name is for screen readers only, where
+  a label is already over it). .choice-group-measure is the buttons at their natural width, hidden,
   which the form is measured with. The forms' looks are the button group's, the button's, the list's and the radio
   button's variables; the part adds:
     --choice-group-max-width (30rem), --choice-group-gap (between the name and the list),
@@ -4796,6 +4797,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .choice-group[data-label-hidden] > .choice-group-list > .radio-group-label,
   .choice-group-label-hidden {
     position: absolute;
     width: 1px;
