@@ -1,0 +1,6 @@
+{
+  "id": "block-row-in-outline",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "The block's buttons sit inside its dotted outline and move with the block"
+}

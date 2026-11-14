@@ -1,9 +1,10 @@
-// The active block's action row (docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md; owner idea, 14 Nov): a small row right above the block's top
-// item, right-aligned, with the block's own actions (Move up, Move down, Hide or Show, Settings, only when the block has settings) and, at its end, the block's drag handle (drawn there by
+// The active block's action row (docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md; owner idea, 14 Nov): a small row at the top of the block's dotted outline (inside it, above the block's top
+// item), right-aligned, with the block's own actions (Move up, Move down, Hide or Show, Settings, only when the block has settings) and, at its end, the block's drag handle (drawn there by
 // CSS: `.site-block-has-row`). It shows only while a block is active and opens by its height, with the editor's spatial spring (motionTiming) and not at all
 // under reduced motion. The buttons are real buttons with the labels the menu rows had; the bar's `⋮` keeps the rest (Remove, other settings).
 // The block (a node view, not React) tells blockBar its row; this module draws it. No dependencies but blockBar and the motion helpers.
 import { motionReduced, motionTiming } from '../lib/motion';
+import { iconButtonClass } from '@theme/ui/IconButton';
 import { blockBar, type BlockRow } from './blockBar';
 
 /** The row's height and its buttons': the editor's one touch size, 44 dp. */
@@ -39,7 +40,8 @@ function draw(el: HTMLElement, row: BlockRow, name: string) {
     ...row.items.map((item) => {
       const button = document.createElement('button');
       button.type = 'button';
-      button.className = 'site-block-row-button';
+      // The theme's own icon button (the one the text bar uses: Material's standard icon button with its state layers), no class of the row's own.
+      button.className = iconButtonClass('standard', 'small');
       button.dataset.row = item.kind;
       button.setAttribute('aria-label', item.label);
       // Disabled (a block that cannot move further): shown, still in its place, with the reason (the M3 disabled state, as the bar's Move buttons while blocks are selected).
@@ -91,7 +93,8 @@ function sync() {
     el.className = 'site-block-row';
     el.setAttribute('role', 'group');
     el.innerHTML = '<div class="site-block-row-inner"></div>';
-    row.host.prepend(el);
+    // Inside the block's dotted outline (its card), so the row moves with the block and the drag shows both together.
+    (row.host.querySelector<HTMLElement>(':scope > .site-block-card') ?? row.host).prepend(el);
     row.host.classList.add('site-block-has-row');
     shown = { host: row.host, el };
     draw(el, row, state.name);
