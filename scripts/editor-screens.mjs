@@ -508,7 +508,7 @@ async function checkBottomSheetBar(width, height, keyboard = 0, keyboardUp = fal
   await page.close();
 }
 
-/** A button of the active block's action row by its name (Move up, Move down, Hide on the page, Show on the page, Block settings; Edit on an image card). */
+/** A button of the active block's action row by its name (Move up, Move down, Hide, Show, Block settings; Edit on an image card). */
 const rowButton = (page, name) => page.locator(`.site-block-row-button[aria-label="${name}"]:visible`);
 
 /** A tool of the text's one bar by its name: a button of the active block's action row, its button on the bar, or its row in the ⋮ menu when it did not fit (a phone). `how`: 'click' or 'tap'.
@@ -945,7 +945,7 @@ async function checkCardBar(width, height = 800) {
   if (!tools.names.includes('Remove') && phone) problems.push(`${label}: the card's menu has no Remove (${tools.names})`);
   const rowNames = await page.locator('.site-block-row-button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   if (!rowNames.includes('Move up')) problems.push(`${label}: the card's action row has no Move up (${rowNames})`);
-  if (tools.names.includes('Move up') || tools.names.includes('Hide on the page'))
+  if (tools.names.includes('Move up') || tools.names.includes('Hide'))
     problems.push(`${label}: Move up or Hide is in the bar as well as in the action row (${tools.names})`);
   if (tools.names.filter((n) => n === 'More').length !== 1) problems.push(`${label}: the bar has no single ⋮ (${tools.names})`);
   if (phone) {
@@ -990,6 +990,81 @@ async function checkCardBar(width, height = 800) {
   }));
   if (back.pressed || !back.names.includes('Bold'))
     problems.push(`${label}: a tap in the text did not let the card go and bring the text tools back (${JSON.stringify(back)})`);
+  await page.close();
+}
+
+/** Closing a changed sheet (closeChanged, ask.tsx; image tools spec 9.3): the question is "Keep your changes?" with the text that the changes stay in the
+ * page until it is saved, and Discard and Keep in one row, Keep last (M3's basic dialog), with no Cancel; Esc stays in the sheet, Keep does what the sheet's
+ * Insert does, and Discard closes it without the block. */
+async function checkCloseChangedSheet(width, height = 800) {
+  const phone = width < 600;
+  const label = `${width}px closing a changed sheet`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  const sheet = page
+    .locator('dialog[open], .editor-side-sheet')
+    .filter({ has: page.locator('textarea') })
+    .last();
+  const question = page.locator('dialog[open]').filter({ hasText: 'Keep your changes?' });
+  const insertVideo = async () => {
+    await pressInsert(page, 'click');
+    await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
+    await sheet.locator('textarea').fill('<iframe src="https://www.youtube.com/embed/abc" title="Clip"></iframe>');
+  };
+  const cancel = () =>
+    sheet
+      .locator('button', { hasText: /^Cancel$/ })
+      .first()
+      .click();
+  await insertVideo();
+  await cancel();
+  if (
+    !(await question.waitFor({ timeout: 4000 }).then(
+      () => true,
+      () => false,
+    ))
+  ) {
+    problems.push(`${label}: Cancel with a change does not ask "Keep your changes?"`);
+    return void (await page.close());
+  }
+  const asked = await question.evaluate((d) => ({
+    text: d.textContent,
+    buttons: [...d.querySelectorAll('button')]
+      .filter((b) => b.offsetParent)
+      .map((b) => ({ name: b.textContent.trim(), x: b.getBoundingClientRect().x, y: b.getBoundingClientRect().y })),
+  }));
+  if (!asked.text.includes('Your changes stay in the page until you save it.'))
+    problems.push(`${label}: the question does not say the changes stay in the page (${asked.text.trim()})`);
+  const names = asked.buttons.map((b) => b.name);
+  if (names.join() !== 'Discard,Keep') problems.push(`${label}: the question's buttons are ${names.join(', ')}, not Discard and Keep`);
+  const [discard, keep] = asked.buttons;
+  if (discard && keep && (Math.abs(discard.y - keep.y) > 1 || keep.x <= discard.x))
+    problems.push(`${label}: Keep is not last in one row with Discard (${JSON.stringify(asked.buttons)})`);
+  // Esc stays in the sheet with the change.
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(400);
+  if (await question.count()) problems.push(`${label}: Esc did not close the question`);
+  if (!(await sheet.count()) || !(await sheet.locator('textarea').inputValue()).includes('youtube'))
+    problems.push(`${label}: Esc on the question did not stay in the sheet with the change`);
+  // Discard closes the sheet without the block.
+  await cancel();
+  await question.getByRole('button', { name: 'Discard', exact: true }).click();
+  await page.waitForTimeout(500);
+  if (await page.locator('.ProseMirror .site-block-card').count()) problems.push(`${label}: Discard inserted the block`);
+  // Keep does what Insert does.
+  await insertVideo();
+  await cancel();
+  await question.getByRole('button', { name: 'Keep', exact: true }).click();
+  await page
+    .waitForSelector('.ProseMirror .site-block-card', { timeout: 6000 })
+    .catch(() => problems.push(`${label}: Keep did not insert the block`));
   await page.close();
 }
 
@@ -1042,7 +1117,7 @@ async function checkBlockRow(width, options = {}) {
       };
     }),
   );
-  for (const name of ['Move up', 'Move down', 'Hide on the page'])
+  for (const name of ['Move up', 'Move down', 'Hide'])
     if (!shape.some((b) => b.label === name)) problems.push(`${label}: the row has no "${name}" (${shape.map((b) => b.label)})`);
   if (shape.some((b) => b.w < 43.4 || b.h < 43.4))
     problems.push(`${label}: a button of the row is under 44 x 44 dp (${JSON.stringify(shape)})`);
@@ -1060,13 +1135,13 @@ async function checkBlockRow(width, options = {}) {
     problems.push(`${label}: the row lies under the text bar (${JSON.stringify({ rowBox, bar })})`);
   if (rowBox && block && rowBox.y + rowBox.height > block.y + 1) problems.push(`${label}: the row overlaps the block's content`);
   const barNames = await page.locator('.editor-tools button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
-  for (const name of ['Move up', 'Move down', 'Hide on the page', 'Show on the page'])
+  for (const name of ['Move up', 'Move down', 'Hide', 'Show'])
     if (barNames.includes(name)) problems.push(`${label}: "${name}" is on the bar as well as in the row`);
   // Hide turns into Show and the row stays.
-  await page.locator('.site-block-row-button[aria-label="Hide on the page"]')[phone ? 'tap' : 'click']();
+  await page.locator('.site-block-row-button[aria-label="Hide"]')[phone ? 'tap' : 'click']();
   await page.waitForTimeout(500);
-  if (!(await names()).includes('Show on the page')) problems.push(`${label}: after Hide the row does not say Show (${await names()})`);
-  await page.locator('.site-block-row-button[aria-label="Show on the page"]')[phone ? 'tap' : 'click']();
+  if (!(await names()).includes('Show')) problems.push(`${label}: after Hide the row does not say Show (${await names()})`);
+  await page.locator('.site-block-row-button[aria-label="Show"]')[phone ? 'tap' : 'click']();
   await page.waitForTimeout(500);
   // The row's buttons are real buttons that Tab reaches.
   if (await page.locator('.site-block-row-button[tabindex="-1"]').count())
@@ -1148,7 +1223,7 @@ async function checkInsertBlock(width, height = 800) {
   await page.close();
 }
 
-/** A block typed in place has its tools on the text's one bar (PR 2 of the contextual toolbar plan): with a List active the bar has the block's group (named by the block), Add above and Add below as 44 x 44 dp buttons, no floating bar anywhere, the block's own menu (Hide on the page, Remove) in the ⋮ (never a second ⋮ on the card), Undo and Redo, no scrolling; the cursor back in the text brings the text tools back. */
+/** A block typed in place has its tools on the text's one bar (PR 2 of the contextual toolbar plan): with a List active the bar has the block's group (named by the block), Add above and Add below as 44 x 44 dp buttons, no floating bar anywhere, the block's own menu (Hide, Remove) in the ⋮ (never a second ⋮ on the card), Undo and Redo, no scrolling; the cursor back in the text brings the text tools back. */
 async function checkBlockBar(width, height = 800) {
   const phone = width < 600;
   const label = `${width}px block bar`;
@@ -1184,9 +1259,9 @@ async function checkBlockBar(width, height = 800) {
   if (names.indexOf('Add below') > names.indexOf('Add above')) problems.push(`${label}: Add below does not come before Add above`);
   // Move up, Move down and Hide are in the block's action row (blockRow.ts), never on the bar or in the ⋮ as well.
   const listRow = await page.locator('.site-block-row-button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
-  for (const name of ['Move up', 'Move down', 'Hide on the page'])
+  for (const name of ['Move up', 'Move down', 'Hide'])
     if (!listRow.includes(name)) problems.push(`${label}: the action row has no "${name}" (${listRow})`);
-  for (const name of ['Move up', 'Move down', 'Hide on the page'])
+  for (const name of ['Move up', 'Move down', 'Hide'])
     if (names.includes(name)) problems.push(`${label}: "${name}" is on the bar or in the ⋮ as well as in the action row`);
   if (!more.length) problems.push(`${label}: the ⋮ has no rows`);
   for (const name of ['Remove']) if (!names.includes(name)) problems.push(`${label}: the block's own menu has no "${name}" (${names})`);
@@ -2530,7 +2605,7 @@ async function checkBlockSelect(width) {
   await page.waitForTimeout(300);
   const rows = await page.locator('[role=menu] [role^=menuitem]').allTextContents();
   const clean = rows.map((r) => r.trim());
-  for (const name of ['Hide on the page', 'Remove', 'Select all'])
+  for (const name of ['Hide', 'Remove', 'Select all'])
     if (!clean.includes(name)) problems.push(`${label}: the bar's menu has no "${name}" (${clean.join(', ')})`);
   if (clean.includes('Duplicate')) problems.push(`${label}: Duplicate is offered with two blocks selected`);
   // Remove asks first (and Escape leaves the blocks as they are).
@@ -2549,7 +2624,7 @@ async function checkBlockSelect(width) {
   await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
   await page.waitForTimeout(300);
   await page
-    .locator('[role=menu] [role^=menuitem]', { hasText: /^Hide on the page$/ })
+    .locator('[role=menu] [role^=menuitem]', { hasText: /^Hide$/ })
     .first()
     .click();
   await page.waitForTimeout(500);
@@ -7381,6 +7456,7 @@ for (const [width, reduced] of [
   await unit(`checkBarSlide ${width}${reduced ? ' reduced' : ''}`, () => checkBarSlide(width, reduced));
 for (const width of [375, 1280]) await unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
 for (const width of [375, 1280]) await unit(`checkCardBar ${width}`, () => checkCardBar(width));
+for (const width of [375, 1280]) await unit(`checkCloseChangedSheet ${width}`, () => checkCloseChangedSheet(width));
 for (const width of [320, 375, 1280]) await unit(`checkInsertBlock ${width}`, () => checkInsertBlock(width));
 for (const w of [375, 1280]) await unit(`checkBlockRow ${w}`, () => checkBlockRow(w));
 await unit('checkBlockRow 375 reduced', () => checkBlockRow(375, { reduced: true }));
