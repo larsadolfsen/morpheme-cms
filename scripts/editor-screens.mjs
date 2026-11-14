@@ -1800,7 +1800,7 @@ async function checkBlockRowNarrow() {
   await page.close();
 }
 
-/** Insert block is always on the bar and never in the ⋮ (320, 375 and 1280 px, in text, with a block active and idle): a 44 x 44 dp button with the plus icon (Material's add), right before the ⋮ (or last), after Undo and Redo with no divider; it opens the block picker. */
+/** Insert block is always on the bar and never in the ⋮ (320, 375 and 1280 px, in text, with a block active and idle): a 44 x 44 dp button with the add-block icon (widgets with a plus), right before the ⋮ (or last), after Undo and Redo with no divider; it opens the block picker. */
 async function checkInsertBlock(width, height = 800) {
   const phone = width < 600;
   const label = `${width}px Insert block`;
@@ -1831,7 +1831,8 @@ async function checkInsertBlock(width, height = 800) {
     if (!got.insert) return void problems.push(`${where}: no Insert block on the bar (${got.names})`);
     if (Math.abs(got.insert.width - 44) > 0.6 || Math.abs(got.insert.height - 44) > 0.6)
       problems.push(`${where}: Insert block is ${got.insert.width} x ${got.insert.height}, not 44 x 44`);
-    if (got.icon !== 'add') problems.push(`${where}: Insert block has icon ${got.icon}, not the plus (Material's add)`);
+    if (got.icon !== 'add_block')
+      problems.push(`${where}: Insert block has icon ${got.icon}, not the add-block icon (widgets with a plus)`);
     if (got.scrolls) problems.push(`${where}: the bar scrolls`);
     // Undo, Redo, Insert block, then the ⋮ (when there is one), with no divider.
     if (got.dividers) problems.push(`${where}: the bar has a divider`);

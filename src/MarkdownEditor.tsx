@@ -123,7 +123,7 @@ import { ask } from './ask';
 import { canPress, edgeScroll, movedAway } from '@theme/ui/longPressRules.mjs';
 import { canLabel, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
-import { AaIcon, AddIcon, BodyA1Icon, BodyA2Icon, BodyA3Icon, CloseIcon, MoreVertIcon } from './icon';
+import { AaIcon, AddBlockIcon, BodyA1Icon, BodyA2Icon, BodyA3Icon, CloseIcon, MoreVertIcon } from './icon';
 import pencilIcon from '@phosphor-icons/core/assets/regular/pencil-simple.svg?raw';
 import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
 import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
@@ -2652,7 +2652,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       case 'link':
         return { label: t.text.link, icon: LinkSimple, action: link, on: 'link' };
       case 'insert':
-        return { label: insertLabel, icon: blocks ? AddIcon : Image, action: blocks ? block : image };
+        return { label: insertLabel, icon: blocks ? AddBlockIcon : Image, action: blocks ? block : image };
       case 'undo':
         return { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand) };
       case 'redo':
