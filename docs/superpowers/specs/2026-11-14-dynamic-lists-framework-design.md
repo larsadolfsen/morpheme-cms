@@ -1,7 +1,7 @@
 # Dynamic lists: a framework for apps, the Dynamic lists app and Dynamic cards (design)
 
-Status: spec and build plan for 0.19. No code in this pull request. Written 14 November 2026 from the owner's decisions of the
-same day (section 1). Branch `0.19`. Section 13 holds the open questions for the owner, each with a recommendation.
+Status: spec and build plan for 0.19, decided (section 13). No code in this pull request. Written 14 November 2026 from the owner's decisions of the
+same day (section 1). Branch `0.19`. Section 13 holds the decisions on the spec's questions.
 
 Read for this spec:
 
@@ -273,9 +273,9 @@ It is built only on the framework: `lib/lists` (reading), `slots` on the standar
 block-settings slot of section 4.3 and `parseDefinition`. It imports no other core file. A check (`scripts/check-app-imports.mjs`,
 new) fails if it does, so the app proves the framework is enough for a third party.
 
-### 4.2 Where it lives: bundled in this repository (recommended)
+### 4.2 Where it lives: bundled in this repository (decided, Q1)
 
-**Recommendation: a bundled app in this repository, `apps/dynamic-lists/`, shipped inside `@morphemecms/cms`, installed by default.**
+**Decision (Q1, Q2): a bundled app in this repository, `apps/dynamic-lists/`, shipped inside `@morphemecms/cms`, installed by default.**
 
 | | Bundled in `morpheme-cms` | Store app in `morpheme-apps` |
 | :--- | :--- | :--- |
@@ -665,7 +665,7 @@ Phases 1 and 2 can be built side by side; 3 needs 1 and 2; 4 needs 1 and #616; 5
 needs 4. Phase 8 needs only #616, so it can run beside 1 to 4. Phase 9 needs 4, 6 and the Table's `DataTable` and column kinds (its own
 PRs 0, 1, 5 and 6); its sorting, pagination and search work on the dynamic rows the day those Table PRs land.
 
-**PR B: build it in the core (recommended), before or beside the move.** The entries' page is not one of the owner's tools for own lists:
+**PR B: built in the core (decided, Q10), before or beside the move.** The entries' page is not one of the owner's tools for own lists:
 decision 1 gives every list, Testimonials and every app's list included, "its items, its list page", and the edit-page plan already says
 entries are typed in place on every list's page, locked ones included. So typed-in-place entries are part of the framework's list page
 (3.7), which stays core, and only the field bar is the app's. Built in the core, PR B helps a third party's list on the day it lands, the
@@ -687,44 +687,23 @@ and Testimonials, or those would keep the old entry form.
 - `check:themes` with each theme, `check:starter` (the bundled app installed by default), `check:language` (no Danish outside the
   language files; `image` everywhere).
 
-## 13. Owner questions
+## 13. Decisions
 
-**Q1. Where does the Dynamic lists app live?** Bundled in this repository and shipped in `@morphemecms/cms`, or a store app in
-`morpheme-apps`. **Recommendation: bundled** (4.2): an upgrade can never leave a site without its tools, and framework changes land
-with the app that uses them in one pull request.
+Q7 was decided by the owner on 14 Nov. The owner was away and asked the 0.19 PM to decide the rest; the PM decided them as recommended,
+on the owner's behalf, on 14 Nov. The owner may revise any of them.
 
-**Q2. Is it installed by default?** **Recommendation: yes**, on new sites and on every upgraded site, with an `Enabled` switch in the
-store to turn it off. Turning it off is safe (6.4).
-
-**Q3. Contract 6.** New `app.json` keys (`listBlocks`, the data shape of `lists`) fail an older editor's check, so the store must not
-offer such an app to it. **Recommendation:** call them contract 6 (`APP_APIS [4, 5, 6]`), as contract 5 did for `role` and `mcp`. No app
-written to 4 or 5 stops working.
-
-**Q4. Can the owner add fields to an app's list?** An unlocked app list would store the owner's extra fields in the site (an overlay
-`_list.json` in the list's folder), and the app's later version could clash with them. **Recommendation:** an app's list is locked by
-default and `locked: false` is allowed only for first-party apps in 0.19; open it later if a real app asks.
-
-**Q5. Drawing stays core.** The owner's decision 2 moves "all of that" into the app. This spec keeps *reading and drawing* a dynamic
-block in the core and moves the *owner's tools* to the app, so turning the app off never changes a site (6.4). **Recommendation:
-keep that line.** The alternative (drawing in the app) means a site with the app off shows a dynamic block's hidden typed rows or
-nothing: a visible change.
-
-**Q6. Dynamic cards as a carousel.** With a list page, one `Show all` button that goes to the list's page (M3's first choice for a
-carousel) instead of the carousel's in-place `Show all`. **Recommendation: yes** (8.5), never two buttons.
-
-**Q7. Third-party blocks without code only.** A third party sells list blocks through `listBlocks` (data, drawn by the core's dynamic
-blocks), not with a drawing of its own, because blocks with code stay first-party (`full` places). **Recommendation: yes for 0.19.**
-A sandboxed block drawing (a block's view in QuickJS) is a larger piece of work and its own spec.
-
-**Q8. The `Date` kind.** **Recommendation: add it** (3.2) in phase 6, so a list can feed a card's subhead with a date and posts map
-naturally.
-
-**Q9. A dynamic table's default columns.** When a list is picked: every visible field in the list's order, without tags and with one
-image, or only the first title and text. **Recommendation: every visible field** (9.2): the owner sees the whole list at once and
-removes what is not wanted.
-
-**Q10. PR B in the core or the app.** **Recommendation: the core** (section 11): typed-in-place entries belong to every list's page,
-including Testimonials and third-party lists.
+| # | Question | Decision | By |
+| :--- | :--- | :--- | :--- |
+| Q1 | Where does the Dynamic lists app live? | Bundled in this repository and shipped in `@morphemecms/cms` (4.2). | PM 0.19, for the owner |
+| Q2 | Is it installed by default? | Yes, on new and upgraded sites, with an `Enabled` switch in the store to turn it off (6.4). | PM 0.19, for the owner |
+| Q3 | Which contract do the new `app.json` keys belong to? | Contract 6: `APP_APIS [4, 5, 6]`; no app written to 4 or 5 stops working (3.8). | PM 0.19, for the owner |
+| Q4 | Can the owner add fields to an app's list? | No: an app's list is locked by default, and `locked: false` is allowed only for first-party apps in 0.19 (3.1). | PM 0.19, for the owner |
+| Q5 | What moves to the app? | Only the owner's tools. Reading and drawing a dynamic block stay in the core, so turning the app off never changes a site (6.4). | PM 0.19, for the owner |
+| Q6 | Dynamic cards as a carousel with a list page | One `Show all` button, to the list's page; never two buttons (8.5). | PM 0.19, for the owner |
+| Q7 | Third-party blocks | Without code only in 0.19: a third party sells list blocks through `listBlocks`, drawn by the core's dynamic blocks; blocks with code stay first-party (3.6). | Owner |
+| Q8 | The `Date` kind | Added, in phase 6 (3.2). | PM 0.19, for the owner |
+| Q9 | A dynamic table's default columns | Every visible field in the list's order, without tags and with one image (9.2). | PM 0.19, for the owner |
+| Q10 | PR B of the edit-page plan | Built in the core, as phase 8 (section 11). | PM 0.19, for the owner |
 
 ## 14. Not in this spec
 
