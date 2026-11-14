@@ -43,7 +43,7 @@
   },
   "scripts": {
     "build": "node scripts/demo-build.mjs",
-    "check": "npm run format:check && npm run check:language && npm run check:editor-colors && npm run check:colors && npm run check:css-values && npm run check:release-notes && npm test && npm run check:types && npm run build && npm run check:site-types && npm run check:editor",
+    "check": "npm run format:check && npm run check:language && npm run check:phosphor && npm run check:editor-colors && npm run check:colors && npm run check:css-values && npm run check:release-notes && npm test && npm run check:types && npm run build && npm run check:site-types && npm run check:editor",
     "check:site-types": "node scripts/check-site-types.mjs",
     "check:types": "tsc -p tsconfig.types.json --noEmit",
     "check:editor": "cd .morpheme/demo/site && node ../../../bin/morpheme.mjs check:editor",
@@ -57,6 +57,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check:language": "node scripts/check-language.mjs",
+    "check:phosphor": "node scripts/check-phosphor.mjs",
     "check:editor-colors": "node scripts/check-editor-colors.mjs",
     "check:css-values": "node scripts/check-css-values.mjs",
     "check:colors": "node scripts/check-colors.mjs",
