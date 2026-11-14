@@ -811,7 +811,7 @@ export default function Parts({ env }: { env: Env }) {
                   <ChoiceRow
                     key={x.id}
                     selected={placement === (i ? 'list' : 'top')}
-                    trailing={<IconSwatches icons={x.samples} label={t.library.iconPackSamples(x.name)} />}
+                    trailing={x.samples.length ? <IconSwatches icons={x.samples} label={t.library.iconPackSamples(x.name)} /> : undefined}
                     onClick={() => setPlacement(i ? 'list' : 'top')}
                     headline={x.name}
                     supporting={t.library.iconPackByline(x.author, x.license)}

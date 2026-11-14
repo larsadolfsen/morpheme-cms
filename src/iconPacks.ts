@@ -63,7 +63,8 @@ export const iconPacks: IconPack[] = Object.entries(manifests)
       name: m.name,
       author: m.author,
       license: m.license,
-      samples: SAMPLES.map((name) => files[`${folder}${name}.svg`]).filter(Boolean),
+      // Owner rule (14 Nov): no Phosphor icon is drawn in the editor, not even the Phosphor pack's own samples: its row shows its name only.
+      samples: id === 'phosphor' ? [] : SAMPLES.map((name) => files[`${folder}${name}.svg`]).filter(Boolean),
     };
     if (m.version) pack.version = m.version;
     if (m.url) pack.url = m.url;
