@@ -72,10 +72,10 @@ export function LinkAsk({ groups }: { groups: Group[] }) {
     dialog.current?.close();
   };
   const use = () => href && done({ href, text: kind === 'page' ? (pageOf(href)?.label ?? href) : address.trim() });
-  // Closed with a change: the owner is asked whether to keep it ("Insert link", "Save"), leave it or stay.
+  // Closed with a change: the owner is asked whether to keep it (Keep), leave it (Discard) or stay.
   async function leave() {
     if (href === old || !href) return done(null);
-    const choice = await closeChanged(old ? t.common.save : t.text.insertLink);
+    const choice = await closeChanged();
     if (choice === 'keep') use();
     else if (choice === 'discard') done(null);
   }

@@ -68,8 +68,10 @@ export const app = {
   /** Before the browser asks to show notifications (askToNotify, notificationData.ts), and its button. */
   askNotify: 'Get a message when your changes are live?',
   askNotifyYes: 'Yes, tell me',
-  /** A sheet closed with changes (closeChanged, ask.tsx). */
-  unsavedSheet: 'You have changes that aren’t saved. Do you want to keep them?',
+  /** A sheet closed with changes (closeChanged, ask.tsx): its headline, its text, and the confirming button (after Discard). */
+  unsavedSheetTitle: 'Keep your changes?',
+  unsavedSheet: 'Your changes stay in the page until you save it.',
+  keep: 'Keep',
   viewOnSite: 'View on the website',
   /** GitHub (github.ts). */
   loggedOut: 'You have been logged out. Log in again.',

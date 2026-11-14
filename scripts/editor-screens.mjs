@@ -611,7 +611,7 @@ async function checkBottomSheetBar(width, height, keyboard = 0, keyboardUp = fal
   await page.close();
 }
 
-/** A button of the active block's action row by its name (Move up, Move down, Hide on the page, Show on the page, Block settings; Edit on an image card). */
+/** A button of the active block's action row by its name (Move up, Move down, Hide, Show, Block settings; Edit on an image card). */
 const rowButton = (page, name) => page.locator(`.site-block-row:not(.site-block-row-hover) [data-row][aria-label="${name}"]:visible`);
 
 /** A tool of the text's one bar by its name: a button of the active block's action row, its button on the bar, or its row in the ⋮ menu when it did not fit (a phone). `how`: 'click' or 'tap'.
@@ -1050,7 +1050,7 @@ async function checkCardBar(width, height = 800) {
     .locator('.site-block-row:not(.site-block-row-hover) [data-row]')
     .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   if (!rowNames.includes('Move up')) problems.push(`${label}: the card's action row has no Move up (${rowNames})`);
-  if (tools.names.includes('Move up') || tools.names.includes('Hide on the page'))
+  if (tools.names.includes('Move up') || tools.names.includes('Hide'))
     problems.push(`${label}: Move up or Hide is in the bar as well as in the action row (${tools.names})`);
   if (tools.names.filter((n) => n === 'More').length !== 1) problems.push(`${label}: the bar has no single ⋮ (${tools.names})`);
   if (phone) {
@@ -1095,6 +1095,81 @@ async function checkCardBar(width, height = 800) {
   }));
   if (back.pressed || !back.names.includes('Bold'))
     problems.push(`${label}: a tap in the text did not let the card go and bring the text tools back (${JSON.stringify(back)})`);
+  await page.close();
+}
+
+/** Closing a changed sheet (closeChanged, ask.tsx; image tools spec 9.3): the question is "Keep your changes?" with the text that the changes stay in the
+ * page until it is saved, and Discard and Keep in one row, Keep last (M3's basic dialog), with no Cancel; Esc stays in the sheet, Keep does what the sheet's
+ * Insert does, and Discard closes it without the block. */
+async function checkCloseChangedSheet(width, height = 800) {
+  const phone = width < 600;
+  const label = `${width}px closing a changed sheet`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  const sheet = page
+    .locator('dialog[open], .editor-side-sheet')
+    .filter({ has: page.locator('textarea') })
+    .last();
+  const question = page.locator('dialog[open]').filter({ hasText: 'Keep your changes?' });
+  const insertVideo = async () => {
+    await pressInsert(page, 'click');
+    await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
+    await sheet.locator('textarea').fill('<iframe src="https://www.youtube.com/embed/abc" title="Clip"></iframe>');
+  };
+  const cancel = () =>
+    sheet
+      .locator('button', { hasText: /^Cancel$/ })
+      .first()
+      .click();
+  await insertVideo();
+  await cancel();
+  if (
+    !(await question.waitFor({ timeout: 4000 }).then(
+      () => true,
+      () => false,
+    ))
+  ) {
+    problems.push(`${label}: Cancel with a change does not ask "Keep your changes?"`);
+    return void (await page.close());
+  }
+  const asked = await question.evaluate((d) => ({
+    text: d.textContent,
+    buttons: [...d.querySelectorAll('button')]
+      .filter((b) => b.offsetParent)
+      .map((b) => ({ name: b.textContent.trim(), x: b.getBoundingClientRect().x, y: b.getBoundingClientRect().y })),
+  }));
+  if (!asked.text.includes('Your changes stay in the page until you save it.'))
+    problems.push(`${label}: the question does not say the changes stay in the page (${asked.text.trim()})`);
+  const names = asked.buttons.map((b) => b.name);
+  if (names.join() !== 'Discard,Keep') problems.push(`${label}: the question's buttons are ${names.join(', ')}, not Discard and Keep`);
+  const [discard, keep] = asked.buttons;
+  if (discard && keep && (Math.abs(discard.y - keep.y) > 1 || keep.x <= discard.x))
+    problems.push(`${label}: Keep is not last in one row with Discard (${JSON.stringify(asked.buttons)})`);
+  // Esc stays in the sheet with the change.
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(400);
+  if (await question.count()) problems.push(`${label}: Esc did not close the question`);
+  if (!(await sheet.count()) || !(await sheet.locator('textarea').inputValue()).includes('youtube'))
+    problems.push(`${label}: Esc on the question did not stay in the sheet with the change`);
+  // Discard closes the sheet without the block.
+  await cancel();
+  await question.getByRole('button', { name: 'Discard', exact: true }).click();
+  await page.waitForTimeout(500);
+  if (await page.locator('.ProseMirror .site-block-card').count()) problems.push(`${label}: Discard inserted the block`);
+  // Keep does what Insert does.
+  await insertVideo();
+  await cancel();
+  await question.getByRole('button', { name: 'Keep', exact: true }).click();
+  await page
+    .waitForSelector('.ProseMirror .site-block-card', { timeout: 6000 })
+    .catch(() => problems.push(`${label}: Keep did not insert the block`));
   await page.close();
 }
 
@@ -1165,7 +1240,7 @@ async function checkBlockRow(width, options = {}) {
       };
     }),
   );
-  for (const name of ['Move up', 'Move down', 'Hide on the page'])
+  for (const name of ['Move up', 'Move down', 'Hide'])
     if (!shape.some((b) => b.label === name)) problems.push(`${label}: the row has no "${name}" (${shape.map((b) => b.label)})`);
   if (shape.some((b) => b.w < 43.4 || b.h < 43.4))
     problems.push(`${label}: a button of the row is under 44 x 44 dp (${JSON.stringify(shape)})`);
@@ -1184,7 +1259,7 @@ async function checkBlockRow(width, options = {}) {
   const firstItem = await page.locator('.site-block-card .inline-list-row').first().boundingBox();
   if (rowBox && firstItem && rowBox.y + rowBox.height > firstItem.y + 1) problems.push(`${label}: the row overlaps the block's content`);
   const barNames = await page.locator('.editor-tools button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
-  for (const name of ['Move up', 'Move down', 'Hide on the page', 'Show on the page'])
+  for (const name of ['Move up', 'Move down', 'Hide', 'Show'])
     if (barNames.includes(name)) problems.push(`${label}: "${name}" is on the bar as well as in the row`);
   // The row is inside the block's dotted outline (its card), which has a Card's corner radius and padding (the theme's tokens, read from a probe Card).
   const frame = await page.evaluate(() => {
@@ -1331,10 +1406,10 @@ async function checkBlockRow(width, options = {}) {
     }
   }
   // Hide turns into Show and the row stays.
-  await page.locator('.site-block-row:not(.site-block-row-hover) [data-row][aria-label="Hide on the page"]')[phone ? 'tap' : 'click']();
+  await page.locator('.site-block-row:not(.site-block-row-hover) [data-row][aria-label="Hide"]')[phone ? 'tap' : 'click']();
   await page.waitForTimeout(500);
-  if (!(await names()).includes('Show on the page')) problems.push(`${label}: after Hide the row does not say Show (${await names()})`);
-  await page.locator('.site-block-row:not(.site-block-row-hover) [data-row][aria-label="Show on the page"]')[phone ? 'tap' : 'click']();
+  if (!(await names()).includes('Show')) problems.push(`${label}: after Hide the row does not say Show (${await names()})`);
+  await page.locator('.site-block-row:not(.site-block-row-hover) [data-row][aria-label="Show"]')[phone ? 'tap' : 'click']();
   await page.waitForTimeout(500);
   // The row's buttons are real buttons that Tab reaches.
   if (await page.locator('.site-block-row:not(.site-block-row-hover) [data-row][tabindex="-1"]').count())
@@ -1403,7 +1478,7 @@ async function checkBlockRow(width, options = {}) {
     else {
       if (hovered.position !== 'absolute') problems.push(`${label}: the pointed block's row takes space (${hovered.position})`);
       if (!hovered.inside) problems.push(`${label}: the pointed block's row is not inside the dotted outline`);
-      for (const name of ['Move up', 'Move down', 'Hide on the page'])
+      for (const name of ['Move up', 'Move down', 'Hide'])
         if (!hovered.names.includes(name)) problems.push(`${label}: the pointed block's row has no "${name}" (${hovered.names})`);
       if (hovered.classes.some((c) => c !== 'icon-button icon-button-standard'))
         problems.push(`${label}: the pointed block's buttons are not the theme icon button (${hovered.classes})`);
@@ -1668,7 +1743,7 @@ async function checkInsertBlock(width, height = 800) {
   await page.close();
 }
 
-/** A block typed in place has its tools on the text's one bar (PR 2 of the contextual toolbar plan): with a List active the bar has the block's group (named by the block), Add above and Add below as 44 x 44 dp buttons, no floating bar anywhere, the block's own menu (Hide on the page, Remove) in the ⋮ (never a second ⋮ on the card), Undo and Redo, no scrolling; the cursor back in the text brings the text tools back. */
+/** A block typed in place has its tools on the text's one bar (PR 2 of the contextual toolbar plan): with a List active the bar has the block's group (named by the block), Add above and Add below as 44 x 44 dp buttons, no floating bar anywhere, the block's own menu (Hide, Remove) in the ⋮ (never a second ⋮ on the card), Undo and Redo, no scrolling; the cursor back in the text brings the text tools back. */
 async function checkBlockBar(width, height = 800) {
   const phone = width < 600;
   const label = `${width}px block bar`;
@@ -1706,9 +1781,9 @@ async function checkBlockBar(width, height = 800) {
   const listRow = await page
     .locator('.site-block-row:not(.site-block-row-hover) [data-row]')
     .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
-  for (const name of ['Move up', 'Move down', 'Hide on the page'])
+  for (const name of ['Move up', 'Move down', 'Hide'])
     if (!listRow.includes(name)) problems.push(`${label}: the action row has no "${name}" (${listRow})`);
-  for (const name of ['Move up', 'Move down', 'Hide on the page'])
+  for (const name of ['Move up', 'Move down', 'Hide'])
     if (names.includes(name)) problems.push(`${label}: "${name}" is on the bar or in the ⋮ as well as in the action row`);
   if (!more.length) problems.push(`${label}: the ⋮ has no rows`);
   for (const name of ['Remove']) if (!names.includes(name)) problems.push(`${label}: the block's own menu has no "${name}" (${names})`);
@@ -3080,7 +3155,7 @@ async function checkBlockSelect(width) {
   await page.waitForTimeout(300);
   const rows = await page.locator('[role=menu] [role^=menuitem]').allTextContents();
   const clean = rows.map((r) => r.trim());
-  for (const name of ['Hide on the page', 'Remove', 'Select all'])
+  for (const name of ['Hide', 'Remove', 'Select all'])
     if (!clean.includes(name)) problems.push(`${label}: the bar's menu has no "${name}" (${clean.join(', ')})`);
   if (clean.includes('Duplicate')) problems.push(`${label}: Duplicate is offered with two blocks selected`);
   // Remove asks first (and Escape leaves the blocks as they are).
@@ -3099,7 +3174,7 @@ async function checkBlockSelect(width) {
   await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
   await page.waitForTimeout(300);
   await page
-    .locator('[role=menu] [role^=menuitem]', { hasText: /^Hide on the page$/ })
+    .locator('[role=menu] [role^=menuitem]', { hasText: /^Hide$/ })
     .first()
     .click();
   await page.waitForTimeout(500);
@@ -5383,9 +5458,9 @@ async function checkDynamicPicker(width, height) {
   if ((await block.locator('.list-item-headline').count()) !== 3)
     problems.push(`${label}: the block does not show the 3 items of the list`);
   const before = await buttons();
-  if (before.join('|') !== 'Top line: Title|Bottom line: Body text|Icon: Icon|Link: Link')
+  if (before.join('|') !== 'Label text: Title|Supporting text: Body text|Icon: Icon|Link: Link')
     problems.push(`${label}: the part buttons are "${before.join('|')}", not the list's own fields`);
-  await block.locator('.inline-list-parts button', { hasText: 'Bottom line' }).click();
+  await block.locator('.inline-list-parts button', { hasText: 'Supporting text' }).click();
   const choice = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Field shown' }).first();
   await choice.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the choice of fields did not open`));
   await choice.locator('button.text-field-input').first().click();
@@ -5394,8 +5469,8 @@ async function checkDynamicPicker(width, height) {
   if (phone && (await page.locator('dialog[open]').count())) await page.locator('dialog[open] [aria-label="Close"]').first().click();
   await page.waitForTimeout(400);
   const after = await buttons();
-  if (!after.includes('Bottom line: Title'))
-    problems.push(`${label}: the button does not say "Bottom line: Title" after the pick (${after.join('|')})`);
+  if (!after.includes('Supporting text: Title'))
+    problems.push(`${label}: the button does not say "Supporting text: Title" after the pick (${after.join('|')})`);
   if ((await lines())[0] !== 'Edit on your phone')
     problems.push(`${label}: the bottom line of the first row is "${(await lines())[0]}", not its title`);
   // A tap on the row's own bottom line opens the same choice.
@@ -5729,15 +5804,15 @@ async function checkNewList(width, height, label) {
         .click()
         .catch(() => {});
     await page.waitForTimeout(400);
-    await part('Bottom line')
+    await part('Supporting text')
       .waitFor({ timeout: 8000 })
-      .catch(() => problems.push(`${label}: the picked list shows no Bottom line part`));
+      .catch(() => problems.push(`${label}: the picked list shows no Supporting text part`));
     const parts = await page.evaluate(() => [...document.querySelectorAll('.inline-list-parts button')].map((b) => b.textContent.trim()));
-    if (parts[0] !== 'Top line: Body text' || parts[1] !== 'Bottom line: Body text 2')
+    if (parts[0] !== 'Label text: Body text' || parts[1] !== 'Supporting text: Body text 2')
       problems.push(`${label}: the parts do not name the list's fields (${parts})`);
-    await part('Bottom line').click();
+    await part('Supporting text').click();
     const field = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Field shown' }).first();
-    await field.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Bottom line choice did not open`));
+    await field.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Supporting text choice did not open`));
     await field.locator('button.text-field-input').first().click();
     const offered = await page.evaluate(() => {
       // The open choice is labelled with the field's name (Field shown), as a menu or a sheet of options.
@@ -5747,7 +5822,7 @@ async function checkNewList(width, height, label) {
       return choices;
     });
     if (!offered.includes('Body text') || !offered.includes('Body text 2') || offered.includes('Image'))
-      problems.push(`${label}: the Bottom line offers the wrong fields (${offered})`);
+      problems.push(`${label}: the Supporting text offers the wrong fields (${offered})`);
     // A field added and then an item saved: one commit with the definition and the item (nothing was committed for the field).
     await page.evaluate(() => (location.hash = '#list/zz-fresh-list'));
     // The page typed above is not saved: leaving it asks.
@@ -6471,7 +6546,7 @@ async function checkInlineTable(width, height) {
   await page.close();
 }
 
-/** A Table's column alignment (375 and 1280 px): a column of numbers is right-aligned, header and cells, and a text column left, in the editor typed in place and on the built site (/blocks/); the bar's Align column left, Centre column, Align column right and Align column automatically change the column of the active cell (the pressed one shown), and the choice is saved with the block (`columns`, a second save writes the same text). */
+/** A Table's column alignment (375 and 1280 px): a column of numbers is right-aligned, header and cells, and a text column left, in the editor typed in place and on the built site (/blocks/); the bar's Align column left, Center column, Align column right and Align column automatically change the column of the active cell (the pressed one shown), and the choice is saved with the block (`columns`, a second save writes the same text). */
 async function checkTableAlign(width, height) {
   const label = `${width}px table alignment`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -6549,11 +6624,11 @@ async function checkTableAlign(width, height) {
       [
         ...buttons.filter((b) => b.pressed !== null).map((b) => [b.label, b.pressed]),
         ...more.filter((m) => m.pressed !== null).map((m) => [m.label, m.pressed]),
-      ].filter(([name]) => /column/.test(name) && /lign|entre/.test(name)),
+      ].filter(([name]) => /column/.test(name) && /lign|Center/.test(name)),
     );
   };
   await cellField(1, 1).click();
-  const names = ['Align column left', 'Centre column', 'Align column right', 'Align column automatically'];
+  const names = ['Align column left', 'Center column', 'Align column right', 'Align column automatically'];
   const first = await bar();
   for (const n of names) if (!(n in first)) problems.push(`${label}: the bar has no "${n}" button (${Object.keys(first)})`);
   if (first['Align column automatically'] !== 'true')
@@ -6568,8 +6643,8 @@ async function checkTableAlign(width, height) {
     problems.push(`${label}: Align column left left the number column ${JSON.stringify(left)}`);
   if (!start(left.textHead)) problems.push(`${label}: another column changed with Align column left (${left.textHead})`);
   if ((await bar())['Align column left'] !== 'true') problems.push(`${label}: Align column left is not shown pressed after it was chosen`);
-  await press('Centre column');
-  if ((await aligns()).numberCell !== 'center') problems.push(`${label}: Centre column did not centre the number column`);
+  await press('Center column');
+  if ((await aligns()).numberCell !== 'center') problems.push(`${label}: Center column did not center the number column`);
   await page.screenshot({ path: join(shots, `table-align-${width}.png`) });
   await press('Align column right');
   await press('Align column automatically');
@@ -6577,7 +6652,7 @@ async function checkTableAlign(width, height) {
     problems.push(`${label}: Align column automatically did not bring back the right alignment of numbers`);
   // Centre the text column and save: the choice is in the saved text, and a second save writes the same.
   await cellField(0, 0).click();
-  await press('Centre column');
+  await press('Center column');
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(300);
   const saved = async () => {
@@ -8074,6 +8149,7 @@ for (const [width, reduced] of [
   await unit(`checkBarSlide ${width}${reduced ? ' reduced' : ''}`, () => checkBarSlide(width, reduced));
 for (const width of [375, 1280]) await unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
 for (const width of [375, 1280]) await unit(`checkCardBar ${width}`, () => checkCardBar(width));
+for (const width of [375, 1280]) await unit(`checkCloseChangedSheet ${width}`, () => checkCloseChangedSheet(width));
 for (const width of [320, 375, 1280]) await unit(`checkInsertBlock ${width}`, () => checkInsertBlock(width));
 for (const w of [375, 1280]) await unit(`checkBlockRow ${w}`, () => checkBlockRow(w));
 await unit('checkBlockRow 375 reduced', () => checkBlockRow(375, { reduced: true }));

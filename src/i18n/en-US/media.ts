@@ -97,7 +97,7 @@ export const media = {
   addTag: 'Add tag',
   createTag: 'Create a tag',
   /** The image's base text, kept with the image and used wherever it is shown unless that place has its own. */
-  alt: 'Describe the image',
+  alt: 'Alt text',
   altHint: 'Describe the image in a few words, for people who can’t see it.',
   decorative: 'Decorative image',
   decorativeHint: 'Screen readers skip the image.',
