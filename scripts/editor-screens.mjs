@@ -1228,10 +1228,15 @@ async function checkBarSlide(width, reduced = false, height = 800) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
+  const barHeight = () => page.evaluate(() => document.querySelector('.editor-tools').getBoundingClientRect().height);
+  const heightBefore = await barHeight();
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  const heightDuring = await barHeight();
   await page.waitForTimeout(500);
+  if (Math.abs(heightDuring - heightBefore) > 0.6 || Math.abs((await barHeight()) - heightBefore) > 0.6)
+    problems.push(`${label}: the bar's height changes when it goes from the text to a block (${heightBefore}, ${heightDuring})`);
   const change = await taken();
   const fades = change.filter((a) => a.keyframes.some((k) => k.opacity !== undefined));
   if (reduced) {
@@ -1243,7 +1248,14 @@ async function checkBarSlide(width, reduced = false, height = 800) {
       problems.push(
         `${label}: the fade is not the theme's effects spring (${JSON.stringify(fades.map((a) => a.timing))}, wanted ${JSON.stringify(want.effects)})`,
       );
-    if (change.some((a) => a.ghost)) problems.push(`${label}: going from the text to a block slides a ghost out (it fades in place)`);
+    // A cross-fade: the new tools go from opacity 0 to 1 and a ghost copy of the old ones from 1 to 0, neither with a transform (the ghost is out of the row's flow).
+    const fadeIn = fades.find((a) => !a.ghost && a.keyframes[0].opacity === 0 && a.keyframes.at(-1).opacity === 1);
+    const fadeOut = fades.find((a) => a.ghost && a.keyframes[0].opacity === 1 && a.keyframes.at(-1).opacity === 0);
+    if (!fadeIn) problems.push(`${label}: the new tools do not fade in (0 to 1) when the bar goes from the text to a block`);
+    if (!fadeOut) problems.push(`${label}: the old tools do not fade out (1 to 0) when the bar goes from the text to a block`);
+    if (change.some((a) => a.ghost && a.keyframes.some((k) => k.transform !== undefined)))
+      problems.push(`${label}: going from the text to a block slides a ghost out (it fades in place)`);
+    if (await page.locator('.editor-tools-ghost').count()) problems.push(`${label}: the fading-out copy is still there after the fade`);
   }
   await page.close();
 }
