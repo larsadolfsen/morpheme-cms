@@ -1,7 +1,7 @@
 # Dynamic lists: a framework for apps, the Dynamic lists app and Dynamic cards (design)
 
 Status: spec and build plan for 0.19. No code in this pull request. Written 14 November 2026 from the owner's decisions of the
-same day (section 1). Branch `0.19`. Sections 12 and 13 hold the open questions for the owner, each with a recommendation.
+same day (section 1). Branch `0.19`. Section 13 holds the open questions for the owner, each with a recommendation.
 
 Read for this spec:
 
@@ -34,6 +34,12 @@ store, instead of an FAQ the owner fills in by hand.
    cards). All of that moves out of the core into this app, built on the framework of point 1, not on private core code.
 3. **The Blog posts block stays in the core** as the blog's own block for its posts.
 4. **Order.** PR #616 merges into the core first, as planned; the app's work moves it.
+5. **Dynamic table** (added the same day). The Dynamic lists app can also fill the Table block from a list: each of the list's fields
+   becomes a column (the owner picks which fields and their order, per place, like the slot mapping), the rows are the list's items. It
+   must work with the Table's Material 2 features planned for 0.19 (`2026-11-13-table-md2-design.md`: shared `DataTable`, column
+   kinds, sorting, sticky header, pagination, search), with a field's kind mapped to a column kind (section 9).
+6. **PR B** of `docs/superpowers/plans/2026-11-14-dynamic-list-edit-page.md` (an own list's entries typed in place on its edit page)
+   gets a place in the plan, with a recommendation on core or app (section 11).
 
 Decision 3 replaces the earlier idea of the same day ("the Blog posts block becomes a Cards block filled from Posts"). So no Blog
 posts block is migrated. That matters, because today's Blog posts block is **not** drawn as cards: it draws the theme's post list
@@ -102,7 +108,7 @@ one way of drawing a list's form:
 | `id` | yes | The list's id inside the app. The site's id is `<app id>.<id>` (section 3.3), so two apps never collide. |
 | `label`, `singular`, `icon` | yes | Its name, one entry's name, a Material Symbols name (CLAUDE.md *Icons*; Phosphor names are read as today). |
 | `version`, `fields` | yes | As `_list.json` version 2: each field `{ id, kind, label? }`, any number of each kind. |
-| `locked` | no, default `true` | The owner cannot add, rename, move or remove fields (#616's `LockedListEdit`). Section 12, Q4. |
+| `locked` | no, default `true` | The owner cannot add, rename, move or remove fields (#616's `LockedListEdit`). Section 13, Q4. |
 | `page` | no | Where `Show all` goes: an address (`/faq/`), or `settings:<field>` for an address the owner sets in the app's settings. None: the block's own `buttonHref`, as today. |
 | `examples` | no | Made-up entries for the store's images and the parts' previews, as `OwnedList.examples`. |
 
@@ -196,7 +202,7 @@ four slots and their saved `map`s read the same.
 ### 3.6 Blocks filled from a list, without code
 
 So that a third party can sell a dynamic block (the owner's goal) with no `full` place, `app.json` gets a data-only key,
-`listBlocks`: a block that **draws one of the core's dynamic-capable blocks** (List, Segmented list, FAQ list, Cards) with its items from
+`listBlocks`: a block that **draws one of the core's dynamic-capable blocks** (List, Segmented list, FAQ list, Cards, and Table from phase 9) with its items from
 the app's list.
 
 ```json
@@ -220,7 +226,7 @@ the app's list.
 | :--- | :--- |
 | `type` | The block's type in the page (`<app id>.<type>` on the site, as an app's blocks are named today). |
 | `label`, `icon`, `hint` | Its name in `Insert` (group *From your content*), its icon, its hint. |
-| `draws` | One of `list`, `segmented`, `faq`, `cards`: the core block whose view, theme part, inline drawing and settings it uses. |
+| `draws` | One of `list`, `segmented`, `faq`, `cards`, `table` (with a default `columns` instead of `map`, section 9): the core block whose view, theme part, inline drawing and settings it uses. |
 | `list` | One of the app's own lists (or `posts` / `testimonials`). Fixed: the owner does not pick another list. |
 | `map` | The default mapping. The owner can still change it per place (decision 2 of 13 Nov: "The user decides what fields goes where"). |
 | `settings` | Which of the drawn block's settings the owner sees (`tags`, `howMany`, `button`, and the block's own: `only` for FAQ, `design`, `phone`, `ratio` for Cards). Others keep the block's defaults. |
@@ -234,7 +240,7 @@ block with code (`blocks/`, a `full` place) and call `readList` from its `load.t
 
 The core draws the list's page (`#list/<id>`, the entries) and its edit page (`#list/<id>/edit`, the fields, #616) for **every**
 list: Testimonials, an app's list and an own list. A locked list opens `LockedListEdit`: its fields shown, `New <singular>`, nothing
-renamed, moved or removed. An unlocked app list (section 12, Q4) opens the full edit page. The own list's field bar, `New list` and
+renamed, moved or removed. An unlocked app list (section 13, Q4) opens the full edit page. The own list's field bar, `New list` and
 `Delete list` for own lists are the app's (section 4), drawn into the core's page through a slot (`listEdit`, as `versionSwitch` is
 today, *Slots* in `docs/app-contract.md`).
 
@@ -244,7 +250,7 @@ The editor's menu section is already called `Dynamic lists` (`t.common.lists`); 
 
 - `listBlocks` and the data shape of `lists` are new `app.json` keys, and `date` is a new kind. Contracts 4 and 5 fail on unknown keys,
   and the store uses `api` to offer an app only to editors that can run it. So these keys belong to **contract 6**: `APP_APIS`
-  becomes `[4, 5, 6]` and `APP_API` 6. **No app written to 4 or 5 stops working**: they are read exactly as now (section 12, Q3).
+  becomes `[4, 5, 6]` and `APP_API` 6. **No app written to 4 or 5 stops working**: they are read exactly as now (section 13, Q3).
 - `docs/app-contract.md` gets a section *Contract 6: lists and list blocks* with sections 3.1 to 3.7, the worked example of section 7,
   and the import `@morphemecms/cms/lib/lists` added to what a `full` place may import (the sandbox's list is unchanged).
 - `slots` on `defineBlock` is an optional field of a block, not an `app.json` key; like `inline`, it needs no step of its own.
@@ -257,7 +263,7 @@ A first-party app, **Dynamic lists** (`dynamic-lists`), that gives the owner:
 
 - `New list` and own lists: the definition in `src/data/<id>/_list.json`, the field bar of #616 (any number of each kind, now also
   `Date`), rename, Shown, move, Remove field, `Delete list` (refused while a block reads it);
-- `Rows from` on the standard List, Segmented list, FAQ list and **Cards** (new: Dynamic cards, section 8): the list choice (own lists,
+- `Rows from` on the standard List, Segmented list, FAQ list, **Cards** (new: Dynamic cards, section 8) and **Table** (new: Dynamic table, section 9): the list choice (own lists,
   the blog's posts, Testimonials and every app's list), `Only with these tags`, `How many`, `Show all`, the field picker on the block's
   slots (a tap on a part), `Fill from a list` in the block's toolbar, `Edit list`, the state line (`From Services · tag home · 3 items`)
   and the `Dynamic …` names;
@@ -288,7 +294,7 @@ it with an `Enabled` switch and no `Uninstall`. A site's own `src/apps/dynamic-l
 ### 4.3 How the app adds `Rows from` to the standard blocks
 
 The core blocks declare `slots` (section 3.5). The core shows a block's dynamic settings only when an installed app offers a **list
-picker** for blocks with slots: a new editor slot, `blockFrom`, that the app fills. With the app on, a List, Segmented list, FAQ list or
+picker** for blocks with slots: a new editor slot, `blockFrom`, that the app fills. With the app on, a List, Segmented list, FAQ list, Table or
 Cards block gets `Rows from` and the rest; with it off, the block's settings show no `Rows from`, and a block that already reads a list
 keeps drawing it (section 6.4) with a line in its settings: `This block is filled from a list. Turn on Dynamic lists to change it.`
 
@@ -485,7 +491,7 @@ List behaviour, the 0.17 note *Fill from a list*). The block's own settings (`de
 - **With `On phones: Carousel`** (2026-11-12 carousel spec): the carousel already has a `Show all` text button under it that shows every
   card stacked (M3's carousel accessibility rule). A dynamic carousel with a list page draws **one** button: `Show all` goes to the
   list's page, which is M3's own first choice ("a *Show all* button under it … that opens a dedicated vertically scrolling page of all
-  items", quoted in the carousel spec). Without a page, it keeps today's in-place `Show all`. Never two buttons (section 12, Q6).
+  items", quoted in the carousel spec). Without a page, it keeps today's in-place `Show all`. Never two buttons (section 13, Q6).
 
 ### 8.6 What Material 3 says (read 14 Nov 2026)
 
@@ -525,16 +531,117 @@ The site-side look is today's Cards (`LinkCards.tsx`, `ui/Card`): Dynamic cards 
 | An entry has no image while Media is Image | The card without the media area (M3: all other elements are optional). | The same. |
 | `How many` larger than the entries | All of them. | The same. |
 
-## 9. Change to (PR #635) and dynamic blocks
+## 9. Dynamic table
+
+### 9.1 What the owner gets
+
+The Table block gets `Rows from` like the others (through the app, 4.3), with `Only with these tags` and `How many`. The name in the
+editor is **Dynamic table** (`Dynamisk tabel`). The rows are the list's items, in the list's order, filtered and cut as every dynamic
+block's (3.4). The columns are fields of the list that the owner picks and orders, per place: the Table's slots are not a fixed set
+but an ordered list of columns.
+
+### 9.2 The data: `columns` with a `field`
+
+The Table already stores one `columns` entry per column, `{ kind, align }` (`2026-11-13-table-md2-design.md`, decision 1; #635 keeps
+`columns` through Change to). A dynamic Table adds one optional key to each entry, **`field`**: the id of the list's field shown in that
+column. Nothing else is added:
+
+```json
+{
+  "from": "events",
+  "tags": ["2027"],
+  "howMany": 20,
+  "header": true,
+  "sortable": true,
+  "columns": [
+    { "field": "title" },
+    { "field": "date" },
+    { "field": "place", "kind": "tag" },
+    { "field": "price", "kind": "number" }
+  ]
+}
+```
+
+- **The header row** is each field's name in the list (the owner's label, else the kind's name, `nameOf`), drawn in the Table's header
+  row; `header` stays the Table's switch (on by default). A column entry may carry `label` to name the column otherwise in this place.
+- **The typed `rows`** are kept in the file and hidden while a list is picked, as `items` are on the other blocks (`typed`); `Typed
+  rows` brings them back unchanged, with their own `columns` (the dynamic `columns` and the typed ones are stored apart, as
+  `columns` and `typedColumns`, so neither overwrites the other; `rectangle()` keeps `typedColumns` as wide as `rows`).
+- **Default when a list is picked:** one column for each visible field of the list, in the list's field order, except `tags` fields
+  (the filter's) and `image` fields after the first. The owner adds, removes and reorders from there.
+- **A field removed from the list** leaves its column with empty cells and the header picker says `Removed field` (3.5's rule).
+- **A field added to the list later** is not added to existing tables: the columns belong to the place (the owner's rule of 13 Nov).
+
+In `lib/lists` this is a slot list of variable length: `slots: 'columns'` on the Table's `defineBlock` tells the framework that the
+block's mapping is the ordered `columns[].field` instead of `map`, and `listColumns(items, columns)` gives the cells. A `listBlocks`
+entry may say `"draws": "table"` with a default `columns` (3.6), so a third party can sell a dynamic table too.
+
+### 9.3 A field's kind to a column kind
+
+| Field kind | Column kind (default) | Cell | Other kinds the owner may pick |
+| :--- | :--- | :--- | :--- |
+| `title` | `text` | the text | `number`, `tag`, `yesno` |
+| `text` | `text` | the text as one line (`oneLine`, as #635 does for a typed cell) | `number` |
+| `date` | `date` | the ISO date, drawn in the site's language | `text` |
+| `href` | `link` | `[<page title or address>](<address>)`: a page's title, as the List does for a row with a page and no heading (`standard.pageTitle`) | `text` (the address) |
+| `icon` | `icon` | the icon name | — |
+| `image` | `image` | the stored address, as the `image` kind stores one | — |
+| `tags` | `tag` | one chip per tag, by the tag's name | `text` (names joined by commas) |
+
+- The column's `kind` is optional: absent, it is the default of its field's kind; a stored `kind` the field cannot take is read as the
+  default. `align` works as on a typed table (automatic by kind, the stored `align` wins).
+- `number` and `yesno` have no field kind of their own: a title or text field holding `1,299` or `yes` is shown as one by picking the
+  column kind. This keeps the list's six kinds (plus `date`) and the Table's eight column kinds apart, as both specs decided.
+- A cell's value comes straight from the entry; the column kind only changes how it is drawn, sorted and searched (as on a typed table).
+
+### 9.4 The Table's Material 2 features
+
+The dynamic rows are built when the site is built, so the Table's features run on them exactly as on typed rows. Nothing in
+`DataTable` knows where the rows came from:
+
+- **Sorting** (`sortable`): the visitor's sort works on the drawn rows by column kind (numbers numerically, dates by date). Without
+  JavaScript the rows are in the list's order.
+- **Sticky header** and **density**: block settings, unchanged.
+- **Pagination** (`paginate`): it pages the rows after `How many` (which cuts the list) and the tag filter. `How many` empty and
+  pagination on is the way to show a long list.
+- **Search** (`search`): searches the drawn cell text; an icon cell by its label, an image cell by its alt text, a tag cell by the tag
+  names.
+- **Striped**, the rows/columns menu: unchanged; in a dynamic table the menu's row actions (add, move, remove a row) are not shown,
+  and its column actions work on `columns` (Add column, which offers the list's fields; Move left and right; Remove column).
+
+The Table's work order in its spec (PR 0 `DataTable`, PR 1 `text`/`number`, 5 `link`/`date`/`tag`/`yesno`, 6 `icon`/`image`) comes
+first; a dynamic table offers a column kind only once that Table PR has landed, and draws an unbuilt kind as `text` meanwhile.
+
+### 9.5 In the editor
+
+- The table is drawn as the site draws it (the editor's Table view), with the list's rows; cells are not typed.
+- A tap on a column's header opens the field picker of that column (the same picker as a card's or a row's part: the list's fields,
+  `None` removes the column, `Removed field` when gone) and the column kind, with the kinds of 9.3's last column.
+- `Edit list` opens the list, as on the other dynamic blocks; the state line says `From Events · tag 2027 · 14 items`.
+- Paste (#635) into a dynamic table does nothing: it has no typed cells.
+
+### 9.6 Empty states and Material
+
+- No item matches: nothing on the site; in the editor the header row with one faded empty row and the line of 8.7. The list is gone: as
+  8.7.
+- Material: Material 3 has no data table; the Table follows MD2 for what a table does and M3 tokens for its look, as its spec says. The
+  dynamic table adds no part, size or behaviour to that, so no deviation is needed.
+
+## 10. Change to (PR #635) and dynamic blocks
 
 PR #635 (0.18) offers a block that reads a list only List, Segmented list and FAQ list, because "Steps, Cards and Table are not offered:
 they have no rows of their own to show". That is true in 0.18. In 0.19, once Dynamic cards exist (phase 5), **Cards joins that set**:
 a dynamic List family block can change to Cards and back. `from`, `tags`, `howMany` move over as they are; `map` keeps the slots both
 blocks have (title, text, icon, href, tags) and the target ignores the others while keeping them in `map` (the #635 rule: what B cannot
-show stays in the saved block). Steps and Table stay out. The change is a one-line rule change in `targets` (`lib/changeTo.mjs`, #645)
-and a test, in phase 5. Paste (#635) into a dynamic block does nothing new: a dynamic block has no typed items to paste into.
+show stays in the saved block). The change is a one-line rule change in `targets` (`lib/changeTo.mjs`, #645) and a test, in phase 5.
 
-## 10. The build plan
+Once the Dynamic table exists (phase 9), **Table joins too**. A dynamic block → Table: `columns` is one column per slot that has a
+field, in the slot order (title, then text, icon, href; a card's image and subhead after them), and the block keeps its `map` unseen.
+Table → a dynamic block: `map` is the kept one when there is one, else each slot takes the first column whose field is of the slot's
+kinds; the Table keeps `columns` unseen, so a Table → List → Table where nothing was edited gives the same `columns` (#635's round-trip
+rule). Steps stays out. Paste (#635) into a dynamic block does nothing new: a dynamic block has no typed items to paste into.
+
+## 11. The build plan
 
 Pull requests into `0.19`, in this order. Each has a changeset (`minor` or `patch`, never `major`), `npm run check`, and the checks of the
 skill `checks`; a change the owner sees follows the screenshot rule of the `pm` skill.
@@ -547,26 +654,40 @@ skill `checks`; a change the owner sees follows the screenshot rule of the `pm` 
 | 2 | **Contract 6, data lists.** `lists` in the 3.1 shape, `src/data/<app id>.<id>/`, `page`, `locked` default, `date` kind, `APP_APIS [4,5,6]`, `lib/appManifest.mjs` checks, `docs/app-contract.md` section. | no (for owners) | minor |
 | 3 | **List blocks without code.** `listBlocks`, `Insert` entries, drawing through `draws`, `check-page.md` support, the demo app `demo/src/apps/faq-example/` (section 7's app) checked by `check:screens` at 375 and 1280 px. | yes (demo) | minor |
 | 4 | **Bundled apps and the move.** Package `apps/`, `apps.json` `off`, store page with `Enabled`; the Dynamic lists app with everything of section 5 marked *App*; `listEdit` and `blockFrom` slots; `check-app-imports`; 4.3's line when off. Same-HTML check and today's screens unchanged. | no (same tools) | minor |
-| 5 | **Dynamic cards.** Cards declare slots (8.2), media and ratio rules, `Show all` and the carousel rule, empty states, Danish plural name, Change to (9). Screens: a Dynamic cards block from an own list with images, from posts, as a carousel, and empty. | yes | minor |
+| 5 | **Dynamic cards.** Cards declare slots (8.2), media and ratio rules, `Show all` and the carousel rule, empty states, Danish plural name, Change to (10). Screens: a Dynamic cards block from an own list with images, from posts, as a carousel, and empty. | yes | minor |
 | 6 | **Date kind in the field bar** (`Date` in the app's bar, the date field in an entry's form). | yes | minor |
 | 7 | **Release notes** for 3–6 (skill `release-notes`), English and Danish. | yes | empty |
+| 8 | **PR B of the edit-page plan, in the core:** a list's entries typed in place on its page (the plan's batch 4: `entryOfRow`, `rowOfEntry`, `moveOrders`, autosave, the toolbar host), for every list. | yes | minor |
+| 9 | **Dynamic table** (section 9): `columns[].field`, `typedColumns`, `slots: 'columns'`, `listColumns`, the kind mapping, the header picker, the column menu's actions, Change to with Table (10), `"draws": "table"`. Screens: a dynamic table with each column kind built so far, sorting, pagination and search on, 375 and 1280 px. | yes | minor |
+| 10 | **Release notes** for 8 and 9. | yes | empty |
 
 Phases 1 and 2 can be built side by side; 3 needs 1 and 2; 4 needs 1 and #616; 5 needs 1 and 4 (it adds Cards to the app's picker); 6
-needs 4.
+needs 4. Phase 8 needs only #616, so it can run beside 1 to 4. Phase 9 needs 4, 6 and the Table's `DataTable` and column kinds (its own
+PRs 0, 1, 5 and 6); its sorting, pagination and search work on the dynamic rows the day those Table PRs land.
 
-## 11. Tests
+**PR B: build it in the core (recommended), before or beside the move.** The entries' page is not one of the owner's tools for own lists:
+decision 1 gives every list, Testimonials and every app's list included, "its items, its list page", and the edit-page plan already says
+entries are typed in place on every list's page, locked ones included. So typed-in-place entries are part of the framework's list page
+(3.7), which stays core, and only the field bar is the app's. Built in the core, PR B helps a third party's list on the day it lands, the
+move in phase 4 does not touch it, and nothing is built twice. Built in the app, it would have to move back into the core for app lists
+and Testimonials, or those would keep the old entry form.
+
+## 12. Tests
 
 - **Unit:** `readList`/`listItems` give the same items for the same entries; tags any-of, `howMany`, order, a missing list
   (`missing: true`); per-slot defaults with kinds in order (8.2's table for an own list, posts and Testimonials); `map` with a removed
   field; a 4-slot `map` saved by 0.17 gives the same rows; `listBlocks` validation (unknown `draws`, a `list` the app lacks, a `map` to a
   field the list lacks, a `settings` entry the block lacks); contract 4 and 5 manifests still pass and fail as before.
-- **Same HTML:** 6.3's fixture, before and after phases 1, 4 and 5.
+- **Dynamic table, unit:** default columns of a list (tags out, one image), the kind mapping of 9.3 with a stored kind the field cannot
+  take, a removed field's empty cells, `typedColumns` kept through rows and columns added to the typed table, Change to a Table and
+  back (deep-equal round trip).
+- **Same HTML:** 6.3's fixture, before and after phases 1, 4, 5 and 9 (a typed Table is in the fixture).
 - **Screens:** today's dynamic-block screens with the app on; the app off; the FAQ example app; Dynamic cards (8.7's states, the
   carousel with a list page, 375 and 1280 px, every section colour as `inlineBlocks` already runs).
 - `check:themes` with each theme, `check:starter` (the bundled app installed by default), `check:language` (no Danish outside the
   language files; `image` everywhere).
 
-## 12. Owner questions
+## 13. Owner questions
 
 **Q1. Where does the Dynamic lists app live?** Bundled in this repository and shipped in `@morphemecms/cms`, or a store app in
 `morpheme-apps`. **Recommendation: bundled** (4.2): an upgrade can never leave a site without its tools, and framework changes land
@@ -591,14 +712,21 @@ nothing: a visible change.
 **Q6. Dynamic cards as a carousel.** With a list page, one `Show all` button that goes to the list's page (M3's first choice for a
 carousel) instead of the carousel's in-place `Show all`. **Recommendation: yes** (8.5), never two buttons.
 
-**Q7. Third-party blocks without code only.** A third party sells list blocks through `listBlocks` (data, drawn by the core's four
+**Q7. Third-party blocks without code only.** A third party sells list blocks through `listBlocks` (data, drawn by the core's dynamic
 blocks), not with a drawing of its own, because blocks with code stay first-party (`full` places). **Recommendation: yes for 0.19.**
 A sandboxed block drawing (a block's view in QuickJS) is a larger piece of work and its own spec.
 
 **Q8. The `Date` kind.** **Recommendation: add it** (3.2) in phase 6, so a list can feed a card's subhead with a date and posts map
 naturally.
 
-## 13. Not in this spec
+**Q9. A dynamic table's default columns.** When a list is picked: every visible field in the list's order, without tags and with one
+image, or only the first title and text. **Recommendation: every visible field** (9.2): the owner sees the whole list at once and
+removes what is not wanted.
+
+**Q10. PR B in the core or the app.** **Recommendation: the core** (section 11): typed-in-place entries belong to every list's page,
+including Testimonials and third-party lists.
+
+## 14. Not in this spec
 
 - A visitor-facing filter or sort on dynamic blocks (M3 says it goes outside the collection; a later spec).
 - A site page of its own for an own list (own lists have none today; `Show all` uses the block's address).
