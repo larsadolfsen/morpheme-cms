@@ -23,6 +23,7 @@ import { constants, inflateSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { CMS_STATUS, openEditor, serveBuilt } from './built-site.mjs';
+import { allow, nestedUnits } from './spacing-grid.allow.mjs';
 
 // The editor is opened in Danish (locale da-DK below), so the texts it shows are read from its Danish messages. They are
 // TypeScript, which Node does not run in node_modules (ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING), so esbuild bundles
@@ -42,6 +43,19 @@ const bundled = await build({
 });
 const texts = await import(`data:text/javascript;base64,${Buffer.from(bundled.outputFiles[0].text).toString('base64')}`);
 const { apps: da, app: daApp, cms: daCms, dashboard: daDashboard, common: daCommon, library: daLibrary } = texts;
+
+// The theme's springs (lib/motion.ts, TypeScript too): what the bar's slide and fade must last and follow.
+const motionBundle = await build({
+  entryPoints: [fileURLToPath(new URL('../lib/motion.ts', import.meta.url))],
+  bundle: true,
+  format: 'esm',
+  platform: 'neutral',
+  write: false,
+  logLevel: 'silent',
+});
+const { SPRINGS, springCss, isMotionScheme, DEFAULT_SCHEME } = await import(
+  `data:text/javascript;base64,${Buffer.from(motionBundle.outputFiles[0].text).toString('base64')}`
+);
 
 const ROOT = `${process.cwd()}/`;
 // --shard K/N runs the K-th of N disjoint parts of the checks (every N-th unit, see unit below); --list only prints which units
@@ -806,7 +820,9 @@ async function checkTextBar(width = 360) {
   await page.keyboard.press('Escape');
   // Idle: the cursor leaves the text; the main tools only, no divider, the same bar height, nothing scrolls.
   await page.evaluate(() => document.activeElement?.blur());
-  await page.waitForTimeout(200);
+  // The contextual tools slide out first (a ghost copy of them, which is not the bar's tools): idle is what is left when it is gone.
+  await page.waitForFunction(() => !document.querySelector('.editor-tools-ghost'), null, { timeout: 4000 });
+  await page.waitForTimeout(100);
   const idle = await readBar();
   // Idle: Undo, Redo, one divider, Insert block (no divider before the text tools, which are not there).
   if (!idle.divider || idle.names.join() !== 'Undo,Redo,Insert block')
@@ -844,6 +860,91 @@ async function checkTextBar(width = 360) {
   if (!blogRows.includes('Heading') || !blogRows.includes('Subheading') || blogRows.includes('Main heading'))
     problems.push(`${label} (blog): a post offers ${blogRows.join(', ')}, not Heading and Subheading`);
   await blog.close();
+}
+
+/** A card that is not typed in place (HTML code here; an image, Testimonials and the like work the same) has its tools on the text's one bar (PR 4 of the contextual toolbar plan): a tap on it selects it
+ * (marked, no pop-up on the card), the bar gets a group named by the block, its Edit as the gear (on a phone; from expanded a tap opens the side panel) and the rest of its menu (Move up, Remove) in the ⋮,
+ * the gear opens the block's sheet, Move up keeps the moved card selected, and a tap in the text brings the text tools back. */
+async function checkCardBar(width, height = 800) {
+  const phone = width < 600;
+  const label = `${width}px card bar`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
+  // The block's fields are in a sheet on a phone and in the side panel from expanded.
+  const sheet = page
+    .locator('dialog[open], .editor-side-sheet')
+    .filter({ has: page.locator('textarea') })
+    .last();
+  await sheet.locator('textarea').fill('<iframe src="https://www.youtube.com/embed/abc" title="Clip"></iframe>');
+  await sheet.locator('button', { hasText: /^Insert$/ }).click();
+  await page.waitForSelector('.ProseMirror .site-block-card', { timeout: 6000 });
+  await page.locator('.ProseMirror .site-block-card').first().click();
+  await page.waitForTimeout(400);
+  const selected = await page.evaluate(() => ({
+    pressed: document.querySelectorAll('.site-block-card[aria-pressed="true"]').length,
+    popup: document.querySelectorAll('.site-block-menu').length,
+    haspopup: document.querySelectorAll('.site-block-card[aria-haspopup]').length,
+    groups: [...document.querySelectorAll('.editor-tools [role=group]')].map((g) => g.getAttribute('aria-label')),
+  }));
+  if (selected.pressed !== 1) problems.push(`${label}: a tap on the card did not select it (${selected.pressed} selected)`);
+  if (selected.popup || selected.haspopup) problems.push(`${label}: the card still has a pop-up menu of its own`);
+  if (!selected.groups.length || selected.groups[0] === 'Text tools')
+    problems.push(`${label}: the bar's first group is "${selected.groups}", not the block's name`);
+  const tools = await barTools(page);
+  if (tools.bar.some((b) => b.height < 43.4 || b.width < 43.4)) problems.push(`${label}: a button of the card's bar is under 44 x 44 dp`);
+  if (!tools.names.includes('Remove') && phone) problems.push(`${label}: the card's menu has no Remove (${tools.names})`);
+  if (!tools.names.includes('Move up')) problems.push(`${label}: the card's menu has no Move up (${tools.names})`);
+  if (tools.names.filter((n) => n === 'More').length !== 1) problems.push(`${label}: the bar has no single ⋮ (${tools.names})`);
+  if (phone) {
+    // Its Edit is the gear on the bar and not in the ⋮ again; the gear opens the block's sheet.
+    if (!tools.bar.some((b) => b.label === 'Edit')) problems.push(`${label}: the card's Edit is not the gear on the bar (${tools.names})`);
+    if (tools.more.some((m) => m.label === 'Edit')) problems.push(`${label}: the card's Edit is in the ⋮ as well as on the bar`);
+    await pressTool(page, 'Edit', 'tap');
+    await page
+      .waitForSelector('dialog[open] textarea', { timeout: 4000 })
+      .catch(() => problems.push(`${label}: the gear did not open the block's sheet`));
+    await page
+      .locator('dialog[open] button', { hasText: /^Cancel$/ })
+      .click({ timeout: 3000 })
+      .catch(() => {});
+    await page.waitForTimeout(300);
+  }
+  // Move up: the card goes above the text and stays selected, its tools on the bar.
+  await pressMore(page, 'Move up', phone ? 'tap' : 'click');
+  await page.waitForTimeout(500);
+  const moved = await page.evaluate(() => {
+    const card = document.querySelector('.ProseMirror .site-block-card')?.getBoundingClientRect();
+    const hello = [...document.querySelectorAll('.ProseMirror p')].find((p) => p.textContent.trim() === 'Hello')?.getBoundingClientRect();
+    return {
+      first: !!card && !!hello && card.top < hello.top,
+      pressed: document.querySelectorAll('.site-block-card[aria-pressed="true"]').length,
+      group: document.querySelector('.editor-tools [role=group]')?.getAttribute('aria-label'),
+    };
+  });
+  if (!moved.first) problems.push(`${label}: Move up in the ⋮ did not move the card above the text`);
+  if (moved.pressed !== 1 || moved.group === 'Text tools')
+    problems.push(`${label}: the moved card is not selected with its tools on the bar (${JSON.stringify(moved)})`);
+  // A tap in the text: the card is let go and the text tools are back.
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(500);
+  const back = await page.evaluate(() => ({
+    pressed: document.querySelectorAll('.site-block-card[aria-pressed="true"]').length,
+    names: [...document.querySelectorAll('.editor-tools button')]
+      .filter((b) => !b.closest('.editor-tools-ghost'))
+      .map((b) => b.getAttribute('aria-label')),
+  }));
+  if (back.pressed || !back.names.includes('Bold'))
+    problems.push(`${label}: a tap in the text did not let the card go and bring the text tools back (${JSON.stringify(back)})`);
+  await page.close();
 }
 
 /** Insert block is always on the bar and never in the ⋮ (320, 375 and 1280 px, in text, with a block active and idle): a 44 x 44 dp button with the plus icon (Material's add), right before the ⋮ (or last), behind a divider that sits between Redo and it (centred on the buttons, as tall as they are); it opens the block picker. */
@@ -966,6 +1067,151 @@ async function checkBlockBar(width, height = 800) {
   const back = await page.evaluate(() => [...document.querySelectorAll('.editor-tools button')].map((b) => b.getAttribute('aria-label')));
   if (!back.includes('Bold') || back.includes('Add above'))
     problems.push(`${label}: after leaving the block the bar has ${back} and not the text tools`);
+  await page.close();
+}
+
+/** The bar moves with the theme's springs only (PR 3 of the contextual toolbar plan; spec section 4): the cursor going into the text slides the contextual tools in from the left
+ * and pushes the main tools right (both animate, spatial fast: the theme's duration and curve, no own), the cursor leaving slides them out
+ * (a ghost copy that is gone once it has finished) and the main tools back, a block after the text is a fade in place (effects), the bar's height and its dividers
+ * never move, and with prefers-reduced-motion nothing is animated at all. `reduced`: the visitor asked for reduced motion. */
+async function checkBarSlide(width, reduced = false, height = 800) {
+  const phone = width < 600;
+  const label = `${width}px bar slide${reduced ? ' (reduced motion)' : ''}`;
+  const page = await browser.newPage({
+    viewport: { width, height },
+    hasTouch: phone,
+    isMobile: phone,
+    locale: 'en-US',
+    reducedMotion: reduced ? 'reduce' : 'no-preference',
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.waitForSelector('.editor-tools');
+  const scheme = await page.evaluate(() => document.documentElement.dataset.motionScheme);
+  const spring = SPRINGS[isMotionScheme(scheme) ? scheme : DEFAULT_SCHEME];
+  const want = { spatial: springCss(spring.spatial.fast), effects: springCss(spring.effects.default) };
+  // Every animation the bar starts is recorded with its keyframes and timing.
+  await page.evaluate(() => {
+    window.__bar = [];
+    const animate = Element.prototype.animate;
+    Element.prototype.animate = function (keyframes, timing) {
+      if (this.closest?.('.editor-tools'))
+        window.__bar.push({ keyframes, timing, ghost: this.classList.contains('editor-tools-ghost'), cls: this.className });
+      return animate.call(this, keyframes, timing);
+    };
+  });
+  const taken = () => page.evaluate(() => window.__bar.splice(0));
+  const heights = () =>
+    page.evaluate(
+      () =>
+        new Promise((done) => {
+          const bar = document.querySelector('.editor-tools');
+          const seen = [];
+          let frames = 0;
+          const look = () => {
+            seen.push({
+              bar: bar.getBoundingClientRect().height,
+              dividers: [...bar.querySelectorAll('hr[aria-orientation="vertical"]')].map((d) => d.getBoundingClientRect().height),
+            });
+            if (++frames < 14) requestAnimationFrame(look);
+            else done(seen);
+          };
+          look();
+        }),
+    );
+  const steady = (seen, name) => {
+    const base = seen.at(-1);
+    for (const now of seen) {
+      if (Math.abs(now.bar - base.bar) > 0.6) problems.push(`${label}: the bar's height moves during ${name} (${now.bar} and ${base.bar})`);
+      for (const h of now.dividers) if (Math.abs(h - 44) > 1) problems.push(`${label}: a divider is ${h} px high during ${name}, not 44`);
+    }
+  };
+  const spatial = (list) => list.filter((a) => a.keyframes.some((k) => k.transform !== undefined));
+  const isTheme = (a, kind) =>
+    a.timing.duration === want[kind].duration && a.timing.easing === want[kind].easing && a.timing.easing.startsWith('linear(');
+
+  // The cursor leaves the text: the contextual tools slide out (a ghost copy) and the main tools slide back.
+  await page.click('.ProseMirror');
+  await page.waitForTimeout(600);
+  await taken();
+  const before = await heights();
+  await taken();
+  await page.evaluate(() => document.activeElement?.blur());
+  const leaving = await page.evaluate(
+    () => new Promise((done) => requestAnimationFrame(() => done(document.querySelectorAll('.editor-tools-ghost').length))),
+  );
+  const leave = await taken();
+  steady(await heights(), 'the slide out');
+  await page.waitForTimeout(want.spatial.duration + 300);
+  const ghostsLeft = await page.locator('.editor-tools-ghost').count();
+  if (reduced) {
+    if (leave.length || leaving)
+      problems.push(`${label}: the bar animates the tools out with reduced motion (${leave.length} animations, ${leaving} ghosts)`);
+  } else {
+    if (spatial(leave).length < 2)
+      problems.push(`${label}: leaving the text does not slide the tools out and the main tools back (${spatial(leave).length} slides)`);
+    if (!leaving) problems.push(`${label}: no ghost copy of the contextual tools slides out`);
+    if (leave.some((a) => !isTheme(a, 'spatial')))
+      problems.push(
+        `${label}: a slide out is not the theme's spatial spring (${JSON.stringify(leave.map((a) => a.timing))}, wanted ${JSON.stringify(want.spatial)})`,
+      );
+    if (ghostsLeft) problems.push(`${label}: the ghost copy is still there after the slide out`);
+  }
+  steady(before, 'rest');
+
+  // The cursor goes into the text: the contextual tools slide in and push the main tools right.
+  await taken();
+  await page.click('.ProseMirror');
+  await page.waitForFunction(() => document.querySelector('.editor-tools-context'), null, { timeout: 4000 });
+  const enter = await taken();
+  steady(await heights(), 'the slide in');
+  await page.waitForTimeout(want.spatial.duration + 300);
+  if (reduced) {
+    if (enter.length) problems.push(`${label}: the bar animates the tools in with reduced motion (${enter.length} animations)`);
+  } else {
+    if (spatial(enter).length < 2)
+      problems.push(`${label}: going into the text does not slide the tools in and push the main tools (${spatial(enter).length} slides)`);
+    if (enter.some((a) => !isTheme(a, 'spatial')))
+      problems.push(`${label}: a slide in is not the theme's spatial spring (${JSON.stringify(enter.map((a) => a.timing))})`);
+    const slidIn = enter.find((a) => String(a.cls).includes('editor-tools-context'));
+    if (!slidIn || !String(slidIn.keyframes[0].transform).startsWith('translateX(-'))
+      problems.push(`${label}: the contextual tools do not come in from the left`);
+  }
+  const rest = await page.evaluate(() => {
+    const bar = document.querySelector('.editor-tools');
+    const main = bar.querySelector('.editor-tools-main');
+    const context = bar.querySelector('.editor-tools-context');
+    return {
+      mainAfterContext: !!context && main.getBoundingClientRect().left >= context.getBoundingClientRect().right - 1,
+      transform: getComputedStyle(main).transform,
+    };
+  });
+  if (!rest.mainAfterContext) problems.push(`${label}: the main tools do not rest after the contextual tools and their divider`);
+  if (rest.transform !== 'none') problems.push(`${label}: the main tools keep a transform after the slide (${rest.transform})`);
+
+  // A block after the text: no second slide, the contextual tools fade in place with the theme's effects spring.
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.waitForTimeout(500);
+  const change = await taken();
+  const fades = change.filter((a) => a.keyframes.some((k) => k.opacity !== undefined));
+  if (reduced) {
+    if (change.length)
+      problems.push(`${label}: the bar animates from the text to a block with reduced motion (${change.length} animations)`);
+  } else {
+    if (!fades.length) problems.push(`${label}: no fade when the bar goes from the text to a block`);
+    if (fades.some((a) => !isTheme(a, 'effects')))
+      problems.push(
+        `${label}: the fade is not the theme's effects spring (${JSON.stringify(fades.map((a) => a.timing))}, wanted ${JSON.stringify(want.effects)})`,
+      );
+    if (change.some((a) => a.ghost)) problems.push(`${label}: going from the text to a block slides a ghost out (it fades in place)`);
+  }
   await page.close();
 }
 
@@ -1466,6 +1712,397 @@ async function checkFilesSelection() {
   }
 }
 
+/** Selecting redirects (Redirects.tsx, "All redirects"): Space on a focused row selects it, the top bar swaps to the selection's own
+ * actions (count, Close, Delete), a tap on another row adds it, Escape ends selecting. A site with no redirects has nothing to select. */
+async function checkRedirectsSelection() {
+  for (const w of [375, 1280]) {
+    const touch = w < 600;
+    const label = `redirects selection ${w}`;
+    const page = await browser.newPage({ viewport: { width: w, height: 800 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#seo/redirects/all'));
+    await page.waitForTimeout(1500);
+    const rows = page.locator('main .list-item-selectable');
+    if ((await rows.count()) < 2) {
+      await page.close();
+      continue;
+    }
+    const checked = () => page.locator('main [role=checkbox][aria-checked=true], main [aria-pressed=true].list-item-selectable').count();
+    await rows.nth(0).focus();
+    await page.keyboard.press('Space');
+    await page.waitForTimeout(300);
+    if ((await checked()) !== 1) problems.push(`${label}: Space does not select the redirect in focus`);
+    for (const name of ['Close selection', /^Delete 1 selected$/]) {
+      const b = await page.getByRole('button', { name }).first().boundingBox();
+      if (!b || b.width < 44 || b.height < 44) problems.push(`${label}: "${name}" is missing or smaller than 44 px in the top bar`);
+    }
+    await rows.nth(1).click();
+    await page.waitForTimeout(300);
+    if ((await checked()) !== 2) problems.push(`${label}: a click on a second redirect does not add it while selecting`);
+    if (await page.locator('dialog[open]').count()) problems.push(`${label}: a click while selecting opened the redirect's sheet`);
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+    if (await checked()) problems.push(`${label}: Escape does not end selecting`);
+    await page.close();
+  }
+}
+
+/** A long press and drag across rows (useLongPress onDrag, useSelection drag): at 375 with real touch events, a finger held for the long press
+ * and dragged over more rows selects each row it passes without the page scrolling under it, held near the bottom of the screen it scrolls the
+ * list by itself and goes on selecting, and a finger that moves before the hold scrolls the page and selects nothing. A mouse drag selects
+ * nothing. */
+async function checkDragSelect() {
+  const label = 'drag select 375';
+  const page = await browser.newPage({ viewport: { width: 375, height: 560 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#list/pages'));
+  await page.waitForSelector('main a.list-item-container');
+  await page.waitForTimeout(600);
+  const rows = page.locator('main a.list-item-container.list-item-selectable');
+  if ((await rows.count()) < 4) {
+    problems.push(`${label}: fewer than 4 selectable rows`);
+    await page.close();
+    return;
+  }
+  const cdp = await page.context().newCDPSession(page);
+  const send = (type, x, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] });
+  const scrollTop = () =>
+    page.evaluate(() => Math.round(document.scrollingElement.scrollTop + (document.querySelector('main')?.scrollTop ?? 0)));
+  const checked = () => page.locator('main [role=checkbox][aria-checked=true]').count();
+  const centre = async (i) => {
+    const b = await rows.nth(i).boundingBox();
+    return [b.x + b.width / 2, b.y + b.height / 2];
+  };
+  const at0 = await scrollTop();
+  const [x0, y0] = await centre(0);
+  // A swipe at once scrolls the page and selects nothing.
+  await send('touchStart', x0, y0 + 200);
+  for (let i = 1; i <= 8; i++) {
+    await send('touchMove', x0, y0 + 200 - i * 20);
+    await page.waitForTimeout(30);
+  }
+  await send('touchEnd');
+  await page.waitForTimeout(400);
+  if (await checked()) problems.push(`${label}: a swipe selected a row`);
+  const scrollable = (await scrollTop()) > at0;
+  if (!scrollable) problems.push(`${label}: a swipe no longer scrolls the page (or the list is too short to check)`);
+  await page.evaluate(() => {
+    document.scrollingElement.scrollTop = 0;
+    document.querySelector('main')?.scrollTo?.(0, 0);
+  });
+  await page.waitForTimeout(300);
+  // Hold, then drag over the next two rows.
+  const [x1, y1] = await centre(0);
+  const [, y2] = await centre(2);
+  const before = await scrollTop();
+  await send('touchStart', x1, y1);
+  await page.waitForTimeout(650);
+  for (let i = 1; i <= 10; i++) {
+    await send('touchMove', x1, y1 + ((y2 - y1) * i) / 10);
+    await page.waitForTimeout(40);
+  }
+  const mid = await checked();
+  await send('touchEnd');
+  await page.waitForTimeout(300);
+  if (mid !== 3) problems.push(`${label}: a long press and drag over 3 rows selected ${mid}`);
+  if ((await scrollTop()) !== before) problems.push(`${label}: the page scrolled under the finger during the drag`);
+  await page.getByRole('button', { name: 'Close selection' }).click();
+  await page.waitForTimeout(300);
+  // Held near the bottom edge: the list scrolls by itself and goes on selecting.
+  const [x3, y3] = await centre(0);
+  await send('touchStart', x3, y3);
+  await page.waitForTimeout(650);
+  const edge = 560 - 12;
+  for (let i = 1; i <= 8; i++) {
+    await send('touchMove', x3, y3 + ((edge - y3) * i) / 8);
+    await page.waitForTimeout(30);
+  }
+  await page.waitForTimeout(1200);
+  const scrolled = (await scrollTop()) > before + 50;
+  const many = await checked();
+  await send('touchEnd');
+  await page.waitForTimeout(300);
+  if (!scrolled) problems.push(`${label}: held near the bottom edge the list did not scroll by itself`);
+  if (many < 5) problems.push(`${label}: scrolling by itself did not go on selecting (${many} rows)`);
+  await page.close();
+}
+
+/** Two-finger touch (useLongPress, longPressRules.mjs secondFinger): at 375 with real touch events, a second finger put down on a row while the
+ * first rests on it selects it at once (well before the 500 ms hold) and opens nothing; a second finger on another row selects nothing; a
+ * second finger after the first has moved away selects nothing. */
+async function checkTwoFinger() {
+  const label = 'two-finger select 375';
+  const page = await browser.newPage({ viewport: { width: 375, height: 700 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#list/pages'));
+  await page.waitForSelector('main a.list-item-container');
+  await page.waitForTimeout(600);
+  const rows = page.locator('main a.list-item-container.list-item-selectable');
+  if ((await rows.count()) < 2) {
+    problems.push(`${label}: fewer than 2 selectable rows`);
+    await page.close();
+    return;
+  }
+  const cdp = await page.context().newCDPSession(page);
+  const touch = (type, points) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: points });
+  const here = await page.evaluate(() => location.hash);
+  const checked = () => page.locator('main [role=checkbox][aria-checked=true]').count();
+  const centre = async (i) => {
+    const b = await rows.nth(i).boundingBox();
+    return [b.x + b.width / 2, b.y + b.height / 2];
+  };
+  const [x0, y0] = await centre(0);
+  const [x1, y1] = await centre(1);
+  // Both fingers on the first row.
+  await touch('touchStart', [{ x: x0, y: y0, id: 0 }]);
+  await page.waitForTimeout(100);
+  await touch('touchStart', [
+    { x: x0, y: y0, id: 0 },
+    { x: x0 + 40, y: y0, id: 1 },
+  ]);
+  await page.waitForTimeout(150);
+  if ((await checked()) !== 1) problems.push(`${label}: a second finger on the same row does not select it at once`);
+  await touch('touchEnd', []);
+  await page.waitForTimeout(300);
+  if ((await page.evaluate(() => location.hash)) !== here) problems.push(`${label}: the two-finger touch opened the row`);
+  const close = page.getByRole('button', { name: 'Close selection' });
+  if (await close.count()) {
+    await close.click();
+    await page.waitForTimeout(300);
+  }
+  // The second finger on another row.
+  await touch('touchStart', [{ x: x0, y: y0, id: 0 }]);
+  await page.waitForTimeout(100);
+  await touch('touchStart', [
+    { x: x0, y: y0, id: 0 },
+    { x: x1, y: y1, id: 1 },
+  ]);
+  await page.waitForTimeout(150);
+  await touch('touchEnd', []);
+  await page.waitForTimeout(300);
+  if (await checked()) problems.push(`${label}: a second finger on another row selected a row`);
+  if ((await page.evaluate(() => location.hash)) !== here) {
+    await page.evaluate((h) => (location.hash = h), here);
+    await page.waitForSelector('main a.list-item-container');
+    await page.waitForTimeout(500);
+  }
+  await page.close();
+}
+
+/** Dragging a block by its handle (blockHandle in MarkdownEditor.tsx): every block has a handle at its top right, at least 44 px, always shown with a
+ * touch and on the block pointed at with a mouse; dragging it above the block before moves the block there (the order in the text changes), a tap on it
+ * does nothing. A touch drag is made with real touch events. */
+async function checkBlockDrag(width) {
+  const label = `block drag ${width}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  const insert = async (hint) => {
+    await pressInsert(page, 'click');
+    await page.locator('dialog[open] button', { hasText: hint }).first().click();
+    await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
+    await page.waitForTimeout(400);
+  };
+  await insert('Numbered steps.');
+  await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
+  await page.keyboard.press('End');
+  await page.keyboard.press('Enter');
+  await insert('Rows with icon, heading and text.');
+  // Away from any block's row, so no bar or keyboard is in the way.
+  const names = () => page.locator('.ProseMirror .site-block-card').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  const before = await names();
+  const handles = page.locator('.ProseMirror .site-block-handle');
+  if ((await handles.count()) !== 2 || before.length !== 2) {
+    problems.push(`${label}: expected 2 blocks with a handle each, found ${before.length} blocks and ${await handles.count()} handles`);
+    await page.close();
+    return;
+  }
+  const box = (i) => handles.nth(i).boundingBox();
+  const first = await box(0);
+  if (first.width < 44 || first.height < 44) problems.push(`${label}: a handle is smaller than 44 x 44 (${first.width}x${first.height})`);
+  const opacity = () => handles.nth(1).evaluate((el) => getComputedStyle(el).opacity);
+  if (phone) {
+    if ((await opacity()) !== '1') problems.push(`${label}: a touch does not always see the handle`);
+  } else {
+    await page.mouse.move(5, 5);
+    await page.waitForTimeout(400);
+    if ((await opacity()) !== '0') problems.push(`${label}: a mouse sees a handle before it points at the block`);
+    const b = await box(1);
+    await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
+    await page.waitForTimeout(400);
+    if ((await opacity()) !== '1') problems.push(`${label}: a mouse does not see the handle of the block it points at`);
+  }
+  // A tap on the handle moves nothing.
+  const second = await box(1);
+  const [sx, sy] = [second.x + second.width / 2, second.y + second.height / 2];
+  if (phone) await page.touchscreen.tap(sx, sy);
+  else await page.mouse.click(sx, sy);
+  await page.waitForTimeout(300);
+  if ((await names()).join() !== before.join()) problems.push(`${label}: a tap on the handle moved the block`);
+  // Drag the second block's handle up over the first block.
+  const target = await page.locator('.ProseMirror .site-block').first().boundingBox();
+  const ty = target.y + 8;
+  if (phone) {
+    const cdp = await page.context().newCDPSession(page);
+    const send = (type, x, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] });
+    await send('touchStart', sx, sy);
+    for (let i = 1; i <= 12; i++) {
+      await send('touchMove', sx, sy + ((ty - sy) * i) / 12);
+      await page.waitForTimeout(30);
+    }
+    const lifted = await page.locator('.ProseMirror .site-block-dragging').count();
+    if (lifted !== 1) problems.push(`${label}: the block is not raised while it is dragged`);
+    await send('touchEnd');
+  } else {
+    await page.mouse.move(sx, sy);
+    await page.mouse.down();
+    for (let i = 1; i <= 12; i++) {
+      await page.mouse.move(sx, sy + ((ty - sy) * i) / 12);
+      await page.waitForTimeout(30);
+    }
+    if ((await page.locator('.ProseMirror .site-block-dragging').count()) !== 1)
+      problems.push(`${label}: the block is not raised while it is dragged`);
+    await page.mouse.up();
+  }
+  await page.waitForTimeout(600);
+  const after = await names();
+  if (after.join() !== [...before].reverse().join())
+    problems.push(`${label}: dragging the handle did not move the block (${before.join()} -> ${after.join()})`);
+  if (await page.locator('.ProseMirror .site-block-dragging, .ProseMirror [class*="site-part-drop"]').count())
+    problems.push(`${label}: the drag left its marks behind`);
+  await page.close();
+}
+
+/** Selecting several blocks of a page (blockSelectable and selectionBar in MarkdownEditor.tsx): a long press on a block's handle (touch) or a click on the mark of the block
+ * pointed at (mouse) selects it; the text is then read-only and every block shows its mark; a tap or click on another block adds it without opening it; the bar
+ * has the count with a cross first and Hide, Remove and Select all in its `⋮` (Duplicate only with one block selected); Remove asks first; Hide hides all selected;
+ * Escape or the cross ends it. */
+async function checkBlockSelect(width) {
+  const label = `block select ${width}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  for (const hint of ['Numbered steps.', 'Rows with icon, heading and text.']) {
+    await pressInsert(page, 'click');
+    await page.locator('dialog[open] button', { hasText: hint }).first().click();
+    await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
+    await page.waitForTimeout(400);
+    // Away from the rows, so the next block goes after this one.
+    await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
+    await page.keyboard.press('End');
+    await page.keyboard.press('Enter');
+  }
+  const blocks = page.locator('.ProseMirror .site-block');
+  if ((await blocks.count()) < 2) {
+    problems.push(`${label}: fewer than 2 blocks in the page`);
+    await page.close();
+    return;
+  }
+  const selected = () => page.locator('.ProseMirror .site-block-selected').count();
+  const status = () =>
+    page
+      .locator('[role=status]')
+      .filter({ hasText: /blocks? selected/ })
+      .first()
+      .textContent();
+  const countButton = page.getByRole('button', { name: /^Clear selection, \d+ blocks? selected$/ });
+  const sheetOpen = () => page.evaluate(() => !!document.querySelector('dialog[open]'));
+  const hash = () => page.evaluate(() => location.hash);
+  const here = await hash();
+  const centre = async (loc) => {
+    const b = await loc.boundingBox();
+    return [b.x + b.width / 2, b.y + b.height / 2];
+  };
+  const handle0 = blocks.nth(0).locator('.site-block-handle');
+  if (phone) {
+    const cdp = await page.context().newCDPSession(page);
+    const [hx, hy] = await centre(handle0);
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: hx, y: hy }] });
+    await page.waitForTimeout(700);
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  } else {
+    await blocks.nth(0).hover();
+    await page.waitForTimeout(400);
+    const mark = blocks.nth(0).locator('.site-block-mark');
+    if ((await mark.evaluate((el) => getComputedStyle(el).opacity)) !== '1')
+      problems.push(`${label}: the mark does not show on the block pointed at`);
+    const m = await mark.boundingBox();
+    if (m.width < 48 || m.height < 48) problems.push(`${label}: the mark's target is smaller than 48 x 48 (${m.width}x${m.height})`);
+    await mark.click();
+  }
+  await page.waitForTimeout(400);
+  if ((await selected()) !== 1) problems.push(`${label}: the first block is not selected (${await selected()})`);
+  if (!/^1 block selected$/.test((await status()) ?? '')) problems.push(`${label}: the count is not announced ("1 block selected")`);
+  if (!(await countButton.count())) problems.push(`${label}: no count with a cross on the bar`);
+  if (await page.locator('.ProseMirror[contenteditable=true]').count())
+    problems.push(`${label}: the text is not read-only while a block is selected`);
+  const marks = await page.locator('.ProseMirror .site-block-mark').evaluateAll((els) => els.map((e) => getComputedStyle(e).opacity));
+  if (marks.some((o) => o !== '1')) problems.push(`${label}: not every block shows its mark once one is selected`);
+  // Another block, added by a tap or a click on it.
+  const [sx, sy] = await centre(blocks.nth(1));
+  if (phone) await page.touchscreen.tap(sx, sy);
+  else await page.mouse.click(sx, sy);
+  await page.waitForTimeout(400);
+  if ((await selected()) !== 2) problems.push(`${label}: a tap on a second block does not add it (${await selected()})`);
+  if ((await sheetOpen()) || (await hash()) !== here) problems.push(`${label}: a tap on a block opened it while blocks were selected`);
+  if (!/^2 blocks selected$/.test((await status()) ?? '')) problems.push(`${label}: the count is not announced ("2 blocks selected")`);
+  // The ⋮ menu: Hide, Remove and Select all, and no Duplicate with two.
+  await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+  await page.waitForTimeout(300);
+  const rows = await page.locator('[role=menu] [role^=menuitem]').allTextContents();
+  const clean = rows.map((r) => r.trim());
+  for (const name of ['Hide on the page', 'Remove', 'Select all'])
+    if (!clean.includes(name)) problems.push(`${label}: the bar's menu has no "${name}" (${clean.join(', ')})`);
+  if (clean.includes('Duplicate')) problems.push(`${label}: Duplicate is offered with two blocks selected`);
+  // Remove asks first (and Escape leaves the blocks as they are).
+  await page
+    .locator('[role=menu] [role^=menuitem]', { hasText: /^Remove$/ })
+    .first()
+    .click();
+  await page.waitForTimeout(400);
+  const asked = await page.evaluate(() => document.querySelector('dialog[open]')?.textContent ?? '');
+  if (!/Remove 2 blocks/.test(asked)) problems.push(`${label}: Remove does not ask first ("${asked.trim().slice(0, 60)}")`);
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(400);
+  if ((await blocks.count()) !== 2) problems.push(`${label}: Escape on the question removed a block`);
+  if ((await selected()) !== 2) problems.push(`${label}: cancelling the question changed the selection (${await selected()})`);
+  // Hide hides every selected block.
+  await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+  await page.waitForTimeout(300);
+  await page
+    .locator('[role=menu] [role^=menuitem]', { hasText: /^Hide on the page$/ })
+    .first()
+    .click();
+  await page.waitForTimeout(500);
+  if ((await page.locator('.ProseMirror .site-block-hidden').count()) !== 2)
+    problems.push(`${label}: Hide did not hide both selected blocks`);
+  if ((await selected()) !== 2) problems.push(`${label}: Hide ended the selection (${await selected()})`);
+  // The cross ends it; the text can be written in again.
+  await countButton.click();
+  await page.waitForTimeout(400);
+  if (await selected()) problems.push(`${label}: the cross does not clear the selection`);
+  if (!(await page.locator('.ProseMirror[contenteditable=true]').count()))
+    problems.push(`${label}: the text is still read-only after the selection ended`);
+  await page.close();
+}
+
 /** The selection checkbox of a list row (theme ListItem): hover shows one box, all show once one is selected, a touch shows none
  * before that; 48 x 48; a tap on what leads the row selects it (touch); the selected row has the selected surface and corner. */
 async function checkSelectionBox() {
@@ -1858,6 +2495,116 @@ async function checkDensityLayout(width, height) {
   await page.close();
 }
 
+/** A table's rows read density (theme/styles/blocks.css, the data-heavy step): the body row is 52 px at Medium and the header row 56, 4 px a step (Large +4, Small -4); in the page editing area and in a row that picks the density it is the same at every step. */
+async function checkDensityTable(width, height) {
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px density table: ${e.message}`));
+  await openEditor(page, site);
+  const table =
+    '<div class="block-table block-table-grid"><table><thead><tr><th>Head</th></tr></thead><tbody><tr><td data-part="row">Cell</td></tr></tbody></table></div>';
+  const measure = (attr) =>
+    page.evaluate(
+      ([attr, table]) => {
+        const root = document.documentElement;
+        if (attr === null) root.removeAttribute('data-density');
+        else root.setAttribute('data-density', attr);
+        const host = document.createElement('div');
+        host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
+        host.innerHTML = `<div data-where="screen">${table}</div><div class="editor-text"><div class="ProseMirror" data-where="content">${table}</div></div><div data-density-fixed data-where="fixed">${table}</div>`;
+        document.body.append(host);
+        const got = {};
+        for (const where of host.querySelectorAll('[data-where]'))
+          got[where.dataset.where] = [where.querySelector('thead th'), where.querySelector('[data-part="row"]')].map(
+            (e) => Math.round(e.getBoundingClientRect().height * 100) / 100,
+          );
+        host.remove();
+        root.removeAttribute('data-density');
+        return got;
+      },
+      [attr, table],
+    );
+  const [large, medium, small] = [await measure('1'), await measure('0'), await measure('-1')];
+  const expect = (what, ok) => ok || problems.push(`${width}px density table: ${what}`);
+  expect(
+    `at Medium the header is ${medium.screen[0]} px and a row ${medium.screen[1]}, not 56 and 52`,
+    medium.screen[0] === 56 && medium.screen[1] === 52,
+  );
+  for (const [i, name] of [
+    [0, 'header'],
+    [1, 'row'],
+  ])
+    expect(
+      `the ${name} is ${large.screen[i]} / ${medium.screen[i]} / ${small.screen[i]} px at Large / Medium / Small, not 4 px apart`,
+      large.screen[i] - medium.screen[i] === 4 && medium.screen[i] - small.screen[i] === 4,
+    );
+  for (const where of ['content', 'fixed'])
+    expect(
+      `the table in ${where} is ${large[where]} / ${medium[where]} / ${small[where]} px, not the same at every step`,
+      large[where].join() === medium[where].join() && medium[where].join() === small[where].join(),
+    );
+  await page.close();
+}
+
+/** Density on the editor's screens (spec: docs/superpowers/specs/2026-11-13-density-design.md, checks): the main screens open at Large and Small (Medium is what "screens" checks) without an error and without the page scrolling sideways, on a phone and a computer; and the colours of the parts do not depend on density (a row, a button, a chip and a field have the same text and surface colour at every step), which is why check:contrast (CONTRAST_DENSITY=-1 for Small, by hand) needs no run of its own in CI. */
+async function checkDensityScreens(width, height) {
+  const label = `${width}px density screens`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  let where = '';
+  page.on('pageerror', (e) => problems.push(`${label} ${where}: ${e.message}`));
+  await openEditor(page, site);
+  const routes = [
+    '',
+    'settings',
+    'company/colors',
+    'global/header',
+    'licenses',
+    'appearance/themes',
+    'seo',
+    'apps',
+    'new/pages',
+    'new/blog',
+  ];
+  const colours = async () =>
+    page.evaluate(() => {
+      const host = document.createElement('div');
+      host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
+      host.innerHTML =
+        '<button class="button" data-part="button">Label</button><button class="chip" data-part="chip">Label</button><div class="text-field text-field-outlined"><div class="text-field-container"><input class="text-field-input" data-part="field"></div></div><div class="list-item-container" data-part="row"><div class="list-item-content"><span class="list-item-headline" data-part="headline">Row</span></div></div>';
+      document.body.append(host);
+      const got = {};
+      for (const el of host.querySelectorAll('[data-part]')) {
+        const c = getComputedStyle(el);
+        got[el.dataset.part] = [c.color, c.backgroundColor, c.borderTopColor].join('|');
+      }
+      host.remove();
+      return got;
+    });
+  const colourAt = {};
+  for (const [name, attr] of [
+    ['Large', '1'],
+    ['Medium', '0'],
+    ['Small', '-1'],
+  ]) {
+    await page.evaluate((a) => document.documentElement.setAttribute('data-density', a), attr);
+    colourAt[name] = await colours();
+    if (name === 'Medium') continue;
+    for (const route of routes) {
+      where = `#${route} at ${name}`;
+      await page.evaluate((h) => (location.hash = h), route);
+      await page.waitForTimeout(150);
+      if (await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth))
+        problems.push(`${label} ${where}: the page scrolls sideways`);
+    }
+  }
+  for (const part of Object.keys(colourAt.Medium))
+    if (colourAt.Large[part] !== colourAt.Medium[part] || colourAt.Small[part] !== colourAt.Medium[part])
+      problems.push(
+        `${label}: the colours of ${part} change with density (${colourAt.Large[part]} / ${colourAt.Medium[part]} / ${colourAt.Small[part]})`,
+      );
+  await page.close();
+}
+
 /** The density variables (theme/styles/base.css) work in the browser: a person's step (data-density on <html>) and a theme's step add up, each group clamps them, and a part's calc() gives its default at 0 and 4px per step. */
 async function checkDensity(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
@@ -2089,6 +2836,73 @@ async function checkPreviewSection() {
   });
   if (!got || got === 'rgba(0, 0, 0, 0)') problems.push(`Preview section: a section with a background has none in the Preview (${got})`);
   await page.close();
+}
+
+/** A filled card with a video, a headline and a text, in a section on Primary, Secondary or Tertiary (card colour: the same container colour, or none), reads 4.5:1 on its own surface in light and dark mode, on a phone and a computer: its text, the video's title and the play button (3:1) take the container's on-colour, not the section's. */
+async function checkSectionCardContrast() {
+  const lum = ([r, g, b]) => {
+    const [R, G, B] = [r, g, b].map((v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+  };
+  const ratio = (a, b) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05);
+  for (const scheme of ['light', 'dark']) {
+    for (const [width, height] of [
+      [375, 740],
+      [1280, 900],
+    ]) {
+      const page = await browser.newPage({ viewport: { width, height }, colorScheme: scheme, locale: 'en-US' });
+      page.on('pageerror', (e) => problems.push(`Section card contrast: ${e.message}`));
+      if (!(await onDemoBlocksPage(page, `Section card contrast (${scheme}, ${width})`))) {
+        await page.close();
+        continue;
+      }
+      const found = await page.evaluate(() => {
+        const colors = ['primary', 'secondary', 'tertiary'];
+        const html = colors
+          .flatMap((section) => ['', ...colors].map((color) => `${section}/${color}`))
+          .map((id) => {
+            const [section, color] = id.split('/');
+            const cardsColor = color ? ` block-cards-${color}` : '';
+            return `<div class="text-section text-section-${section}" data-case="${id}"><div class="block-cards${cardsColor}"><div class="card card-filled block-card"><div class="prose block-card-video"><a class="video-facade" href="#"><svg viewBox="0 0 24 24" width="48" height="48" data-play><circle cx="12" cy="12" r="10" fill="currentColor"/></svg><span class="video-facade-title">Title</span></a></div><span class="block-card-title">Headline</span><p class="block-card-text">Text</p></div></div></div>`;
+          })
+          .join('');
+        document.body.insertAdjacentHTML('afterbegin', html);
+        const rgba = (css) => {
+          const c = document.createElement('canvas').getContext('2d');
+          c.fillStyle = css;
+          c.fillRect(0, 0, 1, 1);
+          return [...c.getImageData(0, 0, 1, 1).data];
+        };
+        return [...document.querySelectorAll('[data-case]')].flatMap((box) => {
+          const card = box.querySelector('.card');
+          const bg = rgba(getComputedStyle(card).backgroundColor);
+          // The card's surface is opaque here (a container), or a veil of the section's on-colour: the section's colour under it.
+          const under = rgba(getComputedStyle(box).backgroundColor);
+          const surface = bg[3] === 255 ? bg : bg.slice(0, 3).map((v, i) => Math.round((v * bg[3] + under[i] * (255 - bg[3])) / 255));
+          return [
+            ['headline', '.block-card-title', 4.5],
+            ['text', '.block-card-text', 4.5],
+            ['video title', '.video-facade-title', 4.5],
+            ['play button', '.video-facade svg', 3],
+          ].map(([what, selector, need]) => ({
+            id: box.dataset.case,
+            what,
+            need,
+            fg: rgba(getComputedStyle(box.querySelector(selector)).color),
+            surface,
+          }));
+        });
+      });
+      for (const f of found) {
+        const got = ratio(f.fg, f.surface);
+        if (got < f.need)
+          problems.push(
+            `Section card contrast (${f.id}, ${scheme}, ${width}): the ${f.what} of a filled card is ${got.toFixed(2)}:1 (needs ${f.need})`,
+          );
+      }
+      await page.close();
+    }
+  }
 }
 
 /** A page whose H1 section has a background (a colour or an image) has it start right under the navigation bar (gap 0 ±1px), on the site and in the Preview at 390 and 600; a page whose H1 section has none keeps its space under the bar. */
@@ -3631,6 +4445,85 @@ async function onDemoBlocksPage(page, label) {
   return false;
 }
 
+/** The Library's images are the theme's image tiles in a staggered grid: cards with media (filled, the image to the edge), each in its own proportions (the box is
+ * there before the image loads), 8 px apart, 2 columns on a phone and 4 on a computer, and a selected card has its own surface. */
+async function checkImageGrid(width, height) {
+  const label = `${width}px image grid`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site, {});
+  // A site with no images (the starter's) has no grid to measure.
+  const images = await page.evaluate(
+    async (base) => Object.keys(await (await fetch(`${base}/editor/thumbnails.json`)).json()).length,
+    site,
+  );
+  if (!images) {
+    console.log(`${label}: skipped, the site has no images to measure, which the demo has.`);
+    return page.close();
+  }
+  await page.goto(`${site}/editor/#files`);
+  await page.waitForSelector('ul.image-grid', { timeout: 30_000 });
+  const m = await page.evaluate(() => {
+    const grid = document.querySelector('ul.image-grid');
+    const gs = getComputedStyle(grid);
+    const tiles = [...grid.querySelectorAll('button.card')];
+    const media = tiles.map((t) => t.querySelector('.card-media')).filter(Boolean);
+    const plain = document.createElement('div');
+    plain.className = 'card card-filled';
+    const chosen = document.createElement('div');
+    chosen.className = 'card card-filled card-selected';
+    document.body.append(plain, chosen);
+    const surfaces = [getComputedStyle(plain).backgroundColor, getComputedStyle(chosen).backgroundColor];
+    plain.remove();
+    chosen.remove();
+    return {
+      columns: gs.columnCount,
+      gap: gs.columnGap,
+      tiles: tiles.length,
+      cards: tiles.filter((t) => t.classList.contains('card-filled') && t.classList.contains('card-with-media')).length,
+      ratios: media.filter((el) => el.style.aspectRatio).length,
+      square: grid.querySelectorAll('.aspect-square').length,
+      heights: [...new Set(tiles.map((t) => Math.round(t.getBoundingClientRect().height)))].length,
+      sideways: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      surfaces,
+      names: tiles.filter((t) => !t.getAttribute('aria-label')).length,
+    };
+  });
+  const columns = phone ? '2' : '4';
+  if (m.tiles === 0) problems.push(`${label}: the Library has no tiles to measure`);
+  if (m.columns !== columns) problems.push(`${label}: ${m.columns} columns, expected ${columns}`);
+  if (m.gap !== '8px')
+    problems.push(`${label}: the gap between columns is ${m.gap}, expected 8px (Material 3: "Padding between cards: 8dp max")`);
+  if (m.cards !== m.tiles) problems.push(`${label}: ${m.tiles - m.cards} tiles are not a filled card with media`);
+  if (m.square) problems.push(`${label}: ${m.square} tiles are still squares`);
+  if (m.sideways) problems.push(`${label}: the page scrolls sideways`);
+  if (m.names) problems.push(`${label}: ${m.names} tiles have no name for a screen reader`);
+  if (m.surfaces[0] === m.surfaces[1])
+    problems.push(`${label}: a selected card has the same surface as an unselected one (${m.surfaces[0]})`);
+  console.log(`${label}: ${m.tiles} tiles, ${m.ratios} with their own ratio, ${m.heights} different heights`);
+  await page.close();
+}
+
+/** An image with no text of its own is drawn with the Library's text for it (src/imageAlt.mjs), on the site: the demo's Blocks page has a Cards image whose
+ * file record has one, and the About page an image with a text of its own, which stays. */
+async function checkLibraryAlt() {
+  const label = 'library alt text';
+  const page = await browser.newPage({ locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  const card = await page.locator('.block-card-picture img[src$="andromeda.webp"]').first().getAttribute('alt');
+  if (card !== 'The Andromeda galaxy among thousands of stars')
+    problems.push(`${label}: the Cards image has alt "${card}", expected the Library's text for it`);
+  const about = await page.goto(new URL('/about/', site).href).catch(() => null);
+  if (about && about.status() < 400) {
+    const own = await page.locator('img[src$="earth-from-space.webp"]').first().getAttribute('alt');
+    if (own !== 'The Earth seen from space, with clouds over the ocean')
+      problems.push(`${label}: an image with a text of its own has alt "${own}"`);
+  }
+  await page.close();
+}
+
 /** A card's icon with no color of its own (`iconColor`) is drawn in the text colour (the card's title), on an outlined, a filled and an elevated card, light and dark, and reads at 3:1 (WCAG non-text) on what is behind it. */
 async function checkCardIconText(width, height, scheme) {
   const label = `${width}px card icon text color (${scheme})`;
@@ -4210,7 +5103,9 @@ async function checkInlineTable(width, height) {
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(300);
   const after = await page.evaluate(() => ({
-    menu: document.querySelectorAll('.editor-tools [aria-label="Add row above"]').length,
+    // The ghost copy of the tools that left is sliding out for a moment: it is not the bar's tools.
+    menu: [...document.querySelectorAll('.editor-tools [aria-label="Add row above"]')].filter((b) => !b.closest('.editor-tools-ghost'))
+      .length,
     extra: document.querySelectorAll('[data-add-row], .inline-table-cell-next').length,
     rows: document.querySelectorAll('.inline-table-box tr[data-row]').length,
     cols: document.querySelectorAll('.inline-table-box thead th').length,
@@ -4379,6 +5274,54 @@ async function checkTableRadius(width, height) {
     if (got.overflowX === 'visible' || got.overflowY === 'visible')
       problems.push(`${label}: the table's box does not clip its header to the radius`);
   }
+  await page.close();
+}
+
+/** The site's spacing is on the 4 dp grid (docs/superpowers/specs/2026-11-13-site-spacing-audit.md, step 6): every margin, padding and gap of what the demo's Blocks page draws is a multiple of 4 px (also 2, 6 and 10: Material 3's nested units), except what scripts/spacing-grid.allow.mjs allows with its reason. Run at 375 and 1280, as a value that follows the width is what drifts. */
+async function checkSpacingGrid(width, height) {
+  const label = `${width}px spacing grid`;
+  const page = await browser.newPage({ viewport: { width, height } });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  const found = await page.evaluate(
+    ([nested, allowed]) => {
+      const sides = {
+        margin: ['marginTop', 'marginRight', 'marginBottom', 'marginLeft'],
+        padding: ['paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft'],
+        gap: ['rowGap', 'columnGap'],
+      };
+      const out = new Map();
+      const root = document.querySelector('main') ?? document.body;
+      for (const el of root.querySelectorAll('*')) {
+        if (el.closest('svg')) continue;
+        const style = getComputedStyle(el);
+        if (style.display === 'none') continue;
+        const parent = el.parentElement?.getBoundingClientRect();
+        const box = el.getBoundingClientRect();
+        // Margins that are auto (a centred box) come out as the room left over, which is the window's, not a spacing.
+        const centred =
+          parent && style.marginLeft === style.marginRight && Math.abs(box.left - parent.left - (parent.right - box.right)) < 1;
+        for (const [kind, names] of Object.entries(sides)) {
+          for (const name of names) {
+            if (centred && (name === 'marginLeft' || name === 'marginRight')) continue;
+            const n = parseFloat(style[name]);
+            if (!Number.isFinite(n) || n === 0) continue;
+            if (Math.abs(n / 4 - Math.round(n / 4)) < 0.01 || nested.includes(Math.abs(n))) continue;
+            if (allowed.some(([selector, props]) => props.includes(kind) && el.matches(selector))) continue;
+            const classes = typeof el.className === 'string' ? el.className.trim().split(/\s+/).slice(0, 3).join('.') : '';
+            const key = `${el.tagName.toLowerCase()}${classes ? '.' + classes : ''} ${name}: ${Math.round(n * 100) / 100}px`;
+            out.set(key, (out.get(key) ?? 0) + 1);
+          }
+        }
+      }
+      return [...out.keys()];
+    },
+    [nestedUnits, allow.map((a) => [a.selector, a.props])],
+  );
+  for (const what of found)
+    problems.push(
+      `${label}: ${what} is not a multiple of 4 px (a space on the 4 dp grid; or an entry of scripts/spacing-grid.allow.mjs with its reason)`,
+    );
   await page.close();
 }
 
@@ -5719,7 +6662,14 @@ await unit('checkStartSubtitle', () => checkStartSubtitle());
 
 for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
 await unit('checkTextBarWide', () => checkTextBarWide());
+for (const [width, reduced] of [
+  [375, false],
+  [1280, false],
+  [375, true],
+])
+  await unit(`checkBarSlide ${width}${reduced ? ' reduced' : ''}`, () => checkBarSlide(width, reduced));
 for (const width of [375, 1280]) await unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
+for (const width of [375, 1280]) await unit(`checkCardBar ${width}`, () => checkCardBar(width));
 for (const width of [320, 375, 1280]) await unit(`checkInsertBlock ${width}`, () => checkInsertBlock(width));
 await unit('checkSheetKeyboard 375', () => checkSheetKeyboard(375));
 await unit('checkSheetKeyboard 375 Custom', () => checkSheetKeyboard(375, 740, 300, true));
@@ -5742,7 +6692,18 @@ await unit('checkLongPressDelete', () => checkLongPressDelete());
 await unit('checkSelection', () => checkSelection());
 await unit('checkSelectionBox', () => checkSelectionBox());
 await unit('checkFilesSelection', () => checkFilesSelection());
+await unit('checkRedirectsSelection', () => checkRedirectsSelection());
+await unit('checkDragSelect', () => checkDragSelect());
+await unit('checkTwoFinger', () => checkTwoFinger());
+for (const w of [375, 1280]) await unit(`checkBlockDrag ${w}`, () => checkBlockDrag(w));
+for (const w of [375, 1280]) await unit(`checkBlockSelect ${w}`, () => checkBlockSelect(w));
 await unit('checkUnlistedPost', () => checkUnlistedPost());
+await unit('checkLibraryAlt', () => checkLibraryAlt());
+for (const [width, height] of [
+  [375, 740],
+  [1280, 900],
+])
+  await unit(`checkImageGrid ${width}`, () => checkImageGrid(width, height));
 for (const [width, height] of [
   [375, 740],
   [1280, 900],
@@ -5800,6 +6761,8 @@ await unit('checkTableAlign 1280', () => checkTableAlign(1280, 800));
 
 await unit('checkTableRadius 375', () => checkTableRadius(375, 740));
 await unit('checkTableRadius 1280', () => checkTableRadius(1280, 800));
+await unit('checkSpacingGrid 375', () => checkSpacingGrid(375, 740));
+await unit('checkSpacingGrid 1280', () => checkSpacingGrid(1280, 800));
 for (const [width, height] of [
   [360, 740],
   [375, 740],
@@ -5841,11 +6804,16 @@ await unit('checkDensityParts 375', () => checkDensityParts(375, 740, true));
 await unit('checkDensityParts 1280', () => checkDensityParts(1280, 900, false));
 await unit('checkDensityLayout 375', () => checkDensityLayout(375, 740));
 await unit('checkDensityLayout 1280', () => checkDensityLayout(1280, 900));
+await unit('checkDensityTable 375', () => checkDensityTable(375, 740));
+await unit('checkDensityTable 1280', () => checkDensityTable(1280, 900));
+await unit('checkDensityScreens 375', () => checkDensityScreens(375, 740));
+await unit('checkDensityScreens 1280', () => checkDensityScreens(1280, 900));
 await unit('checkDensitySetting 375', () => checkDensitySetting(375, 740));
 await unit('checkDensitySetting 1280', () => checkDensitySetting(1280, 900));
 await unit('checkPreviewSection', () => checkPreviewSection());
 await unit('checkFullSection', () => checkFullSection());
 await unit('checkH1SectionGap', () => checkH1SectionGap());
+await unit('checkSectionCardContrast', () => checkSectionCardContrast());
 for (const w of [375, 1280]) await unit(`checkListMarkers ${w}`, () => checkListMarkers(w));
 for (const w of [375, 1280]) await unit(`checkListsAndBlocks ${w}`, () => checkListsAndBlocks(w));
 for (const w of [360, 375, 390, 414]) await unit(`checkPreviewDraft ${w}`, () => checkPreviewDraft(w));

@@ -4,64 +4,76 @@
     {
       "id": "social-media-links",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "Tilføj dine profiler på sociale medier",
       "text": "Profiler på sociale medier er nu en liste med links. Tryk på +, og et link til Facebook, X, LinkedIn eller Pinterest får selv sit navn og sit ikon."
     },
     {
       "id": "continue-where-left-off",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "Fortsæt, hvor du slap",
       "text": "Dine seneste 3 sider og blogindlæg ligger nu øverst på startskærmen. Tryk på et af dem for at komme lige tilbage."
     },
     {
       "id": "notifications-side-sheet",
       "kind": "paragraph",
+      "mark": "improvement",
       "title": "Læs notifikationer uden at forlade siden",
       "text": "Klokken i den øverste bjælke åbner nu dine notifikationer ved siden af den skærm, du er på. På en telefon kan du trykke og holde på en notifikation for at vælge den og slette den."
     },
     {
       "id": "old-links-still-open",
       "kind": "line",
+      "mark": "improvement",
       "text": "Gamle links og bogmærker til editoren åbner stadig, og standarddelene har nu engelske navne"
     },
     {
       "id": "saved-filters-reset",
       "kind": "line",
+      "mark": "improvement",
       "text": "De filtre og sorteringer, du har gemt i editoren, nulstilles én gang"
     },
     {
       "id": "header-phone-number",
       "kind": "line",
+      "mark": "feature",
       "text": "Handlingsknappen i headeren kan vise dit telefonnummer som en tekstknap foran sin knap"
     },
     {
       "id": "theme-store-screen",
       "kind": "line",
+      "mark": "feature",
       "text": "Temastore ligger nu på sin egen skærm, først under Udseende"
     },
     {
       "id": "menu-sections-moved",
       "kind": "line",
+      "mark": "improvement",
       "text": "Header og Footer ligger nu lige efter Temaer under Udseende, og Virksomheden har sin egen sektion med Logo og ikon"
     },
     {
       "id": "back-to-main-menu",
       "kind": "line",
+      "mark": "improvement",
       "text": "På en telefon fører et stryg tilbage fra en sektions liste til hovedmenuen"
     },
     {
       "id": "update-notifications",
       "kind": "line",
+      "mark": "feature",
       "text": "Notifikationer fortæller nu også, når din hjemmeside har opdateret Morpheme, fortrudt en opdatering eller er gået i stå"
     },
     {
       "id": "open-website-window",
       "kind": "line",
+      "mark": "improvement",
       "text": "Åbn hjemmesiden åbner i et nyt vindue"
     },
     {
       "id": "toolbar-no-sideways-scroll",
       "kind": "line",
+      "mark": "improvement",
       "text": "På en telefon ruller værktøjslinjen til tekst ikke længere til siden"
     }
   ]

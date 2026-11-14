@@ -94,12 +94,21 @@ export const media = {
   tags: 'Tags',
   addTag: 'Add tag',
   createTag: 'Create a tag',
+  /** The image's base text, kept with the image and used wherever it is shown unless that place has its own. */
+  alt: 'Describe the image',
+  altHint: 'Describe the image in a few words, for people who can’t see it.',
+  decorative: 'Decorative image',
+  decorativeHint: 'Screen readers skip the image.',
+  /** Under an alt text field that is empty while the image has a text in Files. */
+  altUsing: 'Using the image’s text. Type to change it for this use only.',
+  caption: 'Caption',
   /** The commits, in the site's language (siteT); what: a kind's word ("image", "PDF"). */
   commit: {
     add: (what: string, name: string) => `Editor: add ${what} "${name}"`,
     delete: (what: string, name: string) => `Editor: delete ${what} "${name}"`,
     rename: (what: string, from: string, to: string) => `Editor: rename ${what} "${from}" to "${to}"`,
     tags: (what: string, name: string) => `Editor: change the tags of ${what} "${name}"`,
+    alt: (what: string, name: string) => `Editor: change the text of ${what} "${name}"`,
     deleteMany: (count: number) => `Editor: delete ${count} files`,
   },
   crop: {

@@ -34,6 +34,7 @@ import {
   SheetBody,
   ProblemNote,
   ListItem,
+  IconButton,
 } from './ui';
 import type { Env } from './App';
 import type { RepoFile } from './github';
@@ -46,6 +47,8 @@ import { savedText } from './deploy';
 import { config, whatIsAt } from '@site/editor';
 import { siteT, t } from './i18n';
 import { backFrom } from './site';
+import { useSelection } from './useSelection';
+import SelectionBar from './SelectionBar';
 
 // An address as typed, as one: "/ny-side/", "/" for the front page, a #part kept, the site's own
 // domain left out; a link to another site as it is. '' when nothing is typed.
@@ -247,6 +250,20 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
     }
   }
 
+  // The redirects selected (a press and hold on a phone, Space or the box on hover on a computer), deleted in one commit.
+  const selection = useSelection({ order: shown.map((e) => e.from), enabled: tab === 'redirects' && !!files, spaceStarts: true });
+  async function removeSelected() {
+    if (!all || !selection.count) return;
+    const froms = selection.keys;
+    if (!(await ask(t.redirects.deleteManyAsk(froms.length), t.common.delete))) return;
+    // First straight to where each ends, so those that went on through a deleted one keep going there.
+    const flat = flatten(all);
+    if (typeof flat === 'string') return env.notify({ text: flat, error: true });
+    const next = froms.reduce((acc, from) => setRedirect(acc, from, null), flat);
+    const change = t.app.changes.deleted(t.redirects.manyOf(froms.length));
+    if (await store(next, siteT.redirects.commit.deleteMany(froms.length), change, 'delete')) selection.removed();
+  }
+
   const to = editing ? targetOf(editing.to) : '';
   const m = editing?.missing;
   if (!tab) {
@@ -267,9 +284,29 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
   }
   return (
     <Screen
-      title={tab === 'redirects' ? t.redirects.all : t.redirects.missing.title}
+      title={
+        selection.selecting ? t.library.selectedCount(selection.count) : tab === 'redirects' ? t.redirects.all : t.redirects.missing.title
+      }
       wide
       back={{ href: `#${REDIRECTS_ROUTE}`, label: t.common.parts.redirects }}
+      selection={
+        selection.selecting ? (
+          <SelectionBar
+            count={selection.count}
+            total={selection.total}
+            onSelectAll={(all) => (all ? selection.selectAll() : selection.unselectAll())}
+            onClose={selection.clear}
+          >
+            <IconButton
+              icon={Trash}
+              label={t.library.deleteSelected(selection.count)}
+              disabled={saving}
+              busy={running === 'delete'}
+              onClick={removeSelected}
+            />
+          </SelectionBar>
+        ) : undefined
+      }
       status={
         tab === 'missing'
           ? missing && files
@@ -356,6 +393,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
                 // The address and where it sends to: under each other on a phone, side by side on a computer.
                 <ListItem
                   key={e.from}
+                  {...selection.row(e.from)}
                   onClick={() => open({ from: e.from, to: e.to, isNew: false })}
                   headline={e.from}
                   supporting={

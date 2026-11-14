@@ -1,6 +1,7 @@
 {
   "id": "one-text-bar",
   "kind": "paragraph",
+  "mark": "improvement",
   "title": "Værktøjslinje",
-  "text": "Tekstværktøjerne vises ikke længere to steder. Sæt markøren i teksten, så står Fed, Kursiv, Link og Teksttype ved siden af Fortryd og Gentag; på en telefon gemmer de tre prikker resten. Overskrifter og teksttyper er én menu."
+  "text": "Værktøjerne vises ikke længere to gange eller i pop-up-rækker. Sæt markøren i teksten, eller tryk på en blok eller et billede, så står dens værktøjer ved siden af Fortryd, Gentag og Indsæt blok; på en telefon gemmer de tre prikker resten."
 }

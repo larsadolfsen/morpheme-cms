@@ -1,6 +1,7 @@
 {
   "id": "post-head-in-text",
   "kind": "paragraph",
+  "mark": "improvement",
   "title": "Skriv et indlæg, som læserne ser det",
   "text": "Et blogindlæg begynder nu med titel, forfatter, billede, dato og tags, tegnet som de ser ud på din hjemmeside. Skriv titlen lige der, tryk på billedet for at skifte det, og vælg dato og tags under det."
 }

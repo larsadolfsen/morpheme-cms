@@ -5,7 +5,7 @@
  */
 import { test } from 'node:test';
 import * as assert from 'node:assert/strict';
-import { keyAction, neighbourKey, pruneKeys, rangeKeys, selectAllKeys, toggleKey } from './selectionRules.mjs';
+import { keyAction, neighbourKey, pruneKeys, rangeKeys, selectAllKeys, setRange, toggleKey } from './selectionRules.mjs';
 
 const order = ['a', 'b', 'c', 'd', 'e'];
 
@@ -60,4 +60,13 @@ test('keyAction maps the keys', () => {
   assert.equal(keyAction(k('a', { ctrlKey: true }), { selecting: false, onRow: true }), null);
   assert.equal(keyAction(k('Escape'), { selecting: true, onRow: false }), 'clear');
   assert.equal(keyAction(k('Escape'), { selecting: false, onRow: true }), null);
+});
+
+test('setRange puts every row between two on or off, either way round, and sets only one row without a start', () => {
+  const order = ['a', 'b', 'c', 'd', 'e'];
+  assert.deepEqual(setRange(['a'], order, 'a', 'c', true), ['a', 'b', 'c']);
+  assert.deepEqual(setRange(['e'], order, 'd', 'b', true), ['e', 'b', 'c', 'd']);
+  assert.deepEqual(setRange(['a', 'b', 'c', 'd'], order, 'b', 'd', false), ['a']);
+  assert.deepEqual(setRange([], order, undefined, 'c', true), ['c']);
+  assert.deepEqual(setRange(['a'], order, 'a', 'zz', true), ['a']);
 });

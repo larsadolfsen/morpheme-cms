@@ -164,7 +164,7 @@ Our ecosystem has two completely separate repositories, which must **never** be 
   - The app sandbox (contract 4): `app*.mjs`, `reads.mjs`, `afterBuild.mjs`, `sandboxHooks.mjs`, `contentColors.ts` and `lib/sandbox/` (the QuickJS runner is the security boundary); an app's places and build problems show on its page (`src/AppPlaces.tsx`, `src/AppProblems.tsx`, `worker/app-problems.js`).
 - **`worker/`**: The site's default Cloudflare Worker (login/session, GitHub commit proxy, R2 backup, redirects and scheduled tasks).
 - **`bin/`**: The `morpheme` CLI tool for image processing, build hooks and validation.
-- **`release-notes/`**: Owner-facing release notes in English and Danish: paragraphs (title and text per language) and lines, no screenshots. Each pull request writes `i18n/<locale>/pending/<id>.json`; `release:version` moves them to `i18n/<locale>/<version>.json`. Writing rule: "Changesets and release notes" above.
+- **`release-notes/`**: Owner-facing release notes in English and Danish: paragraphs (title and text per language) and lines, no screenshots; each note has the mark `feature` or `improvement`. Each pull request writes `i18n/<locale>/pending/<id>.json`; `release:version` moves them to `i18n/<locale>/<version>.json`. Writing rule: "Changesets and release notes" above.
 
 ## 3. Roles and Division of Work
 
@@ -179,13 +179,14 @@ Before changes are approved or published, verify the following from the root of 
 | Command | Description |
 | :--- | :--- |
 | `npm run check` | Prettier, `check:language`, the unit tests (`npm test`), the package's types (`check:types`), the demo built (`npm run build`, its content checked by the editor's rules) and `check:editor` on it (each page the same after a save). |
+| `npm run check:density` | Every part of the theme that has a height or vertical padding in the density list writes it with the density step; a menu, dialog or snackbar never gets denser than Medium, and no horizontal padding or text size follows density (`scripts/check-density.mjs`; the sizes at each step are in `check:screens`). |
 | `npm run check:language` | No Danish text outside the language files (i18n/da-DK/). |
-| `npm run check:screens` | After `npm run build`: all of the editor's screens open without errors, on a phone and a computer, and all icons exist. |
+| `npm run check:screens` | After `npm run build`: all of the editor's screens open without errors, on a phone and a computer, and all icons exist; the site's margins, paddings and gaps on the Blocks page are on the 4 dp grid (`checkSpacingGrid`, exceptions with reasons in `scripts/spacing-grid.allow.mjs`). |
 | `npm run check:screens:shard -- K/N` | Part K of N of `check:screens` (every N-th unit of `scripts/editor-screens.mjs`; add `--list` to print the part's units without running them). CI runs 8 parts side by side (and `check:starter -- --screens --shard K/N` in 4), and the checks that run once over the whole site (`check:screens:extra`: save twice, unlisted, preview) in a job of their own. `check:screens` with no part runs everything. |
 | `node ../../../bin/morpheme.mjs check:themes` (in `.morpheme/demo/site/`) | The same with each of the other themes. |
 | `npm run check:starter` | The starter works as a site with the package from `npm pack`: its own `npm run check` (the site's types and `check:worker`) and its build. |
 | `npm run check:demo` | The demo builds with the default theme and follows the editor's rules. |
-| `npm run check:contrast` | By hand, after `npm run build` (about 4 minutes per theme, not in CI): WCAG AA contrast of every block's text, icons and control borders on each section colour, on the site and typed in place in the editor, light and dark, phone and computer. `--all` runs every installed theme. |
+| `npm run check:contrast` | By hand, after `npm run build` (about 4 minutes per theme, not in CI): WCAG AA contrast of every block's text, icons and control borders on each section colour, on the site and typed in place in the editor, light and dark, phone and computer. `--all` runs every installed theme. `CONTRAST_DENSITY=-1` checks the editor at Small density. |
 
 ### Worker rule: no pending I/O promise in module memory
 

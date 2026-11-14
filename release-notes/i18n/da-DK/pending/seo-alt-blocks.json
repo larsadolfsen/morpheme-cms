@@ -1,5 +1,6 @@
 {
   "id": "seo-alt-blocks",
   "kind": "line",
+  "mark": "improvement",
   "text": "SEO-vurderingen tjekker nu også alternativ tekst på sektionsbilleder og billeder i blokke (billeder i Kort tæller foreløbig som manglende), så en side kan score lavere, indtil du tilføjer alternativ tekst"
 }

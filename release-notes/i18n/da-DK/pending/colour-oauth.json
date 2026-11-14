@@ -1,5 +1,6 @@
 {
   "id": "colour-oauth",
   "kind": "line",
+  "mark": "improvement",
   "text": "Log ind-siden til AI-forbindelsen følger lys og mørk tilstand"
 }

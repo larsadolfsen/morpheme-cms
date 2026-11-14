@@ -60,8 +60,15 @@ export const library = {
    * version; without an edition, cmsVersion; with only apps updated, how many (appsUpdated). */
   cmsEdition: (edition: string, version: string) => `Morpheme ${edition} ${version}`,
   appsUpdated: (count: number) => (count === 1 ? '1 app updated' : `${count} apps updated`),
-  /** Under the CMS's new version: how many new things its release notes have since the version seen last. */
-  newThings: (count: number) => (count === 1 ? '1 new thing' : `${count} new things`),
+  /** Under the CMS's new version: how many features and how many improvements its release notes have since the version seen
+   * last ("12 features, 30 improvements"); a count of 0 is left out. */
+  noteCounts: (features: number, improvements: number) =>
+    [
+      features && (features === 1 ? '1 feature' : `${features} features`),
+      improvements && (improvements === 1 ? '1 improvement' : `${improvements} improvements`),
+    ]
+      .filter(Boolean)
+      .join(', '),
   /** The button to the Morpheme page, with all the release notes. */
   readMore: 'Read more',
   /** The info button on the edition's photo in that card, and its tooltip: who took the photo, and a link to its

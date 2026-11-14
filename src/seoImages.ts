@@ -1,6 +1,7 @@
 // The images of a page's or a post's text for the SEO rating (seo.ts): their alternative texts, and the one rule for an image
 // in use (altUseOk). Pure (no i18n), so node --test can run it. Exposes images, altUseOk, outsideCode, paragraphs, plain, LABEL and DEST.
 import { decorativeOf } from '../lib/crop.mjs';
+import { resolveAlt } from './imageAlt.mjs';
 import { blocksIn } from '../lib/blocks.mjs';
 import { MARKER_TAG, parseMarker } from '../lib/section-marker.mjs';
 
@@ -68,7 +69,7 @@ const ALT = /\salt\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/i;
  * where it is used (`alt`), or else the base alternative text of its record in the Library (`base`, when the caller knows
  * one); otherwise it is missing. Nothing is ever made up. */
 export const altUseOk = ({ alt, decorative, base }: { alt?: string; decorative?: boolean; base?: string }): boolean =>
-  !!decorative || !!alt?.trim() || !!base?.trim();
+  resolveAlt({ alt, decorative }, { alt: base }).from !== 'none';
 
 type ImageUse = { alt: string; decorative: boolean };
 

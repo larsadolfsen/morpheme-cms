@@ -26,7 +26,8 @@ export {
   bottomSheetFullClass as siteBottomSheetFullClass,
 } from '@theme/ui/BottomSheet';
 export { default as SiteCarousel } from '@theme/ui/Carousel';
-export { default as SiteCard, cardKinds, cardClass as siteCardClass } from '@theme/ui/Card';
+export { default as SiteCard, CardMedia as SiteCardMedia, cardKinds, cardClass as siteCardClass } from '@theme/ui/Card';
+export { default as SiteImageTile } from '@theme/ui/ImageTile';
 export {
   default as SiteList,
   ListItem as SiteListItem,

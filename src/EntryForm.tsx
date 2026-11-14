@@ -34,6 +34,8 @@ import { creditedIn, publicPath, shownAt, useUploads } from './images';
 import { filerAddresses, useMediaPicker } from './Media';
 import { autoTagChanges, newlyUsed } from './autoTags.mjs';
 import { creditChanges, recordsIn } from './fileRecords.mjs';
+import { libraryAltOf } from './imageAlt.mjs';
+import { libraryItems } from './standard/imagegrid/library';
 import { inUse, problemAt } from './check';
 import { isOver, untilTime } from '../lib/notice.mjs';
 import { splitPicture } from '../lib/crop.mjs';
@@ -266,6 +268,11 @@ function Form({
       off.length ? { ...template, blocks: (template?.blocks ?? siteBlocks.map((b) => b.type)).filter((t) => !off.includes(t)) } : template,
     [off, template],
   );
+  // The Library's records (tags, texts), for the alt text hints, the Preview and the "Image grid".
+  const fileRecords = useMemo(() => recordsIn(env.files, config.fileRecords), [env.files]);
+  const libraryImages = useMemo(() => libraryItems(env.media, fileRecords), [env.media, fileRecords]);
+  const libraryAlt = useMemo(() => (src: string) => libraryAltOf(fileRecords, src), [fileRecords]);
+
   const [blockAsk, blockDialog] = useBlockDialog(
     useMemo(() => (front ? sectionBlocks(siteBlocks, frontLeads) : undefined), [front]),
     {
@@ -274,6 +281,8 @@ function Form({
       site: env.site,
       relations: env.relations,
       path: url,
+      libraryAlt,
+      libraryImages,
       // A standard page's blocks drawn as the theme draws them there (its editor/previews.tsx, by `<file>#<key>`).
       ...(standard ? { page: { file: `${config.standardPages}#${standard.key}`, values } } : {}),
     },
@@ -587,6 +596,8 @@ function Form({
     testimonials: env.testimonials,
     site: env.site,
     pickImage,
+    libraryAlt,
+    libraryImages,
     // A page's address, for what is shown on it (a button that opens a promotion); a new one has none yet.
     page: collection.id === 'pages' && url ? url : undefined,
   };
@@ -1173,13 +1184,25 @@ function Form({
         image:
           collection.fields.some((f) => f.name === 'image') && changes('image', 'imageAlt', 'imageDecorative')
             ? values.image
-              ? { src: String(values.image), alt: values.imageDecorative === true ? '' : String(values.imageAlt ?? '') }
+              ? {
+                  src: String(values.image),
+                  alt: values.imageDecorative === true ? '' : String(values.imageAlt ?? ''),
+                  decorative: values.imageDecorative === true,
+                }
               : null
             : undefined,
         // Always the text in the form, saved or not: the site's own page may not be rebuilt yet after a save, and would then lack
         // what the editor shows (a section's background).
         body: markdown ?? shown?.body ?? parts.body,
-        data: { lists: env.lists, testimonials: env.testimonials, site: env.site, relations: env.relations, path: url },
+        data: {
+          lists: env.lists,
+          testimonials: env.testimonials,
+          site: env.site,
+          relations: env.relations,
+          path: url,
+          libraryAlt,
+          libraryImages,
+        },
       };
     });
 

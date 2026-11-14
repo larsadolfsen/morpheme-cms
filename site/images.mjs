@@ -3,6 +3,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { cropStyle, splitPicture } from '@morphemecms/cms/lib/crop.mjs';
+import { recordsIn } from '@morphemecms/cms/src/fileRecords.mjs';
+import { libraryAltOf, resolveAlt } from '@morphemecms/cms/src/imageAlt.mjs';
 import { config } from './siteConfig.mjs';
 
 // The hast node type of an HTML element, as an escape: the language check reads the plain word as a Danish one.
@@ -14,6 +16,53 @@ function load() {
     manifest = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : {};
   }
   return manifest;
+}
+
+let records;
+// The file records of the Library (src/data/files/*.json, src/fileRecords.mjs), read once per build.
+function libraryRecords() {
+  if (!records) {
+    const folder = path.resolve(config.fileRecords ?? 'src/data/files');
+    const files = fs.existsSync(folder)
+      ? fs
+          .readdirSync(folder)
+          .filter((name) => name.endsWith('.json'))
+          .map((name) => ({
+            path: `${config.fileRecords ?? 'src/data/files'}/${name}`,
+            oid: '',
+            text: fs.readFileSync(path.join(folder, name), 'utf8'),
+          }))
+      : [];
+    records = recordsIn(files, config.fileRecords ?? 'src/data/files');
+  }
+  return records;
+}
+
+/** Every image of the Library with what its record holds: its tags (`categories`), base text, decorative mark, caption and credit's name.
+ * In the order of the manifest (upload folders, newest last): the "Image grid" puts them in its own order. */
+export function libraryImages() {
+  const records = libraryRecords();
+  return Object.keys(load()).map((src) => {
+    const record = records.find((stored) => stored.record.src === src)?.record;
+    return {
+      src,
+      tags: record?.categories ?? [],
+      ...(record?.alt ? { alt: record.alt } : {}),
+      ...(record?.decorative ? { decorative: true } : {}),
+      ...(record?.caption ? { caption: record.caption } : {}),
+      ...(record?.credit ? { credit: record.credit.name } : {}),
+    };
+  });
+}
+
+/** What the Library says of an image (its base text, or that it is decorative), or undefined. */
+export const libraryAlt = (src) => libraryAltOf(libraryRecords(), src);
+
+/** The text an image in use is drawn with: its own (`alt`), else the Library's, else none; decorative as src/imageAlt.mjs says.
+ * `{ alt, decorative }`: `alt` is "" for a decorative image or none. */
+export function altFor(src, use = {}) {
+  const { alt, decorative } = resolveAlt(use, libraryAlt(src));
+  return { alt, decorative };
 }
 
 /** srcset, width and height for an image under /images/uploads/, or {} if unknown. */
@@ -56,11 +105,11 @@ export function rehypeResponsiveImages({ sizes }) {
         const { src, format, crop, decorative } = splitPicture(node.properties.src);
         const cut = format ? cropStyle(format, crop) : null;
         node.properties.src = src;
-        // A decorative image (crop.mjs): alt="" and nothing else for screen readers.
-        if (decorative) {
-          node.properties.alt = '';
-          delete node.properties.title;
-        }
+        // The text it has in the Markdown, else the Library's (src/imageAlt.mjs); a decorative image (crop.mjs, or the Library's)
+        // is alt="" and nothing else for screen readers.
+        const text = altFor(src, { alt: typeof node.properties.alt === 'string' ? node.properties.alt : '', decorative });
+        if (text.alt || text.decorative) node.properties.alt = text.alt;
+        if (text.decorative) delete node.properties.title;
         const { srcset, width, height } = responsive(src);
         if (srcset) {
           node.properties.srcset = srcset;

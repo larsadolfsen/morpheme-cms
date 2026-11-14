@@ -5,6 +5,7 @@
 // (BlockData.site, from the site's siteOf), which has StandardSiteData too. And in the site's config
 // (@site/config): where the buttons can go (`buttonTargets`).
 import type { CookieCategory } from '../../lib/cookieCategories.mjs';
+import type { ImageItem } from './imagegrid/view';
 
 /** Where a button of "Buttons" can go besides a page, as the site's config names it (its label in the
  * site's language, e.g. "Book an appointment"), and what to know about it in the hint of a button's text. `pick`: it
@@ -116,6 +117,12 @@ export type StandardSite = {
   picked(target: string, value: string): (ButtonText & { href: string }) | undefined;
   /** The cookie list ("Cookies"), for "Cookie list". */
   cookies: CookieItem[];
+  images: {
+    /** Every image of Files (public/images/uploads/), each with what its record holds (tags, text, caption, credit): the "Image grid" picks from them. */
+    list(): ImageItem[];
+    /** A tag's name (the tags of the blog and of Files are the same). */
+    tag(slug: string): Promise<string>;
+  };
   testimonials: {
     /** All of them, in their order. */
     list: TestimonialItem[];
@@ -134,7 +141,8 @@ export type StandardSite = {
     /** Where its "All posts" goes: a tag's page, with the tag's name, or the blog. */
     all(choice: PostChoice): { href: string; tag?: string };
     /** An image's sizes, for the browser to pick the one that fits (srcset, width and height). Also
-     * the images on "Cards" (LinkCards.tsx). */
-    image(src: string): { srcset?: string; width?: number; height?: number };
+     * the images on "Cards" (LinkCards.tsx); `alt`: the text the Library has for it ("" when it is decorative there), which a
+     * use with a text of its own replaces. */
+    image(src: string): { srcset?: string; width?: number; height?: number; alt?: string };
   };
 };

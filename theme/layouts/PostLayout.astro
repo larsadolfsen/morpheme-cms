@@ -5,7 +5,7 @@
 // data-editor marks what the editor's preview fills in with what is in its form ("Preview",
 // packages/editor/src/pagePreview.tsx): the heading, the lead, the image and the text. The text goes through RichText (blocks={false}: a post draws no blocks, but its coloured sections are panels).
 import { splitLead } from '@morphemecms/cms/lib/lead.mjs';
-import { firstImage, heroImage, picturesOf } from '@morphemecms/cms/site/images.mjs';
+import { altFor, firstImage, heroImage, picturesOf } from '@morphemecms/cms/site/images.mjs';
 import Base from '@theme/layouts/Base.astro';
 import Img from '@theme/components/Img.astro';
 import EndBlock from '@theme/components/EndBlock.astro';
@@ -25,8 +25,10 @@ interface Props {
 }
 const { post } = Astro.props;
 const { title, description, date, updated, categories } = post.data;
-// A decorative image (imageDecorative) has no alternative text.
-const imageAlt = post.data.imageDecorative ? undefined : post.data.imageAlt;
+// The image's own text, else the Library's; a decorative image (imageDecorative) has no alternative text.
+const imageAlt = post.data.image
+  ? altFor(post.data.image, { alt: post.data.imageAlt, decorative: post.data.imageDecorative }).alt || undefined
+  : undefined;
 // The tags in the byline: only the blog categories (the others have no page).
 const onBlog = categories.filter(isBlogCategory);
 // Some posts also have their featured image (or another version of it) inside the text; never show it twice.
@@ -96,6 +98,7 @@ const related = (await getPosts())
         <Img
           src={image}
           alt={imageAlt ?? ''}
+          decorative={post.data.imageDecorative}
           fetchpriority="high"
           class="aspect-[16/10] w-full rounded-(--theme-picture-radius) object-cover medium:aspect-[16/9]"
           sizes="min(60rem, calc(100vw - 2.5rem))"

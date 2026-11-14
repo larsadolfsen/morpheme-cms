@@ -1,6 +1,7 @@
 {
   "id": "rows-from-list",
   "kind": "paragraph",
+  "mark": "feature",
   "title": "Dynamic list",
   "text": "A list shows items from your site without retyping them. Press Fill from a list in the toolbar, pick the list, tags and How many, then tap a part of a row to choose its field. Undo brings your typed rows back."
 }

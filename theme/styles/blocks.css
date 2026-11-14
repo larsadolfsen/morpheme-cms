@@ -694,7 +694,7 @@
     letter-spacing: var(--type-label-large-tracking);
   }
   .block-testimonial-text {
-    margin: 0.75rem 0 0;
+    margin: var(--card-text-gap, 0.5rem) 0 0;
     font-size: var(--type-body-large-size);
     line-height: var(--type-body-large-line-height);
     font-weight: var(--type-body-large-weight);
@@ -747,7 +747,7 @@
     align-items: center;
     gap: 0.75rem;
     margin-top: auto;
-    padding-top: 1.5rem;
+    padding-top: var(--card-action-gap, 1rem);
     font-weight: 500;
   }
   .block-testimonial-mark {
@@ -940,6 +940,76 @@
     }
   }
   /* The subhead: the small line under the headline (a byline, a date, a place). */
+  /* "Image grid" (blocks/imagegrid/View.tsx): the tag filter over the staggered grid (.image-grid in ui.css), the text under an image on its card. The filter
+     and its count are drawn hidden and shown by script.ts; the columns can be set to 2, 3 or 4 on a computer (data-columns). */
+  .block-imagegrid-filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .block-imagegrid-filter[hidden],
+  .block-imagegrid-count[hidden],
+  .block-imagegrid-empty[hidden],
+  .block-imagegrid-clear[hidden] {
+    display: none;
+  }
+  .block-imagegrid-clear {
+    padding: 0 0.75rem;
+    min-height: var(--mo-target, 2.75rem);
+    border: 0;
+    background: none;
+    color: var(--mo-primary);
+    font: inherit;
+    cursor: pointer;
+  }
+  .block-imagegrid-empty {
+    color: var(--block-muted);
+  }
+  .block-imagegrid-count {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .block-imagegrid-grid[data-columns='2'] {
+      column-count: 2;
+    }
+    .block-imagegrid-grid[data-columns='3'] {
+      column-count: 3;
+    }
+    .block-imagegrid-grid[data-columns='4'] {
+      column-count: 4;
+    }
+  }
+  .block-imagegrid-grid > li[hidden] {
+    display: none;
+  }
+  .card-text {
+    display: block;
+    padding: var(--card-media-gap, 1rem) var(--card-padding, 1rem) var(--card-padding, 1rem);
+  }
+  .card-subhead,
+  .card-supporting {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-subhead {
+    -webkit-line-clamp: 1;
+    font-size: var(--type-label-medium-size, 0.75rem);
+    line-height: var(--type-label-medium-line-height, 1rem);
+    color: var(--block-muted);
+  }
+  .card-supporting {
+    -webkit-line-clamp: 2;
+    margin-top: var(--card-subhead-gap, 0.25rem);
+    font-size: var(--type-body-medium-size, 0.875rem);
+    line-height: var(--type-body-medium-line-height, 1.25rem);
+  }
   .block-card-subhead {
     margin-top: var(--card-subhead-gap, 0.25rem);
     font-size: var(--type-body-medium-size, 0.875rem);
@@ -978,26 +1048,35 @@
   .block-cards-primary .block-card {
     --card-filled-surface: var(--mo-primary-container, var(--block-primary));
     color: var(--mo-on-primary-container, var(--block-on-primary));
-    /* What is read on the container (a text button, its icon) follows it, also in a section on a colour, where these roles are swapped. */
+    /* What is read on the container (a text button, its icon, a video's title and play button, which read --block-text and --block-accent) follows it, also in a section on a colour, where these roles are swapped. */
     --mo-on-surface: var(--mo-on-primary-container, var(--block-on-primary));
     --mo-on-surface-variant: var(--mo-on-primary-container, var(--block-on-primary));
     --mo-primary: var(--mo-on-primary-container, var(--block-on-primary));
+    --block-text: var(--mo-on-primary-container, var(--block-on-primary));
+    --block-muted: var(--mo-on-primary-container, var(--block-on-primary));
+    --block-accent: var(--mo-on-primary-container, var(--block-on-primary));
   }
   .block-cards-secondary .block-card {
     --card-filled-surface: var(--mo-secondary-container, var(--block-secondary));
     color: var(--mo-on-secondary-container, var(--block-on-secondary));
-    /* What is read on the container (a text button, its icon) follows it, also in a section on a colour, where these roles are swapped. */
+    /* What is read on the container (a text button, its icon, a video's title and play button, which read --block-text and --block-accent) follows it, also in a section on a colour, where these roles are swapped. */
     --mo-on-surface: var(--mo-on-secondary-container, var(--block-on-secondary));
     --mo-on-surface-variant: var(--mo-on-secondary-container, var(--block-on-secondary));
     --mo-primary: var(--mo-on-secondary-container, var(--block-on-secondary));
+    --block-text: var(--mo-on-secondary-container, var(--block-on-secondary));
+    --block-muted: var(--mo-on-secondary-container, var(--block-on-secondary));
+    --block-accent: var(--mo-on-secondary-container, var(--block-on-secondary));
   }
   .block-cards-tertiary .block-card {
     --card-filled-surface: var(--mo-tertiary-container, var(--block-tertiary));
     color: var(--mo-on-tertiary-container, var(--block-on-tertiary));
-    /* What is read on the container (a text button, its icon) follows it, also in a section on a colour, where these roles are swapped. */
+    /* What is read on the container (a text button, its icon, a video's title and play button, which read --block-text and --block-accent) follows it, also in a section on a colour, where these roles are swapped. */
     --mo-on-surface: var(--mo-on-tertiary-container, var(--block-on-tertiary));
     --mo-on-surface-variant: var(--mo-on-tertiary-container, var(--block-on-tertiary));
     --mo-primary: var(--mo-on-tertiary-container, var(--block-on-tertiary));
+    --block-text: var(--mo-on-tertiary-container, var(--block-on-tertiary));
+    --block-muted: var(--mo-on-tertiary-container, var(--block-on-tertiary));
+    --block-accent: var(--mo-on-tertiary-container, var(--block-on-tertiary));
   }
   :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary)
     :is(.block-card-icon, .block-card-text, .block-card-subhead, .block-card-more) {
@@ -1387,6 +1466,9 @@
      (header), the outline variant (container and dividers), the cards' own corner radius (--card-radius) and the theme's hover state layer. The box is a region the
      keyboard can scroll (a focus ring in the accent); a table with many columns scrolls instead of crushing them. */
   .block-table-grid {
+    --card-padding: 0;
+    --card-outlined-surface: transparent;
+    --card-outlined-line: transparent;
     border: 1px solid var(--block-line);
     border-radius: var(--card-radius, var(--block-radius));
     color: var(--block-text);
@@ -1397,13 +1479,14 @@
   }
   .block-table-grid :is(th, td) {
     min-width: 6rem;
-    height: 3.25rem;
+    /* A table is data-heavy: its rows read --mo-density (base.css), 4 px a step from 52 dp (Large 56, Small 48, a theme's -2 and -3: 44 and 40). */
+    height: calc(3.25rem + var(--mo-density) * var(--mo-density-step));
     padding: 0.5rem 1rem;
     vertical-align: middle;
     font-weight: inherit;
   }
   .block-table-grid thead th {
-    height: 3.5rem;
+    height: calc(3.5rem + var(--mo-density) * var(--mo-density-step));
     background: var(--block-tint);
     font-size: var(--type-label-large-size);
     line-height: var(--type-label-large-line-height);
@@ -1604,7 +1687,7 @@
     font-variant-numeric: tabular-nums;
   }
   .block-price-unit {
-    margin-top: 0.25rem;
+    margin-top: var(--card-subhead-gap, 0.25rem);
     color: var(--block-muted);
   }
   /* A punch card's offer in a price card, a filled card with smaller corners. */
@@ -1623,7 +1706,7 @@
     color: var(--block-accent);
   }
   .block-price-extra-text {
-    margin-top: 0.25rem;
+    margin-top: var(--card-subhead-gap, 0.25rem);
     color: var(--block-muted);
   }
   .block-price-extra-text strong {
@@ -1633,7 +1716,7 @@
   }
   .block-price-card > .block-arrow-link {
     align-self: flex-start;
-    margin-top: 1.5rem;
+    margin-top: var(--card-action-gap, 1rem);
   }
   .block-price-list {
     margin: 0;
@@ -1733,9 +1816,6 @@
     }
   }
   @media (width >= theme(--breakpoint-medium)) {
-    .block-testimonial {
-      --card-padding: 1.75rem;
-    }
     .block-row-text {
       font-size: var(--type-body-large-size);
       line-height: var(--type-body-large-line-height);
@@ -2050,7 +2130,7 @@
    margins it sets in place of the text's; a theme that places a block outside the text sets its own (.block-place in
    the standard theme). A label above a heading in a text has the same look. A theme gives it its own look outside the layers too (the standard theme: in the middle). */
   .block-head {
-    margin-block: 2.5em 1.25em;
+    margin-block: 2rem 1rem;
   }
   .block-head:first-child {
     margin-top: 0;
@@ -2116,7 +2196,7 @@
   }
   .prose li.task-list-item {
     display: flex;
-    gap: 0.75em;
+    gap: 0.75rem;
     align-items: baseline;
   }
   .prose li.task-list-item > input[type='checkbox'] {

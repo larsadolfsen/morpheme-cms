@@ -287,6 +287,10 @@
     "max": 5,
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
   },
+  "src/standard/imagegrid/index.tsx": {
+    "max": 1,
+    "why": "The block's `icon` is a Phosphor component (defineBlock's contract, as in every standard block); redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; moves with the other blocks (Phosphor audit, follow-up 1)."
+  },
   "src/standard/links/index.tsx": {
     "max": 1,
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."

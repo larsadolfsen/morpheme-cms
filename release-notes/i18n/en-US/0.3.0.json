@@ -4,12 +4,14 @@
     {
       "id": "side-column-block",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "Show a block beside your pages",
       "text": "Your website can now show one block in a column beside the text of its pages. Pick it under Appearance › Side column, and turn it off on any page."
     },
     {
       "id": "new-icons",
       "kind": "line",
+      "mark": "feature",
       "text": "New icons: calendar with a cross, identification card, money, receipt and wallet"
     }
   ]

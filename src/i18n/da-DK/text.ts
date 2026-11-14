@@ -55,6 +55,14 @@ export const text: Messages['text'] = {
   hiddenOnPage: 'Skjult på siden',
   showOnPage: 'Vis på siden',
   hideOnPage: 'Skjul på siden',
+  blocksSelected: (count) => (count === 1 ? '1 blok valgt' : `${count} blokke valgt`),
+  clearBlockSelection: (count) => `Ryd markering, ${count === 1 ? '1 blok valgt' : `${count} blokke valgt`}`,
+  selectBlock: 'Vælg',
+  selectAllBlocks: 'Vælg alle',
+  duplicateBlock: 'Duplikér',
+  removeBlocks: (count, names, kept) =>
+    `Fjern ${count} ${count === 1 ? 'blok' : 'blokke'}${names.length > 0 && names.length <= 5 ? ` (${names.join(', ')})` : ''}?${kept.length ? ` ${kept.join(', ')} bliver, da siden skal bruge ${kept.length === 1 ? 'den' : 'dem'}.` : ''} Fortryd henter ${count === 1 ? 'den' : 'dem'} tilbage.`,
+  dragBlock: (name) => `Træk ${name} for at flytte den`,
   typeHere: 'Skriv tekst her …',
   emptyHint: 'Skriv tekst, eller tryk på Indsæt for at tilføje en blok.',
 };

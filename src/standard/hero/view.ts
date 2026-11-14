@@ -5,6 +5,7 @@
 // without the block), and the text after them, with a quote written in it. In the editor: viewOf; on the site: load.ts.
 import { markdownNow } from '../../../lib/markdown';
 import { shownAt } from '../../images';
+import { libraryAltPart } from '../../imageAlt.mjs';
 import { buttonsOf, type ButtonView } from '../buttons/view';
 import type { Button } from '../buttons/fields';
 import type { Image, ViewOf } from '../view';
@@ -13,7 +14,7 @@ import { heroParts } from './fields';
 export type HeroView = {
   heading?: string;
   html: string;
-  image?: Image & { alt: string };
+  image?: Image;
   /** The image behind the text (`placement` 'behind'), not beside it. */
   behind?: boolean;
   /** Across the whole width of the window (`width` 'full'), not only the text's. */
@@ -29,7 +30,13 @@ export const viewOf: ViewOf<HeroView> = (props, data) => {
   return {
     heading: parts.heading,
     html: markdownNow(parts.text),
-    image: parts.image ? { src: shownAt(parts.image.src), alt: parts.image.alt } : undefined,
+    image: parts.image
+      ? {
+          src: shownAt(parts.image.src),
+          ...libraryAltPart(data.libraryAlt?.(parts.image.src)),
+          ...(parts.image.decorative ? { alt: '' } : parts.image.alt ? { alt: parts.image.alt } : {}),
+        }
+      : undefined,
     behind: props.placement === 'behind' && !!parts.image,
     full: props.width === 'full',
     buttons: parts.buttons && buttonsOf(parts.buttons.items as Button[] | undefined, data),

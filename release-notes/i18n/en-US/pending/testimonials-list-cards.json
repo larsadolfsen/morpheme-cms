@@ -1,5 +1,6 @@
 {
   "id": "testimonials-list-cards",
   "kind": "line",
+  "mark": "improvement",
   "text": "A Testimonials block’s Layout says Cards or List instead of Carousel or One after another"
 }

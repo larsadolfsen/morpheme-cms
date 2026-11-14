@@ -1,7 +1,7 @@
 // Tests for theme/ui/longPressRules.mjs: mouse ignored, a move of more than 10 px cancels, the click after a fired press is swallowed, a tap selects while selecting. Run: node --test
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { canPress, movedAway, clickAfter } from './longPressRules.mjs';
+import { canPress, secondFinger, movedAway, clickAfter, edgeScroll } from './longPressRules.mjs';
 
 test('a mouse never presses, a touch or a pen does', () => {
   assert.equal(canPress('mouse', true), false);
@@ -37,4 +37,21 @@ test('a tap while selecting selects instead of its own action', () => {
 
 test('a tap outside selection is the item own', () => {
   assert.equal(clickAfter(false, false), 'pass');
+});
+
+test('edgeScroll: nothing in the middle, faster the closer to an edge, up is negative', () => {
+  assert.equal(edgeScroll(400, 0, 800), 0);
+  assert.equal(edgeScroll(72, 0, 800), 0);
+  assert.ok(edgeScroll(36, 0, 800) < 0 && edgeScroll(10, 0, 800) < edgeScroll(36, 0, 800));
+  assert.equal(edgeScroll(-20, 0, 800), -16);
+  assert.ok(edgeScroll(764, 0, 800) > 0);
+  assert.equal(edgeScroll(900, 0, 800), 16);
+});
+
+test('a second finger selects only while the first one rests on the item, never a mouse', () => {
+  assert.equal(secondFinger('touch', false, true), true);
+  assert.equal(secondFinger('pen', false, true), true);
+  assert.equal(secondFinger('touch', false, false), false);
+  assert.equal(secondFinger('touch', true, true), false);
+  assert.equal(secondFinger('mouse', false, true), false);
 });

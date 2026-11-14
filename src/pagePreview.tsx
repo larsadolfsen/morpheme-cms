@@ -30,7 +30,8 @@ import { h1Section, withoutH1 } from '../lib/without-h1.mjs';
 import { BREAKPOINTS, type Breakpoint } from '../lib/breakpoints.mjs';
 import { processor } from '../lib/markdown';
 import { autoLinkTree, linkPattern } from '../lib/autolink-tree.mjs';
-import { splitPicture } from '../lib/crop.mjs';
+import { decorativeOf, splitPicture } from '../lib/crop.mjs';
+import { resolveAlt } from './imageAlt.mjs';
 import { isPostPage, leadFill } from './postLead.mjs';
 import { preview as drawBlock, siteBlocks } from './registry';
 import { shownAt } from './images';
@@ -49,7 +50,7 @@ export type PageDraft = {
   /** The heading as HTML with its colours, when a word in it has one (pageH1 in sections.mjs). */
   headingHtml?: string;
   /** The image at the top (a blog post's); null: none. */
-  image?: { src: string; alt: string } | null;
+  image?: { src: string; alt: string; decorative?: boolean } | null;
   /** A blog post (not a page): only its text starts with a lead. */
   post?: boolean;
   /** The text, in Markdown with its blocks. */
@@ -83,6 +84,20 @@ async function pageHtml(markdown: string, self: string) {
   if (!links?.enabled) return markdownHtml(markdown);
   const linked = processor().use(() => (tree: unknown) => autoLinkTree(tree, self, links));
   return String(await linked.process(markdown));
+}
+
+/** The images of a piece of the text's HTML drawn with the Library's text when they have none of their own, as the site does
+ * (rehypeResponsiveImages); a decorative one (marked in its address) keeps alt="". */
+function withLibraryAlt(html: string, lookup: BlockData['libraryAlt']) {
+  if (!lookup || !html.includes('<img')) return html;
+  const box = document.createElement('template');
+  box.innerHTML = html;
+  box.content.querySelectorAll('img').forEach((img) => {
+    const { address, decorative } = decorativeOf(img.getAttribute('src') ?? '');
+    const text = resolveAlt({ alt: img.getAttribute('alt') ?? '', decorative }, lookup(address));
+    if (text.alt || text.decorative) img.setAttribute('alt', text.alt);
+  });
+  return box.innerHTML;
 }
 
 /** What React draws (a block, a part of the header drawn with the theme's components), as HTML. */
@@ -164,7 +179,7 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
       if (img) {
         for (const a of ['srcset', 'sizes', 'width', 'height']) img.removeAttribute(a);
         img.src = src;
-        img.alt = draft.image!.alt;
+        img.alt = resolveAlt({ alt: draft.image!.alt, decorative: draft.image!.decorative }, draft.data.libraryAlt?.(src)).alt;
       }
     }
   }
@@ -206,16 +221,19 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
       sectionsOf(part)
         .map((run) => {
           const inner = splitBlocks(run.html, types)
-            .map((p) => ('html' in p ? p.html : blockHtml(p.type, p.props, draft.data)))
+            .map((p) => ('html' in p ? withLibraryAlt(p.html, draft.data.libraryAlt) : blockHtml(p.type, p.props, draft.data)))
             .join('');
           if (run.color === null) return inner;
-          const image = run.image ? `<img class="text-section-image" src="${attr(shownAt(run.image))}" alt="${attr(run.alt ?? '')}">` : '';
+          const image = run.image
+            ? `<img class="text-section-image" src="${attr(shownAt(run.image))}" alt="${attr(resolveAlt({ alt: run.alt ?? '' }, draft.data.libraryAlt?.(run.image)).alt)}">`
+            : '';
           return `<section class="${sectionClass(run.color, run)}">${image}${inner}</section>`;
         })
         .join('');
     // With a column beside the text the panel holds the heading only, as on the site.
     const { intro, rest: below } = h1Settings && !text.closest('[data-side]') ? introOf(rest) : { intro: '', rest };
-    setH1Panel(doc, h1Settings, runs(intro), h1Settings?.image ? shownAt(h1Settings.image) : undefined);
+    const h1Alt = h1Settings?.image ? resolveAlt({ alt: h1Settings.alt ?? '' }, draft.data.libraryAlt?.(h1Settings.image)).alt : '';
+    setH1Panel(doc, h1Settings && { ...h1Settings, alt: h1Alt }, runs(intro), h1Settings?.image ? shownAt(h1Settings.image) : undefined);
     text.innerHTML = runs(below);
   }
   return documentHtml(doc);

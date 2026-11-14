@@ -1,5 +1,6 @@
 {
   "id": "tap-below-section",
   "kind": "line",
+  "mark": "feature",
   "text": "Tryk under en sektion eller mellem to sektioner for at skrive en linje dér"
 }

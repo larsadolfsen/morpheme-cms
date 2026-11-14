@@ -27,7 +27,7 @@
 // avatar, a video: "With leading icon and trailing checkbox"), in the leading slot of a text-only item ("With leading checkbox"); with a mouse
 // on the item pointed at or in focus (one box, nothing moves), on every item once some item is selected (`selecting`), never with a touch
 // before that. A click on the box selects it; a tap on what leads the item (`selectOnLeading`, default on when something leads it) selects it
-// with a touch or a pen, and opens nothing; while selecting its trailing count, arrow and buttons (`actions`) are not shown. How it looks is the theme's. `expand` (with `expand` on its List: Material's "List - Expand",
+// with a touch or a pen, and opens nothing; with `onSelectDrag` the finger of the long press can go on across the list, selecting what it passes over; while selecting its trailing count, arrow and buttons (`actions`) are not shown. How it looks is the theme's. `expand` (with `expand` on its List: Material's "List - Expand",
 // m3.material.io/components/lists/specs): the item folds out its `children` (a native <details>/<summary>, no script needed: the same
 // `expandName` keeps one item of a list open at a time, `expandOpen` opens it, `expandProps` go on the <details>; the rest, as for
 // every item, on its summary) and its trailing icon, a caret in a round container, turns over when it is open; the item is the summary,
@@ -193,6 +193,7 @@ export function ListItem({
   selectable,
   selecting,
   selectOnLeading,
+  onSelectDrag,
   onSelectedChange,
   expand,
   expandName,
@@ -231,6 +232,9 @@ export function ListItem({
   /** A tap with a touch or a pen on what leads the item selects it (default: when something leads it). */
   selectOnLeading?: boolean;
   onSelectedChange?: (selected: boolean) => void;
+  /** After a long press that selected it, the finger stays down and is dragged across the list: told its place (x, y), as it moves and each
+   * frame while it is held, so the list can select the items it passes over and scroll itself near its edges (useLongPress, longPress.ts). */
+  onSelectDrag?: (x: number, y: number) => void;
   /** The item folds out its `children` (a <details>; its trailing icon is the caret). Its list has `expand` too. */
   expand?: boolean;
   /** Items of one list with the same name keep one open at a time (browsers that cannot do this allow several). */
@@ -243,7 +247,11 @@ export function ListItem({
   children?: ReactNode;
 } & Record<string, unknown>) {
   const id = useId();
-  const press = useLongPress(selectable && onSelectedChange ? () => onSelectedChange(!selected) : undefined, !!selecting);
+  const press = useLongPress(
+    selectable && onSelectedChange ? () => onSelectedChange(!selected) : undefined,
+    !!selecting,
+    selectable ? onSelectDrag : undefined,
+  );
   const shown = (v: ReactNode) => v != null && v !== '';
   const n: ListItemLines =
     lines ?? (overline != null && supporting !== undefined ? 3 : supporting !== undefined || overline != null ? 2 : 1);

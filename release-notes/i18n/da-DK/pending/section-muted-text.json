@@ -1,6 +1,7 @@
 {
   "id": "section-muted-text",
   "kind": "paragraph",
+  "mark": "improvement",
   "title": "Sektionstekst",
   "text": "Den dæmpede tekst i en sektion med farve er lettere at læse. Korttekst, listelinjer og svar får sektionens fulde tekstfarve, i lys og mørk tilstand, og er stadig mindre end overskrifterne. Sektioner uden farve er uændret."
 }

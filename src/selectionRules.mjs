@@ -52,3 +52,14 @@ export function keyAction({ key, shiftKey, ctrlKey, metaKey }, { selecting, onRo
   if (shiftKey && key === 'ArrowUp') return 'range-prev';
   return null;
 }
+
+/** The keys with every row from `from` to `to` (either way round) put on (`on`) or taken off: what a finger dragged across rows does after
+ * a long press, to the state the first row got. A row skipped by a fast finger is in the range. Without a known `from` only `to` is set. */
+export function setRange(keys, order, from, to, on) {
+  const b = order.indexOf(to);
+  if (b < 0) return keys;
+  const a = order.indexOf(from);
+  const [first, last] = a < 0 ? [b, b] : [Math.min(a, b), Math.max(a, b)];
+  const rows = order.slice(first, last + 1);
+  return on ? [...keys, ...rows.filter((k) => !keys.includes(k))] : keys.filter((k) => !rows.includes(k));
+}

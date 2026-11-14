@@ -1,6 +1,7 @@
 {
   "id": "connector-role-from-hosts",
   "kind": "paragraph",
+  "mark": "feature",
   "title": "Connectors",
   "text": "Every app that sends data to or loads code from another site now counts as a connector, so you can see where your data goes. Open Appstore under Settings and choose Connectors. Apps with no outside access stay under Plugins."
 }

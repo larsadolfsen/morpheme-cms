@@ -4,6 +4,7 @@
 // text and either its page (the whole card is the link) or its buttons. In the editor: viewOf; on the site: load.ts, with the images' sizes, the videos' stills and the buttons' targets.
 import type { BlockData } from '../../blocks';
 import { shownAt } from '../../images';
+import { libraryAltPart } from '../../imageAlt.mjs';
 import { iconColorOf } from '../../iconColor';
 import { sharedIn } from '../../shared';
 import type { Image, ViewOf } from '../view';
@@ -92,7 +93,7 @@ export const cardsOf = (
 /** Cards in the editor. */
 export const shownCards = (items: LinkCardProps[], data: BlockData, media?: unknown) =>
   cardsOf(items, media, {
-    image: (src) => ({ src: shownAt(src) }),
+    image: (src) => ({ src: shownAt(src), ...libraryAltPart(data.libraryAlt?.(src)) }),
     video: (url, title) => videoViewOf({ url, title }, data),
     // A button that has no text yet (the next one, being made in the card's sheet) is not drawn.
     buttons: (card) =>

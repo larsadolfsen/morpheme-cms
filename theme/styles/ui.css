@@ -361,20 +361,20 @@
 @layer components {
   /* A target keeps its size at every density step (m3.material.io/foundations/layout/grids-spacing/density: "Accessible targets should
      retain a minimum of 48x48dp, even if the visual element, such as an icon, is smaller"; --mo-target is 48 on touch and 44 for a
-     mouse): an invisible area over a part that is lower than that, down from its middle. A part with a field, a button or a link in it
+     mouse): an invisible area over a part that is lower or narrower than that, out from its middle. A part with a field, a button or a link in it
      (a removable chip, a button the editor types in) has none: the area would cover them. Low specificity (:where), so a part's own position wins. */
-  :where(.button, .segmented-button-segment, a.chip, button.chip:not(.chip-removable)):where(
+  :where(.button, .icon-button, .segmented-button-segment, a.chip, button.chip:not(.chip-removable)):where(
     :not(:has(input, textarea, select, button, a))
   ) {
     position: relative;
   }
-  :where(.button, .segmented-button-segment, a.chip, button.chip:not(.chip-removable)):where(
+  :where(.button, .icon-button, .segmented-button-segment, a.chip, button.chip:not(.chip-removable)):where(
       :not(:has(input, textarea, select, button, a))
     )::after {
     content: '';
     position: absolute;
     inset-block: min(0px, calc((100% - var(--mo-target)) / 2));
-    inset-inline: 0;
+    inset-inline: min(0px, calc((100% - var(--mo-target)) / 2));
   }
   /* Buttons (m3.material.io/components/buttons): a label, an icon before it and optionally one after it (the arrow). */
   .button {
@@ -1495,6 +1495,11 @@
     --dialog-icon-color, --dialog-headline-size, --dialog-headline-weight, --dialog-supporting-text-color   its parts
     --dialog-full-screen-max-width, --dialog-full-screen-headline-size   a full-screen dialog from the medium width, and its
                      headline in its header
+  A lightbox (Lightbox.tsx, .lightbox in .lightbox-modal, lightboxControl.ts: an image shown bigger; M3 has none): the full-screen dialog with
+  .lightbox-track (images that snap), .lightbox-item, .lightbox-figure, .lightbox-image, .lightbox-caption, .lightbox-previous, .lightbox-next and
+  .lightbox-count; on a compact window over the whole screen, from medium the window less 56 dp on each side.
+    --lightbox-surface   its container, see-through over the scrim (else the scrim colour at 88%)
+    --theme-on-scrim-colour   the colour of its controls and text on the shade (components.css; the scrim colour's opposite)
   Bottom sheets (BottomSheet.tsx, bottomSheetClass, bottomSheetContainerClass, and bottomSheet() and
   standardBottomSheet() in bottomSheetControl.ts for what it does in a browser, bottomSheet.script.ts on the site;
   m3.material.io/components/bottom-sheets): a modal one's <dialog> is .bottom-sheet (an app's: Calendly's calendar), at
@@ -1722,6 +1727,136 @@
     }
     .dialog-modal-full-screen > .dialog-full-screen {
       max-height: min(88dvh, 44rem);
+    }
+  }
+
+  /* A lightbox (Lightbox.tsx, lightboxControl.ts): the full-screen dialog's <dialog> and container with images in a snapping track under its header
+     (only the close button). The container is see-through over the scrim, so the image floats on a dark layer (the scrim colour, which is
+     the page's in dark mode, so the layer is dark in both): docs/material-deviations.md. On a compact window it fills the screen; from medium it is as
+     large as the window less 56 dp on each side (M3: a dialog placed by hand keeps a 56 dp margin) with the dialog's 28 dp corner. */
+  .lightbox {
+    --lightbox-ink: var(--theme-on-scrim-colour, var(--mo-surface));
+    background: var(--lightbox-surface, color-mix(in srgb, var(--theme-scrim-colour, var(--block-text)) 88%, transparent));
+    color: var(--lightbox-ink);
+    box-shadow: none;
+  }
+  .lightbox .icon-button {
+    color: var(--lightbox-ink);
+  }
+  .lightbox .dialog-content {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+  }
+  .lightbox-stage {
+    position: relative;
+    display: flex;
+    flex: 1;
+    min-height: 0;
+  }
+  .lightbox-track {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .lightbox-track::-webkit-scrollbar {
+    display: none;
+  }
+  .lightbox-item {
+    display: flex;
+    flex: 0 0 100%;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
+  .lightbox-figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    max-height: 100%;
+    margin: 0;
+    gap: 0.75rem;
+  }
+  .lightbox-image {
+    min-height: 0;
+    max-width: 100%;
+    object-fit: contain;
+  }
+  .lightbox-caption {
+    max-width: 40rem;
+    font-size: var(--type-body-medium-size, 0.875rem);
+    line-height: var(--type-body-medium-line-height, 1.25rem);
+    text-align: center;
+  }
+  .lightbox-count {
+    margin: 0;
+    padding: 0.5rem 1rem max(1rem, env(safe-area-inset-bottom));
+    font-size: var(--type-label-medium-size, 0.75rem);
+    line-height: var(--type-label-medium-line-height, 1rem);
+    text-align: center;
+  }
+  /* Previous and Next: at the sides from medium; on a phone, where swiping is the way, they are out of sight and come back with the keyboard's focus. */
+  .lightbox-previous,
+  .lightbox-next {
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+    z-index: 1;
+  }
+  .lightbox-previous {
+    inset-inline-start: 0.5rem;
+  }
+  .lightbox-next {
+    inset-inline-end: 0.5rem;
+  }
+  @media (width < theme(--breakpoint-medium)) {
+    .lightbox-previous:not(:focus-visible),
+    .lightbox-next:not(:focus-visible) {
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .lightbox-modal.dialog-modal-full-screen {
+      width: calc(100% - 7rem);
+      max-width: none;
+      height: calc(100% - 7rem);
+      max-height: none;
+    }
+    .lightbox-modal.dialog-modal-full-screen > .lightbox {
+      height: 100%;
+      max-height: none;
+      border-radius: var(--dialog-radius, var(--block-radius));
+    }
+  }
+  /* The scrim and the controls fade in (M3 web: default effects, 200 ms), the image scales in (default spatial, 500 ms); with reduced motion they are
+     there at once. */
+  @media (prefers-reduced-motion: no-preference) {
+    .lightbox-modal[open]::backdrop {
+      animation: dialog-scrim-in var(--motion-effects);
+    }
+    .lightbox-modal[open] :is(.dialog-header, .lightbox-previous, .lightbox-next, .lightbox-count) {
+      animation: dialog-scrim-in var(--motion-effects);
+    }
+    .lightbox-modal[open] .lightbox-image {
+      animation: lightbox-image-in var(--motion-spatial);
+    }
+  }
+  @keyframes lightbox-image-in {
+    from {
+      opacity: 0;
+      transform: scale(0.92);
     }
   }
 
@@ -2386,6 +2521,77 @@
     box-shadow:
       inset 0 0 0 1px var(--card-outlined-line, var(--block-line)),
       var(--card-shadow);
+  }
+  /* A card with media (CardMedia): the image to the card's edge, no padding, in the card's corners. */
+  .card-with-media {
+    position: relative;
+    padding: 0;
+    overflow: hidden;
+  }
+  button.card {
+    width: 100%;
+    border: 0;
+    font: inherit;
+    color: inherit;
+    text-align: start;
+    cursor: pointer;
+  }
+  .card-media {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    border-radius: inherit;
+  }
+  .card-media > picture {
+    display: contents;
+  }
+  .card-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Selected (Material 3's Selection page: "a check mark icon, a checkbox component, a change in surface color, or a
+     combination"): the selected surface and a check mark. The only ring is the focus ring. */
+  .card-selected {
+    background: var(--card-selected-surface, var(--mo-secondary-container));
+    color: var(--card-selected-text, var(--mo-on-secondary-container));
+  }
+  .card-check {
+    position: absolute;
+    inset-block-start: 8px;
+    inset-inline-end: 8px;
+    box-sizing: content-box;
+    padding: 3px;
+    border-radius: 50%;
+    background: var(--mo-primary);
+    color: var(--mo-on-primary);
+  }
+
+  /* A staggered grid of cards (image-grid.md in docs; M3 Cards: "customized in code to show cards in staggered or
+     mosaic grids"): columns of cards in their own heights, 8 dp apart (M3: "Padding between cards: 8dp max"). 2 columns
+     on compact, 3 on medium and expanded, 4 from large. M3 prints no column count for a grid: these are ours, on its
+     breakpoints. */
+  .image-grid {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    column-count: 2;
+    column-gap: var(--card-gap, 8px);
+  }
+  .image-grid > * {
+    break-inside: avoid;
+    margin-block-end: var(--card-gap, 8px);
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .image-grid {
+      column-count: 3;
+    }
+  }
+  @media (width >= theme(--breakpoint-large)) {
+    .image-grid {
+      column-count: 4;
+    }
   }
 
   .list {

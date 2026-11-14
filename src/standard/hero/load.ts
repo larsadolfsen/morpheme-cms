@@ -14,7 +14,10 @@ export const load: Load<HeroView> = async (props) => {
   return {
     heading: parts.heading,
     html: await markdownHtml(parts.text),
-    image: parts.image ? { ...imageOf(parts.image.src), alt: parts.image.alt } : undefined,
+    // Its own text wins; without one the Library's (imageOf); marked decorative here it has none.
+    image: parts.image
+      ? { ...imageOf(parts.image.src), ...(parts.image.decorative ? { alt: '' } : parts.image.alt ? { alt: parts.image.alt } : {}) }
+      : undefined,
     behind: props.placement === 'behind' && !!parts.image,
     full: props.width === 'full',
     buttons: parts.buttons && (await loadButtons(parts.buttons.items as Button[] | undefined, standard.texts.buttons?.items)),

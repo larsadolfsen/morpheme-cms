@@ -11,9 +11,9 @@ export type HeroParts = {
   heading?: string;
   /** The text before the buttons, without its heading and its image (Markdown). */
   text: string;
-  /** The image: its own address (without a format, crop or decorative mark) and its description ('' when it is
-   * decorative, crop.mjs). */
-  image?: { src: string; alt: string };
+  /** The image: its own address (without a format, crop or decorative mark), its description ('' when it is
+   * decorative, crop.mjs, or has none) and whether it is marked decorative. */
+  image?: { src: string; alt: string; decorative: boolean };
   /** The props of its "Buttons" block (`items`: its own buttons, else the shared ones); none without one. */
   buttons?: Record<string, unknown>;
   /** The text after the buttons (Markdown). */
@@ -40,7 +40,7 @@ export function heroParts(markdown: unknown): HeroParts {
   const m = text.match(IMAGE) ?? after.match(IMAGE);
   if (m) {
     const { src, decorative } = splitPicture(m[2]);
-    image = { src, alt: decorative ? '' : unescape(m[1]) };
+    image = { src, alt: decorative ? '' : unescape(m[1]), decorative };
     if (text.match(IMAGE)) text = text.replace(IMAGE, '');
     else after = after.replace(IMAGE, '');
   }

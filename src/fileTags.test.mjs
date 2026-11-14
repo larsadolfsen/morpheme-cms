@@ -125,3 +125,26 @@ test('no function changes a frozen input record', () => {
   assert.doesNotThrow(() => tagsFor(record, ['c', 'e']));
   assert.deepEqual(record, { src: S, categories: ['a', 'b'], removed: ['c'] });
 });
+
+test('withAltText sets the text, mark and caption, drops empty ones and keeps tags and credit', async () => {
+  const { withAltText, addTag, withCredit, isEmpty } = await import('./fileTags.mjs');
+  const credit = { name: 'A', url: 'https://example.com/a', source: 'unsplash' };
+  const base = withCredit(addTag(undefined, '/a.webp', 'sea'), '/a.webp', credit);
+  const set = withAltText(base, '/a.webp', { alt: ' A beach ', decorative: false, caption: ' ' });
+  assert.deepEqual(set, { src: '/a.webp', categories: ['sea'], removed: [], alt: 'A beach', credit });
+  assert.deepEqual(withAltText(set, '/a.webp', {}), base);
+  assert.equal(isEmpty(withAltText(undefined, '/a.webp', { decorative: true })), false);
+  assert.equal(isEmpty(withAltText(undefined, '/a.webp', {})), true);
+});
+
+test('a change to the tags keeps the text, the mark and the caption', async () => {
+  const { withAltText, addTag, removeTag, setTags, inherit } = await import('./fileTags.mjs');
+  const record = withAltText(undefined, '/a.webp', { alt: 'A beach', decorative: true, caption: 'Dawn' });
+  for (const next of [
+    addTag(record, '/a.webp', 'sea'),
+    removeTag(record, '/a.webp', 'sea'),
+    setTags(record, '/a.webp', ['x']),
+    inherit(record, '/a.webp', ['y']),
+  ])
+    assert.deepEqual([next.alt, next.decorative, next.caption], ['A beach', true, 'Dawn']);
+});

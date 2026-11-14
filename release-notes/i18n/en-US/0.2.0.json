@@ -4,12 +4,14 @@
     {
       "id": "install-from-store",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "Install themes and apps from the store",
       "text": "You can now install themes and apps from the Morpheme store. Connect your website to the store to get started."
     },
     {
       "id": "builds-on-windows",
       "kind": "line",
+      "mark": "improvement",
       "text": "Your site builds on Windows"
     }
   ]
