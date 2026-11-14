@@ -2177,6 +2177,70 @@ async function checkPreviewSection() {
   await page.close();
 }
 
+/** A filled card with a video, a headline and a text, in a section on Primary, Secondary or Tertiary (card colour: the same container colour, or none), reads 4.5:1 on its own surface in light and dark mode, on a phone and a computer: its text, the video's title and the play button (3:1) take the container's on-colour, not the section's. */
+async function checkSectionCardContrast() {
+  const lum = ([r, g, b]) => {
+    const [R, G, B] = [r, g, b].map((v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+  };
+  const ratio = (a, b) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05);
+  for (const scheme of ['light', 'dark']) {
+    for (const [width, height] of [
+      [375, 740],
+      [1280, 900],
+    ]) {
+      const page = await browser.newPage({ viewport: { width, height }, colorScheme: scheme, locale: 'en-US' });
+      page.on('pageerror', (e) => problems.push(`Section card contrast: ${e.message}`));
+      await page.goto(`${site}/blocks/`);
+      const found = await page.evaluate(() => {
+        const colors = ['primary', 'secondary', 'tertiary'];
+        const html = colors
+          .flatMap((section) => ['', ...colors].map((color) => `${section}/${color}`))
+          .map((id) => {
+            const [section, color] = id.split('/');
+            const cardsColor = color ? ` block-cards-${color}` : '';
+            return `<div class="text-section text-section-${section}" data-case="${id}"><div class="block-cards${cardsColor}"><div class="card card-filled block-card"><div class="prose block-card-video"><a class="video-facade" href="#"><svg viewBox="0 0 24 24" width="48" height="48" data-play><circle cx="12" cy="12" r="10" fill="currentColor"/></svg><span class="video-facade-title">Title</span></a></div><span class="block-card-title">Headline</span><p class="block-card-text">Text</p></div></div></div>`;
+          })
+          .join('');
+        document.body.insertAdjacentHTML('afterbegin', html);
+        const rgba = (css) => {
+          const c = document.createElement('canvas').getContext('2d');
+          c.fillStyle = css;
+          c.fillRect(0, 0, 1, 1);
+          return [...c.getImageData(0, 0, 1, 1).data];
+        };
+        return [...document.querySelectorAll('[data-case]')].flatMap((box) => {
+          const card = box.querySelector('.card');
+          const bg = rgba(getComputedStyle(card).backgroundColor);
+          // The card's surface is opaque here (a container), or a veil of the section's on-colour: the section's colour under it.
+          const under = rgba(getComputedStyle(box).backgroundColor);
+          const surface = bg[3] === 255 ? bg : bg.slice(0, 3).map((v, i) => Math.round((v * bg[3] + under[i] * (255 - bg[3])) / 255));
+          return [
+            ['headline', '.block-card-title', 4.5],
+            ['text', '.block-card-text', 4.5],
+            ['video title', '.video-facade-title', 4.5],
+            ['play button', '.video-facade svg', 3],
+          ].map(([what, selector, need]) => ({
+            id: box.dataset.case,
+            what,
+            need,
+            fg: rgba(getComputedStyle(box.querySelector(selector)).color),
+            surface,
+          }));
+        });
+      });
+      for (const f of found) {
+        const got = ratio(f.fg, f.surface);
+        if (got < f.need)
+          problems.push(
+            `Section card contrast (${f.id}, ${scheme}, ${width}): the ${f.what} of a filled card is ${got.toFixed(2)}:1 (needs ${f.need})`,
+          );
+      }
+      await page.close();
+    }
+  }
+}
+
 /** A page whose H1 section has a background (a colour or an image) has it start right under the navigation bar (gap 0 ±1px), on the site and in the Preview at 390 and 600; a page whose H1 section has none keeps its space under the bar. */
 async function checkH1SectionGap() {
   const path = BUILT_PAGE;
@@ -5870,6 +5934,7 @@ await unit('checkDensitySetting 1280', () => checkDensitySetting(1280, 900));
 await unit('checkPreviewSection', () => checkPreviewSection());
 await unit('checkFullSection', () => checkFullSection());
 await unit('checkH1SectionGap', () => checkH1SectionGap());
+await unit('checkSectionCardContrast', () => checkSectionCardContrast());
 for (const w of [375, 1280]) await unit(`checkListMarkers ${w}`, () => checkListMarkers(w));
 for (const w of [375, 1280]) await unit(`checkListsAndBlocks ${w}`, () => checkListsAndBlocks(w));
 for (const w of [360, 375, 390, 414]) await unit(`checkPreviewDraft ${w}`, () => checkPreviewDraft(w));
