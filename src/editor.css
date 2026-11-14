@@ -394,6 +394,12 @@
   }
 }
 
+/* The save bar is the theme's standard bottom sheet (ActionSheet in ui.tsx): the screen leaves room under its last field so
+   nothing is hidden behind it. */
+:root:has(.editor-save-bar) .editor-screen {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+}
+
 @media (prefers-reduced-motion: reduce) {
   .editor-save-bar {
     animation: none;
@@ -676,6 +682,7 @@
   }
   .editor-save-bar {
     left: var(--navigation-rail-width, 5.5rem);
+    width: auto;
   }
 }
 @media (width >= theme(--breakpoint-expanded)) {

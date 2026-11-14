@@ -21,13 +21,19 @@
 // (a sheet it opens, a text it folds out). `selectable`: on a phone (a touch or a pen) a long press selects it, or unselects
 // it, through `onSelectedChange` (useLongPress, longPress.ts), the browser's own menu for a long press kept away; with
 // `selecting` (while some item of its list is selected) a tap does the same instead of following or pressing it. Its
-// `selected` is then that selection, told to screen readers by aria-pressed (a button) or as a checkbox (a link, a div). How it looks is the theme's. `className` after the list's own classes (its
+// `selected` is then that selection, told to screen readers by aria-pressed (a button) or as a checkbox (a link, a div). A selectable item draws
+// Material's selection checkbox (ListItemSelectBox, one selection interaction per item, drawn like the theme's Checkbox but not an <input>:
+// the item itself is the checkbox for screen readers): in the trailing slot of an item that has something leading it (an icon, an image, an
+// avatar, a video: "With leading icon and trailing checkbox"), in the leading slot of a text-only item ("With leading checkbox"); with a mouse
+// on the item pointed at or in focus (one box, nothing moves), on every item once some item is selected (`selecting`), never with a touch
+// before that. A click on the box selects it; a tap on what leads the item (`selectOnLeading`, default on when something leads it) selects it
+// with a touch or a pen, and opens nothing; while selecting its trailing count, arrow and buttons (`actions`) are not shown. How it looks is the theme's. `className` after the list's own classes (its
 // place in a block), and after an item's own on the item (its place on a screen). An Astro component without React gives its elements the same classes with listClasses and listItemClass.
 // What leads an item, its leading icon, trailing supporting text and trailing icon are parts of their own (ListItemLeading,
 // ListItemLeadingIcon, ListItemTrailingSupporting, ListItemTrailingIcon), so the editor's rows have the same; an icon is its name, as the site
 // gives it, or an icon made, as the editor gives it (IconRef).
-import { useId, type HTMLAttributes, type ReactNode } from 'react';
-import { Glyph, type IconRef } from '@morphemecms/cms/src/icon';
+import { useId, type HTMLAttributes, type MouseEvent, type ReactNode } from 'react';
+import { Glyph, Svg, type IconRef } from '@morphemecms/cms/src/icon';
 import { Link } from '@morphemecms/cms/src/standard/view';
 import Checkbox from '@theme/ui/Checkbox';
 import RadioButton from '@theme/ui/RadioButton';
@@ -123,6 +129,28 @@ export function ListItemTrailingIcon({ icon, children }: { icon?: IconRef; child
   return <span className="list-item-trailing">{icon ? <Glyph icon={icon} size={24} /> : children}</span>;
 }
 
+/** The checkbox of a selectable item (Material's selection control in a list item's slot): drawn as the theme's Checkbox, but
+ * a <span> the item is not nested under an <input> by, hidden from screen readers (the item is the checkbox). A click on it
+ * selects or unselects the item. */
+export function ListItemSelectBox({ selected, at, onChange }: { selected: boolean; at: 'leading' | 'trailing'; onChange: () => void }) {
+  return (
+    <span
+      className={`checkbox list-item-select-box list-item-select-box-${at}`}
+      aria-hidden="true"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onChange();
+      }}
+    >
+      <span className="checkbox-box">
+        <span className="checkbox-input" data-checked={selected ? '' : undefined} />
+        <Svg name="check" size={14} className="checkbox-icon" />
+      </span>
+    </span>
+  );
+}
+
 export function ListItem({
   href,
   onClick,
@@ -148,6 +176,7 @@ export function ListItem({
   actions,
   selectable,
   selecting,
+  selectOnLeading,
   onSelectedChange,
   className,
   children,
@@ -179,6 +208,8 @@ export function ListItem({
   selectable?: boolean;
   /** Some item of the list is selected: a tap selects or unselects it too, instead of what it does. */
   selecting?: boolean;
+  /** A tap with a touch or a pen on what leads the item selects it (default: when something leads it). */
+  selectOnLeading?: boolean;
   onSelectedChange?: (selected: boolean) => void;
   className?: string;
   children?: ReactNode;
@@ -234,6 +265,13 @@ export function ListItem({
       <span className="list-item-leading list-item-leading-video">{image(leadingVideo, 'video')}</span>
     ) : null;
 
+  // What leads the item that is not a choice: the item has a leading visual (the box goes after the text) or has none (the box leads).
+  const hasLead = lead != null;
+  const box = press && onSelectedChange && !control && (
+    <ListItemSelectBox selected={!!selected} at={hasLead ? 'trailing' : 'leading'} onChange={() => onSelectedChange(!selected)} />
+  );
+  const shortcut = !!press && !control && hasLead && selectOnLeading !== false;
+
   const cut = truncate ? ' truncate' : '';
   const text = (
     <>
@@ -249,17 +287,18 @@ export function ListItem({
       )}
     </>
   );
-  const tail = (shown(trailingSupporting) || trailingIcon || trailing != null || (control && at === 'trailing')) && (
+  const tail = (shown(trailingSupporting) || trailingIcon || trailing != null || (control && at === 'trailing') || (box && hasLead)) && (
     <>
       {shown(trailingSupporting) && <ListItemTrailingSupporting>{trailingSupporting}</ListItemTrailingSupporting>}
       {trailing != null && <ListItemTrailingIcon>{trailing}</ListItemTrailingIcon>}
       {trailingIcon && <ListItemTrailingIcon icon={trailingIcon} />}
       {control && at === 'trailing' && choice}
+      {box && hasLead && box}
     </>
   );
   const content = (
     <>
-      {lead}
+      {box && !hasLead ? box : lead}
       {control ? (
         // A second name for the choice's <input>, so a tap on the text (and, stretched, on the whole item) changes it.
         <label htmlFor={`${id}-control`} className="list-item-content">
@@ -276,6 +315,8 @@ export function ListItem({
     control && 'list-item-with-control',
     columns && 'list-item-columns',
     press && 'list-item-selectable',
+    press && selecting && 'list-item-selecting',
+    shortcut && 'list-item-selectable-leading',
     className,
   ]
     .filter(Boolean)
@@ -284,9 +325,27 @@ export function ListItem({
   // so with aria-pressed, a link or a plain item is a checkbox (aria-selected is only for options and rows).
   const picking = !!press && (!!selecting || !!selected);
   const toggle = picking ? { role: 'checkbox', 'aria-checked': !!selected } : undefined;
+  // A tap with a touch or a pen on what leads the item starts the selection (not a mouse: it opens the item); the item's own press
+  // handles the rest (a long press, a tap while selecting).
+  const handlers =
+    press && shortcut && onSelectedChange
+      ? {
+          ...press,
+          onClickCapture: (e: MouseEvent) => {
+            const type = (e.nativeEvent as PointerEvent).pointerType;
+            if (!selecting && (type === 'touch' || type === 'pen') && (e.target as Element).closest('.list-item-leading')) {
+              e.preventDefault();
+              e.stopPropagation();
+              onSelectedChange(!selected);
+              return;
+            }
+            press.onClickCapture(e);
+          },
+        }
+      : press;
   const item =
     href !== undefined && !control && !disabled ? (
-      <Link href={href} className={classes} aria-current={selected && !press ? 'true' : undefined} {...toggle} {...rest} {...press}>
+      <Link href={href} className={classes} aria-current={selected && !press ? 'true' : undefined} {...toggle} {...rest} {...handlers}>
         {content}
       </Link>
     ) : onClick && !control ? (
@@ -297,18 +356,18 @@ export function ListItem({
         onClick={onClick}
         aria-pressed={picking ? !!selected : undefined}
         {...rest}
-        {...press}
+        {...handlers}
       >
         {content}
       </button>
     ) : (
-      <div className={classes} aria-disabled={disabled && href !== undefined ? true : undefined} {...toggle} {...rest} {...press}>
+      <div className={classes} aria-disabled={disabled && href !== undefined ? true : undefined} {...toggle} {...rest} {...handlers}>
         {content}
       </div>
     );
   return (
     <li role={presentation ? 'presentation' : undefined}>
-      {actions != null && actions !== false ? (
+      {actions != null && actions !== false && !(press && selecting) ? (
         <div className={listItemMultiActionClass}>
           {item}
           {actions}
