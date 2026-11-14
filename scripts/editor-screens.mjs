@@ -2078,9 +2078,10 @@ async function checkBlockMove(width) {
   }
   // Take the third off: the first two are next to each other and move down together.
   await tap(blocks.nth(2));
-  if ((await selected()) !== 1) await tap(blocks.nth(1));
+  await tap(blocks.nth(1));
   if ((await selected()) !== 2) problems.push(`${label}: first two blocks are not selected (${await selected()})`);
-  if (await down.first().isDisabled()) problems.push(`${label}: Move down is disabled for blocks that are next to each other`);
+  if (!(await down.count())) problems.push(`${label}: no Move down on the bar after selecting two blocks`);
+  else if (await down.first().isDisabled()) problems.push(`${label}: Move down is disabled for blocks that are next to each other`);
   else {
     await down.first().click();
     await page.waitForTimeout(600);
