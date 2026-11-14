@@ -1287,9 +1287,11 @@ async function checkImageTools(width, height = 800) {
   await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
   await page.locator('dialog[open] [data-media-tile]').first().click();
   const sheet = () => page.locator('dialog[open], .editor-side-sheet').last();
-  await sheet()
-    .locator('button', { hasText: /^Insert$/ })
-    .click({ timeout: 8000 });
+  // From expanded the image goes in at once with its live sheet open (one Save spec 4.1: no Insert button); below it the sheet has Insert.
+  if (!expanded)
+    await sheet()
+      .locator('button', { hasText: /^Insert$/ })
+      .click({ timeout: 8000 });
   const image = page.locator('.ProseMirror .site-picture .site-block-card').first();
   await image.waitFor({ timeout: 8000 });
   await page.waitForTimeout(500);
@@ -1348,9 +1350,10 @@ async function checkImageTools(width, height = 800) {
       const label = el?.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`)?.textContent.trim() : '';
       return { crop: !!el?.closest('[aria-labelledby="crop-format"]'), label, sheet: !!el?.closest('dialog[open], .editor-side-sheet') };
     });
+  // Cancel below expanded; from expanded the live side sheet has only its close button.
   const cancel = async () => {
     await sheet()
-      .locator('button', { hasText: /^Cancel$/ })
+      .locator(expanded ? '[data-side-sheet-close]' : 'button:text-is("Cancel")')
       .first()
       .click({ timeout: 3000 })
       .catch(() => {});
