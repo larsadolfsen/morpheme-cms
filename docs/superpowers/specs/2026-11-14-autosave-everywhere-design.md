@@ -161,26 +161,26 @@ check; if a PR adds one, it reads the page with Playwright and quotes it first.
 
 ## 7. Open owner decisions (most important first; one at a time)
 
-1. **Where do waiting versions of settings live, and do they ever reach git?** Recommendation: **R2 only, never git** (`keep`), as #560 does
+1. **Owner decision pending. Where do waiting versions of settings live, and do they ever reach git?** Recommendation: **R2 only, never git** (`keep`), as #560 does
    for lists. It is the only way a setting cannot go live by autosave. Cost: a waiting version is lost after 30 days idle and does not follow
    the person to a site without R2. (Alternative: a `src/drafts/` copy in git for data files too; more moving parts and it would show in
    history.)
-2. **Do one-tap choices (Theme, Icon pack, Motion, Side column, switches) stay instant?** Recommendation: **yes**. There is no unsaved
+2. **Owner decision pending. Do one-tap choices (Theme, Icon pack, Motion, Side column, switches) stay instant?** Recommendation: **yes**. There is no unsaved
    state, so nothing to autosave; making them wait would add a `Save` where there is none. The list in section 2 is exactly these.
-3. **A waiting version of a form with a wrong field** (a bad e-mail, an unfinished row). Pages show `Not saved` until it is right.
+3. **Owner decision pending. A waiting version of a form with a wrong field** (a bad e-mail, an unfinished row). Pages show `Not saved` until it is right.
    Recommendation: for settings, **keep the values anyway** (snapshot of the form), and check only at `Save`, so nothing typed is lost.
-4. **Sheets that commit by themselves (the Redirects sheet).** Recommendation: **leave as is**: one short field set, one commit, `Delete`
+4. **Owner decision pending. Sheets that commit by themselves (the Redirects sheet).** Recommendation: **leave as is**: one short field set, one commit, `Delete`
    in the same sheet. If the owner wants it, the sheet gets the same hook with the redirect's address as key.
-5. **Logo and icon (binary images).** Recommendation: keep only the **choices** (which image slot changed) in the waiting version and
+5. **Owner decision pending. Logo and icon (binary images).** Recommendation: keep only the **choices** (which image slot changed) in the waiting version and
    keep the image bytes in the browser until `Save`, as pages do with images now; say so with `Not saved` while a new image waits.
    (Alternative: put the image in R2 under the waiting key, up to a size limit.)
-6. **Do the rows of a list always wait for the final `Save`** (#560 question 1)? Recommendation: **no**: items are saved on their own item
+6. **Owner decision pending. Do the rows of a list always wait for the final `Save`** (#560 question 1)? Recommendation: **no**: items are saved on their own item
    page like testimonials (#564 already does this); only the list's definition waits.
-7. **Do `Remove field` and `Remove data` always wait** (#560 question 2)? Recommendation: **yes**, they destroy data, so they only happen at
+7. **Decided (owner, via PM): yes. Do `Remove field` and `Remove data` always wait** (#560 question 2)? Recommendation: **yes**, they destroy data, so they only happen at
    the final `Save`.
-8. **New entries that were never saved (row 6): keep them across a closed tab?** Recommendation: **yes**, listed as `Not saved yet`
+8. **Owner decision pending. New entries that were never saved (row 6): keep them across a closed tab?** Recommendation: **yes**, listed as `Not saved yet`
    (consistent with new pages and lists), deleted after 30 days.
-9. **Dashboard draft (row 15): is it worth it?** It is per person and cheap to lose. Recommendation: **yes, last**, since the owner said
+9. **Owner decision pending. Dashboard draft (row 15): is it worth it?** It is per person and cheap to lose. Recommendation: **yes, last**, since the owner said
    every screen that needs a save, and it costs one KV key.
-10. **How long is a waiting version kept?** Recommendation: **30 days** (today's `EXPIRE_MS`), then deleted; the start screen shows what is
+10. **Owner decision pending. How long is a waiting version kept?** Recommendation: **30 days** (today's `EXPIRE_MS`), then deleted; the start screen shows what is
     waiting before then.
