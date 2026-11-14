@@ -4904,6 +4904,65 @@ async function checkFooterTargets(width, touch) {
   await page.close();
 }
 
+/** The List "expand" kind on the built site (the FAQ on /blocks/), 375 and 1280 px: a <ul class="list list-expand"> of <li><details name><summary> items (a row of 48 px or more, a corner of 16 px on the list), the closed caret has no container and the open one turns over and gets one while the headline keeps its colour (Material's "List - Expand" tokens), one row open at a time, Space on the focused summary opens it and the focus ring is 3 px, nothing scrolls sideways. */
+async function checkExpandList(width, height) {
+  const label = `${width}px List expand`;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  const list = page.locator('ul.list.list-expand:has(> li:nth-child(2))').first();
+  if (!(await list.count())) {
+    problems.push(`${label}: no List with expand and two items on /blocks/`);
+    return page.close();
+  }
+  await list.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+  const items = list.locator(':scope > li > details.list-item-expand');
+  const first = items.nth(0);
+  const second = items.nth(1);
+  const look = (item) =>
+    item.evaluate((d) => {
+      const sum = d.querySelector(':scope > summary.list-item-container');
+      const icon = sum?.querySelector('.list-item-expand-icon');
+      const head = sum?.querySelector('.list-item-headline');
+      const box = sum?.getBoundingClientRect();
+      return {
+        summary: !!sum,
+        height: box?.height ?? 0,
+        iconBg: icon ? getComputedStyle(icon).backgroundColor : '',
+        iconRotate: icon ? getComputedStyle(icon).rotate : '',
+        headColor: head ? getComputedStyle(head).color : '',
+        hasBody: !!d.querySelector(':scope > .list-item-expand-body'),
+        open: d.open,
+      };
+    });
+  const closed = await look(first);
+  if (!closed.summary || !closed.hasBody) problems.push(`${label}: an item has no summary or no body`);
+  if (closed.height < 48) problems.push(`${label}: an item is ${closed.height}px tall, should be 48px or more`);
+  if (closed.iconBg !== 'rgba(0, 0, 0, 0)') problems.push(`${label}: the closed caret has a container (${closed.iconBg})`);
+  const radius = await list.evaluate((el) => getComputedStyle(el).borderTopLeftRadius);
+  if (radius !== '16px') problems.push(`${label}: the list's corner is ${radius}, should be 16px`);
+  await first.locator('summary').click();
+  await page.waitForTimeout(700);
+  const open = await look(first);
+  if (!open.open) problems.push(`${label}: a tap on the item does not open it`);
+  if (open.iconBg === 'rgba(0, 0, 0, 0)') problems.push(`${label}: the open caret has no container`);
+  if (open.iconRotate === 'none' || !/180|3\.14/.test(open.iconRotate))
+    problems.push(`${label}: the open caret has not turned over (${open.iconRotate})`);
+  if (open.headColor !== closed.headColor)
+    problems.push(`${label}: the headline changes colour when open (${closed.headColor} to ${open.headColor})`);
+  // One at a time (the same name), and the keyboard: Space on the focused summary of the second item opens it and closes the first.
+  await second.locator('summary').focus();
+  await page.keyboard.press('Space');
+  await page.waitForTimeout(700);
+  if (!(await look(second)).open || (await look(first)).open)
+    problems.push(`${label}: Space on the second item does not open it and close the first`);
+  const ring = await second.locator('summary').evaluate((el) => getComputedStyle(el).outlineWidth);
+  if (ring !== '3px') problems.push(`${label}: the focus ring is ${ring}, should be 3px`);
+  if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)) problems.push(`${label}: the page scrolls sideways`);
+  console.log(`${label}: ${JSON.stringify({ closed, open })}`);
+  await page.close();
+}
+
 /** A page's accordion rows (FoldSection): between its divider lines the title has the same space above and below it (within 1px, measured on the pixels of the first capital, not the line box), the arrow is centred on the title, and the row stays 48px tall or more (360, 375, 390, 414 px and a computer). */
 async function checkFoldRows(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US', deviceScaleFactor: 2 });
@@ -5711,6 +5770,12 @@ for (const [width, height] of [
   await unit(`checkFoldRows ${width}`, () => checkFoldRows(width, height));
   await unit(`checkEntrySettings ${width}`, () => checkEntrySettings(width, height));
   await unit(`checkNofollowSwitch ${width}`, () => checkNofollowSwitch(width, height));
+}
+for (const [width, height] of [
+  [375, 800],
+  [1280, 900],
+]) {
+  await unit(`checkExpandList ${width}`, () => checkExpandList(width, height));
 }
 await unit('checkFooterTargets 320', () => checkFooterTargets(320, true));
 await unit('checkFooterTargets 375', () => checkFooterTargets(375, true));

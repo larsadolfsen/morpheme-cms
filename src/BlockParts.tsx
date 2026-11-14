@@ -513,6 +513,14 @@ function CardParts() {
               <SiteListItem control={{ type: 'switch' }} leadingIcon="moon" headline={switchItem} />
               <SiteListItem href="" disabled leadingIcon="map-pin" headline={lists.disabled} />
             </SiteList>
+            {/* The "expand" kind (Material's "List - Expand"): items that fold out, one open at a time; the second one open. */}
+            <SiteList expand aria-label={lists.expand[0]}>
+              {lists.expand.map((h, i) => (
+                <SiteListItem key={h} expand expandName="parts-list-expand" expandOpen={i === 1 ? true : undefined} headline={h}>
+                  {lists.expandText}
+                </SiteListItem>
+              ))}
+            </SiteList>
           </div>
         </Preview>
       </Part>

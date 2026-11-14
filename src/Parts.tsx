@@ -108,6 +108,7 @@ import type { Field } from './schema';
 import { defaultColors } from '@site/editor';
 import { BASE_COLORS, canSetBaseColor, wheelColor, wheelColors, wheelDots, withBaseColor, type Dynamic } from '../lib/dynamic-colors';
 import { iconPacks } from './iconPacks';
+import { SiteList, SiteListItem } from './themeUi';
 import { jurisdictionName } from './r2Caching';
 import type { Env } from './App';
 import { t } from './i18n';
@@ -822,14 +823,13 @@ export default function Parts({ env }: { env: Env }) {
 
             <Part name="Preview" use={use.preview}>
               <Preview>
-                <details className="block-accordion-row">
-                  <summary className="block-accordion-label">{sample.foldOut}</summary>
-                  <div className="block-accordion-body">
+                <SiteList expand>
+                  <SiteListItem expand headline={sample.foldOut}>
                     <p>
                       {sample.foldedText} <a href="/">{sample.link}</a>
                     </p>
-                  </div>
-                </details>
+                  </SiteListItem>
+                </SiteList>
               </Preview>
             </Part>
           </PartGroup>

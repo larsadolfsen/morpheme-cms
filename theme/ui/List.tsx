@@ -27,7 +27,11 @@
 // avatar, a video: "With leading icon and trailing checkbox"), in the leading slot of a text-only item ("With leading checkbox"); with a mouse
 // on the item pointed at or in focus (one box, nothing moves), on every item once some item is selected (`selecting`), never with a touch
 // before that. A click on the box selects it; a tap on what leads the item (`selectOnLeading`, default on when something leads it) selects it
-// with a touch or a pen, and opens nothing; while selecting its trailing count, arrow and buttons (`actions`) are not shown. How it looks is the theme's. `className` after the list's own classes (its
+// with a touch or a pen, and opens nothing; while selecting its trailing count, arrow and buttons (`actions`) are not shown. How it looks is the theme's. `expand` (with `expand` on its List: Material's "List - Expand",
+// m3.material.io/components/lists/specs): the item folds out its `children` (a native <details>/<summary>, no script needed: the same
+// `expandName` keeps one item of a list open at a time, `expandOpen` opens it, `expandProps` go on the <details>; the rest, as for
+// every item, on its summary) and its trailing icon, a caret in a round container, turns over when it is open; the item is the summary,
+// so it is the button for screen readers and the keyboard (Enter, Space). `className` after the list's own classes (its
 // place in a block), and after an item's own on the item (its place on a screen). An Astro component without React gives its elements the same classes with listClasses and listItemClass.
 // What leads an item, its leading icon, trailing supporting text and trailing icon are parts of their own (ListItemLeading,
 // ListItemLeadingIcon, ListItemTrailingSupporting, ListItemTrailingIcon), so the editor's rows have the same; an icon is its name, as the site
@@ -52,9 +56,20 @@ export const listClass = 'list';
  * Material's, wherever it is drawn (the site, the editor, the Preview). */
 const listOutOfProse = 'not-prose';
 
-/** A list's classes: its kind's (none for standard) and its dividers' (none for full-width; a segmented list has none). */
-export const listClasses = (kind: ListKind = 'standard', dividers: ListDividers = kind === 'segmented' ? 'none' : 'full-width') =>
-  [listClass, listOutOfProse, kind === 'segmented' && 'list-segmented', dividers !== 'full-width' && `list-dividers-${dividers}`]
+/** A list's classes: its kind's (none for standard), its dividers' (none for full-width; a segmented list has none) and
+ * `list-expand` for a list whose items fold out (Material's "List - Expand": ListItem `expand`). */
+export const listClasses = (
+  kind: ListKind = 'standard',
+  dividers: ListDividers = kind === 'segmented' ? 'none' : 'full-width',
+  expand = false,
+) =>
+  [
+    listClass,
+    listOutOfProse,
+    kind === 'segmented' && 'list-segmented',
+    expand && 'list-expand',
+    dividers !== 'full-width' && `list-dividers-${dividers}`,
+  ]
     .filter(Boolean)
     .join(' ');
 
@@ -80,12 +95,13 @@ export const listItemClass = (lines: boolean | ListItemLines = 1, state: { selec
 export default function List({
   kind,
   dividers,
+  expand,
   className,
   children,
   ...rest
-}: { kind?: ListKind; dividers?: ListDividers } & HTMLAttributes<HTMLUListElement>) {
+}: { kind?: ListKind; dividers?: ListDividers; expand?: boolean } & HTMLAttributes<HTMLUListElement>) {
   return (
-    <ul className={[listClasses(kind, dividers), className].filter(Boolean).join(' ')} {...rest}>
+    <ul className={[listClasses(kind, dividers, expand), className].filter(Boolean).join(' ')} {...rest}>
       {children}
     </ul>
   );
@@ -178,12 +194,16 @@ export function ListItem({
   selecting,
   selectOnLeading,
   onSelectedChange,
+  expand,
+  expandName,
+  expandOpen,
+  expandProps,
   className,
   children,
   ...rest
 }: {
   href?: string;
-  onClick?: () => void;
+  onClick?: (event: MouseEvent<HTMLElement>) => void;
   leading?: ReactNode;
   leadingIcon?: IconRef;
   leadingIconSelected?: boolean;
@@ -211,6 +231,14 @@ export function ListItem({
   /** A tap with a touch or a pen on what leads the item selects it (default: when something leads it). */
   selectOnLeading?: boolean;
   onSelectedChange?: (selected: boolean) => void;
+  /** The item folds out its `children` (a <details>; its trailing icon is the caret). Its list has `expand` too. */
+  expand?: boolean;
+  /** Items of one list with the same name keep one open at a time (browsers that cannot do this allow several). */
+  expandName?: string;
+  /** Open (the editor's active row); left out, the item opens and closes by itself. */
+  expandOpen?: boolean;
+  /** Attributes of the <details> (a class, data-…, aria-…); the <li> and the summary have the rest. */
+  expandProps?: { className?: string } & Record<string, unknown>;
   className?: string;
   children?: ReactNode;
 } & Record<string, unknown>) {
@@ -343,6 +371,27 @@ export function ListItem({
           },
         }
       : press;
+  if (expand) {
+    const { className: detailsClass, ...detailsRest } = expandProps ?? {};
+    return (
+      <li role={presentation ? 'presentation' : undefined}>
+        <details
+          name={expandName}
+          open={expandOpen}
+          className={['list-item-expand', detailsClass].filter(Boolean).join(' ')}
+          {...detailsRest}
+        >
+          <summary className={`${classes} list-item-expand-summary`} onClick={onClick} {...rest}>
+            {content}
+            <span className="list-item-expand-icon" aria-hidden="true">
+              <Glyph icon="caret-down" size={24} />
+            </span>
+          </summary>
+          <div className="list-item-expand-body">{children}</div>
+        </details>
+      </li>
+    );
+  }
   const item =
     href !== undefined && !control && !disabled ? (
       <Link href={href} className={classes} aria-current={selected && !press ? 'true' : undefined} {...toggle} {...rest} {...handlers}>
