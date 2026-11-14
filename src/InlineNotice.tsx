@@ -7,6 +7,7 @@ import InlineSingle from './InlineSingle';
 import type { InlineViewProps } from './inlineViews';
 import { viewOf } from './standard/notice/view';
 import Notice from '@theme/blocks/notice/View';
+import { cardClass } from '@theme/ui/Card';
 
 export default function InlineNotice({ props, data, active, focus, onChange }: InlineViewProps) {
   const text = String(props.text ?? '');
@@ -36,7 +37,14 @@ export default function InlineNotice({ props, data, active, focus, onChange }: I
             </div>
           );
         return (
-          <aside className={['block-notice', 'inline-notice', here ? 'inline-list-row-active' : 'inline-list-row-next'].join(' ')}>
+          <aside
+            className={[
+              cardClass('filled'),
+              'block-notice',
+              'inline-notice',
+              here ? 'inline-list-row-active' : 'inline-list-row-next',
+            ].join(' ')}
+          >
             <p>{field('text', t.blocks.notice.text, t.blocks.notice.placeholder)}</p>
           </aside>
         );
