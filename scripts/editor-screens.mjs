@@ -2026,9 +2026,8 @@ async function checkBlockMove(width) {
       const [x, y] = await centre(loc);
       await page.touchscreen.tap(x, y);
     } else {
-      // Space on the focused card toggles it (the mark can sit under the neighbouring block's card or the save bar).
-      await loc.locator('.site-block-card').first().focus();
-      await page.keyboard.press(' ');
+      // A click on the block (checkBlockSelect checks the pointer's own geometry; here the third block can sit under the save bar).
+      await loc.dispatchEvent('click');
     }
     await page.waitForTimeout(400);
   };
