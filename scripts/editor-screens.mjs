@@ -598,7 +598,7 @@ function menuIconProblems(page) {
   });
 }
 
-/** The text's one bar (docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md, PR 1). On a phone, with the cursor in text: one bar, 44 dp tall, every button 44 x 44 dp, never scrolling, with the divider, Undo and Redo and the ⋮ at its end (at 360 and 375 px exactly Bold, Italic, Link, Text style, Undo, Redo, More); the ⋮ is a pop-up menu (not a sheet) inside the visible screen, with rows of 44 dp, which keeps the cursor and closes on Escape; Undo works; the bar has the same height idle (no divider then); the Text style menu has at most 8 rows of 44 dp, a page's first heading offers Main heading, a blog post Heading and Subheading, a list item no heading rows and no Quote, a heading no list rows and no Quote. On a computer all tools are on the bar and there is no ⋮. */
+/** The text's one bar (docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md, PR 1). On a phone, with the cursor in text: one bar, 44 dp tall, every button 44 x 44 dp, never scrolling, with the divider, Undo and Redo and the ⋮ at its end (at 360 and 375 px exactly Bold, Italic, Undo, Redo, Insert block, More; the ⋮ reads Alignment, Link, Color); the ⋮ is a pop-up menu (not a sheet) inside the visible screen, with rows of 44 dp, which keeps the cursor and closes on Escape; Undo works; the bar has the same height idle (no divider then); the Text style menu has at most 8 rows of 44 dp, a page's first heading offers Main heading, a blog post Heading and Subheading, a list item no heading rows and no Quote, a heading no list rows and no Quote. On a computer all tools are on the bar and there is no ⋮. */
 async function checkTextBar(width = 360) {
   const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
   const label = `${width}px text bar`;
@@ -716,6 +716,18 @@ async function checkTextBar(width = 360) {
   if (!menu.rows.some((x) => x.name === 'Align left'))
     problems.push(`${label}: the ⋮ menu's alignment row does not read just "Align left" (${menu.rows.map((x) => x.name)})`);
   if (menu.rows.some((x) => /^Insert/.test(x.name))) problems.push(`${label}: Insert block is in the ⋮ menu, not on the bar`);
+  // The ⋮ order (owner decision, 14 Nov): Alignment, Link, Color. Link is never on the phone bar.
+  if (inText.names.includes('Link')) problems.push(`${label}: Link is on the bar; it belongs in the ⋮ (${inText.names.join(', ')})`);
+  const rowAt = (n) => menu.rows.findIndex((x) => x.name === n);
+  if (!(rowAt('Align left') >= 0 && rowAt('Align left') + 1 === rowAt('Link') && rowAt('Link') + 1 === rowAt('Color')))
+    problems.push(`${label}: the ⋮ does not read Alignment, Link, Color in that order (${menu.rows.map((x) => x.name).join(', ')})`);
+  // On the bar the order is Bold, Italic, Text style, List (what fits, in that order).
+  const wantFirst = ['Bold', 'Italic', 'Text style'];
+  const gotFirst = inText.names.filter(
+    (n) => ['Bold', 'Italic', 'Link'].includes(n) || n.startsWith('Text style') || n === 'List' || n.startsWith('List:'),
+  );
+  if (!gotFirst.every((n, i) => (wantFirst[i] ?? n).slice(0, 4) === n.slice(0, 4)))
+    problems.push(`${label}: the bar's text tools are ${gotFirst.join(', ')}, not Bold, Italic, Text style, List`);
   if (!menu.kept) problems.push(`${label}: the ⋮ took the cursor out of the text`);
   await page.keyboard.press('Escape');
   if (await page.locator('[role=menu][aria-label="More"]').count()) problems.push(`${label}: Escape did not close the ⋮ menu`);

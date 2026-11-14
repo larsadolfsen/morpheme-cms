@@ -1929,7 +1929,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const contextIds = block_
     ? blockToolIds(block_).map((id) => `block:${id}`)
     : textContext
-      ? ['bold', 'italic', 'link', 'style', ...(lists.length ? ['list'] : []), 'align', 'color']
+      ? ['bold', 'italic', 'style', ...(lists.length ? ['list'] : []), 'align', 'link', 'color']
       : [];
   const blockMenu = block_?.menu ?? [];
   // Undo, Redo and Section settings, a divider, then Insert block (never in the ⋮) and the ⋮.
@@ -2109,7 +2109,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     );
   };
   // In the `⋮` menu the context's tools come first, then a divider, then the main tools.
-  const MORE_ORDER = ['bold', 'italic', 'link', 'style', 'align', 'list', 'color'];
+  const MORE_ORDER = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color'];
   const moreContext = [...plan.more.context].sort((a, b) => MORE_ORDER.indexOf(a) - MORE_ORDER.indexOf(b));
   const moreMain = plan.more.main.length ? plan.more.main : [];
 

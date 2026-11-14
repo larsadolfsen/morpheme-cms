@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { slotsFor, planBar } from './textBar.mjs';
 
-const TEXT = ['bold', 'italic', 'link', 'style', 'list', 'align', 'color'];
+const TEXT = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color'];
 const MAIN = ['undo', 'redo', 'settings', 'insert'];
 
 test('the slots with the two dividers: 6 in the bar of a 375 px and of a 360 px phone, 5 at 320 px; one divider leaves 7 at 375', () => {
@@ -17,7 +17,7 @@ test('the slots with the two dividers: 6 in the bar of a 375 px and of a 360 px 
 test('at 375 px in text the bar has Bold, Italic, Undo, Redo, Insert block and the ⋮; the rest of the text tools are in the ⋮', () => {
   const plan = planBar({ slots: 6, context: TEXT, main: MAIN });
   assert.deepEqual(plan.bar, { context: ['bold', 'italic'], main: ['undo', 'redo', 'insert'] });
-  assert.deepEqual(plan.more, { context: ['link', 'style', 'list', 'align', 'color'], main: ['settings'] });
+  assert.deepEqual(plan.more, { context: ['style', 'list', 'align', 'link', 'color'], main: ['settings'] });
   assert.equal(plan.overflow, true);
   // The bar is 5 tools and the ⋮: 6 slots.
   assert.equal(plan.bar.context.length + plan.bar.main.length + 1, 6);
@@ -52,8 +52,8 @@ test('idle: only the main tools, all on the bar at 375 px, no ⋮', () => {
 test('a medium bar shows what fits, keeps the order, and puts the rest in the ⋮', () => {
   const plan = planBar({ slots: 9, context: TEXT, main: MAIN });
   assert.equal(plan.bar.context.length + plan.bar.main.length + 1, 9);
-  assert.deepEqual(plan.bar.context, ['bold', 'italic', 'link', 'style', 'list']);
-  assert.deepEqual(plan.more, { context: ['align', 'color'], main: ['settings'] });
+  assert.deepEqual(plan.bar.context, ['bold', 'italic', 'style', 'list', 'align']);
+  assert.deepEqual(plan.more, { context: ['link', 'color'], main: ['settings'] });
 });
 
 test('a block always has the ⋮ (its own menu): it takes a slot even when every tool fits', () => {
@@ -68,4 +68,10 @@ test('a block always has the ⋮ (its own menu): it takes a slot even when every
   });
   assert.deepEqual(tight.bar, { context: ['above', 'below'], main: ['undo', 'redo', 'insert'] });
   assert.deepEqual(tight.more, { context: ['up', 'down', 'link', 'gear'], main: [] });
+});
+
+test('without Insert block a 375 px bar has Bold, Italic, Text style, Lists, Undo, Redo and the ⋮ (Alignment, Link, Color in it, in that order)', () => {
+  const plan = planBar({ slots: slotsFor(341, 1), context: TEXT, main: ['undo', 'redo'] });
+  assert.deepEqual(plan.bar, { context: ['bold', 'italic', 'style', 'list'], main: ['undo', 'redo'] });
+  assert.deepEqual(plan.more.context, ['align', 'link', 'color']);
 });
