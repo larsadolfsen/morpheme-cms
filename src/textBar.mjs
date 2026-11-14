@@ -16,8 +16,9 @@ export const BUTTON = 44;
  */
 export const TOOL_WIDTH = { style: BUTTON, list: BUTTON, align: BUTTON, color: BUTTON, 'block:count': BUTTON * 2 };
 
-/** The width of one tool in dp. */
-export const toolWidth = (id) => TOOL_WIDTH[id] ?? BUTTON;
+/** The width of one tool in dp. `widths`: the widths of the tools whose width is their label's (a text button such as Alt text, measured once
+ * per language and drawn at exactly that width: textButtonWidth in MarkdownEditor.tsx), over TOOL_WIDTH. */
+export const toolWidth = (id, widths = {}) => widths[id] ?? TOOL_WIDTH[id] ?? BUTTON;
 
 /**
  * Splits the tools between the bar and the `⋮` menu. `context` are the tools of the place, in the order they stand at the left; `fixed` the
@@ -26,11 +27,13 @@ export const toolWidth = (id) => TOOL_WIDTH[id] ?? BUTTON;
  * go into the `⋮`. If even the fixed tools and the `⋮` do not fit (a very narrow phone), Redo then Undo go into the `⋮` before Insert block
  * does (Insert block is never in the `⋮`). `more`: the `⋮` is on the bar even when everything fits (a block's own menu, Section settings in
  * it), so it takes a button. `free`: the room left on the bar, in dp (less than the next tool's width while something is in the `⋮`).
- * @param {{ width: number, context: string[], fixed: string[], more?: boolean }} input
+ * `widths`: the widths of the text buttons (toolWidth).
+ * @param {{ width: number, context: string[], fixed: string[], more?: boolean, widths?: Record<string, number> }} input
  * @returns {{ bar: { context: string[], fixed: string[] }, more: { context: string[], fixed: string[] }, overflow: boolean, free: number }}
  */
-export function planBar({ width, context, fixed, more = false }) {
-  const sum = (ids) => ids.reduce((n, id) => n + toolWidth(id), 0);
+export function planBar({ width, context, fixed, more = false, widths = {} }) {
+  const w = (id) => toolWidth(id, widths);
+  const sum = (ids) => ids.reduce((n, id) => n + w(id), 0);
   const all = sum(context) + sum(fixed) + (more ? BUTTON : 0);
   if (all <= width) return { bar: { context, fixed }, more: { context: [], fixed: [] }, overflow: more, free: width - all };
   let room = width - BUTTON;
@@ -43,9 +46,9 @@ export function planBar({ width, context, fixed, more = false }) {
   room -= sum(fixedKept);
   const barContext = [];
   for (const id of context) {
-    if (toolWidth(id) > room) break;
+    if (w(id) > room) break;
     barContext.push(id);
-    room -= toolWidth(id);
+    room -= w(id);
   }
   return {
     bar: { context: barContext, fixed: fixedKept },
