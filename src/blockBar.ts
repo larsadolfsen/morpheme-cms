@@ -1,5 +1,5 @@
-// What the text's one bar shows for the block typed in place that is active (MarkdownEditor.tsx; docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md,
-// PR 2): the block (a node view, not React) tells this store its tools, the bar (React) reads it. One block is active at a time; a block that is not
+// What the text's one bar shows for the block that is active: typed in place, or a card that was tapped (MarkdownEditor.tsx; docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md,
+// PR 2 and 4): the block (a node view, not React) tells this store its tools, the bar (React) reads it. One block is active at a time; a block that is not
 // the active one cannot clear it. No dependencies, no browser.
 import type { BarAction } from './contextualMenu';
 
@@ -15,7 +15,7 @@ export type BlockBarState = {
   edit?: { label: string; action: () => void };
   /** The shortcut to the block's `Rows from` settings, shown pressed while the block reads a list. */
   dynamic?: { label: string; on: boolean; action: () => void };
-  /** The block's own menu, in the bar's `⋮` after the tools: Edit, Hide, Move, Remove. */
+  /** The block's own menu, in the bar's `⋮` after the tools: Edit, Hide, Move, Remove (a card selected by a tap has its Edit as the gear). */
   menu: CardRow[];
 };
 
