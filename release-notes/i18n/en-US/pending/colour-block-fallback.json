@@ -1,6 +1,0 @@
-{
-  "id": "colour-block-fallback",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "A theme without its own block colours uses the site's colours"
-}

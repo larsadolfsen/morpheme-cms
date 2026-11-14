@@ -1,7 +1,0 @@
-{
-  "id": "r2-caching-name",
-  "kind": "paragraph",
-  "mark": "improvement",
-  "title": "Caching-indstillinger",
-  "text": "To indstillinger havde navne, der ikke sagde, hvad de gør. Åbn Indstillinger, og vælg Caching og builds. R2-caching gemmer en kopi af dine filer i R2 til editoren, og Bygning kun af indhold springer hjemmesidens fulde tjek over, når kun indhold er ændret."
-}

@@ -1,7 +1,0 @@
-{
-  "id": "drafts-publish-buttons",
-  "kind": "paragraph",
-  "mark": "feature",
-  "title": "Publishing",
-  "text": "Edits to a published page no longer go public the moment you save. In a page or post, choose Publish, Publish changes or Schedule, or Unpublish or Discard changes. A new page starts as a draft; the Published and Scheduled switch lets you edit either version."
-}
