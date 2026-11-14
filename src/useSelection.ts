@@ -24,6 +24,7 @@ export function useSelection({
   order,
   enabled = true,
   spaceStarts = false,
+  primary = false,
   root,
 }: {
   /** The keys of the rows shown, top to bottom. */
@@ -32,6 +33,9 @@ export function useSelection({
   enabled?: boolean;
   /** Space on a focused row starts selecting (the keyboard's way in, where no button starts it). */
   spaceStarts?: boolean;
+  /** Selecting is the screen's main activity (Deleted files and pages): the rows always show their checkboxes, a tap toggles, and
+   * Ctrl or Cmd+A selects all with nothing selected yet. The mode (`selecting`) still means that some row is selected. */
+  primary?: boolean;
   /** Keys and clicks count only inside it (a sheet's own list); without it, only while no modal dialog is open. */
   root?: RefObject<Element | null>;
 }) {
@@ -113,7 +117,11 @@ export function useSelection({
     const onKey = (e: KeyboardEvent) => {
       if (!inScope(e.target) || (e.defaultPrevented && e.key !== 'Escape')) return;
       const row = own(rowOf(e.target));
-      const action = keyAction(e, { selecting: latest.current.selecting, onRow: !!row && !typing(e.target as Element), spaceStarts });
+      const action = keyAction(e, {
+        selecting: latest.current.selecting || primary,
+        onRow: !!row && !typing(e.target as Element),
+        spaceStarts,
+      });
       if (!action) return;
       if (action === 'clear') {
         // The dialog's own Escape (Notifications.tsx) is stopped by the caller; this only unselects.
@@ -149,14 +157,14 @@ export function useSelection({
       window.removeEventListener('keydown', onKey);
       window.removeEventListener('click', onClick, true);
     };
-  }, [enabled, root, id, clear, selectAll, toggle, spaceStarts]);
+  }, [enabled, root, id, clear, selectAll, toggle, spaceStarts, primary]);
 
   /** The props of a ListItem for the row with this key. */
   const row = (key: string) =>
     enabled
       ? {
           selectable: true,
-          selecting,
+          selecting: selecting || primary,
           selected: keys.includes(key),
           onSelectedChange: () => toggle(key),
           'data-selection': id,
