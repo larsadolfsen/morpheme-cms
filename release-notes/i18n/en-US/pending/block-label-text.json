@@ -1,5 +1,6 @@
 {
   "id": "block-label-text",
   "kind": "line",
+  "mark": "improvement",
   "text": "Blocks no longer have a Label field; an existing label stays as a Label line of text right before the block"
 }

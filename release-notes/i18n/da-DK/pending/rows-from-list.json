@@ -1,6 +1,7 @@
 {
   "id": "rows-from-list",
   "kind": "paragraph",
+  "mark": "feature",
   "title": "Dynamisk liste",
   "text": "En liste viser poster fra hjemmesiden, uden at du skriver dem igen. Tryk på Udfyld fra en liste i værktøjslinjen, vælg liste, mærker og Hvor mange, og tryk på en del af en række for at vælge dens felt. Fortryd henter dine skrevne rækker tilbage."
 }

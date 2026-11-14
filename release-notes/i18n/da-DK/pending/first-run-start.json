@@ -1,6 +1,7 @@
 {
   "id": "first-run-start",
   "kind": "paragraph",
+  "mark": "feature",
   "title": "Kom i gang",
   "text": "En ny hjemmeside starter tom, så første skridt er ikke tydeligt. Startsiden har nu en Kom i gang-sektion med Skriv en side, Skriv et indlæg og Tilføj et billede, og en tom side viser et tip."
 }

@@ -37,7 +37,13 @@ export const library: Messages['library'] = {
   recentEdit: (kind, when) => `${kind} · Redigeret ${when}`,
   cmsEdition: (edition, version) => `Morpheme ${edition} ${version}`,
   appsUpdated: (count) => (count === 1 ? '1 app er opdateret' : `${count} apps er opdateret`),
-  newThings: (count) => (count === 1 ? '1 nyhed' : `${count} nyheder`),
+  noteCounts: (features, improvements) =>
+    [
+      features && (features === 1 ? '1 funktion' : `${features} funktioner`),
+      improvements && (improvements === 1 ? '1 forbedring' : `${improvements} forbedringer`),
+    ]
+      .filter(Boolean)
+      .join(', '),
   readMore: 'Læs mere',
   photoInfo: 'Om billedet',
   photoBy: (name) => `Foto af ${name} på Unsplash`,

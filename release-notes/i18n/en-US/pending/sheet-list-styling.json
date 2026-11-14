@@ -1,6 +1,7 @@
 {
   "id": "sheet-list-styling",
   "kind": "paragraph",
+  "mark": "improvement",
   "title": "Bottom sheets",
   "text": "Choices in bottom sheets looked different from the rest of the editor. Under Sort, Filter, page pickers and section colors, each choice is now a row in the editor’s list style, with a clear mark on your pick."
 }

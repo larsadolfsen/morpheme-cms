@@ -17,6 +17,7 @@ import { svgParts } from '../lib/svg.mjs';
 import ssrMaterial from 'virtual:material-symbols-ssr';
 import addFile from '@material-symbols/svg-400/outlined/add.svg?raw';
 import moreVertFile from '@material-symbols/svg-400/outlined/more_vert.svg?raw';
+import closeFile from '@material-symbols/svg-400/outlined/close.svg?raw';
 import matchCaseFile from '@material-symbols/svg-400/outlined/match_case.svg?raw';
 import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
 import { allIcons as ssrPhosphor } from 'virtual:all-icons-ssr';
@@ -260,6 +261,25 @@ export const MoreVertIcon = (({ size = 20, className }: { size?: number | string
       fill="currentColor"
       aria-hidden="true"
       data-icon="more_vert"
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox={parts?.viewBox ?? MATERIAL_VIEWBOX}
+      dangerouslySetInnerHTML={{ __html: parts?.inner ?? '' }}
+    />
+  );
+}) as unknown as PhosphorIcon;
+
+/** Material's "close" (a cross): the clear button of the text bar's block selection (the count with a cross). Material Symbols' own file, bundled like AddIcon, shaped as a
+ * Phosphor icon so a ToolbarButton takes it. */
+export const CloseIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => {
+  const parts = svgParts(closeFile);
+  return (
+    <svg
+      width={size}
+      height={size}
+      fill="currentColor"
+      aria-hidden="true"
+      data-icon="close"
       className={className}
       xmlns="http://www.w3.org/2000/svg"
       viewBox={parts?.viewBox ?? MATERIAL_VIEWBOX}

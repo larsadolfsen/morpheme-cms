@@ -1,6 +1,7 @@
 {
   "id": "links-list",
   "kind": "paragraph",
+  "mark": "improvement",
   "title": "List",
   "text": "Links and Points with icon did the same job as two blocks. Use List instead: each row has an icon, heading, text and page. Your existing links and points open as a List with the same text."
 }

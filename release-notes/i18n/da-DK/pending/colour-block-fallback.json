@@ -1,5 +1,6 @@
 {
   "id": "colour-block-fallback",
   "kind": "line",
+  "mark": "improvement",
   "text": "Et tema uden egne blokfarver bruger hjemmesidens farver"
 }

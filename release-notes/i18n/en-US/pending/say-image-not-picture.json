@@ -1,5 +1,6 @@
 {
   "id": "say-image-not-picture",
   "kind": "line",
+  "mark": "improvement",
   "text": "The editor’s English texts say image everywhere"
 }

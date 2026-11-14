@@ -1,5 +1,6 @@
 {
   "id": "card-spacing-m3",
   "kind": "line",
+  "mark": "improvement",
   "text": "Cards have even space inside and the same gap between them in a stack, a grid and the phone carousel"
 }

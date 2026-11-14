@@ -1,6 +1,7 @@
 {
   "id": "choose-density",
   "kind": "paragraph",
+  "mark": "feature",
   "title": "Tæthed",
   "text": "Få mere på skærmen, eller giv den mere luft. Vælg Tæthed under Konto: Stor, Mellem eller Lille. Den ændrer knapper, chips, felter og rækker i editoren, aldrig den side, du redigerer. Mellem er som før."
 }

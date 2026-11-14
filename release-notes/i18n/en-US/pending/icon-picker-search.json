@@ -1,6 +1,7 @@
 {
   "id": "icon-picker-search",
   "kind": "paragraph",
+  "mark": "improvement",
   "title": "Search all icons",
   "text": "Finding the right icon among 28 was hard. In the icon picker, search or tap a category to see any of over 3,900 icons from Material Symbols, 100 at a time."
 }

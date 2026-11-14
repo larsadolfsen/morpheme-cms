@@ -1,6 +1,7 @@
 {
   "id": "section-settings",
   "kind": "paragraph",
+  "mark": "feature",
   "title": "Section color, image and width",
   "text": "A section can stand out in more ways. Open Section settings, choose Surface, Primary, Secondary or Tertiary, add a Background image, and set its Width to Full width or Like the text."
 }

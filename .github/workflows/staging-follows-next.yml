@@ -1,0 +1,54 @@
+# Rebuilds morpheme-staging whenever npm's `next` tag points at a version staging was not last rebuilt for. It does
+# not matter how many merges came in between or who approved it when: every ten minutes this compares
+# `npm view @morphemecms/cms@next version` with the version stored in the GitHub release `staging-marker` (its notes
+# hold the version; no secret, and unlike a cache it is never evicted). It only reads npm and calls the deploy hook;
+# it publishes and approves nothing. An empty STAGING_DEPLOY_HOOK fails the run with a clear error.
+name: Staging follows next
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# One at a time; never cancelled halfway between the hook and the marker.
+concurrency:
+  group: staging-follows-next
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      STAGING_DEPLOY_HOOK: ${{ secrets.STAGING_DEPLOY_HOOK }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - id: versions
+        run: |
+          echo "next=$(npm view @morphemecms/cms@next version)" >> "$GITHUB_OUTPUT"
+          echo "last=$(gh release view staging-marker --json body --jq .body 2>/dev/null || true)" >> "$GITHUB_OUTPUT"
+      - id: decide
+        run: node scripts/staging-rebuild.mjs
+        env:
+          NEXT_VERSION: ${{ steps.versions.outputs.next }}
+          LAST_VERSION: ${{ steps.versions.outputs.last }}
+      - name: Rebuild morpheme-staging
+        if: steps.decide.outputs.action == 'rebuild'
+        run: curl -fsS -X POST "$STAGING_DEPLOY_HOOK" > /dev/null
+      # Only after the hook has answered: a failed call is tried again at the next run.
+      - name: Remember the version
+        if: steps.decide.outputs.action == 'rebuild'
+        run: |
+          v='${{ steps.versions.outputs.next }}'
+          if gh release view staging-marker >/dev/null 2>&1; then
+            gh release edit staging-marker --notes "$v"
+          else
+            gh release create staging-marker --prerelease --latest=false --title "Staging marker" --notes "$v"
+          fi

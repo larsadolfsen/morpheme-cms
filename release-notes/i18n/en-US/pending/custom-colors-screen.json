@@ -1,6 +1,7 @@
 {
   "id": "custom-colors-screen",
   "kind": "paragraph",
+  "mark": "feature",
   "title": "Custom colors",
   "text": "Your brand colors stay as you chose them. Under Business › Colors, choose Custom, then set Primary, Secondary and Tertiary with the pens or the color wheel. If Primary is hard to read as text, you decide: Fix or Keep."
 }

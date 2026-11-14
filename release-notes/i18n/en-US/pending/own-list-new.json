@@ -1,6 +1,7 @@
 {
   "id": "own-list-new",
   "kind": "paragraph",
+  "mark": "feature",
   "title": "New list",
   "text": "One list can fill many pages, so you type each service or team member once. Under Dynamic lists press New list and name it. The list starts empty: add fields one at a time, and add the same kind more than once. Then choose it under Rows from."
 }
