@@ -75,7 +75,7 @@ export function relationsOf(files: RepoFile[]): Record<Relation, Option[]> {
       .sort(byLabel),
     // The front page (/) and the blog (/blog/), whichever pages they are, the blog by its page's title.
     fixed: [
-      { value: '/', label: siteText('Front page'), inMenu: menu.has('/') },
+      { value: '/', label: siteText('Home page'), inMenu: menu.has('/') },
       {
         value: '/blog/',
         label: String((standardFile(files, 'blog') && fm(standardFile(files, 'blog')!).title) || siteText('Blog')),
@@ -124,7 +124,7 @@ export function relationsOf(files: RepoFile[]): Record<Relation, Option[]> {
 
 const frontPage = (files: RepoFile[]) => ({
   to: standardFile(files, 'front')?.path ?? config.standardPages,
-  text: siteText('Edit the front page'),
+  text: siteText('Edit the home page'),
 });
 
 // Where a button that opens a promotion is: a page (`path`), the shared buttons (on any page: neither), or an action bar
@@ -369,14 +369,14 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
     const fp = front.posts as Record<string, unknown> | undefined;
     if ((fp?.categories as string[] | undefined)?.includes(slug) || fp?.link === slug)
       return {
-        text: siteText('The tag picks the posts on the front page under "From the blog". Pick another one first.'),
+        text: siteText('The tag picks the posts on the home page under "From the blog". Pick another one first.'),
         error: true,
         edit: frontPage(files),
       };
   }
   if (collection.id === 'blog' && ((front.posts as Record<string, unknown>)?.picked as string[])?.includes(slug))
     return {
-      text: siteText('The post is picked for the front page under "From the blog". Pick another one first.'),
+      text: siteText('The post is picked for the home page under "From the blog". Pick another one first.'),
       error: true,
       edit: frontPage(files),
     };
@@ -458,11 +458,11 @@ export const testimonialsOf = (files: RepoFile[]) =>
     .map((f) => ({ ...(json(f) as TestimonialRow & { order?: number }), slug: slugOf(f.path, 'src/data/testimonials') }))
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-/** What is at an address, as said in a message: 'the front page', 'the page "About me" (/about-me/)',
+/** What is at an address, as said in a message: 'the home page', 'the page "About me" (/about-me/)',
  * or the address (where a redirect sends to, App.tsx). */
 export function whatIsAt(address: string, relations: Record<Relation, Option[]>): string {
   const base = address.split('#')[0];
-  if (base === '/') return siteText('the front page');
+  if (base === '/') return siteText('the home page');
   if (base === '/blog/') return siteText('the blog');
   const page = [...relations.fixed, ...relations.pages].find((o) => o.value === base);
   if (page) return siteText('the page "{name}" ({address})', { name: page.label, address });
