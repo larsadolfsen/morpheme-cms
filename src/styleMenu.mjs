@@ -14,8 +14,8 @@ export const inListItem = (active) => LISTS.some((name) => new Set(active).has(n
 export const inHeading = (active) => HEADINGS.some((name) => new Set(active).has(name));
 
 /**
- * The rows of the Text style menu, in order: the heading levels the text may have (`levels`: 1, 2, 3), a divider ('-'), then the body sizes,
- * Label (where the line can be one) and Quote. Ids: 'h1' ... 'h3', '-', 'small', 'medium', 'large', 'label', 'quote'.
+ * The rows of the Text style menu, in order: the heading levels the text may have (`levels`: 1, 2, 3), a divider ('-'), then the body sizes (the largest first, as the headings: Body large, medium, small),
+ * Label (where the line can be one) and Quote. Ids: 'h1' ... 'h3', '-', 'large', 'medium', 'small', 'label', 'quote'.
  * @param {Iterable<string>} active
  * @param {number[]} levels
  * @returns {string[]}
@@ -26,7 +26,7 @@ export function styleRows(active, levels) {
   const heading = inHeading(on);
   const rows = list ? [] : levels.map((level) => `h${level}`);
   if (rows.length) rows.push('-');
-  rows.push('small', 'medium', 'large');
+  rows.push('large', 'medium', 'small');
   if (!list && on.has('labelable')) rows.push('label');
   // The quote stands apart from the body styles, behind its own divider.
   if (!list && !heading) rows.push('-', 'quote');

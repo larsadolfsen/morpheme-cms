@@ -2,8 +2,8 @@
 // own general icon) when the cursor is not in the text, else the kind the cursor is in, the one the menu marks, from activeOf's names
 // (MarkdownEditor.tsx). A cursor in a heading is in a block with no text style, so Text style is generic (it never claims a body style
 // there: the heading's own button shows its level); in a list, List shows the list and Text style the size of its text (a mark, lib/text-sizes.mjs). The order is the order of every list of the kinds: the text styles (the body styles from
-// small to large, Label, the quote), then the lists.
-export const TEXT_KINDS = ['small', 'medium', 'large', 'label', 'quote'];
+// large to small, as in the menu, Label, the quote), then the lists.
+export const TEXT_KINDS = ['large', 'medium', 'small', 'label', 'quote'];
 export const LIST_KINDS = ['bullet', 'check', 'ordered'];
 const HEADINGS = ['h1', 'h2', 'h3'];
 export const STYLE_KINDS = [...TEXT_KINDS, ...LIST_KINDS];

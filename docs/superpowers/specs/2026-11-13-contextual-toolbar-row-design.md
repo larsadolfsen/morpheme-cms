@@ -177,7 +177,7 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
   `GENERIC_ICONS.text` for the icon when the cursor is not in text; one menu `Menu` under `kindsAt` shows the group). They become **one group
   `'style'`**: one button that shows the current style by name and icon (for example "Heading 2" or "Body medium"; the generic icon when the cursor is not in
   text) and opens one menu: the heading levels the text may have (`headingChoices`: a page, H1 while it has none, then H2 and H3; a blog post H2
-  and H3), a divider, then Body small, Body medium, Body large, Label (on any top-level line of text, `labelable`; owner decision 14 Nov: "Any text place can have a label") and Quote; the current row
+  and H3), a divider, then Body large, Body medium, Body small (the largest first, as the headings; owner decision 14 Nov), Label (on any top-level line of text, `labelable`; owner decision 14 Nov: "Any text place can have a label") and Quote; the current row
   is marked (`selected`), 44 dp rows, 20 dp icons, each row's shortcut as trailing text where there is one. At most 8 rows (3 + 3 + label + quote), about
   350 dp, so it fits on a phone without scrolling in every case except the keyboard-open landscape one. **Lists stay separate** (Bulleted, Check,
   Numbered): on a phone they are in `⋮` as a group, because all 7 slots are in use; on a wide screen, where a slot is free, they are **one "List" button** with a
@@ -192,13 +192,13 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
   | Cursor in | Row or button | Shown or hidden | Why (what it does today) |
   | --- | --- | --- | --- |
   | a list item | H1, H2, H3 | **hidden** (decided) | picking one lifts the item out of its list (`outOfLists`) |
-  | a list item | Body small, medium, large | shown | a size is a mark on the item's text and keeps the list (`sizeListText`; Body medium takes it away) |
+  | a list item | Body large, medium, small | shown | a size is a mark on the item's text and keeps the list (`sizeListText`; Body medium takes it away) |
   | a list item | Quote | **hidden** (hidden, not separately decided; the owner did not object) | it lifts the item out of its list first, then wraps it in a quote |
   | a list item | Label | hidden | a label is a line of its own at the top of the text, never in a list |
   | a list item | Bulleted, Check, Numbered | shown | they change the kind of list, or picked again take the item out (as today) |
   | a heading | Bulleted, Check, Numbered, and the List button on a wide screen | **hidden** (decided) | each would turn the heading into a list item (`turnIntoText`, then wrap in a list) |
   | a heading | H1, H2, H3 | shown, the current one marked | it is how the level changes |
-  | a heading | Body small, medium, large | shown | it is how a heading becomes body text (`turnIntoText`, or its own block) |
+  | a heading | Body large, medium, small | shown | it is how a heading becomes body text (`turnIntoText`, or its own block) |
   | a heading | Quote | **hidden** (decided: "Hide quote in heading.") | it would turn the heading into text and wrap it in a quote, losing the heading |
   | a heading | Label | shown | puts a label above the heading (or takes it away) |
   | a plain line | Label | **shown on every top-level line** (owner decision, 14 Nov) | turns the line into a label (one line of plain text, `<p class="label-medium">`); picked again it is a plain line with its text; not in a quote or a list |
