@@ -2094,6 +2094,11 @@ async function checkBlockMove(width) {
       .evaluateAll((els) => els.map((e) => e.classList.contains('site-block-selected')));
     if (JSON.stringify(marked) !== JSON.stringify([false, true, true]))
       problems.push(`${label}: the wrong blocks stay selected (${marked})`);
+    if (!(await down.count()) || !(await up.count())) {
+      problems.push(`${label}: the bar lost Move up or Move down after a move (selected: ${await selected()})`);
+      await page.close();
+      return;
+    }
     if (!(await down.first().isDisabled())) problems.push(`${label}: Move down is on at the end of the page`);
     await up.first().click();
     await page.waitForTimeout(600);
