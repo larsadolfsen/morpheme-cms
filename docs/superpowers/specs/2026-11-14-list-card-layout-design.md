@@ -1,6 +1,7 @@
 # The List block in one card (design, 0.19)
 
-Status: spec for the 0.19 PM, no code in this pull request. Owner decisions of 14 Nov 2026, as relayed by the 0.19 PM (section 1).
+Status: spec for the 0.19 PM, no code in this pull request. Owner decisions of 14 Nov 2026, as relayed by the 0.19 PM (section 1);
+the open points decided by the PM on the owner's behalf (section 12).
 Builds on 0.18's Paste and Change to (`2026-11-14-paste-and-change-to-design.md`, #635), the block row outline (#640), the
 choice group (`2026-11-14-choice-group-design.md`, #641) and the Cards' aspect ratio (`2026-11-14-image-tools-design.md`, #636), and
 contradicts none of them.
@@ -242,18 +243,19 @@ A `paragraph`, mark `feature` (a new setting the owner sees), id = this build's 
 
 ## 11. Build plan
 
-One pull request into `0.19`, after #641's PR 2 (`ChoiceGroup` drawing `segments: true` fields) is in `0.19`; it can go before #641's
+One pull request into `0.19`, now that `ChoiceGroup` (#660) is in `0.19`; it can go before #641's
 PR 4 (then `sample: 'card'` is added with PR 4). Changeset `minor` (a new setting; skill `changesets` decides the level for `0.19`).
 Files: `src/standard/list/{index.tsx,view.ts}`, `theme/blocks/list/View.tsx`, `theme/styles/{blocks.css,global.css}`, `lib/blocks.mjs`
 (+ test), `src/InlineList.tsx`, `src/inlineViews.tsx`, `src/themeUi.ts` if `SiteCard` is missing, `src/i18n/{en-US,da-DK}/blocks.ts`,
 `scripts/editor-screens.mjs`, the demo page, the release note in both languages.
 
-## 12. Owner questions
+## 12. Decisions
 
-1. **Should `Change to` › List from Cards turn on One card?** Today's rule (#635) leaves it None, so the cards become a plain list.
-   **Recommendation: keep the rule** (None): 0.18 decided "B's own props get B's defaults", and one tap on One card gives the card in
-   the cards' style, which `design` already carries.
-2. **Should a filled List card offer Cards' container colours** (Surface, Primary, Secondary, Tertiary)? **Recommendation: not now.**
-   The owner asked for the three styles; the colour can follow later as Cards' `color` with the same key, so Change to would carry it.
-3. **Should the demo get a services page** made of Lists in cards under H2s (used by `check:demo` and the theme's screenshots)?
-   **Recommendation: yes**, a short one, since it is the use case and gives the checks a real page.
+Decided by the PM 0.19 on the owner's behalf, 14 Nov 2026; the owner may revise them.
+
+1. **`Change to` › List from Cards leaves Card at None.** 0.18's rule (#635) stands: B's own props get B's defaults, so the cards
+   become a plain list, and one tap on One card gives the card in the cards' style, which `design` already carries.
+2. **A filled List card has no container colours for now** (no Primary, Secondary, Tertiary). They can follow later as Cards'
+   `color`, under the same key, so Change to would carry it.
+3. **The demo gets a short services page** of Lists in cards under H2s (outlined and filled) and one List with None, used by
+   `check:demo` and the theme's screenshots (section 10).
