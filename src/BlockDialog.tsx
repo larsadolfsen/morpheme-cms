@@ -63,9 +63,9 @@ export type BlockAsk = {
   /** New props for a block in the text; null when cancelled. isNew: one about to be put in ("Insert"). removable: the
    * card may be removed, so the side panel has "Remove"; 'remove' when it is tapped (never when removable is not true). */
   edit: (type: string, props: BlockProps, isNew?: boolean, removable?: boolean) => Promise<BlockProps | 'remove' | null>;
-  /** The settings of the section the cursor is in (its colour, null: none, and an H2's image, its description and width); the new
-   * ones, or null when cancelled. image: the section can have an image and a width (an H2's). */
-  section: (current: SectionSettingsOf, options?: { image?: boolean }) => Promise<SectionSettingsOf | null>;
+  /** The settings of the section the cursor is in (its colour, null: none, an H2's image and its description, and the width); the new
+   * ones, or null when cancelled. image: the section can have an image (an H2's); width: it can have a width (an H1's or H2's). */
+  section: (current: SectionSettingsOf, options?: { image?: boolean; width?: boolean }) => Promise<SectionSettingsOf | null>;
   /** The settings of a row of a block typed in place (a List's icon and link; `inline` in blocks.ts): in the side panel from expanded, kept
    * open and updated while a row is active, and a bottom sheet below it. Live: each change is told to `onChange` at once, with no Save and no
    * Cancel of its own. Not shown while another sheet is open. null closes it. `open` false: only update the settings if they are open already. */
@@ -88,7 +88,7 @@ export type SectionSettingsOf = { color: string | null; image?: string | null; a
 type Open =
   | { step: 'choose'; image?: boolean; have?: string[] }
   | { step: 'fields'; type: string; isNew: boolean; removable?: boolean }
-  | { step: 'section'; image: boolean }
+  | { step: 'section'; image: boolean; width: boolean }
   | { step: 'row' };
 
 const sectionValues = (v: BlockProps): SectionValues => ({
@@ -306,7 +306,10 @@ export function useBlockDialog(
       return answered === 'remove' ? null : answered;
     },
     section: async (current, options) => {
-      const answered = await ask({ step: 'section', image: !!options?.image }, sectionValues(current as BlockProps));
+      const answered = await ask(
+        { step: 'section', image: !!options?.image, width: !!options?.width },
+        sectionValues(current as BlockProps),
+      );
       if (!answered || answered === 'remove') return null;
       const v = sectionValues(answered.props);
       return { color: v.color || null, image: v.image || null, alt: v.alt || null, width: v.width || null };
@@ -453,6 +456,7 @@ export function useBlockDialog(
     <SectionSettings
       values={sectionValues(values)}
       image={open?.step === 'section' && open.image}
+      width={open?.step === 'section' && open.width}
       onChange={(next) => setValues({ ...next })}
     />
   );

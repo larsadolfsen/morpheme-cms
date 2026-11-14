@@ -2227,13 +2227,13 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     }
   }
 
-  // The sheet with the settings of the section the cursor is in (its colour, image and width), then those set.
+  // The sheet with the settings of the section the cursor is in (its colour and width, and an H2's image), then those set.
   async function sectionSettings() {
     let current: ReturnType<typeof sectionHeading> = null;
     editor.current?.action((ctx) => void (current = sectionHeading(ctx.get(editorViewCtx).state)));
     const at = current as ReturnType<typeof sectionHeading>;
     if (!at) return;
-    const answered = await holdWhile(Promise.resolve((blocks ?? sheetProp)?.section(at, { image: true })));
+    const answered = await holdWhile(Promise.resolve((blocks ?? sheetProp)?.section(at, { image: at.level === 2, width: true })));
     if (!answered) return;
     editor.current?.action((ctx) => {
       const view = ctx.get(editorViewCtx);
