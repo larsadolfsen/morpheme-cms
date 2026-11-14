@@ -1944,6 +1944,78 @@ async function checkDensityParts(width, height, touch) {
   await page.close();
 }
 
+/** The editor's layout gaps follow density (src/editor.css): the space between stacked sections (space-y, the margins above and below, a column's gap) and the screen's top padding change 4 px a step at Large, Medium and Small, the side padding never changes, and in the page editing area and in a row that picks the density nothing changes. */
+async function checkDensityLayout(width, height) {
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px density layout: ${e.message}`));
+  await openEditor(page, site);
+  const layout = `
+    <div class="space-y-6"><p data-part="space-y">One</p><p>Two</p></div>
+    <p class="mb-8" data-part="mb">Margin</p>
+    <p class="pt-4" data-part="pt">Padding</p>
+    <p class="px-4" data-part="px">Side</p>
+    <div class="flex flex-col gap-4"><p data-part="gap">One</p><p>Two</p></div>
+    <p class="mb-2" data-part="small">Small gap</p>
+    <p class="mb-3 last:mb-0" data-part="last">Last</p>`;
+  const measure = (attr) =>
+    page.evaluate(
+      ([attr, layout]) => {
+        const root = document.documentElement;
+        if (attr === null) root.removeAttribute('data-density');
+        else root.setAttribute('data-density', attr);
+        const host = document.createElement('div');
+        host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
+        host.innerHTML = `<div data-where="screen">${layout}</div><div class="editor-text"><div class="ProseMirror" data-where="content">${layout}</div></div><div data-density-fixed data-where="fixed">${layout}</div>`;
+        document.body.append(host);
+        const px = (v) => Math.round(parseFloat(v) * 100) / 100;
+        const got = {};
+        for (const where of host.querySelectorAll('[data-where]')) {
+          const part = (n) => where.querySelector(`[data-part="${n}"]`);
+          const c = (n) => getComputedStyle(part(n));
+          got[where.dataset.where] = {
+            'space-y': px(getComputedStyle(part('space-y')).marginBlockEnd),
+            mb: px(c('mb').marginBlockEnd),
+            pt: px(c('pt').paddingBlockStart),
+            px: px(c('px').paddingInlineStart),
+            gap: px(getComputedStyle(part('gap').parentElement).rowGap),
+            small: px(c('small').marginBlockEnd),
+            last: px(c('last').marginBlockEnd),
+          };
+        }
+        const screenEl = document.querySelector('.editor-screen');
+        got.screen.top = screenEl ? px(getComputedStyle(screenEl).paddingTop) : null;
+        host.remove();
+        root.removeAttribute('data-density');
+        return got;
+      },
+      [attr, layout],
+    );
+  const [large, medium, small] = [await measure('1'), await measure('0'), await measure('-1')];
+  const expect = (what, ok) => ok || problems.push(`${width}px density layout: ${what}`);
+  for (const key of ['space-y', 'mb', 'pt', 'gap'])
+    expect(
+      `${key} is ${large.screen[key]} / ${medium.screen[key]} / ${small.screen[key]} px at Large / Medium / Small, not 4 px apart`,
+      large.screen[key] - medium.screen[key] === 4 && medium.screen[key] - small.screen[key] === 4,
+    );
+  if (medium.screen.top !== null)
+    expect(
+      `the screen's top padding is ${large.screen.top} / ${medium.screen.top} / ${small.screen.top} px, not 4 px apart`,
+      large.screen.top - medium.screen.top === 4 && medium.screen.top - small.screen.top === 4,
+    );
+  for (const key of ['px', 'small', 'last'])
+    expect(
+      `${key} is ${large.screen[key]} / ${medium.screen[key]} / ${small.screen[key]} px: it must not change with density`,
+      large.screen[key] === medium.screen[key] && medium.screen[key] === small.screen[key],
+    );
+  for (const where of ['content', 'fixed'])
+    for (const key of Object.keys(medium[where]))
+      expect(
+        `${key} in ${where} is ${large[where][key]} / ${medium[where][key]} / ${small[where][key]} px, not the same at every step`,
+        large[where][key] === medium[where][key] && medium[where][key] === small[where][key],
+      );
+  await page.close();
+}
+
 /** The density variables (theme/styles/base.css) work in the browser: a person's step (data-density on <html>) and a theme's step add up, each group clamps them, and a part's calc() gives its default at 0 and 4px per step. */
 async function checkDensity(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
@@ -5812,6 +5884,8 @@ await unit('checkDensity 375', () => checkDensity(375, 740));
 await unit('checkDensity 1280', () => checkDensity(1280, 900));
 await unit('checkDensityParts 375', () => checkDensityParts(375, 740, true));
 await unit('checkDensityParts 1280', () => checkDensityParts(1280, 900, false));
+await unit('checkDensityLayout 375', () => checkDensityLayout(375, 740));
+await unit('checkDensityLayout 1280', () => checkDensityLayout(1280, 900));
 await unit('checkDensitySetting 375', () => checkDensitySetting(375, 740));
 await unit('checkDensitySetting 1280', () => checkDensitySetting(1280, 900));
 await unit('checkPreviewSection', () => checkPreviewSection());

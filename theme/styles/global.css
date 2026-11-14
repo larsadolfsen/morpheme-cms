@@ -193,6 +193,8 @@
   /* Cards (ui.css): 12px corners; outlined on the surface with the outline variant, elevated on a low container with
      the first elevation, filled on the highest container. */
   --card-radius: var(--mo-shape-medium);
+  /* The List "expand" container (the questions and answers block): 16px (Material 3 lists page). */
+  --list-expand-radius: var(--mo-shape-large);
   /* The room between cards side by side or under each other: 8px (Material 3's at most). */
   --card-gap: 0.5rem;
   /* Inside a "Cards" card, on the 4dp half-step and the 8dp grid (Material 3 prints only the 16px left and right padding and 8px
