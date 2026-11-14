@@ -241,7 +241,7 @@
   --list-item-leading-icon-selected-color: var(--mo-primary);
   --list-item-disabled-opacity: 0.38;
   --list-segmented-gap: 0.125rem;
-  --list-segmented-radius: var(--mo-shape-medium);
+  --list-segmented-radius: var(--mo-shape-large);
   --list-segmented-inner-radius: var(--mo-shape-extra-small);
   --list-segmented-hover-radius: var(--mo-shape-medium);
   --list-segmented-pressed-radius: var(--mo-shape-medium);
