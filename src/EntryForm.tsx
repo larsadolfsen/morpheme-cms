@@ -55,6 +55,7 @@ import {
   useInView,
 } from './ui';
 import FormFrame, { savedStatus, useSavedAt } from './FormFrame';
+import { askToNotify } from './notificationData';
 import {
   clean,
   discard as discardWaiting,
@@ -545,6 +546,28 @@ function Form({
   useEffect(() => {
     if (dirty) autosave.touch();
   }, [values]);
+  // `Ctrl+S` (`⌘S`) saves now and never opens the browser's save dialog (one save while writing, 6): the autosave is sent at once, or,
+  // where autosave cannot keep the change (the live page, an earlier version, a new address, R2 caching off, an image not uploaded yet, a
+  // wrong field), what `Save draft` does runs. A modal sheet over the form (a block's sheet on a phone) has its own Save: nothing is saved.
+  const saveKey = useRef(() => {});
+  saveKey.current = () => {
+    if (!dirty || saving || deleting) return;
+    void (async () => {
+      if (autosaves && (await autosave.now())) return;
+      askToNotify();
+      await save();
+    })();
+  };
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.altKey || e.key.toLowerCase() !== 's') return;
+      e.preventDefault();
+      if (e.repeat || document.querySelector('dialog:modal')) return;
+      saveKey.current();
+    };
+    document.addEventListener('keydown', key, true);
+    return () => document.removeEventListener('keydown', key, true);
+  }, []);
   const onText = () => {
     setBodyChanged(true);
     autosave.touch();
@@ -1269,7 +1292,6 @@ function Form({
             autosave: autosaves && dirty ? autosave.state : undefined,
           })}
           publish={publishBar}
-          view={isNew ? undefined : url}
           dirty={dirty}
           saving={saving || deleting}
           deleting={deleting}
@@ -1331,6 +1353,8 @@ function Form({
                       }
                       sections={front}
                       frame
+                      onPreview={showPreview}
+                      viewOnSite={isNew ? undefined : url}
                     />
                   </div>
                 </FoldSection>

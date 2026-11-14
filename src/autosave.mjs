@@ -178,6 +178,15 @@ export function createAutosave({
     await Promise.all([...items.values()].filter((i) => i.unflushed && !i.off).map((i) => flush(i.path, i.id, { leaving: true })));
   }
 
+  /** Sends the page's newest text now, without waiting for the moment after the last change (`Ctrl+S`). Gives false when it cannot be
+   * kept this way (`R2 caching` is off, or nothing was given for it): the form then saves it itself. */
+  async function sendSoon(path, id = 'waiting') {
+    const item = items.get(keyOf(path, id));
+    if (!item || item.off) return false;
+    await sendNow(item);
+    return !item.off;
+  }
+
   /** Tries again at once what failed. */
   async function retry() {
     await Promise.all([...items.values()].filter((i) => i.failed && !i.off).map((i) => ((i.failed = false), (i.tries = 0), sendNow(i))));
@@ -196,6 +205,7 @@ export function createAutosave({
   return {
     autosave,
     flush,
+    send: sendSoon,
     leave,
     resume,
     retry,
