@@ -463,6 +463,7 @@ export const blocks = {
     hint: 'Images from Files, filtered by tag.',
     edit: 'Edit default texts',
     images: 'Images',
+    addImages: 'Add images',
     showTags: 'All images with tags',
     showPicked: 'Picked images',
     tags: 'Tags',

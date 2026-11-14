@@ -8,7 +8,7 @@
 // The form's sections are listed as "on this page" in a card at the end of the form (large and wider only): SectionList in ui.tsx;
 // which are open and the one in view: formSections.ts. A page's title and its H1 (the first heading of its text) are
 // written together while they are the same (titleH1.mjs).
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { slugify, slugOf, type Field, type MarkdownCollection } from './schema';
 import { config, frontLeads, headingLooks, sectionLooks, sharing, standardPages, standardPaths } from '@site/editor';
 import { apps, asWritten, placeOf, standardPageAt } from './site';
@@ -272,6 +272,9 @@ function Form({
   const fileRecords = useMemo(() => recordsIn(env.files, config.fileRecords), [env.files]);
   const libraryImages = useMemo(() => libraryItems(env.media, fileRecords), [env.media, fileRecords]);
   const libraryAlt = useMemo(() => (src: string) => libraryAltOf(fileRecords, src), [fileRecords]);
+  // Asks for several images (the Image grid's `Add images`); the picker is made further down, so it is set there.
+  const pickMany = useRef<() => Promise<string[] | null>>(() => Promise.resolve(null));
+  const pickImages = useCallback(() => pickMany.current(), []);
 
   const [blockAsk, blockDialog] = useBlockDialog(
     useMemo(() => (front ? sectionBlocks(siteBlocks, frontLeads) : undefined), [front]),
@@ -283,6 +286,7 @@ function Form({
       path: url,
       libraryAlt,
       libraryImages,
+      pickImages,
       // A standard page's blocks drawn as the theme draws them there (its editor/previews.tsx, by `<file>#<key>`).
       ...(standard ? { page: { file: `${config.standardPages}#${standard.key}`, values } } : {}),
     },
@@ -588,7 +592,8 @@ function Form({
   // now and did not in its last saved version (an image, a PDF field, a link) gets the page's tags at "Save" (autoTags.mjs).
   const tagged = collection.fields.some((f) => f.name === 'categories' && f.type === 'relation' && f.to === 'categories');
   const images = useUploads(notify);
-  const [pickImage, picker] = useMediaPicker(env.media, images, env.files);
+  const [pickImage, picker, askImages] = useMediaPicker(env.media, images, env.files);
+  pickMany.current = askImages;
 
   const fields: FieldContext = {
     relations: env.relations,

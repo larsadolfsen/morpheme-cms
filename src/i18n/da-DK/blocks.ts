@@ -425,6 +425,7 @@ export const blocks: Messages['blocks'] = {
     hint: 'Billeder fra Filer, filtreret efter tag.',
     edit: 'Ret standardtekster',
     images: 'Billeder',
+    addImages: 'Tilføj billeder',
     showTags: 'Alle billeder med tags',
     showPicked: 'Valgte billeder',
     tags: 'Tags',
