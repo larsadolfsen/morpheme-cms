@@ -160,6 +160,8 @@ export function ListItem({
   leadingAvatar,
   leadingImage,
   leadingVideo,
+  leadingMedia,
+  li,
   overline,
   headline,
   supporting,
@@ -191,6 +193,10 @@ export function ListItem({
   leadingAvatar?: string | ListItemImage;
   leadingImage?: ListItemImage;
   leadingVideo?: ListItemImage;
+  /** An image (or its placeholder) the caller draws, with `.list-item-image` on it (srcset, sizes: a site's own image part). */
+  leadingMedia?: ReactNode;
+  /** Attributes of the item's <li> (hidden, data-…): the rest go on the item. */
+  li?: HTMLAttributes<HTMLLIElement>;
   overline?: ReactNode;
   headline: ReactNode;
   supporting?: ReactNode;
@@ -271,6 +277,8 @@ export function ListItem({
       <span className="list-item-leading list-item-leading-image">{image(leadingImage, 'image')}</span>
     ) : leadingVideo ? (
       <span className="list-item-leading list-item-leading-video">{image(leadingVideo, 'video')}</span>
+    ) : leadingMedia != null ? (
+      <span className="list-item-leading list-item-leading-image">{leadingMedia}</span>
     ) : null;
 
   // What leads the item that is not a choice: the item has a leading visual (the box goes after the text) or has none (the box leads).
@@ -374,7 +382,7 @@ export function ListItem({
       </div>
     );
   return (
-    <li role={presentation ? 'presentation' : undefined}>
+    <li role={presentation ? 'presentation' : undefined} {...li}>
       {actions != null && actions !== false && !(press && selecting) ? (
         <div className={listItemMultiActionClass}>
           {item}
