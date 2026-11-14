@@ -15,6 +15,7 @@ export const PARTS = [
   { name: 'chip', file: 'theme/styles/ui.css', selector: '.chip', reads: '--mo-density-layout' },
   { name: 'segmented button', file: 'theme/styles/ui.css', selector: '.segmented-button-segment', reads: '--mo-density-layout' },
   { name: 'text field', file: 'theme/styles/ui.css', selector: '.text-field', reads: '--mo-density-layout' },
+  { name: 'choice group row', file: 'theme/styles/ui.css', selector: '.choice-group-list .list-item-container', reads: '--mo-density' },
   { name: 'list item', file: 'theme/styles/ui.css', selector: '.list-item-container', reads: '--mo-density' },
   { name: 'setting row', file: 'theme/styles/ui.css', selector: '.setting-list > .setting-row', reads: '--mo-density-layout' },
   { name: 'table cell', file: 'theme/styles/blocks.css', selector: '.block-table-grid :is(th, td)', reads: '--mo-density' },

@@ -388,8 +388,8 @@ export function useBlockDialog(
     return true;
   }
 
-  // Closed (Annuller, the cross, a swipe down, Esc, a tap beside it) with the fields changed: the owner is
-  // asked whether to keep them ("Insert", "Save"), leave them or stay.
+  // Closed (Cancel, the cross, a swipe down, Esc, a tap beside it) with the fields changed: the owner is
+  // asked whether to keep them (Keep: as the sheet's Insert or Save), leave them (Discard) or stay.
   // true when it has closed (not when the owner stays in it, or a field keeps it from being saved).
   async function leave(): Promise<boolean> {
     const finish = (a: Answer) => {
@@ -400,12 +400,12 @@ export function useBlockDialog(
     if (open?.step === 'row') return finish(null);
     if (open?.step === 'section') {
       if (JSON.stringify(sectionValues(values)) === shown.current) return finish(null);
-      const choice = await closeChanged(t.common.save);
+      const choice = await closeChanged();
       if (choice === 'keep') return (saveSection(), true);
       return choice === 'discard' && finish(null);
     }
     if (open?.step !== 'fields' || asWritten(open.type, values) === shown.current) return finish(null);
-    const choice = await closeChanged(open.isNew ? t.blocks.insert : t.common.save);
+    const choice = await closeChanged();
     if (choice === 'keep') return save(open.type);
     return choice === 'discard' && finish(null);
   }
