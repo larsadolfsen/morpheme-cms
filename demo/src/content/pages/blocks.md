@@ -28,6 +28,10 @@ Group related ideas with an icon, a photo or just text, each linking to a page i
 
 <div data-block="cards" data-props="{&quot;design&quot;:&quot;filled&quot;,&quot;color&quot;:&quot;primary&quot;,&quot;media&quot;:&quot;none&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Just text&quot;,&quot;text&quot;:&quot;No icon, no photo. Here a filled card on the primary container.&quot;,&quot;subhead&quot;:&quot;Design Filled&quot;},{&quot;title&quot;:&quot;One design&quot;,&quot;text&quot;:&quot;The design, the color and the media apply to every card in the block.&quot;}]}"></div>
 
+### Filled cards with icons
+
+<div data-block="cards" data-props="{&quot;design&quot;:&quot;filled&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Text colour&quot;,&quot;text&quot;:&quot;An icon without a colour is drawn in the text colour.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Its own colour&quot;,&quot;text&quot;:&quot;Pick Primary, Secondary or Tertiary for the icon.&quot;,&quot;icon&quot;:&quot;heart&quot;,&quot;iconColor&quot;:&quot;primary&quot;}]}"></div>
+
 ### Elevated cards with buttons
 
 <div data-block="cards" data-props="{&quot;design&quot;:&quot;elevated&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;With buttons&quot;,&quot;text&quot;:&quot;A card without a page can have buttons, as Material 3’s action area.&quot;,&quot;icon&quot;:&quot;hand-heart&quot;,&quot;buttons&quot;:[{&quot;label&quot;:&quot;Get started&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/get-started/&quot;,&quot;kind&quot;:&quot;filled&quot;},{&quot;label&quot;:&quot;Browse apps&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/app-store/&quot;,&quot;kind&quot;:&quot;text&quot;}]},{&quot;title&quot;:&quot;As many as you need&quot;,&quot;text&quot;:&quot;A card has no fixed maximum of buttons.&quot;,&quot;icon&quot;:&quot;medal&quot;,&quot;buttons&quot;:[{&quot;label&quot;:&quot;Read more&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/blocks/&quot;,&quot;kind&quot;:&quot;text&quot;}]}]}"></div>

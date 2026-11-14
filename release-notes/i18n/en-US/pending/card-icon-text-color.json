@@ -1,0 +1,6 @@
+{
+  "id": "card-icon-text-color",
+  "kind": "paragraph",
+  "title": "Card icons",
+  "text": "A card’s icon now reads like its text instead of standing out in the accent color. Open a card’s Media sheet and choose Primary, Secondary or Tertiary under Icon color to color it. Cards that already have a color keep it."
+}

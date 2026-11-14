@@ -482,6 +482,7 @@ export const blocks: Messages['blocks'] = {
   },
   iconColor: {
     label: 'Ikonfarve',
+    text: 'Tekst',
     primary: 'Primær',
     secondary: 'Sekundær',
     tertiary: 'Tertiær',
