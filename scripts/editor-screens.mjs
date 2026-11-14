@@ -862,6 +862,91 @@ async function checkTextBar(width = 360) {
   await blog.close();
 }
 
+/** A card that is not typed in place (HTML code here; an image, Testimonials and the like work the same) has its tools on the text's one bar (PR 4 of the contextual toolbar plan): a tap on it selects it
+ * (marked, no pop-up on the card), the bar gets a group named by the block, its Edit as the gear (on a phone; from expanded a tap opens the side panel) and the rest of its menu (Move up, Remove) in the ⋮,
+ * the gear opens the block's sheet, Move up keeps the moved card selected, and a tap in the text brings the text tools back. */
+async function checkCardBar(width, height = 800) {
+  const phone = width < 600;
+  const label = `${width}px card bar`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
+  // The block's fields are in a sheet on a phone and in the side panel from expanded.
+  const sheet = page
+    .locator('dialog[open], .editor-side-sheet')
+    .filter({ has: page.locator('textarea') })
+    .last();
+  await sheet.locator('textarea').fill('<iframe src="https://www.youtube.com/embed/abc" title="Clip"></iframe>');
+  await sheet.locator('button', { hasText: /^Insert$/ }).click();
+  await page.waitForSelector('.ProseMirror .site-block-card', { timeout: 6000 });
+  await page.locator('.ProseMirror .site-block-card').first().click();
+  await page.waitForTimeout(400);
+  const selected = await page.evaluate(() => ({
+    pressed: document.querySelectorAll('.site-block-card[aria-pressed="true"]').length,
+    popup: document.querySelectorAll('.site-block-menu').length,
+    haspopup: document.querySelectorAll('.site-block-card[aria-haspopup]').length,
+    groups: [...document.querySelectorAll('.editor-tools [role=group]')].map((g) => g.getAttribute('aria-label')),
+  }));
+  if (selected.pressed !== 1) problems.push(`${label}: a tap on the card did not select it (${selected.pressed} selected)`);
+  if (selected.popup || selected.haspopup) problems.push(`${label}: the card still has a pop-up menu of its own`);
+  if (!selected.groups.length || selected.groups[0] === 'Text tools')
+    problems.push(`${label}: the bar's first group is "${selected.groups}", not the block's name`);
+  const tools = await barTools(page);
+  if (tools.bar.some((b) => b.height < 43.4 || b.width < 43.4)) problems.push(`${label}: a button of the card's bar is under 44 x 44 dp`);
+  if (!tools.names.includes('Remove') && phone) problems.push(`${label}: the card's menu has no Remove (${tools.names})`);
+  if (!tools.names.includes('Move up')) problems.push(`${label}: the card's menu has no Move up (${tools.names})`);
+  if (tools.names.filter((n) => n === 'More').length !== 1) problems.push(`${label}: the bar has no single ⋮ (${tools.names})`);
+  if (phone) {
+    // Its Edit is the gear on the bar and not in the ⋮ again; the gear opens the block's sheet.
+    if (!tools.bar.some((b) => b.label === 'Edit')) problems.push(`${label}: the card's Edit is not the gear on the bar (${tools.names})`);
+    if (tools.more.some((m) => m.label === 'Edit')) problems.push(`${label}: the card's Edit is in the ⋮ as well as on the bar`);
+    await pressTool(page, 'Edit', 'tap');
+    await page
+      .waitForSelector('dialog[open] textarea', { timeout: 4000 })
+      .catch(() => problems.push(`${label}: the gear did not open the block's sheet`));
+    await page
+      .locator('dialog[open] button', { hasText: /^Cancel$/ })
+      .click({ timeout: 3000 })
+      .catch(() => {});
+    await page.waitForTimeout(300);
+  }
+  // Move up: the card goes above the text and stays selected, its tools on the bar.
+  await pressMore(page, 'Move up', phone ? 'tap' : 'click');
+  await page.waitForTimeout(500);
+  const moved = await page.evaluate(() => {
+    const card = document.querySelector('.ProseMirror .site-block-card')?.getBoundingClientRect();
+    const hello = [...document.querySelectorAll('.ProseMirror p')].find((p) => p.textContent.trim() === 'Hello')?.getBoundingClientRect();
+    return {
+      first: !!card && !!hello && card.top < hello.top,
+      pressed: document.querySelectorAll('.site-block-card[aria-pressed="true"]').length,
+      group: document.querySelector('.editor-tools [role=group]')?.getAttribute('aria-label'),
+    };
+  });
+  if (!moved.first) problems.push(`${label}: Move up in the ⋮ did not move the card above the text`);
+  if (moved.pressed !== 1 || moved.group === 'Text tools')
+    problems.push(`${label}: the moved card is not selected with its tools on the bar (${JSON.stringify(moved)})`);
+  // A tap in the text: the card is let go and the text tools are back.
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(500);
+  const back = await page.evaluate(() => ({
+    pressed: document.querySelectorAll('.site-block-card[aria-pressed="true"]').length,
+    names: [...document.querySelectorAll('.editor-tools button')]
+      .filter((b) => !b.closest('.editor-tools-ghost'))
+      .map((b) => b.getAttribute('aria-label')),
+  }));
+  if (back.pressed || !back.names.includes('Bold'))
+    problems.push(`${label}: a tap in the text did not let the card go and bring the text tools back (${JSON.stringify(back)})`);
+  await page.close();
+}
+
 /** Insert block is always on the bar and never in the ⋮ (320, 375 and 1280 px, in text, with a block active and idle): a 44 x 44 dp button with the plus icon (Material's add), right before the ⋮ (or last), behind a divider that sits between Redo and it (centred on the buttons, as tall as they are); it opens the block picker. */
 async function checkInsertBlock(width, height = 800) {
   const phone = width < 600;
@@ -6405,6 +6490,7 @@ for (const [width, reduced] of [
 ])
   await unit(`checkBarSlide ${width}${reduced ? ' reduced' : ''}`, () => checkBarSlide(width, reduced));
 for (const width of [375, 1280]) await unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
+for (const width of [375, 1280]) await unit(`checkCardBar ${width}`, () => checkCardBar(width));
 for (const width of [320, 375, 1280]) await unit(`checkInsertBlock ${width}`, () => checkInsertBlock(width));
 await unit('checkSheetKeyboard 375', () => checkSheetKeyboard(375));
 await unit('checkSheetKeyboard 375 Custom', () => checkSheetKeyboard(375, 740, 300, true));

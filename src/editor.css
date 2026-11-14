@@ -868,7 +868,7 @@ html {
 }
 
 .editor-text .site-block-card:hover,
-.editor-text .site-block-card[aria-expanded='true'] {
+.editor-text .site-block-card[aria-pressed='true'] {
   border-color: var(--mo-primary);
 }
 
@@ -1182,43 +1182,6 @@ html {
 .inline-list-slot:focus-visible {
   background: var(--mo-surface-container-high);
   outline: none;
-}
-
-/* The block's menu: a row of icons on the top edge of the frame, in the middle. */
-.editor-text .site-block-menu {
-  position: absolute;
-  z-index: 15;
-  top: -1.4rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  max-width: calc(100% - 0.5rem);
-  align-items: center;
-  gap: 0.125rem;
-  border: 1px solid var(--mo-outline-variant);
-  border-radius: var(--mo-shape-full);
-  background: var(--editor-menu-surface);
-  padding: 0.25rem;
-  box-shadow: var(--editor-menu-shadow);
-}
-
-.editor-text .site-block-menu button {
-  display: grid;
-  width: 2.5rem;
-  height: 2.5rem;
-  flex-shrink: 0;
-  place-items: center;
-  border-radius: var(--mo-shape-full);
-}
-
-.editor-text .site-block-menu button:hover,
-.editor-text .site-block-menu button:focus-visible {
-  outline: none;
-  background: var(--mo-surface-container-high);
-}
-
-.editor-text .site-block-menu .site-block-danger {
-  color: var(--mo-primary);
 }
 
 /* A menu over the page (Menu in ui.tsx: a field's dropdown, a button's menu): the theme's menu, always with the menu
