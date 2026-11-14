@@ -43,6 +43,19 @@ const bundled = await build({
 const texts = await import(`data:text/javascript;base64,${Buffer.from(bundled.outputFiles[0].text).toString('base64')}`);
 const { apps: da, app: daApp, cms: daCms, dashboard: daDashboard, common: daCommon, library: daLibrary } = texts;
 
+// The theme's springs (lib/motion.ts, TypeScript too): what the bar's slide and fade must last and follow.
+const motionBundle = await build({
+  entryPoints: [fileURLToPath(new URL('../lib/motion.ts', import.meta.url))],
+  bundle: true,
+  format: 'esm',
+  platform: 'neutral',
+  write: false,
+  logLevel: 'silent',
+});
+const { SPRINGS, springCss, isMotionScheme, DEFAULT_SCHEME } = await import(
+  `data:text/javascript;base64,${Buffer.from(motionBundle.outputFiles[0].text).toString('base64')}`
+);
+
 const ROOT = `${process.cwd()}/`;
 // --shard K/N runs the K-th of N disjoint parts of the checks (every N-th unit, see unit below); --list only prints which units
 // that part has and runs none. With neither, everything runs, as before.
@@ -966,6 +979,151 @@ async function checkBlockBar(width, height = 800) {
   const back = await page.evaluate(() => [...document.querySelectorAll('.editor-tools button')].map((b) => b.getAttribute('aria-label')));
   if (!back.includes('Bold') || back.includes('Add above'))
     problems.push(`${label}: after leaving the block the bar has ${back} and not the text tools`);
+  await page.close();
+}
+
+/** The bar moves with the theme's springs only (PR 3 of the contextual toolbar plan; spec section 4): the cursor going into the text slides the contextual tools in from the left
+ * and pushes the main tools right (both animate, spatial fast: the theme's duration and curve, no own), the cursor leaving slides them out
+ * (a ghost copy that is gone once it has finished) and the main tools back, a block after the text is a fade in place (effects), the bar's height and its dividers
+ * never move, and with prefers-reduced-motion nothing is animated at all. `reduced`: the visitor asked for reduced motion. */
+async function checkBarSlide(width, reduced = false, height = 800) {
+  const phone = width < 600;
+  const label = `${width}px bar slide${reduced ? ' (reduced motion)' : ''}`;
+  const page = await browser.newPage({
+    viewport: { width, height },
+    hasTouch: phone,
+    isMobile: phone,
+    locale: 'en-US',
+    reducedMotion: reduced ? 'reduce' : 'no-preference',
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.waitForSelector('.editor-tools');
+  const scheme = await page.evaluate(() => document.documentElement.dataset.motionScheme);
+  const spring = SPRINGS[isMotionScheme(scheme) ? scheme : DEFAULT_SCHEME];
+  const want = { spatial: springCss(spring.spatial.fast), effects: springCss(spring.effects.default) };
+  // Every animation the bar starts is recorded with its keyframes and timing.
+  await page.evaluate(() => {
+    window.__bar = [];
+    const animate = Element.prototype.animate;
+    Element.prototype.animate = function (keyframes, timing) {
+      if (this.closest?.('.editor-tools'))
+        window.__bar.push({ keyframes, timing, ghost: this.classList.contains('editor-tools-ghost'), cls: this.className });
+      return animate.call(this, keyframes, timing);
+    };
+  });
+  const taken = () => page.evaluate(() => window.__bar.splice(0));
+  const heights = () =>
+    page.evaluate(
+      () =>
+        new Promise((done) => {
+          const bar = document.querySelector('.editor-tools');
+          const seen = [];
+          let frames = 0;
+          const look = () => {
+            seen.push({
+              bar: bar.getBoundingClientRect().height,
+              dividers: [...bar.querySelectorAll('hr[aria-orientation="vertical"]')].map((d) => d.getBoundingClientRect().height),
+            });
+            if (++frames < 14) requestAnimationFrame(look);
+            else done(seen);
+          };
+          look();
+        }),
+    );
+  const steady = (seen, name) => {
+    const base = seen.at(-1);
+    for (const now of seen) {
+      if (Math.abs(now.bar - base.bar) > 0.6) problems.push(`${label}: the bar's height moves during ${name} (${now.bar} and ${base.bar})`);
+      for (const h of now.dividers) if (Math.abs(h - 44) > 1) problems.push(`${label}: a divider is ${h} px high during ${name}, not 44`);
+    }
+  };
+  const spatial = (list) => list.filter((a) => a.keyframes.some((k) => k.transform !== undefined));
+  const isTheme = (a, kind) =>
+    a.timing.duration === want[kind].duration && a.timing.easing === want[kind].easing && a.timing.easing.startsWith('linear(');
+
+  // The cursor leaves the text: the contextual tools slide out (a ghost copy) and the main tools slide back.
+  await page.click('.ProseMirror');
+  await page.waitForTimeout(600);
+  await taken();
+  const before = await heights();
+  await taken();
+  await page.evaluate(() => document.activeElement?.blur());
+  const leaving = await page.evaluate(
+    () => new Promise((done) => requestAnimationFrame(() => done(document.querySelectorAll('.editor-tools-ghost').length))),
+  );
+  const leave = await taken();
+  steady(await heights(), 'the slide out');
+  await page.waitForTimeout(want.spatial.duration + 300);
+  const ghostsLeft = await page.locator('.editor-tools-ghost').count();
+  if (reduced) {
+    if (leave.length || leaving)
+      problems.push(`${label}: the bar animates the tools out with reduced motion (${leave.length} animations, ${leaving} ghosts)`);
+  } else {
+    if (spatial(leave).length < 2)
+      problems.push(`${label}: leaving the text does not slide the tools out and the main tools back (${spatial(leave).length} slides)`);
+    if (!leaving) problems.push(`${label}: no ghost copy of the contextual tools slides out`);
+    if (leave.some((a) => !isTheme(a, 'spatial')))
+      problems.push(
+        `${label}: a slide out is not the theme's spatial spring (${JSON.stringify(leave.map((a) => a.timing))}, wanted ${JSON.stringify(want.spatial)})`,
+      );
+    if (ghostsLeft) problems.push(`${label}: the ghost copy is still there after the slide out`);
+  }
+  steady(before, 'rest');
+
+  // The cursor goes into the text: the contextual tools slide in and push the main tools right.
+  await taken();
+  await page.click('.ProseMirror');
+  await page.waitForFunction(() => document.querySelector('.editor-tools-context'), null, { timeout: 4000 });
+  const enter = await taken();
+  steady(await heights(), 'the slide in');
+  await page.waitForTimeout(want.spatial.duration + 300);
+  if (reduced) {
+    if (enter.length) problems.push(`${label}: the bar animates the tools in with reduced motion (${enter.length} animations)`);
+  } else {
+    if (spatial(enter).length < 2)
+      problems.push(`${label}: going into the text does not slide the tools in and push the main tools (${spatial(enter).length} slides)`);
+    if (enter.some((a) => !isTheme(a, 'spatial')))
+      problems.push(`${label}: a slide in is not the theme's spatial spring (${JSON.stringify(enter.map((a) => a.timing))})`);
+    const slidIn = enter.find((a) => String(a.cls).includes('editor-tools-context'));
+    if (!slidIn || !String(slidIn.keyframes[0].transform).startsWith('translateX(-'))
+      problems.push(`${label}: the contextual tools do not come in from the left`);
+  }
+  const rest = await page.evaluate(() => {
+    const bar = document.querySelector('.editor-tools');
+    const main = bar.querySelector('.editor-tools-main');
+    const context = bar.querySelector('.editor-tools-context');
+    return {
+      mainAfterContext: !!context && main.getBoundingClientRect().left >= context.getBoundingClientRect().right - 1,
+      transform: getComputedStyle(main).transform,
+    };
+  });
+  if (!rest.mainAfterContext) problems.push(`${label}: the main tools do not rest after the contextual tools and their divider`);
+  if (rest.transform !== 'none') problems.push(`${label}: the main tools keep a transform after the slide (${rest.transform})`);
+
+  // A block after the text: no second slide, the contextual tools fade in place with the theme's effects spring.
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.waitForTimeout(500);
+  const change = await taken();
+  const fades = change.filter((a) => a.keyframes.some((k) => k.opacity !== undefined));
+  if (reduced) {
+    if (change.length)
+      problems.push(`${label}: the bar animates from the text to a block with reduced motion (${change.length} animations)`);
+  } else {
+    if (!fades.length) problems.push(`${label}: no fade when the bar goes from the text to a block`);
+    if (fades.some((a) => !isTheme(a, 'effects')))
+      problems.push(
+        `${label}: the fade is not the theme's effects spring (${JSON.stringify(fades.map((a) => a.timing))}, wanted ${JSON.stringify(want.effects)})`,
+      );
+    if (change.some((a) => a.ghost)) problems.push(`${label}: going from the text to a block slides a ghost out (it fades in place)`);
+  }
   await page.close();
 }
 
@@ -5534,6 +5692,12 @@ await unit('checkStartSubtitle', () => checkStartSubtitle());
 
 for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
 await unit('checkTextBarWide', () => checkTextBarWide());
+for (const [width, reduced] of [
+  [375, false],
+  [1280, false],
+  [375, true],
+])
+  await unit(`checkBarSlide ${width}${reduced ? ' reduced' : ''}`, () => checkBarSlide(width, reduced));
 for (const width of [375, 1280]) await unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
 for (const width of [320, 375, 1280]) await unit(`checkInsertBlock ${width}`, () => checkInsertBlock(width));
 await unit('checkSheetKeyboard 375', () => checkSheetKeyboard(375));
