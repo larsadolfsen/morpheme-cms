@@ -23,6 +23,7 @@ import { constants, inflateSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { CMS_STATUS, openEditor, serveBuilt } from './built-site.mjs';
+import { allow, nestedUnits } from './spacing-grid.allow.mjs';
 
 // The editor is opened in Danish (locale da-DK below), so the texts it shows are read from its Danish messages. They are
 // TypeScript, which Node does not run in node_modules (ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING), so esbuild bundles
@@ -4418,6 +4419,54 @@ async function checkTableRadius(width, height) {
   await page.close();
 }
 
+/** The site's spacing is on the 4 dp grid (docs/superpowers/specs/2026-11-13-site-spacing-audit.md, step 6): every margin, padding and gap of what the demo's Blocks page draws is a multiple of 4 px (also 2, 6 and 10: Material 3's nested units), except what scripts/spacing-grid.allow.mjs allows with its reason. Run at 375 and 1280, as a value that follows the width is what drifts. */
+async function checkSpacingGrid(width, height) {
+  const label = `${width}px spacing grid`;
+  const page = await browser.newPage({ viewport: { width, height } });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  const found = await page.evaluate(
+    ([nested, allowed]) => {
+      const sides = {
+        margin: ['marginTop', 'marginRight', 'marginBottom', 'marginLeft'],
+        padding: ['paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft'],
+        gap: ['rowGap', 'columnGap'],
+      };
+      const out = new Map();
+      const root = document.querySelector('main') ?? document.body;
+      for (const el of root.querySelectorAll('*')) {
+        if (el.closest('svg')) continue;
+        const style = getComputedStyle(el);
+        if (style.display === 'none') continue;
+        const parent = el.parentElement?.getBoundingClientRect();
+        const box = el.getBoundingClientRect();
+        // Margins that are auto (a centred box) come out as the room left over, which is the window's, not a spacing.
+        const centred =
+          parent && style.marginLeft === style.marginRight && Math.abs(box.left - parent.left - (parent.right - box.right)) < 1;
+        for (const [kind, names] of Object.entries(sides)) {
+          for (const name of names) {
+            if (centred && (name === 'marginLeft' || name === 'marginRight')) continue;
+            const n = parseFloat(style[name]);
+            if (!Number.isFinite(n) || n === 0) continue;
+            if (Math.abs(n / 4 - Math.round(n / 4)) < 0.01 || nested.includes(Math.abs(n))) continue;
+            if (allowed.some(([selector, props]) => props.includes(kind) && el.matches(selector))) continue;
+            const classes = typeof el.className === 'string' ? el.className.trim().split(/\s+/).slice(0, 3).join('.') : '';
+            const key = `${el.tagName.toLowerCase()}${classes ? '.' + classes : ''} ${name}: ${Math.round(n * 100) / 100}px`;
+            out.set(key, (out.get(key) ?? 0) + 1);
+          }
+        }
+      }
+      return [...out.keys()];
+    },
+    [nestedUnits, allow.map((a) => [a.selector, a.props])],
+  );
+  for (const what of found)
+    problems.push(
+      `${label}: ${what} is not a multiple of 4 px (a space on the 4 dp grid; or an entry of scripts/spacing-grid.allow.mjs with its reason)`,
+    );
+  await page.close();
+}
+
 /** The icon picker of a List row (the slot before the title, a sheet on a phone): the first view has the "No icon" tile and the 28 icons, the search field finds an icon of the whole set, Material Symbols' ("arrow back") and no Phosphor's ("acorn": not while Material Symbols is the pack), a picked one is drawn in the slot (stored by its name, drawn by the site as the fallback), a search without a hit says so, a category filters (with the search too) 100 icons at a time with "Show more", and the sheet fits the width. */
 async function checkIconSearch(width, height) {
   const label = `${width}px icon search`;
@@ -5778,6 +5827,8 @@ await unit('checkTableAlign 1280', () => checkTableAlign(1280, 800));
 
 await unit('checkTableRadius 375', () => checkTableRadius(375, 740));
 await unit('checkTableRadius 1280', () => checkTableRadius(1280, 800));
+await unit('checkSpacingGrid 375', () => checkSpacingGrid(375, 740));
+await unit('checkSpacingGrid 1280', () => checkSpacingGrid(1280, 800));
 for (const [width, height] of [
   [360, 740],
   [375, 740],
