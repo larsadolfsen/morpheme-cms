@@ -296,3 +296,49 @@ merged. Only the list focus ring line in B waits for the owner's answer to the o
 Tertiary yourself under Business › Colors › Custom, and drag each one on the color wheel. Your colors are used exactly as you chose
 them, in light and dark mode. If your Primary is hard to read as text, the editor asks whether to fix it." English and Danish, written with the
 `release-notes` skill (`release-notes/i18n/*/pending/<id>.json`) in step C.
+
+## 13. Step D: what `check:contrast` and `check:themes` found (14 Nov 2026)
+
+Run on the built demo (theme Saturn, the only theme installed here), once per palette of section 9 and once with a stress set of mid
+grays (`#777777`, `#888888`, `#999999`), each with **Keep** (the exact colors, saved with `kept`) and **Fix** (what the screen writes,
+`fixedTone`). Every run is 7752 pairs: every block on every section color, on the site and typed in place in the editor, light and dark,
+phone and computer. The demo's own colors give 12 groups that fail on `main` already (see below); they are subtracted.
+
+| Palette | Keep: new groups | Fix: new groups | of those, Primary as text on Surface | low icon color on Surface | text on a tint of a fill |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Set 1 `#F34E3D`, `#F5E8CC`, `#55263D` | 44 | 6 | Keep 38, **Fix 0** | 3 (Fix) | 3 (min 4.47:1) |
+| Set 2 `#2589D8`, `#E9E5D6`, `#FF783D` | 54 | 38 | Keep 38, **Fix 0** | 3 | 35 (min 4.11:1) |
+| Set 3 `#FF6574`, `#CCDCEF`, `#222526` | 54 | 32 | Keep 34, **Fix 0** | 2 | 30 (min 3.78:1) |
+| Stress `#777777`, `#888888`, `#999999` | not run | 50 | **Fix 0** | 2 | 48 (min 3.81:1) |
+
+What this shows:
+
+1. **Fix works across the whole site.** After Fix no block text, link or placeholder in Primary fails on Surface or a container, on any
+   palette. **Keep** fails exactly where the question said it would (Primary as text on Surface), which is the owner's choice (5.4).
+2. **A low Secondary or Tertiary used as an icon color fails 3:1 on Surface** (cream Secondary, dark Tertiary in dark mode). This is the case of
+   5.4: a saved icon color keeps its color and shows a warning in the editor, nothing is changed. The demo's blocks save Secondary and
+   Tertiary icon colors, so they show up here.
+3. **New problem, found by this run: text on a tint of a fill.** On a Primary, Secondary or Tertiary section the theme draws table headers,
+   tonal buttons, notices, step numbers and the like as 14% of the on-color over the fill (`theme/styles/global.css`
+   `--mo-surface-container-highest`, `theme/styles/blocks.css` `--block-surface` and `--block-tint`). Section 5.2 only guarantees
+   4.5:1 for the on-color on the fill itself (never below 4.58:1). When the margin is small, the tint takes the text under 4.5:1
+   (down to 3.78:1 for Set 3's dark Primary, 3.81:1 for the stress set). Material's own tones (white on tone 40, 20 on tone 80) have
+   enough margin: the demo's own harmony colors show none of these.
+4. **Already on `main`, not from custom colors:** a filled card on a Primary, Secondary or Tertiary section draws its text and icon in the
+   section's on-color on the card's pale container (about 1.3:1 in light mode, 1.4:1 in dark mode). The demo's own colors fail the same 12
+   groups (`cards | card-filled | primary/secondary/tertiary | text/icon`).
+
+Options for 3, for the owner (nothing is changed in this step):
+
+- **A. Leave it.** The owner chose an exact color; the editor already warns about Primary as text, and a tint is a smaller use.
+- **B. Derive the tints from the container roles** (`--section-container`, `--mo-*-container`, which Material's tones make readable by
+  construction) instead of mixing 14% of the on-color. Fixes the cause for every palette, also for a harmony's edge cases. Changes how
+  tonal buttons, table headers and notices look on a colored section a little, so it needs the owner's yes and a release note.
+- **C. Raise the margin in `onColor`** (prefer the on-color with the most contrast when Material's tone gives less than about 6:1). Helps
+  light and dark fills but not mid grays (the best of white and black is only 4.58:1 at the worst), and it moves the on-colors the owner
+  decided in 5.2.
+
+Recommendation: **B**, with 4 fixed in the same change (filled cards take `--section-on-container` on the container).
+
+`check:themes`: only the theme in use (Saturn) is installed in this repository, so it checks no other theme here; the file's `light` and
+`dark` roles are the contract and no role was added (section 6). The Venus look still needs the store (the PM asks `morpheme-appstore`).
