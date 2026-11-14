@@ -1,4 +1,7 @@
-// The contextual menu of a block typed in place (batch 5, owner decision 6, S3's recommendation): one bar, context aware, with the
+// The floating contextual menu of a list screen (OwnListPage.tsx, the page of a list the owner made): M3's floating toolbar for the contextual actions of
+// the body ("best used for contextual actions relevant to the body content or the specific page", m3.material.io/components/toolbars/guidelines). A
+// block in the text of a page has no floating bar any more: its tools are in the text's one bar (blockBar.ts, MarkdownEditor.tsx), which takes the
+// actions and icons from here. Written for the block typed in place (batch 5, owner decision 6, S3's recommendation): one bar, context aware, with the
 // block's row actions (`Add above`, `Add below`, `Move up`, `Move down`, shown while the active row has content) and the block's own menu
 // (its handle: Hide, Move, Remove, MarkdownEditor.tsx cardMenu). Targets are 48 dp. On a computer it sits over the block; on a phone (compact)
 // it is docked above the keyboard (the visual viewport) and above the page's save bar, and wraps to a second line when 375 px is not enough. It has no dropdown: choices live in the settings sheet (the gear) or the block's own menu. No dependencies but the icons and the browser.
@@ -42,7 +45,10 @@ export type BarAction = {
   action: () => void;
 };
 
-const icons = {
+/** The icon (raw SVG) of each bar action, and of the gear and the dynamic button. */
+export const barIcons = {
+  gear: gearIcon,
+  dynamic: dynamicIcon,
   above: rowAboveIcon,
   below: rowBelowIcon,
   up: arrowUpIcon,
@@ -110,7 +116,7 @@ export function contextualMenu(opts: {
     // Add above and Add below are buttons of their own, on a phone too; the rest (Link, Move up, Move down) fold under Row there.
     const adds = all.filter((r) => r.kind === 'above' || r.kind === 'below');
     const rows = all.filter((r) => r.kind !== 'above' && r.kind !== 'below');
-    for (const r of adds) button(r.label, icons[r.kind], null, r.action);
+    for (const r of adds) button(r.label, barIcons[r.kind], null, r.action);
     if (opts.dynamic) {
       const d = button(opts.dynamic.label, dynamicIcon, null, opts.dynamic.action);
       d.setAttribute('aria-pressed', String(opts.dynamic.on()));
@@ -118,7 +124,7 @@ export function contextualMenu(opts: {
     }
     // Plain icon buttons on a phone too (no dropdown); the menu wraps to a second line there when 375 px is not enough.
     for (const r of rows) {
-      const b = button(r.label, icons[r.kind], null, r.action);
+      const b = button(r.label, barIcons[r.kind], null, r.action);
       if (r.pressed !== undefined) {
         b.setAttribute('aria-pressed', String(r.pressed));
         b.classList.toggle('contextual-menu-on', r.pressed);

@@ -15,7 +15,9 @@ import { cloneElement, isValidElement, useEffect, useState, type ReactElement } 
 import { materialName, materialNames, resolveIcon } from '../lib/materialIcon.mjs';
 import { svgParts } from '../lib/svg.mjs';
 import ssrMaterial from 'virtual:material-symbols-ssr';
-import widgetsFile from '@material-symbols/svg-400/outlined/widgets.svg?raw';
+import addFile from '@material-symbols/svg-400/outlined/add.svg?raw';
+import moreVertFile from '@material-symbols/svg-400/outlined/more_vert.svg?raw';
+import matchCaseFile from '@material-symbols/svg-400/outlined/match_case.svg?raw';
 import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
 import { allIcons as ssrPhosphor } from 'virtual:all-icons-ssr';
 
@@ -228,16 +230,55 @@ export function Glyph({ icon, size = 20, className }: { icon: IconRef; size?: nu
     : null;
 }
 
-/** Material's "widgets" (four squares, one turned): the sign for "insert a block" (the text's toolbar). Phosphor has
- * no such icon, so it is Material's file itself, bundled (not the lazy set), and shaped as a Phosphor icon so a ToolbarButton takes it. */
-export const WidgetsIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => {
-  const parts = svgParts(widgetsFile);
+/** Material's "add" (a plus): the sign for "insert a block" (the text bar's Insert block button). Material Symbols' own file, bundled (the bar is drawn at once,
+ * not after the lazy Material set), and shaped as a Phosphor icon so a ToolbarButton takes it. */
+export const AddIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => {
+  const parts = svgParts(addFile);
   return (
     <svg
       width={size}
       height={size}
       fill="currentColor"
       aria-hidden="true"
+      data-icon="add"
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox={parts?.viewBox ?? MATERIAL_VIEWBOX}
+      dangerouslySetInnerHTML={{ __html: parts?.inner ?? '' }}
+    />
+  );
+}) as unknown as PhosphorIcon;
+
+/** Material's "more_vert" (three dots in a column, m3.material.io Icons "More Vert"): the text bar's overflow button (`⋮`). Material Symbols' own file,
+ * bundled like WidgetsIcon (the bar is drawn at once, not after the lazy Material set), and shaped as a Phosphor icon so a ToolbarButton takes it. */
+export const MoreVertIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => {
+  const parts = svgParts(moreVertFile);
+  return (
+    <svg
+      width={size}
+      height={size}
+      fill="currentColor"
+      aria-hidden="true"
+      data-icon="more_vert"
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox={parts?.viewBox ?? MATERIAL_VIEWBOX}
+      dangerouslySetInnerHTML={{ __html: parts?.inner ?? '' }}
+    />
+  );
+}) as unknown as PhosphorIcon;
+
+/** Material's "match_case" (a capital A and a small a: "Aa"): the icon of the three body styles in the Text style menu, where the labels (Body small, medium,
+ * large) tell them apart. Material Symbols' own file, bundled like WidgetsIcon, shaped as a Phosphor icon so a menu row takes it. */
+export const AaIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => {
+  const parts = svgParts(matchCaseFile);
+  return (
+    <svg
+      width={size}
+      height={size}
+      fill="currentColor"
+      aria-hidden="true"
+      data-icon="match_case"
       className={className}
       xmlns="http://www.w3.org/2000/svg"
       viewBox={parts?.viewBox ?? MATERIAL_VIEWBOX}

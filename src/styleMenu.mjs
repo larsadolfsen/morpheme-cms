@@ -28,7 +28,8 @@ export function styleRows(active, levels) {
   if (rows.length) rows.push('-');
   rows.push('small', 'medium', 'large');
   if (!list && on.has('labelable')) rows.push('label');
-  if (!list && !heading) rows.push('quote');
+  // The quote stands apart from the body styles, behind its own divider.
+  if (!list && !heading) rows.push('-', 'quote');
   return rows;
 }
 

@@ -1220,11 +1220,15 @@ html {
   align-items: center;
 }
 
-/* The divider between the text tools and the main tools: 8 dp each side, 1 dp line, the theme's outline-variant. */
-.editor-tools-divider {
+/* The divider between the text tools and the main tools (the theme's Divider, vertical): the height of the buttons (44 dp) and centred on them,
+   never stretched to the bar's edges; the line is 8 dp from each side, in M3's divider colour, the outline variant (m3.material.io/components/divider/specs,
+   "Divider color roles used for light and dark schemes: Outline variant"). M3 says nothing of a vertical divider's height in a toolbar. */
+.editor-tools .editor-tools-divider {
+  --divider-color: var(--mo-outline-variant);
+  align-self: center;
   flex: none;
-  height: 1.5rem;
-  margin-inline: 0.5rem;
+  height: 2.75rem;
+  margin: 0 0.5rem;
 }
 
 /* A menu of the bar, the `⋮` or Text style, on a phone: when it is too long for the room it scrolls, with the scrollbar kept in view where the platform
