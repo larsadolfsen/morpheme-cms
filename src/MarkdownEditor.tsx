@@ -992,7 +992,7 @@ function blockCard(
     if (here) view.dispatch(view.state.tr.delete(here.pos, here.pos + node.nodeSize));
   };
 
-  // The choices that can be made here: no "Ret" without fields (but to where it is edited instead,
+  // The choices that can be made here: no "Edit" without fields (but to where it is edited instead,
   // Block.edit), no move past the start or end. By the template (collections.ts): a locked block is
   // only edited, and the last shown one of a block the page must have cannot be hidden or removed.
   // From expanded the block's fields are in the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
