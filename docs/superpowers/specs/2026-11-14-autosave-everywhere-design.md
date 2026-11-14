@@ -43,7 +43,7 @@ always the existing `Saving…` / `Saved` / `Not saved` (no new texts).
 | 7 | Business parts: Contact, Social media, Bank; Privacy (Cookie banner, privacy pages); SEO parts; Globals › Block templates; Appearance parts (`CompanyForm` / `usePartForm`) | the part's JSON file | no | R2 only, value = form values | `usePartForm` asks R2 on open | one hook change covers all, see 3.2 |
 | 8 | Installed app settings (`AppFormPage`, `usePartForm`) | app's settings file | no | R2 only, form values | same | `Part.changedTo` calls the app's API **only at final Save** |
 | 9 | Business › Colors (`Colors`) | colours file (`config.colors`) | no | R2 only, value = the colour choices (mode tabs, custom colours, kept answers) | `Colors` asks R2 on open | never builds the site until `Save` |
-| 10 | Business › Logo and icon (`BrandForm`) | logo, favicon and icon files (binary) | no | **see decision 5** | | binary pictures do not fit the 1 MiB text value |
+| 10 | Business › Logo and icon (`BrandForm`) | logo, favicon and icon files (binary) | no | **see decision 5** | | binary images do not fit the 1 MiB text value |
 | 11 | Globals › Header (`HeaderSettings`, `useDataFiles`): menu, mobile menu, call to action, menu button | 3–4 JSON files | no | R2 only, one value holding all files' values | `useDataFiles` asks R2 on open | multi-file, see 3.2 |
 | 12 | Globals › Footer (`FooterSettings`, `useDataFiles`) | `footer.json` | no | R2 only | same | |
 | 13 | Own lists: list page, new list, edit list (#560/#564) | `_list.json` + item files | yes (R2 only, own code) | R2 only | own code | **joins** at PR 2; see 4 |
@@ -171,9 +171,9 @@ check; if a PR adds one, it reads the page with Playwright and quotes it first.
    Recommendation: for settings, **keep the values anyway** (snapshot of the form), and check only at `Save`, so nothing typed is lost.
 4. **Sheets that commit by themselves (the Redirects sheet).** Recommendation: **leave as is**: one short field set, one commit, `Delete`
    in the same sheet. If the owner wants it, the sheet gets the same hook with the redirect's address as key.
-5. **Logo and icon (binary pictures).** Recommendation: keep only the **choices** (which picture slot changed) in the waiting version and
-   keep the picture bytes in the browser until `Save`, as pages do with images now; say so with `Not saved` while a new picture waits.
-   (Alternative: put the picture in R2 under the waiting key, up to a size limit.)
+5. **Logo and icon (binary images).** Recommendation: keep only the **choices** (which image slot changed) in the waiting version and
+   keep the image bytes in the browser until `Save`, as pages do with images now; say so with `Not saved` while a new image waits.
+   (Alternative: put the image in R2 under the waiting key, up to a size limit.)
 6. **Do the rows of a list always wait for the final `Save`** (#560 question 1)? Recommendation: **no**: items are saved on their own item
    page like testimonials (#564 already does this); only the list's definition waits.
 7. **Do `Remove field` and `Remove data` always wait** (#560 question 2)? Recommendation: **yes**, they destroy data, so they only happen at
