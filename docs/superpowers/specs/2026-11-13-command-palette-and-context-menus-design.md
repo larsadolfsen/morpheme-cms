@@ -10,7 +10,7 @@ decisions of 14 November are folded in below. **No owner question is open.** Des
    `⌘K` and a **plain search icon button in today's top bar, on every screen** (section 4.8 lists the screens where that bar then has more than two actions). The M3
    *search app bar* (a search field in the app bar, as in Gmail) comes in **0.20** with the redesign of all screens' app bars, and the icon becomes that search app bar
    then. This spec does not design it.
-7. **Two new kinds of action the registry carries once they exist** (decided the same day; their own spec is written by another session, so this spec only names
+7. **Two new kinds of action the registry carries once they exist** (decided the same day; their own specs, `2026-11-14-paste-and-change-to-design.md` and `2026-11-14-image-tools-design.md`, are written by another session, so this spec only names
    them): **`Change to…`** (turn a repeating block into another: List, Steps, Segmented list, FAQ, Cards, Table) and **the image tools in the bar** (`Change image`,
    `Crop`, `Alt text`, `Remove`; on a video `Change address`). The registry lists them once their feature registers them; the palette lists only actions that exist
    (section 4.4).

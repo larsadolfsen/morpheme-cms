@@ -6,7 +6,7 @@ import { gzipSync } from 'node:zlib';
 import { config } from '../site/siteConfig.mjs';
 import { workerModules } from './worker-modules.mjs';
 
-const [{ RUNNING, checkForUpdate, cmsStatus, handleCms, startUpdate, watchUpdate }, { GitHubError }] = await workerModules(
+const [{ RUNNING, checkForUpdate, cmsStatus, dailyCheck, handleCms, startUpdate, watchUpdate }, { GitHubError }] = await workerModules(
   'cms-update.js',
   'files.js',
 );
@@ -202,6 +202,25 @@ const post = (version) =>
   // The skipped version is not taken by itself again.
   await checkForUpdate(w.env, w.deps, T0 + 70 * MINUTE);
   expect(w.commits.length === 2 && stored(w.kv, 'cms:checked')?.problem?.kind === 'skipped', 'en fortrudt version blev taget igen');
+}
+
+// The hourly cron checks npm once a day, from 03:00 in the site's time zone; else one KV read and nothing more.
+{
+  const zone = 'Europe/Copenhagen';
+  const w = world();
+  // Never checked: at once, though it is day.
+  await dailyCheck(w.env, w.deps, Date.parse('2026-11-14T12:07:00Z'), zone);
+  expect(w.commits.length === 1, 'a site never checked was not checked at once');
+  await w.kv.put('cms:update', JSON.stringify({ ...stored(w.kv, 'cms:update'), state: 'done' }));
+  w.files['package.json'] = JSON.stringify({ dependencies: { [PACKAGE]: '0.1.0' } });
+  const urls = w.urls.length;
+  const reads = w.kv.reads;
+  await dailyCheck(w.env, w.deps, Date.parse('2026-11-14T13:07:00Z'), zone);
+  await dailyCheck(w.env, w.deps, Date.parse('2026-11-15T01:07:00Z'), zone);
+  expect(w.urls.length === urls && w.commits.length === 1, 'the hourly cron checked npm again the same day or before 03:00');
+  expect(w.kv.reads - reads === 2, `the hourly cron read KV ${w.kv.reads - reads} times, not once an hour`);
+  await dailyCheck(w.env, w.deps, Date.parse('2026-11-15T02:07:00Z'), zone);
+  expect(w.urls.length > urls, 'the hourly cron did not check npm at 03:00 the next day');
 }
 
 // 4. The site runs the new version: done, one notification.

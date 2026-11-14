@@ -72,7 +72,7 @@ import { publishScheduled, SCHEDULED_LIST } from './publish.js';
 import { handleAutosave, sweepAutosaves } from './autosave.js';
 import { commitFiles, readFiles } from './github.js';
 import { handlePush, notifyAll, waitForBuilds } from './push.js';
-import { checkForUpdate, handleCms, watchUpdate } from './cms-update.js';
+import { dailyCheck, handleCms, watchUpdate } from './cms-update.js';
 import { postRelease } from './release-post.js';
 
 const STAGING = /\.workers\.dev$/i;
@@ -242,14 +242,15 @@ export default {
   },
 
   // The crons in wrangler.jsonc: each minute, whether the site has been built with a save (packages/editor/worker/push.js), the CMS's
-  // update and a new release to post; each hour, the rest (also the answers in the consent log older than two years deleted).
+  // update and a new release to post; each hour, the rest (also the answers in the consent log older than two years deleted, and
+  // the CMS's check of npm, which goes ahead once a day at night in the site's time zone: dailyCheck in cms-update.js).
   async scheduled(controller, env, ctx) {
     if (controller.cron === EACH_MINUTE) return ctx.waitUntil(Promise.allSettled([waitForBuilds(env), watchUpdate(env), postRelease(env)]));
     ctx.waitUntil(
       Promise.all([
         publishScheduled(env),
         sweepAutosaves(env, Date.now(), ctx).catch((e) => console.error(`Autosaves could not be swept: ${e.message}`)),
-        checkForUpdate(env),
+        dailyCheck(env),
         forgetOldConsents(env),
         forgetUninstalled(env, appMcp),
         forgetProviderKeys(env, appMedia),
