@@ -596,7 +596,9 @@ const blockSelecting = $prose(
         let was = view.state.doc;
         const off = blockSelection.subscribe(() => {
           view.setProps({});
-          if (blockSelection.places().length) (document.activeElement as HTMLElement | null)?.blur?.();
+          // The text lets go of the keyboard (a phone's stays shut), but a focused card keeps it: Space, Shift+Arrow and Escape work from it.
+          const active = document.activeElement as HTMLElement | null;
+          if (blockSelection.places().length && !active?.matches('.site-block-card')) active?.blur?.();
         });
         return {
           update: (next) => {
