@@ -4,64 +4,76 @@
     {
       "id": "page-templates",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "Vælg en skabelon til hver side",
       "text": "Vælg, hvordan en side er opbygget, blandt de skabeloner, dit tema tilbyder, som enkelt, fuld eller med sidekolonne. Skabelon erstatter de gamle valg Bred og Side."
     },
     {
       "id": "header-footer-screens",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "Redigér din header og footer",
       "text": "Under Udseende har Header og Footer nu hver sin skærm med alle indstillinger og en levende forhåndsvisning på telefon og computer. Du kan også tilføje en handlingsknap i headeren."
     },
     {
       "id": "loading-indicators",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "Se, når en knap arbejder",
       "text": "Knapper viser nu en indlæsningsindikator, mens deres handling kører, for eksempel Gem, Installer, Opdater og Afinstaller."
     },
     {
       "id": "app-tabs",
       "kind": "line",
+      "mark": "improvement",
       "text": "En apps side har fanerne Indstillinger og Info"
     },
     {
       "id": "settings-side-panel-large",
       "kind": "line",
+      "mark": "improvement",
       "text": "På en stor skærm åbner blok- og sektionsindstillinger i et sidepanel"
     },
     {
       "id": "section-settings-sheet",
       "kind": "line",
+      "mark": "improvement",
       "text": "Sektionsfarven ligger nu under Sektionsindstillinger"
     },
     {
       "id": "cards-follow-md3",
       "kind": "line",
+      "mark": "improvement",
       "text": "Kort følger Material 3: mere luft indeni, de løfter sig, når du peger på dem, og kort med link får en tone"
     },
     {
       "id": "drawer-account-domain",
       "kind": "line",
+      "mark": "improvement",
       "text": "Menuen viser øverst, hvem der er logget ind, og hjemmesidens domæne"
     },
     {
       "id": "buttons-fit-label",
       "kind": "line",
+      "mark": "improvement",
       "text": "Knapper i editoren er lige så brede som deres tekst og aldrig på tværs af skærmen"
     },
     {
       "id": "toolbar-round-corners",
       "kind": "line",
+      "mark": "improvement",
       "text": "Værktøjslinjen til tekst har runde hjørner og luft hele vejen rundt"
     },
     {
       "id": "delete-row-error-color",
       "kind": "line",
+      "mark": "improvement",
       "text": "Rækken, der sletter det, en skærm viser, som Slet side, har fejlfarven"
     },
     {
       "id": "appstore-cant-reach",
       "kind": "line",
+      "mark": "improvement",
       "text": "Appstore siger efter 15 sekunder, at den ikke kan nå butikken, i stedet for at vente for evigt"
     }
   ]

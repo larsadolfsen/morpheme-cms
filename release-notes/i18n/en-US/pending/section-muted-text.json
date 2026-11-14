@@ -1,6 +1,7 @@
 {
   "id": "section-muted-text",
   "kind": "paragraph",
+  "mark": "improvement",
   "title": "Section text",
   "text": "Quieter text in a section with a colour is easier to read. Card text, list lines and answers take the section's full text colour, in light and dark mode, and stay smaller than the headings. Sections without a colour are unchanged."
 }

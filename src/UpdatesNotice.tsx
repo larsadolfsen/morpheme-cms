@@ -4,7 +4,7 @@
 // photo is from), 3:2 with rounded corners, above the text in the compact window class and from the medium class up to
 // the left of it in a column 10-14rem wide, as high as the card (cropped with object-cover, never taller than the card, so a
 // tall photo stays inside it); "Morpheme <edition> <version>" (the headline), the place in full (the subhead,
-// with an info button after it that credits the photographer, PhotoCredit), how many new things it brings (the supporting
+// with an info button after it that credits the photographer, PhotoCredit), how many features and improvements it brings (the supporting
 // text, bundledNotes.ts) and Read more to the Morpheme page with all of them; for each app installed from the store: a
 // row with its icon and new version, to its Information tab. Exposes UpdatesNotice. The logic is startView.mjs's
 // (changesSince) and releaseNotes.mjs's (notesSince, editionOf), the storage startStorage.ts's, the card, rows, buttons
@@ -24,7 +24,7 @@ import { CMS_ROUTE } from './CmsPage';
 import { LICENSES_ROUTE } from './Licenses';
 import { appHref } from './AppList';
 import { runningEdition, runningNotes } from './bundledNotes';
-import { notesSince } from '../lib/releaseNotes.mjs';
+import { markCounts, notesSince } from '../lib/releaseNotes.mjs';
 import { INFO_KEY } from '../lib/appRoute.mjs';
 
 /** The CMS's version and those of the apps installed from the store, as the editor is built with them now. */
@@ -110,6 +110,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
     return app ? [{ app, version: c.version }] : [];
   });
   const news = cms ? notesSince(runningNotes, cms.from, locale) : [];
+  const { features, improvements } = markCounts(news);
   const edition = cms && runningEdition;
   const place = edition && (edition.place[locale] ?? edition.place['en-US']);
   const title = cms
@@ -144,7 +145,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
               <PhotoCredit by={edition.by} line={edition.line} />
             </p>
           )}
-          {news.length > 0 && <p className="mt-2 text-sm text-on-surface-variant">{t.library.newThings(news.length)}</p>}
+          {news.length > 0 && <p className="mt-2 text-sm text-on-surface-variant">{t.library.noteCounts(features, improvements)}</p>}
           <div className="mt-auto flex flex-wrap justify-end gap-2 pt-4">
             <Button kind="text" size="small" onClick={close}>
               {t.common.close}

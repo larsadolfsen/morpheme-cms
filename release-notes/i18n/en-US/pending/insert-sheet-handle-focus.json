@@ -1,5 +1,6 @@
 {
   "id": "insert-sheet-handle-focus",
   "kind": "line",
+  "mark": "improvement",
   "text": "Bottom sheets no longer show a blue line under the handle"
 }

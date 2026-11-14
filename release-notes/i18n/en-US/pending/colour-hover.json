@@ -1,5 +1,6 @@
 {
   "id": "colour-hover",
   "kind": "line",
+  "mark": "improvement",
   "text": "Segmented list rows and tabs show the same pointed-at look as other parts"
 }

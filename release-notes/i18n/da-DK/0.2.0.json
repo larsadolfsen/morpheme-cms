@@ -4,12 +4,14 @@
     {
       "id": "install-from-store",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "Installer temaer og apps fra butikken",
       "text": "Du kan nu installere temaer og apps fra Morpheme-butikken. Forbind din hjemmeside til butikken for at komme i gang."
     },
     {
       "id": "builds-on-windows",
       "kind": "line",
+      "mark": "improvement",
       "text": "Din hjemmeside kan bygges på Windows"
     }
   ]

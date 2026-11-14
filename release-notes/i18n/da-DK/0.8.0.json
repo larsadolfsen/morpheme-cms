@@ -4,22 +4,26 @@
     {
       "id": "richer-blog-post",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "Et rigere blogindlæg",
       "text": "Blogindlæg viser nu forfatterens rolle, tags og delingsknapper i toppen, et indledende afsnit og kort til relaterede indlæg. Tilføj dine profiler under Virksomheden › Sociale medier."
     },
     {
       "id": "material-fallback",
       "kind": "line",
+      "mark": "improvement",
       "text": "Det, et tema ikke giver sin egen stil, ser nu ud som i Material"
     },
     {
       "id": "on-this-page-list",
       "kind": "line",
+      "mark": "feature",
       "text": "På en stor skærm står en sides sektioner i en liste på et kort nederst i formularen"
     },
     {
       "id": "wide-buttons-phone-only",
       "kind": "line",
+      "mark": "improvement",
       "text": "Brede knapper fylder kun hele bredden på en telefon"
     }
   ]

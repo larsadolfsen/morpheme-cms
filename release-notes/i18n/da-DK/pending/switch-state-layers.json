@@ -1,6 +1,7 @@
 {
   "id": "switch-state-layers",
   "kind": "paragraph",
+  "mark": "improvement",
   "title": "Kontaktens fokus og tryk",
   "text": "I Indstillinger er det svært at se, hvilken kontakt du er ved at ændre. Fokuser eller tryk på en kontakt, så vises en blød glød omkring håndtaget. En kontakt, der er slået til, får også en tydeligere ikonfarve."
 }

@@ -4,12 +4,14 @@
     {
       "id": "connect-to-store",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "Connect your site to the store",
       "text": "Connect your website to the Morpheme store from the Appstore in the editor."
     },
     {
       "id": "start-screen-version",
       "kind": "line",
+      "mark": "improvement",
       "text": "The start screen shows the installed Morpheme version before the update time"
     }
   ]

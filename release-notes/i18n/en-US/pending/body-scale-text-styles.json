@@ -1,6 +1,7 @@
 {
   "id": "body-scale-text-styles",
   "kind": "paragraph",
+  "mark": "feature",
   "title": "Text sizes",
   "text": "Pages are easier to scan with smaller body text. Plain paragraphs are Body medium; choose Body large or Body small in the text style menu. A new page starts as Body medium, and Label follows Material 3 without capitals."
 }

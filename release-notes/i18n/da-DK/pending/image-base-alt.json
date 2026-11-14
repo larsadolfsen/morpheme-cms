@@ -1,6 +1,7 @@
 {
   "id": "image-base-alt",
   "kind": "paragraph",
+  "mark": "feature",
   "title": "Billedbeskrivelser",
   "text": "Beskriv et billede ét sted. I Filer udfylder du Beskriv billedet, Dekorativt billede og Billedtekst; hver side, indlæg, kort og banner, der viser billedet, bruger teksten, til du skriver en egen i Alternativ tekst."
 }
