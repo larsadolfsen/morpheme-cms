@@ -2639,6 +2639,11 @@ async function checkOwnList(width, height) {
     const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
     page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
     await openEditor(page, site);
+    const commits = [];
+    await page.route('**/api/github/commit', (r) => {
+      commits.push(JSON.parse(r.request().postData() || '{}'));
+      return r.fulfill({ contentType: 'application/json', body: JSON.stringify({ commit: 'head', blobs: {} }) });
+    });
     await page.evaluate(() => (location.hash = '#list/services'));
     await page
       .getByText('Web design', { exact: true })
@@ -2692,6 +2697,53 @@ async function checkOwnList(width, height) {
     if (!(await sheet.getByRole('button', { name: 'Add field' }).count())) problems.push(`${label}: Edit list has no Add field`);
     if (!(await sheet.getByRole('button', { name: 'Delete list' }).count())) problems.push(`${label}: Edit list has no Delete list`);
     if (!(await sheet.getByLabel('Name').count())) problems.push(`${label}: Edit list has no name field`);
+    // Remove field waits for the Save, like adding a field: it asks, takes the field out of the sheet, commits nothing, and leaving without saving undoes it.
+    const removeBody = async () => {
+      await sheet.getByRole('button', { name: 'Remove field' }).nth(1).click();
+      await page
+        .locator('dialog[open]')
+        .last()
+        .getByRole('button', { name: 'Remove field' })
+        .click()
+        .catch(() => problems.push(`${label}: Remove field did not ask`));
+      await page.waitForTimeout(500);
+    };
+    await removeBody();
+    if ((await sheet.getByRole('button', { name: 'Remove field' }).count()) !== 4)
+      problems.push(`${label}: Remove field did not take the field out of Edit list`);
+    if (commits.length) problems.push(`${label}: Remove field committed before the Save (${commits.length} commits)`);
+    await sheet.locator('[aria-label="Close"]').first().click();
+    await page.waitForTimeout(300);
+    await page.evaluate(() => (location.hash = '#lists'));
+    await page
+      .getByRole('button', { name: 'Discard' })
+      .click({ timeout: 5000 })
+      .catch(() => problems.push(`${label}: leaving with a field removed did not ask`));
+    await page.waitForFunction(() => location.hash === '#lists', null, { timeout: 5000 }).catch(() => {});
+    await page.evaluate(() => (location.hash = '#list/services'));
+    await page.getByText('Hosting', { exact: true }).first().waitFor({ timeout: 10000 });
+    await page.getByRole('button', { name: 'List menu' }).first().click();
+    await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
+    if ((await sheet.getByRole('button', { name: 'Remove field' }).count()) !== 5)
+      problems.push(`${label}: the removed field did not come back after Discard`);
+    if (commits.length) problems.push(`${label}: Discard committed (${commits.length} commits)`);
+    await removeBody();
+    await sheet.locator('[aria-label="Close"]').first().click();
+    await page.locator('.editor-save-bar').getByRole('button', { name: /^Save/ }).click();
+    await page
+      .getByRole('button', { name: 'Cancel' })
+      .click({ timeout: 3000 })
+      .catch(() => {});
+    await page.waitForTimeout(1500);
+    const removed = commits.flatMap((c) => c.changes);
+    const def = removed.find((x) => x.path.endsWith('services/_list.json'));
+    const item = removed.find((x) => x.path.endsWith('services/web-design.json'));
+    if (commits.length !== 1 || JSON.parse(decoded(def?.content) || '{}').fields?.length !== 4)
+      problems.push(`${label}: Save did not make one commit with the list without the field (${commits.length} commits)`);
+    if ('text' in JSON.parse(decoded(item?.content) || '{}'))
+      problems.push(`${label}: the removed field's data is still in an item (${item?.content})`);
+    await page.getByRole('button', { name: 'List menu' }).first().click();
+    await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
     await sheet.locator('[aria-label="Close"]').first().click();
     await page.getByRole('button', { name: 'List menu' }).first().click();
     await page.getByRole('menuitem', { name: 'Delete list' }).first().click();
