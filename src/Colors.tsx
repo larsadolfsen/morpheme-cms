@@ -19,7 +19,7 @@
 // what is unsaved stays), then the apps, each to its settings, the pages with colours from an image (the image, the
 // page and its colours in the mode open), and those with the site's own. Saved with "Save changes" in one commit; the
 // editor shows the new colours at once (theme.ts applyColors), the site when it is built again.
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Moon, Palette, Sun } from '@phosphor-icons/react';
 import { ConflictError, type RepoFile } from './github';
 import FormFrame, { useFormPages } from './FormFrame';
@@ -51,6 +51,12 @@ import { colorProblems, lowContrast, MODES, withMaterialNames, type Colors as Co
 import {
   completeColors,
   CONTRASTS,
+  fixedTone,
+  lowOnPage,
+  onColor,
+  primaryProblem,
+  toneOf,
+  wheelColorAt,
   dynamicColors,
   dynamicProblems,
   BASE_COLORS,
@@ -74,6 +80,8 @@ import { settingsRoute } from './AppList';
 import { splitPicture } from '../lib/crop.mjs';
 
 const names = colorFields.map((f) => f.name);
+/** The pairs where Primary is text on Surface or a container: what the question about Primary is about, and what Keep skips. */
+const primaryPairs = colorPairs.filter((p) => p.text === 'primary' && p.on.startsWith('surface'));
 
 /** The site's colours as the editor has them (with those a file written before them does not have made, completeColors),
  * or the ones it was designed with when the file is missing or cannot be read (`unreadable`). */
@@ -170,8 +178,63 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
   // the first harmony, Material's standard contrast). Choosing makes the colours from it.
   const choiceOf = (c: ColorsData): Dynamic => c.dynamic ?? { source: c.light.primary, harmony: HARMONIES[0], contrast: 'standard' };
   const choice = choiceOf(colors);
-  const update = (change: (d: Dynamic) => Dynamic) => setColors((c) => ({ ...c, ...madeFrom(change(choiceOf(c))) }));
+  // `kept` (Primary kept as chosen) only holds for the Primary it was said of, in Custom: another colour asks again.
+  const update = (change: (d: Dynamic) => Dynamic) =>
+    setColors((c) => {
+      const before = choiceOf(c);
+      const { kept, ...next } = change(before);
+      const same = kept && next.harmony === CUSTOM && next.source.toLowerCase() === before.source.toLowerCase();
+      return { ...c, ...madeFrom(same ? { ...next, kept } : next) };
+    });
   const setDynamic = (change: Partial<Dynamic>) => update((d) => ({ ...d, ...change }));
+
+  // Custom (M3: "Define your own baseline scheme"): Primary, Secondary and Tertiary chosen freely. What a harmony has that Custom
+  // has not (the lock) and what Custom has that a harmony has not (its two colours) stay here while the other is chosen, so
+  // the chip goes back and forth without loss until Save.
+  const [held, setHeld] = useState<Pick<Dynamic, 'secondary' | 'tertiary' | 'sourceLocked' | 'kept'> & { source?: string }>({});
+  const custom = choice.harmony === CUSTOM;
+  const toCustom = () => {
+    if (custom) return;
+    // The tiles keep the colours they show now (the first time).
+    const [, second, third] = wheelDots(choice);
+    setHeld((h) => ({ ...h, sourceLocked: choice.sourceLocked }));
+    update(({ sourceLocked: _, variant: __, ...c }) => ({
+      ...c,
+      harmony: CUSTOM,
+      secondary: held.secondary ?? second.color,
+      tertiary: held.tertiary ?? third.color,
+      // The answer "Keep" comes back with the Primary it was said of.
+      ...(held.kept && held.source === choice.source && { kept: held.kept }),
+    }));
+  };
+  const toHarmony = (harmony: (typeof HARMONIES)[number]) => {
+    if (!custom) return setDynamic({ harmony, variant: undefined });
+    setHeld((h) => ({ ...h, secondary: choice.secondary, tertiary: choice.tertiary, kept: choice.kept, source: choice.source }));
+    update(({ secondary: _, tertiary: __, ...c }) => ({ ...c, harmony, ...(held.sourceLocked && { sourceLocked: true }) }));
+  };
+
+  // The question about Primary (Custom): in the modes where it is hard to read as text and neither fixed nor kept. Not shown
+  // while a dot is dragged (it follows the drop), and Save waits for the answer.
+  const [dragging, setDragging] = useState(false);
+  const question = useRef<HTMLDivElement>(null);
+  const keptPrimary = !!dynamic?.kept?.includes('primary');
+  const hardModes = custom && dynamic ? primaryProblem(dynamic) : [];
+  const readsAs = (m: Mode) => !lowContrast(colors[m], primaryPairs).length;
+  const asked = keptPrimary ? [] : hardModes.filter((p) => !readsAs(p.mode));
+  const fix = () =>
+    setColors((c) => {
+      const next = { ...c };
+      for (const m of MODES) {
+        const hex = c.dynamic && fixedTone(c.dynamic, m);
+        if (hex) next[m] = { ...c[m], primary: hex, 'on-primary': onColor(hex, c[m]['on-primary']) };
+      }
+      return next;
+    });
+  const keep = () => setColors((c) => (c.dynamic ? { ...c, dynamic: { ...c.dynamic, kept: ['primary'] } } : c));
+  // The colours Fix changed: the Primary of a mode that is not the one chosen.
+  const adjusted = custom && dynamic ? MODES.filter((m) => colors[m].primary.toLowerCase() !== dynamic.source.toLowerCase()) : [];
+  // The tone a dragged dot keeps (the one its colour had when the drag began).
+  const tones = useRef<number[]>([]);
 
   async function fromImage() {
     const file = await pickImage();
@@ -187,6 +250,13 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
   }
 
   async function save() {
+    // The question about Primary is answered first: its notice is shown and scrolled to.
+    if (asked.length) {
+      show('generator');
+      if (!ownShown) location.hash = `#${FALLBACK_ROUTE}`;
+      setTimeout(() => question.current?.scrollIntoView({ block: 'center' }));
+      return notify({ text: d.answerFirst, error: true });
+    }
     // The colours that are hard to read are shown with the mode they are in.
     const hard = MODES.find((m) => low[m].length);
     if (hard) {
@@ -278,6 +348,10 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
   // source colour and the contrast, and the little page in each mode beside them (on a phone under them).
   function generator() {
     const dots = wheelDots(choice);
+    const baseNames = [custom ? d.primary : d.source, t.colors.preview.secondary, t.colors.preview.tertiary];
+    // Secondary or Tertiary below 3:1 on the page (Custom): a note by the tile, not a question (it still fills).
+    const lowSecond = custom && dynamic ? (['secondary', 'tertiary'] as const).filter((which) => lowOnPage(dynamic, which)) : [];
+    const modeName = (m: Mode) => t.colors[m].toLowerCase();
     return (
       <>
         {loaded.unreadable && file && <ProblemNote>{t.colors.unreadable}</ProblemNote>}
@@ -286,20 +360,22 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
           sticky
           main={
             <section className="space-y-5">
-              <FormField label={d.base}>
+              <FormField label={d.base} hint={custom ? d.customHint : undefined}>
                 <div className="space-y-3">
                   <ColorTiles
                     label={d.base}
                     colors={BASE_COLORS.map((which, i) => ({
-                      color: dots[i].color,
-                      name: [d.source, t.colors.preview.secondary, t.colors.preview.tertiary][i],
+                      // Custom: the colour as chosen, not the dot's (a dot is where it sits on the wheel).
+                      color: (custom && [choice.source, choice.secondary, choice.tertiary][i]) || dots[i].color,
+                      name: baseNames[i],
                       disabled: !canSetBaseColor(choice, which),
                       onChange: (color, lock) => update((c) => withBaseColor(c, which, color, lock)),
-                      // Only the source colour has a lock.
-                      ...(which === 'source' && {
-                        locked: !!choice.sourceLocked,
-                        onLock: (locked: boolean) => update(({ sourceLocked: _, ...c }) => (locked ? { ...c, sourceLocked: true } : c)),
-                      }),
+                      // Only the source colour has a lock, and not in Custom (nothing there moves a colour but its own pen).
+                      ...(which === 'source' &&
+                        !custom && {
+                          locked: !!choice.sourceLocked,
+                          onLock: (locked: boolean) => update(({ sourceLocked: _, ...c }) => (locked ? { ...c, sourceLocked: true } : c)),
+                        }),
                     }))}
                   />
                   <Button kind="outlined" size="small" icon={Image} onClick={fromImage}>
@@ -307,30 +383,109 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
                   </Button>
                 </div>
               </FormField>
+              {custom && dynamic && (
+                <div className="space-y-4">
+                  {asked.length > 0 && !dragging && (
+                    <div ref={question} className="scroll-mt-24">
+                      <Notice
+                        title={d.fixTitle}
+                        action={
+                          <div className="flex flex-wrap gap-2">
+                            <Button size="small" onClick={fix}>
+                              {d.fix}
+                            </Button>
+                            <Button kind="tonal" size="small" onClick={keep}>
+                              {d.keep}
+                            </Button>
+                          </div>
+                        }
+                      >
+                        <ul className="space-y-1">
+                          {asked.map((p) => (
+                            <li key={p.mode}>
+                              {t.colors[p.mode]}: {d.hardText(d.primary, ratio(p.ratio), ratio(p.min))}
+                            </li>
+                          ))}
+                        </ul>
+                      </Notice>
+                    </div>
+                  )}
+                  {keptPrimary && hardModes.length > 0 && (
+                    <ProblemNote>
+                      <p>{d.kept(d.primary)}</p>
+                      <ul className="space-y-1">
+                        {hardModes.map((p) => (
+                          <li key={p.mode}>
+                            {t.colors[p.mode]}: {d.hardText(d.primary, ratio(p.ratio), ratio(p.min))}
+                          </li>
+                        ))}
+                      </ul>
+                    </ProblemNote>
+                  )}
+                  {adjusted.length > 0 && (
+                    <Group title={d.adjustedTitle}>
+                      {adjusted.map((m) => (
+                        <ListItem
+                          key={m}
+                          headline={d.adjusted(
+                            d.primary,
+                            modeName(m),
+                            d.directions[toneOf(colors[m].primary) < toneOf(dynamic.source) ? 'darker' : 'lighter'],
+                            colors[m].primary.toUpperCase(),
+                          )}
+                          trailing={
+                            <ColorSwatches colors={[dynamic.source, colors[m].primary]} label={`${dynamic.source}, ${colors[m].primary}`} />
+                          }
+                        />
+                      ))}
+                    </Group>
+                  )}
+                  {lowSecond.map((which) => (
+                    <SupportingText key={which}>{d.lowOnPage(t.colors.preview[which])}</SupportingText>
+                  ))}
+                </div>
+              )}
               {/* Named by the harmony chosen, else (a file with a variant) "Harmony". */}
               <FormField
-                label={choice.harmony && choice.harmony !== 'custom' ? d.harmonies[choice.harmony] : d.harmony}
-                hint={d.harmonyHint}
+                label={custom ? d.custom : choice.harmony ? d.harmonies[choice.harmony as (typeof HARMONIES)[number]] : d.harmony}
+                hint={custom ? d.wheelHintCustom : d.harmonyHint}
               >
                 <div className="space-y-4">
-                  <ChipSet label={d.harmony} scroll>
+                  <ChipSet label={d.harmony}>
                     {HARMONIES.map((h) => (
-                      <FilterChip key={h} selected={choice.harmony === h} onClick={() => setDynamic({ harmony: h, variant: undefined })}>
+                      <FilterChip key={h} selected={choice.harmony === h} onClick={() => toHarmony(h)}>
                         {d.harmonies[h]}
                       </FilterChip>
                     ))}
+                    <FilterChip selected={custom} onClick={toCustom}>
+                      {d.custom}
+                    </FilterChip>
                   </ChipSet>
                   <ColorWheel
                     edge={wheel.edge}
                     middle={wheel.middle}
-                    dots={dots.map((dot, i) => ({ ...dot, locked: !i && !!choice.sourceLocked }))}
+                    dots={dots.map((dot, i) => ({
+                      ...dot,
+                      locked: !custom && !i && !!choice.sourceLocked,
+                      label: d.wheelDot(baseNames[i]),
+                    }))}
                     label={d.wheel}
                     valueText={choice.source}
-                    disabled={choice.sourceLocked}
+                    disabled={!custom && choice.sourceLocked}
                     onMove={(x, y) =>
                       // A harmony from the wheel on, as the dots are its (a variant's palettes do not follow the chroma).
                       update((c) => ({ ...c, source: wheelColor(x, y), harmony: c.harmony ?? HARMONIES[0], variant: undefined }))
                     }
+                    {...(custom && {
+                      // Each dot changes only its own colour, and keeps the tone it had when the drag began (a cream stays light).
+                      onMoveStart: (i: number) => {
+                        setDragging(true);
+                        tones.current[i] = toneOf(dots[i].color);
+                      },
+                      onMoveDot: (i: number, x: number, y: number) =>
+                        update((c) => withBaseColor(c, BASE_COLORS[i], wheelColorAt(x, y, tones.current[i] ?? toneOf(dots[i].color)))),
+                      onMoveEnd: () => setDragging(false),
+                    })}
                   />
                 </div>
               </FormField>
