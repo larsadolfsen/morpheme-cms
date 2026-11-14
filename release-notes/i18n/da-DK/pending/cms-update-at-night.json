@@ -1,0 +1,6 @@
+{
+  "id": "cms-update-at-night",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Hjemmesiden ser efter en ny version af Morpheme én gang i døgnet, om natten, i stedet for hver time"
+}

@@ -49,6 +49,9 @@
  * @property {string} testimonialsPath The address of the page that shows the testimonials, with a slash at both ends: "/testimonials/".
  * @property {string} contactAnchor The anchor on the contact page that the footer's address links to (a heading "Directions"
  *   is `directions`), without #: "directions".
+ * @property {string} timeZone The site's own time zone (IANA, "Europe/Copenhagen"), when it is not the one of its locale's country:
+ *   the Worker checks npm for a new version of the CMS once a day at 03:00 in it (lib/cms-version.mjs, siteZone). '': the zone
+ *   of the locale's country, else UTC.
  * @property {string[]} pinned Which of `folders.files`, `testimonialsPath` and `contactAnchor` the site set itself (written by
  *   defineSite, not by the site): a setting a site does not set is found in its content when it is built (lib/siteSettings.mjs).
  */
@@ -67,6 +70,7 @@ const CHOICES = {
   folders: { files: 'public/files' },
   testimonialsPath: '/testimonials/',
   contactAnchor: 'directions',
+  timeZone: '',
 };
 
 /** The same on every site. */

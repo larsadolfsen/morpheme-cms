@@ -2645,21 +2645,25 @@ export function FormHeading({ first, children }: { first?: boolean; children: Re
  * own name): its heading, as large as a FormHeading, is a button with the arrow at its right, which turns while the
  * section is open, and a line under each section. The title's box is trimmed to the capitals and the baseline, so the space above and below the letters is equal; sections that follow each other touch (no gap from a parent's `space-y`), so the line above a title is as far from it as the line below. Folded, only the heading is shown; what is in it stays (hidden), so
  * the text and the fields keep what was written, and it shows softly when opened (.editor-reveal). It stops under the
- * top bar when the page scrolls to it. `ref`: the section, for what scrolls to it and marks it. */
+ * top bar when the page scrolls to it. `ref`: the section, for what scrolls to it and marks it. `fixed`: always open,
+ * its heading plain text in the same row, with no arrow and nothing to press (a page's and a post's Content). */
 export function FoldSection({
   ref,
   title,
   open,
   onToggle,
+  fixed,
   children,
 }: {
   ref?: Ref<HTMLElement>;
   title: string;
   open: boolean;
   onToggle: () => void;
+  fixed?: boolean;
   children: ReactNode;
 }) {
   const id = useId();
+  if (fixed) open = true;
   return (
     <section
       ref={ref}
@@ -2668,21 +2672,27 @@ export function FoldSection({
       className="scroll-mt-[calc(5rem+env(safe-area-inset-top))] border-b border-outline-variant [&:has(+[data-fold-section])]:mb-0 [[data-fold-section]+&]:mt-0"
     >
       <h2>
-        <button
-          type="button"
-          id={`${id}-title`}
-          aria-expanded={open}
-          aria-controls={`${id}-body`}
-          className="-mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-(--block-radius-small) px-3 py-[1.125rem] text-left text-title-large font-semibold transition-colors hover:bg-surface-container-high focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
-          onClick={onToggle}
-        >
-          <span className="min-w-0 flex-1 [text-box:trim-both_cap_alphabetic]">{title}</span>
-          <CaretDown
-            size={20}
-            aria-hidden="true"
-            className={`shrink-0 text-on-surface-variant transition-transform motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}
-          />
-        </button>
+        {fixed ? (
+          <span id={`${id}-title`} className="flex min-h-14 items-center py-[1.125rem] text-title-large font-semibold">
+            <span className="min-w-0 flex-1 [text-box:trim-both_cap_alphabetic]">{title}</span>
+          </span>
+        ) : (
+          <button
+            type="button"
+            id={`${id}-title`}
+            aria-expanded={open}
+            aria-controls={`${id}-body`}
+            className="-mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-(--block-radius-small) px-3 py-[1.125rem] text-left text-title-large font-semibold transition-colors hover:bg-surface-container-high focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+            onClick={onToggle}
+          >
+            <span className="min-w-0 flex-1 [text-box:trim-both_cap_alphabetic]">{title}</span>
+            <CaretDown
+              size={20}
+              aria-hidden="true"
+              className={`shrink-0 text-on-surface-variant transition-transform motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}
+            />
+          </button>
+        )}
       </h2>
       <div id={`${id}-body`} hidden={!open} className="editor-reveal space-y-6 pt-2 pb-8">
         {children}

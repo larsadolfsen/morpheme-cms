@@ -44,7 +44,6 @@ import { FieldInput, Fields, HeadImage, HeadTitle, useWrongField, WrongField, ty
 import { SearchPreview } from './SearchPreview';
 import { searchedAs } from './googleResult.mjs';
 import {
-  atLeastNow,
   CheckList,
   FoldSection,
   FormColumns,
@@ -98,9 +97,9 @@ const STATUS = ['status', 'publishAt'];
 const SEO = SEO_FIELDS;
 const SHARE = SHARE_FIELDS;
 // The sections of the form, under each other on one page, each folding in and out under its heading (FoldSection in
-// ui.tsx): the settings (open from the start on a tablet or computer; folded on a phone, so the text is in reach), the
-// text (open from the start), those for search engines, those for social media, and the history (folded from the start,
-// so the page is short; nothing is remembered till the next time). Its list (an "on
+// ui.tsx): the settings, the text (always open: it does not fold), those for search engines, those for social media, and
+// the history. All but the text are folded whenever the form opens, on every screen (owner, 14 Nov 2026), so the page is
+// short; nothing is remembered till the next time. Its list (an "on
 // this page" card at the end of the form, on large and wider screens only) opens one and scrolls to it, and marks the
 // one in view. A field that keeps the form from being saved has its section opened and is scrolled to (FieldInput in
 // fields.tsx).
@@ -361,14 +360,10 @@ function Form({
     ...(isNew ? [] : [{ id: 'versions', label: t.history.versions }]),
   ];
   const shows = (id: Section) => sections.some((s) => s.id === id);
-  // The sections: which are open, at first the text, and the settings above it from a tablet up (on a phone they start
-  // folded, so the text is in reach: its H1 writes the title), and "Search engines" when it is opened at it, `opening`;
+  // The sections: which are open, at first only the text (always open), and "Search engines" when it is opened at it from
+  // a score ring, `opening`;
   // the one in view, marked in the sections list; a tap there opens one and scrolls to it (formSections.ts).
-  const [start] = useState<Section[]>(() => [
-    ...(atLeastNow('medium') ? ['settings' as const] : []),
-    'content',
-    ...(opening === 'seo' ? ['seo' as const] : []),
-  ]);
+  const [start] = useState<Section[]>(() => ['content', ...(opening === 'seo' ? ['seo' as const] : [])]);
   const { section, steer, unfold, goTo, pick, sectionProps } = useFormSections<Section>(sections, start);
   const textBox = useRef<HTMLDivElement>(null);
   // Opened from "SEO rating" (SeoScores.tsx): straight to "Search engines" (open from the start, `open`).
@@ -1313,7 +1308,7 @@ function Form({
                 {shows('settings') && (
                   <FoldSection {...sectionProps('settings')}>{fieldsIn(collection, 'settings').map(field)}</FoldSection>
                 )}
-                <FoldSection {...sectionProps('content')}>
+                <FoldSection {...sectionProps('content')} fixed>
                   {post ? postHead : fieldsIn(collection, 'content').map(field)}
                   <div ref={textBox} className="scroll-mt-[calc(1rem+env(safe-area-inset-top))]">
                     <span className="mb-1 block font-medium">{t.forms.text}</span>

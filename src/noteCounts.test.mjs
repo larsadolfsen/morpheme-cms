@@ -6,6 +6,7 @@ import { library as en } from './i18n/en-US/library.ts';
 import { library as da } from './i18n/da-DK/library.ts';
 import { readdirSync, readFileSync } from 'node:fs';
 import { markCounts, notesSince } from '../lib/releaseNotes.mjs';
+import { compareVersions } from '../lib/cms-version.mjs';
 
 test('the card says features and improvements, and leaves out a count of 0', () => {
   assert.equal(en.noteCounts(12, 30), '12 features, 30 improvements');
@@ -50,8 +51,9 @@ test('for every real version, features + improvements is its number of release n
     version: name.replace('.json', ''),
     notes: { 'en-US': read('en-US', name).notes, 'da-DK': read('da-DK', name).notes },
   }));
+  // Every version file newer than the one seen, whichever versions exist (a Release PR adds the next one).
   const since = notesSince(entries, '0.15.0', 'da-DK');
-  const want = entries.filter((e) => ['0.15.1', '0.16.0'].includes(e.version)).flatMap((e) => e.notes['da-DK']);
+  const want = entries.filter((e) => compareVersions(e.version, '0.15.0') > 0).flatMap((e) => e.notes['da-DK']);
   assert.equal(since.length, want.length);
   const { features, improvements } = markCounts(since);
   assert.equal(features + improvements, want.length);
