@@ -2022,9 +2022,10 @@ async function checkBlockMove(width) {
   };
   const tap = async (loc) => {
     await loc.scrollIntoViewIfNeeded();
-    const [x, y] = await centre(loc);
-    if (phone) await page.touchscreen.tap(x, y);
-    else await page.mouse.click(x, y);
+    if (phone) {
+      const [x, y] = await centre(loc);
+      await page.touchscreen.tap(x, y);
+    } else await loc.locator('.site-block-mark').click();
     await page.waitForTimeout(400);
   };
   const before = await names();
