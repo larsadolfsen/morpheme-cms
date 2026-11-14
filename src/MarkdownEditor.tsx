@@ -99,7 +99,8 @@ import { leaveTo } from './FormFrame';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { t } from './i18n';
-import { motionTiming } from '../lib/motion';
+import { motionReduced, motionTiming } from '../lib/motion';
+import { barSlideKind } from './barMotion.mjs';
 import { hasLabel, labelledHeading, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
 import { AaIcon, AddIcon, MoreVertIcon } from './icon';
@@ -1853,6 +1854,49 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     main: mainIds,
     more: blockMenu.length > 0,
   });
+  // The bar's motion (barMotion.mjs): the contextual tools slide in from the left and push the main tools right when a context starts, slide out
+  // when it ends, and fade in place from one context to another. FLIP: the new layout is measured, then the old place is animated from, with the
+  // theme's springs only (motionTiming) and none at all for a visitor who asked for reduced motion. The bar's height and the dividers never move.
+  const contextKey = block_ ? `block:${block_.name}` : textContext ? 'text' : '';
+  const slideRow = useRef<HTMLDivElement>(null);
+  const contextBox = useRef<HTMLDivElement>(null);
+  const mainBox = useRef<HTMLDivElement>(null);
+  const slid = useRef<{ key: string; mainLeft: number; ghost: HTMLElement | null } | null>(null);
+  useLayoutEffect(() => {
+    const row = slideRow.current;
+    const main = mainBox.current;
+    if (!row || !main) return;
+    const context = contextBox.current;
+    const mainLeft = main.offsetLeft;
+    const was = slid.current;
+    const kind = was ? barSlideKind(was.key, contextKey) : 'none';
+    if (was && kind !== 'none' && !motionReduced()) {
+      const spatial = motionTiming('spatial', 'fast');
+      // A slide that is not over is reversed from where it is: its place now counts, not its end.
+      const visibleShift = new DOMMatrixReadOnly(getComputedStyle(main).transform).m41;
+      for (const running of main.getAnimations()) running.cancel();
+      const pushed = mainLeft - was.mainLeft;
+      if (pushed || visibleShift) main.animate([{ transform: `translateX(${visibleShift - pushed}px)` }, { transform: 'none' }], spatial);
+      if (kind === 'enter' && context) {
+        context.animate([{ transform: `translateX(${-context.offsetWidth}px)` }, { transform: 'none' }], spatial);
+      }
+      if (kind === 'leave' && was.ghost) {
+        const ghost = row.appendChild(was.ghost);
+        const gone = () => ghost.remove();
+        ghost.animate([{ transform: 'none' }, { transform: `translateX(${-ghost.offsetWidth}px)` }], spatial).finished.then(gone, gone);
+      }
+      if (kind === 'change' && context) context.animate([{ opacity: 0 }, { opacity: 1 }], motionTiming('effects'));
+    }
+    // What the contextual tools looked like, to slide them out once the context ends (a copy: they are gone by then).
+    let ghost: HTMLElement | null = null;
+    if (context) {
+      ghost = context.cloneNode(true) as HTMLElement;
+      ghost.classList.add('editor-tools-ghost');
+      ghost.setAttribute('aria-hidden', 'true');
+      ghost.setAttribute('inert', '');
+    }
+    slid.current = { key: contextKey, mainLeft, ghost };
+  });
   // What a tool does and how it looks; the bar draws it as a button, the `⋮` menu as a row.
   const blockTool = (id: string) => {
     if (id === 'gear') return { label: block_!.edit!.label, icon: rawIcon(barIcons.gear), action: block_!.edit!.action };
@@ -1981,39 +2025,45 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         label={t.text.tools}
         className="editor-tools sticky top-[env(safe-area-inset-top)] z-10 rounded-t-panel border border-outline-variant pb-(--toolbar-docked-padding-block)"
       >
-        {plan.bar.context.length > 0 && (
-          <div role="group" aria-label={block_?.name ?? t.text.textTools} className="editor-tools-group">
-            {plan.bar.context.map(barButton)}
+        <div ref={slideRow} className="editor-tools-slide">
+          {plan.bar.context.length > 0 && (
+            <div ref={contextBox} className="editor-tools-context">
+              <div role="group" aria-label={block_?.name ?? t.text.textTools} className="editor-tools-group">
+                {plan.bar.context.map(barButton)}
+              </div>
+              <ToolbarDivider />
+            </div>
+          )}
+          <div ref={mainBox} className="editor-tools-main">
+            <div role="group" aria-label={t.text.pageTools} className="editor-tools-group">
+              {plan.bar.main.filter((id) => id !== 'insert').map(barButton)}
+              {plan.bar.main.includes('insert') && plan.bar.main.length > 1 && <ToolbarDivider />}
+              {plan.bar.main.filter((id) => id === 'insert').map(barButton)}
+            </div>
+            {plan.overflow && (
+              <ToolbarButton
+                ref={moreButton}
+                icon={MoreVertIcon}
+                label={t.text.more}
+                popup={!!moreAt || underMore}
+                onClick={(e) => {
+                  // A tap on the ⋮ while one of its rows' menus (Text style, Alignment, Color) is open closes that menu and does not open the ⋮
+                  // menu behind it; else it opens or closes the ⋮ menu, with none of the others open.
+                  if (underMore) {
+                    setKindsAt(null);
+                    setAlignAt(null);
+                    setColorAt(null);
+                    return setMoreAt(null);
+                  }
+                  setKindsAt(null);
+                  setAlignAt(null);
+                  setColorAt(null);
+                  setMoreAt(moreAt ? null : e.currentTarget);
+                }}
+              />
+            )}
           </div>
-        )}
-        {plan.bar.context.length > 0 && <ToolbarDivider />}
-        <div role="group" aria-label={t.text.pageTools} className="editor-tools-group">
-          {plan.bar.main.filter((id) => id !== 'insert').map(barButton)}
-          {plan.bar.main.includes('insert') && plan.bar.main.length > 1 && <ToolbarDivider />}
-          {plan.bar.main.filter((id) => id === 'insert').map(barButton)}
         </div>
-        {plan.overflow && (
-          <ToolbarButton
-            ref={moreButton}
-            icon={MoreVertIcon}
-            label={t.text.more}
-            popup={!!moreAt || underMore}
-            onClick={(e) => {
-              // A tap on the ⋮ while one of its rows' menus (Text style, Alignment, Color) is open closes that menu and does not open the ⋮
-              // menu behind it; else it opens or closes the ⋮ menu, with none of the others open.
-              if (underMore) {
-                setKindsAt(null);
-                setAlignAt(null);
-                setColorAt(null);
-                return setMoreAt(null);
-              }
-              setKindsAt(null);
-              setAlignAt(null);
-              setColorAt(null);
-              setMoreAt(moreAt ? null : e.currentTarget);
-            }}
-          />
-        )}
       </Toolbar>
       <Menu popup="end" anchor={moreAt} label={t.text.more} onClose={() => setMoreAt(null)}>
         {moreContext.map(moreRows)}
