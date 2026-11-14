@@ -819,7 +819,9 @@ async function checkTextBar(width = 360) {
   await page.keyboard.press('Escape');
   // Idle: the cursor leaves the text; the main tools only, no divider, the same bar height, nothing scrolls.
   await page.evaluate(() => document.activeElement?.blur());
-  await page.waitForTimeout(200);
+  // The contextual tools slide out first (a ghost copy of them, which is not the bar's tools): idle is what is left when it is gone.
+  await page.waitForFunction(() => !document.querySelector('.editor-tools-ghost'), null, { timeout: 4000 });
+  await page.waitForTimeout(100);
   const idle = await readBar();
   // Idle: Undo, Redo, one divider, Insert block (no divider before the text tools, which are not there).
   if (!idle.divider || idle.names.join() !== 'Undo,Redo,Insert block')
@@ -4314,7 +4316,9 @@ async function checkInlineTable(width, height) {
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(300);
   const after = await page.evaluate(() => ({
-    menu: document.querySelectorAll('.editor-tools [aria-label="Add row above"]').length,
+    // The ghost copy of the tools that left is sliding out for a moment: it is not the bar's tools.
+    menu: [...document.querySelectorAll('.editor-tools [aria-label="Add row above"]')].filter((b) => !b.closest('.editor-tools-ghost'))
+      .length,
     extra: document.querySelectorAll('[data-add-row], .inline-table-cell-next').length,
     rows: document.querySelectorAll('.inline-table-box tr[data-row]').length,
     cols: document.querySelectorAll('.inline-table-box thead th').length,
