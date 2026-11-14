@@ -2006,6 +2006,126 @@ async function checkBlockDrag(width) {
   await page.close();
 }
 
+/** Selecting several blocks of a page (blockSelectable and selectionBar in MarkdownEditor.tsx): a long press on a block's handle (touch) or a click on the mark of the block
+ * pointed at (mouse) selects it; the text is then read-only and every block shows its mark; a tap or click on another block adds it without opening it; the bar
+ * has the count with a cross first and Hide, Remove and Select all in its `⋮` (Duplicate only with one block selected); Remove asks first; Hide hides all selected;
+ * Escape or the cross ends it. */
+async function checkBlockSelect(width) {
+  const label = `block select ${width}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  for (const hint of ['Numbered steps.', 'Rows with icon, heading and text.']) {
+    await pressInsert(page, 'click');
+    await page.locator('dialog[open] button', { hasText: hint }).first().click();
+    await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
+    await page.waitForTimeout(400);
+    // Away from the rows, so the next block goes after this one.
+    await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
+    await page.keyboard.press('End');
+    await page.keyboard.press('Enter');
+  }
+  const blocks = page.locator('.ProseMirror .site-block');
+  if ((await blocks.count()) < 2) {
+    problems.push(`${label}: fewer than 2 blocks in the page`);
+    await page.close();
+    return;
+  }
+  const selected = () => page.locator('.ProseMirror .site-block-selected').count();
+  const status = () =>
+    page
+      .locator('[role=status]')
+      .filter({ hasText: /blocks? selected/ })
+      .first()
+      .textContent();
+  const countButton = page.getByRole('button', { name: /^Clear selection, \d+ blocks? selected$/ });
+  const sheetOpen = () => page.evaluate(() => !!document.querySelector('dialog[open]'));
+  const hash = () => page.evaluate(() => location.hash);
+  const here = await hash();
+  const centre = async (loc) => {
+    const b = await loc.boundingBox();
+    return [b.x + b.width / 2, b.y + b.height / 2];
+  };
+  const handle0 = blocks.nth(0).locator('.site-block-handle');
+  if (phone) {
+    const cdp = await page.context().newCDPSession(page);
+    const [hx, hy] = await centre(handle0);
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: hx, y: hy }] });
+    await page.waitForTimeout(700);
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  } else {
+    await blocks.nth(0).hover();
+    await page.waitForTimeout(400);
+    const mark = blocks.nth(0).locator('.site-block-mark');
+    if ((await mark.evaluate((el) => getComputedStyle(el).opacity)) !== '1')
+      problems.push(`${label}: the mark does not show on the block pointed at`);
+    const m = await mark.boundingBox();
+    if (m.width < 48 || m.height < 48) problems.push(`${label}: the mark's target is smaller than 48 x 48 (${m.width}x${m.height})`);
+    await mark.click();
+  }
+  await page.waitForTimeout(400);
+  if ((await selected()) !== 1) problems.push(`${label}: the first block is not selected (${await selected()})`);
+  if (!/^1 block selected$/.test((await status()) ?? '')) problems.push(`${label}: the count is not announced ("1 block selected")`);
+  if (!(await countButton.count())) problems.push(`${label}: no count with a cross on the bar`);
+  if (await page.locator('.ProseMirror[contenteditable=true]').count())
+    problems.push(`${label}: the text is not read-only while a block is selected`);
+  const marks = await page.locator('.ProseMirror .site-block-mark').evaluateAll((els) => els.map((e) => getComputedStyle(e).opacity));
+  if (marks.some((o) => o !== '1')) problems.push(`${label}: not every block shows its mark once one is selected`);
+  // Another block, added by a tap or a click on it.
+  const [sx, sy] = await centre(blocks.nth(1));
+  if (phone) await page.touchscreen.tap(sx, sy);
+  else await page.mouse.click(sx, sy);
+  await page.waitForTimeout(400);
+  if ((await selected()) !== 2) problems.push(`${label}: a tap on a second block does not add it (${await selected()})`);
+  if ((await sheetOpen()) || (await hash()) !== here) problems.push(`${label}: a tap on a block opened it while blocks were selected`);
+  if (!/^2 blocks selected$/.test((await status()) ?? '')) problems.push(`${label}: the count is not announced ("2 blocks selected")`);
+  // The ⋮ menu: Hide, Remove and Select all, and no Duplicate with two.
+  await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+  await page.waitForTimeout(300);
+  const rows = await page.locator('[role=menu] [role^=menuitem]').allTextContents();
+  const clean = rows.map((r) => r.trim());
+  for (const name of ['Hide on the page', 'Remove', 'Select all'])
+    if (!clean.includes(name)) problems.push(`${label}: the bar's menu has no "${name}" (${clean.join(', ')})`);
+  if (clean.includes('Duplicate')) problems.push(`${label}: Duplicate is offered with two blocks selected`);
+  // Remove asks first (and Escape leaves the blocks as they are).
+  await page
+    .locator('[role=menu] [role^=menuitem]', { hasText: /^Remove$/ })
+    .first()
+    .click();
+  await page.waitForTimeout(400);
+  const asked = await page.evaluate(() => document.querySelector('dialog[open]')?.textContent ?? '');
+  if (!/Remove 2 blocks/.test(asked)) problems.push(`${label}: Remove does not ask first ("${asked.trim().slice(0, 60)}")`);
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(400);
+  if ((await blocks.count()) !== 2) problems.push(`${label}: Escape on the question removed a block`);
+  if ((await selected()) !== 2) problems.push(`${label}: cancelling the question changed the selection (${await selected()})`);
+  // Hide hides every selected block.
+  await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+  await page.waitForTimeout(300);
+  await page
+    .locator('[role=menu] [role^=menuitem]', { hasText: /^Hide on the page$/ })
+    .first()
+    .click();
+  await page.waitForTimeout(500);
+  if ((await page.locator('.ProseMirror .site-block-hidden').count()) !== 2)
+    problems.push(`${label}: Hide did not hide both selected blocks`);
+  if ((await selected()) !== 2) problems.push(`${label}: Hide ended the selection (${await selected()})`);
+  // The cross ends it; the text can be written in again.
+  await countButton.click();
+  await page.waitForTimeout(400);
+  if (await selected()) problems.push(`${label}: the cross does not clear the selection`);
+  if (!(await page.locator('.ProseMirror[contenteditable=true]').count()))
+    problems.push(`${label}: the text is still read-only after the selection ended`);
+  await page.close();
+}
+
 /** The selection checkbox of a list row (theme ListItem): hover shows one box, all show once one is selected, a touch shows none
  * before that; 48 x 48; a tap on what leads the row selects it (touch); the selected row has the selected surface and corner. */
 async function checkSelectionBox() {
@@ -6540,6 +6660,7 @@ await unit('checkRedirectsSelection', () => checkRedirectsSelection());
 await unit('checkDragSelect', () => checkDragSelect());
 await unit('checkTwoFinger', () => checkTwoFinger());
 for (const w of [375, 1280]) await unit(`checkBlockDrag ${w}`, () => checkBlockDrag(w));
+for (const w of [375, 1280]) await unit(`checkBlockSelect ${w}`, () => checkBlockSelect(w));
 await unit('checkUnlistedPost', () => checkUnlistedPost());
 await unit('checkLibraryAlt', () => checkLibraryAlt());
 for (const [width, height] of [

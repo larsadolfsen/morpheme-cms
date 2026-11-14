@@ -66,6 +66,14 @@ export const text = {
   hiddenOnPage: 'Hidden on the page',
   showOnPage: 'Show on the page',
   hideOnPage: 'Hide on the page',
+  /** Selecting several blocks of the page (MarkdownEditor.tsx): the bar's count, its rows, and the question before they are removed. */
+  blocksSelected: (count: number) => (count === 1 ? '1 block selected' : `${count} blocks selected`),
+  clearBlockSelection: (count: number) => `Clear selection, ${count === 1 ? '1 block selected' : `${count} blocks selected`}`,
+  selectBlock: 'Select',
+  selectAllBlocks: 'Select all',
+  duplicateBlock: 'Duplicate',
+  removeBlocks: (count: number, names: string[], kept: string[]) =>
+    `Remove ${count} ${count === 1 ? 'block' : 'blocks'}${names.length > 0 && names.length <= 5 ? ` (${names.join(', ')})` : ''}?${kept.length ? ` ${kept.join(', ')} ${kept.length === 1 ? 'stays' : 'stay'}, as the page needs ${kept.length === 1 ? 'it' : 'them'}.` : ''} Undo brings ${count === 1 ? 'it' : 'them'} back.`,
   /** The handle on a block: dragging it moves the block (Move up and Move down do it with the keyboard). */
   dragBlock: (name: string) => `Drag ${name} to move it`,
   /** Shown in an empty line of the text, under the pointer or the cursor. */

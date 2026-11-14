@@ -93,7 +93,7 @@ import { fromLine, listPageOf } from './standard/rows/fields';
 import { sourceOf, withPart } from './standard/rows/rows.mjs';
 import { rowParts } from './standard/rows/view';
 import { barIcons, type BarAction } from './contextualMenu';
-import { blockBar, blockToolIds, type BlockBarState } from './blockBar';
+import { blockBar, blockToolIds, type BlockBarState, type CardRow } from './blockBar';
 import { preview } from './registry';
 import { leaveTo } from './FormFrame';
 import { createRoot } from 'react-dom/client';
@@ -102,11 +102,14 @@ import { t } from './i18n';
 import { motionReduced, motionTiming } from '../lib/motion';
 import { barSlideKind } from './barMotion.mjs';
 import { dragSteps, limitSteps } from './blockDrag.mjs';
-import { blockHandleIcon } from './blockHandleIcon';
-import { edgeScroll } from '@theme/ui/longPressRules.mjs';
+import { blockHandleIcon, blockMarkIcon, duplicateIcon, selectAllBlocksIcon } from './blockHandleIcon';
+import { blockSelection } from './blockSelection';
+import { allOf, hideChoice, range, removeChoice } from './blockSelectionRules.mjs';
+import { ask } from './ask';
+import { canPress, edgeScroll, movedAway } from '@theme/ui/longPressRules.mjs';
 import { hasLabel, labelledHeading, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
-import { AaIcon, AddIcon, MoreVertIcon } from './icon';
+import { AaIcon, AddIcon, CloseIcon, MoreVertIcon } from './icon';
 import pencilIcon from '@phosphor-icons/core/assets/regular/pencil-simple.svg?raw';
 import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
 import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
@@ -406,12 +409,254 @@ const moves = (view: EditorView, i: number | null, locked: string[] = []): CardI
   ];
 };
 
+// The places of the blocks (siteBlock) at the top level of the text, in order.
+const blockPlaces = (doc: Node) => {
+  const places: number[] = [];
+  doc.forEach((child, _, index) => void (child.type.name === 'siteBlock' && places.push(index)));
+  return places;
+};
+
+// The place the selection last changed at, where a range (Shift+click) starts.
+let lastPicked: number | null = null;
+
+// A block of the page that can be selected with others (docs/superpowers/specs/2026-11-13-touch-selection-design.md, section 6): a round mark at its top left
+// (an empty circle, a filled one with a check while it is selected) that a mouse sees on the block pointed at and every block shows once some block is
+// selected; a tap or a click on the block toggles it while blocks are selected; a touch held still on its card for half a second starts selecting (not in the
+// text typed in the block: the phone's own press there selects a word), Space on the focused card too, and Shift+click adds a range. Selecting makes the text
+// read-only (blockSelecting). Returns `toggle` (what a tap does), `start` (select this one), and how to let go of it.
+function blockSelectable(view: EditorView, dom: HTMLElement, card: HTMLElement, top: () => number | null, inline: boolean) {
+  const mark = dom.appendChild(document.createElement('span'));
+  mark.className = 'site-block-mark';
+  mark.setAttribute('aria-hidden', 'true');
+  mark.innerHTML = `<span class="site-block-mark-dot">${blockMarkIcon}</span>`;
+  const sync = () => {
+    const places = blockSelection.places();
+    const here = top();
+    const on = here !== null && places.includes(here);
+    dom.classList.toggle('site-block-marks', places.length > 0);
+    dom.classList.toggle('site-block-selected', on);
+    mark.dataset.mark = on ? 'on' : 'off';
+    if (places.length > 0) {
+      card.setAttribute('role', 'checkbox');
+      card.setAttribute('aria-checked', String(on));
+    } else {
+      if (inline) card.setAttribute('role', 'group');
+      else card.removeAttribute('role');
+      card.removeAttribute('aria-checked');
+    }
+  };
+  const toggle = (extend = false) => {
+    const here = top();
+    if (here === null) return;
+    if (extend && lastPicked !== null && blockSelection.places().length)
+      blockSelection.set(range(blockSelection.places(), blockPlaces(view.state.doc), lastPicked, here));
+    else blockSelection.toggle(here);
+    lastPicked = here;
+  };
+  const start = () => {
+    const here = top();
+    if (here === null) return;
+    lastPicked = here;
+    blockSelection.set([here]);
+  };
+  const off = blockSelection.subscribe(sync);
+  sync();
+  // A tap or a click while blocks are selected toggles the block (not what it does otherwise): nothing in it takes the focus or opens.
+  const picking = (e: Event) =>
+    blockSelection.places().length > 0 && !(e.target instanceof Element && e.target.closest('.site-block-handle'));
+  dom.addEventListener('mousedown', (e) => picking(e) && e.preventDefault(), true);
+  dom.addEventListener('pointerdown', (e) => picking(e) && e.preventDefault(), true);
+  let swallow = false;
+  dom.addEventListener(
+    'click',
+    (e) => {
+      if (swallow) {
+        swallow = false;
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      if (!picking(e)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      toggle(e.shiftKey);
+    },
+    true,
+  );
+  mark.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggle(e.shiftKey);
+  });
+  // Space on the focused card.
+  card.addEventListener('keydown', (e) => {
+    if (e.key !== ' ' || e.target !== card) return;
+    e.preventDefault();
+    if (blockSelection.places().length) toggle(e.shiftKey);
+    else start();
+  });
+  card.addEventListener('keyup', (e) => e.key === ' ' && e.target === card && e.preventDefault());
+  // A touch or a pen held still on the card, not on text typed in it.
+  let press: { id: number; x: number; y: number; timer: number } | null = null;
+  const typed = (target: EventTarget | null) =>
+    target instanceof Element &&
+    !!target.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"], .site-block-handle, .site-block-mark');
+  const release = () => {
+    if (press) clearTimeout(press.timer);
+    press = null;
+  };
+  dom.addEventListener('pointerdown', (e) => {
+    release();
+    swallow = false;
+    if (!canPress(e.pointerType, e.isPrimary) || blockSelection.places().length || typed(e.target)) return;
+    const id = e.pointerId;
+    press = {
+      id,
+      x: e.clientX,
+      y: e.clientY,
+      timer: window.setTimeout(() => {
+        press = null;
+        swallow = true;
+        navigator.vibrate?.(10);
+        start();
+      }, 500),
+    };
+  });
+  dom.addEventListener('pointermove', (e) => {
+    if (press?.id === e.pointerId && movedAway(press, e.clientX, e.clientY)) release();
+  });
+  for (const type of ['pointerup', 'pointercancel']) dom.addEventListener(type, release);
+  dom.addEventListener('contextmenu', (e) => press && e.preventDefault());
+  return {
+    toggle,
+    start,
+    destroy: () => {
+      release();
+      off();
+    },
+  };
+}
+
+// While blocks are selected the text is read-only (no cursor, no keyboard), and any change of the text that is not the selection's own (Undo, a block dragged)
+// ends the selection, whose places would be wrong. A change that is the selection's own tells the bar to read the blocks again.
+const blockSelecting = $prose(
+  () =>
+    new Plugin({
+      props: { editable: () => blockSelection.places().length === 0 },
+      view: (view) => {
+        let was = view.state.doc;
+        const off = blockSelection.subscribe(() => {
+          view.setProps({});
+          if (blockSelection.places().length) (document.activeElement as HTMLElement | null)?.blur?.();
+        });
+        return {
+          update: (next) => {
+            if (next.state.doc === was) return;
+            was = next.state.doc;
+            if (blockSelection.owned()) blockSelection.refresh();
+            else blockSelection.clear();
+          },
+          destroy: off,
+        };
+      },
+    }),
+);
+
+// The text bar's tools for the selected blocks (blockBar.ts): the count with a cross first, and in the `⋮` Duplicate (with one block selected, and not where
+// the template allows no more of it), Hide or Show (Hide when any selected block is shown, Show when all are hidden), Remove (after a question that names
+// the blocks, and the ones the page needs, which stay selected) and Select all. A block the template locks, or the last shown one of a block the page must
+// have, is not hidden or removed. `sheet`: the blocks the page can have and its template.
+function selectionBar(view: EditorView, sheet: BlockAsk | undefined, places: number[]): BlockBarState | null {
+  const doc = view.state.doc;
+  const rules = sheet?.template;
+  const all = blocksOf(doc);
+  const infos = places.flatMap((place) => {
+    const node = doc.maybeChild(place);
+    if (!node || node.type.name !== 'siteBlock') return [];
+    const type: string = node.attrs.type;
+    const block = type === HTML ? htmlBlock : sheet?.list.find((b) => b.type === type);
+    const hidden = node.attrs.props?.hidden === true;
+    const locked = !!rules?.locked?.includes(type);
+    const shownOfType = all.filter((b) => b.type === type && !b.hidden).length;
+    const last = !hidden && !!rules?.required?.includes(type) && shownOfType <= 1;
+    const max = rules?.max?.[type];
+    return [
+      {
+        place,
+        node,
+        hidden,
+        locked,
+        stays: locked || last,
+        // A block that is always shown on the page has no Hide.
+        noHide: !!block?.shown,
+        more: max === undefined || all.filter((b) => b.type === type).length < max,
+        name: String(block?.nameOf?.(node.attrs.props) ?? block?.label ?? type),
+      },
+    ];
+  });
+  if (!infos.length) return null;
+  const at = (place: number) => doc.resolve(0).posAtIndex(place);
+  const rows: CardRow[] = [];
+  const one = infos.length === 1 ? infos[0] : null;
+  if (one && !one.locked && one.more)
+    rows.push({
+      icon: duplicateIcon,
+      label: t.text.duplicateBlock,
+      action: () => blockSelection.own(() => view.dispatch(view.state.tr.insert(at(one.place) + one.node.nodeSize, one.node))),
+    });
+  const hide = hideChoice(infos.map((i) => ({ place: i.place, hidden: i.hidden, stays: i.stays || (i.noHide && !i.hidden) })));
+  if (hide.targets.length)
+    rows.push({
+      icon: hide.action === 'hide' ? eyeSlashIcon : eyeIcon,
+      label: hide.action === 'hide' ? t.text.hideOnPage : t.text.showOnPage,
+      action: () => {
+        const tr = view.state.tr;
+        for (const place of hide.targets) {
+          const node = doc.child(place);
+          const { hidden: _, ...props } = node.attrs.props;
+          tr.setNodeMarkup(at(place), undefined, { ...node.attrs, props: hide.action === 'hide' ? { ...props, hidden: true } : props });
+        }
+        blockSelection.own(() => view.dispatch(tr));
+      },
+    });
+  const remove = removeChoice(infos);
+  if (remove.targets.length)
+    rows.push({
+      icon: trashIcon,
+      label: t.common.remove,
+      danger: true,
+      action: async () => {
+        const named = (list: number[]) => infos.filter((i) => list.includes(i.place)).map((i) => i.name);
+        if (!(await ask(t.text.removeBlocks(remove.targets.length, named(remove.targets), named(remove.skipped)), t.common.remove))) return;
+        const tr = view.state.tr;
+        for (const place of [...remove.targets].reverse()) tr.delete(at(place), at(place) + doc.child(place).nodeSize);
+        blockSelection.own(() => view.dispatch(tr));
+        // The blocks that stay are still selected, at their new places.
+        blockSelection.set(remove.skipped.map((p) => p - remove.targets.filter((d) => d < p).length));
+      },
+    });
+  rows.push({ icon: selectAllBlocksIcon, label: t.text.selectAllBlocks, action: () => blockSelection.set(allOf(blockPlaces(doc))) });
+  return {
+    name: t.text.blocksSelected(infos.length),
+    actions: [],
+    count: { n: infos.length, label: t.text.clearBlockSelection(infos.length), action: () => blockSelection.clear() },
+    menu: rows,
+  };
+}
+
 // The handle of a block: a button at the block's top right that moves it by dragging, as the start screen's cards are moved (DashboardEdit.tsx): the
 // block is raised with the theme's elevation and follows the finger, a line shows where it will land, and it goes there when the finger is lifted (the parts
 // glide, `move`). At once, not after a hold: the handle is a drag control. Not past a block the template locks (`locked`: their types); near the top or
 // bottom of the screen the page scrolls by itself. Keyboard and screen reader users move a block with Move up and Move down (not this button, tabindex -1).
-// A tap does nothing. The block's own place in the text is `top()`.
-function blockHandle(view: EditorView, dom: HTMLElement, name: string, top: () => number | null, locked: string[] = []) {
+// A tap does nothing, or toggles the block while blocks are selected; a touch held still on it for half a second selects the block (`select`), and a move of
+// more than 10 px before that starts the drag. The block's own place in the text is `top()`.
+function blockHandle(
+  view: EditorView,
+  dom: HTMLElement,
+  name: string,
+  top: () => number | null,
+  locked: string[] = [],
+  select?: { tap: () => void; long: () => void },
+) {
   const handle = dom.appendChild(document.createElement('button'));
   handle.type = 'button';
   handle.className = 'site-block-handle';
@@ -479,24 +724,52 @@ function blockHandle(view: EditorView, dom: HTMLElement, name: string, top: () =
     run.frame = requestAnimationFrame(tick);
   };
   const stop = () => {
+    settle();
     if (run) cancelAnimationFrame(run.frame);
     run = null;
     dom.style.transform = '';
     dom.classList.remove('site-block-dragging');
     unmark();
   };
+  // The finger is down but has not moved (yet): a tap, a long press that selects, or the start of the drag.
+  let pending: { id: number; x: number; y: number; timer: number; long: boolean } | null = null;
+  const settle = () => {
+    if (pending) clearTimeout(pending.timer);
+    pending = null;
+  };
+  const lift = () => {
+    if (!pending) return;
+    const { id, y } = pending;
+    settle();
+    run = { id, startY: y, y, scroll: scrollNow(), frame: 0 };
+    dom.classList.add('site-block-dragging');
+    run.frame = requestAnimationFrame(tick);
+  };
   handle.addEventListener('pointerdown', (e) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     e.preventDefault();
     handle.setPointerCapture(e.pointerId);
-    run = { id: e.pointerId, startY: e.clientY, y: e.clientY, scroll: scrollNow(), frame: 0 };
-    dom.classList.add('site-block-dragging');
-    run.frame = requestAnimationFrame(tick);
+    settle();
+    pending = { id: e.pointerId, x: e.clientX, y: e.clientY, long: false, timer: 0 };
+    if (select && canPress(e.pointerType, e.isPrimary))
+      pending.timer = window.setTimeout(() => {
+        if (!pending) return;
+        pending.long = true;
+        navigator.vibrate?.(10);
+        select.long();
+      }, 500);
   });
   handle.addEventListener('pointermove', (e) => {
+    if (pending?.id === e.pointerId && !pending.long && movedAway(pending, e.clientX, e.clientY)) lift();
     if (run?.id === e.pointerId) run.y = e.clientY;
   });
   handle.addEventListener('pointerup', (e) => {
+    if (pending?.id === e.pointerId) {
+      const tapped = !pending.long;
+      settle();
+      if (tapped && blockSelection.places().length) select?.tap();
+      return;
+    }
     if (run?.id !== e.pointerId) return;
     const { steps } = plan();
     stop();
@@ -1129,11 +1402,13 @@ function blockCard(
         ? undefined
         : { icon: hidden ? eyeIcon : eyeSlashIcon, label: hidden ? t.text.showOnPage : t.text.hideOnPage, action: toggle },
       ...(locked ? [] : moves(view, i, rules?.locked)),
+      { icon: selectAllBlocksIcon, label: t.text.selectBlock, action: () => selectable.start() },
       stays || inPanelNow() ? undefined : { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
     ];
   };
-  // Moved by dragging its handle, unless the template locks it.
-  if (!keeps().locked) blockHandle(view, dom, name, top, keeps().rules?.locked);
+  // Selected with other blocks (a mark, a tap, a long press), and moved by dragging its handle, unless the template locks it.
+  const selectable = blockSelectable(view, dom, card, top, inline);
+  if (!keeps().locked) blockHandle(view, dom, name, top, keeps().rules?.locked, { tap: () => selectable.toggle(), long: selectable.start });
   // Typed in place: its tools are in the text's one bar (blockBar.ts), and its own menu is in the bar's `⋮`.
   if (inline) {
     const rowFieldsOf = (names: string[]) =>
@@ -1467,6 +1742,7 @@ function blockCard(
     ignoreMutation: () => true,
     destroy: () => {
       close();
+      selectable.destroy();
       stopAway();
       bar?.destroy();
       if (inline) asker()?.row(null);
@@ -1603,6 +1879,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(imageView)
       .use(cardDeletes)
       .use(marking)
+      .use(blockSelecting)
       .use(onEdit)
       .use(looking)
       .use(sectionFrame(framed))
@@ -1893,7 +2170,42 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // The one bar (textBar.mjs): the text tools while the cursor is in the text (or a sheet of the bar is open), a divider, then the main tools
   // (Insert, Undo, Redo, Section settings). It never scrolls: the tools that do not fit are in the `⋮` menu.
   // A block typed in place that is active (blockBar.ts) has its tools on the bar instead of the text's.
-  const block_ = useSyncExternalStore(blockBar.subscribe, blockBar.get);
+  const activeBlock = useSyncExternalStore(blockBar.subscribe, blockBar.get);
+  // Blocks selected with each other (blockSelection.ts): their tools are on the bar instead of any one block's.
+  const picked = useSyncExternalStore(blockSelection.subscribe, blockSelection.get);
+  const selecting = picked.places.length > 0;
+  const selectionState = selecting
+    ? (editor.current?.action((ctx) => selectionBar(ctx.get(editorViewCtx), sheeted.current, picked.places)) ?? null)
+    : null;
+  const block_ = selectionState ?? activeBlock;
+  // Escape ends it, Ctrl or Cmd+A selects all the blocks, and Back (a phone's gesture or button) ends it and stays on the page, as in the lists (useSelection.ts).
+  useEffect(() => {
+    if (!selecting) return;
+    const key = (e: KeyboardEvent) => {
+      if (document.querySelector('dialog:modal')) return;
+      if (e.key === 'Escape') blockSelection.clear();
+      else if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        editor.current?.action((ctx) => blockSelection.set(allOf(blockPlaces(ctx.get(editorViewCtx).state.doc))));
+      }
+    };
+    document.addEventListener('keydown', key, true);
+    window.history.pushState({ ...window.history.state, blockSelection: true }, '');
+    const back = () => {
+      if (!(window.history.state as { blockSelection?: boolean } | null)?.blockSelection) blockSelection.clear();
+    };
+    window.addEventListener('popstate', back);
+    return () => {
+      document.removeEventListener('keydown', key, true);
+      window.removeEventListener('popstate', back);
+      if ((window.history.state as { blockSelection?: boolean } | null)?.blockSelection) window.history.back();
+    };
+  }, [selecting]);
+  // Nothing is selected when the editor opens or goes.
+  useEffect(() => {
+    blockSelection.clear();
+    return () => blockSelection.clear();
+  }, []);
   const textContext = !block_ && (inText || holding);
   const inContext = textContext || !!block_;
   const headingLevels = h1 ? choices : [2, 3];
@@ -1927,7 +2239,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const insertLabel = blocks ? t.text.insertBlock : t.text.image;
   const hasInsert = !!blocks || !!addImage;
   const contextIds = block_
-    ? blockToolIds(block_).map((id) => `block:${id}`)
+    ? [...(block_.count ? ['block:count'] : []), ...blockToolIds(block_).map((id) => `block:${id}`)]
     : textContext
       ? ['bold', 'italic', 'style', ...(lists.length ? ['list'] : []), 'align', 'link', 'color']
       : [];
@@ -1946,7 +2258,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // A menu of one of the ⋮ menu's rows is open under the ⋮ button.
   const underMore = [kindsAt?.at, alignAt, colorAt].some((at) => !!at && at === moreButton.current);
   const plan = planBar({
-    width: barWidth,
+    // The count with its cross is two buttons wide.
+    width: barWidth - (block_?.count ? 44 : 0),
     context: contextIds,
     fixed: fixedIds,
     more: blockMenu.length > 0 || settingsShown,
@@ -1954,7 +2267,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // The bar's motion (barMotion.mjs): the contextual tools slide in from the left and push the main tools right when a context starts, slide out
   // when it ends, and fade in place from one context to another. FLIP: the new layout is measured, then the old place is animated from, with the
   // theme's springs only (motionTiming) and none at all for a visitor who asked for reduced motion. The bar's height and the dividers never move.
-  const contextKey = block_ ? `block:${block_.name}` : textContext ? 'text' : '';
+  const contextKey = block_ ? (block_.count ? 'block:selection' : `block:${block_.name}`) : textContext ? 'text' : '';
   const slideRow = useRef<HTMLDivElement>(null);
   const contextBox = useRef<HTMLDivElement>(null);
   const mainBox = useRef<HTMLDivElement>(null);
@@ -1996,6 +2309,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   });
   // What a tool does and how it looks; the bar draws it as a button, the `⋮` menu as a row.
   const blockTool = (id: string) => {
+    if (id === 'count') return { label: block_!.count!.label, icon: CloseIcon, action: block_!.count!.action };
     if (id === 'gear') return { label: block_!.edit!.label, icon: rawIcon(barIcons.gear), action: block_!.edit!.action };
     if (id === 'dynamic')
       return {
@@ -2070,6 +2384,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           onClick={(e) => setColorAt(colorAt === e.currentTarget ? null : e.currentTarget)}
         />
       );
+    if (id === 'block:count' && block_?.count)
+      return <ToolbarButton key={id} icon={CloseIcon} label={block_.count.label} count={block_.count.n} onClick={block_.count.action} />;
     const { label, icon, action, on, pressed } = toolOf(id);
     return <ToolbarButton key={id} icon={icon} label={label} selected={on ? active.includes(on) : pressed} onClick={action} />;
   };
@@ -2116,6 +2432,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
 
   return (
     <div className="editor-text-box rounded-panel bg-surface-container-lowest">
+      <span className="sr-only" role="status" aria-live="polite">
+        {selecting ? t.text.blocksSelected(picked.places.length) : ''}
+      </span>
       {/* The top edge of the text's box: it draws its own border and rounded corners, so the box's side lines start under it and never run past it when it sticks; no shadow. Stays at the top of the screen while scrolling through the text (under the safe area, as the top bar scrolls away). One row, 44 dp high: the text tools, a divider and the main tools; the `⋮` at its end has what does not fit (textBar.mjs). */}
       <Toolbar
         ref={toolbar}
