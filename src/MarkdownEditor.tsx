@@ -1832,6 +1832,19 @@ function blockCard(
       document.removeEventListener('focusin', away, true);
     };
   }
+  // A mouse pointing at the block shows its action row over its top (blockRow.ts), taking no space; a touch never points, and a block being dragged or
+  // chosen with others shows none.
+  const pointer = {};
+  dom.addEventListener('pointerenter', (e) => {
+    if (e.pointerType !== 'mouse' || dom.classList.contains('site-block-dragging') || blockSelection.places().length) return;
+    const split = splitRow(
+      menuItems()
+        .filter((it): it is CardItem => !!it)
+        .map((it) => (it.row === 'settings' ? { ...it, icon: blockSettingsIcon } : it)),
+    );
+    blockBar.point(pointer, { host: dom, items: split.row });
+  });
+  dom.addEventListener('pointerleave', () => blockBar.unpoint(pointer));
   // A block typed in place has its tools on the bar through `bar` (rows); any other block is selected by a tap (cardBar).
   const close = inline ? () => {} : cardBar(view, dom, card, name, menuItems, () => inPanelNow() && void edit());
   // A changed block is drawn anew (update false); taps on the card and its menu are not ProseMirror's.
@@ -1869,6 +1882,7 @@ function blockCard(
     ignoreMutation: () => true,
     destroy: () => {
       close();
+      blockBar.unpoint(pointer);
       selectable.destroy();
       stopAway();
       bar?.destroy();
