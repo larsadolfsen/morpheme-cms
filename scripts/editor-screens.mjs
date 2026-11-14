@@ -1744,6 +1744,69 @@ async function checkDragSelect() {
   await page.close();
 }
 
+/** Two-finger touch (useLongPress, longPressRules.mjs secondFinger): at 375 with real touch events, a second finger put down on a row while the
+ * first rests on it selects it at once (well before the 500 ms hold) and opens nothing; a second finger on another row selects nothing; a
+ * second finger after the first has moved away selects nothing. */
+async function checkTwoFinger() {
+  const label = 'two-finger select 375';
+  const page = await browser.newPage({ viewport: { width: 375, height: 700 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#list/pages'));
+  await page.waitForSelector('main a.list-item-container');
+  await page.waitForTimeout(600);
+  const rows = page.locator('main a.list-item-container.list-item-selectable');
+  if ((await rows.count()) < 2) {
+    problems.push(`${label}: fewer than 2 selectable rows`);
+    await page.close();
+    return;
+  }
+  const cdp = await page.context().newCDPSession(page);
+  const touch = (type, points) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: points });
+  const here = await page.evaluate(() => location.hash);
+  const checked = () => page.locator('main [role=checkbox][aria-checked=true]').count();
+  const centre = async (i) => {
+    const b = await rows.nth(i).boundingBox();
+    return [b.x + b.width / 2, b.y + b.height / 2];
+  };
+  const [x0, y0] = await centre(0);
+  const [x1, y1] = await centre(1);
+  // Both fingers on the first row.
+  await touch('touchStart', [{ x: x0, y: y0, id: 0 }]);
+  await page.waitForTimeout(100);
+  await touch('touchStart', [
+    { x: x0, y: y0, id: 0 },
+    { x: x0 + 40, y: y0, id: 1 },
+  ]);
+  await page.waitForTimeout(150);
+  if ((await checked()) !== 1) problems.push(`${label}: a second finger on the same row does not select it at once`);
+  await touch('touchEnd', []);
+  await page.waitForTimeout(300);
+  if ((await page.evaluate(() => location.hash)) !== here) problems.push(`${label}: the two-finger touch opened the row`);
+  const close = page.getByRole('button', { name: 'Close selection' });
+  if (await close.count()) {
+    await close.click();
+    await page.waitForTimeout(300);
+  }
+  // The second finger on another row.
+  await touch('touchStart', [{ x: x0, y: y0, id: 0 }]);
+  await page.waitForTimeout(100);
+  await touch('touchStart', [
+    { x: x0, y: y0, id: 0 },
+    { x: x1, y: y1, id: 1 },
+  ]);
+  await page.waitForTimeout(150);
+  await touch('touchEnd', []);
+  await page.waitForTimeout(300);
+  if (await checked()) problems.push(`${label}: a second finger on another row selected a row`);
+  if ((await page.evaluate(() => location.hash)) !== here) {
+    await page.evaluate((h) => (location.hash = h), here);
+    await page.waitForSelector('main a.list-item-container');
+    await page.waitForTimeout(500);
+  }
+  await page.close();
+}
+
 /** The selection checkbox of a list row (theme ListItem): hover shows one box, all show once one is selected, a touch shows none
  * before that; 48 x 48; a tap on what leads the row selects it (touch); the selected row has the selected surface and corner. */
 async function checkSelectionBox() {
@@ -6129,6 +6192,7 @@ await unit('checkSelectionBox', () => checkSelectionBox());
 await unit('checkFilesSelection', () => checkFilesSelection());
 await unit('checkRedirectsSelection', () => checkRedirectsSelection());
 await unit('checkDragSelect', () => checkDragSelect());
+await unit('checkTwoFinger', () => checkTwoFinger());
 await unit('checkUnlistedPost', () => checkUnlistedPost());
 for (const [width, height] of [
   [375, 740],
