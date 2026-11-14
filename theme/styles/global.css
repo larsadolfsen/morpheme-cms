@@ -616,21 +616,6 @@
   [aria-haspopup='menu'][aria-expanded='true'] > .button-trailing-icon {
     rotate: 180deg;
   }
-  /* The hero's buttons: small (40px) on a phone, so two fit side by side, medium (56px, a larger label) from a
-     tablet. */
-  @media (width >= theme(--breakpoint-medium)) {
-    .block-hero {
-      --button-height: 3.5rem;
-      --button-square-radius: var(--mo-shape-large);
-      --button-padding: 1.75rem;
-      --button-font-size: var(--type-title-medium-size);
-      --button-weight: var(--type-title-medium-weight);
-      --button-letter-spacing: var(--type-title-medium-tracking);
-    }
-    .block-hero .button:active {
-      border-radius: var(--mo-shape-large);
-    }
-  }
   /* A link with an arrow on its own ("Read more", "All posts"), and "Read more" on a testimonial: text buttons, a
      label in the primary colour with a state layer, the label in line with the text beside it. */
   .block-arrow-link,
@@ -885,18 +870,6 @@
     --list-expand-padding-inline: 1.5rem;
     --list-expand-padding-block: 1rem;
     --list-expand-body-padding-bottom: 1.5rem;
-  }
-
-  /* "Hero": a large image with extra-large corners. */
-  .block-hero-picture {
-    border-radius: var(--mo-shape-extra-large);
-  }
-  /* The quote: a filled card. */
-  .block-hero-note > blockquote {
-    border: 0;
-    border-radius: var(--mo-shape-large);
-    background: var(--mo-surface-container-high);
-    padding: 1rem 1.25rem;
   }
 
   /* "Cards": Material 3's three (outlined, filled, elevated: the card's `design`, ui.css); the filled one on the surface container (or the

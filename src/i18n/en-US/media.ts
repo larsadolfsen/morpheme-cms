@@ -89,6 +89,11 @@ export const media = {
   saveName: 'Save name',
   openPdf: 'Open PDF',
   download: 'Download',
+  /** The file's details on a phone (a full-screen dialog): the move to the file before and after it in the grid, and where it is ("1 of 4"). */
+  previous: 'Previous file',
+  next: 'Next file',
+  position: (index: number, total: number) => `${index} of ${total}`,
+  fileTools: 'File',
   savedAs: (name: string) => `Will be saved as ${name}`,
   usedOn: 'Used on',
   siteDesign: "The website's design",
@@ -97,7 +102,7 @@ export const media = {
   addTag: 'Add tag',
   createTag: 'Create a tag',
   /** The image's base text, kept with the image and used wherever it is shown unless that place has its own. */
-  alt: 'Describe the image',
+  alt: 'Alt text',
   altHint: 'Describe the image in a few words, for people who can’t see it.',
   decorative: 'Decorative image',
   decorativeHint: 'Screen readers skip the image.',

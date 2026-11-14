@@ -5,9 +5,7 @@ import { test } from 'node:test';
 import { leadsOf } from './leads.mjs';
 
 test('keys a standard lead by its block type', () => {
-  assert.deepEqual(leadsOf({ '/src/standard/hero/lead.ts': { lead: { body: 'text', upTo: 'buttons' } } }), {
-    hero: { body: 'text', upTo: 'buttons' },
-  });
+  assert.deepEqual(leadsOf({ '/src/standard/faq/lead.ts': { lead: { body: 'text' } } }), { faq: { body: 'text' } });
 });
 
 test('keys an app lead by its block type', () => {
@@ -16,10 +14,10 @@ test('keys an app lead by its block type', () => {
 });
 
 test('an app lead wins over a standard one, in either order', () => {
-  const standard = ['./hero/lead.ts', { lead: { heading: 'standard' } }];
-  const app = ['/src/apps/x/blocks/hero/lead.ts', { lead: { heading: 'app' } }];
-  assert.deepEqual(leadsOf(Object.fromEntries([standard, app])), { hero: { heading: 'app' } });
-  assert.deepEqual(leadsOf(Object.fromEntries([app, standard])), { hero: { heading: 'app' } });
+  const standard = ['./faq/lead.ts', { lead: { heading: 'standard' } }];
+  const app = ['/src/apps/x/blocks/faq/lead.ts', { lead: { heading: 'app' } }];
+  assert.deepEqual(leadsOf(Object.fromEntries([standard, app])), { faq: { heading: 'app' } });
+  assert.deepEqual(leadsOf(Object.fromEntries([app, standard])), { faq: { heading: 'app' } });
 });
 
 test('no modules, no leads', () => {

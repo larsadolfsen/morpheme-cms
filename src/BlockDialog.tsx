@@ -50,6 +50,31 @@ import { setPanelOpen } from './sidePanel';
 import { SiteSideSheet, siteSideSheet, siteSideSheetDialogClass, siteStandardSideSheet } from './themeUi';
 import { typedInPlace } from './typedInPlace.mjs';
 
+/** Where an image's sheet opens (the bar's tools, image tools spec section 4): its crop (Crop, until the crop view of PR 3) or its Alt text field (Alt text,
+ * until the alt text sheet of PR 4). */
+export type EditFocus = 'crop' | 'alt';
+
+/** Scrolls the open sheet to `focus` and puts the focus there, once the sheet has drawn it (it opens after the one before it has closed). */
+function reach(focus: EditFocus) {
+  let tries = 0;
+  const go = () => {
+    const sheet = [...document.querySelectorAll<HTMLElement>('dialog[open], .editor-side-sheet')].at(-1);
+    const target =
+      focus === 'crop'
+        ? (sheet?.querySelector<HTMLElement>('[aria-labelledby="crop-format"] :is([aria-checked="true"], [aria-pressed="true"])') ??
+          sheet?.querySelector<HTMLElement>('[aria-labelledby="crop-format"] button'))
+        : (() => {
+            const label = [...(sheet?.querySelectorAll('label') ?? [])].find((l) => l.textContent?.trim() === t.blocks.picture.alt);
+            return label?.htmlFor ? sheet?.querySelector<HTMLElement>(`[id="${CSS.escape(label.htmlFor)}"]`) : null;
+          })();
+    if (!target) return void (tries++ < 40 && setTimeout(go, 50));
+    target.scrollIntoView({ block: 'center' });
+    target.focus({ preventScroll: true });
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) target.select();
+  };
+  setTimeout(go);
+}
+
 export type BlockAsk = {
   list: SiteBlock[];
   /** What the text may have of them (collections.ts): what is offered, and the cards' menus. */
@@ -62,7 +87,7 @@ export type BlockAsk = {
   choose: (offer?: { image?: boolean; have?: string[] }) => Promise<{ type: string; props: BlockProps } | null>;
   /** New props for a block in the text; null when cancelled. isNew: one about to be put in ("Insert"). removable: the
    * card may be removed, so the side panel has "Remove"; 'remove' when it is tapped (never when removable is not true). */
-  edit: (type: string, props: BlockProps, isNew?: boolean, removable?: boolean) => Promise<BlockProps | 'remove' | null>;
+  edit: (type: string, props: BlockProps, isNew?: boolean, removable?: boolean, focus?: EditFocus) => Promise<BlockProps | 'remove' | null>;
   /** The settings of the section the cursor is in (its colour, null: none, an H2's image and its description, and the width); the new
    * ones, or null when cancelled. image: the section can have an image (an H2's); width: it can have a width (an H1's or H2's). */
   section: (current: SectionSettingsOf, options?: { image?: boolean; width?: boolean }) => Promise<SectionSettingsOf | null>;
@@ -151,7 +176,7 @@ const INSERT_SORT_KEY = 'editor-sort-insert';
 const groupOf = (b: SiteBlock) => (b.app ? (apps.find((a) => a.id === b.app)?.label ?? b.app) : t.blockSettings.groups[b.group ?? 'media']);
 const standardGroups: string[] = blockGroups.map((g) => t.blockSettings.groups[g]);
 
-/** crop: an image can be cut to a format (not in a "Banner"'s text, whose image the theme lays out). */
+/** crop: an image can be cut to a format (not in a block's text, whose image the theme lays out). */
 export function useBlockDialog(
   list: SiteBlock[] = siteBlocks,
   data: BlockData,
@@ -328,8 +353,9 @@ export function useBlockDialog(
       }
       setValues(spec.value);
     },
-    edit: async (type, props, isNew = false, removable = false) => {
+    edit: async (type, props, isNew = false, removable = false, focus) => {
       const fields = blockOf(type)?.fields ?? [];
+      if (focus) reach(focus);
       // A block on the page with what a field it has no value for means; a new one with the defaults.
       const a = await ask(
         { step: 'fields', type, isNew, removable },
@@ -362,8 +388,8 @@ export function useBlockDialog(
     return true;
   }
 
-  // Closed (Annuller, the cross, a swipe down, Esc, a tap beside it) with the fields changed: the owner is
-  // asked whether to keep them ("Insert", "Save"), leave them or stay.
+  // Closed (Cancel, the cross, a swipe down, Esc, a tap beside it) with the fields changed: the owner is
+  // asked whether to keep them (Keep: as the sheet's Insert or Save), leave them (Discard) or stay.
   // true when it has closed (not when the owner stays in it, or a field keeps it from being saved).
   async function leave(): Promise<boolean> {
     const finish = (a: Answer) => {
@@ -374,12 +400,12 @@ export function useBlockDialog(
     if (open?.step === 'row') return finish(null);
     if (open?.step === 'section') {
       if (JSON.stringify(sectionValues(values)) === shown.current) return finish(null);
-      const choice = await closeChanged(t.common.save);
+      const choice = await closeChanged();
       if (choice === 'keep') return (saveSection(), true);
       return choice === 'discard' && finish(null);
     }
     if (open?.step !== 'fields' || asWritten(open.type, values) === shown.current) return finish(null);
-    const choice = await closeChanged(open.isNew ? t.blocks.insert : t.common.save);
+    const choice = await closeChanged();
     if (choice === 'keep') return save(open.type);
     return choice === 'discard' && finish(null);
   }
