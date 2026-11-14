@@ -60,7 +60,7 @@ actionable surface." "For non-actionable cards, the card itself is not a tab sto
 tab stop". "Non-actionable cards are purely containers, so they don't need a role." Lists: "Tab key navigates to the list. Space or
 Enter keys activate items." "All list items must be able to be activated using the Space or Enter key."
 
-**Where M3 is silent.** M3 prints the card's left and right padding only, not its top and bottom padding, and no picture of a
+**Where M3 is silent.** M3 prints the card's left and right padding only, not its top and bottom padding, and no example of a
 list's items inside a card's padding. We use the nearest printed values (section 4): the items' own 16dp leading and trailing space
 make the card's 16dp left/right padding, and an 8dp top and bottom padding (the theme's `--card-gap` step, the 8dp grid). No
 deviation: nothing contradicts a printed rule. Nothing goes in `docs/material-deviations.md`.
@@ -150,7 +150,7 @@ rule), and the line runs from the card's edge to the card's edge because the car
 
 ### Section colours
 
-A section on a colour (`.text-section-primary|secondary|tertiary|picture`) swaps the `--mo-*` roles once (`global.css`), and the
+A section on a colour (the `.text-section-*` classes of a colour or a background image) swaps the `--mo-*` roles once (`global.css`), and the
 Card part reads only those roles, so the card follows by itself, as Cards' cards do: outlined on the section's surface with the
 swapped outline variant (35% of the on-colour); filled on the swapped surface container (10% of the on-colour); elevated on the
 swapped container low, its shadow as Cards'. The rows' text, supporting text, icons and arrow keep their `.block-list` tokens
