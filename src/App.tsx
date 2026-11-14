@@ -839,7 +839,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'company') return <Company files={files} />;
   if (route === 'blocks') return <Blocks files={files} />;
   if (route === 'files' || route.startsWith('files/'))
-    return <Media key={route} files={files} env={env} open={route === 'files' ? undefined : '/' + route.slice('files/'.length)} />;
+    return <Media key="files" files={files} env={env} open={route === 'files' ? undefined : '/' + route.slice('files/'.length)} />;
   if (route === 'seo') return <Seo />;
   if (route === REDIRECTS_ROUTE) return <Redirects env={env} />;
   if (route === SEO_SCORES_ROUTE) return <SeoScores files={files} env={env} />;

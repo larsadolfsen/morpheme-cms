@@ -2,10 +2,12 @@
 // imported or added in the editor, images.ts) and the PDFs, videos and zip files (the site's files folder, public/files/,
 // /files/ on the site), newest first, with search, the order (newest, oldest, by name), a month or year,
 // the type (Billeder, PDF'er, Videoer, Zip-filer) and whether a page uses them (Gallery). A file that is
-// not an image is a square with its icon and name. Tapping one opens its details: below the expanded width a full-screen
-// dialog (Material 3's: the close icon, the file name as headline, Download as the one action; the file first, in its own
-// proportions, then its fields; a docked toolbar under them moves to the file before and after it, "1 of 4"), from expanded
-// a side sheet beside the grid. The details: the file (FileView.tsx), its file name and where it is used, each a link to that page or post, or
+// not an image is a square with its icon and name. Tapping one opens its details: below the expanded width a subpage of
+// Files (route files/<address>; Material 3's list-detail, compact: one view at a time, a back arrow in the top bar that
+// returns to the list, the file name as headline, Download as the action; the file first, in its own proportions, then its
+// fields; a docked toolbar under them moves to the file before and after it, "1 of 4", in the same subpage), from expanded
+// a side sheet beside the grid. The list stays mounted, hidden, under the subpage, so its filters stay and the scroll
+// position comes back. The details: the file (FileView.tsx), its file name and where it is used, each a link to that page or post, or
 // "Delete image" (…) when nothing uses it (also not the site's own code, /editor/code-images.json). Its
 // name, under the title, can be changed with the pencil after it (not one the site's code uses),
 // saved with the tick: the file moves, the pages that use it get the new address in the same commit,
@@ -14,7 +16,8 @@
 // The buttons that run (add, rename, delete, upload new) show the loading indicator while they do.
 // The funnel in Filer also filters by a tag (fileTagFilter.mjs; only tags some file has).
 // The clock in the top bar, "Deleted files", opens the files that were deleted (Deleted.tsx).
-import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactElement } from 'react';
+import { replace, up } from './nav';
 import { ArrowsDownUp, CalendarBlank, Check, ClockCounterClockwise, PencilSimple, Trash, UploadSimple, X } from '@phosphor-icons/react';
 import { moveRedirects, REDIRECTS } from './addresses';
 import { changesOf, flatten, readAll, REDIRECT_FILES } from './redirectData';
@@ -55,7 +58,7 @@ import { fileKindOf, pickedKindOf, pickImage, prepareFile, prepareImage, publicP
 import { fileIcons, FileView, KINDS, kindOf, type Kind } from './FileView';
 import MediaAlt from './MediaAlt';
 import MediaTags from './MediaTags';
-import { SiteCard, SiteDialog, siteDialogFullScreenModalClass, SiteImageTile, SiteToolbar } from './themeUi';
+import { SiteCard, SiteImageTile, SiteToolbar } from './themeUi';
 import MediaProviderPicker from './MediaProviderPicker';
 import { providerFile, trackProviderDownload, type MediaItem } from './mediaProviders';
 import { activeApps, mediaProvidersOf } from './apps';
@@ -640,53 +643,49 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
   }, [files, code]);
   // Each file's tags, for the filter by tag.
   const tags = useMemo(() => tagIndex(recordsIn(files, config.fileRecords)), [files]);
-  const dialog = useRef<HTMLDialogElement>(null);
   const opened = open && images.some((p) => publicPath(p.path) === open) ? open : null;
   const [src, setSrc] = useState<string | null>(opened);
-  // On a computer the file picked is beside the grid; on a phone in a sheet.
+  // On a computer the file picked is beside the grid; on a phone it is a subpage of Files (the route files/<address>).
   const wide = useAtLeast('expanded');
+  const detail = !wide && !!opened;
+  const listScroll = useRef(0);
+  // The subpage (or the side sheet) is closed: on a phone back to the list (the back arrow does the same through Screen).
   const closeFile = () => {
-    if (dialog.current?.open) dialog.current.close();
+    if (!wide && opened) up('#files');
     else setSrc(null);
-  };
-  // The field being typed in is left first, so its text is saved as on leaving it (MediaAlt saves on blur).
-  const closeDialog = () => {
-    (document.activeElement as HTMLElement | null)?.blur();
-    dialog.current?.close();
   };
   function show(next: string) {
     setSrc(next);
     setName(stemOf(next));
     setEditing(false);
   }
-  // The window gets wide or narrow (a phone turned) while a file is picked: it moves from the sheet to
-  // the panel or back, and stays picked.
-  const moving = useRef(false);
+  // The address is the file shown on a phone: opened, left with Back, or changed by Previous and Next.
   useEffect(() => {
-    if (!src) return;
-    if (wide && dialog.current?.open) {
-      moving.current = true;
-      dialog.current.close();
-    } else if (!wide && !dialog.current?.open) dialog.current?.showModal();
-  }, [wide]);
-  // Opened at a file on a phone: the sheet opens with the screen.
-  useEffect(() => {
-    if (opened && !wide) dialog.current?.showModal();
-  }, []);
+    if (wide) return;
+    if (opened) {
+      if (opened !== src) show(opened);
+    } else setSrc(null);
+  }, [opened, wide]);
+  // Back to the list: the scroll position it had when the file was opened.
+  useLayoutEffect(() => {
+    if (!detail) scrollTo(0, listScroll.current);
+  }, [detail]);
   const [adding, setAdding] = useState(false);
   const [deleting, setDeleting] = useState(false);
   // Several files selected (a long press on a phone, Space or the mark on hover on a computer): one delete for all.
   // Not before it is known which files the site's code uses (then nothing can be deleted).
   const [order, setOrder] = useState<string[]>([]);
   const selection = useSelection({ order, enabled: !!code, spaceStarts: true });
-  // Where the file shown is among those the grid shows (its search, filters and order), for Previous and Next in the dialog.
+  // Where the file shown is among those the grid shows (its search, filters and order), for Previous and Next in the subpage.
   const at = src ? order.indexOf(src) : -1;
   const total = at < 0 ? 0 : order.length;
   const step = (delta: number) => {
     const next = order[at + delta];
     if (!next) return;
+    // The field being typed in is left first, so its text is saved as on leaving it (MediaAlt saves on blur).
     (document.activeElement as HTMLElement | null)?.blur();
-    show(next);
+    if (wide) show(next);
+    else replace(`#files${next}`);
   };
   const [deletingMany, setDeletingMany] = useState(false);
   const [name, setName] = useState(opened ? stemOf(opened) : '');
@@ -925,7 +924,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
         {usedBy.length || code?.includes(src) ? (
           <ul className={listClass}>
             {usedBy.map((f) => (
-              <ListItem key={f.path} href={`#${f.path}`} onClick={closeFile} headline={f.name} />
+              <ListItem key={f.path} href={`#${f.path}`} onClick={wide ? closeFile : undefined} headline={f.name} />
             ))}
             {code?.includes(src) && <ListItem tone="muted" headline={t.media.siteDesign} />}
           </ul>
@@ -945,11 +944,11 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
 
   return (
     <Screen
-      title={selection.selecting ? t.library.selectedCount(selection.count) : t.common.parts.media}
+      title={detail && src ? fileName(src) : selection.selecting ? t.library.selectedCount(selection.count) : t.common.parts.media}
       wide
-      back={{ href: '#', label: siteName }}
+      back={detail ? { href: '#files', label: t.common.parts.media } : { href: '#', label: siteName }}
       selection={
-        selection.selecting ? (
+        !detail && selection.selecting ? (
           <SelectionBar count={selection.count} onClose={selection.clear} kind="actions">
             <IconButton
               icon={Trash}
@@ -962,17 +961,19 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
         ) : undefined
       }
       actions={
-        <>
+        detail && src ? (
+          <IconLink icon="download-simple" label={t.media.download} href={shownAt(src)} download={fileName(src)} />
+        ) : (
           <IconButton
             icon={ClockCounterClockwise}
             label={t.history.deletedOf(t.history.files)}
 
             onClick={() => (location.hash = 'deleted/files')}
           />
-        </>
+        )
       }
     >
-      <div className="expanded:flex expanded:items-start expanded:gap-6">
+      <div hidden={detail} className="expanded:flex expanded:items-start expanded:gap-6">
         <div className="min-w-0 flex-1">
           <Gallery
             srcs={filerAddresses(files)}
@@ -983,8 +984,9 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
             selection={selection}
             onShown={setOrder}
             onPick={(src) => {
-              show(src);
-              if (!wide) dialog.current?.showModal();
+              if (wide) return show(src);
+              listScroll.current = scrollY;
+              location.hash = `files${src}`;
             }}
           />
         </div>
@@ -994,43 +996,21 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
           </SideSheet>
         )}
       </div>
-      <dialog
-        ref={dialog}
-        className={`${siteDialogFullScreenModalClass} editor-file-dialog`}
-        aria-labelledby="media-file-title"
-        onClose={(e) => {
-          if (e.target !== e.currentTarget) return;
-          if (moving.current) moving.current = false;
-          else setSrc(null);
-        }}
-        onClick={(e) => {
-          if (e.target === dialog.current || (e.target as Element).closest('[data-dialog-close]')) closeDialog();
-        }}
-      >
-        <SiteDialog
-          kind="full-screen"
-          headline={src ? fileName(src) : ''}
-          headlineId="media-file-title"
-          closeLabel={t.common.close}
-          actions={src && <IconLink icon="download-simple" label={t.media.download} href={shownAt(src)} download={fileName(src)} />}
-        >
-          {!wide && src && (
-            <>
-              <div className="space-y-4">{details(src, true)}</div>
-              {total > 1 && (
-                <SiteToolbar label={t.media.fileTools} kind="docked" className="editor-file-toolbar">
-                  <IconButton icon="caret-left" label={t.media.previous} disabled={at <= 0} onClick={() => step(-1)} />
-                  <span className="text-on-surface-variant" aria-live="polite">
-                    {t.media.position(at + 1, total)}
-                  </span>
-                  <IconButton icon="caret-right" label={t.media.next} disabled={at >= total - 1} onClick={() => step(1)} />
-                </SiteToolbar>
-              )}
-            </>
+      {detail && src && (
+        <>
+          <div className="space-y-4">{details(src, true)}</div>
+          {total > 1 && (
+            <SiteToolbar label={t.media.fileTools} kind="docked" className="sticky bottom-0 mt-6">
+              <IconButton icon="caret-left" label={t.media.previous} disabled={at <= 0} onClick={() => step(-1)} />
+              <span className="text-on-surface-variant" aria-live="polite">
+                {t.media.position(at + 1, total)}
+              </span>
+              <IconButton icon="caret-right" label={t.media.next} disabled={at >= total - 1} onClick={() => step(1)} />
+            </SiteToolbar>
           )}
-        </SiteDialog>
-      </dialog>
-      <CreateFab label={t.media.add} busy={adding} disabled={adding} onClick={add} />
+        </>
+      )}
+      {!detail && <CreateFab label={t.media.add} busy={adding} disabled={adding} onClick={add} />}
     </Screen>
   );
 }

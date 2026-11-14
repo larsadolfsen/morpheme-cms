@@ -2599,11 +2599,12 @@ async function checkSelection() {
   }
 }
 
-/** A file's details in Filer on a phone (Media.tsx): a full-screen dialog over the whole screen, never a bottom sheet over the grid;
- * its header has the close icon, the file name and Download; the image is the first thing under it, in view; the toolbar says
- * "1 of N" from the English texts, and Next moves to the next file. */
+/** A file's details in Files on a phone (Media.tsx): a subpage of Files (route files/<address>), not a dialog: the editor's top bar
+ * with a back arrow, the file name and Download; the image is the first thing under it, in view; the toolbar says "1 of N" from the
+ * English texts and Next moves to the next file in the same subpage; Back returns to the list at the same scroll position, with the
+ * file's tile still there; a reload on the subpage reopens the file. */
 async function checkFilesDialog() {
-  const label = 'files dialog 375';
+  const label = 'files subpage 375';
   const page = await browser.newPage({ viewport: { width: 375, height: 800 }, hasTouch: true, isMobile: true, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
@@ -2614,45 +2615,78 @@ async function checkFilesDialog() {
     .catch(() => false);
   if (!some) return void (await page.close());
   await page.waitForTimeout(800);
-  const first = page.locator('main [data-media-tile]').first();
-  const isImage = (await first.locator('img').count()) > 0;
-  await first.click();
+  const tiles = page.locator('main [data-media-tile]');
+  const index = Math.min(5, (await tiles.count()) - 1);
+  await tiles.nth(index).scrollIntoViewIfNeeded();
+  const before = await page.evaluate(() => scrollY);
+  const isImage = (await tiles.nth(index).locator('img').count()) > 0;
+  const tileName = await tiles.nth(index).getAttribute('aria-label');
+  await tiles.nth(index).click();
   await page
-    .waitForSelector('dialog[open] .dialog-full-screen', { timeout: 5000 })
-    .catch(() => problems.push(`${label}: no full-screen dialog`));
+    .waitForFunction(() => location.hash.startsWith('#files/'), null, { timeout: 5000 })
+    .catch(() => problems.push(`${label}: the address did not change`));
   await page.waitForTimeout(500);
+  if (await page.locator('dialog[open]').count()) problems.push(`${label}: a dialog opened, not a subpage`);
   const look = await page.evaluate(() => {
-    const d = document.querySelector('dialog[open]');
-    if (!d) return null;
-    const r = d.getBoundingClientRect();
-    const img = d.querySelector('.dialog-content img');
+    const main = document.querySelector('main');
+    const img = main?.querySelector('img:not([data-media-tile] img)');
     const ir = img?.getBoundingClientRect();
-    const first = d.querySelector('.dialog-content > div > :first-child');
+    const toolbar = main?.querySelector('[role=toolbar] [aria-live]');
     return {
-      full: r.left <= 0 && r.top <= 0 && r.width >= innerWidth - 1 && r.height >= innerHeight - 1,
-      title: d.querySelector('.dialog-headline')?.textContent ?? '',
-      download: !!d.querySelector('.dialog-header-actions a[download]'),
-      imageFirst: !!img && first === img,
+      title: document.querySelector('h1')?.textContent ?? '',
+      back: !!document.querySelector('a[aria-label^="Back to"]'),
+      close: !!document.querySelector('.dialog-full-screen'),
+      download: !!document.querySelector('a[download]'),
       imageInView: !!ir && ir.top >= 0 && ir.top < innerHeight / 2 && ir.height > 50,
-      count: d.querySelector('[role=toolbar] [aria-live]')?.textContent ?? '',
+      count: toolbar?.textContent ?? '',
     };
   });
-  if (!look) problems.push(`${label}: no dialog open`);
-  else {
-    if (!look.full) problems.push(`${label}: the dialog does not fill the screen`);
-    if (!look.title.trim()) problems.push(`${label}: the dialog has no file name as headline`);
-    if (!look.download) problems.push(`${label}: no Download in the dialog's header`);
-    if (isImage && !look.imageFirst) problems.push(`${label}: the image is not the first thing in the dialog`);
-    if (isImage && !look.imageInView) problems.push(`${label}: the image is not in view at the top`);
-    if (look.count && !/^1 of \d+$/.test(look.count)) problems.push(`${label}: the position says "${look.count}", not "1 of N"`);
-    if (look.count) {
-      await page.locator('dialog[open] [role=toolbar] button').last().click();
-      await page.waitForTimeout(300);
-      const now = await page.locator('dialog[open] [role=toolbar] [aria-live]').textContent();
-      if (!/^2 of \d+$/.test(now ?? '')) problems.push(`${label}: Next does not move to the second file ("${now}")`);
-    }
+  if (!look.title.trim()) problems.push(`${label}: no file name as headline`);
+  if (!look.back) problems.push(`${label}: no back arrow`);
+  if (look.close) problems.push(`${label}: a full-screen dialog is drawn`);
+  if (!look.download) problems.push(`${label}: no Download in the top bar`);
+  if (isImage && !look.imageInView) problems.push(`${label}: the image is not in view at the top`);
+  if (look.count && !/^\d+ of \d+$/.test(look.count)) problems.push(`${label}: the position says "${look.count}", not "N of M"`);
+  if (look.count) {
+    const was = look.count;
+    await page.locator('main [role=toolbar] button').last().click();
+    await page.waitForTimeout(300);
+    const now = await page.locator('main [role=toolbar] [aria-live]').textContent();
+    if (now === was) problems.push(`${label}: Next does not move to another file ("${now}")`);
+    await page.locator('main [role=toolbar] button').first().click();
+    await page.waitForTimeout(300);
   }
+  // A reload on the subpage reopens the file.
+  const hash = await page.evaluate(() => location.hash);
+  await page.reload();
+  await page
+    .waitForSelector('a[aria-label^="Back to"]', { timeout: 8000 })
+    .catch(() => problems.push(`${label}: a reload does not reopen the subpage`));
+  await page.evaluate(() => history.back()).catch(() => {});
   await page.close();
+  // Back returns to the list at the scroll position.
+  const back = await browser.newPage({ viewport: { width: 375, height: 800 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  await openEditor(back, site);
+  await back.evaluate(() => (location.hash = '#files'));
+  await back.waitForSelector('main [data-media-tile]', { timeout: 8000 });
+  await back.waitForTimeout(800);
+  await back.locator('main [data-media-tile]').nth(index).scrollIntoViewIfNeeded();
+  const top = await back.evaluate(() => scrollY);
+  await back.locator('main [data-media-tile]').nth(index).click();
+  await back.waitForFunction(() => location.hash.startsWith('#files/'));
+  await back.waitForTimeout(300);
+  await back.locator('a[aria-label^="Back to"]').first().click();
+  await back
+    .waitForFunction(() => location.hash === '#files', null, { timeout: 5000 })
+    .catch(() => problems.push(`${label}: Back does not return to the list`));
+  await back.waitForTimeout(500);
+  const after = await back.evaluate(() => scrollY);
+  if (Math.abs(after - top) > 2) problems.push(`${label}: Back returned to scroll ${after}, not ${top}`);
+  if (tileName && !(await back.locator(`main [data-media-tile][aria-label="${tileName}"]`).isVisible()))
+    problems.push(`${label}: the file's tile is not visible after Back`);
+  void before;
+  void hash;
+  await back.close();
 }
 
 /** Selecting files in Filer (Media.tsx): a long press on a tile (phone) or the mark on hover (computer) selects it; the tiles show
