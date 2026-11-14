@@ -2,7 +2,7 @@ import type { Messages } from '../en-US';
 
 export const blockSettings: Messages['blockSettings'] = {
   stillOn: (n) => `Blokken bruges på ${n} ${n === 1 ? 'side' : 'sider'}. Fjern den derfra først.`,
-  inactive: 'Deaktiveret',
+  inactive: 'Fra',
   standard: 'Standardblokke',
   groups: {
     cards: 'Kort',
@@ -20,7 +20,7 @@ export const blockSettings: Messages['blockSettings'] = {
   stuck: 'Blokken bruges på sider og kan ikke slås fra',
   onHint: 'Vises under Indsæt.',
   offHint: 'Vises ikke under Indsæt.',
-  active: 'Aktiveret',
+  active: 'Til',
   kindStuck: (more) => `Blokken bruges i ${more} og kan ikke slås fra`,
   kindStillOn: (n, what) => `Blokken bruges i ${n} ${what}. Slet ${n === 1 ? 'den' : 'dem'} først.`,
   kindOnHint: (create) => `Vises under ${create}.`,

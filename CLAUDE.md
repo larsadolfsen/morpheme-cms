@@ -170,7 +170,7 @@ All wording in UI components, buttons and fields follows Material 3's *Global wr
 - Short, precise sentences in the active voice. No local abbreviations or unexplained national concepts.
 - **Image everywhere** (owner rule, 12 Nov): English texts, docs and notes say `image`. `check:language` fails on the
   old word; stored names (CSS classes, data attributes, saved ids) keep it and are listed in `scripts/check-language.mjs`.
-- Toggles and states: `Enabled` / `Disabled`, `On` / `Off` (their Danish labels are in the `da-DK` language files).
+- A switch and the status it gives: `On` / `Off` (their Danish labels are in the `da-DK` language files). The switch's label names the setting (`Promotion`, `Internal links`), never `Activated`. `Disabled` only for a greyed-out control (Material 3: "A disabled state communicates an inoperable component or element").
 - Document status: `Draft`, `Published`. A page is scheduled with a date on `Publish` (`Schedule`); `Hidden` is the SEO
   setting `Hide from search engines`.
 - Action buttons: active verbs without filler words (`Add tag`, `Edit page`, `Save`).
