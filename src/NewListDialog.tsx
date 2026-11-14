@@ -1,23 +1,22 @@
 // `New list` (docs/superpowers/plans/2026-11-12-new-list.md, batch 7; the owner's decision of 13 November): the dialog the `New list` button on the
-// `Lists` screen opens, with only the list's name. `Create` writes `src/data/<id>/_list.json` with no fields as one commit and opens the new list's
-// page, where the owner adds fields one at a time (`Add field`). The parts are ui.tsx's and the dialog is the editor's one pattern (ask.tsx): `Cancel` outlined, the main choice filled,
+// `Lists` screen opens, with only the list's name. `Create` makes the list's waiting version (src/listDraft.ts; the owner's decision of 14 November: nothing
+// is committed until the final `Save` on the list's page) with no fields and opens the new list's page, where the owner adds fields one at a time (`Add field`). The parts are ui.tsx's and the dialog is the editor's one pattern (ask.tsx): `Cancel` outlined, the main choice filled,
 // no initial focus. The rules are lib/ownList.mjs (`idOf` refuses a name that is taken).
 import { useEffect, useRef, useState } from 'react';
 import { config } from '@site/editor';
 import { Button, Dialog, TextField } from './ui';
-import { ConflictError, type RepoFile } from './github';
-import { siteT, t } from './i18n';
-import { kindAndName, lower, savedText } from './deploy';
+import type { RepoFile } from './github';
+import { t } from './i18n';
 import { collectionsFor } from './site';
-import { DEFINITION_FILE, DEFINITION_VERSION, idOf } from '../lib/ownList.mjs';
+import { DEFINITION_VERSION, idOf } from '../lib/ownList.mjs';
 import { definitionText } from '../lib/ownListEdit.mjs';
-import type { Env } from './App';
+import { draftText } from '../lib/ownListDraft.mjs';
+import { listDraftIds, setListDraft } from './listDraft';
 
-export default function NewListDialog({ files, env, open, onClose }: { files: RepoFile[]; env: Env; open: boolean; onClose: () => void }) {
+export default function NewListDialog({ files, open, onClose }: { files: RepoFile[]; open: boolean; onClose: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [label, setLabel] = useState('');
   const [problem, setProblem] = useState('');
-  const [busy, setBusy] = useState(false);
   useEffect(() => {
     const el = dialog.current;
     if (open && el && !el.open) {
@@ -34,34 +33,16 @@ export default function NewListDialog({ files, env, open, onClose }: { files: Re
   const taken = () => {
     const prefix = `${config.folders.data}/`;
     const folders = files.filter((f) => f.path.startsWith(prefix)).map((f) => f.path.slice(prefix.length).split('/')[0]);
-    return [...collectionsFor(files).map((c) => c.id), ...folders];
+    return [...collectionsFor(files).map((c) => c.id), ...folders, ...listDraftIds()];
   };
 
-  async function create() {
+  function create() {
     const named = idOf(label, taken());
     if (!named.id) return setProblem(named.suggestion ? t.ownList.nameTaken : t.ownList.nameNeeded);
-    const id = named.id;
-    const name = label.trim();
-    const path = `${config.folders.data}/${id}/${DEFINITION_FILE}`;
-    const text = definitionText({ version: DEFINITION_VERSION, label: name, fields: [], dropped: [] });
-    const change = t.app.changes.created(kindAndName(t.ownList.list, name));
-    setBusy(true);
-    env.notify({ text: t.common.saving });
-    try {
-      const oids = await env.commit(
-        siteT.forms.commit.create(siteT.ownList.new, lower(name)),
-        [{ path, content: text, oid: null }],
-        change,
-      );
-      env.onSaved({ path, oid: oids[path], text });
-      env.notify({ text: savedText(change), kind: 'saved' });
-      dialog.current?.close();
-      location.hash = `#list/${id}`;
-    } catch (e) {
-      env.notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
-    } finally {
-      setBusy(false);
-    }
+    const text = definitionText({ version: DEFINITION_VERSION, label: label.trim(), fields: [], dropped: [] });
+    setListDraft(named.id, draftText({ definition: text, rows: [] }));
+    dialog.current?.close();
+    location.hash = `#list/${named.id}`;
   }
 
   return (
@@ -70,7 +51,7 @@ export default function NewListDialog({ files, env, open, onClose }: { files: Re
         method="dialog"
         onSubmit={(e) => {
           e.preventDefault();
-          void create();
+          create();
         }}
       >
         <h2 className="mb-4 text-body-large font-medium">{t.ownList.new}</h2>
@@ -78,7 +59,6 @@ export default function NewListDialog({ files, env, open, onClose }: { files: Re
           id="new-list-name"
           label={t.ownList.name}
           value={label}
-          disabled={busy}
           problem={problem || undefined}
           onChange={(e) => (setLabel(e.target.value), setProblem(''))}
         />
@@ -86,7 +66,7 @@ export default function NewListDialog({ files, env, open, onClose }: { files: Re
           <Button kind="outlined" type="button" onClick={() => dialog.current?.close()}>
             {t.common.cancel}
           </Button>
-          <Button kind="filled" type="submit" disabled={busy}>
+          <Button kind="filled" type="submit">
             {t.ownList.make}
           </Button>
         </div>

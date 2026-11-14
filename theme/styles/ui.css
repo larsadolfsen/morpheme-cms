@@ -2980,7 +2980,8 @@
   popovers, placed with CSS anchor positioning (else by ui/dropdownMenu.script.ts).
     --menu-width, --menu-min-width, --menu-max-width, --menu-max-height, --menu-radius, --menu-surface, --menu-line,
     --menu-shadow (level 2), --menu-padding
-    --menu-item-height, --menu-item-padding, --menu-item-radius, --menu-item-gap, --menu-item-font-size,
+    --menu-item-height, --menu-item-padding, --menu-item-radius, --menu-item-edge-radius, --menu-item-selected-radius,
+    --menu-item-gap, --menu-item-font-size,
     --menu-item-weight, --menu-item-letter-spacing, --menu-item-text, --menu-item-icon-color, --menu-item-supporting-text,
     --menu-item-hover-surface, --menu-item-hover-text, --menu-item-pressed-surface, --menu-item-selected-surface,
     --menu-item-selected-text, --menu-item-selected-weight, --menu-item-disabled-opacity
@@ -3227,6 +3228,21 @@
     background: var(--menu-item-selected-surface, transparent);
     color: var(--menu-item-selected-text, var(--block-accent));
     font-weight: var(--menu-item-selected-weight, 500);
+  }
+  /* Material 3 menus page, Specs: an item has a 4dp corner, the first and last item of a menu or group 12dp on the outer
+     corners, and the selected item 12dp. */
+  :is(.menu, .menu-group-items) > li:first-child > .menu-item,
+  :is(.menu, .menu-group-items) > li:first-child > .menu-item-submenu > .menu-item {
+    border-start-start-radius: var(--menu-item-edge-radius, var(--block-radius-small));
+    border-start-end-radius: var(--menu-item-edge-radius, var(--block-radius-small));
+  }
+  :is(.menu, .menu-group-items) > li:last-child > .menu-item,
+  :is(.menu, .menu-group-items) > li:last-child > .menu-item-submenu > .menu-item {
+    border-end-start-radius: var(--menu-item-edge-radius, var(--block-radius-small));
+    border-end-end-radius: var(--menu-item-edge-radius, var(--block-radius-small));
+  }
+  .menu-item:is([aria-current='page'], [aria-current='true'], [aria-checked='true'], [aria-pressed='true'], [aria-selected='true']) {
+    border-radius: var(--menu-item-selected-radius, var(--block-radius-small));
   }
   .menu-item:is(:hover, [aria-expanded='true']) {
     background: var(--menu-item-hover-surface, var(--block-tint));

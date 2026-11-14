@@ -2812,9 +2812,8 @@ async function checkNewList(width, height, label) {
       .waitFor({ timeout: 15000 })
       .catch(() => problems.push(`${label}: the new list's page does not say it has no fields`));
     if (await page.locator('.inline-list-row').locator('visible=true').count()) problems.push(`${label}: an empty list shows a row`);
-    const made = commits[0]?.changes.find((x) => x.path.endsWith('_list.json'));
-    if (JSON.parse(decoded(made?.content)).fields?.length !== 0)
-      problems.push(`${label}: the new list's definition is not empty (${made?.content})`);
+    // Making the list commits nothing: it is kept as a waiting version until the final Save.
+    if (commits.length) problems.push(`${label}: Create committed (${commits.length} commits) before the final Save`);
     // Two body texts: the empty page's Add field, then Body text; the second through Edit list (the empty page's button is gone once there is a field).
     const pick = async (n) => {
       await page
@@ -2852,7 +2851,36 @@ async function checkNewList(width, height, label) {
       [...document.querySelectorAll('.inline-list-row-active [data-field]')].map((f) => f.getAttribute('placeholder')),
     );
     if (names.join() !== 'Body text,Body text 2') problems.push(`${label}: the fields are not named Body text and Body text 2 (${names})`);
+    // Two fields added and still nothing committed; the line under the title says the version is kept, and the save bar has the final Save.
+    if (commits.length) problems.push(`${label}: a field was committed before the final Save (${commits.length} commits)`);
+    const line = await page.evaluate(() => document.body.innerText);
+    if (!/Saving…|Saved|Not saved/.test(line)) problems.push(`${label}: no line says whether the waiting version is kept`);
+    // Leaving asks first, as it does for a page: Save or Discard; Esc stays.
+    await page.evaluate(() => (location.hash = '#lists'));
+    await page
+      .getByRole('button', { name: 'Discard' })
+      .waitFor({ timeout: 5000 })
+      .catch(() => problems.push(`${label}: leaving the unsaved list did not ask`));
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+    if (await page.evaluate(() => location.hash !== '#list/zz-fresh-list')) problems.push(`${label}: Esc did not stay on the unsaved list`);
+    // The final Save: exactly one commit, with the list and both fields.
+    await page.locator('.editor-save-bar').getByRole('button', { name: 'Save' }).click();
+    // The first Save asks whether to send notifications.
+    await page
+      .getByRole('button', { name: 'Cancel' })
+      .click({ timeout: 3000 })
+      .catch(() => {});
+    await page
+      .waitForFunction(() => !document.querySelector('.editor-save-bar button'), null, { timeout: 15000 })
+      .catch(() => problems.push(`${label}: the save bar did not go after Save`));
+    if (commits.length !== 1) problems.push(`${label}: the final Save made ${commits.length} commits, not one`);
+    const made = commits[0]?.changes.find((x) => x.path.endsWith('_list.json'));
+    const definition = JSON.parse(decoded(made?.content) || '{}');
+    if (definition.fields?.length !== 2 || definition.fields.some((f) => f.kind !== 'text'))
+      problems.push(`${label}: the commit does not have the list with both fields (${made?.content})`);
     // A row typed in both fields: both values are saved (one file, both ids) and shown.
+    await page.locator('.inline-list-row-next [data-field="text"]').first().click();
     await page.keyboard.type('First line');
     await page.keyboard.press('Enter');
     await page.keyboard.type('Second line');
