@@ -1957,3 +1957,95 @@ dialog {
   bottom: calc(-1 * max(1.5rem, env(safe-area-inset-bottom)));
   margin: 1.5rem calc(-1 * var(--dialog-padding, 1.5rem)) calc(-1 * max(1.5rem, env(safe-area-inset-bottom)));
 }
+
+/* The crop view (CropView.tsx, image tools spec section 3): the theme's full-screen dialog below the medium breakpoint, its basic dialog from medium
+   (up to 560 dp wide). The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and everything outside it
+   is under the theme's scrim, the one its dialogs have behind their container (--dialog-scrim). The frame has a 2 dp border with a 1 dp halo outside
+   it in the other inverse colour, so one of the two stands against any image, light or dark (M3 prints no frame: the focus ring's two-tone look). */
+.editor-crop-dialog {
+  --dialog-max-width: 35rem;
+}
+.editor-crop-dialog .dialog-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.crop-view {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+}
+.crop-view-area {
+  position: relative;
+  flex: 1;
+  min-height: 10rem;
+  overflow: hidden;
+  border-radius: var(--mo-shape-corner-medium, 0.75rem);
+  background: var(--mo-surface-container-high);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.crop-view-area:active {
+  cursor: grabbing;
+}
+.crop-view-area[data-original] {
+  cursor: default;
+}
+.crop-view-image {
+  position: absolute;
+  max-width: none;
+  pointer-events: none;
+}
+.crop-view-frame {
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px solid var(--mo-inverse-on-surface);
+  box-shadow:
+    0 0 0 1px var(--mo-inverse-surface),
+    0 0 0 100vmax var(--dialog-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-on-surface)) 50%, transparent));
+  pointer-events: none;
+}
+.crop-view-frame:focus-visible {
+  outline: 2px solid var(--mo-primary);
+  outline-offset: 4px;
+}
+.crop-view-hint {
+  margin: 0;
+  color: var(--mo-on-surface-variant);
+  font-size: var(--type-body-small-size, 0.75rem);
+  text-align: center;
+}
+.crop-view-label {
+  margin: 0 0 0.5rem;
+  font-weight: 500;
+}
+/* One row that scrolls sideways below medium; from medium the chips wrap. */
+.crop-view-ratios {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.crop-view-ratios > * {
+  flex-shrink: 0;
+}
+.crop-view-zoom {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  /* The theme's inactive track is the dialog's own colour (surface container high), so here it would not show: M3's slider uses the secondary container. */
+  --slider-inactive-track: var(--mo-secondary-container);
+}
+@media (width >= theme(--breakpoint-medium)) {
+  .crop-view-area {
+    flex: none;
+    height: clamp(10rem, calc(100dvh - 27rem), 28rem);
+  }
+  .crop-view-ratios {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}

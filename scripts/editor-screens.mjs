@@ -1176,7 +1176,7 @@ async function checkCloseChangedSheet(width, height = 800) {
 /** A selected image's tools on the bar (image tools spec, section 4): Insert › Image puts an image in the text; a tap selects it, and the bar shows Change image,
  * Crop, Alt text (a text button, drawn at its planned width) and Remove in that order, the ones that do not fit in the ⋮, with no Remove twice; the row has
  * Move up and Move down (and Settings below expanded). On a computer the tap also opens its settings in the side sheet; on a phone it only selects, and the row's
- * Settings opens the sheet. Crop opens the sheet at the crop's chips, Alt text at the Alt text field; Remove takes the image out and Undo brings it back. */
+ * Settings opens the sheet. Crop opens the crop view, Alt text the sheet at the Alt text field; Remove takes the image out and Undo brings it back. */
 async function checkImageTools(width, height = 800) {
   const phone = width < 600;
   const expanded = width >= 840;
@@ -1216,7 +1216,7 @@ async function checkImageTools(width, height = 800) {
       scroll: b.scrollWidth > b.clientWidth + 1,
     })),
     row: [...document.querySelectorAll('.site-block-row:not(.site-block-row-hover) [data-row]')].map((b) => b.getAttribute('aria-label')),
-    panel: !!document.querySelector('.editor-side-sheet [aria-labelledby="crop-format"], .editor-side-sheet input'),
+    panel: !!document.querySelector('.editor-side-sheet input, .editor-side-sheet textarea'),
     dialog: !!document.querySelector('dialog[open]'),
   }));
   const TOOLS = ['Change image', 'Crop', 'Alt text', 'Remove'];
@@ -1258,7 +1258,7 @@ async function checkImageTools(width, height = 800) {
     page.evaluate(() => {
       const el = document.activeElement;
       const label = el?.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`)?.textContent.trim() : '';
-      return { crop: !!el?.closest('[aria-labelledby="crop-format"]'), label, sheet: !!el?.closest('dialog[open], .editor-side-sheet') };
+      return { label, sheet: !!el?.closest('dialog[open], .editor-side-sheet') };
     });
   const cancel = async () => {
     await sheet()
@@ -1269,9 +1269,12 @@ async function checkImageTools(width, height = 800) {
     await page.waitForTimeout(500);
   };
   await tool('Crop');
-  if (!(await focused()).crop)
-    problems.push(`${label}: Crop did not open the image's sheet at its crop (${JSON.stringify(await focused())})`);
-  await cancel();
+  if (!(await page.locator('.editor-crop-dialog[open]').count())) problems.push(`${label}: Crop did not open the crop view`);
+  await page
+    .locator('.editor-crop-dialog[open]')
+    .getByRole('button', { name: phone ? 'Close' : 'Cancel', exact: true })
+    .click();
+  await page.waitForTimeout(500);
   await tool('Alt text');
   const at = await focused();
   if (at.label !== 'Alt text')
@@ -1294,6 +1297,252 @@ async function checkImageTools(width, height = 800) {
   }
   await page.close();
 }
+/** The crop view (src/CropView.tsx, image tools spec section 3): the bar's Crop opens it (never an image that was just picked), as the theme's full-screen dialog below
+ * the medium breakpoint and its basic dialog (up to 560 dp wide) from medium; it starts as Original (the whole image, no frame, the slider off); an aspect ratio gives a
+ * frame of that ratio with the theme's scrim outside it and a two-tone border; the slider and its minus and plus buttons zoom, a drag places the image under the frame, the
+ * wheel zooms with a mouse and a pinch with two fingers; Save writes `#format=…&crop=…` to the image, closing with changes asks "Keep your changes?"; the image sheet has an
+ * Aspect ratio row (no Format chips) that opens the same view. */
+async function checkCropView(width, height = 800) {
+  const phone = width < 600;
+  const label = `${width}px crop view`;
+  if (!has('src/data/files')) return void console.log(`${label}: skipped, the site has no images in its Library, which the demo has.`);
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page
+    .locator('dialog[open] button', { hasText: /^Image/ })
+    .first()
+    .click();
+  await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
+  await page.locator('dialog[open] [data-media-tile]').first().click();
+  await page
+    .locator('dialog[open], .editor-side-sheet')
+    .last()
+    .locator('button', { hasText: /^Insert$/ })
+    .click({ timeout: 8000 });
+  const image = page.locator('.ProseMirror .site-picture .site-block-card').first();
+  await image.waitFor({ timeout: 8000 });
+  await page.waitForTimeout(800);
+  if (await page.locator('.editor-crop-dialog[open]').count())
+    problems.push(`${label}: the crop view opened by itself after the image was picked`);
+  const view = page.locator('.editor-crop-dialog[open]');
+  const how = phone ? 'tap' : 'click';
+  const select = async () => {
+    await image[how]();
+    await page.waitForTimeout(600);
+  };
+  const open = async () => {
+    await select();
+    await pressTool(page, 'Crop', how);
+    await view.waitFor({ timeout: 5000 });
+    await page.waitForTimeout(500);
+  };
+  const zoom = () => view.locator('input[type=range]').inputValue().then(Number);
+  const pictureBox = () => view.locator('.crop-view-image').boundingBox();
+  const chip = (name) => view.locator('.crop-view-ratios').getByText(name, { exact: true });
+  const asked = () => page.locator('dialog[open]').filter({ hasText: 'Keep your changes?' });
+
+  await open();
+  // The kind of dialog, by the breakpoint.
+  const kind = await view.evaluate((d) => ({
+    full: d.classList.contains('dialog-modal-full-screen'),
+    basic: !!d.querySelector('.dialog-basic'),
+    width: d.getBoundingClientRect().width,
+    headline: d.querySelector('.dialog-headline')?.textContent,
+    area: d.querySelector('.crop-view-area').getBoundingClientRect().width,
+  }));
+  if (phone && !kind.full) problems.push(`${label}: below medium the crop view is not the full-screen dialog`);
+  if (!phone && (kind.full || !kind.basic)) problems.push(`${label}: from medium the crop view is not the basic dialog`);
+  if (!phone && kind.width > 560.5) problems.push(`${label}: the basic dialog is ${kind.width} dp wide, M3 allows 560`);
+  if (!phone && Math.abs(kind.area - 512) > 1) problems.push(`${label}: the image area is ${kind.area} dp wide, not 512 (560 less 2 x 24)`);
+  if (kind.headline !== 'Crop') problems.push(`${label}: the headline is "${kind.headline}", not Crop`);
+  const missing = await view.locator('[data-icon-missing]').evaluateAll((els) => els.map((e) => e.getAttribute('data-icon-missing')));
+  if (missing.length) problems.push(`${label}: the crop view draws a missing icon (${missing})`);
+  // Original: the whole image, no frame, no scrim, the slider and its buttons off.
+  if (await view.locator('.crop-view-frame').count()) problems.push(`${label}: Original has a frame`);
+  if (!(await view.locator('input[type=range]').isDisabled())) problems.push(`${label}: the slider is on for Original`);
+  for (const name of ['Zoom in', 'Zoom out'])
+    if (!(await view.getByRole('button', { name }).isDisabled())) problems.push(`${label}: ${name} is on for Original`);
+  const whole = await view.evaluate((d) => {
+    const a = d.querySelector('.crop-view-area').getBoundingClientRect();
+    const i = d.querySelector('.crop-view-image').getBoundingClientRect();
+    return { inside: i.left >= a.left - 0.5 && i.right <= a.right + 0.5 && i.top >= a.top - 0.5 && i.bottom <= a.bottom + 0.5 };
+  });
+  if (!whole.inside) problems.push(`${label}: Original does not show the whole image in the area`);
+  // The ratios: Original first, then the seven, in one row that scrolls sideways below medium and wraps from medium.
+  const names = await view.locator('.crop-view-ratios > *').allTextContents();
+  if (names.map((n) => n.trim()).join() !== 'Original,1:1,4:5,3:4,2:3,3:2,4:3,16:9')
+    problems.push(`${label}: the aspect ratios are ${names.join(', ')}`);
+  const row = await view.locator('.crop-view-ratios').evaluate((el) => ({
+    scrolls: el.scrollWidth > el.clientWidth + 1,
+    rows: new Set([...el.children].map((c) => Math.round(c.getBoundingClientRect().top))).size,
+  }));
+  if (phone && row.rows !== 1)
+    problems.push(`${label}: the aspect ratios are in ${row.rows} rows below medium, not one that scrolls sideways`);
+  if (!phone && (row.scrolls || row.rows < 2))
+    problems.push(`${label}: the aspect ratios do not wrap from medium (${JSON.stringify(row)})`);
+  // 3:2: a frame of that ratio, the scrim outside it, a two-tone border.
+  await chip('3:2').click();
+  await page.waitForTimeout(500);
+  const frame = await view.locator('.crop-view-frame').evaluate((f) => {
+    const s = getComputedStyle(f);
+    const b = f.getBoundingClientRect();
+    return { ratio: b.width / b.height, border: s.borderTopWidth, borderColor: s.borderTopColor, shadow: s.boxShadow };
+  });
+  if (Math.abs(frame.ratio - 1.5) > 0.02) problems.push(`${label}: the frame for 3:2 has the ratio ${frame.ratio}`);
+  const layers = frame.shadow.split(/,(?![^(]*\))/).map((l) => l.trim());
+  if (frame.border !== '2px' || layers.length !== 2)
+    problems.push(`${label}: the frame has no 2 dp border with a halo (${frame.border}, ${frame.shadow})`);
+  if (!/ 0px 0px 0px 1px$/.test(layers[0] ?? '') || !/ 0px 0px 0px \d{3,}px$/.test(layers[1] ?? ''))
+    problems.push(`${label}: the frame has no 1 dp halo and a scrim layer outside it (${frame.shadow})`);
+  if (layers[0] && frame.borderColor === layers[0].replace(/ 0px 0px 0px 1px$/, ''))
+    problems.push(`${label}: the frame's border and halo are one colour`);
+  if (/rgba?\(0, 0, 0, 0\)/.test(layers[1] ?? '')) problems.push(`${label}: the scrim outside the frame is see-through (${layers[1]})`);
+  const z1 = await zoom();
+  if (Math.abs(z1 - 1) > 0.01) problems.push(`${label}: a new ratio does not start at zoom 1 (${z1})`);
+  // Zoom: the slider and the buttons; the image grows under the frame.
+  const before = await pictureBox();
+  await view.locator('input[type=range]').focus();
+  await page.keyboard.press('End');
+  await page.waitForTimeout(300);
+  if ((await zoom()) < 3.99) problems.push(`${label}: the slider's End key does not zoom to 4`);
+  const after = await pictureBox();
+  if (!(after.width > before.width * 3.5))
+    problems.push(`${label}: zoom 4 does not make the image about 4 times as wide (${before.width} -> ${after.width})`);
+  await view.getByRole('button', { name: 'Zoom out' }).click();
+  await page.waitForTimeout(200);
+  const out = await zoom();
+  if (Math.abs(out - 3.75) > 0.02) problems.push(`${label}: Zoom out does not step the zoom down by a quarter (${out})`);
+  await view.getByRole('button', { name: 'Zoom in' }).click();
+  await view.getByRole('button', { name: 'Zoom in' }).click();
+  if ((await zoom()) > 4.001) problems.push(`${label}: Zoom in goes past 4`);
+  // Drag: the image moves under the fixed frame, and keeps covering it.
+  const area = await view.locator('.crop-view-area').boundingBox();
+  const fbox = () => view.locator('.crop-view-frame').boundingBox();
+  const f0 = await fbox();
+  const p0 = await pictureBox();
+  await page.mouse.move(area.x + area.width / 2, area.y + area.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(area.x + area.width / 2 - 60, area.y + area.height / 2 - 40, { steps: 6 });
+  await page.mouse.up();
+  await page.waitForTimeout(200);
+  const f1 = await fbox();
+  const p1 = await pictureBox();
+  if (Math.abs(f1.x - f0.x) > 0.5 || Math.abs(f1.y - f0.y) > 0.5) problems.push(`${label}: the frame moved with the drag`);
+  if (Math.abs(p1.x - (p0.x - 60)) > 2 || Math.abs(p1.y - (p0.y - 40)) > 2)
+    problems.push(`${label}: a drag by (-60, -40) moved the image by (${p1.x - p0.x}, ${p1.y - p0.y})`);
+  if (!(p1.x <= f1.x + 0.5 && p1.y <= f1.y + 0.5 && p1.x + p1.width >= f1.x + f1.width - 0.5 && p1.y + p1.height >= f1.y + f1.height - 0.5))
+    problems.push(`${label}: the image leaves a gap in the frame after the drag`);
+  // A drag far past the edge stops at the edge.
+  await page.mouse.move(area.x + area.width / 2, area.y + area.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(area.x + area.width / 2 + 2000, area.y + area.height / 2 + 2000, { steps: 4 });
+  await page.mouse.up();
+  const p2 = await pictureBox();
+  if (!(p2.x <= f1.x + 0.5 && p2.y <= f1.y + 0.5)) problems.push(`${label}: the image leaves a gap in the frame when dragged far`);
+  // The wheel (a mouse) and a pinch (two fingers) zoom.
+  if (!phone) {
+    const z = await zoom();
+    await page.mouse.move(area.x + area.width / 2, area.y + area.height / 2);
+    await page.mouse.wheel(0, 300);
+    await page.waitForTimeout(300);
+    if (!((await zoom()) < z - 0.1)) problems.push(`${label}: the wheel does not zoom out`);
+  } else {
+    const cdp = await page.context().newCDPSession(page);
+    const cx = area.x + area.width / 2;
+    const cy = area.y + area.height / 2;
+    await view.locator('input[type=range]').focus();
+    await page.keyboard.press('Home');
+    await page.waitForTimeout(200);
+    const z = await zoom();
+    const at = (d) => [
+      { x: cx - d, y: cy, id: 1 },
+      { x: cx + d, y: cy, id: 2 },
+    ];
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: at(30) });
+    for (let d = 30; d <= 90; d += 15) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: at(d) });
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await page.waitForTimeout(300);
+    if (!((await zoom()) > z * 2))
+      problems.push(`${label}: a pinch that spreads the fingers three times does not zoom in (${z} -> ${await zoom()})`);
+  }
+  // Save writes the ratio and crop to the image.
+  await view.getByRole('button', { name: 'Save', exact: true }).click();
+  await page.waitForTimeout(700);
+  if (await view.count()) problems.push(`${label}: Save did not close the crop view`);
+  const saved = await page.evaluate(() => {
+    const box = document.querySelector('.ProseMirror .site-picture .picture-crop');
+    return box && { box: box.getAttribute('style'), img: box.querySelector('img')?.getAttribute('style') };
+  });
+  if (!saved || !/aspect-ratio: 3 \/ 2/.test(saved.box ?? '') || !/translate\(-?\d/.test(saved.img ?? ''))
+    problems.push(`${label}: Save did not cut the image to 3:2 with a crop (${JSON.stringify(saved)})`);
+  // Reopened: 3:2 is chosen. Leaving with a change asks; Discard leaves the image as it was.
+  await open();
+  const chosen = await view
+    .locator('.crop-view-ratios [aria-pressed="true"], .crop-view-ratios [aria-checked="true"], .crop-view-ratios [data-selected]')
+    .allTextContents();
+  if (!chosen.some((c) => c.includes('3:2'))) problems.push(`${label}: reopened, 3:2 is not the chosen ratio (${chosen})`);
+  await chip('1:1').click();
+  await page.waitForTimeout(300);
+  await (phone ? view.getByRole('button', { name: 'Close' }) : view.getByRole('button', { name: 'Cancel', exact: true })).click();
+  await asked()
+    .waitFor({ timeout: 4000 })
+    .catch(() => problems.push(`${label}: closing the crop view with a change did not ask "Keep your changes?"`));
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  if (!(await view.count())) problems.push(`${label}: Esc on the question did not stay in the crop view`);
+  await (phone ? view.getByRole('button', { name: 'Close' }) : view.getByRole('button', { name: 'Cancel', exact: true })).click();
+  await asked().getByRole('button', { name: 'Discard', exact: true }).click();
+  await page.waitForTimeout(500);
+  if (await view.count()) problems.push(`${label}: Discard did not close the crop view`);
+  const still = await page.evaluate(() => document.querySelector('.ProseMirror .site-picture .picture-crop')?.getAttribute('style'));
+  if (!/aspect-ratio: 3 \/ 2/.test(still ?? '')) problems.push(`${label}: Discard changed the image (${still})`);
+  // Closing with nothing changed asks nothing.
+  await open();
+  await (phone ? view.getByRole('button', { name: 'Close' }) : view.getByRole('button', { name: 'Cancel', exact: true })).click();
+  await page.waitForTimeout(400);
+  if ((await asked().count()) || (await view.count())) problems.push(`${label}: closing the crop view with no change asked or stayed open`);
+  // The image sheet: an Aspect ratio row with the ratio, no Format chips; it opens the same view and brings the ratio back.
+  await select();
+  const sheetOpen = () => page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Alt text' }).count();
+  if (!(await sheetOpen())) await pressTool(page, 'Edit', how);
+  await page.waitForTimeout(700);
+  const sheet = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Alt text' }).last();
+  const rowItem = sheet.getByRole('button', { name: /Aspect ratio/ }).or(sheet.locator('li', { hasText: 'Aspect ratio' }));
+  if (!(await rowItem.count())) problems.push(`${label}: the image sheet has no Aspect ratio row`);
+  else {
+    const text = (await sheet.locator('li', { hasText: 'Aspect ratio' }).first().textContent()) ?? '';
+    if (!text.includes('3:2')) problems.push(`${label}: the Aspect ratio row does not say 3:2 (${text})`);
+    if (/\bFormat\b/.test((await sheet.textContent()) ?? '')) problems.push(`${label}: the image sheet still says Format`);
+    if (await sheet.locator('.crop-view-ratios, [role=radiogroup]').count())
+      problems.push(`${label}: the image sheet still has the format chips`);
+    await rowItem.first().click();
+    await view.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the Aspect ratio row did not open the crop view`));
+    await chip('1:1').click();
+    await view.getByRole('button', { name: 'Save', exact: true }).click();
+    await page.waitForTimeout(600);
+    const next = (await sheet.locator('li', { hasText: 'Aspect ratio' }).first().textContent()) ?? '';
+    if (!next.includes('1:1')) problems.push(`${label}: after Save in the crop view the row does not say 1:1 (${next})`);
+    // The sheet is changed now: Cancel asks.
+    await sheet
+      .locator('button', { hasText: /^Cancel$/ })
+      .first()
+      .click();
+    await asked()
+      .waitFor({ timeout: 4000 })
+      .catch(() => problems.push(`${label}: closing the image sheet after a new ratio did not ask`));
+    await asked().getByRole('button', { name: 'Discard', exact: true }).click();
+  }
+  await page.close();
+}
+
 /** The active block's action row (src/blockRow.ts): it shows only while a block is active (a real touch tap on a block's rows activates it), its buttons are real 44 x 44 dp
  * buttons (Move up, Move down, Hide or Show, and the handle at its end), Move down is disabled with its reason on the last block and Move up on the first, Hide turns into
  * Show and the row stays, the bar has none of these, the row does not lie under the bar (also with the on-screen keyboard open: a short window), and under reduced motion it is
@@ -8532,6 +8781,7 @@ for (const width of [375, 1280]) await unit(`checkBlockBar ${width}`, () => chec
 for (const width of [375, 1280]) await unit(`checkCardBar ${width}`, () => checkCardBar(width));
 for (const width of [375, 1280]) await unit(`checkCloseChangedSheet ${width}`, () => checkCloseChangedSheet(width));
 for (const width of [375, 1280]) await unit(`checkImageTools ${width}`, () => checkImageTools(width));
+for (const width of [375, 1280]) await unit(`checkCropView ${width}`, () => checkCropView(width));
 for (const width of [320, 375, 1280]) await unit(`checkInsertBlock ${width}`, () => checkInsertBlock(width));
 for (const w of [375, 1280]) await unit(`checkBlockRow ${w}`, () => checkBlockRow(w));
 await unit('checkBlockRow 375 reduced', () => checkBlockRow(375, { reduced: true }));
