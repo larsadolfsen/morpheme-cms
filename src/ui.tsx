@@ -174,7 +174,8 @@ export function LinkButton({
  * tick); `selected`: marked, while what it does applies (a filter, the open one); `badge`: how many are new (a
  * number), or that something is (true), which `label` says too, as the label is the button's name. */
 type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'type'> & {
-  icon: Icon;
+  /** A Phosphor-shaped icon, or a Material Symbols name (drawn by the shared Icon, in the pack in use). */
+  icon: Icon | string;
   /** What it does: its name for screen readers and its tooltip. */
   label: string;
   kind?: IconButtonKind;
@@ -189,7 +190,7 @@ export function IconButton({ icon: Glyph, label, ...rest }: IconButtonProps) {
   const tooltip = useTooltip(label, rest);
   return (
     <>
-      <SiteIconButton icon={<Glyph />} label={label} {...rest} {...tooltip.on} />
+      <SiteIconButton icon={typeof Glyph === 'string' ? Glyph : <Glyph />} label={label} {...rest} {...tooltip.on} />
       {tooltip.tip}
     </>
   );
@@ -202,7 +203,7 @@ export function IconLink({
   href = '',
   ...rest
 }: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'type'> & {
-  icon: Icon;
+  icon: Icon | string;
   label: string;
   kind?: IconButtonKind;
   selected?: boolean;
@@ -211,7 +212,7 @@ export function IconLink({
   const tooltip = useTooltip(label, rest);
   return (
     <>
-      <SiteIconButton icon={<Glyph />} label={label} href={href} {...rest} {...tooltip.on} />
+      <SiteIconButton icon={typeof Glyph === 'string' ? Glyph : <Glyph />} label={label} href={href} {...rest} {...tooltip.on} />
       {tooltip.tip}
     </>
   );
