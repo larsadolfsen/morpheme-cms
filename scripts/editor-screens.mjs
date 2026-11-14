@@ -269,6 +269,109 @@ async function checkStartSubtitle() {
   }
 }
 
+/** The theme's choice group (theme/ui/ChoiceGroup.tsx, spec docs/superpowers/specs/2026-11-14-choice-group-design.md) on "Parts" ›
+ * "UI components" (ActionParts.tsx), on a phone and a computer, in English and Danish: in every group no two choices overlap and
+ * no label is cut off; it is the buttons only when every button fits; a list row is at least 48 px high and a button's target at
+ * least 48 px; the group is named (role=group with its name, or the fieldset's legend). The group forced to the list has a
+ * sample on each row, the one in the 320 px frame is the list, and in the list the arrow keys choose, in the buttons they move
+ * and Enter chooses. */
+async function checkChoiceGroupParts(width, locale) {
+  const label = `${width}px ${locale} choice group parts`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: touch, isMobile: touch, locale });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#developer/parts/ui'));
+  const part = page.locator('[data-part="ChoiceGroup"]');
+  await part.waitFor({ timeout: 30_000 }).catch(() => problems.push(`${label}: the ChoiceGroup part is not on the page`));
+  if (!(await part.count())) return page.close();
+  await part.scrollIntoViewIfNeeded();
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(300);
+  const groups = await part.evaluate((p) =>
+    [...p.querySelectorAll('.choice-group')].map((g) => {
+      const form = g.dataset.form;
+      const visible =
+        form === 'buttons' ? g.querySelector(':scope > .choice-group-buttons') : g.querySelector(':scope > .choice-group-list');
+      const items = form === 'buttons' ? [...visible.children] : [...visible.querySelectorAll('.list-item-container')];
+      const boxes = items.map((el) => el.getBoundingClientRect());
+      const overlap = boxes.some((a, i) =>
+        boxes.some((b, j) => j > i && a.left < b.right - 0.5 && b.left < a.right - 0.5 && a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5),
+      );
+      const labels =
+        form === 'buttons'
+          ? items.map((b) => b.querySelector('.choice-group-label'))
+          : items.map((r) => r.querySelector('.list-item-headline'));
+      const clipped = labels.filter((l) => l && l.scrollWidth > l.clientWidth + 0.5).map((l) => l.textContent);
+      const measured = [...g.querySelectorAll(':scope > .choice-group-measure > *')].map((b) => b.getBoundingClientRect().width);
+      const row = g.querySelector(':scope > .choice-group-measure');
+      const room = row ? row.getBoundingClientRect().width : 0;
+      const needed = measured.length
+        ? Math.max(...measured) * measured.length + (measured.length - 1) * (parseFloat(getComputedStyle(row).columnGap) || 0)
+        : 0;
+      const targets =
+        form === 'buttons'
+          ? items.map((b) => Math.max(b.getBoundingClientRect().height, parseFloat(getComputedStyle(b, '::after').height) || 0))
+          : [];
+      const heights = form === 'list' ? boxes.map((b) => b.height) : [];
+      const name =
+        form === 'buttons'
+          ? (visible.getAttribute('role') === 'group' && visible.getAttribute('aria-label')) || ''
+          : (visible.querySelector(':scope > legend')?.textContent ?? '');
+      return {
+        form,
+        forced: g.hasAttribute('data-forced'),
+        narrow: !!g.closest('[data-choice-narrow]'),
+        n: items.length,
+        samples: g.querySelectorAll(':scope > .choice-group-list .choice-group-sample').length,
+        overlap,
+        clipped,
+        room,
+        needed,
+        targets,
+        heights,
+        name,
+      };
+    }),
+  );
+  if (groups.length !== 3) problems.push(`${label}: ${groups.length} choice groups, not 3`);
+  groups.forEach((g, i) => {
+    const at = `${label} group ${i + 1} (${g.form})`;
+    if (g.overlap) problems.push(`${at}: two choices overlap`);
+    if (g.clipped.length) problems.push(`${at}: cut off: ${g.clipped.join(', ')}`);
+    if (!g.name.trim()) problems.push(`${at}: the group has no name`);
+    if (g.form === 'buttons' && !g.forced && g.needed > g.room + 0.5)
+      problems.push(`${at}: buttons though they need ${g.needed} px of ${g.room}`);
+    if (g.targets.some((t) => t < 47.5)) problems.push(`${at}: a button's target is below 48 px (${g.targets.join(', ')})`);
+    if (g.heights.some((h) => h < 47.5)) problems.push(`${at}: a row is below 48 px (${g.heights.join(', ')})`);
+  });
+  const [auto, forced, narrow] = groups;
+  if (width >= 1280 && auto?.form !== 'buttons') problems.push(`${label}: three short choices are not side by side at ${width} px`);
+  if (forced && (forced.form !== 'list' || forced.samples !== forced.n))
+    problems.push(`${label}: the forced list has ${forced.samples} samples for ${forced.n} rows`);
+  if (narrow && (!narrow.narrow || narrow.form !== 'list'))
+    problems.push(`${label}: five styles in 320 px are not the list (${narrow.form})`);
+  // The list: the arrow keys choose the next one.
+  const list = part.locator('.choice-group[data-forced] .choice-group-list');
+  await list.locator('input[type="radio"]:checked').focus();
+  await page.keyboard.press('ArrowDown');
+  const chosen = await list.evaluate((l) => [...l.querySelectorAll('input[type="radio"]')].findIndex((r) => r.checked));
+  if (chosen !== 1) problems.push(`${label}: ArrowDown in the list did not choose the second choice (${chosen})`);
+  // The buttons (the first group, where it is the buttons): Tab lands on the chosen one, an arrow moves, Enter chooses.
+  if (auto?.form === 'buttons') {
+    const buttons = part.locator('.choice-group').first().locator(':scope > .choice-group-buttons > button');
+    if ((await buttons.evaluateAll((bs) => bs.filter((b) => b.tabIndex === 0).length)) !== 1)
+      problems.push(`${label}: not exactly one button is in the Tab order`);
+    await buttons.first().focus();
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('Enter');
+    const pressed = await buttons.evaluateAll((bs) => bs.findIndex((b) => b.getAttribute('aria-pressed') === 'true'));
+    if (pressed !== 1) problems.push(`${label}: ArrowRight then Enter in the buttons did not choose the second (${pressed})`);
+  }
+  if (process.env.SHOTS_FULL) await part.screenshot({ path: `${process.env.SHOTS_FULL}-choice-group-${width}-${locale}.png` });
+  await page.close();
+}
+
 /** A modal sheet with a text field on a phone with its on-screen keyboard up (the Source color sheet on Colors, the shared
  * BottomSheet, followKeyboard() in theme/ui/bottomSheetControl.ts): a keyboard shrinks only the visual viewport, which is
  * emulated here by a smaller visualViewport. The sheet must end exactly at the keyboard's top (no strip of the page
@@ -5143,6 +5246,54 @@ async function checkInlinePaste(width, height, block) {
   await page.close();
 }
 
+/** A card's text is optional (spec 2026-11-14-paste-and-change-to-design.md, decision 10): typed in place, a card with only a headline
+ * has no empty text area once another card is active, and on the site the "Only a headline" card of the system's test page (the demo's Blocks page) has no text element. */
+async function checkCardHeadline(width, height) {
+  const label = `${width}px card with only a headline`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Cards that link to pages.' }).first().click();
+  await page.waitForSelector('.inline-cards [data-row="0"] [data-field="title"]');
+  await page.keyboard.type('Tea');
+  // The card being typed in keeps its text field, for the text to be typed next.
+  if (!(await page.locator('.inline-cards [data-row="0"] [data-field="text"]').count()))
+    problems.push(`${label}: the active card has no text field`);
+  await page.locator('.inline-list-host [data-add-row]').first().click();
+  await page.keyboard.type('Cake');
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('With cream');
+  await page.waitForTimeout(300);
+  const fields = await page.evaluate(() =>
+    [...document.querySelectorAll('.inline-cards [data-row]')]
+      .map((c) => (c.querySelector('[data-field="text"]') ? 'text' : 'none'))
+      .join(),
+  );
+  if (fields !== 'none,text') problems.push(`${label}: the cards' text areas are ${fields}, not none (a headline only), text`);
+  await page.close();
+  const sitePage = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  sitePage.on('pageerror', (e) => problems.push(`${label} (site): ${e.message}`));
+  // The system's test page (the demo's Blocks page, on a copy of any site: the starter has no Blocks page of its own).
+  if (!(await onTestPage(sitePage, label))) return sitePage.close();
+  const card = await sitePage.evaluate(() => {
+    const title = [...document.querySelectorAll('.block-card-title')].find((t) => t.textContent.trim() === 'Only a headline');
+    const card = title?.closest('.block-card');
+    return card ? { text: !!card.querySelector('.block-card-text'), height: card.getBoundingClientRect().height } : null;
+  });
+  if (!card) problems.push(`${label} (site): the card "Only a headline" is not on the system's test page`);
+  else if (card.text) problems.push(`${label} (site): a card without text draws an empty text element`);
+  await sitePage.close();
+}
+
 /** The dynamic List (the owner's flow): the dynamic icon in the contextual menu opens the dynamic settings (a bottom sheet on a phone, the side panel on a computer) with `Rows from`; picking a list turns the block into a "Dynamic list" with its state line, `Edit list` and an `Undo` that brings the typed rows back; the toolbar then has no row actions and stays inside the screen. */
 async function checkDynamicList(width, height) {
   const label = `${width}px dynamic list`;
@@ -7909,6 +8060,8 @@ for (const [width, height] of [
   await unit(`checkUpdatesCard ${width}`, () => checkUpdatesCard(width, height));
 
 await unit('checkStartSubtitle', () => checkStartSubtitle());
+for (const width of [375, 1280])
+  for (const locale of ['en-US', 'da-DK']) await unit(`choice-group parts ${width} ${locale}`, () => checkChoiceGroupParts(width, locale));
 
 for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
 await unit('checkTextBarWide', () => checkTextBarWide());
@@ -8009,6 +8162,7 @@ for (const [width, height] of [
   await unit(`checkSteps ${width}`, () => checkSteps(width, height));
 for (const block of pasteBlocks)
   for (const w of [375, 1280]) await unit(`checkInlinePaste ${w} ${block.name}`, () => checkInlinePaste(w, w < 600 ? 740 : 900, block));
+for (const w of [375, 1280]) await unit(`checkCardHeadline ${w}`, () => checkCardHeadline(w, w < 600 ? 740 : 900));
 await unit('checkDynamicList 375', () => checkDynamicList(375, 740));
 await unit('checkDynamicList 1280', () => checkDynamicList(1280, 900));
 await unit('checkDynamicPicker 375', () => checkDynamicPicker(375, 740));

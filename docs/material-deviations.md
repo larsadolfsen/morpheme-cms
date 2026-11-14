@@ -174,3 +174,21 @@ Source: `src/blockRow.ts`, `src/editor.css` (`.site-block-row`), `src/blockBar.t
 - **We do:** while a block is active, a row opens right above it, right-aligned: Move up, Move down, Hide or Show, Block settings (only when the block has settings) and the drag handle. These actions leave the bar's `⋮`; Remove, Select and the other settings stay there. Standard icon buttons (no container), each 44 dp (the editor's one size, not M3's 48), labelled and with a tooltip (`title`). Move up or Move down that cannot apply (first or last block, a locked neighbour) stays in its place, disabled (`aria-disabled`, the theme's disabled colour) with the reason as `aria-description` and `title`; as with the bar's Move buttons while blocks are selected, M3 prints no way to explain a disabled part. Block settings uses Material Symbols' `tune` so it does not look like the bar's gear (the active row's or item's settings). The row opens by its height with the spatial spring (`motionTiming('spatial', 'fast')`), so the page below makes room; under reduced motion it opens at once.
 - **Why:** owner idea, 14 Nov 2026: the bar keeps the text and design tools, the block's own actions sit at the block, each action in one place.
 - **Date:** 2026-11-14. **PR:** #625.
+
+## Choice group
+
+Source: `theme/ui/ChoiceGroup.tsx`, `theme/ui/choiceGroupFit.mjs`, `theme/styles/ui.css` (`.choice-group`). Spec: `docs/superpowers/specs/2026-11-14-choice-group-design.md`. Read 14 Nov 2026 on m3.material.io (Playwright): `/components/segmented-buttons/overview` and `/guidelines`, `/components/button-groups/overview`, `/guidelines`, `/specs` and `/accessibility`, `/components/radio-button/overview`, `/guidelines`, `/specs` and `/accessibility`, `/components/lists/guidelines` and `/specs`.
+
+### D1. One part switches between a connected button group and a radio list by measured width
+
+- **Material:** "Button groups should move through layouts together in a single line. They shouldn't wrap to a second line." "In compact windows, consider using smaller, narrower buttons so all buttons in the button group can fit." "Buttons at the trailing edge of the button group can be customized to collapse into an overflow menu at smaller breakpoints."
+- **We do:** when the buttons' labels do not all fit at an equal share of the width (the widest button × the count + the 2 dp gaps; more than five choices always), the same choice is drawn as a vertical list of radio buttons instead, one choice per row, the whole row the tap target. The form is measured before the first paint and again on a resize, a font load or a density change; the switch back to buttons needs 8 dp more.
+- **Why:** owner, 14 Nov 2026: "One theme part that chooses its own form by measuring, so it can never squeeze … it never wraps a group and never overlaps." Smaller buttons still clip long or Danish labels, and an overflow menu hides choices the owner compares.
+- **Date:** 2026-11-14. **PR:** the pull request that adds this entry (choice group, the part).
+
+### D2. A radio row shows a small live sample of the look in its trailing slot
+
+- **Material:** a list item's trailing slot holds "Action elements or text: Icon, icon button, or trailing text" or a selection control (lists/specs); M3 prints no sample or preview slot.
+- **We do:** a choice that is a look (a button style, a card's design or colour) shows a small, inert drawing of that look, made of the theme's own part, on the right of its row (`.choice-group-sample`, at most 7rem wide, `aria-hidden`), only in the list form.
+- **Why:** owner, 14 Nov 2026: "Where a choice is a look … each radio row shows a small live sample on its right."
+- **Date:** 2026-11-14. **PR:** the same.
