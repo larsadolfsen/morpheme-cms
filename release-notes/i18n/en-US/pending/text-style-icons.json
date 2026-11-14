@@ -2,5 +2,5 @@
   "id": "text-style-icons",
   "kind": "line",
   "mark": "improvement",
-  "text": "The Text style button shows Aa, and its body sizes show A3, A2 and A1"
+  "text": "The text styles are Heading, Subheading, Body large, Body medium, Body small, Label and Quote, with the biggest first, and the body styles have the icons A1, A2 and A3"
 }

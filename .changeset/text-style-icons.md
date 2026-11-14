@@ -2,4 +2,4 @@
 '@morphemecms/cms': patch
 ---
 
-The Text style button shows Aa, and the three body styles in its menu show A3, A2 and A1.
+The text styles are Heading, Subheading, Body large, Body medium, Body small, Label and Quote, with the biggest first, and the body styles have the icons A1, A2 and A3.
