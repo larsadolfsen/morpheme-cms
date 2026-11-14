@@ -243,18 +243,6 @@ export const blocks = {
     /** A step typed in place: its place, for screen readers (step 2 of 4). */
     stepOf: (n: number, total: number) => `Step ${n} of ${total}`,
   },
-  hero: {
-    label: 'Banner',
-    hint: 'Page top with text and buttons.',
-    text: 'Text',
-    textHint: 'The first paragraph is the subtitle. Add an image and buttons with +.',
-    placement: 'Placement (image)',
-    placementBeside: 'Beside',
-    placementBehind: 'Behind the text',
-    width: 'Width',
-    widthFull: 'Full width',
-    widthText: 'Like the text',
-  },
   accordion: {
     label: 'Expandable list',
     hint: 'Rows that expand to show text.',
