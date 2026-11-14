@@ -575,13 +575,13 @@ async function barTools(page) {
   return { bar, more, names: [...bar.map((b) => b.label), ...more.map((m) => m.label)] };
 }
 
-/** The divider of the one bar is the height of the buttons and centred on them (not stretched to the bar's edges), 1 dp wide; `d`: its box, `b`: a button's. Returns a problem text, or ''. */
-function dividerProblem(d, b) {
-  if (!d || !b) return 'no divider or no button to measure';
-  const off = d.top + d.height / 2 - (b.top + b.height / 2);
-  if (Math.abs(off) > 1) return `the divider is ${off.toFixed(1)} px off the centre of the buttons`;
-  if (Math.abs(d.height - b.height) > 1) return `the divider is ${d.height} px high, the buttons ${b.height}`;
-  if (d.width > 2) return `the divider is ${d.width} px wide`;
+/** The bar has no divider (owner decision, 14 Nov) and Undo, Redo and Insert block stand at its right end in that order, then the ⋮ when there is one: `names` are the bar's buttons left to right,
+ * `ends` the right edge of the last button and `edge` the bar's. Returns a problem text, or ''. */
+function rightEndProblem(names, ends, edge, hasDivider) {
+  if (hasDivider) return 'the bar has a divider';
+  const tail = names.at(-1) === 'More' ? names.slice(-4, -1) : names.slice(-3);
+  if (tail.join() !== 'Undo,Redo,Insert block') return `Undo, Redo, Insert block are not the right end of the bar (${names.join(', ')})`;
+  if (edge - ends > 3) return `the last button is ${(edge - ends).toFixed(1)} px from the bar's right edge`;
   return '';
 }
 
@@ -598,7 +598,7 @@ function menuIconProblems(page) {
   });
 }
 
-/** The text's one bar (docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md, PR 1). On a phone, with the cursor in text: one bar, 44 dp tall, every button 44 x 44 dp, never scrolling, with the divider, Undo and Redo and the ⋮ at its end (at 360 and 375 px exactly Bold, Italic, Undo, Redo, Insert block, More; the ⋮ reads Alignment, Link, Color); the ⋮ is a pop-up menu (not a sheet) inside the visible screen, with rows of 44 dp, which keeps the cursor and closes on Escape; Undo works; the bar has the same height idle (no divider then); the Text style menu has at most 8 rows of 44 dp, a page's first heading offers Main heading, a blog post Heading and Subheading, a list item no heading rows and no Quote, a heading no list rows and no Quote. On a computer all tools are on the bar and there is no ⋮. */
+/** The text's one bar (docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md, PR 1). On a phone, with the cursor in text: one bar, 44 dp tall, every button 44 x 44 dp, never scrolling, no divider, the text tools at the left (Bold, Italic, Text style, List: as many as fit beside the right group) and Undo, Redo, Insert block and the ⋮ at the right end (352 dp wide at 375 px: Lists is 2 dp short and is in the ⋮, which reads List rows, Alignment, Link, Color); the ⋮ is a pop-up menu (not a sheet) inside the visible screen, with rows of 44 dp, which keeps the cursor and closes on Escape; Undo works; the bar has the same height idle; the Text style menu has at most 8 rows of 44 dp, a page's first heading offers Main heading, a blog post Heading and Subheading, a list item no heading rows and no Quote, a heading no list rows and no Quote. On a computer all tools are on the bar and there is no ⋮. */
 async function checkTextBar(width = 360) {
   const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
   const label = `${width}px text bar`;
@@ -608,7 +608,7 @@ async function checkTextBar(width = 360) {
   await page.waitForSelector('.ProseMirror');
   await page.click('.ProseMirror');
   await page.keyboard.type('Fro');
-  await page.waitForSelector('.editor-tools hr[aria-orientation="vertical"]', { timeout: 5000 }).catch(() => {});
+  await page.waitForSelector('.editor-tools button[aria-label="Bold"]', { timeout: 5000 }).catch(() => {});
   const readBar = () =>
     page.evaluate(() => {
       const bar = document.querySelector('.editor-tools');
@@ -626,16 +626,21 @@ async function checkTextBar(width = 360) {
         names: buttons.map((b) => b.name),
         buttons,
         scrolls: bar.scrollWidth > bar.clientWidth + 2,
-        divider: !!divider && divider.getBoundingClientRect().height > 0,
+        divider: !!divider,
+        outer: bar.getBoundingClientRect().width,
+        barRight: bar.getBoundingClientRect().right,
+        lastRight: buttons.at(-1).right,
         pageScrolls: document.documentElement.scrollWidth > innerWidth,
         groups: [...bar.querySelectorAll('[role=group]')].map((g) => g.getAttribute('aria-label')),
         kept: document.activeElement?.closest('.ProseMirror') !== null,
       };
     });
   const inText = await readBar();
-  const divided = dividerProblem(inText.dividerBox, inText.buttonBox);
-  if (divided) problems.push(`${label}: ${divided}`);
-  const slots = Math.floor((inText.barWidth - 2 * 17) / 44);
+  const ended = rightEndProblem(inText.names, inText.lastRight, inText.barRight - 1, inText.divider);
+  if (ended) problems.push(`${label}: ${ended}`);
+  // The bar is 352 dp wide at 375 px (11.5 dp from each edge), the page's margin less 4.5 dp each side, at every phone width.
+  if (width === 375 && Math.abs(inText.outer - 352) > 0.6) problems.push(`${label}: the bar is ${inText.outer} px wide, not 352`);
+  const slots = Math.floor(inText.barWidth / 44);
   if (inText.height < 44 || inText.height > 46)
     problems.push(`${label}: the bar is ${inText.height} px tall, not 44 (plus its 1 px edges)`);
   if (inText.scrolls || inText.pageScrolls) problems.push(`${label}: the bar or the page scrolls sideways`);
@@ -643,7 +648,6 @@ async function checkTextBar(width = 360) {
     problems.push(
       `${label}: a button of the bar is not 44 x 44 dp (${inText.buttons.map((b) => `${b.name} ${b.width}x${b.height}`).join(', ')})`,
     );
-  if (!inText.divider) problems.push(`${label}: no divider between the text tools and the main tools`);
   // The ⋮ is Material Symbols' more_vert (three dots in a column, 20 dp), drawn by the icon system, not Phosphor's.
   const dots = await page.evaluate(() => {
     const svg = document.querySelector('.editor-tools [aria-label="More"] svg');
@@ -674,9 +678,13 @@ async function checkTextBar(width = 360) {
     problems.push(`${label}: Undo, Redo, Insert block and More (last) are not all there (${inText.names.join(', ')})`);
   if (inText.names.indexOf('Insert block') !== inText.names.length - 2)
     problems.push(`${label}: Insert block is not right before the ⋮ (${inText.names.join(', ')})`);
-  if (width === 360 || width === 375) {
-    const want = 'Bold,Italic,Undo,Redo,Insert block,More';
-    if (inText.names.join() !== want) problems.push(`${label}: the bar has ${inText.names.join()}, not ${want}`);
+  {
+    // The text tools stand at the left in the owner's order (Bold, Italic, Text style, List), as many as fit beside Undo, Redo, Insert block and the ⋮ (176 dp);
+    // the last one that does not fit is in the ⋮ (at 375 px, 2 dp short: Lists).
+    const fit = Math.max(0, Math.min(4, Math.floor((inText.barWidth - 176) / 44)));
+    const got = inText.names.slice(0, -4).map((n) => n.split(':')[0]);
+    const want = ['Bold', 'Italic', 'Text style', 'List'].slice(0, fit);
+    if (got.join() !== want.join()) problems.push(`${label}: the bar has ${got.join()} at the left, not ${want.join()}`);
   }
   if (inText.groups.join() !== 'Text tools,Page tools') problems.push(`${label}: the groups are ${inText.groups.join()}`);
   // Undo works.
@@ -830,19 +838,17 @@ async function checkTextBar(width = 360) {
   if ((await readBar()).names.some((n) => n === 'List' || n.startsWith('List:')))
     problems.push(`${label}: the List button is on the bar in a heading`);
   await page.keyboard.press('Escape');
-  // Idle: the cursor leaves the text; the main tools only, no divider, the same bar height, nothing scrolls.
+  // Idle: the cursor leaves the text; the fixed tools only, no divider, the same bar height, nothing scrolls.
   await page.evaluate(() => document.activeElement?.blur());
   // The contextual tools slide out first (a ghost copy of them, which is not the bar's tools): idle is what is left when it is gone.
   await page.waitForFunction(() => !document.querySelector('.editor-tools-ghost'), null, { timeout: 4000 });
   await page.waitForTimeout(100);
   const idle = await readBar();
-  // Idle: Undo, Redo, one divider, Insert block (no divider before the text tools, which are not there).
-  if (!idle.divider || idle.names.join() !== 'Undo,Redo,Insert block')
-    problems.push(
-      `${label}: idle the bar has ${idle.names.join()}${idle.divider ? '' : ' and no divider'}, not Undo, Redo, a divider, Insert block`,
-    );
-  const idleDividers = await page.locator('.editor-tools hr[aria-orientation="vertical"]').count();
-  if (idleDividers !== 1) problems.push(`${label}: idle the bar has ${idleDividers} dividers, not 1`);
+  // Idle: Undo, Redo, Insert block at the right end, no divider and no ⋮.
+  if (idle.names.join() !== 'Undo,Redo,Insert block')
+    problems.push(`${label}: idle the bar has ${idle.names.join()}, not Undo, Redo, Insert block`);
+  const idleEnded = rightEndProblem(idle.names, idle.lastRight, idle.barRight - 1, idle.divider);
+  if (idleEnded) problems.push(`${label}: idle: ${idleEnded}`);
   if (Math.abs(idle.height - inText.height) > 0.6)
     problems.push(`${label}: the bar is ${idle.height} px tall idle and ${inText.height} in text`);
   if (width !== 360) return void (await page.close());
@@ -959,7 +965,7 @@ async function checkCardBar(width, height = 800) {
   await page.close();
 }
 
-/** Insert block is always on the bar and never in the ⋮ (320, 375 and 1280 px, in text, with a block active and idle): a 44 x 44 dp button with the plus icon (Material's add), right before the ⋮ (or last), behind a divider that sits between Redo and it (centred on the buttons, as tall as they are); it opens the block picker. */
+/** Insert block is always on the bar and never in the ⋮ (320, 375 and 1280 px, in text, with a block active and idle): a 44 x 44 dp button with the plus icon (Material's add), right before the ⋮ (or last), after Undo and Redo with no divider; it opens the block picker. */
 async function checkInsertBlock(width, height = 800) {
   const phone = width < 600;
   const label = `${width}px Insert block`;
@@ -979,7 +985,8 @@ async function checkInsertBlock(width, height = 800) {
         more: rect(named('More')),
         undo: rect(named('Undo')),
         icon: named('Insert block')?.querySelector('svg')?.getAttribute('data-icon'),
-        dividers: [...bar.querySelectorAll('hr[aria-orientation="vertical"]')].map(rect),
+        dividers: [...bar.querySelectorAll('hr[aria-orientation="vertical"]')].length,
+        barRight: bar.getBoundingClientRect().right,
         names: [...bar.querySelectorAll('button')].map((b) => b.getAttribute('aria-label')),
         scrolls: bar.scrollWidth > bar.clientWidth + 2,
       };
@@ -991,15 +998,8 @@ async function checkInsertBlock(width, height = 800) {
       problems.push(`${where}: Insert block is ${got.insert.width} x ${got.insert.height}, not 44 x 44`);
     if (got.icon !== 'add') problems.push(`${where}: Insert block has icon ${got.icon}, not the plus (Material's add)`);
     if (got.scrolls) problems.push(`${where}: the bar scrolls`);
-    // Undo, Redo, a divider, Insert block, then the ⋮ (when there is one).
-    const between = got.dividers.filter((d) => d.left >= got.redo.right - 1 && d.right <= got.insert.left + 1);
-    if (!got.redo || between.length !== 1)
-      problems.push(`${where}: there is not exactly one divider between Redo and Insert block (${got.dividers.length} dividers)`);
-    else {
-      const mid = (r) => r.top + r.height / 2;
-      if (Math.abs(mid(between[0]) - mid(got.insert)) > 1 || Math.abs(between[0].height - got.insert.height) > 1)
-        problems.push(`${where}: the divider before Insert block is not centred on the buttons and as tall as they are`);
-    }
+    // Undo, Redo, Insert block, then the ⋮ (when there is one), with no divider.
+    if (got.dividers) problems.push(`${where}: the bar has a divider`);
     if (got.undo && got.redo && !(got.undo.right <= got.redo.left + 1 && got.redo.right <= got.insert.left))
       problems.push(`${where}: the order is not Undo, Redo, Insert block`);
     if (got.more && got.more.left < got.insert.right - 1) problems.push(`${where}: the ⋮ is not after Insert block`);
@@ -1084,8 +1084,8 @@ async function checkBlockBar(width, height = 800) {
 
 /** The bar moves with the theme's springs only (PR 3 of the contextual toolbar plan; spec section 4): the cursor going into the text slides the contextual tools in from the left
  * and pushes the main tools right (both animate, spatial fast: the theme's duration and curve, no own), the cursor leaving slides them out
- * (a ghost copy that is gone once it has finished) and the main tools back, a block after the text is a fade in place (effects), the bar's height and its dividers
- * never move, and with prefers-reduced-motion nothing is animated at all. `reduced`: the visitor asked for reduced motion. */
+ * (a ghost copy that is gone once it has finished) and the main tools back, a block after the text is a fade in place (effects), the bar's height
+ * never moves, and with prefers-reduced-motion nothing is animated at all. `reduced`: the visitor asked for reduced motion. */
 async function checkBarSlide(width, reduced = false, height = 800) {
   const phone = width < 600;
   const label = `${width}px bar slide${reduced ? ' (reduced motion)' : ''}`;
@@ -1125,7 +1125,6 @@ async function checkBarSlide(width, reduced = false, height = 800) {
           const look = () => {
             seen.push({
               bar: bar.getBoundingClientRect().height,
-              dividers: [...bar.querySelectorAll('hr[aria-orientation="vertical"]')].map((d) => d.getBoundingClientRect().height),
             });
             if (++frames < 14) requestAnimationFrame(look);
             else done(seen);
@@ -1137,7 +1136,6 @@ async function checkBarSlide(width, reduced = false, height = 800) {
     const base = seen.at(-1);
     for (const now of seen) {
       if (Math.abs(now.bar - base.bar) > 0.6) problems.push(`${label}: the bar's height moves during ${name} (${now.bar} and ${base.bar})`);
-      for (const h of now.dividers) if (Math.abs(h - 44) > 1) problems.push(`${label}: a divider is ${h} px high during ${name}, not 44`);
     }
   };
   const spatial = (list) => list.filter((a) => a.keyframes.some((k) => k.transform !== undefined));
@@ -1162,8 +1160,8 @@ async function checkBarSlide(width, reduced = false, height = 800) {
     if (leave.length || leaving)
       problems.push(`${label}: the bar animates the tools out with reduced motion (${leave.length} animations, ${leaving} ghosts)`);
   } else {
-    if (spatial(leave).length < 2)
-      problems.push(`${label}: leaving the text does not slide the tools out and the main tools back (${spatial(leave).length} slides)`);
+    if (spatial(leave).length < 1)
+      problems.push(`${label}: leaving the text does not slide the tools out (${spatial(leave).length} slides)`);
     if (!leaving) problems.push(`${label}: no ghost copy of the contextual tools slides out`);
     if (leave.some((a) => !isTheme(a, 'spatial')))
       problems.push(
@@ -1183,8 +1181,8 @@ async function checkBarSlide(width, reduced = false, height = 800) {
   if (reduced) {
     if (enter.length) problems.push(`${label}: the bar animates the tools in with reduced motion (${enter.length} animations)`);
   } else {
-    if (spatial(enter).length < 2)
-      problems.push(`${label}: going into the text does not slide the tools in and push the main tools (${spatial(enter).length} slides)`);
+    if (spatial(enter).length < 1)
+      problems.push(`${label}: going into the text does not slide the tools in (${spatial(enter).length} slides)`);
     if (enter.some((a) => !isTheme(a, 'spatial')))
       problems.push(`${label}: a slide in is not the theme's spatial spring (${JSON.stringify(enter.map((a) => a.timing))})`);
     const slidIn = enter.find((a) => String(a.cls).includes('editor-tools-context'));
@@ -1197,10 +1195,12 @@ async function checkBarSlide(width, reduced = false, height = 800) {
     const context = bar.querySelector('.editor-tools-context');
     return {
       mainAfterContext: !!context && main.getBoundingClientRect().left >= context.getBoundingClientRect().right - 1,
+      mainAtEnd: bar.getBoundingClientRect().right - main.getBoundingClientRect().right < 3,
       transform: getComputedStyle(main).transform,
     };
   });
-  if (!rest.mainAfterContext) problems.push(`${label}: the main tools do not rest after the contextual tools and their divider`);
+  if (!rest.mainAfterContext) problems.push(`${label}: the fixed tools do not rest after the contextual tools`);
+  if (!rest.mainAtEnd) problems.push(`${label}: the fixed tools are not at the right end of the bar`);
   if (rest.transform !== 'none') problems.push(`${label}: the main tools keep a transform after the slide (${rest.transform})`);
 
   // A block after the text: no second slide, the contextual tools fade in place with the theme's effects spring.
@@ -1227,7 +1227,7 @@ async function checkBarSlide(width, reduced = false, height = 800) {
   await page.close();
 }
 
-/** On a computer (1280 px) all tools are on the one bar, in two groups with the divider between, 44 dp tall, with no ⋮; idle only the main tools. */
+/** On a computer (1280 px) all tools are on the one bar, the text tools at the left and Undo, Redo, Insert block at the right end, no divider, 44 dp tall, with no ⋮. */
 async function checkTextBarWide() {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`1280px text bar: ${e.message}`));
@@ -1246,12 +1246,12 @@ async function checkTextBarWide() {
       small: buttons.filter((b) => Math.abs(b.getBoundingClientRect().height - 44) > 0.6 || b.getBoundingClientRect().width < 43.4).length,
       scrolls: bar.scrollWidth > bar.clientWidth + 2,
       divider: !!bar.querySelector('hr[aria-orientation="vertical"]'),
-      dividerBox: bar.querySelector('hr[aria-orientation="vertical"]')?.getBoundingClientRect().toJSON(),
-      buttonBox: bar.querySelector('button')?.getBoundingClientRect().toJSON(),
+      barRight: bar.getBoundingClientRect().right,
+      lastRight: buttons.at(-1).getBoundingClientRect().right,
     };
   });
-  const dividerWide = dividerProblem(got.dividerBox, got.buttonBox);
-  if (dividerWide) problems.push(`1280px text bar: ${dividerWide}`);
+  const endedWide = rightEndProblem(got.names, got.lastRight, got.barRight - 1, got.divider);
+  if (endedWide) problems.push(`1280px text bar: ${endedWide}`);
   // Every icon in the bar's menus is 20 x 20 px: Text style, List, Alignment and Color.
   for (const name of ['Text style', 'List', 'Alignment', 'Color']) {
     await page.locator(`.editor-tools [aria-label^="${name}"]`).first().click();
@@ -1259,14 +1259,14 @@ async function checkTextBarWide() {
     if (bad.length) problems.push(`1280px text bar: icons in the ${name} menu are not 20 x 20 px (${bad})`);
     await page.keyboard.press('Escape');
   }
-  const want = ['Bold', 'Italic', 'Link', 'Text style', 'List', 'Alignment', 'Color', 'Undo', 'Redo', 'Insert block'];
+  const want = ['Bold', 'Italic', 'Text style', 'List', 'Alignment', 'Link', 'Color', 'Undo', 'Redo', 'Insert block'];
   for (const name of want)
     if (!got.names.some((n) => n === name || n.startsWith(`${name}:`)))
       problems.push(`1280px text bar: no ${name} (${got.names.join(', ')})`);
   if (got.names.includes('More')) problems.push('1280px text bar: a ⋮ on a bar where everything fits');
-  if (got.height < 44 || got.height > 46 || got.small || got.scrolls || !got.divider)
+  if (got.height < 44 || got.height > 46 || got.small || got.scrolls || got.divider)
     problems.push(
-      `1280px text bar: height ${got.height}, ${got.small} buttons not 44 x 44, scrolls ${got.scrolls}, divider ${got.divider}`,
+      `1280px text bar: height ${got.height}, ${got.small} buttons not 44 x 44, scrolls ${got.scrolls}, divider ${got.divider} (none wanted)`,
     );
   await page.close();
 }

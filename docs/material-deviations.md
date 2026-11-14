@@ -132,3 +132,21 @@ Read 13 Nov 2026 on m3.material.io (Playwright): `/foundations/interaction/gestu
 Read 14 Nov 2026 on m3.material.io (Playwright, page text): `/components/dialogs/guidelines`, `/components/dialogs/accessibility`, `/styles/motion/overview/specs`. M3 prints no lightbox and no image viewer. The dialogs' token tables stay collapsed in a text read, so token values are not quoted.
 
 19. **A lightbox is the full-screen dialog, made as large as the window from medium, with a see-through container:** M3 (dialogs, guidelines): "Full-screen dialogs are for compact breakpoints only, like mobile devices. For medium and expanded breakpoints, use a basic dialog.", and "Dialogs are purposefully interruptive, so they should be used sparingly." We: the theme's `Lightbox` is a modal `<dialog>` with the full-screen dialog's header (only the close button) and container on every size: the whole screen on a compact window, from medium a container as large as the window less 56 dp on each side (M3's own margin for a dialog placed by hand, from the spec's 13 Nov read) with the dialog's 28 dp corner, because a basic dialog's 280 to 560 dp width is too small for an image. The container is see-through over the scrim (the scrim colour at 88%, `--lightbox-surface`) instead of M3's surface container high, so the image floats on a dark layer; the controls and the caption take the colour opposite to the scrim (`--theme-on-scrim-colour`). Why: owner decision, the image grid spec ("a dark layer, in M3 terms the scrim"); M3 is silent on viewers. The images snap in a horizontal track (CSS scroll-snap, the nearest pattern: M3's carousel page says snap scrolling for full-screen layouts); the Previous and Next buttons are out of sight on a compact window and come back with the keyboard's focus. Motion: M3 web "Standard default effects 0.34, 0.80, 0.34, 1.00, 200ms" for the scrim and the controls, "Standard default spatial 0.27, 1.06, 0.18, 1.00, 500ms" for the image (the dialog's own tokens), instant with reduced motion; the move to the next image is the browser's smooth scroll, not M3's 350 ms fast spatial.
+
+## The text bar
+
+Source: `src/editor.css` (`.editor-text-box`), `src/textBar.mjs`, `src/MarkdownEditor.tsx`. The bar is the editor workspace, so a deviation is allowed.
+
+### The text's box is 11.5 dp from the screen's edges on a phone
+
+- **Material:** M3 prints 16 dp margins on a phone (as the PM gave it; this entry did not re-read the m3.material.io page).
+- **We do:** the text's box, with its bar, is 4.5 dp wider on each side below the medium breakpoint: 352 dp at 375 px, 11.5 dp from each edge.
+- **Why:** owner decision, 14 Nov 2026: eight 44 dp icons (four text tools, Undo, Redo, Insert block and the ⋮) fit on the bar.
+- **Date:** 2026-11-14. **PR:** the pull request that adds this entry (text bar order).
+
+### The bar has no divider and keeps Undo, Redo and Insert block at the right end
+
+- **Material:** a toolbar groups its actions; M3 prints no rule for a fixed group at the end.
+- **We do:** no divider on the bar; Undo, Redo and Insert block (then the ⋮) stand at the right end in every place.
+- **Why:** owner decision, 14 Nov 2026: the same buttons in the same place whatever the cursor is in.
+- **Date:** 2026-11-14. **PR:** the same.

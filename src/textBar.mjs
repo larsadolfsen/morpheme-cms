@@ -1,43 +1,46 @@
-// The text's one bar (MarkdownEditor.tsx, docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md, section 3): which tools stand
-// on the bar and which are in its `⋮` menu, from the bar's own width (the box's, which sits inside the page's 16 dp edges: 343 dp at 375 px, in
-// the spec's numbers). Its buttons are 44 dp wide (owner decision, spec section 8), the divider between the contextual and the main tools 17 dp
-// (1 dp line and 8 dp each side). The bar never scrolls and
-// uses no timer: a slot is a tool, Undo, Redo or the `⋮`. Exposes BUTTON, DIVIDER, slotsFor(width, divider), planBar(...). No browser.
+// The text's one bar (MarkdownEditor.tsx, docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md): which tools stand on the bar and
+// which are in its `⋮` menu, from the bar's own width (the box's: 352 dp on a 375 px phone, 14 Nov owner decision). The bar has no divider. The
+// tools of the place (text, table, block) stand at the left; Undo, Redo and Insert block always stand at the right end, in that order, then the
+// `⋮` when something is in it. Every button, one with an arrow too (Text style, Lists), is 44 dp wide. The bar never scrolls
+// and uses no timer. Exposes BUTTON, planBar(...). No browser.
 
 export const BUTTON = 44;
-export const DIVIDER = 17;
-
-/** How many 44 dp slots fit in a bar `width` dp wide (its inside width): the bar of a 375 px phone is 341 wide, of a 360 px phone 326, of a 320 px phone 286.
- * `dividers`: how many dividers are drawn (one between the contextual and the main tools while a context is on, one between Undo and Redo and Insert block).
- * With two dividers: 6 slots at 375 and 360 px, 5 at 320. */
-export function slotsFor(width, dividers = 2) {
-  return Math.max(0, Math.floor((width - dividers * DIVIDER) / BUTTON));
-}
 
 /**
- * Splits the tools between the bar and the `⋮` menu. `context` are the contextual tools (their ids, in the order they stand on a wide bar),
- * `main` the main tools (Undo, Redo, Section settings, Insert block). What the bar keeps first, in this order: Insert block (never in the `⋮`: the owner's
- * decision, 13 Nov), Undo, Redo, the first `primary` contextual tools, the other contextual tools, the other main tools (Section settings). When
- * everything fits, nothing is in `⋮`; else `⋮` takes a slot, and the tools past what fits go into it, the contextual ones first, then the main
- * ones. The bar keeps the order the tools were given in. `more`: the `⋮` is on the bar even when everything fits (a block's own menu: Hide,
- * Move, Remove), so it takes a slot.
- * @param {{ slots: number, context: string[], main: string[], primary?: number, more?: boolean }} input
- * @returns {{ bar: { context: string[], main: string[] }, more: { context: string[], main: string[] }, overflow: boolean }}
+ * Splits the tools between the bar and the `⋮` menu. `context` are the tools of the place, in the order they stand at the left; `fixed` the
+ * tools at the right end (Undo, Redo, Insert block). `width` is the bar's inside width in dp. When everything fits, nothing is in the `⋮`;
+ * else the `⋮` takes a button, and the tools of the place that do not fit go into it: the first tool that does not fit and every tool after it
+ * (the order never skips). If even the fixed tools and the `⋮` do not fit (a very narrow phone), Redo then Undo go into the `⋮` before Insert
+ * block does (Insert block is never in the `⋮`). `more`: the `⋮` is on the bar even when everything fits (a block's own menu, Section
+ * settings in it), so it takes a button.
+ * @param {{ width: number, context: string[], fixed: string[], more?: boolean }} input
+ * @returns {{ bar: { context: string[], fixed: string[] }, more: { context: string[], fixed: string[] }, overflow: boolean, short?: number }}
  */
-export function planBar({ slots, context, main, primary = 4, more = false }) {
-  if (context.length + main.length + (more ? 1 : 0) <= slots)
-    return { bar: { context, main }, more: { context: [], main: [] }, overflow: more };
-  const history = main.filter((id) => id === 'undo' || id === 'redo');
-  const priority = [
-    ...main.filter((id) => id === 'insert'),
-    ...history,
-    ...context.slice(0, primary),
-    ...context.slice(primary),
-    ...main.filter((id) => id !== 'insert' && id !== 'undo' && id !== 'redo'),
-  ];
-  const kept = new Set(priority.slice(0, Math.max(0, slots - 1)));
-  const split = (ids) => [ids.filter((id) => kept.has(id)), ids.filter((id) => !kept.has(id))];
-  const [barContext, moreContext] = split(context);
-  const [barMain, moreMain] = split(main);
-  return { bar: { context: barContext, main: barMain }, more: { context: moreContext, main: moreMain }, overflow: true };
+export function planBar({ width, context, fixed, more = false }) {
+  const sum = (ids) => ids.reduce((n, id) => n + BUTTON, 0);
+  if (sum(context) + sum(fixed) + (more ? BUTTON : 0) <= width)
+    return { bar: { context, fixed }, more: { context: [], fixed: [] }, overflow: more };
+  let room = width - BUTTON;
+  // The fixed tools keep the bar first: Insert block, then Undo, then Redo.
+  const keep = new Set();
+  for (const id of ['insert', 'undo', 'redo'].filter((id) => fixed.includes(id))) {
+    if (sum([...keep, id]) <= room) keep.add(id);
+  }
+  const fixedKept = fixed.filter((id) => keep.has(id));
+  room -= sum(fixedKept);
+  const barContext = [];
+  let used = 0;
+  for (const id of context) {
+    if (used + BUTTON > room) break;
+    barContext.push(id);
+    used += BUTTON;
+  }
+  const moreContext = context.slice(barContext.length);
+  const first = moreContext[0];
+  return {
+    bar: { context: barContext, fixed: fixedKept },
+    more: { context: moreContext, fixed: fixed.filter((id) => !keep.has(id)) },
+    overflow: true,
+    short: first ? used + BUTTON - room : 0,
+  };
 }

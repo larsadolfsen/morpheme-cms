@@ -1190,6 +1190,14 @@ html {
   --menu-shadow: var(--editor-menu-shadow);
 }
 
+/* On a phone the text's box (bar and body) is 352 dp wide at 375 px, 11.5 dp from each edge instead of the screen's 16 dp (owner decision, 14 Nov:
+   eight 44 dp icons fit). A deviation from M3's 16 dp margin (docs/material-deviations.md). */
+@media (width < theme(--breakpoint-medium)) {
+  .editor-text-box {
+    margin-inline: -0.28125rem;
+  }
+}
+
 /* The text's toolbar (MarkdownEditor.tsx, Toolbar in ui.tsx): the box's top edge, in the box's own surface. */
 .editor-tools {
   --toolbar-standard-surface: var(--editor-menu-surface);
@@ -1217,7 +1225,7 @@ html {
   background: radial-gradient(circle at 0 100%, transparent var(--radius-panel), var(--mo-surface) var(--radius-panel));
 }
 
-/* The bar is one row, 44 dp high: the tools of the text, a divider, then the main tools, the `⋮` last. It never scrolls (textBar.mjs picks what is
+/* The bar is one row, 44 dp high: the tools of the place at the left, Undo, Redo, Insert block and the `⋮` at the right end, no divider between them. It never scrolls (textBar.mjs picks what is
    on it; the rest is in the `⋮` menu). The buttons are 44 by 44 dp with no gap between them (owner decision, 13 Nov), the idle tools stand at the
    leading edge, and the groups are boxes in a row (their buttons are the bar's). */
 .editor-tools.toolbar {
@@ -1244,6 +1252,11 @@ html {
   align-items: center;
 }
 
+/* Undo, Redo, Insert block and the `⋮` stand at the right end in every place, with no divider (owner decision, 14 Nov). */
+.editor-tools-main {
+  margin-inline-start: auto;
+}
+
 .editor-tools-ghost {
   position: absolute;
   inset-block-start: 0;
@@ -1255,17 +1268,6 @@ html {
   display: flex;
   flex: none;
   align-items: center;
-}
-
-/* The divider between the text tools and the main tools (the theme's Divider, vertical): the height of the buttons (44 dp) and centred on them,
-   never stretched to the bar's edges; the line is 8 dp from each side, in M3's divider colour, the outline variant (m3.material.io/components/divider/specs,
-   "Divider color roles used for light and dark schemes: Outline variant"). M3 says nothing of a vertical divider's height in a toolbar. */
-.editor-tools .editor-tools-divider {
-  --divider-color: var(--mo-outline-variant);
-  align-self: center;
-  flex: none;
-  height: 2.75rem;
-  margin: 0 0.5rem;
 }
 
 /* A menu of the bar, the `⋮` or Text style, on a phone: when it is too long for the room it scrolls, with the scrollbar kept in view where the platform
