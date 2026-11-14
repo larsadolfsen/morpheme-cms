@@ -4765,10 +4765,21 @@ for (const [width, height] of [
         links: [...document.querySelectorAll('a[href^="#"]')].map((a) => a.getAttribute('href').slice(1)),
         missing: [...document.querySelectorAll('[data-icon-missing]')].map((e) => e.getAttribute('data-icon-missing')),
         fallback: [...document.querySelectorAll('[data-icon-fallback]')].map((e) => e.getAttribute('data-icon-fallback')),
-        phosphor: [...document.querySelectorAll('svg[viewBox="0 0 256 256"]')].map(
-          (e) => e.querySelector('path, rect, circle')?.getAttribute('d') ?? e.innerHTML.slice(0, 40),
-        ),
+        // A pack previewing itself (IconSwatches: data-icon-pack-sample) may draw Phosphor's own samples: only inside that strip.
+        phosphor: [...document.querySelectorAll('svg[viewBox="0 0 256 256"]')]
+          .filter((e) => !e.closest('[data-icon-pack-sample]'))
+          .map((e) => e.querySelector('path, rect, circle')?.getAttribute('d') ?? e.innerHTML.slice(0, 40)),
+        // The strips themselves must be what IconSwatches draws: a span with a label that holds nothing but icons.
+        badSamples: [...document.querySelectorAll('[data-icon-pack-sample]')]
+          .filter(
+            (e) => e.tagName !== 'SPAN' || !e.getAttribute('aria-label') || [...e.children].some((c) => c.tagName.toLowerCase() !== 'svg'),
+          )
+          .map((e) => e.outerHTML.slice(0, 80)),
       }));
+      for (const html of state.badSamples)
+        problems.push(
+          `${width}px #${hash}: data-icon-pack-sample is not an icon pack's sample strip (a labelled span of icons only): ${html}`,
+        );
       for (const d of new Set(state.phosphor)) if (phosphorGlyph(d)) problems.push(phosphorProblem(`${width}px #${hash}`, d));
       // No sheet from the bottom starts taller than --bottom-sheet-start-max-height (half the screen, Material 3), on a phone.
       if (width < 600) {

@@ -2455,10 +2455,11 @@ export function ColorWheel({
 }
 
 /** A few icons side by side, each an SVG file as it is, read out together as `label` (an icon pack's, ChoiceRow on
- * "Icon packs"): in the row's colour, as its own icons. */
+ * "Icon packs"): in the row's colour, as its own icons. `data-icon-pack-sample`: a pack previewing itself, the one place
+ * check:screens lets a Phosphor glyph be drawn (the Phosphor pack's own samples); check:phosphor lets only this file set it. */
 export function IconSwatches({ icons, label }: { icons: string[]; label: string }) {
   return (
-    <span role="img" aria-label={label} className="flex shrink-0 gap-2">
+    <span role="img" aria-label={label} data-icon-pack-sample className="flex shrink-0 gap-2">
       {icons.map((file, i) => (
         <SvgFile key={i} file={file} />
       ))}

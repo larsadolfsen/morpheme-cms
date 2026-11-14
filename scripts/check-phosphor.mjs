@@ -46,6 +46,10 @@ if (process.argv.includes('--list')) {
 }
 
 const problems = [];
+// `data-icon-pack-sample` exempts a strip from check:screens' Phosphor-glyph guard: only IconSwatches (src/ui.tsx) may set it.
+for (const file of files)
+  if (file !== 'src/ui.tsx' && readFileSync(root + file, 'utf8').includes('data-icon-pack-sample'))
+    problems.push(`${file}: data-icon-pack-sample is only for IconSwatches in src/ui.tsx (a pack previewing itself).`);
 for (const [file, n] of Object.entries(counts)) {
   const allowed = baseline[file]?.max;
   if (allowed === undefined)
