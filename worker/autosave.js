@@ -8,6 +8,7 @@
 //   GET    /api/autosave                              { drafts: [{ path, id, savedAt, size }] }, all of the site's autosaves
 //   PUT    /api/autosave  { path, id?, text, create?, to? }  keeps the text (413 above the limit); { savedAt }
 //   DELETE /api/autosave?path=<page file>[&id=<id>]   throws it away
+//   A list the owner is making has its waiting version under its `_list.json` (lib/autosave.mjs isListDraftPath): the same GET, PUT and DELETE, no flush (400), never swept to git.
 //   POST   /api/autosave/flush  { path, id?, text? }  saves the autosave (or `text`, when the page is being left and the last text has not
 //                                                     been sent) to git as the waiting version, in the person's own name, and deletes the autosave:
 //                                                     { committed: true|false } (false: git had the same text); 409 `moved` when the branch
@@ -21,7 +22,17 @@
 // Each hour (publish's cron) `sweepAutosaves` moves what has been idle for a day to git with the Worker's own token, and deletes what is
 // 30 days old and could not be moved. R2 only holds finished values here: no I/O promise is kept in module memory (scripts/pending-shared.test.mjs).
 import { config } from '@site/config';
-import { autosaveKey, byteLength, isPagePath, MAX_BYTES, parseKey, PREFIX, sweepAction } from '../lib/autosave.mjs';
+import {
+  autosaveKey,
+  byteLength,
+  isAutosavePath,
+  isListDraftPath,
+  isPagePath,
+  MAX_BYTES,
+  parseKey,
+  PREFIX,
+  sweepAction,
+} from '../lib/autosave.mjs';
 import { candidatePaths } from '../lib/entryNames.mjs';
 import { draftPage, draftPath, isDraftPage, isVersionId, published, saveDraft, WAITING } from '../lib/versions.mjs';
 import { commitFiles, readFiles } from './github.js';
@@ -52,7 +63,7 @@ export async function handleAutosave(request, env, ctx) {
 }
 
 const idOf = (value) => (value === undefined || value === null || value === '' ? WAITING : value);
-const keyOf = (path, id) => (isPagePath(path) && isVersionId(id) ? autosaveKey(SITE, path, id) : null);
+const keyOf = (path, id) => (isAutosavePath(path) && isVersionId(id) ? autosaveKey(SITE, path, id) : null);
 
 /** `create` and `to` of a request or a stored value: a boolean and a page file's path, or nothing. */
 function makeOf(value) {
@@ -117,7 +128,8 @@ async function flushAnswer(request, env, ctx, token) {
   const body = await request.json().catch(() => ({}));
   const id = idOf(body.id);
   const key = keyOf(body.path, id);
-  if (!key) return json({ error: 'path' }, 400);
+  // A list's waiting version is committed by the editor with its final Save, never moved to git from here.
+  if (!key || isListDraftPath(body.path)) return json({ error: 'path' }, 400);
   if (body.text !== undefined && typeof body.text !== 'string') return json({ error: 'body' }, 400);
   if (body.text !== undefined && byteLength(body.text) > MAX_BYTES) return json({ error: 'too big' }, 413);
   const stored = await readValue(env, key);
@@ -201,7 +213,8 @@ export async function sweepAutosaves(env, now = Date.now(), ctx) {
         }
         continue;
       }
-      const action = sweepAction(value.savedAt, now, !!env.GITHUB_PUBLISH_TOKEN);
+      // A list's waiting version is only kept, and deleted when it is old: it has no page file to move to.
+      const action = sweepAction(value.savedAt, now, !!env.GITHUB_PUBLISH_TOKEN && !isListDraftPath(at.path));
       if (action === 'keep') continue;
       const result =
         action === 'flush'
