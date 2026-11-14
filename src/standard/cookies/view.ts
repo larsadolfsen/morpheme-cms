@@ -3,6 +3,7 @@
 // texts ("Blocks" › "Cookie list"), with the categories' names. In the editor: viewOf, from the files as the editor
 // has them (StandardSiteData.cookies); on the site: load.ts.
 import { COOKIE_CATEGORIES, type CookieCategory } from '../../../lib/cookieCategories.mjs';
+import { siteT } from '../../i18n';
 import { sharedIn } from '../../shared';
 import type { CookieItem } from '../site';
 import type { ViewOf } from '../view';
@@ -10,7 +11,8 @@ import shared from './shared';
 
 export type CookieRow = { name: string; provider: string; purpose: string; lasts: string; category: CookieCategory };
 export type CookiesTexts = Record<'name' | 'provider' | 'purpose' | 'lasts' | 'category' | CookieCategory, string>;
-export type CookiesView = { cookies: CookieRow[]; texts: CookiesTexts };
+/** `label` names the scroll box for a screen reader, in the site's language. */
+export type CookiesView = { cookies: CookieRow[]; texts: CookiesTexts; label: string };
 
 const order = (c: CookieRow) => COOKIE_CATEGORIES.indexOf(c.category);
 
@@ -25,4 +27,5 @@ export const rowsOf = (cookies: CookieItem[]): CookieRow[] =>
 export const viewOf: ViewOf<CookiesView> = (_, data) => ({
   cookies: rowsOf(data.site.cookies),
   texts: sharedIn(data.site, 'cookies', shared.values) as CookiesTexts,
+  label: siteT.blocks.cookies.label,
 });

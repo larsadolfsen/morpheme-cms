@@ -6,7 +6,7 @@
  * What the bar does when its context goes from `from` to `to`:
  * 'enter' the contextual tools slide in from the left and push the main tools right (the first entry from nothing),
  * 'leave' the contextual tools slide out to the left and the main tools slide back (the context ends),
- * 'change' no second slide: the contextual tools change in place with the theme's fade (text, then a block, then a Table),
+ * 'change' no second slide: the two bars cross-fade in place, the old tools out and the new in (text, then a block, then a Table),
  * 'none' nothing moves.
  * @param {string} from @param {string} to @returns {'enter' | 'leave' | 'change' | 'none'}
  */

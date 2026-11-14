@@ -745,6 +745,8 @@ export const parts = {
         states: 'Selected and disabled',
         dividers: { 'full-width': 'Lines', inset: 'Lines from the text', 'middle-inset': 'Lines in the middle', none: 'Without lines' },
         segmented: 'Each on its own surface',
+        expand: ['Folds out when tapped', 'Open at first'],
+        expandText: 'The text that folds out under the item, with a caret that turns over.',
         overline: 'Over the headline',
         long: 'A text under the item that is so long that it takes 2 lines before it is cut short.',
         trailing: '12',

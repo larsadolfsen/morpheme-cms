@@ -6,10 +6,10 @@ import { motionTiming } from '@morphemecms/cms/lib/motion';
 
 export default function accordion() {
   const still = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const bodyOf = (d: HTMLDetailsElement) => d.querySelector<HTMLElement>('.block-accordion-body')!;
+  const bodyOf = (d: HTMLDetailsElement) => d.querySelector<HTMLElement>('.list-item-expand-body')!;
 
   // The text of a row that opens fades in and rises a little (also when find-in-page opens it).
-  document.querySelectorAll<HTMLDetailsElement>('details.block-accordion-row').forEach((d) =>
+  document.querySelectorAll<HTMLDetailsElement>('details.list-item-expand').forEach((d) =>
     d.addEventListener('toggle', () => {
       if (d.open && !still())
         bodyOf(d).animate(
@@ -37,13 +37,13 @@ export default function accordion() {
         if (!open) d.open = false;
       };
     };
-    document.querySelectorAll<HTMLDetailsElement>('details.block-accordion-row').forEach((d) => {
+    document.querySelectorAll<HTMLDetailsElement>('details.list-item-expand').forEach((d) => {
       const group = d.getAttribute('name');
       d.removeAttribute('name');
       d.querySelector('summary')!.addEventListener('click', (e) => {
-        const others = [
-          ...document.querySelectorAll<HTMLDetailsElement>(`details.block-accordion-row[data-group="${group}"][open]`),
-        ].filter((o) => o !== d);
+        const others = [...document.querySelectorAll<HTMLDetailsElement>(`details.list-item-expand[data-group="${group}"][open]`)].filter(
+          (o) => o !== d,
+        );
         if (still()) return others.forEach((o) => (o.open = false));
         e.preventDefault();
         if (d.open) return glide(d, false);

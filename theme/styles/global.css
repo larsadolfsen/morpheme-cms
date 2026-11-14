@@ -873,43 +873,18 @@
     color: var(--mo-primary);
   }
 
-  /* "Questions and answers": a list in a filled card, a state layer on a row pointed at. */
+  /* "Questions and answers": the List "expand" kind (ui.css) with each item on its own surface container, 2px apart, 16px outer and 4px
+     inner corners, and a state layer on the item pointed at. */
   .block-accordion {
-    display: grid;
-    gap: 2px;
-    background: transparent;
-    box-shadow: none;
-  }
-  .block-accordion > * {
-    overflow: hidden;
-    border-radius: var(--mo-shape-extra-small);
-    background: var(--mo-surface-container);
-  }
-  .block-accordion > :not(:last-child) {
-    border-bottom: 0;
-  }
-  .block-accordion > :first-child {
-    border-top-left-radius: var(--mo-shape-large);
-    border-top-right-radius: var(--mo-shape-large);
-  }
-  .block-accordion > :last-child {
-    border-bottom-left-radius: var(--mo-shape-large);
-    border-bottom-right-radius: var(--mo-shape-large);
-  }
-  .block-accordion-label {
-    padding: 1rem 1.5rem;
-    transition:
-      background-color var(--motion-effects),
-      color var(--motion-effects);
-  }
-  .block-accordion-body {
-    padding: 0 1.5rem 1.5rem;
-  }
-  @media (hover: hover) {
-    summary.block-accordion-label:hover {
-      background: var(--mo-hover);
-      color: inherit;
-    }
+    --list-expand-surface: transparent;
+    --list-expand-shadow: none;
+    --list-expand-gap: 0.125rem;
+    --list-expand-item-surface: var(--mo-surface-container);
+    --list-expand-item-radius: var(--mo-shape-extra-small);
+    --list-expand-divider-width: 0px;
+    --list-expand-padding-inline: 1.5rem;
+    --list-expand-padding-block: 1rem;
+    --list-expand-body-padding-bottom: 1.5rem;
   }
 
   /* "Hero": a large image with extra-large corners. */

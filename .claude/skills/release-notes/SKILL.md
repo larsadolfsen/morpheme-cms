@@ -5,8 +5,8 @@ description: Use when a change is something a site owner sees, and so needs a re
 
 # Release notes for @morphemecms/cms
 
-Announce "Using release-notes". Every pull request into `main` has a changeset (`CLAUDE.md`, "Changesets and release
-notes"); this skill is how its release note is written. Read it whenever a change is something a site owner sees, and
+Announce "Using release-notes". Every pull request into `main` has a changeset (skill `changesets`); this skill is how
+its release note is written. Read it whenever a change is something a site owner sees, and
 before writing or changing any note or edition.
 
 **Style: we write release notes like 0.14.0** (`release-notes/i18n/en-US/0.14.0.json`). A paragraph's title says what has

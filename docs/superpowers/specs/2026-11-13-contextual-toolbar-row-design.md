@@ -116,11 +116,14 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
   (the order in the lists below; a `ResizeObserver` measures the bar like `useToolbarLines` does now, and no timer is used). This is
   M3's own rule ("put them in an overflow menu in the trailing slot", "become visible again at larger sizes"), so the scroll
   deviation of the earlier drafts is gone.
-- **The rule at 375 px (owner: 44 × 44 buttons, section 8).** `slots = floor((width − 32 − divider) / 44)`: 343 / 44 = 7.8, so **7
-  slots at 375 px**, and 7 at 360 px too (328 / 44 = 7.45). A slot is a tool, Undo, Redo or `⋮`. A context's own tools come first, then the
-  divider, **Undo and Redo** (the main tools kept in view; decided by the owner: both), then `⋮`. Everything else of the context and of the main tools is
-  in `⋮`, in groups: the context's tools first, then the page tools, then (blocks) Hide, Move, Remove. At 320 px (288 dp) 6 slots fit and
-  the bar drops Redo into `⋮`.
+- **The rule: a width budget, no count per screen width (owner requirement, 14 Nov; `src/textBar.mjs`, `planBar`).** The bar's inside width in dp
+  (352 at 375 px) is a budget, and each tool has a known width (`TOOL_WIDTH`, the one place: an icon button 44 dp, a tool with a chevron its
+  declared width, which is 44 dp today as `check:screens` measures it, the selection's count 88 dp). Undo, Redo, Insert block and the `⋮` stand at
+  the right end; the `⋮` takes its width only when something is in it. The text tools fill the rest from the left, in their order, while the next
+  one fits; the first that does not fit, and every one after it, goes into the `⋮` (a wide tool is never skipped to place a narrow later one). So
+  the room left is always narrower than the next tool: no gap. A `ResizeObserver` re-plans when the window changes (no timer). Today (all 44 dp):
+  320 px (297 dp inside) Bold, Italic; 360 px (337) adds Text style; 375 px (352) and 390 px (367) and 414 px (391) add List; 600 px (454) and
+  1280 px (478) hold all seven text tools and no `⋮`; 840 px (430) holds five (to Alignment). Very narrow: Redo, then Undo, go into the `⋮` before Insert block does.
 - **Exact lists at 375 px** (bar | in `⋮`). The bar lists are the tools to show first; in a narrower window the last tool of a list moves into `⋮` first.
 
 | State | On the bar (7 slots) | In `⋮` (groups in order, a divider between groups) |
@@ -174,7 +177,7 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
   `GENERIC_ICONS.text` for the icon when the cursor is not in text; one menu `Menu` under `kindsAt` shows the group). They become **one group
   `'style'`**: one button that shows the current style by name and icon (for example "Heading 2" or "Body medium"; the generic icon when the cursor is not in
   text) and opens one menu: the heading levels the text may have (`headingChoices`: a page, H1 while it has none, then H2 and H3; a blog post H2
-  and H3), a divider, then Body small, Body medium, Body large, Label (only where the line can be a label: `labelable`) and Quote; the current row
+  and H3), a divider, then Body large, Body medium, Body small (the largest first, as the headings; owner decision 14 Nov), Label (on any top-level line of text, `labelable`; owner decision 14 Nov: "Any text place can have a label") and Quote; the current row
   is marked (`selected`), 44 dp rows, 20 dp icons, each row's shortcut as trailing text where there is one. At most 8 rows (3 + 3 + label + quote), about
   350 dp, so it fits on a phone without scrolling in every case except the keyboard-open landscape one. **Lists stay separate** (Bulleted, Check,
   Numbered): on a phone they are in `⋮` as a group, because all 7 slots are in use; on a wide screen, where a slot is free, they are **one "List" button** with a
@@ -189,15 +192,16 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
   | Cursor in | Row or button | Shown or hidden | Why (what it does today) |
   | --- | --- | --- | --- |
   | a list item | H1, H2, H3 | **hidden** (decided) | picking one lifts the item out of its list (`outOfLists`) |
-  | a list item | Body small, medium, large | shown | a size is a mark on the item's text and keeps the list (`sizeListText`; Body medium takes it away) |
+  | a list item | Body large, medium, small | shown | a size is a mark on the item's text and keeps the list (`sizeListText`; Body medium takes it away) |
   | a list item | Quote | **hidden** (hidden, not separately decided; the owner did not object) | it lifts the item out of its list first, then wraps it in a quote |
-  | a list item | Label | hidden (already) | a label is only for the line above a heading (`labelable`), never in a list |
+  | a list item | Label | hidden | a label is a line of its own at the top of the text, never in a list |
   | a list item | Bulleted, Check, Numbered | shown | they change the kind of list, or picked again take the item out (as today) |
   | a heading | Bulleted, Check, Numbered, and the List button on a wide screen | **hidden** (decided) | each would turn the heading into a list item (`turnIntoText`, then wrap in a list) |
   | a heading | H1, H2, H3 | shown, the current one marked | it is how the level changes |
-  | a heading | Body small, medium, large | shown | it is how a heading becomes body text (`turnIntoText`, or its own block) |
+  | a heading | Body large, medium, small | shown | it is how a heading becomes body text (`turnIntoText`, or its own block) |
   | a heading | Quote | **hidden** (decided: "Hide quote in heading.") | it would turn the heading into text and wrap it in a quote, losing the heading |
-  | a heading | Label | shown where the line is `labelable` | only a line above a heading can be a label |
+  | a heading | Label | shown | puts a label above the heading (or takes it away) |
+  | a plain line | Label | **shown on every top-level line** (owner decision, 14 Nov) | turns the line into a label (one line of plain text, `<p class="label-medium">`); picked again it is a plain line with its text; not in a quote or a list |
 
   Decided by the owner: **Quote is hidden in a heading** ("Hide quote in heading."). Quote in a list item is hidden too (hidden, not separately decided; the owner did not object). On a phone, where
   the lists are in `⋮`, the Lists group is absent from the `⋮` menu in a heading.
@@ -210,7 +214,7 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
 - **Entering a context** (the cursor goes into text, or a block or row becomes active): the contextual tools slide in from the left
   and the main tools are pushed to the right and out of view (section 4); the tools that do not fit are then in `⋮`, and Undo stays at
   its place after the divider. **Leaving it:** the same movement the other way. **Changing from one context to another** is not a slide: the
-  contextual tools change in place with the theme's fade (`--motion-effects`; decided).
+  contextual tools cross-fade in place with the theme's fade (`--motion-effects`; decided): the old tools (a ghost copy out of the row's flow) fade out as the new tools fade in, so the bar's height and the main tools never move (owner, 14 Nov: "the transition between two toolbars is abrupt, make it fade").
 - **Wide screens (decided by the owner): all tools show at once; nothing is hidden and nothing scrolls.** The contextual group, the divider and
   the main tools are all on the bar. **The main tools do move on a wide screen too:** idle, they stand at the left edge on every screen size
   (decided: "Left side"); when a context starts the contextual group slides in from the left and the main tools move right until they sit after

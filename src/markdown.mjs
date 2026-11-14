@@ -23,7 +23,7 @@ import { remarkBlockLabels } from '../lib/remark-block-label.mjs';
 import { topOf } from './sections.mjs';
 import { bodyLargeSchema } from './bodyLarge.mjs';
 import { bodyMediumSchema, bodySmallSchema } from './bodySize.mjs';
-import { eyebrowKeeper, eyebrowKeymap, eyebrowSchema } from './eyebrow.mjs';
+import { eyebrowKeymap, eyebrowSchema } from './eyebrow.mjs';
 
 // Write Markdown the way imported files are written: "-   " bullets and
 // "* * *" rules, so a save changes as few lines as possible.
@@ -35,17 +35,14 @@ const stringify = { bullet: '-', listItemIndent: 'tab', rule: '*', ruleSpaces: t
 // of the fixed pages are blocks too (sections.mjs); the site shows only its own (RichText.astro).
 // Other HTML on a line of its own (YouTube, Vimeo, Calendly, an imported table) is a block too, of the
 // type HTML, with the HTML as it is as its `code`, and written back as it was.
-// A label above a heading is read here too (eyebrow.mjs).
+// A label on any line is read here too (eyebrow.mjs).
 export const HTML = 'html';
 const remarkSiteBlocks = $remark('remarkSiteBlocks', () => () => (tree) => {
   tree.children = tree.children.map((child, i) => {
     const only = child.type === 'paragraph' && child.children?.length === 1 ? child.children[0] : child;
     if (only.type !== 'html') return child;
-    // A label right before a heading or a block (lib/eyebrow.mjs) is the node eyebrow (eyebrow.mjs), not a block.
-    const next = tree.children[i + 1];
-    const nextHtml = next?.type === 'paragraph' && next.children?.length === 1 ? next.children[0] : next;
-    const before = next?.type === 'heading' || (nextHtml?.type === 'html' && parseBlock(String(nextHtml.value), null) !== null);
-    const label = before ? eyebrowText(String(only.value)) : null;
+    // A label line (lib/eyebrow.mjs), above a heading, a block or any other line, is the node eyebrow (eyebrow.mjs), not a block.
+    const label = eyebrowText(String(only.value));
     if (label !== null) return { type: 'eyebrow', value: label };
     // An intro paragraph (lib/body-large.mjs) is the node bodyLarge.
     const large = bodyLargeText(String(only.value));
@@ -401,7 +398,6 @@ export function makeEditor(root, markdown) {
       .use(bodyMediumSchema)
       .use(bodySmallSchema)
       .use(eyebrowSchema)
-      .use(eyebrowKeeper)
       .use(eyebrowKeymap)
       .use(listKeymap)
   );

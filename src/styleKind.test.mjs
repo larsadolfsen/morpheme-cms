@@ -26,7 +26,7 @@ test('in a list List shows the list and Text style shows the size of its text; o
 });
 
 test('the kinds are the text styles, then the lists', () => {
-  assert.deepEqual(TEXT_KINDS, ['small', 'medium', 'large', 'label', 'quote']);
+  assert.deepEqual(TEXT_KINDS, ['large', 'medium', 'small', 'label', 'quote']);
   assert.deepEqual(LIST_KINDS, ['bullet', 'check', 'ordered']);
   assert.deepEqual(STYLE_KINDS, [...TEXT_KINDS, ...LIST_KINDS]);
 });

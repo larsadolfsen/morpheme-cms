@@ -169,7 +169,7 @@ So nothing of ours is read as M3. "Nearest M3" is the pattern I used where the p
 ## 2. What the editor has today
 
 - **Actions are spread over four places, each with its own list.** The text tools are `allTools` in `MarkdownEditor.tsx` (about
-  2095–2120: Bold, Italic, Link, Main heading, Heading, Subheading, Body small, medium, large, Label, Quote, Bullet, Check and
+  2095–2120: Bold, Italic, Link, Main heading, Heading, Subheading, Body large, medium, small, Label, Quote, Bullet, Check and
   Numbered list, Alignment, Insert or Image, Undo, Redo, Section settings, Colour). The block row is `BarAction` in
   `contextualMenu.ts` (above, below, up, down, link, column before and after, delete row and column, align left, centre, right,
   auto). The block's card menu is `cardMenu` and `moves` (Edit, Hide, Move up and down, Remove). The screens add their own
@@ -310,7 +310,7 @@ folding, the context boost, recent ordering, the 30 cap and the stable order.
 | Go to | Home, every section and row of the main menu, Settings, Notifications, Account, Files, Redirects, SEO rating, Status, Apps, App store, Themes, Icon packs, Motion, Colours, Logo and icon, Block settings, Caching and builds, Assistants, Licences, Morpheme, Deleted pages and files | `menuTree`, `App.tsx` routes |
 | Pages and posts | Open "<title>", New page, New post | `files`, `new/<list>` |
 | Page | Save changes, Preview (draft and publish actions when the drafts plan lands) | `t.common.saveChanges`, `t.common.preview` |
-| Text | Bold, Italic, Link, Main heading, Heading, Subheading, Body small, medium, large, Label, Quote, Bullet list, Check list, Numbered list, Align left, centre, right, Text colour, Undo, Redo | `allTools` |
+| Text | Bold, Italic, Link, Main heading, Heading, Subheading, Body large, medium, small, Label, Quote, Bullet list, Check list, Numbered list, Align left, centre, right, Text colour, Undo, Redo | `allTools` |
 | Insert | Insert image, one *Insert <block>* per block (Table, Cards, List, Steps, Buttons, Price cards, Video, Notice, Testimonials, Posts, HTML, …) | `blocks.ts`, `BlockGroup` |
 | Section | Section settings, Section colour, Background image, Width | `t.text.section*` |
 | Block | Add above, Add below, Move up, Move down, Link, Settings, Fill from a list, Hide, Show, Remove, Edit | `BarAction`, `cardMenu`, `moves` |

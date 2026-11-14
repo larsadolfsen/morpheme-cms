@@ -317,28 +317,8 @@
   /* "Questions and answers": rows that fold out, one open at a time (faq/Accordion.tsx). */
   .block-accordion {
     max-width: 48rem;
-    border-radius: var(--list-expand-radius, var(--card-radius, var(--block-radius)));
-    background: var(--block-surface);
-    box-shadow: var(--block-shadow);
-  }
-  .block-accordion > :not(:last-child) {
-    border-bottom: 1px solid var(--block-line);
-  }
-  .block-accordion-label {
-    display: flex;
-    min-height: 3.5rem;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.875rem 1.25rem;
-    font-size: var(--type-title-medium-size);
-    line-height: var(--type-title-medium-line-height);
-    font-weight: var(--type-title-medium-weight);
-    letter-spacing: var(--type-title-medium-tracking);
-    transition: color var(--motion-effects);
-  }
-  .block-accordion-title {
-    flex: 1;
+    /* The rows' padding follows the block: 20px, 32px from medium (the List "expand" kind, ui/List.tsx, is drawn by ui.css). */
+    --list-expand-padding-inline: 1.25rem;
   }
   .block-accordion-lead {
     flex-shrink: 0;
@@ -359,38 +339,6 @@
   .block-more[data-cut] [data-extra],
   .block-more[data-cut] li:has(> [data-extra]) {
     display: none;
-  }
-  .block-more[data-cut] .block-accordion > [data-edge] {
-    border-bottom: 0;
-  }
-  summary.block-accordion-label {
-    cursor: pointer;
-    list-style: none;
-    /* The focus ring sits inside the row, so the panel's rounded edge never cuts it off. */
-    outline-offset: -3px;
-  }
-  summary.block-accordion-label::-webkit-details-marker {
-    display: none;
-  }
-  .block-accordion-icon {
-    flex-shrink: 0;
-    color: var(--block-muted);
-    transition: rotate var(--motion-spatial);
-  }
-  @media (hover: hover) {
-    summary.block-accordion-label:hover {
-      color: var(--block-accent);
-    }
-  }
-  .block-accordion-row[open] > .block-accordion-label {
-    color: var(--block-accent);
-  }
-  .block-accordion-row[open] .block-accordion-icon {
-    rotate: 180deg;
-    color: var(--block-accent);
-  }
-  .block-accordion-body {
-    padding: 0 1.25rem 1.5rem;
   }
   /* An answer as it was written: paragraphs and lists apart, links in the accent. */
   .block-accordion-answer {
@@ -1468,8 +1416,8 @@
   }
 
   /* A table (.block-table, the base of every table block): a box that scrolls sideways when the table is wider than the screen,
-     with the cells' text in the body scale and a thin line (outline variant) under each row. Each block adds its own look:
-     .block-table-cookies ("Cookie list": quiet headings, the first column heavier) and .block-table-grid ("Table"). */
+     with the cells' text in the body scale and a thin line (outline variant) under each row. "Table" and "Cookie list" are
+     drawn alike, as .block-table-grid. */
   .block-table {
     overflow-x: auto;
   }
@@ -1485,31 +1433,6 @@
     border-bottom: 1px solid var(--block-line);
     text-align: left;
     vertical-align: top;
-  }
-
-  /* "Cookie list": quiet headings over rows, the first column (each row's name) a little heavier. */
-  .block-table-cookies table {
-    min-width: 40rem;
-  }
-  .block-table-cookies :is(th, td) {
-    padding: 0.625rem 1rem 0.625rem 0;
-  }
-  .block-table-cookies thead th {
-    font-size: var(--type-label-large-size);
-    line-height: var(--type-label-large-line-height);
-    font-weight: var(--type-label-large-weight);
-    letter-spacing: var(--type-label-large-tracking);
-    color: var(--block-muted);
-  }
-  .block-table-cookies tbody th {
-    font-weight: 500;
-    white-space: nowrap;
-  }
-  .block-table-cookies td:not(:nth-child(3)) {
-    white-space: nowrap;
-  }
-  .block-table-cookies td:nth-child(3) {
-    min-width: 14rem;
   }
 
   /* "Table": Material 3 has no table component, so the dimensions are Material 2's data table (m2.material.io/components/data-tables:
@@ -1874,15 +1797,8 @@
       font-weight: var(--type-body-large-weight);
       letter-spacing: var(--type-body-large-tracking);
     }
-    .block-accordion-label {
-      padding-inline: 2rem;
-      font-size: var(--type-title-medium-size);
-      line-height: var(--type-title-medium-line-height);
-      font-weight: var(--type-title-medium-weight);
-      letter-spacing: var(--type-title-medium-tracking);
-    }
-    .block-accordion-body {
-      padding: 0 2rem 2rem;
+    .block-accordion {
+      --list-expand-padding-inline: 2rem;
     }
     .block-accordion-answer {
       font-size: var(--type-body-large-size);
@@ -2066,26 +1982,7 @@
 
   /* ---- end of "Checklist" and "Price cards" ---- */
 
-  /* Opening and closing glide where the browser can animate ::details-content (else the script in
-     Accordion.tsx does it); none with reduced motion. */
-  @media (prefers-reduced-motion: no-preference) {
-    .block-accordion {
-      interpolate-size: allow-keywords;
-    }
-    .block-accordion-row::details-content {
-      block-size: 0;
-      overflow-y: clip;
-      transition:
-        block-size var(--motion-spatial),
-        content-visibility var(--motion-spatial-duration) allow-discrete;
-    }
-    .block-accordion-row[open]::details-content {
-      block-size: auto;
-    }
-  }
   @media (prefers-reduced-motion: reduce) {
-    .block-accordion-label,
-    .block-accordion-icon,
     .block-card,
     .block-card-arrow,
     .block-card-picture img {
@@ -2241,7 +2138,8 @@
   .prose .label-medium {
     margin-block: 2em 0;
   }
-  .prose .label-medium + :is(h1, h2, h3) {
+  .prose .label-medium + :is(h1, h2, h3),
+  .prose .label-medium + :not(h1, h2, h3, .label-medium) {
     margin-top: 0.5rem;
   }
 

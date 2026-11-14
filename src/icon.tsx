@@ -18,6 +18,9 @@ import ssrMaterial from 'virtual:material-symbols-ssr';
 import addFile from '@material-symbols/svg-400/outlined/add.svg?raw';
 import moreVertFile from '@material-symbols/svg-400/outlined/more_vert.svg?raw';
 import closeFile from '@material-symbols/svg-400/outlined/close.svg?raw';
+import bodyA1File from './icons/body-a1.svg?raw';
+import bodyA2File from './icons/body-a2.svg?raw';
+import bodyA3File from './icons/body-a3.svg?raw';
 import matchCaseFile from '@material-symbols/svg-400/outlined/match_case.svg?raw';
 import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
 import { allIcons as ssrPhosphor } from 'virtual:all-icons-ssr';
@@ -306,6 +309,31 @@ export const AaIcon = (({ size = 20, className }: { size?: number | string; clas
     />
   );
 }) as unknown as PhosphorIcon;
+
+/** The icons of the three body styles in the Text style menu: a squared, bold A with a number beside it, drawn on Material Symbols' 24 grid exactly as format_h2 and
+ * format_h3 are (same cap height and baseline, 60-unit stroke, square corners, the digits copied from format_h1, -h2 and -h3), so the five read as one
+ * set (src/icons/body-a*.svg). The menu lists the largest first, as the headings: Body large A1, Body medium A2, Body small A3. Bundled files like AaIcon, so they draw
+ * the same in every icon pack and in light and dark (currentColor). */
+const bodyA = (file: string, name: string) =>
+  (({ size = 20, className }: { size?: number | string; className?: string }) => {
+    const parts = svgParts(file);
+    return (
+      <svg
+        width={size}
+        height={size}
+        fill="currentColor"
+        aria-hidden="true"
+        data-icon={name}
+        className={className}
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox={parts?.viewBox ?? MATERIAL_VIEWBOX}
+        dangerouslySetInnerHTML={{ __html: parts?.inner ?? '' }}
+      />
+    );
+  }) as unknown as PhosphorIcon;
+export const BodyA1Icon = bodyA(bodyA1File, 'body_a1');
+export const BodyA2Icon = bodyA(bodyA2File, 'body_a2');
+export const BodyA3Icon = bodyA(bodyA3File, 'body_a3');
 
 /** The same as Svg (the editor's fields and the site's promotions draw their icons with it). */
 export const Icon = Svg;

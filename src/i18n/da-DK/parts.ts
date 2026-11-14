@@ -721,6 +721,8 @@ export const parts: Messages['parts'] = {
         states: 'Valgt og slået fra',
         dividers: { 'full-width': 'Streger', inset: 'Streger fra teksten', 'middle-inset': 'Streger i midten', none: 'Uden streger' },
         segmented: 'Hver på sin egen flade',
+        expand: ['Folder sig ud ved tryk', 'Åben fra start'],
+        expandText: 'Teksten, der folder sig ud under punktet, med en pil, der vender.',
         overline: 'Over overskriften',
         long: 'En tekst under punktet, der er så lang, at den fylder to linjer, før den bliver kortet af.',
         trailing: '12',

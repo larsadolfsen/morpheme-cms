@@ -17,13 +17,18 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { chromium } from 'playwright';
 import sharp from 'sharp';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { constants, inflateSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
-import { CMS_STATUS, openEditor, serveBuilt } from './built-site.mjs';
+import { CMS_STATUS, openEditor, serveBuilt, virtualFile } from './built-site.mjs';
+import { toolWidth } from '../src/textBar.mjs';
 import { allow, nestedUnits } from './spacing-grid.allow.mjs';
+import { installedApps } from '../lib/apps.mjs';
+import { appCheckPage } from '../lib/appCheckPage.mjs';
+import { CORE_PAGE_ID, coreTestSite } from './core-blocks-page.mjs';
+import { buildTestSite } from './test-site.mjs';
 
 // The editor is opened in Danish (locale da-DK below), so the texts it shows are read from its Danish messages. They are
 // TypeScript, which Node does not run in node_modules (ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING), so esbuild bundles
@@ -68,7 +73,10 @@ if (!(SHARDS >= 1 && SHARD >= 1 && SHARD <= SHARDS)) {
   process.exit(1);
 }
 const LIST_ONLY = args.includes('--list');
-const DIST = resolve(ROOT, args.find((a, i) => !a.startsWith('--') && args[i - 1] !== '--shard') ?? 'dist');
+// --only name runs the one unit of that name, whatever its number (to try a single check on a site), instead of a shard.
+const onlyAt = args.indexOf('--only');
+const ONLY = onlyAt >= 0 ? args[onlyAt + 1] : null;
+const DIST = resolve(ROOT, args.find((a, i) => !a.startsWith('--') && args[i - 1] !== '--shard' && args[i - 1] !== '--only') ?? 'dist');
 if (!existsSync(join(DIST, 'editor/index.html'))) {
   console.error(`There is no built site in ${DIST}. Run npm run build first.`);
   process.exit(1);
@@ -121,7 +129,7 @@ for (const [name, pages] of SHARD === 1 ? missingOn : []) {
 let unitNumber = 0;
 async function unit(name, run) {
   const number = unitNumber++;
-  if (number % SHARDS !== SHARD - 1) return;
+  if (ONLY ? name !== ONLY : number % SHARDS !== SHARD - 1) return;
   if (LIST_ONLY) return console.log(`UNIT ${number} ${name}`);
   const started = Date.now();
   await run();
@@ -132,17 +140,8 @@ const { server, site } = await serveBuilt(DIST);
 
 // A site is not the demo: what a check needs and the site does not have (a page, a post, a list), the check makes itself, as
 // files in src/ that the editor reads (answered here, never saved) and removes at the end. A site that has the thing is left alone.
-const made = [];
-const make = (path, text) => {
-  const file = join(ROOT, path);
-  mkdirSync(join(file, '..'), { recursive: true });
-  writeFileSync(file, text);
-  made.push(file);
-};
-const clean = () => {
-  for (const file of made.splice(0)) rmSync(file, { force: true });
-};
-process.on('exit', clean);
+// (In memory, through virtualFile: the editor reads them as if they were in the site's folder, which a check never writes to.)
+const make = (path, text) => virtualFile(path, text);
 const has = (path) => existsSync(join(ROOT, path)) && readdirSync(join(ROOT, path)).length > 0;
 /** The file of a page the site has built with the text in the page, which its Preview is made of (the blog's list page has none): the demo's About, or the first page of the site's own that is built, never the front page. */
 const builtPages = existsSync(join(ROOT, 'src/content/pages'))
@@ -509,15 +508,28 @@ async function checkBottomSheetBar(width, height, keyboard = 0, keyboardUp = fal
   await page.close();
 }
 
-/** A tool of the text's one bar by its name: its button on the bar, or its row in the ⋮ menu when it did not fit (a phone). `how`: 'click' or 'tap'. The bar's buttons keep the cursor where it is. */
+/** A button of the active block's action row by its name (Move up, Move down, Hide on the page, Show on the page, Block settings; Edit on an image card). */
+const rowButton = (page, name) => page.locator(`.site-block-row-button[aria-label="${name}"]:visible`);
+
+/** A tool of the text's one bar by its name: a button of the active block's action row, its button on the bar, or its row in the ⋮ menu when it did not fit (a phone). `how`: 'click' or 'tap'.
+ * The bar's buttons keep the cursor where it is. "Edit" is the bar's gear (the row's or item's settings); the block's own settings are Block settings, in the row. */
 async function pressTool(page, name, how = 'click') {
+  const inRow = rowButton(page, name);
+  if (await inRow.count()) return void (await inRow.first()[how]());
   const direct = page.locator(`.editor-tools button[aria-label="${name}"]:visible`);
   if (await direct.count()) return void (await direct.first()[how]());
+  const settings = name === 'Edit' ? rowButton(page, 'Block settings') : null;
+  if (settings && (await settings.count())) return void (await settings.first()[how]());
   await pressMore(page, name, how, 'first');
 }
 
-/** A row of the bar's ⋮ menu by its name (the block's own menu: Edit, Hide on the page, Move up, Move down, Remove; and the tools that did not fit). */
+/** A row of the bar's ⋮ menu by its name (the block's own menu: Remove, Select; and the tools that did not fit). The block's own actions are in its action row, so
+ * `Edit` there is its Block settings button. */
 async function pressMore(page, name, how = 'click', which = 'last') {
+  const inRow = rowButton(page, name);
+  if (await inRow.count()) return void (await inRow.first()[how]());
+  const settings = name === 'Edit' && which === 'last' ? rowButton(page, 'Block settings') : null;
+  if (settings && (await settings.count())) return void (await settings.first()[how]());
   await page.locator('.editor-tools [aria-label="More"]:visible').first()[how]();
   const row = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${name}$`) });
   // `last`: the block's own menu, which is last in the ⋮ (a gear named Edit may stand before it); `first`: a tool of the bar that did not fit.
@@ -800,7 +812,8 @@ async function checkTextBar(width = 360) {
   // A divider under the headings and another between the body styles and Quote, the same divider part.
   const styleIcons = await menuIconProblems(page);
   if (styleIcons.length) problems.push(`${label}: icons in the Text style menu are not 20 x 20 px (${styleIcons})`);
-  // The three body styles share one icon, Aa (Material's match_case); the other rows keep theirs.
+  // The body styles draw an A with a number, the smallest the highest (Body small A3, medium A2, large A1); the bar's Text style button shows Aa
+  // (Material's match_case) while a body style is on; the other rows keep their own icons.
   const rowIcons = await page.evaluate(() =>
     Object.fromEntries(
       [...document.querySelectorAll('[role=menu] [role^=menuitem]')].map((x) => [
@@ -809,17 +822,25 @@ async function checkTextBar(width = 360) {
       ]),
     ),
   );
-  for (const name of ['Body small', 'Body medium', 'Body large'])
-    if (rowIcons[name] !== 'match_case') problems.push(`${label}: ${name} has icon ${rowIcons[name]}, not Aa (match_case)`);
+  for (const [name, icon] of [
+    ['Body small', 'body_a3'],
+    ['Body medium', 'body_a2'],
+    ['Body large', 'body_a1'],
+  ])
+    if (rowIcons[name] !== icon) problems.push(`${label}: ${name} has icon ${rowIcons[name]}, not ${icon}`);
+  const buttonIcon = await page.evaluate(() =>
+    document.querySelector('.editor-tools [aria-label^="Text style"] svg')?.getAttribute('data-icon'),
+  );
+  if (buttonIcon !== 'match_case') problems.push(`${label}: the Text style button shows ${buttonIcon}, not Aa (match_case)`);
   for (const name of ['Main heading', 'Quote'])
-    if (rowIcons[name] === 'match_case' || rowIcons[name] === 'none')
+    if (rowIcons[name]?.startsWith('body_a') || rowIcons[name] === 'match_case' || rowIcons[name] === 'none')
       problems.push(`${label}: ${name} lost its own icon (${rowIcons[name]})`);
   const order = await page.evaluate(() =>
     [...document.querySelectorAll('[role=menu] > li')].map((li) => (li.classList.contains('menu-divider') ? '-' : li.textContent.trim())),
   );
-  if (order.join('|') !== 'Main heading|-|Body small|Body medium|Body large|-|Quote')
+  if (order.join('|') !== 'Main heading|-|Body large|Body medium|Body small|Label|-|Quote')
     problems.push(
-      `${label}: the Text style menu reads ${order.join(' | ')}, not Main heading | - | Body small | Body medium | Body large | - | Quote`,
+      `${label}: the Text style menu reads ${order.join(' | ')}, not Main heading | - | Body large | Body medium | Body small | Label | - | Quote`,
     );
   for (const name of ['Body small', 'Body medium', 'Body large', 'Quote'])
     if (!style.some((x) => x.name === name)) problems.push(`${label}: the Text style menu lacks ${name}`);
@@ -922,12 +943,17 @@ async function checkCardBar(width, height = 800) {
   const tools = await barTools(page);
   if (tools.bar.some((b) => b.height < 43.4 || b.width < 43.4)) problems.push(`${label}: a button of the card's bar is under 44 x 44 dp`);
   if (!tools.names.includes('Remove') && phone) problems.push(`${label}: the card's menu has no Remove (${tools.names})`);
-  if (!tools.names.includes('Move up')) problems.push(`${label}: the card's menu has no Move up (${tools.names})`);
+  const rowNames = await page.locator('.site-block-row-button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  if (!rowNames.includes('Move up')) problems.push(`${label}: the card's action row has no Move up (${rowNames})`);
+  if (tools.names.includes('Move up') || tools.names.includes('Hide on the page'))
+    problems.push(`${label}: Move up or Hide is in the bar as well as in the action row (${tools.names})`);
   if (tools.names.filter((n) => n === 'More').length !== 1) problems.push(`${label}: the bar has no single ⋮ (${tools.names})`);
   if (phone) {
-    // Its Edit is the gear on the bar and not in the ⋮ again; the gear opens the block's sheet.
-    if (!tools.bar.some((b) => b.label === 'Edit')) problems.push(`${label}: the card's Edit is not the gear on the bar (${tools.names})`);
-    if (tools.more.some((m) => m.label === 'Edit')) problems.push(`${label}: the card's Edit is in the ⋮ as well as on the bar`);
+    // Its settings are Block settings in the action row, and not on the bar or in the ⋮ again; the button opens the block's sheet.
+    if (!rowNames.includes('Block settings') && !rowNames.includes('Edit'))
+      problems.push(`${label}: the card's settings are not in the action row (${rowNames})`);
+    if (tools.names.includes('Edit') || tools.names.includes('Block settings'))
+      problems.push(`${label}: the card's settings are on the bar or in the ⋮ as well as in the row (${tools.names})`);
     await pressTool(page, 'Edit', 'tap');
     await page
       .waitForSelector('dialog[open] textarea', { timeout: 4000 })
@@ -964,6 +990,97 @@ async function checkCardBar(width, height = 800) {
   }));
   if (back.pressed || !back.names.includes('Bold'))
     problems.push(`${label}: a tap in the text did not let the card go and bring the text tools back (${JSON.stringify(back)})`);
+  await page.close();
+}
+
+/** The active block's action row (src/blockRow.ts): it shows only while a block is active (a real touch tap on a block's rows activates it), its buttons are real 44 x 44 dp
+ * buttons (Move up, Move down, Hide or Show, and the handle at its end), Move down is disabled with its reason on the last block and Move up on the first, Hide turns into
+ * Show and the row stays, the bar has none of these, the row does not lie under the bar (also with the on-screen keyboard open: a short window), and under reduced motion it is
+ * there at once, with no animation. */
+async function checkBlockRow(width, options = {}) {
+  const phone = width < 600;
+  const { height = 800, reduced = false } = options;
+  const label = `${width}px block row${reduced ? ' (reduced motion)' : ''}${height < 500 ? ' (keyboard open)' : ''}`;
+  const page = await browser.newPage({
+    viewport: { width, height },
+    hasTouch: phone,
+    isMobile: phone,
+    locale: 'en-US',
+    reducedMotion: reduced ? 'reduce' : 'no-preference',
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
+  await page.keyboard.type('Design');
+  const row = page.locator('.site-block-row');
+  if (reduced) await page.waitForTimeout(100);
+  else await page.waitForTimeout(800);
+  const names = () => page.locator('.site-block-row-button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  if (!(await row.count())) {
+    problems.push(`${label}: no action row for the active block`);
+    return void (await page.close());
+  }
+  if (reduced && (await row.evaluate((el) => el.getAnimations().length)) > 0)
+    problems.push(`${label}: the row is animated under reduced motion`);
+  const shape = await page.locator('.site-block-row-button').evaluateAll((els) =>
+    els.map((e) => {
+      const r = e.getBoundingClientRect();
+      return {
+        label: e.getAttribute('aria-label'),
+        w: r.width,
+        h: r.height,
+        off: e.hasAttribute('aria-disabled'),
+        why: e.getAttribute('aria-description'),
+      };
+    }),
+  );
+  for (const name of ['Move up', 'Move down', 'Hide on the page'])
+    if (!shape.some((b) => b.label === name)) problems.push(`${label}: the row has no "${name}" (${shape.map((b) => b.label)})`);
+  if (shape.some((b) => b.w < 43.4 || b.h < 43.4))
+    problems.push(`${label}: a button of the row is under 44 x 44 dp (${JSON.stringify(shape)})`);
+  const last = shape.find((b) => b.label === 'Move down');
+  if (!last?.off || !last.why)
+    problems.push(`${label}: Move down is not disabled with a reason on the last block (${JSON.stringify(last)})`);
+  if (shape.find((b) => b.label === 'Move up')?.off) problems.push(`${label}: Move up is disabled with a block above`);
+  const handle = await page.locator('.site-block-has-row > .site-block-handle').boundingBox();
+  const rowBox = await row.boundingBox();
+  if (!handle || !rowBox || handle.y < rowBox.y - 1 || handle.y + handle.height > rowBox.y + rowBox.height + 1)
+    problems.push(`${label}: the handle is not inside the row (${JSON.stringify({ handle, rowBox })})`);
+  const bar = await page.locator('.editor-tools').boundingBox();
+  const block = await page.locator('.site-block-card').first().boundingBox();
+  if (rowBox && bar && rowBox.y + rowBox.height > bar.y && rowBox.y < bar.y + bar.height)
+    problems.push(`${label}: the row lies under the text bar (${JSON.stringify({ rowBox, bar })})`);
+  if (rowBox && block && rowBox.y + rowBox.height > block.y + 1) problems.push(`${label}: the row overlaps the block's content`);
+  const barNames = await page.locator('.editor-tools button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  for (const name of ['Move up', 'Move down', 'Hide on the page', 'Show on the page'])
+    if (barNames.includes(name)) problems.push(`${label}: "${name}" is on the bar as well as in the row`);
+  // Hide turns into Show and the row stays.
+  await page.locator('.site-block-row-button[aria-label="Hide on the page"]')[phone ? 'tap' : 'click']();
+  await page.waitForTimeout(500);
+  if (!(await names()).includes('Show on the page')) problems.push(`${label}: after Hide the row does not say Show (${await names()})`);
+  await page.locator('.site-block-row-button[aria-label="Show on the page"]')[phone ? 'tap' : 'click']();
+  await page.waitForTimeout(500);
+  // The row's buttons are real buttons that Tab reaches.
+  if (await page.locator('.site-block-row-button[tabindex="-1"]').count())
+    problems.push(`${label}: a button of the row is not reachable with Tab`);
+  // The cursor back in the text: the row closes.
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(reduced ? 200 : 900);
+  if (await page.locator('.site-block-row').count()) problems.push(`${label}: the row stays after the block is left`);
+  // A real touch tap on the block's rows brings it back (a computer: a click).
+  if (phone) await page.locator('.inline-list-row').first().tap();
+  else await page.locator('.inline-list-row').first().click();
+  await page.waitForTimeout(reduced ? 200 : 900);
+  if (!(await page.locator('.site-block-row').count()))
+    problems.push(`${label}: a ${phone ? 'tap' : 'click'} on the block did not bring its row back`);
   await page.close();
 }
 
@@ -1060,16 +1177,19 @@ async function checkBlockBar(width, height = 800) {
   if (bar.some((b) => b.height < 43.4 || b.width < 43.4)) problems.push(`${label}: a button of the block's bar is under 44 x 44 dp`);
   // The List's tools in the owner's order (14 Nov), the bar's first and then the ⋮'s: Add below, Add above, Settings (Edit), Fill from a list, Move up, Move down;
   // Undo, Redo, Insert block and the ⋮ close the bar, with no divider.
-  const order = ['Add below', 'Add above', 'Edit', 'Move up', 'Move down'];
+  const order = ['Add below', 'Add above', 'Edit'];
   const seen = names.filter((n) => order.includes(n));
   if (seen.join() !== order.filter((n) => seen.includes(n)).join())
     problems.push(`${label}: the block's tools read ${seen.join(', ')}, not in the order ${order.join(', ')}`);
   if (names.indexOf('Add below') > names.indexOf('Add above')) problems.push(`${label}: Add below does not come before Add above`);
-  if (bar.some((b) => b.label === 'Move up') && names.includes('Edit') && !bar.some((b) => b.label === 'Edit'))
-    problems.push(`${label}: Move up is on the bar while Settings is in the ⋮ (Move up and Move down come last)`);
+  // Move up, Move down and Hide are in the block's action row (blockRow.ts), never on the bar or in the ⋮ as well.
+  const listRow = await page.locator('.site-block-row-button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  for (const name of ['Move up', 'Move down', 'Hide on the page'])
+    if (!listRow.includes(name)) problems.push(`${label}: the action row has no "${name}" (${listRow})`);
+  for (const name of ['Move up', 'Move down', 'Hide on the page'])
+    if (names.includes(name)) problems.push(`${label}: "${name}" is on the bar or in the ⋮ as well as in the action row`);
   if (!more.length) problems.push(`${label}: the ⋮ has no rows`);
-  for (const name of ['Hide on the page', 'Remove'])
-    if (!names.includes(name)) problems.push(`${label}: the block's own menu has no "${name}" (${names})`);
+  for (const name of ['Remove']) if (!names.includes(name)) problems.push(`${label}: the block's own menu has no "${name}" (${names})`);
   if (bar.filter((b) => b.label === 'More').length !== 1)
     problems.push(`${label}: the bar has ${bar.filter((b) => b.label === 'More').length} ⋮ buttons, not 1`);
   const state = await page.evaluate(() => ({
@@ -1218,10 +1338,15 @@ async function checkBarSlide(width, reduced = false, height = 800) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
+  const barHeight = () => page.evaluate(() => document.querySelector('.editor-tools').getBoundingClientRect().height);
+  const heightBefore = await barHeight();
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  const heightDuring = await barHeight();
   await page.waitForTimeout(500);
+  if (Math.abs(heightDuring - heightBefore) > 0.6 || Math.abs((await barHeight()) - heightBefore) > 0.6)
+    problems.push(`${label}: the bar's height changes when it goes from the text to a block (${heightBefore}, ${heightDuring})`);
   const change = await taken();
   const fades = change.filter((a) => a.keyframes.some((k) => k.opacity !== undefined));
   if (reduced) {
@@ -1233,8 +1358,93 @@ async function checkBarSlide(width, reduced = false, height = 800) {
       problems.push(
         `${label}: the fade is not the theme's effects spring (${JSON.stringify(fades.map((a) => a.timing))}, wanted ${JSON.stringify(want.effects)})`,
       );
-    if (change.some((a) => a.ghost)) problems.push(`${label}: going from the text to a block slides a ghost out (it fades in place)`);
+    // A cross-fade: the new tools go from opacity 0 to 1 and a ghost copy of the old ones from 1 to 0, neither with a transform (the ghost is out of the row's flow).
+    const fadeIn = fades.find((a) => !a.ghost && a.keyframes[0].opacity === 0 && a.keyframes.at(-1).opacity === 1);
+    const fadeOut = fades.find((a) => a.ghost && a.keyframes[0].opacity === 1 && a.keyframes.at(-1).opacity === 0);
+    if (!fadeIn) problems.push(`${label}: the new tools do not fade in (0 to 1) when the bar goes from the text to a block`);
+    if (!fadeOut) problems.push(`${label}: the old tools do not fade out (1 to 0) when the bar goes from the text to a block`);
+    if (change.some((a) => a.ghost && a.keyframes.some((k) => k.transform !== undefined)))
+      problems.push(`${label}: going from the text to a block slides a ghost out (it fades in place)`);
+    if (await page.locator('.editor-tools-ghost').count()) problems.push(`${label}: the fading-out copy is still there after the fade`);
   }
+  await page.close();
+}
+
+/** The text bar is a width budget (src/textBar.mjs, owner requirement 14 Nov): at each width the bar does not overflow its box, leaves no gap as wide as the
+ * next tool, draws every button at its declared width (TOOL_WIDTH), and the ⋮ menu holds exactly the text tools that are not on the bar. Returns
+ * which text tools stand on the bar, for the report. */
+async function checkTextBarFit(width) {
+  const label = `${width}px text bar fit`;
+  const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: width < 600, isMobile: width < 600, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Fro');
+  await page.waitForSelector('.editor-tools button[aria-label="Bold"]', { timeout: 5000 });
+  const idOf = (name) => {
+    if (name.startsWith('Text style')) return 'style';
+    if (name === 'List' || name.startsWith('List:')) return 'list';
+    if (name.startsWith('Alignment')) return 'align';
+    return { Bold: 'bold', Italic: 'italic', Link: 'link', Color: 'color' }[name] ?? null;
+  };
+  const bar = await page.evaluate(() => {
+    const el = document.querySelector('.editor-tools');
+    const buttons = [...el.querySelectorAll('button:not([hidden])')].map((b) => ({
+      name: b.getAttribute('aria-label'),
+      w: b.getBoundingClientRect().width,
+      right: b.getBoundingClientRect().right,
+    }));
+    return {
+      inner: el.clientWidth,
+      barRight: el.getBoundingClientRect().right,
+      scrolls: el.scrollWidth > el.clientWidth + 2,
+      buttons,
+      pageScrolls: document.documentElement.scrollWidth > innerWidth,
+    };
+  });
+  const TEXT = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color'];
+  const onBar = bar.buttons.map((b) => idOf(b.name)).filter(Boolean);
+  if (bar.scrolls || bar.pageScrolls || bar.buttons.at(-1).right > bar.barRight - 0.5)
+    problems.push(`${label}: the bar overflows its box (last button ends at ${bar.buttons.at(-1).right}, box at ${bar.barRight - 1})`);
+  for (const b of bar.buttons) {
+    const id = idOf(b.name) ?? { Undo: 'undo', Redo: 'redo', 'Insert block': 'insert', More: 'more' }[b.name];
+    if (id && Math.abs(b.w - toolWidth(id)) > 0.6)
+      problems.push(`${label}: ${b.name} is drawn ${b.w} dp wide, TOOL_WIDTH says ${toolWidth(id)} (src/textBar.mjs)`);
+  }
+  if (onBar.join() !== TEXT.slice(0, onBar.length).join())
+    problems.push(`${label}: the bar's text tools are not in order (${onBar.join()})`);
+  const free = bar.inner - bar.buttons.reduce((n, b) => n + b.w, 0);
+  const hasMore = bar.buttons.some((b) => b.name === 'More');
+  const inMenu = [];
+  if (hasMore) {
+    await page.locator('.editor-tools [aria-label="More"]').click();
+    await page.waitForSelector('[role=menu][aria-label="More"]', { timeout: 3000 });
+    const rows = await page.evaluate(() =>
+      [...document.querySelectorAll('[role=menu][aria-label="More"] [role^=menuitem]')].map((x) => x.textContent.trim()),
+    );
+    for (const r of rows) {
+      const id = /^Text style/.test(r)
+        ? 'style'
+        : /^(Bullet|Check|Numbered) list$/.test(r)
+          ? 'list'
+          : /^Align /.test(r)
+            ? 'align'
+            : { Link: 'link', Color: 'color' }[r];
+      if (id && !inMenu.includes(id)) inMenu.push(id);
+    }
+  }
+  const rest = TEXT.slice(onBar.length);
+  if (inMenu.join() !== rest.join())
+    problems.push(`${label}: the ⋮ menu holds ${inMenu.join() || 'no text tool'}, not the tools off the bar (${rest.join() || 'none'})`);
+  if (!hasMore && rest.length) problems.push(`${label}: tools are off the bar and there is no ⋮ (${rest.join()})`);
+  if (hasMore && !rest.length && !inMenu.length) {
+    // A ⋮ with no text tool in it is only allowed while Section settings or another row is in it.
+  }
+  if (rest.length && free >= toolWidth(rest[0]) - 0.6)
+    problems.push(`${label}: a gap of ${free} dp on the bar, the next tool (${rest[0]}) is ${toolWidth(rest[0])} dp`);
+  console.log(`${label}: ${bar.inner} dp inside; on the bar ${onBar.join(', ')}; in the ⋮ ${rest.join(', ') || '-'}; free ${free} dp`);
   await page.close();
 }
 
@@ -1268,6 +1478,24 @@ async function checkTextBarWide() {
     await page.locator(`.editor-tools [aria-label^="${name}"]`).first().click();
     const bad = await menuIconProblems(page);
     if (bad.length) problems.push(`1280px text bar: icons in the ${name} menu are not 20 x 20 px (${bad})`);
+    if (name === 'Text style') {
+      const icons = await page.evaluate(() => ({
+        button: document.querySelector('.editor-tools [aria-label^="Text style"] svg')?.getAttribute('data-icon'),
+        rows: Object.fromEntries(
+          [...document.querySelectorAll('[role=menu] [role^=menuitem]')].map((x) => [
+            x.textContent.trim(),
+            x.querySelector('svg')?.getAttribute('data-icon'),
+          ]),
+        ),
+      }));
+      if (icons.button !== 'match_case') problems.push(`1280px text bar: the Text style button shows ${icons.button}, not Aa (match_case)`);
+      for (const [row, icon] of [
+        ['Body small', 'body_a3'],
+        ['Body medium', 'body_a2'],
+        ['Body large', 'body_a1'],
+      ])
+        if (icons.rows[row] !== icon) problems.push(`1280px text bar: ${row} has icon ${icons.rows[row]}, not ${icon}`);
+    }
     await page.keyboard.press('Escape');
   }
   const want = ['Bold', 'Italic', 'Text style', 'List', 'Alignment', 'Link', 'Color', 'Undo', 'Redo', 'Insert block'];
@@ -1329,6 +1557,48 @@ async function checkUnlistedPost() {
   if (!(await row.count())) return problems.push('hidden post: the posts list has no row for the post that is not on the blog');
   if (!(await row.first().innerText()).includes('Hidden')) problems.push('hidden post: the posts list does not say "Hidden" on its row');
   await page.close();
+}
+
+/**
+ * Each installed app's blocks, on a test page of the app's own (its check-page.md, docs/app-contract.md, "The app's test page"; without
+ * one, its blocks at their default values and a warning that names the app). The page lives only in memory (the texts the editor is
+ * given, never a file in the site's folder), never saved or published; the editor opens it on a computer and every failure is reported under the app's name.
+ */
+async function checkAppTestPages() {
+  for (const id of installedApps(ROOT)) {
+    const test = appCheckPage(join(ROOT, 'src/apps', id), id);
+    if (!test) continue;
+    for (const w of test.warnings) console.warn(`warning: ${w}`);
+    for (const p of test.problems) problems.push(p);
+    if (test.problems.length) continue;
+    const path = `src/content/pages/zz-app-${id}.md`;
+    const label = `app ${id} (${test.source})`;
+    const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    // (A resource the local server does not have, such as a photo, is a 404 here and nothing of the app's.)
+    page.on(
+      'console',
+      (m) => m.type() === 'error' && !/Failed to load resource/.test(m.text()) && problems.push(`${label}: console error: ${m.text()}`),
+    );
+    try {
+      await openEditor(page, site, { [path]: test.text });
+      await page.evaluate((hash) => (location.hash = hash), `#${path}`);
+      await page.waitForSelector('.ProseMirror', { timeout: 15000 });
+      await page.waitForTimeout(800);
+      const drawn = await page.evaluate(
+        () =>
+          document.querySelectorAll('.ProseMirror [data-block], .ProseMirror .site-block-inline, .ProseMirror .site-block-preview').length,
+      );
+      if (drawn < test.types.length)
+        problems.push(
+          `${label}: the editor draws ${drawn} blocks of the page, the app has ${test.types.length} (${test.types.join(', ')})`,
+        );
+    } catch (error) {
+      problems.push(`${label}: the test page does not open in the editor (${error.message.split('\n')[0]})`);
+    } finally {
+      await page.close();
+    }
+  }
 }
 
 /** On a phone, a press and hold on a row of the pages list selects it (and the blog's the same), and the top bar's Delete asks before it deletes; a default page (the front page) is not deleted, with the reason. */
@@ -1941,6 +2211,8 @@ async function checkBlockDrag(width) {
   await page.keyboard.press('End');
   await page.keyboard.press('Enter');
   await insert('Rows with icon, heading and text.');
+  // The active block's action row has opened (it moves the handle and the blocks below): measure after it has settled.
+  await page.waitForTimeout(900);
   // Away from any block's row, so no bar or keyboard is in the way.
   const names = () => page.locator('.ProseMirror .site-block-card').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   const before = await names();
@@ -1967,11 +2239,17 @@ async function checkBlockDrag(width) {
   }
   // A tap on the handle moves nothing.
   const second = await box(1);
-  const [sx, sy] = [second.x + second.width / 2, second.y + second.height / 2];
+  let [sx, sy] = [second.x + second.width / 2, second.y + second.height / 2];
   if (phone) await page.touchscreen.tap(sx, sy);
   else await page.mouse.click(sx, sy);
   await page.waitForTimeout(300);
   if ((await names()).join() !== before.join()) problems.push(`${label}: a tap on the handle moved the block`);
+  // A tap lets the block that was active go and its action row closes, so the page settles: the handle is where it is now, as a person sees it.
+  await page.waitForTimeout(900);
+  {
+    const now = await box(1);
+    [sx, sy] = [now.x + now.width / 2, now.y + now.height / 2];
+  }
   // Drag the second block's handle up over the first block.
   const target = await page.locator('.ProseMirror .site-block').first().boundingBox();
   const ty = target.y + 8;
@@ -2964,6 +3242,95 @@ async function checkListMarkers(width) {
   await page.close();
 }
 
+/** Label is a style of any top-level line of text (owner decision, 14 Nov): the Text style menu has the Label row on a plain line and on an empty last line, choosing it makes the line a label drawn in the label role (12 px) with its text kept and no heading after it, picking it again gives the plain line back, and a lone label saved in a page is drawn the same in the Preview. */
+async function checkLabelOnAnyLine(width) {
+  const label = `${width}px label on any line`;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Intro');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('Opening hours');
+  await page.waitForTimeout(300);
+  const rowNames = () => page.locator('[role=menu] [role^=menuitem]:visible').evaluateAll((rows) => rows.map((x) => x.textContent.trim()));
+  const labelNow = () =>
+    page.evaluate(() => {
+      const el = document.querySelector('.ProseMirror p.label-medium');
+      return el
+        ? { text: el.textContent, size: getComputedStyle(el).fontSize, tops: [...el.parentElement.children].map((c) => c.tagName) }
+        : null;
+    });
+  await openStyleMenu(page);
+  if (!(await rowNames()).some((n) => /^Label\b/.test(n)))
+    problems.push(`${label}: the Text style menu has no Label row on a plain line (${(await rowNames()).join(', ')})`);
+  await page
+    .locator('[role=menu] [role^=menuitem]')
+    .filter({ hasText: /^Label\b/ })
+    .first()
+    .click();
+  await page.waitForTimeout(200);
+  const made = await labelNow();
+  if (!made || made.text !== 'Opening hours')
+    problems.push(`${label}: Label on a plain line does not make it a label with its text (${JSON.stringify(made)})`);
+  else if (made.size !== '12px') problems.push(`${label}: the label is drawn at ${made.size}, not the label role's 12px`);
+  else if (made.tops.join() !== 'P,P') problems.push(`${label}: the label's line changed the page's shape (${made.tops})`);
+  // Picked again, it is the plain line again.
+  await openStyleMenu(page);
+  await page
+    .locator('[role=menu] [role^=menuitem]')
+    .filter({ hasText: /^Label\b/ })
+    .first()
+    .click();
+  await page.waitForTimeout(200);
+  if (await labelNow()) problems.push(`${label}: Label picked again does not give the plain line back`);
+  if ((await page.locator('.ProseMirror p').nth(1).textContent()) !== 'Opening hours')
+    problems.push(`${label}: the line lost its text going back from a label`);
+  // An empty last line has the row too.
+  await page.keyboard.press('End');
+  await page.keyboard.press('Enter');
+  await openStyleMenu(page);
+  if (!(await rowNames()).some((n) => /^Label\b/.test(n))) problems.push(`${label}: no Label row on an empty last line`);
+  await page.keyboard.press('Escape');
+  await page.close();
+  // A lone label of a saved page is read as a label and drawn the same in the Preview (a page of its own, as the other checks).
+  const saved = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  saved.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  return checkSavedLabel(saved, width);
+}
+
+async function checkSavedLabel(page, width) {
+  const label = `${width}px label on any line (saved page)`;
+  const labelNow = () =>
+    page.evaluate(() => {
+      const el = document.querySelector('.ProseMirror p.label-medium');
+      return el ? { text: el.textContent, size: getComputedStyle(el).fontSize } : null;
+    });
+  const path = BUILT_PAGE;
+  const text =
+    '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<p class="label-medium">Opening hours</p>\n\nMonday to Friday.\n';
+  await openEditor(page, site, { [path]: text });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('.ProseMirror p.label-medium', { timeout: 30_000 });
+  const inEditor = await labelNow();
+  if (!inEditor || inEditor.size !== '12px')
+    problems.push(`${label}: a saved lone label is not a label in the editor (${JSON.stringify(inEditor)})`);
+  await page.getByRole('button', { name: 'Preview' }).first().click();
+  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  const frame = page.frames().find((f) => f !== page.mainFrame());
+  await frame.waitForSelector('[data-editor="text"] .label-medium', { timeout: 30_000 });
+  const drawn = await frame.evaluate(() => {
+    const el = document.querySelector('[data-editor="text"] .label-medium');
+    const next = el.nextElementSibling;
+    return { size: getComputedStyle(el).fontSize, gap: next ? next.getBoundingClientRect().top - el.getBoundingClientRect().bottom : -1 };
+  });
+  if (drawn.size !== '12px') problems.push(`${label}: a lone label is drawn at ${drawn.size} on the site, not 12px`);
+  if (drawn.gap < 0 || drawn.gap > 16) problems.push(`${label}: the text under a lone label is ${drawn.gap}px below it, not close`);
+  await page.close();
+}
+
 /** A block put in a list item, or after a list, is a block of the page (never indented in the list), and Backspace at the start of a list item leaves the list. */
 async function checkListsAndBlocks(width) {
   const label = `${width}px text lists`;
@@ -3082,7 +3449,7 @@ async function checkSectionCardContrast() {
     ]) {
       const page = await browser.newPage({ viewport: { width, height }, colorScheme: scheme, locale: 'en-US' });
       page.on('pageerror', (e) => problems.push(`Section card contrast: ${e.message}`));
-      if (!(await onDemoBlocksPage(page, `Section card contrast (${scheme}, ${width})`))) {
+      if (!(await onTestPage(page, `Section card contrast (${scheme}, ${width})`))) {
         await page.close();
         continue;
       }
@@ -4192,7 +4559,8 @@ async function checkSteps(width, height) {
   // Moving a step renumbers.
   await page.locator('.inline-steps [data-row="0"] [data-field="title"]').click();
   await page.waitForTimeout(200);
-  await pressTool(page, 'Move down');
+  // The step row's own Move down on the bar (not the block's, in its action row).
+  await page.locator('.editor-tools button[aria-label="Move down"]:visible').first().click();
   await page.waitForTimeout(200);
   now = await steps();
   if (now[1]?.title !== 'Order' || now.map((s) => s.number).join() !== '1,2,3')
@@ -4355,21 +4723,17 @@ async function checkDynamicPicker(width, height) {
 async function checkOwnList(width, height) {
   const label = `${width}px own list`;
   const phone = width < 600;
-  const folder = join(ROOT, 'src/data/services');
-  mkdirSync(folder, { recursive: true });
-  writeFileSync(
-    join(folder, '_list.json'),
-    JSON.stringify({ version: 1, label: 'Services', fields: ['title', 'text', 'href', 'image', 'tags'] }),
-  );
-  writeFileSync(join(folder, 'web-design.json'), JSON.stringify({ order: 1, title: 'Web design', text: 'Sites that last' }));
-  writeFileSync(join(folder, 'hosting.json'), JSON.stringify({ order: 2, title: 'Hosting' }));
+  // The list and a page that reads it, in memory (the editor reads them as if they were in the site's folder, which a check never writes to).
+  const list = 'src/data/services';
+  virtualFile(`${list}/_list.json`, JSON.stringify({ version: 1, label: 'Services', fields: ['title', 'text', 'href', 'image', 'tags'] }));
+  virtualFile(`${list}/web-design.json`, JSON.stringify({ order: 1, title: 'Web design', text: 'Sites that last' }));
+  virtualFile(`${list}/hosting.json`, JSON.stringify({ order: 2, title: 'Hosting' }));
   // A page that reads the list, so `Delete list` is refused.
-  const pagePath = join(ROOT, 'src/content/pages/zz-reads-services.md');
-  writeFileSync(
-    pagePath,
+  virtualFile(
+    'src/content/pages/zz-reads-services.md',
     '---\ntitle: "Reads services"\n---\n\n# Reads services\n\n<div data-block="list" data-props="{&quot;from&quot;:&quot;services&quot;}"></div>\n',
   );
-  try {
+  {
     const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
     page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
     await openEditor(page, site);
@@ -4546,9 +4910,6 @@ async function checkOwnList(width, height) {
       .catch(() => problems.push(`${label}: Delete list was not refused while a page reads the list`));
     await page.close();
     await checkNewList(width, height, label);
-  } finally {
-    rmSync(pagePath, { force: true });
-    rmSync(folder, { recursive: true, force: true });
   }
 }
 
@@ -4559,7 +4920,6 @@ const decoded = (content) => Buffer.from(content ?? '', 'base64').toString() || 
 async function checkNewList(width, height, label) {
   label = `${label} new`;
   const phone = width < 600;
-  const folder = join(ROOT, 'src/data/zz-fresh-list');
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   try {
@@ -4781,16 +5141,29 @@ async function checkNewList(width, height, label) {
       problems.push(`${label}: saving an item did not commit the waiting field with it (${last.length} commits: ${paths})`);
   } finally {
     await page.close();
-    rmSync(folder, { recursive: true, force: true });
   }
 }
 
-/** Opens the demo's Blocks page (/blocks/), which these checks measure. A site that is not the demo has none: the check says it is skipped, and nothing fails. */
-async function onDemoBlocksPage(page, label) {
-  const response = await page.goto(new URL('/blocks/', site).href).catch(() => null);
+/** Opens the system's test page (the Blocks page of core-blocks-page.mjs, on a temporary copy of the site), which these checks measure. It is built on first use, so it is there on any site. */
+async function onTestPage(page, label) {
+  const { site: testSite } = await serveCoreTestSite();
+  const response = await page.goto(new URL(`/${CORE_PAGE_ID}/`, testSite).href).catch(() => null);
   if (response && response.status() < 400) return true;
-  console.log(`${label}: skipped, the site has no Blocks page (/blocks/) to measure, which the demo has.`);
+  problems.push(`${label}: the system's test page (/${CORE_PAGE_ID}/) did not open on the temporary copy of the site`);
   return false;
+}
+
+/** The temporary copy of the site with the system's test page (core-blocks-page.mjs), built and served on the first use and deleted when the run ends: the
+ * page is never in the site's own folder. Its content is the demo's Blocks page, so the checks that measure it measure the same on any site. */
+let coreSite = null;
+async function serveCoreTestSite() {
+  coreSite ??= (async () => {
+    const { files, copies } = coreTestSite(ROOT);
+    const built = buildTestSite(ROOT, files, copies);
+    process.on('exit', built.remove);
+    return serveBuilt(built.dist);
+  })();
+  return coreSite;
 }
 
 /** The Library's images are the theme's image tiles in a staggered grid: cards with media (filled, the image to the edge), each in its own proportions (the box is
@@ -4859,7 +5232,7 @@ async function checkLibraryAlt() {
   const label = 'library alt text';
   const page = await browser.newPage({ locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  if (!(await onTestPage(page, label))) return page.close();
   const card = await page.locator('.block-card-picture img[src$="andromeda.webp"]').first().getAttribute('alt');
   if (card !== 'The Andromeda galaxy among thousands of stars')
     problems.push(`${label}: the Cards image has alt "${card}", expected the Library's text for it`);
@@ -4884,7 +5257,7 @@ async function checkCardIconText(width, height, scheme) {
     colorScheme: scheme,
   });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  if (!(await onTestPage(page, label))) return page.close();
   const found = await page.evaluate(() => {
     const pixel = (css) => {
       const c = document.createElement('canvas').getContext('2d');
@@ -4940,7 +5313,7 @@ async function checkCardsCarousel(width, height) {
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  if (!(await onTestPage(page, label))) return page.close();
   const root = page.locator('[data-cards-carousel]').first();
   if (!(await root.count())) return (problems.push(`${label}: no Cards carousel on the Blocks page`), page.close());
   await root.scrollIntoViewIfNeeded();
@@ -5040,7 +5413,7 @@ async function checkCardsSpacing(width, height) {
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  if (!(await onTestPage(page, label))) return page.close();
   const m = await page.evaluate(() => {
     const r = (e) => e.getBoundingClientRect();
     const px = (n) => Math.round(n * 10) / 10;
@@ -5472,7 +5845,7 @@ async function checkTableAlign(width, height) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   // The built site: the demo's Table has a column of numbers (Editors) and text columns.
   const built =
-    (await onDemoBlocksPage(page, label)) &&
+    (await onTestPage(page, label)) &&
     (await page.evaluate(() => {
       const at = (sel) => getComputedStyle(document.querySelector(sel)).textAlign;
       return {
@@ -5599,7 +5972,7 @@ async function checkTableRadius(width, height) {
   const label = `${width}px table radius`;
   const page = await browser.newPage({ viewport: { width, height } });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  if (!(await onTestPage(page, label))) return page.close();
   const got = await page.evaluate(() => {
     const card = document.querySelector('.card.block-card');
     const host = card?.parentElement;
@@ -5630,7 +6003,7 @@ async function checkSpacingGrid(width, height) {
   const label = `${width}px spacing grid`;
   const page = await browser.newPage({ viewport: { width, height } });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  if (!(await onTestPage(page, label))) return page.close();
   const found = await page.evaluate(
     ([nested, allowed]) => {
       const sides = {
@@ -6246,6 +6619,65 @@ async function checkFooterTargets(width, touch) {
     if (!row) problems.push(`${width}px footer divider is not centred on a link`);
   }
   if (got.scrolls) problems.push(`${width}px footer: the page scrolls sideways`);
+  await page.close();
+}
+
+/** The List "expand" kind on the built site (the FAQ on /blocks/), 375 and 1280 px: a <ul class="list list-expand"> of <li><details name><summary> items (a row of 48 px or more, a corner of 16 px on the list), the closed caret has no container and the open one turns over and gets one while the headline keeps its colour (Material's "List - Expand" tokens), one row open at a time, Space on the focused summary opens it and the focus ring is 3 px, nothing scrolls sideways. */
+async function checkExpandList(width, height) {
+  const label = `${width}px List expand`;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onTestPage(page, label))) return page.close();
+  const list = page.locator('ul.list.list-expand:has(> li:nth-child(2))').first();
+  if (!(await list.count())) {
+    problems.push(`${label}: no List with expand and two items on /blocks/`);
+    return page.close();
+  }
+  await list.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+  const items = list.locator(':scope > li > details.list-item-expand');
+  const first = items.nth(0);
+  const second = items.nth(1);
+  const look = (item) =>
+    item.evaluate((d) => {
+      const sum = d.querySelector(':scope > summary.list-item-container');
+      const icon = sum?.querySelector('.list-item-expand-icon');
+      const head = sum?.querySelector('.list-item-headline');
+      const box = sum?.getBoundingClientRect();
+      return {
+        summary: !!sum,
+        height: box?.height ?? 0,
+        iconBg: icon ? getComputedStyle(icon).backgroundColor : '',
+        iconRotate: icon ? getComputedStyle(icon).rotate : '',
+        headColor: head ? getComputedStyle(head).color : '',
+        hasBody: !!d.querySelector(':scope > .list-item-expand-body'),
+        open: d.open,
+      };
+    });
+  const closed = await look(first);
+  if (!closed.summary || !closed.hasBody) problems.push(`${label}: an item has no summary or no body`);
+  if (closed.height < 48) problems.push(`${label}: an item is ${closed.height}px tall, should be 48px or more`);
+  if (closed.iconBg !== 'rgba(0, 0, 0, 0)') problems.push(`${label}: the closed caret has a container (${closed.iconBg})`);
+  const radius = await list.evaluate((el) => getComputedStyle(el).borderTopLeftRadius);
+  if (radius !== '16px') problems.push(`${label}: the list's corner is ${radius}, should be 16px`);
+  await first.locator('summary').click();
+  await page.waitForTimeout(700);
+  const open = await look(first);
+  if (!open.open) problems.push(`${label}: a tap on the item does not open it`);
+  if (open.iconBg === 'rgba(0, 0, 0, 0)') problems.push(`${label}: the open caret has no container`);
+  if (open.iconRotate === 'none' || !/180|3\.14/.test(open.iconRotate))
+    problems.push(`${label}: the open caret has not turned over (${open.iconRotate})`);
+  if (open.headColor !== closed.headColor)
+    problems.push(`${label}: the headline changes colour when open (${closed.headColor} to ${open.headColor})`);
+  // One at a time (the same name), and the keyboard: Space on the focused summary of the second item opens it and closes the first.
+  await second.locator('summary').focus();
+  await page.keyboard.press('Space');
+  await page.waitForTimeout(700);
+  if (!(await look(second)).open || (await look(first)).open)
+    problems.push(`${label}: Space on the second item does not open it and close the first`);
+  const ring = await second.locator('summary').evaluate((el) => getComputedStyle(el).outlineWidth);
+  if (ring !== '3px') problems.push(`${label}: the focus ring is ${ring}, should be 3px`);
+  if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)) problems.push(`${label}: the page scrolls sideways`);
+  console.log(`${label}: ${JSON.stringify({ closed, open })}`);
   await page.close();
 }
 
@@ -6951,6 +7383,7 @@ await unit('checkStartSubtitle', () => checkStartSubtitle());
 
 for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
 await unit('checkTextBarWide', () => checkTextBarWide());
+for (const width of [320, 360, 375, 390, 414, 600, 840, 1280]) await unit(`checkTextBarFit ${width}`, () => checkTextBarFit(width));
 for (const [width, reduced] of [
   [375, false],
   [1280, false],
@@ -6960,6 +7393,9 @@ for (const [width, reduced] of [
 for (const width of [375, 1280]) await unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
 for (const width of [375, 1280]) await unit(`checkCardBar ${width}`, () => checkCardBar(width));
 for (const width of [320, 375, 1280]) await unit(`checkInsertBlock ${width}`, () => checkInsertBlock(width));
+for (const w of [375, 1280]) await unit(`checkBlockRow ${w}`, () => checkBlockRow(w));
+await unit('checkBlockRow 375 reduced', () => checkBlockRow(375, { reduced: true }));
+await unit('checkBlockRow 375 keyboard', () => checkBlockRow(375, { height: 420 }));
 await unit('checkSheetKeyboard 375', () => checkSheetKeyboard(375));
 await unit('checkSheetKeyboard 375 Custom', () => checkSheetKeyboard(375, 740, 300, true));
 for (const [width, height] of [
@@ -6978,6 +7414,7 @@ for (const [width, height] of [
   await unit(`checkDraftsCard ${width}`, () => checkDraftsCard(width, height));
 await unit('checkEmptyHint', () => checkEmptyHint());
 await unit('checkLongPressDelete', () => checkLongPressDelete());
+await unit('checkAppTestPages', () => checkAppTestPages());
 await unit('checkSelection', () => checkSelection());
 await unit('checkSelectionBox', () => checkSelectionBox());
 await unit('checkFilesSelection', () => checkFilesSelection());
@@ -7079,6 +7516,12 @@ for (const [width, height] of [
   await unit(`checkEntrySettings ${width}`, () => checkEntrySettings(width, height));
   await unit(`checkNofollowSwitch ${width}`, () => checkNofollowSwitch(width, height));
 }
+for (const [width, height] of [
+  [375, 800],
+  [1280, 900],
+]) {
+  await unit(`checkExpandList ${width}`, () => checkExpandList(width, height));
+}
 await unit('checkFooterTargets 320', () => checkFooterTargets(320, true));
 await unit('checkFooterTargets 375', () => checkFooterTargets(375, true));
 await unit('checkFooterTargets 1280', () => checkFooterTargets(1280, false));
@@ -7101,10 +7544,12 @@ await unit('checkH1SectionGap', () => checkH1SectionGap());
 await unit('checkSectionCardContrast', () => checkSectionCardContrast());
 for (const w of [375, 1280]) await unit(`checkListMarkers ${w}`, () => checkListMarkers(w));
 for (const w of [375, 1280]) await unit(`checkListsAndBlocks ${w}`, () => checkListsAndBlocks(w));
+for (const w of [375, 1280]) await unit(`checkLabelOnAnyLine ${w}`, () => checkLabelOnAnyLine(w));
 for (const w of [360, 375, 390, 414]) await unit(`checkPreviewDraft ${w}`, () => checkPreviewDraft(w));
 
 await browser.close();
 server.close();
+if (coreSite) (await coreSite).server.close();
 for (const [name, places] of fallbackOn) {
   const shown = [...places].slice(0, 3).join(', ');
   console.log(`${shown}${places.size > 3 ? ` and ${places.size - 3} more places` : ''}: ${fallbackIcon(name)}`);

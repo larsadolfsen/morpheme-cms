@@ -240,6 +240,15 @@ export default defineApp({
 });
 ```
 
+## The app's test page
+
+An app with blocks can bring a test page: `check-page.md` in the app's folder, next to `app.json`. It is a page in the site's own format (front matter with a `title`, then the app's blocks as the editor writes them, `<div data-block="<type>" data-props="…"></div>`) that holds each block of the app with valid props, so the checks draw the blocks as the author intends. I chose a page over a key in `app.json` because the block markup is the one the editor and the site already read and write (`lib/blocks.mjs`), so the author can copy it from a page saved in the editor; a key would need a second schema, and `app.json` fails on unknown keys.
+
+- `check:screens` and `check:themes` (which runs the screens with each theme) load each installed app's test page as a temporary page that exists only in the run's memory (the texts the editor is given). It is never a file in the site's folder, never saved to the site's repository and never published. Every failure is reported under the app's name (`app <id> (check-page.md): …`). Core blocks keep the system's own test page; a theme has none.
+- The page may hold only the app's own blocks (the folders in `blocks/` with an `index.tsx`). A block of another type, a missing front matter or a page with no block fails the check under the app's name. A block of the app that the page leaves out only gets a warning.
+- An app with blocks and no `check-page.md` is not broken by that: its blocks are inserted with their default values, and the run prints a warning that names the app (`warning: app <id>: no check-page.md …`).
+- The file is optional and nothing that exists changes meaning, so it needs no step in `APP_API` (it stays 5; an addition is not a break). The code is `lib/appCheckPage.mjs`.
+
 ## Blocks typed in place (`inline`)
 
 A block can be typed where it stands in the text, with no sheet, instead of being filled in a sheet. The editor's standard blocks List and Cards are the first. A block opts in with `inline` in its `defineBlock` (`InlineSpec`, `src/blocks.ts`); an app's block (`src/apps/<app>/blocks/<type>/index.tsx`) is defined with the same `defineBlock`, so the definition is the same. The plan is in `docs/superpowers/specs/2026-11-12-inline-block-editing-design.md` (row *An app's blocks*) and `docs/superpowers/plans/2026-11-12-inline-block-editing.md`.

@@ -5,7 +5,6 @@
 // picker); the row's page and its one button are at the bottom of the active row, where the site draws them (`Link` opens the row's sheet, the button's text is typed). The block's own settings (`Only one open`, `Rows`, `Max rows`, the text
 // button) are in Edit. The parts, the keys and what is kept are InlineItems.tsx and src/inlineRows.mjs; the empty, faded row, `Add row` and the dotted
 // line are as in the List. A Segmented list that reads a list ("Rows from") is drawn by RowsFromList (InlineList.tsx), not typed.
-import { Svg } from './icon';
 import { iconColorOf } from './iconColor';
 import { t } from './i18n';
 import { SiteIconButton, SiteList, SiteListItem } from './themeUi';
@@ -87,7 +86,9 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
             {rows}
           </SiteList>
         ) : (
-          <div className="block-accordion inline-segmented">{rows}</div>
+          <SiteList expand className="block-accordion inline-segmented">
+            {rows}
+          </SiteList>
         )
       }
       renderItem={({ item, index: i, here, next, field }) => {
@@ -148,16 +149,14 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
           );
         // Open while it is the active row (a tap on the summary does not fold it: the heading is typed there).
         return (
-          <details
+          <SiteListItem
             key={i}
-            data-row={i}
-            open={here}
-            aria-current={here ? 'true' : undefined}
-            aria-label={label}
-            className={`block-accordion-row ${classes}`}
-          >
-            <summary className="block-accordion-label" onClick={(e) => e.preventDefault()}>
-              {here ? (
+            expand
+            expandOpen={here}
+            expandProps={{ 'data-row': i, 'aria-current': here ? 'true' : undefined, 'aria-label': label, className: classes }}
+            onClick={(e) => e.preventDefault()}
+            leading={
+              here ? (
                 <span className="inline-segmented-slots">{slots(i, item.icon)}</span>
               ) : (
                 <InlineIcon
@@ -167,15 +166,13 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
                   iconColor={item.icon ? iconColorOf(item.iconColor) : undefined}
                   onClick={() => onIcon(i)}
                 />
-              )}
-              <span className="block-accordion-title">{title}</span>
-              <Svg name="caret-down" size={20} className="block-accordion-icon" />
-            </summary>
-            <div className="block-accordion-body">
-              <div className="block-accordion-answer">{text}</div>
-              {here && buttonsOf(i, item)}
-            </div>
-          </details>
+              )
+            }
+            headline={title}
+          >
+            <div className="block-accordion-answer">{text}</div>
+            {here && buttonsOf(i, item)}
+          </SiteListItem>
         );
       }}
     />
