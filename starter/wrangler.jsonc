@@ -29,7 +29,8 @@
     "command": "npx morpheme ci-build",
   },
   // Each hour, the pages and posts that are Planlagt are published once their time has come, and the apps do theirs. Each
-  // minute, whether the site has been built with a save, for the notification on the phone.
+  // minute, whether the site has been built with a save, for the notification on the phone. The hourly run checks npm for a new
+  // version of the CMS only once a day, at 03:00 in the site's time zone (worker/cms-update.js, dailyCheck).
   "triggers": { "crons": ["7 * * * *", "* * * * *"] },
   "assets": {
     "directory": "./dist",

@@ -1,6 +1,7 @@
-// The Worker takes the CMS's new versions by itself: each hour it asks npm for the newest @morphemecms/cms, commits the new exact
+// The Worker takes the CMS's new versions by itself: once a day, at night in the site's own time zone (dailyCheck, run by the hourly
+// cron: NIGHT_HOUR and checkDue in lib/cms-version.mjs), it asks npm for the newest @morphemecms/cms, commits the new exact
 // version in package.json and package-lock.json, and each minute watches the commit's check run, undoing a version that did not build.
-// Exposes RUNNING, checkForUpdate, startUpdate, watchUpdate, cmsStatus and handleCms (/api/cms, and GET /api/cms/note-image/<version>/<locale>/<id>,
+// Exposes RUNNING, dailyCheck, checkForUpdate, startUpdate, watchUpdate, cmsStatus and handleCms (/api/cms, and GET /api/cms/note-image/<version>/<locale>/<id>,
 // behind the same login check). Needs GITHUB_PUBLISH_TOKEN and the KV binding PUSH. Keeps each new version's changelog text and release
 // notes (en-US, da-DK) as cms:notes:<version> and each paragraph's screenshot as cms:note-image:<version>:<locale>:<id>; cmsStatus returns
 // the notes to come, with the screenshot address on each paragraph. Depends on github.js, session.js, push.js and lib/{lockfile,cms-version,changelog,releaseNotes}.mjs;
@@ -9,7 +10,7 @@ import { config } from '@site/config';
 import { cms as cmsEn } from '../src/i18n/en-US/cms';
 import { cms as cmsDa } from '../src/i18n/da-DK/cms';
 import { addToLock, NeedsNpm } from '../lib/lockfile.mjs';
-import { compareVersions, managedVersion, nextVersion, PACKAGE, watchStep } from '../lib/cms-version.mjs';
+import { checkDue, compareVersions, managedVersion, nextVersion, PACKAGE, siteZone, watchStep } from '../lib/cms-version.mjs';
 import { fileFromTar, gunzip, sectionsBetween } from '../lib/changelog.mjs';
 import { imageKey, notesFromTar, parseImagePath, withImageUrls } from '../lib/releaseNotes.mjs';
 import pkg from '../package.json';
@@ -114,7 +115,19 @@ async function keepNotes(env, deps, current, latest) {
 
 const versionsUnder = async (kv, prefix) => (await kv.list({ prefix })).keys.map((k) => k.name.slice(prefix.length));
 
-/** Each hour: asks npm for the newest version and takes it when it may. */
+/**
+ * Each hour (the hourly cron, also on a site whose wrangler.jsonc is older than this): checks npm only when the day's check is
+ * due (checkDue: once a day, from 03:00 in the site's time zone), else one KV read and nothing more. Staging is not slowed
+ * down: its package.json asks for the tag `next`, which this never updates; it follows `next` by its deploy hook
+ * (.github/workflows/staging-follows-next.yml).
+ */
+export async function dailyCheck(env, deps = defaultDeps, now = Date.now(), zone = siteZone(config)) {
+  if (!env.GITHUB_PUBLISH_TOKEN || !env.PUSH) return;
+  if (!checkDue(now, await env.PUSH.get('cms:checked', 'json'), zone)) return;
+  return checkForUpdate(env, deps, now);
+}
+
+/** Asks npm for the newest version and takes it when it may (dailyCheck decides when). */
 export async function checkForUpdate(env, deps = defaultDeps, now = Date.now()) {
   if (!env.GITHUB_PUBLISH_TOKEN || !env.PUSH) return;
   const kv = env.PUSH;
