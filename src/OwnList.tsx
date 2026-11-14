@@ -11,6 +11,7 @@ import Screen from './Screen';
 import { SaveBar, useFormPages, useUnsavedGuard } from './FormFrame';
 import OwnListSheet from './OwnListSheet';
 import AddFieldMenu from './AddFieldMenu';
+import OwnListFieldButtons from './OwnListFieldButtons';
 import { Button, IconButton, LoadingIndicator, Menu, MenuItem, SupportingText } from './ui';
 import { ConflictError, type RepoFile } from './github';
 import { siteT, t } from './i18n';
@@ -170,5 +171,23 @@ export default function OwnList({ id, files, saved, env }: { id: string; files: 
         {after}
       </Screen>
     );
-  return <List collection={collection} files={files} env={env} own={{ pageActions: menuButton, status, after }} />;
+  // Under the items, `Add field` and `Edit list` stand open, as well as in the list's menu.
+  const tools = <OwnListFieldButtons onAdd={(kind) => sheet.current?.add(kind)} onEdit={() => setEditing(true)} />;
+  return (
+    <List
+      collection={collection}
+      files={files}
+      env={env}
+      own={{
+        pageActions: menuButton,
+        status,
+        after: (
+          <>
+            {tools}
+            {after}
+          </>
+        ),
+      }}
+    />
+  );
 }

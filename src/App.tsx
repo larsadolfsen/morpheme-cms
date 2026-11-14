@@ -92,7 +92,7 @@ import { forgetNotFound, loadNotFound, type Missing } from './notFound';
 import { isEntryPath } from '../lib/ownList.mjs';
 import { collectionOf, slugOf, type Collection, type FolderCollection, type Part, type Relation } from './schema';
 import OwnList from './OwnList';
-import { listDraftOf, pendingOf, restoreKeptLists, settleListDrafts, useListDrafts, withListDrafts } from './listDraft';
+import { discardListDraft, listDraftOf, pendingOf, restoreKeptLists, settleListDrafts, useListDrafts, withListDrafts } from './listDraft';
 import EntryForm, { newMarkdown } from './EntryForm';
 import DataForm from './DataForm';
 import CompanyForm from './CompanyForm';
@@ -925,6 +925,8 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
             const extra = pendingOf(id, files).filter((c) => !changes.some((x) => x.path === c.path));
             const oids = await env.commit(message, [...changes, ...extra], change, onSite);
             for (const c of extra) env.onSaved({ path: c.path, oid: oids[c.path], text: c.content });
+            // The whole waiting version was in this commit (also the items that lose a field's data): nothing waits any more.
+            discardListDraft(id);
             return oids;
           },
         };

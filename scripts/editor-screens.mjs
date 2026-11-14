@@ -4403,6 +4403,21 @@ async function checkOwnList(width, height) {
       if (!(await page.getByLabel(field, { exact: true }).count())) problems.push(`${label}: the row page has no ${field} field`);
     for (const text of ['Image', 'Tags'])
       if (!(await page.getByText(text, { exact: true }).count())) problems.push(`${label}: the row page has no ${text}`);
+    // The item's page has `Add field` and `Edit list` in view (the owner's report of 14 November: an item showed its fields and no way to add one); `Add field` offers the six kinds.
+    const addOnItem = page.getByRole('button', { name: 'Add field', exact: true });
+    if (!(await addOnItem.count())) problems.push(`${label}: the item's page has no Add field`);
+    else {
+      await addOnItem.first().scrollIntoViewIfNeeded();
+      const box = await addOnItem.first().boundingBox();
+      if (!box || box.x < 0 || box.x + box.width > width) problems.push(`${label}: the item's Add field is outside the screen`);
+      await addOnItem.first().click();
+      for (const kind of ['Icon', 'Title', 'Body text', 'Image', 'Link', 'Tags'])
+        if (!(await page.getByRole('menuitem', { name: kind, exact: true }).count()))
+          problems.push(`${label}: the item's Add field has no ${kind}`);
+      await page.keyboard.press('Escape');
+    }
+    if (!(await page.getByRole('button', { name: 'Edit list', exact: true }).count()))
+      problems.push(`${label}: the item's page has no Edit list`);
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
       problems.push(`${label}: the row page scrolls sideways`);
     const own = await page

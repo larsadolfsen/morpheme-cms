@@ -6,7 +6,7 @@
 import { useMemo, useState } from 'react';
 import { entryName, slugify, slugOf, type DataFile, type FilesCollection, type FolderCollection } from './schema';
 import { config, header, keptBy, sharing, siteName, usesOf } from '@site/editor';
-import { apps, asWritten, collections } from './site';
+import { apps, asWritten, collections, isOwnList } from './site';
 import { kindDraw } from './apps';
 import { ConflictError, type RepoFile } from './github';
 import { clean, newItem, newValue, problemAt } from './check';
@@ -31,6 +31,10 @@ import { plain, SEO_FIELDS, seoRating, SHARE_FIELDS, sharedAs } from './seo';
 import type { Env } from './App';
 import { kindAndName, lower, nameOf, savedText } from './deploy';
 import { siteT, t } from './i18n';
+import OwnListEntryTools from './OwnListEntryTools';
+import { useFormPages } from './FormFrame';
+import { useListDrafts } from './listDraft';
+import { entriesIn } from '../lib/ownListEdit.mjs';
 
 type Props = {
   collection: FolderCollection | FilesCollection;
@@ -95,7 +99,18 @@ function Form({
   const [shareOpen, setShareOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const dirty = JSON.stringify(values) !== JSON.stringify(initial);
+  // An item of a list the owner made: the list's tools stand under its fields, and a change to the list's fields (waiting, src/listDraft.ts) is saved with the item.
+  const ownList = collection.kind === 'folder' && !dataFile && isOwnList(env.files, collection.id);
+  const listWaiting = useListDrafts().some((d) => d.id === collection.id);
+  const listPending = ownList && listWaiting;
+  const entryDirty = JSON.stringify(values) !== JSON.stringify(initial);
+  const dirty = entryDirty || listPending;
+  // Going back to the list keeps what waits (as the list's own page does), unless the item itself has unsaved changes.
+  useFormPages(
+    listPending && !entryDirty && collection.kind === 'folder'
+      ? [`list/${collection.id}`, `new/${collection.id}`, ...entriesIn(env.files, collection.folder).map((e: { path: string }) => e.path)]
+      : [],
+  );
 
   // A file is named by its label, as in its list (Front page, Menu …); a fixed page (`pages`) says when it was last saved.
   const fixed = collection.kind === 'files' && !!collection.pages;
@@ -147,7 +162,9 @@ function Form({
       if (folder.orderable) data = { order: env.nextOrder(folder), ...(data as object) };
     }
     const text = `${JSON.stringify(data, null, 2)}\n`;
-    if (text === base.text) return notify({ text: t.forms.nothingToSave });
+    // Only the list's waiting fields to save (the item itself is as it was): the commit is theirs alone.
+    const same = text === base.text;
+    if (same && !listPending) return notify({ text: t.forms.nothingToSave });
     // Something on the site needs it as it was (a button that opens a promotion on a page): where, with a link there.
     const kept = !isNew && !dataFile ? keptBy(collection, path, data as Record<string, unknown>, env.files) : null;
     if (kept) return notify(kept);
@@ -163,7 +180,7 @@ function Form({
     // The credit of an image from an app's source of images goes in its record, in the same commit as the image.
     const recordChanges = creditChanges([], recordsIn(env.files, config.fileRecords), config.fileRecords, creditedIn(used));
     const changes = [
-      { path, content: text, oid: base.oid || null },
+      ...(same ? [] : [{ path, content: text, oid: base.oid || null }]),
       ...used.map((u) => ({ path: u.path, content: u.bytes, oid: null })),
       ...recordChanges,
     ];
@@ -175,10 +192,10 @@ function Form({
       const oids = await env.commit(message, changes, change);
       images.markSaved(used);
       if (fixed) setSavedAt(new Date());
-      const saved = { path, oid: oids[path], text };
+      const saved = { path, oid: same ? base.oid : oids[path], text };
       setBase(saved);
       setValues(listOnly(dataFile) ? { [dataFile!.root!.name]: JSON.parse(text) } : JSON.parse(text));
-      env.onSaved(saved);
+      if (!same) env.onSaved(saved);
       for (const c of recordChanges) if (typeof c.content === 'string') env.onSaved({ path: c.path, oid: oids[c.path], text: c.content });
       notify({ text: savedText(change), kind: 'saved' });
       // The version is now the one saved: the form as usual again.
@@ -439,6 +456,8 @@ function Form({
               ))}
             </Group>
           )}
+          {/* The list's tools under the fields of one of its items: `Add field` and `Edit list`. */}
+          {ownList && !isNew && <OwnListEntryTools id={collection.id} env={env} />}
           {/* A single-file list: a new item in it. */}
           {root && <CreateFab label={t.forms.addOne(root.singular!)} onClick={() => setItems([...items, newItem(root)])} />}
         </FormFrame>
