@@ -520,6 +520,8 @@ async function pressTool(page, name, how = 'click') {
   if (await inRow.count()) return void (await inRow.first()[how]());
   const direct = page.locator(`.editor-tools button[aria-label="${name}"]:visible`);
   if (await direct.count()) return void (await direct.first()[how]());
+  const settings = name === 'Edit' ? rowButton(page, 'Block settings') : null;
+  if (settings && (await settings.count())) return void (await settings.first()[how]());
   await pressMore(page, name, how, 'first');
 }
 
