@@ -174,13 +174,14 @@ An orchestrator breaks a task down, delegates it to Claude subagents (the first 
 
 Before changes are approved or published, verify the following from the root of this repository, on the demo
 (`npm run build` builds it in `.morpheme/demo/site/`). CI (`.github/workflows/check.yml`) runs `check`,
-`check:screens`, `check:demo` and `check:starter` on every pull request; its job `check` must pass before a merge.
+`check:screens`, `check:demo` and `check:starter` on every pull request, as jobs that run side by side; its job `check` waits for them all and must pass before a merge.
 
 | Command | Description |
 | :--- | :--- |
 | `npm run check` | Prettier, `check:language`, the unit tests (`npm test`), the package's types (`check:types`), the demo built (`npm run build`, its content checked by the editor's rules) and `check:editor` on it (each page the same after a save). |
 | `npm run check:language` | No Danish text outside the language files (i18n/da-DK/). |
 | `npm run check:screens` | After `npm run build`: all of the editor's screens open without errors, on a phone and a computer, and all icons exist. |
+| `npm run check:screens:shard -- K/N` | Part K of N of `check:screens` (every N-th unit of `scripts/editor-screens.mjs`; add `--list` to print the part's units without running them). CI runs 8 parts side by side, and the checks that run once over the whole site (`check:screens:extra`: save twice, unlisted, preview) in a job of their own. `check:screens` with no part runs everything. |
 | `node ../../../bin/morpheme.mjs check:themes` (in `.morpheme/demo/site/`) | The same with each of the other themes. |
 | `npm run check:starter` | The starter works as a site with the package from `npm pack`: its own `npm run check` (the site's types and `check:worker`) and its build. |
 | `npm run check:demo` | The demo builds with the default theme and follows the editor's rules. |

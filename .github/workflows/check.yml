@@ -1,7 +1,10 @@
 # The CMS's checks on each pull request into main or into the 0.17, 0.18 or 0.19 integration branch (package.json's check,
 # check:screens, check:demo and check:starter), and that it has a changeset (CLAUDE.md), so each branch can always be
 # released. The changeset is compared with the pull request's own base branch. Free here: the repository is public.
-# The job's name, check, is the status check that main's branch protection requires.
+# The slow parts run side by side as jobs of their own (the run takes about as long as the slowest), and the job named check
+# only waits for them all: it is the status check that main's branch protection and the PM look at, and it is green only
+# when every other job is green. The editor's screens are split into as many parts as the matrix of the screens job lists
+# (scripts/editor-screens.mjs --shard K/N, N is the matrix's size, so a part is never left out: list 1..N there).
 name: Check
 
 on:
@@ -12,7 +15,8 @@ permissions:
   contents: read
 
 jobs:
-  check:
+  # Prettier, the language and unit tests, types, the demo built and each of its pages the same after a save, and the changeset.
+  static:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -22,6 +26,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          cache: npm
       - run: npm ci --no-audit --no-fund
       # Danish text only in the language files; scripts/check-language.mjs.
       - run: npm run check:language
@@ -33,12 +38,72 @@ jobs:
       # Prettier, the unit tests, the package's types, the demo built (its content checked by the editor's rules) and
       # each of its pages the same after a save in the editor.
       - run: npm run check
-      # Every screen of the editor on the built demo, on a phone and on a computer.
+
+  # Every screen of the editor on the built demo, on a phone and on a computer, in parts that run side by side.
+  screens:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
       # If apt is down, the runner's own libraries are used and only the browser is downloaded.
       - run: npx playwright install --with-deps chromium || npx playwright install chromium
-      - run: npm run check:screens
-      # The demo built with the standard theme.
+      - run: npm run check:screens:shard -- ${{ matrix.shard }}/${{ strategy.job-total }}
+
+  # The checks that run once over the whole built demo (saving twice, unlisted pages, the preview).
+  screens-extra:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium || npx playwright install chromium
+      - run: npm run check:screens:extra
+
+  # The demo built with the standard theme.
+  demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-audit --no-fund
       - run: npm run check:demo
-      # The starter as a new site with the package from npm pack: its own checks (with check:worker) and its build.
-      # With its screens: every screen of the editor on the starter too, so the checks sites run never lean on the demo's content.
+
+  # The starter as a new site with the package from npm pack: its own checks (with check:worker) and its build.
+  # With its screens: every screen of the editor on the starter too, so the checks sites run never lean on the demo's content.
+  starter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium || npx playwright install chromium
       - run: npm run check:starter -- --screens
+
+  # The one status check that is required: green only when every job above is green (a failed, cancelled or skipped one fails it).
+  check:
+    if: always()
+    needs: [static, screens, screens-extra, demo, starter]
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo '${{ toJson(needs) }}'
+          test "${{ needs.static.result }}" = success -a "${{ needs.screens.result }}" = success -a "${{ needs.screens-extra.result }}" = success -a "${{ needs.demo.result }}" = success -a "${{ needs.starter.result }}" = success
