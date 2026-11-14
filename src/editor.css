@@ -1014,17 +1014,26 @@ html {
   justify-content: center;
   inline-size: 1.5rem;
   block-size: 1.5rem;
-  border: 2px solid var(--mo-outline);
+  /* Part of the dotted outline it sits on: the same line (width, style and colour), on the surface the line is drawn on, with no shadow. */
+  box-sizing: border-box;
+  border: 1.5px dashed color-mix(in srgb, var(--mo-on-surface-variant) 45%, transparent);
   border-radius: 50%;
   background: var(--mo-surface);
   color: transparent;
-  box-shadow: 0 0 0 2px var(--mo-surface);
+  box-shadow: none;
+  transition: border-color var(--motion-effects);
+}
+
+.editor-text .site-block:hover .site-block-mark:not([data-mark='on']) .site-block-mark-dot {
+  border-color: var(--mo-primary);
 }
 
 .editor-text .site-block-mark[data-mark='on'] .site-block-mark-dot {
+  border-style: solid;
   border-color: var(--mo-primary);
   background: var(--mo-primary);
   color: var(--mo-on-primary);
+  box-shadow: none;
 }
 
 .editor-text :is(.site-block-marks, .site-block-has-row) > .site-block-mark {
