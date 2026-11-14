@@ -192,3 +192,10 @@ Source: `theme/ui/ChoiceGroup.tsx`, `theme/ui/choiceGroupFit.mjs`, `theme/styles
 - **We do:** a choice that is a look (a button style, a card's design or colour) shows a small, inert drawing of that look, made of the theme's own part, on the right of its row (`.choice-group-sample`, at most 7rem wide, `aria-hidden`), only in the list form.
 - **Why:** owner, 14 Nov 2026: "Where a choice is a look … each radio row shows a small live sample on its right."
 - **Date:** 2026-11-14. **PR:** the same.
+
+### D3. The choice group's list rows run the whole width of the fields above them
+
+- **Material:** lists/specs: "Label left padding 16dp", "Leading element left padding 16dp"; radio-button/specs (read 14 Nov 2026 with Playwright): "Icon size 20dp", "State layer size 40dp", "Target size 48dp". M3 prints no rule for aligning a radio list with the fields above it.
+- **We do:** in the choice group's list the rows have no padding at their sides (`--list-item-padding-inline: 0` on `.choice-group-list`): the radio's 20 dp circle starts where the name and the fields above start, its 40 dp state layer overhangs the edge by 10 dp, a row's sample ends at the fields' right edge, and a text button's sample ends with its text (its 12 dp side padding overhangs). The circle sits on the label's middle line.
+- **Why:** owner, 14 Nov 2026 (relayed by the PM): the radio buttons did not look correctly aligned: the circles started 16 dp in from the heading and the fields, and the samples ended short of the fields' right edge.
+- **Date:** 2026-11-14. **PR:** #682 (choice group, the fields).
