@@ -23,7 +23,7 @@ export const forms = {
     hint: 'Paste the address of a profile, like https://www.facebook.com/…',
     found: (network: string) => `${network} profile`,
     addButton: 'Add',
-    done: 'Done',
+    done: 'Save',
     remove: 'Remove link',
     noAddress: 'Write an address',
     twice: 'The link is already in the list',
@@ -147,7 +147,7 @@ export const forms = {
     /** `name`: the page or post, as in “Page About us”. */
     discardText: (name: string) => `Your unpublished changes to ${name} will be deleted. The published version stays.`,
     addressWaiting: 'Publish or discard the changes before you change the address.',
-    standardPage: 'This page is chosen as a standard page, so it must stay published.',
+    standardPage: 'This page is chosen as a default page, so it must stay published.',
     /** Names of what changed, for the message after a save (`what`: the page or post). */
     published: (what: string) => `${what} published`,
     unpublished: (what: string) => `${what} unpublished`,
