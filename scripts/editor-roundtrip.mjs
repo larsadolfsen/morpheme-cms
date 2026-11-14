@@ -153,10 +153,11 @@ const frontSections = async (body, parts) => [
   }
 }
 
-// The same for the H1's section (a marker before the page's H1 with an image and a width): the editor and the site give the same top.
+// The same for the H1's section (a marker before the page's H1 with a colour and a width, and an image left in it, which both ignore:
+// a page's H1 has no image): the editor and the site give the same top.
 {
   const topSample = [
-    '<div data-section="" data-picture="/images/a.jpg" data-alt="A field" data-width="full"></div>',
+    '<div data-section="surface" data-picture="/images/a.jpg" data-alt="A field" data-width="full"></div>',
     '# Sample',
     'Intro.',
     blockHtml('buttons', {}),
@@ -165,7 +166,7 @@ const frontSections = async (body, parts) => [
   const editor = await makeEditor(document.createElement('div'), topSample).use(spacing).create();
   const [editors, site] = await frontSections(topSample, editor.action(partsOf));
   await editor.destroy();
-  if (editors !== site || !editors.includes('"type":"top"') || !editors.includes('"width":"full"')) {
+  if (editors !== site || !editors.includes('"type":"top"') || !editors.includes('"width":"full"') || editors.includes('"image"')) {
     console.log(
       `\n✗ the settings of the H1's section give different sections in the editor and on the site\n  editor: ${editors}\n  site:   ${site}`,
     );

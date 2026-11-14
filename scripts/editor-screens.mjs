@@ -3161,6 +3161,12 @@ async function checkEmptyHint() {
             }
             await page.waitForTimeout(500);
           }
+          // A page's H1 has no image (owner, 14 Nov 2026): its Section settings have a colour and a width only.
+          const sheet = page.locator('dialog[open], .editor-side-sheet').first();
+          if (await sheet.getByText('Background image', { exact: true }).count())
+            problems.push(`${name}: the Main heading's Section settings offer a background image`);
+          if (!(await sheet.getByText('Width', { exact: true }).count()))
+            problems.push(`${name}: the Main heading's Section settings have no Width`);
           await page.getByText('Primary', { exact: true }).first().click();
           await page.getByRole('button', { name: 'Save', exact: true }).first().click();
           await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 10_000 });
@@ -3502,14 +3508,14 @@ async function checkSectionCardContrast() {
   }
 }
 
-/** A page whose H1 section has a background (a colour or an image) has it start right under the navigation bar (gap 0 ±1px), on the site and in the Preview at 390 and 600; a page whose H1 section has none keeps its space under the bar. */
+/** A page whose H1 section has a background (a colour) has it start right under the navigation bar (gap 0 ±1px), on the site and in the Preview at 390 and 600; a page whose H1 section has none keeps its space under the bar, also with an image left in an old marker (a page's H1 has no image). */
 async function checkH1SectionGap() {
   const path = BUILT_PAGE;
   const source = PAGE_SOURCE;
   const picture = '/images/uploads/2026/10/earth-from-space.webp';
   const variants = [
     { name: 'colour', marker: '<div data-section="tertiary"></div>\n\n', background: true },
-    { name: 'image', marker: `<div data-section="" data-picture="${picture}" data-alt="Earth"></div>\n\n`, background: true },
+    { name: 'image (ignored)', marker: `<div data-section="" data-picture="${picture}" data-alt="Earth"></div>\n\n`, background: false },
     { name: 'none', marker: '', background: false },
   ];
   const measure = () => {
