@@ -37,7 +37,8 @@ import { $prose, $view, callCommand } from '@milkdown/kit/utils';
 import { Fragment } from '@milkdown/kit/prose/model';
 import type { Mark, Node } from '@milkdown/kit/prose/model';
 import { Decoration, DecorationSet, type EditorView } from '@milkdown/kit/prose/view';
-import { NodeSelection, Plugin, Selection, TextSelection, type EditorState } from '@milkdown/kit/prose/state';
+import { NodeSelection, Plugin, PluginKey, Selection, TextSelection, type EditorState } from '@milkdown/kit/prose/state';
+import { closeHistory } from '@milkdown/kit/prose/history';
 import { liftListItem } from '@milkdown/kit/prose/schema-list';
 import { lift } from '@milkdown/kit/prose/commands';
 import {
@@ -71,13 +72,14 @@ import { firstHeading, topHeadings } from './firstHeading.mjs';
 import { h1Of, h1TextOf, h1Written } from './titleH1.mjs';
 import { headingChoices } from '../lib/heading-levels.mjs';
 import { TEXT_COLORS, colorClass } from '../lib/text-colors.mjs';
-import { sectionHeading, setSection } from './sectionState.mjs';
+import { sectionAttrs, sectionHeading, sectionSettingsOf, setSection } from './sectionState.mjs';
 import { sectionFrame } from './sectionFrame';
-import { IMAGE, type BlockAsk } from './BlockDialog';
+import { IMAGE, type BlockAsk, type LiveBlock } from './BlockDialog';
 import SectionSettingsIcon from './SectionSettingsIcon';
 import { askLink } from './LinkSheet';
 import { atLeastNow, Menu, MenuDivider, MenuItem, Toolbar, ToolbarButton } from './ui';
-import { editsInPanel } from './sheetPlacement.mjs';
+import { editsInPanel, liveSheet } from './sheetPlacement.mjs';
+import { mapRange, stepOf } from './liveSheet.mjs';
 import { shownAt } from './images';
 import { cropStyle, joinPicture, splitPicture } from '../lib/crop.mjs';
 import { describe, htmlBlock, type BlockProps } from './blocks';
@@ -958,6 +960,111 @@ function cardBar(
   };
 }
 
+// The live side sheet from expanded (BlockDialog.tsx, LiveBlock): the block, image or section heading it was opened for, followed
+// through every change of the text (liveSheet.mjs, mapRange) so its changes go to it, and Undo or Redo is shown in the sheet. One
+// per editor; null when no live sheet is open.
+const liveKey = new PluginKey<{ from: number; to: number } | null>('liveSheet');
+// Told after each change of an editor's text while its live sheet is open.
+const liveWatch = new WeakMap<EditorView, () => void>();
+const liveTracking = $prose(
+  () =>
+    new Plugin({
+      key: liveKey,
+      state: {
+        init: () => null,
+        apply: (tr, was) => {
+          const set = tr.getMeta(liveKey);
+          if (set !== undefined) return set;
+          return was && tr.docChanged ? mapRange(was, tr.mapping) : was;
+        },
+      },
+      view: () => ({ update: (view) => liveWatch.get(view)?.() }),
+    }),
+);
+
+/** The link of a live sheet to the node at `pos`: read: the sheet's values of the node, null when it is not the one any more (its
+ * type changed); attrsOf: the node's attributes with the sheet's values, null when they cannot be written. Each write is one
+ * setNodeMarkup in the sheet's undo step (stepOf). */
+function liveLink(
+  view: EditorView,
+  pos: number,
+  read: (node: Node) => BlockProps | null,
+  attrsOf: (node: Node, props: BlockProps) => Record<string, unknown> | null,
+): LiveBlock | null {
+  const first = view.state.doc.nodeAt(pos);
+  if (!first) return null;
+  view.dispatch(view.state.tr.setMeta(liveKey, { from: pos, to: pos + first.nodeSize }).setMeta('addToHistory', false));
+  // The attributes as the sheet last saw or wrote them: only another change (Undo, Redo) is told to it.
+  let seen = JSON.stringify(first.attrs);
+  let follower: ((props: BlockProps | null) => void) | null = null;
+  const here = () => {
+    const range = liveKey.getState(view.state);
+    const node = range && view.state.doc.nodeAt(range.from);
+    return range && node && range.from + node.nodeSize === range.to ? { pos: range.from, node } : null;
+  };
+  const watch = () => {
+    if (!follower) return;
+    const now = here();
+    const props = now && read(now.node);
+    if (!now || !props) return follower(null);
+    const attrs = JSON.stringify(now.node.attrs);
+    if (attrs === seen) return;
+    seen = attrs;
+    follower(props);
+  };
+  liveWatch.set(view, watch);
+  return {
+    write: (props, step) => {
+      const now = here();
+      const attrs = now && attrsOf(now.node, props);
+      if (!now || !attrs) return;
+      const made = now.node.type.create(attrs).attrs;
+      // Nothing changed: the step still ends here when it is a new one.
+      if (JSON.stringify(made) === JSON.stringify(now.node.attrs)) return void (step.fresh && view.dispatch(closeHistory(view.state.tr)));
+      seen = JSON.stringify(made);
+      view.dispatch(stepOf(view.state.tr.setNodeMarkup(now.pos, undefined, attrs), step));
+    },
+    follow: (to) => void (follower = to),
+    end: () => {
+      if (liveWatch.get(view) !== watch) return;
+      liveWatch.delete(view);
+      if (!view.isDestroyed) view.dispatch(closeHistory(view.state.tr).setMeta(liveKey, null).setMeta('addToHistory', false));
+    },
+    target: () => {
+      const now = here();
+      const dom = now && view.nodeDOM(now.pos);
+      return dom instanceof HTMLElement ? (dom.querySelector<HTMLElement>('.site-block-card') ?? null) : null;
+    },
+  };
+}
+
+// The links of the live sheet of a block, an image and a section's heading.
+const liveBlock = (view: EditorView, pos: number, type: string) =>
+  liveLink(
+    view,
+    pos,
+    (node) => (node.type.name === 'siteBlock' && node.attrs.type === type ? (node.attrs.props as BlockProps) : null),
+    (node, props) => {
+      // A hidden block stays hidden (the sheet does not show `hidden`).
+      const { hidden: _, ...shown } = props;
+      return { ...node.attrs, props: node.attrs.props?.hidden === true ? { ...shown, hidden: true } : shown };
+    },
+  );
+const liveImage = (view: EditorView, pos: number) =>
+  liveLink(
+    view,
+    pos,
+    (node) => (node.type.name === 'image' ? imageProps(node) : null),
+    (node, props) => ({ ...node.attrs, src: imageSrc(props), alt: String(props.alt ?? '').trim() }),
+  );
+const liveSection = (view: EditorView, pos: number) =>
+  liveLink(
+    view,
+    pos,
+    (node) => (node.type.name === 'heading' && node.attrs.level <= 2 ? (sectionSettingsOf(node) as BlockProps) : null),
+    (node, props) => sectionAttrs(node.attrs, props as Parameters<typeof sectionAttrs>[1]),
+  );
+
 // The address of an image from its sheet: with its format and crop after it, and marked when it is decorative
 // (crop.mjs).
 const imageSrc = (props: BlockProps) =>
@@ -967,6 +1074,11 @@ const imageSrc = (props: BlockProps) =>
     (props.crop as number[] | null | undefined) ?? null,
     props.decorative === true,
   );
+// What an image's sheet shows of it: its address, description, format, crop and whether it is decorative.
+const imageProps = (node: Node): BlockProps => {
+  const { src, format, crop, decorative } = splitPicture(node.attrs.src);
+  return { src, alt: node.attrs.alt ?? '', format, crop, decorative };
+};
 
 // An image in the text as a card like a block's, cut to its format, with a menu to change it
 // (another image, its description for screen readers, its format), move it with its paragraph and
@@ -994,9 +1106,11 @@ function imageCard(node: Node, view: EditorView, getPos: () => number | undefine
   img.alt = '';
   if (cut) img.style.cssText = cut.img;
   if (node.attrs.title) img.title = node.attrs.title;
+  // From expanded the sheet is live: it changes the image at once (liveImage), and answers null.
   const describe = async () => {
-    const props = await sheet()?.edit(IMAGE, { src, alt: node.attrs.alt ?? '', format, crop, decorative }, false, true);
-    if (props === 'remove') return remove();
+    const at = getPos();
+    const live = () => (at === undefined ? null : liveImage(view, at));
+    const props = await sheet()?.edit(IMAGE, { src, alt: node.attrs.alt ?? '', format, crop, decorative }, false, live);
     const pos = getPos();
     if (!props || pos === undefined) return;
     view.dispatch(
@@ -1007,7 +1121,7 @@ function imageCard(node: Node, view: EditorView, getPos: () => number | undefine
     const pos = getPos();
     if (pos !== undefined) view.dispatch(view.state.tr.delete(pos, pos + node.nodeSize));
   };
-  // From expanded an image's sheet is the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
+  // From expanded an image's sheet is the side panel: a tap opens it, and the menu has no pen (Remove stays in the menu).
   const inPanelNow = () => editsInPanel(atLeastNow('expanded'), true);
   const close = cardBar(
     view,
@@ -1019,7 +1133,7 @@ function imageCard(node: Node, view: EditorView, getPos: () => number | undefine
       return [
         !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: describe },
         ...moves(view, pos === undefined ? null : view.state.doc.resolve(pos).index(0), sheet()?.template?.locked),
-        !inPanelNow() && { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
+        { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
       ];
     },
     () => inPanelNow() && void describe(),
@@ -1454,9 +1568,11 @@ function blockCard(
     const last = hidden === false && !!rules?.required?.includes(type) && shownOfType <= 1;
     return { rules, locked, stays: locked || last };
   };
+  // From expanded the sheet is live: it changes the block at once (liveBlock), and answers null.
   const edit = async () => {
-    const props = await asker()?.edit(node.attrs.type, node.attrs.props, false, !keeps().stays);
-    if (props === 'remove') return remove();
+    const start = at();
+    const live = () => (start ? liveBlock(view, start.pos, node.attrs.type) : null);
+    const props = await asker()?.edit(node.attrs.type, node.attrs.props, false, live);
     const here = at();
     // The block's fields as changed; still hidden if it was.
     if (props && here)
@@ -1478,7 +1594,7 @@ function blockCard(
   // The choices that can be made here: no "Edit" without fields (but to where it is edited instead,
   // Block.edit), no move past the start or end. By the template (collections.ts): a locked block is
   // only edited, and the last shown one of a block the page must have cannot be hidden or removed.
-  // From expanded the block's fields are in the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
+  // From expanded the block's fields are in the side panel: a tap opens it, and the menu has no pen (Remove stays in the menu).
   const inPanelNow = () => !inline && editsInPanel(atLeastNow('expanded'), !!block?.fields.length);
   // The block's own menu: Edit, Hide or Show, Move up and down, Remove. A block typed in place has these in the text bar's `⋮` (blockBar.ts); any other block
   // opens them as a row on its card.
@@ -1504,7 +1620,7 @@ function blockCard(
           },
       ...(locked ? [] : moves(view, i, rules?.locked)),
       { icon: selectAllBlocksIcon, label: t.text.selectBlock, action: () => selectable.start() },
-      stays || inPanelNow() ? undefined : { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
+      stays ? undefined : { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
     ];
   };
   // Selected with other blocks (a mark, a tap, a long press), and moved by dragging its handle, unless the template locks it.
@@ -2014,6 +2130,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(tapBelow)
       .use(checkToggle)
       .use(history)
+      .use(liveTracking)
       .use(clipboard);
     // A page (h1) keeps its first heading as its H1 and has no other H1 (firstHeading.mjs); a blog post's H1 is its title.
     if (h1) made = made.use(firstHeading);
@@ -2233,7 +2350,10 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     editor.current?.action((ctx) => void (current = sectionHeading(ctx.get(editorViewCtx).state)));
     const at = current as ReturnType<typeof sectionHeading>;
     if (!at) return;
-    const answered = await holdWhile(Promise.resolve((blocks ?? sheetProp)?.section(at, { image: true })));
+    // From expanded the sheet is live: it changes the heading at once (liveSection), and answers null.
+    const view = editor.current?.action((ctx) => ctx.get(editorViewCtx));
+    const live = view && (() => liveSection(view, at.pos));
+    const answered = await holdWhile(Promise.resolve((blocks ?? sheetProp)?.section(at, { image: true, live })));
     if (!answered) return;
     editor.current?.action((ctx) => {
       const view = ctx.get(editorViewCtx);
@@ -2243,13 +2363,27 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   }
 
   // A new image from the gallery, then the sheet with it and what it shows, where it can still be
-  // changed or left out (the browser's own box for what it shows without a sheet).
+  // changed or left out (the browser's own box for what it shows without a sheet). From expanded the image goes in at once and its
+  // sheet opens live beside it, with no Insert (Undo or Remove takes it out).
   async function image() {
     const src = await holdWhile(addImage!());
     if (!src) return;
     const sheet = blocks ?? sheetProp;
+    if (sheet && liveSheet('fields', atLeastNow('expanded'))) {
+      run(insertImageCommand, { src, alt: '' });
+      const view = editor.current?.action((ctx) => ctx.get(editorViewCtx));
+      if (!view) return;
+      // The image just put in: the one with this address nearest the cursor, which is after it.
+      let at = -1;
+      const cursor = view.state.selection.from;
+      view.state.doc.descendants((n, pos) => {
+        if (n.type.name === 'image' && n.attrs.src === src && (at < 0 || Math.abs(pos - cursor) < Math.abs(at - cursor))) at = pos;
+      });
+      if (at >= 0) void sheet.edit(IMAGE, { src, alt: '' }, false, () => liveImage(view, at));
+      return;
+    }
     const picked = await sheet?.edit(IMAGE, { src, alt: '' }, true);
-    if (picked && picked !== 'remove') run(insertImageCommand, { src: imageSrc(picked), alt: String(picked.alt ?? '').trim() });
+    if (picked) run(insertImageCommand, { src: imageSrc(picked), alt: String(picked.alt ?? '').trim() });
   }
 
   // Puts the chosen block where the cursor is (a paragraph is split around it), or after the block
@@ -2263,7 +2397,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       have = blocksOf(doc).map((b) => b.type);
       doc.descendants((n) => void (n.type.name === 'image' && have.push(IMAGE)));
     });
-    const chosen = await holdWhile(blocks!.choose({ image: !!addImage, have }));
+    // live: from expanded a block with fields comes back at once (`open`), and its sheet opens live beside it once it is in.
+    const chosen = await holdWhile(blocks!.choose({ image: !!addImage, have, live: true }));
     if (!chosen) return;
     if (chosen.type === IMAGE) return image();
     editor.current?.action((ctx) => {
@@ -2290,6 +2425,10 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       }
       view.dispatch(tr.scrollIntoView());
       view.focus();
+      if (!chosen.open) return;
+      let at = -1;
+      view.state.doc.forEach((n: Node, offset: number) => void (n === node && (at = offset)));
+      if (at >= 0) void blocks!.edit(chosen.type, chosen.props, false, () => liveBlock(view, at, chosen.type));
     });
   }
 
