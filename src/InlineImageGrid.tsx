@@ -20,7 +20,7 @@ type Picked = { image?: string; alt?: string };
 // The field of a picked image that is its text in this block (its Library text is the hint, `libraryText`).
 const altField = () => {
   const list = imageGrid.fields.find((f) => f.name === 'picked');
-  return list && 'fields' in list ? list.fields.filter((f) => f.name === 'alt') : [];
+  return list && 'fields' in list ? (list.fields ?? []).filter((f) => f.name === 'alt') : [];
 };
 
 export default function InlineImageGrid({ props, data, active, focus, onChange, onProps, onEdit, onRow }: InlineViewProps) {
