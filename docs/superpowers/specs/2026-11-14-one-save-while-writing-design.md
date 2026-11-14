@@ -282,7 +282,8 @@ The live sheet writes into the text editor's document, so its changes are in the
 - The full-screen dialog is modal (`aria-modal="true"`), focus starts on its first field, `Esc` asks the close question.
 - `Ctrl+S` (`⌘S`) saves now: it sends the autosave at once, or runs `Save` in the cases of 3.4, and never opens the browser's save
   dialog. (Today it is not bound; small, in PR 4.)
-- The restore question is a basic dialog: focus on `Restore`, `Esc` keeps the copy for next time.
+- The restore question is a basic dialog: no button has the focus from the start (the owner's dialog rule: `Restore` filled, `Discard`
+  outlined), `Esc` keeps the copy for next time.
 
 ## 7. Texts (en-US first, da-DK)
 

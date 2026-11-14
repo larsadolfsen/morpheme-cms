@@ -18,8 +18,6 @@ type Question = {
   input?: { label: string; value: string; type?: 'datetime' };
   /** false: no "Cancel", only the choices (a message to read); Esc is still null. */
   cancel?: boolean;
-  /** The choice that has the focus when it opens (the restore question's `Restore`); else the dialog has it. */
-  focus?: string;
   resolve: (answer: { choice: string; text: string } | null) => void;
 };
 
@@ -70,9 +68,7 @@ export function Ask() {
   // of them looks chosen; Esc is still "Cancel".
   const many = choices.length > 1;
   useEffect(() => {
-    if (!question || question.input) return;
-    const main = question.focus ? dialog.current?.querySelector<HTMLElement>(`[data-choice="${question.focus}"]`) : null;
-    (main ?? dialog.current)?.focus();
+    if (question && !question.input) dialog.current?.focus();
   }, [question]);
   return (
     <Dialog ref={dialog} tabIndex={-1} onCancel={() => answer(null)} className="focus:outline-none">
@@ -115,7 +111,7 @@ export function Ask() {
             </Button>
           )}
           {choices.map((c, i) => (
-            <Button key={c.value} kind={i === 0 ? 'filled' : 'outlined'} data-choice={c.value} onClick={() => answer(c.value)}>
+            <Button key={c.value} kind={i === 0 ? 'filled' : 'outlined'} onClick={() => answer(c.value)}>
               {c.label}
             </Button>
           ))}

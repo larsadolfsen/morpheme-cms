@@ -425,7 +425,6 @@ export function useBlockDialog(
           { value: 'discard', label: t.app.discard },
         ],
         cancel: false,
-        focus: 'restore',
       }).then((a) => {
         if (a?.choice === 'restore') here.open(kept.values);
         else if (a?.choice === 'discard') dropCopy(copy);

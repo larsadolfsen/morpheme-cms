@@ -539,7 +539,7 @@ async function pressMore(page, name, how = 'click', which = 'last') {
 /** A block's sheet on a phone (spec 2026-11-14-one-save-while-writing-design.md, 4.2, 4.3, 10): the theme's full-screen dialog, modal over the
  * whole screen, with Save at the top right and the close icon named Cancel (no other Cancel, no Remove); the page's Publish is under it and
  * can't be reached; one Save is visible. A change is kept in a hidden copy in this browser: after a reload the page offers "Restore your unsaved
- * changes?" (focus on Restore), Restore opens the sheet with the change, still unsaved, and Save writes it and deletes the copy. (An image's
+ * changes?" (no button focused), Restore opens the sheet with the change, still unsaved, and Save writes it and deletes the copy. (An image's
  * sheet: the same sheet as a block's fields; every block of the demo is typed in place.) */
 async function checkPhoneSheet(width = 375, height = 740) {
   const label = `${width}px block sheet on a phone`;
@@ -623,8 +623,11 @@ async function checkPhoneSheet(width = 375, height = 740) {
   if (await question.count()) {
     if (!(await question.getByText('Your changes to Image weren’t saved.').count()))
       problems.push(`${label}: the restore question does not say "Your changes to Image weren’t saved."`);
-    const focused = await page.evaluate(() => document.activeElement?.textContent?.trim());
-    if (focused !== 'Restore') problems.push(`${label}: the focus is on "${focused}", not Restore`);
+    // The owner's dialog rule: no button has the focus to begin with (Restore filled, Discard outlined).
+    const focused = await page.evaluate(() =>
+      document.activeElement?.closest('button') ? document.activeElement.textContent?.trim() : null,
+    );
+    if (focused) problems.push(`${label}: the button "${focused}" has the focus when the restore question opens`);
     await question.getByRole('button', { name: 'Restore', exact: true }).tap();
     await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: Restore did not open the image's sheet`));
     if (await sheet.count()) {
