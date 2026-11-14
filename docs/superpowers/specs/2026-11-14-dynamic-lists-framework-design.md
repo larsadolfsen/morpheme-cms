@@ -601,7 +601,7 @@ The dynamic rows are built when the site is built, so the Table's features run o
 
 - **Sorting** (`sortable`): the visitor's sort works on the drawn rows by column kind (numbers numerically, dates by date). Without
   JavaScript the rows are in the list's order.
-- **Sticky header** and **density**: block settings, unchanged.
+- **Sticky header**: a block setting, unchanged. **Density** is built into the theme, not a setting of the block, so a dynamic table has the same density as every other table.
 - **Pagination** (`paginate`): it pages the rows after `How many` (which cuts the list) and the tag filter. `How many` empty and
   pagination on is the way to show a long list.
 - **Search** (`search`): searches the drawn cell text; an icon cell by its label, an image cell by its alt text, a tag cell by the tag
