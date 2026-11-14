@@ -11,7 +11,8 @@ import { InlineField } from './InlineItems';
 import type { InlineViewProps } from './inlineViews';
 import { addRowAt, setCell } from './inlineGrid.mjs';
 import { gridFromPaste } from './inlineRows.mjs';
-import { alignOf, rectangle } from './standard/table/rows.mjs';
+import { alignOf, columnsOf, rectangle } from './standard/table/rows.mjs';
+import { kindOf } from '../theme/ui/dataTableCells.mjs';
 import { oneLine } from '../lib/one-line.mjs';
 
 const fits = typeof CSS !== 'undefined' && CSS.supports?.('field-sizing', 'content');
@@ -23,6 +24,7 @@ export default function InlineTable({ items, props, active, col, focus, onChange
   const header = props.header !== false;
   // Each column as the site draws it: the owner's choice, else numbers right and text left.
   const align = alignOf(rows, header, props.columns);
+  const kinds = columnsOf(props.columns, width).map(kindOf);
   // The grid as it is saved: the rows the block has (a new block has no rows, which is one empty cell).
   const saved = items as unknown as string[][];
   useEffect(() => {
@@ -72,7 +74,14 @@ export default function InlineTable({ items, props, active, col, focus, onChange
       <Tag
         key={c}
         scope={Tag === 'th' ? 'col' : undefined}
-        className={[`block-table-${align[c] ?? 'left'}`, 'inline-table-cell', here && 'inline-table-cell-active'].filter(Boolean).join(' ')}
+        className={[
+          `block-table-${align[c] ?? 'left'}`,
+          kinds[c] === 'number' && 'data-table-number',
+          'inline-table-cell',
+          here && 'inline-table-cell-active',
+        ]
+          .filter(Boolean)
+          .join(' ')}
       >
         <InlineField
           name={String(c)}

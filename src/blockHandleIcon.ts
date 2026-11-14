@@ -24,3 +24,13 @@ import swapHorizIcon from '@material-symbols/svg-400/outlined/swap_horiz.svg?raw
 import arrowBackIcon from '@material-symbols/svg-400/outlined/arrow_back.svg?raw';
 export const changeToIcon = sized(swapHorizIcon, 20);
 export const submenuBackIcon = sized(arrowBackIcon, 20);
+
+// The Table's Column type (its ⋮ menu) and the rows of its submenu: Automatic, Text, Number (Material Symbols view_column, autorenew, text_fields, 123).
+import viewColumnIcon from '@material-symbols/svg-400/outlined/view_column.svg?raw';
+import autorenewIcon from '@material-symbols/svg-400/outlined/autorenew.svg?raw';
+import textFieldsIcon from '@material-symbols/svg-400/outlined/text_fields.svg?raw';
+import numberIcon from '@material-symbols/svg-400/outlined/123.svg?raw';
+export const columnTypeIcon = sized(viewColumnIcon, 20);
+export const typeAutoIcon = sized(autorenewIcon, 20);
+export const typeTextIcon = sized(textFieldsIcon, 20);
+export const typeNumberIcon = sized(numberIcon, 20);

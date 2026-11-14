@@ -7217,6 +7217,146 @@ async function checkTableAlign(width, height) {
   await page.close();
 }
 
+/** A Table's column type (375 and 1280 px): the block's ⋮ menu has Column type (Automatic, Text, Number) after Change to; Number ends the column at the right with tabular figures, in the editor typed in place and on the built site, even for a cell that is not a number; Automatic and Text take it back or keep it left; the kind is saved with the block (`columns`), a second save writes the same text, and one undo takes a change back. */
+async function checkTableKinds(width, height) {
+  const label = `${width}px table kinds`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  // The built site: a Number column is drawn with tabular figures, a text column is not.
+  if (await onTestPage(page, label)) {
+    const site = await page.evaluate(() => {
+      const fig = (sel) => getComputedStyle(document.querySelector(sel)).fontVariantNumeric;
+      return { number: fig('.block-table-grid td.data-table-number'), text: fig('.block-table-grid tbody td:not(.data-table-number)') };
+    });
+    if (site.number && !/tabular-nums/.test(site.number))
+      problems.push(`${label}: the site's Number column has no tabular figures (${site.number})`);
+    if (/tabular-nums/.test(site.text)) problems.push(`${label}: a text column has tabular figures on the site`);
+  }
+  await openEditor(page, site);
+  const commits = [];
+  await page.route('**/api/github/commit', (r) => {
+    commits.push(JSON.parse(r.request().postData() || '{}'));
+    return r.fulfill({ contentType: 'application/json', body: JSON.stringify({ commit: 'head', blobs: {} }) });
+  });
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'tap');
+  await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
+  await page.waitForSelector('.inline-table-cell-active textarea');
+  const cellField = (r, c) => page.locator(`.inline-table-box [data-row="${r}"] [data-field="${c}"]`);
+  const menu = async (name) => {
+    await pressTool(page, name);
+    await page.waitForTimeout(250);
+  };
+  await page.keyboard.type('Name');
+  await menu('Add column after');
+  await page.keyboard.type('Figures');
+  await menu('Add row below');
+  await page.keyboard.type('about 5');
+  await cellField(1, 0).click();
+  await page.keyboard.type('a');
+  const look = () =>
+    page.evaluate(() => {
+      const td = document.querySelector('.inline-table-box [data-row="1"] td:nth-child(2)');
+      const th = document.querySelector('.inline-table-box thead th:nth-child(2)');
+      return {
+        cell: getComputedStyle(td).textAlign,
+        head: getComputedStyle(th).textAlign,
+        figures: getComputedStyle(td).fontVariantNumeric,
+      };
+    });
+  const end = (v) => v === 'end' || v === 'right';
+  const start = (v) => (v === 'end' ? false : v === 'start' || v === 'left');
+  const first = await look();
+  if (!start(first.cell) || /tabular-nums/.test(first.figures))
+    problems.push(`${label}: a column with a word in it is not plain text at first (${JSON.stringify(first)})`);
+  // ⋮ › Column type, and its level.
+  const level = async () => {
+    await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+    const names = await page.locator('[role=menu][aria-label="More"] [role^=menuitem]').allInnerTexts();
+    const at = names.map((n) => n.trim()).indexOf('Column type');
+    if (at < 0) return (problems.push(`${label}: the ⋮ menu has no Column type (${names})`), null);
+    const opener = page.locator('[role=menu][aria-label="More"] [role^=menuitem]', { hasText: /^Column type$/ }).first();
+    if ((await opener.getAttribute('aria-haspopup')) !== 'menu') problems.push(`${label}: Column type does not say it opens a menu`);
+    await opener.click();
+    await page.waitForTimeout(250);
+    return page.locator('[role=menu][aria-label="Column type"] [role^=menuitem]');
+  };
+  const rowsOf = async (items) => (await items.allInnerTexts()).map((n) => n.trim()).filter((n) => n !== 'Column type');
+  await cellField(1, 1).click();
+  const items = await level();
+  if (items) {
+    const got = await rowsOf(items);
+    if (got.join() !== 'Automatic,Text,Number')
+      problems.push(`${label}: Column type's level is ${got.join(', ')}, not Automatic, Text, Number`);
+    await page.screenshot({ path: join(shots, `table-kinds-menu-${width}.png`) });
+    await items
+      .filter({ hasText: /^Number$/ })
+      .first()
+      .click();
+    await page.waitForTimeout(300);
+    const number = await look();
+    if (!end(number.cell) || !end(number.head) || !/tabular-nums/.test(number.figures))
+      problems.push(`${label}: Number did not end the column with tabular figures (${JSON.stringify(number)})`);
+    await page.screenshot({ path: join(shots, `table-kinds-${width}.png`) });
+  }
+  // The choice is shown chosen, and Text puts the column back at the start, with plain figures.
+  const again = await level();
+  if (again) {
+    const chosen = await again.evaluateAll((els) =>
+      els.filter((e) => e.getAttribute('aria-checked') === 'true').map((e) => e.textContent.trim()),
+    );
+    if (chosen.join() !== 'Number') problems.push(`${label}: Number is not shown chosen (${chosen})`);
+    await again
+      .filter({ hasText: /^Text$/ })
+      .first()
+      .click();
+    await page.waitForTimeout(300);
+    const text = await look();
+    if (!start(text.cell) || /tabular-nums/.test(text.figures))
+      problems.push(`${label}: Text did not take the Number look back (${JSON.stringify(text)})`);
+  }
+  // Number again, then save: the kind is in the saved text, and a second save writes the same.
+  const third = await level();
+  if (third) {
+    await third
+      .filter({ hasText: /^Number$/ })
+      .first()
+      .click();
+    await page.waitForTimeout(300);
+  }
+  // One undo takes the last kind change back, and redo brings it again (from the text above the table: a cell's own field keeps the browser's undo).
+  await page.click('.ProseMirror > p');
+  await page.keyboard.press('Control+z');
+  await page.waitForTimeout(300);
+  if (!start((await look()).cell)) problems.push(`${label}: undo did not take the kind change back`);
+  await page.keyboard.press('Control+Shift+z');
+  await page.waitForTimeout(300);
+  if (!end((await look()).cell)) problems.push(`${label}: redo did not bring the kind change back`);
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(300);
+  const saved = async () => {
+    const before = commits.length;
+    if (!(await page.locator('button', { hasText: /^Save draft$/ }).count())) return [];
+    await page
+      .locator('button', { hasText: /^Save draft$/ })
+      .first()
+      .evaluate((b) => b.click());
+    await page.waitForTimeout(900);
+    return commits.slice(before).flatMap((c) => c.changes.map((x) => Buffer.from(x.content ?? '', 'base64').toString('utf8')));
+  };
+  const one = await saved();
+  const text = one.find((t) => t.includes('data-block="table"')) ?? '';
+  if (!/columns[^\]]*number/.test(text)) problems.push(`${label}: the saved page does not carry the column's kind`);
+  const two = await saved();
+  if (two.length && two.join() !== one.join()) problems.push(`${label}: a second save wrote another text`);
+  await page.close();
+}
+
 /** The Table's outer box has the same corner radius as a card (the Cards block's `.card`: both read the theme's --card-radius), with its header clipped to it, on the built site at 375 and 1280 px. */
 async function checkTableRadius(width, height) {
   const label = `${width}px table radius`;
@@ -8795,6 +8935,8 @@ await unit('checkInlineTable 375', () => checkInlineTable(375, 740));
 await unit('checkInlineTable 1280', () => checkInlineTable(1280, 800));
 await unit('checkTableAlign 375', () => checkTableAlign(375, 740));
 await unit('checkTableAlign 1280', () => checkTableAlign(1280, 800));
+await unit('checkTableKinds 375', () => checkTableKinds(375, 740));
+await unit('checkTableKinds 1280', () => checkTableKinds(1280, 800));
 
 await unit('checkTableRadius 375', () => checkTableRadius(375, 740));
 await unit('checkTableRadius 1280', () => checkTableRadius(1280, 800));

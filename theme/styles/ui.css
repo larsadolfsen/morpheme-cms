@@ -7886,6 +7886,10 @@
   :is(.data-table, .block-table-grid) :is(th, td):is(.data-table-right, .block-table-right) {
     text-align: end;
   }
+  /* A Number column (src/standard/table/rows.mjs, kind): its figures line up, digit under digit. */
+  :is(.data-table, .block-table-grid) :is(th, td).data-table-number {
+    font-variant-numeric: tabular-nums;
+  }
   :is(.data-table, .block-table-grid) tr:last-child :is(th, td) {
     border-bottom: 0;
   }

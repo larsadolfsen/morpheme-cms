@@ -5,7 +5,12 @@ import type { BlockDefinition } from './blocks';
 import type { BarAction } from './contextualMenu';
 
 /** A row of a menu row's submenu (Change to's blocks): the block's icon (a component), its name, what it does. */
-export type SubRow = { icon: BlockDefinition['icon']; label: string; action: () => void };
+export type SubRow = {
+  icon: BlockDefinition['icon'];
+  label: string;
+  action: () => void;
+  /** The chosen one of a few (the Table's column type). */ selected?: boolean;
+};
 
 /** A row of the block's own menu (Edit, Hide, Move up, Move down, Remove): a raw SVG icon, its name, what it does (`keyboard`: chosen with the keyboard). */
 export type CardRow = {

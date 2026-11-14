@@ -89,13 +89,13 @@ import type { Change, Focus, Item as Row } from './InlineItems';
 import { leaveOut } from './pageEmptyRows';
 import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
 import { addColumnAt, addRowAt, removeColumnAt, removeRowAt, trimmed } from './inlineGrid.mjs';
-import { chosenAlign, columnAddedAt, columnRemovedAt, columnsCut, withAlign } from './standard/table/rows.mjs';
+import { chosenAlign, columnAddedAt, columnRemovedAt, columnsCut, columnsOf, withAlign, withKind } from './standard/table/rows.mjs';
 import { editorRows } from './standard/rows/view';
 import { fromLine, listPageOf } from './standard/rows/fields';
 import { sourceOf, withPart } from './standard/rows/rows.mjs';
 import { rowParts } from './standard/rows/view';
 import { barIcons, type BarAction } from './contextualMenu';
-import { blockBar, blockToolIds, splitRow, type BlockBarState, type CardRow } from './blockBar';
+import { blockBar, blockToolIds, splitRow, type BlockBarState, type CardRow, type SubRow } from './blockBar';
 import './blockRow';
 import { preview } from './registry';
 import { leaveTo } from './FormFrame';
@@ -113,9 +113,13 @@ import {
   blockMarkIcon,
   blockSettingsIcon,
   changeToIcon,
+  columnTypeIcon,
   duplicateIcon,
   selectAllBlocksIcon,
   submenuBackIcon,
+  typeAutoIcon,
+  typeNumberIcon,
+  typeTextIcon,
 } from './blockHandleIcon';
 import { blockSelection } from './blockSelection';
 import { allOf, hideChoice, range, removeChoice, groupMove } from './blockSelectionRules.mjs';
@@ -1224,6 +1228,12 @@ function textButtonWidth(label: string): number {
   return width;
 }
 const rawIcons = new Map<string, typeof TextB>();
+/** The Table's Column type goes into the block's menu after Change to, which stays the first row (owner order). */
+const withColumnType = (menu: CardRow[], row: CardRow | undefined): CardRow[] => {
+  if (!row) return menu;
+  const at = menu.findIndex((m) => m.label === t.text.changeTo);
+  return at < 0 ? [row, ...menu] : [...menu.slice(0, at + 1), row, ...menu.slice(at + 1)];
+};
 function rawIcon(svg: string): typeof TextB {
   let icon = rawIcons.get(svg);
   if (!icon) {
@@ -1729,6 +1739,44 @@ function blockCard(
           : []),
       ];
     };
+    // The Table's `Column type` in the bar's `⋮`: Automatic, Text or Number for the column of the active cell (saved in `columns[].kind`; Automatic
+    // takes the kind away, as it does the alignment). The next level of the menu, as Change to has.
+    const columnTypeRow = (): CardRow | undefined => {
+      if (!spec?.grid || active === null) return undefined;
+      const list = rows() as unknown as string[][];
+      const width = list[0]?.length ?? 1;
+      const c = col ?? 0;
+      const r = active;
+      if (c >= width) return undefined;
+      const own = node.attrs.props.columns;
+      const now = columnsOf(own, width)[c].kind ?? null;
+      const choose = (kind: string | null, label: string, icon: string): SubRow => ({
+        icon: rawIcon(icon),
+        label,
+        selected: now === kind,
+        action: () => {
+          change({
+            items: (list.length ? list : [['']]) as unknown as Row[],
+            props: { columns: withKind(own, width, c, kind) },
+            step: true,
+            active: r,
+            col: c,
+            focus: { row: r, field: String(c) },
+          });
+        },
+      });
+      const g = t.blocks.table;
+      return {
+        icon: columnTypeIcon,
+        label: g.columnType,
+        action: () => {},
+        submenu: [
+          choose(null, g.columnTypeAuto, typeAutoIcon),
+          choose('text', g.columnTypeText, typeTextIcon),
+          choose('number', g.columnTypeNumber, typeNumberIcon),
+        ],
+      };
+    };
     const rowActions = (): BarAction[] => {
       const list = rows();
       if (spec!.grid) return gridActions(spec!.grid, list as unknown as string[][]);
@@ -1881,7 +1929,7 @@ function blockCard(
           edit: action && { label: t.common.edit, action },
           dynamic: canDynamic ? { label: t.blocks.rows.dynamicTip, on: isDynamic(), action: openDynamic } : undefined,
           row: { host: dom, items: split.row },
-          menu: split.menu,
+          menu: withColumnType(split.menu, columnTypeRow()),
         };
         blockBar.show(owner, state);
       },
@@ -2820,6 +2868,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
               <MenuItem
                 key={sub.label}
                 icon={sub.icon}
+                selected={sub.selected}
                 onKeyDown={(e) => e.key === 'ArrowLeft' && (e.preventDefault(), setMoreLevel(null))}
                 onClick={sub.action}
               >
