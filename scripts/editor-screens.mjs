@@ -4085,25 +4085,55 @@ async function checkTapBelowSection(width, touch) {
   await page.close();
 }
 
-/** The editor's footer links (Support, System status, the legal links, Licenses) are touch targets of at least 48px high at 375px with touch, 44px with a pointer (m3.material.io/foundations/designing/structure), and the lines of a wrapped row are 8px apart or more. */
-async function checkFooterTargets(touch) {
-  const width = touch ? 375 : 1280;
+/** The footer links are the one named exception to the 44/48 px target checks of this file: they are exactly 36 px high by the owner's decision (14 Nov 2026, "Make the footer links 36px high clickable"), a deviation from M3's 48dp target allowed in the editor's workspace (docs/material-deviations.md, "Footer links"). No other check here skips them; this one asserts the number, so the exception is as narrow as the owner's 36 (35 or 37 fails, and so does a link narrower than its label plus 24 px). */
+const FOOTER_LINK_HEIGHT = 36;
+
+/** The editor's footer links (Support, System status, the legal links, Licenses) are exactly 36 px high at 320, 375 (touch) and 1280 px, as wide as their label plus 24 px of their own padding, never overlapping, with no sideways scroll; the lines of a wrapped row are 8px apart or more; the dividers are 16 px high and centred on the row. */
+async function checkFooterTargets(width, touch) {
   const page = await browser.newPage({ viewport: { width, height: touch ? 800 : 900 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${width}px footer links: ${e.message}`));
   await openEditor(page, site);
   await page.waitForSelector('footer nav a');
-  const boxes = await page.evaluate(() =>
-    [...document.querySelectorAll('footer nav a')].map((a) => ({ name: a.textContent.trim(), ...a.getBoundingClientRect().toJSON() })),
-  );
-  const min = touch ? 48 : 44;
+  const got = await page.evaluate(() => {
+    const box = (el) => el.getBoundingClientRect().toJSON();
+    const links = [...document.querySelectorAll('footer nav a')].map((a) => {
+      const range = document.createRange();
+      // The label's own text only (the status badge has a visually hidden text of its own).
+      const text = [...a.childNodes].find((n) => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
+      range.selectNodeContents(text);
+      return { name: a.textContent.trim(), ...box(a), labelWidth: range.getBoundingClientRect().width };
+    });
+    const dividers = [...document.querySelectorAll('footer nav [data-divider]')].map((d) => ({
+      ...box(d),
+      visible: getComputedStyle(d).visibility !== 'hidden',
+    }));
+    return { links, dividers, scrolls: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+  });
+  const boxes = got.links;
   if (boxes.length < 4) problems.push(`${width}px footer links: only ${boxes.length} found`);
-  for (const b of boxes)
-    if (b.height < min - 0.5 || b.width < min - 0.5)
-      problems.push(`${width}px footer link "${b.name}": ${b.width}x${b.height}px, should be ${min}px or more each way`);
+  for (const b of boxes) {
+    if (Math.abs(b.height - FOOTER_LINK_HEIGHT) > 0.5)
+      problems.push(
+        `${width}px footer link "${b.name}": ${b.height}px high, should be exactly ${FOOTER_LINK_HEIGHT}px (owner's exception to M3's 48dp)`,
+      );
+    if (b.width < b.labelWidth + 24 - 0.5)
+      problems.push(`${width}px footer link "${b.name}": ${b.width}px wide, should be its label (${b.labelWidth}px) plus 24px of padding`);
+  }
   for (const a of boxes)
-    for (const b of boxes)
-      if (a !== b && b.top >= a.bottom - 0.5 && b.top - a.bottom < 8 - 0.5 && b.left < a.right && b.right > a.left)
+    for (const b of boxes) {
+      if (a === b) continue;
+      if (b.top >= a.bottom - 0.5 && b.top - a.bottom < 8 - 0.5 && b.left < a.right && b.right > a.left)
         problems.push(`${width}px footer links "${a.name}" and "${b.name}": ${b.top - a.bottom}px apart, should be 8px or more`);
+      const sameLine = Math.abs(a.top - b.top) < 1;
+      if (sameLine && a.left < b.left && a.right > b.left + 0.5)
+        problems.push(`${width}px footer links "${a.name}" and "${b.name}" overlap`);
+    }
+  for (const d of got.dividers.filter((x) => x.visible)) {
+    if (Math.abs(d.height - 16) > 0.5) problems.push(`${width}px footer divider is ${d.height}px high, not 16`);
+    const row = boxes.find((l) => Math.abs(l.top + l.height / 2 - (d.top + d.height / 2)) < 1);
+    if (!row) problems.push(`${width}px footer divider is not centred on a link`);
+  }
+  if (got.scrolls) problems.push(`${width}px footer: the page scrolls sideways`);
   await page.close();
 }
 
@@ -4887,8 +4917,9 @@ for (const [width, height] of [
   await checkEntrySettings(width, height);
   await checkNofollowSwitch(width, height);
 }
-await checkFooterTargets(true);
-await checkFooterTargets(false);
+await checkFooterTargets(320, true);
+await checkFooterTargets(375, true);
+await checkFooterTargets(1280, false);
 await checkToolbarBox();
 await checkDensity(375, 740);
 await checkDensity(1280, 900);
