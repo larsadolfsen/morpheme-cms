@@ -160,7 +160,7 @@
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
   },
   "src/MarkdownEditor.tsx": {
-    "max": 27,
+    "max": 26,
     "why": "The text bar: another worker (contextual-toolbar-2) owns it; moves to Icon after that merges (follow-up 2)."
   },
   "src/Media.tsx": {
@@ -348,7 +348,7 @@
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
   },
   "src/ui.tsx": {
-    "max": 15,
+    "max": 14,
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
   },
   "src/widgets/blogRhythm.tsx": {
