@@ -32,12 +32,13 @@ import {
   Trash,
   type Icon,
 } from '@phosphor-icons/react';
-import { byText, entryData, type Collection, type Part, type PartScreen } from './schema';
+import { byText, entryData, type Collection, type OwnedList, type Part, type PartScreen } from './schema';
 import { config, countsOf, header, relationsOf, siteName } from '@site/editor';
 import { iconPack, iconPacks } from './iconPacks';
 import { theme, themes, type ThemeInfo } from './themes';
 import { StartFab } from './StartFab';
 import { ListFab } from './ListFab';
+import { EditFab } from './CreateFab';
 import { StartStatus } from './StartStatus';
 import { FirstRunCard } from './FirstRun';
 import { Dashboard } from './DashboardGrid';
@@ -1172,8 +1173,13 @@ function savedSort(c: Collection, sorts: Sort[], first: Sort): Sort {
 // "today at 1:42 PM" as "Today at 1:42 PM", alone on its line.
 const capital = (s: string) => s.charAt(0).toLocaleUpperCase(locale) + s.slice(1);
 
-/** What the page of a list the owner made adds to the list (src/OwnList.tsx): its menu, the line under the title, and the sheet and save bar after the rows. */
-export type OwnParts = { pageActions: ReactNode; status?: ReactNode; after: ReactNode };
+/** What the page of a list the owner made adds to the list (src/OwnList.tsx): its round `Edit list` button, the line under the title, and the save bar after the rows. */
+export type OwnParts = {
+  pageActions?: ReactNode;
+  status?: ReactNode;
+  after: ReactNode;
+  /** The round button, in place of the list's `Add item`. */ fab?: ReactNode;
+};
 
 export function List({
   collection,
@@ -1670,7 +1676,12 @@ export function List({
         <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
       )}
       {/* A new entry: the list's FAB, or a FAB menu of its kinds when it has several (a pop-up: Standard or an app's, e.g. Mailchimp). */}
-      <ListFab collection={collection} kinds={kinds} />
+      {own?.fab ??
+        (collection.kind === 'folder' && (collection as OwnedList).locked ? (
+          <EditFab label={t.ownList.edit} href={`#list/${collection.id}/edit`} />
+        ) : (
+          <ListFab collection={collection} kinds={kinds} />
+        ))}
       {own?.after}
     </Screen>
   );
