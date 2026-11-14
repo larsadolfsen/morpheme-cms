@@ -1531,7 +1531,7 @@ html {
 }
 
 /* A page with no text and no block yet: one line says what to do (the Insert button is in the toolbar). */
-/* A page that opens on its H1 has the heading first, so the empty line after it counts too. */
+/* A page that opens on its H1 has the heading first, so the empty line after it counts too (the editor keeps one there, markdown.mjs spacing). */
 .editor-spaced .ProseMirror > p:only-child:has(> br:only-child)::before,
 .editor-spaced .ProseMirror > h1:first-child:nth-last-child(2) + p:last-child:has(> br:only-child)::before {
   content: var(--editor-empty-text);
@@ -1546,20 +1546,6 @@ html {
   margin-block: 0;
   line-height: 1.5rem;
   cursor: text;
-}
-
-/* A page that has only its H1 (the editor adds no empty line after it): the hint sits under the heading;
-   a tap on it adds the paragraph (hintTap, MarkdownEditor.tsx). */
-.editor-spaced .ProseMirror > h1:only-child::after {
-  content: var(--editor-empty-text);
-  display: block;
-  min-height: 3rem;
-  font-size: 1rem;
-  line-height: 1.5rem;
-  cursor: text;
-  font-weight: 400;
-  color: var(--editor-hint-color);
-  pointer-events: none;
 }
 
 /* While a sheet or a dialog is open (shown modally, showModal), the page under it does not scroll (only the sheet does).

@@ -2688,41 +2688,87 @@ async function checkDensity(width, height) {
   await page.close();
 }
 
-/** On a phone, a tap on the hint under a page's only heading (Type text, or tap Insert …) puts the cursor in an empty paragraph after it. */
+/** On a new page with only its H1 (plain, and on a section colour), a line to write in is under it: on a phone with real touch (375 px) and on a computer with a mouse (1280 px), a tap on the hint line, a tap in the white under the page and Enter at the end of the heading each put the cursor in it, and what is typed goes there, not in the heading. */
 async function checkEmptyHint() {
-  const page = await browser.newPage({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
-  page.on('pageerror', (e) => problems.push(`360px empty hint: ${e.message}`));
-  await openEditor(page, site);
-  await page.evaluate(() => (location.hash = '#new/pages'));
-  await page.waitForSelector('.ProseMirror');
-  await page.tap('.ProseMirror');
-  await page.keyboard.type('# From us to you');
-  await page.waitForTimeout(500);
-  // The hint is the heading's ::after: tap its line, anywhere across the width.
-  const at = await page.evaluate(() => {
-    const h1 = document.querySelector('.ProseMirror > h1');
-    const range = document.createRange();
-    range.selectNodeContents(h1);
-    const [box, text] = [h1.getBoundingClientRect(), range.getBoundingClientRect()];
-    return { x: box.left + 8, y: box.bottom - 8, height: parseFloat(getComputedStyle(h1, '::after').minHeight) };
-  });
-  if (at.height < 48) problems.push(`360px empty hint: the hint line is ${at.height}px high, not 48`);
-  for (const [color, ratio] of Object.entries(await hintContrasts(page, '.ProseMirror > h1', '::after')))
-    if (ratio < 4.5) problems.push(`360px empty hint: the hint on a ${color} section has contrast ${ratio.toFixed(2)}:1, below 4.5`);
-  await page.touchscreen.tap(at.x, at.y);
-  await page.keyboard.type('Hej');
-  const got = await page.evaluate(() => {
-    const [h1, ...rest] = [...document.querySelector('.ProseMirror').children];
-    return {
-      h1: h1?.textContent,
-      rest: rest.map((n) => `${n.tagName}:${n.textContent}`),
-      hint: !!getComputedStyle(h1, '::after').content.match(/Type text/),
-    };
-  });
-  if (got.h1 !== 'From us to you' || got.rest.join() !== 'P:Hej')
-    problems.push(`360px empty hint: expected the heading and P:Hej, got ${got.h1} ${got.rest}`);
-  if (got.hint) problems.push('360px empty hint: the hint still shows');
-  await page.close();
+  const devices = [
+    ['375px touch', { viewport: { width: 375, height: 740 }, hasTouch: true, isMobile: true }],
+    ['1280px mouse', { viewport: { width: 1280, height: 800 } }],
+  ];
+  for (const [label, options] of devices) {
+    const touch = !!options.hasTouch;
+    for (const color of [false, true]) {
+      for (const way of ['hint', 'white', 'enter']) {
+        const name = `${label} empty hint (${color ? 'on a section colour, ' : ''}${way})`;
+        const page = await browser.newPage({ ...options, locale: 'en-US' });
+        page.on('pageerror', (e) => problems.push(`${name}: ${e.message}`));
+        await openEditor(page, site);
+        await page.evaluate(() => (location.hash = '#new/pages'));
+        await page.waitForSelector('.ProseMirror');
+        if (touch) await page.tap('.ProseMirror');
+        else await page.click('.ProseMirror');
+        await page.keyboard.type('# From us to you');
+        await page.waitForTimeout(300);
+        if (color) {
+          // The bar shows the tool, or has it under More when it has no room for it (the width of the text decides, not the device), and only once it has caught up with the cursor being in the heading: try until one of them opens the sheet.
+          const tool = page.getByRole('button', { name: 'Section settings', exact: true });
+          const item = page.getByText('Section settings', { exact: true });
+          for (let tries = 0; tries < 20 && !(await page.locator('dialog[open], .editor-side-sheet').count()); tries++) {
+            if (await tool.count()) await tool.first().click({ timeout: 5000 });
+            else if (await page.getByRole('button', { name: 'More', exact: true }).count()) {
+              await page.getByRole('button', { name: 'More', exact: true }).first().dispatchEvent('click');
+              await page.waitForTimeout(300);
+              if (await item.count()) await item.first().click({ timeout: 5000 });
+              else await page.keyboard.press('Escape');
+            }
+            await page.waitForTimeout(500);
+          }
+          await page.getByText('Primary', { exact: true }).first().click();
+          await page.getByRole('button', { name: 'Save', exact: true }).first().click();
+          await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 10_000 });
+          await page.waitForTimeout(300);
+        }
+        const line = await page.evaluate(() => {
+          const [h1, line] = [...document.querySelector('.ProseMirror').children];
+          if (line?.tagName !== 'P') return null;
+          const box = line.getBoundingClientRect();
+          const hint = getComputedStyle(line, '::before').content.match(/Type text/);
+          return {
+            top: box.top,
+            bottom: box.bottom,
+            left: box.left,
+            width: box.width,
+            height: box.height,
+            hint: !!hint,
+            below: h1.getBoundingClientRect().bottom,
+          };
+        });
+        if (!line) {
+          problems.push(`${name}: there is no line under the heading to write in`);
+          await page.close();
+          continue;
+        }
+        if (line.height < 48) problems.push(`${name}: the line is ${Math.round(line.height)}px high, not 48`);
+        if (!line.hint) problems.push(`${name}: the line does not say what to do`);
+        if (way === 'hint' || way === 'white') {
+          const x = line.left + 12;
+          // The white under the line, still inside the text and above the bottom bar.
+          const y = way === 'hint' ? line.top + line.height / 2 : line.bottom + 60;
+          if (touch) await page.touchscreen.tap(x, y);
+          else await page.mouse.click(x, y);
+        } else await page.keyboard.press('Enter');
+        await page.waitForTimeout(200);
+        await page.keyboard.type('Hej');
+        const got = await page.evaluate(() =>
+          [...document.querySelector('.ProseMirror').children].map((n) => `${n.tagName}:${n.textContent}`).join(),
+        );
+        if (got !== 'H1:From us to you,P:Hej') problems.push(`${name}: expected the heading and P:Hej, got ${got}`);
+        if (!color && way === 'hint' && !touch)
+          for (const [c, ratio] of Object.entries(await hintContrasts(page, '.ProseMirror > p', '::before')))
+            if (ratio < 4.5) problems.push(`${name}: the hint on a ${c} section has contrast ${ratio.toFixed(2)}:1, below 4.5`);
+        await page.close();
+      }
+    }
+  }
 }
 
 /** The rows of a List, Segmented list and FAQ are Material's: no list marker (list-style, ::marker), in the editor and in the Preview (where the page's text style, prose, must not reach them) and on the site. */

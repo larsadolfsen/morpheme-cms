@@ -4,7 +4,7 @@ import { Editor, editorViewCtx, rootCtx, defaultValueCtx, remarkStringifyOptions
 import { commonmark, headingSchema, paragraphSchema, strongAttr } from '@milkdown/kit/preset/commonmark';
 import { gfm } from '@milkdown/kit/preset/gfm';
 import { $markSchema, $nodeSchema, $prose, $remark, $useKeymap } from '@milkdown/kit/utils';
-import { NodeSelection, Plugin } from '@milkdown/kit/prose/state';
+import { NodeSelection, Plugin, TextSelection } from '@milkdown/kit/prose/state';
 import { canSplit } from '@milkdown/kit/prose/transform';
 import { liftListItem } from '@milkdown/kit/prose/schema-list';
 import { blockHtml, parseBlock } from '../lib/blocks.mjs';
@@ -446,12 +446,27 @@ export function partsOf(ctx) {
 }
 
 // Keeps a free line (an empty paragraph) between two blocks, before and after them and between a block and the next section's heading, so there is
-// always a place to write a text between them. Not part of undo. Used by the editor (MarkdownEditor.tsx)
+// always a place to write a text between them, and after a text that is only its H1, so a tap under the heading and Enter in it land on a real line
+// (a phone's keyboard does not open for a tap on a hint drawn in the heading). Not part of undo. Used by the editor (MarkdownEditor.tsx)
 // and the check, which writes the text back with the free lines in it.
 /** @type {import('@milkdown/kit/utils').$Prose} */
 export const spacing = $prose(
   () =>
     new Plugin({
+      props: {
+        // Enter at the end of an H1 that has only the free line after it goes into that line, not into a second one.
+        handleKeyDown: (view, event) => {
+          if (event.key !== 'Enter' || event.shiftKey || event.isComposing) return false;
+          const { doc, selection } = view.state;
+          const { $from } = selection;
+          const [heading, line] = [doc.maybeChild(0), doc.maybeChild(1)];
+          if (!selection.empty || doc.childCount !== 2 || $from.depth !== 1 || $from.index(0) !== 0) return false;
+          if (heading?.type.name !== 'heading' || line?.type.name !== 'paragraph' || line.content.size) return false;
+          if ($from.parentOffset !== heading.content.size) return false;
+          view.dispatch(view.state.tr.setSelection(TextSelection.create(doc, $from.after() + 1)).scrollIntoView());
+          return true;
+        },
+      },
       appendTransaction: (_, __, state) => {
         const gaps = [];
         let before = null;
@@ -462,6 +477,9 @@ export const spacing = $prose(
           before = node;
         });
         if (state.doc.lastChild?.type.name === 'siteBlock') gaps.push(state.doc.content.size);
+        // A text with only its H1: the line to write in under it.
+        if (state.doc.childCount === 1 && state.doc.firstChild?.type.name === 'heading' && state.doc.firstChild.attrs.level === 1)
+          gaps.push(state.doc.content.size);
         if (!gaps.length) return null;
         const tr = state.tr;
         for (const at of gaps.reverse()) tr.insert(at, state.schema.nodes.paragraph.create());
