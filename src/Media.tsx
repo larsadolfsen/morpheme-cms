@@ -60,6 +60,12 @@ import { tagFilterOptions, tagIndex, withTag } from './fileTagFilter.mjs';
 import { kindAndName, savedText } from './deploy';
 import { locale, siteT, t } from './i18n';
 import { settings } from '../site/settings';
+import { useLongPress } from '@theme/ui/longPress';
+import { useSelection } from './useSelection';
+import SelectionBar from './SelectionBar';
+import { mediaDeletion } from './mediaDelete.mjs';
+import { AnyIcon } from './icon';
+import { SiteChip } from './themeUi';
 
 export const MEDIA = config.folders.media;
 
@@ -165,11 +171,11 @@ function Thumb({ src, thumbs }: { src: string; thumbs: Record<string, Small> | n
   );
 }
 
-// A PDF, a video or a zip file in the grid: its icon and its name, on a card of its own shape.
-function FileTile({ src, selected, onPick }: { src: string; selected?: boolean; onPick: () => void }) {
+// A PDF, a video or a zip file in the grid: its icon and its name, on a card of its own shape. `rest`: what the tile takes (Tile).
+function FileTile({ src, selected, ...rest }: { src: string; selected?: boolean; [prop: string]: unknown }) {
   const Icon = fileIcons[fileKindOf(src)!];
   return (
-    <SiteCard as="button" kind="filled" selected={selected} aria-label={nameOfSrc(src)} aria-pressed={selected} onClick={onPick}>
+    <SiteCard as="button" kind="filled" selected={selected} aria-label={nameOfSrc(src)} aria-pressed={selected} {...rest}>
       <span className="flex flex-col items-center justify-center gap-2 p-2 text-center">
         <Icon size={36} className="shrink-0 text-on-surface-variant" />
         <span className="line-clamp-2 text-xs break-all text-on-surface-variant">{nameOfSrc(src)}</span>
@@ -178,29 +184,95 @@ function FileTile({ src, selected, onPick }: { src: string; selected?: boolean; 
   );
 }
 
-// The images (and the other files) as the theme's image tiles in a staggered grid (.image-grid): each image in its own
-// proportions, 2 columns on a phone, 3 on a tablet, 4 on a computer. picked: the one shown beside the grid (Filer on a
-// computer), marked.
-function Grid({ srcs, picked, onPick }: { srcs: string[]; picked?: string | null; onPick: (src: string) => void }) {
+/** What the grid needs of a selection (useSelection): whether it is selecting, which tiles are selected, and the marks a tile is found by. */
+type TileSelection = ReturnType<typeof useSelection>;
+
+// One square of the grid. It opens the file with a tap; where the grid can be selected, a long press with a touch (or Space on a
+// focused tile) starts selecting, and a mouse shows a round mark at the tile's top-left corner on hover, on every tile once one
+// is selected (Material's Selection page, the photo grid: an empty circle off, a filled one with a check on; the tile's own
+// surface does not change). While selecting a tap or a click toggles the tile instead of opening it. The mark is drawn only
+// by the theme's tokens, and is not a control of its own for the keyboard or a screen reader (the tile is: role=checkbox).
+function Tile({
+  src,
+  thumbs,
+  picked,
+  onPick,
+  selection,
+}: {
+  src: string;
+  thumbs: Record<string, Small> | null;
+  picked?: string | null;
+  onPick: (src: string) => void;
+  selection?: TileSelection;
+}) {
+  const made = selection?.row(src);
+  const row = made && 'selectable' in made ? made : undefined;
+  const selecting = !!selection?.selecting;
+  const selected = !!row?.selected;
+  const press = useLongPress(row ? () => row.onSelectedChange?.() : undefined, selecting);
+  // What the theme's tile (a Card button) takes: the picked one beside the grid is the card's selected state; while selecting
+  // the tile is a check box and the round mark shows it.
+  const tile = {
+    'data-media-tile': '',
+    selected: selecting || picked === undefined ? undefined : src === picked,
+    ...(selecting ? { role: 'checkbox', 'aria-checked': selected } : {}),
+    onClick: () => onPick(src),
+    ...press,
+    ...(row ? { 'data-selection': row['data-selection'], 'data-selection-key': row['data-selection-key'] } : {}),
+  };
+  return (
+    <li className={`group relative ${selecting ? 'select-none [-webkit-touch-callout:none]' : ''}`}>
+      {fileKindOf(src) ? (
+        <FileTile src={src} {...tile} />
+      ) : (
+        <SiteImageTile label={nameOfSrc(src)} ratio={ratioOf(thumbs?.[shownAt(src)])} {...tile}>
+          <Thumb src={src} thumbs={thumbs} />
+        </SiteImageTile>
+      )}
+      {row && (
+        <span
+          aria-hidden="true"
+          data-tile-mark={selected ? 'on' : 'off'}
+          className={`absolute top-0 left-0 flex size-12 items-center justify-center transition-opacity duration-(--motion-effects-duration) ease-(--motion-ease) ${
+            selecting
+              ? 'opacity-100'
+              : 'pointer-events-none opacity-0 group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100'
+          }`}
+          onClick={() => row.onSelectedChange?.()}
+        >
+          <span
+            className={`flex size-6 items-center justify-center rounded-full ring-2 ring-surface ${
+              selected ? 'bg-primary text-on-primary' : 'border-2 border-outline bg-surface'
+            }`}
+          >
+            {selected && <AnyIcon name="check" size={16} />}
+          </span>
+        </span>
+      )}
+    </li>
+  );
+}
+
+// The images (and the other files) as squares, by their address on the site: three to four in a row
+// on a phone, as many as there is room for on a computer. picked: the one shown beside the grid (Filer
+// on a computer), marked. selection: the grid's selection (Filer), see Tile.
+function Grid({
+  srcs,
+  picked,
+  onPick,
+  selection,
+}: {
+  srcs: string[];
+  picked?: string | null;
+  onPick: (src: string) => void;
+  selection?: TileSelection;
+}) {
   const [thumbs, setThumbs] = useState<Record<string, Small> | null>(null);
   useEffect(() => void thumbnails().then(setThumbs), []);
   return (
     <ul className="image-grid">
       {srcs.map((src) => (
-        <li key={src}>
-          {fileKindOf(src) ? (
-            <FileTile src={src} selected={picked === undefined ? undefined : src === picked} onPick={() => onPick(src)} />
-          ) : (
-            <SiteImageTile
-              label={nameOfSrc(src)}
-              ratio={ratioOf(thumbs?.[shownAt(src)])}
-              selected={picked === undefined ? undefined : src === picked}
-              onClick={() => onPick(src)}
-            >
-              <Thumb src={src} thumbs={thumbs} />
-            </SiteImageTile>
-          )}
-        </li>
+        <Tile key={src} src={src} thumbs={thumbs} picked={picked} onPick={onPick} selection={selection} />
       ))}
     </ul>
   );
@@ -226,6 +298,8 @@ function Gallery({
   tagOptions = [],
   picked,
   onPick,
+  selection,
+  onShown,
 }: {
   srcs: string[];
   used?: Set<string>;
@@ -233,6 +307,10 @@ function Gallery({
   tagOptions?: Pickable[];
   picked?: string | null;
   onPick: (src: string) => void;
+  /** The grid's selection (Filer): its tiles can be selected. */
+  selection?: TileSelection;
+  /** Told the addresses shown, top to bottom, when they change (the selection's order of tiles). */
+  onShown?: (srcs: string[]) => void;
 }) {
   // All the files, not only images (Filer), with their type.
   const all = !!used;
@@ -279,6 +357,9 @@ function Gallery({
     );
   // By month in the order of the dates, by the first letter by name (headed, from HEADINGS_FROM).
   const groups = headed(shown, (src) => (sort === 'name' ? letterOf(nameOfSrc(src)) : monthOf(src)));
+  const order = groups.flatMap((g) => g.items);
+  const orderKey = order.join('\n');
+  useEffect(() => onShown?.(order), [orderKey]);
   const chips = [
     date && { label: dateName(date), clear: () => setDate('') },
     use && { label: use === 'used' ? t.media.inUse : t.common.notInUse, clear: () => setUse('') },
@@ -353,6 +434,19 @@ function Gallery({
           />
         }
       />
+      {selection?.selecting && (
+        <div className="mt-3 flex">
+          {/* Material's photo grid: a count with a cross above the grid; the cross, or the count, unselects all. */}
+          <SiteChip
+            kind="input"
+            selected
+            label={String(selection.count)}
+            removeLabel={t.media.clearSelection(selection.count)}
+            onRemove={selection.clear}
+            onClick={selection.clear}
+          />
+        </div>
+      )}
       {chips.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-2">
           {chips.map((c) => (
@@ -367,7 +461,7 @@ function Gallery({
           {g.key !== null && (
             <h2 className="mb-2 text-sm font-medium text-on-surface-variant">{sort === 'name' ? g.key : dateName(g.key)}</h2>
           )}
-          <Grid srcs={g.items} picked={picked} onPick={onPick} />
+          <Grid srcs={g.items} picked={picked} onPick={onPick} selection={selection} />
         </section>
       ))}
       {!shown.length && <EmptyNote>{all ? t.media.noFiles : t.media.noImages}</EmptyNote>}
@@ -522,6 +616,11 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
   }, []);
   const [adding, setAdding] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  // Several files selected (a long press on a phone, Space or the mark on hover on a computer): one delete for all.
+  // Not before it is known which files the site's code uses (then nothing can be deleted).
+  const [order, setOrder] = useState<string[]>([]);
+  const selection = useSelection({ order, enabled: !!code, spaceStarts: true });
+  const [deletingMany, setDeletingMany] = useState(false);
   const [name, setName] = useState(opened ? stemOf(opened) : '');
   const [renaming, setRenaming] = useState(false);
   // The name being changed: the field shown instead of the pencil after the name.
@@ -580,6 +679,41 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
       env.notify({ text: t.media.notDeleted((e as Error).message), error: true, kind: 'failed' });
     } finally {
       setDeleting(false);
+    }
+  }
+
+  // The selected files that no page and no code uses, deleted in one commit (after asking) with their records of tags.
+  // A file in use is kept, named in a message, and stays selected; the deleted ones leave the selection.
+  async function removeSelected() {
+    const records = recordsIn(files, config.fileRecords);
+    const { deleted, kept, changes } = mediaDeletion(selection.keys, {
+      fileOf: (src) => images.find((p) => publicPath(p.path) === src),
+      isUsed: (src) => used.has(src),
+      records,
+    });
+    if (kept.length) {
+      const shown = kept.slice(0, 3).map(fileName).join(', ');
+      env.notify({
+        text: t.media.keptFiles(kept.length, selection.keys.length, kept.length > 3 ? `${shown}…` : shown),
+        error: true,
+        kind: 'failed',
+      });
+    }
+    if (!deleted.length || !(await ask(t.media.deleteFiles(deleted.length), t.common.delete))) return;
+    setDeletingMany(true);
+    env.notify({ text: t.common.deleting });
+    try {
+      const change = t.app.changes.deleted(`${deleted.length} ${deleted.length === 1 ? 'file' : 'files'}`);
+      await env.commit(siteT.media.commit.deleteMany(deleted.length), changes, change);
+      env.forget(changes.map((c) => c.path));
+      env.notify({ text: t.media.deletedFiles(deleted.length), kind: 'saved' });
+      // The deleted ones are gone from the grid, so they leave the selection by themselves; the kept ones stay, and the mode
+      // stays on while any is left.
+      if (!kept.length) selection.removed();
+    } catch (e) {
+      env.notify({ text: t.media.notDeleted((e as Error).message), error: true, kind: 'failed' });
+    } finally {
+      setDeletingMany(false);
     }
   }
 
@@ -740,9 +874,22 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
 
   return (
     <Screen
-      title={t.common.parts.media}
+      title={selection.selecting ? t.library.selectedCount(selection.count) : t.common.parts.media}
       wide
       back={{ href: '#', label: siteName }}
+      selection={
+        selection.selecting ? (
+          <SelectionBar count={selection.count} onClose={selection.clear} kind="actions">
+            <IconButton
+              icon={Trash}
+              label={t.library.deleteSelected(selection.count)}
+              disabled={deletingMany}
+              busy={deletingMany}
+              onClick={removeSelected}
+            />
+          </SelectionBar>
+        ) : undefined
+      }
       actions={
         <>
           <IconButton
@@ -762,6 +909,8 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
             tags={tags}
             tagOptions={env.relations.categories}
             picked={wide ? src : undefined}
+            selection={selection}
+            onShown={setOrder}
             onPick={(src) => {
               setSrc(src);
               setName(stemOf(src));

@@ -15,6 +15,7 @@ export const ownList: Messages['ownList'] = {
   list: 'liste',
   new: 'Ny liste',
   make: 'Opret',
+  notSavedYet: 'Ikke gemt endnu',
   nameNeeded: 'Giv listen et navn med bogstaver eller tal.',
   nameTaken: 'Der findes allerede en liste med det navn. Vælg et andet navn.',
   edit: 'Rediger liste',

@@ -2427,7 +2427,7 @@
   .card-check {
     position: absolute;
     inset-block-start: 8px;
-    inset-inline-start: 8px;
+    inset-inline-end: 8px;
     box-sizing: content-box;
     padding: 3px;
     border-radius: 50%;

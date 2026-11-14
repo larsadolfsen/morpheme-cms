@@ -10,16 +10,17 @@ export default function ImageTile({
   selected,
   label,
   kind = 'filled',
-  onClick,
   children,
+  ...rest
 }: {
   ratio?: number;
   selected?: boolean;
   /** Its name for a screen reader: the image has no text of its own here. */
   label: string;
   kind?: CardKind;
-  onClick?: () => void;
   children: ReactNode;
+  /** What a button takes (a handler, aria-…, data-…), for the Library's selecting. */
+  [prop: string]: unknown;
 }) {
   return (
     <Card
@@ -29,7 +30,7 @@ export default function ImageTile({
       selected={selected}
       aria-label={label}
       aria-pressed={selected === undefined ? undefined : selected}
-      onClick={onClick}
+      {...rest}
     >
       <CardMedia ratio={ratio}>{children}</CardMedia>
     </Card>

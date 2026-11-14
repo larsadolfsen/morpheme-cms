@@ -16,6 +16,8 @@ export const ownList = {
   /** The button on the Lists screen, and the title of its dialog. */
   new: 'New list',
   make: 'Create',
+  /** Under a new list's name on the Lists screen: it is kept as a waiting version until its page is saved. */
+  notSavedYet: 'Not saved yet',
   nameNeeded: 'Give the list a name with letters or numbers.',
   nameTaken: 'A list with this name exists. Choose another name.',
   edit: 'Edit list',

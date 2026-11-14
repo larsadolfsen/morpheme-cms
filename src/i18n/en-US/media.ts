@@ -72,6 +72,14 @@ export const media = {
   add: 'Add a file',
   preparing: 'Preparing the image…',
   notDeleted: (error: string) => `Couldn’t delete: ${error}`,
+  /** Selecting several files (Media.tsx): the count control above the grid, the question, and what is said about the files that are kept. */
+  clearSelection: (count: number) => `Clear selection, ${count} selected`,
+  deleteFiles: (count: number) => `Delete ${count} ${count === 1 ? 'file' : 'files'}? They can be restored under Deleted files.`,
+  deletedFiles: (count: number) => `${count} ${count === 1 ? 'file' : 'files'} deleted`,
+  keptFiles: (kept: number, total: number, names: string) =>
+    kept === total
+      ? `${total === 1 ? 'The file is' : `The ${total} files are`} used on pages and ${total === 1 ? 'wasn’t' : 'weren’t'} deleted: ${names}`
+      : `${kept} of ${total} files are used on pages and were kept: ${names}`,
   nameTaken: 'There’s already a file with that name',
   tooBig: (mb: number) => `The file is too big. It can be at most ${mb} MB.`,
   notAFile: 'The file can’t be used. Choose an image, a PDF, a video, or a zip file.',
@@ -92,6 +100,7 @@ export const media = {
     delete: (what: string, name: string) => `Editor: delete ${what} "${name}"`,
     rename: (what: string, from: string, to: string) => `Editor: rename ${what} "${from}" to "${to}"`,
     tags: (what: string, name: string) => `Editor: change the tags of ${what} "${name}"`,
+    deleteMany: (count: number) => `Editor: delete ${count} files`,
   },
   crop: {
     format: 'Format',

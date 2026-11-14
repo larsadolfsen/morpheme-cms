@@ -1,8 +1,9 @@
 // `Edit list` (docs/superpowers/plans/2026-11-12-new-list.md, batch 6; the owner's decision of 13 November): a bottom sheet over the page of a list the owner
 // made, with its name, its fields (each with a name the owner can change and `Remove field`; `Add field` adds one of any kind, as many of a kind as wanted)
-// and `Delete list` at the bottom. A name is saved when the field is left, each change in its own commit of `_list.json`. A field belongs to the list and is on
+// and `Delete list` at the bottom. A change is kept as the list's waiting version (the page's `change`, src/OwnListPage.tsx) and committed once, with the page's final
+// `Save` (the owner's decision of 14 November); only `Delete list` commits at once. A field belongs to the list and is on
 // by default; only the owner's own `Shown` switch hides it (`dropped`): its data stays in the items, and the sheet says in how many, with `Remove data`.
-// `Remove field` asks, then takes the field and its data out of every item in one commit. `Delete list` is refused while a page or an
+// `Remove field` asks, then takes the field and its data out of every item (at the final `Save`). `Delete list` is refused while a page or an
 // app reads the list; else it asks, then deletes the entries and the definition in one commit (they stay in the history, under Deleted). The rules
 // are lib/ownList.mjs and lib/ownListEdit.mjs.
 import { useEffect, useImperativeHandle, useRef, useState, type CSSProperties, type Ref } from 'react';
@@ -10,56 +11,50 @@ import { BottomSheet, Button, SheetBody, SheetTitle, SwitchRow, SupportingText, 
 import AddFieldMenu from './AddFieldMenu';
 import { kindNames } from './ownLists';
 import { ask } from './ask';
-import { ConflictError, type RepoFile } from './github';
+import type { RepoFile } from './github';
 import { siteT, t } from './i18n';
-import { kindAndName, lower, savedText } from './deploy';
-import { nameOf, parseDefinition } from '../lib/ownList.mjs';
-import {
-  addField,
-  confirmDrop,
-  definitionText,
-  entriesIn,
-  filesOfList,
-  heldBy,
-  listUses,
-  renamed,
-  renameField,
-  toggleField,
-} from '../lib/ownListEdit.mjs';
+import { kindAndName, savedText, setUnsaved } from './deploy';
+import { nameOf } from '../lib/ownList.mjs';
+import { addField, confirmDrop, filesOfList, heldBy, listUses, renamed, renameField, toggleField } from '../lib/ownListEdit.mjs';
 import type { OwnedList } from './schema';
 import type { Env } from './App';
 
+type Definition = { version: 2; label: string; fields: { id: string; kind: string; label?: string }[]; dropped: string[] };
+
 export default function OwnListSheet({
   collection,
+  definition,
+  entries,
+  saved,
   files,
   env,
   open,
   onClose,
-  onRemoved,
+  onChange,
   onDeleting,
-  onAdded,
   ref,
 }: {
   /** `remove`: the list menu's `Delete list`, which asks and deletes without opening the sheet. */
   ref?: Ref<{ remove: () => void; add: (kind: string) => void }>;
   collection: OwnedList;
+  /** The list's definition as it is now, with the changes that are not saved. */
+  definition: Definition;
+  /** The items in git, parsed (`{ path, data }`): what `Remove field` and `Remove data` count. */
+  entries: { path: string; data: Record<string, unknown> }[];
+  /** The list is in git (a list that is not saved yet has nothing to delete there). */
+  saved: boolean;
   files: RepoFile[];
   env: Env;
   open: boolean;
   onClose: () => void;
-  /** A field's data was removed for good from these entries (path, new oid, new text): the page forgets it too. */
-  onRemoved: (field: string, saved: { path: string; oid: string; text: string }[]) => void;
+  /** The definition changed (a field added, renamed, switched, or a name); `removed`: a field whose data is to go from every item at the final `Save`. */
+  onChange: (next: Definition, removed?: string) => void;
   /** The list is being deleted: the page stops saving it. */
   onDeleting: () => void;
-  /** A field was added. */
-  onAdded?: () => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
-  const path = `${collection.folder}/_list.json`;
   const id = collection.id;
-  const file = files.find((f) => f.path === path);
-  const definition = file ? parseDefinition(file.text).definition : undefined;
-  const [label, setLabel] = useState(definition?.label ?? collection.label);
+  const [label, setLabel] = useState(definition.label);
   const [busy, setBusy] = useState(false);
   const addAt = useRef<HTMLSpanElement>(null);
   const [adding, setAdding] = useState(false);
@@ -68,80 +63,46 @@ export default function OwnListSheet({
     if (open && sheet && !sheet.open) sheet.showModal();
     if (!open && sheet?.open) sheet.close();
   }, [open]);
-  useEffect(() => setLabel(definition?.label ?? collection.label), [definition?.label]);
+  useEffect(() => setLabel(definition.label), [definition.label]);
   // (Hooks first: the handle is made before the sheet decides it has nothing to show.)
 
-  const fail = (e: unknown) =>
-    env.notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
-  /** Writes the definition (and the items that changed with it) as one commit. */
-  async function write(
-    next: typeof definition,
-    entries: { path: string; data: unknown }[] = [],
-    what = t.app.changes.edited(lower(next!.label)),
-  ) {
-    setBusy(true);
-    env.notify({ text: t.common.saving });
-    try {
-      const text = definitionText(next);
-      const changes = [
-        { path, content: text, oid: file!.oid },
-        ...entries.map((e) => ({
-          path: e.path,
-          content: `${JSON.stringify(e.data, null, 2)}\n`,
-          oid: files.find((f) => f.path === e.path)?.oid ?? null,
-        })),
-      ];
-      const oids = await env.commit(siteT.forms.commit.edit(lower(next!.label)), changes, what);
-      const saved = changes.map((c) => ({ path: c.path, oid: oids[c.path], text: c.content }));
-      for (const s of saved) env.onSaved(s);
-      env.notify({ text: savedText(what), kind: 'saved' });
-      return saved.filter((s) => s.path !== path);
-    } catch (e) {
-      fail(e);
-      return null;
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  useImperativeHandle(ref, () => ({ remove: () => void deleteList(), add: (kind: string) => void add(kind) }));
-
-  /** Adds a field of a kind at the end (any number of one kind) and saves the definition. */
-  async function add(kind: string) {
-    if (!definition) return;
-    const saved = await write(addField(definition, kind).definition);
-    if (saved) onAdded?.();
-  }
+  useImperativeHandle(ref, () => ({
+    remove: () => void deleteList(),
+    add: (kind: string) => onChange(addField(definition, kind).definition),
+  }));
 
   const rename = () => {
-    if (!definition) return;
     const next = renamed(definition, label);
     if (next.label === definition.label) return setLabel(definition.label);
-    void write(next);
+    onChange(next);
   };
-  if (!definition) return null;
   const dropped = definition.dropped ?? [];
-  const entries = entriesIn(files, collection.folder);
 
   async function remove(field: string, confirm: string) {
-    const f = definition!.fields.find((x: { id: string }) => x.id === field);
-    const name = f ? nameOf(definition!, f, kindNames()) : field;
+    const f = definition.fields.find((x: { id: string }) => x.id === field);
+    const name = f ? nameOf(definition, f, kindNames()) : field;
     const n = heldBy(entries, field);
     if (!(await ask(t.ownList.removeDataAsk(String(name), n), confirm))) return;
-    const done = confirmDrop(definition!, field, entries);
-    const saved = await write(done.definition, done.entries);
-    if (saved) onRemoved(field, saved);
+    onChange(confirmDrop(definition, field, []).definition, field);
   }
 
   async function deleteList() {
     const used = listUses(files, id, collection.folder);
     if (used.length) return env.notify({ text: t.ownList.used(used.length), error: true });
     const all = filesOfList(files, collection.folder);
-    if (!(await ask(t.ownList.deleteAsk(definition!.label, entries.length), t.common.delete))) return;
+    if (!(await ask(t.ownList.deleteAsk(definition.label, entries.length), t.common.delete))) return;
     onDeleting();
+    // The changes that are not saved go with the list; nothing asks about them on the way out.
+    setUnsaved(false);
+    // A list that was never saved is not in git: nothing is committed.
+    if (!saved) {
+      dialog.current?.close();
+      location.hash = '#lists';
+      return;
+    }
     setBusy(true);
     env.notify({ text: t.common.deleting });
-    const change = t.app.changes.deleted(kindAndName(t.ownList.list, definition!.label));
+    const change = t.app.changes.deleted(kindAndName(t.ownList.list, definition.label));
     try {
       await env.commit(
         siteT.app.commit.delete(siteT.ownList.list, id),
@@ -189,7 +150,7 @@ export default function OwnListSheet({
                   disabled={busy}
                   onSave={(name) => {
                     const own = name.trim() === nameOf(definition, { ...f, label: undefined }, kindNames()) ? '' : name;
-                    if (own !== (f.label ?? '')) void write(renameField(definition, f.id, own));
+                    if (own !== (f.label ?? '')) onChange(renameField(definition, f.id, own));
                   }}
                 />
                 <SwitchRow
@@ -198,7 +159,7 @@ export default function OwnListSheet({
                   disabled={busy}
                   // The owner's own choice, on for every new field. Off: nothing to keep when no item has data for it, so it is removed at once; else it is hidden until the data is removed.
                   onChange={(selected) =>
-                    void write(
+                    onChange(
                       selected || heldBy(entries, f.id) > 0
                         ? toggleField(definition, f.id, selected)
                         : confirmDrop(definition, f.id, []).definition,
@@ -227,7 +188,11 @@ export default function OwnListSheet({
               {t.ownList.addField}
             </Button>
           </span>
-          <AddFieldMenu anchor={adding ? addAt.current : null} onPick={(kind) => void add(kind)} onClose={() => setAdding(false)} />
+          <AddFieldMenu
+            anchor={adding ? addAt.current : null}
+            onPick={(kind) => onChange(addField(definition, kind).definition)}
+            onClose={() => setAdding(false)}
+          />
         </div>
         <Button
           kind="text"

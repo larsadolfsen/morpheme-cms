@@ -68,7 +68,6 @@ const missingIcon = (name) =>
 // Owner rule (14 Nov): while the icon pack in use is not Phosphor, no icon is drawn as a Phosphor glyph (viewBox 0 0 256 256: Phosphor's
 // files; Material Symbols' are 0 -960 960 960, Lucide's and Material Design Icons' 24). The glyphs allowed, by how their first path starts, with the reason.
 const PHOSPHOR_OK = [
-  { d: 'M215,219.85', why: "X's logo: neither Material Symbols nor Material Design Icons has it (PHOSPHOR_FILL_ICONS in site/icons.mjs)" },
   {
     d: '<rect x="68" y="72"',
     why: "the text bar's own glyphs (src/icons/text-*.svg, drawn in Phosphor's 256 box, not Phosphor's): the toolbar worker (contextual-toolbar-2) owns the bar; follow-up 2",
@@ -920,6 +919,130 @@ async function checkSelection() {
       await page.waitForTimeout(300);
       if (await checked(page, 'dialog')) problems.push(`${label}: Escape does not unselect the notifications`);
       if (!(await sheet.isVisible())) problems.push(`${label}: Escape with some selected closed the notifications' sheet`);
+    }
+    await page.close();
+  }
+}
+
+/** Selecting files in Filer (Media.tsx): a long press on a tile (phone) or the mark on hover (computer) selects it; the tiles show
+ * the Selection page's photo-grid mark (an empty circle, a filled one with a check), every tile once one is selected; a tap while
+ * selecting toggles instead of opening; the count control above the grid says "N" and clears; Delete keeps a file a page uses. */
+async function checkFilesSelection() {
+  const marks = (page) =>
+    page.evaluate(
+      () =>
+        [...document.querySelectorAll('main [data-tile-mark]')].filter((m) => {
+          const r = m.getBoundingClientRect();
+          return getComputedStyle(m).opacity === '1' && r.width > 0;
+        }).length,
+    );
+  const on = (page) => page.locator('main [data-media-tile][aria-checked=true]').count();
+  for (const w of [375, 1280]) {
+    const touch = w < 600;
+    const label = `files selection ${w}`;
+    const page = await browser.newPage({ viewport: { width: w, height: 800 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#files'));
+    // A site with no files (the starter) has nothing to select.
+    const some = await page
+      .waitForSelector('main [data-media-tile]', { timeout: 8000 })
+      .then(() => true)
+      .catch(() => false);
+    if (!some) {
+      await page.close();
+      continue;
+    }
+    await page.waitForTimeout(800);
+    const tiles = page.locator('main [data-media-tile]');
+    if ((await tiles.count()) < 3) {
+      problems.push(`${label}: fewer than 3 files in the grid`);
+      await page.close();
+      continue;
+    }
+    const hash = () => page.evaluate(() => location.hash);
+    const here = await hash();
+    const centre = async (i) => {
+      await tiles.nth(i).scrollIntoViewIfNeeded();
+      const b = await tiles.nth(i).boundingBox();
+      return [b.x + b.width / 2, b.y + b.height / 2];
+    };
+    const sheetOpen = () => page.evaluate(() => !!document.querySelector('dialog[open]'));
+    const chip = page.getByRole('button', { name: /^Clear selection, \d+ selected$/ });
+    if (await marks(page)) problems.push(`${label}: a tile's mark shows before anything is pointed at or selected`);
+    if (touch) {
+      const cdp = await page.context().newCDPSession(page);
+      const hold = async (x, y, move = 0) => {
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+        await page.waitForTimeout(250);
+        if (move) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y + move }] });
+        await page.waitForTimeout(500);
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+        await page.waitForTimeout(300);
+      };
+      const [x0, y0] = await centre(0);
+      await hold(x0, y0, 20);
+      if ((await on(page)) || (await sheetOpen())) problems.push(`${label}: a press and hold that moves 20 px selected or opened the tile`);
+      await hold(x0, y0);
+      if ((await on(page)) !== 1) problems.push(`${label}: a press and hold does not select the tile`);
+      if (await sheetOpen()) problems.push(`${label}: a press and hold opened the file`);
+      const [x1, y1] = await centre(1);
+      await page.touchscreen.tap(x1, y1);
+      await page.waitForTimeout(300);
+      if ((await sheetOpen()) || (await hash()) !== here) problems.push(`${label}: a tap on a second tile opened it while selecting`);
+      if ((await on(page)) !== 2) problems.push(`${label}: a tap on a second tile does not add it`);
+      if ((await marks(page)) !== (await tiles.count())) problems.push(`${label}: every tile does not show its mark once one is selected`);
+      if (!(await chip.count())) problems.push(`${label}: no count control above the grid`);
+      await page.touchscreen.tap(x0, y0);
+      await page.touchscreen.tap(x1, y1);
+      await page.waitForTimeout(300);
+      if (await chip.count()) problems.push(`${label}: unselecting all does not end selecting`);
+      await hold(x0, y0);
+      await chip.click();
+      if (await on(page)) problems.push(`${label}: the count control does not unselect`);
+    } else {
+      const [x0, y0] = await centre(0);
+      await page.mouse.move(x0, y0);
+      await page.waitForTimeout(400);
+      if ((await marks(page)) !== 1) problems.push(`${label}: pointing at a tile does not show exactly one mark (${await marks(page)})`);
+      const mark = page.locator('main [data-tile-mark]').first();
+      const b = await mark.boundingBox();
+      if (!b || b.width < 48 || b.height < 48)
+        problems.push(`${label}: the mark's target is smaller than 48 x 48 (${b?.width}x${b?.height})`);
+      const t0 = await tiles.nth(0).boundingBox();
+      if (b && (Math.abs(b.x - t0.x) > 2 || Math.abs(b.y - t0.y) > 2))
+        problems.push(`${label}: the mark is not at the tile's top-left corner`);
+      await mark.click();
+      await page.waitForTimeout(400);
+      if ((await on(page)) !== 1 || (await sheetOpen())) problems.push(`${label}: a click on the mark does not select the tile`);
+      if ((await marks(page)) !== (await tiles.count())) problems.push(`${label}: every tile does not show its mark once one is selected`);
+      const [x1, y1] = await centre(1);
+      await page.mouse.click(x1, y1);
+      await page.waitForTimeout(300);
+      if ((await on(page)) !== 2) problems.push(`${label}: a click on a second tile does not add it while selecting`);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
+      if (await on(page)) problems.push(`${label}: Escape does not end selecting`);
+      // Space on a focused tile selects it, and Ctrl+A selects all.
+      await tiles.nth(2).focus();
+      await page.keyboard.press('Space');
+      await page.waitForTimeout(200);
+      if ((await on(page)) !== 1) problems.push(`${label}: Space does not select the tile in focus`);
+      await page.keyboard.press('Control+a');
+      await page.waitForTimeout(200);
+      if ((await on(page)) !== (await tiles.count())) problems.push(`${label}: Ctrl+A does not select all the tiles`);
+      // Delete: a file a page uses is kept, and the message says so; the others are asked about.
+      const del = page.getByRole('button', { name: /^Delete \d+ selected$/ });
+      if (!(await del.count())) problems.push(`${label}: no Delete in the top bar while selecting`);
+      else {
+        await del.click();
+        await page.waitForTimeout(500);
+        const text = await page.evaluate(() => document.body.innerText);
+        const asks = /Delete \d+ files?\? They can be restored under Deleted files\./.test(text);
+        const kept = /\d+ of \d+ files are used on pages and were kept|used on pages and (wasn’t|weren’t) deleted/.test(text);
+        if (!asks && !kept) problems.push(`${label}: Delete neither asks nor says which files a page uses`);
+        await page.keyboard.press('Escape');
+      }
     }
     await page.close();
   }
@@ -2812,9 +2935,8 @@ async function checkNewList(width, height, label) {
       .waitFor({ timeout: 15000 })
       .catch(() => problems.push(`${label}: the new list's page does not say it has no fields`));
     if (await page.locator('.inline-list-row').locator('visible=true').count()) problems.push(`${label}: an empty list shows a row`);
-    const made = commits[0]?.changes.find((x) => x.path.endsWith('_list.json'));
-    if (JSON.parse(decoded(made?.content)).fields?.length !== 0)
-      problems.push(`${label}: the new list's definition is not empty (${made?.content})`);
+    // Making the list commits nothing: it is kept as a waiting version until the final Save.
+    if (commits.length) problems.push(`${label}: Create committed (${commits.length} commits) before the final Save`);
     // Two body texts: the empty page's Add field, then Body text; the second through Edit list (the empty page's button is gone once there is a field).
     const pick = async (n) => {
       await page
@@ -2852,7 +2974,36 @@ async function checkNewList(width, height, label) {
       [...document.querySelectorAll('.inline-list-row-active [data-field]')].map((f) => f.getAttribute('placeholder')),
     );
     if (names.join() !== 'Body text,Body text 2') problems.push(`${label}: the fields are not named Body text and Body text 2 (${names})`);
+    // Two fields added and still nothing committed; the line under the title says the version is kept, and the save bar has the final Save.
+    if (commits.length) problems.push(`${label}: a field was committed before the final Save (${commits.length} commits)`);
+    const line = await page.evaluate(() => document.body.innerText);
+    if (!/Saving…|Saved|Not saved/.test(line)) problems.push(`${label}: no line says whether the waiting version is kept`);
+    // Leaving asks first, as it does for a page: Save or Discard; Esc stays.
+    await page.evaluate(() => (location.hash = '#lists'));
+    await page
+      .getByRole('button', { name: 'Discard' })
+      .waitFor({ timeout: 5000 })
+      .catch(() => problems.push(`${label}: leaving the unsaved list did not ask`));
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+    if (await page.evaluate(() => location.hash !== '#list/zz-fresh-list')) problems.push(`${label}: Esc did not stay on the unsaved list`);
+    // The final Save: exactly one commit, with the list and both fields.
+    await page.locator('.editor-save-bar').getByRole('button', { name: 'Save' }).click();
+    // The first Save asks whether to send notifications.
+    await page
+      .getByRole('button', { name: 'Cancel' })
+      .click({ timeout: 3000 })
+      .catch(() => {});
+    await page
+      .waitForFunction(() => !document.querySelector('.editor-save-bar button'), null, { timeout: 15000 })
+      .catch(() => problems.push(`${label}: the save bar did not go after Save`));
+    if (commits.length !== 1) problems.push(`${label}: the final Save made ${commits.length} commits, not one`);
+    const made = commits[0]?.changes.find((x) => x.path.endsWith('_list.json'));
+    const definition = JSON.parse(decoded(made?.content) || '{}');
+    if (definition.fields?.length !== 2 || definition.fields.some((f) => f.kind !== 'text'))
+      problems.push(`${label}: the commit does not have the list with both fields (${made?.content})`);
     // A row typed in both fields: both values are saved (one file, both ids) and shown.
+    await page.locator('.inline-list-row-next [data-field="text"]').first().click();
     await page.keyboard.type('First line');
     await page.keyboard.press('Enter');
     await page.keyboard.type('Second line');
@@ -5042,6 +5193,7 @@ await unit('checkEmptyHint', () => checkEmptyHint());
 await unit('checkLongPressDelete', () => checkLongPressDelete());
 await unit('checkSelection', () => checkSelection());
 await unit('checkSelectionBox', () => checkSelectionBox());
+await unit('checkFilesSelection', () => checkFilesSelection());
 await unit('checkUnlistedPost', () => checkUnlistedPost());
 for (const [width, height] of [
   [375, 740],

@@ -86,7 +86,7 @@
 
   /* The standard theme's components (docs/editor.md, "Temaets variabler"). Dialogs (the cookie question, a pop-up):
      extra-large increased corners, a high surface container, no line (the third elevation, as every dialog). */
-  --dialog-radius: var(--mo-shape-extra-large-increased);
+  --dialog-radius: var(--mo-shape-extra-large);
   --dialog-line: transparent;
   --dialog-scrim: var(--mo-scrim-overlay);
   /* A bottom sheet (ui.css; a dialog on a computer): extra-large corners, the lowest surface container (also as a dialog,
