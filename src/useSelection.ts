@@ -5,11 +5,14 @@
 // selecting a tap or a click toggles it), and the marks the keys find the row by. The keys, which the rules of
 // selectionRules.mjs decide (tested): Space toggles the row in focus, Shift+click and Shift+Arrow add a range, Ctrl or
 // Cmd+A selects all shown, Escape unselects and ends the mode; focus stays on the row last toggled, goes back to it on
-// close, and goes to the row that took the place of deleted ones (`removed()`). Back leaves selecting first (a list outside a sheet). Keys apply only inside `root` when it is
+// close, and goes to the row that took the place of deleted ones (`removed()`). A finger held after a long press and dragged across
+// the rows puts each row it passes (the ones a fast finger skipped too) in the state the first row got, and scrolls the nearest scrolling
+// box while it is held near its top or bottom (`onSelectDrag` of `row`, theme/ui/longPress.ts; Material's Selection page). Back leaves selecting first (a list outside a sheet). Keys apply only inside `root` when it is
 // given, else only when no modal dialog is open (a sheet over the list has its own). Exposes useSelection.
 // Uses selectionRules.mjs. Thin wiring over the rules: checked by `check:screens` (editor-screens.mjs).
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type RefObject } from 'react';
-import { keyAction, neighbourKey, pruneKeys, rangeKeys, selectAllKeys, toggleKey } from './selectionRules.mjs';
+import { keyAction, neighbourKey, pruneKeys, rangeKeys, selectAllKeys, setRange, toggleKey } from './selectionRules.mjs';
+import { edgeScroll } from '@theme/ui/longPressRules.mjs';
 
 const typing = (el: Element | null) => !!el?.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]');
 const modalOpen = () => {
@@ -60,6 +63,9 @@ export function useSelection({
       );
   };
 
+  // A drag across rows (after a long press): the state the first row got and the row the finger was last over.
+  const dragTo = useRef<{ on: boolean; key: string | undefined } | null>(null);
+
   const toggle = useCallback((key: string) => {
     last.current = key;
     setPicked((p) => toggleKey(pruneKeys(p, latest.current.order), key));
@@ -77,6 +83,35 @@ export function useSelection({
     refocus.current = Number.isFinite(first) ? first : null;
     setPicked([]);
   }, []);
+
+  // The finger of a long press, held and dragged (x, y): each row it is over gets the state of the first one; near the top or bottom of the
+  // nearest box that scrolls, the box scrolls by itself (faster the nearer the edge).
+  const drag = useCallback(
+    (x: number, y: number) => {
+      const to = dragTo.current;
+      if (!to) return;
+      const el = document.elementFromPoint(x, y);
+      const over = el?.closest<HTMLElement>('[data-selection]');
+      const key = over && over.dataset.selection === id ? over.dataset.selectionKey : undefined;
+      if (key !== undefined && key !== to.key) {
+        const from = to.key;
+        to.key = key;
+        last.current = key;
+        setPicked((p) => setRange(pruneKeys(p, latest.current.order), latest.current.order, from, key, to.on));
+      }
+      const any = over ?? document.querySelector<HTMLElement>(`[data-selection="${id}"]`);
+      let box: HTMLElement | null = null;
+      for (let up = any?.parentElement; up && up !== document.body; up = up.parentElement)
+        if (/auto|scroll/.test(getComputedStyle(up).overflowY) && up.scrollHeight > up.clientHeight) {
+          box = up;
+          break;
+        }
+      const bounds = box ? box.getBoundingClientRect() : { top: 0, bottom: window.innerHeight };
+      const step = edgeScroll(y, bounds.top, bounds.bottom);
+      if (step) (box ?? window).scrollBy(0, step);
+    },
+    [id],
+  );
 
   // After a delete: focus the row now at the place of the first deleted one (the last row when it was the last).
   useEffect(() => {
@@ -166,7 +201,12 @@ export function useSelection({
           selectable: true,
           selecting: selecting || primary,
           selected: keys.includes(key),
-          onSelectedChange: () => toggle(key),
+          // The long press that starts a drag across rows is this: the rows passed over get the state this one gets.
+          onSelectedChange: () => {
+            dragTo.current = { on: !latest.current.keys.includes(key), key };
+            toggle(key);
+          },
+          onSelectDrag: drag,
           'data-selection': id,
           'data-selection-key': key,
         }

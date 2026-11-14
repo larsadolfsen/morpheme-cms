@@ -210,7 +210,7 @@ function Tile({
   const row = made && 'selectable' in made ? made : undefined;
   const selecting = !!selection?.selecting;
   const selected = !!row?.selected;
-  const press = useLongPress(row ? () => row.onSelectedChange?.() : undefined, selecting);
+  const press = useLongPress(row ? () => row.onSelectedChange?.() : undefined, selecting, row?.onSelectDrag);
   // What the theme's tile (a Card button) takes: the picked one beside the grid is the card's selected state; while selecting
   // the tile is a check box and the round mark shows it.
   const tile = {
