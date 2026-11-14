@@ -878,8 +878,13 @@ async function checkCardBar(width, height = 800) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
-  await page.locator('dialog[open] textarea').fill('<iframe src="https://www.youtube.com/embed/abc" title="Clip"></iframe>');
-  await page.locator('dialog[open] button', { hasText: /^Insert$/ }).click();
+  // The block's fields are in a sheet on a phone and in the side panel from expanded.
+  const sheet = page
+    .locator('dialog[open], .editor-side-sheet')
+    .filter({ has: page.locator('textarea') })
+    .last();
+  await sheet.locator('textarea').fill('<iframe src="https://www.youtube.com/embed/abc" title="Clip"></iframe>');
+  await sheet.locator('button', { hasText: /^Insert$/ }).click();
   await page.waitForSelector('.ProseMirror .site-block-card', { timeout: 6000 });
   await page.locator('.ProseMirror .site-block-card').first().click();
   await page.waitForTimeout(400);
@@ -915,13 +920,15 @@ async function checkCardBar(width, height = 800) {
   // Move up: the card goes above the text and stays selected, its tools on the bar.
   await pressMore(page, 'Move up', phone ? 'tap' : 'click');
   await page.waitForTimeout(500);
-  const moved = await page.evaluate(() => ({
-    first:
-      document.querySelector('.ProseMirror')?.firstElementChild?.matches('.site-block, [data-site-block]') ||
-      !!document.querySelector('.ProseMirror')?.firstElementChild?.querySelector('.site-block'),
-    pressed: document.querySelectorAll('.site-block-card[aria-pressed="true"]').length,
-    group: document.querySelector('.editor-tools [role=group]')?.getAttribute('aria-label'),
-  }));
+  const moved = await page.evaluate(() => {
+    const card = document.querySelector('.ProseMirror .site-block-card')?.getBoundingClientRect();
+    const hello = [...document.querySelectorAll('.ProseMirror p')].find((p) => p.textContent.trim() === 'Hello')?.getBoundingClientRect();
+    return {
+      first: !!card && !!hello && card.top < hello.top,
+      pressed: document.querySelectorAll('.site-block-card[aria-pressed="true"]').length,
+      group: document.querySelector('.editor-tools [role=group]')?.getAttribute('aria-label'),
+    };
+  });
   if (!moved.first) problems.push(`${label}: Move up in the ⋮ did not move the card above the text`);
   if (moved.pressed !== 1 || moved.group === 'Text tools')
     problems.push(`${label}: the moved card is not selected with its tools on the bar (${JSON.stringify(moved)})`);
