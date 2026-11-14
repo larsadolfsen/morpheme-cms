@@ -243,18 +243,6 @@ export const blocks = {
     /** A step typed in place: its place, for screen readers (step 2 of 4). */
     stepOf: (n: number, total: number) => `Step ${n} of ${total}`,
   },
-  hero: {
-    label: 'Banner',
-    hint: 'Page top with text and buttons.',
-    text: 'Text',
-    textHint: 'The first paragraph is the subtitle. Add an image and buttons with +.',
-    placement: 'Placement (image)',
-    placementBeside: 'Beside',
-    placementBehind: 'Behind the text',
-    width: 'Width',
-    widthFull: 'Full width',
-    widthText: 'Like the text',
-  },
   accordion: {
     label: 'Expandable list',
     hint: 'Rows that expand to show text.',
@@ -382,7 +370,7 @@ export const blocks = {
     filter: 'Buttons with tags',
     filterHint: 'Shows only the testimonials with the chosen tag.',
     withTags: 'With tags',
-    front: 'Marked "Show on the front page"',
+    front: 'Marked "Show on the home page"',
     picked: 'Selected',
     tags: 'Tags',
     addTag: 'Add tag',
@@ -397,7 +385,7 @@ export const blocks = {
       context: 'Introduction',
       quote: 'Testimonial',
       createTag: 'Create a tag',
-      frontPage: 'Show on the front page',
+      frontPage: 'Show on the home page',
     },
     items: 'Testimonials',
     /** The shared texts ("Blocks" › "Testimonials"), and what they start as on a site in this language. */

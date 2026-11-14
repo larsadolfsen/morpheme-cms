@@ -64,8 +64,8 @@ export const collections: Record<string, string> = {
   'Copy link': 'Kopiér link',
   'Registration number': 'Reg.nr.',
   'Account number': 'Kontonummer',
-  'Front page': 'Forside',
-  'The page is shown on the front page, and its own address sends on there.':
+  'Home page': 'Forside',
+  'The page is shown on the home page, and its own address sends on there.':
     'Siden vises på forsiden, og dens egen adresse sender videre dertil.',
   'Blog page': 'Blogside',
   'The page is shown at /blog/, and its own address sends on there.': 'Siden vises på /blog/, og dens egen adresse sender videre dertil.',
