@@ -21,6 +21,11 @@ const types = {
   '.webmanifest': 'application/manifest+json',
 };
 
+/** Files a check makes for the editor to read (a page, a post, a list): kept in memory and added to every answer, never written to the
+ * site's folder, so a crash or a stray commit can leave nothing in a site. By path, as `texts` are. */
+const virtual = {};
+export const virtualFile = (path, text) => void (virtual[path] = text);
+
 /** Serves the built site in `dist`; gives the server and its address. */
 export async function serveBuilt(dist) {
   // The front page's and the blog page's own addresses are shown at / and /blog/, as the site's Worker does (worker/index.js shownAt).
@@ -50,17 +55,20 @@ export async function serveBuilt(dist) {
 const TEXT = /\.(md|mdx|jsonc?|ya?ml|txt|ts|js|mjs|css|astro|svg)$/;
 const listed = (path, texts) => ({ path, oid: `blob:${path}`, binary: !(path in texts) && !TEXT.test(path) });
 function filesIn(dir, depth, texts) {
-  if (!existsSync(join(ROOT, dir)) || !statSync(join(ROOT, dir)).isDirectory()) return [];
-  const files = readdirSync(join(ROOT, dir), { withFileTypes: true }).flatMap((d) => {
-    const path = posix.join(dir, d.name);
-    if (d.isDirectory()) return depth > 1 ? filesIn(path, depth - 1, texts) : [];
+  // What is in the folder: on disk, and the files given for it or for a folder in it (a check's, in memory), by name.
+  const entries = new Map();
+  if (existsSync(join(ROOT, dir)) && statSync(join(ROOT, dir)).isDirectory())
+    for (const d of readdirSync(join(ROOT, dir), { withFileTypes: true })) entries.set(d.name, d.isDirectory());
+  for (const path of Object.keys(texts)) {
+    if (!path.startsWith(`${dir}/`)) continue;
+    const [name, ...rest] = path.slice(dir.length + 1).split('/');
+    entries.set(name, entries.get(name) || rest.length > 0);
+  }
+  return [...entries].flatMap(([name, isDirectory]) => {
+    const path = posix.join(dir, name);
+    if (isDirectory) return depth > 1 ? filesIn(path, depth - 1, texts) : [];
     return [listed(path, texts)];
   });
-  // The files given that are not on disk, in their folder.
-  const more = Object.keys(texts)
-    .filter((path) => posix.dirname(path) === dir && !files.some((f) => f.path === path))
-    .map((path) => listed(path, texts));
-  return [...files, ...more];
 }
 function answer(query, texts) {
   const repository = { ref: { target: { oid: 'head' } }, viewerPermission: 'ADMIN' };
@@ -202,7 +210,7 @@ export async function openEditor(page, site, texts = {}, store = 'button', dashb
   });
   await page.route(`${site}/api/github/**`, (r) => {
     const route = new URL(r.request().url()).pathname.slice('/api/github/'.length);
-    const found = workerAnswer(route, JSON.parse(r.request().postData() || '{}'), texts);
+    const found = workerAnswer(route, JSON.parse(r.request().postData() || '{}'), { ...virtual, ...texts });
     return found ? r.fulfill({ contentType: 'application/json', body: JSON.stringify(found) }) : r.fulfill({ status: 404 });
   });
   await page.goto(`${site}/editor/`);
