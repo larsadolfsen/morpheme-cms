@@ -27,7 +27,7 @@ import { toolWidth } from '../src/textBar.mjs';
 import { allow, nestedUnits } from './spacing-grid.allow.mjs';
 import { installedApps } from '../lib/apps.mjs';
 import { appCheckPage } from '../lib/appCheckPage.mjs';
-import { CORE_PAGE_FILE, CORE_PAGE_ID, coreBlocksPage } from './core-blocks-page.mjs';
+import { CORE_PAGE_ID, coreTestSite } from './core-blocks-page.mjs';
 import { buildTestSite } from './test-site.mjs';
 
 // The editor is opened in Danish (locale da-DK below), so the texts it shows are read from its Danish messages. They are
@@ -5089,7 +5089,7 @@ async function checkNewList(width, height, label) {
 
 /** Opens the system's test page (the Blocks page of core-blocks-page.mjs, on a temporary copy of the site), which these checks measure. It is built on first use, so it is there on any site. */
 async function onTestPage(page, label) {
-  const { site: testSite } = await coreTestSite();
+  const { site: testSite } = await serveCoreTestSite();
   const response = await page.goto(new URL(`/${CORE_PAGE_ID}/`, testSite).href).catch(() => null);
   if (response && response.status() < 400) return true;
   problems.push(`${label}: the system's test page (/${CORE_PAGE_ID}/) did not open on the temporary copy of the site`);
@@ -5099,9 +5099,10 @@ async function onTestPage(page, label) {
 /** The temporary copy of the site with the system's test page (core-blocks-page.mjs), built and served on the first use and deleted when the run ends: the
  * page is never in the site's own folder. Its content is the demo's Blocks page, so the checks that measure it measure the same on any site. */
 let coreSite = null;
-async function coreTestSite() {
+async function serveCoreTestSite() {
   coreSite ??= (async () => {
-    const built = buildTestSite(ROOT, { [CORE_PAGE_FILE]: coreBlocksPage() });
+    const { files, copies } = coreTestSite(ROOT);
+    const built = buildTestSite(ROOT, files, copies);
     process.on('exit', built.remove);
     return serveBuilt(built.dist);
   })();

@@ -11,10 +11,10 @@ import { binOf } from './bin.mjs';
 export const NOT_COPIED = new Set(['node_modules', 'dist', '.astro', '.morpheme', '.git', '.wrangler', '.claude']);
 
 /** Copies the site at `root` (without NOT_COPIED) to a new folder in `<root>/.astro/test-site/` and writes `files` (path from the site's root → text) there. @returns {string} the copy's folder */
-export function copySite(root, files = {}) {
+export function copySite(root, files = {}, copies = []) {
   const copy = tempFolder(root);
   try {
-    fillCopy(root, copy, files);
+    fillCopy(root, copy, files, copies);
   } catch (error) {
     rmSync(copy, { recursive: true, force: true });
     throw error;
@@ -28,7 +28,7 @@ const tempFolder = (root) => {
   return mkdtempSync(join(parent, 'site-'));
 };
 
-function fillCopy(root, copy, files) {
+function fillCopy(root, copy, files, copies) {
   // One entry of the site's folder at a time: cpSync refuses to copy a folder into itself, and the copy is inside the site's.
   for (const name of readdirSync(root)) if (!NOT_COPIED.has(name)) cpSync(join(root, name), join(copy, name), { recursive: true });
   // The site's packages are looked for in the copy's own root (site/theme.mjs reads node_modules there), so it is a link to the site's.
@@ -37,11 +37,16 @@ function fillCopy(root, copy, files) {
     mkdirSync(dirname(join(copy, path)), { recursive: true });
     writeFileSync(join(copy, path), text);
   }
+  // Files and folders of this package for the copy (images the test page shows), never over what the site has.
+  for (const { from, to } of copies) {
+    mkdirSync(dirname(join(copy, to)), { recursive: true });
+    cpSync(from, join(copy, to), { recursive: true, force: false, errorOnExist: false });
+  }
 }
 
 /** Builds a copy of the site at `root` with `files` added. The caller deletes it with `remove()` (also when `build` threw: nothing is left then). @returns {{ copy: string, dist: string, remove: () => void }} */
-export function buildTestSite(root, files) {
-  const copy = copySite(root, files);
+export function buildTestSite(root, files, copies = []) {
+  const copy = copySite(root, files, copies);
   const remove = () => rmSync(copy, { recursive: true, force: true });
   try {
     const dist = join(copy, 'dist');
@@ -64,10 +69,11 @@ export function buildTestSite(root, files) {
  * @param {string} root
  * @param {Record<string, string>} files
  * @param {(site: { copy: string, dist: string }) => Promise<T> | T} use
+ * @param {{ from: string, to: string }[]} [copies] files or folders to copy into the copy (from an absolute path, to a path from the site's root)
  * @returns {Promise<T>}
  */
-export async function withTestSite(root, files, use) {
-  const built = buildTestSite(root, files);
+export async function withTestSite(root, files, use, copies = []) {
+  const built = buildTestSite(root, files, copies);
   try {
     return await use({ copy: built.copy, dist: built.dist });
   } finally {

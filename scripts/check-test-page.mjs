@@ -4,7 +4,7 @@
 // Run in a site's folder after the site is built: node …/scripts/check-test-page.mjs (check:screens:extra).
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { CORE_PAGE_FILE, CORE_PAGE_ID, coreBlockTypes, coreBlocksPage } from './core-blocks-page.mjs';
+import { CORE_PAGE_FILE, CORE_PAGE_ID, coreBlockTypes, coreBlocksPage, coreTestSite } from './core-blocks-page.mjs';
 import { withTestSite } from './test-site.mjs';
 
 const root = `${process.cwd()}/`;
@@ -16,25 +16,31 @@ const SITE_DATA = ['imagegrid', 'posts', 'testimonials'];
 const mustDraw = types.filter((t) => !SITE_DATA.includes(t)).length;
 for (const type of types) if (!text.includes(`data-block="${type}"`)) problems.push(`the test page has no "${type}" block`);
 
-const found = await withTestSite(root, { [CORE_PAGE_FILE]: text }, ({ copy, dist }) => {
-  const files = readdirSync(dist, { recursive: true, withFileTypes: true }).filter((e) => e.isFile());
-  const read = (e) => readFileSync(join(e.parentPath, e.name), 'utf8');
-  const page = join(dist, CORE_PAGE_ID, 'index.html');
-  if (!existsSync(page)) return { missing: true };
-  const html = readFileSync(page, 'utf8');
-  const address = `/${CORE_PAGE_ID}/`;
-  return {
-    robots: /<meta name="robots" content="noindex, nofollow"\s*\/?>/.test(html),
-    canonical: /rel="canonical"/.test(html),
-    inSitemap: files.filter((e) => /^sitemap.*\.xml$/.test(e.name) && read(e).includes(address)).map((e) => e.name),
-    inRss: files.filter((e) => e.name === 'rss.xml' && read(e).includes(address)).map((e) => e.name),
-    linkedFrom: files
-      .filter((e) => e.name.endsWith('.html') && join(e.parentPath, e.name) !== page && read(e).includes(`href="${address}"`))
-      .map((e) => join(e.parentPath, e.name).slice(dist.length)),
-    blocksDrawn: new Set([...html.matchAll(/class="[^"]*\b(block-[a-z]+)/g)].map((m) => m[1])).size,
-    copy,
-  };
-});
+const { files: testFiles, copies } = coreTestSite(root);
+const found = await withTestSite(
+  root,
+  testFiles,
+  ({ copy, dist }) => {
+    const files = readdirSync(dist, { recursive: true, withFileTypes: true }).filter((e) => e.isFile());
+    const read = (e) => readFileSync(join(e.parentPath, e.name), 'utf8');
+    const page = join(dist, CORE_PAGE_ID, 'index.html');
+    if (!existsSync(page)) return { missing: true };
+    const html = readFileSync(page, 'utf8');
+    const address = `/${CORE_PAGE_ID}/`;
+    return {
+      robots: /<meta name="robots" content="noindex, nofollow"\s*\/?>/.test(html),
+      canonical: /rel="canonical"/.test(html),
+      inSitemap: files.filter((e) => /^sitemap.*\.xml$/.test(e.name) && read(e).includes(address)).map((e) => e.name),
+      inRss: files.filter((e) => e.name === 'rss.xml' && read(e).includes(address)).map((e) => e.name),
+      linkedFrom: files
+        .filter((e) => e.name.endsWith('.html') && join(e.parentPath, e.name) !== page && read(e).includes(`href="${address}"`))
+        .map((e) => join(e.parentPath, e.name).slice(dist.length)),
+      blocksDrawn: new Set([...html.matchAll(/class="[^"]*\b(block-[a-z]+)/g)].map((m) => m[1])).size,
+      copy,
+    };
+  },
+  copies,
+);
 if (found.missing) problems.push(`the test page was not built (no ${CORE_PAGE_ID}/index.html)`);
 else {
   if (!found.robots)

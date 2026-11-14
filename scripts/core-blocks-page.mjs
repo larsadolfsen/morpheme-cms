@@ -39,3 +39,17 @@ export function coreBlocksPage() {
     .map((type) => `## ${type}\n\n${blockHtml(type, EXTRA_BLOCKS[type] ?? {})}`);
   return `---\ntitle: "Morpheme check page"\ndescription: "Every core block, for the checks."\nnoindex: true\nnofollow: true\n---\n${body.trimEnd()}\n\n${extra.join('\n\n')}\n`;
 }
+
+/**
+ * What the temporary copy needs besides the page: the demo's images the page shows and the demo's Library entries for them (their alt
+ * texts), for what the site does not have. Library entries are given by name, so one the site has is not replaced.
+ * @param {string} root the site's root
+ * @returns {{ files: Record<string, string>, copies: { from: string, to: string }[] }}
+ */
+export function coreTestSite(root) {
+  const library = here('../demo/src/data/files');
+  const files = { [CORE_PAGE_FILE]: coreBlocksPage() };
+  for (const name of existsSync(library) ? readdirSync(library) : [])
+    if (!existsSync(`${root}/src/data/files/${name}`)) files[`src/data/files/${name}`] = readFileSync(`${library}/${name}`, 'utf8');
+  return { files, copies: [{ from: here('../demo/public/images/uploads'), to: 'public/images/uploads' }] };
+}
