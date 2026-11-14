@@ -1190,11 +1190,11 @@ html {
   --menu-shadow: var(--editor-menu-shadow);
 }
 
-/* On a phone the text's box (bar and body) is 352 dp wide at 375 px, 11.5 dp from each edge instead of the screen's 16 dp (owner decision, 14 Nov:
+/* On a phone the text's box (bar and body) is 354 dp wide at 375 px (352 inside its 1 dp edges), 10.5 dp from each edge instead of the screen's 16 dp (owner decision, 14 Nov:
    eight 44 dp icons fit). A deviation from M3's 16 dp margin (docs/material-deviations.md). */
 @media (width < theme(--breakpoint-medium)) {
   .editor-text-box {
-    margin-inline: -0.28125rem;
+    margin-inline: -0.34375rem;
   }
 }
 

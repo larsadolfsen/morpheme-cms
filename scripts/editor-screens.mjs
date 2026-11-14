@@ -598,7 +598,7 @@ function menuIconProblems(page) {
   });
 }
 
-/** The text's one bar (docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md, PR 1). On a phone, with the cursor in text: one bar, 44 dp tall, every button 44 x 44 dp, never scrolling, no divider, the text tools at the left (Bold, Italic, Text style, List: as many as fit beside the right group) and Undo, Redo, Insert block and the ⋮ at the right end (352 dp wide at 375 px: Lists is 2 dp short and is in the ⋮, which reads List rows, Alignment, Link, Color); the ⋮ is a pop-up menu (not a sheet) inside the visible screen, with rows of 44 dp, which keeps the cursor and closes on Escape; Undo works; the bar has the same height idle; the Text style menu has at most 8 rows of 44 dp, a page's first heading offers Main heading, a blog post Heading and Subheading, a list item no heading rows and no Quote, a heading no list rows and no Quote. On a computer all tools are on the bar and there is no ⋮. */
+/** The text's one bar (docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md, PR 1). On a phone, with the cursor in text: one bar, 44 dp tall, every button 44 x 44 dp, never scrolling, no divider, the text tools at the left (Bold, Italic, Text style, List: as many as fit beside the right group) and Undo, Redo, Insert block and the ⋮ at the right end (354 dp wide at 375 px, 352 inside: all four text tools on the bar and the ⋮ reads Alignment, Link, Color; at 360 px Lists is the first row in the ⋮); the ⋮ is a pop-up menu (not a sheet) inside the visible screen, with rows of 44 dp, which keeps the cursor and closes on Escape; Undo works; the bar has the same height idle; the Text style menu has at most 8 rows of 44 dp, a page's first heading offers Main heading, a blog post Heading and Subheading, a list item no heading rows and no Quote, a heading no list rows and no Quote. On a computer all tools are on the bar and there is no ⋮. */
 async function checkTextBar(width = 360) {
   const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
   const label = `${width}px text bar`;
@@ -638,8 +638,10 @@ async function checkTextBar(width = 360) {
   const inText = await readBar();
   const ended = rightEndProblem(inText.names, inText.lastRight, inText.barRight - 1, inText.divider);
   if (ended) problems.push(`${label}: ${ended}`);
-  // The bar is 352 dp wide at 375 px (11.5 dp from each edge), the page's margin less 4.5 dp each side, at every phone width.
-  if (width === 375 && Math.abs(inText.outer - 352) > 0.6) problems.push(`${label}: the bar is ${inText.outer} px wide, not 352`);
+  // The bar is 354 dp wide at 375 px (352 inside its 1 dp edges, 10.5 dp from each edge), the page's margin less 5.5 dp each side, at every phone width.
+  if (width === 375 && inText.barWidth !== 352) problems.push(`${label}: the bar is ${inText.barWidth} px inside its edges, not 352`);
+  if (width === 375 && Math.abs(inText.outer - 354) > 0.6)
+    problems.push(`${label}: the bar is ${inText.outer} px wide, not 354 (352 inside)`);
   const slots = Math.floor(inText.barWidth / 44);
   if (inText.height < 44 || inText.height > 46)
     problems.push(`${label}: the bar is ${inText.height} px tall, not 44 (plus its 1 px edges)`);
@@ -680,7 +682,7 @@ async function checkTextBar(width = 360) {
     problems.push(`${label}: Insert block is not right before the ⋮ (${inText.names.join(', ')})`);
   {
     // The text tools stand at the left in the owner's order (Bold, Italic, Text style, List), as many as fit beside Undo, Redo, Insert block and the ⋮ (176 dp);
-    // the last one that does not fit is in the ⋮ (at 375 px, 2 dp short: Lists).
+    // the last one that does not fit is in the ⋮ (at 360 px: Lists).
     const fit = Math.max(0, Math.min(4, Math.floor((inText.barWidth - 176) / 44)));
     const got = inText.names.slice(0, -4).map((n) => n.split(':')[0]);
     const want = ['Bold', 'Italic', 'Text style', 'List'].slice(0, fit);

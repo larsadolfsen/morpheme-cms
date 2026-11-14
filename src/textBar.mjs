@@ -1,5 +1,5 @@
 // The text's one bar (MarkdownEditor.tsx, docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md): which tools stand on the bar and
-// which are in its `⋮` menu, from the bar's own width (the box's: 352 dp on a 375 px phone, 14 Nov owner decision). The bar has no divider. The
+// which are in its `⋮` menu, from the bar's own width (the box's inside: 352 dp on a 375 px phone, 354 outer with its 1 dp edges, 14 Nov owner decision). The bar has no divider. The
 // tools of the place (text, table, block) stand at the left; Undo, Redo and Insert block always stand at the right end, in that order, then the
 // `⋮` when something is in it. Every button, one with an arrow too (Text style, Lists), is 44 dp wide. The bar never scrolls
 // and uses no timer. Exposes BUTTON, planBar(...). No browser.

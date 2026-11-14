@@ -137,10 +137,10 @@ Read 14 Nov 2026 on m3.material.io (Playwright, page text): `/components/dialogs
 
 Source: `src/editor.css` (`.editor-text-box`), `src/textBar.mjs`, `src/MarkdownEditor.tsx`. The bar is the editor workspace, so a deviation is allowed.
 
-### The text's box is 11.5 dp from the screen's edges on a phone
+### The text's box is 10.5 dp from the screen's edges on a phone
 
 - **Material:** M3 prints 16 dp margins on a phone (as the PM gave it; this entry did not re-read the m3.material.io page).
-- **We do:** the text's box, with its bar, is 4.5 dp wider on each side below the medium breakpoint: 352 dp at 375 px, 11.5 dp from each edge.
+- **We do:** the text's box, with its bar, is 5.5 dp wider on each side below the medium breakpoint: 354 dp outer at 375 px (352 dp inside its 1 dp edges), 10.5 dp from each edge.
 - **Why:** owner decision, 14 Nov 2026: eight 44 dp icons (four text tools, Undo, Redo, Insert block and the ⋮) fit on the bar.
 - **Date:** 2026-11-14. **PR:** the pull request that adds this entry (text bar order).
 

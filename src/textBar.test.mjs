@@ -5,19 +5,17 @@ import { planBar } from './textBar.mjs';
 const TEXT = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color'];
 const FIXED = ['undo', 'redo', 'insert'];
 
-test('at 375 px (the bar is 350 dp inside its edges) in text: Bold, Italic, Text style, then Undo, Redo, Insert block and the ⋮; the rest is in the ⋮ in the owner order', () => {
-  const plan = planBar({ width: 350, context: TEXT, fixed: FIXED });
-  assert.deepEqual(plan.bar, { context: ['bold', 'italic', 'style'], fixed: FIXED });
-  assert.deepEqual(plan.more, { context: ['list', 'align', 'link', 'color'], fixed: [] });
+test('at 375 px (the bar is 352 dp inside its edges) in text: Bold, Italic, Text style, Lists, then Undo, Redo, Insert block and the ⋮; Alignment, Link, Color are in the ⋮ in the owner order', () => {
+  const plan = planBar({ width: 352, context: TEXT, fixed: FIXED });
+  assert.deepEqual(plan.bar, { context: ['bold', 'italic', 'style', 'list'], fixed: FIXED });
+  assert.deepEqual(plan.more, { context: ['align', 'link', 'color'], fixed: [] });
   assert.equal(plan.overflow, true);
-  // Lists is 2 dp short: four tools, the three fixed ones and the ⋮ are 352 dp.
-  assert.equal(plan.short, 2);
 });
 
-test('with 352 dp inside, Bold, Italic, Text style and Lists stand on the bar; Alignment, Link, Color are in the ⋮ in that order', () => {
-  const plan = planBar({ width: 352, context: TEXT, fixed: FIXED });
-  assert.deepEqual(plan.bar.context, ['bold', 'italic', 'style', 'list']);
-  assert.deepEqual(plan.more.context, ['align', 'link', 'color']);
+test('at 360 px (335 dp inside) Lists is the first tool in the ⋮, before Alignment, Link, Color', () => {
+  const plan = planBar({ width: 335, context: TEXT, fixed: FIXED });
+  assert.deepEqual(plan.bar.context, ['bold', 'italic', 'style']);
+  assert.deepEqual(plan.more.context, ['list', 'align', 'link', 'color']);
 });
 
 test('Insert block is never in the ⋮: on a narrow bar the text tools give way first, then Redo, then Undo', () => {
@@ -41,7 +39,7 @@ test('on a wide bar everything fits and there is no ⋮', () => {
 });
 
 test('idle: only the fixed tools, no ⋮, and the order never skips a tool that does not fit', () => {
-  const plan = planBar({ width: 350, context: [], fixed: FIXED });
+  const plan = planBar({ width: 352, context: [], fixed: FIXED });
   assert.deepEqual(plan.bar.fixed, FIXED);
   assert.equal(plan.overflow, false);
   const gap = planBar({ width: 300, context: ['a', 'b', 'c', 'd'], fixed: FIXED });
@@ -53,7 +51,7 @@ test('Section settings (or a block menu) keeps the ⋮ on the bar even when ever
   const plan = planBar({ width: 1200, context: TEXT, fixed: FIXED, more: true });
   assert.equal(plan.overflow, true);
   assert.deepEqual(plan.more, { context: [], fixed: [] });
-  const tight = planBar({ width: 350, context: ['above', 'below', 'up', 'down', 'link', 'gear'], fixed: FIXED, more: true });
-  assert.deepEqual(tight.bar.context, ['above', 'below', 'up']);
-  assert.deepEqual(tight.more.context, ['down', 'link', 'gear']);
+  const tight = planBar({ width: 352, context: ['above', 'below', 'up', 'down', 'link', 'gear'], fixed: FIXED, more: true });
+  assert.deepEqual(tight.bar.context, ['above', 'below', 'up', 'down']);
+  assert.deepEqual(tight.more.context, ['link', 'gear']);
 });
