@@ -89,6 +89,7 @@ export default function InlineCards({ items, props, data, active, focus, onChang
         start={3}
         add={t.blocks.cards.addCard}
         onChange={onChange}
+        paste="text"
         wrap={(list) => <ul className={['block-cards', 'inline-cards', colored].filter(Boolean).join(' ')}>{list}</ul>}
         renderItem={({ item, index: i, here, next, field }) => {
           const card = cards[i];

@@ -37,6 +37,8 @@ export type BlockBarState = {
 };
 
 let current: { owner: object; state: BlockBarState } | null = null;
+// The block a mouse points at (blockRow.ts draws its action row over its top while it is not the active block): a block tells its row on pointerenter.
+let pointed: { owner: object; row: BlockRow } | null = null;
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((listener) => listener());
 
@@ -50,6 +52,19 @@ export const blockBar = {
   /** The block `owner` is active with these tools. */
   show(owner: object, state: BlockBarState) {
     current = { owner, state };
+    emit();
+  },
+  /** The row of the block a mouse points at, or null. */
+  pointed: (): BlockRow | null => pointed?.row ?? null,
+  /** A mouse points at the block `owner`, whose row is `row`. */
+  point(owner: object, row: BlockRow) {
+    pointed = { owner, row };
+    emit();
+  },
+  /** The mouse left the block `owner` (not when it has moved to another block). */
+  unpoint(owner: object) {
+    if (pointed?.owner !== owner) return;
+    pointed = null;
     emit();
   },
   /** The block `owner` is no longer active (not when another block has become the active one). */
