@@ -4416,7 +4416,7 @@ async function checkSettingsAndMenu(width, height) {
   )
     problems.push(`${label} #settings: forkerte links: ${names}`);
 
-  // Icon packs: the three system packs (Material Symbols, Phosphor, Lucide) are listed, each with its samples, and one is in use.
+  // Icon packs: the three system packs (Material Symbols, Phosphor, Lucide) are listed, each with its samples (the Phosphor row has its name only: no Phosphor icon is drawn in the editor), and one is in use.
   // A site takes the package from node_modules, where a glob that skips it leaves the list empty.
   await go('appearance/icon-packs');
   await page.waitForTimeout(150);
@@ -4426,7 +4426,11 @@ async function checkSettingsAndMenu(width, height) {
       .filter((el, i, all) => all.indexOf(el) === i)
       .map((el) => ({ label: el.getAttribute('aria-label'), icons: el.querySelectorAll('svg').length })),
   );
-  const packNames = ['Material Symbols', 'Phosphor', 'Lucide'];
+  const packNames = ['Material Symbols', 'Lucide'];
+  const listed = await page.evaluate(() => document.querySelector('main')?.innerText ?? '');
+  if (!listed.includes('Phosphor')) problems.push(`${label} #appearance/icon-packs: the system pack Phosphor is not listed`);
+  if (packs.some((p) => p.label === daLibrary.iconPackSamples('Phosphor')))
+    problems.push(`${label} #appearance/icon-packs: the Phosphor row shows sample icons, but no Phosphor icon is drawn in the editor`);
   for (const name of packNames) {
     const found = packs.find((p) => p.label === daLibrary.iconPackSamples(name));
     if (!found) problems.push(`${label} #appearance/icon-packs: the system pack ${name} is not listed (${packs.length} packs listed)`);
