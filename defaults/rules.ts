@@ -146,7 +146,7 @@ function openersOf(slug: string, files: { path: string; text: string }[]): Opene
   const found: Opener[] = [];
   for (const f of files) {
     if (f.path.startsWith(`${config.folders.pages}/`) && f.path.endsWith('.md')) {
-      // Also a "Buttons" block in a block's text (a "Banner"'s), where its quotes are written as &quot;.
+      // Also a "Buttons" block in a block's text , where its quotes are written as &quot;.
       if (!/data-block=(?:"|\\&quot;)buttons/.test(f.text)) continue;
       const d = fm(f as RepoFile);
       if (

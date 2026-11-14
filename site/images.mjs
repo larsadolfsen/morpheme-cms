@@ -161,7 +161,7 @@ export function samePicture(a, b) {
 
 const IMAGE = /!\[[^\]]*\]\(([^)\s]+)\)/g;
 
-// The images in the text itself, not those in the text of a block in it (a "Banner"'s, on its line of HTML).
+// The images in the text itself, not those in the text of a block in it (on its line of HTML).
 const imagesIn = (body) => [...body.replace(/^<div data-block=.*$/gm, '').matchAll(IMAGE)].map((m) => m[1]);
 
 /** The featured image, unless the text already shows the same image (then undefined). */
@@ -179,8 +179,7 @@ const PHOTO = /\/images\/uploads\/[^\s"'()\\#&;]+\.(?:webp|jpe?g|png|avif)/gi;
 // Smaller than this on both sides, an image is an icon or a logo, not an image of the page.
 const SMALL = 300;
 
-/** The page's real images, in the order they are on it: in its text and in its blocks (a "Hero"'s, a
- * "Cards"'s …); photos only (no SVG or GIF), and none smaller than an icon. Each image once. */
+/** The page's real images, in the order they are on it: in its text and in its blocks (a "Cards"'s …); photos only (no SVG or GIF), and none smaller than an icon. Each image once. */
 export function picturesOf(body = '') {
   const text = body.replace(/&quot;/g, '"').replace(/&amp;/g, '&');
   const found = [...new Set(text.match(PHOTO) ?? [])];
