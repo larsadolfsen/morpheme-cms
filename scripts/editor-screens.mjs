@@ -441,9 +441,20 @@ async function checkChoiceGroupFields(width, locale) {
     await page.waitForTimeout(800);
     // A tap on a block that is not typed in place opens its sheet at once on a phone (the sheet is a moment in coming); otherwise Block settings in the active block's
     // row, or in the row of the block pointed at.
-    await sheet()
-      .waitFor({ timeout: 1500 })
-      .catch(() => {});
+    // A slow runner draws a block's sheet late (its fields come after it): wait for the choice group in it, then try the tap once more.
+    const opened = () =>
+      sheet()
+        .waitFor({ timeout: 6000 })
+        .then(
+          () => true,
+          () => false,
+        );
+    let isOpen = await opened();
+    if (!isOpen && touch && !(await rowButton(page, say.block).count())) {
+      await card.tap({ timeout: 5000 }).catch(() => {});
+      await page.waitForTimeout(800);
+      isOpen = await opened();
+    }
     if (!(await sheet().count())) {
       const active = rowButton(page, say.block);
       let button = (await active.count()) ? active : page.locator(`.site-block-row [data-row][aria-label="${say.block}"]:visible`);
