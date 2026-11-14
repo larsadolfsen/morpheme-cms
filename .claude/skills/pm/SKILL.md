@@ -43,6 +43,22 @@ owner has to do or decide, such as approving a `next` build on npmjs.com and whi
 merge to `main` stages a new `next` build that only the owner approves. A pull request the owner has to see is assigned
 to the owner; the owner does not see the rest.
 
+**Screenshots of new UI.** The owner approves every change they can see (the editor or the site) from screenshots
+before it is released, because a Preview cannot show the editor (no sign-in). After each merge that changes what the
+owner sees, the PM starts a session titled `<version> screenshots: <what changed>` (merges that land close together
+share one). Its first prompt lists the pull requests and the screens and states they change, and tells it to:
+
+- build the line's branch as merged (`npm run build`; `openEditor` and `serveBuilt` in `scripts/built-site.mjs` open
+  the editor without a login), and the version on `latest` the same way for the screens that existed before;
+- take each changed screen in English, light theme, at phone and computer width, in every state the change touched
+  (open menu, error, empty, selected), at `deviceScaleFactor: 2`, the old screen next to the new one where it existed;
+- publish them as one private Artifact page (`<version> UI review: <what changed>`): per pull request its link, one
+  line on what changed, then the screenshots; return the page's link and change nothing in any repository.
+
+The PM sends the owner that link (one report as in **Reports**) and keeps the review on its list until the owner
+answers. Approved: the item is done. Not approved: the PM starts a session that makes the owner's change as a normal
+pull request, and its merge gets new screenshots. A change nobody sees (docs, tests, CI, Worker internals) needs none.
+
 **Cloudflare builds.** The PM keeps an eye out for failed Cloudflare builds: the `Workers Builds: …` check on every
 pull request and on `main` (the demo, `morpheme-demo`), and the builds of `morpheme-staging` and of the sites that
 install the `next` version. A failed build is never left unmentioned. The PM reads the build log, finds the cause and
@@ -80,8 +96,10 @@ it has no open question for the owner and no unmerged branch. Never merge the Re
 
 ## Phase 4 - Plan the release
 
-When the line looks ready, say so and say what the Release PR will contain: the changesets, the release notes, and the
-peer bumps, checked as Phase 1 of the `release` skill does. Then wait. Only the owner releases, with `/release` and an
+The line is ready only when the owner has approved the screenshots of every change they can see since the last
+release (**Screenshots of new UI**); until then, name the reviews still waiting and send their links again. When the
+line looks ready, say so and say what the Release PR will contain: the changesets, the release notes, the peer bumps,
+checked as Phase 1 of the `release` skill does, and that every UI change is approved. Then wait. Only the owner releases, with `/release` and an
 explicit yes. The PM takes no step towards a release before that; what it does after the owner's yes is Phase 5.
 
 ## Phase 5 - While the owner releases
@@ -139,3 +157,9 @@ Example:
 > - **Why:** five editor fixes are merged, among them the text bar order and block selection.
 > - **How:** approve it with 2FA; the staging site installs it within a few minutes.
 > - **What:** you try the fixes on a real site before Sara's site gets them.
+
+> **Approve the new text bar** ([UI review](https://claude.ai/code/artifact/…))
+>
+> - **Why:** the text bar now cross-fades between its two sets of tools, and it reaches every site with 0.17.0.
+> - **How:** look at the screenshots, before and after, on a phone and a computer, and answer approve or what to change.
+> - **What:** nothing you have not seen goes out in the release.
