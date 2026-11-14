@@ -1502,6 +1502,87 @@ async function checkRedirectsSelection() {
   }
 }
 
+/** A long press and drag across rows (useLongPress onDrag, useSelection drag): at 375 with real touch events, a finger held for the long press
+ * and dragged over more rows selects each row it passes without the page scrolling under it, held near the bottom of the screen it scrolls the
+ * list by itself and goes on selecting, and a finger that moves before the hold scrolls the page and selects nothing. A mouse drag selects
+ * nothing. */
+async function checkDragSelect() {
+  const label = 'drag select 375';
+  const page = await browser.newPage({ viewport: { width: 375, height: 560 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#list/pages'));
+  await page.waitForSelector('main a.list-item-container');
+  await page.waitForTimeout(600);
+  const rows = page.locator('main a.list-item-container.list-item-selectable');
+  if ((await rows.count()) < 4) {
+    problems.push(`${label}: fewer than 4 selectable rows`);
+    await page.close();
+    return;
+  }
+  const cdp = await page.context().newCDPSession(page);
+  const send = (type, x, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] });
+  const scrollTop = () =>
+    page.evaluate(() => Math.round(document.scrollingElement.scrollTop + (document.querySelector('main')?.scrollTop ?? 0)));
+  const checked = () => page.locator('main [role=checkbox][aria-checked=true]').count();
+  const centre = async (i) => {
+    const b = await rows.nth(i).boundingBox();
+    return [b.x + b.width / 2, b.y + b.height / 2];
+  };
+  const at0 = await scrollTop();
+  const [x0, y0] = await centre(0);
+  // A swipe at once scrolls the page and selects nothing.
+  await send('touchStart', x0, y0 + 200);
+  for (let i = 1; i <= 8; i++) {
+    await send('touchMove', x0, y0 + 200 - i * 20);
+    await page.waitForTimeout(30);
+  }
+  await send('touchEnd');
+  await page.waitForTimeout(400);
+  if (await checked()) problems.push(`${label}: a swipe selected a row`);
+  const scrollable = (await scrollTop()) > at0;
+  if (!scrollable) problems.push(`${label}: a swipe no longer scrolls the page (or the list is too short to check)`);
+  await page.evaluate(() => {
+    document.scrollingElement.scrollTop = 0;
+    document.querySelector('main')?.scrollTo?.(0, 0);
+  });
+  await page.waitForTimeout(300);
+  // Hold, then drag over the next two rows.
+  const [x1, y1] = await centre(0);
+  const [, y2] = await centre(2);
+  const before = await scrollTop();
+  await send('touchStart', x1, y1);
+  await page.waitForTimeout(650);
+  for (let i = 1; i <= 10; i++) {
+    await send('touchMove', x1, y1 + ((y2 - y1) * i) / 10);
+    await page.waitForTimeout(40);
+  }
+  const mid = await checked();
+  await send('touchEnd');
+  await page.waitForTimeout(300);
+  if (mid !== 3) problems.push(`${label}: a long press and drag over 3 rows selected ${mid}`);
+  if ((await scrollTop()) !== before) problems.push(`${label}: the page scrolled under the finger during the drag`);
+  await page.getByRole('button', { name: 'Close selection' }).click();
+  await page.waitForTimeout(300);
+  // Held near the bottom edge: the list scrolls by itself and goes on selecting.
+  const [x3, y3] = await centre(0);
+  await send('touchStart', x3, y3);
+  await page.waitForTimeout(650);
+  const edge = 560 - 12;
+  for (let i = 1; i <= 8; i++) {
+    await send('touchMove', x3, y3 + ((edge - y3) * i) / 8);
+    await page.waitForTimeout(30);
+  }
+  await page.waitForTimeout(1200);
+  const scrolled = (await scrollTop()) > before + 50;
+  const many = await checked();
+  await send('touchEnd');
+  await page.waitForTimeout(300);
+  if (!scrolled) problems.push(`${label}: held near the bottom edge the list did not scroll by itself`);
+  if (many < 5) problems.push(`${label}: scrolling by itself did not go on selecting (${many} rows)`);
+  await page.close();
+}
+
 /** The selection checkbox of a list row (theme ListItem): hover shows one box, all show once one is selected, a touch shows none
  * before that; 48 x 48; a tap on what leads the row selects it (touch); the selected row has the selected surface and corner. */
 async function checkSelectionBox() {
@@ -5720,6 +5801,7 @@ await unit('checkSelection', () => checkSelection());
 await unit('checkSelectionBox', () => checkSelectionBox());
 await unit('checkFilesSelection', () => checkFilesSelection());
 await unit('checkRedirectsSelection', () => checkRedirectsSelection());
+await unit('checkDragSelect', () => checkDragSelect());
 await unit('checkUnlistedPost', () => checkUnlistedPost());
 for (const [width, height] of [
   [375, 740],

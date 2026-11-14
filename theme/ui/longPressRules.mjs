@@ -16,3 +16,12 @@ export function clickAfter(fired, tapToo) {
   if (fired) return 'swallow';
   return tapToo ? 'select' : 'pass';
 }
+
+/** How far a list scrolls in one frame while a finger held after a long press stays near its top or bottom edge: negative up, positive
+ * down, 0 away from the edges. Within `edge` pixels of an edge the speed grows from 0 to `max` the closer the finger is to it (and
+ * stays `max` beyond it). */
+export function edgeScroll(y, top, bottom, edge = 72, max = 16) {
+  if (y < top + edge) return -Math.min(max, (Math.max(0, top + edge - y) / edge) * max);
+  if (y > bottom - edge) return Math.min(max, (Math.max(0, y - (bottom - edge)) / edge) * max);
+  return 0;
+}
