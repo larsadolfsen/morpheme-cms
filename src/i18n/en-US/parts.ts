@@ -28,6 +28,8 @@ export const parts = {
     choiceTile: 'One of many icons to tap, in a grid.',
     group:
       'Rows in a frame under a small heading: the start screen and the lists. The icon looks the same everywhere: gray, and in the primary color for the open part in the menu. A small image or a sample of one of the theme’s values can stand before the name instead. A number may stand at the right. A row can also do something, in the primary color; delete, in the middle; or only be shown, with no color under the mouse and perhaps gray.',
+    selectRow:
+      'A row that can be selected: press and hold it, or tap its icon or image, and then tap more rows. A box for the choice stands at the right of a row with an icon or image, and at the left of a row with only text. With a mouse the box shows on the row you point at, and on every row once one is selected. A selected row has the selected color and rounder corners.',
     checkList:
       'Things that were checked: a score from 0 to 100 in a ring, a red triangle by what could be better (which folds out with how), and a green dot by what is fine.',
     scoreRing:

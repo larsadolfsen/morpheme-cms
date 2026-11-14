@@ -803,6 +803,205 @@ async function checkSelection() {
   }
 }
 
+/** The selection checkbox of a list row (theme ListItem): hover shows one box, all show once one is selected, a touch shows none
+ * before that; 48 x 48; a tap on what leads the row selects it (touch); the selected row has the selected surface and corner. */
+async function checkSelectionBox() {
+  const seed = () =>
+    localStorage.setItem(
+      'editor-notifications',
+      JSON.stringify({
+        items: [3, 2, 1].map((k) => ({ text: `Box check ${k}`, type: 'saved', at: Date.now() - k * 60000 })),
+        seen: 0,
+        told: [],
+      }),
+    );
+  const visible = (page) =>
+    page.evaluate(
+      () =>
+        [...document.querySelectorAll('main .list-item-select-box')].filter((b) => {
+          const r = b.getBoundingClientRect();
+          return getComputedStyle(b).display !== 'none' && getComputedStyle(b).visibility !== 'hidden' && r.width > 0;
+        }).length,
+    );
+  for (const w of [375, 1280]) {
+    const touch = w < 600;
+    const label = `selection box ${w}`;
+    const page = await browser.newPage({ viewport: { width: w, height: 800 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await page.addInitScript(seed);
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#list/pages'));
+    await page.waitForSelector('main a.list-item-container');
+    await page.waitForTimeout(500);
+    const rows = page.locator('main a.list-item-container.list-item-selectable');
+    const n = await rows.count();
+    if (n < 3) {
+      problems.push(`${label}: fewer than 3 selectable rows (${n})`);
+      await page.close();
+      continue;
+    }
+    const hash = () => page.evaluate(() => location.hash);
+    const here = await hash();
+    const rowOf = async (i) => {
+      await rows.nth(i).scrollIntoViewIfNeeded();
+      return rows.nth(i).boundingBox();
+    };
+    if (await visible(page)) problems.push(`${label}: a selection box shows before anything is pointed at or selected`);
+    // Each row with something leading it has its box after the text; each text-only row, before it.
+    const slots = await page.evaluate(() =>
+      [...document.querySelectorAll('main .list-item-selectable')].every((r) => {
+        const box = r.querySelector(':scope > .list-item-select-box');
+        const lead = r.querySelector(':scope > .list-item-leading');
+        if (!box) return false;
+        return lead ? box.classList.contains('list-item-select-box-trailing') : box.classList.contains('list-item-select-box-leading');
+      }),
+    );
+    if (!slots)
+      problems.push(`${label}: a row's selection box is not in the slot Material prints (trailing with a leading visual, else leading)`);
+    const hasLead = (await rows.nth(1).locator(':scope > .list-item-leading').count()) > 0;
+    const leadHtml = () =>
+      hasLead
+        ? rows
+            .nth(1)
+            .locator(':scope > .list-item-leading')
+            .evaluate((e) => e.outerHTML)
+        : '';
+    const leadBefore = await leadHtml();
+    if (touch) {
+      await rows.nth(1).scrollIntoViewIfNeeded();
+      const rb = await rows.nth(1).boundingBox();
+      if (hasLead) {
+        // A tap on what leads a row starts selecting and opens nothing; its target is at least 48 x 48.
+        const lb = await rows.nth(1).locator(':scope > .list-item-leading').boundingBox();
+        const cx = lb.x + lb.width / 2;
+        const cy = lb.y + lb.height / 2;
+        const reach = await page.evaluate(
+          ([x, y]) => {
+            const hit = (dx, dy) => !!document.elementFromPoint(x + dx, y + dy)?.closest('.list-item-leading');
+            return hit(-23, -23) && hit(23, -23) && hit(-23, 23) && hit(23, 23);
+          },
+          [cx, cy],
+        );
+        if (!reach) problems.push(`${label}: what leads a row is not a 48 x 48 target`);
+        await page.touchscreen.tap(cx, cy);
+      } else {
+        // A text-only row has nothing to tap: the press and hold selects it.
+        const cdp = await page.context().newCDPSession(page);
+        const x = rb.x + rb.width / 2;
+        const y = rb.y + rb.height / 2;
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+        await page.waitForTimeout(800);
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      }
+      await page.waitForTimeout(300);
+      if ((await hash()) !== here) problems.push(`${label}: starting to select a row opened it`);
+      if ((await rows.nth(1).getAttribute('aria-checked')) !== 'true')
+        problems.push(`${label}: starting to select does not select the row`);
+    } else {
+      const b = await rowOf(1);
+      await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
+      await page.waitForTimeout(250);
+      if ((await visible(page)) !== 1) problems.push(`${label}: pointing at a row shows ${await visible(page)} boxes, not one`);
+      const box = rows.nth(1).locator(':scope > .list-item-select-box');
+      const bb = await box.boundingBox();
+      if (!bb || bb.width < 47.9 || bb.height < 47.9) problems.push(`${label}: the box is smaller than 48 px (${bb?.width}x${bb?.height})`);
+      await box.click();
+      await page.waitForTimeout(300);
+      if ((await hash()) !== here) problems.push(`${label}: a click on the box opened the row`);
+      if ((await rows.nth(1).getAttribute('aria-checked')) !== 'true')
+        problems.push(`${label}: a click on the box does not select the row`);
+    }
+    // Once one is selected every row shows its box, 48 x 48, and the selected row has the surface, the 16 px corner and a checked box.
+    if (!touch) await page.mouse.move(0, 0);
+    await page.waitForTimeout(250);
+    if ((await visible(page)) !== n) problems.push(`${label}: after one is selected ${await visible(page)} of ${n} rows show their box`);
+    const small = await page.evaluate(
+      () =>
+        [...document.querySelectorAll('main .list-item-select-box')].filter((b) => {
+          const r = b.getBoundingClientRect();
+          return r.width < 47.9 || r.height < 47.9;
+        }).length,
+    );
+    if (small) problems.push(`${label}: ${small} selection boxes are smaller than 48 x 48`);
+    // The surface and the corner change with the theme's motion: measured when it has finished.
+    await page.waitForTimeout(900);
+    const look = await rows.nth(1).evaluate((r) => {
+      // The surface and the corner are the row's own, or its <li>'s in a segmented list.
+      const own = r.closest('.list-segmented > li') ?? r;
+      const segmented = own !== r;
+      const probe = document.createElement('div');
+      probe.style.background = segmented
+        ? 'var(--list-segmented-selected-surface, var(--mo-secondary-container))'
+        : 'var(--list-item-selected-surface)';
+      probe.style.borderRadius = segmented ? 'var(--list-segmented-selected-radius)' : 'var(--list-item-selected-radius)';
+      own.appendChild(probe);
+      const want = getComputedStyle(probe);
+      const s = getComputedStyle(own);
+      const out = {
+        background: s.backgroundColor === want.backgroundColor,
+        radius: parseFloat(s.borderTopLeftRadius),
+        wantRadius: parseFloat(want.borderTopLeftRadius),
+        checked: !!r.querySelector('.list-item-select-box .checkbox-input[data-checked]'),
+      };
+      probe.remove();
+      return out;
+    });
+    if (!look.background) problems.push(`${label}: a selected row does not have the theme's selected surface`);
+    if (look.radius < 16 || look.radius !== look.wantRadius)
+      problems.push(`${label}: a selected row's corner is ${look.radius}px, not the 16px of the selected corner token`);
+    if (!look.checked) problems.push(`${label}: a selected row's box is not checked`);
+    const leadAfter = await leadHtml();
+    if (leadAfter !== leadBefore) problems.push(`${label}: what leads a row changed when it was selected`);
+    // A click on a row while selecting toggles it, and opens nothing.
+    const b2 = await rowOf(2);
+    if (touch) await page.touchscreen.tap(b2.x + b2.width / 2, b2.y + b2.height / 2);
+    else await page.mouse.click(b2.x + b2.width / 2, b2.y + b2.height / 2);
+    await page.waitForTimeout(250);
+    if ((await hash()) !== here) problems.push(`${label}: a click on a row while selecting opened it`);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+    if (overflow) problems.push(`${label}: the page scrolls sideways while selecting`);
+    await page.keyboard.press('Escape');
+    // A row with an icon (the notifications): the box trailing; a tap on the icon starts selecting (touch); one box on hover.
+    await page.evaluate(() => (location.hash = '#'));
+    await page
+      .getByRole('button', { name: /^Notifications/ })
+      .first()
+      .click();
+    const sheet = page.getByRole('dialog', { name: 'Notifications' });
+    await sheet.waitFor();
+    await page.waitForTimeout(600);
+    const items = sheet.locator('.list-item-selectable', { hasText: /Box check/ });
+    if ((await items.count()) !== 3) {
+      problems.push(`${label}: the notifications sheet does not show the three seeded notifications`);
+    } else {
+      const first = items.nth(0);
+      if (
+        !(await first.locator(':scope > .list-item-leading').count()) ||
+        !(await first.locator(':scope > .list-item-select-box-trailing').count())
+      )
+        problems.push(`${label}: a notification has no trailing box after its icon`);
+      const b = await first.boundingBox();
+      if (touch) {
+        const lb = await first.locator(':scope > .list-item-leading').boundingBox();
+        await page.touchscreen.tap(lb.x + lb.width / 2, lb.y + lb.height / 2);
+        await page.waitForTimeout(300);
+        if ((await first.getAttribute('aria-checked')) !== 'true')
+          problems.push(`${label}: a tap on a notification's icon does not select it`);
+      } else {
+        await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
+        await page.waitForTimeout(250);
+        const shown = await sheet
+          .locator('.list-item-select-box')
+          .evaluateAll(
+            (all) => all.filter((e) => getComputedStyle(e).display !== 'none' && getComputedStyle(e).visibility !== 'hidden').length,
+          );
+        if (shown !== 1) problems.push(`${label}: pointing at a notification shows ${shown} boxes, not one`);
+      }
+    }
+    await page.close();
+  }
+}
+
 /** Density on "Account": Large, Medium and Small set data-density on <html> and are kept on the account (PUT /api/settings) and in this browser (editor-density), the head script sets it again before the page is drawn, and the account's step replaces the browser's copy. */
 async function checkDensitySetting(width, height) {
   const sent = [];
@@ -843,6 +1042,84 @@ async function checkDensitySetting(width, height) {
   await page.waitForFunction(() => document.documentElement.dataset.density === '1', null, { timeout: 10000 }).catch(() => {});
   if ((await attribute()) !== '1' || (await stored()) !== 'large')
     problems.push(`${width}px density setting: the account's Large did not replace the copy (${await attribute()}, ${await stored()})`);
+  await page.close();
+}
+
+/** The parts read density (theme/styles/ui.css): at Large, Medium and Small a button, a chip, a segmented button and a text field are 4 px taller or lower (the chip 2 px a side), a list row follows the data-heavy step, a target keeps its size (an invisible area of at least --mo-target, 48 on a phone and 44 on a computer), a part in the page editing area or in a row that picks the density does not change, and a menu stays at Medium. */
+async function checkDensityParts(width, height, touch) {
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px density parts: ${e.message}`));
+  await openEditor(page, site);
+  const parts = `
+    <button class="button" data-part="button">Label</button>
+    <button class="chip" data-part="chip">Label</button>
+    <div class="segmented-button"><button class="segmented-button-segment" data-part="segment">One</button><button class="segmented-button-segment">Two</button></div>
+    <div class="text-field text-field-outlined"><div class="text-field-container"><input class="text-field-input" data-part="field"></div></div>
+    <div class="list-item-container" data-part="row"><div class="list-item-content"><span class="list-item-headline">Row</span></div></div>
+    <div class="menu-item" data-part="menu-item">Item</div>`;
+  const measure = (attr) =>
+    page.evaluate(
+      ([attr, parts]) => {
+        const root = document.documentElement;
+        if (attr === null) root.removeAttribute('data-density');
+        else root.setAttribute('data-density', attr);
+        const host = document.createElement('div');
+        host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
+        host.innerHTML = `<div data-where="screen">${parts}</div><div class="editor-text"><div class="ProseMirror" data-where="content">${parts}</div></div><div data-density-fixed data-where="fixed">${parts}</div>`;
+        document.body.append(host);
+        const got = {};
+        for (const where of host.querySelectorAll('[data-where]'))
+          for (const part of where.querySelectorAll('[data-part]')) {
+            const box = part.getBoundingClientRect().height;
+            const after = parseFloat(getComputedStyle(part, '::after').height);
+            got[`${where.dataset.where}/${part.dataset.part}`] = [Math.round(box * 100) / 100, Number.isNaN(after) ? 0 : after];
+          }
+        got.target = parseFloat(getComputedStyle(root).getPropertyValue('--mo-target'));
+        host.remove();
+        root.removeAttribute('data-density');
+        return got;
+      },
+      [attr, parts],
+    );
+  const [large, medium, small] = [await measure('1'), await measure('0'), await measure('-1')];
+  const target = medium.target;
+  if (target !== (touch ? 48 : 44)) problems.push(`${width}px density parts: --mo-target is ${target}, not ${touch ? 48 : 44}`);
+  const expect = (what, ok) => ok || problems.push(`${width}px density parts: ${what}`);
+  for (const part of ['button', 'chip', 'segment', 'field']) {
+    const key = `screen/${part}`;
+    expect(
+      `${part} is ${large[key][0]} / ${medium[key][0]} / ${small[key][0]} px at Large / Medium / Small, not 4 px apart`,
+      large[key][0] - medium[key][0] === 4 && medium[key][0] - small[key][0] === 4,
+    );
+  }
+  // The row: a data-heavy part, 4 px a step, never below the target.
+  expect(
+    `a list row is ${large['screen/row'][0]} / ${medium['screen/row'][0]} / ${small['screen/row'][0]} px, not 4 px apart`,
+    large['screen/row'][0] - medium['screen/row'][0] === 4 && medium['screen/row'][0] - small['screen/row'][0] === 4,
+  );
+  expect(`a list row at Small is ${small['screen/row'][0]} px, below the target ${target}`, small['screen/row'][0] >= target);
+  // A target keeps its size: the part or its invisible area is at least --mo-target, at every step.
+  for (const [name, m] of [
+    ['Large', large],
+    ['Medium', medium],
+    ['Small', small],
+  ])
+    for (const part of ['button', 'chip', 'segment'])
+      expect(
+        `${part} at ${name} has a target of ${Math.max(...m[`screen/${part}`])} px, below ${target}`,
+        Math.max(...m[`screen/${part}`]) >= target,
+      );
+  // The page editing area and the rows that pick the density are drawn the same at every step; a menu stays at Medium.
+  for (const where of ['content', 'fixed'])
+    for (const part of ['button', 'chip', 'segment', 'field', 'row'])
+      expect(
+        `${part} in ${where} is ${large[`${where}/${part}`][0]} / ${medium[`${where}/${part}`][0]} / ${small[`${where}/${part}`][0]} px, not the same at every step`,
+        large[`${where}/${part}`][0] === medium[`${where}/${part}`][0] && medium[`${where}/${part}`][0] === small[`${where}/${part}`][0],
+      );
+  expect(
+    `a menu item changes with the step (${large['screen/menu-item'][0]} / ${medium['screen/menu-item'][0]} / ${small['screen/menu-item'][0]} px): it must not get denser than Medium`,
+    small['screen/menu-item'][0] === medium['screen/menu-item'][0],
+  );
   await page.close();
 }
 
@@ -4459,6 +4736,7 @@ for (const [width, height] of [
 await checkEmptyHint();
 await checkLongPressDelete();
 await checkSelection();
+await checkSelectionBox();
 await checkUnlistedPost();
 for (const [width, height] of [
   [375, 740],
@@ -4542,6 +4820,8 @@ await checkFooterTargets(1280, false);
 await checkToolbarBox();
 await checkDensity(375, 740);
 await checkDensity(1280, 900);
+await checkDensityParts(375, 740, true);
+await checkDensityParts(1280, 900, false);
 await checkDensitySetting(375, 740);
 await checkDensitySetting(1280, 900);
 await checkPreviewSection();

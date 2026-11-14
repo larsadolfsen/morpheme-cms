@@ -9,6 +9,8 @@ import { readFields, splitFrontmatter } from '../src/frontmatter.mjs';
 import { readingMinutes } from '../site/format';
 import { isUnlisted, stateOf } from '../lib/status.mjs';
 import { blockTexts } from '../site/site';
+import { dynamicProblems, type Dynamic } from '../lib/dynamic-colors';
+import { lowIconColors } from '../src/iconColor';
 import { config } from '@site/config';
 
 export type SitePage = { path: string; title: string; body: string };
@@ -45,6 +47,8 @@ export type SiteData = {
   installed: string[];
   /** The cookie list ("Cookies", config.cookieList). */
   cookies: StandardSiteData['cookies'];
+  /** The icon colors the site's colors give less than 3:1 on the page, so the icon color field does not offer them (iconColor.ts). */
+  lowIconColors: string[];
 };
 
 export type BlockTexts = typeof blockTexts;
@@ -125,5 +129,16 @@ export function siteOf(files: RepoFile[]): SiteData {
     blocks: Object.fromEntries(
       Object.entries(blockTexts).map(([block, texts]) => [block, { ...texts, ...(json(config.blockTexts)[block] ?? {}) }]),
     ) as BlockTexts,
+    lowIconColors: lowIconColors(dynamicOf(files)),
   };
+}
+
+// The choice the site's colors were made from, if the file has a readable one (a broken file is the Colors screen's to say).
+function dynamicOf(files: RepoFile[]): Dynamic | undefined {
+  try {
+    const dynamic = JSON.parse(files.find((f) => f.path === config.colors)?.text ?? '{}').dynamic;
+    return dynamic && !dynamicProblems(dynamic).length ? dynamic : undefined;
+  } catch {
+    return undefined;
+  }
 }

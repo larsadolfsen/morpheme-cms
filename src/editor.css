@@ -3,6 +3,23 @@
    (:where), so a theme's :root wins. */
 @reference '../theme/styles/base.css';
 
+/* Density (theme/styles/base.css) reaches the editor's own screens, not the page and post editing area: what is typed in place
+   there keeps the theme's own step (--mo-density-base) at every choice, as on the site, so a block is drawn as it will be. The
+   derived variables are computed where they are declared, so they are declared again here. */
+.editor-text .ProseMirror {
+  --mo-density-user: 0;
+  --mo-density: clamp(-3, var(--mo-density-base), 1);
+  --mo-density-layout: clamp(-1, var(--mo-density-base), 1);
+  --mo-density-focus: clamp(0, var(--mo-density-base), 1);
+}
+/* The rows that pick the density are always at the default size, so a person can always go back. */
+[data-density-fixed] {
+  --mo-density-user: 0;
+  --mo-density: 0;
+  --mo-density-layout: 0;
+  --mo-density-focus: 0;
+}
+
 :where(:root) {
   /* The menus and the toolbar of the text: Material 3's menu surface and shadow (elevation level 2). */
   --editor-menu-surface: var(--mo-surface-container-lowest);

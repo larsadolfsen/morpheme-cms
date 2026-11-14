@@ -78,6 +78,9 @@
   --mo-density: clamp(-3, calc(var(--mo-density-base) + var(--mo-density-user)), 1);
   --mo-density-layout: clamp(-1, calc(var(--mo-density-base) + var(--mo-density-user)), 1);
   --mo-density-focus: clamp(0, calc(var(--mo-density-base) + var(--mo-density-user)), 1);
+  /* The smallest target of something to tap or click (m3.material.io/foundations/designing/structure, "Target sizes" and "Pointer
+     targets"): 48 dp on touch, 44 dp for a mouse. Density shrinks the part, never its target (ui.css gives it a hit area). */
+  --mo-target: 44px;
 
   /* M3's full corner (a pill or a circle): the fallback for a theme that does not set the corner steps (global.css sets all ten). */
   --mo-shape-full: 9999px;
@@ -115,6 +118,12 @@
   --carousel-bleed: 1rem;
   /* The same for a chip set that scrolls (ui.css). */
   --chip-set-bleed: 1rem;
+}
+
+@media (pointer: coarse) {
+  :root {
+    --mo-target: 48px;
+  }
 }
 
 /* The editor's Density setting (Large, Medium, Small) as the person's step. A site never sets the attribute. A box that must not follow it

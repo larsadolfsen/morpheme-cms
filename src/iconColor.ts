@@ -3,6 +3,7 @@
 // (theme/styles/blocks.css, `data-icon-color`), so it follows the theme's colors in the editor, the Preview and on the site.
 import { t } from './i18n';
 import type { Field } from './schema';
+import { lowOnPage, type Dynamic } from '../lib/dynamic-colors';
 
 export const iconColors = ['secondary', 'tertiary'] as const;
 
@@ -21,4 +22,18 @@ export const iconColorField: Field = {
     { label: t.blocks.iconColor.tertiary, value: 'tertiary', swatch: 'var(--mo-tertiary)' },
   ],
   only: { field: 'icon', is: [''], not: true },
+  iconColor: true,
 };
+
+/** The icon colors that fall below 3:1 on the page (Surface, light and dark) with the site's colors, so they are not offered (M3,
+ * "Color contrast": graphics 3:1). Only Custom colors can: a harmony's Secondary and Tertiary are Material's tones. */
+export const lowIconColors = (dynamic: Dynamic | undefined): (typeof iconColors)[number][] =>
+  dynamic?.harmony === 'custom' ? iconColors.filter((c) => lowOnPage(dynamic, c)) : [];
+
+/** The field's options for the colors the site has: a low color is left out (`stored`: not offered, but shown while chosen, so a saved
+ * one keeps its color and is marked). `low` is the saved color when it is now below 3:1, for the warning in the field. */
+export function iconColorOptions(field: Field, low: readonly string[] | undefined, saved: string) {
+  const options = (field.options ?? []).map((o) => (low?.includes(o.value) ? { ...o, stored: true } : o));
+  const flagged = options.find((o) => o.value === saved && o.stored && low?.includes(saved));
+  return { options, low: flagged?.label };
+}
