@@ -1456,8 +1456,8 @@ async function checkUnlistedPost() {
 
 /**
  * Each installed app's blocks, on a test page of the app's own (its check-page.md, docs/app-contract.md, "The app's test page"; without
- * one, its blocks at their default values and a warning that names the app). The page is made here as a file the editor reads and is
- * removed straight after, never saved or published; the editor opens it on a computer and every failure is reported under the app's name.
+ * one, its blocks at their default values and a warning that names the app). The page lives only in memory (the texts the editor is
+ * given, never a file in the site's folder), never saved or published; the editor opens it on a computer and every failure is reported under the app's name.
  */
 async function checkAppTestPages() {
   for (const id of installedApps(ROOT)) {
@@ -1468,7 +1468,6 @@ async function checkAppTestPages() {
     if (test.problems.length) continue;
     const path = `src/content/pages/zz-app-${id}.md`;
     const label = `app ${id} (${test.source})`;
-    make(path, test.text);
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, locale: 'en-US' });
     page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
     // (A resource the local server does not have, such as a photo, is a 404 here and nothing of the app's.)
@@ -1477,7 +1476,7 @@ async function checkAppTestPages() {
       (m) => m.type() === 'error' && !/Failed to load resource/.test(m.text()) && problems.push(`${label}: console error: ${m.text()}`),
     );
     try {
-      await openEditor(page, site);
+      await openEditor(page, site, { [path]: test.text });
       await page.evaluate((hash) => (location.hash = hash), `#${path}`);
       await page.waitForSelector('.ProseMirror', { timeout: 15000 });
       await page.waitForTimeout(800);
@@ -1493,7 +1492,6 @@ async function checkAppTestPages() {
       problems.push(`${label}: the test page does not open in the editor (${error.message.split('\n')[0]})`);
     } finally {
       await page.close();
-      rmSync(join(ROOT, path), { force: true });
     }
   }
 }
