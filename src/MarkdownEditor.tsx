@@ -108,15 +108,7 @@ import { t } from './i18n';
 import { motionReduced, motionTiming } from '../lib/motion';
 import { barSlideKind } from './barMotion.mjs';
 import { dragSteps, limitSteps } from './blockDrag.mjs';
-import {
-  blockHandleIcon,
-  blockMarkIcon,
-  blockSettingsIcon,
-  changeToIcon,
-  duplicateIcon,
-  selectAllBlocksIcon,
-  submenuBackIcon,
-} from './blockHandleIcon';
+import { blockHandleIcon, blockMarkIcon, blockSettingsIcon, changeToIcon, duplicateIcon, selectAllBlocksIcon } from './blockHandleIcon';
 import { blockSelection } from './blockSelection';
 import { allOf, hideChoice, range, removeChoice, groupMove } from './blockSelectionRules.mjs';
 import { ask } from './ask';
@@ -1305,7 +1297,7 @@ function inSectionHeading(state: EditorView['state']) {
 const inLabel = (state: EditorView['state']) =>
   ['eyebrow', 'bodyLarge', 'bodyMedium', 'bodySmall'].includes(state.selection.$from.parent.type.name);
 
-// A message with Undo (after Change to): the theme's snackbar, its action a text button. Drawn once (it is not React once shown).
+// A message with Undo (after Change type): the theme's snackbar, its action a text button. Drawn once (it is not React once shown).
 function undoSnackbar(text: string, undo: () => void) {
   const host = document.createElement('div');
   const root = createRoot(host);
@@ -1320,7 +1312,7 @@ function undoSnackbar(text: string, undo: () => void) {
 }
 
 // The blocks just put in that are typed in place, by their props, with the row each starts with active (blockCard starts it): 0 for a block
-// from Insert, the row that was active for a block made by Change to (and for the block it was, should Undo bring it back).
+// from Insert, the row that was active for a block made by Change type (and for the block it was, should Undo bring it back).
 const fresh = new WeakMap<object, number>();
 
 // A block in the text as a card: the block as it looks on the site (its draw, src/apps/<app>/blocks/), in a thin frame;
@@ -1579,7 +1571,7 @@ function blockCard(
     view.dispatch(closeHistory(view.state.tr));
     undoSnackbar(t.text.changedTo(label), () => undoHistory(view.state, view.dispatch));
   };
-  // The menu's Change to, with the blocks this one can become (targets: by `from` and the template); none for any other block.
+  // The menu's Change type, with the blocks this one can become (targets: by `from` and the template); none for any other block.
   const changeRow = (): CardRow | undefined => {
     const { rules, stays } = keeps();
     const have: Record<string, number> = {};
@@ -2047,7 +2039,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // The `⋮` button, and the menu under it while it is open; the Alignment and Color menus of its rows open under it too.
   const moreButton = useRef<HTMLButtonElement>(null);
   const [moreAt, setMoreAt] = useState<HTMLElement | null>(null);
-  // The ⋮ menu's next level (a row's submenu: Change to), shown in place of its rows with a back row; null: its own rows.
+  // The ⋮ menu's next level (a row's submenu: Change type), shown in place of its rows with a back row; null: its own rows.
   const [moreLevel, setMoreLevel] = useState<CardRow | null>(null);
   useEffect(() => void (!moreAt && setMoreLevel(null)), [moreAt]);
   // The first row of the level that was opened or gone back to has the focus, so the keyboard goes on from there.
@@ -2808,11 +2800,17 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           </div>
         </div>
       </Toolbar>
-      <Menu popup="end" anchor={moreAt} label={moreLevel?.label ?? t.text.more} onClose={() => setMoreAt(null)}>
+      <Menu
+        popup="end"
+        anchor={moreAt}
+        label={moreLevel?.label ?? t.text.more}
+        onBack={moreLevel ? () => setMoreLevel(null) : undefined}
+        onClose={() => setMoreAt(null)}
+      >
         {moreLevel ? (
           <>
             {/* The next level: back to the menu's rows (Left arrow too), then the submenu's rows. */}
-            <MenuItem icon={rawIcon(submenuBackIcon)} back onClick={() => setMoreLevel(null)}>
+            <MenuItem icon={rawIcon(changeToIcon)} back label={t.text.backToMenu(moreLevel.label)} onClick={() => setMoreLevel(null)}>
               {moreLevel.label}
             </MenuItem>
             <MenuDivider />
