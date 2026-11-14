@@ -1,6 +1,6 @@
 {
   "name": "@morphemecms/cms",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "description": "Morpheme CMS: the editor for a site built with Astro, its screens, its blocks and the rules a site gives it. See README.md.",
   "license": "MIT",
   "author": "Lars Adolfsen",
@@ -54,7 +54,7 @@
     "check:contrast": "cd .morpheme/demo/site && node ../../../bin/morpheme.mjs check:contrast",
     "check:demo": "node bin/morpheme.mjs check:demo",
     "check:starter": "node scripts/check-starter.mjs",
-    "test": "node --test \"{lib,scripts,site,src,theme,worker}/**/*.test.mjs\"",
+    "test": "node --test \"{defaults,lib,scripts,site,src,theme,worker}/**/*.test.mjs\"",
     "icons": "node scripts/icon-packs.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
