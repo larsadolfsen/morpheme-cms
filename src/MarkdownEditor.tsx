@@ -101,6 +101,7 @@ import { leaveTo } from './FormFrame';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { snackbar } from '../lib/snackbar';
+import { actions, changeToActions } from './actions';
 import { SiteSnackbar } from './themeUi';
 import { changeTo, targets } from '../lib/changeTo.mjs';
 import { t } from './i18n';
@@ -1303,6 +1304,20 @@ function inSectionHeading(state: EditorView['state']) {
 const inLabel = (state: EditorView['state']) =>
   ['eyebrow', 'bodyLarge', 'bodyMedium', 'bodySmall'].includes(state.selection.$from.parent.type.name);
 
+// The Change to actions of the active block in the editor's action registry (src/actions.ts: the command palette finds them): one block is active at a
+// time, so one set is registered. A block that becomes active replaces the set of the one before; a block that is not the owner cannot take it away.
+let changeToRegistered: { owner: object; key: string; dispose: () => void } | null = null;
+function setChangeToActions(owner: object, list: ReturnType<typeof changeToActions> | null) {
+  const key = list?.map((a) => a.id).join() ?? '';
+  if (!list) {
+    if (changeToRegistered?.owner !== owner) return;
+  } else if (changeToRegistered?.owner === owner && changeToRegistered.key === key) {
+    return;
+  }
+  changeToRegistered?.dispose();
+  changeToRegistered = list?.length ? { owner, key, dispose: actions.register(list) } : null;
+}
+
 // A message with Undo (after Change to): the theme's snackbar, its action a text button. Drawn once (it is not React once shown).
 function undoSnackbar(text: string, undo: () => void) {
   const host = document.createElement('div');
@@ -1577,16 +1592,19 @@ function blockCard(
     view.dispatch(closeHistory(view.state.tr));
     undoSnackbar(t.text.changedTo(label), () => undoHistory(view.state, view.dispatch));
   };
-  // The menu's Change to, with the blocks this one can become (targets: by `from` and the template); none for any other block.
-  const changeRow = (): CardRow | undefined => {
+  // The blocks this one can become (targets: by `from` and the template), with their names and icons; none for any other block.
+  const changeTargets = () => {
     const { rules, stays } = keeps();
     const have: Record<string, number> = {};
     for (const b of blocksOf(view.state.doc)) have[b.type] = (have[b.type] ?? 0) + 1;
-    const to = targets(node.attrs.type, node.attrs.props, { ...rules, have, stays });
-    const submenu = to.flatMap((type) => {
+    return targets(node.attrs.type, node.attrs.props, { ...rules, have, stays }).flatMap((type) => {
       const target = asker()?.list.find((b) => b.type === type);
-      return target ? [{ icon: target.icon, label: target.label, action: () => changeBlock(type, target.label) }] : [];
+      return target ? [{ type, label: target.label, icon: target.icon }] : [];
     });
+  };
+  // The menu's Change to, with those blocks as its next level.
+  const changeRow = (): CardRow | undefined => {
+    const submenu = changeTargets().map((b) => ({ icon: b.icon, label: b.label, action: () => changeBlock(b.type, b.label) }));
     return submenu.length ? { icon: changeToIcon, label: t.text.changeTo, action: () => {}, submenu } : undefined;
   };
 
@@ -1869,6 +1887,8 @@ function blockCard(
     const owner = {};
     bar = {
       refresh(shown) {
+        // Change to is in the command palette while the block is active (src/actions.ts), with the same limits as the menu.
+        setChangeToActions(owner, shown ? changeToActions(changeTargets(), changeBlock, t.text.changeToBlock, [t.text.changeTo]) : null);
         if (!shown) return blockBar.hide(owner);
         const action = gear();
         const split = splitRow(menuItems().filter((it): it is CardItem => !!it));
@@ -1882,7 +1902,10 @@ function blockCard(
         };
         blockBar.show(owner, state);
       },
-      destroy: () => blockBar.hide(owner),
+      destroy: () => {
+        setChangeToActions(owner, null);
+        blockBar.hide(owner);
+      },
     };
     // The settings of the active row (its icon and link), live: from expanded in the side panel while a row is active, below it in a bottom
     // sheet that Edit opens (`open`: a row's slot or Edit; else only an open sheet is updated).

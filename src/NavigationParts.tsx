@@ -15,7 +15,7 @@ import {
   SiteExtendedFab,
   SiteFab,
   SiteDropdownMenu,
-  SiteExposedDropdownMenu,
+  SiteTextFieldMenu,
   SiteIconButton,
   SiteMenu,
   SiteMenuDivider,
@@ -31,7 +31,7 @@ import {
   SiteSearch,
   SiteTab,
   SiteTabs,
-  SiteTopAppBar,
+  SiteAppBar,
   extendedFabSizes,
   fabKinds,
   fabSizes,
@@ -137,21 +137,21 @@ export default function NavigationParts() {
         <Preview>
           <div className="space-y-4">
             {[false, true].map((stuck) => (
-              <SiteTopAppBar key={String(stuck)} data-stuck={stuck || undefined} className="flex h-16 items-center gap-4 px-4">
+              <SiteAppBar key={String(stuck)} data-stuck={stuck || undefined} className="flex h-16 items-center gap-4 px-4">
                 <span className="mr-auto font-medium">{stuck ? say.stuck : say.name}</span>
                 <SiteIconButton icon="list" label={say.open} />
-              </SiteTopAppBar>
+              </SiteAppBar>
             ))}
-            <SiteTopAppBar
+            <SiteAppBar
               kind="search"
               leading={<SiteIconButton icon="list" label={say.open} />}
               search={search(true)}
               trailing={<SiteIconButton icon="heart" label={bar.favourite} />}
             />
-            <SiteTopAppBar kind="search" align="center" search={search()} />
-            <SiteTopAppBar kind="small" leading={back} headline={bar.kinds.small} trailing={actions} />
-            <SiteTopAppBar kind="small" leading={back} headline={bar.kinds.small} subtitle={bar.subtitle} trailing={actions} />
-            <SiteTopAppBar
+            <SiteAppBar kind="search" align="center" search={search()} />
+            <SiteAppBar kind="small" leading={back} headline={bar.kinds.small} trailing={actions} />
+            <SiteAppBar kind="small" leading={back} headline={bar.kinds.small} subtitle={bar.subtitle} trailing={actions} />
+            <SiteAppBar
               kind="small"
               align="center"
               leading={back}
@@ -161,8 +161,8 @@ export default function NavigationParts() {
             />
             {flexible.map((kind) => (
               <Fragment key={kind}>
-                <SiteTopAppBar kind={kind} leading={back} headline={bar.kinds[kind]} subtitle={bar.subtitle} trailing={actions} />
-                <SiteTopAppBar
+                <SiteAppBar kind={kind} leading={back} headline={bar.kinds[kind]} subtitle={bar.subtitle} trailing={actions} />
+                <SiteAppBar
                   kind={kind}
                   align="center"
                   leading={back}
@@ -174,7 +174,7 @@ export default function NavigationParts() {
                     </SiteButton>
                   }
                 />
-                <SiteTopAppBar
+                <SiteAppBar
                   kind={kind}
                   collapsed
                   leading={back}
@@ -238,11 +238,11 @@ export default function NavigationParts() {
               const options = menus.options.map((label, i) => ({ value: String(i), label, disabled: i === 3 }));
               return (
                 <div key={kind} className="grid gap-6 medium:grid-cols-2" aria-label={menus.kinds[kind]} role="group">
-                  <SiteExposedDropdownMenu kind={kind} label={menus.field} options={options} />
-                  <SiteExposedDropdownMenu kind={kind} label={menus.field} options={options} value="1" />
-                  <SiteExposedDropdownMenu kind={kind} label={menus.field} options={options} value="0" supporting={menus.supporting} />
-                  <SiteExposedDropdownMenu kind={kind} label={menus.field} options={options} error={menus.error} />
-                  <SiteExposedDropdownMenu kind={kind} label={menus.field} options={options} value="2" disabled />
+                  <SiteTextFieldMenu kind={kind} label={menus.field} options={options} />
+                  <SiteTextFieldMenu kind={kind} label={menus.field} options={options} value="1" />
+                  <SiteTextFieldMenu kind={kind} label={menus.field} options={options} value="0" supporting={menus.supporting} />
+                  <SiteTextFieldMenu kind={kind} label={menus.field} options={options} error={menus.error} />
+                  <SiteTextFieldMenu kind={kind} label={menus.field} options={options} value="2" disabled />
                 </div>
               );
             })}

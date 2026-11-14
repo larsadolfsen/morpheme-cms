@@ -103,7 +103,7 @@ import {
   SiteSwitch,
   SiteTextField,
   SiteToolbar,
-  SiteTopAppBar,
+  SiteAppBar,
   SiteTextFieldButton,
   SiteTimePicker,
   dayPeriods,
@@ -122,6 +122,7 @@ import { motionTiming } from '../lib/motion';
 import { atLeast, type Breakpoint } from '../lib/breakpoints.mjs';
 import { swipeCloses } from '../lib/drawer-swipe.mjs';
 import { menuLayout } from '../lib/menu-layout.mjs';
+import { isTypeAheadKey, nextByLetter } from '../lib/menuTypeAhead.mjs';
 
 // The parts Material 3 has (a button, an icon button, a chip, a carousel …) are the theme's UI parts
 // (packages/editor/theme/ui/, through themeUi.ts), the same the site draws, in the theme's design (its ui.css and
@@ -2171,11 +2172,19 @@ function placePopup(menu: HTMLElement, anchor: HTMLElement, side: 'start' | 'end
   menu.style.left = `${Math.max(screen.offsetLeft + 8, Math.min(at, screen.offsetLeft + screen.width - offsetWidth - 8))}px`;
 }
 
-// The keys of an attached menu: the arrow keys (round), Home and End go between its choices.
+// The keys of an attached menu: the arrow keys (round), Home and End go between its choices, and a letter goes to the next choice that starts with it.
 function moveInMenu(e: KeyboardEvent<HTMLElement>) {
   const items = [...e.currentTarget.querySelectorAll<HTMLElement>('[role^="menuitem"]:not(:disabled)')];
   const at = items.indexOf(document.activeElement as HTMLElement);
-  const to = { ArrowDown: at + 1, ArrowUp: at < 0 ? items.length - 1 : at - 1, Home: 0, End: items.length - 1 }[e.key];
+  let to = { ArrowDown: at + 1, ArrowUp: at < 0 ? items.length - 1 : at - 1, Home: 0, End: items.length - 1 }[e.key];
+  // A letter: the next item whose label starts with it (M3 menus: "Letters: Focus moves to the next menu item starting with letter").
+  if (to === undefined && isTypeAheadKey(e)) {
+    to = nextByLetter(
+      items.map((i) => i.querySelector('.menu-item-label')?.textContent ?? i.textContent ?? ''),
+      at,
+      e.key,
+    );
+  }
   if (to === undefined) return;
   e.preventDefault();
   items[(to + items.length) % items.length]?.focus();
@@ -3735,9 +3744,9 @@ export function TopAppBar({ children }: { children: ReactNode }) {
     return () => removeEventListener('scroll', check);
   }, []);
   return (
-    <SiteTopAppBar className="pt-[env(safe-area-inset-top)]" data-stuck={stuck || undefined}>
+    <SiteAppBar className="pt-[env(safe-area-inset-top)]" data-stuck={stuck || undefined}>
       {children}
-    </SiteTopAppBar>
+    </SiteAppBar>
   );
 }
 

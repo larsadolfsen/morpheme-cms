@@ -6441,7 +6441,8 @@
     --search-bar-font-size
     --search-view-surface, --search-view-radius, --search-view-line, --search-view-shadow, --search-view-scrim,
     --search-view-header-height, --search-view-divider, --search-view-max-height, --search-view-results-padding,
-    --search-view-option-surface
+    --search-view-option-surface, --search-view-group-gap, --search-view-group-label-text, --search-view-top-default,
+    --search-view-width-default
   Toolbars (Toolbar, toolbarClass, toolbar.script.ts; m3.material.io/components/toolbars, M3 Expressive): .toolbar with
   its kind, .toolbar-docked (the whole width with a line over it: the site's bar at the bottom of a phone) or .toolbar-floating (a pill with its shadow, .toolbar-vertical down instead of across), and
   its colour, .toolbar-standard (the surface) or .toolbar-vibrant (the accent, what stands on it turned around). A
@@ -7040,6 +7041,35 @@
     margin: 0;
     padding: 1.5rem 1rem;
     color: var(--block-muted);
+  }
+  /* The controlled view (SearchView): results in groups, a name over each (M3: "Category labels"), a gap between the groups (M3: "Use gaps to
+     separate a list of suggestions or results into groups"); with no bar to dock under it stands near the top, in the middle (M3 is silent
+     there: the size is the view's own, --search-view-width). */
+  .search-view-group + .search-view-group {
+    margin-top: var(--search-view-group-gap, 0.5rem);
+  }
+  .search-view-group-label {
+    padding: 0.5rem 0.75rem 0.25rem;
+    color: var(--search-view-group-label-text, var(--block-muted));
+    font-size: var(--type-label-medium-size);
+    line-height: var(--type-label-medium-line-height);
+    font-weight: var(--type-label-medium-weight);
+    letter-spacing: var(--type-label-medium-tracking);
+  }
+  .search-view-docked:not([style*='--search-view-top']) {
+    inset: var(--search-view-top-default, 4rem) 0 auto 0;
+    margin: 0 auto;
+    width: min(var(--search-view-width-default, 36rem), calc(100dvw - 2rem));
+    max-height: min(var(--search-view-max-height, 36rem), calc(100dvh - var(--search-view-top-default, 4rem) - 1rem));
+  }
+  .search-view-live {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   /* Toolbars (m3.material.io/components/toolbars, M3 Expressive): a row of actions, docked or floating. */

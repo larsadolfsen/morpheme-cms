@@ -63,6 +63,7 @@ export const text: Messages['text'] = {
   dragOff: 'Træk er slået fra, mens flere blokke er valgt',
   blockSettings: 'Blokindstillinger',
   changeTo: 'Skift til',
+  changeToBlock: (name) => `Skift til ${name}`,
   changedTo: (name) => `Skiftet til ${name}`,
   blocksSelected: (count) => (count === 1 ? '1 blok valgt' : `${count} blokke valgt`),
   clearBlockSelection: (count) => `Ryd markering, ${count === 1 ? '1 blok valgt' : `${count} blokke valgt`}`,

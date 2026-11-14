@@ -535,6 +535,183 @@ async function checkChoiceGroupFields(width, locale) {
   await page.close();
 }
 
+/** The theme's search view driven by React (theme/ui/Search.tsx, SearchView; the command palette's view, spec docs/superpowers/specs/2026-11-13-command-palette-and-context-menus-design.md,
+ * sections 4.1, 4.5 and 4.7) on "Parts" › "UI components" (NavigationRestParts.tsx), on a phone and a computer, in English and Danish: it opens as a modal <dialog> with the focus in its
+ * field, full screen on a phone and docked, in the middle near the top, on a computer; the results are in groups, each named by its label (role=group, aria-labelledby), as options
+ * with their key as trailing text (aria-keyshortcuts), a toggle checked and a disabled one aria-disabled; the arrow keys, Home and End move aria-activedescendant (the focus stays in the
+ * field), Enter runs an option but not a disabled one; typing narrows the groups and a live region says how many; nothing found shows its text and hides the list; Clear empties the
+ * field and keeps it open; Enter on an option and Escape close it and the focus goes back to the button that opened it, and on a computer a tap outside closes it; every row and
+ * button is at least 48 px and the page does not scroll sideways. */
+async function checkSearchViewParts(width, locale) {
+  const label = `${width}px ${locale} search view`;
+  const touch = width < 600;
+  const say =
+    locale === 'da-DK'
+      ? {
+          open: '\u00c5bn s\u00f8gevisningen',
+          groups: ['Seneste', 'Foresl\u00e5et'],
+          four: '4 resultater',
+          one: '1 resultat',
+          none: 'Intet passer til s\u00f8gningen',
+          word: 'fed',
+          shortcut: 'Ctrl+B',
+        }
+      : {
+          open: 'Open the search view',
+          groups: ['Recent', 'Suggested'],
+          four: '4 results',
+          one: '1 result',
+          none: 'Nothing fits the search',
+          word: 'bold',
+          shortcut: 'Ctrl+B',
+        };
+  const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#developer/parts/ui'));
+  const part = page.locator('[data-part="Search"]');
+  await part.waitFor({ timeout: 30_000 }).catch(() => problems.push(`${label}: the Search part is not on the page`));
+  if (!(await part.count())) return page.close();
+  await part.scrollIntoViewIfNeeded();
+  const opener = part.getByRole('button', { name: say.open });
+  const view = page.locator('[data-search-controlled] dialog.search-view[open]');
+  const input = view.locator('input[role=combobox]');
+  const options = view.locator('[role=option]');
+  const live = view.locator('.search-view-live');
+  const active = () => input.getAttribute('aria-activedescendant');
+  const selected = () => view.locator('[role=option][aria-selected=true]').evaluateAll((els) => els.map((e) => e.id));
+  const focusIsInField = () => input.evaluate((el) => el === document.activeElement);
+  const where = () => page.evaluate(() => document.activeElement?.textContent?.trim() ?? document.activeElement?.tagName);
+
+  await opener.click();
+  await view.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the view does not open`));
+  if (!(await view.count())) return page.close();
+  await page.waitForTimeout(400);
+  const box = await view.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    return {
+      modal: el.matches(':modal'),
+      docked: el.classList.contains('search-view-docked'),
+      left: r.left,
+      right: r.right,
+      top: r.top,
+      width: r.width,
+      height: r.height,
+      vw: innerWidth,
+      vh: innerHeight,
+      sideways: document.documentElement.scrollWidth > innerWidth,
+    };
+  });
+  if (!box.modal) problems.push(`${label}: the view is not modal (the page behind it stays usable)`);
+  if (touch) {
+    if (box.docked || box.width < box.vw - 1 || box.height < box.vh - 1)
+      problems.push(
+        `${label}: on a phone the view is full screen: ${Math.round(box.width)}x${Math.round(box.height)} of ${box.vw}x${box.vh}`,
+      );
+  } else {
+    if (!box.docked) problems.push(`${label}: on a computer the view is docked`);
+    if (box.width > 36 * 16 + 1 || box.top < 0 || box.top > 120 || Math.abs((box.left + box.right) / 2 - box.vw / 2) > 2)
+      problems.push(
+        `${label}: docked, the view is in the middle near the top, at most 36rem wide: left ${Math.round(box.left)}, top ${Math.round(box.top)}, width ${Math.round(box.width)}`,
+      );
+  }
+  if (box.sideways) problems.push(`${label}: the page scrolls sideways with the view open`);
+  if (!(await focusIsInField())) problems.push(`${label}: the focus is not in the field when the view opens`);
+
+  const names = await view
+    .locator('[role=group]')
+    .evaluateAll((els) => els.map((g) => document.getElementById(g.getAttribute('aria-labelledby') ?? '')?.textContent ?? ''));
+  if (JSON.stringify(names) !== JSON.stringify(say.groups))
+    problems.push(`${label}: the groups are named ${JSON.stringify(names)}, not ${JSON.stringify(say.groups)}`);
+  if ((await options.count()) !== 4) problems.push(`${label}: ${await options.count()} options, not 4`);
+  if ((await live.textContent()) !== say.four)
+    problems.push(`${label}: the live region says "${await live.textContent()}", not "${say.four}"`);
+  const opt = await options.evaluateAll((els) =>
+    els.map((e) => ({
+      selected: e.getAttribute('aria-selected'),
+      disabled: e.getAttribute('aria-disabled'),
+      checked: e.getAttribute('aria-checked'),
+      keys: e.getAttribute('aria-keyshortcuts'),
+      trailing: e.querySelector('.list-item-trailing-supporting')?.textContent ?? '',
+      height: e.getBoundingClientRect().height,
+    })),
+  );
+  if (opt[0]?.selected !== 'true') problems.push(`${label}: the first option is not the one the arrow keys are on`);
+  if (opt[2]?.trailing !== say.shortcut || opt[2]?.keys !== 'Control+B')
+    problems.push(`${label}: the key of Bold: "${opt[2]?.trailing}", aria-keyshortcuts "${opt[2]?.keys}"`);
+  if (opt[2]?.checked !== 'true') problems.push(`${label}: the toggle is not checked`);
+  if (opt[3]?.disabled !== 'true') problems.push(`${label}: the disabled option is not aria-disabled`);
+  const short = opt.filter((o) => o.height < 47.5);
+  if (short.length) problems.push(`${label}: ${short.length} option(s) are lower than 48 px`);
+  const buttons = await view
+    .locator('.search-view-header button')
+    .evaluateAll((els) =>
+      els.map((b) => Math.max(b.getBoundingClientRect().height, parseFloat(getComputedStyle(b, '::after').height) || 0)),
+    );
+  if (buttons.some((h) => h < 47.5))
+    problems.push(`${label}: a button of the field's row is lower than 48 px (${buttons.map(Math.round)})`);
+
+  // The arrow keys move the highlight; the focus stays in the field.
+  const ids = await options.evaluateAll((els) => els.map((e) => e.id));
+  await page.keyboard.press('ArrowDown');
+  if ((await active()) !== ids[1] || (await selected()).join() !== ids[1])
+    problems.push(`${label}: ArrowDown does not move to the second option`);
+  await page.keyboard.press('End');
+  if ((await active()) !== ids[3]) problems.push(`${label}: End does not go to the last option`);
+  await page.keyboard.press('ArrowDown');
+  if ((await active()) !== ids[0]) problems.push(`${label}: ArrowDown on the last option does not go round to the first`);
+  await page.keyboard.press('ArrowUp');
+  if ((await active()) !== ids[3]) problems.push(`${label}: ArrowUp on the first option does not go round to the last`);
+  if (!(await focusIsInField())) problems.push(`${label}: the focus left the field while the arrow keys moved`);
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(150);
+  if (!(await view.count())) problems.push(`${label}: Enter on a disabled option closed the view`);
+  await page.keyboard.press('Home');
+
+  // Typing narrows the groups, says how many, and puts the highlight on the first.
+  await page.keyboard.type(say.word);
+  await page.waitForTimeout(150);
+  if ((await options.count()) !== 1) problems.push(`${label}: "${say.word}" leaves ${await options.count()} options, not 1`);
+  if ((await live.textContent()) !== say.one)
+    problems.push(`${label}: the live region says "${await live.textContent()}", not "${say.one}"`);
+  if ((await view.locator('[role=group]').count()) !== 1) problems.push(`${label}: a group with no hit is shown`);
+  if ((await active()) === null) problems.push(`${label}: no option is highlighted after typing`);
+  await input.fill('zzz');
+  await page.waitForTimeout(150);
+  const empty = view.locator('.search-view-empty');
+  if (!(await empty.isVisible()) || (await empty.textContent()) !== say.none)
+    problems.push(`${label}: the text for nothing found is not shown`);
+  if (await view.locator('[role=listbox]').isVisible()) problems.push(`${label}: the list is shown when nothing is found`);
+  if ((await live.textContent()) !== say.none) problems.push(`${label}: the live region does not say nothing was found`);
+  await view.locator('.search-view-clear').click();
+  if ((await input.inputValue()) !== '' || !(await focusIsInField()) || (await options.count()) !== 4)
+    problems.push(`${label}: Clear does not empty the field, keep the focus in it and show the results`);
+
+  // Enter on an option runs it and closes the view; the focus goes back to the button.
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(250);
+  if (await view.count()) problems.push(`${label}: Enter on an option does not close the view`);
+  else if ((await where()) !== say.open)
+    problems.push(`${label}: the focus is not back on the button after Enter (it is on "${await where()}")`);
+  // Escape closes it, with the focus back on the button.
+  await opener.click();
+  await view.waitFor({ timeout: 5000 });
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(250);
+  if (await view.count()) problems.push(`${label}: Escape does not close the view`);
+  else if ((await where()) !== say.open)
+    problems.push(`${label}: the focus is not back on the button after Escape (it is on "${await where()}")`);
+  // On a computer a tap outside it closes it too.
+  if (!touch) {
+    await opener.click();
+    await view.waitFor({ timeout: 5000 });
+    await page.mouse.click(5, 800);
+    await page.waitForTimeout(250);
+    if (await view.count()) problems.push(`${label}: a tap outside does not close the view`);
+  }
+  await page.close();
+}
+
 /** The samples of Buttons › Settings › Style (choiceSamples.tsx) are never cut off: a short label is shown whole on every row (it fits the sample's
  * width) and a long one is replaced by the editor's "Button", on a phone and a computer, in English and Danish. */
 async function checkButtonStyleSamples(width, locale) {
@@ -8837,6 +9014,8 @@ for (const width of [375, 1280])
 for (const width of [375, 1280])
   for (const locale of ['en-US', 'da-DK'])
     await unit(`choice-group button samples ${width} ${locale}`, () => checkButtonStyleSamples(width, locale));
+for (const width of [375, 1280])
+  for (const locale of ['en-US', 'da-DK']) await unit(`search view parts ${width} ${locale}`, () => checkSearchViewParts(width, locale));
 
 for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
 await unit('checkTextBarWide', () => checkTextBarWide());
