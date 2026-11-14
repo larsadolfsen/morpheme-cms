@@ -129,6 +129,8 @@ An app file imports from its own folder, from `@app/self`, and from these three 
 - `@morphemecms/cms/lib/dynamic-colors`
 - `@morphemecms/cms/lib/hooks`
 
+Custom colors (a site that sets Primary, Secondary and Tertiary itself) add optional fields to the `dynamic` choice in `lib/dynamic-colors`: `harmony: 'custom'`, `secondary`, `tertiary` and `kept: ['primary']`. They are only there for a site that chose Custom; `dynamicColors(dynamic, roles)` keeps its signature, and `lowContrast(set, pairs)` of `lib/colors` takes an optional third argument, the roles kept (`dynamic.kept`). A hook that reads `dynamic` must accept a `harmony` it does not know.
+
 The version functions (`publish`, `schedule`, `unpublish`, `discard` and `saveDraft`, with a version id) are in `@morphemecms/cms/lib/versions.mjs`. An app's `editor.ts` and Worker part have full access and import them like any module; a hook or after-build step may not, as it is not one of the three above.
 
 ### Limits

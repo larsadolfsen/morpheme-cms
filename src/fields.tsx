@@ -58,7 +58,7 @@ import { LinkList } from './LinkList';
 import { ToolSelect } from './ToolSelect';
 import { MoveButtons } from './MoveButtons';
 import { movedList } from './moveItem.mjs';
-import { iconColorOf } from './iconColor';
+import { iconColorOf, iconColorOptions } from './iconColor';
 import { clean, inPairs, inUse, newItem, phoneParts, phoneText, problemAt, problemOf, type Around, type Problem } from './check';
 import { Icon, useAllIconNames } from './icon';
 import { t } from './i18n';
@@ -396,7 +396,8 @@ function FieldControl({ field, value, onChange }: Props) {
           <ToolSelect field={{ ...field, optionsFrom: field.optionsFrom }} id={id} inField={inField} value={text} onChange={onChange} />
         );
       // An option that needs a choice on the page (Field.options' onPage) only while there is one, or it is chosen.
-      const offered = field.options!.filter(
+      const colored = field.iconColor ? iconColorOptions(field, context.site.lowIconColors, text) : undefined;
+      const offered = (colored?.options ?? field.options!).filter(
         (o) =>
           (!o.stored || o.value === text) &&
           (!o.onPage || o.value === text || onThePage(context.relations[o.onPage] ?? [], context.page).length > 0),
@@ -415,6 +416,14 @@ function FieldControl({ field, value, onChange }: Props) {
         // Without a value (saved before the field was there), its default, as the fields that depend on it have it (inUse).
         const shown = text || String(field.default ?? '');
         control = <SegmentedButton label={field.label} value={shown} options={offered} dots={field.dots} onChange={onChange} />;
+        // A saved icon color that is now below 3:1 on the page keeps its color; the field says so (not a block).
+        if (colored?.low)
+          control = (
+            <>
+              {control}
+              <ProblemNote>{t.blocks.iconColor.low(colored.low)}</ProblemNote>
+            </>
+          );
         break;
       }
       if (field.cards) {

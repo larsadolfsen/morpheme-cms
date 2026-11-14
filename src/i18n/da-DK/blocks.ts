@@ -486,6 +486,7 @@ export const blocks: Messages['blocks'] = {
     primary: 'Primær',
     secondary: 'Sekundær',
     tertiary: 'Tertiær',
+    low: (name: string) => `Ikonfarven (${name}) har nu lav kontrast mod siden.`,
   },
   icons: {
     certificate: 'Diplom',

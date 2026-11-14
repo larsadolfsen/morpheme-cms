@@ -161,7 +161,7 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
         for (const where of dynamicProblems(colors.dynamic)) problems.push(`${colorsFile.path}: ${t.colors.dynamic.wrongAt(where)}`);
       if (!bad.length)
         for (const mode of MODES)
-          for (const pair of lowContrast(colors[mode], shownPairs))
+          for (const pair of lowContrast(colors[mode], shownPairs, colors.dynamic?.kept))
             problems.push(`${colorsFile.path}: ${t.colors[mode]}: ${t.colors.tooLow(pair.what, ratio(pair.ratio), ratio(pair.min))}`);
     } catch {
       problems.push(`${colorsFile.path}: ${t.app.invalidJson}`);

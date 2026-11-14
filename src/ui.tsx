@@ -39,7 +39,6 @@ import {
   CaretRight,
   CaretUp,
   Check,
-  CheckCircle,
   Funnel,
   LockSimple,
   LockSimpleOpen,
@@ -52,6 +51,7 @@ import {
 } from '@phosphor-icons/react';
 import {
   SiteBadge,
+  SiteBottomSheet,
   SiteBottomSheetHeader,
   siteFollowKeyboard,
   siteBottomSheetContainerClass,
@@ -1789,8 +1789,7 @@ const toneClass: Record<RowTone, string> = {
  * (`count`), the arrow of a row that opens something (`arrow`, or another icon: what a tap does) or anything there
  * (`trailing`), the buttons beside it (`actions`: the arrows, Remove, a switch) and what is in its <li> after it
  * (`children`: a sheet it opens, a text it folds out); `tone`: RowTone. `selectable`: on a phone a long press selects it
- * (`onSelectedChange`), and while its list is `selecting` a tap does; selected, a tick is its icon (the theme's
- * ListItem). The rest (aria-…, ref, style, onClick on a link) on the row. */
+ * (`onSelectedChange`), and while its list is `selecting` a tap does; its selection checkbox is the theme's ListItem's. The rest (aria-…, ref, style, onClick on a link) on the row. */
 export function ListItem({
   icon: shownIcon,
   iconSelected: shownSelected,
@@ -1821,8 +1820,7 @@ export function ListItem({
   tone?: RowTone;
   className?: string;
 } & Record<string, unknown>) {
-  const ticked = !!item.selectable && !!item.selected;
-  let icon = ticked ? CheckCircle : shownIcon;
+  let icon = shownIcon;
   let iconSelected = shownSelected;
   const Arrow = arrow === true ? CaretRight : arrow || null;
   // A LeadingIcon made beforehand (an app's icon in a list) is the item's leading icon.
@@ -1845,8 +1843,7 @@ export function ListItem({
       supporting={some(item.supporting)}
       trailing={some(item.trailing)}
       actions={some(item.actions)}
-      // The tick of a selected item says nothing more than the item's own selected state.
-      leadingIcon={Lead ? <Lead aria-hidden={ticked ? true : undefined} /> : (icon as ReactElement | undefined)}
+      leadingIcon={Lead ? <Lead /> : (icon as ReactElement | undefined)}
       leadingIconSelected={iconSelected}
       trailingSupporting={some(count)}
       trailingIcon={Arrow ? <Arrow /> : undefined}
@@ -3608,6 +3605,26 @@ export function BottomSheet({
         {children}
       </div>
     </dialog>
+  );
+}
+
+/** What is fixed to the bottom of the screen in the editor (a form's Save and Publish buttons): the theme's standard bottom
+ * sheet (Material 3's, no scrim, the page usable behind it), fixed in its one state, without a drag handle or header, named by
+ * `label`, with the buttons in it. It stays above the on-screen keyboard; from the medium width it stays a bottom sheet
+ * (wide="sheet"), as wide as the theme allows, between the navigation rail and the panels (editor.css). */
+export function ActionSheet({ label, className, children }: { label: string; className?: string; children: ReactNode }) {
+  return (
+    <SiteBottomSheet
+      kind="standard"
+      wide="sheet"
+      states={['expanded']}
+      dragHandle={false}
+      label={label}
+      liftAboveKeyboard
+      className={className}
+    >
+      {children}
+    </SiteBottomSheet>
   );
 }
 
