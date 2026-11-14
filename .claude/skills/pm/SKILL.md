@@ -118,3 +118,14 @@ owner still releases every version.
 ## Reports
 
 Short, English only (`CLAUDE.md`), and only what the owner has to do or decide. A pull request the owner has to act on is always assigned to them, and the report gives its link.
+
+Every suggestion, question or decision the PM puts to the owner has three short parts, one or two sentences each, in
+this order:
+
+- **Why:** the reason the PM suggests it, the problem or the chance, in plain words.
+- **How:** how it would be done: what changes, and which session or pull request does it.
+- **What:** what the owner gains from it, and the one thing the owner has to do now (with the link), if anything.
+
+Plain words, as for someone who does not read the code: a term like `next`, a changeset or a branch name gets a few
+words of explanation the first time ("`next`, the test version the staging site installs"). A report with several
+items gives each item its own Why, How and What.
