@@ -3016,7 +3016,20 @@ async function checkLabelOnAnyLine(width) {
   await openStyleMenu(page);
   if (!(await rowNames()).some((n) => /^Label\b/.test(n))) problems.push(`${label}: no Label row on an empty last line`);
   await page.keyboard.press('Escape');
-  // A lone label of a saved page is read as a label and drawn the same in the Preview.
+  await page.close();
+  // A lone label of a saved page is read as a label and drawn the same in the Preview (a page of its own, as the other checks).
+  const saved = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  saved.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  return checkSavedLabel(saved, width);
+}
+
+async function checkSavedLabel(page, width) {
+  const label = `${width}px label on any line (saved page)`;
+  const labelNow = () =>
+    page.evaluate(() => {
+      const el = document.querySelector('.ProseMirror p.label-medium');
+      return el ? { text: el.textContent, size: getComputedStyle(el).fontSize } : null;
+    });
   const path = BUILT_PAGE;
   const text =
     '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<p class="label-medium">Opening hours</p>\n\nMonday to Friday.\n';
