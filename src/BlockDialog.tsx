@@ -176,7 +176,7 @@ const INSERT_SORT_KEY = 'editor-sort-insert';
 const groupOf = (b: SiteBlock) => (b.app ? (apps.find((a) => a.id === b.app)?.label ?? b.app) : t.blockSettings.groups[b.group ?? 'media']);
 const standardGroups: string[] = blockGroups.map((g) => t.blockSettings.groups[g]);
 
-/** crop: an image can be cut to a format (not in a "Banner"'s text, whose image the theme lays out). */
+/** crop: an image can be cut to a format (not in a block's text, whose image the theme lays out). */
 export function useBlockDialog(
   list: SiteBlock[] = siteBlocks,
   data: BlockData,
