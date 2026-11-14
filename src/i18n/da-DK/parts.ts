@@ -194,7 +194,7 @@ export const parts: Messages['parts'] = {
     look: 'Udseende',
     layout: 'Layout',
     layouts: { single: 'Én kolonne', wide: 'Bred', left: 'Sidepanel til venstre', right: 'Sidepanel til højre' },
-    kind: 'Slags',
+    kind: 'Type',
     page: 'Side',
     post: 'Indlæg',
     tags: 'Tags',
