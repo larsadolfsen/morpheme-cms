@@ -3106,6 +3106,9 @@ const liveLists = [
 
 async function checkLiveList(width, height, { name, hint, items }) {
   const label = `${width}px inline ${name}`;
+  // The Image grid draws the images of Files with their tags: a site with no file records (the starter's) has none to draw.
+  if (name === 'imagegrid' && !has('src/data/files'))
+    return void console.log(`${label}: skipped, the site has no images with tags, which the demo has.`);
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
