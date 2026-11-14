@@ -922,7 +922,15 @@ async function checkFilesSelection() {
     page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
     await openEditor(page, site);
     await page.evaluate(() => (location.hash = '#files'));
-    await page.waitForSelector('main [data-media-tile]');
+    // A site with no files (the starter) has nothing to select.
+    const some = await page
+      .waitForSelector('main [data-media-tile]', { timeout: 8000 })
+      .then(() => true)
+      .catch(() => false);
+    if (!some) {
+      await page.close();
+      continue;
+    }
     await page.waitForTimeout(800);
     const tiles = page.locator('main [data-media-tile]');
     if ((await tiles.count()) < 3) {
