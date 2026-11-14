@@ -22,6 +22,8 @@ export const text = {
   /** The bar's Insert button: it inserts a block (an image on a blog post). It is never in the ⋮ menu. */
   insertBlock: 'Insert block',
   image: 'Image',
+  /** A selected image's tool on the bar that crops it (image tools spec, section 4). */
+  crop: 'Crop',
   undo: 'Undo',
   redo: 'Redo',
   /** Text style: the heading levels and the text styles as one button of the bar. */
@@ -49,7 +51,7 @@ export const text = {
   sectionColors: { none: 'None', surface: 'Surface', primary: 'Primary', secondary: 'Secondary', tertiary: 'Tertiary' },
   /** A section's background image and its width, in the same sheet. */
   sectionImage: 'Background image',
-  sectionImageAlt: 'Image description',
+  sectionImageAlt: 'Alt text',
   sectionImageAltHint: 'Leave it empty for an image that is only decoration.',
   sectionWidth: 'Width',
   sectionWidthFull: 'Full width',
@@ -73,6 +75,10 @@ export const text = {
   moveAtBottom: 'This block is already last',
   dragOff: 'Drag is off while several blocks are selected',
   blockSettings: 'Block settings',
+  /** The block's menu: the row whose submenu turns the block into another list block (Change to). */
+  changeTo: 'Change to',
+  /** The snackbar after Change to, with Undo. */
+  changedTo: (name: string) => `Changed to ${name}`,
   blocksSelected: (count: number) => (count === 1 ? '1 block selected' : `${count} blocks selected`),
   clearBlockSelection: (count: number) => `Clear selection, ${count === 1 ? '1 block selected' : `${count} blocks selected`}`,
   selectBlock: 'Select',

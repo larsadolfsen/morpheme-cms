@@ -54,6 +54,31 @@ import { setPanelOpen } from './sidePanel';
 import { SiteSideSheet, siteSideSheet, siteSideSheetDialogClass, siteStandardSideSheet } from './themeUi';
 import { typedInPlace } from './typedInPlace.mjs';
 
+/** Where an image's sheet opens (the bar's tools, image tools spec section 4): its crop (Crop, until the crop view of PR 3) or its Alt text field (Alt text,
+ * until the alt text sheet of PR 4). */
+export type EditFocus = 'crop' | 'alt';
+
+/** Scrolls the open sheet to `focus` and puts the focus there, once the sheet has drawn it (it opens after the one before it has closed). */
+function reach(focus: EditFocus) {
+  let tries = 0;
+  const go = () => {
+    const sheet = [...document.querySelectorAll<HTMLElement>('dialog[open], .editor-side-sheet')].at(-1);
+    const target =
+      focus === 'crop'
+        ? (sheet?.querySelector<HTMLElement>('[aria-labelledby="crop-format"] :is([aria-checked="true"], [aria-pressed="true"])') ??
+          sheet?.querySelector<HTMLElement>('[aria-labelledby="crop-format"] button'))
+        : (() => {
+            const label = [...(sheet?.querySelectorAll('label') ?? [])].find((l) => l.textContent?.trim() === t.blocks.picture.alt);
+            return label?.htmlFor ? sheet?.querySelector<HTMLElement>(`[id="${CSS.escape(label.htmlFor)}"]`) : null;
+          })();
+    if (!target) return void (tries++ < 40 && setTimeout(go, 50));
+    target.scrollIntoView({ block: 'center' });
+    target.focus({ preventScroll: true });
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) target.select();
+  };
+  setTimeout(go);
+}
+
 export type BlockAsk = {
   list: SiteBlock[];
   /** What the text may have of them (collections.ts): what is offered, and the cards' menus. */
@@ -72,8 +97,8 @@ export type BlockAsk = {
   }) => Promise<{ type: string; props: BlockProps; open?: boolean } | null>;
   /** New props for a block in the text; null when cancelled. isNew: one about to be put in ("Insert"). live: makes the link to the
    * block in the text, used when the sheet is live (the side sheet from expanded): its changes are then written through it, and the
-   * answer is null when it closes (nothing is left to write). */
-  edit: (type: string, props: BlockProps, isNew?: boolean, live?: () => LiveBlock | null) => Promise<BlockProps | null>;
+   * answer is null when it closes (nothing is left to write). focus: the field the sheet opens at (EditFocus). */
+  edit: (type: string, props: BlockProps, isNew?: boolean, live?: () => LiveBlock | null, focus?: EditFocus) => Promise<BlockProps | null>;
   /** The settings of the section the cursor is in (its colour, null: none, an H2's image and its description, and the width); the new
    * ones, or null when cancelled. image: the section can have an image (an H2's); width: it can have a width (an H1's or H2's). live: as
    * `edit`'s. */
@@ -394,8 +419,9 @@ export function useBlockDialog(
       }
       setValues(spec.value);
     },
-    edit: async (type, props, isNew = false, linked) => {
+    edit: async (type, props, isNew = false, linked, focus) => {
       const fields = blockOf(type)?.fields ?? [];
+      if (focus) reach(focus);
       // A block on the page with what a field it has no value for means; a new one with the defaults.
       const a = await ask({ step: 'fields', type, isNew }, isNew ? { ...newValue(fields), ...props } : savedValue(fields, props), linked);
       return a && a.props;
