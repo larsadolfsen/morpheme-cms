@@ -1,5 +1,8 @@
 # A more intuitive editor (0.17)
 
+> **Shipped (14 November 2026):** batches 5, 6, 9, 10 and 11 shipped in 0.17, not 0.18 as *The split* says. Batch 15
+> is in 0.18 (`docs/superpowers/plans/2026-11-14-roadmap-0-18-to-0-24.md`).
+
 > **Status:** draft of 11 November 2026, written against `main` at `5249b12` (`@morphemecms/cms` 0.15.x). Nothing here is
 > built or decided. **0.16 comes first** (`docs/superpowers/plans/2026-11-11-release-0-16.md`); this spec plans work for
 > 0.17 and marks what touches the same screens as 0.16.
