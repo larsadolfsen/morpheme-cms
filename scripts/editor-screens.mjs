@@ -6691,7 +6691,17 @@ async function checkFoldRows(width, height) {
  * saved, opens with Content open and with no heading to fold it, and every other section (settings, search engines,
  * social media, history) folded, on a phone and a computer (width, height). */
 async function checkSectionsOnLoad(width, height) {
-  for (const hash of ['#new/pages', '#new/blog', '#src/content/pages/get-started.md', '#src/content/blog/schedule-a-post.md']) {
+  // A saved page and post: the site's first of each (the demo's, the starter's).
+  const saved = ['pages', 'blog'].flatMap((list) => {
+    const dir = `src/content/${list}`;
+    const first = existsSync(dir)
+      ? readdirSync(dir)
+          .filter((f) => f.endsWith('.md'))
+          .sort()[0]
+      : undefined;
+    return first ? [`#${dir}/${first}`] : [];
+  });
+  for (const hash of ['#new/pages', '#new/blog', ...saved]) {
     const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
     page.on('pageerror', (e) => problems.push(`${width}px ${hash} sections on load: ${e.message}`));
     await openEditor(page, site);
