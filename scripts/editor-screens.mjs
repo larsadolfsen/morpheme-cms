@@ -2340,6 +2340,66 @@ async function checkDensityTable(width, height) {
   await page.close();
 }
 
+/** Density on the editor's screens (spec: docs/superpowers/specs/2026-11-13-density-design.md, checks): the main screens open at Large and Small (Medium is what "screens" checks) without an error and without the page scrolling sideways, on a phone and a computer; and the colours of the parts do not depend on density (a row, a button, a chip and a field have the same text and surface colour at every step), which is why check:contrast (CONTRAST_DENSITY=-1 for Small, by hand) needs no run of its own in CI. */
+async function checkDensityScreens(width, height) {
+  const label = `${width}px density screens`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  let where = '';
+  page.on('pageerror', (e) => problems.push(`${label} ${where}: ${e.message}`));
+  await openEditor(page, site);
+  const routes = [
+    '',
+    'settings',
+    'company/colors',
+    'global/header',
+    'licenses',
+    'appearance/themes',
+    'seo',
+    'apps',
+    'new/pages',
+    'new/blog',
+  ];
+  const colours = async () =>
+    page.evaluate(() => {
+      const host = document.createElement('div');
+      host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
+      host.innerHTML =
+        '<button class="button" data-part="button">Label</button><button class="chip" data-part="chip">Label</button><div class="text-field text-field-outlined"><div class="text-field-container"><input class="text-field-input" data-part="field"></div></div><div class="list-item-container" data-part="row"><div class="list-item-content"><span class="list-item-headline" data-part="headline">Row</span></div></div>';
+      document.body.append(host);
+      const got = {};
+      for (const el of host.querySelectorAll('[data-part]')) {
+        const c = getComputedStyle(el);
+        got[el.dataset.part] = [c.color, c.backgroundColor, c.borderTopColor].join('|');
+      }
+      host.remove();
+      return got;
+    });
+  const colourAt = {};
+  for (const [name, attr] of [
+    ['Large', '1'],
+    ['Medium', '0'],
+    ['Small', '-1'],
+  ]) {
+    await page.evaluate((a) => document.documentElement.setAttribute('data-density', a), attr);
+    colourAt[name] = await colours();
+    if (name === 'Medium') continue;
+    for (const route of routes) {
+      where = `#${route} at ${name}`;
+      await page.evaluate((h) => (location.hash = h), route);
+      await page.waitForTimeout(150);
+      if (await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth))
+        problems.push(`${label} ${where}: the page scrolls sideways`);
+    }
+  }
+  for (const part of Object.keys(colourAt.Medium))
+    if (colourAt.Large[part] !== colourAt.Medium[part] || colourAt.Small[part] !== colourAt.Medium[part])
+      problems.push(
+        `${label}: the colours of ${part} change with density (${colourAt.Large[part]} / ${colourAt.Medium[part]} / ${colourAt.Small[part]})`,
+      );
+  await page.close();
+}
+
 /** The density variables (theme/styles/base.css) work in the browser: a person's step (data-density on <html>) and a theme's step add up, each group clamps them, and a part's calc() gives its default at 0 and 4px per step. */
 async function checkDensity(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
@@ -2571,6 +2631,73 @@ async function checkPreviewSection() {
   });
   if (!got || got === 'rgba(0, 0, 0, 0)') problems.push(`Preview section: a section with a background has none in the Preview (${got})`);
   await page.close();
+}
+
+/** A filled card with a video, a headline and a text, in a section on Primary, Secondary or Tertiary (card colour: the same container colour, or none), reads 4.5:1 on its own surface in light and dark mode, on a phone and a computer: its text, the video's title and the play button (3:1) take the container's on-colour, not the section's. */
+async function checkSectionCardContrast() {
+  const lum = ([r, g, b]) => {
+    const [R, G, B] = [r, g, b].map((v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+  };
+  const ratio = (a, b) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05);
+  for (const scheme of ['light', 'dark']) {
+    for (const [width, height] of [
+      [375, 740],
+      [1280, 900],
+    ]) {
+      const page = await browser.newPage({ viewport: { width, height }, colorScheme: scheme, locale: 'en-US' });
+      page.on('pageerror', (e) => problems.push(`Section card contrast: ${e.message}`));
+      if (!(await onDemoBlocksPage(page, `Section card contrast (${scheme}, ${width})`))) {
+        await page.close();
+        continue;
+      }
+      const found = await page.evaluate(() => {
+        const colors = ['primary', 'secondary', 'tertiary'];
+        const html = colors
+          .flatMap((section) => ['', ...colors].map((color) => `${section}/${color}`))
+          .map((id) => {
+            const [section, color] = id.split('/');
+            const cardsColor = color ? ` block-cards-${color}` : '';
+            return `<div class="text-section text-section-${section}" data-case="${id}"><div class="block-cards${cardsColor}"><div class="card card-filled block-card"><div class="prose block-card-video"><a class="video-facade" href="#"><svg viewBox="0 0 24 24" width="48" height="48" data-play><circle cx="12" cy="12" r="10" fill="currentColor"/></svg><span class="video-facade-title">Title</span></a></div><span class="block-card-title">Headline</span><p class="block-card-text">Text</p></div></div></div>`;
+          })
+          .join('');
+        document.body.insertAdjacentHTML('afterbegin', html);
+        const rgba = (css) => {
+          const c = document.createElement('canvas').getContext('2d');
+          c.fillStyle = css;
+          c.fillRect(0, 0, 1, 1);
+          return [...c.getImageData(0, 0, 1, 1).data];
+        };
+        return [...document.querySelectorAll('[data-case]')].flatMap((box) => {
+          const card = box.querySelector('.card');
+          const bg = rgba(getComputedStyle(card).backgroundColor);
+          // The card's surface is opaque here (a container), or a veil of the section's on-colour: the section's colour under it.
+          const under = rgba(getComputedStyle(box).backgroundColor);
+          const surface = bg[3] === 255 ? bg : bg.slice(0, 3).map((v, i) => Math.round((v * bg[3] + under[i] * (255 - bg[3])) / 255));
+          return [
+            ['headline', '.block-card-title', 4.5],
+            ['text', '.block-card-text', 4.5],
+            ['video title', '.video-facade-title', 4.5],
+            ['play button', '.video-facade svg', 3],
+          ].map(([what, selector, need]) => ({
+            id: box.dataset.case,
+            what,
+            need,
+            fg: rgba(getComputedStyle(box.querySelector(selector)).color),
+            surface,
+          }));
+        });
+      });
+      for (const f of found) {
+        const got = ratio(f.fg, f.surface);
+        if (got < f.need)
+          problems.push(
+            `Section card contrast (${f.id}, ${scheme}, ${width}): the ${f.what} of a filled card is ${got.toFixed(2)}:1 (needs ${f.need})`,
+          );
+      }
+      await page.close();
+    }
+  }
 }
 
 /** A page whose H1 section has a background (a colour or an image) has it start right under the navigation bar (gap 0 ±1px), on the site and in the Preview at 390 and 600; a page whose H1 section has none keeps its space under the bar. */
@@ -6407,11 +6534,14 @@ await unit('checkDensityLayout 375', () => checkDensityLayout(375, 740));
 await unit('checkDensityLayout 1280', () => checkDensityLayout(1280, 900));
 await unit('checkDensityTable 375', () => checkDensityTable(375, 740));
 await unit('checkDensityTable 1280', () => checkDensityTable(1280, 900));
+await unit('checkDensityScreens 375', () => checkDensityScreens(375, 740));
+await unit('checkDensityScreens 1280', () => checkDensityScreens(1280, 900));
 await unit('checkDensitySetting 375', () => checkDensitySetting(375, 740));
 await unit('checkDensitySetting 1280', () => checkDensitySetting(1280, 900));
 await unit('checkPreviewSection', () => checkPreviewSection());
 await unit('checkFullSection', () => checkFullSection());
 await unit('checkH1SectionGap', () => checkH1SectionGap());
+await unit('checkSectionCardContrast', () => checkSectionCardContrast());
 for (const w of [375, 1280]) await unit(`checkListMarkers ${w}`, () => checkListMarkers(w));
 for (const w of [375, 1280]) await unit(`checkListsAndBlocks ${w}`, () => checkListsAndBlocks(w));
 for (const w of [360, 375, 390, 414]) await unit(`checkPreviewDraft ${w}`, () => checkPreviewDraft(w));
