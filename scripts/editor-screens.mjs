@@ -510,26 +510,26 @@ async function checkBottomSheetBar(width, height, keyboard = 0, keyboardUp = fal
   await page.close();
 }
 
-/** A button of the active block's action row by its name; the block's settings are Block settings (Edit on an image card). */
-const rowSelector = (name) =>
-  name === 'Edit'
-    ? '.site-block-row-button[aria-label="Block settings"]:visible, .site-block-row-button[aria-label="Edit"]:visible'
-    : `.site-block-row-button[aria-label="${name}"]:visible`;
+/** A button of the active block's action row by its name (Move up, Move down, Hide on the page, Show on the page, Block settings; Edit on an image card). */
+const rowButton = (page, name) => page.locator(`.site-block-row-button[aria-label="${name}"]:visible`);
 
-/** A tool of the text's one bar by its name: its button on the bar, or its row in the ⋮ menu when it did not fit (a phone). `how`: 'click' or 'tap'. The bar's buttons keep the cursor where it is. */
+/** A tool of the text's one bar by its name: a button of the active block's action row, its button on the bar, or its row in the ⋮ menu when it did not fit (a phone). `how`: 'click' or 'tap'.
+ * The bar's buttons keep the cursor where it is. "Edit" is the bar's gear (the row's or item's settings); the block's own settings are Block settings, in the row. */
 async function pressTool(page, name, how = 'click') {
-  // The active block's own actions are in its action row above it (Move up, Move down, Hide or Show, Block settings), not on the bar or in the ⋮.
-  const inRow = page.locator(rowSelector(name));
+  const inRow = rowButton(page, name);
   if (await inRow.count()) return void (await inRow.first()[how]());
   const direct = page.locator(`.editor-tools button[aria-label="${name}"]:visible`);
   if (await direct.count()) return void (await direct.first()[how]());
   await pressMore(page, name, how, 'first');
 }
 
-/** A row of the bar's ⋮ menu by its name (the block's own menu: Edit, Hide on the page, Move up, Move down, Remove; and the tools that did not fit). */
+/** A row of the bar's ⋮ menu by its name (the block's own menu: Remove, Select; and the tools that did not fit). The block's own actions are in its action row, so
+ * `Edit` there is its Block settings button. */
 async function pressMore(page, name, how = 'click', which = 'last') {
-  const inRow = page.locator(rowSelector(name));
+  const inRow = rowButton(page, name);
   if (await inRow.count()) return void (await inRow.first()[how]());
+  const settings = name === 'Edit' && which === 'last' ? rowButton(page, 'Block settings') : null;
+  if (settings && (await settings.count())) return void (await settings.first()[how]());
   await page.locator('.editor-tools [aria-label="More"]:visible').first()[how]();
   const row = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${name}$`) });
   // `last`: the block's own menu, which is last in the ⋮ (a gear named Edit may stand before it); `first`: a tool of the bar that did not fit.
