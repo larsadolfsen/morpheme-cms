@@ -27,6 +27,8 @@ import { toolWidth } from '../src/textBar.mjs';
 import { allow, nestedUnits } from './spacing-grid.allow.mjs';
 import { installedApps } from '../lib/apps.mjs';
 import { appCheckPage } from '../lib/appCheckPage.mjs';
+import { CORE_PAGE_ID, coreTestSite } from './core-blocks-page.mjs';
+import { buildTestSite } from './test-site.mjs';
 
 // The editor is opened in Danish (locale da-DK below), so the texts it shows are read from its Danish messages. They are
 // TypeScript, which Node does not run in node_modules (ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING), so esbuild bundles
@@ -3447,7 +3449,7 @@ async function checkSectionCardContrast() {
     ]) {
       const page = await browser.newPage({ viewport: { width, height }, colorScheme: scheme, locale: 'en-US' });
       page.on('pageerror', (e) => problems.push(`Section card contrast: ${e.message}`));
-      if (!(await onDemoBlocksPage(page, `Section card contrast (${scheme}, ${width})`))) {
+      if (!(await onTestPage(page, `Section card contrast (${scheme}, ${width})`))) {
         await page.close();
         continue;
       }
@@ -5085,12 +5087,26 @@ async function checkNewList(width, height, label) {
   }
 }
 
-/** Opens the demo's Blocks page (/blocks/), which these checks measure. A site that is not the demo has none: the check says it is skipped, and nothing fails. */
-async function onDemoBlocksPage(page, label) {
-  const response = await page.goto(new URL('/blocks/', site).href).catch(() => null);
+/** Opens the system's test page (the Blocks page of core-blocks-page.mjs, on a temporary copy of the site), which these checks measure. It is built on first use, so it is there on any site. */
+async function onTestPage(page, label) {
+  const { site: testSite } = await serveCoreTestSite();
+  const response = await page.goto(new URL(`/${CORE_PAGE_ID}/`, testSite).href).catch(() => null);
   if (response && response.status() < 400) return true;
-  console.log(`${label}: skipped, the site has no Blocks page (/blocks/) to measure, which the demo has.`);
+  problems.push(`${label}: the system's test page (/${CORE_PAGE_ID}/) did not open on the temporary copy of the site`);
   return false;
+}
+
+/** The temporary copy of the site with the system's test page (core-blocks-page.mjs), built and served on the first use and deleted when the run ends: the
+ * page is never in the site's own folder. Its content is the demo's Blocks page, so the checks that measure it measure the same on any site. */
+let coreSite = null;
+async function serveCoreTestSite() {
+  coreSite ??= (async () => {
+    const { files, copies } = coreTestSite(ROOT);
+    const built = buildTestSite(ROOT, files, copies);
+    process.on('exit', built.remove);
+    return serveBuilt(built.dist);
+  })();
+  return coreSite;
 }
 
 /** The Library's images are the theme's image tiles in a staggered grid: cards with media (filled, the image to the edge), each in its own proportions (the box is
@@ -5159,7 +5175,7 @@ async function checkLibraryAlt() {
   const label = 'library alt text';
   const page = await browser.newPage({ locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  if (!(await onTestPage(page, label))) return page.close();
   const card = await page.locator('.block-card-picture img[src$="andromeda.webp"]').first().getAttribute('alt');
   if (card !== 'The Andromeda galaxy among thousands of stars')
     problems.push(`${label}: the Cards image has alt "${card}", expected the Library's text for it`);
@@ -5184,7 +5200,7 @@ async function checkCardIconText(width, height, scheme) {
     colorScheme: scheme,
   });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  if (!(await onTestPage(page, label))) return page.close();
   const found = await page.evaluate(() => {
     const pixel = (css) => {
       const c = document.createElement('canvas').getContext('2d');
@@ -5240,7 +5256,7 @@ async function checkCardsCarousel(width, height) {
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  if (!(await onTestPage(page, label))) return page.close();
   const root = page.locator('[data-cards-carousel]').first();
   if (!(await root.count())) return (problems.push(`${label}: no Cards carousel on the Blocks page`), page.close());
   await root.scrollIntoViewIfNeeded();
@@ -5340,7 +5356,7 @@ async function checkCardsSpacing(width, height) {
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  if (!(await onTestPage(page, label))) return page.close();
   const m = await page.evaluate(() => {
     const r = (e) => e.getBoundingClientRect();
     const px = (n) => Math.round(n * 10) / 10;
@@ -5772,7 +5788,7 @@ async function checkTableAlign(width, height) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   // The built site: the demo's Table has a column of numbers (Editors) and text columns.
   const built =
-    (await onDemoBlocksPage(page, label)) &&
+    (await onTestPage(page, label)) &&
     (await page.evaluate(() => {
       const at = (sel) => getComputedStyle(document.querySelector(sel)).textAlign;
       return {
@@ -5899,7 +5915,7 @@ async function checkTableRadius(width, height) {
   const label = `${width}px table radius`;
   const page = await browser.newPage({ viewport: { width, height } });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  if (!(await onTestPage(page, label))) return page.close();
   const got = await page.evaluate(() => {
     const card = document.querySelector('.card.block-card');
     const host = card?.parentElement;
@@ -5930,7 +5946,7 @@ async function checkSpacingGrid(width, height) {
   const label = `${width}px spacing grid`;
   const page = await browser.newPage({ viewport: { width, height } });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  if (!(await onTestPage(page, label))) return page.close();
   const found = await page.evaluate(
     ([nested, allowed]) => {
       const sides = {
@@ -6554,7 +6570,7 @@ async function checkExpandList(width, height) {
   const label = `${width}px List expand`;
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  if (!(await onTestPage(page, label))) return page.close();
   const list = page.locator('ul.list.list-expand:has(> li:nth-child(2))').first();
   if (!(await list.count())) {
     problems.push(`${label}: no List with expand and two items on /blocks/`);
@@ -7476,6 +7492,7 @@ for (const w of [360, 375, 390, 414]) await unit(`checkPreviewDraft ${w}`, () =>
 
 await browser.close();
 server.close();
+if (coreSite) (await coreSite).server.close();
 for (const [name, places] of fallbackOn) {
   const shown = [...places].slice(0, 3).join(', ');
   console.log(`${shown}${places.size > 3 ? ` and ${places.size - 3} more places` : ''}: ${fallbackIcon(name)}`);

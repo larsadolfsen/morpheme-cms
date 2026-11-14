@@ -19,7 +19,8 @@ request when all of this holds, one pull request at a time, and only after readi
 
 - the pull request is not a draft, has no merge conflict and no unresolved review comment;
 - its `check` job (`morpheme-staging`: its `Workers Builds` check) has finished green on the current head;
-- its changeset has the level its base branch allows (skill `changesets`; read it each time, never work from memory).
+- its changeset has the level its base branch allows (skill `changesets`; read it each time, never work from memory);
+- for a change the owner can see, the owner has approved it (**The owner approves what the owner sees**).
 
 A pull request that conflicts, has no `check` job or has the wrong changeset is not merged. The PM asks the session
 that owns it to merge `main` (or its base branch) into the branch (never a rebase, amend or force-push on someone else's
@@ -43,6 +44,45 @@ owner has to do or decide, such as approving a `next` build on npmjs.com and whi
 merge to `main` stages a new `next` build that only the owner approves. A pull request the owner has to see is assigned
 to the owner; the owner does not see the rest.
 
+**The owner approves what the owner sees.** Owner decision, 14 Nov 2026. A change the owner can see (the editor or the
+site) is merged only after the owner has seen it and said yes. The approval happens before the merge, so it is not a
+release gate: a release never waits on a list of reviews. A Preview cannot show the editor (no sign-in), so the
+owner sees screenshots in the pull request:
+
+- **Worker session.** When it thinks such a change is done and its `check` job is green, it adds the screenshots
+  (**Screenshots in the pull request**) as a comment on its own pull request, and tells the PM with the link and head sha.
+- **PM.** It reads the diff and the screenshots, sends the owner the pull request link as one report (**Reports**), and
+  assigns the pull request to `larsadolfsen`. The pull request waits unmerged until the owner answers. *Approved*: the PM
+  squash-merges as usual under **Merging** (the owner never merges). *What to change*: the PM sends the change to the
+  session of the pull request, or starts a new session with the whole task and the pull request's link when that session
+  is gone; the new head gets new screenshots and a new report.
+- **A change nobody sees** (docs, tests, CI, Worker internals, tooling) needs no screenshots and no approval, and is
+  merged as usual.
+- There is no separate "screenshots" session and no Artifact page: the images live in the pull request.
+
+**Screenshots in the pull request.** One comment on the pull request, headed with what changed, for every screen the
+change touched: a before and an after, each on a phone and a computer, in English, light theme, at
+`deviceScaleFactor: 2`, in every state the change touched (open menu, error, empty, selected). Take them from the built
+branch (`npm run build`; `openEditor` and `serveBuilt` in `scripts/built-site.mjs` open the editor without a login) and,
+for *before*, from `main` the same way. Put a short caption under each image. The images never go into the shipped
+package or into the pull request's own diff.
+
+**How the images get into the comment** (the one place to update). The GitHub tools cannot upload an image, so the images
+travel in git:
+
+1. Take the PNGs into a folder outside the repository checkout, for example the scratchpad.
+2. Make an orphan branch named `pr-screenshots/<pull request number>` (`git checkout --orphan`, `git rm -rf .`, add the PNGs
+   under `shots/`, commit, `git push -u origin`). An orphan branch shares no history with `main`, so nothing reaches the
+   package or the pull request's diff.
+3. In the comment, link each image as
+   `![caption](https://github.com/<owner>/<repo>/blob/pr-screenshots/<number>/shots/<file>.png?raw=true)`.
+4. After the pull request is merged or closed, delete the branch.
+
+*Checked 14 Nov 2026 (pull request #632):* a pushed orphan branch and a comment with this link work, and GitHub renders the
+comment as an `<img>` of the link. Not yet checked: that the owner's browser shows the image in this private repository.
+The first session that adds screenshots looks at the comment, and if the image does not show, it tries another way that
+leaves nothing in the shipped package. It then tells the PM exactly what worked, and the PM has this paragraph updated.
+
 **Cloudflare builds.** The PM keeps an eye out for failed Cloudflare builds: the `Workers Builds: …` check on every
 pull request and on `main` (the demo, `morpheme-demo`), and the builds of `morpheme-staging` and of the sites that
 install the `next` version. A failed build is never left unmentioned. The PM reads the build log, finds the cause and
@@ -61,13 +101,17 @@ owner) and keep it current.
 
 The PM never codes. No edits to source, tests, docs or `CLAUDE.md` in its own session. Every change, however small,
 goes to a new session (`create_session`) with the whole task in its first prompt. Every session the PM starts has a
-title that starts with the version, for example `0.16 plan: MCP and Appstore sections`.
+title that starts with the version, for example `0.16 plan: MCP and Appstore sections`. Its first prompt also carries
+this rule, in these words: "When a change the owner can see (the editor or the site) is done and `check` is green, add
+before and after screenshots of every changed screen to a comment on your own pull request, as the `pm` skill's
+*Screenshots in the pull request* says, and tell the PM with the link and head sha. A change nobody sees needs none."
 
 The owner only sees pull requests that are assigned to them on GitHub. When a session the PM started opens a pull request, or the PM takes over one that needs the owner to see, approve or decide something, the PM assigns it to the repository owner `larsadolfsen` (`update_pull_request`, `issue_write` assignees or the GitHub API) and keeps it assigned until it is merged.
 
 ## Phase 3 - Merge
 
-Merge under the conditions in **Merging** above: green `check` on the current head, no conflict, no unresolved comment,
+Merge under the conditions in **Merging** above, and for a change the owner can see only after the owner has approved
+it (**The owner approves what the owner sees**): green `check` on the current head, no conflict, no unresolved comment,
 and a changeset that fits the line (skill `changesets`, read each time). One pull request at a time, and only after
 reading the diff. The PM is the merger in every repository of the project
 (`morpheme-cms`, `morpheme-appstore`, `morpheme-apps`, `morpheme-staging`), also where a merge may deploy something live;
@@ -139,3 +183,9 @@ Example:
 > - **Why:** five editor fixes are merged, among them the text bar order and block selection.
 > - **How:** approve it with 2FA; the staging site installs it within a few minutes.
 > - **What:** you try the fixes on a real site before Sara's site gets them.
+
+> **Approve the new text bar** ([pull request #123](https://github.com/larsadolfsen/morpheme-cms/pull/123))
+>
+> - **Why:** the text bar now cross-fades between its two sets of tools.
+> - **How:** open the pull request and look at the screenshots, before and after, on a phone and a computer; answer approve, or what to change.
+> - **What:** nothing you have not seen is merged.
