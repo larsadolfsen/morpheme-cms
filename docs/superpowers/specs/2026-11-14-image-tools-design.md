@@ -44,9 +44,20 @@ modal sheet below it). The **crop view** is the new view of section 3. A **ratio
    of our own.
 5. **`Change link`** is the video's tool (it matches the field `Video link`).
 6. **`Alt text`** is the tool's name, the standard term. **The owner's general rule: use the standard names, Material 3's and the
-   web's, and never rename them.** The icon: no Material Symbols icon is named for alt text or an image's description (the whole
-   Outlined set of `@material-symbols/svg-400` 0.48.2, 7,874 names, was searched; `audio_description` is for audio), so the icon is
-   **`short_text`**.
+   web's, and never rename them;** no borrowed icon either ("I don't want short text when it is alt text. Use standards instead
+   of made up names."). The outcome of the icon search (14 Nov):
+   - **Names:** no Material Symbols icon is named for alt text, alternative text or an image's description. Searched: the whole
+     Outlined set of `@material-symbols/svg-400` 0.48.2 (7,874 names). The nearest names are about something else:
+     `audio_description` (audio), `closed_caption` and `subtitles` (video captions), `description` (a document), `accessibility`
+     and `accessible` (a person), `image_search`, `short_text` and `text_fields` (text in general).
+   - **Tags:** Google's tags live only on fonts.google.com (its icon metadata), and that host is blocked in the session that wrote
+     this spec, so the tags could not be read. The npm mirrors do not carry them (`@material-symbols/metadata` 0.49.0 holds versions
+     only; `@iconify-json/material-symbols` 1.2.99 holds categories, and none of its text says "alt text" or "image description").
+   - **So the tool is a labelled text button, `Alt text`, with no icon.** M3 allows it in a toolbar: "When configuring a toolbar,
+     think of it as a container with several slots. These slots can be populated by buttons, icon buttons, images, text fields, or
+     any kind of custom component." (`/components/toolbars/guidelines`.) The build PR (2) reads the tags on fonts.google.com
+     (Playwright) once more; only if Google names or tags a symbol for alt text or an image description does the tool get that
+     icon, with its name and tags quoted in the PR.
 7. **"Just call it hide":** the visibility words are **`Hide`** / **`Show`**, and the state is **`Hidden`**.
 8. **Parked:** no image tools for the Image grid's tiles; parked, not planned.
 
@@ -221,13 +232,15 @@ works there as on a phone.
   (`inPanelNow()`, owner 1b.2)**; the bar shows the image tools while the image is selected and the sheet is open. On a phone and
   a tablet (below expanded) a tap only selects, and the sheet opens from the row's `Settings`.
 - **The tools**, in this order (the bar's width budget, `planBar`, puts the last ones in `⋮` when they don't fit), each an icon
-  button with its label as name and tooltip (Material Symbols, by name through `Icon`):
+  button with its label as name and tooltip (Material Symbols, by name through `Icon`), except `Alt text`, which is a text button
+  (1b.6). A text button is wider than a 44 dp icon button; `planBar` takes its measured width from `TOOL_WIDTH`, so at 375 px the
+  tools after it may move into `⋮` sooner:
 
 | Tool | Icon (Material Symbols) | What it does |
 | --- | --- | --- |
 | `Change image` | `replace_image` | Opens the Library picker (`addImage`). The new image keeps the place, the alt text step of 9.1 follows; a ratio and crop are reset to `Original` (a new image starts as Original, decision 5), in a card to the block's ratio with the middle part. |
 | `Crop` | `crop` | Opens the crop view (section 3). |
-| `Alt text` | `short_text` (1b.6) | Opens the alt text sheet (9.1): `Decorative image` and `Alt text`. |
+| `Alt text` | none: a text button labelled `Alt text` (1b.6) | Opens the alt text sheet (9.1): `Decorative image` and `Alt text`. |
 | `Remove` | `delete` | Removes the image: in the text the Image block goes (as `Remove` in `⋮` today, which moves here); in a card the card's image is cleared and its media area shows the empty slots. Undo brings it back. A snackbar is not added (Undo is on the bar). |
 
 - **The Image block's row** keeps Move up, Move down, Hide or Show, `Settings`, the handle. `Settings` opens the **image sheet**
