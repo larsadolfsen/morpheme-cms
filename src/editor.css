@@ -2071,7 +2071,7 @@ dialog {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  /* M3's slider has the secondary container for its inactive track (the theme's own is the surface container high, the colour of the image area). */
+  /* The theme's inactive track is the surface container high, the colour of the image area, so it would not show here: the secondary container is used instead. */
   --slider-inactive-track: var(--mo-secondary-container);
 }
 @media (width >= theme(--breakpoint-medium)) {
