@@ -2686,12 +2686,16 @@ async function checkEmptyHint() {
         await page.keyboard.type('# From us to you');
         await page.waitForTimeout(300);
         if (color) {
-          if (touch) await page.getByRole('button', { name: 'More' }).first().dispatchEvent('click');
-          await page
-            .getByText('Section settings', { exact: true })
-            .or(page.getByRole('button', { name: 'Section settings' }))
+          // The bar shows the tool, or has it under More when it has no room for it (the width of the text decides, not the device).
+          const tool = page.getByRole('button', { name: 'Section settings', exact: true });
+          await tool
+            .or(page.getByRole('button', { name: 'More', exact: true }))
             .first()
-            .click();
+            .waitFor();
+          if (!(await tool.count())) {
+            await page.getByRole('button', { name: 'More', exact: true }).first().dispatchEvent('click');
+            await page.getByText('Section settings', { exact: true }).first().click();
+          } else await tool.first().click();
           await page.getByText('Primary', { exact: true }).first().click();
           await page.getByRole('button', { name: 'Save', exact: true }).first().click();
           await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 10_000 });
