@@ -1,0 +1,6 @@
+{
+  "id": "flat-select-circle",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "The select circle on a block has no shadow and looks like part of the block's dotted outline"
+}

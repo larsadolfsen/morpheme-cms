@@ -43,7 +43,7 @@ export const app = {
     logo: 'logo',
     icon: 'icon',
     r2Caching: 'R2 caching',
-    place: 'storage location',
+    place: 'R2 location',
     contentOnlyBuilds: 'content-only builds',
     paidBuilds: 'Workers Paid plan',
   },

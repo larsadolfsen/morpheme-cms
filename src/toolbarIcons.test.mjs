@@ -32,7 +32,8 @@ test('a tool with a menu rests in the same colour as the other tools, not the te
 
 test('every icon of the text toolbar is Phosphor, or one of the text sizes drawn on its grid', () => {
   const imports = [...editor.matchAll(/^import \w+ from '([^']+\.svg\?raw)';/gm)].map((m) => m[1]);
-  assert.ok(imports.length >= 6);
+  // Settings and edit icons are Material Symbols from meaningIcons.ts (one icon per meaning), not raw imports here.
+  assert.ok(imports.length >= 5);
   for (const file of imports) {
     assert.match(
       file,
