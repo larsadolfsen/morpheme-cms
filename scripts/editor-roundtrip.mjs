@@ -4,7 +4,7 @@
 // be the same text. The fixed pages (src/data/*.json with sections) are loaded as their text with the
 // sections as blocks (packages/editor/src/sections.mjs) and read back: the sections must be the same, a section
 // of text with the same heading and the same HTML. Every page is also read into sections as the front page (as the
-// site reads the page that is the front page without the editor, partsOfMarkdown in sections.mjs, after migrateFrontBanner in lib/front-banner.mjs, packages/editor/site/home.ts):
+// site reads the page that is the front page without the editor, partsOfMarkdown in sections.mjs, packages/editor/site/home.ts):
 // they must be those the editor reads. A page whose template is changed and changed back has the same front matter (the default leaves no key; template-round-trip.mjs). Run: npm run check:editor [files...]
 // A built-in sample with section colours checks that the editor and the site give the front page's sections the same colours.
 // Milkdown needs a DOM; jsdom stands in for the browser.
@@ -34,7 +34,6 @@ const { editorViewCtx } = await import('@milkdown/kit/core');
 const { createMarkdownProcessor } = await import('@astrojs/markdown-remark');
 const { makeEditor, markdownOf, partsOf, spacing } = await import('@morphemecms/cms/src/markdown.mjs');
 const { introOf, partsOfMarkdown, sectionsFromParts, sectionsToMarkdown } = await import('@morphemecms/cms/src/sections.mjs');
-const { migrateFrontBanner } = await import('@morphemecms/cms/lib/front-banner.mjs');
 const { withSiteModules } = await import('../site/siteModules.mjs');
 // The field of the sections of each fixed page (@site/collections): the sections whose text is written
 // above their card (their lead), and the page's introduction above them (intro).
@@ -62,12 +61,11 @@ const fixed = readdirSync('src/data')
 const files = process.argv.length > 2 ? process.argv.slice(2) : [...walk('src/content/blog'), ...walk('src/content/pages'), ...fixed];
 
 // The site's own Markdown steps (astro.mjs), so a block that has become text reads the same before and after a save.
-const { remarkBannerSections } = await import('@morphemecms/cms/lib/remark-banner-section.mjs');
 const { remarkChecklists } = await import('@morphemecms/cms/lib/remark-checklist.mjs');
 const { remarkListHeads } = await import('@morphemecms/cms/lib/remark-list-head.mjs');
 const { remarkBlockLabels } = await import('@morphemecms/cms/lib/remark-block-label.mjs');
 const processor = await createMarkdownProcessor({
-  remarkPlugins: [remarkBannerSections, remarkChecklists, remarkListHeads, remarkBlockLabels],
+  remarkPlugins: [remarkChecklists, remarkListHeads, remarkBlockLabels],
 });
 const render = async (md) => (await processor.render(md)).code.replace(/\s+/g, ' ').trim();
 
@@ -113,15 +111,11 @@ async function sectionsBack(sections, intro, field) {
   await editor.destroy();
   return [back, sectionsFromParts(parts, leads)];
 }
-// The text of a section of text, and of the front page's top, as HTML.
+// The text of a section of text as HTML.
 const comparable = async (intro, sections) =>
   JSON.stringify([
     intro ?? '',
-    ...(await Promise.all(
-      sections.map(async (s) =>
-        s.type === 'text' ? { ...s, body: await render(s.body) } : s.type === 'hero' ? { ...s, text: await render(s.text) } : s,
-      ),
-    )),
+    ...(await Promise.all(sections.map(async (s) => (s.type === 'text' ? { ...s, body: await render(s.body) } : s)))),
   ]);
 
 // A text with coloured sections must give the same sections (with their colours) in the editor as on the site.
@@ -139,7 +133,7 @@ const colorSample = [
 ].join('\n\n');
 const frontSections = async (body, parts) => [
   await comparable('', sectionsFromParts(parts, frontLeads, { colors: true })),
-  await comparable('', sectionsFromParts(partsOfMarkdown(migrateFrontBanner(body)), frontLeads, { colors: true })),
+  await comparable('', sectionsFromParts(partsOfMarkdown(body), frontLeads, { colors: true })),
 ];
 {
   const editor = await makeEditor(document.createElement('div'), colorSample).use(spacing).create();
@@ -259,7 +253,7 @@ for (const file of files) {
   if (isPage) {
     const [editors, site] = [
       await comparable('', sectionsFromParts(parts, frontLeads)),
-      await comparable('', sectionsFromParts(partsOfMarkdown(migrateFrontBanner(body)), frontLeads)),
+      await comparable('', sectionsFromParts(partsOfMarkdown(body), frontLeads)),
     ];
     const [editorColors, siteColors] = await frontSections(body, parts);
     if (editors !== site || editorColors !== siteColors) {

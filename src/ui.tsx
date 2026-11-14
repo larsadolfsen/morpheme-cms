@@ -231,13 +231,17 @@ export function ToolbarButton({
   menu,
   popup,
   count,
+  text,
   disabled,
   reason,
   onClick,
 }: {
   ref?: Ref<HTMLButtonElement>;
-  icon: Icon;
+  icon?: Icon;
   label: string;
+  /** A labelled text button with no icon, drawn exactly this many dp wide (Alt text; its width is planned on the bar, textBar.mjs). M3: a toolbar's
+   * slots "can be populated by buttons, icon buttons, images, text fields, or any kind of custom component" (components/toolbars/guidelines). */
+  text?: { width: number };
   /** The block selection's count: the icon (a cross) and this number in the theme's text button, two slots wide; tapping it clears the selection. */
   count?: number;
   /** Marked while it applies where the cursor is (bold); undefined for a tool that is not on or off. */
@@ -262,13 +266,30 @@ export function ToolbarButton({
     onClick,
     ...tooltip.on,
   };
+  if (text)
+    return (
+      <>
+        <SiteButton
+          ref={ref}
+          kind="text"
+          size="xsmall"
+          aria-label={label}
+          className="toolbar-text-button"
+          style={{ ...toolbarTextSize, width: `${text.width / 16}rem` }}
+          {...own}
+        >
+          {label}
+        </SiteButton>
+        {tooltip.tip}
+      </>
+    );
   if (count !== undefined)
     return (
       <>
         <SiteButton
           kind="text"
           size="xsmall"
-          icon={<Glyph />}
+          icon={Glyph && <Glyph />}
           aria-label={label}
           className="toolbar-count-button"
           style={toolbarMenuSize}
@@ -282,12 +303,12 @@ export function ToolbarButton({
   return (
     <>
       {menu === undefined ? (
-        <SiteIconButton ref={ref} icon={<Glyph />} label={label} selected={selected} style={toolbarSize} {...own} />
+        <SiteIconButton ref={ref} icon={Glyph ? <Glyph /> : <></>} label={label} selected={selected} style={toolbarSize} {...own} />
       ) : (
         <SiteButton
           kind="text"
           size="xsmall"
-          icon={<Glyph />}
+          icon={Glyph && <Glyph />}
           trailingIcon={<CaretDown size={12} />}
           aria-label={label}
           className="toolbar-menu-button"
@@ -334,6 +355,13 @@ const closeToolbar = {
 } as CSSProperties;
 
 // A tool's size in the text's bar: 44 by 44 dp with a 20 dp icon, outside the user's density choice (owner decision, 13 Nov; docs/material-deviations.md).
+// A text tool (Alt text): as high as the icon buttons, the label in the middle of its planned width, no wrap.
+const toolbarTextSize = {
+  minHeight: '2.75rem',
+  justifyContent: 'center',
+  paddingInline: '0',
+  whiteSpace: 'nowrap',
+} as CSSProperties;
 const toolbarSize = { '--icon-button-size': '2.75rem', '--icon-button-icon-size': '1.25rem' } as CSSProperties;
 // A tool with a menu there: as high as the others, its icon where an icon button's is (0.625rem in from its start) and
 // the arrow close after it, not a text button's room round a label it does not have (as over the selection, editor.css).
