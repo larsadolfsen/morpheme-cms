@@ -5,44 +5,52 @@
     {
       "id": "apps-turn-off",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "Pause af apps",
       "text": "En app på pause beholder sine indstillinger. Åbn appen under Apps, og slå Aktiveret fra. Slå den til igen, når du vil; intet er tabt."
     },
     {
       "id": "developer-menu",
       "kind": "line",
+      "mark": "improvement",
       "text": "Avanceret under Indstillinger hedder nu Udvikler, og dine gamle links virker stadig"
     },
     {
       "id": "dynamic-lists-page",
       "kind": "line",
+      "mark": "improvement",
       "text": "Lister i menuen hedder nu Dynamiske lister og åbner en side med alle dine lister"
     },
     {
       "id": "editor-footer",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "Editorens sidefod",
       "text": "Du kan se, hvorfor det ikke lykkes at gemme eller udgive. Rul ned til bunden af editoren, og tryk på Driftsstatus. Den tjekker GitHub og Cloudflare, men kun de tjenester, din hjemmeside bruger."
     },
     {
       "id": "editor-toolbar-dock",
       "kind": "line",
+      "mark": "improvement",
       "text": "På en telefon fylder værktøjslinjen til tekst mindre"
     },
     {
       "id": "google-preview-closer",
       "kind": "paragraph",
+      "mark": "improvement",
       "title": "Google-forhåndsvisning",
       "text": "Du ser din side, som Google viser den. Åbn en side eller et blogindlæg, og se under Søgemaskiner. Forhåndsvisningen ligner det rigtige resultat på telefon og computer, og dit vigtigste søgeord står med fed."
     },
     {
       "id": "morpheme-connection-page",
       "kind": "line",
+      "mark": "improvement",
       "text": "Forbindelse til Appstore ligger nu på siden Morpheme under Indstillinger"
     },
     {
       "id": "quiet-lamps-wander",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "Nyheder",
       "text": "Du ser, hvad der er ændret efter hver opdatering. Et kort overblik vises, når opdateringen er på plads. Alle noterne finder du på siden Morpheme under Indstillinger."
     }

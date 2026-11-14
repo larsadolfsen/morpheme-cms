@@ -1,5 +1,6 @@
 {
   "id": "sheet-start-height",
   "kind": "line",
+  "mark": "improvement",
   "text": "Sheets from the bottom open at half the screen at most on a phone, and you drag them up to see more"
 }

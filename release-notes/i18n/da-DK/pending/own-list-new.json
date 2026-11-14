@@ -1,6 +1,7 @@
 {
   "id": "own-list-new",
   "kind": "paragraph",
+  "mark": "feature",
   "title": "Ny liste",
   "text": "Én liste kan fylde mange sider, så du skriver hver ydelse eller medarbejder kun én gang. Under Dynamiske lister trykker du Ny liste og giver den et navn. Listen starter tom: Tilføj felter ét ad gangen, også flere af samme slags. Vælg den derefter under Rækker fra."
 }

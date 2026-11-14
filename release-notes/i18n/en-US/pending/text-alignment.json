@@ -1,6 +1,7 @@
 {
   "id": "text-alignment",
   "kind": "paragraph",
+  "mark": "feature",
   "title": "Text alignment",
   "text": "A short line can sit in the middle or on the right of the page. Press Alignment in the text toolbar and choose Align left, Align center or Align right. It works on paragraphs and subheadings; section headings, lists and quotes stay left."
 }

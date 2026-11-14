@@ -1,5 +1,6 @@
 {
   "id": "card-blocks-spacing",
   "kind": "line",
+  "mark": "improvement",
   "text": "Testimonials and price cards space their texts and links like cards"
 }

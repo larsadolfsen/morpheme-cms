@@ -1,6 +1,7 @@
 {
   "id": "icon-picker-search",
   "kind": "paragraph",
+  "mark": "improvement",
   "title": "Søg i alle ikoner",
   "text": "Det var svært at finde det rigtige ikon blandt 28. I ikonvælgeren kan du søge eller trykke på en kategori og se et af over 3.900 ikoner fra Material Symbols, 100 ad gangen."
 }

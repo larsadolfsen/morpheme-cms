@@ -1,5 +1,6 @@
 {
   "id": "elevated-in-sections",
   "kind": "line",
+  "mark": "improvement",
   "text": "Elevated buttons and chips are readable in a section on a colour"
 }

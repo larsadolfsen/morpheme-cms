@@ -1,6 +1,7 @@
 {
   "id": "choose-density",
   "kind": "paragraph",
+  "mark": "feature",
   "title": "Density",
   "text": "Fit more on the screen, or give it more air. Choose Density under Account: Large, Medium or Small. It changes buttons, chips, fields and rows in the editor, never the page you edit. Medium is as before."
 }

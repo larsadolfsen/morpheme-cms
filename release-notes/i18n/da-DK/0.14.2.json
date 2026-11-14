@@ -5,16 +5,19 @@
     {
       "id": "footer-scrolls-above-fab",
       "kind": "line",
+      "mark": "improvement",
       "text": "På en telefon skjuler plusknappen ikke længere linkene nederst i editoren"
     },
     {
       "id": "lists-follow-md3",
       "kind": "line",
+      "mark": "improvement",
       "text": "Lister i editoren har større tekst og skiller sig bedre ud fra siden"
     },
     {
       "id": "update-message-whats-new",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "Opdateringsbesked",
       "text": "Du ser nyhederne, uden at lede efter dem. Efter en opdatering viser startskærmen øverst den nye version og de vigtigste nyheder. Tryk på Se, hvad der er nyt for at læse det hele."
     }

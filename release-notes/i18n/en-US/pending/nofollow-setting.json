@@ -1,5 +1,6 @@
 {
   "id": "nofollow-setting",
   "kind": "line",
+  "mark": "feature",
   "text": "Hide from search engines is now called No index, and a new No follow switch comes after it"
 }

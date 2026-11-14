@@ -1,6 +1,7 @@
 {
   "id": "menu-globals-regroup",
   "kind": "paragraph",
+  "mark": "improvement",
   "title": "Globale dele",
   "text": "Header, Footer og Sidekolonne var svære at finde under Udseende. Åbn Globale dele i menuen for at redigere det, alle sider deler, sammen med Blokskabeloner. Farver ligger nu under Virksomheden og Blokindstillinger under Indstillinger."
 }

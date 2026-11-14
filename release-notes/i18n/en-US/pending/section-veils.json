@@ -1,6 +1,7 @@
 {
   "id": "section-veils",
   "kind": "paragraph",
+  "mark": "improvement",
   "title": "Section surfaces",
   "text": "Rows and other filled parts in a section with a colour are lighter, so their text is easier to read. They take a quieter shade of the section's text colour, in light and dark mode. Sections without a colour are unchanged."
 }

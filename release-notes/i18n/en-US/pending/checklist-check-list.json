@@ -1,5 +1,6 @@
 {
   "id": "checklist-check-list",
   "kind": "line",
+  "mark": "improvement",
   "text": "Checklists are now check lists in the text, with the heading and intro as plain text above"
 }
