@@ -73,6 +73,10 @@ export const text = {
   moveAtBottom: 'This block is already last',
   dragOff: 'Drag is off while several blocks are selected',
   blockSettings: 'Block settings',
+  /** The block's menu: the row whose submenu turns the block into another list block (Change to). */
+  changeTo: 'Change to',
+  /** The snackbar after Change to, with Undo. */
+  changedTo: (name: string) => `Changed to ${name}`,
   blocksSelected: (count: number) => (count === 1 ? '1 block selected' : `${count} blocks selected`),
   clearBlockSelection: (count: number) => `Clear selection, ${count === 1 ? '1 block selected' : `${count} blocks selected`}`,
   selectBlock: 'Select',
