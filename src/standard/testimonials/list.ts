@@ -21,6 +21,8 @@ export default function testimonialsList(say: Messages): OwnedList {
     folder: `${config.folders.data}/testimonials`,
     deletable: true,
     orderable: true,
+    // Its fields are fixed: `Edit list` shows them without the bar that adds one.
+    locked: true,
     slugFrom: 'name',
     summary: (d) => String(d.name ?? ''),
     fields: [
