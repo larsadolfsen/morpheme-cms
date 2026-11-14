@@ -6398,7 +6398,7 @@ async function checkTableAlign(width, height) {
       [
         ...buttons.filter((b) => b.pressed !== null).map((b) => [b.label, b.pressed]),
         ...more.filter((m) => m.pressed !== null).map((m) => [m.label, m.pressed]),
-      ].filter(([name]) => /column/.test(name) && /lign|entre/.test(name)),
+      ].filter(([name]) => /column/.test(name) && /lign|Center/.test(name)),
     );
   };
   await cellField(1, 1).click();
@@ -6418,7 +6418,7 @@ async function checkTableAlign(width, height) {
   if (!start(left.textHead)) problems.push(`${label}: another column changed with Align column left (${left.textHead})`);
   if ((await bar())['Align column left'] !== 'true') problems.push(`${label}: Align column left is not shown pressed after it was chosen`);
   await press('Center column');
-  if ((await aligns()).numberCell !== 'center') problems.push(`${label}: Center column did not centre the number column`);
+  if ((await aligns()).numberCell !== 'center') problems.push(`${label}: Center column did not center the number column`);
   await page.screenshot({ path: join(shots, `table-align-${width}.png`) });
   await press('Align column right');
   await press('Align column automatically');
