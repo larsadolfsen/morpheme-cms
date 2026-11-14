@@ -201,7 +201,7 @@ function Tile({
   const row = made && 'selectable' in made ? made : undefined;
   const selecting = !!selection?.selecting;
   const selected = !!row?.selected;
-  const press = useLongPress(row ? () => row.onSelectedChange() : undefined, selecting);
+  const press = useLongPress(row ? () => row.onSelectedChange?.() : undefined, selecting);
   return (
     <li className={`group relative ${selecting ? 'select-none [-webkit-touch-callout:none]' : ''}`}>
       <button
@@ -227,7 +227,7 @@ function Tile({
               ? 'opacity-100'
               : 'pointer-events-none opacity-0 group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100'
           }`}
-          onClick={() => row.onSelectedChange()}
+          onClick={() => row.onSelectedChange?.()}
         >
           <span
             className={`flex size-6 items-center justify-center rounded-full ring-2 ring-surface ${
