@@ -2,7 +2,8 @@
 // image shows only if it has all of them) and open bigger. The images are those of Files with any of the block's tags (all without tags), or those
 // picked (their order is kept). Each image's text, tags, caption and credit are its record's (src/fileRecords.mjs); a picked image can have a text of
 // its own in the block. What it shows is view.ts (the editor) and load.ts (the site); the filter's rules, filter.mjs; how it looks is the theme's
-// (theme/blocks/imagegrid/View.tsx). The settings are in its sheet: it has no text to type.
+// (theme/blocks/imagegrid/View.tsx). Typed in place (InlineLiveList.tsx): drawn as the site draws it, with the images of Files; the heading and the subheading are
+// typed above them, everything else (which images, tags, what a card shows, its style, columns) is in Edit.
 import { SquaresFour } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { t } from '../../i18n';
@@ -13,6 +14,13 @@ export default defineBlock({
   label: t.blocks.imageGrid.label,
   icon: SquaresFour,
   hint: t.blocks.imageGrid.hint,
+  inline: {
+    item: '',
+    single: true,
+    fields: ['heading', 'intro'],
+    blockSettings: true,
+    texts: { addAbove: '', addBelow: '', row: t.blocks.imageGrid.label },
+  },
   edit: { to: 'blocks/imagegrid', text: t.blocks.imageGrid.edit },
   fields: [
     ...headFields,

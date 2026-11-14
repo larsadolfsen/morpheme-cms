@@ -14,6 +14,7 @@ import InlineFaq from './InlineFaq';
 import InlinePriceCards from './InlinePriceCards';
 import InlineTestimonials from './InlineTestimonials';
 import InlinePosts from './InlinePosts';
+import InlineImageGrid from './InlineImageGrid';
 import type { Change, Focus, Item } from './InlineItems';
 
 export type InlineViewProps = {
@@ -51,4 +52,5 @@ export const inlineViews: Record<string, ComponentType<InlineViewProps>> = {
   pricecards: InlinePriceCards,
   testimonials: InlineTestimonials,
   posts: InlinePosts,
+  imagegrid: InlineImageGrid,
 };
