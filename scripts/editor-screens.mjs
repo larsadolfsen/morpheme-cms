@@ -3101,6 +3101,7 @@ const inlineBlocks = [
 const liveLists = [
   { name: 'testimonials', hint: 'Testimonials as cards or in a list.', items: '[data-testimonial]' },
   { name: 'posts', hint: 'Blog posts in a list.', items: '.block-posts-in-text li' },
+  { name: 'imagegrid', hint: 'Images from Files, filtered by tag.', items: '.block-imagegrid-grid li' },
 ];
 
 async function checkLiveList(width, height, { name, hint, items }) {
@@ -3125,6 +3126,13 @@ async function checkLiveList(width, height, { name, hint, items }) {
   }
   if (await page.locator('dialog[open]').count()) problems.push(`${label}: Insert opened a sheet`);
   if (!(await page.locator(`.site-block-inline ${items}`).count())) problems.push(`${label}: the block shows none of the demo's items`);
+  if (name === 'imagegrid') {
+    // The filter's chips are drawn in the card and do nothing: a tap on one filters nothing.
+    const chips = page.locator('.site-block-inline [data-imagegrid-filter] [data-tag]');
+    if (!(await chips.count()) || !(await chips.first().isVisible())) problems.push(`${label}: the filter's chips are not drawn`);
+    else if ((await chips.first().evaluate((c) => getComputedStyle(c).pointerEvents)) !== 'none')
+      problems.push(`${label}: a chip is not inert`);
+  }
   await page.keyboard.type('Our list');
   // The gear opens the settings: they do not repeat the heading and subheading typed in place, and still hold the rest.
   // On a phone the bar's gear; on a computer the block's own menu in the bar's ⋮.

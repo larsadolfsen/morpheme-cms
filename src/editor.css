@@ -998,6 +998,10 @@ html {
   pointer-events: auto;
 }
 
+/* Image grid typed in place (InlineImageGrid.tsx shows the filter's chips): they do nothing here; the Preview has the real filter. */
+.editor-text .site-block-inline .block-imagegrid-filter .chip {
+  pointer-events: none;
+}
 .editor-text .site-block-inline:focus-within {
   border-color: var(--mo-primary);
 }
