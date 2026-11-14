@@ -91,7 +91,7 @@ export const common: Messages['common'] = {
     company: 'Virksomheden',
     header: 'Header',
     footer: 'Footer',
-    lists: 'Dynamiske lister',
+    lists: 'Lister',
     blocks: 'Blokskabeloner',
     media: 'Filer',
     appearance: 'Udseende',

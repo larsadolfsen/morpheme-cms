@@ -174,7 +174,8 @@ export function LinkButton({
  * tick); `selected`: marked, while what it does applies (a filter, the open one); `badge`: how many are new (a
  * number), or that something is (true), which `label` says too, as the label is the button's name. */
 type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'type'> & {
-  icon: Icon;
+  /** A Phosphor-shaped icon, or a Material Symbols name (drawn by the shared Icon, in the pack in use). */
+  icon: Icon | string;
   /** What it does: its name for screen readers and its tooltip. */
   label: string;
   kind?: IconButtonKind;
@@ -189,7 +190,7 @@ export function IconButton({ icon: Glyph, label, ...rest }: IconButtonProps) {
   const tooltip = useTooltip(label, rest);
   return (
     <>
-      <SiteIconButton icon={<Glyph />} label={label} {...rest} {...tooltip.on} />
+      <SiteIconButton icon={typeof Glyph === 'string' ? Glyph : <Glyph />} label={label} {...rest} {...tooltip.on} />
       {tooltip.tip}
     </>
   );
@@ -202,7 +203,7 @@ export function IconLink({
   href = '',
   ...rest
 }: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'type'> & {
-  icon: Icon;
+  icon: Icon | string;
   label: string;
   kind?: IconButtonKind;
   selected?: boolean;
@@ -211,7 +212,7 @@ export function IconLink({
   const tooltip = useTooltip(label, rest);
   return (
     <>
-      <SiteIconButton icon={<Glyph />} label={label} href={href} {...rest} {...tooltip.on} />
+      <SiteIconButton icon={typeof Glyph === 'string' ? Glyph : <Glyph />} label={label} href={href} {...rest} {...tooltip.on} />
       {tooltip.tip}
     </>
   );
@@ -229,13 +230,17 @@ export function ToolbarButton({
   menu,
   popup,
   count,
+  text,
   disabled,
   reason,
   onClick,
 }: {
   ref?: Ref<HTMLButtonElement>;
-  icon: Icon;
+  icon?: Icon;
   label: string;
+  /** A labelled text button with no icon, drawn exactly this many dp wide (Alt text; its width is planned on the bar, textBar.mjs). M3: a toolbar's
+   * slots "can be populated by buttons, icon buttons, images, text fields, or any kind of custom component" (components/toolbars/guidelines). */
+  text?: { width: number };
   /** The block selection's count: the icon (a cross) and this number in the theme's text button, two slots wide; tapping it clears the selection. */
   count?: number;
   /** Marked while it applies where the cursor is (bold); undefined for a tool that is not on or off. */
@@ -260,13 +265,30 @@ export function ToolbarButton({
     onClick,
     ...tooltip.on,
   };
+  if (text)
+    return (
+      <>
+        <SiteButton
+          ref={ref}
+          kind="text"
+          size="xsmall"
+          aria-label={label}
+          className="toolbar-text-button"
+          style={{ ...toolbarTextSize, width: `${text.width / 16}rem` }}
+          {...own}
+        >
+          {label}
+        </SiteButton>
+        {tooltip.tip}
+      </>
+    );
   if (count !== undefined)
     return (
       <>
         <SiteButton
           kind="text"
           size="xsmall"
-          icon={<Glyph />}
+          icon={Glyph && <Glyph />}
           aria-label={label}
           className="toolbar-count-button"
           style={toolbarMenuSize}
@@ -280,12 +302,12 @@ export function ToolbarButton({
   return (
     <>
       {menu === undefined ? (
-        <SiteIconButton ref={ref} icon={<Glyph />} label={label} selected={selected} style={toolbarSize} {...own} />
+        <SiteIconButton ref={ref} icon={Glyph ? <Glyph /> : <></>} label={label} selected={selected} style={toolbarSize} {...own} />
       ) : (
         <SiteButton
           kind="text"
           size="xsmall"
-          icon={<Glyph />}
+          icon={Glyph && <Glyph />}
           trailingIcon={<CaretDown size={12} />}
           aria-label={label}
           className="toolbar-menu-button"
@@ -332,6 +354,13 @@ const closeToolbar = {
 } as CSSProperties;
 
 // A tool's size in the text's bar: 44 by 44 dp with a 20 dp icon, outside the user's density choice (owner decision, 13 Nov; docs/material-deviations.md).
+// A text tool (Alt text): as high as the icon buttons, the label in the middle of its planned width, no wrap.
+const toolbarTextSize = {
+  minHeight: '2.75rem',
+  justifyContent: 'center',
+  paddingInline: '0',
+  whiteSpace: 'nowrap',
+} as CSSProperties;
 const toolbarSize = { '--icon-button-size': '2.75rem', '--icon-button-icon-size': '1.25rem' } as CSSProperties;
 // A tool with a menu there: as high as the others, its icon where an icon button's is (0.625rem in from its start) and
 // the arrow close after it, not a text button's room round a label it does not have (as over the selection, editor.css).
@@ -2046,7 +2075,11 @@ export function Menu({
         ref={sheet}
         tabIndex={-1}
         aria-label={label}
-        onClick={(e) => (e.target === sheet.current || (e.target as Element).closest('[role^="menuitem"]')) && sheet.current?.close()}
+        onClick={(e) =>
+          (e.target === sheet.current ||
+            ((e.target as Element).closest('[role^="menuitem"]') && !(e.target as Element).closest('[data-menu-stays]'))) &&
+          sheet.current?.close()
+        }
         onClose={(e) => e.target === e.currentTarget && onClose()}
         className="focus:outline-none"
       >
@@ -2067,7 +2100,8 @@ export function Menu({
       className="editor-menu fixed z-30 focus:outline-none"
       tabIndex={attached ? -1 : undefined}
       onClick={(e: MouseEvent) => {
-        if (!(e.target as Element).closest('[role^="menuitem"]')) return;
+        // A row that opens the next level, or goes back from it, keeps the menu open.
+        if (!(e.target as Element).closest('[role^="menuitem"]') || (e.target as Element).closest('[data-menu-stays]')) return;
         if (attached) anchor.querySelector<HTMLElement>('button')?.focus();
         onClose();
       }}
@@ -2112,6 +2146,9 @@ export function MenuItem({
   icon: Glyph,
   selected,
   disabled,
+  opens,
+  back,
+  onKeyDown,
   onClick,
   children,
 }: {
@@ -2120,6 +2157,11 @@ export function MenuItem({
   selected?: boolean;
   /** It cannot be chosen now (Move up on the first card). */
   disabled?: boolean;
+  /** It opens the menu's next level (a submenu, Change to): an arrow at its end, and the menu stays open; Right arrow opens it too. */
+  opens?: boolean;
+  /** The row back from the next level: the menu stays open; Left arrow anywhere in that level goes back too (`onKeyDown` of its rows). */
+  back?: boolean;
+  onKeyDown?: (e: KeyboardEvent<HTMLElement>) => void;
   onClick: () => void;
   children: ReactNode;
 }) {
@@ -2128,7 +2170,18 @@ export function MenuItem({
       icon={Glyph && <Glyph />}
       selected={selected}
       disabled={disabled}
+      trailingIcon={opens ? 'caret-right' : undefined}
+      aria-haspopup={opens ? 'menu' : undefined}
+      aria-expanded={opens ? false : undefined}
+      data-menu-stays={opens || back || undefined}
       onMouseDown={(e: MouseEvent) => e.preventDefault()}
+      onKeyDown={(e: KeyboardEvent<HTMLElement>) => {
+        if (opens && e.key === 'ArrowRight') {
+          e.preventDefault();
+          onClick();
+        }
+        onKeyDown?.(e);
+      }}
       onClick={onClick}
     >
       {children}

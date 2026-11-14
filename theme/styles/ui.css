@@ -4510,9 +4510,9 @@
   }
 }
 
-/* ---- Actions: ButtonGroup, SegmentedButton, SplitButton, FabMenu ---- */
+/* ---- Actions: ButtonGroup, SegmentedButton, ChoiceGroup, SplitButton, FabMenu ---- */
 /*
-  The buttons that do more than one thing (../ui/ButtonGroup.tsx, SegmentedButton.tsx, SplitButton.tsx, FabMenu.tsx),
+  The buttons that do more than one thing (../ui/ButtonGroup.tsx, SegmentedButton.tsx, ChoiceGroup.tsx, SplitButton.tsx, FabMenu.tsx),
   named as Material 3 names them. They are made of the buttons and the FABs above (their classes), so they take their
   variables (--button-*, --fab-*) where it is the same thing; what is here is what they add. A theme changes it with
   these variables, and with rules on the classes where a variable is not enough.
@@ -4535,6 +4535,20 @@
     --segmented-button-selected-surface, -selected-text, -selected-hover
     --segmented-button-selected-check, --segmented-button-selected-icon   whether the chosen shows its check and its
                                                                          icon (none, or a display value: block)
+  Choice group (ChoiceGroup, choiceGroupClass): .choice-group, one choice of a few that takes its form by measuring
+  (data-form="buttons" or "list" on it; "list" until it is measured, data-forced when a form is forced): the buttons, a
+  .button-group-connected .choice-group-buttons with a filled, small toggle .button for each choice (aria-pressed, no
+  check mark: the chosen one shows by its shape and colour), the whole width and each as wide as the others, at most
+  --choice-group-max-width from the medium width; or the list, a .radio-group .choice-group-list (its .radio-group-label
+  the choice's name) with a .list, each choice a .list-item-with-control with its .radio-button leading, at least 48 dp
+  high at every density, and on its right its .choice-group-sample (a small, inert drawing of the look) or its
+  .choice-group-swatch (a filled circle of a colour, also before the label in the buttons; with dots only the circles
+  show, the names in .choice-group-label-hidden). .choice-group-measure is the buttons at their natural width, hidden,
+  which the form is measured with. The forms' looks are the button group's, the button's, the list's and the radio
+  button's variables; the part adds:
+    --choice-group-max-width (30rem), --choice-group-gap (between the name and the list),
+    --choice-group-sample-max-width (7rem), --choice-group-sample-gap,
+    --choice-group-sample-button-height (2rem: a sample's button, the extra small size's height)
   Split button (SplitButton, splitButtonClass): .split-button, the main action (.button, .split-button-leading) and
   joined to it the arrow (.button, .split-button-trailing, aria-expanded, its .split-button-arrow turned while the menu
   is open), and the theme's .menu (.split-button-menu) under it, at its end; in the Button's five sizes, the arrow's
@@ -4710,6 +4724,85 @@
 
   /* A segment shown as its dot only (Segment.dots): the name stays for screen readers. */
   .segmented-button-label-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Choice groups: the connected buttons when every label fits at an equal share of the width, else a list of radio
+     buttons (ChoiceGroup.tsx). Targets of 48 dp in both forms (Material: buttons in a group and radio buttons). */
+  .choice-group {
+    --mo-target: 3rem;
+    position: relative;
+    display: block;
+    min-width: 0;
+  }
+  .choice-group[data-form='buttons'] > .choice-group-list,
+  .choice-group[data-form='list'] > .choice-group-buttons {
+    display: none;
+  }
+  /* The buttons at their natural width, where the group's buttons would be, unseen: what the form is measured with. */
+  .choice-group-measure {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .choice-group-measure > * {
+    flex: none;
+  }
+  .choice-group-buttons {
+    display: flex;
+    width: 100%;
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .choice-group-measure,
+    .choice-group-buttons {
+      max-width: var(--choice-group-max-width, 30rem);
+    }
+  }
+  /* Each button as wide as the others (Material: "increasing the button widths inside"). */
+  .choice-group-buttons > .button {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .choice-group-list {
+    gap: var(--choice-group-gap, 0.25rem);
+  }
+  /* A row is at least 48 dp at every density (Material, radio buttons: "Don't apply density to radio buttons by default"). */
+  .choice-group-list .list-item-container {
+    --list-item-box: max(3rem, calc(var(--list-item-min-height, 3rem) + var(--mo-density) * var(--mo-density-step)));
+  }
+  /* A sample's button is the theme's smallest size at M3's extra small height (32dp; the theme's own extra small is taller),
+     so it stays a real button of its look and fits its row. */
+  .choice-group-sample .button {
+    --button-xsmall-height: var(--choice-group-sample-button-height, 2rem);
+  }
+  .choice-group-sample {
+    display: flex;
+    max-width: var(--choice-group-sample-max-width, 7rem);
+    align-items: center;
+    justify-content: flex-end;
+    margin-inline-start: var(--choice-group-sample-gap, 0);
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .choice-group-swatch {
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 30%, transparent);
+  }
+  .choice-group-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .choice-group-label-hidden {
     position: absolute;
     width: 1px;
     height: 1px;

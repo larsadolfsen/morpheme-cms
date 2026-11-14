@@ -2,20 +2,20 @@ import type { Messages } from '../en-US';
 
 export const parts: Messages['parts'] = {
   intro: (file) =>
-    `De dele, kun editoren har, med det udseende de har overalt. Delene står i ${file}; ændres en del dér, ændres den alle steder. Knapperne, felterne, listerne, arkene og de andre dele, temaet også har, er temaets og står under Tema. Lys eller mørk vælges under Konto.`,
+    `De komponenter, kun editoren har, med det udseende de har overalt. Komponenterne står i ${file}; ændres en dér, ændres den alle steder. Knapperne, tekstfelterne, listerne, arkene og de andre komponenter, temaet også har, er temaets og står under Tema. Lys eller mørk vælges under Konto.`,
   use: {
     emptyNote: 'Det, en liste eller en skærm siger, når der intet er i den, eller mens noget hentes: gråt, i midten.',
     problemNote: 'Det, der er galt, i den primære farve: hvorfor et ark ikke kan gemmes, eller hvad der ikke kunne læses.',
     toolbarButton:
       'Værktøj i tekstens værktøjslinje: lidt mindre, så linjen er der på en telefon. Med en pil åbner den en menu (teksttypen, når linjen er for smal).',
     fields:
-      'Temaets felter med navnet på kanten og en forklaring under. Et valg åbner en menu lige under feltet på en computer, eller arket på en telefon, eller en side for sig med det, hvert valg giver (pilen peger derhen).',
+      'Temaets tekstfelter med etiketten på kanten og hjælpetekst under. Et valg åbner en menu lige under tekstfeltet på en computer, eller det nederste ark på en telefon, eller en side for sig med det, hvert valg giver (dropdown-ikonet peger derhen).',
     formField: 'Et felt, der siger, hvad der er galt med det skrevne, og antal tegn af det højeste antal.',
     fieldGroup: 'Felter, der hører sammen, i en ramme med deres navn på.',
     shownValue: 'Det, et felt har, vist uden at kunne rettes her: med sit ikon, eller gråt, når det laves et andet sted.',
-    iconPicker: 'Et af mange ikoner: det valgte med sit navn, og knappen, der folder dem alle ud.',
+    iconPicker: 'Et af mange ikoner: det valgte med sit navn, og knappen, der udvider dem alle.',
     imagePick: 'Et billede: et lille af det, knappen, der vælger et, og knappen, der fjerner det, når det ikke skal være der.',
-    foldList: 'Punkter i en ramme, der hver foldes ud til sine felter, med pilene og Fjern ved siden af.',
+    foldList: 'Punkter i en ramme, der hver udvides til sine felter, med pilene og Fjern ved siden af.',
     multiChoice:
       'Flere valgt fra en liste: de valgte som chips, og knappen, der åbner arket med alle valgene. Nederst i arket et link til at lave et nyt.',
     arrowLink: 'Et link til en anden skærm, med en pil efter: under et felts navn, der hvor det rettes.',
@@ -29,22 +29,22 @@ export const parts: Messages['parts'] = {
     group:
       'Rækker i en ramme under en lille overskrift: startskærmen og listerne. Ikonet er ens overalt: gråt, og i den primære farve for den åbne del i menuen. Foran navnet kan der i stedet stå et lille billede eller en prøve på en af temaets værdier. Til højre står evt. et antal. En række kan også gøre noget (i den primære farve), slette (i midten) eller kun vises (uden farve under musen, evt. grå).',
     selectRow:
-      'En række, der kan vælges: tryk og hold på den, eller tryk på dens ikon eller billede, og tryk så på flere rækker. En boks til valget står til højre i en række med ikon eller billede og til venstre i en række med kun tekst. Med en mus vises boksen på den række, du peger på, og på alle rækker, når en er valgt. En valgt række har den valgte farve og rundere hjørner.',
+      'En række, der kan vælges: tryk og hold på den, eller tryk på dens ikon eller billede, og tryk så på flere rækker. Et afkrydsningsfelt står til højre i en række med ikon eller billede og til venstre i en række med kun tekst. Med en mus vises afkrydsningsfeltet på den række, du peger på, og på alle rækker, når en er valgt. En valgt række har den valgte farve og rundere hjørner.',
     checkList:
-      'Ting, der er tjekket: en score fra 0 til 100 i en ring, en rød trekant ved det, der kan forbedres (som folder sig ud med, hvordan), og en grøn prik ved det, der er i orden.',
+      'Ting, der er tjekket: en score fra 0 til 100 i en ring, en rød trekant ved det, der kan forbedres (som udvides med, hvordan), og en grøn prik ved det, der er i orden.',
     scoreRing:
       'En score fra 0 til 100 i en lille ring forrest i en række, i samme farver som ringen i Ting, der er tjekket: grøn fra 90, orange fra 50, ellers rød.',
     menuRow:
-      'En indstilling i samme række som en kontakt: navn og hvad den gør til venstre, og til højre det valgte i en lille ramme med en pil. Den åbner valgene under sig (et ark på en telefon), det valgte med hak. Grå, mens indstillingen ikke kan ændres.',
+      'En indstilling i samme række som en kontakt: navn og hvad den gør til venstre, og til højre det valgte i en menu med et dropdown-ikon. Den åbner valgene under sig (et nederste ark på en telefon), det valgte med hak. Grå, mens indstillingen ikke kan ændres.',
     unfold:
-      'Til højre i en række: hvor mange rækker der er under den, og pilen, der viser dem. Rækkerne under står indrykket langs en streg.',
+      'Til højre i en række: hvor mange rækker der er under den, og udvid-ikonet, der viser dem. Rækkerne under står indrykket langs en streg.',
     sheet:
-      'Arket nedefra (en dialog på en computer) med valg eller felter. Et ikon eller en række (fx Sprog) åbner det med valgene, og + åbner det med de slags, noget nyt kan være (fx et pop op-vindue). Valgene kan stå under små overskrifter.',
+      'Det nederste ark (en dialog på en computer) med valg eller felter. Et ikon eller en række (fx Sprog) åbner det med valgene, og + åbner det med de slags, noget nyt kan være (fx et pop op-vindue). Valgene kan stå under små overskrifter.',
     preview:
-      'Forhåndsvisningen af en blok i en stiplet ramme. Den kan bruges som på siden (fx foldes ud), men et link i den fører ingen steder hen.',
-    colorSwatches: 'Et sæt farver i små rundinger side om side (fx fire af hjemmesidens farver).',
+      'Forhåndsvisningen af en blok i en stiplet ramme. Den kan bruges som på siden (fx udvides), men et link i den fører ingen steder hen.',
+    colorSwatches: 'Et sæt farver i cirkler side om side (fx fire af hjemmesidens farver).',
     colorTiles:
-      'Nogle farver side om side, hver på en flade med sit navn, sin farvekode, en blyant, der åbner farvearket, og på den første en lås (fx generatorens tre grundfarver).',
+      'Nogle farver side om side, hver på en flade med sit navn, sin farvekode, en ikonknap Rediger, der åbner farvearket, og på den første en lås (fx generatorens tre grundfarver).',
     colorWheel: 'Et farvehjul med farverne som prikker: den store trækkes, de andre følger med, og en låst har en lås.',
     choiceRow:
       'Et af flere valg på en skærm for sig, hvert i en række med det, det giver (fx nogle af en ikonpakkes ikoner), det valgte i den primære farve med et flueben.',
@@ -53,12 +53,12 @@ export const parts: Messages['parts'] = {
     fullScreenSheet:
       'Arket med en hel side (forhåndsvisningen), så højt som skærmen. Siden står i en ramme, så bred som en telefon eller en computer, og intet i den kører.',
     foldSection:
-      'Et afsnit i en lang formular (en side, et blogindlæg), der foldes ind og ud med sin overskrift. Kun det første er åbent fra start.',
+      'Et afsnit i en lang formular (en side, et blogindlæg), der udvides og skjules med sin overskrift. Kun det første er åbent fra start.',
     sharePreview: 'Et link til en side, som det ser ud, når det deles: billedet, hjemmesidens domæne, titlen og beskrivelsen.',
     formColumns:
       'En formular på en bred skærm: teksten til venstre, status og de andre felter på kort til højre. På en mindre skærm under hinanden. Overskriften over felterne er altid den samme.',
     mainDrawer:
-      'Editorens menu: hjemmesidens dele i afsnit, den åbne markeret. På en bred skærm står den ved siden af indholdet, og menuknappen i starten af topbjælken viser og skjuler den; på en mindre skærm åbner den over siden og lukker ved et valg, et tryk ved siden af, Escape eller et stryg. Vist her som den, der åbner over siden.',
+      'Editorens navigationsskuffe: hjemmesidens dele i afsnit, den åbne markeret. På en bred skærm står den ved siden af indholdet, og menuknappen i starten af app-bjælken viser og skjuler den; på en mindre skærm åbner den over siden og lukker ved et valg, et tryk ved siden af, Escape eller et stryg. Vist her som den, der åbner over siden.',
     editorFooter:
       'Linjen nederst på hver skærm, under indholdet, med et link til licenserne for det, hjemmesiden og editoren er lavet med.',
     sectionList:
@@ -66,7 +66,7 @@ export const parts: Messages['parts'] = {
   },
   /** Over the parts: the search, and the groups to show one of (as Material 3 sorts its components). */
   filter: {
-    search: 'Søg i delene',
+    search: 'Søg i komponenterne',
     group: {
       buttons: 'Knapper',
       fields: 'Felter',
@@ -78,7 +78,7 @@ export const parts: Messages['parts'] = {
       layout: 'Layout',
       fieldTypes: 'Felttyper',
     },
-    none: 'Ingen dele passer til søgningen',
+    none: 'Ingen komponenter passer til søgningen',
   },
   sample: {
     domain: 'eksempel.dk',
@@ -120,8 +120,8 @@ export const parts: Messages['parts'] = {
     aPage: 'En side',
     pageText: 'En hel side i en ramme, så bred som en telefon.',
     option: (letter) => `Valg ${letter}`,
-    foldOut: 'Tryk for at folde ud',
-    foldedText: 'Teksten, der folder sig ud. Et link her fører ingen steder hen:',
+    foldOut: 'Tryk for at udvide',
+    foldedText: 'Teksten, der udvides. Et link her fører ingen steder hen:',
     link: 'link',
     noticeTitle: 'Versionen fra 1. okt. kl. 13.42',
     noticeText: 'Sådan så den ud dengang.',
@@ -160,7 +160,7 @@ export const parts: Messages['parts'] = {
       image: 'Et billede fra Filer eller et nyt.',
       readonly: 'Vises, men rettes ikke her.',
       object: 'En gruppe felter i en ramme.',
-      list: 'En liste af punkter, der hver foldes ud til sine felter, eller af enkelte valg.',
+      list: 'En liste af punkter, der hver udvides til sine felter, eller af enkelte valg.',
       blocks: 'Sektionerne på en fast side som kort i teksten, som en side.',
       check:
         'En formular, der ikke er udfyldt rigtigt: en besked forrest siger, hvad der er galt, og feltet rulles frem og blinker, til det rettes. Prøv med et tomt felt, der skal udfyldes.',
@@ -194,7 +194,7 @@ export const parts: Messages['parts'] = {
     look: 'Udseende',
     layout: 'Layout',
     layouts: { single: 'Én kolonne', wide: 'Bred', left: 'Sidepanel til venstre', right: 'Sidepanel til højre' },
-    kind: 'Slags',
+    kind: 'Type',
     page: 'Side',
     post: 'Indlæg',
     tags: 'Tags',
@@ -251,7 +251,7 @@ export const parts: Messages['parts'] = {
     entry: { name: 'Et eksempel', heading: 'En overskrift', text: 'En kort tekst, der fortæller lidt mere.' },
   },
   tokens: {
-    intro: 'Temaets værdier for hjørner, skygger, typografi og farver, som temaet sætter dem.',
+    intro: 'Temaets designtokens for hjørner, skygger, typografi og farver, som temaet sætter dem.',
     groups: { shape: 'Hjørner', elevation: 'Skygger', type: 'Typografi', color: 'Farver' },
     shape: {
       radius: 'Paneler',
@@ -266,7 +266,7 @@ export const parts: Messages['parts'] = {
     parts: {
       button: 'Knapper',
       chip: 'Chips',
-      textField: 'Felter',
+      textField: 'Tekstfelter',
       card: 'Kort',
       menu: 'Menuer',
       dialog: 'Dialoger',
@@ -342,7 +342,7 @@ export const parts: Messages['parts'] = {
     editor: 'Editor',
     components: 'Temaets komponenter',
     blocks: 'Blokke',
-    values: 'Værdier',
+    values: 'Tokens',
     componentsIntro: 'Temaets knapper, felter, lister og andre dele i alle deres slags og tilstande. Temaet giver dem deres udseende.',
     /** Theme coverage on "UI components": which parts the active theme styles, which it leaves to Material. */
     coverage: {
@@ -369,8 +369,8 @@ export const parts: Messages['parts'] = {
     blocksIntro: 'Standardblokkene og appenes blokke i alle deres udgaver. Temaet giver dem deres udseende.',
     /** A list of kinds ("Promovering"), by the list's name for one. */
     kindsIntro: (one: string) => `Hver slags ${one}, også appenes, i alle sine tilstande. Temaet giver dem deres udseende.`,
-    search: 'Søg i delene',
-    none: 'Ingen dele passer til søgningen',
+    search: 'Søg i komponenterne',
+    none: 'Ingen komponenter passer til søgningen',
     /** The theme's buttons (packages/editor/theme/ui/), first under "UI-komponenter". */
     ui: 'Knapper',
     button:
@@ -432,7 +432,7 @@ export const parts: Messages['parts'] = {
     containment: {
       title: 'Dialoger, ark og karrusel',
       dialog:
-        'En boks over siden med ikon, overskrift, tekst og knapper, kun boksen (fx et pop op-vindue eller cookiespørgsmålet), eller over hele skærmen på en telefon med lukkeknappen og handlingen øverst.',
+        'En dialog over siden med ikon, overskrift, tekst og knapper, kun dialogen (fx et pop op-vindue eller cookiespørgsmålet), eller over hele skærmen på en telefon med lukkeknappen og handlingen øverst.',
       bottomSheet:
         'Et ark nedefra: modalt over siden (en dialog i midten på en computer, fx bookingarket), eller standard nederst på skærmen, hvor siden kan bruges bag det, og som trækkes op og ned.',
       carousel:
@@ -568,7 +568,8 @@ export const parts: Messages['parts'] = {
       title: 'Handlinger',
       buttonGroup:
         'Knapper, der hører sammen, side om side: med luft imellem eller samlet, i alle knappernes størrelser og former. En knap, der slås til og fra, er fremhævet, når den er slået til.',
-      segmentedButton: 'Få valg side om side i én ramme: ét eller flere valgt, de valgte med et flueben.',
+      choiceGroup:
+        'Ét valg blandt få: samlede knapper side om side, når alle navne kan være der, ellers en liste med radioknapper, ét valg pr. række, med et lille eksempel på hvert udseende.',
       splitButton:
         'Hovedhandlingen med en pil ved siden af, der åbner en menu med andre måder at gøre det på, i knappernes fem størrelser.',
       fabMenu:
@@ -580,8 +581,10 @@ export const parts: Messages['parts'] = {
       channels: ['Telefon', 'E-mail', 'Chat'],
       mode: 'Tilstand',
       modes: ['Lys', 'Mørk'],
-      days: 'Dage',
-      weekdays: ['Man', 'Tir', 'Ons', 'Tor', 'Fre'],
+      style: 'Stil',
+      styles: { filled: 'Fyldt', tonal: 'Tonet', elevated: 'Hævet', outlined: 'Med ramme', text: 'Tekst' },
+      sample: 'Bestil',
+      narrow: 'I en smal ramme',
       book: 'Book en tid',
       more: 'Flere måder at booke på',
       ways: ['Ring', 'Skriv en e-mail', 'Book online'],
@@ -633,7 +636,7 @@ export const parts: Messages['parts'] = {
       linearProgressIndicator:
         'En linje, der fyldes op, så langt noget er nået. Uden værdi løber to stykker hen ad den. Også bølget og tyk.',
       circularProgressIndicator: 'Det samme som en ring, hvor der ikke er plads til en linje. Også bølget og tyk.',
-      snackbar: 'En kort besked nederst på skærmen, fx på en ny version af en side, med links, en handling eller et kryds.',
+      snackbar: 'En kort besked nederst på skærmen, fx på en ny version af en side, med links, en handling eller en lukkeknap.',
       tooltip: 'En kort tekst ved en knap, mens musen er over den, eller den har fokus: kort eller med overskrift og handling.',
       dot: 'Prik',
       number: 'Antal',

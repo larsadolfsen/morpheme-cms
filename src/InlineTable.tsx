@@ -2,13 +2,15 @@
 // blocks/table/View.tsx) and each cell is typed where it stands. The table shows only its real cells: rows and columns are added and deleted
 // from the contextual menu (MarkdownEditor.tsx gridActions), never in the table. The active cell has the dotted outline. The cells,
 // rows and columns are the plain functions of src/inlineGrid.mjs; the header row is the block's own setting (its sheet). Enter goes to the
-// cell below (a new row after the last); Tab and Shift+Tab are the browser's. Depends on the parts of InlineItems.tsx.
+// cell below (a new row after the last); Tab and Shift+Tab are the browser's. A paste into an empty Table makes its rows (gridFromPaste).
+// Depends on the parts of InlineItems.tsx.
 import { cardClass } from '@theme/ui/Card';
-import { useEffect, useLayoutEffect, useRef, type KeyboardEvent } from 'react';
+import { useEffect, useLayoutEffect, useRef, type ClipboardEvent, type KeyboardEvent } from 'react';
 import { t } from './i18n';
 import { InlineField } from './InlineItems';
 import type { InlineViewProps } from './inlineViews';
 import { addRowAt, setCell } from './inlineGrid.mjs';
+import { gridFromPaste } from './inlineRows.mjs';
 import { alignOf, rectangle } from './standard/table/rows.mjs';
 import { oneLine } from '../lib/one-line.mjs';
 
@@ -51,6 +53,17 @@ export default function InlineTable({ items, props, active, col, focus, onChange
       focus: { row: r + 1, field: String(c) },
     });
   };
+  // A paste into an empty Table (every cell empty) makes its rows: a spreadsheet's lines with tabs, or a document's table. The header
+  // setting stays (on by default: the first pasted line is the header row) and every column's alignment is automatic again. A paste
+  // into a Table with content is the browser's own, into the one cell.
+  const pasted = (e: ClipboardEvent<HTMLTextAreaElement>) => {
+    if (rows.some((row) => row.some((v) => v.trim()))) return;
+    const made = gridFromPaste(e.clipboardData.getData('text/plain'), e.clipboardData.getData('text/html'));
+    if (!made) return;
+    e.preventDefault();
+    const [r, c] = [made.length - 1, made[0].length - 1];
+    onChange({ items: made as never, props: { columns: undefined }, active: r, col: c, focus: { row: r, field: String(c) }, step: true });
+  };
   const cell = (r: number, c: number) => {
     const here = r === active && c === col;
     const Tag = header && r === 0 ? 'th' : 'td';
@@ -69,6 +82,7 @@ export default function InlineTable({ items, props, active, col, focus, onChange
           onType={(v) => type(r, c, v)}
           onFocus={() => (active !== r || col !== c) && onChange({ active: r, col: c })}
           onKeys={(e) => keys(r, c, e)}
+          onPaste={pasted}
         />
       </Tag>
     );
