@@ -1,0 +1,6 @@
+{
+  "id": "block-drag-handle",
+  "kind": "paragraph",
+  "title": "Block handle",
+  "text": "Moving a block no longer takes several taps. Drag the handle at the top right of a block to where you want it, and a line shows where it lands. Move up and Move down still work."
+}

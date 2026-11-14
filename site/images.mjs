@@ -38,6 +38,23 @@ function libraryRecords() {
   return records;
 }
 
+/** Every image of the Library with what its record holds: its tags (`categories`), base text, decorative mark, caption and credit's name.
+ * In the order of the manifest (upload folders, newest last): the "Image grid" puts them in its own order. */
+export function libraryImages() {
+  const records = libraryRecords();
+  return Object.keys(load()).map((src) => {
+    const record = records.find((stored) => stored.record.src === src)?.record;
+    return {
+      src,
+      tags: record?.categories ?? [],
+      ...(record?.alt ? { alt: record.alt } : {}),
+      ...(record?.decorative ? { decorative: true } : {}),
+      ...(record?.caption ? { caption: record.caption } : {}),
+      ...(record?.credit ? { credit: record.credit.name } : {}),
+    };
+  });
+}
+
 /** What the Library says of an image (its base text, or that it is decorative), or undefined. */
 export const libraryAlt = (src) => libraryAltOf(libraryRecords(), src);
 

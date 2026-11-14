@@ -48,6 +48,20 @@ Group related ideas with an icon, a photo or just text, each linking to a page i
 
 <div data-block="cards" data-props="{&quot;phone&quot;:&quot;carousel&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;Swipe on a phone&quot;,&quot;text&quot;:&quot;On a phone these cards slide sideways, and the next one peeks in.&quot;},{&quot;icon&quot;:&quot;hand-heart&quot;,&quot;title&quot;:&quot;Show all&quot;,&quot;text&quot;:&quot;A Show all button under them stacks the cards in place.&quot;},{&quot;icon&quot;:&quot;book-open&quot;,&quot;title&quot;:&quot;A grid elsewhere&quot;,&quot;text&quot;:&quot;From 600 px wide the cards are shown together, as a grid.&quot;},{&quot;icon&quot;:&quot;medal&quot;,&quot;title&quot;:&quot;Snap scrolling&quot;,&quot;text&quot;:&quot;Each swipe settles on a card.&quot;,&quot;href&quot;:&quot;/about/&quot;}]}"></div>
 
+## Image grid
+
+### Filled cards with a filter
+
+<div data-block="imagegrid" data-props="{&quot;heading&quot;:&quot;Images by tag&quot;,&quot;show&quot;:&quot;tags&quot;,&quot;tags&quot;:[],&quot;filter&quot;:true,&quot;card&quot;:&quot;filled&quot;}"></div>
+
+### Elevated cards with caption, tags and credit
+
+<div data-block="imagegrid" data-props="{&quot;show&quot;:&quot;picked&quot;,&quot;picked&quot;:[{&quot;image&quot;:&quot;/images/uploads/2026/10/editor-pages.webp&quot;},{&quot;image&quot;:&quot;/images/uploads/2026/10/editor-home.webp&quot;},{&quot;image&quot;:&quot;/images/uploads/2026/10/editor-colors.webp&quot;}],&quot;filter&quot;:false,&quot;card&quot;:&quot;elevated&quot;,&quot;showCaption&quot;:true,&quot;showTags&quot;:true,&quot;showCredit&quot;:true,&quot;columns&quot;:&quot;3&quot;}"></div>
+
+### Outlined cards that do not open
+
+<div data-block="imagegrid" data-props="{&quot;show&quot;:&quot;tags&quot;,&quot;tags&quot;:[&quot;design&quot;],&quot;order&quot;:&quot;oldest&quot;,&quot;open&quot;:false,&quot;filter&quot;:false,&quot;card&quot;:&quot;outlined&quot;}"></div>
+
 ## List
 
 Rows under each other, as your theme draws a list. A row can have an icon, a text and a page. A List, Segmented list or FAQ list can also take its rows from an existing list, such as the blog or the testimonials, instead of typed rows.

@@ -19,6 +19,7 @@ import { notOffered, withPageBlocks } from './registry';
 import { creditedIn, shownAt, useUploads } from './images';
 import { creditChanges, recordsIn } from './fileRecords.mjs';
 import { libraryAltOf } from './imageAlt.mjs';
+import { libraryItems } from './standard/imagegrid/library';
 import { splitPicture } from '../lib/crop.mjs';
 import { useMediaPicker } from './Media';
 import FormFrame, { savedStatus, useSavedAt } from './FormFrame';
@@ -104,13 +105,17 @@ function Form({
   // Images in the text of a fixed page (the front page's image …), saved with the file.
   const images = useUploads(notify);
   const [pickImage, picker] = useMediaPicker(env.media, images, env.files);
+  // The Library's records (tags, texts), for the alt text hints, the Preview and the "Image grid".
+  const fileRecords = useMemo(() => recordsIn(env.files, config.fileRecords), [env.files]);
+  const libraryImages = useMemo(() => libraryItems(env.media, fileRecords), [env.media, fileRecords]);
   const context: FieldContext = {
     relations: env.relations,
     lists: env.lists,
     testimonials: env.testimonials,
     site: env.site,
     pickImage,
-    libraryAlt: (src) => libraryAltOf(recordsIn(env.files, config.fileRecords), src),
+    libraryAlt: (src) => libraryAltOf(fileRecords, src),
+    libraryImages,
     // A fixed page's address, for what is shown on it (a button among its sections that opens a promotion).
     page: fixed && dataFile!.view.endsWith('/') ? dataFile!.view : undefined,
   };
@@ -306,7 +311,14 @@ function Form({
       label: v.label,
       node: draw(
         { ...values, ...v.props },
-        { lists: env.lists, testimonials: env.testimonials, relations: env.relations, site: env.site, libraryAlt: context.libraryAlt },
+        {
+          lists: env.lists,
+          testimonials: env.testimonials,
+          relations: env.relations,
+          site: env.site,
+          libraryAlt: context.libraryAlt,
+          libraryImages,
+        },
       ),
     }));
   // A file that is a list (the menus) is added to with the FAB, like the other lists; its own fields
