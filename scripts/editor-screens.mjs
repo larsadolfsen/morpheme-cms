@@ -69,7 +69,10 @@ if (!(SHARDS >= 1 && SHARD >= 1 && SHARD <= SHARDS)) {
   process.exit(1);
 }
 const LIST_ONLY = args.includes('--list');
-const DIST = resolve(ROOT, args.find((a, i) => !a.startsWith('--') && args[i - 1] !== '--shard') ?? 'dist');
+// --only name runs the one unit of that name, whatever its number (to try a single check on a site), instead of a shard.
+const onlyAt = args.indexOf('--only');
+const ONLY = onlyAt >= 0 ? args[onlyAt + 1] : null;
+const DIST = resolve(ROOT, args.find((a, i) => !a.startsWith('--') && args[i - 1] !== '--shard' && args[i - 1] !== '--only') ?? 'dist');
 if (!existsSync(join(DIST, 'editor/index.html'))) {
   console.error(`There is no built site in ${DIST}. Run npm run build first.`);
   process.exit(1);
@@ -122,7 +125,7 @@ for (const [name, pages] of SHARD === 1 ? missingOn : []) {
 let unitNumber = 0;
 async function unit(name, run) {
   const number = unitNumber++;
-  if (number % SHARDS !== SHARD - 1) return;
+  if (ONLY ? name !== ONLY : number % SHARDS !== SHARD - 1) return;
   if (LIST_ONLY) return console.log(`UNIT ${number} ${name}`);
   const started = Date.now();
   await run();

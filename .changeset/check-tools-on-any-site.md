@@ -1,0 +1,3 @@
+---
+'@morphemecms/cms': patch
+---
