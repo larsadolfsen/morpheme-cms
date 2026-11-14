@@ -2333,7 +2333,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       : [];
   const blockMenu = block_?.menu ?? [];
   // Undo, Redo and Section settings, a divider, then Insert block (never in the ⋮) and the ⋮.
-  const mainIds = ['undo', 'redo', ...(settingsShown ? ['settings'] : []), ...(hasInsert ? ['insert'] : [])];
+  // While blocks are selected the text is read-only, so Insert block is not offered (and the bar has room for Move up and Move down on a phone).
+  const insertShown = hasInsert && !block_?.count;
+  const mainIds = ['undo', 'redo', ...(settingsShown ? ['settings'] : []), ...(insertShown ? ['insert'] : [])];
   useLayoutEffect(() => {
     const bar = toolbar.current!;
     const measure = () => setBarWidth(bar.clientWidth);
@@ -2346,7 +2348,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const underMore = [kindsAt?.at, alignAt, colorAt].some((at) => !!at && at === moreButton.current);
   const plan = planBar({
     // The count with its cross is two slots wide.
-    slots: slotsFor(barWidth, (contextIds.length > 0 ? 1 : 0) + (hasInsert ? 1 : 0)) - (block_?.count ? 1 : 0),
+    slots: slotsFor(barWidth, (contextIds.length > 0 ? 1 : 0) + (insertShown ? 1 : 0)) - (block_?.count ? 1 : 0),
     context: contextIds,
     main: mainIds,
     more: blockMenu.length > 0,
