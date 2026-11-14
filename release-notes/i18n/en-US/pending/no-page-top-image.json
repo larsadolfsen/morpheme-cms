@@ -1,0 +1,7 @@
+{
+  "id": "no-page-top-image",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Page headings",
+  "text": "A page’s main heading no longer has a background image, so a page’s images are all in its text. Its colour and width stay in Section settings, and blog posts keep their image at the top."
+}

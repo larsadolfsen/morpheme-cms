@@ -3161,6 +3161,12 @@ async function checkEmptyHint() {
             }
             await page.waitForTimeout(500);
           }
+          // A page's H1 has no image (owner, 14 Nov 2026): its Section settings have a colour and a width only.
+          const sheet = page.locator('dialog[open], .editor-side-sheet').first();
+          if (await sheet.getByText('Background image', { exact: true }).count())
+            problems.push(`${name}: the Main heading's Section settings offer a background image`);
+          if (!(await sheet.getByText('Width', { exact: true }).count()))
+            problems.push(`${name}: the Main heading's Section settings have no Width`);
           await page.getByText('Primary', { exact: true }).first().click();
           await page.getByRole('button', { name: 'Save', exact: true }).first().click();
           await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 10_000 });
@@ -3502,14 +3508,14 @@ async function checkSectionCardContrast() {
   }
 }
 
-/** A page whose H1 section has a background (a colour or an image) has it start right under the navigation bar (gap 0 ±1px), on the site and in the Preview at 390 and 600; a page whose H1 section has none keeps its space under the bar. */
+/** A page whose H1 section has a background (a colour) has it start right under the navigation bar (gap 0 ±1px), on the site and in the Preview at 390 and 600; a page whose H1 section has none keeps its space under the bar, also with an image left in an old marker (a page's H1 has no image). */
 async function checkH1SectionGap() {
   const path = BUILT_PAGE;
   const source = PAGE_SOURCE;
   const picture = '/images/uploads/2026/10/earth-from-space.webp';
   const variants = [
     { name: 'colour', marker: '<div data-section="tertiary"></div>\n\n', background: true },
-    { name: 'image', marker: `<div data-section="" data-picture="${picture}" data-alt="Earth"></div>\n\n`, background: true },
+    { name: 'image (ignored)', marker: `<div data-section="" data-picture="${picture}" data-alt="Earth"></div>\n\n`, background: false },
     { name: 'none', marker: '', background: false },
   ];
   const measure = () => {
@@ -6687,6 +6693,52 @@ async function checkFoldRows(width, height) {
   await page.close();
 }
 
+/** Owner, 14 Nov 2026: "Content is always open. All other sections are closed on load." A page's and a post's form, new and
+ * saved, opens with Content open and with no heading to fold it, and every other section (settings, search engines,
+ * social media, history) folded, on a phone and a computer (width, height). */
+async function checkSectionsOnLoad(width, height) {
+  // A saved page and post: the site's first of each (the demo's, the starter's).
+  const saved = ['pages', 'blog'].flatMap((list) => {
+    const dir = `src/content/${list}`;
+    const first = existsSync(dir)
+      ? readdirSync(dir)
+          .filter((f) => f.endsWith('.md'))
+          .sort()[0]
+      : undefined;
+    return first ? [`#${dir}/${first}`] : [];
+  });
+  for (const hash of ['#new/pages', '#new/blog', ...saved]) {
+    const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${width}px ${hash} sections on load: ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate((h) => (location.hash = h), hash);
+    await page.waitForSelector('.ProseMirror', { timeout: 15000 });
+    await page.waitForTimeout(300);
+    const sections = await page.$$eval('section[data-fold-section]', (els) =>
+      els.map((el) => {
+        const head = el.querySelector(':scope > h2');
+        const button = head.querySelector('button');
+        return {
+          title: head.textContent.trim(),
+          button: !!button,
+          open: button ? button.getAttribute('aria-expanded') === 'true' : !el.querySelector(':scope > div').hidden,
+        };
+      }),
+    );
+    const content = sections.find((s) => s.title === 'Content');
+    if (!content) problems.push(`${width}px ${hash} sections on load: no "Content" section`);
+    else {
+      if (content.button) problems.push(`${width}px ${hash} sections on load: "Content" can be folded`);
+      if (!content.open) problems.push(`${width}px ${hash} sections on load: "Content" is not open`);
+    }
+    const others = sections.filter((s) => s.title !== 'Content');
+    if (!others.length) problems.push(`${width}px ${hash} sections on load: no other sections`);
+    for (const s of others) if (s.open) problems.push(`${width}px ${hash} sections on load: "${s.title}" is open, should be folded`);
+    console.log(`${width}px ${hash} sections on load: ${JSON.stringify(sections.map((s) => [s.title, s.open]))}`);
+    await page.close();
+  }
+}
+
 /** A page's and a post's form has no "Other fields" fold: "Page settings" ("Post settings") holds the URL, the Short description and the Tags, and the "For review" box (width, height). */
 async function checkEntrySettings(width, height) {
   for (const [hash, folds, fields] of [
@@ -7464,6 +7516,7 @@ for (const [width, height] of [
   [1280, 900],
 ]) {
   await unit(`checkExpandList ${width}`, () => checkExpandList(width, height));
+  await unit(`checkSectionsOnLoad ${width}`, () => checkSectionsOnLoad(width, height));
 }
 await unit('checkFooterTargets 320', () => checkFooterTargets(320, true));
 await unit('checkFooterTargets 375', () => checkFooterTargets(375, true));

@@ -1,0 +1,6 @@
+{
+  "id": "cms-update-at-night",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Your site looks for a new version of Morpheme once a day, at night, instead of every hour"
+}

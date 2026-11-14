@@ -329,16 +329,13 @@ export function pageH1(markdown) {
 // A section's colour marker on its own line (lib/section-marker.mjs); any colour name, so an unknown one is dropped too.
 const MARKER_LINE = new RegExp(`^ {0,3}${MARKER_TAG}[ \\t]*$`);
 
-/** The settings of an H1's section as a part `top` holds them: the marker's (parseMarker), or the editor's heading attributes
- * (`section`, `sectionImage`, `sectionAlt`, `sectionWidth`); null when there are none.
- * @param {{ color?: string | null, image?: string | null, alt?: string | null, width?: string | null } | null} found */
+/** The settings of an H1's section as a part `top` holds them: the colour and the width of the marker's (parseMarker), or of the
+ * editor's heading attributes (`section`, `sectionWidth`); null when there are none. A page's H1 has no image (owner, 14 Nov 2026): an
+ * image left in an old marker is ignored.
+ * @param {{ color?: string | null, width?: string | null } | null} found */
 export const topOf = (found) => {
-  if (!found || (!found.color && !found.image && !found.width)) return null;
-  return {
-    color: found.color || '',
-    ...(found.image ? { image: found.image, ...(found.alt ? { alt: found.alt } : {}) } : {}),
-    ...(found.width === 'full' ? { width: 'full' } : {}),
-  };
+  if (!found || (!found.color && found.width !== 'full')) return null;
+  return { color: found.color || '', ...(found.width === 'full' ? { width: 'full' } : {}) };
 };
 
 /** The parts of a page's Markdown as the editor reads them (partsOf in markdown.mjs), without the editor: each block,
