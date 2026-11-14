@@ -1417,12 +1417,13 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
           ? letterOf(item.title)
           : (item.date ?? '').slice(0, 7),
   );
-  // Pages and posts can be deleted several at once: a press and hold on a row (a phone) or "Select" (a computer) starts
-  // selecting; then a tap selects or unselects, and the top bar has the count, close and delete (as the notifications do).
+  // Pages and posts can be deleted several at once: a press and hold on a row (a phone) or Space on a focused row
+  // starts selecting; then a tap selects or unselects, and the top bar has the count, close and delete (as the notifications do).
   const canSelect = collection.kind === 'markdown' && !!collection.deletable;
   const selection = useSelection({
     order: items.flatMap((i) => (i.file ? [i.file.path] : [])),
     enabled: canSelect,
+    spaceStarts: true,
   });
   const { selecting, keys: live } = selection;
   async function deleteChosen() {
@@ -1513,34 +1514,31 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
             }
           : undefined
       }
+      selection={
+        selecting ? (
+          <SelectionBar
+            count={live.length}
+            total={selection.total}
+            onSelectAll={(all) => (all ? selection.selectAll() : selection.unselectAll())}
+            onClose={selection.clear}
+          >
+            <IconButton
+              icon={Trash}
+              label={t.library.deleteSelected(live.length)}
+              disabled={!live.length || deletingMany}
+              busy={deletingMany}
+              onClick={deleteChosen}
+            />
+          </SelectionBar>
+        ) : undefined
+      }
       actions={
         <>
-          {selecting ? (
-            <SelectionBar
-              count={live.length}
-              total={selection.total}
-              onSelectAll={(all) => (all ? selection.selectAll() : selection.unselectAll())}
-              onClose={selection.clear}
-            >
-              <IconButton
-                icon={Trash}
-                label={t.library.deleteSelected(live.length)}
-                disabled={!live.length || deletingMany}
-                busy={deletingMany}
-                onClick={deleteChosen}
-              />
-            </SelectionBar>
-          ) : (
-            canSelect &&
-            !tree &&
-            items.length > 0 && <IconButton icon={ListChecks} label={t.library.selectEntries} onClick={selection.start} />
-          )}
           {/* What was deleted from the list, as in "Files". */}
           {restorable(collection) && (
             <IconButton
               icon={ClockCounterClockwise}
               label={t.history.deletedOf(collection.label)}
-
               onClick={() => (location.hash = `deleted/${collection.id}`)}
             />
           )}

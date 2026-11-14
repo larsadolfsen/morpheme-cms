@@ -1,6 +1,6 @@
 // Selecting several rows of a list (the pages and posts of Library.tsx, the notifications of Notifications.tsx), one
 // way for all: `useSelection({ order })` keeps what is selected (the keys of the rows, kept to those still shown) and
-// whether the list is in selection mode (some row selected, or `start()` from a "Select" button). `row(key)` gives a
+// whether the list is in selection mode (some row selected). `row(key)` gives a
 // theme ListItem its props: `selectable` (a long press with a touch or a pen selects it, theme/ui/longPress.ts; while
 // selecting a tap or a click toggles it), and the marks the keys find the row by. The keys, which the rules of
 // selectionRules.mjs decide (tested): Space toggles the row in focus, Shift+click and Shift+Arrow add a range, Ctrl or
@@ -23,20 +23,22 @@ const modalOpen = () => {
 export function useSelection({
   order,
   enabled = true,
+  spaceStarts = false,
   root,
 }: {
   /** The keys of the rows shown, top to bottom. */
   order: string[];
   /** False: the list cannot be selected (nothing is, no key does anything). */
   enabled?: boolean;
+  /** Space on a focused row starts selecting (the keyboard's way in, where no button starts it). */
+  spaceStarts?: boolean;
   /** Keys and clicks count only inside it (a sheet's own list); without it, only while no modal dialog is open. */
   root?: RefObject<Element | null>;
 }) {
   const id = useId();
   const [picked, setPicked] = useState<string[]>([]);
-  const [mode, setMode] = useState(false);
   const keys: string[] = useMemo(() => (enabled ? pruneKeys(picked, order) : []), [picked, order, enabled]);
-  const selecting = enabled && (mode || keys.length > 0);
+  const selecting = enabled && keys.length > 0;
   // The row last toggled: where a range starts and where focus returns to.
   const last = useRef<string | undefined>(undefined);
   // A focus move that waits for the rows to change (after a delete): the index the deleted rows had.
@@ -60,19 +62,16 @@ export function useSelection({
   }, []);
   const clear = useCallback(() => {
     setPicked([]);
-    setMode(false);
     focusRow(last.current);
   }, []);
-  const start = useCallback(() => setMode(true), []);
   const selectAll = useCallback(() => setPicked(selectAllKeys(latest.current.order)), []);
-  /** Unselects every row but stays in selection mode (the bar's select-all box, unticked). */
+  /** Unselects every row, which ends selecting (the bar's select-all box, unticked). */
   const unselectAll = useCallback(() => setPicked([]), []);
   /** Call after the selected rows were deleted: ends the mode and moves focus to the row in their place. */
   const removed = useCallback(() => {
     const first = Math.min(...latest.current.keys.map((k: string) => latest.current.order.indexOf(k)).filter((i: number) => i >= 0));
     refocus.current = Number.isFinite(first) ? first : null;
     setPicked([]);
-    setMode(false);
   }, []);
 
   // After a delete: focus the row now at the place of the first deleted one (the last row when it was the last).
@@ -114,7 +113,7 @@ export function useSelection({
     const onKey = (e: KeyboardEvent) => {
       if (!inScope(e.target) || (e.defaultPrevented && e.key !== 'Escape')) return;
       const row = own(rowOf(e.target));
-      const action = keyAction(e, { selecting: latest.current.selecting, onRow: !!row && !typing(e.target as Element) });
+      const action = keyAction(e, { selecting: latest.current.selecting, onRow: !!row && !typing(e.target as Element), spaceStarts });
       if (!action) return;
       if (action === 'clear') {
         // The dialog's own Escape (Notifications.tsx) is stopped by the caller; this only unselects.
@@ -150,7 +149,7 @@ export function useSelection({
       window.removeEventListener('keydown', onKey);
       window.removeEventListener('click', onClick, true);
     };
-  }, [enabled, root, id, clear, selectAll, toggle]);
+  }, [enabled, root, id, clear, selectAll, toggle, spaceStarts]);
 
   /** The props of a ListItem for the row with this key. */
   const row = (key: string) =>
@@ -165,5 +164,5 @@ export function useSelection({
         }
       : {};
 
-  return { keys, count: keys.length, selecting, row, start, clear, selectAll, unselectAll, removed, total: order.length };
+  return { keys, count: keys.length, selecting, row, clear, selectAll, unselectAll, removed, total: order.length };
 }

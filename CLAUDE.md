@@ -215,6 +215,7 @@ All wording in UI components, buttons and fields follows the specific guidelines
 - **Short, precise sentences in the active form** (Active Voice).
 - **Universal terms:** No local abbreviations or unexplained national concepts.
 - **Image everywhere** (owner rule, 12 Nov): English texts, docs and notes say `image`. `check:language` fails on the old word; stored names (CSS classes, data attributes, saved ids) keep it and are listed in `scripts/check-language.mjs`.
+- **Material Symbols are the standard icons** (owner rule, 14 Nov): the editor and the site draw Material Symbols until a site chooses another icon pack; Phosphor and Lucide appear only when a site picks that pack (`src/data/icons.json`, or an installed theme's pack). Code draws icons by name through the shared `Icon` (`src/icon.tsx`), never by a direct `@phosphor-icons/react` component import: `npm run check:phosphor` fails on a new one (allowlist with reasons in `scripts/phosphor-allowlist.json`), and `check:screens` fails on a Phosphor glyph while Material Symbols is the pack.
 - **M3 canonical terminology:**
   - Toggles and states: `Enabled` / `Disabled`, `On` / `Off` (their Danish labels are in the `da-DK` language files).
   - Document status: `Draft`, `Published`. A page is scheduled with a date on `Publish` (`Schedule`); `Hidden` is the SEO setting `Hide from search engines`.
