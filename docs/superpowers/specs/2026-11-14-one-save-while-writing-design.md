@@ -1,6 +1,7 @@
 # One Save while writing a page (design and build plan, 0.18)
 
-Status: design for the PM and the owner. No code. Written against `0.18` on 14 Nov 2026.
+Status: design and build plan, ready to build. No code. Written against `0.18` on 14 Nov 2026; the owner's decisions of the same day
+on its open questions are in section 12 and in the body.
 
 **The problem** (owner, 14 Nov, the page form on staging at computer width): with a block's side sheet open (FAQ list) the screen shows
 two sets of save buttons at once, the page's floating bar (`Preview`, `Save draft`, `Publish`) and the sheet's own `Save`, `Cancel`,
@@ -61,7 +62,7 @@ changes." Buttons: "Dismissive actions are never disabled." "Don't place dismiss
 
 **Where M3 is silent.** It prints no rule for a side sheet whose changes apply at once (it only says the sheet "complements" the primary
 content and lists action buttons as optional), nothing about autosave or a save status, and nothing about a **labelled** button in an
-app bar: its trailing parts are icon buttons, at most one filled. See section 9 and question 1.
+app bar: its trailing parts are icon buttons, at most one filled. See section 9 (a deviation the owner chose, decision 1).
 
 ## 2. Today in code
 
@@ -125,7 +126,7 @@ app bar: its trailing parts are icon buttons, at most one filled. See section 9 
 
 At 375 px the bell and the search icon both fit beside a short `Publish` (48 + 48 + about 90 dp, after the 48 dp back arrow); a long
 title truncates, as today (M3: "Don't wrap text in a small app bar"). When the window is too narrow for all, the bell moves out first
-(it is in the main menu too; question 4).
+(it is in the main menu too; owner decision 4).
 
 ### 3.2 Computer, 1280 px
 
@@ -177,7 +178,8 @@ shows **`Save`** as its second action (a text button before `Publish`; "two if n
 | An image added, not uploaded yet | `Save`, `Publish` | `Not saved` |
 | A wrong field or block | `Publish` (it stops and marks the field) | `Not saved · Fix the marked field` |
 
-`Save` there writes what `Save draft` writes today (same code path, same commit message). Question 2 asks the owner to confirm this.
+`Save` there writes what `Save draft` writes today (same code path, same commit message). Owner decision 2: `Save` shows only in these
+cases, as a text button.
 
 ## 4. The block sheet
 
@@ -193,7 +195,7 @@ live today).
   button, `Esc`, or a tap on another block only closes it.
 - **Remove** leaves the sheet. From expanded the block's `⋮` gets `Remove` back (and the pen is not needed: a tap opens the sheet).
 - **A new block** (`Insert` and a block with fields not typed in place) goes in at once with its default values, as a block typed in
-  place does today, and its sheet opens beside it, live. There is no `Insert` button; Undo takes the block out (question 3).
+  place does today, and its sheet opens beside it, live. There is no `Insert` button; Undo or `Remove` takes the block out (owner decision 3).
 - **The look is fixed while it is open.** A window that crosses the expanded breakpoint while a sheet is open keeps the sheet's look
   until it closes (today it switches mid-edit, which would switch between live and Save/Cancel with values in flight).
 
@@ -205,7 +207,8 @@ sheet says. The check that `Save` runs today (`problemAt`) runs on every change,
 - The block's card on the page gets the problem mark the page's own check already gives a block (`blockProblems`).
 - The page cannot be autosaved while a block is wrong (today's rule: `autosaveText` returns null on a block problem), so the status says
   `Not saved · Fix the marked field`. `Publish` stops, opens the block's sheet at the field and says why in a snackbar (`useWrongField`
-  with the form's `open`). Question 5 asks whether a wrong block should be autosaved anyway.
+  with the form's `open`). Owner decision 5: a wrong block is not autosaved, and the status says why; a draft file the site's check
+  would refuse is never written.
 
 ### 4.2 Phone and medium: the sheet keeps Save and Cancel
 
@@ -223,7 +226,8 @@ own save. This is the owner's rule for full-screen sheets, used here first; 0.20
   dialog appears in front of it to confirm selections should be discarded".
 - Only one Save is visible: the page's `Publish` (and `Save` of 3.4) are under the sheet.
 
-Question 6 asks whether the close icon is enough as `Cancel` on a phone, or whether a separate `Cancel` button is wanted.
+Owner decision 6: on a phone the close icon is `Cancel` and `Save` is a word at the top right; there is no separate `Cancel` button.
+Owner decision 7: the medium width (600–839) uses the modal side sheet with `Save` and `Cancel`, as above.
 
 ### 4.3 What happens to a sheet a phone user leaves open
 
@@ -310,10 +314,10 @@ One `paragraph` for the whole change (skill `release-notes`: "Several changes to
 ## 9. Deviations
 
 - **A labelled `Publish` button in the app bar.** M3 prints icon buttons as the app bar's trailing parts, and "a single, primary, or
-  tonal filled icon button in default or wide sizes". A filled button with the label `Publish` is not printed. If the owner chooses it
-  (question 1), the PR that moves `Publish` adds it to `docs/material-deviations.md`: what Material says (the two quotes), what we do (a
+  tonal filled icon button in default or wide sizes". A filled button with the label `Publish` is not printed. The owner chose it
+  (decision 1, 14 Nov 2026), so the PR that moves `Publish` adds it to `docs/material-deviations.md`: what Material says (the two quotes), what we do (a
   filled common button with a label, and `Save` as a text button before it in 3.4), why (a word cannot be misread; M3's own examples of
-  a primary action are words: "Send, Save, or Edit"), the date and the PR.
+  a primary action are words: "Send, Save, or Edit"), the owner's approval with its date (14 Nov 2026) and the PR.
 - Everything else follows what M3 prints: the standard side sheet without action buttons (optional), the modal side sheet and the
   full-screen dialog with Save, no overflow menu in the app bar, one filled button, the search and the bell as global controls. The live
   side sheet, the save status and the hidden copy are where M3 is silent (section 1); the nearest patterns are named above.
@@ -346,33 +350,32 @@ this rule:
 
 | PR | What | Level | Depends on |
 | :--- | :--- | :--- | :--- |
-| 1 | **Live side sheet from expanded.** `fields` and `section` steps write at once (`setNodeMarkup` per change), no bottom actions, no close question; `Remove` back in the block's `⋮` from expanded (`editsInPanel` no longer hides it); the look fixed while open; the sheet follows `Undo` / `Redo`; one undo step per field focus (`closeHistory`). New blocks go in at once (per question 3). Also for `SectionsField` and rich text fields. Writes the release note. | `minor` | — |
+| 1 | **Live side sheet from expanded.** `fields` and `section` steps write at once (`setNodeMarkup` per change), no bottom actions, no close question; `Remove` back in the block's `⋮` from expanded (`editsInPanel` no longer hides it); the look fixed while open; the sheet follows `Undo` / `Redo`; one undo step per field focus (`closeHistory`). New blocks go in at once, with no `Insert` button (decision 3). Also for `SectionsField` and rich text fields. Writes the release note. | `minor` | — |
 | 2 | **Wrong fields in the live sheet.** Check on every change, mark on blur, the block's card marked, `Not saved · Fix the marked field`, `Publish` opens the sheet at the field. | `minor` | 1 |
 | 3 | **The phone and medium sheet.** Compact: the theme's full-screen dialog with `Save` (`Insert`) and the close icon as `Cancel`; medium: modal side sheet with `Save`, `Cancel`; the hidden copy (`src/sheetCopy.mjs`) and "Restore your unsaved changes?". | `minor` | — (parallel to 1) |
 | 4 | **Preview and View on site in the one bar.** `Preview` a main tool, `View on site` in `⋮`; both leave the page actions; both in the command palette's registry if it is merged, else a follow-up line there. `Ctrl+S` saves now. | `minor` | — |
-| 5 | **Publish in the app bar; the floating bar goes.** `Publish` trailing in the app bar at every width; `Save` there only in 3.4's cases; the status a polite live region; `.editor-save-bar` no longer drawn by the page form (other forms keep it); the deviation entry if question 1 says so. | `minor` | 4 (so `Preview` is never lost) |
+| 5 | **Publish in the app bar; the floating bar goes.** `Publish` trailing in the app bar at every width; `Save` there only in 3.4's cases; the status a polite live region; `.editor-save-bar` no longer drawn by the page form (other forms keep it); the deviation entry in `docs/material-deviations.md` (decision 1, owner's approval of 14 Nov 2026); on a phone the bell leaves the app bar first when it is too narrow (decision 4). | `minor` | 4 (so `Preview` is never lost) |
 | 6 | **Clean-up.** Remove `saveDraft` texts and the page form's unused `FormFrame` paths; update the comments in `FormFrame.tsx`, `BlockDialog.tsx`, `sheetPlacement.mjs`; mark this spec built. | empty | 1–5 |
 
 PRs 1, 3 and 4 can run side by side. Until 1 and 5 are both in, the screen can still show two saves at expanded (the sheet's or the
 bar's); the owner sees the whole rule after 5.
 
-## 12. Open questions for the owner (a recommendation each; the owner decides)
+## 12. Owner decisions (14 Nov 2026)
 
-1. **How does `Publish` look in the app bar?** M3 prints only icon buttons there (at most one filled, "default or wide").
-   *Recommendation:* a filled button with the word `Publish`, recorded as a deviation. A word is clearer than an upload icon, and M3's
-   own examples of a primary action are words. (Alternative: a filled wide icon button with a tooltip `Publish`, no deviation.)
-2. **When the draft cannot save itself** (R2 caching off, editing the live page, an earlier version, a new address, an image not uploaded
-   yet), may the app bar show `Save` before `Publish`? *Recommendation:* yes, only then, as a text button, so nothing typed depends on
-   `Publish` alone (3.4). (Alternative: no `Save`; those changes are kept only by `Publish`.)
-3. **A new block from `Insert` on a computer:** put it in at once with its sheet open live, or keep an `Insert` button in the sheet?
-   *Recommendation:* at once, as blocks typed in place already do; `Undo` or `Remove` takes it out. It keeps the rule "no Save in a side
-   sheet" with no exception.
-4. **The bell on a phone** when the app bar is too narrow for back, title, search, bell and `Publish`. *Recommendation:* the bell moves
-   out first (it is in the main menu); search and `Publish` stay.
-5. **A wrong block field and autosave.** *Recommendation:* keep today's rule, nothing is autosaved while a block is wrong, and the status
-   says why; a draft file the site's check would refuse is never written. (Alternative: autosave the wrong text to R2 only, never to git,
-   so a closed tab loses nothing; more work in `useAutosave`.)
-6. **`Cancel` on the phone's full-screen sheet:** the close icon named `Cancel` (M3's full-screen dialog), or a separate `Cancel` button
-   too? *Recommendation:* the close icon alone, as M3 prints it; `Save` stays a word at the top right.
-7. **The medium width (600–839, a tablet held upright):** modal side sheet with `Save` and `Cancel`, like the phone? *Recommendation:*
-   yes; it covers the page with a scrim, so the page's `Publish` is out of reach there too.
+The owner accepted every recommendation of the first draft (via the 0.18 PM, 14 Nov 2026). They are folded into the body and the build
+plan above.
+
+1. **`Publish` in the app bar is a filled button with the word `Publish`**, recorded as a deviation in `docs/material-deviations.md`
+   with the owner's approval and its date (section 9; PR 5).
+2. **`Save` shows in the app bar only when the draft cannot save itself** (R2 caching off, editing the live page, an earlier version,
+   a new address, an image not uploaded yet), as a text button before `Publish` (3.4; PR 5).
+3. **A new block from `Insert` on a computer goes in at once** with its sheet open live; there is no `Insert` button. `Undo` or
+   `Remove` takes it out (4.1; PR 1).
+4. **On a phone the bell leaves the app bar first** when the bar is too narrow for back, title, search, bell and `Publish`; search and
+   `Publish` stay (3.1; PR 5).
+5. **A wrong block field is not autosaved**, and the status says why (`Not saved · Fix the marked field`); a draft file the site's
+   check would refuse is never written (4.1; PR 2).
+6. **The phone's full-screen sheet:** the close icon is `Cancel`, `Save` (`Insert` for a new block) is a word at the top right, and there
+   is no separate `Cancel` button (4.2; PR 3).
+7. **The medium width (600–839)** uses the modal side sheet with `Save` and `Cancel`, like the phone, with the hidden copy (4.2, 4.3;
+   PR 3).
