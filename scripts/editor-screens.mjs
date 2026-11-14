@@ -902,6 +902,122 @@ async function checkSelection() {
   }
 }
 
+/** Selecting files in Filer (Media.tsx): a long press on a tile (phone) or the mark on hover (computer) selects it; the tiles show
+ * the Selection page's photo-grid mark (an empty circle, a filled one with a check), every tile once one is selected; a tap while
+ * selecting toggles instead of opening; the count control above the grid says "N" and clears; Delete keeps a file a page uses. */
+async function checkFilesSelection() {
+  const marks = (page) =>
+    page.evaluate(
+      () =>
+        [...document.querySelectorAll('main [data-tile-mark]')].filter((m) => {
+          const r = m.getBoundingClientRect();
+          return getComputedStyle(m).opacity === '1' && r.width > 0;
+        }).length,
+    );
+  const on = (page) => page.locator('main [data-media-tile][aria-checked=true]').count();
+  for (const w of [375, 1280]) {
+    const touch = w < 600;
+    const label = `files selection ${w}`;
+    const page = await browser.newPage({ viewport: { width: w, height: 800 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#files'));
+    await page.waitForSelector('main [data-media-tile]');
+    await page.waitForTimeout(800);
+    const tiles = page.locator('main [data-media-tile]');
+    if ((await tiles.count()) < 3) {
+      problems.push(`${label}: fewer than 3 files in the grid`);
+      await page.close();
+      continue;
+    }
+    const hash = () => page.evaluate(() => location.hash);
+    const here = await hash();
+    const centre = async (i) => {
+      await tiles.nth(i).scrollIntoViewIfNeeded();
+      const b = await tiles.nth(i).boundingBox();
+      return [b.x + b.width / 2, b.y + b.height / 2];
+    };
+    const sheetOpen = () => page.evaluate(() => !!document.querySelector('dialog[open]'));
+    const chip = page.getByRole('button', { name: /^Clear selection, \d+ selected$/ });
+    if (await marks(page)) problems.push(`${label}: a tile's mark shows before anything is pointed at or selected`);
+    if (touch) {
+      const cdp = await page.context().newCDPSession(page);
+      const hold = async (x, y, move = 0) => {
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+        await page.waitForTimeout(250);
+        if (move) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y + move }] });
+        await page.waitForTimeout(500);
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+        await page.waitForTimeout(300);
+      };
+      const [x0, y0] = await centre(0);
+      await hold(x0, y0, 20);
+      if ((await on(page)) || (await sheetOpen())) problems.push(`${label}: a press and hold that moves 20 px selected or opened the tile`);
+      await hold(x0, y0);
+      if ((await on(page)) !== 1) problems.push(`${label}: a press and hold does not select the tile`);
+      if (await sheetOpen()) problems.push(`${label}: a press and hold opened the file`);
+      const [x1, y1] = await centre(1);
+      await page.touchscreen.tap(x1, y1);
+      await page.waitForTimeout(300);
+      if ((await sheetOpen()) || (await hash()) !== here) problems.push(`${label}: a tap on a second tile opened it while selecting`);
+      if ((await on(page)) !== 2) problems.push(`${label}: a tap on a second tile does not add it`);
+      if ((await marks(page)) !== (await tiles.count())) problems.push(`${label}: every tile does not show its mark once one is selected`);
+      if (!(await chip.count())) problems.push(`${label}: no count control above the grid`);
+      await page.touchscreen.tap(x0, y0);
+      await page.touchscreen.tap(x1, y1);
+      await page.waitForTimeout(300);
+      if (await chip.count()) problems.push(`${label}: unselecting all does not end selecting`);
+      await hold(x0, y0);
+      await chip.click();
+      if (await on(page)) problems.push(`${label}: the count control does not unselect`);
+    } else {
+      const [x0, y0] = await centre(0);
+      await page.mouse.move(x0, y0);
+      await page.waitForTimeout(400);
+      if ((await marks(page)) !== 1) problems.push(`${label}: pointing at a tile does not show exactly one mark (${await marks(page)})`);
+      const mark = page.locator('main [data-tile-mark]').first();
+      const b = await mark.boundingBox();
+      if (!b || b.width < 48 || b.height < 48)
+        problems.push(`${label}: the mark's target is smaller than 48 x 48 (${b?.width}x${b?.height})`);
+      const t0 = await tiles.nth(0).boundingBox();
+      if (b && (Math.abs(b.x - t0.x) > 2 || Math.abs(b.y - t0.y) > 2))
+        problems.push(`${label}: the mark is not at the tile's top-left corner`);
+      await mark.click();
+      await page.waitForTimeout(400);
+      if ((await on(page)) !== 1 || (await sheetOpen())) problems.push(`${label}: a click on the mark does not select the tile`);
+      if ((await marks(page)) !== (await tiles.count())) problems.push(`${label}: every tile does not show its mark once one is selected`);
+      const [x1, y1] = await centre(1);
+      await page.mouse.click(x1, y1);
+      await page.waitForTimeout(300);
+      if ((await on(page)) !== 2) problems.push(`${label}: a click on a second tile does not add it while selecting`);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
+      if (await on(page)) problems.push(`${label}: Escape does not end selecting`);
+      // Space on a focused tile selects it, and Ctrl+A selects all.
+      await tiles.nth(2).focus();
+      await page.keyboard.press('Space');
+      await page.waitForTimeout(200);
+      if ((await on(page)) !== 1) problems.push(`${label}: Space does not select the tile in focus`);
+      await page.keyboard.press('Control+a');
+      await page.waitForTimeout(200);
+      if ((await on(page)) !== (await tiles.count())) problems.push(`${label}: Ctrl+A does not select all the tiles`);
+      // Delete: a file a page uses is kept, and the message says so; the others are asked about.
+      const del = page.getByRole('button', { name: /^Delete \d+ selected$/ });
+      if (!(await del.count())) problems.push(`${label}: no Delete in the top bar while selecting`);
+      else {
+        await del.click();
+        await page.waitForTimeout(500);
+        const text = await page.evaluate(() => document.body.innerText);
+        const asks = /Delete \d+ files?\? They can be restored under Deleted files\./.test(text);
+        const kept = /\d+ of \d+ files are used on pages and were kept|used on pages and (wasn’t|weren’t) deleted/.test(text);
+        if (!asks && !kept) problems.push(`${label}: Delete neither asks nor says which files a page uses`);
+        await page.keyboard.press('Escape');
+      }
+    }
+    await page.close();
+  }
+}
+
 /** The selection checkbox of a list row (theme ListItem): hover shows one box, all show once one is selected, a touch shows none
  * before that; 48 x 48; a tap on what leads the row selects it (touch); the selected row has the selected surface and corner. */
 async function checkSelectionBox() {
@@ -4959,6 +5075,7 @@ await checkEmptyHint();
 await checkLongPressDelete();
 await checkSelection();
 await checkSelectionBox();
+await checkFilesSelection();
 await checkUnlistedPost();
 for (const [width, height] of [
   [375, 740],

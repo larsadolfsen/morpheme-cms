@@ -70,6 +70,13 @@ export const media: Messages['media'] = {
   uploadNew: 'Upload nyt billede',
   add: 'Tilføj fil',
   preparing: 'Klargør billedet…',
+  clearSelection: (count) => `Ryd markering, ${count} valgt`,
+  deleteFiles: (count) => `Slet ${count} ${count === 1 ? 'fil' : 'filer'}? De kan gendannes under Slettede filer.`,
+  deletedFiles: (count) => `${count} ${count === 1 ? 'fil' : 'filer'} slettet`,
+  keptFiles: (kept, total, names) =>
+    kept === total
+      ? `${total === 1 ? 'Filen bruges' : `De ${total} filer bruges`} på sider og blev ikke slettet: ${names}`
+      : `${kept} af ${total} filer bruges på sider og blev beholdt: ${names}`,
   notDeleted: (error) => `Kunne ikke slette: ${error}`,
   nameTaken: 'Der findes allerede en fil med det navn',
   tooBig: (mb) => `Filen er for stor. Den må højst fylde ${mb} MB.`,
@@ -90,6 +97,7 @@ export const media: Messages['media'] = {
     delete: (what, name) => `Editor: slet ${what} "${name}"`,
     rename: (what, from, to) => `Editor: omdøb ${what} "${from}" til "${to}"`,
     tags: (what, name) => `Editor: ret tags på ${what} "${name}"`,
+    deleteMany: (count) => `Editor: slet ${count} filer`,
   },
   crop: {
     format: 'Format',

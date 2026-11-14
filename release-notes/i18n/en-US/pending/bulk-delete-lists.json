@@ -1,6 +1,6 @@
 {
   "id": "bulk-delete-lists",
   "kind": "paragraph",
-  "title": "Delete several at once",
-  "text": "Clearing out old pages and posts is quicker. Press and hold a row in Pages or Blog posts, or press Select on a computer, then tap more rows and press Delete. They’re deleted together and can be restored under Deleted."
+  "title": "Select several at once",
+  "text": "Clearing out old pages, posts and files is quicker. Press and hold a row or file, or press Select on a computer, then tap more and press Delete. Files a page uses are kept. Deleted items can be restored."
 }
