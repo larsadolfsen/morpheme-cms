@@ -1958,17 +1958,52 @@ dialog {
   margin: 1.5rem calc(-1 * var(--dialog-padding, 1.5rem)) calc(-1 * max(1.5rem, env(safe-area-inset-bottom)));
 }
 
-/* The crop view (CropView.tsx, image tools spec section 3): the theme's full-screen dialog below the medium breakpoint, its basic dialog from medium
-   (up to 560 dp wide). The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and everything outside it
-   is under the theme's scrim, the one its dialogs have behind their container (--dialog-scrim). The frame has a 2 dp border with a 1 dp halo outside
-   it in the other inverse colour, so one of the two stands against any image, light or dark (M3 prints no frame: the focus ring's two-tone look). */
-.editor-crop-dialog {
-  --dialog-max-width: 35rem;
+/* The crop view (CropView.tsx, image tools spec section 3): a page of the editor on every width, as a layer the size of the window over it (a modal
+   <dialog>, so the form under it keeps its changes and its scroll place): the top app bar, the content in a column as wide as a form, and a bottom bar
+   with Save. The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and everything outside it is under the
+   theme's scrim, the one its dialogs have behind their container (--dialog-scrim). The frame has a 2 dp border with a 1 dp halo outside it in the other
+   inverse colour, so one of the two stands against any image, light or dark (M3 prints no frame: the focus ring's two-tone look). */
+.crop-page {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--mo-surface);
+  color: var(--mo-on-surface);
 }
-.editor-crop-dialog .dialog-content {
+.crop-page[open] {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+}
+.crop-page-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  max-width: 48rem;
+  margin-inline: auto;
+  padding: 1rem;
+}
+.crop-page-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  background: var(--mo-surface-container);
+}
+@media (width >= theme(--breakpoint-medium)) {
+  .crop-page-main {
+    padding: 1.5rem;
+  }
+  .crop-page-bar {
+    padding-inline: 1.5rem;
+  }
 }
 .crop-view {
   display: flex;
@@ -2036,14 +2071,10 @@ dialog {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  /* The theme's inactive track is the dialog's own colour (surface container high), so here it would not show: M3's slider uses the secondary container. */
+  /* M3's slider has the secondary container for its inactive track (the theme's own is the surface container high, the colour of the image area). */
   --slider-inactive-track: var(--mo-secondary-container);
 }
 @media (width >= theme(--breakpoint-medium)) {
-  .crop-view-area {
-    flex: none;
-    height: clamp(10rem, calc(100dvh - 27rem), 28rem);
-  }
   .crop-view-ratios {
     flex-wrap: wrap;
     overflow-x: visible;

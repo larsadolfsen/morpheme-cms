@@ -1,16 +1,27 @@
-// The crop view (docs/superpowers/specs/2026-11-14-image-tools-design.md, section 3): the whole image in its real proportions, with a frame of the
-// chosen aspect ratio over it and everything outside the frame under the theme's scrim (the one its dialogs have behind their container:
-// --dialog-scrim). A drag places the image under the frame, a pinch (touch) or the wheel (mouse) zooms around the fingers or the pointer, the slider
-// with its minus and plus buttons zooms around the middle. M3 prints no page on cropping: the view is its full-screen dialog below the medium
-// breakpoint (Save in the header) and its basic dialog from medium (Cancel and Save at the end), as the dialogs' guidelines say. It opens only when
-// asked (the bar's Crop, the image sheet's Aspect ratio), never by itself after an image is picked. `cropView(...)` opens it and answers with the
-// new aspect ratio and crop (crop.mjs), or null when it was left; <CropViewHost /> is in App.tsx.
-import { useEffect, useId, useRef, useState, type KeyboardEvent, type PointerEvent as ReactPointerEvent, type Ref } from 'react';
+// The crop view (docs/superpowers/specs/2026-11-14-image-tools-design.md, section 3): a page of the editor, on every width (owner, 14 Nov: full-screen
+// views are pages): a top app bar with a back arrow and its title, the whole image in its real proportions with a frame of the chosen aspect ratio over it
+// and everything outside the frame under the theme's scrim (the one its dialogs have behind their container: --dialog-scrim), the aspect ratios and the
+// zoom, and a bottom bar with Save (and Cancel from medium). A drag places the image under the frame, a pinch (touch) or the wheel (mouse) zooms around
+// the fingers or the pointer, the slider with its minus and plus buttons zooms around the middle. It is a layer over the editor (a modal <dialog> the size
+// of the window, so the form under it keeps its changes and its scroll place), with a step of its own in the history so the phone's back gesture leaves it
+// (useSheetBack). Back (the arrow, the gesture, Esc) with changes asks "Keep your changes?". It opens only when asked (the bar's Crop, the image sheet's
+// Aspect ratio), never by itself after an image is picked. `cropView(...)` opens it and answers with the new aspect ratio and crop (crop.mjs), or null when
+// it was left; <CropViewHost /> is in App.tsx.
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
+  type Ref,
+} from 'react';
 import { FORMATS, middleCrop, ratioOf } from '../lib/crop.mjs';
 import { closeChanged } from './ask';
 import { shownAt } from './images';
-import { SiteDialog, siteDialogFullScreenModalClass, siteDialogModalClass } from './themeUi';
-import { Button, FilterChip, IconButton, Slider, useAtLeast } from './ui';
+import { Button, FilterChip, IconButton, Slider, TopAppBar, useAtLeast } from './ui';
+import { useSheetBack } from './useSheetBack';
 import { t } from './i18n';
 
 export type Cut = number[] | null;
@@ -203,13 +214,19 @@ function CropDialog({
 
   const changed = JSON.stringify(cut) !== was.current;
   const save = () => answer(changed ? cut : null);
-  // Closed (the cross, Cancel, Esc, a tap on the scrim) with changes: keep them, leave them or stay (the question every sheet asks).
-  async function leave() {
+  // Left (the back arrow, Cancel, Esc, the phone's back gesture) with changes: keep them, leave them or stay (the question every sheet asks).
+  // The gesture has taken the page's step in the history already: staying gives it back.
+  async function leave(fromGesture = false) {
     if (!changed) return answer(null);
     const choice = await closeChanged();
     if (choice === 'keep') answer(cut);
     else if (choice === 'discard') answer(null);
+    else if (fromGesture) history.pushState({ ...history.state, sheet: 'crop-view' }, '');
   }
+  const leaveNow = useRef(leave);
+  leaveNow.current = leave;
+  const onBack = useCallback(() => void leaveNow.current(true), []);
+  useSheetBack(!!shown, onBack, 'crop-view');
 
   const picked = (f: string) => setCut({ format: f, crop: f && aspect ? middleCrop(aspect, f) : null });
   const body = (
@@ -290,48 +307,35 @@ function CropDialog({
     <dialog
       ref={ref}
       aria-labelledby={headline}
-      className={`${medium ? siteDialogModalClass : siteDialogFullScreenModalClass} editor-crop-dialog`}
+      className="crop-page"
       onCancel={(e) => {
         e.preventDefault();
         void leave();
       }}
-      onClick={(e) => {
-        if (e.target === e.currentTarget || (e.target as Element).closest('[data-dialog-close]')) void leave();
-      }}
     >
-      {shown &&
-        (medium ? (
-          <SiteDialog
-            headline={t.media.crop.title}
-            headlineId={headline}
-            actions={
-              <>
-                <Button kind="text" onClick={() => void leave()}>
-                  {t.common.cancel}
-                </Button>
-                <Button kind="text" onClick={save}>
-                  {t.common.save}
-                </Button>
-              </>
-            }
-          >
-            {body}
-          </SiteDialog>
-        ) : (
-          <SiteDialog
-            kind="full-screen"
-            headline={t.media.crop.title}
-            headlineId={headline}
-            closeLabel={t.common.close}
-            actions={
-              <Button kind="text" onClick={save}>
-                {t.common.save}
+      {shown && (
+        <>
+          <TopAppBar>
+            <div className="flex h-16 items-center gap-1 px-2 medium:gap-3 medium:px-6">
+              <IconButton icon="arrow-left" label={t.common.backTo(t.text.image)} onClick={() => void leave()} />
+              <h1 id={headline} className="min-w-0 flex-1 truncate text-title-large">
+                {t.media.crop.title}
+              </h1>
+            </div>
+          </TopAppBar>
+          <main className="crop-page-main">{body}</main>
+          <div role="group" aria-label={t.common.saveChanges} className="crop-page-bar">
+            {medium && (
+              <Button kind="outlined" onClick={() => void leave()}>
+                {t.common.cancel}
               </Button>
-            }
-          >
-            {body}
-          </SiteDialog>
-        ))}
+            )}
+            <Button kind="filled" onClick={save}>
+              {t.common.save}
+            </Button>
+          </div>
+        </>
+      )}
     </dialog>
   );
 }
