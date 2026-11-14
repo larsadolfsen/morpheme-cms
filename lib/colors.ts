@@ -130,9 +130,16 @@ export function contrast(a: string, b: string): number {
  * what it is in the site's words ("Text on buttons"). */
 export type ColorPair = { text: string; on: string; what: string; min?: number };
 
-/** The pairs in a mode that are too hard to read, with their contrast. */
-export function lowContrast(set: ColorSet, pairs: ColorPair[]): (ColorPair & { ratio: number; min: number })[] {
+/** The pairs in a mode that are too hard to read, with their contrast. `kept` are the roles the owner kept as chosen though
+ * they are hard to read as text (`dynamic.kept`, Custom colours): the pairs with that role as text on a surface are skipped,
+ * so neither Save nor the build stops on a choice the owner made. Nothing else is skipped. */
+export function lowContrast(
+  set: ColorSet,
+  pairs: ColorPair[],
+  kept: readonly string[] = [],
+): (ColorPair & { ratio: number; min: number })[] {
   return pairs.flatMap((pair) => {
+    if (kept.includes(pair.text) && pair.on.startsWith('surface')) return [];
     if (!isColor(set[pair.text]) || !isColor(set[pair.on])) return [];
     const ratio = contrast(set[pair.text], set[pair.on]);
     const min = pair.min ?? 4.5;

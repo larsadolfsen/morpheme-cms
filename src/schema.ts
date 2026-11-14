@@ -95,6 +95,8 @@ export type Field = {
    * field shows those of its options the theme offers (templateFieldOf in templateField.ts), its default is the theme's first, which
    * is written as no key, and while only one is left it is shown as the page's, not changed (`locked`). */
   offered?: 'templates';
+  /** select: the icon color of a row or card (iconColor.ts): Secondary and Tertiary are offered only while the site's colors give them 3:1 on the page. */
+  iconColor?: boolean;
   /** select: the options are icons (their names, `icons`), shown as the icons to tap (fields.tsx). */
   icons?: boolean;
   /** With `icons`: the icons are shown at once, and a pick is the last thing asked (the row sheet of a List typed in place). */

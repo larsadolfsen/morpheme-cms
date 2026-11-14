@@ -49,7 +49,7 @@ import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { useOnSite } from '@morphemecms/cms/src/standard/view';
 import IconButton from '@theme/ui/IconButton';
 import BottomSheetResizeIcon from '@theme/ui/BottomSheetResizeIcon';
-import { standardBottomSheet } from '@theme/ui/bottomSheetControl';
+import { followKeyboard, standardBottomSheet } from '@theme/ui/bottomSheetControl';
 
 /** The kinds of a bottom sheet, and the states a standard one rests in, as Material 3 names them. */
 export type BottomSheetKind = 'modal' | 'standard';
@@ -183,10 +183,13 @@ export default function BottomSheet({
   peek,
   footer,
   height,
+  liftAboveKeyboard,
   className,
   children,
   ...rest
 }: {
+  /** A standard sheet that holds a form's own actions: it stays above the on-screen keyboard (followKeyboard). */
+  liftAboveKeyboard?: boolean;
   state?: BottomSheetState;
   states?: [BottomSheetState, ...BottomSheetState[]];
   supportingText?: ReactNode;
@@ -210,6 +213,9 @@ export default function BottomSheet({
   useEffect(() => {
     if (standard && !onSite && sheet.current) standardBottomSheet(sheet.current);
   }, [standard, onSite]);
+  useEffect(() => {
+    if (standard && liftAboveKeyboard && sheet.current) return followKeyboard(sheet.current);
+  }, [standard, liftAboveKeyboard]);
   // A standard sheet is named by its headline even when the caller gives it no id.
   const generatedId = useId();
   const titleId = headlineId ?? generatedId;
