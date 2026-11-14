@@ -4548,7 +4548,8 @@
   which the form is measured with. The forms' looks are the button group's, the button's, the list's and the radio
   button's variables; the part adds:
     --choice-group-max-width (30rem), --choice-group-gap (between the name and the list),
-    --choice-group-sample-max-width (7rem), --choice-group-sample-gap
+    --choice-group-sample-max-width (7rem), --choice-group-sample-gap,
+    --choice-group-sample-button-height (2rem: a sample's button, the extra small size's height)
   Split button (SplitButton, splitButtonClass): .split-button, the main action (.button, .split-button-leading) and
   joined to it the arrow (.button, .split-button-trailing, aria-expanded, its .split-button-arrow turned while the menu
   is open), and the theme's .menu (.split-button-menu) under it, at its end; in the Button's five sizes, the arrow's
@@ -4776,6 +4777,11 @@
   /* A row is at least 48 dp at every density (Material, radio buttons: "Don't apply density to radio buttons by default"). */
   .choice-group-list .list-item-container {
     --list-item-box: max(3rem, calc(var(--list-item-min-height, 3rem) + var(--mo-density) * var(--mo-density-step)));
+  }
+  /* A sample's button is the theme's smallest size at M3's extra small height (32dp; the theme's own extra small is taller),
+     so it stays a real button of its look and fits its row. */
+  .choice-group-sample .button {
+    --button-xsmall-height: var(--choice-group-sample-button-height, 2rem);
   }
   .choice-group-sample {
     display: flex;

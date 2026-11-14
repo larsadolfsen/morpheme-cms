@@ -14,6 +14,6 @@ export const keywords: Messages['keywords'] = {
   linksFilter: 'Links',
   allLinks: 'Med og uden links',
   linked: { with: 'Med links', without: 'Uden links' },
-  kindFilter: 'Slags',
+  kindFilter: 'Type',
   allKinds: 'Alle slags sider',
 };

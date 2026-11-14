@@ -1949,3 +1949,11 @@ dialog {
     padding-top: calc(var(--mo-space-400) + var(--mo-density-layout) * var(--mo-density-step));
   }
 }
+
+/* Files: a file's details in the full-screen dialog (Media.tsx). The docked toolbar (Previous, "1 of 4", Next) stays at the
+   dialog's bottom edge while its content scrolls: sticky at the end of the content, over its end padding, the whole width. */
+.editor-file-dialog .editor-file-toolbar {
+  position: sticky;
+  bottom: calc(-1 * max(1.5rem, env(safe-area-inset-bottom)));
+  margin: 1.5rem calc(-1 * var(--dialog-padding, 1.5rem)) calc(-1 * max(1.5rem, env(safe-area-inset-bottom)));
+}

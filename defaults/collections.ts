@@ -147,7 +147,7 @@ const seo: Field[] = [
     name: 'shareImage',
     label: 'Image when shared',
     type: 'image',
-    hint: 'Shown when the page is shared, e.g. on Facebook.',
+    hint: 'Shown when the page is shared, for example on Facebook.',
   },
 ];
 
@@ -175,7 +175,7 @@ const shareTexts: Field[] = [
 const keywords: Field[] = [
   {
     name: 'keyword',
-    label: 'Main keyword',
+    label: 'Primary keyword',
     type: 'string',
     chips: 'one',
     hint: 'The word becomes a link to here from other pages.',
@@ -266,7 +266,7 @@ export const socialFields: Field[] = [
 // The bank details, a part of its own under "Payment" (company.ts, src/data/payment.json).
 export const bankFields: Field[] = [
   { name: 'bank', label: 'Bank', type: 'string', required: true },
-  { name: 'reg', label: 'Reg. no.', type: 'string', required: true },
+  { name: 'reg', label: 'Registration number', type: 'string', required: true },
   { name: 'account', label: 'Account number', type: 'string', required: true },
 ];
 
