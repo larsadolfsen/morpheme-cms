@@ -3102,6 +3102,15 @@ async function checkImageGrid(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site, {});
+  // A site with no images (the starter's) has no grid to measure.
+  const images = await page.evaluate(
+    async (base) => Object.keys(await (await fetch(`${base}/editor/thumbnails.json`)).json()).length,
+    site,
+  );
+  if (!images) {
+    console.log(`${label}: skipped, the site has no images to measure, which the demo has.`);
+    return page.close();
+  }
   await page.goto(`${site}/editor/#files`);
   await page.waitForSelector('ul.image-grid', { timeout: 30_000 });
   const m = await page.evaluate(() => {
