@@ -46,7 +46,7 @@ Nothing here changes a decision of those specs. Where two of them disagree, sect
 | Column kind picker | "the typed-in-place cell for each kind" (no picker named) | Dynamic lists 9.5: a tap on a dynamic column's header opens the field and kind picker | Typed table: a `Column type` row with a submenu in the rows/columns contextual menu, beside the alignment rows (the editor's own workspace, so M3 does not bind it). It uses the `CardRow` submenu that Change to adds in 0.18 (its step 5). The dynamic table's header picker is #651's, phase 9. |
 
 Change to (#645) moves cell strings as they are. After T5, a `link` cell moved to a List title moves as `[text](address)`. This plan does
-not change that (changing it would break #635's round-trip match by the first cell). **Owner question 3** asks whether to clean it later.
+not change that (changing it would break #635's round-trip match by the first cell). Decision 3 (section 7) keeps it so in 0.19.
 
 ## 3. When each phase can start (0.18 gate)
 
@@ -54,7 +54,7 @@ The 0.18 PM's rule: build the Table block's parts only after the Table steps of 
 **and reached `0.19`** (0.18 is merged forward). In that plan (section 9), the steps that touch the Table are **3** (paste in the Table,
 `InlineTable.tsx`), **5** (Change to between the list blocks: it adds the `CardRow` submenu and the `⋮` row in `MarkdownEditor.tsx`,
 which T1 uses) and **6** (Change to and from the Table). The brief names 3 and 5; 6 needs 5 and touches the Table's targets, so this
-plan waits for all three. **PM, please confirm** that "3 and 5" means these steps (step 5 alone does not touch the Table).
+plan waits for all three (confirmed by the 0.19 PM, 14 Nov).
 
 | Phase | Touches the Table block's own files? | Starts |
 | :--- | :--- | :--- |
@@ -62,7 +62,7 @@ plan waits for all three. **PM, please confirm** that "3 and 5" means these step
 | T1a column model, pure functions | Only new pure functions (`rows.mjs` additions, new `theme/ui/dataTable*.mjs`), no caller changes | **Before** the gate |
 | T1 to T8 | Yes: `src/standard/table/`, `InlineTable.tsx`, `gridActions`, the Table's texts | **After** the gate |
 
-T2 also needs `ChoiceGroup` (choice group PRs 1 and 2 in `0.18`, merged forward). T5's `tag` needs owner question 1.
+T2 also needs `ChoiceGroup` (choice group PRs 1 and 2 in `0.18`, merged forward). T5's `tag` follows decision 1 (section 7).
 
 ## 4. The part: `DataTable`
 
@@ -160,7 +160,7 @@ after `npm run build` for every phase that adds a coloured mark (on each section
   the settings sheet with the switch and the choice group (en-US and da-DK). Contrast: the header over scrolled rows keeps its tint on
   every section colour.
 - **Changeset:** `minor`. **Release note:** `line`, `feature`. Draft: *A long table can keep its header row in view while you scroll*.
-- **Owner question 2** sets the three heights.
+- The three heights are decision 2 (section 7).
 
 ### T4. Sorting (after T1)
 
@@ -178,11 +178,11 @@ after `npm run build` for every phase that adds a coloured mark (on each section
   Table's settings, and each column header becomes a button that sorts the rows. Numbers sort as numbers, and the saved order stays the
   same.*
 
-### T5. Kinds `link`, `date`, `tag`, `yesno` (after T1; `tag` after owner question 1)
+### T5. Kinds `link`, `date`, `tag`, `yesno` (after T1)
 
 - **Cells:** `link` `[text](address)`, drawn as the theme's link, with a 48 dp hit area on touch (density spec 2.3, its open item);
   `date` ISO `YYYY-MM-DD`, drawn with `formatDate` (`site/format.ts`) in the site's language, a cell that is not a date drawn as typed;
-  `tag` split on commas, one chip each (see owner question 1); `yesno` `yes`, `no` or empty, drawn as `check` / `remove` icons with a
+  `tag` split on commas, one chip each (decision 1, section 7); `yesno` `yes`, `no` or empty, drawn as `check` / `remove` icons with a
   visually hidden *Yes* / *No* in the site's language.
 - **Typed in place** (the editor's workspace): `link` typed as its text, the address set with the bar's Link (the Table already has the
   `link` text); `date` typed as ISO with the placeholder `YYYY-MM-DD`; `tag` typed with commas; `yesno` a tap cycles Yes, No, empty.
@@ -249,14 +249,14 @@ day T4, T7 and T8 land, because `DataTable` takes its rows unchanged.
 - Paste: a pasted Table starts with no `columns` (0.18 step 3), so its columns are automatic, as today.
 - The Cookie list draws through `DataTable` from T0 and gets none of the features.
 
-## 7. Owner questions
+## 7. Decisions
 
-1. **The `tag` cell is not M3's chip.** M3's chips page: "Chips appear as a group of interactive elements", and assist chips "represent
-   smart or automated actions … start with a verb" (`/components/chips/guidelines`, read 14 Nov 2026). A tag in a table cell does
-   nothing when tapped. Choose: (a) draw it in the assist chip's look and record a deviation in `docs/material-deviations.md` with your
-   words, or (b) draw it as text in the label type scale on a tonal background (no chip). Recommended: (a), as the table spec decided,
-   with the deviation recorded.
-2. **The sticky header's heights.** Recommended: `Small`, `Medium`, `Large` = 40 %, 60 % and 80 % of the screen's height, default
-   `Medium`.
-3. **Change to and a link column.** A `link` cell moves to a List's title as `[text](address)`. Recommended: leave it in 0.19 (the round
-   trip stays exact) and decide after T5 whether a follow-up moves the address into the item's `href`.
+Decided by the 0.19 PM on the owner's behalf, 14 Nov 2026 (the owner was away and asked the PM to decide); the owner may revise them.
+
+1. **The `tag` cell is drawn in the assist chip's look, not interactive.** M3's chips page says "Chips appear as a group of interactive
+   elements", and assist chips "represent smart or automated actions … start with a verb" (`/components/chips/guidelines`, read 14 Nov
+   2026). A tag in a table cell does nothing when tapped, so this is a deviation. T5 records it in `docs/material-deviations.md` in its own
+   PR, quoting the M3 page as read then.
+2. **The sticky header's heights** are `Small`, `Medium` and `Large`: 40 %, 60 % and 80 % of the screen's height, default `Medium`.
+3. **Change to and a link column.** A `link` cell moves to a List's title as `[text](address)`, unchanged in 0.19, so the round trip stays
+   exact. After T5, a follow-up may move the address into the item's `href`; that is decided then.
