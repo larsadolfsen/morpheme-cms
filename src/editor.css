@@ -903,6 +903,24 @@ html {
   block-size: 2.75rem;
 }
 
+/* The row of a block a mouse points at (not the active one): over the top of the block's content, inside its outline, in no flow, so pointing at a block never moves the page.
+   It sits on the surface, as wide as its buttons and the handle, so the content under it stays readable; only the buttons take the pointer. */
+.editor-text .site-block-row-hover {
+  position: absolute;
+  z-index: 1;
+  inset-block-start: calc(1.5px + var(--card-padding, 1rem));
+  inset-inline: calc(1.5px + var(--card-padding, 1rem));
+  pointer-events: none;
+}
+
+.editor-text .site-block-row-hover .site-block-row-inner {
+  inline-size: fit-content;
+  margin-inline-start: auto;
+  border-radius: var(--mo-shape-full);
+  background: var(--mo-surface);
+  pointer-events: auto;
+}
+
 .editor-text .site-block-row-moving {
   overflow: clip;
 }
@@ -925,7 +943,7 @@ html {
   background: transparent;
 }
 
-.editor-text .site-block-has-row > .site-block-handle {
+.editor-text :is(.site-block-has-row, .site-block-has-hover) > .site-block-handle {
   /* In the row's end: the card's border and padding in from its top and right edge (the card is 0.625rem wider than the block on each side). */
   top: calc(1.5px + var(--card-padding, 1rem));
   right: calc(var(--card-padding, 1rem) + 1.5px - 0.625rem);

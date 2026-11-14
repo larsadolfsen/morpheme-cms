@@ -1023,6 +1023,7 @@ async function checkBlockRow(width, options = {}) {
   const row = page.locator('.site-block-row');
   if (reduced) await page.waitForTimeout(100);
   else await page.waitForTimeout(800);
+  if (await page.locator('.site-block-row-hover').count()) problems.push(`${label}: the active block also shows the pointed block's row`);
   const names = () => page.locator('.site-block-row [data-row]').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   if (!(await row.count())) {
     problems.push(`${label}: no action row for the active block`);
@@ -1111,14 +1112,14 @@ async function checkBlockRow(width, options = {}) {
       return { background: c.backgroundColor, radius: c.borderTopLeftRadius, w: e.getBoundingClientRect().width };
     });
   };
-  const probeIcon = page.locator('.site-block-row-inner > [data-probe="icon"]');
+  const probeIcon = page.locator('[data-probe="icon"]');
   await page.evaluate(() => {
     const probe = document.createElement('button');
     probe.type = 'button';
     probe.dataset.probe = 'icon';
     probe.className = 'icon-button icon-button-standard';
-    probe.innerHTML = document.querySelector('.site-block-row [data-row="up"]')?.innerHTML ?? '';
-    document.querySelector('.site-block-row-inner').prepend(probe);
+    probe.innerHTML = document.querySelector('.site-block-row:not(.site-block-row-hover) [data-row="up"]')?.innerHTML ?? '';
+    document.querySelector('.site-block-row:not(.site-block-row-hover) .site-block-row-inner').prepend(probe);
   });
   const wantHover = await hoverOf(probeIcon);
   await page.evaluate(() => document.querySelector('[data-probe="icon"]').remove());
@@ -1214,6 +1215,79 @@ async function checkBlockRow(width, options = {}) {
   await page.waitForTimeout(reduced ? 200 : 900);
   if (!(await page.locator('.site-block-row').count()))
     problems.push(`${label}: a ${phone ? 'tap' : 'click'} on the block did not bring its row back`);
+  // The row opens and closes without the block's own content moving: the page moves instead (the row grows upward). Sampled every frame.
+  const contentTop = () => page.evaluate(() => document.querySelector('.site-block-card .site-block-preview').getBoundingClientRect().top);
+  const sample = async (act) => {
+    const start = await contentTop();
+    await page.evaluate(() => {
+      window.__tops = [];
+      const one = () => {
+        window.__tops.push(document.querySelector('.site-block-card .site-block-preview')?.getBoundingClientRect().top ?? 0);
+        // After the frame's other callbacks (the row's own scroll hold runs in one), where the frame is painted.
+        window.__raf = requestAnimationFrame(() => setTimeout(one, 0));
+      };
+      one();
+    });
+    await act();
+    await page.waitForTimeout(reduced ? 300 : 1000);
+    const tops = await page.evaluate(() => (cancelAnimationFrame(window.__raf), window.__tops));
+    return { start, drift: Math.max(...tops.map((t) => Math.abs(t - start))), end: Math.abs(tops.at(-1) - start) };
+  };
+  const closed = await sample(() => page.click('.ProseMirror > p'));
+  // With the keyboard open (a short window) the cursor moving into the text scrolls the page by itself: the block's stay is measured in the taller windows.
+  const still = height >= 500;
+  if (still && (closed.drift > 2 || closed.end > 1))
+    problems.push(`${label}: closing the row moves the block's content (${JSON.stringify(closed)})`);
+  if (await page.locator('.site-block-row').count()) problems.push(`${label}: the row stays after the cursor went back to the text`);
+  // Pointing at a block shows its row over its top, taking no space (a computer only).
+  if (!phone) {
+    const flow = () =>
+      page.evaluate(() => ({
+        top: document.querySelector('.site-block-card .site-block-preview').getBoundingClientRect().top,
+        height: document.documentElement.scrollHeight,
+        y: scrollY,
+      }));
+    const calm = await flow();
+    await page.locator('.site-block-card').first().hover();
+    await page.waitForTimeout(400);
+    const hovered = await page.evaluate(() => {
+      const row = document.querySelector('.site-block-row-hover');
+      const card = document.querySelector('.site-block-card.site-block-inline');
+      if (!row) return null;
+      const r = row.getBoundingClientRect();
+      const c = card.getBoundingClientRect();
+      return {
+        position: getComputedStyle(row).position,
+        inside: r.top >= c.top && r.bottom <= c.bottom && r.left >= c.left && r.right <= c.right,
+        names: [...row.querySelectorAll('[data-row]')].map((b) => b.getAttribute('aria-label')),
+        classes: [...row.querySelectorAll('[data-row]')].map((b) => [...b.classList].join(' ')),
+        handle: !!document.querySelector('.site-block-has-hover > .site-block-handle'),
+      };
+    });
+    if (!hovered) problems.push(`${label}: pointing at a block shows no action row`);
+    else {
+      if (hovered.position !== 'absolute') problems.push(`${label}: the pointed block's row takes space (${hovered.position})`);
+      if (!hovered.inside) problems.push(`${label}: the pointed block's row is not inside the dotted outline`);
+      for (const name of ['Move up', 'Move down', 'Hide on the page'])
+        if (!hovered.names.includes(name)) problems.push(`${label}: the pointed block's row has no "${name}" (${hovered.names})`);
+      if (hovered.classes.some((c) => c !== 'icon-button icon-button-standard'))
+        problems.push(`${label}: the pointed block's buttons are not the theme icon button (${hovered.classes})`);
+      if (!hovered.handle) problems.push(`${label}: the pointed block shows no drag handle`);
+    }
+    const moved = await flow();
+    if (Math.abs(moved.top - calm.top) > 0.5 || moved.height !== calm.height || moved.y !== calm.y)
+      problems.push(`${label}: pointing at a block moves the page (${JSON.stringify({ calm, moved })})`);
+    await page.mouse.move(2, 2);
+    await page.waitForTimeout(300);
+    if (await page.locator('.site-block-row-hover').count()) problems.push(`${label}: the pointed block's row stays after the mouse left`);
+  }
+  const opened = await sample(() =>
+    phone ? page.locator('.inline-list-row').first().tap() : page.locator('.inline-list-row').first().click(),
+  );
+  if (still && (opened.drift > 2 || opened.end > 1))
+    problems.push(`${label}: opening the row moves the block's content (${JSON.stringify(opened)})`);
+  if (!(await page.locator('.site-block-row:not(.site-block-row-hover)').count()))
+    problems.push(`${label}: the row did not open on the block`);
   await page.close();
 }
 
