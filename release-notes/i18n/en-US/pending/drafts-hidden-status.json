@@ -1,6 +1,0 @@
-{
-  "id": "drafts-hidden-status",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "Hidden pages are now published with No index on; hidden posts have a Hidden switch"
-}

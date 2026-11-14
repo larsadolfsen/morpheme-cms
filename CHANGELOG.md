@@ -1,5 +1,180 @@
 # @morphemecms/cms
 
+## 0.17.0
+
+### Minor Changes
+
+- 17dbfb0: The menu's Apps section is Store, Connectors, Plugins and Themes: the last three open the installed ones, and no app is listed in the menu.
+- 17dbfb0: With R2 caching on, the page form keeps your changes while you write and puts them back if you close the tab, and the line under the title says Saving…, Saved or Not saved
+- 9e00aca: With R2 caching on, a new page or post is kept while you write: it is called New page or New blog post at once, takes its name from the H1 (a post's title), and is saved as a draft when you leave; a draft page is now autosaved too
+- 6a047d6: With R2 caching on, the editor's Worker can keep an autosaved draft of a page and move it to the waiting version when you leave the page
+- 32fd6ce: The Publish button shows the progress while the website updates.
+- ab3bf0c: The Checklist block is now a check list in the text: each point is a checked item, and the block's label, heading and intro are plain text above it.
+- 947ea55: Choose how much fits on screen: Density, with Large, Medium and Small, under Account.
+- d403d6f: Under Business › Colors you can choose Custom and set Primary, Secondary and Tertiary freely, each with its pen or its dot on the color wheel.
+- 028222b: New pages and posts start as Draft, so nothing goes live until you publish it, and the editor now loads the waiting versions of pages and posts
+- 5973fc4: The Hidden status is gone for pages: a hidden page stays published and has No index turned on (a hidden post has the Hidden switch, which keeps it out of the blog but not out of Google)
+- 3afca52: A published page or post keeps your changes as a waiting version until you choose Publish changes, a draft has Publish, and Unpublish and Discard changes are at the end of the form
+- 3f6278c: Schedule a draft, or the changes to a published page, for a date and time; pages that were Scheduled before wait as a draft with their time, and the Scheduled status is gone
+- 364fbd5: Caching and builds explains how to skip the build for changes that wait to be published, and the status words are now Draft and Published
+- cfbd024: A page or post with changes waiting has a Live and Scheduled switch at the top to edit either one, and an app can replace the switch
+- f251d66: The site's Worker publishes a waiting version of a page or post once its time has come, and a save in the drafts folder builds the site with only the editor's checks
+- 8d94a56: A page with changes waiting is marked in the lists and has a notice at the top of the form, and Publish changes asks first when the live version was changed after the changes were saved
+- 4186b28: An Expandable list is now a Segmented list: its rows, texts and links stay as they were.
+- 17dbfb0: The Banner at the top of the front page is a section now: the page heading starts it, and it can have a background image and a width
+- edb1e6e: Preview opens full screen with a bar of window sizes, and the page can be dragged to any width.
+- d6c689e: Links are now a List: each group's title is a row, and each page is a row with its title.
+- e523367: Three list blocks: List, Segmented list (rows that fold out, with `Only one open` and a text button) and FAQ list, and the `Insert` picker groups the standard blocks by what they do.
+- 17dbfb0: A List keeps only its rows: its label, heading and intro become the text's own lines above it.
+- 9e00aca: A List is typed right in the text: each row's heading and text where it stands, the active row with its icon and link, and the next row always ready.
+- b9ffc03: A List has a floating toolbar for its rows and settings for the row you are in, in the side panel or a bottom sheet, with no Save or Cancel.
+- 853551d: The List block shows the rows of the list it reads, with the tag filter and How many applied, right in the text editor.
+- b90da31: An installed app can add a source of images, such as Unsplash, to the image picker, and the credit is saved with the image.
+- 3e2b7c1: The menu section Blocks is Globals (Header, Footer, Side column, Block templates); Colors is under Business, and Block settings, Caching and builds and Components are rows of Settings.
+- 9a0e3cd: Search engines have two switches on pages and posts: Hide from search engines is now called No index, and the new No follow, off by default, tells search engines not to follow the page’s links.
+- 3beb843: A new list starts empty and the owner adds its fields one at a time, any number of each kind.
+- 47d3996: Under Lists, New list makes a list of your own with a name and the fields icon, title, body text, image, link and tags; it shows under Lists and in Rows from.
+- 2335709: Points with icon are now a List: each point is a row with its icon, heading, text and page.
+- 13ff472: A blog post's title, image, date and tags are drawn at the top of its text as the site shows them.
+- 71f5880: A List, Segmented list or FAQ list can take its rows from a list on the site (the blog posts, the testimonials or an app's list) with a tag filter, `How many` and a `Show all` button, instead of typed rows.
+- b372323: A section can be Surface, Primary, Secondary or Tertiary, and have a background image and a width; the Banner is a section now
+- 17dbfb0: The Segmented list has a `Max rows` setting: it shows that many rows and a `Show more` button shows the rest.
+- 17dbfb0: Switches no longer show On and Off words; a check or a cross in the switch shows its state
+- 69d4115: Body large, Label and Check list in the text style menu and a dotted line at each H2 in the editor
+
+### Patch Changes
+
+- cf12d4f: The title of each section row in the page editor sits in the middle of the row, with equal space above and below.
+- 8bf6a3f: The link under a row of "Expandable list" is drawn as a text button, not an underlined link with an arrow.
+- 821bc68: The section rows at the bottom of the page editor (Other fields, Search engines, Social media, Earlier versions) now sit in the middle between their two lines.
+- 5e19e18: A block's own actions are in a row above the block while it is active.
+- 00a9385: Every block in the page editor has a handle at its top right that moves the block by dragging.
+- 0a18b99: The Label field is gone from a block's head. A block that had one shows its label as a Label line of text right before the block.
+- 84378c1: A block inserted in a list item stays at the top level of the page instead of being indented in the list, and Backspace at the start of a list item leaves the list
+- 33c5094: Several blocks of a page can be selected together and hidden, shown, moved, duplicated (one block) or removed from the text's one bar.
+- a6ca602: Plain paragraphs are Body medium (14 px) and the Label style follows Material 3's label-medium.
+- bc4f0f1: The text styles follow Material 3's body scale (Body large, Body medium, Body small), and a new page or text starts as Body medium instead of an H1.
+- 4d426d6: While the website updates after you publish, the Publish button shows the progress, and a failed update says so with a link to System status.
+- 56a02ef: Pages and Blog posts can be selected and deleted several at once.
+- 886b37d: A button's Style shows its five types side by side, and Text only is now called Text.
+- a264556: Buttons are typed in place: each button looks as on your site and you type its label on the button itself.
+- b0d2b6f: The floating text menu is one row: Bold, Italic, Link, Heading (H), Insert (+) and More, which opens a sheet with colour, text styles, lists and alignment.
+- dd6866f: Testimonials keep 16 dp of padding at every width, and Testimonials and Price cards space their parts like the Cards block.
+- f72ddf6: A card's icon with no color chosen is drawn in the text color, as in a list row, where it was the accent color.
+- 8e100bf: The room inside a Cards card follows Material 3's grid: 16 above the text and the link, 8 between headline and text, and the same gap between cards in a stack, a grid and the phone carousel.
+- 523dfdc: Cards follow Material 3: one media (icon, image or video) for the whole block, a Design of Outlined, Filled or Elevated with Material's container colors, a subhead under the headline, and buttons or a link on a card.
+- 63dff19: Cards can be a carousel on phones (Material 3's uncontained layout), with Show all, snap scrolling and arrow keys.
+- 49491a1: A check list shows a check icon before each item, in the editor and on the site, and the text style button shows the style you are in, or a general text icon outside the text.
+- f048ccf: Let `check:themes` run on a site that already has its own `src/data/side.json`: the check puts the file back as it was.
+- 7b6446a: A theme that sets none of the block colours now gets the site's own colours instead of a fixed blue and grey.
+- 7e02f11: Segmented list rows and tabs light up at Material 3's hover strength (8%) when pointed at, like the other parts.
+- d03f503: The sign-in page of the AI connection follows the browser's light or dark setting and its accent colour.
+- efe4c50: An app with no declared role is a connector when it connects to an outside service, so it shows under Connectors in the Appstore
+- df35ca7: The Cookie list is drawn like the Table block: in an outlined frame, with a header row and the Table's row height and padding.
+- 8dce0ce: Under Deleted, several deleted pages, posts, files and entries can be ticked and restored together.
+- f0e2450: A list you made yourself is offered under Rows from, and the demo has a Highlights list that the screens check uses for the field picker.
+- 68d6403: Dialogs, the date picker and the time picker have 28 dp corners, as Material 3 prints.
+- 4dc518d: The switch at the top of a page says Published and Draft, and the Draft tab has a Discard draft button that asks first
+- 1c58d10: The start screen's Unfinished card is now Drafts: it shows three items, and Show all opens the full list of drafts and scheduled pages.
+- fd97a09: On a phone, a press and hold on a row or file followed by a drag selects every row the finger passes over, and the list scrolls itself near its top and bottom edge.
+- 70df7ad: A page or post title that another file already has gets the next free number in a dialog, instead of an error
+- fb2bbf3: A dynamic list lets you tap a part of a row to choose which field of its list shows there.
+- 53413e6: A list in the text has a Fill from a list button in its toolbar that opens the dynamic settings (the list, tags and how many); typed rows are kept and an Undo brings them back.
+- a497489: A list that takes its rows from a list of your site now says where they come from, which tag and how many, and has an Edit list button that opens the list.
+- ea3a892: Code, quotes and captions in a section on a colour take the section's text colour in the page editor.
+- d16c3c1: The editor's headings use Material 3's type steps: 16px for small headings and 22px for large ones.
+- 17dbfb0: Tidy the spacing and alignment of the "Caching and builds" screen.
+- ce2c322: An elevated button, chip or card in a section on a colour is readable again.
+- d985403: On a page with only its heading, a tap on the hint line puts the cursor in an empty paragraph under it; the hint lines read on every section colour and start where the text starts.
+- 93e7495: A FAQ list is typed right in the text: the question in its line and the answer in the open panel.
+- 3773a65: Questions and answers and Segmented list rows are drawn on the theme's List "expand" kind: an open row keeps its text colour and shows its arrow in a round container.
+- 8e16fa2: Files can be selected and deleted several at once. Files a page uses are kept, named, and stay selected.
+- 852b41d: The images in Files keep their own shape in a staggered grid of two columns on a phone and four on a computer, and the chosen image shows a check mark.
+- 6df8ed7: A new site's start screen has a Get started section, an empty page shows a hint, and the editor asks before the browser
+  asks to show notifications.
+- bc1a568: On a phone, the text menu floats by the selected text again, instead of a bottom sheet over Save changes.
+- 88c9529: Footer links in the editor are easier to tap on a phone
+- 1d591ec: The footer's columns and the post list's two columns sit 24 dp apart from medium screens up, on the 8 dp scale.
+- 04aadc5: The buttons at the bottom of a page or post form (Save draft, Publish) now sit in the theme's standard bottom sheet: the same surface and rounded top as the other sheets, above the on-screen keyboard on a phone.
+- 82e252a: A page whose heading section has a colour or an image now starts right under the navigation bar, with no empty band between them.
+- 6ae536e: The head image of a blog post is drawn in the editor only from an address written again from the allowed characters, as a section's image is.
+- 410e52d: In a heading, Text style no longer shows a body style.
+- 5daa22a: A page's Template no longer shows templates that are not available: the side panel templates appear once a block is chosen for the side column.
+- eeff5d9: Small and narrow icon buttons have a 48 by 48 dp touch target, as Material 3 asks.
+- cd0d67a: A row's or card's icon can have a color from the site's colors (Primary, Secondary or Tertiary), set where the icon is picked.
+- 63fca82: An icon field shows its icon, or a plus, as a round button that opens the icons.
+- 7a62342: "Icon packs" under Appearance lists the packs again on a site that installs the package from npm.
+- b0f6868: The icon picker has a search field and categories that find all icons of Material Symbols and Phosphor.
+- 45f4c80: A card's image and a testimonial's image have an Alt text field, so the image is described for people who can't see it.
+- 46a6b16: An image with no alt text of its own is drawn with the text its file has in Files, on pages, posts, cards, testimonials and banners, and the Alt text fields show that text greyed until you type your own.
+- b480c1c: An image in Files has Describe the image, Decorative image and Caption fields, saved with the image.
+- 8d7ecb4: A new Image grid block shows images from Files in a grid that visitors can filter by tag and open bigger.
+- 2a792cb: `Insert` sorts every block into one of seven groups (Cards, Lists, Banners, Buttons, Media, From your content, Developer), with Blog posts, Testimonials and Cookie list under From your content and HTML code under Developer, a test fails when a block has no group, and a bottom sheet's drag handle no longer shows a blue line when it has the focus.
+- 6eaa1ac: Blog posts have a Hidden switch in Post settings: the post stays out of the blog and lists, but opens at its address and stays in Google
+- f405af1: A label can now be set on any line of text in the page editor, not only above a heading.
+- a32c17d: Selecting rows in a list shows a checkbox in the row, as Material 3 prints it, and a tap on a row's icon or image starts the selection.
+- 75b3f14: The icon and arrow of a list row have the same colour as its heading.
+- e0d7307: In a List typed in the text, the row's icon opens the icon picker, the settings sheet is called List settings, the row's toolbar has a Link action and its own Add above and Add below buttons, the active list has an Add list row button under it, the empty row only shows while the list has no rows, and the active row has a dotted line round it instead of a colour.
+- 23d55a2: The text toolbar has a List button, apart from Text style: Bulleted list, Check list and Numbered list.
+- eec22d6: Menu items have 4 dp corners, with 12 dp on the first and last item and on the selected item, as Material 3 prints.
+- 9731b96: `morpheme migrate` writes a label in its former class (block-eyebrow) as label-medium, so check:editor passes.
+- 17dbfb0: Adds `morpheme migrate`, which writes pages that still use blocks from before 0.17 (Points with icon, Links, Checklist, Expandable list, Banner) in the form the editor saves, and lets `check:editor` pass on such pages with a note to run it.
+- 5e3cf75: Remove the old `card` name of a release note paragraph from the notes code.
+- 17dbfb0: A form section with no field to show, such as a post's empty Post settings, is no longer offered.
+- 16d7a9f: The start screen's update card counts features and improvements apart, such as "12 features, 30 improvements", instead of one number.
+- 956283e: The Notice block is drawn with the theme's filled Card, with the Card's 16 dp padding.
+- 52623b9: Type a Notice's text and a Video's title right in the page, as the site shows them.
+- f608c50: Notice, Banner image, Video and Table take their corners from the Card, and the questions and answers box has 16 dp corners, as Material 3 prints for an expanding list.
+- 23a5375: Texts that are joined onto one line no longer use a slow regular expression.
+- 7a274a6: The text's toolbar is one bar of 44 dp buttons with the tools of the text, of a block or of an image you tapped, then Undo, Redo and Insert block, and what does not fit on a phone in a ⋮ menu; the floating row over the selection, the pop-up row on a card, the second line with its arrow, the 700 ms wait and the More sheet are gone, and headings and text styles are one Text style menu.
+- 6660e2a: The other fields of a page or post sit under Page settings, and Earlier versions is now History
+- 2b47ec5: A page's title at the top of its text is drawn in the editor as the site draws it.
+- df5472c: Plainer words in the editor: Main heading, Original page, Company registration number, Changing to this theme and a clearer hint for an image’s alt text, and clearer Draft and Published hints
+- a671209: The list of blog posts is drawn with the theme's list and a leading image: thumbnails have 8 dp corners and each row has 16 dp of space at the sides, as Material 3 prints.
+- 9d9857a: Preview opens for a draft page
+- bee3ef6: The Preview of a page now draws its blocks and links the way the site does, so tables, cards and lists look the same as on the live page.
+- 6a5f39c: Price cards are typed in place: each card looks as on your site and you type its name, price, text, points and button label where they stand.
+- 39aee70: Settings › Developer › Caching and builds now names its switches by what they do: R2 caching, Content-only builds and Workers Paid plan, each with a short line under it
+- f3653ff: Redirects and the entries of the site's own lists can be selected and deleted several at once.
+- 6ae3c05: The page and post form has the buttons Save draft and Publish
+- 01d4440: The English texts of the editor and the demo say image everywhere.
+- c2347dd: Make `check:screens` read the 0.16 edition photo from the installed package, so a site that installs the package can run it.
+- 968b107: A section's colour runs all the way down to the next section, with no white band, in the editor, in Preview and on the site.
+- 6e80b5a: Filled cards and other container parts in a section on a colour use that colour's Material container and its text colour, so their text is readable.
+- 20b18ec: Quieter text in a section on a colour is the section's full text colour, so it is readable.
+- 2e7f724: Section settings is the first tool in the text toolbar anywhere in a section, not only in its heading, and 48 dp high, so it is reachable on a phone.
+- 6adb6cb: The Section settings tool draws its own icon instead of a backup one.
+- 03babc2: Surfaces in a section on a colour are a lighter veil of its text colour, so text on them is readable.
+- 2d0828a: The outer corners of a segmented list are 16 dp, as Material 3 prints.
+- ecdd049: The floating text menu keeps its button groups whole and fills both rows when it needs two.
+- dd49f9f: The SEO rating also checks the alt text of images behind a section and of images in the text of blocks.
+- abf0d6a: Lift the editor's bottom sheets above the on-screen keyboard.
+- 76bb806: The choices in the editor's bottom sheets (sort, filters, pages, countries, section colours) are drawn as the theme's list items, and a test fails when a sheet draws a row of its own.
+- 87f76aa: Bottom sheets in the editor start at half the screen's height at most on a phone, scroll inside and are dragged up to be taller, as Material 3 says.
+- adb2ab9: The start screen's top bar says only the time the site was updated today, or only the date on an earlier day, so it no longer gets cut off on a phone.
+- 8f3d50c: The site's side margins follow Material 3: 16 px on a phone and 24 px from 600 px up, with wide blocks lining up with the text.
+- 70dd94d: Keep the index signature on `blockTexts`, so a site that reads `blockTexts.offer`, `.prices` and the other block texts type-checks again.
+- e1724ac: The space above and below a block's heading, and the gap in a check list, are on the 4 dp grid.
+- 17dbfb0: Stop a new site's Prettier check from failing after an app is installed.
+- 400a3dc: Steps are typed in place in the text: each step's heading and text are typed where they stand, with no sheet.
+- f953be5: Table: a Striped rows switch in the block's settings, and the header's corners follow the table's rounded border when typed in place.
+- 778bd79: The switch shows Material's focus and pressed state layers around its handle, and its icon is on-primary-container when on
+- 36f6528: Table: a new block with cells typed in place, rows and columns added from the toolbar, and a header row you can turn off.
+- 287398a: A Table aligns a column of numbers to the right by itself, and the toolbar can align the column of the active cell left, centre or right.
+- 98bb231: On a phone, tapping below a section or between two sections puts the cursor on a free line there, so you can write after a section.
+- 1d591ec: Testimonials in a carousel sit 8 dp apart, as Material 3 prints for carousels.
+- 92ba4ed: Testimonials get a Layout setting, Cards or List: existing blocks open as Cards (a List stays a List), with the same testimonials.
+- b159413: Paragraphs and smaller headings can be aligned left, center or right, and the List button shows the bullet list icon.
+- e5def81: Paragraphs and titles in a text keep their space on Material 3's 4 dp grid: 16 px under a paragraph, 24 px under a lead and 32 px above and 12 px below a small title.
+- 4757035: The text styles are Heading, Subheading, Body large, Body medium, Body small, Label and Quote, with the biggest first, and the body styles have the icons A1, A2 and A3.
+- 17dbfb0: The text editor's toolbar sits on top of the editor instead of floating over the text.
+- b2ff557: The text toolbar uses Material 3 spacing inside, so one more tool fits on a phone.
+- 5ecf227: The text toolbar's top border is drawn with the box's own line
+- 0dc7d90: On a phone or tablet, a button no longer stays in its pointed-at look after a tap.
+- f93cd30: On a phone, touching a row or file with a second finger while the first rests on it selects it at once, like a press and hold.
+- 3da8d65: Selecting several pages, posts or notifications also works with the keyboard: Space selects, Shift adds a range, Ctrl+A selects all and Escape unselects.
+- 2374e34: The X icon is the official X logo.
+
 ## 0.16.0
 
 ### Minor Changes

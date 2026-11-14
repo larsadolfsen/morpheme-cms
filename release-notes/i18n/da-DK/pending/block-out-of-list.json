@@ -1,6 +1,0 @@
-{
-  "id": "block-out-of-list",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "En blok, der indsættes i en liste, afslutter listen i stedet for at blive indrykket i den, og Backspace først i et listepunkt forlader listen"
-}

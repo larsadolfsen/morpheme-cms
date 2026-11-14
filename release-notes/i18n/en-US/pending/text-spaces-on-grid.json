@@ -1,6 +1,0 @@
-{
-  "id": "text-spaces-on-grid",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "Space between paragraphs and titles in a text sits on Material 3’s grid"
-}

@@ -1,6 +1,0 @@
-{
-  "id": "seo-alt-blocks",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "The SEO rating also checks the alt text of section images and images in blocks (Cards images count as missing for now), so a page can score lower until you add alt text"
-}

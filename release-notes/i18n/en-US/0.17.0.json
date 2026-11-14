@@ -1,0 +1,769 @@
+{
+  "version": "0.17.0",
+  "date": "2026-11-14",
+  "notes": [
+    {
+      "id": "list-row-menu",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Add and move rows from a toolbar",
+      "text": "A toolbar over your List adds rows above or below, adds a link and moves rows up or down. Tap a row’s icon to pick one. List settings open beside the page, or in a sheet on a phone, and every change is saved with the page."
+    },
+    {
+      "id": "apps-nav-section",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Apps menu",
+      "text": "Apps were spread across the menu. Open Apps to reach Store, Connectors, Plugins and Themes. Store installs more; the other three list what you have installed, and each app opens from there."
+    },
+    {
+      "id": "autosave-form",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Autosave",
+      "text": "Closing the tab or losing your connection no longer loses what you wrote. With R2 caching on, the editor saves a page, post or draft as you type and restores it when you return. The line under the title shows Saving…, Saved or Not saved."
+    },
+    {
+      "id": "block-action-row",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Block actions",
+      "text": "A block's actions are no longer hidden in the ⋮ menu. Tap a block and a row opens above it with Move up, Move down, Hide or Show, Block settings and the drag handle. Remove and Select stay in the ⋮ menu."
+    },
+    {
+      "id": "block-drag-handle",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Block handle",
+      "text": "Moving a block no longer takes several taps. Drag the handle at the top right of a block to where you want it, and a line shows where it lands. Move up and Move down still work."
+    },
+    {
+      "id": "block-selection",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Block selection",
+      "text": "Changing several blocks takes one step. Press and hold a block’s handle, or point at a block and click its circle, then tap more blocks. The bar hides, shows, moves, duplicates or removes them together."
+    },
+    {
+      "id": "sheet-list-styling",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Bottom sheets",
+      "text": "Choices in bottom sheets looked different from the rest of the editor. Under Sort, Filter, page pickers and section colors, each choice is now a row in the editor’s list style, with a clear mark on your pick."
+    },
+    {
+      "id": "r2-caching-name",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Caching settings",
+      "text": "Two settings had names that didn’t say what they do. Open Settings, then Caching and builds. R2 caching keeps a copy of your files in R2 for the editor, and Content-only builds skips the full site check when only content changed."
+    },
+    {
+      "id": "card-icon-text-color",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Card icons",
+      "text": "A card’s icon now reads like its text instead of standing out in the accent color. Open a card’s Media sheet and choose Primary, Secondary or Tertiary under Icon color to color it. Cards that already have a color keep it."
+    },
+    {
+      "id": "cards-media-kinds",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Cards",
+      "text": "A new Cards block starts with three empty cards: type a heading, subhead and text in each. In the settings, pick a Design (Outlined, Filled or Elevated) and one media for all cards. A card has a page or buttons."
+    },
+    {
+      "id": "carousel-cards-phone",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Cards on phones",
+      "text": "A single card at a time reads better on a small screen. Set On phones to Carousel in a Cards block’s settings: visitors swipe the cards sideways, or press Show all to stack them. Larger screens show them together."
+    },
+    {
+      "id": "check-list-checkmark",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Check lists",
+      "text": "A check list no longer looks like a bullet list. Choose Check list in the List menu and type your points: each gets a check icon, in the editor and on your site. Tap the icon in the editor to tick or clear it."
+    },
+    {
+      "id": "connector-role-from-hosts",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Connectors",
+      "text": "Every app that sends data to or loads code from another site now counts as a connector, so you can see where your data goes. Open Appstore under Settings and choose Connectors. Apps with no outside access stay under Plugins."
+    },
+    {
+      "id": "custom-colors-screen",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Custom colors",
+      "text": "Your brand colors stay as you chose them. Under Business › Colors, choose Custom, then set Primary, Secondary and Tertiary with the pens or the color wheel. If Primary is hard to read as text, you decide: Fix or Keep."
+    },
+    {
+      "id": "choose-density",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Density",
+      "text": "Fit more on the screen, or give it more air. Choose Density under Account: Large, Medium or Small. It changes buttons, chips, fields and rows in the editor, never the page you edit. Medium is as before."
+    },
+    {
+      "id": "duplicate-titles",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Duplicate titles",
+      "text": "A title that’s already used no longer stops you from saving. When a new page or post has the same title as another, a dialog suggests the next free one, like Test 2. Change the title if you like, then press Save."
+    },
+    {
+      "id": "rows-from-list",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Dynamic list",
+      "text": "A list shows items from your site without retyping them. Press Fill from a list in the toolbar, pick the list, tags and How many, then tap a part of a row to choose its field. Undo brings your typed rows back."
+    },
+    {
+      "id": "files-staggered-grid",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Files grid",
+      "text": "Images keep their own shape instead of being cut to squares. In Files, the grid has two columns on a phone and four on a computer, and the chosen image shows a check mark."
+    },
+    {
+      "id": "first-run-start",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Get started",
+      "text": "A new site starts empty, so the first step isn’t clear. The start screen now has a Get started section with Write a page, Write a blog post and Add an image, and an empty page shows a hint."
+    },
+    {
+      "id": "menu-globals-regroup",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Globals menu",
+      "text": "Header, Footer and Side column were hard to find under Appearance. Open Globals in the menu to edit what every page shares, with Block templates. Colors moved to Business, and Block settings to Settings."
+    },
+    {
+      "id": "icon-color",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Icon color",
+      "text": "An icon can stand out from its text. Tap a row’s or card’s icon, pick the icon, then choose Primary, Secondary or Tertiary as its color. Lists, Segmented lists and Cards follow your theme’s colors."
+    },
+    {
+      "id": "image-base-alt",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Image descriptions",
+      "text": "Describe an image once, where it lives. In Files, fill in Describe the image, Decorative image and Caption; every page, post, card and banner that shows the image uses that text until you type its own in Alt text."
+    },
+    {
+      "id": "image-grid-add-images",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Image grid",
+      "text": "A gallery that visitors can filter by tag and open bigger. Insert Image grid, then pick tags, or choose images with Add images. Edit sets what a card shows and its style."
+    },
+    {
+      "id": "insert-sheet-categories",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Insert sheet",
+      "text": "A long list of blocks is slow to scan. Open Insert: blocks sit under Cards, Lists, Banners, Buttons and Media, then Blog posts, Testimonials and Cookie list under From your content, and HTML code under Developer."
+    },
+    {
+      "id": "links-list",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "List",
+      "text": "Links and Points with icon did the same job as two blocks. Use List instead: each row has an icon, heading, text and page. Your existing links and points open as a List with the same text."
+    },
+    {
+      "id": "lists",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Lists",
+      "text": "Lists no longer hide among the text styles. Open List in the text toolbar and choose Bullet list, Check list or Numbered list; choose it again to take the text out of the list."
+    },
+    {
+      "id": "own-list-new",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "New list",
+      "text": "One list can fill many pages, so you type each service or team member once. Under Dynamic lists press New list and name it. The list starts empty: add fields one at a time, and add the same kind more than once. Then choose it under Rows from."
+    },
+    {
+      "id": "drafts-publish-buttons",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Publishing",
+      "text": "Edits to a published page no longer go public the moment you save. In a page or post, choose Publish, Publish changes or Schedule, or Unpublish or Discard changes. A new page starts as a draft; the Published and Scheduled switch lets you edit either version."
+    },
+    {
+      "id": "form-bottom-sheet",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Save sheet",
+      "text": "Save draft and Publish no longer sit on a plain white bar. On a phone they rest in a bottom sheet with the same surface and rounded top as the other sheets, and it rises above the keyboard while you type. On a computer it stays at the bottom of the page."
+    },
+    {
+      "id": "icon-picker-search",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Search all icons",
+      "text": "Finding the right icon among 28 was hard. In the icon picker, search or tap a category to see any of over 3,900 icons from Material Symbols, 100 at a time."
+    },
+    {
+      "id": "section-settings",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Section color, image and width",
+      "text": "A section can stand out in more ways. Open Section settings, choose Surface, Primary, Secondary or Tertiary, add a Background image, and set its Width to Full width or Like the text."
+    },
+    {
+      "id": "section-container-pair",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Section containers",
+      "text": "Text on filled cards in a section with a colour is easier to read. A filled card takes that colour's container and its matching text colour, in light and dark mode. Cards outside coloured sections look as before."
+    },
+    {
+      "id": "section-settings-first",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Section settings button",
+      "text": "On a phone, Section settings was easy to miss. It now sits last on the first line of the text toolbar wherever your cursor is in a section. Tap it to change the section’s color, image and width."
+    },
+    {
+      "id": "section-veils",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Section surfaces",
+      "text": "Rows and other filled parts in a section with a colour are lighter, so their text is easier to read. They take a quieter shade of the section's text colour, in light and dark mode. Sections without a colour are unchanged."
+    },
+    {
+      "id": "section-muted-text",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Section text",
+      "text": "Quieter text in a section with a colour is easier to read. Card text, list lines and answers take the section's full text colour, in light and dark mode, and stay smaller than the headings. Sections without a colour are unchanged."
+    },
+    {
+      "id": "full-screen-preview",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "See your page at any window size",
+      "text": "Preview now opens full screen. Pick a window size in the bar at the top, or drag the page’s edge to any width, and see the width as a number. The page scrolls inside a phone, tablet or laptop height."
+    },
+    {
+      "id": "list-blocks-three",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Segmented list",
+      "text": "A long list no longer fills the page. Add a Segmented list, set Max rows, and visitors open each row to read its text and link, and press Show more for the rest. Turn on Only one open to close the last row when the next one opens."
+    },
+    {
+      "id": "bulk-delete-lists",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Select several at once",
+      "text": "Clearing out pages, posts, files, redirects and entries is quicker. Press and hold a row or file, or press Select on a computer, then drag across or tap more and press Delete. Files a page uses are kept. Under Deleted, tick several and press Restore."
+    },
+    {
+      "id": "side-margins-m3",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Side margins",
+      "text": "Your pages give text and images more room on a phone. The space at the sides is now 16 px on a phone and 24 px on a tablet or computer, the margins Material 3 prints. Tables, carousels and banners still line up with the text."
+    },
+    {
+      "id": "switch-state-layers",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Switch focus and press",
+      "text": "In Settings, it’s hard to tell which switch you’re about to change. Focus or press a switch and a soft glow shows around its handle. A switch that’s on also gets a clearer icon color."
+    },
+    {
+      "id": "switch-no-on-off",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Switches",
+      "text": "Switches showed the words On and Off, which crowded small screens. Now a check in the switch means on and a cross means off. Nothing changes in what a switch does."
+    },
+    {
+      "id": "table-block",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Table",
+      "text": "Prices, hours and comparisons fit in a table. Add a Table from Insert and type in the cells where they stand. Numbers align right by themselves; change a column from the toolbar. Add rows and columns there, and turn the header row and striped rows on or off in the block’s settings. On a phone, it scrolls sideways."
+    },
+    {
+      "id": "text-alignment",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Text alignment",
+      "text": "A short line can sit in the middle or on the right of the page. Press Alignment in the text toolbar and choose Align left, Align center or Align right. It works on paragraphs and subheadings; section headings, lists and quotes stay left."
+    },
+    {
+      "id": "body-scale-text-styles",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Text sizes",
+      "text": "Pages are easier to scan with smaller body text. Plain paragraphs are Body medium; choose Body large or Body small in the text style menu. A new page starts as Body medium, and Label follows Material 3 without capitals."
+    },
+    {
+      "id": "toolbar-attached",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Text toolbar position",
+      "text": "The toolbar used to float over your text. Now it sits on top of the text editor and stays in view while you scroll. Open any page or post to see it."
+    },
+    {
+      "id": "one-text-bar",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Toolbar",
+      "text": "Tools no longer show twice or in pop-up rows. Put the cursor in the text, or tap a block or an image, and its tools show next to Undo, Redo and Insert block; on a phone the three dots hold the rest."
+    },
+    {
+      "id": "type-in-place",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Type in place in more blocks",
+      "text": "Blocks no longer open a form for their text. Type a List, Segmented list, FAQ list, Steps, Notice, Video, Price cards or Buttons right on the page, where it shows on your site. Press Enter for the next row, or use the Add button under the block."
+    },
+    {
+      "id": "build-chip",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Website status",
+      "text": "Visitors see a saved change only once the website has updated. After you publish, the Publish button shows its progress until the website has updated, and tells you if it didn’t. There is nothing to set up."
+    },
+    {
+      "id": "post-head-in-text",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Write a post as readers see it",
+      "text": "A blog post now starts with its title, author, image, date and tags, drawn as they look on your site. Type the title right there, tap the image to change it, and set the date and tags beneath it."
+    },
+    {
+      "id": "block-out-of-list",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A block inserted in a list ends the list instead of being indented in it, and Backspace at the start of a list item leaves the list"
+    },
+    {
+      "id": "buttons-style-segments",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A button’s Style shows its five types side by side, and Text only is now called Text"
+    },
+    {
+      "id": "h1-section-under-nav",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A heading section with a colour or an image starts right under the navigation bar"
+    },
+    {
+      "id": "label-on-any-line",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A label can be set on any line of text, not only above a heading"
+    },
+    {
+      "id": "list-head-in-text",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A List now has only its rows: a label, heading or intro it had stands as text above it"
+    },
+    {
+      "id": "save-draft-label",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A page or post form has the buttons Save draft and Publish"
+    },
+    {
+      "id": "hide-unavailable-templates",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A page's Template only shows the templates you can use"
+    },
+    {
+      "id": "page-title-as-site",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A page’s title now looks in the editor as it does on your site"
+    },
+    {
+      "id": "page-settings-history",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A page’s URL, short description and tags are under Page settings, and Earlier versions is now History"
+    },
+    {
+      "id": "section-background-runs-down",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A section's colour runs down to the next section, with no white band"
+    },
+    {
+      "id": "testimonials-list-cards",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A Testimonials block’s Layout says Cards or List instead of Carousel or One after another"
+    },
+    {
+      "id": "colour-block-fallback",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A theme without its own block colours uses the site's colours"
+    },
+    {
+      "id": "icon-control-everywhere",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "An icon field shows its icon, or a plus, as a round button that opens the icons"
+    },
+    {
+      "id": "faq-rows-on-list-expand",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "An open question keeps its text colour and shows its arrow in a circle"
+    },
+    {
+      "id": "media-provider-slot",
+      "kind": "line",
+      "mark": "feature",
+      "text": "Apps can add a source of free images to the image picker, and an image’s credit is saved with it"
+    },
+    {
+      "id": "spacing-grid-check",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Block headings and check lists have spaces on the 4 dp grid"
+    },
+    {
+      "id": "block-label-text",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Blocks no longer have a Label field; an existing label stays as a Label line of text right before the block"
+    },
+    {
+      "id": "posts-list-item",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Blog post lists have thumbnails with smaller corners and a little space at the sides"
+    },
+    {
+      "id": "insert-sheet-handle-focus",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Bottom sheets no longer show a blue line under the handle"
+    },
+    {
+      "id": "drafts-skip-builds-hint",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Caching and builds explains how to skip the build for changes that wait to be published"
+    },
+    {
+      "id": "image-alt-cards-testimonials",
+      "kind": "line",
+      "mark": "feature",
+      "text": "Cards and testimonials have an Alt text field for their image"
+    },
+    {
+      "id": "card-spacing-m3",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Cards have even space inside and the same gap between them in a stack, a grid and the phone carousel"
+    },
+    {
+      "id": "checklist-check-list",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Checklists are now check lists in the text, with the heading and intro as plain text above"
+    },
+    {
+      "id": "editor-code-in-sections",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Code in a section on a colour is readable in the page editor"
+    },
+    {
+      "id": "dialog-corner-28",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Dialogs and the date and time pickers have slightly less round corners"
+    },
+    {
+      "id": "elevated-in-sections",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Elevated buttons and chips are readable in a section on a colour"
+    },
+    {
+      "id": "footer-links-48",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Footer links in the editor are easier to tap on a phone"
+    },
+    {
+      "id": "editor-text-steps",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Headings in the editor use Material 3's text sizes"
+    },
+    {
+      "id": "drafts-hidden-status",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Hidden pages are now published with No index on; hidden posts have a Hidden switch"
+    },
+    {
+      "id": "nofollow-setting",
+      "kind": "line",
+      "mark": "feature",
+      "text": "Hide from search engines is now called No index, and a new No follow switch comes after it"
+    },
+    {
+      "id": "icon-packs-found",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Icon packs under Appearance lists the packs again"
+    },
+    {
+      "id": "menu-item-corners",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Menu items have squarer corners, except the first, the last and the selected one"
+    },
+    {
+      "id": "notice-card",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Notices have a little less space at the sides"
+    },
+    {
+      "id": "touch-buttons-no-sticky-hover",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "On a phone, a button no longer keeps its pointed-at look after a tap"
+    },
+    {
+      "id": "sheet-above-keyboard",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "On a phone, sheets with a text field move up above the keyboard"
+    },
+    {
+      "id": "selection-menu-rows",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "On a phone, the floating text menu fills both rows and keeps its button groups together"
+    },
+    {
+      "id": "toolbar-md-padding",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "One more tool fits on the text toolbar on a phone"
+    },
+    {
+      "id": "plain-words-batch-b",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Plainer words for search engine checks, the company registration number, an image’s alt text and the Draft and Published hints"
+    },
+    {
+      "id": "jolly-hairs-strive",
+      "kind": "line",
+      "mark": "feature",
+      "text": "Post settings has a Hidden switch that keeps a post out of the blog and lists, but not out of Google"
+    },
+    {
+      "id": "preview-draft-page",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Preview opens for a draft page"
+    },
+    {
+      "id": "accordion-rows-equal-space",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Section rows in the page editor have equal space above and below their title"
+    },
+    {
+      "id": "accordion-row-centred",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Section titles in the page editor sit in the middle of their row"
+    },
+    {
+      "id": "colour-hover",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Segmented list rows and tabs show the same pointed-at look as other parts"
+    },
+    {
+      "id": "segmented-list-corner",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Segmented lists have rounder outer corners"
+    },
+    {
+      "id": "sheet-start-height",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Sheets from the bottom open at half the screen at most on a phone, and you drag them up to see more"
+    },
+    {
+      "id": "icon-button-targets",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Small and narrow icon buttons are easier to tap"
+    },
+    {
+      "id": "text-spaces-on-grid",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Space between paragraphs and titles in a text sits on Material 3’s grid"
+    },
+    {
+      "id": "tap-below-section",
+      "kind": "line",
+      "mark": "feature",
+      "text": "Tap below a section or between two sections to write a line there"
+    },
+    {
+      "id": "empty-text-hint",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Tapping the hint line on a page with only a heading starts the text, and hints read on every section colour"
+    },
+    {
+      "id": "card-blocks-spacing",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Testimonials and price cards space their texts and links like cards"
+    },
+    {
+      "id": "testimonials-carousel-gap",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Testimonials in a carousel sit closer together"
+    },
+    {
+      "id": "front-banner-section",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The Banner at the top of the front page is now a section, so its heading can have an image"
+    },
+    {
+      "id": "cookies-like-table",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The cookie list is drawn like the table block, in a frame with a header row"
+    },
+    {
+      "id": "first-run-notifications",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The editor asks before your browser asks to show notifications"
+    },
+    {
+      "id": "say-image-not-picture",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The editor’s English texts say image everywhere"
+    },
+    {
+      "id": "footer-posts-column-gap",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The footer and the post list have narrower gaps between their columns"
+    },
+    {
+      "id": "list-row-icon-color",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The icon and arrow of a list row have the same colour as its heading"
+    },
+    {
+      "id": "accordion-row-text-button",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The link under a row of Expandable list is a text button, not an underlined link"
+    },
+    {
+      "id": "preview-looks-like-site",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The Preview shows blocks and links as the live page does"
+    },
+    {
+      "id": "one-card-corner",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The questions and answers box has rounder corners"
+    },
+    {
+      "id": "seo-alt-blocks",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The SEO rating also checks the alt text of section images and images in blocks (Cards images count as missing for now), so a page can score lower until you add alt text"
+    },
+    {
+      "id": "colour-oauth",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The sign-in page of the AI connection follows light and dark mode"
+    },
+    {
+      "id": "short-start-subtitle",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The start screen's top bar shows the update time or date in a short form that fits a phone"
+    },
+    {
+      "id": "drafts-card-show-all",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The start screen’s Unfinished card is now Drafts, shows three drafts, and Show all opens the rest"
+    },
+    {
+      "id": "draft-tab-name",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The switch at the top of a page says Published and Draft, and Discard draft asks before it deletes your unpublished changes"
+    },
+    {
+      "id": "calm-menus-move",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The text menu over a selection is one row, with More for colour, text styles, lists and alignment"
+    },
+    {
+      "id": "text-style-icons",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The text styles are Heading, Subheading, Body large, Body medium, Body small, Label and Quote, with the biggest first, and the body styles have the icons A1, A2 and A3"
+    },
+    {
+      "id": "note-marks-count",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The update message on the start screen counts features and improvements apart"
+    },
+    {
+      "id": "x-logo-official",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The X icon is the official X logo"
+    },
+    {
+      "id": "two-finger-select",
+      "kind": "line",
+      "mark": "feature",
+      "text": "Touch a row or file with two fingers to select it at once"
+    }
+  ]
+}

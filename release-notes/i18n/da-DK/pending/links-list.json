@@ -1,7 +1,0 @@
-{
-  "id": "links-list",
-  "kind": "paragraph",
-  "mark": "improvement",
-  "title": "Liste",
-  "text": "Links og Punkter med ikon gjorde det samme som to blokke. Brug Liste i stedet: hver række har et ikon, en overskrift, en tekst og en side. Dine eksisterende links og punkter åbner som en liste med den samme tekst."
-}
