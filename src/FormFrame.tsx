@@ -44,6 +44,8 @@ type Props<T extends string> = {
   view?: string;
   /** More in the top bar, before the link to the site. */
   actions?: ReactNode;
+  /** The screen's own actions beside Preview and View on site (a list's menu). */
+  pageActions?: ReactNode;
   /** The button at the end of the top bar, after the notifications. */
   drawer?: ReactNode;
   /** The form's tabs, in the top bar (Screen). */
@@ -153,6 +155,7 @@ export default function FormFrame<T extends string>({
   status,
   view,
   actions,
+  pageActions,
   drawer,
   tabs,
   dirty,
@@ -204,6 +207,7 @@ export default function FormFrame<T extends string>({
       actions={actions}
       pageActions={
         <>
+          {pageActions}
           {onPreview && <IconButton icon={Binoculars} label={t.preview.button} aria-haspopup="dialog" onClick={onPreview} />}
           {view && <IconLink href={view} target="_blank" rel="noopener" label={t.app.viewOnSite} icon={ArrowSquareOut} />}
         </>
