@@ -57,10 +57,11 @@ for (const [file, n] of Object.entries(counts)) {
       `${file}: imports ${n} Phosphor components, ${allowed} allowed (scripts/phosphor-allowlist.json). Draw the new one with Icon.`,
     );
 }
+// A file that imports fewer than allowed is good news, never a failure (main may remove an import while a pull request waits): lower its max.
 for (const file of Object.keys(baseline))
-  if (!(file in counts) || counts[file] < baseline[file].max)
-    problems.push(
-      `${file}: imports fewer Phosphor components than allowed (${counts[file] ?? 0} of ${baseline[file].max}): lower it in scripts/phosphor-allowlist.json.`,
+  if ((counts[file] ?? 0) < baseline[file].max)
+    console.log(
+      `check:phosphor: ${file} imports ${counts[file] ?? 0} of ${baseline[file].max} allowed: lower it in scripts/phosphor-allowlist.json.`,
     );
 
 if (problems.length) {
