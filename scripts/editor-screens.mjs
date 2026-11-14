@@ -1807,6 +1807,97 @@ async function checkTwoFinger() {
   await page.close();
 }
 
+/** Dragging a block by its handle (blockHandle in MarkdownEditor.tsx): every block has a handle at its top right, at least 44 px, always shown with a
+ * touch and on the block pointed at with a mouse; dragging it above the block before moves the block there (the order in the text changes), a tap on it
+ * does nothing. A touch drag is made with real touch events. */
+async function checkBlockDrag(width) {
+  const label = `block drag ${width}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  const insert = async (hint) => {
+    await pressInsert(page, 'click');
+    await page.locator('dialog[open] button', { hasText: hint }).first().click();
+    await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
+    await page.waitForTimeout(400);
+  };
+  await insert('Numbered steps.');
+  await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
+  await page.keyboard.press('End');
+  await page.keyboard.press('Enter');
+  await insert('Rows with icon, heading and text.');
+  // Away from any block's row, so no bar or keyboard is in the way.
+  const names = () => page.locator('.ProseMirror .site-block-card').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  const before = await names();
+  const handles = page.locator('.ProseMirror .site-block-handle');
+  if ((await handles.count()) !== 2 || before.length !== 2) {
+    problems.push(`${label}: expected 2 blocks with a handle each, found ${before.length} blocks and ${await handles.count()} handles`);
+    await page.close();
+    return;
+  }
+  const box = (i) => handles.nth(i).boundingBox();
+  const first = await box(0);
+  if (first.width < 44 || first.height < 44) problems.push(`${label}: a handle is smaller than 44 x 44 (${first.width}x${first.height})`);
+  const opacity = () => handles.nth(1).evaluate((el) => getComputedStyle(el).opacity);
+  if (phone) {
+    if ((await opacity()) !== '1') problems.push(`${label}: a touch does not always see the handle`);
+  } else {
+    await page.mouse.move(5, 5);
+    await page.waitForTimeout(400);
+    if ((await opacity()) !== '0') problems.push(`${label}: a mouse sees a handle before it points at the block`);
+    const b = await box(1);
+    await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
+    await page.waitForTimeout(400);
+    if ((await opacity()) !== '1') problems.push(`${label}: a mouse does not see the handle of the block it points at`);
+  }
+  // A tap on the handle moves nothing.
+  const second = await box(1);
+  const [sx, sy] = [second.x + second.width / 2, second.y + second.height / 2];
+  if (phone) await page.touchscreen.tap(sx, sy);
+  else await page.mouse.click(sx, sy);
+  await page.waitForTimeout(300);
+  if ((await names()).join() !== before.join()) problems.push(`${label}: a tap on the handle moved the block`);
+  // Drag the second block's handle up over the first block.
+  const target = await page.locator('.ProseMirror .site-block').first().boundingBox();
+  const ty = target.y + 8;
+  if (phone) {
+    const cdp = await page.context().newCDPSession(page);
+    const send = (type, x, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] });
+    await send('touchStart', sx, sy);
+    for (let i = 1; i <= 12; i++) {
+      await send('touchMove', sx, sy + ((ty - sy) * i) / 12);
+      await page.waitForTimeout(30);
+    }
+    const lifted = await page.locator('.ProseMirror .site-block-dragging').count();
+    if (lifted !== 1) problems.push(`${label}: the block is not raised while it is dragged`);
+    await send('touchEnd');
+  } else {
+    await page.mouse.move(sx, sy);
+    await page.mouse.down();
+    for (let i = 1; i <= 12; i++) {
+      await page.mouse.move(sx, sy + ((ty - sy) * i) / 12);
+      await page.waitForTimeout(30);
+    }
+    if ((await page.locator('.ProseMirror .site-block-dragging').count()) !== 1)
+      problems.push(`${label}: the block is not raised while it is dragged`);
+    await page.mouse.up();
+  }
+  await page.waitForTimeout(600);
+  const after = await names();
+  if (after.join() !== [...before].reverse().join())
+    problems.push(`${label}: dragging the handle did not move the block (${before.join()} -> ${after.join()})`);
+  if (await page.locator('.ProseMirror .site-block-dragging, .ProseMirror [class*="site-part-drop"]').count())
+    problems.push(`${label}: the drag left its marks behind`);
+  await page.close();
+}
+
 /** The selection checkbox of a list row (theme ListItem): hover shows one box, all show once one is selected, a touch shows none
  * before that; 48 x 48; a tap on what leads the row selects it (touch); the selected row has the selected surface and corner. */
 async function checkSelectionBox() {
@@ -6212,6 +6303,7 @@ await unit('checkFilesSelection', () => checkFilesSelection());
 await unit('checkRedirectsSelection', () => checkRedirectsSelection());
 await unit('checkDragSelect', () => checkDragSelect());
 await unit('checkTwoFinger', () => checkTwoFinger());
+for (const w of [375, 1280]) await unit(`checkBlockDrag ${w}`, () => checkBlockDrag(w));
 await unit('checkUnlistedPost', () => checkUnlistedPost());
 await unit('checkLibraryAlt', () => checkLibraryAlt());
 for (const [width, height] of [

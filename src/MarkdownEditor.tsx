@@ -101,6 +101,8 @@ import { flushSync } from 'react-dom';
 import { t } from './i18n';
 import { motionReduced, motionTiming } from '../lib/motion';
 import { barSlideKind } from './barMotion.mjs';
+import { dragSteps, limitSteps } from './blockDrag.mjs';
+import { edgeScroll } from '@theme/ui/longPressRules.mjs';
 import { hasLabel, labelledHeading, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
 import { AaIcon, AddIcon, MoreVertIcon } from './icon';
@@ -110,6 +112,7 @@ import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw'
 import arrowUpIcon from '@phosphor-icons/core/assets/regular/arrow-up.svg?raw';
 import arrowDownIcon from '@phosphor-icons/core/assets/regular/arrow-down.svg?raw';
 import trashIcon from '@phosphor-icons/core/assets/regular/trash.svg?raw';
+import dragIcon from '@material-symbols/svg-400/outlined/drag_indicator.svg?raw';
 import { TextLargeIcon, TextMediumIcon, TextSmallIcon } from './TextSizeIcons';
 // ProseMirror's own styles: keep its invisible helpers (around images, at the end of lines) out of the layout.
 import '@milkdown/kit/prose/view/style/prosemirror.css';
@@ -405,6 +408,109 @@ const moves = (view: EditorView, i: number | null, locked: string[] = []): CardI
     ...(can(1) ? [{ icon: arrowDownIcon, label: t.common.moveDown, action: step(1) }] : []),
   ];
 };
+
+// The handle of a block: a button at the block's top right that moves it by dragging, as the start screen's cards are moved (DashboardEdit.tsx): the
+// block is raised with the theme's elevation and follows the finger, a line shows where it will land, and it goes there when the finger is lifted (the parts
+// glide, `move`). At once, not after a hold: the handle is a drag control. Not past a block the template locks (`locked`: their types); near the top or
+// bottom of the screen the page scrolls by itself. Keyboard and screen reader users move a block with Move up and Move down (not this button, tabindex -1).
+// A tap does nothing. The block's own place in the text is `top()`.
+function blockHandle(view: EditorView, dom: HTMLElement, name: string, top: () => number | null, locked: string[] = []) {
+  const handle = dom.appendChild(document.createElement('button'));
+  handle.type = 'button';
+  handle.className = 'site-block-handle';
+  handle.tabIndex = -1;
+  handle.setAttribute('aria-label', t.text.dragBlock(name));
+  handle.innerHTML = dragIcon.replace('<svg', '<svg width="24" height="24" fill="currentColor" aria-hidden="true"');
+  // The parts of the text at the top level (not the free lines), with where each is and whether the template locks it.
+  const parts = () => {
+    const found: { index: number; el: HTMLElement; locked: boolean }[] = [];
+    view.state.doc.forEach((child, _, index) => {
+      const el = partDOM(view, index);
+      if (el && !isGap(child)) found.push({ index, el, locked: child.type.name === 'siteBlock' && locked.includes(child.attrs.type) });
+    });
+    return found;
+  };
+  let run: { id: number; startY: number; y: number; scroll: number; frame: number } | null = null;
+  const scroller = () => {
+    for (let box = dom.parentElement; box && box !== document.body; box = box.parentElement)
+      if (/auto|scroll/.test(getComputedStyle(box).overflowY) && box.scrollHeight > box.clientHeight) return box;
+    return null;
+  };
+  const marked: HTMLElement[] = [];
+  const unmark = () => {
+    for (const el of marked.splice(0)) el.classList.remove('site-part-drop-above', 'site-part-drop-below');
+  };
+  // Where it would land now: the places to move, and the line at the part it goes next to.
+  const plan = () => {
+    const i = top();
+    const list = parts();
+    const self = list.findIndex((p) => p.index === i);
+    if (!run || self < 0) return { steps: 0, list, self };
+    const steps = limitSteps(
+      list.map((p) => p.locked),
+      self,
+      dragSteps(
+        list.map((p) => {
+          const r = p.el.getBoundingClientRect();
+          return r.top + r.height / 2;
+        }),
+        self,
+        run.y,
+      ),
+    );
+    return { steps, list, self };
+  };
+  const follow = () => {
+    if (!run) return;
+    dom.style.transform = `translateY(${run.y - run.startY + (scrollNow() - run.scroll)}px)`;
+    unmark();
+    const { steps, list, self } = plan();
+    const next = list[self + steps];
+    if (steps && next) {
+      next.el.classList.add(steps < 0 ? 'site-part-drop-above' : 'site-part-drop-below');
+      marked.push(next.el);
+    }
+  };
+  const scrollNow = () => (scroller()?.scrollTop ?? 0) + window.scrollY;
+  const tick = () => {
+    if (!run) return;
+    const box = scroller();
+    const bounds = box ? box.getBoundingClientRect() : { top: 0, bottom: window.innerHeight };
+    const step = edgeScroll(run.y, bounds.top, bounds.bottom);
+    if (step) (box ?? window).scrollBy(0, step);
+    follow();
+    run.frame = requestAnimationFrame(tick);
+  };
+  const stop = () => {
+    if (run) cancelAnimationFrame(run.frame);
+    run = null;
+    dom.style.transform = '';
+    dom.classList.remove('site-block-dragging');
+    unmark();
+  };
+  handle.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    e.preventDefault();
+    handle.setPointerCapture(e.pointerId);
+    run = { id: e.pointerId, startY: e.clientY, y: e.clientY, scroll: scrollNow(), frame: 0 };
+    dom.classList.add('site-block-dragging');
+    run.frame = requestAnimationFrame(tick);
+  });
+  handle.addEventListener('pointermove', (e) => {
+    if (run?.id === e.pointerId) run.y = e.clientY;
+  });
+  handle.addEventListener('pointerup', (e) => {
+    if (run?.id !== e.pointerId) return;
+    const { steps } = plan();
+    stop();
+    // One part at a time, as Move up and Move down do (the free lines between stay); the block's place follows it.
+    let at = top();
+    for (let n = 0; n < Math.abs(steps) && at !== null; n++) at = move(view, at, steps < 0 ? -1 : 1);
+  });
+  handle.addEventListener('pointercancel', stop);
+  handle.addEventListener('keydown', (e) => e.key === 'Escape' && stop());
+  return handle;
+}
 
 // The row of icons on a card (a block or an image) in the text, opened by tapping it: items, as
 // they are when it opens (no row when there are none). `tap` runs first on a tap that opens the row (not on one that
@@ -1034,6 +1140,8 @@ function blockCard(
       stays || inPanelNow() ? undefined : { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
     ];
   };
+  // Moved by dragging its handle, unless the template locks it.
+  if (!keeps().locked) blockHandle(view, dom, name, top, keeps().rules?.locked);
   // Typed in place: its tools are in the text's one bar (blockBar.ts), and its own menu is in the bar's `⋮`.
   let handle = card;
   if (inline) {

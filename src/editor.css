@@ -872,6 +872,54 @@ html {
   border-color: var(--mo-primary);
 }
 
+.editor-text .site-block-handle {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--mo-surface) 80%, transparent);
+  color: var(--mo-on-surface-variant);
+  cursor: grab;
+  touch-action: none;
+  transition: opacity var(--motion-effects);
+}
+
+/* A mouse sees the handle on the block pointed at or in focus; a touch always sees it. */
+@media (hover: hover) {
+  .editor-text .site-block-handle {
+    opacity: 0;
+  }
+
+  .editor-text .site-block:hover .site-block-handle,
+  .editor-text .site-block-handle:focus-visible,
+  .editor-text .site-block-dragging .site-block-handle {
+    opacity: 1;
+  }
+}
+
+/* The block while it is dragged: raised, following the finger. A line shows the part it will go next to. */
+.editor-text .site-block-dragging {
+  z-index: 3;
+  box-shadow: var(--mo-elevation-4-shadow);
+  background: var(--mo-surface);
+}
+
+.editor-text .site-part-drop-above {
+  box-shadow: 0 -3px 0 0 var(--mo-primary);
+}
+
+.editor-text .site-part-drop-below {
+  box-shadow: 0 3px 0 0 var(--mo-primary);
+}
+
 .editor-text .site-block-card:focus-visible {
   outline: 2px solid var(--mo-primary);
   outline-offset: 2px;
