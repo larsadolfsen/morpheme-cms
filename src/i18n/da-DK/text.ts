@@ -40,7 +40,7 @@ export const text: Messages['text'] = {
   sectionColor: 'Sektionsfarve',
   sectionColors: { none: 'Ingen', surface: 'Flade', primary: 'Primær', secondary: 'Sekundær', tertiary: 'Tertiær' },
   sectionImage: 'Baggrundsbillede',
-  sectionImageAlt: 'Billedbeskrivelse',
+  sectionImageAlt: 'Alternativ tekst',
   sectionImageAltHint: 'Lad den stå tom, hvis billedet kun er pynt.',
   sectionWidth: 'Bredde',
   sectionWidthFull: 'Hele bredden',

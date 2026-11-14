@@ -93,7 +93,7 @@ export const media: Messages['media'] = {
   noPages: 'Ingen sider',
   tags: 'Tags',
   addTag: 'Tilføj tag',
-  alt: 'Beskriv billedet',
+  alt: 'Alternativ tekst',
   altHint: 'Beskriv billedet med få ord, til dem der ikke kan se det.',
   decorative: 'Dekorativt billede',
   decorativeHint: 'Skærmlæsere springer billedet over.',

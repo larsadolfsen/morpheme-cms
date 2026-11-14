@@ -17,7 +17,7 @@ export const seo = {
   keywordFilter: 'Primary keyword',
   allKeywords: 'With and without a primary keyword',
   keywords: { with: 'With a primary keyword', without: 'Without a primary keyword' },
-  kindFilter: 'Kind',
+  kindFilter: 'Type',
   allKinds: 'Pages and blog posts',
   /** Under the name of one without a primary keyword. */
   noKeyword: 'No primary keyword',
