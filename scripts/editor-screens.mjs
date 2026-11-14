@@ -1248,6 +1248,7 @@ async function checkBlockRow(width, options = {}) {
   if (await page.locator('.site-block-row').count()) problems.push(`${label}: the row stays after the cursor went back to the text`);
   // Pointing at a block shows its row over its top, taking no space (a computer only).
   if (!phone) {
+    // (A block narrower than 400 px shows no row on pointing: it would cover the block's first item.)
     const flow = () =>
       page.evaluate(() => ({
         top: document.querySelector('.site-block-card .site-block-preview').getBoundingClientRect().top,
@@ -1295,6 +1296,39 @@ async function checkBlockRow(width, options = {}) {
     problems.push(`${label}: opening the row moves the block's content (${JSON.stringify(opened)})`);
   if (!(await page.locator('.site-block-row:not(.site-block-row-hover)').count()))
     problems.push(`${label}: the row did not open on the block`);
+  await page.close();
+}
+
+/** A narrow window with a mouse (a computer at 420 px): pointing at a block shows no row over it (it would cover its first item), and a click on the first item's field goes into it. */
+async function checkBlockRowNarrow() {
+  const label = 'narrow block row';
+  const page = await browser.newPage({ viewport: { width: 420, height: 800 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(900);
+  await page.locator('.site-block-card').first().hover();
+  await page.waitForTimeout(400);
+  const width = await page
+    .locator('.site-block-card')
+    .first()
+    .evaluate((e) => e.clientWidth);
+  if (width >= 400) problems.push(`${label}: the block is ${width} px wide, not narrow (under 400)`);
+  if (await page.locator('.site-block-row-hover').count())
+    problems.push(`${label}: a narrow block pointed at shows a row over its first item`);
+  await page.locator('.inline-list-row [data-field="title"]').first().click();
+  await page.waitForTimeout(600);
+  if (!(await page.locator('.inline-list-row-active').count()))
+    problems.push(`${label}: a click on the first item's field did not go into it`);
   await page.close();
 }
 
@@ -4603,7 +4637,7 @@ async function checkInlineBlock(
       await page.waitForTimeout(300);
       if (await page.locator('.site-block-inline .block-list-button').count())
         problems.push(`${label}: the button under the list is still there after its text was cleared`);
-      await page.click('.site-block-inline [data-field="question"]');
+      await page.click('.site-block-inline [data-field="question"]', { position: { x: 8, y: 8 } });
     }
   }
   // A row's buttons: under the active row's text the text button `rowButtons` adds a button whose text is typed there.
@@ -6336,7 +6370,8 @@ async function checkSectionOnImage() {
         await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; }' });
         // The list row is the active one: the row typed in place, with its icon and arrow.
         await page
-          .click('.site-block-inline [data-field="title"]')
+          // (At the field's left end: a block pointed at shows its row over its top right.)
+          .click('.site-block-inline [data-field="title"]', { position: { x: 8, y: 8 } })
           .catch(() => problems.push(`${label}: the list row cannot be typed in place`));
         await page.mouse.move(0, 0);
         await page.waitForFunction((src) => document.querySelector('.editor-section-picture img')?.complete, image);
@@ -7558,6 +7593,7 @@ for (const width of [320, 375, 1280]) await unit(`checkInsertBlock ${width}`, ()
 for (const w of [375, 1280]) await unit(`checkBlockRow ${w}`, () => checkBlockRow(w));
 await unit('checkBlockRow 375 reduced', () => checkBlockRow(375, { reduced: true }));
 await unit('checkBlockRow 375 keyboard', () => checkBlockRow(375, { height: 420 }));
+await unit('checkBlockRowNarrow', () => checkBlockRowNarrow());
 await unit('checkSheetKeyboard 375', () => checkSheetKeyboard(375));
 await unit('checkSheetKeyboard 375 Custom', () => checkSheetKeyboard(375, 740, 300, true));
 for (const [width, height] of [

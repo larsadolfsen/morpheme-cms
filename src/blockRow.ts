@@ -9,6 +9,9 @@ import { motionReduced, motionTiming } from '../lib/motion';
 import { iconButtonClass } from '@theme/ui/IconButton';
 import { blockBar, type BlockRow } from './blockBar';
 
+/** The narrowest block (in px) that shows its row when a mouse points at it: the row is about 230 px wide and lies over the block's first item. */
+const POINTED_MIN = 400;
+
 /** The row's height and its buttons': the editor's one touch size, 44 dp. */
 const SIZE = 44;
 
@@ -155,7 +158,9 @@ function syncActive() {
 // The row of the block a mouse points at, over its top: no height, no animation, nothing in the flow. Not on a block that is active (it has its row), and a touch never points.
 function syncPointed() {
   const row = blockBar.pointed();
-  const want = row && row.items.length && row.host !== shown?.host ? row : null;
+  // On a narrow block (a narrow window) the row would cover its first item, which could then not be clicked: such a block shows its row only once it is active, in the flow.
+  const card = row?.host.querySelector<HTMLElement>(':scope > .site-block-card');
+  const want = row && row.items.length && row.host !== shown?.host && (card?.clientWidth ?? 0) >= POINTED_MIN ? row : null;
   if (pointedAt && pointedAt.host !== want?.host) {
     pointedAt.host.classList.remove('site-block-has-hover');
     pointedAt.el.remove();
