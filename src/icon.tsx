@@ -1,5 +1,6 @@
 // Every icon the site draws, on the site and in the editor alike, by its name: Phosphor's (regular, and a filled one as
-// `<name>-fill`), which the site's build puts the theme's own in place of (themePlugin, packages/editor/site/theme.mjs), else
+// `<name>-fill`; a name only, never a glyph unless Phosphor is the icon pack in use: with another pack the virtual sets
+// hold the pack's icons alone, so a name neither it nor Material Symbols has is MISSING), which the site's build puts the theme's own in place of (themePlugin, packages/editor/site/theme.mjs), else
 // a backup from Material Symbols (Outlined) by its Material name (`drag_indicator`, marked data-icon-fallback), else MISSING.
 // Exposes Svg, AnyIcon, Icon, Glyph, SvgFile, MISSING, iconFile, iconNames; uses lib/materialIcon.mjs (the order), materialIcons.ts (lazy set).
 //

@@ -55,6 +55,19 @@ const missingIcon = (name) =>
     ? `the icon "${name}" does not exist (a question mark instead): write it in packages/editor/src/icon.tsx`
     : 'an icon is not an SVG file (a question mark instead)';
 
+// Owner rule (14 Nov): while the icon pack in use is not Phosphor, no icon is drawn as a Phosphor glyph (viewBox 0 0 256 256: Phosphor's
+// files; Material Symbols' are 0 -960 960 960, Lucide's and Material Design Icons' 24). The glyphs allowed, by how their first path starts, with the reason.
+const PHOSPHOR_OK = [
+  { d: 'M215,219.85', why: "X's logo: neither Material Symbols nor Material Design Icons has it (PHOSPHOR_FILL_ICONS in site/icons.mjs)" },
+  {
+    d: '<rect x="68" y="72"',
+    why: "the text bar's own glyphs (src/icons/text-*.svg, drawn in Phosphor's 256 box, not Phosphor's): the toolbar worker (contextual-toolbar-2) owns the bar; follow-up 2",
+  },
+];
+const phosphorGlyph = (d) => !PHOSPHOR_OK.some((ok) => d.startsWith(ok.d));
+const phosphorProblem = (where, d) =>
+  `${where}: an icon is drawn as a Phosphor glyph (path "${d.slice(0, 24)}…") while Material Symbols is the icon pack in use: route it through the pack (Icon, or the pack's file) or allow it in PHOSPHOR_OK with a reason`;
+
 const fallbackIcon = (name) =>
   `the icon "${name}" is from the whole of Material Symbols or Phosphor (not in the icon pack): give it an icon in each pack's map if it is to stay`;
 
@@ -70,6 +83,9 @@ for (const entry of readdirSync(DIST, { recursive: true, withFileTypes: true }))
   for (const [, name] of readFileSync(file, 'utf8').matchAll(/data-icon-missing="([^"]*)"/g))
     missingOn.set(name, new Set([...(missingOn.get(name) ?? []), `/${relative(DIST, file)}`]));
   for (const [, name] of readFileSync(file, 'utf8').matchAll(/data-icon-fallback="([^"]*)"/g)) fallbackAt(name, `/${relative(DIST, file)}`);
+  // The site's pages: a Phosphor glyph (the demo's pack is Material Symbols).
+  for (const [, d] of readFileSync(file, 'utf8').matchAll(/<svg[^>]*viewBox="0 0 256 256"[^>]*><path d="([^"]*)"/g))
+    if (phosphorGlyph(d)) problems.push(phosphorProblem(`/${relative(DIST, file)}`, d));
 }
 for (const [name, pages] of missingOn) {
   const shown = [...pages].slice(0, 3).join(', ');
@@ -3560,7 +3576,7 @@ async function checkTableRadius(width, height) {
   await page.close();
 }
 
-/** The icon picker of a List row (the slot before the title, a sheet on a phone): the first view has the "No icon" tile and the 28 icons, the search field finds an icon of the whole set, Material Symbols' ("arrow back") and Phosphor's ("acorn"), a picked one is drawn in the slot (stored by its name, drawn by the site as the fallback), a search without a hit says so, a category filters (with the search too) 100 icons at a time with "Show more", and the sheet fits the width. */
+/** The icon picker of a List row (the slot before the title, a sheet on a phone): the first view has the "No icon" tile and the 28 icons, the search field finds an icon of the whole set, Material Symbols' ("arrow back") and no Phosphor's ("acorn": not while Material Symbols is the pack), a picked one is drawn in the slot (stored by its name, drawn by the site as the fallback), a search without a hit says so, a category filters (with the search too) 100 icons at a time with "Show more", and the sheet fits the width. */
 async function checkIconSearch(width, height) {
   const label = `${width}px icon search`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -3626,12 +3642,11 @@ async function checkIconSearch(width, height) {
     .getByRole('button', { name: 'Suggested', exact: true })
     .tap()
     .catch(() => {});
-  // Phosphor's own icons are in the search too (acorn: Material Symbols has none of that name).
+  // Owner rule: Phosphor's own icons are in the search only when Phosphor is the icon pack in use (acorn: Material Symbols has none of that name).
   await search.fill('acorn');
-  await picker
-    .getByRole('button', { name: 'acorn', exact: true })
-    .waitFor({ timeout: 8000 })
-    .catch(() => problems.push(`${label}: the search "acorn" did not find Phosphor's acorn`));
+  await page.waitForTimeout(1500);
+  if (await picker.getByRole('button', { name: 'acorn', exact: true }).count())
+    problems.push(`${label}: the search "acorn" found Phosphor's acorn, but Material Symbols is the icon pack in use`);
   await search.fill('arrow back');
   await hit.waitFor({ timeout: 8000 }).catch(() => {});
   await hit.tap().catch(() => {});
@@ -4650,7 +4665,11 @@ for (const [width, height] of [
         links: [...document.querySelectorAll('a[href^="#"]')].map((a) => a.getAttribute('href').slice(1)),
         missing: [...document.querySelectorAll('[data-icon-missing]')].map((e) => e.getAttribute('data-icon-missing')),
         fallback: [...document.querySelectorAll('[data-icon-fallback]')].map((e) => e.getAttribute('data-icon-fallback')),
+        phosphor: [...document.querySelectorAll('svg[viewBox="0 0 256 256"]')].map(
+          (e) => e.querySelector('path, rect, circle')?.getAttribute('d') ?? e.innerHTML.slice(0, 40),
+        ),
       }));
+      for (const d of new Set(state.phosphor)) if (phosphorGlyph(d)) problems.push(phosphorProblem(`${width}px #${hash}`, d));
       // No sheet from the bottom starts taller than --bottom-sheet-start-max-height (half the screen, Material 3), on a phone.
       if (width < 600) {
         const tooTall = await page.evaluate(() => {
