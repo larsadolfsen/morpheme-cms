@@ -817,9 +817,9 @@ async function checkTextBar(width = 360) {
   const order = await page.evaluate(() =>
     [...document.querySelectorAll('[role=menu] > li')].map((li) => (li.classList.contains('menu-divider') ? '-' : li.textContent.trim())),
   );
-  if (order.join('|') !== 'Main heading|-|Body small|Body medium|Body large|-|Quote')
+  if (order.join('|') !== 'Main heading|-|Body small|Body medium|Body large|Label|-|Quote')
     problems.push(
-      `${label}: the Text style menu reads ${order.join(' | ')}, not Main heading | - | Body small | Body medium | Body large | - | Quote`,
+      `${label}: the Text style menu reads ${order.join(' | ')}, not Main heading | - | Body small | Body medium | Body large | Label | - | Quote`,
     );
   for (const name of ['Body small', 'Body medium', 'Body large', 'Quote'])
     if (!style.some((x) => x.name === name)) problems.push(`${label}: the Text style menu lacks ${name}`);
