@@ -9,9 +9,10 @@
 // multiple items simultaneously, long press and drag across items"): `onDrag(x, y)` is called with the finger's place each time it moves and
 // once a frame while it is held, so the list can scroll itself near its edges (longPressRules.mjs edgeScroll). From the hold on the page does
 // not scroll under the finger (a touchmove listener, added when the finger goes down, cancels it, as changing touch-action after the
-// touch started has no effect); a finger that moves before the hold scrolls the page as always and cancels the press.
+// touch started has no effect); a finger that moves before the hold scrolls the page as always and cancels the press. A second finger put
+// down on the same item while the first rests on it selects it at once (two-finger touch), without a drag.
 import { useEffect, useRef, type MouseEvent, type PointerEvent } from 'react';
-import { canPress, clickAfter, movedAway } from './longPressRules.mjs';
+import { canPress, clickAfter, movedAway, secondFinger } from './longPressRules.mjs';
 
 const HOLD = 500;
 
@@ -55,6 +56,16 @@ export function useLongPress(action: (() => void) | undefined, tapToo = false, o
     // Not dragged away (a link's drag would end the press).
     draggable: false,
     onPointerDown: (e: PointerEvent) => {
+      // A second finger on the item while the first rests on it: selected at once, as after the hold (the item's own click that follows is swallowed).
+      if (secondFinger(e.pointerType, e.isPrimary, !!start.current)) {
+        clearTimeout(timer.current);
+        timer.current = undefined;
+        start.current = null;
+        fired.current = true;
+        navigator.vibrate?.(10);
+        latest.current?.();
+        return;
+      }
       fired.current = false;
       if (!canPress(e.pointerType, e.isPrimary)) return;
       start.current = { x: e.clientX, y: e.clientY };
