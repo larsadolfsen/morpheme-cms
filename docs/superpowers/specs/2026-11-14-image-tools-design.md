@@ -49,7 +49,7 @@ modal sheet below it). The **crop view** is the new view of section 3. A **ratio
   to choose the crop.` and a `Zoom` slider (1 to 4). Nothing outside the frame is shown: the frame clips the image. No pinch, no
   wheel. Not offered in a Banner's text or on a fixed page (`crop` option, `data.page`).
 - **The data** (`lib/crop.mjs`): a word after the address, the file untouched:
-  `![Office](/images/uploads/2024/05/office.webp#format=2:3&crop=12.5,0,75,100)`; `decorative` the same way. `splitPicture`
+  `![Office](/images/uploads/2024/05/office.webp#format=2:3&crop=12.5,0,75,100)`; `decorative` the same way. Its split helper
   ignores a crop without a valid format; `middleCrop` gives the largest middle part; `cropStyle` draws it on the site and in the
   editor.
 - **Picking a new image** (`image()` in `MarkdownEditor.tsx`): `addImage()` (the Library) then `sheet.edit(IMAGE, { src, alt: '' },
@@ -280,7 +280,7 @@ reads `/components/chips` and `/components/menus` and says which, quoted.
 - **An image in the text: unchanged.** `#format=3:2&crop=x,y,w,h` after the address (`lib/crop.mjs`). Only the UI word changes
   (`Format` → `Aspect ratio`); the stored word stays `format` (a stored name, as the `image` rule allows). No migration.
 - **A card's image:** its `image` prop gets the same words, `…/team.webp#format=3:2&crop=10,0,80,100`, written with
-  `joinPicture`. The site's `load.ts` and the editor's `viewOf` read it with `splitPicture` and draw it with `cropStyle`; the
+  `crop.mjs`'s join helper. The site's `load.ts` and the editor's `viewOf` read it with its split helper and draw it with `cropStyle`; the
   `srcset` and Files lookups use the address without the words (as the text's images already do).
 - **The Cards block:** a new prop `ratio`, one of `FORMATS`; empty or unknown means `3:2`. A card's crop whose `format` is not the
   block's ratio is ignored (drawn as the middle part), so a ratio change needs no rewrite of the cards, and a later change back
