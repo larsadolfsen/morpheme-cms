@@ -361,20 +361,20 @@
 @layer components {
   /* A target keeps its size at every density step (m3.material.io/foundations/layout/grids-spacing/density: "Accessible targets should
      retain a minimum of 48x48dp, even if the visual element, such as an icon, is smaller"; --mo-target is 48 on touch and 44 for a
-     mouse): an invisible area over a part that is lower than that, down from its middle. A part with a field, a button or a link in it
+     mouse): an invisible area over a part that is lower or narrower than that, out from its middle. A part with a field, a button or a link in it
      (a removable chip, a button the editor types in) has none: the area would cover them. Low specificity (:where), so a part's own position wins. */
-  :where(.button, .segmented-button-segment, a.chip, button.chip:not(.chip-removable)):where(
+  :where(.button, .icon-button, .segmented-button-segment, a.chip, button.chip:not(.chip-removable)):where(
     :not(:has(input, textarea, select, button, a))
   ) {
     position: relative;
   }
-  :where(.button, .segmented-button-segment, a.chip, button.chip:not(.chip-removable)):where(
+  :where(.button, .icon-button, .segmented-button-segment, a.chip, button.chip:not(.chip-removable)):where(
       :not(:has(input, textarea, select, button, a))
     )::after {
     content: '';
     position: absolute;
     inset-block: min(0px, calc((100% - var(--mo-target)) / 2));
-    inset-inline: 0;
+    inset-inline: min(0px, calc((100% - var(--mo-target)) / 2));
   }
   /* Buttons (m3.material.io/components/buttons): a label, an icon before it and optionally one after it (the arrow). */
   .button {
@@ -2386,6 +2386,74 @@
     box-shadow:
       inset 0 0 0 1px var(--card-outlined-line, var(--block-line)),
       var(--card-shadow);
+  }
+  /* A card with media (CardMedia): the image to the card's edge, no padding, in the card's corners. */
+  .card-with-media {
+    position: relative;
+    padding: 0;
+    overflow: hidden;
+  }
+  button.card {
+    width: 100%;
+    border: 0;
+    font: inherit;
+    color: inherit;
+    text-align: start;
+    cursor: pointer;
+  }
+  .card-media {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    border-radius: inherit;
+  }
+  .card-media > img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Selected (Material 3's Selection page: "a check mark icon, a checkbox component, a change in surface color, or a
+     combination"): the selected surface and a check mark. The only ring is the focus ring. */
+  .card-selected {
+    background: var(--card-selected-surface, var(--mo-secondary-container));
+    color: var(--card-selected-text, var(--mo-on-secondary-container));
+  }
+  .card-check {
+    position: absolute;
+    inset-block-start: 8px;
+    inset-inline-end: 8px;
+    box-sizing: content-box;
+    padding: 3px;
+    border-radius: 50%;
+    background: var(--mo-primary);
+    color: var(--mo-on-primary);
+  }
+
+  /* A staggered grid of cards (image-grid.md in docs; M3 Cards: "customized in code to show cards in staggered or
+     mosaic grids"): columns of cards in their own heights, 8 dp apart (M3: "Padding between cards: 8dp max"). 2 columns
+     on compact, 3 on medium and expanded, 4 from large. M3 prints no column count for a grid: these are ours, on its
+     breakpoints. */
+  .image-grid {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    column-count: 2;
+    column-gap: var(--card-gap, 8px);
+  }
+  .image-grid > * {
+    break-inside: avoid;
+    margin-block-end: var(--card-gap, 8px);
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .image-grid {
+      column-count: 3;
+    }
+  }
+  @media (width >= theme(--breakpoint-large)) {
+    .image-grid {
+      column-count: 4;
+    }
   }
 
   .list {
