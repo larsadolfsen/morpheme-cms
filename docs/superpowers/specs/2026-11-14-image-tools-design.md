@@ -1,12 +1,12 @@
 # Image tools: the crop view, the image's tools in the bar, the Cards' aspect ratio (design)
 
-Status: spec and build plan for 0.18, from the owner's decisions of 14 November 2026. No code in this pull request.
-Questions the owner still has to answer are in section 12, each with a recommendation; nothing in them is decided here.
+Status: spec and build plan for 0.18, from the owner's decisions of 14 November 2026 (section 1) and the owner's answers to
+the spec's questions on the same day (section 1b). No code in this pull request. One question is still open (section 12).
 
 Related: `2026-11-13-resize-image-design.md` (its drawn size is dropped, decision 2), `2026-11-11-intuitive-editor-design.md`
 (batch 15 is part of this spec, section 9), `2026-11-12-inline-block-editing-design.md` (section 5, Cards),
 `2026-11-13-contextual-toolbar-row-design.md` (the one bar, its tables for Image and Video), the block action row of #625
-(`src/blockRow.ts`), and the Lightbox deviation 19 in `docs/material-deviations.md`, which this spec follows for larger windows.
+(`src/blockRow.ts`). No deviation from Material 3 is added (decision 1b.1).
 
 Words: the **bar** is the text editor's one toolbar (`editor-tools`); its **contextual tools** slide in from the left for what is
 active. The **row** is the block's action row above an active block (`blockRow.ts`: Move up, Move down, Hide or Show, Settings,
@@ -30,7 +30,25 @@ modal sheet below it). The **crop view** is the new view of section 3. A **ratio
    after an image is picked. A new image starts as `Original`.
 6. **Batch 15** of the intuitive editor spec (alt text right after an image is picked, the `Hide on the page` wording, closing a
    sheet) is part of this spec.
-7. **Video: `Change address`** in the bar for a selected video, the same pattern (handed over from 0.17).
+7. **Video: `Change address`** in the bar for a selected video, the same pattern (handed over from 0.17). Named `Change link`
+   by 1b.5.
+
+## 1b. Owner decisions (14 Nov 2026), the answers to this spec's questions
+
+1. **"Follow MD3":** on medium and expanded windows the crop view is M3's **basic dialog** (way A of the first draft). No deviation
+   entry; the draft of one is dropped.
+2. **"Selecting a block on desktop opens settings in right pane":** on a computer (expanded) a tap on an image selects it **and opens
+   its settings in the side sheet**, as today; the bar shows the image tools while it is selected. On a phone a tap only selects.
+3. *Open:* whether a Cards block may use `Original` (section 12).
+4. **"Follow MD3 shade":** the area outside the frame uses **M3's scrim colour and opacity** (the theme's scrim token), not a value
+   of our own.
+5. **`Change link`** is the video's tool (it matches the field `Video link`).
+6. **`Alt text`** is the tool's name, the standard term. **The owner's general rule: use the standard names, Material 3's and the
+   web's, and never rename them.** The icon: no Material Symbols icon is named for alt text or an image's description (the whole
+   Outlined set of `@material-symbols/svg-400` 0.48.2, 7,874 names, was searched; `audio_description` is for audio), so the icon is
+   **`short_text`**.
+7. **"Just call it hide":** the visibility words are **`Hide`** / **`Show`**, and the state is **`Hidden`**.
+8. **Parked:** no image tools for the page's top image now, and none for the Image grid's tiles. Both are parked, not planned.
 
 ## 2. Today (read in the code on `0.18` at `ece1b62`)
 
@@ -130,9 +148,10 @@ nearest part (the scrim for the darkened area).
   basic dialog of section 9.3 (M3's "confirm that they want to discard").
 - **The image area** fills the room between the header and the controls, on the dialog's surface. The image is drawn whole, at its
   real proportions, scaled by the zoom. The frame is the largest box of the ratio that fits the area less 16 dp on each side, in the
-  middle. Everything outside the frame is under a layer in the theme's scrim colour (`--mo-scrim`); M3 prints a scrim for "surfaces
-  behind the container" but no opacity in text, so the opacity is the theme's (`--crop-outside`, default 60 %, an owner question,
-  12.4). `Original` has no frame and no layer: the whole image is shown, and the slider and the drag are off (nothing to place).
+  middle. Everything outside the frame is under a layer with M3's scrim colour and opacity (1b.4): the theme's scrim token, the one
+  its dialogs already use behind their container (M3: "surfaces behind the container are scrimmed with a temporary overlay"). The
+  build PR names the token it uses and reads its value from the M3 dialog specs' token table, which a plain text read leaves
+  collapsed. `Original` has no frame and no layer: the whole image is shown, and the slider and the drag are off (nothing to place).
 - **The frame's border:** a 2 dp line in `--mo-inverse-on-surface` with a 1 dp halo outside it in `--mo-inverse-surface`, so one of
   the two tones stands against any image, light or dark (M3 prints no frame; the nearest is the focus ring's two-tone look).
 - **Zoom:** 1 (the largest part of the image that fills the frame, today's `middleCrop`) to 4 (today's `MAX_ZOOM`). Pinch zooms
@@ -145,49 +164,40 @@ nearest part (the scrim for the darkened area).
   outline as today. A new ratio puts the largest middle part in the frame (today's rule). In a card (section 6) the chips are not
   shown: the frame is the block's ratio.
 
-### Medium and expanded (600 dp and up)
+### Medium and expanded (600 dp and up): M3's basic dialog (owner, 1b.1)
 
-M3 says "use a basic dialog" from medium. A basic dialog is at most 560 dp wide, which leaves a 2:3 portrait about 300 dp high in a
-1280 × 800 window, so the owner's "full-screen view" cannot be met inside M3. Two ways, the owner chooses (12.1):
+M3: "Full-screen dialogs are for compact breakpoints only, like mobile devices. For medium and expanded breakpoints, use a basic
+dialog." and "Dialogs can swap variants as the breakpoint changes. For example, a full-screen dialog can change into a basic
+dialog at larger breakpoints." So from 600 dp the crop view is the theme's `Dialog` kind `basic` with its parts: the headline
+`Crop`, the image area, the chips and the slider as its content, and the actions `Cancel` and `Save` at its end, the confirming one
+last ("The confirmation button is always closest to the edge"). Its size is M3's: "Min 280dp; Max 560dp", 24 dp padding, the 28 dp
+corner, centred over the scrim. The image area is 512 dp wide (560 less 2 × 24) and as high as the window leaves after the
+headline, the controls and the actions; the dialog itself does not scroll (M3: "Most dialog content should avoid scrolling").
 
-**A. As M3 prints: a basic dialog, 560 dp.** The same parts as compact, in the theme's centred dialog (the `full-screen` kind
-already turns into one from medium): the image area 512 dp wide, the chips and the slider under it. No deviation.
-
-**B. Recommended: the Lightbox's size (deviation 19) with a supporting pane.** From medium the dialog is as large as the window less
-56 dp on each side (M3's own margin for a dialog placed by hand), with the 28 dp corner, exactly as the theme's Lightbox already is.
-Inside it the layout is M3's supporting pane: the image is the focus pane; the controls are the supporting pane, below it on medium
-("Below — Flexible — Compact or Medium") and a fixed 360 dp pane on the trailing side on expanded ("Leading or trailing — Fixed
-(360 dp) — Expanded"). The header keeps `X`, `Crop` and `Save` (one place for Save on every size).
+Today the theme's `full-screen` kind keeps its header from medium (`theme/ui/Dialog.tsx`). The crop view does not rely on that: it
+chooses `basic` from medium itself, so no deviation is added.
 
 ```
-1280 × 800, way B (dialog 1168 × 688 dp: 56 dp margin)
-+------------------------------------------------------------------------------------------------+
-| [X]  Crop                                                                               [Save] |
-+------------------------------------------------------------------+-----------------------------+
-|▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓| Aspect ratio                |
-|▓▓▓▓▓▓▓▓▓▓▓┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓▓▓▓▓▓▓▓▓▓▓▓| [Original] [1:1] [4:5]      |
-|▓▓▓▓▓▓▓▓▓▓▓┃                                            ┃▓▓▓▓▓▓▓▓▓▓▓| [3:4] [2:3] [3:2] [4:3]     |
-|▓▓▓▓▓▓▓▓▓▓▓┃                                            ┃▓▓▓▓▓▓▓▓▓▓▓| [16:9]                      |
-|▓▓▓▓▓▓▓▓▓▓▓┃          focus pane: the image             ┃▓▓▓▓▓▓▓▓▓▓▓|                             |
-|▓▓▓▓▓▓▓▓▓▓▓┃          (808 dp wide)                     ┃▓▓▓▓▓▓▓▓▓▓▓| Zoom                        |
-|▓▓▓▓▓▓▓▓▓▓▓┃                                            ┃▓▓▓▓▓▓▓▓▓▓▓| [−] ──────●──────────── [+] |
-|▓▓▓▓▓▓▓▓▓▓▓┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛▓▓▓▓▓▓▓▓▓▓▓|                             |
-|▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓| supporting pane, 360 dp     |
-+------------------------------------------------------------------+-----------------------------+
+1280 × 800: a basic dialog, 560 dp wide, centred over the scrim
+                   +------------------------------------------------+
+                   | Crop                                           |  headline
+                   | ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ |
+                   | ▓▓▓▓▓┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓▓▓▓▓▓ |  the image area, 512 dp wide
+                   | ▓▓▓▓▓┃                                 ┃▓▓▓▓▓▓ |
+                   | ▓▓▓▓▓┃   the part that is shown (3:2)  ┃▓▓▓▓▓▓ |
+                   | ▓▓▓▓▓┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛▓▓▓▓▓▓ |
+                   | ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ |
+                   | Aspect ratio                                   |
+                   | [Original] [1:1] [4:5] [3:4] [2:3] [3:2]       |  chips wrap, no sideways scroll
+                   | [4:3] [16:9]                                   |
+                   | Zoom   [−] ─────────●──────────────────── [+]  |
+                   |                              [Cancel]  [Save]  |  actions, confirming last
+                   +------------------------------------------------+
 ```
 
-The chips wrap in the pane (no sideways scroll). With the mouse the wheel zooms around the pointer (M3 silent on wheel zoom; the
-slider is the M3 control and the wheel moves the same value). Way A at 1280 is the compact drawing in a 560 dp centred dialog.
-
-**Deviation entry for way B** (to add to `docs/material-deviations.md` in PR 3 only if the owner approves B):
-
-> **N. The crop view is the full-screen dialog, made as large as the window from medium, with a supporting pane.** M3 (dialogs,
-> guidelines): "Full-screen dialogs are for compact breakpoints only, like mobile devices. For medium and expanded breakpoints, use
-> a basic dialog." Basic dialog: "Min 280dp; Max 560dp". We: from medium the crop view keeps the full-screen dialog's header and is
-> as large as the window less 56 dp on each side, with the 28 dp corner, as the Lightbox (19); inside it the image is the focus
-> pane and the controls are M3's supporting pane (below on medium, a fixed 360 dp trailing pane on expanded). Why: owner decision
-> (14 Nov, "a full-screen view"); a 560 dp dialog shows a portrait image too small to place it; M3 prints no image editor. Date and
-> PR: of PR 3.
+With a mouse the wheel zooms around the pointer, and the drag places the image, as on a phone. M3 is silent on wheel zoom; the
+slider is the M3 control, and the wheel moves the same value. On medium (600 to 839 dp, a tablet) it is the same dialog; a pinch
+works there as on a phone.
 
 ## 4. The image's tools in the bar (decision 3)
 
@@ -207,16 +217,17 @@ slider is the M3 control and the wheel moves the same value). Way A at 1280 is t
 
 - **Tap = select.** A tap (or Enter or Space on the focused image) selects the image: the image shows the selected state (the
   card's selected ring as today), the bar slides in its tools with the bar's spring (`barMotion.mjs`), and, for the Image block, the
-  row opens above it. A tap no longer opens the image sheet by itself on expanded: the sheet opens from the row's `Settings`. This
-  changes today's `inPanelNow()` tap (owner question 12.2, recommended: yes, one rule on every size).
+  row opens above it. **On a computer (expanded) the tap also opens the image's settings in the side sheet, as today
+  (`inPanelNow()`, owner 1b.2)**; the bar shows the image tools while the image is selected and the sheet is open. On a phone and
+  a tablet (below expanded) a tap only selects, and the sheet opens from the row's `Settings`.
 - **The tools**, in this order (the bar's width budget, `planBar`, puts the last ones in `⋮` when they don't fit), each an icon
   button with its label as name and tooltip (Material Symbols, by name through `Icon`):
 
 | Tool | Icon (Material Symbols) | What it does |
 | --- | --- | --- |
-| `Change image` | `photo_library` | Opens the Library picker (`addImage`). The new image keeps the place, the alt text step of 9.1 follows; a ratio and crop are reset to `Original` (a new image starts as Original, decision 5), in a card to the block's ratio with the middle part. |
+| `Change image` | `replace_image` | Opens the Library picker (`addImage`). The new image keeps the place, the alt text step of 9.1 follows; a ratio and crop are reset to `Original` (a new image starts as Original, decision 5), in a card to the block's ratio with the middle part. |
 | `Crop` | `crop` | Opens the crop view (section 3). |
-| `Alt text` | `short_text` (question 12.6) | Opens the alt text sheet (9.1): `Decorative image` and `Alt text`. |
+| `Alt text` | `short_text` (1b.6) | Opens the alt text sheet (9.1): `Decorative image` and `Alt text`. |
 | `Remove` | `delete` | Removes the image: in the text the Image block goes (as `Remove` in `⋮` today, which moves here); in a card the card's image is cleared and its media area shows the empty slots. Undo brings it back. A snackbar is not added (Undo is on the bar). |
 
 - **The Image block's row** keeps Move up, Move down, Hide or Show, `Settings`, the handle. `Settings` opens the **image sheet**
@@ -255,7 +266,7 @@ slider is the M3 control and the wheel moves the same value). Way A at 1280 is t
 ## 6. Cards: one aspect ratio per block (decision 4)
 
 - **Block setting.** The Cards block's settings get `Image aspect ratio` (shown only when `media` is `image`), segmented or a select
-  of `FORMATS` (no `Original`: the cards stay aligned; owner question 12.3), hint `All the cards’ images use it.` The default is
+  of `FORMATS` (no `Original`: the cards stay aligned; the one open question, 12.1), hint `All the cards’ images use it.` The default is
   `3:2`, today's look.
 - **The crop view in a card** has no chips: its frame is the block's ratio; it only zooms and moves.
 - **A ratio change** keeps every card's image and shows its middle part in the new ratio (a crop made for another ratio is not
@@ -290,12 +301,12 @@ reads `/components/chips` and `/components/menus` and says which, quoted.
 - **Video:** no change.
 - **Resize:** no `size` word (decision 2).
 
-## 8. The video's `Change address` (decision 7)
+## 8. The video's `Change link` (decisions 7 and 1b.5)
 
-- Tapping the video (the frame) selects it; the bar slides in `Change address` (icon `link`), and the row keeps the block's own
-  (Move, Hide, `Settings`, handle). Today's slot over the frame (`InlineSlot`) goes: the bar has the tool.
-- `Change address` opens the video's sheet with the `Video link` field focused and its text selected, so a paste replaces it;
-  `Save` keeps it. (The word: owner question 12.5.)
+- Tapping the video (the frame) selects it; the bar slides in `Change link` (icon `link`), and the row keeps the block's own
+  (Move, Hide, `Settings`, handle). On a computer the tap also opens its settings in the side sheet, as for an image (1b.2). Today's slot over the frame (`InlineSlot`) goes: the bar has the tool.
+- `Change link` opens the video's sheet with the `Video link` field focused and its text selected, so a paste replaces it;
+  `Save` keeps it.
 - The title under the frame stays typed in place.
 
 ## 9. Batch 15: images and block flow (decision 6)
@@ -311,11 +322,12 @@ not open (decision 5). The same sheet is what `Alt text` in the bar opens, with 
 M3 for the buttons: "If two actions are provided, one must be a confirming action, and the other a dismissing action"; `Skip` is
 the dismissing one and keeps the image, which is what the owner picked.
 
-### 9.2 The `Hide on the page` wording
+### 9.2 `Hide` and `Show` (owner, 1b.7: "Just call it hide")
 
-Today the row's visibility button says `Hide on the page` / `Show on the page`, and a hidden block says `Hidden on the page`. The
-finding came from a clash with the status `Hidden`; that status is gone (two statuses, `Draft` and `Published`; `Hide from search
-engines` is an SEO setting). Owner question 12.7: keep the words (recommended), or `Don’t show on the page`.
+Today the row's visibility button says `Hide on the page` / `Show on the page`, and a hidden block says `Hidden on the page`
+(`text.hideOnPage`, `showOnPage`, `hiddenOnPage`). New: **`Hide`**, **`Show`** and the state **`Hidden`**, in the row's button
+(its label and tooltip), the bar's `⋮`, and what screen readers hear of a hidden block. The keys keep their names; only the texts
+change. Danish: `Skjul`, `Vis`, `Skjult`.
 
 ### 9.3 Closing a sheet
 
@@ -342,63 +354,62 @@ save it.`, buttons `Discard` and `Keep` (confirming last, M3's order). Used by e
 | `media.altSkip` (new) | Skip | Spring over |
 | `blocks.cards.ratio` (new) | Image aspect ratio | Billedformat for billeder |
 | `blocks.cards.ratioHint` (new) | All the cards’ images use it. | Alle kortenes billeder bruger det. |
-| `blocks.video.changeUrl` (new) | Change address | Skift adresse |
+| `blocks.video.changeUrl` (new) | Change link | Skift link |
+| `text.hideOnPage` | Hide | Skjul |
+| `text.showOnPage` | Show | Vis |
+| `text.hiddenOnPage` | Hidden | Skjult |
 | `app.unsavedSheetTitle` (new) | Keep your changes? | Vil du beholde dine ændringer? |
 | `app.unsavedSheet` | Your changes stay in the page until you save it. | Dine ændringer bliver på siden, indtil du gemmer den. |
 | `app.keep` (new) | Keep | Behold |
 
-Sentence case, active verbs, `image` everywhere; `check:language` must pass.
+Sentence case, active verbs, `image` everywhere; `check:language` must pass. The owner's rule (1b.6): the standard names of
+Material 3 and the web (`Alt text`, `Aspect ratio`, `Crop`, `Hide`) are used as they are, never renamed.
 
 ## 11. Release notes, deviations, checks
 
 **Release notes** (skill `release-notes`, pending, both languages, alphabetical by title):
 
 - paragraph, `feature`, **Crop view** / **Beskæring**: "A small frame made it hard to place an image. Tap an image, choose Crop, and
-  drag or pinch the image in a full-size view; the part outside the frame is darkened. Aspect ratio sets the frame, and Original
+  drag or pinch the image in a view of its own; the part outside the frame is darkened. Aspect ratio sets the frame, and Original
   shows the whole image." (≈ 40 words)
 - paragraph, `improvement`, **Image tools** / **Billedværktøjer**: "Everything for an image is in one place. Tap an image, and the
   toolbar shows Change image, Crop, Alt text and Remove; this works for images in the text and on cards."
 - paragraph, `feature`, **Card images** / **Kortbilleder**: "Cards no longer cut every image to 3:2. Set Image aspect ratio in the
   Cards block’s settings, and every card follows it; crop each card’s image to choose its part."
+- line, `improvement`: "Hide and Show are the words for a block you keep off the page"
 - line, `improvement`: "After you choose an image, you’re asked for its alt text right away"
 - line, `improvement`: "Closing a sheet with changes asks whether to keep them in the page"
-- line, `improvement`: "A selected video has Change address in the toolbar"
+- line, `improvement`: "A selected video has Change link in the toolbar"
 
 The Danish notes are written as a Danish app says them, by the skill, in each PR.
 
-**Deviations:** only way B of section 3 (its entry above), and only once the owner approves it. The two-tone frame border and the
-darkened area are M3-silent choices, listed in the PR as "M3 is silent", not as deviations. The bar's own parts are the editor's
-workspace (already listed under *The text bar*).
+**Deviations:** none. The crop view is M3's full-screen dialog on a phone and M3's basic dialog from medium (1b.1); the darkened
+area is M3's scrim (1b.4). The two-tone frame border is an M3-silent choice and is listed in the PR as "M3 is silent", not as a
+deviation. The bar's own parts are the editor's workspace (already listed under *The text bar*).
 
 **Checks** (skill `checks`) per PR: `npm run check`; `npm run check:screens` after `npm run build`, with new units at 375 px and
 1280 px: (1) tap an image in the text: the bar shows the four tools and the row its four buttons; (2) `Crop` opens the crop view,
 the frame and the darkened area are there, a drag changes the crop, the slider changes the zoom, `Save` writes `#format=…&crop=…`;
 (3) the image sheet's `Aspect ratio` row opens the crop view; (4) a card's image tap shows the image tools, a card's text tap the
 card's; (5) the Cards `Image aspect ratio` changes every card's box; (6) the alt text sheet after a pick; (7) the video's `Change
-address`; (8) closing a changed sheet shows `Keep your changes?`. `npm run check:demo` (Cards and images on the demo);
+link`; (8) closing a changed sheet shows `Keep your changes?`; (9) on a computer a tap on an image opens its side sheet and the bar shows
+the image tools, on a phone it only selects; (10) the row's visibility button says `Hide` / `Show`. `npm run check:demo` (Cards and images on the demo);
 `check:themes` in `.morpheme/demo/site/` for PR 5 (the theme's Cards CSS changes); `npm run check:editor-colors` for the editor's
 parts; `npm run check:contrast` once by hand for the frame and the darkened area in light and dark.
 
-## 12. Open questions for the owner (each with a recommendation)
+## 12. Open question for the owner
 
-1. **Larger windows: way A (M3's 560 dp basic dialog) or way B (the Lightbox's size with a supporting pane, a deviation)?**
-   Recommended: **B**, because it is the "full-screen view" asked for, the theme already draws the Lightbox this way (deviation
-   19), and the controls follow M3's supporting pane. A keeps M3 to the letter but shows a portrait small.
-2. **Does a tap on an image on a computer stop opening the side sheet by itself?** Recommended: **yes**, a tap selects on every
-   size and `Settings` opens the sheet, as decision 3 says. The other choice keeps today's tap on expanded.
-3. **May a Cards block use `Original`?** Recommended: **no**, so the cards stay aligned (decision 4 is one ratio for the block).
-4. **How dark is the area outside the frame?** Recommended: the scrim colour at **60 %**, enough to see what is cut away. The other
-   choice is M3's dialog scrim strength (the build reads the token if the page shows it).
-5. **`Change address` or `Change link` for the video?** The field is called `Video link`. Recommended: **`Change link`**, so the
-   tool and the field use one word. The other choice is the owner's `Change address`, which this spec uses until decided.
-6. **Icon for `Alt text`.** M3 and Material Symbols have no icon named for alt text. Recommended: **`short_text`** (lines of
-   text, read as "a description"). The other choice is `text_fields`. Every name in this spec (`photo_library`, `crop`,
-   `short_text`, `delete`, `link`, `add`, `remove` for the zoom buttons) is checked against the Material Symbols set by
-   `check:screens`, which fails on a missing icon.
-7. **`Hide on the page`: keep it?** Recommended: **keep** `Hide on the page` / `Show on the page` / `Hidden on the page`, since the
-   status `Hidden` that it clashed with is gone. The other choice is `Don’t show on the page`.
-8. **Other images:** should the same tools come to the Image grid's tiles, a section's background image and the page's top image?
-   Recommended: **the top image next** (it is a single image like these), the grid later (it has its own sheet and Library text).
+1. **May a Cards block use `Original`?** (Being explained to the owner by the PM.) Recommended: **no**, so the cards stay aligned
+   (decision 4 is one ratio for the block). The other choice offers `Original` too, and each card's image keeps its own shape.
+
+The other seven questions of the first draft are answered in section 1b.
+
+## 12b. Parked (owner, 1b.8)
+
+- Image tools for the page's top image.
+- Image tools for the Image grid's tiles (they keep their own sheet and Library text).
+
+Parked means not planned: nothing in the build plan prepares them.
 
 ## 13. Build plan (small PRs into `0.18`, each with its changeset)
 
@@ -408,12 +419,12 @@ head sha to the PM. They merge one by one in this order; each works without the 
 | # | PR | What | Changeset | Note | Depends on |
 | - | --- | --- | --- | --- | --- |
 | 0 | This spec | The spec, the status line in the resize spec | empty | none | — |
-| 1 | **Closing a sheet + Hide wording** | 9.3 texts and buttons in `ask.tsx`/`closeChanged`; 9.2 as the owner answers 12.7 | `patch` | line | — |
-| 2 | **Image selection and the bar's image tools** | Tap = select for the image in the text; `blockBar` gets the four image tools; `Remove` moves from `⋮` to the bar; `Crop` opens today's image sheet scrolled to the crop until PR 3; the row's `Settings` opens the sheet; texts | `minor` | paragraph *Image tools* | 12.2 |
-| 3 | **The crop view** | A new `CropView` (theme `Dialog` full-screen kind; way A or B per 12.1) with the frame, the darkened area, pinch, wheel, slider with ±; `Aspect ratio` rename; the sheet's crop part becomes the `Aspect ratio` row; deviation entry if B | `minor` | paragraph *Crop view* | 2, 12.1, 12.4 |
+| 1 | **Closing a sheet + Hide wording** | 9.3 texts and buttons in `ask.tsx`/`closeChanged`; 9.2 `Hide` / `Show` / `Hidden` | `patch` | two lines | — |
+| 2 | **Image selection and the bar's image tools** | Tap = select for the image in the text; `blockBar` gets the four image tools; `Remove` moves from `⋮` to the bar; `Crop` opens today's image sheet scrolled to the crop until PR 3; the row's `Settings` opens the sheet; on a computer the tap still opens the side sheet (1b.2); texts | `minor` | paragraph *Image tools* | — |
+| 3 | **The crop view** | A new `CropView` (theme `Dialog`: `full-screen` below medium, `basic` from medium, 1b.1) with the frame, the scrim outside it (1b.4), pinch, wheel, slider with ±; `Aspect ratio` rename; the sheet's crop part becomes the `Aspect ratio` row; no deviation | `minor` | paragraph *Crop view* | 2 |
 | 4 | **Alt text after a pick** | The alt text sheet (9.1) after `Insert` › `Image` and `Change image`; the bar's `Alt text` opens it | `minor` | line | 2 |
-| 5 | **Cards: aspect ratio and the card's image** | `ratio` prop and setting, `cropStyle` in the theme's Cards (`blocks.css`, `LinkCards.tsx`, `load.ts`, `view.ts`), the card's image as its own tap target with the image tools, the crop view without chips; unit test of the unchanged HTML; `check:themes` | `minor` | paragraph *Card images* | 2, 3, 12.3 |
-| 6 | **Video: Change address** | Tap = select for the video, the tool in the bar, the slot removed, the field focused | `minor` | line | 2, 12.5 |
+| 5 | **Cards: aspect ratio and the card's image** | `ratio` prop and setting, `cropStyle` in the theme's Cards (`blocks.css`, `LinkCards.tsx`, `load.ts`, `view.ts`), the card's image as its own tap target with the image tools, the crop view without chips; unit test of the unchanged HTML; `check:themes` | `minor` | paragraph *Card images* | 2, 3, question 12.1 |
+| 6 | **Video: Change link** | Tap = select for the video, the tool in the bar, the slot removed, the field focused | `minor` | line | 2 |
 | 7 | **Docs** | The contextual-toolbar spec's Image and Video rows updated to what was built | empty | none | 2–6 |
 
 PRs 1 and 2 can be built at the same time (different files); 4 and 6 after 2, in either order; 5 after 3.
