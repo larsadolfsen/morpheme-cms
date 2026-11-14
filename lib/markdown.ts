@@ -11,7 +11,6 @@ import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import { rehypeEmphasize } from './rehype-emphasize.mjs';
 import { rehypeAlign } from './text-align.mjs';
-import { remarkBannerSections } from './remark-banner-section.mjs';
 import { remarkChecklists } from './remark-checklist.mjs';
 import { remarkListHeads } from './remark-list-head.mjs';
 import { remarkBlockLabels } from './remark-block-label.mjs';
@@ -20,7 +19,6 @@ import { remarkBlockLabels } from './remark-block-label.mjs';
 export const processor = unified()
   .use(remarkParse)
   .use(remarkGfm)
-  .use(remarkBannerSections)
   .use(remarkChecklists)
   .use(remarkListHeads)
   .use(remarkBlockLabels)

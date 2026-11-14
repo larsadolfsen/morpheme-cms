@@ -17,7 +17,7 @@ export const forms: Messages['forms'] = {
     hint: 'Indsæt adressen på en profil, fx https://www.facebook.com/…',
     found: (network) => `Profil på ${network}`,
     addButton: 'Tilføj',
-    done: 'Færdig',
+    done: 'Gem',
     remove: 'Fjern link',
     noAddress: 'Skriv en adresse',
     twice: 'Linket er allerede på listen',
