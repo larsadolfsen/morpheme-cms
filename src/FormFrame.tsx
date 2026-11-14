@@ -9,7 +9,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowSquareOut, Binoculars, Trash } from '@phosphor-icons/react';
 import Screen, { type Back } from './Screen';
-import { Button, Group, IconButton, IconLink, LoadingIndicator, type TabChoice, ListItem } from './ui';
+import { ActionSheet, Button, Group, IconButton, IconLink, LoadingIndicator, type TabChoice, ListItem } from './ui';
 import { hasUnsaved, setUnsaved } from './deploy';
 import { useBuildState } from './buildState';
 import { askToNotify } from './notificationData';
@@ -237,50 +237,48 @@ export default function FormFrame<T extends string>({
         </div>
       )}
       {(dirty || saving || publish?.label || publishing) && (
-        <div className="editor-save-bar fixed inset-x-0 bottom-0 z-20 border-t border-outline-variant bg-surface-container-lowest/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md">
-          <div className="mx-auto max-w-3xl px-4 py-3 medium:px-6">
-            {/* Preview beside Save, at the end of the bar, each as wide as its label. */}
-            <div className="flex justify-end gap-2">
-              {onPreview && (
-                <Button
-                  kind="outlined"
-                  icon={Binoculars}
-                  aria-haspopup="dialog"
-                  onClick={onPreview}
-                  // With two more buttons there is no room for it on a phone: the top bar has it too.
-                  className={publish?.label ? 'max-medium:hidden' : undefined}
-                >
-                  {t.preview.button}
-                </Button>
-              )}
-              {(dirty || saving) && (
-                <Button
-                  kind={publish?.label ? 'tonal' : 'filled'}
-                  disabled={saving}
-                  busy={saving && !deleting}
-                  onClick={() => {
-                    askToNotify();
-                    void onSave();
-                  }}
-                >
-                  {saveLabel ?? t.common.saveChanges}
-                </Button>
-              )}
-              {(publish?.label || publishing) && (
-                <Button
-                  disabled={saving}
-                  busy={publishing}
-                  onClick={() => {
-                    askToNotify();
-                    void publish?.onPublish();
-                  }}
-                >
-                  {publish?.label ?? lastPublishLabel.current}
-                </Button>
-              )}
-            </div>
+        <ActionSheet label={t.common.saveChanges} className="editor-save-bar">
+          {/* Preview beside Save, at the end of the bar, each as wide as its label. */}
+          <div className="flex justify-end gap-2">
+            {onPreview && (
+              <Button
+                kind="outlined"
+                icon={Binoculars}
+                aria-haspopup="dialog"
+                onClick={onPreview}
+                // With two more buttons there is no room for it on a phone: the top bar has it too.
+                className={publish?.label ? 'max-medium:hidden' : undefined}
+              >
+                {t.preview.button}
+              </Button>
+            )}
+            {(dirty || saving) && (
+              <Button
+                kind={publish?.label ? 'tonal' : 'filled'}
+                disabled={saving}
+                busy={saving && !deleting}
+                onClick={() => {
+                  askToNotify();
+                  void onSave();
+                }}
+              >
+                {saveLabel ?? t.common.saveChanges}
+              </Button>
+            )}
+            {(publish?.label || publishing) && (
+              <Button
+                disabled={saving}
+                busy={publishing}
+                onClick={() => {
+                  askToNotify();
+                  void publish?.onPublish();
+                }}
+              >
+                {publish?.label ?? lastPublishLabel.current}
+              </Button>
+            )}
           </div>
-        </div>
+        </ActionSheet>
       )}
     </Screen>
   );

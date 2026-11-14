@@ -827,7 +827,9 @@ export function Account({ user, files, onLogout }: { user: Viewer | null; files:
       </section>
       <section className="mb-8">
         <GroupTitle>{t.library.density}</GroupTitle>
-        <DensityPicker />
+        <div data-density-fixed>
+          <DensityPicker />
+        </div>
       </section>
       <LocalePicker />
       <NotificationChoices files={files} />

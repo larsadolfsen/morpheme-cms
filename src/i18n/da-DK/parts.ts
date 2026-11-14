@@ -28,6 +28,8 @@ export const parts: Messages['parts'] = {
     choiceTile: 'Et af mange ikoner at trykke på, i et gitter.',
     group:
       'Rækker i en ramme under en lille overskrift: startskærmen og listerne. Ikonet er ens overalt: gråt, og i den primære farve for den åbne del i menuen. Foran navnet kan der i stedet stå et lille billede eller en prøve på en af temaets værdier. Til højre står evt. et antal. En række kan også gøre noget (i den primære farve), slette (i midten) eller kun vises (uden farve under musen, evt. grå).',
+    selectRow:
+      'En række, der kan vælges: tryk og hold på den, eller tryk på dens ikon eller billede, og tryk så på flere rækker. En boks til valget står til højre i en række med ikon eller billede og til venstre i en række med kun tekst. Med en mus vises boksen på den række, du peger på, og på alle rækker, når en er valgt. En valgt række har den valgte farve og rundere hjørner.',
     checkList:
       'Ting, der er tjekket: en score fra 0 til 100 i en ring, en rød trekant ved det, der kan forbedres (som folder sig ud med, hvordan), og en grøn prik ved det, der er i orden.',
     scoreRing:

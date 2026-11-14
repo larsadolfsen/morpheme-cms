@@ -224,12 +224,13 @@
   --list-item-radius: var(--mo-shape-extra-small);
   --list-item-hover-radius: var(--mo-shape-medium);
   --list-item-pressed-radius: var(--mo-shape-medium);
-  --list-item-selected-radius: var(--mo-shape-medium);
+  --list-item-selected-radius: var(--mo-shape-large);
   --list-item-icon-size: 1.25rem;
   --list-item-hover-surface: var(--mo-hover);
   --list-item-pressed-surface: var(--mo-pressed);
   --list-item-hover-icon-color: var(--mo-on-surface-variant);
   --list-item-focus-surface: var(--mo-pressed);
+  /* M3 (Lists › Specs, token table): md.comp.list.focus.indicator.color = md.sys.color.secondary. */
   --list-item-focus-indicator-color: var(--mo-secondary);
   --list-item-hover-text: var(--mo-on-surface);
   --list-item-hover-trailing-shift: 0;
@@ -244,7 +245,7 @@
   --list-segmented-inner-radius: var(--mo-shape-extra-small);
   --list-segmented-hover-radius: var(--mo-shape-medium);
   --list-segmented-pressed-radius: var(--mo-shape-medium);
-  --list-segmented-selected-radius: var(--mo-shape-medium);
+  --list-segmented-selected-radius: var(--mo-shape-large);
   --list-segmented-padding-inline: 1rem;
   --list-segmented-surface: var(--mo-surface-container);
   --list-segmented-hover-surface: var(--mo-hover);
@@ -715,11 +716,13 @@
       background-color var(--motion-effects),
       border-color var(--motion-effects);
   }
-  .checkbox-input:checked {
+  .checkbox-input:checked,
+  .checkbox-input[data-checked] {
     border-color: var(--mo-primary);
     background: var(--mo-primary);
   }
-  .checkbox-input:checked + .checkbox-icon {
+  .checkbox-input:checked + .checkbox-icon,
+  .checkbox-input[data-checked] + .checkbox-icon {
     display: block;
     color: var(--mo-on-primary);
   }
