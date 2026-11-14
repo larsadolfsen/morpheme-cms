@@ -77,6 +77,8 @@ export const text = {
   blockSettings: 'Block settings',
   /** The block's menu: the row whose submenu turns the block into another list block (Change to). */
   changeTo: 'Change to',
+  /** The palette's action for one block: Change to <block> (the menu's Change to opens a level with the block names). */
+  changeToBlock: (name: string) => `Change to ${name}`,
   /** The snackbar after Change to, with Undo. */
   changedTo: (name: string) => `Changed to ${name}`,
   blocksSelected: (count: number) => (count === 1 ? '1 block selected' : `${count} blocks selected`),
