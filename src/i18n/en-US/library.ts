@@ -87,7 +87,6 @@ export const library = {
   deleteSelected: (count: number) => `Delete ${count} selected`,
   cancelSelection: 'Cancel',
   /** Pages and posts: the top bar button that starts selecting (a computer's way in; a press and hold on a row does it on a phone), and the bar's count and close. */
-  selectEntries: 'Select',
   selectAll: 'Select all',
   selectedCount: (count: number) => `${count} selected`,
   closeSelection: 'Close selection',

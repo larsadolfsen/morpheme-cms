@@ -692,7 +692,7 @@ async function checkSelection() {
       .textContent();
   const checked = (page, scope) => page.locator(`${scope} [role=checkbox][aria-checked=true]`).count();
   // The swapped top bar's select-all box (SelectionBar.tsx), with one row selected: indeterminate, 48 px, the bar never
-  // scrolls sideways; ticking selects all, unticking selects none and keeps the mode, and the bar's buttons are 48 px.
+  // scrolls sideways; ticking selects all, unticking selects none and ends selecting, and the bar's buttons are 48 px.
   const barCheck = async (page, label, rows, stays) => {
     const box = page.getByRole('checkbox', { name: 'Select all' });
     if ((await box.count()) !== 1) return problems.push(`${label}: the top bar has no select-all checkbox`);
@@ -709,6 +709,19 @@ async function checkSelection() {
     }
     if (await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth))
       problems.push(`${label}: the page scrolls sideways while selecting`);
+    // While selecting, the top bar has only the selection's own actions (Close selection, Select all, Delete); the screen's
+    // History, the notifications' bell and the like are not drawn. The menu button, back arrow and logo at the start are navigation.
+    const stray = await page.evaluate(() => {
+      const visible = (el) => {
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== 'hidden';
+      };
+      return [...document.querySelectorAll('header button, header [role=checkbox], header input')]
+        .filter(visible)
+        .map((el) => el.getAttribute('aria-label') || el.closest('label')?.textContent?.trim() || el.textContent?.trim() || el.title)
+        .filter((n) => !/^(Close selection|Select all|Delete \d+ selected|Open menu|Close menu)$/.test(n || ''));
+    });
+    if (stray.length) problems.push(`${label}: the top bar shows more than the selection's actions while selecting: ${stray.join(', ')}`);
     await box.check();
     const total = await rows.count();
     if ((await checked(page, 'main')) !== total || (await box.evaluate((el) => el.indeterminate || !el.checked)))
@@ -799,12 +812,9 @@ async function checkSelection() {
         await page.waitForSelector('main a.list-item-container');
         await page.waitForTimeout(500);
       }
-      await rows.nth(0).focus();
-      await page.keyboard.press('Space');
-      if (await checked(page, 'main')) problems.push(`${label}: Space selected a row before selecting had started`);
-      // Space on a link scrolls the page, as it does today.
-      await page.evaluate(() => window.scrollTo(0, 0));
-      await page.getByRole('button', { name: 'Select', exact: true }).click();
+      // The list's header has no Select button: selecting starts from a row (Space on a focused row here).
+      if (await page.getByRole('button', { name: 'Select', exact: true }).count())
+        problems.push(`${label}: the header still has a Select button`);
       await rows.nth(0).focus();
       await page.keyboard.press('Space');
       if ((await rows.nth(0).getAttribute('aria-checked')) !== 'true') problems.push(`${label}: Space does not select the row in focus`);
@@ -818,10 +828,11 @@ async function checkSelection() {
       await page.keyboard.press('Escape');
       if (await checked(page, 'main')) problems.push(`${label}: Escape does not unselect`);
       if (await page.getByRole('button', { name: 'Close selection' }).count()) problems.push(`${label}: Escape does not end selecting`);
-      await page.getByRole('button', { name: 'Select', exact: true }).click();
       await rows.nth(0).focus();
       await page.keyboard.press('Space');
-      await barCheck(page, label, rows, true);
+      await barCheck(page, label, rows, false);
+      await rows.nth(0).focus();
+      await page.keyboard.press('Space');
       await page.getByRole('button', { name: 'Close selection' }).click();
       await rows.nth(0).focus();
       await page.keyboard.press('Shift+ArrowDown');

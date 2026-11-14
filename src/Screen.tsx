@@ -45,6 +45,10 @@ type Props<T extends string> = {
   back?: Back;
   status?: ReactNode;
   actions?: ReactNode;
+  /** While rows are selected: the selection's own actions (a SelectionBar). They are the only thing at the end of the bar:
+   * the actions, page actions, notifications, website link and drawer button are not drawn (M3: the contextual bar swaps
+   * the bar's actions for the selection's). */
+  selection?: ReactNode;
   /** The screen's own actions (a form's Preview and View on site): from expanded at the end of the row under the bar,
    * below expanded in the top bar, before `actions`. */
   pageActions?: ReactNode;
@@ -93,6 +97,7 @@ export default function Screen<T extends string>({
   back,
   status,
   actions,
+  selection,
   pageActions,
   drawer,
   tabs,
@@ -157,12 +162,16 @@ export default function Screen<T extends string>({
         </div>
         <div className="hidden min-w-0 flex-1 expanded:block" />
         <div className="flex shrink-0 items-center justify-end gap-1">
-          {pageActions && <div className="flex items-center gap-1 expanded:hidden">{pageActions}</div>}
-          {actions}
+          {selection ?? (
+            <>
+              {pageActions && <div className="flex items-center gap-1 expanded:hidden">{pageActions}</div>}
+              {actions}
+            </>
+          )}
         </div>
-        <NotificationsButton />
-        {home && <WebsiteLink />}
-        {drawer}
+        {!selection && <NotificationsButton />}
+        {!selection && home && <WebsiteLink />}
+        {!selection && drawer}
       </div>
       {tabs && (
         <div className="editor-bar-tabs">
