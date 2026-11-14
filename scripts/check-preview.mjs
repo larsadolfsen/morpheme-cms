@@ -2,7 +2,7 @@
 // (what the owner approves is what visitors get), and the same computed style for the header, the sections, the blocks and the footer, at
 // 390 and 1280 px, light and dark. The site's page is the built one; the Preview is opened from the editor on the same text.
 // Run on the built site: npm run build && npm run check:preview (in .morpheme/demo/site/ by `npx morpheme check:preview`).
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { chromium } from 'playwright';
 import { openEditor, serveBuilt } from './built-site.mjs';
@@ -187,6 +187,29 @@ for (const scheme of ['light', 'dark']) {
       await context.close();
     }
   }
+}
+// A "List" row with only a text (no heading, no page) is in the Preview with its text, as typed (it was dropped, so the block was blank).
+{
+  const page = await (await browser.newContext({ viewport: { width: 390, height: 900 }, locale: 'en-US' })).newPage();
+  const file = 'src/content/pages/get-started.md';
+  const rows = [
+    { icon: 'check', title: 'Has a heading', text: 'First text' },
+    { icon: 'check', text: 'Only a text, no heading' },
+  ];
+  const props = JSON.stringify({ items: rows }).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+  const text = readFileSync(join(ROOT, file), 'utf8').replace(
+    '## Questions?',
+    `<div data-block="list" data-props="${props}"></div>\n\n## Questions?`,
+  );
+  await openEditor(page, site, { [file]: text });
+  await page.goto(`${site}/editor/#${file}`);
+  await page.getByRole('button', { name: 'Preview' }).first().click();
+  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  const frame = page.frames().find((f) => f !== page.mainFrame());
+  await frame.waitForSelector('[data-editor="text"]', { timeout: 30_000 });
+  const shown = await frame.evaluate(() => document.querySelector('.block-list')?.textContent ?? '');
+  for (const want of ['Has a heading', 'First text', 'Only a text, no heading'])
+    if (!shown.includes(want)) problems.push(`List block in the Preview: "${want}" is missing (the block shows: "${shown}")`);
 }
 await browser.close();
 server.close();
