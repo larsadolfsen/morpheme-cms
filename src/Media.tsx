@@ -50,7 +50,9 @@ import { apps, collections } from './site';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { fileKindOf, pickedKindOf, pickImage, prepareFile, prepareImage, publicPath, showMoved, shownAt, type Uploads } from './images';
 import { fileIcons, FileView, KINDS, kindOf, type Kind } from './FileView';
+import MediaAlt from './MediaAlt';
 import MediaTags from './MediaTags';
+import { SiteCard, SiteImageTile } from './themeUi';
 import MediaProviderPicker from './MediaProviderPicker';
 import { providerFile, trackProviderDownload, type MediaItem } from './mediaProviders';
 import { activeApps, mediaProvidersOf } from './apps';
@@ -114,13 +116,18 @@ const endingOf = (src: string) => fileName(src).slice(stemOf(src).length);
 const readdress = (text: string, from: string, to: string) =>
   text.replace(new RegExp(`${from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w.-])`, 'g'), to);
 
-// The small copies of the images the site has (thumbnails.json, made when it is built), by their
-// address; {} when they could not be asked (then the images themselves are shown).
-let small: Promise<Record<string, string>> | null = null;
+// The images the site has (thumbnails.json, made when it is built), by their address: the real `width` and `height`
+// (the tile's box is there before the image loads) and the small copy `src`; {} when they could not be asked (then the
+// images themselves are shown, as squares).
+type Small = { width?: number; height?: number; src?: string };
+let small: Promise<Record<string, Small>> | null = null;
 const thumbnails = () =>
   (small ??= fetch('/editor/thumbnails.json')
-    .then((r) => (r.ok ? (r.json() as Promise<Record<string, string>>) : {}))
+    .then((r) => (r.ok ? (r.json() as Promise<Record<string, Small>>) : {}))
     .catch(() => ({})));
+
+// An image's proportions (width / height) from its record, 1 (square) when the site has none (one uploaded in this visit).
+const ratioOf = (info?: Small) => (info?.width && info.height ? info.width / info.height : 1);
 
 // The nearest box around an element that scrolls (the sheet's), or null for the page.
 function scrollerOf(el: Element) {
@@ -132,7 +139,7 @@ function scrollerOf(el: Element) {
 // An image in the grid, fetched only when it is about to be scrolled into view (a screen's height
 // before), and as its small copy when there is one: an image from this visit (shownAt) as it is,
 // a renamed one by its old address. The image itself, if the copy cannot be fetched.
-function Thumb({ src, thumbs }: { src: string; thumbs: Record<string, string> | null }) {
+function Thumb({ src, thumbs }: { src: string; thumbs: Record<string, Small> | null }) {
   const ref = useRef<HTMLImageElement>(null);
   const [near, setNear] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -151,28 +158,30 @@ function Thumb({ src, thumbs }: { src: string; thumbs: Record<string, string> | 
     return () => observer.disconnect();
   }, []);
   const shown = shownAt(src);
-  const thumb = !failed && thumbs?.[shown];
+  const thumb = !failed && thumbs?.[shown]?.src;
   return (
     <img
       ref={ref}
       src={near && thumbs ? thumb || shown : undefined}
       alt=""
       decoding="async"
-      className="editor-fade-in size-full object-cover transition-transform duration-(--motion-spatial-duration) ease-(--motion-ease) group-hover:scale-105"
+      className="editor-fade-in size-full object-cover"
       onLoad={(e) => e.currentTarget.setAttribute('data-loaded', '')}
       onError={() => thumb && setFailed(true)}
     />
   );
 }
 
-// A PDF, a video or a zip file in the grid: its icon and its name.
-function FileTile({ src }: { src: string }) {
+// A PDF, a video or a zip file in the grid: its icon and its name, on a card of its own shape. `rest`: what the tile takes (Tile).
+function FileTile({ src, selected, ...rest }: { src: string; selected?: boolean; [prop: string]: unknown }) {
   const Icon = fileIcons[fileKindOf(src)!];
   return (
-    <span className="flex size-full flex-col items-center justify-center gap-2 p-2 text-center">
-      <Icon size={36} className="shrink-0 text-on-surface-variant" />
-      <span className="line-clamp-2 text-xs break-all text-on-surface-variant">{nameOfSrc(src)}</span>
-    </span>
+    <SiteCard as="button" kind="filled" selected={selected} aria-label={nameOfSrc(src)} aria-pressed={selected} {...rest}>
+      <span className="flex flex-col items-center justify-center gap-2 p-2 text-center">
+        <Icon size={36} className="shrink-0 text-on-surface-variant" />
+        <span className="line-clamp-2 text-xs break-all text-on-surface-variant">{nameOfSrc(src)}</span>
+      </span>
+    </SiteCard>
   );
 }
 
@@ -192,7 +201,7 @@ function Tile({
   selection,
 }: {
   src: string;
-  thumbs: Record<string, string> | null;
+  thumbs: Record<string, Small> | null;
   picked?: string | null;
   onPick: (src: string) => void;
   selection?: TileSelection;
@@ -202,22 +211,25 @@ function Tile({
   const selecting = !!selection?.selecting;
   const selected = !!row?.selected;
   const press = useLongPress(row ? () => row.onSelectedChange?.() : undefined, selecting);
+  // What the theme's tile (a Card button) takes: the picked one beside the grid is the card's selected state; while selecting
+  // the tile is a check box and the round mark shows it.
+  const tile = {
+    'data-media-tile': '',
+    selected: selecting || picked === undefined ? undefined : src === picked,
+    ...(selecting ? { role: 'checkbox', 'aria-checked': selected } : {}),
+    onClick: () => onPick(src),
+    ...press,
+    ...(row ? { 'data-selection': row['data-selection'], 'data-selection-key': row['data-selection-key'] } : {}),
+  };
   return (
     <li className={`group relative ${selecting ? 'select-none [-webkit-touch-callout:none]' : ''}`}>
-      <button
-        type="button"
-        data-media-tile=""
-        className={`block aspect-square w-full touch-manipulation overflow-hidden rounded-lg bg-surface-container-high ${src === picked && !selecting ? 'ring-offset-bg ring-2 ring-primary ring-offset-2' : ''}`}
-        aria-label={nameOfSrc(src)}
-        {...(selecting
-          ? { role: 'checkbox', 'aria-checked': selected }
-          : { 'aria-pressed': picked === undefined ? undefined : src === picked })}
-        onClick={() => onPick(src)}
-        {...press}
-        {...(row ? { 'data-selection': row['data-selection'], 'data-selection-key': row['data-selection-key'] } : {})}
-      >
-        {fileKindOf(src) ? <FileTile src={src} /> : <Thumb src={src} thumbs={thumbs} />}
-      </button>
+      {fileKindOf(src) ? (
+        <FileTile src={src} {...tile} />
+      ) : (
+        <SiteImageTile label={nameOfSrc(src)} ratio={ratioOf(thumbs?.[shownAt(src)])} {...tile}>
+          <Thumb src={src} thumbs={thumbs} />
+        </SiteImageTile>
+      )}
       {row && (
         <span
           aria-hidden="true"
@@ -256,10 +268,10 @@ function Grid({
   onPick: (src: string) => void;
   selection?: TileSelection;
 }) {
-  const [thumbs, setThumbs] = useState<Record<string, string> | null>(null);
+  const [thumbs, setThumbs] = useState<Record<string, Small> | null>(null);
   useEffect(() => void thumbnails().then(setThumbs), []);
   return (
-    <ul className="grid grid-cols-3 gap-1.5 medium:grid-cols-4 expanded:grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] expanded:gap-2">
+    <ul className="image-grid">
       {srcs.map((src) => (
         <Tile key={src} src={src} thumbs={thumbs} picked={picked} onPick={onPick} selection={selection} />
       ))}
@@ -852,6 +864,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
           <p className="text-on-surface-variant">{t.media.noPages}</p>
         )}
       </div>
+      {kindOf(src) === 'image' && <MediaAlt key={src} src={src} files={files} env={env} />}
       <MediaTags key={src} src={src} files={files} env={env} />
       {code && !used.has(src) && (
         <Button kind="outlined" icon={Trash} busy={deleting} disabled={deleting} onClick={() => remove(src)}>

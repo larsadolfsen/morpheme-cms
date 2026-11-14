@@ -248,3 +248,28 @@ test('creditChanges puts the credit in the record the save already makes, or mak
   assert.equal(own[0].oid, null);
   assert.deepEqual(parseRecord(String(own[0].content)).credit, credit);
 });
+
+test('a record with a base text, a decorative mark and a caption is read and written back with them, in order', () => {
+  const text = `${JSON.stringify({ src: '/images/a.webp', categories: ['sea'], removed: [], alt: 'A beach', decorative: true, caption: 'At dawn' }, null, 2)}\n`;
+  const record = parseRecord(text);
+  assert.deepEqual(record, {
+    src: '/images/a.webp',
+    categories: ['sea'],
+    removed: [],
+    alt: 'A beach',
+    decorative: true,
+    caption: 'At dawn',
+  });
+  assert.equal(recordText(record), text);
+});
+
+test('a text of the wrong kind is not a record, and an empty text is left out', () => {
+  assert.equal(parseRecord(JSON.stringify({ src: '/a.webp', categories: [], removed: [], alt: 3 })), null);
+  assert.equal(parseRecord(JSON.stringify({ src: '/a.webp', categories: [], removed: [], decorative: 'yes' })), null);
+  assert.equal(parseRecord(JSON.stringify({ src: '/a.webp', categories: [], removed: [], caption: [] })), null);
+  assert.deepEqual(parseRecord(JSON.stringify({ src: '/a.webp', categories: [], removed: [], alt: '' })), {
+    src: '/a.webp',
+    categories: [],
+    removed: [],
+  });
+});

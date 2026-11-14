@@ -1,19 +1,21 @@
-// "Table": the rows of cells in a box that scrolls sideways on a narrow screen (.block-table, .block-table-grid), the first row the header
-// (`th` in the column) unless turned off. Built of the standard blocks' parts.
+// "Table": the rows of cells in an outlined card (Card) that scrolls sideways on a narrow screen (.block-table, .block-table-grid), the
+// first row the header (`th` in the column) unless turned off. Built of the standard blocks' parts.
 import type { TableView } from '@morphemecms/cms/src/standard/table/view';
 import { useInText } from '@morphemecms/cms/src/standard/view';
+import Card from '@theme/ui/Card';
 
 export default function Table({ view }: { view: TableView }) {
   const [first, ...rest] = view.rows;
   const body = view.header ? rest : view.rows;
   return (
     // A scroll box the keyboard can reach, named for a screen reader.
-    <div
+    <Card
+      kind="outlined"
       className={useInText('block-table', 'block-table-grid')}
       role="region"
       aria-label={view.label}
       tabIndex={0}
-      data-striped={view.striped || undefined}
+      data-striped={view.striped ? 'true' : undefined}
     >
       <table>
         {view.header && (
@@ -39,6 +41,6 @@ export default function Table({ view }: { view: TableView }) {
           ))}
         </tbody>
       </table>
-    </div>
+    </Card>
   );
 }

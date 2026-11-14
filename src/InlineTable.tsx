@@ -3,6 +3,7 @@
 // from the contextual menu (MarkdownEditor.tsx gridActions), never in the table. The active cell has the dotted outline. The cells,
 // rows and columns are the plain functions of src/inlineGrid.mjs; the header row is the block's own setting (its sheet). Enter goes to the
 // cell below (a new row after the last); Tab and Shift+Tab are the browser's. Depends on the parts of InlineItems.tsx.
+import { cardClass } from '@theme/ui/Card';
 import { useEffect, useLayoutEffect, useRef, type KeyboardEvent } from 'react';
 import { t } from './i18n';
 import { InlineField } from './InlineItems';
@@ -81,7 +82,7 @@ export default function InlineTable({ items, props, active, col, focus, onChange
   return (
     <div ref={root} className="inline-list-host inline-table-host">
       <div
-        className="block-table block-table-grid inline-table-box"
+        className={[cardClass('outlined'), 'block-table', 'block-table-grid', 'inline-table-box'].join(' ')}
         role="region"
         aria-label={t.blocks.table.label}
         data-striped={props.striped === true || undefined}
