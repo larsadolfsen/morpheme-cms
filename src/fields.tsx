@@ -90,6 +90,8 @@ export type TestimonialRow = {
   name: string;
   /** Its image (optional), by the name. */
   image?: string;
+  /** The image's alternative text (none: decorative, as it is by the name). */
+  alt?: string;
   context?: string;
   quote: string;
   categories?: string[];
