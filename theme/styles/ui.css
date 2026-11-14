@@ -361,20 +361,20 @@
 @layer components {
   /* A target keeps its size at every density step (m3.material.io/foundations/layout/grids-spacing/density: "Accessible targets should
      retain a minimum of 48x48dp, even if the visual element, such as an icon, is smaller"; --mo-target is 48 on touch and 44 for a
-     mouse): an invisible area over a part that is lower than that, down from its middle. A part with a field, a button or a link in it
+     mouse): an invisible area over a part that is lower or narrower than that, out from its middle. A part with a field, a button or a link in it
      (a removable chip, a button the editor types in) has none: the area would cover them. Low specificity (:where), so a part's own position wins. */
-  :where(.button, .segmented-button-segment, a.chip, button.chip:not(.chip-removable)):where(
+  :where(.button, .icon-button, .segmented-button-segment, a.chip, button.chip:not(.chip-removable)):where(
     :not(:has(input, textarea, select, button, a))
   ) {
     position: relative;
   }
-  :where(.button, .segmented-button-segment, a.chip, button.chip:not(.chip-removable)):where(
+  :where(.button, .icon-button, .segmented-button-segment, a.chip, button.chip:not(.chip-removable)):where(
       :not(:has(input, textarea, select, button, a))
     )::after {
     content: '';
     position: absolute;
     inset-block: min(0px, calc((100% - var(--mo-target)) / 2));
-    inset-inline: 0;
+    inset-inline: min(0px, calc((100% - var(--mo-target)) / 2));
   }
   /* Buttons (m3.material.io/components/buttons): a label, an icon before it and optionally one after it (the arrow). */
   .button {
