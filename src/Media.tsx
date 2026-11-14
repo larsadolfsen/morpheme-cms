@@ -474,9 +474,17 @@ function Gallery({
  * saved with it); its address on the site, or null. The sheet goes on top of a block's sheet. With `files` (the site's files),
  * each source of images an installed app adds (a media provider) is a tab beside the site's own images; an image from it
  * is kept with its credit, which is saved with the image. */
-export function useMediaPicker(media: RepoFile[], images: Uploads, files: RepoFile[] = []): [() => Promise<string | null>, ReactElement] {
+export function useMediaPicker(
+  media: RepoFile[],
+  images: Uploads,
+  files: RepoFile[] = [],
+): [() => Promise<string | null>, ReactElement, () => Promise<string[] | null>] {
   const dialog = useRef<HTMLDialogElement>(null);
   const answer = useRef<(src: string | null) => void>(() => {});
+  // Several at once (the third result, the Image grid's `Add images`): the Library's own images, selected as Material's Selection page says
+  // (a long press with a touch, a check box on hover with a mouse) and added together with the button under them.
+  const answerMany = useRef<(srcs: string[] | null) => void>(() => {});
+  const [many, setMany] = useState(false);
   const srcs = [...new Set([...images.added, ...mediaOf(media)].map((f) => publicPath(f.path)))];
   const providers = mediaProvidersOf(apps, activeApps(files));
   const [source, setSource] = useState<string | null>(null);
@@ -484,14 +492,31 @@ export function useMediaPicker(media: RepoFile[], images: Uploads, files: RepoFi
   const [problem, setProblem] = useState<string | null>(null);
   const provider = providers.find((p) => `${p.app}/${p.id}` === source);
 
+  const selection = useSelection({ order: srcs, enabled: many, spaceStarts: true, root: dialog });
   const done = (src: string | null) => {
     answer.current(src);
     answer.current = () => {};
+    answerMany.current(null);
+    answerMany.current = () => {};
+    dialog.current?.close();
+  };
+  const finish = () => {
+    answerMany.current([...selection.keys]);
+    answerMany.current = () => {};
     dialog.current?.close();
   };
   const ask = () =>
     new Promise<string | null>((resolve) => {
       answer.current = resolve;
+      setMany(false);
+      setProblem(null);
+      dialog.current?.showModal();
+    });
+  const askMany = () =>
+    new Promise<string[] | null>((resolve) => {
+      answerMany.current = resolve;
+      selection.clear();
+      setMany(true);
       setProblem(null);
       dialog.current?.showModal();
     });
@@ -514,13 +539,31 @@ export function useMediaPicker(media: RepoFile[], images: Uploads, files: RepoFi
   const element = (
     <BottomSheet
       ref={dialog}
-      aria-label={t.media.pick}
+      aria-label={many ? t.media.pickMany : t.media.pick}
       onClose={(e) => e.target === e.currentTarget && done(null)}
       onClick={(e) => e.target === dialog.current && done(null)}
     >
-      <SheetTitle title={t.media.pick} onClose={() => done(null)} />
+      <SheetTitle title={many ? t.media.pickMany : t.media.pick} onClose={() => done(null)} />
       <SheetBody>
-        {providers.length ? (
+        {many ? (
+          <>
+            <Gallery
+              srcs={srcs}
+              selection={selection}
+              // A tap with nothing selected starts the selection with that image; while selecting it toggles (Tile).
+              onPick={(src) => {
+                const made = selection.row(src);
+                if (made && 'selectable' in made) made.onSelectedChange?.();
+              }}
+            />
+            {selection.count > 0 && (
+              <div className="sticky bottom-0 flex justify-end bg-surface-container-low py-3">
+                <Button onClick={finish}>{t.media.addPicked(selection.count)}</Button>
+              </div>
+            )}
+          </>
+        ) : null}
+        {many ? null : providers.length ? (
           <div className="flex flex-wrap gap-2" role="group" aria-label={t.media.pick}>
             <FilterChip selected={!provider} onClick={() => setSource(null)}>
               {t.media.providers.own}
@@ -532,7 +575,7 @@ export function useMediaPicker(media: RepoFile[], images: Uploads, files: RepoFi
             ))}
           </div>
         ) : null}
-        {provider ? (
+        {many ? null : provider ? (
           <>
             {problem ? (
               <Notice role="alert" title={problem}>
@@ -565,7 +608,7 @@ export function useMediaPicker(media: RepoFile[], images: Uploads, files: RepoFi
       </SheetBody>
     </BottomSheet>
   );
-  return [ask, element];
+  return [ask, element, askMany];
 }
 
 // The images the site's own code uses (its design, e.g. the front page and a portrait), as it

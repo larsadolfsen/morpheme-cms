@@ -67,6 +67,11 @@ export const text = {
   showOnPage: 'Show on the page',
   hideOnPage: 'Hide on the page',
   /** Selecting several blocks of the page (MarkdownEditor.tsx): the bar's count, its rows, and the question before they are removed. */
+  moveApart: 'Select blocks that are next to each other to move them',
+  moveLocked: 'A locked block is in the way',
+  moveAtTop: 'This block is already first',
+  moveAtBottom: 'This block is already last',
+  dragOff: 'Drag is off while several blocks are selected',
   blocksSelected: (count: number) => (count === 1 ? '1 block selected' : `${count} blocks selected`),
   clearBlockSelection: (count: number) => `Clear selection, ${count === 1 ? '1 block selected' : `${count} blocks selected`}`,
   selectBlock: 'Select',

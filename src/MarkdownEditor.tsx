@@ -64,7 +64,7 @@ import {
 } from '@phosphor-icons/react';
 import { listKindOf, styleOf } from './styleKind.mjs';
 import { listRows, styleRows } from './styleMenu.mjs';
-import { planBar, slotsFor } from './textBar.mjs';
+import { planBar } from './textBar.mjs';
 import { sizeListText, sizeOfList } from './listSize.mjs';
 import { HTML, insertBlock, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
 import { firstHeading, topHeadings } from './firstHeading.mjs';
@@ -76,7 +76,7 @@ import { sectionFrame } from './sectionFrame';
 import { IMAGE, type BlockAsk } from './BlockDialog';
 import SectionSettingsIcon from './SectionSettingsIcon';
 import { askLink } from './LinkSheet';
-import { atLeastNow, Menu, MenuDivider, MenuItem, Toolbar, ToolbarButton, ToolbarDivider } from './ui';
+import { atLeastNow, Menu, MenuDivider, MenuItem, Toolbar, ToolbarButton } from './ui';
 import { editsInPanel } from './sheetPlacement.mjs';
 import { shownAt } from './images';
 import { cropStyle, joinPicture, splitPicture } from '../lib/crop.mjs';
@@ -104,7 +104,7 @@ import { barSlideKind } from './barMotion.mjs';
 import { dragSteps, limitSteps } from './blockDrag.mjs';
 import { blockHandleIcon, blockMarkIcon, duplicateIcon, selectAllBlocksIcon } from './blockHandleIcon';
 import { blockSelection } from './blockSelection';
-import { allOf, hideChoice, range, removeChoice } from './blockSelectionRules.mjs';
+import { allOf, hideChoice, range, removeChoice, groupMove } from './blockSelectionRules.mjs';
 import { ask } from './ask';
 import { canPress, edgeScroll, movedAway } from '@theme/ui/longPressRules.mjs';
 import { hasLabel, labelledHeading, toggleLabel } from './eyebrowState.mjs';
@@ -233,31 +233,6 @@ const gapHere = $prose(
     }),
 );
 
-// A page with only its H1 shows the hint under it (editor.css, h1::after): a tap on that line adds the empty paragraph
-// and puts the cursor in it, with the keyboard open. (With an empty paragraph after the H1 the tap is on the paragraph.)
-const hintTap = $prose(
-  () =>
-    new Plugin({
-      props: {
-        handleDOMEvents: {
-          click: (view, event) => {
-            const { doc, schema } = view.state;
-            const h1 = view.dom.firstElementChild;
-            if (doc.childCount !== 1 || doc.child(0).type.name !== 'heading' || event.target !== h1 || !h1) return false;
-            const range = document.createRange();
-            range.selectNodeContents(h1);
-            if ((event as MouseEvent).clientY <= range.getBoundingClientRect().bottom) return false;
-            const tr = view.state.tr.insert(doc.content.size, schema.nodes.paragraph.create());
-            view.dispatch(tr.setSelection(Selection.near(tr.doc.resolve(tr.doc.content.size - 1), -1)).scrollIntoView());
-            view.focus();
-            event.preventDefault();
-            return true;
-          },
-        },
-      },
-    }),
-);
-
 // A tap in the white below a section's last part, or between two sections (the text's own padding, no node there), puts the cursor in a
 // free line there: the empty paragraph that is already after the part, or a new one that exists only in the editor (markdownOf leaves
 // an empty paragraph out of the saved text, so nothing is written unless something is typed in it).
@@ -382,6 +357,42 @@ function reopen(view: EditorView, k: number) {
   host?.select?.();
 }
 
+// Moves the selected blocks one place together (Move up, Move down), as `groupMove` plans it: the part they move past goes to their other side, and the
+// parts glide as in `move`. The blocks stay selected, at their new places.
+function moveGroup(view: EditorView, plan: Extract<ReturnType<typeof groupMove>, { ok: true }>, by: -1 | 1) {
+  const { doc } = view.state;
+  const { first, last, past } = plan;
+  const [a, b] = by < 0 ? [past, last] : [first, past];
+  const nodes: Node[] = [];
+  for (let k = a; k <= b; k++) nodes.push(doc.child(k));
+  const tops = new Map<Node, number>();
+  doc.forEach((child, _, k) => {
+    const top = partDOM(view, k)?.getBoundingClientRect().top;
+    if (top !== undefined) tops.set(child, top);
+  });
+  const span = nodes.slice(first - a, last - a + 1);
+  const rest = by < 0 ? nodes.slice(0, first - a) : nodes.slice(last - a + 1);
+  const $start = doc.resolve(0);
+  const from = $start.posAtIndex(a);
+  const to = $start.posAtIndex(b) + doc.child(b).nodeSize;
+  // The selected blocks are the same ones of the blocks in order, one further when the part they moved past is a block (found again by their rank, as the
+  // text may be tidied after the move: a section's heading goes with its card).
+  const before = blockPlaces(doc);
+  const ranks = blockSelection.places().map((p) => before.indexOf(p) + (doc.child(past).type.name === 'siteBlock' ? by : 0));
+  blockSelection.own(() =>
+    view.dispatch(view.state.tr.replaceWith(from, to, Fragment.from(by < 0 ? [...span, ...rest] : [...rest, ...span]))),
+  );
+  const after = blockPlaces(view.state.doc);
+  blockSelection.set(ranks.every((r) => after[r] !== undefined) ? ranks.map((r) => after[r]) : plan.places);
+  view.state.doc.forEach((child, _, k) => {
+    const was = tops.get(child);
+    const el = partDOM(view, k);
+    const dy = was === undefined || !el ? 0 : was - el.getBoundingClientRect().top;
+    if (el && Math.abs(dy) > 1 && !matchMedia('(prefers-reduced-motion: reduce)').matches)
+      el.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], motionTiming('spatial'));
+  });
+}
+
 // The blocks at the top level of the text, in order: their type and whether they are hidden.
 const blocksOf = (doc: Node) => {
   const blocks: { type: string; hidden: boolean }[] = [];
@@ -436,6 +447,7 @@ function blockSelectable(view: EditorView, dom: HTMLElement, card: HTMLElement, 
     dom.classList.toggle('site-block-marks', places.length > 0);
     dom.classList.toggle('site-block-selected', on);
     mark.dataset.mark = on ? 'on' : 'off';
+    dimHandle(dom.querySelector(':scope > .site-block-handle'));
     if (places.length > 0) {
       card.setAttribute('role', 'checkbox');
       card.setAttribute('aria-checked', String(on));
@@ -494,6 +506,19 @@ function blockSelectable(view: EditorView, dom: HTMLElement, card: HTMLElement, 
     if (blockSelection.places().length) toggle(e.shiftKey);
     else start();
   });
+  // Shift+Arrow extends the selection from the focused card to the block above or below, and the focus goes there.
+  card.addEventListener('keydown', (e) => {
+    if (!e.shiftKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') || e.target !== card) return;
+    const here = top();
+    const blocks = blockPlaces(view.state.doc);
+    const next = here === null ? undefined : blocks[blocks.indexOf(here) + (e.key === 'ArrowUp' ? -1 : 1)];
+    if (here === null || next === undefined) return;
+    e.preventDefault();
+    const now = blockSelection.places();
+    blockSelection.set(range(now.length ? now : [here], blocks, here, next));
+    lastPicked = next;
+    partDOM(view, next)?.querySelector<HTMLElement>('.site-block-card')?.focus();
+  });
   card.addEventListener('keyup', (e) => e.key === ' ' && e.target === card && e.preventDefault());
   // A touch or a pen held still on the card, not on text typed in it.
   let press: { id: number; x: number; y: number; timer: number } | null = null;
@@ -546,7 +571,9 @@ const blockSelecting = $prose(
         let was = view.state.doc;
         const off = blockSelection.subscribe(() => {
           view.setProps({});
-          if (blockSelection.places().length) (document.activeElement as HTMLElement | null)?.blur?.();
+          // The text lets go of the keyboard (a phone's stays shut), but a focused card keeps it: Space, Shift+Arrow and Escape work from it.
+          const active = document.activeElement as HTMLElement | null;
+          if (blockSelection.places().length && !active?.matches('.site-block-card')) active?.blur?.();
         });
         return {
           update: (next) => {
@@ -635,12 +662,51 @@ function selectionBar(view: EditorView, sheet: BlockAsk | undefined, places: num
       },
     });
   rows.push({ icon: selectAllBlocksIcon, label: t.text.selectAllBlocks, action: () => blockSelection.set(allOf(blockPlaces(doc))) });
+  // Move up and Move down move the selection together: disabled, with the reason, when the blocks are not next to each other or cannot go further.
+  const parts: { gap: boolean; locked: boolean }[] = [];
+  doc.forEach((child) =>
+    parts.push({ gap: isGap(child), locked: child.type.name === 'siteBlock' && !!rules?.locked?.includes(child.attrs.type) }),
+  );
+  const moveAction = (by: -1 | 1): BarAction => {
+    const plan = groupMove(parts, places, by);
+    const why = plan.ok
+      ? ''
+      : plan.why === 'apart'
+        ? t.text.moveApart
+        : plan.why === 'locked'
+          ? t.text.moveLocked
+          : by < 0
+            ? t.text.moveAtTop
+            : t.text.moveAtBottom;
+    return {
+      label: by < 0 ? t.common.moveUp : t.common.moveDown,
+      kind: by < 0 ? 'up' : 'down',
+      disabled: !plan.ok,
+      reason: why || undefined,
+      action: () => plan.ok && moveGroup(view, plan, by),
+    };
+  };
   return {
     name: t.text.blocksSelected(infos.length),
-    actions: [],
+    actions: [moveAction(-1), moveAction(1)],
     count: { n: infos.length, label: t.text.clearBlockSelection(infos.length), action: () => blockSelection.clear() },
     menu: rows,
   };
+}
+
+// The handle's disabled state while two or more blocks are selected: shown, not hidden (M3: "Disabled components can't be focused, dragged, or pressed"),
+// with its reason as `aria-description` (screen readers) and `title` (mouse hover); M3 prints no other way to say why.
+function dimHandle(handle: Element | null) {
+  if (!handle) return;
+  const off = blockSelection.places().length > 1;
+  handle.toggleAttribute('aria-disabled', off);
+  if (off) {
+    handle.setAttribute('aria-description', t.text.dragOff);
+    handle.setAttribute('title', t.text.dragOff);
+  } else {
+    handle.removeAttribute('aria-description');
+    handle.removeAttribute('title');
+  }
 }
 
 // The handle of a block: a button at the block's top right that moves it by dragging, as the start screen's cards are moved (DashboardEdit.tsx): the
@@ -663,6 +729,9 @@ function blockHandle(
   handle.tabIndex = -1;
   handle.setAttribute('aria-label', t.text.dragBlock(name));
   handle.innerHTML = blockHandleIcon;
+  // With two or more blocks selected the handle is disabled (the M3 disabled state): shown, not hidden, with its reason for screen readers and the mouse.
+  const several = () => blockSelection.places().length > 1;
+  dimHandle(handle);
   // The parts of the text at the top level (not the free lines), with where each is and whether the template locks it.
   const parts = () => {
     const found: { index: number; el: HTMLElement; locked: boolean }[] = [];
@@ -748,6 +817,8 @@ function blockHandle(
   handle.addEventListener('pointerdown', (e) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     e.preventDefault();
+    // Disabled while several blocks are selected: it does nothing (no drag, no long press, no tap).
+    if (several()) return;
     handle.setPointerCapture(e.pointerId);
     settle();
     pending = { id: e.pointerId, x: e.clientX, y: e.clientY, long: false, timer: 0 };
@@ -760,7 +831,7 @@ function blockHandle(
       }, 500);
   });
   handle.addEventListener('pointermove', (e) => {
-    if (pending?.id === e.pointerId && !pending.long && movedAway(pending, e.clientX, e.clientY)) lift();
+    if (pending?.id === e.pointerId && !pending.long && !several() && movedAway(pending, e.clientX, e.clientY)) lift();
     if (run?.id === e.pointerId) run.y = e.clientY;
   });
   handle.addEventListener('pointerup', (e) => {
@@ -1293,6 +1364,7 @@ function blockCard(
             onChange={change}
             onSettings={settings}
             onEdit={() => void edit()}
+            onRow={(spec) => asker()?.row(spec, true)}
             onProps={(patch) => {
               const here = at();
               if (here)
@@ -1884,7 +1956,6 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(looking)
       .use(sectionFrame(framed))
       .use(gapHere)
-      .use(hintTap)
       .use(tapBelow)
       .use(checkToggle)
       .use(history)
@@ -2241,11 +2312,12 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const contextIds = block_
     ? [...(block_.count ? ['block:count'] : []), ...blockToolIds(block_).map((id) => `block:${id}`)]
     : textContext
-      ? ['bold', 'italic', 'link', 'style', ...(lists.length ? ['list'] : []), 'align', 'color']
+      ? ['bold', 'italic', 'style', ...(lists.length ? ['list'] : []), 'align', 'link', 'color']
       : [];
   const blockMenu = block_?.menu ?? [];
-  // Undo, Redo and Section settings, a divider, then Insert block (never in the ⋮) and the ⋮.
-  const mainIds = ['undo', 'redo', ...(settingsShown ? ['settings'] : []), ...(hasInsert ? ['insert'] : [])];
+  // Undo, Redo and Insert block (never in the ⋮) stand at the right end of the bar in every place, then the ⋮ (owner decision, 14 Nov). Section
+  // settings is a row of the ⋮ (always there while it applies).
+  const fixedIds = ['undo', 'redo', ...(hasInsert ? ['insert'] : [])];
   useLayoutEffect(() => {
     const bar = toolbar.current!;
     const measure = () => setBarWidth(bar.clientWidth);
@@ -2257,11 +2329,11 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // A menu of one of the ⋮ menu's rows is open under the ⋮ button.
   const underMore = [kindsAt?.at, alignAt, colorAt].some((at) => !!at && at === moreButton.current);
   const plan = planBar({
-    // The count with its cross is two slots wide.
-    slots: slotsFor(barWidth, (contextIds.length > 0 ? 1 : 0) + (hasInsert ? 1 : 0)) - (block_?.count ? 1 : 0),
+    // The count with its cross is two buttons wide.
+    width: barWidth - (block_?.count ? 44 : 0),
     context: contextIds,
-    main: mainIds,
-    more: blockMenu.length > 0,
+    fixed: fixedIds,
+    more: blockMenu.length > 0 || settingsShown,
   });
   // The bar's motion (barMotion.mjs): the contextual tools slide in from the left and push the main tools right when a context starts, slide out
   // when it ends, and fade in place from one context to another. FLIP: the new layout is measured, then the old place is animated from, with the
@@ -2319,9 +2391,18 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       };
     // One of the active block's row actions (Add above, Move down, the Table's column actions ...).
     const row = block_!.actions.find((a) => a.kind === id)!;
-    return { label: row.label, icon: rawIcon(barIcons[row.kind]), action: row.action, pressed: row.pressed };
+    return {
+      label: row.label,
+      icon: rawIcon(barIcons[row.kind]),
+      action: row.action,
+      pressed: row.pressed,
+      disabled: row.disabled,
+      reason: row.reason,
+    };
   };
-  const toolOf = (id: string): { label: string; icon: typeof TextB; action: () => void; on?: string; pressed?: boolean } => {
+  const toolOf = (
+    id: string,
+  ): { label: string; icon: typeof TextB; action: () => void; on?: string; pressed?: boolean; disabled?: boolean; reason?: string } => {
     // The block's tools are named 'block:<kind>' (not the text's 'link').
     if (id.startsWith('block:')) return blockTool(id.slice(6));
     switch (id) {
@@ -2385,8 +2466,18 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       );
     if (id === 'block:count' && block_?.count)
       return <ToolbarButton key={id} icon={CloseIcon} label={block_.count.label} count={block_.count.n} onClick={block_.count.action} />;
-    const { label, icon, action, on, pressed } = toolOf(id);
-    return <ToolbarButton key={id} icon={icon} label={label} selected={on ? active.includes(on) : pressed} onClick={action} />;
+    const { label, icon, action, on, pressed, disabled, reason } = toolOf(id);
+    return (
+      <ToolbarButton
+        key={id}
+        icon={icon}
+        label={label}
+        selected={on ? active.includes(on) : pressed}
+        disabled={disabled}
+        reason={reason}
+        onClick={action}
+      />
+    );
   };
   // A row of the `⋮` menu. Text style, Alignment and Color open their own menu, under the `⋮` button.
   const moreRows = (id: string) => {
@@ -2417,20 +2508,20 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           {t.text.color}
         </MenuItem>
       );
-    const { label, icon, action, on, pressed } = toolOf(id);
+    const { label, icon, action, on, pressed, disabled } = toolOf(id);
     return (
-      <MenuItem key={id} icon={icon} selected={on ? active.includes(on) : pressed} onClick={action}>
+      <MenuItem key={id} icon={icon} selected={on ? active.includes(on) : pressed} disabled={disabled} onClick={action}>
         {label}
       </MenuItem>
     );
   };
   // In the `⋮` menu the context's tools come first, then a divider, then the main tools.
-  const MORE_ORDER = ['bold', 'italic', 'link', 'style', 'align', 'list', 'color'];
+  const MORE_ORDER = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color'];
   const moreContext = [...plan.more.context].sort((a, b) => MORE_ORDER.indexOf(a) - MORE_ORDER.indexOf(b));
-  const moreMain = plan.more.main.length ? plan.more.main : [];
+  const moreMain = [...plan.more.fixed, ...(settingsShown ? ['settings'] : [])];
 
   return (
-    <div className="rounded-panel bg-surface-container-lowest">
+    <div className="editor-text-box rounded-panel bg-surface-container-lowest">
       <span className="sr-only" role="status" aria-live="polite">
         {selecting ? t.text.blocksSelected(picked.places.length) : ''}
       </span>
@@ -2446,14 +2537,11 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
               <div role="group" aria-label={block_?.name ?? t.text.textTools} className="editor-tools-group">
                 {plan.bar.context.map(barButton)}
               </div>
-              <ToolbarDivider />
             </div>
           )}
           <div ref={mainBox} className="editor-tools-main">
             <div role="group" aria-label={t.text.pageTools} className="editor-tools-group">
-              {plan.bar.main.filter((id) => id !== 'insert').map(barButton)}
-              {plan.bar.main.includes('insert') && plan.bar.main.length > 1 && <ToolbarDivider />}
-              {plan.bar.main.filter((id) => id === 'insert').map(barButton)}
+              {plan.bar.fixed.map(barButton)}
             </div>
             {plan.overflow && (
               <ToolbarButton

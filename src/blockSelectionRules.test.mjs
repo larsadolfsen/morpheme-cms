@@ -5,7 +5,7 @@
  */
 import { test } from 'node:test';
 import * as assert from 'node:assert/strict';
-import { allOf, hideChoice, range, removeChoice, toggle } from './blockSelectionRules.mjs';
+import { allOf, groupMove, hideChoice, range, removeChoice, toggle } from './blockSelectionRules.mjs';
 
 test('toggle adds a place in the order of the text and takes it out again', () => {
   assert.deepEqual(toggle([2], 0), [0, 2]);
@@ -49,4 +49,15 @@ test('a block that stays shown is skipped by Hide and by Remove', () => {
     ]),
     { targets: [1], skipped: [0] },
   );
+});
+
+test('selected blocks move together past one part, not apart, not past an edge or a locked block', () => {
+  const p = (gap = false, locked = false) => ({ gap, locked });
+  const parts = [p(), p(true), p(), p(), p(), p(false, true)];
+  assert.deepEqual(groupMove(parts, [2, 3], -1), { ok: true, first: 2, last: 3, past: 0, places: [0, 1] });
+  assert.deepEqual(groupMove(parts, [2, 3], 1), { ok: true, first: 2, last: 3, past: 4, places: [3, 4] });
+  assert.deepEqual(groupMove(parts, [0, 2], 1), { ok: true, first: 0, last: 2, past: 3, places: [1, 3] });
+  assert.deepEqual(groupMove(parts, [0, 3], 1), { ok: false, why: 'apart' });
+  assert.deepEqual(groupMove(parts, [0], -1), { ok: false, why: 'edge' });
+  assert.deepEqual(groupMove(parts, [4], 1), { ok: false, why: 'locked' });
 });
