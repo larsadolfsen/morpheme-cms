@@ -327,16 +327,18 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   `[data-section-color]`, with readable prose colours); heading and text looks follow the theme (`looks`, `sectionLooks`,
   `headingLooks`); the editor uses the theme's fonts and tokens (the shared theme principle in `CLAUDE.md`).
 - **Evidence, what is not:**
-  - A page's **title, status, template, tags, short description, top image** and a post's **date** are fields in a form
-    section (`forms.sections`: `Content`, `Page settings`/`Post settings`, `STATUS`/`FIRST` in `EntryForm.tsx`), not on the
-    page. The page's title and its H1 are kept together (`titleH1.mjs`), but are two things on two places for a page.
+  - A page's **title, status, template, tags, short description** and a post's **top image** and **date** are fields in a
+    form section (`forms.sections`: `Content`, `Page settings`/`Post settings`, `STATUS`/`FIRST` in `EntryForm.tsx`), not on the
+    page. The page's title and its H1 are kept together (`titleH1.mjs`), but are two things on two places for a page. A
+    page has no top image (owner, 14 Nov 2026: its images are in its text, `2026-11-14-no-page-top-image-design.md`).
   - The **page frame** (header, menu, footer, the side column and the page's width by template) is not around the text;
     `Preview` shows it in a separate sheet at chosen window sizes (`preview.ts`, `pagePreview.tsx`).
   - **Fields of blocks** are a form beside the card (today a sheet, decision 6 inline), so what is typed and what is drawn are two views.
   - Decision 4 draws an H2 as a dotted line in the editor, which is less like the site than the coloured box is today.
 - **Fix, in three steps:**
   1. **The top of the page is the page.** The editor's top area draws the page's head the way the theme does: the H1 (the
-     title), the top image (tap to change), and for a post its date and tags as chips. `Status` stays in the top bar.
+     title) with no top image for a page (owner, 14 Nov 2026), and for a post its top image (tap to change), date and
+     tags as chips. `Status` stays in the top bar.
      `Page settings` keeps the rest (address, template, Google, share).
   2. **Inline block editing with the block drawn above its fields** (finding 14): the owner edits fields right beneath the
      block as it looks, and where the block's text is plain (a row's heading and text) it is edited on the drawn block itself,
@@ -474,7 +476,9 @@ one is checked when it is built. A table filled from the owner's lists could com
    banner's settings in its panel (bottom sheet on a phone), next to the colour it has today: a background image and
    the width of the background. The owner types the heading and text in the section as normal text, and adds a Buttons
    block inside it for buttons. A section is the regular editor, so any block can go in it (owner, 11 November). A migration turns each Banner block into a section with those settings, so no page
-   changes look. The text stays readable over an image because the theme decides it, as on the site today.
+   changes look. The text stays readable over an image because the theme decides it, as on the site today. (0.18: a page's
+   H1 has no background image, so a front-page Banner with its image behind its text stays a Banner,
+   `2026-11-14-no-page-top-image-design.md`.)
 3. **Expandable list (settled, owner, 11 November):** an Expandable list is a Segmented list, so the block goes away.
    Each row's page link is the row's Link, and the closing link is the Segmented list's optional text button
    (decision 10). A migration turns each Expandable list into a Segmented list. The rows of a Segmented list are closed by default and expand
@@ -541,7 +545,7 @@ These are questions that change the plan, each a short read-only investigation o
 | 8 | **Section settings** | Section colours (Surface, Primary, Secondary, Tertiary, none; Tint migrates to Surface); a background image and width; the Banner block folds into a section with its migration (11, 15, 18; question 8) | 4 | M | no | none |
 | 9 | **The Card block** | One Card with three designs (Outlined, Elevated, Filled with a colour), the `Media` field, buttons, whole-card link or buttons, the next empty card, migration of Cards (17) | 5, 8 | L | no | none |
 | 10 | **The Table block** | A new block with typed cells, the next row and column, `Add row` and `Add column`, a header row on by default (18) | 5, S2 | M | no | none |
-| 11 | **Page head and Preview** | The title, top image, date and tags drawn in the text for a page and a post; `Preview` full screen with the breakpoint bar and heights (15; question 7) | 4 | L | no | none |
+| 11 | **Page head and Preview** | A page's head is its H1, with no top image (owner, 14 Nov 2026); a post's title, top image, date and tags drawn in the text; `Preview` full screen with the breakpoint bar and heights (15; question 7) | 4 | L | no | none |
 | 12 | **Drafts and Publish** | The draft file in git; `Save`, `Publish changes`, `Unpublish`, `Discard changes`, `Schedule`; two statuses with `unlisted` and `scheduled` migrated and the SEO setting; the `ci-build` lane for drafts only; the version list kept ready for an app (1, 2, question 2) | S1, 1 | XL | maybe: an app place for the version switch | none |
 | 13 | **Autosave** | With `R2 caching` on: autosave to R2, written to git on leaving or a long idle, and the status `Saving…` / `Saved` / `Not saved` (question 2) | 12 | L | no | none |
 | 14 | **Live and scheduled versions** | The `Live` / `Scheduled` switch, editing either version, and the warning when a page has a waiting version (question 2) | 12 | M | no | none |
@@ -758,7 +762,8 @@ contract is needed, only a `slots` field in `AppDefinition`.
    decisions on the lists (decisions 8 and 9, findings 13 and 18): three list blocks, built in batch 7.
 7. **The page head is drawn in the text (settled for the head, owner, 11 November).** A page and a blog post look as
    close to the site as they can in the editor: the title, the top image, the date and the tags are drawn in the text as
-   the site shows them (step 1). **The optional frame with the site's header and footer (step 3) is dropped (owner,
+   the site shows them (step 1). **A page's head is its H1, with no top image (owner, 14 Nov 2026,
+   `2026-11-14-no-page-top-image-design.md`)**; a post's head is unchanged. **The optional frame with the site's header and footer (step 3) is dropped (owner,
    11 November):** `Preview` already shows the page with the site's own header, footer and layout at each window size, so a
    frame in the editor would only repeat it. `Preview` stays, with one change (owner, 11 November): it opens full screen, hiding
    everything else in the editor, with a close button (a Material 3 full-screen dialog), instead of in a sheet beside the
