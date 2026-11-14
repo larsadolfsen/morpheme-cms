@@ -39,15 +39,15 @@ export function neighbourKey(order, key, step) {
 }
 
 /**
- * What a key press does: 'toggle' (Space on a row while selecting), 'range-next' or 'range-prev' (Shift+Arrow on a row), 'all' (Ctrl or
+ * What a key press does: 'toggle' (Space on a row, which starts selecting), 'range-next' or 'range-prev' (Shift+Arrow on a row), 'all' (Ctrl or
  * Cmd+A while selecting), 'clear' (Escape while selecting), else null. `onRow`: focus is on a selectable row.
  */
-export function keyAction({ key, shiftKey, ctrlKey, metaKey }, { selecting, onRow }) {
+export function keyAction({ key, shiftKey, ctrlKey, metaKey }, { selecting, onRow, spaceStarts = false }) {
   if (key === 'Escape') return selecting ? 'clear' : null;
   if ((ctrlKey || metaKey) && !shiftKey && key.toLowerCase() === 'a') return selecting ? 'all' : null;
   if (!onRow) return null;
-  // Space is the row's activation (M3 lists accessibility): while selecting that is a toggle, else the row does what it does.
-  if (key === ' ' && !ctrlKey && !metaKey) return selecting ? 'toggle' : null;
+  // Space on a row toggles it; with `spaceStarts` it also starts selecting (the keyboard's way in to a list of links, which Enter opens).
+  if (key === ' ' && !ctrlKey && !metaKey) return selecting || spaceStarts ? 'toggle' : null;
   if (shiftKey && key === 'ArrowDown') return 'range-next';
   if (shiftKey && key === 'ArrowUp') return 'range-prev';
   return null;

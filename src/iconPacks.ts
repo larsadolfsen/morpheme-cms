@@ -30,16 +30,18 @@ export type IconPack = {
 const SAMPLES = ['house', 'magnifying-glass', 'calendar-blank', 'envelope-simple', 'heart'];
 
 type Manifest = Omit<IconPack, 'id' | 'theme' | 'samples'>;
+// `exhaustive`: Vite skips node_modules in a glob unless told not to, and a site takes this package (and its icons/) from there.
 const manifests = import.meta.glob<Manifest>(['@icons/*/pack.json', '/src/themes/*/icon-packs/*/pack.json'], {
   eager: true,
   import: 'default',
+  exhaustive: true,
 });
 const files = import.meta.glob<string>(
   [
     '@icons/*/{house,magnifying-glass,calendar-blank,envelope-simple,heart}.svg',
     '/src/themes/*/icon-packs/*/{house,magnifying-glass,calendar-blank,envelope-simple,heart}.svg',
   ],
-  { eager: true, query: '?raw', import: 'default' },
+  { eager: true, query: '?raw', import: 'default', exhaustive: true },
 );
 const chosen = import.meta.glob<{ pack?: string }>('/src/data/icons.json', { eager: true, import: 'default' })['/src/data/icons.json'];
 

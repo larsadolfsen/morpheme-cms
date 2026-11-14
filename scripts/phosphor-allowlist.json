@@ -1,0 +1,358 @@
+{
+  "defaults/blockTexts.ts": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "defaults/collections.ts": {
+    "max": 6,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "defaults/company.ts": {
+    "max": 4,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "defaults/editor.ts": {
+    "max": 36,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "defaults/internalLinks.ts": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "defaults/privacy.ts": {
+    "max": 3,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "demo/src/apps/inline-example/blocks/tickets/index.tsx": {
+    "max": 1,
+    "why": "An app's block in the demo, drawn as an app of the store is; redrawn by the pack."
+  },
+  "lib/snackbar.ts": {
+    "max": 1,
+    "why": "The snackbar's arrow, an SVG file imported as text; redrawn by the pack (follow-up 1)."
+  },
+  "src/AddFieldMenu.tsx": {
+    "max": 6,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/Advanced.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/AppInfoTab.tsx": {
+    "max": 11,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/AppList.tsx": {
+    "max": 3,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/AppPlaces.tsx": {
+    "max": 4,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/Assistants.tsx": {
+    "max": 2,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/BlockDialog.tsx": {
+    "max": 2,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/BlockSettings.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/CmsPage.tsx": {
+    "max": 2,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/Colors.tsx": {
+    "max": 4,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/Consents.tsx": {
+    "max": 3,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/CreateFab.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/DashboardEdit.tsx": {
+    "max": 7,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/DashboardGrid.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/Deleted.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/FileView.tsx": {
+    "max": 5,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/FirstRun.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/FormFrame.tsx": {
+    "max": 3,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/InlineCards.tsx": {
+    "max": 3,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/InlineFaq.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/InlineFieldsList.tsx": {
+    "max": 4,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/InlineItems.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/InlineList.tsx": {
+    "max": 3,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/InlineVideo.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/Keywords.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/Library.tsx": {
+    "max": 19,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/Licenses.tsx": {
+    "max": 5,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/LinkList.tsx": {
+    "max": 6,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/LinkSheet.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/ListFab.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/MainDrawerParts.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/MainMenu.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/MarkdownEditor.tsx": {
+    "max": 27,
+    "why": "The text bar: another worker (contextual-toolbar-2) owns it; moves to Icon after that merges (follow-up 2)."
+  },
+  "src/Media.tsx": {
+    "max": 8,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/MoveButtons.tsx": {
+    "max": 2,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/NotificationActions.tsx": {
+    "max": 2,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/Notifications.tsx": {
+    "max": 2,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/OwnListPage.tsx": {
+    "max": 3,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/PagePicker.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/Parts.tsx": {
+    "max": 24,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/PartsShown.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/PreviewScreen.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/Redirects.tsx": {
+    "max": 7,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/Screen.tsx": {
+    "max": 4,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/SearchPreview.tsx": {
+    "max": 3,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/SectionSettings.tsx": {
+    "max": 2,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/SelectionBar.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/SeoScores.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/ServiceStatus.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/StartFab.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/ThemeStore.tsx": {
+    "max": 2,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/VersionLinePage.tsx": {
+    "max": 2,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/Versions.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/blocks.ts": {
+    "max": 5,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/cmsWidgets.ts": {
+    "max": 4,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/contextualMenu.ts": {
+    "max": 5,
+    "why": "The text bar menu: another worker (contextual-toolbar-2) owns it; moves to Icon after that merges (follow-up 2)."
+  },
+  "src/fields.tsx": {
+    "max": 4,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/ownLists.ts": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/accordion/index.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/buttons/index.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/cards/index.tsx": {
+    "max": 7,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/checklist/index.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/cookies/index.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/cookies/list.ts": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/faq/index.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/hero/index.tsx": {
+    "max": 5,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/links/index.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/list/index.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/notice/index.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/points/index.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/posts/index.tsx": {
+    "max": 3,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/pricecards/index.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/segmented/index.tsx": {
+    "max": 2,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/steps/index.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/table/index.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/testimonials/index.tsx": {
+    "max": 3,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/testimonials/list.ts": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/standard/video/index.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/storeSort.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/ui.tsx": {
+    "max": 15,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
+  "src/widgets/blogRhythm.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  }
+}
