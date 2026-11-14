@@ -36,7 +36,7 @@ export const forms = {
     desktop: 'Desktop',
     result: 'Preview of the Google result',
   },
-  /** What a tag's page says about itself when it is shared without a Google description (the site's text, Category.astro). */
+  /** What a tag's page says about itself when it is shared without a meta description (the site's text, Category.astro). */
   tagShared: (n: number, name: string) => `${n} ${n === 1 ? 'post' : 'posts'} about ${name.toLowerCase()}.`,
   /** The SEO rating at the top of "Search engines" (seo.ts): its heading and what each check says; `post`: a
    * blog post (its title is its H1), else a page; `n`: how many (headings, characters). */
@@ -47,25 +47,25 @@ export const forms = {
     manyH1: (n: number) => `The text has ${n} main headings, but should have only one`,
     h1First: 'The main heading is at the top of the text',
     h1NotFirst: 'The main heading isn’t at the top of the text',
-    noTitle: (post: boolean) => `There’s no Google title, so the ${post ? "post's" : "page's"} title is used`,
-    longTitle: (n: number) => `The Google title has ${n} characters, so Google may cut it off after about 60`,
-    goodTitle: (n: number) => `The Google title has a good length (${n} characters)`,
-    /** `short`: there is a "Short description", used instead. */
+    noTitle: (post: boolean) => `There’s no meta title, so the ${post ? "post's" : "page's"} title is used`,
+    longTitle: (n: number) => `The meta title has ${n} characters, so Google may cut it off after about 60`,
+    goodTitle: (n: number) => `The meta title has a good length (${n} characters)`,
+    /** `short`: there is a "Excerpt", used instead. */
     noDescription: (short: boolean) =>
-      `There’s no Google description, so ${short ? 'the short description' : "the website's general description"} is used`,
-    noDescriptionFrom: (what: string) => `There’s no Google description, so ${what} is used`,
+      `There’s no meta description, so ${short ? 'the excerpt' : "the website's general description"} is used`,
+    noDescriptionFrom: (what: string) => `There’s no meta description, so ${what} is used`,
     fromIntro: 'the introduction',
     fromCount: 'a text with the number of posts',
-    shortDescription: (n: number) => `The Google description is short (${n} characters), so there is room for more`,
-    longDescription: (n: number) => `The Google description is long (${n} characters), so Google may cut it off`,
-    goodDescription: (n: number) => `The Google description has a good length (${n} characters)`,
+    shortDescription: (n: number) => `The meta description is short (${n} characters), so there is room for more`,
+    longDescription: (n: number) => `The meta description is long (${n} characters), so Google may cut it off`,
+    goodDescription: (n: number) => `The meta description has a good length (${n} characters)`,
     keywordInH1: (word: string, post: boolean, found: boolean) =>
       `The keyword "${word}" is ${found ? '' : 'not '}in the ${post ? 'title' : 'main heading'}`,
     keywordInText: (word: string, found: boolean) => `The keyword "${word}" is ${found ? '' : 'not '}in the first paragraph`,
     /** "No index" (noindex) is ticked. */
     noindex: (post: boolean) => `The ${post ? 'post' : 'page'} is hidden from Google`,
     /** "Canonical URL" is a page the editor does not know. */
-    noCanonical: 'The original page (the page Google should list) points to a page that doesn’t exist',
+    noCanonical: 'The canonical URL points to a page that doesn’t exist',
     allAlt: 'All images have an alt text',
     noAlt: (n: number) => `${n} ${n === 1 ? 'image has' : 'images have'} no alt text`,
     goodLinks: (n: number): string => (n === 1 ? 'The link has a descriptive text' : 'The links have descriptive text'),
@@ -75,8 +75,8 @@ export const forms = {
     fixNoH1: 'Write the page’s heading at the top of the text, as a Heading.',
     fixManyH1: 'Make the others Heading or Subheading.',
     fixH1First: 'Move the main heading up, so it comes first in the text.',
-    fixTitle: 'Write a Google title of at most about 60 characters.',
-    fixDescription: 'Write a Google description of about 140–155 characters.',
+    fixTitle: 'Write a meta title of at most about 60 characters.',
+    fixDescription: 'Write a meta description of about 140–155 characters.',
     fixKeywordInH1: (post: boolean) => `Use the keyword in the ${post ? 'title' : 'main heading'}.`,
     fixKeywordInText: 'Use the keyword in the first paragraph.',
     fixNoindex: (post: boolean) => `Turn off No index if the ${post ? 'post' : 'page'} should be found.`,
