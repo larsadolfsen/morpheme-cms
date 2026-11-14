@@ -134,7 +134,7 @@ export const common = {
     /** The screen the cog at the bottom of the main drawer opens (#settings), and the first part of the path to a setting (placeOf in site.ts). */
     settings: 'Settings',
     /** A row of Settings: R2 caching and the build settings (#developer/caching, Advanced.tsx). */
-    caching: 'Caching and builds',
+    caching: 'R2 caching and builds',
     /** Under Indstillinger: the assistants connected to the site (#assistants, Assistants.tsx). */
     assistants: 'Assistants',
     /** Under Indstillinger: the licences of what the site and the editor are made with (#licenses, Licenses.tsx). */

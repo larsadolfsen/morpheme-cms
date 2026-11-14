@@ -110,7 +110,7 @@ export const common: Messages['common'] = {
     redirects: 'Videresendelser',
     account: 'Konto',
     settings: 'Indstillinger',
-    caching: 'Caching og builds',
+    caching: 'R2-caching og builds',
     assistants: 'Assistenter',
     licenses: 'Licenser',
     morpheme: 'Morpheme',

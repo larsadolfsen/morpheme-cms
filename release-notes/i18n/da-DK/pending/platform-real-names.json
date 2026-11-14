@@ -1,0 +1,6 @@
+{
+  "id": "platform-real-names",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Cloudflare og GitHub bruger deres rigtige navne, fx R2-bucket, Cloudflare API-token, Workers Paid og R2-caching og builds"
+}
