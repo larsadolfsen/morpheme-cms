@@ -4,6 +4,7 @@
     {
       "id": "navigation-rail-menu",
       "kind": "line",
+      "mark": "improvement",
       "text": "Editoren har en navigationssøjle og en hovedmenu med to niveauer"
     }
   ]

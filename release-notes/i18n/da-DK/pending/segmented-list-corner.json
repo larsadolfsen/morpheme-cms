@@ -1,5 +1,6 @@
 {
   "id": "segmented-list-corner",
   "kind": "line",
+  "mark": "improvement",
   "text": "Segmenterede lister har mere afrundede ydre hjørner"
 }

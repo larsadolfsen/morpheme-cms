@@ -5,6 +5,7 @@
     {
       "id": "update-message-first-visit",
       "kind": "line",
+      "mark": "improvement",
       "text": "Opdateringsbeskeden på startskærmen vises, første gang du åbner editoren i en browser"
     }
   ]

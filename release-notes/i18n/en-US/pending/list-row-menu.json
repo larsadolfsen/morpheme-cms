@@ -1,6 +1,7 @@
 {
   "id": "list-row-menu",
   "kind": "paragraph",
+  "mark": "feature",
   "title": "Add and move rows from a toolbar",
   "text": "A toolbar over your List adds rows above or below, adds a link and moves rows up or down. Tap a row’s icon to pick one. List settings open beside the page, or in a sheet on a phone, and every change is saved with the page."
 }

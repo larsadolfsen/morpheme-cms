@@ -4,6 +4,7 @@
     {
       "id": "save-notices-version",
       "kind": "line",
+      "mark": "improvement",
       "text": "Beskeder om gemte ændringer nævner versionen, når en app er installeret eller ændret"
     }
   ]

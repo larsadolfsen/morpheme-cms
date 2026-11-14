@@ -1,5 +1,6 @@
 {
   "id": "hide-unavailable-templates",
   "kind": "line",
+  "mark": "improvement",
   "text": "En sides skabelon viser kun de skabeloner, du kan bruge"
 }

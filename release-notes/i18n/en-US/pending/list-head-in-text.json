@@ -1,5 +1,6 @@
 {
   "id": "list-head-in-text",
   "kind": "line",
+  "mark": "improvement",
   "text": "A List now has only its rows: a label, heading or intro it had stands as text above it"
 }

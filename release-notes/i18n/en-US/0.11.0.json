@@ -4,6 +4,7 @@
     {
       "id": "save-notices-version",
       "kind": "line",
+      "mark": "improvement",
       "text": "Save notices say which version an app was installed or changed to"
     }
   ]

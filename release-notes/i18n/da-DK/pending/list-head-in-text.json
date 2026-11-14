@@ -1,5 +1,6 @@
 {
   "id": "list-head-in-text",
   "kind": "line",
+  "mark": "improvement",
   "text": "En liste har nu kun sine rækker: en overskrift, etiket eller introtekst står som tekst over den"
 }

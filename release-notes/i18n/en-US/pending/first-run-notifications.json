@@ -1,5 +1,6 @@
 {
   "id": "first-run-notifications",
   "kind": "line",
+  "mark": "improvement",
   "text": "The editor asks before your browser asks to show notifications"
 }

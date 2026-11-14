@@ -1,5 +1,6 @@
 {
   "id": "preview-looks-like-site",
   "kind": "line",
+  "mark": "improvement",
   "text": "Forhåndsvisningen viser blokke og links som den rigtige side"
 }

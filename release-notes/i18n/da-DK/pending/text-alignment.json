@@ -1,6 +1,7 @@
 {
   "id": "text-alignment",
   "kind": "paragraph",
+  "mark": "feature",
   "title": "Tekstjustering",
   "text": "En kort linje kan stå midt på siden eller til højre. Tryk på Justering i tekstværktøjerne og vælg Venstrejusteret, Centreret eller Højrejusteret. Det virker på afsnit og underoverskrifter; sektionsoverskrifter, lister og citater står til venstre."
 }

@@ -4,6 +4,7 @@
     {
       "id": "cloudflare-build-icons",
       "kind": "line",
+      "mark": "improvement",
       "text": "Din hjemmeside bygger igen på Cloudflare uden at stoppe med “Too many open files”"
     }
   ]

@@ -1,5 +1,6 @@
 {
   "id": "insert-sheet-handle-focus",
   "kind": "line",
+  "mark": "improvement",
   "text": "Bundark viser ikke længere en blå streg under håndtaget"
 }

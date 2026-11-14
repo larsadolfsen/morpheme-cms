@@ -1,5 +1,6 @@
 {
   "id": "short-start-subtitle",
   "kind": "line",
+  "mark": "improvement",
   "text": "The start screen's top bar shows the update time or date in a short form that fits a phone"
 }

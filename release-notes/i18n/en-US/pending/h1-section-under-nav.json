@@ -1,5 +1,6 @@
 {
   "id": "h1-section-under-nav",
   "kind": "line",
+  "mark": "improvement",
   "text": "A heading section with a colour or an image starts right under the navigation bar"
 }

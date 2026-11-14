@@ -1,6 +1,7 @@
 {
   "id": "block-drag-handle",
   "kind": "paragraph",
+  "mark": "feature",
   "title": "Blokhåndtag",
   "text": "Det kræver ikke længere flere tryk at flytte en blok. Træk i håndtaget øverst til højre på en blok derhen, du vil have den, og en streg viser, hvor den lander. Flyt op og Flyt ned virker stadig."
 }

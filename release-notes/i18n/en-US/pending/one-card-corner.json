@@ -1,5 +1,6 @@
 {
   "id": "one-card-corner",
   "kind": "line",
+  "mark": "improvement",
   "text": "The questions and answers box has rounder corners"
 }
