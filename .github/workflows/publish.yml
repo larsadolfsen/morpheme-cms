@@ -3,10 +3,11 @@
 # gets the tag v<version> and a GitHub release, and morpheme-staging is rebuilt. While changesets are pending, a
 # test version (X.Y.Z-next-<time>) is staged for next. npm's trusted publishing trusts this one file and lets it only
 # stage (npm stage publish): no key, and nothing reaches npm without the owner's approval.
-# The "next" job only stages and ends: it never waits for the approval, so it holds no runner slot and a newer push
-# cannot cancel a wait. Rebuilding morpheme-staging for an approved next version is the job of
-# staging-follows-next.yml, which compares npm's next tag every ten minutes. "latest" waits (up to four hours) and is
-# never cancelled by a newer run.
+# The "next" job only stages and ends, so a newer push cannot cancel a staging. The separate "wait-next" job then waits
+# (up to four hours) for the owner's approval of that next version; a newer push cancels an older wait, because only
+# the newest version matters. "staging" then calls staging-follows-next.yml, which rebuilds morpheme-staging if npm's
+# next tag is not the version staging was last built for (that workflow's own ten-minute cron is only a backup: GitHub
+# delays and drops scheduled runs). "latest" waits (up to four hours) and is never cancelled by a newer run.
 name: Publish
 
 on:
@@ -89,6 +90,8 @@ jobs:
       group: publish-next
       cancel-in-progress: false
     timeout-minutes: 15
+    outputs:
+      staged: ${{ steps.stage.outputs.version }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -100,7 +103,30 @@ jobs:
       # Only in this checkout: nothing is committed.
       - run: npx changeset version --snapshot next
       # Only empty changesets pending: the version is unchanged, and there is nothing to stage.
-      - run: |
+      - id: stage
+        run: |
           v=$(node -p "require('./package.json').version")
           if [ "$v" = "$(git show HEAD:package.json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")" ]; then exit 0; fi
           npm stage publish --tag next
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+
+  # Waits for the owner's approval of the staged next version; a newer push cancels this wait.
+  wait-next:
+    needs: next
+    if: needs.next.outputs.staged != ''
+    runs-on: ubuntu-latest
+    concurrency:
+      group: wait-next
+      cancel-in-progress: true
+    timeout-minutes: 250
+    env:
+      V: ${{ needs.next.outputs.staged }}
+    steps:
+      - run: until npm view "@morphemecms/cms@$V" version >/dev/null 2>&1; do sleep 60; done
+
+  staging:
+    needs: wait-next
+    uses: ./.github/workflows/staging-follows-next.yml
+    secrets: inherit
+    permissions:
+      contents: write
