@@ -2370,7 +2370,17 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         const gone = () => ghost.remove();
         ghost.animate([{ transform: 'none' }, { transform: `translateX(${-ghost.offsetWidth}px)` }], spatial).finished.then(gone, gone);
       }
-      if (kind === 'change' && context) context.animate([{ opacity: 0 }, { opacity: 1 }], motionTiming('effects'));
+      // From one context to another the bars cross-fade: the tools that left (the ghost, out of the row's flow, so nothing below or beside moves)
+      // fade out as the new tools fade in, with the theme's effects spring.
+      if (kind === 'change') {
+        const effects = motionTiming('effects');
+        if (context) context.animate([{ opacity: 0 }, { opacity: 1 }], effects);
+        if (was.ghost) {
+          const ghost = row.appendChild(was.ghost);
+          const gone = () => ghost.remove();
+          ghost.animate([{ opacity: 1 }, { opacity: 0 }], effects).finished.then(gone, gone);
+        }
+      }
     }
     // What the contextual tools looked like, to slide them out once the context ends (a copy: they are gone by then).
     let ghost: HTMLElement | null = null;

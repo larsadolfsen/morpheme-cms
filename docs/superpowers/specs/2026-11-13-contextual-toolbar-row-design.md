@@ -214,7 +214,7 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
 - **Entering a context** (the cursor goes into text, or a block or row becomes active): the contextual tools slide in from the left
   and the main tools are pushed to the right and out of view (section 4); the tools that do not fit are then in `⋮`, and Undo stays at
   its place after the divider. **Leaving it:** the same movement the other way. **Changing from one context to another** is not a slide: the
-  contextual tools change in place with the theme's fade (`--motion-effects`; decided).
+  contextual tools cross-fade in place with the theme's fade (`--motion-effects`; decided): the old tools (a ghost copy out of the row's flow) fade out as the new tools fade in, so the bar's height and the main tools never move (owner, 14 Nov: "the transition between two toolbars is abrupt, make it fade").
 - **Wide screens (decided by the owner): all tools show at once; nothing is hidden and nothing scrolls.** The contextual group, the divider and
   the main tools are all on the bar. **The main tools do move on a wide screen too:** idle, they stand at the left edge on every screen size
   (decided: "Left side"); when a context starts the contextual group slides in from the left and the main tools move right until they sit after
