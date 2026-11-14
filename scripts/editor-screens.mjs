@@ -2021,6 +2021,7 @@ async function checkBlockMove(width) {
     return [b.x + b.width / 2, b.y + b.height / 2];
   };
   const tap = async (loc) => {
+    await loc.scrollIntoViewIfNeeded();
     const [x, y] = await centre(loc);
     if (phone) await page.touchscreen.tap(x, y);
     else await page.mouse.click(x, y);
