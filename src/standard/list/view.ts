@@ -1,5 +1,5 @@
 // What "List" shows (its view, drawn by the theme's View.tsx and Rows.tsx): each row's icon, heading, text and page. A row with a page and no heading of its own has the page's title (the pages' links of "Links" are
-// rows like that), and one whose page is missing is left out. In the editor: viewOf, from the site's pages; on the site: load.ts. (The label,
+// rows like that), one whose page is missing is left out, and one with only a text keeps it. In the editor: viewOf, from the site's pages; on the site: load.ts. (The label,
 // heading and intro the block had are the text's own now, lib/remark-list-head.mjs.)
 import type { ViewOf } from '../view';
 import { editorRows } from '../rows/view';
@@ -23,8 +23,10 @@ export type ListRowProps = Partial<ListRow>;
 export const listOf = (props: Record<string, any>, titleOf: (href: string) => string | undefined): ListView => ({
   items: ((props.items ?? []) as ListRowProps[]).flatMap((row) => {
     const title = row.title?.trim() || (row.href ? titleOf(row.href) : undefined);
-    if (!title) return [];
-    return [{ ...row, title }];
+    // A row with no heading and no page still has its text: it is shown (with an empty heading), never dropped. A row with nothing in it, or whose
+    // page is missing, is left out.
+    if (!title && !(!row.href && row.text?.trim())) return [];
+    return [{ ...row, title: title ?? '' }];
   }),
 });
 
