@@ -1,11 +1,11 @@
 // What the text's one bar shows for the block that is active: typed in place, or a card that was tapped (MarkdownEditor.tsx; docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md,
 // PR 2 and 4): the block (a node view, not React) tells this store its tools, the bar (React) reads it. One block is active at a time; a block that is not
 // the active one cannot clear it. No dependencies, no browser.
-import type { ComponentType } from 'react';
+import type { BlockDefinition } from './blocks';
 import type { BarAction } from './contextualMenu';
 
 /** A row of a menu row's submenu (Change to's blocks): the block's icon (a component), its name, what it does. */
-export type SubRow = { icon: ComponentType; label: string; action: () => void };
+export type SubRow = { icon: BlockDefinition['icon']; label: string; action: () => void };
 
 /** A row of the block's own menu (Edit, Hide, Move up, Move down, Remove): a raw SVG icon, its name, what it does (`keyboard`: chosen with the keyboard). */
 export type CardRow = {
