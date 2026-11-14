@@ -55,16 +55,13 @@ test('a page without a header is left as it is', () => {
   assert.equal(doc.querySelector('section'), null);
 });
 
-test('an image and the whole width are in the panel, and go again with it', () => {
+test('the whole width is in the panel and goes again with it; a page’s H1 has no image', () => {
   const doc = PAGE(PLAIN);
-  setH1Panel(doc, { color: '', image: '/a.jpg', alt: 'A field', width: 'full' }, '<p>Intro</p>', '/shown/a.jpg');
+  setH1Panel(doc, { color: 'surface', width: 'full' }, '<p>Intro</p>');
   const panel = doc.querySelector('[data-editor="h1-section"]');
-  assert.match(panel.className, /text-section-picture/);
   assert.match(panel.className, /text-section-full/);
-  const img = panel.querySelector(':scope > img.text-section-image');
-  assert.equal(img.getAttribute('src'), '/shown/a.jpg');
-  assert.equal(img.getAttribute('alt'), 'A field');
+  assert.doesNotMatch(panel.className, /text-section-picture/);
+  assert.equal(panel.querySelector('img'), null);
   setH1Panel(doc, null, '');
   assert.equal(doc.querySelector('[data-editor="h1-section"]'), null);
-  assert.equal(doc.querySelector('img.text-section-image'), null);
 });
