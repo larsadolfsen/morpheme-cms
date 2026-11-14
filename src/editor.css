@@ -859,9 +859,11 @@ html {
   width: calc(100% + 1.25rem);
   margin-inline: -0.625rem;
   position: relative;
-  border-radius: 0;
+  /* The dotted outline is a Card's: its corner radius and padding, the theme's tokens (the same fallbacks as .card), so the action row, the items and the
+     add button line up inside it. */
+  border-radius: var(--card-radius, var(--block-radius));
   border: 1.5px dashed color-mix(in srgb, var(--mo-on-surface-variant) 45%, transparent);
-  padding: 0.5rem;
+  padding: var(--card-padding, 1rem);
   text-align: left;
   cursor: pointer;
   transition: border-color var(--motion-effects);
@@ -892,15 +894,37 @@ html {
   transition: opacity var(--motion-effects);
 }
 
-/* The active block's action row (blockRow.ts): above the block's top item, right-aligned, 44 dp high, in the block's flow so the page makes room for it
-   (its height opens with the spatial spring). The block's drag handle is its last button: it moves into the row's end while the row is open. */
+/* The active block's action row (blockRow.ts): inside the block's dotted outline (the card), at the top of its padding, right-aligned, 44 dp high, in the card's flow so
+   the block makes room for it (its height opens with the spatial spring). Its buttons are the theme's standard icon buttons (iconButtonClass), no style of their own here.
+   The block's drag handle is its last button: it moves into the row's end while the row is open. */
 .editor-text .site-block-row {
   display: block;
   box-sizing: border-box;
   block-size: 2.75rem;
-  width: calc(100% + 1.25rem);
-  margin-inline: -0.625rem;
-  padding-inline: 0.625rem;
+}
+
+/* The row hugs the top of the outline: it is pulled up into the card's padding, so the space above it is the Card's gap (the theme's small step), not its full padding; the
+   sides and the space below the content keep the Card's padding. Its margin opens with its height (blockRow.ts), so the block below moves by one smooth amount. */
+.editor-text .site-block-row:not(.site-block-row-hover) {
+  margin-block-start: calc(var(--card-gap, 0.5rem) - var(--card-padding, 1rem));
+}
+
+/* The row of a block a mouse points at (not the active one): over the top of the block's content, inside its outline, in no flow, so pointing at a block never moves the page.
+   It sits on the surface, as wide as its buttons and the handle, so the content under it stays readable; only the buttons take the pointer. */
+.editor-text .site-block-row-hover {
+  position: absolute;
+  z-index: 1;
+  inset-block-start: calc(1.5px + var(--card-gap, 0.5rem));
+  inset-inline: calc(1.5px + var(--card-padding, 1rem));
+  pointer-events: none;
+}
+
+.editor-text .site-block-row-hover .site-block-row-inner {
+  inline-size: fit-content;
+  margin-inline-start: auto;
+  border-radius: var(--mo-shape-full);
+  background: var(--mo-surface);
+  pointer-events: auto;
 }
 
 .editor-text .site-block-row-moving {
@@ -915,48 +939,20 @@ html {
   padding-inline-end: 2.75rem;
 }
 
-.editor-text .site-block-row-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  inline-size: 2.75rem;
-  block-size: 2.75rem;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  color: var(--mo-on-surface-variant);
-  cursor: pointer;
-  transition: background-color var(--motion-effects);
-}
-
-.editor-text .site-block-row-button:hover {
-  background: color-mix(in srgb, var(--mo-on-surface) 8%, transparent);
-}
-
-.editor-text .site-block-row-button[aria-disabled] {
-  color: color-mix(in srgb, var(--mo-on-surface) 38%, transparent);
+/* A button that cannot be used (a block that cannot move further): shown, in its place, with the reason; the theme's disabled look, no state layer. */
+.editor-text .site-block-row [data-row][aria-disabled] {
+  opacity: 0.35;
   cursor: default;
 }
 
-.editor-text .site-block-row-button[aria-disabled]:hover {
+.editor-text .site-block-row [data-row][aria-disabled]:hover {
   background: transparent;
 }
 
-.editor-text .site-block-row-button:focus-visible {
-  outline: 2px solid var(--mo-primary);
-  outline-offset: -2px;
-}
-
-.editor-text .site-block-row-button svg {
-  inline-size: 1.5rem;
-  block-size: 1.5rem;
-}
-
-.editor-text .site-block-has-row > .site-block-handle {
-  top: 0;
-  right: 0.625rem;
+.editor-text :is(.site-block-has-row, .site-block-has-hover) > .site-block-handle {
+  /* In the row's end: the card's border and padding in from its top and right edge (the card is 0.625rem wider than the block on each side). */
+  top: calc(1.5px + var(--card-gap, 0.5rem));
+  right: calc(var(--card-padding, 1rem) + 1.5px - 0.625rem);
   opacity: 1;
   background: transparent;
 }
@@ -984,8 +980,11 @@ html {
    while the block is selected; a mouse sees it on the block pointed at, every block shows it once some block is selected (a touch never before that). Its target is 48 dp. */
 .editor-text .site-block-mark {
   position: absolute;
-  top: -1.5rem;
-  left: -1.5rem;
+  /* Centred on the outline's corner curve: the card is 0.625rem wider than the block on each side, and the 45 degree point of a corner with the Card's radius r (its
+     1.5px line centred) lies r * (1 - cos 45) + 0.53px in from the corner, along both edges. */
+  --mark-in: calc(var(--card-radius, var(--block-radius)) * 0.2929 + 0.53px);
+  top: calc(var(--mark-in) - 1.5rem);
+  left: calc(var(--mark-in) - 0.625rem - 1.5rem);
   z-index: 2;
   display: flex;
   align-items: center;
@@ -1031,6 +1030,10 @@ html {
 /* The block while it is dragged: raised, following the finger. A line shows the part it will go next to. */
 .editor-text .site-block-dragging {
   z-index: 3;
+}
+
+/* The lifted box is the dotted outline with its row inside it, with its corners. */
+.editor-text .site-block-dragging > .site-block-card {
   box-shadow: var(--mo-elevation-4-shadow);
   background: var(--mo-surface);
 }
