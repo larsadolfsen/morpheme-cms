@@ -1,5 +1,8 @@
 # Icon packs in the store (0.18)
 
+> **Moved to 0.22** by the owner's roadmap of 14 November 2026
+> (`docs/superpowers/plans/2026-11-14-roadmap-0-18-to-0-24.md`); removing its seeds moves one version later.
+
 > **Status:** draft of 14 November 2026, written against `main` at `f72ddf6` (`@morphemecms/cms` 0.16.0). A spec and plan
 > only: nothing is built. The owner's decision (14 November 2026): **icon packs that are not Material Symbols (Phosphor,
 > Lucide and any other) leave the CMS and become items in the store** (`morpheme-appstore`), installed from the editor like

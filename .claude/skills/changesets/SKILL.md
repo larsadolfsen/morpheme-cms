@@ -26,10 +26,10 @@ level its base branch does not allow is not merged; fix the changeset.
 
 | Base branch | Allowed | What it collects | Merged into it |
 | :--- | :--- | :--- | :--- |
-| `main` | `patch` or empty until `0.15.1` is released, so the Release PR stays `0.15.1` (after that the owner decides again) | the current release | — |
-| `0.17` | `minor`, `patch` or empty | the 0.17 work (the editor spec's work) | `main`, after each release |
-| `0.18` | `minor`, `patch` or empty | the 0.18 work (`docs/superpowers/specs/2026-11-11-intuitive-editor-design.md`) | `0.17` after each merge into `0.17` until 0.17 is released; then `main` after each release |
-| `0.19` | `minor`, `patch` or empty | the 0.19 work | `0.18` after each merge into `0.18` until 0.18 is released; then `main` after each release |
+| `main` | `minor`, `patch` or empty for the 0.17 work, until `0.17.0` (Release PR #340) is released; after that the owner decides again | the current release (0.17) | — |
+| `0.17` | — | there is no `0.17` branch: the 0.17 work merges into `main` | — |
+| `0.18` | `minor`, `patch` or empty | the 0.18 work, the editor (`docs/superpowers/plans/2026-11-14-roadmap-0-18-to-0-24.md`) | `main` after each merge into `main` until 0.17 is released; then `main` after each release |
+| `0.19` and later | — | 0.19 and later lines follow the roadmap and are cut from `main` when their work starts | — |
 
 A version line's branch is never merged back the other way except as its release (the `pm` skill, *Two version lines at
 the same time*). Only `main` has a Release PR and builds `next` and `latest`; every merge to `main` stages a `next` build
