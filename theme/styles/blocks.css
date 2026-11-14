@@ -1468,8 +1468,8 @@
   }
 
   /* A table (.block-table, the base of every table block): a box that scrolls sideways when the table is wider than the screen,
-     with the cells' text in the body scale and a thin line (outline variant) under each row. Each block adds its own look:
-     .block-table-cookies ("Cookie list": quiet headings, the first column heavier) and .block-table-grid ("Table"). */
+     with the cells' text in the body scale and a thin line (outline variant) under each row. "Table" and "Cookie list" are
+     drawn alike, as .block-table-grid. */
   .block-table {
     overflow-x: auto;
   }
@@ -1485,31 +1485,6 @@
     border-bottom: 1px solid var(--block-line);
     text-align: left;
     vertical-align: top;
-  }
-
-  /* "Cookie list": quiet headings over rows, the first column (each row's name) a little heavier. */
-  .block-table-cookies table {
-    min-width: 40rem;
-  }
-  .block-table-cookies :is(th, td) {
-    padding: 0.625rem 1rem 0.625rem 0;
-  }
-  .block-table-cookies thead th {
-    font-size: var(--type-label-large-size);
-    line-height: var(--type-label-large-line-height);
-    font-weight: var(--type-label-large-weight);
-    letter-spacing: var(--type-label-large-tracking);
-    color: var(--block-muted);
-  }
-  .block-table-cookies tbody th {
-    font-weight: 500;
-    white-space: nowrap;
-  }
-  .block-table-cookies td:not(:nth-child(3)) {
-    white-space: nowrap;
-  }
-  .block-table-cookies td:nth-child(3) {
-    min-width: 14rem;
   }
 
   /* "Table": Material 3 has no table component, so the dimensions are Material 2's data table (m2.material.io/components/data-tables:

@@ -1,12 +1,15 @@
-// "Cookie list": the cookies as a table, a row each with who sets it first and then its name, which scrolls sideways on
-// a narrow screen. Built of the standard blocks' part .block-table.
+// "Cookie list": the cookies as a table, drawn as the "Table" block is (an outlined Card, .block-table-grid in
+// ../blocks.css: header row, row height, padding), a row each with who sets it first and then its name, which scrolls
+// sideways on a narrow screen. Built of the standard blocks' part .block-table.
 import type { CookiesView } from '@morphemecms/cms/src/standard/cookies/view';
 import { useInText } from '@morphemecms/cms/src/standard/view';
+import Card from '@theme/ui/Card';
 
 export default function Cookies({ view }: { view: CookiesView }) {
   const { texts } = view;
   return (
-    <div className={useInText('block-table', 'block-table-cookies')}>
+    // A scroll box the keyboard can reach, named for a screen reader.
+    <Card kind="outlined" className={useInText('block-table', 'block-table-grid')} role="region" aria-label={view.label} tabIndex={0}>
       <table>
         <thead>
           <tr>
@@ -31,6 +34,6 @@ export default function Cookies({ view }: { view: CookiesView }) {
           ))}
         </tbody>
       </table>
-    </div>
+    </Card>
   );
 }
