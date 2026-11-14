@@ -760,13 +760,13 @@
    content keeps clear of it (its end padding; --column-end tells the column, so it stays centred on the window while
    there is room), and the save bar ends where the area begins. */
 @media (width >= theme(--breakpoint-large)) {
-  :root:has(.editor-section-pane) {
+  :root:has(.editor-section-pane:not([hidden] *)) {
     --column-end: var(--section-pane-width);
   }
-  .editor-content:has(.editor-section-pane) {
+  .editor-content:has(.editor-section-pane:not([hidden] *)) {
     padding-inline-end: var(--section-pane-width);
   }
-  :root:has(.editor-section-pane) .editor-save-bar {
+  :root:has(.editor-section-pane:not([hidden] *)) .editor-save-bar {
     right: var(--section-pane-width);
   }
 
