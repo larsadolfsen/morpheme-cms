@@ -3376,6 +3376,56 @@ async function checkLiveList(width, height, { name, hint, items }) {
   await page.close();
 }
 
+/** The Image grid typed in place: `Add images` asks for several images of the Library (a tap selects, the button under them says how many it adds), puts them in the block as picked images, and a tap on an image opens its sheet with the text of its own, which the card then has as its alt text. */
+async function checkImageGridAdd(width, height) {
+  const label = `${width}px image grid add images`;
+  if (!has('src/data/files')) return void console.log(`${label}: skipped, the site has no images with tags, which the demo has.`);
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Images from Files, filtered by tag.' }).first().click();
+  await page.waitForSelector('.site-block-inline [data-field="heading"]', { timeout: 8000 });
+  await page.waitForSelector('.site-block-inline .block-imagegrid-grid li', { timeout: 8000 });
+  const before = await page.locator('.site-block-inline .block-imagegrid-grid li').count();
+  await page.getByRole('button', { name: 'Add images' }).click();
+  await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
+  if (!(await page.locator('dialog[open]').getByText('Choose images').count()))
+    problems.push(`${label}: the picker is not the one for several images`);
+  if (await page.locator('dialog[open]').getByRole('button', { name: 'Upload a new image' }).count())
+    problems.push(`${label}: the picker for several images offers an upload`);
+  await page.locator('dialog[open] [data-media-tile]').nth(0).click();
+  await page.locator('dialog[open] [data-media-tile]').nth(1).click();
+  const selected = await page.locator('dialog[open] [data-media-tile][aria-checked="true"]').count();
+  if (selected !== 2) problems.push(`${label}: ${selected} tiles are selected after two taps, not 2`);
+  const add = page.getByRole('button', { name: 'Add 2 images' });
+  if (!(await add.count())) problems.push(`${label}: no button says it adds 2 images`);
+  else await add.click();
+  await page.waitForFunction(() => !document.querySelector('dialog[open] [data-media-tile]'), null, { timeout: 8000 });
+  const after = await page.locator('.site-block-inline .block-imagegrid-grid li').count();
+  if (after < 2 || after < before) problems.push(`${label}: the grid shows ${after} images after adding, ${before} before`);
+  // A tap on an image: its sheet, with the text of its own; the card draws it.
+  await page.locator('.site-block-inline .block-imagegrid-grid li a[data-image]').first().click();
+  const field = page.getByLabel('Alt text').first();
+  try {
+    await field.waitFor({ timeout: 8000 });
+    await field.fill('Typed alt text');
+    await page.waitForTimeout(400);
+    const alt = await page.locator('.site-block-inline .block-imagegrid-grid li img').first().getAttribute('alt');
+    if (alt !== 'Typed alt text') problems.push(`${label}: the card's image has the alt text "${alt}", not the one typed in its sheet`);
+  } catch {
+    problems.push(`${label}: a tap on an image did not open its sheet with an alt text field`);
+  }
+  await page.close();
+}
+
 /** The single blocks typed in place (Notice, Video): one item, no add button, no faded empty item. */
 const inlineSingles = [
   { name: 'notice', hint: 'A highlighted message.', field: 'text', text: 'Hello **there**', slot: false },
@@ -6921,6 +6971,7 @@ for (const [w, h] of [
   await unit(`checkSegmentedArrow ${w}`, () => checkSegmentedArrow(w, h));
 for (const block of liveLists)
   for (const w of [375, 1280]) await unit(`checkLiveList ${w} ${block.name}`, () => checkLiveList(w, w < 600 ? 740 : 900, block));
+for (const w of [375, 1280]) await unit(`checkImageGridAdd ${w}`, () => checkImageGridAdd(w, w < 600 ? 740 : 900));
 await unit('checkListRowColors', () => checkListRowColors());
 await unit('checkSectionOnImage', () => checkSectionOnImage());
 await unit('checkInsertNeverOpensSheet 375', () => checkInsertNeverOpensSheet(375, 740));

@@ -50,6 +50,8 @@ export const media = {
   noImages: 'No images',
   noFiles: 'No files',
   pick: 'Choose an image',
+  pickMany: 'Choose images',
+  addPicked: (count: number) => (count === 1 ? 'Add 1 image' : `Add ${count} images`),
   /** The sources of images that apps add to the picker (media providers). */
   providers: {
     own: 'Your images',

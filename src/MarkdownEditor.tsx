@@ -1364,6 +1364,7 @@ function blockCard(
             onChange={change}
             onSettings={settings}
             onEdit={() => void edit()}
+            onRow={(spec) => asker()?.row(spec, true)}
             onProps={(patch) => {
               const here = at();
               if (here)

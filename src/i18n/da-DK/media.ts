@@ -50,6 +50,8 @@ export const media: Messages['media'] = {
   noImages: 'Ingen billeder',
   noFiles: 'Ingen filer',
   pick: 'Vælg billede',
+  pickMany: 'Vælg billeder',
+  addPicked: (count: number) => (count === 1 ? 'Tilføj 1 billede' : `Tilføj ${count} billeder`),
   providers: {
     own: 'Dine billeder',
     search: (source) => `Søg i ${source}`,

@@ -148,6 +148,8 @@ export type BlockData = {
   libraryAlt?: (src: string) => { alt?: string; decorative?: boolean } | undefined;
   /** The images of Files with their records' tags, text, caption and credit, for the "Image grid" (standard/imagegrid/). */
   libraryImages?: import('./standard/imagegrid/view').ImageItem[];
+  /** Asks for several images of the Library at once (the Image grid's `Add images`): their addresses, or null when cancelled. */
+  pickImages?: () => Promise<string[] | null>;
 };
 
 // Fields filled in as an example from what they are: a text with its name ("Heading"), a choice

@@ -3,6 +3,7 @@
 import type { ComponentType } from 'react';
 import InlineList from './InlineList';
 import type { BlockData, BlockProps } from './blocks';
+import type { RowSpec } from './BlockDialog';
 import InlineCards from './InlineCards';
 import InlineTable from './InlineTable';
 import InlineNotice from './InlineNotice';
@@ -37,6 +38,8 @@ export type InlineViewProps = {
   onProps: (patch: BlockProps) => void;
   /** Opens the block's Edit sheet (a block with a setting that is not typed in place, like the FAQ's button page). */
   onEdit?: () => void;
+  /** Opens a sheet of settings for something in the block that is not an item (the Image grid's image: its text), or closes it with null. */
+  onRow?: (spec: RowSpec | null) => void;
 };
 
 export const inlineViews: Record<string, ComponentType<InlineViewProps>> = {
