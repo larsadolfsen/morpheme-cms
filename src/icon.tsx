@@ -310,8 +310,8 @@ export const AaIcon = (({ size = 20, className }: { size?: number | string; clas
   );
 }) as unknown as PhosphorIcon;
 
-/** The icons of the three body styles in the Text style menu: the "A" of Aa (Material's match_case) with a number beside it, drawn from Phosphor's number-one,
- * -two and -three (src/icons/body-a*.svg, one viewBox and one baseline). The smallest style has the highest number: Body small A3, Body medium A2, Body large
+/** The icons of the three body styles in the Text style menu: the "A" of Aa (Material's match_case) with a number beside it, with the digit the heading icons draw (Phosphor's text-h-one, -two and
+ * -three, same size and weight, src/icons/body-a*.svg). The smallest style has the highest number: Body small A3, Body medium A2, Body large
  * A1. Bundled files like AaIcon, so they draw the same in every icon pack and in light and dark (currentColor). */
 const bodyA = (file: string, name: string) =>
   (({ size = 20, className }: { size?: number | string; className?: string }) => {
