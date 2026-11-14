@@ -1,6 +1,7 @@
 {
   "id": "apps-nav-section",
   "kind": "paragraph",
+  "mark": "improvement",
   "title": "Apps-menuen",
   "text": "Apps lå spredt i menuen. Åbn Apps for at nå Butik, Forbindelser, Udvidelser og Temaer. Butik installerer mere; de tre andre viser det, du har installeret, og hver app åbnes derfra."
 }

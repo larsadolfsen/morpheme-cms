@@ -1,5 +1,6 @@
 {
   "id": "media-provider-slot",
   "kind": "line",
+  "mark": "feature",
   "text": "Apps can add a source of free images to the image picker, and an image’s credit is saved with it"
 }

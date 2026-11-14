@@ -1,6 +1,7 @@
 {
   "id": "cards-media-kinds",
   "kind": "paragraph",
+  "mark": "feature",
   "title": "Cards",
   "text": "A new Cards block starts with three empty cards: type a heading, subhead and text in each. In the settings, pick a Design (Outlined, Filled or Elevated) and one media for all cards. A card has a page or buttons."
 }

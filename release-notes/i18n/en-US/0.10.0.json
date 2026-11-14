@@ -4,28 +4,33 @@
     {
       "id": "google-result-preview",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "See your page in Google",
       "text": "The page and blog post forms now show a Google result preview for a phone and a computer. Open a page or post and look under Search engines."
     },
     {
       "id": "settings-in-side-sheet",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "Edit blocks in a side sheet",
       "text": "On a phone, a block’s fields and the section settings now open in a side sheet over the page, and on a tablet they stand beside it."
     },
     {
       "id": "bottom-sheet-actions",
       "kind": "line",
+      "mark": "improvement",
       "text": "The action bar at the bottom of a phone is now a standard bottom sheet"
     },
     {
       "id": "empty-line-hint",
       "kind": "line",
+      "mark": "improvement",
       "text": "The hint on an empty line in the text editor follows the editor’s language and says the first heading is an H1"
     },
     {
       "id": "heading-menu-h1-first",
       "kind": "line",
+      "mark": "improvement",
       "text": "On a page, the heading menus offer only H1 until the text has one, then H2 and H3"
     }
   ]

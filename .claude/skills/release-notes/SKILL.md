@@ -34,6 +34,17 @@ of two kinds:
   has over other ways to run a site, or a fix. One short sentence with no
   period, shown in the list "Also in this version".
 
+**Every note carries one mark, `feature` or `improvement`** (owner rule, 14 Nov), in both languages (the same in each). The start
+screen's update card counts the two apart ("12 features, 30 improvements"), and `check:release-notes` fails on a note without a
+valid mark or whose languages disagree. Choose it by what the owner gets:
+
+- `feature`: something new, a capability or a part the owner did not have (a new screen, block, setting, way to do something).
+- `improvement`: something made better, such as faster, fixed, tidier, safer, renamed, moved or looking better. **A bug fix is an
+  improvement; there is no third mark.** When a change is both, pick what the owner would call it first: a new look for a part
+  that already exists is an improvement.
+
+The mark has nothing to do with the kind: a `paragraph` or a `line` can have either mark.
+
 A version can have any number of paragraphs and lines: one paragraph for each main change, and a line for each smaller
 one. A note says only what is new in its own version. It never explains a feature from an earlier version again. Several
 changes to the same screen or feature are one note.
@@ -45,8 +56,8 @@ has no notes file of its own: the Morpheme page shows the pending notes under th
 
 Files, per language:
 
-- `release-notes/i18n/<locale>/pending/<id>.json`: the note. A `paragraph` has `id`, `kind`, `title` and `text`. A line has
-  `id`, `kind` and `text`.
+- `release-notes/i18n/<locale>/pending/<id>.json`: the note. A `paragraph` has `id`, `kind`, `mark`, `title` and `text`. A line has
+  `id`, `kind`, `mark` and `text`. `release:version` moves the notes, with their mark, into the version's file.
 
 A note has no screenshot. `npm run check:release-notes` reports a leftover `<id>.webp` next to a pending note: delete it.
 
@@ -112,8 +123,8 @@ After (a name as the title, then why, how, what; the other subjects are their ow
 > link, and press Show more for the rest. Turn on Only one open to close the last row when the next one opens.
 
 Danish: the title is the Danish name of the same thing (*Segmenteret liste*), and the text has the same three parts in the same order, written as a Danish app says it (not word for word), with the editor's
-Danish words from `src/i18n/da-DK/`, and the same length cap. Keep `id` and
-`kind` the same in both languages.
+Danish words from `src/i18n/da-DK/`, and the same length cap. Keep `id`,
+`kind` and `mark` the same in both languages.
 
 ## Editions
 

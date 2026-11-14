@@ -1,5 +1,6 @@
 {
   "id": "two-finger-select",
   "kind": "line",
+  "mark": "feature",
   "text": "Touch a row or file with two fingers to select it at once"
 }

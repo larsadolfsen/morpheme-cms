@@ -1,6 +1,7 @@
 {
   "id": "build-chip",
   "kind": "paragraph",
+  "mark": "feature",
   "title": "Hjemmesidens status",
   "text": "Besøgende ser en gemt ændring først, når hjemmesiden er opdateret. Når du udgiver, viser Udgiv-knappen fremdriften, til hjemmesiden er opdateret, og du får besked, hvis det ikke lykkedes. Du skal ikke sætte noget op."
 }

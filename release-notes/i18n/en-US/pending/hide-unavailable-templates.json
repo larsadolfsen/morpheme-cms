@@ -1,5 +1,6 @@
 {
   "id": "hide-unavailable-templates",
   "kind": "line",
+  "mark": "improvement",
   "text": "A page's Template only shows the templates you can use"
 }

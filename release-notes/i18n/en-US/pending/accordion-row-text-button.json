@@ -1,5 +1,6 @@
 {
   "id": "accordion-row-text-button",
   "kind": "line",
+  "mark": "improvement",
   "text": "The link under a row of Expandable list is a text button, not an underlined link"
 }

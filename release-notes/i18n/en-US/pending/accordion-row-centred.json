@@ -1,5 +1,6 @@
 {
   "id": "accordion-row-centred",
   "kind": "line",
+  "mark": "improvement",
   "text": "Section titles in the page editor sit in the middle of their row"
 }

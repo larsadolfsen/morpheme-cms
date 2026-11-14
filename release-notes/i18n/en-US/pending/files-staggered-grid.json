@@ -1,6 +1,7 @@
 {
   "id": "files-staggered-grid",
   "kind": "paragraph",
+  "mark": "improvement",
   "title": "Files grid",
   "text": "Images keep their own shape instead of being cut to squares. In Files, the grid has two columns on a phone and four on a computer, and the chosen image shows a check mark."
 }

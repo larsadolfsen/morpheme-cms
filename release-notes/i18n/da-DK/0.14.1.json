@@ -5,11 +5,13 @@
     {
       "id": "drawer-back-changes-screen",
       "kind": "line",
+      "mark": "improvement",
       "text": "Swiper du tilbage på en telefon, mens menuen er åben, lukker menuen, og du kommer til skærmen før"
     },
     {
       "id": "notes-from-package",
       "kind": "line",
+      "mark": "improvement",
       "text": "Nyheder som disse vises nu, lige når du har opdateret"
     }
   ]

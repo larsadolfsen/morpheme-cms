@@ -1,6 +1,7 @@
 {
   "id": "switch-no-on-off",
   "kind": "paragraph",
+  "mark": "improvement",
   "title": "Kontakter",
   "text": "Kontakter viste ordene Til og Fra, som fyldte på små skærme. Nu betyder et flueben i kontakten til, og et kryds betyder fra. Kontakterne virker som før."
 }

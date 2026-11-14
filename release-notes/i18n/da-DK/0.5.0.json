@@ -4,12 +4,14 @@
     {
       "id": "connect-to-store",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "Forbind din hjemmeside til butikken",
       "text": "Forbind din hjemmeside til Morpheme-butikken fra Appstore i editoren."
     },
     {
       "id": "start-screen-version",
       "kind": "line",
+      "mark": "improvement",
       "text": "Startskærmen viser den installerede Morpheme-version før opdateringstidspunktet"
     }
   ]
