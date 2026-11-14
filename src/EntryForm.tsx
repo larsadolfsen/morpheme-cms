@@ -1175,13 +1175,24 @@ function Form({
         image:
           collection.fields.some((f) => f.name === 'image') && changes('image', 'imageAlt', 'imageDecorative')
             ? values.image
-              ? { src: String(values.image), alt: values.imageDecorative === true ? '' : String(values.imageAlt ?? '') }
+              ? {
+                  src: String(values.image),
+                  alt: values.imageDecorative === true ? '' : String(values.imageAlt ?? ''),
+                  decorative: values.imageDecorative === true,
+                }
               : null
             : undefined,
         // Always the text in the form, saved or not: the site's own page may not be rebuilt yet after a save, and would then lack
         // what the editor shows (a section's background).
         body: markdown ?? shown?.body ?? parts.body,
-        data: { lists: env.lists, testimonials: env.testimonials, site: env.site, relations: env.relations, path: url },
+        data: {
+          lists: env.lists,
+          testimonials: env.testimonials,
+          site: env.site,
+          relations: env.relations,
+          path: url,
+          libraryAlt: fields.libraryAlt,
+        },
       };
     });
 

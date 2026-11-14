@@ -49,3 +49,11 @@ export function libraryAltOf(records, address) {
  */
 export const shownLibraryAlt = (library, typed) =>
   !typed.trim() && !library?.decorative && library?.alt?.trim() ? library.alt.trim() : undefined;
+
+/**
+ * The Library's text for an image as the `alt` part of an image view: its text, or "" when the Library marks it decorative, else nothing,
+ * so a use's own text spread after it replaces it.
+ * @param {AltBase | undefined} library
+ * @returns {{ alt?: string }}
+ */
+export const libraryAltPart = (library) => (library?.decorative ? { alt: '' } : library?.alt?.trim() ? { alt: library.alt.trim() } : {});

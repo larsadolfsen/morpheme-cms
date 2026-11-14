@@ -3,6 +3,7 @@
 // site's own pages that draw the same parts import it, never the editor, so it reads the content
 // (astro:content) and uses the site's components.
 import type { ListedPost, SourceItem, StandardSite } from '../src/standard/site';
+import { libraryAltPart } from '../src/imageAlt.mjs';
 import { itemOfEntry } from '../src/standard/rows/rows.mjs';
 import { asRowsOf, isEntryPath, parseDefinition } from '../lib/ownList.mjs';
 import {
@@ -158,8 +159,7 @@ export const standard: StandardSite = {
     },
     // The sizes, and the text the Library has for it ("" when it is decorative there): a use with a text of its own puts that over it.
     image: (src) => {
-      const library = libraryAlt(src);
-      return { ...responsive(src), ...(library?.decorative ? { alt: '' } : library?.alt ? { alt: library.alt } : {}) };
+      return { ...responsive(src), ...libraryAltPart(libraryAlt(src)) };
     },
   },
 };

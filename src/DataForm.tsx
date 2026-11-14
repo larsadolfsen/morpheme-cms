@@ -304,7 +304,10 @@ function Form({
     draw &&
     (appKind?.variants ?? [{ label: '', props: {} }]).map((v) => ({
       label: v.label,
-      node: draw({ ...values, ...v.props }, { lists: env.lists, testimonials: env.testimonials, relations: env.relations, site: env.site }),
+      node: draw(
+        { ...values, ...v.props },
+        { lists: env.lists, testimonials: env.testimonials, relations: env.relations, site: env.site, libraryAlt: context.libraryAlt },
+      ),
     }));
   // A file that is a list (the menus) is added to with the FAB, like the other lists; its own fields
   // ("Activated") stand above it.
