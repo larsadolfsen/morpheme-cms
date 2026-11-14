@@ -314,9 +314,6 @@ const checkToggle = $prose(
     }),
 );
 
-// The menu of the card that is open, if any: one at a time; closed by a tap elsewhere or Escape.
-let closeOpenMenu: (() => void) | null = null;
-
 // action: keyboard, whether the choice was made with the keyboard (Enter or Space).
 type CardItem = { icon: string; label: string; action: (keyboard: boolean) => void; danger?: boolean };
 
@@ -371,12 +368,12 @@ function move(view: EditorView, i: number, by: -1 | 1): number | null {
   return at;
 }
 
-// Opens the menu of the card at the top level at index k again (after it moved, it is a new card).
-type CardHost = HTMLElement & { openMenu?: (keyboard: boolean, focus?: string) => void };
-function reopen(view: EditorView, k: number, keyboard: boolean, label: string) {
+// Selects the card at the top level at index k again (after it moved, it is a new card), so its tools are on the bar still and it can be moved again at once.
+type CardHost = HTMLElement & { select?: () => void };
+function reopen(view: EditorView, k: number) {
   const el = partDOM(view, k);
   const host = (el?.matches('.site-block') ? el : el?.querySelector('.site-block')) as CardHost | null;
-  host?.openMenu?.(keyboard, label);
+  host?.select?.();
 }
 
 // The blocks at the top level of the text, in order: their type and whether they are hidden.
@@ -387,13 +384,13 @@ const blocksOf = (doc: Node) => {
 };
 
 // "Move up" and "Move down" for the part at the top level at index i, where it can be moved: not past
-// the start or end, nor past a block the template locks (locked: their types). The menu stays open on
-// the moved card, so it can be moved again at once.
+// the start or end, nor past a block the template locks (locked: their types). The moved card stays selected,
+// so it can be moved again at once.
 const moves = (view: EditorView, i: number | null, locked: string[] = []): CardItem[] => {
   if (i === null) return [];
   const step = (by: -1 | 1) => (keyboard: boolean) => {
     const at = move(view, i, by);
-    if (at !== null) reopen(view, at, keyboard, by < 0 ? t.common.moveUp : t.common.moveDown);
+    if (at !== null) reopen(view, at);
   };
   const can = (by: -1 | 1) => {
     const j = neighbour(view.state.doc, i, by);
@@ -406,10 +403,11 @@ const moves = (view: EditorView, i: number | null, locked: string[] = []): CardI
   ];
 };
 
-// The row of icons on a card (a block or an image) in the text, opened by tapping it: items, as
-// they are when it opens (no row when there are none). `tap` runs first on a tap that opens the row (not on one that
-// closes it): from expanded it opens the card's side panel. Returns how to close it.
-function cardMenu(
+// A card (a block or an image) in the text that is not typed in place: tapping it selects it, and its tools are on the text's one bar
+// (blockBar.ts): its Edit as the gear, and the rest of its items (Hide, Move up, Move down, Remove) in the bar's `⋮`. It stays selected until a tap
+// or the focus goes elsewhere (not to the bar, its menus or a sheet) or Escape. `items`: its items as they are when it is selected; `tap`
+// runs first on a tap (from expanded it opens the card's side panel). Returns how to leave it.
+function cardBar(
   view: EditorView,
   dom: HTMLElement,
   card: HTMLElement,
@@ -417,59 +415,51 @@ function cardMenu(
   items: () => (CardItem | undefined | false | '')[],
   tap?: () => void,
 ) {
-  let menu: HTMLElement | null = null;
-  function close() {
-    menu?.remove();
-    menu = null;
-    card.setAttribute('aria-expanded', 'false');
-    document.removeEventListener('pointerdown', outside, true);
-    document.removeEventListener('keydown', escape, true);
-    if (closeOpenMenu === close) closeOpenMenu = null;
-  }
-  const outside = (e: Event) => void (dom.contains(e.target as globalThis.Node) || close());
+  const owner = {};
+  let selected = false;
+  const show = () => {
+    const all = items().filter((it): it is CardItem => !!it);
+    const edit = all.find((it) => it.icon === pencilIcon);
+    blockBar.show(owner, {
+      name,
+      actions: [],
+      edit: edit && { label: edit.label, action: () => edit.action(false) },
+      menu: all.filter((it) => it !== edit),
+    });
+  };
+  const away = (e: Event) => {
+    const target = e.target;
+    if (
+      target instanceof Element &&
+      (dom.contains(target) || target.closest('.editor-tools, .editor-menu, .editor-side-sheet, dialog[open]'))
+    )
+      return;
+    leave();
+  };
   const escape = (e: KeyboardEvent) => {
     if (e.key !== 'Escape') return;
-    close();
+    leave();
     card.focus();
   };
-  // keyboard: opened with Enter or Space, so a choice gets the focus: the first, or the one named
-  // `focus` (the arrow used to move the card, when it opens again on the moved card).
-  function open(keyboard: boolean, focus?: string) {
-    closeOpenMenu?.();
-    const shown = items().filter((it): it is CardItem => !!it);
-    if (!shown.length) return;
-    menu = dom.appendChild(document.createElement('div'));
-    menu.className = 'site-block-menu';
-    menu.setAttribute('role', 'menu');
-    menu.setAttribute('aria-label', name);
-    for (const it of shown) {
-      const b = menu.appendChild(document.createElement('button'));
-      b.type = 'button';
-      b.setAttribute('role', 'menuitem');
-      b.setAttribute('aria-label', it.label);
-      b.title = it.label;
-      b.innerHTML = it.icon.replace('<svg', '<svg width="20" height="20" fill="currentColor" aria-hidden="true"');
-      if (it.danger) b.className = 'site-block-danger';
-      b.addEventListener('click', (e) => {
-        close();
-        it.action(e.detail === 0);
-      });
-    }
-    card.setAttribute('aria-expanded', 'true');
-    closeOpenMenu = close;
-    document.addEventListener('pointerdown', outside, true);
-    document.addEventListener('keydown', escape, true);
-    // On a card taller than the screen, under the toolbar (not above the screen) where the card goes on.
-    const bar = document.querySelector('.editor-tools')?.getBoundingClientRect().bottom ?? 0;
-    const box = dom.getBoundingClientRect();
-    const at = menu.getBoundingClientRect();
-    if (at.top < bar + 8) menu.style.top = `${Math.min(bar + 8 - box.top, box.height - at.height - 8)}px`;
-    if (keyboard)
-      (menu.querySelector<HTMLElement>(`[aria-label="${focus}"]`) ?? menu.querySelector('button'))?.focus({ preventScroll: true });
+  function leave() {
+    if (!selected) return;
+    selected = false;
+    blockBar.hide(owner);
+    card.setAttribute('aria-pressed', 'false');
+    document.removeEventListener('pointerdown', away, true);
+    document.removeEventListener('keydown', escape, true);
   }
-  (dom as CardHost).openMenu = open;
-  card.setAttribute('aria-haspopup', 'menu');
-  card.setAttribute('aria-expanded', 'false');
+  function select() {
+    if (!selected) {
+      selected = true;
+      card.setAttribute('aria-pressed', 'true');
+      document.addEventListener('pointerdown', away, true);
+      document.addEventListener('keydown', escape, true);
+    }
+    show();
+  }
+  (dom as CardHost).select = select;
+  card.setAttribute('aria-pressed', 'false');
   card.addEventListener('mousedown', (e) => e.preventDefault());
   // While a finger is on the card, the text cannot be written in: a phone does not put the cursor in
   // the text next to the card and open the keyboard (and a keyboard that is open closes).
@@ -489,12 +479,14 @@ function cardMenu(
     document.addEventListener('pointercancel', unlock, { capture: true, once: true });
     timer = window.setTimeout(unlock, 1000);
   });
-  card.addEventListener('click', (e) => {
-    if (menu) return close();
+  card.addEventListener('click', () => {
     tap?.();
-    open(e.detail === 0);
+    select();
   });
-  return close;
+  return () => {
+    leave();
+    blockBar.hide(owner);
+  };
 }
 
 // The address of an image from its sheet: with its format and crop after it, and marked when it is decorative
@@ -548,7 +540,7 @@ function imageCard(node: Node, view: EditorView, getPos: () => number | undefine
   };
   // From expanded an image's sheet is the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
   const inPanelNow = () => editsInPanel(atLeastNow('expanded'), true);
-  const close = cardMenu(
+  const close = cardBar(
     view,
     dom,
     card,
@@ -1035,7 +1027,6 @@ function blockCard(
     ];
   };
   // Typed in place: its tools are in the text's one bar (blockBar.ts), and its own menu is in the bar's `⋮`.
-  let handle = card;
   if (inline) {
     const rowFieldsOf = (names: string[]) =>
       (single ? block!.fields : (block?.fields.find((f) => f.name === spec!.item)?.fields ?? [])).filter((f) => names.includes(f.name));
@@ -1288,8 +1279,6 @@ function blockCard(
       },
       destroy: () => blockBar.hide(owner),
     };
-    // The card has no handle of its own: the menu is in the bar's `⋮`. A detached button stands in for what cardMenu wants to attach to.
-    handle = document.createElement('button');
     // The settings of the active row (its icon and link), live: from expanded in the side panel while a row is active, below it in a bottom
     // sheet that Edit opens (`open`: a row's slot or Edit; else only an open sheet is updated).
     syncRow = (open) => {
@@ -1353,9 +1342,8 @@ function blockCard(
       document.removeEventListener('focusin', away, true);
     };
   }
-  const close = cardMenu(view, dom, handle, name, menuItems, () => inPanelNow() && void edit());
-  // A moved block is a new card: the bar's `⋮` does not reopen as the card's row did.
-  if (inline) delete (dom as CardHost).openMenu;
+  // A block typed in place has its tools on the bar through `bar` (rows); any other block is selected by a tap (cardBar).
+  const close = inline ? () => {} : cardBar(view, dom, card, name, menuItems, () => inPanelNow() && void edit());
   // A changed block is drawn anew (update false); taps on the card and its menu are not ProseMirror's.
   return {
     dom,

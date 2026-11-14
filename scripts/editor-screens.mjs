@@ -862,6 +862,91 @@ async function checkTextBar(width = 360) {
   await blog.close();
 }
 
+/** A card that is not typed in place (HTML code here; an image, Testimonials and the like work the same) has its tools on the text's one bar (PR 4 of the contextual toolbar plan): a tap on it selects it
+ * (marked, no pop-up on the card), the bar gets a group named by the block, its Edit as the gear (on a phone; from expanded a tap opens the side panel) and the rest of its menu (Move up, Remove) in the ⋮,
+ * the gear opens the block's sheet, Move up keeps the moved card selected, and a tap in the text brings the text tools back. */
+async function checkCardBar(width, height = 800) {
+  const phone = width < 600;
+  const label = `${width}px card bar`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
+  // The block's fields are in a sheet on a phone and in the side panel from expanded.
+  const sheet = page
+    .locator('dialog[open], .editor-side-sheet')
+    .filter({ has: page.locator('textarea') })
+    .last();
+  await sheet.locator('textarea').fill('<iframe src="https://www.youtube.com/embed/abc" title="Clip"></iframe>');
+  await sheet.locator('button', { hasText: /^Insert$/ }).click();
+  await page.waitForSelector('.ProseMirror .site-block-card', { timeout: 6000 });
+  await page.locator('.ProseMirror .site-block-card').first().click();
+  await page.waitForTimeout(400);
+  const selected = await page.evaluate(() => ({
+    pressed: document.querySelectorAll('.site-block-card[aria-pressed="true"]').length,
+    popup: document.querySelectorAll('.site-block-menu').length,
+    haspopup: document.querySelectorAll('.site-block-card[aria-haspopup]').length,
+    groups: [...document.querySelectorAll('.editor-tools [role=group]')].map((g) => g.getAttribute('aria-label')),
+  }));
+  if (selected.pressed !== 1) problems.push(`${label}: a tap on the card did not select it (${selected.pressed} selected)`);
+  if (selected.popup || selected.haspopup) problems.push(`${label}: the card still has a pop-up menu of its own`);
+  if (!selected.groups.length || selected.groups[0] === 'Text tools')
+    problems.push(`${label}: the bar's first group is "${selected.groups}", not the block's name`);
+  const tools = await barTools(page);
+  if (tools.bar.some((b) => b.height < 43.4 || b.width < 43.4)) problems.push(`${label}: a button of the card's bar is under 44 x 44 dp`);
+  if (!tools.names.includes('Remove') && phone) problems.push(`${label}: the card's menu has no Remove (${tools.names})`);
+  if (!tools.names.includes('Move up')) problems.push(`${label}: the card's menu has no Move up (${tools.names})`);
+  if (tools.names.filter((n) => n === 'More').length !== 1) problems.push(`${label}: the bar has no single ⋮ (${tools.names})`);
+  if (phone) {
+    // Its Edit is the gear on the bar and not in the ⋮ again; the gear opens the block's sheet.
+    if (!tools.bar.some((b) => b.label === 'Edit')) problems.push(`${label}: the card's Edit is not the gear on the bar (${tools.names})`);
+    if (tools.more.some((m) => m.label === 'Edit')) problems.push(`${label}: the card's Edit is in the ⋮ as well as on the bar`);
+    await pressTool(page, 'Edit', 'tap');
+    await page
+      .waitForSelector('dialog[open] textarea', { timeout: 4000 })
+      .catch(() => problems.push(`${label}: the gear did not open the block's sheet`));
+    await page
+      .locator('dialog[open] button', { hasText: /^Cancel$/ })
+      .click({ timeout: 3000 })
+      .catch(() => {});
+    await page.waitForTimeout(300);
+  }
+  // Move up: the card goes above the text and stays selected, its tools on the bar.
+  await pressMore(page, 'Move up', phone ? 'tap' : 'click');
+  await page.waitForTimeout(500);
+  const moved = await page.evaluate(() => {
+    const card = document.querySelector('.ProseMirror .site-block-card')?.getBoundingClientRect();
+    const hello = [...document.querySelectorAll('.ProseMirror p')].find((p) => p.textContent.trim() === 'Hello')?.getBoundingClientRect();
+    return {
+      first: !!card && !!hello && card.top < hello.top,
+      pressed: document.querySelectorAll('.site-block-card[aria-pressed="true"]').length,
+      group: document.querySelector('.editor-tools [role=group]')?.getAttribute('aria-label'),
+    };
+  });
+  if (!moved.first) problems.push(`${label}: Move up in the ⋮ did not move the card above the text`);
+  if (moved.pressed !== 1 || moved.group === 'Text tools')
+    problems.push(`${label}: the moved card is not selected with its tools on the bar (${JSON.stringify(moved)})`);
+  // A tap in the text: the card is let go and the text tools are back.
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(500);
+  const back = await page.evaluate(() => ({
+    pressed: document.querySelectorAll('.site-block-card[aria-pressed="true"]').length,
+    names: [...document.querySelectorAll('.editor-tools button')]
+      .filter((b) => !b.closest('.editor-tools-ghost'))
+      .map((b) => b.getAttribute('aria-label')),
+  }));
+  if (back.pressed || !back.names.includes('Bold'))
+    problems.push(`${label}: a tap in the text did not let the card go and bring the text tools back (${JSON.stringify(back)})`);
+  await page.close();
+}
+
 /** Insert block is always on the bar and never in the ⋮ (320, 375 and 1280 px, in text, with a block active and idle): a 44 x 44 dp button with the plus icon (Material's add), right before the ⋮ (or last), behind a divider that sits between Redo and it (centred on the buttons, as tall as they are); it opens the block picker. */
 async function checkInsertBlock(width, height = 800) {
   const phone = width < 600;
@@ -2249,6 +2334,66 @@ async function checkDensityTable(width, height) {
   await page.close();
 }
 
+/** Density on the editor's screens (spec: docs/superpowers/specs/2026-11-13-density-design.md, checks): the main screens open at Large and Small (Medium is what "screens" checks) without an error and without the page scrolling sideways, on a phone and a computer; and the colours of the parts do not depend on density (a row, a button, a chip and a field have the same text and surface colour at every step), which is why check:contrast (CONTRAST_DENSITY=-1 for Small, by hand) needs no run of its own in CI. */
+async function checkDensityScreens(width, height) {
+  const label = `${width}px density screens`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  let where = '';
+  page.on('pageerror', (e) => problems.push(`${label} ${where}: ${e.message}`));
+  await openEditor(page, site);
+  const routes = [
+    '',
+    'settings',
+    'company/colors',
+    'global/header',
+    'licenses',
+    'appearance/themes',
+    'seo',
+    'apps',
+    'new/pages',
+    'new/blog',
+  ];
+  const colours = async () =>
+    page.evaluate(() => {
+      const host = document.createElement('div');
+      host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
+      host.innerHTML =
+        '<button class="button" data-part="button">Label</button><button class="chip" data-part="chip">Label</button><div class="text-field text-field-outlined"><div class="text-field-container"><input class="text-field-input" data-part="field"></div></div><div class="list-item-container" data-part="row"><div class="list-item-content"><span class="list-item-headline" data-part="headline">Row</span></div></div>';
+      document.body.append(host);
+      const got = {};
+      for (const el of host.querySelectorAll('[data-part]')) {
+        const c = getComputedStyle(el);
+        got[el.dataset.part] = [c.color, c.backgroundColor, c.borderTopColor].join('|');
+      }
+      host.remove();
+      return got;
+    });
+  const colourAt = {};
+  for (const [name, attr] of [
+    ['Large', '1'],
+    ['Medium', '0'],
+    ['Small', '-1'],
+  ]) {
+    await page.evaluate((a) => document.documentElement.setAttribute('data-density', a), attr);
+    colourAt[name] = await colours();
+    if (name === 'Medium') continue;
+    for (const route of routes) {
+      where = `#${route} at ${name}`;
+      await page.evaluate((h) => (location.hash = h), route);
+      await page.waitForTimeout(150);
+      if (await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth))
+        problems.push(`${label} ${where}: the page scrolls sideways`);
+    }
+  }
+  for (const part of Object.keys(colourAt.Medium))
+    if (colourAt.Large[part] !== colourAt.Medium[part] || colourAt.Small[part] !== colourAt.Medium[part])
+      problems.push(
+        `${label}: the colours of ${part} change with density (${colourAt.Large[part]} / ${colourAt.Medium[part]} / ${colourAt.Small[part]})`,
+      );
+  await page.close();
+}
+
 /** The density variables (theme/styles/base.css) work in the browser: a person's step (data-density on <html>) and a theme's step add up, each group clamps them, and a part's calc() gives its default at 0 and 4px per step. */
 async function checkDensity(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
@@ -2480,6 +2625,73 @@ async function checkPreviewSection() {
   });
   if (!got || got === 'rgba(0, 0, 0, 0)') problems.push(`Preview section: a section with a background has none in the Preview (${got})`);
   await page.close();
+}
+
+/** A filled card with a video, a headline and a text, in a section on Primary, Secondary or Tertiary (card colour: the same container colour, or none), reads 4.5:1 on its own surface in light and dark mode, on a phone and a computer: its text, the video's title and the play button (3:1) take the container's on-colour, not the section's. */
+async function checkSectionCardContrast() {
+  const lum = ([r, g, b]) => {
+    const [R, G, B] = [r, g, b].map((v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+  };
+  const ratio = (a, b) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05);
+  for (const scheme of ['light', 'dark']) {
+    for (const [width, height] of [
+      [375, 740],
+      [1280, 900],
+    ]) {
+      const page = await browser.newPage({ viewport: { width, height }, colorScheme: scheme, locale: 'en-US' });
+      page.on('pageerror', (e) => problems.push(`Section card contrast: ${e.message}`));
+      if (!(await onDemoBlocksPage(page, `Section card contrast (${scheme}, ${width})`))) {
+        await page.close();
+        continue;
+      }
+      const found = await page.evaluate(() => {
+        const colors = ['primary', 'secondary', 'tertiary'];
+        const html = colors
+          .flatMap((section) => ['', ...colors].map((color) => `${section}/${color}`))
+          .map((id) => {
+            const [section, color] = id.split('/');
+            const cardsColor = color ? ` block-cards-${color}` : '';
+            return `<div class="text-section text-section-${section}" data-case="${id}"><div class="block-cards${cardsColor}"><div class="card card-filled block-card"><div class="prose block-card-video"><a class="video-facade" href="#"><svg viewBox="0 0 24 24" width="48" height="48" data-play><circle cx="12" cy="12" r="10" fill="currentColor"/></svg><span class="video-facade-title">Title</span></a></div><span class="block-card-title">Headline</span><p class="block-card-text">Text</p></div></div></div>`;
+          })
+          .join('');
+        document.body.insertAdjacentHTML('afterbegin', html);
+        const rgba = (css) => {
+          const c = document.createElement('canvas').getContext('2d');
+          c.fillStyle = css;
+          c.fillRect(0, 0, 1, 1);
+          return [...c.getImageData(0, 0, 1, 1).data];
+        };
+        return [...document.querySelectorAll('[data-case]')].flatMap((box) => {
+          const card = box.querySelector('.card');
+          const bg = rgba(getComputedStyle(card).backgroundColor);
+          // The card's surface is opaque here (a container), or a veil of the section's on-colour: the section's colour under it.
+          const under = rgba(getComputedStyle(box).backgroundColor);
+          const surface = bg[3] === 255 ? bg : bg.slice(0, 3).map((v, i) => Math.round((v * bg[3] + under[i] * (255 - bg[3])) / 255));
+          return [
+            ['headline', '.block-card-title', 4.5],
+            ['text', '.block-card-text', 4.5],
+            ['video title', '.video-facade-title', 4.5],
+            ['play button', '.video-facade svg', 3],
+          ].map(([what, selector, need]) => ({
+            id: box.dataset.case,
+            what,
+            need,
+            fg: rgba(getComputedStyle(box.querySelector(selector)).color),
+            surface,
+          }));
+        });
+      });
+      for (const f of found) {
+        const got = ratio(f.fg, f.surface);
+        if (got < f.need)
+          problems.push(
+            `Section card contrast (${f.id}, ${scheme}, ${width}): the ${f.what} of a filled card is ${got.toFixed(2)}:1 (needs ${f.need})`,
+          );
+      }
+      await page.close();
+    }
+  }
 }
 
 /** A page whose H1 section has a background (a colour or an image) has it start right under the navigation bar (gap 0 ±1px), on the site and in the Preview at 390 and 600; a page whose H1 section has none keeps its space under the bar. */
@@ -6187,6 +6399,7 @@ for (const [width, reduced] of [
 ])
   await unit(`checkBarSlide ${width}${reduced ? ' reduced' : ''}`, () => checkBarSlide(width, reduced));
 for (const width of [375, 1280]) await unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
+for (const width of [375, 1280]) await unit(`checkCardBar ${width}`, () => checkCardBar(width));
 for (const width of [320, 375, 1280]) await unit(`checkInsertBlock ${width}`, () => checkInsertBlock(width));
 await unit('checkSheetKeyboard 375', () => checkSheetKeyboard(375));
 await unit('checkSheetKeyboard 375 Custom', () => checkSheetKeyboard(375, 740, 300, true));
@@ -6315,11 +6528,14 @@ await unit('checkDensityLayout 375', () => checkDensityLayout(375, 740));
 await unit('checkDensityLayout 1280', () => checkDensityLayout(1280, 900));
 await unit('checkDensityTable 375', () => checkDensityTable(375, 740));
 await unit('checkDensityTable 1280', () => checkDensityTable(1280, 900));
+await unit('checkDensityScreens 375', () => checkDensityScreens(375, 740));
+await unit('checkDensityScreens 1280', () => checkDensityScreens(1280, 900));
 await unit('checkDensitySetting 375', () => checkDensitySetting(375, 740));
 await unit('checkDensitySetting 1280', () => checkDensitySetting(1280, 900));
 await unit('checkPreviewSection', () => checkPreviewSection());
 await unit('checkFullSection', () => checkFullSection());
 await unit('checkH1SectionGap', () => checkH1SectionGap());
+await unit('checkSectionCardContrast', () => checkSectionCardContrast());
 for (const w of [375, 1280]) await unit(`checkListMarkers ${w}`, () => checkListMarkers(w));
 for (const w of [375, 1280]) await unit(`checkListsAndBlocks ${w}`, () => checkListsAndBlocks(w));
 for (const w of [360, 375, 390, 414]) await unit(`checkPreviewDraft ${w}`, () => checkPreviewDraft(w));

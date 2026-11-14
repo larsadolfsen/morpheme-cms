@@ -2,5 +2,5 @@
   "id": "one-text-bar",
   "kind": "paragraph",
   "title": "Toolbar",
-  "text": "Text tools are no longer on screen twice. Put the cursor in the text, and Bold, Italic, Link and Text style show next to Undo and Redo; on a phone the three dots hold the rest. Headings and text styles are one menu."
+  "text": "Tools no longer show twice or in pop-up rows. Put the cursor in the text, or tap a block or an image, and its tools show next to Undo, Redo and Insert block; on a phone the three dots hold the rest."
 }
