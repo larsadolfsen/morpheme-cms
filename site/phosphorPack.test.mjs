@@ -3,8 +3,17 @@
 // holds only the pack's icons when Phosphor is not the pack in use.
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { registerHooks } from 'node:module';
 import { test } from 'node:test';
-import { allIconsModule } from './theme.mjs';
+
+// theme.mjs imports this package by its name, which only works from an installed copy: point the name at this folder.
+const PACKAGE = '@morphemecms/cms/';
+const pkg = new URL('../', import.meta.url);
+registerHooks({
+  resolve: (specifier, context, next) =>
+    specifier.startsWith(PACKAGE) ? next(new URL(specifier.slice(PACKAGE.length), pkg).href, context) : next(specifier, context),
+});
+const { allIconsModule } = await import('./theme.mjs');
 
 const PHOSPHOR = 'node_modules/@phosphor-icons/core/assets/';
 const text = (f) => readFileSync(f, 'utf8').trim();
