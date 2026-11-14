@@ -1030,26 +1030,35 @@
   .block-cards-primary .block-card {
     --card-filled-surface: var(--mo-primary-container, var(--block-primary));
     color: var(--mo-on-primary-container, var(--block-on-primary));
-    /* What is read on the container (a text button, its icon) follows it, also in a section on a colour, where these roles are swapped. */
+    /* What is read on the container (a text button, its icon, a video's title and play button, which read --block-text and --block-accent) follows it, also in a section on a colour, where these roles are swapped. */
     --mo-on-surface: var(--mo-on-primary-container, var(--block-on-primary));
     --mo-on-surface-variant: var(--mo-on-primary-container, var(--block-on-primary));
     --mo-primary: var(--mo-on-primary-container, var(--block-on-primary));
+    --block-text: var(--mo-on-primary-container, var(--block-on-primary));
+    --block-muted: var(--mo-on-primary-container, var(--block-on-primary));
+    --block-accent: var(--mo-on-primary-container, var(--block-on-primary));
   }
   .block-cards-secondary .block-card {
     --card-filled-surface: var(--mo-secondary-container, var(--block-secondary));
     color: var(--mo-on-secondary-container, var(--block-on-secondary));
-    /* What is read on the container (a text button, its icon) follows it, also in a section on a colour, where these roles are swapped. */
+    /* What is read on the container (a text button, its icon, a video's title and play button, which read --block-text and --block-accent) follows it, also in a section on a colour, where these roles are swapped. */
     --mo-on-surface: var(--mo-on-secondary-container, var(--block-on-secondary));
     --mo-on-surface-variant: var(--mo-on-secondary-container, var(--block-on-secondary));
     --mo-primary: var(--mo-on-secondary-container, var(--block-on-secondary));
+    --block-text: var(--mo-on-secondary-container, var(--block-on-secondary));
+    --block-muted: var(--mo-on-secondary-container, var(--block-on-secondary));
+    --block-accent: var(--mo-on-secondary-container, var(--block-on-secondary));
   }
   .block-cards-tertiary .block-card {
     --card-filled-surface: var(--mo-tertiary-container, var(--block-tertiary));
     color: var(--mo-on-tertiary-container, var(--block-on-tertiary));
-    /* What is read on the container (a text button, its icon) follows it, also in a section on a colour, where these roles are swapped. */
+    /* What is read on the container (a text button, its icon, a video's title and play button, which read --block-text and --block-accent) follows it, also in a section on a colour, where these roles are swapped. */
     --mo-on-surface: var(--mo-on-tertiary-container, var(--block-on-tertiary));
     --mo-on-surface-variant: var(--mo-on-tertiary-container, var(--block-on-tertiary));
     --mo-primary: var(--mo-on-tertiary-container, var(--block-on-tertiary));
+    --block-text: var(--mo-on-tertiary-container, var(--block-on-tertiary));
+    --block-muted: var(--mo-on-tertiary-container, var(--block-on-tertiary));
+    --block-accent: var(--mo-on-tertiary-container, var(--block-on-tertiary));
   }
   :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary)
     :is(.block-card-icon, .block-card-text, .block-card-subhead, .block-card-more) {
