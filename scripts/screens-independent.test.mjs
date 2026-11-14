@@ -20,3 +20,11 @@ test('The screens check opens only rows it has made itself or the front page', (
   }
   assert.ok(!source.includes('Get started'));
 });
+
+test('The screens check never writes to the site it checks', () => {
+  // A page, a post or a list a check needs is given to the editor in memory (virtualFile in built-site.mjs), so a crash or a stray
+  // commit can never leave a file in a live site's folder.
+  const fsImports = [...source.matchAll(/import \{([^}]*)\} from 'node:fs'/g)].flatMap((m) => m[1].split(',').map((x) => x.trim()));
+  for (const name of ['writeFileSync', 'rmSync', 'unlinkSync', 'renameSync', 'appendFileSync', 'cpSync', 'copyFileSync'])
+    assert.ok(!fsImports.includes(name), `editor-screens.mjs imports ${name}: give the editor the file in memory with virtualFile instead`);
+});

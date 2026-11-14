@@ -17,12 +17,12 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { chromium } from 'playwright';
 import sharp from 'sharp';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { constants, inflateSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
-import { CMS_STATUS, openEditor, serveBuilt } from './built-site.mjs';
+import { CMS_STATUS, openEditor, serveBuilt, virtualFile } from './built-site.mjs';
 import { toolWidth } from '../src/textBar.mjs';
 import { allow, nestedUnits } from './spacing-grid.allow.mjs';
 import { installedApps } from '../lib/apps.mjs';
@@ -138,17 +138,8 @@ const { server, site } = await serveBuilt(DIST);
 
 // A site is not the demo: what a check needs and the site does not have (a page, a post, a list), the check makes itself, as
 // files in src/ that the editor reads (answered here, never saved) and removes at the end. A site that has the thing is left alone.
-const made = [];
-const make = (path, text) => {
-  const file = join(ROOT, path);
-  mkdirSync(join(file, '..'), { recursive: true });
-  writeFileSync(file, text);
-  made.push(file);
-};
-const clean = () => {
-  for (const file of made.splice(0)) rmSync(file, { force: true });
-};
-process.on('exit', clean);
+// (In memory, through virtualFile: the editor reads them as if they were in the site's folder, which a check never writes to.)
+const make = (path, text) => virtualFile(path, text);
 const has = (path) => existsSync(join(ROOT, path)) && readdirSync(join(ROOT, path)).length > 0;
 /** The file of a page the site has built with the text in the page, which its Preview is made of (the blog's list page has none): the demo's About, or the first page of the site's own that is built, never the front page. */
 const builtPages = existsSync(join(ROOT, 'src/content/pages'))
@@ -4609,21 +4600,17 @@ async function checkDynamicPicker(width, height) {
 async function checkOwnList(width, height) {
   const label = `${width}px own list`;
   const phone = width < 600;
-  const folder = join(ROOT, 'src/data/services');
-  mkdirSync(folder, { recursive: true });
-  writeFileSync(
-    join(folder, '_list.json'),
-    JSON.stringify({ version: 1, label: 'Services', fields: ['title', 'text', 'href', 'image', 'tags'] }),
-  );
-  writeFileSync(join(folder, 'web-design.json'), JSON.stringify({ order: 1, title: 'Web design', text: 'Sites that last' }));
-  writeFileSync(join(folder, 'hosting.json'), JSON.stringify({ order: 2, title: 'Hosting' }));
+  // The list and a page that reads it, in memory (the editor reads them as if they were in the site's folder, which a check never writes to).
+  const list = 'src/data/services';
+  virtualFile(`${list}/_list.json`, JSON.stringify({ version: 1, label: 'Services', fields: ['title', 'text', 'href', 'image', 'tags'] }));
+  virtualFile(`${list}/web-design.json`, JSON.stringify({ order: 1, title: 'Web design', text: 'Sites that last' }));
+  virtualFile(`${list}/hosting.json`, JSON.stringify({ order: 2, title: 'Hosting' }));
   // A page that reads the list, so `Delete list` is refused.
-  const pagePath = join(ROOT, 'src/content/pages/zz-reads-services.md');
-  writeFileSync(
-    pagePath,
+  virtualFile(
+    'src/content/pages/zz-reads-services.md',
     '---\ntitle: "Reads services"\n---\n\n# Reads services\n\n<div data-block="list" data-props="{&quot;from&quot;:&quot;services&quot;}"></div>\n',
   );
-  try {
+  {
     const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
     page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
     await openEditor(page, site);
@@ -4742,9 +4729,6 @@ async function checkOwnList(width, height) {
       .catch(() => problems.push(`${label}: Delete list was not refused while a page reads the list`));
     await page.close();
     await checkNewList(width, height, label);
-  } finally {
-    rmSync(pagePath, { force: true });
-    rmSync(folder, { recursive: true, force: true });
   }
 }
 
@@ -4755,7 +4739,6 @@ const decoded = (content) => Buffer.from(content ?? '', 'base64').toString() || 
 async function checkNewList(width, height, label) {
   label = `${label} new`;
   const phone = width < 600;
-  const folder = join(ROOT, 'src/data/zz-fresh-list');
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   try {
@@ -4978,7 +4961,6 @@ async function checkNewList(width, height, label) {
       problems.push(`${label}: saving an item did not commit the waiting field with it (${last.length} commits: ${paths})`);
   } finally {
     await page.close();
-    rmSync(folder, { recursive: true, force: true });
   }
 }
 
