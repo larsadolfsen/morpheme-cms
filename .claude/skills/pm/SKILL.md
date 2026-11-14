@@ -58,29 +58,29 @@ owner sees screenshots in the pull request:
   is gone; the new head gets new screenshots and a new report.
 - **A change nobody sees** (docs, tests, CI, Worker internals, tooling) needs no screenshots and no approval, and is
   merged as usual.
-- There is no separate "screenshots" session and no Artifact page: the pictures live in the pull request.
+- There is no separate "screenshots" session and no Artifact page: the images live in the pull request.
 
 **Screenshots in the pull request.** One comment on the pull request, headed with what changed, for every screen the
 change touched: a before and an after, each on a phone and a computer, in English, light theme, at
 `deviceScaleFactor: 2`, in every state the change touched (open menu, error, empty, selected). Take them from the built
 branch (`npm run build`; `openEditor` and `serveBuilt` in `scripts/built-site.mjs` open the editor without a login) and,
-for *before*, from `main` the same way. Put a short caption under each picture. The images never go into the shipped
+for *before*, from `main` the same way. Put a short caption under each image. The images never go into the shipped
 package or into the pull request's own diff.
 
-**How the pictures get into the comment** (the one place to update). The GitHub tools cannot upload an image, so the pictures
+**How the images get into the comment** (the one place to update). The GitHub tools cannot upload an image, so the images
 travel in git:
 
 1. Take the PNGs into a folder outside the repository checkout, for example the scratchpad.
 2. Make an orphan branch named `pr-screenshots/<pull request number>` (`git checkout --orphan`, `git rm -rf .`, add the PNGs
    under `shots/`, commit, `git push -u origin`). An orphan branch shares no history with `main`, so nothing reaches the
    package or the pull request's diff.
-3. In the comment, link each picture as
+3. In the comment, link each image as
    `![caption](https://github.com/<owner>/<repo>/blob/pr-screenshots/<number>/shots/<file>.png?raw=true)`.
 4. After the pull request is merged or closed, delete the branch.
 
 *Checked 14 Nov 2026 (pull request #632):* a pushed orphan branch and a comment with this link work, and GitHub renders the
-comment as an `<img>` of the link. Not yet checked: that the owner's browser shows the picture in this private repository.
-The first session that adds screenshots looks at the comment, and if the picture does not show, it tries another way that
+comment as an `<img>` of the link. Not yet checked: that the owner's browser shows the image in this private repository.
+The first session that adds screenshots looks at the comment, and if the image does not show, it tries another way that
 leaves nothing in the shipped package. It then tells the PM exactly what worked, and the PM has this paragraph updated.
 
 **Cloudflare builds.** The PM keeps an eye out for failed Cloudflare builds: the `Workers Builds: …` check on every
