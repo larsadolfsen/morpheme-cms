@@ -1442,8 +1442,10 @@
      (header), the outline variant (container and dividers), the cards' own corner radius (--card-radius) and the theme's hover state layer. The box is a region the
      keyboard can scroll (a focus ring in the accent); a table with many columns scrolls instead of crushing them. */
   .block-table-grid {
+    --card-padding: 0;
+    --card-outlined-surface: transparent;
+    --card-outlined-line: transparent;
     border: 1px solid var(--block-line);
-    border-radius: var(--card-radius, var(--block-radius));
     color: var(--block-text);
   }
   .block-table-grid:focus-visible {
