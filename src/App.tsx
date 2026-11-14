@@ -92,7 +92,8 @@ import { forgetNotFound, loadNotFound, type Missing } from './notFound';
 import { isEntryPath } from '../lib/ownList.mjs';
 import { collectionOf, slugOf, type Collection, type FolderCollection, type Part, type Relation } from './schema';
 import OwnList from './OwnList';
-import { listDraftOf, pendingOf, restoreKeptLists, settleListDrafts, useListDrafts, withListDrafts } from './listDraft';
+import OwnListEdit from './OwnListEdit';
+import { discardListDraft, listDraftOf, pendingOf, restoreKeptLists, settleListDrafts, useListDrafts, withListDrafts } from './listDraft';
 import EntryForm, { newMarkdown } from './EntryForm';
 import DataForm from './DataForm';
 import CompanyForm from './CompanyForm';
@@ -925,11 +926,18 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
             const extra = pendingOf(id, files).filter((c) => !changes.some((x) => x.path === c.path));
             const oids = await env.commit(message, [...changes, ...extra], change, onSite);
             for (const c of extra) env.onSaved({ path: c.path, oid: oids[c.path], text: c.content });
+            // The whole waiting version was in this commit (also the items that lose a field's data): nothing waits any more.
+            discardListDraft(id);
             return oids;
           },
         };
   const [, listId, listTab, ...below] = route.split('/');
   const listed = route.startsWith('list/') && !below.length && collectionsFor(shownFiles).find((c) => c.id === listId);
+  // The edit page of a list the owner made: list/<id>/edit.
+  const editing =
+    route.startsWith('list/') && listTab === 'edit' && !below.length && collectionsFor(shownFiles).find((c) => c.id === listId);
+  if (editing && editing.kind === 'folder' && isOwnList(shownFiles, editing.id))
+    return <OwnListEdit key={listId} id={listId} files={shownFiles} saved={files} env={env} />;
   if (listed && listed.kind === 'folder' && isOwnList(shownFiles, listed.id))
     return <OwnList key={listId} id={listId} files={shownFiles} saved={files} env={env} />;
   if (listed) return <List key={listed.id} collection={listed} tab={listTab} files={files} env={env} />;

@@ -4389,7 +4389,11 @@ async function checkOwnList(width, height) {
     for (const row of ['Web design', 'Hosting'])
       if (!(await page.getByText(row, { exact: true }).count())) problems.push(`${label}: no row "${row}"`);
     if ((await page.getByRole('button', { name: 'Move down' }).count()) < 2) problems.push(`${label}: the rows have no Move down`);
-    if (!(await page.getByLabel('Add item').count())) problems.push(`${label}: no Add item button`);
+    // The round button is `Edit list` (a pencil) and opens the edit page; adding an item is not on it any more.
+    if (!(await page.getByLabel('Edit list', { exact: true }).count()))
+      problems.push(`${label}: the list page's round button is not Edit list`);
+    if (await page.getByLabel('Add item', { exact: true }).count()) problems.push(`${label}: the list page still has an Add item button`);
+    if (await page.getByRole('button', { name: 'List menu' }).count()) problems.push(`${label}: the list page still has the List menu`);
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
       problems.push(`${label}: the list page scrolls sideways`);
     // A row opens its own page, as a testimonial does: every field of the list is the theme's text field with its label in the border.
@@ -4418,20 +4422,81 @@ async function checkOwnList(width, height) {
     if (!own || own !== theirs) problems.push(`${label}: a list's text field is not the testimonials' (${own} / ${theirs})`);
     await page.evaluate(() => (location.hash = '#list/services'));
     await page.getByText('Hosting', { exact: true }).first().waitFor({ timeout: 10000 });
-    // The list's menu: `Edit list` opens the sheet with the name, the six switches and `Delete list`; `Delete list` is refused while a page reads the list.
-    await page.getByRole('button', { name: 'List menu' }).first().click();
-    await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
-    const sheet = page.locator('dialog[open]').filter({ hasText: 'Fields' });
-    await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: Edit list did not open its sheet`));
-    // The list was made in the first format (fields as kind names): it reads as it did. Each of its five fields has the owner's own `Shown` switch (on) and `Remove field`; and `Add field` is there.
-    const switches = await sheet.locator('input[type="checkbox"]').count();
-    if (switches !== 5) problems.push(`${label}: Edit list has ${switches} switches, not 5`);
+    // `Edit list` (the round button) opens the edit page: the name, the bar with a button for each kind of field, the fields (each with a switch, move up and down and `Remove field`) and `Delete list`.
+    await page.getByLabel('Edit list', { exact: true }).first().click();
+    const sheet = page.locator('main');
+    await sheet
+      .getByText('Fields', { exact: true })
+      .first()
+      .waitFor({ timeout: 5000 })
+      .catch(() => problems.push(`${label}: Edit list did not open the edit page`));
+    if (await page.evaluate(() => !location.hash.endsWith('/edit'))) problems.push(`${label}: the edit page is not at list/<id>/edit`);
+    // The list was made in the first format (fields as kind names): it reads as it did. Each of its five fields has the owner's own `Shown` switch (on) and `Remove field`.
+    const fieldRows = await sheet.locator('.own-list-field').count();
+    if (fieldRows !== 5) problems.push(`${label}: the edit page has ${fieldRows} fields, not 5`);
+    const switches = await sheet.locator('.own-list-field input[type="checkbox"]').count();
+    if (switches !== 5) problems.push(`${label}: the edit page has ${switches} switches, not 5`);
     const removes = await sheet.getByRole('button', { name: 'Remove field' }).count();
-    if (removes !== 5) problems.push(`${label}: Edit list has ${removes} Remove field buttons, not 5`);
-    if (!(await sheet.getByRole('button', { name: 'Add field' }).count())) problems.push(`${label}: Edit list has no Add field`);
-    if (!(await sheet.getByRole('button', { name: 'Delete list' }).count())) problems.push(`${label}: Edit list has no Delete list`);
-    if (!(await sheet.getByLabel('Name').count())) problems.push(`${label}: Edit list has no name field`);
-    // Remove field waits for the Save, like adding a field: it asks, takes the field out of the sheet, commits nothing, and leaving without saving undoes it.
+    if (removes !== 5) problems.push(`${label}: the edit page has ${removes} Remove field buttons, not 5`);
+    // The bar: a button for each kind, or the kinds that do not fit in its ⋮ (a phone), and nothing else adds a field.
+    const bar = sheet.getByRole('toolbar', { name: 'Fields you can add' });
+    if (!(await bar.count())) problems.push(`${label}: the edit page has no bar of fields to add`);
+    else {
+      const box = await bar.boundingBox();
+      if (!box || box.x < 0 || box.x + box.width > width + 1)
+        problems.push(`${label}: the bar of fields is outside the screen at ${width} px`);
+      const shown = await bar.getByRole('button', { name: /^Add / }).count();
+      const more = await bar.getByRole('button', { name: 'More' }).count();
+      if (shown < 1) problems.push(`${label}: the bar has no Add buttons`);
+      if (shown < 6 && !more) problems.push(`${label}: the bar has ${shown} of 6 kinds and no ⋮ for the rest`);
+    }
+    if (!(await sheet.getByRole('button', { name: 'Delete list' }).count())) problems.push(`${label}: the edit page has no Delete list`);
+    if (!(await sheet.getByLabel('Name').count())) problems.push(`${label}: the edit page has no name field`);
+    if (!(await sheet.getByRole('link', { name: 'Add item' }).count())) problems.push(`${label}: the edit page has no Add item`);
+    if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
+      problems.push(`${label}: the edit page scrolls sideways`);
+    // Move a field down: the order changes (the first two swap), nothing is committed, and the first field cannot move up.
+    const order = () => sheet.locator('.own-list-field').evaluateAll((rows) => rows.map((r) => r.getAttribute('data-field')));
+    const before = await order();
+    if (
+      !(await sheet
+        .getByRole('button', { name: /^Move .* up$/ })
+        .first()
+        .isDisabled())
+    )
+      problems.push(`${label}: the first field can move up`);
+    await sheet
+      .getByRole('button', { name: /^Move .* down$/ })
+      .first()
+      .click();
+    await page.waitForTimeout(400);
+    const after = await order();
+    if (after[0] !== before[1] || after[1] !== before[0])
+      problems.push(`${label}: Move down did not swap the first two fields (${before} / ${after})`);
+    if (commits.length) problems.push(`${label}: Move down committed before the Save (${commits.length} commits)`);
+    await sheet
+      .getByRole('button', { name: /^Move .* up$/ })
+      .nth(1)
+      .click();
+    await page.waitForTimeout(400);
+    if ((await order()).join() !== before.join()) problems.push(`${label}: Move up did not put the field back`);
+    // A button on the bar adds a field (a second Title), kept as the waiting version; Remove field takes it out again.
+    await bar
+      .getByRole('button', { name: 'Add title' })
+      .click()
+      .catch(() => problems.push(`${label}: the bar has no Add title`));
+    await page.waitForTimeout(400);
+    if ((await sheet.locator('.own-list-field').count()) !== 6) problems.push(`${label}: Add title did not add a field`);
+    if (commits.length) problems.push(`${label}: Add title committed before the Save (${commits.length} commits)`);
+    await page.evaluate(() => (location.hash = '#lists'));
+    await page
+      .getByRole('button', { name: 'Discard' })
+      .click({ timeout: 5000 })
+      .catch(() => problems.push(`${label}: leaving with a field added did not ask`));
+    await page.waitForFunction(() => location.hash === '#lists', null, { timeout: 5000 }).catch(() => {});
+    await page.evaluate(() => (location.hash = '#list/services/edit'));
+    await sheet.getByText('Fields', { exact: true }).first().waitFor({ timeout: 10000 });
+    if ((await sheet.locator('.own-list-field').count()) !== 5) problems.push(`${label}: the added field did not go after Discard`);
     const removeBody = async () => {
       await sheet.getByRole('button', { name: 'Remove field' }).nth(1).click();
       await page
@@ -4446,7 +4511,6 @@ async function checkOwnList(width, height) {
     if ((await sheet.getByRole('button', { name: 'Remove field' }).count()) !== 4)
       problems.push(`${label}: Remove field did not take the field out of Edit list`);
     if (commits.length) problems.push(`${label}: Remove field committed before the Save (${commits.length} commits)`);
-    await sheet.locator('[aria-label="Close"]').first().click();
     await page.waitForTimeout(300);
     await page.evaluate(() => (location.hash = '#lists'));
     await page
@@ -4454,15 +4518,12 @@ async function checkOwnList(width, height) {
       .click({ timeout: 5000 })
       .catch(() => problems.push(`${label}: leaving with a field removed did not ask`));
     await page.waitForFunction(() => location.hash === '#lists', null, { timeout: 5000 }).catch(() => {});
-    await page.evaluate(() => (location.hash = '#list/services'));
-    await page.getByText('Hosting', { exact: true }).first().waitFor({ timeout: 10000 });
-    await page.getByRole('button', { name: 'List menu' }).first().click();
-    await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
+    await page.evaluate(() => (location.hash = '#list/services/edit'));
+    await sheet.getByText('Fields', { exact: true }).first().waitFor({ timeout: 10000 });
     if ((await sheet.getByRole('button', { name: 'Remove field' }).count()) !== 5)
       problems.push(`${label}: the removed field did not come back after Discard`);
     if (commits.length) problems.push(`${label}: Discard committed (${commits.length} commits)`);
     await removeBody();
-    await sheet.locator('[aria-label="Close"]').first().click();
     await page.locator('.editor-save-bar').getByRole('button', { name: /^Save/ }).click();
     await page
       .getByRole('button', { name: 'Cancel' })
@@ -4476,11 +4537,8 @@ async function checkOwnList(width, height) {
       problems.push(`${label}: Save did not make one commit with the list without the field (${commits.length} commits)`);
     if ('text' in JSON.parse(decoded(item?.content) || '{}'))
       problems.push(`${label}: the removed field's data is still in an item (${item?.content})`);
-    await page.getByRole('button', { name: 'List menu' }).first().click();
-    await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
-    await sheet.locator('[aria-label="Close"]').first().click();
-    await page.getByRole('button', { name: 'List menu' }).first().click();
-    await page.getByRole('menuitem', { name: 'Delete list' }).first().click();
+    await page.evaluate(() => (location.hash = '#list/services/edit'));
+    await sheet.getByRole('button', { name: 'Delete list' }).first().click();
     await page
       .getByText('The list is used on 1 page. Remove it from there first.')
       .first()
@@ -4556,31 +4614,27 @@ async function checkNewList(width, height, label) {
     if (await page.locator('.inline-list-row').locator('visible=true').count()) problems.push(`${label}: an empty list shows a row`);
     // Making the list commits nothing: it is kept as a waiting version until the final Save.
     if (commits.length) problems.push(`${label}: Create committed (${commits.length} commits) before the final Save`);
-    // Two body texts: the empty page's Add field, then Body text; the second through Edit list (the empty page's button is gone once there is a field).
-    const pick = async (n, name = 'Body text') => {
-      await page
-        .getByRole('menuitem', { name })
-        .locator('visible=true')
-        .first()
-        .click()
-        .catch(() => problems.push(`${label}: Add field has no ${name} (${n})`));
-      await page.waitForTimeout(700);
-    };
+    // Two body texts: the empty page's `Edit list` opens the edit page, whose bar has `Add body text` (or the ⋮ has it on a phone); the second is added the same way.
     await page
-      .getByRole('button', { name: 'Add field' })
+      .getByRole('link', { name: 'Edit list' })
       .first()
       .click()
-      .catch(() => problems.push(`${label}: no Add field on the empty list`));
-    await pick(0);
-    await page.getByRole('button', { name: 'List menu' }).first().click();
-    await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
-    const edit = page.locator('dialog[open]').filter({ hasText: 'Fields' });
-    await edit.getByRole('button', { name: 'Add field' }).click();
-    await pick(1);
-    if ((await edit.locator('input[type="checkbox"]').count()) !== 2)
-      problems.push(`${label}: Edit list does not show two fields with a switch each`);
-    await edit.locator('[aria-label="Close"]').first().click();
-    await page.waitForTimeout(300);
+      .catch(() => problems.push(`${label}: no Edit list on the empty list`));
+    const edit = page.locator('main');
+    await edit.getByRole('toolbar', { name: 'Fields you can add' }).waitFor({ timeout: 10000 });
+    const addText = async (n) => {
+      const direct = edit.getByRole('button', { name: 'Add body text' });
+      if (await direct.count()) await direct.first().click();
+      else {
+        await edit.getByRole('button', { name: 'More' }).first().click();
+        await page.getByRole('menuitem', { name: 'Add body text' }).first().click();
+      }
+      await page.waitForTimeout(700);
+    };
+    await addText(0);
+    await addText(1);
+    if ((await edit.locator('.own-list-field input[type="checkbox"]').count()) !== 2)
+      problems.push(`${label}: the edit page does not show two fields with a switch each`);
     // Two fields added and still nothing committed; the line under the title says the version is kept, and the bar has Save changes.
     if (commits.length) problems.push(`${label}: a field was committed before the Save (${commits.length} commits)`);
     const line = await page.evaluate(() => document.body.innerText);
@@ -4593,7 +4647,8 @@ async function checkNewList(width, height, label) {
       .catch(() => problems.push(`${label}: leaving the unsaved list did not ask`));
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
-    if (await page.evaluate(() => location.hash !== '#list/zz-fresh-list')) problems.push(`${label}: Esc did not stay on the unsaved list`);
+    if (await page.evaluate(() => location.hash !== '#list/zz-fresh-list/edit'))
+      problems.push(`${label}: Esc did not stay on the unsaved list`);
     // The Save: exactly one commit, with the list and both fields.
     const save = async () => {
       await page.locator('.editor-save-bar').getByRole('button', { name: /^Save/ }).click();
@@ -4613,7 +4668,7 @@ async function checkNewList(width, height, label) {
     if (definition.fields?.length !== 2 || definition.fields.some((f) => f.kind !== 'text'))
       problems.push(`${label}: the commit does not have the list with both fields (${made?.content})`);
     // The list is the testimonials' page now: `Add item` opens an item's page with both fields as text fields; Save writes one file with both values.
-    await page.getByLabel('Add item').first().click();
+    await page.getByRole('link', { name: 'Add item' }).first().click();
     await page
       .getByLabel('Body text 2', { exact: true })
       .first()
@@ -4699,22 +4754,24 @@ async function checkNewList(width, height, label) {
     if (!offered.includes('Body text') || !offered.includes('Body text 2') || offered.includes('Image'))
       problems.push(`${label}: the Bottom line offers the wrong fields (${offered})`);
     // A field added and then an item saved: one commit with the definition and the item (nothing was committed for the field).
-    await page.evaluate(() => (location.hash = '#list/zz-fresh-list'));
+    await page.evaluate(() => (location.hash = '#list/zz-fresh-list/edit'));
     // The page typed above is not saved: leaving it asks.
     await page
       .getByRole('button', { name: 'Discard' })
       .click({ timeout: 3000 })
       .catch(() => {});
-    await page.getByRole('button', { name: 'List menu' }).first().waitFor({ timeout: 10000 });
+    await page.locator('main').getByText('Fields', { exact: true }).first().waitFor({ timeout: 10000 });
     const before = commits.length;
-    await page.getByRole('button', { name: 'List menu' }).first().click();
-    await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
-    const again = page.locator('dialog[open]').filter({ hasText: 'Fields' });
-    await again.getByRole('button', { name: 'Add field' }).click();
-    await pick(2, 'Title');
-    await again.locator('[aria-label="Close"]').first().click();
+    await page.locator('main').getByRole('toolbar', { name: 'Fields you can add' }).waitFor({ timeout: 10000 });
+    const direct = page.locator('main').getByRole('button', { name: 'Add title' });
+    if (await direct.count()) await direct.first().click();
+    else {
+      await page.locator('main').getByRole('button', { name: 'More' }).first().click();
+      await page.getByRole('menuitem', { name: 'Add title' }).first().click();
+    }
+    await page.waitForTimeout(500);
     if (commits.length !== before) problems.push(`${label}: adding a field to a saved list committed`);
-    await page.getByLabel('Add item').first().click();
+    await page.getByRole('link', { name: 'Add item' }).first().click();
     await page.getByLabel('Title', { exact: true }).first().fill('A title');
     await page.getByRole('button', { name: /^Save/ }).last().click();
     await page.waitForTimeout(1500);

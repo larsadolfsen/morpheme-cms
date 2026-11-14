@@ -1172,8 +1172,13 @@ function savedSort(c: Collection, sorts: Sort[], first: Sort): Sort {
 // "today at 1:42 PM" as "Today at 1:42 PM", alone on its line.
 const capital = (s: string) => s.charAt(0).toLocaleUpperCase(locale) + s.slice(1);
 
-/** What the page of a list the owner made adds to the list (src/OwnList.tsx): its menu, the line under the title, and the sheet and save bar after the rows. */
-export type OwnParts = { pageActions: ReactNode; status?: ReactNode; after: ReactNode };
+/** What the page of a list the owner made adds to the list (src/OwnList.tsx): its round `Edit list` button, the line under the title, and the save bar after the rows. */
+export type OwnParts = {
+  pageActions?: ReactNode;
+  status?: ReactNode;
+  after: ReactNode;
+  /** The round button, in place of the list's `Add item`. */ fab?: ReactNode;
+};
 
 export function List({
   collection,
@@ -1670,7 +1675,7 @@ export function List({
         <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
       )}
       {/* A new entry: the list's FAB, or a FAB menu of its kinds when it has several (a pop-up: Standard or an app's, e.g. Mailchimp). */}
-      <ListFab collection={collection} kinds={kinds} />
+      {own?.fab ?? <ListFab collection={collection} kinds={kinds} />}
       {own?.after}
     </Screen>
   );

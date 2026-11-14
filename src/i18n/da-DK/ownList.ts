@@ -1,4 +1,4 @@
-// De lister, ejeren selv laver (lib/ownList.mjs, src/ownLists.ts, src/OwnListSheet.tsx), på dansk (../en-US/ownList.ts).
+// De lister, ejeren selv laver (lib/ownList.mjs, src/ownLists.ts, src/OwnListEdit.tsx), på dansk (../en-US/ownList.ts).
 import type { Messages } from '../en-US';
 
 export const ownList: Messages['ownList'] = {
@@ -20,7 +20,6 @@ export const ownList: Messages['ownList'] = {
   nameTaken: 'Der findes allerede en liste med det navn. Vælg et andet navn.',
   edit: 'Rediger liste',
   delete: 'Slet liste',
-  menu: 'Listemenu',
   name: 'Navn',
   fields: 'Felter',
   addField: 'Tilføj felt',
@@ -28,6 +27,10 @@ export const ownList: Messages['ownList'] = {
   fieldName: 'Feltets navn',
   shown: 'Vist',
   held: (n) => `Data i ${n} ${n === 1 ? 'række' : 'rækker'} bliver, til du fjerner det.`,
+  moveFieldUp: (name) => `Flyt ${name.toLowerCase()} op`,
+  moveFieldDown: (name) => `Flyt ${name.toLowerCase()} ned`,
+  addKind: (kind) => `Tilføj ${kind.toLowerCase()}`,
+  fieldTools: 'Felter, du kan tilføje',
   removeField: 'Fjern felt',
   removeData: 'Fjern data',
   removeDataAsk: (field, n) => `Fjerne ${field.toLowerCase()} fra ${n} ${n === 1 ? 'række' : 'rækker'} for altid?`,
