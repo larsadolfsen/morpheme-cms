@@ -321,13 +321,16 @@ export const SITE_FACTS = 'virtual:site-facts';
 
 /** The module code of all Phosphor's icons in `folder` (its `regular/` folder), by the keys `import.meta.glob` gave, the
  * theme's (`icons`, as themeIcons returns them) in place of Phosphor's own. The files are read one at a time: a glob
- * opens them all at once, and the build image's limit of open files (1024) stops the build. */
-export function allIconsModule(folder, icons) {
+ * opens them all at once, and the build image's limit of open files (1024) stops the build.
+ * `onlyThemed`: only the icons the theme has, none of Phosphor's own (the icon pack in use is not Phosphor's: nothing
+ * of Phosphor's is then drawn, an icon neither the pack nor Material Symbols has is MISSING). */
+export function allIconsModule(folder, icons, onlyThemed = false) {
   const all = {};
   for (const file of readdirSync(folder)
     .filter((f) => f.endsWith('.svg'))
     .sort()) {
     const name = file.slice(0, -'.svg'.length);
+    if (onlyThemed && !svgParts(icons[name])) continue;
     all[`/node_modules/@phosphor-icons/core/assets/regular/${file}`] = svgParts(icons[name])
       ? themedSvg(icons[name])
       : readFileSync(join(folder, file), 'utf8');
@@ -504,6 +507,8 @@ export function themePlugin() {
   const themes = [activeTheme(), STANDARD_THEME].map((t) => fileURLToPath(new URL(`${themeFolder(t)}/`, root)).replaceAll('\\', '/'));
   const icons = themeIcons();
   const own = Object.keys(icons).length > 0;
+  // Owner rule: Phosphor's own icons are drawn only when Phosphor is the pack in use (chosen, or the theme's).
+  const onlyThemed = own && iconPack(activeTheme()) !== 'phosphor';
   return {
     name: 'site-theme',
     enforce: 'pre',
@@ -538,10 +543,10 @@ export function themePlugin() {
       if (id === '\0' + SITE_FACTS) return `export default ${JSON.stringify(reduceFacts(detectFacts(process.cwd())))};`;
       if (id === '\0' + ALL_ICONS_SSR)
         return options?.ssr
-          ? allIconsModule(fileURLToPath(new URL('node_modules/@phosphor-icons/core/assets/regular/', root)), icons)
+          ? allIconsModule(fileURLToPath(new URL('node_modules/@phosphor-icons/core/assets/regular/', root)), icons, onlyThemed)
           : 'export const allIcons = {};';
       if (id === '\0' + ALL_ICONS)
-        return allIconsModule(fileURLToPath(new URL('node_modules/@phosphor-icons/core/assets/regular/', root)), icons);
+        return allIconsModule(fileURLToPath(new URL('node_modules/@phosphor-icons/core/assets/regular/', root)), icons, onlyThemed);
       if (id.startsWith(FILE_ICON)) return fileIcon(icons[id.slice(FILE_ICON.length)]);
       return null;
     },

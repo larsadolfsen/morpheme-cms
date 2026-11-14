@@ -55,6 +55,19 @@ const missingIcon = (name) =>
     ? `the icon "${name}" does not exist (a question mark instead): write it in packages/editor/src/icon.tsx`
     : 'an icon is not an SVG file (a question mark instead)';
 
+// Owner rule (14 Nov): while the icon pack in use is not Phosphor, no icon is drawn as a Phosphor glyph (viewBox 0 0 256 256: Phosphor's
+// files; Material Symbols' are 0 -960 960 960, Lucide's and Material Design Icons' 24). The glyphs allowed, by how their first path starts, with the reason.
+const PHOSPHOR_OK = [
+  { d: 'M215,219.85', why: "X's logo: neither Material Symbols nor Material Design Icons has it (PHOSPHOR_FILL_ICONS in site/icons.mjs)" },
+  {
+    d: '<rect x="68" y="72"',
+    why: "the text bar's own glyphs (src/icons/text-*.svg, drawn in Phosphor's 256 box, not Phosphor's): the toolbar worker (contextual-toolbar-2) owns the bar; follow-up 2",
+  },
+];
+const phosphorGlyph = (d) => !PHOSPHOR_OK.some((ok) => d.startsWith(ok.d));
+const phosphorProblem = (where, d) =>
+  `${where}: an icon is drawn as a Phosphor glyph (path "${d.slice(0, 24)}…") while Material Symbols is the icon pack in use: route it through the pack (Icon, or the pack's file) or allow it in PHOSPHOR_OK with a reason`;
+
 const fallbackIcon = (name) =>
   `the icon "${name}" is from the whole of Material Symbols or Phosphor (not in the icon pack): give it an icon in each pack's map if it is to stay`;
 
@@ -70,6 +83,9 @@ for (const entry of readdirSync(DIST, { recursive: true, withFileTypes: true }))
   for (const [, name] of readFileSync(file, 'utf8').matchAll(/data-icon-missing="([^"]*)"/g))
     missingOn.set(name, new Set([...(missingOn.get(name) ?? []), `/${relative(DIST, file)}`]));
   for (const [, name] of readFileSync(file, 'utf8').matchAll(/data-icon-fallback="([^"]*)"/g)) fallbackAt(name, `/${relative(DIST, file)}`);
+  // The site's pages: a Phosphor glyph (the demo's pack is Material Symbols).
+  for (const [, d] of readFileSync(file, 'utf8').matchAll(/<svg[^>]*viewBox="0 0 256 256"[^>]*><path d="([^"]*)"/g))
+    if (phosphorGlyph(d)) problems.push(phosphorProblem(`/${relative(DIST, file)}`, d));
 }
 for (const [name, pages] of missingOn) {
   const shown = [...pages].slice(0, 3).join(', ');
@@ -692,7 +708,7 @@ async function checkSelection() {
       .textContent();
   const checked = (page, scope) => page.locator(`${scope} [role=checkbox][aria-checked=true]`).count();
   // The swapped top bar's select-all box (SelectionBar.tsx), with one row selected: indeterminate, 48 px, the bar never
-  // scrolls sideways; ticking selects all, unticking selects none and keeps the mode, and the bar's buttons are 48 px.
+  // scrolls sideways; ticking selects all, unticking selects none and ends selecting, and the bar's buttons are 48 px.
   const barCheck = async (page, label, rows, stays) => {
     const box = page.getByRole('checkbox', { name: 'Select all' });
     if ((await box.count()) !== 1) return problems.push(`${label}: the top bar has no select-all checkbox`);
@@ -709,6 +725,19 @@ async function checkSelection() {
     }
     if (await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth))
       problems.push(`${label}: the page scrolls sideways while selecting`);
+    // While selecting, the top bar has only the selection's own actions (Close selection, Select all, Delete); the screen's
+    // History, the notifications' bell and the like are not drawn. The menu button, back arrow and logo at the start are navigation.
+    const stray = await page.evaluate(() => {
+      const visible = (el) => {
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== 'hidden';
+      };
+      return [...document.querySelectorAll('header button, header [role=checkbox], header input')]
+        .filter(visible)
+        .map((el) => el.getAttribute('aria-label') || el.closest('label')?.textContent?.trim() || el.textContent?.trim() || el.title)
+        .filter((n) => !/^(Close selection|Select all|Delete \d+ selected|Open menu|Close menu)$/.test(n || ''));
+    });
+    if (stray.length) problems.push(`${label}: the top bar shows more than the selection's actions while selecting: ${stray.join(', ')}`);
     await box.check();
     const total = await rows.count();
     if ((await checked(page, 'main')) !== total || (await box.evaluate((el) => el.indeterminate || !el.checked)))
@@ -799,12 +828,9 @@ async function checkSelection() {
         await page.waitForSelector('main a.list-item-container');
         await page.waitForTimeout(500);
       }
-      await rows.nth(0).focus();
-      await page.keyboard.press('Space');
-      if (await checked(page, 'main')) problems.push(`${label}: Space selected a row before selecting had started`);
-      // Space on a link scrolls the page, as it does today.
-      await page.evaluate(() => window.scrollTo(0, 0));
-      await page.getByRole('button', { name: 'Select', exact: true }).click();
+      // The list's header has no Select button: selecting starts from a row (Space on a focused row here).
+      if (await page.getByRole('button', { name: 'Select', exact: true }).count())
+        problems.push(`${label}: the header still has a Select button`);
       await rows.nth(0).focus();
       await page.keyboard.press('Space');
       if ((await rows.nth(0).getAttribute('aria-checked')) !== 'true') problems.push(`${label}: Space does not select the row in focus`);
@@ -818,10 +844,11 @@ async function checkSelection() {
       await page.keyboard.press('Escape');
       if (await checked(page, 'main')) problems.push(`${label}: Escape does not unselect`);
       if (await page.getByRole('button', { name: 'Close selection' }).count()) problems.push(`${label}: Escape does not end selecting`);
-      await page.getByRole('button', { name: 'Select', exact: true }).click();
       await rows.nth(0).focus();
       await page.keyboard.press('Space');
-      await barCheck(page, label, rows, true);
+      await barCheck(page, label, rows, false);
+      await rows.nth(0).focus();
+      await page.keyboard.press('Space');
       await page.getByRole('button', { name: 'Close selection' }).click();
       await rows.nth(0).focus();
       await page.keyboard.press('Shift+ArrowDown');
@@ -3579,7 +3606,7 @@ async function checkTableRadius(width, height) {
   await page.close();
 }
 
-/** The icon picker of a List row (the slot before the title, a sheet on a phone): the first view has the "No icon" tile and the 28 icons, the search field finds an icon of the whole set, Material Symbols' ("arrow back") and Phosphor's ("acorn"), a picked one is drawn in the slot (stored by its name, drawn by the site as the fallback), a search without a hit says so, a category filters (with the search too) 100 icons at a time with "Show more", and the sheet fits the width. */
+/** The icon picker of a List row (the slot before the title, a sheet on a phone): the first view has the "No icon" tile and the 28 icons, the search field finds an icon of the whole set, Material Symbols' ("arrow back") and no Phosphor's ("acorn": not while Material Symbols is the pack), a picked one is drawn in the slot (stored by its name, drawn by the site as the fallback), a search without a hit says so, a category filters (with the search too) 100 icons at a time with "Show more", and the sheet fits the width. */
 async function checkIconSearch(width, height) {
   const label = `${width}px icon search`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -3645,12 +3672,11 @@ async function checkIconSearch(width, height) {
     .getByRole('button', { name: 'Suggested', exact: true })
     .tap()
     .catch(() => {});
-  // Phosphor's own icons are in the search too (acorn: Material Symbols has none of that name).
+  // Owner rule: Phosphor's own icons are in the search only when Phosphor is the icon pack in use (acorn: Material Symbols has none of that name).
   await search.fill('acorn');
-  await picker
-    .getByRole('button', { name: 'acorn', exact: true })
-    .waitFor({ timeout: 8000 })
-    .catch(() => problems.push(`${label}: the search "acorn" did not find Phosphor's acorn`));
+  await page.waitForTimeout(1500);
+  if (await picker.getByRole('button', { name: 'acorn', exact: true }).count())
+    problems.push(`${label}: the search "acorn" found Phosphor's acorn, but Material Symbols is the icon pack in use`);
   await search.fill('arrow back');
   await hit.waitFor({ timeout: 8000 }).catch(() => {});
   await hit.tap().catch(() => {});
@@ -4104,25 +4130,55 @@ async function checkTapBelowSection(width, touch) {
   await page.close();
 }
 
-/** The editor's footer links (Support, System status, the legal links, Licenses) are touch targets of at least 48px high at 375px with touch, 44px with a pointer (m3.material.io/foundations/designing/structure), and the lines of a wrapped row are 8px apart or more. */
-async function checkFooterTargets(touch) {
-  const width = touch ? 375 : 1280;
+/** The footer links are the one named exception to the 44/48 px target checks of this file: they are exactly 36 px high by the owner's decision (14 Nov 2026, "Make the footer links 36px high clickable"), a deviation from M3's 48dp target allowed in the editor's workspace (docs/material-deviations.md, "Footer links"). No other check here skips them; this one asserts the number, so the exception is as narrow as the owner's 36 (35 or 37 fails, and so does a link narrower than its label plus 24 px). */
+const FOOTER_LINK_HEIGHT = 36;
+
+/** The editor's footer links (Support, System status, the legal links, Licenses) are exactly 36 px high at 320, 375 (touch) and 1280 px, as wide as their label plus 24 px of their own padding, never overlapping, with no sideways scroll; the lines of a wrapped row are 8px apart or more; the dividers are 16 px high and centred on the row. */
+async function checkFooterTargets(width, touch) {
   const page = await browser.newPage({ viewport: { width, height: touch ? 800 : 900 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${width}px footer links: ${e.message}`));
   await openEditor(page, site);
   await page.waitForSelector('footer nav a');
-  const boxes = await page.evaluate(() =>
-    [...document.querySelectorAll('footer nav a')].map((a) => ({ name: a.textContent.trim(), ...a.getBoundingClientRect().toJSON() })),
-  );
-  const min = touch ? 48 : 44;
+  const got = await page.evaluate(() => {
+    const box = (el) => el.getBoundingClientRect().toJSON();
+    const links = [...document.querySelectorAll('footer nav a')].map((a) => {
+      const range = document.createRange();
+      // The label's own text only (the status badge has a visually hidden text of its own).
+      const text = [...a.childNodes].find((n) => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
+      range.selectNodeContents(text);
+      return { name: a.textContent.trim(), ...box(a), labelWidth: range.getBoundingClientRect().width };
+    });
+    const dividers = [...document.querySelectorAll('footer nav [data-divider]')].map((d) => ({
+      ...box(d),
+      visible: getComputedStyle(d).visibility !== 'hidden',
+    }));
+    return { links, dividers, scrolls: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+  });
+  const boxes = got.links;
   if (boxes.length < 4) problems.push(`${width}px footer links: only ${boxes.length} found`);
-  for (const b of boxes)
-    if (b.height < min - 0.5 || b.width < min - 0.5)
-      problems.push(`${width}px footer link "${b.name}": ${b.width}x${b.height}px, should be ${min}px or more each way`);
+  for (const b of boxes) {
+    if (Math.abs(b.height - FOOTER_LINK_HEIGHT) > 0.5)
+      problems.push(
+        `${width}px footer link "${b.name}": ${b.height}px high, should be exactly ${FOOTER_LINK_HEIGHT}px (owner's exception to M3's 48dp)`,
+      );
+    if (b.width < b.labelWidth + 24 - 0.5)
+      problems.push(`${width}px footer link "${b.name}": ${b.width}px wide, should be its label (${b.labelWidth}px) plus 24px of padding`);
+  }
   for (const a of boxes)
-    for (const b of boxes)
-      if (a !== b && b.top >= a.bottom - 0.5 && b.top - a.bottom < 8 - 0.5 && b.left < a.right && b.right > a.left)
+    for (const b of boxes) {
+      if (a === b) continue;
+      if (b.top >= a.bottom - 0.5 && b.top - a.bottom < 8 - 0.5 && b.left < a.right && b.right > a.left)
         problems.push(`${width}px footer links "${a.name}" and "${b.name}": ${b.top - a.bottom}px apart, should be 8px or more`);
+      const sameLine = Math.abs(a.top - b.top) < 1;
+      if (sameLine && a.left < b.left && a.right > b.left + 0.5)
+        problems.push(`${width}px footer links "${a.name}" and "${b.name}" overlap`);
+    }
+  for (const d of got.dividers.filter((x) => x.visible)) {
+    if (Math.abs(d.height - 16) > 0.5) problems.push(`${width}px footer divider is ${d.height}px high, not 16`);
+    const row = boxes.find((l) => Math.abs(l.top + l.height / 2 - (d.top + d.height / 2)) < 1);
+    if (!row) problems.push(`${width}px footer divider is not centred on a link`);
+  }
+  if (got.scrolls) problems.push(`${width}px footer: the page scrolls sideways`);
   await page.close();
 }
 
@@ -4290,6 +4346,23 @@ async function checkSettingsAndMenu(width, height) {
       .join()
   )
     problems.push(`${label} #settings: forkerte links: ${names}`);
+
+  // Icon packs: the three system packs (Material Symbols, Phosphor, Lucide) are listed, each with its samples, and one is in use.
+  // A site takes the package from node_modules, where a glob that skips it leaves the list empty.
+  await go('appearance/icon-packs');
+  await page.waitForTimeout(150);
+  const packs = await page.evaluate(() =>
+    [...document.querySelectorAll('main [role=img][aria-label] svg')]
+      .map((svg) => svg.closest('[role=img]'))
+      .filter((el, i, all) => all.indexOf(el) === i)
+      .map((el) => ({ label: el.getAttribute('aria-label'), icons: el.querySelectorAll('svg').length })),
+  );
+  const packNames = ['Material Symbols', 'Phosphor', 'Lucide'];
+  for (const name of packNames) {
+    const found = packs.find((p) => p.label === daLibrary.iconPackSamples(name));
+    if (!found) problems.push(`${label} #appearance/icon-packs: the system pack ${name} is not listed (${packs.length} packs listed)`);
+    else if (found.icons < 1) problems.push(`${label} #appearance/icon-packs: ${name} shows no sample icons`);
+  }
 
   // The drawer's first level (in the page at both widths: the standard drawer, or the modal one, shut): no link to the moved screens.
   await go('');
@@ -4622,7 +4695,11 @@ for (const [width, height] of [
         links: [...document.querySelectorAll('a[href^="#"]')].map((a) => a.getAttribute('href').slice(1)),
         missing: [...document.querySelectorAll('[data-icon-missing]')].map((e) => e.getAttribute('data-icon-missing')),
         fallback: [...document.querySelectorAll('[data-icon-fallback]')].map((e) => e.getAttribute('data-icon-fallback')),
+        phosphor: [...document.querySelectorAll('svg[viewBox="0 0 256 256"]')].map(
+          (e) => e.querySelector('path, rect, circle')?.getAttribute('d') ?? e.innerHTML.slice(0, 40),
+        ),
       }));
+      for (const d of new Set(state.phosphor)) if (phosphorGlyph(d)) problems.push(phosphorProblem(`${width}px #${hash}`, d));
       // No sheet from the bottom starts taller than --bottom-sheet-start-max-height (half the screen, Material 3), on a phone.
       if (width < 600) {
         const tooTall = await page.evaluate(() => {
@@ -4889,8 +4966,9 @@ for (const [width, height] of [
   await checkEntrySettings(width, height);
   await checkNofollowSwitch(width, height);
 }
-await checkFooterTargets(true);
-await checkFooterTargets(false);
+await checkFooterTargets(320, true);
+await checkFooterTargets(375, true);
+await checkFooterTargets(1280, false);
 await checkToolbarBox();
 await checkDensity(375, 740);
 await checkDensity(1280, 900);
