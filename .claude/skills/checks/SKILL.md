@@ -15,6 +15,9 @@ Announce "Using checks". Run every command from the root of this repository, on 
 the changeset (skill `changesets`). Its job `check` waits for them all and must be green on the current head before the
 PM merges.
 
+A new push to a pull request cancels that pull request's older queued and running `Check` runs (`concurrency` in
+`check.yml`); only the newest head's run counts.
+
 ## The commands
 
 | Command | Run it when | What it checks |
