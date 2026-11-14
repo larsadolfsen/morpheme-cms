@@ -4,7 +4,7 @@
 // title), so they are not thousands of registered entries. No UI: the palette (CommandPalette.tsx) and, later, the bar read it.
 // The rules are pure and tested in lib/actionRules.mjs; this file keeps the list and turns the menu, the blocks and the site's files into actions.
 // Exposes EditorAction, ActionGroup, Ctx, ActionState, ActionProvider, PaletteItem, createRegistry, actions (the editor's one registry),
-// ctxGroups, goActions, insertActions, pagesProvider.
+// ctxGroups, goActions, insertActions, changeToActions, pagesProvider.
 import {
   contextGroupsOf,
   iconProblems,
@@ -261,6 +261,28 @@ export function insertActions(
       where: {},
       run: () => insert(b.type),
     }));
+}
+
+/**
+ * One *Change to <block>* action per block the active block can become (lib/changeTo.mjs `targets`, the same limits as its ⋮ menu), in the menu's order:
+ * the ids are `block.change-to-<type>`, group Block, so typing "change" or the block's name finds it; no key. The editor registers them while a block is active.
+ */
+export function changeToActions(
+  to: { type: string; label: string }[],
+  change: (type: string, label: string) => void,
+  labelOf: (name: string) => string,
+  words: string[] = [],
+): EditorAction[] {
+  return to.map((b) => ({
+    id: `block.change-to-${b.type}`,
+    label: labelOf(b.label),
+    icon: 'swap_horiz',
+    meaning: 'change-to',
+    words: [...words, b.label],
+    group: 'block' as const,
+    where: {},
+    run: () => change(b.type, b.label),
+  }));
 }
 
 /** A page or post of the site: its title, its address in the editor, and the list it is in. */

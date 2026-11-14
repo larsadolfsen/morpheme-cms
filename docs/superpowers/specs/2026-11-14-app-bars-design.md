@@ -151,15 +151,15 @@ list already on the page instead of a search view (section 4.3); a labelled fill
 | **Lists** | **Search app bar**, its text narrows the list, chips under it | Pages, Posts, folder lists, own lists, Files, Deleted (pages, posts, files), Redirects (all, missing addresses), Block templates, Block settings, Apps, Connectors, Plugins, App store, Theme store, Licenses, Consents, SEO rating |
 | **The page being written** | **Small app bar** | a page or post (`EntryForm`), a new page or post |
 | **Everything else** | **Medium flexible app bar**, collapses to small on scroll | Settings and its screens, Business, Colours, Appearance and its screens, Privacy, Account, an app's page and screens, a theme's page, a store app's and developer's page, Components, CMS version, Status, a licence, Not found |
-| **Settings forms** | **a sheet** with the medium flexible app bar's parts as its header (`settings-sheets-design.md`) | Business › Contact and the other forms of that spec's section 4 (which ones: its open question O1) |
+| **Settings forms** | **a subpage with a back arrow** on compact, **a side sheet** from medium (`settings-sheets-design.md`) | Business › Contact and the other forms of that spec's section 4 (which ones: its open question O1) |
 | **While rows are selected** | today's contextual bar (section 4.6) | every list with selection |
 
 The list of screens is the inventory of 14 Nov (section 9). A screen added later picks its row by its kind: `Screen` takes the kind from
 what it is given (a `search` gives the search app bar, the page form asks for `small`, the rest is medium flexible), so no screen draws its
 own bar.
 
-**The settings sheets** of `settings-sheets-design.md` have the medium flexible app bar's parts as the sheet's header on a phone (a
-full-screen dialog's header, M3: "Header region, Icon (close affordance), Headline (optional), Button label text"); that spec says how.
+**The settings forms** of `settings-sheets-design.md` are a subpage on compact (the detail-screen app bar with the back arrow and the headline only; `Save` in the bottom bar the page form uses) and a side sheet from medium (headline, close icon, `Save` and `Cancel` as bottom actions); that spec says how. Owner decision, 14 Nov: not a
+full-screen sheet.
 
 ## 4. The search app bar
 
@@ -378,7 +378,7 @@ From the inventory of 14 Nov (routes in `src/App.tsx:833-956`). "Trailing" lists
 | Consents | search | back | `Search by consent ID` | sort inside the bar | Download CSV, bell |
 | SEO rating | search | back | `Search the pages and blog posts` | Sort, its filter | bell |
 | A page or post, new page or post | small | back | — | — | search icon, (`Save`,) `Publish` |
-| A settings form that becomes a sheet (`settings-sheets-design.md`, section 4: Business forms, Logo and icon, Header, Footer, Privacy forms, Default pages, a block template, app settings, entries without a text body) | the sheet's header (medium flexible parts) | close / back | — | — | the sheet's (`Save` on a phone; bottom actions on a side sheet) |
+| A settings form that becomes a subpage or side sheet (`settings-sheets-design.md`, section 4: Business forms, Logo and icon, Header, Footer, Privacy forms, Default pages, a block template, app settings, entries without a text body) | the subpage's app bar on compact, the side sheet's header from medium | back arrow (subpage) / close icon (side sheet) | — | — | `Save` in the bottom bar (subpage); `Save` and `Cancel` as bottom actions (side sheet) |
 | A form that stays a screen (Colours; an entry with a text body) | medium flexible (Colours), small (an entry with a text body, as a page being written) | back | — | — | search icon, `Save` (D3; when and how it shows: autosave spec) |
 | An entry with Versions that stays a screen (`DataForm`) | small | back | — | — | Versions, `Save` (the search icon leaves for Versions: two actions) |
 | Settings, Appearance, Business, Privacy, Components and their screens; Themes, Icon packs, Motion, Side column, Caching and builds, Assistants, Account, CMS version, Status, a licence, an app's page and screens, a theme's page, a store app's and developer's page, Not found | medium flexible | back | — | — | search icon (+ one action where the screen has one) |

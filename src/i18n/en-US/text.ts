@@ -79,6 +79,8 @@ export const text = {
   changeTo: 'Change type',
   /** The name of the header of a submenu for screen readers: where it goes. */
   backToMenu: (level: string) => `${level}, back to menu`,
+  /** The palette's action for one block: Change to <block>, which names the block it becomes (as the snackbar does). */
+  changeToBlock: (name: string) => `Change to ${name}`,
   /** The snackbar after Change type, with Undo; it names the block it became. */
   changedTo: (name: string) => `Changed to ${name}`,
   blocksSelected: (count: number) => (count === 1 ? '1 block selected' : `${count} blocks selected`),

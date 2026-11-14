@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 // actions.ts is TypeScript: node strips its types.
-const { createRegistry, goActions, insertActions, pagesProvider, ctxGroups } = await import('./actions.ts');
+const { createRegistry, goActions, insertActions, changeToActions, pagesProvider, ctxGroups } = await import('./actions.ts');
 
 const act = (id, group = 'go', more = {}) => ({ id, label: id, group, where: {}, run() {}, ...more });
 const ids = (groups) => groups.flatMap((g) => g.items.map((i) => i.action.id));
@@ -185,4 +185,35 @@ test('problems reports a shared key and a wrong settings icon', () => {
   const problems = r.problems();
   assert.ok(problems.some((p) => /share Mod\+K/.test(p)));
   assert.ok(problems.some((p) => /must draw tune/.test(p)));
+});
+
+test('Change to is one action per block the active block can become, found by "change" or the block\'s name', () => {
+  const chosen = [];
+  const list = changeToActions(
+    [
+      { type: 'steps', label: 'Steps' },
+      { type: 'table', label: 'Table' },
+    ],
+    (type, label) => chosen.push([type, label]),
+    (name) => `Change to ${name}`,
+    ['Change to'],
+  );
+  assert.deepEqual(
+    list.map((a) => [a.id, a.label, a.group]),
+    [
+      ['block.change-to-steps', 'Change to Steps', 'block'],
+      ['block.change-to-table', 'Change to Table', 'block'],
+    ],
+  );
+  const r = createRegistry();
+  const dispose = r.register(list);
+  assert.deepEqual(r.problems(), [], 'six of them share one icon and one meaning: no problem');
+  const ctx = { route: '#pages', block: 'list' };
+  const found = (query) => ids(r.search(query, ctx));
+  assert.deepEqual(found('table'), ['block.change-to-table']);
+  assert.deepEqual(found('change').sort(), ['block.change-to-steps', 'block.change-to-table']);
+  list[1].run(ctx);
+  assert.deepEqual(chosen, [['table', 'Table']]);
+  dispose();
+  assert.deepEqual(r.all(), []);
 });

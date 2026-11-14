@@ -64,6 +64,7 @@ export const text: Messages['text'] = {
   blockSettings: 'Blokindstillinger',
   changeTo: 'Skift type',
   backToMenu: (level) => `${level}, tilbage til menuen`,
+  changeToBlock: (name) => `Skift til ${name}`,
   changedTo: (name) => `Skiftet til ${name}`,
   blocksSelected: (count) => (count === 1 ? '1 blok valgt' : `${count} blokke valgt`),
   clearBlockSelection: (count) => `Ryd markering, ${count === 1 ? '1 blok valgt' : `${count} blokke valgt`}`,
