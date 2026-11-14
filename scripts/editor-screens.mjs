@@ -509,7 +509,7 @@ async function checkBottomSheetBar(width, height, keyboard = 0, keyboardUp = fal
 }
 
 /** A button of the active block's action row by its name (Move up, Move down, Hide on the page, Show on the page, Block settings; Edit on an image card). */
-const rowButton = (page, name) => page.locator(`.site-block-row [data-row][aria-label="${name}"]:visible`);
+const rowButton = (page, name) => page.locator(`.site-block-row:not(.site-block-row-hover) [data-row][aria-label="${name}"]:visible`);
 
 /** A tool of the text's one bar by its name: a button of the active block's action row, its button on the bar, or its row in the ⋮ menu when it did not fit (a phone). `how`: 'click' or 'tap'.
  * The bar's buttons keep the cursor where it is. "Edit" is the bar's gear (the row's or item's settings); the block's own settings are Block settings, in the row. */
@@ -943,7 +943,9 @@ async function checkCardBar(width, height = 800) {
   const tools = await barTools(page);
   if (tools.bar.some((b) => b.height < 43.4 || b.width < 43.4)) problems.push(`${label}: a button of the card's bar is under 44 x 44 dp`);
   if (!tools.names.includes('Remove') && phone) problems.push(`${label}: the card's menu has no Remove (${tools.names})`);
-  const rowNames = await page.locator('.site-block-row [data-row]').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  const rowNames = await page
+    .locator('.site-block-row:not(.site-block-row-hover) [data-row]')
+    .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   if (!rowNames.includes('Move up')) problems.push(`${label}: the card's action row has no Move up (${rowNames})`);
   if (tools.names.includes('Move up') || tools.names.includes('Hide on the page'))
     problems.push(`${label}: Move up or Hide is in the bar as well as in the action row (${tools.names})`);
@@ -1024,14 +1026,17 @@ async function checkBlockRow(width, options = {}) {
   if (reduced) await page.waitForTimeout(100);
   else await page.waitForTimeout(800);
   if (await page.locator('.site-block-row-hover').count()) problems.push(`${label}: the active block also shows the pointed block's row`);
-  const names = () => page.locator('.site-block-row [data-row]').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  const names = () =>
+    page
+      .locator('.site-block-row:not(.site-block-row-hover) [data-row]')
+      .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   if (!(await row.count())) {
     problems.push(`${label}: no action row for the active block`);
     return void (await page.close());
   }
   if (reduced && (await row.evaluate((el) => el.getAnimations().length)) > 0)
     problems.push(`${label}: the row is animated under reduced motion`);
-  const shape = await page.locator('.site-block-row [data-row]').evaluateAll((els) =>
+  const shape = await page.locator('.site-block-row:not(.site-block-row-hover) [data-row]').evaluateAll((els) =>
     els.map((e) => {
       const r = e.getBoundingClientRect();
       return {
@@ -1098,7 +1103,9 @@ async function checkBlockRow(width, options = {}) {
   if (frame.padding[0] !== frame.padding[1] || frame.padding[2] !== frame.padding[3])
     problems.push(`${label}: the outline's padding is ${frame.padding.slice(0, 2)}/${frame.padding.slice(2)}, not the Card's`);
   // The row's buttons are the theme's icon buttons: no class of their own, and the hover is a probe standard icon button's.
-  const classes = await page.locator('.site-block-row [data-row]').evaluateAll((els) => els.map((e) => [...e.classList]));
+  const classes = await page
+    .locator('.site-block-row:not(.site-block-row-hover) [data-row]')
+    .evaluateAll((els) => els.map((e) => [...e.classList]));
   for (const list of classes)
     if (list.some((c) => !/^icon-button(-|$)/.test(c)))
       problems.push(`${label}: a row button has a class of its own (${list.join(' ')}); it must be the theme's icon button`);
@@ -1123,7 +1130,7 @@ async function checkBlockRow(width, options = {}) {
   });
   const wantHover = await hoverOf(probeIcon);
   await page.evaluate(() => document.querySelector('[data-probe="icon"]').remove());
-  const upHover = await hoverOf(page.locator('.site-block-row [data-row="up"]'));
+  const upHover = await hoverOf(page.locator('.site-block-row:not(.site-block-row-hover) [data-row="up"]'));
   if (!phone && (upHover.background !== wantHover.background || upHover.radius !== wantHover.radius))
     problems.push(`${label}: a row button's hover is ${JSON.stringify(upHover)}, not the theme icon button's ${JSON.stringify(wantHover)}`);
   // A phone has no hover (the theme's state layer is for a pointer that hovers): the hover is compared on a computer.
@@ -1197,13 +1204,13 @@ async function checkBlockRow(width, options = {}) {
     }
   }
   // Hide turns into Show and the row stays.
-  await page.locator('.site-block-row [data-row][aria-label="Hide on the page"]')[phone ? 'tap' : 'click']();
+  await page.locator('.site-block-row:not(.site-block-row-hover) [data-row][aria-label="Hide on the page"]')[phone ? 'tap' : 'click']();
   await page.waitForTimeout(500);
   if (!(await names()).includes('Show on the page')) problems.push(`${label}: after Hide the row does not say Show (${await names()})`);
-  await page.locator('.site-block-row [data-row][aria-label="Show on the page"]')[phone ? 'tap' : 'click']();
+  await page.locator('.site-block-row:not(.site-block-row-hover) [data-row][aria-label="Show on the page"]')[phone ? 'tap' : 'click']();
   await page.waitForTimeout(500);
   // The row's buttons are real buttons that Tab reaches.
-  if (await page.locator('.site-block-row [data-row][tabindex="-1"]').count())
+  if (await page.locator('.site-block-row:not(.site-block-row-hover) [data-row][tabindex="-1"]').count())
     problems.push(`${label}: a button of the row is not reachable with Tab`);
   // The cursor back in the text: the row closes.
   await page.click('.ProseMirror > p');
@@ -1390,7 +1397,9 @@ async function checkBlockBar(width, height = 800) {
     problems.push(`${label}: the block's tools read ${seen.join(', ')}, not in the order ${order.join(', ')}`);
   if (names.indexOf('Add below') > names.indexOf('Add above')) problems.push(`${label}: Add below does not come before Add above`);
   // Move up, Move down and Hide are in the block's action row (blockRow.ts), never on the bar or in the ⋮ as well.
-  const listRow = await page.locator('.site-block-row [data-row]').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  const listRow = await page
+    .locator('.site-block-row:not(.site-block-row-hover) [data-row]')
+    .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   for (const name of ['Move up', 'Move down', 'Hide on the page'])
     if (!listRow.includes(name)) problems.push(`${label}: the action row has no "${name}" (${listRow})`);
   for (const name of ['Move up', 'Move down', 'Hide on the page'])
@@ -4586,7 +4595,8 @@ async function checkInlineBlock(
       const shown = await page.locator('.site-block-inline .block-list-button').allTextContents();
       if (shown.map((x) => x.trim()).join() !== 'More questions')
         problems.push(`${label}: the button under the list is "${shown}" when the block is not active, not "More questions"`);
-      await page.click('.site-block-inline [data-field="question"]');
+      // At the field's left end: a block pointed at shows its row over its top right, which covers the middle of the field.
+      await page.click('.site-block-inline [data-field="question"]', { position: { x: 8, y: 8 } });
       await page.locator('.inline-faq-button [data-field="button"]').fill('');
       await page.waitForTimeout(300);
       await page.click('.ProseMirror p');
