@@ -1,12 +1,13 @@
 // "Image grid": its head (BlockHead.tsx), the tag filter (the theme's filter chips, drawn hidden and shown by script.ts: without JavaScript every image
 // shows), and the images as the theme's cards (Card, kind by `card`: Filled, Elevated or Outlined) in a staggered grid (.image-grid): the image to the
 // card's edge in its own proportions (CardMedia), under it the lines the block asks for (the subhead: credit and tags, then the caption: Material 3's
-// card text under the media), never on the image. A card is a link to the image itself (so it opens without JavaScript; script.ts opens it bigger),
+// card text under the media), never on the image. A card is a link to the image itself (so it opens without JavaScript; script.ts opens it in the lightbox, among the images shown),
 // or only a card when the block says the images do not open. What it shows: view.ts, filter.mjs. Cards in the editor are only drawn.
 import BlockHead from '@theme/blocks/BlockHead';
 import Card, { CardMedia } from '@theme/ui/Card';
 import Chip from '@theme/ui/Chip';
 import ChipSet from '@theme/ui/ChipSet';
+import Lightbox from '@theme/ui/Lightbox';
 import type { GridImage, ImageGridView } from '@morphemecms/cms/src/standard/imagegrid/view';
 import { useInText } from '@morphemecms/cms/src/standard/view';
 
@@ -84,10 +85,10 @@ export default function ImageGrid({ view }: { view: ImageGridView }) {
             </button>
           </div>
         )}
-        <p className="block-imagegrid-count" data-imagegrid-count="" data-template={view.texts.count} aria-live="polite" hidden />
+        <p className="block-imagegrid-count" data-imagegrid-count="" data-template={view.texts.count} aria-live="polite" />
         <ul className="image-grid block-imagegrid-grid" data-columns={view.columns}>
           {view.images.map((image, i) => (
-            <li key={image.src} data-tags={image.tags.join(',')} data-index={i}>
+            <li key={image.src} data-tags={image.tags.join(',')} data-index={i} data-caption={image.caption}>
               <Card as={view.open ? undefined : 'div'} href={view.open ? image.src : undefined} kind={view.card} media data-image="">
                 <Picture image={image} index={i} sizes={sizes} />
                 <Lines image={image} view={view} />
@@ -98,6 +99,15 @@ export default function ImageGrid({ view }: { view: ImageGridView }) {
         <p className="block-imagegrid-empty" data-imagegrid-empty="" hidden>
           {view.texts.empty}
         </p>
+        {view.open && (
+          <Lightbox
+            label={view.texts.viewer}
+            closeLabel={view.texts.close}
+            previousLabel={view.texts.previous}
+            nextLabel={view.texts.next}
+            data-position={view.texts.position}
+          />
+        )}
       </div>
     </>
   );
