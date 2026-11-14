@@ -49,7 +49,7 @@ export const text = {
   sectionColors: { none: 'None', surface: 'Surface', primary: 'Primary', secondary: 'Secondary', tertiary: 'Tertiary' },
   /** A section's background image and its width, in the same sheet. */
   sectionImage: 'Background image',
-  sectionImageAlt: 'Image description',
+  sectionImageAlt: 'Alt text',
   sectionImageAltHint: 'Leave it empty for an image that is only decoration.',
   sectionWidth: 'Width',
   sectionWidthFull: 'Full width',
@@ -63,9 +63,9 @@ export const text = {
   insertLink: 'Insert link',
   removeLink: 'Remove link',
   /** A block's card. */
-  hiddenOnPage: 'Hidden on the page',
-  showOnPage: 'Show on the page',
-  hideOnPage: 'Hide on the page',
+  hiddenOnPage: 'Hidden',
+  showOnPage: 'Show',
+  hideOnPage: 'Hide',
   /** Selecting several blocks of the page (MarkdownEditor.tsx): the bar's count, its rows, and the question before they are removed. */
   moveApart: 'Select blocks that are next to each other to move them',
   moveLocked: 'A locked block is in the way',

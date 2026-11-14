@@ -194,7 +194,7 @@ export const parts: Messages['parts'] = {
     look: 'Udseende',
     layout: 'Layout',
     layouts: { single: 'Én kolonne', wide: 'Bred', left: 'Sidepanel til venstre', right: 'Sidepanel til højre' },
-    kind: 'Slags',
+    kind: 'Type',
     page: 'Side',
     post: 'Indlæg',
     tags: 'Tags',
@@ -568,7 +568,8 @@ export const parts: Messages['parts'] = {
       title: 'Handlinger',
       buttonGroup:
         'Knapper, der hører sammen, side om side: med luft imellem eller samlet, i alle knappernes størrelser og former. En knap, der slås til og fra, er fremhævet, når den er slået til.',
-      segmentedButton: 'Få valg side om side i én ramme: ét eller flere valgt, de valgte med et flueben.',
+      choiceGroup:
+        'Ét valg blandt få: samlede knapper side om side, når alle navne kan være der, ellers en liste med radioknapper, ét valg pr. række, med et lille eksempel på hvert udseende.',
       splitButton:
         'Hovedhandlingen med en pil ved siden af, der åbner en menu med andre måder at gøre det på, i knappernes fem størrelser.',
       fabMenu:
@@ -580,8 +581,10 @@ export const parts: Messages['parts'] = {
       channels: ['Telefon', 'E-mail', 'Chat'],
       mode: 'Tilstand',
       modes: ['Lys', 'Mørk'],
-      days: 'Dage',
-      weekdays: ['Man', 'Tir', 'Ons', 'Tor', 'Fre'],
+      style: 'Stil',
+      styles: { filled: 'Fyldt', tonal: 'Tonet', elevated: 'Hævet', outlined: 'Med ramme', text: 'Tekst' },
+      sample: 'Bestil',
+      narrow: 'I en smal ramme',
       book: 'Book en tid',
       more: 'Flere måder at booke på',
       ways: ['Ring', 'Skriv en e-mail', 'Book online'],

@@ -19,6 +19,6 @@ export const keywords = {
   linksFilter: 'Links',
   allLinks: 'With and without links',
   linked: { with: 'With links', without: 'Without links' },
-  kindFilter: 'Kind',
+  kindFilter: 'Type',
   allKinds: 'All kinds of pages',
 };

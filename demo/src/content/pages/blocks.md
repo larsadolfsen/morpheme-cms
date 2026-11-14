@@ -80,7 +80,7 @@ Rows under each other, as your theme draws a list. A row can have an icon, a tex
 
 ## Segmented list
 
-Rows that fold out with a text and a link, with a text button under the last row. A row with a page and no text shows the beginning of the page. With `Max rows`, only the first rows show and a text button shows the rest.
+Rows that fold out with a text and a link, with a text button under the last row. A row with a page and no text shows the beginning of the page. With `Maximum rows`, only the first rows show and a text button shows the rest.
 
 ### Segmented list with all rows open
 
