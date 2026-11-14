@@ -26,6 +26,7 @@ export const blockSelection = {
   places: (): number[] => snapshot.places,
   set(next: number[]) {
     const now = snapshot.places;
+    if (!next.length && now.length) console.log('TRACE-CLEAR ' + new Error().stack);
     if (next.length === now.length && next.every((p, i) => p === now[i])) return;
     emit(next);
   },
