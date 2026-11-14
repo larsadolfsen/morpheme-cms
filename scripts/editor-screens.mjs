@@ -2100,6 +2100,20 @@ async function checkBlockMove(width) {
       return;
     }
     if (!(await down.first().isDisabled())) problems.push(`${label}: Move down is on at the end of the page`);
+    if (await up.first().isDisabled()) {
+      const shape = await page.evaluate(() =>
+        [...document.querySelector('.ProseMirror').children].map((c) =>
+          c.classList.contains('site-block') || c.querySelector(':scope > .site-block')
+            ? `block${c.classList.contains('site-block-selected') || c.querySelector('.site-block-selected') ? '*' : ''}`
+            : c.textContent.trim()
+              ? 'text'
+              : 'gap',
+        ),
+      );
+      problems.push(`${label}: Move up is disabled after Move down (${shape.join(' ')}; ${await up.first().getAttribute('title')})`);
+      await page.close();
+      return;
+    }
     await up.first().click();
     await page.waitForTimeout(600);
     if (JSON.stringify(await names()) !== JSON.stringify(before)) problems.push(`${label}: Move up did not bring the order back`);
