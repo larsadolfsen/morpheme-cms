@@ -232,8 +232,7 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
         .join('');
     // With a column beside the text the panel holds the heading only, as on the site.
     const { intro, rest: below } = h1Settings && !text.closest('[data-side]') ? introOf(rest) : { intro: '', rest };
-    const h1Alt = h1Settings?.image ? resolveAlt({ alt: h1Settings.alt ?? '' }, draft.data.libraryAlt?.(h1Settings.image)).alt : '';
-    setH1Panel(doc, h1Settings && { ...h1Settings, alt: h1Alt }, runs(intro), h1Settings?.image ? shownAt(h1Settings.image) : undefined);
+    setH1Panel(doc, h1Settings, runs(intro));
     text.innerHTML = runs(below);
   }
   return documentHtml(doc);
