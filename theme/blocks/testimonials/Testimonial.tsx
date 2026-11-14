@@ -110,7 +110,7 @@ export default function Testimonial({
             sizes={t.image.srcset ? '48px' : undefined}
             width={t.image.width}
             height={t.image.height}
-            alt=""
+            alt={t.image.alt ?? ''}
             loading="lazy"
             decoding="async"
           />

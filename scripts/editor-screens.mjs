@@ -44,7 +44,17 @@ const texts = await import(`data:text/javascript;base64,${Buffer.from(bundled.ou
 const { apps: da, app: daApp, cms: daCms, dashboard: daDashboard, common: daCommon, library: daLibrary } = texts;
 
 const ROOT = `${process.cwd()}/`;
-const DIST = resolve(ROOT, process.argv[2] ?? 'dist');
+// --shard K/N runs the K-th of N disjoint parts of the checks (every N-th unit, see unit below); --list only prints which units
+// that part has and runs none. With neither, everything runs, as before.
+const args = process.argv.slice(2);
+const shardAt = args.indexOf('--shard');
+const [SHARD, SHARDS] = shardAt >= 0 ? args[shardAt + 1].split('/').map(Number) : [1, 1];
+if (!(SHARDS >= 1 && SHARD >= 1 && SHARD <= SHARDS)) {
+  console.error('--shard K/N needs 1 <= K <= N, for example --shard 2/4.');
+  process.exit(1);
+}
+const LIST_ONLY = args.includes('--list');
+const DIST = resolve(ROOT, args.find((a, i) => !a.startsWith('--') && args[i - 1] !== '--shard') ?? 'dist');
 if (!existsSync(join(DIST, 'editor/index.html'))) {
   console.error(`There is no built site in ${DIST}. Run npm run build first.`);
   process.exit(1);
@@ -85,11 +95,24 @@ for (const entry of readdirSync(DIST, { recursive: true, withFileTypes: true }))
   for (const [, name] of readFileSync(file, 'utf8').matchAll(/data-icon-fallback="([^"]*)"/g)) fallbackAt(name, `/${relative(DIST, file)}`);
   // The site's pages: a Phosphor glyph (the demo's pack is Material Symbols).
   for (const [, d] of readFileSync(file, 'utf8').matchAll(/<svg[^>]*viewBox="0 0 256 256"[^>]*><path d="([^"]*)"/g))
-    if (phosphorGlyph(d)) problems.push(phosphorProblem(`/${relative(DIST, file)}`, d));
+    if (phosphorGlyph(d) && SHARD === 1) problems.push(phosphorProblem(`/${relative(DIST, file)}`, d));
 }
-for (const [name, pages] of missingOn) {
+// The checks over the whole built site (here: its pages' icons) run in the first shard only.
+for (const [name, pages] of SHARD === 1 ? missingOn : []) {
   const shown = [...pages].slice(0, 3).join(', ');
   problems.push(`${shown}${pages.size > 3 ? ` and ${pages.size - 3} more pages` : ''}: ${missingIcon(name)}`);
+}
+
+/** One part of the checks that a shard runs whole or leaves out: the units are numbered in the order they are met, a shard runs
+ * those with number % N = K - 1, so each unit runs in exactly one shard and together the shards run all of them. */
+let unitNumber = 0;
+async function unit(name, run) {
+  const number = unitNumber++;
+  if (number % SHARDS !== SHARD - 1) return;
+  if (LIST_ONLY) return console.log(`UNIT ${number} ${name}`);
+  const started = Date.now();
+  await run();
+  console.log(`unit ${number} ${name}: ${Math.round((Date.now() - started) / 1000)} s`);
 }
 
 const { server, site } = await serveBuilt(DIST);
@@ -3077,9 +3100,8 @@ async function checkNewList(width, height, label) {
       .waitFor({ timeout: 15000 })
       .catch(() => problems.push(`${label}: the new list's page does not say it has no fields`));
     if (await page.locator('.inline-list-row').locator('visible=true').count()) problems.push(`${label}: an empty list shows a row`);
-    const made = commits[0]?.changes.find((x) => x.path.endsWith('_list.json'));
-    if (JSON.parse(decoded(made?.content)).fields?.length !== 0)
-      problems.push(`${label}: the new list's definition is not empty (${made?.content})`);
+    // Making the list commits nothing: it is kept as a waiting version until the final Save.
+    if (commits.length) problems.push(`${label}: Create committed (${commits.length} commits) before the final Save`);
     // Two body texts: the empty page's Add field, then Body text; the second through Edit list (the empty page's button is gone once there is a field).
     const pick = async (n) => {
       await page
@@ -3117,7 +3139,36 @@ async function checkNewList(width, height, label) {
       [...document.querySelectorAll('.inline-list-row-active [data-field]')].map((f) => f.getAttribute('placeholder')),
     );
     if (names.join() !== 'Body text,Body text 2') problems.push(`${label}: the fields are not named Body text and Body text 2 (${names})`);
+    // Two fields added and still nothing committed; the line under the title says the version is kept, and the save bar has the final Save.
+    if (commits.length) problems.push(`${label}: a field was committed before the final Save (${commits.length} commits)`);
+    const line = await page.evaluate(() => document.body.innerText);
+    if (!/Saving…|Saved|Not saved/.test(line)) problems.push(`${label}: no line says whether the waiting version is kept`);
+    // Leaving asks first, as it does for a page: Save or Discard; Esc stays.
+    await page.evaluate(() => (location.hash = '#lists'));
+    await page
+      .getByRole('button', { name: 'Discard' })
+      .waitFor({ timeout: 5000 })
+      .catch(() => problems.push(`${label}: leaving the unsaved list did not ask`));
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+    if (await page.evaluate(() => location.hash !== '#list/zz-fresh-list')) problems.push(`${label}: Esc did not stay on the unsaved list`);
+    // The final Save: exactly one commit, with the list and both fields.
+    await page.locator('.editor-save-bar').getByRole('button', { name: 'Save' }).click();
+    // The first Save asks whether to send notifications.
+    await page
+      .getByRole('button', { name: 'Cancel' })
+      .click({ timeout: 3000 })
+      .catch(() => {});
+    await page
+      .waitForFunction(() => !document.querySelector('.editor-save-bar button'), null, { timeout: 15000 })
+      .catch(() => problems.push(`${label}: the save bar did not go after Save`));
+    if (commits.length !== 1) problems.push(`${label}: the final Save made ${commits.length} commits, not one`);
+    const made = commits[0]?.changes.find((x) => x.path.endsWith('_list.json'));
+    const definition = JSON.parse(decoded(made?.content) || '{}');
+    if (definition.fields?.length !== 2 || definition.fields.some((f) => f.kind !== 'text'))
+      problems.push(`${label}: the commit does not have the list with both fields (${made?.content})`);
     // A row typed in both fields: both values are saved (one file, both ids) and shown.
+    await page.locator('.inline-list-row-next [data-field="text"]').first().click();
     await page.keyboard.type('First line');
     await page.keyboard.press('Enter');
     await page.keyboard.type('Second line');
@@ -5010,83 +5061,85 @@ for (const [width, height] of [
   [390, 844],
   [1280, 900],
 ]) {
-  const page = await browser.newPage({ viewport: { width, height }, locale: 'da-DK' });
-  let route = '';
-  page.on('pageerror', (e) => problems.push(`${width}px #${route}: ${e.message}`));
-  // Something the page's Content-Security-Policy stopped (packages/editor/lib/csp.mjs).
-  page.on('console', (m) => {
-    if (m.type() === 'error' && /Content Security Policy/i.test(m.text())) problems.push(`${width}px #${route}: ${m.text()}`);
-  });
-  await openEditor(page, site);
+  await unit(`screens ${width}`, async () => {
+    const page = await browser.newPage({ viewport: { width, height }, locale: 'da-DK' });
+    let route = '';
+    page.on('pageerror', (e) => problems.push(`${width}px #${route}: ${e.message}`));
+    // Something the page's Content-Security-Policy stopped (packages/editor/lib/csp.mjs).
+    page.on('console', (m) => {
+      if (m.type() === 'error' && /Content Security Policy/i.test(m.text())) problems.push(`${width}px #${route}: ${m.text()}`);
+    });
+    await openEditor(page, site);
 
-  // From the start screen (the drawer's links), and from "Parts", "Themes", "Search engine optimization" and "Appstore"
-  // (the apps' pages and their developers'), whose screens are a step further down than the others. "Apps" (the list of
-  // the apps installed) has no row in the menu, so it is a start of its own.
-  const starts = [
-    '',
-    'settings',
-    'developer/parts',
-    'company/colors',
-    'global/header',
-    'global/side-column',
-    'licenses',
-    'appearance/themes',
-    'seo',
-    'settings/appstore',
-    'installed/connectors',
-    'installed/plugins',
-    'apps',
-  ];
-  const seen = new Set(starts);
-  let next = starts;
-  for (let depth = 0; depth <= 2 && next.length; depth++) {
-    const found = [];
-    for (const hash of next) {
-      route = hash;
-      await page.evaluate((h) => (location.hash = h), hash);
-      await page.waitForTimeout(150);
-      opened.add(hash);
-      const state = await page.evaluate(() => ({
-        empty: !document.querySelector('astro-island')?.textContent?.trim(),
-        text: document.body.innerText,
-        links: [...document.querySelectorAll('a[href^="#"]')].map((a) => a.getAttribute('href').slice(1)),
-        missing: [...document.querySelectorAll('[data-icon-missing]')].map((e) => e.getAttribute('data-icon-missing')),
-        fallback: [...document.querySelectorAll('[data-icon-fallback]')].map((e) => e.getAttribute('data-icon-fallback')),
-        phosphor: [...document.querySelectorAll('svg[viewBox="0 0 256 256"]')].map(
-          (e) => e.querySelector('path, rect, circle')?.getAttribute('d') ?? e.innerHTML.slice(0, 40),
-        ),
-      }));
-      for (const d of new Set(state.phosphor)) if (phosphorGlyph(d)) problems.push(phosphorProblem(`${width}px #${hash}`, d));
-      // No sheet from the bottom starts taller than --bottom-sheet-start-max-height (half the screen, Material 3), on a phone.
-      if (width < 600) {
-        const tooTall = await page.evaluate(() => {
-          const cap = innerHeight / 2 + 1;
-          const bad = [];
-          for (const d of document.querySelectorAll('dialog.editor-sheet.bottom-sheet:not(.editor-side-panel)')) {
-            if (d.open) continue;
-            d.showModal();
-            if (d.offsetHeight > cap) bad.push(`${d.getAttribute('aria-label') ?? d.className} (${Math.round(d.offsetHeight)}px)`);
-            d.close();
-          }
-          return bad;
-        });
-        for (const name of tooTall) problems.push(`${width}px #${hash}: the sheet ${name} starts taller than half the screen`);
+    // From the start screen (the drawer's links), and from "Parts", "Themes", "Search engine optimization" and "Appstore"
+    // (the apps' pages and their developers'), whose screens are a step further down than the others. "Apps" (the list of
+    // the apps installed) has no row in the menu, so it is a start of its own.
+    const starts = [
+      '',
+      'settings',
+      'developer/parts',
+      'company/colors',
+      'global/header',
+      'global/side-column',
+      'licenses',
+      'appearance/themes',
+      'seo',
+      'settings/appstore',
+      'installed/connectors',
+      'installed/plugins',
+      'apps',
+    ];
+    const seen = new Set(starts);
+    let next = starts;
+    for (let depth = 0; depth <= 2 && next.length; depth++) {
+      const found = [];
+      for (const hash of next) {
+        route = hash;
+        await page.evaluate((h) => (location.hash = h), hash);
+        await page.waitForTimeout(150);
+        opened.add(hash);
+        const state = await page.evaluate(() => ({
+          empty: !document.querySelector('astro-island')?.textContent?.trim(),
+          text: document.body.innerText,
+          links: [...document.querySelectorAll('a[href^="#"]')].map((a) => a.getAttribute('href').slice(1)),
+          missing: [...document.querySelectorAll('[data-icon-missing]')].map((e) => e.getAttribute('data-icon-missing')),
+          fallback: [...document.querySelectorAll('[data-icon-fallback]')].map((e) => e.getAttribute('data-icon-fallback')),
+          phosphor: [...document.querySelectorAll('svg[viewBox="0 0 256 256"]')].map(
+            (e) => e.querySelector('path, rect, circle')?.getAttribute('d') ?? e.innerHTML.slice(0, 40),
+          ),
+        }));
+        for (const d of new Set(state.phosphor)) if (phosphorGlyph(d)) problems.push(phosphorProblem(`${width}px #${hash}`, d));
+        // No sheet from the bottom starts taller than --bottom-sheet-start-max-height (half the screen, Material 3), on a phone.
+        if (width < 600) {
+          const tooTall = await page.evaluate(() => {
+            const cap = innerHeight / 2 + 1;
+            const bad = [];
+            for (const d of document.querySelectorAll('dialog.editor-sheet.bottom-sheet:not(.editor-side-panel)')) {
+              if (d.open) continue;
+              d.showModal();
+              if (d.offsetHeight > cap) bad.push(`${d.getAttribute('aria-label') ?? d.className} (${Math.round(d.offsetHeight)}px)`);
+              d.close();
+            }
+            return bad;
+          });
+          for (const name of tooTall) problems.push(`${width}px #${hash}: the sheet ${name} starts taller than half the screen`);
+        }
+        for (const name of new Set(state.fallback)) fallbackAt(name, `${width}px #${hash}`);
+        for (const name of new Set(state.missing)) problems.push(`${width}px #${hash}: ${missingIcon(name)}`);
+        if (state.empty) problems.push(`${width}px #${hash}: the screen is empty`);
+        if (state.text.includes(`${daApp.nothingAt(hash)}.`)) problems.push(`${width}px #${hash}: there is nothing at the address`);
+        for (const link of state.links) {
+          if (seen.has(link)) continue;
+          seen.add(link);
+          found.push(link);
+        }
       }
-      for (const name of new Set(state.fallback)) fallbackAt(name, `${width}px #${hash}`);
-      for (const name of new Set(state.missing)) problems.push(`${width}px #${hash}: ${missingIcon(name)}`);
-      if (state.empty) problems.push(`${width}px #${hash}: the screen is empty`);
-      if (state.text.includes(`${daApp.nothingAt(hash)}.`)) problems.push(`${width}px #${hash}: there is nothing at the address`);
-      for (const link of state.links) {
-        if (seen.has(link)) continue;
-        seen.add(link);
-        found.push(link);
-      }
+      next = found;
     }
-    next = found;
-  }
-  await page.close();
-  await checkSettingsAndMenu(width, height);
-  await checkDashboardEdit(width, height);
+    await page.close();
+  });
+  await unit(`checkSettingsAndMenu ${width}`, () => checkSettingsAndMenu(width, height));
+  await unit(`checkDashboardEdit ${width}`, () => checkDashboardEdit(width, height));
 }
 
 /** The start screen's "Drafts" card: with five drafts it shows three rows and the text button "Show all", which opens the pages
@@ -5203,118 +5256,126 @@ async function checkMorpheme(page, state) {
   }
 }
 
-for (const [state, checks] of Object.entries(keyStates)) {
-  const page = await browser.newPage({ viewport: { width: 390, height: 844 }, locale: 'da-DK' });
-  page.on('pageerror', (e) => problems.push(`Appstore (${state}): ${e.message}`));
-  await openEditor(page, site, {}, state);
-  for (const [screen, { shows, hides }] of Object.entries(checks)) {
-    await page.evaluate((hash) => (location.hash = hash), keyScreens[screen]);
-    await page.waitForTimeout(500);
-    const text = await page.evaluate(() => document.body.innerText);
-    for (const x of shows) if (!text.includes(x)) problems.push(`${screen} (${state}): "${x}" is missing`);
-    for (const x of hides) if (text.includes(x)) problems.push(`${screen} (${state}): "${x}" must not be shown`);
-    const file = join(shots, `${screen}-${state}.png`);
-    await page.screenshot({ path: file });
-    console.log(`${screen} (${state}): ${file}`);
-    if (screen === 'morpheme') await checkMorpheme(page, state);
+await unit('key states', async () => {
+  for (const [state, checks] of Object.entries(keyStates)) {
+    const page = await browser.newPage({ viewport: { width: 390, height: 844 }, locale: 'da-DK' });
+    page.on('pageerror', (e) => problems.push(`Appstore (${state}): ${e.message}`));
+    await openEditor(page, site, {}, state);
+    for (const [screen, { shows, hides }] of Object.entries(checks)) {
+      await page.evaluate((hash) => (location.hash = hash), keyScreens[screen]);
+      await page.waitForTimeout(500);
+      const text = await page.evaluate(() => document.body.innerText);
+      for (const x of shows) if (!text.includes(x)) problems.push(`${screen} (${state}): "${x}" is missing`);
+      for (const x of hides) if (text.includes(x)) problems.push(`${screen} (${state}): "${x}" must not be shown`);
+      const file = join(shots, `${screen}-${state}.png`);
+      await page.screenshot({ path: file });
+      console.log(`${screen} (${state}): ${file}`);
+      if (screen === 'morpheme') await checkMorpheme(page, state);
+    }
+    await page.close();
   }
-  await page.close();
-}
+});
 
+// Each check below is a unit (see unit above): a shard runs every SHARDS-th one, so the shards together run each exactly once.
 for (const [width, height] of [
   [375, 800],
   [690, 860],
   [1280, 900],
 ])
-  await checkUpdatesCard(width, height);
+  await unit(`checkUpdatesCard ${width}`, () => checkUpdatesCard(width, height));
 
-await checkStartSubtitle();
+await unit('checkStartSubtitle', () => checkStartSubtitle());
 
-for (const width of [360, 375, 390, 414]) await checkTextBar(width);
-await checkTextBarWide();
-for (const width of [375, 1280]) await checkBlockBar(width);
-for (const width of [320, 375, 1280]) await checkInsertBlock(width);
-await checkSheetKeyboard(375);
-await checkBottomSheetBar(375, 740);
-await checkBottomSheetBar(375, 740, 300, true);
-await checkBottomSheetBar(1280, 900);
+for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
+await unit('checkTextBarWide', () => checkTextBarWide());
+for (const width of [375, 1280]) await unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
+for (const width of [320, 375, 1280]) await unit(`checkInsertBlock ${width}`, () => checkInsertBlock(width));
+await unit('checkSheetKeyboard 375', () => checkSheetKeyboard(375));
+await unit('checkBottomSheetBar 375', () => checkBottomSheetBar(375, 740));
+await unit('checkBottomSheetBar 375 keyboard', () => checkBottomSheetBar(375, 740, 300, true));
+await unit('checkBottomSheetBar 1280', () => checkBottomSheetBar(1280, 900));
 for (const [width, height] of [
   [360, 740],
   [375, 800],
   [1280, 900],
 ])
-  await checkDraftsCard(width, height);
-await checkEmptyHint();
-await checkLongPressDelete();
-await checkSelection();
-await checkSelectionBox();
-await checkUnlistedPost();
+  await unit(`checkDraftsCard ${width}`, () => checkDraftsCard(width, height));
+await unit('checkEmptyHint', () => checkEmptyHint());
+await unit('checkLongPressDelete', () => checkLongPressDelete());
+await unit('checkSelection', () => checkSelection());
+await unit('checkSelectionBox', () => checkSelectionBox());
+await unit('checkUnlistedPost', () => checkUnlistedPost());
 for (const [width, height] of [
   [375, 740],
   [1280, 900],
 ]) {
-  await checkCardsCarousel(width, height);
-  await checkCardsSpacing(width, height);
-  for (const scheme of ['light', 'dark']) await checkCardIconText(width, height, scheme);
-  for (const scheme of ['light', 'dark']) await checkIconColor(width, height, scheme);
+  await unit(`checkCardsCarousel ${width}`, () => checkCardsCarousel(width, height));
+  await unit(`checkCardsSpacing ${width}`, () => checkCardsSpacing(width, height));
+  for (const scheme of ['light', 'dark'])
+    await unit(`checkCardIconText ${width} ${scheme}`, () => checkCardIconText(width, height, scheme));
+  for (const scheme of ['light', 'dark']) await unit(`checkIconColor ${width} ${scheme}`, () => checkIconColor(width, height, scheme));
 }
 for (const [width, height] of [
   [375, 740],
   [1280, 900],
 ])
   for (const name of ['list', 'segmented', 'buttons', 'cards'])
-    await checkIconSlots(
-      width,
-      height,
-      inlineBlocks.find((b) => b.name === name),
+    await unit(`checkIconSlots ${width} ${name}`, () =>
+      checkIconSlots(
+        width,
+        height,
+        inlineBlocks.find((b) => b.name === name),
+      ),
     );
-for (const block of inlineBlocks) await checkInlineBlock(375, 740, block);
+for (const block of inlineBlocks) await unit(`checkInlineBlock 375 ${block.name}`, () => checkInlineBlock(375, 740, block));
 // On a computer too: the row's settings are in the side panel at once (a card's: its page and its buttons).
-for (const block of inlineSingles) for (const w of [375, 1280]) await checkInlineSingle(w, w < 600 ? 740 : 900, block);
-for (const block of inlineBlocks) await checkInlineBlock(1280, 900, block);
+for (const block of inlineSingles)
+  for (const w of [375, 1280]) await unit(`checkInlineSingle ${w} ${block.name}`, () => checkInlineSingle(w, w < 600 ? 740 : 900, block));
+for (const block of inlineBlocks) await unit(`checkInlineBlock 1280 ${block.name}`, () => checkInlineBlock(1280, 900, block));
 for (const [w, h] of [
   [375, 740],
   [1280, 900],
 ])
-  await checkSegmentedArrow(w, h);
-for (const block of liveLists) for (const w of [375, 1280]) await checkLiveList(w, w < 600 ? 740 : 900, block);
-await checkListRowColors();
-await checkSectionOnImage();
-await checkInsertNeverOpensSheet(375, 740);
-await checkEmptyRow(375, 740);
-await checkInsertNeverOpensSheet(1280, 900);
+  await unit(`checkSegmentedArrow ${w}`, () => checkSegmentedArrow(w, h));
+for (const block of liveLists)
+  for (const w of [375, 1280]) await unit(`checkLiveList ${w} ${block.name}`, () => checkLiveList(w, w < 600 ? 740 : 900, block));
+await unit('checkListRowColors', () => checkListRowColors());
+await unit('checkSectionOnImage', () => checkSectionOnImage());
+await unit('checkInsertNeverOpensSheet 375', () => checkInsertNeverOpensSheet(375, 740));
+await unit('checkEmptyRow 375', () => checkEmptyRow(375, 740));
+await unit('checkInsertNeverOpensSheet 1280', () => checkInsertNeverOpensSheet(1280, 900));
 for (const [width, height] of [
   [375, 740],
   [1280, 900],
 ])
-  await checkSteps(width, height);
-await checkDynamicList(375, 740);
-await checkDynamicList(1280, 900);
-await checkDynamicPicker(375, 740);
-await checkDynamicPicker(1280, 900);
-await checkOwnList(375, 740);
-await checkOwnList(1280, 900);
-await checkInlineTable(375, 740);
-await checkInlineTable(1280, 800);
-await checkTableAlign(375, 740);
-await checkTableAlign(1280, 800);
+  await unit(`checkSteps ${width}`, () => checkSteps(width, height));
+await unit('checkDynamicList 375', () => checkDynamicList(375, 740));
+await unit('checkDynamicList 1280', () => checkDynamicList(1280, 900));
+await unit('checkDynamicPicker 375', () => checkDynamicPicker(375, 740));
+await unit('checkDynamicPicker 1280', () => checkDynamicPicker(1280, 900));
+await unit('checkOwnList 375', () => checkOwnList(375, 740));
+await unit('checkOwnList 1280', () => checkOwnList(1280, 900));
+await unit('checkInlineTable 375', () => checkInlineTable(375, 740));
+await unit('checkInlineTable 1280', () => checkInlineTable(1280, 800));
+await unit('checkTableAlign 375', () => checkTableAlign(375, 740));
+await unit('checkTableAlign 1280', () => checkTableAlign(1280, 800));
 
-await checkTableRadius(375, 740);
-await checkTableRadius(1280, 800);
+await unit('checkTableRadius 375', () => checkTableRadius(375, 740));
+await unit('checkTableRadius 1280', () => checkTableRadius(1280, 800));
 for (const [width, height] of [
   [360, 740],
   [375, 740],
   [390, 844],
   [414, 896],
 ])
-  await checkIconSearch(width, height);
-await checkHints();
-await checkChecklistMarks();
-await checkFullWidthSection();
-await checkSectionBackground(375, true);
-await checkSectionBackground(1280, false);
-await checkTapBelowSection(375, true);
-await checkTapBelowSection(1280, false);
+  await unit(`checkIconSearch ${width}`, () => checkIconSearch(width, height));
+await unit('checkHints', () => checkHints());
+await unit('checkChecklistMarks', () => checkChecklistMarks());
+await unit('checkFullWidthSection', () => checkFullWidthSection());
+await unit('checkSectionBackground 375', () => checkSectionBackground(375, true));
+await unit('checkSectionBackground 1280', () => checkSectionBackground(1280, false));
+await unit('checkTapBelowSection 375', () => checkTapBelowSection(375, true));
+await unit('checkTapBelowSection 1280', () => checkTapBelowSection(1280, false));
 for (const [width, height] of [
   [360, 740],
   [375, 800],
@@ -5322,26 +5383,26 @@ for (const [width, height] of [
   [414, 896],
   [1280, 900],
 ]) {
-  await checkFoldRows(width, height);
-  await checkEntrySettings(width, height);
-  await checkNofollowSwitch(width, height);
+  await unit(`checkFoldRows ${width}`, () => checkFoldRows(width, height));
+  await unit(`checkEntrySettings ${width}`, () => checkEntrySettings(width, height));
+  await unit(`checkNofollowSwitch ${width}`, () => checkNofollowSwitch(width, height));
 }
-await checkFooterTargets(320, true);
-await checkFooterTargets(375, true);
-await checkFooterTargets(1280, false);
-await checkToolbarBox();
-await checkDensity(375, 740);
-await checkDensity(1280, 900);
-await checkDensityParts(375, 740, true);
-await checkDensityParts(1280, 900, false);
-await checkDensitySetting(375, 740);
-await checkDensitySetting(1280, 900);
-await checkPreviewSection();
-await checkFullSection();
-await checkH1SectionGap();
-for (const w of [375, 1280]) await checkListMarkers(w);
-for (const w of [375, 1280]) await checkListsAndBlocks(w);
-for (const w of [360, 375, 390, 414]) await checkPreviewDraft(w);
+await unit('checkFooterTargets 320', () => checkFooterTargets(320, true));
+await unit('checkFooterTargets 375', () => checkFooterTargets(375, true));
+await unit('checkFooterTargets 1280', () => checkFooterTargets(1280, false));
+await unit('checkToolbarBox', () => checkToolbarBox());
+await unit('checkDensity 375', () => checkDensity(375, 740));
+await unit('checkDensity 1280', () => checkDensity(1280, 900));
+await unit('checkDensityParts 375', () => checkDensityParts(375, 740, true));
+await unit('checkDensityParts 1280', () => checkDensityParts(1280, 900, false));
+await unit('checkDensitySetting 375', () => checkDensitySetting(375, 740));
+await unit('checkDensitySetting 1280', () => checkDensitySetting(1280, 900));
+await unit('checkPreviewSection', () => checkPreviewSection());
+await unit('checkFullSection', () => checkFullSection());
+await unit('checkH1SectionGap', () => checkH1SectionGap());
+for (const w of [375, 1280]) await unit(`checkListMarkers ${w}`, () => checkListMarkers(w));
+for (const w of [375, 1280]) await unit(`checkListsAndBlocks ${w}`, () => checkListsAndBlocks(w));
+for (const w of [360, 375, 390, 414]) await unit(`checkPreviewDraft ${w}`, () => checkPreviewDraft(w));
 
 await browser.close();
 server.close();

@@ -1,0 +1,5 @@
+{
+  "id": "menu-item-corners",
+  "kind": "line",
+  "text": "Menu items have squarer corners, except the first, the last and the selected one"
+}

@@ -2,8 +2,13 @@
 // (InlineList.tsx), not a new design: its rows are the entries of the list, one file each. The rows, the active row, the keys and the
 // toolbar are the List block's (InlineItems.tsx, contextualMenu.ts); what is new here is only what a node view gave them: the state, the
 // row-to-file saving (lib/ownListSave.mjs, saved a moment after typing stops, as one commit) and the sheet of a row's icon and link.
+// The waiting version (the owner's decision of 14 November: "Save as pages until final save"): making the list and adding or changing its fields is not
+// committed one step at a time. The definition as it is now (`defText`) and the rows are the list's waiting version (lib/ownListDraft.mjs, src/listDraft.ts):
+// kept in the editor, and with R2 caching on also in the Worker, until the page's `Save` commits all of it once. While a waiting version exists the rows
+// are not saved by themselves either (their files would name fields git does not know yet): they go into the same commit. A list with no change to
+// its definition saves its rows as before.
 import { useEffect, useMemo, useRef, useState } from 'react';
-import Screen from './Screen';
+import FormFrame from './FormFrame';
 import OwnListSheet from './OwnListSheet';
 import { DotsThreeVertical, PencilSimple, Trash } from '@phosphor-icons/react';
 import InlineFieldsList, { type ListField } from './InlineFieldsList';
@@ -12,16 +17,28 @@ import type { Row } from './InlineList';
 import { contextualMenu, type BarAction } from './contextualMenu';
 import { useBlockDialog, type RowSpec } from './BlockDialog';
 import { siteBlocks } from './registry';
-import { atLeastNow, Button, IconButton, Menu, MenuItem, SupportingText } from './ui';
+import { atLeastNow, Button, IconButton, LoadingIndicator, Menu, MenuItem, SupportingText } from './ui';
 import AddFieldMenu from './AddFieldMenu';
-import { DEFINITION_FILE, fieldsOf, isEntryPath, nameOf, parseDefinition, rowOfEntry } from '../lib/ownList.mjs';
+import { DEFINITION_VERSION, fieldsOf, isEntryPath, nameOf, parseDefinition, rowOfEntry } from '../lib/ownList.mjs';
 import { savePlan } from '../lib/ownListSave.mjs';
+import { definitionText, entriesIn } from '../lib/ownListEdit.mjs';
+import { definitionChange, draftText, parseDraft } from '../lib/ownListDraft.mjs';
 import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
 import { ConflictError, type RepoFile } from './github';
 import { siteT, t } from './i18n';
-import { kindNames } from './ownLists';
-import { lower, savedText } from './deploy';
-import { slugOf, type OwnedList } from './schema';
+import { kindNames, ownListOf } from './ownLists';
+import { kindAndName, lower, savedText } from './deploy';
+import { slugOf } from './schema';
+import {
+  clearListDraft,
+  definitionPath,
+  dropKeptListDraft,
+  keepListDraft,
+  keptListDraft,
+  listDraftOf,
+  setListDraft,
+  type KeptState,
+} from './listDraft';
 import { config } from '@site/editor';
 import { Fields, type FieldContext } from './fields';
 import { creditedIn, useUploads } from './images';
@@ -33,25 +50,50 @@ import type { Env } from './App';
 type KeyedRow = Row & { key: number };
 
 const SAVE_AFTER = 800;
+/** How long after the last change the waiting version is sent to the Worker (as a page's autosave, src/autosave.mjs). */
+const KEEP_AFTER = 1500;
 
-export default function OwnListPage({ collection, files, env }: { collection: OwnedList; files: RepoFile[]; env: Env }) {
-  const folder = collection.folder;
-  // The list's fields as the definition has them now (an edit of the list changes them while the page is open): each `{ id, kind }`, in order.
-  const definition = parseDefinition(files.find((f) => f.path === `${folder}/${DEFINITION_FILE}`)?.text ?? '{}').definition;
-  const fields: ListField[] = definition
-    ? (fieldsOf(definition) as { id: string; kind: string; label?: string }[]).map((f) => ({
-        id: f.id,
-        kind: f.kind,
-        name: nameOf(definition, f, kindNames()),
-      }))
-    : [];
+type Definition = { version: 2; label: string; fields: { id: string; kind: string; label?: string }[]; dropped: string[] };
+
+export default function OwnListPage({ id, files, env }: { id: string; files: RepoFile[]; env: Env }) {
+  const folder = `${config.folders.data}/${id}`;
+  const path = definitionPath(id);
+  // The list as git has it: not there while the list is new and not saved yet.
+  const committed = files.find((f) => f.path === path);
+  // What the editor kept of a waiting version (a new list, or one restored from the Worker, src/listDraft.ts).
+  const stored = useMemo(() => {
+    const text = listDraftOf(id);
+    return text ? parseDraft(text) : null;
+  }, []);
+  // The definition as it is now, with the changes that are not saved: the waiting version's definition.
+  const [defText, setDefText] = useState(stored?.definition ?? committed?.text ?? '');
+  const parsed = parseDefinition(defText).definition as Definition | undefined;
+  const definition: Definition = parsed ?? { version: DEFINITION_VERSION, label: id, fields: [], dropped: [] };
+  const collection = useMemo(() => ownListOf(id, definition), [defText]);
+  // The list has changes that are not in git: a list not saved yet, or a changed definition. (Then the rows wait too.)
+  const pending = defText !== (committed?.text ?? null);
+  const pendingNow = useRef(pending);
+  pendingNow.current = pending;
+  // The fields whose data is to go from every item with the final Save (`Remove field`, `Remove data`).
+  const without = useRef<string[]>(stored?.without ?? []);
+  const touched = useRef(false);
+  const [kept, setKept] = useState<KeptState>('saving');
+  const keepTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const hadDraft = useRef(false);
+  const [finalSaving, setFinalSaving] = useState(false);
+  // The fields as the definition has them now: each `{ id, kind }`, in order.
+  const fields: ListField[] = (fieldsOf(definition) as { id: string; kind: string; label?: string }[]).map((f) => ({
+    id: f.id,
+    kind: f.kind,
+    name: nameOf(definition, f, kindNames()),
+  }));
   const names = fields.map((f) => f.id);
   const next = useRef(1);
-  // What the page starts with: the entries as rows (by `order`, then the file name), each with the file it is.
+  // What the page starts with: the waiting version's rows, else the entries as rows (by `order`, then the file name), each with the file it is.
   const start = useMemo(() => {
     const known = new Map<string, { oid: string; text: string }>();
     const slugs = new Map<number, string>();
-    const rows: KeyedRow[] = files
+    const saved = files
       .filter((f) => f.path.startsWith(`${folder}/`) && isEntryPath(f.path))
       .sort((a, b) => a.path.localeCompare(b.path))
       .flatMap((f) => {
@@ -63,12 +105,18 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
           return [];
         }
       })
-      .sort((a, b) => a.order - b.order)
-      .map(({ data, slug }) => {
-        const key = next.current++;
-        slugs.set(key, slug);
-        return { ...(rowOfEntry(data, names) as Row), key };
-      });
+      .sort((a, b) => a.order - b.order);
+    const rows: KeyedRow[] = stored
+      ? stored.rows.map(({ slug, row }) => {
+          const key = next.current++;
+          if (slug) slugs.set(key, slug);
+          return { ...(row as Row), key };
+        })
+      : saved.map(({ data, slug }) => {
+          const key = next.current++;
+          slugs.set(key, slug);
+          return { ...(rowOfEntry(data, names) as Row), key };
+        });
     return { rows, known, slugs };
   }, []);
   const [items, setItems] = useState<KeyedRow[]>(start.rows);
@@ -112,7 +160,8 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
   const flush = () => {
     clearTimeout(timer.current);
     chain.current = chain.current.then(async () => {
-      if (gone.current) return;
+      // A waiting version holds the rows too: they are saved with the list, by the final Save.
+      if (gone.current || pendingNow.current) return;
       const plan = savePlan({ folder, rows: now.current.items, known: known.current, slugs: slugs.current, visible: visible.current });
       if (!plan.writes.length && !plan.deletes.length) return;
       const change = t.app.changes.edited(lower(collection.label));
@@ -151,11 +200,133 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
   };
   useEffect(() => () => flush(), []);
 
+  /** A change to the definition (the sheet's): kept as the waiting version; a field that is gone leaves the rows. */
+  const changeDefinition = (nextDefinition: Definition, removed?: string) => {
+    touched.current = true;
+    if (removed && !without.current.includes(removed)) without.current = [...without.current, removed];
+    const keep = new Set(nextDefinition.fields.map((f) => f.id));
+    setItems((list) =>
+      list.map((r) =>
+        Object.keys(r).every((k) => k === 'key' || keep.has(k))
+          ? r
+          : (Object.fromEntries(Object.entries(r).filter(([k]) => k === 'key' || keep.has(k))) as KeyedRow),
+      ),
+    );
+    setDefText(definitionText(nextDefinition));
+  };
+
+  // The waiting version is kept in the editor at once and in the Worker a moment after the last change; with nothing waiting nothing is kept.
+  useEffect(() => {
+    if (!pending) {
+      clearTimeout(keepTimer.current);
+      clearListDraft(id);
+      if (hadDraft.current) {
+        hadDraft.current = false;
+        void dropKeptListDraft(id);
+      }
+      return;
+    }
+    hadDraft.current = true;
+    const text = draftText({
+      definition: defText,
+      rows: items.map(({ key, ...row }) => ({ ...(slugs.current.get(key) ? { slug: slugs.current.get(key) } : {}), row })),
+      without: without.current,
+    });
+    setListDraft(id, text);
+    setKept('saving');
+    clearTimeout(keepTimer.current);
+    keepTimer.current = setTimeout(async () => setKept(await keepListDraft(id, text)), KEEP_AFTER);
+  }, [defText, items, pending]);
+  // The tab was closed with changes waiting: the Worker may have them (R2 caching), and they come back unless the owner already started again.
+  useEffect(() => {
+    if (stored) return;
+    void keptListDraft(id).then((text) => {
+      const draft = text && parseDraft(text);
+      if (!draft || touched.current || draft.definition === committed?.text) return;
+      without.current = draft.without;
+      slugs.current = new Map();
+      setItems(
+        draft.rows.map(({ slug, row }) => {
+          const key = next.current++;
+          if (slug) slugs.current.set(key, slug);
+          return { ...(row as Row), key };
+        }),
+      );
+      setDefText(draft.definition);
+      env.notify({ text: t.forms.versions.autosave.restored });
+    });
+  }, []);
+  // Left with changes waiting (the owner chose Discard, or deleted the list): what was kept goes.
+  useEffect(
+    () => () => {
+      clearTimeout(keepTimer.current);
+      if (!pendingNow.current) return;
+      clearListDraft(id);
+      void dropKeptListDraft(id);
+    },
+    [],
+  );
+
+  /** The final `Save`: the definition, the rows and what the changes took out, as one commit. */
+  async function saveAll(): Promise<boolean> {
+    clearTimeout(timer.current);
+    await chain.current;
+    const plan = savePlan({
+      folder,
+      rows: now.current.items,
+      known: known.current,
+      slugs: slugs.current,
+      visible: visible.current,
+      without: without.current,
+    });
+    const defChange = definitionChange({ path, text: defText, committed });
+    const label = lower(definition.label);
+    const change = committed ? t.app.changes.edited(label) : t.app.changes.created(kindAndName(t.ownList.list, definition.label));
+    const used = plan.writes.flatMap((w) => images.usedIn(w.content));
+    const records = creditChanges([], recordsIn(env.files, config.fileRecords), config.fileRecords, creditedIn(used));
+    const changes = [
+      ...defChange,
+      ...plan.writes.map((w) => ({ path: w.path, content: w.content, oid: w.oid })),
+      ...plan.deletes.map((d) => ({ path: d.path, content: null, oid: d.oid })),
+      ...used.map((u) => ({ path: u.path, content: u.bytes, oid: null })),
+      ...records,
+    ];
+    if (!changes.length) return true;
+    setFinalSaving(true);
+    env.notify({ text: t.common.saving });
+    try {
+      const oids = await env.commit(
+        committed ? siteT.forms.commit.edit(label) : siteT.forms.commit.create(siteT.ownList.new, label),
+        changes,
+        change,
+      );
+      for (const c of defChange) env.onSaved({ path: c.path, oid: oids[c.path], text: c.content });
+      for (const w of plan.writes) {
+        known.current.set(w.path, { oid: oids[w.path], text: w.content });
+        env.onSaved({ path: w.path, oid: oids[w.path], text: w.content });
+      }
+      images.markSaved(used);
+      for (const c of records) if (typeof c.content === 'string') env.onSaved({ path: c.path, oid: oids[c.path], text: c.content });
+      for (const d of plan.deletes) known.current.delete(d.path);
+      if (plan.deletes.length) env.forget(plan.deletes.map((d) => d.path));
+      slugs.current = plan.slugs;
+      without.current = [];
+      env.notify({ text: savedText(change), kind: 'saved' });
+      return true;
+    } catch (e) {
+      env.notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
+      return false;
+    } finally {
+      setFinalSaving(false);
+    }
+  }
+
   const keyed = (list: Item[]) => list.map((r) => (typeof r.key === 'number' ? r : { ...r, key: next.current++ })) as KeyedRow[];
   const change = (c: Change) => {
     if ('active' in c) setActive(c.active ?? null);
     if ('focus' in c) setFocus(c.focus ?? null);
     if (c.items) {
+      touched.current = true;
       setItems(keyed(c.items));
       later();
     }
@@ -253,10 +424,23 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
 
   return (
     <Fields.Provider value={context}>
-      <Screen
-        title={collection.label}
+      <FormFrame
+        title={definition.label}
         back={{ href: '#lists', label: t.common.parts.lists }}
-        status={saving ? t.app.busy.saving : undefined}
+        dirty={pending}
+        saving={finalSaving}
+        onSave={saveAll}
+        status={
+          saving || finalSaving ? (
+            t.app.busy.saving
+          ) : pending ? (
+            kept === 'saving' ? (
+              <LoadingIndicator>{t.forms.versions.autosave.saving}</LoadingIndicator>
+            ) : (
+              t.forms.versions.autosave[kept]
+            )
+          ) : undefined
+        }
         pageActions={
           <span ref={menuAt}>
             <IconButton
@@ -319,23 +503,23 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
         <OwnListSheet
           ref={sheet}
           collection={collection}
+          definition={definition}
+          entries={entriesIn(files, folder).map((e: { path: string; data: Record<string, unknown> }) => ({
+            ...e,
+            data: Object.fromEntries(Object.entries(e.data).filter(([k]) => !without.current.includes(k))),
+          }))}
+          saved={!!committed}
           files={files}
           env={env}
           open={editing}
           onClose={() => setEditing(false)}
+          onChange={changeDefinition}
           onDeleting={() => {
             gone.current = true;
             clearTimeout(timer.current);
           }}
-          onRemoved={(field, saved) => {
-            for (const s of saved) known.current.set(s.path, { oid: s.oid, text: s.text });
-            setItems(
-              (list) =>
-                list.map((r) => (field in r ? Object.fromEntries(Object.entries(r).filter(([k]) => k !== field)) : r)) as KeyedRow[],
-            );
-          }}
         />
-      </Screen>
+      </FormFrame>
     </Fields.Provider>
   );
 }

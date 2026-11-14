@@ -47,7 +47,7 @@ export const shownTestimonials = (rows: TestimonialRow[], data: BlockData, showT
   rows.map((row) => ({
     slug: row.slug,
     name: row.name,
-    ...(row.image ? { image: { src: shownAt(row.image) } } : {}),
+    ...(row.image ? { image: { src: shownAt(row.image), ...(row.alt?.trim() ? { alt: row.alt.trim() } : {}) } } : {}),
     context: row.context,
     // Its paragraphs, as the site splits its text.
     quote: String(row.quote ?? '')
