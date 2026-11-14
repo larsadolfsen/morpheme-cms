@@ -25,7 +25,7 @@ export default defineBlock({
   inline: {
     item: 'items',
     fields: ['title', 'subhead', 'text'],
-    media: ['icon', 'iconColor', 'image', 'video'],
+    media: ['icon', 'iconColor', 'image', 'alt', 'video'],
     blockMedia: ['media'],
     settings: ['href', 'buttons'],
     blockSettings: true,
@@ -112,6 +112,13 @@ export default defineBlock({
           only: { field: 'media', is: ['icon'] },
         },
         { name: 'image', label: t.blocks.cards.image, type: 'image', only: { field: 'media', is: ['image'] } },
+        {
+          name: 'alt',
+          label: t.blocks.picture.alt,
+          type: 'string',
+          hint: t.blocks.picture.altHint,
+          only: { field: 'media', is: ['image'] },
+        },
         {
           name: 'video',
           label: t.blocks.cards.video,

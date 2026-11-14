@@ -19,7 +19,7 @@ export const loadTestimonials = (items: TestimonialItem[], showTopic = true): Pr
       return {
         slug: t.slug,
         name: t.name,
-        ...(t.image ? { image: imageOf(t.image) } : {}),
+        ...(t.image ? { image: { ...imageOf(t.image), ...(t.alt ? { alt: t.alt } : {}) } } : {}),
         context: t.context,
         quote: t.quote,
         categories: t.categories,

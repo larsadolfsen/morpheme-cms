@@ -48,6 +48,8 @@ export type LinkCardProps = {
   icon?: string;
   iconColor?: string;
   image?: string;
+  /** The image's own alternative text for this card (none: the image is decorative). */
+  alt?: string;
   video?: string;
   title: string;
   subhead?: string;
@@ -74,7 +76,9 @@ export const cardsOf = (
     return {
       media,
       ...(media === 'icon' ? { icon: card.icon, ...(iconColorOf(card.iconColor) ? { iconColor: iconColorOf(card.iconColor) } : {}) } : {}),
-      ...(media === 'image' && card.image ? { image: how.image(card.image) } : {}),
+      ...(media === 'image' && card.image
+        ? { image: { ...how.image(card.image), ...(card.alt?.trim() ? { alt: card.alt.trim() } : {}) } }
+        : {}),
       ...(video ? { video } : {}),
       title: card.title,
       ...(card.subhead ? { subhead: card.subhead } : {}),

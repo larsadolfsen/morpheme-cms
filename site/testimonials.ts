@@ -7,6 +7,7 @@ import { settings } from './settings';
 type TestimonialData = {
   name: string;
   image?: string;
+  alt?: string;
   context?: string;
   /** Paragraphs separated by a blank line. */
   quote: string;
@@ -21,6 +22,8 @@ export type Testimonial = {
   name: string;
   /** Its image (optional), by the name. */
   image?: string;
+  /** The image's alternative text (none: decorative). */
+  alt?: string;
   context?: string;
   /** One string per paragraph. */
   quote: string[];
@@ -38,6 +41,7 @@ export const testimonials: Testimonial[] = Object.entries(files)
     slug: file.replace(/^.*\/|\.json$/g, ''),
     name: t.name,
     image: t.image || undefined,
+    alt: t.alt || undefined,
     context: t.context || undefined,
     quote: t.quote
       .split(/\n\s*\n/)
