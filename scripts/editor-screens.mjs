@@ -5058,6 +5058,91 @@ async function checkSteps(width, height) {
   }
 }
 
+/** Pasting lines into an empty item makes one item each (spec 2026-11-14-paste-and-change-to-design.md, section 2): in List, Segmented list,
+ * FAQ list, Cards and Steps, three lines pasted into the empty block make three items with those titles (a tab gives the second field its
+ * text), the cursor in the last field of the last; a paste with a `#` line is left as it is; a paste into an empty item after Add below
+ * makes items there and keeps the items before; Ctrl+Z gives the block back as it was before the paste. */
+const pasteBlocks = [
+  { name: 'list', hint: 'Rows with icon, heading and text.', first: 'title', second: 'text', last: 'text' },
+  { name: 'segmented', hint: 'Rows that expand, with a link.', first: 'title', second: 'text', last: 'text' },
+  { name: 'faq', hint: 'Questions that expand to answers.', first: 'question', second: 'answer', last: 'answer' },
+  { name: 'cards', hint: 'Cards that link to pages.', first: 'title', second: 'text', last: 'text' },
+  { name: 'steps', hint: 'Numbered steps.', first: 'title', second: 'text', last: 'text' },
+];
+async function checkInlinePaste(width, height, block) {
+  const label = `${width}px paste in ${block.name}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: block.hint }).first().click();
+  const first = `.inline-list-host [data-row] [data-field="${block.first}"]`;
+  await page.waitForSelector(first);
+  // Pastes `plain` (and `html`) into the first field of row `row`; true when the block took the paste over (preventDefault).
+  const paste = (row, plain, html = '') =>
+    page.evaluate(
+      ([sel, row, plain, html]) => {
+        const data = new DataTransfer();
+        data.setData('text/plain', plain);
+        if (html) data.setData('text/html', html);
+        const field = document.querySelector(sel.replace('[data-row]', `[data-row="${row}"]`));
+        field.focus();
+        return !field.dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+      },
+      [first, row, plain, html],
+    );
+  // The items with something typed in their first field: [first, second].
+  const items = () =>
+    page.evaluate(
+      ([f, s]) =>
+        [...document.querySelectorAll('.inline-list-host [data-row]')]
+          .filter((r) => !r.parentElement.closest('[data-row]'))
+          .map((r) => [r.querySelector(`[data-field="${f}"]`)?.value ?? '', r.querySelector(`[data-field="${s}"]`)?.value ?? ''])
+          .filter(([a]) => a),
+      [block.first, block.second],
+    );
+  if (await paste(0, '# Menu\nTea\nCake')) problems.push(`${label}: a paste with a heading line was taken over`);
+  await page.waitForTimeout(200);
+  if ((await items()).length > 1) problems.push(`${label}: a paste with a heading line made items: ${JSON.stringify(await items())}`);
+  // The heading paste is the browser's own (the event does nothing here): the field is still empty.
+  if (!(await paste(0, '- Order\tChoose it\n- Pay\n- Get it', '<ul><li>Order</li><li>Pay</li><li>Get it</li></ul>')))
+    problems.push(`${label}: three pasted lines were left to the browser`);
+  await page.waitForTimeout(300);
+  const titles = (await items()).map(([a]) => a).join();
+  if (titles !== 'Order,Pay,Get it') problems.push(`${label}: three pasted lines made ${titles}, not Order,Pay,Get it`);
+  const cursor = await page.evaluate(() => {
+    const el = document.activeElement;
+    return `${el?.closest('[data-row]')?.getAttribute('data-row')} ${el?.getAttribute('data-field')}`;
+  });
+  if (cursor !== `2 ${block.last}`)
+    problems.push(`${label}: after the paste the cursor is in ${cursor}, not in the last item's ${block.last}`);
+  // The tab gave the first item its text (an item that folds shows it once it is the active one).
+  await page.locator(first.replace('[data-row]', '[data-row="0"]')).click();
+  await page.waitForTimeout(300);
+  const text = await page.locator(`.inline-list-host [data-row="0"] [data-field="${block.second}"]`).first().inputValue();
+  if (text !== 'Choose it') problems.push(`${label}: the text after the tab in the first line is "${text}", not "Choose it"`);
+  // An empty item after Add below takes a paste too, in its place; the item before it stays.
+  await page.locator('.inline-list-host [data-add-row]').first().click();
+  await page.waitForTimeout(300);
+  if (!(await paste(3, 'Ship\nTrack'))) problems.push(`${label}: lines pasted into an added empty item were left to the browser`);
+  await page.waitForTimeout(300);
+  const after = (await items()).map(([a]) => a).join();
+  if (after !== 'Order,Pay,Get it,Ship,Track') problems.push(`${label}: a paste into an added item gave ${after}`);
+  // Ctrl+Z takes the paste back as one step.
+  await page.keyboard.press('Control+z');
+  await page.waitForTimeout(300);
+  const undone = (await items()).map(([a]) => a).join();
+  if (undone !== 'Order,Pay,Get it') problems.push(`${label}: Ctrl+Z after the paste gave ${undone}, not the items before it`);
+  await page.close();
+}
+
 /** The dynamic List (the owner's flow): the dynamic icon in the contextual menu opens the dynamic settings (a bottom sheet on a phone, the side panel on a computer) with `Rows from`; picking a list turns the block into a "Dynamic list" with its state line, `Edit list` and an `Undo` that brings the typed rows back; the toolbar then has no row actions and stays inside the screen. */
 async function checkDynamicList(width, height) {
   const label = `${width}px dynamic list`;
@@ -7922,6 +8007,8 @@ for (const [width, height] of [
   [1280, 900],
 ])
   await unit(`checkSteps ${width}`, () => checkSteps(width, height));
+for (const block of pasteBlocks)
+  for (const w of [375, 1280]) await unit(`checkInlinePaste ${w} ${block.name}`, () => checkInlinePaste(w, w < 600 ? 740 : 900, block));
 await unit('checkDynamicList 375', () => checkDynamicList(375, 740));
 await unit('checkDynamicList 1280', () => checkDynamicList(1280, 900));
 await unit('checkDynamicPicker 375', () => checkDynamicPicker(375, 740));
