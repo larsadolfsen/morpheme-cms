@@ -861,12 +861,10 @@
     --icon-button-icon-size: 1.375rem;
   }
 
-  /* "Notice": a filled card in the secondary container. */
+  /* "Notice": a filled card (the Card part, .card-filled) in the high surface container. */
   .block-notice {
+    --card-filled-surface: var(--mo-surface-container-high);
     border-left: 0;
-    border-radius: var(--mo-shape-medium);
-    background: var(--mo-surface-container-high);
-    padding: 1rem 1.5rem;
   }
 
   /* "Steps": the numbers in the primary container. */
