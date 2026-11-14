@@ -53,6 +53,9 @@ export type Field = {
   address?: 'page' | 'post';
   /** What is used when it is empty, shown greyed in it (string, text). */
   placeholder?: (site: SiteData) => string;
+  /** An alt text field (string, text): the name of the image field beside it. While it is empty, the Library's text for that image is shown
+   * greyed in it, with the line that says it is used (src/imageAlt.mjs). */
+  libraryText?: string;
   /** Edited elsewhere: a link there under the label. */
   edit?: Edit;
   required?: boolean;

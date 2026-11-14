@@ -13,7 +13,7 @@ import { heroParts } from './fields';
 export type HeroView = {
   heading?: string;
   html: string;
-  image?: Image & { alt: string };
+  image?: Image;
   /** The image behind the text (`placement` 'behind'), not beside it. */
   behind?: boolean;
   /** Across the whole width of the window (`width` 'full'), not only the text's. */

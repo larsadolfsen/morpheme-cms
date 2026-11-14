@@ -35,7 +35,7 @@ export default function Hero({ view }: { view: HeroView }) {
           sizes={image.srcset ? sizes : undefined}
           width={image.width}
           height={image.height}
-          alt={image.alt}
+          alt={image.alt ?? ''}
           fetchPriority="high"
           className="block-hero-picture"
         />

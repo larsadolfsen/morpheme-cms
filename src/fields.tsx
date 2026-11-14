@@ -62,6 +62,7 @@ import { iconColorOf, iconColorOptions } from './iconColor';
 import { clean, inPairs, inUse, newItem, phoneParts, phoneText, problemAt, problemOf, type Around, type Problem } from './check';
 import { Icon, useAllIconNames } from './icon';
 import { t } from './i18n';
+import { shownLibraryAlt } from './imageAlt.mjs';
 import { snackbar } from '../lib/snackbar';
 
 /** A choice of a relation. `on`: where it is shown on the site (a promotion), for a field with `onPage`; `text`: what a
@@ -108,6 +109,9 @@ export type FieldContext = {
   site: SiteData;
   /** The address of the page being edited (a relation with `onPage` offers what is shown there). */
   page?: string;
+  /** What the Library says of an image (its base alt text, or that it is decorative), by its address, for an alt text field's hint
+   * (Field.libraryText). */
+  libraryAlt?: (src: string) => { alt?: string; decorative?: boolean } | undefined;
   /** Asks for an image from the gallery or a new one (useMediaPicker); its address on the site. Also
    * for a text (MarkdownEditor); without it, no image button. */
   pickImage?: () => Promise<string | null>;
@@ -323,7 +327,16 @@ function FieldControl({ field, value, onChange }: Props) {
   const [pickedCode, setPickedCode] = useState(() => (field.phone && text.trim() ? phoneParts(field, text)[0] : undefined));
   // What a field to write or choose in says in itself, as the theme's text field does (its name on its edge, what it
   // does or what is wrong under it, how much it should have at most); the other fields have their name over them.
-  const inField: InField = { label: field.label, hint: hintOf(field, text), problem: wrong ? `${wrong}.` : undefined, limit: field.max };
+  // An alt text with no text of its own shows the Library's text for the image beside it, and says that it is used.
+  const around = useContext(AroundHere);
+  const library = field.libraryText ? context.libraryAlt?.(String(around?.value?.[field.libraryText] ?? '')) : undefined;
+  const fromLibrary = shownLibraryAlt(library, text);
+  const inField: InField = {
+    label: field.label,
+    hint: fromLibrary ? t.media.altUsing : hintOf(field, text),
+    problem: wrong ? `${wrong}.` : undefined,
+    limit: field.max,
+  };
   let inside = false;
   let control;
 
@@ -363,7 +376,7 @@ function FieldControl({ field, value, onChange }: Props) {
           {...inField}
           rows={4}
           value={text}
-          placeholder={field.placeholder?.(context.site)}
+          placeholder={fromLibrary ?? field.placeholder?.(context.site)}
           onChange={(e) => onChange(e.target.value)}
         />
       );
@@ -547,7 +560,7 @@ function FieldControl({ field, value, onChange }: Props) {
           id={id}
           {...inField}
           value={number}
-          placeholder={field.placeholder?.(context.site)}
+          placeholder={fromLibrary ?? field.placeholder?.(context.site)}
           inputMode={field.digitsInPairs ? 'tel' : field.type === 'string' && field.name === 'email' ? 'email' : undefined}
           onChange={(e) => {
             const typed = full(e.target.value);

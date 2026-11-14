@@ -2,5 +2,5 @@
   "id": "image-base-alt",
   "kind": "paragraph",
   "title": "Image descriptions",
-  "text": "Describe an image once, where it lives. Open an image in Files and fill in Describe the image, Decorative image and Caption; they are saved with the image."
+  "text": "Describe an image once, where it lives. In Files, fill in Describe the image, Decorative image and Caption; every page, post, card and banner that shows the image uses that text until you type its own in Alt text."
 }

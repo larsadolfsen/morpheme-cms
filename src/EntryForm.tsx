@@ -34,6 +34,7 @@ import { creditedIn, publicPath, shownAt, useUploads } from './images';
 import { filerAddresses, useMediaPicker } from './Media';
 import { autoTagChanges, newlyUsed } from './autoTags.mjs';
 import { creditChanges, recordsIn } from './fileRecords.mjs';
+import { libraryAltOf } from './imageAlt.mjs';
 import { inUse, problemAt } from './check';
 import { isOver, untilTime } from '../lib/notice.mjs';
 import { splitPicture } from '../lib/crop.mjs';
@@ -587,6 +588,7 @@ function Form({
     testimonials: env.testimonials,
     site: env.site,
     pickImage,
+    libraryAlt: (src) => libraryAltOf(recordsIn(env.files, config.fileRecords), src),
     // A page's address, for what is shown on it (a button that opens a promotion); a new one has none yet.
     page: collection.id === 'pages' && url ? url : undefined,
   };

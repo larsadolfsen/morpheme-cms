@@ -99,6 +99,8 @@ export const media = {
   altHint: 'Describe the image in a few words, for people who can’t see it.',
   decorative: 'Decorative image',
   decorativeHint: 'Screen readers skip the image.',
+  /** Under an alt text field that is empty while the image has a text in Files. */
+  altUsing: 'Using the image’s text. Type to change it for this use only.',
   caption: 'Caption',
   /** The commits, in the site's language (siteT); what: a kind's word ("image", "PDF"). */
   commit: {

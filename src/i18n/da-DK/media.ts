@@ -95,6 +95,7 @@ export const media: Messages['media'] = {
   altHint: 'Beskriv billedet med få ord, til dem der ikke kan se det.',
   decorative: 'Dekorativt billede',
   decorativeHint: 'Skærmlæsere springer billedet over.',
+  altUsing: 'Bruger billedets tekst. Skriv for at ændre den kun her.',
   caption: 'Billedtekst',
   createTag: 'Opret et tag',
   commit: {

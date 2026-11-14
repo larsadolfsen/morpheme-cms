@@ -12,7 +12,7 @@ import { t } from './i18n';
 export type SectionValues = { color: string; image: string; alt: string; width: string };
 
 const IMAGE: Field = { name: 'image', label: t.text.sectionImage, type: 'image' };
-const ALT: Field = { name: 'alt', label: t.text.sectionImageAlt, type: 'string', hint: t.text.sectionImageAltHint };
+const ALT: Field = { name: 'alt', label: t.text.sectionImageAlt, type: 'string', hint: t.text.sectionImageAltHint, libraryText: 'image' };
 const WIDTH: Field = {
   name: 'width',
   label: t.text.sectionWidth,

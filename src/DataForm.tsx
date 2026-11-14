@@ -18,6 +18,7 @@ import SectionsField from './SectionsField';
 import { notOffered, withPageBlocks } from './registry';
 import { creditedIn, shownAt, useUploads } from './images';
 import { creditChanges, recordsIn } from './fileRecords.mjs';
+import { libraryAltOf } from './imageAlt.mjs';
 import { splitPicture } from '../lib/crop.mjs';
 import { useMediaPicker } from './Media';
 import FormFrame, { savedStatus, useSavedAt } from './FormFrame';
@@ -109,6 +110,7 @@ function Form({
     testimonials: env.testimonials,
     site: env.site,
     pickImage,
+    libraryAlt: (src) => libraryAltOf(recordsIn(env.files, config.fileRecords), src),
     // A fixed page's address, for what is shown on it (a button among its sections that opens a promotion).
     page: fixed && dataFile!.view.endsWith('/') ? dataFile!.view : undefined,
   };

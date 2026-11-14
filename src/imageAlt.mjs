@@ -24,3 +24,28 @@ export function resolveAlt(use, base) {
   if (library) return { alt: library, decorative: false, from: 'library' };
   return { alt: '', decorative: false, from: 'none' };
 }
+
+/**
+ * What the Library's records hold for an image address: the record whose `src` is the address, without its format, crop and mark
+ * (`#…`, lib/crop.mjs). Undefined when there is no record or it has no text.
+ * @param {{ record: { src: string; alt?: string; decorative?: boolean } }[]} records
+ * @param {string | undefined} address
+ * @returns {AltBase | undefined}
+ */
+export function libraryAltOf(records, address) {
+  if (!address) return undefined;
+  const src = String(address).split('#')[0];
+  const found = records.find((stored) => stored.record.src === src)?.record;
+  if (!found || (!found.alt && !found.decorative)) return undefined;
+  return { ...(found.alt ? { alt: found.alt } : {}), ...(found.decorative ? { decorative: true } : {}) };
+}
+
+/**
+ * The Library's text to show greyed in an alt text field of a use, or undefined: only while the field is empty and the image has a text
+ * (a decorative image has none to show).
+ * @param {AltBase | undefined} library
+ * @param {string} typed What the use's field holds now.
+ * @returns {string | undefined}
+ */
+export const shownLibraryAlt = (library, typed) =>
+  !typed.trim() && !library?.decorative && library?.alt?.trim() ? library.alt.trim() : undefined;

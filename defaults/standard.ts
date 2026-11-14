@@ -20,7 +20,7 @@ import {
   type Post,
 } from '../site/content';
 import { allPostsCategory, allPostsLink } from '../site/home';
-import { responsive } from '../site/images.mjs';
+import { altFor, libraryAlt, responsive } from '../site/images.mjs';
 import { readingMinutes } from '../site/format';
 import { testimonials, testimonialsPath } from '../site/testimonials';
 import { cookieList } from '../site/cookieList';
@@ -35,7 +35,7 @@ const listedPost = (p: Post): ListedPost => ({
   title: p.data.title,
   description: p.data.description,
   image: p.data.image,
-  imageAlt: p.data.imageDecorative ? undefined : p.data.imageAlt,
+  imageAlt: p.data.image ? altFor(p.data.image, { alt: p.data.imageAlt, decorative: p.data.imageDecorative }).alt || undefined : undefined,
   date: p.data.date.toISOString(),
   minutes: readingMinutes(p.body),
 });
@@ -156,6 +156,10 @@ export const standard: StandardSite = {
       const tag = allPostsCategory(choice);
       return { href: allPostsLink(choice), tag: tag ? categoryName(tag) : undefined };
     },
-    image: responsive,
+    // The sizes, and the text the Library has for it ("" when it is decorative there): a use with a text of its own puts that over it.
+    image: (src) => {
+      const library = libraryAlt(src);
+      return { ...responsive(src), ...(library?.decorative ? { alt: '' } : library?.alt ? { alt: library.alt } : {}) };
+    },
   },
 };
