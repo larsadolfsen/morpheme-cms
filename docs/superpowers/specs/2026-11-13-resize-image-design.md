@@ -1,5 +1,7 @@
 # Resize image in the editor (design proposal)
 
+> **Dropped (owner, 14 Nov 2026):** no drawn size. Images stay full width; another width would be another block. The image tools, the crop view and the Cards' aspect ratio are in `2026-11-14-image-tools-design.md`.
+
 Status: postponed past 0.17, proposal for the owner. No code. Nothing here is for 0.17.
 
 Owner, 13 Nov 2026: "those things that we need, like resize images and stuff like that, let's write specs, but postpone them to the next version."
