@@ -27,7 +27,7 @@ Rec. = recommendation: **Rename**, **Keep** (with the reason) or **Ask** (questi
 
 | Where | We say | Standard | Rec. |
 | :--- | :--- | :--- | :--- |
-| `media.ts` `alt`, `altHint` | "Describe the image" (field label) | HTML `alt` attribute: **Alt text**. Our own `blocks.ts` `picture.alt` and `defaults/collections.ts` `imageAlt` already say "Alt text" | **Rename** to "Alt text", keep the hint |
+| `media.ts` `alt`, `altHint` | "Describe the image" (field label) | HTML `alt` attribute: **Alt text**. Our own `blocks.picture.alt` (`blocks.ts`) and `defaults/collections.ts` `imageAlt` already say "Alt text" | **Rename** to "Alt text", keep the hint |
 | `text.ts` `sectionImageAlt` | "Image description" | **Alt text** (as above) | **Rename** |
 | `media.ts` `commit.alt` | "change the text of …" | **alt text** | **Rename**: "change the alt text of …" |
 | `forms.ts` `address`, `defaults/collections.ts` `path` (pages, posts), `parts.ts` `sample.address` | Field label "URL" | **URL** | **Keep** |
@@ -109,11 +109,33 @@ SplitButton, FabMenu, NavigationRail, Snackbar, LoadingIndicator …).
 | `docs/material-deviations.md` | M3 names throughout | **Keep** |
 | `CLAUDE.md` *Word choice* | "Toggles and states: `Enabled` / `Disabled`, `On` / `Off`" | Conflicts with M3 states (Disabled = inoperable). Change only after Q1 |
 | `CLAUDE.md` *Word choice* | "`Hidden` is the SEO setting `Hide from search engines`" | Already wrong (owner decision 13 Nov); fix with the No index PR |
-| `CLAUDE.md` *Image everywhere* | "image", not "picture" | **Keep**: matches the web (`<img>`, "alt text") and M3 ("image" in list anatomy) |
+| `CLAUDE.md` *Image everywhere* | "image", never the old word | **Keep**: matches the web (`<img>`, "alt text") and M3 ("image" in list anatomy) |
 
-## 6. A check: `standard words` in `scripts/check-language.mjs`
+## 6. Platform terms
 
-Built **after** the renames, so it starts green. It sits next to the `picture` rule in `scripts/check-language.mjs` (same
+Owner, 14 Nov 2026: "I want to keep naming with real names. Don't write fast caching when it is R2 caching." So a
+Cloudflare or GitHub product or feature keeps its **real name** (`R2 caching`, `R2`, `KV`, `Workers`, `Workers Paid`,
+`Workers Builds`, GitHub's `token`, `commit`, `repository`); what it does for the owner may sit in the hint under it. This
+table lists only where we use an invented or second name for one. Already right and kept: `R2 caching` (renamed from
+"Faster editor" in `2026-11-12-r2-caching-name-screens/`), `R2 location`, `Workers Paid plan`, `Build watch paths`,
+`GitHub token (GITHUB_PUBLISH_TOKEN)`, `Log in with GitHub`.
+
+| Where (en-US and da-DK) | We say | Real name | Rec. |
+| :--- | :--- | :--- | :--- |
+| `advanced.ts` `bucket.ready`, `bucket.no-bucket` | "The storage {bucket}" / "Lageret {bucket}" (the Danish commit `placeCommit` already says "bucket") | R2 **bucket** | **Rename**: "The R2 bucket {bucket}" |
+| `app.ts` `place` (the names of changed settings) | "storage location" (the screen says "R2 location") | **R2 location** | **Rename** |
+| `advanced.ts` `bucket.no-key`, `bucket.refused`, `plan.no-key`, `plan.refused` | "the editor's key for Cloudflare" / "editorens nøgle" | Cloudflare **API token** | **Rename**: "the editor's Cloudflare API token" |
+| `advanced.ts` `paidBuildsCommit` | "turn on the paid build plan" / "slå betalt bygning til" | **Workers Paid** (the setting is "Workers Paid plan") | **Rename** |
+| `common.ts` `parts.caching` (Settings row), `defaults/editor.ts` comments | "Caching and builds" | **R2 caching** and **Workers Builds** | **Rename**: "R2 caching and builds" (R2 is the real name; "builds" is Cloudflare's own word on the Workers Builds screen) |
+| `cms.ts` `noKv` | "KV storage (PUSH)" | **KV namespace**, binding `PUSH` | **Rename**: "no KV namespace bound as PUSH" |
+| `apps.ts` `needsServer`, `placeWorker`; `apps.ts` `problemPlaces` (code calls the place `worker`, `docs/app-contract.md` says "Worker") | "the website's server", "Server" | the site's **Worker** (Cloudflare Workers) | **Rename**: "Worker", hint "the code that answers visitors" |
+| `apps.ts` `mcpTokenHint` | "It is kept on the server" | stored as a **secret** in the site's **Worker** | **Rename**: "It is kept as a secret in the website's Worker" |
+| `advanced.ts` `builds`, `contentOnlyBuilds` (da-DK only) | "Bygning" in one place, "opbygning" in others (`skipDraftBuildsTitle`, `apps.placeBuild`, `problemsTitle`) | Cloudflare's **build** | **Rename** to one Danish word for build (owner picks: "bygning" or "build") |
+| `common.ts` `saved`, `library.lastPublished`, notifications "Website updated" | "the website is updated" for a build and deploy | Outcome, not a product name | **Keep**: it says what the owner gets; no product is renamed |
+
+## 7. A check: `standard words` in `scripts/check-language.mjs`
+
+Built **after** the renames, so it starts green. It sits next to the rule for the old word for image in `scripts/check-language.mjs` (same
 files, same allowlist style), so `npm run check:language` and CI run it with no new job.
 
 - A table `STANDARD_WORDS`: `{ banned: /regex/, say: 'standard word', source: 'M3 page or spec name' }`. First entries:
@@ -121,15 +143,20 @@ files, same allowlist style), so `npm run check:language` and CI run it with no 
   answers; `Activated`, `Deactivated`, `Turned off` → the Q1 answer; `Check list` → Checklist; `fold out`, `unfold` →
   expand; `sheet from the bottom` → bottom sheet; `Top app bar` → app bar; `Exposed dropdown` → menu; `e\.g\.` → for
   example; `Front page` → Home page; and `address` → URL if Q3 says so.
-- Paths: the English texts only (`src/i18n/en-US/`, the English strings of `defaults/*.ts`, `docs/` except
-  `docs/superpowers/`, `release-notes/i18n/en-US/pending/`, `.changeset/*.md`). Danish files are never checked.
-- `STANDARD_ALLOWED`: stored names with a reason, the same shape as `PICTURE_ALLOWED`: i18n keys (`alt:`, `address:`),
+- A second table `PLATFORM_WORDS`, same shape: the invented names of section 6 → the real name. English: `Faster
+  editor`, `fast caching`, `The storage {bucket}`, `storage location`, `key for Cloudflare`, `paid build plan`, `KV
+  storage`, `website's server`, `on the server`. Danish: `Lageret`, `nøgle til Cloudflare`, `betalt bygning`, `hjemmesidens
+  server`, `på serveren`. The real names (`R2`, `KV`, `Workers`, `token`, `commit`, …) are never banned.
+- Paths: `STANDARD_WORDS` checks the English texts (`src/i18n/en-US/`, the English strings of `defaults/*.ts`, `docs/`
+  except `docs/superpowers/`, `release-notes/i18n/en-US/pending/`, `.changeset/*.md`). `PLATFORM_WORDS` also checks the
+  Danish texts (`src/i18n/da-DK/`, `defaults/i18n/da-DK/`, `release-notes/i18n/da-DK/pending/`).
+- `STANDARD_ALLOWED`: stored names with a reason, the same shape as the allowlist of that rule: i18n keys (`alt:`, `address:`),
   field names (`seoTitle`, `canonical`, `unlisted`), CSS classes (`.block-panel`), component aliases kept for THEME_API 4,
   and the literal `noindex`/`nofollow`.
 - Output: `path:line  Say "Alt text", not "Describe the image" (source)`, and exit 1. A new home-made word is added to the
   table by the PR that finds it.
 
-## 7. Build plan (small PRs into `0.18`)
+## 8. Build plan (small PRs into `0.18`)
 
 Every PR below that changes a text the owner sees carries this rule: **"When a change the owner can see (the editor or
 the site) is done and `check` is green, add before and after screenshots of every changed screen to a comment on your own
@@ -147,9 +174,10 @@ English string) and keeps the Danish translation's meaning; `check:content` and 
 | 6 | Pick/Choose → one verb | Editor texts | `patch` | Q4 |
 | 7 | Sidebar, favicon, block names (Accordion, Hero, toolbar) | Editor and site texts | `patch` + release note | Q5–Q7 |
 | 8 | `AppBar`, `TextFieldMenu` with aliases, `Panel` comment; `docs/app-contract.md` lists the new names | Theme | `minor` (new export names; THEME_API stays 4 while the aliases live) | — |
-| 9 | The check (section 6) | Script | empty | 1–8 merged |
+| 9 | Platform terms (section 6), English and Danish | Editor texts | `patch` + release note | — |
+| 10 | The check (section 7) | Script | empty | 1–9 merged |
 
-## 8. Questions for the owner
+## 9. Questions for the owner
 
 1. **Enabled/Disabled vs On/Off.** `CLAUDE.md` allows both, but M3 says Disabled means "an inoperable component" (greyed
    out), not "switched off". Today we mix Activated, Deactivated, Enabled, Disabled and Turned off. **Recommend:** a
