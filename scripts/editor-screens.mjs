@@ -2590,7 +2590,7 @@ async function checkDynamicPicker(width, height) {
   await page.close();
 }
 
-/** The page of a list the owner made (#list/<id>, OwnListPage.tsx): the List typed in place, its rows the entries of the list. A list with a definition and two entries opens with two rows, no horizontal overflow; the active row has the dotted outline and no background, `Add list row` shows under an active list and is gone when the cursor leaves, the toolbar has Add above and Add below, Enter in the title goes to the text, and only the fields the list has are there (no icon slot, no link slot). */
+/** The page of a list the owner made (#list/<id>, OwnList.tsx): the testimonials' list page and item page with the list's own fields. A list with a definition and two entries opens with two rows, no horizontal overflow; the active row has the dotted outline and no background, `Add list row` shows under an active list and is gone when the cursor leaves, the toolbar has Add above and Add below, Enter in the title goes to the text, and only the fields the list has are there (no icon slot, no link slot). */
 async function checkOwnList(width, height) {
   const label = `${width}px own list`;
   const phone = width < 600;
@@ -2614,65 +2614,44 @@ async function checkOwnList(width, height) {
     await openEditor(page, site);
     await page.evaluate(() => (location.hash = '#list/services'));
     await page
-      .waitForSelector('.inline-list-row[data-row]', { timeout: 15000 })
+      .getByText('Web design', { exact: true })
+      .first()
+      .waitFor({ timeout: 15000 })
       .catch(() => problems.push(`${label}: the list page has no rows`));
-    const rows = await page.locator('.inline-list-row[data-row]:not(.inline-list-row-next)').count();
-    if (rows !== 2) problems.push(`${label}: expected 2 rows, got ${rows}`);
-    if (await page.locator('.inline-list-row-next').count()) problems.push(`${label}: the faded empty row shows while the list has rows`);
+    // The same list page as the testimonials: rows with Move up and Move down, `Add item`, no typed-in-place rows.
+    if (await page.locator('.inline-list-row').count()) problems.push(`${label}: the list page still has typed-in-place rows`);
+    for (const row of ['Web design', 'Hosting'])
+      if (!(await page.getByText(row, { exact: true }).count())) problems.push(`${label}: no row "${row}"`);
+    if ((await page.getByRole('button', { name: 'Move down' }).count()) < 2) problems.push(`${label}: the rows have no Move down`);
+    if (!(await page.getByLabel('Add item').count())) problems.push(`${label}: no Add item button`);
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
       problems.push(`${label}: the list page scrolls sideways`);
-    await page.locator('.inline-list-row[data-row="0"] [data-field="title"]').click();
-    await page.waitForSelector('.inline-list-row-active');
-    const active = await page.evaluate(() => {
-      const row = document.querySelector('.inline-list-row-active');
-      return {
-        outline: getComputedStyle(row).outlineStyle,
-        background: getComputedStyle(row).backgroundColor,
-        icon: !!row.querySelector('[aria-label="Icon"]'),
-        link: !!row.querySelector('[aria-label="Page"], [aria-label="Link"]'),
-      };
-    });
-    if (active.outline !== 'dotted') problems.push(`${label}: the active row has no dotted outline (${active.outline})`);
-    if (!/rgba\(0, 0, 0, 0\)|transparent/.test(active.background))
-      problems.push(`${label}: the active row has a background (${active.background})`);
-    if (active.icon) problems.push(`${label}: an icon slot shows in a list without the icon field`);
-    if (!(await page.getByRole('button', { name: 'Add list row' }).count()))
-      problems.push(`${label}: no "Add list row" under the active list`);
-    const labels = await page.evaluate(() =>
-      [...document.querySelectorAll('.contextual-menu button')].map((b) => b.getAttribute('aria-label')),
-    );
-    for (const need of ['Add above', 'Add below'])
-      if (!labels.includes(need)) problems.push(`${label}: the toolbar has no "${need}" (${labels})`);
-    await page.keyboard.press('Enter');
-    if (!(await page.evaluate(() => document.activeElement?.getAttribute('data-field') === 'text')))
-      problems.push(`${label}: Enter in the title did not go to the text`);
-    // The image and tags slots are on the active row, since the list has those fields; the tags slot opens the tags.
-    await page.locator('.inline-list-row[data-row="0"] [data-field="title"]').click();
-    for (const slot of ['Image', 'Tags'])
-      if (!(await page.locator(`.inline-list-row-active [aria-label="${slot}"]`).count()))
-        problems.push(`${label}: no ${slot} slot on the active row`);
-    await page.locator('.inline-list-row-active [aria-label="Tags"]').click();
+    // A row opens its own page, as a testimonial does: every field of the list is the theme's text field with its label in the border.
+    await page.getByText('Web design', { exact: true }).first().click();
     await page
-      .locator('dialog[open], .editor-side-sheet')
-      .filter({ hasText: 'Tags' })
+      .getByLabel('Title', { exact: true })
       .first()
-      .waitFor({ timeout: 5000 })
-      .catch(() => problems.push(`${label}: the tags slot did not open the tags`));
-    if (phone)
-      await page
-        .locator('dialog[open] [aria-label="Close"]')
-        .first()
-        .click()
-        .catch(() => {});
-    await page
-      .locator('main h1, header')
+      .waitFor({ timeout: 15000 })
+      .catch(() => problems.push(`${label}: a row did not open its page with a Title field`));
+    for (const field of ['Title', 'Body text', 'Link'])
+      if (!(await page.getByLabel(field, { exact: true }).count())) problems.push(`${label}: the row page has no ${field} field`);
+    for (const text of ['Image', 'Tags'])
+      if (!(await page.getByText(text, { exact: true }).count())) problems.push(`${label}: the row page has no ${text}`);
+    if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
+      problems.push(`${label}: the row page scrolls sideways`);
+    const own = await page
+      .getByLabel('Title', { exact: true })
       .first()
-      .click({ position: { x: 5, y: 5 }, force: true })
-      .catch(() => {});
-    await page.waitForTimeout(300);
-    if (await page.locator('.inline-list-row-active').count()) problems.push(`${label}: the row is still active after the cursor left`);
-    if (await page.getByRole('button', { name: 'Add list row' }).count())
-      problems.push(`${label}: "Add list row" stays after the cursor left`);
+      .evaluate((el) => el.closest('label, div')?.className ?? '');
+    await page.evaluate(() => (location.hash = '#list/testimonials'));
+    await page.locator('main a[href^="#src/data/testimonials"], main a[href*="testimonials/"]').first().click();
+    const theirs = await page
+      .getByLabel('Name', { exact: true })
+      .first()
+      .evaluate((el) => el.closest('label, div')?.className ?? '');
+    if (!own || own !== theirs) problems.push(`${label}: a list's text field is not the testimonials' (${own} / ${theirs})`);
+    await page.evaluate(() => (location.hash = '#list/services'));
+    await page.getByText('Hosting', { exact: true }).first().waitFor({ timeout: 10000 });
     // The list's menu: `Edit list` opens the sheet with the name, the six switches and `Delete list`; `Delete list` is refused while a page reads the list.
     await page.getByRole('button', { name: 'List menu' }).first().click();
     await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
@@ -2765,13 +2744,13 @@ async function checkNewList(width, height, label) {
     // Making the list commits nothing: it is kept as a waiting version until the final Save.
     if (commits.length) problems.push(`${label}: Create committed (${commits.length} commits) before the final Save`);
     // Two body texts: the empty page's Add field, then Body text; the second through Edit list (the empty page's button is gone once there is a field).
-    const pick = async (n) => {
+    const pick = async (n, name = 'Body text') => {
       await page
-        .getByRole('menuitem', { name: 'Body text' })
+        .getByRole('menuitem', { name })
         .locator('visible=true')
         .first()
         .click()
-        .catch(() => problems.push(`${label}: Add field has no Body text (${n})`));
+        .catch(() => problems.push(`${label}: Add field has no ${name} (${n})`));
       await page.waitForTimeout(700);
     };
     await page
@@ -2789,20 +2768,8 @@ async function checkNewList(width, height, label) {
       problems.push(`${label}: Edit list does not show two fields with a switch each`);
     await edit.locator('[aria-label="Close"]').first().click();
     await page.waitForTimeout(300);
-    await page
-      .waitForSelector('.inline-list-row-next [data-field="text"]', { timeout: 15000 })
-      .catch(() => problems.push(`${label}: the first body text field did not show on the list's page`));
-    // The name is inside the text field; the second body text is numbered.
-    await page.locator('.inline-list-row-next [data-field="text"]').first().click();
-    await page
-      .waitForSelector('.inline-list-row-active [data-field="text-2"]', { timeout: 15000 })
-      .catch(() => problems.push(`${label}: two body text fields did not show on the active row`));
-    const names = await page.evaluate(() =>
-      [...document.querySelectorAll('.inline-list-row-active [data-field]')].map((f) => f.getAttribute('placeholder')),
-    );
-    if (names.join() !== 'Body text,Body text 2') problems.push(`${label}: the fields are not named Body text and Body text 2 (${names})`);
-    // Two fields added and still nothing committed; the line under the title says the version is kept, and the save bar has the final Save.
-    if (commits.length) problems.push(`${label}: a field was committed before the final Save (${commits.length} commits)`);
+    // Two fields added and still nothing committed; the line under the title says the version is kept, and the bar has Save changes.
+    if (commits.length) problems.push(`${label}: a field was committed before the Save (${commits.length} commits)`);
     const line = await page.evaluate(() => document.body.innerText);
     if (!/Saving…|Saved|Not saved/.test(line)) problems.push(`${label}: no line says whether the waiting version is kept`);
     // Leaving asks first, as it does for a page: Save or Discard; Esc stays.
@@ -2814,34 +2781,45 @@ async function checkNewList(width, height, label) {
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
     if (await page.evaluate(() => location.hash !== '#list/zz-fresh-list')) problems.push(`${label}: Esc did not stay on the unsaved list`);
-    // The final Save: exactly one commit, with the list and both fields.
-    await page.locator('.editor-save-bar').getByRole('button', { name: 'Save' }).click();
-    // The first Save asks whether to send notifications.
-    await page
-      .getByRole('button', { name: 'Cancel' })
-      .click({ timeout: 3000 })
-      .catch(() => {});
+    // The Save: exactly one commit, with the list and both fields.
+    const save = async () => {
+      await page.locator('.editor-save-bar').getByRole('button', { name: /^Save/ }).click();
+      // The first Save asks whether to send notifications.
+      await page
+        .getByRole('button', { name: 'Cancel' })
+        .click({ timeout: 3000 })
+        .catch(() => {});
+    };
+    await save();
     await page
       .waitForFunction(() => !document.querySelector('.editor-save-bar button'), null, { timeout: 15000 })
       .catch(() => problems.push(`${label}: the save bar did not go after Save`));
-    if (commits.length !== 1) problems.push(`${label}: the final Save made ${commits.length} commits, not one`);
+    if (commits.length !== 1) problems.push(`${label}: the Save made ${commits.length} commits, not one`);
     const made = commits[0]?.changes.find((x) => x.path.endsWith('_list.json'));
     const definition = JSON.parse(decoded(made?.content) || '{}');
     if (definition.fields?.length !== 2 || definition.fields.some((f) => f.kind !== 'text'))
       problems.push(`${label}: the commit does not have the list with both fields (${made?.content})`);
-    // A row typed in both fields: both values are saved (one file, both ids) and shown.
-    await page.locator('.inline-list-row-next [data-field="text"]').first().click();
-    await page.keyboard.type('First line');
-    await page.keyboard.press('Enter');
-    await page.keyboard.type('Second line');
-    await page.waitForTimeout(1800);
+    // The list is the testimonials' page now: `Add item` opens an item's page with both fields as text fields; Save writes one file with both values.
+    await page.getByLabel('Add item').first().click();
+    await page
+      .getByLabel('Body text 2', { exact: true })
+      .first()
+      .waitFor({ timeout: 15000 })
+      .catch(() => problems.push(`${label}: the item page has no second body text`));
+    await page.getByLabel('Body text', { exact: true }).first().fill('First line');
+    await page.getByLabel('Body text 2', { exact: true }).first().fill('Second line');
+    await page.getByRole('button', { name: /^Save/ }).last().click();
+    await page.waitForTimeout(1500);
     const entry = commits.flatMap((c) => c.changes).find((x) => /src\/data\/zz-fresh-list\/(?!_)[^/]+\.json$/.test(x.path));
     const saved = JSON.parse(decoded(entry?.content));
     if (saved.text !== 'First line' || saved['text-2'] !== 'Second line')
-      problems.push(`${label}: the row was not saved with both body texts (${entry?.content})`);
-    const shown = await page.evaluate(() => [...document.querySelectorAll('.inline-list-row [data-field]')].map((f) => f.value));
-    if (!shown.includes('First line') || !shown.includes('Second line'))
-      problems.push(`${label}: the row does not show both values (${shown})`);
+      problems.push(`${label}: the item was not saved with both body texts (${entry?.content})`);
+    await page.evaluate(() => (location.hash = '#list/zz-fresh-list'));
+    await page
+      .getByText('First line')
+      .first()
+      .waitFor({ timeout: 10000 })
+      .catch(() => problems.push(`${label}: the item does not show in the list`));
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
       problems.push(`${label}: the list page scrolls sideways with two fields`);
     // It shows under Lists and in Rows from.
@@ -2852,9 +2830,9 @@ async function checkNewList(width, height, label) {
       .waitFor({ timeout: 10000 })
       .catch(() => problems.push(`${label}: the new list does not show under Lists`));
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) problems.push(`${label}: Lists scrolls sideways`);
-    const paths = commits.flatMap((c) => c.changes.map((x) => x.path));
-    if (!paths.some((p) => p.endsWith('src/data/zz-fresh-list/_list.json')))
-      problems.push(`${label}: Create did not commit the definition (${paths})`);
+    const allPaths = commits.flatMap((c) => c.changes.map((x) => x.path));
+    if (!allPaths.some((p) => p.endsWith('src/data/zz-fresh-list/_list.json')))
+      problems.push(`${label}: the Save did not commit the definition (${allPaths})`);
     // Rows from offers it: a list typed on a new page, its dynamic settings, the choice of lists.
     await page.evaluate(() => (location.hash = '#new/pages'));
     await page.waitForSelector('.ProseMirror');
@@ -2907,6 +2885,30 @@ async function checkNewList(width, height, label) {
     });
     if (!offered.includes('Body text') || !offered.includes('Body text 2') || offered.includes('Image'))
       problems.push(`${label}: the Bottom line offers the wrong fields (${offered})`);
+    // A field added and then an item saved: one commit with the definition and the item (nothing was committed for the field).
+    await page.evaluate(() => (location.hash = '#list/zz-fresh-list'));
+    // The page typed above is not saved: leaving it asks.
+    await page
+      .getByRole('button', { name: 'Discard' })
+      .click({ timeout: 3000 })
+      .catch(() => {});
+    await page.getByRole('button', { name: 'List menu' }).first().waitFor({ timeout: 10000 });
+    const before = commits.length;
+    await page.getByRole('button', { name: 'List menu' }).first().click();
+    await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
+    const again = page.locator('dialog[open]').filter({ hasText: 'Fields' });
+    await again.getByRole('button', { name: 'Add field' }).click();
+    await pick(2, 'Title');
+    await again.locator('[aria-label="Close"]').first().click();
+    if (commits.length !== before) problems.push(`${label}: adding a field to a saved list committed`);
+    await page.getByLabel('Add item').first().click();
+    await page.getByLabel('Title', { exact: true }).first().fill('A title');
+    await page.getByRole('button', { name: /^Save/ }).last().click();
+    await page.waitForTimeout(1500);
+    const last = commits.slice(before);
+    const paths = last.flatMap((c) => c.changes.map((x) => x.path));
+    if (last.length !== 1 || !paths.some((x) => x.endsWith('_list.json')) || !paths.some((x) => /zz-fresh-list\/(?!_)/.test(x)))
+      problems.push(`${label}: saving an item did not commit the waiting field with it (${last.length} commits: ${paths})`);
   } finally {
     await page.close();
     rmSync(folder, { recursive: true, force: true });
