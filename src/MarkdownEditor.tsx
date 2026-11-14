@@ -32,6 +32,7 @@ import {
   wrapInOrderedListCommand,
 } from '@milkdown/kit/preset/commonmark';
 import { history, redoCommand, undoCommand } from '@milkdown/kit/plugin/history';
+import { closeHistory } from '@milkdown/kit/prose/history';
 import { clipboard } from '@milkdown/kit/plugin/clipboard';
 import { $prose, $view, callCommand } from '@milkdown/kit/utils';
 import { Fragment } from '@milkdown/kit/prose/model';
@@ -1316,7 +1317,7 @@ function blockCard(
   // A block with no list (Notice, Video): its props are its one item.
   const single = !!spec?.single;
   const rows = () => (single ? [node.attrs.props as Row] : ((node.attrs.props[spec?.item ?? 'items'] as Row[] | undefined) ?? []));
-  const setItems = (items: Row[], patch?: Record<string, unknown>) => {
+  const setItems = (items: Row[], patch?: Record<string, unknown>, step = false) => {
     const here = at();
     if (here && single) {
       // The typed fields of the one item are put in the props; one that is emptied is left out, as the text of the block would be.
@@ -1333,7 +1334,10 @@ function blockCard(
         if (value === undefined) delete props[name];
         else props[name] = value;
       }
-      view.dispatch(view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props }));
+      const tr = view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props });
+      // Its own undo step (a paste that makes items): typing before it or after it is not undone with it.
+      view.dispatch(step ? closeHistory(tr) : tr);
+      if (step) view.dispatch(closeHistory(view.state.tr));
     }
   };
   const change = (c: Change) => {
@@ -1341,7 +1345,7 @@ function blockCard(
     if (active !== null) dynOpen = false;
     if ('focus' in c) focus = c.focus ?? null;
     if ('col' in c) col = c.col ?? null;
-    if (c.items || c.props) setItems(c.items ?? rows(), c.props);
+    if (c.items || c.props) setItems(c.items ?? rows(), c.props, c.step);
     else draw();
   };
   const draw = () => {
