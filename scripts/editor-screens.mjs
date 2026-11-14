@@ -1990,7 +1990,6 @@ async function checkBlockMove(width) {
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  page.on('console', (m) => m.text().startsWith('TRACE-CLEAR') && console.log(m.text()));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#new/pages'));
   await page.waitForSelector('.ProseMirror');

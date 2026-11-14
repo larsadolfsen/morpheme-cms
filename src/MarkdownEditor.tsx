@@ -400,10 +400,14 @@ function moveGroup(view: EditorView, plan: Extract<ReturnType<typeof groupMove>,
   const $start = doc.resolve(0);
   const from = $start.posAtIndex(a);
   const to = $start.posAtIndex(b) + doc.child(b).nodeSize;
+  const moved = new Set(plan.places.map((p) => doc.child(p)));
   blockSelection.own(() =>
     view.dispatch(view.state.tr.replaceWith(from, to, Fragment.from(by < 0 ? [...span, ...rest] : [...rest, ...span]))),
   );
-  blockSelection.set(plan.places);
+  // The selected blocks are found again by the node, as the text may be tidied after the move (a section's heading goes with its card).
+  const now: number[] = [];
+  view.state.doc.forEach((child, _, k) => void (moved.has(child) && now.push(k)));
+  blockSelection.set(now.length === plan.places.length ? now : plan.places);
   view.state.doc.forEach((child, _, k) => {
     const was = tops.get(child);
     const el = partDOM(view, k);
