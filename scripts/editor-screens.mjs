@@ -2686,16 +2686,19 @@ async function checkEmptyHint() {
         await page.keyboard.type('# From us to you');
         await page.waitForTimeout(300);
         if (color) {
-          // The bar shows the tool, or has it under More when it has no room for it (the width of the text decides, not the device).
+          // The bar shows the tool, or has it under More when it has no room for it (the width of the text decides, not the device), and only once it has caught up with the cursor being in the heading: try until one of them opens the sheet.
           const tool = page.getByRole('button', { name: 'Section settings', exact: true });
-          await tool
-            .or(page.getByRole('button', { name: 'More', exact: true }))
-            .first()
-            .waitFor();
-          if (!(await tool.count())) {
-            await page.getByRole('button', { name: 'More', exact: true }).first().dispatchEvent('click');
-            await page.getByText('Section settings', { exact: true }).first().click();
-          } else await tool.first().click();
+          const item = page.getByText('Section settings', { exact: true });
+          for (let tries = 0; tries < 20 && !(await page.locator('dialog[open], .editor-side-sheet').count()); tries++) {
+            if (await tool.count()) await tool.first().click({ timeout: 5000 });
+            else if (await page.getByRole('button', { name: 'More', exact: true }).count()) {
+              await page.getByRole('button', { name: 'More', exact: true }).first().dispatchEvent('click');
+              await page.waitForTimeout(300);
+              if (await item.count()) await item.first().click({ timeout: 5000 });
+              else await page.keyboard.press('Escape');
+            }
+            await page.waitForTimeout(500);
+          }
           await page.getByText('Primary', { exact: true }).first().click();
           await page.getByRole('button', { name: 'Save', exact: true }).first().click();
           await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 10_000 });
