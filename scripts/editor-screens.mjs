@@ -800,7 +800,8 @@ async function checkTextBar(width = 360) {
   // A divider under the headings and another between the body styles and Quote, the same divider part.
   const styleIcons = await menuIconProblems(page);
   if (styleIcons.length) problems.push(`${label}: icons in the Text style menu are not 20 x 20 px (${styleIcons})`);
-  // The three body styles share one icon, Aa (Material's match_case); the other rows keep theirs.
+  // The body styles draw an A with a number, the smallest the highest (Body small A3, medium A2, large A1); the bar's Text style button shows Aa
+  // (Material's match_case) while a body style is on; the other rows keep their own icons.
   const rowIcons = await page.evaluate(() =>
     Object.fromEntries(
       [...document.querySelectorAll('[role=menu] [role^=menuitem]')].map((x) => [
@@ -809,10 +810,18 @@ async function checkTextBar(width = 360) {
       ]),
     ),
   );
-  for (const name of ['Body small', 'Body medium', 'Body large'])
-    if (rowIcons[name] !== 'match_case') problems.push(`${label}: ${name} has icon ${rowIcons[name]}, not Aa (match_case)`);
+  for (const [name, icon] of [
+    ['Body small', 'body_a3'],
+    ['Body medium', 'body_a2'],
+    ['Body large', 'body_a1'],
+  ])
+    if (rowIcons[name] !== icon) problems.push(`${label}: ${name} has icon ${rowIcons[name]}, not ${icon}`);
+  const buttonIcon = await page.evaluate(() =>
+    document.querySelector('.editor-tools [aria-label^="Text style"] svg')?.getAttribute('data-icon'),
+  );
+  if (buttonIcon !== 'match_case') problems.push(`${label}: the Text style button shows ${buttonIcon}, not Aa (match_case)`);
   for (const name of ['Main heading', 'Quote'])
-    if (rowIcons[name] === 'match_case' || rowIcons[name] === 'none')
+    if (rowIcons[name]?.startsWith('body_a') || rowIcons[name] === 'match_case' || rowIcons[name] === 'none')
       problems.push(`${label}: ${name} lost its own icon (${rowIcons[name]})`);
   const order = await page.evaluate(() =>
     [...document.querySelectorAll('[role=menu] > li')].map((li) => (li.classList.contains('menu-divider') ? '-' : li.textContent.trim())),
@@ -1268,6 +1277,24 @@ async function checkTextBarWide() {
     await page.locator(`.editor-tools [aria-label^="${name}"]`).first().click();
     const bad = await menuIconProblems(page);
     if (bad.length) problems.push(`1280px text bar: icons in the ${name} menu are not 20 x 20 px (${bad})`);
+    if (name === 'Text style') {
+      const icons = await page.evaluate(() => ({
+        button: document.querySelector('.editor-tools [aria-label^="Text style"] svg')?.getAttribute('data-icon'),
+        rows: Object.fromEntries(
+          [...document.querySelectorAll('[role=menu] [role^=menuitem]')].map((x) => [
+            x.textContent.trim(),
+            x.querySelector('svg')?.getAttribute('data-icon'),
+          ]),
+        ),
+      }));
+      if (icons.button !== 'match_case') problems.push(`1280px text bar: the Text style button shows ${icons.button}, not Aa (match_case)`);
+      for (const [row, icon] of [
+        ['Body small', 'body_a3'],
+        ['Body medium', 'body_a2'],
+        ['Body large', 'body_a1'],
+      ])
+        if (icons.rows[row] !== icon) problems.push(`1280px text bar: ${row} has icon ${icons.rows[row]}, not ${icon}`);
+    }
     await page.keyboard.press('Escape');
   }
   const want = ['Bold', 'Italic', 'Text style', 'List', 'Alignment', 'Link', 'Color', 'Undo', 'Redo', 'Insert block'];
