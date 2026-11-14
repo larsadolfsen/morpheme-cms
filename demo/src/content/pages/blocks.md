@@ -26,7 +26,7 @@ Group related ideas with an icon, a photo or just text, each linking to a page i
 
 ### Filled cards without media
 
-<div data-block="cards" data-props="{&quot;design&quot;:&quot;filled&quot;,&quot;color&quot;:&quot;primary&quot;,&quot;media&quot;:&quot;none&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Just text&quot;,&quot;text&quot;:&quot;No icon, no photo. Here a filled card on the primary container.&quot;,&quot;subhead&quot;:&quot;Design Filled&quot;},{&quot;title&quot;:&quot;One design&quot;,&quot;text&quot;:&quot;The design, the color and the media apply to every card in the block.&quot;}]}"></div>
+<div data-block="cards" data-props="{&quot;design&quot;:&quot;filled&quot;,&quot;color&quot;:&quot;primary&quot;,&quot;media&quot;:&quot;none&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Just text&quot;,&quot;text&quot;:&quot;No icon, no photo. Here a filled card on the primary container.&quot;,&quot;subhead&quot;:&quot;Design Filled&quot;},{&quot;title&quot;:&quot;One design&quot;,&quot;text&quot;:&quot;The design, the color and the media apply to every card in the block.&quot;},{&quot;title&quot;:&quot;Only a headline&quot;}]}"></div>
 
 ### Filled cards with icons
 
