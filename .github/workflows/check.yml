@@ -88,8 +88,13 @@ jobs:
 
   # The starter as a new site with the package from npm pack: its own checks (with check:worker) and its build.
   # With its screens: every screen of the editor on the starter too, so the checks sites run never lean on the demo's content.
+  # The screens part is split like the demo's (--shard K/N, N is the matrix's size); the rest of the starter's checks run in each part.
   starter:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -98,7 +103,7 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npx playwright install --with-deps chromium || npx playwright install chromium
-      - run: npm run check:starter -- --screens
+      - run: npm run check:starter -- --screens --shard ${{ matrix.shard }}/${{ strategy.job-total }}
 
   # The one status check that is required: green only when every job above is green (a failed, cancelled or skipped one fails it).
   check:
