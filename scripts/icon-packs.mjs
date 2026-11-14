@@ -3,8 +3,8 @@
 // site and the editor draw, by its Phosphor name (usedIcons: the site's in packages/editor/src/icon.tsx, which the
 // content stores; the editor's as it imports them from @phosphor-icons/react and @phosphor-icons/core, found in the
 // code; the app store's), the set's icon its map names (MATERIAL_SYMBOLS, LUCIDE; one the set has none of from
-// Pictogrammers' Material Design Icons, MATERIAL_DESIGN_ICONS; one neither has, X's logo, from Phosphor's filled icon,
-// PHOSPHOR_FILL_ICONS), as one <svg> with its viewBox, without a size or a colour
+// Pictogrammers' Material Design Icons, MATERIAL_DESIGN_ICONS; one neither has, X's logo, our own file,
+// OWN_ICONS), as one <svg> with its viewBox, without a size or a colour
 // of its own: Svg and the theme's Vite plugin (themePlugin in packages/editor/site/theme.mjs) give it those. Phosphor's are its files
 // as they are (so a site with Phosphor's pack draws Phosphor's own icons, unchanged); Lucide's lines in a <g> with
 // Lucide's stroke (`-fill`: filled in). Beside them the pack's manifest (pack.json: name, author, licence, and the icons
@@ -23,7 +23,7 @@ import { packFolder } from '@morphemecms/cms/site/icons.mjs';
 import {
   MATERIAL_DESIGN_ICONS,
   PACK_MAPS,
-  PHOSPHOR_FILL_ICONS,
+  OWN_ICONS,
   PACK_SOURCES,
   phosphorFile,
   phosphorNames,
@@ -99,10 +99,7 @@ function sourcesOf(id) {
       const file = sourceFile[MDI](icon);
       return { name, icon, file, text: () => bare(file) };
     }),
-    ...(PHOSPHOR_FILL_ICONS[id] ?? []).map((name) => {
-      const file = `${phosphorPkg}assets/fill/${name}-fill.svg`;
-      return { name, icon: `${name}-fill`, file, text: () => bare(file) };
-    }),
+    ...Object.entries(OWN_ICONS[id] ?? {}).map(([name, file]) => ({ name, icon: file, file, text: () => bare(file) })),
   ];
 }
 
@@ -131,7 +128,6 @@ for (const id of SYSTEM_PACKS) {
   for (const { name, text } of sourcesOf(id)) writeFileSync(`${dir}${name}.svg`, text());
   const { name, author, license, url, package: spec } = PACK_SOURCES[id];
   const mdi = Object.keys(MATERIAL_DESIGN_ICONS[id] ?? {}).sort();
-  const fills = [...(PHOSPHOR_FILL_ICONS[id] ?? [])].sort();
   const manifest = {
     name,
     author,
@@ -139,7 +135,7 @@ for (const id of SYSTEM_PACKS) {
     url,
     version: version(spec),
     source: spec,
-    ...(mdi.length || fills.length
+    ...(mdi.length
       ? {
           includes: [
             ...(mdi.length
@@ -156,20 +152,6 @@ for (const id of SYSTEM_PACKS) {
                   },
                 ]
               : []),
-            ...(fills.length
-              ? [
-                  {
-                    name: PACK_SOURCES.phosphor.name,
-                    author: PACK_SOURCES.phosphor.author,
-                    license: PACK_SOURCES.phosphor.license,
-                    url: PACK_SOURCES.phosphor.url,
-                    version: version(PACK_SOURCES.phosphor.package),
-                    source: PACK_SOURCES.phosphor.package,
-                    licenseFile: `${ICON_PACK_LICENSE}-phosphor`,
-                    icons: fills,
-                  },
-                ]
-              : []),
           ],
         }
       : {}),
@@ -177,12 +159,6 @@ for (const id of SYSTEM_PACKS) {
   writeFileSync(`${dir}${ICON_PACK_FILE}`, `${JSON.stringify(manifest, null, 2)}\n`);
   writeFileSync(`${dir}${ICON_PACK_LICENSE}`, `${readFileSync(`${pkgs[id]}LICENSE`, 'utf8').trim()}\n`);
   if (mdi.length) writeFileSync(`${dir}${ICON_PACK_LICENSE}-${MDI}`, `${readFileSync(`${pkgs[MDI]}LICENSE`, 'utf8').trim()}\n`);
-  if (fills.length)
-    writeFileSync(
-      `${dir}${ICON_PACK_LICENSE}-phosphor`,
-      `${readFileSync(`${phosphorPkg}LICENSE`, 'utf8').trim()}
-`,
-    );
   console.log(
     `${readdirSync(dir).filter((f) => f.endsWith('.svg')).length} icons from ${spec}${mdi.length ? ` and ${PACK_SOURCES[MDI].package}` : ''} in ${dir}.`,
   );

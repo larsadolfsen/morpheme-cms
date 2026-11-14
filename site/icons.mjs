@@ -5,7 +5,7 @@
 // PACK_SOURCES, by the maps here: Phosphor's name → the set's icon, chosen for what it means where it is used (by its own
 // name in the set, else by what it shows: Phosphor's `browser`, a window with a bar at the top, is Material Symbols'
 // `web`). An icon a set has none of (a brand's logo; Lucide has none) is Pictogrammers' Material Design Icons'
-// (MATERIAL_DESIGN_ICONS; one neither has, Phosphor's filled icon: PHOSPHOR_FILL_ICONS), with its licence beside the pack's own. check:content stops at a pack without an icon the
+// (MATERIAL_DESIGN_ICONS; one neither has, our own file: OWN_ICONS), with its licence beside the pack's own. check:content stops at a pack without an icon the
 // site or the editor draws (themeProblems and iconPackProblems in packages/editor/site/theme.mjs).
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -98,12 +98,13 @@ export const MATERIAL_DESIGN_ICONS = {
   },
 };
 
-/** For each system pack but Phosphor's: Phosphor's names of the icons that neither the pack's set nor Material Design Icons has
- * (X's logo: Material Design Icons has only the old Twitter bird, which X's brand rules forbid), drawn from Phosphor's filled
- * icon (`fill/<name>-fill.svg`). */
-export const PHOSPHOR_FILL_ICONS = {
-  'material-symbols': ['x-logo'],
-  lucide: ['x-logo'],
+/** For each system pack but Phosphor's: Phosphor's names of the icons that no set has and that we keep as our own file
+ * (X's logo: neither Material Symbols, Lucide nor Material Design Icons has it, only the old Twitter bird, which X's brand
+ * rules forbid), → the file in this package, drawn as it is (the official shape, unchanged; the viewBox is square so it is
+ * centred, and the fill is currentColor). Phosphor's own pack keeps Phosphor's x-logo: its files are Phosphor's as they are. */
+export const OWN_ICONS = {
+  'material-symbols': { 'x-logo': 'site/brand/x-logo.svg' },
+  lucide: { 'x-logo': 'site/brand/x-logo.svg' },
 };
 
 /** Phosphor's name → Material Symbols' (Outlined, weight 400; `-fill` the filled one), for every icon the site and the
@@ -515,14 +516,14 @@ export const phosphorNames = (used) =>
       ...used,
       ...Object.values(PACK_MAPS).flatMap(Object.keys),
       ...Object.values(MATERIAL_DESIGN_ICONS).flatMap(Object.keys),
-      ...Object.values(PHOSPHOR_FILL_ICONS).flat(),
+      ...Object.values(OWN_ICONS).flatMap(Object.keys),
     ]),
   ].sort();
 
 /** The names the system's pack has an icon by in its maps (its set's and Material Design Icons'); all for Phosphor's. */
 const mapped = (pack) =>
   PACK_MAPS[pack]
-    ? [...Object.keys(PACK_MAPS[pack]), ...Object.keys(MATERIAL_DESIGN_ICONS[pack] ?? {}), ...(PHOSPHOR_FILL_ICONS[pack] ?? [])]
+    ? [...Object.keys(PACK_MAPS[pack]), ...Object.keys(MATERIAL_DESIGN_ICONS[pack] ?? {}), ...Object.keys(OWN_ICONS[pack] ?? {})]
     : null;
 
 /** Whether a name is one the site and the editor draw an icon by: Phosphor's (regular, and the filled ones as

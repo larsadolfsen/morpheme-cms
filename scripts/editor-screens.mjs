@@ -58,7 +58,6 @@ const missingIcon = (name) =>
 // Owner rule (14 Nov): while the icon pack in use is not Phosphor, no icon is drawn as a Phosphor glyph (viewBox 0 0 256 256: Phosphor's
 // files; Material Symbols' are 0 -960 960 960, Lucide's and Material Design Icons' 24). The glyphs allowed, by how their first path starts, with the reason.
 const PHOSPHOR_OK = [
-  { d: 'M215,219.85', why: "X's logo: neither Material Symbols nor Material Design Icons has it (PHOSPHOR_FILL_ICONS in site/icons.mjs)" },
   {
     d: '<rect x="68" y="72"',
     why: "the text bar's own glyphs (src/icons/text-*.svg, drawn in Phosphor's 256 box, not Phosphor's): the toolbar worker (contextual-toolbar-2) owns the bar; follow-up 2",
