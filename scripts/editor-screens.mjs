@@ -23,6 +23,7 @@ import { constants, inflateSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { CMS_STATUS, openEditor, serveBuilt } from './built-site.mjs';
+import { allow, nestedUnits } from './spacing-grid.allow.mjs';
 
 // The editor is opened in Danish (locale da-DK below), so the texts it shows are read from its Danish messages. They are
 // TypeScript, which Node does not run in node_modules (ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING), so esbuild bundles
@@ -42,6 +43,19 @@ const bundled = await build({
 });
 const texts = await import(`data:text/javascript;base64,${Buffer.from(bundled.outputFiles[0].text).toString('base64')}`);
 const { apps: da, app: daApp, cms: daCms, dashboard: daDashboard, common: daCommon, library: daLibrary } = texts;
+
+// The theme's springs (lib/motion.ts, TypeScript too): what the bar's slide and fade must last and follow.
+const motionBundle = await build({
+  entryPoints: [fileURLToPath(new URL('../lib/motion.ts', import.meta.url))],
+  bundle: true,
+  format: 'esm',
+  platform: 'neutral',
+  write: false,
+  logLevel: 'silent',
+});
+const { SPRINGS, springCss, isMotionScheme, DEFAULT_SCHEME } = await import(
+  `data:text/javascript;base64,${Buffer.from(motionBundle.outputFiles[0].text).toString('base64')}`
+);
 
 const ROOT = `${process.cwd()}/`;
 // --shard K/N runs the K-th of N disjoint parts of the checks (every N-th unit, see unit below); --list only prints which units
@@ -806,7 +820,9 @@ async function checkTextBar(width = 360) {
   await page.keyboard.press('Escape');
   // Idle: the cursor leaves the text; the main tools only, no divider, the same bar height, nothing scrolls.
   await page.evaluate(() => document.activeElement?.blur());
-  await page.waitForTimeout(200);
+  // The contextual tools slide out first (a ghost copy of them, which is not the bar's tools): idle is what is left when it is gone.
+  await page.waitForFunction(() => !document.querySelector('.editor-tools-ghost'), null, { timeout: 4000 });
+  await page.waitForTimeout(100);
   const idle = await readBar();
   // Idle: Undo, Redo, one divider, Insert block (no divider before the text tools, which are not there).
   if (!idle.divider || idle.names.join() !== 'Undo,Redo,Insert block')
@@ -966,6 +982,151 @@ async function checkBlockBar(width, height = 800) {
   const back = await page.evaluate(() => [...document.querySelectorAll('.editor-tools button')].map((b) => b.getAttribute('aria-label')));
   if (!back.includes('Bold') || back.includes('Add above'))
     problems.push(`${label}: after leaving the block the bar has ${back} and not the text tools`);
+  await page.close();
+}
+
+/** The bar moves with the theme's springs only (PR 3 of the contextual toolbar plan; spec section 4): the cursor going into the text slides the contextual tools in from the left
+ * and pushes the main tools right (both animate, spatial fast: the theme's duration and curve, no own), the cursor leaving slides them out
+ * (a ghost copy that is gone once it has finished) and the main tools back, a block after the text is a fade in place (effects), the bar's height and its dividers
+ * never move, and with prefers-reduced-motion nothing is animated at all. `reduced`: the visitor asked for reduced motion. */
+async function checkBarSlide(width, reduced = false, height = 800) {
+  const phone = width < 600;
+  const label = `${width}px bar slide${reduced ? ' (reduced motion)' : ''}`;
+  const page = await browser.newPage({
+    viewport: { width, height },
+    hasTouch: phone,
+    isMobile: phone,
+    locale: 'en-US',
+    reducedMotion: reduced ? 'reduce' : 'no-preference',
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.waitForSelector('.editor-tools');
+  const scheme = await page.evaluate(() => document.documentElement.dataset.motionScheme);
+  const spring = SPRINGS[isMotionScheme(scheme) ? scheme : DEFAULT_SCHEME];
+  const want = { spatial: springCss(spring.spatial.fast), effects: springCss(spring.effects.default) };
+  // Every animation the bar starts is recorded with its keyframes and timing.
+  await page.evaluate(() => {
+    window.__bar = [];
+    const animate = Element.prototype.animate;
+    Element.prototype.animate = function (keyframes, timing) {
+      if (this.closest?.('.editor-tools'))
+        window.__bar.push({ keyframes, timing, ghost: this.classList.contains('editor-tools-ghost'), cls: this.className });
+      return animate.call(this, keyframes, timing);
+    };
+  });
+  const taken = () => page.evaluate(() => window.__bar.splice(0));
+  const heights = () =>
+    page.evaluate(
+      () =>
+        new Promise((done) => {
+          const bar = document.querySelector('.editor-tools');
+          const seen = [];
+          let frames = 0;
+          const look = () => {
+            seen.push({
+              bar: bar.getBoundingClientRect().height,
+              dividers: [...bar.querySelectorAll('hr[aria-orientation="vertical"]')].map((d) => d.getBoundingClientRect().height),
+            });
+            if (++frames < 14) requestAnimationFrame(look);
+            else done(seen);
+          };
+          look();
+        }),
+    );
+  const steady = (seen, name) => {
+    const base = seen.at(-1);
+    for (const now of seen) {
+      if (Math.abs(now.bar - base.bar) > 0.6) problems.push(`${label}: the bar's height moves during ${name} (${now.bar} and ${base.bar})`);
+      for (const h of now.dividers) if (Math.abs(h - 44) > 1) problems.push(`${label}: a divider is ${h} px high during ${name}, not 44`);
+    }
+  };
+  const spatial = (list) => list.filter((a) => a.keyframes.some((k) => k.transform !== undefined));
+  const isTheme = (a, kind) =>
+    a.timing.duration === want[kind].duration && a.timing.easing === want[kind].easing && a.timing.easing.startsWith('linear(');
+
+  // The cursor leaves the text: the contextual tools slide out (a ghost copy) and the main tools slide back.
+  await page.click('.ProseMirror');
+  await page.waitForTimeout(600);
+  await taken();
+  const before = await heights();
+  await taken();
+  await page.evaluate(() => document.activeElement?.blur());
+  const leaving = await page.evaluate(
+    () => new Promise((done) => requestAnimationFrame(() => done(document.querySelectorAll('.editor-tools-ghost').length))),
+  );
+  const leave = await taken();
+  steady(await heights(), 'the slide out');
+  await page.waitForTimeout(want.spatial.duration + 300);
+  const ghostsLeft = await page.locator('.editor-tools-ghost').count();
+  if (reduced) {
+    if (leave.length || leaving)
+      problems.push(`${label}: the bar animates the tools out with reduced motion (${leave.length} animations, ${leaving} ghosts)`);
+  } else {
+    if (spatial(leave).length < 2)
+      problems.push(`${label}: leaving the text does not slide the tools out and the main tools back (${spatial(leave).length} slides)`);
+    if (!leaving) problems.push(`${label}: no ghost copy of the contextual tools slides out`);
+    if (leave.some((a) => !isTheme(a, 'spatial')))
+      problems.push(
+        `${label}: a slide out is not the theme's spatial spring (${JSON.stringify(leave.map((a) => a.timing))}, wanted ${JSON.stringify(want.spatial)})`,
+      );
+    if (ghostsLeft) problems.push(`${label}: the ghost copy is still there after the slide out`);
+  }
+  steady(before, 'rest');
+
+  // The cursor goes into the text: the contextual tools slide in and push the main tools right.
+  await taken();
+  await page.click('.ProseMirror');
+  await page.waitForFunction(() => document.querySelector('.editor-tools-context'), null, { timeout: 4000 });
+  const enter = await taken();
+  steady(await heights(), 'the slide in');
+  await page.waitForTimeout(want.spatial.duration + 300);
+  if (reduced) {
+    if (enter.length) problems.push(`${label}: the bar animates the tools in with reduced motion (${enter.length} animations)`);
+  } else {
+    if (spatial(enter).length < 2)
+      problems.push(`${label}: going into the text does not slide the tools in and push the main tools (${spatial(enter).length} slides)`);
+    if (enter.some((a) => !isTheme(a, 'spatial')))
+      problems.push(`${label}: a slide in is not the theme's spatial spring (${JSON.stringify(enter.map((a) => a.timing))})`);
+    const slidIn = enter.find((a) => String(a.cls).includes('editor-tools-context'));
+    if (!slidIn || !String(slidIn.keyframes[0].transform).startsWith('translateX(-'))
+      problems.push(`${label}: the contextual tools do not come in from the left`);
+  }
+  const rest = await page.evaluate(() => {
+    const bar = document.querySelector('.editor-tools');
+    const main = bar.querySelector('.editor-tools-main');
+    const context = bar.querySelector('.editor-tools-context');
+    return {
+      mainAfterContext: !!context && main.getBoundingClientRect().left >= context.getBoundingClientRect().right - 1,
+      transform: getComputedStyle(main).transform,
+    };
+  });
+  if (!rest.mainAfterContext) problems.push(`${label}: the main tools do not rest after the contextual tools and their divider`);
+  if (rest.transform !== 'none') problems.push(`${label}: the main tools keep a transform after the slide (${rest.transform})`);
+
+  // A block after the text: no second slide, the contextual tools fade in place with the theme's effects spring.
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.waitForTimeout(500);
+  const change = await taken();
+  const fades = change.filter((a) => a.keyframes.some((k) => k.opacity !== undefined));
+  if (reduced) {
+    if (change.length)
+      problems.push(`${label}: the bar animates from the text to a block with reduced motion (${change.length} animations)`);
+  } else {
+    if (!fades.length) problems.push(`${label}: no fade when the bar goes from the text to a block`);
+    if (fades.some((a) => !isTheme(a, 'effects')))
+      problems.push(
+        `${label}: the fade is not the theme's effects spring (${JSON.stringify(fades.map((a) => a.timing))}, wanted ${JSON.stringify(want.effects)})`,
+      );
+    if (change.some((a) => a.ghost)) problems.push(`${label}: going from the text to a block slides a ghost out (it fades in place)`);
+  }
   await page.close();
 }
 
@@ -1500,6 +1661,87 @@ async function checkRedirectsSelection() {
     if (await checked()) problems.push(`${label}: Escape does not end selecting`);
     await page.close();
   }
+}
+
+/** A long press and drag across rows (useLongPress onDrag, useSelection drag): at 375 with real touch events, a finger held for the long press
+ * and dragged over more rows selects each row it passes without the page scrolling under it, held near the bottom of the screen it scrolls the
+ * list by itself and goes on selecting, and a finger that moves before the hold scrolls the page and selects nothing. A mouse drag selects
+ * nothing. */
+async function checkDragSelect() {
+  const label = 'drag select 375';
+  const page = await browser.newPage({ viewport: { width: 375, height: 560 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#list/pages'));
+  await page.waitForSelector('main a.list-item-container');
+  await page.waitForTimeout(600);
+  const rows = page.locator('main a.list-item-container.list-item-selectable');
+  if ((await rows.count()) < 4) {
+    problems.push(`${label}: fewer than 4 selectable rows`);
+    await page.close();
+    return;
+  }
+  const cdp = await page.context().newCDPSession(page);
+  const send = (type, x, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] });
+  const scrollTop = () =>
+    page.evaluate(() => Math.round(document.scrollingElement.scrollTop + (document.querySelector('main')?.scrollTop ?? 0)));
+  const checked = () => page.locator('main [role=checkbox][aria-checked=true]').count();
+  const centre = async (i) => {
+    const b = await rows.nth(i).boundingBox();
+    return [b.x + b.width / 2, b.y + b.height / 2];
+  };
+  const at0 = await scrollTop();
+  const [x0, y0] = await centre(0);
+  // A swipe at once scrolls the page and selects nothing.
+  await send('touchStart', x0, y0 + 200);
+  for (let i = 1; i <= 8; i++) {
+    await send('touchMove', x0, y0 + 200 - i * 20);
+    await page.waitForTimeout(30);
+  }
+  await send('touchEnd');
+  await page.waitForTimeout(400);
+  if (await checked()) problems.push(`${label}: a swipe selected a row`);
+  const scrollable = (await scrollTop()) > at0;
+  if (!scrollable) problems.push(`${label}: a swipe no longer scrolls the page (or the list is too short to check)`);
+  await page.evaluate(() => {
+    document.scrollingElement.scrollTop = 0;
+    document.querySelector('main')?.scrollTo?.(0, 0);
+  });
+  await page.waitForTimeout(300);
+  // Hold, then drag over the next two rows.
+  const [x1, y1] = await centre(0);
+  const [, y2] = await centre(2);
+  const before = await scrollTop();
+  await send('touchStart', x1, y1);
+  await page.waitForTimeout(650);
+  for (let i = 1; i <= 10; i++) {
+    await send('touchMove', x1, y1 + ((y2 - y1) * i) / 10);
+    await page.waitForTimeout(40);
+  }
+  const mid = await checked();
+  await send('touchEnd');
+  await page.waitForTimeout(300);
+  if (mid !== 3) problems.push(`${label}: a long press and drag over 3 rows selected ${mid}`);
+  if ((await scrollTop()) !== before) problems.push(`${label}: the page scrolled under the finger during the drag`);
+  await page.getByRole('button', { name: 'Close selection' }).click();
+  await page.waitForTimeout(300);
+  // Held near the bottom edge: the list scrolls by itself and goes on selecting.
+  const [x3, y3] = await centre(0);
+  await send('touchStart', x3, y3);
+  await page.waitForTimeout(650);
+  const edge = 560 - 12;
+  for (let i = 1; i <= 8; i++) {
+    await send('touchMove', x3, y3 + ((edge - y3) * i) / 8);
+    await page.waitForTimeout(30);
+  }
+  await page.waitForTimeout(1200);
+  const scrolled = (await scrollTop()) > before + 50;
+  const many = await checked();
+  await send('touchEnd');
+  await page.waitForTimeout(300);
+  if (!scrolled) problems.push(`${label}: held near the bottom edge the list did not scroll by itself`);
+  if (many < 5) problems.push(`${label}: scrolling by itself did not go on selecting (${many} rows)`);
+  await page.close();
 }
 
 /** The selection checkbox of a list row (theme ListItem): hover shows one box, all show once one is selected, a touch shows none
@@ -4423,7 +4665,9 @@ async function checkInlineTable(width, height) {
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(300);
   const after = await page.evaluate(() => ({
-    menu: document.querySelectorAll('.editor-tools [aria-label="Add row above"]').length,
+    // The ghost copy of the tools that left is sliding out for a moment: it is not the bar's tools.
+    menu: [...document.querySelectorAll('.editor-tools [aria-label="Add row above"]')].filter((b) => !b.closest('.editor-tools-ghost'))
+      .length,
     extra: document.querySelectorAll('[data-add-row], .inline-table-cell-next').length,
     rows: document.querySelectorAll('.inline-table-box tr[data-row]').length,
     cols: document.querySelectorAll('.inline-table-box thead th').length,
@@ -4592,6 +4836,54 @@ async function checkTableRadius(width, height) {
     if (got.overflowX === 'visible' || got.overflowY === 'visible')
       problems.push(`${label}: the table's box does not clip its header to the radius`);
   }
+  await page.close();
+}
+
+/** The site's spacing is on the 4 dp grid (docs/superpowers/specs/2026-11-13-site-spacing-audit.md, step 6): every margin, padding and gap of what the demo's Blocks page draws is a multiple of 4 px (also 2, 6 and 10: Material 3's nested units), except what scripts/spacing-grid.allow.mjs allows with its reason. Run at 375 and 1280, as a value that follows the width is what drifts. */
+async function checkSpacingGrid(width, height) {
+  const label = `${width}px spacing grid`;
+  const page = await browser.newPage({ viewport: { width, height } });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  const found = await page.evaluate(
+    ([nested, allowed]) => {
+      const sides = {
+        margin: ['marginTop', 'marginRight', 'marginBottom', 'marginLeft'],
+        padding: ['paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft'],
+        gap: ['rowGap', 'columnGap'],
+      };
+      const out = new Map();
+      const root = document.querySelector('main') ?? document.body;
+      for (const el of root.querySelectorAll('*')) {
+        if (el.closest('svg')) continue;
+        const style = getComputedStyle(el);
+        if (style.display === 'none') continue;
+        const parent = el.parentElement?.getBoundingClientRect();
+        const box = el.getBoundingClientRect();
+        // Margins that are auto (a centred box) come out as the room left over, which is the window's, not a spacing.
+        const centred =
+          parent && style.marginLeft === style.marginRight && Math.abs(box.left - parent.left - (parent.right - box.right)) < 1;
+        for (const [kind, names] of Object.entries(sides)) {
+          for (const name of names) {
+            if (centred && (name === 'marginLeft' || name === 'marginRight')) continue;
+            const n = parseFloat(style[name]);
+            if (!Number.isFinite(n) || n === 0) continue;
+            if (Math.abs(n / 4 - Math.round(n / 4)) < 0.01 || nested.includes(Math.abs(n))) continue;
+            if (allowed.some(([selector, props]) => props.includes(kind) && el.matches(selector))) continue;
+            const classes = typeof el.className === 'string' ? el.className.trim().split(/\s+/).slice(0, 3).join('.') : '';
+            const key = `${el.tagName.toLowerCase()}${classes ? '.' + classes : ''} ${name}: ${Math.round(n * 100) / 100}px`;
+            out.set(key, (out.get(key) ?? 0) + 1);
+          }
+        }
+      }
+      return [...out.keys()];
+    },
+    [nestedUnits, allow.map((a) => [a.selector, a.props])],
+  );
+  for (const what of found)
+    problems.push(
+      `${label}: ${what} is not a multiple of 4 px (a space on the 4 dp grid; or an entry of scripts/spacing-grid.allow.mjs with its reason)`,
+    );
   await page.close();
 }
 
@@ -5873,6 +6165,12 @@ await unit('checkStartSubtitle', () => checkStartSubtitle());
 
 for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
 await unit('checkTextBarWide', () => checkTextBarWide());
+for (const [width, reduced] of [
+  [375, false],
+  [1280, false],
+  [375, true],
+])
+  await unit(`checkBarSlide ${width}${reduced ? ' reduced' : ''}`, () => checkBarSlide(width, reduced));
 for (const width of [375, 1280]) await unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
 for (const width of [320, 375, 1280]) await unit(`checkInsertBlock ${width}`, () => checkInsertBlock(width));
 await unit('checkSheetKeyboard 375', () => checkSheetKeyboard(375));
@@ -5897,6 +6195,7 @@ await unit('checkSelection', () => checkSelection());
 await unit('checkSelectionBox', () => checkSelectionBox());
 await unit('checkFilesSelection', () => checkFilesSelection());
 await unit('checkRedirectsSelection', () => checkRedirectsSelection());
+await unit('checkDragSelect', () => checkDragSelect());
 await unit('checkUnlistedPost', () => checkUnlistedPost());
 for (const [width, height] of [
   [375, 740],
@@ -5960,6 +6259,8 @@ await unit('checkTableAlign 1280', () => checkTableAlign(1280, 800));
 
 await unit('checkTableRadius 375', () => checkTableRadius(375, 740));
 await unit('checkTableRadius 1280', () => checkTableRadius(1280, 800));
+await unit('checkSpacingGrid 375', () => checkSpacingGrid(375, 740));
+await unit('checkSpacingGrid 1280', () => checkSpacingGrid(1280, 800));
 for (const [width, height] of [
   [360, 740],
   [375, 740],

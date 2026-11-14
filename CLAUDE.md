@@ -179,8 +179,9 @@ Before changes are approved or published, verify the following from the root of 
 | Command | Description |
 | :--- | :--- |
 | `npm run check` | Prettier, `check:language`, the unit tests (`npm test`), the package's types (`check:types`), the demo built (`npm run build`, its content checked by the editor's rules) and `check:editor` on it (each page the same after a save). |
+| `npm run check:density` | Every part of the theme that has a height or vertical padding in the density list writes it with the density step; a menu, dialog or snackbar never gets denser than Medium, and no horizontal padding or text size follows density (`scripts/check-density.mjs`; the sizes at each step are in `check:screens`). |
 | `npm run check:language` | No Danish text outside the language files (i18n/da-DK/). |
-| `npm run check:screens` | After `npm run build`: all of the editor's screens open without errors, on a phone and a computer, and all icons exist. |
+| `npm run check:screens` | After `npm run build`: all of the editor's screens open without errors, on a phone and a computer, and all icons exist; the site's margins, paddings and gaps on the Blocks page are on the 4 dp grid (`checkSpacingGrid`, exceptions with reasons in `scripts/spacing-grid.allow.mjs`). |
 | `npm run check:screens:shard -- K/N` | Part K of N of `check:screens` (every N-th unit of `scripts/editor-screens.mjs`; add `--list` to print the part's units without running them). CI runs 8 parts side by side (and `check:starter -- --screens --shard K/N` in 4), and the checks that run once over the whole site (`check:screens:extra`: save twice, unlisted, preview) in a job of their own. `check:screens` with no part runs everything. |
 | `node ../../../bin/morpheme.mjs check:themes` (in `.morpheme/demo/site/`) | The same with each of the other themes. |
 | `npm run check:starter` | The starter works as a site with the package from `npm pack`: its own `npm run check` (the site's types and `check:worker`) and its build. |

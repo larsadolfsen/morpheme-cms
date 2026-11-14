@@ -2138,7 +2138,7 @@
    margins it sets in place of the text's; a theme that places a block outside the text sets its own (.block-place in
    the standard theme). A label above a heading in a text has the same look. A theme gives it its own look outside the layers too (the standard theme: in the middle). */
   .block-head {
-    margin-block: 2.5em 1.25em;
+    margin-block: 2rem 1rem;
   }
   .block-head:first-child {
     margin-top: 0;
@@ -2204,7 +2204,7 @@
   }
   .prose li.task-list-item {
     display: flex;
-    gap: 0.75em;
+    gap: 0.75rem;
     align-items: baseline;
   }
   .prose li.task-list-item > input[type='checkbox'] {
