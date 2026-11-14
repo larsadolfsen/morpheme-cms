@@ -7,6 +7,8 @@ export const redirects: Messages['redirects'] = {
   toSelf: 'En adresse kan ikke sende videre til sig selv.',
   pageHas: (from) => `Der er en side med adressen ${from}. Giv i stedet siden en ny adresse.`,
   alreadyRedirects: (from) => `Der findes allerede en videresendelse fra ${from}. Rediger den i listen.`,
+  deleteManyAsk: (count) => `Slet ${count} videresendelser? Adresserne viser derefter "Siden findes ikke".`,
+  manyOf: (count) => `${count} videresendelser`,
   deleteAsk: (from, via) => `Slet videresendelsen fra ${from}? Adressen viser derefter "Siden findes ikke".`,
   loop: (addresses) => `Videresendelserne ville sende i ring (${addresses}).`,
   chain: (from, to, end) => `${from} sender videre til ${to}, som selv sender videre til ${end}. Send den direkte til ${end}.`,
@@ -47,5 +49,6 @@ export const redirects: Messages['redirects'] = {
     add: (from, to) => `Editor: videresend ${from} til ${to}`,
     change: (from, to) => `Editor: ${from} sender nu videre til ${to}`,
     delete: (from) => `Editor: slet videresendelsen fra ${from}`,
+    deleteMany: (count) => `Editor: slet ${count} videresendelser`,
   },
 };

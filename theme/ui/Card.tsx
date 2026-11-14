@@ -2,7 +2,7 @@
 // what is on it (`children`: the block's own heading, text, image …). Its kind (`kind`: outlined, the default,
 // elevated or filled) is Material's name; how each looks is the theme's, and so is its elevation (lifted when it is
 // a link pointed at, and `dragged`: while it is dragged to another place). With `href` the whole card is a link (Link:
-// on the site; in the editor only drawn), else the element `as` (a <div>, a <section>, an <article>, a <figure> or an
+// on the site; in the editor only drawn), else the element `as` (a <div>, a <section>, an <article>, an <aside>, a <figure> or an
 // <li>). `className` after its own classes (the block's: its layout and what is on it); the rest (aria-…, id, data-…)
 // on it. An Astro component without React gives an element the same classes with cardClass.
 import type { HTMLAttributes, ReactNode } from 'react';
@@ -26,7 +26,7 @@ export default function Card({
 }: Omit<HTMLAttributes<HTMLElement>, 'className' | 'children'> & {
   kind?: CardKind;
   dragged?: boolean;
-  as?: 'div' | 'section' | 'article' | 'figure' | 'li';
+  as?: 'div' | 'section' | 'article' | 'aside' | 'figure' | 'li';
   href?: string;
   className?: string;
   children: ReactNode;

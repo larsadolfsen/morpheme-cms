@@ -1172,7 +1172,22 @@ function savedSort(c: Collection, sorts: Sort[], first: Sort): Sort {
 // "today at 1:42 PM" as "Today at 1:42 PM", alone on its line.
 const capital = (s: string) => s.charAt(0).toLocaleUpperCase(locale) + s.slice(1);
 
-export function List({ collection, tab, files, env }: { collection: Collection; tab?: string; files: RepoFile[]; env: Env }) {
+/** What the page of a list the owner made adds to the list (src/OwnList.tsx): its menu, the line under the title, and the sheet and save bar after the rows. */
+export type OwnParts = { pageActions: ReactNode; status?: ReactNode; after: ReactNode };
+
+export function List({
+  collection,
+  tab,
+  files,
+  env,
+  own,
+}: {
+  collection: Collection;
+  tab?: string;
+  files: RepoFile[];
+  env: Env;
+  own?: OwnParts;
+}) {
   // The kinds a new entry can be: the list's own and those of the apps installed and not turned off (apps.ts).
   const kinds = collection.kind === 'folder' ? kindsOffered(collection, apps, activeApps(files), offBlocks(files)) : [];
   // The tabs the apps installed add to it, and the one open (none: the list's own).
@@ -1429,9 +1444,9 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
           ? letterOf(item.title)
           : (item.date ?? '').slice(0, 7),
   );
-  // Pages and posts can be deleted several at once: a press and hold on a row (a phone) or Space on a focused row
-  // starts selecting; then a tap selects or unselects, and the top bar has the count, close and delete (as the notifications do).
-  const canSelect = collection.kind === 'markdown' && !!collection.deletable;
+  // Pages, posts and the entries of the site's own lists can be deleted several at once: a press and hold on a row (a phone) or Space
+  // on a focused row starts selecting; then a tap selects or unselects, and the top bar has the count, close and delete (as the notifications do).
+  const canSelect = (collection.kind === 'markdown' || collection.kind === 'folder') && !!collection.deletable;
   const selection = useSelection({
     order: items.flatMap((i) => (i.file ? [i.file.path] : [])),
     enabled: canSelect,
@@ -1504,10 +1519,12 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
     <Screen
       title={selecting ? t.library.selectedCount(live.length) : collection.label}
       wide
+      status={own?.status}
+      pageActions={own?.pageActions}
       back={
         collection.id === config.lists.cookies && privacyScreen
           ? { href: `#${privacyScreen.id}`, label: privacyScreen.label }
-          : lists.includes(collection.id)
+          : own || lists.includes(collection.id)
             ? { href: '#lists', label: t.common.parts.lists }
             : header.includes(collection.id)
               ? { href: '#global/header', label: t.common.parts.header }
@@ -1654,6 +1671,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
       )}
       {/* A new entry: the list's FAB, or a FAB menu of its kinds when it has several (a pop-up: Standard or an app's, e.g. Mailchimp). */}
       <ListFab collection={collection} kinds={kinds} />
+      {own?.after}
     </Screen>
   );
 }
