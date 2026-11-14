@@ -1,6 +1,6 @@
 // A choice group (.choice-group in ../styles/ui.css): one choice of a few, which takes its form by measuring, so it never
 // squeezes. When every choice fits its label on one line at an equal share of the width, it is Material's connected button
-// group (m3.material.io/components/button-groups: ButtonGroup kind="connected" with a toggle Button, outlined and small,
+// group (m3.material.io/components/button-groups: ButtonGroup kind="connected" with a filled, small toggle Button
 // for each choice, aria-pressed; no check mark, the chosen one shows by its shape and colour); otherwise a list of radio
 // buttons (m3.material.io/components/radio-button and /lists: the theme's List in a RadioGroup, a <fieldset> named by
 // `label`, each choice a ListItem with its radio button leading and the whole row the tap target). The rule is
@@ -170,7 +170,7 @@ export default function ChoiceGroup({
       {form === 'auto' && (
         <div className="button-group button-group-connected choice-group-measure" aria-hidden="true" inert>
           {choices.map((c) => (
-            <Button key={c.value} kind="outlined" size="small" selected={false} icon={c.icon} tabIndex={-1}>
+            <Button key={c.value} kind="filled" size="small" selected={false} icon={c.icon} tabIndex={-1}>
               {buttonContent(c)}
             </Button>
           ))}
@@ -180,7 +180,7 @@ export default function ChoiceGroup({
         {choices.map((c) => (
           <Button
             key={c.value}
-            kind="outlined"
+            kind="filled"
             size="small"
             selected={c.value === value}
             icon={c.icon}

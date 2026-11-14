@@ -4537,7 +4537,7 @@
                                                                          icon (none, or a display value: block)
   Choice group (ChoiceGroup, choiceGroupClass): .choice-group, one choice of a few that takes its form by measuring
   (data-form="buttons" or "list" on it; "list" until it is measured, data-forced when a form is forced): the buttons, a
-  .button-group-connected .choice-group-buttons with an outlined, small toggle .button for each choice (aria-pressed, no
+  .button-group-connected .choice-group-buttons with a filled, small toggle .button for each choice (aria-pressed, no
   check mark: the chosen one shows by its shape and colour), the whole width and each as wide as the others, at most
   --choice-group-max-width from the medium width; or the list, a .radio-group .choice-group-list (its .radio-group-label
   the choice's name) with a .list, each choice a .list-item-with-control with its .radio-button leading, at least 48 dp
