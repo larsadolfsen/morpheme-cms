@@ -106,6 +106,8 @@ export function savedStatus({
 
 // The open form's save (onSave, with the question about notifications), while something is unsaved.
 let saveOpen: (() => Promise<boolean>) | null = null;
+// What the open screen does when the owner chooses Discard (a list's waiting version goes).
+let discardOpen: (() => void) | null = null;
 
 /** Asks, while something is unsaved ("Save the changes?"), whether to save it first ("Save", the main one) or leave
  * it ("Discard"); Esc stays. True when the editor may go on: nothing unsaved, it was saved, or it is left. A save that fails or stops (a field not filled in, an address that is taken) stays. */
@@ -120,6 +122,7 @@ export async function mayLeave() {
   });
   if (!answer) return false;
   if (answer.choice === 'save' && !(await saveOpen?.())) return false;
+  if (answer.choice === 'discard') discardOpen?.();
   setUnsaved(false);
   return true;
 }
@@ -147,6 +150,53 @@ export const inForm = (from: string, to: string) => from !== to && formPages.inc
 export function leaveTo(to: string | (() => void)) {
   const go = typeof to === 'string' ? () => (location.hash = to) : to;
   void mayLeave().then((yes) => yes && go());
+}
+
+/** While `dirty`: closing the page asks in the browser's own dialog, leaving the screen asks Save or Discard (mayLeave), and the editor does not
+ * reload itself to a newer version (deploy.ts keepCurrent). `save` saves what is unsaved; true when it did. */
+export function useUnsavedGuard(dirty: boolean, save: () => Promise<unknown>, discard?: () => void) {
+  const latest = useRef(save);
+  latest.current = save;
+  const dropping = useRef(discard);
+  dropping.current = discard;
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener('beforeunload', warn);
+    setUnsaved(true);
+    saveOpen = async () => {
+      askToNotify();
+      return (await latest.current()) === true;
+    };
+    discardOpen = () => dropping.current?.();
+    return () => {
+      window.removeEventListener('beforeunload', warn);
+      setUnsaved(false);
+      saveOpen = null;
+      discardOpen = null;
+    };
+  }, [dirty]);
+}
+
+/** The bar at the bottom with `Save changes`, for a screen that is not a form (a list's, while its definition waits). */
+export function SaveBar({ saving, onSave }: { saving: boolean; onSave: () => Promise<unknown> }) {
+  return (
+    <ActionSheet label={t.common.saveChanges} className="editor-save-bar">
+      <div className="flex justify-end gap-2">
+        <Button
+          kind="filled"
+          disabled={saving}
+          busy={saving}
+          onClick={() => {
+            askToNotify();
+            void onSave();
+          }}
+        >
+          {t.common.saveChanges}
+        </Button>
+      </div>
+    </ActionSheet>
+  );
 }
 
 export default function FormFrame<T extends string>({
@@ -178,22 +228,7 @@ export default function FormFrame<T extends string>({
   const lastPublishLabel = useRef<string | undefined>(undefined);
   if (publish?.label) lastPublishLabel.current = publish.label;
   const publishing = useBuildState() === 'updating' && !!lastPublishLabel.current && !dirty;
-  useEffect(() => {
-    if (!dirty) return;
-    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
-    window.addEventListener('beforeunload', warn);
-    // The editor does not reload itself to a newer version meanwhile (deploy.ts keepCurrent).
-    setUnsaved(true);
-    saveOpen = async () => {
-      askToNotify();
-      return (await save.current()) === true;
-    };
-    return () => {
-      window.removeEventListener('beforeunload', warn);
-      setUnsaved(false);
-      saveOpen = null;
-    };
-  }, [dirty]);
+  useUnsavedGuard(dirty, () => save.current());
 
   return (
     <Screen
