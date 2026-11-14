@@ -1446,6 +1446,7 @@
     --card-outlined-surface: transparent;
     --card-outlined-line: transparent;
     border: 1px solid var(--block-line);
+    border-radius: var(--card-radius, var(--block-radius));
     color: var(--block-text);
   }
   .block-table-grid:focus-visible {
