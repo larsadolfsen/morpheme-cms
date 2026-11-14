@@ -1,0 +1,13 @@
+// The Worker morpheme-staging-watcher (staging-watcher/index.js). Not in the package. The owner deploys it once:
+//   npx wrangler deploy -c staging-watcher/wrangler.jsonc
+//   npx wrangler secret put STAGING_DEPLOY_HOOK -c staging-watcher/wrangler.jsonc   (morpheme-staging > Settings > Builds > Deploy Hooks)
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "morpheme-staging-watcher",
+  "main": "index.js",
+  "compatibility_date": "2026-09-01",
+  "triggers": { "crons": ["*/5 * * * *"] },
+  // The version staging was last rebuilt for. Wrangler creates the namespace on the first deploy.
+  "kv_namespaces": [{ "binding": "STATE" }],
+  "observability": { "logs": { "enabled": true } },
+}
