@@ -2948,6 +2948,68 @@ async function onDemoBlocksPage(page, label) {
   return false;
 }
 
+/** A card's icon with no color of its own (`iconColor`) is drawn in the text colour (the card's title), on an outlined, a filled and an elevated card, light and dark, and reads at 3:1 (WCAG non-text) on what is behind it. */
+async function checkCardIconText(width, height, scheme) {
+  const label = `${width}px card icon text color (${scheme})`;
+  const phone = width < 600;
+  const page = await browser.newPage({
+    viewport: { width, height },
+    hasTouch: phone,
+    isMobile: phone,
+    locale: 'en-US',
+    colorScheme: scheme,
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  const found = await page.evaluate(() => {
+    const pixel = (css) => {
+      const c = document.createElement('canvas').getContext('2d');
+      c.canvas.width = c.canvas.height = 1;
+      c.fillStyle = '#000';
+      c.fillRect(0, 0, 1, 1);
+      c.fillStyle = css;
+      c.fillRect(0, 0, 1, 1);
+      return [...c.getImageData(0, 0, 1, 1).data];
+    };
+    const lum = ([r, g, b]) =>
+      [r, g, b]
+        .map((v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
+        .reduce((a, v, i) => a + v * [0.2126, 0.7152, 0.0722][i], 0);
+    const behind = (el) => {
+      for (let n = el.parentElement; n; n = n.parentElement) {
+        const bg = getComputedStyle(n).backgroundColor;
+        if (!/rgba\(.*, 0\)|transparent/.test(bg)) return bg;
+      }
+      return 'rgb(255, 255, 255)';
+    };
+    const designs = new Set();
+    const out = [];
+    for (const card of document.querySelectorAll('.block-card')) {
+      const icon = card.querySelector('.block-card-icon');
+      if (!icon || icon.hasAttribute('data-icon-color')) continue;
+      const design = ['card-outlined', 'card-filled', 'card-elevated'].find((c) => card.classList.contains(c)) ?? 'other';
+      designs.add(design);
+      const [a, b] = [lum(pixel(getComputedStyle(icon).color)), lum(pixel(behind(icon)))].sort((x, y) => y - x);
+      out.push({
+        design,
+        icon: getComputedStyle(icon).color,
+        title: getComputedStyle(card.querySelector('.block-card-title')).color,
+        contrast: (a + 0.05) / (b + 0.05),
+      });
+    }
+    return out;
+  });
+  const designs = new Set(found.map((f) => f.design));
+  for (const d of ['card-outlined', 'card-filled', 'card-elevated'])
+    if (!designs.has(d)) problems.push(`${label}: no ${d} card with an icon and no color on the Blocks page`);
+  for (const f of found) {
+    console.log(`card icon contrast ${width}px ${scheme} ${f.design}: ${f.contrast.toFixed(2)}`);
+    if (f.icon !== f.title) problems.push(`${label}: a ${f.design} card's icon is ${f.icon}, not the text colour ${f.title}`);
+    if (f.contrast < 3) problems.push(`${label}: a ${f.design} card's icon has contrast ${f.contrast.toFixed(2)}:1, under 3:1`);
+  }
+  await page.close();
+}
+
 /** Cards that are a carousel on phones (`phone`, on the demo's Blocks page): at 375 px the row scrolls sideways with one card whole and the next peeking in, as Material 3's uncontained carousel is measured (gap 8, 8 above and below, 16 from the edge, corners 28), a dot for each card, labelled; `Show all` stacks the cards in place and `Show fewer` returns them, focus kept; the arrow keys move between the cards. At 1280 px the same block is the grid, with no dots and no button. */
 async function checkCardsCarousel(width, height) {
   const label = `${width}px cards carousel`;
@@ -3148,11 +3210,37 @@ async function checkIconColor(width, height, scheme = 'light') {
   await page.locator('.inline-list-row-active .inline-list-slot').first().click();
   const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
   await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon picker did not open`));
+  // With no icon picked the Icon color row is there (Text chosen, the default), and no tile of the grid is selected, not even the cross of No icon.
+  const colorState = () =>
+    page.evaluate(() => {
+      const group = document.querySelector('[role="group"][aria-label="Icon color"]');
+      const grid = [...document.querySelectorAll('[role="group"][aria-label="Icon"]')].pop();
+      return {
+        rows: document.querySelectorAll('[role="group"][aria-label="Icon color"]').length,
+        names: [...(group?.querySelectorAll('button') ?? [])].map((b) => b.getAttribute('aria-label')),
+        visible: [...(group?.querySelectorAll('button') ?? [])]
+          .map((b) => (b.querySelector('.segmented-button-label').getBoundingClientRect().width > 2 ? b.textContent.trim() : ''))
+          .join(''),
+        pressed: [...(group?.querySelectorAll('button') ?? [])]
+          .filter((b) => b.getAttribute('aria-pressed') === 'true')
+          .map((b) => b.getAttribute('aria-label')),
+        tiles: [...(grid?.querySelectorAll('button[aria-pressed="true"]') ?? [])].length,
+      };
+    });
+  const none = await colorState();
+  if (none.rows !== 1) problems.push(`${label}: with no icon picked the sheet has ${none.rows} "Icon color" rows, not 1`);
+  if (none.pressed.join() !== 'Text') problems.push(`${label}: with no color chosen "${none.pressed}" is selected, not Text`);
+  if (none.tiles) problems.push(`${label}: with no icon picked ${none.tiles} tile(s) of the grid are selected`);
+  if (none.visible) problems.push(`${label}: the colors show names ("${none.visible}"), not dots only`);
   await picker.getByRole('button').nth(1).click();
   await page.waitForTimeout(300);
-  const choices = await page.getByRole('button', { name: /^(Primary|Secondary|Tertiary)$/ }).allTextContents();
-  if (choices.map((c) => c.trim()).join() !== 'Primary,Secondary,Tertiary')
-    problems.push(`${label}: the icon's sheet has the colors "${choices}", not Primary, Secondary, Tertiary`);
+  const choices = (await colorState()).names;
+  if (choices.join() !== 'Text,Primary,Secondary,Tertiary')
+    problems.push(`${label}: the icon's sheet has the colors "${choices}", not Text, Primary, Secondary, Tertiary`);
+  const picked = await colorState();
+  if (picked.pressed.join() !== 'Text')
+    problems.push(`${label}: with an icon and no color chosen "${picked.pressed}" is selected, not Text`);
+  if (picked.tiles !== 1) problems.push(`${label}: with an icon picked ${picked.tiles} tiles are selected, not 1`);
   // The color comes first: its field is above the first icon, in the DOM and on screen, so the color is chosen before the icons.
   const order = await page.evaluate(() => {
     const color = document.querySelector('[role="group"][aria-label="Icon color"]');
@@ -3180,7 +3268,7 @@ async function checkIconColor(width, height, scheme = 'light') {
       const out = chips.map((chip, i) => {
         const dot = chip.querySelector('.segmented-button-swatch');
         const box = dot?.getBoundingClientRect();
-        const role = ['primary', 'secondary', 'tertiary'][i];
+        const role = ['on-surface', 'primary', 'secondary', 'tertiary'][i];
         return {
           name: chip.textContent.trim(),
           pressed: chip.getAttribute('aria-pressed'),
@@ -3200,15 +3288,27 @@ async function checkIconColor(width, height, scheme = 'light') {
     else if (c.color !== c.want) problems.push(`${label}: the ${c.name} circle is ${c.color}, not its role color ${c.want}`);
     if (c.check) problems.push(`${label}: the ${c.name} chip has a check`);
   }
-  if (new Set(before.map((c) => c.want)).size !== 3)
-    problems.push(`${label}: the three role colors are not all different, so the circles prove nothing`);
+  if (new Set(before.map((c) => c.want)).size !== 4)
+    problems.push(`${label}: the four colors are not all different, so the circles prove nothing`);
   await page.getByRole('button', { name: 'Secondary', exact: true }).click();
   await page.waitForTimeout(300);
   // Picking another chip moves the selected state only: the same chips, the same widths, the circles stay.
   const after = await swatches();
   const pressed = after.map((c) => c.pressed).join();
-  if (pressed !== 'false,true,false')
-    problems.push(`${label}: after Secondary was picked the chips are pressed ${pressed}, not false,true,false`);
+  if (pressed !== 'false,false,true,false')
+    problems.push(`${label}: after Secondary was picked the chips are pressed ${pressed}, not false,false,true,false`);
+  // The chosen icon's tile is filled with the chosen color.
+  const tile = await page.evaluate(() => {
+    const grid = [...document.querySelectorAll('[role="group"][aria-label="Icon"]')].pop();
+    const probe = document.createElement('i');
+    probe.style.color = 'var(--mo-secondary)';
+    document.body.append(probe);
+    const want = getComputedStyle(probe).color;
+    probe.remove();
+    const on = grid?.querySelector('button[aria-pressed="true"]');
+    return { fill: on ? getComputedStyle(on).backgroundColor : null, want };
+  });
+  if (tile.fill !== tile.want) problems.push(`${label}: the chosen icon's tile is ${tile.fill}, not the Secondary color ${tile.want}`);
   if (before.map((c) => c.width).join() !== after.map((c) => c.width).join())
     problems.push(
       `${label}: the chips changed width when the choice changed (${before.map((c) => c.width)} to ${after.map((c) => c.width)})`,
@@ -4345,7 +4445,7 @@ async function checkSettingsAndMenu(width, height) {
   )
     problems.push(`${label} #settings: forkerte links: ${names}`);
 
-  // Icon packs: the three system packs (Material Symbols, Phosphor, Lucide) are listed, each with its samples, and one is in use.
+  // Icon packs: the three system packs (Material Symbols, Phosphor, Lucide) are listed, each with its samples (the Phosphor row has its name only: no Phosphor icon is drawn in the editor), and one is in use.
   // A site takes the package from node_modules, where a glob that skips it leaves the list empty.
   await go('appearance/icon-packs');
   await page.waitForTimeout(150);
@@ -4355,7 +4455,11 @@ async function checkSettingsAndMenu(width, height) {
       .filter((el, i, all) => all.indexOf(el) === i)
       .map((el) => ({ label: el.getAttribute('aria-label'), icons: el.querySelectorAll('svg').length })),
   );
-  const packNames = ['Material Symbols', 'Phosphor', 'Lucide'];
+  const packNames = ['Material Symbols', 'Lucide'];
+  const listed = await page.evaluate(() => document.querySelector('main')?.innerText ?? '');
+  if (!listed.includes('Phosphor')) problems.push(`${label} #appearance/icon-packs: the system pack Phosphor is not listed`);
+  if (packs.some((p) => p.label === daLibrary.iconPackSamples('Phosphor')))
+    problems.push(`${label} #appearance/icon-packs: the Phosphor row shows sample icons, but no Phosphor icon is drawn in the editor`);
   for (const name of packNames) {
     const found = packs.find((p) => p.label === daLibrary.iconPackSamples(name));
     if (!found) problems.push(`${label} #appearance/icon-packs: the system pack ${name} is not listed (${packs.length} packs listed)`);
@@ -4894,6 +4998,7 @@ for (const [width, height] of [
 ]) {
   await checkCardsCarousel(width, height);
   await checkCardsSpacing(width, height);
+  for (const scheme of ['light', 'dark']) await checkCardIconText(width, height, scheme);
   for (const scheme of ['light', 'dark']) await checkIconColor(width, height, scheme);
 }
 for (const [width, height] of [

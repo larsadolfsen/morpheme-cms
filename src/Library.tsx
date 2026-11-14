@@ -404,7 +404,7 @@ export function IconPacks({ env, files }: { env: Env; files: RepoFile[] }) {
             <ChoiceRow
               key={x.id}
               selected={x.id === chosen}
-              trailing={<IconSwatches icons={x.samples} label={t.library.iconPackSamples(x.name)} />}
+              trailing={x.samples.length ? <IconSwatches icons={x.samples} label={t.library.iconPackSamples(x.name)} /> : undefined}
               onClick={() => choose(x.id, x.name)}
               headline={x.name}
               supporting={

@@ -529,6 +529,7 @@ export const blocks = {
   /** The color of an icon (a row's or a card's): the site's colors, Primary when none is picked. */
   iconColor: {
     label: 'Icon color',
+    text: 'Text',
     primary: 'Primary',
     secondary: 'Secondary',
     tertiary: 'Tertiary',
