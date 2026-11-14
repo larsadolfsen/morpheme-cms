@@ -25,6 +25,8 @@ import { build } from 'esbuild';
 import { CMS_STATUS, openEditor, serveBuilt } from './built-site.mjs';
 import { toolWidth } from '../src/textBar.mjs';
 import { allow, nestedUnits } from './spacing-grid.allow.mjs';
+import { installedApps } from '../lib/apps.mjs';
+import { appCheckPage } from '../lib/appCheckPage.mjs';
 
 // The editor is opened in Danish (locale da-DK below), so the texts it shows are read from its Danish messages. They are
 // TypeScript, which Node does not run in node_modules (ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING), so esbuild bundles
@@ -1450,6 +1452,50 @@ async function checkUnlistedPost() {
   if (!(await row.count())) return problems.push('hidden post: the posts list has no row for the post that is not on the blog');
   if (!(await row.first().innerText()).includes('Hidden')) problems.push('hidden post: the posts list does not say "Hidden" on its row');
   await page.close();
+}
+
+/**
+ * Each installed app's blocks, on a test page of the app's own (its check-page.md, docs/app-contract.md, "The app's test page"; without
+ * one, its blocks at their default values and a warning that names the app). The page is made here as a file the editor reads and is
+ * removed straight after, never saved or published; the editor opens it on a computer and every failure is reported under the app's name.
+ */
+async function checkAppTestPages() {
+  for (const id of installedApps(ROOT)) {
+    const test = appCheckPage(join(ROOT, 'src/apps', id), id);
+    if (!test) continue;
+    for (const w of test.warnings) console.warn(`warning: ${w}`);
+    for (const p of test.problems) problems.push(p);
+    if (test.problems.length) continue;
+    const path = `src/content/pages/zz-app-${id}.md`;
+    const label = `app ${id} (${test.source})`;
+    make(path, test.text);
+    const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    // (A resource the local server does not have, such as a photo, is a 404 here and nothing of the app's.)
+    page.on(
+      'console',
+      (m) => m.type() === 'error' && !/Failed to load resource/.test(m.text()) && problems.push(`${label}: console error: ${m.text()}`),
+    );
+    try {
+      await openEditor(page, site);
+      await page.evaluate((hash) => (location.hash = hash), `#${path}`);
+      await page.waitForSelector('.ProseMirror', { timeout: 15000 });
+      await page.waitForTimeout(800);
+      const drawn = await page.evaluate(
+        () =>
+          document.querySelectorAll('.ProseMirror [data-block], .ProseMirror .site-block-inline, .ProseMirror .site-block-preview').length,
+      );
+      if (drawn < test.types.length)
+        problems.push(
+          `${label}: the editor draws ${drawn} blocks of the page, the app has ${test.types.length} (${test.types.join(', ')})`,
+        );
+    } catch (error) {
+      problems.push(`${label}: the test page does not open in the editor (${error.message.split('\n')[0]})`);
+    } finally {
+      await page.close();
+      rmSync(join(ROOT, path), { force: true });
+    }
+  }
 }
 
 /** On a phone, a press and hold on a row of the pages list selects it (and the blog's the same), and the top bar's Delete asks before it deletes; a default page (the front page) is not deleted, with the reason. */
@@ -7191,6 +7237,7 @@ for (const [width, height] of [
   await unit(`checkDraftsCard ${width}`, () => checkDraftsCard(width, height));
 await unit('checkEmptyHint', () => checkEmptyHint());
 await unit('checkLongPressDelete', () => checkLongPressDelete());
+await unit('checkAppTestPages', () => checkAppTestPages());
 await unit('checkSelection', () => checkSelection());
 await unit('checkSelectionBox', () => checkSelectionBox());
 await unit('checkFilesSelection', () => checkFilesSelection());
