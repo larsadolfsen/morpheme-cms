@@ -5143,6 +5143,54 @@ async function checkInlinePaste(width, height, block) {
   await page.close();
 }
 
+/** A card's text is optional (spec 2026-11-14-paste-and-change-to-design.md, decision 10): typed in place, a card with only a headline
+ * has no empty text area once another card is active, and on the site the "Only a headline" card of the system's test page (the demo's Blocks page) has no text element. */
+async function checkCardHeadline(width, height) {
+  const label = `${width}px card with only a headline`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Cards that link to pages.' }).first().click();
+  await page.waitForSelector('.inline-cards [data-row="0"] [data-field="title"]');
+  await page.keyboard.type('Tea');
+  // The card being typed in keeps its text field, for the text to be typed next.
+  if (!(await page.locator('.inline-cards [data-row="0"] [data-field="text"]').count()))
+    problems.push(`${label}: the active card has no text field`);
+  await page.locator('.inline-list-host [data-add-row]').first().click();
+  await page.keyboard.type('Cake');
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('With cream');
+  await page.waitForTimeout(300);
+  const fields = await page.evaluate(() =>
+    [...document.querySelectorAll('.inline-cards [data-row]')]
+      .map((c) => (c.querySelector('[data-field="text"]') ? 'text' : 'none'))
+      .join(),
+  );
+  if (fields !== 'none,text') problems.push(`${label}: the cards' text areas are ${fields}, not none (a headline only), text`);
+  await page.close();
+  const sitePage = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  sitePage.on('pageerror', (e) => problems.push(`${label} (site): ${e.message}`));
+  // The system's test page (the demo's Blocks page, on a copy of any site: the starter has no Blocks page of its own).
+  if (!(await onTestPage(sitePage, label))) return sitePage.close();
+  const card = await sitePage.evaluate(() => {
+    const title = [...document.querySelectorAll('.block-card-title')].find((t) => t.textContent.trim() === 'Only a headline');
+    const card = title?.closest('.block-card');
+    return card ? { text: !!card.querySelector('.block-card-text'), height: card.getBoundingClientRect().height } : null;
+  });
+  if (!card) problems.push(`${label} (site): the card "Only a headline" is not on the system's test page`);
+  else if (card.text) problems.push(`${label} (site): a card without text draws an empty text element`);
+  await sitePage.close();
+}
+
 /** Pasting into an empty Table (spec 2026-11-14-paste-and-change-to-design.md, section 2, The Table): a spreadsheet's lines with tabs make
  * its rows and cells, the first line the header row (the setting stays on); a document's `<table>` gives the rows of its html; a paste with a
  * `#` line, and a paste into a Table with content, are the browser's own; Ctrl+Z gives the empty Table back. */
@@ -8086,6 +8134,7 @@ for (const [width, height] of [
 for (const block of pasteBlocks)
   for (const w of [375, 1280]) await unit(`checkInlinePaste ${w} ${block.name}`, () => checkInlinePaste(w, w < 600 ? 740 : 900, block));
 for (const w of [375, 1280]) await unit(`checkInlinePaste ${w} table`, () => checkTablePaste(w, w < 600 ? 740 : 900));
+for (const w of [375, 1280]) await unit(`checkCardHeadline ${w}`, () => checkCardHeadline(w, w < 600 ? 740 : 900));
 await unit('checkDynamicList 375', () => checkDynamicList(375, 740));
 await unit('checkDynamicList 1280', () => checkDynamicList(1280, 900));
 await unit('checkDynamicPicker 375', () => checkDynamicPicker(375, 740));

@@ -26,6 +26,7 @@ export type LinkCard = {
   title: string;
   /** The small line under the headline (a byline, a date, a place: whatever the owner writes). */
   subhead?: string;
+  /** The text under it; empty when the card has none (it is optional). */
   text: string;
   href?: string;
   /** The action area: none on a card with a page. */
@@ -54,7 +55,8 @@ export type LinkCardProps = {
   video?: string;
   title: string;
   subhead?: string;
-  text: string;
+  /** Optional: a card can be its headline alone. */
+  text?: string;
   href?: string;
   buttons?: Button[];
 };
@@ -83,7 +85,7 @@ export const cardsOf = (
       ...(video ? { video } : {}),
       title: card.title,
       ...(card.subhead ? { subhead: card.subhead } : {}),
-      text: card.text,
+      text: card.text ?? '',
       // A page makes the card one link, with no buttons; a video is played, so it is not a link.
       ...(media !== 'video' && card.href ? { href: card.href } : {}),
       buttons: card.href && media !== 'video' ? [] : how.buttons(card, i),

@@ -130,7 +130,8 @@ export default defineBlock({
         { name: 'title', label: t.blocks.cards.title, type: 'string', required: true },
         // The one small line under the headline, as Material 3 has it (a byline, a date or a place is written here).
         { name: 'subhead', label: t.blocks.cards.subhead, type: 'string' },
-        { name: 'text', label: t.blocks.cards.text, type: 'text', required: true },
+        // Optional: a card can be its headline alone (a card made from Steps without texts, or from a one-column Table).
+        { name: 'text', label: t.blocks.cards.text, type: 'text' },
         // A card with a page is one link (the whole card, as Material 3's primary action); a video is played, so it has none, and a card with
         // buttons has none either (a link inside a link is not valid): the hint says why it is gone.
         {
