@@ -82,6 +82,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci --no-audit --no-fund
+      # The demo's own build (npm run build) makes the package copy that check:demo imports.
+      - run: npm run build
       - run: npm run check:demo
 
   # The starter as a new site with the package from npm pack: its own checks (with check:worker) and its build.
