@@ -150,7 +150,8 @@ list already on the page instead of a search view (section 4.3); a labelled fill
 | **Home** | **Search app bar**, opens the command palette as the search view | the start screen (also while the notifications sheet is open) |
 | **Lists** | **Search app bar**, its text narrows the list, chips under it | Pages, Posts, folder lists, own lists, Files, Deleted (pages, posts, files), Redirects (all, missing addresses), Block templates, Block settings, Apps, Connectors, Plugins, App store, Theme store, Licenses, Consents, SEO rating |
 | **The page being written** | **Small app bar** | a page or post (`EntryForm`), a new page or post |
-| **Everything else** | **Medium flexible app bar**, collapses to small on scroll | Settings and its screens, Business and its forms, Globals, Appearance and its screens, Privacy, Account, a list item or folder entry (`DataForm`), an app's page and screens, a theme's page, a store app's and developer's page, Components, CMS version, Status, a licence, a field's own page, Not found |
+| **Everything else** | **Medium flexible app bar**, collapses to small on scroll | Settings and its screens, Business, Colours, Appearance and its screens, Privacy, Account, an app's page and screens, a theme's page, a store app's and developer's page, Components, CMS version, Status, a licence, Not found |
+| **Settings forms** | **a sheet** with the medium flexible app bar's parts as its header (`settings-sheets-design.md`) | Business › Contact and the other forms of that spec's section 4 (which ones: its open question O1) |
 | **While rows are selected** | today's contextual bar (section 4.6) | every list with selection |
 
 The list of screens is the inventory of 14 Nov (section 9). A screen added later picks its row by its kind: `Screen` takes the kind from
@@ -377,8 +378,9 @@ From the inventory of 14 Nov (routes in `src/App.tsx:833-956`). "Trailing" lists
 | Consents | search | back | `Search by consent ID` | sort inside the bar | Download CSV, bell |
 | SEO rating | search | back | `Search the pages and blog posts` | Sort, its filter | bell |
 | A page or post, new page or post | small | back | — | — | search icon, (`Save`,) `Publish` |
-| Every form (`FormFrame`: Business forms, Colours, Logo and icon, Header, Footer, Block template, Privacy forms, Default pages, app settings, a field's page, list items) | medium flexible | back | — | — | search icon, `Save` (D3; when and how it shows: autosave spec) |
-| A list item with Versions (`DataForm`) | medium flexible | back | — | — | Versions, `Save` (the search icon leaves for Versions: two actions) |
+| A settings form that becomes a sheet (`settings-sheets-design.md`, section 4: Business forms, Logo and icon, Header, Footer, Privacy forms, Default pages, a block template, app settings, entries without a text body) | the sheet's header (medium flexible parts) | close / back | — | — | the sheet's (`Save` on a phone; bottom actions on a side sheet) |
+| A form that stays a screen (Colours; an entry with a text body) | medium flexible (Colours), small (an entry with a text body, as a page being written) | back | — | — | search icon, `Save` (D3; when and how it shows: autosave spec) |
+| An entry with Versions that stays a screen (`DataForm`) | small | back | — | — | Versions, `Save` (the search icon leaves for Versions: two actions) |
 | Settings, Appearance, Business, Privacy, Components and their screens; Themes, Icon packs, Motion, Side column, Caching and builds, Assistants, Account, CMS version, Status, a licence, an app's page and screens, a theme's page, a store app's and developer's page, Not found | medium flexible | back | — | — | search icon (+ one action where the screen has one) |
 | Internal links (keywords inside a form) | medium flexible | back | — | its search row stays in the form (it searches a field, not the screen) | search icon, `Save` |
 
@@ -396,7 +398,7 @@ changed screen in a comment. The first visible PR writes the release note (one `
 | 2 | **`Screen` draws M3's kinds.** `TopAppBar kind`: medium flexible by default (back at every width, headline wrapping, subtitle = status, collapse on scroll), `small` for the page form; breadcrumbs and the row under the bar go; the bell only on the start screen and search app bars (P5). Every screen gets its bar from one place; no screen code changes but the page form's `bar="small"`. | `minor` | — |
 | 3 | **The search app bar for lists**, `Screen`'s `search` and `chips` props: the bar narrows the list (D1), the chip row with sort, filter, date, rating and menu order (D2); `SearchRow`, `Filters` and the `InputChip`s under it removed from every list screen of section 9; the count as a live region; `/` focuses the bar. The deviations D1, D2 to `docs/material-deviations.md`. | `minor` | 1, 2 |
 | 4 | **Home: the search app bar opens the palette** as the search view (full screen below medium, docked from medium); the palette's search icon not drawn where a search app bar is; ends the palette spec's deviation 3 (remove its entry). | `minor` | 2, the palette (0.18) |
-| 5 | **`Save` in the app bar of every form**; FormFrame's floating Save bar no longer drawn (the page form lost it in 0.18). D3 to `docs/material-deviations.md`. Coordinated with the autosave spec's PR that shows `Saving…` / `Saved` as the subtitle. | `minor` | 2 |
+| 5 | **`Save` in the app bar of every form that stays a screen** (Colours, entries with a text body; the forms that become sheets get their `Save` from the sheets spec); FormFrame's floating Save bar no longer drawn on them (the page form lost it in 0.18). D3 to `docs/material-deviations.md`. Coordinated with the autosave spec's PR that shows `Saving…` / `Saved` as the subtitle. | `minor` | 2 |
 | 6 | **Rules and clean-up.** `morpheme-website`'s `CLAUDE.md` *Søgeknapper* (text below), this repo's docs that name `SearchRow`; unused texts and the `SearchRow` export removed; `check:screens` assertions settled; this spec marked built. | empty | 3–5 |
 
 The new rule for `morpheme-website/CLAUDE.md` (Danish, as that file is), replacing *Søgeknapper*:
