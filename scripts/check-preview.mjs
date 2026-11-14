@@ -64,8 +64,8 @@ const measure = (STYLES) => {
   const tagOf = (el) => (/^(a|button|span)$/i.test(el.tagName) && el.matches('.button, .chip') ? 'link' : el.tagName.toLowerCase());
   // (An image has the sizes the build made of it on the site, and in the Preview only the image itself, pagePreview.tsx: its size on the page is compared.)
   const drop =
-    'source, script, style, template, noscript, link, meta, [data-snackbar], .snackbar-stack, dialog, [data-editor-preview], .video-facade, .carousel-indicator, .block-cards-show-all, .block-accordion-body, .block-filters';
-  // (A video's still is fetched from its host when the site is built, and by the browser in the Preview: that is the network, not the drawing. The body of a row that reads another page or post (`.block-accordion-body`) is that page's text or excerpt, which the editor does not have. The state of a carousel's dots and of "Show all" is set by the site's scripts, which the Preview's frame does not run.)
+    'source, script, style, template, noscript, link, meta, [data-snackbar], .snackbar-stack, dialog, [data-editor-preview], .video-facade, .carousel-indicator, .block-cards-show-all, .block-accordion-body, .block-filters, .block-imagegrid-filter';
+  // (A video's still is fetched from its host when the site is built, and by the browser in the Preview: that is the network, not the drawing. The body of a row that reads another page or post (`.block-accordion-body`) is that page's text or excerpt, which the editor does not have. The state of a carousel's dots and of "Show all" is set by the site's scripts, as is the image grid's filter (drawn hidden and shown by script.ts), which the Preview's frame does not run.)
   const root = document.body;
   const rows = [];
   const walk = (el, path) => {
