@@ -87,7 +87,7 @@ DataTable({
 
 - **Rows in, unchanged.** `DataTable` only draws strings. It never knows whether rows were typed or come from a list (dynamic lists
   9.4). The block's `view.ts` (typed) and #651's `listColumns` (dynamic) both hand it `head`, `rows`, `columns`.
-- **Pure helpers** in `theme/ui/dataTable.mjs`, tested with `node --test`: `kindOf(entry)` (unknown is `text`), `cellOf(kind, text)`
+- **Pure helpers** in `theme/ui/dataTableCells.mjs`, tested with `node --test`: `kindOf(entry)` (unknown is `text`), `cellOf(kind, text)`
   (the parsed cell: a number's sort value, a date, a link's text and address, an image's alt and address, the tags), `sortKey`,
   `searchText(kind, text, iconLabel)`, `pageOf(count, size, n)`. The script and the server use the same functions.
 - **Classes kept.** The root keeps `block-table block-table-grid` beside `data-table`, so stores' themes that style `.block-table-grid`
@@ -126,10 +126,10 @@ after `npm run build` for every phase that adds a coloured mark (on each section
 ### T1a. The column model, pure functions (before the gate)
 
 - **Files:** `src/standard/table/rows.mjs`: `columnsOf` keeps `kind` and unknown keys (`field`, `label`), `withKind(columns, width, c,
-  kind)`, `alignOf` by kind (number: end; icon, yesno: centre; no stored kind: today's automatic rule). `theme/ui/dataTable.mjs` (section 4)
+  kind)`, `alignOf` by kind (number: end; icon, yesno: centre; no stored kind: today's automatic rule). `theme/ui/dataTableCells.mjs` (section 4)
   for `text` and `number` (other kinds return `text` until their phase).
 - **Tests:** unit: `rows.test.mjs` (old `columns` read the same; `kind` survives add, move, delete and cut of columns; a `field` and a
-  `label` survive; an unknown kind is `text`), `theme/ui/dataTable.test.mjs` (number parsing as `isNumber` accepts it: `1,299`, `12 %`,
+  `label` survive; an unknown kind is `text`), `theme/ui/dataTableCells.test.mjs` (number parsing as `isNumber` accepts it: `1,299`, `12 %`,
   `149 kr`, `−3`; sort keys). No caller uses the new functions yet.
 - **Changeset:** empty. **Release note:** none.
 
@@ -169,8 +169,8 @@ after `npm run build` for every phase that adds a coloured mark (on each section
   (numbers numerically, dates by date from T5, text by the site language's collation); a click reverses the direction (MD2, *column
   sorting*). Without JavaScript, the saved order. Hidden when `header` is off. No progress bar (table spec: sorting is instant).
 - **Files:** `src/standard/table/index.tsx`, `view.ts`, `theme/ui/DataTable.tsx` (`data-sortable`, the cells' `data-sort` keys from
-  `dataTable.mjs`), `theme/ui/dataTable.script.ts` (new), `theme/styles/ui.css`, i18n en/da (the button's label, *Sort by {column}*).
-- **Tests:** unit: `dataTable.test.mjs` (sort keys and order for each built kind; stable for equal keys; empty cells last). `check:screens`:
+  `dataTableCells.mjs`), `theme/ui/dataTable.script.ts` (new), `theme/styles/ui.css`, i18n en/da (the button's label, *Sort by {column}*).
+- **Tests:** unit: `dataTableCells.test.mjs` (sort keys and order for each built kind; stable for equal keys; empty cells last). `check:screens`:
   unit `tableSort` (click a number column twice: order and `aria-sort` both ways; keyboard Enter on the header button; with scripts
   off the saved order), 375 and 1280. Contrast: the arrow icon on every section colour.
 - **Changeset:** `minor`. **Release note:** `paragraph`, `feature`, title *Table sorting* (the table spec: a visitor sees it, and it is an
@@ -186,7 +186,7 @@ after `npm run build` for every phase that adds a coloured mark (on each section
   visually hidden *Yes* / *No* in the site's language.
 - **Typed in place** (the editor's workspace): `link` typed as its text, the address set with the bar's Link (the Table already has the
   `link` text); `date` typed as ISO with the placeholder `YYYY-MM-DD`; `tag` typed with commas; `yesno` a tap cycles Yes, No, empty.
-- **Files:** `theme/ui/dataTable.mjs` (`cellOf`, sort and search for the four), `theme/ui/DataTable.tsx`, `theme/styles/ui.css`,
+- **Files:** `theme/ui/dataTableCells.mjs` (`cellOf`, sort and search for the four), `theme/ui/DataTable.tsx`, `theme/styles/ui.css`,
   `src/InlineTable.tsx`, `gridActions` (four more kinds in the submenu), i18n en/da.
 - **Tests:** unit: parsing each kind (a broken link or date drawn as text), sort by date, comma tags. `check:screens`: unit `tableKinds`
   grows (each kind on the site and in place; the link's hit area at 375 with `pointer: coarse`), 375 and 1280; `inlineBlocks` colour
@@ -199,7 +199,7 @@ after `npm run build` for every phase that adds a coloured mark (on each section
   picked another pack), centred, its name as the screen-reader label; `image` `![alt](address)` or a bare address (section 2), a
   40 × 40 dp thumbnail (MD2 icon size) through the image pipeline as other blocks' images, so `check:content` applies.
 - **Typed in place:** a tap opens the editor's icon picker or the image library; the image's alt typed in the picker, as Cards does.
-- **Files:** `theme/ui/dataTable.mjs`, `theme/ui/DataTable.tsx`, `theme/styles/ui.css`, `src/InlineTable.tsx`, `gridActions`, the
+- **Files:** `theme/ui/dataTableCells.mjs`, `theme/ui/DataTable.tsx`, `theme/styles/ui.css`, `src/InlineTable.tsx`, `gridActions`, the
   content check for image paths in a Table cell, i18n en/da.
 - **Tests:** unit: `![alt](address)` and a bare address; an unknown icon name drawn as text. `check:screens`: `tableKinds` grows (both
   kinds, the picker opens from a cell), 375 and 1280; `check:phosphor` (no direct import). `check:content` with an image in a cell.
@@ -213,7 +213,7 @@ after `npm run build` for every phase that adds a coloured mark (on each section
 - **What:** a `Pages` switch (`paginate`, off; decision 4). The script shows 25 rows per page below the `expanded` breakpoint and 50 from it
   (`atLeast()` of `lib/breakpoints.mjs`), and under the table MD2's range text (*1–25 of 100*) with previous and next icon buttons. No
   rows-per-page menu, no first and last. Without JavaScript every row shows and there is no footer. The range is a live region.
-- **Files:** `index.tsx`, `view.ts`, `DataTable.tsx` (footer slot), `dataTable.script.ts`, `dataTable.mjs` (`pageOf`), `ui.css`, i18n en/da.
+- **Files:** `index.tsx`, `view.ts`, `DataTable.tsx` (footer slot), `dataTable.script.ts`, `dataTableCells.mjs` (`pageOf`), `ui.css`, i18n en/da.
 - **Tests:** unit: `pageOf` (last partial page, 0 rows, a change of breakpoint keeps the first visible row). `check:screens`: unit
   `tablePages` (60 rows: 25 at 375, 50 at 1280, next and previous, the range text, scripts off shows all), 375 and 1280. Contrast: the
   footer's text and icon buttons on every section colour.
@@ -229,7 +229,7 @@ after `npm run build` for every phase that adds a coloured mark (on each section
   search specific content" (read 14 Nov 2026, `/components/search/guidelines`). M3's bar opens a results view; filtering the rows below is
   the nearest M3 pattern, so `Search` gets a mode with no view (its field is the bar). The PR quotes the page and, if the owner wants it
   recorded, adds a deviation entry.
-- **Files:** `theme/ui/Search.tsx` (the mode), `DataTable.tsx`, `dataTable.script.ts`, `dataTable.mjs` (`searchText`), `ui.css`, i18n en/da.
+- **Files:** `theme/ui/Search.tsx` (the mode), `DataTable.tsx`, `dataTable.script.ts`, `dataTableCells.mjs` (`searchText`), `ui.css`, i18n en/da.
 - **Tests:** unit: `searchText` per kind; case and accent folding in the site language. `check:screens`: unit `tableSearch` (type, rows
   narrow, pages reset, the empty line, clear), 375 and 1280. Contrast: the bar on every section colour.
 - **Changeset:** `minor`. **Release note:** `line`, `feature`. Draft: *A table can have a search field that narrows its rows*.
