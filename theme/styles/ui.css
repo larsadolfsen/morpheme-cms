@@ -2696,6 +2696,69 @@
     user-select: none;
   }
 
+  /* The selection checkbox of such an item (List.tsx ListItemSelectBox, drawn like .checkbox but not an <input>): in the trailing
+     slot of an item with something leading it, in the leading slot of a text-only one. It is 48 x 48 (a target), not shown with a
+     touch before something is selected; with a mouse (hover: hover) on the item pointed at or in focus, one box, in its own slot so
+     nothing moves (a text-only item keeps the slot, hidden); on every item once some item is selected (.list-item-selecting). The
+     item's trailing count, arrow and text give way to the box in its slot. */
+  .list-item-select-box {
+    --checkbox-gap: 0;
+    display: none;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    width: 3rem;
+    height: 3rem;
+    margin-block: -0.5rem;
+    cursor: pointer;
+  }
+  .list-item-select-box-leading {
+    margin-inline: -0.5rem 0;
+  }
+  .list-item-select-box-trailing {
+    margin-inline: 0 -0.5rem;
+  }
+  .list-item-select-box .checkbox-box {
+    margin: 0;
+  }
+  .list-item-select-box .checkbox-input {
+    display: block;
+  }
+  @media (hover: hover) {
+    .list-item-select-box-leading {
+      display: flex;
+      visibility: hidden;
+    }
+    .list-item-selectable:is(:hover, :focus-visible) > .list-item-select-box {
+      display: flex;
+      visibility: visible;
+    }
+    .list-item-selectable:is(:hover, :focus-visible) > :is(.list-item-trailing, .list-item-trailing-supporting) {
+      display: none;
+    }
+  }
+  .list-item-selecting > .list-item-select-box {
+    display: flex;
+    visibility: visible;
+  }
+  .list-item-selecting > :is(.list-item-trailing, .list-item-trailing-supporting) {
+    display: none;
+  }
+  /* What leads an item that a tap selects (a touch or a pen): a target of 48 x 48 round its own box. */
+  .list-item-selectable-leading > .list-item-leading {
+    position: relative;
+  }
+  .list-item-selectable-leading > .list-item-leading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 3rem;
+    height: 3rem;
+    transform: translate(-50%, -50%);
+  }
+
   /* Selected, and disabled. */
   .list-item-selected {
     --list-item-shape: var(--list-item-selected-radius, var(--list-item-radius, 0));
@@ -2711,14 +2774,17 @@
   }
   /* A selected item pointed at or pressed: the state layer over its surface. */
   :is(a, button:enabled).list-item-container.list-item-selected:hover {
+    --list-item-shape: var(--list-item-selected-radius, var(--list-item-radius, 0));
     background: linear-gradient(var(--list-item-hover-surface, transparent) 0 0), var(--list-item-selected-surface, transparent);
   }
   :is(a, button:enabled).list-item-container.list-item-selected:focus-visible {
+    --list-item-shape: var(--list-item-selected-radius, var(--list-item-radius, 0));
     background:
       linear-gradient(var(--list-item-focus-surface, var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent))) 0 0),
       var(--list-item-selected-surface, transparent);
   }
   :is(a, button:enabled).list-item-container.list-item-selected:active {
+    --list-item-shape: var(--list-item-selected-radius, var(--list-item-radius, 0));
     background:
       linear-gradient(var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent)) 0 0),
       var(--list-item-selected-surface, transparent);
@@ -2811,6 +2877,10 @@
     --list-item-shape: var(--list-segmented-selected-radius, var(--list-segmented-radius, var(--block-radius-small)));
     background: var(--list-segmented-selected-surface, var(--mo-secondary-container));
     color: var(--list-segmented-selected-text, var(--mo-on-secondary-container));
+  }
+  /* Selected stays at its corners (Material: 16dp) also while pointed at, pressed or focused. */
+  .list-segmented > li:has(> .list-item-selected):has(> :is(a, button:enabled).list-item-container:is(:hover, :active, :focus-visible)) {
+    --list-item-shape: var(--list-segmented-selected-radius, var(--list-segmented-radius, var(--block-radius-small)));
   }
   /* The first and the last item with the list's corners outside, whatever their state. */
   .list-segmented > li:first-child {
