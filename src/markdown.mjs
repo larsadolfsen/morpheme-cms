@@ -446,7 +446,8 @@ export function partsOf(ctx) {
 }
 
 // Keeps a free line (an empty paragraph) between two blocks, before and after them and between a block and the next section's heading, so there is
-// always a place to write a text between them. Not part of undo. Used by the editor (MarkdownEditor.tsx)
+// always a place to write a text between them, and after a text that is only its H1, so a tap under the heading and Enter in it land on a real line
+// (a phone's keyboard does not open for a tap on a hint drawn in the heading). Not part of undo. Used by the editor (MarkdownEditor.tsx)
 // and the check, which writes the text back with the free lines in it.
 /** @type {import('@milkdown/kit/utils').$Prose} */
 export const spacing = $prose(
@@ -462,6 +463,9 @@ export const spacing = $prose(
           before = node;
         });
         if (state.doc.lastChild?.type.name === 'siteBlock') gaps.push(state.doc.content.size);
+        // A text with only its H1: the line to write in under it.
+        if (state.doc.childCount === 1 && state.doc.firstChild?.type.name === 'heading' && state.doc.firstChild.attrs.level === 1)
+          gaps.push(state.doc.content.size);
         if (!gaps.length) return null;
         const tr = state.tr;
         for (const at of gaps.reverse()) tr.insert(at, state.schema.nodes.paragraph.create());

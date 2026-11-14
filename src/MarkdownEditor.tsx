@@ -233,31 +233,6 @@ const gapHere = $prose(
     }),
 );
 
-// A page with only its H1 shows the hint under it (editor.css, h1::after): a tap on that line adds the empty paragraph
-// and puts the cursor in it, with the keyboard open. (With an empty paragraph after the H1 the tap is on the paragraph.)
-const hintTap = $prose(
-  () =>
-    new Plugin({
-      props: {
-        handleDOMEvents: {
-          click: (view, event) => {
-            const { doc, schema } = view.state;
-            const h1 = view.dom.firstElementChild;
-            if (doc.childCount !== 1 || doc.child(0).type.name !== 'heading' || event.target !== h1 || !h1) return false;
-            const range = document.createRange();
-            range.selectNodeContents(h1);
-            if ((event as MouseEvent).clientY <= range.getBoundingClientRect().bottom) return false;
-            const tr = view.state.tr.insert(doc.content.size, schema.nodes.paragraph.create());
-            view.dispatch(tr.setSelection(Selection.near(tr.doc.resolve(tr.doc.content.size - 1), -1)).scrollIntoView());
-            view.focus();
-            event.preventDefault();
-            return true;
-          },
-        },
-      },
-    }),
-);
-
 // A tap in the white below a section's last part, or between two sections (the text's own padding, no node there), puts the cursor in a
 // free line there: the empty paragraph that is already after the part, or a new one that exists only in the editor (markdownOf leaves
 // an empty paragraph out of the saved text, so nothing is written unless something is typed in it).
@@ -1884,7 +1859,6 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(looking)
       .use(sectionFrame(framed))
       .use(gapHere)
-      .use(hintTap)
       .use(tapBelow)
       .use(checkToggle)
       .use(history)
