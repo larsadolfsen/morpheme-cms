@@ -1056,6 +1056,15 @@ async function checkBlockBar(width, height = 800) {
     if (!bar.some((b) => b.label === name && b.svg))
       problems.push(`${label}: the bar has no icon button "${name}" (${bar.map((b) => b.label)})`);
   if (bar.some((b) => b.height < 43.4 || b.width < 43.4)) problems.push(`${label}: a button of the block's bar is under 44 x 44 dp`);
+  // The List's tools in the owner's order (14 Nov), the bar's first and then the ⋮'s: Add below, Add above, Settings (Edit), Fill from a list, Move up, Move down;
+  // Undo, Redo, Insert block and the ⋮ close the bar, with no divider.
+  const order = ['Add below', 'Add above', 'Edit', 'Move up', 'Move down'];
+  const seen = names.filter((n) => order.includes(n));
+  if (seen.join() !== order.filter((n) => seen.includes(n)).join())
+    problems.push(`${label}: the block's tools read ${seen.join(', ')}, not in the order ${order.join(', ')}`);
+  if (names.indexOf('Add below') > names.indexOf('Add above')) problems.push(`${label}: Add below does not come before Add above`);
+  if (bar.some((b) => b.label === 'Move up') && names.includes('Edit') && !bar.some((b) => b.label === 'Edit'))
+    problems.push(`${label}: Move up is on the bar while Settings is in the ⋮ (Move up and Move down come last)`);
   if (!more.length) problems.push(`${label}: the ⋮ has no rows`);
   for (const name of ['Hide on the page', 'Remove'])
     if (!names.includes(name)) problems.push(`${label}: the block's own menu has no "${name}" (${names})`);
