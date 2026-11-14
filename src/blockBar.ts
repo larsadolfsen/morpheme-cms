@@ -6,6 +6,12 @@ import type { BarAction } from './contextualMenu';
 /** A row of the block's own menu (Edit, Hide, Move up, Move down, Remove): a raw SVG icon, its name, what it does (`keyboard`: chosen with the keyboard). */
 export type CardRow = { icon: string; label: string; action: (keyboard: boolean) => void; danger?: boolean };
 
+/** A button of the block's action row (blockRow.ts): the block's own actions above its top item. `kind` says which. */
+export type RowItem = CardRow & { kind: 'up' | 'down' | 'visibility' | 'settings' };
+
+/** The block's action row: its buttons, in order, and the block's element the row opens in. */
+export type BlockRow = { host: HTMLElement; items: RowItem[] };
+
 export type BlockBarState = {
   /** The block's name: the name of the bar's group for screen readers. */
   name: string;
@@ -17,6 +23,8 @@ export type BlockBarState = {
   dynamic?: { label: string; on: boolean; action: () => void };
   /** While blocks are selected: the count with a cross (two slots wide, first on the bar); tapping it clears the selection. */
   count?: { n: number; label: string; action: () => void };
+  /** The block's action row above its top item (Move up, Move down, Hide or Show, Settings): missing while the block has none (several blocks selected). */
+  row?: BlockRow;
   /** The block's own menu, in the bar's `⋮` after the tools: Edit, Hide, Move, Remove (a card selected by a tap has its Edit as the gear). */
   menu: CardRow[];
 };
@@ -75,4 +83,16 @@ export function blockToolIds(state: BlockBarState): string[] {
     ...(state.dynamic ? ['dynamic'] : []),
   ]);
   return BLOCK_TOOL_ORDER.filter((id) => have.has(id));
+}
+
+/** Splits the block's items into its action row (the ones that carry a `row` kind, in the row's order) and the bar's `⋮` (the rest). Each action is in one
+ * place only. `settings` says whether the block's Settings button is in the row (BLOCK_ROW_SETTINGS) or stays in the `⋮`. */
+export function splitRow<T extends CardRow & { row?: RowItem['kind'] }>(items: T[], settings: boolean) {
+  const order: RowItem['kind'][] = ['up', 'down', 'visibility', ...(settings ? (['settings'] as const) : [])];
+  const inRow = (it: T) => !!it.row && order.includes(it.row);
+  const row = items
+    .filter(inRow)
+    .sort((a, b) => order.indexOf(a.row!) - order.indexOf(b.row!))
+    .map((it) => ({ ...it, kind: it.row! }) as RowItem);
+  return { row, menu: items.filter((it) => !inRow(it)) };
 }

@@ -892,6 +892,73 @@ html {
   transition: opacity var(--motion-effects);
 }
 
+/* The active block's action row (blockRow.ts): above the block's top item, right-aligned, 44 dp high, in the block's flow so the page makes room for it
+   (its height opens with the spatial spring). The block's drag handle is its last button: it moves into the row's end while the row is open. */
+.editor-text .site-block-row {
+  display: block;
+  box-sizing: border-box;
+  block-size: 2.75rem;
+  width: calc(100% + 1.25rem);
+  margin-inline: -0.625rem;
+  padding-inline: 0.625rem;
+}
+
+.editor-text .site-block-row-moving {
+  overflow: clip;
+}
+
+.editor-text .site-block-row-inner {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  block-size: 2.75rem;
+  padding-inline-end: 2.75rem;
+}
+
+.editor-text .site-block-row-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--mo-on-surface-variant);
+  cursor: pointer;
+  transition: background-color var(--motion-effects);
+}
+
+.editor-text .site-block-row-button:hover {
+  background: color-mix(in srgb, var(--mo-on-surface) 8%, transparent);
+}
+
+.editor-text .site-block-row-button:focus-visible {
+  outline: 2px solid var(--mo-primary);
+  outline-offset: -2px;
+}
+
+.editor-text .site-block-row-button svg {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+}
+
+.editor-text .site-block-has-row > .site-block-handle {
+  top: 0;
+  right: 0.625rem;
+  opacity: 1;
+  background: transparent;
+}
+
+/* A touch sees the handle only in the row of the active block: nothing lies over the content of the other blocks. */
+@media (hover: none) {
+  .editor-text .site-block:not(.site-block-has-row) > .site-block-handle {
+    display: none;
+  }
+}
+
 /* Disabled while several blocks are selected: the theme's disabled colours, no grab cursor. */
 .editor-text .site-block-handle[aria-disabled] {
   color: color-mix(in srgb, var(--mo-on-surface) 38%, transparent);

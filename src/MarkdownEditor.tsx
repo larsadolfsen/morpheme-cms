@@ -93,7 +93,8 @@ import { fromLine, listPageOf } from './standard/rows/fields';
 import { sourceOf, withPart } from './standard/rows/rows.mjs';
 import { rowParts } from './standard/rows/view';
 import { barIcons, type BarAction } from './contextualMenu';
-import { blockBar, blockToolIds, type BlockBarState, type CardRow } from './blockBar';
+import { blockBar, blockToolIds, splitRow, type BlockBarState, type CardRow } from './blockBar';
+import { BLOCK_ROW_SETTINGS } from './blockRow';
 import { preview } from './registry';
 import { leaveTo } from './FormFrame';
 import { createRoot } from 'react-dom/client';
@@ -296,7 +297,13 @@ const checkToggle = $prose(
 );
 
 // action: keyboard, whether the choice was made with the keyboard (Enter or Space).
-type CardItem = { icon: string; label: string; action: (keyboard: boolean) => void; danger?: boolean };
+type CardItem = {
+  icon: string;
+  label: string;
+  action: (keyboard: boolean) => void;
+  danger?: boolean;
+  row?: 'up' | 'down' | 'visibility' | 'settings';
+};
 
 // The part of the text at the top level before or after the one at index i (a block, or a paragraph
 // with an image), skipping the free lines between; null at the start or end.
@@ -415,8 +422,8 @@ const moves = (view: EditorView, i: number | null, locked: string[] = []): CardI
     return !!next && !(next.type.name === 'siteBlock' && locked.includes(next.attrs.type));
   };
   return [
-    ...(can(-1) ? [{ icon: arrowUpIcon, label: t.common.moveUp, action: step(-1) }] : []),
-    ...(can(1) ? [{ icon: arrowDownIcon, label: t.common.moveDown, action: step(1) }] : []),
+    ...(can(-1) ? [{ icon: arrowUpIcon, label: t.common.moveUp, action: step(-1), row: 'up' as const }] : []),
+    ...(can(1) ? [{ icon: arrowDownIcon, label: t.common.moveDown, action: step(1), row: 'down' as const }] : []),
   ];
 };
 
@@ -870,11 +877,19 @@ function cardBar(
   const show = () => {
     const all = items().filter((it): it is CardItem => !!it);
     const edit = all.find((it) => it.icon === pencilIcon);
+    // The row (blockRow.ts) has Move up, Move down, Hide or Show and, by BLOCK_ROW_SETTINGS, Settings; the bar's `⋮` has the rest.
+    const split = splitRow(
+      all
+        .filter((it) => it !== edit || BLOCK_ROW_SETTINGS)
+        .map((it) => (it === edit ? { ...it, row: 'settings' as const, icon: barIcons.gear } : it)),
+      BLOCK_ROW_SETTINGS,
+    );
     blockBar.show(owner, {
       name,
       actions: [],
-      edit: edit && { label: edit.label, action: () => edit.action(false) },
-      menu: all.filter((it) => it !== edit),
+      edit: edit && !BLOCK_ROW_SETTINGS ? { label: edit.label, action: () => edit.action(false) } : undefined,
+      row: { host: dom, items: split.row },
+      menu: split.menu,
     });
   };
   const away = (e: Event) => {
@@ -1238,7 +1253,7 @@ function blockCard(
   let node = first;
   const ask = asker();
   const block = node.attrs.type === HTML ? htmlBlock : ask?.list.find((b) => b.type === node.attrs.type);
-  const hidden = node.attrs.props.hidden === true;
+  let hidden = node.attrs.props.hidden === true;
   // A block gone from the site by itself (a notice whose time is over) is greyed like a hidden one.
   const over = !!block?.over?.(node.attrs.props);
   // A block typed in place (InlineList.tsx): its card is not a button to tap but the block itself, with its menu on a handle.
@@ -1254,12 +1269,17 @@ function blockCard(
   card.className = inline ? 'site-block-card site-block-inline' : 'site-block-card';
   const name = block?.nameOf?.(node.attrs.props) ?? block?.label ?? node.attrs.type;
   card.setAttribute('aria-label', name);
-  if (hidden) {
-    // An eye struck through in the corner (for screen readers it says so in the description).
-    const badge = card.appendChild(document.createElement('span'));
+  // An eye struck through in the corner of a hidden block (for screen readers it says so in the description). A block typed in place stays the same
+  // node view when it is hidden or shown, so its action row (blockRow.ts) stays open and says Show or Hide.
+  const paintHidden = () => {
+    dom.classList.toggle('site-block-hidden', hidden || over);
+    card.querySelector(':scope > .site-block-hidden-badge')?.remove();
+    if (!hidden) return;
+    const badge = card.insertBefore(document.createElement('span'), card.firstChild);
     badge.className = 'site-block-hidden-badge';
     badge.innerHTML = eyeSlashIcon.replace('<svg', '<svg width="18" height="18" fill="currentColor" aria-hidden="true"');
-  }
+  };
+  paintHidden();
   const shown = card.appendChild(document.createElement('div'));
   shown.className = ask?.data.page ? 'site-block-preview site-block-section not-prose' : 'site-block-preview not-prose';
   // What is typed in place is for screen readers too; the image of any other block is not.
@@ -1464,7 +1484,7 @@ function blockCard(
     return [
       block?.fields.length
         ? (!inline || (typeof spec?.blockSettings === 'function' ? spec.blockSettings(node.attrs.props) : spec?.blockSettings)) &&
-          !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
+          !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit, row: 'settings' as const }
         : block?.edit && { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
       // A block typed in place that reads a list of the site (Testimonials, Blog posts): the page of the list is in its menu too.
       inline && block?.fields.length && block.edit
@@ -1472,7 +1492,12 @@ function blockCard(
         : undefined,
       block?.shown || (stays && hidden === false)
         ? undefined
-        : { icon: hidden ? eyeIcon : eyeSlashIcon, label: hidden ? t.text.showOnPage : t.text.hideOnPage, action: toggle },
+        : {
+            icon: hidden ? eyeIcon : eyeSlashIcon,
+            label: hidden ? t.text.showOnPage : t.text.hideOnPage,
+            action: toggle,
+            row: 'visibility' as const,
+          },
       ...(locked ? [] : moves(view, i, rules?.locked)),
       { icon: selectAllBlocksIcon, label: t.text.selectBlock, action: () => selectable.start() },
       stays || inPanelNow() ? undefined : { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
@@ -1723,12 +1748,19 @@ function blockCard(
       refresh(shown) {
         if (!shown) return blockBar.hide(owner);
         const action = gear();
+        const split = splitRow(
+          menuItems()
+            .filter((it): it is CardItem => !!it)
+            .map((it) => (it.row === 'settings' && BLOCK_ROW_SETTINGS ? { ...it, icon: barIcons.gear } : it)),
+          BLOCK_ROW_SETTINGS,
+        );
         const state: BlockBarState = {
           name,
           actions: rowActions(),
           edit: action && { label: t.common.edit, action },
           dynamic: canDynamic ? { label: t.blocks.rows.dynamicTip, on: isDynamic(), action: openDynamic } : undefined,
-          menu: menuItems().filter((it): it is CardItem => !!it),
+          row: { host: dom, items: split.row },
+          menu: split.menu,
         };
         blockBar.show(owner, state);
       },
@@ -1804,9 +1836,12 @@ function blockCard(
     dom,
     // Typed in place: the same block with other rows is kept (the cursor stays in the row); anything else is drawn again.
     update: (next: Node) => {
-      if (!inline || next.type !== node.type || next.attrs.type !== node.attrs.type || (next.attrs.props.hidden === true) !== hidden)
-        return false;
+      if (!inline || next.type !== node.type || next.attrs.type !== node.attrs.type) return false;
       node = next;
+      if ((next.attrs.props.hidden === true) !== hidden) {
+        hidden = !hidden;
+        paintHidden();
+      }
       draw();
       return true;
     },
