@@ -32,12 +32,13 @@ import {
   Trash,
   type Icon,
 } from '@phosphor-icons/react';
-import { byText, entryData, type Collection, type Part, type PartScreen } from './schema';
+import { byText, entryData, type Collection, type OwnedList, type Part, type PartScreen } from './schema';
 import { config, countsOf, header, relationsOf, siteName } from '@site/editor';
 import { iconPack, iconPacks } from './iconPacks';
 import { theme, themes, type ThemeInfo } from './themes';
 import { StartFab } from './StartFab';
 import { ListFab } from './ListFab';
+import { EditFab } from './CreateFab';
 import { StartStatus } from './StartStatus';
 import { FirstRunCard } from './FirstRun';
 import { Dashboard } from './DashboardGrid';
@@ -1675,7 +1676,12 @@ export function List({
         <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
       )}
       {/* A new entry: the list's FAB, or a FAB menu of its kinds when it has several (a pop-up: Standard or an app's, e.g. Mailchimp). */}
-      {own?.fab ?? <ListFab collection={collection} kinds={kinds} />}
+      {own?.fab ??
+        (collection.kind === 'folder' && (collection as OwnedList).locked ? (
+          <EditFab label={t.ownList.edit} href={`#list/${collection.id}/edit`} />
+        ) : (
+          <ListFab collection={collection} kinds={kinds} />
+        ))}
       {own?.after}
     </Screen>
   );

@@ -1,6 +1,7 @@
 {
   "id": "own-list-edit-page",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "En liste, du har lavet, har en Rediger liste-side med en bjælke til at tilføje felter og pile til at flytte dem"
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Rediger liste",
+  "text": "Listens felter har deres egen side. Tryk på Rediger liste på en liste, du har lavet, for at tilføje alle slags felter fra bjælken og omdøbe, flytte eller fjerne felter. Udtalelser viser sine faste felter der uden bjælken."
 }

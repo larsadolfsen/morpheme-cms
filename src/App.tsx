@@ -90,9 +90,10 @@ import {
 import { readCache, writeCache } from './cache';
 import { forgetNotFound, loadNotFound, type Missing } from './notFound';
 import { isEntryPath } from '../lib/ownList.mjs';
-import { collectionOf, slugOf, type Collection, type FolderCollection, type Part, type Relation } from './schema';
+import { collectionOf, slugOf, type Collection, type FolderCollection, type OwnedList, type Part, type Relation } from './schema';
 import OwnList from './OwnList';
-import OwnListEdit from './OwnListEdit';
+import OwnListEdit, { LockedListEdit } from './OwnListEdit';
+import { editPageOf } from '../lib/ownListEdit.mjs';
 import { discardListDraft, listDraftOf, pendingOf, restoreKeptLists, settleListDrafts, useListDrafts, withListDrafts } from './listDraft';
 import EntryForm, { newMarkdown } from './EntryForm';
 import DataForm from './DataForm';
@@ -933,11 +934,13 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
         };
   const [, listId, listTab, ...below] = route.split('/');
   const listed = route.startsWith('list/') && !below.length && collectionsFor(shownFiles).find((c) => c.id === listId);
-  // The edit page of a list the owner made: list/<id>/edit.
+  // The edit page of a list (list/<id>/edit): the whole page for a list the owner made, the page without the field bar for a locked one (lib/ownListEdit.mjs editPageOf).
   const editing =
     route.startsWith('list/') && listTab === 'edit' && !below.length && collectionsFor(shownFiles).find((c) => c.id === listId);
-  if (editing && editing.kind === 'folder' && isOwnList(shownFiles, editing.id))
-    return <OwnListEdit key={listId} id={listId} files={shownFiles} saved={files} env={env} />;
+  const editPage =
+    editing && editing.kind === 'folder' && editPageOf({ own: isOwnList(shownFiles, editing.id), locked: (editing as OwnedList).locked });
+  if (editPage && editPage.fieldBar) return <OwnListEdit key={listId} id={listId} files={shownFiles} saved={files} env={env} />;
+  if (editing && editPage) return <LockedListEdit key={listId} collection={editing as OwnedList} />;
   if (listed && listed.kind === 'folder' && isOwnList(shownFiles, listed.id))
     return <OwnList key={listId} id={listId} files={shownFiles} saved={files} env={env} />;
   if (listed) return <List key={listed.id} collection={listed} tab={listTab} files={files} env={env} />;

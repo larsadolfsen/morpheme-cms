@@ -24,6 +24,7 @@ export const ownList: Messages['ownList'] = {
   fields: 'Felter',
   addField: 'Tilføj felt',
   noFields: 'Listen har ingen felter endnu. Tilføj det første.',
+  fixedFields: 'Listens felter ligger fast.',
   fieldName: 'Feltets navn',
   shown: 'Vist',
   held: (n) => `Data i ${n} ${n === 1 ? 'række' : 'rækker'} bliver, til du fjerner det.`,

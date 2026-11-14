@@ -4,13 +4,27 @@
 // `Delete list`. A change is kept as the list's waiting version and committed once, with the page's `Save` (src/useOwnList.tsx); only `Delete list` commits at
 // once. A field belongs to the list and is on by default; only the owner's own `Shown` switch hides it (`dropped`): its data stays in the items, and the page says in how
 // many, with `Remove data`. `Remove field` asks, then takes the field and its data out of every item (at the `Save`). The rules are lib/ownList.mjs and
-// lib/ownListEdit.mjs. Moving a field changes the order of an item's form, never its data.
+// lib/ownListEdit.mjs. Moving a field changes the order of an item's form, never its data. A locked list (an app's or a standard block's with fixed fields, as the
+// testimonials') gets LockedListEdit: the same page without the field bar, its fields only shown.
 import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
 import { Icon } from './icon';
 import Screen from './Screen';
 import { SaveBar } from './FormFrame';
-import { Button, IconButton, LinkButton, Menu, MenuItem, SupportingText, SwitchRow, TextField, Toolbar, ToolbarButton } from './ui';
+import {
+  Button,
+  Group,
+  IconButton,
+  LinkButton,
+  ListItem,
+  Menu,
+  MenuItem,
+  SupportingText,
+  SwitchRow,
+  TextField,
+  Toolbar,
+  ToolbarButton,
+} from './ui';
 import { kindNames } from './ownLists';
 import { ask } from './ask';
 import { t } from './i18n';
@@ -20,6 +34,7 @@ import { addField, confirmDrop, heldBy, moveField, renamed, renameField, toggleF
 import { useOwnList, type Definition } from './useOwnList';
 import type { RepoFile } from './github';
 import type { Env } from './App';
+import type { OwnedList } from './schema';
 
 /** The icons of the bar, drawn by name in the pack in use (src/icon.tsx). */
 const named = (name: string) =>
@@ -219,5 +234,28 @@ function FieldName({ kind, value, disabled, onSave }: { kind: string; value: str
       onBlur={() => onSave(text)}
       onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), onSave(text))}
     />
+  );
+}
+
+/** The edit page of a locked list (`locked`, its fields fixed in code, as the testimonials'): the same page without the bar that adds a field. Its fields are
+ * only shown, in the order of an item's form; nothing here renames, moves or removes them, or deletes the list (lib/ownListEdit.mjs editPageOf). */
+export function LockedListEdit({ collection }: { collection: OwnedList }) {
+  const { id, label } = collection;
+  return (
+    <Screen title={label} back={{ href: `#list/${id}`, label }}>
+      <div className="editor-text">
+        <SupportingText className="mb-6">{t.ownList.fixedFields}</SupportingText>
+        <Group title={t.ownList.fields}>
+          {collection.fields.map((f) => (
+            <ListItem key={f.name} headline={f.label} className="own-list-field" data-field={f.name} />
+          ))}
+        </Group>
+        {collection.create && (
+          <LinkButton kind="outlined" href={`#new/${id}`}>
+            {collection.create}
+          </LinkButton>
+        )}
+      </div>
+    </Screen>
   );
 }

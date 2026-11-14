@@ -27,6 +27,8 @@ export const ownList = {
   addField: 'Add field',
   /** What an empty list's page says, above its `Add field` button. */
   noFields: 'This list has no fields yet. Add the first one.',
+  /** On the edit page of a locked list (its fields are fixed, the testimonials'). */
+  fixedFields: 'The fields of this list are fixed.',
   /** A field's name in `Edit list` (the kind's name until the owner changes it). */
   fieldName: 'Field name',
   shown: 'Shown',

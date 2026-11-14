@@ -1,6 +1,7 @@
 {
   "id": "own-list-edit-page",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "A list you made has an Edit list page with a bar to add fields, and arrows to move them"
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Edit list",
+  "text": "A list’s fields have a page of their own. Press Edit list on a list you made to add any kind of field from the bar, and rename, move or remove fields. Testimonials shows its fixed fields there without the bar."
 }

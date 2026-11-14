@@ -4778,7 +4778,7 @@ async function checkOwnList(width, height) {
       .first()
       .evaluate((el) => el.closest('label, div')?.className ?? '');
     await page.evaluate(() => (location.hash = '#list/testimonials'));
-    await page.locator('main a[href^="#src/data/testimonials"], main a[href*="testimonials/"]').first().click();
+    await page.locator('main a[href^="#src/data/testimonials"], main a[href*="testimonials/"]:not([href$="/edit"])').first().click();
     const theirs = await page
       .getByLabel('Name', { exact: true })
       .first()
@@ -4908,9 +4908,43 @@ async function checkOwnList(width, height) {
       .first()
       .waitFor({ timeout: 5000 })
       .catch(() => problems.push(`${label}: Delete list was not refused while a page reads the list`));
+    await checkLockedList(page, width, label);
     await page.close();
     await checkNewList(width, height, label);
   }
+}
+
+/** A locked list (Testimonials, its fields fixed in code): its round button is `Edit list` too, and its edit page shows its fields without the bar that adds one,
+ * with nothing that renames, moves or removes a field or deletes the list, and `Add item`. No horizontal overflow. */
+async function checkLockedList(page, width, label) {
+  label = `${label} locked`;
+  await page.evaluate(() => (location.hash = '#list/testimonials'));
+  const edit = page.getByLabel('Edit list', { exact: true }).first();
+  await edit.waitFor({ timeout: 15000 }).catch(() => problems.push(`${label}: the Testimonials page's round button is not Edit list`));
+  if (await page.getByLabel('New testimonial', { exact: true }).count())
+    problems.push(`${label}: the Testimonials page still has a New testimonial round button`);
+  await edit.click().catch(() => {});
+  const main = page.locator('main');
+  await main
+    .getByText('The fields of this list are fixed.')
+    .first()
+    .waitFor({ timeout: 5000 })
+    .catch(() => problems.push(`${label}: Edit list did not open the locked edit page`));
+  if (await page.evaluate(() => location.hash !== '#list/testimonials/edit'))
+    problems.push(`${label}: the edit page is not at list/testimonials/edit`);
+  if (await main.getByRole('toolbar', { name: 'Fields you can add' }).count())
+    problems.push(`${label}: the locked edit page has the field bar`);
+  for (const name of ['Remove field', 'Delete list', /^Move .* (up|down)$/])
+    if (await main.getByRole('button', { name }).count()) problems.push(`${label}: the locked edit page has ${name}`);
+  if (await main.locator('.own-list-field input').count()) problems.push(`${label}: the locked edit page can change a field`);
+  const fields = await main.locator('.own-list-field').evaluateAll((rows) => rows.map((r) => r.getAttribute('data-field')));
+  for (const field of ['name', 'quote'])
+    if (!fields.includes(field)) problems.push(`${label}: the locked edit page does not show ${field} (${fields})`);
+  if (!(await main.getByRole('link', { name: 'New testimonial' }).count()))
+    problems.push(`${label}: the locked edit page has no New testimonial`);
+  if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
+    problems.push(`${label}: the locked edit page scrolls sideways`);
+  await page.screenshot({ path: join(shots, `own-list-locked-${width}.png`) });
 }
 
 /** The text of a committed file: the commit proxy gets it base64 encoded. */

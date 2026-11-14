@@ -1,5 +1,5 @@
 ---
-'@morphemecms/cms': patch
+'@morphemecms/cms': minor
 ---
 
-The round button on a list you made is Edit list: its page has a bar that adds a field of any kind, and moves, renames and removes fields
+Edit list opens a list's own edit page: a list you made adds fields from a bar and moves, renames and removes them; a locked list such as Testimonials shows its fixed fields
