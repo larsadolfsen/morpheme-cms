@@ -4605,7 +4605,7 @@ async function checkSteps(width, height) {
 }
 
 /** A card's text is optional (spec 2026-11-14-paste-and-change-to-design.md, decision 10): typed in place, a card with only a headline
- * has no empty text area once another card is active, and on the site the demo's "Only a headline" card has no text element. */
+ * has no empty text area once another card is active, and on the site the "Only a headline" card of the system's test page (the demo's Blocks page) has no text element. */
 async function checkCardHeadline(width, height) {
   const label = `${width}px card with only a headline`;
   const phone = width < 600;
@@ -4640,13 +4640,14 @@ async function checkCardHeadline(width, height) {
   await page.close();
   const sitePage = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
   sitePage.on('pageerror', (e) => problems.push(`${label} (site): ${e.message}`));
-  await sitePage.goto(`${site}/blocks/`);
+  // The system's test page (the demo's Blocks page, on a copy of any site: the starter has no Blocks page of its own).
+  if (!(await onTestPage(sitePage, label))) return sitePage.close();
   const card = await sitePage.evaluate(() => {
     const title = [...document.querySelectorAll('.block-card-title')].find((t) => t.textContent.trim() === 'Only a headline');
     const card = title?.closest('.block-card');
     return card ? { text: !!card.querySelector('.block-card-text'), height: card.getBoundingClientRect().height } : null;
   });
-  if (!card) problems.push(`${label} (site): the demo's card "Only a headline" is not on /blocks/`);
+  if (!card) problems.push(`${label} (site): the card "Only a headline" is not on the system's test page`);
   else if (card.text) problems.push(`${label} (site): a card without text draws an empty text element`);
   await sitePage.close();
 }
