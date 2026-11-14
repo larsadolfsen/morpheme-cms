@@ -1,11 +1,11 @@
 # Command palette, one action registry, and no custom context menu (design)
 
 Status: **ready to build in 0.18** (roadmap `docs/superpowers/plans/2026-11-14-roadmap-0-18-to-0-24.md`, *0.18 The editor*). Postponed past 0.17 on 13 November; the owner's
-decisions of 14 November are folded in below. **One owner question is open** (section 11, question 3). Design only, no code. Written for a phone: plain words, short.
+decisions of 14 November are folded in below. **No owner question is open.** Design only, no code. Written for a phone: plain words, short.
 
 **Decided by the owner (14 November):**
 5. **What the palette searches** (question 1): **(b)** the editor's actions, the places in the main menu (navigation), and pages and posts by title. Files later (section 10,
-   step 6).
+   step 7).
 6. **How it opens** (question 2): **no FAB and no button per block.** The palette lists the selected block's actions first (section 4.1). In 0.18 it opens from `Ctrl+K` /
    `⌘K` and a **plain search icon button in today's top bar, on every screen** (section 4.8 lists the screens where that bar then has more than two actions). The M3
    *search app bar* (a search field in the app bar, as in Gmail) comes in **0.20** with the redesign of all screens' app bars, and the icon becomes that search app bar
@@ -16,6 +16,12 @@ decisions of 14 November are folded in below. **One owner question is open** (se
    (section 4.4).
 8. **The block action row** above the active block (#625, `src/blockRow.ts`) is a place of actions of its own: the registry has four places, the **bar**, its **`⋮`**,
    the **row** and the **palette** (section 3).
+9. **Text actions on a phone** (question 3): **yes**, the palette lists them on a phone too.
+10. **Top bars over M3's two-action limit until 0.20** (Home, Pages, Blog posts, Files, lists with deleted items, page and post forms below expanded): **approved** as a
+    temporary deviation until the 0.20 search app bar (deviation 3, section 9).
+11. **One icon per meaning**, built in 0.18 with the registry (section 3.1): **`tune`** is the settings of the thing you are on (block, section, card, image, list
+    settings, everywhere); **`settings`** (the gear) is the editor's Settings and an app's Settings tab only; **`edit`** (the pencil) opens content to edit somewhere
+    else (`Edit list`, `Edit page`), never settings. All Material Symbols, drawn by name through the shared `Icon` (`src/icon.tsx`).
 
 **Decided by the owner (13 November):**
 1. `Ctrl+K` / `⌘K` always opens the palette, also while typing text. *Link* gets no key.
@@ -34,9 +40,9 @@ The palette and the registry are new in 0.18. What they build on is built and do
   and `src/blockBar.ts` (the active block's tools, read by the bar). Section 2 has the details.
 - **The block action row (#625)** above the active block: `src/blockRow.ts`, fed by `blockBar`'s `row` (Move up, Move down, Hide or Show, Settings, then the drag handle).
 - **Selection (#529):** `SelectionBar.tsx` swaps the top bar's actions on list screens; block selection puts the count in the bar's contextual group.
-- **`Ctrl/⌘+K` is not used** by the editor today; the key stays the browser's until step 4 of section 10.
+- **`Ctrl/⌘+K` is not used** by the editor today; the key stays the browser's until step 5 of section 10.
 
-None of these uses a registry. When it is built (section 10, step 5), the bar's tool lists, `blockBar`'s actions, menu and row move into it once, through an adapter first, so
+None of these uses a registry. When it is built (section 10, step 6), the bar's tool lists, `blockBar`'s actions, menu and row move into it once, through an adapter first, so
 the bar, its `⋮` and the row look the same.
 
 Owner's words (editor menus, 13 November): editor interfaces are content-first, so the UI around the content takes little room.
@@ -273,7 +279,7 @@ type EditorAction = {
   with a `bar`, `more` or `row` place. `planBar` keeps deciding by width which `bar` entries go into the `⋮`; `splitRow`'s rule ("Each action is
   in one place only") becomes the rule that an entry has at most one of `bar`, `more` and `row`. Every entry is in the palette unless it says
   `palette: false`. **This spec does not change the design of the bar, the `⋮` or the row;** it changes where their lists come from, through an
-  adapter first (section 10, step 5), so nothing looks different.
+  adapter first (section 10, step 6), so nothing looks different.
 - **Actions that come later register themselves.** Two are decided (owner, 14 November) and have their own spec, written by another session:
   **`Change to…`** (turn a repeating block into another: List, Steps, Segmented list, FAQ, Cards, Table; a `block` action, one entry per target
   block, listed in the palette as "Change to Steps") and **the image tools in the bar** (`Change image`, `Crop`, `Alt text`, `Remove`; on a video
@@ -285,6 +291,33 @@ type EditorAction = {
   `Ctrl+Tab`, `F5` and similar).
 - **A tool is defined once, so the owner sees the same word everywhere**, and the `check:language` rule (no Danish outside
   `da-DK`) holds: labels are in `t.actions`.
+
+### 3.1 One icon per meaning (owner, 14 November; D11)
+
+Each action's icon is defined **once, in its registry entry** (`icon`, a Material Symbols name drawn through `Icon`), so the bar, the row, the `⋮` and the palette
+cannot drift. The owner's standard:
+
+| Meaning | Icon (Material Symbols) | Used for |
+| --- | --- | --- |
+| The settings of the thing you are on | **`tune`** | Block settings, Section settings, a card's, an image's or a list's settings, everywhere (bar, `⋮`, row, palette) |
+| The editor's Settings, an app's Settings tab | **`settings`** (gear) | Only these two |
+| Edit content somewhere else | **`edit`** (pencil) | `Edit list`, `Edit page` and other links to where the content is edited; never settings |
+
+Today the same meaning has four icons (checked on `0.18`, 14 November):
+- `tune` in the block action row (`blockSettingsIcon`, `src/blockHandleIcon.ts`);
+- Phosphor `pencil-simple` (`pencilIcon`, a direct import in `src/MarkdownEditor.tsx`) for Block settings in the bar and `⋮` (around lines 888 and 1491), for an image's
+  Edit (the image sheet, around 1020), and for the list page link of a block (around 1492 and 1495);
+- a hand-made `SectionSettingsIcon` (`src/SectionSettingsIcon.tsx`, Phosphor `rows` through `Svg`) for Section settings;
+- Phosphor `Gear` for an app's Settings tab (`src/AppList.tsx`, around 891).
+
+After the change: Block settings, the image's settings and Section settings are `tune`; the list page link is `edit`; the app's Settings tab is `settings`. The
+Phosphor pencil and Gear imports and `SectionSettingsIcon` go, and `scripts/phosphor-allowlist.json` lowers the `max` of `src/MarkdownEditor.tsx` and `src/AppList.tsx`
+by what they no longer import.
+
+**The check.** A unit test over the registry (`node --test`, in `lib/actionRules.mjs`'s tests) fails when two actions with the same meaning have different icons, when
+an action whose meaning is settings of the thing you are on uses `edit` or `settings`, when `settings` is used by anything but the editor's Settings and an app's Settings
+tab, and when `edit` is used by a settings action. Each entry carries its meaning (`meaning: 'settings-here' | 'settings-app' | 'edit-elsewhere' | …`) for the test. Icons
+drawn outside the registry until step 6 (the app's tab) are covered by a scan in the same test of the files named above.
 
 ## 4. The command palette
 
@@ -383,8 +416,7 @@ feature registers it.
 - **Full screen** on compact (M3: "Full-screen layout: Default for compact breakpoints"): the back arrow, the field, the clear button, then the
   results, each row 48 dp or more. The keyboard opens with the sheet; the results scroll above it.
 - It is opened by the **top-bar search button** (no key on a phone). A text action from the palette on a phone works the same way (the
-  selection is restored), though most phone users will use the bar; the palette still lists them. This is the recommendation of the **one
-  open owner question** (section 11, question 3); step 5 builds it so, and leaving them out on a phone is a filter in the same step.
+  selection is restored), though most phone users will use the bar; the palette still lists them (owner, 14 November: D9).
 - Closing: the back gesture closes the palette before it leaves the screen (`useSheetBack`).
 - **From medium and wider:** the theme's Search view in its **docked** layout, with its own sizes and scrim, unchanged (M3: "Docked layout:
   Best for medium and expanded windows"). Where it stands when a button and not a search bar opens it is **M3 silent** (1b); I give no
@@ -429,8 +461,8 @@ M3: "App bars should only have one action, two if necessary"; "Up to two icon bu
 | Start screen (Home) | Edit dashboard, Notifications, Open website (3 / 3) | 4 / 4 | **No** (it is over the rule already today) |
 
 **Where it goes there.** The owner's decision is the top bar on every screen (D6), so the icon stands in the same place on these screens too: the first
-trailing action. They then have three or four actions, which is more than M3's "two if necessary". That is recorded as deviation 3 (section 9),
-on the owner's words, and it ends in **0.20**, when the redesign of all app bars brings the search app bar: there the search is the field, not
+trailing action. They then have three or four actions, which is more than M3's "two if necessary". The owner approved this as a temporary deviation on
+14 November (D10, deviation 3 in section 9), and it ends in **0.20**, when the redesign of all app bars brings the search app bar: there the search is the field, not
 an icon, and M3 allows "up to two trailing icons on mobile" and "up to four trailing icons on larger screens". The palette PR moves nothing else
 out of these bars. The other M3 answer, "actions at the trailing edge ... collapse into an overflow menu at smaller breakpoints", is not
 recommended for 0.18: M3 also says "Avoid placing an overflow menu in the app bar when possible", and the 0.20 redesign rebuilds these bars anyway.
@@ -476,7 +508,7 @@ The same registry entries, shown by the one bar (its contextual group, then `⋮
 
 ### 5.4 Tooltips with shortcuts (icon-only buttons)
 
-**#519 specified it** (in the tooltip code, no registry). In 0.18 the registry becomes the one source of the key strings (section 10, step 5).
+**#519 specified it** (in the tooltip code, no registry). In 0.18 the registry becomes the one source of the key strings (section 10, step 6).
 `useTooltip` adds the shortcut after the name: "Bold  Ctrl+B" ("Bold  ⌘B" on a Mac). Only actions with a tested key
 have one, and `aria-keyshortcuts` goes on the button. M3 has nothing on shortcuts in tooltips (not found), so this is an addition and not a
 deviation; plain tooltips stay short ("Avoid wrapping text to multiple lines"). The format is one function (`formatShortcut`, tested), used by the
@@ -492,7 +524,7 @@ The editor draws only theme parts. Nothing here is custom.
 | Menu **at a point** | `Menu` | **Not needed any more.** Only a right click or a long press menu would have used it, and both are dropped (section 5). The `⋮` stays under its button |
 | Type-ahead letters in the `⋮` menu | `Menu` | **Missing in the editor's `moveInMenu`** (`ui.tsx`): the theme's `dropdownMenu.script.ts` has it; share it (M3 menus accessibility: "Letters: Focus moves to the next menu item starting with letter") |
 | Palette view | `Search` view (`theme/ui/Search.tsx`) | **Partly.** Drawn (field, listbox, back, clear, empty text) but script-driven; **missing: a controlled version** (`open`, `query`, `onQueryChange`, `activeId`, `onActivate`, a live count) with **grouped results** (a label per group, M3 "Category labels") and a trailing shortcut. Add it to `Search.tsx`, with the site script untouched |
-| Group label in a list | `List` | The editor has `SheetGroupTitle` (an editor composition, `ui.tsx` 2123); the theme `List` has no group header. **Missing**, or reuse `SheetGroupTitle`'s look through the theme (decided in step 3) |
+| Group label in a list | `List` | The editor has `SheetGroupTitle` (an editor composition, `ui.tsx` 2123); the theme `List` has no group header. **Missing**, or reuse `SheetGroupTitle`'s look through the theme (decided in step 4) |
 | Rows | `List`, `ListItem` (`role="option"`, trailing supporting text) | Yes |
 | Field | The search view's own input (`search-view-input`) | Yes. **A `TextField` is not used:** M3's search has its own input inside the view, and the theme's `Search` already draws it |
 | Dialog or SideSheet | `Dialog`, `SideSheet` | **Not used.** M3: dialogs are for "critical information"; a side sheet is a persistent pane, not a search |
@@ -528,24 +560,24 @@ is a proposal for the owner to read; the build PR writes it in `da-DK/` and `che
 
 ## 8. How it relates to #519, #529, #625 and the 0.18 specs
 
-- **#519 (the one bar).** Untouched in design, and not dependent on this spec (see "What exists today"). In step 5 the bar's tool lists and `⋮` groups become the `bar` and `more` places of registry entries, so the bar,
+- **#519 (the one bar).** Untouched in design, and not dependent on this spec (see "What exists today"). In step 6 the bar's tool lists and `⋮` groups become the `bar` and `more` places of registry entries, so the bar,
   `⋮` and the palette stay in step. #519 section 8 said a right-click menu "reuses `Menu`; it is not part of this spec" and a
   palette "as a later, separate spec": this is that spec, and the owner has since ruled out the right-click menu (section 5).
-- **#625 (the block action row).** Untouched in design. Its items (`blockBar` `row`, split by `splitRow`) become the `row` place of registry entries in step 5,
+- **#625 (the block action row).** Untouched in design. Its items (`blockBar` `row`, split by `splitRow`) become the `row` place of registry entries in step 6,
   and the palette lists them first while their block is active (section 4.1).
 - **`Change to…` and the image tools** (owner, 14 November; their own spec, another session). This spec only says the registry carries them once they exist
   (section 3). Their spec decides their places on the bar, in the `⋮` or in the row; they register through the registry if it has landed by then, and through
-  `blockBar` (which the adapter of step 5 reads) if not.
-- **0.20 (the app bars' redesign).** The top-bar search icon of step 4 becomes the M3 search app bar there; deviation 3 ends with it.
+  `blockBar` (which the adapter of step 6 reads) if not.
+- **0.20 (the app bars' redesign).** The top-bar search icon of step 5 becomes the M3 search app bar there; deviation 3 ends with it.
 - **#529 (selection).** A long press on a list screen selects, and now a long press on a block selects it (#529 section 6); this spec adds no long press and never takes either. A right click on a list row stays the
-  browser's, as #529 section 3.3 says, and now everywhere else too. #529's `SelectionBar` swaps the top bar on list screens (and hides the search icon there, section 4.2); its block actions sit in the one bar. In step 5
+  browser's, as #529 section 3.3 says, and now everywhere else too. #529's `SelectionBar` swaps the top bar on list screens (and hides the search icon there, section 4.2); its block actions sit in the one bar. In step 6
   they are registry entries with a `selection` context, so the palette offers them (the `SelectionBar`'s actions as they are in the code then; a single-block *Duplicate* only once it exists). List and
   block selection are different `Ctx` states, never both at once.
 - **#515 and #520** (theme parts audit, Material conformance) are named in #529; I did not read them for this spec. The one missing part
   above (a controlled search view) belongs in the same audit.
 - **Density.** The palette is outside the editor workspace, so its rows are at least 48 dp (M3 Lists specs: "Target size must be at least 48x48dp."). The bar's 44 dp buttons are #519's own decision and deviation.
 
-## 9. Deviations from Material (entries for `docs/material-deviations.md`, added with the palette PR, step 4, in 0.18)
+## 9. Deviations from Material (entries for `docs/material-deviations.md`, added with the palette PR, step 5, in 0.18)
 
 Each: Material says / we do / why / date / PR (PR number filled in when built). The PM's rule: a deviation is allowed only in the editor
 workspace (the bar, its `⋮`, the text and block menus), or when the owner says so in words. All three entries rest on the owner's words. What the pages are silent on is **not**
@@ -559,7 +591,7 @@ a deviation: it is listed in 1b and in section 11.
    - **We do:** the Search view lists and runs the editor's actions as well as finding content; every other part is M3's (a List, an icon
      button with a tooltip, menus).
    - **Why:** the owner's request (the editor has dozens of functions); Search is the closest M3 part, and a dialog is the wrong one ("Dialogs
-     are purposefully interruptive ... used sparingly"). **Date:** 2026-11-13. **PR:** step 4.
+     are purposefully interruptive ... used sparingly"). **Date:** 2026-11-13. **PR:** step 5.
 2. **No custom context menu: the browser's or the OS's menu stays** (editor workspace; owner's words).
    - **Owner:** "So we keep the no right click menu." (13 November)
    - **Material:** "A secondary click (whether using a single button or two fingers on a trackpad) should activate a context menu. The context menu shows
@@ -571,31 +603,40 @@ a deviation: it is listed in 1b and in section 11.
      otherwise it goes in with the palette PR.
 3. **More than two actions in the top bar on some screens until 0.20** (outside the workspace; owner's words).
    - **Owner:** the palette opens from "a plain search icon button in today's top bar, on every screen"; the M3 search app bar comes in 0.20 with the redesign of all
-     screens' app bars (14 November).
+     screens' app bars (14 November). The owner **approved** these bars going over M3's two-action limit as a temporary deviation until the 0.20 search app bar
+     (14 November, through the 0.18 PM).
    - **Material:** "App bars should only have one action, two if necessary." "Up to two icon buttons can be placed after the headline" (App bars guidelines).
    - **We do:** the search icon is the first trailing action on every screen. On the start screen (4 actions), Pages, Blog posts, every list with deleted items and
      Files (3), and, below expanded, a page or post being edited (4) or a new one (3), the bar then has more than two (section 4.8). Nothing else moves.
    - **Why:** the owner's decision for 0.18; the 0.20 redesign gives these bars the search app bar ("up to two trailing icons on mobile", "up to four trailing
-     icons on larger screens") and ends this entry. **Date:** 2026-11-14. **PR:** step 4.
+     icons on larger screens") and ends this entry. **Date:** 2026-11-14 (owner's approval). **PR:** step 5.
 
 ## 10. Build plan (0.18)
 
 All steps are small pull requests **into the `0.18` branch** (skill `changesets`: `minor`, `patch` or empty there). S = a day or less, M = a day or two. A step a site
-owner sees has a `minor` changeset (and, for step 4, a release note); the others `patch` or empty. Each PR reports its link and head sha to the 0.18 PM.
+owner sees has a `minor` changeset (and, for step 5, a release note); the others `patch` or empty. Each PR reports its link and head sha to the 0.18 PM.
 
-1. **S, `lib/actionRules.mjs` and tests.** Folding, ranking, context filter, shortcut parse and format, conflict check. No UI. **Empty** changeset.
-2. **S, `src/actions.ts` registry and the navigation provider.** Register, dispose, `Ctx`, the four places (`bar`, `more`, `row`, `palette`), "Go to" actions from
+When a change the owner can see (the editor or the site) is done and `check` is green, add before and after screenshots of every changed screen to a comment on your
+own pull request, as the `pm` skill's *Screenshots in the pull request* says, and tell the PM with the link and head sha. A change nobody sees needs none.
+
+1. **S, `lib/actionRules.mjs` and tests.** Folding, ranking, context filter, shortcut parse and format, conflict check, the icon-per-meaning test (3.1). No UI.
+   **Empty** changeset.
+2. **S, one icon per meaning (3.1).** Block settings, the image's settings and Section settings draw `tune`, the list page link `edit`, an app's Settings tab
+   `settings`, all through `Icon`. Removes the Phosphor `pencil-simple` and `Gear` imports and `SectionSettingsIcon`, and lowers their `max` in
+   `scripts/phosphor-allowlist.json`. The scan half of the 3.1 test lands here, so it fails on a new mismatch from now on. **Visible: `patch`** (the same tools,
+   the right icons; skill `changesets`), with a release note line if the `release-notes` skill asks for one.
+3. **S, `src/actions.ts` registry and the navigation provider.** Register, dispose, `Ctx`, the four places (`bar`, `more`, `row`, `palette`), "Go to" actions from
    `menuTree`, Insert actions from `blocks.ts`, the pages and posts provider (by title, D5). No UI. Tests: a route in the menu is an action; an app's page
    appears; an entry with two of `bar`, `more`, `row` fails. **Empty** changeset.
-3. **M, theme: a controlled Search view with grouped results** (and the shared type-ahead for the `⋮` menu, if it is still missing). In `theme/ui/` with the parts
+4. **M, theme: a controlled Search view with grouped results** (and the shared type-ahead for the `⋮` menu, if it is still missing). In `theme/ui/` with the parts
    page (`#developer/parts`) updated, a `check:screens` entry and tokens only. **Patch** (nothing on a site changes; the site's search script is untouched).
-4. **M, the palette.** `CommandPalette.tsx`, the plain search icon button in the top bar on every screen (`Screen.tsx`, D6), `Ctrl/⌘+K`, recent, navigation,
+5. **M, the palette.** `CommandPalette.tsx`, the plain search icon button in the top bar on every screen (`Screen.tsx`, D6), `Ctrl/⌘+K`, recent, navigation,
    page and settings actions, phone full screen, focus return, live region, the Danish texts. Deviation entries 1, 2 and 3. **Minor** changeset and **one
    release note paragraph** (it changes how the editor is used; `release-notes` skill, English and Danish): for example "Find anything with one key".
-5. **M, text and block actions in the registry.** `MarkdownEditor.tsx`, `blockBar.ts`, `blockRow.ts` and `contextualMenu.ts` register their actions through an
-   adapter: the bar, its `⋮` and the block action row read them, in today's order and places. The palette lists them, the active block's first (4.1), and the text
-   actions on a phone as question 3 recommends. Shortcuts in tooltips and `aria-keyshortcuts`. **Minor** (the palette offers new actions; a release note line).
-6. **S, polish.** Clear recent on sign-out, *Keyboard shortcuts* list. **Patch.** Files as a provider are **not** in 0.18 (D5: later).
+6. **M, text and block actions in the registry.** `MarkdownEditor.tsx`, `blockBar.ts`, `blockRow.ts` and `contextualMenu.ts` register their actions through an
+   adapter: the bar, its `⋮` and the block action row read them, in today's order and places, with each icon from its entry (3.1). The palette lists them, the
+   active block's first (4.1), and the text actions on a phone too (D9). Shortcuts in tooltips and `aria-keyshortcuts`. **Minor** (the palette offers new actions; a release note line).
+7. **S, polish.** Clear recent on sign-out, *Keyboard shortcuts* list. **Patch.** Files as a provider are **not** in 0.18 (D5: later).
 
 Later, not in this plan: `Change to…` and the image tools register in their own PRs (their spec, D7), each listed in the palette from that PR on. The search app
 bar is 0.20's.
@@ -624,10 +665,12 @@ plain search icon button in today's top bar, on every screen (section 4.8, devia
 (D7, 14 November) The registry carries `Change to…` and the image tools (`Change image`, `Crop`, `Alt text`, `Remove`; video `Change address`) once they exist; their own spec.
 (D8, 14 November) The block action row (#625) is a place of actions: the registry's places are `bar`, `⋮` (`more`), `row` and the palette.
 
-**Open owner question (one):**
+(D9, 14 November; was question 3) On a phone the palette lists the text actions too.
+(D10, 14 November) The top bars over M3's two-action limit (section 4.8) are approved as a temporary deviation until the 0.20 search app bar (deviation 3).
+(D11, 14 November) One icon per meaning: `tune` for the settings of the thing you are on, `settings` for the editor's Settings and an app's Settings tab only,
+`edit` for editing content somewhere else; defined once in the registry and checked (section 3.1, step 2).
 
-3. **On a phone, does the palette list the text actions?** Recommendation: **yes** (the selection is restored), so one list works everywhere. Other choice: leave them
-   out on a phone, where the bar has them. Not yet asked; step 5 builds the recommendation, and the other choice is a filter in the same step.
+**No owner question is open.**
 
 **Defaults, no owner decision needed unless you want one:**
 - (1) **Recent actions** kept in this browser only, cleared at sign-out and by *Clear recent actions*.
