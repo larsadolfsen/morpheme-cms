@@ -117,6 +117,7 @@ export default defineBlock({
           label: t.blocks.picture.alt,
           type: 'string',
           hint: t.blocks.picture.altHint,
+          libraryText: 'image',
           only: { field: 'media', is: ['image'] },
         },
         {

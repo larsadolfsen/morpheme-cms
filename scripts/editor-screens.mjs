@@ -4019,6 +4019,25 @@ async function checkImageGrid(width, height) {
   await page.close();
 }
 
+/** An image with no text of its own is drawn with the Library's text for it (src/imageAlt.mjs), on the site: the demo's Blocks page has a Cards image whose
+ * file record has one, and the About page an image with a text of its own, which stays. */
+async function checkLibraryAlt() {
+  const label = 'library alt text';
+  const page = await browser.newPage({ locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  const card = await page.locator('.block-card-picture img[src$="andromeda.webp"]').first().getAttribute('alt');
+  if (card !== 'The Andromeda galaxy among thousands of stars')
+    problems.push(`${label}: the Cards image has alt "${card}", expected the Library's text for it`);
+  const about = await page.goto(new URL('/about/', site).href).catch(() => null);
+  if (about && about.status() < 400) {
+    const own = await page.locator('img[src$="earth-from-space.webp"]').first().getAttribute('alt');
+    if (own !== 'The Earth seen from space, with clouds over the ocean')
+      problems.push(`${label}: an image with a text of its own has alt "${own}"`);
+  }
+  await page.close();
+}
+
 /** A card's icon with no color of its own (`iconColor`) is drawn in the text colour (the card's title), on an outlined, a filled and an elevated card, light and dark, and reads at 3:1 (WCAG non-text) on what is behind it. */
 async function checkCardIconText(width, height, scheme) {
   const label = `${width}px card icon text color (${scheme})`;
@@ -6130,6 +6149,7 @@ await unit('checkFilesSelection', () => checkFilesSelection());
 await unit('checkRedirectsSelection', () => checkRedirectsSelection());
 await unit('checkDragSelect', () => checkDragSelect());
 await unit('checkUnlistedPost', () => checkUnlistedPost());
+await unit('checkLibraryAlt', () => checkLibraryAlt());
 for (const [width, height] of [
   [375, 740],
   [1280, 900],

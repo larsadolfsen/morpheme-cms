@@ -128,6 +128,7 @@ const image: SiteBlock = {
       label: t.blocks.picture.alt,
       type: 'text',
       hint: t.blocks.picture.altHint,
+      libraryText: 'src',
       only: { field: 'decorative', is: ['', 'false'] },
     },
   ],

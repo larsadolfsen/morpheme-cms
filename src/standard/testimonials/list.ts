@@ -26,7 +26,7 @@ export default function testimonialsList(say: Messages): OwnedList {
     fields: [
       { name: 'name', label: own.entries.name, type: 'string', required: true },
       { name: 'image', label: own.entries.image, type: 'image' },
-      { name: 'alt', label: say.blocks.picture.alt, type: 'string', hint: say.blocks.picture.altHint },
+      { name: 'alt', label: say.blocks.picture.alt, type: 'string', hint: say.blocks.picture.altHint, libraryText: 'image' },
       { name: 'context', label: own.entries.context, type: 'text' },
       { name: 'quote', label: own.entries.quote, type: 'text', required: true },
       {

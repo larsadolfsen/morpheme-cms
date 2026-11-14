@@ -34,6 +34,7 @@ import { creditedIn, publicPath, shownAt, useUploads } from './images';
 import { filerAddresses, useMediaPicker } from './Media';
 import { autoTagChanges, newlyUsed } from './autoTags.mjs';
 import { creditChanges, recordsIn } from './fileRecords.mjs';
+import { libraryAltOf } from './imageAlt.mjs';
 import { inUse, problemAt } from './check';
 import { isOver, untilTime } from '../lib/notice.mjs';
 import { splitPicture } from '../lib/crop.mjs';
@@ -587,6 +588,7 @@ function Form({
     testimonials: env.testimonials,
     site: env.site,
     pickImage,
+    libraryAlt: (src) => libraryAltOf(recordsIn(env.files, config.fileRecords), src),
     // A page's address, for what is shown on it (a button that opens a promotion); a new one has none yet.
     page: collection.id === 'pages' && url ? url : undefined,
   };
@@ -1173,13 +1175,24 @@ function Form({
         image:
           collection.fields.some((f) => f.name === 'image') && changes('image', 'imageAlt', 'imageDecorative')
             ? values.image
-              ? { src: String(values.image), alt: values.imageDecorative === true ? '' : String(values.imageAlt ?? '') }
+              ? {
+                  src: String(values.image),
+                  alt: values.imageDecorative === true ? '' : String(values.imageAlt ?? ''),
+                  decorative: values.imageDecorative === true,
+                }
               : null
             : undefined,
         // Always the text in the form, saved or not: the site's own page may not be rebuilt yet after a save, and would then lack
         // what the editor shows (a section's background).
         body: markdown ?? shown?.body ?? parts.body,
-        data: { lists: env.lists, testimonials: env.testimonials, site: env.site, relations: env.relations, path: url },
+        data: {
+          lists: env.lists,
+          testimonials: env.testimonials,
+          site: env.site,
+          relations: env.relations,
+          path: url,
+          libraryAlt: fields.libraryAlt,
+        },
       };
     });
 

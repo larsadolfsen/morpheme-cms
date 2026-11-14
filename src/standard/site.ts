@@ -134,7 +134,8 @@ export type StandardSite = {
     /** Where its "All posts" goes: a tag's page, with the tag's name, or the blog. */
     all(choice: PostChoice): { href: string; tag?: string };
     /** An image's sizes, for the browser to pick the one that fits (srcset, width and height). Also
-     * the images on "Cards" (LinkCards.tsx). */
-    image(src: string): { srcset?: string; width?: number; height?: number };
+     * the images on "Cards" (LinkCards.tsx); `alt`: the text the Library has for it ("" when it is decorative there), which a
+     * use with a text of its own replaces. */
+    image(src: string): { srcset?: string; width?: number; height?: number; alt?: string };
   };
 };
