@@ -55,6 +55,7 @@ export const text: Messages['text'] = {
   hiddenOnPage: 'Skjult på siden',
   showOnPage: 'Vis på siden',
   hideOnPage: 'Skjul på siden',
+  dragBlock: (name) => `Træk ${name} for at flytte den`,
   typeHere: 'Skriv tekst her …',
   emptyHint: 'Skriv tekst, eller tryk på Indsæt for at tilføje en blok.',
 };
