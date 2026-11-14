@@ -109,7 +109,7 @@ import { ask } from './ask';
 import { canPress, edgeScroll, movedAway } from '@theme/ui/longPressRules.mjs';
 import { hasLabel, labelledHeading, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
-import { AaIcon, AddIcon, CloseIcon, MoreVertIcon } from './icon';
+import { AaIcon, AddIcon, BodyA1Icon, BodyA2Icon, BodyA3Icon, CloseIcon, MoreVertIcon } from './icon';
 import pencilIcon from '@phosphor-icons/core/assets/regular/pencil-simple.svg?raw';
 import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
 import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
@@ -2299,9 +2299,13 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     check: { label: t.text.checkList, icon: KIND_ICONS.check.node },
     ordered: { label: t.text.orderedList, icon: KIND_ICONS.ordered.node },
   };
-  // In the Text style menu the three body styles share one icon, Aa; the labels tell them apart (the bar's own button shows the style's T).
-  const rowIcon = (row: string) => (['small', 'medium', 'large'].includes(row) ? AaIcon : STYLE_FACES[row].icon);
-  const styleFace = STYLE_FACES[styleKey] ?? { label: t.text.kind, icon: GENERIC_ICONS.text.node };
+  // In the Text style menu the body styles draw an A with a number (the smallest has the highest: A3, A2, A1); the bar's own button shows Aa
+  // for every body style and while no style is on (owner decisions, 14 Nov).
+  const BODY_ROW_ICONS: Record<string, typeof TextB> = { small: BodyA3Icon, medium: BodyA2Icon, large: BodyA1Icon };
+  const rowIcon = (row: string) => BODY_ROW_ICONS[row] ?? STYLE_FACES[row].icon;
+  const styleFace = STYLE_FACES[styleKey]
+    ? { ...STYLE_FACES[styleKey], icon: BODY_ROW_ICONS[styleKey] ? AaIcon : STYLE_FACES[styleKey].icon }
+    : { label: t.text.kind, icon: AaIcon };
   const styleLabel = STYLE_FACES[styleKey] ? t.text.kindIs(styleFace.label) : t.text.kind;
   const listFace = LIST_FACES[listKey];
   const lists = listRows(active);
