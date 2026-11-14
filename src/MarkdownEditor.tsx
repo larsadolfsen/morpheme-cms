@@ -419,7 +419,7 @@ const moves = (view: EditorView, i: number | null, locked: string[] = []): CardI
   // Why it cannot move that way, or undefined: shown disabled in the block's action row, not left out (the buttons keep their places).
   const why = (by: -1 | 1) => {
     const j = neighbour(view.state.doc, i, by);
-    if (j === null) return by < 0 ? t.text.moveFirst : t.text.moveLast;
+    if (j === null) return by < 0 ? t.text.moveAtTop : t.text.moveAtBottom;
     const next = view.state.doc.child(j);
     return next.type.name === 'siteBlock' && locked.includes(next.attrs.type) ? t.text.moveLocked : undefined;
   };
@@ -1850,7 +1850,7 @@ function blockCard(
         paintHidden();
         card.setAttribute(
           'aria-description',
-          [hidden ? t.text.hiddenOnPage : '', ...(block ? describe(block, node.attrs.props, asker()?.data) : [])]
+          [hidden ? t.text.hiddenOnPage : '', ...(block ? describe(block, node.attrs.props, asker()!.data) : [])]
             .filter(Boolean)
             .join('. '),
         );
