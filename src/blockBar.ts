@@ -15,6 +15,8 @@ export type BlockBarState = {
   edit?: { label: string; action: () => void };
   /** The shortcut to the block's `Rows from` settings, shown pressed while the block reads a list. */
   dynamic?: { label: string; on: boolean; action: () => void };
+  /** While blocks are selected: the count with a cross (two slots wide, first on the bar); tapping it clears the selection. */
+  count?: { n: number; label: string; action: () => void };
   /** The block's own menu, in the bar's `⋮` after the tools: Edit, Hide, Move, Remove (a card selected by a tap has its Edit as the gear). */
   menu: CardRow[];
 };
