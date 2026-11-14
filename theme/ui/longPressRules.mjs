@@ -1,11 +1,16 @@
 // The decisions of a long press (longPress.ts useLongPress), apart from the browser: which pointers can press, when a
-// move cancels, and what the click after a press does. Exposes MOVE, canPress, movedAway, clickAfter. No dependencies, so node can import it.
+// move cancels, and what the click after a press does. Exposes MOVE, canPress, secondFinger, movedAway, clickAfter, edgeScroll. No dependencies, so node can import it.
 
 /** The most a pointer may move (pixels) and still be a press. */
 export const MOVE = 10;
 
 /** Only a touch or a pen, and only the first finger: a mouse is never a long press. */
 export const canPress = (pointerType, isPrimary) => pointerType !== 'mouse' && !!isPrimary;
+
+/** A second finger put down on an item while the first one rests on it (a press that has not fired and has not moved away) selects it at once,
+ * like a long press without the wait (Material's Selection page: "Long press touch or two-finger touch"). A touch or a pen, never a
+ * mouse, and not the first finger. */
+export const secondFinger = (pointerType, isPrimary, pressing) => pointerType !== 'mouse' && !isPrimary && !!pressing;
 
 /** True when the pointer is now more than MOVE pixels from where it started: the press is cancelled. */
 export const movedAway = (start, x, y) => !!start && Math.hypot(x - start.x, y - start.y) > MOVE;
