@@ -5547,7 +5547,7 @@ async function checkCardHeadline(width, height) {
 }
 
 /** Change to (spec 2026-11-14-paste-and-change-to-design.md, section 3): the block's ⋮ menu has Change to first (Block settings and Hide are in the action row),
- * with an arrow; it opens the next level with a back row and the other list blocks (not the Table yet); a List with an icon changed to
+ * with an arrow; it opens the next level with a back row and the other five blocks; a List with an icon changed to
  * Steps keeps its titles and texts, says "Changed to Steps", and back to List shows the icon again; Ctrl+Z after a change, and the
  * snackbar's Undo, give the block back as it was; and what a block keeps from another is never on the site. */
 async function checkChangeTo(width, height) {
@@ -5627,7 +5627,7 @@ async function checkChangeTo(width, height) {
   await opener.click();
   await page.waitForTimeout(200);
   const level = await menuRows();
-  const want = 'Change to,Segmented list,Steps,FAQ list,Cards';
+  const want = 'Change to,Segmented list,Steps,FAQ list,Cards,Table';
   if (level.join() !== want) problems.push(`${label}: Change to's level is ${level.join(', ')}, not ${want}`);
   // The back row gives the menu's own rows again.
   await page
@@ -5664,6 +5664,20 @@ async function checkChangeTo(width, height) {
   await page.locator('.snackbar-stack .snackbar', { hasText: 'Changed to List' }).locator('.snackbar-action').first().click();
   await page.waitForTimeout(500);
   if (!(await page.locator('.inline-steps').count())) problems.push(`${label}: the snackbar's Undo did not give Steps back`);
+  // Steps → Table → List: the rows are the steps' titles and texts, with no header row; back in the List the first row has its icon again.
+  await changeTo('Table');
+  const table = await page.evaluate(() => ({
+    rows: [...document.querySelectorAll('.inline-table-box tr[data-row]')].map((tr) =>
+      [...tr.querySelectorAll('textarea')].map((f) => f.value),
+    ),
+    header: document.querySelectorAll('.inline-table-box thead th').length,
+  }));
+  if (JSON.stringify(table.rows) !== was || table.header)
+    problems.push(`${label}: Steps → Table made ${JSON.stringify(table)}, not the rows ${was} with no header row`);
+  await changeTo('List');
+  if (!(await page.locator('.inline-list').count()) || !(await hasIcon()))
+    problems.push(`${label}: Table → List did not give the List with its icon`);
+  if (JSON.stringify(await rows('title')) !== was) problems.push(`${label}: Table → List has ${JSON.stringify(await rows('title'))}`);
   // Kept data is never on the site: the Steps of the system's test page (the demo's Blocks page) keep a card's subhead and a FAQ answer on their
   // first step, as Change to leaves them, and the page shows neither.
   if (await onTestPage(page, label)) {
