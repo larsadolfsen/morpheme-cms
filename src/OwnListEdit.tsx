@@ -181,7 +181,7 @@ function FieldBar({ onAdd, disabled }: { onAdd: (kind: string) => void; disabled
     watch.observe(el);
     return () => watch.disconnect();
   }, []);
-  const plan = planBar({ width, context: KINDS.map((k: { id: string }) => k.id), fixed: [] });
+  const plan = planBar({ width, context: KINDS.map((k: { id: string }) => k.id).filter((id: string) => id !== 'date'), fixed: [] });
   const button = (kind: string) => (
     <ToolbarButton
       key={kind}

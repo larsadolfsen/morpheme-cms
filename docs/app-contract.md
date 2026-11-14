@@ -23,7 +23,7 @@ One `app.json` sits in each app folder.
 
 | Key | Type | Required | Meaning |
 |---|---|---|---|
-| `api` | `4` or `5` | yes | The contract the app is written to. |
+| `api` | `4`, `5` or `6` | yes | The contract the app is written to. |
 | `label` | string | yes | The app's name, in English. |
 | `publisher` | string | yes | Who made the app. |
 | `license` | SPDX string | yes | The app's license. |
@@ -37,7 +37,7 @@ One `app.json` sits in each app folder.
 | `releaseNotes` | `Record<version, string>` | no | The release notes per version. |
 | `screenshots` | `{ shows, label, values? }[]` | no | Screenshots of the app; `shows` is a keyword, see "Screenshot keywords". |
 | `settings` | `{ fields, values, example? }` | no | The settings fields and their values. |
-| `lists` | `OwnedList[]` | no | The lists the app owns. |
+| `lists` | `OwnedList[]` | no | The lists the app owns. Contract 6 writes them as data, see "Contract 6: lists". |
 | `kinds` | `Record<list, AppKind>` | no | The kinds of the lists, without `draw`. |
 | `cookies` | `AppCookieDecl[]` | no | The cookies the app sets. |
 | `csp` | `Record<directive, host[]>` | no | The hosts the app needs, per directive. |
@@ -184,6 +184,53 @@ Contract 4 stays accepted for as long as the store has an app written to it, and
 removed only in a release that says so in its changeset, never before `1.0.0`, and never while a connector or plugin the
 owner installed still needs it. Apps move to contract 5 with their next version (`1.1.0`): a version is for ever, so a
 published contract 4 app is not rewritten.
+
+## Contract 6: lists
+
+Contract 6 is contract 5 with data lists. Everything else is as before. The editor reads contracts 4, 5 and 6 (`APP_APIS` in
+`lib/contracts.mjs`); `APP_API` is 6. An app written to 4 or 5 is read exactly as it was: its `lists` key is checked as before
+and nothing it has stops working. Only `api: 6` reads `lists` as data (the spec is `docs/superpowers/specs/2026-11-14-dynamic-lists-framework-design.md`, section 3).
+
+An app declares a list in `lists`, in the format of an own list's `_list.json` plus the keys an app needs:
+
+```json
+{
+  "api": 6,
+  "lists": [
+    {
+      "id": "faq",
+      "label": "Questions",
+      "singular": "Question",
+      "icon": "help",
+      "version": 2,
+      "fields": [
+        { "id": "question", "kind": "title", "label": "Question" },
+        { "id": "answer", "kind": "text" },
+        { "id": "tags", "kind": "tags" }
+      ],
+      "page": "settings:faqPage",
+      "examples": [{ "question": "Can I return an item?", "answer": "Yes, within 30 days." }]
+    }
+  ]
+}
+```
+
+| Key | Required | Meaning |
+|---|---|---|
+| `id` | yes | The list's id in the app. Matches `^[a-z][a-z0-9-]{0,39}$` and is used once. |
+| `label`, `singular`, `icon` | yes | The list's name, one entry's name and a Material Symbols icon name. |
+| `version`, `fields` | yes | As `_list.json` version 2: each field is `{ id, kind, label? }`. The parser is the one of own lists (`parseDefinition`). |
+| `locked` | no, default `true` | The owner cannot add, rename, move or remove fields. `false` is only for first-party apps in 0.19. |
+| `page` | no | Where `Show all` goes: a path such as `/faq/`, or `settings:<field>`, a field of the app's `settings`. None: the block's own `buttonHref`. |
+| `examples` | no | Made-up entries for the store's images and the parts' previews. |
+
+Rules:
+
+- The kinds are `icon`, `title`, `text`, `image`, `href`, `tags` and the new `date` (stored as `YYYY-MM-DD`). The kind exists in 0.19; its button in the field bar comes later.
+- The entries live in `src/data/<app id>.<id>/`, one JSON file per entry. The dot never occurs in an own list's id, so the two never collide.
+- An app's list keeps its entries when the app is turned off or removed. Only the owner deletes them.
+- An unknown key in a list, a wrong `id`, a field the parser refuses, `locked: false` in a third-party app, or a `page` that is no path and names no setting fails the check.
+- `listBlocks` and the app's bundled blocks are not part of this contract yet.
 
 ## Contract 3: `@app/self`
 
