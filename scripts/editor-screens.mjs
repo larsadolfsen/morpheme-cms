@@ -3717,6 +3717,66 @@ async function onDemoBlocksPage(page, label) {
   return false;
 }
 
+/** The Library's images are the theme's image tiles in a staggered grid: cards with media (filled, the image to the edge), each in its own proportions (the box is
+ * there before the image loads), 8 px apart, 2 columns on a phone and 4 on a computer, and a selected card has its own surface. */
+async function checkImageGrid(width, height) {
+  const label = `${width}px image grid`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site, {});
+  // A site with no images (the starter's) has no grid to measure.
+  const images = await page.evaluate(
+    async (base) => Object.keys(await (await fetch(`${base}/editor/thumbnails.json`)).json()).length,
+    site,
+  );
+  if (!images) {
+    console.log(`${label}: skipped, the site has no images to measure, which the demo has.`);
+    return page.close();
+  }
+  await page.goto(`${site}/editor/#files`);
+  await page.waitForSelector('ul.image-grid', { timeout: 30_000 });
+  const m = await page.evaluate(() => {
+    const grid = document.querySelector('ul.image-grid');
+    const gs = getComputedStyle(grid);
+    const tiles = [...grid.querySelectorAll('button.card')];
+    const media = tiles.map((t) => t.querySelector('.card-media')).filter(Boolean);
+    const plain = document.createElement('div');
+    plain.className = 'card card-filled';
+    const chosen = document.createElement('div');
+    chosen.className = 'card card-filled card-selected';
+    document.body.append(plain, chosen);
+    const surfaces = [getComputedStyle(plain).backgroundColor, getComputedStyle(chosen).backgroundColor];
+    plain.remove();
+    chosen.remove();
+    return {
+      columns: gs.columnCount,
+      gap: gs.columnGap,
+      tiles: tiles.length,
+      cards: tiles.filter((t) => t.classList.contains('card-filled') && t.classList.contains('card-with-media')).length,
+      ratios: media.filter((el) => el.style.aspectRatio).length,
+      square: grid.querySelectorAll('.aspect-square').length,
+      heights: [...new Set(tiles.map((t) => Math.round(t.getBoundingClientRect().height)))].length,
+      sideways: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      surfaces,
+      names: tiles.filter((t) => !t.getAttribute('aria-label')).length,
+    };
+  });
+  const columns = phone ? '2' : '4';
+  if (m.tiles === 0) problems.push(`${label}: the Library has no tiles to measure`);
+  if (m.columns !== columns) problems.push(`${label}: ${m.columns} columns, expected ${columns}`);
+  if (m.gap !== '8px')
+    problems.push(`${label}: the gap between columns is ${m.gap}, expected 8px (Material 3: "Padding between cards: 8dp max")`);
+  if (m.cards !== m.tiles) problems.push(`${label}: ${m.tiles - m.cards} tiles are not a filled card with media`);
+  if (m.square) problems.push(`${label}: ${m.square} tiles are still squares`);
+  if (m.sideways) problems.push(`${label}: the page scrolls sideways`);
+  if (m.names) problems.push(`${label}: ${m.names} tiles have no name for a screen reader`);
+  if (m.surfaces[0] === m.surfaces[1])
+    problems.push(`${label}: a selected card has the same surface as an unselected one (${m.surfaces[0]})`);
+  console.log(`${label}: ${m.tiles} tiles, ${m.ratios} with their own ratio, ${m.heights} different heights`);
+  await page.close();
+}
+
 /** A card's icon with no color of its own (`iconColor`) is drawn in the text colour (the card's title), on an outlined, a filled and an elevated card, light and dark, and reads at 3:1 (WCAG non-text) on what is behind it. */
 async function checkCardIconText(width, height, scheme) {
   const label = `${width}px card icon text color (${scheme})`;
@@ -5771,6 +5831,11 @@ await unit('checkSelectionBox', () => checkSelectionBox());
 await unit('checkFilesSelection', () => checkFilesSelection());
 await unit('checkRedirectsSelection', () => checkRedirectsSelection());
 await unit('checkUnlistedPost', () => checkUnlistedPost());
+for (const [width, height] of [
+  [375, 740],
+  [1280, 900],
+])
+  await unit(`checkImageGrid ${width}`, () => checkImageGrid(width, height));
 for (const [width, height] of [
   [375, 740],
   [1280, 900],
