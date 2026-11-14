@@ -382,7 +382,7 @@ async function checkChoiceGroupFields(width, locale) {
   const sheet = () =>
     page
       .locator('dialog[open], .editor-side-sheet')
-      .filter({ has: page.locator('.choice-group') })
+      .filter({ has: page.locator('.choice-group, .segmented-button') })
       .last();
   // A sheet is closed by its Cancel (nothing was changed), else by Escape (the side panel on a computer).
   const close = async () => {
@@ -5346,7 +5346,14 @@ async function checkInlineBlock(
     await cardSettings('a card with an icon');
     // A video: the Media choice of the first card, then its link.
     await page.locator('.inline-list-row-active .inline-card-media').click();
-    await page.getByRole('button', { name: 'Video', exact: true }).last().click();
+    // The Media choice is the choice group: buttons when they fit, else the list of radio buttons (the whole row is the target).
+    const mediaVideo = page.getByRole('button', { name: 'Video', exact: true }).last();
+    if (await mediaVideo.count()) await mediaVideo.click();
+    else
+      await page
+        .locator('.choice-group-list .list-item-content', { hasText: /^Video$/ })
+        .last()
+        .click();
     await page.getByRole('textbox', { name: 'Video link' }).fill('https://www.youtube.com/watch?v=aqz-KE-bpKQ');
     await page.waitForTimeout(400);
     await page
