@@ -1,9 +1,41 @@
-# Autosave everywhere: audit, mechanisms and PR plan (0.17)
+# Autosave everywhere: audit, mechanisms and PR plan (0.17 audit; phase 2 for 0.20)
 
 Status: Phase 1 (audit and plan, no source code). Owner decision, 14 Nov 2026: every editor page or screen that needs a save uses
 autosave when autosave is enabled. Dynamic lists too. With autosave off (today: `R2 caching` off) `Save` works as today. Autosave keeps a
 **waiting version**; the final `Save` applies it. A setting that changes the live site (colours, theme, menus, …) never goes live by
 autosave alone.
+
+**Phase 2 moved to 0.20 and redrawn around the sheets (14 Nov 2026, brainstorm with the 0.18 PM; the owner was away).** Section 0 below
+says what changed; sections 1–4 are the audit as it was and still hold where section 0 does not say otherwise; section 5 is replaced by
+section 5a; section 7 marks what is decided, open for the owner, or proposed.
+
+## 0. Phase 2 for 0.20: what the sheets change
+
+The owner decided on 14 Nov that the settings forms become sheets (`specs/2026-11-14-settings-sheets-design.md`, with the owner's words). The
+words that shape autosave: "In the full screen view show save and cancel. Don't use autosave here." "The side sheet is controlled by the page
+so has autosave." "I feel we need the save button, but should we autosave anyway". So autosave now follows **where the form is shown**, not
+only which form it is:
+
+| Where the form is | Autosave | What keeps unsaved work | The final step |
+| :--- | :--- | :--- | :--- |
+| **Side sheet** (medium and wider; settings sheets spec, section 3) | **yes**: `useWaiting`, `kind: 'keep'`, R2 only (decision 1) | the waiting version in R2 | `Save` applies it; `Discard` deletes it |
+| **Full-screen dialog** (compact) | **no** (owner) | the hidden copy in the browser (0.18's `sheetCopy.mjs`, by route) | `Save` or `Cancel` |
+| **A screen** (the page form, Colours, entries with a text body, own lists' definitions, the dashboard's edit mode) | **yes**, at every width, as section 2 says | the waiting version (pages: git draft as today; the rest: R2 only) | `Publish` (pages), `Save` in the app bar (the rest; app bars spec D3), `Done` (dashboard) |
+| Any of these with **autosave off** (`R2 caching` off) | no | the hidden copy (sheets), nothing new (screens: today's leave question) | `Save` |
+
+What this changes in the audit below:
+
+- **Rows 4–12** (fixed pages, folder entries, part forms, app settings, Colours, Logo and icon, Header, Footer): their waiting version is
+  written **only while they are shown in a side sheet** (or as a screen, for Colours and entries with a text body). On a phone the same form in
+  the full-screen dialog writes none. The key, the value shape and the restore stay as section 3 says, so a waiting version saved on a computer
+  opens on a phone as unsaved changes (settings sheets spec, P5).
+- **Row 6** (a new entry): in a side sheet it is kept under its placeholder key and listed as `Not saved yet` (decision 8); on a phone only the
+  hidden copy keeps it.
+- **Row 16** (a field's page) is a second level inside its form's sheet; it has no waiting version of its own (as before).
+- **Rows 1–3, 13, 15** (pages, posts, new pages, own lists, the dashboard): unchanged; they are screens.
+- **The status line** (`Saving…`, `Saved`, `Not saved`) is the side sheet's header subtitle, or the app bar's subtitle on a screen (app bars
+  spec 5.2), drawn in one place, not by each form (3.2's `FormFrame` slot moves into the sheet and the app bar).
+- **`FormFrame`'s floating Save bar goes** from every form: the sheet has its own `Save`, a screen has it in the app bar.
 
 Read for this audit: `2026-11-11-drafts-and-publish-plan.md` (Autosave parts A and B), `worker/autosave.js`, `lib/autosave.mjs`,
 `src/autosave.mjs`, `src/useAutosave.ts`, `src/EntryForm.tsx`, the two autosave screen folders, `src/FormFrame.tsx`,
@@ -133,7 +165,26 @@ They stay as they are until they merge (no duplicate work). After both are on `m
 waiting version saved by their build is still read. Their rule "an item's `Save` commits the waiting definition with it" stays. Their open
 questions (rows always wait, `Remove field` waits) are decisions 6 and 7 here.
 
-## 5. Build plan: small PRs
+## 5a. Build plan for 0.20 (replaces section 5)
+
+Small PRs into the 0.20 line, each with one thing, a unit test for its rule, `check:screens` coverage and a changeset (`minor` when visible,
+empty otherwise). The first visible PR writes the release note *Autosave everywhere* (one `paragraph`, mark `improvement`); later PRs add a
+line only for new behaviour.
+
+| PR | Does | Tests and screens | Depends on |
+| :--- | :--- | :--- | :--- |
+| 1 | Worker and lib: `waitingKind`, `keep` values never flushed or swept to git, deleted at 30 days (decision 10), the list includes `kind` | `lib/autosave.test.mjs`, the Worker's tests (keep never flushes, the sweep only deletes, refused paths) | — |
+| 2 | `useWaiting` from `useAutosave` (pages keep their behaviour); own lists (#560/#564, now on `0.19`) move onto it when both lines meet | existing autosave tests green; lists keep their `check:screens` assertions | 1 |
+| 3 | **The side sheet autosaves** (settings sheets spec, PR 7): `usePartForm`, `DataForm`, `useDataFiles`, `BrandForm` call `useWaiting` only when their sheet is a side sheet; the status in the sheet's header; `Save` applies, `Discard` deletes; `Changes waiting` on the row | 1280 px: type, `Saving…`→`Saved`, no commit, close and reopen restores, `Save` commits and clears; 375 px: no R2 write at all from the full-screen dialog; R2 off: `Save` and `Cancel` and the hidden copy | 2, settings sheets PR 4 |
+| 4 | **New entries** in a side sheet (row 6): placeholder key, `Not saved yet` in the list | a new entry survives a reload on a computer; on a phone only the hidden copy | 3 |
+| 5 | **Forms that stay screens** (Colours; entries with a text body): `useWaiting`, the status as the app bar's subtitle, `Save` in the app bar | Colours does not change the built site before `Save` (no commit) | 2, app bars PR 5 |
+| 6 | **Logo and icon** (row 10), per decision 5 | per the decision | 3 |
+| 7 | **Dashboard draft** (row 15), per decision 9 | edit, reload, still in edit mode with the draft; `Done` clears it | 2 |
+| 8 | Docs, release note, and the `check:screens` rule: every side sheet with a form shows the autosave line, and no full-screen dialog writes to R2 | a side sheet with a form and no `useWaiting` fails; a full-screen dialog that calls `PUT /api/autosave` fails | 3–7 |
+
+PRs 3, 5 and 7 can run side by side after 2.
+
+## 5. Build plan: small PRs (0.17 draft, replaced by 5a)
 
 Each PR: one thing, an unit test for its rule, `check:screens` coverage, an `npx changeset` (`patch`/`minor` as needed, release note when a site
 owner sees it: the first visible one writes the paragraph *Autosave everywhere* for all screens, later PRs add a line only if they add behaviour).
@@ -160,6 +211,16 @@ No new UI part is proposed: the status line under the title already exists (`Sav
 check; if a PR adds one, it reads the page with Playwright and quotes it first.
 
 ## 7. Open owner decisions (most important first; one at a time)
+
+0.20 status (14 Nov, with the 0.18 PM; the owner was away): 1 and 7 decided. 2–6 and 8–10 stay **open for the owner**, with the
+recommendations below, now read with section 0: decision 3 applies to the side sheet (the phone's dialog checks at `Save` only); decision 4's
+Redirects sheet is a short sheet over a list, not a settings form, so it stays outside the settings sheets spec; decision 5 is PR 6 of 5a;
+decision 6 belongs to the own lists of the 0.19 line; decision 8 applies to the side sheet only (on a phone the hidden copy keeps a new
+entry). One new question comes with the sheets:
+
+11. **Owner decision pending. A waiting version and the phone.** A waiting version saved in a side sheet on a computer, opened on a phone:
+    recommendation **open it in the full-screen dialog as unsaved changes** (`Save` applies it, `Cancel` asks whether to discard it), so nothing
+    is hidden on one device and shown on another (settings sheets spec, P5).
 
 1. **Owner decision pending. Where do waiting versions of settings live, and do they ever reach git?** Recommendation: **R2 only, never git** (`keep`), as #560 does
    for lists. It is the only way a setting cannot go live by autosave. Cost: a waiting version is lost after 30 days idle and does not follow

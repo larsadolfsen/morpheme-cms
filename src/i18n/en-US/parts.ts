@@ -592,7 +592,8 @@ export const parts = {
       title: 'Actions',
       buttonGroup:
         'Buttons that belong together, side by side: apart or joined, in all the buttons’ sizes and shapes. A button that is turned on and off stands out while it is on.',
-      segmentedButton: 'A few choices side by side in one frame: one or more chosen, the chosen ones with a check.',
+      choiceGroup:
+        'One choice of a few: joined buttons side by side when every name fits, else a list of radio buttons, one per row, with a small sample of each look.',
       splitButton: 'The main action with an arrow beside it that opens a menu with other ways to do it, in the buttons’ 5 sizes.',
       fabMenu:
         "The screen's main action in a large button of any size that opens a few actions above it and then becomes a cross, in 3 color sets.",
@@ -603,8 +604,10 @@ export const parts = {
       channels: ['Phone', 'Email', 'Chat'],
       mode: 'Mode',
       modes: ['Light', 'Dark'],
-      days: 'Days',
-      weekdays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+      style: 'Style',
+      styles: { filled: 'Filled', tonal: 'Tonal', elevated: 'Elevated', outlined: 'Outlined', text: 'Text' },
+      sample: 'Book',
+      narrow: 'In a narrow frame',
       book: 'Book a time',
       more: 'More ways to book',
       ways: ['Call', 'Send an email', 'Book online'],
