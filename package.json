@@ -49,7 +49,7 @@
     "check:editor": "cd .morpheme/demo/site && node ../../../bin/morpheme.mjs check:editor",
     "check:screens": "npm run check:screens:shard -- 1/1 && npm run check:screens:extra",
     "check:screens:shard": "cd .morpheme/demo/site && node ../../../bin/morpheme.mjs check:screens --shard",
-    "check:screens:extra": "cd .morpheme/demo/site && node ../../../scripts/check-save-twice.mjs && node ../../../scripts/check-unlisted.mjs && node ../../../scripts/check-preview.mjs",
+    "check:screens:extra": "cd .morpheme/demo/site && node ../../../scripts/check-save-twice.mjs && node ../../../scripts/check-unlisted.mjs && node ../../../scripts/check-preview.mjs && node ../../../scripts/check-imagegrid.mjs",
     "check:preview": "cd .morpheme/demo/site && node ../../../bin/morpheme.mjs check:preview",
     "check:contrast": "cd .morpheme/demo/site && node ../../../bin/morpheme.mjs check:contrast",
     "check:demo": "node bin/morpheme.mjs check:demo",
