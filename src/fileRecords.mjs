@@ -32,7 +32,18 @@ export function parseRecord(text) {
   const categories = data.categories === undefined ? [] : data.categories;
   const removed = data.removed === undefined ? [] : data.removed;
   if (!isStringArray(categories) || !isStringArray(removed)) return null;
-  if (data.credit === undefined) return { src: data.src, categories: [...categories], removed: [...removed] };
+  const optionalText = (v) => v === undefined || typeof v === 'string';
+  if (!optionalText(data.alt) || !optionalText(data.caption) || (data.decorative !== undefined && typeof data.decorative !== 'boolean'))
+    return null;
+  const own = {
+    src: data.src,
+    categories: [...categories],
+    removed: [...removed],
+    ...(data.alt ? { alt: data.alt } : {}),
+    ...(data.decorative ? { decorative: true } : {}),
+    ...(data.caption ? { caption: data.caption } : {}),
+  };
+  if (data.credit === undefined) return own;
   const c = data.credit;
   const https = (v) => {
     try {
@@ -42,7 +53,7 @@ export function parseRecord(text) {
     }
   };
   if (!c || typeof c !== 'object' || typeof c.name !== 'string' || !c.name || typeof c.source !== 'string' || !https(c.url)) return null;
-  return { src: data.src, categories: [...categories], removed: [...removed], credit: { name: c.name, url: c.url, source: c.source } };
+  return { ...own, credit: { name: c.name, url: c.url, source: c.source } };
 }
 
 /**
@@ -155,8 +166,9 @@ export function newRecordId(taken, random = Math.random) {
  * @returns {string}
  */
 export function recordText(record) {
-  const { src, categories, removed, credit } = record;
-  return `${JSON.stringify(credit ? { src, categories, removed, credit } : { src, categories, removed }, null, 2)}\n`;
+  const { src, categories, removed, alt, decorative, caption, credit } = record;
+  const text = { ...(alt ? { alt } : {}), ...(decorative ? { decorative } : {}), ...(caption ? { caption } : {}) };
+  return `${JSON.stringify({ src, categories, removed, ...text, ...(credit ? { credit } : {}) }, null, 2)}\n`;
 }
 
 /** @param {string} path */

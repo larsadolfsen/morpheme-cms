@@ -1975,6 +1975,56 @@ async function checkDensityLayout(width, height) {
   await page.close();
 }
 
+/** A table's rows read density (theme/styles/blocks.css, the data-heavy step): the body row is 52 px at Medium and the header row 56, 4 px a step (Large +4, Small -4); in the page editing area and in a row that picks the density it is the same at every step. */
+async function checkDensityTable(width, height) {
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px density table: ${e.message}`));
+  await openEditor(page, site);
+  const table =
+    '<div class="block-table block-table-grid"><table><thead><tr><th>Head</th></tr></thead><tbody><tr><td data-part="row">Cell</td></tr></tbody></table></div>';
+  const measure = (attr) =>
+    page.evaluate(
+      ([attr, table]) => {
+        const root = document.documentElement;
+        if (attr === null) root.removeAttribute('data-density');
+        else root.setAttribute('data-density', attr);
+        const host = document.createElement('div');
+        host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
+        host.innerHTML = `<div data-where="screen">${table}</div><div class="editor-text"><div class="ProseMirror" data-where="content">${table}</div></div><div data-density-fixed data-where="fixed">${table}</div>`;
+        document.body.append(host);
+        const got = {};
+        for (const where of host.querySelectorAll('[data-where]'))
+          got[where.dataset.where] = [where.querySelector('thead th'), where.querySelector('[data-part="row"]')].map(
+            (e) => Math.round(e.getBoundingClientRect().height * 100) / 100,
+          );
+        host.remove();
+        root.removeAttribute('data-density');
+        return got;
+      },
+      [attr, table],
+    );
+  const [large, medium, small] = [await measure('1'), await measure('0'), await measure('-1')];
+  const expect = (what, ok) => ok || problems.push(`${width}px density table: ${what}`);
+  expect(
+    `at Medium the header is ${medium.screen[0]} px and a row ${medium.screen[1]}, not 56 and 52`,
+    medium.screen[0] === 56 && medium.screen[1] === 52,
+  );
+  for (const [i, name] of [
+    [0, 'header'],
+    [1, 'row'],
+  ])
+    expect(
+      `the ${name} is ${large.screen[i]} / ${medium.screen[i]} / ${small.screen[i]} px at Large / Medium / Small, not 4 px apart`,
+      large.screen[i] - medium.screen[i] === 4 && medium.screen[i] - small.screen[i] === 4,
+    );
+  for (const where of ['content', 'fixed'])
+    expect(
+      `the table in ${where} is ${large[where]} / ${medium[where]} / ${small[where]} px, not the same at every step`,
+      large[where].join() === medium[where].join() && medium[where].join() === small[where].join(),
+    );
+  await page.close();
+}
+
 /** The density variables (theme/styles/base.css) work in the browser: a person's step (data-density on <html>) and a theme's step add up, each group clamps them, and a part's calc() gives its default at 0 and 4px per step. */
 async function checkDensity(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
@@ -3746,6 +3796,66 @@ async function onDemoBlocksPage(page, label) {
   if (response && response.status() < 400) return true;
   console.log(`${label}: skipped, the site has no Blocks page (/blocks/) to measure, which the demo has.`);
   return false;
+}
+
+/** The Library's images are the theme's image tiles in a staggered grid: cards with media (filled, the image to the edge), each in its own proportions (the box is
+ * there before the image loads), 8 px apart, 2 columns on a phone and 4 on a computer, and a selected card has its own surface. */
+async function checkImageGrid(width, height) {
+  const label = `${width}px image grid`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site, {});
+  // A site with no images (the starter's) has no grid to measure.
+  const images = await page.evaluate(
+    async (base) => Object.keys(await (await fetch(`${base}/editor/thumbnails.json`)).json()).length,
+    site,
+  );
+  if (!images) {
+    console.log(`${label}: skipped, the site has no images to measure, which the demo has.`);
+    return page.close();
+  }
+  await page.goto(`${site}/editor/#files`);
+  await page.waitForSelector('ul.image-grid', { timeout: 30_000 });
+  const m = await page.evaluate(() => {
+    const grid = document.querySelector('ul.image-grid');
+    const gs = getComputedStyle(grid);
+    const tiles = [...grid.querySelectorAll('button.card')];
+    const media = tiles.map((t) => t.querySelector('.card-media')).filter(Boolean);
+    const plain = document.createElement('div');
+    plain.className = 'card card-filled';
+    const chosen = document.createElement('div');
+    chosen.className = 'card card-filled card-selected';
+    document.body.append(plain, chosen);
+    const surfaces = [getComputedStyle(plain).backgroundColor, getComputedStyle(chosen).backgroundColor];
+    plain.remove();
+    chosen.remove();
+    return {
+      columns: gs.columnCount,
+      gap: gs.columnGap,
+      tiles: tiles.length,
+      cards: tiles.filter((t) => t.classList.contains('card-filled') && t.classList.contains('card-with-media')).length,
+      ratios: media.filter((el) => el.style.aspectRatio).length,
+      square: grid.querySelectorAll('.aspect-square').length,
+      heights: [...new Set(tiles.map((t) => Math.round(t.getBoundingClientRect().height)))].length,
+      sideways: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      surfaces,
+      names: tiles.filter((t) => !t.getAttribute('aria-label')).length,
+    };
+  });
+  const columns = phone ? '2' : '4';
+  if (m.tiles === 0) problems.push(`${label}: the Library has no tiles to measure`);
+  if (m.columns !== columns) problems.push(`${label}: ${m.columns} columns, expected ${columns}`);
+  if (m.gap !== '8px')
+    problems.push(`${label}: the gap between columns is ${m.gap}, expected 8px (Material 3: "Padding between cards: 8dp max")`);
+  if (m.cards !== m.tiles) problems.push(`${label}: ${m.tiles - m.cards} tiles are not a filled card with media`);
+  if (m.square) problems.push(`${label}: ${m.square} tiles are still squares`);
+  if (m.sideways) problems.push(`${label}: the page scrolls sideways`);
+  if (m.names) problems.push(`${label}: ${m.names} tiles have no name for a screen reader`);
+  if (m.surfaces[0] === m.surfaces[1])
+    problems.push(`${label}: a selected card has the same surface as an unselected one (${m.surfaces[0]})`);
+  console.log(`${label}: ${m.tiles} tiles, ${m.ratios} with their own ratio, ${m.heights} different heights`);
+  await page.close();
 }
 
 /** A card's icon with no color of its own (`iconColor`) is drawn in the text colour (the card's title), on an outlined, a filled and an elevated card, light and dark, and reads at 3:1 (WCAG non-text) on what is behind it. */
@@ -5806,6 +5916,11 @@ await unit('checkUnlistedPost', () => checkUnlistedPost());
 for (const [width, height] of [
   [375, 740],
   [1280, 900],
+])
+  await unit(`checkImageGrid ${width}`, () => checkImageGrid(width, height));
+for (const [width, height] of [
+  [375, 740],
+  [1280, 900],
 ]) {
   await unit(`checkCardsCarousel ${width}`, () => checkCardsCarousel(width, height));
   await unit(`checkCardsSpacing ${width}`, () => checkCardsSpacing(width, height));
@@ -5895,6 +6010,8 @@ await unit('checkDensityParts 375', () => checkDensityParts(375, 740, true));
 await unit('checkDensityParts 1280', () => checkDensityParts(1280, 900, false));
 await unit('checkDensityLayout 375', () => checkDensityLayout(375, 740));
 await unit('checkDensityLayout 1280', () => checkDensityLayout(1280, 900));
+await unit('checkDensityTable 375', () => checkDensityTable(375, 740));
+await unit('checkDensityTable 1280', () => checkDensityTable(1280, 900));
 await unit('checkDensitySetting 375', () => checkDensitySetting(375, 740));
 await unit('checkDensitySetting 1280', () => checkDensitySetting(1280, 900));
 await unit('checkPreviewSection', () => checkPreviewSection());

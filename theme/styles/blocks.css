@@ -1439,6 +1439,9 @@
      (header), the outline variant (container and dividers), the cards' own corner radius (--card-radius) and the theme's hover state layer. The box is a region the
      keyboard can scroll (a focus ring in the accent); a table with many columns scrolls instead of crushing them. */
   .block-table-grid {
+    --card-padding: 0;
+    --card-outlined-surface: transparent;
+    --card-outlined-line: transparent;
     border: 1px solid var(--block-line);
     border-radius: var(--card-radius, var(--block-radius));
     color: var(--block-text);
@@ -1449,13 +1452,14 @@
   }
   .block-table-grid :is(th, td) {
     min-width: 6rem;
-    height: 3.25rem;
+    /* A table is data-heavy: its rows read --mo-density (base.css), 4 px a step from 52 dp (Large 56, Small 48, a theme's -2 and -3: 44 and 40). */
+    height: calc(3.25rem + var(--mo-density) * var(--mo-density-step));
     padding: 0.5rem 1rem;
     vertical-align: middle;
     font-weight: inherit;
   }
   .block-table-grid thead th {
-    height: 3.5rem;
+    height: calc(3.5rem + var(--mo-density) * var(--mo-density-step));
     background: var(--block-tint);
     font-size: var(--type-label-large-size);
     line-height: var(--type-label-large-line-height);
