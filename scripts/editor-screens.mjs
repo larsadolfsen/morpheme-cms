@@ -575,8 +575,13 @@ async function checkTextBar(width = 360) {
   await page.evaluate(() => document.activeElement?.blur());
   await page.waitForTimeout(200);
   const idle = await readBar();
-  if (idle.divider || idle.names.join() !== 'Undo,Redo,Insert block')
-    problems.push(`${label}: idle the bar has ${idle.names.join()}${idle.divider ? ' and a divider' : ''}, not Undo, Redo, Insert block`);
+  // Idle: Undo, Redo, one divider, Insert block (no divider before the text tools, which are not there).
+  if (!idle.divider || idle.names.join() !== 'Undo,Redo,Insert block')
+    problems.push(
+      `${label}: idle the bar has ${idle.names.join()}${idle.divider ? '' : ' and no divider'}, not Undo, Redo, a divider, Insert block`,
+    );
+  const idleDividers = await page.locator('.editor-tools hr[aria-orientation="vertical"]').count();
+  if (idleDividers !== 1) problems.push(`${label}: idle the bar has ${idleDividers} dividers, not 1`);
   if (Math.abs(idle.height - inText.height) > 0.6)
     problems.push(`${label}: the bar is ${idle.height} px tall idle and ${inText.height} in text`);
   if (width !== 360) return void (await page.close());
