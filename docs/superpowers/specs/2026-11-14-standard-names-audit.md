@@ -51,7 +51,7 @@ Rec. = **Rename**, **Keep** (with the reason) or **Ask** (question in the last s
 
 | Field (key) | We say | Standard name (source) | Rec. |
 | :--- | :--- | :--- | :--- |
-| Image `picture.alt` | "Alt text" | **Alt text** | **Keep** |
+| Image `blocks.picture.alt` | "Alt text" | **Alt text** | **Keep** |
 | Section background image `text.sectionImageAlt` | "Image description" | **Alt text** | **Rename** |
 | Files: image's own text `media.alt` | "Describe the image" | **Alt text** | **Rename** (the hint keeps "Describe the image in a few words…") |
 | Buttons, cards, price cards, pop-up (`button`, `buttonText`, `moreLabel`, `rowButtonText`) | "Button text" | M3 button anatomy: **label text** (dialogs specs: "Button label text") | **Ask** (Q8) |
