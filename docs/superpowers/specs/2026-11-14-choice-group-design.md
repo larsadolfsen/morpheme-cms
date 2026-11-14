@@ -1,6 +1,6 @@
 # Choice group: one theme part that never squeezes (0.18)
 
-Status: spec and build plan, no source code. Owner decisions of 14 Nov 2026 (below). For the 0.18 PM.
+Status: spec and build plan, no source code. Owner decisions of 14 Nov 2026 (section 2 and section 11, all settled). For the 0.18 PM.
 
 ## 1. The problem
 
@@ -158,7 +158,7 @@ Notes:
   (only `theme/ui/ripple.script.ts` and `site/themeParts.mjs` name it). The theme parts page (`src/ActionParts.tsx:115`) draws three demos,
   one multi-select (weekdays).
 - Row 17 overflows since the pending note `buttons-style-segments` put its five styles side by side (0.18); this spec replaces that look
-  before 0.18 is released, so that note must be rewritten or dropped in PR 2 (Q6).
+  before 0.18 is released, so PR 2 drops that note (owner, Q6).
 - `src/BlockParts.tsx:68` (`versionsOf`) already draws a block once per option of its first `segments` field: the same data a sample needs.
 - Estimates only: the `choice-group` screens unit of PR 2 measures the real widths.
 
@@ -173,8 +173,9 @@ keep their M3 names and classes: the button form **is** the theme's `ButtonGroup
 (`.list`, `.list-item-with-control`, `.radio-button`). `ChoiceGroup` only adds the wrapper, the measuring and the sample slot. So a theme
 that styles button groups, lists and radio buttons already styles both forms; it never has to style a new look.
 
-In the editor `src/ui.tsx` exports `ChoiceGroup` (same props as today's `SegmentedButton` plus the new ones) and `SegmentedButton` becomes
-an alias of it for one version line, so nothing that calls it breaks; the build plan moves every caller and then removes the alias.
+In the editor `src/ui.tsx` exports `ChoiceGroup` (same props as today's `SegmentedButton` plus the new ones). The editor's own
+`SegmentedButton` wrapper in `src/ui.tsx` stays only for Preview › window size (row 1), which is out of this work (Q7); every other caller
+moves to `ChoiceGroup`.
 
 ### API (theme part)
 
@@ -207,8 +208,8 @@ ChoiceGroup({
 
 Rule: **buttons when every button fits its label on one line at an equal share of the width; otherwise the list.** Precisely: the group
 gets its container's width `W`. With `n` choices and the connected gap `g` (2 dp), each button gets `(W − (n − 1)·g) / n`. The button form
-is used when, for every choice, *button padding + check (the selected state's, so the chosen one never grows) + gap + its label's natural
-width* ≤ that share. One label too long, and the whole group is the list. Never more than five buttons (M3's cap): six or more is always
+is used when, for every choice, *button padding + its icon and gap, if it has an icon + its label's natural width* (no check mark, section 11 Q3, so
+the chosen one never grows) ≤ that share. One label too long, and the whole group is the list. Never more than five buttons (M3's cap): six or more is always
 the list.
 
 How it measures without a layout jump:
@@ -237,11 +238,10 @@ width (M3: "increasing the button widths inside").
 
 Exactly the theme's connected button group: `ButtonGroup kind="connected"` with one `Button kind="outlined"` toggle per choice
 (`aria-pressed`), size small (40 dp high container, 48 dp target), round shape; the selected one changes shape (M3: "A selected button
-should change shape") and colour by the theme's existing toggle tokens (`--button-toggle-*`, `--button-outlined-selected-*`). The check
-mark is the theme's existing selected icon, shown in the icon's place (M3 segmented guidelines: "the icon label is replaced by the
-checkmark icon when the segment is selected"; for the connected group M3 prints no check, so the check is kept only because the measuring
-already reserves its width: open question Q3). Width: the whole width of its container (M3: "should span the width of the page or
-surface"), at most `--choice-group-max-width` (default `30rem`) from the medium window up (M3: "consider adding a maximum width").
+should change shape") and colour by the theme's existing toggle tokens (`--button-toggle-*`, `--button-outlined-selected-*`). **No check
+mark** (owner, Q3): M3 prints a check for segmented buttons, not for the connected button group, which shows the choice by shape and
+colour; a choice's icon stays as it is when chosen. Width: the whole width of its container (M3: "should span the width of the page or
+surface"), at most `--choice-group-max-width` (default `30rem`, owner Q5) from the medium window up (M3: "consider adding a maximum width").
 Equal widths (M3: "increasing the button widths inside").
 
 ### The list form
@@ -252,7 +252,7 @@ anywhere chooses (M3: "select either the text label or the radio button"). One l
 at least 48x48dp"; radio: "Target size 48dp"), the theme's list item padding (16 dp before the control, M3's "Leading element left
 padding 16dp"). Colours from the theme's tokens only: radio `--mo-primary` / `--mo-on-surface-variant`, label `--mo-on-surface` (M3:
 "Use the color role on surface for adjacent text labels"), state layers the list's. A chosen row is not filled (M3 draws a radio list
-plain; the segmented list's selected surface is for navigation), so the dot is the only selected mark.
+plain; the segmented list's selected surface is for navigation), so the dot is the only selected mark (owner, Q2: the chosen row stays plain).
 
 The trailing slot holds the sample, if any (section 6), vertically centred (M3: trailing element "Center"). A disabled choice is
 greyed and skipped by the arrow keys (native radios do that).
@@ -290,14 +290,13 @@ is single-select only. Multi-select keeps the connected button group with toggle
 ## 6. Samples
 
 A caller passes `sample` per choice (a React node), or, for a schema field, one new key on the select field:
-`sample?: 'button' | 'card' | 'list' | 'color' | 'swatch'` (`src/schema.ts`). An app can use it too (it is data). `src/fields.tsx` maps the key to a small renderer
+`sample?: 'button' | 'card' | 'color' | 'swatch'` (`src/schema.ts`). An app can use it too (it is data). `src/fields.tsx` maps the key to a small renderer
 (`src/choiceSamples.tsx`) that draws the theme's own part in each choice's look, with the entry's own values where they make sense:
 
 | Key | Draws | From the entry | Size |
 | :--- | :--- | :--- | :--- |
 | `button` | the theme's `Button` in the choice's kind (`filled`, `tonal`, `elevated`, `outlined`, `text`), size extra small | the button's own label (`textOf`), cut to 8 characters with `…`; empty: the editor text `Button` (da-DK `Knap`) | ≤ 7rem wide |
 | `card` | a tiny `Card` in the choice's design (outlined, filled, elevated), with two short lines in its text colour | none | 56 × 40 dp |
-| `list` | a tiny drawing of the layout (a list, or the newest post large; cards or a list) | none | 56 × 40 dp |
 | `color` | a 40 × 24 dp rounded tile in the colour role (surface, primary, secondary, tertiary container) with a line of its on-colour | none | 40 × 24 dp |
 | `swatch` | the option's `swatch` as a filled circle (today's dots) | none | 20 dp |
 
@@ -305,16 +304,14 @@ The sample is drawn with the theme's live classes, so it follows the theme, the 
 It is inert (`inert`, `aria-hidden`, `pointer-events: none`), so a tap on it chooses the row. It is shown only in the list form.
 In the button form, `icon` and `swatch` show as today; `sample` does not.
 
-Which places get a sample (the owner decides; Q1):
+Which places get a sample (owner, 14 Nov: the brief and Q1):
 
-- **Button style** (row 17, `button`): yes, decided by the owner.
-- Recommended, flagged for the owner: **Cards › Design** (row 13) and **Image grid › Card style** (row 19), `card`; **Cards › Color**
-  (row 15), `color`. Each is a look judged by eye, its names (Filled, Elevated, Tertiary …) mean little to most site owners, and all three
-  overflow today, so they will show as the list.
-- Possible, not recommended now: **Blog posts › Design** (row 11) and **Testimonials › Layout** (row 12), `list`: two choices with icons
-  that mostly fit as buttons, where a sample never shows.
-- No sample: everything else (widths, placement, columns, media, rows, settings of the editor itself): not a look, or icons say it.
-  Icon color (row 22) keeps its swatches.
+- **Button settings › Style** (row 17): `button` (PR 2).
+- **Cards › Design** (row 13) and **Image grid › Card style** (row 19): `card`; **Cards › Color** (row 15): `color` (PR 4).
+- **No sample** for Blog posts › Design (row 11) and Testimonials › Layout (row 12): two choices with icons that fit as buttons. No
+  sample anywhere else either (widths, placement, columns, media, rows, the editor's own settings). Icon color (row 22) keeps its swatches.
+
+The `list` renderer is therefore not built; the key stays out of `src/schema.ts` until a place needs it.
 
 ## 7. Theme rules
 
@@ -327,7 +324,7 @@ Which places get a sample (the owner decides; Q1):
 - An installed theme overrides a UI part per file (`@theme/ui/…`, `themePlugin`): a theme without `ChoiceGroup.tsx` gets the default
   theme's, which draws with the classes the theme already styles (`button-group`, `list`, `radio-button`). Nothing a theme or an app has
   stops working: **no `THEME_API` or `APP_API` change**. `SegmentedButton` stays exported from the theme and `src/themeUi.ts`
-  (apps may draw it, contract 4/5); it is removed only with a `THEME_API` raise, not in 0.18 (Q4).
+  (apps may draw it, contract 4/5); it is removed only with the next `THEME_API` raise, not in 0.18 (owner, Q4).
 - The editor has no style of its own for it: everything from the theme's tokens (`CLAUDE.md`, *One theme*).
 
 ## 8. Texts, release note, deviations
@@ -382,31 +379,29 @@ pull request* says, and tell the PM with the link and head sha. A change nobody 
    entry, the two deviation entries (D1, D2). No place changes yet. The `choice-group` screens unit for the parts page.
 2. **PR 2, the fields** (`minor`; release note of section 8). `ChoiceGroup` in `src/ui.tsx`; `fields.tsx` draws every `segments: true`
    field with it; the `sample` key in `src/schema.ts` and `src/choiceSamples.tsx` with `button` only; the Buttons block's `kind` field
-   gets `sample: 'button'`; the pending note `buttons-style-segments` is dropped (Q6). The screens unit covers every field place of section 4 (en-US and da-DK, 375 and 1280). Screenshots: Button
+   gets `sample: 'button'`; the pending note `buttons-style-segments` is dropped in both languages (Q6). The screens unit covers every
+   field place of section 4 (en-US and da-DK, 375 and 1280). Screenshots: Button
    settings before/after at both widths, plus each changed field place.
-3. **PR 3, the editor's own places** (`minor`): the direct `SegmentedButton` callers of section 4 (rows 2–7; row 1 only if the owner
-   says so, Q7) move to `ChoiceGroup`; the alias in `src/ui.tsx` stays only while row 1 uses it. Screenshots of each.
-4. **PR 4, more samples** (`minor`, only for what the owner says yes to in Q1): the `card` and `color` renderers (and `list` if wanted)
-   and the fields that get them (rows 13, 15, 19). Screenshots of each.
-5. **PR 5, rename the field key** (empty changeset if nothing visible): `segments: true` keeps working; the docs and the schema comment
-   call it the choice group (`choices: 'auto'` as an alias only if the owner wants the new name in app.json, Q4). Optional.
+3. **PR 3, the editor's own places** (`minor`): the direct `SegmentedButton` callers of section 4, rows 2–7, move to `ChoiceGroup`.
+   Row 1 (Preview › window size) is left as it is (Q7), so the editor's `SegmentedButton` wrapper stays for it. Screenshots of each.
+4. **PR 4, more samples** (`minor`): the `card` and `color` renderers and the fields that get them: Cards › Design and Image grid › Card
+   style (`card`), Cards › Color (`color`) (Q1). Screenshots of each.
+5. **PR 5, the field key's docs** (empty changeset): `segments: true` keeps working for the CMS and apps; the schema comment and
+   `docs/app-contract.md` say it draws the choice group and name the `sample` key. Optional.
+
+Not in 0.18: removing the theme's `SegmentedButton` file, its export and its part id; that waits for the next `THEME_API` raise (Q4).
 
 PR 1 must merge before 2; 3 and 4 after 2, in any order.
 
-## 11. Open questions for the owner (each with a recommendation)
+## 11. Owner decisions (14 Nov 2026)
 
-- **Q1. Samples beyond the button style.** Cards › Design, Image grid › Card style and Cards › Color are looks too. *Recommendation: yes
-  for these three (PR 4); not for Blog posts › Design and Testimonials › Layout, which fit as buttons with icons.*
-- **Q6. The pending note `buttons-style-segments`** says the five styles show side by side. *Recommendation: PR 2 drops it, and the
-  *Style choices* note of section 8 covers the change.*
-- **Q7. Preview window size (row 1)** has five long choices that scroll sideways on a phone today. With the part they become a list of
-  five rows in the Preview's top area. *Recommendation: keep it out of this work (PR 3 leaves it) and give the Preview its own look later,
-  since the list would push the preview down.*
-- **Q2. A chosen radio row: plain or filled?** M3 draws a radio list plain; a filled row (secondary container) is easier to spot in a long
-  sheet. *Recommendation: plain, as M3 prints it; the dot and, where there is one, the sample are enough.*
-- **Q3. The check mark in the button form.** M3 prints a check for segmented buttons, not for the connected button group (it changes shape
-  and colour). *Recommendation: drop the check: the buttons get more room for labels, and the group matches M3's connected group exactly.*
-- **Q4. Keep `SegmentedButton` for themes and apps.** *Recommendation: keep the theme file and its export through 0.18 (apps may draw it),
-  remove it with the next `THEME_API` raise; inside the CMS no caller is left after PR 3.*
-- **Q5. Maximum width of the button form on a computer.** M3: "consider adding a maximum width". *Recommendation: 30rem (480 dp), so three
-  choices in a wide dialog don't stretch across it.*
+The owner accepted all seven recommendations (relayed by the 0.18 PM, 14 Nov 2026):
+
+- **Q1. Samples.** Also for Cards › Design, Image grid › Card style and Cards › Color (PR 4); not for Blog posts › Design or
+  Testimonials › Layout.
+- **Q2. A chosen radio row stays plain**, as M3 draws it: the dot (and the sample, where there is one) marks the choice.
+- **Q3. No check mark in the button form**: the connected group shows the choice by shape and colour, as M3 prints it.
+- **Q4. `SegmentedButton` stays** for themes and apps through 0.18 and is removed with the next `THEME_API` raise.
+- **Q5. The button form's maximum width is 30rem** on a computer (from the medium window up).
+- **Q6. PR 2 drops the pending note `buttons-style-segments`**; the *Style choices* note of section 8 covers the change.
+- **Q7. Preview › window size stays out of this work**: it keeps its segmented button; the Preview gets its own look later.
