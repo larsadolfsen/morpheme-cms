@@ -1,6 +1,0 @@
-{
-  "id": "drafts-skip-builds-hint",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "Caching and builds explains how to skip the build for changes that wait to be published"
-}

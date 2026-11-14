@@ -1,7 +1,0 @@
-{
-  "id": "card-icon-text-color",
-  "kind": "paragraph",
-  "mark": "improvement",
-  "title": "Kortikoner",
-  "text": "Et korts ikon har nu tekstens farve i stedet for at skille sig ud i accentfarven. Åbn kortets Medie-ark, og vælg Primær, Sekundær eller Tertiær under Ikonfarve for at give det farve. Kort, der allerede har en farve, beholder den."
-}

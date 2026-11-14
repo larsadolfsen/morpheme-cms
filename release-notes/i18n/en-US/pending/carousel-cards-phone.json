@@ -1,7 +1,0 @@
-{
-  "id": "carousel-cards-phone",
-  "kind": "paragraph",
-  "mark": "feature",
-  "title": "Cards on phones",
-  "text": "A single card at a time reads better on a small screen. Set On phones to Carousel in a Cards block’s settings: visitors swipe the cards sideways, or press Show all to stack them. Larger screens show them together."
-}

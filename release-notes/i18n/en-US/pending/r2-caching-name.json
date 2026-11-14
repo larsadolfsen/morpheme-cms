@@ -1,7 +1,0 @@
-{
-  "id": "r2-caching-name",
-  "kind": "paragraph",
-  "mark": "improvement",
-  "title": "Caching settings",
-  "text": "Two settings had names that didn’t say what they do. Open Settings, then Caching and builds. R2 caching keeps a copy of your files in R2 for the editor, and Content-only builds skips the full site check when only content changed."
-}
