@@ -8753,7 +8753,7 @@ async function checkMorpheme(page, state) {
   for (const x of [
     `Version ${CMS_STATUS.running}`,
     'Version 99.0.0 er klar',
-    'Hjemmesiden har ingen GitHub-n\u00f8gle',
+    'Hjemmesiden har intet GitHub-token',
     'A made-up note for the checks.',
   ])
     if (!text.includes(x)) problems.push(`morpheme (${state}): "${x}" is missing`);

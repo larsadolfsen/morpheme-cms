@@ -76,7 +76,6 @@ import { TEXT_COLORS, colorClass } from '../lib/text-colors.mjs';
 import { sectionHeading, setSection } from './sectionState.mjs';
 import { sectionFrame } from './sectionFrame';
 import { IMAGE, type BlockAsk, type EditFocus } from './BlockDialog';
-import SectionSettingsIcon from './SectionSettingsIcon';
 import { askLink } from './LinkSheet';
 import { atLeastNow, Menu, MenuDivider, MenuItem, Toolbar, ToolbarButton } from './ui';
 import { editsInPanel } from './sheetPlacement.mjs';
@@ -124,7 +123,7 @@ import { canPress, edgeScroll, movedAway } from '@theme/ui/longPressRules.mjs';
 import { canLabel, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
 import { AaIcon, AddIcon, BodyA1Icon, BodyA2Icon, BodyA3Icon, CloseIcon, MoreVertIcon } from './icon';
-import pencilIcon from '@phosphor-icons/core/assets/regular/pencil-simple.svg?raw';
+import { editElsewhereIcon, settingsHereIcon } from './meaningIcons';
 import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
 import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
 import arrowUpIcon from '@phosphor-icons/core/assets/regular/arrow-up.svg?raw';
@@ -900,9 +899,8 @@ function cardBar(
   let selected = false;
   const show = () => {
     const all = items().filter((it): it is CardItem => !!it);
-    const edit = all.find((it) => it.icon === pencilIcon);
-    // The row (blockRow.ts) has Move up, Move down, Hide or Show and, Settings (when it has any); the bar's `⋮` has the rest.
-    const split = splitRow(all.map((it) => (it === edit ? { ...it, row: 'settings' as const, icon: blockSettingsIcon } : it)));
+    // The row (blockRow.ts) has Move up, Move down, Hide or Show and, Settings (when it has any: the item with `row: 'settings'`); the bar's `⋮` has the rest.
+    const split = splitRow(all);
     blockBar.show(owner, {
       name,
       actions: own.tools?.() ?? [],
@@ -1067,7 +1065,7 @@ function imageCard(
       const pos = getPos();
       // Remove is a tool on the bar now, not in the ⋮.
       return [
-        !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: () => void describe() },
+        !inPanelNow() && { icon: blockSettingsIcon, label: t.common.edit, action: () => void describe(), row: 'settings' as const },
         ...moves(view, pos === undefined ? null : view.state.doc.resolve(pos).index(0), sheet()?.template?.locked),
       ];
     },
@@ -1605,11 +1603,11 @@ function blockCard(
     return [
       block?.fields.length
         ? (!inline || (typeof spec?.blockSettings === 'function' ? spec.blockSettings(node.attrs.props) : spec?.blockSettings)) &&
-          !inPanelNow() && { icon: pencilIcon, label: t.text.blockSettings, action: edit, row: 'settings' as const }
-        : block?.edit && { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
+          !inPanelNow() && { icon: blockSettingsIcon, label: t.text.blockSettings, action: edit, row: 'settings' as const }
+        : block?.edit && { icon: editElsewhereIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
       // A block typed in place that reads a list of the site (Testimonials, Blog posts): the page of the list is in its menu too.
       inline && block?.fields.length && block.edit
-        ? { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) }
+        ? { icon: editElsewhereIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) }
         : undefined,
       changeRow(),
       block?.shown || (stays && hidden === false)
@@ -1873,11 +1871,7 @@ function blockCard(
       refresh(shown) {
         if (!shown) return blockBar.hide(owner);
         const action = gear();
-        const split = splitRow(
-          menuItems()
-            .filter((it): it is CardItem => !!it)
-            .map((it) => (it.row === 'settings' ? { ...it, icon: blockSettingsIcon } : it)),
-        );
+        const split = splitRow(menuItems().filter((it): it is CardItem => !!it));
         const state: BlockBarState = {
           name,
           actions: rowActions(),
@@ -2661,7 +2655,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       case 'redo':
         return { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand) };
       default:
-        return { label: t.text.sectionSettings, icon: SectionSettingsIcon, action: sectionSettings };
+        return { label: t.text.sectionSettings, icon: rawIcon(settingsHereIcon), action: sectionSettings };
     }
   };
   const menuOf = (id: string) => ({ style: 'style', list: 'list' })[id] as KindGroup | undefined;

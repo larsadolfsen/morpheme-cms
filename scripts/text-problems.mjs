@@ -43,6 +43,13 @@ export const ALLOWED = {
   'blocks.cards.example.1.text': ['we'],
   // Sample message a visitor types into a form.
   'parts.screens.fieldMessageValue': ['we'],
+  // Real product names (owner rule, 14 Nov 2026: "Don't write fast caching when it is R2 caching"; standard names audit,
+  // section 4): Cloudflare's R2 bucket and the site's Worker are named as Cloudflare names them, never a made-up word.
+  'advanced.bucket.ready': ['internal-name'],
+  'advanced.bucket.no-bucket': ['internal-name'],
+  'apps.needsServer': ['internal-name'],
+  'apps.placeWorker': ['internal-name'],
+  'apps.mcpTokenHint': ['internal-name'],
 };
 
 /**
