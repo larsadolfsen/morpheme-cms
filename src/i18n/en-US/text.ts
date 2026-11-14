@@ -49,7 +49,7 @@ export const text = {
   sectionColors: { none: 'None', surface: 'Surface', primary: 'Primary', secondary: 'Secondary', tertiary: 'Tertiary' },
   /** A section's background image and its width, in the same sheet. */
   sectionImage: 'Background image',
-  sectionImageAlt: 'Image description',
+  sectionImageAlt: 'Alt text',
   sectionImageAltHint: 'Leave it empty for an image that is only decoration.',
   sectionWidth: 'Width',
   sectionWidthFull: 'Full width',

@@ -5458,9 +5458,9 @@ async function checkDynamicPicker(width, height) {
   if ((await block.locator('.list-item-headline').count()) !== 3)
     problems.push(`${label}: the block does not show the 3 items of the list`);
   const before = await buttons();
-  if (before.join('|') !== 'Top line: Title|Bottom line: Body text|Icon: Icon|Link: Link')
+  if (before.join('|') !== 'Label text: Title|Supporting text: Body text|Icon: Icon|Link: Link')
     problems.push(`${label}: the part buttons are "${before.join('|')}", not the list's own fields`);
-  await block.locator('.inline-list-parts button', { hasText: 'Bottom line' }).click();
+  await block.locator('.inline-list-parts button', { hasText: 'Supporting text' }).click();
   const choice = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Field shown' }).first();
   await choice.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the choice of fields did not open`));
   await choice.locator('button.text-field-input').first().click();
@@ -5469,8 +5469,8 @@ async function checkDynamicPicker(width, height) {
   if (phone && (await page.locator('dialog[open]').count())) await page.locator('dialog[open] [aria-label="Close"]').first().click();
   await page.waitForTimeout(400);
   const after = await buttons();
-  if (!after.includes('Bottom line: Title'))
-    problems.push(`${label}: the button does not say "Bottom line: Title" after the pick (${after.join('|')})`);
+  if (!after.includes('Supporting text: Title'))
+    problems.push(`${label}: the button does not say "Supporting text: Title" after the pick (${after.join('|')})`);
   if ((await lines())[0] !== 'Edit on your phone')
     problems.push(`${label}: the bottom line of the first row is "${(await lines())[0]}", not its title`);
   // A tap on the row's own bottom line opens the same choice.
@@ -5804,15 +5804,15 @@ async function checkNewList(width, height, label) {
         .click()
         .catch(() => {});
     await page.waitForTimeout(400);
-    await part('Bottom line')
+    await part('Supporting text')
       .waitFor({ timeout: 8000 })
-      .catch(() => problems.push(`${label}: the picked list shows no Bottom line part`));
+      .catch(() => problems.push(`${label}: the picked list shows no Supporting text part`));
     const parts = await page.evaluate(() => [...document.querySelectorAll('.inline-list-parts button')].map((b) => b.textContent.trim()));
-    if (parts[0] !== 'Top line: Body text' || parts[1] !== 'Bottom line: Body text 2')
+    if (parts[0] !== 'Label text: Body text' || parts[1] !== 'Supporting text: Body text 2')
       problems.push(`${label}: the parts do not name the list's fields (${parts})`);
-    await part('Bottom line').click();
+    await part('Supporting text').click();
     const field = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Field shown' }).first();
-    await field.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Bottom line choice did not open`));
+    await field.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Supporting text choice did not open`));
     await field.locator('button.text-field-input').first().click();
     const offered = await page.evaluate(() => {
       // The open choice is labelled with the field's name (Field shown), as a menu or a sheet of options.
@@ -5822,7 +5822,7 @@ async function checkNewList(width, height, label) {
       return choices;
     });
     if (!offered.includes('Body text') || !offered.includes('Body text 2') || offered.includes('Image'))
-      problems.push(`${label}: the Bottom line offers the wrong fields (${offered})`);
+      problems.push(`${label}: the Supporting text offers the wrong fields (${offered})`);
     // A field added and then an item saved: one commit with the definition and the item (nothing was committed for the field).
     await page.evaluate(() => (location.hash = '#list/zz-fresh-list'));
     // The page typed above is not saved: leaving it asks.
@@ -6546,7 +6546,7 @@ async function checkInlineTable(width, height) {
   await page.close();
 }
 
-/** A Table's column alignment (375 and 1280 px): a column of numbers is right-aligned, header and cells, and a text column left, in the editor typed in place and on the built site (/blocks/); the bar's Align column left, Centre column, Align column right and Align column automatically change the column of the active cell (the pressed one shown), and the choice is saved with the block (`columns`, a second save writes the same text). */
+/** A Table's column alignment (375 and 1280 px): a column of numbers is right-aligned, header and cells, and a text column left, in the editor typed in place and on the built site (/blocks/); the bar's Align column left, Center column, Align column right and Align column automatically change the column of the active cell (the pressed one shown), and the choice is saved with the block (`columns`, a second save writes the same text). */
 async function checkTableAlign(width, height) {
   const label = `${width}px table alignment`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -6624,11 +6624,11 @@ async function checkTableAlign(width, height) {
       [
         ...buttons.filter((b) => b.pressed !== null).map((b) => [b.label, b.pressed]),
         ...more.filter((m) => m.pressed !== null).map((m) => [m.label, m.pressed]),
-      ].filter(([name]) => /column/.test(name) && /lign|entre/.test(name)),
+      ].filter(([name]) => /column/.test(name) && /lign|Center/.test(name)),
     );
   };
   await cellField(1, 1).click();
-  const names = ['Align column left', 'Centre column', 'Align column right', 'Align column automatically'];
+  const names = ['Align column left', 'Center column', 'Align column right', 'Align column automatically'];
   const first = await bar();
   for (const n of names) if (!(n in first)) problems.push(`${label}: the bar has no "${n}" button (${Object.keys(first)})`);
   if (first['Align column automatically'] !== 'true')
@@ -6643,8 +6643,8 @@ async function checkTableAlign(width, height) {
     problems.push(`${label}: Align column left left the number column ${JSON.stringify(left)}`);
   if (!start(left.textHead)) problems.push(`${label}: another column changed with Align column left (${left.textHead})`);
   if ((await bar())['Align column left'] !== 'true') problems.push(`${label}: Align column left is not shown pressed after it was chosen`);
-  await press('Centre column');
-  if ((await aligns()).numberCell !== 'center') problems.push(`${label}: Centre column did not centre the number column`);
+  await press('Center column');
+  if ((await aligns()).numberCell !== 'center') problems.push(`${label}: Center column did not center the number column`);
   await page.screenshot({ path: join(shots, `table-align-${width}.png`) });
   await press('Align column right');
   await press('Align column automatically');
@@ -6652,7 +6652,7 @@ async function checkTableAlign(width, height) {
     problems.push(`${label}: Align column automatically did not bring back the right alignment of numbers`);
   // Centre the text column and save: the choice is in the saved text, and a second save writes the same.
   await cellField(0, 0).click();
-  await press('Centre column');
+  await press('Center column');
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(300);
   const saved = async () => {
