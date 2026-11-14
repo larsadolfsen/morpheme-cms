@@ -96,5 +96,7 @@ if (!`${probe.stdout}${probe.stderr}`.includes('There is no built site')) {
   console.error(probe.stdout, probe.stderr);
   throw new Error('check:screens does not start from the installed package (see above).');
 }
-if (process.argv.includes('--screens')) npmRun(site, 'run', 'check:screens');
+// --shard K/N (with --screens): only part K of N of the screens (scripts/editor-screens.mjs), so CI runs the parts side by side.
+const shard = process.argv.indexOf('--shard') >= 0 ? ['--', '--shard', process.argv[process.argv.indexOf('--shard') + 1]] : [];
+if (process.argv.includes('--screens')) npmRun(site, 'run', 'check:screens', ...shard);
 console.log(`The starter works as a site with the package from npm pack (${site}).`);
