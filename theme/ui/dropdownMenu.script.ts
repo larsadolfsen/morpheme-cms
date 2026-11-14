@@ -9,6 +9,8 @@
 // the chosen one of its group first. Where the browser has no CSS anchor positioning, it places each menu at what
 // opened it. Run on every page by the theme's Base.astro (blockScripts, packages/editor/site/blockScripts.ts); without a dropdown menu
 // on the page it does nothing.
+import { isTypeAheadKey, nextByLetter } from '@morphemecms/cms/lib/menuTypeAhead.mjs';
+
 const gap = 4;
 const edge = 8;
 
@@ -109,11 +111,13 @@ export default function dropdownMenu() {
       }
       let to = { ArrowDown: at + 1, ArrowUp: at - 1, Home: 0, End: items.length - 1 }[e.key];
       // A letter: the next item whose label starts with it.
-      if (to === undefined && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && e.key.trim()) {
-        const key = e.key.toLocaleLowerCase();
-        const starts = (i: HTMLElement) => i.querySelector('.menu-item-label')?.textContent?.trim().toLocaleLowerCase().startsWith(key);
-        const next = [...items.slice(at + 1), ...items.slice(0, at + 1)].find(starts);
-        if (next) to = items.indexOf(next);
+      if (to === undefined && isTypeAheadKey(e)) {
+        const next = nextByLetter(
+          items.map((i) => i.querySelector('.menu-item-label')?.textContent ?? ''),
+          at,
+          e.key,
+        );
+        if (next !== undefined) to = next;
       }
       if (to === undefined) return;
       e.preventDefault();
