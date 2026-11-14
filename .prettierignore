@@ -17,3 +17,5 @@ demo/worker/
 icons/*/pack.json
 # The starter: a site of its own, checked with its own settings (starter/.prettierrc.json).
 starter/
+# Clipboard html copied from Google Docs and Word, kept as the programs write it (the paste tests read it).
+lib/fixtures/paste/
