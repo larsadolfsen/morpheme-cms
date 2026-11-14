@@ -16,7 +16,7 @@ While discussing autosave on every editor screen that needs a Save (the settings
 **Decision (owner, 14 Nov, after reading Material 3):** full-screen sheets are not a Material 3 component, and bottom sheets are for menus and
 supplementary content. So the editor's settings pages do **not** open as a full-screen sheet on a phone. They open as:
 
-- a **subpage with a back arrow** on compact widths (< 600): a screen of its own, the back arrow in the top app bar, `Save` as its action;
+- a **subpage with a back arrow** on compact widths (< 600): a screen of its own, the back arrow in the top app bar, `Save` in the **bottom bar**;
 - a **side sheet** next to the page on medium and expanded widths (≥ 600), with `Save` and `Cancel`.
 
 The owner wants `Save`, **not autosave**, on these forms. Leaving with unsaved changes (the back arrow, the browser's back, `Cancel`) asks
@@ -115,7 +115,7 @@ Which forms that is: section 4 and **O1**.
 
 | Width | Look | Saving | Header |
 | :--- | :--- | :--- | :--- |
-| **Compact** (< 600) | a **subpage** of the screen it is reached from: a screen of its own with one pane (M3 list-detail, compact) | `Save` in the top app bar; **no autosave**; the hidden copy (section 6) | the detail-screen app bar of the app bars spec: **back arrow** leading, the form's title, `Save` trailing (a text button, M3: "To save ... use Save") |
+| **Compact** (< 600) | a **subpage** of the screen it is reached from: a screen of its own with one pane (M3 list-detail, compact) | `Save` (filled) in the bottom bar, and `Cancel` (outlined) only if the form needs it; **no autosave**; the hidden copy (section 6) | the detail-screen app bar of the app bars spec, **back arrow and headline only**, no action |
 | **Medium and wider** (>= 600) | a **side sheet** at the right edge, max 400 dp, sliding in, next to the page | `Save` and `Cancel` as its bottom actions; **no autosave**; the hidden copy (section 6) | headline, close icon trailing, back icon leading when a second level is open (section 7) |
 
 **Medium (600-839) gets the side sheet**, as the owner said ("medium and expanded"); M3 allows "1 (recommended) or 2 panes" there, and the side
@@ -135,18 +135,21 @@ what is being changed.
 
 ```
 +---------------------------------------+
-| <-  Contact                      Save |   top app bar: back arrow, title, Save (text button)
+| <-  Contact                           |   top app bar: back arrow and headline only
 +---------------------------------------+
 | [ Email ]                             |
 | [ Phone ]                             |
 | ...                                   |
 +---------------------------------------+
+|                    [Cancel]  [ Save ] |   bottom bar: Save (filled), Cancel (outlined) if needed
++---------------------------------------+
 ```
 
+- **Where `Save` is** (owner correction, 14 Nov): not in the top app bar. It is in the bottom bar of the editor's forms (`ActionSheet className="editor-save-bar"`, `src/FormFrame.tsx`, the bar the page form pins at the bottom for `Save draft` / `Publish`): `Save` filled and, if the form needs it, `Cancel` outlined, right-aligned as that bar draws them today, lifted above the keyboard. The bar shows with the subpage, not only while something changed, so `Save` is always there (M3: "Don't disable the confirmation button"). M3's toolbars page is the nearest text: "Toolbar on a secondary page with contextual actions" at the bottom of the window, "Avoid emphasizing more than one action at a time" (one filled button, the other outlined). The bar is today's bottom sheet part, not M3's docked toolbar; whether it becomes one is the app bars spec's to decide, not this one's.
 - `Save` checks the form (today's `problemAt` and `useWrongField`: the field is marked inline, M3 "Errors about the dialog fields should always
   appear inline") and commits as the form's `Save` does today; then the subpage closes to the screen it came from and a snackbar says it is saved
   (today's message). A failed commit (network, conflict) says so in a basic dialog (M3) and keeps the subpage open.
-- The back arrow and the browser's back return to the screen above (`backFrom`); with changes they ask "Keep your changes?" first.
+- The back arrow (the only navigation in the top app bar) and the browser's back return to the screen above (`backFrom`); with changes they ask "Keep your changes?" first.
 - No status line: nothing is saved until `Save`.
 - Not a bottom sheet and not a full-screen sheet: a bottom sheet is capped at 50% height and is for "supplementary content and actions"; a full-screen sheet is not an M3 component.
 
@@ -278,7 +281,7 @@ autosave) and its proposals P1 (medium gets the side sheet), P2 (bottom actions 
 
 `npm run check` on every PR; for visible PRs `npm run build`, `npm run check:screens` (both widths), `check:demo`. New `check:screens` assertions:
 
-- **375 px:** opening Business > Contact shows a screen with a back arrow and a `Save` button in the top app bar, no side sheet, no dialog and no
+- **375 px:** opening Business > Contact shows a screen with a back arrow and the headline in the top app bar and a `Save` button in the bottom bar, no side sheet, no dialog and no
   status line; typing, then the back arrow, asks "Keep your changes?"; `Keep` stays, `Discard` leaves; typing, then a reload, offers "Restore
   your unsaved changes?", `Restore` puts the value back; `Save` deletes the copy.
 - **1280 px (and 700 px):** the same route shows Business behind a side sheet no wider than 400 dp at the right edge, with a close button, a `Save`

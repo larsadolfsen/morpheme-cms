@@ -158,8 +158,7 @@ The list of screens is the inventory of 14 Nov (section 9). A screen added later
 what it is given (a `search` gives the search app bar, the page form asks for `small`, the rest is medium flexible), so no screen draws its
 own bar.
 
-**The settings forms** of `settings-sheets-design.md` are a subpage on compact (the detail-screen app bar: back arrow, title, `Save` as its
-action) and a side sheet from medium (headline, close icon, `Save` and `Cancel` as bottom actions); that spec says how. Owner decision, 14 Nov: not a
+**The settings forms** of `settings-sheets-design.md` are a subpage on compact (the detail-screen app bar with the back arrow and the headline only; `Save` in the bottom bar the page form uses) and a side sheet from medium (headline, close icon, `Save` and `Cancel` as bottom actions); that spec says how. Owner decision, 14 Nov: not a
 full-screen sheet.
 
 ## 4. The search app bar
@@ -379,7 +378,7 @@ From the inventory of 14 Nov (routes in `src/App.tsx:833-956`). "Trailing" lists
 | Consents | search | back | `Search by consent ID` | sort inside the bar | Download CSV, bell |
 | SEO rating | search | back | `Search the pages and blog posts` | Sort, its filter | bell |
 | A page or post, new page or post | small | back | — | — | search icon, (`Save`,) `Publish` |
-| A settings form that becomes a subpage or side sheet (`settings-sheets-design.md`, section 4: Business forms, Logo and icon, Header, Footer, Privacy forms, Default pages, a block template, app settings, entries without a text body) | the subpage's app bar on compact, the side sheet's header from medium | back arrow (subpage) / close icon (side sheet) | — | — | `Save` in the app bar (subpage); `Save` and `Cancel` as bottom actions (side sheet) |
+| A settings form that becomes a subpage or side sheet (`settings-sheets-design.md`, section 4: Business forms, Logo and icon, Header, Footer, Privacy forms, Default pages, a block template, app settings, entries without a text body) | the subpage's app bar on compact, the side sheet's header from medium | back arrow (subpage) / close icon (side sheet) | — | — | `Save` in the bottom bar (subpage); `Save` and `Cancel` as bottom actions (side sheet) |
 | A form that stays a screen (Colours; an entry with a text body) | medium flexible (Colours), small (an entry with a text body, as a page being written) | back | — | — | search icon, `Save` (D3; when and how it shows: autosave spec) |
 | An entry with Versions that stays a screen (`DataForm`) | small | back | — | — | Versions, `Save` (the search icon leaves for Versions: two actions) |
 | Settings, Appearance, Business, Privacy, Components and their screens; Themes, Icon packs, Motion, Side column, Caching and builds, Assistants, Account, CMS version, Status, a licence, an app's page and screens, a theme's page, a store app's and developer's page, Not found | medium flexible | back | — | — | search icon (+ one action where the screen has one) |

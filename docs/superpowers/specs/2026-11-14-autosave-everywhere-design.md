@@ -13,7 +13,7 @@ section 5a; section 7 marks what is decided, open for the owner, or proposed.
 
 **Owner decision, 14 Nov 2026 (supersedes the first draft of this section):** the settings forms open as a **subpage with a back arrow** on
 compact and as a **side sheet** from medium (`specs/2026-11-14-settings-sheets-design.md`, with Material 3's pages quoted). The owner wants
-`Save`, **not autosave**, on these forms: the subpage has `Save` in its app bar, the side sheet has `Save` and `Cancel`, and leaving with
+`Save`, **not autosave**, on these forms: the subpage has `Save` in the bottom bar (the page form's), the side sheet has `Save` and `Cancel`, and leaving with
 changes asks with the existing "Keep your changes?" dialog. So autosave follows **where the form is shown**:
 
 | Where the form is | Autosave | What keeps unsaved work | The final step |
@@ -32,7 +32,7 @@ What this changes in the audit below:
 - **Row 16** (a field's page) is a second level inside its form's subpage or side sheet; it has no waiting version (as before).
 - **Rows 1-3, 13, 15** (pages, posts, new pages, own lists, the dashboard): unchanged; they are screens.
 - **The status line** (`Saving...`, `Saved`, `Not saved`) is the app bar's subtitle on a screen (app bars spec 5.2); a subpage or side sheet draws none.
-- **`FormFrame`'s floating Save bar goes** from every form: a subpage has `Save` in its app bar, a side sheet has its bottom actions, a screen has it in the app bar.
+- **`FormFrame`'s floating Save bar goes** from every form: a subpage has `Save` in the bottom bar, a side sheet has its bottom actions, a screen has it in the app bar.
 - **Void for settings forms:** section 5a's PR 3 ("The side sheet autosaves") and PR 4's side-sheet part, PR 8's side-sheet autosave line,
   open decision 11 (a waiting version and the phone) and the side-sheet reading of decisions 3 and 8. The PM removes or rewrites them when
   the owner settles O1 and O2 of the settings pages spec; nothing here is built before then.
