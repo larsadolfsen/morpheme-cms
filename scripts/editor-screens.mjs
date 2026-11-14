@@ -874,6 +874,19 @@ async function checkBottomSheetBar(width, height, keyboard = 0, keyboardUp = fal
 /** A button of the active block's action row by its name (Move up, Move down, Hide, Show, Block settings; Edit on an image card). */
 const rowButton = (page, name) => page.locator(`.site-block-row:not(.site-block-row-hover) [data-row][aria-label="${name}"]:visible`);
 
+/** One choice of a choice group by its name, whichever form it has now: its visible button, or its row of radio buttons (the row's label is the target:
+ * the text under it cannot be pressed on its own). */
+async function chooseOption(page, name) {
+  const button = page.getByRole('button', { name, exact: true }).filter({ visible: true });
+  if (await button.count()) return void (await button.last().click());
+  await page
+    .locator('.choice-group-list .list-item-content')
+    .filter({ hasText: new RegExp(`^${name}$`) })
+    .filter({ visible: true })
+    .last()
+    .click();
+}
+
 /** A tool of the text's one bar by its name: a button of the active block's action row, its button on the bar, or its row in the ⋮ menu when it did not fit (a phone). `how`: 'click' or 'tap'.
  * The bar's buttons keep the cursor where it is. "Edit" is the bar's gear (the row's or item's settings); the block's own settings are Block settings, in the row. */
 async function pressTool(page, name, how = 'click') {
@@ -5162,7 +5175,7 @@ async function checkSegmentedArrow(width, height) {
   // The block's own Edit is in the bar's ⋮ menu.
   await pressMore(page, 'Edit');
   await page.waitForTimeout(600);
-  await page.getByText('Always open', { exact: true }).locator('visible=true').last().click();
+  await chooseOption(page, 'Always open');
   await page.getByRole('button', { name: 'Save', exact: true }).locator('visible=true').last().click();
   await page.waitForTimeout(500);
   await page.click('[data-add-row]');
