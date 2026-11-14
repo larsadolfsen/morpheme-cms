@@ -373,3 +373,10 @@ Also decided (owner, 2026-11-13): menus. The theme's menus and dropdowns never g
 menus are fixed at 44 px and ignore density.
 
 **Open questions: none.** Every question is decided.
+
+**Open items (built later, 14 Nov):**
+
+- **A `DataTable` part.** The spec's section 3 builds the table row in a shared `DataTable` part. No such part exists: the Table block draws its rows with its own styles (`.block-table-grid` in `theme/styles/blocks.css`), and PR 4 put the density term there. When a shared `DataTable` is made, it takes that term with it.
+- **A 48 dp hit area for a link inside a table cell** (section 3: "on touch it keeps a 48 dp hit area, whatever the row height"). Not built: the Table block draws no link in a cell today. It comes with the first block or screen that does.
+
+**Built (PR 0 to 6):** the tokens, the setting, the parts, the layout gaps (editor.css), the Table rows, `check:density` (the theme's parts) and, in `check:screens`, the sizes at each step, the page editing area unchanged, the main screens at Large and Small with no error and no sideways scroll at 375 and 1280 px, and the colours of the parts unchanged by density. Contrast at Small is run by hand: `CONTRAST_DENSITY=-1 npm run check:contrast` (not in CI, like the check itself).

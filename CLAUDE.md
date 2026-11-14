@@ -186,7 +186,7 @@ Before changes are approved or published, verify the following from the root of 
 | `node ../../../bin/morpheme.mjs check:themes` (in `.morpheme/demo/site/`) | The same with each of the other themes. |
 | `npm run check:starter` | The starter works as a site with the package from `npm pack`: its own `npm run check` (the site's types and `check:worker`) and its build. |
 | `npm run check:demo` | The demo builds with the default theme and follows the editor's rules. |
-| `npm run check:contrast` | By hand, after `npm run build` (about 4 minutes per theme, not in CI): WCAG AA contrast of every block's text, icons and control borders on each section colour, on the site and typed in place in the editor, light and dark, phone and computer. `--all` runs every installed theme. |
+| `npm run check:contrast` | By hand, after `npm run build` (about 4 minutes per theme, not in CI): WCAG AA contrast of every block's text, icons and control borders on each section colour, on the site and typed in place in the editor, light and dark, phone and computer. `--all` runs every installed theme. `CONTRAST_DENSITY=-1` checks the editor at Small density. |
 
 ### Worker rule: no pending I/O promise in module memory
 
