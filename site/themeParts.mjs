@@ -13,6 +13,7 @@ export const THEME_PARTS = [
   { id: 'Card', group: 'ui', prefixes: ['card', 'image-grid'] },
   { id: 'List', group: 'ui', prefixes: ['list'] },
   { id: 'Dialog', group: 'ui', prefixes: ['dialog'] },
+  { id: 'Lightbox', group: 'ui', prefixes: ['lightbox'] },
   { id: 'BottomSheet', group: 'ui', prefixes: ['bottom-sheet'] },
   { id: 'Carousel', group: 'ui', prefixes: ['carousel'] },
   { id: 'Menu', group: 'ui', prefixes: ['menu'] },
