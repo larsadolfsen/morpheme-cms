@@ -492,6 +492,61 @@ async function checkChoiceGroupFields(width, locale) {
   await page.close();
 }
 
+/** The samples of Buttons › Settings › Style (choiceSamples.tsx) are never cut off: a short label is shown whole on every row (it fits the sample's
+ * width) and a long one is replaced by the editor's "Button", on a phone and a computer, in English and Danish. */
+async function checkButtonStyleSamples(width, locale) {
+  const touch = width < 600;
+  const word = locale === 'da-DK' ? daBlocks.buttons.sample : 'Button';
+  const say = locale === 'da-DK' ? { settings: daBlocks.buttons.settingsAction } : { settings: 'Settings' };
+  const cases = [
+    { text: 'Book', shown: 'Book' },
+    { text: 'Book an appointment with us today', shown: word },
+  ];
+  for (const { text, shown } of cases) {
+    const label = `${width}px ${locale} button style samples (${text.length} characters)`;
+    const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: touch, isMobile: touch, locale });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    const path = 'src/content/pages/zz-samples.md';
+    const md = `---\ntitle: "Samples"\ndescription: "d"\n---\n\n# Samples\n\nIntro.\n\n${block('buttons', { items: [{ label: text, to: 'page', kind: 'filled' }] })}\n`;
+    await openEditor(page, site, { [path]: md });
+    await page.goto(`${site}/editor/#${path}`);
+    await page.waitForSelector('.ProseMirror [data-field="label"]', { timeout: 30_000 });
+    await page.locator('.ProseMirror [data-field="label"]').last().click();
+    await page.waitForTimeout(500);
+    await pressTool(page, say.settings).catch(() => problems.push(`${label}: the button has no ${say.settings}`));
+    const here = page
+      .locator('dialog[open], .editor-side-sheet')
+      .filter({ has: page.locator('.choice-group') })
+      .last();
+    await here.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the settings did not open`));
+    await page.waitForTimeout(600);
+    const samples = await here
+      .evaluate((root) =>
+        [...root.querySelectorAll('.choice-group-list .choice-group-sample')]
+          .filter((slot) => slot.getClientRects().length)
+          .map((slot) => {
+            const button = slot.querySelector('.button:not([aria-hidden] .button)') ?? slot.querySelector('.button');
+            const visible = [...slot.querySelectorAll('.button')].filter((b) => !b.closest('[aria-hidden="true"][style*="hidden"]')).at(0);
+            const b = (visible ?? button).getBoundingClientRect();
+            const r = slot.getBoundingClientRect();
+            return {
+              text: (visible ?? button).textContent.trim(),
+              inside: b.left >= r.left - 0.5 && b.right <= r.right + 0.5,
+              whole: slot.scrollWidth <= slot.clientWidth + 0.5,
+            };
+          }),
+      )
+      .catch(() => []);
+    if (samples.length !== 5) problems.push(`${label}: ${samples.length} samples in the list, not 5`);
+    for (const x of samples) {
+      if (x.text !== shown) problems.push(`${label}: a sample says "${x.text}", not "${shown}"`);
+      if (!x.inside || !x.whole) problems.push(`${label}: the sample "${x.text}" is cut off`);
+    }
+    if (process.env.SHOTS_FULL) await here.screenshot({ path: `${process.env.SHOTS_FULL}-samples-${width}-${locale}-${text.length}.png` });
+    await page.close();
+  }
+}
+
 /** The theme's choice group (theme/ui/ChoiceGroup.tsx, spec docs/superpowers/specs/2026-11-14-choice-group-design.md) on "Parts" ›
  * "UI components" (ActionParts.tsx), on a phone and a computer, in English and Danish: in every group no two choices overlap and
  * no label is cut off; it is the buttons only when every button fits; a list row is at least 48 px high and a button's target at
@@ -8583,6 +8638,9 @@ for (const width of [375, 1280])
 for (const width of [375, 1280])
   for (const locale of ['en-US', 'da-DK'])
     await unit(`choice-group fields ${width} ${locale}`, () => checkChoiceGroupFields(width, locale));
+for (const width of [375, 1280])
+  for (const locale of ['en-US', 'da-DK'])
+    await unit(`choice-group button samples ${width} ${locale}`, () => checkButtonStyleSamples(width, locale));
 
 for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
 await unit('checkTextBarWide', () => checkTextBarWide());
