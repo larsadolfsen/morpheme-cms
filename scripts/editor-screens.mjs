@@ -2169,6 +2169,8 @@ async function checkBlockDrag(width) {
   await page.keyboard.press('End');
   await page.keyboard.press('Enter');
   await insert('Rows with icon, heading and text.');
+  // The active block's action row has opened (it moves the handle and the blocks below): measure after it has settled.
+  await page.waitForTimeout(900);
   // Away from any block's row, so no bar or keyboard is in the way.
   const names = () => page.locator('.ProseMirror .site-block-card').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   const before = await names();
@@ -4509,7 +4511,8 @@ async function checkSteps(width, height) {
   // Moving a step renumbers.
   await page.locator('.inline-steps [data-row="0"] [data-field="title"]').click();
   await page.waitForTimeout(200);
-  await pressTool(page, 'Move down');
+  // The step row's own Move down on the bar (not the block's, in its action row).
+  await page.locator('.editor-tools button[aria-label="Move down"]:visible').first().click();
   await page.waitForTimeout(200);
   now = await steps();
   if (now[1]?.title !== 'Order' || now.map((s) => s.number).join() !== '1,2,3')
