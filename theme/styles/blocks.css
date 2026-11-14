@@ -253,9 +253,6 @@
   /* "Notice": a short notice in a box with the accent along its left edge (notice/). */
   .block-notice {
     border-left: 4px solid var(--block-accent);
-    border-radius: var(--card-radius, var(--block-radius));
-    background: var(--block-tint);
-    padding: 1rem 1.25rem;
     font-size: var(--type-body-large-size);
     line-height: var(--type-body-large-line-height);
     font-weight: var(--type-body-large-weight);
@@ -1796,9 +1793,6 @@
       line-height: var(--type-body-large-line-height);
       font-weight: var(--type-body-large-weight);
       letter-spacing: var(--type-body-large-tracking);
-    }
-    .block-notice {
-      padding: 1.25rem 1.5rem;
     }
     .block-accordion-label {
       padding-inline: 2rem;

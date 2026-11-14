@@ -91,8 +91,8 @@ import { readCache, writeCache } from './cache';
 import { forgetNotFound, loadNotFound, type Missing } from './notFound';
 import { isEntryPath } from '../lib/ownList.mjs';
 import { collectionOf, slugOf, type Collection, type FolderCollection, type Part, type Relation } from './schema';
-import OwnListPage from './OwnListPage';
-import { listDraftOf, restoreKeptLists, useListDrafts } from './listDraft';
+import OwnList from './OwnList';
+import { listDraftOf, pendingOf, restoreKeptLists, settleListDrafts, useListDrafts, withListDrafts } from './listDraft';
 import EntryForm, { newMarkdown } from './EntryForm';
 import DataForm from './DataForm';
 import CompanyForm from './CompanyForm';
@@ -341,6 +341,10 @@ function Editor() {
   useEffect(() => {
     if (files) void restoreKeptLists();
   }, [!!files]);
+  // A waiting version that git now has (it was saved with an item or the list) is not waiting any more.
+  useEffect(() => {
+    if (files) settleListDrafts(files);
+  }, [files]);
   const [error, setError] = useState('');
   const [route, setRoute] = useState(() => routeOf(location.hash));
   // Counts the visits to an address: a form starts fresh on each, but not when a new entry that was
@@ -909,27 +913,37 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   // is in it while the editor goes between them (useFormPages, inForm).
   const form = formAt(route, files);
   if (form) return <CompanyForm part={form.part} at={form.at} page={form.page} env={env} files={files} />;
-  // A list, or a tab an installed app adds to it (list/<id>/<app>).
+  // A list, or a tab an installed app adds to it (list/<id>/<app>). The lists the owner made are read with their waiting definition in place
+  // (src/listDraft.ts), and a save of one of their items takes that definition along (the owner's decision of 14 November: nothing is committed until a save).
+  const shownFiles = withListDrafts(files);
+  const ownEnv = (id: string): Env =>
+    !listDraftOf(id)
+      ? env
+      : {
+          ...env,
+          commit: async (message, changes, change, onSite) => {
+            const extra = pendingOf(id, files).filter((c) => !changes.some((x) => x.path === c.path));
+            const oids = await env.commit(message, [...changes, ...extra], change, onSite);
+            for (const c of extra) env.onSaved({ path: c.path, oid: oids[c.path], text: c.content });
+            return oids;
+          },
+        };
   const [, listId, listTab, ...below] = route.split('/');
-  const listed = route.startsWith('list/') && !below.length && collectionsFor(files).find((c) => c.id === listId);
-  // A list the owner made: in git, or a new one that has only its waiting version so far (src/listDraft.ts).
-  if (
-    (listed && listed.kind === 'folder' && isOwnList(files, listed.id)) ||
-    (!listed && route.startsWith('list/') && !below.length && listDraftOf(listId))
-  )
-    return <OwnListPage key={listId} id={listId} files={files} env={env} />;
+  const listed = route.startsWith('list/') && !below.length && collectionsFor(shownFiles).find((c) => c.id === listId);
+  if (listed && listed.kind === 'folder' && isOwnList(shownFiles, listed.id))
+    return <OwnList key={listId} id={listId} files={shownFiles} saved={files} env={env} />;
   if (listed) return <List key={listed.id} collection={listed} tab={listTab} files={files} env={env} />;
 
   // new/<list>, or new/<list>/<kind> for one of its kinds (a pop-up: standard, mailchimp).
   const [, newIn, newKind] = route.split('/');
-  const creating = route.startsWith('new/') && collectionsFor(files).find((c) => c.id === newIn && c.create);
+  const creating = route.startsWith('new/') && collectionsFor(shownFiles).find((c) => c.id === newIn && c.create);
   if (creating) {
     if (creating.kind === 'markdown') return <EntryForm collection={creating} file={newMarkdown(creating, notOffered(files))} env={env} />;
     if (creating.kind === 'folder')
-      return <DataForm key={route} collection={creating} kind={newKind} file={{ path: '', oid: '', text: '' }} env={env} />;
+      return <DataForm key={route} collection={creating} kind={newKind} file={{ path: '', oid: '', text: '' }} env={ownEnv(creating.id)} />;
   }
 
-  const found = collectionOf(collectionsFor(files), route);
+  const found = collectionOf(collectionsFor(shownFiles), route);
   // An optional file (the header's) that the site has not got yet opens empty; the first save makes it.
   const file = files.find((f) => f.path === route) ?? (found?.dataFile?.optional ? { path: route, oid: '', text: '{}\n' } : undefined);
   if (!found || !file)
@@ -939,5 +953,5 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
       </Screen>
     );
   if (found.collection.kind === 'markdown') return <EntryForm collection={found.collection} file={file} env={env} />;
-  return <DataForm collection={found.collection} dataFile={found.dataFile} file={file} env={env} />;
+  return <DataForm collection={found.collection} dataFile={found.dataFile} file={file} env={ownEnv(found.collection.id)} />;
 }

@@ -2413,16 +2413,11 @@
     height: 100%;
     object-fit: cover;
   }
-  /* Selected (Material 3's selection page: a check mark icon, a change of surface colour, or both): the selected
-     surface and a check mark; the image draws in from the edge so the surface shows around it. The only ring is the
-     focus ring. */
+  /* Selected (Material 3's Selection page: "a check mark icon, a checkbox component, a change in surface color, or a
+     combination"): the selected surface and a check mark. The only ring is the focus ring. */
   .card-selected {
     background: var(--card-selected-surface, var(--mo-secondary-container));
     color: var(--card-selected-text, var(--mo-on-secondary-container));
-  }
-  .card-selected > .card-media {
-    transform: scale(0.9);
-    border-radius: calc(var(--card-radius, var(--block-radius)) - 4px);
   }
   .card-check {
     position: absolute;
@@ -2433,11 +2428,6 @@
     border-radius: 50%;
     background: var(--mo-primary);
     color: var(--mo-on-primary);
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .card-media {
-      transition: transform var(--motion-spatial-fast, 0.2s) var(--motion-ease, ease);
-    }
   }
 
   /* A staggered grid of cards (image-grid.md in docs; M3 Cards: "customized in code to show cards in staggered or
