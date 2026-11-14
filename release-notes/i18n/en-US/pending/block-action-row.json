@@ -1,0 +1,7 @@
+{
+  "id": "block-action-row",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Block actions",
+  "text": "A block's actions are no longer hidden in the ⋮ menu. Tap a block and a row opens above it with Move up, Move down, Hide or Show, Block settings and the drag handle. Remove and Select stay in the ⋮ menu."
+}

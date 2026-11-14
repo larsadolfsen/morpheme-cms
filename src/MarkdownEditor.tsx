@@ -93,7 +93,8 @@ import { fromLine, listPageOf } from './standard/rows/fields';
 import { sourceOf, withPart } from './standard/rows/rows.mjs';
 import { rowParts } from './standard/rows/view';
 import { barIcons, type BarAction } from './contextualMenu';
-import { blockBar, blockToolIds, type BlockBarState, type CardRow } from './blockBar';
+import { blockBar, blockToolIds, splitRow, type BlockBarState, type CardRow } from './blockBar';
+import './blockRow';
 import { preview } from './registry';
 import { leaveTo } from './FormFrame';
 import { createRoot } from 'react-dom/client';
@@ -102,7 +103,7 @@ import { t } from './i18n';
 import { motionReduced, motionTiming } from '../lib/motion';
 import { barSlideKind } from './barMotion.mjs';
 import { dragSteps, limitSteps } from './blockDrag.mjs';
-import { blockHandleIcon, blockMarkIcon, duplicateIcon, selectAllBlocksIcon } from './blockHandleIcon';
+import { blockHandleIcon, blockMarkIcon, blockSettingsIcon, duplicateIcon, selectAllBlocksIcon } from './blockHandleIcon';
 import { blockSelection } from './blockSelection';
 import { allOf, hideChoice, range, removeChoice, groupMove } from './blockSelectionRules.mjs';
 import { ask } from './ask';
@@ -296,7 +297,13 @@ const checkToggle = $prose(
 );
 
 // action: keyboard, whether the choice was made with the keyboard (Enter or Space).
-type CardItem = { icon: string; label: string; action: (keyboard: boolean) => void; danger?: boolean };
+type CardItem = {
+  icon: string;
+  label: string;
+  action: (keyboard: boolean) => void;
+  danger?: boolean;
+  row?: 'up' | 'down' | 'visibility' | 'settings';
+};
 
 // The part of the text at the top level before or after the one at index i (a block, or a paragraph
 // with an image), skipping the free lines between; null at the start or end.
@@ -350,7 +357,7 @@ function move(view: EditorView, i: number, by: -1 | 1): number | null {
 }
 
 // Selects the card at the top level at index k again (after it moved, it is a new card), so its tools are on the bar still and it can be moved again at once.
-type CardHost = HTMLElement & { select?: () => void };
+type CardHost = HTMLElement & { select?: () => void; refresh?: () => void };
 function reopen(view: EditorView, k: number) {
   const el = partDOM(view, k);
   const host = (el?.matches('.site-block') ? el : el?.querySelector('.site-block')) as CardHost | null;
@@ -409,15 +416,24 @@ const moves = (view: EditorView, i: number | null, locked: string[] = []): CardI
     const at = move(view, i, by);
     if (at !== null) reopen(view, at);
   };
-  const can = (by: -1 | 1) => {
+  // Why it cannot move that way, or undefined: shown disabled in the block's action row, not left out (the buttons keep their places).
+  const why = (by: -1 | 1) => {
     const j = neighbour(view.state.doc, i, by);
-    const next = j === null ? null : view.state.doc.child(j);
-    return !!next && !(next.type.name === 'siteBlock' && locked.includes(next.attrs.type));
+    if (j === null) return by < 0 ? t.text.moveAtTop : t.text.moveAtBottom;
+    const next = view.state.doc.child(j);
+    return next.type.name === 'siteBlock' && locked.includes(next.attrs.type) ? t.text.moveLocked : undefined;
   };
-  return [
-    ...(can(-1) ? [{ icon: arrowUpIcon, label: t.common.moveUp, action: step(-1) }] : []),
-    ...(can(1) ? [{ icon: arrowDownIcon, label: t.common.moveDown, action: step(1) }] : []),
-  ];
+  const item = (by: -1 | 1): CardItem => {
+    const reason = why(by);
+    return {
+      icon: by < 0 ? arrowUpIcon : arrowDownIcon,
+      label: by < 0 ? t.common.moveUp : t.common.moveDown,
+      action: step(by),
+      row: by < 0 ? 'up' : 'down',
+      ...(reason ? { disabled: { reason } } : {}),
+    };
+  };
+  return [item(-1), item(1)];
 };
 
 // The places of the blocks (siteBlock) at the top level of the text, in order.
@@ -870,11 +886,13 @@ function cardBar(
   const show = () => {
     const all = items().filter((it): it is CardItem => !!it);
     const edit = all.find((it) => it.icon === pencilIcon);
+    // The row (blockRow.ts) has Move up, Move down, Hide or Show and, Settings (when it has any); the bar's `⋮` has the rest.
+    const split = splitRow(all.map((it) => (it === edit ? { ...it, row: 'settings' as const, icon: blockSettingsIcon } : it)));
     blockBar.show(owner, {
       name,
       actions: [],
-      edit: edit && { label: edit.label, action: () => edit.action(false) },
-      menu: all.filter((it) => it !== edit),
+      row: { host: dom, items: split.row },
+      menu: split.menu,
     });
   };
   const away = (e: Event) => {
@@ -909,6 +927,7 @@ function cardBar(
     show();
   }
   (dom as CardHost).select = select;
+  (dom as CardHost).refresh = () => selected && show();
   card.setAttribute('aria-pressed', 'false');
   card.addEventListener('mousedown', (e) => e.preventDefault());
   // While a finger is on the card, the text cannot be written in: a phone does not put the cursor in
@@ -1238,7 +1257,7 @@ function blockCard(
   let node = first;
   const ask = asker();
   const block = node.attrs.type === HTML ? htmlBlock : ask?.list.find((b) => b.type === node.attrs.type);
-  const hidden = node.attrs.props.hidden === true;
+  let hidden = node.attrs.props.hidden === true;
   // A block gone from the site by itself (a notice whose time is over) is greyed like a hidden one.
   const over = !!block?.over?.(node.attrs.props);
   // A block typed in place (InlineList.tsx): its card is not a button to tap but the block itself, with its menu on a handle.
@@ -1254,12 +1273,17 @@ function blockCard(
   card.className = inline ? 'site-block-card site-block-inline' : 'site-block-card';
   const name = block?.nameOf?.(node.attrs.props) ?? block?.label ?? node.attrs.type;
   card.setAttribute('aria-label', name);
-  if (hidden) {
-    // An eye struck through in the corner (for screen readers it says so in the description).
-    const badge = card.appendChild(document.createElement('span'));
+  // An eye struck through in the corner of a hidden block (for screen readers it says so in the description). A block typed in place stays the same
+  // node view when it is hidden or shown, so its action row (blockRow.ts) stays open and says Show or Hide.
+  const paintHidden = () => {
+    dom.classList.toggle('site-block-hidden', hidden || over);
+    card.querySelector(':scope > .site-block-hidden-badge')?.remove();
+    if (!hidden) return;
+    const badge = card.insertBefore(document.createElement('span'), card.firstChild);
     badge.className = 'site-block-hidden-badge';
     badge.innerHTML = eyeSlashIcon.replace('<svg', '<svg width="18" height="18" fill="currentColor" aria-hidden="true"');
-  }
+  };
+  paintHidden();
   const shown = card.appendChild(document.createElement('div'));
   shown.className = ask?.data.page ? 'site-block-preview site-block-section not-prose' : 'site-block-preview not-prose';
   // What is typed in place is for screen readers too; the image of any other block is not.
@@ -1464,7 +1488,7 @@ function blockCard(
     return [
       block?.fields.length
         ? (!inline || (typeof spec?.blockSettings === 'function' ? spec.blockSettings(node.attrs.props) : spec?.blockSettings)) &&
-          !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
+          !inPanelNow() && { icon: pencilIcon, label: t.text.blockSettings, action: edit, row: 'settings' as const }
         : block?.edit && { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
       // A block typed in place that reads a list of the site (Testimonials, Blog posts): the page of the list is in its menu too.
       inline && block?.fields.length && block.edit
@@ -1472,7 +1496,12 @@ function blockCard(
         : undefined,
       block?.shown || (stays && hidden === false)
         ? undefined
-        : { icon: hidden ? eyeIcon : eyeSlashIcon, label: hidden ? t.text.showOnPage : t.text.hideOnPage, action: toggle },
+        : {
+            icon: hidden ? eyeIcon : eyeSlashIcon,
+            label: hidden ? t.text.showOnPage : t.text.hideOnPage,
+            action: toggle,
+            row: 'visibility' as const,
+          },
       ...(locked ? [] : moves(view, i, rules?.locked)),
       { icon: selectAllBlocksIcon, label: t.text.selectBlock, action: () => selectable.start() },
       stays || inPanelNow() ? undefined : { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
@@ -1723,12 +1752,18 @@ function blockCard(
       refresh(shown) {
         if (!shown) return blockBar.hide(owner);
         const action = gear();
+        const split = splitRow(
+          menuItems()
+            .filter((it): it is CardItem => !!it)
+            .map((it) => (it.row === 'settings' ? { ...it, icon: blockSettingsIcon } : it)),
+        );
         const state: BlockBarState = {
           name,
           actions: rowActions(),
           edit: action && { label: t.common.edit, action },
           dynamic: canDynamic ? { label: t.blocks.rows.dynamicTip, on: isDynamic(), action: openDynamic } : undefined,
-          menu: menuItems().filter((it): it is CardItem => !!it),
+          row: { host: dom, items: split.row },
+          menu: split.menu,
         };
         blockBar.show(owner, state);
       },
@@ -1804,9 +1839,29 @@ function blockCard(
     dom,
     // Typed in place: the same block with other rows is kept (the cursor stays in the row); anything else is drawn again.
     update: (next: Node) => {
-      if (!inline || next.type !== node.type || next.attrs.type !== node.attrs.type || (next.attrs.props.hidden === true) !== hidden)
-        return false;
+      if (next.type !== node.type || next.attrs.type !== node.attrs.type) return false;
+      // A card that is not typed in place is drawn again by any change, except hiding or showing it: the same card stays, selected, so its action row stays open.
+      if (!inline) {
+        const { hidden: was, ...before } = node.attrs.props ?? {};
+        const { hidden: now, ...after } = next.attrs.props ?? {};
+        if ((was === true) === (now === true) || JSON.stringify(before) !== JSON.stringify(after)) return false;
+        node = next;
+        hidden = now === true;
+        paintHidden();
+        card.setAttribute(
+          'aria-description',
+          [hidden ? t.text.hiddenOnPage : '', ...(block ? describe(block, node.attrs.props, asker()!.data) : [])]
+            .filter(Boolean)
+            .join('. '),
+        );
+        (dom as CardHost).refresh?.();
+        return true;
+      }
       node = next;
+      if ((next.attrs.props.hidden === true) !== hidden) {
+        hidden = !hidden;
+        paintHidden();
+      }
       draw();
       return true;
     },

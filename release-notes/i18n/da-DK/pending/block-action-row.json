@@ -1,0 +1,7 @@
+{
+  "id": "block-action-row",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Blokhandlinger",
+  "text": "En bloks handlinger ligger ikke længere gemt i ⋮-menuen. Tryk på en blok, så åbner en række over den med Flyt op, Flyt ned, Skjul eller Vis, Blokindstillinger og håndtaget til at trække. Fjern og Vælg bliver i ⋮-menuen."
+}

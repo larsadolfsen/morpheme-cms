@@ -72,6 +72,7 @@ export const text = {
   moveAtTop: 'This block is already first',
   moveAtBottom: 'This block is already last',
   dragOff: 'Drag is off while several blocks are selected',
+  blockSettings: 'Block settings',
   blocksSelected: (count: number) => (count === 1 ? '1 block selected' : `${count} blocks selected`),
   clearBlockSelection: (count: number) => `Clear selection, ${count === 1 ? '1 block selected' : `${count} blocks selected`}`,
   selectBlock: 'Select',

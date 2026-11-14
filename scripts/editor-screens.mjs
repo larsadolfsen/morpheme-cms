@@ -506,15 +506,28 @@ async function checkBottomSheetBar(width, height, keyboard = 0, keyboardUp = fal
   await page.close();
 }
 
-/** A tool of the text's one bar by its name: its button on the bar, or its row in the ⋮ menu when it did not fit (a phone). `how`: 'click' or 'tap'. The bar's buttons keep the cursor where it is. */
+/** A button of the active block's action row by its name (Move up, Move down, Hide on the page, Show on the page, Block settings; Edit on an image card). */
+const rowButton = (page, name) => page.locator(`.site-block-row-button[aria-label="${name}"]:visible`);
+
+/** A tool of the text's one bar by its name: a button of the active block's action row, its button on the bar, or its row in the ⋮ menu when it did not fit (a phone). `how`: 'click' or 'tap'.
+ * The bar's buttons keep the cursor where it is. "Edit" is the bar's gear (the row's or item's settings); the block's own settings are Block settings, in the row. */
 async function pressTool(page, name, how = 'click') {
+  const inRow = rowButton(page, name);
+  if (await inRow.count()) return void (await inRow.first()[how]());
   const direct = page.locator(`.editor-tools button[aria-label="${name}"]:visible`);
   if (await direct.count()) return void (await direct.first()[how]());
+  const settings = name === 'Edit' ? rowButton(page, 'Block settings') : null;
+  if (settings && (await settings.count())) return void (await settings.first()[how]());
   await pressMore(page, name, how, 'first');
 }
 
-/** A row of the bar's ⋮ menu by its name (the block's own menu: Edit, Hide on the page, Move up, Move down, Remove; and the tools that did not fit). */
+/** A row of the bar's ⋮ menu by its name (the block's own menu: Remove, Select; and the tools that did not fit). The block's own actions are in its action row, so
+ * `Edit` there is its Block settings button. */
 async function pressMore(page, name, how = 'click', which = 'last') {
+  const inRow = rowButton(page, name);
+  if (await inRow.count()) return void (await inRow.first()[how]());
+  const settings = name === 'Edit' && which === 'last' ? rowButton(page, 'Block settings') : null;
+  if (settings && (await settings.count())) return void (await settings.first()[how]());
   await page.locator('.editor-tools [aria-label="More"]:visible').first()[how]();
   const row = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${name}$`) });
   // `last`: the block's own menu, which is last in the ⋮ (a gear named Edit may stand before it); `first`: a tool of the bar that did not fit.
@@ -928,12 +941,17 @@ async function checkCardBar(width, height = 800) {
   const tools = await barTools(page);
   if (tools.bar.some((b) => b.height < 43.4 || b.width < 43.4)) problems.push(`${label}: a button of the card's bar is under 44 x 44 dp`);
   if (!tools.names.includes('Remove') && phone) problems.push(`${label}: the card's menu has no Remove (${tools.names})`);
-  if (!tools.names.includes('Move up')) problems.push(`${label}: the card's menu has no Move up (${tools.names})`);
+  const rowNames = await page.locator('.site-block-row-button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  if (!rowNames.includes('Move up')) problems.push(`${label}: the card's action row has no Move up (${rowNames})`);
+  if (tools.names.includes('Move up') || tools.names.includes('Hide on the page'))
+    problems.push(`${label}: Move up or Hide is in the bar as well as in the action row (${tools.names})`);
   if (tools.names.filter((n) => n === 'More').length !== 1) problems.push(`${label}: the bar has no single ⋮ (${tools.names})`);
   if (phone) {
-    // Its Edit is the gear on the bar and not in the ⋮ again; the gear opens the block's sheet.
-    if (!tools.bar.some((b) => b.label === 'Edit')) problems.push(`${label}: the card's Edit is not the gear on the bar (${tools.names})`);
-    if (tools.more.some((m) => m.label === 'Edit')) problems.push(`${label}: the card's Edit is in the ⋮ as well as on the bar`);
+    // Its settings are Block settings in the action row, and not on the bar or in the ⋮ again; the button opens the block's sheet.
+    if (!rowNames.includes('Block settings') && !rowNames.includes('Edit'))
+      problems.push(`${label}: the card's settings are not in the action row (${rowNames})`);
+    if (tools.names.includes('Edit') || tools.names.includes('Block settings'))
+      problems.push(`${label}: the card's settings are on the bar or in the ⋮ as well as in the row (${tools.names})`);
     await pressTool(page, 'Edit', 'tap');
     await page
       .waitForSelector('dialog[open] textarea', { timeout: 4000 })
@@ -970,6 +988,97 @@ async function checkCardBar(width, height = 800) {
   }));
   if (back.pressed || !back.names.includes('Bold'))
     problems.push(`${label}: a tap in the text did not let the card go and bring the text tools back (${JSON.stringify(back)})`);
+  await page.close();
+}
+
+/** The active block's action row (src/blockRow.ts): it shows only while a block is active (a real touch tap on a block's rows activates it), its buttons are real 44 x 44 dp
+ * buttons (Move up, Move down, Hide or Show, and the handle at its end), Move down is disabled with its reason on the last block and Move up on the first, Hide turns into
+ * Show and the row stays, the bar has none of these, the row does not lie under the bar (also with the on-screen keyboard open: a short window), and under reduced motion it is
+ * there at once, with no animation. */
+async function checkBlockRow(width, options = {}) {
+  const phone = width < 600;
+  const { height = 800, reduced = false } = options;
+  const label = `${width}px block row${reduced ? ' (reduced motion)' : ''}${height < 500 ? ' (keyboard open)' : ''}`;
+  const page = await browser.newPage({
+    viewport: { width, height },
+    hasTouch: phone,
+    isMobile: phone,
+    locale: 'en-US',
+    reducedMotion: reduced ? 'reduce' : 'no-preference',
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
+  await page.keyboard.type('Design');
+  const row = page.locator('.site-block-row');
+  if (reduced) await page.waitForTimeout(100);
+  else await page.waitForTimeout(800);
+  const names = () => page.locator('.site-block-row-button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  if (!(await row.count())) {
+    problems.push(`${label}: no action row for the active block`);
+    return void (await page.close());
+  }
+  if (reduced && (await row.evaluate((el) => el.getAnimations().length)) > 0)
+    problems.push(`${label}: the row is animated under reduced motion`);
+  const shape = await page.locator('.site-block-row-button').evaluateAll((els) =>
+    els.map((e) => {
+      const r = e.getBoundingClientRect();
+      return {
+        label: e.getAttribute('aria-label'),
+        w: r.width,
+        h: r.height,
+        off: e.hasAttribute('aria-disabled'),
+        why: e.getAttribute('aria-description'),
+      };
+    }),
+  );
+  for (const name of ['Move up', 'Move down', 'Hide on the page'])
+    if (!shape.some((b) => b.label === name)) problems.push(`${label}: the row has no "${name}" (${shape.map((b) => b.label)})`);
+  if (shape.some((b) => b.w < 43.4 || b.h < 43.4))
+    problems.push(`${label}: a button of the row is under 44 x 44 dp (${JSON.stringify(shape)})`);
+  const last = shape.find((b) => b.label === 'Move down');
+  if (!last?.off || !last.why)
+    problems.push(`${label}: Move down is not disabled with a reason on the last block (${JSON.stringify(last)})`);
+  if (shape.find((b) => b.label === 'Move up')?.off) problems.push(`${label}: Move up is disabled with a block above`);
+  const handle = await page.locator('.site-block-has-row > .site-block-handle').boundingBox();
+  const rowBox = await row.boundingBox();
+  if (!handle || !rowBox || handle.y < rowBox.y - 1 || handle.y + handle.height > rowBox.y + rowBox.height + 1)
+    problems.push(`${label}: the handle is not inside the row (${JSON.stringify({ handle, rowBox })})`);
+  const bar = await page.locator('.editor-tools').boundingBox();
+  const block = await page.locator('.site-block-card').first().boundingBox();
+  if (rowBox && bar && rowBox.y + rowBox.height > bar.y && rowBox.y < bar.y + bar.height)
+    problems.push(`${label}: the row lies under the text bar (${JSON.stringify({ rowBox, bar })})`);
+  if (rowBox && block && rowBox.y + rowBox.height > block.y + 1) problems.push(`${label}: the row overlaps the block's content`);
+  const barNames = await page.locator('.editor-tools button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  for (const name of ['Move up', 'Move down', 'Hide on the page', 'Show on the page'])
+    if (barNames.includes(name)) problems.push(`${label}: "${name}" is on the bar as well as in the row`);
+  // Hide turns into Show and the row stays.
+  await page.locator('.site-block-row-button[aria-label="Hide on the page"]')[phone ? 'tap' : 'click']();
+  await page.waitForTimeout(500);
+  if (!(await names()).includes('Show on the page')) problems.push(`${label}: after Hide the row does not say Show (${await names()})`);
+  await page.locator('.site-block-row-button[aria-label="Show on the page"]')[phone ? 'tap' : 'click']();
+  await page.waitForTimeout(500);
+  // The row's buttons are real buttons that Tab reaches.
+  if (await page.locator('.site-block-row-button[tabindex="-1"]').count())
+    problems.push(`${label}: a button of the row is not reachable with Tab`);
+  // The cursor back in the text: the row closes.
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(reduced ? 200 : 900);
+  if (await page.locator('.site-block-row').count()) problems.push(`${label}: the row stays after the block is left`);
+  // A real touch tap on the block's rows brings it back (a computer: a click).
+  if (phone) await page.locator('.inline-list-row').first().tap();
+  else await page.locator('.inline-list-row').first().click();
+  await page.waitForTimeout(reduced ? 200 : 900);
+  if (!(await page.locator('.site-block-row').count()))
+    problems.push(`${label}: a ${phone ? 'tap' : 'click'} on the block did not bring its row back`);
   await page.close();
 }
 
@@ -1066,16 +1175,19 @@ async function checkBlockBar(width, height = 800) {
   if (bar.some((b) => b.height < 43.4 || b.width < 43.4)) problems.push(`${label}: a button of the block's bar is under 44 x 44 dp`);
   // The List's tools in the owner's order (14 Nov), the bar's first and then the ⋮'s: Add below, Add above, Settings (Edit), Fill from a list, Move up, Move down;
   // Undo, Redo, Insert block and the ⋮ close the bar, with no divider.
-  const order = ['Add below', 'Add above', 'Edit', 'Move up', 'Move down'];
+  const order = ['Add below', 'Add above', 'Edit'];
   const seen = names.filter((n) => order.includes(n));
   if (seen.join() !== order.filter((n) => seen.includes(n)).join())
     problems.push(`${label}: the block's tools read ${seen.join(', ')}, not in the order ${order.join(', ')}`);
   if (names.indexOf('Add below') > names.indexOf('Add above')) problems.push(`${label}: Add below does not come before Add above`);
-  if (bar.some((b) => b.label === 'Move up') && names.includes('Edit') && !bar.some((b) => b.label === 'Edit'))
-    problems.push(`${label}: Move up is on the bar while Settings is in the ⋮ (Move up and Move down come last)`);
+  // Move up, Move down and Hide are in the block's action row (blockRow.ts), never on the bar or in the ⋮ as well.
+  const listRow = await page.locator('.site-block-row-button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  for (const name of ['Move up', 'Move down', 'Hide on the page'])
+    if (!listRow.includes(name)) problems.push(`${label}: the action row has no "${name}" (${listRow})`);
+  for (const name of ['Move up', 'Move down', 'Hide on the page'])
+    if (names.includes(name)) problems.push(`${label}: "${name}" is on the bar or in the ⋮ as well as in the action row`);
   if (!more.length) problems.push(`${label}: the ⋮ has no rows`);
-  for (const name of ['Hide on the page', 'Remove'])
-    if (!names.includes(name)) problems.push(`${label}: the block's own menu has no "${name}" (${names})`);
+  for (const name of ['Remove']) if (!names.includes(name)) problems.push(`${label}: the block's own menu has no "${name}" (${names})`);
   if (bar.filter((b) => b.label === 'More').length !== 1)
     problems.push(`${label}: the bar has ${bar.filter((b) => b.label === 'More').length} ⋮ buttons, not 1`);
   const state = await page.evaluate(() => ({
@@ -2097,6 +2209,8 @@ async function checkBlockDrag(width) {
   await page.keyboard.press('End');
   await page.keyboard.press('Enter');
   await insert('Rows with icon, heading and text.');
+  // The active block's action row has opened (it moves the handle and the blocks below): measure after it has settled.
+  await page.waitForTimeout(900);
   // Away from any block's row, so no bar or keyboard is in the way.
   const names = () => page.locator('.ProseMirror .site-block-card').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   const before = await names();
@@ -2123,11 +2237,17 @@ async function checkBlockDrag(width) {
   }
   // A tap on the handle moves nothing.
   const second = await box(1);
-  const [sx, sy] = [second.x + second.width / 2, second.y + second.height / 2];
+  let [sx, sy] = [second.x + second.width / 2, second.y + second.height / 2];
   if (phone) await page.touchscreen.tap(sx, sy);
   else await page.mouse.click(sx, sy);
   await page.waitForTimeout(300);
   if ((await names()).join() !== before.join()) problems.push(`${label}: a tap on the handle moved the block`);
+  // A tap lets the block that was active go and its action row closes, so the page settles: the handle is where it is now, as a person sees it.
+  await page.waitForTimeout(900);
+  {
+    const now = await box(1);
+    [sx, sy] = [now.x + now.width / 2, now.y + now.height / 2];
+  }
   // Drag the second block's handle up over the first block.
   const target = await page.locator('.ProseMirror .site-block').first().boundingBox();
   const ty = target.y + 8;
@@ -4437,7 +4557,8 @@ async function checkSteps(width, height) {
   // Moving a step renumbers.
   await page.locator('.inline-steps [data-row="0"] [data-field="title"]').click();
   await page.waitForTimeout(200);
-  await pressTool(page, 'Move down');
+  // The step row's own Move down on the bar (not the block's, in its action row).
+  await page.locator('.editor-tools button[aria-label="Move down"]:visible').first().click();
   await page.waitForTimeout(200);
   now = await steps();
   if (now[1]?.title !== 'Order' || now.map((s) => s.number).join() !== '1,2,3')
@@ -7199,6 +7320,9 @@ for (const [width, reduced] of [
 for (const width of [375, 1280]) await unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
 for (const width of [375, 1280]) await unit(`checkCardBar ${width}`, () => checkCardBar(width));
 for (const width of [320, 375, 1280]) await unit(`checkInsertBlock ${width}`, () => checkInsertBlock(width));
+for (const w of [375, 1280]) await unit(`checkBlockRow ${w}`, () => checkBlockRow(w));
+await unit('checkBlockRow 375 reduced', () => checkBlockRow(375, { reduced: true }));
+await unit('checkBlockRow 375 keyboard', () => checkBlockRow(375, { height: 420 }));
 await unit('checkSheetKeyboard 375', () => checkSheetKeyboard(375));
 await unit('checkSheetKeyboard 375 Custom', () => checkSheetKeyboard(375, 740, 300, true));
 for (const [width, height] of [
