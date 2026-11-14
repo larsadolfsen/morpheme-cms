@@ -278,11 +278,11 @@ export const bankFields: Field[] = [
 const standardPageFields: Field[] = [
   {
     name: 'front',
-    label: 'Front page',
+    label: 'Home page',
     type: 'relation',
     to: 'standardPages',
     required: true,
-    hint: 'The page is shown on the front page, and its own address sends on there.',
+    hint: 'The page is shown on the home page, and its own address sends on there.',
   },
   {
     name: 'blog',

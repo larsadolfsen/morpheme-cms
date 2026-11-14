@@ -14,7 +14,7 @@ export const text = {
   bodyMedium: 'Body medium',
   bodySmall: 'Body small',
   label: 'Label',
-  checkList: 'Check list',
+  checkList: 'Checklist',
   bulletList: 'Bullet list',
   orderedList: 'Numbered list',
   quote: 'Quote',

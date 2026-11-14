@@ -382,7 +382,7 @@ export const blocks = {
     filter: 'Buttons with tags',
     filterHint: 'Shows only the testimonials with the chosen tag.',
     withTags: 'With tags',
-    front: 'Marked "Show on the front page"',
+    front: 'Marked "Show on the home page"',
     picked: 'Selected',
     tags: 'Tags',
     addTag: 'Add tag',
@@ -397,7 +397,7 @@ export const blocks = {
       context: 'Introduction',
       quote: 'Testimonial',
       createTag: 'Create a tag',
-      frontPage: 'Show on the front page',
+      frontPage: 'Show on the home page',
     },
     items: 'Testimonials',
     /** The shared texts ("Blocks" › "Testimonials"), and what they start as on a site in this language. */

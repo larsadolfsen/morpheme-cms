@@ -732,7 +732,7 @@ async function checkTextBar(width = 360) {
     problems.push(`${label}: the ⋮ menu is outside the visible screen or not under its button`);
   if (menu.rows.some((x) => x.h < 43.4)) problems.push(`${label}: a row of the ⋮ menu is under 44 dp`);
   const listOnBar = inText.names.some((n) => n === 'List' || n.startsWith('List:'));
-  for (const name of [...(listOnBar ? [] : ['Bullet list', 'Check list', 'Numbered list']), 'Color'])
+  for (const name of [...(listOnBar ? [] : ['Bullet list', 'Checklist', 'Numbered list']), 'Color'])
     if (!menu.rows.some((x) => x.name === name))
       problems.push(`${label}: the ⋮ menu lacks "${name}" (${menu.rows.map((x) => x.name).join(', ')})`);
   if (!menu.rows.some((x) => x.name === 'Align left'))
