@@ -20,7 +20,10 @@ function setup({ next = '0.17.0-next-2', last, hook = 'https://hook', hookStatus
 test('a moved next tag calls the hook once and stores the version', async () => {
   const s = setup({ last: '0.17.0-next-1' });
   assert.equal(await check(s.env, s.fetchFn), 'rebuild');
-  assert.deepEqual(s.calls.filter((u) => u === 'https://hook'), ['https://hook']);
+  assert.deepEqual(
+    s.calls.filter((u) => u === 'https://hook'),
+    ['https://hook'],
+  );
   assert.equal(s.kv.get('last'), '0.17.0-next-2');
   assert.equal(await check(s.env, s.fetchFn), 'none');
 });
