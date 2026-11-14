@@ -26,7 +26,7 @@ test('the active block is shown and hidden, and a block that is not the active o
   stop();
 });
 
-test("a List's tools: Add above, Add below, Move up, Move down on the bar, then Link, the gear and Fill from a list", () => {
+test("a List's tools: Add below, Add above, Settings, Link on the bar (four), then Fill from a list, Move up and Move down", () => {
   const ids = blockToolIds(
     state({
       actions: ['link', 'above', 'below', 'up', 'down'].map(act),
@@ -34,10 +34,10 @@ test("a List's tools: Add above, Add below, Move up, Move down on the bar, then 
       dynamic: { label: 'Rows from', on: false, action() {} },
     }),
   );
-  assert.deepEqual(ids, ['above', 'below', 'up', 'down', 'link', 'gear', 'dynamic']);
+  assert.deepEqual(ids, ['below', 'above', 'gear', 'link', 'dynamic', 'up', 'down']);
 });
 
-test("a Table's tools: Row above, Row below, Column before, Column after, then the settings, the deletes and the alignments", () => {
+test("a Table's tools: Row below, Row above, Column after, Column before, then the settings, the deletes and the alignments", () => {
   const ids = blockToolIds(
     state({
       actions: [
@@ -55,7 +55,7 @@ test("a Table's tools: Row above, Row below, Column before, Column after, then t
       edit: { label: 'Edit', action() {} },
     }),
   );
-  assert.deepEqual(ids.slice(0, 4), ['above', 'below', 'column-before', 'column-after']);
+  assert.deepEqual(ids.slice(0, 4), ['below', 'above', 'column-after', 'column-before']);
   assert.deepEqual(ids.slice(4, 7), ['gear', 'delete-row', 'delete-column']);
   assert.equal(ids.length, 11);
 });

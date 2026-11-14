@@ -1,6 +1,7 @@
 {
   "id": "duplicate-titles",
   "kind": "paragraph",
+  "mark": "improvement",
   "title": "Duplicate titles",
   "text": "A title that’s already used no longer stops you from saving. When a new page or post has the same title as another, a dialog suggests the next free one, like Test 2. Change the title if you like, then press Save."
 }

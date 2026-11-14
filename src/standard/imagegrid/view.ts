@@ -29,7 +29,18 @@ export const cardStyles = ['filled', 'elevated', 'outlined'] as const;
 export type GridCard = (typeof cardStyles)[number];
 export const columnChoices = ['2', '3', '4'] as const;
 
-export type ImageGridTexts = { clear: string; empty: string; filter: string; count: string };
+export type ImageGridTexts = {
+  clear: string;
+  empty: string;
+  filter: string;
+  count: string;
+  /** The image viewer (the lightbox): its name, the buttons' names and the position ("{index} of {total}"). */
+  viewer: string;
+  close: string;
+  previous: string;
+  next: string;
+  position: string;
+};
 
 export type ImageGridView = HeadView & {
   images: GridImage[];

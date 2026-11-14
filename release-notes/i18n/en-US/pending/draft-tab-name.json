@@ -1,5 +1,6 @@
 {
   "id": "draft-tab-name",
   "kind": "line",
+  "mark": "improvement",
   "text": "The switch at the top of a page says Published and Draft, and Discard draft asks before it deletes your unpublished changes"
 }

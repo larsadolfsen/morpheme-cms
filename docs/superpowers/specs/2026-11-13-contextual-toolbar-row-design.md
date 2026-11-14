@@ -95,7 +95,7 @@ Idle (focus outside the text and blocks): all four fit, no ⋮
 
 Cursor in text: text tools slide in from the left, the main tools are pushed out; Undo and Redo stay, the rest is in ⋮
 +--------------------------------------------+
-| [B] [I] [Link] [Style▾]  ▏  [Undo] [Redo] [⋮] |
+| [B] [I] [Style▾] [List▾]  ▏  [Undo] [Redo] [⋮] |
 +--------------------------------------------+
 
 A Table is active:
@@ -105,7 +105,7 @@ A Table is active:
 
 COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Remove, and is absent in text):
 +----------------------------------------------------------------------------------+
-| [B][I][Link][Style▾][List▾][Align][Colour]  ▏  [+] [Undo] [Redo] [Section settings]|
+| [B][I][Style▾][List▾][Align][Link][Colour]  ▏  [+] [Undo] [Redo] [Section settings]|
 +----------------------------------------------------------------------------------+
 ```
 
@@ -126,7 +126,7 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
 | State | On the bar (7 slots) | In `⋮` (groups in order, a divider between groups) |
 | --- | --- | --- |
 | Nothing active | Insert, Undo, Redo, divider, Section settings (when it applies) | no `⋮` |
-| Text | Bold, Italic, Link, **Text style**, divider, Undo, Redo, `⋮` | Alignment, Lists (Bulleted, Check, Numbered), Colour; divider; Insert, Section settings (when it applies) |
+| Text | Bold, Italic, **Text style**, Lists, divider, Undo, Redo, `⋮` | Alignment, Link, Colour (14 Nov owner order; a list that does not fit goes first); divider; Insert, Section settings (when it applies) |
 | Table | Row above, Row below, Column before, Column after, divider, Undo, Redo, `⋮` | Table settings, Delete row, Delete column; divider; Insert; divider; Hide, Move, Remove |
 | List, Cards, Points, Segmented list | Add above, Add below, Move up, Move down, divider, Undo, Redo, `⋮` | Link, Settings, Fill from a list (List, Segmented list); divider; Insert; divider; Hide, Move, Remove |
 | Steps, Checklist | Add above, Add below, Move up, Move down, divider, Undo, Redo, `⋮` | Insert; divider; Hide, Move, Remove |

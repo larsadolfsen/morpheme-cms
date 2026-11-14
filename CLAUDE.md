@@ -164,7 +164,7 @@ Our ecosystem has two completely separate repositories, which must **never** be 
   - The app sandbox (contract 4): `app*.mjs`, `reads.mjs`, `afterBuild.mjs`, `sandboxHooks.mjs`, `contentColors.ts` and `lib/sandbox/` (the QuickJS runner is the security boundary); an app's places and build problems show on its page (`src/AppPlaces.tsx`, `src/AppProblems.tsx`, `worker/app-problems.js`).
 - **`worker/`**: The site's default Cloudflare Worker (login/session, GitHub commit proxy, R2 backup, redirects and scheduled tasks).
 - **`bin/`**: The `morpheme` CLI tool for image processing, build hooks and validation.
-- **`release-notes/`**: Owner-facing release notes in English and Danish: paragraphs (title and text per language) and lines, no screenshots. Each pull request writes `i18n/<locale>/pending/<id>.json`; `release:version` moves them to `i18n/<locale>/<version>.json`. Writing rule: "Changesets and release notes" above.
+- **`release-notes/`**: Owner-facing release notes in English and Danish: paragraphs (title and text per language) and lines, no screenshots; each note has the mark `feature` or `improvement`. Each pull request writes `i18n/<locale>/pending/<id>.json`; `release:version` moves them to `i18n/<locale>/<version>.json`. Writing rule: "Changesets and release notes" above.
 
 ## 3. Roles and Division of Work
 

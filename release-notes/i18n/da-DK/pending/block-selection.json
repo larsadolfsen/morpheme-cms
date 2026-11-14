@@ -1,6 +1,7 @@
 {
   "id": "block-selection",
   "kind": "paragraph",
+  "mark": "feature",
   "title": "Blokvalg",
   "text": "Det tager ét skridt at ændre flere blokke. Tryk og hold på en bloks håndtag, eller peg på en blok og klik på cirklen, og tryk så på flere blokke. Bjælken skjuler, viser, flytter, duplikerer eller fjerner dem samlet."
 }

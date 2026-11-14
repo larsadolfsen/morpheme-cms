@@ -5,107 +5,127 @@
     {
       "id": "app-contract-4",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "App sandbox",
       "text": "An app can’t harm your site. Every app runs in a sandbox and reads only the site data it asks for. Open an app and look under Permissions to see where it runs and how much access it has."
     },
     {
       "id": "css-variables-mo-prefix",
       "kind": "line",
+      "mark": "improvement",
       "text": "A site’s own CSS that uses the theme’s color, shape and elevation variables must switch to the new variable names, which start with --mo-"
     },
     {
       "id": "dashboard-app-widgets",
       "kind": "line",
+      "mark": "feature",
       "text": "Apps can add their own widgets to the start screen"
     },
     {
       "id": "dashboard-widget-grid",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "Start screen widgets",
       "text": "Your start screen shows what matters to you. Widgets sit in a grid: Continue, Unfinished, Blog rhythm and Site status. Tap Edit dashboard to add, remove and reorder them."
     },
     {
       "id": "edition-photo-place",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "Editions",
       "text": "Each update is easy to recognize. It comes with a photo and the name of the place it’s named after, like Passo Giau. You’ll find them on the start screen and on the Morpheme page."
     },
     {
       "id": "english-ids-code",
       "kind": "line",
+      "mark": "improvement",
       "text": "The sort and filters you last chose when you pick pages or items start fresh once"
     },
     {
       "id": "english-ids-consents-csv",
       "kind": "line",
+      "mark": "improvement",
       "text": "The downloaded consent log is now named consents-<date>.csv"
     },
     {
       "id": "english-ids-new-pages",
       "kind": "line",
+      "mark": "improvement",
       "text": "New versions of your pages are now at /new/, and old links keep working"
     },
     {
       "id": "english-ids-tag-pages",
       "kind": "line",
+      "mark": "improvement",
       "text": "A tag’s page on your blog is now at /blog/tags/<tag>/, and links to the old address keep working"
     },
     {
       "id": "heading-and-text-buttons",
       "kind": "line",
+      "mark": "improvement",
       "text": "The text toolbar and the menu over selected text have the same heading and text buttons"
     },
     {
       "id": "md3-color-roles",
       "kind": "paragraph",
+      "mark": "improvement",
       "title": "Color names",
       "text": "Colors use Material 3’s own names. Open Colors and save to switch your old ones over; they keep working until you do. New are Surface dim, Surface bright, Scrim and Shadow."
     },
     {
       "id": "older-line-editions",
       "kind": "line",
+      "mark": "improvement",
       "text": "Versions 0.2 to 0.13 now have release notes and a photo on the Morpheme page"
     },
     {
       "id": "one-app-per-type",
       "kind": "line",
+      "mark": "improvement",
       "text": "Only one Redirects app and one Links app can be on at a time, and a second one asks first"
     },
     {
       "id": "page-settings",
       "kind": "paragraph",
+      "mark": "feature",
       "title": "Page settings",
       "text": "A page’s basics sit in one place. Open a page and tap Page settings to set its title, status and template, and pick the template on cards."
     },
     {
       "id": "release-blog-posts",
       "kind": "line",
+      "mark": "feature",
       "text": "A site can post each new Morpheme release on its blog by itself"
     },
     {
       "id": "selector-parser-peer-both",
       "kind": "line",
+      "mark": "improvement",
       "text": "Your site updates to this version with the Update button, with no extra npm command"
     },
     {
       "id": "settings-cog",
       "kind": "paragraph",
+      "mark": "improvement",
       "title": "Settings cog",
       "text": "The menu stays short. Tap the cog at the bottom of the menu to open Settings, with Appearance, Developer, Licenses, Morpheme and Privacy."
     },
     {
       "id": "short-notification-buttons",
       "kind": "line",
+      "mark": "improvement",
       "text": "The buttons under Notifications are now Clear and Settings"
     },
     {
       "id": "store-categories",
       "kind": "line",
+      "mark": "feature",
       "text": "Appstore has 13 categories to filter by"
     },
     {
       "id": "version-heading-date-photo",
       "kind": "line",
+      "mark": "feature",
       "text": "Each version on the Morpheme page shows its date and photo"
     }
   ]

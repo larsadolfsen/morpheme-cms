@@ -4,6 +4,7 @@
     {
       "id": "open-website-start-screen",
       "kind": "line",
+      "mark": "improvement",
       "text": "On the start screen, the top bar shows Open website instead of the account icon"
     }
   ]

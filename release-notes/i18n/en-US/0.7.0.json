@@ -4,6 +4,7 @@
     {
       "id": "navigation-rail-menu",
       "kind": "line",
+      "mark": "improvement",
       "text": "The editor has a navigation rail and a main menu with two levels"
     }
   ]

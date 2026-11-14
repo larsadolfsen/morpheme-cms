@@ -1,5 +1,6 @@
 {
   "id": "accordion-rows-equal-space",
   "kind": "line",
+  "mark": "improvement",
   "text": "Sektionsrækker i sideeditoren har lige meget luft over og under titlen"
 }

@@ -1,6 +1,7 @@
 {
   "id": "lists",
   "kind": "paragraph",
+  "mark": "improvement",
   "title": "Lister",
   "text": "Lister gemmer sig ikke længere blandt tekststilene. Åbn Liste i tekstværktøjerne og vælg Punktliste, Tjekliste eller Nummereret liste; vælg den igen for at tage teksten ud af listen."
 }

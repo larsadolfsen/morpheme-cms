@@ -1,6 +1,7 @@
 {
   "id": "insert-sheet-categories",
   "kind": "paragraph",
+  "mark": "improvement",
   "title": "Indsæt-ark",
   "text": "En lang liste af blokke er langsom at gennemse. Åbn Indsæt: blokkene står under Kort, Lister, Bannere, Knapper og Medier, så Blogindlæg, Udtalelser og Cookieliste under Fra dit indhold og HTML-kode under Udvikler."
 }

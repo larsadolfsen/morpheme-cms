@@ -1,5 +1,6 @@
 {
   "id": "dialog-corner-28",
   "kind": "line",
+  "mark": "improvement",
   "text": "Dialogs and the date and time pickers have slightly less round corners"
 }

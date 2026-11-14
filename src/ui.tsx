@@ -300,11 +300,6 @@ export function ToolbarButton({
   );
 }
 
-/** The divider of the text's bar between the contextual and the main tools: the theme's Divider, vertical, 8 dp each side. */
-export function ToolbarDivider() {
-  return <SiteDivider vertical className="editor-tools-divider" />;
-}
-
 /** The theme's toolbar (Material 3's, docked) with the text's tools (MarkdownEditor.tsx), close round them, without the
  * line a docked one has over it; `className` places it. */
 export function Toolbar({

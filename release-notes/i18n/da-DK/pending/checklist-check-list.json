@@ -1,5 +1,6 @@
 {
   "id": "checklist-check-list",
   "kind": "line",
+  "mark": "improvement",
   "text": "Tjeklister er nu afkrydsningslister i teksten, med overskrift og intro som almindelig tekst over"
 }

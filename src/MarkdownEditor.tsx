@@ -64,7 +64,7 @@ import {
 } from '@phosphor-icons/react';
 import { listKindOf, styleOf } from './styleKind.mjs';
 import { listRows, styleRows } from './styleMenu.mjs';
-import { planBar, slotsFor } from './textBar.mjs';
+import { planBar } from './textBar.mjs';
 import { sizeListText, sizeOfList } from './listSize.mjs';
 import { HTML, insertBlock, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
 import { firstHeading, topHeadings } from './firstHeading.mjs';
@@ -76,7 +76,7 @@ import { sectionFrame } from './sectionFrame';
 import { IMAGE, type BlockAsk } from './BlockDialog';
 import SectionSettingsIcon from './SectionSettingsIcon';
 import { askLink } from './LinkSheet';
-import { atLeastNow, Menu, MenuDivider, MenuItem, Toolbar, ToolbarButton, ToolbarDivider } from './ui';
+import { atLeastNow, Menu, MenuDivider, MenuItem, Toolbar, ToolbarButton } from './ui';
 import { editsInPanel } from './sheetPlacement.mjs';
 import { shownAt } from './images';
 import { cropStyle, joinPicture, splitPicture } from '../lib/crop.mjs';
@@ -2337,13 +2337,12 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const contextIds = block_
     ? [...(block_.count ? ['block:count'] : []), ...blockToolIds(block_).map((id) => `block:${id}`)]
     : textContext
-      ? ['bold', 'italic', 'link', 'style', ...(lists.length ? ['list'] : []), 'align', 'color']
+      ? ['bold', 'italic', 'style', ...(lists.length ? ['list'] : []), 'align', 'link', 'color']
       : [];
   const blockMenu = block_?.menu ?? [];
-  // Undo, Redo and Section settings, a divider, then Insert block (never in the ⋮) and the ⋮.
-  // While blocks are selected the text is read-only, so Insert block is not offered (and the bar has room for Move up and Move down on a phone).
-  const insertShown = hasInsert && !block_?.count;
-  const mainIds = ['undo', 'redo', ...(settingsShown ? ['settings'] : []), ...(insertShown ? ['insert'] : [])];
+  // Undo, Redo and Insert block (never in the ⋮) stand at the right end of the bar in every place, then the ⋮ (owner decision, 14 Nov). Section
+  // settings is a row of the ⋮ (always there while it applies).
+  const fixedIds = ['undo', 'redo', ...(hasInsert ? ['insert'] : [])];
   useLayoutEffect(() => {
     const bar = toolbar.current!;
     const measure = () => setBarWidth(bar.clientWidth);
@@ -2355,11 +2354,11 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // A menu of one of the ⋮ menu's rows is open under the ⋮ button.
   const underMore = [kindsAt?.at, alignAt, colorAt].some((at) => !!at && at === moreButton.current);
   const plan = planBar({
-    // The count with its cross is two slots wide.
-    slots: slotsFor(barWidth, (contextIds.length > 0 ? 1 : 0) + (insertShown ? 1 : 0)) - (block_?.count ? 1 : 0),
+    // The count with its cross is two buttons wide.
+    width: barWidth - (block_?.count ? 44 : 0),
     context: contextIds,
-    main: mainIds,
-    more: blockMenu.length > 0,
+    fixed: fixedIds,
+    more: blockMenu.length > 0 || settingsShown,
   });
   // The bar's motion (barMotion.mjs): the contextual tools slide in from the left and push the main tools right when a context starts, slide out
   // when it ends, and fade in place from one context to another. FLIP: the new layout is measured, then the old place is animated from, with the
@@ -2542,12 +2541,12 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     );
   };
   // In the `⋮` menu the context's tools come first, then a divider, then the main tools.
-  const MORE_ORDER = ['bold', 'italic', 'link', 'style', 'align', 'list', 'color'];
+  const MORE_ORDER = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color'];
   const moreContext = [...plan.more.context].sort((a, b) => MORE_ORDER.indexOf(a) - MORE_ORDER.indexOf(b));
-  const moreMain = plan.more.main.length ? plan.more.main : [];
+  const moreMain = [...plan.more.fixed, ...(settingsShown ? ['settings'] : [])];
 
   return (
-    <div className="rounded-panel bg-surface-container-lowest">
+    <div className="editor-text-box rounded-panel bg-surface-container-lowest">
       <span className="sr-only" role="status" aria-live="polite">
         {selecting ? t.text.blocksSelected(picked.places.length) : ''}
       </span>
@@ -2563,14 +2562,11 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
               <div role="group" aria-label={block_?.name ?? t.text.textTools} className="editor-tools-group">
                 {plan.bar.context.map(barButton)}
               </div>
-              <ToolbarDivider />
             </div>
           )}
           <div ref={mainBox} className="editor-tools-main">
             <div role="group" aria-label={t.text.pageTools} className="editor-tools-group">
-              {plan.bar.main.filter((id) => id !== 'insert').map(barButton)}
-              {plan.bar.main.includes('insert') && plan.bar.main.length > 1 && <ToolbarDivider />}
-              {plan.bar.main.filter((id) => id === 'insert').map(barButton)}
+              {plan.bar.fixed.map(barButton)}
             </div>
             {plan.overflow && (
               <ToolbarButton
