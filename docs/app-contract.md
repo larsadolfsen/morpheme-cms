@@ -251,6 +251,20 @@ self.id; // 'app_a030dfba69793996'
 
 Apps written to contract 2 build and run as before. Contract 3 only adds `@app/self`.
 
+## The theme's UI components by name
+
+An app draws with the theme's parts (`@theme/ui/…`, `@theme/blocks/…`), by Material 3's names. Two have new names; the old
+ones stay as aliases of the same part while `THEME_API` is 4, so an app or a theme written with them works as before.
+
+| Import (Material 3's name) | Old name, kept as an alias | Material 3 |
+| :--- | :--- | :--- |
+| `@theme/ui/AppBar`: `AppBar`, `appBarKinds`, `appBarClass`, `appBarClasses`, `AppBarKind` | `@theme/ui/TopAppBar`: `TopAppBar`, `topAppBarKinds`, `topAppBarClass`, `topAppBarClasses`, `TopAppBarKind` | App bars: "Four variants: Search app bar, small, medium flexible, large flexible" |
+| `@theme/ui/TextFieldMenu`: `TextFieldMenu`, `textFieldMenuClass`, `TextFieldMenuOption` | `@theme/ui/ExposedDropdownMenu`: `ExposedDropdownMenu`, `exposedDropdownMenuClass`, `ExposedDropdownMenuOption` | Menus: "Dropdown menu and exposed dropdown menu are now both referred to as menu"; text fields: "Text field dropdown menus" |
+| `@theme/blocks/Panel` | — | An outlined card; the name Panel stays |
+
+A theme that draws its own bar or menu still does it in `ui/TopAppBar.tsx` and `ui/ExposedDropdownMenu.tsx` while
+`THEME_API` is 4; the new names lead to the theme's file, else the standard theme's.
+
 ## Slots
 
 An app may draw a part of the editor's own screens in place of the core's. `slots` is an optional field of the app (`AppDefinition` in `src/apps.ts`, or in `editor.ts`). It does not change the contract number, and an app without `slots` works as before. A slot is a `full` editor place, like `tabs`, so for first-party apps.

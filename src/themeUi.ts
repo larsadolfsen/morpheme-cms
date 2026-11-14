@@ -40,7 +40,8 @@ export {
   listClasses as siteListClasses,
 } from '@theme/ui/List';
 /** The theme's navigation parts (the header's), for "Parts" › "UI components" (NavigationParts.tsx). */
-export { default as SiteTopAppBar } from '@theme/ui/TopAppBar';
+/** The app bar (Material 3's name); SiteTopAppBar is the same, its old name, kept while THEME_API is 4. */
+export { default as SiteAppBar, default as SiteTopAppBar } from '@theme/ui/AppBar';
 export {
   Menu as SiteMenu,
   MenuItem as SiteMenuItem,
@@ -50,7 +51,8 @@ export {
   menuClass as siteMenuClass,
 } from '@theme/ui/Menu';
 export { placeMenu as sitePlaceMenu } from '@theme/ui/dropdownMenu.script';
-export { default as SiteExposedDropdownMenu } from '@theme/ui/ExposedDropdownMenu';
+/** The text field menu (Material 3's name); SiteExposedDropdownMenu is the same, its old name, kept while THEME_API is 4. */
+export { default as SiteTextFieldMenu, default as SiteExposedDropdownMenu } from '@theme/ui/TextFieldMenu';
 export {
   NavigationDrawer as SiteNavigationDrawer,
   NavigationDrawerBack as SiteNavigationDrawerBack,
