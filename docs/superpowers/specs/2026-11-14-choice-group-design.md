@@ -107,7 +107,60 @@ not quoted, it is not printed in text and is taken from the theme's existing par
 
 ## 4. Today: every place that uses the segmented button
 
-INVENTORY
+26 places on `0.18` (ece1b62). Labels read from `src/i18n/en-US/`, `src/i18n/da-DK/` and `defaults/i18n/`. Widths are **estimates**
+from the theme's CSS (`theme/styles/ui.css`, `.segmented-button`): each segment is a `1fr` grid column (equal while there is room, never
+narrower than its content, so the frame overflows when the contents don't fit; labels never wrap or clip); 16 px padding each side, 8 px
+gap, 18 px check or icon; a segment is about `32 + 7.5 px × characters`, plus 26 px when chosen or with an icon. Below 600 px the frame
+takes the whole width, from 600 px it is as wide as its choices.
+
+**The widths it really gets** (smaller than the brief's 400 px): a block's fields open in a side sheet 360 px wide (`--side-sheet-width:
+22.5rem`) with 24 px padding, **312 px** of content from 840 px up, and a modal side sheet on a phone, **271 px** at 375 px. Section and row
+settings: a bottom sheet on a phone (**335 px**), the side sheet from 840 px. Full pages: **343 px** at 375 px.
+
+Fit columns: 271 (block sheet, phone) · 312 (side sheet, computer) · 335 (bottom sheet, phone) · 343 (page, phone). **=** fits with equal
+segments, **~** one line but unequal, **X** overflows. en/da where they differ.
+
+| # | Place (file) | Where the owner sees it | n | en-US / da-DK | Icons | Fits | A look? |
+| :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| 1 | `src/PreviewScreen.tsx:105` | Preview › window size | 5 | Compact 390 … Extra-large 1600 / Kompakt … Ekstra stor 1600 | – | X on a phone (its row scrolls sideways today) | no |
+| 2 | `src/Library.tsx:890` | Account › Appearance | 3 | Light, Auto, Dark / Lys, Auto, Mørk | yes | page: = | no |
+| 3 | `src/Library.tsx:913` | Account › Density | 3 | Large, Medium, Small / Stor, Mellem, Lille | yes | page: = | no |
+| 4 | `src/LinkSheet.tsx:98` | Link sheet › The link goes to | 2 | Page, Other address / Side, Anden adresse | – | 335: = | no |
+| 5 | `src/Colors.tsx:493` | Colors › generator › Contrast | 3 | Standard, Medium, High / Standard, Mellem, Høj | – | 343: ~ | no |
+| 6 | `src/VersionSwitch.tsx:36` | Page or post › version to edit | 2 | Published, Scheduled (Draft) / Udgivet, Planlagt (Kladde) | – | = | no |
+| 7 | `src/StoreSections.tsx:20` | Settings › Appstore | 3 | Themes, Connectors, Plugins / Temaer, Forbindelser, Udvidelser | – | 343: ~ (da: 7 px to spare) | no |
+| 8 | `src/SectionSettings.tsx:20` | Section settings › Width | 2 | Like the text, Full width / Som teksten, Hele bredden | yes | 335 =, 312 ~/= | no |
+| 9 | `src/standard/hero/index.tsx:36` | Banner › Placement | 2 | Beside, Behind the text / Ved siden af, Bag teksten | yes | 271 X/X, 312 ~/= | no |
+| 10 | `src/standard/hero/index.tsx:48` | Banner › Width | 2 | Full width, Like the text / Hele bredden, Som teksten | yes | 271 X/X, 312 = | no |
+| 11 | `src/standard/posts/index.tsx:71` | Blog posts › Design | 2 | List, Newest large / Liste, Det nyeste stort | yes | 271 ~/X, 312 =/~ | yes |
+| 12 | `src/standard/testimonials/index.tsx:56` | Testimonials › Layout | 2 | Cards, List / Kort, Liste | yes | = | yes (icons enough) |
+| 13 | `src/standard/cards/index.tsx:48` | Cards › Design | 3 | Outlined, Filled, Elevated / Med kant, Udfyldt, Hævet | yes | 271 X, 312 X, 343 ~ | **yes** |
+| 14 | `src/standard/cards/index.tsx:61` | Cards › On phones | 2 | Stacked, Carousel / Stablet, Karrusel | – | = | no |
+| 15 | `src/standard/cards/index.tsx:73` | Cards › Color (with Filled) | 4 | Surface, Primary, Secondary, Tertiary / Overflade, Primær, Sekundær, Tertiær | – | **X everywhere** | **yes** |
+| 16 | `src/standard/cards/index.tsx:87` | Cards › Media | 4 | None, Icon, Image, Video / Intet, Ikon, Billede, Video | yes | **X everywhere** | no (icons) |
+| 17 | `src/standard/buttons/fields.ts:67` | Button settings › Style (Buttons, Shared buttons, Price cards, a card's buttons) | 5 | Filled, Tonal, Elevated, Outlined, Text / Fyldt, Tonet, Hævet, Med ramme, Tekst | – | **X everywhere** but the computer dialog (~600 px) | **yes, the owner's case** |
+| 18 | `src/standard/imagegrid/index.tsx:31` | Image grid › Images | 2 | All images with tags, Picked images / Alle billeder med tags, Valgte billeder | – | 271 X, 312 X, 343 ~/X | no |
+| 19 | `src/standard/imagegrid/index.tsx:99` | Image grid › Card style | 3 | Filled, Elevated, Outlined / Fyldt, Hævet, Med kant | – | 271 X/~, 312 ~ | **yes** |
+| 20 | `src/standard/imagegrid/index.tsx:111` | Image grid › Columns | 4 | Auto, 2, 3, 4 / Automatisk, 2, 3, 4 | – | 271 ~/X, 312 ~ | no |
+| 21 | `src/standard/segmented/index.tsx:86` | Segmented list › Rows | 2 | Fold out, Always open / Fold ud, Altid åbne | yes | 271 ~/=, 312 = | no |
+| 22 | `src/iconColor.ts:27` | a row's settings › Icon color (List, Segmented list, Cards) | 4 | Text, Primary, Secondary, Tertiary (`dots`: names for screen readers only) | swatches | = | already the colour |
+| 23 | `src/Parts.tsx:920` | Developer › Parts › Editor › sample field | 3 | Light, Auto, Dark / Lys, Auto, Mørk | yes | = | no |
+| 24 | `src/cmsWidgets.ts:36` | Edit dashboard › Blog rhythm › Post every | 3 | Week, Two weeks, Month / Uge, Anden uge, Måned | – | 335: ~ | no |
+| 25 | `defaults/collections.ts:710` | Promotion › Action bar › item › Type | 2 | Button, Text / Knap, Tekst | – | = | no |
+| 26 | `defaults/collections.ts:897` | Header button › Menu button position | 2 | Left, Right / Venstre, Højre | – | = | no |
+
+Notes:
+
+- Rows 1–7 call `SegmentedButton` directly; rows 8–26 are `select` fields with `segments: true` drawn by `src/fields.tsx:436`.
+- **Apps** can declare `segments` and `dots` on any field (the shared `Field` type, `src/schema.ts`); `docs/app-contract.md` neither names
+  nor limits it. No app in this repository uses it. So `segments: true` must keep working for apps (section 7).
+- **The site** draws no segmented button: nothing in `theme/`, `pages/`, `site/`, `starter/` or `demo/` renders `segmentedButtonClass`
+  (only `theme/ui/ripple.script.ts` and `site/themeParts.mjs` name it). The theme parts page (`src/ActionParts.tsx:115`) draws three demos,
+  one multi-select (weekdays).
+- Row 17 overflows since the pending note `buttons-style-segments` put its five styles side by side (0.18); this spec replaces that look
+  before 0.18 is released, so that note must be rewritten or dropped in PR 2 (Q6).
+- `src/BlockParts.tsx:68` (`versionsOf`) already draws a block once per option of its first `segments` field: the same data a sample needs.
+- Estimates only: the `choice-group` screens unit of PR 2 measures the real widths.
 
 ## 5. The part: `ChoiceGroup`
 
@@ -237,15 +290,15 @@ is single-select only. Multi-select keeps the connected button group with toggle
 ## 6. Samples
 
 A caller passes `sample` per choice (a React node), or, for a schema field, one new key on the select field:
-`sample?: 'button' | 'card' | 'list' | 'section-color' | 'swatch'` (`src/schema.ts`). `src/fields.tsx` maps the key to a small renderer
+`sample?: 'button' | 'card' | 'list' | 'color' | 'swatch'` (`src/schema.ts`). An app can use it too (it is data). `src/fields.tsx` maps the key to a small renderer
 (`src/choiceSamples.tsx`) that draws the theme's own part in each choice's look, with the entry's own values where they make sense:
 
 | Key | Draws | From the entry | Size |
 | :--- | :--- | :--- | :--- |
 | `button` | the theme's `Button` in the choice's kind (`filled`, `tonal`, `elevated`, `outlined`, `text`), size extra small | the button's own label (`textOf`), cut to 8 characters with `…`; empty: the editor text `Button` (da-DK `Knap`) | ≤ 7rem wide |
-| `card` | a tiny `Card` in the choice's design (outlined, filled, elevated), with two lines of grey text placeholders | none | 56 × 40 dp |
-| `list` | three tiny rows in the choice's list design (standard, segmented; dividers) | none | 56 × 40 dp |
-| `section-color` | a 40 × 24 dp rounded tile in the section colour with a line of its on-colour | none | 40 × 24 dp |
+| `card` | a tiny `Card` in the choice's design (outlined, filled, elevated), with two short lines in its text colour | none | 56 × 40 dp |
+| `list` | a tiny drawing of the layout (a list, or the newest post large; cards or a list) | none | 56 × 40 dp |
+| `color` | a 40 × 24 dp rounded tile in the colour role (surface, primary, secondary, tertiary container) with a line of its on-colour | none | 40 × 24 dp |
 | `swatch` | the option's `swatch` as a filled circle (today's dots) | none | 20 dp |
 
 The sample is drawn with the theme's live classes, so it follows the theme, the density and light/dark mode; it is never an image.
@@ -254,11 +307,14 @@ In the button form, `icon` and `swatch` show as today; `sample` does not.
 
 Which places get a sample (the owner decides; Q1):
 
-- **Button style** (Buttons block › Button settings › Style): yes, decided by the owner.
-- Recommended, flagged for the owner: **card design** and **list design** wherever a block picks it (section 4 lists them), and
-  **section colour** (Section settings › Colour): each is a look the owner judges by eye, and the names (Filled, Elevated, Tonal …) mean
-  nothing to most site owners.
-- Not recommended: alignment, image shape, columns and the like: they have icons today and fit as buttons.
+- **Button style** (row 17, `button`): yes, decided by the owner.
+- Recommended, flagged for the owner: **Cards › Design** (row 13) and **Image grid › Card style** (row 19), `card`; **Cards › Color**
+  (row 15), `color`. Each is a look judged by eye, its names (Filled, Elevated, Tertiary …) mean little to most site owners, and all three
+  overflow today, so they will show as the list.
+- Possible, not recommended now: **Blog posts › Design** (row 11) and **Testimonials › Layout** (row 12), `list`: two choices with icons
+  that mostly fit as buttons, where a sample never shows.
+- No sample: everything else (widths, placement, columns, media, rows, settings of the editor itself): not a look, or icons say it.
+  Icon color (row 22) keeps its swatches.
 
 ## 7. Theme rules
 
@@ -292,8 +348,8 @@ Which places get a sample (the owner decides; Q1):
     that chooses its own form by measuring, so it can never squeeze … it never wraps a group and never overlaps." Smaller buttons still
     clip long or Danish labels, and an overflow menu hides choices the owner compares. Date 2026-11-14, PR: PR 1.
   - **D2. A radio row shows a small live sample of the look in its trailing slot.** Material: a list item's trailing slot holds "Action
-    elements or text: Icon, icon button, or trailing text" or a selection control. We do: a choice that is a look (a button style, card
-    design, list design, section colour) shows a small, inert drawing of that look there. Why: owner, 14 Nov 2026: "Where a choice is a
+    elements or text: Icon, icon button, or trailing text" or a selection control. We do: a choice that is a look (a button style, a card's
+    design or colour) shows a small, inert drawing of that look there. Why: owner, 14 Nov 2026: "Where a choice is a
     look … each radio row shows a small live sample on its right." Date 2026-11-14, PR: PR 1.
   - (The radio guidelines' "five or fewer options" holds for every place today; no entry.)
 
@@ -301,7 +357,7 @@ Which places get a sample (the owner decides; Q1):
 
 - `npm run check` on every PR.
 - `npm run check:screens` (after `npm run build`): a new unit **`choice-group`** in `scripts/editor-screens.mjs` that opens every place of
-  section 4 at **375 px and 1280 px** wide and asserts: no two choices' boxes overlap; no label is clipped (`scrollWidth ≤ clientWidth`);
+  section 4 at **375 px and 1280 px** wide (so in the 271 px modal sheet and the 312 px side sheet) and asserts: no two choices' boxes overlap; no label is clipped (`scrollWidth ≤ clientWidth`);
   the form is `buttons` only if all fit; every list row is ≥ 48 px high; every button target ≥ 48 px; the group's name is read
   (`role=group` or `fieldset > legend`); in the list form arrow keys change the value. The same in Danish (`da-DK`), at both widths.
   The owner's case (Buttons › Button settings › Style in the side sheet) is a named assertion: at 375 px and at 1280 px it is the list
@@ -326,12 +382,12 @@ pull request* says, and tell the PM with the link and head sha. A change nobody 
    entry, the two deviation entries (D1, D2). No place changes yet. The `choice-group` screens unit for the parts page.
 2. **PR 2, the fields** (`minor`; release note of section 8). `ChoiceGroup` in `src/ui.tsx`; `fields.tsx` draws every `segments: true`
    field with it; the `sample` key in `src/schema.ts` and `src/choiceSamples.tsx` with `button` only; the Buttons block's `kind` field
-   gets `sample: 'button'`. The screens unit covers every field place of section 4 (en-US and da-DK, 375 and 1280). Screenshots: Button
+   gets `sample: 'button'`; the pending note `buttons-style-segments` is dropped (Q6). The screens unit covers every field place of section 4 (en-US and da-DK, 375 and 1280). Screenshots: Button
    settings before/after at both widths, plus each changed field place.
-3. **PR 3, the editor's own places** (`minor`): the direct `SegmentedButton` callers of section 4 move to `ChoiceGroup`; the
-   `SegmentedButton` alias in `src/ui.tsx` is removed. Screenshots of each.
-4. **PR 4, more samples** (`minor`, only for what the owner says yes to in Q1): `card`, `list`, `section-color` renderers and the fields
-   that get them. Screenshots of each.
+3. **PR 3, the editor's own places** (`minor`): the direct `SegmentedButton` callers of section 4 (rows 2–7; row 1 only if the owner
+   says so, Q7) move to `ChoiceGroup`; the alias in `src/ui.tsx` stays only while row 1 uses it. Screenshots of each.
+4. **PR 4, more samples** (`minor`, only for what the owner says yes to in Q1): the `card` and `color` renderers (and `list` if wanted)
+   and the fields that get them (rows 13, 15, 19). Screenshots of each.
 5. **PR 5, rename the field key** (empty changeset if nothing visible): `segments: true` keeps working; the docs and the schema comment
    call it the choice group (`choices: 'auto'` as an alias only if the owner wants the new name in app.json, Q4). Optional.
 
@@ -339,8 +395,13 @@ PR 1 must merge before 2; 3 and 4 after 2, in any order.
 
 ## 11. Open questions for the owner (each with a recommendation)
 
-- **Q1. Samples beyond the button style.** Card design, list design and section colour are looks too. *Recommendation: yes for all three
-  (PR 4); no samples for alignment, columns, image shape (they have icons and fit as buttons).*
+- **Q1. Samples beyond the button style.** Cards › Design, Image grid › Card style and Cards › Color are looks too. *Recommendation: yes
+  for these three (PR 4); not for Blog posts › Design and Testimonials › Layout, which fit as buttons with icons.*
+- **Q6. The pending note `buttons-style-segments`** says the five styles show side by side. *Recommendation: PR 2 drops it, and the
+  *Style choices* note of section 8 covers the change.*
+- **Q7. Preview window size (row 1)** has five long choices that scroll sideways on a phone today. With the part they become a list of
+  five rows in the Preview's top area. *Recommendation: keep it out of this work (PR 3 leaves it) and give the Preview its own look later,
+  since the list would push the preview down.*
 - **Q2. A chosen radio row: plain or filled?** M3 draws a radio list plain; a filled row (secondary container) is easier to spot in a long
   sheet. *Recommendation: plain, as M3 prints it; the dot and, where there is one, the sample are enough.*
 - **Q3. The check mark in the button form.** M3 prints a check for segmented buttons, not for the connected button group (it changes shape
