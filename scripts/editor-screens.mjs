@@ -2678,6 +2678,8 @@ async function checkBlockSelect(width) {
     await page.keyboard.press('End');
     await page.keyboard.press('Enter');
   }
+  // The row of the block just left closes with the page scrolling to keep the blocks in place: measure after it has settled.
+  await page.waitForTimeout(900);
   const blocks = page.locator('.ProseMirror .site-block');
   if ((await blocks.count()) < 2) {
     problems.push(`${label}: fewer than 2 blocks in the page`);
