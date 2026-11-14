@@ -1466,6 +1466,42 @@ async function checkFilesSelection() {
   }
 }
 
+/** Selecting redirects (Redirects.tsx, "All redirects"): Space on a focused row selects it, the top bar swaps to the selection's own
+ * actions (count, Close, Delete), a tap on another row adds it, Escape ends selecting. A site with no redirects has nothing to select. */
+async function checkRedirectsSelection() {
+  for (const w of [375, 1280]) {
+    const touch = w < 600;
+    const label = `redirects selection ${w}`;
+    const page = await browser.newPage({ viewport: { width: w, height: 800 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#seo/redirects/all'));
+    await page.waitForTimeout(1500);
+    const rows = page.locator('main .list-item-selectable');
+    if ((await rows.count()) < 2) {
+      await page.close();
+      continue;
+    }
+    const checked = () => page.locator('main [role=checkbox][aria-checked=true], main [aria-pressed=true].list-item-selectable').count();
+    await rows.nth(0).focus();
+    await page.keyboard.press('Space');
+    await page.waitForTimeout(300);
+    if ((await checked()) !== 1) problems.push(`${label}: Space does not select the redirect in focus`);
+    for (const name of ['Close selection', /^Delete 1 selected$/]) {
+      const b = await page.getByRole('button', { name }).first().boundingBox();
+      if (!b || b.width < 44 || b.height < 44) problems.push(`${label}: "${name}" is missing or smaller than 44 px in the top bar`);
+    }
+    await rows.nth(1).click();
+    await page.waitForTimeout(300);
+    if ((await checked()) !== 2) problems.push(`${label}: a click on a second redirect does not add it while selecting`);
+    if (await page.locator('dialog[open]').count()) problems.push(`${label}: a click while selecting opened the redirect's sheet`);
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+    if (await checked()) problems.push(`${label}: Escape does not end selecting`);
+    await page.close();
+  }
+}
+
 /** The selection checkbox of a list row (theme ListItem): hover shows one box, all show once one is selected, a touch shows none
  * before that; 48 x 48; a tap on what leads the row selects it (touch); the selected row has the selected surface and corner. */
 async function checkSelectionBox() {
@@ -5683,6 +5719,7 @@ await unit('checkLongPressDelete', () => checkLongPressDelete());
 await unit('checkSelection', () => checkSelection());
 await unit('checkSelectionBox', () => checkSelectionBox());
 await unit('checkFilesSelection', () => checkFilesSelection());
+await unit('checkRedirectsSelection', () => checkRedirectsSelection());
 await unit('checkUnlistedPost', () => checkUnlistedPost());
 for (const [width, height] of [
   [375, 740],
