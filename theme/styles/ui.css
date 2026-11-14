@@ -1945,7 +1945,7 @@
      the frame's that is a size container (the editor's drawing, which holds it with contain: layout). */
   .bottom-sheet-standard {
     position: fixed;
-    inset: auto 0 0;
+    inset: auto 0 var(--keyboard-inset, 0px);
     z-index: 30;
     width: 100%;
     max-width: var(--bottom-sheet-max-width, 40rem);
@@ -1953,6 +1953,10 @@
     max-height: calc(100cqh - var(--bottom-sheet-top-gap, 4.5rem));
     margin-inline: auto;
     color: var(--block-text);
+  }
+  /* With the on-screen keyboard up (liftAboveKeyboard) it ends at the keyboard's top, with no safe-area space under it. */
+  .bottom-sheet-standard[data-keyboard] {
+    padding-bottom: 0;
   }
   /* The handle's button is Material 3's touch target, 3rem (48px) high, the bar centred in it. */
   .bottom-sheet-standard > .bottom-sheet-drag-handle {
