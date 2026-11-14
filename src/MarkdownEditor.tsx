@@ -2190,15 +2190,15 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       }
     };
     document.addEventListener('keydown', key, true);
-    history.pushState({ ...history.state, blockSelection: true }, '');
+    window.history.pushState({ ...window.history.state, blockSelection: true }, '');
     const back = () => {
-      if (!(history.state as { blockSelection?: boolean } | null)?.blockSelection) blockSelection.clear();
+      if (!(window.history.state as { blockSelection?: boolean } | null)?.blockSelection) blockSelection.clear();
     };
     window.addEventListener('popstate', back);
     return () => {
       document.removeEventListener('keydown', key, true);
       window.removeEventListener('popstate', back);
-      if ((history.state as { blockSelection?: boolean } | null)?.blockSelection) history.back();
+      if ((window.history.state as { blockSelection?: boolean } | null)?.blockSelection) window.history.back();
     };
   }, [selecting]);
   // Nothing is selected when the editor opens or goes.
