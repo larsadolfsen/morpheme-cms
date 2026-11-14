@@ -2,5 +2,5 @@
   "id": "text-style-icons",
   "kind": "line",
   "mark": "improvement",
-  "text": "Knappen Tekststil viser Aa, og dens brødtekststørrelser viser A3, A2 og A1"
+  "text": "Tekststilene er Overskrift, Underoverskrift, Brødtekst stor, Brødtekst mellem, Brødtekst lille, Label og Citat, med den største først, og brødtekststilene har ikonerne A1, A2 og A3"
 }
