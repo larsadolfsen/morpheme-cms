@@ -1495,6 +1495,11 @@
     --dialog-icon-color, --dialog-headline-size, --dialog-headline-weight, --dialog-supporting-text-color   its parts
     --dialog-full-screen-max-width, --dialog-full-screen-headline-size   a full-screen dialog from the medium width, and its
                      headline in its header
+  A lightbox (Lightbox.tsx, .lightbox in .lightbox-modal, lightboxControl.ts: an image shown bigger; M3 has none): the full-screen dialog with
+  .lightbox-track (images that snap), .lightbox-item, .lightbox-figure, .lightbox-image, .lightbox-caption, .lightbox-previous, .lightbox-next and
+  .lightbox-count; on a compact window over the whole screen, from medium the window less 56 dp on each side.
+    --lightbox-surface   its container, see-through over the scrim (else the scrim colour at 88%)
+    --theme-on-scrim-colour   the colour of its controls and text on the shade (components.css; the scrim colour's opposite)
   Bottom sheets (BottomSheet.tsx, bottomSheetClass, bottomSheetContainerClass, and bottomSheet() and
   standardBottomSheet() in bottomSheetControl.ts for what it does in a browser, bottomSheet.script.ts on the site;
   m3.material.io/components/bottom-sheets): a modal one's <dialog> is .bottom-sheet (an app's: Calendly's calendar), at
@@ -1722,6 +1727,136 @@
     }
     .dialog-modal-full-screen > .dialog-full-screen {
       max-height: min(88dvh, 44rem);
+    }
+  }
+
+  /* A lightbox (Lightbox.tsx, lightboxControl.ts): the full-screen dialog's <dialog> and container with images in a snapping track under its header
+     (only the close button). The container is see-through over the scrim, so the image floats on a dark layer (the scrim colour, which is
+     the page's in dark mode, so the layer is dark in both): docs/material-deviations.md. On a compact window it fills the screen; from medium it is as
+     large as the window less 56 dp on each side (M3: a dialog placed by hand keeps a 56 dp margin) with the dialog's 28 dp corner. */
+  .lightbox {
+    --lightbox-ink: var(--theme-on-scrim-colour, var(--mo-surface));
+    background: var(--lightbox-surface, color-mix(in srgb, var(--theme-scrim-colour, var(--block-text)) 88%, transparent));
+    color: var(--lightbox-ink);
+    box-shadow: none;
+  }
+  .lightbox .icon-button {
+    color: var(--lightbox-ink);
+  }
+  .lightbox .dialog-content {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+  }
+  .lightbox-stage {
+    position: relative;
+    display: flex;
+    flex: 1;
+    min-height: 0;
+  }
+  .lightbox-track {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .lightbox-track::-webkit-scrollbar {
+    display: none;
+  }
+  .lightbox-item {
+    display: flex;
+    flex: 0 0 100%;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
+  .lightbox-figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    max-height: 100%;
+    margin: 0;
+    gap: 0.75rem;
+  }
+  .lightbox-image {
+    min-height: 0;
+    max-width: 100%;
+    object-fit: contain;
+  }
+  .lightbox-caption {
+    max-width: 40rem;
+    font-size: var(--type-body-medium-size, 0.875rem);
+    line-height: var(--type-body-medium-line-height, 1.25rem);
+    text-align: center;
+  }
+  .lightbox-count {
+    margin: 0;
+    padding: 0.5rem 1rem max(1rem, env(safe-area-inset-bottom));
+    font-size: var(--type-label-medium-size, 0.75rem);
+    line-height: var(--type-label-medium-line-height, 1rem);
+    text-align: center;
+  }
+  /* Previous and Next: at the sides from medium; on a phone, where swiping is the way, they are out of sight and come back with the keyboard's focus. */
+  .lightbox-previous,
+  .lightbox-next {
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+    z-index: 1;
+  }
+  .lightbox-previous {
+    inset-inline-start: 0.5rem;
+  }
+  .lightbox-next {
+    inset-inline-end: 0.5rem;
+  }
+  @media (width < theme(--breakpoint-medium)) {
+    .lightbox-previous:not(:focus-visible),
+    .lightbox-next:not(:focus-visible) {
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .lightbox-modal.dialog-modal-full-screen {
+      width: calc(100% - 7rem);
+      max-width: none;
+      height: calc(100% - 7rem);
+      max-height: none;
+    }
+    .lightbox-modal.dialog-modal-full-screen > .lightbox {
+      height: 100%;
+      max-height: none;
+      border-radius: var(--dialog-radius, var(--block-radius));
+    }
+  }
+  /* The scrim and the controls fade in (M3 web: default effects, 200 ms), the image scales in (default spatial, 500 ms); with reduced motion they are
+     there at once. */
+  @media (prefers-reduced-motion: no-preference) {
+    .lightbox-modal[open]::backdrop {
+      animation: dialog-scrim-in var(--motion-effects);
+    }
+    .lightbox-modal[open] :is(.dialog-header, .lightbox-previous, .lightbox-next, .lightbox-count) {
+      animation: dialog-scrim-in var(--motion-effects);
+    }
+    .lightbox-modal[open] .lightbox-image {
+      animation: lightbox-image-in var(--motion-spatial);
+    }
+  }
+  @keyframes lightbox-image-in {
+    from {
+      opacity: 0;
+      transform: scale(0.92);
     }
   }
 

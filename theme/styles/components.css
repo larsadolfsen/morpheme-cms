@@ -11,6 +11,8 @@
   /* The colour of the shade over the page behind a pop-up (the dialog's scrim, ui.css) and the navigation drawer
      (ui.css), seen through: the text's, in dark mode the page's. */
   --theme-scrim-colour: var(--mo-on-surface);
+  /* What is drawn on that shade (a lightbox's controls and caption): the opposite of it. */
+  --theme-on-scrim-colour: var(--mo-surface);
   /* The large image at the top of a page or a blog post, and the newest post's on the blog. */
   --theme-picture-radius: var(--radius);
   /* How long one page fades into the next when a link is followed (below). */
@@ -57,11 +59,13 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --theme-scrim-colour: var(--mo-surface);
+    --theme-on-scrim-colour: var(--mo-on-surface);
   }
 }
 
 :root[data-theme='dark'] {
   --theme-scrim-colour: var(--mo-surface);
+  --theme-on-scrim-colour: var(--mo-on-surface);
 }
 
 @layer components {
