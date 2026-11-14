@@ -75,6 +75,13 @@ test('a label before a block stays a label and comes back byte for byte', async 
   assert.ok(nodes.includes('eyebrow'));
 });
 
+test('a lone label, on any line, stays a label and comes back byte for byte', async () => {
+  const text = 'Intro\n\n<p class="label-medium">Opening hours</p>\n\nMonday to Friday\n\n<p class="label-medium">The end</p>\n';
+  const { saved, nodes } = await through(text);
+  assert.equal(saved, text);
+  assert.equal(nodes.filter((n) => n === 'eyebrow').length, 2);
+});
+
 test('a block with a label of its own is read as a label line before the block, and written so', async () => {
   const old =
     '<div data-block="steps" data-props="{&quot;eyebrow&quot;:&quot;How it works&quot;,&quot;heading&quot;:&quot;Three steps&quot;}"></div>\n';

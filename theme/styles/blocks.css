@@ -2241,7 +2241,8 @@
   .prose .label-medium {
     margin-block: 2em 0;
   }
-  .prose .label-medium + :is(h1, h2, h3) {
+  .prose .label-medium + :is(h1, h2, h3),
+  .prose .label-medium + :not(h1, h2, h3, .label-medium) {
     margin-top: 0.5rem;
   }
 

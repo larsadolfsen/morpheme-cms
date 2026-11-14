@@ -1,11 +1,9 @@
-// A label above a heading in the editor (lib/eyebrow.mjs: its HTML): the node `eyebrow`, one line of plain text, read
-// from its line of HTML (remarkSiteBlocks in markdown.mjs) and written back as it; a label with no heading after it
-// becomes a paragraph (eyebrowKeeper), and Enter in it goes to its heading (eyebrowKeymap). Exposes eyebrowSchema,
-// eyebrowKeeper and eyebrowKeymap. Depends on Milkdown and src/eyebrowState.mjs.
-import { $nodeSchema, $prose, $useKeymap } from '@milkdown/kit/utils';
-import { Plugin } from '@milkdown/kit/prose/state';
+// A label in the editor (lib/eyebrow.mjs: its HTML): the node `eyebrow`, one line of plain text on any top-level line, read
+// from its line of HTML (remarkSiteBlocks in markdown.mjs) and written back as it; Enter in it goes to the next line
+// (eyebrowKeymap). Exposes eyebrowSchema and eyebrowKeymap. Depends on Milkdown and src/eyebrowState.mjs.
+import { $nodeSchema, $useKeymap } from '@milkdown/kit/utils';
 import { EYEBROW_CLASS, eyebrowHtml } from '../lib/eyebrow.mjs';
-import { enterInLabel, looseLabels } from './eyebrowState.mjs';
+import { enterInLabel } from './eyebrowState.mjs';
 
 /** @type {import('@milkdown/kit/utils').$NodeSchema<'eyebrow'>} */
 export const eyebrowSchema = $nodeSchema('eyebrow', () => ({
@@ -31,21 +29,6 @@ export const eyebrowSchema = $nodeSchema('eyebrow', () => ({
     },
   },
 }));
-
-// A label whose heading or block has gone (deleted, or turned into text) is a paragraph with its text.
-/** @type {import('@milkdown/kit/utils').$Prose} */
-export const eyebrowKeeper = $prose(
-  () =>
-    new Plugin({
-      appendTransaction: (_, __, state) => {
-        const loose = looseLabels(state.doc);
-        if (!loose.length) return null;
-        const tr = state.tr;
-        for (const at of loose) tr.setNodeMarkup(at, state.schema.nodes.paragraph);
-        return tr;
-      },
-    }),
-);
 
 // Before the text's own Enter (priority 50), which would split the label into two lines.
 export const eyebrowKeymap = $useKeymap('eyebrow', {

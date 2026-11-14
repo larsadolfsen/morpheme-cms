@@ -8,7 +8,7 @@ test('in plain text: the heading levels, a divider, the sizes, a divider and Quo
   assert.equal(styleRows([], [2, 3]).length - 1 <= 8, true, 'at most 8 rows and a divider');
 });
 
-test('Label only where the line can be one', () => {
+test('Label on any top-level line of text, not in a list or a quote', () => {
   assert.ok(styleRows(['labelable'], [2, 3]).includes('label'));
   assert.ok(!styleRows([], [2, 3]).includes('label'));
 });

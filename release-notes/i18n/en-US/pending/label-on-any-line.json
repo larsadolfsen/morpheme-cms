@@ -1,0 +1,6 @@
+{
+  "id": "label-on-any-line",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A label can be set on any line of text, not only above a heading"
+}
