@@ -1,0 +1,6 @@
+{
+  "id": "content-always-open",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A page or post opens with only Content open, and Content no longer folds"
+}

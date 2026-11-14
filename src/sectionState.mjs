@@ -1,5 +1,5 @@
 // The section settings in the editor's document (the *Section settings* button, MarkdownEditor.tsx; the frame, sectionFrame.ts): the
-// top-level H1 or H2 the cursor is in (sectionHeading), setting its colour, image and width (setSection), and the
+// top-level H1 or H2 the cursor is in (sectionHeading), setting its colour, width and an H2's image (setSection), and the
 // settings of a section (sectionSettingsOf); sectionAttrs for a heading's attributes with new settings. Only ProseMirror's state; depends on lib/section-marker.mjs. No Milkdown, no browser.
 import { colorOf } from '../lib/section-marker.mjs';
 
@@ -30,8 +30,8 @@ export function sectionHeading(state) {
   return null;
 }
 
-/** Gives the section the cursor is in (its H1 or H2) these settings: `color` (null or '' none, else one of the theme's), `image`,
- * `alt` and `width` ('full'); a setting left out stays. False when it is not in one, or the colour is not one of the theme's.
+/** Gives the section the cursor is in (its H1 or H2) these settings: `color` (null or '' none, else one of the theme's), `image`
+ * and `alt` (an H2's only: a page's H1 has no image, owner 14 Nov 2026) and `width` ('full'); a setting left out stays. False when it is not in one, or the colour is not one of the theme's.
  * @param {{ state: import('@milkdown/kit/prose/state').EditorState, dispatch: (tr: import('@milkdown/kit/prose/state').Transaction) => void }} view
  * @param {{ color?: string | null, image?: string | null, alt?: string | null, width?: string | null }} settings */
 export function setSection(view, settings) {
@@ -53,7 +53,7 @@ export function sectionAttrs(was, settings) {
   if (color !== null && colorOf(color) !== color) return null;
   const attrs = { ...was };
   if ('color' in settings) attrs.section = color;
-  if ('image' in settings) attrs.sectionImage = settings.image || null;
+  if ('image' in settings) attrs.sectionImage = was.level === 2 ? settings.image || null : null;
   // The description and the width belong to an image: without one they are cleared, so nothing is left unseen in the file.
   if ('alt' in settings) attrs.sectionAlt = settings.alt || null;
   if ('width' in settings) attrs.sectionWidth = settings.width === 'full' ? 'full' : null;

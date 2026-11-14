@@ -74,9 +74,13 @@ export type BlockAsk = {
    * block in the text, used when the sheet is live (the side sheet from expanded): its changes are then written through it, and the
    * answer is null when it closes (nothing is left to write). */
   edit: (type: string, props: BlockProps, isNew?: boolean, live?: () => LiveBlock | null) => Promise<BlockProps | null>;
-  /** The settings of the section the cursor is in (its colour, null: none, and an H2's image, its description and width); the new
-   * ones, or null when cancelled. image: the section can have an image and a width (an H2's). live: as `edit`'s. */
-  section: (current: SectionSettingsOf, options?: { image?: boolean; live?: () => LiveBlock | null }) => Promise<SectionSettingsOf | null>;
+  /** The settings of the section the cursor is in (its colour, null: none, an H2's image and its description, and the width); the new
+   * ones, or null when cancelled. image: the section can have an image (an H2's); width: it can have a width (an H1's or H2's). live: as
+   * `edit`'s. */
+  section: (
+    current: SectionSettingsOf,
+    options?: { image?: boolean; width?: boolean; live?: () => LiveBlock | null },
+  ) => Promise<SectionSettingsOf | null>;
   /** The settings of a row of a block typed in place (a List's icon and link; `inline` in blocks.ts): in the side panel from expanded, kept
    * open and updated while a row is active, and a bottom sheet below it. Live: each change is told to `onChange` at once, with no Save and no
    * Cancel of its own. Not shown while another sheet is open. null closes it. `open` false: only update the settings if they are open already. */
@@ -112,7 +116,7 @@ export type SectionSettingsOf = { color: string | null; image?: string | null; a
 type Open = (
   | { step: 'choose'; image?: boolean; have?: string[]; live?: boolean }
   | { step: 'fields'; type: string; isNew: boolean; live?: boolean }
-  | { step: 'section'; image: boolean; live?: boolean }
+  | { step: 'section'; image: boolean; width: boolean; live?: boolean }
   | { step: 'row'; live?: undefined }
 ) & { wide?: boolean };
 
@@ -367,7 +371,11 @@ export function useBlockDialog(
     data,
     choose: (offer) => ask({ step: 'choose', image: offer?.image, have: offer?.have, live: offer?.live }),
     section: async (current, options) => {
-      const answered = await ask({ step: 'section', image: !!options?.image }, sectionValues(current as BlockProps), options?.live);
+      const answered = await ask(
+        { step: 'section', image: !!options?.image, width: !!options?.width },
+        sectionValues(current as BlockProps),
+        options?.live,
+      );
       if (!answered) return null;
       const v = sectionValues(answered.props);
       return { color: v.color || null, image: v.image || null, alt: v.alt || null, width: v.width || null };
@@ -514,6 +522,7 @@ export function useBlockDialog(
     <SectionSettings
       values={sectionValues(values)}
       image={open?.step === 'section' && open.image}
+      width={open?.step === 'section' && open.width}
       onChange={(next) => {
         setValues({ ...next });
         if (open?.step === 'section' && open.live) writeLive({ ...next });
