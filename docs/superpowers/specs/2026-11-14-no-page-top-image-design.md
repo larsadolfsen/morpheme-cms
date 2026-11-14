@@ -37,6 +37,10 @@ image can be one of two things, and they need different work (question 1).
 - **Structured data:** the photo list of `site/images.mjs` (all photos in the text and the blocks, including a section's
   `data-picture`).
 - **Sitemap, RSS, cards of pages, `Rows from` pages:** no page image key is read anywhere. RSS lists posts only.
+- **Sites:** the owner says only Sara's site could use one. The 0.18 PM checked it (`saravafaiblom/Sarashjemmesidedata`,
+  `src/content/pages/`, 78 page files, `origin/main` on 14 Nov 2026): no page has a top-image key. Its only image keys are
+  one `shareImage` with its `imageAlt`, the share image, which stays. Whether any of its pages has an H1 marker with
+  `data-picture` (section 1.4) was not part of that check; it decides how much Path A would change there.
 - **`demo/` and `starter/`:** no page file has `image:` in its front matter (checked: `grep '^image:'` finds only the nine
   demo blog posts).
 
@@ -80,8 +84,11 @@ check whether Venus's page layout calls `h1Section()` and draws its `image`. The
 
 ### Path B (recommended): the page head never gets a top image
 
-Nothing is stored, so nothing migrates. Stray `image:` keys in old page files stay as they are: not drawn today, kept on
-save, harmless. No migration and nothing lost.
+Nothing is stored, so nothing migrates: no page in `demo/`, `starter/` or Sara's site has the key. The smallest safe rule
+for a page anywhere that still carries `image:` (hand-written or copied from a post): never drop it. The site never drew it,
+and the editor keeps it on save (`src/frontmatter.mjs` writes only changed fields), so leaving the key alone keeps the image
+and changes nothing on the site. Moving it into the text as an Image at the top would keep it too, but would add an image
+the page never showed (question 4). Nothing is lost.
 
 ### Path A (only if the owner means 1.4): the H1 section's image moves into the text
 
