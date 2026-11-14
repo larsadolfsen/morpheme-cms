@@ -1,16 +1,31 @@
 # CLAUDE.md
 
-## README files are for humans
+The rules every agent session in `@morphemecms/cms` follows. `AGENTS.md` points here. A `README.md` is written for
+people: no agent reads one for rules, and no rule lives in one.
 
-A `README.md` is written for people. No agent reads one for rules, and no rule lives in one: the rules for agents are in
-`CLAUDE.md`, and `AGENTS.md` refers to it.
+Rules that only some tasks need are skills in `.claude/skills/`. Load the one that fits before you start; each rule lives
+in one place only, so never work from memory of a skill.
 
-## Reports to the owner are short
+| Skill | Load it when |
+| :--- | :--- |
+| `changesets` | you open a pull request: its changeset, which level the base branch allows, and the version lines (`0.17`, `0.18`, `0.19`) |
+| `release-notes` | a change is something a site owner sees, or a note, an edition or a version's notes are written or fixed |
+| `checks` | you choose which checks to run before a push, or a CI job fails |
+| `material-3` | a spec or a change touches anything outside the editor's own workspace, or deviates from Material 3 |
+| `pm` | the owner makes the session the project manager (`/pm <version>`), or the orchestrator merges while no PM runs |
+| `release` | the owner says `/release`, or asks to release, publish to `latest` or ship a version |
+
+## How we work
+
+### Reports to the owner are short
 
 Write to the owner short and concise: a brief résumé of what changed and what the owner has to do or decide, in a few
 lines, English only. No long explanations, tables or lists of every step. The owner asks when more is wanted.
 
-## A brainstorm session never codes
+Never send the owner a Preview link for a change to the editor (the owner can't sign in on a Preview to see it); only
+for a change visible on the site.
+
+### A brainstorm session never codes
 
 When the owner says a session is a brainstorm (or "we are brainstorming"), the session writes no code: no edits to source,
 styles, tests, scripts or content, no builds and no checks run to prove code. It talks, asks, reads the real sources (for
@@ -18,7 +33,7 @@ Material 3 the actual pages, never memory) and writes plans and specs in `docs/s
 "work on" inside a brainstorm are not a go-ahead: the session asks once whether to build, and builds only when the owner says so in
 plain words. The plans go to the PM, who hands them to new sessions.
 
-## Only the owner releases a new version
+### Only the owner releases a new version
 
 **Only the owner releases a new version of `@morphemecms/cms`.** No agent releases, and no agent takes a step towards a
 release without the owner's explicit yes in the conversation. That means:
@@ -31,164 +46,101 @@ release without the owner's explicit yes in the conversation. That means:
   `package.json` or `CHANGELOG.md` by hand.
 
 Merging an ordinary pull request only stages a test version under the npm tag `next`, and the owner decides about that
-version too. An agent that thinks a release is due says so to the owner and waits.
+version too. An agent that thinks a release is due says so to the owner and waits. When the owner says `/release`, the
+session loads the `release` skill and follows its phases in order; it never releases any other way.
 
-**The `release` skill (`.claude/skills/release/SKILL.md`) is what we use whenever we release a version.** When the owner
-says `/release` (or asks to release, publish to `latest` or ship a version), the session loads that skill and follows
-its phases in order, including its check that sites can still update themselves; it never releases any other way.
+### Pull requests go to the PM
 
-## The project manager merges, and nothing is left behind
+**There is always a PM.** One session is the owner's project manager (skill `pm`). It merges every pull request except
+releases, in this repository and in `morpheme-staging`, `morpheme-appstore` and `morpheme-apps`, and it keeps nothing
+behind. The owner does not merge and is not asked to.
 
-One session is the owner's project manager (PM). It is responsible for merging pull requests, and it is responsible for
-nothing being left behind. The owner has handed it these decisions, so it does not ask the owner for permission to do
-work that is already assigned.
+Every other session:
 
-A session becomes the PM with the `pm` skill (`/pm <version>`, `.claude/skills/pm/SKILL.md`), and the PM never codes: every change goes to a new session.
+- opens its pull request with a changeset (skill `changesets`) and gets its `check` job green;
+- reports the link and head sha to the PM and leaves the merge to it;
+- never merges its own pull request and never asks the owner to merge one.
 
-**There is always a PM.** The owner always has a PM session running that handles merges; it is never left without one.
-Every other session opens its pull request, gets its `check` job green, reports the link and head sha to the PM and
-leaves the merge to it. A session never merges its own pull request, and never asks the owner to merge one. If a pull
-request waits and no PM seems to be running, the session tells the owner so, and the owner starts a new PM.
+If a pull request waits and no PM seems to be running, the session tells the owner, who starts a new PM. While no PM
+runs, the orchestrator (the owner's "To do list" session) may merge the pull requests of the sessions it started, by the
+rules in the `pm` skill.
 
-**When no PM is running, the orchestrator merges.** The orchestrator is the session that started the other sessions
-for the owner (the owner's "To do list" session). While no PM session is active, it may merge the pull requests of the
-sessions it started, under the conditions in **Merging** below, and only after it has read the diff. A PM session is
-active when one exists that is not archived, also when it is idle: an idle PM gets a short message from the orchestrator
-first, and the orchestrator merges nothing while the PM can still pick the pull request up. When a PM starts, it
-takes over every pull request that is waiting, and the orchestrator stops merging. The orchestrator never merges the
-Release PR, and the rules in **Only the owner releases a new version** apply to it as to every session. The sessions it
-started still never merge their own pull requests.
+### Roles
 
-**Merging.** The PM makes every merge decision, in this repository and in `morpheme-staging`, `morpheme-appstore` and
-`morpheme-apps`, also where a merge may deploy something live (the store). The owner does not merge and is not asked to:
-the PM merges everything except releases (the Release PR, npm approvals and version tags). It squash-merges a pull
-request when all of this holds, one pull request at a time:
+An orchestrator breaks a task down, delegates it to Claude subagents (the first choice when the task needs the repo's
+rules) or, for mechanical code with a precise specification, to the Developer (Ollama, `qwen3.8:27b` at
+`http://127.0.0.1:11434`, local only), then reviews, tests and integrates. Claude in the cloud (claude.ai/code) runs when
+the PC is off and uses subagents for code.
 
-- the pull request is not a draft, has no merge conflict and no unresolved review comment;
-- its `check` job (`morpheme-staging`: its `Workers Builds` check) has finished green on the current head;
-- its changeset keeps `@morphemecms/cms` below `1.0.0`, as the owner decided: never `major`. The rule depends on the
-  base branch. Into `main`: only `patch` or an empty changeset until `0.15.1` is released, so the Release PR stays
-  `0.15.1` (after that the owner decides again). Into `0.17`: `minor` is allowed (the editor spec's work), never `major`, so it stays below `1.0.0`.
+## The repository
 
-The `0.17` branch collects the 0.17 work; its PM merges into it, and `main` is merged into it after each release
-(never the other way). Only `main` has a Release PR and builds `next` and `latest`.
+### This is the CMS, not the store
 
-The `0.18` branch collects the 0.18 work (spec `docs/superpowers/specs/2026-11-11-intuitive-editor-design.md`); into it `minor` is
-allowed, never `major`, so it stays below `1.0.0`. `0.17` is merged into `0.18` after each merge into `0.17` until 0.17 is
-released, then `main` is merged into it after each release. Only `main` has a Release PR.
+Two repositories must **never** be confused:
 
-The `0.19` branch collects the 0.19 work; into it `minor` is allowed, never `major`, so it stays below `1.0.0`. `0.18` is merged
-into `0.19` after each merge into `0.18` until 0.18 is released, then `main` is merged into it after each release. Only
-`main` has a Release PR.
+- **`morpheme-appstore`** is the store: a Cloudflare Worker that works as a private npm registry (D1 for metadata, tokens
+  and keys, KV for tarballs), responsible for distribution and licenses. No CMS logic, Astro code or themes.
+- **`morpheme-cms`** (this one) is the CMS product, `@morphemecms/cms`: the Astro editor, the CMS core, the default theme
+  *Material* (Material Design 3) and its blocks and components, the site's Worker, the starter and the demo. It is
+  published on npmjs.com as a public package (`.github/workflows/publish.yml`).
 
-A pull request that conflicts, has no `check` job or has the wrong changeset is not merged. The PM asks the session
-that owns it to merge `main` into the branch (never a rebase, amend or force-push on someone else's branch) or to fix
-the changeset, and merges when it is right. It never merges the Release PR.
+This repository is the only source of the CMS (since 2026-11-05). `morpheme-website` installs `@morphemecms/cms` from
+npm and has no `packages/editor/`; its check fails if that folder comes back. Every change to the editor, the theme, the
+Worker, the starter or the demo is a pull request here.
 
-**Nothing left behind.** The PM keeps one list of everything in flight and works it until it is empty: pull requests
-waiting to merge, sessions that went quiet without a pull request (it starts a fresh session with the whole task in its
-first prompt when a session stays stuck), release notes and changesets a merged change still lacks, follow-ups the
-sessions report, branches that are fully merged, and open questions for the owner. It archives a session once its work
-is merged (after checking it has no open question for the owner and no unmerged branch), and it goes through its sessions every 30 minutes to archive the finished ones. It tells the owner only what the owner has to do or decide, such as approving a `next` build on npmjs.com,
-and which version to approve, because every merge to `main` stages a new `next` build that only the owner approves. A pull request the owner has to see is assigned to the owner; the owner does not see the rest.
+### Key folders
 
-**Cloudflare builds.** The PM also keeps an eye out for failed Cloudflare builds: the `Workers Builds: …` check on every
-pull request and on `main` (the demo, `morpheme-demo`), and the builds of `morpheme-staging` and of the sites that
-install the `next` version. A failed build is never left unmentioned. The PM reads the build log, finds the cause and
-says which change caused it. Then it either has a fix made, in a session in the repository that owns the fix and as a
-normal pull request, or it tells the owner exactly what failed and what it needs. It does not deploy or run `wrangler`
-against the live Cloudflare account itself.
+- **`theme/`**: the default theme *Material*. `theme/styles/`: MD3 tokens (3-tier: `md.ref.*`, `md.sys.*`, `md.comp.*`),
+  typography (Roboto / Roboto Flex), elevation and colour scales. `theme/ui/`: M3 UI components. `theme/blocks/`: the
+  default blocks' look (`View.tsx`, CSS).
+- **`src/` and `pages/`**: the editor. `src/`: React UI, screens, fields, state (`store.ts`), live preview
+  (`pagePreview.tsx`), block registry (`blocks.ts`), the start screen's widgets and dashboard (`DashboardGrid.tsx`,
+  `DashboardEdit.tsx`, `widgets/`). `pages/`: the admin interface's Astro pages and routing.
+- **`lib/`**: helpers shared by the editor and the site (block parsing `blocks.mjs`, image cropping `crop.mjs`, status,
+  dates, video). The app sandbox (contract 4): `app*.mjs`, `reads.mjs`, `afterBuild.mjs`, `sandboxHooks.mjs`,
+  `contentColors.ts` and `lib/sandbox/` (the QuickJS runner is the security boundary); an app's places and build
+  problems show on its page (`src/AppPlaces.tsx`, `src/AppProblems.tsx`, `worker/app-problems.js`).
+- **`worker/`**: the site's Cloudflare Worker (login/session, GitHub commit proxy, R2 backup, redirects, scheduled tasks).
+- **`bin/`**: the `morpheme` CLI (image processing, build hooks, validation).
+- **`demo/`**: a made-up site laid over the starter, which the CMS is developed and checked with and which the themes'
+  images are taken of. `npm run build` (`scripts/demo-build.mjs`, not in the package) builds it in
+  `.morpheme/demo/site/`; `wrangler.jsonc` puts it on the Worker `morpheme-demo`. Each branch gets its own Preview
+  (`npx wrangler preview`), whose address Cloudflare writes on the pull request; login and save do not work there.
+- **`starter/`**: what a new site starts with (the *Deploy to Cloudflare* button).
+- **`release-notes/`**: owner-facing release notes in English and Danish (skill `release-notes`).
+- **`.changeset/`**: one changeset per pull request (skill `changesets`).
 
-## Changesets and release notes
+### Before you push
 
-Every pull request into `main` has one file here, made with `npx changeset`: whether it is a `patch`, `minor` or
-`major` change of `@morphemecms/cms` (the rules of *Appbutikken* in `morpheme-website`'s `CLAUDE.md`: major only when
-something a site has stops working as before) and one line of release note, in English, for a site's owner. A pull
-request that changes nothing a site gets (docs, CI, tests only) adds `npx changeset --empty`.
+Run `npm run check`, and after a change to the editor also `npm run check:screens` (after `npm run build`). CI
+(`.github/workflows/check.yml`) runs the checks as jobs side by side; its job `check` waits for them all and must be
+green before a merge. Which other check fits which change: skill `checks`.
 
-Each merge stages a test version for npm's `next` tag for `morpheme-staging`; the *Release* pull request, merged
-when the owner says go, turns the files here into `CHANGELOG.md` and stages `latest`. A staged version is on npm once
-the owner approves it with 2FA
-(`docs/superpowers/specs/2026-11-03-development-flow-and-releases-design.md`).
+## Rules for code
 
-### Release notes for owners
+### One theme for the site and the editor
 
-A version's notes have exactly two sections: *New in <version>* (the paragraphs) and *Also in this version* (the lines).
-A change a site owner sees gets a release note in English and Danish, written like the notes of 0.14.0: short
-paragraphs (a title with a verb first, 1–3 sentences) and one-line entries, and no screenshots. **Everything that changes how the editor looks, how the site looks, or gives an edge over WordPress
-(safer, faster, cheaper to run, easier to keep) gets its own paragraph, never a line**; small tweaks and fixes are lines.
-A version's editions have a photo and a name.
-**The skill `release-notes` (`.claude/skills/release-notes/SKILL.md`) must be used** whenever a note, an edition or a
-version's notes are written, changed or fixed: it holds the kinds (`paragraph`, `line`), the files, the writing rules and the editions. The rules are not repeated here.
+Both the site and the editor (`/editor/`) use **exactly the same theme** (`theme/styles/global.css`, MD3 tokens,
+typography and UI components). The editor has no font or style system of its own: everything inherits the theme's tokens,
+surfaces and fonts.
 
-# Repository and workflow
+### Colours in editor-drawn block parts
 
-## 1. Context, Purpose and Scope
+Colours in the editor's block parts (`src/editor.css`, `src/Inline*.tsx`) come only from the theme's context tokens: the `--mo-*`
+roles, `currentColor` and `color-mix` of them, never a fixed value. A section on a colour swaps those roles to its on-colours once, in
+`theme/styles/global.css` (the site's `.text-section-*` and the editor's `[data-section-color]` nodes), so a part that uses the normal
+tokens follows every section colour by itself. `npm run check:editor-colors` fails on a fixed colour (its allowlist gives the
+reasons), and `check:screens` checks text, placeholder, slot icons and outline of every entry of `inlineBlocks` on every section colour.
 
-Our ecosystem has two completely separate repositories, which must **never** be confused:
+### Icons are Material Symbols
 
-1. **`morpheme-appstore` (the store / the distribution server):**
-   - Cloudflare Worker-repository (`larsadolfsen/morpheme-appstore`).
-   - Works as a private npm registry with Cloudflare D1 (metadata, tokens, keys) and Cloudflare KV (tarballs).
-   - Responsible for package distribution and licenses.
-   - Contains **no** CMS logic, Astro code or theme implementations.
+Owner rule, 14 Nov: the editor and the site draw Material Symbols until a site chooses another icon pack; Phosphor and
+Lucide appear only when a site picks that pack (`src/data/icons.json`, or an installed theme's pack). Code draws icons by
+name through the shared `Icon` (`src/icon.tsx`), never by a direct `@phosphor-icons/react` component import:
+`npm run check:phosphor` fails on a new one (allowlist with reasons in `scripts/phosphor-allowlist.json`), and
+`check:screens` fails on a Phosphor glyph while Material Symbols is the pack.
 
-2. **`morpheme-cms` (this repository – the CMS product itself, `@morphemecms/cms`):**
-   - The Astro editor itself, the CMS core and the official default theme.
-   - Contains the editor (`src/`, `pages/`), shared libraries (`lib/`), the site's Cloudflare Worker (`worker/`), the default theme (`theme/`), the starter (`starter/`) and the demo (`demo/`).
-   - Published on npmjs.com as a public package (`.github/workflows/publish.yml`): every merge to `main` stages a
-     test version under the npm tag `next` for `morpheme-staging`; the pull request *Release @morphemecms/cms*, which
-     Changesets keeps open, is merged when the owner writes `/release` (`.claude/skills/release/SKILL.md`), and stages `latest`. A version is only on npm when
-     the owner has approved it on npmjs.com with 2FA (*staged publishing*); an agent never approves. Never merge
-     the Release PR without the owner's yes.
-   - This repository is the only source of the CMS (since 2026-11-05). `larsadolfsen/morpheme-website` installs `@morphemecms/cms` from npm and has no `packages/editor/`; its check fails if that folder comes back. Every change to the editor, the theme *Material*, the Worker, the starter or the demo is a pull request here.
-
-> [!IMPORTANT]
-> This repository is **not** the store or the Cloudflare npm registry. All development here concerns the CMS editor, the Astro integration, the default theme Material Design 3 (*Material*) and the related blocks and components.
->
-> **Shared theme principle (frontend & backend):**
-> Both the site's frontend and the admin editor (`/editor/`) use and share **exactly the same theme** (`theme/styles/global.css`, MD3 tokens, typography and UI components). The editor has no separate font or style system: everything inherits directly from the theme's tokens, surfaces and fonts.
-
-## 2. Key Folders & Structure
-
-- **`theme/`**: The official default theme (**Material Design 3 / *Material***).
-  - `theme/styles/`: MD3 design tokens (3-tier: `md.ref.*`, `md.sys.*`, `md.comp.*`), typography (Roboto / Roboto Flex), elevation and color scales.
-  - `theme/ui/`: M3 UI components (Buttons, Cards, Chips, Dialogs, Top App Bar, Navigation Bar/Rail/Drawer etc.).
-  - `theme/blocks/`: Default blocks and their visual look (`View.tsx`, CSS).
-- **`demo/`**: The CMS's demo, a made-up site laid over the starter, which the CMS is developed and checked with and which the themes' images are taken of (`npx morpheme check:demo`). `npm run build` (`scripts/demo-build.mjs`, not in the package) builds it in `.morpheme/demo/site/` with a copy of the package as npm would pack it, and `wrangler.jsonc` puts it on the Worker `morpheme-demo`. Each branch gets its own Preview of the demo (Cloudflare's Worker Previews, `npx wrangler preview`), and Cloudflare writes its address on the branch's pull request; login and save do not work there. Agents never send the owner a Preview link for a change to the editor (the owner can't sign in there to see it); only for a change visible on the site.
-- **`starter/`**: What a new site starts with (the *Deploy to Cloudflare* button).
-- **`src/` and `pages/`**: The CMS editor itself and the admin interface.
-  - `src/`: React-based editor UI, screens, fields, state management (`store.ts`), live preview (`pagePreview.tsx`), block registry (`blocks.ts`) and the start screen's widgets and dashboard (`DashboardGrid.tsx`, `DashboardEdit.tsx`, `widgets/`).
-  - `pages/`: Astro pages and routing for the admin interface.
-- **`lib/`**: Shared helper functions used by both the editor and the site (block parsing `blocks.mjs`, image cropping `crop.mjs`, status, dates, video handling etc.).
-  - The app sandbox (contract 4): `app*.mjs`, `reads.mjs`, `afterBuild.mjs`, `sandboxHooks.mjs`, `contentColors.ts` and `lib/sandbox/` (the QuickJS runner is the security boundary); an app's places and build problems show on its page (`src/AppPlaces.tsx`, `src/AppProblems.tsx`, `worker/app-problems.js`).
-- **`worker/`**: The site's default Cloudflare Worker (login/session, GitHub commit proxy, R2 backup, redirects and scheduled tasks).
-- **`bin/`**: The `morpheme` CLI tool for image processing, build hooks and validation.
-- **`release-notes/`**: Owner-facing release notes in English and Danish: paragraphs (title and text per language) and lines, no screenshots; each note has the mark `feature` or `improvement`. Each pull request writes `i18n/<locale>/pending/<id>.json`; `release:version` moves them to `i18n/<locale>/<version>.json`. Writing rule: "Changesets and release notes" above.
-
-## 3. Roles and Division of Work
-
-An orchestrator breaks a task down, delegates it to Claude subagents (the first choice when the task needs the repo's rules) or, for mechanical code with a precise specification, to the Developer (Ollama, `qwen3.8:27b` at `http://127.0.0.1:11434`, local only), then reviews, tests and integrates. Claude in the cloud (claude.ai/code) runs when the PC is off and uses subagents for code. Every pull request has a changeset: see "Changesets and release notes" above.
-
-## 4. Verification and Test Commands
-
-Before changes are approved or published, verify the following from the root of this repository, on the demo
-(`npm run build` builds it in `.morpheme/demo/site/`). CI (`.github/workflows/check.yml`) runs `check`,
-`check:screens`, `check:demo` and `check:starter` on every pull request, as jobs that run side by side; its job `check` waits for them all and must pass before a merge.
-
-| Command | Description |
-| :--- | :--- |
-| `npm run check` | Prettier, `check:language`, the unit tests (`npm test`), the package's types (`check:types`), the demo built (`npm run build`, its content checked by the editor's rules) and `check:editor` on it (each page the same after a save). |
-| `npm run check:density` | Every part of the theme that has a height or vertical padding in the density list writes it with the density step; a menu, dialog or snackbar never gets denser than Medium, and no horizontal padding or text size follows density (`scripts/check-density.mjs`; the sizes at each step are in `check:screens`). |
-| `npm run check:language` | No Danish text outside the language files (i18n/da-DK/). |
-| `npm run check:screens` | After `npm run build`: all of the editor's screens open without errors, on a phone and a computer, and all icons exist; the site's margins, paddings and gaps on the Blocks page are on the 4 dp grid (`checkSpacingGrid`, exceptions with reasons in `scripts/spacing-grid.allow.mjs`). |
-| `npm run check:screens:shard -- K/N` | Part K of N of `check:screens` (every N-th unit of `scripts/editor-screens.mjs`; add `--list` to print the part's units without running them). CI runs 8 parts side by side (and `check:starter -- --screens --shard K/N` in 4), and the checks that run once over the whole site (`check:screens:extra`: save twice, unlisted, preview) in a job of their own. `check:screens` with no part runs everything. |
-| `node ../../../bin/morpheme.mjs check:themes` (in `.morpheme/demo/site/`) | The same with each of the other themes. |
-| `npm run check:starter` | The starter works as a site with the package from `npm pack`: its own `npm run check` (the site's types and `check:worker`) and its build. |
-| `npm run check:demo` | The demo builds with the default theme and follows the editor's rules. |
-| `npm run check:contrast` | By hand, after `npm run build` (about 4 minutes per theme, not in CI): WCAG AA contrast of every block's text, icons and control borders on each section colour, on the site and typed in place in the editor, light and dark, phone and computer. `--all` runs every installed theme. `CONTRAST_DENSITY=-1` checks the editor at Small density. |
-
-### Worker rule: no pending I/O promise in module memory
+### Worker: no pending I/O promise in module memory
 
 Cloudflare binds each I/O promise (D1, KV, R2, `fetch`) to the request that started it. Worker code (`worker/*.js`)
 never keeps a pending I/O promise in module memory for later requests: when the first request stops, every later
@@ -196,46 +148,35 @@ request that awaits that promise hangs. Keep only finished results (a flag or a 
 `node --test scripts/pending-shared.test.mjs` scans `worker/*.js` for this and fails on it. A deliberate exception
 carries the comment `// pending-ok` with the reason.
 
-## 5. General Approach: English First
+## Language and words
 
-Writing and thinking in English first is an **overall, general approach** across the whole project, the architecture and the collaboration model:
+### English first
 
-1. **Universal source language (Source of Truth):**
-   - English (`en-US`) is always the source language for all data models, schemas, fields, hints, blocks, APIs, code comments, error messages and technical documentation.
-   - All other languages (including Danish `da-DK`) are localizing translations (`translations`) of the English reference form.
-2. **Communication and reply format:**
-   - Agents write to the owner **in English only**: replies, reports, PR descriptions and commit messages. Never add a
-     Danish summary or any Danish text, even when the owner writes in Danish. The Danish texts the product needs (the
-     `da-DK` translations and release notes) are not affected.
-3. **i18n fallback architecture:**
-   - The default parts are written in English; their Danish texts are in `defaults/i18n/da-DK/` (collected in `defaults/texts.ts`, the default for `@site/texts`). If a default text lacks its Danish version, `check:content` stops.
+- English (`en-US`) is the source language for all data models, schemas, fields, hints, blocks, APIs, code comments,
+  error messages and technical documentation. Danish (`da-DK`) and every other language are translations of it.
+- Agents write to the owner **in English only**: replies, reports, PR descriptions and commit messages. Never add a
+  Danish summary or any Danish text, even when the owner writes in Danish. The Danish texts the product needs (the
+  `da-DK` translations and release notes) are not affected.
+- The default parts are written in English; their Danish texts are in `defaults/i18n/da-DK/` (collected in
+  `defaults/texts.ts`, the default for `@site/texts`). If a default text lacks its Danish version, `check:content` stops.
+  `npm run check:language` fails on Danish text outside the language files.
 
-## 6. Material Design 3: Global Writing & Word Choice
+### Word choice
 
-All wording in UI components, buttons and fields follows the specific guidelines for **Content Design: Global Writing & Word Choice** (cf. `https://m3.material.io/foundations/content-design/global-writing/word-choice` and the skill `.agents/skills/word-choice/SKILL.md`).
+All wording in UI components, buttons and fields follows Material 3's *Global writing: Word choice*
+(`https://m3.material.io/foundations/content-design/global-writing/word-choice`; the editor's own texts: skill
+`site-editor-writing`).
 
-- **Short, precise sentences in the active form** (Active Voice).
-- **Universal terms:** No local abbreviations or unexplained national concepts.
-- **Image everywhere** (owner rule, 12 Nov): English texts, docs and notes say `image`. `check:language` fails on the old word; stored names (CSS classes, data attributes, saved ids) keep it and are listed in `scripts/check-language.mjs`.
-- **Material Symbols are the standard icons** (owner rule, 14 Nov): the editor and the site draw Material Symbols until a site chooses another icon pack; Phosphor and Lucide appear only when a site picks that pack (`src/data/icons.json`, or an installed theme's pack). Code draws icons by name through the shared `Icon` (`src/icon.tsx`), never by a direct `@phosphor-icons/react` component import: `npm run check:phosphor` fails on a new one (allowlist with reasons in `scripts/phosphor-allowlist.json`), and `check:screens` fails on a Phosphor glyph while Material Symbols is the pack.
-- **M3 canonical terminology:**
-  - Toggles and states: `Enabled` / `Disabled`, `On` / `Off` (their Danish labels are in the `da-DK` language files).
-  - Document status: `Draft`, `Published`. A page is scheduled with a date on `Publish` (`Schedule`); `Hidden` is the SEO setting `Hide from search engines`.
-  - Action buttons: Active verbs without filler words (`Add tag`, `Edit page`, `Save`).
+- Short, precise sentences in the active voice. No local abbreviations or unexplained national concepts.
+- **Image everywhere** (owner rule, 12 Nov): English texts, docs and notes say `image`. `check:language` fails on the
+  old word; stored names (CSS classes, data attributes, saved ids) keep it and are listed in `scripts/check-language.mjs`.
+- Toggles and states: `Enabled` / `Disabled`, `On` / `Off` (their Danish labels are in the `da-DK` language files).
+- Document status: `Draft`, `Published`. A page is scheduled with a date on `Publish` (`Schedule`); `Hidden` is the SEO
+  setting `Hide from search engines`.
+- Action buttons: active verbs without filler words (`Add tag`, `Edit page`, `Save`).
 
-## Follow Material 3 everywhere except the editor
+### Material 3 everywhere except the editor
 
-Owner, 13 Nov 2026: "We follow MD3 everywhere except the editor. You need to look up every page and check it. I don't want to tell you more times to follow MD3."
-
-1. Outside the editor's own workspace (its toolbar/bar, overflow menu, text and block menus) every design choice follows what m3.material.io prints.
-2. Before a spec or a change, read the real pages of every component involved (they are script-rendered: use Playwright, which is pre-installed; expand collapsed token tables; read specs, guidelines and accessibility pages) and quote them. Never write from memory. If a page can't be read, say so plainly instead of guessing.
-3. Never invent a part, mark, size or behaviour M3 does not print. Where M3 is silent, say so and use the nearest M3 pattern.
-4. A deviation is allowed only in the editor workspace or when the owner says so in words. Record it with the M3 quote in `docs/material-deviations.md` if it exists in your checkout, otherwise in the spec or PR.
-
-## Colours in editor-drawn block parts
-
-Colours in the editor's block parts (`src/editor.css`, `src/Inline*.tsx`) come only from the theme's context tokens: the `--mo-*`
-roles, `currentColor` and `color-mix` of them, never a fixed value. A section on a colour swaps those roles to its on-colours once, in
-`theme/styles/global.css` (the site's `.text-section-*` and the editor's `[data-section-color]` nodes), so a part that uses the normal
-tokens follows every section colour by itself. `npm run check:editor-colors` fails on a fixed colour (its allowlist gives the
-reasons), and `check:screens` checks text, placeholder, slot icons and outline of every entry of `inlineBlocks` on every section colour.
+Owner, 13 Nov 2026: "We follow MD3 everywhere except the editor." Outside the editor's own workspace (its toolbar/bar,
+overflow menu, text and block menus) every design choice follows what m3.material.io prints, read from the real pages,
+never from memory. Load the skill `material-3` before a spec or a change that touches such a part.

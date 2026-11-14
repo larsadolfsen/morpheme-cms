@@ -1,5 +1,5 @@
 # The CMS's checks on each pull request into main or into the 0.17, 0.18 or 0.19 integration branch (package.json's check,
-# check:screens, check:demo and check:starter), and that it has a changeset (CLAUDE.md), so each branch can always be
+# check:screens, check:demo and check:starter), and that it has a changeset (.claude/skills/changesets), so each branch can always be
 # released. The changeset is compared with the pull request's own base branch. Free here: the repository is public.
 # The slow parts run side by side as jobs of their own (the run takes about as long as the slowest), and the job named check
 # only waits for them all: it is the status check that main's branch protection and the PM look at, and it is green only
