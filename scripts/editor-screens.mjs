@@ -5425,6 +5425,134 @@ async function checkCardHeadline(width, height) {
   await sitePage.close();
 }
 
+/** Change to (spec 2026-11-14-paste-and-change-to-design.md, section 3): the block's ⋮ menu has Change to first (Block settings and Hide are in the action row),
+ * with an arrow; it opens the next level with a back row and the other list blocks (not the Table yet); a List with an icon changed to
+ * Steps keeps its titles and texts, says "Changed to Steps", and back to List shows the icon again; Ctrl+Z after a change, and the
+ * snackbar's Undo, give the block back as it was; and what a block keeps from another is never on the site. */
+async function checkChangeTo(width, height) {
+  const label = `${width}px change to`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.keyboard.type('Opening hours');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('Mon–Fri');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('Parking');
+  await page.waitForTimeout(200);
+  // The first row gets an icon.
+  await page.locator('[data-row="0"] [data-field="title"]').click();
+  await page.locator('[data-row="0"] .inline-list-slot[aria-label="Icon"]').click();
+  const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
+  await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon picker did not open`));
+  await picker.getByRole('button').nth(1).click();
+  await page.waitForTimeout(400);
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  await page.locator('[data-row="0"] [data-field="title"]').click();
+  await page.waitForTimeout(200);
+  const rows = (field) =>
+    page.evaluate(
+      (field) =>
+        [...document.querySelectorAll('.inline-list-host [data-row]')]
+          .filter((r) => !r.parentElement.closest('[data-row]'))
+          .map((r) => [r.querySelector(`[data-field="${field}"]`)?.value ?? '', r.querySelector('[data-field="text"]')?.value ?? '']),
+      field,
+    );
+  // A row that is not active shows its icon slot only when it has an icon: the second row is made active to look at the first.
+  const hasIcon = async () => {
+    await page.locator('.inline-list [data-row="1"] [data-field="title"]').click();
+    await page.waitForTimeout(200);
+    return page.locator('.inline-list [data-row="0"] .inline-list-slot').count();
+  };
+  if (!(await hasIcon())) problems.push(`${label}: the List's first row did not get an icon`);
+  const menuRows = () =>
+    page.locator('[role=menu] [role^=menuitem]:visible').evaluateAll((items) => items.map((i) => i.textContent.trim()));
+  // Opens ⋮ › Change to and chooses `to` (with Enter when `keys`).
+  const changeTo = async (to) => {
+    await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+    await page.waitForTimeout(200);
+    await page
+      .locator('[role=menu] [role^=menuitem]', { hasText: /^Change to$/ })
+      .first()
+      .click();
+    await page.waitForTimeout(200);
+    await page
+      .locator('[role=menu] [role^=menuitem]', { hasText: new RegExp(`^${to}$`) })
+      .first()
+      .click();
+    await page.waitForTimeout(500);
+  };
+  await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+  await page.waitForTimeout(200);
+  const first = await menuRows();
+  const at = first.indexOf('Change to');
+  // Block settings, Hide and the moves are the action row's (blockRow.ts), so Change to is the block's first row in the ⋮ (after the bar's tools
+  // that did not fit, on a phone), before Select.
+  if (at < 0 || first[at + 1] !== 'Select')
+    problems.push(`${label}: Change to is not the block's first row, before Select (${first.join(', ')})`);
+  const opener = page.locator('[role=menu] [role^=menuitem]', { hasText: /^Change to$/ }).first();
+  if ((await opener.getAttribute('aria-haspopup')) !== 'menu') problems.push(`${label}: Change to does not say it opens a menu`);
+  await opener.click();
+  await page.waitForTimeout(200);
+  const level = await menuRows();
+  const want = 'Change to,Segmented list,Steps,FAQ list,Cards';
+  if (level.join() !== want) problems.push(`${label}: Change to's level is ${level.join(', ')}, not ${want}`);
+  // The back row gives the menu's own rows again.
+  await page
+    .locator('[role=menu] [role^=menuitem]', { hasText: /^Change to$/ })
+    .first()
+    .click();
+  await page.waitForTimeout(200);
+  if (!(await menuRows()).includes('Select')) problems.push(`${label}: the back row did not give the menu's rows again`);
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(200);
+  await changeTo('Steps');
+  if (!(await page.locator('.inline-steps').count())) problems.push(`${label}: Change to › Steps did not make Steps`);
+  const steps = JSON.stringify(await rows('title'));
+  const was = JSON.stringify([
+    ['Opening hours', 'Mon–Fri'],
+    ['Parking', ''],
+  ]);
+  if (steps !== was) problems.push(`${label}: the Steps have ${steps}, not ${was}`);
+  const said = await page.locator('.snackbar-stack .snackbar', { hasText: 'Changed to Steps' }).count();
+  if (!said) problems.push(`${label}: no snackbar "Changed to Steps"`);
+  // Ctrl+Z gives the List back, with its icon.
+  await page.keyboard.press('Control+z');
+  await page.waitForTimeout(500);
+  if (!(await page.locator('.inline-list').count()) || !(await hasIcon()))
+    problems.push(`${label}: Ctrl+Z after Change to did not give the List back with its icon`);
+  // List → Steps → List: the icon is back, and the snackbar's Undo gives Steps again.
+  await page.locator('[data-row="0"] [data-field="title"]').click();
+  await changeTo('Steps');
+  await page.locator('[data-row="0"] [data-field="title"]').click();
+  await changeTo('List');
+  if (!(await hasIcon())) problems.push(`${label}: List → Steps → List lost the first row's icon`);
+  if (JSON.stringify(await rows('title')) !== was)
+    problems.push(`${label}: List → Steps → List has ${JSON.stringify(await rows('title'))}`);
+  await page.locator('.snackbar-stack .snackbar', { hasText: 'Changed to List' }).locator('.snackbar-action').first().click();
+  await page.waitForTimeout(500);
+  if (!(await page.locator('.inline-steps').count())) problems.push(`${label}: the snackbar's Undo did not give Steps back`);
+  // Kept data is never on the site: the Steps of the system's test page (the demo's Blocks page) keep a card's subhead and a FAQ answer on their
+  // first step, as Change to leaves them, and the page shows neither.
+  if (await onTestPage(page, label)) {
+    const html = await page.content();
+    if (!html.includes('Pick a block')) problems.push(`${label} (site): the test page's Steps are not there`);
+    if (/Kept from (Cards|a)/.test(html)) problems.push(`${label} (site): the page shows what a block kept from another block`);
+  }
+  await page.close();
+}
+
 /** The dynamic List (the owner's flow): the dynamic icon in the contextual menu opens the dynamic settings (a bottom sheet on a phone, the side panel on a computer) with `Rows from`; picking a list turns the block into a "Dynamic list" with its state line, `Edit list` and an `Undo` that brings the typed rows back; the toolbar then has no row actions and stays inside the screen. */
 async function checkDynamicList(width, height) {
   const label = `${width}px dynamic list`;
@@ -8295,6 +8423,7 @@ for (const [width, height] of [
   await unit(`checkSteps ${width}`, () => checkSteps(width, height));
 for (const block of pasteBlocks)
   for (const w of [375, 1280]) await unit(`checkInlinePaste ${w} ${block.name}`, () => checkInlinePaste(w, w < 600 ? 740 : 900, block));
+for (const w of [375, 1280]) await unit(`checkChangeTo ${w}`, () => checkChangeTo(w, w < 600 ? 740 : 900));
 for (const w of [375, 1280]) await unit(`checkCardHeadline ${w}`, () => checkCardHeadline(w, w < 600 ? 740 : 900));
 await unit('checkDynamicList 375', () => checkDynamicList(375, 740));
 await unit('checkDynamicList 1280', () => checkDynamicList(1280, 900));

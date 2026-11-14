@@ -2047,7 +2047,11 @@ export function Menu({
         ref={sheet}
         tabIndex={-1}
         aria-label={label}
-        onClick={(e) => (e.target === sheet.current || (e.target as Element).closest('[role^="menuitem"]')) && sheet.current?.close()}
+        onClick={(e) =>
+          (e.target === sheet.current ||
+            ((e.target as Element).closest('[role^="menuitem"]') && !(e.target as Element).closest('[data-menu-stays]'))) &&
+          sheet.current?.close()
+        }
         onClose={(e) => e.target === e.currentTarget && onClose()}
         className="focus:outline-none"
       >
@@ -2068,7 +2072,8 @@ export function Menu({
       className="editor-menu fixed z-30 focus:outline-none"
       tabIndex={attached ? -1 : undefined}
       onClick={(e: MouseEvent) => {
-        if (!(e.target as Element).closest('[role^="menuitem"]')) return;
+        // A row that opens the next level, or goes back from it, keeps the menu open.
+        if (!(e.target as Element).closest('[role^="menuitem"]') || (e.target as Element).closest('[data-menu-stays]')) return;
         if (attached) anchor.querySelector<HTMLElement>('button')?.focus();
         onClose();
       }}
@@ -2113,6 +2118,9 @@ export function MenuItem({
   icon: Glyph,
   selected,
   disabled,
+  opens,
+  back,
+  onKeyDown,
   onClick,
   children,
 }: {
@@ -2121,6 +2129,11 @@ export function MenuItem({
   selected?: boolean;
   /** It cannot be chosen now (Move up on the first card). */
   disabled?: boolean;
+  /** It opens the menu's next level (a submenu, Change to): an arrow at its end, and the menu stays open; Right arrow opens it too. */
+  opens?: boolean;
+  /** The row back from the next level: the menu stays open; Left arrow anywhere in that level goes back too (`onKeyDown` of its rows). */
+  back?: boolean;
+  onKeyDown?: (e: KeyboardEvent<HTMLElement>) => void;
   onClick: () => void;
   children: ReactNode;
 }) {
@@ -2129,7 +2142,18 @@ export function MenuItem({
       icon={Glyph && <Glyph />}
       selected={selected}
       disabled={disabled}
+      trailingIcon={opens ? 'caret-right' : undefined}
+      aria-haspopup={opens ? 'menu' : undefined}
+      aria-expanded={opens ? false : undefined}
+      data-menu-stays={opens || back || undefined}
       onMouseDown={(e: MouseEvent) => e.preventDefault()}
+      onKeyDown={(e: KeyboardEvent<HTMLElement>) => {
+        if (opens && e.key === 'ArrowRight') {
+          e.preventDefault();
+          onClick();
+        }
+        onKeyDown?.(e);
+      }}
       onClick={onClick}
     >
       {children}
