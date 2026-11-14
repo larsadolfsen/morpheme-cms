@@ -75,6 +75,8 @@ export type TestimonialItem = {
   name: string;
   /** Its image (optional), by the name. */
   image?: string;
+  /** The image's alternative text (none: decorative). */
+  alt?: string;
   context?: string;
   quote: string[];
   categories: string[];

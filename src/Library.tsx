@@ -102,6 +102,8 @@ import { shortDate, when } from './when';
 import { isEntryPath } from '../lib/ownList.mjs';
 import { CreateFab } from './CreateFab';
 import NewListDialog from './NewListDialog';
+import { useListDrafts } from './listDraft';
+import { ownListsOf } from './ownLists';
 import { isOver, untilTime } from '../lib/notice.mjs';
 import { isUnlisted } from '../lib/status.mjs';
 import { savedTheme, setTheme, shownMode, type Theme } from './theme';
@@ -774,26 +776,36 @@ function PartGroup({ title, route, parts }: { title?: string; route: string; par
 
 // A screen with parts of the site as rows, under one on the start screen: "Lists" (the short lists: the site's,
 // testimonials, and those of the apps installed, prices), A–Z as on the start screen.
-function PartsOf({ title, ids, files }: { title: string; ids: string[]; files: RepoFile[] }) {
+function PartsOf({ title, ids, files, more }: { title: string; ids: string[]; files: RepoFile[]; more?: ReactNode }) {
   return (
     <Screen title={title} wide back={{ href: '#', label: siteName }}>
       <Group>
         {partsIn(ids, files).map((p) => (
           <PartRow key={p.id} {...p} />
         ))}
+        {more}
       </Group>
     </Screen>
   );
 }
 
 /** "Lists" (#lists): the lists as rows, and `New list` (a FAB; NewListDialog.tsx) to make one of your own. */
-export function Lists({ files, env }: { files: RepoFile[]; env: Env }) {
+export function Lists({ files }: { files: RepoFile[]; env?: Env }) {
   const [making, setMaking] = useState(false);
+  // A list that is not saved yet (its waiting version, src/listDraft.ts) is here, marked, and is not offered anywhere else until it is saved.
+  const waiting = useListDrafts().filter((d) => !ownListsOf(files).some((l) => l.id === d.id));
   return (
     <>
-      <PartsOf title={t.common.parts.lists} ids={listsShown(files)} files={files} />
+      <PartsOf
+        title={t.common.parts.lists}
+        ids={listsShown(files)}
+        files={files}
+        more={waiting.map((d) => (
+          <ListItem key={d.id} href={`#list/${d.id}`} icon={ListChecks} headline={d.label} supporting={t.ownList.notSavedYet} arrow />
+        ))}
+      />
       <CreateFab label={t.ownList.new} onClick={() => setMaking(true)} />
-      <NewListDialog files={files} env={env} open={making} onClose={() => setMaking(false)} />
+      <NewListDialog files={files} open={making} onClose={() => setMaking(false)} />
     </>
   );
 }

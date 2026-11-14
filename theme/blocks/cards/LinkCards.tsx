@@ -28,7 +28,7 @@ export function CardMedia({ card }: { card: LinkCard }) {
             sizes={card.image.srcset ? sizes : undefined}
             width={card.image.width}
             height={card.image.height}
-            alt=""
+            alt={card.image.alt ?? ''}
             loading="lazy"
             decoding="async"
           />
