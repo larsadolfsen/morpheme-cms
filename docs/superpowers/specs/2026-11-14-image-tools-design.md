@@ -1,7 +1,7 @@
 # Image tools: the crop view, the image's tools in the bar, the Cards' aspect ratio (design)
 
 Status: spec and build plan for 0.18, from the owner's decisions of 14 November 2026 (section 1) and the owner's answers to
-the spec's questions on the same day (section 1b). No code in this pull request. One question is still open (section 12).
+the spec's questions on the same day (section 1b). No code in this pull request. No question is open.
 
 Related: `2026-11-13-resize-image-design.md` (its drawn size is dropped, decision 2), `2026-11-11-intuitive-editor-design.md`
 (batch 15 is part of this spec, section 9), `2026-11-12-inline-block-editing-design.md` (section 5, Cards),
@@ -39,7 +39,7 @@ modal sheet below it). The **crop view** is the new view of section 3. A **ratio
    entry; the draft of one is dropped.
 2. **"Selecting a block on desktop opens settings in right pane":** on a computer (expanded) a tap on an image selects it **and opens
    its settings in the side sheet**, as today; the bar shows the image tools while it is selected. On a phone a tap only selects.
-3. *Open:* whether a Cards block may use `Original` (section 12).
+3. **A Cards block cannot use `Original`:** every Cards block has one aspect ratio, from `FORMATS`.
 4. **"Follow MD3 shade":** the area outside the frame uses **M3's scrim colour and opacity** (the theme's scrim token), not a value
    of our own.
 5. **`Change link`** is the video's tool (it matches the field `Video link`).
@@ -48,7 +48,7 @@ modal sheet below it). The **crop view** is the new view of section 3. A **ratio
    Outlined set of `@material-symbols/svg-400` 0.48.2, 7,874 names, was searched; `audio_description` is for audio), so the icon is
    **`short_text`**.
 7. **"Just call it hide":** the visibility words are **`Hide`** / **`Show`**, and the state is **`Hidden`**.
-8. **Parked:** no image tools for the page's top image now, and none for the Image grid's tiles. Both are parked, not planned.
+8. **Parked:** no image tools for the Image grid's tiles; parked, not planned.
 
 ## 2. Today (read in the code on `0.18` at `ece1b62`)
 
@@ -266,7 +266,7 @@ works there as on a phone.
 ## 6. Cards: one aspect ratio per block (decision 4)
 
 - **Block setting.** The Cards block's settings get `Image aspect ratio` (shown only when `media` is `image`), segmented or a select
-  of `FORMATS` (no `Original`: the cards stay aligned; the one open question, 12.1), hint `All the cards’ images use it.` The default is
+  of `FORMATS` (no `Original`: the cards stay aligned, owner 1b.3), hint `All the cards’ images use it.` The default is
   `3:2`, today's look.
 - **The crop view in a card** has no chips: its frame is the block's ratio; it only zooms and moves.
 - **A ratio change** keeps every card's image and shows its middle part in the new ratio (a crop made for another ratio is not
@@ -397,16 +397,12 @@ the image tools, on a phone it only selects; (10) the row's visibility button sa
 `check:themes` in `.morpheme/demo/site/` for PR 5 (the theme's Cards CSS changes); `npm run check:editor-colors` for the editor's
 parts; `npm run check:contrast` once by hand for the frame and the darkened area in light and dark.
 
-## 12. Open question for the owner
+## 12. Open questions
 
-1. **May a Cards block use `Original`?** (Being explained to the owner by the PM.) Recommended: **no**, so the cards stay aligned
-   (decision 4 is one ratio for the block). The other choice offers `Original` too, and each card's image keeps its own shape.
-
-The other seven questions of the first draft are answered in section 1b.
+None. The owner answered all eight questions of the first draft (section 1b).
 
 ## 12b. Parked (owner, 1b.8)
 
-- Image tools for the page's top image.
 - Image tools for the Image grid's tiles (they keep their own sheet and Library text).
 
 Parked means not planned: nothing in the build plan prepares them.
@@ -423,7 +419,7 @@ head sha to the PM. They merge one by one in this order; each works without the 
 | 2 | **Image selection and the bar's image tools** | Tap = select for the image in the text; `blockBar` gets the four image tools; `Remove` moves from `⋮` to the bar; `Crop` opens today's image sheet scrolled to the crop until PR 3; the row's `Settings` opens the sheet; on a computer the tap still opens the side sheet (1b.2); texts | `minor` | paragraph *Image tools* | — |
 | 3 | **The crop view** | A new `CropView` (theme `Dialog`: `full-screen` below medium, `basic` from medium, 1b.1) with the frame, the scrim outside it (1b.4), pinch, wheel, slider with ±; `Aspect ratio` rename; the sheet's crop part becomes the `Aspect ratio` row; no deviation | `minor` | paragraph *Crop view* | 2 |
 | 4 | **Alt text after a pick** | The alt text sheet (9.1) after `Insert` › `Image` and `Change image`; the bar's `Alt text` opens it | `minor` | line | 2 |
-| 5 | **Cards: aspect ratio and the card's image** | `ratio` prop and setting, `cropStyle` in the theme's Cards (`blocks.css`, `LinkCards.tsx`, `load.ts`, `view.ts`), the card's image as its own tap target with the image tools, the crop view without chips; unit test of the unchanged HTML; `check:themes` | `minor` | paragraph *Card images* | 2, 3, question 12.1 |
+| 5 | **Cards: aspect ratio and the card's image** | `ratio` prop and setting, `cropStyle` in the theme's Cards (`blocks.css`, `LinkCards.tsx`, `load.ts`, `view.ts`), the card's image as its own tap target with the image tools, the crop view without chips; unit test of the unchanged HTML; `check:themes` | `minor` | paragraph *Card images* | 2, 3 |
 | 6 | **Video: Change link** | Tap = select for the video, the tool in the bar, the slot removed, the field focused | `minor` | line | 2 |
 | 7 | **Docs** | The contextual-toolbar spec's Image and Video rows updated to what was built | empty | none | 2–6 |
 
