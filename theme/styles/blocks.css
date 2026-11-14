@@ -1308,7 +1308,9 @@
   .block-table-grid :is(th, td).block-table-right {
     text-align: end;
   }
-  .block-table-grid tr:last-child :is(th, td) {
+  /* The last row of the table has no line (the outline closes it). The header row is the last row of its own thead, so a plain
+     tr:last-child took its line away: only the last row of the table's last group counts. */
+  .block-table-grid table > :last-child > tr:last-child :is(th, td) {
     border-bottom: 0;
   }
   /* "Striped rows": every second body row in the quieter --block-stripe (the header keeps the tint). */
