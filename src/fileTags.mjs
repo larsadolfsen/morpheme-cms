@@ -1,8 +1,9 @@
 // The tags of one file in Filer and how they change: its own tags and the tags removed from it.
-// A page's tags reach the file only when it is inserted (tagsFor). Pure; used by fileRecords.mjs and MediaTags.tsx.
+// A page's tags reach the file only when it is inserted (tagsFor). Also its base alternative text, its decorative mark and its caption
+// (withAltText). Pure; used by fileRecords.mjs, MediaTags.tsx and MediaAlt.tsx.
 /**
  * @typedef {{ name: string; url: string; source: string }} FileCredit Who an image is credited to: the photographer, their page and the source it came from (an app's media provider).
- * @typedef {{ src: string; categories: string[]; removed: string[]; credit?: FileCredit }} FileRecord
+ * @typedef {{ src: string; categories: string[]; removed: string[]; alt?: string; decorative?: boolean; caption?: string; credit?: FileCredit }} FileRecord The `alt` is the image's base text, every use starts from it; `decorative`: the image is only decoration in every use that has no text of its own; `caption`: a line under the image where a block shows one.
  */
 
 /** @param {unknown[]} list */
@@ -45,7 +46,7 @@ export function addTag(record, src, tag) {
     src,
     categories: categories.includes(tag) ? [...categories] : [...categories, tag],
     removed: (record?.removed ?? []).filter((t) => t !== tag),
-    ...creditOf(record),
+    ...keepOf(record),
   };
 }
 
@@ -62,7 +63,7 @@ export function removeTag(record, src, tag) {
     src,
     categories: (record?.categories ?? []).filter((t) => t !== tag),
     removed: removed.includes(tag) ? [...removed] : [...removed, tag],
-    ...creditOf(record),
+    ...keepOf(record),
   };
 }
 
@@ -79,7 +80,7 @@ export function setTags(record, src, next) {
     if (!next.includes(tag)) current = removeTag(current, src, tag);
   }
   for (const tag of next) current = addTag(current, src, tag);
-  return { src, categories: unique(next), removed: [...current.removed], ...creditOf(record) };
+  return { src, categories: unique(next), removed: [...current.removed], ...keepOf(record) };
 }
 
 /**
@@ -90,11 +91,16 @@ export function setTags(record, src, next) {
  * @returns {FileRecord}
  */
 export function inherit(record, src, pageTags) {
-  return { src, categories: tagsFor(record, pageTags), removed: [...(record?.removed ?? [])], ...creditOf(record) };
+  return { src, categories: tagsFor(record, pageTags), removed: [...(record?.removed ?? [])], ...keepOf(record) };
 }
 
-/** The credit of a record as a spreadable part, so a change to the tags keeps it. @param {FileRecord | undefined} record */
-const creditOf = (record) => (record?.credit ? { credit: { ...record.credit } } : {});
+/** What a record holds besides its tags (the base text, the decorative mark, the caption and the credit) as a spreadable part, so a change to the tags keeps it. @param {FileRecord | undefined} record */
+const keepOf = (record) => ({
+  ...(record?.alt ? { alt: record.alt } : {}),
+  ...(record?.decorative ? { decorative: true } : {}),
+  ...(record?.caption ? { caption: record.caption } : {}),
+  ...(record?.credit ? { credit: { ...record.credit } } : {}),
+});
 
 /**
  * The record with a credit: who made the image, as the source gave it.
@@ -108,10 +114,30 @@ export function withCredit(record, src, credit) {
 }
 
 /**
- * True when the record holds no tags, no removed tags and no credit.
+ * The record with its base text, decorative mark and caption set (an empty text or `false` leaves the key out); tags and credit are kept.
+ * @param {FileRecord | undefined} record
+ * @param {string} src
+ * @param {{ alt?: string; decorative?: boolean; caption?: string }} text
+ * @returns {FileRecord}
+ */
+export function withAltText(record, src, { alt = '', decorative = false, caption = '' }) {
+  const { alt: _alt, decorative: _decorative, caption: _caption, ...rest } = record ?? emptyRecord(src);
+  return {
+    ...rest,
+    src,
+    ...(alt.trim() ? { alt: alt.trim() } : {}),
+    ...(decorative ? { decorative: true } : {}),
+    ...(caption.trim() ? { caption: caption.trim() } : {}),
+  };
+}
+
+/**
+ * True when the record holds no tags, no removed tags, no text and no credit.
  * @param {FileRecord} record
  * @returns {boolean}
  */
 export function isEmpty(record) {
-  return record.categories.length === 0 && record.removed.length === 0 && !record.credit;
+  return (
+    record.categories.length === 0 && record.removed.length === 0 && !record.alt && !record.decorative && !record.caption && !record.credit
+  );
 }
