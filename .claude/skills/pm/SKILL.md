@@ -120,12 +120,22 @@ owner still releases every version.
 Short, English only (`CLAUDE.md`), and only what the owner has to do or decide. A pull request the owner has to act on is always assigned to them, and the report gives its link.
 
 Every suggestion, question or decision the PM puts to the owner follows Simon Sinek's Golden Circle ("Start with Why"):
-three short parts, one or two sentences each, always in this order, starting with why:
+a title that names the action, then three parts, **one short sentence each**, always in this order:
 
-- **Why:** the reason the PM suggests it, the problem or the chance, in plain words.
-- **How:** how it would be done: what changes, and which session or pull request does it.
-- **What:** what the owner gains from it, and the one thing the owner has to do now (with the link), if anything.
+- **Why:** the reason, the problem or the chance, in plain words.
+- **How:** what happens now in this step (not how the system works in general): what the owner clicks, or which
+  session or pull request does the work.
+- **What:** what the owner gains from it.
 
-Plain words, as for someone who does not read the code: a term like `next`, a changeset or a branch name gets a few
-words of explanation the first time ("`next`, the test version the staging site installs"). A report with several
-items gives each item its own Why, How and What.
+Never ask the owner to act until the PM has the exact item: the version number, the link, the pull request. Check first,
+then ask once. Cut every word the owner does not need to decide or act: no background, no lists of everything merged
+(name the two or three that matter), no promises of a later report. Plain words for someone who does not read the code:
+a term like `next` gets a few words the first time. Several items: each gets its own title, Why, How and What.
+
+Example:
+
+> **Approve test version 0.17.0-next-20261114093012** ([npmjs.com](https://www.npmjs.com/package/@morphemecms/cms?activeTab=versions))
+>
+> - **Why:** five editor fixes are merged, among them the text bar order and block selection.
+> - **How:** approve it with 2FA; the staging site installs it within a few minutes.
+> - **What:** you try the fixes on a real site before Sara's site gets them.
