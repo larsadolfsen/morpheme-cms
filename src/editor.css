@@ -1646,3 +1646,139 @@ dialog {
     padding-inline: 0.5rem;
   }
 }
+
+/* Layout density (docs/superpowers/specs/2026-11-13-density-design.md, PR 3): the space between the editor's sections follows the
+   person's step, 4 px a step (M3: "Higher density is typically applied by decreasing the top and bottom padding or overall height by
+   4dp"), on the vertical rhythm only: the space between stacked sections (space-y, the margins and padding above and below, the gap of a
+   column), from 12 px up. Small gaps (4 and 8 px, between a part and its label) and everything at the sides stay (horizontal padding does
+   not change with density, owner rule). Where the 8 px gap between targets matters (M3: "targets separated by 8dp of space or more") it is
+   below the range. In the page and post editing area --mo-density-layout is the theme's own step, so nothing changes there. */
+.space-y-3 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  margin-block-end: calc(var(--mo-space-150) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.space-y-4 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  margin-block-end: calc(var(--mo-space-200) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.space-y-5 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  margin-block-end: calc(var(--mo-space-250) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.space-y-6 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  margin-block-end: calc(var(--mo-space-300) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.space-y-8 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  margin-block-end: calc(var(--mo-space-400) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.space-y-10 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  margin-block-end: calc(var(--mo-space-500) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.mb-3:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
+  margin-block-end: calc(var(--mo-space-150) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.mb-4:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
+  margin-block-end: calc(var(--mo-space-200) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.mb-5:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
+  margin-block-end: calc(var(--mo-space-250) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.mb-6:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
+  margin-block-end: calc(var(--mo-space-300) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.mb-8:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
+  margin-block-end: calc(var(--mo-space-400) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.mb-10:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
+  margin-block-end: calc(var(--mo-space-500) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.mt-3:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
+  margin-block-start: calc(var(--mo-space-150) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.mt-4:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
+  margin-block-start: calc(var(--mo-space-200) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.mt-5:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
+  margin-block-start: calc(var(--mo-space-250) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.mt-6:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
+  margin-block-start: calc(var(--mo-space-300) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.mt-8:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
+  margin-block-start: calc(var(--mo-space-400) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.mt-10:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
+  margin-block-start: calc(var(--mo-space-500) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.pt-3:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
+  padding-block-start: calc(var(--mo-space-150) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.pt-4:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
+  padding-block-start: calc(var(--mo-space-200) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.pt-5:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
+  padding-block-start: calc(var(--mo-space-250) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.pt-6:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
+  padding-block-start: calc(var(--mo-space-300) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.pt-8:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
+  padding-block-start: calc(var(--mo-space-400) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.pt-10:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
+  padding-block-start: calc(var(--mo-space-500) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.pb-3:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
+  padding-block-end: calc(var(--mo-space-150) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.pb-4:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
+  padding-block-end: calc(var(--mo-space-200) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.pb-5:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
+  padding-block-end: calc(var(--mo-space-250) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.pb-6:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
+  padding-block-end: calc(var(--mo-space-300) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.pb-8:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
+  padding-block-end: calc(var(--mo-space-400) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.pb-10:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
+  padding-block-end: calc(var(--mo-space-500) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.py-3:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='pt-'], [class*='pb-'], [class*='p-0']) {
+  padding-block: calc(var(--mo-space-150) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.py-4:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='pt-'], [class*='pb-'], [class*='p-0']) {
+  padding-block: calc(var(--mo-space-200) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.py-5:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='pt-'], [class*='pb-'], [class*='p-0']) {
+  padding-block: calc(var(--mo-space-250) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.py-6:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='pt-'], [class*='pb-'], [class*='p-0']) {
+  padding-block: calc(var(--mo-space-300) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.py-8:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='pt-'], [class*='pb-'], [class*='p-0']) {
+  padding-block: calc(var(--mo-space-400) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.flex-col.gap-3 {
+  row-gap: calc(var(--mo-space-150) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.flex-col.gap-4 {
+  row-gap: calc(var(--mo-space-200) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.flex-col.gap-5 {
+  row-gap: calc(var(--mo-space-250) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.flex-col.gap-6 {
+  row-gap: calc(var(--mo-space-300) + var(--mo-density-layout) * var(--mo-density-step));
+}
+.flex-col.gap-8 {
+  row-gap: calc(var(--mo-space-400) + var(--mo-density-layout) * var(--mo-density-step));
+}
+/* The screen's own top padding (24 px, 32 px from a medium window up) takes the step too, with its Tailwind classes' own breakpoint. */
+.editor-screen {
+  padding-top: calc(var(--mo-space-300) + var(--mo-density-layout) * var(--mo-density-step));
+}
+@media (width >= theme(--breakpoint-medium)) {
+  .editor-screen {
+    padding-top: calc(var(--mo-space-400) + var(--mo-density-layout) * var(--mo-density-step));
+  }
+}
