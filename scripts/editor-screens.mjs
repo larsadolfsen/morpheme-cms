@@ -222,14 +222,17 @@ async function checkStartSubtitle() {
  * BottomSheet, followKeyboard() in theme/ui/bottomSheetControl.ts): a keyboard shrinks only the visual viewport, which is
  * emulated here by a smaller visualViewport. The sheet must end exactly at the keyboard's top (no strip of the page
  * between), and its hex field and its buttons (Use and lock, Cancel, Use color) must be visible and inside the visible screen. */
-async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300) {
-  const label = `${width}px keyboard sheet`;
+async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300, custom = false) {
+  // In Custom (the generator's sixth choice) the first colour is Primary and the sheet has no "Use and lock".
+  const name = custom ? 'Primary' : 'Source color';
+  const label = `${width}px keyboard sheet${custom ? ' (Custom)' : ''}`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#company/colors'));
-  await page.getByRole('button', { name: 'Source color: pick a color' }).click();
-  const sheet = page.locator('dialog[open][aria-label="Source color"]');
+  if (custom) await page.getByRole('button', { name: 'Custom', exact: true }).click();
+  await page.getByRole('button', { name: `${name}: pick a color` }).click();
+  const sheet = page.locator(`dialog[open][aria-label="${name}"]`);
   await sheet.waitFor();
   const code = sheet.getByRole('textbox', { name: 'Color code' });
   await code.focus();
@@ -240,8 +243,8 @@ async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300) {
     screen.dispatchEvent(new Event('resize'));
   }, height - keyboard);
   await page.waitForTimeout(400);
-  const got = await page.evaluate(() => {
-    const dialog = document.querySelector('dialog[open][aria-label="Source color"]');
+  const got = await page.evaluate((name) => {
+    const dialog = document.querySelector(`dialog[open][aria-label="${name}"]`);
     const box = (el) => el.getBoundingClientRect();
     const buttons = [...dialog.querySelectorAll('button')].filter((b) => /^(Use and lock|Cancel|Use color)$/.test(b.textContent.trim()));
     const field = dialog.querySelector('input[aria-label="Color code"], input');
@@ -251,14 +254,134 @@ async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300) {
       buttons: buttons.map((b) => [b.textContent.trim(), box(b)]),
       field: box(field),
     };
-  });
+  }, name);
   if (Math.abs(got.sheet.bottom - got.visible) > 1)
     problems.push(`${label}: the sheet ends at ${got.sheet.bottom}, not at the keyboard's top (${got.visible})`);
-  if (got.buttons.length !== 3) problems.push(`${label}: ${got.buttons.length} of the 3 buttons are in the sheet`);
+  const expected = custom ? 2 : 3;
+  if (got.buttons.length !== expected) problems.push(`${label}: ${got.buttons.length} of the ${expected} buttons are in the sheet`);
   for (const [name, r] of got.buttons)
     if (r.top < 0 || r.bottom > got.visible + 1) problems.push(`${label}: "${name}" is outside the visible screen`);
   if (got.field.top < 0 || got.field.bottom > got.visible + 1)
     problems.push(`${label}: the color code field is outside the visible screen`);
+  await page.close();
+}
+
+/** Custom colours on Colors (docs/superpowers/specs/2026-11-13-custom-colors-design.md, step C). The sixth chip, "Custom": the tiles are
+ * Primary, Secondary and Tertiary with a pen each and no lock, and the sheet has no "Use and lock"; the wheel has three dots, each its own
+ * slider, and dragging one changes only its colour; with the set-1 brand colours Primary asks "Fix this to improve accessibility?"
+ * (Save says to answer first and scrolls to it), Fix gives the "Adjusted for contrast" list, Keep the warning under the tile; a
+ * Secondary and a Tertiary with low contrast on the page get their note; a harmony and back keeps the custom colours. */
+async function checkCustomColors(width, height) {
+  const label = `${width}px custom colors`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#company/colors'));
+  await page.getByRole('button', { name: 'Custom', exact: true }).click();
+  await page.waitForTimeout(300);
+  const tiles = () => page.locator('ul[aria-label="Colors"] > li').allInnerTexts();
+  const hexes = async () => (await tiles()).map((t) => t.match(/#[0-9A-Fa-f]{6}/)?.[0].toLowerCase());
+  const names = (await tiles()).map((t) => t.split('\n')[0].trim());
+  if (names.join() !== 'Primary,Secondary,Tertiary') problems.push(`${label}: the tiles are "${names}", not Primary, Secondary, Tertiary`);
+  if (await page.getByRole('button', { name: /^Lock / }).count()) problems.push(`${label}: Custom has a lock`);
+  const dots = page.getByRole('slider', { name: /drag to change this color/ });
+  if ((await dots.count()) !== 3) problems.push(`${label}: ${await dots.count()} dots on the wheel, not 3`);
+  const dotNames = await dots.evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  if (dotNames.join() !== 'Primary: drag to change this color,Secondary: drag to change this color,Tertiary: drag to change this color')
+    problems.push(`${label}: the dots are named "${dotNames}"`);
+
+  const pick = async (name, hex) => {
+    await page.getByRole('button', { name: `${name}: pick a color` }).click();
+    const sheet = page.locator(`dialog[open][aria-label="${name}"]`);
+    await sheet.waitFor();
+    const buttons = await sheet.getByRole('button', { name: /^(Use and lock|Cancel|Use color)$/ }).allInnerTexts();
+    if (buttons.length !== 2) problems.push(`${label}: the ${name} sheet has "${buttons}", not Cancel and Use color`);
+    const code = sheet.getByRole('textbox', { name: 'Color code' });
+    await code.fill(hex);
+    await code.press('Tab');
+    await sheet.getByRole('button', { name: 'Use color', exact: true }).click();
+    await page.waitForTimeout(300);
+  };
+  await pick('Primary', '#F34E3D');
+  await pick('Secondary', '#F5E8CC');
+  await pick('Tertiary', '#55263D');
+  if ((await hexes()).join() !== '#f34e3d,#f5e8cc,#55263d')
+    problems.push(`${label}: the tiles show "${await hexes()}", not the colors picked`);
+
+  const question = page.getByText('Fix this to improve accessibility?', { exact: true });
+  if (!(await question.isVisible())) problems.push(`${label}: Primary #F34E3D does not ask to be fixed`);
+  const numbers = await page.getByText(/^Light mode: Primary is hard to read as text on Surface: \d\.\d, at least 4\.5 needed\.$/).count();
+  if (!numbers) problems.push(`${label}: the question does not say Primary's contrast in light mode (of 4.5)`);
+  for (const name of ['Secondary', 'Tertiary'])
+    if (
+      !(await page
+        .getByText(`${name} has low contrast on the page, so it is not offered as an icon color. It is still used for fills.`)
+        .isVisible())
+    )
+      problems.push(`${label}: no note for the low ${name}`);
+  // Save waits for the answer, and takes the owner to it.
+  await page.getByRole('button', { name: 'Save changes' }).click();
+  // The first Save asks about notifications: not now.
+  const ask = page.locator('dialog[open]').getByRole('button', { name: 'Cancel', exact: true });
+  if (await ask.count()) await ask.click();
+  await page.waitForTimeout(500);
+  if (!(await page.getByText('Answer the question about Primary first.').count()))
+    problems.push(`${label}: Save does not ask to answer first`);
+  const at = await question.evaluate((el) => el.getBoundingClientRect().toJSON());
+  if (at.top < 0 || at.bottom > height)
+    problems.push(`${label}: Save did not scroll to the question (${at.top}..${at.bottom} of ${height})`);
+
+  // Fix: the adjusted list shows, the question is gone, and every pair reads.
+  await page.getByRole('button', { name: 'Fix', exact: true }).click();
+  await page.waitForTimeout(300);
+  if (await question.count()) problems.push(`${label}: the question stays after Fix`);
+  if (!(await page.getByText('Adjusted for contrast', { exact: true }).isVisible()))
+    problems.push(`${label}: no list of adjusted colors after Fix`);
+  if ((await hexes())[0] !== '#f34e3d') problems.push(`${label}: Fix changed the chosen Primary tile`);
+
+  // A new Primary asks again (a new colour, a new question), and Keep leaves it as chosen with a warning.
+  await pick('Primary', '#2589D8');
+  if (!(await question.isVisible())) problems.push(`${label}: a new hard Primary does not ask`);
+  if (await page.getByText('Adjusted for contrast', { exact: true }).count())
+    problems.push(`${label}: the adjusted list stays for a new Primary`);
+  await page.getByRole('button', { name: 'Keep', exact: true }).click();
+  await page.waitForTimeout(300);
+  if (await question.count()) problems.push(`${label}: the question stays after Keep`);
+  if (!(await page.getByText('Primary is kept as you chose it. It may be hard to read.').isVisible()))
+    problems.push(`${label}: no warning after Keep`);
+
+  // Each dot moves only its own colour, and a cream keeps its tone (stays light).
+  const before = await hexes();
+  const dot = dots.nth(1);
+  await dot.scrollIntoViewIfNeeded();
+  const box = await dot.boundingBox();
+  const wheel = page.getByRole('group', { name: 'Color wheel' });
+  const wbox = await wheel.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(wbox.x + wbox.width * 0.8, wbox.y + wbox.height * 0.5, { steps: 5 });
+  if (await question.count()) problems.push(`${label}: the question is shown while a dot is dragged`);
+  await page.mouse.up();
+  const after = await hexes();
+  if (after[0] !== before[0] || after[2] !== before[2])
+    problems.push(`${label}: dragging Secondary changed another color (${before} to ${after})`);
+  if (after[1] === before[1]) problems.push(`${label}: dragging Secondary did not change it`);
+  // Arrow keys move one dot too.
+  await dots.nth(2).focus();
+  await page.keyboard.press('ArrowRight');
+  const keyed = await hexes();
+  if (keyed[2] === after[2] || keyed[0] !== after[0] || keyed[1] !== after[1])
+    problems.push(`${label}: an arrow key did not move only Tertiary (${after} to ${keyed})`);
+
+  // A harmony and back: the custom colors are kept.
+  await page.getByRole('button', { name: 'Analogous', exact: true }).click();
+  await page.waitForTimeout(300);
+  if ((await page.getByRole('button', { name: /^Lock / }).count()) !== 1) problems.push(`${label}: a harmony has no lock`);
+  await page.getByRole('button', { name: 'Custom', exact: true }).click();
+  await page.waitForTimeout(300);
+  if ((await hexes()).join() !== keyed.join()) problems.push(`${label}: back in Custom the colors are "${await hexes()}", not "${keyed}"`);
+  await page.screenshot({ path: join(shots, `custom-colors-${width}.png`), fullPage: true });
   await page.close();
 }
 
@@ -4498,6 +4621,12 @@ await checkStartSubtitle();
 for (const width of [360, 375, 390, 414]) await checkTextBar(width);
 await checkTextBarWide();
 await checkSheetKeyboard(375);
+await checkSheetKeyboard(375, 740, 300, true);
+for (const [width, height] of [
+  [375, 740],
+  [1280, 900],
+])
+  await checkCustomColors(width, height);
 for (const [width, height] of [
   [360, 740],
   [375, 800],

@@ -2389,7 +2389,9 @@ export function ColorTiles({ colors, label }: { colors: ColorTile[]; label: stri
  * clockwise), grey in the middle (`middle`), and dots on it (`dots`, x and y from -1 to 1 from the middle, y down), a
  * locked one with a lock in it. The first is the one chosen, to drag, tap or move with the arrow keys (round the wheel,
  * and out and in); the others follow it. `disabled`: it cannot be moved (the source colour is locked). `label` names it
- * for screen readers, `valueText` says what is chosen. */
+ * for screen readers, `valueText` says what is chosen.
+ * With `onMoveDot` every dot is its own (Custom): each is a slider named by its `label`, and a drag or the arrow keys
+ * move only that dot (a drag takes the dot nearest where it starts); `onMoveEnd` says when a drag is over. */
 export function ColorWheel({
   edge,
   middle,
@@ -2398,57 +2400,115 @@ export function ColorWheel({
   valueText,
   disabled = false,
   onMove,
+  onMoveDot,
+  onMoveStart,
+  onMoveEnd,
 }: {
   edge: string[];
   middle: string;
-  dots: { x: number; y: number; color: string; locked?: boolean }[];
+  dots: { x: number; y: number; color: string; locked?: boolean; label?: string }[];
   label: string;
   valueText: string;
   disabled?: boolean;
   onMove: (x: number, y: number) => void;
+  onMoveDot?: (dot: number, x: number, y: number) => void;
+  /** A drag (or a key) is about to move this dot. */
+  onMoveStart?: (dot: number) => void;
+  onMoveEnd?: () => void;
 }) {
+  const free = !!onMoveDot;
+  // The dot a drag moves, from where it started (free dots).
+  const held = useRef(0);
   const [first] = dots;
-  const angle = Math.atan2(first.x, -first.y);
-  const keys = (e: KeyboardEvent) => {
+  const stepOf = (dot: { x: number; y: number }, e: KeyboardEvent): [number, number] | undefined => {
     const step = ({ ArrowLeft: [-5, 0], ArrowRight: [5, 0], ArrowUp: [0, 0.05], ArrowDown: [0, -0.05] } as Record<string, number[]>)[e.key];
     if (!step || disabled) return;
     e.preventDefault();
-    const a = angle + (step[0] * Math.PI) / 180;
-    const r = clamp(Math.hypot(first.x, first.y) + step[1]);
-    onMove(r * Math.sin(a), -r * Math.cos(a));
+    const a = Math.atan2(dot.x, -dot.y) + (step[0] * Math.PI) / 180;
+    const r = clamp(Math.hypot(dot.x, dot.y) + step[1]);
+    return [r * Math.sin(a), -r * Math.cos(a)];
   };
+  const keys = (e: KeyboardEvent) => {
+    const to = stepOf(first, e);
+    if (to) onMove(...to);
+  };
+  const dotKeys = (i: number) => (e: KeyboardEvent) => {
+    const to = stepOf(dots[i], e);
+    if (to) {
+      onMoveStart?.(i);
+      onMoveDot?.(i, ...to);
+      onMoveEnd?.();
+    }
+  };
+  const handlers = disabled
+    ? {}
+    : free
+      ? (() => {
+          const at = drag((x, y) => onMoveDot?.(held.current, x * 2 - 1, y * 2 - 1));
+          return {
+            onPointerDown: (e: PointerEvent<HTMLElement>) => {
+              const box = e.currentTarget.getBoundingClientRect();
+              const x = ((e.clientX - box.left) / box.width) * 2 - 1;
+              const y = ((e.clientY - box.top) / box.height) * 2 - 1;
+              held.current = dots.reduce(
+                (best, d, i) => (Math.hypot(d.x - x, d.y - y) < Math.hypot(dots[best].x - x, dots[best].y - y) ? i : best),
+                0,
+              );
+              onMoveStart?.(held.current);
+              at.onPointerDown(e);
+            },
+            onPointerMove: at.onPointerMove,
+            onPointerUp: () => onMoveEnd?.(),
+            onPointerCancel: () => onMoveEnd?.(),
+          };
+        })()
+      : drag((x, y) => onMove(x * 2 - 1, y * 2 - 1));
+  const angle = Math.atan2(first.x, -first.y);
   return (
     <div
-      role="slider"
-      tabIndex={0}
+      {...(free
+        ? { role: 'group' }
+        : {
+            role: 'slider',
+            tabIndex: 0,
+            'aria-valuemin': 0,
+            'aria-valuemax': 360,
+            'aria-valuenow': Math.round(((angle * 180) / Math.PI + 360) % 360),
+            'aria-valuetext': valueText,
+          })}
       aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={360}
-      aria-valuenow={Math.round(((angle * 180) / Math.PI + 360) % 360)}
-      aria-valuetext={valueText}
       aria-disabled={disabled || undefined}
-      className={`relative aspect-square w-full max-w-72 rounded-full ${swatchEdge} ${ring}`}
+      className={`relative aspect-square w-full max-w-72 rounded-full ${swatchEdge} ${free ? 'touch-none' : ring}`}
       style={{ background: `radial-gradient(closest-side, ${middle}, transparent), conic-gradient(${[...edge, edge[0]].join(', ')})` }}
-      {...(disabled ? {} : drag((x, y) => onMove(x * 2 - 1, y * 2 - 1)))}
-      onKeyDown={keys}
+      {...handlers}
+      onKeyDown={free ? undefined : keys}
     >
-      {/* The chosen dot last, so it is on top. */}
-      {dots
-        .map((dot, i) => (
-          <span
-            key={i}
-            className={`${thumb} flex items-center justify-center ${i ? 'size-6' : 'size-9'}`}
-            style={{
-              left: `${(dot.x + 1) * 50}%`,
-              top: `${(dot.y + 1) * 50}%`,
-              background: dot.color,
-              color: contrast(dot.color, '#000000') >= contrast(dot.color, '#ffffff') ? '#000000' : '#ffffff',
-            }}
-          >
-            {dot.locked && <LockSimple size={i ? 12 : 16} aria-hidden="true" />}
-          </span>
-        ))
-        .reverse()}
+      {/* In order for the keys and screen readers, the chosen dot on top (z-index). */}
+      {dots.map((dot, i) => (
+        <span
+          key={i}
+          {...(free && {
+            role: 'slider',
+            tabIndex: 0,
+            'aria-label': dot.label,
+            'aria-valuemin': 0,
+            'aria-valuemax': 360,
+            'aria-valuenow': Math.round(((Math.atan2(dot.x, -dot.y) * 180) / Math.PI + 360) % 360),
+            'aria-valuetext': dot.color,
+            onKeyDown: dotKeys(i),
+          })}
+          className={`${thumb} flex items-center justify-center ${i ? 'size-6' : 'size-9'} ${free ? 'focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none' : ''}`}
+          style={{
+            left: `${(dot.x + 1) * 50}%`,
+            top: `${(dot.y + 1) * 50}%`,
+            zIndex: dots.length - i,
+            background: dot.color,
+            color: contrast(dot.color, '#000000') >= contrast(dot.color, '#ffffff') ? '#000000' : '#ffffff',
+          }}
+        >
+          {dot.locked && <LockSimple size={i ? 12 : 16} aria-hidden="true" />}
+        </span>
+      ))}
     </div>
   );
 }
