@@ -1,7 +1,7 @@
 // Keeps a form open while one of its fields' pages (Field.page) is shown, and where it was scrolled to.
 // Exposes useFieldPages (the field whose page is open). Depends on useFormPages (FormFrame.tsx); used by CompanyForm.tsx and AppList.tsx.
-import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useFormPages } from './FormFrame';
+import { useKeepScroll } from './useKeepScroll';
 import type { Field, Part } from './schema';
 
 /** For a part's form at `address` whose fields' pages are at `base`/<field> (none without `base`): the form and those
@@ -16,15 +16,6 @@ export function useFieldPages(
   const paged = base ? (part as Required<Part>).fields.filter((f) => f.page) : [];
   useFormPages(address ? [address, ...paged.map((f) => `${base}/${f.name}`)] : []);
   const open = paged.find((f) => f.name === page);
-  const scrolled = useRef(0);
-  useEffect(() => {
-    if (open) return;
-    const keep = () => (scrolled.current = scrollY);
-    addEventListener('scroll', keep, { passive: true });
-    return () => removeEventListener('scroll', keep);
-  }, [open]);
-  useLayoutEffect(() => {
-    scrollTo(0, open ? 0 : scrolled.current);
-  }, [open]);
+  useKeepScroll(!!open);
   return open;
 }

@@ -938,20 +938,25 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   const [, newIn, newKind] = route.split('/');
   const creating = route.startsWith('new/') && collectionsFor(shownFiles).find((c) => c.id === newIn && c.create);
   if (creating) {
-    if (creating.kind === 'markdown') return <EntryForm collection={creating} file={newMarkdown(creating, notOffered(files))} env={env} />;
+    if (creating.kind === 'markdown')
+      return <EntryForm collection={creating} file={newMarkdown(creating, notOffered(files))} env={env} preview={newKind === 'preview'} />;
     if (creating.kind === 'folder')
       return <DataForm key={route} collection={creating} kind={newKind} file={{ path: '', oid: '', text: '' }} env={ownEnv(creating.id)} />;
   }
 
-  const found = collectionOf(collectionsFor(shownFiles), route);
+  // The Preview of a page or post (pagePreview.tsx): its form's address with `preview` after it, over the form, which stays.
+  const previewing = route.endsWith('/preview') && files.some((f) => f.path === route.slice(0, -'/preview'.length));
+  const formRoute = previewing ? route.slice(0, -'/preview'.length) : route;
+  const found = collectionOf(collectionsFor(shownFiles), formRoute);
   // An optional file (the header's) that the site has not got yet opens empty; the first save makes it.
-  const file = files.find((f) => f.path === route) ?? (found?.dataFile?.optional ? { path: route, oid: '', text: '{}\n' } : undefined);
+  const file =
+    files.find((f) => f.path === formRoute) ?? (found?.dataFile?.optional ? { path: formRoute, oid: '', text: '{}\n' } : undefined);
   if (!found || !file)
     return (
       <Screen title={t.app.notFound} back={{ href: '#', label: siteName }}>
         <EmptyNote>{t.app.nothingAt(route)}</EmptyNote>
       </Screen>
     );
-  if (found.collection.kind === 'markdown') return <EntryForm collection={found.collection} file={file} env={env} />;
+  if (found.collection.kind === 'markdown') return <EntryForm collection={found.collection} file={file} env={env} preview={previewing} />;
   return <DataForm collection={found.collection} dataFile={found.dataFile} file={file} env={ownEnv(found.collection.id)} />;
 }

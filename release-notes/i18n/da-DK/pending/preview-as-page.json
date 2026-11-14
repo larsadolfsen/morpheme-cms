@@ -1,0 +1,6 @@
+{
+  "id": "preview-as-page",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Vis forhåndsvisning åbner som en side med en tilbage-pil, og tilbage fører til formularen med dine ændringer"
+}
