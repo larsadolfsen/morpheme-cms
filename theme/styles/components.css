@@ -41,7 +41,7 @@
   --theme-logo-role-display: block;
   --theme-logo-role-display-large: block;
   /* The images in the list of posts (PostList.tsx, the blog's other posts). */
-  --theme-post-picture-radius: var(--radius-small);
+  --theme-post-picture-radius: var(--mo-shape-small);
   /* A page's and a post's title (.theme-title): display small on a phone, display medium from md (the type scale,
      ui.css). */
   --theme-title-size: var(--type-display-small-size);
@@ -99,9 +99,23 @@
       display: var(--theme-logo-role-display-large);
     }
   }
-  /* An image in the list of posts (PostList.tsx). */
+  /* The list of posts (PostList.tsx): a List with a leading image, 88 high on a phone and 128 from medium (larger imagery on
+     larger screens), a rule above each row (a divider of its own: the grid has two columns), the image's corners
+     --theme-post-picture-radius (Material 3: 8dp). */
+  .theme-post-list {
+    --list-item-image-size: 5.5rem;
+    --list-item-image-radius: var(--theme-post-picture-radius);
+  }
+  .theme-post-list.list > li {
+    border-top: 1px solid var(--mo-outline-variant);
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .theme-post-list {
+      --list-item-image-size: 8rem;
+    }
+  }
   .theme-post-picture {
-    border-radius: var(--theme-post-picture-radius);
+    object-fit: cover;
   }
   /* The first section on the front page (templates/Home.astro). */
   .theme-home-first {

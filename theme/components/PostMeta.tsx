@@ -9,13 +9,16 @@ export default function PostMeta({
   post,
   tags,
   className,
+  as: Tag = 'p',
 }: {
   post: PostView;
   tags?: { label: string; href: string }[];
   className?: string;
+  /** `span` where it stands in a phrase (a list item's overline). */
+  as?: 'p' | 'span';
 }) {
   return (
-    <p className={['flex flex-wrap items-center gap-x-2 type-body-medium text-on-surface-variant', className].filter(Boolean).join(' ')}>
+    <Tag className={['flex flex-wrap items-center gap-x-2 type-body-medium text-on-surface-variant', className].filter(Boolean).join(' ')}>
       <time dateTime={post.date}>{post.dateText}</time>
       <span aria-hidden="true">·</span>
       <span className="inline-flex items-center gap-1">
@@ -37,6 +40,6 @@ export default function PostMeta({
           </span>
         </>
       )}
-    </p>
+    </Tag>
   );
 }
