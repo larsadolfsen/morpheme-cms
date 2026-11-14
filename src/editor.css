@@ -919,6 +919,11 @@ html {
   pointer-events: none;
 }
 
+/* While blocks are being selected no block shows a row (the rings show on all of them). */
+.editor-text .site-block-marks .site-block-row-hover {
+  display: none;
+}
+
 .editor-text .site-block-row-hover .site-block-row-inner {
   inline-size: fit-content;
   margin-inline-start: auto;
@@ -963,21 +968,28 @@ html {
   cursor: default;
 }
 
-/* A mouse sees the handle on the block pointed at or in focus; a touch always sees it. */
-@media (hover: hover) {
-  .editor-text .site-block-handle {
-    opacity: 0;
-  }
+/* A block that is neither active nor pointed at shows no handle (it is the end of the action row), with a mouse or a touch; the handle, like the row, is there while the block is
+   active, pointed at (a mouse), being dragged, in focus with the keyboard, or while blocks are being selected. Hidden, it takes no pointer. */
+.editor-text .site-block-handle {
+  opacity: 0;
+  pointer-events: none;
+}
 
-  .editor-text .site-block:hover .site-block-handle,
-  .editor-text .site-block-handle:focus-visible,
-  .editor-text .site-block-dragging .site-block-handle {
+.editor-text :is(.site-block-has-row, .site-block-has-hover, .site-block-marks, .site-block-dragging) > .site-block-handle,
+.editor-text .site-block-handle:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (hover: hover) {
+  .editor-text .site-block:hover > .site-block-handle {
     opacity: 1;
+    pointer-events: auto;
   }
 }
 
 /* The mark on a block that can be selected with others (Material's Selection page, the photo grid): a round circle centred on the block's top left corner (so it covers nothing in the block, as in M3's example), empty, filled with a check
-   while the block is selected; a mouse sees it on the block pointed at, every block shows it once some block is selected (a touch never before that). Its target is 48 dp. */
+   while the block is selected; a mouse sees it on the block pointed at, the active block shows it, and every block shows it once some block is selected; any other block shows none. Its target is 48 dp. */
 .editor-text .site-block-mark {
   position: absolute;
   /* Centred on the outline's corner curve: the card is 0.625rem wider than the block on each side, and the 45 degree point of a corner with the Card's radius r (its
@@ -1015,7 +1027,7 @@ html {
   color: var(--mo-on-primary);
 }
 
-.editor-text .site-block-marks .site-block-mark {
+.editor-text :is(.site-block-marks, .site-block-has-row) > .site-block-mark {
   opacity: 1;
   pointer-events: auto;
 }

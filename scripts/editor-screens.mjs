@@ -1332,6 +1332,142 @@ async function checkBlockRow(width, options = {}) {
   await page.close();
 }
 
+/** A page of three blocks, one active, one pointed at (a computer), the rest plain: a block that is neither active nor pointed at shows no action row, no handle and no selection ring, with a mouse or a touch; the row, handle and ring show on the active block and on the one pointed at, and
+ * leave with it (the pointer leaving, a drag ending, another block becoming active); while blocks are being selected the rings show on all blocks. */
+async function checkBlockVisibility(width) {
+  const phone = width < 600;
+  const label = `${width}px block row visibility`;
+  const page = await browser.newPage({ viewport: { width, height: 1100 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  for (let i = 0; i < 3; i++) {
+    await pressInsert(page, 'click');
+    await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+    await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
+    await page.waitForTimeout(400);
+    await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
+    await page.keyboard.press('End');
+    await page.keyboard.press('Enter');
+  }
+  const blocks = page.locator('.ProseMirror .site-block');
+  if ((await blocks.count()) < 3) {
+    problems.push(`${label}: fewer than 3 blocks in the page`);
+    return void (await page.close());
+  }
+  const read = () =>
+    page.evaluate(() =>
+      [...document.querySelectorAll('.ProseMirror .site-block')].map((b) => {
+        const mark = b.querySelector(':scope > .site-block-mark');
+        const handle = b.querySelector(':scope > .site-block-handle');
+        return {
+          row: b.querySelectorAll('.site-block-row:not(.site-block-row-hover)').length,
+          hover: [...b.querySelectorAll('.site-block-row-hover')].filter((el) => el.getClientRects().length).length,
+          mark: mark ? Number(getComputedStyle(mark).opacity) : -1,
+          handle: handle ? Number(getComputedStyle(handle).opacity) : -1,
+          handleHits: handle ? getComputedStyle(handle).pointerEvents : '-',
+        };
+      }),
+    );
+  const plain = (state, name) => {
+    if (state.row || state.hover) problems.push(`${label}: ${name} is not active or pointed at but shows a row (${JSON.stringify(state)})`);
+    if (state.mark !== 0) problems.push(`${label}: ${name} is not active or pointed at but shows the selection ring (${state.mark})`);
+    if (state.handle !== 0 || state.handleHits !== 'none')
+      problems.push(`${label}: ${name} is not active or pointed at but shows its handle (${state.handle}, ${state.handleHits})`);
+  };
+  const shown = (state, name, hovering) => {
+    if (hovering ? !state.hover : !state.row) problems.push(`${label}: ${name} shows no row (${JSON.stringify(state)})`);
+    if (state.mark !== 1) problems.push(`${label}: ${name} shows no selection ring (${state.mark})`);
+    if (state.handle !== 1) problems.push(`${label}: ${name} shows no handle (${state.handle})`);
+  };
+  // Block 3 was typed in last and left: all three plain, the mouse away.
+  await page.click('.ProseMirror > p');
+  await page.mouse.move(2, 2);
+  await page.waitForTimeout(1000);
+  let now = await read();
+  now.forEach((state, i) => plain(state, `block ${i + 1} (none active)`));
+  // Block 1 active.
+  const tapOrClick = async (loc, position) => (phone ? loc.tap({ position }) : loc.click({ position }));
+  await tapOrClick(blocks.nth(0).locator('.inline-list-row [data-field="title"]').first(), { x: 8, y: 8 });
+  await page.waitForTimeout(1000);
+  await page.mouse.move(2, 2);
+  await page.waitForTimeout(400);
+  now = await read();
+  shown(now[0], 'the active block 1', false);
+  plain(now[1], 'block 2 (next to the active block 1)');
+  plain(now[2], 'block 3');
+  if (!phone) {
+    // Block 2 pointed at.
+    await blocks.nth(1).hover({ position: { x: 20, y: 20 } });
+    await page.waitForTimeout(500);
+    now = await read();
+    shown(now[0], 'the active block 1 (block 2 pointed at)', false);
+    shown(now[1], 'the pointed block 2', true);
+    plain(now[2], 'block 3 (block 2 pointed at)');
+    // The pointer leaves: nothing stays on block 2.
+    await page.mouse.move(2, 2);
+    await page.waitForTimeout(500);
+    now = await read();
+    plain(now[1], 'block 2 (the pointer left)');
+    // Pointed at block 3 and then away along the edge.
+    await blocks.nth(2).hover({ position: { x: 20, y: 20 } });
+    await page.waitForTimeout(400);
+    await page.mouse.move(2, 2);
+    await page.waitForTimeout(500);
+    plain((await read())[2], 'block 3 (the pointer left)');
+  }
+  // Another block becomes active: block 1 shows nothing any more.
+  // (A tap on another block first closes the active block's row; the next one goes into the block, as before this change.)
+  await tapOrClick(blocks.nth(2).locator('.inline-list-row [data-field="title"]').first(), { x: 8, y: 8 });
+  await page.waitForTimeout(1100);
+  if (!(await read())[2].row) {
+    await tapOrClick(blocks.nth(2).locator('.inline-list-row [data-field="title"]').first(), { x: 8, y: 8 });
+    await page.waitForTimeout(1100);
+  }
+  await page.mouse.move(2, 2);
+  await page.waitForTimeout(400);
+  now = await read();
+  plain(now[0], 'block 1 (block 3 became active)');
+  shown(now[2], 'the active block 3', false);
+  // A drag ends: the block stays active, the others show nothing, and nothing stays where the pointer was.
+  const handle = await blocks.nth(2).locator(':scope > .site-block-handle').boundingBox();
+  await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2 - 20, { steps: 4 });
+  await page.mouse.up();
+  await page.mouse.move(2, 2);
+  await page.waitForTimeout(1100);
+  now = await read();
+  const active = now.filter((state) => state.row).length;
+  if (active !== 1) problems.push(`${label}: ${active} blocks show a row after a drag ended, not 1 (${JSON.stringify(now)})`);
+  now.forEach((state, i) => state.row || plain(state, `block ${i + 1} (after a drag ended)`));
+  // Blocks being selected: the rings show on all blocks (touch-selection mode, as its spec says), and no row.
+  if (!phone) {
+    await page.click('.ProseMirror > p');
+    await page.waitForTimeout(1000);
+    await blocks.nth(0).hover({ position: { x: 20, y: 20 } });
+    await page.waitForTimeout(400);
+    await blocks.nth(0).locator(':scope > .site-block-mark').click();
+    await page.waitForTimeout(500);
+    now = await read();
+    now.forEach((state, i) => {
+      if (state.mark !== 1) problems.push(`${label}: block ${i + 1} shows no ring while blocks are being selected (${state.mark})`);
+      if (state.row || state.hover) problems.push(`${label}: block ${i + 1} shows a row while blocks are being selected`);
+    });
+    await page.keyboard.press('Escape');
+    await page.mouse.move(2, 2);
+    await page.waitForTimeout(500);
+    now = await read();
+    now.forEach((state, i) => plain(state, `block ${i + 1} (selection left)`));
+  }
+  await page.close();
+}
+
 /** A narrow window with a mouse (a computer at 420 px): pointing at a block shows no row over it (it would cover its first item), and a click on the first item's field goes into it. */
 async function checkBlockRowNarrow() {
   const label = 'narrow block row';
@@ -2510,7 +2646,14 @@ async function checkBlockDrag(width) {
   if (first.width < 44 || first.height < 44) problems.push(`${label}: a handle is smaller than 44 x 44 (${first.width}x${first.height})`);
   const opacity = () => handles.nth(1).evaluate((el) => getComputedStyle(el).opacity);
   if (phone) {
-    if ((await opacity()) !== '1') problems.push(`${label}: a touch does not always see the handle`);
+    // A touch sees a handle only on the active block (it is the end of the block's row); go into the second block first.
+    if ((await opacity()) !== '0') problems.push(`${label}: a touch sees the handle of a block that is not active`);
+    const field = page.locator('.ProseMirror .site-block').nth(1).locator('.inline-list-row [data-field]').first();
+    for (let tries = 0; tries < 3 && (await opacity()) !== '1'; tries++) {
+      await field.tap({ position: { x: 8, y: 8 } });
+      await page.waitForTimeout(1100);
+    }
+    if ((await opacity()) !== '1') problems.push(`${label}: a touch does not see the handle of the active block`);
   } else {
     await page.mouse.move(5, 5);
     await page.waitForTimeout(400);
@@ -2618,8 +2761,18 @@ async function checkBlockMove(width) {
   const before = await names();
   // Select the first block (a long press on its handle on a phone, the mark with a mouse), then the third.
   if (phone) {
+    // The handle is the end of the active block's row: go into the first block (a tap on another block first closes the active one's row), then press its handle.
+    const handle0 = blocks.nth(0).locator('.site-block-handle');
+    for (let tries = 0; tries < 3 && (await handle0.evaluate((el) => getComputedStyle(el).opacity)) !== '1'; tries++) {
+      await blocks
+        .nth(0)
+        .locator('.inline-list-row [data-field]')
+        .first()
+        .tap({ position: { x: 8, y: 8 } });
+      await page.waitForTimeout(1100);
+    }
     const cdp = await page.context().newCDPSession(page);
-    const [hx, hy] = await centre(blocks.nth(0).locator('.site-block-handle'));
+    const [hx, hy] = await centre(handle0);
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: hx, y: hy }] });
     await page.waitForTimeout(700);
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
@@ -2779,6 +2932,15 @@ async function checkBlockSelect(width) {
   };
   const handle0 = blocks.nth(0).locator('.site-block-handle');
   if (phone) {
+    // The handle is the end of the active block's row: go into the first block (a tap on another block first closes the active one's row), then press its handle.
+    for (let tries = 0; tries < 3 && (await handle0.evaluate((el) => getComputedStyle(el).opacity)) !== '1'; tries++) {
+      await blocks
+        .nth(0)
+        .locator('.inline-list-row [data-field]')
+        .first()
+        .tap({ position: { x: 8, y: 8 } });
+      await page.waitForTimeout(1100);
+    }
     const cdp = await page.context().newCDPSession(page);
     const [hx, hy] = await centre(handle0);
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: hx, y: hy }] });
@@ -7627,6 +7789,7 @@ for (const w of [375, 1280]) await unit(`checkBlockRow ${w}`, () => checkBlockRo
 await unit('checkBlockRow 375 reduced', () => checkBlockRow(375, { reduced: true }));
 await unit('checkBlockRow 375 keyboard', () => checkBlockRow(375, { height: 420 }));
 await unit('checkBlockRowNarrow', () => checkBlockRowNarrow());
+for (const w of [375, 1280]) await unit(`checkBlockVisibility ${w}`, () => checkBlockVisibility(w));
 await unit('checkSheetKeyboard 375', () => checkSheetKeyboard(375));
 await unit('checkSheetKeyboard 375 Custom', () => checkSheetKeyboard(375, 740, 300, true));
 for (const [width, height] of [
