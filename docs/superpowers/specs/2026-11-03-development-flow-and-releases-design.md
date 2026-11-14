@@ -87,7 +87,11 @@ On each push to `main` that leaves changesets pending, the workflow:
    nothing is committed.
 2. `npx changeset publish --tag next --no-git-tag` — publishes it under npm's `next` tag, with trusted publishing.
    npm's ranges (`^0.1.0`) never match a prerelease, and sites follow `latest`, so no site gets it by itself.
-3. `curl -X POST "$STAGING_DEPLOY_HOOK"` — starts a build of `morpheme-staging` (Cloudflare's Deploy Hooks).
+3. The job ends after staging; it does not wait for the owner's approval (a newer merge would cancel the wait).
+   Instead `.github/workflows/staging-follows-next.yml` runs every ten minutes, compares
+   `npm view @morphemecms/cms@next version` with the version in the GitHub release `staging-marker`, and when they
+   differ calls `curl -X POST "$STAGING_DEPLOY_HOOK"` (Cloudflare's Deploy Hooks) and updates the marker. Staging is
+   rebuilt after any approval, however many merges came in between. An empty secret fails the run loudly.
 
 A push that leaves no changeset pending (the Release PR's merge, or only empty changesets) publishes nothing here.
 
@@ -141,7 +145,7 @@ itself, never bumps a version by hand, and never merges anything but the Release
 | File | When | What |
 | --- | --- | --- |
 | `.github/workflows/check.yml` (new) | each pull request into `main` | the checks and `changeset status` (section 1) |
-| `.github/workflows/publish.yml` (rewritten) | each push to `main` | job `release`: `changesets/action` (Release PR, or the stable publish); job `next`: the snapshot and the deploy hook (section 2), only when changesets are pending |
+| `.github/workflows/publish.yml` (rewritten) | each push to `main` | job `release`: `changesets/action` (Release PR, or the stable publish); job `next`: the snapshot, staged only (section 2), when changesets are pending; `staging-follows-next.yml`: the deploy hook |
 
 Both publishing jobs stay in `publish.yml`, because npm's trusted publishing trusts one workflow file per package. The
 existing file's setup is kept: Node 24, npm 11 (trusted publishing needs 11.5.1 or newer), `id-token: write`, and
