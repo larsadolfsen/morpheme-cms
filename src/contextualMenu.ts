@@ -42,6 +42,9 @@ export type BarAction = {
     | 'align-auto';
   /** A choice among others (a column's alignment): shown pressed when it is the current one. */
   pressed?: boolean;
+  /** It does not apply now (Move up for blocks that are not next to each other), with `reason` for screen readers and the mouse's hover. */
+  disabled?: boolean;
+  reason?: string;
   action: () => void;
 };
 

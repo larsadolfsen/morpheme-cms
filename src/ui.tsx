@@ -230,6 +230,7 @@ export function ToolbarButton({
   popup,
   count,
   disabled,
+  reason,
   onClick,
 }: {
   ref?: Ref<HTMLButtonElement>;
@@ -244,6 +245,8 @@ export function ToolbarButton({
   /** It is the `⋮` with a menu and no arrow: whether the menu is open. */
   popup?: boolean;
   disabled?: boolean;
+  /** Why it is disabled: its `aria-description` and `title` (M3 prints no other way to say it). */
+  reason?: string;
   onClick: (e: MouseEvent<HTMLButtonElement>) => void;
 }) {
   const tooltip = useTooltip(label);
@@ -252,6 +255,7 @@ export function ToolbarButton({
     'aria-expanded': menu ?? popup,
     'aria-haspopup': popup === undefined && menu === undefined ? undefined : ('menu' as const),
     disabled,
+    ...(disabled && reason ? { 'aria-description': reason, title: reason } : {}),
     onMouseDown: (e: MouseEvent) => e.preventDefault(),
     onClick,
     ...tooltip.on,

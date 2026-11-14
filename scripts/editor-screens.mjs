@@ -2006,6 +2006,167 @@ async function checkBlockDrag(width) {
   await page.close();
 }
 
+// Moving the selected blocks together: Move up and Move down on the bar are disabled with their reason while the blocks are not next to each other, every
+// handle is disabled (and drags nothing) while several are selected, next to each other they move together and stay selected, and Shift+Arrow extends.
+async function checkBlockMove(width) {
+  const label = `block move ${width}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  for (const hint of ['Numbered steps.', 'Rows with icon, heading and text.', 'Numbered steps.']) {
+    await pressInsert(page, 'click');
+    await page.locator('dialog[open] button', { hasText: hint }).first().click();
+    await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
+    await page.waitForTimeout(400);
+    await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
+    await page.keyboard.press('End');
+    await page.keyboard.press('Enter');
+  }
+  const blocks = page.locator('.ProseMirror .site-block');
+  if ((await blocks.count()) < 3) {
+    problems.push(`${label}: fewer than 3 blocks in the page`);
+    await page.close();
+    return;
+  }
+  const names = () => page.locator('.ProseMirror .site-block-handle').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  const selected = () => page.locator('.ProseMirror .site-block-selected').count();
+  const up = page.locator('.editor-tools').getByRole('button', { name: 'Move up' });
+  const down = page.locator('.editor-tools').getByRole('button', { name: 'Move down' });
+  const centre = async (loc) => {
+    const b = await loc.boundingBox();
+    return [b.x + b.width / 2, b.y + b.height / 2];
+  };
+  const tap = async (loc) => {
+    await loc.scrollIntoViewIfNeeded();
+    if (phone) {
+      const [x, y] = await centre(loc);
+      await page.touchscreen.tap(x, y);
+    } else {
+      // A click on the block (checkBlockSelect checks the pointer's own geometry; here the third block can sit under the save bar).
+      await loc.dispatchEvent('click');
+    }
+    await page.waitForTimeout(400);
+  };
+  const before = await names();
+  // Select the first block (a long press on its handle on a phone, the mark with a mouse), then the third.
+  if (phone) {
+    const cdp = await page.context().newCDPSession(page);
+    const [hx, hy] = await centre(blocks.nth(0).locator('.site-block-handle'));
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: hx, y: hy }] });
+    await page.waitForTimeout(700);
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  } else {
+    await blocks.nth(0).hover();
+    await blocks.nth(0).locator('.site-block-mark').click();
+  }
+  await page.waitForTimeout(400);
+  await tap(blocks.nth(2));
+  if ((await selected()) !== 2) problems.push(`${label}: two blocks are not selected (${await selected()})`);
+  for (const [name, button] of [
+    ['Move up', up],
+    ['Move down', down],
+  ]) {
+    if (!(await button.count())) {
+      problems.push(`${label}: no ${name} on the bar`);
+      continue;
+    }
+    if (!(await button.first().isDisabled())) problems.push(`${label}: ${name} is not disabled for blocks that are apart`);
+    const reason = await button.first().getAttribute('aria-description');
+    if (!/next to each other/.test(reason ?? '')) problems.push(`${label}: ${name} has no reason ("${reason}")`);
+    if (!/next to each other/.test((await button.first().getAttribute('title')) ?? '')) problems.push(`${label}: ${name} has no title`);
+  }
+  const handles = await page
+    .locator('.ProseMirror .site-block-handle')
+    .evaluateAll((els) =>
+      els.map((e) => [
+        e.hasAttribute('aria-disabled'),
+        e.getAttribute('aria-description'),
+        e.getAttribute('tabindex'),
+        getComputedStyle(e).display,
+      ]),
+    );
+  if (handles.some(([off, why, tab, display]) => !off || !/Drag is off/.test(why ?? '') || tab !== '-1' || display === 'none'))
+    problems.push(`${label}: not every handle is shown disabled with its reason (${JSON.stringify(handles)})`);
+  // A drag on a disabled handle moves nothing.
+  const [dx, dy] = await centre(blocks.nth(0).locator('.site-block-handle'));
+  if (!phone) {
+    await page.mouse.move(dx, dy);
+    await page.mouse.down();
+    await page.mouse.move(dx, dy + 400, { steps: 8 });
+    await page.mouse.up();
+    await page.waitForTimeout(400);
+    if (JSON.stringify(await names()) !== JSON.stringify(before)) problems.push(`${label}: a disabled handle moved a block`);
+  }
+  // Take the third off: the first two are next to each other and move down together.
+  await tap(blocks.nth(2));
+  await tap(blocks.nth(1));
+  if ((await selected()) !== 2) problems.push(`${label}: first two blocks are not selected (${await selected()})`);
+  if (!(await down.count())) problems.push(`${label}: no Move down on the bar after selecting two blocks`);
+  else if (await down.first().isDisabled()) problems.push(`${label}: Move down is disabled for blocks that are next to each other`);
+  else {
+    await down.first().click();
+    await page.waitForTimeout(600);
+    const after = await names();
+    if (JSON.stringify(after) !== JSON.stringify([before[2], before[0], before[1]]))
+      problems.push(`${label}: Move down did not move both blocks (${JSON.stringify(before)} -> ${JSON.stringify(after)})`);
+    if ((await selected()) !== 2) problems.push(`${label}: the moved blocks are not selected (${await selected()})`);
+    const marked = await page
+      .locator('.ProseMirror .site-block')
+      .evaluateAll((els) => els.map((e) => e.classList.contains('site-block-selected')));
+    if (JSON.stringify(marked) !== JSON.stringify([false, true, true]))
+      problems.push(`${label}: the wrong blocks stay selected (${marked})`);
+    if (!(await down.count()) || !(await up.count())) {
+      problems.push(`${label}: the bar lost Move up or Move down after a move (selected: ${await selected()})`);
+      await page.close();
+      return;
+    }
+    if (!(await down.first().isDisabled())) problems.push(`${label}: Move down is on at the end of the page`);
+    if (await up.first().isDisabled()) {
+      const shape = await page.evaluate(() =>
+        [...document.querySelector('.ProseMirror').children].map((c) =>
+          c.classList.contains('site-block') || c.querySelector(':scope > .site-block')
+            ? `block${c.classList.contains('site-block-selected') || c.querySelector('.site-block-selected') ? '*' : ''}`
+            : c.textContent.trim()
+              ? 'text'
+              : 'gap',
+        ),
+      );
+      problems.push(`${label}: Move up is disabled after Move down (${shape.join(' ')}; ${await up.first().getAttribute('title')})`);
+      await page.close();
+      return;
+    }
+    await up.first().click();
+    await page.waitForTimeout(600);
+    if (JSON.stringify(await names()) !== JSON.stringify(before)) problems.push(`${label}: Move up did not bring the order back`);
+  }
+  if (!phone) {
+    // Shift+Arrow extends from the focused card.
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+    // A card typed in place takes no focus itself (its rows do), so the check gives it one; a card that is a button has it already.
+    await blocks
+      .nth(0)
+      .locator('.site-block-card')
+      .first()
+      .evaluate((el) => {
+        if (!el.matches('button')) el.tabIndex = 0;
+        el.focus();
+      });
+    await page.keyboard.press(' ');
+    await page.keyboard.press('Shift+ArrowDown');
+    await page.waitForTimeout(300);
+    if ((await selected()) !== 2) problems.push(`${label}: Shift+Arrow did not extend the selection (${await selected()})`);
+  }
+  await page.close();
+}
+
 /** Selecting several blocks of a page (blockSelectable and selectionBar in MarkdownEditor.tsx): a long press on a block's handle (touch) or a click on the mark of the block
  * pointed at (mouse) selects it; the text is then read-only and every block shows its mark; a tap or click on another block adds it without opening it; the bar
  * has the count with a cross first and Hide, Remove and Select all in its `⋮` (Duplicate only with one block selected); Remove asks first; Hide hides all selected;
@@ -6707,6 +6868,7 @@ await unit('checkDragSelect', () => checkDragSelect());
 await unit('checkTwoFinger', () => checkTwoFinger());
 for (const w of [375, 1280]) await unit(`checkBlockDrag ${w}`, () => checkBlockDrag(w));
 for (const w of [375, 1280]) await unit(`checkBlockSelect ${w}`, () => checkBlockSelect(w));
+for (const w of [375, 1280]) await unit(`checkBlockMove ${w}`, () => checkBlockMove(w));
 await unit('checkUnlistedPost', () => checkUnlistedPost());
 await unit('checkLibraryAlt', () => checkLibraryAlt());
 for (const [width, height] of [

@@ -892,6 +892,12 @@ html {
   transition: opacity var(--motion-effects);
 }
 
+/* Disabled while several blocks are selected: the theme's disabled colours, no grab cursor. */
+.editor-text .site-block-handle[aria-disabled] {
+  color: color-mix(in srgb, var(--mo-on-surface) 38%, transparent);
+  cursor: default;
+}
+
 /* A mouse sees the handle on the block pointed at or in focus; a touch always sees it. */
 @media (hover: hover) {
   .editor-text .site-block-handle {

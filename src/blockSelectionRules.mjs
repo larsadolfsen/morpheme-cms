@@ -45,3 +45,24 @@ export function hideChoice(blocks) {
 export function removeChoice(blocks) {
   return { targets: blocks.filter((b) => !b.stays).map((b) => b.place), skipped: blocks.filter((b) => b.stays).map((b) => b.place) };
 }
+
+/**
+ * Where the selected blocks go when they move one place together (Move up, Move down): they must be next to each other (only free lines between), and
+ * the part they move past must exist and not be locked by the template. The part moves to the other side of them; the order of the selected blocks stays.
+ * @param {{ gap: boolean, locked: boolean }[]} parts every part at the top level of the text, by its index (`gap`: a free line)
+ * @param {number[]} places the selected places, in order
+ * @param {-1 | 1} by -1 up, 1 down
+ * @returns {{ ok: true, first: number, last: number, past: number, places: number[] } | { ok: false, why: 'apart' | 'edge' | 'locked' }}
+ *   `first`..`last`: the span the selection covers; `past`: the part it moves past; `places`: the selected places afterwards
+ */
+export function groupMove(parts, places, by) {
+  const first = places[0];
+  const last = places[places.length - 1];
+  for (let i = first; i <= last; i++) if (!places.includes(i) && !parts[i]?.gap) return { ok: false, why: 'apart' };
+  let past = (by < 0 ? first : last) + by;
+  while (parts[past]?.gap) past += by;
+  if (!parts[past]) return { ok: false, why: 'edge' };
+  if (parts[past].locked) return { ok: false, why: 'locked' };
+  const shift = by < 0 ? past - first : past - last;
+  return { ok: true, first, last, past, places: places.map((p) => p + shift) };
+}
