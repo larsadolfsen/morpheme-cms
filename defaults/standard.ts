@@ -21,7 +21,7 @@ import {
   type Post,
 } from '../site/content';
 import { allPostsCategory, allPostsLink } from '../site/home';
-import { altFor, libraryAlt, responsive } from '../site/images.mjs';
+import { altFor, libraryAlt, libraryImages, responsive } from '../site/images.mjs';
 import { readingMinutes } from '../site/format';
 import { testimonials, testimonialsPath } from '../site/testimonials';
 import { cookieList } from '../site/cookieList';
@@ -131,6 +131,10 @@ export const standard: StandardSite = {
     return { href: `#${value}`, text: promotion.heading, open: `promotion:${value}` };
   },
   cookies: cookieList,
+  images: {
+    list: () => libraryImages(),
+    tag: async (slug) => categoryName(slug),
+  },
   testimonials: {
     list: testimonials,
     page: testimonialsPath,

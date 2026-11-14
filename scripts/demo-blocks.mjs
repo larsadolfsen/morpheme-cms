@@ -73,6 +73,7 @@ export const styleChecks = [
   ['posts', 'design', ''],
   ['posts', 'show', 'categories'],
   ['testimonials', 'layout', 'cards'],
+  ['imagegrid', 'card', 'filled'],
 ];
 
 const propsOf = (text, type) =>

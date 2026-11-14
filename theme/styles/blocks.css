@@ -992,6 +992,76 @@
     }
   }
   /* The subhead: the small line under the headline (a byline, a date, a place). */
+  /* "Image grid" (blocks/imagegrid/View.tsx): the tag filter over the staggered grid (.image-grid in ui.css), the text under an image on its card. The filter
+     and its count are drawn hidden and shown by script.ts; the columns can be set to 2, 3 or 4 on a computer (data-columns). */
+  .block-imagegrid-filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .block-imagegrid-filter[hidden],
+  .block-imagegrid-count[hidden],
+  .block-imagegrid-empty[hidden],
+  .block-imagegrid-clear[hidden] {
+    display: none;
+  }
+  .block-imagegrid-clear {
+    padding: 0 0.75rem;
+    min-height: var(--mo-target, 2.75rem);
+    border: 0;
+    background: none;
+    color: var(--mo-primary);
+    font: inherit;
+    cursor: pointer;
+  }
+  .block-imagegrid-empty {
+    color: var(--block-muted);
+  }
+  .block-imagegrid-count {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .block-imagegrid-grid[data-columns='2'] {
+      column-count: 2;
+    }
+    .block-imagegrid-grid[data-columns='3'] {
+      column-count: 3;
+    }
+    .block-imagegrid-grid[data-columns='4'] {
+      column-count: 4;
+    }
+  }
+  .block-imagegrid-grid > li[hidden] {
+    display: none;
+  }
+  .card-text {
+    display: block;
+    padding: var(--card-media-gap, 1rem) var(--card-padding, 1rem) var(--card-padding, 1rem);
+  }
+  .card-subhead,
+  .card-supporting {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-subhead {
+    -webkit-line-clamp: 1;
+    font-size: var(--type-label-medium-size, 0.75rem);
+    line-height: var(--type-label-medium-line-height, 1rem);
+    color: var(--block-muted);
+  }
+  .card-supporting {
+    -webkit-line-clamp: 2;
+    margin-top: var(--card-subhead-gap, 0.25rem);
+    font-size: var(--type-body-medium-size, 0.875rem);
+    line-height: var(--type-body-medium-line-height, 1.25rem);
+  }
   .block-card-subhead {
     margin-top: var(--card-subhead-gap, 0.25rem);
     font-size: var(--type-body-medium-size, 0.875rem);

@@ -146,6 +146,8 @@ export type BlockData = {
   /** What the Library says of an image (its base alt text, or that it is decorative), by its address: an image with no text of its own is
    * drawn with it, as on the site (src/imageAlt.mjs). */
   libraryAlt?: (src: string) => { alt?: string; decorative?: boolean } | undefined;
+  /** The images of Files with their records' tags, text, caption and credit, for the "Image grid" (standard/imagegrid/). */
+  libraryImages?: import('./standard/imagegrid/view').ImageItem[];
 };
 
 // Fields filled in as an example from what they are: a text with its name ("Heading"), a choice

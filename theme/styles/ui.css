@@ -2407,7 +2407,10 @@
     overflow: hidden;
     border-radius: inherit;
   }
-  .card-media > img {
+  .card-media > picture {
+    display: contents;
+  }
+  .card-media img {
     display: block;
     width: 100%;
     height: 100%;
