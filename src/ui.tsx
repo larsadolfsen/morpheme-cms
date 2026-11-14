@@ -220,7 +220,7 @@ export function IconLink({
 /** A tool in the text's bar (MarkdownEditor.tsx): the theme's icon button, 44 by 44 dp with a 20 dp icon (owner decision, 13 Nov: the
  * editor's bar and menus are 44, not 48), and it keeps the cursor in the text while it is tapped. With `menu` it opens a Menu
  * under it (Text style, List, Alignment, Color): the theme's text button with the icon and a small arrow after it. With `popup` it is the
- * bar's `⋮`: an icon button that opens a menu (aria-haspopup, aria-expanded). `disabled`: it does not apply now. */
+ * bar's `⋮`: an icon button that opens a menu (aria-haspopup, aria-expanded). With `count` it is the block selection's count with a cross. `disabled`: it does not apply now. */
 export function ToolbarButton({
   ref,
   icon: Glyph,
@@ -228,12 +228,15 @@ export function ToolbarButton({
   selected,
   menu,
   popup,
+  count,
   disabled,
   onClick,
 }: {
   ref?: Ref<HTMLButtonElement>;
   icon: Icon;
   label: string;
+  /** The block selection's count: the icon (a cross) and this number in the theme's text button, two slots wide; tapping it clears the selection. */
+  count?: number;
   /** Marked while it applies where the cursor is (bold); undefined for a tool that is not on or off. */
   selected?: boolean;
   /** It opens a Menu, with an arrow after its icon: whether the menu is open. */
@@ -253,6 +256,23 @@ export function ToolbarButton({
     onClick,
     ...tooltip.on,
   };
+  if (count !== undefined)
+    return (
+      <>
+        <SiteButton
+          kind="text"
+          size="xsmall"
+          icon={<Glyph />}
+          aria-label={label}
+          className="toolbar-count-button"
+          style={toolbarMenuSize}
+          {...own}
+        >
+          {count}
+        </SiteButton>
+        {tooltip.tip}
+      </>
+    );
   return (
     <>
       {menu === undefined ? (

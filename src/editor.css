@@ -905,6 +905,54 @@ html {
   }
 }
 
+/* The mark on a block that can be selected with others (Material's Selection page, the photo grid): a round circle at the top left, empty, filled with a check
+   while the block is selected; a mouse sees it on the block pointed at, every block shows it once some block is selected (a touch never before that). Its target is 48 dp. */
+.editor-text .site-block-mark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 3rem;
+  block-size: 3rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-effects);
+}
+
+.editor-text .site-block-mark-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  border: 2px solid var(--mo-outline);
+  border-radius: 50%;
+  background: var(--mo-surface);
+  color: transparent;
+  box-shadow: 0 0 0 2px var(--mo-surface);
+}
+
+.editor-text .site-block-mark[data-mark='on'] .site-block-mark-dot {
+  border-color: var(--mo-primary);
+  background: var(--mo-primary);
+  color: var(--mo-on-primary);
+}
+
+.editor-text .site-block-marks .site-block-mark {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (hover: hover) {
+  .editor-text .site-block:hover .site-block-mark {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
 /* The block while it is dragged: raised, following the finger. A line shows the part it will go next to. */
 .editor-text .site-block-dragging {
   z-index: 3;
