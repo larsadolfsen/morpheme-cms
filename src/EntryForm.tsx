@@ -257,7 +257,7 @@ function Form({
   const off = useMemo(() => notOffered(env.files), [env.files]);
   // A page chosen as a standard page ("Settings" › "Appearance" › "Default pages", packages/editor/defaults/standardPages.ts) has its
   // rules too (the blog page has "Blog posts"). The front page is written as it looks: the heading, text and image of a
-  // block as the text above its card (its lead), and its top ("Hero") first.
+  // block as the text above its card (its lead),.
   const paths = standardPaths(env.files.find((f) => f.path === config.standardPages)?.text);
   const standard = url ? standardPages.find((p) => paths[p.key] === url) : undefined;
   const front = standard?.key === 'front';

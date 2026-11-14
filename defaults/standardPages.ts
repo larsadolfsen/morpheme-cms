@@ -32,8 +32,8 @@ export type StandardPage = {
 export const standardPages: StandardPage[] = [
   {
     key: 'front',
-    label: 'Front page',
-    the: 'The front page',
+    label: 'Home page',
+    the: 'The home page',
     at: '/',
   },
   // The posts ("Blog posts"), once.

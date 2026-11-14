@@ -59,7 +59,7 @@ export const apps: Messages['apps'] = {
   notUsed: 'Bruges ingen steder',
   stuck: 'Appen bruges og kan ikke afinstalleres. Fjern den fra stederne ovenfor først.',
   blocks: 'Blokke',
-  lists: 'Dynamiske lister',
+  lists: 'Lister',
   tabSettings: 'Indstillinger',
   tabInfo: 'Information',
   tabs: 'Appens dele',

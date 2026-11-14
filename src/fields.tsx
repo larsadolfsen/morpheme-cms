@@ -682,7 +682,7 @@ function MarkdownField({ value, onChange }: { value: string; onChange: (v: unkno
   );
 }
 
-// The same with the blocks its template allows (Field.template: a "Banner"'s image and "Buttons"), put in with "+"
+// The same with the blocks its template allows (Field.template: an image and "Buttons"), put in with "+"
 // as in a page's text, in the sheet of the blocks (BlockDialog.tsx) over the sheet or form the field is in. An image
 // only when the template has 'image', without a format or crop of its own.
 function MarkdownWithBlocks({ value, template, onChange }: { value: string; template: Template; onChange: (v: unknown) => void }) {

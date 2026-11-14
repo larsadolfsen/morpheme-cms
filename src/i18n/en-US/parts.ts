@@ -2,20 +2,20 @@
 // blocks and the apps' (BlockParts.tsx), all with the made-up site of examples.ts.
 export const parts = {
   intro: (file: string) =>
-    `The parts only the editor has, looking the way they do everywhere. The parts are in ${file}; change a part there and it changes everywhere. The buttons, fields, lists, sheets, and the other parts the theme has too are the theme’s and are under Theme. Light or dark is picked under Account.`,
+    `The components only the editor has, looking the way they do everywhere. The components are in ${file}; change one there and it changes everywhere. The buttons, text fields, lists, sheets, and the other components the theme has too are the theme’s and are under Theme. Light or dark is picked under Account.`,
   use: {
     emptyNote: 'What a list or a screen says when there is nothing in it, or while something is fetched: gray, in the middle.',
     problemNote: 'What is wrong, in the primary color: why a sheet can’t be saved, or what couldn’t be read.',
     toolbarButton:
       'A tool in the text’s toolbar: a little smaller, so the bar fits on a phone. With an arrow it opens a menu (the kind of text, when the bar is too narrow).',
     fields:
-      'The theme’s fields with the name on their edge and an explanation below. A choice opens a menu right under the field on a computer, or the sheet on a phone, or a page of its own with what each choice gives (the arrow points there).',
+      'The theme’s text fields with the label on their edge and supporting text below. A choice opens a menu right under the text field on a computer, or the bottom sheet on a phone, or a page of its own with what each choice gives (the dropdown icon points there).',
     formField: 'A field that says what is wrong with what was typed, and the number of characters out of the most allowed.',
     fieldGroup: 'Fields that belong together, in a frame with their name on it.',
     shownValue: 'What a field holds, shown without being edited here: with its icon, or gray when it is made elsewhere.',
-    iconPicker: 'One of many icons: the chosen one with its name, and the button that unfolds them all.',
+    iconPicker: 'One of many icons: the chosen one with its name, and the button that expands them all.',
     imagePick: 'An image: a small one of it, the button that picks one, and the button that removes it when it may be left out.',
-    foldList: 'Items in a frame that each fold out to their fields, with the arrows and Remove beside them.',
+    foldList: 'Items in a frame that each expand to their fields, with the arrows and Remove beside them.',
     multiChoice:
       'Several picked from a list: the picked ones as chips, and the button that opens the sheet with all the choices. At the bottom of the sheet, a link to make a new one.',
     arrowLink: 'A link to another screen, with an arrow after it: under a field’s name, where it is edited.',
@@ -29,22 +29,22 @@ export const parts = {
     group:
       'Rows in a frame under a small heading: the start screen and the lists. The icon looks the same everywhere: gray, and in the primary color for the open part in the menu. A small image or a sample of one of the theme’s values can stand before the name instead. A number may stand at the right. A row can also do something, in the primary color; delete, in the middle; or only be shown, with no color under the mouse and perhaps gray.',
     selectRow:
-      'A row that can be selected: press and hold it, or tap its icon or image, and then tap more rows. A box for the choice stands at the right of a row with an icon or image, and at the left of a row with only text. With a mouse the box shows on the row you point at, and on every row once one is selected. A selected row has the selected color and rounder corners.',
+      'A row that can be selected: press and hold it, or tap its icon or image, and then tap more rows. A checkbox stands at the right of a row with an icon or image, and at the left of a row with only text. With a mouse the checkbox shows on the row you point at, and on every row once one is selected. A selected row has the selected color and rounder corners.',
     checkList:
-      'Things that were checked: a score from 0 to 100 in a ring, a red triangle by what could be better (which folds out with how), and a green dot by what is fine.',
+      'Things that were checked: a score from 0 to 100 in a ring, a red triangle by what could be better (which expands with how), and a green dot by what is fine.',
     scoreRing:
       'A score from 0 to 100 in a small ring at the start of a row, in the colors of the ring of checked things: green from 90, orange from 50, else red.',
     menuRow:
-      'A setting in the same row as a switch: its name and what it does at the left, and at the right the chosen one in a small box with an arrow. It opens the choices under it (a sheet on a phone), the chosen one checked. Gray while the setting cannot be changed.',
+      'A setting in the same row as a switch: its name and what it does at the left, and at the right the chosen one in a menu with a dropdown icon. It opens the choices under it (a bottom sheet on a phone), the chosen one checked. Gray while the setting cannot be changed.',
     unfold:
-      'At the right of a row: how many rows are under it, and the arrow that shows them. The rows under it are indented along a line.',
+      'At the right of a row: how many rows are under it, and the expand icon that shows them. The rows under it are indented along a line.',
     sheet:
-      'The sheet from the bottom (a dialog on a computer) with choices or fields. An icon or a row, for example, Language, opens it with the choices, and + opens it with the kinds something new can be, for example, a pop-up. The choices can stand under small headings.',
+      'The bottom sheet (a dialog on a computer) with choices or fields. An icon or a row, for example, Language, opens it with the choices, and + opens it with the kinds something new can be, for example, a pop-up. The choices can stand under small headings.',
     preview:
-      'The preview of a block in a dashed frame. It can be used as on the site, for example, folded out, but a link in it goes nowhere.',
-    colorSwatches: 'A set of colors in small rounds side by side, for example, 4 of the website’s colors.',
+      'The preview of a block in a dashed frame. It can be used as on the site, for example, expanded, but a link in it goes nowhere.',
+    colorSwatches: 'A set of colors in circles side by side, for example, 4 of the website’s colors.',
     colorTiles:
-      'A few colors side by side, each on a tile with its name, its color code, a pen that opens the color sheet, and on the first a lock, for example, the generator’s 3 base colors.',
+      'A few colors side by side, each on a tile with its name, its color code, an Edit icon button that opens the color sheet, and on the first a lock, for example, the generator’s 3 base colors.',
     colorWheel: 'A color wheel with the colors as dots: the big one is dragged, the others follow, and a locked one shows a lock.',
     choiceRow:
       'One of several choices on a screen of its own, each in a row with what it gives, for example, a few of an icon pack’s icons, the chosen one in the primary color with a check mark.',
@@ -53,12 +53,12 @@ export const parts = {
     fullScreenSheet:
       'The sheet with a whole page in it (the preview), as tall as the screen. The page is in a frame, as wide as a phone or a computer, and nothing in it runs.',
     foldSection:
-      'A section of a long form (a page, a blog post) that folds in and out by its heading. Only the first is open from the start.',
+      'A section of a long form (a page, a blog post) that expands and collapses by its heading. Only the first is open from the start.',
     sharePreview: "A link to a page as it looks when it is shared: the image, the website's domain, the title, and the description.",
     formColumns:
       'A form on a wide screen: the text at the left, the status and the other fields on cards at the right. On a smaller screen below each other. The heading over the fields is always the same.',
     mainDrawer:
-      'The editor’s menu: the website’s parts in sections, the open one marked. On a wide screen it stands beside the content, and the menu button at the start of the top bar shows and hides it; on a smaller screen it opens over the page and closes on a choice, a tap beside it, Escape or a swipe. Shown here opening over the page.',
+      'The editor’s navigation drawer: the website’s parts in sections, the open one marked. On a wide screen it stands beside the content, and the menu button at the start of the app bar shows and hides it; on a smaller screen it opens over the page and closes on a choice, a tap beside it, Escape or a swipe. Shown here opening over the page.',
     editorFooter:
       'The line at the bottom of every screen, under the content, with a link to the licenses of what the website and the editor are made with.',
     sectionList:
@@ -66,7 +66,7 @@ export const parts = {
   },
   /** Over the parts: the search, and the groups to show one of (as Material 3 sorts its components). */
   filter: {
-    search: 'Search the parts',
+    search: 'Search the components',
     group: {
       buttons: 'Buttons',
       fields: 'Fields',
@@ -78,7 +78,7 @@ export const parts = {
       layout: 'Layout',
       fieldTypes: 'Field types',
     },
-    none: 'No parts match the search',
+    none: 'No components match the search',
   },
   /** The texts in the examples. */
   sample: {
@@ -122,15 +122,15 @@ export const parts = {
     aPage: 'A page',
     pageText: 'A whole page in a frame, as wide as a phone.',
     option: (letter: string) => `Choice ${letter}`,
-    foldOut: 'Tap to fold out',
-    foldedText: 'The text that folds out. A link here goes nowhere:',
+    foldOut: 'Tap to expand',
+    foldedText: 'The text that expands. A link here goes nowhere:',
     link: 'link',
     noticeTitle: 'The version from Oct 1 at 1:42 PM',
     noticeText: 'This is how it looked then.',
     noticeAction: 'Show the current version',
     cookieHint: 'Asks the visitors for permission to use cookies.',
     corners: 'Corners',
-    showOnFront: 'Show on the front page',
+    showOnFront: 'Show on the home page',
     contact: 'Contact',
     name: 'Name',
     fromTitle: '/made-from-the-title/',
@@ -164,7 +164,7 @@ export const parts = {
       image: 'An image from Files or a new one.',
       readonly: 'Shown, but not edited here.',
       object: 'A group of fields in a frame.',
-      list: 'A list of items that each fold out to their fields, or of single choices.',
+      list: 'A list of items that each expand to their fields, or of single choices.',
       blocks: 'The sections of a fixed page as cards in the text, like a page.',
       check:
         'A form that isn’t filled in right: a message at the front says what is wrong, and the field is scrolled to and flashes until it is put right. Try with an empty field that must be filled in.',
@@ -187,7 +187,7 @@ export const parts = {
     price: 'Price',
     date: 'Date',
     publish: 'Published',
-    frontPage: 'Show on the front page',
+    frontPage: 'Show on the home page',
     popup: 'The pop-up',
     shown: 'Shown',
     hidden: 'Hidden',
@@ -259,7 +259,7 @@ export const parts = {
   },
   /** "Parts" › "Values" (#developer/parts/values, Tokens.tsx): the theme's design tokens, each with what it is used for. */
   tokens: {
-    intro: 'The theme’s values for corners, shadows, typography, and colors, as the theme sets them.',
+    intro: 'The theme’s design tokens for corners, shadows, typography, and colors, as the theme sets them.',
     groups: { shape: 'Corners', elevation: 'Shadows', type: 'Typography', color: 'Colors' },
     shape: {
       radius: 'Panels',
@@ -274,7 +274,7 @@ export const parts = {
     parts: {
       button: 'Buttons',
       chip: 'Chips',
-      textField: 'Fields',
+      textField: 'Text fields',
       card: 'Cards',
       menu: 'Menus',
       dialog: 'Dialogs',
@@ -365,7 +365,7 @@ export const parts = {
     editor: 'Editor',
     components: 'Theme components',
     blocks: 'Blocks',
-    values: 'Values',
+    values: 'Tokens',
     componentsIntro: "The theme's buttons, fields, lists, and other parts in all their kinds and states. The theme gives them their look.",
     /** Theme coverage on "UI components": which parts the active theme styles, which it leaves to Material. */
     coverage: {
@@ -392,8 +392,8 @@ export const parts = {
     blocksIntro: "The standard blocks and the apps' blocks in all their versions. The theme gives them their look.",
     /** A list of kinds ("Promotion"), by the list's name for one. */
     kindsIntro: (one: string) => `Every kind of ${one}, the apps' too, in all its states. The theme gives them their look.`,
-    search: 'Search the parts',
-    none: 'No parts match the search',
+    search: 'Search the components',
+    none: 'No components match the search',
     /** The theme's buttons (packages/editor/theme/ui/), first under "UI components". */
     ui: 'Buttons',
     button:
@@ -454,7 +454,7 @@ export const parts = {
     containment: {
       title: 'Dialogs, sheets and carousel',
       dialog:
-        'A box over the page with an icon, a heading, a text, and buttons, only the box, for example, a pop-up or the cookie question, or over the whole screen on a phone with the close button and the action at the top.',
+        'A dialog over the page with an icon, a heading, a text, and buttons, only the dialog, for example, a pop-up or the cookie question, or over the whole screen on a phone with the close button and the action at the top.',
       bottomSheet:
         'A sheet from the bottom: modal over the page, on a computer as a dialog in the middle, for example, the booking sheet, or standard at the bottom of the screen, with the page usable behind it, dragged up and down.',
       carousel:
@@ -660,7 +660,7 @@ export const parts = {
         'A line that fills up as far as something has come. Without a value, 2 stretches run along it. Also wavy and thick.',
       circularProgressIndicator: 'The same as a ring, where there is no room for a line. Also wavy and thick.',
       snackbar:
-        'A short message at the bottom of the screen, for example, about a new version of a page, with links, an action, or a cross.',
+        'A short message at the bottom of the screen, for example, about a new version of a page, with links, an action, or a close button.',
       tooltip: 'A short text by a button while the mouse is over it or it has focus: short, or with a heading and an action.',
       dot: 'Dot',
       number: 'Number',
