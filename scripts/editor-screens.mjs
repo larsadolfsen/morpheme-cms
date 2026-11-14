@@ -2105,6 +2105,66 @@ async function checkDensityTable(width, height) {
   await page.close();
 }
 
+/** Density on the editor's screens (spec: docs/superpowers/specs/2026-11-13-density-design.md, checks): the main screens open at Large and Small (Medium is what "screens" checks) without an error and without the page scrolling sideways, on a phone and a computer; and the colours of the parts do not depend on density (a row, a button, a chip and a field have the same text and surface colour at every step), which is why check:contrast (CONTRAST_DENSITY=-1 for Small, by hand) needs no run of its own in CI. */
+async function checkDensityScreens(width, height) {
+  const label = `${width}px density screens`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  let where = '';
+  page.on('pageerror', (e) => problems.push(`${label} ${where}: ${e.message}`));
+  await openEditor(page, site);
+  const routes = [
+    '',
+    'settings',
+    'company/colors',
+    'global/header',
+    'licenses',
+    'appearance/themes',
+    'seo',
+    'apps',
+    'new/pages',
+    'new/blog',
+  ];
+  const colours = async () =>
+    page.evaluate(() => {
+      const host = document.createElement('div');
+      host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
+      host.innerHTML =
+        '<button class="button" data-part="button">Label</button><button class="chip" data-part="chip">Label</button><div class="text-field text-field-outlined"><div class="text-field-container"><input class="text-field-input" data-part="field"></div></div><div class="list-item-container" data-part="row"><div class="list-item-content"><span class="list-item-headline" data-part="headline">Row</span></div></div>';
+      document.body.append(host);
+      const got = {};
+      for (const el of host.querySelectorAll('[data-part]')) {
+        const c = getComputedStyle(el);
+        got[el.dataset.part] = [c.color, c.backgroundColor, c.borderTopColor].join('|');
+      }
+      host.remove();
+      return got;
+    });
+  const colourAt = {};
+  for (const [name, attr] of [
+    ['Large', '1'],
+    ['Medium', '0'],
+    ['Small', '-1'],
+  ]) {
+    await page.evaluate((a) => document.documentElement.setAttribute('data-density', a), attr);
+    colourAt[name] = await colours();
+    if (name === 'Medium') continue;
+    for (const route of routes) {
+      where = `#${route} at ${name}`;
+      await page.evaluate((h) => (location.hash = h), route);
+      await page.waitForTimeout(150);
+      if (await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth))
+        problems.push(`${label} ${where}: the page scrolls sideways`);
+    }
+  }
+  for (const part of Object.keys(colourAt.Medium))
+    if (colourAt.Large[part] !== colourAt.Medium[part] || colourAt.Small[part] !== colourAt.Medium[part])
+      problems.push(
+        `${label}: the colours of ${part} change with density (${colourAt.Large[part]} / ${colourAt.Medium[part]} / ${colourAt.Small[part]})`,
+      );
+  await page.close();
+}
+
 /** The density variables (theme/styles/base.css) work in the browser: a person's step (data-density on <html>) and a theme's step add up, each group clamps them, and a part's calc() gives its default at 0 and 4px per step. */
 async function checkDensity(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
@@ -6149,6 +6209,8 @@ await unit('checkDensityLayout 375', () => checkDensityLayout(375, 740));
 await unit('checkDensityLayout 1280', () => checkDensityLayout(1280, 900));
 await unit('checkDensityTable 375', () => checkDensityTable(375, 740));
 await unit('checkDensityTable 1280', () => checkDensityTable(1280, 900));
+await unit('checkDensityScreens 375', () => checkDensityScreens(375, 740));
+await unit('checkDensityScreens 1280', () => checkDensityScreens(1280, 900));
 await unit('checkDensitySetting 375', () => checkDensitySetting(375, 740));
 await unit('checkDensitySetting 1280', () => checkDensitySetting(1280, 900));
 await unit('checkPreviewSection', () => checkPreviewSection());
