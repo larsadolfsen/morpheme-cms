@@ -2728,12 +2728,8 @@ async function checkEmptyHint() {
         } else await page.keyboard.press('Enter');
         await page.waitForTimeout(200);
         await page.keyboard.type('Hej');
-        // (An empty line after the text is how the page keeps a free line, never saved.)
         const got = await page.evaluate(() =>
-          [...document.querySelector('.ProseMirror').children]
-            .map((n) => `${n.tagName}:${n.textContent}`)
-            .join()
-            .replace(/(,P:)+$/, ''),
+          [...document.querySelector('.ProseMirror').children].map((n) => `${n.tagName}:${n.textContent}`).join(),
         );
         if (got !== 'H1:From us to you,P:Hej') problems.push(`${name}: expected the heading and P:Hej, got ${got}`);
         if (!color && way === 'hint' && !touch)

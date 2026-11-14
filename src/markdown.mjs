@@ -4,7 +4,7 @@ import { Editor, editorViewCtx, rootCtx, defaultValueCtx, remarkStringifyOptions
 import { commonmark, headingSchema, paragraphSchema, strongAttr } from '@milkdown/kit/preset/commonmark';
 import { gfm } from '@milkdown/kit/preset/gfm';
 import { $markSchema, $nodeSchema, $prose, $remark, $useKeymap } from '@milkdown/kit/utils';
-import { NodeSelection, Plugin } from '@milkdown/kit/prose/state';
+import { NodeSelection, Plugin, TextSelection } from '@milkdown/kit/prose/state';
 import { canSplit } from '@milkdown/kit/prose/transform';
 import { liftListItem } from '@milkdown/kit/prose/schema-list';
 import { blockHtml, parseBlock } from '../lib/blocks.mjs';
@@ -453,6 +453,20 @@ export function partsOf(ctx) {
 export const spacing = $prose(
   () =>
     new Plugin({
+      props: {
+        // Enter at the end of an H1 that has only the free line after it goes into that line, not into a second one.
+        handleKeyDown: (view, event) => {
+          if (event.key !== 'Enter' || event.shiftKey || event.isComposing) return false;
+          const { doc, selection } = view.state;
+          const { $from } = selection;
+          const [heading, line] = [doc.maybeChild(0), doc.maybeChild(1)];
+          if (!selection.empty || doc.childCount !== 2 || $from.depth !== 1 || $from.index(0) !== 0) return false;
+          if (heading?.type.name !== 'heading' || line?.type.name !== 'paragraph' || line.content.size) return false;
+          if ($from.parentOffset !== heading.content.size) return false;
+          view.dispatch(view.state.tr.setSelection(TextSelection.create(doc, $from.after() + 1)).scrollIntoView());
+          return true;
+        },
+      },
       appendTransaction: (_, __, state) => {
         const gaps = [];
         let before = null;
