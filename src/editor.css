@@ -905,12 +905,12 @@ html {
   }
 }
 
-/* The mark on a block that can be selected with others (Material's Selection page, the photo grid): a round circle at the top left, empty, filled with a check
+/* The mark on a block that can be selected with others (Material's Selection page, the photo grid): a round circle centred on the block's top left corner (so it covers nothing in the block, as in M3's example), empty, filled with a check
    while the block is selected; a mouse sees it on the block pointed at, every block shows it once some block is selected (a touch never before that). Its target is 48 dp. */
 .editor-text .site-block-mark {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: -1.5rem;
+  left: -1.5rem;
   z-index: 2;
   display: flex;
   align-items: center;
