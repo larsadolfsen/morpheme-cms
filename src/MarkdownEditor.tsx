@@ -102,6 +102,7 @@ import { t } from './i18n';
 import { motionReduced, motionTiming } from '../lib/motion';
 import { barSlideKind } from './barMotion.mjs';
 import { dragSteps, limitSteps } from './blockDrag.mjs';
+import { blockHandleIcon } from './blockHandleIcon';
 import { edgeScroll } from '@theme/ui/longPressRules.mjs';
 import { hasLabel, labelledHeading, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
@@ -112,7 +113,6 @@ import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw'
 import arrowUpIcon from '@phosphor-icons/core/assets/regular/arrow-up.svg?raw';
 import arrowDownIcon from '@phosphor-icons/core/assets/regular/arrow-down.svg?raw';
 import trashIcon from '@phosphor-icons/core/assets/regular/trash.svg?raw';
-import dragIcon from '@material-symbols/svg-400/outlined/drag_indicator.svg?raw';
 import { TextLargeIcon, TextMediumIcon, TextSmallIcon } from './TextSizeIcons';
 // ProseMirror's own styles: keep its invisible helpers (around images, at the end of lines) out of the layout.
 import '@milkdown/kit/prose/view/style/prosemirror.css';
@@ -420,7 +420,7 @@ function blockHandle(view: EditorView, dom: HTMLElement, name: string, top: () =
   handle.className = 'site-block-handle';
   handle.tabIndex = -1;
   handle.setAttribute('aria-label', t.text.dragBlock(name));
-  handle.innerHTML = dragIcon.replace('<svg', '<svg width="24" height="24" fill="currentColor" aria-hidden="true"');
+  handle.innerHTML = blockHandleIcon;
   // The parts of the text at the top level (not the free lines), with where each is and whether the template locks it.
   const parts = () => {
     const found: { index: number; el: HTMLElement; locked: boolean }[] = [];
