@@ -741,6 +741,19 @@ export const parts: Messages['parts'] = {
         address: '/en-adresse/',
         sendsTo: 'Ved siden af på en bred skærm',
       },
+      dataTable:
+        'Rækker af data i kolonner under en overskriftsrække, tekst i starten og tal i slutningen, også stribet. Den rulles til siden, når den er bredere end skærmen.',
+      table: {
+        label: 'Abonnementer',
+        striped: 'Abonnementer, stribet',
+        head: ['Abonnement', 'Sider', 'Pris'],
+        rows: [
+          ['Lille', '5', '59 kr.'],
+          ['Mellem', '25', '129 kr.'],
+          ['Stor', '100', '329 kr.'],
+          ['Ubegrænset', '1.000', '899 kr.'],
+        ],
+      },
     },
     /** The theme's date and time pickers (PickerParts.tsx; DatePicker.tsx, TimePicker.tsx in packages/editor/theme/ui/). */
     pickers: {

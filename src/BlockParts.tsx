@@ -22,6 +22,7 @@ import {
   SiteCard,
   SiteCheckbox,
   SiteChip,
+  SiteDataTable,
   SiteIconButton,
   SiteList,
   SiteListItem,
@@ -372,7 +373,8 @@ function FieldParts() {
 }
 
 /** The theme's cards in each kind, one a link, and lists: one line, a link and an icon with a text under it; one, two
- * and three lines; each leading kind; the choices; selected and disabled; each kind of dividers; and segmented. */
+ * and three lines; each leading kind; the choices; selected and disabled; each kind of dividers; and segmented; and the data table,
+ * plain and striped. */
 function CardParts() {
   const say = screens.cardsAndLists;
   const [one, link, withIcon] = say.items;
@@ -521,6 +523,20 @@ function CardParts() {
                 </SiteListItem>
               ))}
             </SiteList>
+          </div>
+        </Preview>
+      </Part>
+      <Part name="DataTable" use={say.dataTable}>
+        <Preview>
+          <div className="grid items-start gap-4 p-4 expanded:grid-cols-2">
+            <SiteDataTable label={say.table.label} head={say.table.head} rows={say.table.rows} align={['left', 'right', 'right']} />
+            <SiteDataTable
+              label={say.table.striped}
+              head={say.table.head}
+              rows={say.table.rows}
+              align={['left', 'right', 'right']}
+              striped
+            />
           </div>
         </Preview>
       </Part>

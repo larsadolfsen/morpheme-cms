@@ -7818,3 +7818,94 @@
     }
   }
 }
+
+/*
+  Data table (DataTable.tsx, .data-table): Material 3 has no table component, so the dimensions are Material 2's data table
+  (m2.material.io/components/data-tables: rows 52 dp and the header row 56 dp, 16 dp of space at the sides of a cell, a header name in a
+  medium weight, a 1 dp outline, no elevation, a row's background on hover) and everything else is Material 3's: the body and label type
+  scales, the surface container (header), the outline variant (container and dividers), the cards' own corner radius (--card-radius) and
+  the theme's hover state layer. The box is a region the keyboard can scroll (a focus ring in the accent); a table with many columns
+  scrolls instead of crushing them. A table is data-heavy: its rows read --mo-density (base.css), 4 px a step from 52 dp (Large 56,
+  Small 48, a theme's -2 and -3: 44 and 40). .data-table-left, -center and -right align a column; data-striped stripes every second body
+  row in the quieter --block-stripe (the header keeps the tint).
+  The old classes .block-table-grid and .block-table-left, -center and -right are styled alike, so a theme that styles them and the
+  editor's typed table (src/InlineTable.tsx) look the same.
+*/
+@layer components {
+  .data-table {
+    overflow-x: auto;
+  }
+  .data-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+  }
+  .data-table,
+  .block-table-grid {
+    --card-padding: 0;
+    --card-outlined-surface: transparent;
+    --card-outlined-line: transparent;
+    border: 1px solid var(--block-line);
+    border-radius: var(--card-radius, var(--block-radius));
+    color: var(--block-text);
+  }
+  .data-table:focus-visible,
+  .block-table-grid:focus-visible {
+    outline: 3px solid var(--block-accent);
+    outline-offset: 2px;
+  }
+  .data-table :is(th, td),
+  .block-table-grid :is(th, td) {
+    min-width: 6rem;
+    height: calc(3.25rem + var(--mo-density) * var(--mo-density-step));
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--block-line);
+    text-align: start;
+    vertical-align: middle;
+    font-weight: inherit;
+  }
+  .data-table thead th,
+  .block-table-grid thead th {
+    height: calc(3.5rem + var(--mo-density) * var(--mo-density-step));
+    background: var(--block-tint);
+    font-size: var(--type-label-large-size);
+    line-height: var(--type-label-large-line-height);
+    font-weight: var(--type-label-large-weight);
+    letter-spacing: var(--type-label-large-tracking);
+  }
+  /* A column's alignment (src/standard/table/view.ts): numbers at the end, text at the start, or the owner's choice. */
+  :is(.data-table, .block-table-grid) :is(th, td):is(.data-table-left, .block-table-left) {
+    text-align: start;
+  }
+  :is(.data-table, .block-table-grid) :is(th, td):is(.data-table-center, .block-table-center) {
+    text-align: center;
+  }
+  :is(.data-table, .block-table-grid) :is(th, td):is(.data-table-right, .block-table-right) {
+    text-align: end;
+  }
+  /* The table's last row has no line (the outline closes it). The header row is the last row of its own thead, so a plain tr:last-child
+     took its line away: only the last row of the table's last group counts. */
+  :is(.data-table, .block-table-grid) table > :last-child > tr:last-child :is(th, td) {
+    border-bottom: 0;
+  }
+  :is(.data-table, .block-table-grid)[data-striped] tbody tr:nth-child(even) {
+    background: var(--block-stripe);
+  }
+  @media (hover: hover) {
+    :is(.data-table, .block-table-grid) tbody tr:hover {
+      background: var(--mo-hover, color-mix(in srgb, var(--block-text) 8%, transparent));
+    }
+    /* The state layer over the stripe, so a striped row stays striped under the pointer. */
+    :is(.data-table, .block-table-grid)[data-striped] tbody tr:nth-child(even):hover {
+      background:
+        linear-gradient(
+          var(--mo-hover, color-mix(in srgb, var(--block-text) 8%, transparent)),
+          var(--mo-hover, color-mix(in srgb, var(--block-text) 8%, transparent))
+        ),
+        var(--block-stripe);
+    }
+  }
+}

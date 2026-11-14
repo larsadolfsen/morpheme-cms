@@ -67,4 +67,6 @@ test('spot checks', () => {
   assert.equal(partOf('top-app-bar-search', THEME_PARTS), 'TopAppBar', "partOf('top-app-bar-search') should be 'TopAppBar'");
   assert.equal(partOf('md-footer-list', THEME_PARTS), 'Footer', "partOf('md-footer-list') should be 'Footer'");
   assert.equal(partOf('icon-button-wide', THEME_PARTS), 'IconButton', "partOf('icon-button-wide') should be 'IconButton'");
+  assert.equal(partOf('data-table-right', THEME_PARTS), 'DataTable', "partOf('data-table-right') should be 'DataTable'");
+  assert.equal(partOf('block-table-grid', THEME_PARTS), 'DataTable', "partOf('block-table-grid') should be 'DataTable' (the old class)");
 });

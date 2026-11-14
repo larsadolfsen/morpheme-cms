@@ -3759,7 +3759,7 @@ async function checkDensityLayout(width, height) {
   await page.close();
 }
 
-/** A table's rows read density (theme/styles/blocks.css, the data-heavy step): the body row is 52 px at Medium and the header row 56, 4 px a step (Large +4, Small -4); in the page editing area and in a row that picks the density it is the same at every step. */
+/** A table's rows read density (.data-table and .block-table-grid in theme/styles/ui.css, the data-heavy step): the body row is 52 px at Medium and the header row 56, 4 px a step (Large +4, Small -4); in the page editing area and in a row that picks the density it is the same at every step. */
 async function checkDensityTable(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${width}px density table: ${e.message}`));
@@ -3809,7 +3809,63 @@ async function checkDensityTable(width, height) {
   await page.close();
 }
 
-/** Density on the editor's screens (spec: docs/superpowers/specs/2026-11-13-density-design.md, checks): the main screens open at Large and Small (Medium is what "screens" checks) without an error and without the page scrolling sideways, on a phone and a computer; and the colours of the parts do not depend on density (a row, a button, a chip and a field have the same text and surface colour at every step), which is why check:contrast (CONTRAST_DENSITY=-1 for Small, by hand) needs no run of its own in CI. */
+/** The theme's data table (DataTable, .data-table in theme/styles/ui.css) on "Parts" › "UI components": it is there with the old classes
+ * (.block-table-grid) beside its own, the page does not scroll sideways, a table wider than its box scrolls inside its region, and its rows
+ * follow density as the Table block's always did (header 60 / 56 / 52 px and a row 56 / 52 / 48 at Large / Medium / Small). */
+async function checkDataTable(width, height) {
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  const label = `${width}px dataTable`;
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = 'developer/parts/ui'));
+  const table = page.locator('section[data-part="DataTable"] .data-table').first();
+  if (
+    !(await table.waitFor({ timeout: 15000 }).then(
+      () => true,
+      () => false,
+    ))
+  ) {
+    problems.push(`${label}: no DataTable on #developer/parts/ui`);
+    return page.close();
+  }
+  await table.scrollIntoViewIfNeeded();
+  const expect = (what, ok) => ok || problems.push(`${label}: ${what}`);
+  const got = await table.evaluate((box) => {
+    const root = document.documentElement;
+    const rows = (attr) => {
+      root.setAttribute('data-density', attr);
+      const h = (e) => Math.round(e.getBoundingClientRect().height * 100) / 100;
+      return [h(box.querySelector('thead th')), h(box.querySelector('tbody td'))];
+    };
+    const sizes = { large: rows('1'), medium: rows('0'), small: rows('-1') };
+    root.removeAttribute('data-density');
+    const classes = ['block-table', 'block-table-grid', 'card-outlined'].filter((c) => !box.classList.contains(c));
+    const pageWide = document.scrollingElement.scrollWidth > innerWidth + 1;
+    // Made wider than its box (columns added to a copy), the table scrolls inside its region and not the page.
+    const copy = box.cloneNode(true);
+    for (const tr of copy.querySelectorAll('tr')) for (let i = 0; i < 8; i++) tr.append(tr.lastElementChild.cloneNode(true));
+    box.after(copy);
+    const wide = copy.scrollWidth > copy.clientWidth;
+    copy.scrollLeft = 40;
+    const scrolls = copy.scrollLeft > 0 && getComputedStyle(copy).overflowX === 'auto';
+    const pageWideAfter = document.scrollingElement.scrollWidth > innerWidth + 1;
+    copy.remove();
+    return { sizes, classes, pageWide, wide, scrolls, pageWideAfter, region: box.getAttribute('role'), tab: box.tabIndex };
+  });
+  expect(`it lacks the old classes ${got.classes.join(', ')}`, !got.classes.length);
+  expect(`it is not a region the keyboard can reach (role ${got.region}, tabindex ${got.tab})`, got.region === 'region' && got.tab === 0);
+  expect('the page scrolls sideways', !got.pageWide);
+  expect('a table wider than its box does not scroll inside its region', got.wide && got.scrolls);
+  expect('a wide table makes the page scroll sideways', !got.pageWideAfter);
+  const { large, medium, small } = got.sizes;
+  expect(
+    `header ${large[0]} / ${medium[0]} / ${small[0]} px and row ${large[1]} / ${medium[1]} / ${small[1]} px at Large / Medium / Small, not 60 / 56 / 52 and 56 / 52 / 48`,
+    [...large, ...medium, ...small].join() === '60,56,56,52,52,48',
+  );
+  await page.close();
+}
+
+/** Density on the editor's screens (spec:docs/superpowers/specs/2026-11-13-density-design.md, checks): the main screens open at Large and Small (Medium is what "screens" checks) without an error and without the page scrolling sideways, on a phone and a computer; and the colours of the parts do not depend on density (a row, a button, a chip and a field have the same text and surface colour at every step), which is why check:contrast (CONTRAST_DENSITY=-1 for Small, by hand) needs no run of its own in CI. */
 async function checkDensityScreens(width, height) {
   const label = `${width}px density screens`;
   const phone = width < 600;
@@ -5547,7 +5603,7 @@ async function checkCardHeadline(width, height) {
 }
 
 /** Change to (spec 2026-11-14-paste-and-change-to-design.md, section 3): the block's ⋮ menu has Change to first (Block settings and Hide are in the action row),
- * with an arrow; it opens the next level with a back row and the other list blocks (not the Table yet); a List with an icon changed to
+ * with an arrow; it opens the next level with a back row and the other five blocks; a List with an icon changed to
  * Steps keeps its titles and texts, says "Changed to Steps", and back to List shows the icon again; Ctrl+Z after a change, and the
  * snackbar's Undo, give the block back as it was; and what a block keeps from another is never on the site. */
 async function checkChangeTo(width, height) {
@@ -5627,7 +5683,7 @@ async function checkChangeTo(width, height) {
   await opener.click();
   await page.waitForTimeout(200);
   const level = await menuRows();
-  const want = 'Change to,Segmented list,Steps,FAQ list,Cards';
+  const want = 'Change to,Segmented list,Steps,FAQ list,Cards,Table';
   if (level.join() !== want) problems.push(`${label}: Change to's level is ${level.join(', ')}, not ${want}`);
   // The back row gives the menu's own rows again.
   await page
@@ -5664,6 +5720,20 @@ async function checkChangeTo(width, height) {
   await page.locator('.snackbar-stack .snackbar', { hasText: 'Changed to List' }).locator('.snackbar-action').first().click();
   await page.waitForTimeout(500);
   if (!(await page.locator('.inline-steps').count())) problems.push(`${label}: the snackbar's Undo did not give Steps back`);
+  // Steps → Table → List: the rows are the steps' titles and texts, with no header row; back in the List the first row has its icon again.
+  await changeTo('Table');
+  const table = await page.evaluate(() => ({
+    rows: [...document.querySelectorAll('.inline-table-box tr[data-row]')].map((tr) =>
+      [...tr.querySelectorAll('textarea')].map((f) => f.value),
+    ),
+    header: document.querySelectorAll('.inline-table-box thead th').length,
+  }));
+  if (JSON.stringify(table.rows) !== was || table.header)
+    problems.push(`${label}: Steps → Table made ${JSON.stringify(table)}, not the rows ${was} with no header row`);
+  await changeTo('List');
+  if (!(await page.locator('.inline-list').count()) || !(await hasIcon()))
+    problems.push(`${label}: Table → List did not give the List with its icon`);
+  if (JSON.stringify(await rows('title')) !== was) problems.push(`${label}: Table → List has ${JSON.stringify(await rows('title'))}`);
   // Kept data is never on the site: the Steps of the system's test page (the demo's Blocks page) keep a card's subhead and a FAQ answer on their
   // first step, as Change to leaves them, and the page shows neither.
   if (await onTestPage(page, label)) {
@@ -8772,6 +8842,8 @@ await unit('checkDensityParts 375', () => checkDensityParts(375, 740, true));
 await unit('checkDensityParts 1280', () => checkDensityParts(1280, 900, false));
 await unit('checkDensityLayout 375', () => checkDensityLayout(375, 740));
 await unit('checkDensityLayout 1280', () => checkDensityLayout(1280, 900));
+await unit('dataTable 375', () => checkDataTable(375, 740));
+await unit('dataTable 1280', () => checkDataTable(1280, 900));
 await unit('checkDensityTable 375', () => checkDensityTable(375, 740));
 await unit('checkDensityTable 1280', () => checkDensityTable(1280, 900));
 await unit('checkDensityScreens 375', () => checkDensityScreens(375, 740));
