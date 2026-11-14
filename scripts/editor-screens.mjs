@@ -2478,6 +2478,62 @@ async function checkSelection() {
   }
 }
 
+/** A file's details in Filer on a phone (Media.tsx): a full-screen dialog over the whole screen, never a bottom sheet over the grid;
+ * its header has the close icon, the file name and Download; the image is the first thing under it, in view; the toolbar says
+ * "1 of N" from the English texts, and Next moves to the next file. */
+async function checkFilesDialog() {
+  const label = 'files dialog 375';
+  const page = await browser.newPage({ viewport: { width: 375, height: 800 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#files'));
+  const some = await page
+    .waitForSelector('main [data-media-tile]', { timeout: 8000 })
+    .then(() => true)
+    .catch(() => false);
+  if (!some) return void (await page.close());
+  await page.waitForTimeout(800);
+  const first = page.locator('main [data-media-tile]').first();
+  const isImage = (await first.locator('img').count()) > 0;
+  await first.click();
+  await page
+    .waitForSelector('dialog[open] .dialog-full-screen', { timeout: 5000 })
+    .catch(() => problems.push(`${label}: no full-screen dialog`));
+  await page.waitForTimeout(500);
+  const look = await page.evaluate(() => {
+    const d = document.querySelector('dialog[open]');
+    if (!d) return null;
+    const r = d.getBoundingClientRect();
+    const img = d.querySelector('.dialog-content img');
+    const ir = img?.getBoundingClientRect();
+    const first = d.querySelector('.dialog-content > div > :first-child');
+    return {
+      full: r.left <= 0 && r.top <= 0 && r.width >= innerWidth - 1 && r.height >= innerHeight - 1,
+      title: d.querySelector('.dialog-headline')?.textContent ?? '',
+      download: !!d.querySelector('.dialog-header-actions a[download]'),
+      imageFirst: !!img && first === img,
+      imageInView: !!ir && ir.top >= 0 && ir.top < innerHeight / 2 && ir.height > 50,
+      count: d.querySelector('[role=toolbar] [aria-live]')?.textContent ?? '',
+    };
+  });
+  if (!look) problems.push(`${label}: no dialog open`);
+  else {
+    if (!look.full) problems.push(`${label}: the dialog does not fill the screen`);
+    if (!look.title.trim()) problems.push(`${label}: the dialog has no file name as headline`);
+    if (!look.download) problems.push(`${label}: no Download in the dialog's header`);
+    if (isImage && !look.imageFirst) problems.push(`${label}: the image is not the first thing in the dialog`);
+    if (isImage && !look.imageInView) problems.push(`${label}: the image is not in view at the top`);
+    if (look.count && !/^1 of \d+$/.test(look.count)) problems.push(`${label}: the position says "${look.count}", not "1 of N"`);
+    if (look.count) {
+      await page.locator('dialog[open] [role=toolbar] button').last().click();
+      await page.waitForTimeout(300);
+      const now = await page.locator('dialog[open] [role=toolbar] [aria-live]').textContent();
+      if (!/^2 of \d+$/.test(now ?? '')) problems.push(`${label}: Next does not move to the second file ("${now}")`);
+    }
+  }
+  await page.close();
+}
+
 /** Selecting files in Filer (Media.tsx): a long press on a tile (phone) or the mark on hover (computer) selects it; the tiles show
  * the Selection page's photo-grid mark (an empty circle, a filled one with a check), every tile once one is selected; a tap while
  * selecting toggles instead of opening; the count control above the grid says "N" and clears; Delete keeps a file a page uses. */
@@ -8306,6 +8362,7 @@ await unit('checkAppTestPages', () => checkAppTestPages());
 await unit('checkSelection', () => checkSelection());
 await unit('checkSelectionBox', () => checkSelectionBox());
 await unit('checkFilesSelection', () => checkFilesSelection());
+await unit('checkFilesDialog', () => checkFilesDialog());
 await unit('checkRedirectsSelection', () => checkRedirectsSelection());
 await unit('checkDragSelect', () => checkDragSelect());
 await unit('checkTwoFinger', () => checkTwoFinger());
