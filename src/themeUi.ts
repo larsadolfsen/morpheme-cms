@@ -101,7 +101,7 @@ export {
   NavigationRailItem as SiteNavigationRailItem,
   NavigationRailSection as SiteNavigationRailSection,
 } from '@theme/ui/NavigationRail';
-export { default as SiteSearch, SearchBar as SiteSearchBar } from '@theme/ui/Search';
+export { default as SiteSearch, SearchBar as SiteSearchBar, SearchView as SiteSearchView } from '@theme/ui/Search';
 export { default as SiteToolbar } from '@theme/ui/Toolbar';
 /** The theme's date and time pickers, for "Parts" › "UI components" (PickerParts.tsx). */
 export { default as SiteDatePicker, datePickerTexts } from '@theme/ui/DatePicker';

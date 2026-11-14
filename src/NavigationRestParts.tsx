@@ -16,11 +16,13 @@ import {
   SiteNavigationRailItem,
   SiteNavigationRailSection,
   SiteSearch,
+  SiteSearchView,
   SiteToolbar,
   SiteButton,
 } from './themeUi';
+import { useState } from 'react';
 import { Part } from './PartsShown';
-import { Preview } from './ui';
+import { Button, Preview } from './ui';
 import { t } from './i18n';
 
 const say = t.parts.screens.navigationRest;
@@ -35,6 +37,51 @@ function Destinations({ rail }: { rail?: boolean }) {
       {say.destinations.map((label, i) => (
         <Item key={label} href="" icon={icons[i]} label={label} selected={i === 0} badge={i === 2 ? 3 : i === 3 ? true : undefined} />
       ))}
+    </>
+  );
+}
+
+/** The search view driven by the page (SearchView): grouped results with a key and a disabled item, the arrow keys on one of them, a count read aloud. */
+function SearchViewExample() {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const [active, setActive] = useState<string | undefined>('0');
+  /** The groups for a query: what has it in its name, each group under its label; a group with nothing in it is left out by the view. */
+  const groupsFor = (text: string) => {
+    const q = text.trim().toLocaleLowerCase();
+    return say.viewGroups.map((label, g) => ({
+      id: String(g),
+      label,
+      items: say.viewItems
+        .map((item, i) => ({ ...item, id: String(i), group: i < 2 ? 0 : 1 }))
+        .filter((item) => item.group === g && (!q || item.headline.toLocaleLowerCase().includes(q))),
+    }));
+  };
+  const groups = groupsFor(query);
+  const count = groups.reduce((n, g) => n + g.items.length, 0);
+  // The first option is the one the arrow keys are on, after each change of what is written.
+  const change = (value: string) => {
+    setQuery(value);
+    setActive(groupsFor(value).flatMap((g) => g.items)[0]?.id);
+  };
+  return (
+    <>
+      <Button onClick={() => (change(''), setOpen(true))}>{say.viewOpen}</Button>
+      <SiteSearchView
+        open={open}
+        onClose={() => setOpen(false)}
+        label={say.searchLabel}
+        backLabel={say.back}
+        clearLabel={say.clear}
+        emptyText={say.empty}
+        liveText={count ? say.viewCount(count) : say.empty}
+        query={query}
+        onQueryChange={change}
+        groups={groups}
+        activeId={active}
+        onActiveChange={setActive}
+        onActivate={() => setOpen(false)}
+      />
     </>
   );
 }
@@ -159,6 +206,7 @@ export default function NavigationRestParts() {
                 icon: i ? 'book-open' : 'clock',
               }))}
             />
+            <SearchViewExample />
           </div>
         </Preview>
       </Part>
