@@ -114,6 +114,37 @@ import { t } from './i18n';
 
 const { use, sample, examples } = t.parts;
 
+/** Rows that can be selected, as the lists have them: one with an icon (the box trailing), one with an image, one with only text
+ * (the box leading), the first one selected. */
+function SelectableSample() {
+  const [picked, setPicked] = useState<string[]>(['pages']);
+  const rows = [
+    { key: 'pages', icon: PencilSimple as typeof PencilSimple | undefined, label: sample.pages },
+    { key: 'media', icon: FolderSimple as typeof PencilSimple | undefined, label: sample.media },
+    { key: 'text', icon: undefined, label: sample.versionNow },
+  ];
+  const selecting = picked.length > 0;
+  const toggle = (key: string) => setPicked((p) => (p.includes(key) ? p.filter((k) => k !== key) : [...p, key]));
+  return (
+    <ul className={listClass}>
+      {rows.map((r) => (
+        <ListItem
+          key={r.key}
+          icon={r.icon}
+          headline={r.label}
+          count={r.icon ? 12 : undefined}
+          arrow={!!r.icon}
+          href="#developer/parts/editor"
+          selectable
+          selecting={selecting}
+          selected={picked.includes(r.key)}
+          onSelectedChange={() => toggle(r.key)}
+        />
+      ))}
+    </ul>
+  );
+}
+
 // The groups the parts are shown in, as Material 3 sorts its components; the field types last.
 const GROUPS = (['buttons', 'fields', 'choices', 'lists', 'sheets', 'messages', 'layout', 'fieldTypes'] as const).map((id) => ({
   id,
@@ -446,6 +477,10 @@ export default function Parts({ env }: { env: Env }) {
                   />
                 </ul>
               </section>
+            </Part>
+
+            <Part name="ListItem selectable, selecting, selected, selectOnLeading" use={use.selectRow}>
+              <SelectableSample />
             </Part>
 
             <Part name="MenuRow" use={use.menuRow}>
