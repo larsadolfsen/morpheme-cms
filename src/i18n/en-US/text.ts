@@ -22,6 +22,8 @@ export const text = {
   /** The bar's Insert button: it inserts a block (an image on a blog post). It is never in the ⋮ menu. */
   insertBlock: 'Insert block',
   image: 'Image',
+  /** A selected image's tool on the bar that crops it (image tools spec, section 4). */
+  crop: 'Crop',
   undo: 'Undo',
   redo: 'Redo',
   /** Text style: the heading levels and the text styles as one button of the bar. */

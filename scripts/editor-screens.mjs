@@ -995,6 +995,127 @@ async function checkCardBar(width, height = 800) {
   await page.close();
 }
 
+/** A selected image's tools on the bar (image tools spec, section 4): Insert › Image puts an image in the text; a tap selects it, and the bar shows Change image,
+ * Crop, Alt text (a text button, drawn at its planned width) and Remove in that order, the ones that do not fit in the ⋮, with no Remove twice; the row has
+ * Move up and Move down (and Settings below expanded). On a computer the tap also opens its settings in the side sheet; on a phone it only selects, and the row's
+ * Settings opens the sheet. Crop opens the sheet at the crop's chips, Alt text at the Alt text field; Remove takes the image out and Undo brings it back. */
+async function checkImageTools(width, height = 800) {
+  const phone = width < 600;
+  const expanded = width >= 840;
+  const label = `${width}px image tools`;
+  if (!has('src/data/files')) return void console.log(`${label}: skipped, the site has no images in its Library, which the demo has.`);
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page
+    .locator('dialog[open] button', { hasText: /^Image/ })
+    .first()
+    .click();
+  await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
+  await page.locator('dialog[open] [data-media-tile]').first().click();
+  const sheet = () => page.locator('dialog[open], .editor-side-sheet').last();
+  await sheet()
+    .locator('button', { hasText: /^Insert$/ })
+    .click({ timeout: 8000 });
+  const image = page.locator('.ProseMirror .site-picture .site-block-card').first();
+  await image.waitFor({ timeout: 8000 });
+  await page.waitForTimeout(500);
+  await image[phone ? 'tap' : 'click']();
+  await page.waitForTimeout(700);
+  const state = await page.evaluate(() => ({
+    pressed: document.querySelector('.site-picture .site-block-card')?.getAttribute('aria-pressed'),
+    tools: [...document.querySelectorAll('.editor-tools-context button')].map((b) => ({
+      name: b.getAttribute('aria-label') || b.textContent.trim(),
+      text: b.textContent.trim(),
+      w: b.getBoundingClientRect().width,
+      scroll: b.scrollWidth > b.clientWidth + 1,
+    })),
+    row: [...document.querySelectorAll('.site-block-row:not(.site-block-row-hover) [data-row]')].map((b) => b.getAttribute('aria-label')),
+    panel: !!document.querySelector('.editor-side-sheet [aria-labelledby="crop-format"], .editor-side-sheet input'),
+    dialog: !!document.querySelector('dialog[open]'),
+  }));
+  const TOOLS = ['Change image', 'Crop', 'Alt text', 'Remove'];
+  const names = state.tools.map((b) => b.name);
+  let more = [];
+  if (names.length < 4) {
+    await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+    await page.waitForTimeout(300);
+    more = (await page.locator('[role=menu] [role^=menuitem]').allTextContents()).map((r) => r.trim());
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+  }
+  if (state.pressed !== 'true') problems.push(`${label}: a tap on the image did not select it`);
+  if (names.join() !== TOOLS.slice(0, names.length).join() || !names.length)
+    problems.push(`${label}: the bar's image tools are ${names.join(', ') || 'none'}, not Change image, Crop, Alt text, Remove in order`);
+  for (const name of TOOLS.slice(names.length))
+    if (!more.includes(name)) problems.push(`${label}: ${name} is neither on the bar nor in the ⋮ (${more})`);
+  if (more.filter((r) => r === 'Remove').length + names.filter((n) => n === 'Remove').length !== 1)
+    problems.push(`${label}: Remove is not offered exactly once`);
+  const alt = state.tools.find((b) => b.name === 'Alt text');
+  if (alt && (alt.text !== 'Alt text' || alt.scroll))
+    problems.push(`${label}: Alt text is not a text button showing its whole label (${JSON.stringify(alt)})`);
+  if (state.tools.some((b) => b.name !== 'Alt text' && (b.w < 43.4 || b.text)))
+    problems.push(`${label}: an icon tool is not a 44 dp icon button`);
+  for (const name of ['Move up', 'Move down'])
+    if (!state.row.includes(name)) problems.push(`${label}: the row has no ${name} (${state.row})`);
+  if (expanded && !state.panel) problems.push(`${label}: on a computer the tap did not open the image's settings in the side sheet`);
+  if (!expanded && state.dialog) problems.push(`${label}: below expanded the tap opened a sheet instead of only selecting`);
+  if (!expanded && !state.row.includes('Block settings') && !state.row.includes('Edit'))
+    problems.push(`${label}: the row has no Settings below expanded (${state.row})`);
+  // Crop and Alt text open the image's sheet there; Remove takes the image out, Undo brings it back.
+  const tool = async (name) => {
+    await image[phone ? 'tap' : 'click']();
+    await page.waitForTimeout(500);
+    await pressTool(page, name, phone ? 'tap' : 'click');
+    await page.waitForTimeout(900);
+  };
+  const focused = () =>
+    page.evaluate(() => {
+      const el = document.activeElement;
+      const label = el?.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`)?.textContent.trim() : '';
+      return { crop: !!el?.closest('[aria-labelledby="crop-format"]'), label, sheet: !!el?.closest('dialog[open], .editor-side-sheet') };
+    });
+  const cancel = async () => {
+    await sheet()
+      .locator('button', { hasText: /^Cancel$/ })
+      .first()
+      .click({ timeout: 3000 })
+      .catch(() => {});
+    await page.waitForTimeout(500);
+  };
+  await tool('Crop');
+  if (!(await focused()).crop)
+    problems.push(`${label}: Crop did not open the image's sheet at its crop (${JSON.stringify(await focused())})`);
+  await cancel();
+  await tool('Alt text');
+  const at = await focused();
+  if (at.label !== 'Alt text')
+    problems.push(`${label}: Alt text did not open the image's sheet at its Alt text field (${JSON.stringify(at)})`);
+  await cancel();
+  await tool('Remove');
+  if (await page.locator('.ProseMirror .site-picture').count()) problems.push(`${label}: Remove did not take the image out`);
+  await pressTool(page, 'Undo', phone ? 'tap' : 'click');
+  await page.waitForTimeout(500);
+  if (!(await page.locator('.ProseMirror .site-picture').count())) problems.push(`${label}: Undo did not bring the removed image back`);
+  // Delete on the selected image (a keyboard) does what Remove does.
+  if (!phone) {
+    await image.focus();
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(400);
+    await image.focus();
+    await page.keyboard.press('Delete');
+    await page.waitForTimeout(400);
+    if (await page.locator('.ProseMirror .site-picture').count()) problems.push(`${label}: Delete on the selected image did not remove it`);
+  }
+  await page.close();
+}
 /** The active block's action row (src/blockRow.ts): it shows only while a block is active (a real touch tap on a block's rows activates it), its buttons are real 44 x 44 dp
  * buttons (Move up, Move down, Hide or Show, and the handle at its end), Move down is disabled with its reason on the last block and Move up on the first, Hide turns into
  * Show and the row stays, the bar has none of these, the row does not lie under the bar (also with the on-screen keyboard open: a short window), and under reduced motion it is
@@ -7921,6 +8042,7 @@ for (const [width, reduced] of [
   await unit(`checkBarSlide ${width}${reduced ? ' reduced' : ''}`, () => checkBarSlide(width, reduced));
 for (const width of [375, 1280]) await unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
 for (const width of [375, 1280]) await unit(`checkCardBar ${width}`, () => checkCardBar(width));
+for (const width of [375, 1280]) await unit(`checkImageTools ${width}`, () => checkImageTools(width));
 for (const width of [320, 375, 1280]) await unit(`checkInsertBlock ${width}`, () => checkInsertBlock(width));
 for (const w of [375, 1280]) await unit(`checkBlockRow ${w}`, () => checkBlockRow(w));
 await unit('checkBlockRow 375 reduced', () => checkBlockRow(375, { reduced: true }));
