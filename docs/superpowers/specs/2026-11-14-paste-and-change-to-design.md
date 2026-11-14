@@ -1,6 +1,7 @@
 # Paste to make items, and Change to (design)
 
-Status: spec and build plan for the 0.18 PM. No code in this pull request. Owner decisions of 14 Nov 2026, building on the open
+Status: spec and build plan for the 0.18 PM, every open point decided by the owner (section 10). No code in this pull request.
+Owner decisions of 14 Nov 2026, building on the open
 questions 4 and 5 and the Steps decision on paste of 12 Nov in `docs/superpowers/plans/2026-11-12-inline-block-editing.md`.
 
 **Owner decisions (14 Nov 2026)**
@@ -65,8 +66,8 @@ row, but the theme draws only its own fields).
 A paste makes items when **all** of these hold:
 
 1. It goes into the **first typed field of an empty item** (an item with no content, `isEmptyRow`). That is the faded item of an
-   empty block, as today, and also an empty item in a block that has others (one just made by Enter or `Add below`): see open
-   question 1.
+   empty block, as today, and also an empty item in a block that has others (one just made by Enter or `Add below`; owner,
+   decision 1).
 2. The block types its items (`from` is not set: a block that reads a list has no typed items).
 3. `linesFromPaste` gives at least two lines (Table: or one line with at least two cells, see below).
 4. No heading among the lines (the 12 Nov exception, unchanged).
@@ -78,7 +79,7 @@ field of the last new item, so typing goes on where the paste ended. One paste i
 
 ### Each block
 
-| Block | First field | One line makes | A tab in the line (open question 2) |
+| Block | First field | One line makes | A tab in the line (decision 2) |
 | :--- | :--- | :--- | :--- |
 | List | `title` | a row with that heading | before it the heading, after it the text |
 | Steps | `title` | a step with that heading | before it the heading, after it the text |
@@ -89,16 +90,16 @@ field of the last new item, so typing goes on where the paste ended. One paste i
 
 Cards start with three faded empty cards (the first active): the paste goes into the first, and the other two are gone with the
 faded items once the block has items. None of the six has a `max` today; if one gets one, the lines past it are left out and the
-snackbar says how many were not added (open question 6).
+snackbar says how many were not added (decision 6).
 
 ### The Table
 
 - A line is a row; a tab splits the line into cells. Each cell is trimmed and kept on one line (`oneLine`). The rows are made
   rectangular (`rectangle()` in `src/standard/table/rows.mjs`): a short row gets empty cells.
 - A paste is caught when the Table is empty (every cell empty, which includes a new Table's one empty cell or its two empty rows)
-  and the cursor is in any cell. A paste into a Table with content is the browser's own, into the one cell (open question 3).
+  and the cursor is in any cell. A paste into a Table with content is the browser's own, into the one cell (decision 3: not in 0.18).
 - The Table's `header` setting is not changed: it is on by default, so the first pasted line is the header row, as a copy from a
-  spreadsheet expects (open question 4). `columns` (alignment) starts empty: every column is automatic.
+  spreadsheet expects (decision 4). `columns` (alignment) starts empty: every column is automatic.
 - A document's table (Google Docs, Word) puts an HTML `<table>` on the clipboard and often one cell per line in the plain text. When
   the HTML has a `<table>`, its `tr` and `td`/`th` give the rows and cells (text only, no formatting); otherwise the plain text with
   tabs (Excel, Google Sheets, Numbers) does.
@@ -113,7 +114,7 @@ grows), tested with `node --test`:
 
 - `linesFromPaste(text, html)` stays as it is.
 - `itemsFromPaste(text, html, fields)`: `linesFromPaste`, then each line to `{ [fields[0]]: before tab, [fields[1]]: after tab }`
-  (the text left out when empty). Without open question 2, only `fields[0]`.
+  (the text left out when empty; decision 2).
 - `gridFromPaste(text, html)`: `string[][]` or `null`. From the HTML `<table>` when there is one (a small tolerant reader of
   `tr`/`td`/`th`, entities decoded, tags inside cells dropped), else the plain lines split on tabs. `null` when there is a heading,
   or fewer than two lines and fewer than two cells.
@@ -149,6 +150,9 @@ The block stays where it is, stays active, and the cursor goes to the first fiel
 | Cards | `title` | `text` | `subhead`, `icon` + `iconColor` (media Icon), `image` + `alt` (media Image), `video` (media Video), `href`, `buttons` | everything else |
 | Table | cell 1 | cell 2 | cells 3 and on (as columns) | see below |
 
+A card's text is optional (decision 10), so cards made from Steps without texts, or from a one-column Table, are valid cards and
+the sheet does not call them wrong.
+
 So a Cards → List change shows the cards' icons and links in the List, keeps `subhead`, `image`, `alt`, `video` and `buttons` on
 the rows unseen, and List → Cards brings them all back.
 
@@ -163,7 +167,7 @@ loses A's. Where a value has to be changed to fit, the original is kept:
   item's text is used when the cell still equals it on one line.
 
 **A row with no title of its own.** A List or Segmented list row with a page and no heading shows the page's title. The title that
-moves is the one shown, so the row does not become an empty step (open question 5). The row keeps its `href`, so back in the List it
+moves is the one shown, so the row does not become an empty step (decision 5). The row keeps its `href`, so back in the List it
 still links.
 
 ### The Table, both ways
@@ -172,7 +176,7 @@ The Table's rows are arrays, not objects, so they cannot carry another block's k
 whole list, and matches on the way back:
 
 - **Other → Table.** `rows` is one row per item: `[title, text]` (one column when no item has a text). The block keeps its `items`
-  as they were (the Table does not know `items`, so it is unseen). `header` is `false`, because the first item is not a header,
+  as they were (the Table does not know `items`, so it is unseen). `header` is `false` (decision 11), because the first item is not a header,
   unless the block kept a header row from an earlier Table (below): then `header` is `true` and that row is the first row again.
   Extra columns kept from an earlier Table come back by the same match as below.
 - **Table → other.** Each body row (all rows but the first when `header` is on) becomes one item: cell 1 is the title, cell 2 the
@@ -204,11 +208,11 @@ the menu has no `Change to` row.
 
 - **Place:** in the block's `⋮` menu, right after `Block settings` (and the list's own page, when there is one), before `Hide on the
   page`. Not in the action row above the block (`blockRow.ts` keeps its four buttons).
-- **Text:** `Change to`, a row with a submenu (the menu's trailing arrow says there is more, so no ellipsis; open question 7). Its
+- **Text:** `Change to`, a row with a submenu (the menu's trailing arrow says there is more, so no ellipsis; decision 7). Its
   icon: Material Symbols `swap_horiz` (drawn by name through `Icon`, CLAUDE.md *Icons*).
 - **Submenu:** the targets in a fixed order, List, Segmented list, Steps, FAQ list, Cards, Table, each with its block's icon and its
   block name (`t.blocks.<type>.label`, so the names are those of *Insert*). The current block is not in it.
-- **After the change:** a snackbar `Changed to <block>` with `Undo` (open question 8).
+- **After the change:** a snackbar `Changed to <block>` with `Undo` (decision 8).
 
 | Key | en-US | da-DK |
 | :--- | :--- | :--- |
@@ -275,7 +279,7 @@ read. The site's HTML has only what the block draws. A check proves it (section 
 
 ## 7. Release notes
 
-Two paragraphs, both `feature`, ids by the changesets of PR 2 and PR 4 of the build plan. Later PRs of the same feature edit these
+Two paragraphs, both `feature`, ids by the changesets of PR 2 and PR 5 of the build plan. Later PRs of the same feature edit these
 notes instead of adding new ones (*several changes to the same feature are one note*).
 
 **Paste a list** / **Indsæt en liste**
@@ -335,40 +339,41 @@ Small pull requests into `0.18`, each mergeable on its own, each with its change
 1. **The pure functions** (`empty` changeset). `itemsFromPaste`, `gridFromPaste` and `lib/changeTo.mjs` (`changeTo`, `targets`) with
    their unit tests. Nothing calls them yet.
 2. **Paste in List, Segmented list, FAQ list and Cards** (`minor`). `paste` on in their `Inline*.tsx`; `InlineItems` uses
-   `itemsFromPaste` and also catches a paste into an empty item of a non-empty block (if open question 1 is yes); the paste is its
-   own undo step. `check:screens` unit `inlinePaste` for the five. Release note *Paste a list* without the Table.
+   `itemsFromPaste` (a tab splits title and text, decision 2) and also catches a paste into an empty item of a non-empty block
+   (decision 1), which Steps gets too; the paste is its own undo step. `check:screens` unit `inlinePaste` for the five. Release
+   note *Paste a list* without the Table.
 3. **Paste in the Table** (`minor`). `InlineTable.tsx` catches a paste into an empty Table with `gridFromPaste`. The `inlinePaste`
    unit gets the Table. Edits the note of PR 2 (Table, tabs).
-4. **Change to between List, Segmented list, Steps, FAQ list and Cards** (`minor`). `CardRow` gets `submenu`; `menuItems()` adds the
+4. **A card's text is optional** (`patch`, decision 10). `required` off the Cards `text` field (`src/standard/cards/index.tsx`); a
+   card with no text draws no empty text area on the site or in place (check `theme/blocks/cards/View.tsx` and `InlineCards.tsx`);
+   `check:content` and `check:demo` accept a card without text. A `check:screens` unit (a card with only a headline at 375
+   and 1280). Release note: a `line`, `improvement`: en-US *A card’s text is optional*, da-DK *Et korts tekst er valgfri*. Before
+   PR 5, so cards made by Change to are valid.
+5. **Change to between List, Segmented list, Steps, FAQ list and Cards** (`minor`). `CardRow` gets `submenu`; `menuItems()` adds the
    row; the change is one `setNodeMarkup` with `closeHistory`; the snackbar with Undo; `t.text.changeTo`, `changedTo` in both
    languages. `check:screens` unit `changeTo`, and the kept-text check of the site's HTML. Release note *Change to*.
-5. **Change to and from the Table** (`minor`). The Table in the targets and the matching; the `changeTo` unit gets List → Table →
-   List. The note of PR 4 already says "another list block"; no note change unless the owner wants the Table named.
-6. **The palette actions** (`patch`, no note of its own: it is the same feature). The six `block.change-to-*` actions, after the
+6. **Change to and from the Table** (`minor`). The Table in the targets and the matching; the `changeTo` unit gets List → Table →
+   List. The note of PR 5 already says "another list block"; no note change.
+7. **The palette actions** (`patch`, no note of its own: it is the same feature). The six `block.change-to-*` actions, after the
    palette's action registry (`src/actions.ts`) has landed in `0.18`; until then this PR waits.
 
-PR 2 and PR 4 can be built side by side after PR 1; PR 3 after PR 2; PR 5 after PR 4.
+PR 2 and PR 4 can be built side by side after PR 1; PR 3 after PR 2; PR 5 after PR 1 and PR 4; PR 6 after PR 5; PR 7 after PR 5
+and the palette's registry.
 
-## 10. Open for the owner (with a recommendation; not decided here)
+## 10. Owner decisions (14 Nov 2026)
 
-1. **Paste into an empty item of a block that has items** (after Enter or `Add below`), not only into an empty block.
-   Recommendation: yes; it is where a second pasted list naturally goes, and the item is empty, so nothing is overwritten.
-2. **A tab in a pasted line splits title and text** in List, Steps, Segmented list, FAQ list and Cards (a two-column copy from a
-   spreadsheet). Recommendation: yes; it is the same rule as the Table's cells and costs nothing when there is no tab.
-3. **Paste into a Table that has content.** Recommendation: not in 0.18 (the browser's paste into the one cell, as today); a
-   spreadsheet-like paste that fills cells from the cursor on is a later plan.
-4. **Header row of a pasted Table.** Recommendation: leave the `header` setting as it is (on by default), so the first pasted line is
-   the header, as a spreadsheet copy usually has one; the owner turns it off in Edit.
-5. **A row whose title comes from its page** (List, Segmented list). Recommendation: the shown title moves over, so a step or a card
-   is never empty; the link is kept.
-6. **Lines past a block's maximum** (none of the six has one today). Recommendation: leave them out and say how many in a snackbar.
-7. **The menu text:** `Change to` with a submenu arrow, or `Change to…` with an ellipsis as written in the decision.
-   Recommendation: `Change to` (the arrow already says a choice follows); Danish `Skift til`.
-8. **A snackbar after the change**, `Changed to Steps` with `Undo`. Recommendation: yes; it confirms the change and shows that it
-   can be undone, which matters most when something is kept unseen.
-9. **Kept data is never cleared.** After many changes a block may carry keys it does not show (small: a few words per item).
-   Recommendation: keep it; no clean-up action in 0.18.
-10. **A card's text is required** in the Cards sheet; cards made from steps or a table may have none. Recommendation: allow it (a
-    card's text optional, as Steps' text became on 12 Nov), or the change would make a block that the sheet calls wrong.
-11. **A table made by Change to has no header row.** Recommendation: yes, `header: false`, since the first item is not a header; it
-    is one switch in Edit.
+The owner approved every recommendation of the first draft (relayed by the 0.18 PM):
+
+1. **A paste into an empty item of a block that has items** (after Enter or `Add below`) makes items too, not only a paste into an
+   empty block.
+2. **A tab in a pasted line splits title and text** in List, Steps, Segmented list, FAQ list and Cards, as it splits a Table's cells.
+3. **A paste into a Table that has content** is the browser's own paste into the one cell: not in 0.18. A spreadsheet-like paste
+   that fills cells from the cursor is a later plan.
+4. **A pasted Table keeps its `header` setting** (on by default), so the first pasted line is the header row.
+5. **A row whose title comes from its page** (List, Segmented list): the shown title moves over and the link is kept.
+6. **Lines past a block's maximum** are left out, and a snackbar says how many.
+7. **The menu text is `Change to`** with a submenu arrow, no ellipsis; Danish `Skift til`.
+8. **A snackbar after the change**: `Changed to Steps` with `Undo`.
+9. **Kept data stays**; no clean-up action.
+10. **A card's text becomes optional** (its own pull request, build plan step 4).
+11. **A table made by `Change to` has no header row** (`header: false`).
