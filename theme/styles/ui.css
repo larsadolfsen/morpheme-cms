@@ -5622,6 +5622,10 @@
   .side-sheet-container[hidden] {
     display: none;
   }
+  /* The sheet itself has the focus when it opens, so no control shows a focus ring from the start. */
+  .side-sheet-container:focus {
+    outline: none;
+  }
   .side-sheet-standard {
     border-inline-start: 1px solid var(--side-sheet-line, var(--block-line));
   }
