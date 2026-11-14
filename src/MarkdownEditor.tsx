@@ -1461,7 +1461,7 @@ function blockCard(
     const start = () => {
       if (document.querySelector('dialog[open]') && tries++ < 30) return void setTimeout(start, 50);
       const row = Math.max(0, Math.min(startAt, rows().length - 1));
-      change({ active: row, focus: { row, field: spec!.fields[0] } });
+      change({ active: row, ...(spec!.grid ? { col: 0 } : {}), focus: { row, field: spec!.fields[0] } });
     };
     setTimeout(start);
   }
@@ -1509,17 +1509,19 @@ function blockCard(
     if (here) view.dispatch(view.state.tr.delete(here.pos, here.pos + node.nodeSize));
   };
   // Change to (lib/changeTo.mjs, docs/superpowers/specs/2026-11-14-paste-and-change-to-design.md): the block made into another list block, where
-  // it is, in one step of its own; its items' titles and texts move over and what the new block cannot show stays in its props. It stays active
-  // at the same row, and a snackbar offers Undo. The Table is not among them yet.
+  // it is, in one step of its own; its items' titles and texts move over and what the new block cannot show stays in its props (a Table keeps the
+  // other block's items, the other block the Table's rows, and the way back matches them by title). It stays active at the same row, and a
+  // snackbar offers Undo.
   const changeBlock = (to: string, label: string) => {
     const here = at();
     if (!here) return;
     const byPath = new Map((asker()?.data.site.pages ?? []).map((p) => [p.path, p.title]));
     const before = node.attrs.props;
     const props = changeTo(node.attrs.type, to, before, (item) => (typeof item.href === 'string' ? byPath.get(item.href) : undefined));
-    const row = active ?? 0;
-    fresh.set(props, row);
-    fresh.set(before, row);
+    // The same row stays active: a Table's rows count its header row, which is no item.
+    const item = Math.max(0, (active ?? 0) - (node.attrs.type === 'table' && before.header !== false ? 1 : 0));
+    fresh.set(props, item + (to === 'table' && props.header !== false ? 1 : 0));
+    fresh.set(before, active ?? 0);
     view.dispatch(closeHistory(view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, type: to, props })));
     view.dispatch(closeHistory(view.state.tr));
     undoSnackbar(t.text.changedTo(label), () => undoHistory(view.state, view.dispatch));
@@ -1529,8 +1531,7 @@ function blockCard(
     const { rules, stays } = keeps();
     const have: Record<string, number> = {};
     for (const b of blocksOf(view.state.doc)) have[b.type] = (have[b.type] ?? 0) + 1;
-    const to =
-      node.attrs.type === 'table' ? [] : targets(node.attrs.type, node.attrs.props, { ...rules, have, stays }).filter((b) => b !== 'table');
+    const to = targets(node.attrs.type, node.attrs.props, { ...rules, have, stays });
     const submenu = to.flatMap((type) => {
       const target = asker()?.list.find((b) => b.type === type);
       return target ? [{ icon: target.icon, label: target.label, action: () => changeBlock(type, target.label) }] : [];
