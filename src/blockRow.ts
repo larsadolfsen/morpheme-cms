@@ -57,10 +57,31 @@ function draw(el: HTMLElement, row: BlockRow, name: string) {
   );
 }
 
+// While a block's handle is pressed (a drag may follow) the row of the block that was active stays open: closing it would move the page and the handle out from
+// under the finger. It closes when the press ends.
+let held = false;
+if (typeof document !== 'undefined') {
+  document.addEventListener(
+    'pointerdown',
+    (e) => {
+      if (e.target instanceof Element && e.target.closest('.site-block-handle')) held = true;
+    },
+    true,
+  );
+  const release = () => {
+    if (!held) return;
+    held = false;
+    setTimeout(sync);
+  };
+  document.addEventListener('pointerup', release, true);
+  document.addEventListener('pointercancel', release, true);
+}
+
 function sync() {
   const state = blockBar.get();
   const row = state?.row;
   if (shown && (!row || row.host !== shown.host)) {
+    if (held) return;
     close(shown);
     shown = null;
   }

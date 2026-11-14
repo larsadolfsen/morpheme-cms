@@ -2199,11 +2199,17 @@ async function checkBlockDrag(width) {
   }
   // A tap on the handle moves nothing.
   const second = await box(1);
-  const [sx, sy] = [second.x + second.width / 2, second.y + second.height / 2];
+  let [sx, sy] = [second.x + second.width / 2, second.y + second.height / 2];
   if (phone) await page.touchscreen.tap(sx, sy);
   else await page.mouse.click(sx, sy);
   await page.waitForTimeout(300);
   if ((await names()).join() !== before.join()) problems.push(`${label}: a tap on the handle moved the block`);
+  // A tap lets the block that was active go and its action row closes, so the page settles: the handle is where it is now, as a person sees it.
+  await page.waitForTimeout(900);
+  {
+    const now = await box(1);
+    [sx, sy] = [now.x + now.width / 2, now.y + now.height / 2];
+  }
   // Drag the second block's handle up over the first block.
   const target = await page.locator('.ProseMirror .site-block').first().boundingBox();
   const ty = target.y + 8;
