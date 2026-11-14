@@ -151,8 +151,7 @@ export type Field = {
   /** The value in a new entry. */
   default?: unknown;
   /** The value of a saved entry that has none (saved before the field was there, or with its empty choice, which is
-   * not written), when it is not `default`: a banner from before it could go across the whole width is as wide as
-   * the text. */
+   * not written), when it is not `default`. */
   missing?: unknown;
   /** Shown, checked and saved only while another field next to it (a select) has one of these values,
    * and that field is itself in use. */
@@ -234,10 +233,8 @@ export type Block = {
 
 /** heading: the field of the heading (a "Heading", H2); body: the field of the text under it, one
  * text (paragraphs) or, with `list`, one item per paragraph; image: an image (`image`, `imageAlt`, `imageDecorative`)
- * above the heading, in place of the design's own; upTo: only the body's text before its first block of this type is
- * written above the card (the front page's "Banner": its "Buttons" block), the block and the text after it stay in the
- * field, which the card has too. */
-export type Lead = { heading?: string; body?: string; list?: boolean; image?: boolean; upTo?: string };
+ * above the heading, in place of the design's own. */
+export type Lead = { heading?: string; body?: string; list?: boolean; image?: boolean };
 
 type Base = {
   id: string;
