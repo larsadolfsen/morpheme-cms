@@ -276,6 +276,9 @@ function Form({
   const pickMany = useRef<() => Promise<string[] | null>>(() => Promise.resolve(null));
   const pickImages = useCallback(() => pickMany.current(), []);
 
+  // A block's sheet below expanded keeps a hidden copy of what is typed in it, for this page (sheetCopy.mjs); it is offered back once
+  // the page's own kept changes (the autosave) have been put back or found to be none, so the block is compared with the text shown.
+  const [copyReady, setCopyReady] = useState(false);
   const [blockAsk, blockDialog] = useBlockDialog(
     useMemo(() => (front ? sectionBlocks(siteBlocks, frontLeads) : undefined), [front]),
     {
@@ -291,6 +294,7 @@ function Form({
       ...(standard ? { page: { file: `${config.standardPages}#${standard.key}`, values } } : {}),
     },
     insertable,
+    { copy: copyReady && live.path ? live.path : undefined },
   );
   // When the file was last saved, shown in the top bar.
   const [savedAt, setSavedAt] = useSavedAt(env, file.path);
@@ -521,10 +525,20 @@ function Form({
   });
   // A page opened with changes the Worker kept (the tab was closed, or the editor reloaded): put back, unless git's version is newer.
   useEffect(() => {
-    if (!autosaves || isNew) return;
+    if (!autosaves || isNew) {
+      setCopyReady(true);
+      return;
+    }
     const start = eraNow.current;
     let alive = true;
     void (async () => {
+      try {
+        await restoreKept();
+      } finally {
+        if (alive) setCopyReady(true);
+      }
+    })();
+    async function restoreKept() {
       const stored = await loadAutosave(live.path);
       if (!stored || !alive) return;
       const gitPath = waiting?.path ?? live.path;
@@ -541,7 +555,7 @@ function Form({
       setBody(splitFrontmatter(stored.text).body);
       notify({ text: t.forms.versions.autosave.restored });
       autosave.touch();
-    })();
+    }
     return () => {
       alive = false;
     };

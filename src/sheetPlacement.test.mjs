@@ -59,3 +59,14 @@ test("'row' at expanded is a side sheet and in the panel", () => {
   assert.equal(sheetLook('row', true), 'side-sheet');
   assert.equal(inPanel('row', true), true);
 });
+
+test("'fields' on a compact window is the full-screen dialog and not in the panel", () => {
+  assert.equal(sheetLook('fields', false, true), 'full-screen');
+  assert.equal(sheetLook('fields', false, false), 'modal-side-sheet');
+});
+
+test('only the fields become full screen on a compact window', () => {
+  assert.equal(sheetLook('section', false, true), 'sheet');
+  assert.equal(sheetLook('row', false, true), 'sheet');
+  assert.equal(sheetLook('choose', false, true), 'sheet');
+});

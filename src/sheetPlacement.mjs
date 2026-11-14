@@ -1,10 +1,12 @@
 // The look of each step of the block sheet (BlockDialog.tsx): a side sheet beside the page from expanded for the fields,
-// the settings of a row typed in place (`row`) and the section settings, a modal side sheet below expanded for the fields, else the sheet from the bottom.
+// the settings of a row typed in place (`row`) and the section settings, a modal side sheet below expanded for the fields (on a compact
+// window, below medium, the theme's full-screen dialog instead), else the sheet from the bottom.
 // Exposes sheetLook(step, expanded), inPanel(step, expanded) and editsInPanel(expanded, hasFields); no dependencies.
 
-/** step: 'choose' | 'fields' | 'section' | 'row' | undefined; expanded: the window is at least the `expanded` breakpoint. */
-export function sheetLook(step, expanded) {
-  if (step === 'fields') return expanded ? 'side-sheet' : 'modal-side-sheet';
+/** step: 'choose' | 'fields' | 'section' | 'row' | undefined; expanded: the window is at least the `expanded` breakpoint; compact: it is
+ * below the `medium` breakpoint (a phone). */
+export function sheetLook(step, expanded, compact = false) {
+  if (step === 'fields') return expanded ? 'side-sheet' : compact ? 'full-screen' : 'modal-side-sheet';
   if (step === 'section') return expanded ? 'side-sheet' : 'sheet';
   // The settings of a row typed in place (a List's icon and link): beside the page from expanded, open while the row is active, and a
   // modal bottom sheet below it, which fits its content (half the height or less) so the block stays in view above it.

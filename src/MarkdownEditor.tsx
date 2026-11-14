@@ -73,7 +73,7 @@ import { headingChoices } from '../lib/heading-levels.mjs';
 import { TEXT_COLORS, colorClass } from '../lib/text-colors.mjs';
 import { sectionHeading, setSection } from './sectionState.mjs';
 import { sectionFrame } from './sectionFrame';
-import { IMAGE, type BlockAsk } from './BlockDialog';
+import { IMAGE, type BlockAsk, type SheetTarget } from './BlockDialog';
 import SectionSettingsIcon from './SectionSettingsIcon';
 import { askLink } from './LinkSheet';
 import { atLeastNow, Menu, MenuDivider, MenuItem, Toolbar, ToolbarButton } from './ui';
@@ -972,6 +972,41 @@ const imageSrc = (props: BlockProps) =>
 // (another image, its description for screen readers, its format), move it with its paragraph and
 // remove it.
 // sheet: where it is changed (the sheet of the blocks, BlockDialog.tsx).
+// The parts of the text that open a block's sheet (a block's card, an image's), for the sheet's hidden copy (sheetCopy.mjs): each one's
+// type and props as its sheet gets them, its index among them, and how to open its sheet with a copy's values (set by its card).
+const imagePropsOf = (node: Node): BlockProps => {
+  const { src, format, crop, decorative } = splitPicture(node.attrs.src);
+  return { src, alt: node.attrs.alt ?? '', format, crop, decorative };
+};
+const sheetPartOf = (node: Node): { type: string; props: BlockProps } | null =>
+  node.type.name === 'siteBlock'
+    ? { type: node.attrs.type, props: node.attrs.props }
+    : node.type.name === 'image'
+      ? { type: IMAGE, props: imagePropsOf(node) }
+      : null;
+/** The index among the sheet's parts of the one at pos. */
+const sheetIndexAt = (doc: Node, pos: number) => {
+  let index = 0;
+  doc.nodesBetween(0, pos, (n, at) => void (at < pos && sheetPartOf(n) && index++));
+  return index;
+};
+const reopens = new WeakMap<object, (values: BlockProps) => void>();
+/** The part at the index (sheetIndexAt), with how to open its sheet with a copy's values; null when there is none. */
+function sheetTarget(view: EditorView, index: number): SheetTarget | null {
+  let found: { pos: number; type: string; props: BlockProps } | null = null;
+  let i = 0;
+  view.state.doc.descendants((n, pos) => {
+    if (found) return false;
+    const part = sheetPartOf(n);
+    if (part && i++ === index) found = { pos, ...part };
+  });
+  if (!found) return null;
+  const { pos, type, props } = found;
+  const dom = view.nodeDOM(pos);
+  const open = dom && reopens.get(dom);
+  return open ? { index, type, props, open } : null;
+}
+
 function imageCard(node: Node, view: EditorView, getPos: () => number | undefined, sheet: () => BlockAsk | undefined) {
   const dom = document.createElement('span');
   dom.className = 'site-block site-picture';
@@ -994,8 +1029,11 @@ function imageCard(node: Node, view: EditorView, getPos: () => number | undefine
   img.alt = '';
   if (cut) img.style.cssText = cut.img;
   if (node.attrs.title) img.title = node.attrs.title;
-  const describe = async () => {
-    const props = await sheet()?.edit(IMAGE, { src, alt: node.attrs.alt ?? '', format, crop, decorative }, false, true);
+  // start: a hidden copy's values to open the sheet with (sheetTarget).
+  const describe = async (start?: BlockProps) => {
+    const at = getPos();
+    const keep = at === undefined ? undefined : { at: sheetIndexAt(view.state.doc, at), start };
+    const props = await sheet()?.edit(IMAGE, imagePropsOf(node), false, true, keep);
     if (props === 'remove') return remove();
     const pos = getPos();
     if (!props || pos === undefined) return;
@@ -1017,13 +1055,14 @@ function imageCard(node: Node, view: EditorView, getPos: () => number | undefine
     () => {
       const pos = getPos();
       return [
-        !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: describe },
+        !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: () => describe() },
         ...moves(view, pos === undefined ? null : view.state.doc.resolve(pos).index(0), sheet()?.template?.locked),
         !inPanelNow() && { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
       ];
     },
     () => inPanelNow() && void describe(),
   );
+  reopens.set(dom, (values) => void describe(values));
   return { dom, update: () => false, stopEvent: () => true, ignoreMutation: () => true, destroy: close };
 }
 
@@ -1454,8 +1493,11 @@ function blockCard(
     const last = hidden === false && !!rules?.required?.includes(type) && shownOfType <= 1;
     return { rules, locked, stays: locked || last };
   };
-  const edit = async () => {
-    const props = await asker()?.edit(node.attrs.type, node.attrs.props, false, !keeps().stays);
+  // start: a hidden copy's values to open the sheet with (sheetTarget).
+  const edit = async (start?: BlockProps) => {
+    const pos = getPos();
+    const keep = pos === undefined ? undefined : { at: sheetIndexAt(view.state.doc, pos), start };
+    const props = await asker()?.edit(node.attrs.type, node.attrs.props, false, !keeps().stays, keep);
     if (props === 'remove') return remove();
     const here = at();
     // The block's fields as changed; still hidden if it was.
@@ -1488,7 +1530,7 @@ function blockCard(
     return [
       block?.fields.length
         ? (!inline || (typeof spec?.blockSettings === 'function' ? spec.blockSettings(node.attrs.props) : spec?.blockSettings)) &&
-          !inPanelNow() && { icon: pencilIcon, label: t.text.blockSettings, action: edit, row: 'settings' as const }
+          !inPanelNow() && { icon: pencilIcon, label: t.text.blockSettings, action: () => edit(), row: 'settings' as const }
         : block?.edit && { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
       // A block typed in place that reads a list of the site (Testimonials, Blog posts): the page of the list is in its menu too.
       inline && block?.fields.length && block.edit
@@ -1834,6 +1876,7 @@ function blockCard(
   }
   // A block typed in place has its tools on the bar through `bar` (rows); any other block is selected by a tap (cardBar).
   const close = inline ? () => {} : cardBar(view, dom, card, name, menuItems, () => inPanelNow() && void edit());
+  reopens.set(dom, (values) => void edit(values));
   // A changed block is drawn anew (update false); taps on the card and its menu are not ProseMirror's.
   return {
     dom,
@@ -1895,6 +1938,13 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   h1Changed.current = onH1;
   const sheeted = useRef(blocks ?? sheetProp);
   sheeted.current = blocks ?? sheetProp;
+  // The text is loaded: the sheet's hidden copy of this page (sheetCopy.mjs) can be offered, once the form knows the page (`copy`).
+  const [ready, setReady] = useState(false);
+  const copyKey = (blocks ?? sheetProp)?.copy;
+  useEffect(() => {
+    const view = ready && editor.current?.action((ctx) => ctx.get(editorViewCtx));
+    if (view && copyKey) sheeted.current?.offer((index) => sheetTarget(view, index));
+  }, [ready, copyKey]);
   const looked = useRef(looks);
   looked.current = looks;
   // What applies where the cursor is (activeOf), marked in the toolbar.
@@ -2036,6 +2086,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           view.focus();
         });
       loaded = true;
+      setReady(true);
     });
     return () => {
       cancelled = true;

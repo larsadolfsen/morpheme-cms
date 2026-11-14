@@ -536,6 +536,111 @@ async function pressMore(page, name, how = 'click', which = 'last') {
   await row[which]()[how]();
 }
 
+/** A block's sheet on a phone (spec 2026-11-14-one-save-while-writing-design.md, 4.2, 4.3, 10): the theme's full-screen dialog, modal over the
+ * whole screen, with Save at the top right and the close icon named Cancel (no other Cancel, no Remove); the page's Publish is under it and
+ * can't be reached; one Save is visible. A change is kept in a hidden copy in this browser: after a reload the page offers "Restore your unsaved
+ * changes?" (focus on Restore), Restore opens the sheet with the change, still unsaved, and Save writes it and deletes the copy. (An image's
+ * sheet: the same sheet as a block's fields; every block of the demo is typed in place.) */
+async function checkPhoneSheet(width = 375, height = 740) {
+  const label = `${width}px block sheet on a phone`;
+  const path = BUILT_PAGE;
+  const text = '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n![The Moon](/images/uploads/2026/10/moon.webp)\n\nMore text.\n';
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  // The reload leaves a page with changes: let it go.
+  page.on('dialog', (d) => void d.accept().catch(() => {}));
+  await openEditor(page, site, { [path]: text });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('.ProseMirror .site-picture .site-block-card', { timeout: 30_000 });
+  const copies = () =>
+    page.evaluate(() =>
+      Object.keys(localStorage)
+        .filter((k) => k.startsWith('editor-sheet-copy:'))
+        .map((k) => JSON.parse(localStorage.getItem(k))),
+    );
+  const sheet = page.locator('dialog[open].dialog-modal-full-screen');
+  const openSheet = async () => {
+    await page.locator('.ProseMirror .site-picture .site-block-card').first().tap();
+    await page.waitForTimeout(300);
+    await pressTool(page, 'Edit', 'tap');
+    await sheet.waitFor({ timeout: 5000 });
+    await page.waitForTimeout(400);
+  };
+  // The page changed first, so its Publish (and Save draft) is there under the sheet.
+  await page.locator('.ProseMirror p', { hasText: 'More text.' }).click();
+  await page.keyboard.press('End');
+  await page.keyboard.type(' Changed.');
+  await page.waitForTimeout(400);
+  await openSheet().catch(() => problems.push(`${label}: Edit on the image did not open a full-screen dialog`));
+  if (!(await sheet.count())) return void (await page.close());
+  const look = await page.evaluate(() => {
+    const d = document.querySelector('dialog[open].dialog-modal-full-screen');
+    const r = d.getBoundingClientRect();
+    const named = (re) =>
+      [...document.querySelectorAll('button')].filter((b) => re.test((b.getAttribute('aria-label') || b.textContent || '').trim()));
+    // A button a finger can reach: drawn, and the topmost thing at its middle is the button.
+    const reachable = (b) => {
+      const box = b.getBoundingClientRect();
+      if (!box.width || !box.height || !b.checkVisibility?.({ visibilityProperty: true })) return false;
+      const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+      return !!hit && b.contains(hit) && !b.closest('[inert]');
+    };
+    const publish = named(/^Publish/).filter((b) => !d.contains(b));
+    return {
+      rect: [r.left, r.top, r.width, r.height].map(Math.round),
+      modal: d.matches(':modal'),
+      ariaModal: d.getAttribute('aria-modal'),
+      header: [...d.querySelectorAll('.dialog-header button')].map((b) => (b.getAttribute('aria-label') || b.textContent).trim()),
+      cancels: named(/^Cancel$/).filter((b) => d.contains(b)).length,
+      removes: named(/^Remove$/).filter((b) => d.contains(b)).length,
+      publish: publish.length,
+      publishReachable: publish.filter(reachable).length,
+      saves: named(/^Save( draft)?$/).filter(reachable).length,
+      focusInContent: !!document.activeElement?.closest('dialog[open] .dialog-content'),
+    };
+  });
+  if (look.rect.join() !== `0,0,${width},${height}`) problems.push(`${label}: the sheet does not fill the screen (${look.rect})`);
+  if (!look.modal || look.ariaModal !== 'true') problems.push(`${label}: the sheet is not modal (aria-modal ${look.ariaModal})`);
+  if (look.header.join() !== 'Cancel,Save')
+    problems.push(`${label}: the sheet's header is not the close icon named Cancel and Save (${look.header.join(', ')})`);
+  if (look.cancels !== 1) problems.push(`${label}: the sheet has ${look.cancels} buttons named Cancel, not only its close icon`);
+  if (look.removes) problems.push(`${label}: the sheet has Remove (it is in the block's ⋮)`);
+  if (!look.publish) problems.push(`${label}: the changed page has no Publish to check under the sheet`);
+  if (look.publishReachable) problems.push(`${label}: the page's Publish can be reached while the sheet is open`);
+  if (look.saves !== 1) problems.push(`${label}: ${look.saves} Save buttons can be reached, not one`);
+  if (!look.focusInContent) problems.push(`${label}: the focus does not start on the sheet's first field`);
+  // A change is kept in the hidden copy (300 ms after it).
+  await sheet.getByLabel('Alt text').fill('The Moon, changed');
+  await page.waitForTimeout(800);
+  const kept = await copies();
+  if (kept.length !== 1 || kept[0].values?.alt !== 'The Moon, changed' || kept[0].block?.type !== 'image')
+    problems.push(`${label}: the change is not in the hidden copy (${JSON.stringify(kept)})`);
+  // A reload offers it back.
+  await page.reload();
+  await page.waitForSelector('.ProseMirror .site-picture .site-block-card', { timeout: 30_000 });
+  const question = page.locator('dialog[open]', { hasText: 'Restore your unsaved changes?' });
+  await question.waitFor({ timeout: 8000 }).catch(() => problems.push(`${label}: a reload does not offer "Restore your unsaved changes?"`));
+  if (await question.count()) {
+    if (!(await question.getByText('Your changes to Image weren’t saved.').count()))
+      problems.push(`${label}: the restore question does not say "Your changes to Image weren’t saved."`);
+    const focused = await page.evaluate(() => document.activeElement?.textContent?.trim());
+    if (focused !== 'Restore') problems.push(`${label}: the focus is on "${focused}", not Restore`);
+    await question.getByRole('button', { name: 'Restore', exact: true }).tap();
+    await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: Restore did not open the image's sheet`));
+    if (await sheet.count()) {
+      const alt = await sheet.getByLabel('Alt text').inputValue();
+      if (alt !== 'The Moon, changed') problems.push(`${label}: Restore opened the sheet without the change (alt "${alt}")`);
+      await sheet.locator('.dialog-header').getByRole('button', { name: 'Save', exact: true }).tap();
+      await page.waitForTimeout(800);
+      if (await sheet.count()) problems.push(`${label}: Save did not close the sheet`);
+      if ((await copies()).length) problems.push(`${label}: Save did not delete the hidden copy`);
+      const described = await page.locator('.ProseMirror .site-picture .site-block-card').first().getAttribute('aria-description');
+      if (described !== 'The Moon, changed') problems.push(`${label}: Save did not write the change to the image (${described})`);
+    }
+  }
+  await page.close();
+}
+
 /** The bar's Insert block (always on the bar, never in the ⋮ menu). */
 async function pressInsert(page, how = 'click') {
   await page.locator('.editor-tools button[aria-label="Insert block"]:visible').first()[how]();
@@ -958,8 +1063,10 @@ async function checkCardBar(width, height = 800) {
     await page
       .waitForSelector('dialog[open] textarea', { timeout: 4000 })
       .catch(() => problems.push(`${label}: the gear did not open the block's sheet`));
+    // On a phone the sheet is the full-screen dialog: its close icon is named Cancel.
     await page
-      .locator('dialog[open] button', { hasText: /^Cancel$/ })
+      .locator('dialog[open]')
+      .getByRole('button', { name: 'Cancel', exact: true })
       .click({ timeout: 3000 })
       .catch(() => {});
     await page.waitForTimeout(300);
@@ -7335,6 +7442,7 @@ for (const [width, reduced] of [
   await unit(`checkBarSlide ${width}${reduced ? ' reduced' : ''}`, () => checkBarSlide(width, reduced));
 for (const width of [375, 1280]) await unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
 for (const width of [375, 1280]) await unit(`checkCardBar ${width}`, () => checkCardBar(width));
+await unit('checkPhoneSheet 375', () => checkPhoneSheet(375));
 for (const width of [320, 375, 1280]) await unit(`checkInsertBlock ${width}`, () => checkInsertBlock(width));
 for (const w of [375, 1280]) await unit(`checkBlockRow ${w}`, () => checkBlockRow(w));
 await unit('checkBlockRow 375 reduced', () => checkBlockRow(375, { reduced: true }));
