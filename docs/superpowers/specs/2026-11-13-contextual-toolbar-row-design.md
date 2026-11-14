@@ -116,11 +116,14 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
   (the order in the lists below; a `ResizeObserver` measures the bar like `useToolbarLines` does now, and no timer is used). This is
   M3's own rule ("put them in an overflow menu in the trailing slot", "become visible again at larger sizes"), so the scroll
   deviation of the earlier drafts is gone.
-- **The rule at 375 px (owner: 44 × 44 buttons, section 8).** `slots = floor((width − 32 − divider) / 44)`: 343 / 44 = 7.8, so **7
-  slots at 375 px**, and 7 at 360 px too (328 / 44 = 7.45). A slot is a tool, Undo, Redo or `⋮`. A context's own tools come first, then the
-  divider, **Undo and Redo** (the main tools kept in view; decided by the owner: both), then `⋮`. Everything else of the context and of the main tools is
-  in `⋮`, in groups: the context's tools first, then the page tools, then (blocks) Hide, Move, Remove. At 320 px (288 dp) 6 slots fit and
-  the bar drops Redo into `⋮`.
+- **The rule: a width budget, no count per screen width (owner requirement, 14 Nov; `src/textBar.mjs`, `planBar`).** The bar's inside width in dp
+  (352 at 375 px) is a budget, and each tool has a known width (`TOOL_WIDTH`, the one place: an icon button 44 dp, a tool with a chevron its
+  declared width, which is 44 dp today as `check:screens` measures it, the selection's count 88 dp). Undo, Redo, Insert block and the `⋮` stand at
+  the right end; the `⋮` takes its width only when something is in it. The text tools fill the rest from the left, in their order, while the next
+  one fits; the first that does not fit, and every one after it, goes into the `⋮` (a wide tool is never skipped to place a narrow later one). So
+  the room left is always narrower than the next tool: no gap. A `ResizeObserver` re-plans when the window changes (no timer). Today (all 44 dp):
+  320 px (297 dp inside) Bold, Italic; 360 px (337) adds Text style; 375 px (352) and 390 px (367) and 414 px (391) add List; 600 px (454) and
+  1280 px (478) hold all seven text tools and no `⋮`; 840 px (430) holds five (to Alignment). Very narrow: Redo, then Undo, go into the `⋮` before Insert block does.
 - **Exact lists at 375 px** (bar | in `⋮`). The bar lists are the tools to show first; in a narrower window the last tool of a list moves into `⋮` first.
 
 | State | On the bar (7 slots) | In `⋮` (groups in order, a divider between groups) |

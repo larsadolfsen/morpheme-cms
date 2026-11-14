@@ -151,6 +151,13 @@ Source: `src/editor.css` (`.editor-text-box`), `src/textBar.mjs`, `src/MarkdownE
 - **Why:** owner decision, 14 Nov 2026: the same buttons in the same place whatever the cursor is in.
 - **Date:** 2026-11-14. **PR:** the same.
 
+### The text bar fills its width with as many tools as fit
+
+- **Material:** a toolbar puts what does not fit "in an overflow menu in the trailing slot" and shows it again at larger sizes (toolbars/guidelines, read 13 Nov 2026); it prints no count per width.
+- **We do:** no count of tools per screen width. The bar's inside width is a budget and each tool has a known width (`TOOL_WIDTH` in `src/textBar.mjs`, pinned to the drawn size by `check:screens`). The tools fill from the left in their order while the next one fits; the first that does not, and all after it, go in the `⋮`, so no gap as wide as the next tool is left. Undo, Redo, Insert block and the `⋮` stay at the right end; the `⋮` takes room only when something is in it.
+- **Why:** owner requirement, 14 Nov 2026: the bar adapts and fits the maximum number of tools, also when the window is resized.
+- **Date:** 2026-11-14. **PR:** the pull request that adds this entry (text bar width budget).
+
 ## Selecting several blocks of a page (touch selection, step 9)
 
 Read 13 Nov 2026 on m3.material.io (Playwright): `/foundations/interaction/selection`, `/foundations/interaction/states/applying-states`. The page editor's blocks and its one bar are the editor workspace, where a deviation is allowed.

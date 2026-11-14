@@ -2333,8 +2333,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // A menu of one of the ⋮ menu's rows is open under the ⋮ button.
   const underMore = [kindsAt?.at, alignAt, colorAt].some((at) => !!at && at === moreButton.current);
   const plan = planBar({
-    // The count with its cross is two buttons wide.
-    width: barWidth - (block_?.count ? 44 : 0),
+    // The count with its cross is two buttons wide (TOOL_WIDTH in textBar.mjs).
+    width: barWidth,
     context: contextIds,
     fixed: fixedIds,
     more: blockMenu.length > 0 || settingsShown,

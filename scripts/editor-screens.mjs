@@ -23,6 +23,7 @@ import { constants, inflateSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { CMS_STATUS, openEditor, serveBuilt } from './built-site.mjs';
+import { toolWidth } from '../src/textBar.mjs';
 import { allow, nestedUnits } from './spacing-grid.allow.mjs';
 
 // The editor is opened in Danish (locale da-DK below), so the texts it shows are read from its Danish messages. They are
@@ -1244,6 +1245,84 @@ async function checkBarSlide(width, reduced = false, height = 800) {
       );
     if (change.some((a) => a.ghost)) problems.push(`${label}: going from the text to a block slides a ghost out (it fades in place)`);
   }
+  await page.close();
+}
+
+/** The text bar is a width budget (src/textBar.mjs, owner requirement 14 Nov): at each width the bar does not overflow its box, leaves no gap as wide as the
+ * next tool, draws every button at its declared width (TOOL_WIDTH), and the ⋮ menu holds exactly the text tools that are not on the bar. Returns
+ * which text tools stand on the bar, for the report. */
+async function checkTextBarFit(width) {
+  const label = `${width}px text bar fit`;
+  const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: width < 600, isMobile: width < 600, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Fro');
+  await page.waitForSelector('.editor-tools button[aria-label="Bold"]', { timeout: 5000 });
+  const idOf = (name) => {
+    if (name.startsWith('Text style')) return 'style';
+    if (name === 'List' || name.startsWith('List:')) return 'list';
+    if (name.startsWith('Alignment')) return 'align';
+    return { Bold: 'bold', Italic: 'italic', Link: 'link', Color: 'color' }[name] ?? null;
+  };
+  const bar = await page.evaluate(() => {
+    const el = document.querySelector('.editor-tools');
+    const buttons = [...el.querySelectorAll('button:not([hidden])')].map((b) => ({
+      name: b.getAttribute('aria-label'),
+      w: b.getBoundingClientRect().width,
+      right: b.getBoundingClientRect().right,
+    }));
+    return {
+      inner: el.clientWidth,
+      barRight: el.getBoundingClientRect().right,
+      scrolls: el.scrollWidth > el.clientWidth + 2,
+      buttons,
+      pageScrolls: document.documentElement.scrollWidth > innerWidth,
+    };
+  });
+  const TEXT = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color'];
+  const onBar = bar.buttons.map((b) => idOf(b.name)).filter(Boolean);
+  if (bar.scrolls || bar.pageScrolls || bar.buttons.at(-1).right > bar.barRight - 0.5)
+    problems.push(`${label}: the bar overflows its box (last button ends at ${bar.buttons.at(-1).right}, box at ${bar.barRight - 1})`);
+  for (const b of bar.buttons) {
+    const id = idOf(b.name) ?? { Undo: 'undo', Redo: 'redo', 'Insert block': 'insert', More: 'more' }[b.name];
+    if (id && Math.abs(b.w - toolWidth(id)) > 0.6)
+      problems.push(`${label}: ${b.name} is drawn ${b.w} dp wide, TOOL_WIDTH says ${toolWidth(id)} (src/textBar.mjs)`);
+  }
+  if (onBar.join() !== TEXT.slice(0, onBar.length).join())
+    problems.push(`${label}: the bar's text tools are not in order (${onBar.join()})`);
+  const free = bar.inner - bar.buttons.reduce((n, b) => n + b.w, 0);
+  const hasMore = bar.buttons.some((b) => b.name === 'More');
+  const inMenu = [];
+  if (hasMore) {
+    await page.locator('.editor-tools [aria-label="More"]').click();
+    await page.waitForSelector('[role=menu][aria-label="More"]', { timeout: 3000 });
+    const rows = await page.evaluate(() =>
+      [...document.querySelectorAll('[role=menu][aria-label="More"] [role^=menuitem]')].map((x) => x.textContent.trim()),
+    );
+    for (const r of rows) {
+      const id = /^Text style/.test(r)
+        ? 'style'
+        : /^(Bullet|Check|Numbered) list$/.test(r)
+          ? 'list'
+          : /^Align /.test(r)
+            ? 'align'
+            : { Link: 'link', Color: 'color' }[r];
+      if (id && !inMenu.includes(id)) inMenu.push(id);
+    }
+  }
+  const rest = TEXT.slice(onBar.length);
+  if (inMenu.join() !== rest.join())
+    problems.push(`${label}: the ⋮ menu holds ${inMenu.join() || 'no text tool'}, not the tools off the bar (${rest.join() || 'none'})`);
+  if (!hasMore && rest.length) problems.push(`${label}: tools are off the bar and there is no ⋮ (${rest.join()})`);
+  if (hasMore && !rest.length && !inMenu.length) {
+    // A ⋮ with no text tool in it is only allowed while Section settings or another row is in it.
+  }
+  if (rest.length && free >= toolWidth(rest[0]) - 0.6)
+    problems.push(`${label}: a gap of ${free} dp on the bar, the next tool (${rest[0]}) is ${toolWidth(rest[0])} dp`);
+  console.log(`${label}: ${bar.inner} dp inside; on the bar ${onBar.join(', ')}; in the ⋮ ${rest.join(', ') || '-'}; free ${free} dp`);
   await page.close();
 }
 
@@ -7010,6 +7089,7 @@ await unit('checkStartSubtitle', () => checkStartSubtitle());
 
 for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
 await unit('checkTextBarWide', () => checkTextBarWide());
+for (const width of [320, 360, 375, 390, 414, 600, 840, 1280]) await unit(`checkTextBarFit ${width}`, () => checkTextBarFit(width));
 for (const [width, reduced] of [
   [375, false],
   [1280, false],

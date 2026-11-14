@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { planBar } from './textBar.mjs';
+import { BUTTON, TOOL_WIDTH, planBar, toolWidth } from './textBar.mjs';
 
 const TEXT = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color'];
 const FIXED = ['undo', 'redo', 'insert'];
@@ -54,4 +54,54 @@ test('Section settings (or a block menu) keeps the ⋮ on the bar even when ever
   const tight = planBar({ width: 352, context: ['above', 'below', 'up', 'down', 'link', 'gear'], fixed: FIXED, more: true });
   assert.deepEqual(tight.bar.context, ['above', 'below', 'up', 'down']);
   assert.deepEqual(tight.more.context, ['link', 'gear']);
+});
+
+// The width budget (14 Nov owner requirement): no count per screen width, the most tools that fit, in order, no gap.
+const WIDE = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color'];
+const widthOf = (ids) => ids.reduce((n, id) => n + toolWidth(id), 0);
+
+test('every tool is 44 dp but the count with its cross, which is two buttons', () => {
+  for (const id of [...WIDE, ...FIXED]) assert.equal(toolWidth(id), BUTTON);
+  assert.equal(toolWidth('block:count'), 2 * BUTTON);
+});
+
+test('from 280 to 1400 dp: nothing past the budget, order kept, ⋮ only when needed, no gap', () => {
+  for (let width = 280; width <= 1400; width++) {
+    const plan = planBar({ width, context: WIDE, fixed: FIXED });
+    const onBar = widthOf(plan.bar.context) + widthOf(plan.bar.fixed) + (plan.overflow ? BUTTON : 0);
+    assert.ok(onBar <= width, `${width}: ${onBar} dp on a bar of ${width} dp`);
+    assert.deepEqual([...plan.bar.context, ...plan.more.context], WIDE, `${width}: order`);
+    assert.equal(plan.overflow, plan.more.context.length + plan.more.fixed.length > 0, `${width}: ⋮ only with something in it`);
+    assert.equal(plan.free, width - onBar);
+    const next = plan.more.context[0];
+    if (next) assert.ok(plan.free < toolWidth(next), `${width}: a gap of ${plan.free} dp, next tool ${toolWidth(next)}`);
+  }
+});
+
+test('the bar holds as many tools as fit: 352 dp holds four text tools, 396 dp holds five', () => {
+  assert.deepEqual(planBar({ width: 352, context: WIDE, fixed: FIXED }).bar.context, ['bold', 'italic', 'style', 'list']);
+  assert.deepEqual(planBar({ width: 396, context: WIDE, fixed: FIXED }).bar.context, ['bold', 'italic', 'style', 'list', 'align']);
+  // At 440 dp all seven fit without a ⋮ (seven and three tools of 44 dp), so the ⋮ takes no room.
+  assert.equal(planBar({ width: 440, context: WIDE, fixed: FIXED }).overflow, false);
+  assert.equal(planBar({ width: 439, context: WIDE, fixed: FIXED }).bar.context.length, 5);
+});
+
+test('with wider chevron buttons the budget still holds, the order never skips and there is no gap', () => {
+  const before = { style: TOOL_WIDTH.style, list: TOOL_WIDTH.list };
+  Object.assign(TOOL_WIDTH, { style: 60, list: 60 });
+  try {
+    for (let width = 280; width <= 1400; width += 3) {
+      const plan = planBar({ width, context: WIDE, fixed: FIXED });
+      const onBar = widthOf(plan.bar.context) + widthOf(plan.bar.fixed) + (plan.overflow ? BUTTON : 0);
+      assert.ok(onBar <= width, `${width}: over budget`);
+      assert.deepEqual([...plan.bar.context, ...plan.more.context], WIDE);
+      const next = plan.more.context[0];
+      if (next) assert.ok(plan.free < toolWidth(next), `${width}: gap ${plan.free} dp before ${next}`);
+    }
+    // 352 dp: Bold, Italic, Text style 60 leave 4 dp after the ⋮, Undo, Redo, Insert: List (60) does not fit and goes to the ⋮ with everything after it.
+    const plan = planBar({ width: 352, context: WIDE, fixed: FIXED });
+    assert.deepEqual(plan.bar.context, ['bold', 'italic', 'style']);
+  } finally {
+    Object.assign(TOOL_WIDTH, before);
+  }
 });
