@@ -1,7 +1,18 @@
 // Tests for src/inlineRows.mjs: the rows of a List typed in place. Run: node --test src/inlineRows.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { addAt, isEmptyRow, linesFromPaste, moveBy, removeAt, setField, withoutEmpty } from './inlineRows.mjs';
+import { readFileSync } from 'node:fs';
+import {
+  addAt,
+  gridFromPaste,
+  isEmptyRow,
+  itemsFromPaste,
+  linesFromPaste,
+  moveBy,
+  removeAt,
+  setField,
+  withoutEmpty,
+} from './inlineRows.mjs';
 
 test('a row is empty only with no icon, link, heading and text', () => {
   assert.equal(isEmptyRow({ title: '' }), true);
@@ -81,4 +92,51 @@ test('lines pasted become items, but not when the paste has headings among its l
   assert.equal(linesFromPaste('# Title\nOrder\nPay'), null);
   assert.equal(linesFromPaste('Order\nPay', '<h2>Order</h2><p>Pay</p>'), null);
   assert.deepEqual(linesFromPaste('Order\nPay', '<p>Order</p><p>Pay</p>'), ['Order', 'Pay']);
+});
+
+test('pasted lines become items of a block, a tab splitting the first field from the second', () => {
+  assert.deepEqual(itemsFromPaste('Order\nPay'), [{ title: 'Order' }, { title: 'Pay' }]);
+  assert.deepEqual(itemsFromPaste('Hours?\tMon–Fri\r\n\r\nParking?\t', '', ['question', 'answer']), [
+    { question: 'Hours?', answer: 'Mon–Fri' },
+    { question: 'Parking?' },
+  ]);
+  assert.deepEqual(itemsFromPaste('- Tea\tHot\tand sweet\n2) Cake'), [{ title: 'Tea', text: 'Hot and sweet' }, { title: 'Cake' }]);
+  assert.equal(itemsFromPaste('One line only'), null);
+  assert.equal(itemsFromPaste('# Menu\nTea\nCake'), null);
+  assert.equal(itemsFromPaste('Tea\nCake', '<h2>Menu</h2><p>Tea</p><p>Cake</p>'), null);
+});
+
+test('a paste into a Table: tab-separated lines, made rectangular', () => {
+  assert.deepEqual(gridFromPaste('Day\tHours\r\nMon\t9–17\nSat\n'), [
+    ['Day', 'Hours'],
+    ['Mon', '9–17'],
+    ['Sat', ''],
+  ]);
+  assert.deepEqual(gridFromPaste(' Tea \t 4 €'), [['Tea', '4 €']]);
+  assert.deepEqual(gridFromPaste('Tea\nCake'), [['Tea'], ['Cake']]);
+  assert.equal(gridFromPaste('One line'), null);
+  assert.equal(gridFromPaste(''), null);
+  assert.equal(gridFromPaste('# Menu\tPrice\nTea\t4'), null);
+  assert.equal(gridFromPaste('Tea\t4\nCake\t5', '<h2>Menu</h2><table><tr><td>Tea</td><td>4</td></tr></table>'), null);
+});
+
+test('a document’s table on the clipboard gives the rows of its html', () => {
+  const docs = readFileSync(new URL('../lib/fixtures/paste/google-docs-table.html', import.meta.url), 'utf8');
+  assert.deepEqual(gridFromPaste('Day\nHours\nMon – Fri\n9–17\nSat\nClosed', docs), [
+    ['Day', 'Hours'],
+    ['Mon – Fri', '9–17'],
+    ['Sat', 'Closed'],
+  ]);
+  const word = readFileSync(new URL('../lib/fixtures/paste/word-table.html', import.meta.url), 'utf8');
+  assert.deepEqual(gridFromPaste('Product\tPrice\nTea & cake\t4\n€ each', word), [
+    ['Product', 'Price'],
+    ['Tea & cake', '4 € each'],
+  ]);
+  assert.deepEqual(
+    gridFromPaste('x', '<table><tr><th>A &lt;b&gt;</th><td>&#x42;<br>&#67;</td><td>1</td></tr><tr><td>2</td></tr></table>'),
+    [
+      ['A <b>', 'B C', '1'],
+      ['2', '', ''],
+    ],
+  );
 });
