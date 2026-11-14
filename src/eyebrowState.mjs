@@ -12,7 +12,7 @@ export const enterInLabel = (state, dispatch) => {
   if (dispatch) {
     const after = $from.after();
     const next = state.doc.nodeAt(after);
-    if (next?.type.name === 'heading') return dispatch(state.tr.setSelection(TextSelection.create(state.doc, after + 1))), true;
+    if (next?.type.name === 'heading') return (dispatch(state.tr.setSelection(TextSelection.create(state.doc, after + 1))), true);
     const tr = state.tr.insert(after, state.schema.nodes.paragraph.create());
     dispatch(tr.setSelection(TextSelection.create(tr.doc, after + 1)).scrollIntoView());
   }
@@ -25,7 +25,10 @@ const LINES = ['paragraph', 'bodyLarge', 'bodyMedium', 'bodySmall'];
  * quote), or a heading (which gets a label above it). @param {import('@milkdown/kit/prose/state').EditorState} state */
 export function canLabel(state) {
   const { $from } = state.selection;
-  return $from.depth === 1 && ($from.parent.type.name === 'heading' || $from.parent.type.name === 'eyebrow' || LINES.includes($from.parent.type.name));
+  return (
+    $from.depth === 1 &&
+    ($from.parent.type.name === 'heading' || $from.parent.type.name === 'eyebrow' || LINES.includes($from.parent.type.name))
+  );
 }
 
 /** The heading the label button is for: the one the cursor is in, or the one after the label it is in, at the top of
@@ -65,9 +68,14 @@ export function toggleLabel(view) {
   const line = $from.parent;
   if (line.type.name !== 'heading') {
     const at = $from.before();
-    const to = line.type.name === 'eyebrow' ? nodes.paragraph.create(null, line.content) : nodes.eyebrow.create(null, line.textContent ? state.schema.text(line.textContent) : null);
+    const to =
+      line.type.name === 'eyebrow'
+        ? nodes.paragraph.create(null, line.content)
+        : nodes.eyebrow.create(null, line.textContent ? state.schema.text(line.textContent) : null);
     const tr = state.tr.replaceWith(at, at + line.nodeSize, to);
-    return view.dispatch(tr.setSelection(TextSelection.create(tr.doc, at + 1 + Math.min($from.parentOffset, to.content.size))).scrollIntoView());
+    return view.dispatch(
+      tr.setSelection(TextSelection.create(tr.doc, at + 1 + Math.min($from.parentOffset, to.content.size))).scrollIntoView(),
+    );
   }
   const heading = labelledHeading(state);
   if (!heading) return;

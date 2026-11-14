@@ -2977,27 +2977,39 @@ async function checkLabelOnAnyLine(width) {
   await page.keyboard.press('Enter');
   await page.keyboard.type('Opening hours');
   await page.waitForTimeout(300);
-  const rowNames = () =>
-    page.locator('[role=menu] [role^=menuitem]:visible').evaluateAll((rows) => rows.map((x) => x.textContent.trim()));
+  const rowNames = () => page.locator('[role=menu] [role^=menuitem]:visible').evaluateAll((rows) => rows.map((x) => x.textContent.trim()));
   const labelNow = () =>
     page.evaluate(() => {
       const el = document.querySelector('.ProseMirror p.label-medium');
-      return el ? { text: el.textContent, size: getComputedStyle(el).fontSize, tops: [...el.parentElement.children].map((c) => c.tagName) } : null;
+      return el
+        ? { text: el.textContent, size: getComputedStyle(el).fontSize, tops: [...el.parentElement.children].map((c) => c.tagName) }
+        : null;
     });
   await openStyleMenu(page);
-  if (!(await rowNames()).some((n) => /^Label\b/.test(n))) problems.push(`${label}: the Text style menu has no Label row on a plain line (${(await rowNames()).join(', ')})`);
-  await page.locator('[role=menu] [role^=menuitem]').filter({ hasText: /^Label\b/ }).first().click();
+  if (!(await rowNames()).some((n) => /^Label\b/.test(n)))
+    problems.push(`${label}: the Text style menu has no Label row on a plain line (${(await rowNames()).join(', ')})`);
+  await page
+    .locator('[role=menu] [role^=menuitem]')
+    .filter({ hasText: /^Label\b/ })
+    .first()
+    .click();
   await page.waitForTimeout(200);
   const made = await labelNow();
-  if (!made || made.text !== 'Opening hours') problems.push(`${label}: Label on a plain line does not make it a label with its text (${JSON.stringify(made)})`);
+  if (!made || made.text !== 'Opening hours')
+    problems.push(`${label}: Label on a plain line does not make it a label with its text (${JSON.stringify(made)})`);
   else if (made.size !== '12px') problems.push(`${label}: the label is drawn at ${made.size}, not the label role's 12px`);
   else if (made.tops.join() !== 'P,P') problems.push(`${label}: the label's line changed the page's shape (${made.tops})`);
   // Picked again, it is the plain line again.
   await openStyleMenu(page);
-  await page.locator('[role=menu] [role^=menuitem]').filter({ hasText: /^Label\b/ }).first().click();
+  await page
+    .locator('[role=menu] [role^=menuitem]')
+    .filter({ hasText: /^Label\b/ })
+    .first()
+    .click();
   await page.waitForTimeout(200);
   if (await labelNow()) problems.push(`${label}: Label picked again does not give the plain line back`);
-  if ((await page.locator('.ProseMirror p').nth(1).textContent()) !== 'Opening hours') problems.push(`${label}: the line lost its text going back from a label`);
+  if ((await page.locator('.ProseMirror p').nth(1).textContent()) !== 'Opening hours')
+    problems.push(`${label}: the line lost its text going back from a label`);
   // An empty last line has the row too.
   await page.keyboard.press('End');
   await page.keyboard.press('Enter');
@@ -3006,12 +3018,14 @@ async function checkLabelOnAnyLine(width) {
   await page.keyboard.press('Escape');
   // A lone label of a saved page is read as a label and drawn the same in the Preview.
   const path = BUILT_PAGE;
-  const text = '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<p class="label-medium">Opening hours</p>\n\nMonday to Friday.\n';
+  const text =
+    '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<p class="label-medium">Opening hours</p>\n\nMonday to Friday.\n';
   await openEditor(page, site, { [path]: text });
   await page.goto(`${site}/editor/#${path}`);
   await page.waitForSelector('.ProseMirror p.label-medium', { timeout: 30_000 });
   const inEditor = await labelNow();
-  if (!inEditor || inEditor.size !== '12px') problems.push(`${label}: a saved lone label is not a label in the editor (${JSON.stringify(inEditor)})`);
+  if (!inEditor || inEditor.size !== '12px')
+    problems.push(`${label}: a saved lone label is not a label in the editor (${JSON.stringify(inEditor)})`);
   await page.getByRole('button', { name: 'Preview' }).first().click();
   await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
