@@ -80,6 +80,7 @@ export { default as SiteSettingRow } from '@theme/ui/SettingRow';
 export { default as SiteRadioButton, RadioGroup as SiteRadioGroup } from '@theme/ui/RadioButton';
 export { default as SiteSlider } from '@theme/ui/Slider';
 export { default as SiteDivider } from '@theme/ui/Divider';
+export { default as SiteDataTable } from '@theme/ui/DataTable';
 export { default as SiteSideSheet } from '@theme/ui/SideSheet';
 export { sideSheetClass as siteSideSheetDialogClass } from '@theme/ui/SideSheet';
 export { sideSheet as siteSideSheet, standardSideSheet as siteStandardSideSheet } from '@theme/ui/sideSheetControl';

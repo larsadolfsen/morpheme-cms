@@ -1,7 +1,7 @@
-// The cells of the DataTable part (dataTable.mjs): the drawn kind, a number's value as `isNumber` accepts it, sort keys and search text.
+// The cells of the DataTable part (dataTableCells.mjs): the drawn kind, a number's value as `isNumber` accepts it, sort keys and search text.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { KINDS, cellOf, kindOf, numberOf, searchText, sortKey } from './dataTable.mjs';
+import { KINDS, cellOf, kindOf, numberOf, searchText, sortKey } from './dataTableCells.mjs';
 import { isNumber } from '../../src/standard/table/rows.mjs';
 
 test('every kind is listed', () => {

@@ -18,8 +18,8 @@ export const PARTS = [
   { name: 'choice group row', file: 'theme/styles/ui.css', selector: '.choice-group-list .list-item-container', reads: '--mo-density' },
   { name: 'list item', file: 'theme/styles/ui.css', selector: '.list-item-container', reads: '--mo-density' },
   { name: 'setting row', file: 'theme/styles/ui.css', selector: '.setting-list > .setting-row', reads: '--mo-density-layout' },
-  { name: 'table cell', file: 'theme/styles/blocks.css', selector: '.block-table-grid :is(th, td)', reads: '--mo-density' },
-  { name: 'table header', file: 'theme/styles/blocks.css', selector: '.block-table-grid thead th', reads: '--mo-density' },
+  { name: 'data table cell', file: 'theme/styles/ui.css', selector: '.data-table :is(th, td)', reads: '--mo-density' },
+  { name: 'data table header', file: 'theme/styles/ui.css', selector: '.data-table thead th', reads: '--mo-density' },
 ];
 
 /** Focused single-task parts: never denser than Medium, so they read neither --mo-density nor --mo-density-layout. */

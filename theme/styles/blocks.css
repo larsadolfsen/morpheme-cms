@@ -1247,7 +1247,7 @@
 
   /* A table (.block-table, the base of every table block): a box that scrolls sideways when the table is wider than the screen,
      with the cells' text in the body scale and a thin line (outline variant) under each row. "Table" and "Cookie list" are
-     drawn alike, as .block-table-grid. */
+     drawn alike, through the data table (.data-table, ui.css). */
   .block-table {
     overflow-x: auto;
   }
@@ -1262,73 +1262,13 @@
   .block-table :is(th, td) {
     border-bottom: 1px solid var(--block-line);
     text-align: left;
+  }
+  /* A data table (.data-table, ui.css) sets its cells in the middle of their rows. */
+  .block-table:not(.data-table, .block-table-grid) :is(th, td) {
     vertical-align: top;
   }
 
-  /* "Table": Material 3 has no table component, so the dimensions are Material 2's data table (m2.material.io/components/data-tables:
-     rows 52 dp and the header row 56 dp, 16 dp of space at the sides of a cell, a header name in a medium weight, a 1 dp outline,
-     no elevation, a row's background on hover) and everything else is Material 3's: the body and label type scales, the surface container
-     (header), the outline variant (container and dividers), the cards' own corner radius (--card-radius) and the theme's hover state layer. The box is a region the
-     keyboard can scroll (a focus ring in the accent); a table with many columns scrolls instead of crushing them. */
-  .block-table-grid {
-    --card-padding: 0;
-    --card-outlined-surface: transparent;
-    --card-outlined-line: transparent;
-    border: 1px solid var(--block-line);
-    border-radius: var(--card-radius, var(--block-radius));
-    color: var(--block-text);
-  }
-  .block-table-grid:focus-visible {
-    outline: 3px solid var(--block-accent);
-    outline-offset: 2px;
-  }
-  .block-table-grid :is(th, td) {
-    min-width: 6rem;
-    /* A table is data-heavy: its rows read --mo-density (base.css), 4 px a step from 52 dp (Large 56, Small 48, a theme's -2 and -3: 44 and 40). */
-    height: calc(3.25rem + var(--mo-density) * var(--mo-density-step));
-    padding: 0.5rem 1rem;
-    vertical-align: middle;
-    font-weight: inherit;
-  }
-  .block-table-grid thead th {
-    height: calc(3.5rem + var(--mo-density) * var(--mo-density-step));
-    background: var(--block-tint);
-    font-size: var(--type-label-large-size);
-    line-height: var(--type-label-large-line-height);
-    font-weight: var(--type-label-large-weight);
-    letter-spacing: var(--type-label-large-tracking);
-  }
-  /* A column's alignment (view.ts): numbers right, text left, or the owner's choice. */
-  .block-table-grid :is(th, td).block-table-left {
-    text-align: start;
-  }
-  .block-table-grid :is(th, td).block-table-center {
-    text-align: center;
-  }
-  .block-table-grid :is(th, td).block-table-right {
-    text-align: end;
-  }
-  .block-table-grid tr:last-child :is(th, td) {
-    border-bottom: 0;
-  }
-  /* "Striped rows": every second body row in the quieter --block-stripe (the header keeps the tint). */
-  .block-table-grid[data-striped] tbody tr:nth-child(even) {
-    background: var(--block-stripe);
-  }
-  @media (hover: hover) {
-    .block-table-grid tbody tr:hover {
-      background: var(--mo-hover, color-mix(in srgb, var(--block-text) 8%, transparent));
-    }
-    /* The state layer over the stripe, so a striped row stays striped under the pointer. */
-    .block-table-grid[data-striped] tbody tr:nth-child(even):hover {
-      background:
-        linear-gradient(
-          var(--mo-hover, color-mix(in srgb, var(--block-text) 8%, transparent)),
-          var(--mo-hover, color-mix(in srgb, var(--block-text) 8%, transparent))
-        ),
-        var(--block-stripe);
-    }
-  }
+  /* "Table" and "Cookie list" draw through the theme's data table (DataTable, .data-table in ui.css, which also styles .block-table-grid). */
 
   /* A badge: a small word over a number in a light square ("Spar / 10%"), and a text beside one. */
   .block-badge {
