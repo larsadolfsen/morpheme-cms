@@ -9,7 +9,7 @@ import { Plus } from '@phosphor-icons/react';
 import { Glyph } from './icon';
 import { SlotButton } from './ui';
 import { SiteButton } from './themeUi';
-import { addAt, isEmptyRow, linesFromPaste, removeAt, setField } from './inlineRows.mjs';
+import { addAt, isEmptyRow, itemsFromPaste, removeAt, setField } from './inlineRows.mjs';
 
 export type Item = Record<string, any>;
 export type Focus = { row: number; field: string };
@@ -20,6 +20,8 @@ export type Change = {
   /** A grid's active column (the Table). */ col?: number | null;
   /** Props of the block to set with the items (a Table's `columns`); `undefined` removes one. */
   props?: Record<string, unknown>;
+  /** The change is its own undo step (a paste that makes items): the editor's history is closed before and after it. */
+  step?: boolean;
 };
 
 // A textarea that has the height of its text: the browser's own where it can (CSS field-sizing), else set here.
@@ -164,9 +166,10 @@ export default function InlineItems({
   /** How many empty, faded items a block shows while it has none (Cards start with three, the first active; else one). Typing in any of
    * them makes the first item. */
   start?: number;
-  /** Lines pasted into the first field of an empty block make one item each (the line in the first field), unless the pasted text has
-   * headings among its lines (linesFromPaste). */
-  paste?: boolean;
+  /** Lines pasted into the first field of an empty item (the faded one of an empty block, or one just added) make one item each, in its
+   * place: the line in the first field, or, with a tab in it, before the tab in the first field and after it in the second (`paste`
+   * names it when it is not the next typed field: a card's text). Not when the pasted text has headings among its lines (itemsFromPaste). */
+  paste?: boolean | string;
 }) {
   const root = useRef<HTMLDivElement>(null);
   const [first, last] = [fields[0], fields[fields.length - 1]];
@@ -208,12 +211,20 @@ export default function InlineItems({
     }
   };
 
-  const pasted = (name: string, e: ClipboardEvent<HTMLTextAreaElement>) => {
-    if (!paste || name !== first || items.some((r) => !isEmptyRow(r))) return;
-    const lines = linesFromPaste(e.clipboardData.getData('text/plain'), e.clipboardData.getData('text/html'));
-    if (!lines) return;
+  const pasted = (i: number, name: string, e: ClipboardEvent<HTMLTextAreaElement>) => {
+    const at = slot(i);
+    if (!paste || name !== first || !isEmptyRow(items[at])) return;
+    const second = typeof paste === 'string' ? paste : fields[1];
+    const made = itemsFromPaste(e.clipboardData.getData('text/plain'), e.clipboardData.getData('text/html'), [first, second]);
+    if (!made) return;
     e.preventDefault();
-    onChange({ items: lines.map((line) => ({ [first]: line })), active: lines.length - 1, focus: { row: lines.length - 1, field: last } });
+    // In place of the empty item; those after it stay after the pasted ones. Lines past `max` are left out (none of the blocks that
+    // paste has one yet; the snackbar that counts them comes with the first that does).
+    const rest = at < items.length ? at + 1 : at;
+    const room = max === undefined ? made.length : Math.max(1, max - at - (items.length - rest));
+    const kept = made.slice(0, room);
+    const end = at + kept.length - 1;
+    onChange({ items: [...items.slice(0, at), ...kept, ...items.slice(rest)], active: end, focus: { row: end, field: last }, step: true });
   };
 
   const body = shown.map((item, i) => {
@@ -240,7 +251,7 @@ export default function InlineItems({
           }
           onFocus={() => active !== slot(i) && onChange({ active: slot(i) })}
           onKeys={(e) => keys(i, name, e)}
-          onPaste={paste ? (e) => pasted(name, e) : undefined}
+          onPaste={paste ? (e) => pasted(i, name, e) : undefined}
         />
       ),
     });

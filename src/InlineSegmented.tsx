@@ -80,6 +80,7 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
       fields={['title', 'text']}
       add={t.blocks.segmented.addRow}
       onChange={onChange}
+      paste
       wrap={(rows) =>
         all ? (
           <SiteList kind="segmented" className="block-list inline-list">

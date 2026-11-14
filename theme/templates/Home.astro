@@ -9,7 +9,6 @@ import Container from '@theme/components/Container.astro';
 import Text from '@theme/components/home/Text.astro';
 import PageBlock from '@theme/components/home/PageBlock.astro';
 import Markdown from '@theme/components/Markdown.astro';
-import Img from '@theme/components/Img.astro';
 import Block from '@morphemecms/cms/src/standard/Block.astro';
 import { sectionClass } from '@morphemecms/cms/lib/text-sections.mjs';
 import { blockTexts } from '@morphemecms/cms/site/site';
@@ -45,19 +44,11 @@ const panel = sections.find((s) => s.type === 'top');
     const first = i === 0 ? 'theme-home-first' : undefined;
     if (s.type === 'top')
       return (
-        <Container class={s.settings.color || s.settings.image ? '[&>.text-section]:mt-0' : 'pt-8 medium:pt-16'}>
+        <Container class={s.settings.color ? '[&>.text-section]:mt-0' : 'pt-8 medium:pt-16'}>
           <section
-            class={s.settings.color || s.settings.image || s.settings.width ? sectionClass(s.settings.color, s.settings) : undefined}
+            class={s.settings.color || s.settings.width ? sectionClass(s.settings.color, s.settings) : undefined}
             data-editor="h1-section"
           >
-            {s.settings.image && (
-              <Img
-                src={s.settings.image}
-                alt={s.settings.alt ?? ''}
-                sizes={s.settings.width === 'full' ? '100vw' : 'min(72rem, 100vw)'}
-                class="text-section-image"
-              />
-            )}
             <h1 class="theme-title max-w-[22ch]">{headingHtml ? <Fragment set:html={headingHtml} /> : heading}</h1>
             {s.items.map((item, n) =>
               item.block ? (
