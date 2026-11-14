@@ -3,7 +3,8 @@
 // definition. What is new here is only the list's menu (`Edit list`, `Delete list`), its sheet, and the waiting version: making the list and adding or changing
 // its fields is kept (src/listDraft.ts) until a `Save`, the page's own or an item's (App.tsx adds the waiting definition to that commit).
 import { useMemo, useRef, useState } from 'react';
-import { DotsThreeVertical, PencilSimple, Trash } from '@phosphor-icons/react';
+import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
+import { Icon } from './icon';
 import { config } from '@site/editor';
 import { List } from './Library';
 import Screen from './Screen';
@@ -19,6 +20,15 @@ import { DEFINITION_VERSION, parseDefinition } from '../lib/ownList.mjs';
 import { definitionText, entriesIn } from '../lib/ownListEdit.mjs';
 import { definitionPath, discardListDraft, editListDraft, listDraftOf, pendingOf, useListDrafts } from './listDraft';
 import type { Env } from './App';
+
+/** The icons of the menu, drawn by name in the pack in use (src/icon.tsx). */
+const named = (name: string) =>
+  (({ size, className }: { size?: number | string; className?: string }) => (
+    <Icon name={name} size={Number(size) || 24} className={className} />
+  )) as unknown as PhosphorIcon;
+const DotsThreeVertical = named('dots-three-vertical');
+const PencilSimple = named('pencil-simple');
+const Trash = named('trash');
 
 type Definition = { version: 2; label: string; fields: { id: string; kind: string; label?: string }[]; dropped: string[] };
 

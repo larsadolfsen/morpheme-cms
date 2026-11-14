@@ -111,10 +111,6 @@
     "max": 1,
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
   },
-  "src/InlineFieldsList.tsx": {
-    "max": 4,
-    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
-  },
   "src/InlineItems.tsx": {
     "max": 1,
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
@@ -177,10 +173,6 @@
   },
   "src/Notifications.tsx": {
     "max": 2,
-    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
-  },
-  "src/OwnListPage.tsx": {
-    "max": 3,
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
   },
   "src/PagePicker.tsx": {
