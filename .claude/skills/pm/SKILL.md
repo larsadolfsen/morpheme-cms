@@ -106,6 +106,10 @@ this rule, in these words: "When a change the owner can see (the editor or the s
 before and after screenshots of every changed screen to a comment on your own pull request, as the `pm` skill's
 *Screenshots in the pull request* says, and tell the PM with the link and head sha. A change nobody sees needs none."
 
+Owner rule, 14 Nov 2026: a PM may only start Sonnet sessions. Every session the PM starts (`create_session`) is a Sonnet
+session, so the PM passes `model: sonnet` (Sonnet 5.5, `claude-sonnet-5-5`) and never starts a session on another model.
+It also never gives a session an `effort` the owner did not ask for.
+
 The owner only sees pull requests that are assigned to them on GitHub. When a session the PM started opens a pull request, or the PM takes over one that needs the owner to see, approve or decide something, the PM assigns it to the repository owner `larsadolfsen` (`update_pull_request`, `issue_write` assignees or the GitHub API) and keeps it assigned until it is merged.
 
 ## Phase 3 - Merge
