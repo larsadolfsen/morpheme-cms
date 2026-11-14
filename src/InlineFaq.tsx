@@ -6,13 +6,13 @@
 // field under `Add question` while the block is active (empty: none) and its page is picked in the link slot (Edit).
 import { LinkSimple } from '@phosphor-icons/react';
 import { t } from './i18n';
-import { Svg } from './icon';
 import InlineItems, { InlineField, InlineSlot } from './InlineItems';
 import type { InlineViewProps } from './inlineViews';
 import { faqSettings } from './standard/faq/view';
 import { headOf } from './standard/head';
 import BlockHead from '@theme/blocks/BlockHead';
 import ListButton from '@theme/blocks/ListButton';
+import List, { ListItem } from '@theme/ui/List';
 
 export default function InlineFaq({ items, props, active, focus, onChange, onProps, onEdit }: InlineViewProps) {
   const head = headOf(props);
@@ -27,29 +27,28 @@ export default function InlineFaq({ items, props, active, focus, onChange, onPro
         fields={['question', 'answer']}
         add={t.blocks.faq.addQuestion}
         onChange={onChange}
-        wrap={(rows) => <div className="block-accordion">{rows}</div>}
+        wrap={(rows) => (
+          <List expand className="block-accordion">
+            {rows}
+          </List>
+        )}
         renderItem={({ index: i, here, next, field }) => (
-          <details
+          // The question is typed, so the summary does not fold: the active question is the open one.
+          <ListItem
             key={i}
-            open={here}
-            data-row={i}
-            aria-current={here ? 'true' : undefined}
-            aria-label={next ? t.blocks.faq.newQuestion : t.blocks.faq.questionOf(i + 1, items.length)}
-            className={['block-accordion-row', 'inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next']
-              .filter(Boolean)
-              .join(' ')}
+            expand
+            expandOpen={here}
+            expandProps={{
+              'data-row': i,
+              'aria-current': here ? 'true' : undefined,
+              'aria-label': next ? t.blocks.faq.newQuestion : t.blocks.faq.questionOf(i + 1, items.length),
+              className: ['inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next'].filter(Boolean).join(' '),
+            }}
+            onClick={(e) => e.preventDefault()}
+            headline={field('question', t.blocks.faq.question, next ? t.blocks.faq.newQuestion : t.blocks.faq.question)}
           >
-            {/* The question is typed, so the summary does not fold: the active question is the open one. */}
-            <summary className="block-accordion-label" onClick={(e) => e.preventDefault()}>
-              <span className="block-accordion-title">
-                {field('question', t.blocks.faq.question, next ? t.blocks.faq.newQuestion : t.blocks.faq.question)}
-              </span>
-              <Svg name="caret-down" size={20} className="block-accordion-icon" />
-            </summary>
-            <div className="block-accordion-body">
-              {here && <div className="block-accordion-answer">{field('answer', t.blocks.faq.answer, t.blocks.faq.answer)}</div>}
-            </div>
-          </details>
+            {here && <div className="block-accordion-answer">{field('answer', t.blocks.faq.answer, t.blocks.faq.answer)}</div>}
+          </ListItem>
         )}
       />
       {/* While the block is active the button under the list is typed where it stands (empty: no button) and its page is picked in a slot

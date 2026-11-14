@@ -2969,6 +2969,127 @@
     transform: translate(-50%, -50%);
   }
 
+  /* Expand (ListItem `expand` in a List with `expand`: Material's "List - Expand", m3.material.io/components/lists/specs, token set
+     "List - Expand"): the item is a <details>; its summary is the item's container, its trailing icon a caret in a container that is
+     the surface while the item is closed and a surface container while it is open (the icon on-surface in both, as the tokens say),
+     its body (.list-item-expand-body) what folds out. M3 prints the container shape (16dp, here --list-expand-radius) and the trailing
+     icon's shape only as images, and says nothing about the item's padding, its text or how it opens: the nearest M3 pattern is
+     used (the List's own item, state layers and 3dp focus ring; the theme's motion). The list: the card (the default: one container
+     with a line between the items) or, with --list-expand-gap, an item on each surface (Material's segmented). Tokens:
+       --list-expand-radius, --list-expand-surface, --list-expand-shadow   the list's container
+       --list-expand-gap, --list-expand-item-surface, --list-expand-item-radius   items on surfaces of their own (segmented)
+       --list-expand-divider, --list-expand-divider-width   the line between the items
+       --list-expand-padding-inline, --list-expand-padding-block, --list-expand-gap-inline   the item's padding and gap
+       --list-expand-headline-size, -weight, -line-height, -letter-spacing   its headline
+       --list-expand-icon-size, --list-expand-icon-radius, --list-expand-icon-open-surface   the trailing icon
+       --list-expand-body-padding-bottom   the room under what folds out */
+  .list-expand {
+    display: grid;
+    gap: var(--list-expand-gap, 0);
+    border-radius: var(--list-expand-radius, var(--mo-shape-large));
+    background: var(--list-expand-surface, var(--block-surface));
+    box-shadow: var(--list-expand-shadow, var(--block-shadow));
+    overflow: clip;
+  }
+  .list-expand > li {
+    border-radius: var(--list-expand-item-radius, 0);
+    background: var(--list-expand-item-surface, transparent);
+    overflow: clip;
+  }
+  .list-expand > li + li {
+    border-top: var(--list-expand-divider-width, 1px) solid var(--list-expand-divider, var(--block-line));
+  }
+  .list-expand > li:first-child {
+    border-start-start-radius: var(--list-expand-radius, var(--mo-shape-large));
+    border-start-end-radius: var(--list-expand-radius, var(--mo-shape-large));
+  }
+  .list-expand > li:last-child {
+    border-end-start-radius: var(--list-expand-radius, var(--mo-shape-large));
+    border-end-end-radius: var(--list-expand-radius, var(--mo-shape-large));
+  }
+  .list-item-expand {
+    display: block;
+  }
+  .list-item-expand-summary {
+    --list-item-shape: 0;
+    --list-item-padding-block: var(--list-expand-padding-block, 0.875rem);
+    --list-item-padding-inline: var(--list-expand-padding-inline, 1rem);
+    --list-item-gap: var(--list-expand-gap-inline, 1rem);
+    --list-item-headline-size: var(--list-expand-headline-size, var(--type-title-medium-size));
+    --list-item-headline-weight: var(--list-expand-headline-weight, var(--type-title-medium-weight));
+    --list-item-headline-line-height: var(--list-expand-headline-line-height, var(--type-title-medium-line-height));
+    --list-item-headline-letter-spacing: var(--list-expand-headline-letter-spacing, var(--type-title-medium-tracking));
+    cursor: pointer;
+    list-style: none;
+    /* The focus ring sits inside the item, so the list's rounded edge never cuts it off. */
+    outline-offset: -3px;
+  }
+  .list-item-expand-summary::-webkit-details-marker {
+    display: none;
+  }
+  .list-item-expand-icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: var(--list-expand-icon-size, 2.5rem);
+    height: var(--list-expand-icon-size, 2.5rem);
+    /* The container is wider than the caret: the caret stays where the padding puts it. */
+    margin-inline-end: calc((1.25rem - var(--list-expand-icon-size, 2.5rem)) / 2);
+    /* ... and never makes the item higher than its text. */
+    margin-block: calc((1.5rem - var(--list-expand-icon-size, 2.5rem)) / 2);
+    border-radius: var(--list-expand-icon-radius, var(--mo-shape-full));
+    background: transparent;
+    transition:
+      rotate var(--motion-spatial),
+      background-color var(--motion-effects);
+  }
+  .list-item-expand-icon > svg {
+    width: var(--list-item-icon-size, 1.25rem);
+    height: var(--list-item-icon-size, 1.25rem);
+  }
+  .list-item-expand[open] > .list-item-expand-summary .list-item-expand-icon {
+    rotate: 180deg;
+    background: var(--list-expand-icon-open-surface, color-mix(in srgb, currentColor 8%, transparent));
+  }
+  @media (hover: hover) {
+    .list-item-expand-summary:hover {
+      background: var(--list-item-hover-surface, transparent);
+      color: var(--list-item-hover-text, var(--block-accent));
+    }
+  }
+  .list-item-expand-summary:focus-visible {
+    background: var(--list-item-focus-surface, var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent)));
+    outline: 3px solid var(--list-item-focus-indicator-color, var(--mo-primary));
+  }
+  .list-item-expand-summary:active {
+    background: var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent));
+  }
+  .list-item-expand-body {
+    padding: 0 var(--list-expand-padding-inline, 1rem) var(--list-expand-body-padding-bottom, 1.5rem);
+  }
+  /* Opening and closing glide where the browser can animate ::details-content (else faq/script.ts does it); none with reduced motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    .list-expand {
+      interpolate-size: allow-keywords;
+    }
+    .list-item-expand::details-content {
+      block-size: 0;
+      overflow-y: clip;
+      transition:
+        block-size var(--motion-spatial),
+        content-visibility var(--motion-spatial-duration) allow-discrete;
+    }
+    .list-item-expand[open]::details-content {
+      block-size: auto;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .list-item-expand-icon {
+      transition: none;
+    }
+  }
+
   /* Selected, and disabled. */
   .list-item-selected {
     --list-item-shape: var(--list-item-selected-radius, var(--list-item-radius, 0));
