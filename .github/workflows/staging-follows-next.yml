@@ -2,16 +2,14 @@
 # not matter how many merges came in between or who approved it when: every ten minutes this compares
 # `npm view @morphemecms/cms@next version` with the version stored in the GitHub release `staging-marker` (its notes
 # hold the version; no secret, and unlike a cache it is never evicted). It only reads npm and calls the deploy hook;
-# it publishes and approves nothing. publish.yml calls it once the owner has approved a staged next version (the
-# reliable path); the cron is only a backup, since GitHub delays and drops scheduled runs.
-# An empty STAGING_DEPLOY_HOOK fails the run with a clear error.
+# it publishes and approves nothing. This is only the backup: the main path is the Cloudflare cron Worker staging-watcher/
+# (GitHub delays and drops scheduled runs; this cron has never run). An empty STAGING_DEPLOY_HOOK fails the run with a clear error.
 name: Staging follows next
 
 on:
   schedule:
     - cron: '*/10 * * * *'
   workflow_dispatch:
-  workflow_call:
 
 permissions:
   contents: write
