@@ -1,5 +1,6 @@
-// The settings of a section in the sheet of BlockDialog.tsx: its colour ("None" and the theme's four, section-marker.mjs), and for an H2
-// the image behind it, the image's description and its width (the whole window or the text's). Exposes the default SectionSettings and
+// The settings of a section in the sheet of BlockDialog.tsx: its colour ("None" and the theme's four, section-marker.mjs), for an H2
+// the image behind it and the image's description, and for an H1 or H2 its width (the whole window or the text's). A page's H1 has no
+// image (owner, 14 Nov 2026). Exposes the default SectionSettings and
 // SectionValues; uses Option (ui.tsx), FieldList (fields.tsx), SECTION_COLORS.
 import { ArrowsInLineHorizontal, ArrowsOutLineHorizontal } from '@phosphor-icons/react';
 import { FieldList } from './fields';
@@ -24,16 +25,19 @@ const WIDTH: Field = {
   ],
 };
 
-/** image: whether the section can have an image and a width (any H1's or H2's). */
+/** image: whether the section can have an image and its description (an H2's); width: whether it can have a width (an H1's or H2's). */
 export default function SectionSettings({
   values,
   image,
+  width,
   onChange,
 }: {
   values: SectionValues;
   image: boolean;
+  width: boolean;
   onChange: (values: SectionValues) => void;
 }) {
+  const fields = [...(image ? (values.image ? [IMAGE, ALT] : [IMAGE]) : []), ...(width ? [WIDTH] : [])];
   const { color } = values;
   return (
     <div className="space-y-5">
@@ -47,9 +51,9 @@ export default function SectionSettings({
           </Option>
         ))}
       </ul>
-      {image && (
+      {fields.length > 0 && (
         <FieldList
-          fields={values.image ? [IMAGE, ALT, WIDTH] : [IMAGE, WIDTH]}
+          fields={fields}
           value={values}
           onChange={(next) => {
             const v = next as SectionValues;
