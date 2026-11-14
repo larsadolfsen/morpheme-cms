@@ -45,19 +45,20 @@ export const blockBar = {
   },
 };
 
-/** The order of the block's tools on the bar: the first four are what a phone keeps (Add above, Add below, then Move up and Move down, or the Table's
- * column actions), the rest are in the `⋮` (Link, the gear, Fill from a list, the Table's deletes and alignments). 'gear' and 'dynamic' are the
- * gear and the dynamic button; the other names are the kinds of BarAction. */
+/** The order of the block's tools (owner order, 14 Nov): the first ones that fit are on the bar (four at 375 px), the rest in the `⋮`. A List's rows: Add below,
+ * Add above, Settings (the gear), Link, Fill from a list, then Move up and Move down last (a block moves by its handle too). A Table: Row below, Row above,
+ * Column after, Column before, then Table settings (the gear), the deletes and the alignments. 'gear' and 'dynamic' are the gear and the dynamic
+ * button; the other names are the kinds of BarAction (`below`, `above` are rows: the Table's rows too). */
 export const BLOCK_TOOL_ORDER = [
-  'above',
   'below',
-  'column-before',
+  'above',
   'column-after',
+  'column-before',
+  'gear',
+  'link',
+  'dynamic',
   'up',
   'down',
-  'link',
-  'gear',
-  'dynamic',
   'delete-row',
   'delete-column',
   'align-left',
