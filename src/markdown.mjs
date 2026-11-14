@@ -16,7 +16,6 @@ import { eyebrowText } from '../lib/eyebrow.mjs';
 import { bodyLargeText } from '../lib/body-large.mjs';
 import { bodySizeText } from '../lib/body-size.mjs';
 import { alignClass, alignHtml, alignOf } from '../lib/text-align.mjs';
-import { remarkBannerSections } from '../lib/remark-banner-section.mjs';
 import { remarkChecklists } from '../lib/remark-checklist.mjs';
 import { remarkListHeads } from '../lib/remark-list-head.mjs';
 import { remarkBlockLabels } from '../lib/remark-block-label.mjs';
@@ -380,8 +379,6 @@ export function makeEditor(root, markdown) {
       .use(gfm)
       .use(headingWithSection)
       .use(paragraphWithAlign)
-      // A Banner alone in its section is read as the section it has become, so the next save writes the section.
-      .use($remark('remarkBannerSections', () => remarkBannerSections))
       // A Checklist is read as the check list it has become, so the next save writes the list.
       .use($remark('remarkChecklists', () => remarkChecklists))
       // A List's label, heading and intro are read as the text's own lines above it, so the next save writes them there.

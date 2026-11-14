@@ -116,8 +116,8 @@ export const library = {
   /** On a theme's page: the images of the site in it (packages/editor/scripts/theme-screenshots.mjs), each by what it shows. */
   themeLooks: 'What your website looks like',
   themeShots: {
-    front: 'The front page',
-    'front-dark': 'The front page in dark mode',
+    front: 'The home page',
+    'front-dark': 'The home page in dark mode',
     blog: 'The blog page',
     contact: 'The contact page',
   } as Record<string, string>,

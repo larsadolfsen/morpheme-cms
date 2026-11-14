@@ -229,18 +229,6 @@ export const blocks: Messages['blocks'] = {
     addBelow: 'Tilføj under',
     stepOf: (n: number, total: number) => `Trin ${n} af ${total}`,
   },
-  hero: {
-    label: 'Banner',
-    hint: 'Sidens top med tekst og knapper.',
-    text: 'Tekst',
-    textHint: 'Det første afsnit er undertitlen. Tilføj billede og knapper med +.',
-    placement: 'Placering (billede)',
-    placementBeside: 'Ved siden af',
-    placementBehind: 'Bag teksten',
-    width: 'Bredde',
-    widthFull: 'Hele bredden',
-    widthText: 'Som teksten',
-  },
   accordion: {
     label: 'Foldeliste',
     hint: 'Rækker, der foldes ud med tekst.',

@@ -19,6 +19,7 @@ export const text: Messages['text'] = {
   insert: 'Indsæt',
   insertBlock: 'Indsæt blok',
   image: 'Billede',
+  crop: 'Beskær',
   undo: 'Fortryd',
   redo: 'Gentag',
   kind: 'Teksttype',

@@ -1,8 +1,8 @@
 // The Danish of defaults/rules.ts: its English texts (the keys) in Danish (the values), as the editor
 // showed them before the switch to English. Joined in defaults/i18n/da-DK/index.ts.
 export const rules: Record<string, string> = {
-  'Front page': 'Forside',
-  'Edit the front page': 'Rediger forsiden',
+  'Home page': 'Forside',
+  'Edit the home page': 'Rediger forsiden',
   'Action bar': 'Handlingslinje',
   'Default buttons': 'Standardknapper',
   'A button in the action bar opens the promotion, so it must be turned on and shown everywhere the bar is shown. Change the button first.':
@@ -37,9 +37,9 @@ export const rules: Record<string, string> = {
   'The tag is used in the promotion "{name}". Remove it from the promotion first.':
     'Tagget bruges i promoveringen "{name}". Fjern det fra den først.',
   'Edit the promotion': 'Rediger promoveringen',
-  'The tag picks the posts on the front page under "From the blog". Pick another one first.':
+  'The tag picks the posts on the home page under "From the blog". Pick another one first.':
     'Tagget vælger indlæggene på forsiden under "Fra bloggen". Vælg et andet først.',
-  'The post is picked for the front page under "From the blog". Pick another one first.':
+  'The post is picked for the home page under "From the blog". Pick another one first.':
     'Indlægget er valgt til forsiden under "Fra bloggen". Vælg et andet først.',
   'The post is picked in a block of blog posts on the page "{page}". Pick another one first.':
     'Indlægget er valgt i en blok med blogindlæg på siden "{page}". Vælg et andet først.',
@@ -51,7 +51,7 @@ export const rules: Record<string, string> = {
     '{page} er en standardside og kan ikke slettes. Vælg en anden side under "Standardsider" først.',
   'Edit the default pages': 'Rediger standardsiderne',
   'Edit the post': 'Rediger indlægget',
-  'the front page': 'forsiden',
+  'the home page': 'forsiden',
   'the blog': 'bloggen',
   'the page "{name}" ({address})': 'siden "{name}" ({address})',
   'the blog post "{name}" ({address})': 'blogindlægget "{name}" ({address})',

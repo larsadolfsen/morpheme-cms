@@ -23,7 +23,6 @@ export const coreBlockTypes = () =>
 export const EXTRA_BLOCKS = {
   accordion: { items: [{ label: 'First', href: '/', text: 'Opens with a text.' }], more: [{ label: 'More', href: '/' }] },
   checklist: { items: ['First point', 'Second point'] },
-  hero: { text: '# A hero\n\nWith a text.' },
   links: { heading: 'Links', groups: [{ title: 'Group', href: '/', paths: [{ path: '/' }] }] },
   points: { items: [{ icon: 'star', title: 'A point', text: 'With a text.', href: '/', more: 'More' }] },
   rows: { from: 'highlights', howMany: 3 },

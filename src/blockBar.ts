@@ -81,11 +81,16 @@ export const blockBar = {
   },
 };
 
-/** The order of the block's tools (owner order, 14 Nov): the first ones that fit are on the bar (four at 375 px), the rest in the `⋮`. A List's rows: Add below,
+/** The order of the block's tools (owner order, 14 Nov; a selected image's four tools first): the first ones that fit are on the bar (four at 375 px), the rest in the `⋮`. A List's rows: Add below,
  * Add above, Settings (the gear), Link, Fill from a list, then Move up and Move down last (a block moves by its handle too). A Table: Row below, Row above,
  * Column after, Column before, then Table settings (the gear), the deletes and the alignments. 'gear' and 'dynamic' are the gear and the dynamic
  * button; the other names are the kinds of BarAction (`below`, `above` are rows: the Table's rows too). */
 export const BLOCK_TOOL_ORDER = [
+  // A selected image (image tools spec, section 4): Change image, Crop, Alt text, Remove.
+  'change-image',
+  'crop',
+  'alt-text',
+  'remove',
   'below',
   'above',
   'column-after',

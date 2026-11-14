@@ -17,7 +17,7 @@ type TestimonialData = {
 };
 
 export type Testimonial = {
-  /** The file name, e.g. "marie-louise-eriksen" (a "Hero" picks its quote by it). */
+  /** The file name, e.g. "marie-louise-eriksen". */
   slug: string;
   name: string;
   /** Its image (optional), by the name. */

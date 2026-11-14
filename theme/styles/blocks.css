@@ -35,10 +35,10 @@
     --block-ease       the easing of motion (else the motion scheme's, --motion-ease)
     --block-ease-quick the easing of a quick change of state (a colour, an arrow that turns or moves; else the motion
                        scheme's, --motion-ease-quick)
-    --block-hero-shade, --block-hero-on-shade  (optional) the colour an image behind a hero's text is darkened with,
+    --block-hero-shade, --block-hero-on-shade  (optional) the colour an image behind a section's text is darkened with,
                        and the text's on it; without them the text's colour and the surface's
     --block-page-width, --block-gutter  the page's container (its width, gutters included, and its gutter at the
-                       side), whose left edge the text starts at: how far a banner across the whole width reaches out
+                       side), whose left edge the text starts at: how far a section across the whole width reaches out
                        of the text to the window's edges, and where its content starts again (the standard theme's
                        Container.astro: 72rem, 1rem and 1.5rem from the medium width)
 
@@ -245,7 +245,7 @@
     --block-stripe: color-mix(in srgb, var(--section-on-accent) 7%, transparent);
     --block-line: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
     --block-shadow: none;
-    /* A hero with its image behind the text is darkened with the section's own text colour, in its own surface. */
+    /* A section with its image behind the text is darkened with the section's own text colour, in its own surface. */
     --block-hero-shade: var(--section-text);
     --block-hero-on-shade: var(--section-surface);
   }
@@ -374,174 +374,6 @@
     text-decoration-thickness: 1px;
     text-underline-offset: 0.25em;
   }
-  /* "Hero" (hero/): its heading, the subtitle (the first paragraph, larger) and the introduction, the buttons, a text
-     under them and a quote, beside the image on a computer, under it on a phone. */
-  .block-hero {
-    display: grid;
-    gap: 2rem;
-    align-items: center;
-  }
-  .block-hero-title {
-    margin: 0 0 1.25rem;
-    font-size: var(--type-display-small-size);
-    line-height: var(--type-display-small-line-height);
-    font-weight: var(--type-display-small-weight);
-    letter-spacing: var(--type-display-small-tracking);
-  }
-  .block-hero-text > :first-child {
-    font-size: var(--type-title-large-size);
-    line-height: var(--type-title-large-line-height);
-    font-weight: var(--type-title-large-weight);
-    letter-spacing: var(--type-title-large-tracking);
-  }
-  .block-hero-text > * + * {
-    margin-top: 1rem;
-    color: var(--block-muted);
-  }
-  .block-hero-body > .block-buttons {
-    margin-top: 2rem;
-  }
-  .block-hero-note {
-    margin-top: 1rem;
-    max-width: 44ch;
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-    color: var(--block-muted);
-  }
-  .block-hero-note > * + * {
-    margin-top: 0.5rem;
-  }
-  /* A quote in the text under the buttons ("> …"): larger, in the text's colour, along a line in the accent; its last
-     paragraph, when it has more than one, is who said it (with a link to the whole of it). */
-  .block-hero-note > blockquote {
-    margin: 2rem 0 0;
-    border-left: 2px solid var(--block-accent);
-    padding-left: 1rem;
-  }
-  .block-hero-note > blockquote > p {
-    margin: 0;
-    font-size: var(--type-body-large-size);
-    line-height: var(--type-body-large-line-height);
-    font-weight: var(--type-body-large-weight);
-    letter-spacing: var(--type-body-large-tracking);
-    color: var(--block-text);
-  }
-  .block-hero-note > blockquote > p:last-child:not(:first-child) {
-    margin-top: 0.5rem;
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-    color: var(--block-muted);
-  }
-  .block-hero-picture {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 4 / 5;
-    object-fit: cover;
-    object-position: 50% 22%;
-    border-radius: var(--card-radius, var(--block-radius));
-  }
-  /* The image behind the text ("Hero", `placement` 'behind'): it fills a panel, darkened from below (--block-hero-shade,
-     the text's colour unless the theme sets it) so the text on it (--block-hero-on-shade, the surface's) can be read. */
-  .block-hero-behind {
-    position: relative;
-    isolation: isolate;
-    display: flex;
-    min-height: 26rem;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-end;
-    overflow: hidden;
-    border-radius: var(--card-radius, var(--block-radius));
-    padding: 2rem 1.5rem;
-    color: var(--block-hero-on-shade, var(--block-surface));
-  }
-  .block-hero-behind::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: linear-gradient(
-      to top,
-      color-mix(in srgb, var(--block-hero-shade, var(--block-text)) 85%, transparent),
-      color-mix(in srgb, var(--block-hero-shade, var(--block-text)) 35%, transparent) 70%,
-      color-mix(in srgb, var(--block-hero-shade, var(--block-text)) 20%, transparent)
-    );
-  }
-  .block-hero-behind > .block-hero-picture {
-    position: absolute;
-    inset: 0;
-    z-index: -2;
-    height: 100%;
-    aspect-ratio: auto;
-    border-radius: 0;
-  }
-  .block-hero-behind .block-hero-text > * + *,
-  .block-hero-behind .block-hero-note,
-  .block-hero-behind .block-hero-note > blockquote > p:last-child:not(:first-child) {
-    color: color-mix(in srgb, var(--block-hero-on-shade, var(--block-surface)) 85%, transparent);
-  }
-  .block-hero-behind .block-hero-note > blockquote {
-    border-left-color: currentColor;
-  }
-  .block-hero-behind .block-hero-note > blockquote > p {
-    color: var(--block-hero-on-shade, var(--block-surface));
-  }
-  .block-hero-behind :is(.block-link, .block-hero-note a) {
-    color: inherit;
-  }
-  /* Across the whole width of the window ("Banner", `width` 'full'): without corners, and without an image behind it on
-     a band in the tint, its content in a readable width. On the site (in the text, .block-in-text) it reaches out of
-     the text to the window's edges, from where the text starts at the left of the page's container (--block-page-width,
-     --block-gutter), and its content starts there again and ends at the container's right edge; the page is clipped at
-     the window's edges while it has one (100vw is a scrollbar wider). In the editor it is as wide as where it is drawn. */
-  .block-hero.block-hero-full {
-    border-radius: 0;
-  }
-  :where(.block-hero-full:not(.block-hero-behind)) {
-    background: var(--block-tint);
-    padding: 2.5rem 1.5rem;
-  }
-  :where(.block-hero-full) > .block-hero-body {
-    max-width: 44rem;
-  }
-  .block-hero-full.block-in-text {
-    --block-hero-inset: calc(max(0px, (100vw - var(--block-page-width)) / 2) + var(--block-gutter));
-    width: 100vw;
-    max-width: none;
-    margin-left: calc(-1 * var(--block-hero-inset));
-    padding-inline: var(--block-hero-inset);
-  }
-  body:has(.block-hero-full.block-in-text) {
-    overflow-x: clip;
-  }
-  @media (width >= theme(--breakpoint-expanded)) {
-    .block-hero {
-      grid-template-columns: 7fr 5fr;
-      gap: 3rem;
-    }
-    .block-hero-behind {
-      min-height: 32rem;
-      padding: 3.5rem;
-    }
-    :where(.block-hero-full:not(.block-hero-behind)) {
-      padding: 4rem 3.5rem;
-    }
-    .block-hero-title {
-      font-size: var(--type-display-medium-size);
-      line-height: var(--type-display-medium-line-height);
-      font-weight: var(--type-display-medium-weight);
-      letter-spacing: var(--type-display-medium-tracking);
-    }
-    .block-hero-body > .block-buttons {
-      flex-direction: row;
-    }
-  }
-
   /* "Buttons": buttons in a row, on a phone under each other in the full width (buttons/). The buttons are the
      theme's (.button in ui.css), each of the kind it was given. */
   .block-buttons {
@@ -572,18 +404,16 @@
     color: var(--block-accent);
   }
 
-  /* A link in a block's text (and in the text under a banner's buttons): in the accent, underlined, thicker when
+  /* A link in a block's text: in the accent, underlined, thicker when
      pointed at. */
-  .block-link,
-  .block-hero-note a {
+  .block-link {
     color: var(--block-accent);
     font-weight: 500;
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.25em;
   }
-  .block-link:hover,
-  .block-hero-note a:hover {
+  .block-link:hover {
     text-decoration-thickness: 2px;
   }
   /* A link on its own line with an arrow after it ("All posts →"). */
@@ -2202,8 +2032,7 @@
   /* A word or more in one of the site's colours, in a text (packages/editor/lib/text-colors.mjs, the colour button in the
    editor): the accent, or the quiet text's, both readable on the background, the surfaces and the tint (the site's
    pairs of colours, checked under "Colors"). Bold, italic and a link in it have its colour. Outside the layers, as it
-   is in the text's style (.prose), whose colours of bold text and links it goes over. On an image behind a hero's
-   text, where only the text's colour can be read, it is the text's. */
+   is in the text's style (.prose), whose colours of bold text and links it goes over. */
   .color-accent,
   .color-accent :is(strong, em, a) {
     color: var(--block-accent);
@@ -2211,10 +2040,6 @@
   .color-muted,
   .color-muted :is(strong, em, a) {
     color: var(--block-muted);
-  }
-  .block-hero-behind :is(.color-accent, .color-muted),
-  .block-hero-behind :is(.color-accent, .color-muted) :is(strong, em, a) {
-    color: inherit;
   }
 
   /* A word in the accent's or the quiet text's colour (above) on a section with the accent as its background would not
