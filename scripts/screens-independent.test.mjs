@@ -28,3 +28,12 @@ test('The screens check never writes to the site it checks', () => {
   for (const name of ['writeFileSync', 'rmSync', 'unlinkSync', 'renameSync', 'appendFileSync', 'cpSync', 'copyFileSync'])
     assert.ok(!fsImports.includes(name), `editor-screens.mjs imports ${name}: give the editor the file in memory with virtualFile instead`);
 });
+
+test('The screens check measures the system test page, never a page of the demo', () => {
+  // The Blocks page is the system's (core-blocks-page.mjs), built on a temporary copy of the site: a check that opens /blocks/ of the site
+  // fails on every site that has no such page.
+  assert.ok(
+    !/['"`]\/blocks\/['"`]/.test(source),
+    "editor-screens.mjs opens the site's /blocks/ page: use onTestPage, which builds the system's test page",
+  );
+});
