@@ -1018,6 +1018,13 @@
   }
   /* A list's row icon and arrow are the row heading's colour (the block's text, which a coloured section swaps to its on-colour), as the
      section's other text is; only the supporting line stays the quieter --block-muted. A row icon with its own colour (below) keeps it. */
+  /* "List" in one card (`card: 'one'`, theme/blocks/list/View.tsx): the Card part's corners, surface, line and shadow; the card's sides have no
+     padding because a row's own padding (--list-item-padding-inline, 16dp) puts its text 16dp in, as Material 3's card padding. Top and bottom are
+     8dp (Material 3 prints none: the grid step). A theme sets --list-card-padding-block. The card never clips a row's focus ring. */
+  .card.block-list-card {
+    padding: var(--list-card-padding-block, 0.5rem) 0;
+    overflow: visible;
+  }
   .block-list {
     --list-item-leading-icon-color: var(--block-text);
     --list-item-trailing-text: var(--block-text);

@@ -153,6 +153,11 @@ export const blocks: Messages['blocks'] = {
   list: {
     label: 'Liste',
     hint: 'Rækker med ikon, overskrift og tekst.',
+    card: 'Kort',
+    cardNone: 'Ingen',
+    cardOne: 'Ét kort',
+    cardHint: 'Lægger hele listen i ét kort. Vil du have et kort til hvert punkt, så brug Skift til › Kort.',
+    cardStyle: 'Kortets stil',
     items: 'Rækker',
     item: 'række',
     icon: 'Ikon',

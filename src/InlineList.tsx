@@ -5,10 +5,12 @@
 // below the last row (`Add list row`) adds one. The parts, the keys and what is kept are the shared ones of InlineItems.tsx and
 // src/inlineRows.mjs; this is the List's markup on them. Depends on the theme's List (themeUi.ts).
 import { ImageSquare, LinkSimple, Tag } from '@phosphor-icons/react';
-import type { MouseEvent } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import { iconColorOf } from './iconColor';
 import { t } from './i18n';
-import { SiteButton, SiteList, SiteListItem } from './themeUi';
+import { SiteButton, SiteCard, SiteList, SiteListItem } from './themeUi';
+import { cardOf } from './standard/list/card.mjs';
+import type { CardKind } from '@theme/ui/Card';
 import InlineItems, { InlineIcon, InlineSlot, type Change, type Focus, type Item } from './InlineItems';
 
 export type { Change, Focus };
@@ -33,8 +35,11 @@ export default function InlineList({
   show = {},
   onImage,
   onTags,
+  props,
 }: {
   items: Row[];
+  /** The block's own props: `card` and `design` put the rows in the card the site draws. */
+  props?: Record<string, unknown>;
   /** The row being edited; null while the list is not. */
   active: number | null;
   /** The field to put the cursor in, once (a new object asks again). */
@@ -62,7 +67,11 @@ export default function InlineList({
       add={t.blocks.list.addRow}
       onChange={onChange}
       paste
-      wrap={(rows) => <SiteList className="block-list inline-list">{rows}</SiteList>}
+      wrap={(rows) => (
+        <ListCard {...cardOf(props ?? {})}>
+          <SiteList className="block-list inline-list">{rows}</SiteList>
+        </ListCard>
+      )}
       renderItem={({ item, index: i, here, next, field }) => {
         const r = item as Row;
         return (
@@ -132,8 +141,11 @@ export function RowsFromList({
   undo,
   parts,
   onPart,
+  props,
 }: {
   rows: Row[];
+  /** The block's own props: its card (`card`, `design`), drawn around the rows as the site does. */
+  props?: Record<string, unknown>;
   line: string;
   empty: boolean;
   editList?: () => void;
@@ -184,17 +196,30 @@ export function RowsFromList({
           ))}
         </div>
       )}
-      <SiteList className="block-list inline-list" onClick={tapped}>
-        {rows.map((r, i) => (
-          <SiteListItem
-            key={i}
-            headline={r.title}
-            supporting={r.text || undefined}
-            leadingIcon={r.icon || undefined}
-            trailingIcon={r.href ? 'caret-right' : undefined}
-          />
-        ))}
-      </SiteList>
+      <ListCard {...cardOf(props ?? {})}>
+        <SiteList className="block-list inline-list" onClick={tapped}>
+          {rows.map((r, i) => (
+            <SiteListItem
+              key={i}
+              headline={r.title}
+              supporting={r.text || undefined}
+              leadingIcon={r.icon || undefined}
+              trailingIcon={r.href ? 'caret-right' : undefined}
+            />
+          ))}
+        </SiteList>
+      </ListCard>
     </div>
+  );
+}
+
+/** The card the site draws around a List with `card: 'one'` (the same Card part, the same classes), else the rows as they are. */
+function ListCard({ card, design, children }: { card?: 'one'; design?: CardKind; children: ReactNode }) {
+  return card === 'one' ? (
+    <SiteCard as="div" kind={design} className="block-list-card">
+      {children}
+    </SiteCard>
+  ) : (
+    children
   );
 }

@@ -4283,6 +4283,15 @@ async function checkPreviewDraft(width) {
 /** A List typed in the text: while a row is active and the list has rows, the text button "Add list row" is under the last row and adds one, the faded empty row is not there, the active row has a dotted line, and Add above and Add below are icon buttons; when the cursor leaves, the button is gone. */
 const inlineBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row' },
+  // The List in one card (Card › One card, and Card style): the settings are chosen in Block settings, as an owner does; the card is drawn as the site draws it.
+  ...['outlined', 'filled', 'elevated'].map((card) => ({
+    name: 'list',
+    variant: card,
+    card,
+    hint: 'Rows with icon, heading and text.',
+    add: 'Add list row',
+    surface: true,
+  })),
   { name: 'steps', hint: 'Numbered steps.', add: 'Add step', noEdit: true },
   { name: 'segmented', hint: 'Rows that expand, with a link.', add: 'Add row', rowButtons: 'Add button', surface: true },
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true, start: 3 },
@@ -4759,9 +4768,9 @@ async function checkSegmentedArrow(width, height) {
 async function checkInlineBlock(
   width,
   height,
-  { name, hint, add, surface, noEdit, rowButtons, listButton, field = 'title', open, start = 1 },
+  { name, variant, card, hint, add, surface, noEdit, rowButtons, listButton, field = 'title', open, start = 1 },
 ) {
-  const label = `${width}px inline ${name}`;
+  const label = `${width}px inline ${name}${variant ? ` ${variant}` : ''}`;
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
@@ -4872,6 +4881,59 @@ async function checkInlineBlock(
   }
   await page.keyboard.type('First');
   await page.waitForTimeout(300);
+  if (name === 'list') {
+    const cardBox = page.locator('.ProseMirror .block-list-card');
+    if (!card) {
+      if (await cardBox.count()) problems.push(`${label}: a plain List is drawn in a card`);
+    } else {
+      // Card › One card in Block settings; Card style shows only with it, and its choice is the card's look.
+      // A computer's side panel is open already while a row is active; a phone's sheet opens with the button.
+      const oneCard = page.getByRole('button', { name: 'One card', exact: true });
+      if (!(await oneCard.count()))
+        await rowButton(page, 'Block settings')
+          .first()
+          .click({ timeout: 4000 })
+          .catch(() => problems.push(`${label}: Block settings do not open`));
+      // The block's settings sheet (it cannot be saved while the required Rows are empty, so this is after the first row).
+      const sheet = page
+        .locator('dialog[open], [class*="side-sheet"]')
+        .filter({ has: page.getByRole('button', { name: 'One card', exact: true }) })
+        .first();
+      await sheet.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: Block settings have no Card choice`));
+      if (await sheet.getByText('Card style', { exact: true }).count()) problems.push(`${label}: Card style shows while the card is None`);
+      await sheet
+        .getByRole('button', { name: 'One card', exact: true })
+        .click({ timeout: 4000 })
+        .catch(() => problems.push(`${label}: no One card choice`));
+      await sheet
+        .getByText('Card style', { exact: true })
+        .first()
+        .waitFor({ timeout: 3000 })
+        .catch(() => problems.push(`${label}: Card style does not show with One card`));
+      if (card !== 'outlined')
+        await sheet
+          .getByRole('button', { name: card === 'filled' ? 'Filled' : 'Elevated', exact: true })
+          .click({ timeout: 4000 })
+          .catch(() => problems.push(`${label}: no ${card} choice`));
+      await sheet
+        .getByRole('button', { name: 'Save', exact: true })
+        .click({ timeout: 4000 })
+        .catch(() => problems.push(`${label}: Block settings have no Save`));
+      await page.waitForTimeout(400);
+      await page.locator('.inline-list-row [data-field="title"]').first().click();
+      await page.waitForTimeout(300);
+      const box = page.locator(`.ProseMirror .block-list-card.card-${card}`);
+      if ((await box.count()) !== 1) problems.push(`${label}: the List is not drawn in a ${card} card`);
+      else {
+        if (await box.locator('[data-add-row]').count()) problems.push(`${label}: the add button is inside the card`);
+        if (!(await box.locator('.inline-list-row').count())) problems.push(`${label}: the rows are not inside the card`);
+        if ((await box.evaluate((el) => el.getAttribute('role') ?? el.getAttribute('tabindex'))) !== null)
+          problems.push(`${label}: the card has a role or a tab stop`);
+        if ((await box.evaluate((el) => getComputedStyle(el).overflow)) !== 'visible')
+          problems.push(`${label}: the card clips its content`);
+      }
+    }
+  }
   const state = () =>
     page.evaluate(() => ({
       rows: document.querySelectorAll('.inline-list-row[data-row]:not(.inline-list-row-next)').length,
@@ -8432,11 +8494,13 @@ for (const [width, height] of [
         inlineBlocks.find((b) => b.name === name),
       ),
     );
-for (const block of inlineBlocks) await unit(`checkInlineBlock 375 ${block.name}`, () => checkInlineBlock(375, 740, block));
+for (const block of inlineBlocks)
+  await unit(`checkInlineBlock 375 ${block.name}${block.variant ? ` ${block.variant}` : ''}`, () => checkInlineBlock(375, 740, block));
 // On a computer too: the row's settings are in the side panel at once (a card's: its page and its buttons).
 for (const block of inlineSingles)
   for (const w of [375, 1280]) await unit(`checkInlineSingle ${w} ${block.name}`, () => checkInlineSingle(w, w < 600 ? 740 : 900, block));
-for (const block of inlineBlocks) await unit(`checkInlineBlock 1280 ${block.name}`, () => checkInlineBlock(1280, 900, block));
+for (const block of inlineBlocks)
+  await unit(`checkInlineBlock 1280 ${block.name}${block.variant ? ` ${block.variant}` : ''}`, () => checkInlineBlock(1280, 900, block));
 for (const [w, h] of [
   [375, 740],
   [1280, 900],
