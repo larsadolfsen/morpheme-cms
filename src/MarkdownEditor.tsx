@@ -1153,9 +1153,9 @@ function rawIcon(svg: string): typeof TextB {
 
 // The icon of each text style and list kind, for the bar's Text style and List menus (the names are STYLE_KINDS, styleKind.mjs).
 const KIND_ICONS = {
-  small: { node: TextSmallIcon },
-  medium: { node: TextMediumIcon },
   large: { node: TextLargeIcon },
+  medium: { node: TextMediumIcon },
+  small: { node: TextSmallIcon },
   label: { node: Tag },
   quote: { node: Quotes },
   bullet: { node: ListBullets },
