@@ -91,12 +91,18 @@ export const media: Messages['media'] = {
   noPages: 'Ingen sider',
   tags: 'Tags',
   addTag: 'Tilføj tag',
+  alt: 'Beskriv billedet',
+  altHint: 'Beskriv billedet med få ord, til dem der ikke kan se det.',
+  decorative: 'Dekorativt billede',
+  decorativeHint: 'Skærmlæsere springer billedet over.',
+  caption: 'Billedtekst',
   createTag: 'Opret et tag',
   commit: {
     add: (what, name) => `Editor: tilføj ${what} "${name}"`,
     delete: (what, name) => `Editor: slet ${what} "${name}"`,
     rename: (what, from, to) => `Editor: omdøb ${what} "${from}" til "${to}"`,
     tags: (what, name) => `Editor: ret tags på ${what} "${name}"`,
+    alt: (what, name) => `Editor: ret teksten på ${what} "${name}"`,
     deleteMany: (count) => `Editor: slet ${count} filer`,
   },
   crop: {

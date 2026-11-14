@@ -50,6 +50,7 @@ import { apps, collections } from './site';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { fileKindOf, pickedKindOf, pickImage, prepareFile, prepareImage, publicPath, showMoved, shownAt, type Uploads } from './images';
 import { fileIcons, FileView, KINDS, kindOf, type Kind } from './FileView';
+import MediaAlt from './MediaAlt';
 import MediaTags from './MediaTags';
 import MediaProviderPicker from './MediaProviderPicker';
 import { providerFile, trackProviderDownload, type MediaItem } from './mediaProviders';
@@ -852,6 +853,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
           <p className="text-on-surface-variant">{t.media.noPages}</p>
         )}
       </div>
+      {kindOf(src) === 'image' && <MediaAlt key={src} src={src} files={files} env={env} />}
       <MediaTags key={src} src={src} files={files} env={env} />
       {code && !used.has(src) && (
         <Button kind="outlined" icon={Trash} busy={deleting} disabled={deleting} onClick={() => remove(src)}>
