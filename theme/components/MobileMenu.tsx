@@ -83,6 +83,10 @@ export default function MobileMenu({
   // languages), the end edge from the right (the left).
   const away = () => ((getComputedStyle(document.documentElement).direction === 'rtl') === (side === 'end') ? '-100%' : '100%');
 
+  // The expanded rail's menu button (M3 Navigation rail, Guidelines: "When the navigation rail is expanded, the menu icon should change to
+  // represent that it can be collapsed"): at the top, on the edge the header's menu button is on, it closes the drawer.
+  const menuButton = <IconButton icon="menu-open" label={texts.close} onClick={() => void close()} />;
+
   const show = () => {
     setShown(true);
     setOpen(true);
@@ -148,12 +152,13 @@ export default function MobileMenu({
         >
           <NavigationDrawer variant="modal" className={side === 'end' ? navigationDrawerEndClass : undefined}>
             <div className="md-drawer-head">
+              {side !== 'end' && menuButton}
               <span aria-hidden="true" className="logo-mark h-10 w-9 shrink-0 bg-primary" />
               <div className="min-w-0 flex-1 leading-tight">
                 <p className="md-drawer-name">{name}</p>
                 <p className="md-drawer-role">{role}</p>
               </div>
-              <IconButton icon="x" label={texts.close} onClick={() => void close()} />
+              {side === 'end' && menuButton}
             </div>
 
             <NavigationDrawerSection>
