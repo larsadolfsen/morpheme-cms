@@ -1,7 +1,7 @@
 // Measures speed on the built demo, for the numbers in docs/performance-baseline.md. NOT part of `npm run check`, CI or the
 // published package: it takes minutes and its numbers depend on the machine. Run it from the demo (after `npm run build`):
 //
-//   cd .morpheme/demo/site && node ../../../scripts/measure-speed.mjs [--runs 3] [--profile mobile|desktop] [--only <text>] [--json out.json]
+//   cd .morpheme/demo/site && node ../../../scripts/measure-speed.mjs [--runs 3] [--profile mobile|desktop] [--only <text>] [--json out.json] [--css file.css]
 //
 // Two profiles: "mobile" is 375 px wide, touch, with the CPU slowed 4x (a mid-range phone), "desktop" is 1280 px with no
 // slowing. Each scenario opens a page of the site or a screen of the editor (answered from the files here, no sign-in, nothing
@@ -18,7 +18,7 @@
 //   task  the longest long task during the interaction (ms)
 // Chromium only (long tasks, LoAF, event timing); `CHROMIUM_PATH` picks another Chromium.
 import { chromium } from 'playwright';
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { serveBuilt } from './built-site.mjs';
 import { openEditor } from './built-site.mjs';
 
@@ -28,6 +28,7 @@ const RUNS = Number(option('--runs', 3));
 const ONLY_PROFILE = option('--profile', '');
 const ONLY = option('--only', '');
 const JSON_OUT = option('--json', '');
+const EXTRA_CSS = option('--css', ''); // a CSS file added to every page: to try a fix before it is written into the source
 
 const PROFILES = {
   mobile: { width: 375, height: 812, touch: true, cpu: 4 },
@@ -201,6 +202,8 @@ async function measure(browser, site, profile, scenario) {
     deviceScaleFactor: p.touch ? 2 : 1,
   });
   await context.addInitScript(COLLECT);
+  if (EXTRA_CSS)
+    await context.addInitScript((css) => addEventListener('DOMContentLoaded', () => document.head.append(Object.assign(document.createElement('style'), { textContent: css }))), readFileSync(EXTRA_CSS, 'utf8'));
   const page = await context.newPage();
   const cdp = await context.newCDPSession(page);
   if (p.cpu > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate: p.cpu });
