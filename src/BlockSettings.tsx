@@ -453,24 +453,24 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
   })();
 
   // What the sheet shows, in the side sheet from 600 dp and in the sheet from the bottom below it.
-  const sheetBody = (sheet: NonNullable<typeof sheet>) => (
+  const sheetBody = (shown: NonNullable<typeof sheet>) => (
     <>
       <div className="flex items-start gap-3">
-        <LeadingIcon icon={sheet.icon} />
-        <p className="pt-1.5 text-on-surface-variant">{sheet.about}</p>
+        <LeadingIcon icon={shown.icon} />
+        <p className="pt-1.5 text-on-surface-variant">{shown.about}</p>
       </div>
-      {sheet.looks}
-      {sheet.toggle}
+      {shown.looks}
+      {shown.toggle}
       <div>
-        <p className="mb-1 font-medium">{sheet.usedTitle}</p>
-        {sheet.used.length ? (
+        <p className="mb-1 font-medium">{shown.usedTitle}</p>
+        {shown.used.length ? (
           <ul className={listClass}>
-            {sheet.used.map((u) => (
+            {shown.used.map((u) => (
               <ListItem key={u.href} href={u.href} onClick={() => dialog.current?.close()} headline={u.title} />
             ))}
           </ul>
         ) : (
-          <p className="text-on-surface-variant">{sheet.none}</p>
+          <p className="text-on-surface-variant">{shown.none}</p>
         )}
       </div>
     </>
