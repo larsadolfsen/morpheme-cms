@@ -21,7 +21,7 @@ export const licenses = {
   /** Brought by an app or a theme the site is built with, but not downloaded (the Worker's, the build's). */
   notShipped: 'not downloaded from the site',
   /** An icon pack the site does not draw with, which can be chosen. */
-  offered: 'can be chosen',
+  offered: 'can be selected',
   version: (version: string) => `Version ${version}`,
   /** The app's or the theme's own work, first in its group. */
   own: (name: string) => `${name} itself`,
