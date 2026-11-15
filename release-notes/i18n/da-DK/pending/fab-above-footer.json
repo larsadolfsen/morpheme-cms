@@ -1,0 +1,6 @@
+{
+  "id": "fab-above-footer",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Tilføj-knappen rykker op, når sidefoden er under den, så links i sidefoden aldrig er dækket"
+}
