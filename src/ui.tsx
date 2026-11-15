@@ -102,7 +102,7 @@ import {
   SiteSwitch,
   SiteTextField,
   SiteToolbar,
-  SiteTopAppBar,
+  SiteAppBar,
   SiteTextFieldButton,
   SiteTimePicker,
   dayPeriods,
@@ -3703,9 +3703,9 @@ export function TopAppBar({ children }: { children: ReactNode }) {
     return () => removeEventListener('scroll', check);
   }, []);
   return (
-    <SiteTopAppBar className="pt-[env(safe-area-inset-top)]" data-stuck={stuck || undefined}>
+    <SiteAppBar className="pt-[env(safe-area-inset-top)]" data-stuck={stuck || undefined}>
       {children}
-    </SiteTopAppBar>
+    </SiteAppBar>
   );
 }
 
