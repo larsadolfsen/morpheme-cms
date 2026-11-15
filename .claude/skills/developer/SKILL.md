@@ -75,6 +75,21 @@ Short forms, for a developer to know before reading the specs. A rule changes on
 - **A deviation from Material 3** is allowed only in the editor's own workspace or when the owner says so in words, and is
   recorded in `docs/material-deviations.md` in the same pull request (`material-3`).
 
+## 4a. Modern Web Guidance
+
+Chrome's Modern Web Guidance (a devDependency, never shipped in the package) holds guides on current web platform
+practice. Before you write or change CSS, layout, forms, accessibility or performance code, search and retrieve the guides
+for the topic through the npm script, and name the guides you read in the pull request description:
+
+- `npm run audit:web -- search "<2–5 words>"`, then `npm run audit:web -- retrieve "<guide id>"`.
+- `npm run audit:web -- legacy-scan <folder> --json` finds legacy patterns; use it for an audit, not for a feature.
+
+Order of authority: the owner's rules, Material 3 and the theme components through `ui.tsx` win over the guidance. When a
+guide conflicts with one of them, you do not decide: stop, and send the PM the conflict (what the guide says, what our
+rule says, which screen or file, the closest option). The PM brings it to the owner, and you wait. Nothing is changed
+against an M3 rule or a theme component without the owner's yes. The audit is in
+`docs/superpowers/specs/2026-11-15-modern-web-guidance-audit.md`.
+
 ## 5. The components
 
 Built from the real exports of `src/themeUi.ts` (the theme's parts, `theme/ui`, named `Site…`) and `src/ui.tsx` (the

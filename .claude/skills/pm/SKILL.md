@@ -128,6 +128,11 @@ the brief also tells the session to read the M3 pages with Playwright (skill `ma
 to say in its pull request which pages were read. The PM checks that the pull request says it before merging; a pull
 request that does not is not merged. A session that only uses an existing theme component as it is needs no reading.
 
+When the change touches CSS, layout, forms, accessibility or performance, the brief also tells the session to use Modern
+Web Guidance (skill `developer`, *4a*) and to name the guides it read in its pull request. The PM checks that the pull
+request names them. When a session sends a conflict between a guide and the owner's rules, Material 3 or a theme
+component, the PM does not decide: it brings the conflict to the owner and tells the session the answer.
+
 **No new component without the owner.** The PM never lets a session build a new component, or fix one in the theme,
 without the owner's approval. A session that finds a component missing or off Material 3 stops and reports to the PM
 (skill `developer`, *The hard rule: no own components*). The PM asks the owner in a short message: what is missing, why,
