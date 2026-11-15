@@ -75,11 +75,13 @@ export const text = {
   moveAtBottom: 'This block is already last',
   dragOff: 'Drag is off while several blocks are selected',
   blockSettings: 'Block settings',
-  /** The block's menu: the row whose submenu turns the block into another list block (Change to). */
-  changeTo: 'Change to',
-  /** The palette's action for one block: Change to <block> (the menu's Change to opens a level with the block names). */
+  /** The block's menu: the row whose submenu turns the block into another list block (Change type), and that submenu's header. */
+  changeTo: 'Change type',
+  /** The name of the header of a submenu for screen readers: where it goes. */
+  backToMenu: (level: string) => `${level}, back to menu`,
+  /** The palette's action for one block: Change to <block>, which names the block it becomes (as the snackbar does). */
   changeToBlock: (name: string) => `Change to ${name}`,
-  /** The snackbar after Change to, with Undo. */
+  /** The snackbar after Change type, with Undo; it names the block it became. */
   changedTo: (name: string) => `Changed to ${name}`,
   blocksSelected: (count: number) => (count === 1 ? '1 block selected' : `${count} blocks selected`),
   clearBlockSelection: (count: number) => `Clear selection, ${count === 1 ? '1 block selected' : `${count} blocks selected`}`,

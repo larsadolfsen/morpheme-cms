@@ -552,7 +552,7 @@ export const collections: Collection[] = [
       },
       {
         name: 'enabled',
-        label: 'Activated',
+        label: 'Promotion',
         type: 'boolean',
         toggle: ['On', 'Off'],
         default: true,
@@ -786,7 +786,7 @@ export const collections: Collection[] = [
         fields: [
           {
             name: 'enabled',
-            label: 'Activated',
+            label: 'The main menu',
             type: 'boolean',
             toggle: ['On', 'Off'],
             default: true,
@@ -829,7 +829,7 @@ export const collections: Collection[] = [
         fields: [
           {
             name: 'enabled',
-            label: 'Activated',
+            label: 'The mobile menu',
             type: 'boolean',
             toggle: ['On', 'Off'],
             default: false,
