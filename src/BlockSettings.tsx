@@ -33,6 +33,8 @@ import {
   SwitchRow,
   SheetBody,
   ListItem,
+  SideSheet,
+  useAtLeast,
 } from './ui';
 import { ConflictError, type RepoFile } from './github';
 import type { FolderCollection } from './schema';
@@ -249,6 +251,9 @@ type Open = { block: SiteBlock } | { app: SiteApp; list: string };
 
 export default function BlockSettings({ env, files }: { env: Env; files: RepoFile[] }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  // From 600 dp the block's settings are the theme's standard side sheet beside the list (owner, 15 Nov: dialogs are only for short messages, not
+  // for settings); below it the sheet from the bottom, until the page for it is built.
+  const pane = useAtLeast('medium');
   const [open, setOpen] = useState<Open | null>(null);
   const off = offBlocks(files);
   const pages = useMemo(() => Object.fromEntries(blocks.map((b) => [b.type, pagesWith(b.type, files)])), [files]);
@@ -284,7 +289,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
         aria-haspopup="dialog"
         onClick={() => {
           setOpen({ block: b });
-          dialog.current?.showModal();
+          if (!pane) dialog.current?.showModal();
         }}
         icon={b.icon}
         headline={b.label}
@@ -318,7 +323,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
                 aria-haspopup="dialog"
                 onClick={() => {
                   setOpen({ app: a, list: k.key });
-                  dialog.current?.showModal();
+                  if (!pane) dialog.current?.showModal();
                 }}
                 icon={k.icon}
                 headline={k.label}
@@ -447,51 +452,84 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
     };
   })();
 
+  // What the sheet shows, in the side sheet from 600 dp and in the sheet from the bottom below it.
+  const sheetBody = (sheet: NonNullable<typeof sheet>) => (
+    <>
+      <div className="flex items-start gap-3">
+        <LeadingIcon icon={sheet.icon} />
+        <p className="pt-1.5 text-on-surface-variant">{sheet.about}</p>
+      </div>
+      {sheet.looks}
+      {sheet.toggle}
+      <div>
+        <p className="mb-1 font-medium">{sheet.usedTitle}</p>
+        {sheet.used.length ? (
+          <ul className={listClass}>
+            {sheet.used.map((u) => (
+              <ListItem key={u.href} href={u.href} onClick={() => dialog.current?.close()} headline={u.title} />
+            ))}
+          </ul>
+        ) : (
+          <p className="text-on-surface-variant">{sheet.none}</p>
+        )}
+      </div>
+    </>
+  );
+
   return (
     <Screen title={t.common.parts.blockSettings} wide back={backFrom('block-settings')}>
-      <SearchRow
-        value={query}
-        onChange={setQuery}
-        label={t.common.searchIn(t.common.parts.blockSettings)}
-        sort={
-          <Choice
-            title={t.library.sort}
-            icon={ArrowsDownUp}
-            value={sort}
-            options={SORTS.map((s) => ({ value: s, label: t.library.sorts[s] }))}
-            onChange={pickSort}
+      <div className="medium:flex medium:items-start medium:gap-6">
+        <div className="min-w-0 flex-1">
+          <SearchRow
+            value={query}
+            onChange={setQuery}
+            label={t.common.searchIn(t.common.parts.blockSettings)}
+            sort={
+              <Choice
+                title={t.library.sort}
+                icon={ArrowsDownUp}
+                value={sort}
+                options={SORTS.map((s) => ({ value: s, label: t.library.sorts[s] }))}
+                onChange={pickSort}
+              />
+            }
+            filter={filters.length > 0 && <Filters title={t.library.filter} selected={chips.length > 0} groups={filters} />}
+            className="mb-6"
           />
-        }
-        filter={filters.length > 0 && <Filters title={t.library.filter} selected={chips.length > 0} groups={filters} />}
-        className="mb-6"
-      />
-      {chips.length > 0 && (
-        <div className="-mt-2 mb-6 flex flex-wrap gap-2">
-          {chips.map((c) => (
-            <InputChip key={c.key} removeLabel={t.library.removeFilter(c.label)} onRemove={c.clear}>
-              {c.label}
-            </InputChip>
-          ))}
+          {chips.length > 0 && (
+            <div className="-mt-2 mb-6 flex flex-wrap gap-2">
+              {chips.map((c) => (
+                <InputChip key={c.key} removeLabel={t.library.removeFilter(c.label)} onRemove={c.clear}>
+                  {c.label}
+                </InputChip>
+              ))}
+            </div>
+          )}
+          {!found.length && !(sort === 'group' && inGroups.some((g) => g.empty)) ? (
+            <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
+          ) : sort === 'group' ? (
+            inGroups
+              .filter((g) => g.rows.length || g.empty)
+              .map((g) => (
+                <Group key={g.title} title={g.title}>
+                  {g.rows.map((r) => r.node)}
+                  {g.empty && <ListItem tone="muted" headline={t.blockSettings.noBlocks} />}
+                </Group>
+              ))
+          ) : (
+            lettered.map((g) => (
+              <Group key={g.key ?? 'all'} title={g.key ?? undefined}>
+                {g.items.map((r) => r.node)}
+              </Group>
+            ))
+          )}
         </div>
-      )}
-      {!found.length && !(sort === 'group' && inGroups.some((g) => g.empty)) ? (
-        <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
-      ) : sort === 'group' ? (
-        inGroups
-          .filter((g) => g.rows.length || g.empty)
-          .map((g) => (
-            <Group key={g.title} title={g.title}>
-              {g.rows.map((r) => r.node)}
-              {g.empty && <ListItem tone="muted" headline={t.blockSettings.noBlocks} />}
-            </Group>
-          ))
-      ) : (
-        lettered.map((g) => (
-          <Group key={g.key ?? 'all'} title={g.key ?? undefined}>
-            {g.items.map((r) => r.node)}
-          </Group>
-        ))
-      )}
+        {pane && sheet && (
+          <SideSheet title={sheet.label} onClose={() => setOpen(null)}>
+            {sheetBody(sheet)}
+          </SideSheet>
+        )}
+      </div>
       <BottomSheet
         ref={dialog}
         aria-label={sheet?.label}
@@ -499,28 +537,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
         onClick={(e) => e.target === dialog.current && dialog.current?.close()}
       >
         <SheetTitle title={sheet?.label ?? ''} onClose={() => dialog.current?.close()} />
-        {sheet && (
-          <SheetBody>
-            <div className="flex items-start gap-3">
-              <LeadingIcon icon={sheet.icon} />
-              <p className="pt-1.5 text-on-surface-variant">{sheet.about}</p>
-            </div>
-            {sheet.looks}
-            {sheet.toggle}
-            <div>
-              <p className="mb-1 font-medium">{sheet.usedTitle}</p>
-              {sheet.used.length ? (
-                <ul className={listClass}>
-                  {sheet.used.map((u) => (
-                    <ListItem key={u.href} href={u.href} onClick={() => dialog.current?.close()} headline={u.title} />
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-on-surface-variant">{sheet.none}</p>
-              )}
-            </div>
-          </SheetBody>
-        )}
+        {sheet && <SheetBody>{sheetBody(sheet)}</SheetBody>}
       </BottomSheet>
     </Screen>
   );
