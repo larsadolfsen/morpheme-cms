@@ -520,6 +520,18 @@ async function checkCommandPalette(width) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   await page.waitForSelector('header button[aria-label="Search"]', { timeout: 15_000 });
+  // A page of this site (the demo's and the starter's differ): the first of the pages list, found by its title further down.
+  await page.evaluate(() => (location.hash = '#list/pages'));
+  await page.waitForSelector('main a.list-item-container', { timeout: 15_000 }).catch(() => {});
+  const pageTitle = (
+    await page
+      .locator('main a.list-item-container .list-item-headline')
+      .first()
+      .textContent({ timeout: 3000 })
+      .catch(() => null)
+  )?.trim();
+  await page.evaluate(() => (location.hash = ''));
+  await page.waitForTimeout(300);
   const button = page.locator('header button[aria-label="Search"]');
   const view = page.locator('[data-search-controlled] dialog[open]');
   const input = view.locator('input[role=combobox]');
@@ -629,18 +641,26 @@ async function checkCommandPalette(width) {
   // Next time what was run is first, under Recent.
   await button.click();
   await view.waitFor({ timeout: 5000 });
+  await page
+    .waitForFunction(() => document.querySelector('[data-search-controlled] .search-view-group-label')?.textContent === 'Recent', null, {
+      timeout: 3000,
+    })
+    .catch(() => {});
   if ((await groups())[0] !== 'Recent' || !/^Files/.test((await names())[0] ?? ''))
     problems.push(
       `${label}: the next time Recent does not have Files first: ${JSON.stringify(await groups())} ${JSON.stringify(await names())}`,
     );
   // A page is found by its title, under Pages and posts.
-  await input.fill('about morph');
-  await page.waitForTimeout(250);
-  const pages = { groups: await groups(), names: await names() };
-  if (!pages.groups.includes('Pages and posts') || !pages.names.includes('About Morpheme'))
-    problems.push(
-      `${label}: "about morph" finds ${JSON.stringify(pages.names)} in ${JSON.stringify(pages.groups)}, not the page About Morpheme under Pages and posts`,
-    );
+  if (!pageTitle) problems.push(`${label}: the site has no page to find (the pages list is empty)`);
+  else {
+    await input.fill(pageTitle);
+    await page.waitForTimeout(250);
+    const pages = { groups: await groups(), names: await names() };
+    if (!pages.groups.includes('Pages and posts') || !pages.names.includes(pageTitle))
+      problems.push(
+        `${label}: "${pageTitle}" finds ${JSON.stringify(pages.names)} in ${JSON.stringify(pages.groups)}, not that page under Pages and posts`,
+      );
+  }
   // Nothing found says so, and the field keeps the focus.
   await input.fill('zzzzqq');
   await page.waitForTimeout(250);

@@ -122,10 +122,9 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
     return () => window.removeEventListener('keydown', onKey, true);
   }, []);
 
-  // Each time it opens: an empty field, and what this browser kept.
+  // The field is emptied when it closes, so the next time it opens it never shows the last search for a moment; and what this browser kept is read when it opens.
   useEffect(() => {
-    if (!open) return;
-    setQuery('');
+    if (!open) return setQuery('');
     setRecent(loadRecent());
   }, [open]);
   // The registry changes while it is open (an editor registers its actions): the results follow.
