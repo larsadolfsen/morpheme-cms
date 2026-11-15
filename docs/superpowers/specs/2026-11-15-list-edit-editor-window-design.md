@@ -197,7 +197,7 @@ empty line next to a block removes the line, not the block (`cardDeletes`); two 
 
 **Field blocks.** A field block is drawn **as the form field of the entry form page** (`#new/<id>`, `DataForm.tsx`): the field's name as its label, and the
 input the person will fill in (a text outline, a body-text area, an icon picker, an image placeholder, a tag chip row), disabled, so the owner sees what the
-entry form will be. The field's **name is typed in place** in its label. Tapping a block makes it active. The block has the page editor's **action row**
+entry form will be. The field's **name is typed in place** in its label: every field has a name the owner types on its card, and that name is the label of the field on the entry form; an empty name is the kind's name (`Title`, `Title 2` and so on, as `nameOf` numbers kinds). Tapping a block makes it active. The block has the page editor's **action row**
 (Move up, Move down, Settings, and the drag handle at the end, `blockRow.ts`). `Hide` and `Show` do not exist (nothing to hide: `Shown` is gone). A block
 moves between texts and other blocks by the handle (`dragSteps`) or by Move up and Move down; as in the page editor, it moves **one part at a time** past
 text lines and blocks.
