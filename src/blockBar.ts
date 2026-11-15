@@ -1,7 +1,11 @@
 // What the text's one bar shows for the block that is active: typed in place, or a card that was tapped (MarkdownEditor.tsx; docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md,
 // PR 2 and 4): the block (a node view, not React) tells this store its tools, the bar (React) reads it. One block is active at a time; a block that is not
 // the active one cannot clear it. No dependencies, no browser.
+import type { BlockDefinition } from './blocks';
 import type { BarAction } from './contextualMenu';
+
+/** A row of a menu row's submenu (Change type's blocks): the block's icon (a component), its name, what it does. */
+export type SubRow = { icon: BlockDefinition['icon']; label: string; action: () => void };
 
 /** A row of the block's own menu (Edit, Hide, Move up, Move down, Remove): a raw SVG icon, its name, what it does (`keyboard`: chosen with the keyboard). */
 export type CardRow = {
@@ -11,6 +15,8 @@ export type CardRow = {
   danger?: boolean;
   /** It does not apply now (a block that cannot move further), with `reason` for screen readers and the mouse: shown, not hidden. */
   disabled?: { reason: string };
+  /** It opens these rows as the menu's next level (Change type), with a back row; `action` is not called. */
+  submenu?: SubRow[];
 };
 
 /** A button of the block's action row (blockRow.ts): the block's own actions above its top item. `kind` says which. */
@@ -75,11 +81,16 @@ export const blockBar = {
   },
 };
 
-/** The order of the block's tools (owner order, 14 Nov): the first ones that fit are on the bar (four at 375 px), the rest in the `⋮`. A List's rows: Add below,
+/** The order of the block's tools (owner order, 14 Nov; a selected image's four tools first): the first ones that fit are on the bar (four at 375 px), the rest in the `⋮`. A List's rows: Add below,
  * Add above, Settings (the gear), Link, Fill from a list, then Move up and Move down last (a block moves by its handle too). A Table: Row below, Row above,
  * Column after, Column before, then Table settings (the gear), the deletes and the alignments. 'gear' and 'dynamic' are the gear and the dynamic
  * button; the other names are the kinds of BarAction (`below`, `above` are rows: the Table's rows too). */
 export const BLOCK_TOOL_ORDER = [
+  // A selected image (image tools spec, section 4): Change image, Crop, Alt text, Remove.
+  'change-image',
+  'crop',
+  'alt-text',
+  'remove',
   'below',
   'above',
   'column-after',

@@ -147,7 +147,7 @@ const seo: Field[] = [
     name: 'shareImage',
     label: 'Image when shared',
     type: 'image',
-    hint: 'Shown when the page is shared, e.g. on Facebook.',
+    hint: 'Shown when the page is shared, for example on Facebook.',
   },
 ];
 
@@ -175,7 +175,7 @@ const shareTexts: Field[] = [
 const keywords: Field[] = [
   {
     name: 'keyword',
-    label: 'Main keyword',
+    label: 'Primary keyword',
     type: 'string',
     chips: 'one',
     hint: 'The word becomes a link to here from other pages.',
@@ -266,7 +266,7 @@ export const socialFields: Field[] = [
 // The bank details, a part of its own under "Payment" (company.ts, src/data/payment.json).
 export const bankFields: Field[] = [
   { name: 'bank', label: 'Bank', type: 'string', required: true },
-  { name: 'reg', label: 'Reg. no.', type: 'string', required: true },
+  { name: 'reg', label: 'Registration number', type: 'string', required: true },
   { name: 'account', label: 'Account number', type: 'string', required: true },
 ];
 
@@ -278,11 +278,11 @@ export const bankFields: Field[] = [
 const standardPageFields: Field[] = [
   {
     name: 'front',
-    label: 'Front page',
+    label: 'Home page',
     type: 'relation',
     to: 'standardPages',
     required: true,
-    hint: 'The page is shown on the front page, and its own address sends on there.',
+    hint: 'The page is shown on the home page, and its own address sends on there.',
   },
   {
     name: 'blog',
@@ -552,7 +552,7 @@ export const collections: Collection[] = [
       },
       {
         name: 'enabled',
-        label: 'Activated',
+        label: 'Promotion',
         type: 'boolean',
         toggle: ['On', 'Off'],
         default: true,
@@ -786,7 +786,7 @@ export const collections: Collection[] = [
         fields: [
           {
             name: 'enabled',
-            label: 'Activated',
+            label: 'The main menu',
             type: 'boolean',
             toggle: ['On', 'Off'],
             default: true,
@@ -829,7 +829,7 @@ export const collections: Collection[] = [
         fields: [
           {
             name: 'enabled',
-            label: 'Activated',
+            label: 'The mobile menu',
             type: 'boolean',
             toggle: ['On', 'Off'],
             default: false,

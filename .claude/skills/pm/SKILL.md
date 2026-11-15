@@ -56,6 +56,14 @@ owner sees screenshots in the pull request:
   squash-merges as usual under **Merging** (the owner never merges). *What to change*: the PM sends the change to the
   session of the pull request, or starts a new session with the whole task and the pull request's link when that session
   is gone; the new head gets new screenshots and a new report.
+
+  The PM opens the screenshot files itself and looks at them: it fetches the orphan branch `pr-screenshots/<number>`
+  (`git fetch origin pr-screenshots/<number>`, then `git archive` its `shots/` folder into the session's scratchpad
+  directory) and opens each PNG with the Read tool, which shows the image. It never reports on screenshots it has not
+  opened and never relies on a worker's description of them. Its report then says in one or two lines what the images
+  show (does the change match what the pull request says, anything odd), and for a screen the owner has to judge it
+  also sends the images with the file-sending tool (`SendUserFile`, `display: render`), so the owner sees them in the
+  conversation and not only on GitHub. A change nobody sees needs none of this.
 - **A change nobody sees** (docs, tests, CI, Worker internals, tooling) needs no screenshots and no approval, and is
   merged as usual.
 - There is no separate "screenshots" session and no Artifact page: the images live in the pull request.
@@ -105,6 +113,8 @@ title that starts with the version, for example `0.16 plan: MCP and Appstore sec
 this rule, in these words: "When a change the owner can see (the editor or the site) is done and `check` is green, add
 before and after screenshots of every changed screen to a comment on your own pull request, as the `pm` skill's
 *Screenshots in the pull request* says, and tell the PM with the link and head sha. A change nobody sees needs none."
+
+**A PM may only start Haiku and Sonnet sessions.** Every `create_session` sets `model` to a Haiku or Sonnet model (`claude-haiku-5-5` or `claude-sonnet-5-5`), and a PM never starts a session on Opus, Fable or the inherited default, and never changes a session's model to anything higher.
 
 The owner only sees pull requests that are assigned to them on GitHub. When a session the PM started opens a pull request, or the PM takes over one that needs the owner to see, approve or decide something, the PM assigns it to the repository owner `larsadolfsen` (`update_pull_request`, `issue_write` assignees or the GitHub API) and keeps it assigned until it is merged.
 
@@ -161,7 +171,7 @@ owner still releases every version.
 
 ## Reports
 
-Short, English only (`CLAUDE.md`), and only what the owner has to do or decide. A pull request the owner has to act on is always assigned to them, and the report gives its link.
+Short, English only (`CLAUDE.md`), and only what the owner has to do or decide. A pull request the owner has to act on is always assigned to them, and the report gives its link. A report on a change the owner sees also shows the screenshots (*The owner approves what the owner sees*).
 
 Every suggestion, question or decision the PM puts to the owner follows Simon Sinek's Golden Circle ("Start with Why"):
 a title that names the action, then three parts, **one short sentence each**, always in this order:

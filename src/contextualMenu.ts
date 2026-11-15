@@ -8,7 +8,7 @@
 import arrowDownIcon from '@phosphor-icons/core/assets/regular/arrow-down.svg?raw';
 import arrowUpIcon from '@phosphor-icons/core/assets/regular/arrow-up.svg?raw';
 import dotsIcon from '@phosphor-icons/core/assets/regular/dots-three-vertical.svg?raw';
-import gearIcon from '@phosphor-icons/core/assets/regular/gear.svg?raw';
+import { blockSettingsHereIcon } from './meaningIcons';
 import linkIcon from '@phosphor-icons/core/assets/regular/link-simple.svg?raw';
 import dynamicIcon from '@material-symbols/svg-400/outlined/dynamic_feed.svg?raw';
 import rowAboveIcon from '@material-symbols/svg-400/outlined/add_row_above.svg?raw';
@@ -22,6 +22,8 @@ import alignAutoIcon from '@material-symbols/svg-400/outlined/autorenew.svg?raw'
 import rowDeleteIcon from '@material-symbols/svg-400/outlined/playlist_remove.svg?raw';
 import columnDeleteIcon from '@material-symbols/svg-400/outlined/variable_remove.svg?raw';
 import deleteIcon from '@material-symbols/svg-400/outlined/delete.svg?raw';
+import replaceImageIcon from '@material-symbols/svg-400/outlined/replace_image.svg?raw';
+import cropIcon from '@material-symbols/svg-400/outlined/crop.svg?raw';
 
 export type BarAction = {
   label: string;
@@ -39,7 +41,14 @@ export type BarAction = {
     | 'align-left'
     | 'align-center'
     | 'align-right'
-    | 'align-auto';
+    | 'align-auto'
+    // A selected image's tools (image tools spec, section 4): Change image, Crop, Alt text, Remove.
+    | 'change-image'
+    | 'crop'
+    | 'alt-text'
+    | 'remove';
+  /** Drawn as a labelled text button with no icon (Alt text: no Material Symbol is named or tagged for it, image tools spec 1b.6). */
+  text?: boolean;
   /** A choice among others (a column's alignment): shown pressed when it is the current one. */
   pressed?: boolean;
   /** It does not apply now (Move up for blocks that are not next to each other), with `reason` for screen readers and the mouse's hover. */
@@ -48,9 +57,9 @@ export type BarAction = {
   action: () => void;
 };
 
-/** The icon (raw SVG) of each bar action, and of the gear and the dynamic button. */
+/** The icon (raw SVG) of each bar action, and of the settings button (`gear`, drawn as tune: one icon per meaning) and the dynamic button. */
 export const barIcons = {
-  gear: gearIcon,
+  gear: blockSettingsHereIcon,
   dynamic: dynamicIcon,
   above: rowAboveIcon,
   below: rowBelowIcon,
@@ -66,6 +75,11 @@ export const barIcons = {
   'align-center': alignCenterIcon,
   'align-right': alignRightIcon,
   'align-auto': alignAutoIcon,
+  'change-image': replaceImageIcon,
+  crop: cropIcon,
+  // A text button: no icon (BarAction.text).
+  'alt-text': '',
+  remove: deleteIcon,
 };
 const svg = (s: string, size = 24) => s.replace('<svg', `<svg width="${size}" height="${size}" fill="currentColor" aria-hidden="true"`);
 
@@ -133,7 +147,7 @@ export function contextualMenu(opts: {
         b.classList.toggle('contextual-menu-on', r.pressed);
       }
     }
-    if (opts.compact() && opts.edit) button(opts.labels.edit, gearIcon, null, opts.edit);
+    if (opts.compact() && opts.edit) button(opts.labels.edit, blockSettingsHereIcon, null, opts.edit);
     el.appendChild(block);
   }
 

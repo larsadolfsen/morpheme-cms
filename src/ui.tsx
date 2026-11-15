@@ -102,7 +102,7 @@ import {
   SiteSwitch,
   SiteTextField,
   SiteToolbar,
-  SiteTopAppBar,
+  SiteAppBar,
   SiteTextFieldButton,
   SiteTimePicker,
   dayPeriods,
@@ -121,6 +121,7 @@ import { motionTiming } from '../lib/motion';
 import { atLeast, type Breakpoint } from '../lib/breakpoints.mjs';
 import { swipeCloses } from '../lib/drawer-swipe.mjs';
 import { menuLayout } from '../lib/menu-layout.mjs';
+import { isTypeAheadKey, nextByLetter } from '../lib/menuTypeAhead.mjs';
 
 // The parts Material 3 has (a button, an icon button, a chip, a carousel …) are the theme's UI parts
 // (packages/editor/theme/ui/, through themeUi.ts), the same the site draws, in the theme's design (its ui.css and
@@ -174,7 +175,8 @@ export function LinkButton({
  * tick); `selected`: marked, while what it does applies (a filter, the open one); `badge`: how many are new (a
  * number), or that something is (true), which `label` says too, as the label is the button's name. */
 type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'type'> & {
-  icon: Icon;
+  /** A Phosphor-shaped icon, or a Material Symbols name (drawn by the shared Icon, in the pack in use). */
+  icon: Icon | string;
   /** What it does: its name for screen readers and its tooltip. */
   label: string;
   kind?: IconButtonKind;
@@ -189,7 +191,7 @@ export function IconButton({ icon: Glyph, label, ...rest }: IconButtonProps) {
   const tooltip = useTooltip(label, rest);
   return (
     <>
-      <SiteIconButton icon={<Glyph />} label={label} {...rest} {...tooltip.on} />
+      <SiteIconButton icon={typeof Glyph === 'string' ? Glyph : <Glyph />} label={label} {...rest} {...tooltip.on} />
       {tooltip.tip}
     </>
   );
@@ -202,7 +204,7 @@ export function IconLink({
   href = '',
   ...rest
 }: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'type'> & {
-  icon: Icon;
+  icon: Icon | string;
   label: string;
   kind?: IconButtonKind;
   selected?: boolean;
@@ -211,7 +213,7 @@ export function IconLink({
   const tooltip = useTooltip(label, rest);
   return (
     <>
-      <SiteIconButton icon={<Glyph />} label={label} href={href} {...rest} {...tooltip.on} />
+      <SiteIconButton icon={typeof Glyph === 'string' ? Glyph : <Glyph />} label={label} href={href} {...rest} {...tooltip.on} />
       {tooltip.tip}
     </>
   );
@@ -229,13 +231,17 @@ export function ToolbarButton({
   menu,
   popup,
   count,
+  text,
   disabled,
   reason,
   onClick,
 }: {
   ref?: Ref<HTMLButtonElement>;
-  icon: Icon;
+  icon?: Icon;
   label: string;
+  /** A labelled text button with no icon, drawn exactly this many dp wide (Alt text; its width is planned on the bar, textBar.mjs). M3: a toolbar's
+   * slots "can be populated by buttons, icon buttons, images, text fields, or any kind of custom component" (components/toolbars/guidelines). */
+  text?: { width: number };
   /** The block selection's count: the icon (a cross) and this number in the theme's text button, two slots wide; tapping it clears the selection. */
   count?: number;
   /** Marked while it applies where the cursor is (bold); undefined for a tool that is not on or off. */
@@ -260,13 +266,30 @@ export function ToolbarButton({
     onClick,
     ...tooltip.on,
   };
+  if (text)
+    return (
+      <>
+        <SiteButton
+          ref={ref}
+          kind="text"
+          size="xsmall"
+          aria-label={label}
+          className="toolbar-text-button"
+          style={{ ...toolbarTextSize, width: `${text.width / 16}rem` }}
+          {...own}
+        >
+          {label}
+        </SiteButton>
+        {tooltip.tip}
+      </>
+    );
   if (count !== undefined)
     return (
       <>
         <SiteButton
           kind="text"
           size="xsmall"
-          icon={<Glyph />}
+          icon={Glyph && <Glyph />}
           aria-label={label}
           className="toolbar-count-button"
           style={toolbarMenuSize}
@@ -280,12 +303,12 @@ export function ToolbarButton({
   return (
     <>
       {menu === undefined ? (
-        <SiteIconButton ref={ref} icon={<Glyph />} label={label} selected={selected} style={toolbarSize} {...own} />
+        <SiteIconButton ref={ref} icon={Glyph ? <Glyph /> : <></>} label={label} selected={selected} style={toolbarSize} {...own} />
       ) : (
         <SiteButton
           kind="text"
           size="xsmall"
-          icon={<Glyph />}
+          icon={Glyph && <Glyph />}
           trailingIcon={<CaretDown size={12} />}
           aria-label={label}
           className="toolbar-menu-button"
@@ -332,6 +355,13 @@ const closeToolbar = {
 } as CSSProperties;
 
 // A tool's size in the text's bar: 44 by 44 dp with a 20 dp icon, outside the user's density choice (owner decision, 13 Nov; docs/material-deviations.md).
+// A text tool (Alt text): as high as the icon buttons, the label in the middle of its planned width, no wrap.
+const toolbarTextSize = {
+  minHeight: '2.75rem',
+  justifyContent: 'center',
+  paddingInline: '0',
+  whiteSpace: 'nowrap',
+} as CSSProperties;
 const toolbarSize = { '--icon-button-size': '2.75rem', '--icon-button-icon-size': '1.25rem' } as CSSProperties;
 // A tool with a menu there: as high as the others, its icon where an icon button's is (0.625rem in from its start) and
 // the arrow close after it, not a text button's room round a label it does not have (as over the selection, editor.css).
@@ -945,6 +975,8 @@ export function SearchRow({
 /** The theme's slider, with its name over it (the zoom when cropping an image): a value between `min` and `max`. */
 export function Slider(props: {
   label: string;
+  /** Only screen readers say the name (the crop view's zoom, between its minus and plus buttons). */
+  hideLabel?: boolean;
   min: number;
   max: number;
   step?: number;
@@ -1960,6 +1992,7 @@ export function Menu({
   attached,
   keyboard,
   popup,
+  onBack,
   onClose,
   children,
 }: {
@@ -1972,10 +2005,15 @@ export function Menu({
   attached?: boolean;
   /** With `attached`: it was opened with the keyboard, so a choice has the focus (and its ring); else the menu has it. */
   keyboard?: boolean;
+  /** The menu is at a next level (a submenu): Escape goes back one level with this, and only the level above closes the menu. */
+  onBack?: () => void;
   onClose: () => void;
   children: ReactNode;
 }) {
   const menu = useRef<HTMLUListElement>(null);
+  // The latest `onBack`, as the effect below keeps its listener while the menu is open.
+  const back = useRef(onBack);
+  back.current = onBack;
   const sheet = useRef<HTMLDialogElement>(null);
   const wide = useAtLeast('medium') || !!popup;
   useEffect(() => {
@@ -1995,6 +2033,12 @@ export function Menu({
       if (e.type === 'keydown' && (e as globalThis.KeyboardEvent).key !== 'Escape') return;
       // A tap on the button itself is its own: it closes the menu.
       if (e.type === 'pointerdown' && (menu.current?.contains(e.target as Node) || anchor.contains(e.target as Node))) return;
+      // Escape at a next level goes back to the menu's own rows; the menu stays open.
+      if (e.type === 'keydown' && back.current) {
+        e.preventDefault();
+        e.stopPropagation();
+        return back.current();
+      }
       if (e.type === 'keydown' && attached) {
         // Esc closes only the menu (not the sheet or dialog the field is in), and the field has the focus again.
         e.preventDefault();
@@ -2046,7 +2090,11 @@ export function Menu({
         ref={sheet}
         tabIndex={-1}
         aria-label={label}
-        onClick={(e) => (e.target === sheet.current || (e.target as Element).closest('[role^="menuitem"]')) && sheet.current?.close()}
+        onClick={(e) =>
+          (e.target === sheet.current ||
+            ((e.target as Element).closest('[role^="menuitem"]') && !(e.target as Element).closest('[data-menu-stays]'))) &&
+          sheet.current?.close()
+        }
         onClose={(e) => e.target === e.currentTarget && onClose()}
         className="focus:outline-none"
       >
@@ -2067,7 +2115,8 @@ export function Menu({
       className="editor-menu fixed z-30 focus:outline-none"
       tabIndex={attached ? -1 : undefined}
       onClick={(e: MouseEvent) => {
-        if (!(e.target as Element).closest('[role^="menuitem"]')) return;
+        // A row that opens the next level, or goes back from it, keeps the menu open.
+        if (!(e.target as Element).closest('[role^="menuitem"]') || (e.target as Element).closest('[data-menu-stays]')) return;
         if (attached) anchor.querySelector<HTMLElement>('button')?.focus();
         onClose();
       }}
@@ -2093,11 +2142,19 @@ function placePopup(menu: HTMLElement, anchor: HTMLElement, side: 'start' | 'end
   menu.style.left = `${Math.max(screen.offsetLeft + 8, Math.min(at, screen.offsetLeft + screen.width - offsetWidth - 8))}px`;
 }
 
-// The keys of an attached menu: the arrow keys (round), Home and End go between its choices.
+// The keys of an attached menu: the arrow keys (round), Home and End go between its choices, and a letter goes to the next choice that starts with it.
 function moveInMenu(e: KeyboardEvent<HTMLElement>) {
   const items = [...e.currentTarget.querySelectorAll<HTMLElement>('[role^="menuitem"]:not(:disabled)')];
   const at = items.indexOf(document.activeElement as HTMLElement);
-  const to = { ArrowDown: at + 1, ArrowUp: at < 0 ? items.length - 1 : at - 1, Home: 0, End: items.length - 1 }[e.key];
+  let to = { ArrowDown: at + 1, ArrowUp: at < 0 ? items.length - 1 : at - 1, Home: 0, End: items.length - 1 }[e.key];
+  // A letter: the next item whose label starts with it (M3 menus: "Letters: Focus moves to the next menu item starting with letter").
+  if (to === undefined && isTypeAheadKey(e)) {
+    to = nextByLetter(
+      items.map((i) => i.querySelector('.menu-item-label')?.textContent ?? i.textContent ?? ''),
+      at,
+      e.key,
+    );
+  }
   if (to === undefined) return;
   e.preventDefault();
   items[(to + items.length) % items.length]?.focus();
@@ -2112,6 +2169,10 @@ export function MenuItem({
   icon: Glyph,
   selected,
   disabled,
+  opens,
+  back,
+  label,
+  onKeyDown,
   onClick,
   children,
 }: {
@@ -2120,6 +2181,13 @@ export function MenuItem({
   selected?: boolean;
   /** It cannot be chosen now (Move up on the first card). */
   disabled?: boolean;
+  /** It opens the menu's next level (a submenu, Change type): an arrow at its end, and the menu stays open; Right arrow opens it too. */
+  opens?: boolean;
+  /** The row back from the next level: the menu stays open; Left arrow anywhere in that level goes back too (`onKeyDown` of its rows). */
+  back?: boolean;
+  /** Its name for screen readers when it says more than the text (the back row: the level's name and where it goes). */
+  label?: string;
+  onKeyDown?: (e: KeyboardEvent<HTMLElement>) => void;
   onClick: () => void;
   children: ReactNode;
 }) {
@@ -2128,7 +2196,19 @@ export function MenuItem({
       icon={Glyph && <Glyph />}
       selected={selected}
       disabled={disabled}
+      trailingIcon={opens ? 'caret-right' : undefined}
+      aria-haspopup={opens ? 'menu' : undefined}
+      aria-expanded={opens ? false : undefined}
+      aria-label={label}
+      data-menu-stays={opens || back || undefined}
       onMouseDown={(e: MouseEvent) => e.preventDefault()}
+      onKeyDown={(e: KeyboardEvent<HTMLElement>) => {
+        if (opens && e.key === 'ArrowRight') {
+          e.preventDefault();
+          onClick();
+        }
+        onKeyDown?.(e);
+      }}
       onClick={onClick}
     >
       {children}
@@ -3638,9 +3718,9 @@ export function TopAppBar({ children }: { children: ReactNode }) {
     return () => removeEventListener('scroll', check);
   }, []);
   return (
-    <SiteTopAppBar className="pt-[env(safe-area-inset-top)]" data-stuck={stuck || undefined}>
+    <SiteAppBar className="pt-[env(safe-area-inset-top)]" data-stuck={stuck || undefined}>
       {children}
-    </SiteTopAppBar>
+    </SiteAppBar>
   );
 }
 

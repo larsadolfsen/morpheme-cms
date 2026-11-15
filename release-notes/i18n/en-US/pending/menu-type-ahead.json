@@ -1,0 +1,6 @@
+{
+  "id": "menu-type-ahead",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "In the editor's menus, a letter goes to the next item that starts with it"
+}

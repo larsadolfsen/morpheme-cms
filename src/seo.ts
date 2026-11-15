@@ -100,7 +100,7 @@ export const sharedAs = (input: ShareInput) => {
   };
 };
 
-/** The first image in a text (its address), not one in the text of a block in it (a "Banner"'s, on its line of HTML),
+/** The first image in a text (its address), not one in the text of a block in it (on its line of HTML),
  * as the site picks it (firstImage in packages/editor/site/images.mjs). */
 export const firstImage = (body: string): string | undefined =>
   body.replace(/^<div data-block=.*$/gm, '').match(/!\[[^\]]*\]\(([^)\s]+)\)/)?.[1];

@@ -138,3 +138,14 @@ test('Preview goes into the ⋮ first when the contextual tools fill the bar, an
     else assert.deepEqual(plan.more.context, [], `${width}: Preview on the bar only while every text tool is`);
   }
 });
+
+test('a selected image at 352 dp: a wide Alt text button (widths) moves Remove into the ⋮ sooner, and the tools keep their order', () => {
+  const IMAGE_TOOLS = ['block:change-image', 'block:crop', 'block:alt-text', 'block:remove'];
+  const narrow = planBar({ width: 352, context: IMAGE_TOOLS, fixed: FIXED, more: true });
+  assert.deepEqual(narrow.bar.context, IMAGE_TOOLS);
+  const wide = planBar({ width: 352, context: IMAGE_TOOLS, fixed: FIXED, more: true, widths: { 'block:alt-text': 80 } });
+  assert.deepEqual(wide.bar.context, ['block:change-image', 'block:crop', 'block:alt-text']);
+  assert.deepEqual(wide.more.context, ['block:remove']);
+  assert.equal(toolWidth('block:alt-text', { 'block:alt-text': 80 }), 80);
+  assert.equal(toolWidth('block:alt-text'), BUTTON);
+});

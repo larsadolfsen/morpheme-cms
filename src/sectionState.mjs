@@ -1,6 +1,6 @@
 // The section settings in the editor's document (the *Section settings* button, MarkdownEditor.tsx; the frame, sectionFrame.ts): the
 // top-level H1 or H2 the cursor is in (sectionHeading), setting its colour, width and an H2's image (setSection), and the
-// settings of a section (sectionSettingsOf). Only ProseMirror's state; depends on lib/section-marker.mjs. No Milkdown, no browser.
+// settings of a section (sectionSettingsOf); sectionAttrs for a heading's attributes with new settings. Only ProseMirror's state; depends on lib/section-marker.mjs. No Milkdown, no browser.
 import { colorOf } from '../lib/section-marker.mjs';
 
 /** The settings a heading has: its colour (null: none), the image behind its section, the image's description and
@@ -37,18 +37,28 @@ export function sectionHeading(state) {
 export function setSection(view, settings) {
   const at = sectionHeading(view.state);
   if (!at) return false;
-  const color = settings.color || null;
-  if (color !== null && colorOf(color) !== color) return false;
   const heading = view.state.doc.nodeAt(at.pos);
-  const attrs = { ...heading.attrs };
+  const attrs = sectionAttrs(heading.attrs, settings);
+  if (!attrs) return false;
+  if (JSON.stringify(attrs) !== JSON.stringify(heading.attrs)) view.dispatch(view.state.tr.setNodeMarkup(at.pos, undefined, attrs));
+  return true;
+}
+
+/** A heading's attributes with these section settings (as setSection), null when the colour is not one of the theme's. Also what the
+ * live side sheet writes to the heading it was opened for (MarkdownEditor.tsx).
+ * @param {Record<string, any>} was @param {{ color?: string | null, image?: string | null, alt?: string | null, width?: string | null }} settings
+ * @returns {Record<string, any> | null} */
+export function sectionAttrs(was, settings) {
+  const color = settings.color || null;
+  if (color !== null && colorOf(color) !== color) return null;
+  const attrs = { ...was };
   if ('color' in settings) attrs.section = color;
-  if ('image' in settings) attrs.sectionImage = at.level === 2 ? settings.image || null : null;
+  if ('image' in settings) attrs.sectionImage = was.level === 2 ? settings.image || null : null;
   // The description and the width belong to an image: without one they are cleared, so nothing is left unseen in the file.
   if ('alt' in settings) attrs.sectionAlt = settings.alt || null;
   if ('width' in settings) attrs.sectionWidth = settings.width === 'full' ? 'full' : null;
   if (!attrs.sectionImage) attrs.sectionAlt = null;
-  if (JSON.stringify(attrs) !== JSON.stringify(heading.attrs)) view.dispatch(view.state.tr.setNodeMarkup(at.pos, undefined, attrs));
-  return true;
+  return attrs;
 }
 
 /** Gives the H1 or H2 the cursor is in this colour (null: none). False when it is not in one, or the colour is not one of the theme's.
