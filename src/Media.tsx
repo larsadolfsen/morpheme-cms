@@ -407,6 +407,13 @@ function Gallery({
             <Filters
               title={t.media.filter}
               selected={!!use || !!kind || !!tag || !!date}
+              clearAll={t.media.clearAll}
+              onClearAll={() => {
+                setUse('');
+                setKind('');
+                setTag('');
+                setDate('');
+              }}
               groups={[
                 {
                   title: t.media.use,
