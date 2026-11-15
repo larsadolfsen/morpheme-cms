@@ -87,7 +87,7 @@ export function Ask() {
       >
         {question?.title && <h2 className="mb-2 text-body-large font-medium">{question.title}</h2>}
         {!!question?.notes?.length && (
-          <div className="-mx-6 max-h-[50vh] space-y-4 overflow-y-auto px-6">
+          <div className="-mx-6 max-h-[50dvh] space-y-4 overflow-y-auto px-6">
             {question.notes.map((n) => (
               <section key={n.title}>
                 <h3 className="font-medium">{n.title}</h3>

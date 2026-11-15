@@ -371,11 +371,13 @@ export function useBlockDialog(
 
   // The subpage (a block's fields on a compact window): a modal <dialog> over the form, as the crop view is. The form under it stays as it was
   // (its scroll place too), and does not scroll; the page's top and bottom bars are the dialog's own; it keeps above the on-screen keyboard.
-  // Focus starts on the back arrow, the first control of its app bar (Material 3).
+  // No control has the focus at the start (owner, 15 Nov): showModal() would focus the back arrow, with a ring and its tooltip, so the page itself
+  // takes the focus, without a ring; Tab reaches the back arrow first.
   useEffect(() => {
     const d = pageDialog.current;
     if (look !== 'subpage' || !d) return;
     if (!d.open) d.showModal();
+    d.focus({ preventScroll: true });
     document.documentElement.style.overflow = 'hidden';
     const stop = siteFollowKeyboard(d);
     return () => {
@@ -912,6 +914,7 @@ export function useBlockDialog(
         <dialog
           ref={pageDialog}
           className="block-page"
+          tabIndex={-1}
           aria-labelledby={headingId}
           onCancel={(e) => {
             if (e.target !== e.currentTarget) return;
