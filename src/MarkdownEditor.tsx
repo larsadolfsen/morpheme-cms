@@ -2735,6 +2735,26 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       decorative: false,
     };
     run(insertImageCommand, { src: imageSrc({ src, decorative: own.decorative }), alt: own.alt.trim() });
+    // The sheet closes as it answers, and the browser then puts the focus back in the text with the caret at the start of it, which the text takes
+    // as its selection a moment later. Once no sheet is open the text takes the focus again with its caret after the image, so the next thing typed
+    // or put in comes after the image.
+    const view = editor.current?.action((ctx) => ctx.get(editorViewCtx));
+    if (!view) return;
+    const caret = view.state.selection.from;
+    const back = () => {
+      if (view.isDestroyed) return;
+      if (view.state.selection.from !== caret && caret <= view.state.doc.content.size)
+        view.dispatch(view.state.tr.setSelection(Selection.near(view.state.doc.resolve(caret))));
+      view.focus();
+    };
+    const sheetOpen = () => !!document.querySelector('dialog[open]');
+    if (!sheetOpen()) return back();
+    const closed = new MutationObserver(() => {
+      if (sheetOpen()) return;
+      closed.disconnect();
+      back();
+    });
+    closed.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['open'] });
   }
 
   // Puts the chosen block where the cursor is (a paragraph is split around it), or after the block
