@@ -7,6 +7,8 @@ export const blocks: Messages['blocks'] = {
   noneNamed: (query) => `Ingen resultater for "${query}".`,
   gone: (type) => `Blokken "${type}" findes ikke mere. Fjern den fra teksten.`,
   notSaved: (why) => `Blokken kan ikke gemmes endnu. ${why}`,
+  restoreTitle: 'Vil du gendanne dine ugemte ændringer?',
+  restoreText: (block) => `Dine ændringer i ${block} blev ikke gemt.`,
   picture: {
     label: 'Billede',
     hint: 'Vælg eller upload et billede.',

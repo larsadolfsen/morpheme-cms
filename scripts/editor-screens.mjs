@@ -426,7 +426,10 @@ async function checkChoiceGroupFields(width, locale) {
       'dialog[open] .side-sheet-actions button, dialog[open] [aria-label="Close"], dialog[open] [aria-label="Luk"]',
     );
     const named = cancel.filter({ hasText: /^(Cancel|Annuller)$/ });
-    if (await named.count()) await named.last().click();
+    // On a phone the block's fields are a subpage: its back arrow is the first button of its app bar.
+    const subpage = page.locator('dialog[open].block-page header button').first();
+    if (await subpage.count()) await subpage.click();
+    else if (await named.count()) await named.last().click();
     else if (await cancel.count()) await cancel.last().click();
     else await page.keyboard.press('Escape');
     await page.waitForFunction(() => !document.querySelector('dialog[open]'), null, { timeout: 3000 }).catch(() => {});
@@ -1670,6 +1673,276 @@ async function pressMore(page, name, how = 'click', which = 'last') {
   await row[which]()[how]();
 }
 
+/** A block's sheet on a phone (spec 2026-11-14-one-save-while-writing-design.md, 4.2, 4.3, 10; owner, 14 Nov: full-screen views are pages): a subpage of the
+ * page form, drawn as the crop page is, not a full-screen dialog: the top app bar has the back arrow and the block's name only (no Save in it), the fields are
+ * below, and Save is in the bottom bar; the page's Publish is under it and can't be reached; one Save is visible; it has a step of its own in the history. Back
+ * (the arrow, Esc, the browser's back) with no change leaves at once, with a change asks "Keep your changes?"; Back or Save returns to the page at the scroll
+ * place it was, text unchanged. A change is kept in a hidden copy in this browser: after a reload the page offers "Restore your unsaved changes?" (no button
+ * focused), Restore opens the subpage with the change, still unsaved, and Save writes it and deletes the copy (so does Discard in "Keep your changes?"). (An
+ * image's sheet: the same sheet as a block's fields; every block of the demo is typed in place.) */
+async function checkPhoneSheet(width = 375, height = 740) {
+  const label = `${width}px block sheet on a phone`;
+  const path = BUILT_PAGE;
+  const lines = Array.from({ length: 16 }, (_, i) => `Line ${i + 1} of the page.`).join('\n\n');
+  const text = `---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n${lines}\n\n![The Moon](/images/uploads/2026/10/moon.webp)\n\nMore text.\n`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  // The reload leaves a page with changes: let it go.
+  page.on('dialog', (d) => void d.accept().catch(() => {}));
+  await openEditor(page, site, { [path]: text });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('.ProseMirror .site-picture .site-block-card', { timeout: 30_000 });
+  const copies = () =>
+    page.evaluate(() =>
+      Object.keys(localStorage)
+        .filter((k) => k.startsWith('editor-sheet-copy:'))
+        .map((k) => JSON.parse(localStorage.getItem(k))),
+    );
+  const card = page.locator('.ProseMirror .site-picture .site-block-card').first();
+  const sheet = page.locator('dialog[open].block-page');
+  const back = () => sheet.getByRole('button', { name: /^Back to /, exact: false });
+  const asked = () => page.locator('dialog[open]').filter({ hasText: 'Keep your changes?' });
+  const place = () =>
+    page.evaluate(() => ({
+      scroll: Math.round(scrollY),
+      top: Math.round(document.querySelector('.ProseMirror .site-picture .site-block-card')?.getBoundingClientRect().top ?? -1),
+      step: history.state?.sheet,
+      hash: location.hash,
+      text: [...document.querySelectorAll('.ProseMirror p')].map((p) => p.textContent).join('|'),
+    }));
+  const openSheet = async () => {
+    await card.scrollIntoViewIfNeeded();
+    await card.tap();
+    await page.waitForTimeout(300);
+    await pressTool(page, 'Edit', 'tap');
+    await sheet.waitFor({ timeout: 5000 });
+    await page.waitForTimeout(400);
+  };
+  // The page changed first, so its Publish (and Save draft) is there under the subpage.
+  await page.locator('.ProseMirror p', { hasText: 'More text.' }).click();
+  await page.keyboard.press('End');
+  await page.keyboard.type(' Changed.');
+  await page.waitForTimeout(400);
+  await card.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(300);
+  let before = await place();
+  if (before.scroll < 100) problems.push(`${label}: the page is not scrolled (${before.scroll}), so its scroll place cannot be checked`);
+  await openSheet().catch(() => problems.push(`${label}: Edit on the image did not open a subpage`));
+  if (!(await sheet.count())) return void (await page.close());
+  // Where the page is, as the sheet opens (the tap on the block may have scrolled it a little to show the block's row).
+  before = await place();
+  const look = await page.evaluate(() => {
+    const d = document.querySelector('dialog[open].block-page');
+    const r = d.getBoundingClientRect();
+    const named = (re) =>
+      [...document.querySelectorAll('button')].filter((b) => re.test((b.getAttribute('aria-label') || b.textContent || '').trim()));
+    // A button a finger can reach: drawn, and the topmost thing at its middle is the button.
+    const reachable = (b) => {
+      const box = b.getBoundingClientRect();
+      if (!box.width || !box.height || !b.checkVisibility?.({ visibilityProperty: true })) return false;
+      const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+      return !!hit && b.contains(hit) && !b.closest('[inert]');
+    };
+    const publish = named(/^Publish/).filter((b) => !d.contains(b));
+    const bar = d.querySelector('.block-page-bar');
+    const top = d.querySelector('header');
+    const save = [...(bar?.querySelectorAll('button') ?? [])].find((b) => b.textContent.trim() === 'Save');
+    const names = (el) => [...(el?.querySelectorAll('button') ?? [])].map((b) => (b.getAttribute('aria-label') || b.textContent).trim());
+    return {
+      rect: [r.left, r.top, r.width, r.height].map(Math.round),
+      modal: d.matches(':modal'),
+      full: !!document.querySelector('dialog[open].dialog-modal-full-screen'),
+      title: d.querySelector('h1')?.textContent.trim(),
+      topButtons: names(top),
+      barButtons: names(bar),
+      saveFilled: !!save && /filled/i.test(save.className + (save.dataset.kind ?? '')),
+      saveAtBottom: !!save && Math.abs(save.getBoundingClientRect().bottom - window.innerHeight) < 40,
+      removes: named(/^Remove$/).filter((b) => d.contains(b)).length,
+      publish: publish.length,
+      publishReachable: publish.filter(reachable).length,
+      saves: named(/^Save( draft)?$/).filter(reachable).length,
+      focusOnBack: !!document.activeElement?.closest('header') && /^Back to /.test(document.activeElement.getAttribute('aria-label') ?? ''),
+      step: history.state?.sheet,
+    };
+  });
+  if (look.rect.join() !== `0,0,${width},${height}`) problems.push(`${label}: the subpage does not fill the screen (${look.rect})`);
+  if (!look.modal) problems.push(`${label}: the subpage is not modal`);
+  if (look.full) problems.push(`${label}: the block's sheet is a full-screen dialog, not a page`);
+  if (look.title !== 'Image') problems.push(`${label}: the top bar's title is "${look.title}", not the block's name`);
+  if (look.topButtons.join() !== 'Back to T')
+    problems.push(`${label}: the top bar has ${look.topButtons.join(', ')}, not only the back arrow named "Back to T"`);
+  if (look.barButtons.join() !== 'Save') problems.push(`${label}: the bottom bar has ${look.barButtons.join(', ')}, not only Save`);
+  if (!look.saveAtBottom) problems.push(`${label}: Save is not at the bottom of the screen`);
+  if (look.removes) problems.push(`${label}: the subpage has Remove (it is in the block's ⋮)`);
+  if (!look.publish) problems.push(`${label}: the changed page has no Publish to check under the subpage`);
+  if (look.publishReachable) problems.push(`${label}: the page's Publish can be reached while the subpage is open`);
+  if (look.saves !== 1) problems.push(`${label}: ${look.saves} Save buttons can be reached, not one`);
+  if (!look.focusOnBack) problems.push(`${label}: the focus does not start on the back arrow`);
+  if (look.step !== 'block-page') problems.push(`${label}: the subpage has no step of its own in the history (${look.step})`);
+  // Back with no change leaves at once, to the same place, text unchanged.
+  await back().tap();
+  await page.waitForTimeout(500);
+  const left = await place();
+  if (await sheet.count()) problems.push(`${label}: Back with no change did not leave the subpage`);
+  if (await asked().count()) problems.push(`${label}: Back with no change asked "Keep your changes?"`);
+  if (left.step === 'block-page') problems.push(`${label}: the subpage's step is still in the history after Back`);
+  if (Math.abs(left.scroll - before.scroll) > 1 || Math.abs(left.top - before.top) > 1)
+    problems.push(`${label}: the page is at ${left.scroll} (block at ${left.top}) after Back, it was at ${before.scroll} (${before.top})`);
+  if (left.text !== before.text || left.hash !== before.hash)
+    problems.push(
+      `${label}: the page under the subpage was changed (${left.hash} vs ${before.hash}; ${left.text === before.text ? 'same text' : `text ${before.text?.length} -> ${left.text?.length}: ${left.text?.slice(-60)}`})`,
+    );
+  // The browser's back (the Android gesture) does the same; with a change it asks, and staying gives the subpage its step back.
+  await openSheet();
+  await page.evaluate(() => history.back());
+  await sheet
+    .waitFor({ state: 'detached', timeout: 4000 })
+    .catch(() => problems.push(`${label}: the browser's back did not leave the subpage`));
+  if ((await place()).hash !== before.hash) problems.push(`${label}: the browser's back left the editor, not only the subpage`);
+  await openSheet();
+  const second = await place();
+  await sheet.getByLabel('Alt text').fill('The Moon, again');
+  await page.evaluate(() => history.back());
+  await asked()
+    .waitFor({ timeout: 4000 })
+    .catch(() => problems.push(`${label}: the browser's back with a change did not ask "Keep your changes?"`));
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  if (!(await sheet.count()) || (await place()).step !== 'block-page')
+    problems.push(`${label}: staying after the browser's back did not keep the subpage and give it its step back`);
+  // Back with a change asks; Esc stays; Discard leaves with the image as it was and deletes the hidden copy.
+  await back().tap();
+  await asked()
+    .waitFor({ timeout: 4000 })
+    .catch(() => problems.push(`${label}: Back with a change did not ask "Keep your changes?"`));
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  if (!(await sheet.count())) problems.push(`${label}: Esc on the question did not stay in the subpage`);
+  await back().tap();
+  await asked().getByRole('button', { name: 'Discard', exact: true }).tap();
+  await page.waitForTimeout(700);
+  if (await sheet.count()) problems.push(`${label}: Discard did not leave the subpage`);
+  if ((await copies()).length) problems.push(`${label}: Discard did not delete the hidden copy`);
+  const same = await card.getAttribute('aria-description');
+  if (same === 'The Moon, again') problems.push(`${label}: Discard changed the image`);
+  const afterDiscard = await place();
+  if (Math.abs(afterDiscard.scroll - second.scroll) > 1)
+    problems.push(`${label}: the page is at ${afterDiscard.scroll} after Discard, it was at ${second.scroll}`);
+  // Save returns to the block at the place the page was.
+  await openSheet();
+  const third = await place();
+  await sheet.getByRole('button', { name: 'Save', exact: true }).tap();
+  await page.waitForTimeout(700);
+  const afterSave = await place();
+  if (await sheet.count()) problems.push(`${label}: Save did not leave the subpage`);
+  if (Math.abs(afterSave.scroll - third.scroll) > 1 || Math.abs(afterSave.top - third.top) > 1)
+    problems.push(
+      `${label}: the page is at ${afterSave.scroll} (block at ${afterSave.top}) after Save, it was at ${third.scroll} (${third.top})`,
+    );
+  if (afterSave.text !== third.text) problems.push(`${label}: Save changed the page's text`);
+  if (afterSave.step === 'block-page') problems.push(`${label}: the subpage's step is still in the history after Save`);
+  // A change is kept in the hidden copy (300 ms after it).
+  await openSheet();
+  await sheet.getByLabel('Alt text').fill('The Moon, changed');
+  await page.waitForTimeout(800);
+  const kept = await copies();
+  if (kept.length !== 1 || kept[0].values?.alt !== 'The Moon, changed' || kept[0].block?.type !== 'image')
+    problems.push(`${label}: the change is not in the hidden copy (${JSON.stringify(kept)})`);
+  // A reload offers it back.
+  await page.reload();
+  await page.waitForSelector('.ProseMirror .site-picture .site-block-card', { timeout: 30_000 });
+  const question = page.locator('dialog[open]', { hasText: 'Restore your unsaved changes?' });
+  await question.waitFor({ timeout: 8000 }).catch(() => problems.push(`${label}: a reload does not offer "Restore your unsaved changes?"`));
+  if (await question.count()) {
+    if (!(await question.getByText('Your changes to Image weren’t saved.').count()))
+      problems.push(`${label}: the restore question does not say "Your changes to Image weren’t saved."`);
+    // The owner's dialog rule: no button has the focus to begin with (Restore filled, Discard outlined).
+    const focused = await page.evaluate(() =>
+      document.activeElement?.closest('button') ? document.activeElement.textContent?.trim() : null,
+    );
+    if (focused) problems.push(`${label}: the button "${focused}" has the focus when the restore question opens`);
+    await question.getByRole('button', { name: 'Restore', exact: true }).tap();
+    await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: Restore did not open the image's subpage`));
+    if (await sheet.count()) {
+      const alt = await sheet.getByLabel('Alt text').inputValue();
+      if (alt !== 'The Moon, changed') problems.push(`${label}: Restore opened the subpage without the change (alt "${alt}")`);
+      const unsaved = await card.getAttribute('aria-description');
+      if (unsaved === 'The Moon, changed') problems.push(`${label}: Restore wrote the change to the image before Save`);
+      await sheet.getByRole('button', { name: 'Save', exact: true }).tap();
+      await page.waitForTimeout(800);
+      if (await sheet.count()) problems.push(`${label}: Save did not leave the subpage`);
+      if ((await copies()).length) problems.push(`${label}: Save did not delete the hidden copy`);
+      const described = await card.getAttribute('aria-description');
+      if (described !== 'The Moon, changed') problems.push(`${label}: Save did not write the change to the image (${described})`);
+      if ((await place()).step === 'block-page') problems.push(`${label}: the subpage's step is still in the history after Save`);
+    }
+  }
+  await page.close();
+}
+
+/** The same hidden copy at computer width (PM decision, 14 Nov): Restore opens the live side sheet with the copy's values already written to the block as
+ * unsaved changes of the page (written through the live link like any edit), with no Save or Cancel in the sheet; the copy is deleted. */
+async function checkComputerRestore(width = 1280, height = 900) {
+  const label = `${width}px restoring a block's sheet`;
+  const path = BUILT_PAGE;
+  const text = '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n![The Moon](/images/uploads/2026/10/moon.webp)\n\nMore text.\n';
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  page.on('dialog', (d) => void d.accept().catch(() => {}));
+  await openEditor(page, site, { [path]: text });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('.ProseMirror .site-picture .site-block-card', { timeout: 30_000 });
+  const card = page.locator('.ProseMirror .site-picture .site-block-card').first();
+  // A copy left by the sheet of a narrower window (the same browser): the block, the values it had and the ones typed.
+  await page.evaluate((file) => {
+    localStorage.setItem(
+      `editor-sheet-copy:${file}`,
+      JSON.stringify({
+        page: file,
+        block: {
+          index: 0,
+          type: 'image',
+          before: { src: '/images/uploads/2026/10/moon.webp', alt: 'The Moon', format: '', crop: null, decorative: false },
+        },
+        values: { src: '/images/uploads/2026/10/moon.webp', alt: 'The Moon, restored', format: '', crop: null, decorative: false },
+        at: Date.now(),
+      }),
+    );
+  }, path);
+  await page.reload();
+  await page.waitForSelector('.ProseMirror .site-picture .site-block-card', { timeout: 30_000 });
+  const question = page.locator('dialog[open]', { hasText: 'Restore your unsaved changes?' });
+  await question.waitFor({ timeout: 8000 }).catch(() => problems.push(`${label}: a reload does not offer "Restore your unsaved changes?"`));
+  if (!(await question.count())) return void (await page.close());
+  await question.getByRole('button', { name: 'Restore', exact: true }).click();
+  const sheet = page.locator('.editor-side-sheet');
+  await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: Restore did not open the live side sheet`));
+  await page.waitForTimeout(600);
+  if (await sheet.count()) {
+    const alt = await sheet.getByLabel('Alt text').inputValue();
+    if (alt !== 'The Moon, restored') problems.push(`${label}: the live sheet does not show the restored value (alt "${alt}")`);
+    const buttons = (await sheet.getByRole('button').allTextContents()).map((b) => b.trim());
+    for (const name of ['Save', 'Cancel', 'Insert'])
+      if (buttons.includes(name)) problems.push(`${label}: the live sheet has ${name} (${buttons})`);
+  }
+  // Written to the block as an unsaved change of the page.
+  const described = await card.getAttribute('aria-description');
+  if (described !== 'The Moon, restored') problems.push(`${label}: the restored value was not written to the image (${described})`);
+  const dirty = await page
+    .locator('button', { hasText: /^Publish/ })
+    .first()
+    .isVisible()
+    .catch(() => false);
+  if (!dirty) problems.push(`${label}: the restored change does not show as a change of the page (no Publish)`);
+  const left = await page.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith('editor-sheet-copy:')).length);
+  if (left) problems.push(`${label}: the hidden copy is still there after Restore`);
+  await page.close();
+}
+
+/** The button that leaves a block's sheet without keeping its changes: Cancel (the modal side sheet, the sheet from the bottom), or the back arrow of the subpage a
+ * block's fields are on a phone ("Back to <the page>"). `scope`: a locator to look in (the sheet, or the page for the open dialog). */
+const cancelOf = (scope) => scope.getByRole('button', { name: /^(Cancel|Back to .+)$/ }).first();
+
 /** Ends a block's or section's sheet with its changes kept: Save where it has one (a phone, a sheet from the bottom), else the close button of the live side sheet
  * from expanded, whose changes are in the page already (spec 2026-11-14 one Save, 4.1). `which`: the Save button when there are several. */
 async function saveOrClose(page, which = 'first') {
@@ -2104,8 +2377,8 @@ async function checkCardBar(width, height = 800) {
     await page
       .waitForSelector('dialog[open] textarea', { timeout: 4000 })
       .catch(() => problems.push(`${label}: the gear did not open the block's sheet`));
-    await page
-      .locator('dialog[open] button', { hasText: /^Cancel$/ })
+    // On a phone the sheet is a subpage: its back arrow leaves it.
+    await cancelOf(page.locator('dialog[open]'))
       .click({ timeout: 3000 })
       .catch(() => {});
     await page.waitForTimeout(300);
@@ -2283,11 +2556,7 @@ async function checkCloseChangedSheet(width, height = 800) {
     await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
     await sheet.locator('textarea').fill('<iframe src="https://www.youtube.com/embed/abc" title="Clip"></iframe>');
   };
-  const cancel = () =>
-    sheet
-      .locator('button', { hasText: /^Cancel$/ })
-      .first()
-      .click();
+  const cancel = () => cancelOf(sheet).click();
   await insertVideo();
   await cancel();
   if (
@@ -2425,11 +2694,7 @@ async function checkImageTools(width, height = 800) {
     });
   // Cancel below expanded; from expanded the live side sheet has only its close button.
   const cancel = async () => {
-    await sheet()
-      .locator(expanded ? '[data-side-sheet-close]' : 'button:text-is("Cancel")')
-      .first()
-      .click({ timeout: 3000 })
-      .catch(() => {});
+    await (expanded ? sheet().locator('[data-side-sheet-close]').first() : cancelOf(sheet())).click({ timeout: 3000 }).catch(() => {});
     await page.waitForTimeout(500);
   };
   await tool('Crop');
@@ -2817,10 +3082,7 @@ async function checkCropView(width, height = 800) {
       if (await asked().count()) problems.push(`${label}: closing the live image sheet asked "Keep your changes?"`);
     } else {
       // The sheet is changed now: Cancel asks.
-      await sheet
-        .locator('button', { hasText: /^Cancel$/ })
-        .first()
-        .click();
+      await cancelOf(sheet).click();
       await asked()
         .waitFor({ timeout: 4000 })
         .catch(() => problems.push(`${label}: closing the image sheet after a new ratio did not ask`));
@@ -10601,6 +10863,8 @@ for (const [width, reduced] of [
 for (const width of [375, 1280]) await unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
 for (const width of [375, 1280]) await unit(`checkCardBar ${width}`, () => checkCardBar(width));
 await unit('checkLiveSideSheet 1280', () => checkLiveSideSheet(1280));
+await unit('checkPhoneSheet 375', () => checkPhoneSheet(375));
+await unit('checkComputerRestore 1280', () => checkComputerRestore(1280));
 for (const width of [375, 700]) await unit(`checkCloseChangedSheet ${width}`, () => checkCloseChangedSheet(width));
 for (const width of [700, 1280]) await unit(`checkSheetFocusOnOpen ${width}`, () => checkSheetFocusOnOpen(width));
 for (const width of [375, 1280]) await unit(`checkImageTools ${width}`, () => checkImageTools(width));

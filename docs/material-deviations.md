@@ -247,6 +247,31 @@ Source: `src/fabPresence.tsx` (`useFabLift`), `src/Screen.tsx`, `src/editor.css`
 - **Why:** owner, 15 Nov 2026: the FAB "must move up when the footer ... is beneath it, so the footer links are never covered"; on a phone it sat on top of "Report security issues" and the copyright line. M3's own rule that the FAB is not covered, and that it should not cover content, points the same way.
 - **Date:** 2026-11-15 (owner). **PR:** this pull request.
 
+### C2. The zoom slider's inactive track is the secondary container
+
+- **Material:** the sliders' token table (the colours of the active and inactive track) stayed collapsed in a text read, so M3's colour for the inactive track could not be quoted and the theme's choice (`--slider-inactive-track: --mo-surface-container-high`) could not be compared with it.
+- **We do:** in the crop view the inactive track is `--mo-secondary-container`.
+- **Why:** the theme's inactive track is the colour of the crop view's image area, so the track did not show.
+- **Date:** 2026-11-14. **PR:** #686.
+
+## A block's sheet on a phone
+
+Source: `src/BlockDialog.tsx` (the `subpage` look), `src/sheetPlacement.mjs`, `src/editor.css` (`.crop-page`, `.block-page`). Spec: `docs/superpowers/specs/2026-11-14-one-save-while-writing-design.md` (4.2). Read 15 Nov 2026 on m3.material.io (Playwright): `/foundations/layout/canonical-examples/list-detail`, `/components/app-bars/guidelines`, `/specs` and `/accessibility`, `/components/dialogs/guidelines`, `/components/toolbars/overview` and `/guidelines`.
+
+### B1. A block's fields on a phone are a subpage with Save in the bottom bar
+
+- **Material:** "Compact: Use a single-pane layout. Only one view is visible at a time, either list or detail"; "Back button: Appears in detail view only for single-pane layouts"; "The detail pane should typically show in a single-pane layout, and an app bar appears". The app bar's leading button can be "A back arrow, which returns to the previous screen". Save is printed in three places only: "The primary action should alter or exit the entire page, like Send, Save, or Edit" as an app bar action ("To boost visibility of a primary action, change the style of the icon button to filled or tonal"); "To save a selection in a full-screen dialog, use Save" (a text button in the dialog's header); and a filled icon button or FAB in a docked toolbar. M3 prints no filled, labelled `Save` button in a bottom bar.
+- **We do:** a block's fields on a compact window (below 600 dp) are a subpage of the page form, drawn as the crop view is: the top app bar has the back arrow and the block's name only (no action), the fields are below it, and `Save` (`Insert` for a new block), a filled button with a label, is in a bottom bar. Back (the arrow, Esc, the browser's and Android's back) with changes asks "Keep your changes?" and with none just goes back; Back or `Save` returns to the block in the page at the same scroll place. From medium the sheet is the modal side sheet with `Save` and `Cancel` as before, and from expanded the live side sheet.
+- **Why:** owner decisions, 14 Nov 2026: "Convert all full screen views to pages." and "Save buttons on mobile go in the bottom bar", relayed by the 0.18 project manager. A word cannot be misread (M3's own examples of a primary action are words), the bottom bar is where the owner wants every Save on a phone, and the page keeps the form under it as M3's list-detail asks.
+- **Date:** 2026-11-14 (owner's approval, relayed by the 0.18 PM). **PR:** #650.
+
+### B2. On a phone every view that is a full-screen dialog or a side sheet is a page
+
+- **Material:** "Full-screen dialogs are for compact breakpoints only, like mobile devices." (dialogs/guidelines); "Modal side sheets are preferred in compact breakpoints, like mobile, due to limited screen size." (side-sheets/guidelines); list-detail on compact: "Only one view is visible at a time, either list or detail", with a back button and an app bar. M3 prints no page with `Save` in a bottom bar (see B1).
+- **We do:** the rule (owner, 15 Nov 2026: "We have agreed on moving away from full screen and sidebar on mobile and instead using pages."): below 600 dp no view of the editor is a full-screen dialog or a side sheet. Each is a page with the top app bar (back arrow and the headline), its content, `Save` filled in a bottom bar when it has one, and Back with unsaved changes asking "Keep your changes?". The computer keeps the side sheet. Built so far: the crop view (#686), the Preview (#696) and a block's settings (#650, B1). Not yet pages (the follow-up views are listed in the pull request #650): a file's details in the Library (`Media.tsx`), Notifications (`Notifications.tsx`), the lightbox, the settings sheets of 0.20 (`2026-11-14-settings-sheets-design.md`, which already plans the subpage) and the section settings and alt text, which are sheets from the bottom.
+- **Why:** owner decision, relayed by the 0.18 project manager on 15 Nov 2026.
+- **Date:** 2026-11-15. **PR:** #650 (the rule and the block sheet); the other views in their own pull requests.
+
 ## The search view (search page, M3 search)
 
 Source: `theme/ui/Search.tsx` (`SearchView`), `theme/styles/ui.css` (`.search-view*`), `src/CommandPalette.tsx`. Read 15 Nov 2026 on m3.material.io with Playwright: `/components/search/overview`, `/specs`, `/guidelines`, `/accessibility`. The token tables of the specs page stay collapsed in a text read (they did not open), and the colour and measurement diagrams are images that did not load: no token value is quoted, and the colour roles below are read from the numbered lists under the diagrams.
