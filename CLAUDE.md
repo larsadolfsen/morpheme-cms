@@ -8,6 +8,7 @@ in one place only, so never work from memory of a skill.
 
 | Skill | Load it when |
 | :--- | :--- |
+| `developer` | you start any task in this repository as a developer session (build, fix or docs): it comes first and says which of the other skills to load |
 | `changesets` | you open a pull request: its changeset, which level the base branch allows, and the version lines (`0.17`, `0.18`, `0.19`) |
 | `release-notes` | a change is something a site owner sees, or a note, an edition or a version's notes are written or fixed |
 | `checks` | you choose which checks to run before a push, or a CI job fails |
@@ -55,7 +56,7 @@ session loads the `release` skill and follows its phases in order; it never rele
 releases, in this repository and in `morpheme-staging`, `morpheme-appstore` and `morpheme-apps`, and it keeps nothing
 behind. The owner does not merge and is not asked to.
 
-Every other session:
+Every other session starts by loading the `developer` skill and:
 
 - opens its pull request with a changeset (skill `changesets`) and gets its `check` job green;
 - reports the link and head sha to the PM and leaves the merge to it;
@@ -67,7 +68,7 @@ rules in the `pm` skill.
 
 ### Roles
 
-An orchestrator breaks a task down, delegates it to Claude subagents (the first choice when the task needs the repo's
+Every developer session (build, fix or docs) loads the `developer` skill first. An orchestrator breaks a task down, delegates it to Claude subagents (the first choice when the task needs the repo's
 rules) or, for mechanical code with a precise specification, to the Developer (Ollama, `qwen3.8:27b` at
 `http://127.0.0.1:11434`, local only), then reviews, tests and integrates. Claude in the cloud (claude.ai/code) runs when
 the PC is off and uses subagents for code.

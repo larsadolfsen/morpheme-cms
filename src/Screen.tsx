@@ -8,14 +8,13 @@
 // (`pageActions`) at the end of that row. The bar stays at the top while
 // scrolling and keeps clear of a phone's notch. A screen's tabs (`tabs`) are the bottom of the bar, under the title, as wide
 // as the content, and stay with it. The back arrow goes to the screen above, back in the history when that is the screen
-// before (nav.ts up). The content is as wide as a form reads well, or wider for lists and the grid of files (`wide`) and for
+// before (nav.ts up). The content is as wide as the site's text column, or wider for
 // a form with its fields beside the text (`panel`). The column (editor.css .editor-column) stands centred on the window,
 // off-centre only as far as the panels beside it require.
 // Under the content of every screen is the editor's footer (EditorFooter.tsx), at the bottom of the window when the content
-// is short (the screen fills the column under the bar, TopBarLayout). Below medium, while the screen has a floating action
-// button (fabPresence.tsx), there is room for it under the footer (data-clearance): the page is that much taller than the
-// window (--fab-room and --editor-fab-clearance, editor.css), so a short screen still has its footer at the bottom of the window and can
-// be scrolled up to show it above the FAB.
+// is short (the screen fills the column under the bar, TopBarLayout). While the screen has a floating action button
+// (fabPresence.tsx), the content leaves room for it above the footer (data-clearance, --fab-room) and the FAB stands above the
+// footer whenever the footer is in the window (useFabLift: --editor-fab-lift, editor.css), so it never covers the footer.
 import { useContext, useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Bell, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
@@ -23,7 +22,7 @@ import { t } from './i18n';
 import { IconButton, IconLink, MenuButton, TabPanel, TabRow, TopAppBar, useMenuLayout, type TabChoice } from './ui';
 import { up } from './nav';
 import EditorFooter from './EditorFooter';
-import { FabPresenceContext, useCountFabs } from './fabPresence';
+import { FabPresenceContext, useCountFabs, useFabLift } from './fabPresence';
 import { useMenuOpen } from './menuOpen';
 import { unseen, useNotifications } from './notificationData';
 import { openNotifications, useNotificationsOpen } from './notificationsOpen';
@@ -39,7 +38,7 @@ import { useTopBarSlot } from './topBarSlot';
 export type Back = { href: string; label: string; guard?: (go: () => void) => void };
 
 // `status`: more about the screen, e.g. when it was last saved: under the title, on a computer after it.
-// `wide`: the content is wider on a computer (lists, the files); `panel`: a form with its other fields
+// `wide`: a list or the files (the column is as wide as any other: the site's text column); `panel`: a form with its other fields
 // beside the text on a wide computer screen (FormColumns in ui.tsx). `drawer`: a button at the end of the
 // bar, after the notifications. `home`: the start screen,
 // with the link to the website. `tabs`: the screen's tabs, in the bar, with the open one's content.
@@ -134,7 +133,6 @@ export default function Screen<T extends string>({
   drawer,
   tabs,
   home = false,
-  wide = false,
   panel = false,
   full = false,
   children,
@@ -142,13 +140,10 @@ export default function Screen<T extends string>({
   const id = useId();
   const menu = useMenuOpen();
   const { menuButtonInTopBar } = useMenuLayout();
-  // The column's widest width (--column-width: 48rem; 64rem from medium for `wide`, 72rem from large for `panel`); editor.css
-  // (.editor-column) keeps it centred on the window.
-  const width = wide
-    ? 'editor-column [--column-width:48rem] medium:[--column-width:64rem]'
-    : panel
-      ? 'editor-column [--column-width:48rem] large:[--column-width:72rem]'
-      : 'editor-column [--column-width:48rem]';
+  // The column's widest width (--column-width, editor.css) is the site's text column (theme `max-w-3xl`, as PostLayout.astro), on a
+  // computer too; only `panel` (a form with its other fields beside the text) is wider, 72rem from large. editor.css (.editor-column) keeps it
+  // centred on the window.
+  const width = panel ? 'editor-column large:[--column-width:72rem]' : 'editor-column';
   // A link out of the screen, through `guard`: the back arrow goes up (nav.ts), the other links as links.
   const leave = (go?: () => void) => (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!go && !back?.guard) return;
@@ -162,6 +157,7 @@ export default function Screen<T extends string>({
   // The form under its Preview (screenHidden.ts): kept, but not drawn.
   const hidden = useContext(ScreenHidden);
   const fabs = useCountFabs();
+  useFabLift(fabs.count > 0);
   // The way here, without the start screen: the logo in the bar is the way there.
   const crumbs = back && back.href !== '#' ? [back] : [];
   const bar = (
@@ -228,13 +224,13 @@ export default function Screen<T extends string>({
       </div>
     );
   return (
-    <div className={`flex flex-col ${slot ? 'flex-1' : 'min-h-[calc(100dvh+var(--editor-fab-clearance,0px))]'}`}>
+    <div className={`flex flex-col ${slot ? 'flex-1' : 'min-h-dvh'}`}>
       {slot ? createPortal(bar, slot) : bar}
       {/* A row, so the column keeps its margins (editor.css .editor-column) and is as high as the rest of the window. */}
       <div className="flex flex-1">
         <main
           data-clearance={fabs.count > 0}
-          className={`editor-screen flex min-w-0 flex-1 flex-col px-4 pt-6 pb-[env(safe-area-inset-bottom)] data-[clearance=true]:pb-[calc(var(--fab-room)+env(safe-area-inset-bottom))] medium:px-6 medium:pt-8 medium:pb-4 medium:data-[clearance=true]:pb-4 ${width}`}
+          className={`editor-screen flex min-w-0 flex-1 flex-col px-4 pt-6 pb-[env(safe-area-inset-bottom)] medium:px-6 medium:pt-8 medium:pb-4 ${width}`}
         >
           {/* At expanded and wider: the way here, the title and the status, under the bar. */}
           <div className="mb-6 hidden min-w-0 items-center gap-x-2 expanded:flex">
@@ -257,7 +253,7 @@ export default function Screen<T extends string>({
           </div>
           {/* The content flows as blocks; the footer goes to the bottom of a short screen. */}
           <FabPresenceContext.Provider value={fabs.report}>
-            <div className="min-w-0">
+            <div className="min-w-0 data-[clearance=true]:mb-[var(--fab-room)]" data-clearance={fabs.count > 0}>
               {tabs ? (
                 <TabPanel id={id} value={tabs.value}>
                   {children}

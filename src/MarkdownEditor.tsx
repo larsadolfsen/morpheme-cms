@@ -74,8 +74,9 @@ import { headingChoices } from '../lib/heading-levels.mjs';
 import { TEXT_COLORS, colorClass } from '../lib/text-colors.mjs';
 import { sectionAttrs, sectionHeading, sectionSettingsOf, setSection } from './sectionState.mjs';
 import { sectionFrame } from './sectionFrame';
-import { IMAGE, reachField, type BlockAsk, type EditFocus, type LiveBlock } from './BlockDialog';
+import { IMAGE, reachField, type BlockAsk, type EditFocus, type LiveBlock, type SheetTarget } from './BlockDialog';
 import { cropView } from './CropView';
+import { ratioProp } from './standard/cards/view';
 import { askLink } from './LinkSheet';
 import { atLeastNow, Menu, MenuDivider, MenuItem, Toolbar, ToolbarButton } from './ui';
 import { editsInPanel, liveSheet } from './sheetPlacement.mjs';
@@ -1094,6 +1095,41 @@ const imageProps = (node: Node): BlockProps => {
   return { src, alt: node.attrs.alt ?? '', format, crop, decorative };
 };
 
+// The parts of the text that open a block's sheet (a block's card, an image's), for the sheet's hidden copy (sheetCopy.mjs): each one's
+// type and props as its sheet gets them, its index among them, and how to open its sheet with a copy's values (set by its card).
+const imagePropsOf = (node: Node): BlockProps => {
+  const { src, format, crop, decorative } = splitPicture(node.attrs.src);
+  return { src, alt: node.attrs.alt ?? '', format, crop, decorative };
+};
+const sheetPartOf = (node: Node): { type: string; props: BlockProps } | null =>
+  node.type.name === 'siteBlock'
+    ? { type: node.attrs.type, props: node.attrs.props }
+    : node.type.name === 'image'
+      ? { type: IMAGE, props: imagePropsOf(node) }
+      : null;
+/** The index among the sheet's parts of the one at pos. */
+const sheetIndexAt = (doc: Node, pos: number) => {
+  let index = 0;
+  doc.nodesBetween(0, pos, (n, at) => void (at < pos && sheetPartOf(n) && index++));
+  return index;
+};
+const reopens = new WeakMap<object, (values: BlockProps) => void>();
+/** The part at the index (sheetIndexAt), with how to open its sheet with a copy's values; null when there is none. */
+function sheetTarget(view: EditorView, index: number): SheetTarget | null {
+  let found: { pos: number; type: string; props: BlockProps } | null = null;
+  let i = 0;
+  view.state.doc.descendants((n, pos) => {
+    if (found) return false;
+    const part = sheetPartOf(n);
+    if (part && i++ === index) found = { pos, ...part };
+  });
+  if (!found) return null;
+  const { pos, type, props } = found;
+  const dom = view.nodeDOM(pos);
+  const open = dom && reopens.get(dom);
+  return open ? { index, type, props, open } : null;
+}
+
 // An image in the text as a card like a block's, cut to its format, with a menu to change it
 // (another image, its description for screen readers, its format), move it with its paragraph and
 // remove it.
@@ -1128,10 +1164,12 @@ function imageCard(
   if (node.attrs.title) img.title = node.attrs.title;
   // Its sheet (Settings, and from expanded a tap); `focus`: open at its Alt text field (Alt text). From expanded the sheet is live: it changes the
   // image at once (liveImage), and answers null.
-  const describe = async (focus?: EditFocus) => {
+  // start: a hidden copy's values to open the sheet with (sheetTarget).
+  const describe = async (focus?: EditFocus, start?: BlockProps) => {
     const at = getPos();
     const live = () => (at === undefined ? null : liveImage(view, at));
-    const props = await sheet()?.edit(IMAGE, { src, alt: node.attrs.alt ?? '', format, crop, decorative }, false, live, focus);
+    const keep = at === undefined ? undefined : { at: sheetIndexAt(view.state.doc, at), start };
+    const props = await sheet()?.edit(IMAGE, imagePropsOf(node), false, live, focus, keep);
     const pos = getPos();
     if (!props || pos === undefined) return;
     view.dispatch(
@@ -1200,6 +1238,7 @@ function imageCard(
     { kind: 'remove', label: t.common.remove, action: remove },
   ];
   (dom as CardHost).describe = (focus) => void describe(focus);
+  reopens.set(dom, (values) => void describe(undefined, values));
   // From expanded an image's sheet is the live side panel: a tap opens it (owner, image tools spec 1b.2), and the row has no Settings (the panel is open).
   const inPanelNow = () => editsInPanel(atLeastNow('expanded'), true);
   const close = cardBar(
@@ -1494,6 +1533,7 @@ function blockCard(
   getPos: () => number | undefined,
   asker: () => BlockAsk | undefined,
   cards: Set<() => void>,
+  pick: () => (() => Promise<string | null>) | undefined,
 ) {
   // The block's node: a block typed in place (inline) is changed without being drawn again (update), so the node follows.
   let node = first;
@@ -1704,10 +1744,12 @@ function blockCard(
     return { rules, locked, stays: locked || last };
   };
   // From expanded the sheet is live: it changes the block at once (liveBlock), and answers null.
-  const edit = async () => {
+  // values: a hidden copy's values to open the sheet with (sheetTarget).
+  const edit = async (values?: BlockProps) => {
     const start = at();
     const live = () => (start ? liveBlock(view, start.pos, node.attrs.type) : null);
-    const props = await asker()?.edit(node.attrs.type, node.attrs.props, false, live);
+    const keep = start ? { at: sheetIndexAt(view.state.doc, start.pos), start: values } : undefined;
+    const props = await asker()?.edit(node.attrs.type, node.attrs.props, false, live, undefined, keep);
     const here = at();
     // The block's fields as changed; still hidden if it was.
     if (props && here)
@@ -1772,7 +1814,7 @@ function blockCard(
     return [
       block?.fields.length
         ? (!inline || (typeof spec?.blockSettings === 'function' ? spec.blockSettings(node.attrs.props) : spec?.blockSettings)) &&
-          !inPanelNow() && { icon: blockSettingsIcon, label: t.text.blockSettings, action: edit, row: 'settings' as const }
+          !inPanelNow() && { icon: blockSettingsIcon, label: t.text.blockSettings, action: () => edit(), row: 'settings' as const }
         : block?.edit && { icon: editElsewhereIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
       // A block typed in place that reads a list of the site (Testimonials, Blog posts): the page of the list is in its menu too.
       inline && block?.fields.length && block.edit
@@ -1899,7 +1941,70 @@ function blockCard(
           : []),
       ];
     };
-    const rowActions = (): BarAction[] => {
+    // A card with an image (Cards, media Image): the image's tools on the bar, as for an image in the text (image tools spec, section 6): Change image,
+    // Crop (the block's one aspect ratio, no chips), Alt text and Remove. From expanded the card's media sheet is the live side panel, with its Alt text field
+    // focused; below it the short alt text sheet is used.
+    const cardImageTools = (): BarAction[] => {
+      const list = rows();
+      if (spec!.grid || single || isDynamic() || active === null || node.attrs.props.media !== 'image' || !spec!.media?.includes('image'))
+        return [];
+      const i = active;
+      const address = String(list[i]?.image ?? '');
+      if (!address) return [];
+      const ratio = ratioProp(node.attrs.props);
+      const own = splitPicture(address);
+      const put = (patch: Row) =>
+        setItems(
+          rows().map((r, j) =>
+            j === i ? (Object.fromEntries(Object.entries({ ...r, ...patch }).filter(([, v]) => v !== '' && v !== undefined)) as Row) : r,
+          ),
+        );
+      // From expanded the card's media sheet opens live beside it at its Alt text field.
+      const openAlt = () => {
+        iconOf = i;
+        dynOpen = false;
+        syncRow(true);
+        reachField(t.blocks.picture.alt);
+      };
+      const live = () => atLeastNow('expanded');
+      return [
+        {
+          kind: 'change-image',
+          label: t.forms.changeImage,
+          action: async () => {
+            const chosen = await pick()?.();
+            if (!chosen) return;
+            // A new image starts as the middle part in the block's ratio (no words), with no alt text of its own.
+            const text = live()
+              ? { alt: '', decorative: false }
+              : ((await asker()?.alt({ src: chosen, alt: '', decorative: false }, 'new')) ?? { alt: '', decorative: false });
+            put({ image: chosen, alt: text.decorative ? '' : text.alt.trim() });
+            if (live()) openAlt();
+          },
+        },
+        {
+          kind: 'crop',
+          label: t.text.crop,
+          action: async () => {
+            const next = await cropView({ src: own.src, format: ratio, crop: own.format === ratio ? own.crop : null, ratios: [ratio] });
+            if (next) put({ image: joinPicture(own.src, next.format, next.crop) });
+          },
+        },
+        {
+          kind: 'alt-text',
+          label: t.blocks.picture.alt,
+          text: true,
+          action: async () => {
+            if (live()) return openAlt();
+            const text = await asker()?.alt({ src: own.src, alt: String(list[i]?.alt ?? ''), decorative: false }, 'edit');
+            if (text) put({ alt: text.decorative ? '' : text.alt.trim() });
+          },
+        },
+        { kind: 'remove', label: t.common.remove, action: () => put({ image: '', alt: '' }) },
+      ];
+    };
+    const rowActions = (): BarAction[] => [...cardImageTools(), ...itemActions()];
+    const itemActions = (): BarAction[] => {
       const list = rows();
       if (spec!.grid) return gridActions(spec!.grid, list as unknown as string[][]);
       // A card's link is the bar's Link, also while the card is still empty (its sheet has the page and the buttons).
@@ -2148,6 +2253,7 @@ function blockCard(
   dom.addEventListener('pointerleave', () => blockBar.unpoint(pointer));
   // A block typed in place has its tools on the bar through `bar` (rows); any other block is selected by a tap (cardBar).
   const close = inline ? () => {} : cardBar(view, dom, card, name, menuItems, () => inPanelNow() && void edit());
+  reopens.set(dom, (values) => void edit(values));
   // A changed block is drawn anew (update false); taps on the card and its menu are not ProseMirror's.
   return {
     dom,
@@ -2210,6 +2316,13 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   h1Changed.current = onH1;
   const sheeted = useRef(blocks ?? sheetProp);
   sheeted.current = blocks ?? sheetProp;
+  // The text is loaded: the sheet's hidden copy of this page (sheetCopy.mjs) can be offered, once the form knows the page (`copy`).
+  const [ready, setReady] = useState(false);
+  const copyKey = (blocks ?? sheetProp)?.copy;
+  useEffect(() => {
+    const view = ready && editor.current?.action((ctx) => ctx.get(editorViewCtx));
+    if (view && copyKey) sheeted.current?.offer((index) => sheetTarget(view, index));
+  }, [ready, copyKey]);
   // The Library's picker for an image's Change image (imageCard).
   const picking = useRef(addImage);
   picking.current = addImage;
@@ -2316,7 +2429,15 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     );
     const cardView = $view(
       siteBlockSchema.node,
-      () => (node, view, getPos) => blockCard(node, view, getPos, () => sheeted.current, cards.current),
+      () => (node, view, getPos) =>
+        blockCard(
+          node,
+          view,
+          getPos,
+          () => sheeted.current,
+          cards.current,
+          () => picking.current,
+        ),
     );
     // The look of each part on the site, as data-look on it.
     const looking = $prose(
@@ -2375,6 +2496,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           view.focus();
         });
       loaded = true;
+      setReady(true);
     });
     return () => {
       cancelled = true;

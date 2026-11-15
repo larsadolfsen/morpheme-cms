@@ -14,8 +14,16 @@
 // (no Save, Cancel or Remove; Remove is in the block's menu) and asks nothing when it closes. A sheet keeps its look while it is open,
 // even when the window crosses the expanded breakpoint.
 // Their open, close, focus and Escape are the theme's (sideSheet() and standardSideSheet(), sideSheetControl.ts); leave() is their beforeClose.
+// On a compact window (a phone, below medium) a block's fields are a subpage of the page form instead (owner, 14 Nov: full-screen views are
+// pages), drawn as the crop view is (CropView.tsx; editor.css gives .block-page the crop page's rules): the top app bar with the back arrow and the block's name, the fields, and Save
+// (Insert) in the bottom bar. It is a layer over the form (a modal <dialog>), so the form keeps its scroll place; it has a step of its own in the
+// history (useSheetBack), so the browser's and Android's back leave it; back with changes asks "Keep your changes?" (closeChanged).
+// Below expanded the fields of a block on the page (edit with `keep`) are kept in a hidden copy in this browser while they are changed
+// (sheetCopy.mjs, one per page, `copy`), deleted when the sheet is answered; offer() asks to put a copy back when the page opens again:
+// Restore opens the subpage (or the modal side sheet at medium) with the copy's values, still unsaved, and from expanded the live side sheet
+// with them written to the block like any change.
 // Another block tapped while one is open closes the open one first (the question when changed). Exposes useBlockDialog, IMAGE.
-import { useEffect, useId, useRef, useState, type ReactElement } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type ReactElement } from 'react';
 import { ArrowsDownUp, Image } from '@phosphor-icons/react';
 import {
   Button,
@@ -33,6 +41,8 @@ import {
   ProblemNote,
   SheetList,
   SheetGroupTitle,
+  IconButton,
+  TopAppBar,
   atLeastNow,
 } from './ui';
 import { blockGroups, htmlBlock, type BlockData, type BlockProps, type SiteBlock } from './blocks';
@@ -47,13 +57,15 @@ import { cropView, type Cut } from './CropView';
 import { shownAt } from './images';
 import { t } from './i18n';
 import { snackbar } from '../lib/snackbar';
-import { closeChanged } from './ask';
+import { choose as askChoice, closeChanged } from './ask';
 import SectionSettings, { type SectionValues } from './SectionSettings';
 import { liveSheet, sheetLook } from './sheetPlacement.mjs';
 import { sheetSteps } from './liveSheet.mjs';
 import { setPanelOpen } from './sidePanel';
-import { SiteSideSheet, siteSideSheet, siteSideSheetDialogClass, siteStandardSideSheet } from './themeUi';
+import { SiteSideSheet, siteFollowKeyboard, siteSideSheet, siteSideSheetDialogClass, siteStandardSideSheet } from './themeUi';
 import { typedInPlace } from './typedInPlace.mjs';
+import { useSheetBack } from './useSheetBack';
+import { drop as dropCopy, keep as keepCopy, matches as copyMatches, take as takeCopy } from './sheetCopy.mjs';
 
 /** Where an image's live sheet opens (from expanded, the bar's Alt text and a new image): its Alt text field. Below expanded the alt text sheet (`BlockAsk.alt`) is used. */
 export type EditFocus = 'alt';
@@ -94,7 +106,19 @@ export type BlockAsk = {
   /** New props for a block in the text; null when cancelled. isNew: one about to be put in ("Insert"). live: makes the link to the
    * block in the text, used when the sheet is live (the side sheet from expanded): its changes are then written through it, and the
    * answer is null when it closes (nothing is left to write). focus: the field the sheet opens at (EditFocus). */
-  edit: (type: string, props: BlockProps, isNew?: boolean, live?: () => LiveBlock | null, focus?: EditFocus) => Promise<BlockProps | null>;
+  edit: (
+    type: string,
+    props: BlockProps,
+    isNew?: boolean,
+    live?: () => LiveBlock | null,
+    focus?: EditFocus,
+    keep?: KeepAt,
+  ) => Promise<BlockProps | null>;
+  /** The page whose sheets keep a hidden copy below expanded (sheetCopy.mjs); undefined: none kept (another form, or not known yet). */
+  copy?: string;
+  /** Once the page's text is loaded: offers to put back the page's hidden copy ("Restore your unsaved changes?") when the block it was
+   * typed for is still there (find: the block or image at that index, null when there is none). Asks once per page. */
+  offer: (find: (index: number) => SheetTarget | null) => void;
   /** The short sheet for an image's alt text (image tools spec 9.1): its preview, `Decorative image` and `Alt text` (with the Library's text as the hint), and `Skip`
    * (mode 'new', right after an image was picked: the image stays without a text of its own, also when the sheet is closed) or `Cancel` (mode 'edit', the bar's
    * Alt text) and `Save`. The new text and whether the image is decorative; null in 'edit' when it was left. */
@@ -114,6 +138,14 @@ export type BlockAsk = {
    * Cancel of its own. Not shown while another sheet is open. null closes it. `open` false: only update the settings if they are open already. */
   row: (spec: RowSpec | null, open?: boolean) => void;
 };
+
+/** Where a block's sheet keeps its hidden copy: the block's index among the parts of the text that open a sheet (blocks and images),
+ * and the values to open the sheet with instead of its props (a copy put back). */
+export type KeepAt = { at: number; start?: BlockProps };
+
+/** A block or image in the text a hidden copy may be for: its index, type and props (as edit gets them), and how to open its sheet with
+ * the copy's values. */
+export type SheetTarget = { index: number; type: string; props: BlockProps; open: (values: BlockProps) => void };
 
 /** The settings of the active row of a block typed in place: what the panel or sheet shows and where its changes go. */
 export type RowSpec = {
@@ -140,14 +172,15 @@ export type LiveBlock = {
 /** A section's settings in the text: null for what it has not. */
 export type SectionSettingsOf = { color: string | null; image?: string | null; alt?: string | null; width?: string | null };
 
-// wide: the window was at least expanded when the step was shown; its look stays while it is open. live: its changes go to the block at once.
+// wide, compact: the window was at least expanded, or below medium, when the step was shown; its look stays while it is open. live: its
+// changes go to the block at once.
 type Open = (
   | { step: 'choose'; image?: boolean; have?: string[]; live?: boolean }
   | { step: 'fields'; type: string; isNew: boolean; live?: boolean }
   | { step: 'section'; image: boolean; width: boolean; live?: boolean }
   | { step: 'row'; live?: undefined }
   | { step: 'alt'; mode: 'new' | 'edit'; live?: undefined }
-) & { wide?: boolean };
+) & { wide?: boolean; compact?: boolean };
 
 const sectionValues = (v: BlockProps): SectionValues => ({
   color: String(v.color ?? ''),
@@ -217,12 +250,13 @@ const groupOf = (b: SiteBlock) =>
   b.app && !b.listBlock ? (apps.find((a) => a.id === b.app)?.label ?? b.app) : t.blockSettings.groups[b.group ?? 'media'];
 const standardGroups: string[] = blockGroups.map((g) => t.blockSettings.groups[g]);
 
-/** crop: an image can be cut to a format (not in a block's text, whose image the theme lays out). */
+/** crop: an image can be cut to a format (not in a block's text, whose image the theme lays out). copy: the page whose sheets keep a hidden
+ * copy below expanded. back: the name of the screen the subpage goes back to (the page's title). */
 export function useBlockDialog(
   list: SiteBlock[] = siteBlocks,
   data: BlockData,
   template?: Template,
-  { crop = true } = {},
+  { crop = true, copy, back }: { crop?: boolean; copy?: string; back?: string } = {},
 ): [BlockAsk, ReactElement] {
   const blockOf = (type: string) => (type === IMAGE ? image : type === HTML ? htmlBlock : list.find((b) => b.type === type));
   const dialog = useRef<HTMLDialogElement>(null);
@@ -231,6 +265,12 @@ export function useBlockDialog(
   const sideControls = useRef<ReturnType<typeof siteSideSheet> | null>(null);
   const standard = useRef<HTMLDivElement>(null);
   const standardControls = useRef<ReturnType<typeof siteStandardSideSheet> | null>(null);
+  // The subpage's <dialog> (a block's fields on a compact window).
+  const pageDialog = useRef<HTMLDialogElement>(null);
+  // The hidden copy of the open block's fields (below expanded): where the block is and its props when it opened; null when none is kept.
+  const copyOf = useRef<{ index: number; type: string; before: BlockProps } | null>(null);
+  // The page whose copy has been offered (offer() asks once).
+  const offerMade = useRef<string | undefined>(undefined);
   const headingId = useId();
   const answer = useRef<(a: Answer) => void>(() => {});
   // The row settings shown now (the `row` step).
@@ -244,7 +284,7 @@ export function useBlockDialog(
   const trigger = useRef<HTMLElement | null>(null);
   // The look is taken from the window as each step is shown, and kept while it is open.
   const show = (next: Open | null) => {
-    const shown: Open | null = next && { ...next, wide: atLeastNow('expanded') };
+    const shown: Open | null = next && { ...next, wide: atLeastNow('expanded'), compact: !atLeastNow('medium') };
     openNow.current = shown;
     setOpen(shown);
     return shown;
@@ -276,7 +316,14 @@ export function useBlockDialog(
   // Another one asked for while one is open (a tap on another block, or on "+" in the text): the open one is left first
   // (with the question when it is changed), and the new one opens when it has closed. Stay in the open one: null.
   // linked: makes the link to the block, when the sheet is live (its changes then go to the block at once).
-  const ask = async (first: Open, props: BlockProps = {}, linked?: () => LiveBlock | null): Promise<Answer> => {
+  // start: the values to open with instead of props (a hidden copy put back); kept: where the block keeps its hidden copy.
+  const ask = async (
+    first: Open,
+    props: BlockProps = {},
+    linked?: () => LiveBlock | null,
+    start?: BlockProps,
+    kept?: { index: number; type: string; before: BlockProps },
+  ): Promise<Answer> => {
     const from = document.activeElement;
     await closing.current;
     if (openNow.current && !(await latest.current.leave())) return null;
@@ -285,6 +332,8 @@ export function useBlockDialog(
     return new Promise<Answer>((resolve) => {
       answer.current = resolve;
       const link = linked && liveSheet(first.step, atLeastNow('expanded')) ? linked() : null;
+      // A live sheet keeps no copy: its changes are on the page.
+      copyOf.current = link ? null : (kept ?? null);
       const opened = show(link && (first.step === 'fields' || first.step === 'section') ? { ...first, live: true } : first)!;
       if (link) {
         live.current = link;
@@ -296,7 +345,9 @@ export function useBlockDialog(
           setValues(opened.step === 'fields' ? savedValue(blockOf(opened.type)?.fields ?? [], now) : sectionValues(now));
         });
       }
-      setValues(props);
+      setValues(start ?? props);
+      // A hidden copy put back at computer width: its values are written to the block like any change (an unsaved change of the page).
+      if (link && start && first.step === 'fields') writeLive(clean(blockOf(first.type)?.fields ?? [], start));
       if (first.step === 'fields') shown.current = asWritten(first.type, props);
       if (first.step === 'section') shown.current = JSON.stringify(sectionValues(props));
       if (first.step === 'alt') shown.current = altWritten(props);
@@ -309,7 +360,7 @@ export function useBlockDialog(
 
   // Which dialog is open follows the look of the step: the sheet from the bottom, or the modal side sheet (below). It is taken when
   // the step is shown (show) and kept while it is open: a sheet never switches between live and Save and Cancel mid-edit.
-  const look: string = open ? sheetLook(open.step, !!open.wide) : 'sheet';
+  const look: string = open ? sheetLook(open.step, !!open.wide, !!open.compact) : 'sheet';
   lookNow.current = look;
   useEffect(() => {
     const sheet = dialog.current;
@@ -317,6 +368,41 @@ export function useBlockDialog(
       if (sheet && !sheet.open) sheet.showModal();
     } else if (sheet?.open) sheet.close();
   }, [look, !!open]);
+
+  // The subpage (a block's fields on a compact window): a modal <dialog> over the form, as the crop view is. The form under it stays as it was
+  // (its scroll place too), and does not scroll; the page's top and bottom bars are the dialog's own; it keeps above the on-screen keyboard.
+  // Focus starts on the back arrow, the first control of its app bar (Material 3).
+  useEffect(() => {
+    const d = pageDialog.current;
+    if (look !== 'subpage' || !d) return;
+    if (!d.open) d.showModal();
+    document.documentElement.style.overflow = 'hidden';
+    const stop = siteFollowKeyboard(d);
+    return () => {
+      stop();
+      if (d.open) d.close();
+      document.documentElement.style.overflow = '';
+    };
+  }, [look]);
+  // The browser's and Android's back leave the subpage through leave() (the question when changed); staying in it gives the step back.
+  const onBack = useCallback(async () => {
+    if (!(await latest.current.leave())) history.pushState({ ...history.state, sheet: 'block-page' }, '');
+  }, []);
+  useSheetBack(look === 'subpage' && !!open, onBack, 'block-page');
+
+  // The hidden copy (below expanded): kept 300 ms after each change while the fields differ from what was shown, deleted when they are
+  // the same again; done() deletes it when the sheet is answered.
+  useEffect(() => {
+    const at = copyOf.current;
+    if (!copy || !at || open?.step !== 'fields' || look === 'side-sheet') return;
+    const changed = asWritten(open.type, values) !== shown.current;
+    const timer = window.setTimeout(() => {
+      if (copyOf.current !== at) return;
+      if (changed) keepCopy(copy, at, values);
+      else dropCopy(copy);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [values, open, look]);
 
   // The two side sheets are the theme's (sideSheetControl.ts). Their cross, Escape and (modal) a tap on the scrim go to
   // leave() first (a question when changed), which closes them itself, so beforeClose always answers false.
@@ -379,6 +465,10 @@ export function useBlockDialog(
     answer.current(a);
     answer.current = () => {};
     openNow.current = null;
+    if (copyOf.current) {
+      copyOf.current = null;
+      dropCopy(copy);
+    }
     // A live sheet ends its undo step and lets go of its block; the focus goes to the block's card when the one tapped was drawn anew.
     const ended = live.current;
     live.current = null;
@@ -387,7 +477,8 @@ export function useBlockDialog(
     ended?.follow(null);
     ended?.end();
     closing.current = (async () => {
-      if (sideControls.current && sideDialog.current?.open) await sideControls.current.close();
+      if (pageDialog.current?.open) pageDialog.current.close();
+      else if (sideControls.current && sideDialog.current?.open) await sideControls.current.close();
       else if (standardControls.current) await standardControls.current.close();
       else if (dialog.current?.open) dialog.current.close();
       card?.focus();
@@ -442,12 +533,44 @@ export function useBlockDialog(
       }
       setValues(spec.value);
     },
-    edit: async (type, props, isNew = false, linked, focus) => {
+    edit: async (type, props, isNew = false, linked, focus, keep) => {
       const fields = blockOf(type)?.fields ?? [];
       if (focus === 'alt') reachField(t.blocks.picture.alt);
-      // A block on the page with what a field it has no value for means; a new one with the defaults.
-      const a = await ask({ step: 'fields', type, isNew }, isNew ? { ...newValue(fields), ...props } : savedValue(fields, props), linked);
+      // A block on the page with what a field it has no value for means; a new one with the defaults; a hidden copy put back with its values.
+      const values = isNew ? { ...newValue(fields), ...props } : savedValue(fields, props);
+      const a = await ask(
+        { step: 'fields', type, isNew },
+        values,
+        linked,
+        keep?.start && { ...values, ...keep.start },
+        keep && { index: keep.at, type, before: props },
+      );
       return a && a.props;
+    },
+    copy,
+    offer: (find) => {
+      if (!copy || offerMade.current === copy) return;
+      offerMade.current = copy;
+      const kept = takeCopy(copy);
+      if (!kept) return;
+      const here = find(kept.block.index);
+      if (!here || !copyMatches(kept, here)) return dropCopy(copy);
+      // Esc keeps the copy for next time; no button has the focus when the question opens.
+      void askChoice({
+        title: t.blocks.restoreTitle,
+        text: t.blocks.restoreText(blockOf(here.type)?.label ?? here.type),
+        choices: [
+          { value: 'restore', label: t.history.restore },
+          { value: 'discard', label: t.app.discard },
+        ],
+        cancel: false,
+      }).then((a) => {
+        if (a?.choice === 'restore') {
+          here.open(kept.values);
+          // From expanded the values go to the page at once, so the copy has done its work.
+          if (atLeastNow('expanded')) dropCopy(copy);
+        } else if (a?.choice === 'discard') dropCopy(copy);
+      });
     },
     alt: async (picture, mode) => {
       const a = await ask({ step: 'alt', mode }, { src: picture.src, alt: picture.alt, decorative: picture.decorative });
@@ -604,6 +727,51 @@ export function useBlockDialog(
       }}
     />
   );
+  // A block's fields (or an image's), in a side sheet or the subpage.
+  const blockFields = block && (
+    <>
+      {block?.edit && (
+        <p className="text-sm">
+          <EditLink edit={block.edit} />
+        </p>
+      )}
+      {block?.preview && <Preview>{preview(block.type, values, data)}</Preview>}
+      <WrongField.Provider value={wrongField.field}>
+        <FieldList
+          fields={settingsFields(block!)}
+          value={values}
+          // Another image starts as Original, with no crop (image tools spec, decision 5).
+          onChange={(v) =>
+            changeFields(
+              block!.type === IMAGE && (v as BlockProps).src !== values.src
+                ? { ...(v as BlockProps), format: '', crop: null }
+                : (v as BlockProps),
+            )
+          }
+        />
+      </WrongField.Provider>
+      {block!.type === IMAGE && crop && !data.page && !!values.src && (
+        // The aspect ratio is one row: its value and an arrow; it opens the crop view over the sheet, and Save there brings the new ratio and crop
+        // back here (the sheet's own Save keeps them in the page: one change, one Save).
+        <ul className="-mx-3">
+          <ListItem
+            headline={t.media.crop.ratio}
+            count={String(values.format ?? '') || t.media.crop.original}
+            arrow
+            onClick={async () => {
+              const next = await cropView({
+                src: String(values.src),
+                format: String(values.format ?? ''),
+                crop: (values.crop as Cut) ?? null,
+              });
+              if (next) changeFields({ ...values, format: next.format, crop: next.crop });
+            }}
+          />
+        </ul>
+      )}
+      {problem && <ProblemNote>{problem}</ProblemNote>}
+    </>
+  );
   // A side sheet (the same markup, standard or modal): the block's fields or the section settings, with Save (Insert) and Cancel
   // unless it is live (its headline and close button only).
   const sideSheetOf = (kind: 'standard' | 'modal') =>
@@ -628,56 +796,7 @@ export function useBlockDialog(
           )
         }
       >
-        <div className="space-y-5">
-          {open.step === 'row' ? (
-            rowFields
-          ) : open.step === 'section' ? (
-            sectionSettings
-          ) : (
-            <>
-              {block?.edit && (
-                <p className="text-sm">
-                  <EditLink edit={block.edit} />
-                </p>
-              )}
-              {block?.preview && <Preview>{preview(block.type, values, data)}</Preview>}
-              <WrongField.Provider value={wrongField.field}>
-                <FieldList
-                  fields={settingsFields(block!)}
-                  value={values}
-                  // Another image starts as Original, with no crop (image tools spec, decision 5).
-                  onChange={(v) =>
-                    changeFields(
-                      block!.type === IMAGE && (v as BlockProps).src !== values.src
-                        ? { ...(v as BlockProps), format: '', crop: null }
-                        : (v as BlockProps),
-                    )
-                  }
-                />
-              </WrongField.Provider>
-              {block!.type === IMAGE && crop && !data.page && !!values.src && (
-                // The aspect ratio is one row: its value and an arrow; it opens the crop view over the sheet, and Save there brings the new ratio and crop
-                // back here (the sheet's own Save keeps them in the page: one change, one Save).
-                <ul className="-mx-3">
-                  <ListItem
-                    headline={t.media.crop.ratio}
-                    count={String(values.format ?? '') || t.media.crop.original}
-                    arrow
-                    onClick={async () => {
-                      const next = await cropView({
-                        src: String(values.src),
-                        format: String(values.format ?? ''),
-                        crop: (values.crop as Cut) ?? null,
-                      });
-                      if (next) changeFields({ ...values, format: next.format, crop: next.crop });
-                    }}
-                  />
-                </ul>
-              )}
-              {problem && <ProblemNote>{problem}</ProblemNote>}
-            </>
-          )}
-        </div>
+        <div className="space-y-5">{open.step === 'row' ? rowFields : open.step === 'section' ? sectionSettings : blockFields}</div>
       </SiteSideSheet>
     );
   const element = (
@@ -788,6 +907,38 @@ export function useBlockDialog(
           </>
         )}
       </BottomSheet>
+      {look === 'subpage' && block && open?.step === 'fields' && (
+        // A block's fields on a compact window: a page of the editor over the form, as the crop view is (editor.css .block-page): the top app
+        // bar with the back arrow and the block's name, the fields, and Save (Insert) in the bottom bar. Back (the arrow, Esc, the browser's
+        // back) with changes asks "Keep your changes?"; the form under it stays as it was.
+        <dialog
+          ref={pageDialog}
+          className="block-page"
+          aria-labelledby={headingId}
+          onCancel={(e) => {
+            if (e.target !== e.currentTarget) return;
+            e.preventDefault();
+            void leave();
+          }}
+        >
+          <TopAppBar>
+            <div className="flex h-16 items-center gap-1 px-2">
+              <IconButton icon="arrow-left" label={t.common.backTo(back || t.forms.text)} onClick={() => void leave()} />
+              <h1 id={headingId} className="min-w-0 flex-1 truncate text-title-large">
+                {title}
+              </h1>
+            </div>
+          </TopAppBar>
+          <main className="block-page-main">
+            <div className="space-y-5">{blockFields}</div>
+          </main>
+          <div role="group" aria-label={t.common.saveChanges} className="block-page-bar">
+            <Button kind="filled" onClick={() => save(open.type)}>
+              {open.isNew ? t.blocks.insert : t.common.save}
+            </Button>
+          </div>
+        </dialog>
+      )}
       {look === 'modal-side-sheet' && (
         <dialog ref={sideDialog} className={siteSideSheetDialogClass} aria-labelledby={headingId}>
           {sideSheetOf('modal')}
