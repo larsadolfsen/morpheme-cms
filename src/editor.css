@@ -1940,14 +1940,6 @@ dialog {
   }
 }
 
-/* Files: a file's details in the full-screen dialog (Media.tsx). The docked toolbar (Previous, "1 of 4", Next) stays at the
-   dialog's bottom edge while its content scrolls: sticky at the end of the content, over its end padding, the whole width. */
-.editor-file-dialog .editor-file-toolbar {
-  position: sticky;
-  bottom: calc(-1 * max(1.5rem, env(safe-area-inset-bottom)));
-  margin: 1.5rem calc(-1 * var(--dialog-padding, 1.5rem)) calc(-1 * max(1.5rem, env(safe-area-inset-bottom)));
-}
-
 /* The crop view (CropView.tsx, image tools spec section 3): a page of the editor on every width, as a layer the size of the window over it (a modal
    <dialog>, so the form under it keeps its changes and its scroll place): the top app bar, the content in a column as wide as a form, and a bottom bar
    with Save. The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and everything outside it is under the
