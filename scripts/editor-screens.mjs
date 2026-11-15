@@ -6515,6 +6515,17 @@ async function checkEmptyHint() {
           }
           // A page's H1 has no image (owner, 14 Nov 2026): its Section settings have a colour and a width only.
           const sheet = page.locator('dialog[open], .editor-side-sheet').first();
+          // On a phone the section settings are a page (owner, 15 Nov): no control has the focus at the start, the page has it, with no ring.
+          if (touch) {
+            const start = await sheet.evaluate((d) => ({
+              onPage: document.activeElement === d,
+              styled: [...document.querySelectorAll(':focus-visible')].filter(
+                (e) => getComputedStyle(e).outlineStyle !== 'none' || getComputedStyle(e).boxShadow !== 'none',
+              ).length,
+            }));
+            if (!start.onPage) problems.push(`${name}: the focus does not start on the section settings page itself`);
+            if (start.styled) problems.push(`${name}: an element has focus-visible styling when the section settings page opens`);
+          }
           if (await sheet.getByText('Background image', { exact: true }).count())
             problems.push(`${name}: the Main heading's Section settings offer a background image`);
           if (!(await sheet.getByText('Width', { exact: true }).count()))

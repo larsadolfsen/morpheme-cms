@@ -76,8 +76,8 @@ test("'fields' on a compact window is a subpage and not in the panel", () => {
   assert.equal(inPanel('fields', false), false);
 });
 
-test('only the fields become a subpage on a compact window', () => {
-  assert.equal(sheetLook('section', false, true), 'sheet');
+test('the fields and the section settings become a subpage on a compact window', () => {
+  assert.equal(sheetLook('section', false, true), 'subpage');
   assert.equal(sheetLook('row', false, true), 'sheet');
   assert.equal(sheetLook('choose', false, true), 'sheet');
 });
