@@ -109,15 +109,7 @@ import { t } from './i18n';
 import { motionReduced, motionTiming } from '../lib/motion';
 import { barSlideKind } from './barMotion.mjs';
 import { dragSteps, limitSteps } from './blockDrag.mjs';
-import {
-  blockHandleIcon,
-  blockMarkIcon,
-  blockSettingsIcon,
-  changeToIcon,
-  duplicateIcon,
-  selectAllBlocksIcon,
-  submenuBackIcon,
-} from './blockHandleIcon';
+import { blockHandleIcon, blockMarkIcon, blockSettingsIcon, changeToIcon, duplicateIcon, selectAllBlocksIcon } from './blockHandleIcon';
 import { blockSelection } from './blockSelection';
 import { allOf, hideChoice, range, removeChoice, groupMove } from './blockSelectionRules.mjs';
 import { ask } from './ask';
@@ -1441,7 +1433,7 @@ function setChangeToActions(owner: object, list: ReturnType<typeof changeToActio
   changeToRegistered = list?.length ? { owner, key, dispose: actions.register(list) } : null;
 }
 
-// A message with Undo (after Change to): the theme's snackbar, its action a text button. Drawn once (it is not React once shown).
+// A message with Undo (after Change type): the theme's snackbar, its action a text button. Drawn once (it is not React once shown).
 function undoSnackbar(text: string, undo: () => void) {
   const host = document.createElement('div');
   const root = createRoot(host);
@@ -1456,7 +1448,7 @@ function undoSnackbar(text: string, undo: () => void) {
 }
 
 // The blocks just put in that are typed in place, by their props, with the row each starts with active (blockCard starts it): 0 for a block
-// from Insert, the row that was active for a block made by Change to (and for the block it was, should Undo bring it back).
+// from Insert, the row that was active for a block made by Change type (and for the block it was, should Undo bring it back).
 const fresh = new WeakMap<object, number>();
 
 // A block in the text as a card: the block as it looks on the site (its draw, src/apps/<app>/blocks/), in a thin frame;
@@ -1699,7 +1691,7 @@ function blockCard(
     const here = at();
     if (here) view.dispatch(view.state.tr.delete(here.pos, here.pos + node.nodeSize));
   };
-  // Change to (lib/changeTo.mjs, docs/superpowers/specs/2026-11-14-paste-and-change-to-design.md): the block made into another list block, where
+  // Change type (lib/changeTo.mjs, docs/superpowers/specs/2026-11-14-paste-and-change-to-design.md): the block made into another list block, where
   // it is, in one step of its own; its items' titles and texts move over and what the new block cannot show stays in its props (a Table keeps the
   // other block's items, the other block the Table's rows, and the way back matches them by title). It stays active at the same row, and a
   // snackbar offers Undo.
@@ -1727,7 +1719,7 @@ function blockCard(
       return target ? [{ type, label: target.label, icon: target.icon }] : [];
     });
   };
-  // The menu's Change to, with those blocks as its next level.
+  // The menu's Change type, with those blocks as its next level.
   const changeRow = (): CardRow | undefined => {
     const submenu = changeTargets().map((b) => ({ icon: b.icon, label: b.label, action: () => changeBlock(b.type, b.label) }));
     return submenu.length ? { icon: changeToIcon, label: t.text.changeTo, action: () => {}, submenu } : undefined;
@@ -2189,7 +2181,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // The `⋮` button, and the menu under it while it is open; the Alignment and Color menus of its rows open under it too.
   const moreButton = useRef<HTMLButtonElement>(null);
   const [moreAt, setMoreAt] = useState<HTMLElement | null>(null);
-  // The ⋮ menu's next level (a row's submenu: Change to), shown in place of its rows with a back row; null: its own rows.
+  // The ⋮ menu's next level (a row's submenu: Change type), shown in place of its rows with a back row; null: its own rows.
   const [moreLevel, setMoreLevel] = useState<CardRow | null>(null);
   useEffect(() => void (!moreAt && setMoreLevel(null)), [moreAt]);
   // The first row of the level that was opened or gone back to has the focus, so the keyboard goes on from there.
@@ -2973,11 +2965,17 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           </div>
         </div>
       </Toolbar>
-      <Menu popup="end" anchor={moreAt} label={moreLevel?.label ?? t.text.more} onClose={() => setMoreAt(null)}>
+      <Menu
+        popup="end"
+        anchor={moreAt}
+        label={moreLevel?.label ?? t.text.more}
+        onBack={moreLevel ? () => setMoreLevel(null) : undefined}
+        onClose={() => setMoreAt(null)}
+      >
         {moreLevel ? (
           <>
             {/* The next level: back to the menu's rows (Left arrow too), then the submenu's rows. */}
-            <MenuItem icon={rawIcon(submenuBackIcon)} back onClick={() => setMoreLevel(null)}>
+            <MenuItem icon={rawIcon(changeToIcon)} back label={t.text.backToMenu(moreLevel.label)} onClick={() => setMoreLevel(null)}>
               {moreLevel.label}
             </MenuItem>
             <MenuDivider />
