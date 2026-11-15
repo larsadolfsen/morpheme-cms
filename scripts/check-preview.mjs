@@ -168,7 +168,7 @@ for (const scheme of ['light', 'dark']) {
       await openEditor(page, site);
       await page.goto(`${site}/editor/#${path}`);
       await page.getByRole('button', { name: 'Preview' }).first().click();
-      await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+      await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
       const frame = page.frames().find((f) => f !== page.mainFrame());
       await frame.waitForSelector('[data-editor="text"]', { timeout: 30_000 });
       // The Preview's size chips set the frame's width; the frame is as wide as the window.
@@ -204,7 +204,7 @@ for (const scheme of ['light', 'dark']) {
   await openEditor(page, site, { [file]: text });
   await page.goto(`${site}/editor/#${file}`);
   await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('[data-editor="text"]', { timeout: 30_000 });
   const shown = await frame.evaluate(() => document.querySelector('.block-list')?.textContent ?? '');

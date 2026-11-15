@@ -1275,6 +1275,47 @@ async function checkCardBar(width, height = 800) {
   await page.close();
 }
 
+/** A block's side sheet has no control focused when it opens (owner rule, 14 Nov 2026): the sheet itself has the focus, so no field or button shows a focus
+ * ring from the start; Tab then goes to its first control. The standard side sheet (from expanded) and the modal one (medium). */
+async function checkSheetFocusOnOpen(width) {
+  const label = `${width}px sheet focus on open`;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
+  const sheet = page.locator('dialog[open] [data-side-sheet-container], .editor-side-sheet').last();
+  await sheet
+    .locator('textarea')
+    .waitFor({ timeout: 6000 })
+    .catch(() => problems.push(`${label}: Insert did not open the block's side sheet`));
+  await page.waitForTimeout(500);
+  const focus = await page.evaluate(() => {
+    const el = document.activeElement;
+    return {
+      container: !!el?.matches('[data-side-sheet-container]'),
+      control: !!el?.matches('input, textarea, select, button, a[href]'),
+      outline: el ? getComputedStyle(el).outlineStyle : '',
+      name: el ? `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''}` : 'none',
+    };
+  });
+  if (focus.control) problems.push(`${label}: a control (${focus.name}) has the focus when the sheet opens`);
+  if (!focus.container) problems.push(`${label}: the focus is on ${focus.name}, not on the sheet itself`);
+  if (focus.container && focus.outline !== 'none') problems.push(`${label}: the sheet shows a focus ring of its own (${focus.outline})`);
+  await page.keyboard.press('Tab');
+  const next = await page.evaluate(
+    () => !!document.activeElement?.closest('[data-side-sheet-container]') && document.activeElement?.tagName !== 'BODY',
+  );
+  if (!next) problems.push(`${label}: Tab from the sheet did not go to a control in it`);
+  await page.close();
+}
+
 /** Closing a changed sheet (closeChanged, ask.tsx; image tools spec 9.3): the question is "Keep your changes?" with the text that the changes stay in the
  * page until it is saved, and Discard and Keep in one row, Keep last (M3's basic dialog), with no Cancel; Esc stays in the sheet, Keep does what the sheet's
  * Insert does, and Discard closes it without the block. */
@@ -4647,7 +4688,7 @@ async function checkListMarkers(width) {
   const inEditor = await page.evaluate(markers);
   if (inEditor.length) problems.push(`${width}px editor: a List row has a list marker (${[...new Set(inEditor)].join('; ')})`);
   await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('ul.block-list', { timeout: 30_000 });
   const inPreview = await frame.evaluate(markers);
@@ -4731,7 +4772,7 @@ async function checkSavedLabel(page, width) {
   if (!inEditor || inEditor.size !== '12px')
     problems.push(`${label}: a saved lone label is not a label in the editor (${JSON.stringify(inEditor)})`);
   await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('[data-editor="text"] .label-medium', { timeout: 30_000 });
   const drawn = await frame.evaluate(() => {
@@ -4837,7 +4878,7 @@ async function checkPreviewSection() {
   await page.goto(`${site}/editor/#${path}`);
   await page.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
   await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('[data-editor="text"]', { timeout: 30_000 });
   const got = await frame.evaluate(() => {
@@ -4947,8 +4988,8 @@ async function checkH1SectionGap() {
     await openEditor(page, site, { [path]: text });
     await page.goto(`${site}/editor/#${path}`);
     await page.getByRole('button', { name: 'Preview' }).first().click({ timeout: 30_000 });
-    await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
-    const slider = page.locator('dialog[open] [role="slider"]').first();
+    await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
+    const slider = page.locator('[data-preview-page] [role="slider"]').first();
     const width = async () => Number(await slider.getAttribute('aria-valuenow'));
     for (const w of [390, 600]) {
       await slider.focus();
@@ -4999,8 +5040,8 @@ async function checkFullSection() {
   await page.goto(`${site}/editor/#${path}`);
   await page.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
   await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
-  const slider = page.locator('dialog[open] [role="slider"]').first();
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
+  const slider = page.locator('[data-preview-page] [role="slider"]').first();
   const width = async () => Number(await slider.getAttribute('aria-valuenow'));
   for (const w of [840, 1200, 1600]) {
     await slider.focus();
@@ -5019,7 +5060,7 @@ async function checkFullSection() {
   await phone.goto(`${site}/editor/#${path}`);
   await phone.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
   await phone.getByRole('button', { name: 'Preview' }).first().click();
-  await phone.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await phone.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const small = phone.frames().find((f) => f !== phone.mainFrame());
   await small.waitForSelector('section.text-section-full', { timeout: 30_000 });
   verify('375px Preview full section', await small.evaluate(measure));
@@ -5038,19 +5079,19 @@ async function checkPreviewDraft(width) {
   await page.getByRole('button', { name: 'Preview' }).first().click({ timeout: 30_000 });
   await page.waitForFunction(
     () => {
-      const d = document.querySelector('dialog[open]');
+      const d = document.querySelector('[data-preview-page]');
       return d && (d.querySelector('iframe') || /Couldn.t create the preview/.test(d.textContent));
     },
     null,
     { timeout: 30_000 },
   );
   const failed = await page.evaluate(
-    () => document.querySelector('dialog[open]')?.textContent.match(/Couldn.t create the preview[^]*/)?.[0],
+    () => document.querySelector('[data-preview-page]')?.textContent.match(/Couldn.t create the preview[^]*/)?.[0],
   );
   if (failed) problems.push(`${label}: ${failed.slice(0, 120)}`);
   const bar = await page.evaluate(() => {
-    const caption = document.querySelector('dialog[open] [data-preview-width]').getBoundingClientRect();
-    const area = document.querySelector('dialog[open] [role="group"]').closest('.overflow-x-auto');
+    const caption = document.querySelector('[data-preview-page] [data-preview-width]').getBoundingClientRect();
+    const area = document.querySelector('[data-preview-page] [role="group"]').closest('.overflow-x-auto');
     const a = area.getBoundingClientRect();
     const apart =
       a.right <= caption.left + 0.5 || a.left >= caption.right - 0.5 || a.bottom <= caption.top + 0.5 || a.top >= caption.bottom - 0.5;
@@ -8219,7 +8260,7 @@ async function checkSectionBackground(width, touch) {
   await page.goto(`${site}/editor/#${path}`);
   await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 30_000 });
   await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('section.text-section-primary', { timeout: 30_000 });
   const panel = await frame.evaluate(() => {
@@ -9152,6 +9193,7 @@ for (const [width, reduced] of [
 for (const width of [375, 1280]) await unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
 for (const width of [375, 1280]) await unit(`checkCardBar ${width}`, () => checkCardBar(width));
 for (const width of [375, 1280]) await unit(`checkCloseChangedSheet ${width}`, () => checkCloseChangedSheet(width));
+for (const width of [700, 1280]) await unit(`checkSheetFocusOnOpen ${width}`, () => checkSheetFocusOnOpen(width));
 for (const width of [375, 1280]) await unit(`checkImageTools ${width}`, () => checkImageTools(width));
 for (const width of [375, 1280]) await unit(`checkCropView ${width}`, () => checkCropView(width));
 for (const width of [375, 1280]) await unit(`checkAltSheet ${width}`, () => checkAltSheet(width));

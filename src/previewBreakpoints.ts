@@ -1,4 +1,4 @@
-// The window sizes the full-screen Preview (pagePreview.tsx) offers: the breakpoints the site and its theme have, read from
+// The window sizes the Preview (pagePreview.tsx) offers: the breakpoints the site and its theme have, read from
 // the page in the frame (the theme's `--breakpoint-*` on :root, theme/styles/base.css), so a theme with other breakpoints
 // shows its own; lib/breakpoints.mjs (Material 3's) is what a page without them gets. Also the page's height at each size.
 import { BREAKPOINTS, type Breakpoint } from '../lib/breakpoints.mjs';

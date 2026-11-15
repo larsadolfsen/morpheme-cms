@@ -56,6 +56,14 @@ owner sees screenshots in the pull request:
   squash-merges as usual under **Merging** (the owner never merges). *What to change*: the PM sends the change to the
   session of the pull request, or starts a new session with the whole task and the pull request's link when that session
   is gone; the new head gets new screenshots and a new report.
+
+  The PM opens the screenshot files itself and looks at them: it fetches the orphan branch `pr-screenshots/<number>`
+  (`git fetch origin pr-screenshots/<number>`, then `git archive` its `shots/` folder into the session's scratchpad
+  directory) and opens each PNG with the Read tool, which shows the image. It never reports on screenshots it has not
+  opened and never relies on a worker's description of them. Its report then says in one or two lines what the images
+  show (does the change match what the pull request says, anything odd), and for a screen the owner has to judge it
+  also sends the images with the file-sending tool (`SendUserFile`, `display: render`), so the owner sees them in the
+  conversation and not only on GitHub. A change nobody sees needs none of this.
 - **A change nobody sees** (docs, tests, CI, Worker internals, tooling) needs no screenshots and no approval, and is
   merged as usual.
 - There is no separate "screenshots" session and no Artifact page: the images live in the pull request.
@@ -163,7 +171,7 @@ owner still releases every version.
 
 ## Reports
 
-Short, English only (`CLAUDE.md`), and only what the owner has to do or decide. A pull request the owner has to act on is always assigned to them, and the report gives its link.
+Short, English only (`CLAUDE.md`), and only what the owner has to do or decide. A pull request the owner has to act on is always assigned to them, and the report gives its link. A report on a change the owner sees also shows the screenshots (*The owner approves what the owner sees*).
 
 Every suggestion, question or decision the PM puts to the owner follows Simon Sinek's Golden Circle ("Start with Why"):
 a title that names the action, then three parts, **one short sentence each**, always in this order:
