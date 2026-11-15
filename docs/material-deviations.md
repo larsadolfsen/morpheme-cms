@@ -275,3 +275,24 @@ Source: `theme/ui/Search.tsx` (`SearchView`), `theme/styles/ui.css` (`.search-vi
 - **Docked size:** specs print "Width Min: 360dp, max: 720dp" and "Height Min: 240dp, max: 2/3 of screen height"; the view follows both. M3 is silent on where a docked view stands without a bar: near the top, in the middle (palette spec).
 - **The view's corners and shadow:** the token values could not be read; the theme keeps its own (extra-large corners, elevation 3).
 - **Date:** 2026-11-15. **PR:** this pull request.
+
+### SV4. On a phone the search view is a page with a back arrow
+
+- **Material:** "Full-screen layout: Default for compact breakpoints"; "Full-screen expands to fill the screen"; "The back icon releases focus, dismisses any suggestions or results, and returns the search bar to its original state."
+- **We do:** on a phone the view is a layer the size of the window (a modal `<dialog>`, as the crop view, C1) with the back arrow leading its bar. It is full-size like M3's full-screen layout; it is built as a page of the editor, with no scrim and no corners, and the phone's back gesture closes it. From the medium width it is M3's docked layout under a scrim.
+- **Why:** owner rule, 15 Nov 2026 (relayed by the PM): "We have agreed on moving away from full screen and sidebar on mobile and instead using pages."
+- **Date:** 2026-11-15. **PR:** this pull request.
+
+### SV5. The focus starts in the search field, not on the back arrow
+
+- **Material:** accessibility: "Initial focus lands on the first interactive element. This is often a leading icon button or text field."
+- **We do:** the back arrow is the leading icon button and the text field has the focus when the view opens; no other control has it.
+- **Why:** owner rule for dialogs and views (no control has the focus at the start except the field), so a person can type at once; M3 says "often", not always.
+- **Date:** 2026-11-15. **PR:** this pull request.
+
+### SV6. The start screen shows the search bar all the time
+
+- **Material:** "Search app bar: Use this app bar variant when search is the primary, global function"; specs: "Container Width Min: 360dp, max: 720dp", "Height 56dp".
+- **We do:** on the start screen the top bar shows the contained search bar (56dp, a button that opens the view) in place of the search icon, on a phone and a computer; its hint, "Search actions and pages", is its name; the screen's title stays in the page for screen readers. Every other screen keeps the search icon button. On a phone the bar is under 360dp wide, as the menu button and the actions share the bar.
+- **Why:** owner, 15 Nov 2026 (relayed by the PM): "On the front page show the search field all the time". The search app bar for every screen is 0.20 (palette spec).
+- **Date:** 2026-11-15. **PR:** this pull request.

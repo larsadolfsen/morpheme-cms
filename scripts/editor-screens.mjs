@@ -828,7 +828,7 @@ async function checkSearchButton(width) {
       };
       const bar = document.querySelector('header');
       const heading = bar?.querySelector('h1');
-      const mine = [...(bar?.querySelectorAll('button[aria-label="Search"]') ?? [])].filter(visible);
+      const mine = [...(bar?.querySelectorAll('button[aria-label="Search"], .search-bar-field') ?? [])].filter(visible);
       // The bar's actions after the title, in the order they are in the page.
       const after = [...(bar?.querySelectorAll('button, a[href]') ?? [])].filter(
         (el) => visible(el) && heading && heading.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING,
@@ -865,7 +865,7 @@ async function checkCommandPalette(width) {
   const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
-  await page.waitForSelector('header button[aria-label="Search"]', { timeout: 15_000 });
+  await page.waitForSelector('header :is(button[aria-label="Search"], .search-bar-field)', { timeout: 15_000 });
   // A page of this site (the demo's and the starter's differ): the first of the pages list, found by its title further down.
   await page.evaluate(() => (location.hash = '#list/pages'));
   await page.waitForSelector('main a.list-item-container', { timeout: 15_000 }).catch(() => {});
@@ -878,7 +878,16 @@ async function checkCommandPalette(width) {
   )?.trim();
   await page.evaluate(() => (location.hash = ''));
   await page.waitForTimeout(300);
-  const button = page.locator('header button[aria-label="Search"]');
+  const button = page.locator('header :is(button[aria-label="Search"], .search-bar-field)');
+  // The start screen shows the search bar all the time (M3 contained, 56 px high), not the icon; other screens keep the icon.
+  const homeBar = await page.evaluate(() => {
+    const bar = document.querySelector('header .search-bar-field');
+    const r = bar?.getBoundingClientRect();
+    return { bar: !!r && r.width > 0, height: r?.height ?? 0, icon: !!document.querySelector('header button[aria-label="Search"]') };
+  });
+  if (!homeBar.bar || Math.abs(homeBar.height - 56) > 0.5)
+    problems.push(`${label}: the start screen has no 56 px search bar in its top bar (${JSON.stringify(homeBar)})`);
+  if (homeBar.icon) problems.push(`${label}: the start screen also has the search icon button`);
   const view = page.locator('[data-search-controlled] dialog[open]');
   const input = view.locator('input[role=combobox]');
   const options = view.locator('[role=option]');
@@ -963,7 +972,7 @@ async function checkCommandPalette(width) {
   // Escape closes it, and the focus is back on the button.
   await page.keyboard.press('Escape');
   await shut('after Escape');
-  if ((await focusOn()) !== 'BUTTON:Search:false')
+  if (!(await page.evaluate(() => !!document.activeElement?.matches('header :is(button[aria-label="Search"], .search-bar-field)'))))
     problems.push(`${label}: after Escape the focus is on ${await focusOn()}, not the search button`);
 
   // A place of the menu is found by its name; Enter goes there, closes the palette and puts the focus on the screen's heading.
@@ -1150,7 +1159,7 @@ async function checkEditorActions(width) {
 
   // Through the search button the selection stays, and Bold is first for "bold".
   {
-    await page.locator('header button[aria-label="Search"]').click();
+    await page.locator('header :is(button[aria-label="Search"], .search-bar-field)').click();
     await view.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the button does not open the palette`));
     if (!(await view.count())) return page.close();
     await page.waitForTimeout(300);
@@ -1193,7 +1202,7 @@ async function checkPaletteLast(width) {
   const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
-  await page.waitForSelector('header button[aria-label="Search"]', { timeout: 15_000 });
+  await page.waitForSelector('header :is(button[aria-label="Search"], .search-bar-field)', { timeout: 15_000 });
   const view = page.locator('[data-search-controlled] dialog[open]');
   const input = view.locator('input[role=combobox]');
   const options = view.locator('[role=option]');

@@ -19,6 +19,7 @@ import { useContext, useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Bell, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
 import { t } from './i18n';
+import { Svg } from './icon';
 import { IconButton, IconLink, MenuButton, TabPanel, TabRow, TopAppBar, useMenuLayout, type TabChoice } from './ui';
 import { up } from './nav';
 import EditorFooter from './EditorFooter';
@@ -123,6 +124,34 @@ export function SearchButton({ className = '' }: { className?: string }) {
   );
 }
 
+/** The search bar of the start screen (M3's contained search bar, 56dp, in the top bar in place of the search icon: "Search app bars have a search
+ * field instead of heading text"): a button that opens the command palette, as Ctrl+K and the icon do. Its hint is its name. */
+export function SearchBarButton() {
+  const open = usePaletteOpen();
+  return (
+    <div className="search-bar max-w-[45rem] min-w-0 flex-1">
+      <button
+        type="button"
+        className="search-bar-field"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-keyshortcuts={ariaShortcut('Mod+K')}
+        data-keeps-block=""
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={(e) => {
+          e.currentTarget.focus({ preventScroll: true });
+          openPalette();
+        }}
+      >
+        <span className="search-bar-leading">
+          <Svg name="search" size={24} />
+        </span>
+        <span className="search-bar-placeholder">{t.palette.label}</span>
+      </button>
+    </div>
+  );
+}
+
 export default function Screen<T extends string>({
   title,
   back,
@@ -188,7 +217,10 @@ export default function Screen<T extends string>({
             <ArrowLeft size={24} />
           </a>
         )}
-        <div className={`flex min-w-0 flex-1 flex-col ${home ? 'medium:pl-1' : 'pl-1'} ${full ? '' : 'expanded:hidden'}`}>
+        {/* The start screen's bar is the search bar: its title stays in the page for screen readers and the focus. */}
+        <div
+          className={`flex min-w-0 flex-col ${home && !selection ? 'sr-only' : `flex-1 ${home ? 'medium:pl-1' : 'pl-1'} ${full ? '' : 'expanded:hidden'}`}`}
+        >
           <h1 className="truncate text-title-large">{title}</h1>
           {status && (
             <p data-subtitle className="truncate text-xs text-on-surface-variant">
@@ -196,8 +228,14 @@ export default function Screen<T extends string>({
             </p>
           )}
         </div>
-        {!full && <div className="hidden min-w-0 flex-1 expanded:block" />}
-        {!selection && <SearchButton />}
+        {home && !selection ? (
+          <SearchBarButton />
+        ) : (
+          <>
+            {!full && <div className="hidden min-w-0 flex-1 expanded:block" />}
+            {!selection && <SearchButton />}
+          </>
+        )}
         <div className="flex shrink-0 items-center justify-end gap-1">
           {selection ?? (
             <>
