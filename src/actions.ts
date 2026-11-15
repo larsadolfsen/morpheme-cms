@@ -37,6 +37,10 @@ export type Ctx = {
   selection?: boolean;
   /** Some text is selected (not only a cursor). */
   hasSelection?: boolean;
+  /** What applies where the cursor is in a text (activeOf: strong, emphasis, link, h2, bullet, alignable …). */
+  active?: string[];
+  /** The heading levels the text may have (1, 2, 3). */
+  levels?: number[];
   canUndo?: boolean;
   canRedo?: boolean;
 };

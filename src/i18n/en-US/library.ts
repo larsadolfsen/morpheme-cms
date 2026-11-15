@@ -139,13 +139,13 @@ export const library = {
   /** A theme from the store (ThemeStore.tsx): installed, updated or uninstalled, asked before it is uninstalled, why
    * one in use cannot be, and under "Uninstall" when it can; a theme the store does not have; how many a developer
    * has made; and the commits, in the site's language (siteT). */
-  themeInstalled: (name: string) => `${name} is installed. You can choose it in a few minutes.`,
+  themeInstalled: (name: string) => `${name} is installed. You can select it in a few minutes.`,
   themeUpdated: (name: string, version: string) => `${name} is updated to ${version}. The website uses it in a few minutes.`,
   themeUninstalled: (name: string) => `${name} is uninstalled`,
   askUninstallTheme: (name: string) => `Uninstall ${name}? The theme is removed from the website.`,
-  themeStuck: 'The theme is in use and can’t be uninstalled. Choose another theme first.',
+  themeStuck: 'The theme is in use and can’t be uninstalled. Select another theme first.',
   themeUninstallHint: 'Can be uninstalled, as the website doesn’t use the theme.',
-  themePendingHint: 'You can choose the theme in a few minutes.',
+  themePendingHint: 'You can select the theme in a few minutes.',
   themeNotInStore: 'The theme isn’t in the Appstore',
   themeCount: (n: number) => (n === 1 ? '1 theme' : `${n} themes`),
   searchThemes: 'Search for themes',
@@ -185,22 +185,22 @@ export const library = {
   headerMenuButton: 'Menu button',
   /** Globals › Footer (FooterSettings.tsx): the groups of the footer's fields. */
   footerSections: { text: 'Text', contact: 'Contact', links: 'Links' },
-  /** Under "Side column" (SideColumn.tsx): the choice of no block and what is under it, what is said when no block can be
+  /** Under "Sidebar" (SideColumn.tsx): the choice of no block and what is under it, what is said when no block can be
    * drawn there, asked before one is chosen, the question's button, what is said after it is saved, and the commit, in
    * the site's language (siteT). */
   sideNone: 'None',
-  sideNoneHint: 'The pages have no column beside their text',
+  sideNoneHint: 'The pages have no sidebar',
   sideEmpty: 'No installed block can be drawn beside the text of a page.',
-  changeSideAsk: (name: string) => `The pages get the column ${name} once the website is built in a few minutes.`,
-  changeSideNoneAsk: 'The pages lose the column beside their text once the website is built in a few minutes.',
-  changeSide: 'Change side column',
+  changeSideAsk: (name: string) => `The pages get the sidebar ${name} once the website is built in a few minutes.`,
+  changeSideNoneAsk: 'The pages lose the sidebar once the website is built in a few minutes.',
+  changeSide: 'Change sidebar',
   sideSaved: (change: string) => `${change}. The website gets the change once it’s built.`,
-  sideCommit: (name: string) => `Editor: change side column to ${name}`,
-  sideCommitNone: 'Editor: turn off the side column',
+  sideCommit: (name: string) => `Editor: change sidebar to ${name}`,
+  sideCommitNone: 'Editor: turn off the sidebar',
   /** A theme whose icon pack is chosen cannot be uninstalled, nor updated to a version without it (ThemeStore.tsx). */
-  themeIconPackStuck: "The theme's icon pack is in use, so the theme can’t be uninstalled. Choose another icon pack first.",
+  themeIconPackStuck: "The theme's icon pack is in use, so the theme can’t be uninstalled. Select another icon pack first.",
   themeDropsIconPack: (name: string, pack: string) =>
-    `The new version of ${name} doesn’t have the icon pack ${pack}, which is in use. Choose another icon pack first.`,
+    `The new version of ${name} doesn’t have the icon pack ${pack}, which is in use. Select another icon pack first.`,
   theme: 'Appearance',
   themes: { light: 'Light', auto: 'Auto', dark: 'Dark' },
   density: 'Density',

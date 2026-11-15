@@ -9,6 +9,8 @@ export const palette: Messages['palette'] = {
   suggested: 'Foreslået',
   empty: (query) => `Ingen resultater for “${query}”`,
   none: 'Ingen resultater',
+  clearRecent: 'Ryd seneste handlinger',
+  shortcuts: 'Tastaturgenveje',
   count: (n) => (n === 1 ? '1 resultat' : `${n} resultater`),
   groups: {
     go: 'Gå til',

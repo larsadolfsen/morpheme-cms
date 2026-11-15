@@ -9,10 +9,12 @@ import { iconColorField } from '../../iconColor';
 import { t } from '../../i18n';
 import { headFields } from '../head';
 import { fromLine, nameWith, rowsFromFields, typed } from '../rows/fields';
+import { SLOTS } from '../rows/rows.mjs';
 
 type Row = { title?: string };
 
 export default defineBlock({
+  slots: SLOTS,
   group: 'lists',
   label: t.blocks.segmented.label,
   icon: SquaresFour,
@@ -54,7 +56,7 @@ export default defineBlock({
         { name: 'title', label: t.blocks.segmented.title, type: 'string', required: true },
         { name: 'text', label: t.blocks.segmented.text, type: 'text' },
         { name: 'href', label: t.blocks.segmented.href, type: 'relation', to: 'pages', hint: t.blocks.segmented.hrefHint },
-        // Text buttons at the bottom of an open row (the "more" links of an old Expandable list); drawn in a list that folds out.
+        // Text buttons at the bottom of an open row (the "more" links of an old Accordion); drawn in a list that folds out.
         {
           name: 'buttons',
           label: t.blocks.segmented.rowButtons,

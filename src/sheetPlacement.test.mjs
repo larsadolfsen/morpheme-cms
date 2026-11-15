@@ -68,3 +68,16 @@ test('the side sheet beside the page is live, every other look keeps Save and Ca
   assert.equal(liveSheet('choose', true), false);
   assert.equal(liveSheet(undefined, true), false);
 });
+
+test("'fields' on a compact window is a subpage and not in the panel", () => {
+  assert.equal(sheetLook('fields', false, true), 'subpage');
+  assert.equal(sheetLook('fields', false, false), 'modal-side-sheet');
+  assert.equal(sheetLook('fields', true, true), 'side-sheet');
+  assert.equal(inPanel('fields', false), false);
+});
+
+test('only the fields become a subpage on a compact window', () => {
+  assert.equal(sheetLook('section', false, true), 'sheet');
+  assert.equal(sheetLook('row', false, true), 'sheet');
+  assert.equal(sheetLook('choose', false, true), 'sheet');
+});
