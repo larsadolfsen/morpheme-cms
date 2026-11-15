@@ -1,4 +1,4 @@
-// "Business" › "Logo and icon" (#company/logo): a new logo (the mark by the site's name) and a new icon (the browser
+// "Business" › "Logo and favicon" (#company/logo): a new logo (the mark by the site's name) and a new icon (the browser
 // tab, Google and the editor's app icon), made from an image the owner picks (brand.ts), in the site's colours
 // ("Colors"). Both are saved together in one commit with "Save changes".
 import { useEffect, useState } from 'react';
@@ -147,6 +147,7 @@ export default function BrandForm({ env }: { env: Env }) {
       </section>
       <section>
         <h2 className="mb-1 font-medium">{t.company.brand.icon}</h2>
+        <p className="mb-3 text-sm text-on-surface-variant">{t.company.brand.iconHint}</p>
         <div className="flex flex-wrap items-center gap-4">
           <img
             data-icon-preview

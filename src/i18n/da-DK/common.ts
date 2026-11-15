@@ -101,7 +101,7 @@ export const common: Messages['common'] = {
     motion: 'Bevægelse',
     sideColumn: 'Sidekolonne',
     colors: 'Farver',
-    brand: 'Logo og ikon',
+    brand: 'Logo og favicon',
     blockSettings: 'Blokindstillinger',
     apps: 'Apps',
     editorParts: 'Komponenter',

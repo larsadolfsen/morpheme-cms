@@ -121,7 +121,7 @@ export const common = {
     /** The block drawn in a column beside the text of the pages (#global/side-column, SideColumn.tsx). */
     sideColumn: 'Side column',
     colors: 'Colors',
-    brand: 'Logo and icon',
+    brand: 'Logo and favicon',
     blockSettings: 'Block settings',
     /** The apps that come with the site (AppList.tsx, #apps). */
     apps: 'Apps',
