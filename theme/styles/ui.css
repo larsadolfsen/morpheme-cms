@@ -2042,11 +2042,11 @@
       display: none;
     }
     .bottom-sheet-fit {
-      max-height: min(80vh, 52rem);
+      max-height: min(80dvh, 52rem);
     }
     .bottom-sheet-full {
       width: min(92vw, 80rem);
-      height: 90vh;
+      height: 90dvh;
     }
     :where(.bottom-sheet-container:not(.bottom-sheet-standard, [data-wide='side-sheet'], [data-wide='sheet'])) > .bottom-sheet-header {
       padding-top: 1rem;
@@ -2268,7 +2268,10 @@
     height: var(--carousel-dot-size, 0.5rem);
     border-radius: var(--mo-shape-full);
     background: var(--carousel-dot-colour, var(--block-line));
-    transition: all var(--motion-spatial);
+    transition:
+      width var(--motion-spatial),
+      height var(--motion-spatial),
+      background-color var(--motion-effects);
   }
   .carousel-indicator-dot[aria-current='true'] > span {
     width: var(--carousel-dot-selected-width, 1.25rem);
@@ -6437,7 +6440,7 @@
     --search-bar-font-size
     --search-view-surface, --search-view-radius, --search-view-line, --search-view-shadow, --search-view-scrim,
     --search-view-header-height, --search-view-header-surface, --search-view-header-radius, --search-view-header-margin,
-    --search-view-container-surface, --search-view-docked-surface, --search-view-docked-gap, --search-view-docked-shadow, --search-view-divider, --search-view-max-height, --search-view-results-padding,
+    --search-view-container-surface, --search-view-docked-surface, --search-view-docked-radius, --search-view-docked-gap, --search-view-docked-shadow, --search-view-divider, --search-view-max-height, --search-view-results-padding,
     --search-view-option-surface, --search-view-group-gap, --search-view-group-label-text, --search-view-top-default,
     --search-view-width-default
   Toolbars (Toolbar, toolbarClass, toolbar.script.ts; m3.material.io/components/toolbars, M3 Expressive): .toolbar with
@@ -6989,14 +6992,14 @@
     box-shadow: none;
   }
   /* M3 specs, tokens (contained, read 15 Nov 2026): "Search view contained docked bar results gap 2dp": the bar, where the bar was, and the results container
-     under it. The bar has no margin of its own then; its container is "Surface container high" and rounded like the results'. */
+     under it. The bar has no margin of its own then (Compose and Material Web keep the bar where it was). Shapes, from Material Web's tokens (`search-view`): bar `contained-docked-bar-shape` corner-full, results `contained-docked-results-shape` corner-medium (12dp, as Compose's `dockedDropdownShape`); 28dp (`docked-container-shape`, extra large) is the divided style's one container. */
   div.search-view-docked .search-view-header {
     margin: 0;
   }
   div.search-view-docked .search-view-body {
     margin-top: var(--search-view-docked-gap, 0.125rem);
     overflow: hidden;
-    border-radius: var(--search-view-radius, var(--mo-shape-extra-large));
+    border-radius: var(--search-view-docked-radius, var(--mo-shape-medium));
     background: var(--search-view-docked-surface, var(--mo-surface-container-high));
     box-shadow: var(--search-view-docked-shadow, none);
   }
