@@ -2056,3 +2056,14 @@ dialog {
     overflow-x: visible;
   }
 }
+
+/* The Keyboard shortcuts dialog (ShortcutsSheet.tsx) is a dialog in the middle of the screen on a computer, not a sheet from the bottom: no drag handle. */
+.shortcuts-dialog .bottom-sheet-drag-handle {
+  display: none;
+}
+.shortcuts-dialog .bottom-sheet-header {
+  padding-top: 1.25rem;
+}
+.shortcuts-dialog:focus {
+  outline: none;
+}
