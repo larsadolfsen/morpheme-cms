@@ -102,12 +102,19 @@ export const pageColor = (set: ColorSet): string => set.surface;
  * computer is set to it (unless light is picked, data-theme="light" on <html>) and when dark is picked.
  * Throws on anything that is not a colour, so a broken file never reaches a page. */
 export function colorsCss(colors: Colors): string {
-  const dark = declarations(colors.dark);
-  return (
-    `:root{${declarations(colors.light)}}` +
-    `@media (prefers-color-scheme: dark){:root:not([data-theme='light']){${dark}}}` +
-    `:root[data-theme='dark']{${dark}}`
-  );
+  // SPIKE: one light-dark() token per role that both modes have; a role in one mode only keeps the old two-block form.
+  const both = Object.keys(colors.light).filter((name) => Object.hasOwn(colors.dark, name));
+  const only = (set: ColorSet, other: ColorSet) => Object.fromEntries(Object.entries(set).filter(([name]) => !Object.hasOwn(other, name)));
+  const tokens = both
+    .map((name) => {
+      if (!NAME.test(name) || !isColor(colors.light[name]) || !isColor(colors.dark[name]))
+        throw new Error(`Not a colour: ${name}: ${JSON.stringify([colors.light[name], colors.dark[name]])}`);
+      return `--mo-${name}:light-dark(${colors.light[name]},${colors.dark[name]});`;
+    })
+    .join('');
+  const light = declarations(only(colors.light, colors.dark));
+  const dark = declarations(only(colors.dark, colors.light));
+  return `:root{${tokens}${light}}` + (dark ? `@media (prefers-color-scheme: dark){:root:not([data-theme='light'])` + `{${dark}}}:root[data-theme='dark']{${dark}}` : '');
 }
 
 // A colour's relative luminance (WCAG 2).
