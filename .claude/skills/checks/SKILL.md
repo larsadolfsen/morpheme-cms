@@ -15,6 +15,16 @@ Announce "Using checks". Run every command from the root of this repository, on 
 the changeset (skill `changesets`). Its job `check` waits for them all and must be green on the current head before the
 PM merges.
 
+**A docs-only pull request skips the heavy jobs** (`screens`, `screens-extra`, `demo`, `starter`); `static` (Prettier, language,
+changeset, `npm run check`) always runs. The first job `changes` decides from `git diff --name-only origin/<base>...HEAD`
+(`scripts/ci-changes.mjs`, tested in `scripts/ci-changes.test.mjs`). Docs-only means every changed file is under
+`.claude/skills/` or `docs/`, is a changeset (`.changeset/*.md`), or is `CLAUDE.md`, `AGENTS.md`, `README.md` or `SECURITY.md`.
+`release-notes/` and `CHANGELOG.md` are never skipped (`check:release-notes`, the notes tests and the editor's build read them), and
+neither are the Release PR, an empty diff or any other path: when in doubt, everything runs. There is no `paths-ignore`, because
+`check` must always report. It is green when `static` and `changes` are green and each heavy job is green, or skipped on a
+docs-only pull request; a failed, cancelled or wrongly skipped job makes it red. To put a folder on the list, first find which
+checks read it (`grep` the scripts and tests) and change the list and its test in `scripts/ci-changes.mjs` only.
+
 A new push to a pull request cancels that pull request's older queued and running `Check` runs (`concurrency` in
 `check.yml`); only the newest head's run counts.
 
@@ -34,6 +44,7 @@ A new push to a pull request cancels that pull request's older queued and runnin
 | `npm run check:phosphor` | icons in code changed | No new direct `@phosphor-icons/react` import (allowlist with reasons in `scripts/phosphor-allowlist.json`). |
 | `npm run check:web` | CSS, layout, dialogs, colour scheme or forms changed | Modern Web Guidance's `legacy-scan` on `src/`, `theme/`, `pages/`, `lib/`, `worker/`, `starter/` and `demo/`: no new legacy pattern, and no allowlist entry that no longer matches (`scripts/web-allowlist.json`: key `<folder>/<file>` + rule id, `max`, `why`; a fix lowers or removes its entry; `node scripts/check-web.mjs --list` prints the current counts). A conflict with Material 3 or a theme component goes to the PM, never into the list without a reason. Part of `npm run check`, so CI's `static` job runs it. |
 | `node --test scripts/pending-shared.test.mjs` | `worker/*.js` changed | No pending I/O promise kept in module memory (`CLAUDE.md`, *Worker*). |
+| `cd .morpheme/demo/site && node ../../../scripts/measure-speed.mjs` | by hand, after `npm run build`, when a speed claim or a performance fix needs numbers (a few minutes, not in CI or `npm run check`; the numbers depend on the machine, so compare runs on the same one) | LCP, CLS, TBT, long tasks, long animation frames and the INP of scripted interactions (open menu, open a sheet, type, scroll, search) on the site's key pages and the editor's key screens, on a phone (375 px, CPU 4x) and a computer. `--runs N`, `--profile mobile\|desktop`, `--only <text>`, `--json <file>`; `CHROMIUM_PATH` for another Chromium. Baseline and method: `docs/performance-baseline.md`. |
 | `npm run check:contrast` | by hand, after `npm run build`, when colours or blocks changed (about 4 minutes per theme, not in CI) | WCAG AA contrast of every block's text, icons and control borders on each section colour, on the site and typed in place in the editor, light and dark, phone and computer. `--all` runs every installed theme; `CONTRAST_DENSITY=-1` checks the editor at Small density. |
 
 When a job fails, run the same command locally, fix the cause, and push again; never skip, disable or loosen a check
