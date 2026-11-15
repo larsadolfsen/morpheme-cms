@@ -217,7 +217,7 @@ export const forms = {
   fromTitle: 'Created from the title the first time you save the page.',
   noIcon: 'No icon',
   /** Under a page's templates while the side-panel ones are greyed: the link to Globals › Side column. */
-  chooseSideColumn: 'Select a block for the side column',
+  chooseSideColumn: 'Select a block for the sidebar',
   iconCategory: 'Icon categories',
   showMoreIcons: 'Show more',
   iconCategories: {
