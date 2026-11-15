@@ -2042,11 +2042,11 @@
       display: none;
     }
     .bottom-sheet-fit {
-      max-height: min(80vh, 52rem);
+      max-height: min(80dvh, 52rem);
     }
     .bottom-sheet-full {
       width: min(92vw, 80rem);
-      height: 90vh;
+      height: 90dvh;
     }
     :where(.bottom-sheet-container:not(.bottom-sheet-standard, [data-wide='side-sheet'], [data-wide='sheet'])) > .bottom-sheet-header {
       padding-top: 1rem;
@@ -2268,7 +2268,10 @@
     height: var(--carousel-dot-size, 0.5rem);
     border-radius: var(--mo-shape-full);
     background: var(--carousel-dot-colour, var(--block-line));
-    transition: all var(--motion-spatial);
+    transition:
+      width var(--motion-spatial),
+      height var(--motion-spatial),
+      background-color var(--motion-effects);
   }
   .carousel-indicator-dot[aria-current='true'] > span {
     width: var(--carousel-dot-selected-width, 1.25rem);

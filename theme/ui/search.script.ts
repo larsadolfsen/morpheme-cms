@@ -6,6 +6,7 @@
 // are on. The page under it does not scroll while it is open. Run on every page by the theme's Base.astro
 // (blockScripts, packages/editor/site/blockScripts.ts); without a search it does nothing.
 import { atLeast } from '@morphemecms/cms/lib/breakpoints.mjs';
+import { isActionEnter } from '@morphemecms/cms/lib/enterKey.mjs';
 
 const fold = (text: string) => text.toLocaleLowerCase().normalize('NFKD').replace(/\p{M}/gu, '').trim();
 
@@ -85,7 +86,7 @@ export default function search() {
       const at = active ? list.indexOf(active) : -1;
       if (e.key === 'ArrowDown') choose(list[(at + 1) % list.length]);
       else if (e.key === 'ArrowUp') choose(list[at <= 0 ? list.length - 1 : at - 1]);
-      else if (e.key === 'Enter' && active) active.click();
+      else if (isActionEnter(e) && active) active.click();
       else return;
       e.preventDefault();
     });
