@@ -2042,11 +2042,11 @@
       display: none;
     }
     .bottom-sheet-fit {
-      max-height: min(80vh, 52rem);
+      max-height: min(80dvh, 52rem);
     }
     .bottom-sheet-full {
       width: min(92vw, 80rem);
-      height: 90vh;
+      height: 90dvh;
     }
     :where(.bottom-sheet-container:not(.bottom-sheet-standard, [data-wide='side-sheet'], [data-wide='sheet'])) > .bottom-sheet-header {
       padding-top: 1rem;
@@ -2223,7 +2223,15 @@
     }
   }
 
-  /* A carousel: its items in a row to swipe, and the page indicator under them. */
+  /* A carousel: its items in a row to swipe, and the page indicator under them.
+     The number of items in view follows the carousel's own width, not the window's: a carousel in a narrow column or a side sheet shows one item at a
+     time on a wide window too (Modern Web Guidance, `responsive-design` and `size-aware-styling`: "Use @container queries to create component-driven
+     responsive layouts"). The widths are M3's window classes less the page margins (16 dp below medium, 24 dp from it), so a carousel as wide as the
+     page changes where it did: 2 items from 35.5rem (medium, 600 dp, less 2 x 16 dp; a page at 600 to 615 dp shows one), 3 from 49.5rem (expanded, 840 dp,
+     less 2 x 24 dp). The page's own columns stay on the window (breakpoints in lib/breakpoints.mjs). */
+  .carousel {
+    container: carousel / inline-size;
+  }
   .carousel-items {
     display: flex;
     gap: var(--carousel-gap, 0.5rem);
@@ -2268,25 +2276,26 @@
     height: var(--carousel-dot-size, 0.5rem);
     border-radius: var(--mo-shape-full);
     background: var(--carousel-dot-colour, var(--block-line));
-    transition: all var(--motion-spatial);
+    transition:
+      width var(--motion-spatial),
+      height var(--motion-spatial),
+      background-color var(--motion-effects);
   }
   .carousel-indicator-dot[aria-current='true'] > span {
     width: var(--carousel-dot-selected-width, 1.25rem);
     background: var(--carousel-dot-selected-colour, var(--block-accent));
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @container carousel (width >= 35.5rem) {
     .carousel-item {
       width: calc((100% - 1rem) / 2);
     }
-  }
-  @media (width >= theme(--breakpoint-medium)) {
     .carousel-items {
       margin: 0;
       padding: 0;
       scroll-padding-inline: 0;
     }
   }
-  @media (width >= theme(--breakpoint-expanded)) {
+  @container carousel (width >= 49.5rem) {
     .carousel-item {
       width: calc((100% - 2rem) / 3);
     }
@@ -2670,8 +2679,14 @@
   .list-item-supporting {
     display: block;
   }
-  /* Columns: on a wide screen the headline and the supporting text side by side, each in half the item's text. */
-  @media (width >= theme(--breakpoint-expanded)) {
+  /* Columns: when the item is wide the headline and the supporting text side by side, each in half the item's text. This follows the item's own
+     width, not the window's: an item in a narrow column or a side sheet keeps them under each other on a wide window too (Modern Web Guidance,
+     `responsive-design` and `size-aware-styling`). A container query measures the content box: 47.5rem is M3's expanded window (840 dp) less the page's
+     2 x 24 dp margins and the item's own 2 x 16 dp padding, so an item as wide as the page changes where it did. */
+  .list-item-columns {
+    container: list-item / inline-size;
+  }
+  @container list-item (width >= 47.5rem) {
     .list-item-columns .list-item-content {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -5748,7 +5763,7 @@
     --snackbar-line-height, --snackbar-link-weight
     --snackbar-action-text, --snackbar-action-hover, --snackbar-close-text, --snackbar-close-size
   Tooltips (Tooltip, tooltipClass; m3.material.io/components/tooltips): .tooltip-anchor ([data-tooltip], shown with
-  [data-tooltip-open] by ../ui/tooltip.script.ts, under its anchor with [data-tooltip-below]) with what it is about and
+  [data-tooltip-open] by ../ui/tooltip.script.ts, placed by CSS anchor positioning, and where the browser lacks it by the script, which puts [data-tooltip-below] under its anchor) with what it is about and
   its .tooltip, .tooltip-plain (a short label, in the middle over it) or .tooltip-rich (.tooltip-subhead,
   .tooltip-supporting-text and optionally .tooltip-actions with a text button, .tooltip-action; from its anchor's start).
     --tooltip-gap (between it and its anchor)
@@ -6202,6 +6217,63 @@
     display: flex;
     margin: 0.25rem 0 -0.25rem calc(-1 * var(--button-text-padding, 1rem));
   }
+  /* Anchor positioning (css-layout §5, position-aware-tooltips): where the browser has it, the browser places the tooltip
+     and ui/tooltip.script.ts does not. Plain: over its anchor, in the middle; rich: over it from its start. Both go under
+     the anchor when there is no room above (flip-block), then hang from the anchor's other side, then sit in the middle of
+     the window, always 0.5rem inside it (the tooltip's insets; the one on the anchor's side is the gap). Without it the rules above and the script do the same.
+     Same look, sizes and motion. */
+  @supports (anchor-name: --a) and (anchor-scope: --a) and (position-area: top) {
+    .tooltip-anchor {
+      anchor-scope: --tooltip;
+      anchor-name: --tooltip;
+    }
+    .tooltip {
+      position: fixed;
+      position-anchor: --tooltip;
+      position-area: block-start;
+      inset: 0.5rem;
+      inset-block-end: var(--tooltip-gap, 0.25rem);
+      margin: 0;
+      translate: none;
+      position-try-fallbacks:
+        flip-block, --tooltip-top-end, --tooltip-top-start, --tooltip-bottom-end, --tooltip-bottom-start, --tooltip-top-window,
+        --tooltip-bottom-window;
+    }
+    .tooltip-rich {
+      position-area: block-start span-inline-end;
+      inset-inline: 0 0.5rem;
+      position-try-fallbacks: flip-block, --tooltip-top-start, --tooltip-bottom-start, --tooltip-top-window, --tooltip-bottom-window;
+    }
+    @position-try --tooltip-top-end {
+      position-area: block-start span-inline-end;
+      inset-inline: 0 0.5rem;
+    }
+    @position-try --tooltip-top-start {
+      position-area: block-start span-inline-start;
+      inset-inline: 0.5rem 0;
+    }
+    @position-try --tooltip-bottom-end {
+      position-area: block-end span-inline-end;
+      inset-inline: 0 0.5rem;
+      inset-block: var(--tooltip-gap, 0.25rem) 0.5rem;
+    }
+    @position-try --tooltip-bottom-start {
+      position-area: block-end span-inline-start;
+      inset-inline: 0.5rem 0;
+      inset-block: var(--tooltip-gap, 0.25rem) 0.5rem;
+    }
+    @position-try --tooltip-top-window {
+      position-area: block-start;
+      inset-inline: 0.5rem;
+      justify-self: center;
+    }
+    @position-try --tooltip-bottom-window {
+      position-area: block-end;
+      inset-inline: 0.5rem;
+      justify-self: center;
+      inset-block: var(--tooltip-gap, 0.25rem) 0.5rem;
+    }
+  }
 }
 
 @keyframes button-busy-shrink {
@@ -6437,7 +6509,7 @@
     --search-bar-font-size
     --search-view-surface, --search-view-radius, --search-view-line, --search-view-shadow, --search-view-scrim,
     --search-view-header-height, --search-view-header-surface, --search-view-header-radius, --search-view-header-margin,
-    --search-view-container-surface, --search-view-docked-surface, --search-view-docked-gap, --search-view-docked-shadow, --search-view-divider, --search-view-max-height, --search-view-results-padding,
+    --search-view-container-surface, --search-view-docked-surface, --search-view-docked-radius, --search-view-docked-gap, --search-view-docked-shadow, --search-view-divider, --search-view-max-height, --search-view-results-padding,
     --search-view-option-surface, --search-view-group-gap, --search-view-group-label-text, --search-view-top-default,
     --search-view-width-default
   Toolbars (Toolbar, toolbarClass, toolbar.script.ts; m3.material.io/components/toolbars, M3 Expressive): .toolbar with
@@ -6989,14 +7061,14 @@
     box-shadow: none;
   }
   /* M3 specs, tokens (contained, read 15 Nov 2026): "Search view contained docked bar results gap 2dp": the bar, where the bar was, and the results container
-     under it. The bar has no margin of its own then; its container is "Surface container high" and rounded like the results'. */
+     under it. The bar has no margin of its own then (Compose and Material Web keep the bar where it was). Shapes, from Material Web's tokens (`search-view`): bar `contained-docked-bar-shape` corner-full, results `contained-docked-results-shape` corner-medium (12dp, as Compose's `dockedDropdownShape`); 28dp (`docked-container-shape`, extra large) is the divided style's one container. */
   div.search-view-docked .search-view-header {
     margin: 0;
   }
   div.search-view-docked .search-view-body {
     margin-top: var(--search-view-docked-gap, 0.125rem);
     overflow: hidden;
-    border-radius: var(--search-view-radius, var(--mo-shape-extra-large));
+    border-radius: var(--search-view-docked-radius, var(--mo-shape-medium));
     background: var(--search-view-docked-surface, var(--mo-surface-container-high));
     box-shadow: var(--search-view-docked-shadow, none);
   }
@@ -7061,6 +7133,13 @@
     font: inherit;
     font-size: var(--search-bar-font-size, var(--type-body-large-size));
     outline: none;
+  }
+  /* Keyboard and pointer focus in the field: the same 2dp accent ring as the search bar's, drawn on the bar container (a deviation from the
+     M3 search page, which prints none; owner, 15 Nov 2026, for Google's accessibility guide: a visible focus indicator is mandatory).
+     The transparent outline is what forced-colors mode draws. */
+  .search-view-header:has(.search-view-input:focus-visible) {
+    box-shadow: inset 0 0 0 2px var(--block-accent);
+    outline: 2px solid transparent;
   }
   .search-view-input::placeholder {
     color: var(--search-bar-placeholder, var(--block-muted));

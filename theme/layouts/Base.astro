@@ -141,6 +141,7 @@ const jsonLd = {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="alternate" type="application/rss+xml" title={`${site.name} blog`} href="/rss.xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content={colors.light.surface} media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content={colors.dark.surface} media="(prefers-color-scheme: dark)" />
     <style is:inline data-page-colors data-app={colorsApp} data-picture={colorsPicture} set:html={colorsCss(colors)}></style>
@@ -150,7 +151,10 @@ const jsonLd = {
       document.documentElement.classList.add('js');
       try {
         const t = localStorage.getItem('theme');
-        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+        if (t === 'light' || t === 'dark') {
+          document.documentElement.dataset.theme = t;
+          document.querySelector('meta[name="color-scheme"]').content = t;
+        }
       } catch {}
       // Safety net: never leave content hidden if the motion script fails to load. When it has loaded
       // (the theme's scripts/motion.ts sets data-motion), the sections not yet scrolled to wait for it.
@@ -231,6 +235,7 @@ const jsonLd = {
           const isDark = root.dataset.theme === 'dark' || (!root.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
           const next = isDark ? 'light' : 'dark';
           root.dataset.theme = next;
+          document.querySelector('meta[name="color-scheme"]')?.setAttribute('content', next);
           try {
             localStorage.setItem('theme', next);
           } catch {}

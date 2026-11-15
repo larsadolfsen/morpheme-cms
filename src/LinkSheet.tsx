@@ -9,6 +9,7 @@ import PagePicker, { type Group } from './PagePicker';
 import { Button, SegmentedButton, BottomSheet, SheetActions, SheetBody, SheetTitle, TextField } from './ui';
 import { closeChanged } from './ask';
 import { t } from './i18n';
+import { isActionEnter } from '../lib/enterKey.mjs';
 
 /** The new address of the link and the text it is shown as (the page's name, the address), '' to
  * remove it, or null when nothing is to be done. */
@@ -116,7 +117,7 @@ export function LinkAsk({ groups }: { groups: Group[] }) {
             autoCorrect="off"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), use())}
+            onKeyDown={(e) => isActionEnter(e) && (e.preventDefault(), use())}
           />
         )}
       </SheetBody>
