@@ -43,7 +43,7 @@ import { byText, type Field, type Template } from './schema';
 import { preview, siteBlocks } from './registry';
 import { apps } from './site';
 import { headed, letterOf } from './Sheet';
-import CropField, { type Cut } from './Crop';
+import { cropView, type Cut } from './CropView';
 import { t } from './i18n';
 import { snackbar } from '../lib/snackbar';
 import { closeChanged } from './ask';
@@ -54,23 +54,16 @@ import { setPanelOpen } from './sidePanel';
 import { SiteSideSheet, siteSideSheet, siteSideSheetDialogClass, siteStandardSideSheet } from './themeUi';
 import { typedInPlace } from './typedInPlace.mjs';
 
-/** Where an image's sheet opens (the bar's tools, image tools spec section 4): its crop (Crop, until the crop view of PR 3) or its Alt text field (Alt text,
- * until the alt text sheet of PR 4). */
-export type EditFocus = 'crop' | 'alt';
+/** Where an image's sheet opens (the bar's Alt text, until the alt text sheet of PR 4): its Alt text field. */
+export type EditFocus = 'alt';
 
-/** Scrolls the open sheet to `focus` and puts the focus there, once the sheet has drawn it (it opens after the one before it has closed). */
-function reach(focus: EditFocus) {
+/** Scrolls the open sheet to its Alt text field and puts the focus there, once the sheet has drawn it (it opens after the one before it has closed). */
+function reachAlt() {
   let tries = 0;
   const go = () => {
     const sheet = [...document.querySelectorAll<HTMLElement>('dialog[open], .editor-side-sheet')].at(-1);
-    const target =
-      focus === 'crop'
-        ? (sheet?.querySelector<HTMLElement>('[aria-labelledby="crop-format"] :is([aria-checked="true"], [aria-pressed="true"])') ??
-          sheet?.querySelector<HTMLElement>('[aria-labelledby="crop-format"] button'))
-        : (() => {
-            const label = [...(sheet?.querySelectorAll('label') ?? [])].find((l) => l.textContent?.trim() === t.blocks.picture.alt);
-            return label?.htmlFor ? sheet?.querySelector<HTMLElement>(`[id="${CSS.escape(label.htmlFor)}"]`) : null;
-          })();
+    const label = [...(sheet?.querySelectorAll('label') ?? [])].find((l) => l.textContent?.trim() === t.blocks.picture.alt);
+    const target = label?.htmlFor ? sheet?.querySelector<HTMLElement>(`[id="${CSS.escape(label.htmlFor)}"]`) : null;
     if (!target) return void (tries++ < 40 && setTimeout(go, 50));
     target.scrollIntoView({ block: 'center' });
     target.focus({ preventScroll: true });
@@ -81,6 +74,8 @@ function reach(focus: EditFocus) {
 
 export type BlockAsk = {
   list: SiteBlock[];
+  /** An image can be cut here (the bar's Crop, the sheet's Aspect ratio): not in a Banner's text, nor on a fixed page. */
+  canCrop: boolean;
   /** What the text may have of them (collections.ts): what is offered, and the cards' menus. */
   template?: Template;
   /** What the cards say about the blocks comes from (describe in blocks.ts). */
@@ -158,7 +153,7 @@ const SECTION = 'section';
 /** The choice of an image in the sheet ("+" in the toolbar, MarkdownEditor.tsx), and an image in the
  * text, which is changed here like a block's fields: another from the gallery, and its description, or
  * that it is decorative (then it has none, marked in its address: crop.mjs);
- * and its format and crop (Crop.tsx, props format and crop), but not on a fixed page, whose images
+ * and its format and crop (CropView.tsx, props format and crop), but not on a fixed page, whose images
  * are the sections' own (sections.mjs). */
 export const IMAGE = 'image';
 const image: SiteBlock = {
@@ -392,6 +387,7 @@ export function useBlockDialog(
 
   const asker: BlockAsk = {
     list,
+    canCrop: crop && !data.page,
     template,
     data,
     choose: (offer) => ask({ step: 'choose', image: offer?.image, have: offer?.have, live: offer?.live }),
@@ -421,7 +417,7 @@ export function useBlockDialog(
     },
     edit: async (type, props, isNew = false, linked, focus) => {
       const fields = blockOf(type)?.fields ?? [];
-      if (focus) reach(focus);
+      if (focus === 'alt') reachAlt();
       // A block on the page with what a field it has no value for means; a new one with the defaults.
       const a = await ask({ step: 'fields', type, isNew }, isNew ? { ...newValue(fields), ...props } : savedValue(fields, props), linked);
       return a && a.props;
@@ -430,7 +426,9 @@ export function useBlockDialog(
 
   // The fields as they would be saved, to compare.
   function asWritten(type: string, props: BlockProps) {
-    return JSON.stringify(clean(blockOf(type)?.fields ?? [], props));
+    // An image's aspect ratio and crop are not fields, but closing the sheet after changing them asks as it does for a field.
+    const cut = type === IMAGE ? [String(props.format ?? ''), props.crop ?? null] : null;
+    return JSON.stringify([clean(blockOf(type)?.fields ?? [], props), cut]);
   }
 
   function pick(type: string) {
@@ -593,17 +591,37 @@ export function useBlockDialog(
               )}
               {block?.preview && <Preview>{preview(block.type, values, data)}</Preview>}
               <WrongField.Provider value={wrongField.field}>
-                <FieldList fields={settingsFields(block!)} value={values} onChange={(v) => changeFields(v as BlockProps)} />
-              </WrongField.Provider>
-              {block!.type === IMAGE && crop && !data.page && !!values.src && (
-                <CropField
-                  src={String(values.src)}
-                  format={String(values.format ?? '')}
-                  crop={(values.crop as Cut) ?? null}
-                  onChange={(next) =>
-                    changeFields({ ...values, ...next({ format: String(values.format ?? ''), crop: (values.crop as Cut) ?? null }) })
+                <FieldList
+                  fields={settingsFields(block!)}
+                  value={values}
+                  // Another image starts as Original, with no crop (image tools spec, decision 5).
+                  onChange={(v) =>
+                    changeFields(
+                      block!.type === IMAGE && (v as BlockProps).src !== values.src
+                        ? { ...(v as BlockProps), format: '', crop: null }
+                        : (v as BlockProps),
+                    )
                   }
                 />
+              </WrongField.Provider>
+              {block!.type === IMAGE && crop && !data.page && !!values.src && (
+                // The aspect ratio is one row: its value and an arrow; it opens the crop view over the sheet, and Save there brings the new ratio and crop
+                // back here (the sheet's own Save keeps them in the page: one change, one Save).
+                <ul className="-mx-3">
+                  <ListItem
+                    headline={t.media.crop.ratio}
+                    count={String(values.format ?? '') || t.media.crop.original}
+                    arrow
+                    onClick={async () => {
+                      const next = await cropView({
+                        src: String(values.src),
+                        format: String(values.format ?? ''),
+                        crop: (values.crop as Cut) ?? null,
+                      });
+                      if (next) changeFields({ ...values, format: next.format, crop: next.crop });
+                    }}
+                  />
+                </ul>
               )}
               {problem && <ProblemNote>{problem}</ProblemNote>}
             </>

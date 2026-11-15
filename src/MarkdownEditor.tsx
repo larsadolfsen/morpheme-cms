@@ -75,6 +75,7 @@ import { TEXT_COLORS, colorClass } from '../lib/text-colors.mjs';
 import { sectionAttrs, sectionHeading, sectionSettingsOf, setSection } from './sectionState.mjs';
 import { sectionFrame } from './sectionFrame';
 import { IMAGE, type BlockAsk, type EditFocus, type LiveBlock } from './BlockDialog';
+import { cropView } from './CropView';
 import { askLink } from './LinkSheet';
 import { atLeastNow, Menu, MenuDivider, MenuItem, Toolbar, ToolbarButton } from './ui';
 import { editsInPanel, liveSheet } from './sheetPlacement.mjs';
@@ -101,6 +102,7 @@ import { leaveTo } from './FormFrame';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { snackbar } from '../lib/snackbar';
+import { actions, changeToActions } from './actions';
 import { SiteSnackbar } from './themeUi';
 import { changeTo, targets } from '../lib/changeTo.mjs';
 import { t } from './i18n';
@@ -122,7 +124,7 @@ import { ask } from './ask';
 import { canPress, edgeScroll, movedAway } from '@theme/ui/longPressRules.mjs';
 import { canLabel, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
-import { AaIcon, AddIcon, BodyA1Icon, BodyA2Icon, BodyA3Icon, CloseIcon, MoreVertIcon } from './icon';
+import { AaIcon, AddBlockIcon, BodyA1Icon, BodyA2Icon, BodyA3Icon, CloseIcon, MoreVertIcon } from './icon';
 import { editElsewhereIcon, settingsHereIcon } from './meaningIcons';
 import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
 import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
@@ -1130,8 +1132,8 @@ function imageCard(
   img.alt = '';
   if (cut) img.style.cssText = cut.img;
   if (node.attrs.title) img.title = node.attrs.title;
-  // Its sheet (Settings, and from expanded a tap); `focus`: open at its crop (Crop) or its Alt text field (Alt text). From expanded the sheet is
-  // live: it changes the image at once (liveImage), and answers null.
+  // Its sheet (Settings, and from expanded a tap); `focus`: open at its Alt text field (Alt text). From expanded the sheet is live: it changes the
+  // image at once (liveImage), and answers null.
   const describe = async (focus?: EditFocus) => {
     const at = getPos();
     const live = () => (at === undefined ? null : liveImage(view, at));
@@ -1145,6 +1147,15 @@ function imageCard(
   const remove = () => {
     const pos = getPos();
     if (pos !== undefined) view.dispatch(view.state.tr.delete(pos, pos + node.nodeSize));
+  };
+  // Crop: the crop view over the page; Save puts the new aspect ratio and crop after the image's address (crop.mjs).
+  const cropIt = async () => {
+    const next = await cropView({ src, format: format ?? '', crop });
+    const pos = getPos();
+    if (!next || pos === undefined) return;
+    view.dispatch(
+      view.state.tr.setNodeMarkup(pos, undefined, { ...node.attrs, src: joinPicture(src, next.format, next.crop, decorative) }),
+    );
   };
   // Change image: another from the Library in its place, starting as Original (no format or crop, image tools spec decision 5) with no alt text of
   // its own, then its sheet to write the alt text (the alt text step of PR 4 replaces the sheet).
@@ -1161,7 +1172,8 @@ function imageCard(
   // The image's tools on the bar (image tools spec, section 4), in this order; Alt text is a text button.
   const tools = (): BarAction[] => [
     { kind: 'change-image', label: t.forms.changeImage, action: () => void change() },
-    { kind: 'crop', label: t.text.crop, action: () => void describe('crop') },
+    // Crop opens the crop view (not in a Banner's text or on a fixed page, where the sheet has no aspect ratio either).
+    ...(sheet()?.canCrop === false ? [] : [{ kind: 'crop' as const, label: t.text.crop, action: () => void cropIt() }]),
     { kind: 'alt-text', label: t.blocks.picture.alt, text: true, action: () => void describe('alt') },
     { kind: 'remove', label: t.common.remove, action: remove },
   ];
@@ -1414,6 +1426,20 @@ function inSectionHeading(state: EditorView['state']) {
 // Whether the cursor is in a label above a heading (eyebrow.mjs), which has no bold, italic, link or colour.
 const inLabel = (state: EditorView['state']) =>
   ['eyebrow', 'bodyLarge', 'bodyMedium', 'bodySmall'].includes(state.selection.$from.parent.type.name);
+
+// The Change to actions of the active block in the editor's action registry (src/actions.ts: the command palette finds them): one block is active at a
+// time, so one set is registered. A block that becomes active replaces the set of the one before; a block that is not the owner cannot take it away.
+let changeToRegistered: { owner: object; key: string; dispose: () => void } | null = null;
+function setChangeToActions(owner: object, list: ReturnType<typeof changeToActions> | null) {
+  const key = list?.map((a) => a.id).join() ?? '';
+  if (!list) {
+    if (changeToRegistered?.owner !== owner) return;
+  } else if (changeToRegistered?.owner === owner && changeToRegistered.key === key) {
+    return;
+  }
+  changeToRegistered?.dispose();
+  changeToRegistered = list?.length ? { owner, key, dispose: actions.register(list) } : null;
+}
 
 // A message with Undo (after Change to): the theme's snackbar, its action a text button. Drawn once (it is not React once shown).
 function undoSnackbar(text: string, undo: () => void) {
@@ -1691,16 +1717,19 @@ function blockCard(
     view.dispatch(closeHistory(view.state.tr));
     undoSnackbar(t.text.changedTo(label), () => undoHistory(view.state, view.dispatch));
   };
-  // The menu's Change to, with the blocks this one can become (targets: by `from` and the template); none for any other block.
-  const changeRow = (): CardRow | undefined => {
+  // The blocks this one can become (targets: by `from` and the template), with their names and icons; none for any other block.
+  const changeTargets = () => {
     const { rules, stays } = keeps();
     const have: Record<string, number> = {};
     for (const b of blocksOf(view.state.doc)) have[b.type] = (have[b.type] ?? 0) + 1;
-    const to = targets(node.attrs.type, node.attrs.props, { ...rules, have, stays });
-    const submenu = to.flatMap((type) => {
+    return targets(node.attrs.type, node.attrs.props, { ...rules, have, stays }).flatMap((type) => {
       const target = asker()?.list.find((b) => b.type === type);
-      return target ? [{ icon: target.icon, label: target.label, action: () => changeBlock(type, target.label) }] : [];
+      return target ? [{ type, label: target.label, icon: target.icon }] : [];
     });
+  };
+  // The menu's Change to, with those blocks as its next level.
+  const changeRow = (): CardRow | undefined => {
+    const submenu = changeTargets().map((b) => ({ icon: b.icon, label: b.label, action: () => changeBlock(b.type, b.label) }));
     return submenu.length ? { icon: changeToIcon, label: t.text.changeTo, action: () => {}, submenu } : undefined;
   };
 
@@ -1980,6 +2009,8 @@ function blockCard(
     const owner = {};
     bar = {
       refresh(shown) {
+        // Change to is in the command palette while the block is active (src/actions.ts), with the same limits as the menu.
+        setChangeToActions(owner, shown ? changeToActions(changeTargets(), changeBlock, t.text.changeToBlock, [t.text.changeTo]) : null);
         if (!shown) return blockBar.hide(owner);
         const action = gear();
         const split = splitRow(menuItems().filter((it): it is CardItem => !!it));
@@ -1993,7 +2024,10 @@ function blockCard(
         };
         blockBar.show(owner, state);
       },
-      destroy: () => blockBar.hide(owner),
+      destroy: () => {
+        setChangeToActions(owner, null);
+        blockBar.hide(owner);
+      },
     };
     // The settings of the active row (its icon and link), live: from expanded in the side panel while a row is active, below it in a bottom
     // sheet that Edit opens (`open`: a row's slot or Edit; else only an open sheet is updated).
@@ -2783,7 +2817,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       case 'link':
         return { label: t.text.link, icon: LinkSimple, action: link, on: 'link' };
       case 'insert':
-        return { label: insertLabel, icon: blocks ? AddIcon : Image, action: blocks ? block : image };
+        return { label: insertLabel, icon: blocks ? AddBlockIcon : Image, action: blocks ? block : image };
       case 'undo':
         return { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand) };
       case 'redo':
