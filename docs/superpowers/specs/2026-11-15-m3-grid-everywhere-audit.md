@@ -25,7 +25,7 @@ grid that adapts across all breakpoints"; "Grids adapt across breakpoints. As th
 spacing change as well."; "When moving between sizes, column count may increase to show more content or controls."; "On
 compact screens, fewer columns are used to create a focused layout". **The page never prints a column number in text.**
 The numbers come from its diagram only: three bars labelled *Compact*, *Medium/Expanded* and *Large/Extra-large* over
-4, 8 and 12 drawn columns. So: **compact 4, medium and expanded 8, large and extra-large 12**, read from the picture, not
+4, 8 and 12 drawn columns. So: **compact 4, medium and expanded 8, large and extra-large 12**, read from the diagram, not
 from a sentence.
 
 **Feed** (`https://m3.material.io/foundations/layout/canonical-examples/feed`). "Compact: A feed layout should stack
@@ -113,7 +113,7 @@ means it changes how a published site looks. All gaps use `--card-gap` (0.5rem) 
 | Image grid block | `theme/blocks/imagegrid/View.tsx:89`, `blocks.css:807-817`, `ui.css:2575` | Masonry, option 2 / 3 / 4 columns, auto is 2 / 3 / 3 / 4 | As the media grid; the `columns` option is saved in sites' content | M | High (saved option) |
 | Price cards | `blocks.css:1708-1742` | Container queries at 34 / 40 / 56rem, 1 to 4 columns | Counted by the block's own width, not window | M | High |
 | Panels, points, media, checklist | `blocks.css:953-1003,1702-1706` | `auto-fit minmax(16–23rem, 1fr)`, gaps 1 to 3rem | Not on any column count; count follows available width | L | High |
-| CTA | `blocks.css:1406-1409,1639-1655` | 12 columns **from 600** (picture 2, body 6, buttons 4), gap 2.5rem | 600–839 has 8 columns in M3, so the spans 2 + 6 + 4 do not fit | S | Medium |
+| CTA | `blocks.css:1406-1409,1639-1655` | 12 columns **from 600** (image 2, body 6, buttons 4), gap 2.5rem | 600–839 has 8 columns in M3, so the spans 2 + 6 + 4 do not fit | S | Medium |
 | Timeline, prices, copy rows, facts | `blocks.css:1083-1150,1439-1450,1030-1057,1220` | Own grids, 1 to 2 columns, gaps 0.75–1.5rem | Content layout inside a block | S each | Low |
 | Buttons row, chips, segmented | `blocks.css:379,1609`, `ui.css:4644` | Flex or `grid-auto-flow: column` | Components, not layout grid | none | none |
 
