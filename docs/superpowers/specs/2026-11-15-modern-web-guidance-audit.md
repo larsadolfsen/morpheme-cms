@@ -89,6 +89,15 @@ only the cheap mechanism changes: base `color-scheme: light dark` (C2), the `<me
 (S3). We lose nothing against M3; we gain native form controls, scrollbars and the browser's own default colours matching
 the chosen scheme. S4: the toggle is a feature a site owner turns on; leave it unless the owner wants it moved.
 
+*Spike result (15 Nov 2026), decision: not now.* S1 is done (the Google-preview colours use `light-dark()`). For the token layer,
+`colorsCss` emitting `--mo-x:light-dark(L,D)` for all 45 roles gives the same look (computed colours equal on 28,272 elements,
+light and dark, with and without `data-theme`; `check:screens` green) and saves about 1.8 KB per page. Three breaks: (a)
+`scripts/page-colors.mjs` reads `--mo-x:#hex` from the CSS, so `page-colors.json` would hold no roles (Colors › Pages empties)
+and no test notices; (b) code that reads `--mo-*` with `getComputedStyle` (`src/Tokens.tsx`) gets the text `light-dark(…)`,
+not a colour; (c) there is no fallback: Chrome below 123, Safari below 17.5 and Firefox below 120 would lose every colour
+role on the public site, and the guide's mandatory `prefers-color-scheme` fallback would bring the size back. It needs the
+owner's browser floor first; then it is a small PR (`colorsCss`, `page-colors.mjs`, `Tokens.tsx`, a test that pins the CSS shape).
+
 ### 3.3 Forms and input
 
 | # | Where | Finding | Guide says | Severity | Size |
