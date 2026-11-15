@@ -225,7 +225,7 @@ export const blocks: Messages['blocks'] = {
     stepOf: (n: number, total: number) => `Trin ${n} af ${total}`,
   },
   accordion: {
-    label: 'Foldeliste',
+    label: 'Accordion',
     hint: 'Rækker, der foldes ud med tekst.',
     edit: 'Rediger standardtekster',
     items: 'Rækker',

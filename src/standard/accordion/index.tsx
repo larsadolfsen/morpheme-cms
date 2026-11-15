@@ -1,4 +1,4 @@
-// "Expandable list", a standard block: rows that fold out, one open at a time, each with a text (its own, or
+// "Accordion", a standard block: rows that fold out, one open at a time, each with a text (its own, or
 // the opening of the page it links to) and a link to its page with the shared text "Read more about {topic}"
 // (shared.ts), and links to more pages under it (`more`, as pills); with a head (../head.ts). The same
 // rows as "Questions and answers". How it looks is the theme's
@@ -12,7 +12,7 @@ import { example } from './shared';
 
 export default defineBlock({
   group: 'lists',
-  // An Expandable list is a Segmented list now (lib/blocks.mjs); this block stays for one with links to more pages in a row.
+  // An Accordion is a Segmented list now (lib/blocks.mjs); this block stays for one with links to more pages in a row.
   former: true,
   label: t.blocks.accordion.label,
   icon: Rows,

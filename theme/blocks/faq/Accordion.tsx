@@ -1,5 +1,5 @@
 // Rows that fold out: the theme's List with `expand` (Material's "List - Expand", ui/List.tsx; .block-accordion in ../blocks.css only places it): the standard block "Questions and answers" (a question and
-// its answer as written: `html`), the "Expandable list" block, and a site's own rows of pages (`page`: PageRow.tsx in
+// its answer as written: `html`), the "Accordion" block, and a site's own rows of pages (`page`: PageRow.tsx in
 // ../accordion/; this site's topics). The part draws native <details>/<summary>, no JavaScript: the same `name` (`group`; in the
 // editor, without one, its own) keeps only one row open at a time in each list (browsers without support allow
 // several). Closed text is still in the HTML for search engines, and the browser's find-in-page opens the row it
