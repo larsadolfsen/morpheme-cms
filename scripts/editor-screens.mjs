@@ -1112,6 +1112,108 @@ async function checkEditorActions(width) {
   await page.close();
 }
 
+/** The palette's last two parts (src/CommandPalette.tsx, ShortcutsSheet.tsx; spec sections 4.6 and 5.4): the action *Keyboard shortcuts* opens a sheet that lists the key of the
+ * search (Ctrl+K) and of every registered action that has one (Bold, Ctrl+B, with a text open); *Clear recent actions* forgets what this browser kept; and signing out forgets it too. */
+async function checkPaletteLast(width) {
+  const label = `${width}px palette shortcuts and recent`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.waitForSelector('header button[aria-label="Search"]', { timeout: 15_000 });
+  const view = page.locator('[data-search-controlled] dialog[open]');
+  const input = view.locator('input[role=combobox]');
+  const options = view.locator('[role=option]');
+  const names = () => options.evaluateAll((els) => els.map((e) => e.querySelector('.list-item-headline')?.textContent ?? ''));
+  const kept = () => page.evaluate(() => localStorage.getItem('editor-recent-actions'));
+  const shut = async (why) => {
+    await page.waitForTimeout(300);
+    if (await view.count()) problems.push(`${label}: the palette is still open ${why}`);
+  };
+  const run = async (query, first) => {
+    await page.keyboard.press('Control+k');
+    await view.waitFor({ timeout: 5000 });
+    await input.fill(query);
+    await page.waitForTimeout(250);
+    const found = await names();
+    if (found[0] !== first) problems.push(`${label}: "${query}" finds ${JSON.stringify(found)}, not ${first} first`);
+    await page.keyboard.press('Enter');
+    await shut(`after ${first}`);
+    await page.waitForTimeout(300);
+  };
+
+  // A text is open: its keys are in the list, with the search's.
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await run('keyboard shortcuts', 'Keyboard shortcuts');
+  const wanted = [/Search actions and pages.*Ctrl\+K/, /Bold.*Ctrl\+B/, /Italic.*Ctrl\+I/];
+  const missing = (rows) => wanted.filter((want) => !rows.some((r) => want.test(r ?? ''))).map(String);
+  if (touch) {
+    // A phone: a page with a back arrow (owner, 15 Nov), not a sheet; the rows are the ones registered when the action ran.
+    await page
+      .waitForFunction(() => location.hash === '#shortcuts', null, { timeout: 5000 })
+      .catch(() => problems.push(`${label}: on a phone the action does not go to the page #shortcuts `));
+    if (await page.locator('dialog[open]').count()) problems.push(`${label}: on a phone the list is an overlay, not a page`);
+    const rows = await page.locator('main li').evaluateAll((els) => els.map((e) => e.textContent?.replace(/\s+/g, ' ').trim()));
+    if (missing(rows).length) problems.push(`${label}: the page lacks ${missing(rows)} (${JSON.stringify(rows)})`);
+    // The title takes the focus for screen readers, but shows no ring: it is not a control.
+    const ring = await page.evaluate(() => {
+      const h = document.activeElement;
+      return h?.tagName === 'H1' ? getComputedStyle(h).outlineStyle : 'not on the heading';
+    });
+    if (ring !== 'none') problems.push(`${label}: the shortcuts page's title shows a focus ring (outline ${ring})`);
+    const back = page.locator('header a[href="#"]:visible').first();
+    if (!(await back.count())) problems.push(`${label}: the shortcuts page has no back arrow to the start screen`);
+    else {
+      await back.click();
+      await page.waitForTimeout(300);
+      if ((await page.evaluate(() => location.hash)) !== '') problems.push(`${label}: the back arrow does not leave the shortcuts page`);
+    }
+  } else {
+    const sheet = page.locator('dialog[open][aria-label="Keyboard shortcuts"]');
+    await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the shortcuts sheet does not open`));
+    if (await sheet.count()) {
+      const rows = await sheet.locator('li').evaluateAll((els) => els.map((e) => e.textContent?.replace(/\s+/g, ' ').trim()));
+      if (missing(rows).length) problems.push(`${label}: the list lacks ${missing(rows)} (${JSON.stringify(rows)})`);
+      // No control has the focus when it opens (the close button does not show a ring).
+      const on = await page.evaluate(() => document.activeElement?.tagName);
+      if (on === 'BUTTON') problems.push(`${label}: the shortcuts dialog opens with a button focused`);
+      // A dialog in the middle of the screen has no drag handle (the handle belongs to a sheet from the bottom).
+      if (await sheet.locator('.bottom-sheet-drag-handle').evaluateAll((els) => els.some((e) => getComputedStyle(e).display !== 'none')))
+        problems.push(`${label}: the shortcuts dialog shows a drag handle`);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
+      if (await sheet.count()) problems.push(`${label}: Escape does not close the shortcuts sheet`);
+    }
+  }
+
+  // Running the shortcuts action was kept as recent; Clear recent actions forgets it.
+  if (!(await kept())) problems.push(`${label}: nothing was kept after running an action`);
+  await page.evaluate(() => (location.hash = '#'));
+  await page.waitForTimeout(400);
+  await run('clear recent', 'Clear recent actions');
+  await page.waitForTimeout(300);
+  const after = await kept();
+  const clearedOnly = after ? JSON.parse(after).ids : [];
+  if (clearedOnly.length > 1 || (clearedOnly[0] && clearedOnly[0] !== 'palette.clear-recent'))
+    problems.push(`${label}: Clear recent actions leaves ${after}`);
+
+  // Signing out forgets what is kept.
+  await page.evaluate(() =>
+    localStorage.setItem('editor-recent-actions', JSON.stringify({ ids: ['go.files'], counts: { 'go.files': 1 } })),
+  );
+  await page.evaluate(() => (location.hash = '#account'));
+  await page
+    .getByText('Log out', { exact: true })
+    .first()
+    .click({ timeout: 10_000 })
+    .catch(() => problems.push(`${label}: no Log out on the account screen`));
+  await page.waitForTimeout(600);
+  if (await kept()) problems.push(`${label}: signing out leaves the recent actions in this browser`);
+  await page.close();
+}
+
 /** No custom context menu (owner, 13 Nov; spec section 5): a right click (a `contextmenu` event that can be cancelled) in the text, on a row of a List and in a table cell is not
  * prevented, so the browser's own menu opens. */
 async function checkNoContextMenu(width) {
@@ -10654,6 +10756,7 @@ for (const width of [375, 1280])
 for (const width of [375, 1280]) await unit(`search button ${width}`, () => checkSearchButton(width));
 for (const width of [375, 1280]) await unit(`command palette ${width}`, () => checkCommandPalette(width));
 for (const width of [375, 1280]) await unit(`editor actions ${width}`, () => checkEditorActions(width));
+for (const width of [375, 1280]) await unit(`palette shortcuts and recent ${width}`, () => checkPaletteLast(width));
 for (const width of [375, 1280]) await unit(`no context menu ${width}`, () => checkNoContextMenu(width));
 
 for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
