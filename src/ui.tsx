@@ -2280,6 +2280,7 @@ export function SheetActions({
   onCancel,
   onDone,
   done,
+  cancel,
   disabled,
   start,
 }: {
@@ -2287,6 +2288,8 @@ export function SheetActions({
   onDone: () => void;
   /** The main button's text (Save, Insert). */
   done: string;
+  /** The other button's text, when it is not Cancel (Skip). */
+  cancel?: string;
   disabled?: boolean;
   start?: ReactNode;
 }) {
@@ -2296,7 +2299,7 @@ export function SheetActions({
       <div className="flex items-center gap-2 px-5 py-3">
         {start}
         <Button kind="outlined" className="ml-auto" onClick={onCancel}>
-          {t.common.cancel}
+          {cancel ?? t.common.cancel}
         </Button>
         <Button disabled={disabled} onClick={onDone}>
           {done}
