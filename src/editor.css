@@ -760,13 +760,13 @@
    content keeps clear of it (its end padding; --column-end tells the column, so it stays centred on the window while
    there is room), and the save bar ends where the area begins. */
 @media (width >= theme(--breakpoint-large)) {
-  :root:has(.editor-section-pane) {
+  :root:has(.editor-section-pane:not([hidden] *)) {
     --column-end: var(--section-pane-width);
   }
-  .editor-content:has(.editor-section-pane) {
+  .editor-content:has(.editor-section-pane:not([hidden] *)) {
     padding-inline-end: var(--section-pane-width);
   }
-  :root:has(.editor-section-pane) .editor-save-bar {
+  :root:has(.editor-section-pane:not([hidden] *)) .editor-save-bar {
     right: var(--section-pane-width);
   }
 
@@ -1659,25 +1659,6 @@ html:has(dialog:modal) {
 
 dialog {
   overscroll-behavior: contain;
-}
-
-/* The full-screen Preview (pagePreview.tsx): a <dialog> over the whole screen on every width, hiding the rest of the editor, with
-   its close button at the top (Material 3's full-screen dialog). */
-.editor-preview-screen {
-  width: 100%;
-  max-width: none;
-  height: 100%;
-  max-height: none;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: var(--mo-surface);
-  color: var(--mo-on-surface);
-}
-.editor-preview-screen[open] {
-  display: flex;
-  flex-direction: column;
 }
 
 /* The first heading of a page's text is its title, drawn as the site draws it (.theme-title in the theme's components.css, and
