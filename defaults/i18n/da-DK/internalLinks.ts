@@ -2,7 +2,6 @@
 // showed them before the switch to English. Joined in defaults/i18n/da-DK/index.ts.
 export const internalLinks: Record<string, string> = {
   'Internal links': 'Interne links',
-  Activated: 'Aktiveret',
   On: 'Til',
   Off: 'Fra',
   'The keywords of the pages and blog posts become links to them when the website is updated.':

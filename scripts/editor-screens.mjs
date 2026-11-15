@@ -6216,7 +6216,7 @@ async function checkCardHeadline(width, height) {
   await sitePage.close();
 }
 
-/** Change to (spec 2026-11-14-paste-and-change-to-design.md, section 3): the block's ⋮ menu has Change to first (Block settings and Hide are in the action row),
+/** Change type (spec 2026-11-14-paste-and-change-to-design.md, section 3): the block's ⋮ menu has Change type first (Block settings and Hide are in the action row),
  * with an arrow; it opens the next level with a back row and the other five blocks; a List with an icon changed to
  * Steps keeps its titles and texts, says "Changed to Steps", and back to List shows the icon again; Ctrl+Z after a change, and the
  * snackbar's Undo, give the block back as it was; and what a block keeps from another is never on the site. */
@@ -6269,12 +6269,12 @@ async function checkChangeTo(width, height) {
   if (!(await hasIcon())) problems.push(`${label}: the List's first row did not get an icon`);
   const menuRows = () =>
     page.locator('[role=menu] [role^=menuitem]:visible').evaluateAll((items) => items.map((i) => i.textContent.trim()));
-  // Opens ⋮ › Change to and chooses `to` (with Enter when `keys`).
+  // Opens ⋮ › Change type and chooses the block `to`.
   const changeTo = async (to) => {
     await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
     await page.waitForTimeout(200);
     await page
-      .locator('[role=menu] [role^=menuitem]', { hasText: /^Change to$/ })
+      .locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ })
       .first()
       .click();
     await page.waitForTimeout(200);
@@ -6287,29 +6287,51 @@ async function checkChangeTo(width, height) {
   await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
   await page.waitForTimeout(200);
   const first = await menuRows();
-  const at = first.indexOf('Change to');
-  // Block settings, Hide and the moves are the action row's (blockRow.ts), so Change to is the block's first row in the ⋮ (after the bar's tools
+  const at = first.indexOf('Change type');
+  // Block settings, Hide and the moves are the action row's (blockRow.ts), so Change type is the block's first row in the ⋮ (after the bar's tools
   // that did not fit, on a phone), before Select.
   if (at < 0 || first[at + 1] !== 'Select')
-    problems.push(`${label}: Change to is not the block's first row, before Select (${first.join(', ')})`);
-  const opener = page.locator('[role=menu] [role^=menuitem]', { hasText: /^Change to$/ }).first();
-  if ((await opener.getAttribute('aria-haspopup')) !== 'menu') problems.push(`${label}: Change to does not say it opens a menu`);
+    problems.push(`${label}: Change type is not the block's first row, before Select (${first.join(', ')})`);
+  const opener = page.locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ }).first();
+  if ((await opener.getAttribute('aria-haspopup')) !== 'menu') problems.push(`${label}: Change type does not say it opens a menu`);
+  const rowIcon = await opener.locator('.menu-item-leading svg').first().innerHTML();
   await opener.click();
   await page.waitForTimeout(200);
   const level = await menuRows();
-  const want = 'Change to,Segmented list,Steps,FAQ list,Cards,Table';
-  if (level.join() !== want) problems.push(`${label}: Change to's level is ${level.join(', ')}, not ${want}`);
-  // The back row gives the menu's own rows again.
+  const want = 'Change type,Segmented list,Steps,FAQ list,Cards,Table';
+  if (level.join() !== want) problems.push(`${label}: Change type's level is ${level.join(', ')}, not ${want}`);
+  // The header of the level has the swap icon of the row (not a back arrow) and says where it goes.
+  const header = page.locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ }).first();
+  if ((await header.locator('.menu-item-leading svg').first().innerHTML()) !== rowIcon)
+    problems.push(`${label}: the header of the Change type level does not draw the icon of its row`);
+  if ((await header.getAttribute('aria-label')) !== 'Change type, back to menu')
+    problems.push(`${label}: the header's name is "${await header.getAttribute('aria-label')}", not "Change type, back to menu"`);
+  // The header, Enter and Escape each go back to the menu's own rows, which stays open; Escape there closes it.
+  await header.click();
+  await page.waitForTimeout(200);
+  if (!(await menuRows()).includes('Select')) problems.push(`${label}: the header did not give the menu's rows again`);
   await page
-    .locator('[role=menu] [role^=menuitem]', { hasText: /^Change to$/ })
+    .locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ })
     .first()
     .click();
   await page.waitForTimeout(200);
-  if (!(await menuRows()).includes('Select')) problems.push(`${label}: the back row did not give the menu's rows again`);
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(200);
+  if (!(await menuRows()).includes('Select')) problems.push(`${label}: Enter on the header did not give the menu's rows again`);
+  await page
+    .locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ })
+    .first()
+    .click();
+  await page.waitForTimeout(200);
   await page.keyboard.press('Escape');
   await page.waitForTimeout(200);
+  if (!(await menuRows()).includes('Select'))
+    problems.push(`${label}: Escape in the level did not give the menu's rows again (it closed the menu)`);
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(200);
+  if (await page.locator('[role=menu]:visible').count()) problems.push(`${label}: Escape at the menu's own rows did not close it`);
   await changeTo('Steps');
-  if (!(await page.locator('.inline-steps').count())) problems.push(`${label}: Change to › Steps did not make Steps`);
+  if (!(await page.locator('.inline-steps').count())) problems.push(`${label}: Change type › Steps did not make Steps`);
   const steps = JSON.stringify(await rows('title'));
   const was = JSON.stringify([
     ['Opening hours', 'Mon–Fri'],
@@ -6322,7 +6344,7 @@ async function checkChangeTo(width, height) {
   await page.keyboard.press('Control+z');
   await page.waitForTimeout(500);
   if (!(await page.locator('.inline-list').count()) || !(await hasIcon()))
-    problems.push(`${label}: Ctrl+Z after Change to did not give the List back with its icon`);
+    problems.push(`${label}: Ctrl+Z after Change type did not give the List back with its icon`);
   // List → Steps → List: the icon is back, and the snackbar's Undo gives Steps again.
   await page.locator('[data-row="0"] [data-field="title"]').click();
   await changeTo('Steps');
@@ -6349,7 +6371,7 @@ async function checkChangeTo(width, height) {
     problems.push(`${label}: Table → List did not give the List with its icon`);
   if (JSON.stringify(await rows('title')) !== was) problems.push(`${label}: Table → List has ${JSON.stringify(await rows('title'))}`);
   // Kept data is never on the site: the Steps of the system's test page (the demo's Blocks page) keep a card's subhead and a FAQ answer on their
-  // first step, as Change to leaves them, and the page shows neither.
+  // first step, as Change type leaves them, and the page shows neither.
   if (await onTestPage(page, label)) {
     const html = await page.content();
     if (!html.includes('Pick a block')) problems.push(`${label} (site): the test page's Steps are not there`);

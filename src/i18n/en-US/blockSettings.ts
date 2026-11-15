@@ -2,7 +2,7 @@
 export const blockSettings = {
   stillOn: (n: number) => `The block is used on ${n} ${n === 1 ? 'page' : 'pages'}. Remove it from there first.`,
   /** At the right of a block's row, and the filter, when it is off (its switch: active, off). */
-  inactive: 'Disabled',
+  inactive: 'Off',
   standard: 'Standard blocks',
   /** The headings of the standard blocks in `Insert` (BlockDialog.tsx), by what the blocks do. */
   groups: {
@@ -27,7 +27,7 @@ export const blockSettings = {
   offHint: 'Not shown under Insert.',
   /** The switch of an app's kind of a list, and under it: the list's name, its button for a new one ("New promotion"),
    * and its name for more ("promoveringer"). */
-  active: 'Enabled',
+  active: 'On',
   kindStuck: (more: string) => `The block is used in ${more} and can’t be turned off`,
   kindStillOn: (n: number, what: string) => `The block is used in ${n} ${what}. Delete ${n === 1 ? 'it' : 'them'} first.`,
   kindOnHint: (create: string) => `Shown under ${create}.`,

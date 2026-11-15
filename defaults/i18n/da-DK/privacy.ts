@@ -3,7 +3,6 @@
 export const privacy: Record<string, string> = {
   Privacy: 'Privatliv',
   'Cookie banner': 'Cookiebanner',
-  Activated: 'Aktiveret',
   On: 'Til',
   Off: 'Fra',
   'When the banner is off, there is no analytics or ads.': 'Når banneret er fra, er der ingen måling eller annoncer.',

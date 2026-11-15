@@ -1992,6 +1992,7 @@ export function Menu({
   attached,
   keyboard,
   popup,
+  onBack,
   onClose,
   children,
 }: {
@@ -2004,10 +2005,15 @@ export function Menu({
   attached?: boolean;
   /** With `attached`: it was opened with the keyboard, so a choice has the focus (and its ring); else the menu has it. */
   keyboard?: boolean;
+  /** The menu is at a next level (a submenu): Escape goes back one level with this, and only the level above closes the menu. */
+  onBack?: () => void;
   onClose: () => void;
   children: ReactNode;
 }) {
   const menu = useRef<HTMLUListElement>(null);
+  // The latest `onBack`, as the effect below keeps its listener while the menu is open.
+  const back = useRef(onBack);
+  back.current = onBack;
   const sheet = useRef<HTMLDialogElement>(null);
   const wide = useAtLeast('medium') || !!popup;
   useEffect(() => {
@@ -2027,6 +2033,12 @@ export function Menu({
       if (e.type === 'keydown' && (e as globalThis.KeyboardEvent).key !== 'Escape') return;
       // A tap on the button itself is its own: it closes the menu.
       if (e.type === 'pointerdown' && (menu.current?.contains(e.target as Node) || anchor.contains(e.target as Node))) return;
+      // Escape at a next level goes back to the menu's own rows; the menu stays open.
+      if (e.type === 'keydown' && back.current) {
+        e.preventDefault();
+        e.stopPropagation();
+        return back.current();
+      }
       if (e.type === 'keydown' && attached) {
         // Esc closes only the menu (not the sheet or dialog the field is in), and the field has the focus again.
         e.preventDefault();
@@ -2159,6 +2171,7 @@ export function MenuItem({
   disabled,
   opens,
   back,
+  label,
   onKeyDown,
   onClick,
   children,
@@ -2168,10 +2181,12 @@ export function MenuItem({
   selected?: boolean;
   /** It cannot be chosen now (Move up on the first card). */
   disabled?: boolean;
-  /** It opens the menu's next level (a submenu, Change to): an arrow at its end, and the menu stays open; Right arrow opens it too. */
+  /** It opens the menu's next level (a submenu, Change type): an arrow at its end, and the menu stays open; Right arrow opens it too. */
   opens?: boolean;
   /** The row back from the next level: the menu stays open; Left arrow anywhere in that level goes back too (`onKeyDown` of its rows). */
   back?: boolean;
+  /** Its name for screen readers when it says more than the text (the back row: the level's name and where it goes). */
+  label?: string;
   onKeyDown?: (e: KeyboardEvent<HTMLElement>) => void;
   onClick: () => void;
   children: ReactNode;
@@ -2184,6 +2199,7 @@ export function MenuItem({
       trailingIcon={opens ? 'caret-right' : undefined}
       aria-haspopup={opens ? 'menu' : undefined}
       aria-expanded={opens ? false : undefined}
+      aria-label={label}
       data-menu-stays={opens || back || undefined}
       onMouseDown={(e: MouseEvent) => e.preventDefault()}
       onKeyDown={(e: KeyboardEvent<HTMLElement>) => {

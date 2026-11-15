@@ -2,6 +2,6 @@
   "id": "change-to-list-blocks",
   "kind": "paragraph",
   "mark": "feature",
-  "title": "Skift til",
-  "text": "En blok skal ikke længere bygges forfra for at få et andet udseende. Åbn blokkens ⋮-menu, vælg Skift til, og vælg en anden listeblok. Titler og tekster flytter med, og ikoner, billeder og links gemmes, til du skifter tilbage."
+  "title": "Skift type",
+  "text": "En blok skal ikke længere bygges forfra for at få et andet udseende. Åbn blokkens ⋮-menu, vælg Skift type, og vælg en anden listeblok. Titler og tekster flytter med, og ikoner, billeder og links gemmes, til du skifter tilbage."
 }
