@@ -407,3 +407,15 @@ Source: `theme/styles/ui.css` (`.search-view-header`, `.search-view-input`). Rea
 - **We do:** the bar container of the view (`.search-view-header`) shows the same 2dp accent ring as the closed search bar while the field has focus, drawn as an inset shadow with a transparent outline for forced-colors mode. The same 2dp ring (`--mo-primary`) marks the editor's text typed in place and its typed rows (editor only, no M3 page).
 - **Why:** Chrome's Modern Web Guidance, `accessibility`: "Mandatory - Don't disable browser native focus indicators without providing a replacement custom focus indicator" (WCAG 2.4.7, 1.4.11, 3:1). Owner approved, 15 Nov 2026 (relayed by the PM).
 - **Date:** 2026-11-15. **PR:** #754.
+
+## The footer's colour scheme (connected button group, #767)
+
+Source: `theme/components/Footer.astro`, `theme/layouts/Base.astro`. Read 15 Nov 2026 on m3.material.io (Playwright): `/components/button-groups/overview`, `/specs`, `/guidelines` and `/accessibility`, and `/components/segmented-buttons/overview`, `/specs`, `/guidelines` and `/accessibility`.
+
+### F1. A single-choice group of toggle buttons says `aria-pressed`, not `radio`
+
+- **Material:** the button groups' Accessibility page prints "Tab: Initial focus lands on the first button", "Arrow keys: Navigate between items", "Space or Enter: Selects a focused item" and "Identify when buttons are selected"; it names no ARIA roles.
+- **We do:** the three buttons (Light, Auto, Dark) are toggle `Button`s with `aria-pressed` in a `role="group"` (the theme's `ButtonGroup`, as its `ChoiceGroup` does), with one tab stop on the chosen button and the arrow keys moving and choosing.
+- **Why it deviates:** one choice out of three is a radio group in WAI-ARIA's practices (`role="radiogroup"`, `role="radio"`, `aria-checked`, roving tabindex, arrow keys); the owner's rule is "we follow the best practices in modern web from Google". No guide of Chrome's Modern Web Guidance prints that rule: searched and read 15 Nov 2026 (`accessibility`, `forms`, `toolbar`, `tabs`, `switch`, `dark-mode-toggle`, none mentions radio roles, `aria-checked` or arrow-key groups).
+- **To fix:** in the theme's single-select groups (connected button group with toggle buttons, `ChoiceGroup`), not on the footer alone; a separate pull request after the token PR (PM, 15 Nov 2026). Also the initial focus lands on the chosen button, as `ChoiceGroup` does, where M3 prints the first.
+- **Date:** 2026-11-15. **PR:** #767.
