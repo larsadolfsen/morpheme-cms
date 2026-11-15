@@ -3312,7 +3312,10 @@ async function checkAltSheet(width, height = 800) {
       .click();
     await pick();
   };
-  const described = (n) => pics().nth(n).getAttribute('aria-description');
+  // The images are told apart by their text, not by their place: where a new image goes in follows the caret, which the text puts back after a
+  // sheet closes (the browser's focus return) and a click moves, so the n-th image in the text is not always the n-th put in.
+  const texts = () => pics().evaluateAll((els) => els.map((e) => e.getAttribute('aria-description') ?? ''));
+  const at = async (text) => (await texts()).indexOf(text);
   const asked = () => page.locator('dialog[open]').filter({ hasText: 'Keep your changes?' });
 
   // Insert › Image: the alt text sheet, not the image's full sheet, and not the crop view.
@@ -3334,7 +3337,8 @@ async function checkAltSheet(width, height = 800) {
   await sheet().getByRole('button', { name: 'Save', exact: true }).click();
   await pics().first().waitFor({ timeout: 6000 });
   await page.waitForTimeout(500);
-  if ((await described(0)) !== 'A ringed planet') problems.push(`${label}: Save did not put the text on the image (${await described(0)})`);
+  if ((await texts()).join('|') !== 'A ringed planet')
+    problems.push(`${label}: Save did not put the text on the image (${(await texts()).join('|')})`);
   if (await page.locator('.ProseMirror .site-picture .picture-crop').count()) problems.push(`${label}: a new image is not Original`);
 
   // Skip keeps the image without a text of its own.
@@ -3345,7 +3349,8 @@ async function checkAltSheet(width, height = 800) {
   await sheet().getByRole('button', { name: 'Skip', exact: true }).click();
   await page.waitForTimeout(600);
   if ((await pics().count()) !== 2) problems.push(`${label}: Skip did not keep the image (${await pics().count()} images)`);
-  else if (await described(1)) problems.push(`${label}: Skip gave the image a text of its own (${await described(1)})`);
+  else if ((await texts()).filter(Boolean).join('|') !== 'A ringed planet')
+    problems.push(`${label}: Skip gave the image a text of its own (${(await texts()).join('|')})`);
   // Esc is Skip.
   await page.click('.ProseMirror > p');
   await page.keyboard.press('End');
@@ -3363,7 +3368,7 @@ async function checkAltSheet(width, height = 800) {
     await sheet().waitFor({ timeout: 5000 });
     await page.waitForTimeout(400);
   };
-  await edit(0);
+  await edit(await at('A ringed planet'));
   const shown = await sheet().getByLabel('Alt text').inputValue();
   if (shown !== 'A ringed planet') problems.push(`${label}: the bar's Alt text shows "${shown}", not the image's text`);
   const editNames = await buttons();
@@ -3376,25 +3381,27 @@ async function checkAltSheet(width, height = 800) {
     .catch(() => problems.push(`${label}: Cancel with a change did not ask "Keep your changes?"`));
   await asked().getByRole('button', { name: 'Discard', exact: true }).click();
   await page.waitForTimeout(500);
-  if ((await described(0)) !== 'A ringed planet') problems.push(`${label}: Discard changed the text (${await described(0)})`);
+  if ((await at('A ringed planet')) < 0) problems.push(`${label}: Discard changed the text (${(await texts()).join('|')})`);
   // Save with a new text.
-  await edit(0);
+  await edit(await at('A ringed planet'));
   await sheet().getByLabel('Alt text').fill('Saturn');
   await sheet().getByRole('button', { name: 'Save', exact: true }).click();
   await page.waitForTimeout(500);
-  if ((await described(0)) !== 'Saturn')
-    problems.push(`${label}: Save in the bar's Alt text did not change the text (${await described(0)})`);
+  if ((await at('Saturn')) < 0)
+    problems.push(`${label}: Save in the bar's Alt text did not change the text (${(await texts()).join('|')})`);
   // Decorative: no field, and no text on the image.
-  await edit(0);
+  await edit(await at('Saturn'));
   await sheet().locator('[role=switch], input[type=checkbox]').first().click();
   await page.waitForTimeout(300);
   if (await sheet().getByLabel('Alt text').count()) problems.push(`${label}: a decorative image still has the Alt text field`);
   await sheet().getByRole('button', { name: 'Save', exact: true }).click();
   await page.waitForTimeout(500);
-  if (await described(0)) problems.push(`${label}: a decorative image has a text (${await described(0)})`);
+  if ((await at('Saturn')) >= 0) problems.push(`${label}: a decorative image has a text (${(await texts()).join('|')})`);
 
   // Change image: the same sheet follows the pick, as Skip and Save; the new image is selected, with its tools on the bar.
-  await pics().nth(1)[how]();
+  await pics()
+    .nth(await at(''))
+    [how]();
   await page.waitForTimeout(600);
   await pressTool(page, 'Change image', how);
   await pick();
@@ -3404,8 +3411,8 @@ async function checkAltSheet(width, height = 800) {
   await sheet().getByLabel('Alt text').fill('Another view');
   await sheet().getByRole('button', { name: 'Save', exact: true }).click();
   await page.waitForTimeout(700);
-  if ((await described(1)) !== 'Another view')
-    problems.push(`${label}: Change image did not put the new text on the image (${await described(1)})`);
+  if ((await at('Another view')) < 0)
+    problems.push(`${label}: Change image did not put the new text on the image (${(await texts()).join('|')})`);
   if (!(await page.locator('.editor-tools button[aria-label="Alt text"]').count()))
     problems.push(`${label}: the changed image is not selected, the bar has no Alt text`);
   await page.close();
@@ -4816,7 +4823,10 @@ async function checkSelection() {
       .getByRole('button', { name: /^Notifications/ })
       .first()
       .click();
-    const sheet = page.getByRole('dialog', { name: 'Notifications' });
+    // Below 600 dp the notifications are a page (route notifications), from 600 dp a side sheet.
+    const onPage = (page.viewportSize()?.width ?? 0) < 600;
+    const sheet = onPage ? page.locator('main') : page.getByRole('dialog', { name: 'Notifications' });
+    const scope = onPage ? 'main' : 'dialog';
     await sheet.waitFor();
     await page.waitForTimeout(600);
     const items = sheet.locator('[role=checkbox], .list-item-container', { hasText: /Selection check/ });
@@ -4829,25 +4839,25 @@ async function checkSelection() {
       await page.waitForTimeout(800);
       await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
       await page.waitForTimeout(300);
-      if ((await checked(page, 'dialog')) !== 1) problems.push(`${label}: a press and hold does not select a notification`);
+      if ((await checked(page, scope)) !== 1) problems.push(`${label}: a press and hold does not select a notification`);
       const b2 = await items.nth(1).boundingBox();
       await page.touchscreen.tap(b2.x + b2.width / 2, b2.y + b2.height / 2);
       await page.waitForTimeout(300);
       if (!/^2 selected$/.test((await count(page)) ?? ''))
         problems.push(`${label}: the notifications' count is not announced ("2 selected")`);
-      await sheet.getByRole('button', { name: 'Cancel' }).click();
-      if (await checked(page, 'dialog')) problems.push(`${label}: Cancel does not unselect the notifications`);
+      await page.getByRole('button', { name: 'Close selection' }).click();
+      if (await checked(page, scope)) problems.push(`${label}: Cancel does not unselect the notifications`);
     } else {
       await items.nth(0).focus();
       await page.keyboard.press('Space');
-      if (await checked(page, 'dialog')) problems.push(`${label}: Space selected a notification before selecting had started`);
+      if (await checked(page, scope)) problems.push(`${label}: Space selected a notification before selecting had started`);
       await items.nth(0).click({ modifiers: ['Shift'] });
       await items.nth(1).focus();
       await page.keyboard.press('Space');
-      if ((await checked(page, 'dialog')) !== 2) problems.push(`${label}: Shift+click and Space do not select notifications`);
+      if ((await checked(page, scope)) !== 2) problems.push(`${label}: Shift+click and Space do not select notifications`);
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);
-      if (await checked(page, 'dialog')) problems.push(`${label}: Escape does not unselect the notifications`);
+      if (await checked(page, scope)) problems.push(`${label}: Escape does not unselect the notifications`);
       if (!(await sheet.isVisible())) problems.push(`${label}: Escape with some selected closed the notifications' sheet`);
     }
     await page.close();
@@ -5820,7 +5830,7 @@ async function checkSelectionBox() {
       .getByRole('button', { name: /^Notifications/ })
       .first()
       .click();
-    const sheet = page.getByRole('dialog', { name: 'Notifications' });
+    const sheet = (page.viewportSize()?.width ?? 0) < 600 ? page.locator('main') : page.getByRole('dialog', { name: 'Notifications' });
     await sheet.waitFor();
     await page.waitForTimeout(600);
     const items = sheet.locator('.list-item-selectable', { hasText: /Box check/ });
