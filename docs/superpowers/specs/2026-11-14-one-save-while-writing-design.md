@@ -223,8 +223,8 @@ it (`2026-11-14-settings-sheets-design.md`, 3.1).
   - the top app bar (the theme's, as the crop view's): the back arrow, named `Back to <the page's name>`, and the block's name as the
     headline (`Image`, `FAQ list`); nothing else, no `Save` (M3: the app bar's leading button "returns to the previous screen");
   - the block's fields, scrolling inside a column as wide as a form, with the problem note under them as today;
-  - the bottom bar (`.crop-page-bar`, right-aligned, lifted above the keyboard): `Save` filled (`Insert` for a new block), the only
-    button; the owner's rule is that Save buttons on a phone go in the bottom bar (deviation B1, section 9).
+  - the Save row, the theme's standard bottom sheet (`ActionSheet`, right-aligned, lifted above the keyboard by the sheet): `Save` filled (`Insert` for a new block), the only
+    button; the owner's rule is that Save buttons on a phone go in the standard bottom sheet (deviation B1, section 9).
 - **Open and close, as the crop view does.** It opens when the block's settings are opened (the gear, `Edit`, `Insert` for a block with
   fields) and takes a step of its own in the browser's history (`history.state.sheet`, `useSheetBack`), so the browser's back and
   Android's back gesture leave it and not the page. Focus starts on the back arrow (M3: "Focus should initially land on the leading
