@@ -108,6 +108,13 @@
   outline: none;
 }
 
+/* The text typed in place shows its focus (Modern Web Guidance, accessibility: a visible indicator is mandatory; owner, 15 Nov 2026): the
+   editor's 2 px primary ring, on a click as well as the keyboard, as M3's text fields do. */
+.editor-text .ProseMirror:focus-visible {
+  outline: 2px solid var(--mo-primary);
+  outline-offset: 4px;
+}
+
 /* A text in a field (a section of the front page) is short. */
 .editor-text-short .ProseMirror {
   min-height: 8rem;
@@ -1169,6 +1176,13 @@ html {
 
 .editor-text .inline-list-field:focus {
   outline: none;
+}
+
+/* A row typed in place shows its focus: the editor's 2 px primary ring (owner, 15 Nov 2026), on a click as well as the keyboard. */
+.editor-text .inline-list-field:focus-visible {
+  outline: 2px solid var(--mo-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .editor-text .inline-list-field::placeholder {

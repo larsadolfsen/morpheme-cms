@@ -230,14 +230,7 @@ const shownItems = (selector) =>
  * fails when nothing changed (no indicator) or when the changed pixels have less than 3:1 contrast between the two (a state layer alone).
  * An element that is only read by a screen reader (the radio in a ChoiceTile) is measured on the label that holds it.
  * FOCUS_ALLOW: the stops that are allowed to show only the caret, each with its reason. */
-const FOCUS_ALLOW = [
-  // Typed in place on the page: the editor draws no frame around a text it is typing in, and the caret is its indicator. Whether a ring should
-  // be drawn is a decision the owner makes (sent to the PM with PR A1); until then these stay as they were.
-  { match: /^div\.ProseMirror\b/, reason: 'the text typed in place: the caret is the indicator (decision: owner, A1)' },
-  { match: /^textarea\.inline-list-field\b/, reason: 'a row typed in place: the caret is the indicator (decision: owner, A1)' },
-  // M3's search view is itself the focus state; its field has no ring of its own (m3.material.io/components/search/specs, "Focused search").
-  { match: /^input\.search-view-input\b/, reason: "M3's focused search: the view is the indicator (decision: owner, A1)" },
-];
+const FOCUS_ALLOW = [];
 async function checkFocusIndicators(width, hash) {
   const label = `${width}px focus indicators ${hash || 'start'}`;
   const phone = width < 600;
