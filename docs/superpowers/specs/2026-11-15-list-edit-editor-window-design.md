@@ -222,7 +222,7 @@ text lines and blocks.
 
 **The field's settings** open from the gear on the card or the row (decision 14), in the page editor's block settings host (`2026-11-14-settings-sheets-design.md`):
 
-- **On a phone (under 600 px) as a page with a back arrow.** There is no full-screen sheet and no side sheet: tapping the gear goes to **a page of its own** (`#list/<id>/edit/<field id>`; the field's name in the top app bar, a back arrow, a bottom bar with `Save`). `Save` applies the field's settings to the list's **waiting version** and goes back to the window; the window's own `Save changes` bar then commits the whole list, as before. **Back** (the back arrow, the browser's and the phone's Back) with an unsaved change on this page asks `Keep your changes?` (the editor's `ask` dialog, `Discard` and `Keep`); with no change it goes back at once. The mockup is `shots/mockup-field-settings-375.png` (section 7.4).
+- **On a phone (under 600 px) as a page with a back arrow.** There is no full-screen sheet and no side sheet: tapping the gear goes to **a page of its own** (`#list/<id>/edit/<field id>`; the field's name in the top app bar, a back arrow, a bottom bar with `Save`), the same subpage a block's fields are on a phone (`docs/material-deviations.md` B1 and B2, built in #650). `Save` applies the field's settings to the list's **waiting version** and goes back to the window; the window's own `Save changes` bar then commits the whole list, as before. **Back** (the back arrow, the browser's and the phone's Back) with an unsaved change on this page asks `Keep your changes?` (the editor's `ask` dialog, `Discard` and `Keep`); with no change it goes back at once. The mockup is `shots/mockup-field-settings-375.png` (section 7.4).
 - **From 600 px as a side sheet** next to the window, with `Save` and `Cancel`, as today (desktop is unchanged).
 
 The page has the same content in both: the field's **name**, the **kind** (read only), `Required`, the `Format` choice (section 12), `Used by <n> entries` and `Remove field`. `Remove field` asks first (`ask`, today's `removeDataAsk` with `heldBy(entries, id)`), then takes the field and its data out of every entry at the page's `Save` (`confirmDrop`; the removal waits for the final `Save`, as the autosave spec decided). The texts have **no** settings page or sheet.
@@ -296,6 +296,35 @@ run on a JSON document (else ProseMirror directly).
 and written back to it by pure functions (section 6). Nothing is parsed or serialised as Markdown. Whether Milkdown's core can start from a JSON
 document and report ProseMirror changes without its Markdown pipeline is checked in PR 3's spike (section 8); if it cannot, the window uses
 ProseMirror directly with the same schemas (the editor already imports `prosemirror` through `$prose`), and nothing else here changes.
+
+### 4.1 Components: only the theme's existing ones (owner rule, `developer` skill)
+
+**The new editor window and the field settings use only existing theme components**, through `src/ui.tsx` (`theme/ui`); nothing in this spec asks for a component of its own, and no screen gets a screen-specific variant. Each pull request of section 8 that draws something has the **Components** line in its description (each component: *existing*, *fixed in the theme with owner approval* or *new in the theme with owner approval*); every part below is *existing*.
+
+| Part of the window | Existing component (`src/ui.tsx`, `src/themeUi.ts`) |
+| :--- | :--- |
+| Top app bar with the back arrow | `TopAppBar` (through `Screen`) |
+| `List settings` and `Content` accordions | `FoldSection` (the entry form's own, `EntryForm.tsx`) |
+| The list name, `Entry name`, a field's name | `TextField` |
+| The editor card, its bar and its tools | the page editor's editor and bar (`Toolbar`, `ToolbarButton`, `planBar`), unchanged parts of the editor's workspace |
+| `+ Insert` and the bar's `⋮` | `Menu`, `MenuItem`, `MenuDivider` |
+| A field block's card, action row and drag handle | the page editor's block chrome (`.site-block-card`, `blockRow.ts`, `.site-block-handle`), reused as it is, not a copy |
+| The field's disabled sample input on a block | the entry form's own: `TextField`, `TextArea`, `IconPicker`, `ImagePick`, `ChipField` |
+| `Required` | `SwitchRow` |
+| `Format` (and later `Country`) | `Select` |
+| Field settings: a page on a phone, a side sheet from 600 px | the subpage of B1 and B2 (`SheetBody`, `SheetActions`, `TopAppBar`) and `SideSheet` |
+| `Save changes` (the window) and `Save` (the settings page) | `SaveBar` / `ActionSheet` (the standard bottom sheet) |
+| `Remove field`, `Delete list` | `Button` (text) as `OwnListEdit.tsx` draws them today |
+| Confirmations (`Remove field`, `Delete list`, `Keep your changes?`) | `Dialog` through `ask` |
+| The list page's FAB menu | `FabMenu` |
+| An entry form's error message | `TextField`'s own error state and supporting text |
+| The list text on the list page | the theme's own text styles (`.body-medium`, `.label-medium`, the h3 look), not a component |
+
+**Missing or open, for the PM to take to the owner** (none is built by this spec; each has the recommendation in italics):
+
+1. **The field's name typed in place on its card.** No existing component edits a form field's label in place. *Recommendation:* draw the field as the entry form does (a disabled `TextField` whose label is the name) and edit the name in the field's settings, with the gear opening them with the `Name` box focused (the page editor's `reachField` already puts the focus in a settings field); in-place typing then needs no new component. If the owner wants in-place typing, a theme component for it is needed first.
+2. **A danger-coloured text button** for `Remove field` and `Delete list`. Today `OwnListEdit.tsx` sets the text button's colour to `--mo-error` on that screen, which is a screen-specific style. *Recommendation:* keep it as it is until the PM asks the owner for a `danger` variant in the theme (`Button`), then use that.
+3. **Later phases only, to check when they are built:** the `choice` list's options editor (section 12.5, closest existing: `FoldList` or `ChipField`), the Address block's layout (`FormColumns` with `TextField`s, section 12.6) and the Form block on the public site (the theme's own form parts, a later spec).
 
 ## 5. Extraction order (the smallest safe order)
 
