@@ -44,6 +44,7 @@ the **entry form page** is where an entry is typed; the **edit page** (`#list/<i
 9. **(Decided, 15 Nov.)** The list text stands **above the rows, in the order written** (Q3, section 3.1).
 10. **(Owner requirement, 15 Nov; the set of formats is a proposal the owner has not confirmed.)** **Field validation.** Each text field gets a **`Format`** choice in its settings sheet (the gear on the card): **Any text** (the default), **Email**, **URL**, **Number**. The entry form checks it and shows a message (for example `Enter a valid email address`). It is stored on the field in `_list.json` as an optional key, **`format`**, unknown to older code like `notes`, so `parseDefinition` and `definitionText` keep it; a list without it stays byte-identical (section 12). The owner wrote "Web address" for the third format; the editor's standard names say `URL` (#702, `2026-11-14-standard-names-audit.md`), so this spec uses `URL` until the owner says otherwise (Q4).
 11. **(Owner requirement, 15 Nov.)** **Reuse in the front end as a form.** The code must be reusable on the public site as a form (visitors fill in the same fields, for example a contact form). The field model, the formats, the validation and the entry form's field rendering rules are therefore **pure shared code under `lib/`** (no React, no editor imports, runs in the Worker and the browser, tested), and the editor's entry form is **one user** of it (section 12).
+12. **(Owner requirement, 15 Nov.)** The same editor window must also work as a **form builder**, a later function (**Forms**) that behaves the same way: the same editor card (text between fields, `+ Insert`, field blocks, the settings sheet, `Format` validation, a name per field) for a form that **visitors fill in on the public site**. The window is therefore a generic **field flow editor** that takes a definition and a few **host options** (what the host adds); lists and forms share one component and one definition shape (**fields, notes and formats**). For a list the host adds the `Entry name` and the list page; for a form, later, its recipient, success message and submit button text (section 3.4). Forms is **not** built in 0.19; the 0.19 window and the shared validation module are written **host-neutral** (section 13).
 
 **Base check.** On `0.19` at `b780512` #704 is not merged: `OwnListEdit.tsx` still has `Shown`, `dropped` and `Remove data`. This spec assumes #704
 has landed. If it has not when the window is built, that PR starts from a rebase on it; `dropped` is never carried into the new window.
@@ -227,6 +228,31 @@ sheet.
 
 `LockedListEdit` (Testimonials, an app's locked list) is unchanged: its fields are read-only rows, no window, no text. **Decided by the owner on 15 Nov (Q1, decision 6).**
 
+### 3.4 One field flow editor for lists and forms (decision 12)
+
+The window is built as a generic component, **`FieldFlowEditor`** (`src/FieldFlowEditor.tsx`), that knows nothing about lists. It takes:
+
+```ts
+<FieldFlowEditor
+  definition={definition}          // fields + notes + formats (the shape of section 6 and 12)
+  onChange={(next) => …}           // the host keeps the waiting version and saves
+  host={{
+    settings: [...],               // the host's own boxes in the first accordion
+    save: …,                       // the host's Save (the waiting version, SaveBar)
+    labels: { … },                 // the host's words (the accordion's name, Delete)
+  }}
+/>
+```
+
+The component draws the **`Content`** accordion (the editor card, `+ Insert`, field blocks, text, the settings sheet with `Format`, Undo and Redo) and the first accordion (**`List settings`** for a list) from `host.settings`; the bottom Save bar is the host's. Everything in sections 3.2 to 6 is the component; nothing in it says `list` except the host's words.
+
+| Host | Settings in the first accordion | Page around the window | Stored in | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **List** (`OwnListEdit.tsx`, a thin host) | List name, `Entry name` (decision 7), `Delete list` | The list page shows the text above the rows (section 3.1); entries are added on the entry form page | `_list.json` (`fields`, `notes`, `singular`) | **0.19** |
+| **Form** (a later `FormEdit`) | Form name, recipient (where submissions go), success message, submit button text, `Delete form` | The form is embedded by a Form block on the public site (section 13) | The form's own definition file (to be planned), the same `fields`, `notes` and `format` | **Later** (not planned in 0.19) |
+
+What this asks of the 0.19 build, and nothing more: `FieldFlowEditor` takes the **definition** and the **host options** as props and imports nothing from `OwnListEdit.tsx` or `useOwnList.tsx`; the pure code is named for what it does, not for lists (`lib/fieldFlow.mjs`, section 6; `lib/fieldFormats.mjs`, section 12); `OwnListEdit.tsx` is the list host and is the only file that knows `_list.json` and `Delete list`. No host option for forms is built in 0.19.
+
 ## 4. Which page-editor parts are reused
 
 | Part | Source | Used here | Needs extraction first? |
@@ -344,7 +370,7 @@ Display is as decided (decision 9): on the **list page** all the text stands abo
 - `listUses`, `Delete list`, `Rows from` and the entry files are unaffected; the waiting version (`useOwnList.change`) stores the whole definition
   text, so text and fields wait and commit together in one `Save`.
 
-New pure functions, in a new `lib/ownListFlow.mjs` (each with tests, no ProseMirror): `flowOf(definition)` (the ordered flow: `{ type: 'text', style,
+New pure functions, in a new `lib/fieldFlow.mjs` (each with tests, no ProseMirror): `flowOf(definition)` (the ordered flow: `{ type: 'text', style,
 text }` and `{ type: 'field', id }` items), `definitionOfFlow(definition, flow)` (the definition with `fields` order, `notes` and `after` derived;
 fields and their names are kept as they are), and `textsOf(definition)` (the notes in order, for the list page). The window turns the flow to a
 ProseMirror document and back with a thin, tested adapter.
@@ -435,18 +461,19 @@ screen-neutral and compare `check:screens` before and after.
 | 1c | **Shared field formats and validation** (decisions 10 and 11): `lib/fieldFormats.mjs` (`FORMATS`, `formatsOf`, `validate(value, field)` returning a message key, `inputOf(field)`), `format` in `parseDefinition` (a list without it is byte-identical), `entryProblems` calls `validate`, tests (each format valid and invalid, empty is valid, an unknown format is a problem, the module imports nothing from `src/`). No screen changes. | no | none | minor |
 | 2 | **Extract `EditorBar`** from `MarkdownEditor.tsx` (section 5, step 1). No behaviour change. | no | none (screens rerun) | empty |
 | 3 | **Card plugins by node name** (step 2) and the **flow editor spike** (step 3): `useFlowEditor` with a JSON document, no Markdown; `BlockHost` if needed. No behaviour change in the page editor. | no | none (screens rerun) | empty |
-| 4 | **Storage of the list text.** `notes` in `parseDefinition` and `definitionText`, `lib/ownListFlow.mjs` (`flowOf`, `definitionOfFlow`, `textsOf`), `check:content`, tests (round trip, a file without `notes` byte-identical, bad style and `after`, ordering rules). The list page draws the text from `notes` (section 7.1) and the demo gets its `Services` list; no editing UI yet. | yes | the list page with the three styles, 375 and 1280, light and dark | minor |
-| 5 | **The editor window: fields.** `OwnListEdit.tsx` is rebuilt on `useFlowEditor`, `EditorBar`, `blockBar`, `blockRow`, `blockHandle`, `planBar`: the `List settings` accordion (name, `Entry name` with the optional `singular` in `_list.json`, `Delete list`), the `Content` accordion with one editor card, `+ Insert` with the field kinds, Undo and Redo, field blocks drawn as the entry form's fields (name typed in place), the row and the handle, Move up and Move down, `Remove field` (with `ask` and `heldBy`), the field settings sheet, the bottom `Save changes` bar, no `Shown` and no `Add item`. Text lines can be typed in Body medium and are saved. The waiting version stays; the old `FieldBar` goes. | yes | `List settings` closed and open, the window with blocks, a block active with its row, the sheet open, the Insert menu, 375 and 1280 | minor |
+| 4 | **Storage of the list text.** `notes` in `parseDefinition` and `definitionText`, `lib/fieldFlow.mjs` (`flowOf`, `definitionOfFlow`, `textsOf`), `check:content`, tests (round trip, a file without `notes` byte-identical, bad style and `after`, ordering rules). The list page draws the text from `notes` (section 7.1) and the demo gets its `Services` list; no editing UI yet. | yes | the list page with the three styles, 375 and 1280, light and dark | minor |
+| 5 | **The editor window: fields.** A host-neutral **`FieldFlowEditor`** (section 3.4: the definition and host options as props) is built on `useFlowEditor`, `EditorBar`, `blockBar`, `blockRow`, `blockHandle`, `planBar`, and `OwnListEdit.tsx` becomes the list host of it: the `List settings` accordion (name, `Entry name` with the optional `singular` in `_list.json`, `Delete list`), the `Content` accordion with one editor card, `+ Insert` with the field kinds, Undo and Redo, field blocks drawn as the entry form's fields (name typed in place), the row and the handle, Move up and Move down, `Remove field` (with `ask` and `heldBy`), the field settings sheet, the bottom `Save changes` bar, no `Shown` and no `Add item`. Text lines can be typed in Body medium and are saved. The waiting version stays; the old `FieldBar` goes. | yes | `List settings` closed and open, the window with blocks, a block active with its row, the sheet open, the Insert menu, 375 and 1280 | minor |
 | 5b | **Format in the field settings sheet and on the entry form.** The `Format` choice (Any text, Email, URL, Number) in the field's settings sheet; the entry form (`DataForm.tsx`) draws the input from `inputOf` and shows the message from `validate` when the field is left and on `Save` (the message texts, English and Danish). | yes | the sheet with Format open, an entry form field with its error message, 375 and 1280 | minor |
 | 6 | **The editor window: text styles.** The three text styles in `+ Insert` and the style menu (Heading, Body medium, Label), `Enter` rules, the keys of the page editor for those styles, the bar's text tools reduced to them. | yes | text with the three styles, the style menu open, 375 and 1280 | minor |
 | 7 | **Accessibility and phone pass.** Live region for moves, labels, the keyboard path, the unsaved dialog on back, `checkOwnList` extended (add a field at the cursor, type text, move by buttons and by handle, remove, save, reload keeps text and order, 375 and 1280). | yes | none new | patch |
+| F | **Forms** (next version, to be planned). A `FormEdit` host of the same `FieldFlowEditor`, a Form block, the Worker's public submit endpoint and the rest of section 13. Not built in 0.19 unless the owner moves it in. | — | — | — |
 | 8 | **Release notes** for 1 to 7 (skill `release-notes`), English and Danish. | yes | — | empty |
 
 Order: 1 and 1c are independent. 5b needs 1c and 5. 2 and 3 precede 5. 4 precedes 5 (the window reads and writes what 4 stores). 5 precedes 6 and 7.
 
 ## 9. Tests
 
-- **Unit** (`lib/ownListEdit.test.mjs`, `lib/ownList.test.mjs`, `lib/ownListFlow.test.mjs`): `parseDefinition` with and without `notes`, with a bad
+- **Unit** (`lib/ownListEdit.test.mjs`, `lib/ownList.test.mjs`, `lib/fieldFlow.test.mjs`): `parseDefinition` with and without `notes`, with a bad
   style, a bad `after` and an over-long text; `definitionText` byte-identical for a list without text and a full round trip with text; `flowOf` and
   `definitionOfFlow` are each other's inverse on any flow; moving a card past text keeps `fields` order unless it passes a card; removing a field
   re-anchors its text; `moveField` and `confirmDrop` leave `notes` alone.
@@ -518,7 +545,7 @@ New module **`lib/fieldFormats.mjs`**, plus what `lib/ownList.mjs` already has (
 
 ### 12.3 What is not shared
 
-The editor window, the editor card and its bar, the settings sheets (the `Format` choice is drawn by the sheet, but its list of formats comes from `formatsOf`), the entry form's React components and the editor's text keys. They use the shared code; the site never imports them.
+The editor window (shared by the list host and a later form host, section 3.4, but never by the site), the editor card and its bar, the settings sheets (the `Format` choice is drawn by the sheet, but its list of formats comes from `formatsOf`), the entry form's React components and the editor's text keys. They use the shared code; the site never imports them.
 
 ### 12.4 Where a future site `Form` block would read it
 
@@ -534,10 +561,26 @@ A later **Form block** on the public site reads the **same definition** (`_list.
 - a **`required` flag** per field (the function leaves room for it: `validate` returns the key `required` when `field.required` is set and the value is empty; no UI in 0.19), and **file uploads** for an Image field on a public form;
 - **server-side re-validation** policy and error pages for visitors without JavaScript.
 
-## 13. Not in this spec
+## 13. Forms later
+
+A later **Forms** function (decision 12) makes a form the owner builds in the same window and visitors fill in on the public site. What it adds **beyond lists**, none of it in 0.19 unless the owner moves it in:
+
+- **Where a form lives and its host options:** the form's own definition (the same `fields`, `notes` and `format` as a list, section 6 and 12), in its own file and its own page in the editor, with the host settings in the first accordion: name, **recipient**, **success message**, **submit button text**.
+- **How a Form block embeds it:** a block that names a form (as `Rows from` names a list) and draws every field from `inputOf` with the text above, the submit button and the messages from `validate`, in the theme's own parts.
+- **A public submit endpoint in the Worker:** where a submission goes, its limits, and the second check with the same `validate` (section 12.4).
+- **Spam protection:** a honeypot, a challenge, rate limiting.
+- **Where submissions are stored and shown:** a list's entries or a D1 table, who reads them in the editor, how long they are kept.
+- **Email notification** to the recipient and a receipt to the visitor.
+- **Privacy text and consent:** a consent checkbox, a link to the privacy page, what is stored.
+- Also a `required` flag per field, file uploads for an Image field, and the page for visitors without JavaScript (section 12.4).
+
+The build plan has one placeholder, **F, Forms (next version, to be planned)**; it needs its own spec.
+
+## 14. Not in this spec
 
 - Selecting several cards at once and copy and paste of cards (the page editor has them; the window has its own `Save` and waiting version).
 - Rich text in the list text (bold, links, colours, lists): the owner allowed three styles only.
 - Showing the list text on the site, in a block, or in an entry form.
 - Typing entries on the edit page (cancelled, section 10).
+- Building Forms (section 13): only the host-neutral `FieldFlowEditor` and shared code are 0.19.
 - Changes to Testimonials' or an app's list page other than the FAB menu of PR 1.
