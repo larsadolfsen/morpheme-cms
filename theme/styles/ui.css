@@ -89,7 +89,7 @@
   At rest (the shadow reads --mo-elevation-N-rest-shadow), pointed at (hover), pressed and dragged (the lift reads
   --mo-elevation-N-shadow), by Material 3; with focus a part is as at rest:
     level 0  filled, tonal and outlined buttons, icon buttons, filled and outlined cards, chips (not elevated), a
-             standard side sheet, a full-screen dialog on a phone, the top app bar, the navigation bar and rail, the
+             standard side sheet, the top app bar, the navigation bar and rail, the
              search bar, a plain tooltip
     level 1  elevated buttons and chips, elevated cards, bottom sheets, a modal side sheet and navigation drawer, the
              handles of switches and sliders; pointed at: filled and tonal buttons (a toggle too), filled and outlined
@@ -1501,25 +1501,21 @@
 
 /* ---- Containment: Dialog, BottomSheet, Carousel ---- */
 /*
-  Dialogs (Dialog.tsx, dialogClass, dialogClassOf, dialogModalClass, dialogFullScreenModalClass, and dialog() in
+  Dialogs (Dialog.tsx, dialogClass, dialogClassOf, dialogModalClass, and dialog() in
   dialogControl.ts for what a modal one does in a browser; m3.material.io/components/dialogs): .dialog is the container (a
   pop-up's box, the cookie question), and .dialog-modal the <dialog> it is shown in over the page, in the middle with
   the scrim behind it (a pop-up, Popup.astro). With its parts it is Material's basic dialog, .dialog-basic: optionally its
   icon (.dialog-icon, centred over the headline with .dialog-with-icon), .dialog-headline, .dialog-supporting-text,
-  .dialog-content (what else it shows, scrolling), optionally .dialog-divider and .dialog-actions at its end. A full-screen
-  dialog, .dialog-full-screen in .dialog-modal-full-screen: over the whole screen on a phone, with .dialog-header (the
-  close button, the headline and .dialog-header-actions), optionally .dialog-divider, and .dialog-content; from the medium width a
-  dialog in the middle of the screen with the same header.
+  .dialog-content (what else it shows, scrolling), optionally .dialog-divider and .dialog-actions at its end. There is no
+  full-screen dialog: a full screen is a page with a back arrow.
     --dialog-radius, --dialog-surface, --dialog-shadow, --dialog-line   the container's corners, surface, shadow
-                     (level 3; none for a full-screen one on a phone), edge
+                     (level 3), edge
     --dialog-scrim   the shade over the page behind a modal dialog (else --theme-scrim-colour, the text's colour, in
                      dark mode the page's, seen through)
     --dialog-max-width   how wide a modal dialog is at most
-    --dialog-padding   the room inside a basic dialog, and at the sides of a full-screen one's content
+    --dialog-padding   the room inside a basic dialog
     --dialog-icon-color, --dialog-headline-size, --dialog-headline-weight, --dialog-supporting-text-color   its parts
-    --dialog-full-screen-max-width, --dialog-full-screen-headline-size   a full-screen dialog from the medium width, and its
-                     headline in its header
-  A lightbox (Lightbox.tsx, .lightbox in .lightbox-modal, lightboxControl.ts: an image shown bigger; M3 has none): the full-screen dialog with
+  A lightbox (Lightbox.tsx, .lightbox in .lightbox-modal, lightboxControl.ts: an image shown bigger; M3 has none): a modal <dialog> with the dialog's container, a header with the close button (.lightbox-header), .lightbox-content,
   .lightbox-track (images that snap), .lightbox-item, .lightbox-figure, .lightbox-image, .lightbox-caption, .lightbox-previous, .lightbox-next and
   .lightbox-count; on a compact window over the whole screen, from medium the window less 56 dp on each side.
     --lightbox-surface   its container, see-through over the scrim (else the scrim colour at 88%)
@@ -1689,76 +1685,14 @@
     margin-top: 1rem;
   }
 
-  /* A full-screen dialog: its header (the cross, the headline and the action), and what it shows under it, scrolling. */
-  .dialog-full-screen {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  .dialog-header {
-    display: flex;
-    flex-shrink: 0;
-    align-items: center;
-    gap: 0.25rem;
-    min-height: 3.5rem;
-    padding: 0.25rem 0.75rem 0.25rem 0.25rem;
-  }
-  .dialog-full-screen .dialog-headline {
-    flex: 1;
-    min-width: 0;
-    margin: 0 0 0 0.5rem;
-    font-size: var(--dialog-full-screen-headline-size, var(--type-title-large-size));
-    line-height: var(--type-title-large-line-height);
-  }
-  .dialog-header-actions {
-    display: flex;
-    flex-shrink: 0;
-    gap: 0.25rem;
-  }
-  .dialog-full-screen .dialog-divider {
-    margin: 0;
-  }
-  .dialog-full-screen .dialog-content {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    padding: 1rem var(--dialog-padding, 1.5rem) max(1.5rem, env(safe-area-inset-bottom));
-  }
-  .dialog-full-screen .dialog-supporting-text {
-    margin-bottom: 1rem;
-  }
-  /* On a phone over the whole screen, without corners, edge or shadow. */
-  @media (width < theme(--breakpoint-medium)) {
-    .dialog-modal-full-screen {
-      width: 100%;
-      max-width: none;
-      height: 100%;
-      max-height: none;
-      margin: 0;
-    }
-    .dialog-modal-full-screen > .dialog-full-screen {
-      height: 100%;
-    }
-    .dialog-full-screen {
-      border-radius: 0;
-      box-shadow: none;
-    }
-  }
-  /* From the medium width a dialog in the middle of the screen, with the same header. */
-  @media (width >= theme(--breakpoint-medium)) {
-    .dialog-modal-full-screen {
-      max-width: var(--dialog-full-screen-max-width, 35rem);
-    }
-    .dialog-modal-full-screen > .dialog-full-screen {
-      max-height: min(88dvh, 44rem);
-    }
-  }
-
-  /* A lightbox (Lightbox.tsx, lightboxControl.ts): the full-screen dialog's <dialog> and container with images in a snapping track under its header
+  /* A lightbox (Lightbox.tsx, lightboxControl.ts): a modal <dialog> and the dialog's container with images in a snapping track under its header
      (only the close button). The container is see-through over the scrim, so the image floats on a dark layer (the scrim colour, which is
      the page's in dark mode, so the layer is dark in both): docs/material-deviations.md. On a compact window it fills the screen; from medium it is as
      large as the window less 56 dp on each side (M3: a dialog placed by hand keeps a 56 dp margin) with the dialog's 28 dp corner. */
   .lightbox {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     --lightbox-ink: var(--theme-on-scrim-colour, var(--mo-surface));
     background: var(--lightbox-surface, color-mix(in srgb, var(--theme-scrim-colour, var(--block-text)) 88%, transparent));
     color: var(--lightbox-ink);
@@ -1767,10 +1701,18 @@
   .lightbox .icon-button {
     color: var(--lightbox-ink);
   }
-  .lightbox .dialog-content {
+  .lightbox-header {
     display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    min-height: 3.5rem;
+    padding: 0.25rem;
+  }
+  .lightbox-content {
+    display: flex;
+    flex: 1;
     flex-direction: column;
-    padding: 0;
+    min-height: 0;
     overflow: hidden;
   }
   .lightbox-stage {
@@ -1844,7 +1786,19 @@
   .lightbox-next {
     inset-inline-end: 0.5rem;
   }
+  /* On a compact window the whole window, without corners, edge or shadow. */
   @media (width < theme(--breakpoint-medium)) {
+    .lightbox-modal {
+      width: 100%;
+      max-width: none;
+      height: 100%;
+      max-height: none;
+      margin: 0;
+    }
+    .lightbox-modal > .lightbox {
+      height: 100%;
+      border-radius: 0;
+    }
     .lightbox-previous:not(:focus-visible),
     .lightbox-next:not(:focus-visible) {
       opacity: 0;
@@ -1852,13 +1806,13 @@
     }
   }
   @media (width >= theme(--breakpoint-medium)) {
-    .lightbox-modal.dialog-modal-full-screen {
+    .lightbox-modal {
       width: calc(100% - 7rem);
       max-width: none;
       height: calc(100% - 7rem);
       max-height: none;
     }
-    .lightbox-modal.dialog-modal-full-screen > .lightbox {
+    .lightbox-modal > .lightbox {
       height: 100%;
       max-height: none;
       border-radius: var(--dialog-radius, var(--block-radius));
@@ -1870,7 +1824,7 @@
     .lightbox-modal[open]::backdrop {
       animation: dialog-scrim-in var(--motion-effects);
     }
-    .lightbox-modal[open] :is(.dialog-header, .lightbox-previous, .lightbox-next, .lightbox-count) {
+    .lightbox-modal[open] :is(.lightbox-header, .lightbox-previous, .lightbox-next, .lightbox-count) {
       animation: dialog-scrim-in var(--motion-effects);
     }
     .lightbox-modal[open] .lightbox-image {

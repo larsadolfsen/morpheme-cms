@@ -207,7 +207,7 @@ Apps written to contract 2 build and run as before. Contract 3 only adds `@app/s
 ## The theme's UI components by name
 
 An app draws with the theme's parts (`@theme/ui/…`, `@theme/blocks/…`), by Material 3's names. Two have new names; the old
-ones stay as aliases of the same part while `THEME_API` is 4, so an app or a theme written with them works as before.
+ones stay as aliases of the same part while `THEME_API` is 5, so an app or a theme written with them works as before.
 
 | Import (Material 3's name) | Old name, kept as an alias | Material 3 |
 | :--- | :--- | :--- |
@@ -216,7 +216,7 @@ ones stay as aliases of the same part while `THEME_API` is 4, so an app or a the
 | `@theme/blocks/Panel` | — | An outlined card; the name Panel stays |
 
 A theme that draws its own bar or menu still does it in `ui/TopAppBar.tsx` and `ui/ExposedDropdownMenu.tsx` while
-`THEME_API` is 4; the new names lead to the theme's file, else the standard theme's.
+`THEME_API` is 5; the new names lead to the theme's file, else the standard theme's.
 
 ## Slots
 
