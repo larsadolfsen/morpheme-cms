@@ -59,7 +59,7 @@ and the blog's posts become one more list that Dynamic cards can read (section 8
 | Reading in the editor | `src/standard/rows/view.ts` (`sourceItems`, `editorRows`, `rowSources`, `rowParts`) | The same rows from the editor's data. |
 | Rows and mapping | `src/standard/rows/rows.mjs` | `sourceOf`, `howManyOf`, `chosenFrom` (tags any-of, then the first N), `rowOf`, `itemOfEntry`, `mapOf`, `fieldsForPart`, `fieldOfPart`, `withPart`, `mapped`, `rowsFromItems`, `withRows`. One fixed list of slots, `PARTS = ['title', 'text', 'icon', 'href', 'tags']`. |
 | Block fields | `src/standard/rows/fields.ts` | `from`, `tags`, `howMany`, `map`; `typed` hides `items` while a list is picked; `nameWith` gives `Dynamic list`; `fromLine`; `listPageOf`. Used by List, Segmented list and FAQ list. |
-| The list's pages | `src/Library.tsx`, `src/OwnList.tsx`, #616's `src/OwnListEdit.tsx`, `src/useOwnList.tsx`, `lib/ownListEdit.mjs` | `#list/<id>` (the entries) and, with #616, `#list/<id>/edit` (the fields; `LockedListEdit` for a locked list). An app's list opens the generic `List` page. *Decided 15 Nov:* the list page's FAB is a FAB menu (`Edit list`, `Add <entry>`) and the edit page is an editor window of field blocks and text blocks (`2026-11-15-list-edit-editor-window-design.md`). |
+| The list's pages | `src/Library.tsx`, `src/OwnList.tsx`, #616's `src/OwnListEdit.tsx`, `src/useOwnList.tsx`, `lib/ownListEdit.mjs` | `#list/<id>` (the entries) and, with #616, `#list/<id>/edit` (the fields; `LockedListEdit` for a locked list). An app's list opens the generic `List` page. *Decided 15 Nov:* the list page's FAB is a FAB menu (`Edit list`, `Add <entry>`) and the edit page is an editor window of inline text with field blocks in the flow (`2026-11-15-list-edit-editor-window-design.md`). |
 | App blocks | `docs/app-contract.md` (*Places*, *Blocks typed in place*) | `blocks/<type>/` with `index.tsx`, `View.tsx`, `viewOf.ts`, `load.ts`, optional `Inline.tsx`. A block is a `full` place: **the store gives `full` only to first-party publishers.** No app-facing function reads a list's entries. |
 | Bundled apps | — | None. Every app glob is the site's `src/apps/*`; `starter/src/data/apps.json` is `{ "installed": [] }`. |
 
@@ -263,8 +263,8 @@ The editor's menu section is already called `Dynamic lists` (`t.common.lists`); 
 
 A first-party app, **Dynamic lists** (`dynamic-lists`), that gives the owner:
 
-- `New list` and own lists: the definition in `src/data/<id>/_list.json`, the editor window of the 2026-11-15 spec (field blocks of any
-  number of each kind, now also `Date`, rename, move, Remove field, and text blocks for the list page; `Shown` is gone, #704), `Delete list` (refused while a block reads it);
+- `New list` and own lists: the definition in `src/data/<id>/_list.json`, the editor window of the 2026-11-15 spec (inline text for the list page with field blocks of any
+  number of each kind, now also `Date`, rename, move, Remove field; `Shown` is gone, #704), `Delete list` (refused while a block reads it);
 - `Rows from` on the standard List, Segmented list, FAQ list, **Cards** (new: Dynamic cards, section 8) and **Table** (new: Dynamic table, section 9): the list choice (own lists,
   the blog's posts, Testimonials and every app's list), `Only with these tags`, `How many`, `Show all`, the field picker on the block's
   slots (a tap on a part), `Fill from a list` in the block's toolbar, `Edit list`, the state line (`From Services · tag home · 3 items`)
@@ -659,7 +659,7 @@ skill `checks`; a change the owner sees follows the screenshot rule of the `pm` 
 | 5 | **Dynamic cards.** Cards declare slots (8.2), media and ratio rules, `Show all` and the carousel rule, empty states, Danish plural name, Change to (10). Screens: a Dynamic cards block from an own list with images, from posts, as a carousel, and empty. | yes | minor |
 | 6 | **Date kind in the field bar** (`Date` in the app's bar, the date field in an entry's form). | yes | minor |
 | 7 | **Release notes** for 3–6 (skill `release-notes`), English and Danish. | yes | empty |
-| 8 | ~~**PR B of the edit-page plan, in the core**~~ **Cancelled (15 Nov 2026):** entries are never typed on the edit page. Its place is taken by the build plan of `2026-11-15-list-edit-editor-window-design.md` (FAB menu, the editor window, text blocks). The number stays so phases 9 and 10 keep theirs. | — | — |
+| 8 | ~~**PR B of the edit-page plan, in the core**~~ **Cancelled (15 Nov 2026):** entries are never typed on the edit page. Its place is taken by the build plan of `2026-11-15-list-edit-editor-window-design.md` (FAB menu, the editor window with inline list text). The number stays so phases 9 and 10 keep theirs. | — | — |
 | 9 | **Dynamic table** (section 9): `columns[].field`, `typedColumns`, `slots: 'columns'`, `listColumns`, the kind mapping, the header picker, the column menu's actions, Change to with Table (10), `"draws": "table"`. Screens: a dynamic table with each column kind built so far, sorting, pagination and search on, 375 and 1280 px. | yes | minor |
 | 10 | **Release notes** for 9 (the list-page and editor-window notes are in the 2026-11-15 spec's plan). | yes | empty |
 
