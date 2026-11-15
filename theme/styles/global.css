@@ -110,6 +110,8 @@
      chip in the secondary container, its label and check in on secondary container (owner, 15 Nov 2026). */
   --chip-height: 2rem;
   --chip-padding: 0.375rem 1rem;
+  /* 6dp over and under a 20dp label line is the 32dp container (M3 Chips, specs: "Container height 32dp"). */
+  --chip-padding-block: 0.375rem;
   --chip-radius: var(--mo-shape-small);
   --chip-surface: transparent;
   --chip-text: var(--mo-on-surface-variant);
@@ -660,7 +662,7 @@
     padding-left: 0.5rem;
   }
   /* M3 Chips, specs: "Left/right padding with icon 8dp": the side an icon is on (a leading icon, a person's image is the avatar's own, a trailing icon). */
-  .chip:has(> svg:first-child:not(.chip-check)) {
+  .chip:has(> svg:not(.chip-check, .chip-trailing-icon)) {
     padding-inline-start: 0.5rem;
   }
   .chip:has(> .chip-trailing-icon) {

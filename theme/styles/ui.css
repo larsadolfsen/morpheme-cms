@@ -6986,8 +6986,9 @@
     background: var(--search-view-docked-surface, var(--mo-surface-container-high));
     box-shadow: var(--search-view-docked-shadow, none);
   }
+  /* The chips are 12dp from the container's top edge (the chip set's own 8dp room for the focus ring and 4dp): M3 prints no space for the row. */
   div.search-view-docked .search-view-filters {
-    padding-top: 0.75rem;
+    margin-top: 0.25rem;
   }
   div.search-view.search-view-docked[hidden] {
     display: none;
@@ -7068,7 +7069,6 @@
     margin-inline: 0;
     padding-inline: 0.75rem;
     scroll-padding-inline: 0.75rem;
-    margin-block-end: 0.25rem;
   }
   .search-view-results {
     /* The highlight of the option the arrow keys or the pointer are on runs the whole width, with square corners. */
@@ -7082,6 +7082,10 @@
   }
   .search-view-results [role='option'][aria-selected='true'] {
     background: var(--search-view-option-surface, var(--block-tint));
+  }
+  /* M3 Lists, tokens: "List list item trailing space 16dp": the icon of a button after an item is 16dp from the edge (its 48dp target holds 12dp). */
+  .search-view-results .list-item-multi-action {
+    padding-inline-end: 0.25rem;
   }
   /* An item with a button after it (a recent search): the one highlight covers the item and its button. */
   .search-view-results .list-item-multi-action:has(> [role='option'][aria-selected='true']) {
