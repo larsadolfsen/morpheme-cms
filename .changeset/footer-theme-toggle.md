@@ -2,4 +2,4 @@
 '@morphemecms/cms': minor
 ---
 
-The light and dark toggle in the footer follows the system until you pick, and remembers your pick
+The footer has a Theme setting with Light, Auto and Dark: Auto follows the system, and your pick is remembered

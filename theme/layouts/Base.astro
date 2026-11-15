@@ -209,26 +209,6 @@ const jsonLd = {
       )
     }
 
-    <style is:global>
-      :root .light-hide {
-        display: none;
-      }
-      :root[data-theme='dark'] .light-hide {
-        display: inline-block;
-      }
-      :root[data-theme='dark'] .dark-hide {
-        display: none;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root:not([data-theme='light']) .light-hide {
-          display: inline-block;
-        }
-        :root:not([data-theme='light']) .dark-hide {
-          display: none;
-        }
-      }
-    </style>
-
     <script>
       // What the blocks do in a browser (script.ts in the theme's blocks/<type>/).
       import { blockScripts } from '../../site/blockScripts';
@@ -238,25 +218,33 @@ const jsonLd = {
     <script>
       import '@theme/scripts/motion';
 
-      // Theme toggle (Modern Web Guidance, dark-mode-toggle, two states in the footer): it picks the opposite of what is
-      // shown. A pick that differs from the system is stored; a pick that matches the system removes the stored value, so the
-      // page follows the system again. A stored value is never removed because the system later changes to match it.
+      // Colour scheme setting in the footer (Modern Web Guidance, dark-mode-toggle): Light and Dark pin the scheme and are
+      // stored; Auto removes the stored value, so the page follows the system. A stored value is never removed because the
+      // system later changes to match it.
       const scheme = window as unknown as { setColorScheme: (t: string | null) => void };
-      document.querySelectorAll('[data-theme-toggle]').forEach((btn) =>
+      const showChoice = () => {
+        const chosen = document.documentElement.dataset.theme ?? 'auto';
+        document
+          .querySelectorAll<HTMLElement>('[data-scheme-choice] [data-scheme]')
+          .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.scheme === chosen)));
+      };
+      showChoice();
+      document.querySelectorAll('[data-scheme-choice] [data-scheme]').forEach((btn) =>
         btn.addEventListener('click', () => {
-          const system = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-          const shown = document.documentElement.dataset.theme ?? system;
-          const next = shown === 'dark' ? 'light' : 'dark';
-          scheme.setColorScheme(next === system ? null : next);
+          const next = (btn as HTMLElement).dataset.scheme!;
+          scheme.setColorScheme(next === 'auto' ? null : next);
           try {
-            if (next === system) localStorage.removeItem('theme');
+            if (next === 'auto') localStorage.removeItem('theme');
             else localStorage.setItem('theme', next);
           } catch {}
+          showChoice();
         }),
       );
       // The choice changed in another tab.
       addEventListener('storage', (e) => {
-        if (e.key === 'theme' || e.key === null) scheme.setColorScheme(localStorage.getItem('theme'));
+        if (e.key !== 'theme' && e.key !== null) return;
+        scheme.setColorScheme(localStorage.getItem('theme'));
+        showChoice();
       });
 
       // Videos from YouTube and Vimeo in the text (packages/editor/lib/video.mjs): the video loads only when it is played.

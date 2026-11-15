@@ -2,5 +2,5 @@
   "id": "footer-theme-toggle",
   "kind": "line",
   "mark": "improvement",
-  "text": "The light and dark toggle in the footer follows your system until you pick, and remembers your pick"
+  "text": "The footer has a Theme setting with Light, Auto and Dark: Auto follows the system, and your pick is remembered"
 }
