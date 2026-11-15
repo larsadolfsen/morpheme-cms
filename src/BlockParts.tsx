@@ -306,6 +306,15 @@ function FieldParts() {
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" defaultValue={screens.fieldValue} />
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" supporting={screens.fieldSupporting} />
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" defaultValue="name@" error={screens.fieldError} />
+                <SiteTextField
+                  kind={kind}
+                  label={screens.fieldLabel}
+                  type="email"
+                  required
+                  data-part="invalid-field"
+                  supporting={screens.fieldSupporting}
+                  invalidText={screens.fieldError}
+                />
                 <SiteTextField kind={kind} label={screens.fieldLabel} hideLabel type="email" placeholder={screens.fieldPlaceholder} />
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" disabled />
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" leadingIcon="envelope-simple" />

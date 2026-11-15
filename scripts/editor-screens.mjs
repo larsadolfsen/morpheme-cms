@@ -250,11 +250,19 @@ async function checkFocusIndicators(width, hash) {
   for (let i = 0; i < 400; i++) {
     await page.keyboard.press('Tab');
     await page.waitForTimeout(150);
+    // Tab only scrolls a stop into view when it is hidden: one cut by the window's edge hides its indicator, so it is centred first.
+    const hasStop = await page.evaluate(() => {
+      const e = document.activeElement;
+      if (!e || e === document.body) return false;
+      e.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
+      return true;
+    });
+    // Then two frames to settle: a stop in a part that CSS anchor positioning places (the rich tooltip's link) is laid out again
+    // after the scroll, and measured at once it is still where it was before it.
+    if (hasStop) await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
     const info = await page.evaluate(() => {
       const e = document.activeElement;
       if (!e || e === document.body) return null;
-      // Tab only scrolls a stop into view when it is hidden: one cut by the window's edge hides its indicator, so it is centred first.
-      e.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
       let box = e.getBoundingClientRect();
       // A hidden control (the radio of a ChoiceTile) shows its focus on the label that holds it.
       if (box.width < 4 || box.height < 4) box = (e.closest('label') ?? e.parentElement).getBoundingClientRect();
@@ -6005,6 +6013,65 @@ async function checkDensitySetting(width, height) {
   await page.close();
 }
 
+/** A text field is marked by the browser's own validity (`:user-invalid`), as Material 3 draws its error state: nothing is wrong
+ * before the person has worked in it, and after typing a wrong text and leaving it the edge, the name and the icon are in the
+ * error colour, the line under it says what is wrong in place of the supporting line (it does not add one), aria-invalid is true
+ * and the line is in aria-describedby; once it is put right all of that is gone, the layout has not moved, and a field the
+ * person has not touched is never marked. */
+async function checkUserInvalid(width, height, theme) {
+  const touch = width < 600;
+  const label = `${width}px ${theme} text field :user-invalid`;
+  const page = await browser.newPage({
+    viewport: { width, height },
+    hasTouch: touch,
+    isMobile: touch,
+    locale: 'en-US',
+    colorScheme: theme,
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#developer/parts/ui'));
+  const input = page.locator('[data-part="TextField"] input[data-part="invalid-field"]').first();
+  await input.waitFor({ timeout: 30_000 }).catch(() => problems.push(`${label}: the required field is not in the TextField part`));
+  if (!(await input.count())) return page.close();
+  await input.scrollIntoViewIfNeeded();
+  const read = () =>
+    input.evaluate((el) => {
+      const root = el.closest('.text-field');
+      const shown = (node) => !!node && getComputedStyle(node).display !== 'none';
+      const rect = root.getBoundingClientRect();
+      return {
+        invalid: el.matches(':user-invalid'),
+        edge: getComputedStyle(el.closest('.text-field-container')).boxShadow,
+        said: shown(root.querySelector('.text-field-invalid-text')),
+        supporting: shown(root.querySelector('.text-field-supporting:not(.text-field-invalid-text)')),
+        icon: shown(root.querySelector('.text-field-error-icon')),
+        aria: el.getAttribute('aria-invalid'),
+        described: (el.getAttribute('aria-describedby') ?? '').includes(root.querySelector('.text-field-invalid-text')?.id ?? '\0'),
+        height: Math.round(rect.height),
+      };
+    });
+  const before = await read();
+  if (before.invalid || before.said || before.icon || !before.supporting || before.aria === 'true')
+    problems.push(`${label}: marked before it was touched (${JSON.stringify(before)})`);
+  await input.focus();
+  await input.fill('name@');
+  await input.blur();
+  const wrong = await read();
+  if (!wrong.invalid || !wrong.said || wrong.supporting || !wrong.icon || wrong.aria !== 'true' || !wrong.described)
+    problems.push(`${label}: not marked after a wrong text was typed and left (${JSON.stringify(wrong)})`);
+  if (wrong.edge === before.edge) problems.push(`${label}: the edge did not change to the error's`);
+  if (wrong.height !== before.height)
+    problems.push(`${label}: the line under the field moved the layout (${before.height} to ${wrong.height})`);
+  await input.focus();
+  await input.fill('name@example.com');
+  await input.blur();
+  const right = await read();
+  if (right.invalid || right.said || right.icon || !right.supporting || right.aria === 'true' || right.described)
+    problems.push(`${label}: still marked after it was put right (${JSON.stringify(right)})`);
+  await page.close();
+}
+
 /** The parts read density (theme/styles/ui.css): at Large, Medium and Small a button, a chip, a segmented button and a text field are 4 px taller or lower (the chip 2 px a side), a list row follows the data-heavy step, a target keeps its size (an invisible area of at least --mo-target, 48 on a phone and 44 on a computer), a part in the page editing area or in a row that picks the density does not change, and a menu stays at Medium. */
 async function checkDensityParts(width, height, touch) {
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
@@ -6361,6 +6428,17 @@ async function checkEmptyHint() {
           }
           // A page's H1 has no image (owner, 14 Nov 2026): its Section settings have a colour and a width only.
           const sheet = page.locator('dialog[open], .editor-side-sheet').first();
+          // On a phone the section settings are a page (owner, 15 Nov): no control has the focus at the start, the page has it, with no ring.
+          if (touch) {
+            const start = await sheet.evaluate((d) => ({
+              onPage: document.activeElement === d,
+              styled: [...document.querySelectorAll(':focus-visible')].filter(
+                (e) => getComputedStyle(e).outlineStyle !== 'none' || getComputedStyle(e).boxShadow !== 'none',
+              ).length,
+            }));
+            if (!start.onPage) problems.push(`${name}: the focus does not start on the section settings page itself`);
+            if (start.styled) problems.push(`${name}: an element has focus-visible styling when the section settings page opens`);
+          }
           if (await sheet.getByText('Background image', { exact: true }).count())
             problems.push(`${name}: the Main heading's Section settings offer a background image`);
           if (!(await sheet.getByText('Width', { exact: true }).count()))
@@ -11380,6 +11458,11 @@ await unit('checkFooterTargets 1280', () => checkFooterTargets(1280, false));
 await unit('checkToolbarBox', () => checkToolbarBox());
 await unit('checkDensity 375', () => checkDensity(375, 740));
 await unit('checkDensity 1280', () => checkDensity(1280, 900));
+for (const [width, height] of [
+  [375, 740],
+  [1280, 900],
+])
+  for (const theme of ['light', 'dark']) await unit(`checkUserInvalid ${width} ${theme}`, () => checkUserInvalid(width, height, theme));
 await unit('checkDensityParts 375', () => checkDensityParts(375, 740, true));
 await unit('checkDensityParts 1280', () => checkDensityParts(1280, 900, false));
 await unit('checkDensityLayout 375', () => checkDensityLayout(375, 740));
