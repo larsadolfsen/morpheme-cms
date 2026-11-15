@@ -84,6 +84,8 @@ for the topic through the npm script, and name the guides you read in the pull r
 - `npm run audit:web -- search "<2–5 words>"`, then `npm run audit:web -- retrieve "<guide id>"`.
 - `npm run audit:web -- legacy-scan <folder> --json` finds legacy patterns; use it for an audit, not for a feature.
 
+Owner rule, 15 Nov: "We follow the best practices in modern web from Google." Where a guide covers behaviour, markup, accessibility or performance, we follow it; Material 3 still decides how things look and are named. A real conflict between the two goes to the PM, as below.
+
 Order of authority: the owner's rules, Material 3 and the theme components through `ui.tsx` win over the guidance. When a
 guide conflicts with one of them, you do not decide: stop, and send the PM the conflict (what the guide says, what our
 rule says, which screen or file, the closest option). The PM brings it to the owner, and you wait. Nothing is changed
