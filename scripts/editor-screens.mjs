@@ -408,7 +408,7 @@ async function checkChoiceGroupFields(width, locale) {
   const say =
     locale === 'da-DK'
       ? { block: daText.blockSettings, settings: daBlocks.buttons.settingsAction, style: daBlocks.buttons.kind }
-      : { block: 'Block settings', settings: 'Settings', style: 'Style' };
+      : { block: 'Block settings', settings: 'Settings', style: 'Variant' };
   const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: touch, isMobile: touch, locale });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   const path = 'src/content/pages/zz-choices.md';
@@ -7030,8 +7030,8 @@ async function checkInlineBlock(
       );
       const kinds = ['Filled', 'Tonal', 'Elevated', 'Outlined', 'Text'];
       // The choice group (ChoiceGroup): its buttons, or its list of radio buttons when they do not fit.
-      const group = page.getByRole('group', { name: 'Style', exact: true }).last();
-      await group.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's settings have no Style choice`));
+      const group = page.getByRole('group', { name: 'Variant', exact: true }).last();
+      await group.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's settings have no Variant choice`));
       const radios = await group.getByRole('radio').count();
       const names = radios
         ? await group.locator('.list-item-headline').allTextContents()
