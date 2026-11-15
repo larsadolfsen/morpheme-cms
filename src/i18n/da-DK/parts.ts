@@ -679,7 +679,7 @@ export const parts: Messages['parts'] = {
       content: 'Sidens indhold står her.',
       openRail: 'Åbn navigation',
       search:
-        'Søgefeltet og det, det åbner: feltet med knappen tilbage og resultaterne, der passer til det skrevne. En søgevisning, som siden styrer, grupperer også resultaterne under et navn, viser en tast ved siden af et punkt og beholder et punkt, der ikke kan bruges nu.',
+        'Søgefeltet og det, det åbner: feltet med knappen tilbage og resultaterne, der passer til det skrevne. En søgevisning, som siden styrer, grupperer også resultaterne under et navn, viser en tast ved siden af et punkt og beholder et punkt, der ikke kan bruges nu. Søgefeltet kan være en knap, der åbner visningen, og en gruppe har sit navn over sig (en kategorietiket).',
       toolbar:
         'Handlinger på en række: i hele bredden nederst, som linjen nederst på en telefon, eller svævende, i fladen eller den primære farve, på tværs eller lodret, også med en knap ved siden af og foldet sammen til knappen.',
       name: 'Navigation',

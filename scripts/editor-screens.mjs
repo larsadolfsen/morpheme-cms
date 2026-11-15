@@ -598,7 +598,7 @@ async function checkSearchViewParts(width, locale) {
   if (!(await part.count())) return page.close();
   await part.scrollIntoViewIfNeeded();
   const opener = part.getByRole('button', { name: say.open });
-  const view = page.locator('[data-search-controlled] dialog.search-view[open]');
+  const view = page.locator('[data-search-controlled] [data-search-view-open]');
   const input = view.locator('input[role=combobox]');
   const options = view.locator('[role=option]');
   const live = view.locator('.search-view-live');
@@ -626,7 +626,8 @@ async function checkSearchViewParts(width, locale) {
       sideways: document.documentElement.scrollWidth > innerWidth,
     };
   });
-  if (!box.modal) problems.push(`${label}: the view is not modal (the page behind it stays usable)`);
+  // Full screen on a phone is a modal <dialog>; from medium the view is a dropdown: not modal, the page behind it stays usable.
+  if (touch !== box.modal) problems.push(`${label}: the view is ${box.modal ? 'modal' : 'not modal'} on a ${touch ? 'phone' : 'computer'}`);
   if (touch) {
     if (box.docked || box.width < box.vw - 1 || box.height < box.vh - 1)
       problems.push(
@@ -831,7 +832,10 @@ async function checkSearchButton(width) {
       };
       const bar = document.querySelector('header');
       const heading = bar?.querySelector('h1');
-      const mine = [...(bar?.querySelectorAll('button[aria-label="Search"]') ?? [])].filter(visible);
+      let mine = [...(bar?.querySelectorAll('button[aria-label="Search"], [data-search-bar-button]') ?? [])].filter(visible);
+      // On a phone the start screen's search bar is the first thing in the page, not in the top bar.
+      const inPage = !mine.length;
+      if (inPage) mine = [...document.querySelectorAll('[data-search-bar-button]')].filter(visible);
       // The bar's actions after the title, in the order they are in the page.
       const after = [...(bar?.querySelectorAll('button, a[href]') ?? [])].filter(
         (el) => visible(el) && heading && heading.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING,
@@ -839,7 +843,7 @@ async function checkSearchButton(width) {
       const box = mine[0]?.getBoundingClientRect();
       return {
         n: mine.length,
-        first: after[0] === mine[0],
+        first: inPage || after[0] === mine[0],
         keys: mine[0]?.getAttribute('aria-keyshortcuts'),
         w: box?.width ?? 0,
         h: box?.height ?? 0,
@@ -868,7 +872,7 @@ async function checkCommandPalette(width) {
   const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
-  await page.waitForSelector('header button[aria-label="Search"]', { timeout: 15_000 });
+  await page.waitForSelector(':is(header button[aria-label="Search"], [data-search-bar-button]):visible', { timeout: 15_000 });
   // A page of this site (the demo's and the starter's differ): the first of the pages list, found by its title further down.
   await page.evaluate(() => (location.hash = '#list/pages'));
   await page.waitForSelector('main a.list-item-container', { timeout: 15_000 }).catch(() => {});
@@ -881,14 +885,32 @@ async function checkCommandPalette(width) {
   )?.trim();
   await page.evaluate(() => (location.hash = ''));
   await page.waitForTimeout(300);
-  const button = page.locator('header button[aria-label="Search"]');
-  const view = page.locator('[data-search-controlled] dialog[open]');
+  const button = page.locator(':is(header button[aria-label="Search"], [data-search-bar-button]):visible');
+  // The start screen shows the search bar all the time (M3 contained, 56 px high), not the icon; other screens keep the icon.
+  const homeBar = await page.evaluate(() => {
+    const bar = [...document.querySelectorAll('[data-search-bar-button]')].find((b) => b.getClientRects().length > 0);
+    const r = bar?.getBoundingClientRect();
+    const own = bar?.closest('.search-bar')?.getBoundingClientRect();
+    return {
+      bar: !!r && r.width > 0,
+      height: own?.height ?? 0,
+      left: own?.left ?? 0,
+      icon: [...document.querySelectorAll('header button[aria-label="Search"]')].some((b) => b.getClientRects().length > 0),
+    };
+  });
+  if (!homeBar.bar || Math.abs(homeBar.height - 56) > 0.5)
+    problems.push(`${label}: the start screen has no 56 px search bar (${JSON.stringify(homeBar)})`);
+  // M3 specs, Measurements: an unfocused search bar is 24dp from the screen's edge (on a phone, in the page; from medium it stands in the top bar).
+  if (touch && Math.abs(homeBar.left - 24) > 0.5)
+    problems.push(`${label}: the phone's search bar is ${homeBar.left} dp from the edge, not 24 (M3 specs)`);
+  if (homeBar.icon) problems.push(`${label}: the start screen also has the search icon button`);
+  const view = page.locator('[data-search-controlled] [data-search-view-open]');
   const input = view.locator('input[role=combobox]');
   const options = view.locator('[role=option]');
   const live = view.locator('.search-view-live');
   const groups = () =>
     view
-      .locator('[role=group]')
+      .locator('.search-view-group')
       .evaluateAll((els) => els.map((g) => document.getElementById(g.getAttribute('aria-labelledby') ?? '')?.textContent ?? ''));
   const names = () => options.evaluateAll((els) => els.map((e) => e.querySelector('.list-item-headline')?.textContent ?? ''));
   const active = () => input.getAttribute('aria-activedescendant');
@@ -923,16 +945,32 @@ async function checkCommandPalette(width) {
       sideways: document.documentElement.scrollWidth > innerWidth,
     };
   });
-  if (!box.modal) problems.push(`${label}: the palette is not modal`);
+  if (touch !== box.modal)
+    problems.push(
+      `${label}: the palette is ${box.modal ? 'modal' : 'not modal'} on a ${touch ? 'phone' : 'computer'} (a dropdown from medium)`,
+    );
   if (touch) {
     if (box.docked || box.width < box.vw - 1 || box.height < box.vh - 1)
       problems.push(
         `${label}: on a phone the palette is full screen (it is ${Math.round(box.width)}x${Math.round(box.height)} of ${box.vw}x${box.vh})`,
       );
-  } else if (!box.docked || box.width > 36 * 16 + 1 || box.top > 120 || Math.abs((box.left + box.right) / 2 - box.vw / 2) > 2) {
-    problems.push(
-      `${label}: on a computer the palette is docked in the middle near the top, at most 36rem wide (left ${Math.round(box.left)}, top ${Math.round(box.top)}, width ${Math.round(box.width)})`,
-    );
+  } else {
+    // A dropdown on the search bar of the start screen: its left edge and top are the bar's, as wide as the bar (360 to 720 dp), no scrim.
+    const bar = await page.evaluate(() => document.querySelector('header .search-bar')?.getBoundingClientRect().toJSON());
+    if (
+      !box.docked ||
+      !bar ||
+      Math.abs(box.left - bar.left) > 1 ||
+      Math.abs(box.top - bar.top) > 1 ||
+      Math.abs(box.width - Math.min(720, Math.max(360, bar.width))) > 1
+    )
+      problems.push(
+        `${label}: on a computer the palette is a dropdown on the search bar (palette left ${Math.round(box.left)}, top ${Math.round(box.top)}, width ${Math.round(box.width)}; bar ${JSON.stringify(bar)})`,
+      );
+    if (box.height > box.vh * (2 / 3) + 1 || box.height < 240 - 1)
+      problems.push(`${label}: the dropdown is ${Math.round(box.height)} px high, not 240 dp to 2/3 of the window (M3 specs)`);
+    if (await page.evaluate(() => getComputedStyle(document.querySelector('[data-search-view-open]')).position !== 'fixed'))
+      problems.push(`${label}: the dropdown is not on top of the page`);
   }
   if (box.sideways) problems.push(`${label}: the page scrolls sideways with the palette open`);
   if (!(await input.evaluate((el) => el === document.activeElement)))
@@ -940,12 +978,31 @@ async function checkCommandPalette(width) {
   if ((await view.getAttribute('aria-label')) !== 'Search actions and pages')
     problems.push(`${label}: the palette is not named "Search actions and pages"`);
 
+  // On a computer it is a dropdown, not a layer: a press outside it closes it (and the page behind it was not inert), then the button opens it again.
+  if (!touch) {
+    if (await page.evaluate(() => !!document.querySelector('[inert]')))
+      problems.push(`${label}: something is inert behind the dropdown (it must not be modal)`);
+    await page.mouse.click(box.vw - 4, box.vh / 2);
+    await shut('after a press outside it');
+    await button.click();
+    await view.waitFor({ timeout: 5000 });
+    await page.waitForTimeout(300);
+  }
   // Before typing: Suggested, the first places of the menu, 48 px rows, the first one highlighted, the count read aloud.
   const first = await groups();
   const n = await options.count();
   if (first.join() !== 'Suggested' || n < 1 || n > 6)
     problems.push(`${label}: before typing the palette shows ${JSON.stringify(first)} with ${n} options, not Suggested with 1 to 6`);
-  if (!(await activeIs(0))) problems.push(`${label}: the first option is not the one the arrow keys are on`);
+  // Nothing looks selected or focused when it opens: the highlight (the arrow keys' option, aria-activedescendant) starts after a key or the pointer.
+  if (await active()) problems.push(`${label}: an option is highlighted as soon as the palette opens (${await active()})`);
+  if (await view.locator('[role=option][aria-selected=true]').count())
+    problems.push(`${label}: an option is drawn selected as soon as the palette opens`);
+  if (
+    await page.evaluate(
+      () => document.activeElement?.closest('[data-search-view-open]') !== null && document.activeElement?.tagName !== 'INPUT',
+    )
+  )
+    problems.push(`${label}: a control other than the field has the focus when the palette opens`);
   if ((await live.textContent()) !== `${n} results`)
     problems.push(`${label}: the live region says "${await live.textContent()}" for ${n} options`);
   const heights = await options.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height));
@@ -958,6 +1015,8 @@ async function checkCommandPalette(width) {
   if (bars.some((h) => h < 47.5)) problems.push(`${label}: a button of the field's row is lower than 48 px (${bars.map(Math.round)})`);
   // The arrow keys move the highlight, the focus stays in the field.
   await page.keyboard.press('ArrowDown');
+  if (!(await activeIs(0))) problems.push(`${label}: ArrowDown does not go to the first option`);
+  await page.keyboard.press('ArrowDown');
   if (!(await activeIs(1))) problems.push(`${label}: ArrowDown does not move to the second option`);
   await page.keyboard.press('ArrowUp');
   if (!(await activeIs(0))) problems.push(`${label}: ArrowUp does not move back to the first option`);
@@ -966,7 +1025,7 @@ async function checkCommandPalette(width) {
   // Escape closes it, and the focus is back on the button.
   await page.keyboard.press('Escape');
   await shut('after Escape');
-  if ((await focusOn()) !== 'BUTTON:Search:false')
+  if (!(await page.evaluate(() => !!document.activeElement?.matches('header button[aria-label="Search"], [data-search-bar-button]'))))
     problems.push(`${label}: after Escape the focus is on ${await focusOn()}, not the search button`);
 
   // A place of the menu is found by its name; Enter goes there, closes the palette and puts the focus on the screen's heading.
@@ -987,18 +1046,114 @@ async function checkCommandPalette(width) {
   const heading = await page.evaluate(() => `${document.activeElement?.tagName}:${document.activeElement?.textContent?.trim()}`);
   if (!/^H1:\S/.test(heading)) problems.push(`${label}: after Go to the focus is on "${heading}", not on the screen's heading`);
 
-  // Next time what was run is first, under Recent.
+  // Next time the search typed is first, under Recent searches (history icon, a button that removes it), then what was run, under Recent.
   await button.click();
   await view.waitFor({ timeout: 5000 });
   await page
-    .waitForFunction(() => document.querySelector('[data-search-controlled] .search-view-group-label')?.textContent === 'Recent', null, {
-      timeout: 3000,
-    })
+    .waitForFunction(
+      () => document.querySelector('[data-search-controlled] .search-view-group-label')?.textContent === 'Recent searches',
+      null,
+      { timeout: 3000 },
+    )
     .catch(() => {});
-  if ((await groups())[0] !== 'Recent' || !/^Files/.test((await names())[0] ?? ''))
+  const again = await groups();
+  const againNames = await names();
+  if (again[0] !== 'Recent searches' || againNames[0] !== 'files')
     problems.push(
-      `${label}: the next time Recent does not have Files first: ${JSON.stringify(await groups())} ${JSON.stringify(await names())}`,
+      `${label}: the next time Recent searches does not have "files" first: ${JSON.stringify(again)} ${JSON.stringify(againNames)}`,
     );
+  if (again[1] !== 'Recent' || !/^Files/.test(againNames[1] ?? ''))
+    problems.push(`${label}: Recent does not have Files after Recent searches: ${JSON.stringify(again)} ${JSON.stringify(againNames)}`);
+  if (!(await options.first().locator('.list-item-leading svg').count())) problems.push(`${label}: a recent search has no history icon`);
+  if (!(await view.locator('button[aria-label^="Remove"]').count()))
+    problems.push(`${label}: a recent search has no button that removes it`);
+
+  // Material 3's search (spec: contained style): the bar is a filled pill 56 px high in its own container, not a bare list; every row leads with an
+  // icon or a picture; the keyboard's search key submits; a group has its name over it; the chips and the last row come with a query.
+  const look = await view.evaluate((el) => {
+    const bar = el.querySelector('.search-view-header');
+    const bs = getComputedStyle(bar);
+    const r = bar.getBoundingClientRect();
+    const transparent = (c) => c === 'rgba(0, 0, 0, 0)' || c === 'transparent';
+    const docked = el.classList.contains('search-view-docked');
+    // The container of the lists: the view itself full screen, the results container under the bar docked (M3: the bar and the results, 2dp apart).
+    const container = docked ? el.querySelector('.search-view-body') : el;
+    const gap = docked ? el.querySelector('.search-view-body').getBoundingClientRect().top - r.bottom : null;
+    return {
+      docked,
+      gap,
+      barHeight: r.height,
+      barRadius: parseFloat(bs.borderTopLeftRadius),
+      barFilled: !transparent(bs.backgroundColor) && (docked || bs.backgroundColor !== getComputedStyle(container).backgroundColor),
+      viewFilled: !transparent(getComputedStyle(container).backgroundColor),
+      barMargin: r.left - el.getBoundingClientRect().left,
+      hint: el.querySelector('input[role=combobox]').enterKeyHint,
+    };
+  });
+  if (Math.abs(look.barHeight - 56) > 0.5) problems.push(`${label}: the search bar is ${look.barHeight} px high, not 56 (M3 specs)`);
+  if (look.barRadius < 28) problems.push(`${label}: the search bar is not a pill (radius ${look.barRadius})`);
+  if (!look.barFilled) problems.push(`${label}: the search bar has no container of its own: the page is a bare list`);
+  if (!look.viewFilled) problems.push(`${label}: the search view has no container colour`);
+  // M3 tokens: "Search view contained leading margin 12dp" full screen; docked, the bar stands where the bar was, and "docked bar results gap 2dp".
+  if (Math.abs(look.barMargin - (look.docked ? 0 : 12)) > 0.5)
+    problems.push(`${label}: the focused search bar is ${look.barMargin} px from the view's edge, not ${look.docked ? 0 : 12} (M3 tokens)`);
+  if (look.docked && Math.abs(look.gap - 2) > 0.5)
+    problems.push(`${label}: the gap between the bar and the results is ${look.gap} px, not 2 (M3 tokens)`);
+  if (look.hint !== 'search') problems.push(`${label}: the keyboard's key is "${look.hint}", not "search"`);
+  const leadingOf = () => options.evaluateAll((els) => els.map((e) => !!e.querySelector('.list-item-leading svg, .list-item-leading img')));
+  if ((await leadingOf()).some((x) => !x))
+    problems.push(`${label}: before typing a row has no leading icon ${JSON.stringify(await leadingOf())}`);
+  if (await view.locator('.search-view-filters').count()) problems.push(`${label}: the filter chips show before typing`);
+  // A recent search runs again when it is pressed; Delete removes the one the arrows are on.
+  await options.first().click();
+  await page.waitForTimeout(250);
+  if ((await input.inputValue()) !== 'files')
+    problems.push(`${label}: a recent search does not run again (the field says "${await input.inputValue()}")`);
+  await input.fill('s');
+  await page.waitForTimeout(300);
+  const chips = await view.locator('.search-view-filters .chip').allTextContents();
+  if (chips.join() !== 'Actions,Pages,Posts,Images,Files') problems.push(`${label}: the filter chips are ${JSON.stringify(chips)}`);
+  // A chip is not greyed out when something fits it: the pages of this site fit "pages" (the first 30 results are not all of them).
+  const chipOff = await view.locator('.search-view-filters .chip:disabled').count();
+  const pageHit = pageTitle ? pageTitle.trim().split(/\s+/)[0].slice(0, 3) : '';
+  if (pageHit) {
+    await input.fill(pageHit);
+    await page.waitForTimeout(300);
+    const pagesChip = view.locator('.search-view-filters .chip', { hasText: /^Pages$|^Posts$/ });
+    const enabled = await pagesChip.evaluateAll((els) => els.filter((e) => !e.disabled).length);
+    if (!enabled) problems.push(`${label}: no Pages or Posts chip is enabled for "${pageHit}", the first word of the page "${pageTitle}"`);
+    await input.fill('s');
+    await page.waitForTimeout(300);
+  }
+  void chipOff;
+  if ((await view.locator('.search-view-group-label').count()) < 1) problems.push(`${label}: the results have no group name over them`);
+  if ((await leadingOf()).some((x) => !x)) problems.push(`${label}: a result has no leading icon ${JSON.stringify(await leadingOf())}`);
+  const last = (await names()).at(-1) ?? '';
+  if (last !== 'All search results for “s”') problems.push(`${label}: the last row is "${last}", not "All search results for “s”"`);
+  // The chip Actions narrows the results to actions; pressing it again clears it.
+  await view.locator('.search-view-filters .chip', { hasText: 'Actions' }).click();
+  await page.waitForTimeout(250);
+  if (!(await input.evaluate((el) => el === document.activeElement)))
+    problems.push(`${label}: a filter chip took the focus from the field`);
+  // The last row shows all the results and goes away.
+  await page.keyboard.press('End');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(250);
+  if ((await names()).some((n) => n.startsWith('All search results')))
+    problems.push(`${label}: the last row is still there after it was pressed`);
+  if (!(await view.count())) problems.push(`${label}: the last row closed the view, it should show all the results`);
+  await input.fill('');
+  await page.waitForTimeout(250);
+  // Delete removes the recent search the arrows are on.
+  const before = (await names()).length;
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Delete');
+  await page.waitForTimeout(250);
+  if ((await names()).length !== before - 1) problems.push(`${label}: Delete does not remove the recent search`);
+  await page.keyboard.press('Escape');
+  await shut('after the searches');
+  await button.click();
+  await view.waitFor({ timeout: 5000 });
   // A page is found by its title, under Pages and posts.
   if (!pageTitle) problems.push(`${label}: the site has no page to find (the pages list is empty)`);
   else {
@@ -1054,7 +1209,7 @@ async function checkEditorActions(width) {
   const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
-  const view = page.locator('[data-search-controlled] dialog[open]');
+  const view = page.locator('[data-search-controlled] [data-search-view-open]');
   const input = view.locator('input[role=combobox]');
   const options = view.locator('[role=option]');
   const names = () => options.evaluateAll((els) => els.map((e) => e.querySelector('.list-item-headline')?.textContent ?? ''));
@@ -1080,7 +1235,7 @@ async function checkEditorActions(width) {
 
   // Through the search button the selection stays, and Bold is first for "bold".
   {
-    await page.locator('header button[aria-label="Search"]').click();
+    await page.locator(':is(header button[aria-label="Search"], [data-search-bar-button]):visible').click();
     await view.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the button does not open the palette`));
     if (!(await view.count())) return page.close();
     await page.waitForTimeout(300);
@@ -1123,8 +1278,8 @@ async function checkPaletteLast(width) {
   const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
-  await page.waitForSelector('header button[aria-label="Search"]', { timeout: 15_000 });
-  const view = page.locator('[data-search-controlled] dialog[open]');
+  await page.waitForSelector(':is(header button[aria-label="Search"], [data-search-bar-button]):visible', { timeout: 15_000 });
+  const view = page.locator('[data-search-controlled] [data-search-view-open]');
   const input = view.locator('input[role=combobox]');
   const options = view.locator('[role=option]');
   const names = () => options.evaluateAll((els) => els.map((e) => e.querySelector('.list-item-headline')?.textContent ?? ''));
