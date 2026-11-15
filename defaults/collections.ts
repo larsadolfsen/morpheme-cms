@@ -60,7 +60,7 @@ const barButtonHref: Field = {
 // Under "Search engines" with the Google texts (EntryForm.tsx).
 const canonical: Field = {
   name: 'canonical',
-  label: 'Original page',
+  label: 'Canonical URL',
   type: 'relation',
   to: 'pages',
   fixed: true,
@@ -90,7 +90,7 @@ const unlisted: Field = {
   label: 'Hidden',
   type: 'boolean',
   toggle: ['On', 'Off'],
-  hint: 'Not shown on the blog or in lists of posts, but open at its address and in Google.',
+  hint: 'Not shown on the blog or in lists of posts, but open at its URL and in Google.',
 };
 
 // The text of the image at the top of a post (a page has its images in its text): "Decorative image" (drawn with alt="", screen readers skip
@@ -117,7 +117,7 @@ const status = (): Field[] => [
     // A narrow menu field over the title (EntryForm.tsx).
     narrow: true,
     options: [
-      { value: 'draft', label: 'Draft', hint: 'Not on the website yet. Not even at its address.' },
+      { value: 'draft', label: 'Draft', hint: 'Not on the website yet. Not even at its URL.' },
       { value: '', label: 'Published', hint: 'On the website for everyone.' },
       // An older site's stored status: saving it keeps working (the check accepts it); `Schedule` moves it to a waiting version.
       { value: 'scheduled', label: 'Scheduled', hint: 'On the website from its time.', stored: true },
@@ -130,14 +130,14 @@ const status = (): Field[] => [
 const seo: Field[] = [
   {
     name: 'seoTitle',
-    label: 'Google title',
+    label: 'Meta title',
     type: 'string',
     hint: 'At most about 60 characters.',
     max: 70,
   },
   {
     name: 'seoDescription',
-    label: 'Google description',
+    label: 'Meta description',
     type: 'text',
     hint: 'About 140-155 characters.',
     max: 170,
@@ -145,7 +145,7 @@ const seo: Field[] = [
   // og:image (Base.astro), cut to 1200 × 630 by packages/editor/scripts/responsive-images.mjs.
   {
     name: 'shareImage',
-    label: 'Image when shared',
+    label: 'Open Graph image',
     type: 'image',
     hint: 'Shown when the page is shared, for example on Facebook.',
   },
@@ -156,16 +156,16 @@ const seo: Field[] = [
 const shareTexts: Field[] = [
   {
     name: 'shareTitle',
-    label: 'Title when shared',
+    label: 'Open Graph title',
     type: 'string',
-    hint: 'If the field is empty, the Google title is used.',
+    hint: 'If the field is empty, the meta title is used.',
     max: 70,
   },
   {
     name: 'shareDescription',
-    label: 'Description when shared',
+    label: 'Open Graph description',
     type: 'text',
-    hint: 'If the field is empty, the Google description is used.',
+    hint: 'If the field is empty, the meta description is used.',
     max: 170,
   },
 ];
@@ -244,10 +244,10 @@ export const socialFields: Field[] = [
     fields: [
       {
         name: 'url',
-        label: 'Address',
+        label: 'URL',
         type: 'string',
         required: true,
-        pattern: ['^https://\\S+$', 'Write an address that starts with https://'],
+        pattern: ['^https://\\S+$', 'Write a URL that starts with https://'],
       },
     ],
   },
@@ -282,7 +282,7 @@ const standardPageFields: Field[] = [
     type: 'relation',
     to: 'standardPages',
     required: true,
-    hint: 'The page is shown on the home page, and its own address sends on there.',
+    hint: 'The page is shown on the home page, and its own URL sends on there.',
   },
   {
     name: 'blog',
@@ -290,7 +290,7 @@ const standardPageFields: Field[] = [
     type: 'relation',
     to: 'standardPages',
     required: true,
-    hint: 'The page is shown at /blog/, and its own address sends on there.',
+    hint: 'The page is shown at /blog/, and its own URL sends on there.',
   },
   {
     name: 'notFound',
@@ -298,7 +298,7 @@ const standardPageFields: Field[] = [
     type: 'relation',
     to: 'standardPages',
     required: true,
-    hint: 'The page is shown when an address does not exist.',
+    hint: 'The page is shown when a URL does not exist.',
   },
   {
     name: 'contact',
@@ -399,7 +399,7 @@ export const collections: Collection[] = [
       { name: 'title', label: 'Title', type: 'string', required: true },
       { name: 'date', label: 'Date', type: 'date', required: true },
       { name: 'path', label: 'URL', type: 'string', address: 'post' },
-      { name: 'description', label: 'Short description', type: 'text' },
+      { name: 'description', label: 'Excerpt', type: 'text' },
       {
         name: 'categories',
         label: 'Tags',
@@ -431,7 +431,7 @@ export const collections: Collection[] = [
       ...status(),
       { name: 'title', label: 'Title', type: 'string', required: true },
       { name: 'path', label: 'URL', type: 'string', address: 'page' },
-      { name: 'description', label: 'Short description', type: 'text' },
+      { name: 'description', label: 'Excerpt', type: 'text' },
       {
         name: 'categories',
         label: 'Tags',

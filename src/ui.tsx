@@ -94,6 +94,7 @@ import {
   siteNavigationDrawerDialogClass,
   siteFocusNavigationDrawerItem,
   SiteSegmentedButton,
+  SiteChoiceGroup,
   SiteSideSheet,
   SiteTab,
   SiteTabs,
@@ -179,6 +180,8 @@ type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' 
   icon: Icon | string;
   /** What it does: its name for screen readers and its tooltip. */
   label: string;
+  /** Its key as people read it here ("Ctrl+K"): after the name in the tooltip. Put `aria-keyshortcuts` on the button too. */
+  shortcut?: string;
   kind?: IconButtonKind;
   selected?: boolean;
   badge?: number | boolean;
@@ -187,8 +190,9 @@ type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' 
   type?: 'button' | 'submit';
 };
 
-export function IconButton({ icon: Glyph, label, ...rest }: IconButtonProps) {
-  const tooltip = useTooltip(label, rest);
+export function IconButton({ icon: Glyph, label, shortcut, ...rest }: IconButtonProps) {
+  // The key stands after the name in the tooltip ("Search  Ctrl+K"); the name for screen readers stays the name.
+  const tooltip = useTooltip(shortcut ? `${label}  ${shortcut}` : label, rest);
   return (
     <>
       <SiteIconButton icon={typeof Glyph === 'string' ? Glyph : <Glyph />} label={label} {...rest} {...tooltip.on} />
@@ -1758,6 +1762,49 @@ export function SegmentedButton<T extends string>({
   );
 }
 
+/** The theme's choice group: one choice of a few, side by side as joined buttons when every name fits, else a list of
+ * radio buttons, one per row, with a small `sample` of each look on its right (theme/ui/ChoiceGroup.tsx). `labelHidden`:
+ * the name is already over it (a field's label), so the list's own name is for screen readers only. */
+export function ChoiceGroup<T extends string>({
+  label,
+  value,
+  options,
+  disabled,
+  dots,
+  labelHidden,
+  onChange,
+}: {
+  /** What is chosen: the group's name. */
+  label: string;
+  value: T;
+  options: { value: T; label: string; icon?: Icon; swatch?: string; sample?: ReactNode; disabled?: boolean }[];
+  /** It cannot be changed now: grey, and it stays. */
+  disabled?: boolean;
+  /** Only the `swatch` dots are shown in the buttons; each name is its accessible label. */
+  dots?: boolean;
+  labelHidden?: boolean;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <SiteChoiceGroup
+      label={label}
+      value={value}
+      disabled={disabled}
+      dots={dots}
+      labelHidden={labelHidden}
+      onChange={(v: string) => onChange(v as T)}
+      choices={options.map(({ value: v, label: name, icon: Glyph, swatch, sample, disabled: off }) => ({
+        value: v,
+        label: name,
+        icon: Glyph && <Glyph />,
+        swatch,
+        sample,
+        disabled: off,
+      }))}
+    />
+  );
+}
+
 /** Up to four choices as the theme's outlined cards, four to a row on every screen, each with its icon over its name (a
  * page's template): radio buttons under their name (`label`, the legend) and `hint`, so the arrow keys move between them.
  * The chosen one is on the secondary container with an edge in the accent colour and a tick in its corner; a `disabled`
@@ -2296,6 +2343,7 @@ export function SheetActions({
   onCancel,
   onDone,
   done,
+  cancel,
   disabled,
   start,
 }: {
@@ -2303,6 +2351,8 @@ export function SheetActions({
   onDone: () => void;
   /** The main button's text (Save, Insert). */
   done: string;
+  /** The other button's text, when it is not Cancel (Skip). */
+  cancel?: string;
   disabled?: boolean;
   start?: ReactNode;
 }) {
@@ -2312,7 +2362,7 @@ export function SheetActions({
       <div className="flex items-center gap-2 px-5 py-3">
         {start}
         <Button kind="outlined" className="ml-auto" onClick={onCancel}>
-          {t.common.cancel}
+          {cancel ?? t.common.cancel}
         </Button>
         <Button disabled={disabled} onClick={onDone}>
           {done}

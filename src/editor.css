@@ -1940,17 +1940,9 @@ dialog {
   }
 }
 
-/* Files: a file's details in the full-screen dialog (Media.tsx). The docked toolbar (Previous, "1 of 4", Next) stays at the
-   dialog's bottom edge while its content scrolls: sticky at the end of the content, over its end padding, the whole width. */
-.editor-file-dialog .editor-file-toolbar {
-  position: sticky;
-  bottom: calc(-1 * max(1.5rem, env(safe-area-inset-bottom)));
-  margin: 1.5rem calc(-1 * var(--dialog-padding, 1.5rem)) calc(-1 * max(1.5rem, env(safe-area-inset-bottom)));
-}
-
 /* The crop view (CropView.tsx, image tools spec section 3): a page of the editor on every width, as a layer the size of the window over it (a modal
    <dialog>, so the form under it keeps its changes and its scroll place): the top app bar, the content in a column as wide as a form, and a bottom bar
-   with Save. The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and everything outside it is under the
+   with Save. The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and the part of the image outside it is under the
    theme's scrim, the one its dialogs have behind their container (--dialog-scrim). The frame has a 2 dp border with a 1 dp halo outside it in the other
    inverse colour, so one of the two stands against any image, light or dark (M3 prints no frame: the focus ring's two-tone look). */
 .crop-page {
@@ -2008,7 +2000,6 @@ dialog {
   min-height: 10rem;
   overflow: hidden;
   border-radius: var(--mo-shape-corner-medium, 0.75rem);
-  background: var(--mo-surface-container-high);
   cursor: grab;
   touch-action: none;
   user-select: none;
@@ -2028,9 +2019,14 @@ dialog {
   position: absolute;
   box-sizing: border-box;
   border: 2px solid var(--mo-inverse-on-surface);
-  box-shadow:
-    0 0 0 1px var(--mo-inverse-surface),
-    0 0 0 100vmax var(--dialog-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-on-surface)) 50%, transparent));
+  box-shadow: 0 0 0 1px var(--mo-inverse-surface);
+  pointer-events: none;
+}
+/* The part of the image outside the frame is under the theme's scrim, the one its dialogs have behind their container (--dialog-scrim); only the image is, so
+   the blank part of the stage keeps the page's colour. */
+.crop-view-shade {
+  position: absolute;
+  background: var(--dialog-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-on-surface)) 50%, transparent));
   pointer-events: none;
 }
 .crop-view-frame:focus-visible {
@@ -2061,8 +2057,6 @@ dialog {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  /* The theme's inactive track is the surface container high, the colour of the image area, so it would not show here: the secondary container is used instead. */
-  --slider-inactive-track: var(--mo-secondary-container);
 }
 @media (width >= theme(--breakpoint-medium)) {
   .crop-view-ratios {

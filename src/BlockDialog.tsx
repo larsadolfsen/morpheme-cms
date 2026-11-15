@@ -44,6 +44,7 @@ import { preview, siteBlocks } from './registry';
 import { apps } from './site';
 import { headed, letterOf } from './Sheet';
 import { cropView, type Cut } from './CropView';
+import { shownAt } from './images';
 import { t } from './i18n';
 import { snackbar } from '../lib/snackbar';
 import { closeChanged } from './ask';
@@ -54,15 +55,15 @@ import { setPanelOpen } from './sidePanel';
 import { SiteSideSheet, siteSideSheet, siteSideSheetDialogClass, siteStandardSideSheet } from './themeUi';
 import { typedInPlace } from './typedInPlace.mjs';
 
-/** Where an image's sheet opens (the bar's Alt text, until the alt text sheet of PR 4): its Alt text field. */
+/** Where an image's live sheet opens (from expanded, the bar's Alt text and a new image): its Alt text field. Below expanded the alt text sheet (`BlockAsk.alt`) is used. */
 export type EditFocus = 'alt';
 
-/** Scrolls the open sheet to its Alt text field and puts the focus there, once the sheet has drawn it (it opens after the one before it has closed). */
-function reachAlt() {
+/** Scrolls the open sheet to its field labelled `name` (the Alt text field; a video's link, `reachField`) and puts the focus there, once the sheet has drawn it (it opens after the one before it has closed). */
+export function reachField(name: string) {
   let tries = 0;
   const go = () => {
     const sheet = [...document.querySelectorAll<HTMLElement>('dialog[open], .editor-side-sheet')].at(-1);
-    const label = [...(sheet?.querySelectorAll('label') ?? [])].find((l) => l.textContent?.trim() === t.blocks.picture.alt);
+    const label = [...(sheet?.querySelectorAll('label') ?? [])].find((l) => l.textContent?.trim() === name);
     const target = label?.htmlFor ? sheet?.querySelector<HTMLElement>(`[id="${CSS.escape(label.htmlFor)}"]`) : null;
     if (!target) return void (tries++ < 40 && setTimeout(go, 50));
     target.scrollIntoView({ block: 'center' });
@@ -94,6 +95,13 @@ export type BlockAsk = {
    * block in the text, used when the sheet is live (the side sheet from expanded): its changes are then written through it, and the
    * answer is null when it closes (nothing is left to write). focus: the field the sheet opens at (EditFocus). */
   edit: (type: string, props: BlockProps, isNew?: boolean, live?: () => LiveBlock | null, focus?: EditFocus) => Promise<BlockProps | null>;
+  /** The short sheet for an image's alt text (image tools spec 9.1): its preview, `Decorative image` and `Alt text` (with the Library's text as the hint), and `Skip`
+   * (mode 'new', right after an image was picked: the image stays without a text of its own, also when the sheet is closed) or `Cancel` (mode 'edit', the bar's
+   * Alt text) and `Save`. The new text and whether the image is decorative; null in 'edit' when it was left. */
+  alt: (
+    image: { src: string; alt: string; decorative: boolean },
+    mode: 'new' | 'edit',
+  ) => Promise<{ alt: string; decorative: boolean } | null>;
   /** The settings of the section the cursor is in (its colour, null: none, an H2's image and its description, and the width); the new
    * ones, or null when cancelled. image: the section can have an image (an H2's); width: it can have a width (an H1's or H2's). live: as
    * `edit`'s. */
@@ -138,6 +146,7 @@ type Open = (
   | { step: 'fields'; type: string; isNew: boolean; live?: boolean }
   | { step: 'section'; image: boolean; width: boolean; live?: boolean }
   | { step: 'row'; live?: undefined }
+  | { step: 'alt'; mode: 'new' | 'edit'; live?: undefined }
 ) & { wide?: boolean };
 
 const sectionValues = (v: BlockProps): SectionValues => ({
@@ -146,6 +155,11 @@ const sectionValues = (v: BlockProps): SectionValues => ({
   alt: String(v.alt ?? ''),
   width: String(v.width ?? ''),
 });
+
+// An image's alt text sheet as it would be saved, to compare (the text and whether the image is decorative).
+const altWritten = (v: BlockProps) => JSON.stringify([String(v.alt ?? '').trim(), v.decorative === true]);
+// The answer that keeps the image with no text of its own (Skip, and the sheet closed in 'new' mode).
+const SKIPPED = { type: 'image', props: { alt: '', decorative: false } };
 
 /** The type a section's settings are answered with (not a block's). */
 const SECTION = 'section';
@@ -182,6 +196,8 @@ const image: SiteBlock = {
     },
   ],
 };
+// The fields of the alt text sheet: the image's own, without the image (its address stays in the values, for the Library's text).
+const altFields = image.fields.filter((f) => f.name !== 'src');
 type Answer = { type: string; props: BlockProps; open?: boolean } | null;
 
 // Text as searched: lower case, without accents (as in PagePicker.tsx).
@@ -282,6 +298,7 @@ export function useBlockDialog(
       setValues(props);
       if (first.step === 'fields') shown.current = asWritten(first.type, props);
       if (first.step === 'section') shown.current = JSON.stringify(sectionValues(props));
+      if (first.step === 'alt') shown.current = altWritten(props);
       setProblem('');
       wrongField.stop(null);
       setQuery('');
@@ -346,6 +363,15 @@ export function useBlockDialog(
   useEffect(() => {
     if (choosing && matchMedia('(pointer: fine)').matches) search.current?.focus();
   }, [choosing]);
+
+  // The alt text sheet is for the text: its field has the focus when the sheet is open (a phone's keyboard comes up and the field is in view), unless the
+  // image is decorative and has none.
+  const altStep = open?.step === 'alt';
+  useEffect(() => {
+    if (!altStep) return;
+    const id = setTimeout(() => dialog.current?.querySelector<HTMLElement>('textarea, input[type=text]')?.focus(), 150);
+    return () => clearTimeout(id);
+  }, [altStep]);
 
   // Answer and close (the side sheet slides out first; the next one waits for `closing`).
   const done = (a: Answer) => {
@@ -417,10 +443,14 @@ export function useBlockDialog(
     },
     edit: async (type, props, isNew = false, linked, focus) => {
       const fields = blockOf(type)?.fields ?? [];
-      if (focus === 'alt') reachAlt();
+      if (focus === 'alt') reachField(t.blocks.picture.alt);
       // A block on the page with what a field it has no value for means; a new one with the defaults.
       const a = await ask({ step: 'fields', type, isNew }, isNew ? { ...newValue(fields), ...props } : savedValue(fields, props), linked);
       return a && a.props;
+    },
+    alt: async (picture, mode) => {
+      const a = await ask({ step: 'alt', mode }, { src: picture.src, alt: picture.alt, decorative: picture.decorative });
+      return a ? { alt: String(a.props.alt ?? ''), decorative: a.props.decorative === true } : null;
     },
   };
 
@@ -468,6 +498,14 @@ export function useBlockDialog(
       if (choice === 'keep') return (saveSection(), true);
       return choice === 'discard' && finish(null);
     }
+    if (open?.step === 'alt') {
+      // Closed before Save: with nothing changed, or after Discard, a new image stays without a text of its own (Skip), an old one is as it was.
+      const left = () => finish(open.mode === 'new' ? SKIPPED : null);
+      if (altWritten(values) === shown.current) return left();
+      const choice = await closeChanged();
+      if (choice === 'keep') return (saveAlt(), true);
+      return choice === 'discard' && left();
+    }
     if (open?.step !== 'fields' || asWritten(open.type, values) === shown.current) return finish(null);
     const choice = await closeChanged();
     if (choice === 'keep') return save(open.type);
@@ -476,6 +514,14 @@ export function useBlockDialog(
   // The ask() of an earlier render may be the one called: it leaves through the latest.
   const latest = useRef({ leave });
   latest.current = { leave };
+
+  function saveAlt() {
+    // A decorative image has no text.
+    done({
+      type: IMAGE,
+      props: { alt: values.decorative === true ? '' : String(values.alt ?? '').trim(), decorative: values.decorative === true },
+    });
+  }
 
   function saveSection() {
     done({ type: SECTION, props: sectionValues(values) });
@@ -526,11 +572,13 @@ export function useBlockDialog(
   const title =
     open?.step === 'row'
       ? (rowSpec.current?.headline ?? '')
-      : open?.step === 'section'
-        ? t.text.sectionSettings
-        : block
-          ? block.label
-          : t.blocks.insert;
+      : open?.step === 'alt'
+        ? t.blocks.picture.alt
+        : open?.step === 'section'
+          ? t.text.sectionSettings
+          : block
+            ? block.label
+            : t.blocks.insert;
   const rowFields = open?.step === 'row' && rowSpec.current && (
     <FieldList
       fields={rowSpec.current.fields}
@@ -712,6 +760,24 @@ export function useBlockDialog(
           </>
         )}
         {look === 'sheet' && open?.step === 'row' && <SheetBody>{rowFields}</SheetBody>}
+        {open?.step === 'alt' && (
+          <>
+            <SheetBody>
+              <img
+                src={shownAt(String(values.src ?? ''))}
+                alt=""
+                className="mx-auto max-h-24 max-w-full rounded-xl object-contain medium:max-h-40"
+              />
+              <FieldList fields={altFields} value={values} onChange={(v) => setValues(v as BlockProps)} />
+            </SheetBody>
+            <SheetActions
+              cancel={open.mode === 'new' ? t.media.altSkip : undefined}
+              onCancel={() => (open.mode === 'new' ? done(SKIPPED) : void leave())}
+              onDone={saveAlt}
+              done={t.common.save}
+            />
+          </>
+        )}
         {look === 'sheet' && open?.step === 'section' && (
           <>
             <SheetBody>{sectionSettings}</SheetBody>

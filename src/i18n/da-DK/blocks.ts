@@ -244,6 +244,8 @@ export const blocks: Messages['blocks'] = {
     example: ['Første emne', 'Andet emne', 'Tredje emne'],
   },
   buttons: {
+    /** The sample of a button style in its settings, while the button has no text of its own (choiceSamples.tsx). */
+    sample: 'Knap',
     label: 'Knapper',
     hint: 'Knapper med tekst og ikon.',
     edit: 'Rediger standardknapper',
@@ -567,6 +569,7 @@ export const blocks: Messages['blocks'] = {
     label: 'Video',
     hint: 'En video fra YouTube eller Vimeo.',
     url: 'Videolink',
+    changeUrl: 'Skift link',
     urlProblem: 'Indsæt linket til videoen fra YouTube eller Vimeo',
     title: 'Titel',
     video: 'Video',

@@ -26,7 +26,7 @@ import {
   MultiChoice,
   SupportingText,
   PhoneField,
-  SegmentedButton,
+  ChoiceGroup,
   Select,
   SheetActions,
   SheetBody,
@@ -59,6 +59,7 @@ import { ToolSelect } from './ToolSelect';
 import { MoveButtons } from './MoveButtons';
 import { movedList } from './moveItem.mjs';
 import { iconColorOf, iconColorOptions } from './iconColor';
+import { choiceSample, sampleTextOf } from './choiceSamples';
 import { clean, inPairs, inUse, newItem, phoneParts, phoneText, problemAt, problemOf, type Around, type Problem } from './check';
 import { Icon, useAllIconNames } from './icon';
 import { t } from './i18n';
@@ -433,7 +434,12 @@ function FieldControl({ field, value, onChange }: Props) {
       if (field.segments) {
         // Without a value (saved before the field was there), its default, as the fields that depend on it have it (inUse).
         const shown = text || String(field.default ?? '');
-        control = <SegmentedButton label={field.label} value={shown} options={offered} dots={field.dots} onChange={onChange} />;
+        // A look's sample on each row of the list (Field.sample), with the entry's own text (a button's).
+        const sampleLabel = field.sample ? sampleTextOf(field.sample, around?.value, context) : undefined;
+        const choices = field.sample
+          ? offered.map((o) => ({ ...o, sample: choiceSample(field.sample!, o.value, { label: sampleLabel }) }))
+          : offered;
+        control = <ChoiceGroup label={field.label} value={shown} options={choices} dots={field.dots} labelHidden onChange={onChange} />;
         // A saved icon color that is now below 3:1 on the page keeps its color; the field says so (not a block).
         if (colored?.low)
           control = (

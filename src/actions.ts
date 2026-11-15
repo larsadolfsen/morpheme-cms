@@ -191,7 +191,7 @@ export function createRegistry() {
   /** Calls `fn` when actions or providers change; returns the function that stops it. */
   function subscribe(fn: () => void) {
     listeners.add(fn);
-    return () => listeners.delete(fn);
+    return () => void listeners.delete(fn);
   }
 
   return { register, provide, all, problems, inPlace, search, subscribe, get: (id: string) => actions.get(id) };
