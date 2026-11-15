@@ -42,3 +42,19 @@ export function pressTextField(root: HTMLElement, button: HTMLElement) {
   }
   input.focus();
 }
+
+/** Keeps what a screen reader gets in step with what is seen (the CSS `:user-invalid`, as `.text-field-error` is drawn): while
+ * the browser finds the field invalid after the person has worked in it, its aria-invalid is true and the line saying what is
+ * wrong (the id in the input's data-error) is in its aria-describedby; otherwise neither. A field marked by its caller
+ * (data-marked: `error`) keeps the caller's aria-invalid. */
+export function syncInvalid(root: HTMLElement) {
+  const input = inputOf(root);
+  const errorId = input?.dataset.error;
+  if (!input || !errorId) return;
+  const invalid = input.matches(':user-invalid');
+  if (!input.hasAttribute('data-marked')) input.setAttribute('aria-invalid', String(invalid));
+  const ids = (input.getAttribute('aria-describedby') ?? '').split(/\s+/).filter((id) => id && id !== errorId);
+  if (invalid) ids.push(errorId);
+  if (ids.length) input.setAttribute('aria-describedby', ids.join(' '));
+  else input.removeAttribute('aria-describedby');
+}
