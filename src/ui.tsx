@@ -889,7 +889,7 @@ export function SupportingText({ id, children, className = '' }: { id?: string; 
   );
 }
 
-/** The close button in the top end corner of a card that can be closed (a Notice, the start screen's "Continue" card): the
+/** The close button in the top end corner of a card that can be closed (a Notice, the first-run card): the
  * card must be `relative`. */
 export function CloseButton({ onClick }: { onClick: () => void }) {
   return <IconButton icon={X} label={t.common.close} onClick={onClick} className="absolute end-1 top-1" />;

@@ -1945,7 +1945,10 @@ async function checkPhoneSheet(width = 375, height = 740) {
       publish: publish.length,
       publishReachable: publish.filter(reachable).length,
       saves: named(/^Save( draft)?$/).filter(reachable).length,
-      focusOnBack: !!document.activeElement?.closest('header') && /^Back to /.test(document.activeElement.getAttribute('aria-label') ?? ''),
+      focusOnPage: document.activeElement === d,
+      focusVisible: [...document.querySelectorAll(':focus-visible')]
+        .filter((e) => getComputedStyle(e).outlineStyle !== 'none' || getComputedStyle(e).boxShadow !== 'none')
+        .map((e) => e.tagName + ':' + (e.getAttribute('aria-label') ?? '')),
       step: history.state?.sheet,
     };
   });
@@ -1970,7 +1973,9 @@ async function checkPhoneSheet(width = 375, height = 740) {
   if (!look.publish) problems.push(`${label}: the changed page has no Publish to check under the subpage`);
   if (look.publishReachable) problems.push(`${label}: the page's Publish can be reached while the subpage is open`);
   if (look.saves !== 1) problems.push(`${label}: ${look.saves} Save buttons can be reached, not one`);
-  if (!look.focusOnBack) problems.push(`${label}: the focus does not start on the back arrow`);
+  // Owner rule, 15 Nov: no control has the focus at the start; the page has it, without a ring or a tooltip.
+  if (!look.focusOnPage) problems.push(`${label}: the focus does not start on the page itself`);
+  if (look.focusVisible.length) problems.push(`${label}: ${look.focusVisible} has focus-visible styling when the subpage opens`);
   if (look.step !== 'block-page') problems.push(`${label}: the subpage has no step of its own in the history (${look.step})`);
   // Back with no change leaves at once, to the same place, text unchanged.
   await back().tap();
@@ -2985,6 +2990,15 @@ async function checkCropView(width, height = 800) {
 
   const scroll0 = await page.evaluate(() => scrollY);
   await open();
+  // No control has the focus at the start (owner, 15 Nov): the page has it, and nothing shows focus-visible styling.
+  const start = await view.evaluate((d) => ({
+    onPage: document.activeElement === d,
+    styled: [...document.querySelectorAll(':focus-visible')].filter(
+      (e) => getComputedStyle(e).outlineStyle !== 'none' || getComputedStyle(e).boxShadow !== 'none',
+    ).length,
+  }));
+  if (!start.onPage) problems.push(`${label}: the focus does not start on the crop page itself`);
+  if (start.styled) problems.push(`${label}: an element has focus-visible styling when the crop page opens`);
   // A page on every width: the window's size, a top app bar with the back arrow and the title, a bottom bar with Save (Cancel from medium); not a dialog's parts.
   const kind = await view.evaluate(
     (d, vp) => {
