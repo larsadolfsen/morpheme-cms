@@ -29,7 +29,7 @@ function Facade({ view }: { view: VideoView }) {
             src={still.src}
             srcSet={still.srcset}
             sizes={still.srcset && `(min-width: ${BREAKPOINTS.expanded}px) 720px, 100vw`}
-            alt=""
+            alt={still.alt ?? ''}
             loading="lazy"
             decoding="async"
             onError={failed}

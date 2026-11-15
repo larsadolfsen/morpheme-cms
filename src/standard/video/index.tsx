@@ -15,7 +15,7 @@ export default defineBlock({
     item: '',
     single: true,
     fields: ['title'],
-    settings: ['url', 'thumbnail'],
+    settings: ['url', 'thumbnail', 'alt'],
     blockSettings: true,
     texts: { addAbove: '', addBelow: '', row: t.blocks.video.label, settings: t.blocks.video.url, changeLink: t.blocks.video.changeUrl },
   },
@@ -28,9 +28,17 @@ export default defineBlock({
       pattern: ['(youtube(-nocookie)?\\.com|youtu\\.be|vimeo\\.com)/', t.blocks.video.urlProblem],
     },
     { name: 'title', label: t.blocks.video.title, type: 'string' },
-    // The poster: an image of the site's own, drawn before the video is played. Without it: the still from the video link. It is
-    // decorative (the title names the link), so it has no alt text.
+    // The poster: an image of the site's own, drawn before the video is played. Without it: the still from the video link.
     { name: 'thumbnail', label: t.blocks.video.thumbnail, type: 'image', hint: t.blocks.video.thumbnailHint },
+    // Optional: empty means the Library's text for the image, else decorative (alt="").
+    {
+      name: 'alt',
+      label: t.blocks.picture.alt,
+      type: 'string',
+      hint: t.blocks.picture.altHint,
+      libraryText: 'thumbnail',
+      only: { field: 'thumbnail', is: [''], not: true },
+    },
   ],
   detail: (p) => [String(p.title || t.blocks.video.video), String(p.url ?? '')],
 });

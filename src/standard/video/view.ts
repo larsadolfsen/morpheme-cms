@@ -6,14 +6,14 @@
 // editor the plain box. The block's own `thumbnail` (an image of the site) is the still before all of those.
 import { shownAt } from '../../images';
 import { player, stillName, videoOf, videoPage, vimeoInfo } from '../../../lib/video-id.mjs';
-import { thumbnailOf } from './thumbnail.mjs';
+import { thumbnailAlt, thumbnailOf } from './thumbnail.mjs';
 import type { ViewOf } from '../view';
 
 export type VideoView = {
   href: string;
   player: string;
   title: string;
-  still: { src: string; srcset?: string } | null;
+  still: { src: string; srcset?: string; alt?: string } | null;
   /** In the editor: YouTube's or Vimeo's still, for when the site has none. */
   stillElsewhere?: () => Promise<string | null>;
 };
@@ -29,7 +29,7 @@ async function theirStill(video: NonNullable<ReturnType<typeof videoOf>>): Promi
   }
 }
 
-export const viewOf: ViewOf<VideoView> = (props) => {
+export const viewOf: ViewOf<VideoView> = (props, data) => {
   const video = videoOf(String(props.url ?? ''));
   const title = String(props.title || 'Video');
   // While its link is not (yet) a video's: the plain box.
@@ -40,7 +40,9 @@ export const viewOf: ViewOf<VideoView> = (props) => {
     href: videoPage(video),
     player: player(video),
     title,
-    still: thumbnail ? { src: shownAt(thumbnail) } : { src: `/images/_video/${stillName(video)}-960.webp` },
+    still: thumbnail
+      ? { src: shownAt(thumbnail), alt: thumbnailAlt(props, data?.libraryAlt?.(thumbnail)) }
+      : { src: `/images/_video/${stillName(video)}-960.webp` },
     ...(thumbnail ? {} : { stillElsewhere: () => theirStill(video) }),
   };
 };
