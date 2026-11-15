@@ -115,7 +115,11 @@ export function SearchButton({ className = '' }: { className?: string }) {
       // Pressing it keeps the focus and the selection in the text, and the active block: the palette lists their actions first.
       data-keeps-block=""
       onMouseDown={(e) => e.preventDefault()}
-      onClick={openPalette}
+      onClick={(e) => {
+        // The press did not focus the button (see above): it takes the focus now, so closing the palette gives it back here.
+        e.currentTarget.focus({ preventScroll: true });
+        openPalette();
+      }}
     />
   );
 }
