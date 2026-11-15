@@ -16,7 +16,7 @@ import { standardPaths } from '@site/standardPages';
 // ("Call to action", src/data/header.json): its text, where it leads, and the promotion or page it leads to.
 const barButtonLabel: Field = {
   name: 'label',
-  label: 'Button text',
+  label: 'Button label',
   type: 'string',
   max: 30,
   hint: "If the field is empty, the standard text or the page's name is used.",
@@ -660,7 +660,7 @@ export const collections: Collection[] = [
       },
       {
         name: 'label',
-        label: 'Button text',
+        label: 'Button label',
         type: 'string',
         max: 30,
         hint: 'If empty, the default text is used.',
