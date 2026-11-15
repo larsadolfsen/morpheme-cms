@@ -3,14 +3,6 @@
     "max": 1,
     "why": "Google-preview colours in the editor; the editor's own workspace. To move to color-scheme and light-dark() (audit S1)."
   },
-  "src/ui.tsx|ime-safe-enter-submit": {
-    "max": 1,
-    "why": "Chip field's Enter ends the word without an isComposing check (audit F1); a small fix, not part of this check."
-  },
-  "theme/layouts/Base.astro|dark-mode-toggle": {
-    "max": 1,
-    "why": "The site's theme toggle does not keep <meta name=\"color-scheme\"> in step (audit S3); a theme change for the owner to decide."
-  },
   "theme/components/Popup.astro|dialog": {
     "max": 1,
     "why": "Backdrop click closes the dialog by hand; closedby=\"any\" skips our exit animation (audit D1, conflict C1: owner decides)."
@@ -26,9 +18,5 @@
   "theme/ui/search.script.ts|dialog": {
     "max": 1,
     "why": "Backdrop click closes the search view by hand; closedby=\"any\" skips our exit animation (audit D1, conflict C1: owner decides)."
-  },
-  "pages/editor/index.astro|dark-mode-toggle": {
-    "max": 1,
-    "why": "The editor's theme toggle does not keep <meta name=\"color-scheme\"> in step (audit S3); the editor's own workspace, to fix with S2/S3."
   }
 }
