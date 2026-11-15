@@ -82,7 +82,7 @@ practice. Before you write or change CSS, layout, forms, accessibility or perfor
 for the topic through the npm script, and name the guides you read in the pull request description:
 
 - `npm run audit:web -- search "<2–5 words>"`, then `npm run audit:web -- retrieve "<guide id>"`.
-- `npm run audit:web -- legacy-scan <folder> --json` finds legacy patterns; use it for an audit, not for a feature.
+- `npm run audit:web -- legacy-scan <folder> --json` finds legacy patterns; use it for an audit, not for a feature. `npm run check:web` runs it in `npm run check` and fails on a new finding; a fix removes its line from `scripts/web-allowlist.json`.
 
 Owner rule, 15 Nov: "We follow the best practices in modern web from Google." Where a guide covers behaviour, markup, accessibility or performance, we follow it; Material 3 still decides how things look and are named. A real conflict between the two goes to the PM, as below.
 
