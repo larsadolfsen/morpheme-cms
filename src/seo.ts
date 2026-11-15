@@ -3,7 +3,7 @@
 // (CheckList in ui.tsx), like the SEO audits of Google Lighthouse that can be judged from the page's own
 // content. It never keeps the form from being saved. Pure functions of the form's values and the Markdown
 // of its text, so they are easy to try on their own. What is used when a Google field is empty is what
-// Base.astro does: the title, else the "Short description", else the site's own.
+// Base.astro does: the title, else the "Excerpt", else the site's own.
 import { siteLocale, t } from './i18n';
 import { isVague, vagueLinksOf } from './vagueLink';
 import { images, altUseOk, outsideCode, paragraphs, plain, LABEL, DEST } from './seoImages';
@@ -18,9 +18,9 @@ export type SeoInput = {
   body: string;
   seoTitle?: string;
   seoDescription?: string;
-  /** "Short description", used when there is no Google description. */
+  /** "Excerpt", used when there is no meta description. */
   description?: string;
-  /** What is used instead of an empty Google description on a page without a "Short description" (a fixed page's
+  /** What is used instead of an empty meta description on a page without a "Excerpt" (a fixed page's
    * introduction), in a few words; without it, the site's own description. */
   descriptionFrom?: string;
   /** The H1 of a page that has it in a field of its own (a fixed page: "Heading (H1)"), not in its text. */
@@ -72,9 +72,9 @@ export const SEO_FIELDS = ['seoTitle', 'seoDescription', 'keyword', 'keywords', 
 export const SHARE_FIELDS = ['shareImage', 'shareTitle', 'shareDescription'];
 
 /** What a page shows when a link to it is shared (Facebook, LinkedIn, a message), worked out as Base.astro writes its
- * og: tags: the title when shared, else the Google title, else the page's own with the site's name after it (the front
+ * og: tags: the Open Graph title, else the meta title, else the page's own with the site's name after it (the front
  * page's without; a page without a title: only the site's name, as `searchedAs` has it); the description when shared,
- * else the Google description, else the page's own (`description`: its "Short description", a fixed page's introduction), else the site's; the image when shared, else the page's own
+ * else the meta description, else the page's own (`description`: its "Excerpt", a fixed page's introduction), else the site's; the Open Graph image, else the page's own
  * (`image`: "Image at the top", else the first image in the text), else the site's. */
 export type ShareInput = {
   /** The page's own title as the site has it: a page's H1, a post's title, a fixed page's heading, a tag's name. */
@@ -105,7 +105,7 @@ export const sharedAs = (input: ShareInput) => {
 export const firstImage = (body: string): string | undefined =>
   body.replace(/^<div data-block=.*$/gm, '').match(/!\[[^\]]*\]\(([^)\s]+)\)/)?.[1];
 
-/** The longest a Google title is shown, and the length a Google description is best between. */
+/** The longest a meta title is shown, and the length a meta description is best between. */
 export const TITLE_MAX = 60;
 export const DESCRIPTION_MIN = 120;
 export const DESCRIPTION_MAX = 160;
@@ -177,7 +177,7 @@ export function canonicalFound(canonical: string, relations: SeoInput['relations
 }
 
 /** The checks, in the order they are shown: at most ten. First whether Google may show the page at all (noindex and
- * Canonical URL, only when they are set), then its H1, its Google title and description and its keyword, and last
+ * Canonical URL, only when they are set), then its H1, its meta title and description and its keyword, and last
  * the images and links of its text (only when it has some). */
 export function seoRating(input: SeoInput): SeoCheck[] {
   const r = t.forms.seoRating;

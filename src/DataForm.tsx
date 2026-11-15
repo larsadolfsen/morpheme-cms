@@ -198,7 +198,7 @@ function Form({
   const others = text ? fields.filter((f) => f !== text && !top.includes(f) && f.name !== text.intro) : fields;
   // The fields for search engines (a fixed page's, a tag's) in their own section at the end, which folds in and out, with
   // the SEO rating first, as on a page (EntryForm.tsx): its H1 is its own field (the heading, a tag's name), and an empty
-  // Google description is the introduction's (a tag's: a text with the number of its posts, Category.astro). Then the
+  // meta description is the introduction's (a tag's: a text with the number of its posts, Category.astro). Then the
   // image when it is shared under "Social media", under a preview of the shared link, as on a page.
   const seoFields = others.filter((f) => SEO_FIELDS.includes(f.name));
   const shareFields = others.filter((f) => SHARE_FIELDS.includes(f.name));
