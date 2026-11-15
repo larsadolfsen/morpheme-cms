@@ -11,7 +11,7 @@ export const blocks = {
   /** An image, chosen and changed like a block. */
   picture: {
     label: 'Image',
-    hint: 'Choose or upload an image.',
+    hint: 'Select or upload an image.',
     src: 'Image',
     alt: 'Alt text',
     altHint: 'Describe the image in a few words, for people who can’t see it.',
@@ -133,7 +133,7 @@ export const blocks = {
   },
   rows: {
     from: 'Rows from',
-    fromHint: 'Pick a list to show its items as rows. Leave empty to type the rows yourself.',
+    fromHint: 'Select a list to show its items as rows. Leave empty to type the rows yourself.',
     tags: 'Only with these tags',
     addTag: 'Add tag',
     tagsHint: 'Leave empty to show all items of the list.',
@@ -375,7 +375,7 @@ export const blocks = {
     show: 'Which testimonials',
     all: 'All',
     filter: 'Buttons with tags',
-    filterHint: 'Shows only the testimonials with the chosen tag.',
+    filterHint: 'Shows only the testimonials with the selected tag.',
     withTags: 'With tags',
     front: 'Marked "Show on the home page"',
     picked: 'Selected',
@@ -460,7 +460,7 @@ export const blocks = {
     images: 'Images',
     addImages: 'Add images',
     showTags: 'All images with tags',
-    showPicked: 'Picked images',
+    showPicked: 'Selected images',
     tags: 'Tags',
     addTag: 'Add tag',
     tagsHint: 'Show the images with any of these tags. Without tags, all images show.',
