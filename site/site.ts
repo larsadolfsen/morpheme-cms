@@ -81,7 +81,7 @@ export const navShown = menu.enabled !== false;
 /** The links in the bar under the header on a phone (mobile-menu.json, "Mobile menu"); none when it is turned off. */
 export const mobileNav: { label: string; href: string }[] = mobileMenu.enabled ? mobileMenu.items : [];
 
-// "Segmented list" has the link text of the "Expandable list" it replaces ("Blocks" › "Expandable list"), so a text a site saved there still shows.
+// "Segmented list" has the link text of the "Accordion" it replaces ("Blocks" › "Accordion"), so a text a site saved there still shows.
 // The return type keeps the index signature: a site reads `blockTexts.about`, `.buttons`, `.offer` … as `Record<string, any>`.
 const withSegmented = (texts: Record<string, Record<string, any>>): Record<string, Record<string, any>> => ({
   ...texts,

@@ -16,7 +16,7 @@ import { standardPaths } from '@site/standardPages';
 // ("Call to action", src/data/header.json): its text, where it leads, and the promotion or page it leads to.
 const barButtonLabel: Field = {
   name: 'label',
-  label: 'Button text',
+  label: 'Button label',
   type: 'string',
   max: 30,
   hint: "If the field is empty, the standard text or the page's name is used.",
@@ -453,8 +453,8 @@ export const collections: Collection[] = [
         options: [
           { label: 'One column', value: 'single', icon: File },
           { label: 'Wide', value: 'full', icon: ArrowsHorizontal },
-          { label: 'Left side panel', value: 'sidebar-left', icon: ColumnsPlusLeft },
-          { label: 'Right side panel', value: 'sidebar-right', icon: ColumnsPlusRight },
+          { label: 'Left sidebar', value: 'sidebar-left', icon: ColumnsPlusLeft },
+          { label: 'Right sidebar', value: 'sidebar-right', icon: ColumnsPlusRight },
         ],
         hint: 'The theme decides which templates there are.',
       },
@@ -660,7 +660,7 @@ export const collections: Collection[] = [
       },
       {
         name: 'label',
-        label: 'Button text',
+        label: 'Button label',
         type: 'string',
         max: 30,
         hint: 'If empty, the default text is used.',
