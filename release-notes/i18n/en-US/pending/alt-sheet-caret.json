@@ -1,0 +1,6 @@
+{
+  "id": "alt-sheet-caret",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "After you add an image and its Alt text sheet closes, the cursor stays after the image"
+}

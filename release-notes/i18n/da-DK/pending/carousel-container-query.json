@@ -1,0 +1,6 @@
+{
+  "id": "carousel-container-query",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "En karrusel i en smal kolonne eller et ark i siden viser lige så mange elementer, som der er plads til i dens egen bredde"
+}
