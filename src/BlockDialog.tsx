@@ -299,6 +299,15 @@ export function useBlockDialog(
     if (choosing && matchMedia('(pointer: fine)').matches) search.current?.focus();
   }, [choosing]);
 
+  // The alt text sheet is for the text: its field has the focus when the sheet is open (a phone's keyboard comes up and the field is in view), unless the
+  // image is decorative and has none.
+  const altStep = open?.step === 'alt';
+  useEffect(() => {
+    if (!altStep) return;
+    const id = setTimeout(() => dialog.current?.querySelector<HTMLElement>('textarea, input[type=text]')?.focus(), 150);
+    return () => clearTimeout(id);
+  }, [altStep]);
+
   // Answer and close (the side sheet slides out first; the next one waits for `closing`).
   const done = (a: Answer) => {
     answer.current(a);
@@ -671,7 +680,11 @@ export function useBlockDialog(
         {open?.step === 'alt' && (
           <>
             <SheetBody>
-              <img src={shownAt(String(values.src ?? ''))} alt="" className="mx-auto max-h-40 max-w-full rounded-xl object-contain" />
+              <img
+                src={shownAt(String(values.src ?? ''))}
+                alt=""
+                className="mx-auto max-h-24 max-w-full rounded-xl object-contain medium:max-h-40"
+              />
               <FieldList fields={altFields} value={values} onChange={(v) => setValues(v as BlockProps)} />
             </SheetBody>
             <SheetActions
