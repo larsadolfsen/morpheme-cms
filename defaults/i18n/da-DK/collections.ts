@@ -138,7 +138,6 @@ export const collections: Record<string, string> = {
   'With an image, text and a button.': 'Med billede, tekst og en knap.',
   'Action bar': 'Handlingslinje',
   'Buttons or text at the bottom of the screen on a phone.': 'Knapper eller tekst nederst på skærmen på en telefon.',
-  Activated: 'Aktiveret',
   Image: 'Billede',
   'Shown at the top, cropped to 3:2.': 'Vises øverst, skåret til 3:2.',
   'Shown on': 'Vises på',

@@ -14,7 +14,7 @@ export const internalLinks: Part = {
   fields: [
     {
       name: 'enabled',
-      label: 'Activated',
+      label: 'Internal links',
       type: 'boolean',
       toggle: ['On', 'Off'],
       hint: 'The keywords of the pages and blog posts become links to them when the website is updated.',

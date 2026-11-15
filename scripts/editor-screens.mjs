@@ -269,6 +269,183 @@ async function checkStartSubtitle() {
   }
 }
 
+/** The theme's search view driven by React (theme/ui/Search.tsx, SearchView; the command palette's view, spec docs/superpowers/specs/2026-11-13-command-palette-and-context-menus-design.md,
+ * sections 4.1, 4.5 and 4.7) on "Parts" › "UI components" (NavigationRestParts.tsx), on a phone and a computer, in English and Danish: it opens as a modal <dialog> with the focus in its
+ * field, full screen on a phone and docked, in the middle near the top, on a computer; the results are in groups, each named by its label (role=group, aria-labelledby), as options
+ * with their key as trailing text (aria-keyshortcuts), a toggle checked and a disabled one aria-disabled; the arrow keys, Home and End move aria-activedescendant (the focus stays in the
+ * field), Enter runs an option but not a disabled one; typing narrows the groups and a live region says how many; nothing found shows its text and hides the list; Clear empties the
+ * field and keeps it open; Enter on an option and Escape close it and the focus goes back to the button that opened it, and on a computer a tap outside closes it; every row and
+ * button is at least 48 px and the page does not scroll sideways. */
+async function checkSearchViewParts(width, locale) {
+  const label = `${width}px ${locale} search view`;
+  const touch = width < 600;
+  const say =
+    locale === 'da-DK'
+      ? {
+          open: '\u00c5bn s\u00f8gevisningen',
+          groups: ['Seneste', 'Foresl\u00e5et'],
+          four: '4 resultater',
+          one: '1 resultat',
+          none: 'Intet passer til s\u00f8gningen',
+          word: 'fed',
+          shortcut: 'Ctrl+B',
+        }
+      : {
+          open: 'Open the search view',
+          groups: ['Recent', 'Suggested'],
+          four: '4 results',
+          one: '1 result',
+          none: 'Nothing fits the search',
+          word: 'bold',
+          shortcut: 'Ctrl+B',
+        };
+  const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#developer/parts/ui'));
+  const part = page.locator('[data-part="Search"]');
+  await part.waitFor({ timeout: 30_000 }).catch(() => problems.push(`${label}: the Search part is not on the page`));
+  if (!(await part.count())) return page.close();
+  await part.scrollIntoViewIfNeeded();
+  const opener = part.getByRole('button', { name: say.open });
+  const view = page.locator('[data-search-controlled] dialog.search-view[open]');
+  const input = view.locator('input[role=combobox]');
+  const options = view.locator('[role=option]');
+  const live = view.locator('.search-view-live');
+  const active = () => input.getAttribute('aria-activedescendant');
+  const selected = () => view.locator('[role=option][aria-selected=true]').evaluateAll((els) => els.map((e) => e.id));
+  const focusIsInField = () => input.evaluate((el) => el === document.activeElement);
+  const where = () => page.evaluate(() => document.activeElement?.textContent?.trim() ?? document.activeElement?.tagName);
+
+  await opener.click();
+  await view.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the view does not open`));
+  if (!(await view.count())) return page.close();
+  await page.waitForTimeout(400);
+  const box = await view.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    return {
+      modal: el.matches(':modal'),
+      docked: el.classList.contains('search-view-docked'),
+      left: r.left,
+      right: r.right,
+      top: r.top,
+      width: r.width,
+      height: r.height,
+      vw: innerWidth,
+      vh: innerHeight,
+      sideways: document.documentElement.scrollWidth > innerWidth,
+    };
+  });
+  if (!box.modal) problems.push(`${label}: the view is not modal (the page behind it stays usable)`);
+  if (touch) {
+    if (box.docked || box.width < box.vw - 1 || box.height < box.vh - 1)
+      problems.push(
+        `${label}: on a phone the view is full screen: ${Math.round(box.width)}x${Math.round(box.height)} of ${box.vw}x${box.vh}`,
+      );
+  } else {
+    if (!box.docked) problems.push(`${label}: on a computer the view is docked`);
+    if (box.width > 36 * 16 + 1 || box.top < 0 || box.top > 120 || Math.abs((box.left + box.right) / 2 - box.vw / 2) > 2)
+      problems.push(
+        `${label}: docked, the view is in the middle near the top, at most 36rem wide: left ${Math.round(box.left)}, top ${Math.round(box.top)}, width ${Math.round(box.width)}`,
+      );
+  }
+  if (box.sideways) problems.push(`${label}: the page scrolls sideways with the view open`);
+  if (!(await focusIsInField())) problems.push(`${label}: the focus is not in the field when the view opens`);
+
+  const names = await view
+    .locator('[role=group]')
+    .evaluateAll((els) => els.map((g) => document.getElementById(g.getAttribute('aria-labelledby') ?? '')?.textContent ?? ''));
+  if (JSON.stringify(names) !== JSON.stringify(say.groups))
+    problems.push(`${label}: the groups are named ${JSON.stringify(names)}, not ${JSON.stringify(say.groups)}`);
+  if ((await options.count()) !== 4) problems.push(`${label}: ${await options.count()} options, not 4`);
+  if ((await live.textContent()) !== say.four)
+    problems.push(`${label}: the live region says "${await live.textContent()}", not "${say.four}"`);
+  const opt = await options.evaluateAll((els) =>
+    els.map((e) => ({
+      selected: e.getAttribute('aria-selected'),
+      disabled: e.getAttribute('aria-disabled'),
+      checked: e.getAttribute('aria-checked'),
+      keys: e.getAttribute('aria-keyshortcuts'),
+      trailing: e.querySelector('.list-item-trailing-supporting')?.textContent ?? '',
+      height: e.getBoundingClientRect().height,
+    })),
+  );
+  if (opt[0]?.selected !== 'true') problems.push(`${label}: the first option is not the one the arrow keys are on`);
+  if (opt[2]?.trailing !== say.shortcut || opt[2]?.keys !== 'Control+B')
+    problems.push(`${label}: the key of Bold: "${opt[2]?.trailing}", aria-keyshortcuts "${opt[2]?.keys}"`);
+  if (opt[2]?.checked !== 'true') problems.push(`${label}: the toggle is not checked`);
+  if (opt[3]?.disabled !== 'true') problems.push(`${label}: the disabled option is not aria-disabled`);
+  const short = opt.filter((o) => o.height < 47.5);
+  if (short.length) problems.push(`${label}: ${short.length} option(s) are lower than 48 px`);
+  const buttons = await view
+    .locator('.search-view-header button')
+    .evaluateAll((els) =>
+      els.map((b) => Math.max(b.getBoundingClientRect().height, parseFloat(getComputedStyle(b, '::after').height) || 0)),
+    );
+  if (buttons.some((h) => h < 47.5))
+    problems.push(`${label}: a button of the field's row is lower than 48 px (${buttons.map(Math.round)})`);
+
+  // The arrow keys move the highlight; the focus stays in the field.
+  const ids = await options.evaluateAll((els) => els.map((e) => e.id));
+  await page.keyboard.press('ArrowDown');
+  if ((await active()) !== ids[1] || (await selected()).join() !== ids[1])
+    problems.push(`${label}: ArrowDown does not move to the second option`);
+  await page.keyboard.press('End');
+  if ((await active()) !== ids[3]) problems.push(`${label}: End does not go to the last option`);
+  await page.keyboard.press('ArrowDown');
+  if ((await active()) !== ids[0]) problems.push(`${label}: ArrowDown on the last option does not go round to the first`);
+  await page.keyboard.press('ArrowUp');
+  if ((await active()) !== ids[3]) problems.push(`${label}: ArrowUp on the first option does not go round to the last`);
+  if (!(await focusIsInField())) problems.push(`${label}: the focus left the field while the arrow keys moved`);
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(150);
+  if (!(await view.count())) problems.push(`${label}: Enter on a disabled option closed the view`);
+  await page.keyboard.press('Home');
+
+  // Typing narrows the groups, says how many, and puts the highlight on the first.
+  await page.keyboard.type(say.word);
+  await page.waitForTimeout(150);
+  if ((await options.count()) !== 1) problems.push(`${label}: "${say.word}" leaves ${await options.count()} options, not 1`);
+  if ((await live.textContent()) !== say.one)
+    problems.push(`${label}: the live region says "${await live.textContent()}", not "${say.one}"`);
+  if ((await view.locator('[role=group]').count()) !== 1) problems.push(`${label}: a group with no hit is shown`);
+  if ((await active()) === null) problems.push(`${label}: no option is highlighted after typing`);
+  await input.fill('zzz');
+  await page.waitForTimeout(150);
+  const empty = view.locator('.search-view-empty');
+  if (!(await empty.isVisible()) || (await empty.textContent()) !== say.none)
+    problems.push(`${label}: the text for nothing found is not shown`);
+  if (await view.locator('[role=listbox]').isVisible()) problems.push(`${label}: the list is shown when nothing is found`);
+  if ((await live.textContent()) !== say.none) problems.push(`${label}: the live region does not say nothing was found`);
+  await view.locator('.search-view-clear').click();
+  if ((await input.inputValue()) !== '' || !(await focusIsInField()) || (await options.count()) !== 4)
+    problems.push(`${label}: Clear does not empty the field, keep the focus in it and show the results`);
+
+  // Enter on an option runs it and closes the view; the focus goes back to the button.
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(250);
+  if (await view.count()) problems.push(`${label}: Enter on an option does not close the view`);
+  else if ((await where()) !== say.open)
+    problems.push(`${label}: the focus is not back on the button after Enter (it is on "${await where()}")`);
+  // Escape closes it, with the focus back on the button.
+  await opener.click();
+  await view.waitFor({ timeout: 5000 });
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(250);
+  if (await view.count()) problems.push(`${label}: Escape does not close the view`);
+  else if ((await where()) !== say.open)
+    problems.push(`${label}: the focus is not back on the button after Escape (it is on "${await where()}")`);
+  // On a computer a tap outside it closes it too.
+  if (!touch) {
+    await opener.click();
+    await view.waitFor({ timeout: 5000 });
+    await page.mouse.click(5, 800);
+    await page.waitForTimeout(250);
+    if (await view.count()) problems.push(`${label}: a tap outside does not close the view`);
+  }
+  await page.close();
+}
+
 /** The theme's choice group (theme/ui/ChoiceGroup.tsx, spec docs/superpowers/specs/2026-11-14-choice-group-design.md) on "Parts" ›
  * "UI components" (ActionParts.tsx), on a phone and a computer, in English and Danish: in every group no two choices overlap and
  * no label is cut off; it is the buttons only when every button fits; a list row is at least 48 px high and a button's target at
@@ -637,6 +814,14 @@ async function pressMore(page, name, how = 'click', which = 'last') {
   const row = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${name}$`) });
   // `last`: the block's own menu, which is last in the ⋮ (a gear named Edit may stand before it); `first`: a tool of the bar that did not fit.
   await row[which]()[how]();
+}
+
+/** Ends a block's or section's sheet with its changes kept: Save where it has one (a phone, a sheet from the bottom), else the close button of the live side sheet
+ * from expanded, whose changes are in the page already (spec 2026-11-14 one Save, 4.1). `which`: the Save button when there are several. */
+async function saveOrClose(page, which = 'first') {
+  const save = page.getByRole('button', { name: 'Save', exact: true }).locator('visible=true');
+  if (await save.count()) return void (await save[which]().click());
+  await page.locator('.editor-side-sheet [data-side-sheet-close]').last().click();
 }
 
 /** The bar's Insert block (always on the bar, never in the ⋮ menu). */
@@ -1023,13 +1208,14 @@ async function checkCardBar(width, height = 800) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
-  // The block's fields are in a sheet on a phone and in the side panel from expanded.
+  // The block's fields are in a sheet on a phone (Insert puts it in) and in the live side panel from expanded (it is in already; the close button closes the panel).
   const sheet = page
     .locator('dialog[open], .editor-side-sheet')
     .filter({ has: page.locator('textarea') })
     .last();
   await sheet.locator('textarea').fill('<iframe src="https://www.youtube.com/embed/abc" title="Clip"></iframe>');
-  await sheet.locator('button', { hasText: /^Insert$/ }).click();
+  if (phone) await sheet.locator('button', { hasText: /^Insert$/ }).click();
+  else await sheet.locator('[data-side-sheet-close]').click();
   await page.waitForSelector('.ProseMirror .site-block-card', { timeout: 6000 });
   await page.locator('.ProseMirror .site-block-card').first().click();
   await page.waitForTimeout(400);
@@ -1045,7 +1231,8 @@ async function checkCardBar(width, height = 800) {
     problems.push(`${label}: the bar's first group is "${selected.groups}", not the block's name`);
   const tools = await barTools(page);
   if (tools.bar.some((b) => b.height < 43.4 || b.width < 43.4)) problems.push(`${label}: a button of the card's bar is under 44 x 44 dp`);
-  if (!tools.names.includes('Remove') && phone) problems.push(`${label}: the card's menu has no Remove (${tools.names})`);
+  // Remove is in the card's ⋮ at every width (from expanded the side sheet has none).
+  if (!tools.names.includes('Remove')) problems.push(`${label}: the card's menu has no Remove (${tools.names})`);
   const rowNames = await page
     .locator('.site-block-row:not(.site-block-row-hover) [data-row]')
     .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
@@ -1098,7 +1285,126 @@ async function checkCardBar(width, height = 800) {
   await page.close();
 }
 
-/** Closing a changed sheet (closeChanged, ask.tsx; image tools spec 9.3): the question is "Keep your changes?" with the text that the changes stay in the
+/** The live side sheet from expanded (spec 2026-11-14 one Save, 4.1 and 4.4): a block from Insert goes in at once with its sheet open beside it; the sheet has
+ * its headline and close button and no Save, Insert, Cancel or Remove; a change of a field shows in the page at once; Undo takes it back and the sheet shows the
+ * old value; the close button asks nothing; Remove is in the block's ⋮; a tap on the card opens the sheet again, and Undo of the insert closes it. */
+async function checkLiveSideSheet(width = 1280) {
+  const label = `${width}px live side sheet`;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
+  const sheet = page.locator('.editor-side-sheet');
+  const opened = await sheet
+    .locator('textarea')
+    .waitFor({ timeout: 6000 })
+    .then(
+      () => true,
+      () => false,
+    );
+  if (!opened) {
+    problems.push(`${label}: Insert did not open the block's side sheet`);
+    return void (await page.close());
+  }
+  const card = page.locator('.ProseMirror .site-block-card').first();
+  if (!(await card.count())) problems.push(`${label}: the new block is not in the page while its sheet is open (no Insert step)`);
+  const buttons = await sheet.locator('button').evaluateAll((els) => els.map((b) => b.textContent.trim()).filter(Boolean));
+  const extra = buttons.filter((b) => ['Save', 'Insert', 'Cancel', 'Remove'].includes(b));
+  if (extra.length) problems.push(`${label}: the side sheet has ${extra.join(', ')} (it is live: only its close button)`);
+  if (!(await sheet.locator('[data-side-sheet-close]').count())) problems.push(`${label}: the side sheet has no close button`);
+  if (await sheet.locator('.side-sheet-actions').count()) problems.push(`${label}: the side sheet has a row of bottom actions`);
+  // A change shows in the page at once.
+  await sheet.locator('textarea').fill('<p>Live text</p>');
+  await page.waitForTimeout(400);
+  const description = () => card.getAttribute('aria-description').catch(() => '');
+  if (!(await description())?.includes('Live text'))
+    problems.push(`${label}: a change in the sheet is not in the page at once (${await description()})`);
+  // Undo takes it back, and the sheet shows the old value.
+  await page.locator('.editor-tools button[aria-label="Undo"]:visible').first().click();
+  await page.waitForTimeout(400);
+  if ((await description())?.includes('Live text')) problems.push(`${label}: Undo did not take the sheet's change back`);
+  const shown = await sheet
+    .locator('textarea')
+    .inputValue({ timeout: 2000 })
+    .catch(() => null);
+  if (shown !== '') problems.push(`${label}: after Undo the sheet shows "${shown}", not the old value`);
+  // The close button closes it, with no question.
+  await sheet.locator('[data-side-sheet-close]').click();
+  await page.waitForTimeout(400);
+  if (await page.locator('dialog[open]').count()) problems.push(`${label}: closing the live sheet asked a question`);
+  if (await sheet.count()) problems.push(`${label}: the close button did not close the side sheet`);
+  // Remove is in the block's ⋮.
+  await card.click();
+  await page.waitForTimeout(400);
+  if (await page.locator('.editor-side-sheet [data-side-sheet-close]').count())
+    await page.locator('.editor-side-sheet [data-side-sheet-close]').click();
+  await page.waitForTimeout(300);
+  const tools = await barTools(page);
+  if (!tools.names.includes('Remove')) problems.push(`${label}: the block's ⋮ has no Remove (${tools.names})`);
+  // A tap on the card opens the sheet; Undo of the insert takes the block out and closes it.
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(300);
+  await card.click();
+  await sheet
+    .locator('textarea')
+    .waitFor({ timeout: 4000 })
+    .catch(() => problems.push(`${label}: a tap on the card did not open its side sheet`));
+  await page.locator('.editor-tools button[aria-label="Undo"]:visible').first().click();
+  await page.waitForTimeout(600);
+  if (await page.locator('.ProseMirror .site-block-card').count()) problems.push(`${label}: Undo did not take the new block out`);
+  else if (await sheet.count()) problems.push(`${label}: the side sheet stayed open after its block was gone`);
+  await page.close();
+}
+
+/** A block's side sheet has no control focused when it opens (owner rule, 14 Nov 2026): the sheet itself has the focus, so no field or button shows a focus
+ * ring from the start; Tab then goes to its first control. The standard side sheet (from expanded) and the modal one (medium). */
+async function checkSheetFocusOnOpen(width) {
+  const label = `${width}px sheet focus on open`;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
+  const sheet = page.locator('dialog[open] [data-side-sheet-container], .editor-side-sheet').last();
+  await sheet
+    .locator('textarea')
+    .waitFor({ timeout: 6000 })
+    .catch(() => problems.push(`${label}: Insert did not open the block's side sheet`));
+  await page.waitForTimeout(500);
+  const focus = await page.evaluate(() => {
+    const el = document.activeElement;
+    return {
+      container: !!el?.matches('[data-side-sheet-container]'),
+      control: !!el?.matches('input, textarea, select, button, a[href]'),
+      outline: el ? getComputedStyle(el).outlineStyle : '',
+      name: el ? `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''}` : 'none',
+    };
+  });
+  if (focus.control) problems.push(`${label}: a control (${focus.name}) has the focus when the sheet opens`);
+  if (!focus.container) problems.push(`${label}: the focus is on ${focus.name}, not on the sheet itself`);
+  if (focus.container && focus.outline !== 'none') problems.push(`${label}: the sheet shows a focus ring of its own (${focus.outline})`);
+  await page.keyboard.press('Tab');
+  const next = await page.evaluate(
+    () => !!document.activeElement?.closest('[data-side-sheet-container]') && document.activeElement?.tagName !== 'BODY',
+  );
+  if (!next) problems.push(`${label}: Tab from the sheet did not go to a control in it`);
+  await page.close();
+}
+
+/** Closing a changed sheet below expanded (from expanded the side sheet is live and asks nothing: checkLiveSideSheet) (closeChanged, ask.tsx; image tools spec 9.3): the question is "Keep your changes?" with the text that the changes stay in the
  * page until it is saved, and Discard and Keep in one row, Keep last (M3's basic dialog), with no Cancel; Esc stays in the sheet, Keep does what the sheet's
  * Insert does, and Discard closes it without the block. */
 async function checkCloseChangedSheet(width, height = 800) {
@@ -1176,7 +1482,7 @@ async function checkCloseChangedSheet(width, height = 800) {
 /** A selected image's tools on the bar (image tools spec, section 4): Insert › Image puts an image in the text; a tap selects it, and the bar shows Change image,
  * Crop, Alt text (a text button, drawn at its planned width) and Remove in that order, the ones that do not fit in the ⋮, with no Remove twice; the row has
  * Move up and Move down (and Settings below expanded). On a computer the tap also opens its settings in the side sheet; on a phone it only selects, and the row's
- * Settings opens the sheet. Crop opens the sheet at the crop's chips, Alt text at the Alt text field; Remove takes the image out and Undo brings it back. */
+ * Settings opens the sheet. Crop opens the crop view, Alt text the sheet at the Alt text field; Remove takes the image out and Undo brings it back. */
 async function checkImageTools(width, height = 800) {
   const phone = width < 600;
   const expanded = width >= 840;
@@ -1199,9 +1505,11 @@ async function checkImageTools(width, height = 800) {
   await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
   await page.locator('dialog[open] [data-media-tile]').first().click();
   const sheet = () => page.locator('dialog[open], .editor-side-sheet').last();
-  await sheet()
-    .locator('button', { hasText: /^Insert$/ })
-    .click({ timeout: 8000 });
+  // From expanded the image goes in at once with its live sheet open (one Save spec 4.1: no Insert button); below it the sheet has Insert.
+  if (!expanded)
+    await sheet()
+      .locator('button', { hasText: /^Insert$/ })
+      .click({ timeout: 8000 });
   const image = page.locator('.ProseMirror .site-picture .site-block-card').first();
   await image.waitFor({ timeout: 8000 });
   await page.waitForTimeout(500);
@@ -1216,7 +1524,7 @@ async function checkImageTools(width, height = 800) {
       scroll: b.scrollWidth > b.clientWidth + 1,
     })),
     row: [...document.querySelectorAll('.site-block-row:not(.site-block-row-hover) [data-row]')].map((b) => b.getAttribute('aria-label')),
-    panel: !!document.querySelector('.editor-side-sheet [aria-labelledby="crop-format"], .editor-side-sheet input'),
+    panel: !!document.querySelector('.editor-side-sheet input, .editor-side-sheet textarea'),
     dialog: !!document.querySelector('dialog[open]'),
   }));
   const TOOLS = ['Change image', 'Crop', 'Alt text', 'Remove'];
@@ -1258,20 +1566,21 @@ async function checkImageTools(width, height = 800) {
     page.evaluate(() => {
       const el = document.activeElement;
       const label = el?.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`)?.textContent.trim() : '';
-      return { crop: !!el?.closest('[aria-labelledby="crop-format"]'), label, sheet: !!el?.closest('dialog[open], .editor-side-sheet') };
+      return { label, sheet: !!el?.closest('dialog[open], .editor-side-sheet') };
     });
+  // Cancel below expanded; from expanded the live side sheet has only its close button.
   const cancel = async () => {
     await sheet()
-      .locator('button', { hasText: /^Cancel$/ })
+      .locator(expanded ? '[data-side-sheet-close]' : 'button:text-is("Cancel")')
       .first()
       .click({ timeout: 3000 })
       .catch(() => {});
     await page.waitForTimeout(500);
   };
   await tool('Crop');
-  if (!(await focused()).crop)
-    problems.push(`${label}: Crop did not open the image's sheet at its crop (${JSON.stringify(await focused())})`);
-  await cancel();
+  if (!(await page.locator('.crop-page[open]').count())) problems.push(`${label}: Crop did not open the crop view`);
+  await page.locator('.crop-page[open]').getByRole('button', { name: 'Back to Image', exact: true }).click();
+  await page.waitForTimeout(500);
   await tool('Alt text');
   const at = await focused();
   if (at.label !== 'Alt text')
@@ -1294,6 +1603,310 @@ async function checkImageTools(width, height = 800) {
   }
   await page.close();
 }
+/** The crop view (src/CropView.tsx, image tools spec section 3): a page of the editor on every width (owner, 14 Nov), opened by the bar's Crop (never by an image that was
+ * just picked): a top app bar with a back arrow and the title, the page as large as the window with Save in a bottom bar (and Cancel from medium), and the form under it
+ * left as it was (scroll place, text). It starts as Original (the whole image, no frame, the slider off); an aspect ratio gives a frame of that ratio with the theme's
+ * scrim outside it and a two-tone border; the slider and its minus and plus buttons zoom, a drag places the image under the frame, the wheel zooms with a mouse and a
+ * pinch with two fingers; Save writes `#format=…&crop=…` to the image; leaving with changes (the arrow, Cancel, the phone's back gesture) asks "Keep your changes?"; the
+ * image sheet has an Aspect ratio row (no Format chips) that opens the same page. */
+async function checkCropView(width, height = 800) {
+  const phone = width < 600;
+  const label = `${width}px crop view`;
+  if (!has('src/data/files')) return void console.log(`${label}: skipped, the site has no images in its Library, which the demo has.`);
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page
+    .locator('dialog[open] button', { hasText: /^Image/ })
+    .first()
+    .click();
+  await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
+  await page.locator('dialog[open] [data-media-tile]').first().click();
+  // From expanded the image goes in at once with its live sheet open (one Save spec 4.1: no Insert button); below it the sheet has Insert.
+  if (width < 840)
+    await page
+      .locator('dialog[open], .editor-side-sheet')
+      .last()
+      .locator('button', { hasText: /^Insert$/ })
+      .click({ timeout: 8000 });
+  const image = page.locator('.ProseMirror .site-picture .site-block-card').first();
+  await image.waitFor({ timeout: 8000 });
+  await page.waitForTimeout(800);
+  if (await page.locator('.crop-page[open]').count()) problems.push(`${label}: the crop view opened by itself after the image was picked`);
+  const view = page.locator('.crop-page[open]');
+  const how = phone ? 'tap' : 'click';
+  const select = async () => {
+    await image[how]();
+    await page.waitForTimeout(600);
+  };
+  const open = async () => {
+    await select();
+    await pressTool(page, 'Crop', how);
+    await view.waitFor({ timeout: 5000 });
+    await page.waitForTimeout(500);
+  };
+  const back = () => view.getByRole('button', { name: 'Back to Image', exact: true });
+  const zoom = () => view.locator('input[type=range]').inputValue().then(Number);
+  const pictureBox = () => view.locator('.crop-view-image').boundingBox();
+  const chip = (name) => view.locator('.crop-view-ratios').getByText(name, { exact: true });
+  const asked = () => page.locator('dialog[open]').filter({ hasText: 'Keep your changes?' });
+
+  const scroll0 = await page.evaluate(() => scrollY);
+  await open();
+  // A page on every width: the window's size, a top app bar with the back arrow and the title, a bottom bar with Save (Cancel from medium); not a dialog's parts.
+  const kind = await view.evaluate(
+    (d, vp) => {
+      const r = d.getBoundingClientRect();
+      return {
+        fills: Math.abs(r.width - vp.w) < 1 && Math.abs(r.height - vp.h) < 1,
+        title: d.querySelector('h1')?.textContent,
+        bar: !!d.querySelector('header, .top-app-bar, [class*="top-app-bar"]'),
+        dialogParts: !!d.querySelector('.dialog-basic, .dialog-full-screen, .dialog-headline'),
+        buttons: [...d.querySelectorAll('.crop-page-bar button')].map((b) => b.textContent.trim()),
+        area: d.querySelector('.crop-view-area').getBoundingClientRect().width,
+      };
+    },
+    { w: width, h: height },
+  );
+  if (!kind.fills) problems.push(`${label}: the crop view is not as large as the window`);
+  if (kind.dialogParts) problems.push(`${label}: the crop view is built of a dialog's parts, not a page`);
+  if (kind.title !== 'Crop') problems.push(`${label}: the page's title is "${kind.title}", not Crop`);
+  if (!(await view.getByRole('button', { name: 'Back to Image', exact: true }).count()))
+    problems.push(`${label}: the page has no back arrow`);
+  if (kind.buttons.join() !== (phone ? 'Save' : 'Cancel,Save'))
+    problems.push(`${label}: the bottom bar has ${kind.buttons.join(', ')}, not ${phone ? 'Save' : 'Cancel, Save'}`);
+  if (kind.area < Math.min(width - 48, 300)) problems.push(`${label}: the image area is only ${kind.area} dp wide`);
+  const missing = await view.locator('[data-icon-missing]').evaluateAll((els) => els.map((e) => e.getAttribute('data-icon-missing')));
+  if (missing.length) problems.push(`${label}: the crop view draws a missing icon (${missing})`);
+  // Original: the whole image, no frame, no scrim, the slider and its buttons off.
+  if (await view.locator('.crop-view-frame').count()) problems.push(`${label}: Original has a frame`);
+  if (!(await view.locator('input[type=range]').isDisabled())) problems.push(`${label}: the slider is on for Original`);
+  for (const name of ['Zoom in', 'Zoom out'])
+    if (!(await view.getByRole('button', { name }).isDisabled())) problems.push(`${label}: ${name} is on for Original`);
+  const whole = await view.evaluate((d) => {
+    const a = d.querySelector('.crop-view-area').getBoundingClientRect();
+    const i = d.querySelector('.crop-view-image').getBoundingClientRect();
+    return { inside: i.left >= a.left - 0.5 && i.right <= a.right + 0.5 && i.top >= a.top - 0.5 && i.bottom <= a.bottom + 0.5 };
+  });
+  if (!whole.inside) problems.push(`${label}: Original does not show the whole image in the area`);
+  // The ratios: Original first, then the seven, in one row that scrolls sideways below medium and wraps from medium.
+  const names = await view.locator('.crop-view-ratios > *').allTextContents();
+  if (names.map((n) => n.trim()).join() !== 'Original,1:1,4:5,3:4,2:3,3:2,4:3,16:9')
+    problems.push(`${label}: the aspect ratios are ${names.join(', ')}`);
+  const row = await view.locator('.crop-view-ratios').evaluate((el) => ({
+    scrolls: el.scrollWidth > el.clientWidth + 1,
+    rows: new Set([...el.children].map((c) => Math.round(c.getBoundingClientRect().top))).size,
+  }));
+  if (phone && row.rows !== 1)
+    problems.push(`${label}: the aspect ratios are in ${row.rows} rows below medium, not one that scrolls sideways`);
+  if (!phone && row.scrolls)
+    problems.push(`${label}: the aspect ratios scroll sideways from medium, where they wrap (${JSON.stringify(row)})`);
+  // 3:2: a frame of that ratio, the scrim outside it, a two-tone border.
+  await chip('3:2').click();
+  await page.waitForTimeout(500);
+  const frame = await view.locator('.crop-view-frame').evaluate((f) => {
+    const s = getComputedStyle(f);
+    const b = f.getBoundingClientRect();
+    return { ratio: b.width / b.height, border: s.borderTopWidth, borderColor: s.borderTopColor, shadow: s.boxShadow };
+  });
+  if (Math.abs(frame.ratio - 1.5) > 0.02) problems.push(`${label}: the frame for 3:2 has the ratio ${frame.ratio}`);
+  const layers = frame.shadow.split(/,(?![^(]*\))/).map((l) => l.trim());
+  if (frame.border !== '2px' || layers.length !== 2)
+    problems.push(`${label}: the frame has no 2 dp border with a halo (${frame.border}, ${frame.shadow})`);
+  if (!/ 0px 0px 0px 1px$/.test(layers[0] ?? '') || !/ 0px 0px 0px \d{3,}px$/.test(layers[1] ?? ''))
+    problems.push(`${label}: the frame has no 1 dp halo and a scrim layer outside it (${frame.shadow})`);
+  if (layers[0] && frame.borderColor === layers[0].replace(/ 0px 0px 0px 1px$/, ''))
+    problems.push(`${label}: the frame's border and halo are one colour`);
+  if (/rgba?\(0, 0, 0, 0\)/.test(layers[1] ?? '')) problems.push(`${label}: the scrim outside the frame is see-through (${layers[1]})`);
+  const z1 = await zoom();
+  if (Math.abs(z1 - 1) > 0.01) problems.push(`${label}: a new ratio does not start at zoom 1 (${z1})`);
+  // Zoom: the slider and the buttons; the image grows under the frame.
+  const before = await pictureBox();
+  await view.locator('input[type=range]').focus();
+  await page.keyboard.press('End');
+  await page.waitForTimeout(300);
+  if ((await zoom()) < 3.99) problems.push(`${label}: the slider's End key does not zoom to 4`);
+  const after = await pictureBox();
+  if (!(after.width > before.width * 3.5))
+    problems.push(`${label}: zoom 4 does not make the image about 4 times as wide (${before.width} -> ${after.width})`);
+  await view.getByRole('button', { name: 'Zoom out' }).click();
+  await page.waitForTimeout(200);
+  const out = await zoom();
+  if (Math.abs(out - 3.75) > 0.02) problems.push(`${label}: Zoom out does not step the zoom down by a quarter (${out})`);
+  await view.getByRole('button', { name: 'Zoom in' }).click();
+  await view.getByRole('button', { name: 'Zoom in' }).click();
+  if ((await zoom()) > 4.001) problems.push(`${label}: Zoom in goes past 4`);
+  // Drag: the image moves under the fixed frame, and keeps covering it.
+  const area = await view.locator('.crop-view-area').boundingBox();
+  const fbox = () => view.locator('.crop-view-frame').boundingBox();
+  const f0 = await fbox();
+  const p0 = await pictureBox();
+  await page.mouse.move(area.x + area.width / 2, area.y + area.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(area.x + area.width / 2 - 60, area.y + area.height / 2 - 40, { steps: 6 });
+  await page.mouse.up();
+  await page.waitForTimeout(200);
+  const f1 = await fbox();
+  const p1 = await pictureBox();
+  if (Math.abs(f1.x - f0.x) > 0.5 || Math.abs(f1.y - f0.y) > 0.5) problems.push(`${label}: the frame moved with the drag`);
+  if (Math.abs(p1.x - (p0.x - 60)) > 2 || Math.abs(p1.y - (p0.y - 40)) > 2)
+    problems.push(`${label}: a drag by (-60, -40) moved the image by (${p1.x - p0.x}, ${p1.y - p0.y})`);
+  if (!(p1.x <= f1.x + 0.5 && p1.y <= f1.y + 0.5 && p1.x + p1.width >= f1.x + f1.width - 0.5 && p1.y + p1.height >= f1.y + f1.height - 0.5))
+    problems.push(`${label}: the image leaves a gap in the frame after the drag`);
+  // A drag far past the edge stops at the edge.
+  await page.mouse.move(area.x + area.width / 2, area.y + area.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(area.x + area.width / 2 + 2000, area.y + area.height / 2 + 2000, { steps: 4 });
+  await page.mouse.up();
+  const p2 = await pictureBox();
+  if (!(p2.x <= f1.x + 0.5 && p2.y <= f1.y + 0.5)) problems.push(`${label}: the image leaves a gap in the frame when dragged far`);
+  // The wheel (a mouse) and a pinch (two fingers) zoom.
+  if (!phone) {
+    const z = await zoom();
+    await page.mouse.move(area.x + area.width / 2, area.y + area.height / 2);
+    await page.mouse.wheel(0, 300);
+    await page.waitForTimeout(300);
+    if (!((await zoom()) < z - 0.1)) problems.push(`${label}: the wheel does not zoom out`);
+  } else {
+    const cdp = await page.context().newCDPSession(page);
+    const cx = area.x + area.width / 2;
+    const cy = area.y + area.height / 2;
+    await view.locator('input[type=range]').focus();
+    await page.keyboard.press('Home');
+    await page.waitForTimeout(200);
+    const z = await zoom();
+    const at = (d) => [
+      { x: cx - d, y: cy, id: 1 },
+      { x: cx + d, y: cy, id: 2 },
+    ];
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: at(30) });
+    for (let d = 30; d <= 90; d += 15) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: at(d) });
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await page.waitForTimeout(300);
+    if (!((await zoom()) > z * 2))
+      problems.push(`${label}: a pinch that spreads the fingers three times does not zoom in (${z} -> ${await zoom()})`);
+  }
+  // Save writes the ratio and crop to the image.
+  await view.getByRole('button', { name: 'Save', exact: true }).click();
+  await page.waitForTimeout(700);
+  if (await view.count()) problems.push(`${label}: Save did not close the crop view`);
+  const stepAfter = await page.evaluate(() => ({
+    sheet: history.state?.sheet,
+    hash: location.hash,
+    scroll: scrollY,
+    text: document.querySelector('.ProseMirror')?.textContent,
+  }));
+  if (stepAfter.sheet === 'crop-view') problems.push(`${label}: the page's step is still in the history after Save`);
+  if (Math.abs(stepAfter.scroll - scroll0) > 1)
+    problems.push(`${label}: the editor is at ${stepAfter.scroll} after the crop view, it was at ${scroll0}`);
+  if (stepAfter.hash !== '#new/pages' || !/Hello/.test(stepAfter.text ?? ''))
+    problems.push(`${label}: the editor under the crop view was changed (${stepAfter.hash})`);
+  const saved = await page.evaluate(() => {
+    const box = document.querySelector('.ProseMirror .site-picture .picture-crop');
+    return box && { box: box.getAttribute('style'), img: box.querySelector('img')?.getAttribute('style') };
+  });
+  if (!saved || !/aspect-ratio: 3 \/ 2/.test(saved.box ?? '') || !/translate\(-?\d/.test(saved.img ?? ''))
+    problems.push(`${label}: Save did not cut the image to 3:2 with a crop (${JSON.stringify(saved)})`);
+  // Reopened: 3:2 is chosen. Leaving with a change asks; Discard leaves the image as it was.
+  await open();
+  const chosen = await view
+    .locator('.crop-view-ratios [aria-pressed="true"], .crop-view-ratios [aria-checked="true"], .crop-view-ratios [data-selected]')
+    .allTextContents();
+  if (!chosen.some((c) => c.includes('3:2'))) problems.push(`${label}: reopened, 3:2 is not the chosen ratio (${chosen})`);
+  await chip('1:1').click();
+  await page.waitForTimeout(300);
+  await back().click();
+  await asked()
+    .waitFor({ timeout: 4000 })
+    .catch(() => problems.push(`${label}: closing the crop view with a change did not ask "Keep your changes?"`));
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  if (!(await view.count())) problems.push(`${label}: Esc on the question did not stay in the crop view`);
+  await back().click();
+  await asked().getByRole('button', { name: 'Discard', exact: true }).click();
+  await page.waitForTimeout(500);
+  if (await view.count()) problems.push(`${label}: Discard did not close the crop view`);
+  const still = await page.evaluate(() => document.querySelector('.ProseMirror .site-picture .picture-crop')?.getAttribute('style'));
+  if (!/aspect-ratio: 3 \/ 2/.test(still ?? '')) problems.push(`${label}: Discard changed the image (${still})`);
+  // Closing with nothing changed asks nothing.
+  await open();
+  await back().click();
+  await page.waitForTimeout(400);
+  if ((await asked().count()) || (await view.count())) problems.push(`${label}: closing the crop view with no change asked or stayed open`);
+  // The phone's back gesture (the browser's back) leaves the page: at once when nothing changed, with the question when something did.
+  await open();
+  if ((await page.evaluate(() => history.state?.sheet)) !== 'crop-view')
+    problems.push(`${label}: the page has no step of its own in the history`);
+  await page.evaluate(() => history.back());
+  await view
+    .waitFor({ state: 'detached', timeout: 4000 })
+    .catch(() => problems.push(`${label}: the browser's back did not leave the crop view`));
+  if ((await page.evaluate(() => location.hash)) !== '#new/pages' || !(await page.locator('.ProseMirror').count()))
+    problems.push(`${label}: the browser's back left the editor, not only the crop view`);
+  await open();
+  await chip('4:3').click();
+  await page.evaluate(() => history.back());
+  await asked()
+    .waitFor({ timeout: 4000 })
+    .catch(() => problems.push(`${label}: the browser's back with a change did not ask "Keep your changes?"`));
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  if (!(await view.count())) problems.push(`${label}: staying after the browser's back did not keep the crop view`);
+  if ((await page.evaluate(() => history.state?.sheet)) !== 'crop-view')
+    problems.push(`${label}: staying after the browser's back did not give the page its step back`);
+  await back().click();
+  await asked().getByRole('button', { name: 'Discard', exact: true }).click();
+  await page.waitForTimeout(500);
+  if ((await view.count()) || (await page.evaluate(() => history.state?.sheet)) === 'crop-view')
+    problems.push(`${label}: Discard after the browser's back left the page open or its step in the history`);
+  // The image sheet: an Aspect ratio row with the ratio, no Format chips; it opens the same view and brings the ratio back.
+  await select();
+  const sheetOpen = () => page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Alt text' }).count();
+  if (!(await sheetOpen())) await pressTool(page, 'Edit', how);
+  await page.waitForTimeout(700);
+  const sheet = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Alt text' }).last();
+  const rowItem = sheet.getByRole('button', { name: /Aspect ratio/ }).or(sheet.locator('li', { hasText: 'Aspect ratio' }));
+  if (!(await rowItem.count())) problems.push(`${label}: the image sheet has no Aspect ratio row`);
+  else {
+    const text = (await sheet.locator('li', { hasText: 'Aspect ratio' }).first().textContent()) ?? '';
+    if (!text.includes('3:2')) problems.push(`${label}: the Aspect ratio row does not say 3:2 (${text})`);
+    if (/\bFormat\b/.test((await sheet.textContent()) ?? '')) problems.push(`${label}: the image sheet still says Format`);
+    if (await sheet.locator('.crop-view-ratios, [role=radiogroup]').count())
+      problems.push(`${label}: the image sheet still has the format chips`);
+    await rowItem.first().click();
+    await view.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the Aspect ratio row did not open the crop view`));
+    await chip('1:1').click();
+    await view.getByRole('button', { name: 'Save', exact: true }).click();
+    await page.waitForTimeout(600);
+    const next = (await sheet.locator('li', { hasText: 'Aspect ratio' }).first().textContent()) ?? '';
+    if (!next.includes('1:1')) problems.push(`${label}: after Save in the crop view the row does not say 1:1 (${next})`);
+    if (width >= 840) {
+      // From expanded the sheet is live: the new ratio is in the page already, and closing the sheet asks nothing.
+      await sheet.locator('[data-side-sheet-close]').click();
+      await page.waitForTimeout(500);
+      if (await asked().count()) problems.push(`${label}: closing the live image sheet asked "Keep your changes?"`);
+    } else {
+      // The sheet is changed now: Cancel asks.
+      await sheet
+        .locator('button', { hasText: /^Cancel$/ })
+        .first()
+        .click();
+      await asked()
+        .waitFor({ timeout: 4000 })
+        .catch(() => problems.push(`${label}: closing the image sheet after a new ratio did not ask`));
+      await asked().getByRole('button', { name: 'Discard', exact: true }).click();
+    }
+  }
+  await page.close();
+}
+
 /** The active block's action row (src/blockRow.ts): it shows only while a block is active (a real touch tap on a block's rows activates it), its buttons are real 44 x 44 dp
  * buttons (Move up, Move down, Hide or Show, and the handle at its end), Move down is disabled with its reason on the last block and Move up on the first, Hide turns into
  * Show and the row stays, the bar has none of these, the row does not lie under the bar (also with the on-screen keyboard open: a short window), and under reduced motion it is
@@ -1800,7 +2413,7 @@ async function checkBlockRowNarrow() {
   await page.close();
 }
 
-/** Insert block is always on the bar and never in the ⋮ (320, 375 and 1280 px, in text, with a block active and idle): a 44 x 44 dp button with the plus icon (Material's add), right before the ⋮ (or last), after Undo and Redo with no divider; it opens the block picker. */
+/** Insert block is always on the bar and never in the ⋮ (320, 375 and 1280 px, in text, with a block active and idle): a 44 x 44 dp button with the add-block icon (widgets with a plus), right before the ⋮ (or last), after Undo and Redo with no divider; it opens the block picker. */
 async function checkInsertBlock(width, height = 800) {
   const phone = width < 600;
   const label = `${width}px Insert block`;
@@ -1831,7 +2444,8 @@ async function checkInsertBlock(width, height = 800) {
     if (!got.insert) return void problems.push(`${where}: no Insert block on the bar (${got.names})`);
     if (Math.abs(got.insert.width - 44) > 0.6 || Math.abs(got.insert.height - 44) > 0.6)
       problems.push(`${where}: Insert block is ${got.insert.width} x ${got.insert.height}, not 44 x 44`);
-    if (got.icon !== 'add') problems.push(`${where}: Insert block has icon ${got.icon}, not the plus (Material's add)`);
+    if (got.icon !== 'add_block')
+      problems.push(`${where}: Insert block has icon ${got.icon}, not the add-block icon (widgets with a plus)`);
     if (got.scrolls) problems.push(`${where}: the bar scrolls`);
     // Undo, Redo, Insert block, then the ⋮ (when there is one), with no divider.
     if (got.dividers) problems.push(`${where}: the bar has a divider`);
@@ -4004,7 +4618,7 @@ async function checkEmptyHint() {
           if (!(await sheet.getByText('Width', { exact: true }).count()))
             problems.push(`${name}: the Main heading's Section settings have no Width`);
           await page.getByText('Primary', { exact: true }).first().click();
-          await page.getByRole('button', { name: 'Save', exact: true }).first().click();
+          await saveOrClose(page);
           await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 10_000 });
           await page.waitForTimeout(300);
         }
@@ -4076,7 +4690,7 @@ async function checkListMarkers(width) {
   const inEditor = await page.evaluate(markers);
   if (inEditor.length) problems.push(`${width}px editor: a List row has a list marker (${[...new Set(inEditor)].join('; ')})`);
   await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('ul.block-list', { timeout: 30_000 });
   const inPreview = await frame.evaluate(markers);
@@ -4160,7 +4774,7 @@ async function checkSavedLabel(page, width) {
   if (!inEditor || inEditor.size !== '12px')
     problems.push(`${label}: a saved lone label is not a label in the editor (${JSON.stringify(inEditor)})`);
   await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('[data-editor="text"] .label-medium', { timeout: 30_000 });
   const drawn = await frame.evaluate(() => {
@@ -4266,7 +4880,7 @@ async function checkPreviewSection() {
   await page.goto(`${site}/editor/#${path}`);
   await page.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
   await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('[data-editor="text"]', { timeout: 30_000 });
   const got = await frame.evaluate(() => {
@@ -4376,8 +4990,8 @@ async function checkH1SectionGap() {
     await openEditor(page, site, { [path]: text });
     await page.goto(`${site}/editor/#${path}`);
     await page.getByRole('button', { name: 'Preview' }).first().click({ timeout: 30_000 });
-    await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
-    const slider = page.locator('dialog[open] [role="slider"]').first();
+    await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
+    const slider = page.locator('[data-preview-page] [role="slider"]').first();
     const width = async () => Number(await slider.getAttribute('aria-valuenow'));
     for (const w of [390, 600]) {
       await slider.focus();
@@ -4428,8 +5042,8 @@ async function checkFullSection() {
   await page.goto(`${site}/editor/#${path}`);
   await page.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
   await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
-  const slider = page.locator('dialog[open] [role="slider"]').first();
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
+  const slider = page.locator('[data-preview-page] [role="slider"]').first();
   const width = async () => Number(await slider.getAttribute('aria-valuenow'));
   for (const w of [840, 1200, 1600]) {
     await slider.focus();
@@ -4448,7 +5062,7 @@ async function checkFullSection() {
   await phone.goto(`${site}/editor/#${path}`);
   await phone.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
   await phone.getByRole('button', { name: 'Preview' }).first().click();
-  await phone.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await phone.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const small = phone.frames().find((f) => f !== phone.mainFrame());
   await small.waitForSelector('section.text-section-full', { timeout: 30_000 });
   verify('375px Preview full section', await small.evaluate(measure));
@@ -4467,19 +5081,19 @@ async function checkPreviewDraft(width) {
   await page.getByRole('button', { name: 'Preview' }).first().click({ timeout: 30_000 });
   await page.waitForFunction(
     () => {
-      const d = document.querySelector('dialog[open]');
+      const d = document.querySelector('[data-preview-page]');
       return d && (d.querySelector('iframe') || /Couldn.t create the preview/.test(d.textContent));
     },
     null,
     { timeout: 30_000 },
   );
   const failed = await page.evaluate(
-    () => document.querySelector('dialog[open]')?.textContent.match(/Couldn.t create the preview[^]*/)?.[0],
+    () => document.querySelector('[data-preview-page]')?.textContent.match(/Couldn.t create the preview[^]*/)?.[0],
   );
   if (failed) problems.push(`${label}: ${failed.slice(0, 120)}`);
   const bar = await page.evaluate(() => {
-    const caption = document.querySelector('dialog[open] [data-preview-width]').getBoundingClientRect();
-    const area = document.querySelector('dialog[open] [role="group"]').closest('.overflow-x-auto');
+    const caption = document.querySelector('[data-preview-page] [data-preview-width]').getBoundingClientRect();
+    const area = document.querySelector('[data-preview-page] [role="group"]').closest('.overflow-x-auto');
     const a = area.getBoundingClientRect();
     const apart =
       a.right <= caption.left + 0.5 || a.left >= caption.right - 0.5 || a.bottom <= caption.top + 0.5 || a.top >= caption.bottom - 0.5;
@@ -4937,7 +5551,7 @@ async function checkSegmentedArrow(width, height) {
   await pressMore(page, 'Edit');
   await page.waitForTimeout(600);
   await page.getByText('Always open', { exact: true }).locator('visible=true').last().click();
-  await page.getByRole('button', { name: 'Save', exact: true }).locator('visible=true').last().click();
+  await saveOrClose(page, 'last');
   await page.waitForTimeout(500);
   await page.click('[data-add-row]');
   await page.keyboard.type('Second');
@@ -5580,7 +6194,7 @@ async function checkCardHeadline(width, height) {
   await sitePage.close();
 }
 
-/** Change to (spec 2026-11-14-paste-and-change-to-design.md, section 3): the block's ⋮ menu has Change to first (Block settings and Hide are in the action row),
+/** Change type (spec 2026-11-14-paste-and-change-to-design.md, section 3): the block's ⋮ menu has Change type first (Block settings and Hide are in the action row),
  * with an arrow; it opens the next level with a back row and the other five blocks; a List with an icon changed to
  * Steps keeps its titles and texts, says "Changed to Steps", and back to List shows the icon again; Ctrl+Z after a change, and the
  * snackbar's Undo, give the block back as it was; and what a block keeps from another is never on the site. */
@@ -5633,12 +6247,12 @@ async function checkChangeTo(width, height) {
   if (!(await hasIcon())) problems.push(`${label}: the List's first row did not get an icon`);
   const menuRows = () =>
     page.locator('[role=menu] [role^=menuitem]:visible').evaluateAll((items) => items.map((i) => i.textContent.trim()));
-  // Opens ⋮ › Change to and chooses `to` (with Enter when `keys`).
+  // Opens ⋮ › Change type and chooses the block `to`.
   const changeTo = async (to) => {
     await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
     await page.waitForTimeout(200);
     await page
-      .locator('[role=menu] [role^=menuitem]', { hasText: /^Change to$/ })
+      .locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ })
       .first()
       .click();
     await page.waitForTimeout(200);
@@ -5651,29 +6265,51 @@ async function checkChangeTo(width, height) {
   await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
   await page.waitForTimeout(200);
   const first = await menuRows();
-  const at = first.indexOf('Change to');
-  // Block settings, Hide and the moves are the action row's (blockRow.ts), so Change to is the block's first row in the ⋮ (after the bar's tools
+  const at = first.indexOf('Change type');
+  // Block settings, Hide and the moves are the action row's (blockRow.ts), so Change type is the block's first row in the ⋮ (after the bar's tools
   // that did not fit, on a phone), before Select.
   if (at < 0 || first[at + 1] !== 'Select')
-    problems.push(`${label}: Change to is not the block's first row, before Select (${first.join(', ')})`);
-  const opener = page.locator('[role=menu] [role^=menuitem]', { hasText: /^Change to$/ }).first();
-  if ((await opener.getAttribute('aria-haspopup')) !== 'menu') problems.push(`${label}: Change to does not say it opens a menu`);
+    problems.push(`${label}: Change type is not the block's first row, before Select (${first.join(', ')})`);
+  const opener = page.locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ }).first();
+  if ((await opener.getAttribute('aria-haspopup')) !== 'menu') problems.push(`${label}: Change type does not say it opens a menu`);
+  const rowIcon = await opener.locator('.menu-item-leading svg').first().innerHTML();
   await opener.click();
   await page.waitForTimeout(200);
   const level = await menuRows();
-  const want = 'Change to,Segmented list,Steps,FAQ list,Cards,Table';
-  if (level.join() !== want) problems.push(`${label}: Change to's level is ${level.join(', ')}, not ${want}`);
-  // The back row gives the menu's own rows again.
+  const want = 'Change type,Segmented list,Steps,FAQ list,Cards,Table';
+  if (level.join() !== want) problems.push(`${label}: Change type's level is ${level.join(', ')}, not ${want}`);
+  // The header of the level has the swap icon of the row (not a back arrow) and says where it goes.
+  const header = page.locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ }).first();
+  if ((await header.locator('.menu-item-leading svg').first().innerHTML()) !== rowIcon)
+    problems.push(`${label}: the header of the Change type level does not draw the icon of its row`);
+  if ((await header.getAttribute('aria-label')) !== 'Change type, back to menu')
+    problems.push(`${label}: the header's name is "${await header.getAttribute('aria-label')}", not "Change type, back to menu"`);
+  // The header, Enter and Escape each go back to the menu's own rows, which stays open; Escape there closes it.
+  await header.click();
+  await page.waitForTimeout(200);
+  if (!(await menuRows()).includes('Select')) problems.push(`${label}: the header did not give the menu's rows again`);
   await page
-    .locator('[role=menu] [role^=menuitem]', { hasText: /^Change to$/ })
+    .locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ })
     .first()
     .click();
   await page.waitForTimeout(200);
-  if (!(await menuRows()).includes('Select')) problems.push(`${label}: the back row did not give the menu's rows again`);
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(200);
+  if (!(await menuRows()).includes('Select')) problems.push(`${label}: Enter on the header did not give the menu's rows again`);
+  await page
+    .locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ })
+    .first()
+    .click();
+  await page.waitForTimeout(200);
   await page.keyboard.press('Escape');
   await page.waitForTimeout(200);
+  if (!(await menuRows()).includes('Select'))
+    problems.push(`${label}: Escape in the level did not give the menu's rows again (it closed the menu)`);
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(200);
+  if (await page.locator('[role=menu]:visible').count()) problems.push(`${label}: Escape at the menu's own rows did not close it`);
   await changeTo('Steps');
-  if (!(await page.locator('.inline-steps').count())) problems.push(`${label}: Change to › Steps did not make Steps`);
+  if (!(await page.locator('.inline-steps').count())) problems.push(`${label}: Change type › Steps did not make Steps`);
   const steps = JSON.stringify(await rows('title'));
   const was = JSON.stringify([
     ['Opening hours', 'Mon–Fri'],
@@ -5686,7 +6322,7 @@ async function checkChangeTo(width, height) {
   await page.keyboard.press('Control+z');
   await page.waitForTimeout(500);
   if (!(await page.locator('.inline-list').count()) || !(await hasIcon()))
-    problems.push(`${label}: Ctrl+Z after Change to did not give the List back with its icon`);
+    problems.push(`${label}: Ctrl+Z after Change type did not give the List back with its icon`);
   // List → Steps → List: the icon is back, and the snackbar's Undo gives Steps again.
   await page.locator('[data-row="0"] [data-field="title"]').click();
   await changeTo('Steps');
@@ -5713,7 +6349,7 @@ async function checkChangeTo(width, height) {
     problems.push(`${label}: Table → List did not give the List with its icon`);
   if (JSON.stringify(await rows('title')) !== was) problems.push(`${label}: Table → List has ${JSON.stringify(await rows('title'))}`);
   // Kept data is never on the site: the Steps of the system's test page (the demo's Blocks page) keep a card's subhead and a FAQ answer on their
-  // first step, as Change to leaves them, and the page shows neither.
+  // first step, as Change type leaves them, and the page shows neither.
   if (await onTestPage(page, label)) {
     const html = await page.content();
     if (!html.includes('Pick a block')) problems.push(`${label} (site): the test page's Steps are not there`);
@@ -6944,11 +7580,7 @@ async function checkInlineTable(width, height) {
   await stripes.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the table's settings have no "Striped rows" switch`));
   if ((await stripes.count()) && (await stripes.isChecked())) problems.push(`${label}: "Striped rows" is not off by default`);
   await stripes.click({ timeout: 3000 }).catch(() => {});
-  await page
-    .getByRole('button', { name: 'Save', exact: true })
-    .last()
-    .click({ timeout: 3000 })
-    .catch(() => {});
+  await saveOrClose(page, 'last').catch(() => {});
   await page.waitForTimeout(400);
   const striped = await rowBg();
   if (!(await page.locator('.inline-table-box[data-striped]').count()))
@@ -7648,7 +8280,7 @@ async function checkSectionBackground(width, touch) {
   await page.goto(`${site}/editor/#${path}`);
   await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 30_000 });
   await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('section.text-section-primary', { timeout: 30_000 });
   const panel = await frame.evaluate(() => {
@@ -8499,7 +9131,7 @@ async function checkMorpheme(page, state) {
   for (const x of [
     `Version ${CMS_STATUS.running}`,
     'Version 99.0.0 er klar',
-    'Hjemmesiden har ingen GitHub-n\u00f8gle',
+    'Hjemmesiden har intet GitHub-token',
     'A made-up note for the checks.',
   ])
     if (!text.includes(x)) problems.push(`morpheme (${state}): "${x}" is missing`);
@@ -8566,6 +9198,8 @@ for (const [width, height] of [
 await unit('checkStartSubtitle', () => checkStartSubtitle());
 for (const width of [375, 1280])
   for (const locale of ['en-US', 'da-DK']) await unit(`choice-group parts ${width} ${locale}`, () => checkChoiceGroupParts(width, locale));
+for (const width of [375, 1280])
+  for (const locale of ['en-US', 'da-DK']) await unit(`search view parts ${width} ${locale}`, () => checkSearchViewParts(width, locale));
 
 for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
 await unit('checkTextBarWide', () => checkTextBarWide());
@@ -8578,8 +9212,11 @@ for (const [width, reduced] of [
   await unit(`checkBarSlide ${width}${reduced ? ' reduced' : ''}`, () => checkBarSlide(width, reduced));
 for (const width of [375, 1280]) await unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
 for (const width of [375, 1280]) await unit(`checkCardBar ${width}`, () => checkCardBar(width));
-for (const width of [375, 1280]) await unit(`checkCloseChangedSheet ${width}`, () => checkCloseChangedSheet(width));
+await unit('checkLiveSideSheet 1280', () => checkLiveSideSheet(1280));
+for (const width of [375, 700]) await unit(`checkCloseChangedSheet ${width}`, () => checkCloseChangedSheet(width));
+for (const width of [700, 1280]) await unit(`checkSheetFocusOnOpen ${width}`, () => checkSheetFocusOnOpen(width));
 for (const width of [375, 1280]) await unit(`checkImageTools ${width}`, () => checkImageTools(width));
+for (const width of [375, 1280]) await unit(`checkCropView ${width}`, () => checkCropView(width));
 for (const width of [320, 375, 1280]) await unit(`checkInsertBlock ${width}`, () => checkInsertBlock(width));
 for (const w of [375, 1280]) await unit(`checkBlockRow ${w}`, () => checkBlockRow(w));
 await unit('checkBlockRow 375 reduced', () => checkBlockRow(375, { reduced: true }));

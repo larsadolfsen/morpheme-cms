@@ -705,7 +705,8 @@ export const parts = {
         "The same pages down the side of a larger screen, narrow or wide. At the top the button that switches, and the screen's main action. Wide beside the content or over it, and perhaps gone entirely while it is narrow.",
       content: "The page's content stands here.",
       openRail: 'Open navigation',
-      search: 'The search field and what it opens: the field with the button back and the results that fit what is typed.',
+      search:
+        'The search field and what it opens: the field with the button back and the results that fit what is typed. A search view driven by the page also groups its results under a name, shows a key beside an item, and keeps one item that cannot be used now.',
       toolbar:
         'Actions in a row: the whole width at the bottom, as the bar at the bottom of a phone, or floating, on the surface or in the accent, across or vertical, also with a button beside it and folded into the button.',
       name: 'Navigation',
@@ -718,6 +719,15 @@ export const parts = {
       clear: 'Clear',
       empty: 'Nothing fits the search',
       query: 'cou',
+      viewOpen: 'Open the search view',
+      viewGroups: ['Recent', 'Suggested'],
+      viewItems: [
+        { headline: 'Prices', supporting: 'A page', icon: 'clock' },
+        { headline: 'Opening hours', supporting: 'A page', icon: 'clock' },
+        { headline: 'Bold', shortcut: 'Ctrl+B', keyShortcuts: 'Control+B', icon: 'text-b', pressed: true },
+        { headline: 'Redo', supporting: 'Nothing to redo', icon: 'arrow-u-up-right', disabled: true },
+      ],
+      viewCount: (n: number) => (n === 1 ? '1 result' : `${n} results`),
       results: [
         { headline: 'Prices', supporting: 'Searched recently' },
         { headline: 'Opening hours', supporting: 'A page' },

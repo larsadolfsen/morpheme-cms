@@ -6,8 +6,8 @@ export const apps = {
   installed: 'Installed',
   notInstalled: 'Not installed',
   /** The switch at the top of an installed app's Settings tab, and its status under its name while it is off. */
-  enabled: 'Enabled',
-  deactivated: 'Deactivated',
+  enabled: 'App',
+  deactivated: 'Off',
   /** Under its name on its page: who made it. */
   publisher: (name: string) => `Developer: ${name}`,
   /** On its page: its images (each opening it whole), what it does more fully, what it needs of the site
@@ -20,7 +20,7 @@ export const apps = {
   needsPages: 'Puts its own code on every page',
   needsLoads: 'Loads from other addresses',
   needsSends: 'Sends forms to other addresses',
-  needsServer: 'Has its own part of the website’s server',
+  needsServer: 'Has its own part of the website’s Worker',
   needsBuild: 'Makes its own files when the website is updated',
   /** What it changes of what the site does itself, by its file in hooks/ (@morphemecms/cms/lib/hooks.ts). */
   changes: { 'page-colors': 'Changes the pages’ colors' } as Record<AppHook, string>,
@@ -30,7 +30,7 @@ export const apps = {
   /** Under "Permissions": the places an app runs code in (lib/appPlaces.mjs), each with its access; a place without code has none. */
   placeBuild: 'Build',
   placeEditor: 'Editor',
-  placeWorker: 'Server',
+  placeWorker: 'Worker',
   placePages: 'Pages',
   access: { sandboxed: 'Sandboxed', full: 'Full access' },
   /** Above "Permissions" of an installed app: what the last build found wrong in it (the build's _problems.json), one line each:
@@ -78,7 +78,7 @@ export const apps = {
   /** Asked before uninstalling. */
   askUninstall: (app: string) => `Uninstall ${app}? What the app adds disappears from the editor.`,
   /** The name of the switch in the row of one of its blocks (or kinds of a list), read by screen readers. */
-  activeOf: (block: string) => `Enabled: ${block}`,
+  activeOf: (block: string) => `On: ${block}`,
   /** Under "Uninstall". */
   uninstallHint: 'Can be uninstalled, as nothing on the website uses the app.',
   /** Over the pages and entries that use it (its blocks, its kind of pop-up). */
@@ -121,7 +121,7 @@ export const apps = {
   mcpDisconnect: 'Disconnect',
   mcpNeedsSignIn: 'Needs sign-in',
   mcpToken: 'Token',
-  mcpTokenHint: 'Paste the token from the service. It is kept on the server and never shown again.',
+  mcpTokenHint: 'Paste the token from the service. It is kept as a secret in the website’s Worker and never shown again.',
   mcpDisconnectAsk: (host: string) => `Disconnect from ${host}? The app stops using the service until you connect again.`,
   mcpFailed: 'Could not connect. Check the details and try again.',
   /** A settings field filled from the service: while it loads, and when it cannot. */

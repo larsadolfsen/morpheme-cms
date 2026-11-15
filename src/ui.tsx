@@ -102,7 +102,7 @@ import {
   SiteSwitch,
   SiteTextField,
   SiteToolbar,
-  SiteTopAppBar,
+  SiteAppBar,
   SiteTextFieldButton,
   SiteTimePicker,
   dayPeriods,
@@ -121,6 +121,7 @@ import { motionTiming } from '../lib/motion';
 import { atLeast, type Breakpoint } from '../lib/breakpoints.mjs';
 import { swipeCloses } from '../lib/drawer-swipe.mjs';
 import { menuLayout } from '../lib/menu-layout.mjs';
+import { isTypeAheadKey, nextByLetter } from '../lib/menuTypeAhead.mjs';
 
 // The parts Material 3 has (a button, an icon button, a chip, a carousel …) are the theme's UI parts
 // (packages/editor/theme/ui/, through themeUi.ts), the same the site draws, in the theme's design (its ui.css and
@@ -974,6 +975,8 @@ export function SearchRow({
 /** The theme's slider, with its name over it (the zoom when cropping an image): a value between `min` and `max`. */
 export function Slider(props: {
   label: string;
+  /** Only screen readers say the name (the crop view's zoom, between its minus and plus buttons). */
+  hideLabel?: boolean;
   min: number;
   max: number;
   step?: number;
@@ -1989,6 +1992,7 @@ export function Menu({
   attached,
   keyboard,
   popup,
+  onBack,
   onClose,
   children,
 }: {
@@ -2001,10 +2005,15 @@ export function Menu({
   attached?: boolean;
   /** With `attached`: it was opened with the keyboard, so a choice has the focus (and its ring); else the menu has it. */
   keyboard?: boolean;
+  /** The menu is at a next level (a submenu): Escape goes back one level with this, and only the level above closes the menu. */
+  onBack?: () => void;
   onClose: () => void;
   children: ReactNode;
 }) {
   const menu = useRef<HTMLUListElement>(null);
+  // The latest `onBack`, as the effect below keeps its listener while the menu is open.
+  const back = useRef(onBack);
+  back.current = onBack;
   const sheet = useRef<HTMLDialogElement>(null);
   const wide = useAtLeast('medium') || !!popup;
   useEffect(() => {
@@ -2024,6 +2033,12 @@ export function Menu({
       if (e.type === 'keydown' && (e as globalThis.KeyboardEvent).key !== 'Escape') return;
       // A tap on the button itself is its own: it closes the menu.
       if (e.type === 'pointerdown' && (menu.current?.contains(e.target as Node) || anchor.contains(e.target as Node))) return;
+      // Escape at a next level goes back to the menu's own rows; the menu stays open.
+      if (e.type === 'keydown' && back.current) {
+        e.preventDefault();
+        e.stopPropagation();
+        return back.current();
+      }
       if (e.type === 'keydown' && attached) {
         // Esc closes only the menu (not the sheet or dialog the field is in), and the field has the focus again.
         e.preventDefault();
@@ -2127,11 +2142,19 @@ function placePopup(menu: HTMLElement, anchor: HTMLElement, side: 'start' | 'end
   menu.style.left = `${Math.max(screen.offsetLeft + 8, Math.min(at, screen.offsetLeft + screen.width - offsetWidth - 8))}px`;
 }
 
-// The keys of an attached menu: the arrow keys (round), Home and End go between its choices.
+// The keys of an attached menu: the arrow keys (round), Home and End go between its choices, and a letter goes to the next choice that starts with it.
 function moveInMenu(e: KeyboardEvent<HTMLElement>) {
   const items = [...e.currentTarget.querySelectorAll<HTMLElement>('[role^="menuitem"]:not(:disabled)')];
   const at = items.indexOf(document.activeElement as HTMLElement);
-  const to = { ArrowDown: at + 1, ArrowUp: at < 0 ? items.length - 1 : at - 1, Home: 0, End: items.length - 1 }[e.key];
+  let to = { ArrowDown: at + 1, ArrowUp: at < 0 ? items.length - 1 : at - 1, Home: 0, End: items.length - 1 }[e.key];
+  // A letter: the next item whose label starts with it (M3 menus: "Letters: Focus moves to the next menu item starting with letter").
+  if (to === undefined && isTypeAheadKey(e)) {
+    to = nextByLetter(
+      items.map((i) => i.querySelector('.menu-item-label')?.textContent ?? i.textContent ?? ''),
+      at,
+      e.key,
+    );
+  }
   if (to === undefined) return;
   e.preventDefault();
   items[(to + items.length) % items.length]?.focus();
@@ -2148,6 +2171,7 @@ export function MenuItem({
   disabled,
   opens,
   back,
+  label,
   onKeyDown,
   onClick,
   children,
@@ -2157,10 +2181,12 @@ export function MenuItem({
   selected?: boolean;
   /** It cannot be chosen now (Move up on the first card). */
   disabled?: boolean;
-  /** It opens the menu's next level (a submenu, Change to): an arrow at its end, and the menu stays open; Right arrow opens it too. */
+  /** It opens the menu's next level (a submenu, Change type): an arrow at its end, and the menu stays open; Right arrow opens it too. */
   opens?: boolean;
   /** The row back from the next level: the menu stays open; Left arrow anywhere in that level goes back too (`onKeyDown` of its rows). */
   back?: boolean;
+  /** Its name for screen readers when it says more than the text (the back row: the level's name and where it goes). */
+  label?: string;
   onKeyDown?: (e: KeyboardEvent<HTMLElement>) => void;
   onClick: () => void;
   children: ReactNode;
@@ -2173,6 +2199,7 @@ export function MenuItem({
       trailingIcon={opens ? 'caret-right' : undefined}
       aria-haspopup={opens ? 'menu' : undefined}
       aria-expanded={opens ? false : undefined}
+      aria-label={label}
       data-menu-stays={opens || back || undefined}
       onMouseDown={(e: MouseEvent) => e.preventDefault()}
       onKeyDown={(e: KeyboardEvent<HTMLElement>) => {
@@ -3691,9 +3718,9 @@ export function TopAppBar({ children }: { children: ReactNode }) {
     return () => removeEventListener('scroll', check);
   }, []);
   return (
-    <SiteTopAppBar className="pt-[env(safe-area-inset-top)]" data-stuck={stuck || undefined}>
+    <SiteAppBar className="pt-[env(safe-area-inset-top)]" data-stuck={stuck || undefined}>
       {children}
-    </SiteTopAppBar>
+    </SiteAppBar>
   );
 }
 

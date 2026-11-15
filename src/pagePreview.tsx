@@ -1,5 +1,5 @@
 // "Preview" (FormFrame.tsx): a page or a blog post as it looks on the site with what is in its form
-// now, at once and without saving, full screen (a Material 3 full-screen dialog, hiding the rest of the editor), at each
+// now, at once and without saving, as a page of the editor (the top bar with a back arrow, the form kept under it), at each
 // of the site's window sizes or any width (PreviewScreen.tsx).
 //
 // The page as it is on the site gives everything around what the form changes: the header, the footer,
@@ -21,7 +21,7 @@
 //
 // A post's text starts with its lead, a paragraph drawn larger and before the image (data-editor="lead",
 // theme/layouts/PostLayout.astro; lib/lead.mjs). The preview splits the text the same way, for a post only (postLead.mjs).
-import { useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { parseBlock, splitBlocks } from '../lib/blocks.mjs';
@@ -39,6 +39,10 @@ import { pageH1 } from './sections.mjs';
 import { setH1Panel } from './pageH1Panel.mjs';
 import type { BlockData } from './blocks';
 import { PreviewScreen } from './PreviewScreen';
+import Screen from './Screen';
+import { useFormPages } from './FormFrame';
+import { useKeepScroll } from './useKeepScroll';
+import { replace } from './nav';
 import { t } from './i18n';
 
 /** What a form puts in the page: undefined leaves it as it is on the site. */
@@ -242,18 +246,30 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
  * tightest layout is seen; compact at a common phone's. */
 export const PREVIEW_WIDTH: Record<Breakpoint, number> = { ...BREAKPOINTS, compact: 390 };
 
-// In the full-screen Preview the site's section lines (the dotted line at the start of an H2 section and round a coloured one) show
+// In the Preview the site's section lines (the dotted line at the start of an H2 section and round a coloured one) show
 // only under the pointer, so the page looks as the site does the rest of the time.
 const HOVER_LINES = `<style data-editor-preview>
 [data-editor="text"] :is(h2, section):hover { outline: 2px dotted color-mix(in srgb, currentColor 40%, transparent); outline-offset: 0.5rem; }
 </style>`;
 
-/** The full-screen Preview (a Material 3 full-screen dialog), and how to open it with a draft (made when it opens). */
-export function usePagePreview(): [(draft: () => PageDraft | null) => void, ReactNode] {
-  const dialog = useRef<HTMLDialogElement>(null);
+/** Where a form's Preview is: the form's address with `preview` after it, a page of the editor over the form, which keeps what is in it
+ * (FormFrame.tsx useFormPages), as a field's page does (Field.page). */
+export const previewRoute = (route: string) => `${route}/preview`;
+
+/** The Preview of the form at `route` (a page or post), as a page of the editor: the top bar with the back arrow, "Preview" and
+ * the name of the page (`name`), the window sizes and the site below (PreviewScreen.tsx). Returns how to open it with a draft (made
+ * when it opens, from what is in the form, saved or not) and the page, which is drawn only while `shown` (the address is the
+ * Preview's). Back is the browser's: to the form, scrolled as it was. An address of the Preview opened without a draft (a reload)
+ * goes to the form. */
+export function usePagePreview(route: string, shown: boolean, name: string): [(draft: () => PageDraft | null) => void, ReactNode] {
   const [html, setHtml] = useState<string | null>(null);
   const [problem, setProblem] = useState('');
   const run = useRef(0);
+  useFormPages([route, previewRoute(route)]);
+  useKeepScroll(shown);
+  useEffect(() => {
+    if (shown && !run.current) replace(`#${route}`);
+  }, []);
 
   function open(make: () => PageDraft | null) {
     const draft = make();
@@ -261,18 +277,19 @@ export function usePagePreview(): [(draft: () => PageDraft | null) => void, Reac
     const n = ++run.current;
     setHtml(null);
     setProblem('');
-    dialog.current?.showModal();
+    location.hash = previewRoute(route);
     pageDocument(draft).then(
       (page) => n === run.current && setHtml(page.replace('</head>', `${HOVER_LINES}</head>`)),
       (e) => n === run.current && setProblem(t.preview.failed((e as Error).message)),
     );
   }
 
-  const close = () => dialog.current?.close();
-  const screen = (
-    <dialog ref={dialog} className="editor-preview-screen" aria-label={t.preview.title} onClose={() => run.current++}>
-      <PreviewScreen html={html} message={problem || t.preview.making} title={t.preview.title} onClose={close} />
-    </dialog>
+  const page = shown && run.current > 0 && (
+    <Screen full title={t.preview.title} status={name} back={{ href: `#${route}`, label: name, guard: (go) => go() }}>
+      <div data-preview-page className="flex min-h-0 flex-1 flex-col">
+        <PreviewScreen html={html} message={problem || t.preview.making} title={t.preview.title} />
+      </div>
+    </Screen>
   );
-  return [open, screen];
+  return [open, page];
 }
