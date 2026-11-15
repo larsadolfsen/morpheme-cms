@@ -4515,7 +4515,7 @@ async function checkListMarkers(width) {
   const inEditor = await page.evaluate(markers);
   if (inEditor.length) problems.push(`${width}px editor: a List row has a list marker (${[...new Set(inEditor)].join('; ')})`);
   await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('ul.block-list', { timeout: 30_000 });
   const inPreview = await frame.evaluate(markers);
@@ -4599,7 +4599,7 @@ async function checkSavedLabel(page, width) {
   if (!inEditor || inEditor.size !== '12px')
     problems.push(`${label}: a saved lone label is not a label in the editor (${JSON.stringify(inEditor)})`);
   await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('[data-editor="text"] .label-medium', { timeout: 30_000 });
   const drawn = await frame.evaluate(() => {
@@ -4705,7 +4705,7 @@ async function checkPreviewSection() {
   await page.goto(`${site}/editor/#${path}`);
   await page.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
   await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('[data-editor="text"]', { timeout: 30_000 });
   const got = await frame.evaluate(() => {
@@ -4815,8 +4815,8 @@ async function checkH1SectionGap() {
     await openEditor(page, site, { [path]: text });
     await page.goto(`${site}/editor/#${path}`);
     await page.getByRole('button', { name: 'Preview' }).first().click({ timeout: 30_000 });
-    await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
-    const slider = page.locator('dialog[open] [role="slider"]').first();
+    await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
+    const slider = page.locator('[data-preview-page] [role="slider"]').first();
     const width = async () => Number(await slider.getAttribute('aria-valuenow'));
     for (const w of [390, 600]) {
       await slider.focus();
@@ -4867,8 +4867,8 @@ async function checkFullSection() {
   await page.goto(`${site}/editor/#${path}`);
   await page.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
   await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
-  const slider = page.locator('dialog[open] [role="slider"]').first();
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
+  const slider = page.locator('[data-preview-page] [role="slider"]').first();
   const width = async () => Number(await slider.getAttribute('aria-valuenow'));
   for (const w of [840, 1200, 1600]) {
     await slider.focus();
@@ -4887,7 +4887,7 @@ async function checkFullSection() {
   await phone.goto(`${site}/editor/#${path}`);
   await phone.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
   await phone.getByRole('button', { name: 'Preview' }).first().click();
-  await phone.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await phone.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const small = phone.frames().find((f) => f !== phone.mainFrame());
   await small.waitForSelector('section.text-section-full', { timeout: 30_000 });
   verify('375px Preview full section', await small.evaluate(measure));
@@ -4906,19 +4906,19 @@ async function checkPreviewDraft(width) {
   await page.getByRole('button', { name: 'Preview' }).first().click({ timeout: 30_000 });
   await page.waitForFunction(
     () => {
-      const d = document.querySelector('dialog[open]');
+      const d = document.querySelector('[data-preview-page]');
       return d && (d.querySelector('iframe') || /Couldn.t create the preview/.test(d.textContent));
     },
     null,
     { timeout: 30_000 },
   );
   const failed = await page.evaluate(
-    () => document.querySelector('dialog[open]')?.textContent.match(/Couldn.t create the preview[^]*/)?.[0],
+    () => document.querySelector('[data-preview-page]')?.textContent.match(/Couldn.t create the preview[^]*/)?.[0],
   );
   if (failed) problems.push(`${label}: ${failed.slice(0, 120)}`);
   const bar = await page.evaluate(() => {
-    const caption = document.querySelector('dialog[open] [data-preview-width]').getBoundingClientRect();
-    const area = document.querySelector('dialog[open] [role="group"]').closest('.overflow-x-auto');
+    const caption = document.querySelector('[data-preview-page] [data-preview-width]').getBoundingClientRect();
+    const area = document.querySelector('[data-preview-page] [role="group"]').closest('.overflow-x-auto');
     const a = area.getBoundingClientRect();
     const apart =
       a.right <= caption.left + 0.5 || a.left >= caption.right - 0.5 || a.bottom <= caption.top + 0.5 || a.top >= caption.bottom - 0.5;
@@ -8087,7 +8087,7 @@ async function checkSectionBackground(width, touch) {
   await page.goto(`${site}/editor/#${path}`);
   await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 30_000 });
   await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('section.text-section-primary', { timeout: 30_000 });
   const panel = await frame.evaluate(() => {

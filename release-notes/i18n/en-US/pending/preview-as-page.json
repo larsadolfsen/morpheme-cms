@@ -1,0 +1,6 @@
+{
+  "id": "preview-as-page",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Preview opens as a page with a back arrow, and back returns to the form with your changes"
+}
