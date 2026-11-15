@@ -4593,10 +4593,34 @@ async function checkBlockDrag(width) {
   await page.keyboard.press('End');
   await page.keyboard.press('Enter');
   await insert('Rows with icon, heading and text.');
-  // The active block's action row has opened (it moves the handle and the blocks below): measure after it has settled.
-  await page.waitForTimeout(900);
+  // The active block's action row has opened (it moves the handle and the blocks below): measure after it has settled, that is after no row is still opening or closing.
+  const settled = async () => {
+    await page.waitForFunction(() => !document.querySelector('.site-block-row-moving'), null, { timeout: 5000 }).catch(() => {});
+    await page.waitForTimeout(900);
+  };
+  await settled();
   // Away from any block's row, so no bar or keyboard is in the way.
   const names = () => page.locator('.ProseMirror .site-block-card').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  // What each block is as a person sees it: its name, whether it is the active one (it has its action row) and its handle's opacity; said when a check below fails.
+  const states = () =>
+    page.locator('.ProseMirror .site-block').evaluateAll((els) =>
+      els.map((e) => ({
+        name: e.querySelector(':scope > .site-block-card')?.getAttribute('aria-label'),
+        row: e.classList.contains('site-block-has-row'),
+        hover: e.classList.contains('site-block-has-hover'),
+        opacity: getComputedStyle(e.querySelector(':scope > .site-block-handle') ?? e).opacity,
+      })),
+    );
+  // Where the second block went depends on a click on the first paragraph that can land while the page is still moving, so which block is active here is not fixed:
+  // go into the first block, so the second is the one that is not active whatever the order came out as.
+  for (let tries = 0; tries < 3; tries++) {
+    const [firstBlock, secondBlock] = await states();
+    if (!secondBlock?.row && !firstBlock?.hover) break;
+    const field = page.locator('.ProseMirror .site-block').nth(0).locator('.inline-list-row [data-field]').first();
+    if (phone) await field.tap({ position: { x: 8, y: 8 } });
+    else await field.click({ position: { x: 8, y: 8 } });
+    await settled();
+  }
   const before = await names();
   const handles = page.locator('.ProseMirror .site-block-handle');
   if ((await handles.count()) !== 2 || before.length !== 2) {
@@ -4610,7 +4634,8 @@ async function checkBlockDrag(width) {
   const opacity = () => handles.nth(1).evaluate((el) => getComputedStyle(el).opacity);
   if (phone) {
     // A touch sees a handle only on the active block (it is the end of the block's row); go into the second block first.
-    if ((await opacity()) !== '0') problems.push(`${label}: a touch sees the handle of a block that is not active`);
+    if ((await opacity()) !== '0')
+      problems.push(`${label}: a touch sees the handle of a block that is not active (${JSON.stringify(await states())})`);
     const field = page.locator('.ProseMirror .site-block').nth(1).locator('.inline-list-row [data-field]').first();
     for (let tries = 0; tries < 3 && (await opacity()) !== '1'; tries++) {
       await field.tap({ position: { x: 8, y: 8 } });
