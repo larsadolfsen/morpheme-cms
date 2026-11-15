@@ -97,7 +97,7 @@ Rows are as today (`List` in `Library.tsx`, move arrows, search). Changes: the *
 └─────────────────────────────┘           └──┴────────────────────────────────────────────┘
 ```
 
-- The list text stands **above the rows**, in the order it is written in the window, in the page's reading column. No list text means the page is as today.
+- The list text stands **above the rows**, in the order it is written in the window, in the page's reading column, **drawn as in the editor window** (the same Heading in the h3 style, Body medium and Label, and the same spacing). No list text means the page is as today. **The entry form page (`#new/<id>`) shows no list text at all** (decision 9; the owner, 15 Nov).
 - **The FAB** keeps its place and size (the editor's FAB). Its icon is the pencil of `EditFab` while closed, and it becomes the close button when
   open (M3, section 7.2). The menu has two items: `Add <entry>` and `Edit list`. `Add <entry>` opens `#new/<id>`, the entry form page; `Edit list`
   opens `#list/<id>/edit`.
