@@ -6069,6 +6069,27 @@ async function checkUserInvalid(width, height, theme) {
   const right = await read();
   if (right.invalid || right.said || right.icon || !right.supporting || right.aria === 'true' || right.described)
     problems.push(`${label}: still marked after it was put right (${JSON.stringify(right)})`);
+  // The error line is read once, with the field (aria-describedby), not as an alert; and a number that cannot be read (validity.badInput)
+  // says so in words instead of going red with none.
+  if (await page.locator('[data-part="TextField"] .text-field-invalid-text[role]').count())
+    problems.push(`${label}: the error line has a role of its own (it is read with the field by aria-describedby)`);
+  const number = page.locator('[data-part="TextField"] input[data-part="invalid-number"]').first();
+  await number.scrollIntoViewIfNeeded();
+  await number.focus();
+  await page.keyboard.type('1e');
+  await number.blur();
+  const typed = await number.evaluate((el) => {
+    const root = el.closest('.text-field');
+    const line = root.querySelector('.text-field-invalid-text');
+    return {
+      bad: el.validity.badInput,
+      invalid: el.matches(':user-invalid'),
+      said: !!line && getComputedStyle(line).display !== 'none' ? line.textContent : '',
+      aria: el.getAttribute('aria-invalid'),
+    };
+  });
+  if (!typed.bad || !typed.invalid || typed.said !== 'Enter a number.' || typed.aria !== 'true')
+    problems.push(`${label}: a number that cannot be read is not marked with its words (${JSON.stringify(typed)})`);
   await page.close();
 }
 

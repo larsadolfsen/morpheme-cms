@@ -405,6 +405,7 @@ function FieldControl({ field, value, onChange }: Props) {
           id={id}
           {...inField}
           {...wrong}
+          invalidFallback={t.check.notANumber}
           type="number"
           inputMode="numeric"
           value={text}
