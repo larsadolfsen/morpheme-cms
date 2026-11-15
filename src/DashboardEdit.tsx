@@ -204,7 +204,7 @@ export function EditableCards({
       <div aria-live="polite" className="sr-only">
         {dash.announcement}
       </div>
-      <div ref={grid} className="grid items-start gap-4 medium:grid-cols-2 expanded:grid-cols-3">
+      <div ref={grid} className="grid items-start gap-4 medium:grid-cols-2">
         {shown.map(({ placement, definition }) => {
           const dragging = drag?.id === placement.id;
           return (

@@ -8,7 +8,7 @@
 // (`pageActions`) at the end of that row. The bar stays at the top while
 // scrolling and keeps clear of a phone's notch. A screen's tabs (`tabs`) are the bottom of the bar, under the title, as wide
 // as the content, and stay with it. The back arrow goes to the screen above, back in the history when that is the screen
-// before (nav.ts up). The content is as wide as a form reads well, or wider for lists and the grid of files (`wide`) and for
+// before (nav.ts up). The content is as wide as the site's text column, or wider for
 // a form with its fields beside the text (`panel`). The column (editor.css .editor-column) stands centred on the window,
 // off-centre only as far as the panels beside it require.
 // Under the content of every screen is the editor's footer (EditorFooter.tsx), at the bottom of the window when the content
@@ -38,7 +38,7 @@ import { useTopBarSlot } from './topBarSlot';
 export type Back = { href: string; label: string; guard?: (go: () => void) => void };
 
 // `status`: more about the screen, e.g. when it was last saved: under the title, on a computer after it.
-// `wide`: the content is wider on a computer (lists, the files); `panel`: a form with its other fields
+// `wide`: a list or the files (the column is as wide as any other: the site's text column); `panel`: a form with its other fields
 // beside the text on a wide computer screen (FormColumns in ui.tsx). `drawer`: a button at the end of the
 // bar, after the notifications. `home`: the start screen,
 // with the link to the website. `tabs`: the screen's tabs, in the bar, with the open one's content.
@@ -133,7 +133,6 @@ export default function Screen<T extends string>({
   drawer,
   tabs,
   home = false,
-  wide = false,
   panel = false,
   full = false,
   children,
@@ -141,13 +140,10 @@ export default function Screen<T extends string>({
   const id = useId();
   const menu = useMenuOpen();
   const { menuButtonInTopBar } = useMenuLayout();
-  // The column's widest width (--column-width: 48rem; 64rem from medium for `wide`, 72rem from large for `panel`); editor.css
-  // (.editor-column) keeps it centred on the window.
-  const width = wide
-    ? 'editor-column [--column-width:48rem] medium:[--column-width:64rem]'
-    : panel
-      ? 'editor-column [--column-width:48rem] large:[--column-width:72rem]'
-      : 'editor-column [--column-width:48rem]';
+  // The column's widest width (--column-width, editor.css) is the site's text column (theme `max-w-3xl`, as PostLayout.astro), on a
+  // computer too; only `panel` (a form with its other fields beside the text) is wider, 72rem from large. editor.css (.editor-column) keeps it
+  // centred on the window.
+  const width = panel ? 'editor-column large:[--column-width:72rem]' : 'editor-column';
   // A link out of the screen, through `guard`: the back arrow goes up (nav.ts), the other links as links.
   const leave = (go?: () => void) => (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!go && !back?.guard) return;
