@@ -167,6 +167,11 @@ export const blocks = {
   list: {
     label: 'List',
     hint: 'Rows with icon, heading and text.',
+    card: 'Card',
+    cardNone: 'None',
+    cardOne: 'One card',
+    cardHint: 'Puts the whole list inside one card. For a card for each item, use Change to › Cards.',
+    cardStyle: 'Card style',
     items: 'Rows',
     item: 'row',
     icon: 'Icon',
