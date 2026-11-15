@@ -2,7 +2,7 @@
 
 Status: spec and build plan for 0.19, no code in this pull request. Written 15 November 2026 in a brainstorm session from the owner's decisions of
 the same day (section 1), **redrawn the same day after the owner's correction** that the list's texts are inline text in the flow, not blocks
-(decision 5). Branch `0.19`. Two questions are **open for the owner** (section 11), each with a recommendation; Q1 is decided.
+(decision 5). Branch `0.19`. One question is **open for the owner** (section 11, Q3, with a recommendation); Q1 and Q2 are decided.
 
 Read for this spec:
 
@@ -39,6 +39,7 @@ the **entry form page** is where an entry is typed; the **edit page** (`#list/<i
    it, as a page is**. The texts have no card, no settings sheet and no plain input.
 
 6. **(Decided, 15 Nov.)** Locked lists (those an app provides) stay locked in 0.19: no editor window and no list text for them. `LockedListEdit` is unchanged (section 3.3, Q1).
+7. **(Decided, 15 Nov.)** A list the owner made gets an **`Entry name`** box next to the list's name on the edit page, stored as an optional `singular` in `_list.json`. The FAB menu says `Add <entry name>`; empty means `Add item`. The name is never guessed from the list's name (Q2). #712's `singularOf` guess from the list name is replaced by this when the window is built (a follow-up for #712's session).
 
 **Base check.** On `0.19` at `b780512` #704 is not merged: `OwnListEdit.tsx` still has `Shown`, `dropped` and `Remove data`. This spec assumes #704
 has landed. If it has not when the window is built, that PR starts from a rebase on it; `dropped` is never carried into the new window.
@@ -101,7 +102,7 @@ Rows are as today (`List` in `Library.tsx`, move arrows, search). Changes: the *
 - **A list with no field** has nothing to add: the FAB is the single action `Edit list` (M3: "Don't use a FAB menu with one item"), and the page
   says `noFields` under the list text, as today.
 - `<entry>` is the list's entry name. Testimonials and apps give it in `create` (`Add testimonial`). A list the owner made has no singular yet:
-  it reads `Add item` (today's `t.ownList.create`) until the owner names it (question Q2, section 11).
+  it reads `Add item` (today's `t.ownList.create`) until the owner fills the `Entry name` box on the edit page (decision 7, Q2). Nothing is guessed from the list's name.
 - Entries are added only on the entry form page. The edit page has no `Add item` button and no rows.
 
 ### 3.2 Edit page (`#list/<id>/edit`) as an editor window
@@ -420,11 +421,7 @@ window is drawn through (the editor window is the thing in that slot), and `lib/
 
 **Q1. Do locked lists get list text?** **Decided by the owner on 15 Nov 2026: no.** Locked lists (those an app provides) stay locked in 0.19, with no editor window and no list text; `LockedListEdit` is unchanged. Text for them is a later step (an `app.json` `notes` key in a later contract) when an app asks for it.
 
-**Q2. What is `<entry>` for a list the owner made?** The FAB menu says `Add testimonial`, but an own list has only its name (`Services`), and no
-singular. Without one, the menu reads `Add item`.
-*Recommendation:* **add an optional `singular` to `_list.json`**, one text box under the list's name in the window (`Entry name`, hint `Used on
-the button: Add service`), built in PR 5. Until the owner sets it, `Add item`. It is one optional key like `notes`, and the framework spec's
-`singular` for an app's list has the same name.
+**Q2. What is `<entry>` for a list the owner made?** **Decided by the owner on 15 Nov 2026:** an `Entry name` box next to the list's name on the edit page (hint `Used on the button: Add service`), stored as an optional `singular` in `_list.json`, built in PR 5. The FAB menu says `Add <entry name>`; empty means `Add item`. No guessing from the list's name. It is one optional key like `notes`, and the framework spec's `singular` for an app's list has the same name. #712's `singularOf` guess is replaced by this when the window is built.
 
 **Q3. Where does a line of text stand on the list page?** The list page has no fields, so a line written between two field cards in the window
 cannot stand between them there: all the text stands above the rows, in the order written.
