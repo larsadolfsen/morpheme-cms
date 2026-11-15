@@ -112,7 +112,14 @@ export function SearchButton({ className = '' }: { className?: string }) {
       aria-haspopup="dialog"
       aria-expanded={open}
       className={className}
-      onClick={openPalette}
+      // Pressing it keeps the focus and the selection in the text, and the active block: the palette lists their actions first.
+      data-keeps-block=""
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={(e) => {
+        // The press did not focus the button (see above): it takes the focus now, so closing the palette gives it back here.
+        e.currentTarget.focus({ preventScroll: true });
+        openPalette();
+      }}
     />
   );
 }
@@ -159,7 +166,7 @@ export default function Screen<T extends string>({
   const crumbs = back && back.href !== '#' ? [back] : [];
   const bar = (
     <TopAppBar>
-      <div className="flex h-16 items-center gap-1 px-2 medium:gap-3 medium:px-6">
+      <div className={`flex h-16 items-center px-2 medium:gap-3 medium:px-6 ${home ? 'gap-0.5' : 'gap-1'}`}>
         {menuButtonInTopBar && !back && (
           <MenuButton
             label={menu.open ? t.library.closeMenu : t.library.openMenu}
@@ -168,7 +175,8 @@ export default function Screen<T extends string>({
             className="shrink-0"
           />
         )}
-        {!full && <SiteLogoLink onClick={leave()} className={home ? '' : 'hidden expanded:flex'} />}
+        {/* The start screen's logo stands beside the site's name, which says the same: on a phone the name gets its width (the bar has four actions there). */}
+        {!full && <SiteLogoLink onClick={leave()} className={home ? 'hidden medium:flex' : 'hidden expanded:flex'} />}
         {back && (
           <a
             href={back.href}
@@ -180,7 +188,7 @@ export default function Screen<T extends string>({
             <ArrowLeft size={24} />
           </a>
         )}
-        <div className={`flex min-w-0 flex-1 flex-col pl-1 ${full ? '' : 'expanded:hidden'}`}>
+        <div className={`flex min-w-0 flex-1 flex-col ${home ? 'medium:pl-1' : 'pl-1'} ${full ? '' : 'expanded:hidden'}`}>
           <h1 className="truncate text-title-large">{title}</h1>
           {status && (
             <p data-subtitle className="truncate text-xs text-on-surface-variant">
