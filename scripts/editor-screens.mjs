@@ -6577,6 +6577,33 @@ async function checkVideoChangeLink(width, height = 800) {
         ?.outerHTML.slice(0, 300) ?? '',
   );
   if (!kept.includes('dQw4w9WgXcQ')) problems.push(`${label}: the video does not show the new link (${kept})`);
+  // The Thumbnail field: the sheet has it, an image chosen there is the frame's still (the same View.tsx draws it, selected or not), and it is a local image.
+  const stillSrc = () => page.locator('.site-block-inline .video-facade-image').first().getAttribute('src');
+  // The sheet is still open (a phone's bottom sheet, a computer's side sheet); if not, Change link opens it.
+  if (!(await sheetOpen().getByText('Thumbnail', { exact: true }).count())) {
+    await page.locator('.editor-tools-context button[aria-label="Change link"]').first().click();
+    await page.waitForTimeout(900);
+  }
+  const thumb = sheetOpen().getByText('Thumbnail', { exact: true });
+  if (!(await thumb.count())) problems.push(`${label}: the video's sheet has no Thumbnail field`);
+  // A site with no images in its Library (the starter) has none to choose: the field is checked, the drawing is the demo's.
+  else if (!has('src/data/files'))
+    console.log(`${label}: the thumbnail is not chosen, the site has no images in its Library, which the demo has.`);
+  else {
+    await sheetOpen().locator('button', { hasText: 'Choose image' }).first().click();
+    await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
+    await page.locator('dialog[open] [data-media-tile]').first().click();
+    const use = page.locator('dialog[open]').getByRole('button', { name: /^(Use|Choose|Select)/ });
+    if (await use.count()) await use.first().click();
+    await page.waitForTimeout(900);
+    const save2 = sheetOpen().locator('button', { hasText: /^(Save|Done)$/ });
+    if (await save2.count()) await save2.first().click();
+    await page.waitForTimeout(900);
+    const src = await stillSrc();
+    if (!src || src.includes('i.ytimg.com') || src.includes('/_video/'))
+      problems.push(`${label}: the frame draws "${src}", not the chosen thumbnail`);
+    await page.screenshot({ path: join(shots, `video-thumbnail-${width}.png`) });
+  }
   await page.close();
 }
 
@@ -10168,6 +10195,17 @@ async function checkDashboardEdit(width, height) {
   await page.waitForTimeout(600);
   await page.screenshot({ path: join(shots, `dashboard-${width}.png`) });
   if (await done.count()) problems.push(`${label}: "${daDashboard.done}" is shown before the edit mode`);
+  // "Edit dashboard" is a text button below the last widget, not in the top bar, with its icon before the text.
+  const editBox = await edit.first().boundingBox();
+  const lastWidgetBottom = await page.evaluate(() => {
+    const main = document.querySelector('main.editor-screen');
+    const headings = [...(main?.querySelectorAll('h2, h3') ?? [])];
+    return Math.max(0, ...headings.map((h) => h.getBoundingClientRect().bottom));
+  });
+  if (!editBox || editBox.y < lastWidgetBottom) problems.push(`${label}: "${daDashboard.edit}" is not below the last widget`);
+  if (await page.locator('header, [role="banner"]').getByRole('button', { name: daDashboard.edit, exact: true }).count())
+    problems.push(`${label}: "${daDashboard.edit}" is still in the top bar`);
+  if (!(await edit.first().locator('svg').count())) problems.push(`${label}: "${daDashboard.edit}" has no leading icon`);
   await edit.click();
   await shown(done, `the button "${daDashboard.done}"`);
   if (await edit.count()) problems.push(`${label}: "${daDashboard.edit}" is still shown in the edit mode`);
