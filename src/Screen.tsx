@@ -204,7 +204,8 @@ export default function Screen<T extends string>({
           />
         )}
         {/* The start screen's logo stands beside the site's name, which says the same: on a phone the name gets its width (the bar has four actions there). */}
-        {!full && <SiteLogoLink onClick={leave()} className={home ? 'hidden medium:flex' : 'hidden expanded:flex'} />}
+        {/* Not on the start screen's bar from medium: the search bar gets the room (owner, 15 Nov: "The logo in the header is not a necessity. Usability is most important."). */}
+        {!full && !searchBar && <SiteLogoLink onClick={leave()} className={home ? 'hidden medium:flex' : 'hidden expanded:flex'} />}
         {back && (
           <a
             href={back.href}
