@@ -73,3 +73,11 @@ From 600 dp the section settings use the theme's standard side sheet (`SiteSideS
 `editor-side-sheet`): beside the page, the page content shrinks and stays usable, headline and a close icon button, no
 modal, no scrim. Focus: the pane container takes focus (tabindex -1, no ring). Below 600 dp: the page from #753 (unchanged).
 Motion: the theme's springs only.
+
+## Panes from inside a pane (nesting)
+
+M3 prints no second level of side sheet. It prints that "People can navigate to another region within the sheet" and "Side sheets can contain a back icon for navigation" (side-sheets/overview). So when a pane opens from inside a pane (the Link sheet from a block's fields), the inner content replaces the pane's content, with a back icon button before the headline and the close button kept; Back returns to the outer content. A second pane never opens beside the first.
+
+## Dialogs and settings
+
+Owner rule, 15 Nov 2026: "Dialogs are only for short messages, not for settings." M3 allows a basic dialog for a form at medium and expanded, so this is recorded as a deviation (`docs/material-deviations.md`, B3) with M3's dialog text quoted.

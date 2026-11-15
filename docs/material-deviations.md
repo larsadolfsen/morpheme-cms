@@ -283,6 +283,13 @@ Source: `src/BlockDialog.tsx` (the `subpage` look), `src/sheetPlacement.mjs`, `s
 - **Why:** owner decision, relayed by the 0.18 project manager on 15 Nov 2026.
 - **Date:** 2026-11-15. **PR:** #650 (the rule and the block sheet); the other views in their own pull requests.
 
+### B3. Settings are a pane from 600 dp, not a dialog
+
+- **Material:** dialogs/overview: "Should be dedicated to completing a single task"; dialogs/guidelines: "Dialogs are purposefully interruptive, so they should be used sparingly.", "Common use cases for basic dialogs include alerts, quick selection, and confirmation.", "not every choice or setting warrants interruption"; full-screen dialogs "may be used for ... Dialogs that include components which require keyboard input, such as form fields" and, for medium and expanded, "use a basic dialog". side-sheets/guidelines: standard side sheets "remain visible while people interact with primary content" and may hold "Form controls shown in a side sheet for app settings"; side-sheets/overview: "People can navigate to another region within the sheet" and "Side sheets can contain a back icon for navigation". M3 therefore allows a basic dialog for a form at medium and expanded.
+- **We do:** owner rule, 15 Nov 2026: "Dialogs are only for short messages, not for settings." A dialog is a short message, a confirmation or a single short choice. Settings or a form with several controls are the standard side sheet beside the page from 600 dp and a page below 600 dp (B2). Where a pane opens from inside a pane, the inner content replaces the pane's content with a back arrow, as side-sheets/overview prints. The supporting-pane page puts the pane below at medium; we put it beside from 600 dp (the side-sheets page: "used mostly in medium to expanded").
+- **Why:** owner decision, 15 Nov 2026. Section settings first (`docs/superpowers/specs/2026-11-15-section-settings-pane.md`); the other surfaces in their own pull requests.
+- **Date:** 2026-11-15. **PR:** #774 (section settings).
+
 ## Preview and View on site in the text's bar
 
 Source: `src/MarkdownEditor.tsx` (`spareIds`, the bar's `⋮` menu), `src/textBar.mjs` (`planBar`), `src/textActions.ts`. Spec: `docs/superpowers/specs/2026-11-14-one-save-while-writing-design.md` (3.2, 3.3). Read 15 Nov 2026 on m3.material.io (Playwright): `/components/toolbars/guidelines`, `/components/menus/guidelines`, `/components/icon-buttons/guidelines`. The bar and its `⋮` are the editor's own workspace.
