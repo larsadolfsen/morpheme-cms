@@ -574,6 +574,8 @@ export const blocks: Messages['blocks'] = {
     changeUrl: 'Skift link',
     urlProblem: 'Indsæt linket til videoen fra YouTube eller Vimeo',
     title: 'Titel',
+    thumbnail: 'Miniature',
+    thumbnailHint: 'Vises, før videoen afspilles. Uden en vises videoens egen miniature.',
     video: 'Video',
   },
   checklist: {
