@@ -81,6 +81,7 @@ import {
   SiteIconButton,
   SiteLoadingIndicator,
   SiteSearchBar,
+  SiteSearchBarButton,
   SiteNavigationDrawer,
   SiteNavigationRail,
   SiteNavigationRailItem,
@@ -943,6 +944,36 @@ export function SearchBar({
       ref={inputRef}
       value={value}
       onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
+    />
+  );
+}
+
+/** The search bar that opens the search view (the start screen's, in the top bar or in the page): the theme's contained bar as a button (SearchBarButton in
+ * its Search.tsx). `label` is its hint and its name; `open` says whether the view it opens is open; `keys` is the shortcut for screen readers. */
+export function SearchBarButton({
+  label,
+  open,
+  keys,
+  onOpen,
+  className = '',
+}: {
+  label: string;
+  open: boolean;
+  keys?: string;
+  onOpen: (button: HTMLButtonElement) => void;
+  className?: string;
+}) {
+  return (
+    <SiteSearchBarButton
+      label={label}
+      className={className}
+      aria-expanded={open}
+      aria-keyshortcuts={keys}
+      data-search-bar-button=""
+      // Pressing it keeps the focus and the selection in the text, and the active block: the view lists their actions first.
+      data-keeps-block=""
+      onMouseDown={(e: MouseEvent) => e.preventDefault()}
+      onClick={(e: MouseEvent<HTMLButtonElement>) => onOpen(e.currentTarget)}
     />
   );
 }

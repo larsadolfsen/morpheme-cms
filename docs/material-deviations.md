@@ -291,3 +291,86 @@ Source: `src/BlockDialog.tsx` (the `subpage` look), `src/sheetPlacement.mjs`, `s
 - **We do:** the theme's `Dialog` (`theme/ui/Dialog.tsx`) is the basic dialog only. The `full-screen` kind, `dialogFullScreenModalClass`, the classes `dialog-full-screen`, `dialog-modal-full-screen`, `dialog-header` and `dialog-header-actions` and the two `--dialog-full-screen-*` tokens are gone, and `THEME_API` is 5. A task that needs a whole screen is a page with the top app bar's back arrow (B2). The lightbox is its own modal `<dialog>` with the dialog's container (19).
 - **Why:** owner decision, 14 Nov 2026: no full-screen views anywhere; full screens become pages with a back arrow. It is the same thing as the dialog's full-screen kind, so the kind is removed (relayed by the 0.18 project manager).
 - **Date:** 2026-11-15. **PR:** the pull request that removes the kind.
+
+## The search view (search page, M3 search)
+
+Source: `theme/ui/Search.tsx` (`SearchView`), `theme/styles/ui.css` (`.search-view*`), `src/CommandPalette.tsx`. Read 15 Nov 2026 on m3.material.io with Playwright: `/components/search/overview`, `/specs`, `/guidelines`, `/accessibility`. The token tables of the specs page stay collapsed in a text read (they did not open), and the colour and measurement diagrams are images that did not load: no token value is quoted, and the colour roles below are read from the numbered lists under the diagrams.
+
+### SV1. The contained style, without a divider
+
+- **Material:** "Contained: Has an expressive look and feel. It uses a filled container to separate a search bar from a list of suggestions or results"; "Divided (baseline) … Not recommended. Use contained." "In the divided (baseline) style, a divider separates the search bar and results."
+- **We do:** the contained style. The bar is a filled pill (56dp, full corners, surface container high, margins 12dp focused) in the view's own container; there is no divider under it. A theme can still ask for the divided style (`--search-view-header-surface: transparent`, `--search-view-header-radius: 0`, `--search-view-divider`).
+- **Why:** the owner's examples (Gmail, Drive) show a divider; M3 says the divided style is not recommended, and the owner asked for M3. Open for the owner to decide.
+- **Date:** 2026-11-15. **PR:** this pull request.
+
+### SV2. Colour roles and the docked gap (read as printed, no deviation)
+
+- **Material:** specs, Color: full screen "Surface container low … Surface container high …"; docked "Surface container high … Surface container high …" (numbered lists whose diagrams did not load, read in the order of the anatomy: container, icons and text, bar). Guidelines: "Avoid using a surface container high color on a surface container background … use surface container roles that are more than one step apart." Tokens (specs, token table, contained, read 15 Nov 2026): "Search view contained docked bar results gap 2dp".
+- **We do:** full screen the view is surface container low and the bar surface container high. Docked the bar and the results container are two containers, both surface container high, 2dp apart, so the bar never blends into its container.
+- **Date:** 2026-11-15. **PR:** this pull request.
+
+### SV3. Where M3 is silent, or the pages could not be read
+
+- **Highlighting the match** in a result: M3 prints nothing, so none is drawn.
+- **"Quick results"**: guidelines print "Show search results in a compact, organized list, with an indicator like Quick results". The groups' names (Go to, Pages and posts, Images and files …) are the indicator; a query shows the first 8 results, and the last row, "All search results for “query”", shows the rest (up to 30).
+- **Remove button on a recent search:** M3 prints historical suggestions ("Show historical suggestions before typing") and no remove button. We add one (the owner's Gmail example); the keyboard's Delete key does the same.
+- **Search key:** guidelines print "Type a query and press Enter"; the field's `enterKeyHint` is `search`.
+- **Opening:** the editor's other screens keep the top bar's search icon button (palette spec, deviations P1 and P3); the search app bar for every screen is 0.20.
+- **Docked size:** specs print "Width Min: 360dp, max: 720dp" and "Height Min: 240dp, max: 2/3 of screen height"; the view follows both. M3 is silent on where a docked view stands without a bar: near the top, in the middle (palette spec).
+- **The view's corners:** the shape tokens show a drawing, not a value (SV7), so the theme's extra-large corners are used; no shadow (the overview says "no shadow by default").
+- **Date:** 2026-11-15. **PR:** this pull request.
+
+### SV4. On a phone the search view is a page with a back arrow
+
+- **Material:** "Full-screen layout: Default for compact breakpoints"; "Full-screen expands to fill the screen"; "The back icon releases focus, dismisses any suggestions or results, and returns the search bar to its original state."
+- **We do:** on a phone the view is a layer the size of the window (a modal `<dialog>`, as the crop view, C1) with the back arrow leading its bar. It is full-size like M3's full-screen layout; it has no scrim and no corners. It is not a routed page (the phone's back gesture closes it, as for the crop view). From the medium width it is a dropdown (SV7).
+- **Why:** owner rule, 15 Nov 2026 (relayed by the PM): "We have agreed on moving away from full screen and sidebar on mobile and instead using pages."
+- **Date:** 2026-11-15. **PR:** this pull request.
+
+### SV5. The focus starts in the search field, not on the back arrow
+
+- **Material:** accessibility: "Initial focus lands on the first interactive element. This is often a leading icon button or text field."
+- **We do:** the back arrow is the leading icon button and the text field has the focus when the view opens; no other control has it.
+- **Why:** owner rule for dialogs and views (no control has the focus at the start except the field), so a person can type at once; M3 says "often", not always.
+- **Date:** 2026-11-15. **PR:** this pull request.
+
+### SV6. The start screen shows the search bar all the time
+
+- **Material:** "Search bar: Use to search contents in a specific view"; "Add a search bar below a title to search specific content"; specs: "Container Width Min: 360dp, max: 720dp", "Height 56dp", "Leading padding Unfocused: 24dp, focused: 12dp".
+- **We do:** the start screen shows the contained search bar (56dp, a button that opens the view) all the time, with its hint, "Search actions and pages", as its name. On a phone it is the first thing in the page, below the top bar (which keeps the title, the status and the actions), 24dp from the screen's edges (the page's own gutter is 16dp, so it is 8dp inside it). From medium it stands in the top bar in place of the search icon, up to 720dp wide, and the title and status stand under it. A phone's bar is 327dp wide at 375, under the 360dp minimum, because of the 24dp margins. Every other screen keeps the search icon button.
+- **Why:** owner, 15 Nov 2026 (relayed by the PM): "On the front page show the search field all the time". The search app bar for every screen is 0.20 (palette spec).
+- **Date:** 2026-11-15. **PR:** this pull request.
+
+### SV7. From medium the view is a dropdown on the bar, with no scrim
+
+- **Material:** guidelines: "Docked opens a list below the search bar, with a scrim covering main content"; specs, Measurements (contained): "Docked container Width Min: 360dp, max: 720dp", "Height Min: 240dp, max: 2/3 of screen height", "Search bar container Height 56dp", "Leading padding 16dp", "Trailing padding 16dp". "Search suggestions or results should swap from full-screen in compact windows to docked in larger breakpoints." Tokens, contained (token table opened by clicking its folders, 15 Nov 2026): "Search view contained leading margin 12dp", "trailing margin 12dp", "docked bar results gap 2dp", "full screen bar container height 56dp", "icon label gap 4dp"; the text tokens: Roboto 16pt, weight 400, line height 24pt, tracking 0.5pt (body large). The shape tokens ("docked results shape", "docked bar shape", "full screen container shape") show a drawing, not a value: not readable, so the results container uses the theme's extra-large corners, and the bar is a pill. No elevation token is listed for the contained style and the overview says "Elevation: Lower elevation and no shadow by default", so the dropdown has no shadow. The divider tokens are in the divided folder (not used, SV1).
+- **We do:** from medium the view is a panel on the search bar (the bar of the top bar, else under the search button, ending where the button ends): not a dialog, not modal and with no scrim; the page behind it stays as it is. It is as wide as the bar (360dp to 720dp), 240dp to 2/3 of the window high, and is the bar (56dp, where the closed bar was, no margin), then 2dp under it a results container with the chips and the lists. Escape, the back arrow, a press outside it and the button close it, and the focus goes back to where it was.
+- **Why:** owner, 15 Nov 2026 (relayed by the PM): "On desktop don't make a popup, I read make a drop down."
+- **Date:** 2026-11-15. **PR:** this pull request.
+
+### SV8. Phone paddings, checked against the specs (15 Nov 2026)
+
+- **Material:** specs: bar "Height 56dp", full-screen focused bar "Leading padding 16dp", "Trailing padding 16dp", icon and label "4dp" from the tap target, margins "Focused: 12dp"; lists, specs: "Leading element left padding 16dp"; unfocused margin "24dp".
+- **We do:** the focused bar is 12dp from the edges and 56dp high, its icons 16dp from the pill's edge (a 48dp button inside 4dp padding) and the text 4dp from the button; the bar clears the notch (`env(safe-area-inset-top)`). The group names ("Recent searches", "Suggested") now start 16dp in, in line with the rows' icons (they were 12dp). A recent search and its remove button have one highlight. The filter chips start at 12dp, in line with the bar's edge (M3 prints nothing for the chip row). The unfocused bar on the start screen is 24dp from the edges.
+- **Date:** 2026-11-15. **PR:** this pull request.
+
+
+### SV9. Chips follow the M3 specs (fixed in the theme with the owner's approval, 15 Nov 2026)
+
+- **Material:** chips, specs (read 15 Nov 2026 with Playwright): filter chip "Container height 32dp", "Container shape 8dp corner radius", "Icon size 18dp", "Left/right padding 16dp", "Left/right padding with icon 8dp", "Padding between elements 8dp"; colour roles "On surface variant, On secondary container, Secondary container, Outline variant". Guidelines: "Tapping on a filter chip activates it and appends a leading checkmark icon to the starting edge of the chip label", "Keep an 8dp minimum space between chips. Chips must also have a minimum 48dp target size, regardless of placement or density. If required, the target can extend beyond the visible container of the chip."
+- **We do:** the theme's chip (`theme/styles/global.css` tokens, `theme/styles/ui.css`): the edge is outline variant, the label and icon on surface variant, a chosen chip is the secondary container with on secondary container and its check; 8dp padding on the side of an icon; a 48dp target (behind the chip's own content); a state layer when pointed at; a disabled chip has its label at 38% and its edge at 12% of on surface, a chosen disabled chip a 12% container. It was: outline edge, surface container high for a chosen chip, on surface text, 16dp with an icon, no 48dp target, an accent colour when pointed at, the whole chip at 38%. Every chip of the editor and of the site gets this (the Colours screen, the crop view, the image picker, the icon picker, tags, the parts gallery). The disabled colours are the M3 ones from the chips' state pages; the token table values for the chip were not opened.
+- **Why:** owner, 15 Nov 2026: "Your chips do not follow MD3 standard."
+- **Date:** 2026-11-15. **PR:** this pull request.
+
+### SV10. The start screen's search bar and the search view's category label are theme parts (new, with the owner's approval, 15 Nov 2026)
+
+- **Material:** search, guidelines: "Category labels, like Recent, Contacts, or Suggestions"; search bar as in SV6.
+- **We do:** `SearchBarButton` and `SearchGroupLabel` in `theme/ui/Search.tsx`, used through `src/ui.tsx` (`SearchBarButton`) and the search view, and shown in "Parts" › "UI components" under *Search*. The start screen's bar had its own markup in `src/Screen.tsx`, and the label its own class.
+- **Date:** 2026-11-15 (owner's approval, relayed by the PM). **PR:** this pull request.
+
+### SV11. Spacing of the search view, audited against the specs (15 Nov 2026)
+
+- **Material (read with Playwright, 15 Nov 2026):** Search specs and token table: "Search bar container Height 56dp", "Search view contained leading margin 12dp", "trailing margin 12dp", "docked bar results gap 2dp", "icon label gap 4dp", "Docked container Width Min: 360dp, max: 720dp", "Height Min: 240dp, max: 2/3 of screen height", "Leading padding 16dp", "Trailing padding 16dp". Chips specs: "Container height 32dp", "Container shape 8dp corner radius", "Icon size 18dp", "Left/right padding 16dp", "Left/right padding with icon 8dp", "Padding between elements 8dp". Lists token table (Spacing, Size): "list item leading space 16dp", "trailing space 16dp", "top space 10dp", "bottom space 10dp", "between space 12dp", "List segment gap 2dp", "One line list item container height 56dp", "Two lines … 72dp", "Three lines … 88dp", "leading icon size 24dp", "leading icon expressive size 20dp". Dividers specs: "Divider inset left margin 16dp".
+- **We do:** every value above, measured in the browser at 375, 768 and 1280 (the table is in the pull request). Fixed in this round: the chip was 37.6dp high (the theme's block padding was 8.8dp; now `--chip-padding-block` 6dp, so 32dp), the 8dp padding with an icon did not reach a filter chip (its hidden check came first), the chip row stood 6dp under the docked bar (now 12dp from the container's top edge), and the remove button's icon stood 12dp from the edge (now 16dp).
+- **M3 prints no number for:** the space around the chip row in a search view (we use 12dp left and top, 8dp under it); the category label (12/16 label medium, 8dp above, 4dp under, 16dp in) and the gap between groups (8dp); the docked bar's margin (it stands where the closed bar was, so 0, M3 prints the focused 12dp); the docked container's corner radius (the shape tokens show a drawing: we use the theme's 28dp extra-large); a margin between a docked container and the page. These are open points for the owner.
+- **Date:** 2026-11-15. **PR:** this pull request.
