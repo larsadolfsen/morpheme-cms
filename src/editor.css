@@ -394,8 +394,18 @@
   }
 }
 
-/* The save bar is the theme's standard bottom sheet (ActionSheet in ui.tsx): the screen leaves room under its last field so
-   nothing is hidden behind it. */
+/* Every Save row is the theme's standard bottom sheet (ActionSheet in ui.tsx): the screen leaves room under its last field so
+   nothing is hidden behind it. The sheet's content starts where the screen's fields do (16 dp from the sides, 24 dp from medium),
+   so Save lines up with the fields; Material 3 prints no padding for what is in a bottom sheet (Specs: handle 22 dp, margins),
+   and the vertical 16 dp is the theme's. */
+.editor-action-sheet > .bottom-sheet-content {
+  padding-inline: 1rem;
+}
+@media (width >= theme(--breakpoint-medium)) {
+  .editor-action-sheet > .bottom-sheet-content {
+    padding-inline: 1.5rem;
+  }
+}
 :root:has(.editor-save-bar) .editor-screen {
   padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
 }
@@ -1935,8 +1945,8 @@ dialog {
 }
 
 /* The crop view (CropView.tsx, image tools spec section 3): a page of the editor on every width, as a layer the size of the window over it (a modal
-   <dialog>, so the form under it keeps its changes and its scroll place): the top app bar, the content in a column as wide as a form, and a bottom bar
-   with Save. A block's subpage on a phone (.block-page, BlockDialog.tsx) has the same layer, column and bar. The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and the part of the image outside it is under the
+   <dialog>, so the form under it keeps its changes and its scroll place): the top app bar, the content in a column as wide as a form, and the Save row
+   in the theme's standard bottom sheet. A block's subpage on a phone (.block-page, BlockDialog.tsx) has the same layer, column and sheet. The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and the part of the image outside it is under the
    theme's scrim, the one its dialogs have behind their container (--dialog-scrim). The frame has a 2 dp border with a 1 dp halo outside it in the other
    inverse colour, so one of the two stands against any image, light or dark (M3 prints no frame: the focus ring's two-tone look). */
 .crop-page,
@@ -1952,6 +1962,8 @@ dialog {
   border: 0;
   background: var(--mo-surface);
   color: var(--mo-on-surface);
+  /* The layer holds the fixed Save sheet at its own bottom (the layer is lifted above the keyboard, the window's edge is not). */
+  contain: layout;
 }
 .crop-page[open],
 .block-page[open] {
@@ -1969,26 +1981,20 @@ dialog {
   margin-inline: auto;
   padding: 1rem;
 }
-.crop-page-bar,
-.block-page-bar {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
-  background: var(--mo-surface-container);
+.crop-page-main,
+.block-page-main {
+  /* The Save row is the theme's standard bottom sheet (ActionSheet), fixed over the layer: the content ends above it. */
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
 }
 @media (width >= theme(--breakpoint-medium)) {
   .crop-page-main,
   .block-page-main {
-    padding: 1.5rem;
-  }
-  .crop-page-bar,
-  .block-page-bar {
-    padding-inline: 1.5rem;
+    padding: 1.5rem 1.5rem calc(5.5rem + env(safe-area-inset-bottom));
   }
 }
-/* A block's fields on a compact window (BlockDialog.tsx): the crop page's layer, bar and column (the rules above), with the fields scrolling inside
-   the column and the page lifted above the on-screen keyboard (followKeyboard sets --keyboard-inset while it is up). */
+/* A block's fields on a compact window (BlockDialog.tsx): the crop page's layer and column (the rules above), with the fields scrolling inside
+   the column and the page lifted above the on-screen keyboard (followKeyboard sets --keyboard-inset while it is up); its Save sheet then has no
+   safe-area space under it, as a standard bottom sheet that follows the keyboard has not. */
 .block-page-main {
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -1996,6 +2002,9 @@ dialog {
 .block-page[data-keyboard] {
   bottom: var(--keyboard-inset, 0);
   height: auto;
+}
+.block-page[data-keyboard] .editor-action-sheet {
+  padding-bottom: 0;
 }
 .crop-view {
   display: flex;

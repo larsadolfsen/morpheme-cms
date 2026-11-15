@@ -1662,7 +1662,35 @@ async function checkPhoneSheet(width = 375, height = 740) {
       return !!hit && b.contains(hit) && !b.closest('[inert]');
     };
     const publish = named(/^Publish/).filter((b) => !d.contains(b));
-    const bar = d.querySelector('.block-page-bar');
+    const bar = d.querySelector('.editor-action-sheet');
+    // What makes the Save row the theme's standard bottom sheet (the same surface and top corners as a BottomSheet container), and where Save
+    // and the fields stand: Save's end edge is as far from the side as the fields' end edge, and the last field ends above the sheet.
+    const sheetLook = (bar, d) => {
+      const ref = document.body.appendChild(document.createElement('div'));
+      ref.className = 'bottom-sheet-container';
+      const refStyle = getComputedStyle(ref);
+      const style = bar ? getComputedStyle(bar) : null;
+      const save = [...(bar?.querySelectorAll('button') ?? [])].pop()?.getBoundingClientRect();
+      const fields = [...d.querySelectorAll('.block-page-main input, .block-page-main textarea')].filter(
+        (f) => f.getBoundingClientRect().height > 0,
+      );
+      const main = d.querySelector('.block-page-main');
+      main.scrollTo(0, main.scrollHeight);
+      const last = fields.at(-1)?.getBoundingClientRect();
+      const out = {
+        standardSheet: !!bar && bar.classList.contains('bottom-sheet-container') && bar.classList.contains('bottom-sheet-standard'),
+        sheetSurface: style && style.backgroundColor === refStyle.backgroundColor,
+        sheetRadius: style && style.borderTopLeftRadius === refStyle.borderTopLeftRadius && style.borderTopLeftRadius !== '0px',
+        sheetFixed: style?.position === 'fixed',
+        saveEnd: save ? Math.round(window.innerWidth - save.right) : null,
+        fieldEnd: last ? Math.round(window.innerWidth - last.right) : null,
+        saveBelow: save && bar ? Math.round(bar.getBoundingClientRect().bottom - save.bottom) : null,
+        saveAbove: save && bar ? Math.round(save.top - bar.getBoundingClientRect().top) : null,
+        lastClear: last && bar ? last.bottom <= bar.getBoundingClientRect().top + 1 : null,
+      };
+      ref.remove();
+      return out;
+    };
     const top = d.querySelector('header');
     const save = [...(bar?.querySelectorAll('button') ?? [])].find((b) => b.textContent.trim() === 'Save');
     const names = (el) => [...(el?.querySelectorAll('button') ?? [])].map((b) => (b.getAttribute('aria-label') || b.textContent).trim());
@@ -1675,6 +1703,7 @@ async function checkPhoneSheet(width = 375, height = 740) {
       barButtons: names(bar),
       saveFilled: !!save && /filled/i.test(save.className + (save.dataset.kind ?? '')),
       saveAtBottom: !!save && Math.abs(save.getBoundingClientRect().bottom - window.innerHeight) < 40,
+      ...sheetLook(bar, d),
       removes: named(/^Remove$/).filter((b) => d.contains(b)).length,
       publish: publish.length,
       publishReachable: publish.filter(reachable).length,
@@ -1691,6 +1720,15 @@ async function checkPhoneSheet(width = 375, height = 740) {
     problems.push(`${label}: the top bar has ${look.topButtons.join(', ')}, not only the back arrow named "Back to T"`);
   if (look.barButtons.join() !== 'Save') problems.push(`${label}: the bottom bar has ${look.barButtons.join(', ')}, not only Save`);
   if (!look.saveAtBottom) problems.push(`${label}: Save is not at the bottom of the screen`);
+  if (!look.standardSheet) problems.push(`${label}: the Save row is not the theme's standard bottom sheet`);
+  if (!look.sheetSurface) problems.push(`${label}: the Save row's surface is not a bottom sheet's`);
+  if (!look.sheetRadius) problems.push(`${label}: the Save row's top corners are not a bottom sheet's`);
+  if (!look.sheetFixed) problems.push(`${label}: the Save row is not fixed to the bottom`);
+  if (look.saveEnd !== look.fieldEnd)
+    problems.push(`${label}: Save ends ${look.saveEnd} dp from the side, the fields end ${look.fieldEnd} dp from it`);
+  if (look.saveAbove !== 16) problems.push(`${label}: Save is ${look.saveAbove} dp from the sheet's top, not 16`);
+  if (look.saveBelow < 16) problems.push(`${label}: Save is ${look.saveBelow} dp from the sheet's bottom, under 16`);
+  if (!look.lastClear) problems.push(`${label}: the last field stays behind the Save row`);
   if (look.removes) problems.push(`${label}: the subpage has Remove (it is in the block's ⋮)`);
   if (!look.publish) problems.push(`${label}: the changed page has no Publish to check under the subpage`);
   if (look.publishReachable) problems.push(`${label}: the page's Publish can be reached while the subpage is open`);
@@ -2719,7 +2757,7 @@ async function checkCropView(width, height = 800) {
         title: d.querySelector('h1')?.textContent,
         bar: !!d.querySelector('header, .top-app-bar, [class*="top-app-bar"]'),
         dialogParts: !!d.querySelector('.dialog-basic, .dialog-full-screen, .dialog-headline'),
-        buttons: [...d.querySelectorAll('.crop-page-bar button')].map((b) => b.textContent.trim()),
+        buttons: [...d.querySelectorAll('.editor-action-sheet button')].map((b) => b.textContent.trim()),
         area: d.querySelector('.crop-view-area').getBoundingClientRect().width,
       };
     },
