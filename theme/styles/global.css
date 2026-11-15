@@ -1337,6 +1337,16 @@
     margin-top: 0.5rem;
     font-weight: 500;
   }
+  /* On a phone the practical links are two equal columns of the grid (compact: 4 columns, 2 each) with the grid's gutter between,
+     in reading order across, then down (the document order, so the tab order and a screen reader follow what is seen). The
+     rows keep their height and target (the item's 3rem). From the medium width the list is one column as before. */
+  @media (width < theme(--breakpoint-medium)) {
+    .md-footer-column > .md-footer-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--grid-gutter);
+    }
+  }
 }
 .md-footer-bottom {
   /* Its text button (the cookie settings) with an 18px icon. */

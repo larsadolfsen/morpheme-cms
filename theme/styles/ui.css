@@ -3778,16 +3778,25 @@
       scale: 0.97;
     }
   }
+  /* Under the button from its start (beside the item for a submenu); the other side when there is no room (flip-block,
+     flip-inline, both), always 0.5rem inside the window. The insets: on the opener's side the gap, on the far side
+     the window's margin (they flip with the menu). Where the browser lacks it the script places the menu. */
   @supports (position-area: block-end) {
     .dropdown-menu-menu[popover] {
       position-area: block-end span-inline-end;
-      position-try-fallbacks: flip-block, flip-inline;
-      margin-block: var(--dropdown-menu-gap, 0.25rem);
+      position-try-fallbacks:
+        flip-block,
+        flip-inline,
+        flip-block flip-inline;
+      inset: var(--dropdown-menu-gap, 0.25rem) 0.5rem 0.5rem 0;
     }
     .menu-submenu[popover] {
       position-area: inline-end span-block-end;
-      position-try-fallbacks: flip-inline, flip-block;
-      margin-inline: var(--menu-submenu-gap, 0.25rem);
+      position-try-fallbacks:
+        flip-inline,
+        flip-block,
+        flip-block flip-inline;
+      inset: 0 0.5rem 0.5rem var(--menu-submenu-gap, 0.25rem);
     }
   }
   @media (prefers-reduced-motion: reduce) {
