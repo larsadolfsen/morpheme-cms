@@ -6982,8 +6982,19 @@
   /* The view's container, full screen and docked: M3 specs, Color: "Surface container low" full screen, with the bar in "Surface container high". M3
      prints "Surface container high" for the docked container too, which would make the bar vanish in it ("Avoid using a surface container high color
      on a surface container background", guidelines), so the docked one is low as well (docs/material-deviations.md). */
-  dialog.search-view {
+  :is(dialog, div).search-view {
     background: var(--search-view-container-surface, var(--mo-surface-container-low));
+  }
+  /* From medium the view is a dropdown (M3 docked), not a layer over the page: a panel on the bar (--search-view-top, -left, -width: where the bar is), no
+     scrim and not modal (owner, 15 Nov 2026). */
+  div.search-view.search-view-docked {
+    position: fixed;
+    z-index: 70;
+    display: flex;
+    flex-direction: column;
+  }
+  div.search-view.search-view-docked[hidden] {
+    display: none;
   }
   .search-view:not(:modal),
   .search-view-docked {
@@ -7001,7 +7012,8 @@
     max-height: min(var(--search-view-max-height, 66.667dvh), calc(100dvh - var(--search-view-top) - 1rem));
   }
   @media (prefers-reduced-motion: no-preference) {
-    .search-view:modal {
+    .search-view:modal,
+    div.search-view.search-view-docked {
       animation: search-view-in var(--motion-spatial);
     }
   }
@@ -7065,6 +7077,17 @@
   .search-view-results [role='option'][aria-selected='true'] {
     background: var(--search-view-option-surface, var(--block-tint));
   }
+  /* An item with a button after it (a recent search): the one highlight covers the item and its button. */
+  .search-view-results .list-item-multi-action:has(> [role='option'][aria-selected='true']) {
+    background: var(--search-view-option-surface, var(--block-tint));
+  }
+  .search-view-results .list-item-multi-action > [role='option'][aria-selected='true'] {
+    background: transparent;
+  }
+  /* Full screen: the bar clears the notch. */
+  .search-view:modal .search-view-header {
+    margin-top: max(var(--search-view-header-margin, 0.75rem), env(safe-area-inset-top));
+  }
   .search-view-empty {
     margin: 0;
     padding: 1.5rem 1rem;
@@ -7077,7 +7100,8 @@
     margin-top: var(--search-view-group-gap, 0.5rem);
   }
   .search-view-group-label {
-    padding: 0.5rem 0.75rem 0.25rem;
+    /* In line with the list items' text and icons (M3 lists, specs: "Leading element left padding 16dp"). */
+    padding: 0.5rem 1rem 0.25rem;
     color: var(--search-view-group-label-text, var(--block-muted));
     font-size: var(--type-label-medium-size);
     line-height: var(--type-label-medium-line-height);

@@ -126,13 +126,14 @@ export function SearchButton({ className = '' }: { className?: string }) {
 
 /** The search bar of the start screen (M3's contained search bar, 56dp, in the top bar in place of the search icon: "Search app bars have a search
  * field instead of heading text"): a button that opens the command palette, as Ctrl+K and the icon do. Its hint is its name. */
-export function SearchBarButton() {
+export function SearchBarButton({ className = '' }: { className?: string }) {
   const open = usePaletteOpen();
   return (
-    <div className="search-bar max-w-[45rem] min-w-0 flex-1">
+    <div className={`search-bar max-w-[45rem] min-w-0 flex-1 ${className}`}>
       <button
         type="button"
         className="search-bar-field"
+        data-search-bar-button=""
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-keyshortcuts={ariaShortcut('Mod+K')}
@@ -215,19 +216,19 @@ export default function Screen<T extends string>({
             <ArrowLeft size={24} />
           </a>
         )}
-        {/* The start screen's bar is the search bar: its title and status stand under the bar, in the page, on every width. */}
+        {/* The start screen: from medium the top bar is the search bar and the title and status stand under it; on a phone the title stays in the bar and the search bar is the first thing in the page. */}
         <div
-          className={`min-w-0 flex-col ${searchBar ? 'hidden' : `flex flex-1 ${home ? 'medium:pl-1' : 'pl-1'} ${full ? '' : 'expanded:hidden'}`}`}
+          className={`min-w-0 flex-col ${searchBar ? 'flex flex-1 medium:hidden' : `flex flex-1 ${home ? 'medium:pl-1' : 'pl-1'} ${full ? '' : 'expanded:hidden'}`}`}
         >
           <h1 className="truncate text-title-large">{title}</h1>
-          {status && !searchBar && (
+          {status && (
             <p data-subtitle className="truncate text-xs text-on-surface-variant">
               {status}
             </p>
           )}
         </div>
         {searchBar ? (
-          <SearchBarButton />
+          <SearchBarButton className="hidden medium:flex" />
         ) : (
           <>
             {!full && <div className="hidden min-w-0 flex-1 expanded:block" />}
@@ -273,7 +274,13 @@ export default function Screen<T extends string>({
           className={`editor-screen flex min-w-0 flex-1 flex-col px-4 pt-6 pb-[env(safe-area-inset-bottom)] medium:px-6 medium:pt-8 medium:pb-4 ${width}`}
         >
           {/* At expanded and wider: the way here, the title and the status, under the bar. */}
-          <div className={`mb-6 min-w-0 items-center gap-x-2 ${searchBar ? 'flex' : 'hidden expanded:flex'}`}>
+          {searchBar && (
+            // M3 specs, Measurements: the unfocused search bar is 24dp from the screen's edges (the page has 16dp).
+            <div className="mx-2 mb-6 flex medium:hidden">
+              <SearchBarButton className="max-w-none" />
+            </div>
+          )}
+          <div className={`mb-6 min-w-0 items-center gap-x-2 ${searchBar ? 'hidden medium:flex' : 'hidden expanded:flex'}`}>
             {crumbs.length > 0 && (
               <nav aria-label={t.library.breadcrumbs} className="flex shrink-0 items-center gap-2 text-on-surface-variant">
                 {crumbs.map((c) => (

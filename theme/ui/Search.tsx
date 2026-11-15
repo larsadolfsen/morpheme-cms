@@ -239,7 +239,8 @@ export function SearchView({
 } & Record<string, unknown>) {
   const id = useId();
   const list = `${id}-results`;
-  const dialog = useRef<HTMLDialogElement>(null);
+  const dialog = useRef<HTMLDialogElement & HTMLDivElement>(null);
+  const returnTo = useRef<Element | null>(null);
   const input = useRef<HTMLInputElement>(null);
   const wide = useWide();
   const shown = groups.filter((g) => g.items.length > 0);
@@ -247,23 +248,47 @@ export function SearchView({
   const at = activeId === undefined ? -1 : flat.findIndex((i) => i.id === activeId);
   const optionId = (index: number) => `${list}-${index}`;
 
-  // A modal <dialog> while it is open: the page behind it is inert, Escape closes it, and the focus goes to the field.
+  // Full screen (below the medium breakpoint): a modal <dialog> while it is open: the page behind it is inert, Escape closes it, and the focus goes to the field.
+  // From medium it is a dropdown (M3 docked): a panel under the bar, not modal and with no scrim: the page stays as it is, Escape, a press outside it and
+  // the back button close it, and the focus goes back to where it was.
   useEffect(() => {
     const view = dialog.current;
     if (!view) return;
+    if (wide) {
+      if (open) {
+        returnTo.current = document.activeElement;
+        input.current?.focus();
+      } else if (returnTo.current) {
+        const back = returnTo.current as HTMLElement;
+        returnTo.current = null;
+        if (back.isConnected) back.focus({ preventScroll: true });
+      }
+      return;
+    }
     if (open && !view.open) {
       view.showModal();
       input.current?.focus();
     } else if (!open && view.open) view.close();
-  }, [open]);
-  // The page under it does not scroll while it is open.
+  }, [open, wide]);
+  // The dropdown closes with a press anywhere outside it (not on the button or bar that opens it: that keeps it open).
   useEffect(() => {
-    if (!open) return;
+    if (!open || !wide) return;
+    const press = (e: PointerEvent) => {
+      const target = e.target as Element | null;
+      if (!target || dialog.current?.contains(target) || target.closest('[aria-haspopup="dialog"][data-keeps-block]')) return;
+      onClose();
+    };
+    document.addEventListener('pointerdown', press, true);
+    return () => document.removeEventListener('pointerdown', press, true);
+  }, [open, wide, onClose]);
+  // The page under a full-screen view does not scroll while it is open.
+  useEffect(() => {
+    if (!open || wide) return;
     const root = document.documentElement;
     const before = root.style.overflow;
     root.style.overflow = 'hidden';
     return () => void (root.style.overflow = before);
-  }, [open]);
+  }, [open, wide]);
   // The option the arrow keys are on stays in view.
   useEffect(() => {
     if (open && at >= 0) document.getElementById(optionId(at))?.scrollIntoView({ block: 'nearest' });
@@ -279,15 +304,22 @@ export function SearchView({
         } as CSSProperties)
       : undefined;
   let index = -1;
+  const Panel = (wide ? 'div' : 'dialog') as 'div';
   return (
     <div className={[searchClass, className].filter(Boolean).join(' ')} data-search-controlled="" {...rest}>
-      <dialog
+      <Panel
         ref={dialog}
         className={['search-view', wide && 'search-view-docked'].filter(Boolean).join(' ')}
         style={style}
         aria-label={label}
-        onClose={() => open && onClose()}
-        onClick={(e) => e.target === e.currentTarget && onClose()}
+        // Open: the full-screen <dialog> is `open` once shown; the dropdown is drawn only while it is open.
+        data-search-view-open={open ? '' : undefined}
+        {...(wide
+          ? { role: 'search', hidden: !open }
+          : {
+              onClose: () => open && onClose(),
+              onClick: (e: { target: unknown; currentTarget: unknown }) => e.target === e.currentTarget && onClose(),
+            })}
       >
         <div className="search-view-header">
           <IconButton icon="arrow-left" label={backLabel} onClick={onClose} />
@@ -422,7 +454,7 @@ export function SearchView({
         <p className="search-view-live" role="status" aria-live="polite">
           {liveText}
         </p>
-      </dialog>
+      </Panel>
     </div>
   );
 }

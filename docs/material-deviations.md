@@ -296,7 +296,7 @@ Source: `theme/ui/Search.tsx` (`SearchView`), `theme/styles/ui.css` (`.search-vi
 - **"Quick results"**: guidelines print "Show search results in a compact, organized list, with an indicator like Quick results". The groups' names (Go to, Pages and posts, Images and files …) are the indicator; a query shows the first 8 results, and the last row, "All search results for “query”", shows the rest (up to 30).
 - **Remove button on a recent search:** M3 prints historical suggestions ("Show historical suggestions before typing") and no remove button. We add one (the owner's Gmail example); the keyboard's Delete key does the same.
 - **Search key:** guidelines print "Type a query and press Enter"; the field's `enterKeyHint` is `search`.
-- **Opening:** the editor's top bar keeps a search icon button (palette spec, deviations P1 and P3), not a search bar; the search app bar is 0.20.
+- **Opening:** the editor's other screens keep the top bar's search icon button (palette spec, deviations P1 and P3); the search app bar for every screen is 0.20.
 - **Docked size:** specs print "Width Min: 360dp, max: 720dp" and "Height Min: 240dp, max: 2/3 of screen height"; the view follows both. M3 is silent on where a docked view stands without a bar: near the top, in the middle (palette spec).
 - **The view's corners and shadow:** the token values could not be read; the theme keeps its own (extra-large corners, elevation 3).
 - **Date:** 2026-11-15. **PR:** this pull request.
@@ -304,7 +304,7 @@ Source: `theme/ui/Search.tsx` (`SearchView`), `theme/styles/ui.css` (`.search-vi
 ### SV4. On a phone the search view is a page with a back arrow
 
 - **Material:** "Full-screen layout: Default for compact breakpoints"; "Full-screen expands to fill the screen"; "The back icon releases focus, dismisses any suggestions or results, and returns the search bar to its original state."
-- **We do:** on a phone the view is a layer the size of the window (a modal `<dialog>`, as the crop view, C1) with the back arrow leading its bar. It is full-size like M3's full-screen layout; it is built as a page of the editor, with no scrim and no corners, and the phone's back gesture closes it. From the medium width it is M3's docked layout under a scrim.
+- **We do:** on a phone the view is a layer the size of the window (a modal `<dialog>`, as the crop view, C1) with the back arrow leading its bar. It is full-size like M3's full-screen layout; it has no scrim and no corners. It is not a routed page (the phone's back gesture closes it, as for the crop view). From the medium width it is a dropdown (SV7).
 - **Why:** owner rule, 15 Nov 2026 (relayed by the PM): "We have agreed on moving away from full screen and sidebar on mobile and instead using pages."
 - **Date:** 2026-11-15. **PR:** this pull request.
 
@@ -317,7 +317,21 @@ Source: `theme/ui/Search.tsx` (`SearchView`), `theme/styles/ui.css` (`.search-vi
 
 ### SV6. The start screen shows the search bar all the time
 
-- **Material:** "Search app bar: Use this app bar variant when search is the primary, global function"; specs: "Container Width Min: 360dp, max: 720dp", "Height 56dp".
-- **We do:** on the start screen the top bar shows the contained search bar (56dp, a button that opens the view) in place of the search icon, on a phone and a computer; its hint, "Search actions and pages", is its name; the screen's title stays in the page for screen readers. Every other screen keeps the search icon button. On a phone the bar is under 360dp wide, as the menu button and the actions share the bar.
+- **Material:** "Search bar: Use to search contents in a specific view"; "Add a search bar below a title to search specific content"; specs: "Container Width Min: 360dp, max: 720dp", "Height 56dp", "Leading padding Unfocused: 24dp, focused: 12dp".
+- **We do:** the start screen shows the contained search bar (56dp, a button that opens the view) all the time, with its hint, "Search actions and pages", as its name. On a phone it is the first thing in the page, below the top bar (which keeps the title, the status and the actions), 24dp from the screen's edges (the page's own gutter is 16dp, so it is 8dp inside it). From medium it stands in the top bar in place of the search icon, up to 720dp wide, and the title and status stand under it. A phone's bar is 327dp wide at 375, under the 360dp minimum, because of the 24dp margins. Every other screen keeps the search icon button.
 - **Why:** owner, 15 Nov 2026 (relayed by the PM): "On the front page show the search field all the time". The search app bar for every screen is 0.20 (palette spec).
 - **Date:** 2026-11-15. **PR:** this pull request.
+
+### SV7. From medium the view is a dropdown on the bar, with no scrim
+
+- **Material:** guidelines: "Docked opens a list below the search bar, with a scrim covering main content"; specs, Measurements (contained): "Docked container Width Min: 360dp, max: 720dp", "Height Min: 240dp, max: 2/3 of screen height", "Search bar container Height 56dp", "Leading padding 16dp", "Trailing padding 16dp". "Search suggestions or results should swap from full-screen in compact windows to docked in larger breakpoints." The shape, elevation and divider values are token tables that did not open, so they are not quoted: the container keeps the theme's extra-large corners and elevation 3, and has no divider (SV1).
+- **We do:** from medium the view is a panel on the search bar (the bar of the top bar, else under the search button, ending where the button ends): not a dialog, not modal and with no scrim; the page behind it stays as it is. It is as wide as the bar (360dp to 720dp), 240dp to 2/3 of the window high, and holds the focused bar (12dp margins, 56dp), the chips and the lists. Escape, the back arrow, a press outside it and the button close it, and the focus goes back to where it was.
+- **Why:** owner, 15 Nov 2026 (relayed by the PM): "On desktop don't make a popup, I read make a drop down."
+- **Date:** 2026-11-15. **PR:** this pull request.
+
+### SV8. Phone paddings, checked against the specs (15 Nov 2026)
+
+- **Material:** specs: bar "Height 56dp", full-screen focused bar "Leading padding 16dp", "Trailing padding 16dp", icon and label "4dp" from the tap target, margins "Focused: 12dp"; lists, specs: "Leading element left padding 16dp"; unfocused margin "24dp".
+- **We do:** the focused bar is 12dp from the edges and 56dp high, its icons 16dp from the pill's edge (a 48dp button inside 4dp padding) and the text 4dp from the button; the bar clears the notch (`env(safe-area-inset-top)`). The group names ("Recent searches", "Suggested") now start 16dp in, in line with the rows' icons (they were 12dp). A recent search and its remove button have one highlight. The filter chips start at 12dp, in line with the bar's edge (M3 prints nothing for the chip row). The unfocused bar on the start screen is 24dp from the edges.
+- **Date:** 2026-11-15. **PR:** this pull request.
+

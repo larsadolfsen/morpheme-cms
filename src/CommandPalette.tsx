@@ -153,6 +153,8 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
   const [searches, setSearches] = useState<string[]>([]);
   const [filter, setFilter] = useState<Filter | null>(null);
   const [showAll, setShowAll] = useState(false);
+  // Where the dropdown (from medium) stands: on the search bar of the top bar when the screen has one, else under the search button, at its end.
+  const [dock, setDock] = useState<{ top: number; left: number; width: number } | undefined>();
   const all = files ?? [];
   const pages = useMemo(() => pagesOf(all), [files]);
   const pagesRef = useRef(pages);
@@ -268,6 +270,17 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
     }
     setRecent(loadRecent());
     setSearches(loadSearches());
+  }, [open]);
+  useEffect(() => {
+    if (!open) return;
+    const shown = (el: Element) => el.getClientRects().length > 0;
+    const bar = [...document.querySelectorAll<HTMLElement>('header .search-bar')].find(shown);
+    const button = [...document.querySelectorAll<HTMLElement>('header button[aria-label="Search"]')].find(shown);
+    const box = (bar ?? button)?.getBoundingClientRect();
+    if (!box) return setDock(undefined);
+    // M3 specs: a docked container is 360dp to 720dp wide; under the button it is 576 and ends where the button ends.
+    const width = bar ? Math.min(720, Math.max(360, box.width)) : Math.min(576, innerWidth - 16);
+    setDock({ top: box.top, left: bar ? box.left : Math.max(8, box.right - width), width });
   }, [open]);
   // Another query starts again from the first results.
   useEffect(() => setShowAll(false), [query, filter]);
@@ -480,6 +493,7 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
         activeId={active}
         onActiveChange={setActive}
         onActivate={activate}
+        dock={dock}
         filters={filters}
         filtersLabel={t.palette.filtersLabel}
         filter={filter}
