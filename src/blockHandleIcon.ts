@@ -15,9 +15,9 @@ export const blockMarkIcon = sized(checkIcon, 18);
 export const duplicateIcon = sized(copyIcon, 20);
 export const selectAllBlocksIcon = sized(selectAllIcon, 20);
 
-// The Settings button of a block's action row: tune, the one icon for the settings of the thing you are on (meaningIcons.ts).
-import { settingsHereIcon } from './meaningIcons';
-export const blockSettingsIcon = sized(settingsHereIcon, 24);
+// The Settings button of a block's action row: the block-settings icon (meaningIcons.ts), widgets with a small cog.
+import { blockSettingsHereIcon } from './meaningIcons';
+export const blockSettingsIcon = sized(blockSettingsHereIcon, 24);
 
 // The block's Change to (its ⋮ menu): Material Symbols' swap_horiz; the back row of its submenu: arrow_back.
 import swapHorizIcon from '@material-symbols/svg-400/outlined/swap_horiz.svg?raw';

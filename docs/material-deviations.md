@@ -217,3 +217,21 @@ Source: `docs/superpowers/specs/2026-11-13-command-palette-and-context-menus-des
 - **We do:** the search icon button is the first trailing action on every screen. On the start screen (4 actions), on Pages, Blog posts, every list with deleted items and Files (3), and, below expanded, on a page or post being edited (4) or a new one (3), the bar then has more than two. Nothing else moves.
 - **Why:** owner, 14 Nov 2026: the palette opens from "a plain search icon button in today's top bar, on every screen", and the owner approved these bars going over M3's two-action limit as a temporary deviation until the 0.20 search app bar, which has "up to two trailing icons on mobile" and "up to four trailing icons on larger screens" and ends this entry.
 - **Date:** 2026-11-14 (owner's approval, through the 0.18 PM). **PR:** the same.
+
+## The crop view
+
+Source: `src/CropView.tsx`, `src/editor.css` (`.crop-page`). Spec: `docs/superpowers/specs/2026-11-14-image-tools-design.md` (section 3). Read 14 Nov 2026 on m3.material.io (Playwright): `/components/dialogs/guidelines`, `/specs` and `/accessibility`, `/components/sliders/guidelines` and `/accessibility`, `/components/toolbars/guidelines`. The dialogs' and sliders' token tables stay collapsed in a text read, so no token value is quoted.
+
+### C1. The crop view is a page of the editor on every width, not a dialog
+
+- **Material:** "Full-screen dialogs are for compact breakpoints only, like mobile devices. For medium and expanded breakpoints, use a basic dialog." "To save a selection in a full-screen dialog, use Save. The close icon or dismissive action, such as Cancel or Back, should close the dialog." "When someone dismisses a full-screen dialog, a basic dialog should appear to confirm that they want to discard the unsaved changes."
+- **We do:** the crop view is a page on every width: a layer the size of the window over the editor (a modal `<dialog>` with no dialog parts, so the form under it keeps its changes and its scroll place), with the theme's top app bar (back arrow and the title `Crop`), the image area, the aspect ratios and the zoom, and a bottom bar with `Save` (and `Cancel` from medium). The phone's back gesture leaves it (a step of its own in the history, as the sheets have). Leaving with changes asks the basic dialog `Keep your changes?`, as M3 says for a full-screen dialog; the dialog's other parts are not used.
+- **Why:** owner decision, 14 Nov 2026: "Convert all full screen views to pages." (relayed by the project manager). Save is in the bottom bar on a phone, as the owner's rule for Save buttons says.
+- **Date:** 2026-11-14. **PR:** #686.
+
+### C2. The zoom slider's inactive track is the secondary container
+
+- **Material:** the sliders' token table (the colours of the active and inactive track) stayed collapsed in a text read, so M3's colour for the inactive track could not be quoted and the theme's choice (`--slider-inactive-track: --mo-surface-container-high`) could not be compared with it.
+- **We do:** in the crop view the inactive track is `--mo-secondary-container`.
+- **Why:** the theme's inactive track is the colour of the crop view's image area, so the track did not show.
+- **Date:** 2026-11-14. **PR:** #686.
