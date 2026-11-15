@@ -9826,6 +9826,17 @@ async function checkDashboardEdit(width, height) {
   await page.waitForTimeout(600);
   await page.screenshot({ path: join(shots, `dashboard-${width}.png`) });
   if (await done.count()) problems.push(`${label}: "${daDashboard.done}" is shown before the edit mode`);
+  // "Edit dashboard" is a text button below the last widget, not in the top bar, with its icon before the text.
+  const editBox = await edit.first().boundingBox();
+  const lastWidgetBottom = await page.evaluate(() => {
+    const main = document.querySelector('main.editor-screen');
+    const headings = [...(main?.querySelectorAll('h2, h3') ?? [])];
+    return Math.max(0, ...headings.map((h) => h.getBoundingClientRect().bottom));
+  });
+  if (!editBox || editBox.y < lastWidgetBottom) problems.push(`${label}: "${daDashboard.edit}" is not below the last widget`);
+  if (await page.locator('header, [role="banner"]').getByRole('button', { name: daDashboard.edit, exact: true }).count())
+    problems.push(`${label}: "${daDashboard.edit}" is still in the top bar`);
+  if (!(await edit.first().locator('svg').count())) problems.push(`${label}: "${daDashboard.edit}" has no leading icon`);
   await edit.click();
   await shown(done, `the button "${daDashboard.done}"`);
   if (await edit.count()) problems.push(`${label}: "${daDashboard.edit}" is still shown in the edit mode`);
