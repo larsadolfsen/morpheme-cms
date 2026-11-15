@@ -1406,7 +1406,11 @@ async function pressMore(page, name, how = 'click', which = 'last') {
   if (settings && (await settings.count())) return void (await settings.first()[how]());
   await page.locator('.editor-tools [aria-label="More"]:visible').first()[how]();
   const row = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${name}$`) });
-  // A tool of a Table is in the group that bundles it (Add, Delete, Align column): open the groups until one has it.
+  // A tool of a Table is in the group that bundles it (Add, Delete, Align column): open the groups until one has it. The menu is given time to draw first (a slow runner draws it late).
+  await row
+    .first()
+    .waitFor({ timeout: 3000 })
+    .catch(() => {});
   if (!(await row.count())) {
     for (const group of TABLE_GROUP_ROWS) {
       const opener = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${group}$`) });
