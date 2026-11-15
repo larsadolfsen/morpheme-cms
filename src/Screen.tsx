@@ -193,6 +193,8 @@ export default function Screen<T extends string>({
   useFabLift(fabs.count > 0);
   // The way here, without the start screen: the logo in the bar is the way there.
   const crumbs = back && back.href !== '#' ? [back] : [];
+  // The start screen shows the search bar in its top bar, in place of the title and the search icon.
+  const searchBar = home && !selection;
   const bar = (
     <TopAppBar>
       <div className={`flex h-16 items-center px-2 medium:gap-3 medium:px-6 ${home ? 'gap-0.5' : 'gap-1'}`}>
@@ -217,18 +219,18 @@ export default function Screen<T extends string>({
             <ArrowLeft size={24} />
           </a>
         )}
-        {/* The start screen's bar is the search bar: its title stays in the page for screen readers and the focus. */}
+        {/* The start screen's bar is the search bar: its title and status stand under the bar, in the page, on every width. */}
         <div
-          className={`flex min-w-0 flex-col ${home && !selection ? 'sr-only' : `flex-1 ${home ? 'medium:pl-1' : 'pl-1'} ${full ? '' : 'expanded:hidden'}`}`}
+          className={`min-w-0 flex-col ${searchBar ? 'hidden' : `flex flex-1 ${home ? 'medium:pl-1' : 'pl-1'} ${full ? '' : 'expanded:hidden'}`}`}
         >
           <h1 className="truncate text-title-large">{title}</h1>
-          {status && (
+          {status && !searchBar && (
             <p data-subtitle className="truncate text-xs text-on-surface-variant">
               {status}
             </p>
           )}
         </div>
-        {home && !selection ? (
+        {searchBar ? (
           <SearchBarButton />
         ) : (
           <>
@@ -275,7 +277,7 @@ export default function Screen<T extends string>({
           className={`editor-screen flex min-w-0 flex-1 flex-col px-4 pt-6 pb-[env(safe-area-inset-bottom)] medium:px-6 medium:pt-8 medium:pb-4 ${width}`}
         >
           {/* At expanded and wider: the way here, the title and the status, under the bar. */}
-          <div className="mb-6 hidden min-w-0 items-center gap-x-2 expanded:flex">
+          <div className={`mb-6 min-w-0 items-center gap-x-2 ${searchBar ? 'flex' : 'hidden expanded:flex'}`}>
             {crumbs.length > 0 && (
               <nav aria-label={t.library.breadcrumbs} className="flex shrink-0 items-center gap-2 text-on-surface-variant">
                 {crumbs.map((c) => (
@@ -288,8 +290,12 @@ export default function Screen<T extends string>({
                 ))}
               </nav>
             )}
-            <h1 className="truncate font-medium">{title}</h1>
-            {status && <p className="shrink-0 text-sm text-on-surface-variant">{status}</p>}
+            <h1 className={searchBar ? 'truncate text-title-large' : 'truncate font-medium'}>{title}</h1>
+            {status && (
+              <p data-subtitle={searchBar ? '' : undefined} className="shrink-0 text-sm text-on-surface-variant">
+                {status}
+              </p>
+            )}
             {/* The icons are taller than the text: the negative margin keeps the row's height. */}
             {pageActions && <div className="-my-3 ml-auto flex shrink-0 items-center gap-1">{pageActions}</div>}
           </div>
