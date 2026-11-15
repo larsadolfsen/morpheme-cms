@@ -6753,11 +6753,16 @@ async function checkInlineBlock(
         .first()
         .waitFor({ timeout: 3000 })
         .catch(() => problems.push(`${label}: Card style does not show with One card`));
-      if (card !== 'outlined')
+      // Card style is a choice group: joined buttons when every name fits, else a list of radio buttons (a phone's width, a wider font).
+      if (card !== 'outlined') {
+        const choiceName = card === 'filled' ? 'Filled' : 'Elevated';
         await sheet
-          .getByRole('button', { name: card === 'filled' ? 'Filled' : 'Elevated', exact: true })
+          .getByRole('button', { name: choiceName, exact: true })
+          .or(sheet.getByRole('radio', { name: choiceName, exact: true }))
+          .first()
           .click({ timeout: 4000 })
           .catch(() => problems.push(`${label}: no ${card} choice`));
+      }
       // A phone's sheet has Save; a computer's side panel changes the block as it is edited and has none.
       const save = sheet.getByRole('button', { name: 'Save', exact: true });
       if (await save.count()) await save.click({ timeout: 4000 }).catch(() => problems.push(`${label}: Block settings have no Save`));
