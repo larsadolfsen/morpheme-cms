@@ -9,11 +9,17 @@
 // `open` draws the view (as docked) with `query` in the field instead of the bar. How it looks is the theme's.
 // SearchView is the same view driven by React (the editor's command palette): `open`, `query` and `onQueryChange`, results in groups (a
 // label each: M3's "category labels") with an item's trailing shortcut, `activeId` (the option the arrow keys are on, aria-activedescendant),
-// `onActivate`, and `liveText` (what a screen reader hears when the results change). Exposes Search, SearchBar, SearchView, searchClass.
+// `onActivate`, and `liveText` (what a screen reader hears when the results change). Its look is M3's contained style: a filled pill (the search
+// bar container, 56dp, surface container high) with the back arrow, the field and the clear button, in a container of its own (surface container
+// low full screen, high docked); under the bar optional filter chips (`filters`: M3 "Filter chips to narrow down results"), then the lists with their
+// category labels. An item can lead with an image (`thumb`) and have a button that removes it (`onRemove`: a recent search; Delete does it from the
+// field). Exposes Search, SearchBar, SearchView, searchClass.
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Svg, type IconRef } from '@morphemecms/cms/src/icon';
 import IconButton from '@theme/ui/IconButton';
 import List, { ListItem } from '@theme/ui/List';
+import Chip from '@theme/ui/Chip';
+import ChipSet from '@theme/ui/ChipSet';
 import { atLeast } from '@morphemecms/cms/lib/breakpoints.mjs';
 
 export type SearchResult = { href: string; headline: ReactNode; supporting?: ReactNode; icon?: string };
@@ -141,6 +147,12 @@ export type SearchViewItem = {
   supporting?: ReactNode;
   /** A leading icon: its name, or an icon made (IconRef). */
   icon?: IconRef;
+  /** A leading image (a picture of the result, 56dp), instead of the icon. */
+  thumb?: string;
+  /** Takes the item out of the list (a recent search): a button after it, and the Delete key while it is the active one. */
+  onRemove?: () => void;
+  /** The button's name for screen readers ("Remove “files” from recent searches"). */
+  removeLabel?: string;
   /** What trails it as text, as people read it ("Ctrl+B"). */
   shortcut?: string;
   /** The same key for `aria-keyshortcuts` ("Control+B"). */
@@ -150,6 +162,9 @@ export type SearchViewItem = {
   /** A toggle or the current choice: shown with a check, and `aria-checked`. Left out for an item that is not one. */
   pressed?: boolean;
 };
+
+/** A filter chip under the bar (M3: "Filter chips to narrow down results"). */
+export type SearchViewFilter = { id: string; label: string; icon?: IconRef; disabled?: boolean };
 
 /** Results under a label: a group's name over its options (M3: "Category labels, like Recent, Contacts, or Suggestions"). */
 export type SearchViewGroup = { id: string; label?: string; items: SearchViewItem[] };
@@ -189,6 +204,10 @@ export function SearchView({
   onActiveChange,
   onActivate,
   dock,
+  filters,
+  filtersLabel,
+  filter,
+  onFilterChange,
   className,
   ...rest
 }: {
@@ -209,6 +228,13 @@ export function SearchView({
   onActivate: (id: string) => void;
   /** Where a docked view stands, in px from the window's corner (under a search bar). */
   dock?: { top: number; left: number; width: number };
+  /** Filter chips in a row under the bar, one chosen at a time (pressing the chosen one again clears it). */
+  filters?: SearchViewFilter[];
+  /** The chip row's name for screen readers. */
+  filtersLabel?: string;
+  /** The chosen filter's id, or none. */
+  filter?: string | null;
+  onFilterChange?: (id: string | null) => void;
   className?: string;
 } & Record<string, unknown>) {
   const id = useId();
@@ -276,7 +302,7 @@ export function SearchView({
             aria-autocomplete="list"
             aria-activedescendant={at >= 0 ? optionId(at) : undefined}
             autoComplete="off"
-            enterKeyHint="go"
+            enterKeyHint="search"
             placeholder={label}
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
@@ -292,6 +318,7 @@ export function SearchView({
               else if (e.key === 'ArrowUp') move(at <= 0 ? flat.length - 1 : at - 1);
               else if (e.key === 'Home') move(0);
               else if (e.key === 'End') move(flat.length - 1);
+              else if (e.key === 'Delete' && at >= 0 && flat[at].onRemove && !query) flat[at].onRemove!();
               else if (e.key === 'Enter' && at >= 0) {
                 if (!flat[at].disabled) onActivate(flat[at].id);
               } else return;
@@ -308,6 +335,23 @@ export function SearchView({
             }}
           />
         </div>
+        {filters && filters.length > 0 && (
+          <ChipSet layout="scroll" label={filtersLabel ?? ''} className="search-view-filters">
+            {filters.map((f) => (
+              <Chip
+                key={f.id}
+                kind="filter"
+                label={f.label}
+                icon={f.icon}
+                selected={filter === f.id}
+                disabled={f.disabled}
+                // A press keeps the focus in the field.
+                onMouseDown={(e: { preventDefault: () => void }) => e.preventDefault()}
+                onClick={() => onFilterChange?.(filter === f.id ? null : f.id)}
+              />
+            ))}
+          </ChipSet>
+        )}
         <div
           id={list}
           role="listbox"
@@ -341,14 +385,30 @@ export function SearchView({
                       aria-selected={index === at}
                       aria-disabled={item.disabled ? true : undefined}
                       aria-checked={item.pressed === undefined ? undefined : item.pressed}
-                      aria-keyshortcuts={item.keyShortcuts}
-                      leadingIcon={item.icon}
+                      aria-keyshortcuts={item.keyShortcuts ?? (item.onRemove ? 'Delete' : undefined)}
+                      leadingIcon={item.thumb ? undefined : item.icon}
+                      leadingImage={item.thumb ? { src: item.thumb } : undefined}
                       headline={item.headline}
                       supporting={item.supporting}
                       trailingSupporting={item.shortcut}
                       trailingIcon={item.pressed ? 'check' : undefined}
                       disabled={item.disabled}
                       onClick={() => onActivate(item.id)}
+                      actions={
+                        item.onRemove && (
+                          // The remove button is for a pointer: the field's Delete key does it for the keyboard, so it takes no focus and screen readers skip it.
+                          <IconButton
+                            icon="x"
+                            label={item.removeLabel ?? ''}
+                            tabIndex={-1}
+                            aria-hidden="true"
+                            onClick={() => {
+                              item.onRemove!();
+                              input.current?.focus();
+                            }}
+                          />
+                        )
+                      }
                     />
                   );
                 })}

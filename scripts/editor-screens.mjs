@@ -885,7 +885,7 @@ async function checkCommandPalette(width) {
   const live = view.locator('.search-view-live');
   const groups = () =>
     view
-      .locator('[role=group]')
+      .locator('.search-view-group')
       .evaluateAll((els) => els.map((g) => document.getElementById(g.getAttribute('aria-labelledby') ?? '')?.textContent ?? ''));
   const names = () => options.evaluateAll((els) => els.map((e) => e.querySelector('.list-item-headline')?.textContent ?? ''));
   const active = () => input.getAttribute('aria-activedescendant');
@@ -984,18 +984,91 @@ async function checkCommandPalette(width) {
   const heading = await page.evaluate(() => `${document.activeElement?.tagName}:${document.activeElement?.textContent?.trim()}`);
   if (!/^H1:\S/.test(heading)) problems.push(`${label}: after Go to the focus is on "${heading}", not on the screen's heading`);
 
-  // Next time what was run is first, under Recent.
+  // Next time the search typed is first, under Recent searches (history icon, a button that removes it), then what was run, under Recent.
   await button.click();
   await view.waitFor({ timeout: 5000 });
   await page
-    .waitForFunction(() => document.querySelector('[data-search-controlled] .search-view-group-label')?.textContent === 'Recent', null, {
-      timeout: 3000,
-    })
+    .waitForFunction(
+      () => document.querySelector('[data-search-controlled] .search-view-group-label')?.textContent === 'Recent searches',
+      null,
+      { timeout: 3000 },
+    )
     .catch(() => {});
-  if ((await groups())[0] !== 'Recent' || !/^Files/.test((await names())[0] ?? ''))
+  const again = await groups();
+  const againNames = await names();
+  if (again[0] !== 'Recent searches' || againNames[0] !== 'files')
     problems.push(
-      `${label}: the next time Recent does not have Files first: ${JSON.stringify(await groups())} ${JSON.stringify(await names())}`,
+      `${label}: the next time Recent searches does not have "files" first: ${JSON.stringify(again)} ${JSON.stringify(againNames)}`,
     );
+  if (again[1] !== 'Recent' || !/^Files/.test(againNames[1] ?? ''))
+    problems.push(`${label}: Recent does not have Files after Recent searches: ${JSON.stringify(again)} ${JSON.stringify(againNames)}`);
+  if (!(await options.first().locator('.list-item-leading svg').count())) problems.push(`${label}: a recent search has no history icon`);
+  if (!(await view.locator('button[aria-label^="Remove"]').count()))
+    problems.push(`${label}: a recent search has no button that removes it`);
+
+  // Material 3's search (spec: contained style): the bar is a filled pill 56 px high in its own container, not a bare list; every row leads with an
+  // icon or a picture; the keyboard's search key submits; a group has its name over it; the chips and the last row come with a query.
+  const look = await view.evaluate((el) => {
+    const bar = el.querySelector('.search-view-header');
+    const bs = getComputedStyle(bar);
+    const r = bar.getBoundingClientRect();
+    const transparent = (c) => c === 'rgba(0, 0, 0, 0)' || c === 'transparent';
+    return {
+      barHeight: r.height,
+      barRadius: parseFloat(bs.borderTopLeftRadius),
+      barFilled: !transparent(bs.backgroundColor) && bs.backgroundColor !== getComputedStyle(el).backgroundColor,
+      viewFilled: !transparent(getComputedStyle(el).backgroundColor),
+      barMargin: r.left - el.getBoundingClientRect().left,
+      hint: el.querySelector('input[role=combobox]').enterKeyHint,
+    };
+  });
+  if (Math.abs(look.barHeight - 56) > 0.5) problems.push(`${label}: the search bar is ${look.barHeight} px high, not 56 (M3 specs)`);
+  if (look.barRadius < 28) problems.push(`${label}: the search bar is not a pill (radius ${look.barRadius})`);
+  if (!look.barFilled) problems.push(`${label}: the search bar has no container of its own: the page is a bare list`);
+  if (!look.viewFilled) problems.push(`${label}: the search view has no container colour`);
+  if (Math.abs(look.barMargin - 12) > 0.5)
+    problems.push(`${label}: the focused search bar is ${look.barMargin} px from the view's edge, not 12 (M3 specs)`);
+  if (look.hint !== 'search') problems.push(`${label}: the keyboard's key is "${look.hint}", not "search"`);
+  const leadingOf = () => options.evaluateAll((els) => els.map((e) => !!e.querySelector('.list-item-leading svg, .list-item-leading img')));
+  if ((await leadingOf()).some((x) => !x))
+    problems.push(`${label}: before typing a row has no leading icon ${JSON.stringify(await leadingOf())}`);
+  if (await view.locator('.search-view-filters').count()) problems.push(`${label}: the filter chips show before typing`);
+  // A recent search runs again when it is pressed; Delete removes the one the arrows are on.
+  await options.first().click();
+  await page.waitForTimeout(250);
+  if ((await input.inputValue()) !== 'files')
+    problems.push(`${label}: a recent search does not run again (the field says "${await input.inputValue()}")`);
+  await input.fill('s');
+  await page.waitForTimeout(300);
+  const chips = await view.locator('.search-view-filters .chip').allTextContents();
+  if (chips.join() !== 'Actions,Pages,Posts,Images,Files') problems.push(`${label}: the filter chips are ${JSON.stringify(chips)}`);
+  if ((await view.locator('.search-view-group-label').count()) < 1) problems.push(`${label}: the results have no group name over them`);
+  if ((await leadingOf()).some((x) => !x)) problems.push(`${label}: a result has no leading icon ${JSON.stringify(await leadingOf())}`);
+  const last = (await names()).at(-1) ?? '';
+  if (last !== 'All search results for “s”') problems.push(`${label}: the last row is "${last}", not "All search results for “s”"`);
+  // The chip Actions narrows the results to actions; pressing it again clears it.
+  await view.locator('.search-view-filters .chip', { hasText: 'Actions' }).click();
+  await page.waitForTimeout(250);
+  if (!(await input.evaluate((el) => el === document.activeElement)))
+    problems.push(`${label}: a filter chip took the focus from the field`);
+  // The last row shows all the results and goes away.
+  await page.keyboard.press('End');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(250);
+  if ((await names()).some((n) => n.startsWith('All search results')))
+    problems.push(`${label}: the last row is still there after it was pressed`);
+  if (!(await view.count())) problems.push(`${label}: the last row closed the view, it should show all the results`);
+  await input.fill('');
+  await page.waitForTimeout(250);
+  // Delete removes the recent search the arrows are on.
+  const before = (await names()).length;
+  await page.keyboard.press('Delete');
+  await page.waitForTimeout(250);
+  if ((await names()).length !== before - 1) problems.push(`${label}: Delete does not remove the recent search`);
+  await page.keyboard.press('Escape');
+  await shut('after the searches');
+  await button.click();
+  await view.waitFor({ timeout: 5000 });
   // A page is found by its title, under Pages and posts.
   if (!pageTitle) problems.push(`${label}: the site has no page to find (the pages list is empty)`);
   else {

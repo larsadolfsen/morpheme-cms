@@ -16,9 +16,9 @@ import {
   shortcutConflicts,
 } from '../lib/actionRules.mjs';
 
-/** The palette's groups; `pages` holds the pages and posts a provider gives. */
+/** The palette's groups; `pages` holds the pages and posts a provider gives, `files` the images and files. */
 export type ActionGroup =
-  'go' | 'pages' | 'page' | 'text' | 'section' | 'insert' | 'block' | 'image' | 'table' | 'list' | 'setting' | 'app';
+  'go' | 'pages' | 'files' | 'page' | 'text' | 'section' | 'insert' | 'block' | 'image' | 'table' | 'list' | 'setting' | 'app';
 
 /** Where the user is now. The same Ctx drives the bar, its ⋮ and the palette, so an action is disabled in all of them at once. */
 export type Ctx = {
@@ -83,8 +83,10 @@ export type EditorAction = {
   /** A toggle (Bold) or the current choice (Align centre). */
   pressed?: (ctx: Ctx) => boolean;
   run: (ctx: Ctx) => void;
-  /** A page or post a provider gave (ranked under actions on a tie). */
-  kind?: 'action' | 'page';
+  /** A page, post, image or file a provider gave (ranked under actions on a tie). */
+  kind?: 'action' | 'page' | 'image' | 'file';
+  /** A picture of an image a provider gave, drawn leading its row in the palette (M3 lists: a leading image). */
+  thumb?: string;
 };
 
 /** Actions for a query, given on demand. */
@@ -290,7 +292,7 @@ export function changeToActions(
 }
 
 /** A page or post of the site: its title, its address in the editor, and the list it is in. */
-type PageInfo = { path: string; title: string; href: string; list?: string };
+type PageInfo = { path: string; title: string; href: string; list?: string; icon?: string };
 
 /**
  * The pages and posts by title (and address), for a query: a provider, so a site with thousands of pages registers none. Nothing before typing.
@@ -305,10 +307,38 @@ export function pagesProvider(pages: () => PageInfo[], open: (href: string) => v
         label: p.title,
         words: [p.path],
         path: p.list,
+        icon: p.icon,
         group: 'pages',
         kind: 'page',
         where: {},
         run: () => open(p.href),
+      }))
+      .filter((a) => matchAction(a, query));
+  };
+}
+
+/** An image or a file (a PDF, a video, a zip file) of the site: its name, its address on the site (an image is drawn as its picture), and what it is. */
+type FileInfo = { path: string; name: string; src: string; kind: 'image' | 'file'; icon: string; what: string };
+
+/**
+ * The images and files by name, for a query (a provider, like the pages): they run to the Files screen. Nothing before typing.
+ * The ids are `go.file:<path>`, which recent stores and drops when the file is gone.
+ */
+export function filesProvider(files: () => FileInfo[], open: () => void): ActionProvider {
+  return (query) => {
+    if (!query.trim()) return [];
+    return files()
+      .map((f): EditorAction => ({
+        id: `go.file:${f.path}`,
+        label: f.name,
+        words: [f.path],
+        path: f.what,
+        icon: f.icon,
+        thumb: f.kind === 'image' ? f.src : undefined,
+        group: 'files',
+        kind: f.kind,
+        where: {},
+        run: open,
       }))
       .filter((a) => matchAction(a, query));
   };

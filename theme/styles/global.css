@@ -454,8 +454,8 @@
   --navigation-rail-indicator-text: var(--mo-on-surface);
   --navigation-rail-indicator-hover: var(--mo-hover);
   --navigation-rail-label-selected-weight: 500;
-  /* Search: the bar 56px, full corners, in the high surface container with a state layer; the view in it too, docked
-     with extra-large corners and the third elevation, with a divider under its header. */
+  /* Search (M3 contained style, the recommended one): the bar 56px, full corners, in the high surface container with a state layer; the view
+     full screen in the low surface container and docked in the high one, docked with extra-large corners and the third elevation. */
   --search-bar-height: 3.5rem;
   --search-bar-radius: var(--mo-shape-full);
   --search-bar-padding: 1rem;
@@ -466,7 +466,6 @@
   --search-bar-placeholder: var(--mo-on-surface-variant);
   --search-view-radius: var(--mo-shape-extra-large);
   --search-view-line: transparent;
-  --search-view-divider: var(--mo-outline-variant);
   --search-view-results-padding: 0.5rem 0;
   --search-view-option-surface: var(--mo-hover);
   /* Toolbars (M3 Expressive): in a surface container, docked without a line or blur, floating with full corners and

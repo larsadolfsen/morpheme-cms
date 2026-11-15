@@ -235,3 +235,32 @@ Source: `src/CropView.tsx`, `src/editor.css` (`.crop-page`). Spec: `docs/superpo
 - **We do:** the crop view is a page on every width: a layer the size of the window over the editor (a modal `<dialog>` with no dialog parts, so the form under it keeps its changes and its scroll place), with the theme's top app bar (back arrow and the title `Crop`), the image area, the aspect ratios and the zoom, and a bottom bar with `Save` (and `Cancel` from medium). The phone's back gesture leaves it (a step of its own in the history, as the sheets have). Leaving with changes asks the basic dialog `Keep your changes?`, as M3 says for a full-screen dialog; the dialog's other parts are not used.
 - **Why:** owner decision, 14 Nov 2026: "Convert all full screen views to pages." (relayed by the project manager). Save is in the bottom bar on a phone, as the owner's rule for Save buttons says.
 - **Date:** 2026-11-14. **PR:** #686.
+
+## The search view (search page, M3 search)
+
+Source: `theme/ui/Search.tsx` (`SearchView`), `theme/styles/ui.css` (`.search-view*`), `src/CommandPalette.tsx`. Read 15 Nov 2026 on m3.material.io with Playwright: `/components/search/overview`, `/specs`, `/guidelines`, `/accessibility`. The token tables of the specs page stay collapsed in a text read (they did not open), and the colour and measurement diagrams are images that did not load: no token value is quoted, and the colour roles below are read from the numbered lists under the diagrams.
+
+### SV1. The contained style, without a divider
+
+- **Material:** "Contained: Has an expressive look and feel. It uses a filled container to separate a search bar from a list of suggestions or results"; "Divided (baseline) … Not recommended. Use contained." "In the divided (baseline) style, a divider separates the search bar and results."
+- **We do:** the contained style. The bar is a filled pill (56dp, full corners, surface container high, margins 12dp focused) in the view's own container; there is no divider under it. A theme can still ask for the divided style (`--search-view-header-surface: transparent`, `--search-view-header-radius: 0`, `--search-view-divider`).
+- **Why:** the owner's examples (Gmail, Drive) show a divider; M3 says the divided style is not recommended, and the owner asked for M3. Open for the owner to decide.
+- **Date:** 2026-11-15. **PR:** this pull request.
+
+### SV2. The docked container is surface container low, like full screen
+
+- **Material:** specs, Color: full screen "Surface container low … Surface container high …"; docked "Surface container high … Surface container high …" (a numbered list whose diagram did not load). Guidelines: "Avoid using a surface container high color on a surface container background. This can cause the search bar to blend in … use surface container roles that are more than one step apart."
+- **We do:** the bar is surface container high in both layouts; the docked container is surface container low (as full screen), not high.
+- **Why:** with high on high the docked bar vanishes (checked in a screenshot). The diagram that says which of the two roles is which did not load, so this reading may be wrong.
+- **Date:** 2026-11-15. **PR:** this pull request.
+
+### SV3. Where M3 is silent, or the pages could not be read
+
+- **Highlighting the match** in a result: M3 prints nothing, so none is drawn.
+- **"Quick results"**: guidelines print "Show search results in a compact, organized list, with an indicator like Quick results". The groups' names (Go to, Pages and posts, Images and files …) are the indicator; a query shows the first 8 results, and the last row, "All search results for “query”", shows the rest (up to 30).
+- **Remove button on a recent search:** M3 prints historical suggestions ("Show historical suggestions before typing") and no remove button. We add one (the owner's Gmail example); the keyboard's Delete key does the same.
+- **Search key:** guidelines print "Type a query and press Enter"; the field's `enterKeyHint` is `search`.
+- **Opening:** the editor's top bar keeps a search icon button (palette spec, deviations P1 and P3), not a search bar; the search app bar is 0.20.
+- **Docked size:** specs print "Width Min: 360dp, max: 720dp" and "Height Min: 240dp, max: 2/3 of screen height"; the view follows both. M3 is silent on where a docked view stands without a bar: near the top, in the middle (palette spec).
+- **The view's corners and shadow:** the token values could not be read; the theme keeps its own (extra-large corners, elevation 3).
+- **Date:** 2026-11-15. **PR:** this pull request.

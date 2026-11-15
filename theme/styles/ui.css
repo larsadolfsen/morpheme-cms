@@ -6439,12 +6439,13 @@
   SearchBar) and .search-view (the <dialog> it opens: over the whole screen on a phone,
   docked where the bar is from the medium width, and so in the editor), in it .search-view-header (back, the field,
   .search-view-input, a role="combobox", and .search-view-clear), .search-view-results (the theme's list as a
-  role="listbox", the option the arrow keys are on with aria-selected) and .search-view-empty (when nothing fits).
+  role="listbox", the option the arrow keys are on with aria-selected), .search-view-filters (the filter chips under the bar, a .chip-set-scroll) and .search-view-empty (when nothing fits).
     --search-bar-height, --search-bar-radius, --search-bar-padding, --search-bar-gap, --search-bar-surface,
     --search-bar-line, --search-bar-shadow, --search-bar-hover, --search-bar-text, --search-bar-placeholder,
     --search-bar-font-size
     --search-view-surface, --search-view-radius, --search-view-line, --search-view-shadow, --search-view-scrim,
-    --search-view-header-height, --search-view-divider, --search-view-max-height, --search-view-results-padding,
+    --search-view-header-height, --search-view-header-surface, --search-view-header-radius, --search-view-header-margin,
+    --search-view-container-surface, --search-view-divider, --search-view-max-height, --search-view-results-padding,
     --search-view-option-surface, --search-view-group-gap, --search-view-group-label-text, --search-view-top-default,
     --search-view-width-default
   Toolbars (Toolbar, toolbarClass, toolbar.script.ts; m3.material.io/components/toolbars, M3 Expressive): .toolbar with
@@ -6876,7 +6877,7 @@
   /* Search (m3.material.io/components/search): the bar, and the view it opens. */
   .search-bar {
     display: flex;
-    min-height: var(--search-bar-height, 3.25rem);
+    min-height: var(--search-bar-height, 3.5rem);
     align-items: center;
     gap: 0.25rem;
     border-radius: var(--search-bar-radius, var(--block-control-radius));
@@ -6894,13 +6895,13 @@
   .search-bar-field {
     display: flex;
     min-width: 0;
-    min-height: var(--search-bar-height, 3.25rem);
+    min-height: var(--search-bar-height, 3.5rem);
     flex: 1;
     align-items: center;
-    gap: var(--search-bar-gap, 0.75rem);
+    gap: var(--search-bar-gap, 1rem);
     border: 0;
     border-radius: inherit;
-    padding: 0 0.5rem 0 var(--search-bar-padding, 1.125rem);
+    padding: 0 0.5rem 0 var(--search-bar-padding, 1rem);
     background: transparent;
     color: inherit;
     font: inherit;
@@ -6978,6 +6979,12 @@
     position: relative;
     height: auto;
   }
+  /* The view's container, full screen and docked: M3 specs, Color: "Surface container low" full screen, with the bar in "Surface container high". M3
+     prints "Surface container high" for the docked container too, which would make the bar vanish in it ("Avoid using a surface container high color
+     on a surface container background", guidelines), so the docked one is low as well (docs/material-deviations.md). */
+  dialog.search-view {
+    background: var(--search-view-container-surface, var(--mo-surface-container-low));
+  }
   .search-view:not(:modal),
   .search-view-docked {
     border-radius: var(--search-view-radius, var(--block-radius));
@@ -6987,9 +6994,11 @@
   }
   .search-view-docked {
     inset: var(--search-view-top) auto auto var(--search-view-left);
-    width: max(var(--search-view-width), 22.5rem);
+    width: clamp(22.5rem, var(--search-view-width), 45rem);
     height: auto;
-    max-height: min(var(--search-view-max-height, 36rem), calc(100dvh - var(--search-view-top) - 1rem));
+    /* M3 specs, Measurements: docked container "Width Min: 360dp, max: 720dp", "Height Min: 240dp, max: 2/3 of screen height". */
+    min-height: min(15rem, calc(100dvh - var(--search-view-top) - 1rem));
+    max-height: min(var(--search-view-max-height, 66.667dvh), calc(100dvh - var(--search-view-top) - 1rem));
   }
   @media (prefers-reduced-motion: no-preference) {
     .search-view:modal {
@@ -7002,14 +7011,21 @@
       transform: translateY(-0.5rem);
     }
   }
+  /* The search bar container of the focused view (M3 specs, Measurements: contained, "Height 56dp", margins "Focused: 12dp", the leading and trailing
+     icon 16dp from the edge: a 48dp button with 4dp padding, "4dp" from the button to the text). The bar is a filled pill in "Surface container high";
+     a theme that wants M3's divided style sets --search-view-header-surface: transparent, --search-view-header-radius: 0 and --search-view-divider. */
   .search-view-header {
     display: flex;
     min-height: var(--search-view-header-height, 3.5rem);
     flex-shrink: 0;
     align-items: center;
-    gap: 0.25rem;
-    border-bottom: 1px solid var(--search-view-divider, var(--block-line));
-    padding: 0.25rem;
+    gap: 0;
+    margin: var(--search-view-header-margin, 0.75rem);
+    border-bottom: 1px solid var(--search-view-divider, transparent);
+    border-radius: var(--search-view-header-radius, var(--search-bar-radius, var(--mo-shape-full)));
+    padding: 0 0.25rem;
+    background: var(--search-view-header-surface, var(--search-bar-surface, var(--mo-surface-container-high)));
+    color: var(--search-bar-text, var(--mo-on-surface));
   }
   .search-view-input {
     min-width: 0;
@@ -7032,11 +7048,19 @@
   .search-view-input:placeholder-shown + .search-view-clear {
     visibility: hidden;
   }
+  /* Filter chips under the bar (M3 guidelines: "Filter chips to narrow down results"): one row that scrolls sideways, in line with the bar's text. */
+  .search-view-filters {
+    flex-shrink: 0;
+    margin-inline: 0;
+    padding-inline: 0.75rem;
+    scroll-padding-inline: 0.75rem;
+    margin-block-end: 0.25rem;
+  }
   .search-view-results {
     min-height: 0;
     flex: 1;
     overflow-y: auto;
-    padding: var(--search-view-results-padding, 0.5rem 1rem);
+    padding: var(--search-view-results-padding, 0.5rem 0);
   }
   .search-view-results [role='option'][aria-selected='true'] {
     background: var(--search-view-option-surface, var(--block-tint));
@@ -7064,7 +7088,8 @@
     inset: var(--search-view-top-default, 4rem) 0 auto 0;
     margin: 0 auto;
     width: min(var(--search-view-width-default, 36rem), calc(100dvw - 2rem));
-    max-height: min(var(--search-view-max-height, 36rem), calc(100dvh - var(--search-view-top-default, 4rem) - 1rem));
+    min-height: min(15rem, calc(100dvh - var(--search-view-top-default, 4rem) - 1rem));
+    max-height: min(var(--search-view-max-height, 66.667dvh), calc(100dvh - var(--search-view-top-default, 4rem) - 1rem));
   }
   .search-view-live {
     position: absolute;

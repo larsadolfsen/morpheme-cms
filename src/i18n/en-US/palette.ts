@@ -10,6 +10,15 @@ export const palette = {
   /** The group names before typing. */
   recent: 'Recent',
   suggested: 'Suggested',
+  /** The searches typed before, shown before typing (kept in this browser only), and the button after each. */
+  recentSearches: 'Recent searches',
+  removeSearch: (query: string) => `Remove “${query}” from recent searches`,
+  /** The last row of a query's first results, which shows all of them. */
+  allResults: (query: string) => `All search results for “${query}”`,
+  allResultsCount: (n: number) => (n === 1 ? '1 result' : `${n} results`),
+  /** The filter chips under the field. */
+  filtersLabel: 'Filter results',
+  filters: { actions: 'Actions', pages: 'Pages', posts: 'Posts', images: 'Images', files: 'Files' },
   /** Under the field when nothing fits what is typed. */
   empty: (query: string) => `Nothing found for “${query}”`,
   /** Read aloud when the results change. */
@@ -19,6 +28,7 @@ export const palette = {
   groups: {
     go: 'Go to',
     pages: 'Pages and posts',
+    files: 'Images and files',
     page: 'Page',
     text: 'Text',
     insert: 'Insert',
