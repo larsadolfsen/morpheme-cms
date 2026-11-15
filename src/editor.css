@@ -104,7 +104,7 @@
 
 /* The text field (MarkdownEditor.tsx). The rest of the editor uses the site's Tailwind classes. */
 .editor-text .ProseMirror {
-  min-height: 50vh;
+  min-height: 50dvh;
   outline: none;
 }
 
