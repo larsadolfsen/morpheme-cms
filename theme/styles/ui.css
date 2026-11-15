@@ -1286,7 +1286,8 @@
     --chip-elevated-surface, --chip-elevated-shadow, --chip-elevated-hover-shadow   an elevated chip (level 1), and
                      pointed at (level 2; a theme that sets only the one at rest keeps it); pressed, as at rest
     --chip-dragged-shadow   the shadow that lifts a dragged chip (level 4)
-    --chip-disabled-opacity   how much of a disabled chip is seen
+    --chip-text   the label and icon of a chip that is not chosen
+    --chip-disabled-text, --chip-disabled-line, --chip-disabled-selected-surface   a disabled chip (38%, 12% and 12% of on surface)
     --chip-avatar-size, --chip-avatar-padding   a person's image, and the room before it
   The label's weight and line height are the text's; a theme sets them with a rule on .chip.
 */
@@ -1302,6 +1303,7 @@
     /* Density takes 2 px off each side, never the text; --chip-padding-block (else 0.55rem) is the room today. */
     padding-block: calc(var(--chip-padding-block, 0.55rem) + var(--mo-density-layout) * var(--mo-density-step) / 2);
     background: var(--chip-surface, var(--block-surface));
+    color: var(--chip-text, inherit);
     box-shadow: inset 0 0 0 1px var(--chip-line, var(--block-line));
     font-family: inherit;
     font-size: var(--chip-font-size, var(--type-label-large-size));
@@ -1317,6 +1319,22 @@
   }
   span.chip {
     cursor: auto;
+  }
+  /* M3 Chips, guidelines: "Chips must also have a minimum 48dp target size, regardless of placement or density. If required, the target can extend beyond the
+     visible container of the chip." The target is behind the chip's own content, so what is in the chip (an input chip's remove button) is hit first. */
+  .chip {
+    position: relative;
+    isolation: isolate;
+  }
+  .chip::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: max(100%, 3rem);
+    transform: translateY(-50%);
   }
   .chip > svg,
   .chip-action > svg,
@@ -1432,13 +1450,19 @@
     box-shadow: var(--chip-dragged-shadow, var(--mo-elevation-4-shadow));
   }
 
-  /* Disabled: seen through, without its shadow, and not to be used. */
+  /* Disabled (M3 Chips: the label and icon at 38% of on surface, the edge at 12%, a chosen chip's container at 12%), and not to be used. */
   .chip:is(:disabled, [aria-disabled='true']) {
-    opacity: var(--chip-disabled-opacity, 0.38);
+    color: var(--chip-disabled-text, color-mix(in srgb, var(--mo-on-surface) 38%, transparent));
+    box-shadow: inset 0 0 0 1px var(--chip-disabled-line, color-mix(in srgb, var(--mo-on-surface) 12%, transparent));
     pointer-events: none;
   }
+  .chip:is(:disabled, [aria-disabled='true']):is([aria-pressed='true'], [aria-current='page'], [data-selected]) {
+    background: var(--chip-disabled-selected-surface, color-mix(in srgb, var(--mo-on-surface) 12%, transparent));
+    box-shadow: none;
+  }
   .chip-elevated:is(:disabled, [aria-disabled='true']) {
-    box-shadow: inset 0 0 0 1px var(--chip-line, var(--block-line));
+    background: var(--chip-disabled-selected-surface, color-mix(in srgb, var(--mo-on-surface) 12%, transparent));
+    box-shadow: none;
   }
 }
 
@@ -1463,8 +1487,8 @@
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
-    padding: 0.25rem var(--chip-set-bleed, 0rem);
-    margin: -0.25rem calc(-1 * var(--chip-set-bleed, 0rem));
+    padding: 0.5rem var(--chip-set-bleed, 0rem);
+    margin: -0.5rem calc(-1 * var(--chip-set-bleed, 0rem));
     scroll-padding-inline: var(--chip-set-bleed, 0rem);
   }
   .chip-set-scroll::-webkit-scrollbar {

@@ -707,7 +707,7 @@ export const parts = {
       content: "The page's content stands here.",
       openRail: 'Open navigation',
       search:
-        'The search field and what it opens: the field with the button back and the results that fit what is typed. A search view driven by the page also groups its results under a name, shows a key beside an item, and keeps one item that cannot be used now.',
+        'The search field and what it opens: the field with the button back and the results that fit what is typed. A search view driven by the page also groups its results under a name, shows a key beside an item, and keeps one item that cannot be used now. The search bar can be a button that opens the view, and a group has its name over it (a category label).',
       toolbar:
         'Actions in a row: the whole width at the bottom, as the bar at the bottom of a phone, or floating, on the surface or in the accent, across or vertical, also with a button beside it and folded into the button.',
       name: 'Navigation',

@@ -19,8 +19,7 @@ import { useContext, useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Bell, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
 import { t } from './i18n';
-import { Svg } from './icon';
-import { IconButton, IconLink, MenuButton, TabPanel, TabRow, TopAppBar, useMenuLayout, type TabChoice } from './ui';
+import { IconButton, IconLink, MenuButton, SearchBarButton, TabPanel, TabRow, TopAppBar, useMenuLayout, type TabChoice } from './ui';
 import { up } from './nav';
 import EditorFooter from './EditorFooter';
 import { FabPresenceContext, useCountFabs, useFabLift } from './fabPresence';
@@ -124,32 +123,21 @@ export function SearchButton({ className = '' }: { className?: string }) {
   );
 }
 
-/** The search bar of the start screen (M3's contained search bar, 56dp, in the top bar in place of the search icon: "Search app bars have a search
- * field instead of heading text"): a button that opens the command palette, as Ctrl+K and the icon do. Its hint is its name. */
-export function SearchBarButton({ className = '' }: { className?: string }) {
+/** The search bar of the start screen (M3's contained search bar, 56dp, in the top bar in place of the search icon: "Search app bars have a search field
+ * instead of heading text"): the theme's bar (ui.tsx SearchBarButton) that opens the command palette, as Ctrl+K and the icon do. Its hint is its name. */
+export function PaletteBar({ className = '' }: { className?: string }) {
   const open = usePaletteOpen();
   return (
-    <div className={`search-bar max-w-[45rem] min-w-0 flex-1 ${className}`}>
-      <button
-        type="button"
-        className="search-bar-field"
-        data-search-bar-button=""
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        aria-keyshortcuts={ariaShortcut('Mod+K')}
-        data-keeps-block=""
-        onMouseDown={(e) => e.preventDefault()}
-        onClick={(e) => {
-          e.currentTarget.focus({ preventScroll: true });
-          openPalette();
-        }}
-      >
-        <span className="search-bar-leading">
-          <Svg name="search" size={24} />
-        </span>
-        <span className="search-bar-placeholder">{t.palette.label}</span>
-      </button>
-    </div>
+    <SearchBarButton
+      label={t.palette.label}
+      open={open}
+      keys={ariaShortcut('Mod+K')}
+      className={`max-w-[45rem] min-w-0 flex-1 ${className}`}
+      onOpen={(button) => {
+        button.focus({ preventScroll: true });
+        openPalette();
+      }}
+    />
   );
 }
 
@@ -229,7 +217,7 @@ export default function Screen<T extends string>({
           )}
         </div>
         {searchBar ? (
-          <SearchBarButton className="hidden medium:flex" />
+          <PaletteBar className="hidden medium:flex" />
         ) : (
           <>
             {!full && <div className="hidden min-w-0 flex-1 expanded:block" />}
@@ -278,7 +266,7 @@ export default function Screen<T extends string>({
           {searchBar && (
             // M3 specs, Measurements: the unfocused search bar is 24dp from the screen's edges (the page has 16dp).
             <div className="mx-2 mb-6 flex medium:hidden">
-              <SearchBarButton className="max-w-none" />
+              <PaletteBar className="max-w-none" />
             </div>
           )}
           <div className={`mb-6 min-w-0 items-center gap-x-2 ${searchBar ? 'hidden medium:flex' : 'hidden expanded:flex'}`}>

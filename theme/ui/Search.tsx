@@ -13,7 +13,7 @@
 // bar container, 56dp, surface container high) with the back arrow, the field and the clear button, in a container of its own (surface container
 // low full screen, high docked); under the bar optional filter chips (`filters`: M3 "Filter chips to narrow down results"), then the lists with their
 // category labels. An item can lead with an image (`thumb`) and have a button that removes it (`onRemove`: a recent search; Delete does it from the
-// field). Exposes Search, SearchBar, SearchView, searchClass.
+// field). Exposes Search, SearchBar, SearchBarButton, SearchGroupLabel, SearchView, searchClass.
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Svg, type IconRef } from '@morphemecms/cms/src/icon';
 import IconButton from '@theme/ui/IconButton';
@@ -113,6 +113,32 @@ export default function Search({
           {emptyText}
         </p>
       </dialog>
+    </div>
+  );
+}
+
+/** The search bar as a button that opens the search view (the editor's start screen, in its top bar or in the page): the contained bar, 56dp, with its leading
+ * search icon and its hint (`label`, also its name for screen readers). `className` goes on the bar; the rest (`onClick`, `aria-expanded`, `aria-keyshortcuts`)
+ * on the button. Exposes SearchBarButton. */
+export function SearchBarButton({ label, className, ...rest }: { label: string; className?: string } & Record<string, unknown>) {
+  return (
+    <div className={['search-bar', className].filter(Boolean).join(' ')}>
+      <button type="button" className="search-bar-field" aria-haspopup="dialog" {...rest}>
+        <span className="search-bar-leading">
+          <Svg name="search" size={24} />
+        </span>
+        <span className="search-bar-placeholder">{label}</span>
+      </button>
+    </div>
+  );
+}
+
+/** A category label over a group of suggestions or results (M3 search, guidelines: "Category labels, like Recent, Contacts, or Suggestions"): its text, 16dp in
+ * like the list items' icons, `id` for the group it names (aria-labelledby). Exposes SearchGroupLabel. */
+export function SearchGroupLabel({ id, children, className }: { id?: string; children: ReactNode; className?: string }) {
+  return (
+    <div id={id} className={['search-view-group-label', className].filter(Boolean).join(' ')}>
+      {children}
     </div>
   );
 }
@@ -404,11 +430,7 @@ export function SearchView({
                 className="search-view-group"
                 aria-labelledby={group.label ? `${list}-group-${group.id}` : undefined}
               >
-                {group.label && (
-                  <div id={`${list}-group-${group.id}`} className="search-view-group-label">
-                    {group.label}
-                  </div>
-                )}
+                {group.label && <SearchGroupLabel id={`${list}-group-${group.id}`}>{group.label}</SearchGroupLabel>}
                 <List role="none" dividers="none">
                   {group.items.map((item) => {
                     index += 1;

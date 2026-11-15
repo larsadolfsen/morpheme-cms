@@ -334,3 +334,16 @@ Source: `theme/ui/Search.tsx` (`SearchView`), `theme/styles/ui.css` (`.search-vi
 - **We do:** the focused bar is 12dp from the edges and 56dp high, its icons 16dp from the pill's edge (a 48dp button inside 4dp padding) and the text 4dp from the button; the bar clears the notch (`env(safe-area-inset-top)`). The group names ("Recent searches", "Suggested") now start 16dp in, in line with the rows' icons (they were 12dp). A recent search and its remove button have one highlight. The filter chips start at 12dp, in line with the bar's edge (M3 prints nothing for the chip row). The unfocused bar on the start screen is 24dp from the edges.
 - **Date:** 2026-11-15. **PR:** this pull request.
 
+
+### SV9. Chips follow the M3 specs (fixed in the theme with the owner's approval, 15 Nov 2026)
+
+- **Material:** chips, specs (read 15 Nov 2026 with Playwright): filter chip "Container height 32dp", "Container shape 8dp corner radius", "Icon size 18dp", "Left/right padding 16dp", "Left/right padding with icon 8dp", "Padding between elements 8dp"; colour roles "On surface variant, On secondary container, Secondary container, Outline variant". Guidelines: "Tapping on a filter chip activates it and appends a leading checkmark icon to the starting edge of the chip label", "Keep an 8dp minimum space between chips. Chips must also have a minimum 48dp target size, regardless of placement or density. If required, the target can extend beyond the visible container of the chip."
+- **We do:** the theme's chip (`theme/styles/global.css` tokens, `theme/styles/ui.css`): the edge is outline variant, the label and icon on surface variant, a chosen chip is the secondary container with on secondary container and its check; 8dp padding on the side of an icon; a 48dp target (behind the chip's own content); a state layer when pointed at; a disabled chip has its label at 38% and its edge at 12% of on surface, a chosen disabled chip a 12% container. It was: outline edge, surface container high for a chosen chip, on surface text, 16dp with an icon, no 48dp target, an accent colour when pointed at, the whole chip at 38%. Every chip of the editor and of the site gets this (the Colours screen, the crop view, the image picker, the icon picker, tags, the parts gallery). The disabled colours are the M3 ones from the chips' state pages; the token table values for the chip were not opened.
+- **Why:** owner, 15 Nov 2026: "Your chips do not follow MD3 standard."
+- **Date:** 2026-11-15. **PR:** this pull request.
+
+### SV10. The start screen's search bar and the search view's category label are theme parts (new, with the owner's approval, 15 Nov 2026)
+
+- **Material:** search, guidelines: "Category labels, like Recent, Contacts, or Suggestions"; search bar as in SV6.
+- **We do:** `SearchBarButton` and `SearchGroupLabel` in `theme/ui/Search.tsx`, used through `src/ui.tsx` (`SearchBarButton`) and the search view, and shown in "Parts" › "UI components" under *Search*. The start screen's bar had its own markup in `src/Screen.tsx`, and the label its own class.
+- **Date:** 2026-11-15 (owner's approval, relayed by the PM). **PR:** this pull request.
