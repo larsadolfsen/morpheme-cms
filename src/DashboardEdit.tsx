@@ -6,7 +6,7 @@
 // the moves dashboardMoves.mjs's. The drag is a pointer extra: the card is raised with the theme's elevation and follows the
 // pointer, the others stay until it is dropped; keyboard and screen reader users move a card with the menu.
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
-import { ArrowDown, ArrowUp, DotsSixVertical, DotsThreeVertical, GearSix, PencilSimple, Trash } from '@phosphor-icons/react';
+import { ArrowDown, ArrowUp, DotsSixVertical, DotsThreeVertical, GearSix, Trash } from '@phosphor-icons/react';
 import { t } from './i18n';
 import { apps } from './site';
 import { activeApps } from './apps';
@@ -122,15 +122,14 @@ export function useDashboard(files: RepoFile[]) {
 
 export type DashboardEditing = ReturnType<typeof useDashboard>;
 
-/** The top bar's action: "Edit dashboard", and while editing the one tonal "Done" (busy while it saves). */
+/** The top bar's action while editing: the one tonal "Done" (busy while it saves). Nothing otherwise: "Edit dashboard" is a text
+ * button below the dashboard (DashboardGrid.tsx). */
 export function DashboardAction({ dash }: { dash: DashboardEditing }) {
-  if (dash.load.status !== 'ready') return null;
-  return dash.editing ? (
+  if (dash.load.status !== 'ready' || !dash.editing) return null;
+  return (
     <Button kind="tonal" busy={dash.saving} onClick={() => void dash.done()}>
       {t.dashboard.done}
     </Button>
-  ) : (
-    <IconButton icon={PencilSimple} label={t.dashboard.edit} onClick={dash.startEdit} />
   );
 }
 

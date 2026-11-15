@@ -52,7 +52,7 @@ export const colors = {
     contrasts: { standard: 'Standard', medium: 'Medium', high: 'High' },
     /** Custom, the generator's sixth choice (lib/dynamic-colors.ts CUSTOM): Primary, Secondary and Tertiary chosen freely. */
     custom: 'Custom',
-    customHint: 'Pick Primary, Secondary and Tertiary yourself. The other colors are made from them.',
+    customHint: 'Select Primary, Secondary and Tertiary yourself. The other colors are made from them.',
     /** The first base color's name in Custom (else it is the source color). */
     primary: 'Primary',
     /** A dot on the color wheel in Custom, named by its color. */

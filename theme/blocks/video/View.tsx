@@ -9,7 +9,8 @@ import type { VideoView } from '@morphemecms/cms/src/standard/video/view';
 import { InProse, Link, useOnSite } from '@morphemecms/cms/src/standard/view';
 
 export default function Video({ view }: { view: VideoView }) {
-  return <Facade key={view.href} view={view} />;
+  // A new link or a new thumbnail is a new frame.
+  return <Facade key={`${view.href}|${view.still?.src ?? ''}`} view={view} />;
 }
 
 function Facade({ view }: { view: VideoView }) {
@@ -28,7 +29,7 @@ function Facade({ view }: { view: VideoView }) {
             src={still.src}
             srcSet={still.srcset}
             sizes={still.srcset && `(min-width: ${BREAKPOINTS.expanded}px) 720px, 100vw`}
-            alt=""
+            alt={still.alt ?? ''}
             loading="lazy"
             decoding="async"
             onError={failed}

@@ -8,9 +8,9 @@ export const company = {
     solid: 'The logo needs a transparent background. Use PNG or SVG.',
     logo: 'Logo',
     logoHint: 'SVG or PNG with a transparent background.',
-    newLogo: 'Choose a new logo',
+    newLogo: 'Select a new logo',
     icon: 'Icon',
-    newIcon: 'Choose a new icon',
+    newIcon: 'Select a new icon',
     iconFromLogo: 'Create the icon from the logo',
     /** brand.ts */
     svgUnreadable: 'The SVG file couldn’t be read',
