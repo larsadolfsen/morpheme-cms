@@ -27,6 +27,8 @@ import { FabPresenceContext, useCountFabs } from './fabPresence';
 import { useMenuOpen } from './menuOpen';
 import { unseen, useNotifications } from './notificationData';
 import { openNotifications, useNotificationsOpen } from './notificationsOpen';
+import { openPalette, usePaletteOpen } from './paletteOpen';
+import { ariaShortcut, shortcutText } from './shortcuts';
 import { SiteLogoLink } from './SiteLogoLink';
 import { ScreenHidden } from './screenHidden';
 import { useTopBarSlot } from './topBarSlot';
@@ -92,6 +94,25 @@ export function NotificationsButton({ className = '' }: { className?: string }) 
       badge={count > 0}
       className={className}
       onClick={openNotifications}
+    />
+  );
+}
+
+/** The search in the top bar, the first of its trailing actions on every screen (not while rows are selected): it opens the command palette
+ * (CommandPalette.tsx), as Ctrl+K does. A plain search icon button (M3: "Search icon button: Use when search is a secondary action or not the main
+ * focus"); in 0.20 it becomes the search app bar. */
+export function SearchButton({ className = '' }: { className?: string }) {
+  const open = usePaletteOpen();
+  return (
+    <IconButton
+      icon="search"
+      label={t.palette.open}
+      shortcut={shortcutText('Mod+K')}
+      aria-keyshortcuts={ariaShortcut('Mod+K')}
+      aria-haspopup="dialog"
+      aria-expanded={open}
+      className={className}
+      onClick={openPalette}
     />
   );
 }
@@ -168,6 +189,7 @@ export default function Screen<T extends string>({
           )}
         </div>
         {!full && <div className="hidden min-w-0 flex-1 expanded:block" />}
+        {!selection && <SearchButton />}
         <div className="flex shrink-0 items-center justify-end gap-1">
           {selection ?? (
             <>

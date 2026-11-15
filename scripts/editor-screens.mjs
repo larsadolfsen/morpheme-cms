@@ -283,7 +283,7 @@ async function checkSearchViewParts(width, locale) {
     locale === 'da-DK'
       ? {
           open: '\u00c5bn s\u00f8gevisningen',
-          groups: ['Seneste', 'Foresl\u00e5et'],
+          groups: ['Seneste', 'Foresl\u00e5et'], // language-ok: the Danish group names the Parts page example must show
           four: '4 resultater',
           one: '1 resultat',
           none: 'Intet passer til s\u00f8gningen',
@@ -443,6 +443,302 @@ async function checkSearchViewParts(width, locale) {
     await page.waitForTimeout(250);
     if (await view.count()) problems.push(`${label}: a tap outside does not close the view`);
   }
+  await page.close();
+}
+
+/** The search button in the top bar (src/Screen.tsx SearchButton; spec docs/superpowers/specs/2026-11-13-command-palette-and-context-menus-design.md section 4.2 and 4.8):
+ * on every screen it is one button named "Search" of at least 48 px, the first of the bar's trailing actions (before the screen's own and the bell), with its key in
+ * `aria-keyshortcuts`, and the page does not scroll sideways with it; while rows are selected (the selection's own bar) it is not drawn. */
+async function checkSearchButton(width) {
+  const label = `${width}px search button`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  let where = '';
+  page.on('pageerror', (e) => problems.push(`${label} ${where}: ${e.message}`));
+  await openEditor(page, site);
+  const routes = [
+    '',
+    'settings',
+    'licenses',
+    'seo',
+    'apps',
+    'files',
+    'list/pages',
+    'list/blog',
+    'new/pages',
+    'new/blog',
+    'company/colors',
+    'appearance/themes',
+  ];
+  for (const route of routes) {
+    where = `#${route}`;
+    await page.evaluate((h) => (location.hash = h), route);
+    await page.waitForSelector('header h1', { state: 'attached', timeout: 15_000 }).catch(() => {});
+    await page.waitForTimeout(250);
+    const found = await page.evaluate(() => {
+      const visible = (el) => {
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== 'hidden';
+      };
+      const bar = document.querySelector('header');
+      const heading = bar?.querySelector('h1');
+      const mine = [...(bar?.querySelectorAll('button[aria-label="Search"]') ?? [])].filter(visible);
+      // The bar's actions after the title, in the order they are in the page.
+      const after = [...(bar?.querySelectorAll('button, a[href]') ?? [])].filter(
+        (el) => visible(el) && heading && heading.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING,
+      );
+      const box = mine[0]?.getBoundingClientRect();
+      return {
+        n: mine.length,
+        first: after[0] === mine[0],
+        keys: mine[0]?.getAttribute('aria-keyshortcuts'),
+        w: box?.width ?? 0,
+        h: box?.height ?? 0,
+        sideways: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      };
+    });
+    if (found.n !== 1) problems.push(`${label} ${where}: ${found.n} search buttons in the top bar, not 1`);
+    else {
+      if (!found.first) problems.push(`${label} ${where}: the search button is not the first trailing action of the top bar`);
+      if (found.keys !== 'Control+K') problems.push(`${label} ${where}: aria-keyshortcuts is "${found.keys}", not "Control+K"`);
+      if (found.w < 47.5 || found.h < 47.5) problems.push(`${label} ${where}: the search button is ${found.w}x${found.h}, under 48 px`);
+    }
+    if (found.sideways) problems.push(`${label} ${where}: the page scrolls sideways with the search button`);
+  }
+  await page.close();
+}
+
+/** The command palette (src/CommandPalette.tsx, spec section 4): it opens from the top bar's button and from Ctrl+K, also with the cursor in text (and a second Ctrl+K
+ * closes it); it is a modal view with the focus in its field, full screen on a phone and docked on a computer, 48 px rows and buttons, no sideways scroll; before typing it
+ * shows *Suggested* (the first places of the menu), a place of the menu is found by its name (Files, under Go to), a page by its title (under Pages and posts), a live region
+ * says how many, the arrow keys move the highlight, Enter goes there, closes it and puts the focus on the new screen's heading, and the next time *Recent* has it first;
+ * nothing found says so; Escape closes it and the focus goes back to the button, or to the text. */
+async function checkCommandPalette(width) {
+  const label = `${width}px command palette`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.waitForSelector('header button[aria-label="Search"]', { timeout: 15_000 });
+  // A page of this site (the demo's and the starter's differ): the first of the pages list, found by its title further down.
+  await page.evaluate(() => (location.hash = '#list/pages'));
+  await page.waitForSelector('main a.list-item-container', { timeout: 15_000 }).catch(() => {});
+  const pageTitle = (
+    await page
+      .locator('main a.list-item-container .list-item-headline')
+      .first()
+      .textContent({ timeout: 3000 })
+      .catch(() => null)
+  )?.trim();
+  await page.evaluate(() => (location.hash = ''));
+  await page.waitForTimeout(300);
+  const button = page.locator('header button[aria-label="Search"]');
+  const view = page.locator('[data-search-controlled] dialog[open]');
+  const input = view.locator('input[role=combobox]');
+  const options = view.locator('[role=option]');
+  const live = view.locator('.search-view-live');
+  const groups = () =>
+    view
+      .locator('[role=group]')
+      .evaluateAll((els) => els.map((g) => document.getElementById(g.getAttribute('aria-labelledby') ?? '')?.textContent ?? ''));
+  const names = () => options.evaluateAll((els) => els.map((e) => e.querySelector('.list-item-headline')?.textContent ?? ''));
+  const active = () => input.getAttribute('aria-activedescendant');
+  const activeIs = async (i) => (await active()) === (await options.nth(i).getAttribute('id'));
+  const focusOn = () =>
+    page.evaluate(
+      () =>
+        `${document.activeElement?.tagName}:${document.activeElement?.getAttribute('aria-label') ?? ''}:${document.activeElement?.className?.toString().includes('ProseMirror') ?? false}`,
+    );
+  const shut = async (why) => {
+    await page.waitForTimeout(250);
+    if (await view.count()) problems.push(`${label}: the palette is still open ${why}`);
+  };
+
+  // The button opens it: a modal view with the focus in the field, full screen on a phone and docked in the middle near the top on a computer.
+  await button.click();
+  await view.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the button does not open the palette`));
+  if (!(await view.count())) return page.close();
+  await page.waitForTimeout(400);
+  const box = await view.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    return {
+      modal: el.matches(':modal'),
+      docked: el.classList.contains('search-view-docked'),
+      left: r.left,
+      right: r.right,
+      top: r.top,
+      width: r.width,
+      height: r.height,
+      vw: innerWidth,
+      vh: innerHeight,
+      sideways: document.documentElement.scrollWidth > innerWidth,
+    };
+  });
+  if (!box.modal) problems.push(`${label}: the palette is not modal`);
+  if (touch) {
+    if (box.docked || box.width < box.vw - 1 || box.height < box.vh - 1)
+      problems.push(
+        `${label}: on a phone the palette is full screen (it is ${Math.round(box.width)}x${Math.round(box.height)} of ${box.vw}x${box.vh})`,
+      );
+  } else if (!box.docked || box.width > 36 * 16 + 1 || box.top > 120 || Math.abs((box.left + box.right) / 2 - box.vw / 2) > 2) {
+    problems.push(
+      `${label}: on a computer the palette is docked in the middle near the top, at most 36rem wide (left ${Math.round(box.left)}, top ${Math.round(box.top)}, width ${Math.round(box.width)})`,
+    );
+  }
+  if (box.sideways) problems.push(`${label}: the page scrolls sideways with the palette open`);
+  if (!(await input.evaluate((el) => el === document.activeElement)))
+    problems.push(`${label}: the focus is not in the field when it opens`);
+  if ((await view.getAttribute('aria-label')) !== 'Search actions and pages')
+    problems.push(`${label}: the palette is not named "Search actions and pages"`);
+
+  // Before typing: Suggested, the first places of the menu, 48 px rows, the first one highlighted, the count read aloud.
+  const first = await groups();
+  const n = await options.count();
+  if (first.join() !== 'Suggested' || n < 1 || n > 6)
+    problems.push(`${label}: before typing the palette shows ${JSON.stringify(first)} with ${n} options, not Suggested with 1 to 6`);
+  if (!(await activeIs(0))) problems.push(`${label}: the first option is not the one the arrow keys are on`);
+  if ((await live.textContent()) !== `${n} results`)
+    problems.push(`${label}: the live region says "${await live.textContent()}" for ${n} options`);
+  const heights = await options.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height));
+  if (heights.some((h) => h < 47.5)) problems.push(`${label}: an option is lower than 48 px (${heights.map(Math.round)})`);
+  const bars = await view
+    .locator('.search-view-header button')
+    .evaluateAll((els) =>
+      els.map((b) => Math.max(b.getBoundingClientRect().height, parseFloat(getComputedStyle(b, '::after').height) || 0)),
+    );
+  if (bars.some((h) => h < 47.5)) problems.push(`${label}: a button of the field's row is lower than 48 px (${bars.map(Math.round)})`);
+  // The arrow keys move the highlight, the focus stays in the field.
+  await page.keyboard.press('ArrowDown');
+  if (!(await activeIs(1))) problems.push(`${label}: ArrowDown does not move to the second option`);
+  await page.keyboard.press('ArrowUp');
+  if (!(await activeIs(0))) problems.push(`${label}: ArrowUp does not move back to the first option`);
+  await page.keyboard.press('End');
+  if (!(await activeIs(n - 1))) problems.push(`${label}: End does not go to the last option`);
+  // Escape closes it, and the focus is back on the button.
+  await page.keyboard.press('Escape');
+  await shut('after Escape');
+  if ((await focusOn()) !== 'BUTTON:Search:false')
+    problems.push(`${label}: after Escape the focus is on ${await focusOn()}, not the search button`);
+
+  // A place of the menu is found by its name; Enter goes there, closes the palette and puts the focus on the screen's heading.
+  await page.keyboard.press('Control+k');
+  await view.waitFor({ timeout: 5000 });
+  await page.keyboard.type('files');
+  await page.waitForTimeout(250);
+  const files = { groups: await groups(), names: await names(), live: await live.textContent() };
+  if (files.groups[0] !== 'Go to' || !/^Files/.test(files.names[0] ?? ''))
+    problems.push(`${label}: "files" finds ${JSON.stringify(files.names)} in ${JSON.stringify(files.groups)}, not Files first under Go to`);
+  if (files.live !== `${files.names.length === 1 ? '1 result' : `${files.names.length} results`}`)
+    problems.push(`${label}: the live region says "${files.live}" for ${files.names.length} results`);
+  await page.keyboard.press('Enter');
+  await shut('after Enter');
+  await page.waitForTimeout(500);
+  if ((await page.evaluate(() => location.hash)) !== '#files')
+    problems.push(`${label}: Enter on Files goes to ${await page.evaluate(() => location.hash)}, not #files`);
+  const heading = await page.evaluate(() => `${document.activeElement?.tagName}:${document.activeElement?.textContent?.trim()}`);
+  if (!/^H1:\S/.test(heading)) problems.push(`${label}: after Go to the focus is on "${heading}", not on the screen's heading`);
+
+  // Next time what was run is first, under Recent.
+  await button.click();
+  await view.waitFor({ timeout: 5000 });
+  await page
+    .waitForFunction(() => document.querySelector('[data-search-controlled] .search-view-group-label')?.textContent === 'Recent', null, {
+      timeout: 3000,
+    })
+    .catch(() => {});
+  if ((await groups())[0] !== 'Recent' || !/^Files/.test((await names())[0] ?? ''))
+    problems.push(
+      `${label}: the next time Recent does not have Files first: ${JSON.stringify(await groups())} ${JSON.stringify(await names())}`,
+    );
+  // A page is found by its title, under Pages and posts.
+  if (!pageTitle) problems.push(`${label}: the site has no page to find (the pages list is empty)`);
+  else {
+    await input.fill(pageTitle);
+    await page.waitForTimeout(250);
+    const pages = { groups: await groups(), names: await names() };
+    if (!pages.groups.includes('Pages and posts') || !pages.names.includes(pageTitle))
+      problems.push(
+        `${label}: "${pageTitle}" finds ${JSON.stringify(pages.names)} in ${JSON.stringify(pages.groups)}, not that page under Pages and posts`,
+      );
+  }
+  // Nothing found says so, and the field keeps the focus.
+  await input.fill('zzzzqq');
+  await page.waitForTimeout(250);
+  const none = view.locator('.search-view-empty');
+  if (!(await none.isVisible()) || (await none.textContent()) !== 'Nothing found for “zzzzqq”')
+    problems.push(`${label}: nothing found does not say so ("${await none.textContent()}")`);
+  if ((await live.textContent()) !== 'Nothing found')
+    problems.push(`${label}: the live region says "${await live.textContent()}", not "Nothing found"`);
+  if (!(await input.evaluate((el) => el === document.activeElement)))
+    problems.push(`${label}: the field lost the focus when nothing was found`);
+  await page.keyboard.press('Escape');
+  await shut('after nothing found');
+
+  // The key opens it, also with the cursor in text, and a second press closes it; Escape gives the focus back to the text.
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Control+k');
+  await view.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: Ctrl+K does not open the palette with the cursor in text`));
+  if (await view.count()) {
+    if (await page.evaluate(() => document.querySelector('.ProseMirror')?.textContent?.includes('k')))
+      problems.push(`${label}: Ctrl+K typed a letter into the text`);
+    await page.keyboard.press('Control+k');
+    await shut('after a second Ctrl+K');
+    await page.keyboard.press('Control+k');
+    await view.waitFor({ timeout: 5000 });
+    await page.keyboard.press('Escape');
+    await shut('after Escape');
+    if (!(await page.evaluate(() => !!document.activeElement?.closest('.ProseMirror'))))
+      problems.push(`${label}: after Escape the focus is not back in the text (it is on ${await focusOn()})`);
+  }
+
+  await page.close();
+}
+
+/** No custom context menu (owner, 13 Nov; spec section 5): a right click (a `contextmenu` event that can be cancelled) in the text, on a row of a List and in a table cell is not
+ * prevented, so the browser's own menu opens. */
+async function checkNoContextMenu(width) {
+  const label = `${width}px no context menu`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  const prevented = (selector) =>
+    page.evaluate((sel) => {
+      const el = document.querySelector(sel);
+      if (!el) return 'missing';
+      const e = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 12, clientY: 12, button: 2 });
+      el.dispatchEvent(e);
+      return e.defaultPrevented;
+    }, selector);
+  const check = async (what, selector) => {
+    const got = await prevented(selector);
+    if (got === 'missing') problems.push(`${label}: ${what} is not there to right click`);
+    else if (got) problems.push(`${label}: a right click on ${what} is prevented, so the browser's menu does not open`);
+  };
+  await check('the text', '.ProseMirror p');
+  await pressInsert(page, touch ? 'tap' : 'click');
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
+  await check('a row of a List', '.inline-list-row-active');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(200);
+  await page.click('.ProseMirror');
+  await page.keyboard.press('Control+End');
+  await page.keyboard.press('Enter');
+  await pressInsert(page, touch ? 'tap' : 'click');
+  await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
+  await page.waitForSelector('.inline-table-cell-active textarea', { timeout: 8000 });
+  await check('a table cell', '.inline-table-cell-active textarea');
   await page.close();
 }
 
@@ -9347,6 +9643,9 @@ for (const width of [375, 1280])
   for (const locale of ['en-US', 'da-DK']) await unit(`choice-group parts ${width} ${locale}`, () => checkChoiceGroupParts(width, locale));
 for (const width of [375, 1280])
   for (const locale of ['en-US', 'da-DK']) await unit(`search view parts ${width} ${locale}`, () => checkSearchViewParts(width, locale));
+for (const width of [375, 1280]) await unit(`search button ${width}`, () => checkSearchButton(width));
+for (const width of [375, 1280]) await unit(`command palette ${width}`, () => checkCommandPalette(width));
+for (const width of [375, 1280]) await unit(`no context menu ${width}`, () => checkNoContextMenu(width));
 
 for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
 await unit('checkTextBarWide', () => checkTextBarWide());
