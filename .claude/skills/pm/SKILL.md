@@ -91,16 +91,17 @@ comment as an `<img>` of the link. Not yet checked: that the owner's browser sho
 The first session that adds screenshots looks at the comment, and if the image does not show, it tries another way that
 leaves nothing in the shipped package. It then tells the PM exactly what worked, and the PM has this paragraph updated.
 
-**CI slots (owner rule, 15 Nov 2026: "4 PRs are acceptable").** At most 4 pull requests are in CI at any time, a `Check`
-run queued or running. More open pull requests are fine. A session pushes, re-runs or merges `origin/<line>` into its
-pull request only when the PM says "your slot". A session may merge the base locally and run `npm run check`, but it does
-not push. Why: each push starts about 19 jobs, and ten pull requests at once back up the runners for days. The PM keeps
-the queue in its log and counts the active runs with `gh api "repos/larsadolfsen/morpheme-cms/actions/runs?status=queued"`
-and `status=in_progress`. It gives the next slot when a pull request merges or goes red and is sent back. A push that
-supersedes a run is cancelled by `concurrency` (only the newest head counts). The PM may cancel a run it queued itself
-when a slot is needed (the owner approved this on 15 Nov). The one re-run of failed jobs per run stays as it is. A pull
-request that fixes a red CI on the base branch goes first. Docs-only pull requests count as a slot until the docs-only CI
-skip (#770) is merged; after that they are light.
+**CI slots (owner rule, 15 Nov 2026).** The PM allows 1 to 4 pull requests in CI at once, a `Check` run queued or running.
+It decides by overlap. Pull requests that change different files run together, up to 4. Pull requests that change the
+same files run one after another, because the first merge forces a merge of the base and a new run in the second. A
+fix of a red base branch always goes first. Why not more than 4: one `Check` run is about 19 jobs and about 20 run at
+once, so more only queues. A session pushes, re-runs or merges `origin/<line>` into its pull request only when the PM
+says "your slot". It may merge the base locally and run `npm run check`, but it does not push. The PM counts the active
+runs with `gh api "repos/larsadolfsen/morpheme-cms/actions/runs?status=queued"` and `status=in_progress`, and gives the
+next slot when a pull request merges or goes red and is sent back. A push that supersedes a run is cancelled by
+`concurrency` (only the newest head counts). The PM may cancel a run it queued itself when a slot is needed (the owner
+approved this on 15 Nov). The one re-run of failed jobs per run stays as it is. Docs-only pull requests count as a slot
+until the docs-only CI skip (#770) is merged; after that they are light.
 
 **Cloudflare builds.** The PM keeps an eye out for failed Cloudflare builds: the `Workers Builds: …` check on every
 pull request and on `main` (the demo, `morpheme-demo`), and the builds of `morpheme-staging` and of the sites that
