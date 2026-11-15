@@ -114,6 +114,10 @@ this rule, in these words: "When a change the owner can see (the editor or the s
 before and after screenshots of every changed screen to a comment on your own pull request, as the `pm` skill's
 *Screenshots in the pull request* says, and tell the PM with the link and head sha. A change nobody sees needs none."
 
+When the change touches Material 3, the brief also tells the session to read the M3 pages with Playwright (skill
+`material-3`, *Reading the real pages*) and to say in its pull request which pages were read. The PM checks that the
+pull request says it before merging; a pull request that does not is not merged.
+
 **A PM may only start Haiku and Sonnet sessions.** Every `create_session` sets `model` to a Haiku or Sonnet model (`claude-haiku-5-5` or `claude-sonnet-5-5`), and a PM never starts a session on Opus, Fable or the inherited default, and never changes a session's model to anything higher.
 
 The owner only sees pull requests that are assigned to them on GitHub. When a session the PM started opens a pull request, or the PM takes over one that needs the owner to see, approve or decide something, the PM assigns it to the repository owner `larsadolfsen` (`update_pull_request`, `issue_write` assignees or the GitHub API) and keeps it assigned until it is merged.

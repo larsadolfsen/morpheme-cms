@@ -10,9 +10,10 @@ page and check it. I don't want to tell you more times to follow MD3."
 
 1. Outside the editor's own workspace (its toolbar/bar, overflow menu, text and block menus) every design choice follows
    what m3.material.io prints.
-2. Before a spec or a change, read the real pages of every component involved. They are script-rendered: use Playwright,
-   which is pre-installed; expand collapsed token tables; read the specs, guidelines and accessibility pages. Quote them
-   in the spec or the pull request. Never write from memory. If a page can't be read, say so plainly instead of guessing.
+2. Before a spec or a change, read the real pages of every component involved, with a real browser (Playwright).
+   Owner rule, 15 Nov: m3.material.io pages are JavaScript-rendered, so a plain fetch (WebFetch, curl) returns only the
+   page title, an empty shell. A session never writes a spec or a change from memory or from a failed fetch. If a page
+   can't be read, say so plainly instead of guessing.
 3. Never invent a part, mark, size or behaviour M3 does not print. Where M3 is silent, say so and use the nearest M3
    pattern.
 4. A deviation is allowed only in the editor workspace or when the owner says so in words. Record it in
@@ -20,3 +21,23 @@ page and check it. I don't want to tell you more times to follow MD3."
    why, the date and the pull request. A deviation that is not listed there is a bug.
 
 Wording follows M3's word choice (`CLAUDE.md`, *Word choice*). A theme's own look is the skill `site-editor-theme`.
+
+## Reading the real pages
+
+Chromium and Playwright are pre-installed in the cloud container: `require('playwright')` works from any directory
+(use `NODE_PATH=$(npm root -g)` if `require` fails). Do not run `playwright install`. Read a page like this:
+
+```js
+const { chromium } = require('playwright');
+const b = await chromium.launch();
+const pg = await b.newPage({ viewport: { width: 1400, height: 1000 } });
+await pg.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
+await pg.waitForTimeout(3000);
+const text = await pg.evaluate(() => document.body.innerText);
+```
+
+- Read every tab of the component: Overview, Specs, Guidelines and Accessibility.
+- Quote the numbers and role names the pages print, in the spec or the pull request.
+- Say in the pull request which pages were read (the URLs).
+- List anything the text omits. Images carry some measurements: then take a screenshot of the page with Playwright and
+  read the image.
