@@ -41,20 +41,36 @@ spacing to different system tokens for each device type." The repository's `--mo
 **Margins and gutters.** Terms: "Margin: The space between the edge of the screen and any elements inside of it"; "Gap:
 The space between components or elements within a container"; "Spacer: The space between two panes on a foldable
 device" (`https://m3.material.io/foundations/layout/layout-overview`). Margin rulers "come with some wiggle room … The
-standard ruler can be adjusted to the left or right" (grids page). **M3 prints no margin or gutter number on any layout
-page read, and no maximum content width.** The older "Margins are 16dp from the leading and trailing edge" is quoted in
-`docs/material-deviations.md` entry 17 from a component page; this audit did not re-read it. The only other number is
-"Padding between cards: 8dp max" (same entry).
+standard ruler can be adjusted to the left or right" (grids page). Read for numbers, text and every diagram on the grids,
+feed, list-detail, supporting-pane, scaffold and adaptive-design pages: **M3 prints no margin number and no gutter number
+per breakpoint, in text or in any image.** The diagrams show margin rulers and columns with no dimensions. The only
+numbers M3 prints near this are in the *Cards* specs (`https://m3.material.io/components/cards/specs`): "Left/right
+padding 16dp" (inside a card) and "Padding between cards 8dp max". So the **gutter between cards is 8dp at most**
+(already `--card-gap`, 0.5rem). Lists guidance says "Adjust margins to create a more comfortable line length for reading"
+(`https://m3.material.io/components/lists/guidelines`), which is the only margin rule: margins grow so text keeps a
+readable measure.
+
+**Maximum width.** M3 prints no maximum content width and no layout width for large or extra-large. It says layouts
+change column count (12 on large and up), and that margins adapt for line length. A page container with a maximum width
+is therefore our own rule where M3 is silent.
+
+**Masonry.** The word does not appear on any layout page read. The feed page says a feed "can organize content of
+different sizes, like using small and large cards", that items "reflow when the amount of available space changes", and
+that "The order of items is determined by their position". The spacing page says "Cards should maintain consistent
+horizontal spacing to establish a strong rhythm when their height varies". So: cards of different heights on grid
+columns with an even gap are M3; a column-first masonry flow is not described.
 
 **Spans.** M3 prints no "span" concept for web. A pane or card simply occupies columns.
 
-**Not read:** list-detail and supporting-pane pages, *Adaptive design*, the Figma kit and Compose rulers (external). M3
-spacing tokens page itself says they are Compose-only; there is no web token for grid, margin or gutter to copy.
+**Not read:** the Figma kit and Compose rulers (external). The M3 spacing tokens page says its tokens are Compose-only;
+M3 has no web token for grid, margin or gutter to copy.
 
 Pages read: `/foundations/layout/{layout-overview, scaffold, breakpoints, canonical-examples, canonical-examples/feed,
 grids-spacing/overview, grids-spacing/grids, grids-spacing/spacing, grids-spacing/density}`,
-`/foundations/layout/understanding-layout/{overview, parts-of-layout, spacing}`, `/styles/spacing/{overview, tokens,
-applying-spacing}`, `/foundations/design-tokens` (all under `https://m3.material.io`). Two URLs
+`/foundations/layout/canonical-examples/{list-detail, supporting-pane}`, `/foundations/layout/understanding-layout/{overview,
+parts-of-layout, spacing, adaptive-design}`, `/styles/spacing/{overview, tokens, applying-spacing}`,
+`/components/{cards/specs, cards/guidelines, carousel/guidelines, lists/guidelines}`, `/foundations/design-tokens` (all
+under `https://m3.material.io`). Two URLs
 (`understanding-layout/breakpoints`, `…/window-size-classes`) only redirect to the overview.
 
 ## 2. Is "2 columns with spans of 1 or 2 on a phone" compatible?
@@ -64,12 +80,13 @@ is a 4-column grid in which a normal card spans 2 (half the width) and a wide ca
 **1 grid column** is a quarter of the width, about 80 px on a 360 dp phone: too small for a widget. So the owner's "span
 of 1" is a half-width cell (2 grid columns) and "span of 2" a full-width cell (4 grid columns).
 
-Two things to know before deciding:
+Two things to know:
 
-- M3's own feed is one column of full-width cards on compact. "Always 2 columns" is our choice, allowed only with the
-  owner's words (`material-3` rule 4) and recorded in `docs/material-deviations.md` where the screen is outside the
-  editor's own workspace. The owner's sentence is on record here, but the deviation entry is still to be written when it
-  is built.
+- **Two cards across on a phone is span 2 of 4: it is on M3's grid.** One thing M3 does print is on its feed page:
+  "A feed layout should stack vertically, like a list of cards with individual items filling the width of the pane"
+  (compact). So for a *feed of cards* (the cards block, blog lists) M3's recommendation is span 4 of 4. For the
+  dashboard widgets, which are not a feed, half width (span 2 of 4) follows the grid with nothing in M3 against it. The
+  owner's call: whether the dashboard counts as a feed (open question 1).
 - Cell width does not carry up evenly. With a cell of 2 columns, medium and expanded (8) give 4 cells per row, large (12)
   gives 6. Three across does not divide 8, so the "3 columns from 600" the repository uses today for the image grid, and
   "3 from 840" for cards, have no place on M3's 8-column grid; 3 fits only 12 (large, spans of 4).
@@ -119,27 +136,34 @@ means it changes how a published site looks. All gaps use `--card-gap` (0.5rem) 
 
 ## 4. How big, and what it needs
 
-**THEME_API.** `lib/contracts.mjs:24` is `THEME_API = 4`. Adding grid tokens and span classes to the default theme is not a
-bump. A bump (to 5, every store theme re-published first, see `docs/superpowers/plans/2026-11-14-store-auto-updates-plan.md`
-line 73) is needed only if the editor starts to **require** an installed theme to provide those classes. The way to avoid
-it: the editor reads the grid tokens with fallbacks (the `--card-gap, 8px` pattern the theme already uses), so an older
-theme still renders. **Decision for the owner** (below).
+**THEME_API: recommend no bump, a fallback.** `lib/contracts.mjs:24` is `THEME_API = 4`, and its comment already lists
+the M3 `--breakpoint-*` tokens as part of 4. A bump (to 5) makes every store theme invalid until it is re-published
+(`docs/superpowers/plans/2026-11-14-store-auto-updates-plan.md` line 73: the store needs a version of each theme before a
+CMS that raises it goes to `latest`). The grid can avoid that: build it from what themes already must have (the
+`--breakpoint-*` tokens and Tailwind's `grid-cols-*` / `col-span-*` utilities, which the editor and the theme already use),
+and give every new token a fallback (`var(--grid-gutter, 0.5rem)`, the `--card-gap, 8px` pattern). An older theme then
+renders the same as today. Bump to 5 only if a later change makes a theme *define* something new, and then together with
+a store release of every theme.
 
 **Sites.** The Sarashjemmesidedata site and customers use the theme. A change to a block's column count or the page
-container changes their pages. Only changes that keep today's visible result (tokens behind the current values) are
-safe; any block that moves from 3 at 840 to 4 or 2 changes sites. These must be opt-in or announced in a release note.
+container changes their pages. With M3 as the rule the blocks follow the grid, so a block that moves (for example 3 at 840 to 2
+at 840 and 3 at 1200) changes sites. Each such pull request carries a release note (`release-notes` skill). Changes that keep
+today's result (tokens behind the current values) need none.
 
 **Proposal (not built): one shared grid in the theme.** Needs the owner's approval before anyone builds it, and it must
 be shown in *Developer › Parts › UI components* and used through `src/ui.tsx`.
 
 - Tokens (`theme/styles`, new): `--grid-columns` (4 / 8 / 12 by breakpoint, via the existing `--breakpoint-*`),
-  `--grid-margin`, `--grid-gutter`. Values are open question 1 and 2 below; start with today's: margin 16 px / 24 px,
-  gutter 8 px (`--card-gap`) for cards, 16 / 24 px for page columns.
+  `--grid-margin`, `--grid-gutter`. M3 prints no value for either (section 1), so: gutter 8 px for cards (M3: "8dp max",
+  `--card-gap`); margin 16 px compact and 24 px from 600 (today's, on M3's spacing scale: Space 200 and Space 300);
+  page-column gutter 16 px compact and 24 px from 600 (today's `--block-gutter`). Confirm: open question 2.
 - One layout part: a grid container (`display: grid; grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr))`)
   plus span utilities in cells (section 2), `col-span` equivalents for 4 / 8 / 12 for page-level use. Editor components
   would use it through `src/ui.tsx`; no screen writes its own grid.
-- The media grid and image grid block keep their masonry technique unless the owner wants cell-aligned rows; only the
-  column counts move to cell values.
+- The media grid and image grid block: M3 describes cards of varying height on grid columns with an even gap, not a
+  column-first masonry flow (section 1). So the grid part's rows (CSS grid, items aligned to the top, even gap) replace
+  `column-count`; counts become spans in cells. Item order then reads along rows, as the feed page says ("determined by
+  their position").
 
 ## 5. Recommendation and rollout
 
@@ -155,7 +179,7 @@ Small pull requests, in this order:
 1. **#741: the grid and its first two users** (Library media grid, dashboard with full / half spans). Open points for
    that pull request, from this audit: spans counted in cells of two grid columns (section 2), so half is 2 of 4 on a
    phone; tokens for columns, margin and gutter with fallbacks; the media grid's 3 columns at 600–1199 do not divide M3's 8
-   (open question 6); the image grid block shares the media grid's class, so splitting it keeps sites unchanged.
+   (they follow the grid's rows instead, section 4); the image grid block shares the media grid's class, so splitting it keeps sites unchanged.
 2. **Link the page container and the editor margins to the tokens** (`Container.astro`, `Screen.tsx`,
    `blocks.css:98`). Same pixel values, two copies removed. No visible change.
 3. **Editor `FormColumns` and field pairs** on the grid (8 + 4 of 12 from large, spans of 4 of 8 for pairs). Editor only.
@@ -185,15 +209,22 @@ reading measures (M3 prints none); the generic and cards carousel widths (M3 car
 swatch, icon and provider pickers; list rows; the editor's inline block parts (they share the theme's block classes, so
 they follow the blocks); anything that would need a `THEME_API` bump before the store has the new theme versions.
 
-**Open questions for the owner**
+**Decisions, with M3 as the rule** (owner, via the PM: "We follow md3."; no deviation unless the owner approves one)
 
-1. M3 prints no margin or gutter. Keep today's (margin 16 px compact, 24 px from 600; gutter 8 px for cards, 16 / 24 px
-   for page columns), or choose others (for example M3's older 16 / 24 / 32)?
-2. Does "2 columns on a phone" mean a 4-column grid with cells of 2 (section 2)? M3's own feed is 1 column; is the 2-column
-   phone layout an owner-approved deviation, to be recorded in `docs/material-deviations.md`?
-3. The grid is on the site too (owner, via the PM). Do the existing site blocks move onto it now, or only when a site opts in? Blocks change sites; an opt-in per block, a theme setting or a
-   release note per change.
-4. Footer, blog and CTA use 12 columns from 840 (CTA from 600). Move them to M3's 8 at 600–1199?
-5. Is a `THEME_API` bump acceptable if the editor requires the grid classes, or must the editor fall back for old themes?
-6. Is the media grid / image grid block to stay masonry (CSS columns) or become cell-aligned rows?
-7. Is the page container's 72rem max width kept as the site's own rule on top of the 12 columns?
+| Earlier question | Decision | Why |
+| :--- | :--- | :--- |
+| Margin and gutter values | M3 prints none for layout. Gutter between cards 8 px ("8dp max", Cards specs); margin 16 px compact, 24 px from 600 (today's) | Nearest printed M3 numbers; today's values are on M3's spacing scale |
+| 2 cards on a phone | Span 2 of 4: on the grid. Feed of cards: span 4 of 4 per the feed page | Section 2 |
+| Site blocks follow the grid | Yes, one pull request each, with a release note | M3 rule |
+| 12 columns from 840 (CTA from 600) | 8 columns at 600–1199, 12 from 1200, spans in cells | Grids page diagram |
+| `THEME_API` bump | No bump: fallbacks and already-contracted tokens (section 4) | A bump invalidates every store theme until re-published |
+| Masonry or rows | Grid rows, items aligned to the top, even gap | Feed and spacing pages (section 1); M3 never prints masonry |
+| 72rem page width | Kept as our own maximum width, with margins as the only adaptation M3 describes | M3 prints no maximum width (section 1) |
+
+**Open questions that need the owner**
+
+1. Is the dashboard a *feed* (cards stacked full width on a phone, M3's feed page) or a set of widgets that may sit two
+   across (span 2 of 4)? The owner already said each widget declares full or half; this only confirms that half on a phone
+   is accepted as M3, because M3's feed page recommends full width there.
+2. M3 prints no margin or maximum width. Confirm today's: margin 16 px compact and 24 px from 600, page maximum 72rem
+   (1152 px), gutter between cards 8 px.
