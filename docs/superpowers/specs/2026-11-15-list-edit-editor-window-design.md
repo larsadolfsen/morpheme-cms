@@ -192,6 +192,22 @@ sheet.
 | Card look | `editor.css` `.site-block-card`, `.site-block-handle`, `.site-block-has-row`, drop marks | Yes, by class. | No. |
 | Block selection of several cards | `blockSelection.ts`, `blockSelectable` | **Not in 0.19.** | n/a |
 
+**The engine, compared honestly.** The owner wants inline text and blocks in one flow that behaves like the page editor and is not Markdown.
+
+| | (a) A small ProseMirror instance (schema: Heading, Body medium, Label, one `fieldBlock` atom), serialised to the list's JSON | (b) React cards (a list of cards, a text box per line) |
+| :--- | :--- | :--- |
+| Typing text between cards | The browser's own caret, selection, `Enter`, `Backspace`, undo and redo, IME and spell check; the page editor's free lines and keys (`gapHere`, `tapBelow`, `nextToCard`). | Each line is its own input; a caret cannot cross lines, `Enter` and `Backspace` between lines, selection across lines, undo across cards and focus order all have to be written, and will differ from the page editor. |
+| Text bar and styles | The page editor's bar and style menu apply to the selection as they do today. | A style button per input, a second set of rules. |
+| Moving a card past text | `blockHandle` and `move` as they are (they read the document's top-level parts). | A new drag over a list of mixed items. |
+| Screen readers | One text region with real paragraphs and headings, as the page editor. | Many inputs and cards to tab through; reading the text as a whole is not possible. |
+| Behaves like the page editor | By construction (same engine). | Only by copying its behaviour, which drifts. |
+| Extraction cost | `EditorBar`, card keys by node name, an editor host hook, a spike (section 5): about three PRs, the largest the bar. | Smaller (no host), but the window then re-implements text editing, which is the larger cost over time. |
+| Storage | A thin, tested adapter between the flow and the definition (section 6); no Markdown. | The same functions, no adapter. |
+
+**Recommendation: (a).** Inline text between blocks is what the page editor's ProseMirror already does, and (b) would have to rebuild it badly. The cost is
+the three extraction PRs, each screen-neutral and checked against the page editor's own screens, and the spike that shows whether Milkdown's core can
+run on a JSON document (else ProseMirror directly).
+
 **Not Markdown.** The window is a ProseMirror document whose node types are the three text styles and `fieldBlock`; it is read from the definition
 and written back to it by pure functions (section 6). Nothing is parsed or serialised as Markdown. Whether Milkdown's core can start from a JSON
 document and report ProseMirror changes without its Markdown pipeline is checked in PR 3's spike (section 8); if it cannot, the window uses
