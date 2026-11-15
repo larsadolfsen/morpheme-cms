@@ -1622,6 +1622,10 @@
     background: transparent;
     color: inherit;
   }
+  /* The dialog itself has the focus when it opens (dialogFocus.ts), so no control looks chosen: no ring on the container. */
+  .dialog-modal:focus {
+    outline: none;
+  }
   .dialog-modal::backdrop {
     background: var(--dialog-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--block-text)) 50%, transparent));
   }

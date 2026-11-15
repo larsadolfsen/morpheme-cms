@@ -45,6 +45,7 @@ const shown = await Promise.all(
 ))}
 
 <script>
+  import { openModal } from '@theme/ui/dialogFocus';
   import { lightDismiss } from '@theme/ui/lightDismiss';
 
   const KEY = 'popups-closed';
@@ -82,7 +83,7 @@ const shown = await Promise.all(
     if (!d || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || (e as MouseEvent).button !== 0) return;
     e.preventDefault();
     all.forEach((p) => p.open && p.close());
-    d.showModal();
+    openModal(d);
   });
 
   // The one that opens by itself: the first the visitor has not closed.
@@ -95,7 +96,7 @@ const shown = await Promise.all(
       [...document.querySelectorAll('dialog')].some((d) => d !== popup && d.open);
     const show = () => {
       if (popup.open) return;
-      if (!busy()) return popup.showModal();
+      if (!busy()) return openModal(popup);
       setTimeout(show, 1000);
     };
 
