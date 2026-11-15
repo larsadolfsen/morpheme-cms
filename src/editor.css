@@ -1936,10 +1936,11 @@ dialog {
 
 /* The crop view (CropView.tsx, image tools spec section 3): a page of the editor on every width, as a layer the size of the window over it (a modal
    <dialog>, so the form under it keeps its changes and its scroll place): the top app bar, the content in a column as wide as a form, and a bottom bar
-   with Save. The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and the part of the image outside it is under the
+   with Save. A block's subpage on a phone (.block-page, BlockDialog.tsx) has the same layer, column and bar. The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and the part of the image outside it is under the
    theme's scrim, the one its dialogs have behind their container (--dialog-scrim). The frame has a 2 dp border with a 1 dp halo outside it in the other
    inverse colour, so one of the two stands against any image, light or dark (M3 prints no frame: the focus ring's two-tone look). */
-.crop-page {
+.crop-page,
+.block-page {
   position: fixed;
   inset: 0;
   width: 100%;
@@ -1952,11 +1953,13 @@ dialog {
   background: var(--mo-surface);
   color: var(--mo-on-surface);
 }
-.crop-page[open] {
+.crop-page[open],
+.block-page[open] {
   display: flex;
   flex-direction: column;
 }
-.crop-page-main {
+.crop-page-main,
+.block-page-main {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -1966,7 +1969,8 @@ dialog {
   margin-inline: auto;
   padding: 1rem;
 }
-.crop-page-bar {
+.crop-page-bar,
+.block-page-bar {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
@@ -1974,12 +1978,24 @@ dialog {
   background: var(--mo-surface-container);
 }
 @media (width >= theme(--breakpoint-medium)) {
-  .crop-page-main {
+  .crop-page-main,
+  .block-page-main {
     padding: 1.5rem;
   }
-  .crop-page-bar {
+  .crop-page-bar,
+  .block-page-bar {
     padding-inline: 1.5rem;
   }
+}
+/* A block's fields on a compact window (BlockDialog.tsx): the crop page's layer, bar and column (the rules above), with the fields scrolling inside
+   the column and the page lifted above the on-screen keyboard (followKeyboard sets --keyboard-inset while it is up). */
+.block-page-main {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.block-page[data-keyboard] {
+  bottom: var(--keyboard-inset, 0);
+  height: auto;
 }
 .crop-view {
   display: flex;

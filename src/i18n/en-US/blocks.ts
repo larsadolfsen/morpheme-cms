@@ -8,6 +8,10 @@ export const blocks = {
   gone: (type: string) => `The block "${type}" no longer exists. Remove it from the text.`,
   /** A block whose fields cannot be saved, and why (a message from check.ts). */
   notSaved: (why: string) => `The block can't be saved yet. ${why}`,
+  /** A block's sheet on a phone or a medium window closed without Save or Cancel (the tab closed or reloaded): its hidden copy
+   * offered when the page opens again (BlockDialog.tsx, sheetCopy.mjs). */
+  restoreTitle: 'Restore your unsaved changes?',
+  restoreText: (block: string) => `Your changes to ${block} weren’t saved.`,
   /** An image, chosen and changed like a block. */
   picture: {
     label: 'Image',
