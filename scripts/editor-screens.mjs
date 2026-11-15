@@ -22,7 +22,7 @@ import { tmpdir } from 'node:os';
 import { constants, inflateSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
-import { CMS_STATUS, openEditor, serveBuilt, virtualFile } from './built-site.mjs';
+import { CMS_STATUS, clickPreview, openEditor, serveBuilt, virtualFile } from './built-site.mjs';
 import { toolWidth } from '../src/textBar.mjs';
 import { allow, nestedUnits } from './spacing-grid.allow.mjs';
 import { installedApps } from '../lib/apps.mjs';
@@ -2394,9 +2394,9 @@ async function checkTextBar(width = 360) {
   await page.waitForFunction(() => !document.querySelector('.editor-tools-ghost'), null, { timeout: 4000 });
   await page.waitForTimeout(100);
   const idle = await readBar();
-  // Idle: Undo, Redo, Insert block at the right end, no divider and no ⋮.
-  if (idle.names.join() !== 'Undo,Redo,Insert block')
-    problems.push(`${label}: idle the bar has ${idle.names.join()}, not Undo, Redo, Insert block`);
+  // Idle: Preview, then Undo, Redo, Insert block at the right end, no divider and no ⋮ (a new page: no View on site).
+  if (idle.names.join() !== 'Preview,Undo,Redo,Insert block')
+    problems.push(`${label}: idle the bar has ${idle.names.join()}, not Preview, Undo, Redo, Insert block`);
   const idleEnded = rightEndProblem(idle.names, idle.lastRight, idle.barRight - 1, idle.divider);
   if (idleEnded) problems.push(`${label}: idle: ${idleEnded}`);
   if (Math.abs(idle.height - inText.height) > 0.6)
@@ -4284,7 +4284,9 @@ async function checkTextBarFit(width) {
   await page.close();
 }
 
-/** On a computer (1280 px) all tools are on the one bar, the text tools at the left and Undo, Redo, Insert block at the right end, no divider, 44 dp tall, with no ⋮. */
+/** On a computer (1280 px, a bar of 478 dp) the text tools are at the left and Undo, Redo, Insert block at the right end, no divider, 44 dp tall. A page's
+ * Preview (one save while writing, 3.3) does not fit beside all seven text tools: it is in the ⋮, which then takes a slot, so Color is in the ⋮ too;
+ * every tool is on the bar or in the ⋮, and the ⋮ holds only what does not fit. */
 async function checkTextBarWide() {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`1280px text bar: ${e.message}`));
@@ -4311,6 +4313,7 @@ async function checkTextBarWide() {
   if (endedWide) problems.push(`1280px text bar: ${endedWide}`);
   // Every icon in the bar's menus is 20 x 20 px: Text style, List, Alignment and Color.
   for (const name of ['Text style', 'List', 'Alignment', 'Color']) {
+    if (!got.names.some((n) => n === name || n.startsWith(`${name}:`))) continue;
     await page.locator(`.editor-tools [aria-label^="${name}"]`).first().click();
     const bad = await menuIconProblems(page);
     if (bad.length) problems.push(`1280px text bar: icons in the ${name} menu are not 20 x 20 px (${bad})`);
@@ -4334,15 +4337,149 @@ async function checkTextBarWide() {
     }
     await page.keyboard.press('Escape');
   }
-  const want = ['Bold', 'Italic', 'Text style', 'List', 'Alignment', 'Link', 'Color', 'Undo', 'Redo', 'Insert block'];
+  const { more } = await barTools(page);
+  const rows = more.map((m) => m.label);
+  const want = ['Bold', 'Italic', 'Text style', 'List', 'Alignment', 'Link', 'Color', 'Undo', 'Redo', 'Insert block', 'Preview'];
   for (const name of want)
+    if (!got.names.some((n) => n === name || n.startsWith(`${name}:`)) && !rows.includes(name))
+      problems.push(`1280px text bar: no ${name} on the bar or in the ⋮ (${got.names.join(', ')} | ${rows.join(', ')})`);
+  for (const name of ['Bold', 'Italic', 'Text style', 'List', 'Alignment', 'Link', 'Undo', 'Redo', 'Insert block'])
     if (!got.names.some((n) => n === name || n.startsWith(`${name}:`)))
-      problems.push(`1280px text bar: no ${name} (${got.names.join(', ')})`);
-  if (got.names.includes('More')) problems.push('1280px text bar: a ⋮ on a bar where everything fits');
+      problems.push(`1280px text bar: ${name} is not on the bar (${got.names.join(', ')})`);
+  if (got.names.includes('More') && rows.some((r) => !['Preview', 'Color'].includes(r)))
+    problems.push(`1280px text bar: the ⋮ holds more than Preview and Color (${rows.join(', ')})`);
   if (got.height < 44 || got.height > 46 || got.small || got.scrolls || got.divider)
     problems.push(
       `1280px text bar: height ${got.height}, ${got.small} buttons not 44 x 44, scrolls ${got.scrolls}, divider ${got.divider} (none wanted)`,
     );
+  await page.close();
+}
+
+/** Preview and View on site are in the text's one bar (docs/superpowers/specs/2026-11-14-one-save-while-writing-design.md, 3.3 and 10; PR 4), on a
+ * saved page: idle, Preview is a 44 dp button right before Undo; in the text it stays on the bar where every tool fits (1280) and is a row of the
+ * ⋮ where the text tools fill the bar (375); View on site is always the ⋮'s last row and opens the page on the site; the page actions (the top
+ * bar, the title row) have neither. Ctrl+S never opens the browser's save dialog (the key is taken) and sends the autosave at once, without
+ * waiting for the moment after the last change. */
+async function checkPreviewInBar(width) {
+  const phone = width < 600;
+  const label = `${width}px Preview in the bar`;
+  const page = await browser.newPage({ viewport: { width, height: 800 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  const puts = [];
+  await page.route('**/api/autosave**', (r) => {
+    if (r.request().method() === 'PUT') puts.push(r.request().postDataJSON());
+    if (r.request().method() === 'GET') return r.fulfill({ status: 404, body: '' });
+    return r.fulfill({ contentType: 'application/json', body: '{}' });
+  });
+  await page.goto(`${site}/editor/#src/content/pages/zz-check-page.md`);
+  await page.waitForSelector('.editor-tools button[aria-label="Undo"]', { timeout: 30_000 });
+  await page.waitForTimeout(300);
+  const names = () =>
+    page.evaluate(() => [...document.querySelectorAll('.editor-tools button:not([hidden])')].map((b) => b.getAttribute('aria-label')));
+  const moreRows = async () => {
+    await page.locator('.editor-tools button[aria-label="More"]').click();
+    await page.waitForSelector('[role=menu][aria-label="More"]', { timeout: 3000 });
+    const rows = await page.evaluate(() =>
+      [...document.querySelectorAll('[role=menu][aria-label="More"] [role^=menuitem]')].map((x) => x.textContent.trim()),
+    );
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(200);
+    return rows;
+  };
+  // The page actions have no Preview and no View on site (only the bar, its ⋮ and, until PR 5, the floating bar may).
+  const outside = await page.evaluate(() =>
+    [...document.querySelectorAll('button, a')]
+      .filter((el) => el.getClientRects().length && !el.closest('.editor-tools, .editor-save-bar, [role=menu], dialog'))
+      .map((el) => el.getAttribute('aria-label') ?? el.textContent.trim())
+      .filter((name) => name === 'Preview' || name === 'View on the website'),
+  );
+  if (outside.length) problems.push(`${label}: the page actions still have ${outside.join(', ')}`);
+  // Idle: Preview, a 44 dp button, right before Undo.
+  const idle = await names();
+  if (idle[idle.indexOf('Undo') - 1] !== 'Preview') problems.push(`${label}: idle, Preview is not right before Undo (${idle.join(', ')})`);
+  const size = await page
+    .locator('.editor-tools button[aria-label="Preview"]')
+    .evaluate((b) => b.getBoundingClientRect().toJSON(), null, { timeout: 2000 })
+    .catch(() => null);
+  if (!size || Math.abs(size.width - 44) > 0.6 || Math.abs(size.height - 44) > 0.6)
+    problems.push(`${label}: Preview on the bar is not 44 x 44 dp (${JSON.stringify(size)})`);
+  if (!idle.includes('More')) problems.push(`${label}: idle, a saved page's bar has no ⋮ for View on site (${idle.join(', ')})`);
+  else {
+    const rows = await moreRows();
+    if (rows.at(-1) !== 'View on the website') problems.push(`${label}: View on site is not the ⋮'s last row (${rows.join(', ')})`);
+    if (rows.includes('Preview')) problems.push(`${label}: idle, Preview is in the ⋮ as well as on the bar`);
+    // View on site opens the page's address on the site in a new tab (window.open is recorded here: the site's own host is not served).
+    await page.evaluate(() => {
+      window.__opened = [];
+      window.open = (...args) => (window.__opened.push(args), null);
+    });
+    await page.locator('.editor-tools button[aria-label="More"]').click();
+    await page.locator('[role=menu][aria-label="More"] [role^=menuitem]', { hasText: /^View on the website$/ }).click();
+    const opened = await page.evaluate(() => window.__opened);
+    if (opened.length !== 1 || !String(opened[0][0]).includes('/zz-check-page') || opened[0][1] !== '_blank')
+      problems.push(`${label}: View on site did not open the page in a new tab (${JSON.stringify(opened)})`);
+  }
+  // In the text: on the bar while every text tool fits, else in the ⋮ (after Section settings, before View on site), as on a phone's bar.
+  await page.click('.ProseMirror p');
+  await page.keyboard.press('End');
+  await page.waitForSelector('.editor-tools button[aria-label="Bold"]', { timeout: 5000 }).catch(() => {});
+  const inText = await names();
+  const rows = await moreRows();
+  if (!inText.includes('Preview') && !rows.includes('Preview'))
+    problems.push(`${label}: in the text Preview is neither on the bar nor in the ⋮ (${inText.join(', ')} | ${rows.join(', ')})`);
+  if (inText.includes('Preview') && inText.includes('More') && rows.some((r) => /^(Link|Color|Align |Text style)/.test(r)))
+    problems.push(`${label}: in the text Preview is on the bar while text tools are in the ⋮ (${inText.join(', ')} | ${rows.join(', ')})`);
+  if (phone && !rows.includes('Preview')) problems.push(`${label}: in the text Preview is not in the ⋮ (${rows.join(', ')})`);
+  if (rows.includes('Section settings') && rows.includes('Preview') && rows.indexOf('Preview') < rows.indexOf('Section settings'))
+    problems.push(`${label}: Preview comes before Section settings in the ⋮ (${rows.join(', ')})`);
+  if (rows.at(-1) !== 'View on the website')
+    problems.push(`${label}: in the text View on site is not the ⋮'s last row (${rows.join(', ')})`);
+  // Ctrl+S: the browser's own save is never asked (the key's default is prevented), and the autosave goes out at once (not after 1.9 s).
+  await page.click('.ProseMirror p');
+  await page.keyboard.press('End');
+  await page.evaluate(() => {
+    window.__saveKey = null;
+    addEventListener('keydown', (e) => e.key.toLowerCase() === 's' && (e.ctrlKey || e.metaKey) && (window.__saveKey = e.defaultPrevented));
+  });
+  await page.keyboard.type(' saved now');
+  const before = puts.length;
+  await page.keyboard.press('Control+s');
+  await page.waitForTimeout(700);
+  if ((await page.evaluate(() => window.__saveKey)) !== true)
+    problems.push(`${label}: Ctrl+S is not taken (the browser would ask to save)`);
+  if (puts.length === before) problems.push(`${label}: Ctrl+S did not send the autosave at once`);
+  else if (!String(puts.at(-1)?.text ?? '').includes('saved now'))
+    problems.push(`${label}: Ctrl+S sent an autosave without the change (${JSON.stringify(puts.at(-1)).slice(0, 200)})`);
+  await page.close();
+}
+
+/** Ctrl+S where the draft cannot save itself (R2 caching off: the Worker answers 409 off) runs what Save draft does: the page is committed. */
+async function checkSaveKeyNoAutosave() {
+  const label = '1280px Ctrl+S without autosave';
+  const page = await browser.newPage({ viewport: { width: 1280, height: 800 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  const commits = [];
+  await page.route('**/api/github/commit', (r) => {
+    commits.push(JSON.parse(r.request().postData() || '{}'));
+    return r.fulfill({ contentType: 'application/json', body: JSON.stringify({ commit: 'head', blobs: {} }) });
+  });
+  await page.route('**/api/autosave**', (r) =>
+    r.request().method() === 'GET'
+      ? r.fulfill({ status: 404, body: '' })
+      : r.fulfill({ status: 409, contentType: 'application/json', body: JSON.stringify({ error: 'off' }) }),
+  );
+  await page.goto(`${site}/editor/#src/content/pages/zz-check-page.md`);
+  await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
+  await page.click('.ProseMirror p');
+  await page.keyboard.press('End');
+  await page.keyboard.type(' kept by the key');
+  await page.keyboard.press('Control+s');
+  for (let i = 0; i < 40 && !commits.length; i++) await page.waitForTimeout(200);
+  const sent = commits.flatMap((c) => (c.changes ?? []).map((x) => Buffer.from(x.content ?? '', 'base64').toString('utf8')));
+  if (!sent.some((text) => text.includes('kept by the key')))
+    problems.push(`${label}: Ctrl+S did not save the page (${commits.length} commits)`);
   await page.close();
 }
 
@@ -6193,7 +6330,7 @@ async function checkListMarkers(width) {
   await page.waitForSelector('ul.list', { timeout: 30_000 });
   const inEditor = await page.evaluate(markers);
   if (inEditor.length) problems.push(`${width}px editor: a List row has a list marker (${[...new Set(inEditor)].join('; ')})`);
-  await page.getByRole('button', { name: 'Preview' }).first().click();
+  await clickPreview(page);
   await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('ul.block-list', { timeout: 30_000 });
@@ -6310,7 +6447,7 @@ async function checkSavedLabel(page, width) {
   const inEditor = await labelNow();
   if (!inEditor || inEditor.size !== '12px')
     problems.push(`${label}: a saved lone label is not a label in the editor (${JSON.stringify(inEditor)})`);
-  await page.getByRole('button', { name: 'Preview' }).first().click();
+  await clickPreview(page);
   await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('[data-editor="text"] .label-medium', { timeout: 30_000 });
@@ -6416,7 +6553,7 @@ async function checkPreviewSection() {
   await openEditor(page, site, { [path]: text });
   await page.goto(`${site}/editor/#${path}`);
   await page.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
-  await page.getByRole('button', { name: 'Preview' }).first().click();
+  await clickPreview(page);
   await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('[data-editor="text"]', { timeout: 30_000 });
@@ -6526,7 +6663,7 @@ async function checkH1SectionGap() {
     page.on('pageerror', (e) => problems.push(`H1 section gap: ${e.message}`));
     await openEditor(page, site, { [path]: text });
     await page.goto(`${site}/editor/#${path}`);
-    await page.getByRole('button', { name: 'Preview' }).first().click({ timeout: 30_000 });
+    await clickPreview(page);
     await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
     const slider = page.locator('[data-preview-page] [role="slider"]').first();
     const width = async () => Number(await slider.getAttribute('aria-valuenow'));
@@ -6578,7 +6715,7 @@ async function checkFullSection() {
   await openEditor(page, site, { [path]: text });
   await page.goto(`${site}/editor/#${path}`);
   await page.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
-  await page.getByRole('button', { name: 'Preview' }).first().click();
+  await clickPreview(page);
   await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const slider = page.locator('[data-preview-page] [role="slider"]').first();
   const width = async () => Number(await slider.getAttribute('aria-valuenow'));
@@ -6598,7 +6735,7 @@ async function checkFullSection() {
   await openEditor(phone, site, { [path]: text });
   await phone.goto(`${site}/editor/#${path}`);
   await phone.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
-  await phone.getByRole('button', { name: 'Preview' }).first().click();
+  await clickPreview(phone);
   await phone.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const small = phone.frames().find((f) => f !== phone.mainFrame());
   await small.waitForSelector('section.text-section-full', { timeout: 30_000 });
@@ -6615,7 +6752,7 @@ async function checkPreviewDraft(width) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site, { [path]: text });
   await page.goto(`${site}/editor/#${path}`);
-  await page.getByRole('button', { name: 'Preview' }).first().click({ timeout: 30_000 });
+  await clickPreview(page);
   await page.waitForFunction(
     () => {
       const d = document.querySelector('[data-preview-page]');
@@ -10020,7 +10157,7 @@ async function checkSectionBackground(width, touch) {
   });
   await page.goto(`${site}/editor/#${path}`);
   await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 30_000 });
-  await page.getByRole('button', { name: 'Preview' }).first().click();
+  await clickPreview(page);
   await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('section.text-section-primary', { timeout: 30_000 });
@@ -10967,6 +11104,8 @@ for (const width of [375, 1280]) await unit(`no context menu ${width}`, () => ch
 
 for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
 await unit('checkTextBarWide', () => checkTextBarWide());
+for (const width of [375, 1280]) await unit(`checkPreviewInBar ${width}`, () => checkPreviewInBar(width));
+await unit('checkSaveKeyNoAutosave', () => checkSaveKeyNoAutosave());
 for (const width of [320, 360, 375, 390, 414, 600, 840, 1280]) await unit(`checkTextBarFit ${width}`, () => checkTextBarFit(width));
 for (const [width, reduced] of [
   [375, false],

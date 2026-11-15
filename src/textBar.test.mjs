@@ -106,6 +106,39 @@ test('with wider chevron buttons the budget still holds, the order never skips a
   }
 });
 
+// A page's Preview (one save while writing, 3.3): a main tool before Undo, Redo, Insert block, the first to go into the ⋮ when the contextual tools fill the bar.
+test('Preview stands before the fixed tools while everything fits, idle on a phone and in text on a computer', () => {
+  const idle = planBar({ width: 352, context: [], fixed: FIXED, spare: ['preview'] });
+  assert.deepEqual(idle.bar, { context: [], fixed: ['preview', ...FIXED] });
+  assert.equal(idle.overflow, false);
+  const wide = planBar({ width: 900, context: TEXT, fixed: FIXED, spare: ['preview'], more: true });
+  assert.deepEqual(wide.bar, { context: TEXT, fixed: ['preview', ...FIXED] });
+  assert.deepEqual(wide.more, { context: [], fixed: [] });
+  assert.equal(wide.overflow, true);
+});
+
+test('Preview goes into the ⋮ first when the contextual tools fill the bar, and the rest is split as without it', () => {
+  const phone = planBar({ width: 352, context: TEXT, fixed: FIXED, spare: ['preview'] });
+  const without = planBar({ width: 352, context: TEXT, fixed: FIXED });
+  assert.deepEqual(phone.bar, without.bar);
+  assert.deepEqual(phone.more, { context: without.more.context, fixed: ['preview'] });
+  assert.equal(phone.overflow, true);
+  // With the ⋮ on the bar anyway (View on site in it), just too narrow for Preview beside all the text tools: it alone moves.
+  const all = widthOf(TEXT) + widthOf(FIXED) + BUTTON;
+  const tight = planBar({ width: all + BUTTON - 1, context: TEXT, fixed: FIXED, spare: ['preview'], more: true });
+  assert.deepEqual(tight.bar, { context: TEXT, fixed: FIXED });
+  assert.deepEqual(tight.more, { context: [], fixed: ['preview'] });
+  for (let width = 280; width <= 1400; width++) {
+    const plan = planBar({ width, context: TEXT, fixed: FIXED, spare: ['preview'] });
+    const onBar = widthOf(plan.bar.context) + widthOf(plan.bar.fixed) + (plan.overflow ? BUTTON : 0);
+    assert.ok(onBar <= width, `${width}: ${onBar} dp on a bar of ${width} dp`);
+    const inMore = plan.more.fixed.includes('preview');
+    assert.equal(inMore, !plan.bar.fixed.includes('preview'), `${width}: Preview is in one place`);
+    if (inMore) assert.ok(plan.overflow, `${width}: Preview in the ⋮ with the ⋮ on the bar`);
+    else assert.deepEqual(plan.more.context, [], `${width}: Preview on the bar only while every text tool is`);
+  }
+});
+
 test('a selected image at 352 dp: a wide Alt text button (widths) moves Remove into the ⋮ sooner, and the tools keep their order', () => {
   const IMAGE_TOOLS = ['block:change-image', 'block:crop', 'block:alt-text', 'block:remove'];
   const narrow = planBar({ width: 352, context: IMAGE_TOOLS, fixed: FIXED, more: true });

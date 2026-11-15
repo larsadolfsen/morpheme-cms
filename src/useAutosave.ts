@@ -103,5 +103,26 @@ export function useAutosave({
     }, READ_MS);
   }
 
-  return { touch, state: (blocked ? 'notSaved' : reading ? 'saving' : state) as AutosaveState };
+  /** `Ctrl+S`: the text is read and sent now. True when autosave keeps it (or there is nothing to keep); false when it cannot (not on, a
+   * field that is wrong, an image not uploaded yet, `R2 caching` off): the form then saves it as `Save draft` does. */
+  async function now() {
+    const cur = latest.current;
+    if (!cur.on) return false;
+    clearTimeout(timer.current);
+    setReading(false);
+    if (!cur.dirty) return true;
+    if (cur.skip?.()) {
+      forgetIt();
+      return true;
+    }
+    const written = cur.text();
+    setBlocked(written === null);
+    if (written === null) return false;
+    kept.current = true;
+    keptAt.current = cur.path;
+    client.current!.autosave(cur.path, written, 'waiting', cur.make?.());
+    return client.current!.send(cur.path);
+  }
+
+  return { touch, now, state: (blocked ? 'notSaved' : reading ? 'saving' : state) as AutosaveState };
 }
