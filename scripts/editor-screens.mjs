@@ -1540,8 +1540,10 @@ async function checkBlockRow(width, options = {}) {
   await page.waitForTimeout(reduced ? 200 : 900);
   if (await page.locator('.site-block-row').count()) problems.push(`${label}: the row stays after the block is left`);
   // A real touch tap on the block's rows brings it back (a computer: a click).
-  if (phone) await page.locator('.inline-list-row').first().tap();
-  else await page.locator('.inline-list-row').first().click();
+  // The pointed block's row of buttons (Move up … Block settings) is over the block's top while the mouse is on it, so the click is in the first item's heading, left of the buttons (and not waited for: the pointed row shows and hides under the mouse).
+  const first = page.locator('.inline-list-row').first();
+  if (phone) await first.tap({ position: { x: 100, y: 28 } });
+  else await first.click({ position: { x: 100, y: 28 }, force: true });
   await page.waitForTimeout(reduced ? 200 : 900);
   if (!(await page.locator('.site-block-row').count()))
     problems.push(`${label}: a ${phone ? 'tap' : 'click'} on the block did not bring its row back`);
@@ -1622,7 +1624,19 @@ async function checkBlockRow(width, options = {}) {
     if (await page.locator('.site-block-row-hover').count()) problems.push(`${label}: the pointed block's row stays after the mouse left`);
   }
   const opened = await sample(() =>
-    phone ? page.locator('.inline-list-row').first().tap() : page.locator('.inline-list-row').first().click(),
+    phone
+      ? page
+          .locator('.inline-list-row')
+          .first()
+          .tap({ position: { x: 100, y: 28 } })
+      : (async () => {
+          // The mouse points at the block and its row settles over the top before the click, as a person does it.
+          const box = await page.locator('.inline-list-row').first().boundingBox();
+          await page.mouse.move(box.x + 100, box.y + 28);
+          await page.waitForTimeout(500);
+          await page.mouse.down();
+          await page.mouse.up();
+        })(),
   );
   if (still && (opened.drift > 2 || opened.end > 1))
     problems.push(`${label}: opening the row moves the block's content (${JSON.stringify(opened)})`);
