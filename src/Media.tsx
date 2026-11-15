@@ -863,7 +863,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
 
   // What is shown about a file: its name (changed with the pencil), the file, where it is used and
   // "Delete". On a computer beside the grid (SideSheet), on a phone in the sheet.
-  // `fileFirst`: the file at the top (the full-screen dialog), before its name.
+  // `fileFirst`: the file at the top (the subpage on a phone), before its name.
   const details = (src: string, fileFirst = false) => (
     <>
       {fileFirst && <FileView src={shownAt(src)} name={fileName(src)} />}
