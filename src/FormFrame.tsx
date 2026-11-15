@@ -6,9 +6,10 @@
 // closing or reloading the page asks in the browser's own). "Preview" beside "Save" and, as a page action (Screen.tsx `pageActions`:
 // the end of the title row from expanded, the top bar below it), shows the page with
 // what is in the form, before it is saved (pagePreview.tsx).
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowSquareOut, Binoculars, Trash } from '@phosphor-icons/react';
 import Screen, { type Back } from './Screen';
+import { ScreenHidden } from './screenHidden';
 import { ActionSheet, Button, Group, IconButton, IconLink, LoadingIndicator, type TabChoice, ListItem } from './ui';
 import { hasUnsaved, setUnsaved } from './deploy';
 import { useBuildState } from './buildState';
@@ -227,6 +228,7 @@ export default function FormFrame<T extends string>({
   // A form that has had no Publish button shows nothing: the update is only said when it fails.
   const lastPublishLabel = useRef<string | undefined>(undefined);
   if (publish?.label) lastPublishLabel.current = publish.label;
+  const hidden = useContext(ScreenHidden);
   const publishing = useBuildState() === 'updating' && !!lastPublishLabel.current && !dirty;
   useUnsavedGuard(dirty, () => save.current());
 
@@ -243,7 +245,7 @@ export default function FormFrame<T extends string>({
       pageActions={
         <>
           {pageActions}
-          {onPreview && <IconButton icon={Binoculars} label={t.preview.button} aria-haspopup="dialog" onClick={onPreview} />}
+          {onPreview && <IconButton icon={Binoculars} label={t.preview.button} onClick={onPreview} />}
           {view && <IconLink href={view} target="_blank" rel="noopener" label={t.app.viewOnSite} icon={ArrowSquareOut} />}
         </>
       }
@@ -271,7 +273,7 @@ export default function FormFrame<T extends string>({
           </Group>
         </div>
       )}
-      {(dirty || saving || publish?.label || publishing) && (
+      {!hidden && (dirty || saving || publish?.label || publishing) && (
         <ActionSheet label={t.common.saveChanges} className="editor-save-bar">
           {/* Preview beside Save, at the end of the bar, each as wide as its label. */}
           <div className="flex justify-end gap-2">
@@ -279,7 +281,6 @@ export default function FormFrame<T extends string>({
               <Button
                 kind="outlined"
                 icon={Binoculars}
-                aria-haspopup="dialog"
                 onClick={onPreview}
                 // With two more buttons there is no room for it on a phone: the top bar has it too.
                 className={publish?.label ? 'max-medium:hidden' : undefined}

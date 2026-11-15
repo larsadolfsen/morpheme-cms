@@ -4,7 +4,8 @@
 // readers know it is modal. It slides in from the side of the screen it stands at and out again, the scrim fading in
 // with it (ui.css); with reduced motion it appears and disappears at once. The page under it does not scroll while it is
 // open. It moves with the site's motion scheme (motionSpring, @morphemecms/cms/lib/motion.ts).
-// Standard (<aside>): not modal, the page stays usable. open() shows it and moves the focus into it; close() hides it and
+// Standard (<aside>): not modal, the page stays usable. open() shows it and gives the sheet itself the focus (no control shows a focus ring
+// from the start); close() hides it and
 // gives the focus back to what opened it. Both: the close button, Escape and (modal) a tap on the scrim ask
 // `beforeClose` first, and stay open when it answers false. close() itself never asks.
 import { animate } from 'motion';
@@ -31,6 +32,12 @@ function asking(options: SideSheetOptions | undefined, close: () => Promise<void
   };
 }
 
+/** The focus goes to the sheet's container, not to a control in it: a control would show its focus ring from the start. */
+function focusSheet(container: HTMLElement) {
+  container.tabIndex = -1;
+  container.focus({ preventScroll: true });
+}
+
 /** Modal side sheet: the <dialog> with sideSheetClass. */
 export function sideSheet(sheet: HTMLDialogElement, options?: SideSheetOptions): SideSheetControls {
   const panel = sheet.querySelector<HTMLElement>('[data-side-sheet-container]')!;
@@ -42,6 +49,8 @@ export function sideSheet(sheet: HTMLDialogElement, options?: SideSheetOptions):
   function open() {
     if (sheet.open) return;
     sheet.showModal();
+    // No control has a visible focus when it opens (owner rule): the sheet itself has it, and Tab goes to its first control.
+    focusSheet(panel);
     document.documentElement.style.overflow = 'hidden';
     if (!reduce) animate(panel, { x: [out(), '0%'] }, motionSpring('spatial'));
   }
@@ -71,8 +80,6 @@ export function sideSheet(sheet: HTMLDialogElement, options?: SideSheetOptions):
   return { open, close };
 }
 
-const FOCUSABLE = ':is(input, textarea, select, button, a[href], [tabindex]:not([tabindex="-1"]))';
-
 /** Standard side sheet: the <aside> of SideSheet kind 'standard', shown with open() and hidden with close(). */
 export function standardSideSheet(sheet: HTMLElement, options?: SideSheetOptions): SideSheetControls {
   let opener: HTMLElement | undefined;
@@ -83,10 +90,8 @@ export function standardSideSheet(sheet: HTMLElement, options?: SideSheetOptions
     opened = true;
     opener = from;
     sheet.hidden = false;
-    // What it shows first, else its close button.
-    (
-      sheet.querySelector<HTMLElement>(`.side-sheet-content ${FOCUSABLE}`) ?? sheet.querySelector<HTMLElement>('[data-side-sheet-close]')
-    )?.focus();
+    // No control has a visible focus when it opens (owner rule): the sheet itself has it, and Tab goes to its first control.
+    focusSheet(sheet);
   }
 
   async function close() {

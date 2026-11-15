@@ -76,6 +76,7 @@ import { TEXT_COLORS, colorClass } from '../lib/text-colors.mjs';
 import { sectionHeading, setSection } from './sectionState.mjs';
 import { sectionFrame } from './sectionFrame';
 import { IMAGE, type BlockAsk, type EditFocus } from './BlockDialog';
+import { cropView } from './CropView';
 import { askLink } from './LinkSheet';
 import { atLeastNow, Menu, MenuDivider, MenuItem, Toolbar, ToolbarButton } from './ui';
 import { editsInPanel } from './sheetPlacement.mjs';
@@ -123,7 +124,7 @@ import { ask } from './ask';
 import { canPress, edgeScroll, movedAway } from '@theme/ui/longPressRules.mjs';
 import { canLabel, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
-import { AaIcon, AddIcon, BodyA1Icon, BodyA2Icon, BodyA3Icon, CloseIcon, MoreVertIcon } from './icon';
+import { AaIcon, AddBlockIcon, BodyA1Icon, BodyA2Icon, BodyA3Icon, CloseIcon, MoreVertIcon } from './icon';
 import { editElsewhereIcon, settingsHereIcon } from './meaningIcons';
 import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
 import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
@@ -1021,7 +1022,7 @@ function imageCard(
   img.alt = '';
   if (cut) img.style.cssText = cut.img;
   if (node.attrs.title) img.title = node.attrs.title;
-  // Its sheet (Settings, and from expanded a tap); `focus`: open at its crop (Crop) or its Alt text field (Alt text).
+  // Its sheet (Settings, and from expanded a tap); `focus`: open at its Alt text field (Alt text).
   const describe = async (focus?: EditFocus) => {
     const props = await sheet()?.edit(IMAGE, { src, alt: node.attrs.alt ?? '', format, crop, decorative }, false, true, focus);
     if (props === 'remove') return remove();
@@ -1034,6 +1035,15 @@ function imageCard(
   const remove = () => {
     const pos = getPos();
     if (pos !== undefined) view.dispatch(view.state.tr.delete(pos, pos + node.nodeSize));
+  };
+  // Crop: the crop view over the page; Save puts the new aspect ratio and crop after the image's address (crop.mjs).
+  const cropIt = async () => {
+    const next = await cropView({ src, format: format ?? '', crop });
+    const pos = getPos();
+    if (!next || pos === undefined) return;
+    view.dispatch(
+      view.state.tr.setNodeMarkup(pos, undefined, { ...node.attrs, src: joinPicture(src, next.format, next.crop, decorative) }),
+    );
   };
   // Change image: another from the Library in its place, starting as Original (no format or crop, image tools spec decision 5) with no alt text of
   // its own, then its sheet to write the alt text (the alt text step of PR 4 replaces the sheet).
@@ -1050,7 +1060,8 @@ function imageCard(
   // The image's tools on the bar (image tools spec, section 4), in this order; Alt text is a text button.
   const tools = (): BarAction[] => [
     { kind: 'change-image', label: t.forms.changeImage, action: () => void change() },
-    { kind: 'crop', label: t.text.crop, action: () => void describe('crop') },
+    // Crop opens the crop view (not in a Banner's text or on a fixed page, where the sheet has no aspect ratio either).
+    ...(sheet()?.canCrop === false ? [] : [{ kind: 'crop' as const, label: t.text.crop, action: () => void cropIt() }]),
     { kind: 'alt-text', label: t.blocks.picture.alt, text: true, action: () => void describe('alt') },
     { kind: 'remove', label: t.common.remove, action: remove },
   ];
@@ -2672,7 +2683,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       case 'link':
         return { label: t.text.link, icon: LinkSimple, action: link, on: 'link' };
       case 'insert':
-        return { label: insertLabel, icon: blocks ? AddIcon : Image, action: blocks ? block : image };
+        return { label: insertLabel, icon: blocks ? AddBlockIcon : Image, action: blocks ? block : image };
       case 'undo':
         return { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand) };
       case 'redo':
