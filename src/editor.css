@@ -25,7 +25,7 @@
   --editor-menu-surface: var(--mo-surface-container-lowest);
   --editor-menu-shadow: var(--mo-elevation-2-shadow);
 
-  /* The room a screen leaves for its FAB under the footer: Screen.tsx's padding and --editor-fab-clearance (below medium). */
+  /* The room a screen leaves above its footer for the FAB (Screen.tsx data-clearance): the FAB's 56 dp and its 16 dp margins. */
   --fab-room: 4.5rem;
 
   /* How a check went (CheckList: the SEO rating), as PageSpeed shows it: the mark before a check that is fine and one
@@ -640,17 +640,9 @@
 .editor-fab {
   position: fixed;
   right: calc(1rem + env(safe-area-inset-right));
-  bottom: calc(1rem + env(safe-area-inset-bottom));
+  /* Stands 16 dp above the footer while the footer is in the window (--editor-fab-lift, fabPresence.tsx useFabLift). */
+  bottom: max(calc(1rem + env(safe-area-inset-bottom)), calc(var(--editor-fab-lift, 0px) + 1rem));
   z-index: 30;
-}
-
-/* Below medium, while a screen leaves room for its FAB under the footer (Screen.tsx, data-clearance), the page is that room
-   taller than the window (the screen's padding less the bare one), so a short screen still has its footer at the bottom of
-   the window and can be scrolled up to show it above the FAB. */
-@media (width < theme(--breakpoint-medium)) {
-  :root:has(.editor-screen[data-clearance='true']) {
-    --editor-fab-clearance: var(--fab-room);
-  }
 }
 
 /* A FAB whose action runs or cannot be used now (FabAction.busy, .disabled): dimmed, and nothing to press. */
@@ -660,12 +652,12 @@
 }
 
 :root:has(.editor-fab) .snackbar-stack {
-  bottom: calc(6rem + env(safe-area-inset-bottom));
+  bottom: max(calc(6rem + env(safe-area-inset-bottom)), calc(var(--editor-fab-lift, 0px) + 5rem));
 }
 
 /* While a form's save bar is up (FormFrame.tsx) the FAB stands above it, so it does not cover Save; the messages above both. */
 :root:has(.editor-save-bar) .editor-fab {
-  bottom: calc(6.5rem + env(safe-area-inset-bottom));
+  bottom: max(calc(6.5rem + env(safe-area-inset-bottom)), calc(var(--editor-fab-lift, 0px) + 1rem));
 }
 
 :root:has(.editor-save-bar):has(.editor-fab) .snackbar-stack {
@@ -2079,4 +2071,15 @@ dialog {
     flex-wrap: wrap;
     overflow-x: visible;
   }
+}
+
+/* The Keyboard shortcuts dialog (ShortcutsSheet.tsx) is a dialog in the middle of the screen on a computer, not a sheet from the bottom: no drag handle. */
+.shortcuts-dialog .bottom-sheet-drag-handle {
+  display: none;
+}
+.shortcuts-dialog .bottom-sheet-header {
+  padding-top: 1.25rem;
+}
+.shortcuts-dialog:focus {
+  outline: none;
 }

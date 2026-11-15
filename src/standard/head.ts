@@ -1,6 +1,6 @@
 // A block's head, for the standard blocks that start a section ("Cards", "Points with icon", "Steps", "Testimonials",
-// "Questions and answers", "Blog posts", "Expandable list", "Price cards", "Checklist"): the heading, and a subheading under it
-// ("Subheading", `intro`: the key "Expandable list" had it by before), both optional. (The label above the heading the block had
+// "Questions and answers", "Blog posts", "Accordion", "Price cards", "Checklist"): the heading, and a subheading under it
+// ("Subheading", `intro`: the key "Accordion" had it by before), both optional. (The label above the heading the block had
 // is the text's own label line before it now, lib/remark-block-label.mjs.) Its fields, one definition for all of them (headFields, around where
 // the heading is in a block's fields), and what it shows (headOf, the same in the editor and on the site); drawn by the theme's blocks/BlockHead.tsx.
 import { t } from '../i18n';

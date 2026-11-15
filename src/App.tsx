@@ -210,6 +210,8 @@ import { appType, clearNotifications, isOn, remember, signOff, stopServerWait, s
 import { syncDensity } from './density';
 import Notifications from './Notifications';
 import { openNotifications } from './notificationsOpen';
+import { forgetRecent } from './paletteRecent';
+import { ShortcutsPage } from './ShortcutsSheet';
 import { EditorOwn, InEditor } from './standard/view';
 import { cmsNotice } from './cmsNotice.mjs';
 import './editor.css';
@@ -570,6 +572,8 @@ function Editor() {
   }
 
   function signOut() {
+    // The actions run from the palette are kept in this browser: a shared computer forgets them at sign-out.
+    forgetRecent();
     stopWaiting.current?.();
     setBuildState('idle');
     waitingFor.current = [];
@@ -836,6 +840,7 @@ type PageProps = { route: string; files: RepoFile[]; env: Env; user: Viewer | nu
 
 function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (!route) return <Start builtAt={builtAt} files={files} env={env} />;
+  if (route === 'shortcuts') return <ShortcutsPage />;
   if (route === 'account') return <Account user={user} files={files} onLogout={onLogout} />;
   // The old address of the notifications, now a side sheet: the start screen, with the sheet over it (App).
   if (route === 'notifications') return <Start builtAt={builtAt} files={files} env={env} />;

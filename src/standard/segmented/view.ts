@@ -51,7 +51,7 @@ export const paragraphs = (text: string) =>
     .map((p) => `<p>${oneLine(escape(p))}</p>`)
     .join('');
 
-/** A row's text buttons: those with a text and a page, none when there are none (the "more" links of an old Expandable list). */
+/** A row's text buttons: those with a text and a page, none when there are none (the "more" links of an old Accordion). */
 const buttonsOf = (buttons: unknown): FoldRow['buttons'] => {
   const list = (Array.isArray(buttons) ? buttons : []).filter(
     (b): b is { label: string; href: string } =>

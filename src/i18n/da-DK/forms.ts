@@ -166,7 +166,7 @@ export const forms: Messages['forms'] = {
   nameNeedsLetters: 'Navnet skal have bogstaver eller tal.',
   fromTitle: 'Oprettes ud fra titlen, første gang du gemmer siden.',
   noIcon: 'Intet ikon',
-  chooseSideColumn: 'Vælg en blok til sidekolonnen',
+  chooseSideColumn: 'Vælg en blok til sidebaren',
   iconCategory: 'Ikonkategorier',
   showMoreIcons: 'Vis flere',
   iconCategories: {

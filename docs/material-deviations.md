@@ -236,6 +236,17 @@ Source: `src/CropView.tsx`, `src/editor.css` (`.crop-page`). Spec: `docs/superpo
 - **Why:** owner decision, 14 Nov 2026: "Convert all full screen views to pages." (relayed by the project manager). Save is in the bottom bar on a phone, as the owner's rule for Save buttons says.
 - **Date:** 2026-11-14. **PR:** #686.
 
+## The FAB above the footer
+
+Source: `src/fabPresence.tsx` (`useFabLift`), `src/Screen.tsx`, `src/editor.css` (`.editor-fab`). Read 15 Nov 2026 on m3.material.io (Playwright, `document.body.innerText`, collapsed sections opened): `/components/floating-action-button/overview`, `/specs`, `/guidelines` and `/accessibility`. The specs print the container (56dp by 56dp) and no margin to the window's edge or to other parts, so the 16 dp margin is the one the editor already used, not M3's.
+
+### F1. The FAB moves up while the footer is in the window
+
+- **Material:** "FABs remain in place on scroll." "The container shouldn't be covered by other elements, such as badges." "In compact and medium breakpoints, the best place for the FAB is typically the lower right corner of a screen, since it's easy to reach and is less likely to cover important content." "FABs persist on the screen when content is scrolling" (Overview). "Don’t completely obscure an actionable element and its focus indicator" (Accessibility). M3 prints nothing about a footer under a FAB.
+- **We do:** the FAB stays at the bottom right, 16 dp from the edges. While the editor's footer is in the window (a short screen, or the end of a long one), the FAB stands 16 dp above the footer's top edge, so it never covers a footer link or the copyright line, and it goes back to its place when the footer leaves the window. The content leaves room for the FAB above the footer. It follows the scroll directly, with no motion of our own. `check:screens` (`checkFabAboveFooter`, 375 and 1280) fails when the FAB overlaps the footer.
+- **Why:** owner, 15 Nov 2026: the FAB "must move up when the footer ... is beneath it, so the footer links are never covered"; on a phone it sat on top of "Report security issues" and the copyright line. M3's own rule that the FAB is not covered, and that it should not cover content, points the same way.
+- **Date:** 2026-11-15 (owner). **PR:** this pull request.
+
 ### C2. The zoom slider's inactive track is the secondary container
 
 - **Material:** the sliders' token table (the colours of the active and inactive track) stayed collapsed in a text read, so M3's colour for the inactive track could not be quoted and the theme's choice (`--slider-inactive-track: --mo-surface-container-high`) could not be compared with it.
