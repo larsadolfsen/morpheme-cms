@@ -501,6 +501,8 @@ export const blocks: Messages['blocks'] = {
     mediaNone: 'Intet',
     mediaIcon: 'Ikon',
     mediaImage: 'Billede',
+    ratio: 'Billedformat for billeder',
+    ratioHint: 'Alle kortenes billeder bruger det.',
     mediaVideo: 'Video',
     video: 'Videolink',
     buttons: 'Knapper',
