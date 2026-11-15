@@ -7735,66 +7735,10 @@ async function checkOwnList(width, height) {
     }
     if (!(await sheet.getByRole('button', { name: 'Delete list' }).count())) problems.push(`${label}: the edit page has no Delete list`);
     if (!(await sheet.getByLabel('Name').count())) problems.push(`${label}: the edit page has no name field`);
-    if (!(await sheet.getByRole('link', { name: 'Add item' }).count())) problems.push(`${label}: the edit page has no Add item`);
+    if (await sheet.getByRole('link', { name: 'Add item' }).count())
+      problems.push(`${label}: the edit page still has Add item (entries are added on the list's page)`);
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
       problems.push(`${label}: the edit page scrolls sideways`);
-    // The list's entries are typed in place on the edit page (src/OwnListEntries.tsx): the rows as the List block draws them, a bar of the active row, and what is typed is
-    // saved by itself a moment later as one commit, one file per entry.
-    {
-      const rows = sheet.locator('.own-list-entries .inline-list-row');
-      if ((await rows.count()) < 2) problems.push(`${label}: the edit page has no typed-in-place entries`);
-      const tools = sheet.getByRole('toolbar', { name: 'Item tools' });
-      if (!(await tools.count())) problems.push(`${label}: the entries have no bar`);
-      else {
-        const box = await tools.boundingBox();
-        if (!box || box.x < 0 || box.x + box.width > width + 1) problems.push(`${label}: the bar of the entries is outside the screen`);
-      }
-      if (await tools.getByRole('button', { name: 'Move item up' }).isEnabled())
-        problems.push(`${label}: Move item up works with no active entry`);
-      const written = () => page.waitForTimeout(1500);
-      // The files of the last commit, their texts decoded (the editor sends them as base64).
-      const last = () =>
-        (commits.at(-1)?.changes ?? []).map((f) => ({
-          path: f.path,
-          content: f.content === null ? null : Buffer.from(f.content, 'base64').toString('utf8'),
-        }));
-      // Typing in an entry's title saves that entry only, keeping the order and the fields that were there.
-      const first = rows.nth(0).locator('textarea[data-field="title"]');
-      await first.click();
-      await first.press('End');
-      await first.pressSequentially(' 2');
-      await written();
-      const typed = last().find((f) => f.path.endsWith('/web-design.json'));
-      if (!typed || last().length !== 1)
-        problems.push(`${label}: typing in an entry did not save just that entry (${JSON.stringify(last().map((f) => f.path))})`);
-      else {
-        const data = JSON.parse(typed.content);
-        if (data.title !== 'Web design 2' || data.order !== 1 || data.text !== 'Sites that last')
-          problems.push(`${label}: the typed entry was saved as ${typed.content}`);
-      }
-      // Add below makes a row; its first typing makes its file, named by the title, with an order after the last.
-      await tools.getByRole('button', { name: 'Add item below' }).click();
-      await page.keyboard.type('Brand');
-      await written();
-      const made = last().find((f) => f.path.endsWith('/brand.json'));
-      if (!made) problems.push(`${label}: a new entry did not make its file (${JSON.stringify(last().map((f) => f.path))})`);
-      else if (JSON.parse(made.content).order !== 1.5)
-        problems.push(`${label}: the new entry (below the first) has order ${JSON.parse(made.content).order}, not 1.5`);
-      // Move down: the two entries swap their orders, and only those two are written.
-      await tools.getByRole('button', { name: 'Move item down' }).click();
-      await written();
-      if (last().length !== 2) problems.push(`${label}: Move item down wrote ${last().length} files, not 2`);
-      // Remove: the file is deleted, with an Undo.
-      await tools.getByRole('button', { name: 'Remove item' }).click();
-      if (!(await page.getByText('Item removed').count())) problems.push(`${label}: Remove item has no message`);
-      if (!(await page.getByRole('link', { name: 'Undo' }).count())) problems.push(`${label}: Remove item has no Undo`);
-      await written();
-      if (!last().some((f) => f.content === null && f.path.endsWith('/brand.json')))
-        problems.push(`${label}: Remove item did not delete the file`);
-      if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
-        problems.push(`${label}: the edit page with entries scrolls sideways`);
-      commits.length = 0;
-    }
     // Move a field down: the order changes (the first two swap), nothing is committed, and the first field cannot move up.
     const order = () => sheet.locator('.own-list-field').evaluateAll((rows) => rows.map((r) => r.getAttribute('data-field')));
     const before = await order();
@@ -7916,8 +7860,8 @@ async function checkLockedList(page, width, label) {
   const fields = await main.locator('.own-list-field').evaluateAll((rows) => rows.map((r) => r.getAttribute('data-field')));
   for (const field of ['name', 'quote'])
     if (!fields.includes(field)) problems.push(`${label}: the locked edit page does not show ${field} (${fields})`);
-  if (!(await main.getByRole('link', { name: 'New testimonial' }).count()))
-    problems.push(`${label}: the locked edit page has no New testimonial`);
+  if (await main.getByRole('link', { name: 'New testimonial' }).count())
+    problems.push(`${label}: the locked edit page still has New testimonial (entries are added on the list's page)`);
   if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
     problems.push(`${label}: the locked edit page scrolls sideways`);
   await page.screenshot({ path: join(shots, `own-list-locked-${width}.png`) });
@@ -8038,7 +7982,7 @@ async function checkNewList(width, height, label) {
     if (definition.fields?.length !== 2 || definition.fields.some((f) => f.kind !== 'text'))
       problems.push(`${label}: the commit does not have the list with both fields (${made?.content})`);
     // The list is the testimonials' page now: `Add item` opens an item's page with both fields as text fields; Save writes one file with both values.
-    await page.getByRole('link', { name: 'Add item' }).first().click();
+    await page.evaluate(() => (location.hash = '#new/zz-fresh-list'));
     await page
       .getByLabel('Body text 2', { exact: true })
       .first()
@@ -8141,7 +8085,7 @@ async function checkNewList(width, height, label) {
     }
     await page.waitForTimeout(500);
     if (commits.length !== before) problems.push(`${label}: adding a field to a saved list committed`);
-    await page.getByRole('link', { name: 'Add item' }).first().click();
+    await page.evaluate(() => (location.hash = '#new/zz-fresh-list'));
     await page.getByLabel('Title', { exact: true }).first().fill('A title');
     await page.getByRole('button', { name: /^Save/ }).last().click();
     await page.waitForTimeout(1500);

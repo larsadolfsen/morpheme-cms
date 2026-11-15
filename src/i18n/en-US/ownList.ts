@@ -40,17 +40,4 @@ export const ownList = {
   /** `Delete list` is refused while a page or an app reads the list. */
   used: (n: number) => `The list is used on ${n} ${n === 1 ? 'page' : 'pages'}. Remove it from there first.`,
   deleteAsk: (label: string, n: number) => `Delete ${label} and its ${n} ${n === 1 ? 'item' : 'items'}?`,
-  /** The items typed in place on the edit page (src/OwnListEntries.tsx). */
-  items: 'Items',
-  itemTools: 'Item tools',
-  addAbove: 'Add item above',
-  addBelow: 'Add item below',
-  moveUp: 'Move item up',
-  moveDown: 'Move item down',
-  removeItem: 'Remove item',
-  itemRemoved: 'Item removed',
-  undo: 'Undo',
-  newItem: 'New item',
-  itemOf: (n: number, of: number) => `Item ${n} of ${of}`,
-  openItem: 'Open item',
 };

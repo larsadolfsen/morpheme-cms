@@ -2,5 +2,5 @@
   "id": "typed-entries-edit-page",
   "kind": "line",
   "mark": "improvement",
-  "text": "A list’s fields have no Shown switch on the edit page, because each block picks the field it shows in each place"
+  "text": "A list’s edit page has no Shown switch on its fields and no Add item button, because each block picks the field it shows and items are added on the list’s page"
 }
