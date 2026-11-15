@@ -193,6 +193,13 @@ Source: `theme/ui/ChoiceGroup.tsx`, `theme/ui/choiceGroupFit.mjs`, `theme/styles
 - **Why:** owner, 14 Nov 2026: "Where a choice is a look … each radio row shows a small live sample on its right."
 - **Date:** 2026-11-14. **PR:** the same.
 
+### D3. The choice group's list rows run the whole width of the fields above them
+
+- **Material:** lists/specs: "Label left padding 16dp", "Leading element left padding 16dp"; radio-button/specs (read 14 Nov 2026 with Playwright): "Icon size 20dp", "State layer size 40dp", "Target size 48dp". M3 prints no rule for aligning a radio list with the fields above it.
+- **We do:** in the choice group's list the rows have no padding at their sides (`--list-item-padding-inline: 0` on `.choice-group-list`): the radio's 20 dp circle starts where the name and the fields above start, its 40 dp state layer overhangs the edge by 10 dp, a row's sample ends at the fields' right edge, and a text button's sample ends with its text (its 12 dp side padding overhangs). The circle sits on the label's middle line.
+- **Why:** owner, 14 Nov 2026 (relayed by the PM): the radio buttons did not look correctly aligned: the circles started 16 dp in from the heading and the fields, and the samples ended short of the fields' right edge.
+- **Date:** 2026-11-14. **PR:** #682 (choice group, the fields).
+
 ## Command palette (command palette, step 5)
 
 Source: `docs/superpowers/specs/2026-11-13-command-palette-and-context-menus-design.md` (sections 1b and 9), `src/CommandPalette.tsx`, `theme/ui/Search.tsx` (`SearchView`), `src/Screen.tsx` (`SearchButton`).
@@ -227,11 +234,4 @@ Source: `src/CropView.tsx`, `src/editor.css` (`.crop-page`). Spec: `docs/superpo
 - **Material:** "Full-screen dialogs are for compact breakpoints only, like mobile devices. For medium and expanded breakpoints, use a basic dialog." "To save a selection in a full-screen dialog, use Save. The close icon or dismissive action, such as Cancel or Back, should close the dialog." "When someone dismisses a full-screen dialog, a basic dialog should appear to confirm that they want to discard the unsaved changes."
 - **We do:** the crop view is a page on every width: a layer the size of the window over the editor (a modal `<dialog>` with no dialog parts, so the form under it keeps its changes and its scroll place), with the theme's top app bar (back arrow and the title `Crop`), the image area, the aspect ratios and the zoom, and a bottom bar with `Save` (and `Cancel` from medium). The phone's back gesture leaves it (a step of its own in the history, as the sheets have). Leaving with changes asks the basic dialog `Keep your changes?`, as M3 says for a full-screen dialog; the dialog's other parts are not used.
 - **Why:** owner decision, 14 Nov 2026: "Convert all full screen views to pages." (relayed by the project manager). Save is in the bottom bar on a phone, as the owner's rule for Save buttons says.
-- **Date:** 2026-11-14. **PR:** #686.
-
-### C2. The zoom slider's inactive track is the secondary container
-
-- **Material:** the sliders' token table (the colours of the active and inactive track) stayed collapsed in a text read, so M3's colour for the inactive track could not be quoted and the theme's choice (`--slider-inactive-track: --mo-surface-container-high`) could not be compared with it.
-- **We do:** in the crop view the inactive track is `--mo-secondary-container`.
-- **Why:** the theme's inactive track is the colour of the crop view's image area, so the track did not show.
 - **Date:** 2026-11-14. **PR:** #686.

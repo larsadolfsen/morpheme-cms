@@ -1149,24 +1149,52 @@ function imageCard(
       view.state.tr.setNodeMarkup(pos, undefined, { ...node.attrs, src: joinPicture(src, next.format, next.crop, decorative) }),
     );
   };
-  // Change image: another from the Library in its place, starting as Original (no format or crop, image tools spec decision 5) with no alt text of
-  // its own, then its sheet to write the alt text (the alt text step of PR 4 replaces the sheet).
+  // From expanded the image's sheet is the live side panel (liveSheet): Change image and Alt text use it, with its Alt text field focused. Below expanded the
+  // short sheet for the alt text is used (BlockAsk.alt).
+  const inLivePanel = () => liveSheet('fields', atLeastNow('expanded'));
+  // Change image: another from the Library in its place, starting as Original (no format or crop, image tools spec decision 5) with no alt text of its own.
+  // From expanded the new image is selected again and its live sheet opens at the Alt text field; below it the short sheet for its alt text comes first
+  // (Skip keeps it without), then the new image is selected again, with its tools on the bar.
   const change = async () => {
     const chosen = await pick()?.();
+    if (!chosen) return;
+    const own = inLivePanel()
+      ? { alt: '', decorative: false }
+      : ((await sheet()?.alt({ src: chosen, alt: '', decorative: false }, 'new')) ?? { alt: '', decorative: false });
     const pos = getPos();
-    if (!chosen || pos === undefined) return;
-    view.dispatch(view.state.tr.setNodeMarkup(pos, undefined, { ...node.attrs, src: joinPicture(chosen, '', null, false), alt: '' }));
+    if (pos === undefined) return;
+    view.dispatch(
+      view.state.tr.setNodeMarkup(pos, undefined, {
+        ...node.attrs,
+        src: joinPicture(chosen, '', null, own.decorative),
+        alt: own.alt.trim(),
+      }),
+    );
     // The node view is drawn again for the new image: its sheet is opened by the new view's card (selected by the same place).
     const next = view.nodeDOM(pos) as CardHost | null;
     next?.select?.();
-    next?.describe?.('alt');
+    if (inLivePanel()) next?.describe?.('alt');
+  };
+  // Alt text: from expanded the live sheet's Alt text field; below it the short sheet (Cancel and Save) for its text and whether it is decorative.
+  const editAlt = async () => {
+    if (inLivePanel()) return void describe('alt');
+    const own = await sheet()?.alt({ src, alt: node.attrs.alt ?? '', decorative }, 'edit');
+    const pos = getPos();
+    if (!own || pos === undefined) return;
+    view.dispatch(
+      view.state.tr.setNodeMarkup(pos, undefined, {
+        ...node.attrs,
+        src: joinPicture(src, format ?? '', crop, own.decorative),
+        alt: own.alt.trim(),
+      }),
+    );
   };
   // The image's tools on the bar (image tools spec, section 4), in this order; Alt text is a text button.
   const tools = (): BarAction[] => [
     { kind: 'change-image', label: t.forms.changeImage, action: () => void change() },
     // Crop opens the crop view (not in a Banner's text or on a fixed page, where the sheet has no aspect ratio either).
     ...(sheet()?.canCrop === false ? [] : [{ kind: 'crop' as const, label: t.text.crop, action: () => void cropIt() }]),
-    { kind: 'alt-text', label: t.blocks.picture.alt, text: true, action: () => void describe('alt') },
+    { kind: 'alt-text', label: t.blocks.picture.alt, text: true, action: () => void editAlt() },
     { kind: 'remove', label: t.common.remove, action: remove },
   ];
   (dom as CardHost).describe = (focus) => void describe(focus);
@@ -1778,8 +1806,11 @@ function blockCard(
     // The block's own values that the item's fields depend on (a card's icon, image or video by the block's media).
     const blockValue = () =>
       Object.fromEntries(blockNames.map((n) => [n, node.attrs.props[n] ?? blockFields.find((f) => f.name === n)?.default ?? '']));
+    // The row's other values are under them, read only (a button's text for its style's sample, choiceSamples.tsx); a save writes the
+    // named fields alone (setFields).
     const valueOf = (row: Row, names: string[]) => ({
       ...blockValue(),
+      ...row,
       ...Object.fromEntries(
         names.map((n) => {
           const field = rowFieldsOf([n])[0];
@@ -2536,9 +2567,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     });
   }
 
-  // A new image from the gallery, then the sheet with it and what it shows, where it can still be
-  // changed or left out (the browser's own box for what it shows without a sheet). From expanded the image goes in at once and its
-  // sheet opens live beside it, with no Insert (Undo or Remove takes it out).
+  // A new image from the gallery. From expanded the image goes in at once and its sheet opens live beside it with the Alt text field focused, with no
+  // Insert (Undo or Remove takes it out). Below expanded the short sheet for its alt text comes first (Skip keeps the image without a text of its own: the
+  // Library's text is used), then the image goes in as Original. The crop view does not open by itself (image tools spec, decision 5 and 9.1).
   async function image() {
     const src = await holdWhile(addImage!());
     if (!src) return;
@@ -2553,11 +2584,14 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       view.state.doc.descendants((n, pos) => {
         if (n.type.name === 'image' && n.attrs.src === src && (at < 0 || Math.abs(pos - cursor) < Math.abs(at - cursor))) at = pos;
       });
-      if (at >= 0) void sheet.edit(IMAGE, { src, alt: '' }, false, () => liveImage(view, at));
+      if (at >= 0) void sheet.edit(IMAGE, { src, alt: '' }, false, () => liveImage(view, at), 'alt');
       return;
     }
-    const picked = await sheet?.edit(IMAGE, { src, alt: '' }, true);
-    if (picked) run(insertImageCommand, { src: imageSrc(picked), alt: String(picked.alt ?? '').trim() });
+    const own = (await holdWhile(sheet?.alt({ src, alt: '', decorative: false }, 'new') ?? Promise.resolve(null))) ?? {
+      alt: '',
+      decorative: false,
+    };
+    run(insertImageCommand, { src: imageSrc({ src, decorative: own.decorative }), alt: own.alt.trim() });
   }
 
   // Puts the chosen block where the cursor is (a paragraph is split around it), or after the block

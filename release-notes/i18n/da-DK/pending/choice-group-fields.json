@@ -1,0 +1,7 @@
+{
+  "id": "choice-group-fields",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Valg af stil",
+  "text": "Valg som en knaps stil bliver ikke længere klemt sammen i et smalt ark. Når de ikke kan være på én linje, vises de som en liste med ét valg pr. række, og knapstilen viser et lille eksempel på hver. Korte valg står stadig side om side."
+}
