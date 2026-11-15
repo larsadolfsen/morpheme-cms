@@ -14,7 +14,8 @@
 // drawing of the look, on the right of its row in the list form only) and `disabled`. `value` is the chosen one, and
 // `onChange` is told the value chosen. `form` forces a form ('buttons' or 'list'; 'auto', the default, measures): for the
 // theme's parts page and tests only. `dots`: the button form shows only the swatches, each named for screen readers.
-// `name`: the radio buttons' shared name (one of its own by default). Keyboard: in the list form the browser's radio group
+// `labelHidden`: the list form's name (its legend) only for screen readers, where the form already shows the name over
+// the group (a field's label). `name`: the radio buttons' shared name (one of its own by default). Keyboard: in the list form the browser's radio group
 // (Tab to the chosen one, the arrow keys move and choose); in the button form Tab lands on the chosen button and leaves
 // the group in one step, the arrow keys move between the buttons, Space or Enter chooses. When the form changes while a
 // choice has focus, the same choice in the other form gets it. Other attributes (data-…) go on the group, `className`
@@ -53,6 +54,7 @@ export default function ChoiceGroup({
   form = 'auto',
   dots,
   disabled,
+  labelHidden,
   className,
   ...rest
 }: {
@@ -64,6 +66,7 @@ export default function ChoiceGroup({
   form?: ChoiceGroupForm;
   dots?: boolean;
   disabled?: boolean;
+  labelHidden?: boolean;
   className?: string;
 } & Record<string, unknown>) {
   const own = useId();
@@ -165,6 +168,7 @@ export default function ChoiceGroup({
       className={[choiceGroupClass, className].filter(Boolean).join(' ')}
       data-form={shown}
       data-forced={form === 'auto' ? undefined : ''}
+      data-label-hidden={labelHidden ? '' : undefined}
       {...rest}
     >
       {form === 'auto' && (

@@ -1819,8 +1819,11 @@ function blockCard(
     // The block's own values that the item's fields depend on (a card's icon, image or video by the block's media).
     const blockValue = () =>
       Object.fromEntries(blockNames.map((n) => [n, node.attrs.props[n] ?? blockFields.find((f) => f.name === n)?.default ?? '']));
+    // The row's other values are under them, read only (a button's text for its style's sample, choiceSamples.tsx); a save writes the
+    // named fields alone (setFields).
     const valueOf = (row: Row, names: string[]) => ({
       ...blockValue(),
+      ...row,
       ...Object.fromEntries(
         names.map((n) => {
           const field = rowFieldsOf([n])[0];

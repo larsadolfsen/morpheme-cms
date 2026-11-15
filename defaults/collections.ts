@@ -90,7 +90,7 @@ const unlisted: Field = {
   label: 'Hidden',
   type: 'boolean',
   toggle: ['On', 'Off'],
-  hint: 'Not shown on the blog or in lists of posts, but open at its address and in Google.',
+  hint: 'Not shown on the blog or in lists of posts, but open at its URL and in Google.',
 };
 
 // The text of the image at the top of a post (a page has its images in its text): "Decorative image" (drawn with alt="", screen readers skip
@@ -117,7 +117,7 @@ const status = (): Field[] => [
     // A narrow menu field over the title (EntryForm.tsx).
     narrow: true,
     options: [
-      { value: 'draft', label: 'Draft', hint: 'Not on the website yet. Not even at its address.' },
+      { value: 'draft', label: 'Draft', hint: 'Not on the website yet. Not even at its URL.' },
       { value: '', label: 'Published', hint: 'On the website for everyone.' },
       // An older site's stored status: saving it keeps working (the check accepts it); `Schedule` moves it to a waiting version.
       { value: 'scheduled', label: 'Scheduled', hint: 'On the website from its time.', stored: true },
@@ -244,10 +244,10 @@ export const socialFields: Field[] = [
     fields: [
       {
         name: 'url',
-        label: 'Address',
+        label: 'URL',
         type: 'string',
         required: true,
-        pattern: ['^https://\\S+$', 'Write an address that starts with https://'],
+        pattern: ['^https://\\S+$', 'Write a URL that starts with https://'],
       },
     ],
   },
@@ -282,7 +282,7 @@ const standardPageFields: Field[] = [
     type: 'relation',
     to: 'standardPages',
     required: true,
-    hint: 'The page is shown on the home page, and its own address sends on there.',
+    hint: 'The page is shown on the home page, and its own URL sends on there.',
   },
   {
     name: 'blog',
@@ -290,7 +290,7 @@ const standardPageFields: Field[] = [
     type: 'relation',
     to: 'standardPages',
     required: true,
-    hint: 'The page is shown at /blog/, and its own address sends on there.',
+    hint: 'The page is shown at /blog/, and its own URL sends on there.',
   },
   {
     name: 'notFound',
@@ -298,7 +298,7 @@ const standardPageFields: Field[] = [
     type: 'relation',
     to: 'standardPages',
     required: true,
-    hint: 'The page is shown when an address does not exist.',
+    hint: 'The page is shown when a URL does not exist.',
   },
   {
     name: 'contact',
