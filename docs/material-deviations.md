@@ -122,6 +122,17 @@ Read 14 Nov 2026 on m3.material.io (Playwright): `/components/cards/specs` (meas
 
 17. **Columns of an image grid:** M3 (layout): "Margins are 16dp from the leading and trailing edge of the window" on compact, and "Padding between cards: 8dp max" (cards/specs). M3 (grids, image) draws the layout grid with 4 columns on compact, 8 on medium and expanded and 12 on large and extra-large, and prints no count of cards per row. We: 2 columns on compact, 3 on medium and expanded, 4 from large (`.image-grid`, CSS columns, `--grid-gutter` apart: 16 px on compact, 24 px from medium, the owner's values since M3 prints none), our choice on M3's breakpoints, set by the token `--grid-columns` (the start screen sets 1 on compact and 2 from medium). Cards flow down each column, so the sort order reads down, then across. **Card gap:** M3 says "Padding between cards: 8dp max"; we use the gutter, 16 px on compact and 24 px from medium, for the cards of a grid too (owner, 15 Nov 2026, pull request #741).
 
+## Layout grid gutter (M3 grid audit)
+
+Source: `docs/superpowers/specs/2026-11-15-m3-grid-everywhere-audit.md`. Read 15 Nov 2026 on m3.material.io (Playwright): `/foundations/layout/grids-spacing/grids` (the diagram shows 4, 8 and 12 columns; no margin or gutter value is printed), `/foundations/layout/canonical-examples/feed`, `/components/cards/specs`.
+
+### G1. Cards are 16 px apart on compact and 24 px from medium, not 8 px
+
+- **Material:** Cards specs: "Padding between cards 8dp max". M3 prints no gutter for the layout grid.
+- **We do:** the theme's layout grid has one gutter, 16 px on compact and 24 px from medium (`--grid-gutter`, owner's numbers; margin is 16 px and 24 px the same way), and cards on the grid use it. It replaces `--card-gap` (0.5rem). Affected when they move onto the grid: the cards block, the cards carousel's grid from 600, the image grid block and the media grid (so entry 17's 8 px gap), price cards, the prices cards, panels, related posts and the editor's uses of `--card-gap`.
+- **Why:** owner decision, 15 Nov 2026: "Cards use the 16/24 gutter too", relayed by the 0.18 project manager; one gutter for the whole grid, on the site and in the editor.
+- **Date:** 2026-11-15. **PR:** #743 (the decision); the cards move in later pull requests, each of which keeps this entry current.
+
 ## The block handle in the page editor (touch selection, step 8)
 
 Read 13 Nov 2026 on m3.material.io (Playwright): `/foundations/interaction/gestures`, `/foundations/interaction/selection` and `/foundations/interaction/states/applying-states`. The page editor's blocks are the editor workspace, where a deviation is allowed.
