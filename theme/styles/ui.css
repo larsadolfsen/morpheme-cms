@@ -4543,12 +4543,15 @@
   the choice's name) with a .list, each choice a .list-item-with-control with its .radio-button leading, at least 48 dp
   high at every density, and on its right its .choice-group-sample (a small, inert drawing of the look) or its
   .choice-group-swatch (a filled circle of a colour, also before the label in the buttons; with dots only the circles
-  show, the names in .choice-group-label-hidden). .choice-group-measure is the buttons at their natural width, hidden,
+  show, the names in .choice-group-label-hidden; with data-label-hidden the list's name is for screen readers only, where
+  a label is already over it). .choice-group-measure is the buttons at their natural width, hidden,
   which the form is measured with. The forms' looks are the button group's, the button's, the list's and the radio
   button's variables; the part adds:
     --choice-group-max-width (30rem), --choice-group-gap (between the name and the list),
     --choice-group-sample-max-width (7rem), --choice-group-sample-gap,
     --choice-group-sample-button-height (2rem: a sample's button, the extra small size's height)
+  In the list the rows run the whole width of the fields above (no padding at their sides): the radio's circle starts where
+  the name starts, a sample ends where the fields end, and a text button's text is the edge.
   Split button (SplitButton, splitButtonClass): .split-button, the main action (.button, .split-button-leading) and
   joined to it the arrow (.button, .split-button-trailing, aria-expanded, its .split-button-arrow turned while the menu
   is open), and the theme's .menu (.split-button-menu) under it, at its end; in the Button's five sizes, the arrow's
@@ -4772,6 +4775,13 @@
   }
   .choice-group-list {
     gap: var(--choice-group-gap, 0.25rem);
+    /* The rows run as wide as the field's above them: the radio's circle starts where the name and the fields start, and a
+       sample ends where they end (the circle's 40dp state layer overhangs the edge, as Material's radio specs allow). */
+    --list-item-padding-inline: 0px;
+  }
+  /* The circle on the row's middle line, as the label is (the box's margins are equal above and below it). */
+  .choice-group-list .radio-button-box {
+    margin-block: -0.625rem;
   }
   /* A row is at least 48 dp at every density (Material, radio buttons: "Don't apply density to radio buttons by default"). */
   .choice-group-list .list-item-container {
@@ -4788,8 +4798,11 @@
     align-items: center;
     justify-content: flex-end;
     margin-inline-start: var(--choice-group-sample-gap, 0);
-    overflow: hidden;
     pointer-events: none;
+  }
+  /* A sample with no surface (a text button) ends with its text at the row's end, as the others end with their edge. */
+  .choice-group-sample .button-text {
+    margin-inline-end: calc(-1 * var(--button-inline));
   }
   .choice-group-swatch {
     flex-shrink: 0;
@@ -4802,6 +4815,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .choice-group[data-label-hidden] > .choice-group-list > .radio-group-label,
   .choice-group-label-hidden {
     position: absolute;
     width: 1px;

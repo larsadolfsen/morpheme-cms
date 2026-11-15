@@ -7,7 +7,7 @@ const SEPARATOR = ' › ';
 const text = (s) => String(s ?? '').trim();
 
 /**
- * The page's own title as the site writes it in <title> when it has no Google title.
+ * The page's own title as the site writes it in <title> when it has no meta title.
  * @param {{ title?: string | null; front?: boolean; siteName?: string | null }} input
  * @returns {string}
  */
