@@ -6687,10 +6687,9 @@ async function checkInlineBlock(
           .getByRole('button', { name: card === 'filled' ? 'Filled' : 'Elevated', exact: true })
           .click({ timeout: 4000 })
           .catch(() => problems.push(`${label}: no ${card} choice`));
-      await sheet
-        .getByRole('button', { name: 'Save', exact: true })
-        .click({ timeout: 4000 })
-        .catch(() => problems.push(`${label}: Block settings have no Save`));
+      // A phone's sheet has Save; a computer's side panel changes the block as it is edited and has none.
+      const save = sheet.getByRole('button', { name: 'Save', exact: true });
+      if (await save.count()) await save.click({ timeout: 4000 }).catch(() => problems.push(`${label}: Block settings have no Save`));
       await page.waitForTimeout(400);
       await page.locator('.inline-list-row [data-field="title"]').first().click();
       await page.waitForTimeout(300);
