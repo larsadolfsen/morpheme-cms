@@ -1964,6 +1964,8 @@ async function checkPhoneSheet(width = 375, height = 740) {
   if (!look.sheetSurface) problems.push(`${label}: the Save row's surface is not a bottom sheet's`);
   if (!look.sheetRadius) problems.push(`${label}: the Save row's top corners are not a bottom sheet's`);
   if (!look.sheetFixed) problems.push(`${label}: the Save row is not fixed to the bottom`);
+  // The grid margin (owner, 15 Nov 2026): 16 dp on compact, never the old 20.
+  if (look.sheetPad !== 16) problems.push(`${label}: the sheet's side padding is ${look.sheetPad} dp, not the grid margin 16`);
   if (look.saveEnd !== look.sheetPad)
     problems.push(`${label}: Save ends ${look.saveEnd} dp from the side, not at the sheet's own padding (${look.sheetPad} dp)`);
   if (look.saveAbove !== 16) problems.push(`${label}: Save is ${look.saveAbove} dp from the sheet's top, not 16`);

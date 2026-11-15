@@ -1931,7 +1931,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 0 1.25rem 0.75rem;
+    padding: 0 var(--grid-margin, 1rem) 0.75rem;
     border-bottom: 1px solid var(--bottom-sheet-line, var(--block-line));
   }
   .bottom-sheet-heading {
@@ -1963,7 +1963,7 @@
   }
   .bottom-sheet-peek {
     flex: none;
-    padding: 0.75rem 1.25rem 1rem;
+    padding: 0.75rem var(--grid-margin, 1rem) 1rem;
   }
   .bottom-sheet-content {
     position: relative;
@@ -2013,7 +2013,7 @@
   .bottom-sheet-footer {
     flex-shrink: 0;
     margin: 0;
-    padding: 0.75rem 1.25rem;
+    padding: 0.75rem var(--grid-margin, 1rem);
     border-top: 1px solid var(--bottom-sheet-line, var(--block-line));
     font-size: var(--type-body-medium-size);
     line-height: var(--type-body-medium-line-height);
@@ -2093,7 +2093,7 @@
   .bottom-sheet-standard > .bottom-sheet-content {
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 1rem 1.25rem;
+    padding: 1rem var(--grid-margin, 1rem);
   }
   .bottom-sheet-standard[data-state='collapsed'] > :is(.bottom-sheet-content, .bottom-sheet-footer) {
     display: none;
