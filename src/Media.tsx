@@ -369,6 +369,17 @@ function Gallery({
   const order = groups.flatMap((g) => g.items);
   const orderKey = order.join('\n');
   useEffect(() => onShown?.(order), [orderKey]);
+  const dateOptions = [
+    { value: '', label: t.media.allDates },
+    ...years.flatMap((year) => [
+      { value: year, label: t.media.wholeYear(year), group: year },
+      ...months.filter((m) => m.startsWith(`${year}-`)).map((m) => ({ value: m, label: dateName(m), group: year })),
+    ]),
+  ];
+  // In Filer the date is a group of the funnel; the image picker has no funnel, so it keeps its own button.
+  const dateChoice = (
+    <Choice title={t.media.date} icon={CalendarBlank} value={date} selected={!!date} options={dateOptions} onChange={setDate} />
+  );
   const chips = [
     date && { label: dateName(date), clear: () => setDate('') },
     use && { label: use === 'used' ? t.media.inUse : t.common.notInUse, clear: () => setUse('') },
@@ -395,7 +406,7 @@ function Gallery({
           all && (
             <Filters
               title={t.media.filter}
-              selected={!!use || !!kind || !!tag}
+              selected={!!use || !!kind || !!tag || !!date}
               groups={[
                 {
                   title: t.media.use,
@@ -422,26 +433,17 @@ function Gallery({
                   options: [{ value: '', label: t.media.allTags }, ...tagChoices],
                   onChange: setTag,
                 },
+                {
+                  title: t.media.date,
+                  value: date,
+                  options: dateOptions,
+                  onChange: setDate,
+                },
               ].filter((g) => !!g)}
             />
           )
         }
-        date={
-          <Choice
-            title={t.media.date}
-            icon={CalendarBlank}
-            value={date}
-            selected={!!date}
-            options={[
-              { value: '', label: t.media.allDates },
-              ...years.flatMap((year) => [
-                { value: year, label: t.media.wholeYear(year), group: year },
-                ...months.filter((m) => m.startsWith(`${year}-`)).map((m) => ({ value: m, label: dateName(m), group: year })),
-              ]),
-            ]}
-            onChange={setDate}
-          />
-        }
+        date={!all && dateChoice}
       />
       {selection?.selecting && (
         <div className="mt-3 flex">
