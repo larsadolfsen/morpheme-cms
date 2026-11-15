@@ -4823,7 +4823,10 @@ async function checkSelection() {
       .getByRole('button', { name: /^Notifications/ })
       .first()
       .click();
-    const sheet = page.getByRole('dialog', { name: 'Notifications' });
+    // Below 600 dp the notifications are a page (route notifications), from 600 dp a side sheet.
+    const onPage = (page.viewportSize()?.width ?? 0) < 600;
+    const sheet = onPage ? page.locator('main') : page.getByRole('dialog', { name: 'Notifications' });
+    const scope = onPage ? 'main' : 'dialog';
     await sheet.waitFor();
     await page.waitForTimeout(600);
     const items = sheet.locator('[role=checkbox], .list-item-container', { hasText: /Selection check/ });
@@ -4836,25 +4839,25 @@ async function checkSelection() {
       await page.waitForTimeout(800);
       await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
       await page.waitForTimeout(300);
-      if ((await checked(page, 'dialog')) !== 1) problems.push(`${label}: a press and hold does not select a notification`);
+      if ((await checked(page, scope)) !== 1) problems.push(`${label}: a press and hold does not select a notification`);
       const b2 = await items.nth(1).boundingBox();
       await page.touchscreen.tap(b2.x + b2.width / 2, b2.y + b2.height / 2);
       await page.waitForTimeout(300);
       if (!/^2 selected$/.test((await count(page)) ?? ''))
         problems.push(`${label}: the notifications' count is not announced ("2 selected")`);
-      await sheet.getByRole('button', { name: 'Cancel' }).click();
-      if (await checked(page, 'dialog')) problems.push(`${label}: Cancel does not unselect the notifications`);
+      await page.getByRole('button', { name: 'Close selection' }).click();
+      if (await checked(page, scope)) problems.push(`${label}: Cancel does not unselect the notifications`);
     } else {
       await items.nth(0).focus();
       await page.keyboard.press('Space');
-      if (await checked(page, 'dialog')) problems.push(`${label}: Space selected a notification before selecting had started`);
+      if (await checked(page, scope)) problems.push(`${label}: Space selected a notification before selecting had started`);
       await items.nth(0).click({ modifiers: ['Shift'] });
       await items.nth(1).focus();
       await page.keyboard.press('Space');
-      if ((await checked(page, 'dialog')) !== 2) problems.push(`${label}: Shift+click and Space do not select notifications`);
+      if ((await checked(page, scope)) !== 2) problems.push(`${label}: Shift+click and Space do not select notifications`);
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);
-      if (await checked(page, 'dialog')) problems.push(`${label}: Escape does not unselect the notifications`);
+      if (await checked(page, scope)) problems.push(`${label}: Escape does not unselect the notifications`);
       if (!(await sheet.isVisible())) problems.push(`${label}: Escape with some selected closed the notifications' sheet`);
     }
     await page.close();
@@ -5827,7 +5830,7 @@ async function checkSelectionBox() {
       .getByRole('button', { name: /^Notifications/ })
       .first()
       .click();
-    const sheet = page.getByRole('dialog', { name: 'Notifications' });
+    const sheet = (page.viewportSize()?.width ?? 0) < 600 ? page.locator('main') : page.getByRole('dialog', { name: 'Notifications' });
     await sheet.waitFor();
     await page.waitForTimeout(600);
     const items = sheet.locator('.list-item-selectable', { hasText: /Box check/ });
