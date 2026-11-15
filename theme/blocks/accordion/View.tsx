@@ -1,4 +1,4 @@
-// "Expandable list": its head in the text (BlockHead.tsx), then its rows (Accordion.tsx in ../faq/, each
+// "Accordion": its head in the text (BlockHead.tsx), then its rows (Accordion.tsx in ../faq/, each
 // with PageRow.tsx) with the space of a block in the text.
 import BlockHead from '@theme/blocks/BlockHead';
 import Accordion from '@theme/blocks/faq/Accordion';
