@@ -21,6 +21,9 @@ export const ownList = {
   nameNeeded: 'Give the list a name with letters or numbers.',
   nameTaken: 'A list with this name exists. Choose another name.',
   edit: 'Edit list',
+  /** The list page's round button (a FAB menu with `Edit list` and one to add an entry), and the entry's name in `Add <entry>`. */
+  listActions: 'List actions',
+  addEntry: (entry: string) => `Add ${entry}`,
   delete: 'Delete list',
   name: 'Name',
   fields: 'Fields',

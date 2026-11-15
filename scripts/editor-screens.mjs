@@ -7669,10 +7669,13 @@ async function checkOwnList(width, height) {
     for (const row of ['Web design', 'Hosting'])
       if (!(await page.getByText(row, { exact: true }).count())) problems.push(`${label}: no row "${row}"`);
     if ((await page.getByRole('button', { name: 'Move down' }).count()) < 2) problems.push(`${label}: the rows have no Move down`);
-    // The round button is `Edit list` (a pencil) and opens the edit page; adding an item is not on it any more.
-    if (!(await page.getByLabel('Edit list', { exact: true }).count()))
-      problems.push(`${label}: the list page's round button is not Edit list`);
-    if (await page.getByLabel('Add item', { exact: true }).count()) problems.push(`${label}: the list page still has an Add item button`);
+    // The round button is a FAB menu (Material 3: "opens from a FAB to show multiple related actions"): `Edit list` opens the edit page and `Add service` (the list is named
+    // Services) opens the entry's form. Closed, it shows neither.
+    if (!(await page.getByRole('button', { name: 'List actions', exact: true }).count()))
+      problems.push(`${label}: the list page's round button is not the List actions menu`);
+    if (await page.getByLabel('Add item', { exact: true }).count())
+      problems.push(`${label}: the list page still has a plain Add item button`);
+    await listMenu(page, label, ['Edit list', 'Add service']);
     if (await page.getByRole('button', { name: 'List menu' }).count()) problems.push(`${label}: the list page still has the List menu`);
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
       problems.push(`${label}: the list page scrolls sideways`);
@@ -7703,7 +7706,7 @@ async function checkOwnList(width, height) {
     await page.evaluate(() => (location.hash = '#list/services'));
     await page.getByText('Hosting', { exact: true }).first().waitFor({ timeout: 10000 });
     // `Edit list` (the round button) opens the edit page: the name, the bar with a button for each kind of field, the fields (each with a switch, move up and down and `Remove field`) and `Delete list`.
-    await page.getByLabel('Edit list', { exact: true }).first().click();
+    await (await listAction(page, 'Edit list')).click();
     const sheet = page.locator('main');
     await sheet
       .getByText('Fields', { exact: true })
@@ -7832,14 +7835,34 @@ async function checkOwnList(width, height) {
 
 /** A locked list (Testimonials, its fields fixed in code): its round button is `Edit list` too, and its edit page shows its fields without the bar that adds one,
  * with nothing that renames, moves or removes a field or deletes the list, and `Add item`. No horizontal overflow. */
+/** The list page's FAB menu opened (its button, `List actions`), and the item with this name in it. */
+async function listAction(page, name) {
+  const button = page.getByRole('button', { name: 'List actions', exact: true });
+  if (await button.count()) await button.click();
+  return page.locator('.fab-menu-list').getByText(name, { exact: true });
+}
+
+/** The FAB menu of a list page holds exactly these actions, in this order, shown while it is open, and none of them while it is closed. */
+async function listMenu(page, label, names) {
+  await listAction(page, names[0]);
+  const shown = await page.locator('.fab-menu-list a:visible, .fab-menu-list button:visible').allInnerTexts();
+  if (shown.map((x) => x.trim()).join('|') !== names.join('|'))
+    problems.push(`${label}: the list page's FAB menu has ${JSON.stringify(shown)}, not ${JSON.stringify(names)}`);
+  await page.keyboard.press('Escape');
+  if (await page.locator('.fab-menu-list a:visible').count()) problems.push(`${label}: Escape did not close the list page's FAB menu`);
+}
+
 async function checkLockedList(page, width, label) {
   label = `${label} locked`;
   await page.evaluate(() => (location.hash = '#list/testimonials'));
-  const edit = page.getByLabel('Edit list', { exact: true }).first();
-  await edit.waitFor({ timeout: 15000 }).catch(() => problems.push(`${label}: the Testimonials page's round button is not Edit list`));
+  await page
+    .getByRole('button', { name: 'List actions', exact: true })
+    .waitFor({ timeout: 15000 })
+    .catch(() => problems.push(`${label}: the Testimonials page's round button is not the List actions menu`));
   if (await page.getByLabel('New testimonial', { exact: true }).count())
     problems.push(`${label}: the Testimonials page still has a New testimonial round button`);
-  await edit.click().catch(() => {});
+  await listMenu(page, label, ['Edit list', 'Add testimonial']);
+  await (await listAction(page, 'Edit list')).click().catch(() => {});
   const main = page.locator('main');
   await main
     .getByText('The fields of this list are fixed.')
