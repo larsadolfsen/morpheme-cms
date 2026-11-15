@@ -9,6 +9,8 @@ export const check = {
     text: 'must be text',
   },
   address: 'Write the URL with letters or digits',
+  /** What a number field says when what is typed is not a number (the browser's validity.badInput). */
+  notANumber: 'Enter a number.',
   onlyDigits: 'Write only digits',
   digits: (n: number) => (n === 1 ? 'Write 1 digit' : `Write ${n} digits`),
   fillIn: (label: string) => `Fill in "${label}."`,
