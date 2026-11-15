@@ -691,9 +691,21 @@
   .text-field-filled .text-field-container:has(> .text-field-input:focus) {
     box-shadow: inset 0 -2px 0 var(--mo-primary);
   }
-  .text-field-filled.text-field-error .text-field-container,
-  .text-field-filled.text-field-error .text-field-container:hover,
-  .text-field-filled.text-field-error .text-field-container:has(> .text-field-input:focus) {
+  .text-field-filled:is(
+      .text-field-error,
+      .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text))
+    )
+    .text-field-container,
+  .text-field-filled:is(
+      .text-field-error,
+      .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text))
+    )
+    .text-field-container:hover,
+  .text-field-filled:is(
+      .text-field-error,
+      .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text))
+    )
+    .text-field-container:has(> .text-field-input:focus) {
     box-shadow: inset 0 -2px 0 var(--text-field-error, var(--mo-primary));
   }
 

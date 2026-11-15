@@ -478,21 +478,55 @@ export type InField = { label?: string; hint?: ReactNode; problem?: string; limi
 
 const error = (problem: string | undefined, invalid: unknown) => problem || (invalid ? true : undefined);
 
-/** The theme's text field, with what it says in itself (InField). `className` goes on the field around the <input> (its
- * width, its place). */
+/** What is wrong with a field by the editor's own rules (fieldProblem in check.ts), as the line under it: it is the browser's
+ * own validity too (setCustomValidity), so the field is marked (`:user-invalid`) once it has been worked in, and only while it
+ * is wrong. `problem` (InField) marks it at once, as when Save stops there (useWrongField). */
+export type Invalid = { invalid?: string };
+
+/** The theme's text field, with what it says in itself (InField) and what is wrong with it (Invalid). `className` goes on the
+ * field around the <input> (its width, its place). */
 export function TextField({
   label,
   hint,
   problem,
   limit,
+  invalid,
   ...rest
-}: InputHTMLAttributes<HTMLInputElement> & InField & { ref?: Ref<HTMLInputElement> }) {
-  return <SiteTextField label={label} supporting={hint} error={error(problem, rest['aria-invalid'])} limit={limit} {...rest} />;
+}: InputHTMLAttributes<HTMLInputElement> & InField & Invalid & { ref?: Ref<HTMLInputElement> }) {
+  return (
+    <SiteTextField
+      label={label}
+      supporting={hint}
+      error={error(problem, rest['aria-invalid'])}
+      invalid={!!invalid}
+      invalidText={invalid}
+      limit={limit}
+      {...rest}
+    />
+  );
 }
 
 /** The theme's text field of several lines (`rows` high), as TextField. */
-export function TextArea({ label, hint, problem, limit, ...rest }: TextareaHTMLAttributes<HTMLTextAreaElement> & InField) {
-  return <SiteTextField multiline label={label} supporting={hint} error={error(problem, rest['aria-invalid'])} limit={limit} {...rest} />;
+export function TextArea({
+  label,
+  hint,
+  problem,
+  limit,
+  invalid,
+  ...rest
+}: TextareaHTMLAttributes<HTMLTextAreaElement> & InField & Invalid) {
+  return (
+    <SiteTextField
+      multiline
+      label={label}
+      supporting={hint}
+      error={error(problem, rest['aria-invalid'])}
+      invalid={!!invalid}
+      invalidText={invalid}
+      limit={limit}
+      {...rest}
+    />
+  );
 }
 
 /** The theme's date picker (Material 3's): a field to type a date in, with the calendar that picks it, with what it
