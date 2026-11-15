@@ -1,4 +1,4 @@
-// The inside of the full-screen Preview (pagePreview.tsx): a bar across the top with the site's window sizes (Material 3's
+// The inside of the Preview page (pagePreview.tsx, a page of the editor under its top bar): a row across the top with the site's window sizes (Material 3's
 // five, from the site and its theme: previewBreakpoints.ts) and their widths, the page in a frame below at the chosen width
 // and the height a window of that size usually has, and a handle at each of the page's edges to drag it to any width. The
 // current width shows as a number with the size's name. The page scrolls in its frame, which is made smaller to fit the
@@ -6,26 +6,15 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import type { Breakpoint } from '../lib/breakpoints.mjs';
 import { HEIGHT, MAX_WIDTH, MIN_WIDTH, SIZES, siteBreakpoints, sizeAt, widthOf } from './previewBreakpoints';
-import { X } from '@phosphor-icons/react';
 import { BREAKPOINTS } from '../lib/breakpoints.mjs';
-import { IconButton, SegmentedButton } from './ui';
+import { SegmentedButton } from './ui';
 import { t } from './i18n';
 
 // The handle's width, px, on each edge of the page.
 const HANDLE = 20;
 
-/** `html`: the page, or null while it is made (`message` says so, or what went wrong); `onClose`: the cross in the one row at the top. */
-export function PreviewScreen({
-  html,
-  message,
-  title,
-  onClose,
-}: {
-  html: string | null;
-  message: string;
-  title: string;
-  onClose: () => void;
-}) {
+/** `html`: the page, or null while it is made (`message` says so, or what went wrong). */
+export function PreviewScreen({ html, message, title }: { html: string | null; message: string; title: string }) {
   const stage = useRef<HTMLDivElement>(null);
   const [room, setRoom] = useState({ width: 0, height: 0 });
   const [at, setAt] = useState(() => siteBreakpoints(null));
@@ -98,8 +87,7 @@ export function PreviewScreen({
 
   return (
     <>
-      <div className="flex shrink-0 flex-wrap items-center gap-x-2 border-b border-outline-variant py-1 ps-1 pe-3 min-[600px]:flex-nowrap">
-        <IconButton icon={X} label={t.common.close} onClick={onClose} />
+      <div className="flex shrink-0 flex-wrap items-center gap-x-2 border-b border-outline-variant py-2 ps-4 pe-4 min-[600px]:flex-nowrap">
         <div className="order-last min-w-0 basis-full overflow-x-auto pe-2 pb-1 min-[600px]:order-none min-[600px]:flex-1 min-[600px]:basis-0 min-[600px]:pb-0">
           <div className="w-max">
             <SegmentedButton
@@ -114,22 +102,31 @@ export function PreviewScreen({
           <span className="text-title-medium text-on-surface tabular-nums">{width}</span> · {t.preview.sizes[size]}
         </p>
       </div>
-      <div ref={stage} className="flex min-h-0 flex-1 items-start justify-center overflow-hidden bg-outline-variant/40">
-        {!html && <p className="p-5 text-on-surface-variant">{message}</p>}
-        {html && room.width > 0 && (
-          <>
-            {handle(-1)}
-            <iframe
-              title={title}
-              srcDoc={html}
-              sandbox="allow-same-origin"
-              className="shrink-0 origin-top-left border-0 bg-white"
-              style={{ width, height, marginRight: width * (scale - 1), marginBottom: height * (scale - 1), transform: `scale(${scale})` }}
-              onLoad={(e) => setAt(siteBreakpoints(e.currentTarget.contentDocument))}
-            />
-            {handle(1)}
-          </>
-        )}
+      {/* The frame is drawn over the place (absolute), so its height never makes the page taller than the window. */}
+      <div className="relative min-h-0 flex-1 bg-outline-variant/40">
+        <div ref={stage} className="absolute inset-0 flex items-start justify-center overflow-hidden">
+          {!html && <p className="p-5 text-on-surface-variant">{message}</p>}
+          {html && room.width > 0 && (
+            <>
+              {handle(-1)}
+              <iframe
+                title={title}
+                srcDoc={html}
+                sandbox="allow-same-origin"
+                className="shrink-0 origin-top-left border-0 bg-white"
+                style={{
+                  width,
+                  height,
+                  marginRight: width * (scale - 1),
+                  marginBottom: height * (scale - 1),
+                  transform: `scale(${scale})`,
+                }}
+                onLoad={(e) => setAt(siteBreakpoints(e.currentTarget.contentDocument))}
+              />
+              {handle(1)}
+            </>
+          )}
+        </div>
       </div>
     </>
   );
