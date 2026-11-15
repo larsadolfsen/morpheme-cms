@@ -6621,7 +6621,7 @@ async function checkVideoChangeLink(width, height = 800) {
   else if (!has('src/data/files'))
     console.log(`${label}: the thumbnail is not chosen, the site has no images in its Library, which the demo has.`);
   else {
-    await sheetOpen().locator('button', { hasText: 'Choose image' }).first().click();
+    await sheetOpen().locator('button', { hasText: 'Select image' }).first().click();
     await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
     await page.locator('dialog[open] [data-media-tile]').first().click();
     const use = page.locator('dialog[open]').getByRole('button', { name: /^(Use|Choose|Select)/ });
@@ -6659,7 +6659,7 @@ async function checkCardImage(width, height = 800) {
   await page.locator('.inline-list-row-active .inline-list-slot[aria-label="Image"]').click();
   await page.waitForTimeout(1000);
   await page
-    .locator('dialog[open] button, .editor-side-sheet button', { hasText: /^Choose image$/ })
+    .locator('dialog[open] button, .editor-side-sheet button', { hasText: /^Select image$/ })
     .first()
     .click();
   await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
