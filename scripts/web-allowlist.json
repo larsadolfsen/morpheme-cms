@@ -1,0 +1,22 @@
+{
+  "src/editor.css|dark-mode": {
+    "max": 1,
+    "why": "Google-preview colours in the editor; the editor's own workspace. To move to color-scheme and light-dark() (audit S1)."
+  },
+  "theme/components/Popup.astro|dialog": {
+    "max": 1,
+    "why": "Backdrop click closes the dialog by hand; closedby=\"any\" skips our exit animation (audit D1, conflict C1: owner decides)."
+  },
+  "theme/ui/bottomSheetControl.ts|dialog": {
+    "max": 1,
+    "why": "Backdrop click closes the sheet by hand; closedby=\"any\" skips our exit animation (audit D1, conflict C1: owner decides)."
+  },
+  "theme/ui/dialogControl.ts|dialog": {
+    "max": 1,
+    "why": "Backdrop click closes the dialog by hand; closedby=\"any\" skips our exit animation (audit D1, conflict C1: owner decides)."
+  },
+  "theme/ui/search.script.ts|dialog": {
+    "max": 1,
+    "why": "Backdrop click closes the search view by hand; closedby=\"any\" skips our exit animation (audit D1, conflict C1: owner decides)."
+  }
+}
