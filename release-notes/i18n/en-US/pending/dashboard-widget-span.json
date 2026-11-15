@@ -1,0 +1,6 @@
+{
+  "id": "dashboard-widget-span",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Start screen cards sit in two columns on a phone, and a widget can be full width or one column"
+}
