@@ -48,7 +48,7 @@ export const text: Messages['text'] = {
   sectionWidthText: 'Som teksten',
   linkTo: 'Linket går til',
   linkPage: 'Side',
-  linkAddress: 'Anden adresse',
+  linkAddress: 'Anden URL',
   linkAddressHint: 'En e-mail eller et telefonnummer bliver også et link.',
   linkPosts: 'Blogindlæg',
   insertLink: 'Indsæt link',

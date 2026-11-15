@@ -19,13 +19,13 @@ export const forms = {
   links: {
     add: 'Add link',
     none: 'No links yet. Add one with the + button.',
-    address: 'Address',
-    hint: 'Paste the address of a profile, like https://www.facebook.com/…',
+    address: 'URL',
+    hint: 'Paste the URL of a profile, like https://www.facebook.com/…',
     found: (network: string) => `${network} profile`,
     addButton: 'Add',
     done: 'Save',
     remove: 'Remove link',
-    noAddress: 'Write an address',
+    noAddress: 'Write a URL',
     twice: 'The link is already in the list',
   },
   /** The preview of the Google result at the top of "Search engines" (SearchPreview.tsx): the name of its tabs, the tabs and
@@ -87,7 +87,7 @@ export const forms = {
   /** Over the places that use an entry (a tag), DataForm.tsx. */
   usedOn: 'Used on',
   address: 'URL',
-  writeAddress: 'Write the address with letters or digits.',
+  writeAddress: 'Write the URL with letters or digits.',
   /** A page or post that is published in steps (EntryForm.tsx): a draft, the live version and changes waiting. `post`: a blog post, else a page. */
   versions: {
     publish: 'Publish',
@@ -117,7 +117,7 @@ export const forms = {
       `The ${post ? 'post' : 'page'} goes on the website at this time, and until then the website shows the version it has. The website updates within an hour of the time.`,
     scheduleTime: 'Date',
     scheduleNeedsFuture: 'Choose a date and time that has not passed.',
-    scheduleWithAddress: 'Save the new address first, then schedule.',
+    scheduleWithAddress: 'Save the new URL first, then schedule.',
     /** The line under the title, and the message after scheduling; `when`: "Nov 20 at 8:00 AM". */
     scheduledLine: (when: string) => `Scheduled · ${when}`,
     savedScheduled: (when: string) => `Scheduled. It goes on the website ${when}.`,
@@ -146,7 +146,7 @@ export const forms = {
     discardTitle: 'Discard draft?',
     /** `name`: the page or post, as in “Page About us”. */
     discardText: (name: string) => `Your unpublished changes to ${name} will be deleted. The published version stays.`,
-    addressWaiting: 'Publish or discard the changes before you change the address.',
+    addressWaiting: 'Publish or discard the changes before you change the URL.',
     standardPage: 'This page is chosen as a default page, so it must stay published.',
     /** Names of what changed, for the message after a save (`what`: the page or post). */
     published: (what: string) => `${what} published`,
@@ -192,22 +192,22 @@ export const forms = {
     standardPage: (label: string, where: string) =>
       `The page is chosen as ${label} under ${where} and must be published. Choose another page there first.`,
     redirectsNotLoaded: (error: string) => `Couldn’t load the redirects: ${error}`,
-    takenTitle: (address: string) => `The address ${address} is taken`,
+    takenTitle: (address: string) => `The URL ${address} is taken`,
     /** The address sends visitors on to `name`, and `via` other addresses send on through it. */
     takenText: (address: string, name: string, via: number, post: boolean) =>
       `It currently sends visitors on to ${name}. If you remove the redirect, they come to ${post ? 'this post' : 'this page'} instead.`,
     freeAndSave: 'Remove the redirect and save',
-    pickOther: 'Choose another address',
-    otherTitle: 'Another address',
-    otherText: (post: boolean) => `Write the address the ${post ? 'post' : 'page'} should have.`,
+    pickOther: 'Choose another URL',
+    otherTitle: 'Another URL',
+    otherText: (post: boolean) => `Write the URL the ${post ? 'post' : 'page'} should have.`,
     /** An address that is taken (`reason`), and what to do: another address, or (a new one) another title. */
     taken: (reason: string, typed: boolean, post: boolean) =>
-      `${reason} ${typed ? 'Choose another address' : `Give the ${post ? 'post' : 'page'} another title`}.`,
-    fileExists: (name: string) => `There’s already a file named ${name}.md. Choose another address.`,
+      `${reason} ${typed ? 'Choose another URL' : `Give the ${post ? 'post' : 'page'} another title`}.`,
+    fileExists: (name: string) => `There’s already a file named ${name}.md. Choose another URL.`,
     empty: (post: boolean) => `${post ? 'An empty blog post' : 'An empty page'} can’t be saved.`,
     movedTitle: 'Redirect created',
     movedText: (address: string, old: string, post: boolean, where: string) =>
-      `The ${post ? 'post' : 'page'} now has the address ${address}. The old address, ${old}, now redirects here.`,
+      `The ${post ? 'post' : 'page'} now has the URL ${address}. The old URL, ${old}, now redirects here.`,
     ok: 'OK',
     seeRedirects: 'See redirects',
   },
