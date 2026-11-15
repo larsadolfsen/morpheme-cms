@@ -48,6 +48,9 @@ export type SiteBlock = {
   /** Typed in place in the text (InlineItems.tsx, MarkdownEditor.tsx): its card is the block drawn with its text as fields, not an image
    * of it; a new one goes in at once, without a sheet. Only the List so far (docs/superpowers/specs/2026-11-12-inline-block-editing-design.md). */
   inline?: InlineSpec;
+  /** The parts of the block that can be filled from a list (`Rows from`): the framework's slots, lib/lists.mjs. The core adds the filter slot
+   * `tags` itself. The List family declares its four (title, text, icon, href). Without it the block cannot read a list. */
+  slots?: ListSlot[];
   /** Cannot be hidden on the site (its line in the file has no props to say so: HTML). */
   shown?: boolean;
   /** Drawn in its sheet above the fields, as it is with them now (BlockDialog.tsx): the buttons,
@@ -128,6 +131,9 @@ export type InlineSpec = {
     changeLink?: string;
   };
 };
+
+/** A slot a block draws and the kinds of list field it takes, in order (lib/lists.mjs). */
+export type ListSlot = { id: string; kinds?: string[]; required?: boolean };
 
 export type BlockDefinition = Omit<SiteBlock, 'type' | 'standard' | 'app' | 'draw'>;
 export const defineBlock = (block: BlockDefinition) => block;

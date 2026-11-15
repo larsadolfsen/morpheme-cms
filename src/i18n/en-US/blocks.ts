@@ -554,6 +554,8 @@ export const blocks = {
     mediaNone: 'None',
     mediaIcon: 'Icon',
     mediaImage: 'Image',
+    ratio: 'Image aspect ratio',
+    ratioHint: 'All the cards’ images use it.',
     mediaVideo: 'Video',
     video: 'Video link',
     buttons: 'Buttons',

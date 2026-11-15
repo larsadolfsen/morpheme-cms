@@ -98,7 +98,7 @@ export type SourceItem = {
 export type StandardSite = {
   /** The items of a list a list block reads ("Rows from"), by the source's id (`posts`, `testimonials`, or the id of a list that
    * declares `asRows`) and the page the list has of its own (where "Show all" goes), if it has one. Empty when there is no such list. */
-  source(id: string): Promise<{ items: SourceItem[]; page?: string }>;
+  source(id: string): Promise<{ items: SourceItem[]; page?: string; missing?: boolean }>;
   /** The blocks' shared texts (shared.ts, with those saved over them), by type: for a block that shows another's
    * (a block that shows the shared texts of another). */
   texts: Record<string, Record<string, any>>;

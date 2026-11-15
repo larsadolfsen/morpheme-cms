@@ -6,8 +6,10 @@ import { defineBlock } from '../../blocks';
 import { t } from '../../i18n';
 import { headFields } from '../head';
 import { fromLine, nameWith, rowsFromFields, typed } from '../rows/fields';
+import { SLOTS } from '../rows/rows.mjs';
 
 export default defineBlock({
+  slots: SLOTS,
   group: 'lists',
   label: t.blocks.faq.label,
   icon: Question,

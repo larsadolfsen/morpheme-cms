@@ -9,10 +9,12 @@ import { iconColorField } from '../../iconColor';
 import { t } from '../../i18n';
 import { headFields } from '../head';
 import { fromLine, nameWith, rowsFromFields, typed } from '../rows/fields';
+import { SLOTS } from '../rows/rows.mjs';
 
 type Row = { title?: string };
 
 export default defineBlock({
+  slots: SLOTS,
   group: 'lists',
   label: t.blocks.segmented.label,
   icon: SquaresFour,
