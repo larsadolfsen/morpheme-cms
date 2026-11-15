@@ -1,6 +1,6 @@
 // A lightbox (.lightbox in ../styles/ui.css): an image shown bigger over the page, which Material 3 has no part for (it prints no lightbox or image
-// viewer: see docs/material-deviations.md). It is the theme's modal dialog (Dialog.tsx, kind 'full-screen', in a <dialog> with the classes of
-// dialogFullScreenModalClass, so the dialog's scrim, focus trap, Escape and focus return are the dialog's): on a compact window the whole screen, from
+// viewer: see docs/material-deviations.md). It is a modal <dialog> with the theme's dialog container (.dialog, with dialogModalClass, so
+// the dialog's scrim, focus trap, Escape and focus return are the dialog's) and its own markup: on a compact window the whole window, from
 // medium a container as large as the window less 56 dp on each side. In its header only the close button (M3: "the close X icon button should be
 // the only navigation option in the app bar"); under it the images one after the other in a horizontal track that snaps (CSS scroll-snap: a swipe, a
 // trackpad and the arrow keys scroll one image at a time), each in its own proportions, never cropped, with its caption under it; the Previous and Next
@@ -9,11 +9,11 @@
 // them), moves between them and closes. The texts are the site's, in its language (`label`, `closeLabel`, `previousLabel`, `nextLabel`). `className`
 // after its own classes; the rest (id, data-…) on the <dialog>. An Astro component without React gives the <dialog> the same classes with
 // lightboxModalClass.
-import Dialog, { dialogFullScreenModalClass } from '@theme/ui/Dialog';
+import { dialogClass, dialogModalClass } from '@theme/ui/Dialog';
 import IconButton from '@theme/ui/IconButton';
 
-/** The <dialog>'s classes: the dialog's full-screen modal, as the lightbox. */
-export const lightboxModalClass = `${dialogFullScreenModalClass} lightbox-modal`;
+/** The <dialog>'s classes: the dialog's modal, as the lightbox. */
+export const lightboxModalClass = `${dialogModalClass} lightbox-modal`;
 
 export default function Lightbox({
   label,
@@ -32,14 +32,19 @@ export default function Lightbox({
 } & Record<string, unknown>) {
   return (
     <dialog className={[lightboxModalClass, className].filter(Boolean).join(' ')} aria-label={label} data-lightbox="" {...rest}>
-      <Dialog kind="full-screen" className="lightbox" closeLabel={closeLabel}>
-        <div className="lightbox-stage">
-          <IconButton icon="caret-left" label={previousLabel} className="lightbox-previous" data-lightbox-previous="" />
-          <ul className="lightbox-track" data-lightbox-track="" tabIndex={0} aria-label={label} />
-          <IconButton icon="caret-right" label={nextLabel} className="lightbox-next" data-lightbox-next="" />
+      <div className={`${dialogClass} lightbox`}>
+        <div className="lightbox-header">
+          <IconButton icon="x" label={closeLabel} data-dialog-close="" />
         </div>
-        <p className="lightbox-count" data-lightbox-count="" aria-live="polite" />
-      </Dialog>
+        <div className="lightbox-content">
+          <div className="lightbox-stage">
+            <IconButton icon="caret-left" label={previousLabel} className="lightbox-previous" data-lightbox-previous="" />
+            <ul className="lightbox-track" data-lightbox-track="" tabIndex={0} aria-label={label} />
+            <IconButton icon="caret-right" label={nextLabel} className="lightbox-next" data-lightbox-next="" />
+          </div>
+          <p className="lightbox-count" data-lightbox-count="" aria-live="polite" />
+        </div>
+      </div>
     </dialog>
   );
 }
