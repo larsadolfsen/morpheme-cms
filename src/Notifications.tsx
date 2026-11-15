@@ -1,5 +1,5 @@
-// "Notifications": a modal side sheet at the end of the screen, over the screen that is open, which the bell in the top bar
-// opens (Screen.tsx NotificationsButton, notificationsOpen.ts): the notifications of the editor and the apps
+// "Notifications": from 600 dp a modal side sheet at the end of the screen, over the screen that is open, which the bell in the top bar
+// opens (below 600 dp the bell goes to the page `#notifications`, NotificationsPage below, with a back arrow) (Screen.tsx NotificationsButton, notificationsOpen.ts): the notifications of the editor and the apps
 // (notificationData.ts), newest first, each with when it came and, when it had one, a link to what it is about; an app's
 // with the app's icon. Opening it marks them seen; at the bottom one button clears them and another opens "Account", where
 // each type is turned on or off (NotificationActions.tsx). A long press selects one (useSelection.ts, ListItem `selectable`), and then a tap selects or
@@ -10,7 +10,9 @@
 // (App.tsx).
 import { useEffect, useId, useRef, useState } from 'react';
 import { Info, WarningCircle } from '@phosphor-icons/react';
-import { EmptyNote, Group, ListItem } from './ui';
+import { EmptyNote, Group, IconButton, ListItem } from './ui';
+import SelectionBar from './SelectionBar';
+import Screen from './Screen';
 import { useSelection } from './useSelection';
 import NotificationActions from './NotificationActions';
 import { SiteSideSheet, siteSideSheet, siteSideSheetDialogClass } from './themeUi';
@@ -43,6 +45,57 @@ function Row({ text, type, error, at, link, selection }: RowProps) {
       supporting={link ? `${when(new Date(at))} · ${link.text}` : when(new Date(at))}
       arrow={!!link}
     />
+  );
+}
+
+/** The notifications' page below 600 dp (route `notifications`): the same rows, with the way back in the top bar (a phone has no
+ * side sheet, owner rule 15 Nov, docs/material-deviations.md B2). "Clear" and "Settings" are under the list, as in the sheet; while
+ * some are selected the top bar shows the selection's own (unselect, delete), as on Files. Opening it marks them seen. */
+export function NotificationsPage({ siteName }: { siteName: string }) {
+  const { items } = useNotifications();
+  const selection = useSelection({ order: items.map(notificationKey) });
+  useEffect(() => {
+    markSeen();
+  }, [items]);
+  return (
+    <Screen
+      title={t.library.notifications}
+      back={{ href: '#', label: siteName }}
+      selection={
+        selection.selecting ? (
+          <SelectionBar count={selection.keys.length} onClose={selection.clear} kind="icons">
+            <IconButton
+              icon="trash"
+              label={t.library.deleteSelected(selection.keys.length)}
+              onClick={() => {
+                removeNotifications(selection.keys);
+                selection.removed();
+              }}
+            />
+          </SelectionBar>
+        ) : undefined
+      }
+    >
+      {items.length ? (
+        <Group>
+          {items.map((n) => {
+            const key = notificationKey(n);
+            return <Row key={key} {...n} selection={selection.row(key)} />;
+          })}
+        </Group>
+      ) : (
+        <EmptyNote>{t.library.noNotifications}</EmptyNote>
+      )}
+      <div className="mt-4 flex flex-wrap gap-2">
+        <NotificationActions
+          selected={0}
+          hasItems={items.length > 0}
+          onDelete={() => {}}
+          onUnselect={() => {}}
+          onClear={clearNotifications}
+        />
+      </div>
+    </Screen>
   );
 }
 
