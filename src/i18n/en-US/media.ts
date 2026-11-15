@@ -49,8 +49,8 @@ export const media = {
   removeFilter: (label: string) => `Remove the filter ${label}`,
   noImages: 'No images',
   noFiles: 'No files',
-  pick: 'Choose an image',
-  pickMany: 'Choose images',
+  pick: 'Select an image',
+  pickMany: 'Select images',
   addPicked: (count: number) => (count === 1 ? 'Add 1 image' : `Add ${count} images`),
   /** The sources of images that apps add to the picker (media providers). */
   providers: {
@@ -84,7 +84,7 @@ export const media = {
       : `${kept} of ${total} files are used on pages and were kept: ${names}`,
   nameTaken: 'There’s already a file with that name',
   tooBig: (mb: number) => `The file is too big. It can be at most ${mb} MB.`,
-  notAFile: 'The file can’t be used. Choose an image, a PDF, a video, or a zip file.',
+  notAFile: 'The file can’t be used. Select an image, a PDF, a video, or a zip file.',
   name: 'Name',
   saveName: 'Save name',
   openPdf: 'Open PDF',

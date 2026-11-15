@@ -37,17 +37,17 @@ export const rules: Record<string, string> = {
   'The tag is used in the promotion "{name}". Remove it from the promotion first.':
     'Tagget bruges i promoveringen "{name}". Fjern det fra den først.',
   'Edit the promotion': 'Rediger promoveringen',
-  'The tag picks the posts on the home page under "From the blog". Pick another one first.':
+  'The tag selects the posts on the home page under "From the blog". Select another one first.':
     'Tagget vælger indlæggene på forsiden under "Fra bloggen". Vælg et andet først.',
-  'The post is picked for the home page under "From the blog". Pick another one first.':
+  'The post is selected for the home page under "From the blog". Select another one first.':
     'Indlægget er valgt til forsiden under "Fra bloggen". Vælg et andet først.',
-  'The post is picked in a block of blog posts on the page "{page}". Pick another one first.':
+  'The post is selected in a block of blog posts on the page "{page}". Select another one first.':
     'Indlægget er valgt i en blok med blogindlæg på siden "{page}". Vælg et andet først.',
-  'The tag is picked in a block in the blog post "{page}". Pick another one first.':
+  'The tag is selected in a block in the blog post "{page}". Select another one first.':
     'Tagget er valgt i en blok i blogindlægget "{page}". Vælg et andet først.',
-  'The tag is picked in a block on the page "{page}". Pick another one first.':
+  'The tag is selected in a block on the page "{page}". Select another one first.':
     'Tagget er valgt i en blok på siden "{page}". Vælg et andet først.',
-  '{page} is a default page, so it cannot be deleted. Pick another page under "Default pages" first.':
+  '{page} is a default page, so it cannot be deleted. Select another page under "Default pages" first.':
     '{page} er en standardside og kan ikke slettes. Vælg en anden side under "Standardsider" først.',
   'Edit the default pages': 'Rediger standardsiderne',
   'Edit the post': 'Rediger indlægget',

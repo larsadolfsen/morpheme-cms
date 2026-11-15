@@ -29,6 +29,6 @@ export const check = {
   mustBeOnPage: (name: string) => `"${name}" must be on the page.`,
   mustBeShown: (name: string) => `"${name}" must be shown on the page.`,
   recordShape: 'A file’s tags need "src" (the file’s address) and the lists "categories" and "removed".',
-  recordOverlap: (tag: string) => `The tag "${tag}" is both chosen and removed.`,
+  recordOverlap: (tag: string) => `The tag "${tag}" is both selected and removed.`,
   recordDuplicate: (src: string) => `Another file of tags is for ${src}.`,
 };

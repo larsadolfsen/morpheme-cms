@@ -5186,7 +5186,7 @@ async function checkImageGridAdd(width, height) {
   const before = await page.locator('.site-block-inline .block-imagegrid-grid li').count();
   await page.getByRole('button', { name: 'Add images' }).click();
   await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
-  if (!(await page.locator('dialog[open]').getByText('Choose images').count()))
+  if (!(await page.locator('dialog[open]').getByText('Select images').count()))
     problems.push(`${label}: the picker is not the one for several images`);
   if (await page.locator('dialog[open]').getByRole('button', { name: 'Upload a new image' }).count())
     problems.push(`${label}: the picker for several images offers an upload`);
