@@ -6406,6 +6406,9 @@ async function checkVideoChangeLink(width, height = 800) {
   }
   const thumb = sheetOpen().getByText('Thumbnail', { exact: true });
   if (!(await thumb.count())) problems.push(`${label}: the video's sheet has no Thumbnail field`);
+  // A site with no images in its Library (the starter) has none to choose: the field is checked, the drawing is the demo's.
+  else if (!has('src/data/files'))
+    console.log(`${label}: the thumbnail is not chosen, the site has no images in its Library, which the demo has.`);
   else {
     await sheetOpen().locator('button', { hasText: 'Choose image' }).first().click();
     await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
