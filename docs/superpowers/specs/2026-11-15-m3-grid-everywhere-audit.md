@@ -143,21 +143,42 @@ be shown in *Developer › Parts › UI components* and used through `src/ui.tsx
 
 ## 5. Recommendation and rollout
 
-Small pull requests, in this order, each one a separate decision:
+**Owner input (relayed by the PM, 15 Nov).** On the dashboard each widget declares a span, full or half, with no edit
+control. "This is on all editor pages and also on the site, even though we don't use it." So the target is **one theme
+grid** (M3's 4 / 8 / 12 columns, tokens, span utilities) that exists everywhere in the editor and the site, whether or not
+a place uses it yet. The Library media grid and the dashboard are the first users; that part is being built in pull
+request #741 and this audit does not repeat it. Where #741 builds the grid itself, the steps below start from its tokens
+and span utilities and must not add a second set.
 
-1. **Spec and owner decisions**, then the **theme tokens and the grid part**, with a gallery entry and no screen using it
-   yet. No visible change. Owner approval first.
-2. **Link the page container and the editor margins to the tokens** (`Container.astro`, `Screen.tsx`, `blocks.css:98`).
-   Same pixel values; removes the two copies. No visible change.
-3. **Dashboard spans** (`DashboardGrid.tsx`, `DashboardEdit.tsx`): editor only, answers the owner's span question,
-   no site impact. The best first visible step.
-4. **Editor `FormColumns` and field pairs** on the tokens. Editor only.
-5. **Media grid column counts** on cell values (`ui.css:2575`). The image grid block uses the same class, so this changes
-   sites too: split the class for the editor first, or treat it as the first block change of step 7.
-6. **12-columns-at-840 places** (footer, blog, CTA): move to 8 at 600–1199 and 12 from 1200. Small, medium risk.
-7. **Blocks, one pull request each**, in order: cards (largest use), image grid, price cards, then panels, points,
-   media and checklist. Each as opt-in or with a release note. `auto-fit` blocks last: they work today and nothing
-   in M3 asks for their change.
+Small pull requests, in this order:
+
+1. **#741: the grid and its first two users** (Library media grid, dashboard with full / half spans). Open points for
+   that pull request, from this audit: spans counted in cells of two grid columns (section 2), so half is 2 of 4 on a
+   phone; tokens for columns, margin and gutter with fallbacks; the media grid's 3 columns at 600–1199 do not divide M3's 8
+   (open question 6); the image grid block shares the media grid's class, so splitting it keeps sites unchanged.
+2. **Link the page container and the editor margins to the tokens** (`Container.astro`, `Screen.tsx`,
+   `blocks.css:98`). Same pixel values, two copies removed. No visible change.
+3. **Editor `FormColumns` and field pairs** on the grid (8 + 4 of 12 from large, spans of 4 of 8 for pairs). Editor only.
+4. **12-columns-at-840 places** (footer, blog, CTA): move to 8 at 600–1199 and 12 from 1200 with the same spans in
+   cells. Small, medium risk.
+5. **Blocks, one pull request each**, in order: cards, image grid, price cards, then panels, points, media and checklist.
+   Each is opt-in or comes with a release note, because it changes published sites. `auto-fit` blocks last: they work
+   today and nothing in M3 asks for their change.
+
+### What it takes to bring the other places onto the grid
+
+Once the grid exists, "available everywhere" costs nothing; "used everywhere" is the table below. All of it is
+replacing a layout rule with the grid container and a span, never a new component.
+
+| Place | What to do | Size | Site changes? |
+| :--- | :--- | :--- | :--- |
+| Field pairs (`BlockParts`, `PickerParts`, `ContainmentParts`, `ActionParts`, `SelectionParts`, `NavigationParts`) | `grid medium:grid-cols-2` becomes the grid with two spans of 4 of 8 | S | No |
+| `FormColumns`, settings pane | main span 8 + side span 4 of 12 from large; the `pane` strip stays | S–M | No |
+| Page frame, centre column | margins from tokens; width stays | M | No |
+| Footer, blog, CTA | 12-at-840 becomes 8 / 12 by breakpoint; spans in cells | S | Yes, reflows |
+| Cards, image grid, price cards | counts become spans in cells; 3 across only on 12 columns | M each | Yes, High |
+| Panels, points, media, checklist | `auto-fit` to spans; counts follow the breakpoint | L | Yes, High |
+| Post text column, carousels, pickers, lists | leave (*Would not change*, below) | none | No |
 
 **Would not change:** the breakpoints (already M3's); the spacing scale (already M3's); the 72rem page width and the
 reading measures (M3 prints none); the generic and cards carousel widths (M3 carousel rules, not the layout grid);
@@ -170,7 +191,7 @@ they follow the blocks); anything that would need a `THEME_API` bump before the 
    for page columns), or choose others (for example M3's older 16 / 24 / 32)?
 2. Does "2 columns on a phone" mean a 4-column grid with cells of 2 (section 2)? M3's own feed is 1 column; is the 2-column
    phone layout an owner-approved deviation, to be recorded in `docs/material-deviations.md`?
-3. Do site blocks follow the grid, or only the editor? Blocks change sites; an opt-in per block, a theme setting or a
+3. The grid is on the site too (owner, via the PM). Do the existing site blocks move onto it now, or only when a site opts in? Blocks change sites; an opt-in per block, a theme setting or a
    release note per change.
 4. Footer, blog and CTA use 12 columns from 840 (CTA from 600). Move them to M3's 8 at 600–1199?
 5. Is a `THEME_API` bump acceptable if the editor requires the grid classes, or must the editor fall back for old themes?
