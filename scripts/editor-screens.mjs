@@ -11330,7 +11330,9 @@ for (const width of [375, 1280]) await unit(`checkCardBar ${width}`, () => check
 await unit('checkLiveSideSheet 1280', () => checkLiveSideSheet(1280));
 await unit('checkPhoneSheet 375', () => checkPhoneSheet(375));
 await unit('checkComputerRestore 1280', () => checkComputerRestore(1280));
-for (const width of [375, 700]) await unit(`checkCloseChangedSheet ${width}`, () => checkCloseChangedSheet(width));
+// From medium the block's sheet is the live side sheet and asks nothing (checkLiveSideSheet), so only the subpage on a phone asks.
+for (const width of [375]) await unit(`checkCloseChangedSheet ${width}`, () => checkCloseChangedSheet(width));
+await unit('checkLiveSideSheet 700', () => checkLiveSideSheet(700));
 for (const width of [700, 1280]) await unit(`checkSheetFocusOnOpen ${width}`, () => checkSheetFocusOnOpen(width));
 for (const width of [375, 1280]) await unit(`checkImageTools ${width}`, () => checkImageTools(width));
 for (const width of [375, 1280]) await unit(`checkCropView ${width}`, () => checkCropView(width));
