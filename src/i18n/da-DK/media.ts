@@ -10,6 +10,7 @@ export const media: Messages['media'] = {
   wholeYear: (year) => `Hele ${year}`,
   use: 'Brug',
   filter: 'Filter',
+  clearAll: 'Ryd alle',
   all: 'Alle',
   kind: 'Type',
   allKinds: 'Alle typer',

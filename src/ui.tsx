@@ -478,21 +478,55 @@ export type InField = { label?: string; hint?: ReactNode; problem?: string; limi
 
 const error = (problem: string | undefined, invalid: unknown) => problem || (invalid ? true : undefined);
 
-/** The theme's text field, with what it says in itself (InField). `className` goes on the field around the <input> (its
- * width, its place). */
+/** What is wrong with a field by the editor's own rules (fieldProblem in check.ts), as the line under it: it is the browser's
+ * own validity too (setCustomValidity), so the field is marked (`:user-invalid`) once it has been worked in, and only while it
+ * is wrong. `problem` (InField) marks it at once, as when Save stops there (useWrongField). */
+export type Invalid = { invalid?: string };
+
+/** The theme's text field, with what it says in itself (InField) and what is wrong with it (Invalid). `className` goes on the
+ * field around the <input> (its width, its place). */
 export function TextField({
   label,
   hint,
   problem,
   limit,
+  invalid,
   ...rest
-}: InputHTMLAttributes<HTMLInputElement> & InField & { ref?: Ref<HTMLInputElement> }) {
-  return <SiteTextField label={label} supporting={hint} error={error(problem, rest['aria-invalid'])} limit={limit} {...rest} />;
+}: InputHTMLAttributes<HTMLInputElement> & InField & Invalid & { ref?: Ref<HTMLInputElement> }) {
+  return (
+    <SiteTextField
+      label={label}
+      supporting={hint}
+      error={error(problem, rest['aria-invalid'])}
+      invalid={!!invalid}
+      invalidText={invalid}
+      limit={limit}
+      {...rest}
+    />
+  );
 }
 
 /** The theme's text field of several lines (`rows` high), as TextField. */
-export function TextArea({ label, hint, problem, limit, ...rest }: TextareaHTMLAttributes<HTMLTextAreaElement> & InField) {
-  return <SiteTextField multiline label={label} supporting={hint} error={error(problem, rest['aria-invalid'])} limit={limit} {...rest} />;
+export function TextArea({
+  label,
+  hint,
+  problem,
+  limit,
+  invalid,
+  ...rest
+}: TextareaHTMLAttributes<HTMLTextAreaElement> & InField & Invalid) {
+  return (
+    <SiteTextField
+      multiline
+      label={label}
+      supporting={hint}
+      error={error(problem, rest['aria-invalid'])}
+      invalid={!!invalid}
+      invalidText={invalid}
+      limit={limit}
+      {...rest}
+    />
+  );
 }
 
 /** The theme's date picker (Material 3's): a field to type a date in, with the calendar that picks it, with what it
@@ -2329,7 +2363,7 @@ export function MenuRow<T extends string>({
 
 /** The fields of a sheet, between SheetTitle and SheetActions, scrolled when there are many. */
 export function SheetBody({ onSubmit, children }: { onSubmit?: (e: FormEvent<HTMLFormElement>) => void; children: ReactNode }) {
-  const className = 'min-h-0 flex-1 space-y-5 overflow-y-auto px-5 pt-2 pb-4';
+  const className = 'min-h-0 flex-1 space-y-5 overflow-y-auto px-(--grid-margin) pt-2 pb-4';
   return onSubmit ? (
     <form className={className} onSubmit={onSubmit}>
       {children}
@@ -2396,7 +2430,7 @@ export function SheetActions({
   return (
     <div className="shrink-0">
       <SiteDivider />
-      <div className="flex items-center gap-2 px-5 py-3">
+      <div className="flex items-center gap-2 px-(--grid-margin) py-3">
         {start}
         <Button kind="outlined" className="ml-auto" onClick={onCancel}>
           {cancel ?? t.common.cancel}
@@ -4178,8 +4212,21 @@ export type FilterGroup = { title: string; value: string; options: ChoiceOption<
  * heading (with what is chosen in it beside it) to its choices, the chosen one marked. One group is open
  * at a time, the first when the sheet opens, and the sheet does not get lower when another opens; a lone
  * group stands open under its heading. A choice is taken at once and the sheet stays open, so another filter can be
- * chosen too; the cross or a tap outside closes it. The funnel is marked while a filter is chosen (selected). */
-export function Filters({ title, selected, groups }: { title: string; selected?: boolean; groups: FilterGroup[] }) {
+ * chosen too; with `onClearAll` a text button at the bottom clears them all; the cross or a tap outside closes it. The funnel is marked while a filter is chosen (selected). */
+export function Filters({
+  title,
+  selected,
+  groups,
+  clearAll,
+  onClearAll,
+}: {
+  title: string;
+  selected?: boolean;
+  groups: FilterGroup[];
+  /** The text button's name at the bottom of the sheet ("Clear all"), with `onClearAll`; it is off while nothing is filtered (`selected`). */
+  clearAll?: string;
+  onClearAll?: () => void;
+}) {
   const dialog = useRef<HTMLDialogElement>(null);
   const first = groups[0]?.title ?? '';
   const [open, setOpen] = useState<string | null>(first);
@@ -4193,9 +4240,21 @@ export function Filters({ title, selected, groups }: { title: string; selected?:
   }
   return (
     <>
-      <IconButton icon={Funnel} label={title} selected={selected} aria-haspopup="dialog" onClick={() => dialog.current?.showModal()} />
+      <IconButton
+        icon={Funnel}
+        label={title}
+        selected={selected}
+        aria-haspopup="dialog"
+        onClick={() => {
+          dialog.current?.showModal();
+          // No control has the focus to begin with (the sheet has it), as in every dialog (ask.tsx).
+          dialog.current?.focus();
+        }}
+      />
       <BottomSheet
         ref={dialog}
+        tabIndex={-1}
+        className="focus:outline-none"
         aria-label={title}
         onClick={(e) => e.target === dialog.current && close()}
         onClose={(e) => {
@@ -4243,6 +4302,16 @@ export function Filters({ title, selected, groups }: { title: string; selected?:
             );
           })}
         </SheetList>
+        {clearAll && onClearAll && (
+          <div className="shrink-0">
+            <SiteDivider />
+            <div className="flex items-center justify-end gap-2 px-5 py-3">
+              <Button kind="text" disabled={!selected} onClick={onClearAll}>
+                {clearAll}
+              </Button>
+            </div>
+          </div>
+        )}
       </BottomSheet>
     </>
   );

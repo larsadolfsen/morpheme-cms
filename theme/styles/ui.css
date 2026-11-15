@@ -984,9 +984,12 @@
   .text-field-filled .text-field-container:has(> .text-field-input:focus) {
     box-shadow: inset 0 0 0 2px var(--text-field-filled-focus-line, var(--block-accent));
   }
-  .text-field-error .text-field-container,
-  .text-field-error .text-field-container:hover,
-  .text-field-error .text-field-container:has(> .text-field-input:is(:focus, [aria-expanded='true'])) {
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
+    .text-field-container,
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
+    .text-field-container:hover,
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
+    .text-field-container:has(> .text-field-input:is(:focus, [aria-expanded='true'])) {
     box-shadow: inset 0 0 0 2px var(--text-field-error, var(--block-accent));
   }
   /* A choice whose menu is open under it (the button's aria-expanded): the edge as with the focus, which has moved into
@@ -1051,8 +1054,11 @@
   .text-field-filled .text-field-input[aria-expanded='true'] + .text-field-label {
     color: var(--text-field-filled-focus-line, var(--block-accent));
   }
-  .text-field-error .text-field-label,
-  .text-field-error .text-field-input:is(:focus, [aria-expanded='true']) + .text-field-label {
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
+    .text-field-label,
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
+    .text-field-input:is(:focus, [aria-expanded='true'])
+    + .text-field-label {
     color: var(--text-field-error, var(--block-accent));
   }
   /* Outlined: the name on the edge, on the field's surface, at its start (also past the icon before it). */
@@ -1110,7 +1116,7 @@
   /* What is written, or the suffix, nearer to the icons and buttons after it. */
   .text-field-container:has(> .text-field-trailing-action, > .text-field-trailing-icon:not(.text-field-error-icon))
     > :is(.text-field-input, .text-field-suffix):not(:has(~ .text-field-suffix)),
-  .text-field-error
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
     .text-field-container:has(> .text-field-error-icon)
     > :is(.text-field-input, .text-field-suffix):not(:has(~ .text-field-suffix)) {
     padding-inline-end: var(--text-field-icon-gap, 0.75rem);
@@ -1146,11 +1152,12 @@
   .text-field-error-icon {
     display: none;
   }
-  .text-field-error .text-field-error-icon {
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
+    .text-field-error-icon {
     display: block;
     color: var(--text-field-error, var(--block-accent));
   }
-  .text-field-error
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
     .text-field-container:has(> .text-field-error-icon)
     > :is(.text-field-trailing-icon:not(.text-field-error-icon), .text-field-trailing-action) {
     display: none;
@@ -1202,8 +1209,22 @@
     flex: 1;
     margin: 0;
   }
-  .text-field-error .text-field-supporting {
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
+    .text-field-supporting {
     color: var(--text-field-error, var(--block-accent));
+  }
+  /* What is said when the browser finds the field invalid after the person has worked in it (invalidText, `:user-invalid`):
+     it takes the place of the line under the field and does not add one (m3.material.io/components/text-fields/guidelines,
+     Error text: "Swap supporting text with error text"), so the layout does not move. */
+  .text-field-invalid-text {
+    display: none;
+  }
+  .text-field:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text) .text-field-invalid-text {
+    display: block;
+  }
+  .text-field:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)
+    .text-field-supporting:not(.text-field-invalid-text) {
+    display: none;
   }
   .text-field-counter {
     flex-shrink: 0;
@@ -1931,7 +1952,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 0 1.25rem 0.75rem;
+    padding: 0 var(--grid-margin, 1rem) 0.75rem;
     border-bottom: 1px solid var(--bottom-sheet-line, var(--block-line));
   }
   .bottom-sheet-heading {
@@ -1963,7 +1984,7 @@
   }
   .bottom-sheet-peek {
     flex: none;
-    padding: 0.75rem 1.25rem 1rem;
+    padding: 0.75rem var(--grid-margin, 1rem) 1rem;
   }
   .bottom-sheet-content {
     position: relative;
@@ -2013,7 +2034,7 @@
   .bottom-sheet-footer {
     flex-shrink: 0;
     margin: 0;
-    padding: 0.75rem 1.25rem;
+    padding: 0.75rem var(--grid-margin, 1rem);
     border-top: 1px solid var(--bottom-sheet-line, var(--block-line));
     font-size: var(--type-body-medium-size);
     line-height: var(--type-body-medium-line-height);
@@ -2093,7 +2114,7 @@
   .bottom-sheet-standard > .bottom-sheet-content {
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 1rem 1.25rem;
+    padding: 1rem var(--grid-margin, 1rem);
   }
   .bottom-sheet-standard[data-state='collapsed'] > :is(.bottom-sheet-content, .bottom-sheet-footer) {
     display: none;
@@ -2679,8 +2700,14 @@
   .list-item-supporting {
     display: block;
   }
-  /* Columns: on a wide screen the headline and the supporting text side by side, each in half the item's text. */
-  @media (width >= theme(--breakpoint-expanded)) {
+  /* Columns: when the item is wide the headline and the supporting text side by side, each in half the item's text. This follows the item's own
+     width, not the window's: an item in a narrow column or a side sheet keeps them under each other on a wide window too (Modern Web Guidance,
+     `responsive-design` and `size-aware-styling`). A container query measures the content box: 47.5rem is M3's expanded window (840 dp) less the page's
+     2 x 24 dp margins and the item's own 2 x 16 dp padding, so an item as wide as the page changes where it did. */
+  .list-item-columns {
+    container: list-item / inline-size;
+  }
+  @container list-item (width >= 47.5rem) {
     .list-item-columns .list-item-content {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
