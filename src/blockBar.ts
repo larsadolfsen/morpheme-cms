@@ -87,6 +87,7 @@ export const blockBar = {
  * button; the other names are the kinds of BarAction (`below`, `above` are rows: the Table's rows too). */
 export const BLOCK_TOOL_ORDER = [
   // A selected image (image tools spec, section 4): Change image, Crop, Alt text, Remove.
+  'change-link',
   'change-image',
   'crop',
   'alt-text',
