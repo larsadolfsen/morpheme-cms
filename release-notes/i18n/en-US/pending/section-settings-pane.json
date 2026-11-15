@@ -1,0 +1,7 @@
+{
+  "id": "section-settings-pane",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Section settings pane",
+  "text": "The page stays in view while you change a section. Select a heading and press Section settings, and the settings open in a pane at the right, with no dialog over the text. On a phone they stay a page with a back arrow."
+}

@@ -13,9 +13,9 @@ test("'fields' at expanded is a side sheet and in the panel", () => {
   assert.equal(inPanel('fields', true), true);
 });
 
-test("'section' below expanded is a sheet and not in the panel", () => {
-  assert.equal(sheetLook('section', false), 'sheet');
-  assert.equal(inPanel('section', false), false);
+test("'section' at medium (below expanded, not compact) is a side sheet and in the panel", () => {
+  assert.equal(sheetLook('section', false, false), 'side-sheet');
+  assert.equal(inPanel('section', false, false), true);
 });
 
 test("'section' at expanded is a side sheet and in the panel", () => {
@@ -63,8 +63,10 @@ test("'row' at expanded is a side sheet and in the panel", () => {
 test('the side sheet beside the page is live, every other look keeps Save and Cancel', () => {
   for (const step of ['fields', 'section', 'row']) {
     assert.equal(liveSheet(step, true), true);
-    assert.equal(liveSheet(step, false), false);
+    // Below expanded only the section settings are live: a pane from medium.
+    assert.equal(liveSheet(step, false), step === 'section');
   }
+  assert.equal(liveSheet('section', false, true), false);
   assert.equal(liveSheet('choose', true), false);
   assert.equal(liveSheet(undefined, true), false);
 });
