@@ -19,7 +19,8 @@
 3. **EU storage only for customers in EU countries.** A site's Artifacts namespace (and its R2 and D1) is chosen from the
    customer's country at sign-up: `sites-eu` (jurisdiction `eu`) for EU countries, `sites` (no jurisdiction) for everyone
    else. A namespace's jurisdiction cannot change later, so a customer who moves region gets a new repo (an export and an import).
-4. **One ordinary Worker per site** at launch; Workers for Platforms later.
+4. **Workers for Platforms from launch** (changed from one ordinary Worker per site, because a free plan means many sites).
+   One dispatch namespace holds every site's Worker, and a dispatch Worker on `*.<sites domain>` routes to it.
 5. **Login with Google and Microsoft** through OAuth in the platform Worker, the same pattern as today's GitHub login.
    Morpheme stores no passwords and sends no login emails. Cloudflare Access was considered and left out, because it
    charges per user who signs in (it is made for a company's own staff, not for customers).
@@ -36,6 +37,16 @@
    treat each site as its own site. The same zone is the Cloudflare for SaaS target for customers' own domains.
    `workers.dev` addresses are for internal testing only: they carry the account's name and change if it is renamed.
    `morpheme.dev` (also on the owner's account) is the site for developers: docs and the guides for making themes and apps.
+10. **A free plan to reach many sites first.** It is the full editor on `<name>.<sites domain>`, with these limits:
+    - **No own domain.** Connecting a domain is the reason to upgrade.
+    - **A build limit.** Saves made close together build once, with at most about 10 builds a day. Autosave drafts never
+      build, so editing stays free.
+    - **A small "Made with Morpheme" badge**, which paid plans remove.
+    - **Unused sites sleep.** After 6 months without a sign-in, the owner gets an email warning, then the site goes offline.
+      After 12 months it is deleted, with Export available until then.
+    - **Abuse controls.** Google or Microsoft sign-in, Turnstile on _Create a site_, a limit of sites per account, and a
+      _Report this site_ link. The sites domain must be on the Public Suffix List before the free plan opens.
+    - The paid plan adds an own domain, more builds, no badge, and paid themes and apps from the store.
 
 ## What exists today (the starting point)
 
@@ -88,9 +99,9 @@ All three stages need the same refactor. It is the biggest single piece of work,
 | **Storage** | One **Artifacts** repo per site, in `sites-eu` (jurisdiction `eu`) for customers in EU countries and in `sites` for everyone else (decision 3). A new site is a **fork** of a `starter` repo imported into each namespace. | Forking from a baseline is native and costs no GitHub. |
 | **Writing a save** | The Worker builds the commit with `isomorphic-git` against the repo's remote and a short-lived write token minted by the `ARTIFACTS` binding. The binding itself can read files, history and objects, but **cannot write files**. | The only documented way to write from a Worker. **Spike first:** the cost of a push from a Worker for a 100-file save. |
 | **Login** | **Morpheme accounts** signed in with **Google or Microsoft** (OAuth and OpenID Connect) on the platform Worker (decision 5). A site trusts a signed session from the platform, with the roles `owner` and `editor`. An owner invites an editor by email address; the editor signs in with Google or Microsoft on that address. | Roadmap 0.24 and paid-items already need "owner accounts". The open question in `platform.md` ("login uden GitHub") is answered here. No passwords and no login emails are kept by Morpheme. |
-| **Compute** | **v1: one ordinary Worker per site** on the owner's account, the same shape as today (CMS Worker plus `ASSETS`). **Later: Workers for Platforms** (one dispatch namespace, a dispatch Worker on `*.<sites domain>`, $25 per month, 1,000 scripts included, then $0.02 each). | The ordinary Worker needs almost no new code and connects to Workers Builds from Artifacts directly. An account allows a few hundred Workers. Move to Workers for Platforms before that, or when apps' own Workers must be isolated per tenant. |
-| **Build** | **v1: Workers Builds connected to the Artifacts repo** (documented: "Continue with Artifacts"). **Later: our own pipeline**: an Artifacts `push` event, a Queue, a Workflow, a Container that runs `morpheme ci-build`, then a deploy through the API. | Workers Builds allows **6 concurrent builds per account** with a 20-minute timeout, and today's build takes 3 min 41 s (about 1 min 45 s after 0.26). That is about 100 to 200 builds an hour for every hosted site together. That is enough for launch, but not for growth. |
-| **Per-site data** | D1 and KV per site at launch (D1 allows thousands of databases; KV allows 1,000 namespaces by default). Later, shared tables keyed by site id. | It keeps today's code unchanged. |
+| **Compute** | **Workers for Platforms** (decision 4): every site is a user Worker (the CMS Worker plus its static assets) in one dispatch namespace, `sites`. A dispatch Worker on `*.<sites domain>` and on customers' own hostnames looks up the site by hostname and calls its Worker. $25 a month, 1,000 sites included, then $0.02 per site a month. | An ordinary account allows only a few hundred Workers, which a free plan passes quickly. User Workers run in untrusted mode, apart from each other, which suits sites that run third-party app code. |
+| **Build** | **Our own pipeline from launch:** an Artifacts `push` event goes to a Queue, which starts a Workflow. The Workflow waits briefly to batch saves made close together, checks the plan's build limit, runs `morpheme ci-build` in a Container, then uploads the result to the site's user Worker through the Workers for Platforms API. This follows Cloudflare's documented "build and deploy on push" guide. | Workers Builds deploys ordinary Workers and allows only **6 concurrent builds per account** (today's build takes 3 min 41 s, about 1 min 45 s after 0.26). The own pipeline controls batching, plan limits and concurrency itself. |
+| **Per-site data** | One D1 database per site, bound to its user Worker. What the site keeps in KV today (`NOT_FOUND`, `PUSH`) moves into that D1, or into one KV namespace per site while there are fewer than 1,000 sites. | Separate databases keep one site's data away from another site's app code. **Check** the D1 limit on databases per account before launch. |
 | **Domains** | Default `<name>.<sites domain>` (a Worker custom domain; decision 9). Own domains through **Cloudflare for SaaS custom hostnames** on the sites domain's zone. | Customers keep their DNS where it is: they add a CNAME and the certificate is issued for them. |
 | **Store** | The site gets its store key when it is created (`POST /store/connect` from the platform), so "Connect to Morpheme" is never needed. | It follows the existing `connect-to-morpheme` design. |
 | **CMS updates** | The platform updates hosted sites itself: commit `package.json` to each repo in waves (canary sites first) and read build status through `build.status()`. | It replaces the hourly per-site npm poll and the GitHub check-run watch. |
@@ -99,8 +110,10 @@ All three stages need the same refactor. It is the biggest single piece of work,
 
 ### Provisioning (one Cloudflare Workflow, about one minute)
 
-`checkout.session.completed` → create the account and site row → fork the `starter` repo in Artifacts → create D1 and KV → create
-the Worker and connect Workers Builds to the repo → set the custom domain → mint the store key → first build → email "your site is live".
+_Create a site_ (free) or `checkout.session.completed` (paid) → create the account and site row → fork the `starter` repo in
+Artifacts → create the site's D1 → mint the store key → first build through the pipeline, uploaded as the site's user Worker in
+the dispatch namespace → map `<name>.<sites domain>` to it → email "your site is live". Upgrading to paid later adds the own
+domain (a Cloudflare for SaaS custom hostname) and lifts the build limit.
 Every step can be retried, and a failed step leaves a row the owner can see in the platform's admin.
 
 ### Cost per hosted site (rough, to set the price)
@@ -108,21 +121,22 @@ Every step can be retried, and a failed step leaves a row the owner can see in t
 - Artifacts: each save is about 1 push and 1 clone. With 5 saves a day that is about 300 operations a month, under the
   10,000 included operations until about 30 sites, then $0.15 per 1,000. Storage is $0.50 per GB a month after the first GB.
   This comes to a few cents per site.
-- **Workers Builds dominates the cost.** 5 saves a day at 1 min 45 s is about 260 build minutes a month per site.
-  6,000 minutes are included (about 23 sites), then $0.005 a minute, about **$1.30 per site a month**. At 20 saves a day it
-  is about $5. Batching saves made close together into one build, and the 0.26 content lane, matter more here than
-  anything else.
+- **Builds dominate the cost.** 5 builds a day at 1 min 45 s is about 260 build minutes a month per site. On Containers
+  that is roughly $1 per site a month (about the same as Workers Builds at $0.005 a minute). Batching saves made close
+  together into one build, the free plan's daily limit, and the 0.26 content lane matter more here than anything else.
+  Most free sites build far less than 5 times a day.
+- Workers for Platforms: $25 a month for the first 1,000 sites, then $0.02 per site.
 - Workers requests, D1 and KV are small for brochure sites. Requests for static assets are free.
-- **A monthly price of €10 or more covers it with margin.** The price is open: the owner may put reaching many sites
-  first. A free or trial plan is possible if it limits builds (for example, a few builds a day), because builds are the cost.
+- **A paid price of €10 or more a month covers it with margin.** The price is still open (decision 10 puts reaching many sites first).
 
 ### Risks
 
 - **Artifacts is in open beta.** Its billing began in November 2026, and the 1 GB limit per repo arrived without
   much notice. Hosted sites have no GitHub fallback (decision 2). Mitigation: **Export** (a `git clone` URL plus a zip of
   media and D1) is part of 1.0 from the start, and the backend interface keeps a move to another git host possible.
-- **Can Workers Builds be connected through the API?** `platform.md` asks this too. If it cannot, provisioning skips Workers
-  Builds and uses the own pipeline from day one. **Check this first.**
+- **The own build pipeline is new work before launch:** Workflows, Containers and uploads into Workers for Platforms.
+  The spike checks a full build of the demo site in a Container, and an upload with static assets into a dispatch namespace.
+- **Free sites attract abuse.** The controls in decision 10 have to be ready before the free plan opens.
 - Writing commits from a Worker with `isomorphic-git` has to fit the CPU and memory limits for large saves (the spike above).
 
 ## Stage 2: on the customer's own Cloudflare account
@@ -170,21 +184,21 @@ The site Worker is the only part tied to Cloudflare. The foundation's adapters m
 
 | Step | Contents | Proposed version |
 | --- | --- | --- |
-| 0 | Spikes: Workers Builds connected through the API; an `isomorphic-git` push from a Worker; a fork of an Artifacts repo per site | before 0.24 |
+| 0 | Spikes: a build of the demo in a Container, deployed into a dispatch namespace with its static assets; an `isomorphic-git` push from a Worker; a fork of an Artifacts repo per site | before 0.24 |
 | 1 | Foundation: backend interface (GitHub first, no change for sites), neutral `/api/files/*`, `build.status()` | 0.24 |
 | 2 | Morpheme accounts (Google and Microsoft sign-in) and the Artifacts backend | 0.24 |
-| 3 | Platform: Create a site, Stripe Hosting, provisioning Workflow, domains, Export | 0.24 and 0.25 (Stripe is shared with paid items) |
+| 3 | Platform: Create a site, the free and paid plans, Stripe Hosting, the build pipeline, provisioning Workflow, domains, Export, abuse controls | 0.24 and 0.25 (Stripe is shared with paid items) |
 | 4 | **1.0:** stage 1 live (decision 1) | 1.0 |
 | 5 | Stage 2a hands-free: GitHub App per site through the manifest flow; Deploy button with R2 | 1.x |
 | 6 | Stage 2b (`npx morpheme create` with Artifacts), "Take my site with me" | 1.x |
 | 7 | Stage 3: adapters for Node, the Docker image, docs | 1.x or 2.0 |
-| 8 | Scale: Workers for Platforms and the own build pipeline | when hosted sites pass about 150 |
+| 8 | Scale: shared data keyed by site id, more build concurrency | when hosted sites pass a few thousand |
 
 ## Decisions still open
 
 1. **The name of the sites domain** (decision 9). It is a new domain to buy, apart from `getmorpheme.com` and
    `morpheme.dev`.
-2. **Price** of hosting, and whether there is a free or trial plan to reach many sites first (with a build limit).
+2. **Price** of the paid plan, monthly and yearly.
 3. **Stage 2 login (after 1.0):** do sites on their own account keep GitHub login only, or may they also use Morpheme accounts?
 
 ## Sources
