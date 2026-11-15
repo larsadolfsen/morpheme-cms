@@ -197,7 +197,7 @@ export const parts = {
     draftHint: 'The page isn’t on the website.',
     look: 'Look',
     layout: 'Layout',
-    layouts: { single: 'One column', wide: 'Wide', left: 'Left side panel', right: 'Right side panel' },
+    layouts: { single: 'One column', wide: 'Wide', left: 'Left sidebar', right: 'Right sidebar' },
     kind: 'Type',
     page: 'Page',
     post: 'Post',
