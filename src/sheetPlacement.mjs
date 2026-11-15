@@ -1,6 +1,7 @@
 // The look of each step of the block sheet (BlockDialog.tsx): a side sheet beside the page from expanded for the fields,
 // the settings of a row typed in place (`row`) and the section settings, a modal side sheet below expanded for the fields (on a compact
 // window, below medium, a subpage of the page form instead: owner, 14 Nov: full-screen views are pages), else the sheet from the bottom.
+// The section settings are a subpage on a compact window too (owner, 15 Nov).
 // The side sheet beside the page is live (liveSheet): each change goes to the block at once, with no Save or Cancel (liveSheet.mjs).
 // Exposes sheetLook(step, expanded, compact), inPanel(step, expanded), liveSheet(step, expanded) and editsInPanel(expanded, hasFields); no dependencies.
 
@@ -8,7 +9,8 @@
  * below the `medium` breakpoint (a phone). */
 export function sheetLook(step, expanded, compact = false) {
   if (step === 'fields') return expanded ? 'side-sheet' : compact ? 'subpage' : 'modal-side-sheet';
-  if (step === 'section') return expanded ? 'side-sheet' : 'sheet';
+  // The section settings on a phone are a subpage too (owner, 15 Nov), with Save in the bottom bar; at medium the sheet from the bottom.
+  if (step === 'section') return expanded ? 'side-sheet' : compact ? 'subpage' : 'sheet';
   // The settings of a row typed in place (a List's icon and link): beside the page from expanded, open while the row is active, and a
   // modal bottom sheet below it, which fits its content (half the height or less) so the block stays in view above it.
   if (step === 'row') return expanded ? 'side-sheet' : 'sheet';

@@ -60,7 +60,7 @@ import { MoveButtons } from './MoveButtons';
 import { movedList } from './moveItem.mjs';
 import { iconColorOf, iconColorOptions } from './iconColor';
 import { choiceSample, sampleTextOf } from './choiceSamples';
-import { clean, inPairs, inUse, newItem, phoneParts, phoneText, problemAt, problemOf, type Around, type Problem } from './check';
+import { clean, fieldProblem, inPairs, inUse, newItem, phoneParts, phoneText, problemAt, type Around, type Problem } from './check';
 import { Icon, useAllIconNames } from './icon';
 import { t } from './i18n';
 import { shownLibraryAlt } from './imageAlt.mjs';
@@ -324,8 +324,12 @@ function FieldControl({ field, value, onChange }: Props) {
   const own = useContext(PathHere) === field.name;
   const id = useId();
   const text = value == null ? '' : String(value);
-  // What is wrong with the text, shown under it once it has been typed.
-  const [wrong, setWrong] = useState<string | null>(null);
+  // What is wrong with the value by the same checks Save makes (fieldProblem): the browser's own validity of a text, number
+  // or string field (setCustomValidity in the theme's text field, so the field is marked by `:user-invalid` once it has been
+  // worked in and is never wrong while Save passes), and the mark at once when Save stopped at this field (useWrongField).
+  const wrongHere = useContext(WrongField)?.path === useContext(PathHere);
+  const found = fieldProblem(field, value);
+  const wrong: { invalid?: string; problem?: string } = { invalid: found?.line, problem: wrongHere ? found?.line : undefined };
   // A phone number's country code (Field.phone), the last it had: kept when the number is emptied,
   // and when it is picked before the number is typed.
   const [pickedCode, setPickedCode] = useState(() => (field.phone && text.trim() ? phoneParts(field, text)[0] : undefined));
@@ -338,7 +342,6 @@ function FieldControl({ field, value, onChange }: Props) {
   const inField: InField = {
     label: field.label,
     hint: fromLibrary ? t.media.altUsing : hintOf(field, text),
-    problem: wrong ? `${wrong}.` : undefined,
     limit: field.max,
   };
   let inside = false;
@@ -378,6 +381,7 @@ function FieldControl({ field, value, onChange }: Props) {
         <TextArea
           id={id}
           {...inField}
+          {...wrong}
           rows={4}
           value={text}
           placeholder={fromLibrary ?? field.placeholder?.(context.site)}
@@ -400,9 +404,9 @@ function FieldControl({ field, value, onChange }: Props) {
         <TextField
           id={id}
           {...inField}
+          {...wrong}
           type="number"
           inputMode="numeric"
-          min={0}
           value={text}
           onChange={(e) => onChange(e.target.value === '' ? '' : Number(e.target.value))}
         />
@@ -568,6 +572,7 @@ function FieldControl({ field, value, onChange }: Props) {
         <TextField
           id={id}
           {...inField}
+          {...wrong}
           value={number}
           placeholder={fromLibrary ?? field.placeholder?.(context.site)}
           inputMode={field.digitsInPairs ? 'tel' : field.type === 'string' && field.name === 'email' ? 'email' : undefined}
@@ -575,8 +580,6 @@ function FieldControl({ field, value, onChange }: Props) {
             const typed = full(e.target.value);
             onChange(typed);
             if (field.phone && typed.trim()) setPickedCode(phoneParts(field, typed)[0]);
-            // Once shown, the problem goes as soon as it is put right.
-            if (wrong) setWrong(problemOf(field, typed.trim()));
           }}
           // A text with a form is checked once it is typed (without spaces around it), and a number
           // in pairs is written so.
@@ -589,7 +592,6 @@ function FieldControl({ field, value, onChange }: Props) {
                       ? addressOf(text, field.address) || text.trim()
                       : text.trim();
                   if (typed !== text) onChange(typed);
-                  setWrong(problemOf(field, typed));
                 }
               : undefined
           }
@@ -604,7 +606,6 @@ function FieldControl({ field, value, onChange }: Props) {
               if (number.trim()) {
                 const typed = inPairs(field, phoneText(field, c, number));
                 onChange(typed);
-                setWrong(problemOf(field, typed));
               }
             }}
           >
@@ -620,7 +621,6 @@ function FieldControl({ field, value, onChange }: Props) {
       label={field.label}
       htmlFor={id}
       hint={hintOf(field, text)}
-      problem={wrong ? { id: `${id}-problem`, text: wrong } : undefined}
       count={field.max ? { length: text.length, max: field.max } : undefined}
     >
       {control}
