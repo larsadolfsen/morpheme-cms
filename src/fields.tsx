@@ -682,7 +682,7 @@ function MarkdownField({ value, onChange }: { value: string; onChange: (v: unkno
   );
 }
 
-// The same with the blocks its template allows (Field.template: a "Banner"'s image and "Buttons"), put in with "+"
+// The same with the blocks its template allows (Field.template: an image and "Buttons"), put in with "+"
 // as in a page's text, in the sheet of the blocks (BlockDialog.tsx) over the sheet or form the field is in. An image
 // only when the template has 'image', without a format or crop of its own.
 function MarkdownWithBlocks({ value, template, onChange }: { value: string; template: Template; onChange: (v: unknown) => void }) {
@@ -974,10 +974,10 @@ export function MenuList({
     close();
   };
   // Closed (Cancel, the cross, a swipe down, Esc, a tap beside it) with the fields changed: the owner is
-  // asked whether to keep them ("Add", "Save"), leave them or stay.
+  // asked whether to keep them (Keep), leave them (Discard) or stay.
   const leave = async () => {
     if (!editing || JSON.stringify(clean(own, editing.value)) === editing.was) return cancel();
-    const choice = await closeChanged(editing.fresh ? t.forms.add : t.common.save);
+    const choice = await closeChanged();
     if (choice === 'keep') save();
     else if (choice === 'discard') cancel();
   };

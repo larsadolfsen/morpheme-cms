@@ -40,7 +40,8 @@ export {
   listClasses as siteListClasses,
 } from '@theme/ui/List';
 /** The theme's navigation parts (the header's), for "Parts" › "UI components" (NavigationParts.tsx). */
-export { default as SiteTopAppBar } from '@theme/ui/TopAppBar';
+/** The app bar (Material 3's name); SiteTopAppBar is the same, its old name, kept while THEME_API is 4. */
+export { default as SiteAppBar, default as SiteTopAppBar } from '@theme/ui/AppBar';
 export {
   Menu as SiteMenu,
   MenuItem as SiteMenuItem,
@@ -50,7 +51,8 @@ export {
   menuClass as siteMenuClass,
 } from '@theme/ui/Menu';
 export { placeMenu as sitePlaceMenu } from '@theme/ui/dropdownMenu.script';
-export { default as SiteExposedDropdownMenu } from '@theme/ui/ExposedDropdownMenu';
+/** The text field menu (Material 3's name); SiteExposedDropdownMenu is the same, its old name, kept while THEME_API is 4. */
+export { default as SiteTextFieldMenu, default as SiteExposedDropdownMenu } from '@theme/ui/TextFieldMenu';
 export {
   NavigationDrawer as SiteNavigationDrawer,
   NavigationDrawerBack as SiteNavigationDrawerBack,
@@ -66,10 +68,11 @@ export {
 } from '@theme/ui/NavigationDrawer';
 export { Tabs as SiteTabs, Tab as SiteTab, tabsClass as siteTabsClass, tabClass as siteTabClass } from '@theme/ui/Tabs';
 export { Fab as SiteFab, ExtendedFab as SiteExtendedFab, fabKinds, fabSizes, extendedFabSizes } from '@theme/ui/Fab';
-/** The theme's action parts (button groups, segmented buttons, split buttons, the FAB menu), for "Parts" › "UI components"
+/** The theme's action parts (button groups, segmented buttons, choice groups, split buttons, the FAB menu), for "Parts" › "UI components"
  * (ActionParts.tsx). */
 export { default as SiteButtonGroup, buttonGroupKinds } from '@theme/ui/ButtonGroup';
 export { default as SiteSegmentedButton } from '@theme/ui/SegmentedButton';
+export { default as SiteChoiceGroup, type Choice as SiteChoice } from '@theme/ui/ChoiceGroup';
 export { default as SiteSplitButton, splitButtonKinds } from '@theme/ui/SplitButton';
 export { default as SiteFabMenu, fabMenuKinds } from '@theme/ui/FabMenu';
 export { setUpFabMenu } from '@theme/ui/fabMenu.script';
@@ -100,7 +103,7 @@ export {
   NavigationRailItem as SiteNavigationRailItem,
   NavigationRailSection as SiteNavigationRailSection,
 } from '@theme/ui/NavigationRail';
-export { default as SiteSearch, SearchBar as SiteSearchBar } from '@theme/ui/Search';
+export { default as SiteSearch, SearchBar as SiteSearchBar, SearchView as SiteSearchView } from '@theme/ui/Search';
 export { default as SiteToolbar } from '@theme/ui/Toolbar';
 /** The theme's date and time pickers, for "Parts" › "UI components" (PickerParts.tsx). */
 export { default as SiteDatePicker, datePickerTexts } from '@theme/ui/DatePicker';

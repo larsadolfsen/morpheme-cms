@@ -54,8 +54,20 @@ test('a coloured H1 comes back byte for byte', async () => {
   assert.deepEqual(nodes, ['heading:surface', 'paragraph']);
 });
 
-test('an H1 with an image behind it and the whole width comes back byte for byte', async () => {
-  const text = '<div data-section="" data-picture="/images/a.jpg" data-alt="A field" data-width="full"></div>\n\n# About\n\nText\n';
+test('an H1 keeps its colour and width, and an image left in its marker is ignored and not written back', async () => {
+  const marker = (attrs) => `<div data-section="surface"${attrs} data-width="full"></div>\n\n# About\n\nText\n`;
+  const { saved } = await through(marker(' data-picture="/images/a.jpg" data-alt="A field"'));
+  assert.equal(saved, marker(''));
+  // A marker with only an image (no colour) has nothing left: it goes on save.
+  const only = await through(
+    '<div data-section="" data-picture="/images/a.jpg" data-alt="A field" data-width="full"></div>\n\n# About\n\nText\n',
+  );
+  assert.equal(only.saved, '# About\n\nText\n');
+});
+
+test('an H2 with an image behind it and the whole width comes back byte for byte', async () => {
+  const text =
+    '# About\n\nText\n\n<div data-section="" data-picture="/images/a.jpg" data-alt="A field" data-width="full"></div>\n\n## More\n\nText\n';
   const { saved } = await through(text);
   assert.equal(saved, text);
 });

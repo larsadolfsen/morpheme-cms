@@ -16,7 +16,6 @@ import { eyebrowText } from '../lib/eyebrow.mjs';
 import { bodyLargeText } from '../lib/body-large.mjs';
 import { bodySizeText } from '../lib/body-size.mjs';
 import { alignClass, alignHtml, alignOf } from '../lib/text-align.mjs';
-import { remarkBannerSections } from '../lib/remark-banner-section.mjs';
 import { remarkChecklists } from '../lib/remark-checklist.mjs';
 import { remarkListHeads } from '../lib/remark-list-head.mjs';
 import { remarkBlockLabels } from '../lib/remark-block-label.mjs';
@@ -234,7 +233,7 @@ export const textSizeSchema = $markSchema('textSize', () => ({
 
 // The settings of a section (lib/section-marker.mjs): the marker line before an H1 or H2, or before the label above it
 // (eyebrow), is read into the heading's attributes `section` (the colour), `sectionImage`, `sectionAlt` and `sectionWidth`, and
-// written back before it. It must be read before remarkSiteBlocks
+// written back before it. Only an H2 has an image: one left before a page's H1 is ignored and not written back (owner, 14 Nov 2026). It must be read before remarkSiteBlocks
 // sees it, so it is the first plugin of that kind in makeEditor. A marker with nothing to colour is dropped.
 const htmlOf = (node) => {
   const only = node?.type === 'paragraph' && node.children?.length === 1 ? node.children[0] : node;
@@ -248,7 +247,8 @@ const remarkSectionMarkers = $remark('remarkSectionMarkers', () => () => (tree) 
     const next = isLabelLine(htmlOf(parts[i + 1])) ? parts[i + 2] : parts[i + 1];
     if (next?.type === 'heading' && next.depth <= 2) {
       next.section = marker.color || null;
-      Object.assign(next, { sectionImage: marker.image, sectionAlt: marker.alt, sectionWidth: marker.width });
+      const image = next.depth === 2 ? { sectionImage: marker.image, sectionAlt: marker.alt } : {};
+      Object.assign(next, { ...image, sectionWidth: marker.width });
     }
     return false;
   });
@@ -332,8 +332,8 @@ export const headingWithSection = headingSchema.extendSchema((prev) => (ctx) => 
         state.openNode(type, {
           level: node.depth,
           section: top ? (node.section ?? null) : null,
-          sectionImage: top ? (node.sectionImage ?? null) : null,
-          sectionAlt: top ? (node.sectionAlt ?? null) : null,
+          sectionImage: node.depth === 2 ? (node.sectionImage ?? null) : null,
+          sectionAlt: node.depth === 2 ? (node.sectionAlt ?? null) : null,
           sectionWidth: top ? (node.sectionWidth ?? null) : null,
           align: node.depth >= 3 ? (node.align ?? null) : null,
         });
@@ -349,7 +349,8 @@ export const headingWithSection = headingSchema.extendSchema((prev) => (ctx) => 
         // The document has no children before its first node is written: a heading at the very top starts them.
         if (top && !top.children) top.children = [];
         const written = top?.children;
-        const marker = level <= 2 ? markerHtml({ color: section, image: sectionImage, alt: sectionAlt, width: sectionWidth }) : '';
+        const image = level === 2 ? { image: sectionImage, alt: sectionAlt } : {};
+        const marker = level <= 2 ? markerHtml({ color: section, ...image, width: sectionWidth }) : '';
         if (marker && Array.isArray(written)) {
           const last = written.at(-1);
           const at = last?.type === 'html' && isLabelLine(last.value) ? written.length - 1 : written.length;
@@ -378,8 +379,6 @@ export function makeEditor(root, markdown) {
       .use(gfm)
       .use(headingWithSection)
       .use(paragraphWithAlign)
-      // A Banner alone in its section is read as the section it has become, so the next save writes the section.
-      .use($remark('remarkBannerSections', () => remarkBannerSections))
       // A Checklist is read as the check list it has become, so the next save writes the list.
       .use($remark('remarkChecklists', () => remarkChecklists))
       // A List's label, heading and intro are read as the text's own lines above it, so the next save writes them there.
@@ -430,8 +429,8 @@ export function partsOf(ctx) {
     } else if (node.type.name === 'heading' && node.attrs.level === 1) {
       flush();
       // The settings of the page's H1 section (a marker before it): a part `top`, as partsOfMarkdown has them.
-      const { section, sectionImage, sectionAlt, sectionWidth } = node.attrs;
-      const top = topOf({ color: section, image: sectionImage, alt: sectionAlt, width: sectionWidth });
+      const { section, sectionWidth } = node.attrs;
+      const top = topOf({ color: section, width: sectionWidth });
       if (top && !h1Seen) parts.push({ top });
       h1Seen = true;
     } else if (!((node.type.name === 'paragraph' || node.type.name === 'heading') && !node.textContent.trim() && !node.childCount))

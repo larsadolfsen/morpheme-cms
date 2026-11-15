@@ -27,11 +27,11 @@ export const cms: Messages['cms'] = {
   stuck: (v) =>
     `Hjemmesiden kunne ikke opdateres med ${v}, og det mislykkedes også at gå tilbage til den tidligere version. Ret hjemmesiden i hånden.`,
   unreachable: 'npm eller GitHub kunne ikke nås.',
-  cannotWrite: 'Hjemmesidens GitHub-nøgle kan ikke gemme ændringer. Giv den Contents: Read and write i GitHub.',
-  noToken: 'Hjemmesiden har ingen GitHub-nøgle (GITHUB_PUBLISH_TOKEN).',
-  noKv: 'Hjemmesiden har intet KV-lager (PUSH), så den kan ikke se efter nye versioner.',
+  cannotWrite: 'Hjemmesidens GitHub-token kan ikke gemme ændringer. Giv det Contents: Read and write i GitHub.',
+  noToken: 'Hjemmesiden har intet GitHub-token (GITHUB_PUBLISH_TOKEN).',
+  noKv: 'Hjemmesiden har intet KV-namespace bundet som PUSH, så den kan ikke se efter nye versioner.',
   notManaged: 'Versionen er fastlagt i hjemmesidens package.json, så den kan ikke opdateres her.',
-  slowUndo: 'GitHub-nøglen kan ikke se, om opdateringen lykkedes, så en mislykket opdatering fortrydes først efter 20 minutter.',
+  slowUndo: 'GitHub-tokenet kan ikke se, om opdateringen lykkedes, så en mislykket opdatering fortrydes først efter 20 minutter.',
   notifyDone: (v) => `Morpheme er opdateret til ${v}`,
   notifyUndone: (v) => `Opdateringen af Morpheme til ${v} er fortrudt, fordi hjemmesiden ikke kunne opdateres med den`,
   notifyStuck: (v) =>

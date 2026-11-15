@@ -89,6 +89,7 @@ export default function InlineCards({ items, props, data, active, focus, onChang
         start={3}
         add={t.blocks.cards.addCard}
         onChange={onChange}
+        paste="text"
         wrap={(list) => <ul className={['block-cards', 'inline-cards', colored].filter(Boolean).join(' ')}>{list}</ul>}
         renderItem={({ item, index: i, here, next, field }) => {
           const card = cards[i];
@@ -134,7 +135,10 @@ export default function InlineCards({ items, props, data, active, focus, onChang
                   {field('title', t.blocks.cards.title, next ? t.blocks.cards.newCard : t.blocks.cards.title)}
                 </span>
                 <span className="block-card-subhead">{field('subhead', t.blocks.cards.subhead, t.blocks.cards.subhead)}</span>
-                <span className="block-card-text">{field('text', t.blocks.cards.text, t.blocks.cards.text)}</span>
+                {/* The text is optional: a card without one has no empty text area unless it is the one being typed in. */}
+                {(here || next || String(item.text ?? '').trim() !== '') && (
+                  <span className="block-card-text">{field('text', t.blocks.cards.text, t.blocks.cards.text)}</span>
+                )}
                 {card?.href && <span className="block-card-more">{more}</span>}
                 {!card?.href && here && buttonsOf(i, item)}
                 {!card?.href && !here && (card?.buttons.length ?? 0) > 0 && (

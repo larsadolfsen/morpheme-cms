@@ -1,0 +1,7 @@
+{
+  "id": "paste-lines-as-items",
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Paste a list",
+  "text": "A list copied from a document no longer lands as one long line. Paste it into an empty List, Steps, Segmented list, FAQ list, Cards or Table, and each line becomes an item; tabs split a table’s cells. A paste with headings stays as it is."
+}

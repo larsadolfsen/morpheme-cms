@@ -13,7 +13,7 @@ export const seo: Messages['seo'] = {
   keywordFilter: 'Primært søgeord',
   allKeywords: 'Med og uden primært søgeord',
   keywords: { with: 'Med primært søgeord', without: 'Uden primært søgeord' },
-  kindFilter: 'Slags',
+  kindFilter: 'Type',
   allKinds: 'Sider og blogindlæg',
   noKeyword: 'Intet primært søgeord',
   none: 'Ingen sider eller blogindlæg passer',

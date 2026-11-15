@@ -7,14 +7,15 @@ on its open questions are in section 12 and in the body.
 two sets of save buttons at once, the page's floating bar (`Preview`, `Save draft`, `Publish`) and the sheet's own `Save`, `Cancel`,
 `Remove`. "We need to standardise this."
 
-**Owner decisions (14 Nov), which this spec builds on and does not reopen:**
+**Owner decisions (14 Nov), which this spec builds on and does not reopen (decision 2's phone sheet became a page by decision 8, section 12):**
 
 1. On large screens the block's side sheet has no `Save` or `Cancel`. It belongs to the page: a change shows on the page at once and is
    saved with the page (the page's draft autosave, then `Publish`). Undo takes a change back. The sheet keeps only its close button.
    `Remove` leaves the sheet: it is in the block's `⋮`.
-2. On a phone the block's sheet is full screen and covers the page's buttons, so it keeps `Save` and `Cancel`, with no autosave. A hidden
-   copy in the browser puts back what was typed if the sheet closed without `Save` or `Cancel` ("Restore your unsaved changes?"); `Save`
-   or `Cancel` deletes it. Only one Save is ever visible.
+2. On a phone the block's sheet is a page of its own (a subpage of the page form: decision 8) that covers the page's buttons, so it keeps
+   its own `Save`, in the bottom bar, with no autosave; going back is `Cancel`. A hidden copy in the browser puts back what was typed if
+   the page closed without `Save` or going back ("Restore your unsaved changes?"); `Save` or Discard deletes it. Only one Save is ever
+   visible.
 3. `Publish` moves to the top of the page form, in the page's app bar (top right), on this screen in 0.18 (other screens' app bars wait
    for 0.20). The floating bottom bar goes. `Save draft` is no longer a button: the draft saves itself, and a status such as `Saving…` /
    `Saved` stands next to the title. `Preview` goes to the page's toolbar. The app bar has one action, two if necessary: `Publish` and
@@ -210,40 +211,59 @@ sheet says. The check that `Save` runs today (`problemAt`) runs on every change,
   with the form's `open`). Owner decision 5: a wrong block is not autosaved, and the status says why; a draft file the site's check
   would refuse is never written.
 
-### 4.2 Phone and medium: the sheet keeps Save and Cancel
+### 4.2 Phone and medium: the sheet keeps its own Save
 
 Below expanded the sheet covers the page (a scrim, or the whole screen), so the page's `Publish` is out of reach and the sheet keeps its
-own save. This is the owner's rule for full-screen sheets, used here first; 0.20's settings sheets reuse it.
+own save. Owner decision 8 (14 Nov 2026), "Convert all full screen views to pages", changes the phone's sheet from a full-screen dialog to
+a page of the editor, the same kind as the crop view (`src/CropView.tsx`, `.crop-page`) and the Preview page. 0.20's settings sheets reuse
+it (`2026-11-14-settings-sheets-design.md`, 3.1).
 
-- **Compact (< 600):** the theme's full-screen dialog (`theme/ui/Dialog.tsx`, `kind="full-screen"`): in its header the close icon
-  (the dismissive action, named `Cancel`), the headline (the block's name), and `Save` (`Insert` for a new block) as its text button.
-  This is what M3 prints for a full-screen dialog. Today's modal side sheet leaves a strip of scrim on a phone; this makes it full screen,
-  as the owner describes it.
-- **Medium (600–839):** the modal side sheet as today, with its bottom actions `Save` (`Insert`) and `Cancel`, start-aligned (M3: "Left").
+- **Compact (< 600): a subpage of the page form.** A layer the size of the window over the form (a modal `<dialog>` with the crop view's
+  classes `.crop-page` and `.block-page`), so the form under it keeps its text and its scroll place. In words, top to bottom:
+  - the top app bar (the theme's, as the crop view's): the back arrow, named `Back to <the page's name>`, and the block's name as the
+    headline (`Image`, `FAQ list`); nothing else, no `Save` (M3: the app bar's leading button "returns to the previous screen");
+  - the block's fields, scrolling inside a column as wide as a form, with the problem note under them as today;
+  - the bottom bar (`.crop-page-bar`, right-aligned, lifted above the keyboard): `Save` filled (`Insert` for a new block), the only
+    button; the owner's rule is that Save buttons on a phone go in the bottom bar (deviation B1, section 9).
+- **Open and close, as the crop view does.** It opens when the block's settings are opened (the gear, `Edit`, `Insert` for a block with
+  fields) and takes a step of its own in the browser's history (`history.state.sheet`, `useSheetBack`), so the browser's back and
+  Android's back gesture leave it and not the page. Focus starts on the back arrow (M3: "Focus should initially land on the leading
+  button"). Back (the arrow, `Esc`, the browser's back) with no change goes back at once; with changes it asks "Keep your changes?"
+  (`closeChanged`, `src/ask.tsx`: Discard, or Keep which does what `Save` does, Esc stays). Staying after the browser's back gives the page
+  its step in the history back.
+- **Back or `Save` returns to the block in the page, at the scroll place it was, text unchanged.** `Save` checks the fields
+  (`useWrongField` and the snackbar, as today), writes them as one undo step and goes back; a wrong field keeps the page open.
+- **Medium (600-839):** the modal side sheet as today, with its bottom actions `Save` (`Insert`) and `Cancel`, start-aligned (M3: "Left").
 - No `Remove` in either (it is in the block's `⋮`, as today below expanded).
-- Not live, no autosave: the sheet edits a copy; `Save` checks it (today's `useWrongField` and snackbar) and writes it as one undo step.
-- Closing it changed (the close icon, `Esc`, the phone's back) asks today's question (Keep / Discard / stay), which is M3's "a basic
-  dialog appears in front of it to confirm selections should be discarded".
-- Only one Save is visible: the page's `Publish` (and `Save` of 3.4) are under the sheet.
+- Not live, no autosave: the page edits a copy; nothing reaches the text until `Save`.
+- Only one Save is visible: the page's `Publish` (and `Save` of 3.4) are under the subpage.
+- The section settings and a typed-in row's settings are still the sheet from the bottom on a phone (they are not full screen).
 
-Owner decision 6: on a phone the close icon is `Cancel` and `Save` is a word at the top right; there is no separate `Cancel` button.
-Owner decision 7: the medium width (600–839) uses the modal side sheet with `Save` and `Cancel`, as above.
+Owner decision 6, as changed by decision 8: on a phone the back arrow is the way out (it was the close icon named `Cancel`), and `Save`
+is a button in the bottom bar (it was a word at the top right); there is no separate `Cancel` button.
+Owner decision 7: the medium width (600-839) uses the modal side sheet with `Save` and `Cancel`, as above.
 
 ### 4.3 What happens to a sheet a phone user leaves open
 
-While the phone sheet has changes, they are kept in a **hidden copy** in this browser (`localStorage`, one per page):
-`{ page, block: { index, type, before }, values, at }`, written 300 ms after each change.
+While the phone's subpage (or the medium side sheet) has changes, they are kept in a **hidden copy** in this browser (`localStorage`,
+one per page): `{ page, block: { index, type, before }, values, at }`, written 300 ms after each change.
 
-- `Save`, `Cancel`, Discard in the close question, or closing it unchanged deletes the copy.
+- `Save`, Discard in the "Keep your changes?" question, or going back unchanged deletes the copy.
 - Anything else that ends the sheet (the tab closed or reloaded, the phone killed the tab, the editor updated itself, a sign-in that
   expired) leaves it.
 - When the page form opens again and a copy exists for it, the editor asks, as a basic dialog: **"Restore your unsaved changes?"**,
-  with `Discard` and `Restore`. `Restore` opens that block's sheet with the copy in it, still not saved; `Discard` deletes the copy.
+  with `Discard` and `Restore`; no button has the focus when it opens (section 6). `Discard` deletes the copy.
+- **`Restore` on a phone** opens that block's subpage with the copy in it, still not saved: its values are in the fields and not in the
+  page, so `Save` writes them and going back asks "Keep your changes?" as for any change.
+- **`Restore` at computer width (from expanded; PM decision, 14 Nov 2026)** opens the live side sheet with the copy's values already
+  applied to the block as unsaved changes of the page (written through the live link like any edit, so they are in the page's undo
+  history and the page's autosave takes them), with no `Save` or `Cancel`. The copy has done its work and is deleted at once. This
+  happens when the window was resized, or the copy was made on a narrower window of the same browser.
 - The copy is offered only while the block is still where it was: the same index and type, and its props still equal `before`.
   Otherwise, or after 7 days, it is deleted without asking (it could not be put in the right place).
-- The page's own autosave does not take the sheet's values: they are not on the page until `Save` (the owner's rule: no autosave on a
-  phone sheet).
-- Switching apps or locking the phone does nothing: the sheet stays open with its values, as today.
+- The page's own autosave does not take the sheet's values on a phone: they are not on the page until `Save` (the owner's rule: no
+  autosave on a phone sheet).
+- Switching apps or locking the phone does nothing: the page stays open with its values, as today.
 
 The copy is a small helper with no React (`src/sheetCopy.mjs`: `keep`, `take`, `drop`, `matches`), unit tested.
 
@@ -279,11 +299,14 @@ The live sheet writes into the text editor's document, so its changes are in the
 - `Publish` keeps its busy state (`aria-busy`) while the site updates, as today.
 - The live side sheet is a non-modal region (M3: "The accessibility role for a side sheet is Dialog"; `role="dialog"`, not modal), labelled by its
   headline; focus moves into it when it opens from a block and back to the block when it closes; `Esc` closes it.
-- The full-screen dialog is modal (`aria-modal="true"`), focus starts on its first field, `Esc` asks the close question.
+- The phone's subpage is a modal page (`<dialog>` opened with `showModal`, labelled by its headline): the form under it is inert, focus starts
+  on the back arrow, its first control (M3: "Focus should initially land on the leading button"), `Tab` goes on to the fields and `Save`, and `Esc`
+  and the browser's back leave it through the "Keep your changes?" question when something changed.
 - `Ctrl+S` (`⌘S`) saves now: it sends the autosave at once, or runs `Save` in the cases of 3.4, and never opens the browser's save
   dialog. (Today it is not bound; small, in PR 4.)
 - The restore question is a basic dialog: no button has the focus from the start (the owner's dialog rule: `Restore` filled, `Discard`
-  outlined), `Esc` keeps the copy for next time.
+  outlined; `src/ask.tsx` is as on `0.18`, with no option to focus a button), `Esc` keeps the copy for next time. Restore moves the focus
+  into the subpage (the back arrow) or the live side sheet.
 
 ## 7. Texts (en-US first, da-DK)
 
@@ -319,9 +342,19 @@ One `paragraph` for the whole change (skill `release-notes`: "Several changes to
   (decision 1, 14 Nov 2026), so the PR that moves `Publish` adds it to `docs/material-deviations.md`: what Material says (the two quotes), what we do (a
   filled common button with a label, and `Save` as a text button before it in 3.4), why (a word cannot be misread; M3's own examples of
   a primary action are words: "Send, Save, or Edit"), the owner's approval with its date (14 Nov 2026) and the PR.
-- Everything else follows what M3 prints: the standard side sheet without action buttons (optional), the modal side sheet and the
-  full-screen dialog with Save, no overflow menu in the app bar, one filled button, the search and the bell as global controls. The live
-  side sheet, the save status and the hidden copy are where M3 is silent (section 1); the nearest patterns are named above.
+- **A labelled, filled `Save` in the bottom bar of the phone's block subpage (B1 in `docs/material-deviations.md`).** M3 prints a single-pane
+  detail view with an app bar and a back arrow (read 15 Nov 2026: "Compact: Use a single-pane layout. Only one view is visible at a time,
+  either list or detail", "Back button: Appears in detail view only for single-pane layouts", "The detail pane should typically show in a
+  single-pane layout, and an app bar appears"). It prints `Save` as an app bar action (a filled or tonal icon button), as a text button in
+  a full-screen dialog's header, or as a filled icon button or FAB in a docked toolbar, and no labelled `Save` in a bottom bar. The owner
+  chose the bottom bar (decisions 6 and 8, 14 Nov 2026: "Save buttons on mobile go in the bottom bar"), so the PR that builds the
+  subpage (#650) adds the entry: what Material says (the quotes above), what we do (the subpage with `Save` filled in the bottom bar, as
+  the crop view's), why, the owner's approval (14 Nov 2026, relayed by the 0.18 PM) and the PR.
+- Everything else follows what M3 prints: the standard side sheet without action buttons (optional), the modal side sheet with Save, the
+  detail view with an app bar holding the back arrow and the headline only, a basic dialog ("Keep your changes?") when it is left
+  with changes, no overflow menu in the app bar, one filled button, the search and the bell as global controls. The live side sheet, the
+  save status and the hidden copy are where M3 is silent (section 1); the nearest patterns are named above. The full-screen dialog is
+  no longer used for the block sheet (the theme's `Dialog kind="full-screen"` stays for other uses).
 
 ## 10. Checks
 
@@ -331,9 +364,15 @@ New assertions in `scripts/editor-screens.mjs`:
 - **1280 px:** a block's sheet has no `Save`, `Cancel` or `Remove` and has a close button; a change of a field shows in the page at
   once; `Undo` takes it back and the sheet shows the old value; `Remove` is in the block's `⋮`; the page has no `.editor-save-bar`; the
   app bar has `Publish` as its last button and no other filled button; the status has `role="status"`; `Preview` is in the bar.
-- **375 px:** the block's sheet is a full-screen dialog with `Save` and a close button named `Cancel`; the page's `Publish` is not
-  reachable while it is open (inert); one Save is visible; a change, then a reload, offers "Restore your unsaved changes?", and
-  `Restore` opens the sheet with the change; `Save` deletes the copy.
+- **375 px** (`checkPhoneSheet`): the block's sheet is a subpage, not a dialog of the theme's full-screen kind: the top app bar has only the back arrow
+  (named `Back to <page>`, focused first) and the block's name, `Save` is the one button of the bottom bar and no other `Save` or `Cancel` is
+  reachable; the page's `Publish` is not reachable while it is open (inert); it has a step in the history; Back with no change leaves at
+  once, with a change asks "Keep your changes?" (also for the browser's back, and staying gives the step back), Discard deletes the copy;
+  Back and `Save` return to the page at the same scroll place with its text unchanged; a change, then a reload, offers "Restore your
+  unsaved changes?" with no button focused, and `Restore` opens the subpage with the change, still unsaved; `Save` writes it and deletes the
+  copy.
+- **1280 px** (`checkComputerRestore`): with a copy left by a narrower window, `Restore` opens the live side sheet with the restored value
+  in its field and already in the block, with no `Save`, `Cancel` or `Insert`; the page shows as changed; the copy is deleted.
 - **Both:** no screen of the page form shows two buttons named `Save` (or `Save` and `Save draft`); with `R2 caching` off the app bar has
   `Save` and `Publish`.
 - Unit tests: `sheetCopy.mjs`, the app bar's action rule (`pageBarActions(state)` → which buttons, 3.4's table), the history grouping.
@@ -353,7 +392,7 @@ this rule:
 | :--- | :--- | :--- | :--- |
 | 1 | **Live side sheet from expanded.** `fields` and `section` steps write at once (`setNodeMarkup` per change), no bottom actions, no close question; `Remove` back in the block's `⋮` from expanded (`editsInPanel` no longer hides it); the look fixed while open; the sheet follows `Undo` / `Redo`; one undo step per field focus (`closeHistory`). New blocks go in at once, with no `Insert` button (decision 3). Also for `SectionsField` and rich text fields. Writes the release note. | `minor` | — |
 | 2 | **Wrong fields in the live sheet.** Check on every change, mark on blur, the block's card marked, `Not saved · Fix the marked field`, `Publish` opens the sheet at the field. | `minor` | 1 |
-| 3 | **The phone and medium sheet.** Compact: the theme's full-screen dialog with `Save` (`Insert`) and the close icon as `Cancel`; medium: modal side sheet with `Save`, `Cancel`; the hidden copy (`src/sheetCopy.mjs`) and "Restore your unsaved changes?". | `minor` | — (parallel to 1) |
+| 3 | **The phone and medium sheet.** Compact: a subpage of the page form (decision 8) with the back arrow and the block's name on top and `Save` (`Insert`) in the bottom bar; medium: modal side sheet with `Save`, `Cancel`; the hidden copy (`src/sheetCopy.mjs`) and "Restore your unsaved changes?", also at computer width (live sheet with the values applied). | `minor` | — (parallel to 1) |
 | 4 | **Preview and View on site in the one bar.** `Preview` a main tool, `View on site` in `⋮`; both leave the page actions; both in the command palette's registry if it is merged, else a follow-up line there. `Ctrl+S` saves now. | `minor` | — |
 | 5 | **Publish in the app bar; the floating bar goes.** `Publish` trailing in the app bar at every width; `Save` there only in 3.4's cases; the status a polite live region; `.editor-save-bar` no longer drawn by the page form (other forms keep it); the deviation entry in `docs/material-deviations.md` (decision 1, owner's approval of 14 Nov 2026); on a phone the bell leaves the app bar first when it is too narrow (decision 4). | `minor` | 4 (so `Preview` is never lost) |
 | 6 | **Clean-up.** Remove `saveDraft` texts and the page form's unused `FormFrame` paths; update the comments in `FormFrame.tsx`, `BlockDialog.tsx`, `sheetPlacement.mjs`; mark this spec built. | empty | 1–5 |
@@ -376,7 +415,11 @@ plan above.
    `Publish` stay (3.1; PR 5).
 5. **A wrong block field is not autosaved**, and the status says why (`Not saved · Fix the marked field`); a draft file the site's
    check would refuse is never written (4.1; PR 2).
-6. **The phone's full-screen sheet:** the close icon is `Cancel`, `Save` (`Insert` for a new block) is a word at the top right, and there
+6. **The phone's full-screen sheet (replaced by decision 8):** the close icon is `Cancel`, `Save` (`Insert` for a new block) is a word at the top right, and there
    is no separate `Cancel` button (4.2; PR 3).
-7. **The medium width (600–839)** uses the modal side sheet with `Save` and `Cancel`, like the phone, with the hidden copy (4.2, 4.3;
-   PR 3).
+7. **The medium width (600–839)** uses the modal side sheet with `Save` and `Cancel`, with the hidden copy (4.2, 4.3; PR 3).
+8. **"Convert all full screen views to pages"** (14 Nov 2026, relayed by the 0.18 PM). The phone's full-screen block sheet is a subpage of
+   the page form: the top app bar has the back arrow and the block's name, `Save` is in the bottom bar (the owner: "Save buttons on mobile
+   go in the bottom bar"), back with changes asks "Keep your changes?" (4.2; PR 3, #650). It replaces decision 6's close icon named
+   `Cancel` and `Save` at the top right. A restored copy opens the live side sheet at computer width, with its values applied as unsaved
+   page changes (PM decision, 4.3).

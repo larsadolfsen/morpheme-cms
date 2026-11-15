@@ -72,7 +72,7 @@ export default function LinkCards({
         <CardMedia card={card} />
         <span className="block-card-title">{card.title}</span>
         {card.subhead && <span className="block-card-subhead">{card.subhead}</span>}
-        <span className="block-card-text">{card.text}</span>
+        {card.text && <span className="block-card-text">{card.text}</span>}
         {card.href && (
           <span className="block-card-more">
             {more}

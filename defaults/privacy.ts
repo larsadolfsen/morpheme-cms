@@ -28,7 +28,7 @@ export const privacy: PartScreen = {
       fields: [
         {
           name: 'enabled',
-          label: 'Activated',
+          label: 'Cookie banner',
           type: 'boolean',
           toggle: ['On', 'Off'],
           hint: 'When the banner is off, there is no analytics or ads.',

@@ -125,5 +125,4 @@ export const PENDING_IDS = [
   'scripts/check-themes.mjs:temaer',
   "scripts/check-themes.mjs:text:nDet virker ikke med ${failed.length === 1 ? 'temaet' : 'tem",
   'scripts/check-themes.mjs:text:Der er ingen andre temaer installeret i src/themes/.',
-  'scripts/editor-screens.mjs:text:Hjemmesiden har ingen GitHub-nu00f8gle',
 ];

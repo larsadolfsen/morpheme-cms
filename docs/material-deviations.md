@@ -174,3 +174,50 @@ Source: `src/blockRow.ts`, `src/editor.css` (`.site-block-row`), `src/blockBar.t
 - **We do:** while a block is active, a row opens right above it, right-aligned: Move up, Move down, Hide or Show, Block settings (only when the block has settings) and the drag handle. These actions leave the bar's `⋮`; Remove, Select and the other settings stay there. Standard icon buttons (no container), each 44 dp (the editor's one size, not M3's 48), labelled and with a tooltip (`title`). Move up or Move down that cannot apply (first or last block, a locked neighbour) stays in its place, disabled (`aria-disabled`, the theme's disabled colour) with the reason as `aria-description` and `title`; as with the bar's Move buttons while blocks are selected, M3 prints no way to explain a disabled part. Block settings uses Material Symbols' `tune` so it does not look like the bar's gear (the active row's or item's settings). The row opens by its height with the spatial spring (`motionTiming('spatial', 'fast')`), so the page below makes room; under reduced motion it opens at once.
 - **Why:** owner idea, 14 Nov 2026: the bar keeps the text and design tools, the block's own actions sit at the block, each action in one place.
 - **Date:** 2026-11-14. **PR:** #625.
+
+## Choice group
+
+Source: `theme/ui/ChoiceGroup.tsx`, `theme/ui/choiceGroupFit.mjs`, `theme/styles/ui.css` (`.choice-group`). Spec: `docs/superpowers/specs/2026-11-14-choice-group-design.md`. Read 14 Nov 2026 on m3.material.io (Playwright): `/components/segmented-buttons/overview` and `/guidelines`, `/components/button-groups/overview`, `/guidelines`, `/specs` and `/accessibility`, `/components/radio-button/overview`, `/guidelines`, `/specs` and `/accessibility`, `/components/lists/guidelines` and `/specs`.
+
+### D1. One part switches between a connected button group and a radio list by measured width
+
+- **Material:** "Button groups should move through layouts together in a single line. They shouldn't wrap to a second line." "In compact windows, consider using smaller, narrower buttons so all buttons in the button group can fit." "Buttons at the trailing edge of the button group can be customized to collapse into an overflow menu at smaller breakpoints."
+- **We do:** when the buttons' labels do not all fit at an equal share of the width (the widest button × the count + the 2 dp gaps; more than five choices always), the same choice is drawn as a vertical list of radio buttons instead, one choice per row, the whole row the tap target. The form is measured before the first paint and again on a resize, a font load or a density change; the switch back to buttons needs 8 dp more.
+- **Why:** owner, 14 Nov 2026: "One theme part that chooses its own form by measuring, so it can never squeeze … it never wraps a group and never overlaps." Smaller buttons still clip long or Danish labels, and an overflow menu hides choices the owner compares.
+- **Date:** 2026-11-14. **PR:** the pull request that adds this entry (choice group, the part).
+
+### D2. A radio row shows a small live sample of the look in its trailing slot
+
+- **Material:** a list item's trailing slot holds "Action elements or text: Icon, icon button, or trailing text" or a selection control (lists/specs); M3 prints no sample or preview slot.
+- **We do:** a choice that is a look (a button style, a card's design or colour) shows a small, inert drawing of that look, made of the theme's own part, on the right of its row (`.choice-group-sample`, at most 7rem wide, `aria-hidden`), only in the list form.
+- **Why:** owner, 14 Nov 2026: "Where a choice is a look … each radio row shows a small live sample on its right."
+- **Date:** 2026-11-14. **PR:** the same.
+
+## The crop view
+
+Source: `src/CropView.tsx`, `src/editor.css` (`.crop-page`). Spec: `docs/superpowers/specs/2026-11-14-image-tools-design.md` (section 3). Read 14 Nov 2026 on m3.material.io (Playwright): `/components/dialogs/guidelines`, `/specs` and `/accessibility`, `/components/sliders/guidelines` and `/accessibility`, `/components/toolbars/guidelines`. The dialogs' and sliders' token tables stay collapsed in a text read, so no token value is quoted.
+
+### C1. The crop view is a page of the editor on every width, not a dialog
+
+- **Material:** "Full-screen dialogs are for compact breakpoints only, like mobile devices. For medium and expanded breakpoints, use a basic dialog." "To save a selection in a full-screen dialog, use Save. The close icon or dismissive action, such as Cancel or Back, should close the dialog." "When someone dismisses a full-screen dialog, a basic dialog should appear to confirm that they want to discard the unsaved changes."
+- **We do:** the crop view is a page on every width: a layer the size of the window over the editor (a modal `<dialog>` with no dialog parts, so the form under it keeps its changes and its scroll place), with the theme's top app bar (back arrow and the title `Crop`), the image area, the aspect ratios and the zoom, and a bottom bar with `Save` (and `Cancel` from medium). The phone's back gesture leaves it (a step of its own in the history, as the sheets have). Leaving with changes asks the basic dialog `Keep your changes?`, as M3 says for a full-screen dialog; the dialog's other parts are not used.
+- **Why:** owner decision, 14 Nov 2026: "Convert all full screen views to pages." (relayed by the project manager). Save is in the bottom bar on a phone, as the owner's rule for Save buttons says.
+- **Date:** 2026-11-14. **PR:** #686.
+
+### C2. The zoom slider's inactive track is the secondary container
+
+- **Material:** the sliders' token table (the colours of the active and inactive track) stayed collapsed in a text read, so M3's colour for the inactive track could not be quoted and the theme's choice (`--slider-inactive-track: --mo-surface-container-high`) could not be compared with it.
+- **We do:** in the crop view the inactive track is `--mo-secondary-container`.
+- **Why:** the theme's inactive track is the colour of the crop view's image area, so the track did not show.
+- **Date:** 2026-11-14. **PR:** #686.
+
+## A block's sheet on a phone
+
+Source: `src/BlockDialog.tsx` (the `subpage` look), `src/sheetPlacement.mjs`, `src/editor.css` (`.crop-page`, `.block-page`). Spec: `docs/superpowers/specs/2026-11-14-one-save-while-writing-design.md` (4.2). Read 15 Nov 2026 on m3.material.io (Playwright): `/foundations/layout/canonical-examples/list-detail`, `/components/app-bars/guidelines`, `/specs` and `/accessibility`, `/components/dialogs/guidelines`, `/components/toolbars/overview` and `/guidelines`.
+
+### B1. A block's fields on a phone are a subpage with Save in the bottom bar
+
+- **Material:** "Compact: Use a single-pane layout. Only one view is visible at a time, either list or detail"; "Back button: Appears in detail view only for single-pane layouts"; "The detail pane should typically show in a single-pane layout, and an app bar appears". The app bar's leading button can be "A back arrow, which returns to the previous screen". Save is printed in three places only: "The primary action should alter or exit the entire page, like Send, Save, or Edit" as an app bar action ("To boost visibility of a primary action, change the style of the icon button to filled or tonal"); "To save a selection in a full-screen dialog, use Save" (a text button in the dialog's header); and a filled icon button or FAB in a docked toolbar. M3 prints no filled, labelled `Save` button in a bottom bar.
+- **We do:** a block's fields on a compact window (below 600 dp) are a subpage of the page form, drawn as the crop view is: the top app bar has the back arrow and the block's name only (no action), the fields are below it, and `Save` (`Insert` for a new block), a filled button with a label, is in a bottom bar. Back (the arrow, Esc, the browser's and Android's back) with changes asks "Keep your changes?" and with none just goes back; Back or `Save` returns to the block in the page at the same scroll place. From medium the sheet is the modal side sheet with `Save` and `Cancel` as before, and from expanded the live side sheet.
+- **Why:** owner decisions, 14 Nov 2026: "Convert all full screen views to pages." and "Save buttons on mobile go in the bottom bar", relayed by the 0.18 project manager. A word cannot be misread (M3's own examples of a primary action are words), the bottom bar is where the owner wants every Save on a phone, and the page keeps the form under it as M3's list-detail asks.
+- **Date:** 2026-11-14 (owner's approval, relayed by the 0.18 PM). **PR:** #650.

@@ -1,4 +1,4 @@
-// The images, PDFs, videos and zip files (Filer, Media.tsx) and cutting an image to a format (Crop.tsx).
+// The images, PDFs, videos and zip files (Filer, Media.tsx) and cutting an image to a format (CropView.tsx).
 export const media = {
   sorts: { new: 'Newest first', old: 'Oldest first', name: 'Name (A–Z)' },
   sort: 'Sort',
@@ -89,6 +89,11 @@ export const media = {
   saveName: 'Save name',
   openPdf: 'Open PDF',
   download: 'Download',
+  /** The file's details on a phone (a full-screen dialog): the move to the file before and after it in the grid, and where it is ("1 of 4"). */
+  previous: 'Previous file',
+  next: 'Next file',
+  position: (index: number, total: number) => `${index} of ${total}`,
+  fileTools: 'File',
   savedAs: (name: string) => `Will be saved as ${name}`,
   usedOn: 'Used on',
   siteDesign: "The website's design",
@@ -97,7 +102,7 @@ export const media = {
   addTag: 'Add tag',
   createTag: 'Create a tag',
   /** The image's base text, kept with the image and used wherever it is shown unless that place has its own. */
-  alt: 'Describe the image',
+  alt: 'Alt text',
   altHint: 'Describe the image in a few words, for people who can’t see it.',
   decorative: 'Decorative image',
   decorativeHint: 'Screen readers skip the image.',
@@ -113,12 +118,15 @@ export const media = {
     alt: (what: string, name: string) => `Editor: change the text of ${what} "${name}"`,
     deleteMany: (count: number) => `Editor: delete ${count} files`,
   },
+  /** The crop view (CropView.tsx) and the image sheet's Aspect ratio row (image tools spec, sections 3 and 10). */
   crop: {
-    format: 'Format',
-    formatHint: 'Choose a format to crop the image.',
+    title: 'Crop',
+    ratio: 'Aspect ratio',
     original: 'Original',
-    frame: 'Cropping. Drag the image, or use the arrow keys, to move it.',
-    drag: 'Drag the image to choose the crop.',
+    frame: 'Crop frame. Drag the image, or use the arrow keys, to move it.',
+    drag: 'Drag the image to place it in the frame.',
     zoom: 'Zoom',
+    zoomIn: 'Zoom in',
+    zoomOut: 'Zoom out',
   },
 };

@@ -1,0 +1,7 @@
+{
+  "id": "paste-lines-as-items",
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Indsæt en liste",
+  "text": "En liste kopieret fra et dokument lander ikke længere som én lang linje. Indsæt den i en tom Liste, Trin, Segmenteret liste, FAQ-liste, Kort eller Tabel, så bliver hver linje et punkt, og tabulatorer deler en tabels celler. Tekst med overskrifter indsættes, som den er."
+}
