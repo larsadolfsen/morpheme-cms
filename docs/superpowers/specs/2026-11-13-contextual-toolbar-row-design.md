@@ -134,8 +134,9 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
 | List, Cards, Points, Segmented list | Add above, Add below, Move up, Move down, divider, Undo, Redo, `⋮` | Link, Settings, Fill from a list (List, Segmented list); divider; Insert; divider; Hide, Move, Remove |
 | Steps, Checklist | Add above, Add below, Move up, Move down, divider, Undo, Redo, `⋮` | Insert; divider; Hide, Move, Remove |
 | Buttons, Price cards, Questions and answers, Links | Add above, Add below, Move up, Move down, divider, Undo, Redo, `⋮` | Link (Buttons), Settings, Fill from a list (Questions and answers); divider; Insert; divider; Hide, Move, Remove |
-| Image | Change image, Crop, Alt text, Settings, divider, Undo, Redo, `⋮` | Insert; divider; Hide, Move, Remove |
-| Video, Notice, Testimonials, Posts, HTML, Banner | Settings (Video: Change address first; Testimonials and Posts: Edit), divider, Undo, Redo, `⋮` | Insert; divider; Hide, Move, Remove |
+| Image (a Cards card's image has the same tools) | Change image, Crop, Alt text (a text button), Remove, divider, Undo, Redo, `⋮` | What does not fit of those four (at 375 px Remove); Insert; divider. Move, Hide and Settings are on the block's row |
+| Video | Change link (icon `link`), divider, Undo, Redo, `⋮` | Insert; divider. Move, Hide and Settings are on the block's row (the slot over the frame is gone) |
+| Notice, Testimonials, Posts, HTML, Banner | Settings (Testimonials and Posts: Edit), divider, Undo, Redo, `⋮` | Insert; divider; Hide, Move, Remove |
 
   **Decided by the owner: both Undo and Redo stay on the bar** ("Both"). There is no spare slot at 375 px: nothing else takes one (the touch-selection
   spec's Duplicate action does not get a freed slot).
@@ -339,8 +340,8 @@ Move, Remove). Actions are today's, from the inline spec; this spec only moves t
 | Price cards | Add above, Add below, Move up/down, Settings (featured, badge), `⋮` |
 | Buttons | Add above, Add below, Move, Link, Settings, `⋮` |
 | Links (groups) | Add group/page above and below, Move, Settings, `⋮` |
-| Image | Change image, Crop, Alt text, Settings, `⋮` (today the Image menu) |
-| Video | Change address, Settings, `⋮` |
+| Image | Change image, Crop, Alt text, Remove, then the `⋮`; Settings is on the block's row, not on the bar (image tools spec, section 4; built in #666, #686, #699, #708) |
+| Video | Change link, then the `⋮`; Settings is on the block's row (image tools spec, section 8; built in #705) |
 | Notice | Settings (the `until` date), `⋮` |
 | Testimonials, Posts | Edit (opens the list page), Settings, `⋮` |
 | HTML | Settings, `⋮` |
