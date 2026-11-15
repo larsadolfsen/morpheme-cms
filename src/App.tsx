@@ -189,6 +189,7 @@ import Screen from './Screen';
 import { Button, EmptyNote, ProblemNote, startRipples } from './ui';
 import { useMenuOpen } from './menuOpen';
 import { MainMenu } from './MainMenu';
+import { CommandPalette } from './CommandPalette';
 import { TopBarLayout } from './topBarSlot';
 import { rememberEdit } from './startStorage';
 import { bulkDeletion } from './bulkDelete.mjs';
@@ -794,6 +795,7 @@ function Editor() {
           <LinkAsk groups={linkGroups} />
           <Ask />
           <Notifications />
+          <CommandPalette route={route} files={files} />
         </>
       </TopBarLayout>
     </>
