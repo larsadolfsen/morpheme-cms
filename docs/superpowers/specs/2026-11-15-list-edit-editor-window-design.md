@@ -2,7 +2,7 @@
 
 Status: spec and build plan for 0.19, no code in this pull request. Written 15 November 2026 in a brainstorm session from the owner's decisions of
 the same day (section 1), **redrawn the same day after the owner's correction** that the list's texts are inline text in the flow, not blocks
-(decision 5). Branch `0.19`. One question is **open for the owner** (section 11, Q3, with a recommendation); Q1 and Q2 are decided.
+(decision 5). Branch `0.19`. All three questions (section 11) are decided; decision 8 (layout) is the owner's direction of 15 Nov.
 
 Read for this spec:
 
@@ -40,6 +40,8 @@ the **entry form page** is where an entry is typed; the **edit page** (`#list/<i
 
 6. **(Decided, 15 Nov.)** Locked lists (those an app provides) stay locked in 0.19: no editor window and no list text for them. `LockedListEdit` is unchanged (section 3.3, Q1).
 7. **(Decided, 15 Nov.)** A list the owner made gets an **`Entry name`** box next to the list's name on the edit page, stored as an optional `singular` in `_list.json`. The FAB menu says `Add <entry name>`; empty means `Add item`. The name is never guessed from the list's name (Q2). #712's `singularOf` guess from the list name is replaced by this when the window is built (a follow-up for #712's session).
+8. **(Decided, 15 Nov. Layout.)** The edit page mimics the page's edit screen on a phone and has the same features: a **`List settings`** accordion at the top (closed by default, as `Page settings`) holding the list name, the `Entry name` box and `Delete list` and nothing else; below it a **`Content`** accordion (open) holding **one editor card**, the page editor's own card, with its bar (Undo, Redo, `+ Insert`, and the text tools while the cursor is in text) and the flow under it; the `+ Insert` offers the three text styles and the field kinds, as the page editor's Insert does for blocks; field blocks are drawn **as the form fields of the entry form page**; the bottom bar is the page editor's Save bar (label `Save changes`, shown while something waits; there is no Publish for lists). The separate `FieldBar` of the old draft is gone (section 3.2).
+9. **(Decided, 15 Nov.)** The list text stands **above the rows, in the order written** (Q3, section 3.1).
 
 **Base check.** On `0.19` at `b780512` #704 is not merged: `OwnListEdit.tsx` still has `Shown`, `dropped` and `Remove data`. This spec assumes #704
 has landed. If it has not when the window is built, that PR starts from a rebase on it; `dropped` is never carried into the new window.
@@ -107,42 +109,75 @@ Rows are as today (`List` in `Library.tsx`, move arrows, search). Changes: the *
 
 ### 3.2 Edit page (`#list/<id>/edit`) as an editor window
 
-The page is the page editor's workspace for a list: a top app bar (`Screen`, back arrow to the list, the `SaveBar` when something waits), the
-list's **name** (a `TextField`), then one **editor window**: the bar (sticky) and the flow. The look is the editor's own (`CLAUDE.md`: the editor's
-workspace follows the editor, not Material 3's components).
+The edit page mimics the page editor's edit screen (the owner's direction, decision 8). It has a top app bar (`Screen`, back arrow to the list), two
+accordions, and the page editor's bottom **Save bar** (`SaveBar`, label `Save changes`, shown while something waits, as today; the list's
+waiting-version behaviour is unchanged). The accordions are the entry form's sections (`EntryForm.tsx`: `Page settings` and `Content`); their look is
+the editor's own (`CLAUDE.md`: the editor's workspace follows the editor, not Material 3's components).
 
-The flow is **inline text and field blocks in one order**, as a page is. The owner types a heading, then a line of Body medium, then adds a
-`Title` field (a card), then more text, then an `Image` field, and so on. A free line between two cards is where the owner types text, as the
-page editor's free lines between blocks are.
+1. **`List settings`** (closed by default). It holds the list's **name** (a `TextField`), the **`Entry name`** box (decision 7: `Used on the button: Add
+   service`) and **`Delete list`** (the last control, as today: refused while a block reads the list, `listUses`). It holds **no fields and no text**.
+2. **`Content`** (open). It holds **one editor card**, the same card as the page editor's: the bar row at its top (Undo, Redo, `+ Insert`, and the text
+   tools while the cursor is in text) and the **flow** under it. The flow is **inline text and field blocks in one order**, as a page is: the owner types
+   a heading, then a line of Body medium, then inserts a `Title` field (a block), then more text, then an `Image` field, and so on. A free line between two
+   blocks is where the owner types text, as the page editor's free lines between blocks are.
 
 ```
-375 px                                         1280 px
-┌─────────────────────────────┐                ┌──┬───────────────────────────────┬────────────────────┐
-│ ←  Services       Save   ⋮  │                │▤ │ ←  Services          Save   ⋮ │ Field settings     │ (side sheet,
-├─────────────────────────────┤                │▤ ├───────────────────────────────┤ Price              │  when a card's
-│ [ Services              ]   │ list name      │  │ [ Services                  ] │ ──────────────     │  gear is tapped)
-│ ┌─────────────────────────┐ │                │  │ ┌───────────────────────────┐ │ Name [ Price     ] │
-│ │ Aa▾  ↺  ↻    T ⌗ ¶ 🖼 🔗 🏷 ⋮│ │ bar          │  │ │ Aa▾  ↺  ↻  T ⌗ ¶ 🖼 🔗 🏷  ⋮ │ │ Kind: Title        │
-│ └─────────────────────────┘ │                │  │ └───────────────────────────┘ │ Used by 12 entries │
-│                             │                │  │                               │ [ Remove field ]   │
-│ Keep each service to two    │ inline text,   │  │ Keep each service to two      │ [ Save ] [ Cancel ]│
-│ lines                       │ Heading        │  │ lines                         │                    │
-│ Add the price in the last   │ inline text,   │  │ Add the price in the last     │                    │
-│ field.▏                     │ Body medium    │  │ field.▏                       │                    │
-│          ↑  ↓  ⚙         ⠿ │ action row     │  │         ↑  ↓  ⚙           ⠿   │                    │
-│ ┌ Title ──────────────────┐ │ field block    │  │ ┌ Title ────────────────────┐ │                    │
-│ │ Name      [ sample    ] │ │ (card, active) │  │ │ Name        [ sample    ]  │ │                    │
-│ └─────────────────────────┘ │                │  │ └───────────────────────────┘ │                    │
-│ PUBLISHING                  │ inline text,   │  │ PUBLISHING                    │                    │
-│                             │ Label          │  │                               │                    │
-│ ┌ Title ──────────────────┐ │                │  │ ┌ Title ────────────────────┐ │                    │
-│ │ Price     [ sample    ] │ │                │  │ │ Price       [ sample    ]  │ │                    │
-│ └─────────────────────────┘ │                │  │ └───────────────────────────┘ │                    │
-│ ┌ Tags ───────────────────┐ │                │  │ ┌ Tags ─────────────────────┐ │                    │
-│ │ Tags                    │ │                │  │ │ Tags                       │ │                    │
-│ └─────────────────────────┘ │                │  │ └───────────────────────────┘ │                    │
-│ [ Delete list ]             │                │  │ [ Delete list ]               │                    │
-└─────────────────────────────┘                └──┴───────────────────────────────┴────────────────────┘
+375 px (phone)                       the same, List settings open
+┌─────────────────────────────┐      ┌─────────────────────────────┐
+│ ←  Services                 │      │ ←  Services                 │
+├─────────────────────────────┤      ├─────────────────────────────┤
+│ ▸ List settings             │      │ ▾ List settings             │
+├─────────────────────────────┤      │   List name                 │
+│ ▾ Content                   │      │   [ Services              ] │
+│ ┌─────────────────────────┐ │      │   Entry name                │
+│ │ Aa▾            ↺  ↻  ＋ ⋮│ │ bar  │   [ service               ] │
+│ ├─────────────────────────┤ │      │   Used on the button:       │
+│ │ Keep each service to    │ │ Head-│   Add service               │
+│ │ two lines               │ │ ing  │   [ Delete list ]           │
+│ │ Add the price in the    │ │ Body │ ▸ Content                   │
+│ │ last field.▏            │ │ med. │                             │
+│ │ ┌ ⠿ ──────────  ↑ ↓ ⚙ ┐ │ │ block│                             │
+│ │ │ Name                │ │ │ (act-│                             │
+│ │ │ ┌─────────────────┐ │ │ │ ive) │                             │
+│ │ │ │                 │ │ │ │ form │                             │
+│ │ │ └─────────────────┘ │ │ │ field│                             │
+│ │ └─────────────────────┘ │ │      │                             │
+│ │ PUBLISHING              │ │ Label│                             │
+│ │ ┌ Price ──────────────┐ │ │      │                             │
+│ │ │ ┌─────────────────┐ │ │ │      │                             │
+│ │ │ └─────────────────┘ │ │ │      │                             │
+│ │ └─────────────────────┘ │ │      │                             │
+│ │ ┌ Image ──────────────┐ │ │      │                             │
+│ │ │ ▢  Add an image     │ │ │      │                             │
+│ │ └─────────────────────┘ │ │      │                             │
+│ └─────────────────────────┘ │      │                             │
+├─────────────────────────────┤      ├─────────────────────────────┤
+│       [ Save changes ]      │ Save │       [ Save changes ]      │
+└─────────────────────────────┘ bar  └─────────────────────────────┘
+
+1280 px (expanded; the main menu is the navigation rail; a field's settings in the side sheet)
+┌──┬─────────────────────────────────────────────────┬──────────────────────┐
+│▤ │ ←  Services                                     │ Field settings       │
+│▤ ├─────────────────────────────────────────────────┤ Price                │
+│  │ ▸ List settings                                 │ ────────────────     │
+│  ├─────────────────────────────────────────────────┤ Name [ Price       ] │
+│  │ ▾ Content                                       │ Kind: Title          │
+│  │ ┌─────────────────────────────────────────────┐ │ Used by 12 entries   │
+│  │ │ Aa▾                              ↺  ↻  ＋  ⋮ │ │ [ Remove field ]     │
+│  │ ├─────────────────────────────────────────────┤ │                      │
+│  │ │ Keep each service to two lines              │ │ [ Save ] [ Cancel ]  │
+│  │ │ Add the price in the last field.▏           │ │                      │
+│  │ │ ┌ ⠿ ───────────────────────  ↑ ↓ ⚙ ┐        │ │                      │
+│  │ │ │ Name   [ ______________________ ]  │        │ │                      │
+│  │ │ └────────────────────────────────────┘        │ │                      │
+│  │ │ PUBLISHING                                  │ │                      │
+│  │ │ ┌ Price ─────────────────────────────────┐  │ │                      │
+│  │ │ │ [ ______________________________ ]     │  │ │                      │
+│  │ │ └────────────────────────────────────────┘  │ │                      │
+│  │ └─────────────────────────────────────────────┘ │                      │
+│  ├─────────────────────────────────────────────────┤                      │
+│  │               [ Save changes ]                  │                      │
+└──┴─────────────────────────────────────────────────┴──────────────────────┘
 ```
 
 **Inline text.** Typed in place, with a cursor, selection, `Enter`, `Backspace`, undo and redo, as in the page editor. Three styles and no
@@ -151,29 +186,31 @@ page editor's `Aa▾`, reduced to these three) and by the page editor's own keys
 images. `Enter` makes a new line in the style the page editor gives (after a heading Body medium, after Body medium Body medium, after a Label a
 Heading, as the page editor's label sits above its heading). A line that is empty is not saved.
 
-**Field blocks.** A card with the kind's icon, the field's **name typed in place** (as a typed-in-place List's rows are), and a disabled sample of
-the entry form's input (a text outline, an image placeholder, a tag chip), so the owner sees what the entry form will be. Tapping a card makes it
-active. The card has the page editor's **action row** (Move up, Move down, Settings, and the drag handle at the end, `blockRow.ts`). `Hide` and `Show`
-do not exist (nothing to hide: `Shown` is gone). A card moves between texts and other cards by the handle (`dragSteps`) or by Move up and Move
-down; as in the page editor, it moves **one part at a time** past text lines and cards.
+**Field blocks.** A field block is drawn **as the form field of the entry form page** (`#new/<id>`, `DataForm.tsx`): the field's name as its label, and the
+input the person will fill in (a text outline, a body-text area, an icon picker, an image placeholder, a tag chip row), disabled, so the owner sees what the
+entry form will be. The field's **name is typed in place** in its label. Tapping a block makes it active. The block has the page editor's **action row**
+(Move up, Move down, Settings, and the drag handle at the end, `blockRow.ts`). `Hide` and `Show` do not exist (nothing to hide: `Shown` is gone). A block
+moves between texts and other blocks by the handle (`dragSteps`) or by Move up and Move down; as in the page editor, it moves **one part at a time** past
+text lines and blocks.
 
-**The bar** (the page editor's one bar, `planBar`, sticky): the tools of the place at the left (`context`), a divider, then the tools that are
-always there (`fixed`):
+**The bar** is the page editor's one bar (`planBar`), at the top of the editor card, in the page editor's order: the tools of the place at the left
+(`context`), a divider, then the tools that are always there (`fixed`: Insert, Undo, Redo). There is **no separate field bar**; the field kinds are in
+`+ Insert`.
 
-- **Cursor in text:** the style menu (Heading, Body medium, Label; the current one marked), the page editor's text tools reduced to what these
-  styles allow (none of bold, italic, link, colour, list, align).
-- **A field card active:** the card's tools from `blockBar`: Move up, Move down, the gear (Settings), `⋮` with `Remove field`.
-- **Always:** the **field buttons** (`Icon`, `Title`, `Body text`, `Image`, `Link`, `Tags`, then `Date` when phase 6 of the framework spec lands), Undo
-  and Redo. Pressing a field button puts the field **at the cursor** (after the current line or card, as the page editor's Insert puts a block)
-  and makes its card active with the name box focused. `planBar` puts what does not fit in the `⋮` menu (four tools at 375 px).
+- **Cursor in text:** the style menu (Heading, Body medium, Label; the current one marked), the page editor's text tools reduced to what these styles
+  allow (none of bold, italic, link, colour, list, align).
+- **A field block active:** the block's tools from `blockBar`: Move up, Move down, the gear (Settings), `⋮` with `Remove field`.
+- **Always:** **`+ Insert`**, Undo and Redo. `+ Insert` is the page editor's Insert control, with its items replaced: **Heading**, **Body medium**,
+  **Label** (the three text styles), then the field kinds **Icon**, **Title**, **Body text**, **Image**, **Link**, **Tags** (and **Date** when phase 6 of
+  the framework spec lands). A text style turns the line at the cursor into that style, or, with a block active, puts a new line in that style after it.
+  A field kind puts the field block **at the cursor** (after the current line or block, as the page editor's Insert puts a block) and makes it active with
+  its name box focused. `planBar` puts what does not fit in the `⋮` menu (four tools at 375 px).
 
 **The field's settings sheet** is the page editor's block settings sheet (same host, side sheet from 600 px and subpage below, per
 `2026-11-14-settings-sheets-design.md`). Its content is short: the field's **name**, the **kind** (read only), `Used by <n> entries` and
 `Remove field`. `Remove field` asks first (`ask`, today's `removeDataAsk` with `heldBy(entries, id)`), then takes the field and its data out of
 every entry at the page's `Save` (`confirmDrop`; the removal waits for the final `Save`, as the autosave spec decided). The texts have **no**
 sheet.
-
-**Delete list** stays the last control under the window, as today (`Delete list` is refused while a block reads the list, `listUses`).
 
 ### 3.3 Locked lists
 
@@ -186,7 +223,9 @@ sheet.
 | Editor engine (Milkdown/ProseMirror, history, text input) | `MarkdownEditor.tsx` | Yes: a **flow editor** with a restricted schema (three text styles, no marks, one `fieldBlock` atom). Its content is the definition (section 6), not Markdown. | **Yes**: the editor is built inside one 3,100-line component (step 3 below). |
 | Text schemas | `bodySize.mjs` (`bodyMedium`), `eyebrow.mjs` (`eyebrow`), the heading node | Yes: Heading (level 3 only), Body medium, Label. | No. |
 | Bar layout | `textBar.mjs` `planBar`, `toolWidth` | Yes. | No. |
-| Bar rendering (context group, `⋮`, ghost measuring) | `MarkdownEditor.tsx` l. 2640 to 3050 | Yes. | **Yes** (step 1). |
+| Bar rendering (context group, Insert, Undo, Redo, `⋮`, ghost measuring) | `MarkdownEditor.tsx` l. 2640 to 3050 | Yes, with **`+ Insert` carrying the three text styles and the field kinds** instead of the block picker. | **Yes** (step 1, with Insert's items as a parameter). |
+| Sections and Save bar | `EntryForm.tsx` (`Page settings` and `Content` sections), `FormFrame.tsx` `SaveBar` | Yes: `List settings` and `Content` accordions and the bottom `Save changes` bar. | No (the sections are the entry form's; checked in PR 5 that they can host a non-form child). |
+| Form field look | `DataForm.tsx` (the entry form page's fields) | Yes: field blocks are drawn with the entry form's field parts, disabled. | No. |
 | Drag handle | `blockHandle` (takes a `view`), `blockDrag.mjs` | Yes, as is: it reads the top-level parts of the document. | No (checked: `move(view, i, by)` and `parts()` read `doc.forEach`, with no `siteBlock` test but `locked`). |
 | Bar state store, action row | `blockBar.ts`, `blockRow.ts` | Yes: the field card tells them its tools. | No. |
 | Keys and free lines between cards | `cardDeletes`, `gapHere`, `tapBelow`, `isCard` | Yes. | **Yes** (step 2): they test for `siteBlock` and `image` by name. |
@@ -221,8 +260,8 @@ ProseMirror directly with the same schemas (the editor already imports `prosemir
 Each step moves code without changing what the page editor does and ends with the page editor's checks unchanged (`npm run check`, and
 `check:screens` before and after with the same screenshots). No step changes the edit page.
 
-1. **`EditorBar`** (`src/EditorBar.tsx`): move the bar's rendering (context group, `⋮`, ghost measuring, the `planBar` call) out of the editor's
-   component into a component that takes `{ name, context tools, fixed tools, state }` and renders the `Toolbar`. The page editor passes today's
+1. **`EditorBar`** (`src/EditorBar.tsx`): move the bar's rendering (context group, Insert, Undo, Redo, `⋮`, ghost measuring, the `planBar` call) out of the
+   editor's component into a component that takes `{ name, context tools, fixed tools, insert items, state }` and renders the `Toolbar`. The page editor passes today's
    values. Risk: medium (about 400 lines), so it is one pull request on its own. Test: `textBar.test.mjs` and `check:screens`' bar checks at 375 and
    1280 px.
 2. **Card plugins by node name**: `cardDeletes`, `gapHere`, `tapBelow`, `nextToCard` and `isCard` take the names of the card nodes (`siteBlock`
@@ -352,6 +391,7 @@ deviates.
 - **Headings.** One `h1` (the page title); a heading line is an `h2` with the h3 look (section 7.1), so the outline has no gap.
 - **The window.** The text area is the page editor's own pattern: one labelled multi-line text box (`aria-label` `List text and fields`) with the
   browser's caret and selection, so a screen reader reads the lines in order; a heading line in the window is an `h2` too. Visible focus.
+- **Accordions.** `List settings` and `Content` are disclosure buttons with `aria-expanded` and `aria-controls`, as the entry form's sections are; `Delete list` is reachable by keyboard in `List settings`, and the Save bar is a labelled region at the page's end.
 - **The bar.** A `Toolbar` with `role="toolbar"` and the page editor's group labels; arrow keys move within it. Every button has a name; the
   style menu says the current style; `planBar`'s `⋮` has `aria-haspopup`.
 - **Cards.** A field card is `role="group"` with the label `<name> field, <kind>`, as a page block is. The arrow keys move the caret into and out
@@ -379,8 +419,8 @@ screen-neutral and compare `check:screens` before and after.
 | 2 | **Extract `EditorBar`** from `MarkdownEditor.tsx` (section 5, step 1). No behaviour change. | no | none (screens rerun) | empty |
 | 3 | **Card plugins by node name** (step 2) and the **flow editor spike** (step 3): `useFlowEditor` with a JSON document, no Markdown; `BlockHost` if needed. No behaviour change in the page editor. | no | none (screens rerun) | empty |
 | 4 | **Storage of the list text.** `notes` in `parseDefinition` and `definitionText`, `lib/ownListFlow.mjs` (`flowOf`, `definitionOfFlow`, `textsOf`), `check:content`, tests (round trip, a file without `notes` byte-identical, bad style and `after`, ordering rules). The list page draws the text from `notes` (section 7.1) and the demo gets its `Services` list; no editing UI yet. | yes | the list page with the three styles, 375 and 1280, light and dark | minor |
-| 5 | **The editor window: fields.** `OwnListEdit.tsx` is rebuilt on `useFlowEditor`, `EditorBar`, `blockBar`, `blockRow`, `blockHandle`, `planBar`: the field buttons, field cards (name typed in place, sample input), the row and the handle, Move up and Move down, `Remove field` (with `ask` and `heldBy`), the field settings sheet, Undo and Redo, no `Shown` and no `Add item`. Text lines can be typed in Body medium and are saved. `Delete list` and the waiting version stay; the old `FieldBar` goes. | yes | window with cards, a card active with its row, the sheet open, the `⋮` overflow, 375 and 1280 | minor |
-| 6 | **The editor window: text styles.** The style menu (Heading, Body medium, Label), `Enter` rules, the keys of the page editor for those styles, the bar's text tools reduced to them. | yes | text with the three styles, the style menu open, 375 and 1280 | minor |
+| 5 | **The editor window: fields.** `OwnListEdit.tsx` is rebuilt on `useFlowEditor`, `EditorBar`, `blockBar`, `blockRow`, `blockHandle`, `planBar`: the `List settings` accordion (name, `Entry name` with the optional `singular` in `_list.json`, `Delete list`), the `Content` accordion with one editor card, `+ Insert` with the field kinds, Undo and Redo, field blocks drawn as the entry form's fields (name typed in place), the row and the handle, Move up and Move down, `Remove field` (with `ask` and `heldBy`), the field settings sheet, the bottom `Save changes` bar, no `Shown` and no `Add item`. Text lines can be typed in Body medium and are saved. The waiting version stays; the old `FieldBar` goes. | yes | `List settings` closed and open, the window with blocks, a block active with its row, the sheet open, the Insert menu, 375 and 1280 | minor |
+| 6 | **The editor window: text styles.** The three text styles in `+ Insert` and the style menu (Heading, Body medium, Label), `Enter` rules, the keys of the page editor for those styles, the bar's text tools reduced to them. | yes | text with the three styles, the style menu open, 375 and 1280 | minor |
 | 7 | **Accessibility and phone pass.** Live region for moves, labels, the keyboard path, the unsaved dialog on back, `checkOwnList` extended (add a field at the cursor, type text, move by buttons and by handle, remove, save, reload keeps text and order, 375 and 1280). | yes | none new | patch |
 | 8 | **Release notes** for 1 to 7 (skill `release-notes`), English and Danish. | yes | — | empty |
 
@@ -417,16 +457,13 @@ Marked in `docs/superpowers/specs/2026-11-14-dynamic-lists-framework-design.md`;
 It does not disagree with the rest: the framework's `locked` lists keep `LockedListEdit` (section 3.3 here), `listEdit` stays the slot the app's
 window is drawn through (the editor window is the thing in that slot), and `lib/ownList.mjs` stays core.
 
-## 11. Open questions for the owner
+## 11. Questions for the owner (all decided)
 
 **Q1. Do locked lists get list text?** **Decided by the owner on 15 Nov 2026: no.** Locked lists (those an app provides) stay locked in 0.19, with no editor window and no list text; `LockedListEdit` is unchanged. Text for them is a later step (an `app.json` `notes` key in a later contract) when an app asks for it.
 
 **Q2. What is `<entry>` for a list the owner made?** **Decided by the owner on 15 Nov 2026:** an `Entry name` box next to the list's name on the edit page (hint `Used on the button: Add service`), stored as an optional `singular` in `_list.json`, built in PR 5. The FAB menu says `Add <entry name>`; empty means `Add item`. No guessing from the list's name. It is one optional key like `notes`, and the framework spec's `singular` for an app's list has the same name. #712's `singularOf` guess is replaced by this when the window is built.
 
-**Q3. Where does a line of text stand on the list page?** The list page has no fields, so a line written between two field cards in the window
-cannot stand between them there: all the text stands above the rows, in the order written.
-*Recommendation:* **yes, all the text above the rows, in the order written, none below the rows.** A line's place among the cards matters only in
-the window (it says which field the line is about). If the owner wants text below the rows, only a second value of `after` for "the end" is needed.
+**Q3. Where does a line of text stand on the list page?** **Decided by the owner on 15 Nov 2026: yes, the text stands above the rows, in the order written** (decision 9). The list page has no fields, so a line written between two field blocks in the window cannot stand between them there. A line's place among the blocks matters only in the window (it says which field the line is about). Text below the rows is not offered; if it is wanted later, a second value of `after` for "the end" is the only storage change.
 
 ## 12. Not in this spec
 
