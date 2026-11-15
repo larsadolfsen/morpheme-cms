@@ -271,3 +271,16 @@ Source: `src/BlockDialog.tsx` (the `subpage` look), `src/sheetPlacement.mjs`, `s
 - **We do:** the rule (owner, 15 Nov 2026: "We have agreed on moving away from full screen and sidebar on mobile and instead using pages."): below 600 dp no view of the editor is a full-screen dialog or a side sheet. Each is a page with the top app bar (back arrow and the headline), its content, `Save` filled in a bottom bar when it has one, and Back with unsaved changes asking "Keep your changes?". The computer keeps the side sheet. Built so far: the crop view (#686), the Preview (#696) and a block's settings (#650, B1). Not yet pages (the follow-up views are listed in the pull request #650): a file's details in the Library (`Media.tsx`), Notifications (`Notifications.tsx`), the lightbox, the settings sheets of 0.20 (`2026-11-14-settings-sheets-design.md`, which already plans the subpage) and the section settings and alt text, which are sheets from the bottom.
 - **Why:** owner decision, relayed by the 0.18 project manager on 15 Nov 2026.
 - **Date:** 2026-11-15. **PR:** #650 (the rule and the block sheet); the other views in their own pull requests.
+
+## Preview and View on site in the text's bar
+
+Source: `src/MarkdownEditor.tsx` (`spareIds`, the bar's `⋮` menu), `src/textBar.mjs` (`planBar`), `src/textActions.ts`. Spec: `docs/superpowers/specs/2026-11-14-one-save-while-writing-design.md` (3.2, 3.3). Read 15 Nov 2026 on m3.material.io (Playwright): `/components/toolbars/guidelines`, `/components/menus/guidelines`, `/components/icon-buttons/guidelines`. The bar and its `⋮` are the editor's own workspace.
+
+Followed: "When actions don’t fit in a toolbar, add a menu." and "If more actions are needed, use an overflow menu." (Preview goes into the `⋮` when the bar is full); "Use groups to bundle similar actions together." with dividers (View on site is the last group of the `⋮`); a leading icon on each menu item. The icons are Material Symbols `preview` and `open_in_new`, the same as the command palette's.
+
+### P1. View on site is missing from the `⋮` on a new page instead of disabled
+
+- **Material:** "When a menu item can only be used under specific conditions, it should appear disabled rather than be removed."
+- **We do:** a page or post that is not saved yet has no address, so its `⋮` has no View on site row. The same bar keeps its tools in every place and hides those that cannot apply there.
+- **Why:** the editor's workspace shows only what applies (spec 3.3); a disabled row with nothing to explain would only add a dead entry to a short menu.
+- **Date:** 2026-11-15. **PR:** #737.

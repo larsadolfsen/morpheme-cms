@@ -120,7 +120,7 @@ import { ask } from './ask';
 import { canPress, edgeScroll, movedAway } from '@theme/ui/longPressRules.mjs';
 import { canLabel, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
-import { AaIcon, AddBlockIcon, BodyA1Icon, BodyA2Icon, BodyA3Icon, CloseIcon, MoreVertIcon, Svg } from './icon';
+import { AaIcon, AddBlockIcon, BodyA1Icon, BodyA2Icon, BodyA3Icon, CloseIcon, MoreVertIcon, PreviewIcon, ViewOnSiteIcon } from './icon';
 import { editElsewhereIcon, settingsHereIcon } from './meaningIcons';
 import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
 import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
@@ -179,15 +179,6 @@ type Props = {
   /** The page's address on the site, for `View on site` in the bar's `⋮` (its last group); none for a page that is not on the site yet. */
   viewOnSite?: string;
 };
-
-// The icons of Preview (Phosphor's binoculars, Material Symbols' preview in the Material pack) and View on site (an arrow out of a square), by name through the icon pack (icon.tsx), shaped as the
-// icon a bar button and a menu row take.
-const PreviewIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => (
-  <Svg name="binoculars" size={Number(size)} className={className} />
-)) as unknown as typeof TextB;
-const ViewOnSiteIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => (
-  <Svg name="arrow-square-out" size={Number(size)} className={className} />
-)) as unknown as typeof TextB;
 
 // A part of the text at the top level, for `looks`.
 export type LookItem = { kind: 'block'; type: string } | { kind: 'heading' | 'gap' | 'other' } | { kind: 'p'; image: boolean };

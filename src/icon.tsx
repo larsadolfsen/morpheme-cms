@@ -254,6 +254,16 @@ export const MoreVertIcon = (({ size = 20, className }: { size?: number | string
   );
 }) as unknown as PhosphorIcon;
 
+/** Preview (a page's text bar and its `⋮`) and View on site, by name through the icon pack: Material Symbols' `preview` and `open_in_new` in the
+ * Material pack, Phosphor's binoculars and arrow-square-out in its own (site/icons.mjs), the same as the command palette draws. Shaped as a Phosphor icon so a
+ * ToolbarButton and a MenuItem take them. */
+export const PreviewIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => (
+  <Svg name="binoculars" size={Number(size)} className={className} />
+)) as unknown as PhosphorIcon;
+export const ViewOnSiteIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => (
+  <Svg name="arrow-square-out" size={Number(size)} className={className} />
+)) as unknown as PhosphorIcon;
+
 /** Material's "close" (a cross): the clear button of the text bar's block selection (the count with a cross). Material Symbols' own file, bundled like MoreVertIcon, shaped as a
  * Phosphor icon so a ToolbarButton takes it. */
 export const CloseIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => {
