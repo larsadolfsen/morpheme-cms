@@ -7922,7 +7922,9 @@
   :is(.data-table, .block-table-grid) :is(th, td):is(.data-table-right, .block-table-right) {
     text-align: end;
   }
-  :is(.data-table, .block-table-grid) tr:last-child :is(th, td) {
+  /* The table's last row has no line (the outline closes it). The header row is the last row of its own thead, so a plain tr:last-child
+     took its line away: only the last row of the table's last group counts. */
+  :is(.data-table, .block-table-grid) table > :last-child > tr:last-child :is(th, td) {
     border-bottom: 0;
   }
   :is(.data-table, .block-table-grid)[data-striped] tbody tr:nth-child(even) {
