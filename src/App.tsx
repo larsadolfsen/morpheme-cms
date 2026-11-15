@@ -195,6 +195,7 @@ import { TopBarLayout } from './topBarSlot';
 import { rememberEdit } from './startStorage';
 import { bulkDeletion } from './bulkDelete.mjs';
 import { Ask, ask } from './ask';
+import CropViewHost from './CropView';
 import { LinkAsk } from './LinkSheet';
 import { rowSources } from './standard/rows/view';
 import { type ListRows, type Option, type TestimonialRow } from './fields';
@@ -795,6 +796,7 @@ function Editor() {
 
           <LinkAsk groups={linkGroups} />
           <Ask />
+          <CropViewHost />
           <Notifications />
         </>
       </TopBarLayout>
