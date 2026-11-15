@@ -476,7 +476,8 @@
   --search-view-radius: var(--mo-shape-extra-large);
   --search-view-line: transparent;
   --search-view-docked-radius: var(--mo-shape-medium);
-  --search-view-results-padding: 0.5rem 0;
+  /* The results (and the recent searches) stand in the page's grid margin (16dp compact, 24dp from medium; owner's grid rule, 15 Nov 2026): M3 prints no side margin for a segmented list. */
+  --search-view-results-padding: 0.5rem var(--grid-margin);
   --search-view-option-surface: var(--mo-hover);
   /* Toolbars (M3 Expressive): in a surface container, docked without a line or blur, floating with full corners and
      the third elevation;
