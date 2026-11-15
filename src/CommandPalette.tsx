@@ -20,7 +20,8 @@ import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { openNotifications } from './notificationsOpen';
 import type { IconRef } from './icon';
 import { closePalette, togglePalette, usePaletteOpen } from './paletteOpen';
-import { loadRecent, saveRecent } from './paletteRecent';
+import { forgetRecent, loadRecent, saveRecent } from './paletteRecent';
+import { ShortcutsSheet, showShortcuts } from './ShortcutsSheet';
 import { ariaShortcut, pressed, shortcutText } from './shortcuts';
 import { SiteSearchView } from './themeUi';
 import { t } from './i18n';
@@ -50,6 +51,8 @@ function focusHeadingOfNextScreen() {
     const heading = [...document.querySelectorAll<HTMLElement>('h1')].find((h) => h.getClientRects().length > 0);
     if (!heading) return;
     heading.tabIndex = -1;
+    // The title is not a control: it takes the focus for screen readers without a ring.
+    heading.style.outline = 'none';
     heading.focus({ preventScroll: true });
   };
   window.addEventListener('hashchange', () => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(focus, 0))), {
@@ -104,6 +107,26 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
         group: 'setting',
         where: {},
         run: () => navigate('#settings'),
+      },
+      {
+        id: 'help.shortcuts',
+        label: t.palette.shortcuts,
+        icon: 'keyboard',
+        group: 'setting',
+        where: {},
+        words: ['keys', 'hotkeys'],
+        run: showShortcuts,
+      },
+      {
+        id: 'palette.clear-recent',
+        label: t.palette.clearRecent,
+        icon: 'delete',
+        group: 'setting',
+        where: {},
+        run: () => {
+          forgetRecent();
+          setRecent(loadRecent());
+        },
       },
       { id: 'go.notifications', label: t.library.notifications, icon: 'bell', group: 'go', where: {}, run: openNotifications },
       ...collectionsFor(all).flatMap((c): EditorAction[] =>
@@ -244,20 +267,23 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
   };
 
   return (
-    <SiteSearchView
-      open={open}
-      onClose={closePalette}
-      label={t.palette.label}
-      backLabel={t.palette.back}
-      clearLabel={t.palette.clear}
-      emptyText={t.palette.empty(query.trim())}
-      liveText={open ? (count ? t.palette.count(count) : query.trim() ? t.palette.none : '') : ''}
-      query={query}
-      onQueryChange={setQuery}
-      groups={results}
-      activeId={active}
-      onActiveChange={setActive}
-      onActivate={activate}
-    />
+    <>
+      <SiteSearchView
+        open={open}
+        onClose={closePalette}
+        label={t.palette.label}
+        backLabel={t.palette.back}
+        clearLabel={t.palette.clear}
+        emptyText={t.palette.empty(query.trim())}
+        liveText={open ? (count ? t.palette.count(count) : query.trim() ? t.palette.none : '') : ''}
+        query={query}
+        onQueryChange={setQuery}
+        groups={results}
+        activeId={active}
+        onActiveChange={setActive}
+        onActivate={activate}
+      />
+      <ShortcutsSheet />
+    </>
   );
 }
