@@ -2673,8 +2673,14 @@
   .list-item-supporting {
     display: block;
   }
-  /* Columns: on a wide screen the headline and the supporting text side by side, each in half the item's text. */
-  @media (width >= theme(--breakpoint-expanded)) {
+  /* Columns: when the item is wide the headline and the supporting text side by side, each in half the item's text. This follows the item's own
+     width, not the window's: an item in a narrow column or a side sheet keeps them under each other on a wide window too (Modern Web Guidance,
+     `responsive-design` and `size-aware-styling`). A container query measures the content box: 47.5rem is M3's expanded window (840 dp) less the page's
+     2 x 24 dp margins and the item's own 2 x 16 dp padding, so an item as wide as the page changes where it did. */
+  .list-item-columns {
+    container: list-item / inline-size;
+  }
+  @container list-item (width >= 47.5rem) {
     .list-item-columns .list-item-content {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
