@@ -2569,14 +2569,18 @@
   }
 
   /* A staggered grid of cards (image-grid.md in docs; M3 Cards: "customized in code to show cards in staggered or
-     mosaic grids"): columns of cards in their own heights, 8 dp apart (M3: "Padding between cards: 8dp max"). 2 columns
-     on compact, 3 on medium and expanded, 4 from large. M3 prints no column count for a grid: these are ours, on its
-     breakpoints. */
+     mosaic grids"): columns of cards in their own heights, 8 dp apart (M3 Spacing: "Cards should maintain consistent
+     horizontal spacing to establish a strong rhythm when their height varies"; Cards: "Padding between cards: 8dp max").
+     The one grid of the theme: --grid-columns is how many cards stand side by side, set per breakpoint (M3 Grids: the layout
+     grid has 4 columns on compact, 8 on medium and expanded, 12 on large and extra-large; M3 prints no count of cards
+     per row, so these are ours: 2 on compact, 3 on medium and expanded, 4 from large). A part with other counts sets
+     --grid-columns on the element (the start screen: 1 on compact, 2 from medium). */
   .image-grid {
+    --grid-columns: 2;
     margin: 0;
     padding: 0;
     list-style: none;
-    column-count: 2;
+    column-count: var(--grid-columns);
     column-gap: var(--card-gap, 8px);
   }
   .image-grid > * {
@@ -2585,12 +2589,12 @@
   }
   @media (width >= theme(--breakpoint-medium)) {
     .image-grid {
-      column-count: 3;
+      --grid-columns: 3;
     }
   }
   @media (width >= theme(--breakpoint-large)) {
     .image-grid {
-      column-count: 4;
+      --grid-columns: 4;
     }
   }
 

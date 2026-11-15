@@ -102,7 +102,9 @@ export function Dashboard({ dash, env, files }: { dash: DashboardEditing; env: E
           )}
         </>
       ) : (
-        <div className="dashboard-grid">{dash.shown.map(({ placement, definition }) => draw(placement, definition))}</div>
+        <div className="image-grid [--grid-columns:1] medium:[--grid-columns:2]">
+          {dash.shown.map(({ placement, definition }) => draw(placement, definition))}
+        </div>
       )}
       {!dash.editing && (
         <div>

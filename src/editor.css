@@ -2085,19 +2085,3 @@ dialog {
 .shortcuts-dialog:focus {
   outline: none;
 }
-
-/* The start screen's cards pack like the Library's media grid (.image-grid): columns of cards in their own heights, one
-   --card-gap apart both ways, so a short card leaves no hole. One column on compact, two from medium. DOM order is card
-   order, so keyboard and reading order follow it. */
-.dashboard-grid {
-  column-gap: var(--card-gap, 0.5rem);
-}
-.dashboard-grid > * {
-  break-inside: avoid;
-  margin-block-end: var(--card-gap, 0.5rem);
-}
-@media (width >= theme(--breakpoint-medium)) {
-  .dashboard-grid {
-    column-count: 2;
-  }
-}
