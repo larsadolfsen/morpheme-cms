@@ -6403,6 +6403,7 @@ async function checkVideoChangeLink(width, height = 800) {
 async function checkCardImage(width, height = 800) {
   const phone = width < 600;
   const label = `${width}px card image`;
+  if (!has('src/data/files')) return void console.log(`${label}: skipped, the site has no images in its Library, which the demo has.`);
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
