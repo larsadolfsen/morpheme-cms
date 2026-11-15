@@ -1,8 +1,4 @@
 {
-  "src/editor.css|dark-mode": {
-    "max": 1,
-    "why": "Google-preview colours in the editor; the editor's own workspace. To move to color-scheme and light-dark() (audit S1)."
-  },
   "theme/components/Popup.astro|dialog": {
     "max": 1,
     "why": "Backdrop click closes the dialog by hand; closedby=\"any\" skips our exit animation (audit D1, conflict C1: owner decides)."
