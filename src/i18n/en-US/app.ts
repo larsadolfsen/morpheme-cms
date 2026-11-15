@@ -37,7 +37,7 @@ export const app = {
     theme: 'theme',
     iconPack: 'icon pack',
     motion: 'motion',
-    sideColumn: 'side column',
+    sideColumn: 'sidebar',
     colors: 'colors',
     redirect: (from: string) => `redirect from ${from}`,
     logo: 'logo',

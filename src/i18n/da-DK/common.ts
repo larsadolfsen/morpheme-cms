@@ -99,7 +99,7 @@ export const common: Messages['common'] = {
     themeStore: 'Temastore',
     iconPacks: 'Ikonpakker',
     motion: 'Bevægelse',
-    sideColumn: 'Sidekolonne',
+    sideColumn: 'Sidebar',
     colors: 'Farver',
     brand: 'Logo og ikon',
     blockSettings: 'Blokindstillinger',

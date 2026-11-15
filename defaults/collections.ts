@@ -453,8 +453,8 @@ export const collections: Collection[] = [
         options: [
           { label: 'One column', value: 'single', icon: File },
           { label: 'Wide', value: 'full', icon: ArrowsHorizontal },
-          { label: 'Left side panel', value: 'sidebar-left', icon: ColumnsPlusLeft },
-          { label: 'Right side panel', value: 'sidebar-right', icon: ColumnsPlusRight },
+          { label: 'Left sidebar', value: 'sidebar-left', icon: ColumnsPlusLeft },
+          { label: 'Right sidebar', value: 'sidebar-right', icon: ColumnsPlusRight },
         ],
         hint: 'The theme decides which templates there are.',
       },
