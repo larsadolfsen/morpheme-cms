@@ -180,7 +180,7 @@ type Props = {
   viewOnSite?: string;
 };
 
-// The icons of Preview (binoculars) and View on site (an arrow out of a square), by name through the icon pack (icon.tsx), shaped as the
+// The icons of Preview (Phosphor's binoculars, Material Symbols' preview in the Material pack) and View on site (an arrow out of a square), by name through the icon pack (icon.tsx), shaped as the
 // icon a bar button and a menu row take.
 const PreviewIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => (
   <Svg name="binoculars" size={Number(size)} className={className} />

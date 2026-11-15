@@ -79,7 +79,6 @@ export const MATERIAL_DESIGN_ICONS = {
   'material-symbols': {
     'arrows-in-line-horizontal': 'arrow-collapse-horizontal',
     'arrows-out-line-horizontal': 'arrow-expand-horizontal',
-    binoculars: 'binoculars',
     'facebook-logo': 'facebook',
     'github-logo': 'github',
     'google-logo': 'google',
@@ -127,6 +126,7 @@ export const MATERIAL_SYMBOLS = {
   bank: 'account_balance',
   bell: 'notifications',
   bicycle: 'pedal_bike',
+  binoculars: 'preview',
   'book-open': 'import_contacts',
   'book-open-text': 'menu_book',
   browser: 'web',
