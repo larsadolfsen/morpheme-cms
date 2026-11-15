@@ -726,6 +726,8 @@
   --column-end: 0px;
 }
 .editor-column {
+  /* The site's text column (PostLayout.astro: max-w-3xl); a form with its fields beside the text is wider (Screen.tsx `panel`). */
+  --column-width: theme(--container-3xl);
   max-width: var(--column-width);
   margin-inline: auto;
 }

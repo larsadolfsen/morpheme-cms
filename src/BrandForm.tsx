@@ -128,7 +128,7 @@ export default function BrandForm({ env }: { env: Env }) {
       <section>
         <h2 className="mb-1 font-medium">{t.company.brand.logo}</h2>
         <p className="mb-3 text-sm text-on-surface-variant">{t.company.brand.logoHint}</p>
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-col items-start gap-4">
           <div
             data-logo-preview
             className="flex items-center gap-2.5 rounded-2xl border border-outline-variant bg-surface-container-lowest px-4 py-3"
@@ -140,27 +140,31 @@ export default function BrandForm({ env }: { env: Env }) {
             />
             <span className="font-medium tracking-tight">{siteName}</span>
           </div>
-          <Button kind="outlined" size="small" disabled={saving} onClick={newLogo}>
-            {t.company.brand.newLogo}
-          </Button>
+          <div className="flex flex-wrap gap-3">
+            <Button kind="outlined" size="small" disabled={saving} onClick={newLogo}>
+              {t.company.brand.newLogo}
+            </Button>
+          </div>
         </div>
       </section>
       <section>
         <h2 className="mb-1 font-medium">{t.company.brand.icon}</h2>
         <p className="mb-3 text-sm text-on-surface-variant">{t.company.brand.iconHint}</p>
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-col items-start gap-4">
           <img
             data-icon-preview
             src={icon}
             alt=""
             className={`size-16 shrink-0 rounded-2xl shadow-soft ${drawing ? 'animate-pulse opacity-50' : ''}`}
           />
-          <Button kind="outlined" size="small" disabled={saving || drawing} onClick={async () => newIcon(await pick(), false)}>
-            {t.company.brand.newIcon}
-          </Button>
-          <Button kind="outlined" size="small" disabled={saving || drawing || !loaded} onClick={iconFromLogo}>
-            {t.company.brand.iconFromLogo}
-          </Button>
+          <div className="flex flex-wrap gap-3">
+            <Button kind="outlined" size="small" disabled={saving || drawing} onClick={async () => newIcon(await pick(), false)}>
+              {t.company.brand.newIcon}
+            </Button>
+            <Button kind="outlined" size="small" disabled={saving || drawing || !loaded} onClick={iconFromLogo}>
+              {t.company.brand.iconFromLogo}
+            </Button>
+          </div>
         </div>
       </section>
     </FormFrame>

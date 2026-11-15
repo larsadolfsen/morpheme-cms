@@ -102,7 +102,7 @@ export function Dashboard({ dash, env, files }: { dash: DashboardEditing; env: E
           )}
         </>
       ) : (
-        <div className="grid items-start gap-4 medium:grid-cols-2 expanded:grid-cols-3">
+        <div className="grid items-start gap-4 medium:grid-cols-2">
           {dash.shown.map(({ placement, definition }) => draw(placement, definition))}
         </div>
       )}
