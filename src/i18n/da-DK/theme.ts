@@ -33,7 +33,7 @@ export const theme: Messages['theme'] = {
   newPages: 'Nye sider',
   newPagesDescription: 'Nye versioner af siderne, til gennemsyn.',
   newPagesIntro:
-    'Nye versioner af siderne ved siden af de nuværende, til gennemsyn. Google ser dem ikke. Når du godkender en side, kommer den nye tekst på den nuværende sides adresse.',
+    'Nye versioner af siderne ved siden af de nuværende, til gennemsyn. Google ser dem ikke. Når du godkender en side, kommer den nye tekst på den nuværende sides URL.',
   newVersion: 'Ny version',
   newPage: 'Ny side, som ikke findes endnu',
   currentPage: (title) => `Nuværende: ${title}`,
