@@ -29,7 +29,8 @@ The numbers come from its diagram only. Re-read on 15 Nov with the image downloa
 4 violet, 4 pink) under three brackets. The *Compact* bracket spans the first **4** columns (grey), the *Medium/Expanded*
 bracket the first **8**, the *Large/Extra-large* bracket all **12**. Column widths differ between the colour groups in the
 drawing and carry no dp values. So: **compact 4, medium and expanded 8, large and extra-large 12**, read from
-the diagram, not from a sentence. The owner reads 5 columns on compact; the diagram shows 4 (open point 1).
+the diagram, not from a sentence. The owner first read 5 on compact and then
+decided (15 Nov) that compact is **4 columns, as M3**.
 
 **Feed** (`https://m3.material.io/foundations/layout/canonical-examples/feed`). "Compact: A feed layout should stack
 vertically, like a list of cards with individual items filling the width of the pane." Medium: "can be split across
@@ -78,27 +79,26 @@ under `https://m3.material.io`). Two URLs
 
 ## 2. Is "2 columns with spans of 1 or 2 on a phone" compatible?
 
-Yes, if the span counts **cells of two grid columns**, not grid columns. Compact has 4 columns: a "2 column" phone layout
-is a 4-column grid in which a normal card spans 2 (half the width) and a wide card spans 4 (full width). A span of
-**1 grid column** is a quarter of the width, about 80 px on a 360 dp phone: too small for a widget. So the owner's "span
-of 1" is a half-width cell (2 grid columns) and "span of 2" a full-width cell (4 grid columns).
+Yes. **Decided (owner, 15 Nov):** compact is 4 columns as M3, and the technique is **CSS columns, no script**
+(`column-count`, with `column-span: all` for a full-width item). A card is **full width or one column**; on a phone two
+columns of the 4-column grid are one visible column each, so "one column" is half the width. There is no measured-row
+grid and no other span: a span of 1 of the 4 grid columns (about 80 px on a 360 dp phone) is too narrow for a widget and
+is not offered.
 
-Two things to know:
+- The visible column count is the grid's column count divided by two: **2 on compact (4), 4 on medium and expanded (8),
+  6 on large and up (12)**, proposed; a site or screen may use fewer. M3's grid does not divide into 3 on 8 columns, so
+  the "3 across" the repository uses today (image grid from 600, cards from 840) has no place at 600–1199 and fits only
+  large (12) as 3 of 4.
+- Two cards across on a phone is on M3's grid. One thing M3 does print is on its feed page: "A feed layout should stack
+  vertically, like a list of cards with individual items filling the width of the pane" (compact). So a feed of cards
+  (the cards block, blog lists) is full width on a phone; the dashboard widgets (not a feed) may be half width, as the
+  owner decided.
+- CSS columns fill down each column, then across, so item order reads column by column. The feed page says "The order of
+  items is determined by their position"; this follows from the owner's technique and is accepted, not a deviation that
+  needs recording unless the owner says so.
 
-- **Two cards across on a phone is span 2 of 4: it is on M3's grid.** One thing M3 does print is on its feed page:
-  "A feed layout should stack vertically, like a list of cards with individual items filling the width of the pane"
-  (compact). So for a *feed of cards* (the cards block, blog lists) M3's recommendation is span 4 of 4. For the
-  dashboard widgets, which are not a feed, half width (span 2 of 4) follows the grid with nothing in M3 against it. The
-  owner's call: whether the dashboard counts as a feed (open point 1).
-- Cell width does not carry up evenly. With a cell of 2 columns, medium and expanded (8) give 4 cells per row, large (12)
-  gives 6. Three across does not divide 8, so the "3 columns from 600" the repository uses today for the image grid, and
-  "3 from 840" for cards, have no place on M3's 8-column grid; 3 fits only 12 (large, spans of 4).
-
-**Span model (proposal).** A widget or card declares its span once, in cells (`1` = narrow, `2` = wide, optionally `3`),
-and the grid maps cells to grid columns per breakpoint: 2 columns per cell on compact and medium and expanded (4 / 8
-columns), 2 per cell on large (12 columns, so up to 6 across). A cell wider than the row clamps to a full row (a span-2
-widget on a phone is full width; a span-1 widget is half). Items reflow in order, as the feed page asks ("The order of
-items is determined by their position").
+**Span model.** Each widget or card has one of two sizes: *full* (`column-span: all`) or *one column*. Anything else
+(2 of 3 columns, a 1 + 3 split, a measured row) is out of scope.
 
 ## 3. Where the repository lays things out
 
@@ -110,11 +110,11 @@ means it changes how a published site looks. Gaps in blocks use `--card-gap` (0.
 
 | Place | Files | Today | Differs from M3 | Size | Risk |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| Start screen dashboard | `src/DashboardGrid.tsx:105`, `src/DashboardEdit.tsx:207` | CSS grid, `gap-4`, 1 column below 600, 2 from 600, no step above; no span; inside the 768 px (or 1152 px `panel`) column | No span, 1 column on a phone, no 8 or 12 step | S | None (editor) |
-| Media grid | `src/Media.tsx:282`, `theme/styles/ui.css:2575-2595` (`.image-grid`) | CSS multi-column masonry: 2 / 3 from 600 / 4 from 1200, gap 8 px (`--card-gap`) | Counts are 2 / 3 / 4, not 2 / 4 or 4 / 6 cells of M3; masonry, not grid cells. The image grid *block* uses the same class | M | Site (image grid block) |
+| Start screen dashboard | `src/DashboardGrid.tsx:105`, `src/DashboardEdit.tsx:207` | CSS grid, `gap-4`, 1 column below 600, 2 from 600, no step above; no span; inside the 768 px (or 1152 px `panel`) column | Target: CSS columns 2 / 4 / 6, a widget full or one column; today 1 on a phone, no span, no step above 600 | S | None (editor) |
+| Media grid | `src/Media.tsx:282`, `theme/styles/ui.css:2575-2595` (`.image-grid`) | CSS multi-column masonry: 2 / 3 from 600 / 4 from 1200, gap 8 px (`--card-gap`) | Technique already matches the decision (CSS columns). Counts are 2 / 3 / 4, target 2 / 4 / 6; gap 8 px, target 16 / 24. The image grid *block* uses the same class | M | Site (image grid block) |
 | Page frame and centre column | `src/Screen.tsx:146,233`, `src/editor.css:725-815` | Centred `max-width` 48rem (72rem for `panel`), margins `px-4` then `px-6` from 600, start and end clamped to rail, drawer and side panel by custom properties | Margins are not tokens and not per breakpoint; column is a width, not columns | M | None |
 | `FormColumns` and settings pane | `src/ui.tsx:3676-3708`, `src/SettingsSections.tsx:39` | Flex column; from 1200 grid `minmax(0,1fr) 22rem`, gap 2rem; pane variant an absolute strip | 12 columns would be about 8 + 4 | S–M | None |
-| Field pairs in forms | `BlockParts.tsx:297,386,408`, `PickerParts.tsx:41`, `ContainmentParts.tsx:51,124`, `ActionParts.tsx:203`, `SelectionParts.tsx:17`, `NavigationParts.tsx:240`, `UpdatesNotice.tsx:129` | Tailwind `grid medium:grid-cols-2` or `expanded:grid-cols-2`, `gap-4` or `gap-6` | 2 equal columns at medium is a span of 4 of 8: compatible. Only the gap token differs | S | None |
+| Field pairs in forms | `BlockParts.tsx:297,386,408`, `PickerParts.tsx:41`, `ContainmentParts.tsx:51,124`, `ActionParts.tsx:203`, `SelectionParts.tsx:17`, `NavigationParts.tsx:240`, `UpdatesNotice.tsx:129` | Tailwind `grid medium:grid-cols-2` or `expanded:grid-cols-2`, `gap-4` or `gap-6` | Two equal columns at medium is half of 8: compatible. Only the gap token differs | S | None |
 | Small grids | `src/MediaProviderPicker.tsx:133`, `src/ui.tsx:776,1264,1835,2430`, `src/Parts.tsx:418,763` | `grid-cols-2..6` or `auto-fill minmax(3rem..9rem)`, `gap-1.5..3` | Swatch, icon and picker grids, not layout; M3 has no rule | none | none (leave) |
 | Library and settings lists | `src/Library.tsx`, `src/Advanced.tsx`, `src/CmsPage.tsx` | `ListItem` rows; `columns` prop puts headline and supporting text side by side from 840 (`ui.css:2682`) | Lists, not grids; no change needed | none | none |
 
@@ -143,7 +143,7 @@ means it changes how a published site looks. Gaps in blocks use `--card-gap` (0.
 the M3 `--breakpoint-*` tokens as part of 4. A bump (to 5) makes every store theme invalid until it is re-published
 (`docs/superpowers/plans/2026-11-14-store-auto-updates-plan.md` line 73: the store needs a version of each theme before a
 CMS that raises it goes to `latest`). The grid can avoid that: build it from what themes already must have (the
-`--breakpoint-*` tokens and Tailwind's `grid-cols-*` / `col-span-*` utilities, which the editor and the theme already use),
+`--breakpoint-*` tokens and Tailwind's `columns-*` and `grid-cols-*` utilities, which the editor and the theme already use),
 and give every new token a fallback (`var(--grid-gutter, 1rem)`, the `--card-gap, 8px` pattern). An older theme then
 renders the same as today. Bump to 5 only if a later change makes a theme *define* something new, and then together with
 a store release of every theme.
@@ -161,52 +161,53 @@ be shown in *Developer › Parts › UI components* and used through `src/ui.tsx
   medium; gutter 16 px compact, 24 px from medium** (Space 200 and Space 300 on M3's scale). They match today's page
   margin and `--block-gutter` (1rem, 1.5rem from 600). The 8 px `--card-gap` is replaced by the grid gutter wherever a
   place moves onto the grid (see open point 2).
-- One layout part: a grid container (`display: grid; grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr))`)
-  plus span utilities in cells (section 2), `col-span` equivalents for 4 / 8 / 12 for page-level use. Editor components
-  would use it through `src/ui.tsx`; no screen writes its own grid.
-- The media grid and image grid block: M3 describes cards of varying height on grid columns with an even gap, not a
-  column-first masonry flow (section 1). So the grid part's rows (CSS grid, items aligned to the top, even gap) replace
-  `column-count`; counts become spans in cells. Item order then reads along rows, as the feed page says ("determined by
-  their position").
+- One layout part: a container with `column-count` from the token above (2 / 4 / 6), `column-gap: var(--grid-gutter)`,
+  children `break-inside: avoid` with the same gap below, and a *full* modifier (`column-span: all`). Editor components
+  would use it through `src/ui.tsx`; no screen writes its own columns. It needs no script.
+- The media grid and image grid block already use this technique (`.image-grid`, `column-count`). What changes is the
+  token behind it (counts 2 / 4 / 6 instead of 2 / 3 / 4, gap 16 / 24 instead of 8). Cards of varying height on columns
+  with an even gap is what the spacing page describes (section 1).
 
 ## 5. Recommendation and rollout
 
-**Owner input (relayed by the PM, 15 Nov).** On the dashboard each widget declares a span, full or half, with no edit
-control. "This is on all editor pages and also on the site, even though we don't use it." So the target is **one theme
-grid** (M3's 4 / 8 / 12 columns, tokens, span utilities) that exists everywhere in the editor and the site, whether or not
-a place uses it yet. The Library media grid and the dashboard are the first users; that part is being built in pull
-request #741 and this audit does not repeat it. Where #741 builds the grid itself, the steps below start from its tokens
-and span utilities and must not add a second set.
+**Owner decisions (15 Nov, relayed by the PM).** The target is **one theme grid** available everywhere in the editor and
+the site, whether or not a place uses it yet: M3's 4 / 8 / 12 columns (compact 4, as M3), made with **CSS columns, no
+script**; a widget or card is **full width or one column** (one column is half on a phone); **margin 16 px compact and
+24 px from medium, gutter 16 px compact and 24 px from medium**, as tokens (M3 prints none, these are the owner's
+numbers); the 72rem page width stays as our own limit. On the dashboard each widget declares full or half with no edit
+control. The Library media grid and the dashboard are the first users, being built in pull request #741; this audit does
+not repeat that and the steps below start from its tokens, which must not be duplicated.
 
 Small pull requests, in this order:
 
-1. **#741: the grid and its first two users** (Library media grid, dashboard with full / half spans). Open points for
-   that pull request, from this audit: spans counted in cells of two grid columns (section 2), so half is 2 of 4 on a
-   phone; tokens for columns, margin and gutter with fallbacks; the media grid's 3 columns at 600–1199 do not divide M3's 8
-   (they follow the grid's rows instead, section 4); the image grid block shares the media grid's class, so splitting it keeps sites unchanged.
+1. **#741: the grid and its first two users** (Library media grid, dashboard with full / one-column widgets). Points for
+   that pull request, from this audit: tokens for column count, margin and gutter with fallbacks; counts 2 / 4 / 6 (3 across
+   does not divide M3's 8 at 600–1199); the image grid block shares the media grid's class, so changing the class changes
+   sites: split it for the editor first, or treat it as the first block change of step 5.
 2. **Link the page container and the editor margins to the tokens** (`Container.astro`, `Screen.tsx`,
    `blocks.css:98`). Same pixel values, two copies removed. No visible change.
-3. **Editor `FormColumns` and field pairs** on the grid (8 + 4 of 12 from large, spans of 4 of 8 for pairs). Editor only.
-4. **12-columns-at-840 places** (footer, blog, CTA): move to 8 at 600–1199 and 12 from 1200 with the same spans in
-   cells. Small, medium risk.
-5. **Blocks, one pull request each**, in order: cards, image grid, price cards, then panels, points, media and checklist.
-   Each is opt-in or comes with a release note, because it changes published sites. `auto-fit` blocks last: they work
-   today and nothing in M3 asks for their change.
+3. **12-columns-at-840 places** (footer, blog, CTA): move to M3's 8 columns at 600–1199 and 12 from 1200. Small, medium
+   risk.
+4. **Cards block and blog lists**: full width on a phone (feed page), CSS columns above, gutter from the token. Release note.
+5. **Image grid block, then price cards**: onto the token (counts, gap). Release note each.
 
 ### What it takes to bring the other places onto the grid
 
-Once the grid exists, "available everywhere" costs nothing; "used everywhere" is the table below. All of it is
-replacing a layout rule with the grid container and a span, never a new component.
+Once the grid exists, "available everywhere" costs nothing; "used everywhere" is the table below. All of it is replacing a
+layout rule with the token and the CSS-columns part, never a new component. **A span other than full width or one column
+is out of scope** (owner, 15 Nov): places that need a fixed side column or an uneven split keep their own layout.
 
 | Place | What to do | Size | Site changes? |
 | :--- | :--- | :--- | :--- |
-| Field pairs (`BlockParts`, `PickerParts`, `ContainmentParts`, `ActionParts`, `SelectionParts`, `NavigationParts`) | `grid medium:grid-cols-2` becomes the grid with two spans of 4 of 8 | S | No |
-| `FormColumns`, settings pane | main span 8 + side span 4 of 12 from large; the `pane` strip stays | S–M | No |
-| Page frame, centre column | margins from tokens; width stays | M | No |
-| Footer, blog, CTA | 12-at-840 becomes 8 / 12 by breakpoint; spans in cells | S | Yes, reflows |
-| Cards, image grid, price cards | counts become spans in cells; 3 across only on 12 columns | M each | Yes, High |
-| Panels, points, media, checklist | `auto-fit` to spans; counts follow the breakpoint | L | Yes, High |
-| Post text column, carousels, pickers, lists | leave (*Would not change*, below) | none | No |
+| Field pairs (`BlockParts`, `PickerParts`, `ContainmentParts`, `ActionParts`, `SelectionParts`, `NavigationParts`) | Already two equal columns from 600 or 840; take the gap from the token | S | No |
+| `FormColumns`, settings pane | Main column + 22rem side column is an uneven split: out of scope, stays; only gaps and margins from tokens | S | No |
+| Page frame, centre column | Margins from tokens; width stays | M | No |
+| Footer, blog, CTA | Uneven 12-column splits (5 / 4 / 3, 7 / 5, 2 / 6 / 4): out of scope as spans; keep their own grid but switch at M3's breakpoints (8 at 600–1199, 12 from 1200) and take gaps from tokens | S | Yes, reflows |
+| Cards block, blog lists | Full width on a phone, CSS columns above, gutter from token | M | Yes, High |
+| Image grid block, media grid | Counts 2 / 4 / 6 and gutter from token (already CSS columns) | M | Yes, High |
+| Price cards | Count by window instead of block width, or leave (container queries) | M | Yes, High |
+| Panels, points, media, checklist | `auto-fit` blocks: leave until a block needs it | L | Yes, High |
+| Post text column, carousels, pickers, lists | Leave (*Would not change*, below) | none | No |
 
 **Would not change:** the breakpoints (already M3's); the spacing scale (already M3's); the 72rem page width and the
 reading measures (M3 prints none); the generic and cards carousel widths (M3 carousel rules, not the layout grid);
@@ -218,20 +219,18 @@ they follow the blocks); anything that would need a `THEME_API` bump before the 
 | Earlier question | Decision | Why |
 | :--- | :--- | :--- |
 | Margin and gutter values | M3 prints none for layout. Owner: margin 16 px compact / 24 px from medium; gutter 16 px compact / 24 px from medium | Owner's answer; on M3's spacing scale |
-| 2 cards on a phone | Span 2 of 4: on the grid. Feed of cards: span 4 of 4 per the feed page | Section 2 |
+| Compact columns | 4, as M3 (the owner's 5 is dropped) | Diagram: Compact bracket spans 4 (section 1) |
+| Technique | CSS columns, no script; a card is full width or one column; no other span | Owner, 15 Nov |
+| 2 cards on a phone | One column of the 4-column grid is half width; a feed of cards stays full width per the feed page | Section 2 |
 | Site blocks follow the grid | Yes, one pull request each, with a release note | M3 rule |
-| 12 columns from 840 (CTA from 600) | 8 columns at 600–1199, 12 from 1200, spans in cells | Grids page diagram |
+| 12 columns from 840 (CTA from 600) | 8 columns at 600–1199, 12 from 1200 | Grids page diagram |
 | `THEME_API` bump | No bump: fallbacks and already-contracted tokens (section 4) | A bump invalidates every store theme until re-published |
-| Masonry or rows | Grid rows, items aligned to the top, even gap | Feed and spacing pages (section 1); M3 never prints masonry |
+| Masonry or rows | CSS columns (what `.image-grid` already is), even gap | Owner; feed and spacing pages (section 1) |
 | 72rem page width | Stays as our own limit (owner) | M3 prints no maximum width (section 1) |
 
-**Flagged open points** (the owner's two earlier questions are answered above and removed)
+**Flagged open point** (the earlier questions, including 4 or 5 columns, are decided above)
 
-1. **Compact columns: 4 or 5?** The owner says compact has 5 columns and that widgets may use "1 + 4" columns. The M3 grids
-   diagram shows 4 on compact (section 1, screenshots on `pr-screenshots/743`). With 4 columns a "1 + 4" row does not
-   fit; the same idea fits as 1 + 3 or 2 + 2. This doc keeps **4** until the owner points to a page or image that shows 5.
-   The grid part must take the column count from one token, so a change of count is a value, not a rebuild.
-2. **Gutter 16 / 24 against the Cards specs.** M3 prints "Padding between cards 8dp max"
-   (`https://m3.material.io/components/cards/specs`). A card grid on the layout grid with gutter 16 / 24 is wider than
-   that. Either cards keep 8 px between them inside a grid cell area, or the owner approves the wider gap as a
-   recorded deviation (`docs/material-deviations.md`). To decide before the card blocks move (step 5).
+**Gutter 16 / 24 against the Cards specs.** M3 prints "Padding between cards 8dp max"
+(`https://m3.material.io/components/cards/specs`). Cards in columns with gutter 16 / 24 are further apart than that. Either
+cards keep 8 px between them, or the owner approves the wider gap as a recorded deviation
+(`docs/material-deviations.md`). To decide before the card blocks move (step 4).
