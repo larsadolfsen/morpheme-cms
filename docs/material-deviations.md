@@ -271,3 +271,12 @@ Source: `src/BlockDialog.tsx` (the `subpage` look), `src/sheetPlacement.mjs`, `s
 - **We do:** the rule (owner, 15 Nov 2026: "We have agreed on moving away from full screen and sidebar on mobile and instead using pages."): below 600 dp no view of the editor is a full-screen dialog or a side sheet. Each is a page with the top app bar (back arrow and the headline), its content, `Save` filled in a bottom bar when it has one, and Back with unsaved changes asking "Keep your changes?". The computer keeps the side sheet. Built so far: the crop view (#686), the Preview (#696) and a block's settings (#650, B1). The theme's `Dialog` has no full-screen kind any more (`THEME_API` 5). Not yet pages (the follow-up views are listed in the pull request #650): Notifications (`Notifications.tsx`), the lightbox, the settings sheets of 0.20 (`2026-11-14-settings-sheets-design.md`, which already plans the subpage) and the section settings and alt text, which are sheets from the bottom.
 - **Why:** owner decision, relayed by the 0.18 project manager on 15 Nov 2026.
 - **Date:** 2026-11-15. **PR:** #650 (the rule and the block sheet); the other views in their own pull requests.
+
+## The theme's Dialog
+
+### D1. The theme's Dialog has no full-screen kind
+
+- **Material:** "Full-screen dialogs fill the entire screen, containing actions that require a series of tasks to complete." "Full-screen dialogs are for compact breakpoints only, like mobile devices. For medium and expanded breakpoints, use a basic dialog." "Dialogs can swap variants as the breakpoint changes. For example, a full-screen dialog can change into a basic dialog at larger breakpoints." (dialogs/guidelines, read with Playwright on 15 Nov 2026).
+- **We do:** the theme's `Dialog` (`theme/ui/Dialog.tsx`) is the basic dialog only. The `full-screen` kind, `dialogFullScreenModalClass`, the classes `dialog-full-screen`, `dialog-modal-full-screen`, `dialog-header` and `dialog-header-actions` and the two `--dialog-full-screen-*` tokens are gone, and `THEME_API` is 5. A task that needs a whole screen is a page with the top app bar's back arrow (B2). The lightbox is its own modal `<dialog>` with the dialog's container (19).
+- **Why:** owner decision, 14 Nov 2026: no full-screen views anywhere; full screens become pages with a back arrow. It is the same thing as the dialog's full-screen kind, so the kind is removed (relayed by the 0.18 project manager).
+- **Date:** 2026-11-15. **PR:** the pull request that removes the kind.
