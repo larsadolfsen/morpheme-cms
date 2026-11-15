@@ -7,6 +7,7 @@
 // while it is open. It moves with the site's motion scheme (motionSpring, @morphemecms/cms/lib/motion.ts).
 import { animate } from 'motion';
 import { motionSpring } from '@morphemecms/cms/lib/motion';
+import { lightDismiss } from '@theme/ui/lightDismiss';
 
 export type DialogControls = { open: () => void; close: () => Promise<void> };
 
@@ -38,10 +39,8 @@ export function dialog(el: HTMLDialogElement): DialogControls {
     e.preventDefault();
     close();
   });
-  // A tap on the scrim (outside the box) closes a basic dialog.
-  el.addEventListener('click', (e) => {
-    if (e.target === el && !holds) close();
-  });
+  // A tap on the scrim (outside the box) closes a basic dialog (light dismiss: lightDismiss.ts; its cancel is the hook above).
+  if (!holds) lightDismiss(el, close);
 
   return { open, close };
 }
