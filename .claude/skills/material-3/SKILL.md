@@ -10,10 +10,12 @@ page and check it. I don't want to tell you more times to follow MD3."
 
 1. Outside the editor's own workspace (its toolbar/bar, overflow menu, text and block menus) every design choice follows
    what m3.material.io prints.
-2. Before a spec or a change, read the real pages of every component involved, with a real browser (Playwright).
-   Owner rule, 15 Nov: m3.material.io pages are JavaScript-rendered, so a plain fetch (WebFetch, curl) returns only the
-   page title, an empty shell. A session never writes a spec or a change from memory or from a failed fetch. If a page
-   can't be read, say so plainly instead of guessing.
+2. When you build a new component or edit an existing component's design (look, measurements, behaviour, states), read
+   the real pages of every component involved, with a real browser (Playwright). Owner rule, 15 Nov: m3.material.io
+   pages are JavaScript-rendered, so a plain fetch (WebFetch, curl) returns only the page title, an empty shell. A
+   session never writes a spec or a change from memory or from a failed fetch. If a page can't be read, say so plainly
+   instead of guessing. When you only use an existing theme component as it is (for example a text Button, a ListItem
+   or a Chip with their current props), you do not need to read the M3 pages.
 3. Never invent a part, mark, size or behaviour M3 does not print. Where M3 is silent, say so and use the nearest M3
    pattern.
 4. A deviation is allowed only in the editor workspace or when the owner says so in words. Record it in
@@ -25,7 +27,7 @@ Wording follows M3's word choice (`CLAUDE.md`, *Word choice*). A theme's own loo
 ## Reading the real pages
 
 Chromium and Playwright are pre-installed in the cloud container: `require('playwright')` works from any directory
-(use `NODE_PATH=$(npm root -g)` if `require` fails). Do not run `playwright install`. Read a page like this:
+(use `NODE_PATH=$(npm root -g)` if `require` fails). Do not run `playwright install`. Read a page like this (required for the build/edit case in rule 2):
 
 ```js
 const { chromium } = require('playwright');
