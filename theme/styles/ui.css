@@ -2587,6 +2587,11 @@
     break-inside: avoid;
     margin-block-end: var(--card-gap, 8px);
   }
+  /* A card across all the columns (a span of the whole grid; the cards before and after it pack in their own columns).
+     Spans of other widths are not possible in columns: see docs/theme-grid.md. */
+  .image-grid > .grid-span-full {
+    column-span: all;
+  }
   @media (width >= theme(--breakpoint-medium)) {
     .image-grid {
       --grid-columns: 3;

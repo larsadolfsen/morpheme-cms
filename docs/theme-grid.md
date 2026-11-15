@@ -1,0 +1,21 @@
+# The theme grid (`.image-grid`)
+
+One grid for every page of the editor and for the site's blocks. The Library's media grid and the Image grid block use it today; the start screen uses it too.
+
+## How it packs
+
+CSS columns (`theme/styles/ui.css`): the cards flow down the first column, then the next, each in its own height, `--card-gap` (8 px) apart both ways. A short card leaves no hole. The DOM order is the reading and keyboard order; the visual order is column by column.
+
+## Tokens
+
+- `--grid-columns`: how many cards stand side by side. Set per window size class on `.image-grid`: 2 on compact (under 600 dp), 3 from medium (600 dp), 4 from large (1200 dp). A part with other counts sets the token on its element (`[--grid-columns:1] medium:[--grid-columns:2]` on the start screen; the Image grid block's `data-columns` sets it from medium).
+- `--card-gap`: the space between cards, both ways (8 px).
+
+## Spans
+
+- `.grid-span-full` on a direct child: the card goes across all columns. The cards before and after it pack on their own, with no holes.
+- A card is otherwise one column. Spans of other widths (a third, a quarter, two of three) are not possible in columns without leaving holes; they need masonry (`grid-template-rows: masonry`, not available in every browser) or a script that measures the cards. Neither is used.
+
+## Material 3
+
+M3's layout grid has 4 columns on compact, 8 on medium and expanded and 12 on large and extra-large (m3.material.io, Foundations, Layout, Grids: the image of the column mockup). M3 prints no count of cards per row, and no margins or gutters in the pages read, so the counts above are ours on M3's breakpoints (600, 840, 1200, 1600 dp; the theme uses 600, 840, 1200 and 1600), the gap stays `--card-gap` and the page margins stay as they are. See `docs/material-deviations.md`, entry 17.
