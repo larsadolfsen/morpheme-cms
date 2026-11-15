@@ -396,3 +396,14 @@ Source: `theme/ui/Search.tsx` (`SearchView`), `theme/styles/ui.css` (`.search-vi
 - **Chip row (point 1) and category label and group gap (point 2).** The specs, Compose (`SearchBar.kt` takes arbitrary content), Android and Material Web have no filter chips or category labels in a search view, and no token for the space around them. **M3 does not define them.** We keep: chip row 12dp from the container's top edge and 12dp in, 8dp under it; label label-medium, 8dp above, 4dp under, 16dp in; 8dp between groups. **Approved deviation (owner, 15 Nov 2026, relayed by the PM).**
 - **Which M3.** The segmented list (SV12) is M3 Expressive: the Lists specs print it as "M3 --" and "M3 Expressive Available"; none of the sources above show it in the baseline.
 - **Date:** 2026-11-15 (owner approved the deviations above, 15 Nov 2026). **PR:** #749.
+
+## Focus ring on the search view's field (A1 of the Modern Web Guidance audit)
+
+Source: `theme/styles/ui.css` (`.search-view-header`, `.search-view-input`). Read 15 Nov 2026 on m3.material.io (Playwright): `/components/search/overview`, `/specs`, `/guidelines` and `/accessibility`.
+
+### A1. The search view's field shows a 2dp accent focus ring
+
+- **Material:** the Search specs ("Focused search") print no focus ring for the field in a search view: the open view is itself the focused state ("In focused search, individual elements maintain their own interaction states").
+- **We do:** the bar container of the view (`.search-view-header`) shows the same 2dp accent ring as the closed search bar while the field has focus, drawn as an inset shadow with a transparent outline for forced-colors mode. The same 2dp ring (`--mo-primary`) marks the editor's text typed in place and its typed rows (editor only, no M3 page).
+- **Why:** Chrome's Modern Web Guidance, `accessibility`: "Mandatory - Don't disable browser native focus indicators without providing a replacement custom focus indicator" (WCAG 2.4.7, 1.4.11, 3:1). Owner approved, 15 Nov 2026 (relayed by the PM).
+- **Date:** 2026-11-15. **PR:** #754.

@@ -224,6 +224,87 @@ const shownItems = (selector) =>
     .map((e) => ({ href: e.getAttribute('href'), text: e.innerText.trim(), tag: e.tagName, ...e.getBoundingClientRect().toJSON() }))
     .filter((e) => e.width > 0 && e.height > 0);
 
+/** Keyboard focus is visible (Modern Web Guidance, `accessibility`: "Don't disable browser native focus indicators without providing a
+ * replacement ... at least 3:1", WCAG 2.4.7 and 1.4.11; the 13 `outline: none` of the theme and the editor, A1 of the audit of 15 Nov 2026).
+ * Tabs through every stop of a screen; at each one it takes a picture of the element and 12 px around it focused and unfocused, and
+ * fails when nothing changed (no indicator) or when the changed pixels have less than 3:1 contrast between the two (a state layer alone).
+ * An element that is only read by a screen reader (the radio in a ChoiceTile) is measured on the label that holds it.
+ * FOCUS_ALLOW: the stops that are allowed to show only the caret, each with its reason. */
+const FOCUS_ALLOW = [];
+async function checkFocusIndicators(width, hash) {
+  const label = `${width}px focus indicators ${hash || 'start'}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: phone ? 800 : 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate((h) => (location.hash = h), hash);
+  await page.waitForTimeout(800);
+  await page.mouse.move(0, 0);
+  await page.evaluate(() => document.activeElement?.blur());
+  const lum = (r, g, b) => {
+    const f = (c) => ((c /= 255) <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  };
+  const seen = new Set();
+  let stops = 0;
+  for (let i = 0; i < 400; i++) {
+    await page.keyboard.press('Tab');
+    await page.waitForTimeout(150);
+    const info = await page.evaluate(() => {
+      const e = document.activeElement;
+      if (!e || e === document.body) return null;
+      // Tab only scrolls a stop into view when it is hidden: one cut by the window's edge hides its indicator, so it is centred first.
+      e.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
+      let box = e.getBoundingClientRect();
+      // A hidden control (the radio of a ChoiceTile) shows its focus on the label that holds it.
+      if (box.width < 4 || box.height < 4) box = (e.closest('label') ?? e.parentElement).getBoundingClientRect();
+      const cls = typeof e.className === 'string' ? e.className.trim().split(/\s+/).join('.') : '';
+      return {
+        name: `${e.tagName.toLowerCase()}${cls ? `.${cls}` : ''}${e.getAttribute('aria-label') ? `[${e.getAttribute('aria-label')}]` : ''}`,
+        key: `${e.outerHTML.slice(0, 160)}@${Math.round(box.x)},${Math.round(box.y)}`,
+        x: box.x,
+        y: box.y,
+        w: box.width,
+        h: box.height,
+      };
+    });
+    if (!info) break;
+    if (seen.has(info.key)) break;
+    seen.add(info.key);
+    const pad = 12;
+    const vh = phone ? 800 : 900;
+    if (info.w < 4 || info.h < 4 || info.y + info.h < 0 || info.y > vh - 4 || info.x + info.w < 0 || info.x > width - 4) continue;
+    const x = Math.max(0, Math.floor(info.x - pad));
+    const y = Math.max(0, Math.floor(info.y - pad));
+    const clip = { x, y, width: Math.ceil(Math.min(info.w + 2 * pad, width - x)), height: Math.ceil(Math.min(info.h + 2 * pad, vh - y)) };
+    const focused = await page.screenshot({ clip }).catch(() => null);
+    if (!focused) continue;
+    stops++;
+    await page.evaluate(() => document.activeElement.blur());
+    await page.waitForTimeout(250);
+    const plain = await page.screenshot({ clip });
+    const a = await sharp(focused).raw().toBuffer({ resolveWithObject: true });
+    const b = await sharp(plain).raw().toBuffer();
+    const channels = a.info.channels;
+    let changed = 0;
+    let best = 1;
+    for (let k = 0; k < a.data.length; k += channels) {
+      if (Math.abs(a.data[k] - b[k]) + Math.abs(a.data[k + 1] - b[k + 1]) + Math.abs(a.data[k + 2] - b[k + 2]) <= 24) continue;
+      changed++;
+      const l1 = lum(a.data[k], a.data[k + 1], a.data[k + 2]);
+      const l2 = lum(b[k], b[k + 1], b[k + 2]);
+      best = Math.max(best, (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05));
+    }
+    if (FOCUS_ALLOW.some((allowed) => allowed.match.test(info.name))) continue;
+    if (changed < 12 || best < 3) await sharp(focused).toFile(join(shots, `focus-${width}-${stops}.png`));
+    if (changed < 12) problems.push(`${label}: ${info.name} shows no indicator when it has the keyboard focus`);
+    else if (best < 3)
+      problems.push(`${label}: the focus indicator of ${info.name} (${info.key}) has ${best.toFixed(2)}:1 contrast, under 3:1`);
+  }
+  if (stops < 5) problems.push(`${label}: only ${stops} stops were checked`);
+  await page.close();
+}
+
 /** The "New in" card on the start screen, with the tall portrait photo of the 0.16 edition (1280x2272) in place of its own: the photo and the card stay inside the card's own box and above the widgets, never painted over them (375, 690 and 1280 px). */
 async function checkUpdatesCard(width, height) {
   const label = `${width}px`;
@@ -11348,6 +11429,9 @@ for (const [width, height] of [
   await unit(`checkUpdatesCard ${width}`, () => checkUpdatesCard(width, height));
 
 await unit('checkStartSubtitle', () => checkStartSubtitle());
+for (const width of [375, 1280])
+  for (const hash of ['', 'developer/parts/ui', 'developer/parts/editor', 'settings'])
+    await unit(`checkFocusIndicators ${width} ${hash || 'start'}`, () => checkFocusIndicators(width, hash));
 for (const width of [375, 1280])
   for (const locale of ['en-US', 'da-DK']) await unit(`choice-group parts ${width} ${locale}`, () => checkChoiceGroupParts(width, locale));
 for (const width of [375, 1280])
