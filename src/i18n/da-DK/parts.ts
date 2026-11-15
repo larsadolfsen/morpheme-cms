@@ -93,7 +93,7 @@ export const parts: Messages['parts'] = {
     color: 'Primær',
     colorHint: 'Knapper, links og ikoner.',
     phone: 'Telefon',
-    description: 'Kort beskrivelse',
+    description: 'Uddrag',
     descriptionText: 'En tekst over flere linjer.',
     placement: 'Placering',
     top: 'Øverst',

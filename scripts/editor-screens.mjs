@@ -8673,11 +8673,11 @@ async function checkSectionsOnLoad(width, height) {
   }
 }
 
-/** A page's and a post's form has no "Other fields" fold: "Page settings" ("Post settings") holds the URL, the Short description and the Tags, and the "For review" box (width, height). */
+/** A page's and a post's form has no "Other fields" fold: "Page settings" ("Post settings") holds the URL, the Excerpt and the Tags, and the "For review" box (width, height). */
 async function checkEntrySettings(width, height) {
   for (const [hash, folds, fields] of [
-    ['#new/pages', 'Page settings', ['URL', 'Short description', 'Tags']],
-    ['#new/blog', 'Post settings', ['URL', 'Short description']],
+    ['#new/pages', 'Page settings', ['URL', 'Excerpt', 'Tags']],
+    ['#new/blog', 'Post settings', ['URL', 'Excerpt']],
   ]) {
     const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
     page.on('pageerror', (e) => problems.push(`${width}px ${hash} settings: ${e.message}`));
