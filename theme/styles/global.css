@@ -147,7 +147,7 @@
   --button-letter-spacing: var(--type-label-large-tracking);
   --button-small-height: 2.5rem;
   --button-small-padding: 1rem;
-  --button-xsmall-height: 2.5rem;
+  --button-xsmall-height: 2rem;
   --button-xsmall-padding: 1rem;
   --button-xsmall-gap: 0.5rem;
   --button-text-padding: 0.75rem;
@@ -1370,16 +1370,6 @@
      edges. */
   .md-footer-bottom > div > [data-cookie-settings] {
     margin-inline-start: -0.75rem;
-  }
-  /* The colour scheme's button group is one density step down (Small, -1: M3 Density, "Each step down in density removes 4dp from the
-     height"; Button groups, Density: "Button groups adapt to the height of the buttons inside, including when density is applied").
-     The theme's way for a box to take its own step (base.css, Density): it sets --mo-density-user and the derived variables, which
-     are computed where they are declared. The buttons keep their 48dp target (ui.css, the invisible ::after area). */
-  .md-footer-bottom .button-group {
-    --mo-density-user: -1;
-    --mo-density: clamp(-3, calc(var(--mo-density-base) + var(--mo-density-user)), 1);
-    --mo-density-layout: clamp(-1, calc(var(--mo-density-base) + var(--mo-density-user)), 1);
-    --mo-density-focus: clamp(0, calc(var(--mo-density-base) + var(--mo-density-user)), 1);
   }
   /* Room under the footer's last line for the FAB, or for the bar at the bottom of the screen: in the footer instead of
    under the page (components.css), so the footer reaches the bar. */
