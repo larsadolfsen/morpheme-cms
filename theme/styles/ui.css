@@ -2546,29 +2546,37 @@
     color: var(--mo-on-primary);
   }
 
-  /* A staggered grid of cards (image-grid.md in docs; M3 Cards: "customized in code to show cards in staggered or
-     mosaic grids"): columns of cards in their own heights, 8 dp apart (M3: "Padding between cards: 8dp max"). 2 columns
-     on compact, 3 on medium and expanded, 4 from large. M3 prints no column count for a grid: these are ours, on its
-     breakpoints. */
+  /* The theme grid (docs/theme-grid.md; M3 Cards: "customized in code to show cards in staggered or mosaic grids"): columns of
+     cards in their own heights, --grid-gutter apart both ways (16px on compact, 24px from medium: owner values; M3 Spacing says
+     "Cards should maintain consistent horizontal spacing to establish a strong rhythm when their height varies" and prints no
+     gutter). --grid-columns is how many cards stand side by side, per breakpoint; M3's layout grid itself has 4 columns on
+     compact, 8 on medium and expanded and 12 on large and extra-large (--grid-layout-columns, in global.css, what a span counts
+     in). A part with other counts sets --grid-columns on its element. */
   .image-grid {
+    --grid-columns: 2;
     margin: 0;
     padding: 0;
     list-style: none;
-    column-count: 2;
-    column-gap: var(--card-gap, 8px);
+    column-count: var(--grid-columns);
+    column-gap: var(--grid-gutter, 16px);
   }
   .image-grid > * {
     break-inside: avoid;
-    margin-block-end: var(--card-gap, 8px);
+    margin-block-end: var(--grid-gutter, 16px);
+  }
+  /* A card across all the columns (a span of the whole grid; the cards before and after it pack in their own columns).
+     Spans of other widths are not possible in columns: see docs/theme-grid.md. */
+  .image-grid > .grid-span-full {
+    column-span: all;
   }
   @media (width >= theme(--breakpoint-medium)) {
     .image-grid {
-      column-count: 3;
+      --grid-columns: 3;
     }
   }
   @media (width >= theme(--breakpoint-large)) {
     .image-grid {
-      column-count: 4;
+      --grid-columns: 4;
     }
   }
 
