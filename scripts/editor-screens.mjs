@@ -1119,7 +1119,7 @@ async function pressMore(page, name, how = 'click', which = 'last') {
         .locator(`[role=menu][aria-label="${group}"] [role^=menuitem]`)
         .filter({ hasText: new RegExp(`^${group === 'Align column' ? (ALIGN_SHORT[name] ?? name) : name}$`) });
       if (await inside.count()) return void (await inside.first()[how]());
-      await page.keyboard.press('Escape');
+      await closeMore(page);
       await page.locator('.editor-tools [aria-label="More"]:visible').first()[how]();
     }
   }
@@ -1154,6 +1154,14 @@ async function openStyleMenu(page) {
 
 /** What the bar and its ⋮ menu hold now: `bar` its buttons (name, title, icon, size, pressed), `more` the rows of the ⋮ menu (opened and closed again by its button, so the cursor stays in its field). */
 /** The rows of the ⋮ menu that bundle a Table's tools and open them as its next level. */
+/** Closes the ⋮ menu from any level: Escape goes back one level at a time. */
+async function closeMore(page) {
+  for (let n = 0; n < 4 && (await page.locator('[role=menu]:visible').count()); n++) {
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(150);
+  }
+}
+
 const TABLE_GROUP_ROWS = ['Add', 'Delete', 'Align column', 'Column type'];
 /** Under Align column a row says only the side; these are the names its tools have on the bar. */
 const ALIGN_FULL = {
@@ -1218,8 +1226,7 @@ async function barTools(page) {
           )
         ).map((m) => (group === 'Align column' ? { ...m, label: ALIGN_FULL[m.label] ?? m.label } : m)),
       );
-      await page.keyboard.press('Escape');
-      await page.waitForTimeout(100);
+      await closeMore(page);
     }
   }
   return { bar, more, names: [...bar.map((b) => b.label), ...more.map((m) => m.label)] };
@@ -8658,7 +8665,7 @@ async function checkTableKinds(width, height) {
     'Align column automatically',
   ].filter((n) => top.includes(n));
   if (flat.length) problems.push(`${label}: the ⋮ menu lists ${flat.join(', ')} as rows of their own, not in a group (${top.join(', ')})`);
-  await page.keyboard.press('Escape');
+  await closeMore(page);
   const { names } = await barTools(page);
   for (const n of [
     'Add row above',
@@ -8677,14 +8684,13 @@ async function checkTableKinds(width, height) {
     await more.click();
     const opener = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${group}$`) });
     if (!(await opener.count())) {
-      await page.keyboard.press('Escape');
+      await closeMore(page);
       continue;
     }
     await opener.first().click();
     await page.waitForTimeout(250);
     await page.screenshot({ path: join(shots, `table-menu-${group.toLowerCase().replace(/ /g, '-')}-${width}.png`) });
-    await page.keyboard.press('Escape');
-    await page.waitForTimeout(150);
+    await closeMore(page);
   }
   // ⋮ › Column type, and its level.
   const level = async () => {
