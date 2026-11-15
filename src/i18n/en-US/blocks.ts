@@ -8,10 +8,14 @@ export const blocks = {
   gone: (type: string) => `The block "${type}" no longer exists. Remove it from the text.`,
   /** A block whose fields cannot be saved, and why (a message from check.ts). */
   notSaved: (why: string) => `The block can't be saved yet. ${why}`,
+  /** A block's sheet on a phone or a medium window closed without Save or Cancel (the tab closed or reloaded): its hidden copy
+   * offered when the page opens again (BlockDialog.tsx, sheetCopy.mjs). */
+  restoreTitle: 'Restore your unsaved changes?',
+  restoreText: (block: string) => `Your changes to ${block} weren’t saved.`,
   /** An image, chosen and changed like a block. */
   picture: {
     label: 'Image',
-    hint: 'Choose or upload an image.',
+    hint: 'Select or upload an image.',
     src: 'Image',
     alt: 'Alt text',
     altHint: 'Describe the image in a few words, for people who can’t see it.',
@@ -47,11 +51,11 @@ export const blocks = {
     only: 'Only one open',
     onlyToggle: ['On', 'Off'] as [string, string],
     onlyHint: 'Opening a question closes the open one.',
-    button: 'Button text',
+    button: 'Button label',
     buttonHint: 'A text button under the last question. If empty, there is no button.',
     buttonHref: 'Button page',
     /** The button typed in place under the questions: the empty field's text. */
-    buttonPlaceholder: 'Button text',
+    buttonPlaceholder: 'Button label',
     /** A question typed in place: the add button, the faded question of an empty block, the floating toolbar, a question's place for screen readers. */
     addQuestion: 'Add question',
     newQuestion: 'New question',
@@ -75,7 +79,7 @@ export const blocks = {
     rowButtons: 'Buttons',
     rowButton: 'button',
     rowButtonsHint: 'Text buttons at the bottom of the open row, each with a page.',
-    rowButtonText: 'Button text',
+    rowButtonText: 'Button label',
     only: 'Only one open',
     onlyToggle: ['On', 'Off'] as [string, string],
     onlyHint: 'Opening a row closes the open one.',
@@ -84,11 +88,11 @@ export const blocks = {
     showAll: 'Always open',
     maxRows: 'Maximum rows',
     maxRowsHint: 'How many rows show at first. A button under them shows the rest. If empty, all rows show.',
-    showMore: 'Button text (show more)',
+    showMore: 'Button label (show more)',
     showMoreText: 'Show more',
     /** The link in an open row, without the row's heading (in the site's language). */
     readMore: 'Read more',
-    button: 'Button text',
+    button: 'Button label',
     buttonHint: 'A text button under the last row. If empty, there is no button.',
     buttonHref: 'Button page',
     /** The link in an open row (in the site’s language). */
@@ -104,7 +108,7 @@ export const blocks = {
     addRow: 'Add row',
     newRow: 'New row',
     addButton: 'Add button',
-    buttonText: 'Button text',
+    buttonText: 'Button label',
     /** A row typed in place: its place, for screen readers (row 2 of 4). */
     rowOf: (n: number, total: number) => `Row ${n} of ${total}`,
   },
@@ -133,7 +137,7 @@ export const blocks = {
   },
   rows: {
     from: 'Rows from',
-    fromHint: 'Pick a list to show its items as rows. Leave empty to type the rows yourself.',
+    fromHint: 'Select a list to show its items as rows. Leave empty to type the rows yourself.',
     tags: 'Only with these tags',
     addTag: 'Add tag',
     tagsHint: 'Leave empty to show all items of the list.',
@@ -259,7 +263,7 @@ export const blocks = {
     stepOf: (n: number, total: number) => `Step ${n} of ${total}`,
   },
   accordion: {
-    label: 'Expandable list',
+    label: 'Accordion',
     hint: 'Rows that expand to show text.',
     edit: 'Edit default texts',
     items: 'Rows',
@@ -270,8 +274,8 @@ export const blocks = {
     textHint: 'If empty, the beginning of the text on the page is shown.',
     moreItems: 'More pages',
     moreItem: 'page',
-    moreLabel: 'Button text',
-    /** The shared text ("Blocks" › "Expandable list"), and what it starts as on a site in this language. */
+    moreLabel: 'Button label',
+    /** The shared text ("Blocks" › "Accordion"), and what it starts as on a site in this language. */
     more: 'Link text',
     moreHint: '{topic} is the heading of the row.',
     moreText: 'Read more about {topic}',
@@ -298,7 +302,7 @@ export const blocks = {
     page: 'A page',
     href: 'Page',
     hrefHint: 'When the button leads to a page.',
-    kind: 'Style',
+    kind: 'Variant',
     /** The kinds of a button, as Material 3 names them (buttonKinds). */
     kinds: { filled: 'Filled', tonal: 'Tonal', elevated: 'Elevated', outlined: 'Outlined', text: 'Text' },
     icon: 'Icon',
@@ -385,7 +389,7 @@ export const blocks = {
     show: 'Which testimonials',
     all: 'All',
     filter: 'Buttons with tags',
-    filterHint: 'Shows only the testimonials with the chosen tag.',
+    filterHint: 'Shows only the testimonials with the selected tag.',
     withTags: 'With tags',
     front: 'Marked "Show on the home page"',
     picked: 'Selected',
@@ -406,8 +410,8 @@ export const blocks = {
     },
     items: 'Testimonials',
     /** The shared texts ("Blocks" › "Testimonials"), and what they start as on a site in this language. */
-    more: 'Button text (show more)',
-    less: 'Button text (show less)',
+    more: 'Button label (show more)',
+    less: 'Button label (show less)',
     moreText: 'Read more',
     lessText: 'Show less',
     /** On the site and in the drawings (in the site's language): for screen readers, and when there are none. */
@@ -470,7 +474,7 @@ export const blocks = {
     images: 'Images',
     addImages: 'Add images',
     showTags: 'All images with tags',
-    showPicked: 'Picked images',
+    showPicked: 'Selected images',
     tags: 'Tags',
     addTag: 'Add tag',
     tagsHint: 'Show the images with any of these tags. Without tags, all images show.',
@@ -490,7 +494,7 @@ export const blocks = {
     caption: 'Caption',
     tagsOnCard: 'Tags',
     credit: 'Credit',
-    cardStyle: 'Card style',
+    cardStyle: 'Variant',
     cardFilled: 'Filled',
     cardElevated: 'Elevated',
     cardOutlined: 'Outlined',
@@ -525,8 +529,8 @@ export const blocks = {
     label: 'Cards',
     hint: 'Cards that link to pages.',
     edit: 'Edit default texts',
-    /** The cards' design, as Material 3 names its three cards, and the container color of a filled card. */
-    design: 'Design',
+    /** The cards' variant, as Material 3 names its three cards, and the container color of a filled card. */
+    design: 'Variant',
     designOutlined: 'Outlined',
     designFilled: 'Filled',
     designElevated: 'Elevated',
@@ -560,7 +564,7 @@ export const blocks = {
     video: 'Video link',
     buttons: 'Buttons',
     button: 'button',
-    buttonText: 'Button text',
+    buttonText: 'Button label',
     addButton: 'Add button',
     buttonsHint: 'A card with buttons has no link.',
     items: 'Cards',
@@ -637,6 +641,8 @@ export const blocks = {
     changeUrl: 'Change link',
     urlProblem: 'Paste the link to the video from YouTube or Vimeo',
     title: 'Title',
+    thumbnail: 'Thumbnail',
+    thumbnailHint: 'Shown before the video plays. Without one, the video’s own thumbnail shows.',
     video: 'Video',
   },
   /** "Checklist" (standard/checklist/). */
@@ -678,7 +684,7 @@ export const blocks = {
     newCard: 'New card',
     addFeature: 'Add feature',
     newFeature: 'New point',
-    newButton: 'Button text',
+    newButton: 'Button label',
     /** A card typed in place: its place, for screen readers (card 2 of 4). */
     cardOf: (n: number, total: number) => `Card ${n} of ${total}`,
     /** The cards it is shown with where no page has it (in the site's language): the middle one highlighted. */

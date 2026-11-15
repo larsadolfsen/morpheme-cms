@@ -19,7 +19,7 @@ export default function EditorFooter() {
   }, []);
 
   return (
-    <footer className="mt-auto pt-6">
+    <footer className="editor-footer mt-auto pt-6">
       <SiteDivider />
       <div className="pt-1">
         <FooterLinks state={state} />

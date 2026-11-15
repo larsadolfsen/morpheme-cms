@@ -25,7 +25,7 @@
   --editor-menu-surface: var(--mo-surface-container-lowest);
   --editor-menu-shadow: var(--mo-elevation-2-shadow);
 
-  /* The room a screen leaves for its FAB under the footer: Screen.tsx's padding and --editor-fab-clearance (below medium). */
+  /* The room a screen leaves above its footer for the FAB (Screen.tsx data-clearance): the FAB's 56 dp and its 16 dp margins. */
   --fab-room: 4.5rem;
 
   /* How a check went (CheckList: the SEO rating), as PageSpeed shows it: the mark before a check that is fine and one
@@ -640,17 +640,9 @@
 .editor-fab {
   position: fixed;
   right: calc(1rem + env(safe-area-inset-right));
-  bottom: calc(1rem + env(safe-area-inset-bottom));
+  /* Stands 16 dp above the footer while the footer is in the window (--editor-fab-lift, fabPresence.tsx useFabLift). */
+  bottom: max(calc(1rem + env(safe-area-inset-bottom)), calc(var(--editor-fab-lift, 0px) + 1rem));
   z-index: 30;
-}
-
-/* Below medium, while a screen leaves room for its FAB under the footer (Screen.tsx, data-clearance), the page is that room
-   taller than the window (the screen's padding less the bare one), so a short screen still has its footer at the bottom of
-   the window and can be scrolled up to show it above the FAB. */
-@media (width < theme(--breakpoint-medium)) {
-  :root:has(.editor-screen[data-clearance='true']) {
-    --editor-fab-clearance: var(--fab-room);
-  }
 }
 
 /* A FAB whose action runs or cannot be used now (FabAction.busy, .disabled): dimmed, and nothing to press. */
@@ -660,12 +652,12 @@
 }
 
 :root:has(.editor-fab) .snackbar-stack {
-  bottom: calc(6rem + env(safe-area-inset-bottom));
+  bottom: max(calc(6rem + env(safe-area-inset-bottom)), calc(var(--editor-fab-lift, 0px) + 5rem));
 }
 
 /* While a form's save bar is up (FormFrame.tsx) the FAB stands above it, so it does not cover Save; the messages above both. */
 :root:has(.editor-save-bar) .editor-fab {
-  bottom: calc(6.5rem + env(safe-area-inset-bottom));
+  bottom: max(calc(6.5rem + env(safe-area-inset-bottom)), calc(var(--editor-fab-lift, 0px) + 1rem));
 }
 
 :root:has(.editor-save-bar):has(.editor-fab) .snackbar-stack {
@@ -734,6 +726,8 @@
   --column-end: 0px;
 }
 .editor-column {
+  /* The site's text column (PostLayout.astro: max-w-3xl); a form with its fields beside the text is wider (Screen.tsx `panel`). */
+  --column-width: theme(--container-3xl);
   max-width: var(--column-width);
   margin-inline: auto;
 }
@@ -1942,10 +1936,11 @@ dialog {
 
 /* The crop view (CropView.tsx, image tools spec section 3): a page of the editor on every width, as a layer the size of the window over it (a modal
    <dialog>, so the form under it keeps its changes and its scroll place): the top app bar, the content in a column as wide as a form, and a bottom bar
-   with Save. The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and the part of the image outside it is under the
+   with Save. A block's subpage on a phone (.block-page, BlockDialog.tsx) has the same layer, column and bar. The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and the part of the image outside it is under the
    theme's scrim, the one its dialogs have behind their container (--dialog-scrim). The frame has a 2 dp border with a 1 dp halo outside it in the other
    inverse colour, so one of the two stands against any image, light or dark (M3 prints no frame: the focus ring's two-tone look). */
-.crop-page {
+.crop-page,
+.block-page {
   position: fixed;
   inset: 0;
   width: 100%;
@@ -1958,11 +1953,13 @@ dialog {
   background: var(--mo-surface);
   color: var(--mo-on-surface);
 }
-.crop-page[open] {
+.crop-page[open],
+.block-page[open] {
   display: flex;
   flex-direction: column;
 }
-.crop-page-main {
+.crop-page-main,
+.block-page-main {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -1972,7 +1969,8 @@ dialog {
   margin-inline: auto;
   padding: 1rem;
 }
-.crop-page-bar {
+.crop-page-bar,
+.block-page-bar {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
@@ -1980,12 +1978,24 @@ dialog {
   background: var(--mo-surface-container);
 }
 @media (width >= theme(--breakpoint-medium)) {
-  .crop-page-main {
+  .crop-page-main,
+  .block-page-main {
     padding: 1.5rem;
   }
-  .crop-page-bar {
+  .crop-page-bar,
+  .block-page-bar {
     padding-inline: 1.5rem;
   }
+}
+/* A block's fields on a compact window (BlockDialog.tsx): the crop page's layer, bar and column (the rules above), with the fields scrolling inside
+   the column and the page lifted above the on-screen keyboard (followKeyboard sets --keyboard-inset while it is up). */
+.block-page-main {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.block-page[data-keyboard] {
+  bottom: var(--keyboard-inset, 0);
+  height: auto;
 }
 .crop-view {
   display: flex;
@@ -2063,4 +2073,15 @@ dialog {
     flex-wrap: wrap;
     overflow-x: visible;
   }
+}
+
+/* The Keyboard shortcuts dialog (ShortcutsSheet.tsx) is a dialog in the middle of the screen on a computer, not a sheet from the bottom: no drag handle. */
+.shortcuts-dialog .bottom-sheet-drag-handle {
+  display: none;
+}
+.shortcuts-dialog .bottom-sheet-header {
+  padding-top: 1.25rem;
+}
+.shortcuts-dialog:focus {
+  outline: none;
 }

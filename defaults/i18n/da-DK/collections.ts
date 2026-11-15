@@ -1,7 +1,7 @@
 // The Danish of defaults/collections.ts: its English texts (the keys) in Danish (the values), as the editor
 // showed them before the switch to English. Joined in defaults/i18n/da-DK/index.ts.
 export const collections: Record<string, string> = {
-  'Button text': 'Knaptekst',
+  'Button label': 'Knapetiket',
   "If the field is empty, the standard text or the page's name is used.": 'Hvis feltet er tomt, bruges standardteksten eller sidens navn.',
   'Leads to': 'Fører til',
   'Book an appointment': 'Book en tid',
@@ -120,8 +120,8 @@ export const collections: Record<string, string> = {
   Template: 'Skabelon',
   'One column': 'Én kolonne',
   Wide: 'Bred',
-  'Left side panel': 'Sidepanel til venstre',
-  'Right side panel': 'Sidepanel til højre',
+  'Left sidebar': 'Sidebar til venstre',
+  'Right sidebar': 'Sidebar til højre',
   'The theme decides which templates there are.': 'Temaet bestemmer, hvilke skabeloner der findes.',
   'For review': 'Til gennemsyn',
   'Only shown on pages under /new/.': 'Vises kun på sider under /new/.',

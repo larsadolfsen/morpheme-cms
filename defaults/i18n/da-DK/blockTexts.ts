@@ -6,7 +6,7 @@ export const blockTexts: Record<string, string> = {
   'Book an appointment': 'Book en tid',
   Heading: 'Overskrift',
   Text: 'Tekst',
-  'Button text (book)': 'Knaptekst (book)',
-  'Button text (call)': 'Knaptekst (ring)',
+  'Button label (book)': 'Knapetiket (book)',
+  'Button label (call)': 'Knapetiket (ring)',
   'The phone number is shown after the text.': 'Telefonnummeret vises efter teksten.',
 };

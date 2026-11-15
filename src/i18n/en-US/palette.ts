@@ -14,6 +14,9 @@ export const palette = {
   empty: (query: string) => `Nothing found for “${query}”`,
   /** Read aloud when the results change. */
   none: 'Nothing found',
+  /** The actions that clear what this browser kept of the search, and that show the keys. */
+  clearRecent: 'Clear recent actions',
+  shortcuts: 'Keyboard shortcuts',
   count: (n: number) => (n === 1 ? '1 result' : `${n} results`),
   /** The group names of the results (the group of an action). */
   groups: {
