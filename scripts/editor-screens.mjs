@@ -816,6 +816,14 @@ async function pressMore(page, name, how = 'click', which = 'last') {
   await row[which]()[how]();
 }
 
+/** Ends a block's or section's sheet with its changes kept: Save where it has one (a phone, a sheet from the bottom), else the close button of the live side sheet
+ * from expanded, whose changes are in the page already (spec 2026-11-14 one Save, 4.1). `which`: the Save button when there are several. */
+async function saveOrClose(page, which = 'first') {
+  const save = page.getByRole('button', { name: 'Save', exact: true }).locator('visible=true');
+  if (await save.count()) return void (await save[which]().click());
+  await page.locator('.editor-side-sheet [data-side-sheet-close]').last().click();
+}
+
 /** The bar's Insert block (always on the bar, never in the ⋮ menu). */
 async function pressInsert(page, how = 'click') {
   await page.locator('.editor-tools button[aria-label="Insert block"]:visible').first()[how]();
@@ -1200,13 +1208,14 @@ async function checkCardBar(width, height = 800) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
-  // The block's fields are in a sheet on a phone and in the side panel from expanded.
+  // The block's fields are in a sheet on a phone (Insert puts it in) and in the live side panel from expanded (it is in already; the close button closes the panel).
   const sheet = page
     .locator('dialog[open], .editor-side-sheet')
     .filter({ has: page.locator('textarea') })
     .last();
   await sheet.locator('textarea').fill('<iframe src="https://www.youtube.com/embed/abc" title="Clip"></iframe>');
-  await sheet.locator('button', { hasText: /^Insert$/ }).click();
+  if (phone) await sheet.locator('button', { hasText: /^Insert$/ }).click();
+  else await sheet.locator('[data-side-sheet-close]').click();
   await page.waitForSelector('.ProseMirror .site-block-card', { timeout: 6000 });
   await page.locator('.ProseMirror .site-block-card').first().click();
   await page.waitForTimeout(400);
@@ -1222,7 +1231,8 @@ async function checkCardBar(width, height = 800) {
     problems.push(`${label}: the bar's first group is "${selected.groups}", not the block's name`);
   const tools = await barTools(page);
   if (tools.bar.some((b) => b.height < 43.4 || b.width < 43.4)) problems.push(`${label}: a button of the card's bar is under 44 x 44 dp`);
-  if (!tools.names.includes('Remove') && phone) problems.push(`${label}: the card's menu has no Remove (${tools.names})`);
+  // Remove is in the card's ⋮ at every width (from expanded the side sheet has none).
+  if (!tools.names.includes('Remove')) problems.push(`${label}: the card's menu has no Remove (${tools.names})`);
   const rowNames = await page
     .locator('.site-block-row:not(.site-block-row-hover) [data-row]')
     .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
@@ -1275,6 +1285,84 @@ async function checkCardBar(width, height = 800) {
   await page.close();
 }
 
+/** The live side sheet from expanded (spec 2026-11-14 one Save, 4.1 and 4.4): a block from Insert goes in at once with its sheet open beside it; the sheet has
+ * its headline and close button and no Save, Insert, Cancel or Remove; a change of a field shows in the page at once; Undo takes it back and the sheet shows the
+ * old value; the close button asks nothing; Remove is in the block's ⋮; a tap on the card opens the sheet again, and Undo of the insert closes it. */
+async function checkLiveSideSheet(width = 1280) {
+  const label = `${width}px live side sheet`;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
+  const sheet = page.locator('.editor-side-sheet');
+  const opened = await sheet
+    .locator('textarea')
+    .waitFor({ timeout: 6000 })
+    .then(
+      () => true,
+      () => false,
+    );
+  if (!opened) {
+    problems.push(`${label}: Insert did not open the block's side sheet`);
+    return void (await page.close());
+  }
+  const card = page.locator('.ProseMirror .site-block-card').first();
+  if (!(await card.count())) problems.push(`${label}: the new block is not in the page while its sheet is open (no Insert step)`);
+  const buttons = await sheet.locator('button').evaluateAll((els) => els.map((b) => b.textContent.trim()).filter(Boolean));
+  const extra = buttons.filter((b) => ['Save', 'Insert', 'Cancel', 'Remove'].includes(b));
+  if (extra.length) problems.push(`${label}: the side sheet has ${extra.join(', ')} (it is live: only its close button)`);
+  if (!(await sheet.locator('[data-side-sheet-close]').count())) problems.push(`${label}: the side sheet has no close button`);
+  if (await sheet.locator('.side-sheet-actions').count()) problems.push(`${label}: the side sheet has a row of bottom actions`);
+  // A change shows in the page at once.
+  await sheet.locator('textarea').fill('<p>Live text</p>');
+  await page.waitForTimeout(400);
+  const description = () => card.getAttribute('aria-description').catch(() => '');
+  if (!(await description())?.includes('Live text'))
+    problems.push(`${label}: a change in the sheet is not in the page at once (${await description()})`);
+  // Undo takes it back, and the sheet shows the old value.
+  await page.locator('.editor-tools button[aria-label="Undo"]:visible').first().click();
+  await page.waitForTimeout(400);
+  if ((await description())?.includes('Live text')) problems.push(`${label}: Undo did not take the sheet's change back`);
+  const shown = await sheet
+    .locator('textarea')
+    .inputValue({ timeout: 2000 })
+    .catch(() => null);
+  if (shown !== '') problems.push(`${label}: after Undo the sheet shows "${shown}", not the old value`);
+  // The close button closes it, with no question.
+  await sheet.locator('[data-side-sheet-close]').click();
+  await page.waitForTimeout(400);
+  if (await page.locator('dialog[open]').count()) problems.push(`${label}: closing the live sheet asked a question`);
+  if (await sheet.count()) problems.push(`${label}: the close button did not close the side sheet`);
+  // Remove is in the block's ⋮.
+  await card.click();
+  await page.waitForTimeout(400);
+  if (await page.locator('.editor-side-sheet [data-side-sheet-close]').count())
+    await page.locator('.editor-side-sheet [data-side-sheet-close]').click();
+  await page.waitForTimeout(300);
+  const tools = await barTools(page);
+  if (!tools.names.includes('Remove')) problems.push(`${label}: the block's ⋮ has no Remove (${tools.names})`);
+  // A tap on the card opens the sheet; Undo of the insert takes the block out and closes it.
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(300);
+  await card.click();
+  await sheet
+    .locator('textarea')
+    .waitFor({ timeout: 4000 })
+    .catch(() => problems.push(`${label}: a tap on the card did not open its side sheet`));
+  await page.locator('.editor-tools button[aria-label="Undo"]:visible').first().click();
+  await page.waitForTimeout(600);
+  if (await page.locator('.ProseMirror .site-block-card').count()) problems.push(`${label}: Undo did not take the new block out`);
+  else if (await sheet.count()) problems.push(`${label}: the side sheet stayed open after its block was gone`);
+  await page.close();
+}
+
 /** A block's side sheet has no control focused when it opens (owner rule, 14 Nov 2026): the sheet itself has the focus, so no field or button shows a focus
  * ring from the start; Tab then goes to its first control. The standard side sheet (from expanded) and the modal one (medium). */
 async function checkSheetFocusOnOpen(width) {
@@ -1316,7 +1404,7 @@ async function checkSheetFocusOnOpen(width) {
   await page.close();
 }
 
-/** Closing a changed sheet (closeChanged, ask.tsx; image tools spec 9.3): the question is "Keep your changes?" with the text that the changes stay in the
+/** Closing a changed sheet below expanded (from expanded the side sheet is live and asks nothing: checkLiveSideSheet) (closeChanged, ask.tsx; image tools spec 9.3): the question is "Keep your changes?" with the text that the changes stay in the
  * page until it is saved, and Discard and Keep in one row, Keep last (M3's basic dialog), with no Cancel; Esc stays in the sheet, Keep does what the sheet's
  * Insert does, and Discard closes it without the block. */
 async function checkCloseChangedSheet(width, height = 800) {
@@ -1417,9 +1505,11 @@ async function checkImageTools(width, height = 800) {
   await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
   await page.locator('dialog[open] [data-media-tile]').first().click();
   const sheet = () => page.locator('dialog[open], .editor-side-sheet').last();
-  await sheet()
-    .locator('button', { hasText: /^Insert$/ })
-    .click({ timeout: 8000 });
+  // From expanded the image goes in at once with its live sheet open (one Save spec 4.1: no Insert button); below it the sheet has Insert.
+  if (!expanded)
+    await sheet()
+      .locator('button', { hasText: /^Insert$/ })
+      .click({ timeout: 8000 });
   const image = page.locator('.ProseMirror .site-picture .site-block-card').first();
   await image.waitFor({ timeout: 8000 });
   await page.waitForTimeout(500);
@@ -1478,9 +1568,10 @@ async function checkImageTools(width, height = 800) {
       const label = el?.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`)?.textContent.trim() : '';
       return { label, sheet: !!el?.closest('dialog[open], .editor-side-sheet') };
     });
+  // Cancel below expanded; from expanded the live side sheet has only its close button.
   const cancel = async () => {
     await sheet()
-      .locator('button', { hasText: /^Cancel$/ })
+      .locator(expanded ? '[data-side-sheet-close]' : 'button:text-is("Cancel")')
       .first()
       .click({ timeout: 3000 })
       .catch(() => {});
@@ -1538,11 +1629,13 @@ async function checkCropView(width, height = 800) {
     .click();
   await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
   await page.locator('dialog[open] [data-media-tile]').first().click();
-  await page
-    .locator('dialog[open], .editor-side-sheet')
-    .last()
-    .locator('button', { hasText: /^Insert$/ })
-    .click({ timeout: 8000 });
+  // From expanded the image goes in at once with its live sheet open (one Save spec 4.1: no Insert button); below it the sheet has Insert.
+  if (width < 840)
+    await page
+      .locator('dialog[open], .editor-side-sheet')
+      .last()
+      .locator('button', { hasText: /^Insert$/ })
+      .click({ timeout: 8000 });
   const image = page.locator('.ProseMirror .site-picture .site-block-card').first();
   await image.waitFor({ timeout: 8000 });
   await page.waitForTimeout(800);
@@ -1794,15 +1887,22 @@ async function checkCropView(width, height = 800) {
     await page.waitForTimeout(600);
     const next = (await sheet.locator('li', { hasText: 'Aspect ratio' }).first().textContent()) ?? '';
     if (!next.includes('1:1')) problems.push(`${label}: after Save in the crop view the row does not say 1:1 (${next})`);
-    // The sheet is changed now: Cancel asks.
-    await sheet
-      .locator('button', { hasText: /^Cancel$/ })
-      .first()
-      .click();
-    await asked()
-      .waitFor({ timeout: 4000 })
-      .catch(() => problems.push(`${label}: closing the image sheet after a new ratio did not ask`));
-    await asked().getByRole('button', { name: 'Discard', exact: true }).click();
+    if (width >= 840) {
+      // From expanded the sheet is live: the new ratio is in the page already, and closing the sheet asks nothing.
+      await sheet.locator('[data-side-sheet-close]').click();
+      await page.waitForTimeout(500);
+      if (await asked().count()) problems.push(`${label}: closing the live image sheet asked "Keep your changes?"`);
+    } else {
+      // The sheet is changed now: Cancel asks.
+      await sheet
+        .locator('button', { hasText: /^Cancel$/ })
+        .first()
+        .click();
+      await asked()
+        .waitFor({ timeout: 4000 })
+        .catch(() => problems.push(`${label}: closing the image sheet after a new ratio did not ask`));
+      await asked().getByRole('button', { name: 'Discard', exact: true }).click();
+    }
   }
   await page.close();
 }
@@ -4540,7 +4640,7 @@ async function checkEmptyHint() {
           if (!(await sheet.getByText('Width', { exact: true }).count()))
             problems.push(`${name}: the Main heading's Section settings have no Width`);
           await page.getByText('Primary', { exact: true }).first().click();
-          await page.getByRole('button', { name: 'Save', exact: true }).first().click();
+          await saveOrClose(page);
           await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 10_000 });
           await page.waitForTimeout(300);
         }
@@ -5473,7 +5573,7 @@ async function checkSegmentedArrow(width, height) {
   await pressMore(page, 'Edit');
   await page.waitForTimeout(600);
   await page.getByText('Always open', { exact: true }).locator('visible=true').last().click();
-  await page.getByRole('button', { name: 'Save', exact: true }).locator('visible=true').last().click();
+  await saveOrClose(page, 'last');
   await page.waitForTimeout(500);
   await page.click('[data-add-row]');
   await page.keyboard.type('Second');
@@ -7571,11 +7671,7 @@ async function checkInlineTable(width, height) {
   await stripes.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the table's settings have no "Striped rows" switch`));
   if ((await stripes.count()) && (await stripes.isChecked())) problems.push(`${label}: "Striped rows" is not off by default`);
   await stripes.click({ timeout: 3000 }).catch(() => {});
-  await page
-    .getByRole('button', { name: 'Save', exact: true })
-    .last()
-    .click({ timeout: 3000 })
-    .catch(() => {});
+  await saveOrClose(page, 'last').catch(() => {});
   await page.waitForTimeout(400);
   const striped = await rowBg();
   if (!(await page.locator('.inline-table-box[data-striped]').count()))
@@ -9207,7 +9303,8 @@ for (const [width, reduced] of [
   await unit(`checkBarSlide ${width}${reduced ? ' reduced' : ''}`, () => checkBarSlide(width, reduced));
 for (const width of [375, 1280]) await unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
 for (const width of [375, 1280]) await unit(`checkCardBar ${width}`, () => checkCardBar(width));
-for (const width of [375, 1280]) await unit(`checkCloseChangedSheet ${width}`, () => checkCloseChangedSheet(width));
+await unit('checkLiveSideSheet 1280', () => checkLiveSideSheet(1280));
+for (const width of [375, 700]) await unit(`checkCloseChangedSheet ${width}`, () => checkCloseChangedSheet(width));
 for (const width of [700, 1280]) await unit(`checkSheetFocusOnOpen ${width}`, () => checkSheetFocusOnOpen(width));
 for (const width of [375, 1280]) await unit(`checkImageTools ${width}`, () => checkImageTools(width));
 for (const width of [375, 1280]) await unit(`checkCropView ${width}`, () => checkCropView(width));
