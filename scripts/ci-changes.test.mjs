@@ -38,6 +38,17 @@ test('a workflow change runs everything even beside docs', () => {
   assert.equal(isDocsOnly(['docs/a.md', '.github/workflows/check.yml']), false);
 });
 
+test('.changeset/README.md is a changeset note: docs-only; other files there are not', () => {
+  assert.equal(isDocsOnly(['.changeset/README.md']), true);
+  assert.equal(isDocsOnly(['.changeset/README.md', 'docs/a.md']), true);
+  assert.equal(isDocsOnly(['.changeset/config.json']), false);
+  assert.equal(isDocsOnly(['.changeset/sub/a.md']), false);
+});
+test('a docs pull request that also touches scripts/ runs everything', () => {
+  assert.equal(isDocsOnly(['docs/a.md', 'scripts/ci-changes.mjs']), false);
+  assert.equal(isDocsOnly(['.claude/skills/checks/SKILL.md', 'scripts/check-language.mjs', '.changeset/a.md']), false);
+});
+
 const ok = Object.fromEntries(['changes', 'static', ...HEAVY].map((n) => [n, { result: 'success' }]));
 const skipHeavy = { ...ok, ...Object.fromEntries(HEAVY.map((n) => [n, { result: 'skipped' }])) };
 
