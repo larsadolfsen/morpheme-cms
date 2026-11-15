@@ -103,6 +103,8 @@ import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { snackbar } from '../lib/snackbar';
 import { actions, changeToActions } from './actions';
+import { editorCtx } from './editorCtx';
+import { textActions, type TextApi, type TextLabels } from './textActions';
 import { SiteSnackbar } from './themeUi';
 import { changeTo, targets } from '../lib/changeTo.mjs';
 import { t } from './i18n';
@@ -906,7 +908,7 @@ function cardBar(
     const target = e.target;
     if (
       target instanceof Element &&
-      (dom.contains(target) || target.closest('.editor-tools, .editor-menu, .editor-side-sheet, dialog[open]'))
+      (dom.contains(target) || target.closest('.editor-tools, .editor-menu, .editor-side-sheet, dialog[open], [data-keeps-block]'))
     )
       return;
     leave();
@@ -1441,6 +1443,9 @@ const ALIGN_FACES = {
   right: { node: TextAlignRight },
 };
 type Align = keyof typeof ALIGN_FACES;
+/** The keys of the bar's tools that have one: the text engine's own (the same as in textActions.ts), shown in their tooltips. */
+const TOOL_KEYS: Record<string, string | undefined> = { bold: 'Mod+B', italic: 'Mod+I', undo: 'Mod+Z', redo: 'Mod+Shift+Z' };
+
 const alignLabel = (align: Align) => ({ left: t.text.alignLeft, center: t.text.alignCenter, right: t.text.alignRight })[align];
 
 // The alignment where the cursor is, from activeOf's names: left when the block has none.
@@ -2136,7 +2141,7 @@ function blockCard(
     // its settings close, and a row with nothing in it is dropped.
     const inside = (target: EventTarget | null) =>
       target instanceof Element &&
-      (dom.contains(target) || !!target.closest('.editor-tools, .editor-menu, .editor-side-sheet, dialog[open]'));
+      (dom.contains(target) || !!target.closest('.editor-tools, .editor-menu, .editor-side-sheet, dialog[open], [data-keeps-block]'));
     const away = (e: Event) => {
       if ((active === null && !dynSelected) || inside(e.target)) return;
       // A dynamic block has no row being typed in: the focus going back to the text (as a sheet opens or closes) is not leaving it, only a tap elsewhere is.
@@ -2784,6 +2789,78 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // Undo, Redo and Insert block (never in the ⋮) stand at the right end of the bar in every place, then the ⋮ (owner decision, 14 Nov). Section
   // settings is a row of the ⋮ (always there while it applies).
   const fixedIds = ['undo', 'redo', ...(hasInsert ? ['insert'] : [])];
+  // The text's actions for the command palette (textActions.ts): the functions the bar runs, called through a ref so they are always the latest, and the
+  // names the bar draws. Registered while the editor is mounted (one editor owns them: a second one on the same screen leaves them to the first).
+  const textApi = useRef<TextApi>(null!);
+  textApi.current = {
+    bold: () => run(toggleStrongCommand),
+    italic: () => run(toggleEmphasisCommand),
+    link,
+    undo: () => run(undoCommand),
+    redo: () => run(redoCommand),
+    setKind,
+    align: (align) => editor.current?.action((ctx) => alignSelection(ctx.get(editorViewCtx), align)),
+    sectionSettings: () => void sectionSettings(),
+    insertBlock: blocks ? () => void block() : undefined,
+    insertImage: addImage ? () => void image() : undefined,
+  };
+  const canInsertBlock = !!blocks;
+  const canInsertImage = !!addImage;
+  useEffect(() => {
+    const call = (name: 'bold' | 'italic' | 'link' | 'undo' | 'redo' | 'sectionSettings' | 'insertBlock' | 'insertImage') => () =>
+      textApi.current[name]?.();
+    const labels: TextLabels = {
+      bold: t.text.bold,
+      italic: t.text.italic,
+      link: t.text.link,
+      undo: t.text.undo,
+      redo: t.text.redo,
+      styles: {
+        h1: t.text.pageHeading,
+        h2: t.text.heading,
+        h3: t.text.subheading,
+        large: t.text.bodyLarge,
+        medium: t.text.bodyMedium,
+        small: t.text.bodySmall,
+        label: t.text.label,
+        quote: t.text.quote,
+      },
+      lists: { bullet: t.text.bulletList, check: t.text.checkList, ordered: t.text.orderedList },
+      align: { left: alignLabel('left'), center: alignLabel('center'), right: alignLabel('right') },
+      sectionSettings: t.text.sectionSettings,
+      insertBlock: t.text.insertBlock,
+      insertImage: t.text.image,
+    };
+    const list = textActions(
+      {
+        bold: call('bold'),
+        italic: call('italic'),
+        link: call('link'),
+        undo: call('undo'),
+        redo: call('redo'),
+        setKind: (kind) => textApi.current.setKind(kind),
+        align: (align) => textApi.current.align(align),
+        sectionSettings: call('sectionSettings'),
+        insertBlock: canInsertBlock ? call('insertBlock') : undefined,
+        insertImage: canInsertImage ? call('insertImage') : undefined,
+      },
+      labels,
+    ).filter((a) => !actions.get(a.id));
+    const dispose = list.length ? actions.register(list) : () => {};
+    // After the palette has closed, an action takes the focus back to the text first.
+    editorCtx.setFocus(() => editor.current?.action((ctx) => ctx.get(editorViewCtx).focus()));
+    return () => {
+      dispose();
+      editorCtx.clear();
+    };
+  }, [canInsertBlock, canInsertImage]);
+  // Where the user is, for the palette (editorCtx.ts): the text's actions apply while no block is active; what applies at the cursor; the heading levels.
+  const noBlock = !block_;
+  const activeNames = active.join();
+  const levelNames = headingLevels.join();
+  useEffect(() => {
+    editorCtx.set({ text: noBlock, section: settingsShown, active, levels: headingLevels });
+  }, [noBlock, settingsShown, activeNames, levelNames]);
   useLayoutEffect(() => {
     const bar = toolbar.current!;
     const measure = () => setBarWidth(bar.clientWidth);
@@ -2967,6 +3044,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         selected={on ? active.includes(on) : pressed}
         disabled={disabled}
         reason={reason}
+        shortcutKey={TOOL_KEYS[id]}
         onClick={action}
       />
     );

@@ -5,11 +5,15 @@
 // This component registers the places of the menu, the Settings screens, the lists' "New" actions and the pages and posts provider while it is mounted
 // (src/actions.ts); the editor and the screens register their own actions (the text and block actions, step 6). What was run is kept in this
 // browser only (paletteRecent.ts). Exposes CommandPalette.
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { collectionsFor, companyParts, groups, icons, settings } from './site';
 import { menuTree } from '../lib/menu.mjs';
-import { emptyQuerySections, pushRecent, recentShown, type RecentState } from '../lib/actionRules.mjs';
+import { emptyQuerySections, paletteState, pushRecent, recentShown, type RecentState } from '../lib/actionRules.mjs';
 import { actions, ctxGroups, goActions, pagesProvider, type ActionGroup, type Ctx, type EditorAction, type PaletteItem } from './actions';
+import { blockBar } from './blockBar';
+import { blockCtx } from './blockActionList';
+import { watchBlockActions } from './blockActions';
+import { editorCtx, useEditorCtx } from './editorCtx';
 import { childrenOf } from './menuChildren';
 import { partOf } from './Library';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
@@ -66,7 +70,20 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
   const pages = useMemo(() => pagesOf(all), [files]);
   const pagesRef = useRef(pages);
   pagesRef.current = pages;
-  const ctx: Ctx = { route };
+  // Where the user is: the screen, the text (editorCtx.ts) and the active block (blockBar.ts).
+  const editor = useEditorCtx();
+  const barState = useSyncExternalStore(blockBar.subscribe, blockBar.get, () => null);
+  const inBlock = blockCtx(barState);
+  const ctx: Ctx = {
+    route,
+    text: editor.text,
+    section: editor.section,
+    active: editor.active,
+    levels: editor.levels,
+    block: inBlock.block,
+    table: inBlock.table,
+    image: inBlock.image,
+  };
 
   // The places of the menu, the Settings screens, "New page" and "New post", and the bell, as actions while the editor is open.
   useEffect(() => {
@@ -109,6 +126,9 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
       disposeProvider();
     };
   }, [files]);
+
+  // The active block's actions are registered while it is active (blockActions.ts).
+  useEffect(() => watchBlockActions(), []);
 
   // Ctrl+K (⌘K) from anywhere, also in text: it is taken before the text engine sees it, and the browser's own search for the key stays away.
   useEffect(() => {
@@ -167,7 +187,13 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
     disabled: item.disabled,
     pressed: item.pressed,
   });
-  const asEntry = (action: EditorAction) => asItem({ action, disabled: false, score: 0 });
+  // An action as an entry before typing: its state now (a disabled one of the current context is shown with its reason), and nothing for a hidden one.
+  const asEntry = (action: EditorAction, inContext: ActionGroup[] = ctxGroups(ctx)) => {
+    const state = action.state?.(ctx) ?? 'enabled';
+    if (paletteState(state, action.group, inContext) === 'left-out') return null;
+    const disabled = state === 'disabled';
+    return asItem({ action, disabled, reason: disabled ? action.reason?.(ctx) : undefined, pressed: action.pressed?.(ctx), score: 0 });
+  };
 
   const results = useMemo(() => {
     void version;
@@ -180,19 +206,19 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
     // Before typing: what was run last, and what is suggested (the active block's, the text's, else the first places of the menu).
     const lastRun = recentShown(recent, (id) => !!resolve(id))
       .map((id) => resolve(id)!)
-      .map(asEntry);
+      .flatMap((a) => asEntry(a) ?? []);
     const inContext = ctxGroups(ctx);
     const suggested = actions
       .all()
       .filter((a) => a.where.palette !== false && (inContext.length ? inContext.includes(a.group) : a.group === 'go'))
-      .map(asEntry)
+      .flatMap((a) => asEntry(a, inContext) ?? [])
       .filter((i) => !lastRun.some((r) => r.id === i.id));
     return emptyQuerySections({
       blockActive: !!ctx.block,
       suggested: inContext.length ? suggested : suggested.slice(0, SUGGESTED_GO),
       recent: lastRun,
     }).map((s) => ({ id: s.section, label: t.palette[s.section], items: s.items }));
-  }, [open, query, recent, version, pages]);
+  }, [open, query, recent, version, pages, editor, barState]);
 
   const flat = results.flatMap((g) => g.items);
   const count = flat.length;
@@ -210,6 +236,8 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
     // The view closes and gives the focus back first; then the action runs (a screen change, an editor command).
     requestAnimationFrame(() => {
       const before = location.hash;
+      // A text action takes the focus back to the text first: the selection is the one it had when the palette opened.
+      if (action.group === 'text' || action.group === 'section' || action.group === 'insert') editorCtx.focus();
       action.run(ctx);
       if (location.hash !== before) focusHeadingOfNextScreen();
     });
