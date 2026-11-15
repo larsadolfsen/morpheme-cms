@@ -46,7 +46,9 @@ export type BarAction = {
     | 'change-image'
     | 'crop'
     | 'alt-text'
-    | 'remove';
+    | 'remove'
+    // A selected video's tool (image tools spec, section 8): Change link.
+    | 'change-link';
   /** Drawn as a labelled text button with no icon (Alt text: no Material Symbol is named or tagged for it, image tools spec 1b.6). */
   text?: boolean;
   /** A choice among others (a column's alignment): shown pressed when it is the current one. */
@@ -80,6 +82,7 @@ export const barIcons = {
   // A text button: no icon (BarAction.text).
   'alt-text': '',
   remove: deleteIcon,
+  'change-link': linkIcon,
 };
 const svg = (s: string, size = 24) => s.replace('<svg', `<svg width="${size}" height="${size}" fill="currentColor" aria-hidden="true"`);
 

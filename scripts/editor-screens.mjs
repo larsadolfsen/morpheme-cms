@@ -5824,7 +5824,7 @@ async function checkImageGridAdd(width, height) {
 /** The single blocks typed in place (Notice, Video): one item, no add button, no faded empty item. */
 const inlineSingles = [
   { name: 'notice', hint: 'A highlighted message.', field: 'text', text: 'Hello **there**', slot: false },
-  { name: 'video', hint: 'A YouTube or Vimeo video.', field: 'title', text: 'My film', slot: true },
+  { name: 'video', hint: 'A YouTube or Vimeo video.', field: 'title', text: 'My film', slot: false },
 ];
 
 /** An empty row in a block typed in place (the Segmented list's "New row" left empty) is not a snackbar and a page that cannot be saved: Save draft or Publish scrolls to the block and asks (375 px, touch): "You have an empty segmented list row." with Remove item (the row goes, nothing is saved), the action tapped (the page is saved without the empty rows) and Cancel (nothing changes). A page without an empty row saves as before, with no question. */
@@ -6028,6 +6028,77 @@ async function checkInlineSingle(width, height, { name, hint, field, text, slot 
   await page.waitForTimeout(300);
   if ((await page.locator(`.site-block-inline [data-field="${field}"]`).count()) && name === 'notice')
     problems.push(`${label}: the notice still shows its field after the cursor left`);
+  await page.close();
+}
+
+/** A video's Change link (image tools spec, section 8): a tap on the frame selects the video, its bar has Change link first (no slot over the frame), the row keeps Hide and Settings, and Change link opens the video's sheet with the Video link field focused and its text selected; what is pasted replaces the link and Save keeps it. */
+async function checkVideoChangeLink(width, height = 800) {
+  const phone = width < 600;
+  const expanded = width >= 840;
+  const label = `${width}px video change link`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, phone ? 'tap' : 'click');
+  await page.locator('dialog[open] button', { hasText: 'A YouTube or Vimeo video.' }).first().click();
+  await page.waitForSelector('.site-block-inline [data-field="title"]');
+  await page.keyboard.type('My film');
+  await page.waitForTimeout(300);
+  const tap = (loc) => (phone ? loc.tap() : loc.click());
+  // Away from the block, then a tap on its frame selects it.
+  await tap(page.locator('.ProseMirror > p').first());
+  await page.waitForTimeout(400);
+  if (await page.locator('.editor-tools-context button[aria-label="Change link"]').count())
+    problems.push(`${label}: Change link is on the bar while the video is not selected`);
+  await tap(page.locator('.inline-video-frame'));
+  await page.waitForTimeout(700);
+  if (await page.locator('.site-block-inline .inline-list-slot').count())
+    problems.push(`${label}: a slot is still drawn over the video frame`);
+  const bar = await page.evaluate(() => ({
+    tools: [...document.querySelectorAll('.editor-tools-context button')].map((b) => b.getAttribute('aria-label') || b.textContent.trim()),
+    row: [...document.querySelectorAll('.site-block-row:not(.site-block-row-hover) [data-row]')].map((b) => b.getAttribute('aria-label')),
+  }));
+  if (bar.tools[0] !== 'Change link') problems.push(`${label}: the bar's first tool is "${bar.tools[0]}", not Change link (${bar.tools})`);
+  if (!bar.row.some((n) => /settings|edit/i.test(n ?? ''))) await page.screenshot({ path: join(shots, `video-change-link-${width}.png`) });
+  const sheetOpen = () => page.locator('dialog[open], .editor-side-sheet').last();
+  if (expanded) {
+    // From expanded the tap opened the sheet beside the video already; Change link focuses its field.
+    if (!(await page.locator('.editor-side-sheet').count())) problems.push(`${label}: the tap did not open the video's sheet`);
+  }
+  await page.locator('.editor-tools-context button[aria-label="Change link"]').first().click();
+  await page.waitForTimeout(900);
+  const url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+  const focused = await page.evaluate(() => {
+    const el = document.activeElement;
+    return {
+      label: el?.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`)?.textContent.trim() : null,
+      selected: el && 'selectionStart' in el ? el.selectionEnd - el.selectionStart : -1,
+      empty: !el?.value,
+    };
+  });
+  if (focused.label !== 'Video link') problems.push(`${label}: Change link left the focus on "${focused.label}", not the Video link field`);
+  await page.keyboard.type(url);
+  await page.waitForTimeout(400);
+  const typed = await page.evaluate(() => document.activeElement?.value);
+  if (typed !== url) problems.push(`${label}: the Video link field has "${typed}" after typing`);
+  const save = sheetOpen().locator('button', { hasText: /^(Save|Done)$/ });
+  if (await save.count()) await save.first().click();
+  await page.waitForTimeout(700);
+  const kept = await page.evaluate(
+    () =>
+      document
+        .querySelector(
+          '.site-block-inline iframe, .site-block-inline [data-video], .site-block-inline a[href*="youtu"], .site-block-inline img',
+        )
+        ?.outerHTML.slice(0, 300) ?? '',
+  );
+  if (!kept.includes('dQw4w9WgXcQ')) problems.push(`${label}: the video does not show the new link (${kept})`);
   await page.close();
 }
 
@@ -9792,6 +9863,7 @@ for (const width of [375, 700]) await unit(`checkCloseChangedSheet ${width}`, ()
 for (const width of [700, 1280]) await unit(`checkSheetFocusOnOpen ${width}`, () => checkSheetFocusOnOpen(width));
 for (const width of [375, 1280]) await unit(`checkImageTools ${width}`, () => checkImageTools(width));
 for (const width of [375, 1280]) await unit(`checkCropView ${width}`, () => checkCropView(width));
+for (const width of [375, 1280]) await unit(`checkVideoChangeLink ${width}`, () => checkVideoChangeLink(width));
 for (const width of [375, 1280]) await unit(`checkAltSheet ${width}`, () => (width >= 840 ? checkAltLive(width) : checkAltSheet(width)));
 for (const width of [320, 375, 1280]) await unit(`checkInsertBlock ${width}`, () => checkInsertBlock(width));
 for (const w of [375, 1280]) await unit(`checkBlockRow ${w}`, () => checkBlockRow(w));
