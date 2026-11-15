@@ -5,6 +5,7 @@
 import type { ListedPost, SourceItem, StandardSite } from '../src/standard/site';
 import { libraryAltPart } from '../src/imageAlt.mjs';
 import { itemOfEntry } from '../src/standard/rows/rows.mjs';
+import { setListReader } from '../lib/lists.mjs';
 import { asRowsOf, isEntryPath, parseDefinition } from '../lib/ownList.mjs';
 import {
   categoryName,
@@ -65,7 +66,7 @@ export const standard: StandardSite = {
   texts: blockTexts,
   // The items a list block reads: the blog's posts (their tags), the testimonials (the quote's first paragraph), or the entries of an app's
   // list that says its fields (`asRows`), in their order.
-  async source(id): Promise<{ items: SourceItem[]; page?: string }> {
+  async source(id): Promise<{ items: SourceItem[]; page?: string; missing?: boolean }> {
     if (id === 'posts') {
       const items = (await getPosts()).map((p) => ({ ...listedPost(p), text: p.data.description, tags: p.data.categories }));
       return { items, page: this.posts.all({}).href };
@@ -84,7 +85,7 @@ export const standard: StandardSite = {
     if (!list) {
       const file = Object.keys(ownDefinitions).find((f) => f.split('/').slice(-2)[0] === id);
       const { definition } = file ? parseDefinition(await ownDefinitions[file]()) : {};
-      if (!definition) return { items: [] };
+      if (!definition) return { items: [], missing: true };
       list = { folder: id, asRows: asRowsOf(definition) };
     }
     const folder = list.folder.split('/').pop();
@@ -167,3 +168,6 @@ export const standard: StandardSite = {
     },
   },
 };
+
+// The framework's reader (lib/lists.mjs readList) fetches entries through this.
+setListReader((id) => standard.source(id));

@@ -123,6 +123,7 @@ import { atLeast, type Breakpoint } from '../lib/breakpoints.mjs';
 import { swipeCloses } from '../lib/drawer-swipe.mjs';
 import { menuLayout } from '../lib/menu-layout.mjs';
 import { isTypeAheadKey, nextByLetter } from '../lib/menuTypeAhead.mjs';
+import { ariaShortcut, shortcutText } from './shortcuts';
 
 // The parts Material 3 has (a button, an icon button, a chip, a carousel …) are the theme's UI parts
 // (packages/editor/theme/ui/, through themeUi.ts), the same the site draws, in the theme's design (its ui.css and
@@ -238,11 +239,14 @@ export function ToolbarButton({
   text,
   disabled,
   reason,
+  shortcutKey,
   onClick,
 }: {
   ref?: Ref<HTMLButtonElement>;
   icon?: Icon;
   label: string;
+  /** Its key, as the registry writes it ('Mod+B'): after the name in the tooltip ("Bold  Ctrl+B") and its `aria-keyshortcuts`. */
+  shortcutKey?: string;
   /** A labelled text button with no icon, drawn exactly this many dp wide (Alt text; its width is planned on the bar, textBar.mjs). M3: a toolbar's
    * slots "can be populated by buttons, icon buttons, images, text fields, or any kind of custom component" (components/toolbars/guidelines). */
   text?: { width: number };
@@ -259,8 +263,9 @@ export function ToolbarButton({
   reason?: string;
   onClick: (e: MouseEvent<HTMLButtonElement>) => void;
 }) {
-  const tooltip = useTooltip(label);
+  const tooltip = useTooltip(shortcutKey ? `${label}  ${shortcutText(shortcutKey)}` : label);
   const own = {
+    'aria-keyshortcuts': shortcutKey ? ariaShortcut(shortcutKey) : undefined,
     'aria-pressed': selected,
     'aria-expanded': menu ?? popup,
     'aria-haspopup': popup === undefined && menu === undefined ? undefined : ('menu' as const),
