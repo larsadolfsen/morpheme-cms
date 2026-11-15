@@ -286,7 +286,13 @@ An app may add widgets to the editor's start screen. `widgets` is an optional fi
 
 - A widget answers one question about the site in a card. Each person places, orders and sets up their own widgets.
 - The key in `widgets` is the part after the app id. The full id of a widget is `<appId>:<key>`, such as `booking:today`.
-- A widget is a `WidgetDefinition` (`src/widgets.ts`): `label`, `hint`, `icon`, an optional `settings` (made with `defineSettings`, per placed widget) and a `component`.
+- A widget is a `WidgetDefinition` (`src/widgets.ts`): `label`, `hint`, `icon`, an optional `settings` (made with `defineSettings`, per placed widget), an optional `span` and a `component`.
+- `span` is the width of the widget's card on the start screen's grid (the theme grid, `docs/theme-grid.md`). It is optional and an app can set it; the CMS's own widgets leave it out. There is no setting for it in edit mode and nothing is stored for it.
+  - Left out: the card is full width on a phone (under 600 dp) and one column from 600 dp, as every card was before `span` existed.
+  - `'full'`: the card goes across all the columns at every size.
+  - `'column'`: the card takes one column at every size, half the width on a phone, where the start screen has two columns. Two `'column'` widgets in a row sit side by side; a card of one column is narrow (about 160 px on a phone), so use it only for a widget that reads well that narrow: a number, a short status, a few short lines.
+  - Cards pack down the columns in their order, each under the one above with only the gutter between them, so a full width card splits the columns above it from the ones below it.
+  - `span` is optional, so `APP_API` and `THEME_API` stay as they are and an app without it works as before.
 - The `component` is required. The check before the build fails with `src/apps/<app>/index.ts: The widget "<key>" has no component.`
 - The component is given `WidgetProps`: `api` (asks the app's own addresses in the site's Worker, as an app page does), `settings` (the values of the placed widget) and `editing` (true while the person arranges the start screen; the widget then renders, never null).
 - A widget with nothing to say may render nothing when `editing` is false.
