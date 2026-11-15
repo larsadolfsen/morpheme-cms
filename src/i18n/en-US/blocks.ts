@@ -271,6 +271,8 @@ export const blocks = {
     example: ['First topic', 'Second topic', 'Third topic'],
   },
   buttons: {
+    /** The sample of a button style in its settings, while the button has no text of its own (choiceSamples.tsx). */
+    sample: 'Button',
     label: 'Buttons',
     hint: 'Buttons with text and icon.',
     edit: 'Edit default buttons',
