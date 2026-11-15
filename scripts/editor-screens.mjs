@@ -1143,7 +1143,7 @@ async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300, cus
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#company/colors'));
   if (custom) await page.getByRole('button', { name: 'Custom', exact: true }).click();
-  await page.getByRole('button', { name: `${name}: pick a color` }).click();
+  await page.getByRole('button', { name: `${name}: select a color` }).click();
   const sheet = page.locator(`dialog[open][aria-label="${name}"]`);
   await sheet.waitFor();
   const code = sheet.getByRole('textbox', { name: 'Color code' });
@@ -1204,7 +1204,7 @@ async function checkCustomColors(width, height) {
     problems.push(`${label}: the dots are named "${dotNames}"`);
 
   const pick = async (name, hex) => {
-    await page.getByRole('button', { name: `${name}: pick a color` }).click();
+    await page.getByRole('button', { name: `${name}: select a color` }).click();
     const sheet = page.locator(`dialog[open][aria-label="${name}"]`);
     await sheet.waitFor();
     const buttons = await sheet.getByRole('button', { name: /^(Use and lock|Cancel|Use color)$/ }).allInnerTexts();
