@@ -3,9 +3,10 @@
 // scrim (navigationDrawerScrimClass). Its pages are items (NavigationDrawerItem, `active`: the open page or the one
 // holding it), an item with sub-pages is a row (NavigationDrawerRow) with the button that unfolds them after it
 // (NavigationDrawerToggle, `expanded`), and a sub-page a subitem (NavigationDrawerSubitem). Where it comes from, how it
-// moves and what else is in it (the logo, the buttons) is the menu's own: it gives its own element (a motion.div) the
-// class with navigationDrawerClass; in a <dialog> (the editor's), the dialog has navigationDrawerDialogClass and its
-// scrim is the dialog's. Its variant (variant): modal, the default, over its scrim, or standard, beside the content at
+// moves and what else is in it (the logo, the buttons) is the menu's own: it gives its own element the
+// class with navigationDrawerClass; in a <dialog> (the editor's and the site's menu, components/MobileMenu.tsx: opened with showModal()),
+// the dialog has navigationDrawerDialogClass (and navigationDrawerEndClass, with the drawer in it, at the end edge) and its
+// scrim is the dialog's ::backdrop. Its variant (variant): modal, the default, over its scrim, or standard, beside the content at
 // full height without a scrim and without a shadow (navigationDrawerClasses gives the classes to an element of its own);
 // where it stands is the component's own. Links are Link (on the site; in the editor's previews only drawn), an item
 // without `href` a button (the editor's: a part of a form); other attributes (onClick, aria-…) go on them. An item has
