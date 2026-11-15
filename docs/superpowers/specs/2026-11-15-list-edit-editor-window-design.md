@@ -2,7 +2,7 @@
 
 Status: spec and build plan for 0.19, no code in this pull request. Written 15 November 2026 in a brainstorm session from the owner's decisions of
 the same day (section 1), **redrawn the same day after the owner's correction** that the list's texts are inline text in the flow, not blocks
-(decision 5). Branch `0.19`. All three questions (section 11) are decided; decision 8 (layout) is the owner's direction of 15 Nov.
+(decision 5). Branch `0.19`. Q1 to Q3 (section 11) are decided and Q4 (the set of formats) is an open proposal; decision 8 (layout) is the owner's direction of 15 Nov.
 
 Read for this spec:
 
@@ -42,6 +42,8 @@ the **entry form page** is where an entry is typed; the **edit page** (`#list/<i
 7. **(Decided, 15 Nov.)** A list the owner made gets an **`Entry name`** box next to the list's name on the edit page, stored as an optional `singular` in `_list.json`. The FAB menu says `Add <entry name>`; empty means `Add item`. The name is never guessed from the list's name (Q2). #712's `singularOf` guess from the list name is replaced by this when the window is built (a follow-up for #712's session).
 8. **(Decided, 15 Nov. Layout.)** The edit page mimics the page's edit screen on a phone and has the same features: a **`List settings`** accordion at the top (closed by default, as `Page settings`) holding the list name, the `Entry name` box and `Delete list` and nothing else; below it a **`Content`** accordion (open) holding **one editor card**, the page editor's own card, with its bar (Undo, Redo, `+ Insert`, and the text tools while the cursor is in text) and the flow under it; the `+ Insert` offers the three text styles and the field kinds, as the page editor's Insert does for blocks; field blocks are drawn **as the form fields of the entry form page**; the bottom bar is the page editor's Save bar (label `Save changes`, shown while something waits; there is no Publish for lists). The separate `FieldBar` of the old draft is gone (section 3.2).
 9. **(Decided, 15 Nov.)** The list text stands **above the rows, in the order written** (Q3, section 3.1).
+10. **(Owner requirement, 15 Nov; the set of formats is a proposal the owner has not confirmed.)** **Field validation.** Each text field gets a **`Format`** choice in its settings sheet (the gear on the card): **Any text** (the default), **Email**, **URL**, **Number**. The entry form checks it and shows a message (for example `Enter a valid email address`). It is stored on the field in `_list.json` as an optional key, **`format`**, unknown to older code like `notes`, so `parseDefinition` and `definitionText` keep it; a list without it stays byte-identical (section 12). The owner wrote "Web address" for the third format; the editor's standard names say `URL` (#702, `2026-11-14-standard-names-audit.md`), so this spec uses `URL` until the owner says otherwise (Q4).
+11. **(Owner requirement, 15 Nov.)** **Reuse in the front end as a form.** The code must be reusable on the public site as a form (visitors fill in the same fields, for example a contact form). The field model, the formats, the validation and the entry form's field rendering rules are therefore **pure shared code under `lib/`** (no React, no editor imports, runs in the Worker and the browser, tested), and the editor's entry form is **one user** of it (section 12).
 
 **Base check.** On `0.19` at `b780512` #704 is not merged: `OwnListEdit.tsx` still has `Shown`, `dropped` and `Remove data`. This spec assumes #704
 has landed. If it has not when the window is built, that PR starts from a rebase on it; `dropped` is never carried into the new window.
@@ -430,15 +432,17 @@ screen-neutral and compare `check:screens` before and after.
 | :--- | :--- | :--- | :--- | :--- |
 | 0 | This spec, and the corrections to the framework spec and the edit-page plan (section 10). | no | — | empty |
 | 1 | **List page FAB menu.** `Add <entry>` and `Edit list` in a `FabMenu` (a plain `Edit list` FAB for a list with no field); entries are added at `#new/<id>` only; the deviation entry in `docs/material-deviations.md`; labels and Danish; unit test of the FAB's actions (`fabScreens.ts`); a screen check of the menu open at 375 and 1280. | yes | the closed FAB and the open menu, 375 and 1280 | minor |
+| 1c | **Shared field formats and validation** (decisions 10 and 11): `lib/fieldFormats.mjs` (`FORMATS`, `formatsOf`, `validate(value, field)` returning a message key, `inputOf(field)`), `format` in `parseDefinition` (a list without it is byte-identical), `entryProblems` calls `validate`, tests (each format valid and invalid, empty is valid, an unknown format is a problem, the module imports nothing from `src/`). No screen changes. | no | none | minor |
 | 2 | **Extract `EditorBar`** from `MarkdownEditor.tsx` (section 5, step 1). No behaviour change. | no | none (screens rerun) | empty |
 | 3 | **Card plugins by node name** (step 2) and the **flow editor spike** (step 3): `useFlowEditor` with a JSON document, no Markdown; `BlockHost` if needed. No behaviour change in the page editor. | no | none (screens rerun) | empty |
 | 4 | **Storage of the list text.** `notes` in `parseDefinition` and `definitionText`, `lib/ownListFlow.mjs` (`flowOf`, `definitionOfFlow`, `textsOf`), `check:content`, tests (round trip, a file without `notes` byte-identical, bad style and `after`, ordering rules). The list page draws the text from `notes` (section 7.1) and the demo gets its `Services` list; no editing UI yet. | yes | the list page with the three styles, 375 and 1280, light and dark | minor |
 | 5 | **The editor window: fields.** `OwnListEdit.tsx` is rebuilt on `useFlowEditor`, `EditorBar`, `blockBar`, `blockRow`, `blockHandle`, `planBar`: the `List settings` accordion (name, `Entry name` with the optional `singular` in `_list.json`, `Delete list`), the `Content` accordion with one editor card, `+ Insert` with the field kinds, Undo and Redo, field blocks drawn as the entry form's fields (name typed in place), the row and the handle, Move up and Move down, `Remove field` (with `ask` and `heldBy`), the field settings sheet, the bottom `Save changes` bar, no `Shown` and no `Add item`. Text lines can be typed in Body medium and are saved. The waiting version stays; the old `FieldBar` goes. | yes | `List settings` closed and open, the window with blocks, a block active with its row, the sheet open, the Insert menu, 375 and 1280 | minor |
+| 5b | **Format in the field settings sheet and on the entry form.** The `Format` choice (Any text, Email, URL, Number) in the field's settings sheet; the entry form (`DataForm.tsx`) draws the input from `inputOf` and shows the message from `validate` when the field is left and on `Save` (the message texts, English and Danish). | yes | the sheet with Format open, an entry form field with its error message, 375 and 1280 | minor |
 | 6 | **The editor window: text styles.** The three text styles in `+ Insert` and the style menu (Heading, Body medium, Label), `Enter` rules, the keys of the page editor for those styles, the bar's text tools reduced to them. | yes | text with the three styles, the style menu open, 375 and 1280 | minor |
 | 7 | **Accessibility and phone pass.** Live region for moves, labels, the keyboard path, the unsaved dialog on back, `checkOwnList` extended (add a field at the cursor, type text, move by buttons and by handle, remove, save, reload keeps text and order, 375 and 1280). | yes | none new | patch |
 | 8 | **Release notes** for 1 to 7 (skill `release-notes`), English and Danish. | yes | — | empty |
 
-Order: 1 is independent. 2 and 3 precede 5. 4 precedes 5 (the window reads and writes what 4 stores). 5 precedes 6 and 7.
+Order: 1 and 1c are independent. 5b needs 1c and 5. 2 and 3 precede 5. 4 precedes 5 (the window reads and writes what 4 stores). 5 precedes 6 and 7.
 
 ## 9. Tests
 
@@ -471,7 +475,7 @@ Marked in `docs/superpowers/specs/2026-11-14-dynamic-lists-framework-design.md`;
 It does not disagree with the rest: the framework's `locked` lists keep `LockedListEdit` (section 3.3 here), `listEdit` stays the slot the app's
 window is drawn through (the editor window is the thing in that slot), and `lib/ownList.mjs` stays core.
 
-## 11. Questions for the owner (all decided)
+## 11. Questions for the owner (Q1 to Q3 decided, Q4 a proposal)
 
 **Q1. Do locked lists get list text?** **Decided by the owner on 15 Nov 2026: no.** Locked lists (those an app provides) stay locked in 0.19, with no editor window and no list text; `LockedListEdit` is unchanged. Text for them is a later step (an `app.json` `notes` key in a later contract) when an app asks for it.
 
@@ -479,7 +483,58 @@ window is drawn through (the editor window is the thing in that slot), and `lib/
 
 **Q3. Where does a line of text stand on the list page?** **Decided by the owner on 15 Nov 2026: yes, the text stands above the rows, in the order written** (decision 9). The list page has no fields, so a line written between two field blocks in the window cannot stand between them there. A line's place among the blocks matters only in the window (it says which field the line is about). Text below the rows is not offered; if it is wanted later, a second value of `after` for "the end" is the only storage change.
 
-## 12. Not in this spec
+**Q4. (Proposal, open.) The set of formats and their names.** The owner asked for Any text, Email, Web address and Number and has not yet confirmed the set. *Recommendation:* **Any text, Email, URL, Number**, with the third called `URL` as the editor's standard names say (#702), a Format only on the Title and Body text kinds, and no `required` flag in 0.19. If the owner wants the label `Web address`, only the English text changes.
+
+## 12. Field formats and shared code (for a future site form)
+
+### 12.1 The `Format` of a field (decision 10, proposal)
+
+| Format | Stored | A value is valid when | Message key (English text) |
+| :--- | :--- | :--- | :--- |
+| Any text (default; no key) | (nothing) | always | none |
+| `email` (Email) | `"format": "email"` | one `@`, text before it, a dotted domain after it, no spaces | `format.email` (`Enter a valid email address`) |
+| `url` (URL) | `"format": "url"` | an `https://` or `http://` address with a host | `format.url` (`Enter a valid URL`) |
+| `number` (Number) | `"format": "number"` | digits with an optional minus and one optional decimal separator (`.` or `,`) and no spaces | `format.number` (`Enter a valid number`) |
+
+- It applies to the **Title** and **Body text** kinds. The **Link** kind is a URL by its kind and has no Format choice; Icon, Image and Tags have none.
+- An **empty value is valid** for every format (nothing is required unless a later `required` flag says so, section 12.4); a Format never makes a field required.
+- A value is stored **as text**, as every entry value is today (`entryProblems` wants a string), so `Number` stores `"120"`, never a JSON number; nothing about the data changes.
+- Stored on the field: `{ "id": "email", "kind": "title", "label": "Email", "format": "email" }`. `parseDefinition` reads `format` (a value it does not know is the definition problem `The field "<id>" has an unknown format`; the field is read as Any text) and returns it; the fields are written whole by `definitionText`, so it is kept. A field without `format` is byte-identical. An older CMS ignores `format` and drops it on the next save (the same position as `notes` and `date`).
+- **Existing entries** are not checked when the list loads. The entry form checks a field when the person leaves it and again on `Save`; `check:content` (`entryProblems`) reports a stored value that fails its format as a problem of that file, so a Format added to a field with old data shows what to fix. The message is shown with the field (M3 text field error state, as the editor's fields do).
+
+### 12.2 What is shared (pure, under `lib/`)
+
+New module **`lib/fieldFormats.mjs`**, plus what `lib/ownList.mjs` already has (it is pure: "no browser and no React"):
+
+| Shared | Where | What it gives |
+| :--- | :--- | :--- |
+| Field kinds and the definition | `lib/ownList.mjs` (`KINDS`, `parseDefinition`, `fieldsOf`, `nameOf`) | The field model: id, kind, name, order, format. Unchanged, extended with `format`. |
+| Formats | `lib/fieldFormats.mjs` (`FORMATS`, `formatsOf(kind)`) | The formats a kind may have (`title` and `text`: `email`, `url`, `number`; others none). |
+| Validation | `lib/fieldFormats.mjs` `validate(value, field)` | `null` when valid, else a **message key** (`format.email`, `format.url`, `format.number`, later `required`). It returns a key, not a sentence: the caller turns the key into English or Danish text, so the same function serves the editor (`t`), the site (`siteT`) and the Worker. |
+| Input rules | `lib/fieldFormats.mjs` `inputOf(field)` | Plain data about the input a field draws: `{ element: 'input' \| 'textarea', type: 'text' \| 'email' \| 'url', inputmode, autocomplete }` (Email: `type="email"`; URL: `type="url"`; Number: `inputmode="decimal"`; Body text: `textarea`). The editor's entry form maps it to its text field; a site form maps it to an HTML input. |
+| Entry check | `lib/ownList.mjs` `entryProblems` | Calls `validate` per field, so the build's `check:content` and the form use one rule. |
+
+`lib/fieldFormats.mjs` imports **nothing** from `src/`, React, Milkdown or the Worker; it runs in the browser, in the Worker and in Node, and has its own `node --test` file. The Worker's no-pending-promise rule (`CLAUDE.md`) is unaffected: the module has no I/O.
+
+### 12.3 What is not shared
+
+The editor window, the editor card and its bar, the settings sheets (the `Format` choice is drawn by the sheet, but its list of formats comes from `formatsOf`), the entry form's React components and the editor's text keys. They use the shared code; the site never imports them.
+
+### 12.4 Where a future site `Form` block would read it
+
+A later **Form block** on the public site reads the **same definition** (`_list.json`, through `parseDefinition` and `fieldsOf`, as `Rows from` does at build time) and draws each field as an HTML input from `inputOf`, checks it in the browser with `validate` and, when the Worker receives it, checks it again with the same `validate` (the browser's check is never trusted). The messages are the site's texts (`siteT`), chosen by the message key. Nothing in 0.19 builds that block.
+
+**Out of 0.19** (open items for a later version, not decided here):
+
+- a **public submit endpoint** in the Worker (where a submission goes, its size and rate limits);
+- **spam protection** (a honeypot field, a challenge, rate limiting);
+- **storage of submissions** (a list's entries, a D1 table, an email, a retention time) and who may read them;
+- **notification** to the site owner (an email) and the visitor's receipt;
+- **consent and privacy** (a checkbox, a link to the privacy page, how long data is kept);
+- a **`required` flag** per field (the function leaves room for it: `validate` returns the key `required` when `field.required` is set and the value is empty; no UI in 0.19), and **file uploads** for an Image field on a public form;
+- **server-side re-validation** policy and error pages for visitors without JavaScript.
+
+## 13. Not in this spec
 
 - Selecting several cards at once and copy and paste of cards (the page editor has them; the window has its own `Save` and waiting version).
 - Rich text in the list text (bold, links, colours, lists): the owner allowed three styles only.
