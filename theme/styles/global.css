@@ -475,7 +475,10 @@
   --search-bar-placeholder: var(--mo-on-surface-variant);
   --search-view-radius: var(--mo-shape-extra-large);
   --search-view-line: transparent;
-  --search-view-results-padding: 0.5rem 0;
+  /* The results (segmented lists) 12dp from the container's sides, as the bar (M3 prints no space for them: an open point). */
+  --search-view-results-padding: 0.5rem 0.75rem;
+  /* M3 Lists, tokens: "List list item segmented container color" is Surface (#FEF7FF): the rows on the search container's surface container. */
+  --search-view-row-surface: var(--mo-surface);
   --search-view-option-surface: var(--mo-hover);
   /* Toolbars (M3 Expressive): in a surface container, docked without a line or blur, floating with full corners and
      the third elevation;

@@ -6431,7 +6431,7 @@
     --search-bar-font-size
     --search-view-surface, --search-view-radius, --search-view-line, --search-view-shadow, --search-view-scrim,
     --search-view-header-height, --search-view-header-surface, --search-view-header-radius, --search-view-header-margin,
-    --search-view-container-surface, --search-view-docked-surface, --search-view-docked-gap, --search-view-docked-shadow, --search-view-divider, --search-view-max-height, --search-view-results-padding,
+    --search-view-container-surface, --search-view-row-surface, --search-view-docked-surface, --search-view-docked-gap, --search-view-docked-shadow, --search-view-divider, --search-view-max-height, --search-view-results-padding,
     --search-view-option-surface, --search-view-group-gap, --search-view-group-label-text, --search-view-top-default,
     --search-view-width-default
   Toolbars (Toolbar, toolbarClass, toolbar.script.ts; m3.material.io/components/toolbars, M3 Expressive): .toolbar with
@@ -7079,10 +7079,8 @@
     scroll-padding-inline: 0.75rem;
   }
   .search-view-results {
-    /* The highlight of the option the arrow keys or the pointer are on runs the whole width, with square corners. */
-    --list-item-radius: 0;
-    --list-item-hover-radius: 0;
-    --list-item-pressed-radius: 0;
+    /* Segmented lists (M3 Lists: "Use segmented gaps and filled list items to define a list group"): the rows on the surface, 2dp apart. */
+    --list-segmented-surface: var(--search-view-row-surface, var(--mo-surface));
     min-height: 0;
     flex: 1;
     overflow-y: auto;
