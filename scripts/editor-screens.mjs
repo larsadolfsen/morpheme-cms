@@ -5568,6 +5568,39 @@ async function checkListMarkers(width) {
   await page.close();
 }
 
+/** The FAB never covers the footer (Screen.tsx useFabLift): on every screen that has both, at the top, in the middle and at the bottom
+ * of the page, the FAB's box and the footer's do not overlap. The screens are the start screen and the lists with a create button. */
+async function checkFabAboveFooter(width) {
+  const label = `${width}px FAB above the footer`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  let seen = 0;
+  for (const route of ['#', '#seo/redirects/all', '#media', '#links']) {
+    await page.evaluate((r) => (location.hash = r), route);
+    await page.waitForTimeout(1200);
+    for (const at of [0, 0.5, 1]) {
+      await page.evaluate((f) => window.scrollTo(0, (document.documentElement.scrollHeight - innerHeight) * f), at);
+      await page.waitForTimeout(250);
+      const m = await page.evaluate(() => {
+        const fab = document.querySelector('.editor-fab')?.getBoundingClientRect();
+        const footer = document.querySelector('footer.editor-footer')?.getBoundingClientRect();
+        if (!fab || !footer) return null;
+        return { fabTop: fab.top, fabBottom: fab.bottom, footerTop: footer.top, footerBottom: footer.bottom, h: innerHeight };
+      });
+      if (!m) continue;
+      seen++;
+      if (m.footerTop < m.h && m.footerBottom > 0 && m.fabBottom > m.footerTop + 0.5 && m.fabTop < m.footerBottom)
+        problems.push(
+          `${label}: on ${route} (scrolled to ${at * 100}%) the FAB (${Math.round(m.fabTop)}–${Math.round(m.fabBottom)}) overlaps the footer (${Math.round(m.footerTop)}–${Math.round(m.footerBottom)})`,
+        );
+    }
+  }
+  if (!seen) problems.push(`${label}: no screen with both a FAB and the footer was found`);
+  await page.close();
+}
+
 /** Label is a style of any top-level line of text (owner decision, 14 Nov): the Text style menu has the Label row on a plain line and on an empty last line, choosing it makes the line a label drawn in the label role (12 px) with its text kept and no heading after it, picking it again gives the plain line back, and a lone label saved in a page is drawn the same in the Preview. */
 async function checkLabelOnAnyLine(width) {
   const label = `${width}px label on any line`;
@@ -10274,6 +10307,7 @@ await unit('checkSectionCardContrast', () => checkSectionCardContrast());
 for (const w of [375, 1280]) await unit(`checkListMarkers ${w}`, () => checkListMarkers(w));
 for (const w of [375, 1280]) await unit(`checkListsAndBlocks ${w}`, () => checkListsAndBlocks(w));
 for (const w of [375, 1280]) await unit(`checkLabelOnAnyLine ${w}`, () => checkLabelOnAnyLine(w));
+for (const w of [375, 1280]) await unit(`checkFabAboveFooter ${w}`, () => checkFabAboveFooter(w));
 for (const w of [360, 375, 390, 414]) await unit(`checkPreviewDraft ${w}`, () => checkPreviewDraft(w));
 
 await browser.close();

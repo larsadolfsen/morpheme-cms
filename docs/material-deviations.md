@@ -235,3 +235,14 @@ Source: `src/CropView.tsx`, `src/editor.css` (`.crop-page`). Spec: `docs/superpo
 - **We do:** the crop view is a page on every width: a layer the size of the window over the editor (a modal `<dialog>` with no dialog parts, so the form under it keeps its changes and its scroll place), with the theme's top app bar (back arrow and the title `Crop`), the image area, the aspect ratios and the zoom, and a bottom bar with `Save` (and `Cancel` from medium). The phone's back gesture leaves it (a step of its own in the history, as the sheets have). Leaving with changes asks the basic dialog `Keep your changes?`, as M3 says for a full-screen dialog; the dialog's other parts are not used.
 - **Why:** owner decision, 14 Nov 2026: "Convert all full screen views to pages." (relayed by the project manager). Save is in the bottom bar on a phone, as the owner's rule for Save buttons says.
 - **Date:** 2026-11-14. **PR:** #686.
+
+## The FAB above the footer
+
+Source: `src/fabPresence.tsx` (`useFabLift`), `src/Screen.tsx`, `src/editor.css` (`.editor-fab`). Read 15 Nov 2026 on m3.material.io (Playwright): `/components/floating-action-button/guidelines` and `/specs`. The specs page's tables stay collapsed in a text read, so no margin value is quoted; the 16 dp margin is the one the editor already used.
+
+### F1. The FAB moves up while the footer is in the window
+
+- **Material:** "FABs remain in place on scroll." "The container shouldn't be covered by other elements, such as badges." "In compact and medium breakpoints, the best place for the FAB is typically the lower right corner of a screen, since it's easy to reach and is less likely to cover important content." M3 prints nothing about a footer under a FAB.
+- **We do:** the FAB stays at the bottom right, 16 dp from the edges. While the editor's footer is in the window (a short screen, or the end of a long one), the FAB stands 16 dp above the footer's top edge, so it never covers a footer link or the copyright line, and it goes back to its place when the footer leaves the window. The content leaves room for the FAB above the footer. It follows the scroll directly, with no motion of our own. `check:screens` (`checkFabAboveFooter`, 375 and 1280) fails when the FAB overlaps the footer.
+- **Why:** owner, 15 Nov 2026: the FAB "must move up when the footer ... is beneath it, so the footer links are never covered"; on a phone it sat on top of "Report security issues" and the copyright line. M3's own rule that the FAB is not covered, and that it should not cover content, points the same way.
+- **Date:** 2026-11-15 (owner). **PR:** this pull request.
