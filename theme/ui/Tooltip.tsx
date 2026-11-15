@@ -2,7 +2,7 @@
 // element, a button or a link, which gets aria-describedby, so screen readers read the tooltip after its name). Plain
 // (`text`: a short label, e.g. on an icon button) or rich (`subhead`, `supportingText` and evt. an action, `action`, a
 // text button with its `label` and `href` or other attributes on it). Over its anchor, under it when there is no room
-// above. On the site ui/tooltip.script.ts shows it while the mouse is over its anchor (or over it) and while the anchor
+// above (placed by CSS anchor positioning where the browser has it, else by the script). On the site ui/tooltip.script.ts shows it while the mouse is over its anchor (or over it) and while the anchor
 // has focus, and Escape hides it; without the script it shows on hover and focus by CSS. `open`: shown from the start
 // (in the editor, where it is only drawn). How it looks is the theme's (--tooltip-*).
 import { cloneElement, isValidElement, useId, type ReactElement, type ReactNode } from 'react';

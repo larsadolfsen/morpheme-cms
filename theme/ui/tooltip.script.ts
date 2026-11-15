@@ -1,12 +1,15 @@
 // What a tooltip (Tooltip.tsx) does on the site: it shows a moment after the mouse comes over its anchor and at once
 // when the anchor gets focus from the keyboard; it stays while the mouse is over the anchor or the tooltip and while
 // focus is in them, and goes when they leave, or with Escape (WCAG 1.4.13: it can be dismissed, hovered and stays).
-// Over its anchor, under it when there is no room above, and moved sideways to stay inside the window. Not on a touch
-// (a tap does what the anchor does). Run on every page by the theme's Base.astro (blockScripts, packages/editor/site/blockScripts.ts);
+// Over its anchor, under it when there is no room above, and moved sideways to stay inside the window (by CSS anchor
+// positioning where the browser has it, otherwise by this script). Not on a touch (a tap does what the anchor does). Run on every page by the theme's Base.astro (blockScripts, packages/editor/site/blockScripts.ts);
 // without a tooltip on the page it does nothing.
 const SHOW_MS = 500;
 const HIDE_MS = 150;
 const EDGE = 8;
+// Where the browser has anchor positioning, the CSS places the tooltip (ui.css, Tooltips); this placement is the fallback.
+const placedByCss =
+  typeof CSS !== 'undefined' && CSS.supports('anchor-name: --a') && CSS.supports('anchor-scope: --a') && CSS.supports('position-area: top');
 
 export default function tooltips() {
   document.querySelectorAll<HTMLElement>('[data-tooltip]').forEach((anchor) => {
@@ -15,6 +18,7 @@ export default function tooltips() {
     let timer: ReturnType<typeof setTimeout> | undefined;
 
     const place = () => {
+      if (placedByCss) return;
       anchor.removeAttribute('data-tooltip-below');
       tip.style.removeProperty('--tooltip-shift');
       const at = anchor.getBoundingClientRect();
@@ -26,6 +30,14 @@ export default function tooltips() {
     const show = () => {
       clearTimeout(timer);
       if (anchor.hasAttribute('data-tooltip-open')) return;
+      // The browser picks over or under the anchor when it lays the tooltip out, not while the page scrolls: lay it out
+      // again now, hidden, and read it twice so its fade in still runs (a box that is new has no fade).
+      if (placedByCss) {
+        tip.style.display = 'none';
+        void tip.offsetHeight;
+        tip.style.removeProperty('display');
+        void tip.offsetHeight;
+      }
       anchor.setAttribute('data-tooltip-open', '');
       place();
     };
