@@ -250,11 +250,19 @@ async function checkFocusIndicators(width, hash) {
   for (let i = 0; i < 400; i++) {
     await page.keyboard.press('Tab');
     await page.waitForTimeout(150);
+    // Tab only scrolls a stop into view when it is hidden: one cut by the window's edge hides its indicator, so it is centred first.
+    const hasStop = await page.evaluate(() => {
+      const e = document.activeElement;
+      if (!e || e === document.body) return false;
+      e.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
+      return true;
+    });
+    // Then two frames to settle: a stop in a part that CSS anchor positioning places (the rich tooltip's link) is laid out again
+    // after the scroll, and measured at once it is still where it was before it.
+    if (hasStop) await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
     const info = await page.evaluate(() => {
       const e = document.activeElement;
       if (!e || e === document.body) return null;
-      // Tab only scrolls a stop into view when it is hidden: one cut by the window's edge hides its indicator, so it is centred first.
-      e.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
       let box = e.getBoundingClientRect();
       // A hidden control (the radio of a ChoiceTile) shows its focus on the label that holds it.
       if (box.width < 4 || box.height < 4) box = (e.closest('label') ?? e.parentElement).getBoundingClientRect();
@@ -6441,6 +6449,17 @@ async function checkEmptyHint() {
           }
           // A page's H1 has no image (owner, 14 Nov 2026): its Section settings have a colour and a width only.
           const sheet = page.locator('dialog[open], .editor-side-sheet').first();
+          // On a phone the section settings are a page (owner, 15 Nov): no control has the focus at the start, the page has it, with no ring.
+          if (touch) {
+            const start = await sheet.evaluate((d) => ({
+              onPage: document.activeElement === d,
+              styled: [...document.querySelectorAll(':focus-visible')].filter(
+                (e) => getComputedStyle(e).outlineStyle !== 'none' || getComputedStyle(e).boxShadow !== 'none',
+              ).length,
+            }));
+            if (!start.onPage) problems.push(`${name}: the focus does not start on the section settings page itself`);
+            if (start.styled) problems.push(`${name}: an element has focus-visible styling when the section settings page opens`);
+          }
           if (await sheet.getByText('Background image', { exact: true }).count())
             problems.push(`${name}: the Main heading's Section settings offer a background image`);
           if (!(await sheet.getByText('Width', { exact: true }).count()))
