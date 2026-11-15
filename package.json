@@ -65,6 +65,7 @@
     "check:density": "node scripts/check-density.mjs",
     "check:colors": "node scripts/check-colors.mjs",
     "check:release-notes": "node scripts/check-release-notes.mjs",
+    "audit:web": "modern-web-guidance",
     "release:version": "changeset version && node scripts/release-notes.mjs && node scripts/starter.mjs",
     "prepack": "node scripts/types.mjs write",
     "postpack": "node scripts/types.mjs clean"
@@ -145,6 +146,7 @@
     "esbuild": "^0.28.2",
     "github-slugger": "^2.0.0",
     "jsdom": "^29.1.1 || ^31.0.0",
+    "modern-web-guidance": "1.0.0",
     "motion": "^14.12.0",
     "playwright": "^1.65.0",
     "postcss": "^8.5.32",
