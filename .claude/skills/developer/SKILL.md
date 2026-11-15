@@ -114,7 +114,7 @@ are `…/specs`, `…/guidelines` and `…/accessibility` under the same address
 | `Toolbar` (`ui.tsx` `Toolbar`, `ToolbarButton`) | actions for the content in view | [toolbars](https://m3.material.io/components/toolbars/overview) |
 | `NavigationBar`, `NavigationRail`, `NavigationDrawer` (`ui.tsx` `MainDrawer…`, `MainRail…`) | moving between the main places | [navigation-bar](https://m3.material.io/components/navigation-bar/overview), [navigation-rail](https://m3.material.io/components/navigation-rail/overview), [navigation-drawer](https://m3.material.io/components/navigation-drawer/overview) |
 | `Tabs` (`ui.tsx` `TabRow`, `TabPanel`) | switching between views of the same content | [tabs](https://m3.material.io/components/tabs/overview) |
-| `Search` (`SearchBar`, `SearchView`; `ui.tsx` `SearchBar`, `SearchRow`) | searching, with suggestions | [search](https://m3.material.io/components/search/overview) |
+| `Search` (`SearchBar`, `SearchBarButton`, `SearchGroupLabel`, `SearchView`; `ui.tsx` `SearchBar`, `SearchBarButton`, `SearchRow`) | searching, with suggestions | [search](https://m3.material.io/components/search/overview) |
 | `DatePicker`, `TimePicker` (`ui.tsx` `DatePicker`, `TimePicker`, `DateTimeField`) | a date or a time | [date-pickers](https://m3.material.io/components/date-pickers/overview), [time-pickers](https://m3.material.io/components/time-pickers/overview) |
 | `LoadingIndicator`, `ProgressIndicator` | waiting, and progress | [loading-indicator](https://m3.material.io/components/loading-indicator/overview), [progress-indicators](https://m3.material.io/components/progress-indicators/overview) |
 | `Snackbar` | a short message about a process | [snackbar](https://m3.material.io/components/snackbar/overview) |

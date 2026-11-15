@@ -16,13 +16,14 @@ import {
   SiteNavigationRailItem,
   SiteNavigationRailSection,
   SiteSearch,
+  SiteSearchGroupLabel,
   SiteSearchView,
   SiteToolbar,
   SiteButton,
 } from './themeUi';
 import { useState } from 'react';
 import { Part } from './PartsShown';
-import { Button, Preview } from './ui';
+import { Button, Preview, SearchBarButton } from './ui';
 import { t } from './i18n';
 
 const say = t.parts.screens.navigationRest;
@@ -207,6 +208,10 @@ export default function NavigationRestParts() {
               }))}
             />
             <SearchViewExample />
+            <SearchBarButton label={say.searchLabel} open={false} keys="Control+K" onOpen={() => {}} />
+            <div className="rounded-xl bg-surface-container-high py-2">
+              <SiteSearchGroupLabel>{say.viewGroups[0]}</SiteSearchGroupLabel>
+            </div>
           </div>
         </Preview>
       </Part>

@@ -1286,7 +1286,8 @@
     --chip-elevated-surface, --chip-elevated-shadow, --chip-elevated-hover-shadow   an elevated chip (level 1), and
                      pointed at (level 2; a theme that sets only the one at rest keeps it); pressed, as at rest
     --chip-dragged-shadow   the shadow that lifts a dragged chip (level 4)
-    --chip-disabled-opacity   how much of a disabled chip is seen
+    --chip-text   the label and icon of a chip that is not chosen
+    --chip-disabled-text, --chip-disabled-line, --chip-disabled-selected-surface   a disabled chip (38%, 12% and 12% of on surface)
     --chip-avatar-size, --chip-avatar-padding   a person's image, and the room before it
   The label's weight and line height are the text's; a theme sets them with a rule on .chip.
 */
@@ -1302,6 +1303,7 @@
     /* Density takes 2 px off each side, never the text; --chip-padding-block (else 0.55rem) is the room today. */
     padding-block: calc(var(--chip-padding-block, 0.55rem) + var(--mo-density-layout) * var(--mo-density-step) / 2);
     background: var(--chip-surface, var(--block-surface));
+    color: var(--chip-text, inherit);
     box-shadow: inset 0 0 0 1px var(--chip-line, var(--block-line));
     font-family: inherit;
     font-size: var(--chip-font-size, var(--type-label-large-size));
@@ -1317,6 +1319,22 @@
   }
   span.chip {
     cursor: auto;
+  }
+  /* M3 Chips, guidelines: "Chips must also have a minimum 48dp target size, regardless of placement or density. If required, the target can extend beyond the
+     visible container of the chip." The target is behind the chip's own content, so what is in the chip (an input chip's remove button) is hit first. */
+  .chip {
+    position: relative;
+    isolation: isolate;
+  }
+  .chip::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: max(100%, 3rem);
+    transform: translateY(-50%);
   }
   .chip > svg,
   .chip-action > svg,
@@ -1432,13 +1450,19 @@
     box-shadow: var(--chip-dragged-shadow, var(--mo-elevation-4-shadow));
   }
 
-  /* Disabled: seen through, without its shadow, and not to be used. */
+  /* Disabled (M3 Chips: the label and icon at 38% of on surface, the edge at 12%, a chosen chip's container at 12%), and not to be used. */
   .chip:is(:disabled, [aria-disabled='true']) {
-    opacity: var(--chip-disabled-opacity, 0.38);
+    color: var(--chip-disabled-text, color-mix(in srgb, var(--mo-on-surface) 38%, transparent));
+    box-shadow: inset 0 0 0 1px var(--chip-disabled-line, color-mix(in srgb, var(--mo-on-surface) 12%, transparent));
     pointer-events: none;
   }
+  .chip:is(:disabled, [aria-disabled='true']):is([aria-pressed='true'], [aria-current='page'], [data-selected]) {
+    background: var(--chip-disabled-selected-surface, color-mix(in srgb, var(--mo-on-surface) 12%, transparent));
+    box-shadow: none;
+  }
   .chip-elevated:is(:disabled, [aria-disabled='true']) {
-    box-shadow: inset 0 0 0 1px var(--chip-line, var(--block-line));
+    background: var(--chip-disabled-selected-surface, color-mix(in srgb, var(--mo-on-surface) 12%, transparent));
+    box-shadow: none;
   }
 }
 
@@ -1463,8 +1487,8 @@
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
-    padding: 0.25rem var(--chip-set-bleed, 0rem);
-    margin: -0.25rem calc(-1 * var(--chip-set-bleed, 0rem));
+    padding: 0.5rem var(--chip-set-bleed, 0rem);
+    margin: -0.5rem calc(-1 * var(--chip-set-bleed, 0rem));
     scroll-padding-inline: var(--chip-set-bleed, 0rem);
   }
   .chip-set-scroll::-webkit-scrollbar {
@@ -6407,12 +6431,13 @@
   SearchBar) and .search-view (the <dialog> it opens: over the whole screen on a phone,
   docked where the bar is from the medium width, and so in the editor), in it .search-view-header (back, the field,
   .search-view-input, a role="combobox", and .search-view-clear), .search-view-results (the theme's list as a
-  role="listbox", the option the arrow keys are on with aria-selected) and .search-view-empty (when nothing fits).
+  role="listbox", the option the arrow keys are on with aria-selected), .search-view-filters (the filter chips under the bar, a .chip-set-scroll) and .search-view-empty (when nothing fits).
     --search-bar-height, --search-bar-radius, --search-bar-padding, --search-bar-gap, --search-bar-surface,
     --search-bar-line, --search-bar-shadow, --search-bar-hover, --search-bar-text, --search-bar-placeholder,
     --search-bar-font-size
     --search-view-surface, --search-view-radius, --search-view-line, --search-view-shadow, --search-view-scrim,
-    --search-view-header-height, --search-view-divider, --search-view-max-height, --search-view-results-padding,
+    --search-view-header-height, --search-view-header-surface, --search-view-header-radius, --search-view-header-margin,
+    --search-view-container-surface, --search-view-docked-surface, --search-view-docked-gap, --search-view-docked-shadow, --search-view-divider, --search-view-max-height, --search-view-results-padding,
     --search-view-option-surface, --search-view-group-gap, --search-view-group-label-text, --search-view-top-default,
     --search-view-width-default
   Toolbars (Toolbar, toolbarClass, toolbar.script.ts; m3.material.io/components/toolbars, M3 Expressive): .toolbar with
@@ -6844,7 +6869,7 @@
   /* Search (m3.material.io/components/search): the bar, and the view it opens. */
   .search-bar {
     display: flex;
-    min-height: var(--search-bar-height, 3.25rem);
+    min-height: var(--search-bar-height, 3.5rem);
     align-items: center;
     gap: 0.25rem;
     border-radius: var(--search-bar-radius, var(--block-control-radius));
@@ -6862,13 +6887,13 @@
   .search-bar-field {
     display: flex;
     min-width: 0;
-    min-height: var(--search-bar-height, 3.25rem);
+    min-height: var(--search-bar-height, 3.5rem);
     flex: 1;
     align-items: center;
-    gap: var(--search-bar-gap, 0.75rem);
+    gap: var(--search-bar-gap, 1rem);
     border: 0;
     border-radius: inherit;
-    padding: 0 0.5rem 0 var(--search-bar-padding, 1.125rem);
+    padding: 0 0.5rem 0 var(--search-bar-padding, 1rem);
     background: transparent;
     color: inherit;
     font: inherit;
@@ -6946,6 +6971,42 @@
     position: relative;
     height: auto;
   }
+  /* The view's container full screen: M3 specs, Color: "Surface container low", with the bar in "Surface container high". Docked (below) the bar and
+     the results are two containers, both "Surface container high", with a gap between them. */
+  dialog.search-view {
+    background: var(--search-view-container-surface, var(--mo-surface-container-low));
+  }
+  /* From medium the view is a dropdown (M3 docked), not a layer over the page: a panel on the bar (--search-view-top, -left, -width: where the bar is), no
+     scrim and not modal (owner, 15 Nov 2026). */
+  div.search-view.search-view-docked {
+    position: fixed;
+    z-index: 70;
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  /* M3 specs, tokens (contained, read 15 Nov 2026): "Search view contained docked bar results gap 2dp": the bar, where the bar was, and the results container
+     under it. The bar has no margin of its own then; its container is "Surface container high" and rounded like the results'. */
+  div.search-view-docked .search-view-header {
+    margin: 0;
+  }
+  div.search-view-docked .search-view-body {
+    margin-top: var(--search-view-docked-gap, 0.125rem);
+    overflow: hidden;
+    border-radius: var(--search-view-radius, var(--mo-shape-extra-large));
+    background: var(--search-view-docked-surface, var(--mo-surface-container-high));
+    box-shadow: var(--search-view-docked-shadow, none);
+  }
+  /* The chips are 12dp from the container's top edge (the chip set's own 8dp room for the focus ring and 4dp): M3 prints no space for the row. */
+  div.search-view-docked .search-view-filters {
+    margin-top: 0.25rem;
+  }
+  div.search-view.search-view-docked[hidden] {
+    display: none;
+  }
   .search-view:not(:modal),
   .search-view-docked {
     border-radius: var(--search-view-radius, var(--block-radius));
@@ -6955,12 +7016,15 @@
   }
   .search-view-docked {
     inset: var(--search-view-top) auto auto var(--search-view-left);
-    width: max(var(--search-view-width), 22.5rem);
+    width: clamp(22.5rem, var(--search-view-width), 45rem);
     height: auto;
-    max-height: min(var(--search-view-max-height, 36rem), calc(100dvh - var(--search-view-top) - 1rem));
+    /* M3 specs, Measurements: docked container "Width Min: 360dp, max: 720dp", "Height Min: 240dp, max: 2/3 of screen height". */
+    min-height: min(15rem, calc(100dvh - var(--search-view-top) - 1rem));
+    max-height: min(var(--search-view-max-height, 66.667dvh), calc(100dvh - var(--search-view-top) - 1rem));
   }
   @media (prefers-reduced-motion: no-preference) {
-    .search-view:modal {
+    .search-view:modal,
+    div.search-view.search-view-docked {
       animation: search-view-in var(--motion-spatial);
     }
   }
@@ -6970,14 +7034,21 @@
       transform: translateY(-0.5rem);
     }
   }
+  /* The search bar container of the focused view (M3 specs, Measurements: contained, "Height 56dp", margins "Focused: 12dp", the leading and trailing
+     icon 16dp from the edge: a 48dp button with 4dp padding, "4dp" from the button to the text). The bar is a filled pill in "Surface container high";
+     a theme that wants M3's divided style sets --search-view-header-surface: transparent, --search-view-header-radius: 0 and --search-view-divider. */
   .search-view-header {
     display: flex;
     min-height: var(--search-view-header-height, 3.5rem);
     flex-shrink: 0;
     align-items: center;
-    gap: 0.25rem;
-    border-bottom: 1px solid var(--search-view-divider, var(--block-line));
-    padding: 0.25rem;
+    gap: 0;
+    margin: var(--search-view-header-margin, 0.75rem);
+    border-bottom: 1px solid var(--search-view-divider, transparent);
+    border-radius: var(--search-view-header-radius, var(--search-bar-radius, var(--mo-shape-full)));
+    padding: 0 0.25rem;
+    background: var(--search-view-header-surface, var(--search-bar-surface, var(--mo-surface-container-high)));
+    color: var(--search-bar-text, var(--mo-on-surface));
   }
   .search-view-input {
     min-width: 0;
@@ -7000,14 +7071,46 @@
   .search-view-input:placeholder-shown + .search-view-clear {
     visibility: hidden;
   }
+  /* Filter chips under the bar (M3 guidelines: "Filter chips to narrow down results"): one row that scrolls sideways, in line with the bar's text. */
+  .search-view-body {
+    display: flex;
+    min-height: 0;
+    flex: 1;
+    flex-direction: column;
+  }
+  .search-view-filters {
+    flex-shrink: 0;
+    margin-inline: 0;
+    padding-inline: 0.75rem;
+    scroll-padding-inline: 0.75rem;
+  }
   .search-view-results {
+    /* The highlight of the option the arrow keys or the pointer are on runs the whole width, with square corners. */
+    --list-item-radius: 0;
+    --list-item-hover-radius: 0;
+    --list-item-pressed-radius: 0;
     min-height: 0;
     flex: 1;
     overflow-y: auto;
-    padding: var(--search-view-results-padding, 0.5rem 1rem);
+    padding: var(--search-view-results-padding, 0.5rem 0);
   }
   .search-view-results [role='option'][aria-selected='true'] {
     background: var(--search-view-option-surface, var(--block-tint));
+  }
+  /* M3 Lists, tokens: "List list item trailing space 16dp": the icon of a button after an item is 16dp from the edge (its 48dp target holds 12dp). */
+  .search-view-results .list-item-multi-action {
+    padding-inline-end: 0.25rem;
+  }
+  /* An item with a button after it (a recent search): the one highlight covers the item and its button. */
+  .search-view-results .list-item-multi-action:has(> [role='option'][aria-selected='true']) {
+    background: var(--search-view-option-surface, var(--block-tint));
+  }
+  .search-view-results .list-item-multi-action > [role='option'][aria-selected='true'] {
+    background: transparent;
+  }
+  /* Full screen: the bar clears the notch. */
+  .search-view:modal .search-view-header {
+    margin-top: max(var(--search-view-header-margin, 0.75rem), env(safe-area-inset-top));
   }
   .search-view-empty {
     margin: 0;
@@ -7021,7 +7124,8 @@
     margin-top: var(--search-view-group-gap, 0.5rem);
   }
   .search-view-group-label {
-    padding: 0.5rem 0.75rem 0.25rem;
+    /* In line with the list items' text and icons (M3 lists, specs: "Leading element left padding 16dp"). */
+    padding: 0.5rem 1rem 0.25rem;
     color: var(--search-view-group-label-text, var(--block-muted));
     font-size: var(--type-label-medium-size);
     line-height: var(--type-label-medium-line-height);
@@ -7032,7 +7136,8 @@
     inset: var(--search-view-top-default, 4rem) 0 auto 0;
     margin: 0 auto;
     width: min(var(--search-view-width-default, 36rem), calc(100dvw - 2rem));
-    max-height: min(var(--search-view-max-height, 36rem), calc(100dvh - var(--search-view-top-default, 4rem) - 1rem));
+    min-height: min(15rem, calc(100dvh - var(--search-view-top-default, 4rem) - 1rem));
+    max-height: min(var(--search-view-max-height, 66.667dvh), calc(100dvh - var(--search-view-top-default, 4rem) - 1rem));
   }
   .search-view-live {
     position: absolute;
