@@ -17,7 +17,8 @@
 // same classes with textFieldClass, textFieldContainerClass and textFieldInputClass, and so does something that looks
 // like a field but is a button (the editor's choice from a list).
 // `invalidText`: what to say under the field once the browser's own check finds it invalid after the person has
-// worked in it (the CSS `:user-invalid`: changed and left, or the form tried to send); it takes the place of the line
+// worked in it (the CSS `:user-invalid`: changed and left, or the form tried to send); a field without it is not marked by
+// the browser's check, as a mark with no words under it says nothing. It takes the place of the line
 // (`supporting`) then, with the error's icon, and until then nothing is wrong. `invalid`: the caller's own check says it
 // is wrong (setCustomValidity(invalidText)), as the editor's does from its own rules, so the browser's check and the
 // caller's are one.

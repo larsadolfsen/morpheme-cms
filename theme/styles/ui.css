@@ -984,9 +984,11 @@
   .text-field-filled .text-field-container:has(> .text-field-input:focus) {
     box-shadow: inset 0 0 0 2px var(--text-field-filled-focus-line, var(--block-accent));
   }
-  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid))) .text-field-container,
-  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid))) .text-field-container:hover,
-  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid)))
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
+    .text-field-container,
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
+    .text-field-container:hover,
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
     .text-field-container:has(> .text-field-input:is(:focus, [aria-expanded='true'])) {
     box-shadow: inset 0 0 0 2px var(--text-field-error, var(--block-accent));
   }
@@ -1052,8 +1054,9 @@
   .text-field-filled .text-field-input[aria-expanded='true'] + .text-field-label {
     color: var(--text-field-filled-focus-line, var(--block-accent));
   }
-  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid))) .text-field-label,
-  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid)))
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
+    .text-field-label,
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
     .text-field-input:is(:focus, [aria-expanded='true'])
     + .text-field-label {
     color: var(--text-field-error, var(--block-accent));
@@ -1113,7 +1116,7 @@
   /* What is written, or the suffix, nearer to the icons and buttons after it. */
   .text-field-container:has(> .text-field-trailing-action, > .text-field-trailing-icon:not(.text-field-error-icon))
     > :is(.text-field-input, .text-field-suffix):not(:has(~ .text-field-suffix)),
-  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid)))
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
     .text-field-container:has(> .text-field-error-icon)
     > :is(.text-field-input, .text-field-suffix):not(:has(~ .text-field-suffix)) {
     padding-inline-end: var(--text-field-icon-gap, 0.75rem);
@@ -1149,11 +1152,12 @@
   .text-field-error-icon {
     display: none;
   }
-  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid))) .text-field-error-icon {
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
+    .text-field-error-icon {
     display: block;
     color: var(--text-field-error, var(--block-accent));
   }
-  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid)))
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
     .text-field-container:has(> .text-field-error-icon)
     > :is(.text-field-trailing-icon:not(.text-field-error-icon), .text-field-trailing-action) {
     display: none;
@@ -1205,7 +1209,8 @@
     flex: 1;
     margin: 0;
   }
-  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid))) .text-field-supporting {
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
+    .text-field-supporting {
     color: var(--text-field-error, var(--block-accent));
   }
   /* What is said when the browser finds the field invalid after the person has worked in it (invalidText, `:user-invalid`):
@@ -1214,7 +1219,7 @@
   .text-field-invalid-text {
     display: none;
   }
-  .text-field:has(> .text-field-container > .text-field-input:user-invalid) .text-field-invalid-text {
+  .text-field:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text) .text-field-invalid-text {
     display: block;
   }
   .text-field:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)
