@@ -6,6 +6,8 @@ is not listed here is a bug. Add the entry in the same pull request as the chang
 
 **Which M3 we follow** (owner, 15 Nov 2026): the theme follows Material 3 Expressive wherever a component has an Expressive variant; otherwise baseline M3.
 
+**Priority order** (owner, 15 Nov 2026): 1. Modern web, 2. M3 Expressive, 3. M3, 4. M2 with M3 styling. Where they conflict, the lower number wins.
+
 Entries from the colour sweep and the CSS sweep were sent by those workers on 2026-11-13; the owner decisions on section
 colours are from the contrast work of the same day (`npm run check:contrast`, `scripts/check-contrast.mjs`).
 
