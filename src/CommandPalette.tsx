@@ -367,8 +367,7 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
     const typed = query.trim();
     if (typed) {
       const found = actions
-        .search(typed, ctx, { recent: recent.ids, counts: recent.counts, groupLabels: labels })
-        .map((g) => ({ group: g.group, items: g.items.filter((i) => passes(i.action, filter)) }))
+        .search(typed, ctx, { recent: recent.ids, counts: recent.counts, groupLabels: labels, only: (a) => passes(a, filter) })
         .filter((g) => g.items.length > 0);
       const total = found.reduce((n, g) => n + g.items.length, 0);
       // The first results, in their groups; the last row shows the rest.
@@ -431,7 +430,10 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
   const typed = query.trim();
   const counts = useMemo(() => {
     if (!typed) return null;
-    const found = actions.search(typed, ctx, { recent: recent.ids, counts: recent.counts, groupLabels: labels }).flatMap((g) => g.items);
+    // Every hit, not only the first 30: a chip's count is what it would show.
+    const found = actions
+      .search(typed, ctx, { recent: recent.ids, counts: recent.counts, groupLabels: labels, cap: Infinity })
+      .flatMap((g) => g.items);
     return Object.fromEntries(FILTERS.map((f) => [f, found.filter((i) => passes(i.action, f)).length])) as Record<Filter, number>;
   }, [typed, version, pages, media, recent]);
   const filters = typed
@@ -440,9 +442,9 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
 
   const flat = results.flatMap((g) => g.items);
   const count = flat.length;
-  // The first option is the one the arrow keys are on, after each change of what is written or shown.
+  // Nothing is highlighted when it opens or the results change: the arrow keys (or the pointer) move there, and Enter with a query runs the first result.
   const first = flat[0]?.id;
-  useEffect(() => setActive(first), [first, open]);
+  useEffect(() => setActive(undefined), [first, open]);
 
   /** Keeps what is typed as a search, once a result or the last row is chosen with something written. */
   const keepSearch = () => {

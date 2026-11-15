@@ -168,13 +168,21 @@ export function createRegistry() {
   function search(
     query: string,
     ctx: Ctx,
-    opts: { recent?: string[]; counts?: Record<string, number>; groupLabels?: Partial<Record<ActionGroup, string>> } = {},
+    opts: {
+      recent?: string[];
+      counts?: Record<string, number>;
+      groupLabels?: Partial<Record<ActionGroup, string>>;
+      /** More or fewer results than the default cap (the filter chips count all of them). */
+      cap?: number;
+      /** Only these (a filter chip), chosen before the cap, so it never loses its results to the others'. */
+      only?: (action: EditorAction) => boolean;
+    } = {},
   ) {
     const context = ctxGroups(ctx);
     const given = [...providers].flatMap((p) => p(query, ctx));
     const shown = new Map<string, PaletteItem>();
     for (const action of [...all(), ...given]) {
-      if (!inPalette(action) || shown.has(action.id)) continue;
+      if (!inPalette(action) || shown.has(action.id) || (opts.only && !opts.only(action))) continue;
       const how = paletteState(stateOf(action, ctx), action.group, context);
       if (how === 'left-out') continue;
       const disabled = how === 'disabled';
@@ -187,7 +195,13 @@ export function createRegistry() {
       });
     }
     const entries = [...shown.values()].map((item) => ({ ...item.action, item }));
-    const ranked = rankActions(entries, query, { context, ...opts }).map(({ entry, score }) => ({
+    const ranked = rankActions(entries, query, {
+      context,
+      recent: opts.recent,
+      counts: opts.counts,
+      groupLabels: opts.groupLabels,
+      cap: opts.cap,
+    }).map(({ entry, score }) => ({
       entry,
       item: { ...(entry as (typeof entries)[number]).item, score },
     }));

@@ -993,7 +993,16 @@ async function checkCommandPalette(width) {
   const n = await options.count();
   if (first.join() !== 'Suggested' || n < 1 || n > 6)
     problems.push(`${label}: before typing the palette shows ${JSON.stringify(first)} with ${n} options, not Suggested with 1 to 6`);
-  if (!(await activeIs(0))) problems.push(`${label}: the first option is not the one the arrow keys are on`);
+  // Nothing looks selected or focused when it opens: the highlight (the arrow keys' option, aria-activedescendant) starts after a key or the pointer.
+  if (await active()) problems.push(`${label}: an option is highlighted as soon as the palette opens (${await active()})`);
+  if (await view.locator('[role=option][aria-selected=true]').count())
+    problems.push(`${label}: an option is drawn selected as soon as the palette opens`);
+  if (
+    await page.evaluate(
+      () => document.activeElement?.closest('[data-search-view-open]') !== null && document.activeElement?.tagName !== 'INPUT',
+    )
+  )
+    problems.push(`${label}: a control other than the field has the focus when the palette opens`);
   if ((await live.textContent()) !== `${n} results`)
     problems.push(`${label}: the live region says "${await live.textContent()}" for ${n} options`);
   const heights = await options.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height));
@@ -1005,6 +1014,8 @@ async function checkCommandPalette(width) {
     );
   if (bars.some((h) => h < 47.5)) problems.push(`${label}: a button of the field's row is lower than 48 px (${bars.map(Math.round)})`);
   // The arrow keys move the highlight, the focus stays in the field.
+  await page.keyboard.press('ArrowDown');
+  if (!(await activeIs(0))) problems.push(`${label}: ArrowDown does not go to the first option`);
   await page.keyboard.press('ArrowDown');
   if (!(await activeIs(1))) problems.push(`${label}: ArrowDown does not move to the second option`);
   await page.keyboard.press('ArrowUp');
@@ -1064,11 +1075,17 @@ async function checkCommandPalette(width) {
     const bs = getComputedStyle(bar);
     const r = bar.getBoundingClientRect();
     const transparent = (c) => c === 'rgba(0, 0, 0, 0)' || c === 'transparent';
+    const docked = el.classList.contains('search-view-docked');
+    // The container of the lists: the view itself full screen, the results container under the bar docked (M3: the bar and the results, 2dp apart).
+    const container = docked ? el.querySelector('.search-view-body') : el;
+    const gap = docked ? el.querySelector('.search-view-body').getBoundingClientRect().top - r.bottom : null;
     return {
+      docked,
+      gap,
       barHeight: r.height,
       barRadius: parseFloat(bs.borderTopLeftRadius),
-      barFilled: !transparent(bs.backgroundColor) && bs.backgroundColor !== getComputedStyle(el).backgroundColor,
-      viewFilled: !transparent(getComputedStyle(el).backgroundColor),
+      barFilled: !transparent(bs.backgroundColor) && (docked || bs.backgroundColor !== getComputedStyle(container).backgroundColor),
+      viewFilled: !transparent(getComputedStyle(container).backgroundColor),
       barMargin: r.left - el.getBoundingClientRect().left,
       hint: el.querySelector('input[role=combobox]').enterKeyHint,
     };
@@ -1077,8 +1094,11 @@ async function checkCommandPalette(width) {
   if (look.barRadius < 28) problems.push(`${label}: the search bar is not a pill (radius ${look.barRadius})`);
   if (!look.barFilled) problems.push(`${label}: the search bar has no container of its own: the page is a bare list`);
   if (!look.viewFilled) problems.push(`${label}: the search view has no container colour`);
-  if (Math.abs(look.barMargin - 12) > 0.5)
-    problems.push(`${label}: the focused search bar is ${look.barMargin} px from the view's edge, not 12 (M3 specs)`);
+  // M3 tokens: "Search view contained leading margin 12dp" full screen; docked, the bar stands where the bar was, and "docked bar results gap 2dp".
+  if (Math.abs(look.barMargin - (look.docked ? 0 : 12)) > 0.5)
+    problems.push(`${label}: the focused search bar is ${look.barMargin} px from the view's edge, not ${look.docked ? 0 : 12} (M3 tokens)`);
+  if (look.docked && Math.abs(look.gap - 2) > 0.5)
+    problems.push(`${label}: the gap between the bar and the results is ${look.gap} px, not 2 (M3 tokens)`);
   if (look.hint !== 'search') problems.push(`${label}: the keyboard's key is "${look.hint}", not "search"`);
   const leadingOf = () => options.evaluateAll((els) => els.map((e) => !!e.querySelector('.list-item-leading svg, .list-item-leading img')));
   if ((await leadingOf()).some((x) => !x))
@@ -1093,6 +1113,19 @@ async function checkCommandPalette(width) {
   await page.waitForTimeout(300);
   const chips = await view.locator('.search-view-filters .chip').allTextContents();
   if (chips.join() !== 'Actions,Pages,Posts,Images,Files') problems.push(`${label}: the filter chips are ${JSON.stringify(chips)}`);
+  // A chip is not greyed out when something fits it: the pages of this site fit "pages" (the first 30 results are not all of them).
+  const chipOff = await view.locator('.search-view-filters .chip:disabled').count();
+  const pageHit = pageTitle ? pageTitle.trim().split(/\s+/)[0].slice(0, 3) : '';
+  if (pageHit) {
+    await input.fill(pageHit);
+    await page.waitForTimeout(300);
+    const pagesChip = view.locator('.search-view-filters .chip', { hasText: /^Pages$|^Posts$/ });
+    const enabled = await pagesChip.evaluateAll((els) => els.filter((e) => !e.disabled).length);
+    if (!enabled) problems.push(`${label}: no Pages or Posts chip is enabled for "${pageHit}", the first word of the page "${pageTitle}"`);
+    await input.fill('s');
+    await page.waitForTimeout(300);
+  }
+  void chipOff;
   if ((await view.locator('.search-view-group-label').count()) < 1) problems.push(`${label}: the results have no group name over them`);
   if ((await leadingOf()).some((x) => !x)) problems.push(`${label}: a result has no leading icon ${JSON.stringify(await leadingOf())}`);
   const last = (await names()).at(-1) ?? '';
@@ -1113,6 +1146,7 @@ async function checkCommandPalette(width) {
   await page.waitForTimeout(250);
   // Delete removes the recent search the arrows are on.
   const before = (await names()).length;
+  await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Delete');
   await page.waitForTimeout(250);
   if ((await names()).length !== before - 1) problems.push(`${label}: Delete does not remove the recent search`);

@@ -351,8 +351,10 @@ export function SearchView({
               else if (e.key === 'Home') move(0);
               else if (e.key === 'End') move(flat.length - 1);
               else if (e.key === 'Delete' && at >= 0 && flat[at].onRemove && !query) flat[at].onRemove!();
-              else if (e.key === 'Enter' && at >= 0) {
-                if (!flat[at].disabled) onActivate(flat[at].id);
+              else if (e.key === 'Enter' && (at >= 0 || query.trim())) {
+                // The highlighted option, or with something typed and nothing highlighted yet, the first result.
+                const option = flat[at >= 0 ? at : 0];
+                if (!option.disabled) onActivate(option.id);
               } else return;
               e.preventDefault();
             }}
@@ -367,90 +369,93 @@ export function SearchView({
             }}
           />
         </div>
-        {filters && filters.length > 0 && (
-          <ChipSet layout="scroll" label={filtersLabel ?? ''} className="search-view-filters">
-            {filters.map((f) => (
-              <Chip
-                key={f.id}
-                kind="filter"
-                label={f.label}
-                icon={f.icon}
-                selected={filter === f.id}
-                disabled={f.disabled}
-                // A press keeps the focus in the field.
-                onMouseDown={(e: { preventDefault: () => void }) => e.preventDefault()}
-                onClick={() => onFilterChange?.(filter === f.id ? null : f.id)}
-              />
+        {/* The container of the filters, the lists and what is shown when nothing fits: in the docked view a container of its own under the bar (M3 specs: "Search view contained docked bar results gap 2dp"). */}
+        <div className="search-view-body">
+          {filters && filters.length > 0 && (
+            <ChipSet layout="scroll" label={filtersLabel ?? ''} className="search-view-filters">
+              {filters.map((f) => (
+                <Chip
+                  key={f.id}
+                  kind="filter"
+                  label={f.label}
+                  icon={f.icon}
+                  selected={filter === f.id}
+                  disabled={f.disabled}
+                  // A press keeps the focus in the field.
+                  onMouseDown={(e: { preventDefault: () => void }) => e.preventDefault()}
+                  onClick={() => onFilterChange?.(filter === f.id ? null : f.id)}
+                />
+              ))}
+            </ChipSet>
+          )}
+          <div
+            id={list}
+            role="listbox"
+            aria-label={label}
+            className="search-view-results"
+            hidden={!flat.length}
+            // A tap on an option keeps the focus in the field.
+            onMouseDown={(e) => e.preventDefault()}
+          >
+            {shown.map((group) => (
+              <div
+                key={group.id}
+                role="group"
+                className="search-view-group"
+                aria-labelledby={group.label ? `${list}-group-${group.id}` : undefined}
+              >
+                {group.label && (
+                  <div id={`${list}-group-${group.id}`} className="search-view-group-label">
+                    {group.label}
+                  </div>
+                )}
+                <List role="none" dividers="none">
+                  {group.items.map((item) => {
+                    index += 1;
+                    return (
+                      <ListItem
+                        key={item.id}
+                        id={optionId(index)}
+                        role="option"
+                        presentation
+                        aria-selected={index === at}
+                        aria-disabled={item.disabled ? true : undefined}
+                        aria-checked={item.pressed === undefined ? undefined : item.pressed}
+                        aria-keyshortcuts={item.keyShortcuts ?? (item.onRemove ? 'Delete' : undefined)}
+                        leadingIcon={item.thumb ? undefined : item.icon}
+                        leadingImage={item.thumb ? { src: item.thumb } : undefined}
+                        headline={item.headline}
+                        supporting={item.supporting}
+                        trailingSupporting={item.shortcut}
+                        trailingIcon={item.pressed ? 'check' : undefined}
+                        disabled={item.disabled}
+                        onClick={() => onActivate(item.id)}
+                        actions={
+                          item.onRemove && (
+                            // The remove button is for a pointer: the field's Delete key does it for the keyboard, so it takes no focus and screen readers skip it.
+                            <IconButton
+                              icon="x"
+                              label={item.removeLabel ?? ''}
+                              tabIndex={-1}
+                              aria-hidden="true"
+                              onClick={() => {
+                                item.onRemove!();
+                                input.current?.focus();
+                              }}
+                            />
+                          )
+                        }
+                      />
+                    );
+                  })}
+                </List>
+              </div>
             ))}
-          </ChipSet>
-        )}
-        <div
-          id={list}
-          role="listbox"
-          aria-label={label}
-          className="search-view-results"
-          hidden={!flat.length}
-          // A tap on an option keeps the focus in the field.
-          onMouseDown={(e) => e.preventDefault()}
-        >
-          {shown.map((group) => (
-            <div
-              key={group.id}
-              role="group"
-              className="search-view-group"
-              aria-labelledby={group.label ? `${list}-group-${group.id}` : undefined}
-            >
-              {group.label && (
-                <div id={`${list}-group-${group.id}`} className="search-view-group-label">
-                  {group.label}
-                </div>
-              )}
-              <List role="none" dividers="none">
-                {group.items.map((item) => {
-                  index += 1;
-                  return (
-                    <ListItem
-                      key={item.id}
-                      id={optionId(index)}
-                      role="option"
-                      presentation
-                      aria-selected={index === at}
-                      aria-disabled={item.disabled ? true : undefined}
-                      aria-checked={item.pressed === undefined ? undefined : item.pressed}
-                      aria-keyshortcuts={item.keyShortcuts ?? (item.onRemove ? 'Delete' : undefined)}
-                      leadingIcon={item.thumb ? undefined : item.icon}
-                      leadingImage={item.thumb ? { src: item.thumb } : undefined}
-                      headline={item.headline}
-                      supporting={item.supporting}
-                      trailingSupporting={item.shortcut}
-                      trailingIcon={item.pressed ? 'check' : undefined}
-                      disabled={item.disabled}
-                      onClick={() => onActivate(item.id)}
-                      actions={
-                        item.onRemove && (
-                          // The remove button is for a pointer: the field's Delete key does it for the keyboard, so it takes no focus and screen readers skip it.
-                          <IconButton
-                            icon="x"
-                            label={item.removeLabel ?? ''}
-                            tabIndex={-1}
-                            aria-hidden="true"
-                            onClick={() => {
-                              item.onRemove!();
-                              input.current?.focus();
-                            }}
-                          />
-                        )
-                      }
-                    />
-                  );
-                })}
-              </List>
-            </div>
-          ))}
+          </div>
+          <p className="search-view-empty" hidden={flat.length > 0}>
+            {emptyText}
+          </p>
         </div>
-        <p className="search-view-empty" hidden={flat.length > 0}>
-          {emptyText}
-        </p>
         <p className="search-view-live" role="status" aria-live="polite">
           {liveText}
         </p>

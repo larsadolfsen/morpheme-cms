@@ -6445,7 +6445,7 @@
     --search-bar-font-size
     --search-view-surface, --search-view-radius, --search-view-line, --search-view-shadow, --search-view-scrim,
     --search-view-header-height, --search-view-header-surface, --search-view-header-radius, --search-view-header-margin,
-    --search-view-container-surface, --search-view-divider, --search-view-max-height, --search-view-results-padding,
+    --search-view-container-surface, --search-view-docked-surface, --search-view-docked-gap, --search-view-docked-shadow, --search-view-divider, --search-view-max-height, --search-view-results-padding,
     --search-view-option-surface, --search-view-group-gap, --search-view-group-label-text, --search-view-top-default,
     --search-view-width-default
   Toolbars (Toolbar, toolbarClass, toolbar.script.ts; m3.material.io/components/toolbars, M3 Expressive): .toolbar with
@@ -6979,10 +6979,9 @@
     position: relative;
     height: auto;
   }
-  /* The view's container, full screen and docked: M3 specs, Color: "Surface container low" full screen, with the bar in "Surface container high". M3
-     prints "Surface container high" for the docked container too, which would make the bar vanish in it ("Avoid using a surface container high color
-     on a surface container background", guidelines), so the docked one is low as well (docs/material-deviations.md). */
-  :is(dialog, div).search-view {
+  /* The view's container full screen: M3 specs, Color: "Surface container low", with the bar in "Surface container high". Docked (below) the bar and
+     the results are two containers, both "Surface container high", with a gap between them. */
+  dialog.search-view {
     background: var(--search-view-container-surface, var(--mo-surface-container-low));
   }
   /* From medium the view is a dropdown (M3 docked), not a layer over the page: a panel on the bar (--search-view-top, -left, -width: where the bar is), no
@@ -6992,6 +6991,25 @@
     z-index: 70;
     display: flex;
     flex-direction: column;
+    overflow: visible;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  /* M3 specs, tokens (contained, read 15 Nov 2026): "Search view contained docked bar results gap 2dp": the bar, where the bar was, and the results container
+     under it. The bar has no margin of its own then; its container is "Surface container high" and rounded like the results'. */
+  div.search-view-docked .search-view-header {
+    margin: 0;
+  }
+  div.search-view-docked .search-view-body {
+    margin-top: var(--search-view-docked-gap, 0.125rem);
+    overflow: hidden;
+    border-radius: var(--search-view-radius, var(--mo-shape-extra-large));
+    background: var(--search-view-docked-surface, var(--mo-surface-container-high));
+    box-shadow: var(--search-view-docked-shadow, none);
+  }
+  div.search-view-docked .search-view-filters {
+    padding-top: 0.75rem;
   }
   div.search-view.search-view-docked[hidden] {
     display: none;
@@ -7061,6 +7079,12 @@
     visibility: hidden;
   }
   /* Filter chips under the bar (M3 guidelines: "Filter chips to narrow down results"): one row that scrolls sideways, in line with the bar's text. */
+  .search-view-body {
+    display: flex;
+    min-height: 0;
+    flex: 1;
+    flex-direction: column;
+  }
   .search-view-filters {
     flex-shrink: 0;
     margin-inline: 0;
@@ -7069,6 +7093,10 @@
     margin-block-end: 0.25rem;
   }
   .search-view-results {
+    /* The highlight of the option the arrow keys or the pointer are on runs the whole width, with square corners. */
+    --list-item-radius: 0;
+    --list-item-hover-radius: 0;
+    --list-item-pressed-radius: 0;
     min-height: 0;
     flex: 1;
     overflow-y: auto;

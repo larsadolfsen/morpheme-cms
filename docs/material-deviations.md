@@ -283,11 +283,10 @@ Source: `theme/ui/Search.tsx` (`SearchView`), `theme/styles/ui.css` (`.search-vi
 - **Why:** the owner's examples (Gmail, Drive) show a divider; M3 says the divided style is not recommended, and the owner asked for M3. Open for the owner to decide.
 - **Date:** 2026-11-15. **PR:** this pull request.
 
-### SV2. The docked container is surface container low, like full screen
+### SV2. Colour roles and the docked gap (read as printed, no deviation)
 
-- **Material:** specs, Color: full screen "Surface container low … Surface container high …"; docked "Surface container high … Surface container high …" (a numbered list whose diagram did not load). Guidelines: "Avoid using a surface container high color on a surface container background. This can cause the search bar to blend in … use surface container roles that are more than one step apart."
-- **We do:** the bar is surface container high in both layouts; the docked container is surface container low (as full screen), not high.
-- **Why:** with high on high the docked bar vanishes (checked in a screenshot). The diagram that says which of the two roles is which did not load, so this reading may be wrong.
+- **Material:** specs, Color: full screen "Surface container low … Surface container high …"; docked "Surface container high … Surface container high …" (numbered lists whose diagrams did not load, read in the order of the anatomy: container, icons and text, bar). Guidelines: "Avoid using a surface container high color on a surface container background … use surface container roles that are more than one step apart." Tokens (specs, token table, contained, read 15 Nov 2026): "Search view contained docked bar results gap 2dp".
+- **We do:** full screen the view is surface container low and the bar surface container high. Docked the bar and the results container are two containers, both surface container high, 2dp apart, so the bar never blends into its container.
 - **Date:** 2026-11-15. **PR:** this pull request.
 
 ### SV3. Where M3 is silent, or the pages could not be read
@@ -298,7 +297,7 @@ Source: `theme/ui/Search.tsx` (`SearchView`), `theme/styles/ui.css` (`.search-vi
 - **Search key:** guidelines print "Type a query and press Enter"; the field's `enterKeyHint` is `search`.
 - **Opening:** the editor's other screens keep the top bar's search icon button (palette spec, deviations P1 and P3); the search app bar for every screen is 0.20.
 - **Docked size:** specs print "Width Min: 360dp, max: 720dp" and "Height Min: 240dp, max: 2/3 of screen height"; the view follows both. M3 is silent on where a docked view stands without a bar: near the top, in the middle (palette spec).
-- **The view's corners and shadow:** the token values could not be read; the theme keeps its own (extra-large corners, elevation 3).
+- **The view's corners:** the shape tokens show a drawing, not a value (SV7), so the theme's extra-large corners are used; no shadow (the overview says "no shadow by default").
 - **Date:** 2026-11-15. **PR:** this pull request.
 
 ### SV4. On a phone the search view is a page with a back arrow
@@ -324,8 +323,8 @@ Source: `theme/ui/Search.tsx` (`SearchView`), `theme/styles/ui.css` (`.search-vi
 
 ### SV7. From medium the view is a dropdown on the bar, with no scrim
 
-- **Material:** guidelines: "Docked opens a list below the search bar, with a scrim covering main content"; specs, Measurements (contained): "Docked container Width Min: 360dp, max: 720dp", "Height Min: 240dp, max: 2/3 of screen height", "Search bar container Height 56dp", "Leading padding 16dp", "Trailing padding 16dp". "Search suggestions or results should swap from full-screen in compact windows to docked in larger breakpoints." The shape, elevation and divider values are token tables that did not open, so they are not quoted: the container keeps the theme's extra-large corners and elevation 3, and has no divider (SV1).
-- **We do:** from medium the view is a panel on the search bar (the bar of the top bar, else under the search button, ending where the button ends): not a dialog, not modal and with no scrim; the page behind it stays as it is. It is as wide as the bar (360dp to 720dp), 240dp to 2/3 of the window high, and holds the focused bar (12dp margins, 56dp), the chips and the lists. Escape, the back arrow, a press outside it and the button close it, and the focus goes back to where it was.
+- **Material:** guidelines: "Docked opens a list below the search bar, with a scrim covering main content"; specs, Measurements (contained): "Docked container Width Min: 360dp, max: 720dp", "Height Min: 240dp, max: 2/3 of screen height", "Search bar container Height 56dp", "Leading padding 16dp", "Trailing padding 16dp". "Search suggestions or results should swap from full-screen in compact windows to docked in larger breakpoints." Tokens, contained (token table opened by clicking its folders, 15 Nov 2026): "Search view contained leading margin 12dp", "trailing margin 12dp", "docked bar results gap 2dp", "full screen bar container height 56dp", "icon label gap 4dp"; the text tokens: Roboto 16pt, weight 400, line height 24pt, tracking 0.5pt (body large). The shape tokens ("docked results shape", "docked bar shape", "full screen container shape") show a drawing, not a value: not readable, so the results container uses the theme's extra-large corners, and the bar is a pill. No elevation token is listed for the contained style and the overview says "Elevation: Lower elevation and no shadow by default", so the dropdown has no shadow. The divider tokens are in the divided folder (not used, SV1).
+- **We do:** from medium the view is a panel on the search bar (the bar of the top bar, else under the search button, ending where the button ends): not a dialog, not modal and with no scrim; the page behind it stays as it is. It is as wide as the bar (360dp to 720dp), 240dp to 2/3 of the window high, and is the bar (56dp, where the closed bar was, no margin), then 2dp under it a results container with the chips and the lists. Escape, the back arrow, a press outside it and the button close it, and the focus goes back to where it was.
 - **Why:** owner, 15 Nov 2026 (relayed by the PM): "On desktop don't make a popup, I read make a drop down."
 - **Date:** 2026-11-15. **PR:** this pull request.
 
