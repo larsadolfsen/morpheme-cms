@@ -1953,6 +1953,10 @@ dialog {
   background: var(--mo-surface);
   color: var(--mo-on-surface);
 }
+.crop-page:focus,
+.block-page:focus {
+  outline: none;
+}
 .crop-page[open],
 .block-page[open] {
   display: flex;

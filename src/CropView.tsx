@@ -62,7 +62,11 @@ export default function CropViewHost() {
     open = (request, resolve) => {
       setShown({ request, resolve });
       // The dialog is drawn with the request, then opened (its element is there already).
-      setTimeout(() => dialog.current?.showModal());
+      setTimeout(() => {
+        dialog.current?.showModal();
+        // No control has the focus at the start: the page itself does, without a ring (editor.css .crop-page:focus).
+        dialog.current?.focus({ preventScroll: true });
+      });
     };
   }, []);
   const answer = (result: CropResult | null) => {
@@ -331,6 +335,7 @@ function CropDialog({
       ref={ref}
       aria-labelledby={headline}
       className="crop-page"
+      tabIndex={-1}
       onCancel={(e) => {
         e.preventDefault();
         void leave();
