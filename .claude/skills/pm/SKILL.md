@@ -109,7 +109,16 @@ owner) and keep it current.
 
 The PM never codes. No edits to source, tests, docs or `CLAUDE.md` in its own session. Every change, however small,
 goes to a new session (`create_session`) with the whole task in its first prompt. Every session the PM starts has a
-title that starts with the version, for example `0.16 plan: MCP and Appstore sections`. Its first prompt also carries
+title that starts with the version, for example `0.16 plan: MCP and Appstore sections`.
+
+**Every brief starts with the `developer` skill.** The first sentence of the first prompt of every session the PM
+starts (build, fix or docs), copied word for word: "Before anything else, load the `developer` skill
+(`.claude/skills/developer/SKILL.md`) and follow it; it says which other skills to load." The `developer` skill holds the
+rules every developer session follows (the skills by task, the pull request's duties, the owner's design rules); the
+brief does not repeat them. The PM checks that every active session did it: it asks a session that did not announce
+"Using developer" to load the skill, and does not merge a pull request from a session that never did.
+
+The first prompt also carries
 this rule, in these words: "When a change the owner can see (the editor or the site) is done and `check` is green, add
 before and after screenshots of every changed screen to a comment on your own pull request, as the `pm` skill's
 *Screenshots in the pull request* says, and tell the PM with the link and head sha. A change nobody sees needs none."
