@@ -38,8 +38,9 @@ store, instead of an FAQ the owner fills in by hand.
    becomes a column (the owner picks which fields and their order, per place, like the slot mapping), the rows are the list's items. It
    must work with the Table's Material 2 features planned for 0.19 (`2026-11-13-table-md2-design.md`: shared `DataTable`, column
    kinds, sorting, sticky header, pagination, search), with a field's kind mapped to a column kind (section 9).
-6. **PR B** of `docs/superpowers/plans/2026-11-14-dynamic-list-edit-page.md` (an own list's entries typed in place on its edit page)
-   gets a place in the plan, with a recommendation on core or app (section 11).
+6. ~~**PR B** of `docs/superpowers/plans/2026-11-14-dynamic-list-edit-page.md` (an own list's entries typed in place on its edit page).~~
+   **Cancelled by the owner on 15 Nov 2026:** entries are added on the entry form page, never on the edit page. The edit page is an editor
+   window for the list's structure and its list-page text (`2026-11-15-list-edit-editor-window-design.md`).
 
 Decision 3 replaces the earlier idea of the same day ("the Blog posts block becomes a Cards block filled from Posts"). So no Blog
 posts block is migrated. That matters, because today's Blog posts block is **not** drawn as cards: it draws the theme's post list
@@ -58,7 +59,7 @@ and the blog's posts become one more list that Dynamic cards can read (section 8
 | Reading in the editor | `src/standard/rows/view.ts` (`sourceItems`, `editorRows`, `rowSources`, `rowParts`) | The same rows from the editor's data. |
 | Rows and mapping | `src/standard/rows/rows.mjs` | `sourceOf`, `howManyOf`, `chosenFrom` (tags any-of, then the first N), `rowOf`, `itemOfEntry`, `mapOf`, `fieldsForPart`, `fieldOfPart`, `withPart`, `mapped`, `rowsFromItems`, `withRows`. One fixed list of slots, `PARTS = ['title', 'text', 'icon', 'href', 'tags']`. |
 | Block fields | `src/standard/rows/fields.ts` | `from`, `tags`, `howMany`, `map`; `typed` hides `items` while a list is picked; `nameWith` gives `Dynamic list`; `fromLine`; `listPageOf`. Used by List, Segmented list and FAQ list. |
-| The list's pages | `src/Library.tsx`, `src/OwnList.tsx`, #616's `src/OwnListEdit.tsx`, `src/useOwnList.tsx`, `lib/ownListEdit.mjs` | `#list/<id>` (the entries) and, with #616, `#list/<id>/edit` (the fields; `LockedListEdit` for a locked list). An app's list opens the generic `List` page. |
+| The list's pages | `src/Library.tsx`, `src/OwnList.tsx`, #616's `src/OwnListEdit.tsx`, `src/useOwnList.tsx`, `lib/ownListEdit.mjs` | `#list/<id>` (the entries) and, with #616, `#list/<id>/edit` (the fields; `LockedListEdit` for a locked list). An app's list opens the generic `List` page. *Decided 15 Nov:* the list page's FAB is a FAB menu (`Edit list`, `Add <entry>`) and the edit page is an editor window of field blocks and text blocks (`2026-11-15-list-edit-editor-window-design.md`). |
 | App blocks | `docs/app-contract.md` (*Places*, *Blocks typed in place*) | `blocks/<type>/` with `index.tsx`, `View.tsx`, `viewOf.ts`, `load.ts`, optional `Inline.tsx`. A block is a `full` place: **the store gives `full` only to first-party publishers.** No app-facing function reads a list's entries. |
 | Bundled apps | — | None. Every app glob is the site's `src/apps/*`; `starter/src/data/apps.json` is `{ "installed": [] }`. |
 
@@ -238,7 +239,8 @@ block with code (`blocks/`, a `full` place) and call `readList` from its `load.t
 
 ### 3.7 The list's pages in the editor, for any list
 
-The core draws the list's page (`#list/<id>`, the entries) and its edit page (`#list/<id>/edit`, the fields, #616) for **every**
+The core draws the list's page (`#list/<id>`, the entries, with a FAB menu `Edit list` / `Add <entry>`) and its edit page (`#list/<id>/edit`, the
+fields, #616; for an own list the editor window of `2026-11-15-list-edit-editor-window-design.md`) for **every**
 list: Testimonials, an app's list and an own list. A locked list opens `LockedListEdit`: its fields shown, `New <singular>`, nothing
 renamed, moved or removed. An unlocked app list (section 13, Q4) opens the full edit page. The own list's field bar, `New list` and
 `Delete list` for own lists are the app's (section 4), drawn into the core's page through a slot (`listEdit`, as `versionSwitch` is
@@ -261,8 +263,8 @@ The editor's menu section is already called `Dynamic lists` (`t.common.lists`); 
 
 A first-party app, **Dynamic lists** (`dynamic-lists`), that gives the owner:
 
-- `New list` and own lists: the definition in `src/data/<id>/_list.json`, the field bar of #616 (any number of each kind, now also
-  `Date`), rename, Shown, move, Remove field, `Delete list` (refused while a block reads it);
+- `New list` and own lists: the definition in `src/data/<id>/_list.json`, the editor window of the 2026-11-15 spec (field blocks of any
+  number of each kind, now also `Date`, rename, move, Remove field, and text blocks for the list page; `Shown` is gone, #704), `Delete list` (refused while a block reads it);
 - `Rows from` on the standard List, Segmented list, FAQ list, **Cards** (new: Dynamic cards, section 8) and **Table** (new: Dynamic table, section 9): the list choice (own lists,
   the blog's posts, Testimonials and every app's list), `Only with these tags`, `How many`, `Show all`, the field picker on the block's
   slots (a tap on a part), `Fill from a list` in the block's toolbar, `Edit list`, the state line (`From Services · tag home · 3 items`)
@@ -657,20 +659,15 @@ skill `checks`; a change the owner sees follows the screenshot rule of the `pm` 
 | 5 | **Dynamic cards.** Cards declare slots (8.2), media and ratio rules, `Show all` and the carousel rule, empty states, Danish plural name, Change to (10). Screens: a Dynamic cards block from an own list with images, from posts, as a carousel, and empty. | yes | minor |
 | 6 | **Date kind in the field bar** (`Date` in the app's bar, the date field in an entry's form). | yes | minor |
 | 7 | **Release notes** for 3–6 (skill `release-notes`), English and Danish. | yes | empty |
-| 8 | **PR B of the edit-page plan, in the core:** a list's entries typed in place on its page (the plan's batch 4: `entryOfRow`, `rowOfEntry`, `moveOrders`, autosave, the toolbar host), for every list. | yes | minor |
+| 8 | ~~**PR B of the edit-page plan, in the core**~~ **Cancelled (15 Nov 2026):** entries are never typed on the edit page. Its place is taken by the build plan of `2026-11-15-list-edit-editor-window-design.md` (FAB menu, the editor window, text blocks). The number stays so phases 9 and 10 keep theirs. | — | — |
 | 9 | **Dynamic table** (section 9): `columns[].field`, `typedColumns`, `slots: 'columns'`, `listColumns`, the kind mapping, the header picker, the column menu's actions, Change to with Table (10), `"draws": "table"`. Screens: a dynamic table with each column kind built so far, sorting, pagination and search on, 375 and 1280 px. | yes | minor |
-| 10 | **Release notes** for 8 and 9. | yes | empty |
+| 10 | **Release notes** for 9 (the list-page and editor-window notes are in the 2026-11-15 spec's plan). | yes | empty |
 
 Phases 1 and 2 can be built side by side; 3 needs 1 and 2; 4 needs 1 and #616; 5 needs 1 and 4 (it adds Cards to the app's picker); 6
-needs 4. Phase 8 needs only #616, so it can run beside 1 to 4. Phase 9 needs 4, 6 and the Table's `DataTable` and column kinds (its own
+needs 4. Phase 8 is cancelled. Phase 9 needs 4, 6 and the Table's `DataTable` and column kinds (its own
 PRs 0, 1, 5 and 6); its sorting, pagination and search work on the dynamic rows the day those Table PRs land.
 
-**PR B: built in the core (decided, Q10), before or beside the move.** The entries' page is not one of the owner's tools for own lists:
-decision 1 gives every list, Testimonials and every app's list included, "its items, its list page", and the edit-page plan already says
-entries are typed in place on every list's page, locked ones included. So typed-in-place entries are part of the framework's list page
-(3.7), which stays core, and only the field bar is the app's. Built in the core, PR B helps a third party's list on the day it lands, the
-move in phase 4 does not touch it, and nothing is built twice. Built in the app, it would have to move back into the core for app lists
-and Testimonials, or those would keep the old entry form.
+**PR B is cancelled (owner, 15 Nov 2026).** The entries are added on the entry form page, never typed in place on the edit page, so there is nothing to build in the core or the app. What the list page and the edit page become is in `2026-11-15-list-edit-editor-window-design.md`; the field bar and field rows that move to the app (section 5) are that spec's editor window.
 
 ## 12. Tests
 
@@ -703,7 +700,7 @@ on the owner's behalf, on 14 Nov. The owner may revise any of them.
 | Q7 | Third-party blocks | Without code only in 0.19: a third party sells list blocks through `listBlocks`, drawn by the core's dynamic blocks; blocks with code stay first-party (3.6). | Owner |
 | Q8 | The `Date` kind | Added, in phase 6 (3.2). | PM 0.19, for the owner |
 | Q9 | A dynamic table's default columns | Every visible field in the list's order, without tags and with one image (9.2). | PM 0.19, for the owner |
-| Q10 | PR B of the edit-page plan | Built in the core, as phase 8 (section 11). | PM 0.19, for the owner |
+| Q10 | PR B of the edit-page plan | **Cancelled by the owner on 15 Nov:** entries are not typed on the edit page (section 11). | Owner |
 
 ## 14. Not in this spec
 
