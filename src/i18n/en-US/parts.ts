@@ -151,7 +151,7 @@ export const parts = {
       `The fields of the forms and settings, one of each type with the choices it can have. The fields are in ${file} and are built of the parts above. Nothing here is saved.`,
     use: {
       string:
-        'One line of text. It can be required, have a length limit, show a text while it is empty, need a certain form, hold an address, a number in pairs, a phone number, or words as chips, or link to where it is edited.',
+        'One line of text. It can be required, have a length limit, show a text while it is empty, need a certain form, hold a URL, a number in pairs, a phone number, or words as chips, or link to where it is edited.',
       text: 'Text over several lines, with the same choices as one line.',
       markdown: 'Text with formatting, in the same editor as the pages.',
       number: 'A number.',
@@ -772,7 +772,7 @@ export const parts = {
         tapped: 'Does something when tapped',
         withActions: 'With an action beside it',
         remove: 'Remove',
-        address: '/an-address/',
+        address: '/a-page/',
         sendsTo: 'Beside it on a wide screen',
       },
     },

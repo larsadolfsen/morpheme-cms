@@ -8,7 +8,7 @@ export const check: Messages['check'] = {
     boolean: 'skal være til eller fra',
     text: 'skal være tekst',
   },
-  address: 'Skriv adressen med bogstaver eller tal',
+  address: 'Skriv URL’en med bogstaver eller tal',
   onlyDigits: 'Skriv kun tal',
   digits: (n) => (n === 1 ? 'Skriv 1 ciffer' : `Skriv ${n} cifre`),
   fillIn: (label) => `Udfyld "${label}".`,
@@ -22,7 +22,7 @@ export const check: Messages['check'] = {
   atMostItems: (label, max) => `Der kan højst være ${max} i "${label}".`,
   mustBeOnPage: (name) => `"${name}" skal stå på siden.`,
   mustBeShown: (name) => `"${name}" skal vises på siden.`,
-  recordShape: 'En fils tags skal have "src" (filens adresse) og listerne "categories" og "removed".',
+  recordShape: 'En fils tags skal have "src" (filens URL) og listerne "categories" og "removed".',
   recordOverlap: (tag) => `Tagget "${tag}" er både valgt og fjernet.`,
   recordDuplicate: (src) => `En anden fil med tags gælder også ${src}.`,
 };

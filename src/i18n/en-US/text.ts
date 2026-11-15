@@ -59,7 +59,7 @@ export const text = {
   /** The sheet of a link (LinkSheet.tsx). */
   linkTo: 'The link goes to',
   linkPage: 'Page',
-  linkAddress: 'Other address',
+  linkAddress: 'Other URL',
   linkAddressHint: 'An email or a phone number becomes a link too.',
   linkPosts: 'Blog posts',
   insertLink: 'Insert link',

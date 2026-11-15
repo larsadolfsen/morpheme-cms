@@ -4,7 +4,7 @@ export const app = {
   loading: 'Loading the website’s content…',
   cannotSave: (login: string) => `The account ${login} doesn’t have access to save. Log in with another GitHub account under Account.`,
   notFound: 'Not found',
-  nothingAt: (route: string) => `There’s nothing at the address ${route}`,
+  nothingAt: (route: string) => `There’s nothing at the URL ${route}`,
   /** The chip in the top bar: from Save until the website is rebuilt, then when it is, or when it failed. */
   /** After a save, when the website has been updated with it (or not); `changes`: what the saves since the last update
    * changed, as a list (changesText in deploy.ts). */
@@ -48,9 +48,9 @@ export const app = {
     paidBuilds: 'Workers Paid plan',
   },
   /** Why a new page or post cannot have an address. */
-  addressTaken: (address: string) => `There’s already a page or blog post with the address ${address}.`,
-  addressRedirects: (address: string, name: string) => `The address ${address} currently sends visitors on to ${name}.`,
-  addressLoop: (loop: string) => `The address can’t be changed, because the redirects would go in a loop (${loop}).`,
+  addressTaken: (address: string) => `There’s already a page or blog post with the URL ${address}.`,
+  addressRedirects: (address: string, name: string) => `The URL ${address} currently sends visitors on to ${name}.`,
+  addressLoop: (loop: string) => `The URL can’t be changed, because the redirects would go in a loop (${loop}).`,
   deleteEntry: (singular: string) => `Delete ${singular}? It can be restored under Deleted.`,
   notDeleted: (error: string) => `Couldn’t delete: ${error}`,
   /** Deleting several pages or posts at once (Library.tsx selecting, App.tsx removeMany). */
