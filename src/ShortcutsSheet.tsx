@@ -46,13 +46,19 @@ export function ShortcutsSheet() {
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const el = dialog.current;
-    if (open && el && !el.open) el.showModal();
+    if (open && el && !el.open) {
+      el.showModal();
+      // No control has the focus at the start (not the close button): the dialog itself does, without a ring; Tab reaches the buttons.
+      el.focus({ preventScroll: true });
+    }
     if (!open && el?.open) el.close();
   }, [open]);
   return (
     <BottomSheet
       ref={dialog}
       aria-label={t.palette.shortcuts}
+      className="shortcuts-dialog"
+      tabIndex={-1}
       onClose={closeShortcuts}
       onClick={(e) => e.target === dialog.current && dialog.current?.close()}
     >

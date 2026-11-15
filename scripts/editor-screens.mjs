@@ -1157,6 +1157,12 @@ async function checkPaletteLast(width) {
     if (await page.locator('dialog[open]').count()) problems.push(`${label}: on a phone the list is an overlay, not a page`);
     const rows = await page.locator('main li').evaluateAll((els) => els.map((e) => e.textContent?.replace(/\s+/g, ' ').trim()));
     if (missing(rows).length) problems.push(`${label}: the page lacks ${missing(rows)} (${JSON.stringify(rows)})`);
+    // The title takes the focus for screen readers, but shows no ring: it is not a control.
+    const ring = await page.evaluate(() => {
+      const h = document.activeElement;
+      return h?.tagName === 'H1' ? getComputedStyle(h).outlineStyle : 'not on the heading';
+    });
+    if (ring !== 'none') problems.push(`${label}: the shortcuts page's title shows a focus ring (outline ${ring})`);
     const back = page.locator('header a[href="#"]:visible').first();
     if (!(await back.count())) problems.push(`${label}: the shortcuts page has no back arrow to the start screen`);
     else {
@@ -1170,6 +1176,12 @@ async function checkPaletteLast(width) {
     if (await sheet.count()) {
       const rows = await sheet.locator('li').evaluateAll((els) => els.map((e) => e.textContent?.replace(/\s+/g, ' ').trim()));
       if (missing(rows).length) problems.push(`${label}: the list lacks ${missing(rows)} (${JSON.stringify(rows)})`);
+      // No control has the focus when it opens (the close button does not show a ring).
+      const on = await page.evaluate(() => document.activeElement?.tagName);
+      if (on === 'BUTTON') problems.push(`${label}: the shortcuts dialog opens with a button focused`);
+      // A dialog in the middle of the screen has no drag handle (the handle belongs to a sheet from the bottom).
+      if (await sheet.locator('.bottom-sheet-drag-handle').evaluateAll((els) => els.some((e) => getComputedStyle(e).display !== 'none')))
+        problems.push(`${label}: the shortcuts dialog shows a drag handle`);
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);
       if (await sheet.count()) problems.push(`${label}: Escape does not close the shortcuts sheet`);

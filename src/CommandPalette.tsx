@@ -51,6 +51,8 @@ function focusHeadingOfNextScreen() {
     const heading = [...document.querySelectorAll<HTMLElement>('h1')].find((h) => h.getClientRects().length > 0);
     if (!heading) return;
     heading.tabIndex = -1;
+    // The title is not a control: it takes the focus for screen readers without a ring.
+    heading.style.outline = 'none';
     heading.focus({ preventScroll: true });
   };
   window.addEventListener('hashchange', () => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(focus, 0))), {
