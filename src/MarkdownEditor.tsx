@@ -74,8 +74,9 @@ import { headingChoices } from '../lib/heading-levels.mjs';
 import { TEXT_COLORS, colorClass } from '../lib/text-colors.mjs';
 import { sectionAttrs, sectionHeading, sectionSettingsOf, setSection } from './sectionState.mjs';
 import { sectionFrame } from './sectionFrame';
-import { IMAGE, type BlockAsk, type EditFocus, type LiveBlock } from './BlockDialog';
+import { IMAGE, reachField, type BlockAsk, type EditFocus, type LiveBlock } from './BlockDialog';
 import { cropView } from './CropView';
+import { ratioProp } from './standard/cards/view';
 import { askLink } from './LinkSheet';
 import { atLeastNow, Menu, MenuDivider, MenuItem, Toolbar, ToolbarButton } from './ui';
 import { editsInPanel, liveSheet } from './sheetPlacement.mjs';
@@ -1489,6 +1490,7 @@ function blockCard(
   getPos: () => number | undefined,
   asker: () => BlockAsk | undefined,
   cards: Set<() => void>,
+  pick: () => (() => Promise<string | null>) | undefined,
 ) {
   // The block's node: a block typed in place (inline) is changed without being drawn again (update), so the node follows.
   let node = first;
@@ -1893,7 +1895,70 @@ function blockCard(
           : []),
       ];
     };
-    const rowActions = (): BarAction[] => {
+    // A card with an image (Cards, media Image): the image's tools on the bar, as for an image in the text (image tools spec, section 6): Change image,
+    // Crop (the block's one aspect ratio, no chips), Alt text and Remove. From expanded the card's media sheet is the live side panel, with its Alt text field
+    // focused; below it the short alt text sheet is used.
+    const cardImageTools = (): BarAction[] => {
+      const list = rows();
+      if (spec!.grid || single || isDynamic() || active === null || node.attrs.props.media !== 'image' || !spec!.media?.includes('image'))
+        return [];
+      const i = active;
+      const address = String(list[i]?.image ?? '');
+      if (!address) return [];
+      const ratio = ratioProp(node.attrs.props);
+      const own = splitPicture(address);
+      const put = (patch: Row) =>
+        setItems(
+          rows().map((r, j) =>
+            j === i ? (Object.fromEntries(Object.entries({ ...r, ...patch }).filter(([, v]) => v !== '' && v !== undefined)) as Row) : r,
+          ),
+        );
+      // From expanded the card's media sheet opens live beside it at its Alt text field.
+      const openAlt = () => {
+        iconOf = i;
+        dynOpen = false;
+        syncRow(true);
+        reachField(t.blocks.picture.alt);
+      };
+      const live = () => atLeastNow('expanded');
+      return [
+        {
+          kind: 'change-image',
+          label: t.forms.changeImage,
+          action: async () => {
+            const chosen = await pick()?.();
+            if (!chosen) return;
+            // A new image starts as the middle part in the block's ratio (no words), with no alt text of its own.
+            const text = live()
+              ? { alt: '', decorative: false }
+              : ((await asker()?.alt({ src: chosen, alt: '', decorative: false }, 'new')) ?? { alt: '', decorative: false });
+            put({ image: chosen, alt: text.decorative ? '' : text.alt.trim() });
+            if (live()) openAlt();
+          },
+        },
+        {
+          kind: 'crop',
+          label: t.text.crop,
+          action: async () => {
+            const next = await cropView({ src: own.src, format: ratio, crop: own.format === ratio ? own.crop : null, ratios: [ratio] });
+            if (next) put({ image: joinPicture(own.src, next.format, next.crop) });
+          },
+        },
+        {
+          kind: 'alt-text',
+          label: t.blocks.picture.alt,
+          text: true,
+          action: async () => {
+            if (live()) return openAlt();
+            const text = await asker()?.alt({ src: own.src, alt: String(list[i]?.alt ?? ''), decorative: false }, 'edit');
+            if (text) put({ alt: text.decorative ? '' : text.alt.trim() });
+          },
+        },
+        { kind: 'remove', label: t.common.remove, action: () => put({ image: '', alt: '' }) },
+      ];
+    };
+    const rowActions = (): BarAction[] => [...cardImageTools(), ...itemActions()];
+    const itemActions = (): BarAction[] => {
       const list = rows();
       if (spec!.grid) return gridActions(spec!.grid, list as unknown as string[][]);
       // A card's link is the bar's Link, also while the card is still empty (its sheet has the page and the buttons).
@@ -2298,7 +2363,15 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     );
     const cardView = $view(
       siteBlockSchema.node,
-      () => (node, view, getPos) => blockCard(node, view, getPos, () => sheeted.current, cards.current),
+      () => (node, view, getPos) =>
+        blockCard(
+          node,
+          view,
+          getPos,
+          () => sheeted.current,
+          cards.current,
+          () => picking.current,
+        ),
     );
     // The look of each part on the site, as data-look on it.
     const looking = $prose(

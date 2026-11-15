@@ -12,6 +12,7 @@ import { iconColorField } from '../../iconColor';
 import { t } from '../../i18n';
 import { headFields } from '../head';
 import { buttonList } from '../buttons/fields';
+import { FORMATS } from '../../../lib/crop.mjs';
 import { example } from './shared';
 
 export default defineBlock({
@@ -92,6 +93,16 @@ export default defineBlock({
         { label: t.blocks.cards.mediaImage, value: 'image', icon: ImageIcon },
         { label: t.blocks.cards.mediaVideo, value: 'video', icon: VideoCamera },
       ],
+    },
+    // One aspect ratio for every card's image (no Original: the cards stay aligned); 3:2 is today's look.
+    {
+      name: 'ratio',
+      label: t.blocks.cards.ratio,
+      type: 'select',
+      default: '3:2',
+      hint: t.blocks.cards.ratioHint,
+      only: { field: 'media', is: ['image'] },
+      options: FORMATS.map((f) => ({ label: f, value: f })),
     },
     {
       name: 'items',
