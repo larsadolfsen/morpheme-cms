@@ -3352,7 +3352,7 @@
   Navigation drawer (NavigationDrawer, NavigationDrawerItem, NavigationDrawerToggle, NavigationDrawerSubitem,
   navigationDrawerClass, navigationDrawerScrimClass): .navigation-drawer, the drawer, over .navigation-drawer-scrim;
   .navigation-drawer-standard, the standard one, beside the content (--navigation-drawer-standard-shadow, level 0);
-  .navigation-drawer-dialog, a <dialog> it is in, at the start edge (its ::backdrop the scrim); .navigation-drawer-end,
+  .navigation-drawer-dialog, a <dialog> it is in, at the start edge (at the end edge with .navigation-drawer-end on it too; its ::backdrop the scrim, faded through --navigation-drawer-scrim-opacity); .navigation-drawer-end,
   one at the end edge (its corners towards the page, mirrored); .navigation-drawer-bleed, one that springs in (on the
   drawer, or on the <dialog> it is in): wider by --navigation-drawer-bleed (32dp) at the edge it comes from, that strip
   off the screen, so a spring that overshoots shows no gap at the edge; .navigation-drawer-item,
@@ -4055,8 +4055,32 @@
         var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
     );
   }
+  /* At the end edge (navigationDrawerEndClass on the <dialog> and on the drawer in it): the strip beyond the screen is the end's. */
+  .navigation-drawer-dialog.navigation-drawer-end {
+    inset-inline: auto 0;
+  }
+  .navigation-drawer-dialog.navigation-drawer-bleed.navigation-drawer-end {
+    inset-inline: auto calc(-1 * var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default)));
+  }
+  .navigation-drawer-dialog.navigation-drawer-bleed.navigation-drawer-end > .navigation-drawer {
+    padding-inline: var(--navigation-drawer-inset, var(--navigation-drawer-inset-default))
+      calc(
+        var(--navigation-drawer-inset, var(--navigation-drawer-inset-default)) +
+          var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+      );
+  }
   .navigation-drawer-dialog::backdrop {
     background: var(--navigation-drawer-scrim, color-mix(in srgb, var(--theme-scrim-colour) 45%, transparent));
+    /* The menu fades it with the motion scheme's springs through this variable, which the backdrop inherits from the dialog. */
+    opacity: var(--navigation-drawer-scrim-opacity, 1);
+  }
+  /* Scrolling in or over it does not move the page behind it (no overflow: hidden on the page). */
+  .navigation-drawer-dialog:modal {
+    overscroll-behavior: contain;
+  }
+  .navigation-drawer-dialog::backdrop {
+    overflow: hidden;
+    overscroll-behavior: contain;
   }
   /* State layers (as the theme's other items): the item's own colour over it, 8% pointed at, 10% focused or pressed. */
   .navigation-drawer-item:hover {
