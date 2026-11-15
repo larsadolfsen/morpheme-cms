@@ -475,6 +475,7 @@
   --search-bar-placeholder: var(--mo-on-surface-variant);
   --search-view-radius: var(--mo-shape-extra-large);
   --search-view-line: transparent;
+  --search-view-docked-radius: var(--mo-shape-medium);
   --search-view-results-padding: 0.5rem 0;
   --search-view-option-surface: var(--mo-hover);
   /* Toolbars (M3 Expressive): in a surface container, docked without a line or blur, floating with full corners and
