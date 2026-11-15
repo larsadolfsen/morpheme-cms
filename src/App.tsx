@@ -210,6 +210,7 @@ import { appType, clearNotifications, isOn, remember, signOff, stopServerWait, s
 import { syncDensity } from './density';
 import Notifications from './Notifications';
 import { openNotifications } from './notificationsOpen';
+import { forgetRecent } from './paletteRecent';
 import { EditorOwn, InEditor } from './standard/view';
 import { cmsNotice } from './cmsNotice.mjs';
 import './editor.css';
@@ -570,6 +571,8 @@ function Editor() {
   }
 
   function signOut() {
+    // The actions run from the palette are kept in this browser: a shared computer forgets them at sign-out.
+    forgetRecent();
     stopWaiting.current?.();
     setBuildState('idle');
     waitingFor.current = [];

@@ -20,7 +20,9 @@ import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { openNotifications } from './notificationsOpen';
 import type { IconRef } from './icon';
 import { closePalette, togglePalette, usePaletteOpen } from './paletteOpen';
-import { loadRecent, saveRecent } from './paletteRecent';
+import { forgetRecent, loadRecent, saveRecent } from './paletteRecent';
+import { openShortcuts } from './shortcutsOpen';
+import { ShortcutsSheet } from './ShortcutsSheet';
 import { ariaShortcut, pressed, shortcutText } from './shortcuts';
 import { SiteSearchView } from './themeUi';
 import { t } from './i18n';
@@ -104,6 +106,26 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
         group: 'setting',
         where: {},
         run: () => navigate('#settings'),
+      },
+      {
+        id: 'help.shortcuts',
+        label: t.palette.shortcuts,
+        icon: 'keyboard',
+        group: 'setting',
+        where: {},
+        words: ['keys', 'hotkeys'],
+        run: openShortcuts,
+      },
+      {
+        id: 'palette.clear-recent',
+        label: t.palette.clearRecent,
+        icon: 'delete',
+        group: 'setting',
+        where: {},
+        run: () => {
+          forgetRecent();
+          setRecent(loadRecent());
+        },
       },
       { id: 'go.notifications', label: t.library.notifications, icon: 'bell', group: 'go', where: {}, run: openNotifications },
       ...collectionsFor(all).flatMap((c): EditorAction[] =>
@@ -244,20 +266,23 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
   };
 
   return (
-    <SiteSearchView
-      open={open}
-      onClose={closePalette}
-      label={t.palette.label}
-      backLabel={t.palette.back}
-      clearLabel={t.palette.clear}
-      emptyText={t.palette.empty(query.trim())}
-      liveText={open ? (count ? t.palette.count(count) : query.trim() ? t.palette.none : '') : ''}
-      query={query}
-      onQueryChange={setQuery}
-      groups={results}
-      activeId={active}
-      onActiveChange={setActive}
-      onActivate={activate}
-    />
+    <>
+      <SiteSearchView
+        open={open}
+        onClose={closePalette}
+        label={t.palette.label}
+        backLabel={t.palette.back}
+        clearLabel={t.palette.clear}
+        emptyText={t.palette.empty(query.trim())}
+        liveText={open ? (count ? t.palette.count(count) : query.trim() ? t.palette.none : '') : ''}
+        query={query}
+        onQueryChange={setQuery}
+        groups={results}
+        activeId={active}
+        onActiveChange={setActive}
+        onActivate={activate}
+      />
+      <ShortcutsSheet />
+    </>
   );
 }
