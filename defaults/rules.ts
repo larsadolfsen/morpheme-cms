@@ -250,7 +250,7 @@ export function siteProblems(files: { path: string; text: string }[]): string[] 
     try {
       const profiles = upgradeSocial(JSON.parse(social.text) as Record<string, unknown>).profiles;
       for (const url of twiceIn(Array.isArray(profiles) ? profiles : []))
-        problems.push(`${social.path}: ${siteText('The address {url} is in the list of profiles more than once.', { url })}`);
+        problems.push(`${social.path}: ${siteText('The URL {url} is in the list of profiles more than once.', { url })}`);
     } catch {
       // A file that is not JSON is found by the check of the files' own rules.
     }

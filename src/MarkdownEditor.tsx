@@ -74,7 +74,7 @@ import { headingChoices } from '../lib/heading-levels.mjs';
 import { TEXT_COLORS, colorClass } from '../lib/text-colors.mjs';
 import { sectionAttrs, sectionHeading, sectionSettingsOf, setSection } from './sectionState.mjs';
 import { sectionFrame } from './sectionFrame';
-import { IMAGE, type BlockAsk, type EditFocus, type LiveBlock } from './BlockDialog';
+import { IMAGE, reachField, type BlockAsk, type EditFocus, type LiveBlock } from './BlockDialog';
 import { cropView } from './CropView';
 import { askLink } from './LinkSheet';
 import { atLeastNow, Menu, MenuDivider, MenuItem, Toolbar, ToolbarButton } from './ui';
@@ -1906,6 +1906,18 @@ function blockCard(
         (active >= list.length || isEmptyRow(list[active]))
       )
         return [{ kind: 'link', label: spec!.texts.link ?? '', action: settings }];
+      // A block with no list and one main link (Video): its Change link opens the sheet at that field, with its text selected.
+      if (single && spec!.texts.changeLink && active !== null)
+        return [
+          {
+            kind: 'change-link',
+            label: spec!.texts.changeLink,
+            action: () => {
+              settings();
+              reachField(spec!.texts.settings ?? '');
+            },
+          },
+        ];
       if (single || isDynamic() || active === null || active >= list.length || isEmptyRow(list[active])) return [];
       const i = active;
       const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: spec!.fields[0] } });

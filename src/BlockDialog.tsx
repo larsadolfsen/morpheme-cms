@@ -58,12 +58,12 @@ import { typedInPlace } from './typedInPlace.mjs';
 /** Where an image's live sheet opens (from expanded, the bar's Alt text and a new image): its Alt text field. Below expanded the alt text sheet (`BlockAsk.alt`) is used. */
 export type EditFocus = 'alt';
 
-/** Scrolls the open sheet to its Alt text field and puts the focus there, once the sheet has drawn it (it opens after the one before it has closed). */
-function reachAlt() {
+/** Scrolls the open sheet to its field labelled `name` (the Alt text field; a video's link, `reachField`) and puts the focus there, once the sheet has drawn it (it opens after the one before it has closed). */
+export function reachField(name: string) {
   let tries = 0;
   const go = () => {
     const sheet = [...document.querySelectorAll<HTMLElement>('dialog[open], .editor-side-sheet')].at(-1);
-    const label = [...(sheet?.querySelectorAll('label') ?? [])].find((l) => l.textContent?.trim() === t.blocks.picture.alt);
+    const label = [...(sheet?.querySelectorAll('label') ?? [])].find((l) => l.textContent?.trim() === name);
     const target = label?.htmlFor ? sheet?.querySelector<HTMLElement>(`[id="${CSS.escape(label.htmlFor)}"]`) : null;
     if (!target) return void (tries++ < 40 && setTimeout(go, 50));
     target.scrollIntoView({ block: 'center' });
@@ -443,7 +443,7 @@ export function useBlockDialog(
     },
     edit: async (type, props, isNew = false, linked, focus) => {
       const fields = blockOf(type)?.fields ?? [];
-      if (focus === 'alt') reachAlt();
+      if (focus === 'alt') reachField(t.blocks.picture.alt);
       // A block on the page with what a field it has no value for means; a new one with the defaults.
       const a = await ask({ step: 'fields', type, isNew }, isNew ? { ...newValue(fields), ...props } : savedValue(fields, props), linked);
       return a && a.props;
