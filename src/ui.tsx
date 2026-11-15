@@ -179,6 +179,8 @@ type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' 
   icon: Icon | string;
   /** What it does: its name for screen readers and its tooltip. */
   label: string;
+  /** Its key as people read it here ("Ctrl+K"): after the name in the tooltip. Put `aria-keyshortcuts` on the button too. */
+  shortcut?: string;
   kind?: IconButtonKind;
   selected?: boolean;
   badge?: number | boolean;
@@ -187,8 +189,9 @@ type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' 
   type?: 'button' | 'submit';
 };
 
-export function IconButton({ icon: Glyph, label, ...rest }: IconButtonProps) {
-  const tooltip = useTooltip(label, rest);
+export function IconButton({ icon: Glyph, label, shortcut, ...rest }: IconButtonProps) {
+  // The key stands after the name in the tooltip ("Search  Ctrl+K"); the name for screen readers stays the name.
+  const tooltip = useTooltip(shortcut ? `${label}  ${shortcut}` : label, rest);
   return (
     <>
       <SiteIconButton icon={typeof Glyph === 'string' ? Glyph : <Glyph />} label={label} {...rest} {...tooltip.on} />

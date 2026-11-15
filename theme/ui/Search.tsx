@@ -11,7 +11,7 @@
 // label each: M3's "category labels") with an item's trailing shortcut, `activeId` (the option the arrow keys are on, aria-activedescendant),
 // `onActivate`, and `liveText` (what a screen reader hears when the results change). Exposes Search, SearchBar, SearchView, searchClass.
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { Svg } from '@morphemecms/cms/src/icon';
+import { Svg, type IconRef } from '@morphemecms/cms/src/icon';
 import IconButton from '@theme/ui/IconButton';
 import List, { ListItem } from '@theme/ui/List';
 import { atLeast } from '@morphemecms/cms/lib/breakpoints.mjs';
@@ -139,8 +139,8 @@ export type SearchViewItem = {
   headline: ReactNode;
   /** The group or the path under the name ("Settings › Caching and builds"). */
   supporting?: ReactNode;
-  /** A leading icon, by name. */
-  icon?: string;
+  /** A leading icon: its name, or an icon made (IconRef). */
+  icon?: IconRef;
   /** What trails it as text, as people read it ("Ctrl+B"). */
   shortcut?: string;
   /** The same key for `aria-keyshortcuts` ("Control+B"). */
@@ -171,7 +171,7 @@ function useWide() {
  * The search view driven by React: a modal <dialog> (the page behind it is inert, Escape closes it, the focus stays in it) that is full screen
  * on a phone and docked from the medium breakpoint (`dock` places it under a bar; without one it stands near the top, in the middle).
  * The focus stays in the field while the arrow keys, Home and End move `activeId` through the options (aria-activedescendant); Enter and a click
- * call `onActivate` (not for a disabled option). `onClose` is called by the back button, Escape and a tap outside; the caller sets `open` false.
+ * call `onActivate` (not for a disabled option). `onClose` is called by the back button, Escape (also with something written) and a tap outside; the caller sets `open` false.
  * Nothing is searched here: the caller gives the results for `query`.
  */
 export function SearchView({
@@ -281,6 +281,12 @@ export function SearchView({
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
             onKeyDown={(e) => {
+              // Escape closes the view also with something written (a search field would only clear itself, and the second press would close it).
+              if (e.key === 'Escape' && !e.nativeEvent.isComposing) {
+                e.preventDefault();
+                onClose();
+                return;
+              }
               if (e.nativeEvent.isComposing || !flat.length) return;
               if (e.key === 'ArrowDown') move((at + 1) % flat.length);
               else if (e.key === 'ArrowUp') move(at <= 0 ? flat.length - 1 : at - 1);
