@@ -221,14 +221,18 @@ instead of Git files. The list has no create button (rows come from visitors), a
 
 ## Open questions
 
-1. **Erasure beyond forms.** D33 says "across all forms". My design erases from every personal table, apps' too, because
-   that is what a visitor's request means. Right?
-2. **Size.** The row quotas do not bound bytes: 1 000 000 rows of 256 KB is far over D1's 500 MB per database on the Free
-   plan. I propose no byte cap of our own and decision 7's problem when D1 refuses (`d1-size`). Or a cap per site?
-3. **A database more.** The Free plan allows 10 D1 databases per account, so `APP_DATA` halves the sites one Free account
-   can hold (two each). Acceptable, or say it in the update notice?
-4. **A settings change in an automatic update.** The 0.23 update is taken by the Worker by itself, with the line above in
-   the notes to come. Should a version that changes the Worker's settings wait for the owner's yes instead?
+None. Answered by the owner on 15 November 2026 (release plan D40 to D42):
+
+1. **Erasure** covers all personal data: every table that marks an `email` column as personal, apps' tables too. The
+   owner sees the counts per table before deleting (D40).
+2. **Size:** no cap of our own; a refused write for size is a problem, as above. The owner is warned in good time: at
+   80 % and at 95 % of D1's database size limit (500 MB on the Free plan), a notification and a line on the Forms
+   screen and the apps' pages with what each app uses and the advice to upgrade to Workers Paid (10 GB) or delete old
+   data (D41). **Verify** the current D1 limits per plan.
+3. **A database more:** `APP_DATA` makes two D1 databases per site. Cloudflare's Free plan allows 10 per account, so a
+   Free account holds five sites; the release note says so.
+4. **The 0.23 update applies automatically**, as every CMS update; its release note says what it changes in the
+   Worker's settings, and the update is undone if the build fails (D42).
 
 ## Batches
 

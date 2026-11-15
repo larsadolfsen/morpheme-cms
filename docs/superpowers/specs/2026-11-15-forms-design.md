@@ -138,7 +138,7 @@ Read on m3.material.io on 15 November 2026 (Playwright); the Form block follows 
   - **Fields:** the builder, modelled on the list page: `Add field` opens the menu of the nine kinds (as
     `AddFieldMenu`); a field's sheet has Label, Hint, `Required` (`SwitchRow`), and for a choice its options and
     `Display` (`SegmentedButton`: Dropdown, Radio buttons); `Move up`, `Move down`, `Remove field`. A new form starts
-    empty, as a new list does.
+    with Name, Email and Message and a consent checkbox, which the owner can change or remove (D39).
   - **Settings:** Name, Button text, After sending (`SegmentedButton`: Show a message, Go to a page; the message or a
     page picker), Keep answers for (days, at most 365), and **Send answers to**: `Email me` and each active provider
     of `form-receiver` (spec 3 `providersOf`) with its fields; missing or not compatible providers show as spec 3 says.
@@ -340,7 +340,7 @@ skill `site-editor-writing`): `Forms`, `New form`, `Create`, `Name`, `Give the f
 
 ## Out of scope
 
-File upload (D18), multi-step forms, conditional fields, a confirmation email to the visitor (D15, open question 2),
+File upload (D18), multi-step forms, conditional fields, a confirmation email to the visitor (an app, D37),
 payments, editing an answer, answers in the MCP server (D30), SMTP over TCP (spec 1), and site search (D19).
 
 ## Verify before building
@@ -360,11 +360,14 @@ payments, editing an answer, answers in the MCP server (D30), SMTP over TCP (spe
 
 ## Open questions for the owner
 
-1. A site whose domain's email is hosted elsewhere may not get Email Routing (verify 2). Is "answers saved and notified
-   in the editor, no email" acceptable there?
-2. A confirmation email to the visitor costs Workers Paid and Email Sending. Is it an app (D15), or a built-in that
-   turns on with Workers Paid?
-3. Data receivers have no server part to pause: day-0 problem, notification and the 24-hour email only. Agreed?
+Answered by the owner on 15 November 2026 (release plan D36 to D39):
+
+1. Without Email Routing, answers are saved and shown on the Forms screen with the unread count, and nothing is emailed;
+   the editor says why and that an email app can be installed (D36).
+2. A confirmation email to the visitor is an app (D37, D15). The core sends nothing to visitors.
+3. A data receiver that keeps failing pauses after 7 days too: its sends stop until the owner turns it back on (D38).
+   Answers are saved first, so nothing is lost.
+4. A new form starts with Name, Email and Message and a consent checkbox (D39).
 
 ## Batches
 

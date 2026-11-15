@@ -164,9 +164,9 @@ data under `providers.<providerId>`. The built-in's fields (the owner's address,
 
 ## Open questions
 
-1. **Secrets of a provider.** A data provider for a supplier's API (Brevo, Mailgun) needs a key, and decision 7 keeps
-   settings in the consumer's data, which is in Git. I propose a field type `secret` whose value the Worker keeps in D1,
-   as image providers keep theirs (`needsKey`), and puts into the request; it is never in Git or shown again. Right?
+None. **Secrets of a provider** (answered, D43): a field type `secret` whose value the Worker keeps sealed in D1, as
+image providers keep theirs (`needsKey`), and puts into the request; it is never in Git, never given to the app's code
+and never shown again.
 
 ## Batches
 
