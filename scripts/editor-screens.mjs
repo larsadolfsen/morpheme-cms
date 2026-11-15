@@ -5403,7 +5403,19 @@ async function checkBlockDrag(width) {
   const box = (i) => handles.nth(i).boundingBox();
   const first = await box(0);
   if (first.width < 44 || first.height < 44) problems.push(`${label}: a handle is smaller than 44 x 44 (${first.width}x${first.height})`);
-  const opacity = () => handles.nth(1).evaluate((el) => getComputedStyle(el).opacity);
+  // The handle fades (a transition on its opacity): read it once it has stopped changing, two reads 120 ms apart the same (at most 2 s), so a
+  // read in the middle of the fade is never taken for the end of it.
+  const opacity = async () => {
+    const read = () => handles.nth(1).evaluate((el) => getComputedStyle(el).opacity);
+    let now = await read();
+    for (let i = 0; i < 16; i++) {
+      await page.waitForTimeout(120);
+      const next = await read();
+      if (next === now) return now;
+      now = next;
+    }
+    return now;
+  };
   if (phone) {
     // A touch sees a handle only on the active block (it is the end of the block's row); go into the second block first.
     if ((await opacity()) !== '0') problems.push(`${label}: a touch sees the handle of a block that is not active`);
