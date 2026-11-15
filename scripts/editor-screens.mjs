@@ -1664,7 +1664,7 @@ async function checkPhoneSheet(width = 375, height = 740) {
     const publish = named(/^Publish/).filter((b) => !d.contains(b));
     const bar = d.querySelector('.bottom-sheet-standard');
     // What makes the Save row the theme's standard bottom sheet (the same surface and top corners as a BottomSheet container), and where Save
-    // and the fields stand: Save's end edge is as far from the side as the fields' end edge, and the last field ends above the sheet.
+    // and the fields stand: Save stands inside the sheet's own content padding, and the last field ends above the sheet.
     const sheetLook = (bar, d) => {
       const ref = document.body.appendChild(document.createElement('div'));
       ref.className = 'bottom-sheet-container';
@@ -1683,7 +1683,8 @@ async function checkPhoneSheet(width = 375, height = 740) {
         sheetRadius: style && style.borderTopLeftRadius === refStyle.borderTopLeftRadius && style.borderTopLeftRadius !== '0px',
         sheetFixed: style?.position === 'fixed',
         saveEnd: save ? Math.round(window.innerWidth - save.right) : null,
-        fieldEnd: last ? Math.round(window.innerWidth - last.right) : null,
+        // The sheet's own content padding (the theme's): Save stands exactly inside it.
+        sheetPad: bar ? Math.round(parseFloat(getComputedStyle(bar.querySelector('.bottom-sheet-content')).paddingRight)) : null,
         saveBelow: save && bar ? Math.round(bar.getBoundingClientRect().bottom - save.bottom) : null,
         saveAbove: save && bar ? Math.round(save.top - bar.getBoundingClientRect().top) : null,
         lastClear: last && bar ? last.bottom <= bar.getBoundingClientRect().top + 1 : null,
@@ -1724,8 +1725,8 @@ async function checkPhoneSheet(width = 375, height = 740) {
   if (!look.sheetSurface) problems.push(`${label}: the Save row's surface is not a bottom sheet's`);
   if (!look.sheetRadius) problems.push(`${label}: the Save row's top corners are not a bottom sheet's`);
   if (!look.sheetFixed) problems.push(`${label}: the Save row is not fixed to the bottom`);
-  if (look.saveEnd !== look.fieldEnd)
-    problems.push(`${label}: Save ends ${look.saveEnd} dp from the side, the fields end ${look.fieldEnd} dp from it`);
+  if (look.saveEnd !== look.sheetPad)
+    problems.push(`${label}: Save ends ${look.saveEnd} dp from the side, not at the sheet's own padding (${look.sheetPad} dp)`);
   if (look.saveAbove !== 16) problems.push(`${label}: Save is ${look.saveAbove} dp from the sheet's top, not 16`);
   if (look.saveBelow < 16) problems.push(`${label}: Save is ${look.saveBelow} dp from the sheet's bottom, under 16`);
   if (!look.lastClear) problems.push(`${label}: the last field stays behind the Save row`);
