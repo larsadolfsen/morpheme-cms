@@ -134,6 +134,13 @@ request names them. When a session sends a conflict between a guide and the owne
 component, the PM does not decide: it brings the conflict to the owner and tells the session the answer.
 Owner rule, 15 Nov: "We follow the best practices in modern web from Google." Where a guide covers behaviour, markup, accessibility or performance, we follow it; Material 3 still decides how things look and are named.
 
+**The order of priority.** Owner rule, 15 Nov 2026: "Priority: 1 Modern web, 2 MD3 Expressive, 3 MD3, 4 MD2 with MD3 styling, 5 self-made. Remember the priority and stop asking me all the questions you can answer yourself. The fifth priority is self-made and that is a decision I need to take."
+
+1. Where two conflict, the lower number wins: 1 Modern web (Chrome's Modern Web Guidance: behaviour, markup, accessibility, performance), 2 Material 3 Expressive (where a component has an Expressive variant; `material-3` rule 4), 3 Material 3 (baseline), 4 Material 2 with Material 3 styling, 5 self-made.
+2. The PM, and every session it briefs, decides with this order itself and does not ask the owner a question the order answers.
+3. Only a priority 5 solution (nothing from 1 to 4 covers it, so we would make it ourselves) is the owner's decision. The PM then asks the owner once, with the evidence and a recommendation.
+4. A real deviation from 1 to 4 is still recorded in `docs/material-deviations.md` (skill `material-3`).
+
 **No new component without the owner.** The PM never lets a session build a new component, or fix one in the theme,
 without the owner's approval. A session that finds a component missing or off Material 3 stops and reports to the PM
 (skill `developer`, *The hard rule: no own components*). The PM asks the owner in a short message: what is missing, why,

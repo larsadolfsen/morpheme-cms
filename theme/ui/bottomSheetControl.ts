@@ -33,6 +33,7 @@ import { animate } from 'motion';
 import { atLeast } from '@morphemecms/cms/lib/breakpoints.mjs';
 import { motionSpring } from '@morphemecms/cms/lib/motion';
 import { defaultStates, nextOnTap, restAfterDrag, restingStops } from '@morphemecms/cms/lib/sheet-stops.mjs';
+import { lightDismiss } from '@theme/ui/lightDismiss';
 import { modalSheetSize } from '@theme/ui/modalSheetSize';
 import type { BottomSheetState } from '@theme/ui/BottomSheet';
 
@@ -131,10 +132,8 @@ export function bottomSheet(sheet: HTMLDialogElement): BottomSheetControls {
     e.preventDefault();
     close();
   });
-  // A tap on the scrim (outside the sheet) closes it.
-  sheet.addEventListener('click', (e) => {
-    if (e.target === sheet) close();
-  });
+  // A tap on the scrim (outside the sheet) closes it (light dismiss: lightDismiss.ts; its cancel is the hook above).
+  lightDismiss(sheet, close);
 
   // Drag the handle down to close (the sheets modalSheetSize does not manage).
   let startY = 0;
