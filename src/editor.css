@@ -1182,7 +1182,7 @@ html {
 .editor-text .inline-list-field:focus-visible {
   outline: 2px solid var(--mo-primary);
   outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: var(--mo-shape-extra-small);
 }
 
 .editor-text .inline-list-field::placeholder {
