@@ -22,6 +22,8 @@ export type CardRow = {
   disabled?: { reason: string };
   /** It opens these rows as the menu's next level (Change to), with a back row; `action` is not called. */
   submenu?: SubRow[];
+  /** `tools`: the row is shown with the block's tools at the top of the ⋮ menu (the Table's Column type), not with its own rows below the divider. */
+  with?: 'tools';
 };
 
 /** A button of the block's action row (blockRow.ts): the block's own actions above its top item. `kind` says which. */

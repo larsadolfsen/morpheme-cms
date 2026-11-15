@@ -635,6 +635,21 @@ async function pressMore(page, name, how = 'click', which = 'last') {
   if (settings && (await settings.count())) return void (await settings.first()[how]());
   await page.locator('.editor-tools [aria-label="More"]:visible').first()[how]();
   const row = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${name}$`) });
+  // A tool of a Table is in the group that bundles it (Add, Delete, Align column): open the groups until one has it.
+  if (!(await row.count())) {
+    for (const group of TABLE_GROUP_ROWS) {
+      const opener = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${group}$`) });
+      if (!(await opener.count())) continue;
+      await opener.first().click();
+      await page.waitForTimeout(150);
+      const inside = page
+        .locator(`[role=menu][aria-label="${group}"] [role^=menuitem]`)
+        .filter({ hasText: new RegExp(`^${group === 'Align column' ? (ALIGN_SHORT[name] ?? name) : name}$`) });
+      if (await inside.count()) return void (await inside.first()[how]());
+      await page.keyboard.press('Escape');
+      await page.locator('.editor-tools [aria-label="More"]:visible').first()[how]();
+    }
+  }
   // `last`: the block's own menu, which is last in the ⋮ (a gear named Edit may stand before it); `first`: a tool of the bar that did not fit.
   await row[which]()[how]();
 }
@@ -657,6 +672,17 @@ async function openStyleMenu(page) {
 }
 
 /** What the bar and its ⋮ menu hold now: `bar` its buttons (name, title, icon, size, pressed), `more` the rows of the ⋮ menu (opened and closed again by its button, so the cursor stays in its field). */
+/** The rows of the ⋮ menu that bundle a Table's tools and open them as its next level. */
+const TABLE_GROUP_ROWS = ['Add', 'Delete', 'Align column', 'Column type'];
+/** Under Align column a row says only the side; these are the names its tools have on the bar. */
+const ALIGN_FULL = {
+  Left: 'Align column left',
+  Center: 'Center column',
+  Right: 'Align column right',
+  Automatic: 'Align column automatically',
+};
+const ALIGN_SHORT = Object.fromEntries(Object.entries(ALIGN_FULL).map(([k, v]) => [v, k]));
+
 async function barTools(page) {
   const bar = await page.evaluate(() =>
     [...document.querySelectorAll('.editor-tools button:not([hidden])')].map((b) => {
@@ -686,6 +712,34 @@ async function barTools(page) {
       })),
     );
     await button.first().click();
+    // The Table bundles related tools into rows that open a submenu (Add, Delete, Align column, Column type): their tools are listed too, as the menu's.
+    for (const group of TABLE_GROUP_ROWS) {
+      if (!more.some((m) => m.label === group)) continue;
+      await button.first().click();
+      await page
+        .locator('[role=menu][aria-label="More"] [role^=menuitem]')
+        .filter({ hasText: new RegExp(`^${group}$`) })
+        .first()
+        .click();
+      await page.waitForTimeout(150);
+      more.push(
+        ...(
+          await page.evaluate(
+            (name) =>
+              [...document.querySelectorAll(`[role=menu][aria-label="${name}"] [role^=menuitem]`)]
+                .filter((x) => !x.hasAttribute('data-back') && x.textContent.trim() !== name)
+                .map((x) => ({
+                  label: x.textContent.trim(),
+                  pressed: x.getAttribute('aria-checked'),
+                  height: x.getBoundingClientRect().height,
+                })),
+            group,
+          )
+        ).map((m) => (group === 'Align column' ? { ...m, label: ALIGN_FULL[m.label] ?? m.label } : m)),
+      );
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(100);
+    }
   }
   return { bar, more, names: [...bar.map((b) => b.label), ...more.map((m) => m.label)] };
 }
@@ -7274,6 +7328,50 @@ async function checkTableKinds(width, height) {
   const first = await look();
   if (!start(first.cell) || /tabular-nums/.test(first.figures))
     problems.push(`${label}: a column with a word in it is not plain text at first (${JSON.stringify(first)})`);
+  // The ⋮ menu bundles the Table's tools: Add, Delete and Align column open their tools as the menu's next level, Column type with them; every tool stays reachable.
+  await cellField(1, 1).click();
+  const more = page.locator('.editor-tools [aria-label="More"]:visible').first();
+  await more.click();
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: join(shots, `table-menu-open-${width}.png`) });
+  const top = (await page.locator('[role=menu][aria-label="More"] [role^=menuitem]').allInnerTexts()).map((n) => n.trim());
+  const flat = [
+    'Delete row',
+    'Delete column',
+    'Align column left',
+    'Center column',
+    'Align column right',
+    'Align column automatically',
+  ].filter((n) => top.includes(n));
+  if (flat.length) problems.push(`${label}: the ⋮ menu lists ${flat.join(', ')} as rows of their own, not in a group (${top.join(', ')})`);
+  await page.keyboard.press('Escape');
+  const { names } = await barTools(page);
+  for (const n of [
+    'Add row above',
+    'Add row below',
+    'Add column before',
+    'Add column after',
+    'Delete row',
+    'Delete column',
+    'Align column left',
+    'Center column',
+    'Align column right',
+    'Align column automatically',
+  ])
+    if (!names.includes(n)) problems.push(`${label}: "${n}" cannot be reached from the bar or the ⋮ menu (${names.join(', ')})`);
+  for (const group of TABLE_GROUP_ROWS) {
+    await more.click();
+    const opener = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${group}$`) });
+    if (!(await opener.count())) {
+      await page.keyboard.press('Escape');
+      continue;
+    }
+    await opener.first().click();
+    await page.waitForTimeout(250);
+    await page.screenshot({ path: join(shots, `table-menu-${group.toLowerCase().replace(/ /g, '-')}-${width}.png`) });
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(150);
+  }
   // ⋮ › Column type, and its level.
   const level = async () => {
     await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
