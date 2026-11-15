@@ -4178,8 +4178,21 @@ export type FilterGroup = { title: string; value: string; options: ChoiceOption<
  * heading (with what is chosen in it beside it) to its choices, the chosen one marked. One group is open
  * at a time, the first when the sheet opens, and the sheet does not get lower when another opens; a lone
  * group stands open under its heading. A choice is taken at once and the sheet stays open, so another filter can be
- * chosen too; the cross or a tap outside closes it. The funnel is marked while a filter is chosen (selected). */
-export function Filters({ title, selected, groups }: { title: string; selected?: boolean; groups: FilterGroup[] }) {
+ * chosen too; with `onClearAll` a text button at the bottom clears them all; the cross or a tap outside closes it. The funnel is marked while a filter is chosen (selected). */
+export function Filters({
+  title,
+  selected,
+  groups,
+  clearAll,
+  onClearAll,
+}: {
+  title: string;
+  selected?: boolean;
+  groups: FilterGroup[];
+  /** The text button's name at the bottom of the sheet ("Clear all"), with `onClearAll`; it is off while nothing is filtered (`selected`). */
+  clearAll?: string;
+  onClearAll?: () => void;
+}) {
   const dialog = useRef<HTMLDialogElement>(null);
   const first = groups[0]?.title ?? '';
   const [open, setOpen] = useState<string | null>(first);
@@ -4193,9 +4206,21 @@ export function Filters({ title, selected, groups }: { title: string; selected?:
   }
   return (
     <>
-      <IconButton icon={Funnel} label={title} selected={selected} aria-haspopup="dialog" onClick={() => dialog.current?.showModal()} />
+      <IconButton
+        icon={Funnel}
+        label={title}
+        selected={selected}
+        aria-haspopup="dialog"
+        onClick={() => {
+          dialog.current?.showModal();
+          // No control has the focus to begin with (the sheet has it), as in every dialog (ask.tsx).
+          dialog.current?.focus();
+        }}
+      />
       <BottomSheet
         ref={dialog}
+        tabIndex={-1}
+        className="focus:outline-none"
         aria-label={title}
         onClick={(e) => e.target === dialog.current && close()}
         onClose={(e) => {
@@ -4243,6 +4268,16 @@ export function Filters({ title, selected, groups }: { title: string; selected?:
             );
           })}
         </SheetList>
+        {clearAll && onClearAll && (
+          <div className="shrink-0">
+            <SiteDivider />
+            <div className="flex items-center justify-end gap-2 px-5 py-3">
+              <Button kind="text" disabled={!selected} onClick={onClearAll}>
+                {clearAll}
+              </Button>
+            </div>
+          </div>
+        )}
       </BottomSheet>
     </>
   );

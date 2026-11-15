@@ -9,6 +9,7 @@ export const media = {
   wholeYear: (year: string) => `All of ${year}`,
   use: 'Use',
   filter: 'Filter',
+  clearAll: 'Clear all',
   all: 'All',
   kind: 'Type',
   allKinds: 'All types',
