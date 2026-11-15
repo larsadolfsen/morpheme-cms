@@ -18,10 +18,10 @@ export const blockParts: Part[] = (
       fields: [
         { name: 'heading', label: 'Heading', type: 'string', required: true },
         { name: 'text', label: 'Text', type: 'text', required: true },
-        { name: 'book', label: 'Button text (book)', type: 'string', required: true, max: 30 },
+        { name: 'book', label: 'Button label (book)', type: 'string', required: true, max: 30 },
         {
           name: 'call',
-          label: 'Button text (call)',
+          label: 'Button label (call)',
           type: 'string',
           required: true,
           max: 20,

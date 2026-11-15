@@ -1,4 +1,4 @@
-// Tests the placeholder of the shared text of "Expandable list" (topic.mjs): both {topic} and the old one are read, {topic} is written. language-ok
+// Tests the placeholder of the shared text of "Accordion" (topic.mjs): both {topic} and the old one are read, {topic} is written. language-ok
 // Run: node --test src/standard/accordion/topic.test.mjs
 import assert from 'node:assert/strict';
 import { test } from 'node:test';

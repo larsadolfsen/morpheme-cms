@@ -9,7 +9,7 @@ import { editorRows } from '../rows/view';
 import { asQuestions, withRows } from '../rows/rows.mjs';
 import { headOf, type HeadView } from '../head';
 
-/** A row that folds out: a question and its answer as HTML, or a page's row ("Expandable list", PageRow). */
+/** A row that folds out: a question and its answer as HTML, or a page's row ("Accordion", PageRow). */
 export type AccordionRow =
   | { label: string; html: string; icon?: string; href?: string; link?: string; buttons?: { label: string; href: string }[] }
   | { label: string; page: PageRowView };

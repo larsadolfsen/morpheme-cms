@@ -2,7 +2,7 @@
 // blocks and the apps' (BlockParts.tsx), all with the made-up site of examples.ts.
 export const parts = {
   intro: (file: string) =>
-    `The components only the editor has, looking the way they do everywhere. The components are in ${file}; change one there and it changes everywhere. The buttons, text fields, lists, sheets, and the other components the theme has too are the theme’s and are under Theme. Light or dark is picked under Account.`,
+    `The components only the editor has, looking the way they do everywhere. The components are in ${file}; change one there and it changes everywhere. The buttons, text fields, lists, sheets, and the other components the theme has too are the theme’s and are under Theme. Light or dark is selected under Account.`,
   use: {
     emptyNote: 'What a list or a screen says when there is nothing in it, or while something is fetched: gray, in the middle.',
     problemNote: 'What is wrong, in the primary color: why a sheet can’t be saved, or what couldn’t be read.',
@@ -13,15 +13,15 @@ export const parts = {
     formField: 'A field that says what is wrong with what was typed, and the number of characters out of the most allowed.',
     fieldGroup: 'Fields that belong together, in a frame with their name on it.',
     shownValue: 'What a field holds, shown without being edited here: with its icon, or gray when it is made elsewhere.',
-    iconPicker: 'One of many icons: the chosen one with its name, and the button that expands them all.',
-    imagePick: 'An image: a small one of it, the button that picks one, and the button that removes it when it may be left out.',
+    iconPicker: 'One of many icons: the selected one with its name, and the button that expands them all.',
+    imagePick: 'An image: a small one of it, the button that selects one, and the button that removes it when it may be left out.',
     foldList: 'Items in a frame that each expand to their fields, with the arrows and Remove beside them.',
     multiChoice:
-      'Several picked from a list: the picked ones as chips, and the button that opens the sheet with all the choices. At the bottom of the sheet, a link to make a new one.',
+      'Several selected from a list: the selected ones as chips, and the button that opens the sheet with all the choices. At the bottom of the sheet, a link to make a new one.',
     arrowLink: 'A link to another screen, with an arrow after it: under a field’s name, where it is edited.',
     sheetBody: 'The fields of a sheet, between the title and the buttons. It scrolls when there are many.',
     notice: 'A message at the top of a screen about what it shows, for example, an earlier version, and what you can do.',
-    color: 'A color: the swatch opens the sheet where the color is picked, and the color can also be typed.',
+    color: 'A color: the swatch opens the sheet where the color is selected, and the color can also be typed.',
     phone: 'A phone number: the country code before it opens the sheet with the countries and a search, and the number is typed after it.',
     searchRow:
       'The search with the buttons beside it, always in the same order: sort, filter, date, Google, and menu or list. Sort is gray while the pages are shown as the menu.',
@@ -35,7 +35,7 @@ export const parts = {
     scoreRing:
       'A score from 0 to 100 in a small ring at the start of a row, in the colors of the ring of checked things: green from 90, orange from 50, else red.',
     menuRow:
-      'A setting in the same row as a switch: its name and what it does at the left, and at the right the chosen one in a menu with a dropdown icon. It opens the choices under it (a bottom sheet on a phone), the chosen one checked. Gray while the setting cannot be changed.',
+      'A setting in the same row as a switch: its name and what it does at the left, and at the right the selected one in a menu with a dropdown icon. It opens the choices under it (a bottom sheet on a phone), the selected one checked. Gray while the setting cannot be changed.',
     unfold:
       'At the right of a row: how many rows are under it, and the expand icon that shows them. The rows under it are indented along a line.',
     sheet:
@@ -47,7 +47,7 @@ export const parts = {
       'A few colors side by side, each on a tile with its name, its color code, an Edit icon button that opens the color sheet, and on the first a lock, for example, the generator’s 3 base colors.',
     colorWheel: 'A color wheel with the colors as dots: the big one is dragged, the others follow, and a locked one shows a lock.',
     choiceRow:
-      'One of several choices on a screen of its own, each in a row with what it gives, for example, a few of an icon pack’s icons, the chosen one in the primary color with a check mark.',
+      'One of several choices on a screen of its own, each in a row with what it gives, for example, a few of an icon pack’s icons, the selected one in the primary color with a check mark.',
     colorsPreview:
       'A little page in a set of the website’s colors: heading, text, link, surface, box, the secondary and tertiary colors, and button, so you can see whether they can be read together.',
     fullScreenSheet:
@@ -160,7 +160,7 @@ export const parts = {
       select:
         'One of several choices: in the sheet from the bottom, in a narrow menu, side by side, as cards with an icon and a name, as icons, or only shown. A choice can have its own explanation, and a field can be there only with one of the choices.',
       relation:
-        'A page, a post, or a tag from the website’s lists. A page is picked with the page picker, the fixed pages too; several picked are chips.',
+        'A page, a post, or a tag from the website’s lists. A page is selected with the page picker, the fixed pages too; several selected are chips.',
       image: 'An image from Files or a new one.',
       readonly: 'Shown, but not edited here.',
       object: 'A group of fields in a frame.',
@@ -197,7 +197,7 @@ export const parts = {
     draftHint: 'The page isn’t on the website.',
     look: 'Look',
     layout: 'Layout',
-    layouts: { single: 'One column', wide: 'Wide', left: 'Left side panel', right: 'Right side panel' },
+    layouts: { single: 'One column', wide: 'Wide', left: 'Left sidebar', right: 'Right sidebar' },
     kind: 'Type',
     page: 'Page',
     post: 'Post',
@@ -440,7 +440,7 @@ export const parts = {
     checkboxError: 'Check the box to continue.',
     /** The theme's chips (Chip), a group of their own under "UI components". */
     chips: 'Chips',
-    chip: "Assist (a link to something related), filter (one of a few choices, the chosen one marked), input and suggestion: elevated (on an image), selected, with an icon or an image, with a button that removes it, while it is dragged, only shown, and gray when it can't be used.",
+    chip: "Assist (a link to something related), filter (one of a few choices, the selected one marked), input and suggestion: elevated (on an image), selected, with an icon or an image, with a button that removes it, while it is dragged, only shown, and gray when it can't be used.",
     chipSet: 'Chips side by side in a group: on as many lines as they need, or on one line that scrolls sideways.',
     chipSetLayouts: { wrap: 'Several lines', scroll: 'Scroll sideways' },
     chipKinds: { assist: 'Assist', filter: 'Filter', input: 'Input', suggestion: 'Suggestion' },
@@ -537,7 +537,7 @@ export const parts = {
       },
       menu: 'Choices on a surface: the pages under an item in the bar, or actions with an icon, a shortcut, text under them, a check mark, and a submenu, in groups with a gap or a line between them, on the surface or in the accent.',
       dropdownMenu: 'A menu a button opens: the arrow keys move in it, Escape closes it.',
-      exposedDropdownMenu: 'A field that shows the chosen one of a few choices and opens a menu of them: outlined or filled.',
+      exposedDropdownMenu: 'A field that shows the selected one of a few choices and opens a menu of them: outlined or filled.',
       menus: {
         standard: 'Surface',
         vibrant: 'Accent',
@@ -556,7 +556,7 @@ export const parts = {
         field: 'Treatment',
         options: ['Advice', 'Workshop', 'Course', 'Online'],
         supporting: 'Can be changed later.',
-        error: 'Choose a treatment.',
+        error: 'Select a treatment.',
         kinds: { outlined: 'Outlined', filled: 'Filled' },
       },
       navigationDrawer:
@@ -624,9 +624,10 @@ export const parts = {
       switch: 'Turns something on or off, with its name before it: off, on, with icons in the handle, and gray when it can’t be changed.',
       settingRow:
         'A setting on one line: its name and what it does at the start, and what sets it at the end (a switch, a dropdown button).',
-      radioButton: 'One of a few choices in a group under its name, maybe with a line under it: chosen and gray when it can’t be chosen.',
+      radioButton:
+        'One of a few choices in a group under its name, maybe with a line under it: selected and gray when it can’t be selected.',
       slider:
-        'Chooses a number by dragging: freely, in steps with dots, from the middle, a range with 2 handles and with the number over the handle, in 5 sizes, with an icon and vertical.',
+        'Selects a number by dragging: freely, in steps with dots, from the middle, a range with 2 handles and with the number over the handle, in 5 sizes, with an icon and vertical.',
       divider: 'A thin line between parts: full width, inset from the start, inset from both sides, and vertical.',
       sideSheet: 'More about what is on the screen, at its side: beside the page or over it, with a headline, a cross, and buttons.',
       switchLabel: 'Newsletter',
@@ -780,7 +781,7 @@ export const parts = {
     pickers: {
       title: 'Date and time',
       datePicker:
-        'A field for a date with a calendar: under the field, or in the middle of the screen, also for several days and to type the date. Today has a ring, the day picked is filled.',
+        'A field for a date with a calendar: under the field, or in the middle of the screen, also for several days and to type the date. Today has a ring, the day selected is filled.',
       timePicker:
         'A field for a time with a clock dial and hours and minutes that can be typed: 24-hour or 12-hour with AM and PM, with the dial under or beside them.',
       fields: 'The fields',

@@ -408,7 +408,7 @@ async function checkChoiceGroupFields(width, locale) {
   const say =
     locale === 'da-DK'
       ? { block: daText.blockSettings, settings: daBlocks.buttons.settingsAction, style: daBlocks.buttons.kind }
-      : { block: 'Block settings', settings: 'Settings', style: 'Style' };
+      : { block: 'Block settings', settings: 'Settings', style: 'Variant' };
   const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: touch, isMobile: touch, locale });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   const path = 'src/content/pages/zz-choices.md';
@@ -1185,6 +1185,108 @@ async function checkEditorActions(width) {
   await page.close();
 }
 
+/** The palette's last two parts (src/CommandPalette.tsx, ShortcutsSheet.tsx; spec sections 4.6 and 5.4): the action *Keyboard shortcuts* opens a sheet that lists the key of the
+ * search (Ctrl+K) and of every registered action that has one (Bold, Ctrl+B, with a text open); *Clear recent actions* forgets what this browser kept; and signing out forgets it too. */
+async function checkPaletteLast(width) {
+  const label = `${width}px palette shortcuts and recent`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.waitForSelector('header button[aria-label="Search"]', { timeout: 15_000 });
+  const view = page.locator('[data-search-controlled] dialog[open]');
+  const input = view.locator('input[role=combobox]');
+  const options = view.locator('[role=option]');
+  const names = () => options.evaluateAll((els) => els.map((e) => e.querySelector('.list-item-headline')?.textContent ?? ''));
+  const kept = () => page.evaluate(() => localStorage.getItem('editor-recent-actions'));
+  const shut = async (why) => {
+    await page.waitForTimeout(300);
+    if (await view.count()) problems.push(`${label}: the palette is still open ${why}`);
+  };
+  const run = async (query, first) => {
+    await page.keyboard.press('Control+k');
+    await view.waitFor({ timeout: 5000 });
+    await input.fill(query);
+    await page.waitForTimeout(250);
+    const found = await names();
+    if (found[0] !== first) problems.push(`${label}: "${query}" finds ${JSON.stringify(found)}, not ${first} first`);
+    await page.keyboard.press('Enter');
+    await shut(`after ${first}`);
+    await page.waitForTimeout(300);
+  };
+
+  // A text is open: its keys are in the list, with the search's.
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await run('keyboard shortcuts', 'Keyboard shortcuts');
+  const wanted = [/Search actions and pages.*Ctrl\+K/, /Bold.*Ctrl\+B/, /Italic.*Ctrl\+I/];
+  const missing = (rows) => wanted.filter((want) => !rows.some((r) => want.test(r ?? ''))).map(String);
+  if (touch) {
+    // A phone: a page with a back arrow (owner, 15 Nov), not a sheet; the rows are the ones registered when the action ran.
+    await page
+      .waitForFunction(() => location.hash === '#shortcuts', null, { timeout: 5000 })
+      .catch(() => problems.push(`${label}: on a phone the action does not go to the page #shortcuts `));
+    if (await page.locator('dialog[open]').count()) problems.push(`${label}: on a phone the list is an overlay, not a page`);
+    const rows = await page.locator('main li').evaluateAll((els) => els.map((e) => e.textContent?.replace(/\s+/g, ' ').trim()));
+    if (missing(rows).length) problems.push(`${label}: the page lacks ${missing(rows)} (${JSON.stringify(rows)})`);
+    // The title takes the focus for screen readers, but shows no ring: it is not a control.
+    const ring = await page.evaluate(() => {
+      const h = document.activeElement;
+      return h?.tagName === 'H1' ? getComputedStyle(h).outlineStyle : 'not on the heading';
+    });
+    if (ring !== 'none') problems.push(`${label}: the shortcuts page's title shows a focus ring (outline ${ring})`);
+    const back = page.locator('header a[href="#"]:visible').first();
+    if (!(await back.count())) problems.push(`${label}: the shortcuts page has no back arrow to the start screen`);
+    else {
+      await back.click();
+      await page.waitForTimeout(300);
+      if ((await page.evaluate(() => location.hash)) !== '') problems.push(`${label}: the back arrow does not leave the shortcuts page`);
+    }
+  } else {
+    const sheet = page.locator('dialog[open][aria-label="Keyboard shortcuts"]');
+    await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the shortcuts sheet does not open`));
+    if (await sheet.count()) {
+      const rows = await sheet.locator('li').evaluateAll((els) => els.map((e) => e.textContent?.replace(/\s+/g, ' ').trim()));
+      if (missing(rows).length) problems.push(`${label}: the list lacks ${missing(rows)} (${JSON.stringify(rows)})`);
+      // No control has the focus when it opens (the close button does not show a ring).
+      const on = await page.evaluate(() => document.activeElement?.tagName);
+      if (on === 'BUTTON') problems.push(`${label}: the shortcuts dialog opens with a button focused`);
+      // A dialog in the middle of the screen has no drag handle (the handle belongs to a sheet from the bottom).
+      if (await sheet.locator('.bottom-sheet-drag-handle').evaluateAll((els) => els.some((e) => getComputedStyle(e).display !== 'none')))
+        problems.push(`${label}: the shortcuts dialog shows a drag handle`);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
+      if (await sheet.count()) problems.push(`${label}: Escape does not close the shortcuts sheet`);
+    }
+  }
+
+  // Running the shortcuts action was kept as recent; Clear recent actions forgets it.
+  if (!(await kept())) problems.push(`${label}: nothing was kept after running an action`);
+  await page.evaluate(() => (location.hash = '#'));
+  await page.waitForTimeout(400);
+  await run('clear recent', 'Clear recent actions');
+  await page.waitForTimeout(300);
+  const after = await kept();
+  const clearedOnly = after ? JSON.parse(after).ids : [];
+  if (clearedOnly.length > 1 || (clearedOnly[0] && clearedOnly[0] !== 'palette.clear-recent'))
+    problems.push(`${label}: Clear recent actions leaves ${after}`);
+
+  // Signing out forgets what is kept.
+  await page.evaluate(() =>
+    localStorage.setItem('editor-recent-actions', JSON.stringify({ ids: ['go.files'], counts: { 'go.files': 1 } })),
+  );
+  await page.evaluate(() => (location.hash = '#account'));
+  await page
+    .getByText('Log out', { exact: true })
+    .first()
+    .click({ timeout: 10_000 })
+    .catch(() => problems.push(`${label}: no Log out on the account screen`));
+  await page.waitForTimeout(600);
+  if (await kept()) problems.push(`${label}: signing out leaves the recent actions in this browser`);
+  await page.close();
+}
+
 /** No custom context menu (owner, 13 Nov; spec section 5): a right click (a `contextmenu` event that can be cancelled) in the text, on a row of a List and in a table cell is not
  * prevented, so the browser's own menu opens. */
 async function checkNoContextMenu(width) {
@@ -1292,7 +1394,7 @@ async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300, cus
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#company/colors'));
   if (custom) await page.getByRole('button', { name: 'Custom', exact: true }).click();
-  await page.getByRole('button', { name: `${name}: pick a color` }).click();
+  await page.getByRole('button', { name: `${name}: select a color` }).click();
   const sheet = page.locator(`dialog[open][aria-label="${name}"]`);
   await sheet.waitFor();
   const code = sheet.getByRole('textbox', { name: 'Color code' });
@@ -1353,7 +1455,7 @@ async function checkCustomColors(width, height) {
     problems.push(`${label}: the dots are named "${dotNames}"`);
 
   const pick = async (name, hex) => {
-    await page.getByRole('button', { name: `${name}: pick a color` }).click();
+    await page.getByRole('button', { name: `${name}: select a color` }).click();
     const sheet = page.locator(`dialog[open][aria-label="${name}"]`);
     await sheet.waitFor();
     const buttons = await sheet.getByRole('button', { name: /^(Use and lock|Cancel|Use color)$/ }).allInnerTexts();
@@ -5717,6 +5819,39 @@ async function checkListMarkers(width) {
   await page.close();
 }
 
+/** The FAB never covers the footer (Screen.tsx useFabLift): on every screen that has both, at the top, in the middle and at the bottom
+ * of the page, the FAB's box and the footer's do not overlap. The screens are the start screen and the lists with a create button. */
+async function checkFabAboveFooter(width) {
+  const label = `${width}px FAB above the footer`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  let seen = 0;
+  for (const route of ['#', '#seo/redirects/all', '#media', '#links']) {
+    await page.evaluate((r) => (location.hash = r), route);
+    await page.waitForTimeout(1200);
+    for (const at of [0, 0.5, 1]) {
+      await page.evaluate((f) => window.scrollTo(0, (document.documentElement.scrollHeight - innerHeight) * f), at);
+      await page.waitForTimeout(250);
+      const m = await page.evaluate(() => {
+        const fab = document.querySelector('.editor-fab')?.getBoundingClientRect();
+        const footer = document.querySelector('footer.editor-footer')?.getBoundingClientRect();
+        if (!fab || !footer) return null;
+        return { fabTop: fab.top, fabBottom: fab.bottom, footerTop: footer.top, footerBottom: footer.bottom, h: innerHeight };
+      });
+      if (!m) continue;
+      seen++;
+      if (m.footerTop < m.h && m.footerBottom > 0 && m.fabBottom > m.footerTop + 0.5 && m.fabTop < m.footerBottom)
+        problems.push(
+          `${label}: on ${route} (scrolled to ${at * 100}%) the FAB (${Math.round(m.fabTop)}–${Math.round(m.fabBottom)}) overlaps the footer (${Math.round(m.footerTop)}–${Math.round(m.footerBottom)})`,
+        );
+    }
+  }
+  if (!seen) problems.push(`${label}: no screen with both a FAB and the footer was found`);
+  await page.close();
+}
+
 /** Label is a style of any top-level line of text (owner decision, 14 Nov): the Text style menu has the Label row on a plain line and on an empty last line, choosing it makes the line a label drawn in the label role (12 px) with its text kept and no heading after it, picking it again gives the plain line back, and a lone label saved in a page is drawn the same in the Preview. */
 async function checkLabelOnAnyLine(width) {
   const label = `${width}px label on any line`;
@@ -6239,7 +6374,7 @@ async function checkImageGridAdd(width, height) {
   const before = await page.locator('.site-block-inline .block-imagegrid-grid li').count();
   await page.getByRole('button', { name: 'Add images' }).click();
   await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
-  if (!(await page.locator('dialog[open]').getByText('Choose images').count()))
+  if (!(await page.locator('dialog[open]').getByText('Select images').count()))
     problems.push(`${label}: the picker is not the one for several images`);
   if (await page.locator('dialog[open]').getByRole('button', { name: 'Upload a new image' }).count())
     problems.push(`${label}: the picker for several images offers an upload`);
@@ -6546,6 +6681,123 @@ async function checkVideoChangeLink(width, height = 800) {
         ?.outerHTML.slice(0, 300) ?? '',
   );
   if (!kept.includes('dQw4w9WgXcQ')) problems.push(`${label}: the video does not show the new link (${kept})`);
+  // The Thumbnail field: the sheet has it, an image chosen there is the frame's still (the same View.tsx draws it, selected or not), and it is a local image.
+  const stillSrc = () => page.locator('.site-block-inline .video-facade-image').first().getAttribute('src');
+  // The sheet is still open (a phone's bottom sheet, a computer's side sheet); if not, Change link opens it.
+  if (!(await sheetOpen().getByText('Thumbnail', { exact: true }).count())) {
+    await page.locator('.editor-tools-context button[aria-label="Change link"]').first().click();
+    await page.waitForTimeout(900);
+  }
+  const thumb = sheetOpen().getByText('Thumbnail', { exact: true });
+  if (!(await thumb.count())) problems.push(`${label}: the video's sheet has no Thumbnail field`);
+  // A site with no images in its Library (the starter) has none to choose: the field is checked, the drawing is the demo's.
+  else if (!has('src/data/files'))
+    console.log(`${label}: the thumbnail is not chosen, the site has no images in its Library, which the demo has.`);
+  else {
+    await sheetOpen().locator('button', { hasText: 'Select image' }).first().click();
+    await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
+    await page.locator('dialog[open] [data-media-tile]').first().click();
+    const use = page.locator('dialog[open]').getByRole('button', { name: /^(Use|Choose|Select)/ });
+    if (await use.count()) await use.first().click();
+    await page.waitForTimeout(900);
+    const save2 = sheetOpen().locator('button', { hasText: /^(Save|Done)$/ });
+    if (await save2.count()) await save2.first().click();
+    await page.waitForTimeout(900);
+    const src = await stillSrc();
+    if (!src || src.includes('i.ytimg.com') || src.includes('/_video/'))
+      problems.push(`${label}: the frame draws "${src}", not the chosen thumbnail`);
+    await page.screenshot({ path: join(shots, `video-thumbnail-${width}.png`) });
+  }
+  await page.close();
+}
+
+async function checkCardImage(width, height = 800) {
+  const phone = width < 600;
+  const label = `${width}px card image`;
+  if (!has('src/data/files')) return void console.log(`${label}: skipped, the site has no images in its Library, which the demo has.`);
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, phone ? 'tap' : 'click');
+  await page.locator('dialog[open] button', { hasText: 'Cards that link to pages.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.keyboard.type('One');
+  await page.waitForTimeout(300);
+  await page.locator('.inline-list-row-active .inline-list-slot[aria-label="Image"]').click();
+  await page.waitForTimeout(1000);
+  await page
+    .locator('dialog[open] button, .editor-side-sheet button', { hasText: /^Select image$/ })
+    .first()
+    .click();
+  await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
+  await page.locator('dialog[open] [data-media-tile]').first().click();
+  await page.waitForTimeout(800);
+  // Closing the card's sheet on a phone (a side sheet stays open beside the card).
+  await page
+    .locator('dialog[open] button[aria-label="Close"]')
+    .click({ timeout: 2000 })
+    .catch(() => {});
+  await page.waitForTimeout(500);
+  const tap = (loc) => (phone ? loc.tap() : loc.click());
+  await tap(page.locator('.inline-list-row [data-field="title"]').first());
+  await page.waitForTimeout(400);
+  const picture = () =>
+    page.evaluate(() => {
+      const box = document.querySelector('.block-card-picture');
+      const r = box?.getBoundingClientRect();
+      return box ? { ratio: Math.round((r.width / r.height) * 100) / 100, img: !!box.querySelector('img') } : null;
+    });
+  const first = await picture();
+  if (!first?.img) problems.push(`${label}: the card has no image`);
+  else if (first.ratio !== 1.5) problems.push(`${label}: a Cards block without a ratio draws its image in ${first.ratio}, not 3:2`);
+  // The block's settings have Image aspect ratio (no Original); 1:1 makes every card's image a square, with no crop view opened.
+  await page.getByRole('button', { name: 'Block settings' }).first().click();
+  await page.waitForTimeout(900);
+  const settings = page.locator('dialog[open], .editor-side-sheet').last();
+  if (!(await settings.locator('label', { hasText: /^Image aspect ratio$/ }).count()))
+    problems.push(`${label}: the block's settings have no Image aspect ratio`);
+  await page.locator('dialog[open] button, .editor-side-sheet button', { hasText: /^3:2$/ }).first().click();
+  await page.waitForTimeout(300);
+  const offered = await page.evaluate(() =>
+    [...document.querySelectorAll('dialog[open]:last-of-type button, .editor-menu button, [role="listbox"] *')].map((o) =>
+      o.textContent.trim(),
+    ),
+  );
+  if (offered.includes('Original')) problems.push(`${label}: Image aspect ratio offers Original`);
+  await page.locator('dialog[open] button, .editor-menu button, [role="listbox"] *', { hasText: /^1:1$/ }).last().click();
+  await page.waitForTimeout(400);
+  await settings
+    .getByRole('button', { name: 'Save', exact: true })
+    .click({ timeout: 3000 })
+    .catch(() => {});
+  await page.waitForTimeout(800);
+  const square = await picture();
+  if (square?.ratio !== 1) problems.push(`${label}: after 1:1 the card's image box is ${square?.ratio}, not square`);
+  // Crop in the bar: the crop view of the block's ratio only, no ratio chips; Save puts the ratio and the crop after the image's address.
+  await tap(page.locator('.inline-list-row [data-field="title"]').first());
+  await page.waitForTimeout(400);
+  await tap(page.locator('.editor-tools-context button[aria-label="Crop"]').first());
+  await page
+    .waitForSelector('dialog.crop-page[open]', { timeout: 8000 })
+    .catch(() => problems.push(`${label}: Crop did not open the crop page`));
+  if (await page.locator('.crop-view-ratios').count()) problems.push(`${label}: the crop view of a card shows aspect ratio chips`);
+  // Moving the image with the arrow keys (by 2 %) makes a crop of its own.
+  await page.locator('.crop-view-frame').focus();
+  for (const key of ['ArrowLeft', 'ArrowLeft', 'ArrowUp', 'ArrowUp']) await page.keyboard.press(key);
+  await page
+    .locator('dialog.crop-page button', { hasText: /^Save$/ })
+    .click({ timeout: 3000 })
+    .catch(() => {});
+  await page.waitForTimeout(800);
+  const cut = await page.evaluate(() => document.querySelector('.block-card-picture img')?.getAttribute('style') ?? '');
+  if (!/transform/.test(cut)) problems.push(`${label}: the saved crop is not drawn on the card (style "${cut}")`);
+  await page.screenshot({ path: join(shots, `card-image-${width}.png`) });
   await page.close();
 }
 
@@ -6747,8 +6999,8 @@ async function checkInlineBlock(
       );
       const kinds = ['Filled', 'Tonal', 'Elevated', 'Outlined', 'Text'];
       // The choice group (ChoiceGroup): its buttons, or its list of radio buttons when they do not fit.
-      const group = page.getByRole('group', { name: 'Style', exact: true }).last();
-      await group.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's settings have no Style choice`));
+      const group = page.getByRole('group', { name: 'Variant', exact: true }).last();
+      await group.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's settings have no Variant choice`));
       const radios = await group.getByRole('radio').count();
       const names = radios
         ? await group.locator('.list-item-headline').allTextContents()
@@ -9899,6 +10151,17 @@ async function checkDashboardEdit(width, height) {
   await page.waitForTimeout(600);
   await page.screenshot({ path: join(shots, `dashboard-${width}.png`) });
   if (await done.count()) problems.push(`${label}: "${daDashboard.done}" is shown before the edit mode`);
+  // "Edit dashboard" is a text button below the last widget, not in the top bar, with its icon before the text.
+  const editBox = await edit.first().boundingBox();
+  const lastWidgetBottom = await page.evaluate(() => {
+    const main = document.querySelector('main.editor-screen');
+    const headings = [...(main?.querySelectorAll('h2, h3') ?? [])];
+    return Math.max(0, ...headings.map((h) => h.getBoundingClientRect().bottom));
+  });
+  if (!editBox || editBox.y < lastWidgetBottom) problems.push(`${label}: "${daDashboard.edit}" is not below the last widget`);
+  if (await page.locator('header, [role="banner"]').getByRole('button', { name: daDashboard.edit, exact: true }).count())
+    problems.push(`${label}: "${daDashboard.edit}" is still in the top bar`);
+  if (!(await edit.first().locator('svg').count())) problems.push(`${label}: "${daDashboard.edit}" has no leading icon`);
   await edit.click();
   await shown(done, `the button "${daDashboard.done}"`);
   if (await edit.count()) problems.push(`${label}: "${daDashboard.edit}" is still shown in the edit mode`);
@@ -10314,6 +10577,7 @@ for (const width of [375, 1280])
 for (const width of [375, 1280]) await unit(`search button ${width}`, () => checkSearchButton(width));
 for (const width of [375, 1280]) await unit(`command palette ${width}`, () => checkCommandPalette(width));
 for (const width of [375, 1280]) await unit(`editor actions ${width}`, () => checkEditorActions(width));
+for (const width of [375, 1280]) await unit(`palette shortcuts and recent ${width}`, () => checkPaletteLast(width));
 for (const width of [375, 1280]) await unit(`no context menu ${width}`, () => checkNoContextMenu(width));
 
 for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
@@ -10333,6 +10597,7 @@ for (const width of [700, 1280]) await unit(`checkSheetFocusOnOpen ${width}`, ()
 for (const width of [375, 1280]) await unit(`checkImageTools ${width}`, () => checkImageTools(width));
 for (const width of [375, 1280]) await unit(`checkCropView ${width}`, () => checkCropView(width));
 for (const width of [375, 1280]) await unit(`checkVideoChangeLink ${width}`, () => checkVideoChangeLink(width));
+for (const width of [375, 1280]) await unit(`checkCardImage ${width}`, () => checkCardImage(width));
 for (const width of [375, 1280]) await unit(`checkAltSheet ${width}`, () => (width >= 840 ? checkAltLive(width) : checkAltSheet(width)));
 for (const width of [320, 375, 1280]) await unit(`checkInsertBlock ${width}`, () => checkInsertBlock(width));
 for (const w of [375, 1280]) await unit(`checkBlockRow ${w}`, () => checkBlockRow(w));
@@ -10496,6 +10761,7 @@ await unit('checkSectionCardContrast', () => checkSectionCardContrast());
 for (const w of [375, 1280]) await unit(`checkListMarkers ${w}`, () => checkListMarkers(w));
 for (const w of [375, 1280]) await unit(`checkListsAndBlocks ${w}`, () => checkListsAndBlocks(w));
 for (const w of [375, 1280]) await unit(`checkLabelOnAnyLine ${w}`, () => checkLabelOnAnyLine(w));
+for (const w of [375, 1280]) await unit(`checkFabAboveFooter ${w}`, () => checkFabAboveFooter(w));
 for (const w of [360, 375, 390, 414]) await unit(`checkPreviewDraft ${w}`, () => checkPreviewDraft(w));
 
 await browser.close();
