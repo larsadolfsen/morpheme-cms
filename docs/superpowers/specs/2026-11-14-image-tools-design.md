@@ -168,19 +168,19 @@ and is listed as a deviation (`docs/material-deviations.md`, the crop view). The
   under it keeps its unsaved changes, its scroll place and its focus (leaving gives the focus back to the image). It has a step of its own in the
   browser's history (`useSheetBack`), so the phone's back gesture and the browser's Back leave it, as they leave a sheet.
 - **The top app bar** is the theme's `TopAppBar`, as every screen's: the back arrow (name `Back to Image`) and the title `Crop`.
-- **The image area** fills the room between the bar and the controls, on the surface container high. The image is drawn whole, at its real
-  proportions, scaled by the zoom. The frame is the largest box of the ratio that fits the area less 16 dp on each side, in the middle. Everything
-  outside the frame is under a layer with M3's scrim colour and opacity (1b.4): the theme's scrim token, the one its dialogs already use behind their
-  container (`--dialog-scrim`; M3: "surfaces behind the container are scrimmed with a temporary overlay"). The build names the token it uses; M3's own
-  value could not be read, the token tables stay collapsed in a text read. `Original` has no frame and no layer: the whole image is shown, and the slider
-  and the drag are off (nothing to place).
+- **The image area** fills the room between the bar and the controls and has the page's own background. The image is drawn whole, at its real
+  proportions, scaled by the zoom. The frame is the largest box of the ratio that fits the area less 16 dp on each side, in the middle. The part of the
+  image outside the frame is under a layer with M3's scrim colour and opacity (1b.4): the theme's scrim token, the one its dialogs already use behind
+  their container (`--dialog-scrim`; M3: "surfaces behind the container are scrimmed with a temporary overlay"). The layer is on the image only, with the
+  frame cut out of it, so the blank part of the area where the image does not reach (a panned image) keeps the page's colour, with no grey strip. The
+  build names the token it uses; M3's own value could not be read, the token tables stay collapsed in a text read. `Original` has no frame and no layer:
+  the whole image is shown, and the slider and the drag are off (nothing to place).
 - **The frame's border:** a 2 dp line in `--mo-inverse-on-surface` with a 1 dp halo outside it in `--mo-inverse-surface`, so one of the two tones
   stands against any image, light or dark (M3 prints no frame; the nearest is the focus ring's two-tone look).
 - **Zoom:** 1 (the largest part of the image that fills the frame, today's `middleCrop`) to 4. Pinch zooms around the middle of the two fingers and
   can be combined with a drag (M3's compound gesture); with a mouse the wheel zooms around the pointer (M3 is silent on wheel zoom; the slider is the
   M3 control, and the wheel moves the same value). The slider is the theme's `Slider`, label `Zoom` (read by screen readers), with `Zoom out` and
-  `Zoom in` icon buttons at its ends (M3's "Plus and minus icons"); its inactive track is the secondary container, because the theme's own is the colour
-  of the image area and would not show (M3's token for it could not be read, the table stays collapsed). Every change shows at once.
+  `Zoom in` icon buttons at its ends (M3's "Plus and minus icons"). Every change shows at once.
 - **Placing:** a drag moves the image under the fixed frame; the image never leaves a gap in the frame (the crop is clamped).
 - **Aspect ratio chips:** the theme's filter chips: `Original` first, then `FORMATS`, each with its small ratio outline; below medium one row that
   scrolls sideways, from medium they wrap when they do not fit. A new ratio puts the largest middle part in the frame. In a card (section 6) the chips

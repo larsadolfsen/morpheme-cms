@@ -1622,14 +1622,31 @@ async function checkCropView(width, height = 800) {
     return { ratio: b.width / b.height, border: s.borderTopWidth, borderColor: s.borderTopColor, shadow: s.boxShadow };
   });
   if (Math.abs(frame.ratio - 1.5) > 0.02) problems.push(`${label}: the frame for 3:2 has the ratio ${frame.ratio}`);
-  const layers = frame.shadow.split(/,(?![^(]*\))/).map((l) => l.trim());
-  if (frame.border !== '2px' || layers.length !== 2)
-    problems.push(`${label}: the frame has no 2 dp border with a halo (${frame.border}, ${frame.shadow})`);
-  if (!/ 0px 0px 0px 1px$/.test(layers[0] ?? '') || !/ 0px 0px 0px \d{3,}px$/.test(layers[1] ?? ''))
-    problems.push(`${label}: the frame has no 1 dp halo and a scrim layer outside it (${frame.shadow})`);
-  if (layers[0] && frame.borderColor === layers[0].replace(/ 0px 0px 0px 1px$/, ''))
+  if (frame.border !== '2px' || !/ 0px 0px 0px 1px$/.test(frame.shadow))
+    problems.push(`${label}: the frame has no 2 dp border with a 1 dp halo (${frame.border}, ${frame.shadow})`);
+  if (frame.borderColor === frame.shadow.replace(/ 0px 0px 0px 1px$/, ''))
     problems.push(`${label}: the frame's border and halo are one colour`);
-  if (/rgba?\(0, 0, 0, 0\)/.test(layers[1] ?? '')) problems.push(`${label}: the scrim outside the frame is see-through (${layers[1]})`);
+  // The scrim is a layer on the image alone, the frame cut out of it (not a shadow of the frame, which would grey the blank part of the stage too).
+  const shade = await view.evaluate((d) => {
+    const el = d.querySelector('.crop-view-shade');
+    const i = d.querySelector('.crop-view-image').getBoundingClientRect();
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    return {
+      same: Math.abs(r.x - i.x) < 1 && Math.abs(r.y - i.y) < 1 && Math.abs(r.width - i.width) < 1 && Math.abs(r.height - i.height) < 1,
+      clip: getComputedStyle(el).clipPath,
+      bg: getComputedStyle(el).backgroundColor,
+    };
+  });
+  if (!shade) problems.push(`${label}: no scrim layer outside the frame`);
+  else {
+    if (!shade.same) problems.push(`${label}: the scrim layer is not the image's box (${JSON.stringify(shade)})`);
+    if (!/polygon/.test(shade.clip)) problems.push(`${label}: the scrim layer has no hole for the frame (${shade.clip})`);
+    if (/rgba?\(0, 0, 0, 0\)|transparent/.test(shade.bg))
+      problems.push(`${label}: the scrim outside the frame is see-through (${shade.bg})`);
+  }
+  if ((await view.locator('.crop-view-area').evaluate((a) => getComputedStyle(a).backgroundColor)) !== 'rgba(0, 0, 0, 0)')
+    problems.push(`${label}: the image area has a background of its own, not the page's`);
   const z1 = await zoom();
   if (Math.abs(z1 - 1) > 0.01) problems.push(`${label}: a new ratio does not start at zoom 1 (${z1})`);
   // Zoom: the slider and the buttons; the image grows under the frame.
@@ -1672,6 +1689,45 @@ async function checkCropView(width, height = 800) {
   await page.mouse.up();
   const p2 = await pictureBox();
   if (!(p2.x <= f1.x + 0.5 && p2.y <= f1.y + 0.5)) problems.push(`${label}: the image leaves a gap in the frame when dragged far`);
+  // The pixels, with a white test image: white inside the frame, darkened by the scrim on the image outside it, and the page's own colour where the image
+  // does not reach (the blank part of the stage: no grey strip).
+  await view.locator('.crop-view-image').evaluate((img) => {
+    img.src =
+      'data:image/svg+xml;utf8,' +
+      encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="30"><rect width="40" height="30" fill="white"/></svg>',
+      );
+  });
+  await page.waitForTimeout(400);
+  const f3 = await fbox();
+  const area3 = await view.locator('.crop-view-area').boundingBox();
+  const cy = f3.y + f3.height / 2;
+  const points = [
+    [f3.x + f3.width / 2, cy],
+    [f3.x + f3.width + 6, cy],
+    [f3.x - 6, cy],
+    [area3.x - 6, cy],
+  ];
+  const png = await page.screenshot();
+  const [inside, shaded, blank, pageColour] = await page.evaluate(
+    async ({ b64, points }) => {
+      const img = new Image();
+      img.src = `data:image/png;base64,${b64}`;
+      await img.decode();
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const g = canvas.getContext('2d');
+      g.drawImage(img, 0, 0);
+      return points.map(([x, y]) => [...g.getImageData(Math.round(x), Math.round(y), 1, 1).data].slice(0, 3));
+    },
+    { b64: png.toString('base64'), points },
+  );
+  if (!inside.every((c) => c > 250)) problems.push(`${label}: inside the frame the white test image is ${inside}, not white`);
+  if (!shaded.every((c) => c > 60 && c < 230))
+    problems.push(`${label}: outside the frame the image is ${shaded}, not darkened by the scrim`);
+  if (blank.some((c, n) => Math.abs(c - pageColour[n]) > 3))
+    problems.push(`${label}: the blank part of the stage is ${blank}, not the page's ${pageColour} (a grey strip)`);
   // The wheel (a mouse) and a pinch (two fingers) zoom.
   if (!phone) {
     const z = await zoom();
