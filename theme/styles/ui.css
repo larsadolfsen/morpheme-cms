@@ -1622,6 +1622,10 @@
     background: transparent;
     color: inherit;
   }
+  /* The dialog itself has the focus when it opens (dialogFocus.ts), so no control looks chosen: no ring on the container. */
+  .dialog-modal:focus {
+    outline: none;
+  }
   .dialog-modal::backdrop {
     background: var(--dialog-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--block-text)) 50%, transparent));
   }
@@ -3352,7 +3356,7 @@
   Navigation drawer (NavigationDrawer, NavigationDrawerItem, NavigationDrawerToggle, NavigationDrawerSubitem,
   navigationDrawerClass, navigationDrawerScrimClass): .navigation-drawer, the drawer, over .navigation-drawer-scrim;
   .navigation-drawer-standard, the standard one, beside the content (--navigation-drawer-standard-shadow, level 0);
-  .navigation-drawer-dialog, a <dialog> it is in, at the start edge (its ::backdrop the scrim); .navigation-drawer-end,
+  .navigation-drawer-dialog, a <dialog> it is in, at the start edge (at the end edge with .navigation-drawer-end on it too; its ::backdrop the scrim, faded through --navigation-drawer-scrim-opacity); .navigation-drawer-end,
   one at the end edge (its corners towards the page, mirrored); .navigation-drawer-bleed, one that springs in (on the
   drawer, or on the <dialog> it is in): wider by --navigation-drawer-bleed (32dp) at the edge it comes from, that strip
   off the screen, so a spring that overshoots shows no gap at the edge; .navigation-drawer-item,
@@ -3776,16 +3780,25 @@
       scale: 0.97;
     }
   }
+  /* Under the button from its start (beside the item for a submenu); the other side when there is no room (flip-block,
+     flip-inline, both), always 0.5rem inside the window. The insets: on the opener's side the gap, on the far side
+     the window's margin (they flip with the menu). Where the browser lacks it the script places the menu. */
   @supports (position-area: block-end) {
     .dropdown-menu-menu[popover] {
       position-area: block-end span-inline-end;
-      position-try-fallbacks: flip-block, flip-inline;
-      margin-block: var(--dropdown-menu-gap, 0.25rem);
+      position-try-fallbacks:
+        flip-block,
+        flip-inline,
+        flip-block flip-inline;
+      inset: var(--dropdown-menu-gap, 0.25rem) 0.5rem 0.5rem 0;
     }
     .menu-submenu[popover] {
       position-area: inline-end span-block-end;
-      position-try-fallbacks: flip-inline, flip-block;
-      margin-inline: var(--menu-submenu-gap, 0.25rem);
+      position-try-fallbacks:
+        flip-inline,
+        flip-block,
+        flip-block flip-inline;
+      inset: 0 0.5rem 0.5rem var(--menu-submenu-gap, 0.25rem);
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -4046,8 +4059,32 @@
         var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
     );
   }
+  /* At the end edge (navigationDrawerEndClass on the <dialog> and on the drawer in it): the strip beyond the screen is the end's. */
+  .navigation-drawer-dialog.navigation-drawer-end {
+    inset-inline: auto 0;
+  }
+  .navigation-drawer-dialog.navigation-drawer-bleed.navigation-drawer-end {
+    inset-inline: auto calc(-1 * var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default)));
+  }
+  .navigation-drawer-dialog.navigation-drawer-bleed.navigation-drawer-end > .navigation-drawer {
+    padding-inline: var(--navigation-drawer-inset, var(--navigation-drawer-inset-default))
+      calc(
+        var(--navigation-drawer-inset, var(--navigation-drawer-inset-default)) +
+          var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+      );
+  }
   .navigation-drawer-dialog::backdrop {
     background: var(--navigation-drawer-scrim, color-mix(in srgb, var(--theme-scrim-colour) 45%, transparent));
+    /* The menu fades it with the motion scheme's springs through this variable, which the backdrop inherits from the dialog. */
+    opacity: var(--navigation-drawer-scrim-opacity, 1);
+  }
+  /* Scrolling in or over it does not move the page behind it (no overflow: hidden on the page). */
+  .navigation-drawer-dialog:modal {
+    overscroll-behavior: contain;
+  }
+  .navigation-drawer-dialog::backdrop {
+    overflow: hidden;
+    overscroll-behavior: contain;
   }
   /* State layers (as the theme's other items): the item's own colour over it, 8% pointed at, 10% focused or pressed. */
   .navigation-drawer-item:hover {
