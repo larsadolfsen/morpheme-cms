@@ -1,0 +1,6 @@
+{
+  "id": "search-docked-radius",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Search results under the search bar have smaller corners"
+}

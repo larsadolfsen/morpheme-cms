@@ -82,7 +82,11 @@ practice. Before you write or change CSS, layout, forms, accessibility or perfor
 for the topic through the npm script, and name the guides you read in the pull request description:
 
 - `npm run audit:web -- search "<2–5 words>"`, then `npm run audit:web -- retrieve "<guide id>"`.
-- `npm run audit:web -- legacy-scan <folder> --json` finds legacy patterns; use it for an audit, not for a feature.
+- `npm run audit:web -- legacy-scan <folder> --json` finds legacy patterns; use it for an audit, not for a feature. `npm run check:web` runs it in `npm run check` and fails on a new finding; a fix removes its line from `scripts/web-allowlist.json`.
+
+Owner rule, 15 Nov: "We follow the best practices in modern web from Google." Where a guide covers behaviour, markup, accessibility or performance, we follow it; Material 3 still decides how things look and are named. A real conflict between the two goes to the PM, as below.
+
+**Priority order** (owner, 15 Nov 2026; `pm` skill, *The order of priority*): 1 Modern web, 2 Material 3 Expressive, 3 Material 3, 4 Material 2 with Material 3 styling, 5 self-made; the lower number wins. Decide with it yourself. Stop and tell the PM only when the answer would be priority 5 (nothing from 1 to 4 covers it).
 
 Order of authority: the owner's rules, Material 3 and the theme components through `ui.tsx` win over the guidance. When a
 guide conflicts with one of them, you do not decide: stop, and send the PM the conflict (what the guide says, what our

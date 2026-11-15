@@ -224,6 +224,87 @@ const shownItems = (selector) =>
     .map((e) => ({ href: e.getAttribute('href'), text: e.innerText.trim(), tag: e.tagName, ...e.getBoundingClientRect().toJSON() }))
     .filter((e) => e.width > 0 && e.height > 0);
 
+/** Keyboard focus is visible (Modern Web Guidance, `accessibility`: "Don't disable browser native focus indicators without providing a
+ * replacement ... at least 3:1", WCAG 2.4.7 and 1.4.11; the 13 `outline: none` of the theme and the editor, A1 of the audit of 15 Nov 2026).
+ * Tabs through every stop of a screen; at each one it takes a picture of the element and 12 px around it focused and unfocused, and
+ * fails when nothing changed (no indicator) or when the changed pixels have less than 3:1 contrast between the two (a state layer alone).
+ * An element that is only read by a screen reader (the radio in a ChoiceTile) is measured on the label that holds it.
+ * FOCUS_ALLOW: the stops that are allowed to show only the caret, each with its reason. */
+const FOCUS_ALLOW = [];
+async function checkFocusIndicators(width, hash) {
+  const label = `${width}px focus indicators ${hash || 'start'}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: phone ? 800 : 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate((h) => (location.hash = h), hash);
+  await page.waitForTimeout(800);
+  await page.mouse.move(0, 0);
+  await page.evaluate(() => document.activeElement?.blur());
+  const lum = (r, g, b) => {
+    const f = (c) => ((c /= 255) <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  };
+  const seen = new Set();
+  let stops = 0;
+  for (let i = 0; i < 400; i++) {
+    await page.keyboard.press('Tab');
+    await page.waitForTimeout(150);
+    const info = await page.evaluate(() => {
+      const e = document.activeElement;
+      if (!e || e === document.body) return null;
+      // Tab only scrolls a stop into view when it is hidden: one cut by the window's edge hides its indicator, so it is centred first.
+      e.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
+      let box = e.getBoundingClientRect();
+      // A hidden control (the radio of a ChoiceTile) shows its focus on the label that holds it.
+      if (box.width < 4 || box.height < 4) box = (e.closest('label') ?? e.parentElement).getBoundingClientRect();
+      const cls = typeof e.className === 'string' ? e.className.trim().split(/\s+/).join('.') : '';
+      return {
+        name: `${e.tagName.toLowerCase()}${cls ? `.${cls}` : ''}${e.getAttribute('aria-label') ? `[${e.getAttribute('aria-label')}]` : ''}`,
+        key: `${e.outerHTML.slice(0, 160)}@${Math.round(box.x)},${Math.round(box.y)}`,
+        x: box.x,
+        y: box.y,
+        w: box.width,
+        h: box.height,
+      };
+    });
+    if (!info) break;
+    if (seen.has(info.key)) break;
+    seen.add(info.key);
+    const pad = 12;
+    const vh = phone ? 800 : 900;
+    if (info.w < 4 || info.h < 4 || info.y + info.h < 0 || info.y > vh - 4 || info.x + info.w < 0 || info.x > width - 4) continue;
+    const x = Math.max(0, Math.floor(info.x - pad));
+    const y = Math.max(0, Math.floor(info.y - pad));
+    const clip = { x, y, width: Math.ceil(Math.min(info.w + 2 * pad, width - x)), height: Math.ceil(Math.min(info.h + 2 * pad, vh - y)) };
+    const focused = await page.screenshot({ clip }).catch(() => null);
+    if (!focused) continue;
+    stops++;
+    await page.evaluate(() => document.activeElement.blur());
+    await page.waitForTimeout(250);
+    const plain = await page.screenshot({ clip });
+    const a = await sharp(focused).raw().toBuffer({ resolveWithObject: true });
+    const b = await sharp(plain).raw().toBuffer();
+    const channels = a.info.channels;
+    let changed = 0;
+    let best = 1;
+    for (let k = 0; k < a.data.length; k += channels) {
+      if (Math.abs(a.data[k] - b[k]) + Math.abs(a.data[k + 1] - b[k + 1]) + Math.abs(a.data[k + 2] - b[k + 2]) <= 24) continue;
+      changed++;
+      const l1 = lum(a.data[k], a.data[k + 1], a.data[k + 2]);
+      const l2 = lum(b[k], b[k + 1], b[k + 2]);
+      best = Math.max(best, (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05));
+    }
+    if (FOCUS_ALLOW.some((allowed) => allowed.match.test(info.name))) continue;
+    if (changed < 12 || best < 3) await sharp(focused).toFile(join(shots, `focus-${width}-${stops}.png`));
+    if (changed < 12) problems.push(`${label}: ${info.name} shows no indicator when it has the keyboard focus`);
+    else if (best < 3)
+      problems.push(`${label}: the focus indicator of ${info.name} (${info.key}) has ${best.toFixed(2)}:1 contrast, under 3:1`);
+  }
+  if (stops < 5) problems.push(`${label}: only ${stops} stops were checked`);
+  await page.close();
+}
+
 /** The "New in" card on the start screen, with the tall portrait photo of the 0.16 edition (1280x2272) in place of its own: the photo and the card stay inside the card's own box and above the widgets, never painted over them (375, 690 and 1280 px). */
 async function checkUpdatesCard(width, height) {
   const label = `${width}px`;
@@ -1864,7 +1945,10 @@ async function checkPhoneSheet(width = 375, height = 740) {
       publish: publish.length,
       publishReachable: publish.filter(reachable).length,
       saves: named(/^Save( draft)?$/).filter(reachable).length,
-      focusOnBack: !!document.activeElement?.closest('header') && /^Back to /.test(document.activeElement.getAttribute('aria-label') ?? ''),
+      focusOnPage: document.activeElement === d,
+      focusVisible: [...document.querySelectorAll(':focus-visible')]
+        .filter((e) => getComputedStyle(e).outlineStyle !== 'none' || getComputedStyle(e).boxShadow !== 'none')
+        .map((e) => e.tagName + ':' + (e.getAttribute('aria-label') ?? '')),
       step: history.state?.sheet,
     };
   });
@@ -1889,7 +1973,9 @@ async function checkPhoneSheet(width = 375, height = 740) {
   if (!look.publish) problems.push(`${label}: the changed page has no Publish to check under the subpage`);
   if (look.publishReachable) problems.push(`${label}: the page's Publish can be reached while the subpage is open`);
   if (look.saves !== 1) problems.push(`${label}: ${look.saves} Save buttons can be reached, not one`);
-  if (!look.focusOnBack) problems.push(`${label}: the focus does not start on the back arrow`);
+  // Owner rule, 15 Nov: no control has the focus at the start; the page has it, without a ring or a tooltip.
+  if (!look.focusOnPage) problems.push(`${label}: the focus does not start on the page itself`);
+  if (look.focusVisible.length) problems.push(`${label}: ${look.focusVisible} has focus-visible styling when the subpage opens`);
   if (look.step !== 'block-page') problems.push(`${label}: the subpage has no step of its own in the history (${look.step})`);
   // Back with no change leaves at once, to the same place, text unchanged.
   await back().tap();
@@ -2904,6 +2990,15 @@ async function checkCropView(width, height = 800) {
 
   const scroll0 = await page.evaluate(() => scrollY);
   await open();
+  // No control has the focus at the start (owner, 15 Nov): the page has it, and nothing shows focus-visible styling.
+  const start = await view.evaluate((d) => ({
+    onPage: document.activeElement === d,
+    styled: [...document.querySelectorAll(':focus-visible')].filter(
+      (e) => getComputedStyle(e).outlineStyle !== 'none' || getComputedStyle(e).boxShadow !== 'none',
+    ).length,
+  }));
+  if (!start.onPage) problems.push(`${label}: the focus does not start on the crop page itself`);
+  if (start.styled) problems.push(`${label}: an element has focus-visible styling when the crop page opens`);
   // A page on every width: the window's size, a top app bar with the back arrow and the title, a bottom bar with Save (Cancel from medium); not a dialog's parts.
   const kind = await view.evaluate(
     (d, vp) => {
@@ -3312,7 +3407,10 @@ async function checkAltSheet(width, height = 800) {
       .click();
     await pick();
   };
-  const described = (n) => pics().nth(n).getAttribute('aria-description');
+  // The images are told apart by their text, not by their place: where a new image goes in follows the caret, which the text puts back after a
+  // sheet closes (the browser's focus return) and a click moves, so the n-th image in the text is not always the n-th put in.
+  const texts = () => pics().evaluateAll((els) => els.map((e) => e.getAttribute('aria-description') ?? ''));
+  const at = async (text) => (await texts()).indexOf(text);
   const asked = () => page.locator('dialog[open]').filter({ hasText: 'Keep your changes?' });
 
   // Insert › Image: the alt text sheet, not the image's full sheet, and not the crop view.
@@ -3334,7 +3432,8 @@ async function checkAltSheet(width, height = 800) {
   await sheet().getByRole('button', { name: 'Save', exact: true }).click();
   await pics().first().waitFor({ timeout: 6000 });
   await page.waitForTimeout(500);
-  if ((await described(0)) !== 'A ringed planet') problems.push(`${label}: Save did not put the text on the image (${await described(0)})`);
+  if ((await texts()).join('|') !== 'A ringed planet')
+    problems.push(`${label}: Save did not put the text on the image (${(await texts()).join('|')})`);
   if (await page.locator('.ProseMirror .site-picture .picture-crop').count()) problems.push(`${label}: a new image is not Original`);
 
   // Skip keeps the image without a text of its own.
@@ -3345,7 +3444,8 @@ async function checkAltSheet(width, height = 800) {
   await sheet().getByRole('button', { name: 'Skip', exact: true }).click();
   await page.waitForTimeout(600);
   if ((await pics().count()) !== 2) problems.push(`${label}: Skip did not keep the image (${await pics().count()} images)`);
-  else if (await described(1)) problems.push(`${label}: Skip gave the image a text of its own (${await described(1)})`);
+  else if ((await texts()).filter(Boolean).join('|') !== 'A ringed planet')
+    problems.push(`${label}: Skip gave the image a text of its own (${(await texts()).join('|')})`);
   // Esc is Skip.
   await page.click('.ProseMirror > p');
   await page.keyboard.press('End');
@@ -3363,7 +3463,7 @@ async function checkAltSheet(width, height = 800) {
     await sheet().waitFor({ timeout: 5000 });
     await page.waitForTimeout(400);
   };
-  await edit(0);
+  await edit(await at('A ringed planet'));
   const shown = await sheet().getByLabel('Alt text').inputValue();
   if (shown !== 'A ringed planet') problems.push(`${label}: the bar's Alt text shows "${shown}", not the image's text`);
   const editNames = await buttons();
@@ -3376,25 +3476,27 @@ async function checkAltSheet(width, height = 800) {
     .catch(() => problems.push(`${label}: Cancel with a change did not ask "Keep your changes?"`));
   await asked().getByRole('button', { name: 'Discard', exact: true }).click();
   await page.waitForTimeout(500);
-  if ((await described(0)) !== 'A ringed planet') problems.push(`${label}: Discard changed the text (${await described(0)})`);
+  if ((await at('A ringed planet')) < 0) problems.push(`${label}: Discard changed the text (${(await texts()).join('|')})`);
   // Save with a new text.
-  await edit(0);
+  await edit(await at('A ringed planet'));
   await sheet().getByLabel('Alt text').fill('Saturn');
   await sheet().getByRole('button', { name: 'Save', exact: true }).click();
   await page.waitForTimeout(500);
-  if ((await described(0)) !== 'Saturn')
-    problems.push(`${label}: Save in the bar's Alt text did not change the text (${await described(0)})`);
+  if ((await at('Saturn')) < 0)
+    problems.push(`${label}: Save in the bar's Alt text did not change the text (${(await texts()).join('|')})`);
   // Decorative: no field, and no text on the image.
-  await edit(0);
+  await edit(await at('Saturn'));
   await sheet().locator('[role=switch], input[type=checkbox]').first().click();
   await page.waitForTimeout(300);
   if (await sheet().getByLabel('Alt text').count()) problems.push(`${label}: a decorative image still has the Alt text field`);
   await sheet().getByRole('button', { name: 'Save', exact: true }).click();
   await page.waitForTimeout(500);
-  if (await described(0)) problems.push(`${label}: a decorative image has a text (${await described(0)})`);
+  if ((await at('Saturn')) >= 0) problems.push(`${label}: a decorative image has a text (${(await texts()).join('|')})`);
 
   // Change image: the same sheet follows the pick, as Skip and Save; the new image is selected, with its tools on the bar.
-  await pics().nth(1)[how]();
+  await pics()
+    .nth(await at(''))
+    [how]();
   await page.waitForTimeout(600);
   await pressTool(page, 'Change image', how);
   await pick();
@@ -3404,8 +3506,8 @@ async function checkAltSheet(width, height = 800) {
   await sheet().getByLabel('Alt text').fill('Another view');
   await sheet().getByRole('button', { name: 'Save', exact: true }).click();
   await page.waitForTimeout(700);
-  if ((await described(1)) !== 'Another view')
-    problems.push(`${label}: Change image did not put the new text on the image (${await described(1)})`);
+  if ((await at('Another view')) < 0)
+    problems.push(`${label}: Change image did not put the new text on the image (${(await texts()).join('|')})`);
   if (!(await page.locator('.editor-tools button[aria-label="Alt text"]').count()))
     problems.push(`${label}: the changed image is not selected, the bar has no Alt text`);
   await page.close();
@@ -4816,7 +4918,10 @@ async function checkSelection() {
       .getByRole('button', { name: /^Notifications/ })
       .first()
       .click();
-    const sheet = page.getByRole('dialog', { name: 'Notifications' });
+    // Below 600 dp the notifications are a page (route notifications), from 600 dp a side sheet.
+    const onPage = (page.viewportSize()?.width ?? 0) < 600;
+    const sheet = onPage ? page.locator('main') : page.getByRole('dialog', { name: 'Notifications' });
+    const scope = onPage ? 'main' : 'dialog';
     await sheet.waitFor();
     await page.waitForTimeout(600);
     const items = sheet.locator('[role=checkbox], .list-item-container', { hasText: /Selection check/ });
@@ -4829,25 +4934,25 @@ async function checkSelection() {
       await page.waitForTimeout(800);
       await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
       await page.waitForTimeout(300);
-      if ((await checked(page, 'dialog')) !== 1) problems.push(`${label}: a press and hold does not select a notification`);
+      if ((await checked(page, scope)) !== 1) problems.push(`${label}: a press and hold does not select a notification`);
       const b2 = await items.nth(1).boundingBox();
       await page.touchscreen.tap(b2.x + b2.width / 2, b2.y + b2.height / 2);
       await page.waitForTimeout(300);
       if (!/^2 selected$/.test((await count(page)) ?? ''))
         problems.push(`${label}: the notifications' count is not announced ("2 selected")`);
-      await sheet.getByRole('button', { name: 'Cancel' }).click();
-      if (await checked(page, 'dialog')) problems.push(`${label}: Cancel does not unselect the notifications`);
+      await page.getByRole('button', { name: 'Close selection' }).click();
+      if (await checked(page, scope)) problems.push(`${label}: Cancel does not unselect the notifications`);
     } else {
       await items.nth(0).focus();
       await page.keyboard.press('Space');
-      if (await checked(page, 'dialog')) problems.push(`${label}: Space selected a notification before selecting had started`);
+      if (await checked(page, scope)) problems.push(`${label}: Space selected a notification before selecting had started`);
       await items.nth(0).click({ modifiers: ['Shift'] });
       await items.nth(1).focus();
       await page.keyboard.press('Space');
-      if ((await checked(page, 'dialog')) !== 2) problems.push(`${label}: Shift+click and Space do not select notifications`);
+      if ((await checked(page, scope)) !== 2) problems.push(`${label}: Shift+click and Space do not select notifications`);
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);
-      if (await checked(page, 'dialog')) problems.push(`${label}: Escape does not unselect the notifications`);
+      if (await checked(page, scope)) problems.push(`${label}: Escape does not unselect the notifications`);
       if (!(await sheet.isVisible())) problems.push(`${label}: Escape with some selected closed the notifications' sheet`);
     }
     await page.close();
@@ -5820,7 +5925,7 @@ async function checkSelectionBox() {
       .getByRole('button', { name: /^Notifications/ })
       .first()
       .click();
-    const sheet = page.getByRole('dialog', { name: 'Notifications' });
+    const sheet = (page.viewportSize()?.width ?? 0) < 600 ? page.locator('main') : page.getByRole('dialog', { name: 'Notifications' });
     await sheet.waitFor();
     await page.waitForTimeout(600);
     const items = sheet.locator('.list-item-selectable', { hasText: /Box check/ });
@@ -11086,6 +11191,9 @@ for (const [width, height] of [
   await unit(`checkUpdatesCard ${width}`, () => checkUpdatesCard(width, height));
 
 await unit('checkStartSubtitle', () => checkStartSubtitle());
+for (const width of [375, 1280])
+  for (const hash of ['', 'developer/parts/ui', 'developer/parts/editor', 'settings'])
+    await unit(`checkFocusIndicators ${width} ${hash || 'start'}`, () => checkFocusIndicators(width, hash));
 for (const width of [375, 1280])
   for (const locale of ['en-US', 'da-DK']) await unit(`choice-group parts ${width} ${locale}`, () => checkChoiceGroupParts(width, locale));
 for (const width of [375, 1280])

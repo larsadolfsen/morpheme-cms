@@ -18,6 +18,7 @@ import { nameOf } from '../lib/ownList.mjs';
 import { addField, confirmDrop, filesOfList, heldBy, listUses, renamed, renameField, toggleField } from '../lib/ownListEdit.mjs';
 import type { OwnedList } from './schema';
 import type { Env } from './App';
+import { isActionEnter } from '../lib/enterKey.mjs';
 
 type Definition = { version: 2; label: string; fields: { id: string; kind: string; label?: string }[]; dropped: string[] };
 
@@ -135,7 +136,7 @@ export default function OwnListSheet({
           disabled={busy}
           onChange={(e) => setLabel(e.target.value)}
           onBlur={rename}
-          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), rename())}
+          onKeyDown={(e) => isActionEnter(e) && (e.preventDefault(), rename())}
         />
         <div>
           <p className="mb-1 font-medium">{t.ownList.fields}</p>
@@ -218,7 +219,7 @@ function FieldName({ kind, value, disabled, onSave }: { kind: string; value: str
       disabled={disabled}
       onChange={(e) => setText(e.target.value)}
       onBlur={() => onSave(text)}
-      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), onSave(text))}
+      onKeyDown={(e) => isActionEnter(e) && (e.preventDefault(), onSave(text))}
     />
   );
 }

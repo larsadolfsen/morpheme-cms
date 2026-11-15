@@ -19,7 +19,18 @@ import { useContext, useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Bell, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
 import { t } from './i18n';
-import { IconButton, IconLink, MenuButton, SearchBarButton, TabPanel, TabRow, TopAppBar, useMenuLayout, type TabChoice } from './ui';
+import {
+  IconButton,
+  IconLink,
+  MenuButton,
+  SearchBarButton,
+  TabPanel,
+  TabRow,
+  TopAppBar,
+  useAtLeast,
+  useMenuLayout,
+  type TabChoice,
+} from './ui';
 import { up } from './nav';
 import EditorFooter from './EditorFooter';
 import { FabPresenceContext, useCountFabs, useFabLift } from './fabPresence';
@@ -79,20 +90,21 @@ export function WebsiteLink() {
   return <IconLink href="/" target="_blank" rel="noopener" onClick={openWindow} icon={ArrowSquareOut} label={t.library.openWebsite} />;
 }
 
-/** The bell in the top bar, before the link to the website: opens the notifications in a side sheet (Notifications.tsx,
- * notificationsOpen.ts), with a dot while some are not seen yet. */
+/** The bell in the top bar, before the link to the website: opens the notifications in a side sheet from 600 dp, below it goes to the
+ * notifications' page (Notifications.tsx, notificationsOpen.ts), with a dot while some are not seen yet. */
 export function NotificationsButton({ className = '' }: { className?: string }) {
   const count = unseen(useNotifications());
   const open = useNotificationsOpen();
+  const phone = !useAtLeast('medium');
   return (
     <IconButton
       icon={Bell}
       label={count ? t.library.notificationsNew(count) : t.library.notifications}
-      aria-haspopup="dialog"
-      aria-expanded={open}
+      aria-haspopup={phone ? undefined : 'dialog'}
+      aria-expanded={phone ? undefined : open}
       badge={count > 0}
       className={className}
-      onClick={openNotifications}
+      onClick={() => (phone ? (location.hash = 'notifications') : openNotifications())}
     />
   );
 }
