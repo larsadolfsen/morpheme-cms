@@ -113,11 +113,13 @@ export const media: Messages['media'] = {
     deleteMany: (count) => `Editor: slet ${count} filer`,
   },
   crop: {
-    format: 'Format',
-    formatHint: 'Vælg et format for at beskære billedet.',
+    title: 'Beskær',
+    ratio: 'Billedformat',
     original: 'Original',
-    frame: 'Beskæring. Træk i billedet, eller brug piletasterne, for at flytte det.',
-    drag: 'Træk i billedet for at vælge udsnittet.',
+    frame: 'Beskæringsramme. Træk i billedet, eller brug piletasterne, for at flytte det.',
+    drag: 'Træk i billedet for at placere det i rammen.',
     zoom: 'Zoom',
+    zoomIn: 'Zoom ind',
+    zoomOut: 'Zoom ud',
   },
 };

@@ -6,16 +6,16 @@ the spec's questions on the same day (section 1b). No code in this pull request.
 Related: `2026-11-13-resize-image-design.md` (its drawn size is dropped, decision 2), `2026-11-11-intuitive-editor-design.md`
 (batch 15 is part of this spec, section 9), `2026-11-12-inline-block-editing-design.md` (section 5, Cards),
 `2026-11-13-contextual-toolbar-row-design.md` (the one bar, its tables for Image and Video), the block action row of #625
-(`src/blockRow.ts`). No deviation from Material 3 is added (decision 1b.1).
+(`src/blockRow.ts`). The crop view is a page, not one of M3's dialogs (owner, decision 1b.9); that is the one deviation, listed in `docs/material-deviations.md`.
 
 Words: the **bar** is the text editor's one toolbar (`editor-tools`); its **contextual tools** slide in from the left for what is
 active. The **row** is the block's action row above an active block (`blockRow.ts`: Move up, Move down, Hide or Show, Settings,
 the drag handle). The **image sheet** is the sheet an image's settings open in (`BlockDialog.tsx`: the side sheet from expanded, a
-modal sheet below it). The **crop view** is the new view of section 3. A **ratio** is an aspect ratio, written `3:2`.
+modal sheet below it). The **crop view** is the new page of section 3. A **ratio** is an aspect ratio, written `3:2`.
 
 ## 1. Owner decisions (14 November 2026)
 
-1. **Crop view.** A full-screen view of the chosen image in its real proportions. `Format` is renamed **`Aspect ratio`**. A ratio
+1. **Crop view.** A page (1b.9) of the chosen image in its real proportions. `Format` is renamed **`Aspect ratio`**. A ratio
    darkens everything outside the frame, and the frame has a border that stays visible on dark and light images. Zoom with a pinch
    on touch, a slider and the wheel with a mouse; drag the image to place it in the frame. Larger windows: the nearest M3 pattern,
    or a deviation the owner approves (section 3).
@@ -35,7 +35,8 @@ modal sheet below it). The **crop view** is the new view of section 3. A **ratio
 
 ## 1b. Owner decisions (14 Nov 2026), the answers to this spec's questions
 
-1. **"Follow MD3":** on medium and expanded windows the crop view is M3's **basic dialog** (way A of the first draft). No deviation
+1. **"Follow MD3":** on medium and expanded windows the crop view is M3's **basic dialog** (way A of the first draft). **Superseded by 1b.9: the crop
+   view is a page on every width.** No deviation
    entry; the draft of one is dropped.
 2. **"Selecting a block on desktop opens settings in right pane":** on a computer (expanded) a tap on an image selects it **and opens
    its settings in the side sheet**, as today; the bar shows the image tools while it is selected. On a phone a tap only selects.
@@ -60,6 +61,10 @@ modal sheet below it). The **crop view** is the new view of section 3. A **ratio
      icon, with its name and tags quoted in the PR.
 7. **"Just call it hide":** the visibility words are **`Hide`** / **`Show`**, and the state is **`Hidden`**.
 8. **Parked:** no image tools for the Image grid's tiles; parked, not planned.
+9. **"Convert all full screen views to pages" (owner, 14 Nov, after the first build of PR 3):** the crop view is not a full-screen dialog and not a basic
+   dialog: it is a **page** of the editor on every width: a top app bar with a back arrow and the title `Crop`, the content, and **Save in a bottom bar**
+   (on a phone, as the owner's rule says; from medium the bottom bar has `Cancel` before `Save`, as the editor's other pages have their save bar). Back with
+   changes asks the existing `Keep your changes?` dialog (9.3), and going back returns to the block at the same scroll place. It replaces 1b.1.
 
 ## 2. Today (read in the code on `0.18` at `ece1b62`)
 
@@ -134,81 +139,56 @@ cropping or editing an image** (the hits are typography, shapes and Android's `C
 M3 prints no darkened area outside a frame, no frame border and no wheel zoom. Where it is silent the spec says so below and uses the
 nearest part (the scrim for the darkened area).
 
-### Compact (under 600 dp): the full-screen dialog, as M3 prints it
+### The page (every width, owner decision 1b.9)
+
+What M3 prints above is the reading of dialogs; the owner decided that full-screen views are pages (1b.9), so the crop view is built as a page of the editor
+and is listed as a deviation (`docs/material-deviations.md`, the crop view). The parts below are the same on every width.
 
 ```
-375 px                                     ┌ the frame: 2 dp two-tone border
-+-------------------------------------------+
-| [X]  Crop                          [Save] |  56 dp header (close, headline, text button)
-+-------------------------------------------+
-|▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓|  the whole image, in its real proportions
-|▓▓▓▓┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓▓▓▓▓|  ▓ = outside the frame, under the scrim
-|▓▓▓▓┃                                ┃▓▓▓▓|
-|▓▓▓▓┃      the part that is shown    ┃▓▓▓▓|  drag: moves the image under the frame
-|▓▓▓▓┃          (3:2 here)            ┃▓▓▓▓|  pinch: zooms around the fingers
-|▓▓▓▓┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛▓▓▓▓|
-|▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓|
-+-------------------------------------------+
-| Aspect ratio                              |
-| [Original][1:1][4:5][3:4][2:3][3:2]…  →   |  one row of chips, scrolls sideways
-| [−] ─────────●───────────────────── [+]   |  Zoom slider, minus and plus icon buttons
+375 px                                          1280 px (the page's column is as wide as a form, 768 dp)
++-------------------------------------------+   +------------------------------------------------------------+
+| [←]  Crop                                 |   | [←]  Crop                                                  |  top app bar, 64 dp
++-------------------------------------------+   +------------------------------------------------------------+
+|▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓|   |        ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓            |
+|▓▓▓▓┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓▓▓▓▓|   |        ▓▓▓▓┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓▓▓▓             |  the whole image, in its
+|▓▓▓▓┃      the part that is shown    ┃▓▓▓▓|   |        ▓▓▓▓┃      the part that is shown    ┃▓▓▓▓             |  real proportions
+|▓▓▓▓┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛▓▓▓▓▓|   |        ▓▓▓▓┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛▓▓▓▓             |  ▓ = outside the frame,
+|▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓|   |        ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓            |  under the scrim
++-------------------------------------------+   |   Drag the image to place it in the frame.                 |
+|  Drag the image to place it in the frame. |   |   Aspect ratio                                             |
+|  Aspect ratio                             |   |   [Original] [1:1] [4:5] [3:4] [2:3] [3:2] [4:3] [16:9]    |  wrap when they do not fit
+|  [Original][1:1][4:5][3:4][2:3][3:2]…  →  |   |   [−] ──────────●────────────────────────────── [+]       |  Zoom slider with ± buttons
+|  [−] ───────●────────────────────── [+]   |   +------------------------------------------------------------+
++-------------------------------------------+   |                                       [Cancel]   [Save]    |  bottom bar
+|                                    [Save] |   +------------------------------------------------------------+
 +-------------------------------------------+
 ```
 
-- The theme's `Dialog` kind `full-screen`, headline `Crop`, close `X` (label `Close`), action `Save`. Closing with changes asks the
-  basic dialog of section 9.3 (M3's "confirm that they want to discard").
-- **The image area** fills the room between the header and the controls, on the dialog's surface. The image is drawn whole, at its
-  real proportions, scaled by the zoom. The frame is the largest box of the ratio that fits the area less 16 dp on each side, in the
-  middle. Everything outside the frame is under a layer with M3's scrim colour and opacity (1b.4): the theme's scrim token, the one
-  its dialogs already use behind their container (M3: "surfaces behind the container are scrimmed with a temporary overlay"). The
-  build PR names the token it uses and reads its value from the M3 dialog specs' token table, which a plain text read leaves
-  collapsed. `Original` has no frame and no layer: the whole image is shown, and the slider and the drag are off (nothing to place).
-- **The frame's border:** a 2 dp line in `--mo-inverse-on-surface` with a 1 dp halo outside it in `--mo-inverse-surface`, so one of
-  the two tones stands against any image, light or dark (M3 prints no frame; the nearest is the focus ring's two-tone look).
-- **Zoom:** 1 (the largest part of the image that fills the frame, today's `middleCrop`) to 4 (today's `MAX_ZOOM`). Pinch zooms
-  around the middle of the two fingers and can be combined with a drag (M3's compound gesture). The slider is the theme's `Slider`,
-  size XS, label `Zoom`, with `Zoom out` and `Zoom in` icon buttons at its ends (M3's "Plus and minus icons"). Every change shows at
-  once.
-- **Placing:** a drag moves the image under the fixed frame; the image never leaves a gap in the frame (the crop is clamped, as
-  `moved()` does today).
-- **Aspect ratio chips:** the theme's filter chips in one row (`Original` first, then `FORMATS`), each with its small ratio
-  outline as today. A new ratio puts the largest middle part in the frame (today's rule). In a card (section 6) the chips are not
-  shown: the frame is the block's ratio.
-
-### Medium and expanded (600 dp and up): M3's basic dialog (owner, 1b.1)
-
-M3: "Full-screen dialogs are for compact breakpoints only, like mobile devices. For medium and expanded breakpoints, use a basic
-dialog." and "Dialogs can swap variants as the breakpoint changes. For example, a full-screen dialog can change into a basic
-dialog at larger breakpoints." So from 600 dp the crop view is the theme's `Dialog` kind `basic` with its parts: the headline
-`Crop`, the image area, the chips and the slider as its content, and the actions `Cancel` and `Save` at its end, the confirming one
-last ("The confirmation button is always closest to the edge"). Its size is M3's: "Min 280dp; Max 560dp", 24 dp padding, the 28 dp
-corner, centred over the scrim. The image area is 512 dp wide (560 less 2 × 24) and as high as the window leaves after the
-headline, the controls and the actions; the dialog itself does not scroll (M3: "Most dialog content should avoid scrolling").
-
-Today the theme's `full-screen` kind keeps its header from medium (`theme/ui/Dialog.tsx`). The crop view does not rely on that: it
-chooses `basic` from medium itself, so no deviation is added.
-
-```
-1280 × 800: a basic dialog, 560 dp wide, centred over the scrim
-                   +------------------------------------------------+
-                   | Crop                                           |  headline
-                   | ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ |
-                   | ▓▓▓▓▓┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓▓▓▓▓▓ |  the image area, 512 dp wide
-                   | ▓▓▓▓▓┃                                 ┃▓▓▓▓▓▓ |
-                   | ▓▓▓▓▓┃   the part that is shown (3:2)  ┃▓▓▓▓▓▓ |
-                   | ▓▓▓▓▓┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛▓▓▓▓▓▓ |
-                   | ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ |
-                   | Aspect ratio                                   |
-                   | [Original] [1:1] [4:5] [3:4] [2:3] [3:2]       |  chips wrap, no sideways scroll
-                   | [4:3] [16:9]                                   |
-                   | Zoom   [−] ─────────●──────────────────── [+]  |
-                   |                              [Cancel]  [Save]  |  actions, confirming last
-                   +------------------------------------------------+
-```
-
-With a mouse the wheel zooms around the pointer, and the drag places the image, as on a phone. M3 is silent on wheel zoom; the
-slider is the M3 control, and the wheel moves the same value. On medium (600 to 839 dp, a tablet) it is the same dialog; a pinch
-works there as on a phone.
+- **A page over the editor, not a new address.** It is a layer the size of the window over the editor (a modal `<dialog>`, `.crop-page`), so the form
+  under it keeps its unsaved changes, its scroll place and its focus (leaving gives the focus back to the image). It has a step of its own in the
+  browser's history (`useSheetBack`), so the phone's back gesture and the browser's Back leave it, as they leave a sheet.
+- **The top app bar** is the theme's `TopAppBar`, as every screen's: the back arrow (name `Back to Image`) and the title `Crop`.
+- **The image area** fills the room between the bar and the controls, on the surface container high. The image is drawn whole, at its real
+  proportions, scaled by the zoom. The frame is the largest box of the ratio that fits the area less 16 dp on each side, in the middle. Everything
+  outside the frame is under a layer with M3's scrim colour and opacity (1b.4): the theme's scrim token, the one its dialogs already use behind their
+  container (`--dialog-scrim`; M3: "surfaces behind the container are scrimmed with a temporary overlay"). The build names the token it uses; M3's own
+  value could not be read, the token tables stay collapsed in a text read. `Original` has no frame and no layer: the whole image is shown, and the slider
+  and the drag are off (nothing to place).
+- **The frame's border:** a 2 dp line in `--mo-inverse-on-surface` with a 1 dp halo outside it in `--mo-inverse-surface`, so one of the two tones
+  stands against any image, light or dark (M3 prints no frame; the nearest is the focus ring's two-tone look).
+- **Zoom:** 1 (the largest part of the image that fills the frame, today's `middleCrop`) to 4. Pinch zooms around the middle of the two fingers and
+  can be combined with a drag (M3's compound gesture); with a mouse the wheel zooms around the pointer (M3 is silent on wheel zoom; the slider is the
+  M3 control, and the wheel moves the same value). The slider is the theme's `Slider`, label `Zoom` (read by screen readers), with `Zoom out` and
+  `Zoom in` icon buttons at its ends (M3's "Plus and minus icons"); its inactive track is the secondary container, because the theme's own is the colour
+  of the image area and would not show (M3's token for it could not be read, the table stays collapsed). Every change shows at once.
+- **Placing:** a drag moves the image under the fixed frame; the image never leaves a gap in the frame (the crop is clamped).
+- **Aspect ratio chips:** the theme's filter chips: `Original` first, then `FORMATS`, each with its small ratio outline; below medium one row that
+  scrolls sideways, from medium they wrap when they do not fit. A new ratio puts the largest middle part in the frame. In a card (section 6) the chips
+  are not shown: the frame is the block's ratio.
+- **The bottom bar** holds `Save` (filled) at its end on every width, and from medium `Cancel` before it. `Save` writes the ratio and crop and returns
+  to where the page was opened (the block, or the image sheet with the new ratio in its row).
+- **Leaving** (the back arrow, `Cancel`, Escape, the phone's back gesture) with changes asks `Keep your changes?` (9.3); with nothing changed it leaves
+  at once.
 
 ## 4. The image's tools in the bar (decision 3)
 
@@ -269,8 +249,7 @@ works there as on a phone.
 ```
 
 - The crop part (`CropField`) leaves the sheet. In its place one list row, `Aspect ratio`, with the current ratio as its trailing
-  text (`Original`, `3:2`, …) and a chevron; tapping it opens the crop view over the sheet (a full-screen dialog may open over a
-  sheet). `Save` in the crop view returns to the sheet with the new ratio and crop, and the sheet's preview shows them; the sheet's
+  text (`Original`, `3:2`, …) and a chevron; tapping it opens the crop page over the sheet (going back returns to the sheet). `Save` in the crop view returns to the sheet with the new ratio and crop, and the sheet's preview shows them; the sheet's
   own `Save` still keeps them in the page (one change, one Save, as today).
 - The same sheet is the one `Insert` › `Image` opens after the pick today (with `Insert`); see 9.1 for the short step that replaces
   it for a new image.
@@ -346,7 +325,7 @@ change. Danish: `Skjul`, `Vis`, `Skjult`.
 
 Today: `You have changes that aren’t saved. Do you want to keep them?` with `Save` or `Insert`, and `Discard` (`app.unsavedSheet`).
 It reads as "saved to the site". New (the batch's fix): headline `Keep your changes?`, text `Your changes stay in the page until you
-save it.`, buttons `Discard` and `Keep` (confirming last, M3's order). Used by every sheet and by the crop view's close.
+save it.`, buttons `Discard` and `Keep` (confirming last, M3's order). Used by every sheet and by the crop page's back.
 
 ## 10. Texts (en-US first; da-DK)
 
@@ -396,8 +375,8 @@ Material 3 and the web (`Alt text`, `Aspect ratio`, `Crop`, `Hide`) are used as 
 
 The Danish notes are written as a Danish app says them, by the skill, in each PR.
 
-**Deviations:** none. The crop view is M3's full-screen dialog on a phone and M3's basic dialog from medium (1b.1); the darkened
-area is M3's scrim (1b.4). The two-tone frame border is an M3-silent choice and is listed in the PR as "M3 is silent", not as a
+**Deviations:** one. The crop view is a page on every width (1b.9), where M3 prints the full-screen dialog for compact windows and the basic dialog
+for medium and expanded ones; it is recorded in `docs/material-deviations.md` (the crop view). The darkened area is M3's scrim (1b.4). The two-tone frame border is an M3-silent choice and is listed in the PR as "M3 is silent", not as a
 deviation. The bar's own parts are the editor's workspace (already listed under *The text bar*).
 
 **Checks** (skill `checks`) per PR: `npm run check`; `npm run check:screens` after `npm run build`, with new units at 375 px and
@@ -430,7 +409,7 @@ head sha to the PM. They merge one by one in this order; each works without the 
 | 0 | This spec | The spec, the status line in the resize spec | empty | none | — |
 | 1 | **Closing a sheet + Hide wording** | 9.3 texts and buttons in `ask.tsx`/`closeChanged`; 9.2 `Hide` / `Show` / `Hidden` | `patch` | two lines | — |
 | 2 | **Image selection and the bar's image tools** | Tap = select for the image in the text; `blockBar` gets the four image tools; `Remove` moves from `⋮` to the bar; `Crop` opens today's image sheet scrolled to the crop until PR 3; the row's `Settings` opens the sheet; on a computer the tap still opens the side sheet (1b.2); texts | `minor` | paragraph *Image tools* | — |
-| 3 | **The crop view** | A new `CropView` (theme `Dialog`: `full-screen` below medium, `basic` from medium, 1b.1) with the frame, the scrim outside it (1b.4), pinch, wheel, slider with ±; `Aspect ratio` rename; the sheet's crop part becomes the `Aspect ratio` row; no deviation | `minor` | paragraph *Crop view* | 2 |
+| 3 | **The crop view** | A new `CropView` page (a layer the size of the window with the top app bar, back arrow and a bottom bar with Save, 1b.9) with the frame, the scrim outside it (1b.4), pinch, wheel, slider with ±; `Aspect ratio` rename; the sheet's crop part becomes the `Aspect ratio` row; the deviation entry | `minor` | paragraph *Crop view* | 2 |
 | 4 | **Alt text after a pick** | The alt text sheet (9.1) after `Insert` › `Image` and `Change image`; the bar's `Alt text` opens it | `minor` | line | 2 |
 | 5 | **Cards: aspect ratio and the card's image** | `ratio` prop and setting, `cropStyle` in the theme's Cards (`blocks.css`, `LinkCards.tsx`, `load.ts`, `view.ts`), the card's image as its own tap target with the image tools, the crop view without chips; unit test of the unchanged HTML; `check:themes` | `minor` | paragraph *Card images* | 2, 3 |
 | 6 | **Video: Change link** | Tap = select for the video, the tool in the bar, the slot removed, the field focused | `minor` | line | 2 |

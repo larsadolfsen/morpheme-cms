@@ -1966,3 +1966,126 @@ dialog {
   bottom: calc(-1 * max(1.5rem, env(safe-area-inset-bottom)));
   margin: 1.5rem calc(-1 * var(--dialog-padding, 1.5rem)) calc(-1 * max(1.5rem, env(safe-area-inset-bottom)));
 }
+
+/* The crop view (CropView.tsx, image tools spec section 3): a page of the editor on every width, as a layer the size of the window over it (a modal
+   <dialog>, so the form under it keeps its changes and its scroll place): the top app bar, the content in a column as wide as a form, and a bottom bar
+   with Save. The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and everything outside it is under the
+   theme's scrim, the one its dialogs have behind their container (--dialog-scrim). The frame has a 2 dp border with a 1 dp halo outside it in the other
+   inverse colour, so one of the two stands against any image, light or dark (M3 prints no frame: the focus ring's two-tone look). */
+.crop-page {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--mo-surface);
+  color: var(--mo-on-surface);
+}
+.crop-page[open] {
+  display: flex;
+  flex-direction: column;
+}
+.crop-page-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  max-width: 48rem;
+  margin-inline: auto;
+  padding: 1rem;
+}
+.crop-page-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  background: var(--mo-surface-container);
+}
+@media (width >= theme(--breakpoint-medium)) {
+  .crop-page-main {
+    padding: 1.5rem;
+  }
+  .crop-page-bar {
+    padding-inline: 1.5rem;
+  }
+}
+.crop-view {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+}
+.crop-view-area {
+  position: relative;
+  flex: 1;
+  min-height: 10rem;
+  overflow: hidden;
+  border-radius: var(--mo-shape-corner-medium, 0.75rem);
+  background: var(--mo-surface-container-high);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.crop-view-area:active {
+  cursor: grabbing;
+}
+.crop-view-area[data-original] {
+  cursor: default;
+}
+.crop-view-image {
+  position: absolute;
+  max-width: none;
+  pointer-events: none;
+}
+.crop-view-frame {
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px solid var(--mo-inverse-on-surface);
+  box-shadow:
+    0 0 0 1px var(--mo-inverse-surface),
+    0 0 0 100vmax var(--dialog-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-on-surface)) 50%, transparent));
+  pointer-events: none;
+}
+.crop-view-frame:focus-visible {
+  outline: 2px solid var(--mo-primary);
+  outline-offset: 4px;
+}
+.crop-view-hint {
+  margin: 0;
+  color: var(--mo-on-surface-variant);
+  font-size: var(--type-body-small-size, 0.75rem);
+  text-align: center;
+}
+.crop-view-label {
+  margin: 0 0 0.5rem;
+  font-weight: 500;
+}
+/* One row that scrolls sideways below medium; from medium the chips wrap. */
+.crop-view-ratios {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.crop-view-ratios > * {
+  flex-shrink: 0;
+}
+.crop-view-zoom {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  /* The theme's inactive track is the surface container high, the colour of the image area, so it would not show here: the secondary container is used instead. */
+  --slider-inactive-track: var(--mo-secondary-container);
+}
+@media (width >= theme(--breakpoint-medium)) {
+  .crop-view-ratios {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}
