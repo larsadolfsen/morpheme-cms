@@ -1219,7 +1219,7 @@ async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300, cus
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#company/colors'));
   if (custom) await page.getByRole('button', { name: 'Custom', exact: true }).click();
-  await page.getByRole('button', { name: `${name}: pick a color` }).click();
+  await page.getByRole('button', { name: `${name}: select a color` }).click();
   const sheet = page.locator(`dialog[open][aria-label="${name}"]`);
   await sheet.waitFor();
   const code = sheet.getByRole('textbox', { name: 'Color code' });
@@ -1280,7 +1280,7 @@ async function checkCustomColors(width, height) {
     problems.push(`${label}: the dots are named "${dotNames}"`);
 
   const pick = async (name, hex) => {
-    await page.getByRole('button', { name: `${name}: pick a color` }).click();
+    await page.getByRole('button', { name: `${name}: select a color` }).click();
     const sheet = page.locator(`dialog[open][aria-label="${name}"]`);
     await sheet.waitFor();
     const buttons = await sheet.getByRole('button', { name: /^(Use and lock|Cancel|Use color)$/ }).allInnerTexts();
@@ -6166,7 +6166,7 @@ async function checkImageGridAdd(width, height) {
   const before = await page.locator('.site-block-inline .block-imagegrid-grid li').count();
   await page.getByRole('button', { name: 'Add images' }).click();
   await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
-  if (!(await page.locator('dialog[open]').getByText('Choose images').count()))
+  if (!(await page.locator('dialog[open]').getByText('Select images').count()))
     problems.push(`${label}: the picker is not the one for several images`);
   if (await page.locator('dialog[open]').getByRole('button', { name: 'Upload a new image' }).count())
     problems.push(`${label}: the picker for several images offers an upload`);

@@ -305,7 +305,7 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
     const used = standardPages.find((p) => standardFile(files, p.key)?.path === file.path);
     if (used)
       return {
-        text: siteText('{page} is a default page, so it cannot be deleted. Pick another page under "Default pages" first.', {
+        text: siteText('{page} is a default page, so it cannot be deleted. Select another page under "Default pages" first.', {
           page: siteText(used.the),
         }),
         error: true,
@@ -369,14 +369,14 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
     const fp = front.posts as Record<string, unknown> | undefined;
     if ((fp?.categories as string[] | undefined)?.includes(slug) || fp?.link === slug)
       return {
-        text: siteText('The tag picks the posts on the home page under "From the blog". Pick another one first.'),
+        text: siteText('The tag selects the posts on the home page under "From the blog". Select another one first.'),
         error: true,
         edit: frontPage(files),
       };
   }
   if (collection.id === 'blog' && ((front.posts as Record<string, unknown>)?.picked as string[])?.includes(slug))
     return {
-      text: siteText('The post is picked for the home page under "From the blog". Pick another one first.'),
+      text: siteText('The post is selected for the home page under "From the blog". Select another one first.'),
       error: true,
       edit: frontPage(files),
     };
@@ -388,7 +388,7 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
     );
     if (page)
       return {
-        text: siteText('The post is picked in a block of blog posts on the page "{page}". Pick another one first.', {
+        text: siteText('The post is selected in a block of blog posts on the page "{page}". Select another one first.', {
           page: String(fm(page).title),
         }),
         error: true,
@@ -404,8 +404,8 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
       return {
         text: siteText(
           post
-            ? 'The tag is picked in a block in the blog post "{page}". Pick another one first.'
-            : 'The tag is picked in a block on the page "{page}". Pick another one first.',
+            ? 'The tag is selected in a block in the blog post "{page}". Select another one first.'
+            : 'The tag is selected in a block on the page "{page}". Select another one first.',
           { page: use.name },
         ),
         error: true,
