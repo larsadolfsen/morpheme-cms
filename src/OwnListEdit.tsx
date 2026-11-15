@@ -32,6 +32,7 @@ import { planBar } from './textBar.mjs';
 import { KINDS, nameOf } from '../lib/ownList.mjs';
 import { addField, confirmDrop, heldBy, moveField, renamed, renameField, toggleField } from '../lib/ownListEdit.mjs';
 import { useOwnList, type Definition } from './useOwnList';
+import OwnListEntries from './OwnListEntries';
 import type { RepoFile } from './github';
 import type { Env } from './App';
 import type { OwnedList } from './schema';
@@ -148,6 +149,7 @@ export default function OwnListEdit({ id, files, saved, env }: { id: string; fil
             );
           })}
         </div>
+        <OwnListEntries key={id} collection={list.collection} files={files} env={env} />
         <div className="flex flex-wrap items-center gap-2">
           <LinkButton kind="outlined" href={`#new/${id}`}>
             {t.ownList.create}
@@ -239,7 +241,7 @@ function FieldName({ kind, value, disabled, onSave }: { kind: string; value: str
 
 /** The edit page of a locked list (`locked`, its fields fixed in code, as the testimonials'): the same page without the bar that adds a field. Its fields are
  * only shown, in the order of an item's form; nothing here renames, moves or removes them, or deletes the list (lib/ownListEdit.mjs editPageOf). */
-export function LockedListEdit({ collection }: { collection: OwnedList }) {
+export function LockedListEdit({ collection, files, env }: { collection: OwnedList; files: RepoFile[]; env: Env }) {
   const { id, label } = collection;
   return (
     <Screen title={label} back={{ href: `#list/${id}`, label }}>
@@ -250,6 +252,7 @@ export function LockedListEdit({ collection }: { collection: OwnedList }) {
             <ListItem key={f.name} headline={f.label} className="own-list-field" data-field={f.name} />
           ))}
         </Group>
+        <OwnListEntries key={id} collection={collection} files={files} env={env} />
         {collection.create && (
           <LinkButton kind="outlined" href={`#new/${id}`}>
             {collection.create}

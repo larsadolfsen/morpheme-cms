@@ -7077,6 +7077,63 @@ async function checkOwnList(width, height) {
     if (!(await sheet.getByRole('link', { name: 'Add item' }).count())) problems.push(`${label}: the edit page has no Add item`);
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
       problems.push(`${label}: the edit page scrolls sideways`);
+    // The list's entries are typed in place on the edit page (src/OwnListEntries.tsx): the rows as the List block draws them, a bar of the active row, and what is typed is
+    // saved by itself a moment later as one commit, one file per entry.
+    {
+      const rows = sheet.locator('.own-list-entries .inline-list-row');
+      if ((await rows.count()) < 2) problems.push(`${label}: the edit page has no typed-in-place entries`);
+      const tools = sheet.getByRole('toolbar', { name: 'Item tools' });
+      if (!(await tools.count())) problems.push(`${label}: the entries have no bar`);
+      else {
+        const box = await tools.boundingBox();
+        if (!box || box.x < 0 || box.x + box.width > width + 1) problems.push(`${label}: the bar of the entries is outside the screen`);
+      }
+      if (await tools.getByRole('button', { name: 'Move item up' }).isEnabled())
+        problems.push(`${label}: Move item up works with no active entry`);
+      const written = () => page.waitForTimeout(1500);
+      // The files of the last commit, their texts decoded (the editor sends them as base64).
+      const last = () =>
+        (commits.at(-1)?.changes ?? []).map((f) => ({
+          path: f.path,
+          content: f.content === null ? null : Buffer.from(f.content, 'base64').toString('utf8'),
+        }));
+      // Typing in an entry's title saves that entry only, keeping the order and the fields that were there.
+      const first = rows.nth(0).locator('textarea[data-field="title"]');
+      await first.click();
+      await first.press('End');
+      await first.pressSequentially(' 2');
+      await written();
+      const typed = last().find((f) => f.path.endsWith('/web-design.json'));
+      if (!typed || last().length !== 1)
+        problems.push(`${label}: typing in an entry did not save just that entry (${JSON.stringify(last().map((f) => f.path))})`);
+      else {
+        const data = JSON.parse(typed.content);
+        if (data.title !== 'Web design 2' || data.order !== 1 || data.text !== 'Sites that last')
+          problems.push(`${label}: the typed entry was saved as ${typed.content}`);
+      }
+      // Add below makes a row; its first typing makes its file, named by the title, with an order after the last.
+      await tools.getByRole('button', { name: 'Add item below' }).click();
+      await page.keyboard.type('Brand');
+      await written();
+      const made = last().find((f) => f.path.endsWith('/brand.json'));
+      if (!made) problems.push(`${label}: a new entry did not make its file (${JSON.stringify(last().map((f) => f.path))})`);
+      else if (JSON.parse(made.content).order !== 1.5)
+        problems.push(`${label}: the new entry (below the first) has order ${JSON.parse(made.content).order}, not 1.5`);
+      // Move down: the two entries swap their orders, and only those two are written.
+      await tools.getByRole('button', { name: 'Move item down' }).click();
+      await written();
+      if (last().length !== 2) problems.push(`${label}: Move item down wrote ${last().length} files, not 2`);
+      // Remove: the file is deleted, with an Undo.
+      await tools.getByRole('button', { name: 'Remove item' }).click();
+      if (!(await page.getByText('Item removed').count())) problems.push(`${label}: Remove item has no message`);
+      if (!(await page.getByRole('link', { name: 'Undo' }).count())) problems.push(`${label}: Remove item has no Undo`);
+      await written();
+      if (!last().some((f) => f.content === null && f.path.endsWith('/brand.json')))
+        problems.push(`${label}: Remove item did not delete the file`);
+      if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
+        problems.push(`${label}: the edit page with entries scrolls sideways`);
+      commits.length = 0;
+    }
     // Move a field down: the order changes (the first two swap), nothing is committed, and the first field cannot move up.
     const order = () => sheet.locator('.own-list-field').evaluateAll((rows) => rows.map((r) => r.getAttribute('data-field')));
     const before = await order();

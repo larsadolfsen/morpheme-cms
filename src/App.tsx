@@ -944,7 +944,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   const editPage =
     editing && editing.kind === 'folder' && editPageOf({ own: isOwnList(shownFiles, editing.id), locked: (editing as OwnedList).locked });
   if (editPage && editPage.fieldBar) return <OwnListEdit key={listId} id={listId} files={shownFiles} saved={files} env={env} />;
-  if (editing && editPage) return <LockedListEdit key={listId} collection={editing as OwnedList} />;
+  if (editing && editPage) return <LockedListEdit key={listId} collection={editing as OwnedList} files={shownFiles} env={env} />;
   if (listed && listed.kind === 'folder' && isOwnList(shownFiles, listed.id))
     return <OwnList key={listId} id={listId} files={shownFiles} saved={files} env={env} />;
   if (listed) return <List key={listed.id} collection={listed} tab={listTab} files={files} env={env} />;
