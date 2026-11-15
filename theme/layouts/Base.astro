@@ -222,11 +222,15 @@ const jsonLd = {
       // stored; Auto removes the stored value, so the page follows the system. A stored value is never removed because the
       // system later changes to match it.
       const scheme = window as unknown as { setColorScheme: (t: string | null) => void };
+      // One tab stop on the chosen button; the arrow keys move between the buttons and choose (the theme's ChoiceGroup, and the
+      // button group's keyboard in M3: Tab, arrow keys, Space or Enter).
+      const choices = () => [...document.querySelectorAll<HTMLElement>('[data-scheme-choice] [data-scheme]')];
       const showChoice = () => {
         const chosen = document.documentElement.dataset.theme ?? 'auto';
-        document
-          .querySelectorAll<HTMLElement>('[data-scheme-choice] [data-scheme]')
-          .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.scheme === chosen)));
+        choices().forEach((b) => {
+          b.setAttribute('aria-pressed', String(b.dataset.scheme === chosen));
+          b.tabIndex = b.dataset.scheme === chosen ? 0 : -1;
+        });
       };
       showChoice();
       document.querySelectorAll('[data-scheme-choice] [data-scheme]').forEach((btn) =>
@@ -238,6 +242,18 @@ const jsonLd = {
             else localStorage.setItem('theme', next);
           } catch {}
           showChoice();
+        }),
+      );
+      document.querySelectorAll('[data-scheme-choice]').forEach((group) =>
+        group.addEventListener('keydown', (e) => {
+          const key = (e as KeyboardEvent).key;
+          if (key !== 'ArrowLeft' && key !== 'ArrowRight' && key !== 'ArrowUp' && key !== 'ArrowDown') return;
+          const list = choices();
+          const step = (key === 'ArrowRight' || key === 'ArrowDown') === (getComputedStyle(group).direction !== 'rtl') ? 1 : -1;
+          const next = list[(list.indexOf(document.activeElement as HTMLElement) + step + list.length) % list.length];
+          e.preventDefault();
+          next.focus();
+          next.click();
         }),
       );
       // The choice changed in another tab.

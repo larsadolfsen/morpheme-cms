@@ -1344,16 +1344,16 @@
     font-weight: var(--type-body-medium-weight);
     letter-spacing: var(--type-body-medium-tracking);
   }
-  /* Only the text button's own padding is pulled out, so its text starts on the margin; the segmented button's frame sits on the
-     content edges. */
+  /* Only the text button's own padding is pulled out, so its text starts on the margin; the button group sits on the content
+     edges. */
   .md-footer-bottom > div > [data-cookie-settings] {
     margin-inline-start: -0.75rem;
   }
-  /* The colour scheme's segmented button is one density step down (Small, -1: M3 Density, "Each step down in density removes 4dp from the
-     height", segmented buttons/specs: height 40dp, target size 48dp; here 36dp). The theme's way for a box to take its own step
-     (base.css, Density): it sets --mo-density-user and the derived variables, which are computed where they are declared. The target
-     stays (ui.css, .segmented-button-segment::after). */
-  .md-footer-bottom .segmented-button {
+  /* The colour scheme's button group is one density step down (Small, -1: M3 Density, "Each step down in density removes 4dp from the
+     height"; Button groups, Density: "Button groups adapt to the height of the buttons inside, including when density is applied").
+     The theme's way for a box to take its own step (base.css, Density): it sets --mo-density-user and the derived variables, which
+     are computed where they are declared. The buttons keep their 48dp target (ui.css, the invisible ::after area). */
+  .md-footer-bottom .button-group {
     --mo-density-user: -1;
     --mo-density: clamp(-3, calc(var(--mo-density-base) + var(--mo-density-user)), 1);
     --mo-density-layout: clamp(-1, calc(var(--mo-density-base) + var(--mo-density-user)), 1);
