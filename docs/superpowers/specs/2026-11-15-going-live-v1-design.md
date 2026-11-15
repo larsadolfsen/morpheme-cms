@@ -29,10 +29,12 @@
    the owner releases it.
 8. **The platform lives in `morpheme-appstore`** (Create a site, accounts, billing, provisioning), as `repositories.md`
    plans. There is one private Worker and one Stripe webhook for both the store and hosting.
-9. **Default addresses are `<name>.getmorpheme.com`.** Customers' own domains come through Cloudflare for SaaS on that
-   zone. Customer sites share the parent domain with Morpheme's own pages, so the platform's cookies are host-only (never
-   `Domain=.getmorpheme.com`). Adding `getmorpheme.com` to the Public Suffix List's private section is worth doing before
-   launch, so browsers treat each site as its own site.
+9. **`getmorpheme.com` is Morpheme's own domain:** marketing, sign-in, the store and billing. Customer sites get a
+   **separate sites domain** (name still open, for example `getmorpheme.site`), the way GitHub uses `github.io` and
+   Netlify uses `netlify.app`. A flagged customer site then cannot hurt `getmorpheme.com`, customer sites (which run
+   third-party app code) can never reach Morpheme's cookies, and the sites domain goes on the Public Suffix List so browsers
+   treat each site as its own site. The same zone is the Cloudflare for SaaS target for customers' own domains.
+   `workers.dev` addresses are for internal testing only: they carry the account's name and change if it is renamed.
 
 ## What exists today (the starting point)
 
@@ -75,7 +77,7 @@ All three stages need the same refactor. It is the biggest single piece of work,
 1. On morpheme's site: **Create a site**, then choose a name and a theme.
 2. Sign in with Google or Microsoft. There is no GitHub account and no password.
 3. Pay a monthly subscription in **Stripe Checkout**.
-4. A minute later the editor opens at `https://<name>.getmorpheme.com/editor/`. Later they can add their own domain
+4. A minute later the editor opens at `https://<name>.<sites domain>/editor/`. Later they can add their own domain
    in the editor.
 
 ### How it works
@@ -85,10 +87,10 @@ All three stages need the same refactor. It is the biggest single piece of work,
 | **Storage** | One **Artifacts** repo per site, in `sites-eu` (jurisdiction `eu`) for customers in EU countries and in `sites` for everyone else (decision 3). A new site is a **fork** of a `starter` repo imported into each namespace. | Forking from a baseline is native and costs no GitHub. |
 | **Writing a save** | The Worker builds the commit with `isomorphic-git` against the repo's remote and a short-lived write token minted by the `ARTIFACTS` binding. The binding itself can read files, history and objects, but **cannot write files**. | The only documented way to write from a Worker. **Spike first:** the cost of a push from a Worker for a 100-file save. |
 | **Login** | **Morpheme accounts** signed in with **Google or Microsoft** (OAuth and OpenID Connect) on the platform Worker (decision 5). A site trusts a signed session from the platform, with the roles `owner` and `editor`. An owner invites an editor by email address; the editor signs in with Google or Microsoft on that address. | Roadmap 0.24 and paid-items already need "owner accounts". The open question in `platform.md` ("login uden GitHub") is answered here. No passwords and no login emails are kept by Morpheme. |
-| **Compute** | **v1: one ordinary Worker per site** on the owner's account, the same shape as today (CMS Worker plus `ASSETS`). **Later: Workers for Platforms** (one dispatch namespace, a dispatch Worker on `*.getmorpheme.com`, $25 per month, 1,000 scripts included, then $0.02 each). | The ordinary Worker needs almost no new code and connects to Workers Builds from Artifacts directly. An account allows a few hundred Workers. Move to Workers for Platforms before that, or when apps' own Workers must be isolated per tenant. |
+| **Compute** | **v1: one ordinary Worker per site** on the owner's account, the same shape as today (CMS Worker plus `ASSETS`). **Later: Workers for Platforms** (one dispatch namespace, a dispatch Worker on `*.<sites domain>`, $25 per month, 1,000 scripts included, then $0.02 each). | The ordinary Worker needs almost no new code and connects to Workers Builds from Artifacts directly. An account allows a few hundred Workers. Move to Workers for Platforms before that, or when apps' own Workers must be isolated per tenant. |
 | **Build** | **v1: Workers Builds connected to the Artifacts repo** (documented: "Continue with Artifacts"). **Later: our own pipeline**: an Artifacts `push` event, a Queue, a Workflow, a Container that runs `morpheme ci-build`, then a deploy through the API. | Workers Builds allows **6 concurrent builds per account** with a 20-minute timeout, and today's build takes 3 min 41 s (about 1 min 45 s after 0.26). That is about 100 to 200 builds an hour for every hosted site together. That is enough for launch, but not for growth. |
 | **Per-site data** | D1 and KV per site at launch (D1 allows thousands of databases; KV allows 1,000 namespaces by default). Later, shared tables keyed by site id. | It keeps today's code unchanged. |
-| **Domains** | Default `<name>.getmorpheme.com` (a Worker custom domain; decision 9). Own domains through **Cloudflare for SaaS custom hostnames** on the hosting zone. | Customers keep their DNS where it is: they add a CNAME and the certificate is issued for them. |
+| **Domains** | Default `<name>.<sites domain>` (a Worker custom domain; decision 9). Own domains through **Cloudflare for SaaS custom hostnames** on the sites domain's zone. | Customers keep their DNS where it is: they add a CNAME and the certificate is issued for them. |
 | **Store** | The site gets its store key when it is created (`POST /store/connect` from the platform), so "Connect to Morpheme" is never needed. | It follows the existing `connect-to-morpheme` design. |
 | **CMS updates** | The platform updates hosted sites itself: commit `package.json` to each repo in waves (canary sites first) and read build status through `build.status()`. | It replaces the hourly per-site npm poll and the GitHub check-run watch. |
 | **Billing** | A **Hosting** product in Stripe (monthly, Stripe Tax, Customer Portal) on the same Stripe account and webhook as paid items. The webhook starts the provisioning Workflow. | Reusing the set-up means one Stripe integration to keep. |
@@ -179,8 +181,9 @@ The site Worker is the only part tied to Cloudflare. The foundation's adapters m
 
 ## Decisions still open
 
-1. **Price** of hosting, and whether there is a free or trial plan to reach many sites first (with a build limit).
-2. **Stage 2 login (after 1.0):** do sites on their own account keep GitHub login only, or may they also use Morpheme accounts?
+1. **The name of the sites domain** (decision 9), for example `getmorpheme.site`.
+2. **Price** of hosting, and whether there is a free or trial plan to reach many sites first (with a build limit).
+3. **Stage 2 login (after 1.0):** do sites on their own account keep GitHub login only, or may they also use Morpheme accounts?
 
 ## Sources
 
