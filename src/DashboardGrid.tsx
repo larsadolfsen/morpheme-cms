@@ -4,10 +4,10 @@
 // as tall as its content. Shows a loading state and, when the dashboard can't be loaded, a message with a button to try
 // again. In edit mode every card is drawn with `editing` in a frame with its controls (EditableCards), a failed save is
 // a Notice over the grid, and "Add widget" above the cards opens the list of widgets to place (AddWidget). The button is off
-// when the dashboard has MAX_WIDGETS placements, the most the Worker keeps. A card's Settings opens WidgetSettings
+// when the dashboard has MAX_WIDGETS placements, the most the Worker keeps. Outside edit mode a text button below the cards, "Edit dashboard", starts it. A card's Settings opens WidgetSettings
 // for it (the values go into the draft).
 import { useState } from 'react';
-import { Plus } from '@phosphor-icons/react';
+import { Plus, type Icon as PhosphorIcon } from '@phosphor-icons/react';
 import { siteText, t } from './i18n';
 import { apps } from './site';
 import { MAX_WIDGETS } from './dashboard.mjs';
@@ -19,11 +19,17 @@ import { EditableCards, saveErrorText, type DashboardEditing } from './Dashboard
 import { AddWidget } from './AddWidget';
 import { WidgetSettings } from './WidgetSettings';
 import { widgetGroups, type WidgetDefinition } from './widgets';
+import { Icon } from './icon';
 import { Button, LoadingIndicator, Notice } from './ui';
 
 /** A group's name in the list: the CMS's, or the app's label (the site's text). */
 const groupLabel = (source: string) =>
   source === 'cms' ? t.dashboard.cmsWidgets : siteText(apps.find((app) => app.id === source)?.label ?? source);
+
+/** Material Symbols' `dashboard_customize`, shaped as a Phosphor icon so the shared Button takes it as its leading icon. */
+const CustomizeIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => (
+  <Icon name="dashboard_customize" size={Number(size)} className={className} />
+)) as unknown as PhosphorIcon;
 
 /** The CMS's widgets have no app API, so theirs rejects; an app's widget gets the app's own, as its pages do. */
 const noApi = () => Promise.reject(new Error('The CMS widgets have no app API'));
@@ -96,8 +102,15 @@ export function Dashboard({ dash, env, files }: { dash: DashboardEditing; env: E
           )}
         </>
       ) : (
-        <div className="grid items-start gap-4 medium:grid-cols-2 expanded:grid-cols-3">
+        <div className="grid items-start gap-4 medium:grid-cols-2">
           {dash.shown.map(({ placement, definition }) => draw(placement, definition))}
+        </div>
+      )}
+      {!dash.editing && (
+        <div>
+          <Button kind="text" size="medium" icon={CustomizeIcon} onClick={dash.startEdit}>
+            {t.dashboard.edit}
+          </Button>
         </div>
       )}
     </div>

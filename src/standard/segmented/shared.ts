@@ -1,5 +1,5 @@
 // The shared text of "Segmented list" ("Blocks"): the text button under the rows that shows the rest of them (`Max rows`), to begin with
-// in the site's language (siteT). The link text in an open row is the one of "Expandable list" (accordion/shared.ts).
+// in the site's language (siteT). The link text in an open row is the one of "Accordion" (accordion/shared.ts).
 import { siteT, t } from '../../i18n';
 import { defineShared } from '../../shared';
 

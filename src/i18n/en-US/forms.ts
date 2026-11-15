@@ -80,8 +80,8 @@ export const forms = {
     fixKeywordInH1: (post: boolean) => `Use the keyword in the ${post ? 'title' : 'main heading'}.`,
     fixKeywordInText: 'Use the keyword in the first paragraph.',
     fixNoindex: (post: boolean) => `Turn off No index if the ${post ? 'post' : 'page'} should be found.`,
-    fixCanonical: 'Choose a page that exists, or choose No page.',
-    fixAlt: 'Tap each image, choose Edit, and describe it in the Alt text field.',
+    fixCanonical: 'Select a page that exists, or select No page.',
+    fixAlt: 'Tap each image, select Edit, and describe it in the Alt text field.',
     fixLink: 'Write what the link leads to, for example, "See the prices."',
   },
   /** Over the places that use an entry (a tag), DataForm.tsx. */
@@ -97,7 +97,7 @@ export const forms = {
     noticeLiveTitle: 'You are editing the published version',
     noticeLive: 'What you save here goes on the website at once. A draft is waiting and stays as it is.',
     noticeWaitingTitle: 'This is a draft',
-    noticeWaiting: 'These changes are not on the website yet. Choose Publish to put them there.',
+    noticeWaiting: 'These changes are not on the website yet. Select Publish to put them there.',
     noticeScheduled: (when: string) => `These changes go on the website ${when}. Until then the website shows the published version.`,
     /** Before Publish, when the published version was changed after the waiting changes were saved. */
     overwriteTitle: 'Replace the published version?',
@@ -112,11 +112,11 @@ export const forms = {
     editingLive: 'Editing the published version',
     schedule: 'Schedule',
     cancelSchedule: 'Cancel schedule',
-    scheduleTitle: 'Choose when it goes live',
+    scheduleTitle: 'Select when it goes live',
     scheduleText: (post: boolean) =>
       `The ${post ? 'post' : 'page'} goes on the website at this time, and until then the website shows the version it has. The website updates within an hour of the time.`,
     scheduleTime: 'Date',
-    scheduleNeedsFuture: 'Choose a date and time that has not passed.',
+    scheduleNeedsFuture: 'Select a date and time that has not passed.',
     scheduleWithAddress: 'Save the new URL first, then schedule.',
     /** The line under the title, and the message after scheduling; `when`: "Nov 20 at 8:00 AM". */
     scheduledLine: (when: string) => `Scheduled · ${when}`,
@@ -147,7 +147,7 @@ export const forms = {
     /** `name`: the page or post, as in “Page About us”. */
     discardText: (name: string) => `Your unpublished changes to ${name} will be deleted. The published version stays.`,
     addressWaiting: 'Publish or discard the changes before you change the URL.',
-    standardPage: 'This page is chosen as a default page, so it must stay published.',
+    standardPage: 'This page is selected as a default page, so it must stay published.',
     /** Names of what changed, for the message after a save (`what`: the page or post). */
     published: (what: string) => `${what} published`,
     unpublished: (what: string) => `${what} unpublished`,
@@ -186,11 +186,11 @@ export const forms = {
     deleteAndSchedule: 'Delete and schedule',
     titleNeedsLetters: 'The title must have letters or digits.',
     /** Planlagt (scheduled), with a time that has passed. */
-    scheduledPast: 'The time has already passed. Choose a later time, or choose Published.',
+    scheduledPast: 'The time has already passed. Select a later time, or select Published.',
     /** The page is a standard page ("Front page", "Blog page" …, chosen `where`: "Udseende › Standardsider")
      * and was made Kladde or Planlagt. */
     standardPage: (label: string, where: string) =>
-      `The page is chosen as ${label} under ${where} and must be published. Choose another page there first.`,
+      `The page is selected as ${label} under ${where} and must be published. Select another page there first.`,
     redirectsNotLoaded: (error: string) => `Couldn’t load the redirects: ${error}`,
     takenTitle: (address: string) => `The URL ${address} is taken`,
     /** The address sends visitors on to `name`, and `via` other addresses send on through it. */
@@ -217,7 +217,7 @@ export const forms = {
   fromTitle: 'Created from the title the first time you save the page.',
   noIcon: 'No icon',
   /** Under a page's templates while the side-panel ones are greyed: the link to Globals › Side column. */
-  chooseSideColumn: 'Choose a block for the side column',
+  chooseSideColumn: 'Select a block for the sidebar',
   iconCategory: 'Icon categories',
   showMoreIcons: 'Show more',
   iconCategories: {
@@ -242,18 +242,18 @@ export const forms = {
   },
   searchIcons: 'Search icons',
   noIconsFound: 'No icons found',
-  pickIcon: 'Choose an icon',
+  pickIcon: 'Select an icon',
   noIconYet: 'No icon yet',
   changeIcon: 'Change icon',
   fixedPages: 'Default pages',
   pages: 'Pages',
-  choose: 'Choose…',
+  choose: 'Select…',
   /** Nothing chosen, as a choice in the list. */
   noChoice: 'None',
   /** A value that is not among the choices (a removed page). */
   missing: (value: string) => `${value} (doesn’t exist)`,
   changeImage: 'Change image',
-  pickImage: 'Choose image',
+  pickImage: 'Select image',
   add: 'Add',
   noneFound: 'No results',
   removeOne: (what: string) => `Remove ${what}`,
@@ -270,8 +270,8 @@ export const forms = {
   hideChildrenOf: (name: string) => `Hide the items under ${name}`,
   editOne: (name: string) => `Edit ${name}`,
   /** Picking a page (PagePicker.tsx). */
-  pickPage: 'Choose page',
-  pickPageEllipsis: 'Choose page…',
+  pickPage: 'Select page',
+  pickPageEllipsis: 'Select page…',
   noPage: 'No page',
   searchPages: 'Search the pages',
   noPages: 'No results',
