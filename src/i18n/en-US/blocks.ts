@@ -620,6 +620,8 @@ export const blocks = {
     changeUrl: 'Change link',
     urlProblem: 'Paste the link to the video from YouTube or Vimeo',
     title: 'Title',
+    thumbnail: 'Thumbnail',
+    thumbnailHint: 'Shown before the video plays. Without one, the video’s own thumbnail shows.',
     video: 'Video',
   },
   /** "Checklist" (standard/checklist/). */
