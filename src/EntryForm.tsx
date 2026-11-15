@@ -77,6 +77,7 @@ import { useAutosave, type AutosaveState } from './useAutosave';
 import VersionSwitch, { WaitingNotice } from './VersionSwitch';
 import { activeApps, versionSwitchOf } from './apps';
 import { usePagePreview } from './pagePreview';
+import { ScreenHidden } from './screenHidden';
 import { migrateStatus } from '../lib/status.mjs';
 import { when } from './when';
 import { savedOn, VersionList, VersionNotice, WithVersions, type ShownVersion } from './Versions';
@@ -105,7 +106,7 @@ const SHARE = SHARE_FIELDS;
 // fields.tsx).
 type Section = 'settings' | 'content' | 'seo' | 'share' | 'versions';
 // The fields only the settings have: the status, `unlisted`, a page's title and the template. A field of none of the other
-// sections is a setting too (the URL, the short description, the tags …), after these.
+// sections is a setting too (the URL, the excerpt, the tags …), after these.
 const isOwnSetting = (collection: MarkdownCollection, name: string) =>
   STATUS.includes(name) ||
   name === 'unlisted' ||
@@ -197,7 +198,8 @@ const inForm = (fields: Field[], values: Record<string, unknown>, offered: strin
     ]),
   );
 
-type Props = { collection: MarkdownCollection; file: RepoFile; env: Env };
+/** `preview`: the address is the form's Preview (pagePreview.tsx), a page over the form. */
+type Props = { collection: MarkdownCollection; file: RepoFile; env: Env; preview?: boolean };
 
 // The form starts again with an earlier version, or with the one saved now.
 export default function EntryForm(props: Props) {
@@ -212,6 +214,7 @@ function Form({
   collection,
   file,
   env,
+  preview = false,
   version,
   onVersion,
 }: Props & { version: ShownVersion | null; onVersion: (v: ShownVersion | null) => void }) {
@@ -1145,7 +1148,7 @@ function Form({
   // "Preview": the page or post with what is changed in the form; a new one, or one whose layout is changed in the
   // form (a field with `layout`, the template), in the page of another one of its kind saved with that layout, with
   // all of the form put in it (pagePreview.tsx).
-  const [openPreview, previewSheet] = usePagePreview();
+  const [openPreview, previewPage] = usePagePreview(file.path || `new/${collection.id}`, preview, formTitle);
   const showPreview = () =>
     openPreview(() => {
       const layout = collection.fields.filter((f) => f.layout);
@@ -1255,132 +1258,134 @@ function Form({
   return (
     <Fields.Provider value={fields}>
       <WrongField.Provider value={wrongField.field}>
-        <FormFrame
-          title={formTitle}
-          back={{ href: `#list/${collection.id}`, label: collection.label }}
-          status={versionStatus({
-            state,
-            editsLive,
-            scheduledAt,
-            savedAt,
-            saving,
-            deleting,
-            isNew,
-            autosave: autosaves && dirty ? autosave.state : undefined,
-          })}
-          publish={publishBar}
-          view={isNew ? undefined : url}
-          dirty={dirty}
-          saving={saving || deleting}
-          deleting={deleting}
-          onSave={() => save()}
-          onPreview={showPreview}
-          onDelete={collection.deletable && !isNew ? () => env.remove(collection, live, setDeleting) : undefined}
-          deleteLabel={t.forms.deleteOne(collection.singular)}
-          saveLabel={t.forms.versions.saveDraft}
-        >
-          {version && <VersionNotice version={version} onCurrent={() => onVersion(null)} />}
-          {waiting && !isNew && (
-            <>
-              <Switch
-                entry={{ path: live.path, collection: collection.id, title: String(initial.title ?? ''), post }}
-                versions={versionsOf({ path: live.path, text: live.text, drafts: { waiting: waiting.text } })}
-                editing={editsLive ? 'live' : 'waiting'}
-                busy={saving || deleting}
-                onEdit={(id) => void switchTo(id)}
-                publish={() => publishNow()}
-                schedule={(at) => (at === null ? cancelSchedule() : save(undefined, named(), 'schedule', at))}
-                unpublish={unpublishNow}
-                discard={() => discardNow()}
-              />
-              <WaitingNotice
-                editsLive={editsLive}
-                when={scheduledAt ? timeText(scheduledAt) : undefined}
-                busy={saving || deleting}
-                onDiscard={() => void discardNow()}
-              />
-            </>
-          )}
-          <FormColumns
-            sticky
-            main={
+        <ScreenHidden.Provider value={preview}>
+          <FormFrame
+            title={formTitle}
+            back={{ href: `#list/${collection.id}`, label: collection.label }}
+            status={versionStatus({
+              state,
+              editsLive,
+              scheduledAt,
+              savedAt,
+              saving,
+              deleting,
+              isNew,
+              autosave: autosaves && dirty ? autosave.state : undefined,
+            })}
+            publish={publishBar}
+            view={isNew ? undefined : url}
+            dirty={dirty}
+            saving={saving || deleting}
+            deleting={deleting}
+            onSave={() => save()}
+            onPreview={showPreview}
+            onDelete={collection.deletable && !isNew ? () => env.remove(collection, live, setDeleting) : undefined}
+            deleteLabel={t.forms.deleteOne(collection.singular)}
+            saveLabel={t.forms.versions.saveDraft}
+          >
+            {version && <VersionNotice version={version} onCurrent={() => onVersion(null)} />}
+            {waiting && !isNew && (
               <>
-                {shows('settings') && (
-                  <FoldSection {...sectionProps('settings')}>{fieldsIn(collection, 'settings').map(field)}</FoldSection>
-                )}
-                <FoldSection {...sectionProps('content')} fixed>
-                  {post ? postHead : fieldsIn(collection, 'content').map(field)}
-                  <div ref={textBox} className="scroll-mt-[calc(1rem+env(safe-area-inset-top))]">
-                    <span className="mb-1 block font-medium">{t.forms.text}</span>
-                    <MarkdownEditor
-                      key={era}
-                      ref={text}
-                      value={(restoredBody?.era === era ? restoredBody.body : undefined) ?? shown?.body ?? parts.body}
-                      onChange={onText}
-                      addImage={pickImage}
-                      blocks={collection.blocks ? blockAsk : undefined}
-                      h1={!!collection.blocks}
-                      startFocused={isNew}
-                      onH1={collection.blocks ? onH1 : undefined}
-                      sheet={blockAsk}
-                      looks={
-                        front
-                          ? (items) =>
-                              looksOf(items, { file: `${config.standardPages}#front`, leads: frontLeads, sectionLooks, headingLooks })
-                          : undefined
-                      }
-                      sections={front}
-                      frame
-                    />
-                  </div>
-                </FoldSection>
-                {shows('seo') && (
-                  <FoldSection {...sectionProps('seo')}>
-                    <div ref={seoBox} className="space-y-6">
-                      {rating.length > 0 && <CheckList title={t.forms.seoRating.title} items={rating} />}
-                      <SearchPreview
-                        domain={config.domain}
-                        path={resultPath}
-                        siteName={sharing.name}
-                        title={result.title}
-                        description={result.description}
-                        date={post ? String(values.date ?? '') : undefined}
-                        keyword={String(values.keyword ?? '')}
-                      />
-                      {fieldsIn(collection, 'seo').map(field)}
-                    </div>
-                  </FoldSection>
-                )}
-                {shows('share') && (
-                  <FoldSection {...sectionProps('share')}>
-                    <div ref={shareBox} className="space-y-6">
-                      <SharePreview
-                        image={shownAt(splitPicture(card.image).src)}
-                        domain={config.domain}
-                        title={card.title}
-                        description={card.description}
-                      />
-                      {fieldsIn(collection, 'share').map(field)}
-                    </div>
-                  </FoldSection>
-                )}
-                {shows('versions') && (
-                  <FoldSection {...sectionProps('versions')}>
-                    <VersionList env={env} path={base.path} oid={base.oid} onPick={onVersion} />
-                  </FoldSection>
-                )}
+                <Switch
+                  entry={{ path: live.path, collection: collection.id, title: String(initial.title ?? ''), post }}
+                  versions={versionsOf({ path: live.path, text: live.text, drafts: { waiting: waiting.text } })}
+                  editing={editsLive ? 'live' : 'waiting'}
+                  busy={saving || deleting}
+                  onEdit={(id) => void switchTo(id)}
+                  publish={() => publishNow()}
+                  schedule={(at) => (at === null ? cancelSchedule() : save(undefined, named(), 'schedule', at))}
+                  unpublish={unpublishNow}
+                  discard={() => discardNow()}
+                />
+                <WaitingNotice
+                  editsLive={editsLive}
+                  when={scheduledAt ? timeText(scheduledAt) : undefined}
+                  busy={saving || deleting}
+                  onDiscard={() => void discardNow()}
+                />
               </>
-            }
-            pane={
-              <SectionPane caption={t.forms.sections.title} title={formTitle}>
-                <SectionList title={t.forms.sections.title} items={sections} value={section} onChange={pick} />
-              </SectionPane>
-            }
-          />
-        </FormFrame>
+            )}
+            <FormColumns
+              sticky
+              main={
+                <>
+                  {shows('settings') && (
+                    <FoldSection {...sectionProps('settings')}>{fieldsIn(collection, 'settings').map(field)}</FoldSection>
+                  )}
+                  <FoldSection {...sectionProps('content')} fixed>
+                    {post ? postHead : fieldsIn(collection, 'content').map(field)}
+                    <div ref={textBox} className="scroll-mt-[calc(1rem+env(safe-area-inset-top))]">
+                      <span className="mb-1 block font-medium">{t.forms.text}</span>
+                      <MarkdownEditor
+                        key={era}
+                        ref={text}
+                        value={(restoredBody?.era === era ? restoredBody.body : undefined) ?? shown?.body ?? parts.body}
+                        onChange={onText}
+                        addImage={pickImage}
+                        blocks={collection.blocks ? blockAsk : undefined}
+                        h1={!!collection.blocks}
+                        startFocused={isNew}
+                        onH1={collection.blocks ? onH1 : undefined}
+                        sheet={blockAsk}
+                        looks={
+                          front
+                            ? (items) =>
+                                looksOf(items, { file: `${config.standardPages}#front`, leads: frontLeads, sectionLooks, headingLooks })
+                            : undefined
+                        }
+                        sections={front}
+                        frame
+                      />
+                    </div>
+                  </FoldSection>
+                  {shows('seo') && (
+                    <FoldSection {...sectionProps('seo')}>
+                      <div ref={seoBox} className="space-y-6">
+                        {rating.length > 0 && <CheckList title={t.forms.seoRating.title} items={rating} />}
+                        <SearchPreview
+                          domain={config.domain}
+                          path={resultPath}
+                          siteName={sharing.name}
+                          title={result.title}
+                          description={result.description}
+                          date={post ? String(values.date ?? '') : undefined}
+                          keyword={String(values.keyword ?? '')}
+                        />
+                        {fieldsIn(collection, 'seo').map(field)}
+                      </div>
+                    </FoldSection>
+                  )}
+                  {shows('share') && (
+                    <FoldSection {...sectionProps('share')}>
+                      <div ref={shareBox} className="space-y-6">
+                        <SharePreview
+                          image={shownAt(splitPicture(card.image).src)}
+                          domain={config.domain}
+                          title={card.title}
+                          description={card.description}
+                        />
+                        {fieldsIn(collection, 'share').map(field)}
+                      </div>
+                    </FoldSection>
+                  )}
+                  {shows('versions') && (
+                    <FoldSection {...sectionProps('versions')}>
+                      <VersionList env={env} path={base.path} oid={base.oid} onPick={onVersion} />
+                    </FoldSection>
+                  )}
+                </>
+              }
+              pane={
+                <SectionPane caption={t.forms.sections.title} title={formTitle}>
+                  <SectionList title={t.forms.sections.title} items={sections} value={section} onChange={pick} />
+                </SectionPane>
+              }
+            />
+          </FormFrame>
+        </ScreenHidden.Provider>
         {blockDialog}
         {picker}
-        {previewSheet}
+        {previewPage}
       </WrongField.Provider>
     </Fields.Provider>
   );

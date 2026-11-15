@@ -7,10 +7,14 @@
 // search.script.ts opens and closes it (the back button, Escape, a tap outside), narrows the results to what is
 // written, and moves through them with the arrow keys (Enter follows the one it is on). In the editor only drawn:
 // `open` draws the view (as docked) with `query` in the field instead of the bar. How it looks is the theme's.
-import { useId, type ReactNode } from 'react';
-import { Svg } from '@morphemecms/cms/src/icon';
+// SearchView is the same view driven by React (the editor's command palette): `open`, `query` and `onQueryChange`, results in groups (a
+// label each: M3's "category labels") with an item's trailing shortcut, `activeId` (the option the arrow keys are on, aria-activedescendant),
+// `onActivate`, and `liveText` (what a screen reader hears when the results change). Exposes Search, SearchBar, SearchView, searchClass.
+import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { Svg, type IconRef } from '@morphemecms/cms/src/icon';
 import IconButton from '@theme/ui/IconButton';
 import List, { ListItem } from '@theme/ui/List';
+import { atLeast } from '@morphemecms/cms/lib/breakpoints.mjs';
 
 export type SearchResult = { href: string; headline: ReactNode; supporting?: ReactNode; icon?: string };
 
@@ -125,5 +129,240 @@ export function SearchBar({
         <input type="search" className="search-bar-input" aria-label={label} placeholder={label} {...rest} />
       </span>
     </label>
+  );
+}
+
+/** An option of the controlled search view. */
+export type SearchViewItem = {
+  /** Stable, given back by `onActive…` and `onActivate`. */
+  id: string;
+  headline: ReactNode;
+  /** The group or the path under the name ("Settings › Caching and builds"). */
+  supporting?: ReactNode;
+  /** A leading icon: its name, or an icon made (IconRef). */
+  icon?: IconRef;
+  /** What trails it as text, as people read it ("Ctrl+B"). */
+  shortcut?: string;
+  /** The same key for `aria-keyshortcuts` ("Control+B"). */
+  keyShortcuts?: string;
+  /** Can be highlighted but not run (`aria-disabled`); `supporting` says why. */
+  disabled?: boolean;
+  /** A toggle or the current choice: shown with a check, and `aria-checked`. Left out for an item that is not one. */
+  pressed?: boolean;
+};
+
+/** Results under a label: a group's name over its options (M3: "Category labels, like Recent, Contacts, or Suggestions"). */
+export type SearchViewGroup = { id: string; label?: string; items: SearchViewItem[] };
+
+/** Whether the window is at the medium breakpoint or wider (the search view then docks; below it is full screen). */
+function useWide() {
+  const [wide, setWide] = useState(false);
+  useEffect(() => {
+    const media = matchMedia(atLeast('medium'));
+    const set = () => setWide(media.matches);
+    set();
+    media.addEventListener('change', set);
+    return () => media.removeEventListener('change', set);
+  }, []);
+  return wide;
+}
+
+/**
+ * The search view driven by React: a modal <dialog> (the page behind it is inert, Escape closes it, the focus stays in it) that is full screen
+ * on a phone and docked from the medium breakpoint (`dock` places it under a bar; without one it stands near the top, in the middle).
+ * The focus stays in the field while the arrow keys, Home and End move `activeId` through the options (aria-activedescendant); Enter and a click
+ * call `onActivate` (not for a disabled option). `onClose` is called by the back button, Escape (also with something written) and a tap outside; the caller sets `open` false.
+ * Nothing is searched here: the caller gives the results for `query`.
+ */
+export function SearchView({
+  open,
+  onClose,
+  label,
+  backLabel,
+  clearLabel,
+  emptyText,
+  liveText,
+  query,
+  onQueryChange,
+  groups,
+  activeId,
+  onActiveChange,
+  onActivate,
+  dock,
+  className,
+  ...rest
+}: {
+  open: boolean;
+  onClose: () => void;
+  label: string;
+  backLabel: string;
+  clearLabel: string;
+  /** Shown when no group has an option ("Nothing found for “x”"). */
+  emptyText: string;
+  /** Said by a polite live region when it changes ("5 results", "Nothing found"). */
+  liveText?: string;
+  query: string;
+  onQueryChange: (query: string) => void;
+  groups: SearchViewGroup[];
+  activeId?: string;
+  onActiveChange: (id: string) => void;
+  onActivate: (id: string) => void;
+  /** Where a docked view stands, in px from the window's corner (under a search bar). */
+  dock?: { top: number; left: number; width: number };
+  className?: string;
+} & Record<string, unknown>) {
+  const id = useId();
+  const list = `${id}-results`;
+  const dialog = useRef<HTMLDialogElement>(null);
+  const input = useRef<HTMLInputElement>(null);
+  const wide = useWide();
+  const shown = groups.filter((g) => g.items.length > 0);
+  const flat = shown.flatMap((g) => g.items);
+  const at = activeId === undefined ? -1 : flat.findIndex((i) => i.id === activeId);
+  const optionId = (index: number) => `${list}-${index}`;
+
+  // A modal <dialog> while it is open: the page behind it is inert, Escape closes it, and the focus goes to the field.
+  useEffect(() => {
+    const view = dialog.current;
+    if (!view) return;
+    if (open && !view.open) {
+      view.showModal();
+      input.current?.focus();
+    } else if (!open && view.open) view.close();
+  }, [open]);
+  // The page under it does not scroll while it is open.
+  useEffect(() => {
+    if (!open) return;
+    const root = document.documentElement;
+    const before = root.style.overflow;
+    root.style.overflow = 'hidden';
+    return () => void (root.style.overflow = before);
+  }, [open]);
+  // The option the arrow keys are on stays in view.
+  useEffect(() => {
+    if (open && at >= 0) document.getElementById(optionId(at))?.scrollIntoView({ block: 'nearest' });
+  });
+
+  const move = (to: number) => flat[to] && onActiveChange(flat[to].id);
+  const style =
+    wide && dock
+      ? ({
+          '--search-view-top': `${dock.top}px`,
+          '--search-view-left': `${dock.left}px`,
+          '--search-view-width': `${dock.width}px`,
+        } as CSSProperties)
+      : undefined;
+  let index = -1;
+  return (
+    <div className={[searchClass, className].filter(Boolean).join(' ')} data-search-controlled="" {...rest}>
+      <dialog
+        ref={dialog}
+        className={['search-view', wide && 'search-view-docked'].filter(Boolean).join(' ')}
+        style={style}
+        aria-label={label}
+        onClose={() => open && onClose()}
+        onClick={(e) => e.target === e.currentTarget && onClose()}
+      >
+        <div className="search-view-header">
+          <IconButton icon="arrow-left" label={backLabel} onClick={onClose} />
+          <input
+            ref={input}
+            type="search"
+            className="search-view-input"
+            role="combobox"
+            aria-label={label}
+            aria-expanded="true"
+            aria-controls={list}
+            aria-autocomplete="list"
+            aria-activedescendant={at >= 0 ? optionId(at) : undefined}
+            autoComplete="off"
+            enterKeyHint="go"
+            placeholder={label}
+            value={query}
+            onChange={(e) => onQueryChange(e.target.value)}
+            onKeyDown={(e) => {
+              // Escape closes the view also with something written (a search field would only clear itself, and the second press would close it).
+              if (e.key === 'Escape' && !e.nativeEvent.isComposing) {
+                e.preventDefault();
+                onClose();
+                return;
+              }
+              if (e.nativeEvent.isComposing || !flat.length) return;
+              if (e.key === 'ArrowDown') move((at + 1) % flat.length);
+              else if (e.key === 'ArrowUp') move(at <= 0 ? flat.length - 1 : at - 1);
+              else if (e.key === 'Home') move(0);
+              else if (e.key === 'End') move(flat.length - 1);
+              else if (e.key === 'Enter' && at >= 0) {
+                if (!flat[at].disabled) onActivate(flat[at].id);
+              } else return;
+              e.preventDefault();
+            }}
+          />
+          <IconButton
+            icon="x"
+            label={clearLabel}
+            className="search-view-clear"
+            onClick={() => {
+              onQueryChange('');
+              input.current?.focus();
+            }}
+          />
+        </div>
+        <div
+          id={list}
+          role="listbox"
+          aria-label={label}
+          className="search-view-results"
+          hidden={!flat.length}
+          // A tap on an option keeps the focus in the field.
+          onMouseDown={(e) => e.preventDefault()}
+        >
+          {shown.map((group) => (
+            <div
+              key={group.id}
+              role="group"
+              className="search-view-group"
+              aria-labelledby={group.label ? `${list}-group-${group.id}` : undefined}
+            >
+              {group.label && (
+                <div id={`${list}-group-${group.id}`} className="search-view-group-label">
+                  {group.label}
+                </div>
+              )}
+              <List role="none" dividers="none">
+                {group.items.map((item) => {
+                  index += 1;
+                  return (
+                    <ListItem
+                      key={item.id}
+                      id={optionId(index)}
+                      role="option"
+                      presentation
+                      aria-selected={index === at}
+                      aria-disabled={item.disabled ? true : undefined}
+                      aria-checked={item.pressed === undefined ? undefined : item.pressed}
+                      aria-keyshortcuts={item.keyShortcuts}
+                      leadingIcon={item.icon}
+                      headline={item.headline}
+                      supporting={item.supporting}
+                      trailingSupporting={item.shortcut}
+                      trailingIcon={item.pressed ? 'check' : undefined}
+                      disabled={item.disabled}
+                      onClick={() => onActivate(item.id)}
+                    />
+                  );
+                })}
+              </List>
+            </div>
+          ))}
+        </div>
+        <p className="search-view-empty" hidden={flat.length > 0}>
+          {emptyText}
+        </p>
+        <p className="search-view-live" role="status" aria-live="polite">
+          {liveText}
+        </p>
+      </dialog>
+    </div>
   );
 }

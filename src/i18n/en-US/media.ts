@@ -1,4 +1,4 @@
-// The images, PDFs, videos and zip files (Filer, Media.tsx) and cutting an image to a format (Crop.tsx).
+// The images, PDFs, videos and zip files (Filer, Media.tsx) and cutting an image to a format (CropView.tsx).
 export const media = {
   sorts: { new: 'Newest first', old: 'Oldest first', name: 'Name (A–Z)' },
   sort: 'Sort',
@@ -118,12 +118,17 @@ export const media = {
     alt: (what: string, name: string) => `Editor: change the text of ${what} "${name}"`,
     deleteMany: (count: number) => `Editor: delete ${count} files`,
   },
+  /** The alt text sheet after an image is picked: the button that keeps the image without a text of its own (BlockDialog.tsx, image tools spec 9.1). */
+  altSkip: 'Skip',
+  /** The crop view (CropView.tsx) and the image sheet's Aspect ratio row (image tools spec, sections 3 and 10). */
   crop: {
-    format: 'Format',
-    formatHint: 'Choose a format to crop the image.',
+    title: 'Crop',
+    ratio: 'Aspect ratio',
     original: 'Original',
-    frame: 'Cropping. Drag the image, or use the arrow keys, to move it.',
-    drag: 'Drag the image to choose the crop.',
+    frame: 'Crop frame. Drag the image, or use the arrow keys, to move it.',
+    drag: 'Drag the image to place it in the frame.',
     zoom: 'Zoom',
+    zoomIn: 'Zoom in',
+    zoomOut: 'Zoom out',
   },
 };

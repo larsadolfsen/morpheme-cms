@@ -17,6 +17,7 @@ export default defineBlock({
   nameOf: (p) => nameWith(t.blocks.list.label, p),
   hint: t.blocks.list.hint,
   inline: {
+    blockSettings: true,
     item: 'items',
     fields: ['title', 'text'],
     media: ['icon', 'iconColor'],
@@ -32,6 +33,31 @@ export default defineBlock({
   },
   fields: [
     ...rowsFromFields,
+    // The whole list in one card (not one card for each item: that is Cards, through Change to). `design` is Cards' own key and values, so
+    // Change to carries the style between the two blocks.
+    {
+      name: 'card',
+      label: t.blocks.list.card,
+      type: 'select',
+      segments: true,
+      hint: t.blocks.list.cardHint,
+      options: [
+        { label: t.blocks.list.cardNone, value: '' },
+        { label: t.blocks.list.cardOne, value: 'one' },
+      ],
+    },
+    {
+      name: 'design',
+      label: t.blocks.list.cardStyle,
+      type: 'select',
+      segments: true,
+      only: { field: 'card', is: ['one'] },
+      options: [
+        { label: t.blocks.cards.designOutlined, value: '' },
+        { label: t.blocks.cards.designFilled, value: 'filled' },
+        { label: t.blocks.cards.designElevated, value: 'elevated' },
+      ],
+    },
     {
       name: 'items',
       only: typed,

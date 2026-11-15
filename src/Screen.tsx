@@ -16,7 +16,7 @@
 // button (fabPresence.tsx), there is room for it under the footer (data-clearance): the page is that much taller than the
 // window (--fab-room and --editor-fab-clearance, editor.css), so a short screen still has its footer at the bottom of the window and can
 // be scrolled up to show it above the FAB.
-import { useId, type MouseEvent, type ReactNode } from 'react';
+import { useContext, useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Bell, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
 import { t } from './i18n';
@@ -27,7 +27,10 @@ import { FabPresenceContext, useCountFabs } from './fabPresence';
 import { useMenuOpen } from './menuOpen';
 import { unseen, useNotifications } from './notificationData';
 import { openNotifications, useNotificationsOpen } from './notificationsOpen';
+import { openPalette, usePaletteOpen } from './paletteOpen';
+import { ariaShortcut, shortcutText } from './shortcuts';
 import { SiteLogoLink } from './SiteLogoLink';
+import { ScreenHidden } from './screenHidden';
 import { useTopBarSlot } from './topBarSlot';
 
 // `label` is the screen back goes to, named by the back arrow and the breadcrumbs. `guard` takes every
@@ -57,6 +60,9 @@ type Props<T extends string> = {
   home?: boolean;
   wide?: boolean;
   panel?: boolean;
+  /** A page that fills the window under the bar (the Preview): the back arrow and the title are in the bar on every width, and
+   * the content has no margins, no title row and no footer; it is as high as the window under the bar. */
+  full?: boolean;
   children: ReactNode;
 };
 
@@ -92,6 +98,25 @@ export function NotificationsButton({ className = '' }: { className?: string }) 
   );
 }
 
+/** The search in the top bar, the first of its trailing actions on every screen (not while rows are selected): it opens the command palette
+ * (CommandPalette.tsx), as Ctrl+K does. A plain search icon button (M3: "Search icon button: Use when search is a secondary action or not the main
+ * focus"); in 0.20 it becomes the search app bar. */
+export function SearchButton({ className = '' }: { className?: string }) {
+  const open = usePaletteOpen();
+  return (
+    <IconButton
+      icon="search"
+      label={t.palette.open}
+      shortcut={shortcutText('Mod+K')}
+      aria-keyshortcuts={ariaShortcut('Mod+K')}
+      aria-haspopup="dialog"
+      aria-expanded={open}
+      className={className}
+      onClick={openPalette}
+    />
+  );
+}
+
 export default function Screen<T extends string>({
   title,
   back,
@@ -104,6 +129,7 @@ export default function Screen<T extends string>({
   home = false,
   wide = false,
   panel = false,
+  full = false,
   children,
 }: Props<T>) {
   const id = useId();
@@ -126,6 +152,8 @@ export default function Screen<T extends string>({
     else way();
   };
   const slot = useTopBarSlot();
+  // The form under its Preview (screenHidden.ts): kept, but not drawn.
+  const hidden = useContext(ScreenHidden);
   const fabs = useCountFabs();
   // The way here, without the start screen: the logo in the bar is the way there.
   const crumbs = back && back.href !== '#' ? [back] : [];
@@ -140,19 +168,19 @@ export default function Screen<T extends string>({
             className="shrink-0"
           />
         )}
-        <SiteLogoLink onClick={leave()} className={home ? '' : 'hidden expanded:flex'} />
+        {!full && <SiteLogoLink onClick={leave()} className={home ? '' : 'hidden expanded:flex'} />}
         {back && (
           <a
             href={back.href}
             onClick={leave(() => up(back.href))}
             title={t.common.backTo(back.label)}
             aria-label={t.common.backTo(back.label)}
-            className="flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-surface-container-high expanded:hidden"
+            className={`flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-surface-container-high ${full ? '' : 'expanded:hidden'}`}
           >
             <ArrowLeft size={24} />
           </a>
         )}
-        <div className="flex min-w-0 flex-1 flex-col pl-1 expanded:hidden">
+        <div className={`flex min-w-0 flex-1 flex-col pl-1 ${full ? '' : 'expanded:hidden'}`}>
           <h1 className="truncate text-title-large">{title}</h1>
           {status && (
             <p data-subtitle className="truncate text-xs text-on-surface-variant">
@@ -160,7 +188,8 @@ export default function Screen<T extends string>({
             </p>
           )}
         </div>
-        <div className="hidden min-w-0 flex-1 expanded:block" />
+        {!full && <div className="hidden min-w-0 flex-1 expanded:block" />}
+        {!selection && <SearchButton />}
         <div className="flex shrink-0 items-center justify-end gap-1">
           {selection ?? (
             <>
@@ -182,6 +211,14 @@ export default function Screen<T extends string>({
       )}
     </TopAppBar>
   );
+  if (hidden) return <div hidden>{children}</div>;
+  if (full)
+    return (
+      <div data-full-page className="flex min-h-0 w-full min-w-0 flex-1 flex-col pb-[env(safe-area-inset-bottom)]">
+        {slot ? createPortal(bar, slot) : bar}
+        <main className="editor-screen-full flex min-h-0 flex-1 flex-col">{children}</main>
+      </div>
+    );
   return (
     <div className={`flex flex-col ${slot ? 'flex-1' : 'min-h-[calc(100dvh+var(--editor-fab-clearance,0px))]'}`}>
       {slot ? createPortal(bar, slot) : bar}

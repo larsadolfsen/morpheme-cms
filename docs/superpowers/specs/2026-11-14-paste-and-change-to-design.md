@@ -1,4 +1,4 @@
-# Paste to make items, and Change to (design)
+# Paste to make items, and Change type (design)
 
 Status: spec and build plan for the 0.18 PM, every open point decided by the owner (section 10). No code in this pull request.
 Owner decisions of 14 Nov 2026, building on the open
@@ -10,7 +10,7 @@ questions 4 and 5 and the Steps decision on paste of 12 Nov in `docs/superpowers
    question), Cards (each line a card title), Table (each line a row; tabs make cells). The exception decided on 12 Nov stays: if
    the pasted text has headings among its lines (`#` lines, or H1 to H6 from a document), the paste is left as it is and no items
    are made.
-2. **`Change to`** turns one repeating block into another (List, Steps, Segmented list, FAQ list, Cards, Table), from the block's
+2. **`Change type`** (first `Change to`, renamed on 14 Nov, decision 12) turns one repeating block into another (List, Steps, Segmented list, FAQ list, Cards, Table), from the block's
    menu and from the command palette. Each item's title and text move over. What the new block cannot show (an icon, an image, a
    link, extra columns) stays in the saved block, so changing back brings it back. Undo works.
 
@@ -119,11 +119,11 @@ grows), tested with `node --test`:
   `tr`/`td`/`th`, entities decoded, tags inside cells dropped), else the plain lines split on tabs. `null` when there is a heading,
   or fewer than two lines and fewer than two cells.
 
-## 3. Change to
+## 3. Change type
 
 ### What it does
 
-`Change to` sets the block's `type` to the new block and its props to the changed props, in one `setNodeMarkup` (one undo step).
+`Change type` sets the block's `type` to the new block and its props to the changed props, in one `setNodeMarkup` (one undo step).
 The block stays where it is, stays active, and the cursor goes to the first field of the item that had it (or the first item).
 
 **The rule for every change, A to B:**
@@ -137,7 +137,7 @@ The block stays where it is, stays active, and the cursor goes to the first fiel
 3. **Nothing is lost on the way back.** Changing B back to A gives A's items with every key they had; when the title and text were
    not edited in B, A's props are equal to what they were, plus B's own props that B added (they stay unseen).
 4. **A block saved before never changes by itself.** A block that is not changed is read and saved exactly as before: no new key,
-   no migration, nothing in `FORMER`. The kept keys only appear when an owner uses `Change to`.
+   no migration, nothing in `FORMER`. The kept keys only appear when an owner uses `Change type`.
 
 ### Title and text of each block
 
@@ -199,32 +199,36 @@ From each of the six, the other five, with two limits:
    Segmented list and FAQ list, the blocks that can read a list. `from`, `tags`, `howMany` and `map` move over as they are (`map`
    names the same row parts in all three). Steps, Cards and Table are not offered: they have no rows of their own to show.
 2. **The page's template** (`collections.ts` rules): a target the template does not allow on this page is not offered, and a block
-   the template locks offers no `Change to` at all.
+   the template locks offers no `Change type` at all.
 
 All other pairs make sense, because every one of the six is a list of things with a title and, mostly, a text. If no target is left,
-the menu has no `Change to` row.
+the menu has no `Change type` row.
 
 ### The menu item
 
 - **Place:** in the block's `⋮` menu, right after `Block settings` (and the list's own page, when there is one), before `Hide on the
   page`. Not in the action row above the block (`blockRow.ts` keeps its four buttons).
-- **Text:** `Change to`, a row with a submenu (the menu's trailing arrow says there is more, so no ellipsis; decision 7). Its
+- **Text:** `Change type`, a row with a submenu (the menu's trailing arrow says there is more, so no ellipsis; decision 7). Its
   icon: Material Symbols `swap_horiz` (drawn by name through `Icon`, CLAUDE.md *Icons*).
 - **Submenu:** the targets in a fixed order, List, Segmented list, Steps, FAQ list, Cards, Table, each with its block's icon and its
   block name (`t.blocks.<type>.label`, so the names are those of *Insert*). The current block is not in it.
+- **The submenu's header:** its first row, named `Change type` with the same `swap_horiz` icon as the row (not a back arrow). It takes the owner
+  back to the menu on click, Enter, Left arrow and Escape; its name for screen readers says where it goes (`Change type, back to menu`).
+  Only this submenu has such a header: no other submenu of the editor shares the code.
 - **After the change:** a snackbar `Changed to <block>` with `Undo` (decision 8).
 
 | Key | en-US | da-DK |
 | :--- | :--- | :--- |
-| `t.text.changeTo` | Change to | Skift til |
+| `t.text.changeTo` (the row and the submenu's header) | Change type | Skift type |
+| `t.text.backToMenu(level)` (the header's name for screen readers) | {level}, back to menu | {level}, tilbage til menuen |
 | `t.text.changedTo(name)` | Changed to {name} | Skiftet til {name} |
 | `t.actions` label of `block.change-to-<type>` | Change to {name} | Skift til {name} |
 
 The block names already exist: List / Liste, Segmented list / Segmenteret liste, Steps / Trin, FAQ list / FAQ-liste, Cards / Kort,
 Table / Tabel. Undo in the snackbar uses the editor's existing word.
 
-Word choice (CLAUDE.md, M3 *Word choice*): an active verb and the thing, no filler; `Change to` reads as the start of the sentence the
-submenu finishes ("Change to Table").
+Word choice (CLAUDE.md, M3 *Word choice*): an active verb and the thing, no filler; `Change type` names what the row does, and the
+palette's actions finish the sentence with the block ("Change to Table"; the snackbar says "Changed to Table").
 
 ### The command palette
 
@@ -238,10 +242,10 @@ Label `Change to <block>` (`Skift til <blok>`), group *Block*, so typing "table"
 
 ## 4. Touch and keyboard
 
-- **Phone:** the `⋮` menu is a bottom sheet; `Change to` opens its submenu as the sheet's next level with a back row (the editor
+- **Phone:** the `⋮` menu is a bottom sheet; `Change type` opens its submenu as the sheet's next level with a header row (the editor
   `Menu`'s submenu on a phone). Rows have the editor's touch size (44 dp, `blockRow.ts`'s `SIZE`). A paste from the phone's
   long-press *Paste* is the same `paste` event and works the same.
-- **Keyboard:** in the `⋮` menu, arrows move to `Change to`, Right arrow or Enter opens the submenu, Left arrow or Escape closes it,
+- **Keyboard:** in the `⋮` menu, arrows move to `Change type`, Right arrow or Enter opens the submenu, Left arrow or Escape goes back to the menu's rows (Escape there closes the menu),
   Enter chooses; type-ahead letters work in both levels (the palette spec adds them to the editor's `moveInMenu`). Focus goes back to
   the block's field after the change. `Ctrl/⌘+Z` undoes the change, `Ctrl/⌘+Shift+Z` redoes it.
 - **Screen readers:** the submenu row has `aria-haspopup="menu"` and `aria-expanded`; the snackbar is announced (the editor's
@@ -272,10 +276,10 @@ read. The site's HTML has only what the block draws. A check proves it (section 
 
 ## 6. Undo
 
-- `Change to` is one `setNodeMarkup` with the new `type` and `props`, in one transaction with `closeHistory` before it, so it is
+- `Change type` is one `setNodeMarkup` with the new `type` and `props`, in one transaction with `closeHistory` before it, so it is
   its own undo step even right after typing.
 - A paste that makes items is one `onChange` (one transaction), also its own undo step.
-- Undo after `Change to` gives the old type and props and the same active item; redo gives the change again.
+- Undo after `Change type` gives the old type and props and the same active item; redo gives the change again.
 
 ## 7. Release notes
 
@@ -290,11 +294,11 @@ notes instead of adding new ones (*several changes to the same feature are one n
   liste, FAQ-liste, Kort eller Tabel, så bliver hver linje et punkt, og tabulatorer deler en tabels celler. Tekst med overskrifter
   indsættes, som den er.
 
-**Change to** / **Skift til**
+**Change type** / **Skift type**
 
-- en-US: A block no longer has to be built again to get another look. Open the block’s ⋮ menu, choose Change to and pick another
+- en-US: A block no longer has to be built again to get another look. Open the block’s ⋮ menu, choose Change type and pick another
   list block. Titles and texts move over, and icons, images and links are kept for when you change back.
-- da-DK: En blok skal ikke længere bygges forfra for at få et andet udseende. Åbn blokkens ⋮-menu, vælg Skift til, og vælg en anden
+- da-DK: En blok skal ikke længere bygges forfra for at få et andet udseende. Åbn blokkens ⋮-menu, vælg Skift type, og vælg en anden
   listeblok. Titler og tekster flytter med, og ikoner, billeder og links gemmes, til du skifter tilbage.
 
 PR 2 ships the List, Steps, Segmented list, FAQ list and Cards part; PR 3 adds "or Table" and the tab sentence to the note.
@@ -323,7 +327,7 @@ PR 2 ships the List, Steps, Segmented list, FAQ list and Cards part; PR 3 adds "
 - `inlinePaste`: for each of the six, a `paste` event with a `DataTransfer` of three lines (and a TSV grid for Table) into the
   empty block: the item count, the first field's texts, the cursor in the last item; a paste with a `#` line leaves one item with
   the text; `Ctrl+Z` gives the empty block back.
-- `changeTo`: the `⋮` menu has `Change to` after `Block settings` with the five targets (three for a List with *Rows from*); List with
+- `changeTo`: the `⋮` menu has `Change type` after `Block settings` with the five targets (three for a List with *Rows from*); List with
   an icon → Steps → List shows the icon again; List → Table → List the same; undo after a change gives the List back; the snackbar text;
   the submenu as the sheet's next level on the phone.
 - The site's HTML of a page with a changed block has none of the kept texts (a block changed in the demo test page, checked in
@@ -372,8 +376,12 @@ The owner approved every recommendation of the first draft (relayed by the 0.18 
 4. **A pasted Table keeps its `header` setting** (on by default), so the first pasted line is the header row.
 5. **A row whose title comes from its page** (List, Segmented list): the shown title moves over and the link is kept.
 6. **Lines past a block's maximum** are left out, and a snackbar says how many.
-7. **The menu text is `Change to`** with a submenu arrow, no ellipsis; Danish `Skift til`.
+7. **The menu text is `Change to`** with a submenu arrow, no ellipsis; Danish `Skift til` (renamed by decision 12).
 8. **A snackbar after the change**: `Changed to Steps` with `Undo`.
 9. **Kept data stays**; no clean-up action.
 10. **A card's text becomes optional** (its own pull request, build plan step 4).
 11. **A table made by `Change to` has no header row** (`header: false`).
+12. **`Change to` is renamed `Change type`** (Danish `Skift type`) on the menu row and on the submenu's header (owner, 14 Nov, after step 5). The
+    header draws the row's `swap_horiz` icon instead of a back arrow, takes the owner back to the menu on click, Enter, Left arrow and Escape,
+    and says so to screen readers (`Change type, back to menu`). The snackbar ("Changed to Table") and the palette's actions ("Change to Table")
+    keep their texts, as they name the block it became.

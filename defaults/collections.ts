@@ -60,7 +60,7 @@ const barButtonHref: Field = {
 // Under "Search engines" with the Google texts (EntryForm.tsx).
 const canonical: Field = {
   name: 'canonical',
-  label: 'Original page',
+  label: 'Canonical URL',
   type: 'relation',
   to: 'pages',
   fixed: true,
@@ -130,14 +130,14 @@ const status = (): Field[] => [
 const seo: Field[] = [
   {
     name: 'seoTitle',
-    label: 'Google title',
+    label: 'Meta title',
     type: 'string',
     hint: 'At most about 60 characters.',
     max: 70,
   },
   {
     name: 'seoDescription',
-    label: 'Google description',
+    label: 'Meta description',
     type: 'text',
     hint: 'About 140-155 characters.',
     max: 170,
@@ -145,7 +145,7 @@ const seo: Field[] = [
   // og:image (Base.astro), cut to 1200 × 630 by packages/editor/scripts/responsive-images.mjs.
   {
     name: 'shareImage',
-    label: 'Image when shared',
+    label: 'Open Graph image',
     type: 'image',
     hint: 'Shown when the page is shared, for example on Facebook.',
   },
@@ -156,16 +156,16 @@ const seo: Field[] = [
 const shareTexts: Field[] = [
   {
     name: 'shareTitle',
-    label: 'Title when shared',
+    label: 'Open Graph title',
     type: 'string',
-    hint: 'If the field is empty, the Google title is used.',
+    hint: 'If the field is empty, the meta title is used.',
     max: 70,
   },
   {
     name: 'shareDescription',
-    label: 'Description when shared',
+    label: 'Open Graph description',
     type: 'text',
-    hint: 'If the field is empty, the Google description is used.',
+    hint: 'If the field is empty, the meta description is used.',
     max: 170,
   },
 ];
@@ -399,7 +399,7 @@ export const collections: Collection[] = [
       { name: 'title', label: 'Title', type: 'string', required: true },
       { name: 'date', label: 'Date', type: 'date', required: true },
       { name: 'path', label: 'URL', type: 'string', address: 'post' },
-      { name: 'description', label: 'Short description', type: 'text' },
+      { name: 'description', label: 'Excerpt', type: 'text' },
       {
         name: 'categories',
         label: 'Tags',
@@ -431,7 +431,7 @@ export const collections: Collection[] = [
       ...status(),
       { name: 'title', label: 'Title', type: 'string', required: true },
       { name: 'path', label: 'URL', type: 'string', address: 'page' },
-      { name: 'description', label: 'Short description', type: 'text' },
+      { name: 'description', label: 'Excerpt', type: 'text' },
       {
         name: 'categories',
         label: 'Tags',
@@ -552,7 +552,7 @@ export const collections: Collection[] = [
       },
       {
         name: 'enabled',
-        label: 'Activated',
+        label: 'Promotion',
         type: 'boolean',
         toggle: ['On', 'Off'],
         default: true,
@@ -786,7 +786,7 @@ export const collections: Collection[] = [
         fields: [
           {
             name: 'enabled',
-            label: 'Activated',
+            label: 'The main menu',
             type: 'boolean',
             toggle: ['On', 'Off'],
             default: true,
@@ -829,7 +829,7 @@ export const collections: Collection[] = [
         fields: [
           {
             name: 'enabled',
-            label: 'Activated',
+            label: 'The mobile menu',
             type: 'boolean',
             toggle: ['On', 'Off'],
             default: false,

@@ -192,3 +192,39 @@ Source: `theme/ui/ChoiceGroup.tsx`, `theme/ui/choiceGroupFit.mjs`, `theme/styles
 - **We do:** a choice that is a look (a button style, a card's design or colour) shows a small, inert drawing of that look, made of the theme's own part, on the right of its row (`.choice-group-sample`, at most 7rem wide, `aria-hidden`), only in the list form.
 - **Why:** owner, 14 Nov 2026: "Where a choice is a look … each radio row shows a small live sample on its right."
 - **Date:** 2026-11-14. **PR:** the same.
+
+## Command palette (command palette, step 5)
+
+Source: `docs/superpowers/specs/2026-11-13-command-palette-and-context-menus-design.md` (sections 1b and 9), `src/CommandPalette.tsx`, `theme/ui/Search.tsx` (`SearchView`), `src/Screen.tsx` (`SearchButton`).
+
+### P1. A command palette is built from the Search view
+
+- **Material:** "Use search for products with many items to manage, such as files or messages." and "Search helps people find information quickly." M3 has no page for running actions from a search, and none for a command palette.
+- **We do:** the Search view lists and runs the editor's actions as well as finding content (the places of the menu, the Settings screens, pages and posts by title); every other part is M3's (a List, an icon button with a tooltip, menus). It opens from `Ctrl+K` (`⌘K`), which M3 is silent on.
+- **Why:** owner, 13 Nov 2026: "a command palette: if the editor has dozens of functions, a floating search bar (Cmd/Ctrl+K, like VS Code, Figma, Notion) where the user types the action". Search is the nearest M3 part, and a dialog is the wrong one ("Dialogs are purposefully interruptive … used sparingly"). Where M3 is silent (the docked view with no bar to dock under, the ranking, the keys) the spec's section 1b lists what is ours.
+- **Date:** 2026-11-13 (owner). **PR:** the pull request that adds this entry (command palette, step 5).
+
+### P2. No custom context menu: the browser's or the operating system's menu stays
+
+- **Material:** "A secondary click (whether using a single button or two fingers on a trackpad) should activate a context menu. The context menu shows additional options for the object that's clicked." (Inputs); "A secondary click, like a right-click on a mouse or a two-finger tap on a trackpad, opens a context menu." (Menus).
+- **We do:** a right click opens the browser's own menu everywhere in the editor, in text, on blocks, images, table cells, rows, files and links. The editor draws no context menu, and `check:screens` fails if one of those stops the `contextmenu` event. The tools are on the bar, in its `⋮` and in the palette.
+- **Why:** owner, 13 Nov 2026: "So we keep the no right click menu." The system menu does Cut, Copy and Paste, spell-check and link items better than we can. The browser's menu is itself a context menu, so this may not be a deviation in a strict reading; it is listed because the PM asked for it.
+- **Date:** 2026-11-13 (owner). **PR:** the same.
+
+### P3. More than two actions in the top bar on some screens until 0.20
+
+- **Material:** "App bars should only have one action, two if necessary." "Up to two icon buttons can be placed after the headline" (App bars, guidelines).
+- **We do:** the search icon button is the first trailing action on every screen. On the start screen (4 actions), on Pages, Blog posts, every list with deleted items and Files (3), and, below expanded, on a page or post being edited (4) or a new one (3), the bar then has more than two. Nothing else moves.
+- **Why:** owner, 14 Nov 2026: the palette opens from "a plain search icon button in today's top bar, on every screen", and the owner approved these bars going over M3's two-action limit as a temporary deviation until the 0.20 search app bar, which has "up to two trailing icons on mobile" and "up to four trailing icons on larger screens" and ends this entry.
+- **Date:** 2026-11-14 (owner's approval, through the 0.18 PM). **PR:** the same.
+
+## The crop view
+
+Source: `src/CropView.tsx`, `src/editor.css` (`.crop-page`). Spec: `docs/superpowers/specs/2026-11-14-image-tools-design.md` (section 3). Read 14 Nov 2026 on m3.material.io (Playwright): `/components/dialogs/guidelines`, `/specs` and `/accessibility`, `/components/sliders/guidelines` and `/accessibility`, `/components/toolbars/guidelines`. The dialogs' and sliders' token tables stay collapsed in a text read, so no token value is quoted.
+
+### C1. The crop view is a page of the editor on every width, not a dialog
+
+- **Material:** "Full-screen dialogs are for compact breakpoints only, like mobile devices. For medium and expanded breakpoints, use a basic dialog." "To save a selection in a full-screen dialog, use Save. The close icon or dismissive action, such as Cancel or Back, should close the dialog." "When someone dismisses a full-screen dialog, a basic dialog should appear to confirm that they want to discard the unsaved changes."
+- **We do:** the crop view is a page on every width: a layer the size of the window over the editor (a modal `<dialog>` with no dialog parts, so the form under it keeps its changes and its scroll place), with the theme's top app bar (back arrow and the title `Crop`), the image area, the aspect ratios and the zoom, and a bottom bar with `Save` (and `Cancel` from medium). The phone's back gesture leaves it (a step of its own in the history, as the sheets have). Leaving with changes asks the basic dialog `Keep your changes?`, as M3 says for a full-screen dialog; the dialog's other parts are not used.
+- **Why:** owner decision, 14 Nov 2026: "Convert all full screen views to pages." (relayed by the project manager). Save is in the bottom bar on a phone, as the owner's rule for Save buttons says.
+- **Date:** 2026-11-14. **PR:** #686.

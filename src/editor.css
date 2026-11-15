@@ -760,13 +760,13 @@
    content keeps clear of it (its end padding; --column-end tells the column, so it stays centred on the window while
    there is room), and the save bar ends where the area begins. */
 @media (width >= theme(--breakpoint-large)) {
-  :root:has(.editor-section-pane) {
+  :root:has(.editor-section-pane:not([hidden] *)) {
     --column-end: var(--section-pane-width);
   }
-  .editor-content:has(.editor-section-pane) {
+  .editor-content:has(.editor-section-pane:not([hidden] *)) {
     padding-inline-end: var(--section-pane-width);
   }
-  :root:has(.editor-section-pane) .editor-save-bar {
+  :root:has(.editor-section-pane:not([hidden] *)) .editor-save-bar {
     right: var(--section-pane-width);
   }
 
@@ -1014,17 +1014,26 @@ html {
   justify-content: center;
   inline-size: 1.5rem;
   block-size: 1.5rem;
-  border: 2px solid var(--mo-outline);
+  /* Part of the dotted outline it sits on: the same line (width, style and colour), on the surface the line is drawn on, with no shadow. */
+  box-sizing: border-box;
+  border: 1.5px dashed color-mix(in srgb, var(--mo-on-surface-variant) 45%, transparent);
   border-radius: 50%;
   background: var(--mo-surface);
   color: transparent;
-  box-shadow: 0 0 0 2px var(--mo-surface);
+  box-shadow: none;
+  transition: border-color var(--motion-effects);
+}
+
+.editor-text .site-block:hover .site-block-mark:not([data-mark='on']) .site-block-mark-dot {
+  border-color: var(--mo-primary);
 }
 
 .editor-text .site-block-mark[data-mark='on'] .site-block-mark-dot {
+  border-style: solid;
   border-color: var(--mo-primary);
   background: var(--mo-primary);
   color: var(--mo-on-primary);
+  box-shadow: none;
 }
 
 .editor-text :is(.site-block-marks, .site-block-has-row) > .site-block-mark {
@@ -1652,25 +1661,6 @@ dialog {
   overscroll-behavior: contain;
 }
 
-/* The full-screen Preview (pagePreview.tsx): a <dialog> over the whole screen on every width, hiding the rest of the editor, with
-   its close button at the top (Material 3's full-screen dialog). */
-.editor-preview-screen {
-  width: 100%;
-  max-width: none;
-  height: 100%;
-  max-height: none;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: var(--mo-surface);
-  color: var(--mo-on-surface);
-}
-.editor-preview-screen[open] {
-  display: flex;
-  flex-direction: column;
-}
-
 /* The first heading of a page's text is its title, drawn as the site draws it (.theme-title in the theme's components.css, and
    PageHeading.astro's width): the display role, by the theme's variables, not the weight of a heading in the middle of the text. */
 .editor-text .ProseMirror > h1:first-child {
@@ -1950,10 +1940,127 @@ dialog {
   }
 }
 
-/* Files: a file's details in the full-screen dialog (Media.tsx). The docked toolbar (Previous, "1 of 4", Next) stays at the
-   dialog's bottom edge while its content scrolls: sticky at the end of the content, over its end padding, the whole width. */
-.editor-file-dialog .editor-file-toolbar {
-  position: sticky;
-  bottom: calc(-1 * max(1.5rem, env(safe-area-inset-bottom)));
-  margin: 1.5rem calc(-1 * var(--dialog-padding, 1.5rem)) calc(-1 * max(1.5rem, env(safe-area-inset-bottom)));
+/* The crop view (CropView.tsx, image tools spec section 3): a page of the editor on every width, as a layer the size of the window over it (a modal
+   <dialog>, so the form under it keeps its changes and its scroll place): the top app bar, the content in a column as wide as a form, and a bottom bar
+   with Save. The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and the part of the image outside it is under the
+   theme's scrim, the one its dialogs have behind their container (--dialog-scrim). The frame has a 2 dp border with a 1 dp halo outside it in the other
+   inverse colour, so one of the two stands against any image, light or dark (M3 prints no frame: the focus ring's two-tone look). */
+.crop-page {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--mo-surface);
+  color: var(--mo-on-surface);
+}
+.crop-page[open] {
+  display: flex;
+  flex-direction: column;
+}
+.crop-page-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  max-width: 48rem;
+  margin-inline: auto;
+  padding: 1rem;
+}
+.crop-page-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  background: var(--mo-surface-container);
+}
+@media (width >= theme(--breakpoint-medium)) {
+  .crop-page-main {
+    padding: 1.5rem;
+  }
+  .crop-page-bar {
+    padding-inline: 1.5rem;
+  }
+}
+.crop-view {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+}
+.crop-view-area {
+  position: relative;
+  flex: 1;
+  min-height: 10rem;
+  overflow: hidden;
+  border-radius: var(--mo-shape-corner-medium, 0.75rem);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.crop-view-area:active {
+  cursor: grabbing;
+}
+.crop-view-area[data-original] {
+  cursor: default;
+}
+.crop-view-image {
+  position: absolute;
+  max-width: none;
+  pointer-events: none;
+}
+.crop-view-frame {
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px solid var(--mo-inverse-on-surface);
+  box-shadow: 0 0 0 1px var(--mo-inverse-surface);
+  pointer-events: none;
+}
+/* The part of the image outside the frame is under the theme's scrim, the one its dialogs have behind their container (--dialog-scrim); only the image is, so
+   the blank part of the stage keeps the page's colour. */
+.crop-view-shade {
+  position: absolute;
+  background: var(--dialog-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-on-surface)) 50%, transparent));
+  pointer-events: none;
+}
+.crop-view-frame:focus-visible {
+  outline: 2px solid var(--mo-primary);
+  outline-offset: 4px;
+}
+.crop-view-hint {
+  margin: 0;
+  color: var(--mo-on-surface-variant);
+  font-size: var(--type-body-small-size, 0.75rem);
+  text-align: center;
+}
+.crop-view-label {
+  margin: 0 0 0.5rem;
+  font-weight: 500;
+}
+/* One row that scrolls sideways below medium; from medium the chips wrap. */
+.crop-view-ratios {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.crop-view-ratios > * {
+  flex-shrink: 0;
+}
+.crop-view-zoom {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+@media (width >= theme(--breakpoint-medium)) {
+  .crop-view-ratios {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
 }

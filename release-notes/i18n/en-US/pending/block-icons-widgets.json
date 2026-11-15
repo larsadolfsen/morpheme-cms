@@ -1,0 +1,7 @@
+{
+  "id": "block-icons-widgets",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Block icons",
+  "text": "Block buttons are easier to tell from other plus and gear buttons. Insert block on the text toolbar shows the widgets icon with a plus, and Block settings shows it with a small cog. Add tag and site settings keep their own icons."
+}

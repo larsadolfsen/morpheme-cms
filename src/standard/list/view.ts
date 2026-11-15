@@ -4,6 +4,10 @@
 import type { ViewOf } from '../view';
 import { editorRows } from '../rows/view';
 import { withRows } from '../rows/rows.mjs';
+import type { CardKind } from '@theme/ui/Card';
+import { cardOf } from './card.mjs';
+
+export { cardOf };
 
 /** `iconColor`: a color role of the site (src/iconColor.ts), Primary without one. */
 export type ListRow = {
@@ -14,13 +18,15 @@ export type ListRow = {
   href?: string;
   buttons?: { label: string; href: string }[];
 };
-export type ListView = { items: ListRow[] };
+/** `card: 'one'`: the whole list in one card of the style `design` (outlined, filled or elevated: Cards' own key and values); without `card` the list stands as it always has. */
+export type ListView = { items: ListRow[]; card?: 'one'; design?: CardKind };
 
 /** A row as its fields write it: without a heading of its own when it has a page. */
 export type ListRowProps = Partial<ListRow>;
 
 /** The view from the block's fields; `titleOf`: a page's title by its address, undefined when there is no such page. */
 export const listOf = (props: Record<string, any>, titleOf: (href: string) => string | undefined): ListView => ({
+  ...cardOf(props),
   items: ((props.items ?? []) as ListRowProps[]).flatMap((row) => {
     const title = row.title?.trim() || (row.href ? titleOf(row.href) : undefined);
     // A row with no heading and no page still has its text: it is shown (with an empty heading), never dropped. A row with nothing in it, or whose

@@ -43,7 +43,7 @@ export const app = {
     logo: 'logo',
     icon: 'icon',
     r2Caching: 'R2 caching',
-    place: 'storage location',
+    place: 'R2 location',
     contentOnlyBuilds: 'content-only builds',
     paidBuilds: 'Workers Paid plan',
   },
@@ -86,7 +86,7 @@ export const app = {
   preparingImage: 'Preparing the image…',
   /** The check before the website is updated (checkSite.ts). */
   invalidJson: 'The file isn’t valid JSON',
-  blocksOff: 'Turned off',
+  blocksOff: 'Off',
   block: 'Block',
   appsInstalled: 'Installed',
   app: 'App',

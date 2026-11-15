@@ -95,6 +95,8 @@
   --bottom-sheet-radius: var(--mo-shape-extra-large);
   --bottom-sheet-line: transparent;
   --bottom-sheet-scrim: var(--mo-scrim-overlay);
+  /* The search view (M3: docked, "with a scrim covering main content"; full screen it covers everything): the scrim over the page behind it, as a dialog's. */
+  --search-view-scrim: var(--mo-scrim-overlay);
   --bottom-sheet-handle: color-mix(in srgb, var(--mo-on-surface-variant) 40%, transparent);
   /* The carousel's page indicator: the dots in the outline, the chosen one a longer pill (in the primary colour). */
   --carousel-dot-colour: var(--mo-outline);
@@ -874,7 +876,8 @@
 
   /* "Cards": Material 3's three (outlined, filled, elevated: the card's `design`, ui.css); the filled one on the surface container (or the
      primary, secondary or tertiary container: blocks.css), with the card's state layer (ui.css) when pointed at or focused. */
-  .block-card {
+  .block-card,
+  .block-list-card {
     --card-filled-surface: var(--mo-surface-container);
   }
   .block-card-picture {

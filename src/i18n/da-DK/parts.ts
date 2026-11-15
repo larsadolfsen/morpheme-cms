@@ -93,7 +93,7 @@ export const parts: Messages['parts'] = {
     color: 'Primær',
     colorHint: 'Knapper, links og ikoner.',
     phone: 'Telefon',
-    description: 'Kort beskrivelse',
+    description: 'Uddrag',
     descriptionText: 'En tekst over flere linjer.',
     placement: 'Placering',
     top: 'Øverst',
@@ -681,7 +681,8 @@ export const parts: Messages['parts'] = {
         'De samme sider ned langs siden på en større skærm, smal eller bred. Øverst knappen, der skifter, og skærmens vigtigste handling. Bred ved siden af indholdet eller over det, og evt. helt væk, når den er smal.',
       content: 'Sidens indhold står her.',
       openRail: 'Åbn navigation',
-      search: 'Søgefeltet og det, det åbner: feltet med knappen tilbage og resultaterne, der passer til det skrevne.',
+      search:
+        'Søgefeltet og det, det åbner: feltet med knappen tilbage og resultaterne, der passer til det skrevne. En søgevisning, som siden styrer, grupperer også resultaterne under et navn, viser en tast ved siden af et punkt og beholder et punkt, der ikke kan bruges nu.',
       toolbar:
         'Handlinger på en række: i hele bredden nederst, som linjen nederst på en telefon, eller svævende, i fladen eller den primære farve, på tværs eller lodret, også med en knap ved siden af og foldet sammen til knappen.',
       name: 'Navigation',
@@ -694,6 +695,15 @@ export const parts: Messages['parts'] = {
       clear: 'Ryd',
       empty: 'Intet passer til søgningen',
       query: 'par',
+      viewOpen: 'Åbn søgevisningen',
+      viewGroups: ['Seneste', 'Foreslået'],
+      viewItems: [
+        { headline: 'Priser', supporting: 'En side', icon: 'clock' },
+        { headline: 'Åbningstider', supporting: 'En side', icon: 'clock' },
+        { headline: 'Fed', shortcut: 'Ctrl+B', keyShortcuts: 'Control+B', icon: 'text-b', pressed: true },
+        { headline: 'Gentag', supporting: 'Intet at gentage', icon: 'arrow-u-up-right', disabled: true },
+      ],
+      viewCount: (n: number) => (n === 1 ? '1 resultat' : `${n} resultater`),
       results: [
         { headline: 'Priser', supporting: 'Søgt for nylig' },
         { headline: 'Åbningstider', supporting: 'En side' },
