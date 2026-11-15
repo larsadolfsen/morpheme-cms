@@ -128,6 +128,12 @@ the brief also tells the session to read the M3 pages with Playwright (skill `ma
 to say in its pull request which pages were read. The PM checks that the pull request says it before merging; a pull
 request that does not is not merged. A session that only uses an existing theme component as it is needs no reading.
 
+**The Components line.** Every pull request description has a *Components* line (skill `developer`, *The hard rule: no own
+components*): each component it uses and whether it is existing, fixed in the theme or new in the theme, with the M3 pages
+read for the last two. The PM does not merge a pull request without that line, or one that adds a screen-specific
+component (own classes, markup or CSS for a control or surface, a copy of a component, or a variant for one screen); it
+sends the session back to the theme.
+
 **A PM may only start Haiku and Sonnet sessions.** Every `create_session` sets `model` to a Haiku or Sonnet model (`claude-haiku-5-5` or `claude-sonnet-5-5`), and a PM never starts a session on Opus, Fable or the inherited default, and never changes a session's model to anything higher.
 
 The owner only sees pull requests that are assigned to them on GitHub. When a session the PM started opens a pull request, or the PM takes over one that needs the owner to see, approve or decide something, the PM assigns it to the repository owner `larsadolfsen` (`update_pull_request`, `issue_write` assignees or the GitHub API) and keeps it assigned until it is merged.
