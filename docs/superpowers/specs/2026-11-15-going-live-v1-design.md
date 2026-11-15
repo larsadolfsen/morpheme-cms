@@ -12,6 +12,20 @@
 > 2. **On the customer's own Cloudflare account:** with GitHub (today's path, made hands-free) or with Artifacts.
 > 3. **Self-hosted or on a European cloud:** no Cloudflare at all.
 
+## Decisions taken (owner, 15 November 2026)
+
+1. **1.0 is stage 1 only:** the hosted service. Stages 2 and 3 come after 1.0.
+2. **Hosted sites use Artifacts only.** There is no GitHub fallback for hosted sites.
+3. **EU storage only for customers in EU countries.** A site's Artifacts namespace (and its R2 and D1) is chosen from the
+   customer's country at sign-up: `sites-eu` (jurisdiction `eu`) for EU countries, `sites` (no jurisdiction) for everyone
+   else. A namespace's jurisdiction cannot change later, so a customer who moves region gets a new repo (an export and an import).
+4. **One ordinary Worker per site** at launch; Workers for Platforms later.
+5. **Login with Google and Microsoft** through OAuth in the platform Worker, the same pattern as today's GitHub login.
+   Morpheme stores no passwords and sends no login emails. Cloudflare Access was considered and left out, because it
+   charges per user who signs in (it is made for a company's own staff, not for customers).
+6. **Not paid:** 14 days of grace, then the editor is read-only and the site stays online for 30 days, then the site goes
+   offline. Data is kept for 12 months, and **Export** always works.
+
 ## What exists today (the starting point)
 
 GitHub plays four roles in a site today, and each one has to be replaceable for stages 1 and 3:
@@ -51,7 +65,7 @@ All three stages need the same refactor. It is the biggest single piece of work,
 ### What the customer does
 
 1. On morpheme's site: **Create a site**, then choose a name and a theme.
-2. Sign in with an email (magic link) and add a passkey. There is no GitHub account.
+2. Sign in with Google or Microsoft. There is no GitHub account and no password.
 3. Pay a monthly subscription in **Stripe Checkout**.
 4. A minute later the editor opens at `https://<name>.<hosting domain>/editor/`. Later they can add their own domain
    in the editor.
@@ -60,9 +74,9 @@ All three stages need the same refactor. It is the biggest single piece of work,
 
 | Part | Choice | Why |
 | --- | --- | --- |
-| **Storage** | One **Artifacts** repo per site in one namespace, `sites`, created with jurisdiction **`eu`**. A new site is a **fork** of a `starter` repo imported into Artifacts. | Forking from a baseline is native and costs no GitHub. EU storage fits the customers. |
+| **Storage** | One **Artifacts** repo per site, in `sites-eu` (jurisdiction `eu`) for customers in EU countries and in `sites` for everyone else (decision 3). A new site is a **fork** of a `starter` repo imported into each namespace. | Forking from a baseline is native and costs no GitHub. |
 | **Writing a save** | The Worker builds the commit with `isomorphic-git` against the repo's remote and a short-lived write token minted by the `ARTIFACTS` binding. The binding itself can read files, history and objects, but **cannot write files**. | The only documented way to write from a Worker. **Spike first:** the cost of a push from a Worker for a 100-file save. |
-| **Login** | **Morpheme accounts** (email magic link and passkeys) on the platform Worker. A site trusts a signed session, with the roles `owner` and `editor`. Email goes out through Cloudflare Email Service. | Roadmap 0.24 and paid-items already need "owner accounts". The open question in `platform.md` ("login uden GitHub") is answered here. |
+| **Login** | **Morpheme accounts** signed in with **Google or Microsoft** (OAuth and OpenID Connect) on the platform Worker (decision 5). A site trusts a signed session from the platform, with the roles `owner` and `editor`. An owner invites an editor by email address; the editor signs in with Google or Microsoft on that address. | Roadmap 0.24 and paid-items already need "owner accounts". The open question in `platform.md` ("login uden GitHub") is answered here. No passwords and no login emails are kept by Morpheme. |
 | **Compute** | **v1: one ordinary Worker per site** on the owner's account, the same shape as today (CMS Worker plus `ASSETS`). **Later: Workers for Platforms** (one dispatch namespace, a dispatch Worker on `*.<hosting domain>`, $25 per month, 1,000 scripts included, then $0.02 each). | The ordinary Worker needs almost no new code and connects to Workers Builds from Artifacts directly. An account allows a few hundred Workers. Move to Workers for Platforms before that, or when apps' own Workers must be isolated per tenant. |
 | **Build** | **v1: Workers Builds connected to the Artifacts repo** (documented: "Continue with Artifacts"). **Later: our own pipeline**: an Artifacts `push` event, a Queue, a Workflow, a Container that runs `morpheme ci-build`, then a deploy through the API. | Workers Builds allows **6 concurrent builds per account** with a 20-minute timeout, and today's build takes 3 min 41 s (about 1 min 45 s after 0.26). That is about 100 to 200 builds an hour for every hosted site together. That is enough for launch, but not for growth. |
 | **Per-site data** | D1 and KV per site at launch (D1 allows thousands of databases; KV allows 1,000 namespaces by default). Later, shared tables keyed by site id. | It keeps today's code unchanged. |
@@ -70,7 +84,7 @@ All three stages need the same refactor. It is the biggest single piece of work,
 | **Store** | The site gets its store key when it is created (`POST /store/connect` from the platform), so "Connect to Morpheme" is never needed. | It follows the existing `connect-to-morpheme` design. |
 | **CMS updates** | The platform updates hosted sites itself: commit `package.json` to each repo in waves (canary sites first) and read build status through `build.status()`. | It replaces the hourly per-site npm poll and the GitHub check-run watch. |
 | **Billing** | A **Hosting** product in Stripe (monthly, Stripe Tax, Customer Portal) on the same Stripe account and webhook as paid items. The webhook starts the provisioning Workflow. | Reusing the set-up means one Stripe integration to keep. |
-| **Not paid** | After a grace period, the editor becomes read-only. Some days later the site goes offline. Nothing is deleted for N months, and **Export** always works (decision 6). | It is the same rule as paid items: a pause never deletes data. |
+| **Not paid** | 14 days as normal, then the editor is read-only and the site stays online for 30 days, then the site goes offline. Nothing is deleted for 12 months, and **Export** always works (decision 6). | It is the same rule as paid items: a pause never deletes data. |
 
 ### Provisioning (one Cloudflare Workflow, about one minute)
 
@@ -93,8 +107,8 @@ Every step can be retried, and a failed step leaves a row the owner can see in t
 ### Risks
 
 - **Artifacts is in open beta.** Its billing began in November 2026, and the 1 GB limit per repo arrived without
-  much notice. Mitigation: the backend interface keeps GitHub working, and **Export** (a `git clone` URL plus a zip of
-  media and D1) is part of v1 from the start.
+  much notice. Hosted sites have no GitHub fallback (decision 2). Mitigation: **Export** (a `git clone` URL plus a zip of
+  media and D1) is part of 1.0 from the start, and the backend interface keeps a move to another git host possible.
 - **Can Workers Builds be connected through the API?** `platform.md` asks this too. If it cannot, provisioning skips Workers
   Builds and uses the own pipeline from day one. **Check this first.**
 - Writing commits from a Worker with `isomorphic-git` has to fit the CPU and memory limits for large saves (the spike above).
@@ -146,28 +160,23 @@ The site Worker is the only part tied to Cloudflare. The foundation's adapters m
 | --- | --- | --- |
 | 0 | Spikes: Workers Builds connected through the API; an `isomorphic-git` push from a Worker; a fork of an Artifacts repo per site | before 0.24 |
 | 1 | Foundation: backend interface (GitHub first, no change for sites), neutral `/api/files/*`, `build.status()` | 0.24 |
-| 2 | Morpheme accounts (email, passkey) and the Artifacts backend | 0.24 |
+| 2 | Morpheme accounts (Google and Microsoft sign-in) and the Artifacts backend | 0.24 |
 | 3 | Platform: Create a site, Stripe Hosting, provisioning Workflow, domains, Export | 0.24 and 0.25 (Stripe is shared with paid items) |
-| 4 | Stage 2a hands-free: GitHub App per site through the manifest flow; Deploy button with R2 | 0.24 |
-| 5 | **1.0:** stage 1 and stage 2a live, and Sara's site moved onto the final shape | 1.0 |
+| 4 | **1.0:** stage 1 live (decision 1) | 1.0 |
+| 5 | Stage 2a hands-free: GitHub App per site through the manifest flow; Deploy button with R2 | 1.x |
 | 6 | Stage 2b (`npx morpheme create` with Artifacts), "Take my site with me" | 1.x |
 | 7 | Stage 3: adapters for Node, the Docker image, docs | 1.x or 2.0 |
 | 8 | Scale: Workers for Platforms and the own build pipeline | when hosted sites pass about 150 |
 
-## Decisions for the owner
+## Decisions still open
 
-1. **Is 1.0 stage 1 plus stage 2a,** with 2b and 3 after 1.0? (Proposed: yes.) The owner's standing rule says
-   `@morphemecms/cms` stays below `1.0.0` (skill `changesets`), so going to 1.0 lifts that rule. Only the owner can decide that.
+1. **Going to 1.0.** The owner's standing rule says `@morphemecms/cms` stays below `1.0.0` (skill `changesets`). Releasing
+   stage 1 as 1.0 lifts that rule, and only the owner can decide it.
 2. **Hosting domain** for default addresses (`<name>.<domain>`). It must be a zone on the owner's account with Cloudflare for SaaS.
-3. **Compute at launch:** one ordinary Worker per site (proposed), or Workers for Platforms from day one?
-4. **Login:** Morpheme accounts (email and passkey) for hosted sites (proposed). Do sites in stage 2 keep GitHub login only,
-   or may they trust Morpheme accounts too?
-5. **Price** of hosting per month, and whether a yearly price comes too (paid items have both).
-6. **Not paid:** how long the grace period lasts, how long the site stays online read-only, and how long data is kept.
-7. **Where the platform lives:** `morpheme-appstore` (as `repositories.md` says: "later Opret site"), or a new private
+3. **Price** of hosting per month, and whether a yearly price comes too (paid items have both).
+4. **Where the platform lives:** `morpheme-appstore` (as `repositories.md` says: "later Opret site"), or a new private
    `morpheme-platform` repo?
-8. **Accepting a beta:** launch stage 1 on Artifacts while it is in beta (with Export as the safety net), or keep hosted
-   sites on GitHub repos in the owner's organisation until Artifacts is generally available?
+5. **Stage 2 login (after 1.0):** do sites on their own account keep GitHub login only, or may they also use Morpheme accounts?
 
 ## Sources
 
