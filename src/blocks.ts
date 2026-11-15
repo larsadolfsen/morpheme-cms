@@ -73,6 +73,10 @@ export type SiteBlock = {
   standard?: boolean;
   /** Added by an app (src/apps/<app>/blocks/, apps.ts): its id. Offered once the app is installed. */
   app?: string;
+  /** What a new block starts with besides its fields' defaults: a list block's own list and its default `map` (`listBlocks`, lib/appListBlocks.mjs). */
+  start?: BlockProps;
+  /** Drawn by the core from an app's list with no code of the app's (`listBlocks`): offered under `From your content`, not under the app's name. */
+  listBlock?: boolean;
 };
 
 /** A block, in its folder in packages/editor/src/standard/ or src/apps/<app>/blocks/ (index.tsx): all but its type, which

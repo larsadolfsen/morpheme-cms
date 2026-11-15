@@ -213,7 +213,8 @@ const INSERT_SORT_KEY = 'editor-sort-insert';
 
 // A block's group: the app's name for an app's block, otherwise the standard blocks (also the image and HTML).
 // The standard blocks are in groups by what they do (`group`), the same in `Insert`'s headings and its filter.
-const groupOf = (b: SiteBlock) => (b.app ? (apps.find((a) => a.id === b.app)?.label ?? b.app) : t.blockSettings.groups[b.group ?? 'media']);
+const groupOf = (b: SiteBlock) =>
+  b.app && !b.listBlock ? (apps.find((a) => a.id === b.app)?.label ?? b.app) : t.blockSettings.groups[b.group ?? 'media'];
 const standardGroups: string[] = blockGroups.map((g) => t.blockSettings.groups[g]);
 
 /** crop: an image can be cut to a format (not in a block's text, whose image the theme lays out). */
@@ -463,14 +464,16 @@ export function useBlockDialog(
 
   function pick(type: string) {
     const fields = blockOf(type)!.fields;
-    if (!fields.length) return done({ type, props: {} });
+    // A list block (`listBlocks`) starts with its own list and map, which are no fields.
+    const start = { ...newValue(fields), ...blockOf(type)!.start };
+    if (!fields.length) return done({ type, props: { ...blockOf(type)!.start } });
     // A block typed in place goes in at once, with its first row active (MarkdownEditor.tsx): no sheet. One with `inline` but no view to draw it (an app's block without Inline.tsx) has its sheet.
-    if (typedInPlace(blockOf(type))) return done({ type, props: newValue(fields) });
+    if (typedInPlace(blockOf(type))) return done({ type, props: start });
     // From expanded any other block goes in at once too, with its defaults, and the caller opens its live sheet beside it (no Insert).
     if (open?.step === 'choose' && open.live && liveSheet('fields', atLeastNow('expanded')))
-      return done({ type, props: newValue(fields), open: true });
-    shown.current = asWritten(type, newValue(fields));
-    setValues(newValue(fields));
+      return done({ type, props: start, open: true });
+    shown.current = asWritten(type, start);
+    setValues(start);
     show({ step: 'fields', type, isNew: true });
   }
 

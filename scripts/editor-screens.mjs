@@ -3864,31 +3864,58 @@ async function checkAppTestPages() {
     for (const p of test.problems) problems.push(p);
     if (test.problems.length) continue;
     const path = `src/content/pages/zz-app-${id}.md`;
-    const label = `app ${id} (${test.source})`;
-    const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, locale: 'en-US' });
-    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-    // (A resource the local server does not have, such as a photo, is a 404 here and nothing of the app's.)
-    page.on(
-      'console',
-      (m) => m.type() === 'error' && !/Failed to load resource/.test(m.text()) && problems.push(`${label}: console error: ${m.text()}`),
-    );
-    try {
-      await openEditor(page, site, { [path]: test.text });
-      await page.evaluate((hash) => (location.hash = hash), `#${path}`);
-      await page.waitForSelector('.ProseMirror', { timeout: 15000 });
-      await page.waitForTimeout(800);
-      const drawn = await page.evaluate(
-        () =>
-          document.querySelectorAll('.ProseMirror [data-block], .ProseMirror .site-block-inline, .ProseMirror .site-block-preview').length,
+    // On a computer and on a phone (an app's blocks must fit both).
+    for (const width of [1280, 375]) {
+      const label = `app ${id} (${test.source}, ${width} px)`;
+      const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+      page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+      // (A resource the local server does not have, such as a photo, is a 404 here and nothing of the app's.)
+      page.on(
+        'console',
+        (m) => m.type() === 'error' && !/Failed to load resource/.test(m.text()) && problems.push(`${label}: console error: ${m.text()}`),
       );
-      if (drawn < test.types.length)
-        problems.push(
-          `${label}: the editor draws ${drawn} blocks of the page, the app has ${test.types.length} (${test.types.join(', ')})`,
+      try {
+        await openEditor(page, site, { [path]: test.text });
+        await page.evaluate((hash) => (location.hash = hash), `#${path}`);
+        await page.waitForSelector('.ProseMirror', { timeout: 15000 });
+        await page.waitForTimeout(800);
+        const drawn = await page.evaluate(
+          () =>
+            document.querySelectorAll('.ProseMirror [data-block], .ProseMirror .site-block-inline, .ProseMirror .site-block-preview')
+              .length,
         );
-    } catch (error) {
-      problems.push(`${label}: the test page does not open in the editor (${error.message.split('\n')[0]})`);
-    } finally {
-      await page.close();
+        // A list block (`listBlocks`) shows what its list holds, as on the site: its card is not empty, and its rows are those of the app's list.
+        if (test.types.some((t) => t.startsWith(`${id}.`))) {
+          const cards = await page.evaluate(() =>
+            [...document.querySelectorAll('.ProseMirror .site-block-card')].map((c) => ({
+              name: c.getAttribute('aria-label') ?? '',
+              rows: c.querySelectorAll('.inline-list li, .list-item-container, details').length,
+            })),
+          );
+          for (const card of cards.filter((c) => !c.rows))
+            problems.push(`${label}: the block "${card.name}" shows no rows in the editor, but the app's list has entries`);
+        }
+        // And `Insert` offers each list block under its own name.
+        const listBlocks = JSON.parse(readFileSync(join(ROOT, 'src/apps', id, 'app.json'), 'utf8')).listBlocks ?? [];
+        if (listBlocks.length) {
+          await page.locator('.ProseMirror h1').first().click();
+          await pressInsert(page);
+          const dialog = page.getByRole('dialog').last();
+          await dialog.waitFor({ timeout: 5000 });
+          const text = await dialog.innerText();
+          for (const b of listBlocks)
+            if (!text.includes(b.label)) problems.push(`${label}: Insert does not offer the list block "${b.label}"`);
+          await page.keyboard.press('Escape');
+        }
+        if (drawn < test.types.length)
+          problems.push(
+            `${label}: the editor draws ${drawn} blocks of the page, the app has ${test.types.length} (${test.types.join(', ')})`,
+          );
+      } catch (error) {
+        problems.push(`${label}: the test page does not open in the editor (${error.message.split('\n')[0]})`);
+      } finally {
+        await page.close();
+      }
     }
   }
 }
