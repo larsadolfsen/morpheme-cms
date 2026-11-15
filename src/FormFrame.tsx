@@ -3,14 +3,15 @@
 // of the screen with "Save" (across the bar on a phone, at its end from medium), which is only there when something
 // has been changed. Messages are shown by the app (Env.notify); the first "Save" asks whether the editor may also send notifications.
 // Leaving with changes that are not saved asks first, to save them or not (in the editor's dialog;
-// closing or reloading the page asks in the browser's own). "Preview" beside "Save" and, as a page action (Screen.tsx `pageActions`:
-// the end of the title row from expanded, the top bar below it), shows the page with
-// what is in the form, before it is saved (pagePreview.tsx).
+// closing or reloading the page asks in the browser's own). "Preview" beside "Save" shows the page with what is in the form, before it
+// is saved (pagePreview.tsx); a page's and post's text has it on its bar too (MarkdownEditor.tsx), with "View on site" in the bar's `⋮`.
+// "View on site" of the other forms (`view`) is a page action (Screen.tsx `pageActions`: the end of the title row from expanded, the top
+// bar below it).
 import { useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowSquareOut, Binoculars, Trash } from '@phosphor-icons/react';
 import Screen, { type Back } from './Screen';
 import { ScreenHidden } from './screenHidden';
-import { ActionSheet, Button, Group, IconButton, IconLink, LoadingIndicator, type TabChoice, ListItem } from './ui';
+import { ActionSheet, Button, Group, IconLink, LoadingIndicator, type TabChoice, ListItem } from './ui';
 import { hasUnsaved, setUnsaved } from './deploy';
 import { useBuildState } from './buildState';
 import { askToNotify } from './notificationData';
@@ -45,7 +46,7 @@ type Props<T extends string> = {
   view?: string;
   /** More in the top bar, before the link to the site. */
   actions?: ReactNode;
-  /** The screen's own actions beside Preview and View on site (a list's menu). */
+  /** The screen's own actions beside View on site (a list's menu). */
   pageActions?: ReactNode;
   /** The button at the end of the top bar, after the notifications. */
   drawer?: ReactNode;
@@ -57,7 +58,7 @@ type Props<T extends string> = {
   deleting?: boolean;
   /** Saves the form; true when it was saved (not when it said why not, or the owner chose not to). */
   onSave: () => Promise<unknown>;
-  /** "Preview" beside "Save" and in the top bar (pagePreview.tsx). */
+  /** "Preview" beside "Save" (pagePreview.tsx); a page's text has it on its bar (MarkdownEditor.tsx). */
   onPreview?: () => void;
   onDelete?: () => void;
   deleteLabel?: string;
@@ -243,11 +244,12 @@ export default function FormFrame<T extends string>({
       back={{ guard: leaveTo, ...back }}
       actions={actions}
       pageActions={
-        <>
-          {pageActions}
-          {onPreview && <IconButton icon={Binoculars} label={t.preview.button} onClick={onPreview} />}
-          {view && <IconLink href={view} target="_blank" rel="noopener" label={t.app.viewOnSite} icon={ArrowSquareOut} />}
-        </>
+        pageActions || view ? (
+          <>
+            {pageActions}
+            {view && <IconLink href={view} target="_blank" rel="noopener" label={t.app.viewOnSite} icon={ArrowSquareOut} />}
+          </>
+        ) : undefined
       }
     >
       <div className="space-y-6">{children}</div>
@@ -282,7 +284,7 @@ export default function FormFrame<T extends string>({
                 kind="outlined"
                 icon={Binoculars}
                 onClick={onPreview}
-                // With two more buttons there is no room for it on a phone: the top bar has it too.
+                // With two more buttons there is no room for it on a phone: the text's bar has it too.
                 className={publish?.label ? 'max-medium:hidden' : undefined}
               >
                 {t.preview.button}

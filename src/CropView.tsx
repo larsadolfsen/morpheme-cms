@@ -20,7 +20,7 @@ import {
 import { FORMATS, middleCrop, ratioOf } from '../lib/crop.mjs';
 import { closeChanged } from './ask';
 import { shownAt } from './images';
-import { Button, FilterChip, IconButton, Slider, TopAppBar, useAtLeast } from './ui';
+import { ActionSheet, Button, FilterChip, IconButton, Slider, TopAppBar, useAtLeast } from './ui';
 import { useSheetBack } from './useSheetBack';
 import { t } from './i18n';
 
@@ -347,16 +347,18 @@ function CropDialog({
             </div>
           </TopAppBar>
           <main className="crop-page-main">{body}</main>
-          <div role="group" aria-label={t.common.saveChanges} className="crop-page-bar">
-            {medium && (
-              <Button kind="outlined" onClick={() => void leave()}>
-                {t.common.cancel}
+          <ActionSheet label={t.common.saveChanges}>
+            <div className="flex justify-end gap-2">
+              {medium && (
+                <Button kind="outlined" onClick={() => void leave()}>
+                  {t.common.cancel}
+                </Button>
+              )}
+              <Button kind="filled" onClick={save}>
+                {t.common.save}
               </Button>
-            )}
-            <Button kind="filled" onClick={save}>
-              {t.common.save}
-            </Button>
-          </div>
+            </div>
+          </ActionSheet>
         </>
       )}
     </dialog>

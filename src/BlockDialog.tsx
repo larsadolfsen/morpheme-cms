@@ -15,8 +15,8 @@
 // even when the window crosses the expanded breakpoint.
 // Their open, close, focus and Escape are the theme's (sideSheet() and standardSideSheet(), sideSheetControl.ts); leave() is their beforeClose.
 // On a compact window (a phone, below medium) a block's fields are a subpage of the page form instead (owner, 14 Nov: full-screen views are
-// pages), drawn as the crop view is (CropView.tsx; editor.css gives .block-page the crop page's rules): the top app bar with the back arrow and the block's name, the fields, and Save
-// (Insert) in the bottom bar. It is a layer over the form (a modal <dialog>), so the form keeps its scroll place; it has a step of its own in the
+// pages), drawn as the crop view is (CropView.tsx; editor.css gives .block-page the crop page's layer and column): the top app bar with the back arrow and the block's name, the fields, and Save
+// (Insert) in the theme's standard bottom sheet (ActionSheet). It is a layer over the form (a modal <dialog>), so the form keeps its scroll place; it has a step of its own in the
 // history (useSheetBack), so the browser's and Android's back leave it; back with changes asks "Keep your changes?" (closeChanged).
 // Below expanded the fields of a block on the page (edit with `keep`) are kept in a hidden copy in this browser while they are changed
 // (sheetCopy.mjs, one per page, `copy`), deleted when the sheet is answered; offer() asks to put a copy back when the page opens again:
@@ -26,6 +26,7 @@
 import { useCallback, useEffect, useId, useRef, useState, type ReactElement } from 'react';
 import { ArrowsDownUp, Image } from '@phosphor-icons/react';
 import {
+  ActionSheet,
   Button,
   Choice,
   Filters,
@@ -906,7 +907,7 @@ export function useBlockDialog(
       </BottomSheet>
       {look === 'subpage' && block && open?.step === 'fields' && (
         // A block's fields on a compact window: a page of the editor over the form, as the crop view is (editor.css .block-page): the top app
-        // bar with the back arrow and the block's name, the fields, and Save (Insert) in the bottom bar. Back (the arrow, Esc, the browser's
+        // bar with the back arrow and the block's name, the fields, and Save (Insert) in the bottom sheet. Back (the arrow, Esc, the browser's
         // back) with changes asks "Keep your changes?"; the form under it stays as it was.
         <dialog
           ref={pageDialog}
@@ -929,11 +930,13 @@ export function useBlockDialog(
           <main className="block-page-main">
             <div className="space-y-5">{blockFields}</div>
           </main>
-          <div role="group" aria-label={t.common.saveChanges} className="block-page-bar">
-            <Button kind="filled" onClick={() => save(open.type)}>
-              {open.isNew ? t.blocks.insert : t.common.save}
-            </Button>
-          </div>
+          <ActionSheet label={t.common.saveChanges}>
+            <div className="flex justify-end gap-2">
+              <Button kind="filled" onClick={() => save(open.type)}>
+                {open.isNew ? t.blocks.insert : t.common.save}
+              </Button>
+            </div>
+          </ActionSheet>
         </dialog>
       )}
       {look === 'modal-side-sheet' && (

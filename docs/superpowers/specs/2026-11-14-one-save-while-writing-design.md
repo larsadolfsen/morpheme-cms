@@ -108,7 +108,7 @@ app bar: its trailing parts are icon buttons, at most one filled. See section 9 
 │ ←  About us                     🔍  🔔 [Publish] │   small app bar: back, title, search, bell, Publish (filled)
 │    Draft · Saved                                 │   subtitle: the status, a polite live region
 ├───────────────────────────────────────┤
-│ [+] [Undo] [Redo] ▏[Section] [Preview] [⋮]       │   the one bar (text editor), sticky; Preview is a main tool
+│ [Section] [Preview] ▏[Undo] [Redo] [+] [⋮]       │   the one bar (text editor), sticky; Preview is a main tool
 │                                                   │
 │  # About us                                       │
 │  We help small firms …                            │
@@ -137,8 +137,8 @@ title truncates, as today (M3: "Don't wrap text in a small app bar"). When the w
 ├──────────┬─────────────────────────────────────────────────────┬───────────────┤
 │  rail    │ Pages ›  About us   Draft · Saved                    │ FAQ        ✕  │  standard side sheet, live:
 │          │ ┌ bar ────────────────────────────────────────────┐ │               │  headline and close only,
-│          │ │ [B][I][Style▾][List▾] ▏ [+][Undo][Redo][Section] │ │  Question     │  no Save, Cancel or Remove
-│          │ │                       [Preview] [⋮]             │ │  [_________]  │
+│          │ │ [B][I][Style▾][List▾] ▏ [Section][Preview][Undo] │ │  Question     │  no Save, Cancel or Remove
+│          │ │                       [Redo][+] [⋮]             │ │  [_________]  │
 │          │ └─────────────────────────────────────────────────┘ │  Answer       │
 │          │  # About us                                         │  [_________]  │
 │          │  ┌ FAQ (selected) ─────────────┐                    │  Max rows     │
@@ -156,7 +156,7 @@ leave it.
 | :--- | :--- | :--- |
 | `Publish` (and `Publish changes`) | floating bottom bar, filled | app bar, trailing, the one filled button; busy while the site updates, as today |
 | `Save draft` | floating bottom bar, tonal | gone; the draft saves itself (3.4 for when it cannot) |
-| `Preview` | floating bar and page actions | the one bar's main tools (after Section settings), into its `⋮` when contextual tools fill the bar; in the command palette |
+| `Preview` | floating bar and page actions | the one bar's main tools (after Section settings, before Undo, Redo and Insert block, which keep the bar's right end by the owner's earlier decision), into its `⋮` when contextual tools fill the bar (at 1280 the bar is 478 dp, so Color goes into the `⋮` with it; PM approval for the owner, 14 Nov 2026); in the command palette |
 | `View on site` | page actions | the one bar's `⋮`, last group; in the command palette |
 | Status | text under or after the title | the same words, as the app bar's subtitle below expanded and after the title from expanded; a polite live region (section 7) |
 | `Schedule`, `Cancel schedule`, `Unpublish`, `Discard draft` | rows above `Delete` | unchanged (no overflow menu in the app bar); also in the command palette (its registry, 0.18) |
@@ -223,8 +223,8 @@ it (`2026-11-14-settings-sheets-design.md`, 3.1).
   - the top app bar (the theme's, as the crop view's): the back arrow, named `Back to <the page's name>`, and the block's name as the
     headline (`Image`, `FAQ list`); nothing else, no `Save` (M3: the app bar's leading button "returns to the previous screen");
   - the block's fields, scrolling inside a column as wide as a form, with the problem note under them as today;
-  - the bottom bar (`.crop-page-bar`, right-aligned, lifted above the keyboard): `Save` filled (`Insert` for a new block), the only
-    button; the owner's rule is that Save buttons on a phone go in the bottom bar (deviation B1, section 9).
+  - the Save row, the theme's standard bottom sheet (`ActionSheet`, right-aligned, lifted above the keyboard by the sheet): `Save` filled (`Insert` for a new block), the only
+    button; the owner's rule is that Save buttons on a phone go in the standard bottom sheet (deviation B1, section 9).
 - **Open and close, as the crop view does.** It opens when the block's settings are opened (the gear, `Edit`, `Insert` for a block with
   fields) and takes a step of its own in the browser's history (`history.state.sheet`, `useSheetBack`), so the browser's back and
   Android's back gesture leave it and not the page. Focus starts on the back arrow (M3: "Focus should initially land on the leading

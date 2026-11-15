@@ -2569,6 +2569,12 @@
   .image-grid > .grid-span-full {
     column-span: all;
   }
+  /* A card across all the columns on compact only, one column from medium. */
+  @media (width < theme(--breakpoint-medium)) {
+    .image-grid > .grid-span-compact {
+      column-span: all;
+    }
+  }
   @media (width >= theme(--breakpoint-medium)) {
     .image-grid {
       --grid-columns: 3;

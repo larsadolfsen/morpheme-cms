@@ -5,7 +5,8 @@
 // on the site, which opens a menu (hide on the site, move; below expanded also Ret, Fjern; from expanded a tap opens the
 // side panel instead), with a free line kept between
 // two cards to write in. A fixed page's sections are such a text too (SectionsField.tsx), so both look
-// and work the same. The last tool, "Section settings", opens the section's sheet (BlockDialog.tsx).
+// and work the same. The last tool, "Section settings", opens the section's sheet (BlockDialog.tsx). A page's or post's text (EntryForm.tsx)
+// also has `Preview` among the bar's main tools and `View on site` in its `⋮` (docs/superpowers/specs/2026-11-14-one-save-while-writing-design.md).
 import {
   type CSSProperties,
   forwardRef,
@@ -119,7 +120,7 @@ import { ask } from './ask';
 import { canPress, edgeScroll, movedAway } from '@theme/ui/longPressRules.mjs';
 import { canLabel, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
-import { AaIcon, AddBlockIcon, BodyA1Icon, BodyA2Icon, BodyA3Icon, CloseIcon, MoreVertIcon } from './icon';
+import { AaIcon, AddBlockIcon, BodyA1Icon, BodyA2Icon, BodyA3Icon, CloseIcon, MoreVertIcon, PreviewIcon, ViewOnSiteIcon } from './icon';
 import { editElsewhereIcon, settingsHereIcon } from './meaningIcons';
 import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
 import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
@@ -173,6 +174,10 @@ type Props = {
   /** Whether the text has the section frame and the colour button (pages and posts). Without it: on unless `sections`.
    * The front page sets `sections` (its H2s are names drawn by the theme, no word colours) and `frame` (its sections take their colour). */
   frame?: boolean;
+  /** A page's or post's `Preview` (pagePreview.tsx): a main tool of the bar, before Undo, and in its `⋮` when the contextual tools fill it. */
+  onPreview?: () => void;
+  /** The page's address on the site, for `View on site` in the bar's `⋮` (its last group); none for a page that is not on the site yet. */
+  viewOnSite?: string;
 };
 
 // A part of the text at the top level, for `looks`.
@@ -2301,7 +2306,7 @@ function blockCard(
 }
 
 export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
-  { value, onChange, addImage, blocks, sheet: sheetProp, short, h1, startFocused, onH1, looks, sections, frame },
+  { value, onChange, addImage, blocks, sheet: sheetProp, short, h1, startFocused, onH1, looks, sections, frame, onPreview, viewOnSite },
   ref,
 ) {
   const spaced = !!blocks;
@@ -2860,8 +2865,10 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       : [];
   const blockMenu = block_?.menu ?? [];
   // Undo, Redo and Insert block (never in the ⋮) stand at the right end of the bar in every place, then the ⋮ (owner decision, 14 Nov). Section
-  // settings is a row of the ⋮ (always there while it applies).
+  // settings is a row of the ⋮ (always there while it applies). A page's Preview stands before Undo while every tool fits, else it is in the ⋮;
+  // View on site is always in the ⋮, in its last group (one save while writing, 3.3).
   const fixedIds = ['undo', 'redo', ...(hasInsert ? ['insert'] : [])];
+  const spareIds = onPreview ? ['preview'] : [];
   // The text's actions for the command palette (textActions.ts): the functions the bar runs, called through a ref so they are always the latest, and the
   // names the bar draws. Registered while the editor is mounted (one editor owns them: a second one on the same screen leaves them to the first).
   const textApi = useRef<TextApi>(null!);
@@ -2876,12 +2883,18 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     sectionSettings: () => void sectionSettings(),
     insertBlock: blocks ? () => void block() : undefined,
     insertImage: addImage ? () => void image() : undefined,
+    preview: onPreview,
+    viewOnSite: viewOnSite ? () => void window.open(viewOnSite, '_blank', 'noopener') : undefined,
   };
   const canInsertBlock = !!blocks;
+  const canPreview = !!onPreview;
+  const canViewOnSite = !!viewOnSite;
   const canInsertImage = !!addImage;
   useEffect(() => {
-    const call = (name: 'bold' | 'italic' | 'link' | 'undo' | 'redo' | 'sectionSettings' | 'insertBlock' | 'insertImage') => () =>
-      textApi.current[name]?.();
+    const call =
+      (name: 'bold' | 'italic' | 'link' | 'undo' | 'redo' | 'sectionSettings' | 'insertBlock' | 'insertImage' | 'preview' | 'viewOnSite') =>
+      () =>
+        textApi.current[name]?.();
     const labels: TextLabels = {
       bold: t.text.bold,
       italic: t.text.italic,
@@ -2903,6 +2916,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       sectionSettings: t.text.sectionSettings,
       insertBlock: t.text.insertBlock,
       insertImage: t.text.image,
+      preview: t.preview.button,
+      viewOnSite: t.app.viewOnSite,
     };
     const list = textActions(
       {
@@ -2916,6 +2931,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         sectionSettings: call('sectionSettings'),
         insertBlock: canInsertBlock ? call('insertBlock') : undefined,
         insertImage: canInsertImage ? call('insertImage') : undefined,
+        preview: canPreview ? call('preview') : undefined,
+        viewOnSite: canViewOnSite ? call('viewOnSite') : undefined,
       },
       labels,
     ).filter((a) => !actions.get(a.id));
@@ -2926,7 +2943,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       dispose();
       editorCtx.clear();
     };
-  }, [canInsertBlock, canInsertImage]);
+  }, [canInsertBlock, canInsertImage, canPreview, canViewOnSite]);
   // Where the user is, for the palette (editorCtx.ts): the text's actions apply while no block is active; what applies at the cursor; the heading levels.
   const noBlock = !block_;
   const activeNames = active.join();
@@ -2953,7 +2970,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     width: barWidth,
     context: contextIds,
     fixed: fixedIds,
-    more: blockMenu.length > 0 || settingsShown,
+    spare: spareIds,
+    more: blockMenu.length > 0 || settingsShown || !!viewOnSite,
     widths: textWidths,
   });
   // The bar's motion (barMotion.mjs): the contextual tools slide in from the left and push the main tools right when a context starts, slide out
@@ -3059,6 +3077,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         return { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand) };
       case 'redo':
         return { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand) };
+      case 'preview':
+        return { label: t.preview.button, icon: PreviewIcon, action: () => onPreview?.() };
       default:
         return { label: t.text.sectionSettings, icon: rawIcon(settingsHereIcon), action: sectionSettings };
     }
@@ -3161,7 +3181,14 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // In the `⋮` menu the context's tools come first, then a divider, then the main tools.
   const MORE_ORDER = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color'];
   const moreContext = [...plan.more.context].sort((a, b) => MORE_ORDER.indexOf(a) - MORE_ORDER.indexOf(b));
-  const moreMain = [...plan.more.fixed, ...(settingsShown ? ['settings'] : [])];
+  // Preview comes after Section settings.
+  const moreMain = [
+    ...plan.more.fixed.filter((id) => id !== 'preview'),
+    ...(settingsShown ? ['settings'] : []),
+    ...plan.more.fixed.filter((id) => id === 'preview'),
+  ];
+  // The ⋮ menu's groups, each after a divider: the context's tools, the main tools, the block's own menu, then View on site.
+  const moreGroups = moreContext.length + moreMain.length + blockMenu.length;
 
   return (
     <div className="editor-text-box rounded-panel bg-surface-container-lowest">
@@ -3252,6 +3279,12 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
                 {row.label}
               </MenuItem>
             ))}
+            {viewOnSite && moreGroups > 0 && <MenuDivider />}
+            {viewOnSite && (
+              <MenuItem icon={ViewOnSiteIcon} onClick={() => void window.open(viewOnSite, '_blank', 'noopener')}>
+                {t.app.viewOnSite}
+              </MenuItem>
+            )}
           </>
         )}
       </Menu>

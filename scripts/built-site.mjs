@@ -170,6 +170,19 @@ export const ASSISTANTS = {
   ],
 };
 
+/** Opens the page form's Preview (pagePreview.tsx) from the text's one bar (MarkdownEditor.tsx): its button, or its row in the bar's `⋮`
+ * when the contextual tools fill the bar (docs/superpowers/specs/2026-11-14-one-save-while-writing-design.md, 3.3). Waits for the bar. */
+export async function clickPreview(page) {
+  await page.waitForSelector('.editor-tools button[aria-label="Undo"]', { timeout: 30_000 });
+  const button = page.locator('.editor-tools button[aria-label="Preview"]:visible');
+  if (await button.count()) return button.first().click();
+  await page.locator('.editor-tools button[aria-label="More"]').first().click();
+  await page
+    .locator('[role=menu][aria-label="More"] [role^=menuitem]', { hasText: /^Preview$/ })
+    .first()
+    .click();
+}
+
 /** Opens the editor (/editor/) of the site at `site` in `page`, signed in, with GitHub answered from the files on disk
  * (`texts`: some with other texts), and waits until it has loaded the site. `store`: the state of the site's key to the
  * store (a key of STORE_STATES). `dashboard`: the fake /api/dashboard (the start screen's widgets): GET answers the last

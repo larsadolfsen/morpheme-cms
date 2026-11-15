@@ -5,7 +5,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { chromium } from 'playwright';
-import { openEditor, serveBuilt } from './built-site.mjs';
+import { clickPreview, openEditor, serveBuilt } from './built-site.mjs';
 
 const ROOT = `${process.cwd()}/`;
 const DIST = resolve(ROOT, process.argv[2] ?? 'dist');
@@ -167,7 +167,7 @@ for (const scheme of ['light', 'dark']) {
       page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
       await openEditor(page, site);
       await page.goto(`${site}/editor/#${path}`);
-      await page.getByRole('button', { name: 'Preview' }).first().click();
+      await clickPreview(page);
       await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
       const frame = page.frames().find((f) => f !== page.mainFrame());
       await frame.waitForSelector('[data-editor="text"]', { timeout: 30_000 });
@@ -203,7 +203,7 @@ for (const scheme of ['light', 'dark']) {
   );
   await openEditor(page, site, { [file]: text });
   await page.goto(`${site}/editor/#${file}`);
-  await page.getByRole('button', { name: 'Preview' }).first().click();
+  await clickPreview(page);
   await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('[data-editor="text"]', { timeout: 30_000 });

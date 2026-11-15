@@ -19,6 +19,9 @@ export type TextApi = {
   /** Missing while the text has no blocks / no gallery. */
   insertBlock?: () => void;
   insertImage?: () => void;
+  /** A page's or post's text only: the form's Preview (pagePreview.tsx), and View on site (a saved page; not a new one). */
+  preview?: () => void;
+  viewOnSite?: () => void;
 };
 
 /** The names the bar draws, in the editor's language. */
@@ -34,6 +37,8 @@ export type TextLabels = {
   sectionSettings: string;
   insertBlock: string;
   insertImage: string;
+  preview: string;
+  viewOnSite: string;
 };
 
 const STYLE_ORDER = ['h1', 'h2', 'h3', 'large', 'medium', 'small', 'label', 'quote'];
@@ -180,6 +185,27 @@ export function textActions(api: TextApi, labels: TextLabels): EditorAction[] {
       where: {},
       state: inText,
       run: api.insertImage,
+    });
+  // Preview and View on site are in the text's one bar (one save while writing, 3.3): Preview is a main tool before Undo, View on site the last group of the ⋮.
+  if (api.preview)
+    out.push({
+      id: 'page.preview',
+      label: labels.preview,
+      icon: 'preview',
+      words: ['preview page', 'see page'],
+      group: 'page',
+      where: { bar: { context: 'fixed', order: -1 } },
+      run: api.preview,
+    });
+  if (api.viewOnSite)
+    out.push({
+      id: 'page.view-on-site',
+      label: labels.viewOnSite,
+      icon: 'open_in_new',
+      words: ['open page', 'live page', 'website'],
+      group: 'page',
+      where: { more: { context: 'fixed', order: 99 } },
+      run: api.viewOnSite,
     });
   return out;
 }
