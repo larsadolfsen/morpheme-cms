@@ -147,7 +147,7 @@
   --button-letter-spacing: var(--type-label-large-tracking);
   --button-small-height: 2.5rem;
   --button-small-padding: 1rem;
-  --button-xsmall-height: 2.5rem;
+  --button-xsmall-height: 2rem;
   --button-xsmall-padding: 1rem;
   --button-xsmall-gap: 0.5rem;
   --button-text-padding: 0.75rem;
@@ -1336,9 +1336,19 @@
     margin-top: 0.5rem;
     font-weight: 500;
   }
+  /* On a phone the practical links are two equal columns of the grid (compact: 4 columns, 2 each) with the grid's gutter between,
+     in reading order across, then down (the document order, so the tab order and a screen reader follow what is seen). The
+     rows keep their height and target (the item's 3rem). From the medium width the list is one column as before. */
+  @media (width < theme(--breakpoint-medium)) {
+    .md-footer-column > .md-footer-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--grid-gutter);
+    }
+  }
 }
 .md-footer-bottom {
-  /* Its text buttons (the cookie settings, light or dark) with an 18px icon. */
+  /* Its text button (the cookie settings) with an 18px icon. */
   --button-icon-size: 1.125rem;
 }
 @layer fallback {
@@ -1356,8 +1366,10 @@
     font-weight: var(--type-body-medium-weight);
     letter-spacing: var(--type-body-medium-tracking);
   }
-  .md-footer-bottom > div {
-    margin-inline: -0.75rem;
+  /* Only the text button's own padding is pulled out, so its text starts on the margin; the button group sits on the content
+     edges. */
+  .md-footer-bottom > div > [data-cookie-settings] {
+    margin-inline-start: -0.75rem;
   }
   /* Room under the footer's last line for the FAB, or for the bar at the bottom of the screen: in the footer instead of
    under the page (components.css), so the footer reaches the bar. */

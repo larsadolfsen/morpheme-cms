@@ -483,23 +483,25 @@ const error = (problem: string | undefined, invalid: unknown) => problem || (inv
  * is wrong. `problem` (InField) marks it at once, as when Save stops there (useWrongField). */
 export type Invalid = { invalid?: string };
 
-/** The theme's text field, with what it says in itself (InField) and what is wrong with it (Invalid). `className` goes on the
- * field around the <input> (its width, its place). */
+/** The theme's text field, with what it says in itself (InField) and what is wrong with it (Invalid). `invalidFallback`: the
+ * words for what the browser finds wrong that the editor's rules do not name (a number field's text that is not a number,
+ * validity.badInput). `className` goes on the field around the <input> (its width, its place). */
 export function TextField({
   label,
   hint,
   problem,
   limit,
   invalid,
+  invalidFallback,
   ...rest
-}: InputHTMLAttributes<HTMLInputElement> & InField & Invalid & { ref?: Ref<HTMLInputElement> }) {
+}: InputHTMLAttributes<HTMLInputElement> & InField & Invalid & { invalidFallback?: string; ref?: Ref<HTMLInputElement> }) {
   return (
     <SiteTextField
       label={label}
       supporting={hint}
       error={error(problem, rest['aria-invalid'])}
       invalid={!!invalid}
-      invalidText={invalid}
+      invalidText={invalid ?? invalidFallback}
       limit={limit}
       {...rest}
     />

@@ -149,12 +149,22 @@ const jsonLd = {
     {!noindex && <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />}
     <script is:inline>
       document.documentElement.classList.add('js');
+      // The colour scheme (Modern Web Guidance, dark-mode-toggle): none stored = follow the system. A pinned choice sets
+      // data-theme (the tokens), <meta name="color-scheme"> and both theme-color metas in step; this runs before the first paint.
+      window.setColorScheme = (t) => {
+        const root = document.documentElement;
+        const pinned = t === 'light' || t === 'dark';
+        if (pinned) root.dataset.theme = t;
+        else delete root.dataset.theme;
+        document.querySelector('meta[name="color-scheme"]').content = pinned ? t : 'light dark';
+        const bars = [...document.querySelectorAll('meta[name="theme-color"]')];
+        bars.forEach((m) => (m.dataset.own ??= m.content));
+        const pick = bars.find((m) => m.media.includes(t));
+        bars.forEach((m) => (m.content = pinned && pick ? pick.dataset.own : m.dataset.own));
+      };
       try {
         const t = localStorage.getItem('theme');
-        if (t === 'light' || t === 'dark') {
-          document.documentElement.dataset.theme = t;
-          document.querySelector('meta[name="color-scheme"]').content = t;
-        }
+        if (t === 'light' || t === 'dark') setColorScheme(t);
       } catch {}
       // Safety net: never leave content hidden if the motion script fails to load. When it has loaded
       // (the theme's scripts/motion.ts sets data-motion), the sections not yet scrolled to wait for it.
@@ -199,26 +209,6 @@ const jsonLd = {
       )
     }
 
-    <style is:global>
-      :root .light-hide {
-        display: none;
-      }
-      :root[data-theme='dark'] .light-hide {
-        display: inline-block;
-      }
-      :root[data-theme='dark'] .dark-hide {
-        display: none;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root:not([data-theme='light']) .light-hide {
-          display: inline-block;
-        }
-        :root:not([data-theme='light']) .dark-hide {
-          display: none;
-        }
-      }
-    </style>
-
     <script>
       // What the blocks do in a browser (script.ts in the theme's blocks/<type>/).
       import { blockScripts } from '../../site/blockScripts';
@@ -228,19 +218,50 @@ const jsonLd = {
     <script>
       import '@theme/scripts/motion';
 
-      // Theme toggle: flips between light and dark and remembers the choice.
-      document.querySelectorAll('[data-theme-toggle]').forEach((btn) =>
+      // Colour scheme setting in the footer (Modern Web Guidance, dark-mode-toggle): Light and Dark pin the scheme and are
+      // stored; Auto removes the stored value, so the page follows the system. A stored value is never removed because the
+      // system later changes to match it.
+      const scheme = window as unknown as { setColorScheme: (t: string | null) => void };
+      // One tab stop on the chosen button; the arrow keys move between the buttons and choose (the theme's ChoiceGroup, and the
+      // button group's keyboard in M3: Tab, arrow keys, Space or Enter).
+      const choices = () => [...document.querySelectorAll<HTMLElement>('[data-scheme-choice] [data-scheme]')];
+      const showChoice = () => {
+        const chosen = document.documentElement.dataset.theme ?? 'auto';
+        choices().forEach((b) => {
+          b.setAttribute('aria-pressed', String(b.dataset.scheme === chosen));
+          b.tabIndex = b.dataset.scheme === chosen ? 0 : -1;
+        });
+      };
+      showChoice();
+      document.querySelectorAll('[data-scheme-choice] [data-scheme]').forEach((btn) =>
         btn.addEventListener('click', () => {
-          const root = document.documentElement;
-          const isDark = root.dataset.theme === 'dark' || (!root.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
-          const next = isDark ? 'light' : 'dark';
-          root.dataset.theme = next;
-          document.querySelector('meta[name="color-scheme"]')?.setAttribute('content', next);
+          const next = (btn as HTMLElement).dataset.scheme!;
+          scheme.setColorScheme(next === 'auto' ? null : next);
           try {
-            localStorage.setItem('theme', next);
+            if (next === 'auto') localStorage.removeItem('theme');
+            else localStorage.setItem('theme', next);
           } catch {}
+          showChoice();
         }),
       );
+      document.querySelectorAll('[data-scheme-choice]').forEach((group) =>
+        group.addEventListener('keydown', (e) => {
+          const key = (e as KeyboardEvent).key;
+          if (key !== 'ArrowLeft' && key !== 'ArrowRight' && key !== 'ArrowUp' && key !== 'ArrowDown') return;
+          const list = choices();
+          const step = (key === 'ArrowRight' || key === 'ArrowDown') === (getComputedStyle(group).direction !== 'rtl') ? 1 : -1;
+          const next = list[(list.indexOf(document.activeElement as HTMLElement) + step + list.length) % list.length];
+          e.preventDefault();
+          next.focus();
+          next.click();
+        }),
+      );
+      // The choice changed in another tab.
+      addEventListener('storage', (e) => {
+        if (e.key !== 'theme' && e.key !== null) return;
+        scheme.setColorScheme(localStorage.getItem('theme'));
+        showChoice();
+      });
 
       // Videos from YouTube and Vimeo in the text (packages/editor/lib/video.mjs): the video loads only when it is played.
       document.querySelectorAll<HTMLAnchorElement>('a[data-video]').forEach((link) =>
