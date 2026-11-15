@@ -9,7 +9,7 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 
 /** Blocks the editor keeps only for old content (`former: true` in their index.tsx): not offered, so not on the page. */
 export const legacyBlocks = {
-  accordion: 'Expandable list is a Segmented list now; kept for old text that has one.',
+  accordion: 'Accordion is a Segmented list now; kept for old text that has one.',
   checklist: 'Check lists are typed in the text (lib/remark-checklist.mjs); the block stays for hidden lists and lists without points.',
   links: 'Link collection is a List now; kept for old text that has one.',
   points: 'Points with icon are a List now (lib/blocks.mjs); kept for old text that has one.',
