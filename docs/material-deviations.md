@@ -4,6 +4,8 @@ Every place where we deliberately do something other than Material Design 3 (M3)
 decision. Each entry says what Material says, what we do instead, why, the date and the pull request. A deviation that
 is not listed here is a bug. Add the entry in the same pull request as the change.
 
+**Which M3 we follow** (owner, 15 Nov 2026): the theme follows Material 3 Expressive wherever a component has an Expressive variant; otherwise baseline M3.
+
 Entries from the colour sweep and the CSS sweep were sent by those workers on 2026-11-13; the owner decisions on section
 colours are from the contrast work of the same day (`npm run check:contrast`, `scripts/check-contrast.mjs`).
 
