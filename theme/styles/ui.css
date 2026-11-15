@@ -468,7 +468,7 @@
   }
   /* The sizes: Material's five, the medium one the default. */
   .button-xsmall {
-    --button-box: var(--button-xsmall-height, 2.25rem);
+    --button-box: var(--button-xsmall-height, 2rem);
     --button-inline: var(--button-xsmall-padding, 0.9rem);
     --button-glyph: calc(var(--button-icon-size, 1.25rem) * 0.9);
     --button-square: var(--button-xsmall-square-radius, calc(var(--block-radius-small) * 0.75));

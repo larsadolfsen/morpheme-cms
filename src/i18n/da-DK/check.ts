@@ -9,6 +9,7 @@ export const check: Messages['check'] = {
     text: 'skal være tekst',
   },
   address: 'Skriv URL’en med bogstaver eller tal',
+  notANumber: 'Skriv et tal.',
   onlyDigits: 'Skriv kun tal',
   digits: (n) => (n === 1 ? 'Skriv 1 ciffer' : `Skriv ${n} cifre`),
   fillIn: (label) => `Udfyld "${label}".`,
