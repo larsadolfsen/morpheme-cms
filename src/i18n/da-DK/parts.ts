@@ -454,6 +454,7 @@ export const parts: Messages['parts'] = {
         multiBrowse: 'Flere størrelser',
         hero: 'Ét stort',
         heroCenter: 'Ét stort i midten',
+        narrow: 'Uden ramme, i en smal kolonne',
         fullScreen: 'Ét ad gangen',
       },
       choices: ['Første valg', 'Andet valg', 'Tredje valg'],

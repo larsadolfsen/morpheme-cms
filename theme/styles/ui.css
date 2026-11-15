@@ -2223,7 +2223,15 @@
     }
   }
 
-  /* A carousel: its items in a row to swipe, and the page indicator under them. */
+  /* A carousel: its items in a row to swipe, and the page indicator under them.
+     The number of items in view follows the carousel's own width, not the window's: a carousel in a narrow column or a side sheet shows one item at a
+     time on a wide window too (Modern Web Guidance, `responsive-design` and `size-aware-styling`: "Use @container queries to create component-driven
+     responsive layouts"). The widths are M3's window classes less the page margins (16 dp below medium, 24 dp from it), so a carousel as wide as the
+     page changes where it did: 2 items from 35.5rem (medium, 600 dp, less 2 x 16 dp; a page at 600 to 615 dp shows one), 3 from 49.5rem (expanded, 840 dp,
+     less 2 x 24 dp). The page's own columns stay on the window (breakpoints in lib/breakpoints.mjs). */
+  .carousel {
+    container: carousel / inline-size;
+  }
   .carousel-items {
     display: flex;
     gap: var(--carousel-gap, 0.5rem);
@@ -2277,19 +2285,17 @@
     width: var(--carousel-dot-selected-width, 1.25rem);
     background: var(--carousel-dot-selected-colour, var(--block-accent));
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @container carousel (width >= 35.5rem) {
     .carousel-item {
       width: calc((100% - 1rem) / 2);
     }
-  }
-  @media (width >= theme(--breakpoint-medium)) {
     .carousel-items {
       margin: 0;
       padding: 0;
       scroll-padding-inline: 0;
     }
   }
-  @media (width >= theme(--breakpoint-expanded)) {
+  @container carousel (width >= 49.5rem) {
     .carousel-item {
       width: calc((100% - 2rem) / 3);
     }

@@ -477,6 +477,7 @@ export const parts = {
         multiBrowse: 'Several sizes',
         hero: 'One large',
         heroCenter: 'One large in the middle',
+        narrow: 'Uncontained, in a narrow column',
         fullScreen: 'One at a time',
       },
       choices: ['First choice', 'Second choice', 'Third choice'],
