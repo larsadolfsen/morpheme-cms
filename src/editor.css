@@ -108,6 +108,16 @@
   outline: none;
 }
 
+/* A page of many blocks is slow to lay out and to update: each top-level part of the page skips its layout and paint while it is far
+   from the screen (Modern Web Guidance, defer-rendering-heavy-content). contain-intrinsic-size is the guess for a part that was
+   never drawn; `auto` remembers the real height once it has been, so the scrollbar does not jump. */
+.editor-text:not(.editor-text-short) .ProseMirror > * {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 0px auto 120px;
+  /* content-visibility clips what reaches out of the part; a block card's outline reaches 0.625rem out on each side. */
+  overflow-clip-margin: 1rem;
+}
+
 /* A text in a field (a section of the front page) is short. */
 .editor-text-short .ProseMirror {
   min-height: 8rem;

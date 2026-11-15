@@ -203,7 +203,13 @@ async function measure(browser, site, profile, scenario) {
   });
   await context.addInitScript(COLLECT);
   if (EXTRA_CSS)
-    await context.addInitScript((css) => addEventListener('DOMContentLoaded', () => document.head.append(Object.assign(document.createElement('style'), { textContent: css }))), readFileSync(EXTRA_CSS, 'utf8'));
+    await context.addInitScript(
+      (css) =>
+        addEventListener('DOMContentLoaded', () =>
+          document.head.append(Object.assign(document.createElement('style'), { textContent: css })),
+        ),
+      readFileSync(EXTRA_CSS, 'utf8'),
+    );
   const page = await context.newPage();
   const cdp = await context.newCDPSession(page);
   if (p.cpu > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate: p.cpu });
