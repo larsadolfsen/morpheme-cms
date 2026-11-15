@@ -415,6 +415,17 @@ Source: `theme/styles/ui.css` (`.search-view-header`, `.search-view-input`). Rea
 - **Why:** Chrome's Modern Web Guidance, `accessibility`: "Mandatory - Don't disable browser native focus indicators without providing a replacement custom focus indicator" (WCAG 2.4.7, 1.4.11, 3:1). Owner approved, 15 Nov 2026 (relayed by the PM).
 - **Date:** 2026-11-15. **PR:** #754.
 
+## The footer's colour scheme (connected button group, #767)
+
+Source: `theme/components/Footer.astro`, `theme/layouts/Base.astro`. Read 15 Nov 2026 on m3.material.io (Playwright): `/components/button-groups/overview`, `/specs`, `/guidelines` and `/accessibility`, and `/components/segmented-buttons/overview`, `/specs`, `/guidelines` and `/accessibility`.
+
+### F1. A single-choice group of toggle buttons says `aria-pressed`, not `radio`
+
+- **Material:** the button groups' Accessibility page prints "Tab: Initial focus lands on the first button", "Arrow keys: Navigate between items", "Space or Enter: Selects a focused item" and "Identify when buttons are selected"; it names no ARIA roles.
+- **We do:** the three buttons (Light, Auto, Dark) are toggle `Button`s with `aria-pressed` in a `role="group"` (the theme's `ButtonGroup`, as its `ChoiceGroup` does), with one tab stop on the chosen button and the arrow keys moving and choosing. Initial focus lands on the chosen button, as `ChoiceGroup` does, where M3 prints the first.
+- **Why it stays:** no Modern Web Guidance guide prints a rule for one-of-many toggle buttons (searched and read 15 Nov 2026: `accessibility`, `forms`, `toolbar`, `tabs`, `switch`, `dark-mode-toggle`; none mentions radio roles, `aria-checked` or arrow-key groups), and M3's page prints none. The theme's `ChoiceGroup` and this group use `aria-pressed`. Accepted by the PM, 15 Nov 2026; revisit if the guides add it.
+- **Date:** 2026-11-15. **PR:** #767.
+
 ## The site's menu is the baseline modal navigation drawer, not the modal expanded navigation rail (D2 of the Modern Web Guidance audit)
 
 Source: `theme/components/MobileMenu.tsx`, `theme/ui/NavigationDrawer.tsx`, `theme/styles/ui.css`. Read 15 Nov 2026 on m3.material.io (Playwright, every tab): `/components/navigation-drawer/overview`, `/specs`, `/guidelines`, `/accessibility` and `/components/navigation-rail/overview`, `/specs` (all six token sets: Common, Collapsed, Expanded, Item - Common, Item - Vertical, Item - Horizontal, opened), `/guidelines`, `/accessibility`. The measurement and anatomy images of the Specs pages did not load in headless Chromium (blurred placeholders), so numbers that only those images carry are not read here.
