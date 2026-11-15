@@ -32,7 +32,7 @@ export const history = {
   restoreAsk: (name: string) => `Restore ${name}?`,
   restoring: 'Restoring…',
   /** The address a deleted page or post had is taken now; `reason` says by what. */
-  restoreTaken: (reason: string) => `${reason} It can’t be restored at its old address.`,
+  restoreTaken: (reason: string) => `${reason} It can’t be restored at its old URL.`,
   notRestored: (error: string) => `Couldn’t restore: ${error}`,
   open: 'Open',
   /** Selecting several deleted items (Deleted.tsx): the bar's buttons, the question, and what is said about the rest. */
@@ -40,7 +40,7 @@ export const history = {
   preview: 'Preview',
   restoreMany: (count: number, what: string) => `Restore ${count} ${what}?`,
   restoredMany: (count: number, what: string) => `${count} ${what} restored`,
-  notRestoredSome: (count: number, names: string) => `${count} weren’t restored because their addresses are taken: ${names}`,
+  notRestoredSome: (count: number, names: string) => `${count} weren’t restored because their URLs are taken: ${names}`,
   /** The commits, in the site's language (siteT); `what` is a name or a file name in quotation marks. */
   commit: {
     restoreVersion: (what: string, when: string) => `Editor: restore ${what} from ${when}`,
