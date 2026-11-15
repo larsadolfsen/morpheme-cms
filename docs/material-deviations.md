@@ -407,3 +407,14 @@ Source: `theme/styles/ui.css` (`.search-view-header`, `.search-view-input`). Rea
 - **We do:** the bar container of the view (`.search-view-header`) shows the same 2dp accent ring as the closed search bar while the field has focus, drawn as an inset shadow with a transparent outline for forced-colors mode. The same 2dp ring (`--mo-primary`) marks the editor's text typed in place and its typed rows (editor only, no M3 page).
 - **Why:** Chrome's Modern Web Guidance, `accessibility`: "Mandatory - Don't disable browser native focus indicators without providing a replacement custom focus indicator" (WCAG 2.4.7, 1.4.11, 3:1). Owner approved, 15 Nov 2026 (relayed by the PM).
 - **Date:** 2026-11-15. **PR:** #754.
+
+## The site's menu is still a navigation drawer (D2 of the Modern Web Guidance audit)
+
+Source: `theme/components/MobileMenu.tsx`, `theme/ui/NavigationDrawer.tsx`. Read 15 Nov 2026 on m3.material.io (Playwright): `/components/navigation-drawer/overview`, `/specs`, `/guidelines` and `/accessibility`.
+
+### N1. The menu on a phone stays a modal navigation drawer, not an expanded navigation rail
+
+- **Material:** Navigation drawer, Overview: "The navigation drawer is no longer recommended in the Material 3 Expressive update. For those who have updated, use an expanded navigation rail, which has mostly the same functionality of the navigation drawer and adapts better across breakpoints."
+- **We do:** the site's menu stays the theme's modal navigation drawer, with the look and measurements of the Navigation drawer specs. This pull request only changes how it is built: a native `<dialog>` opened with `showModal()` (Modern Web Guidance, `dialog` and `navigation-drawer`: the browser makes the page inert, keeps the focus in it and returns it), with the same springs. The expanded navigation rail is a follow-up, listed by the PM.
+- **Why:** the owner's priority order (15 Nov 2026): modern web first, M3 Expressive second; the PM kept the drawer for now because the change to a rail is a design change of its own. Decision relayed by the PM, 15 Nov 2026.
+- **Date:** 2026-11-15. **PR:** #768.
