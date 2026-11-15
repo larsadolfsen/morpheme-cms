@@ -127,6 +127,8 @@ export type InlineSpec = {
     row: string;
     settings?: string;
     icon?: string;
+    /** A block with no list whose one link is its main setting (Video): the bar's `Change link`, which opens the sheet with `settings` (the field's label) focused and selected. */
+    changeLink?: string;
   };
 };
 

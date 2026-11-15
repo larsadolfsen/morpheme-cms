@@ -574,6 +574,7 @@ export const blocks: Messages['blocks'] = {
     label: 'Video',
     hint: 'En video fra YouTube eller Vimeo.',
     url: 'Videolink',
+    changeUrl: 'Skift link',
     urlProblem: 'Indsæt linket til videoen fra YouTube eller Vimeo',
     title: 'Titel',
     video: 'Video',
