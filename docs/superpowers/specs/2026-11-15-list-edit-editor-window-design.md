@@ -2,7 +2,7 @@
 
 Status: spec and build plan for 0.19, no code in this pull request. Written 15 November 2026 in a brainstorm session from the owner's decisions of
 the same day (section 1), **redrawn the same day after the owner's correction** that the list's texts are inline text in the flow, not blocks
-(decision 5). Branch `0.19`. Three questions are **open for the owner** (section 11), each with a recommendation.
+(decision 5). Branch `0.19`. Two questions are **open for the owner** (section 11), each with a recommendation; Q1 is decided.
 
 Read for this spec:
 
@@ -37,6 +37,8 @@ the **entry form page** is where an entry is typed; the **edit page** (`#list/<i
    headings in the page editor: typed in place, styled from the text bar. Only the form fields (Icon, Title, Body text, Image, Link, Tags …) are
    blocks (cards with handle, move, settings, delete), placed between the inline text. The window is **a flow of inline text with field blocks in
    it, as a page is**. The texts have no card, no settings sheet and no plain input.
+
+6. **(Decided, 15 Nov.)** Locked lists (those an app provides) stay locked in 0.19: no editor window and no list text for them. `LockedListEdit` is unchanged (section 3.3, Q1).
 
 **Base check.** On `0.19` at `b780512` #704 is not merged: `OwnListEdit.tsx` still has `Shown`, `dropped` and `Remove data`. This spec assumes #704
 has landed. If it has not when the window is built, that PR starts from a rebase on it; `dropped` is never carried into the new window.
@@ -174,7 +176,7 @@ sheet.
 
 ### 3.3 Locked lists
 
-`LockedListEdit` (Testimonials, an app's locked list) is unchanged: its fields are read-only rows, no window, no text. See Q1.
+`LockedListEdit` (Testimonials, an app's locked list) is unchanged: its fields are read-only rows, no window, no text. **Decided by the owner on 15 Nov (Q1, decision 6).**
 
 ## 4. Which page-editor parts are reused
 
@@ -416,10 +418,7 @@ window is drawn through (the editor window is the thing in that slot), and `lib/
 
 ## 11. Open questions for the owner
 
-**Q1. Do locked lists get list text?** An own list is the owner's, so it gets the window and the text. Testimonials and an app's locked list have
-fixed fields and no `_list.json` of their own.
-*Recommendation:* **no, not in 0.19.** Their edit page stays `LockedListEdit`. Text for them is a later step (an `app.json` `notes` key, one more
-field of the framework's contract 6) when an app asks for it.
+**Q1. Do locked lists get list text?** **Decided by the owner on 15 Nov 2026: no.** Locked lists (those an app provides) stay locked in 0.19, with no editor window and no list text; `LockedListEdit` is unchanged. Text for them is a later step (an `app.json` `notes` key in a later contract) when an app asks for it.
 
 **Q2. What is `<entry>` for a list the owner made?** The FAB menu says `Add testimonial`, but an own list has only its name (`Services`), and no
 singular. Without one, the menu reads `Add item`.
