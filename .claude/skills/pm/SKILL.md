@@ -98,6 +98,13 @@ says which change caused it. Then it either has a fix made, in a session in the 
 normal pull request, or it tells the owner exactly what failed and what it needs. It does not deploy or run `wrangler`
 against the live Cloudflare account itself.
 
+**Ready queue and CI slots (owner rule, 15 Nov 2026).** Sessions send a "ready: …" message when their change is done and
+checked locally (`developer` skill, *3a*). The PM keeps the queue in the order of those messages; a fix of a red base
+branch goes first. It allows 1 to 4 pull requests in CI at once, decided by overlap: pull requests that change different
+files run together, up to 4; pull requests that change the same files run one after another. The cap is 4 because one
+`Check` run is about 19 jobs and about 20 run at once. The PM tells the next session "your slot", starts or re-runs the
+CI itself when a session has pushed out of turn, and tells the 0.19 PM after each merge into 0.18 (`changesets`).
+
 ## Phase 1 - Take stock (read-only)
 
 Read what is planned for the line: `docs/superpowers/specs/` and `docs/superpowers/plans/`, the open pull requests in
