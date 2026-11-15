@@ -150,6 +150,7 @@ the editor's own (`CLAUDE.md`: the editor's workspace follows the editor, not Ma
 │ │ ┌ Image ──────────────┐ │ │      │                             │
 │ │ │ ▢  Add an image     │ │ │      │                             │
 │ │ └─────────────────────┘ │ │      │                             │
+│ │ Ask before you delete.▏ │ │ Body │                             │
 │ └─────────────────────────┘ │      │                             │
 ├─────────────────────────────┤      ├─────────────────────────────┤
 │       [ Save changes ]      │ Save │       [ Save changes ]      │
@@ -174,6 +175,7 @@ the editor's own (`CLAUDE.md`: the editor's workspace follows the editor, not Ma
 │  │ │ ┌ Price ─────────────────────────────────┐  │ │                      │
 │  │ │ │ [ ______________________________ ]     │  │ │                      │
 │  │ │ └────────────────────────────────────────┘  │ │                      │
+│  │ │ Ask before you delete.                      │ │                      │
 │  │ └─────────────────────────────────────────────┘ │                      │
 │  ├─────────────────────────────────────────────────┤                      │
 │  │               [ Save changes ]                  │                      │
@@ -185,6 +187,13 @@ others: **Heading** (the h3 style), **Body medium** (the plain paragraph) and **
 page editor's `Aa▾`, reduced to these three) and by the page editor's own keys. There are no bold, italic, links, colours, lists, alignment or
 images. `Enter` makes a new line in the style the page editor gives (after a heading Body medium, after Body medium Body medium, after a Label a
 Heading, as the page editor's label sits above its heading). A line that is empty is not saved.
+
+**Text before, between and after the blocks.** The owner may put text before the first block, between any two blocks and after the last, all in the one
+flow (the wireframes show a Heading and a Body line before the first block, a Label between `Name` and `Price`, and a Body line after the last). It works as in
+the page editor: the flow always ends in a free line, so there is somewhere to type after the last block; `Enter` at the end of a line, or a tap in the free
+space below a block (`tapBelow`), puts the cursor in a free line there; the arrow keys move the caret into and out of a block (`nextToCard`); `Backspace` in an
+empty line next to a block removes the line, not the block (`cardDeletes`); two blocks side by side keep a free line between them for the cursor
+(`gapHere`). Free lines are not text until something is typed in them: an empty line is not saved (section 6).
 
 **Field blocks.** A field block is drawn **as the form field of the entry form page** (`#new/<id>`, `DataForm.tsx`): the field's name as its label, and the
 input the person will fill in (a text outline, a body-text area, an icon picker, an image placeholder, a tag chip row), disabled, so the owner sees what the
@@ -314,6 +323,11 @@ order, and each note's `after` is the nearest field block before it in the docum
 - **Removing a field** leaves its texts where they stand: their `after` becomes the nearest field before (or `null`) on the next save.
 - **On the list page** the field blocks have no place, so the page shows **all the notes in array order** above the rows; where a line stands
   among the cards in the window affects only the window (Q3).
+
+**Text in all three places is covered by `after`.** Text before the first block is `after: null`; text between two blocks is `after` the first of them; text after
+the last block is `after` the last field. Several lines in the same place are several entries with the same `after`, in array order. Nothing else is stored for it.
+Display is as decided (decision 9): on the **list page** all the text stands above the rows in the order written, never between rows; on the **entry form page**
+(`#new/<id>`) none of it is shown.
 
 **Compatibility with lists saved before.**
 
