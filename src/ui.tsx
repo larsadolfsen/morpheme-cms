@@ -94,6 +94,7 @@ import {
   siteNavigationDrawerDialogClass,
   siteFocusNavigationDrawerItem,
   SiteSegmentedButton,
+  SiteChoiceGroup,
   SiteSideSheet,
   SiteTab,
   SiteTabs,
@@ -1756,6 +1757,49 @@ export function SegmentedButton<T extends string>({
         selected: v === value,
         disabled,
         onClick: () => onChange(v),
+      }))}
+    />
+  );
+}
+
+/** The theme's choice group: one choice of a few, side by side as joined buttons when every name fits, else a list of
+ * radio buttons, one per row, with a small `sample` of each look on its right (theme/ui/ChoiceGroup.tsx). `labelHidden`:
+ * the name is already over it (a field's label), so the list's own name is for screen readers only. */
+export function ChoiceGroup<T extends string>({
+  label,
+  value,
+  options,
+  disabled,
+  dots,
+  labelHidden,
+  onChange,
+}: {
+  /** What is chosen: the group's name. */
+  label: string;
+  value: T;
+  options: { value: T; label: string; icon?: Icon; swatch?: string; sample?: ReactNode; disabled?: boolean }[];
+  /** It cannot be changed now: grey, and it stays. */
+  disabled?: boolean;
+  /** Only the `swatch` dots are shown in the buttons; each name is its accessible label. */
+  dots?: boolean;
+  labelHidden?: boolean;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <SiteChoiceGroup
+      label={label}
+      value={value}
+      disabled={disabled}
+      dots={dots}
+      labelHidden={labelHidden}
+      onChange={(v: string) => onChange(v as T)}
+      choices={options.map(({ value: v, label: name, icon: Glyph, swatch, sample, disabled: off }) => ({
+        value: v,
+        label: name,
+        icon: Glyph && <Glyph />,
+        swatch,
+        sample,
+        disabled: off,
       }))}
     />
   );

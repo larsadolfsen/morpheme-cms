@@ -36,7 +36,9 @@ import { buildTestSite } from './test-site.mjs';
 const i18nDir = fileURLToPath(new URL('../src/i18n/da-DK/', import.meta.url));
 const bundled = await build({
   stdin: {
-    contents: ['apps', 'app', 'cms', 'dashboard', 'common', 'library'].map((name) => `export { ${name} } from './${name}.ts';`).join('\n'),
+    contents: ['apps', 'app', 'cms', 'dashboard', 'common', 'library', 'text', 'blocks']
+      .map((name) => `export { ${name} } from './${name}.ts';`)
+      .join('\n'),
     resolveDir: i18nDir,
     loader: 'ts',
   },
@@ -47,7 +49,16 @@ const bundled = await build({
   logLevel: 'silent',
 });
 const texts = await import(`data:text/javascript;base64,${Buffer.from(bundled.outputFiles[0].text).toString('base64')}`);
-const { apps: da, app: daApp, cms: daCms, dashboard: daDashboard, common: daCommon, library: daLibrary } = texts;
+const {
+  apps: da,
+  app: daApp,
+  cms: daCms,
+  dashboard: daDashboard,
+  common: daCommon,
+  library: daLibrary,
+  text: daText,
+  blocks: daBlocks,
+} = texts;
 
 // The theme's springs (lib/motion.ts, TypeScript too): what the bar's slide and fade must last and follow.
 const motionBundle = await build({
@@ -269,6 +280,275 @@ async function checkStartSubtitle() {
   }
 }
 
+/** Every visible choice group (.choice-group) in `root`, measured in the page: its form, its choices' boxes, whether two overlap
+ * or a label is cut off, what the buttons need against the room they get, the targets (buttons) and row heights (list), its
+ * name, and its samples. Run with locator.evaluate. */
+function choiceGroupsIn(root) {
+  return [...root.querySelectorAll('.choice-group')]
+    .filter((g) => g.getClientRects().length > 0)
+    .map((g) => {
+      const form = g.dataset.form;
+      const visible =
+        form === 'buttons' ? g.querySelector(':scope > .choice-group-buttons') : g.querySelector(':scope > .choice-group-list');
+      const items = form === 'buttons' ? [...visible.children] : [...visible.querySelectorAll('.list-item-container')];
+      const boxes = items.map((el) => el.getBoundingClientRect());
+      const overlap = boxes.some((a, i) =>
+        boxes.some((b, j) => j > i && a.left < b.right - 0.5 && b.left < a.right - 0.5 && a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5),
+      );
+      const labels =
+        form === 'buttons'
+          ? items.map((b) => b.querySelector('.choice-group-label'))
+          : items.map((r) => r.querySelector('.list-item-headline'));
+      const clipped = labels
+        .filter((l) => l && !l.classList.contains('choice-group-label-hidden') && l.scrollWidth > l.clientWidth + 0.5)
+        .map((l) => l.textContent);
+      const measured = [...g.querySelectorAll(':scope > .choice-group-measure > *')].map((b) => b.getBoundingClientRect().width);
+      const row = g.querySelector(':scope > .choice-group-measure');
+      const room = row ? row.getBoundingClientRect().width : 0;
+      const needed = measured.length
+        ? Math.max(...measured) * measured.length + (measured.length - 1) * (parseFloat(getComputedStyle(row).columnGap) || 0)
+        : 0;
+      const targets =
+        form === 'buttons'
+          ? items.map((b) => Math.max(b.getBoundingClientRect().height, parseFloat(getComputedStyle(b, '::after').height) || 0))
+          : [];
+      const heights = form === 'list' ? boxes.map((b) => b.height) : [];
+      const name =
+        form === 'buttons'
+          ? (visible.getAttribute('role') === 'group' && visible.getAttribute('aria-label')) || ''
+          : (visible.querySelector(':scope > legend')?.textContent ?? '');
+      // The list's alignment: the radio's circle at the group's left edge, the label on the circle's middle line, a sample's right edge (a
+      // text button's text) at the group's right edge.
+      const gr = g.getBoundingClientRect();
+      const lis = form === 'list' ? [...visible.querySelectorAll('li')] : [];
+      const circleOff = lis.map((li) => li.querySelector('input[type="radio"]').getBoundingClientRect().left - gr.left);
+      const centreOff = lis.map((li) => {
+        const c = li.querySelector('input[type="radio"]').getBoundingClientRect();
+        const t = li.querySelector('.list-item-headline').getBoundingClientRect();
+        return (c.top + c.bottom) / 2 - (t.top + t.bottom) / 2;
+      });
+      const sampleOff = lis.flatMap((li) => {
+        const slot = li.querySelector('.choice-group-sample');
+        const b =
+          slot &&
+          [...slot.querySelectorAll('.button')].find(
+            (x) => x.getClientRects().length && !x.closest('[aria-hidden="true"][style*="hidden"]'),
+          );
+        if (!b) return [];
+        const pad = b.classList.contains('button-text') ? parseFloat(getComputedStyle(b).paddingRight) : 0;
+        return [b.getBoundingClientRect().right - pad - gr.right];
+      });
+      return {
+        form,
+        circleOff,
+        centreOff,
+        sampleOff,
+        forced: g.hasAttribute('data-forced'),
+        narrow: !!g.closest('[data-choice-narrow]'),
+        n: items.length,
+        samples: g.querySelectorAll(':scope > .choice-group-list .choice-group-sample').length,
+        overlap,
+        clipped,
+        room,
+        needed,
+        targets,
+        heights,
+        name,
+      };
+    });
+}
+
+/** The rules every choice group keeps (choiceGroupsIn): no overlap, no label cut off, buttons only when they fit, 48 px targets
+ * and rows, a name. */
+function checkChoiceGroups(label, groups) {
+  groups.forEach((g, i) => {
+    const at = `${label} group ${i + 1} "${g.name}" (${g.form})`;
+    if (g.overlap) problems.push(`${at}: two choices overlap`);
+    if (g.clipped.length) problems.push(`${at}: cut off: ${g.clipped.join(', ')}`);
+    if (!g.name.trim()) problems.push(`${at}: the group has no name`);
+    if (g.form === 'buttons' && !g.forced && g.needed > g.room + 0.5)
+      problems.push(`${at}: buttons though they need ${g.needed} px of ${g.room}`);
+    if (g.targets.some((t) => t < 47.5)) problems.push(`${at}: a button's target is below 48 px (${g.targets.join(', ')})`);
+    if (g.heights.some((h) => h < 47.5)) problems.push(`${at}: a row is below 48 px (${g.heights.join(', ')})`);
+    if (g.circleOff.some((x) => Math.abs(x) > 1))
+      problems.push(`${at}: a radio's circle is not at the group's left edge (${g.circleOff.map((x) => x.toFixed(1))} px)`);
+    if (g.centreOff.some((x) => Math.abs(x) > 1))
+      problems.push(`${at}: a label is not on its radio's middle line (${g.centreOff.map((x) => x.toFixed(1))} px)`);
+    if (g.sampleOff.some((x) => Math.abs(x) > 1))
+      problems.push(`${at}: a sample does not end at the group's right edge (${g.sampleOff.map((x) => x.toFixed(1))} px)`);
+  });
+}
+
+/** A page with every block whose settings have a choice of a few (the choice group's places, spec section 4): Banner, Blog posts,
+ * Testimonials, Cards (Filled, so Color shows), Image grid, Segmented list and Buttons. */
+const CHOICE_PAGE = [
+  '---\ntitle: "Choices"\ndescription: "d"\n---\n\n# Choices\n\nIntro.\n',
+  block('posts', {}),
+  block('testimonials', { show: 'all', heading: 'Kind words' }),
+  block('cards', { design: 'filled', items: [{ title: 'One', text: 'First' }] }),
+  block('imagegrid', {}),
+  block('segmented', { items: [{ title: 'Row', text: 'Text' }] }),
+  block('buttons', { items: [{ label: 'Book a time', to: 'page', kind: 'filled' }] }),
+].join('\n\n');
+
+/** The choice groups of the editor's fields (fields.tsx, `segments: true`) in their places, on a phone (the 271 px modal sheet) and a
+ * computer (the 312 px side sheet), in English and Danish: each block's Block settings, and a button's Settings. Every group keeps the
+ * rules of checkChoiceGroups. The owner's case by name: Buttons › Settings › Style is the list with five samples at both widths, and
+ * in the list the arrow keys choose. */
+async function checkChoiceGroupFields(width, locale) {
+  const label = `${width}px ${locale} choice group fields`;
+  const touch = width < 600;
+  const say =
+    locale === 'da-DK'
+      ? { block: daText.blockSettings, settings: daBlocks.buttons.settingsAction, style: daBlocks.buttons.kind }
+      : { block: 'Block settings', settings: 'Settings', style: 'Style' };
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: touch, isMobile: touch, locale });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  const path = 'src/content/pages/zz-choices.md';
+  await openEditor(page, site, { [path]: CHOICE_PAGE });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('.ProseMirror .site-block-card', { timeout: 30_000 });
+  const sheet = () =>
+    page
+      .locator('dialog[open], .editor-side-sheet')
+      .filter({ has: page.locator('.choice-group, .segmented-button') })
+      .last();
+  // A sheet is closed by its Cancel (nothing was changed), else by Escape (the side panel on a computer).
+  const close = async () => {
+    const cancel = page.locator(
+      'dialog[open] .side-sheet-actions button, dialog[open] [aria-label="Close"], dialog[open] [aria-label="Luk"]',
+    );
+    const named = cancel.filter({ hasText: /^(Cancel|Annuller)$/ });
+    if (await named.count()) await named.last().click();
+    else if (await cancel.count()) await cancel.last().click();
+    else await page.keyboard.press('Escape');
+    await page.waitForFunction(() => !document.querySelector('dialog[open]'), null, { timeout: 3000 }).catch(() => {});
+    await page.waitForTimeout(300);
+  };
+  const cards = page.locator('.ProseMirror > .site-block > .site-block-card');
+  const count = await cards.count();
+  const seen = [];
+  const skipped = [];
+  for (let i = 0; i < count; i++) {
+    const card = cards.nth(i);
+    const name = await card.getAttribute('aria-label');
+    // At the top of the screen, clear of the save bar over the bottom (a phone).
+    await card.evaluate((el) => el.scrollIntoView({ block: 'start' }));
+    await page.waitForTimeout(200);
+    await (touch ? card.tap({ timeout: 5000 }) : card.click({ timeout: 5000 })).catch(() =>
+      problems.push(`${label}: the ${name} block could not be selected`),
+    );
+    // The row opens by its height on the spring: wait for it to stand still.
+    await page.waitForTimeout(800);
+    // A tap on a block that is not typed in place opens its sheet at once on a phone (the sheet is a moment in coming); otherwise Block settings in the active block's
+    // row, or in the row of the block pointed at.
+    // A slow runner draws a block's sheet late (its fields come after it): wait for the choice group in it, then try the tap once more.
+    const opened = () =>
+      sheet()
+        .waitFor({ timeout: 6000 })
+        .then(
+          () => true,
+          () => false,
+        );
+    let isOpen = await opened();
+    if (!isOpen && touch && !(await rowButton(page, say.block).count())) {
+      await card.tap({ timeout: 5000 }).catch(() => {});
+      await page.waitForTimeout(800);
+      isOpen = await opened();
+    }
+    if (!(await sheet().count())) {
+      const active = rowButton(page, say.block);
+      let button = (await active.count()) ? active : page.locator(`.site-block-row [data-row][aria-label="${say.block}"]:visible`);
+      if (!(await button.count()) && touch) {
+        // A block drawn empty here (no testimonials picked on the page) is too low to tap: the keyboard opens it, as for a screen reader.
+        await card.focus();
+        await page.keyboard.press('Enter');
+        await page.waitForTimeout(800);
+        button = page.locator(`.site-block-row [data-row][aria-label="${say.block}"]:visible`);
+      }
+      // Buttons has no block-level choice: its Style is in each button's Settings (below).
+      if (!(await button.count()) && !(await sheet().count())) {
+        if (/^(Buttons|Knapper)$/.test(name)) continue;
+        // The Image grid of a site with no images in Files has no settings to open on a phone (the demo has images): left out, and said so.
+        if (i === 3 && !has('src/data/files')) {
+          skipped.push(name);
+          continue;
+        }
+        problems.push(`${label}: ${name} has no ${say.block}`);
+        if (process.env.CHOICE_DEBUG) await page.screenshot({ path: `${process.env.CHOICE_DEBUG}-${width}-${i}.png` });
+        continue;
+      }
+      if (await button.count())
+        if (
+          !(await button
+            .first()
+            .click({ timeout: 5000 })
+            .then(
+              () => true,
+              () => false,
+            ))
+        ) {
+          problems.push(`${label}: ${say.block} of ${name} could not be pressed`);
+          continue;
+        }
+    }
+    const here = sheet();
+    if (
+      !(await here.waitFor({ timeout: 4000 }).then(
+        () => true,
+        () => false,
+      ))
+    ) {
+      await close();
+      continue;
+    }
+    await page.waitForTimeout(300);
+    const groups = await here.evaluate(choiceGroupsIn);
+    seen.push(...groups.map((g) => g.name));
+    // Blog posts 1, Testimonials 1, Cards 4, Image grid 3, Segmented list 1: the fixture's blocks in their order.
+    if (groups.length !== [1, 1, 4, 3, 1][i])
+      problems.push(
+        `${label} ${name}: ${groups.length} choice groups in its settings, not ${[1, 1, 4, 3, 1][i]} (${groups.map((g) => g.name).join(', ')})`,
+      );
+    checkChoiceGroups(`${label} ${name}`, groups);
+    if (process.env.SHOTS_FULL) await here.screenshot({ path: `${process.env.SHOTS_FULL}-fields-${width}-${locale}-${i}.png` });
+    await close();
+  }
+  // Only a block drawn empty is left out (the Image grid with no images): the other four are opened, and their groups counted above.
+  if (skipped.length > 1 || seen.length < 6)
+    problems.push(
+      `${label}: ${seen.length} choice groups seen in the blocks' settings (${seen.join(', ')}); not opened: ${skipped.join(', ') || 'none'}`,
+    );
+  // The owner's case: a button's Style, the list with a sample of each style.
+  await page.locator('.ProseMirror [data-field="label"]').last().click();
+  await page.waitForTimeout(300);
+  await pressTool(page, say.settings).catch(() => problems.push(`${label}: the button has no ${say.settings}`));
+  const style = page.getByRole('group', { name: say.style, exact: true }).last();
+  if (
+    !(await style.waitFor({ timeout: 4000 }).then(
+      () => true,
+      () => false,
+    ))
+  )
+    problems.push(`${label}: the button's settings have no ${say.style}`);
+  else {
+    const g = (await sheet().evaluate(choiceGroupsIn)).find((x) => x.name === say.style);
+    if (!g || g.form !== 'list' || g.samples !== 5)
+      problems.push(
+        `${label}: Buttons › ${say.settings} › ${say.style} is not the list with five samples (${g?.form}, ${g?.samples} samples)`,
+      );
+    checkChoiceGroups(`${label} button style`, g ? [g] : []);
+    await style.locator('input[type="radio"]:checked').focus();
+    await page.keyboard.press('ArrowDown');
+    const chosen = await style.evaluate((l) => [...l.querySelectorAll('input[type="radio"]')].findIndex((r) => r.checked));
+    if (chosen !== 1) problems.push(`${label}: ArrowDown in ${say.style} did not choose the second style (${chosen})`);
+    if (!(await page.locator('.inline-list-row-active.button-tonal, .ProseMirror .button-tonal').count()))
+      problems.push(`${label}: choosing Tonal by the arrow key did not change the button`);
+    if (process.env.SHOTS_FULL) await sheet().screenshot({ path: `${process.env.SHOTS_FULL}-button-style-${width}-${locale}.png` });
+  }
+  await page.close();
+}
+
 /** The theme's search view driven by React (theme/ui/Search.tsx, SearchView; the command palette's view, spec docs/superpowers/specs/2026-11-13-command-palette-and-context-menus-design.md,
  * sections 4.1, 4.5 and 4.7) on "Parts" › "UI components" (NavigationRestParts.tsx), on a phone and a computer, in English and Danish: it opens as a modal <dialog> with the focus in its
  * field, full screen on a phone and docked, in the middle near the top, on a computer; the results are in groups, each named by its label (role=group, aria-labelledby), as options
@@ -444,6 +724,65 @@ async function checkSearchViewParts(width, locale) {
     if (await view.count()) problems.push(`${label}: a tap outside does not close the view`);
   }
   await page.close();
+}
+
+/** The samples of Buttons › Settings › Style (choiceSamples.tsx) are never cut off: a short label is shown whole on every row (it fits the sample's
+ * width) and a long one is replaced by the editor's "Button", on a phone and a computer, in English and Danish. */
+async function checkButtonStyleSamples(width, locale) {
+  const touch = width < 600;
+  const word = locale === 'da-DK' ? daBlocks.buttons.sample : 'Button';
+  const say = locale === 'da-DK' ? { settings: daBlocks.buttons.settingsAction } : { settings: 'Settings' };
+  const cases = [
+    { text: 'Book', shown: 'Book' },
+    { text: 'Book an appointment with us today', shown: word },
+  ];
+  for (const { text, shown } of cases) {
+    const label = `${width}px ${locale} button style samples (${text.length} characters)`;
+    const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: touch, isMobile: touch, locale });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    const path = 'src/content/pages/zz-samples.md';
+    const md = `---\ntitle: "Samples"\ndescription: "d"\n---\n\n# Samples\n\nIntro.\n\n${block('buttons', { items: [{ label: text, to: 'page', kind: 'filled' }] })}\n`;
+    await openEditor(page, site, { [path]: md });
+    await page.goto(`${site}/editor/#${path}`);
+    await page.waitForSelector('.ProseMirror [data-field="label"]', { timeout: 30_000 });
+    await page.locator('.ProseMirror [data-field="label"]').last().click();
+    await page.waitForTimeout(500);
+    await pressTool(page, say.settings).catch(() => problems.push(`${label}: the button has no ${say.settings}`));
+    const here = page
+      .locator('dialog[open], .editor-side-sheet')
+      .filter({ has: page.locator('.choice-group') })
+      .last();
+    await here.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the settings did not open`));
+    await page.waitForTimeout(600);
+    const samples = await here
+      .evaluate((root) =>
+        [...root.querySelectorAll('.choice-group-list .choice-group-sample')]
+          .filter((slot) => slot.getClientRects().length)
+          .map((slot) => {
+            const button = slot.querySelector('.button:not([aria-hidden] .button)') ?? slot.querySelector('.button');
+            const visible = [...slot.querySelectorAll('.button')].filter((b) => !b.closest('[aria-hidden="true"][style*="hidden"]')).at(0);
+            const b = (visible ?? button).getBoundingClientRect();
+            const r = slot.getBoundingClientRect();
+            // A text button's side padding (it has no surface) may stand over the slot's end: its text is what must be inside.
+            const pad = (visible ?? button).classList.contains('button-text')
+              ? parseFloat(getComputedStyle(visible ?? button).paddingRight)
+              : 0;
+            return {
+              text: (visible ?? button).textContent.trim(),
+              inside: b.left >= r.left - 0.5 && b.right - pad <= r.right + 0.5,
+              whole: slot.scrollWidth - pad <= slot.clientWidth + 0.5,
+            };
+          }),
+      )
+      .catch(() => []);
+    if (samples.length !== 5) problems.push(`${label}: ${samples.length} samples in the list, not 5`);
+    for (const x of samples) {
+      if (x.text !== shown) problems.push(`${label}: a sample says "${x.text}", not "${shown}"`);
+      if (!x.inside || !x.whole) problems.push(`${label}: the sample "${x.text}" is cut off`);
+    }
+    if (process.env.SHOTS_FULL) await here.screenshot({ path: `${process.env.SHOTS_FULL}-samples-${width}-${locale}-${text.length}.png` });
+    await page.close();
+  }
 }
 
 /** The search button in the top bar (src/Screen.tsx SearchButton; spec docs/superpowers/specs/2026-11-13-command-palette-and-context-menus-design.md section 4.2 and 4.8):
@@ -761,63 +1100,9 @@ async function checkChoiceGroupParts(width, locale) {
   await part.scrollIntoViewIfNeeded();
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(300);
-  const groups = await part.evaluate((p) =>
-    [...p.querySelectorAll('.choice-group')].map((g) => {
-      const form = g.dataset.form;
-      const visible =
-        form === 'buttons' ? g.querySelector(':scope > .choice-group-buttons') : g.querySelector(':scope > .choice-group-list');
-      const items = form === 'buttons' ? [...visible.children] : [...visible.querySelectorAll('.list-item-container')];
-      const boxes = items.map((el) => el.getBoundingClientRect());
-      const overlap = boxes.some((a, i) =>
-        boxes.some((b, j) => j > i && a.left < b.right - 0.5 && b.left < a.right - 0.5 && a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5),
-      );
-      const labels =
-        form === 'buttons'
-          ? items.map((b) => b.querySelector('.choice-group-label'))
-          : items.map((r) => r.querySelector('.list-item-headline'));
-      const clipped = labels.filter((l) => l && l.scrollWidth > l.clientWidth + 0.5).map((l) => l.textContent);
-      const measured = [...g.querySelectorAll(':scope > .choice-group-measure > *')].map((b) => b.getBoundingClientRect().width);
-      const row = g.querySelector(':scope > .choice-group-measure');
-      const room = row ? row.getBoundingClientRect().width : 0;
-      const needed = measured.length
-        ? Math.max(...measured) * measured.length + (measured.length - 1) * (parseFloat(getComputedStyle(row).columnGap) || 0)
-        : 0;
-      const targets =
-        form === 'buttons'
-          ? items.map((b) => Math.max(b.getBoundingClientRect().height, parseFloat(getComputedStyle(b, '::after').height) || 0))
-          : [];
-      const heights = form === 'list' ? boxes.map((b) => b.height) : [];
-      const name =
-        form === 'buttons'
-          ? (visible.getAttribute('role') === 'group' && visible.getAttribute('aria-label')) || ''
-          : (visible.querySelector(':scope > legend')?.textContent ?? '');
-      return {
-        form,
-        forced: g.hasAttribute('data-forced'),
-        narrow: !!g.closest('[data-choice-narrow]'),
-        n: items.length,
-        samples: g.querySelectorAll(':scope > .choice-group-list .choice-group-sample').length,
-        overlap,
-        clipped,
-        room,
-        needed,
-        targets,
-        heights,
-        name,
-      };
-    }),
-  );
+  const groups = await part.evaluate(choiceGroupsIn);
   if (groups.length !== 3) problems.push(`${label}: ${groups.length} choice groups, not 3`);
-  groups.forEach((g, i) => {
-    const at = `${label} group ${i + 1} (${g.form})`;
-    if (g.overlap) problems.push(`${at}: two choices overlap`);
-    if (g.clipped.length) problems.push(`${at}: cut off: ${g.clipped.join(', ')}`);
-    if (!g.name.trim()) problems.push(`${at}: the group has no name`);
-    if (g.form === 'buttons' && !g.forced && g.needed > g.room + 0.5)
-      problems.push(`${at}: buttons though they need ${g.needed} px of ${g.room}`);
-    if (g.targets.some((t) => t < 47.5)) problems.push(`${at}: a button's target is below 48 px (${g.targets.join(', ')})`);
-    if (g.heights.some((h) => h < 47.5)) problems.push(`${at}: a row is below 48 px (${g.heights.join(', ')})`);
-  });
+  checkChoiceGroups(label, groups);
   const [auto, forced, narrow] = groups;
   if (width >= 1280 && auto?.form !== 'buttons') problems.push(`${label}: three short choices are not side by side at ${width} px`);
   if (forced && (forced.form !== 'list' || forced.samples !== forced.n))
@@ -1086,6 +1371,19 @@ async function checkBottomSheetBar(width, height, keyboard = 0, keyboardUp = fal
 
 /** A button of the active block's action row by its name (Move up, Move down, Hide, Show, Block settings; Edit on an image card). */
 const rowButton = (page, name) => page.locator(`.site-block-row:not(.site-block-row-hover) [data-row][aria-label="${name}"]:visible`);
+
+/** One choice of a choice group by its name, whichever form it has now: its visible button, or its row of radio buttons (the row's label is the target:
+ * the text under it cannot be pressed on its own). */
+async function chooseOption(page, name) {
+  const button = page.getByRole('button', { name, exact: true }).filter({ visible: true });
+  if (await button.count()) return void (await button.last().click());
+  await page
+    .locator('.choice-group-list .list-item-content')
+    .filter({ hasText: new RegExp(`^${name}$`) })
+    .filter({ visible: true })
+    .last()
+    .click();
+}
 
 /** A tool of the text's one bar by its name: a button of the active block's action row, its button on the bar, or its row in the ⋮ menu when it did not fit (a phone). `how`: 'click' or 'tap'.
  * The bar's buttons keep the cursor where it is. "Edit" is the bar's gear (the row's or item's settings); the block's own settings are Block settings, in the row. */
@@ -6122,7 +6420,7 @@ async function checkSegmentedArrow(width, height) {
   // The block's own Edit is in the bar's ⋮ menu.
   await pressMore(page, 'Edit');
   await page.waitForTimeout(600);
-  await page.getByText('Always open', { exact: true }).locator('visible=true').last().click();
+  await chooseOption(page, 'Always open');
   await saveOrClose(page, 'last');
   await page.waitForTimeout(500);
   await page.click('[data-add-row]');
@@ -6228,15 +6526,22 @@ async function checkInlineBlock(
         ),
       );
       const kinds = ['Filled', 'Tonal', 'Elevated', 'Outlined', 'Text'];
-      const group = page.locator('[role="group"][aria-label="Style"], [aria-label="Style"]').last();
+      // The choice group (ChoiceGroup): its buttons, or its list of radio buttons when they do not fit.
+      const group = page.getByRole('group', { name: 'Style', exact: true }).last();
       await group.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's settings have no Style choice`));
-      const names = await group
-        .getByRole('button')
-        .allTextContents()
-        .catch(() => []);
+      const radios = await group.getByRole('radio').count();
+      const names = radios
+        ? await group.locator('.list-item-headline').allTextContents()
+        : await group
+            .getByRole('button')
+            .allTextContents()
+            .catch(() => []);
       if (names.map((n) => n.trim()).join() !== kinds.join()) problems.push(`${label}: the button's styles are "${names}", not "${kinds}"`);
-      await group
-        .getByRole('button', { name: 'Outlined', exact: true })
+      await (
+        radios
+          ? group.locator('.list-item-content', { hasText: /^Outlined$/ })
+          : group.getByRole('button', { name: 'Outlined', exact: true })
+      )
         .click({ timeout: 3000 })
         .catch(() => {});
       await page.waitForTimeout(300);
@@ -6511,7 +6816,14 @@ async function checkInlineBlock(
     await cardSettings('a card with an icon');
     // A video: the Media choice of the first card, then its link.
     await page.locator('.inline-list-row-active .inline-card-media').click();
-    await page.getByRole('button', { name: 'Video', exact: true }).last().click();
+    // The Media choice is the choice group: buttons when they fit, else the list of radio buttons (the whole row is the target).
+    const mediaVideo = page.getByRole('button', { name: 'Video', exact: true }).last();
+    if (await mediaVideo.count()) await mediaVideo.click();
+    else
+      await page
+        .locator('.choice-group-list .list-item-content', { hasText: /^Video$/ })
+        .last()
+        .click();
     await page.getByRole('textbox', { name: 'Video link' }).fill('https://www.youtube.com/watch?v=aqz-KE-bpKQ');
     await page.waitForTimeout(400);
     await page
@@ -7861,7 +8173,7 @@ async function checkIconColor(width, height, scheme = 'light') {
         rows: document.querySelectorAll('[role="group"][aria-label="Icon color"]').length,
         names: [...(group?.querySelectorAll('button') ?? [])].map((b) => b.getAttribute('aria-label')),
         visible: [...(group?.querySelectorAll('button') ?? [])]
-          .map((b) => (b.querySelector('.segmented-button-label').getBoundingClientRect().width > 2 ? b.textContent.trim() : ''))
+          .map((b) => (b.querySelector('.choice-group-label').getBoundingClientRect().width > 2 ? b.textContent.trim() : ''))
           .join(''),
         pressed: [...(group?.querySelectorAll('button') ?? [])]
           .filter((b) => b.getAttribute('aria-pressed') === 'true')
@@ -7908,7 +8220,7 @@ async function checkIconColor(width, height, scheme = 'light') {
       };
       const chips = [...document.querySelectorAll('[role="group"][aria-label="Icon color"] button')];
       const out = chips.map((chip, i) => {
-        const dot = chip.querySelector('.segmented-button-swatch');
+        const dot = chip.querySelector('.choice-group-swatch');
         const box = dot?.getBoundingClientRect();
         const role = ['on-surface', 'primary', 'secondary', 'tertiary'][i];
         return {
@@ -7917,7 +8229,7 @@ async function checkIconColor(width, height, scheme = 'light') {
           circle: !!dot && Math.abs(box.width - box.height) < 0.5 && getComputedStyle(dot).borderRadius !== '0px',
           color: dot ? getComputedStyle(dot).backgroundColor : null,
           want: colorOf(role),
-          check: !!chip.querySelector('.segmented-button-check'),
+          check: !!chip.querySelector('.segmented-button-check, .choice-group-check'),
           width: Math.round(chip.getBoundingClientRect().width),
         };
       });
@@ -9482,7 +9794,8 @@ async function checkDashboardEdit(width, height) {
     await rhythmSheet.getByRole('button', { name: daCommon.cancel, exact: true }).click();
     await rhythmSheet.waitFor({ state: 'hidden', timeout: 5000 });
     await openRhythm();
-    await rhythmSheet.getByText(daLibrary.blogRhythmEveryWeek, { exact: true }).first().click();
+    // The visible one: the choice group also holds its unseen measuring row and the other form.
+    await rhythmSheet.getByText(daLibrary.blogRhythmEveryWeek, { exact: true }).filter({ visible: true }).first().click();
     await rhythmSheet.getByRole('button', { name: daCommon.save, exact: true }).click();
     await rhythmSheet.waitFor({ state: 'hidden', timeout: 5000 });
   } catch (e) {
@@ -9770,6 +10083,12 @@ for (const [width, height] of [
 await unit('checkStartSubtitle', () => checkStartSubtitle());
 for (const width of [375, 1280])
   for (const locale of ['en-US', 'da-DK']) await unit(`choice-group parts ${width} ${locale}`, () => checkChoiceGroupParts(width, locale));
+for (const width of [375, 1280])
+  for (const locale of ['en-US', 'da-DK'])
+    await unit(`choice-group fields ${width} ${locale}`, () => checkChoiceGroupFields(width, locale));
+for (const width of [375, 1280])
+  for (const locale of ['en-US', 'da-DK'])
+    await unit(`choice-group button samples ${width} ${locale}`, () => checkButtonStyleSamples(width, locale));
 for (const width of [375, 1280])
   for (const locale of ['en-US', 'da-DK']) await unit(`search view parts ${width} ${locale}`, () => checkSearchViewParts(width, locale));
 for (const width of [375, 1280]) await unit(`search button ${width}`, () => checkSearchButton(width));
