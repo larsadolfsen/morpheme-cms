@@ -2329,7 +2329,7 @@ export function MenuRow<T extends string>({
 
 /** The fields of a sheet, between SheetTitle and SheetActions, scrolled when there are many. */
 export function SheetBody({ onSubmit, children }: { onSubmit?: (e: FormEvent<HTMLFormElement>) => void; children: ReactNode }) {
-  const className = 'min-h-0 flex-1 space-y-5 overflow-y-auto px-5 pt-2 pb-4';
+  const className = 'min-h-0 flex-1 space-y-5 overflow-y-auto px-(--grid-margin) pt-2 pb-4';
   return onSubmit ? (
     <form className={className} onSubmit={onSubmit}>
       {children}
@@ -2396,7 +2396,7 @@ export function SheetActions({
   return (
     <div className="shrink-0">
       <SiteDivider />
-      <div className="flex items-center gap-2 px-5 py-3">
+      <div className="flex items-center gap-2 px-(--grid-margin) py-3">
         {start}
         <Button kind="outlined" className="ml-auto" onClick={onCancel}>
           {cancel ?? t.common.cancel}
