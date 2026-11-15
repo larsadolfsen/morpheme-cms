@@ -1,0 +1,6 @@
+{
+  "id": "dashboard-cards-gap",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Cards on the start screen sit close together with no empty space under a short card"
+}
