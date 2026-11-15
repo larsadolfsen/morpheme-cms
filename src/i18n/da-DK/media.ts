@@ -112,6 +112,7 @@ export const media: Messages['media'] = {
     alt: (what, name) => `Editor: ret teksten på ${what} "${name}"`,
     deleteMany: (count) => `Editor: slet ${count} filer`,
   },
+  altSkip: 'Spring over',
   crop: {
     title: 'Beskær',
     ratio: 'Billedformat',
