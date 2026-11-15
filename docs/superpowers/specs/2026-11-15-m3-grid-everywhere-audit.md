@@ -224,13 +224,21 @@ they follow the blocks); anything that would need a `THEME_API` bump before the 
 | 2 cards on a phone | One column of the 4-column grid is half width; a feed of cards stays full width per the feed page | Section 2 |
 | Site blocks follow the grid | Yes, one pull request each, with a release note | M3 rule |
 | 12 columns from 840 (CTA from 600) | 8 columns at 600–1199, 12 from 1200 | Grids page diagram |
+| Gap between cards | 16 px compact, 24 px from medium, the grid gutter: an owner-approved deviation from "8dp max" (Cards specs), entry G1 | Owner, 15 Nov |
 | `THEME_API` bump | No bump: fallbacks and already-contracted tokens (section 4) | A bump invalidates every store theme until re-published |
 | Masonry or rows | CSS columns (what `.image-grid` already is), even gap | Owner; feed and spacing pages (section 1) |
 | 72rem page width | Stays as our own limit (owner) | M3 prints no maximum width (section 1) |
 
-**Flagged open point** (the earlier questions, including 4 or 5 columns, are decided above)
+**Open points: none.** The questions asked here are all answered (4 columns, CSS columns, margin and gutter, 72rem, the
+cards gutter). The one deviation is recorded below and in `docs/material-deviations.md` (entry G1).
 
-**Gutter 16 / 24 against the Cards specs.** M3 prints "Padding between cards 8dp max"
-(`https://m3.material.io/components/cards/specs`). Cards in columns with gutter 16 / 24 are further apart than that. Either
-cards keep 8 px between them, or the owner approves the wider gap as a recorded deviation
-(`docs/material-deviations.md`). To decide before the card blocks move (step 4).
+**Deviation, owner-approved (15 Nov 2026): cards use the 16 / 24 gutter.** M3 (Cards specs,
+`https://m3.material.io/components/cards/specs`): "Padding between cards: 8dp max". We: cards on the layout grid are
+16 px apart on compact and 24 px from medium (the grid gutter), not 8 px. Why: owner decision, "Cards use the 16/24
+gutter too", relayed by the PM; one gutter for the whole grid. It replaces `--card-gap` (0.5rem, documented in
+`theme/styles/ui.css:2382` as "8px, Material 3's at most"). **Affected when they move onto the grid:** the cards block
+(`.block-cards`, `blocks.css:631-634`), the cards carousel grid from 600 (`blocks.css:722-771`), the image grid block and
+the media grid (`.image-grid`, `ui.css:2575-2595`, `blocks.css:807-817`), price cards (`blocks.css:1708-1742`), the prices
+cards (`.block-price-cards`), panels (`blocks.css:953-965`), related posts (`RelatedPosts.astro:21`) and the editor's own
+uses of `--card-gap` (`src/editor.css:903,911,953`). Image grid entry 17 (8 px apart) is replaced for the gap when the
+image grid moves.
