@@ -250,11 +250,19 @@ async function checkFocusIndicators(width, hash) {
   for (let i = 0; i < 400; i++) {
     await page.keyboard.press('Tab');
     await page.waitForTimeout(150);
+    // Tab only scrolls a stop into view when it is hidden: one cut by the window's edge hides its indicator, so it is centred first.
+    const hasStop = await page.evaluate(() => {
+      const e = document.activeElement;
+      if (!e || e === document.body) return false;
+      e.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
+      return true;
+    });
+    // Then two frames to settle: a stop in a part that CSS anchor positioning places (the rich tooltip's link) is laid out again
+    // after the scroll, and measured at once it is still where it was before it.
+    if (hasStop) await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
     const info = await page.evaluate(() => {
       const e = document.activeElement;
       if (!e || e === document.body) return null;
-      // Tab only scrolls a stop into view when it is hidden: one cut by the window's edge hides its indicator, so it is centred first.
-      e.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
       let box = e.getBoundingClientRect();
       // A hidden control (the radio of a ChoiceTile) shows its focus on the label that holds it.
       if (box.width < 4 || box.height < 4) box = (e.closest('label') ?? e.parentElement).getBoundingClientRect();
