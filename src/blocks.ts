@@ -41,8 +41,7 @@ export type SiteBlock = {
   nameOf?: (props: BlockProps) => string;
   /** Not offered among the blocks to put in: a fixed page's own text, which is written in the text. */
   written?: boolean;
-  /** Has become something else (the Banner is a section now, lib/remark-banner-section.mjs): still read, drawn and edited where a text
-   * has one, but not offered among the blocks to put in. */
+  /** Has become something else: still read, drawn and edited where a text has one, but not offered among the blocks to put in. */
   former?: boolean;
   /** Its heading and text are written in the text above it (sections.mjs); a new one gets a heading. */
   lead?: Lead;
@@ -125,6 +124,8 @@ export type InlineSpec = {
     row: string;
     settings?: string;
     icon?: string;
+    /** A block with no list whose one link is its main setting (Video): the bar's `Change link`, which opens the sheet with `settings` (the field's label) focused and selected. */
+    changeLink?: string;
   };
 };
 
@@ -196,7 +197,7 @@ export const exampleOf = (block: SiteBlock, data: BlockData): BlockProps => bloc
 // testimonials). Without anything to show, only its name.
 export const plain = (s: unknown) =>
   withoutColors(String(s))
-    // Without the blocks and images in it (a "Banner"'s text).
+    // Without the blocks and images in it (a block's text).
     .replace(/<div data-block="[a-z]+"[^>]*><\/div>/g, ' ')
     .replace(/!\[(?:\\.|[^\]])*\]\([^)]*\)/g, ' ')
     .replace(/\]\([^)]*\)/g, ']')
@@ -270,13 +271,9 @@ export const sectionBlocks = (blocks: Block[], leads: Record<string, Lead> = {})
     );
   });
 
-// Whether a field is written in the text above the card (a section's or a block's lead); one written there only up to
-// a block (`upTo`) is on the card too.
+// Whether a field is written in the text above the card (a section's or a block's lead).
 const inLead = (name: string, lead?: Lead) =>
-  !!lead &&
-  (name === lead.heading ||
-    (name === lead.body && !lead.upTo) ||
-    (!!lead.image && ['image', 'imageAlt', 'imageDecorative'].includes(name)));
+  !!lead && (name === lead.heading || name === lead.body || (!!lead.image && ['image', 'imageAlt', 'imageDecorative'].includes(name)));
 
 // A section as a card: only the fields that are not written in the text above it (its lead).
 // The icon of each type of section (a fixed page's own: text, booking, posts); others the icon of

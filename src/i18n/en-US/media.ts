@@ -1,4 +1,4 @@
-// The images, PDFs, videos and zip files (Filer, Media.tsx) and cutting an image to a format (Crop.tsx).
+// The images, PDFs, videos and zip files (Filer, Media.tsx) and cutting an image to a format (CropView.tsx).
 export const media = {
   sorts: { new: 'Newest first', old: 'Oldest first', name: 'Name (A–Z)' },
   sort: 'Sort',
@@ -9,6 +9,7 @@ export const media = {
   wholeYear: (year: string) => `All of ${year}`,
   use: 'Use',
   filter: 'Filter',
+  clearAll: 'Clear all',
   all: 'All',
   kind: 'Type',
   allKinds: 'All types',
@@ -49,8 +50,8 @@ export const media = {
   removeFilter: (label: string) => `Remove the filter ${label}`,
   noImages: 'No images',
   noFiles: 'No files',
-  pick: 'Choose an image',
-  pickMany: 'Choose images',
+  pick: 'Select an image',
+  pickMany: 'Select images',
   addPicked: (count: number) => (count === 1 ? 'Add 1 image' : `Add ${count} images`),
   /** The sources of images that apps add to the picker (media providers). */
   providers: {
@@ -84,11 +85,16 @@ export const media = {
       : `${kept} of ${total} files are used on pages and were kept: ${names}`,
   nameTaken: 'There’s already a file with that name',
   tooBig: (mb: number) => `The file is too big. It can be at most ${mb} MB.`,
-  notAFile: 'The file can’t be used. Choose an image, a PDF, a video, or a zip file.',
+  notAFile: 'The file can’t be used. Select an image, a PDF, a video, or a zip file.',
   name: 'Name',
   saveName: 'Save name',
   openPdf: 'Open PDF',
   download: 'Download',
+  /** The file's details on a phone (a subpage): the move to the file before and after it in the grid, and where it is ("1 of 4"). */
+  previous: 'Previous file',
+  next: 'Next file',
+  position: (index: number, total: number) => `${index} of ${total}`,
+  fileTools: 'File',
   savedAs: (name: string) => `Will be saved as ${name}`,
   usedOn: 'Used on',
   siteDesign: "The website's design",
@@ -97,7 +103,7 @@ export const media = {
   addTag: 'Add tag',
   createTag: 'Create a tag',
   /** The image's base text, kept with the image and used wherever it is shown unless that place has its own. */
-  alt: 'Describe the image',
+  alt: 'Alt text',
   altHint: 'Describe the image in a few words, for people who can’t see it.',
   decorative: 'Decorative image',
   decorativeHint: 'Screen readers skip the image.',
@@ -113,12 +119,17 @@ export const media = {
     alt: (what: string, name: string) => `Editor: change the text of ${what} "${name}"`,
     deleteMany: (count: number) => `Editor: delete ${count} files`,
   },
+  /** The alt text sheet after an image is picked: the button that keeps the image without a text of its own (BlockDialog.tsx, image tools spec 9.1). */
+  altSkip: 'Skip',
+  /** The crop view (CropView.tsx) and the image sheet's Aspect ratio row (image tools spec, sections 3 and 10). */
   crop: {
-    format: 'Format',
-    formatHint: 'Choose a format to crop the image.',
+    title: 'Crop',
+    ratio: 'Aspect ratio',
     original: 'Original',
-    frame: 'Cropping. Drag the image, or use the arrow keys, to move it.',
-    drag: 'Drag the image to choose the crop.',
+    frame: 'Crop frame. Drag the image, or use the arrow keys, to move it.',
+    drag: 'Drag the image to place it in the frame.',
     zoom: 'Zoom',
+    zoomIn: 'Zoom in',
+    zoomOut: 'Zoom out',
   },
 };

@@ -4,7 +4,7 @@ export const app = {
   loading: 'Loading the website’s content…',
   cannotSave: (login: string) => `The account ${login} doesn’t have access to save. Log in with another GitHub account under Account.`,
   notFound: 'Not found',
-  nothingAt: (route: string) => `There’s nothing at the address ${route}`,
+  nothingAt: (route: string) => `There’s nothing at the URL ${route}`,
   /** The chip in the top bar: from Save until the website is rebuilt, then when it is, or when it failed. */
   /** After a save, when the website has been updated with it (or not); `changes`: what the saves since the last update
    * changed, as a list (changesText in deploy.ts). */
@@ -26,7 +26,7 @@ export const app = {
     order: (label: string) => `new order of ${label}`,
     turnedOn: (what: string) => `${what} turned on`,
     turnedOff: (what: string) => `${what} turned off`,
-    chosen: (what: string) => `${what} chosen`,
+    chosen: (what: string) => `${what} selected`,
     installed: (what: string, version?: string) => (version ? `${what} ${version} installed` : `${what} installed`),
     updated: (what: string, version: string) => `${what} updated to ${version}`,
     uninstalled: (what: string) => `${what} uninstalled`,
@@ -37,20 +37,20 @@ export const app = {
     theme: 'theme',
     iconPack: 'icon pack',
     motion: 'motion',
-    sideColumn: 'side column',
+    sideColumn: 'sidebar',
     colors: 'colors',
     redirect: (from: string) => `redirect from ${from}`,
     logo: 'logo',
     icon: 'icon',
     r2Caching: 'R2 caching',
-    place: 'storage location',
+    place: 'R2 location',
     contentOnlyBuilds: 'content-only builds',
     paidBuilds: 'Workers Paid plan',
   },
   /** Why a new page or post cannot have an address. */
-  addressTaken: (address: string) => `There’s already a page or blog post with the address ${address}.`,
-  addressRedirects: (address: string, name: string) => `The address ${address} currently sends visitors on to ${name}.`,
-  addressLoop: (loop: string) => `The address can’t be changed, because the redirects would go in a loop (${loop}).`,
+  addressTaken: (address: string) => `There’s already a page or blog post with the URL ${address}.`,
+  addressRedirects: (address: string, name: string) => `The URL ${address} currently sends visitors on to ${name}.`,
+  addressLoop: (loop: string) => `The URL can’t be changed, because the redirects would go in a loop (${loop}).`,
   deleteEntry: (singular: string) => `Delete ${singular}? It can be restored under Deleted.`,
   notDeleted: (error: string) => `Couldn’t delete: ${error}`,
   /** Deleting several pages or posts at once (Library.tsx selecting, App.tsx removeMany). */
@@ -68,8 +68,10 @@ export const app = {
   /** Before the browser asks to show notifications (askToNotify, notificationData.ts), and its button. */
   askNotify: 'Get a message when your changes are live?',
   askNotifyYes: 'Yes, tell me',
-  /** A sheet closed with changes (closeChanged, ask.tsx). */
-  unsavedSheet: 'You have changes that aren’t saved. Do you want to keep them?',
+  /** A sheet closed with changes (closeChanged, ask.tsx): its headline, its text, and the confirming button (after Discard). */
+  unsavedSheetTitle: 'Keep your changes?',
+  unsavedSheet: 'Your changes stay in the page until you save it.',
+  keep: 'Keep',
   viewOnSite: 'View on the website',
   /** GitHub (github.ts). */
   loggedOut: 'You have been logged out. Log in again.',
@@ -84,7 +86,7 @@ export const app = {
   preparingImage: 'Preparing the image…',
   /** The check before the website is updated (checkSite.ts). */
   invalidJson: 'The file isn’t valid JSON',
-  blocksOff: 'Turned off',
+  blocksOff: 'Off',
   block: 'Block',
   appsInstalled: 'Installed',
   app: 'App',

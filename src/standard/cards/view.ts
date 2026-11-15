@@ -13,6 +13,9 @@ import { textOf, type Button } from '../buttons/fields';
 import { kindOf, type ButtonView } from '../buttons/view';
 import { viewOf as videoViewOf, type VideoView } from '../video/view';
 import shared from './shared';
+import { cutOf, DEFAULT_RATIO, ratioProp } from './cut.mjs';
+
+export { DEFAULT_RATIO, ratioProp };
 
 export type CardMedia = 'none' | 'icon' | 'image' | 'video';
 export type LinkCard = {
@@ -21,11 +24,15 @@ export type LinkCard = {
   icon?: string;
   /** A color role of the site for the icon (src/iconColor.ts); Primary without one. */
   iconColor?: string;
-  image?: Image;
+  /** Its image, with the part to show (percent: left, top, width, height) when the card has one made for the block's ratio. */
+  image?: Image & { crop?: number[] };
+  /** The block's one aspect ratio for the images (3:2 unless set), the same on every card. */
+  ratio?: string;
   video?: VideoView;
   title: string;
   /** The small line under the headline (a byline, a date, a place: whatever the owner writes). */
   subhead?: string;
+  /** The text under it; empty when the card has none (it is optional). */
   text: string;
   href?: string;
   /** The action area: none on a card with a page. */
@@ -54,17 +61,25 @@ export type LinkCardProps = {
   video?: string;
   title: string;
   subhead?: string;
-  text: string;
+  /** Optional: a card can be its headline alone. */
+  text?: string;
   href?: string;
   buttons?: Button[];
 };
 
 const MEDIA: CardMedia[] = ['none', 'icon', 'image', 'video'];
 
+/** A card's image: its address without the format and crop words, its alt text, and its crop when it was made for the block's ratio (else the middle part is shown). */
+function imageOfCard(card: LinkCardProps, ratio: string, image: (src: string) => Image) {
+  const { src, crop } = cutOf(card.image!, ratio);
+  return { ...image(src), ...(card.alt?.trim() ? { alt: card.alt.trim() } : {}), ...(crop ? { crop } : {}) };
+}
+
 /** The cards, with their images as `image` gives them, their videos as `video` and their buttons as `buttons` (the site's are asked for). */
 export const cardsOf = (
   items: LinkCardProps[],
   blockMedia: unknown,
+  blockRatio: string,
   how: {
     image: (src: string) => Image;
     video: (url: string, title: string) => VideoView | null;
@@ -77,13 +92,11 @@ export const cardsOf = (
     return {
       media,
       ...(media === 'icon' ? { icon: card.icon, ...(iconColorOf(card.iconColor) ? { iconColor: iconColorOf(card.iconColor) } : {}) } : {}),
-      ...(media === 'image' && card.image
-        ? { image: { ...how.image(card.image), ...(card.alt?.trim() ? { alt: card.alt.trim() } : {}) } }
-        : {}),
+      ...(media === 'image' && card.image ? { image: imageOfCard(card, blockRatio, how.image), ratio: blockRatio } : {}),
       ...(video ? { video } : {}),
       title: card.title,
       ...(card.subhead ? { subhead: card.subhead } : {}),
-      text: card.text,
+      text: card.text ?? '',
       // A page makes the card one link, with no buttons; a video is played, so it is not a link.
       ...(media !== 'video' && card.href ? { href: card.href } : {}),
       buttons: card.href && media !== 'video' ? [] : how.buttons(card, i),
@@ -91,8 +104,8 @@ export const cardsOf = (
   });
 
 /** Cards in the editor. */
-export const shownCards = (items: LinkCardProps[], data: BlockData, media?: unknown) =>
-  cardsOf(items, media, {
+export const shownCards = (items: LinkCardProps[], data: BlockData, media?: unknown, ratio: string = DEFAULT_RATIO) =>
+  cardsOf(items, media, ratio, {
     image: (src) => ({ src: shownAt(src), ...libraryAltPart(data.libraryAlt?.(src)) }),
     video: (url, title) => videoViewOf({ url, title }, data),
     // A button that has no text yet (the next one, being made in the card's sheet) is not drawn.
@@ -106,5 +119,5 @@ export const viewOf: ViewOf<CardsView> = (props, data) => ({
   color: props.design === 'filled' ? props.color || undefined : undefined,
   phone: phoneOf(props),
   more: sharedIn(data.site, 'cards', shared.values).more,
-  items: shownCards(props.items ?? [], data, props.media),
+  items: shownCards(props.items ?? [], data, props.media, ratioProp(props)),
 });

@@ -27,6 +27,7 @@ export default function InlineFaq({ items, props, active, focus, onChange, onPro
         fields={['question', 'answer']}
         add={t.blocks.faq.addQuestion}
         onChange={onChange}
+        paste
         wrap={(rows) => (
           <List expand className="block-accordion">
             {rows}

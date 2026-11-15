@@ -14,6 +14,15 @@ import Carousel from '@theme/ui/Carousel';
 import Video from '@theme/blocks/video/View';
 import Card, { cardKinds, type CardKind } from '@theme/ui/Card';
 
+/** The image of a card cut to the part the owner chose (crop.mjs: percent of the image from the left, from the top, its width and height): wider than its box and moved. */
+const cutStyle = ([x, y, w]: number[]) => ({
+  width: `${Math.round((100 / w) * 100 * 100) / 100}%`,
+  height: 'auto',
+  maxWidth: 'none',
+  objectFit: 'fill' as const,
+  transform: `translate(${-Math.round(x * 10) / 10}%, ${-Math.round(y * 10) / 10}%)`,
+});
+
 const sizes = `(min-width: ${BREAKPOINTS.medium}px) 352px, 100vw`;
 
 /** A card's media at the top: its image, its video with the play button or its icon (nothing for none). */
@@ -21,8 +30,12 @@ export function CardMedia({ card }: { card: LinkCard }) {
   return (
     <>
       {card.media === 'image' && card.image && (
-        <span className="block-card-picture">
+        <span
+          className="block-card-picture"
+          style={card.ratio && card.ratio !== '3:2' ? { aspectRatio: card.ratio.replace(':', ' / ') } : undefined}
+        >
           <img
+            style={card.image.crop ? cutStyle(card.image.crop) : undefined}
             src={card.image.src}
             srcSet={card.image.srcset}
             sizes={card.image.srcset ? sizes : undefined}
@@ -72,7 +85,7 @@ export default function LinkCards({
         <CardMedia card={card} />
         <span className="block-card-title">{card.title}</span>
         {card.subhead && <span className="block-card-subhead">{card.subhead}</span>}
-        <span className="block-card-text">{card.text}</span>
+        {card.text && <span className="block-card-text">{card.text}</span>}
         {card.href && (
           <span className="block-card-more">
             {more}

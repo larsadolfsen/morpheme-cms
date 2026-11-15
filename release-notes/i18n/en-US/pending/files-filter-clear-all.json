@@ -1,0 +1,6 @@
+{
+  "id": "files-filter-clear-all",
+  "kind": "line",
+  "mark": "feature",
+  "text": "Clear all in the Files filter sheet removes every filter at once"
+}

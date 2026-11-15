@@ -367,3 +367,19 @@ test('an entry changed back to a plain autosave drops create and to', async () =
   await c.tick(100);
   assert.deepEqual(calls, [{ action: 'put', path: 'src/content/pages/a.md', id: 'waiting', text: 'two' }]);
 });
+
+test('send sends the newest text at once (Ctrl+S), and says false with R2 caching off or with nothing to send', async () => {
+  const { a, c, calls } = make();
+  assert.equal(await a.send('src/content/a.md'), false);
+  a.autosave('src/content/a.md', 'now');
+  assert.equal(await a.send('src/content/a.md'), true);
+  assert.deepEqual(calls, [{ action: 'put', path: 'src/content/a.md', id: 'waiting', text: 'now' }]);
+  assert.equal(a.state(), 'saved');
+  await c.tick(100);
+  assert.equal(calls.length, 1, 'not sent again after the debounce');
+  const off = make([{ ok: false, off: true }]);
+  off.a.autosave('src/content/a.md', 'x');
+  assert.equal(await off.a.send('src/content/a.md'), false);
+  assert.equal(await off.a.send('src/content/a.md'), false);
+  assert.equal(off.calls.length, 1);
+});

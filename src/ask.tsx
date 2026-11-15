@@ -18,6 +18,9 @@ type Question = {
   input?: { label: string; value: string; type?: 'datetime' };
   /** false: no "Cancel", only the choices (a message to read); Esc is still null. */
   cancel?: boolean;
+  /** The choices in one row in reading order, the confirming one last (M3's basic dialog: "The confirmation button is
+   * always closest to the edge"), with no "Cancel" button; Esc is still null. The confirming one is `choices[0]` all the same. */
+  confirmLast?: boolean;
   resolve: (answer: { choice: string; text: string } | null) => void;
 };
 
@@ -31,15 +34,17 @@ export const ask = (text: string, yes: string) =>
 export const choose = (question: Omit<Question, 'resolve'>) =>
   new Promise<{ choice: string; text: string } | null>((resolve) => open({ ...question, resolve }));
 
-/** A sheet closed with changes: keep them ('keep', with the sheet's main button's text: Save, Insert),
- * leave them ('discard'), or stay in the sheet (null, "Cancel"). */
-export const closeChanged = (keep: string) =>
+/** A sheet closed with changes: "Keep your changes?" with Discard and Keep, the confirming one last. Keep them in the page
+ * ('keep', as the sheet's own Save or Insert does), leave them ('discard'), or stay in the sheet (null: Esc or a tap beside it). */
+export const closeChanged = () =>
   choose({
+    title: t.app.unsavedSheetTitle,
     text: t.app.unsavedSheet,
     choices: [
-      { value: 'keep', label: keep },
+      { value: 'keep', label: t.app.keep },
       { value: 'discard', label: t.app.discard },
     ],
+    confirmLast: true,
   }).then((a) => (a?.choice ?? null) as 'keep' | 'discard' | null);
 
 export function Ask() {
@@ -66,7 +71,8 @@ export function Ask() {
   // one answer: "Cancel" before it in a row. The main one is filled, the others, and "Cancel",
   // white with a frame, all alike. No button has the focus to begin with (the dialog has it), so none
   // of them looks chosen; Esc is still "Cancel".
-  const many = choices.length > 1;
+  const row = !!question?.confirmLast;
+  const many = choices.length > 1 && !row;
   useEffect(() => {
     if (question && !question.input) dialog.current?.focus();
   }, [question]);
@@ -81,7 +87,7 @@ export function Ask() {
       >
         {question?.title && <h2 className="mb-2 text-body-large font-medium">{question.title}</h2>}
         {!!question?.notes?.length && (
-          <div className="-mx-6 max-h-[50vh] space-y-4 overflow-y-auto px-6">
+          <div className="-mx-6 max-h-[50dvh] space-y-4 overflow-y-auto px-6">
             {question.notes.map((n) => (
               <section key={n.title}>
                 <h3 className="font-medium">{n.title}</h3>
@@ -105,16 +111,23 @@ export function Ask() {
           </div>
         )}
         <div className={`mt-6 flex gap-2 ${many ? 'flex-col' : 'justify-end'}`}>
-          {!many && (
+          {row &&
+            [...choices].reverse().map((c, i, all) => (
+              <Button key={c.value} kind={i === all.length - 1 ? 'filled' : 'outlined'} onClick={() => answer(c.value)}>
+                {c.label}
+              </Button>
+            ))}
+          {!many && !row && (
             <Button kind="outlined" onClick={() => answer(null)}>
               {t.common.cancel}
             </Button>
           )}
-          {choices.map((c, i) => (
-            <Button key={c.value} kind={i === 0 ? 'filled' : 'outlined'} onClick={() => answer(c.value)}>
-              {c.label}
-            </Button>
-          ))}
+          {!row &&
+            choices.map((c, i) => (
+              <Button key={c.value} kind={i === 0 ? 'filled' : 'outlined'} onClick={() => answer(c.value)}>
+                {c.label}
+              </Button>
+            ))}
           {many && question?.cancel !== false && (
             <Button kind="outlined" onClick={() => answer(null)}>
               {t.common.cancel}

@@ -3,10 +3,10 @@ export const assistants = {
   intro: 'Connect an assistant such as Claude, so it can read your website. It can’t change anything.',
   /** The group with the address to give the assistant. */
   connectTitle: 'Connect',
-  connectText: 'In your assistant, add a connector with this address. Sign in with GitHub, then tap Allow.',
-  address: 'Address',
-  copy: 'Copy address',
-  copied: 'Address copied',
+  connectText: 'In your assistant, add a connector with this URL. Sign in with GitHub, then tap Allow.',
+  address: 'URL',
+  copy: 'Copy URL',
+  copied: 'URL copied',
   /** The group with the assistants that are connected. */
   connectedTitle: 'Connected assistants',
   none: 'No assistants are connected.',

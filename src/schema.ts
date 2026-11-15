@@ -104,9 +104,12 @@ export type Field = {
   icons?: boolean;
   /** With `icons`: the icons are shown at once, and a pick is the last thing asked (the row sheet of a List typed in place). */
   iconsOpen?: boolean;
-  /** select: the options side by side in a bar, the chosen one raised (SegmentedButton in ui.tsx), for two or
-   * three short ones. */
+  /** select: the options as the theme's choice group (ChoiceGroup in ui.tsx): side by side as joined buttons when every
+   * name fits, else a list of radio buttons, one per row. For a few short choices (five at most side by side). */
   segments?: boolean;
+  /** Only with `segments`: each option is a look, and its row in the list shows a small sample of it (choiceSamples.tsx):
+   * 'button', the theme's button in the option's style (its value a button kind) with the entry's own text. */
+  sample?: 'button';
   /** Only with `segments` and a `swatch` on each option: the options are shown as their dots only; the name stays as the accessible label. */
   dots?: boolean;
   /** select: the options as cards side by side, each with its icon over its name, the chosen one marked (ChoiceCards in
@@ -151,8 +154,7 @@ export type Field = {
   /** The value in a new entry. */
   default?: unknown;
   /** The value of a saved entry that has none (saved before the field was there, or with its empty choice, which is
-   * not written), when it is not `default`: a banner from before it could go across the whole width is as wide as
-   * the text. */
+   * not written), when it is not `default`. */
   missing?: unknown;
   /** Shown, checked and saved only while another field next to it (a select) has one of these values,
    * and that field is itself in use. */
@@ -234,10 +236,8 @@ export type Block = {
 
 /** heading: the field of the heading (a "Heading", H2); body: the field of the text under it, one
  * text (paragraphs) or, with `list`, one item per paragraph; image: an image (`image`, `imageAlt`, `imageDecorative`)
- * above the heading, in place of the design's own; upTo: only the body's text before its first block of this type is
- * written above the card (the front page's "Banner": its "Buttons" block), the block and the text after it stay in the
- * field, which the card has too. */
-export type Lead = { heading?: string; body?: string; list?: boolean; image?: boolean; upTo?: string };
+ * above the heading, in place of the design's own. */
+export type Lead = { heading?: string; body?: string; list?: boolean; image?: boolean };
 
 type Base = {
   id: string;
@@ -428,7 +428,7 @@ export type Part = {
    * saved so. */
   upgrade?: (data: Record<string, unknown>) => Record<string, unknown>;
   /** The part's own values (at `at`) as the form has them now, from a value written before it was renamed (the shared text
-   * of "Expandable list" with its old placeholder, now {topic}: upgradeMore in standard/accordion/topic.mjs); the form shows them so and
+   * of "Accordion" with its old placeholder, now {topic}: upgradeMore in standard/accordion/topic.mjs); the form shows them so and
    * the next save writes them so. */
   upgradeValues?: (values: Record<string, unknown>) => Record<string, unknown>;
   /** A block drawn under the fields with them as they are now (its draw, src/apps/<app>/blocks/): its type, and props

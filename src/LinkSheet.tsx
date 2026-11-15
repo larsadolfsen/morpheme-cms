@@ -9,6 +9,7 @@ import PagePicker, { type Group } from './PagePicker';
 import { Button, SegmentedButton, BottomSheet, SheetActions, SheetBody, SheetTitle, TextField } from './ui';
 import { closeChanged } from './ask';
 import { t } from './i18n';
+import { isActionEnter } from '../lib/enterKey.mjs';
 
 /** The new address of the link and the text it is shown as (the page's name, the address), '' to
  * remove it, or null when nothing is to be done. */
@@ -72,10 +73,10 @@ export function LinkAsk({ groups }: { groups: Group[] }) {
     dialog.current?.close();
   };
   const use = () => href && done({ href, text: kind === 'page' ? (pageOf(href)?.label ?? href) : address.trim() });
-  // Closed with a change: the owner is asked whether to keep it ("Insert link", "Save"), leave it or stay.
+  // Closed with a change: the owner is asked whether to keep it (Keep), leave it (Discard) or stay.
   async function leave() {
     if (href === old || !href) return done(null);
-    const choice = await closeChanged(old ? t.common.save : t.text.insertLink);
+    const choice = await closeChanged();
     if (choice === 'keep') use();
     else if (choice === 'discard') done(null);
   }
@@ -116,7 +117,7 @@ export function LinkAsk({ groups }: { groups: Group[] }) {
             autoCorrect="off"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), use())}
+            onKeyDown={(e) => isActionEnter(e) && (e.preventDefault(), use())}
           />
         )}
       </SheetBody>

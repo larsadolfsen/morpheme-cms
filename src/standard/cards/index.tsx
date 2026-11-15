@@ -12,6 +12,7 @@ import { iconColorField } from '../../iconColor';
 import { t } from '../../i18n';
 import { headFields } from '../head';
 import { buttonList } from '../buttons/fields';
+import { FORMATS } from '../../../lib/crop.mjs';
 import { example } from './shared';
 
 export default defineBlock({
@@ -93,6 +94,16 @@ export default defineBlock({
         { label: t.blocks.cards.mediaVideo, value: 'video', icon: VideoCamera },
       ],
     },
+    // One aspect ratio for every card's image (no Original: the cards stay aligned); 3:2 is today's look.
+    {
+      name: 'ratio',
+      label: t.blocks.cards.ratio,
+      type: 'select',
+      default: '3:2',
+      hint: t.blocks.cards.ratioHint,
+      only: { field: 'media', is: ['image'] },
+      options: FORMATS.map((f) => ({ label: f, value: f })),
+    },
     {
       name: 'items',
       label: t.blocks.cards.items,
@@ -130,7 +141,8 @@ export default defineBlock({
         { name: 'title', label: t.blocks.cards.title, type: 'string', required: true },
         // The one small line under the headline, as Material 3 has it (a byline, a date or a place is written here).
         { name: 'subhead', label: t.blocks.cards.subhead, type: 'string' },
-        { name: 'text', label: t.blocks.cards.text, type: 'text', required: true },
+        // Optional: a card can be its headline alone (a card made from Steps without texts, or from a one-column Table).
+        { name: 'text', label: t.blocks.cards.text, type: 'text' },
         // A card with a page is one link (the whole card, as Material 3's primary action); a video is played, so it has none, and a card with
         // buttons has none either (a link inside a link is not valid): the hint says why it is gone.
         {

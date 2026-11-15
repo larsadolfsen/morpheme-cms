@@ -28,7 +28,7 @@ import { siteT } from '@morphemecms/cms/src/i18n';
 interface Props {
   title: string;
   description?: string;
-  /** Google title and description from the page's front matter (pages and blog posts). */
+  /** meta title and description from the page's front matter (pages and blog posts). */
   seoTitle?: string;
   seoDescription?: string;
   /** The address of the page Google should count as the original (rel=canonical), from the front matter;
@@ -72,12 +72,12 @@ const robots = robotsContent({ noindex, nofollow: Astro.props.nofollow || entry?
 const fullTitle =
   Astro.props.seoTitle || entry?.title || (!title ? site.name : Astro.url.pathname === '/' ? title : `${title} | ${site.name}`);
 const description = Astro.props.seoDescription || entry?.description || Astro.props.description || site.description;
-// When the page is shared: its own title and description for that ("Title when shared", "Description when shared"), else
+// When the page is shared: its own title and description for that ("Open Graph title", "Open Graph description"), else
 // the Google ones.
 const ogTitle = Astro.props.shareTitle || fullTitle;
 const ogDescription = Astro.props.shareDescription || description;
 const canonical = new URL(Astro.props.canonical || entry?.canonical || Astro.url.pathname, Astro.site);
-// The image when the page is shared: the one chosen for that ("Image when shared" on the page or in
+// The image when the page is shared: the one chosen for that ("Open Graph image" on the page or in
 // packages/editor/site/seo.ts), else the page's own, else the site's portrait; none when the site has none either.
 const chosen = Astro.props.shareImage || entry?.image;
 const shared = chosen || image || site.portrait;
@@ -87,7 +87,7 @@ const ogImage = og && new URL(og.src, Astro.site);
 const ogAlt = chosen ? undefined : image ? Astro.props.imageAlt : site.portraitAlt;
 const current = Astro.url.pathname;
 // The page's colours: the site's, as the apps installed change them for it, given its images, in order, then the one
-// it is shared with ("Image when shared"); with the app that changed them and the image they came from, kept on their
+// it is shared with ("Open Graph image"); with the app that changed them and the image they came from, kept on their
 // <style> for "Colors" › "Pages" in the editor (packages/editor/scripts/page-colors.mjs).
 const {
   colors,
@@ -141,6 +141,7 @@ const jsonLd = {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="alternate" type="application/rss+xml" title={`${site.name} blog`} href="/rss.xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content={colors.light.surface} media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content={colors.dark.surface} media="(prefers-color-scheme: dark)" />
     <style is:inline data-page-colors data-app={colorsApp} data-picture={colorsPicture} set:html={colorsCss(colors)}></style>
@@ -150,7 +151,10 @@ const jsonLd = {
       document.documentElement.classList.add('js');
       try {
         const t = localStorage.getItem('theme');
-        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+        if (t === 'light' || t === 'dark') {
+          document.documentElement.dataset.theme = t;
+          document.querySelector('meta[name="color-scheme"]').content = t;
+        }
       } catch {}
       // Safety net: never leave content hidden if the motion script fails to load. When it has loaded
       // (the theme's scripts/motion.ts sets data-motion), the sections not yet scrolled to wait for it.
@@ -231,6 +235,7 @@ const jsonLd = {
           const isDark = root.dataset.theme === 'dark' || (!root.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
           const next = isDark ? 'light' : 'dark';
           root.dataset.theme = next;
+          document.querySelector('meta[name="color-scheme"]')?.setAttribute('content', next);
           try {
             localStorage.setItem('theme', next);
           } catch {}

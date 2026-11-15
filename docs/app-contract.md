@@ -204,6 +204,20 @@ self.id; // 'app_a030dfba69793996'
 
 Apps written to contract 2 build and run as before. Contract 3 only adds `@app/self`.
 
+## The theme's UI components by name
+
+An app draws with the theme's parts (`@theme/ui/…`, `@theme/blocks/…`), by Material 3's names. Two have new names; the old
+ones stay as aliases of the same part while `THEME_API` is 5, so an app or a theme written with them works as before.
+
+| Import (Material 3's name) | Old name, kept as an alias | Material 3 |
+| :--- | :--- | :--- |
+| `@theme/ui/AppBar`: `AppBar`, `appBarKinds`, `appBarClass`, `appBarClasses`, `AppBarKind` | `@theme/ui/TopAppBar`: `TopAppBar`, `topAppBarKinds`, `topAppBarClass`, `topAppBarClasses`, `TopAppBarKind` | App bars: "Four variants: Search app bar, small, medium flexible, large flexible" |
+| `@theme/ui/TextFieldMenu`: `TextFieldMenu`, `textFieldMenuClass`, `TextFieldMenuOption` | `@theme/ui/ExposedDropdownMenu`: `ExposedDropdownMenu`, `exposedDropdownMenuClass`, `ExposedDropdownMenuOption` | Menus: "Dropdown menu and exposed dropdown menu are now both referred to as menu"; text fields: "Text field dropdown menus" |
+| `@theme/blocks/Panel` | — | An outlined card; the name Panel stays |
+
+A theme that draws its own bar or menu still does it in `ui/TopAppBar.tsx` and `ui/ExposedDropdownMenu.tsx` while
+`THEME_API` is 5; the new names lead to the theme's file, else the standard theme's.
+
 ## Slots
 
 An app may draw a part of the editor's own screens in place of the core's. `slots` is an optional field of the app (`AppDefinition` in `src/apps.ts`, or in `editor.ts`). It does not change the contract number, and an app without `slots` works as before. A slot is a `full` editor place, like `tabs`, so for first-party apps.
@@ -225,7 +239,13 @@ An app may add widgets to the editor's start screen. `widgets` is an optional fi
 
 - A widget answers one question about the site in a card. Each person places, orders and sets up their own widgets.
 - The key in `widgets` is the part after the app id. The full id of a widget is `<appId>:<key>`, such as `booking:today`.
-- A widget is a `WidgetDefinition` (`src/widgets.ts`): `label`, `hint`, `icon`, an optional `settings` (made with `defineSettings`, per placed widget) and a `component`.
+- A widget is a `WidgetDefinition` (`src/widgets.ts`): `label`, `hint`, `icon`, an optional `settings` (made with `defineSettings`, per placed widget), an optional `span` and a `component`.
+- `span` is the width of the widget's card on the start screen's grid (the theme grid, `docs/theme-grid.md`). It is optional and an app can set it; the CMS's own widgets leave it out. There is no setting for it in edit mode and nothing is stored for it.
+  - Left out: the card is full width on a phone (under 600 dp) and one column from 600 dp, as every card was before `span` existed.
+  - `'full'`: the card goes across all the columns at every size.
+  - `'column'`: the card takes one column at every size, half the width on a phone, where the start screen has two columns. Two `'column'` widgets in a row sit side by side; a card of one column is narrow (about 160 px on a phone), so use it only for a widget that reads well that narrow: a number, a short status, a few short lines.
+  - Cards pack down the columns in their order, each under the one above with only the gutter between them, so a full width card splits the columns above it from the ones below it.
+  - `span` is optional, so `APP_API` and `THEME_API` stay as they are and an app without it works as before.
 - The `component` is required. The check before the build fails with `src/apps/<app>/index.ts: The widget "<key>" has no component.`
 - The component is given `WidgetProps`: `api` (asks the app's own addresses in the site's Worker, as an app page does), `settings` (the values of the placed widget) and `editing` (true while the person arranges the start screen; the widget then renders, never null).
 - A widget with nothing to say may render nothing when `editing` is false.

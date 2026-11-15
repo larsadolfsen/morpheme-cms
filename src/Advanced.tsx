@@ -212,7 +212,7 @@ export default function Advanced({ env }: { env: Env }) {
                 disabled={saving || on}
                 onChange={place}
               />
-              <SwitchRow label={t.blockSettings.active} hint={note} selected={on} disabled={saving || (!on && !ready)} onChange={turn} />
+              <SwitchRow label={t.advanced.r2Caching} hint={note} selected={on} disabled={saving || (!on && !ready)} onChange={turn} />
             </>
           )}
         </div>

@@ -25,7 +25,7 @@
   --editor-menu-surface: var(--mo-surface-container-lowest);
   --editor-menu-shadow: var(--mo-elevation-2-shadow);
 
-  /* The room a screen leaves for its FAB under the footer: Screen.tsx's padding and --editor-fab-clearance (below medium). */
+  /* The room a screen leaves above its footer for the FAB (Screen.tsx data-clearance): the FAB's 56 dp and its 16 dp margins. */
   --fab-room: 4.5rem;
 
   /* How a check went (CheckList: the SEO rating), as PageSpeed shows it: the mark before a check that is fine and one
@@ -104,8 +104,15 @@
 
 /* The text field (MarkdownEditor.tsx). The rest of the editor uses the site's Tailwind classes. */
 .editor-text .ProseMirror {
-  min-height: 50vh;
+  min-height: 50dvh;
   outline: none;
+}
+
+/* The text typed in place shows its focus (Modern Web Guidance, accessibility: a visible indicator is mandatory; owner, 15 Nov 2026): the
+   editor's 2 px primary ring, on a click as well as the keyboard, as M3's text fields do. */
+.editor-text .ProseMirror:focus-visible {
+  outline: 2px solid var(--mo-primary);
+  outline-offset: 4px;
 }
 
 /* A text in a field (a section of the front page) is short. */
@@ -394,7 +401,7 @@
   }
 }
 
-/* The save bar is the theme's standard bottom sheet (ActionSheet in ui.tsx): the screen leaves room under its last field so
+/* Every Save row is the theme's standard bottom sheet (ActionSheet in ui.tsx): the screen leaves room under its last field so
    nothing is hidden behind it. */
 :root:has(.editor-save-bar) .editor-screen {
   padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
@@ -640,17 +647,9 @@
 .editor-fab {
   position: fixed;
   right: calc(1rem + env(safe-area-inset-right));
-  bottom: calc(1rem + env(safe-area-inset-bottom));
+  /* Stands 16 dp above the footer while the footer is in the window (--editor-fab-lift, fabPresence.tsx useFabLift). */
+  bottom: max(calc(1rem + env(safe-area-inset-bottom)), calc(var(--editor-fab-lift, 0px) + 1rem));
   z-index: 30;
-}
-
-/* Below medium, while a screen leaves room for its FAB under the footer (Screen.tsx, data-clearance), the page is that room
-   taller than the window (the screen's padding less the bare one), so a short screen still has its footer at the bottom of
-   the window and can be scrolled up to show it above the FAB. */
-@media (width < theme(--breakpoint-medium)) {
-  :root:has(.editor-screen[data-clearance='true']) {
-    --editor-fab-clearance: var(--fab-room);
-  }
 }
 
 /* A FAB whose action runs or cannot be used now (FabAction.busy, .disabled): dimmed, and nothing to press. */
@@ -660,12 +659,12 @@
 }
 
 :root:has(.editor-fab) .snackbar-stack {
-  bottom: calc(6rem + env(safe-area-inset-bottom));
+  bottom: max(calc(6rem + env(safe-area-inset-bottom)), calc(var(--editor-fab-lift, 0px) + 5rem));
 }
 
 /* While a form's save bar is up (FormFrame.tsx) the FAB stands above it, so it does not cover Save; the messages above both. */
 :root:has(.editor-save-bar) .editor-fab {
-  bottom: calc(6.5rem + env(safe-area-inset-bottom));
+  bottom: max(calc(6.5rem + env(safe-area-inset-bottom)), calc(var(--editor-fab-lift, 0px) + 1rem));
 }
 
 :root:has(.editor-save-bar):has(.editor-fab) .snackbar-stack {
@@ -734,6 +733,8 @@
   --column-end: 0px;
 }
 .editor-column {
+  /* The site's text column (PostLayout.astro: max-w-3xl); a form with its fields beside the text is wider (Screen.tsx `panel`). */
+  --column-width: theme(--container-3xl);
   max-width: var(--column-width);
   margin-inline: auto;
 }
@@ -760,13 +761,13 @@
    content keeps clear of it (its end padding; --column-end tells the column, so it stays centred on the window while
    there is room), and the save bar ends where the area begins. */
 @media (width >= theme(--breakpoint-large)) {
-  :root:has(.editor-section-pane) {
+  :root:has(.editor-section-pane:not([hidden] *)) {
     --column-end: var(--section-pane-width);
   }
-  .editor-content:has(.editor-section-pane) {
+  .editor-content:has(.editor-section-pane:not([hidden] *)) {
     padding-inline-end: var(--section-pane-width);
   }
-  :root:has(.editor-section-pane) .editor-save-bar {
+  :root:has(.editor-section-pane:not([hidden] *)) .editor-save-bar {
     right: var(--section-pane-width);
   }
 
@@ -859,9 +860,11 @@ html {
   width: calc(100% + 1.25rem);
   margin-inline: -0.625rem;
   position: relative;
-  border-radius: 0;
+  /* The dotted outline is a Card's: its corner radius and padding, the theme's tokens (the same fallbacks as .card), so the action row, the items and the
+     add button line up inside it. */
+  border-radius: var(--card-radius, var(--block-radius));
   border: 1.5px dashed color-mix(in srgb, var(--mo-on-surface-variant) 45%, transparent);
-  padding: 0.5rem;
+  padding: var(--card-padding, 1rem);
   text-align: left;
   cursor: pointer;
   transition: border-color var(--motion-effects);
@@ -892,15 +895,42 @@ html {
   transition: opacity var(--motion-effects);
 }
 
-/* The active block's action row (blockRow.ts): above the block's top item, right-aligned, 44 dp high, in the block's flow so the page makes room for it
-   (its height opens with the spatial spring). The block's drag handle is its last button: it moves into the row's end while the row is open. */
+/* The active block's action row (blockRow.ts): inside the block's dotted outline (the card), at the top of its padding, right-aligned, 44 dp high, in the card's flow so
+   the block makes room for it (its height opens with the spatial spring). Its buttons are the theme's standard icon buttons (iconButtonClass), no style of their own here.
+   The block's drag handle is its last button: it moves into the row's end while the row is open. */
 .editor-text .site-block-row {
   display: block;
   box-sizing: border-box;
   block-size: 2.75rem;
-  width: calc(100% + 1.25rem);
-  margin-inline: -0.625rem;
-  padding-inline: 0.625rem;
+}
+
+/* The row hugs the top of the outline: it is pulled up into the card's padding, so the space above it is the Card's gap (the theme's small step), not its full padding; the
+   sides and the space below the content keep the Card's padding. Its margin opens with its height (blockRow.ts), so the block below moves by one smooth amount. */
+.editor-text .site-block-row:not(.site-block-row-hover) {
+  margin-block-start: calc(var(--card-gap, 0.5rem) - var(--card-padding, 1rem));
+}
+
+/* The row of a block a mouse points at (not the active one): over the top of the block's content, inside its outline, in no flow, so pointing at a block never moves the page.
+   It sits on the surface, as wide as its buttons and the handle, so the content under it stays readable; only the buttons take the pointer. */
+.editor-text .site-block-row-hover {
+  position: absolute;
+  z-index: 1;
+  inset-block-start: calc(1.5px + var(--card-gap, 0.5rem));
+  inset-inline: calc(1.5px + var(--card-padding, 1rem));
+  pointer-events: none;
+}
+
+/* While blocks are being selected no block shows a row (the rings show on all of them). */
+.editor-text .site-block-marks .site-block-row-hover {
+  display: none;
+}
+
+.editor-text .site-block-row-hover .site-block-row-inner {
+  inline-size: fit-content;
+  margin-inline-start: auto;
+  border-radius: var(--mo-shape-full);
+  background: var(--mo-surface);
+  pointer-events: auto;
 }
 
 .editor-text .site-block-row-moving {
@@ -915,48 +945,20 @@ html {
   padding-inline-end: 2.75rem;
 }
 
-.editor-text .site-block-row-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  inline-size: 2.75rem;
-  block-size: 2.75rem;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  color: var(--mo-on-surface-variant);
-  cursor: pointer;
-  transition: background-color var(--motion-effects);
-}
-
-.editor-text .site-block-row-button:hover {
-  background: color-mix(in srgb, var(--mo-on-surface) 8%, transparent);
-}
-
-.editor-text .site-block-row-button[aria-disabled] {
-  color: color-mix(in srgb, var(--mo-on-surface) 38%, transparent);
+/* A button that cannot be used (a block that cannot move further): shown, in its place, with the reason; the theme's disabled look, no state layer. */
+.editor-text .site-block-row [data-row][aria-disabled] {
+  opacity: 0.35;
   cursor: default;
 }
 
-.editor-text .site-block-row-button[aria-disabled]:hover {
+.editor-text .site-block-row [data-row][aria-disabled]:hover {
   background: transparent;
 }
 
-.editor-text .site-block-row-button:focus-visible {
-  outline: 2px solid var(--mo-primary);
-  outline-offset: -2px;
-}
-
-.editor-text .site-block-row-button svg {
-  inline-size: 1.5rem;
-  block-size: 1.5rem;
-}
-
-.editor-text .site-block-has-row > .site-block-handle {
-  top: 0;
-  right: 0.625rem;
+.editor-text :is(.site-block-has-row, .site-block-has-hover) > .site-block-handle {
+  /* In the row's end: the card's border and padding in from its top and right edge (the card is 0.625rem wider than the block on each side). */
+  top: calc(1.5px + var(--card-gap, 0.5rem));
+  right: calc(var(--card-padding, 1rem) + 1.5px - 0.625rem);
   opacity: 1;
   background: transparent;
 }
@@ -967,25 +969,35 @@ html {
   cursor: default;
 }
 
-/* A mouse sees the handle on the block pointed at or in focus; a touch always sees it. */
-@media (hover: hover) {
-  .editor-text .site-block-handle {
-    opacity: 0;
-  }
+/* A block that is neither active nor pointed at shows no handle (it is the end of the action row), with a mouse or a touch; the handle, like the row, is there while the block is
+   active, pointed at (a mouse), being dragged, in focus with the keyboard, or while blocks are being selected. Hidden, it takes no pointer. */
+.editor-text .site-block-handle {
+  opacity: 0;
+  pointer-events: none;
+}
 
-  .editor-text .site-block:hover .site-block-handle,
-  .editor-text .site-block-handle:focus-visible,
-  .editor-text .site-block-dragging .site-block-handle {
+.editor-text :is(.site-block-has-row, .site-block-has-hover, .site-block-marks, .site-block-dragging) > .site-block-handle,
+.editor-text .site-block-handle:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (hover: hover) {
+  .editor-text .site-block:hover > .site-block-handle {
     opacity: 1;
+    pointer-events: auto;
   }
 }
 
 /* The mark on a block that can be selected with others (Material's Selection page, the photo grid): a round circle centred on the block's top left corner (so it covers nothing in the block, as in M3's example), empty, filled with a check
-   while the block is selected; a mouse sees it on the block pointed at, every block shows it once some block is selected (a touch never before that). Its target is 48 dp. */
+   while the block is selected; a mouse sees it on the block pointed at, the active block shows it, and every block shows it once some block is selected; any other block shows none. Its target is 48 dp. */
 .editor-text .site-block-mark {
   position: absolute;
-  top: -1.5rem;
-  left: -1.5rem;
+  /* Centred on the outline's corner curve: the card is 0.625rem wider than the block on each side, and the 45 degree point of a corner with the Card's radius r (its
+     1.5px line centred) lies r * (1 - cos 45) + 0.53px in from the corner, along both edges. */
+  --mark-in: calc(var(--card-radius, var(--block-radius)) * 0.2929 + 0.53px);
+  top: calc(var(--mark-in) - 1.5rem);
+  left: calc(var(--mark-in) - 0.625rem - 1.5rem);
   z-index: 2;
   display: flex;
   align-items: center;
@@ -1003,20 +1015,29 @@ html {
   justify-content: center;
   inline-size: 1.5rem;
   block-size: 1.5rem;
-  border: 2px solid var(--mo-outline);
+  /* Part of the dotted outline it sits on: the same line (width, style and colour), on the surface the line is drawn on, with no shadow. */
+  box-sizing: border-box;
+  border: 1.5px dashed color-mix(in srgb, var(--mo-on-surface-variant) 45%, transparent);
   border-radius: 50%;
   background: var(--mo-surface);
   color: transparent;
-  box-shadow: 0 0 0 2px var(--mo-surface);
+  box-shadow: none;
+  transition: border-color var(--motion-effects);
+}
+
+.editor-text .site-block:hover .site-block-mark:not([data-mark='on']) .site-block-mark-dot {
+  border-color: var(--mo-primary);
 }
 
 .editor-text .site-block-mark[data-mark='on'] .site-block-mark-dot {
+  border-style: solid;
   border-color: var(--mo-primary);
   background: var(--mo-primary);
   color: var(--mo-on-primary);
+  box-shadow: none;
 }
 
-.editor-text .site-block-marks .site-block-mark {
+.editor-text :is(.site-block-marks, .site-block-has-row) > .site-block-mark {
   opacity: 1;
   pointer-events: auto;
 }
@@ -1031,6 +1052,10 @@ html {
 /* The block while it is dragged: raised, following the finger. A line shows the part it will go next to. */
 .editor-text .site-block-dragging {
   z-index: 3;
+}
+
+/* The lifted box is the dotted outline with its row inside it, with its corners. */
+.editor-text .site-block-dragging > .site-block-card {
   box-shadow: var(--mo-elevation-4-shadow);
   background: var(--mo-surface);
 }
@@ -1121,8 +1146,13 @@ html {
 .contextual-menu button:hover,
 .contextual-menu button:focus-visible,
 .contextual-menu button[aria-expanded='true'] {
-  outline: none;
   background: var(--mo-surface-container-high);
+}
+
+/* Keyboard focus: the editor's 2 px ring in the primary role (a state layer alone is under 3:1 against the bar). */
+.contextual-menu button:focus-visible {
+  outline: 2px solid var(--mo-primary);
+  outline-offset: 2px;
 }
 
 /* A field typed in a row: no frame of its own, the text of the row as the site draws it, and the height of its text. */
@@ -1146,6 +1176,13 @@ html {
 
 .editor-text .inline-list-field:focus {
   outline: none;
+}
+
+/* A row typed in place shows its focus: the editor's 2 px primary ring (owner, 15 Nov 2026), on a click as well as the keyboard. */
+.editor-text .inline-list-field:focus-visible {
+  outline: 2px solid var(--mo-primary);
+  outline-offset: 2px;
+  border-radius: var(--mo-shape-extra-small);
 }
 
 .editor-text .inline-list-field::placeholder {
@@ -1308,7 +1345,12 @@ html {
 .inline-list-slot:hover,
 .inline-list-slot:focus-visible {
   background: var(--mo-surface-container-high);
-  outline: none;
+}
+
+/* Keyboard focus: the editor's 2 px ring in the primary role (the state layer alone is about 1.2:1 against the row). */
+.inline-list-slot:focus-visible {
+  outline: 2px solid var(--mo-primary);
+  outline-offset: 2px;
 }
 
 /* A menu over the page (Menu in ui.tsx: a field's dropdown, a button's menu): the theme's menu, always with the menu
@@ -1637,25 +1679,6 @@ dialog {
   overscroll-behavior: contain;
 }
 
-/* The full-screen Preview (pagePreview.tsx): a <dialog> over the whole screen on every width, hiding the rest of the editor, with
-   its close button at the top (Material 3's full-screen dialog). */
-.editor-preview-screen {
-  width: 100%;
-  max-width: none;
-  height: 100%;
-  max-height: none;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: var(--mo-surface);
-  color: var(--mo-on-surface);
-}
-.editor-preview-screen[open] {
-  display: flex;
-  flex-direction: column;
-}
-
 /* The first heading of a page's text is its title, drawn as the site draws it (.theme-title in the theme's components.css, and
    PageHeading.astro's width): the display role, by the theme's variables, not the weight of a heading in the middle of the text. */
 .editor-text .ProseMirror > h1:first-child {
@@ -1933,4 +1956,153 @@ dialog {
   .editor-screen {
     padding-top: calc(var(--mo-space-400) + var(--mo-density-layout) * var(--mo-density-step));
   }
+}
+
+/* The crop view (CropView.tsx, image tools spec section 3): a page of the editor on every width, as a layer the size of the window over it (a modal
+   <dialog>, so the form under it keeps its changes and its scroll place): the top app bar, the content in a column as wide as a form, and the Save row
+   in the theme's standard bottom sheet. A block's subpage on a phone (.block-page, BlockDialog.tsx) has the same layer, column and sheet. The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and the part of the image outside it is under the
+   theme's scrim, the one its dialogs have behind their container (--dialog-scrim). The frame has a 2 dp border with a 1 dp halo outside it in the other
+   inverse colour, so one of the two stands against any image, light or dark (M3 prints no frame: the focus ring's two-tone look). */
+.crop-page,
+.block-page {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--mo-surface);
+  color: var(--mo-on-surface);
+}
+.crop-page:focus,
+.block-page:focus {
+  outline: none;
+}
+.crop-page[open],
+.block-page[open] {
+  display: flex;
+  flex-direction: column;
+}
+.crop-page-main,
+.block-page-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  max-width: 48rem;
+  margin-inline: auto;
+  padding: 1rem;
+}
+.crop-page-main,
+.block-page-main {
+  /* The Save row is the theme's standard bottom sheet (ActionSheet), fixed over the layer: the content ends above it. */
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+}
+@media (width >= theme(--breakpoint-medium)) {
+  .crop-page-main,
+  .block-page-main {
+    padding: 1.5rem 1.5rem calc(5.5rem + env(safe-area-inset-bottom));
+  }
+}
+/* A block's fields on a compact window (BlockDialog.tsx): the crop page's layer and column (the rules above), with the fields scrolling inside
+   the column and the page lifted above the on-screen keyboard (followKeyboard sets --keyboard-inset while it is up); its Save sheet follows the keyboard itself. */
+.block-page-main {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.block-page[data-keyboard] {
+  bottom: var(--keyboard-inset, 0);
+  height: auto;
+}
+.crop-view {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+}
+.crop-view-area {
+  position: relative;
+  flex: 1;
+  min-height: 10rem;
+  overflow: hidden;
+  border-radius: var(--mo-shape-corner-medium, 0.75rem);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.crop-view-area:active {
+  cursor: grabbing;
+}
+.crop-view-area[data-original] {
+  cursor: default;
+}
+.crop-view-image {
+  position: absolute;
+  max-width: none;
+  pointer-events: none;
+}
+.crop-view-frame {
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px solid var(--mo-inverse-on-surface);
+  box-shadow: 0 0 0 1px var(--mo-inverse-surface);
+  pointer-events: none;
+}
+/* The part of the image outside the frame is under the theme's scrim, the one its dialogs have behind their container (--dialog-scrim); only the image is, so
+   the blank part of the stage keeps the page's colour. */
+.crop-view-shade {
+  position: absolute;
+  background: var(--dialog-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-on-surface)) 50%, transparent));
+  pointer-events: none;
+}
+.crop-view-frame:focus-visible {
+  outline: 2px solid var(--mo-primary);
+  outline-offset: 4px;
+}
+.crop-view-hint {
+  margin: 0;
+  color: var(--mo-on-surface-variant);
+  font-size: var(--type-body-small-size, 0.75rem);
+  text-align: center;
+}
+.crop-view-label {
+  margin: 0 0 0.5rem;
+  font-weight: 500;
+}
+/* One row that scrolls sideways below medium; from medium the chips wrap. */
+.crop-view-ratios {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.crop-view-ratios > * {
+  flex-shrink: 0;
+}
+.crop-view-zoom {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+@media (width >= theme(--breakpoint-medium)) {
+  .crop-view-ratios {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}
+
+/* The Keyboard shortcuts dialog (ShortcutsSheet.tsx) is a dialog in the middle of the screen on a computer, not a sheet from the bottom: no drag handle. */
+.shortcuts-dialog .bottom-sheet-drag-handle {
+  display: none;
+}
+.shortcuts-dialog .bottom-sheet-header {
+  padding-top: 1.25rem;
+}
+.shortcuts-dialog:focus {
+  outline: none;
 }

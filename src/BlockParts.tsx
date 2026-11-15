@@ -8,7 +8,7 @@
 // pop-up, once for each of its states), the kind a group. A block's versions are the
 // options of its choices side by side (a field with `segments`: the designs of "Cards"), the first choice's all, each
 // other's but the one a new block has (its default, else the empty one: the backgrounds of "Cards", with the first's empty
-// option; the width of "Banner", as wide as the text). All of it is drawn with the
+// option). All of it is drawn with the
 // made-up site of examples.ts, never the site's own, with the search, the order and the filter of "Editor"
 // (PartsShown.tsx). Nothing here is saved.
 import { useMemo } from 'react';
@@ -306,6 +306,15 @@ function FieldParts() {
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" defaultValue={screens.fieldValue} />
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" supporting={screens.fieldSupporting} />
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" defaultValue="name@" error={screens.fieldError} />
+                <SiteTextField
+                  kind={kind}
+                  label={screens.fieldLabel}
+                  type="email"
+                  required
+                  data-part="invalid-field"
+                  supporting={screens.fieldSupporting}
+                  invalidText={screens.fieldError}
+                />
                 <SiteTextField kind={kind} label={screens.fieldLabel} hideLabel type="email" placeholder={screens.fieldPlaceholder} />
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" disabled />
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" leadingIcon="envelope-simple" />

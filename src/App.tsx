@@ -186,13 +186,15 @@ import {
 import { config, relationsOf, type SiteData, siteName, siteOf, testimonialsOf, usedBy, whatIsAt } from '@site/editor';
 import { themes } from './themes';
 import Screen from './Screen';
-import { Button, EmptyNote, ProblemNote, startRipples } from './ui';
+import { Button, EmptyNote, ProblemNote, startRipples, useAtLeast, atLeastNow } from './ui';
 import { useMenuOpen } from './menuOpen';
 import { MainMenu } from './MainMenu';
+import { CommandPalette } from './CommandPalette';
 import { TopBarLayout } from './topBarSlot';
 import { rememberEdit } from './startStorage';
 import { bulkDeletion } from './bulkDelete.mjs';
 import { Ask, ask } from './ask';
+import CropViewHost from './CropView';
 import { LinkAsk } from './LinkSheet';
 import { rowSources } from './standard/rows/view';
 import { type ListRows, type Option, type TestimonialRow } from './fields';
@@ -206,8 +208,10 @@ import { appRouteOf } from '../lib/appRoute.mjs';
 import { movedRoute } from './movedRoutes.mjs';
 import { appType, clearNotifications, isOn, remember, signOff, stopServerWait, syncDevice, told, waitOnServer } from './notificationData';
 import { syncDensity } from './density';
-import Notifications from './Notifications';
+import Notifications, { NotificationsPage } from './Notifications';
 import { openNotifications } from './notificationsOpen';
+import { forgetRecent } from './paletteRecent';
+import { ShortcutsPage } from './ShortcutsSheet';
 import { EditorOwn, InEditor } from './standard/view';
 import { cmsNotice } from './cmsNotice.mjs';
 import './editor.css';
@@ -377,10 +381,11 @@ function Editor() {
     navigator.serviceWorker?.addEventListener('message', onMessage);
     return () => navigator.serviceWorker?.removeEventListener('message', onMessage);
   }, []);
-  // The notifications' old address (#notifications, a screen before they were a side sheet): opens the sheet.
+  // The notifications' address (#notifications): from 600 dp it opens the side sheet over the start screen; below, it is a page (Page).
+  const notificationsSheet = useAtLeast('medium');
   useEffect(() => {
-    if (route === 'notifications') openNotifications();
-  }, [route]);
+    if (route === 'notifications' && notificationsSheet) openNotifications();
+  }, [route, notificationsSheet]);
   // When the site was last updated (built on Cloudflare), for the start screen.
   const [builtAt, setBuiltAt] = useState<Date | null>(null);
   useEffect(() => keepCurrent((v) => v.builtAt && setBuiltAt(new Date(v.builtAt))), []);
@@ -568,6 +573,8 @@ function Editor() {
   }
 
   function signOut() {
+    // The actions run from the palette are kept in this browser: a shared computer forgets them at sign-out.
+    forgetRecent();
     stopWaiting.current?.();
     setBuildState('idle');
     waitingFor.current = [];
@@ -793,7 +800,9 @@ function Editor() {
 
           <LinkAsk groups={linkGroups} />
           <Ask />
+          <CropViewHost />
           <Notifications />
+          <CommandPalette route={route} files={files} />
         </>
       </TopBarLayout>
     </>
@@ -832,14 +841,16 @@ type PageProps = { route: string; files: RepoFile[]; env: Env; user: Viewer | nu
 
 function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (!route) return <Start builtAt={builtAt} files={files} env={env} />;
+  if (route === 'shortcuts') return <ShortcutsPage />;
   if (route === 'account') return <Account user={user} files={files} onLogout={onLogout} />;
-  // The old address of the notifications, now a side sheet: the start screen, with the sheet over it (App).
-  if (route === 'notifications') return <Start builtAt={builtAt} files={files} env={env} />;
+  // The notifications: from 600 dp the start screen with the side sheet over it (App); below, a page with a back arrow.
+  if (route === 'notifications')
+    return atLeastNow('medium') ? <Start builtAt={builtAt} files={files} env={env} /> : <NotificationsPage siteName={siteName} />;
   if (route === 'lists') return <Lists files={files} env={env} />;
   if (route === 'company') return <Company files={files} />;
   if (route === 'blocks') return <Blocks files={files} />;
   if (route === 'files' || route.startsWith('files/'))
-    return <Media key={route} files={files} env={env} open={route === 'files' ? undefined : '/' + route.slice('files/'.length)} />;
+    return <Media key="files" files={files} env={env} open={route === 'files' ? undefined : '/' + route.slice('files/'.length)} />;
   if (route === 'seo') return <Seo />;
   if (route === REDIRECTS_ROUTE) return <Redirects env={env} />;
   if (route === SEO_SCORES_ROUTE) return <SeoScores files={files} env={env} />;
@@ -938,20 +949,25 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   const [, newIn, newKind] = route.split('/');
   const creating = route.startsWith('new/') && collectionsFor(shownFiles).find((c) => c.id === newIn && c.create);
   if (creating) {
-    if (creating.kind === 'markdown') return <EntryForm collection={creating} file={newMarkdown(creating, notOffered(files))} env={env} />;
+    if (creating.kind === 'markdown')
+      return <EntryForm collection={creating} file={newMarkdown(creating, notOffered(files))} env={env} preview={newKind === 'preview'} />;
     if (creating.kind === 'folder')
       return <DataForm key={route} collection={creating} kind={newKind} file={{ path: '', oid: '', text: '' }} env={ownEnv(creating.id)} />;
   }
 
-  const found = collectionOf(collectionsFor(shownFiles), route);
+  // The Preview of a page or post (pagePreview.tsx): its form's address with `preview` after it, over the form, which stays.
+  const previewing = route.endsWith('/preview') && files.some((f) => f.path === route.slice(0, -'/preview'.length));
+  const formRoute = previewing ? route.slice(0, -'/preview'.length) : route;
+  const found = collectionOf(collectionsFor(shownFiles), formRoute);
   // An optional file (the header's) that the site has not got yet opens empty; the first save makes it.
-  const file = files.find((f) => f.path === route) ?? (found?.dataFile?.optional ? { path: route, oid: '', text: '{}\n' } : undefined);
+  const file =
+    files.find((f) => f.path === formRoute) ?? (found?.dataFile?.optional ? { path: formRoute, oid: '', text: '{}\n' } : undefined);
   if (!found || !file)
     return (
       <Screen title={t.app.notFound} back={{ href: '#', label: siteName }}>
         <EmptyNote>{t.app.nothingAt(route)}</EmptyNote>
       </Screen>
     );
-  if (found.collection.kind === 'markdown') return <EntryForm collection={found.collection} file={file} env={env} />;
+  if (found.collection.kind === 'markdown') return <EntryForm collection={found.collection} file={file} env={env} preview={previewing} />;
   return <DataForm collection={found.collection} dataFile={found.dataFile} file={file} env={ownEnv(found.collection.id)} />;
 }

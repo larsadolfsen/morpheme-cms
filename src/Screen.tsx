@@ -8,26 +8,39 @@
 // (`pageActions`) at the end of that row. The bar stays at the top while
 // scrolling and keeps clear of a phone's notch. A screen's tabs (`tabs`) are the bottom of the bar, under the title, as wide
 // as the content, and stay with it. The back arrow goes to the screen above, back in the history when that is the screen
-// before (nav.ts up). The content is as wide as a form reads well, or wider for lists and the grid of files (`wide`) and for
+// before (nav.ts up). The content is as wide as the site's text column, or wider for
 // a form with its fields beside the text (`panel`). The column (editor.css .editor-column) stands centred on the window,
 // off-centre only as far as the panels beside it require.
 // Under the content of every screen is the editor's footer (EditorFooter.tsx), at the bottom of the window when the content
-// is short (the screen fills the column under the bar, TopBarLayout). Below medium, while the screen has a floating action
-// button (fabPresence.tsx), there is room for it under the footer (data-clearance): the page is that much taller than the
-// window (--fab-room and --editor-fab-clearance, editor.css), so a short screen still has its footer at the bottom of the window and can
-// be scrolled up to show it above the FAB.
-import { useId, type MouseEvent, type ReactNode } from 'react';
+// is short (the screen fills the column under the bar, TopBarLayout). While the screen has a floating action button
+// (fabPresence.tsx), the content leaves room for it above the footer (data-clearance, --fab-room) and the FAB stands above the
+// footer whenever the footer is in the window (useFabLift: --editor-fab-lift, editor.css), so it never covers the footer.
+import { useContext, useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Bell, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
 import { t } from './i18n';
-import { IconButton, IconLink, MenuButton, TabPanel, TabRow, TopAppBar, useMenuLayout, type TabChoice } from './ui';
+import {
+  IconButton,
+  IconLink,
+  MenuButton,
+  SearchBarButton,
+  TabPanel,
+  TabRow,
+  TopAppBar,
+  useAtLeast,
+  useMenuLayout,
+  type TabChoice,
+} from './ui';
 import { up } from './nav';
 import EditorFooter from './EditorFooter';
-import { FabPresenceContext, useCountFabs } from './fabPresence';
+import { FabPresenceContext, useCountFabs, useFabLift } from './fabPresence';
 import { useMenuOpen } from './menuOpen';
 import { unseen, useNotifications } from './notificationData';
 import { openNotifications, useNotificationsOpen } from './notificationsOpen';
+import { openPalette, usePaletteOpen } from './paletteOpen';
+import { ariaShortcut, shortcutText } from './shortcuts';
 import { SiteLogoLink } from './SiteLogoLink';
+import { ScreenHidden } from './screenHidden';
 import { useTopBarSlot } from './topBarSlot';
 
 // `label` is the screen back goes to, named by the back arrow and the breadcrumbs. `guard` takes every
@@ -36,7 +49,7 @@ import { useTopBarSlot } from './topBarSlot';
 export type Back = { href: string; label: string; guard?: (go: () => void) => void };
 
 // `status`: more about the screen, e.g. when it was last saved: under the title, on a computer after it.
-// `wide`: the content is wider on a computer (lists, the files); `panel`: a form with its other fields
+// `wide`: a list or the files (the column is as wide as any other: the site's text column); `panel`: a form with its other fields
 // beside the text on a wide computer screen (FormColumns in ui.tsx). `drawer`: a button at the end of the
 // bar, after the notifications. `home`: the start screen,
 // with the link to the website. `tabs`: the screen's tabs, in the bar, with the open one's content.
@@ -57,6 +70,9 @@ type Props<T extends string> = {
   home?: boolean;
   wide?: boolean;
   panel?: boolean;
+  /** A page that fills the window under the bar (the Preview): the back arrow and the title are in the bar on every width, and
+   * the content has no margins, no title row and no footer; it is as high as the window under the bar. */
+  full?: boolean;
   children: ReactNode;
 };
 
@@ -74,20 +90,65 @@ export function WebsiteLink() {
   return <IconLink href="/" target="_blank" rel="noopener" onClick={openWindow} icon={ArrowSquareOut} label={t.library.openWebsite} />;
 }
 
-/** The bell in the top bar, before the link to the website: opens the notifications in a side sheet (Notifications.tsx,
- * notificationsOpen.ts), with a dot while some are not seen yet. */
+/** The bell in the top bar, before the link to the website: opens the notifications in a side sheet from 600 dp, below it goes to the
+ * notifications' page (Notifications.tsx, notificationsOpen.ts), with a dot while some are not seen yet. */
 export function NotificationsButton({ className = '' }: { className?: string }) {
   const count = unseen(useNotifications());
   const open = useNotificationsOpen();
+  const phone = !useAtLeast('medium');
   return (
     <IconButton
       icon={Bell}
       label={count ? t.library.notificationsNew(count) : t.library.notifications}
-      aria-haspopup="dialog"
-      aria-expanded={open}
+      aria-haspopup={phone ? undefined : 'dialog'}
+      aria-expanded={phone ? undefined : open}
       badge={count > 0}
       className={className}
-      onClick={openNotifications}
+      onClick={() => (phone ? (location.hash = 'notifications') : openNotifications())}
+    />
+  );
+}
+
+/** The search in the top bar, the first of its trailing actions on every screen (not while rows are selected): it opens the command palette
+ * (CommandPalette.tsx), as Ctrl+K does. A plain search icon button (M3: "Search icon button: Use when search is a secondary action or not the main
+ * focus"); in 0.20 it becomes the search app bar. */
+export function SearchButton({ className = '' }: { className?: string }) {
+  const open = usePaletteOpen();
+  return (
+    <IconButton
+      icon="search"
+      label={t.palette.open}
+      shortcut={shortcutText('Mod+K')}
+      aria-keyshortcuts={ariaShortcut('Mod+K')}
+      aria-haspopup="dialog"
+      aria-expanded={open}
+      className={className}
+      // Pressing it keeps the focus and the selection in the text, and the active block: the palette lists their actions first.
+      data-keeps-block=""
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={(e) => {
+        // The press did not focus the button (see above): it takes the focus now, so closing the palette gives it back here.
+        e.currentTarget.focus({ preventScroll: true });
+        openPalette();
+      }}
+    />
+  );
+}
+
+/** The search bar of the start screen (M3's contained search bar, 56dp, in the top bar in place of the search icon: "Search app bars have a search field
+ * instead of heading text"): the theme's bar (ui.tsx SearchBarButton) that opens the command palette, as Ctrl+K and the icon do. Its hint is its name. */
+export function PaletteBar({ className = '' }: { className?: string }) {
+  const open = usePaletteOpen();
+  return (
+    <SearchBarButton
+      label={t.palette.label}
+      open={open}
+      keys={ariaShortcut('Mod+K')}
+      className={`max-w-[45rem] min-w-0 flex-1 ${className}`}
+      onOpen={(button) => {
+        button.focus({ preventScroll: true });
+        openPalette();
+      }}
     />
   );
 }
@@ -102,20 +163,17 @@ export default function Screen<T extends string>({
   drawer,
   tabs,
   home = false,
-  wide = false,
   panel = false,
+  full = false,
   children,
 }: Props<T>) {
   const id = useId();
   const menu = useMenuOpen();
   const { menuButtonInTopBar } = useMenuLayout();
-  // The column's widest width (--column-width: 48rem; 64rem from medium for `wide`, 72rem from large for `panel`); editor.css
-  // (.editor-column) keeps it centred on the window.
-  const width = wide
-    ? 'editor-column [--column-width:48rem] medium:[--column-width:64rem]'
-    : panel
-      ? 'editor-column [--column-width:48rem] large:[--column-width:72rem]'
-      : 'editor-column [--column-width:48rem]';
+  // The column's widest width (--column-width, editor.css) is the site's text column (theme `max-w-3xl`, as PostLayout.astro), on a
+  // computer too; only `panel` (a form with its other fields beside the text) is wider, 72rem from large. editor.css (.editor-column) keeps it
+  // centred on the window.
+  const width = panel ? 'editor-column large:[--column-width:72rem]' : 'editor-column';
   // A link out of the screen, through `guard`: the back arrow goes up (nav.ts), the other links as links.
   const leave = (go?: () => void) => (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!go && !back?.guard) return;
@@ -126,12 +184,17 @@ export default function Screen<T extends string>({
     else way();
   };
   const slot = useTopBarSlot();
+  // The form under its Preview (screenHidden.ts): kept, but not drawn.
+  const hidden = useContext(ScreenHidden);
   const fabs = useCountFabs();
+  useFabLift(fabs.count > 0);
   // The way here, without the start screen: the logo in the bar is the way there.
   const crumbs = back && back.href !== '#' ? [back] : [];
+  // The start screen shows the search bar in its top bar, in place of the title and the search icon.
+  const searchBar = home && !selection;
   const bar = (
     <TopAppBar>
-      <div className="flex h-16 items-center gap-1 px-2 medium:gap-3 medium:px-6">
+      <div className={`flex h-16 items-center px-2 medium:gap-3 medium:px-6 ${home ? 'gap-0.5' : 'gap-1'}`}>
         {menuButtonInTopBar && !back && (
           <MenuButton
             label={menu.open ? t.library.closeMenu : t.library.openMenu}
@@ -140,19 +203,24 @@ export default function Screen<T extends string>({
             className="shrink-0"
           />
         )}
-        <SiteLogoLink onClick={leave()} className={home ? '' : 'hidden expanded:flex'} />
+        {/* The start screen's logo stands beside the site's name, which says the same: on a phone the name gets its width (the bar has four actions there). */}
+        {/* Not on the start screen's bar from medium: the search bar gets the room (owner, 15 Nov: "The logo in the header is not a necessity. Usability is most important."). */}
+        {!full && !searchBar && <SiteLogoLink onClick={leave()} className={home ? 'hidden medium:flex' : 'hidden expanded:flex'} />}
         {back && (
           <a
             href={back.href}
             onClick={leave(() => up(back.href))}
             title={t.common.backTo(back.label)}
             aria-label={t.common.backTo(back.label)}
-            className="flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-surface-container-high expanded:hidden"
+            className={`flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-surface-container-high ${full ? '' : 'expanded:hidden'}`}
           >
             <ArrowLeft size={24} />
           </a>
         )}
-        <div className="flex min-w-0 flex-1 flex-col pl-1 expanded:hidden">
+        {/* The start screen: from medium the top bar is the search bar and the title and status stand under it; on a phone the title stays in the bar and the search bar is the first thing in the page. */}
+        <div
+          className={`min-w-0 flex-col ${searchBar ? 'flex flex-1 medium:hidden' : `flex flex-1 ${home ? 'medium:pl-1' : 'pl-1'} ${full ? '' : 'expanded:hidden'}`}`}
+        >
           <h1 className="truncate text-title-large">{title}</h1>
           {status && (
             <p data-subtitle className="truncate text-xs text-on-surface-variant">
@@ -160,7 +228,14 @@ export default function Screen<T extends string>({
             </p>
           )}
         </div>
-        <div className="hidden min-w-0 flex-1 expanded:block" />
+        {searchBar ? (
+          <PaletteBar className="hidden medium:flex" />
+        ) : (
+          <>
+            {!full && <div className="hidden min-w-0 flex-1 expanded:block" />}
+            {!selection && <SearchButton />}
+          </>
+        )}
         <div className="flex shrink-0 items-center justify-end gap-1">
           {selection ?? (
             <>
@@ -182,17 +257,31 @@ export default function Screen<T extends string>({
       )}
     </TopAppBar>
   );
+  if (hidden) return <div hidden>{children}</div>;
+  if (full)
+    return (
+      <div data-full-page className="flex min-h-0 w-full min-w-0 flex-1 flex-col pb-[env(safe-area-inset-bottom)]">
+        {slot ? createPortal(bar, slot) : bar}
+        <main className="editor-screen-full flex min-h-0 flex-1 flex-col">{children}</main>
+      </div>
+    );
   return (
-    <div className={`flex flex-col ${slot ? 'flex-1' : 'min-h-[calc(100dvh+var(--editor-fab-clearance,0px))]'}`}>
+    <div className={`flex flex-col ${slot ? 'flex-1' : 'min-h-dvh'}`}>
       {slot ? createPortal(bar, slot) : bar}
       {/* A row, so the column keeps its margins (editor.css .editor-column) and is as high as the rest of the window. */}
       <div className="flex flex-1">
         <main
           data-clearance={fabs.count > 0}
-          className={`editor-screen flex min-w-0 flex-1 flex-col px-4 pt-6 pb-[env(safe-area-inset-bottom)] data-[clearance=true]:pb-[calc(var(--fab-room)+env(safe-area-inset-bottom))] medium:px-6 medium:pt-8 medium:pb-4 medium:data-[clearance=true]:pb-4 ${width}`}
+          className={`editor-screen flex min-w-0 flex-1 flex-col px-4 pt-6 pb-[env(safe-area-inset-bottom)] medium:px-6 medium:pt-8 medium:pb-4 ${width}`}
         >
           {/* At expanded and wider: the way here, the title and the status, under the bar. */}
-          <div className="mb-6 hidden min-w-0 items-center gap-x-2 expanded:flex">
+          {searchBar && (
+            // M3 specs, Measurements: the unfocused search bar is 24dp from the screen's edges (the page has 16dp).
+            <div className="mx-2 mb-6 flex medium:hidden">
+              <PaletteBar className="max-w-none" />
+            </div>
+          )}
+          <div className={`mb-6 min-w-0 items-center gap-x-2 ${searchBar ? 'hidden medium:flex' : 'hidden expanded:flex'}`}>
             {crumbs.length > 0 && (
               <nav aria-label={t.library.breadcrumbs} className="flex shrink-0 items-center gap-2 text-on-surface-variant">
                 {crumbs.map((c) => (
@@ -205,14 +294,18 @@ export default function Screen<T extends string>({
                 ))}
               </nav>
             )}
-            <h1 className="truncate font-medium">{title}</h1>
-            {status && <p className="shrink-0 text-sm text-on-surface-variant">{status}</p>}
+            <h1 className={searchBar ? 'truncate text-title-large' : 'truncate font-medium'}>{title}</h1>
+            {status && (
+              <p data-subtitle={searchBar ? '' : undefined} className="shrink-0 text-sm text-on-surface-variant">
+                {status}
+              </p>
+            )}
             {/* The icons are taller than the text: the negative margin keeps the row's height. */}
             {pageActions && <div className="-my-3 ml-auto flex shrink-0 items-center gap-1">{pageActions}</div>}
           </div>
           {/* The content flows as blocks; the footer goes to the bottom of a short screen. */}
           <FabPresenceContext.Provider value={fabs.report}>
-            <div className="min-w-0">
+            <div className="min-w-0 data-[clearance=true]:mb-[var(--fab-room)]" data-clearance={fabs.count > 0}>
               {tabs ? (
                 <TabPanel id={id} value={tabs.value}>
                   {children}

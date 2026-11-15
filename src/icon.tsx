@@ -15,12 +15,13 @@ import { cloneElement, isValidElement, useEffect, useState, type ReactElement } 
 import { materialName, materialNames, resolveIcon } from '../lib/materialIcon.mjs';
 import { svgParts } from '../lib/svg.mjs';
 import ssrMaterial from 'virtual:material-symbols-ssr';
-import addFile from '@material-symbols/svg-400/outlined/add.svg?raw';
 import moreVertFile from '@material-symbols/svg-400/outlined/more_vert.svg?raw';
 import closeFile from '@material-symbols/svg-400/outlined/close.svg?raw';
 import bodyA1File from './icons/body-a1.svg?raw';
 import bodyA2File from './icons/body-a2.svg?raw';
 import bodyA3File from './icons/body-a3.svg?raw';
+import addBlockFile from './icons/add-block.svg?raw';
+import blockSettingsFile from './icons/block-settings.svg?raw';
 import matchCaseFile from '@material-symbols/svg-400/outlined/match_case.svg?raw';
 import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
 import { allIcons as ssrPhosphor } from 'virtual:all-icons-ssr';
@@ -82,7 +83,7 @@ function useMaterialLoaded(wanted: boolean) {
 
 const PHOSPHOR = '/node_modules/@phosphor-icons/core/assets/';
 const regular = import.meta.glob<string>(
-  '/node_modules/@phosphor-icons/core/assets/regular/{arrow-left,arrow-right,arrow-square-out,arrow-up-right,bank,bicycle,book-open,book-open-text,bus,calendar-blank,car,caret-down,caret-left,caret-right,caret-up,certificate,chats,check,clock,coffee,cookie,copy,device-mobile,door-open,download-simple,envelope-simple,eye,eye-slash,facebook-logo,flower-lotus,graduation-cap,hand-heart,handshake,heart,house,info,keyboard,leaf,lifebuoy,lightbulb,link-simple,linkedin-logo,list,magnifying-glass,map-pin,map-trifold,medal,minus,moon,pencil-simple,phone,pinterest-logo,question,rows,sun,ticket,train,trash,user,users,users-three,video-camera,warning-circle,wheelchair,x,x-logo}.svg',
+  '/node_modules/@phosphor-icons/core/assets/regular/{arrow-left,arrow-right,arrow-square-out,arrow-up-right,bank,bicycle,binoculars,book-open,book-open-text,bus,calendar-blank,car,caret-down,caret-left,caret-right,caret-up,certificate,chats,check,clock,coffee,cookie,copy,device-mobile,door-open,download-simple,envelope-simple,eye,eye-slash,facebook-logo,flower-lotus,graduation-cap,hand-heart,handshake,heart,house,info,keyboard,leaf,lifebuoy,lightbulb,link-simple,linkedin-logo,list,magnifying-glass,map-pin,map-trifold,medal,minus,moon,pencil-simple,phone,pinterest-logo,question,rows,sun,ticket,train,trash,user,users,users-three,video-camera,warning-circle,wheelchair,x,x-logo}.svg',
   { query: '?raw', import: 'default', eager: true },
 );
 // The filled ones ("Video": its play button; the navigation drawer's active item).
@@ -234,25 +235,6 @@ export function Glyph({ icon, size = 20, className }: { icon: IconRef; size?: nu
     : null;
 }
 
-/** Material's "add" (a plus): the sign for "insert a block" (the text bar's Insert block button). Material Symbols' own file, bundled (the bar is drawn at once,
- * not after the lazy Material set), and shaped as a Phosphor icon so a ToolbarButton takes it. */
-export const AddIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => {
-  const parts = svgParts(addFile);
-  return (
-    <svg
-      width={size}
-      height={size}
-      fill="currentColor"
-      aria-hidden="true"
-      data-icon="add"
-      className={className}
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox={parts?.viewBox ?? MATERIAL_VIEWBOX}
-      dangerouslySetInnerHTML={{ __html: parts?.inner ?? '' }}
-    />
-  );
-}) as unknown as PhosphorIcon;
-
 /** Material's "more_vert" (three dots in a column, m3.material.io Icons "More Vert"): the text bar's overflow button (`⋮`). Material Symbols' own file,
  * bundled like WidgetsIcon (the bar is drawn at once, not after the lazy Material set), and shaped as a Phosphor icon so a ToolbarButton takes it. */
 export const MoreVertIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => {
@@ -272,7 +254,17 @@ export const MoreVertIcon = (({ size = 20, className }: { size?: number | string
   );
 }) as unknown as PhosphorIcon;
 
-/** Material's "close" (a cross): the clear button of the text bar's block selection (the count with a cross). Material Symbols' own file, bundled like AddIcon, shaped as a
+/** Preview (a page's text bar and its `⋮`) and View on site, by name through the icon pack: Material Symbols' `preview` and `open_in_new` in the
+ * Material pack, Phosphor's binoculars and arrow-square-out in its own (site/icons.mjs), the same as the command palette draws. Shaped as a Phosphor icon so a
+ * ToolbarButton and a MenuItem take them. */
+export const PreviewIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => (
+  <Svg name="binoculars" size={Number(size)} className={className} />
+)) as unknown as PhosphorIcon;
+export const ViewOnSiteIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => (
+  <Svg name="arrow-square-out" size={Number(size)} className={className} />
+)) as unknown as PhosphorIcon;
+
+/** Material's "close" (a cross): the clear button of the text bar's block selection (the count with a cross). Material Symbols' own file, bundled like MoreVertIcon, shaped as a
  * Phosphor icon so a ToolbarButton takes it. */
 export const CloseIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => {
   const parts = svgParts(closeFile);
@@ -334,6 +326,15 @@ const bodyA = (file: string, name: string) =>
 export const BodyA1Icon = bodyA(bodyA1File, 'body_a1');
 export const BodyA2Icon = bodyA(bodyA2File, 'body_a2');
 export const BodyA3Icon = bodyA(bodyA3File, 'body_a3');
+
+/** The two block icons, one family built on Material Symbols' `widgets` (outlined, 400, @material-symbols/svg-400 0.48.2) on the 24 grid (src/icons/add-block.svg and
+ * block-settings.svg). Both keep widgets' top-left square, its diamond and its bottom-left square exactly and put a mark where its bottom-right square was:
+ * AddBlockIcon the plus copied from `dashboard_customize` (same place and size); BlockSettingsIcon a small cog, the inner cog of `settings_applications`
+ * scaled into the plus's 330-unit cell (same size and position as the plus, stroke about 48 units). AddBlockIcon is "insert/add a block" (the text bar's Insert
+ * block); BlockSettingsIcon is "this block's settings" (the bar's gear, the block row's Settings). A plain plus or cog still means add or settings of
+ * anything else. Bundled files, so they draw the same in every icon pack and in light and dark (currentColor). */
+export const AddBlockIcon = bodyA(addBlockFile, 'add_block');
+export const BlockSettingsIcon = bodyA(blockSettingsFile, 'block_settings');
 
 /** The same as Svg (the editor's fields and the site's promotions draw their icons with it). */
 export const Icon = Svg;

@@ -8,15 +8,12 @@
 // What of a section is only text and images is written as text above its card (its `lead`,
 // collections.ts): an image, its heading (H2) and its text; back from the editor, the last heading
 // before the card and the text after it, and an image just before that heading, are the section's.
-// The front page's top (a "Banner", type "hero") is text too: its text (`text`, Markdown) up to its "Buttons" block
-// (the lead's `upTo`), with its heading, subtitle, introduction and image, is the text at the very top, before its
-// card; the block and the text after it stay in the card's `text`, with the quote. On the other pages the text at the
-// very top, before the first heading or card, is the page's introduction.
+// The text at the very top of a page, before the first heading or card, is the page's introduction.
 // The front page is an ordinary page (packages/editor/defaults/standardPages.ts): its text is read into sections the same way, by the editor
 // and by the site (partsOfMarkdown, packages/editor/site/home.ts).
 // Shared by the editor and packages/editor/scripts/editor-roundtrip.mjs, which checks that every page comes back the same.
 // Depends on lib/blocks.mjs, lib/crop.mjs, lib/text-colors.mjs and the section colour marker (lib/section-marker.mjs).
-import { blockHtml, cutAtBlock, parseBlock } from '../lib/blocks.mjs';
+import { blockHtml, parseBlock } from '../lib/blocks.mjs';
 import { decorated, decorativeOf } from '../lib/crop.mjs';
 import { coloredHtml, withoutColors } from '../lib/text-colors.mjs';
 import { MARKER_TAG, isLabelLine, parseMarker } from '../lib/section-marker.mjs';
@@ -45,19 +42,11 @@ const imageOf = (m) => {
 /** The text of the editor for a list of sections; leads: the lead of each type of section; intro: the
  * page's introduction, above the sections. */
 export function sectionsToMarkdown(sections, leads = {}, intro) {
-  // The page's top: a "Banner" before any other card, with its lead (as sectionsFromParts reads it back).
-  const top = leads.hero ? sections.findIndex((s) => s.type !== 'text' || s.hidden) : -1;
   const text = sections
-    .map(({ type, ...props }, i) => {
+    .map(({ type, ...props }) => {
       if (type === 'text' && !props.hidden)
         return [props.heading && `## ${escape(props.heading)}`, props.body].filter(Boolean).join('\n\n');
-      if (type === 'hero' && i === top) {
-        const { text, ...rest } = props;
-        const [lead, own] = leads.hero.upTo ? cutAtBlock(text, leads.hero.upTo) : [String(text ?? '').trim(), ''];
-        return [lead, blockHtml(type, own ? { ...rest, text: own } : rest)].filter(Boolean).join('\n\n');
-      }
-      // A "Banner" further down is a card with all of its fields.
-      const lead = type === 'hero' ? undefined : leads[type];
+      const lead = leads[type];
       if (!lead) return blockHtml(type, props);
       const rest = { ...props };
       const take = (name) => {
@@ -87,15 +76,6 @@ export function introOf(parts) {
     .map((p) => p.trim())
     .filter(Boolean);
   return [paragraphs.join('\n\n'), parts.slice(1)];
-}
-
-// The front page's top from the text before its card: that text, its heading and its image in it (heroParts in
-// standard/hero/fields.ts finds them), then the card's own text (its "Buttons" block and the text after it).
-function hero(lead, props) {
-  const markdown = lead.map((p) => ('heading' in p ? `## ${p.heading}` : p.markdown)).join('\n\n');
-  const section = { type: 'hero', text: '', ...props };
-  section.text = [markdown, props.text].filter(Boolean).join('\n\n');
-  return section;
 }
 
 // A section with a lead from the text before its card (`run`): what is left of the run first, as
@@ -156,7 +136,7 @@ function withColors(parts) {
 }
 
 /** The sections for the parts of the text (partsOf in markdown.mjs); leads as for sectionsToMarkdown. `colors`: the front
- * page: each section also has the colour of its H2 as `sectionColor` (the top, the "Banner", has none), and an H1 with section settings
+ * page: each section also has the colour of its H2 as `sectionColor` and an H1 with section settings
  * is a section `top` of its own: its `settings` (colour, image, description and width, as parseMarker gives them) and its `items`
  * (text as `{ markdown }`, the Buttons block as `{ block }`) up to the next heading or other block. */
 export function sectionsFromParts(parts, leads = {}, options = {}) {
@@ -177,8 +157,8 @@ export function sectionsFromParts(parts, leads = {}, options = {}) {
     while (end < parts.length && !('heading' in parts[end]) && !(parts[end].block && parts[end].block.type !== 'buttons')) end++;
     return end;
   };
-  // Without settings the group is made only by a Buttons block in it, at the very top (the top Banner migrated, lib/front-banner.mjs):
-  // the text and the buttons stay together under the heading, as the Banner kept them. `inner`: not at the top.
+  // Without settings the group is made only by a Buttons block in it, at the very top:
+  // the text and the buttons stay together under the heading. `inner`: not at the top.
   const start = top >= 0 ? top + 1 : 0;
   const end = group(start);
   if (top >= 0 || (!options.inner && parts.slice(start, end).some((p) => p.block))) {
@@ -194,12 +174,6 @@ export function sectionsFromParts(parts, leads = {}, options = {}) {
 
 function sectionsFromPartsOf(parts, leads, options) {
   const all = options.colors ? withColors(parts) : parts;
-  const first = all.findIndex((p) => p.block);
-  if (first >= 0 && all[first].block.type === 'hero' && leads.hero)
-    return [
-      hero(parts.slice(0, first), all[first].block.props),
-      ...sectionsFromParts(parts.slice(first + 1), leads, { ...options, inner: true }),
-    ];
   const sections = [];
   // The text since the last card, for the next card (its lead) or as sections of text.
   let run = [];
@@ -208,8 +182,7 @@ function sectionsFromPartsOf(parts, leads, options) {
       run.push(part);
       continue;
     }
-    // A "Hero" further down is a card with all of its fields (only the top's are written above it).
-    const lead = part.block.type === 'hero' ? undefined : leads[part.block.type];
+    const lead = leads[part.block.type];
     if (lead) sections.push(...withLead(run, part.block, lead, part.sectionColor));
     else sections.push(...textSections(run), { type: part.block.type, ...part.block.props, ...colorOf(part.sectionColor) });
     run = [];
@@ -242,8 +215,7 @@ export const leadsOfField = (field) => ({ ...(field?.leads ?? {}), ...leadsOf(fi
 
 // How the text of a fixed page looks on the site, part by part, so the editor shows it so too
 // (editor.css): the headings of the sections as their components draw them, the text under a
-// heading that belongs to a section (its lead) as that section's text, the front page's top as its
-// subtitle and introduction, and a page's introduction. The looks of each fixed page's sections are
+// heading that belongs to a section (its lead) as that section's text, and a page's introduction. The looks of each fixed page's sections are
 // the site's (`sectionLooks` and `headingLooks`, LOOKS and HEADINGS in a theme's editor/looks.mjs).
 /** The look of each part of the text (null: as text), from its parts in order: { kind: 'block', type }
  * for a card, 'heading' (H2), 'p' (with image: an image), 'gap' (a free line) or 'other'. The text a
@@ -253,12 +225,7 @@ export function looksOf(items, { file, leads = {}, intro = false, sectionLooks =
   const isText = (i) => items[i].kind === 'p' && !items[i].image;
   const heading = headingLooks[file] ?? 'page-section';
   let start = 0;
-  const first = items.findIndex((x) => x.kind === 'block');
-  if (first >= 0 && items[first].type === 'hero' && leads.hero) {
-    let n = 0;
-    for (let i = 0; i < first; i++) if (isText(i)) looks[i] = n++ === 0 ? 'hero-subtitle' : 'hero-intro';
-    start = first + 1;
-  } else if (intro) {
+  if (intro) {
     for (let i = 0; i < items.length && items[i].kind !== 'heading' && items[i].kind !== 'block'; i++)
       if (isText(i)) looks[i] = 'page-intro';
   }
@@ -329,16 +296,13 @@ export function pageH1(markdown) {
 // A section's colour marker on its own line (lib/section-marker.mjs); any colour name, so an unknown one is dropped too.
 const MARKER_LINE = new RegExp(`^ {0,3}${MARKER_TAG}[ \\t]*$`);
 
-/** The settings of an H1's section as a part `top` holds them: the marker's (parseMarker), or the editor's heading attributes
- * (`section`, `sectionImage`, `sectionAlt`, `sectionWidth`); null when there are none.
- * @param {{ color?: string | null, image?: string | null, alt?: string | null, width?: string | null } | null} found */
+/** The settings of an H1's section as a part `top` holds them: the colour and the width of the marker's (parseMarker), or of the
+ * editor's heading attributes (`section`, `sectionWidth`); null when there are none. A page's H1 has no image (owner, 14 Nov 2026): an
+ * image left in an old marker is ignored.
+ * @param {{ color?: string | null, width?: string | null } | null} found */
 export const topOf = (found) => {
-  if (!found || (!found.color && !found.image && !found.width)) return null;
-  return {
-    color: found.color || '',
-    ...(found.image ? { image: found.image, ...(found.alt ? { alt: found.alt } : {}) } : {}),
-    ...(found.width === 'full' ? { width: 'full' } : {}),
-  };
+  if (!found || (!found.color && found.width !== 'full')) return null;
+  return { color: found.color || '', ...(found.width === 'full' ? { width: 'full' } : {}) };
 };
 
 /** The parts of a page's Markdown as the editor reads them (partsOf in markdown.mjs), without the editor: each block,

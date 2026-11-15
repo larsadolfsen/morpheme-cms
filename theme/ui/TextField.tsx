@@ -16,10 +16,16 @@
 // textField.script.ts and in the editor here (both with textFieldUpdate.ts). An Astro component gives an element the
 // same classes with textFieldClass, textFieldContainerClass and textFieldInputClass, and so does something that looks
 // like a field but is a button (the editor's choice from a list).
-import { useId, type FormEvent, type MouseEvent, type ReactNode } from 'react';
+// `invalidText`: what to say under the field once the browser's own check finds it invalid after the person has
+// worked in it (the CSS `:user-invalid`: changed and left, or the form tried to send); a field without it is not marked by
+// the browser's check, as a mark with no words under it says nothing. It takes the place of the line
+// (`supporting`) then, with the error's icon, and until then nothing is wrong. `invalid`: the caller's own check says it
+// is wrong (setCustomValidity(invalidText)), as the editor's does from its own rules, so the browser's check and the
+// caller's are one.
+import { useEffect, useId, useRef, type FocusEvent, type FormEvent, type MouseEvent, type ReactNode } from 'react';
 import { Glyph, Svg, type IconRef } from '@morphemecms/cms/src/icon';
 import IconButton, { iconButtonClass } from '@theme/ui/IconButton';
-import { counterText, pressTextField, updateTextField } from './textFieldUpdate';
+import { counterText, pressTextField, syncInvalid, updateTextField } from './textFieldUpdate';
 
 /** The kinds of a text field, as Material 3 names them. */
 export type TextFieldKind = 'outlined' | 'filled';
@@ -42,6 +48,8 @@ export default function TextField({
   trailingIcon,
   trailing,
   errorIcon,
+  invalidText,
+  invalid,
   clearLabel,
   passwordLabel,
   prefix,
@@ -65,6 +73,8 @@ export default function TextField({
   trailingIcon?: string;
   trailing?: ReactNode;
   errorIcon?: boolean;
+  invalidText?: string;
+  invalid?: boolean;
   clearLabel?: string;
   passwordLabel?: string;
   prefix?: string;
@@ -81,6 +91,7 @@ export default function TextField({
   className?: string;
 } & Record<string, unknown>) {
   const counter = counted || limit !== undefined;
+  const root = useRef<HTMLDivElement>(null);
   const own = useId();
   const field = id ?? own;
   const line = (typeof error === 'string' && error) || supporting;
@@ -88,6 +99,8 @@ export default function TextField({
   const lines = multiline || rows !== undefined;
   // Only a field that does something as it is written in, or has buttons, is the script's.
   const working = counter || multiline || clearLabel || passwordLabel;
+  // What is said when the browser finds it invalid: not while the field is marked with a line of its own (`error`).
+  const saying = typeof error === 'string' && error ? undefined : invalidText;
   const described = [line && `${field}-supporting`, counter && `${field}-counter`].filter(Boolean).join(' ');
   const written = String(rest.defaultValue ?? rest.value ?? '');
   const off = Boolean(rest.disabled);
@@ -100,10 +113,20 @@ export default function TextField({
     'aria-label': hideLabel ? label : undefined,
     'aria-invalid': error ? true : undefined,
     'aria-describedby': described || undefined,
+    'data-error': saying ? `${field}-invalid` : undefined,
+    'data-marked': error ? '' : undefined,
     ...rest,
   };
+  // The caller's own check is the browser's (setCustomValidity), and aria-invalid and the description follow `:user-invalid`.
+  useEffect(() => {
+    const input = root.current?.querySelector<HTMLInputElement | HTMLTextAreaElement>('.text-field-input');
+    if (!input) return;
+    input.setCustomValidity(invalid && invalidText ? invalidText : '');
+    syncInvalid(root.current!);
+  });
   return (
     <div
+      ref={root}
       className={[
         textFieldClass(kind, !!error, lines),
         leadingIcon && 'text-field-with-leading-icon',
@@ -114,6 +137,9 @@ export default function TextField({
         .join(' ')}
       data-text-field={working ? '' : undefined}
       onInput={working ? (e: FormEvent<HTMLDivElement>) => updateTextField(e.currentTarget) : undefined}
+      onBlurCapture={saying ? (e: FocusEvent<HTMLDivElement>) => syncInvalid(e.currentTarget) : undefined}
+      onChangeCapture={saying ? (e: FormEvent<HTMLDivElement>) => syncInvalid(e.currentTarget) : undefined}
+      onInvalidCapture={saying ? (e: FormEvent<HTMLDivElement>) => syncInvalid(e.currentTarget) : undefined}
       onClick={
         clearLabel || passwordLabel
           ? (e: MouseEvent<HTMLDivElement>) => {
@@ -169,10 +195,15 @@ export default function TextField({
           </button>
         )}
         {trailing && <span className="text-field-trailing-action">{trailing}</span>}
-        {errorIcon && <Svg name="warning-circle" size={20} className="text-field-trailing-icon text-field-error-icon" />}
+        {(errorIcon || saying) && <Svg name="warning-circle" size={20} className="text-field-trailing-icon text-field-error-icon" />}
       </div>
-      {(line || counter) && (
+      {(line || counter || saying) && (
         <div className="text-field-supporting-row">
+          {saying && (
+            <p id={`${field}-invalid`} className="text-field-supporting text-field-invalid-text" role="alert">
+              {saying}
+            </p>
+          )}
           {line && (
             <p id={`${field}-supporting`} className="text-field-supporting">
               {line}

@@ -74,12 +74,11 @@ export const PACK_SOURCES = {
  * PACK_SOURCES), for an icon the site or the editor draws that its set has none of. Material Symbols: a brand's logo (the
  * account logged in at GitHub, the SEO choices' Google) and the
  * things it has nothing that shows (binoculars, a hard disk, swatches, a scan frame, the arrows that widen and narrow
- * the Hero). Lucide, which draws no brands: the logos. */
+ * a section). Lucide, which draws no brands: the logos. */
 export const MATERIAL_DESIGN_ICONS = {
   'material-symbols': {
     'arrows-in-line-horizontal': 'arrow-collapse-horizontal',
     'arrows-out-line-horizontal': 'arrow-expand-horizontal',
-    binoculars: 'binoculars',
     'facebook-logo': 'facebook',
     'github-logo': 'github',
     'google-logo': 'google',
@@ -127,6 +126,7 @@ export const MATERIAL_SYMBOLS = {
   bank: 'account_balance',
   bell: 'notifications',
   bicycle: 'pedal_bike',
+  binoculars: 'preview',
   'book-open': 'import_contacts',
   'book-open-text': 'menu_book',
   browser: 'web',

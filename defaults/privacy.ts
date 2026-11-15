@@ -28,7 +28,7 @@ export const privacy: PartScreen = {
       fields: [
         {
           name: 'enabled',
-          label: 'Activated',
+          label: 'Cookie banner',
           type: 'boolean',
           toggle: ['On', 'Off'],
           hint: 'When the banner is off, there is no analytics or ads.',
@@ -44,10 +44,10 @@ export const privacy: PartScreen = {
           hint: 'The link goes to the cookie policy.',
           edit: { to: 'privacy/privacy-pages', text: 'Edit privacy pages' },
         },
-        { name: 'no', label: 'Button text (no)', type: 'string', required: true, max: 20 },
-        { name: 'yes', label: 'Button text (yes)', type: 'string', required: true, max: 20 },
-        { name: 'choose', label: 'Button text (advanced)', type: 'string', required: true, max: 30 },
-        { name: 'save', label: 'Button text (save choice)', type: 'string', required: true, max: 30 },
+        { name: 'no', label: 'Button label (no)', type: 'string', required: true, max: 20 },
+        { name: 'yes', label: 'Button label (yes)', type: 'string', required: true, max: 20 },
+        { name: 'choose', label: 'Button label (advanced)', type: 'string', required: true, max: 30 },
+        { name: 'save', label: 'Button label (save choice)', type: 'string', required: true, max: 30 },
         {
           name: 'consentId',
           label: 'Text (consent ID)',

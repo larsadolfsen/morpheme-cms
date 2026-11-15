@@ -1,16 +1,16 @@
 // "Parts" › "UI components" (BlockParts.tsx), the group "Actions": the theme's buttons that do more than one thing
 // (packages/editor/theme/ui/, through @site/editor) as the site draws them: button groups in both kinds with toggles on
-// and off, in every size and in both shapes, segmented buttons with one and with several chosen, split buttons in their
+// and off, in every size and in both shapes, choice groups (a button's style, side by side, forced to the list with a sample of each, and in a narrow frame), split buttons in their
 // kinds and sizes, closed and with the menu open, and FAB menus in their colour sets, from FABs of each size, closed
-// and open. Only drawn: nothing opens or turns on here (that is the site's ui/*.script.ts),
+// and open. Only drawn: nothing opens or turns on here but a choice group's choice (that is the site's ui/*.script.ts),
 // and the links lead nowhere.
 import {
   SiteButton,
   SiteButtonGroup,
+  SiteChoiceGroup,
   SiteFabMenu,
   SiteIconButton,
   SiteMenuItem,
-  SiteSegmentedButton,
   SiteSplitButton,
   buttonGroupKinds,
   buttonShapes,
@@ -20,6 +20,7 @@ import {
 } from './themeUi';
 import { Part } from './PartsShown';
 import { Preview } from './ui';
+import { useState } from 'react';
 import { t } from './i18n';
 
 const { sizes, shapes } = t.parts.screens;
@@ -37,6 +38,29 @@ const ways = () =>
     </SiteMenuItem>
   ));
 const fabItems = say.ways.map((way, i) => ({ icon: wayIcons[i], label: way, href: '' }));
+const buttonStyles = ['filled', 'tonal', 'elevated', 'outlined', 'text'] as const;
+
+/** A button's style as a choice group, each style with a small button of it as its sample: by measuring (`form` auto), or forced. */
+function StyleChoice({ styles, form }: { styles: readonly (typeof buttonStyles)[number][]; form?: 'list' }) {
+  const [value, setValue] = useState<string>(styles[0]);
+  return (
+    <SiteChoiceGroup
+      label={say.style}
+      form={form}
+      value={value}
+      onChange={setValue}
+      choices={styles.map((kind) => ({
+        value: kind,
+        label: say.styles[kind],
+        sample: (
+          <SiteButton kind={kind} size="xsmall" tabIndex={-1}>
+            {say.sample}
+          </SiteButton>
+        ),
+      }))}
+    />
+  );
+}
 
 export default function ActionParts() {
   return (
@@ -112,27 +136,16 @@ export default function ActionParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="SegmentedButton" use={say.segmentedButton}>
+      <Part name="ChoiceGroup" use={say.choiceGroup}>
         <Preview>
-          <div className="space-y-4 p-4">
-            <div>
-              <SiteSegmentedButton
-                label={say.mode}
-                segments={say.modes.map((mode, i) => ({ label: mode, icon: modeIcons[i], selected: i === 0 }))}
-              />
-            </div>
-            <div>
-              <SiteSegmentedButton
-                label={say.days}
-                multiple
-                segments={say.weekdays.map((day, i) => ({ label: day, selected: i === 0 || i === 2 }))}
-              />
-            </div>
-            <div>
-              <SiteSegmentedButton
-                label={say.channel}
-                segments={say.channels.map((name, i) => ({ label: name, icon: channelIcons[i], selected: i === 2, disabled: i === 1 }))}
-              />
+          <div className="space-y-6 p-4">
+            <StyleChoice styles={['filled', 'tonal', 'outlined']} />
+            <StyleChoice styles={['filled', 'tonal', 'outlined']} form="list" />
+            <div className="space-y-2">
+              <p className="type-label-large">{say.narrow}</p>
+              <div className="max-w-80" data-choice-narrow>
+                <StyleChoice styles={buttonStyles} />
+              </div>
             </div>
           </div>
         </Preview>

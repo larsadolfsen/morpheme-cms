@@ -1,8 +1,8 @@
 // The Danish of defaults/rules.ts: its English texts (the keys) in Danish (the values), as the editor
 // showed them before the switch to English. Joined in defaults/i18n/da-DK/index.ts.
 export const rules: Record<string, string> = {
-  'Front page': 'Forside',
-  'Edit the front page': 'Rediger forsiden',
+  'Home page': 'Forside',
+  'Edit the home page': 'Rediger forsiden',
   'Action bar': 'Handlingslinje',
   'Default buttons': 'Standardknapper',
   'A button in the action bar opens the promotion, so it must be turned on and shown everywhere the bar is shown. Change the button first.':
@@ -15,7 +15,7 @@ export const rules: Record<string, string> = {
   'Edit the action bar': 'Rediger handlingslinjen',
   'Edit the default buttons': 'Rediger standardknapperne',
   'The default pages must be different pages.': 'Standardsiderne skal være forskellige sider.',
-  'The address {url} is in the list of profiles more than once.': 'Adressen {url} er flere gange på listen over profiler.',
+  'The URL {url} is in the list of profiles more than once.': 'URL’en {url} er flere gange på listen over profiler.',
   'The page "{page}" does not have the block {block}, which {what} must have. Put it in on the page first.':
     'Siden "{page}" har ikke blokken {block}, som {what} skal have. Sæt den ind på siden først.',
   '{page} must be a published page.': '{page} skal være en side, der er udgivet.',
@@ -37,21 +37,21 @@ export const rules: Record<string, string> = {
   'The tag is used in the promotion "{name}". Remove it from the promotion first.':
     'Tagget bruges i promoveringen "{name}". Fjern det fra den først.',
   'Edit the promotion': 'Rediger promoveringen',
-  'The tag picks the posts on the front page under "From the blog". Pick another one first.':
+  'The tag selects the posts on the home page under "From the blog". Select another one first.':
     'Tagget vælger indlæggene på forsiden under "Fra bloggen". Vælg et andet først.',
-  'The post is picked for the front page under "From the blog". Pick another one first.':
+  'The post is selected for the home page under "From the blog". Select another one first.':
     'Indlægget er valgt til forsiden under "Fra bloggen". Vælg et andet først.',
-  'The post is picked in a block of blog posts on the page "{page}". Pick another one first.':
+  'The post is selected in a block of blog posts on the page "{page}". Select another one first.':
     'Indlægget er valgt i en blok med blogindlæg på siden "{page}". Vælg et andet først.',
-  'The tag is picked in a block in the blog post "{page}". Pick another one first.':
+  'The tag is selected in a block in the blog post "{page}". Select another one first.':
     'Tagget er valgt i en blok i blogindlægget "{page}". Vælg et andet først.',
-  'The tag is picked in a block on the page "{page}". Pick another one first.':
+  'The tag is selected in a block on the page "{page}". Select another one first.':
     'Tagget er valgt i en blok på siden "{page}". Vælg et andet først.',
-  '{page} is a default page, so it cannot be deleted. Pick another page under "Default pages" first.':
+  '{page} is a default page, so it cannot be deleted. Select another page under "Default pages" first.':
     '{page} er en standardside og kan ikke slettes. Vælg en anden side under "Standardsider" først.',
   'Edit the default pages': 'Rediger standardsiderne',
   'Edit the post': 'Rediger indlægget',
-  'the front page': 'forsiden',
+  'the home page': 'forsiden',
   'the blog': 'bloggen',
   'the page "{name}" ({address})': 'siden "{name}" ({address})',
   'the blog post "{name}" ({address})': 'blogindlægget "{name}" ({address})',

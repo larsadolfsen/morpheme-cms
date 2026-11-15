@@ -20,7 +20,7 @@ export const theme = {
   seeAllPosts: 'See all posts',
   seeAll: 'See all',
   blog: 'Blog',
-  frontPage: 'Front page',
+  frontPage: 'Home page',
   relatedPosts: 'Related posts',
   share: 'Share',
   shareOn: (network: string) => `Share on ${network}`,
@@ -33,7 +33,7 @@ export const theme = {
   newPages: 'New pages',
   newPagesDescription: 'New versions of the pages, for review.',
   newPagesIntro:
-    'New versions of the pages next to the current ones, for review. Google doesn’t see them. When you approve a page, its new text goes live at the current page’s address.',
+    'New versions of the pages next to the current ones, for review. Google doesn’t see them. When you approve a page, its new text goes live at the current page’s URL.',
   newVersion: 'New version',
   newPage: 'New page that doesn’t exist yet',
   currentPage: (title: string) => `Current: ${title}`,

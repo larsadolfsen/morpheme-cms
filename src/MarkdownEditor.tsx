@@ -5,7 +5,8 @@
 // on the site, which opens a menu (hide on the site, move; below expanded also Ret, Fjern; from expanded a tap opens the
 // side panel instead), with a free line kept between
 // two cards to write in. A fixed page's sections are such a text too (SectionsField.tsx), so both look
-// and work the same. The last tool, "Section settings", opens the section's sheet (BlockDialog.tsx).
+// and work the same. The last tool, "Section settings", opens the section's sheet (BlockDialog.tsx). A page's or post's text (EntryForm.tsx)
+// also has `Preview` among the bar's main tools and `View on site` in its `⋮` (docs/superpowers/specs/2026-11-14-one-save-while-writing-design.md).
 import {
   type CSSProperties,
   forwardRef,
@@ -32,12 +33,13 @@ import {
   wrapInOrderedListCommand,
 } from '@milkdown/kit/preset/commonmark';
 import { history, redoCommand, undoCommand } from '@milkdown/kit/plugin/history';
+import { closeHistory, undo as undoHistory } from '@milkdown/kit/prose/history';
 import { clipboard } from '@milkdown/kit/plugin/clipboard';
 import { $prose, $view, callCommand } from '@milkdown/kit/utils';
 import { Fragment } from '@milkdown/kit/prose/model';
 import type { Mark, Node } from '@milkdown/kit/prose/model';
 import { Decoration, DecorationSet, type EditorView } from '@milkdown/kit/prose/view';
-import { NodeSelection, Plugin, Selection, TextSelection, type EditorState } from '@milkdown/kit/prose/state';
+import { NodeSelection, Plugin, PluginKey, Selection, TextSelection, type EditorState } from '@milkdown/kit/prose/state';
 import { liftListItem } from '@milkdown/kit/prose/schema-list';
 import { lift } from '@milkdown/kit/prose/commands';
 import {
@@ -64,20 +66,22 @@ import {
 } from '@phosphor-icons/react';
 import { listKindOf, styleOf } from './styleKind.mjs';
 import { listRows, styleRows } from './styleMenu.mjs';
-import { planBar } from './textBar.mjs';
+import { planBar, toolWidth } from './textBar.mjs';
 import { sizeListText, sizeOfList } from './listSize.mjs';
 import { HTML, insertBlock, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
 import { firstHeading, topHeadings } from './firstHeading.mjs';
 import { h1Of, h1TextOf, h1Written } from './titleH1.mjs';
 import { headingChoices } from '../lib/heading-levels.mjs';
 import { TEXT_COLORS, colorClass } from '../lib/text-colors.mjs';
-import { sectionHeading, setSection } from './sectionState.mjs';
+import { sectionAttrs, sectionHeading, sectionSettingsOf, setSection } from './sectionState.mjs';
 import { sectionFrame } from './sectionFrame';
-import { IMAGE, type BlockAsk } from './BlockDialog';
-import SectionSettingsIcon from './SectionSettingsIcon';
+import { IMAGE, reachField, type BlockAsk, type EditFocus, type LiveBlock, type SheetTarget } from './BlockDialog';
+import { cropView } from './CropView';
+import { ratioProp } from './standard/cards/view';
 import { askLink } from './LinkSheet';
 import { atLeastNow, Menu, MenuDivider, MenuItem, Toolbar, ToolbarButton } from './ui';
-import { editsInPanel } from './sheetPlacement.mjs';
+import { editsInPanel, liveSheet } from './sheetPlacement.mjs';
+import { mapRange, stepOf } from './liveSheet.mjs';
 import { shownAt } from './images';
 import { cropStyle, joinPicture, splitPicture } from '../lib/crop.mjs';
 import { describe, htmlBlock, type BlockProps } from './blocks';
@@ -99,19 +103,25 @@ import { preview } from './registry';
 import { leaveTo } from './FormFrame';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
+import { snackbar } from '../lib/snackbar';
+import { actions, changeToActions } from './actions';
+import { editorCtx } from './editorCtx';
+import { textActions, type TextApi, type TextLabels } from './textActions';
+import { SiteSnackbar } from './themeUi';
+import { changeTo, targets } from '../lib/changeTo.mjs';
 import { t } from './i18n';
 import { motionReduced, motionTiming } from '../lib/motion';
 import { barSlideKind } from './barMotion.mjs';
 import { dragSteps, limitSteps } from './blockDrag.mjs';
-import { blockHandleIcon, blockMarkIcon, blockSettingsIcon, duplicateIcon, selectAllBlocksIcon } from './blockHandleIcon';
+import { blockHandleIcon, blockMarkIcon, blockSettingsIcon, changeToIcon, duplicateIcon, selectAllBlocksIcon } from './blockHandleIcon';
 import { blockSelection } from './blockSelection';
 import { allOf, hideChoice, range, removeChoice, groupMove } from './blockSelectionRules.mjs';
 import { ask } from './ask';
 import { canPress, edgeScroll, movedAway } from '@theme/ui/longPressRules.mjs';
 import { canLabel, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
-import { AaIcon, AddIcon, BodyA1Icon, BodyA2Icon, BodyA3Icon, CloseIcon, MoreVertIcon } from './icon';
-import pencilIcon from '@phosphor-icons/core/assets/regular/pencil-simple.svg?raw';
+import { AaIcon, AddBlockIcon, BodyA1Icon, BodyA2Icon, BodyA3Icon, CloseIcon, MoreVertIcon, PreviewIcon, ViewOnSiteIcon } from './icon';
+import { editElsewhereIcon, settingsHereIcon } from './meaningIcons';
 import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
 import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
 import arrowUpIcon from '@phosphor-icons/core/assets/regular/arrow-up.svg?raw';
@@ -164,6 +174,10 @@ type Props = {
   /** Whether the text has the section frame and the colour button (pages and posts). Without it: on unless `sections`.
    * The front page sets `sections` (its H2s are names drawn by the theme, no word colours) and `frame` (its sections take their colour). */
   frame?: boolean;
+  /** A page's or post's `Preview` (pagePreview.tsx): a main tool of the bar, before Undo, and in its `⋮` when the contextual tools fill it. */
+  onPreview?: () => void;
+  /** The page's address on the site, for `View on site` in the bar's `⋮` (its last group); none for a page that is not on the site yet. */
+  viewOnSite?: string;
 };
 
 // A part of the text at the top level, for `looks`.
@@ -357,7 +371,7 @@ function move(view: EditorView, i: number, by: -1 | 1): number | null {
 }
 
 // Selects the card at the top level at index k again (after it moved, it is a new card), so its tools are on the bar still and it can be moved again at once.
-type CardHost = HTMLElement & { select?: () => void; refresh?: () => void };
+type CardHost = HTMLElement & { select?: () => void; refresh?: () => void; describe?: (focus?: EditFocus) => void };
 function reopen(view: EditorView, k: number) {
   const el = partDOM(view, k);
   const host = (el?.matches('.site-block') ? el : el?.querySelector('.site-block')) as CardHost | null;
@@ -872,7 +886,8 @@ function blockHandle(
 // A card (a block or an image) in the text that is not typed in place: tapping it selects it, and its tools are on the text's one bar
 // (blockBar.ts): its Edit as the gear, and the rest of its items (Hide, Move up, Move down, Remove) in the bar's `⋮`. It stays selected until a tap
 // or the focus goes elsewhere (not to the bar, its menus or a sheet) or Escape. `items`: its items as they are when it is selected; `tap`
-// runs first on a tap (from expanded it opens the card's side panel). Returns how to leave it.
+// runs first on a tap (from expanded it opens the card's side panel). `tools`: its own tools on the bar (an image's Change image, Crop, Alt text,
+// Remove), and `remove`: what Delete or Backspace does while it is selected. Returns how to leave it.
 function cardBar(
   view: EditorView,
   dom: HTMLElement,
@@ -880,17 +895,17 @@ function cardBar(
   name: string,
   items: () => (CardItem | undefined | false | '')[],
   tap?: () => void,
+  own: { tools?: () => BarAction[]; remove?: () => void } = {},
 ) {
   const owner = {};
   let selected = false;
   const show = () => {
     const all = items().filter((it): it is CardItem => !!it);
-    const edit = all.find((it) => it.icon === pencilIcon);
-    // The row (blockRow.ts) has Move up, Move down, Hide or Show and, Settings (when it has any); the bar's `⋮` has the rest.
-    const split = splitRow(all.map((it) => (it === edit ? { ...it, row: 'settings' as const, icon: blockSettingsIcon } : it)));
+    // The row (blockRow.ts) has Move up, Move down, Hide or Show and, Settings (when it has any: the item with `row: 'settings'`); the bar's `⋮` has the rest.
+    const split = splitRow(all);
     blockBar.show(owner, {
       name,
-      actions: [],
+      actions: own.tools?.() ?? [],
       row: { host: dom, items: split.row },
       menu: split.menu,
     });
@@ -899,12 +914,19 @@ function cardBar(
     const target = e.target;
     if (
       target instanceof Element &&
-      (dom.contains(target) || target.closest('.editor-tools, .editor-menu, .editor-side-sheet, dialog[open]'))
+      (dom.contains(target) || target.closest('.editor-tools, .editor-menu, .editor-side-sheet, dialog[open], [data-keeps-block]'))
     )
       return;
     leave();
   };
   const escape = (e: KeyboardEvent) => {
+    // Delete or Backspace on the selected card itself does what its Remove does.
+    if ((e.key === 'Delete' || e.key === 'Backspace') && own.remove && document.activeElement === card) {
+      e.preventDefault();
+      leave();
+      own.remove();
+      return;
+    }
     if (e.key !== 'Escape') return;
     leave();
     card.focus();
@@ -958,6 +980,111 @@ function cardBar(
   };
 }
 
+// The live side sheet from expanded (BlockDialog.tsx, LiveBlock): the block, image or section heading it was opened for, followed
+// through every change of the text (liveSheet.mjs, mapRange) so its changes go to it, and Undo or Redo is shown in the sheet. One
+// per editor; null when no live sheet is open.
+const liveKey = new PluginKey<{ from: number; to: number } | null>('liveSheet');
+// Told after each change of an editor's text while its live sheet is open.
+const liveWatch = new WeakMap<EditorView, () => void>();
+const liveTracking = $prose(
+  () =>
+    new Plugin({
+      key: liveKey,
+      state: {
+        init: () => null,
+        apply: (tr, was) => {
+          const set = tr.getMeta(liveKey);
+          if (set !== undefined) return set;
+          return was && tr.docChanged ? mapRange(was, tr.mapping) : was;
+        },
+      },
+      view: () => ({ update: (view) => liveWatch.get(view)?.() }),
+    }),
+);
+
+/** The link of a live sheet to the node at `pos`: read: the sheet's values of the node, null when it is not the one any more (its
+ * type changed); attrsOf: the node's attributes with the sheet's values, null when they cannot be written. Each write is one
+ * setNodeMarkup in the sheet's undo step (stepOf). */
+function liveLink(
+  view: EditorView,
+  pos: number,
+  read: (node: Node) => BlockProps | null,
+  attrsOf: (node: Node, props: BlockProps) => Record<string, unknown> | null,
+): LiveBlock | null {
+  const first = view.state.doc.nodeAt(pos);
+  if (!first) return null;
+  view.dispatch(view.state.tr.setMeta(liveKey, { from: pos, to: pos + first.nodeSize }).setMeta('addToHistory', false));
+  // The attributes as the sheet last saw or wrote them: only another change (Undo, Redo) is told to it.
+  let seen = JSON.stringify(first.attrs);
+  let follower: ((props: BlockProps | null) => void) | null = null;
+  const here = () => {
+    const range = liveKey.getState(view.state);
+    const node = range && view.state.doc.nodeAt(range.from);
+    return range && node && range.from + node.nodeSize === range.to ? { pos: range.from, node } : null;
+  };
+  const watch = () => {
+    if (!follower) return;
+    const now = here();
+    const props = now && read(now.node);
+    if (!now || !props) return follower(null);
+    const attrs = JSON.stringify(now.node.attrs);
+    if (attrs === seen) return;
+    seen = attrs;
+    follower(props);
+  };
+  liveWatch.set(view, watch);
+  return {
+    write: (props, step) => {
+      const now = here();
+      const attrs = now && attrsOf(now.node, props);
+      if (!now || !attrs) return;
+      const made = now.node.type.create(attrs).attrs;
+      // Nothing changed: the step still ends here when it is a new one.
+      if (JSON.stringify(made) === JSON.stringify(now.node.attrs)) return void (step.fresh && view.dispatch(closeHistory(view.state.tr)));
+      seen = JSON.stringify(made);
+      view.dispatch(stepOf(view.state.tr.setNodeMarkup(now.pos, undefined, attrs), step));
+    },
+    follow: (to) => void (follower = to),
+    end: () => {
+      if (liveWatch.get(view) !== watch) return;
+      liveWatch.delete(view);
+      if (!view.isDestroyed) view.dispatch(closeHistory(view.state.tr).setMeta(liveKey, null).setMeta('addToHistory', false));
+    },
+    target: () => {
+      const now = here();
+      const dom = now && view.nodeDOM(now.pos);
+      return dom instanceof HTMLElement ? (dom.querySelector<HTMLElement>('.site-block-card') ?? null) : null;
+    },
+  };
+}
+
+// The links of the live sheet of a block, an image and a section's heading.
+const liveBlock = (view: EditorView, pos: number, type: string) =>
+  liveLink(
+    view,
+    pos,
+    (node) => (node.type.name === 'siteBlock' && node.attrs.type === type ? (node.attrs.props as BlockProps) : null),
+    (node, props) => {
+      // A hidden block stays hidden (the sheet does not show `hidden`).
+      const { hidden: _, ...shown } = props;
+      return { ...node.attrs, props: node.attrs.props?.hidden === true ? { ...shown, hidden: true } : shown };
+    },
+  );
+const liveImage = (view: EditorView, pos: number) =>
+  liveLink(
+    view,
+    pos,
+    (node) => (node.type.name === 'image' ? imageProps(node) : null),
+    (node, props) => ({ ...node.attrs, src: imageSrc(props), alt: String(props.alt ?? '').trim() }),
+  );
+const liveSection = (view: EditorView, pos: number) =>
+  liveLink(
+    view,
+    pos,
+    (node) => (node.type.name === 'heading' && node.attrs.level <= 2 ? (sectionSettingsOf(node) as BlockProps) : null),
+    (node, props) => sectionAttrs(node.attrs, props as Parameters<typeof sectionAttrs>[1]),
+  );
+
 // The address of an image from its sheet: with its format and crop after it, and marked when it is decorative
 // (crop.mjs).
 const imageSrc = (props: BlockProps) =>
@@ -967,12 +1094,58 @@ const imageSrc = (props: BlockProps) =>
     (props.crop as number[] | null | undefined) ?? null,
     props.decorative === true,
   );
+// What an image's sheet shows of it: its address, description, format, crop and whether it is decorative.
+const imageProps = (node: Node): BlockProps => {
+  const { src, format, crop, decorative } = splitPicture(node.attrs.src);
+  return { src, alt: node.attrs.alt ?? '', format, crop, decorative };
+};
+
+// The parts of the text that open a block's sheet (a block's card, an image's), for the sheet's hidden copy (sheetCopy.mjs): each one's
+// type and props as its sheet gets them, its index among them, and how to open its sheet with a copy's values (set by its card).
+const imagePropsOf = (node: Node): BlockProps => {
+  const { src, format, crop, decorative } = splitPicture(node.attrs.src);
+  return { src, alt: node.attrs.alt ?? '', format, crop, decorative };
+};
+const sheetPartOf = (node: Node): { type: string; props: BlockProps } | null =>
+  node.type.name === 'siteBlock'
+    ? { type: node.attrs.type, props: node.attrs.props }
+    : node.type.name === 'image'
+      ? { type: IMAGE, props: imagePropsOf(node) }
+      : null;
+/** The index among the sheet's parts of the one at pos. */
+const sheetIndexAt = (doc: Node, pos: number) => {
+  let index = 0;
+  doc.nodesBetween(0, pos, (n, at) => void (at < pos && sheetPartOf(n) && index++));
+  return index;
+};
+const reopens = new WeakMap<object, (values: BlockProps) => void>();
+/** The part at the index (sheetIndexAt), with how to open its sheet with a copy's values; null when there is none. */
+function sheetTarget(view: EditorView, index: number): SheetTarget | null {
+  let found: { pos: number; type: string; props: BlockProps } | null = null;
+  let i = 0;
+  view.state.doc.descendants((n, pos) => {
+    if (found) return false;
+    const part = sheetPartOf(n);
+    if (part && i++ === index) found = { pos, ...part };
+  });
+  if (!found) return null;
+  const { pos, type, props } = found;
+  const dom = view.nodeDOM(pos);
+  const open = dom && reopens.get(dom);
+  return open ? { index, type, props, open } : null;
+}
 
 // An image in the text as a card like a block's, cut to its format, with a menu to change it
 // (another image, its description for screen readers, its format), move it with its paragraph and
 // remove it.
 // sheet: where it is changed (the sheet of the blocks, BlockDialog.tsx).
-function imageCard(node: Node, view: EditorView, getPos: () => number | undefined, sheet: () => BlockAsk | undefined) {
+function imageCard(
+  node: Node,
+  view: EditorView,
+  getPos: () => number | undefined,
+  sheet: () => BlockAsk | undefined,
+  pick: () => (() => Promise<string | null>) | undefined,
+) {
   const dom = document.createElement('span');
   dom.className = 'site-block site-picture';
   dom.contentEditable = 'false';
@@ -994,9 +1167,14 @@ function imageCard(node: Node, view: EditorView, getPos: () => number | undefine
   img.alt = '';
   if (cut) img.style.cssText = cut.img;
   if (node.attrs.title) img.title = node.attrs.title;
-  const describe = async () => {
-    const props = await sheet()?.edit(IMAGE, { src, alt: node.attrs.alt ?? '', format, crop, decorative }, false, true);
-    if (props === 'remove') return remove();
+  // Its sheet (Settings, and from expanded a tap); `focus`: open at its Alt text field (Alt text). From expanded the sheet is live: it changes the
+  // image at once (liveImage), and answers null.
+  // start: a hidden copy's values to open the sheet with (sheetTarget).
+  const describe = async (focus?: EditFocus, start?: BlockProps) => {
+    const at = getPos();
+    const live = () => (at === undefined ? null : liveImage(view, at));
+    const keep = at === undefined ? undefined : { at: sheetIndexAt(view.state.doc, at), start };
+    const props = await sheet()?.edit(IMAGE, imagePropsOf(node), false, live, focus, keep);
     const pos = getPos();
     if (!props || pos === undefined) return;
     view.dispatch(
@@ -1007,7 +1185,66 @@ function imageCard(node: Node, view: EditorView, getPos: () => number | undefine
     const pos = getPos();
     if (pos !== undefined) view.dispatch(view.state.tr.delete(pos, pos + node.nodeSize));
   };
-  // From expanded an image's sheet is the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
+  // Crop: the crop view over the page; Save puts the new aspect ratio and crop after the image's address (crop.mjs).
+  const cropIt = async () => {
+    const next = await cropView({ src, format: format ?? '', crop });
+    const pos = getPos();
+    if (!next || pos === undefined) return;
+    view.dispatch(
+      view.state.tr.setNodeMarkup(pos, undefined, { ...node.attrs, src: joinPicture(src, next.format, next.crop, decorative) }),
+    );
+  };
+  // From expanded the image's sheet is the live side panel (liveSheet): Change image and Alt text use it, with its Alt text field focused. Below expanded the
+  // short sheet for the alt text is used (BlockAsk.alt).
+  const inLivePanel = () => liveSheet('fields', atLeastNow('expanded'));
+  // Change image: another from the Library in its place, starting as Original (no format or crop, image tools spec decision 5) with no alt text of its own.
+  // From expanded the new image is selected again and its live sheet opens at the Alt text field; below it the short sheet for its alt text comes first
+  // (Skip keeps it without), then the new image is selected again, with its tools on the bar.
+  const change = async () => {
+    const chosen = await pick()?.();
+    if (!chosen) return;
+    const own = inLivePanel()
+      ? { alt: '', decorative: false }
+      : ((await sheet()?.alt({ src: chosen, alt: '', decorative: false }, 'new')) ?? { alt: '', decorative: false });
+    const pos = getPos();
+    if (pos === undefined) return;
+    view.dispatch(
+      view.state.tr.setNodeMarkup(pos, undefined, {
+        ...node.attrs,
+        src: joinPicture(chosen, '', null, own.decorative),
+        alt: own.alt.trim(),
+      }),
+    );
+    // The node view is drawn again for the new image: its sheet is opened by the new view's card (selected by the same place).
+    const next = view.nodeDOM(pos) as CardHost | null;
+    next?.select?.();
+    if (inLivePanel()) next?.describe?.('alt');
+  };
+  // Alt text: from expanded the live sheet's Alt text field; below it the short sheet (Cancel and Save) for its text and whether it is decorative.
+  const editAlt = async () => {
+    if (inLivePanel()) return void describe('alt');
+    const own = await sheet()?.alt({ src, alt: node.attrs.alt ?? '', decorative }, 'edit');
+    const pos = getPos();
+    if (!own || pos === undefined) return;
+    view.dispatch(
+      view.state.tr.setNodeMarkup(pos, undefined, {
+        ...node.attrs,
+        src: joinPicture(src, format ?? '', crop, own.decorative),
+        alt: own.alt.trim(),
+      }),
+    );
+  };
+  // The image's tools on the bar (image tools spec, section 4), in this order; Alt text is a text button.
+  const tools = (): BarAction[] => [
+    { kind: 'change-image', label: t.forms.changeImage, action: () => void change() },
+    // Crop opens the crop view (not in a Banner's text or on a fixed page, where the sheet has no aspect ratio either).
+    ...(sheet()?.canCrop === false ? [] : [{ kind: 'crop' as const, label: t.text.crop, action: () => void cropIt() }]),
+    { kind: 'alt-text', label: t.blocks.picture.alt, text: true, action: () => void editAlt() },
+    { kind: 'remove', label: t.common.remove, action: remove },
+  ];
+  (dom as CardHost).describe = (focus) => void describe(focus);
+  reopens.set(dom, (values) => void describe(undefined, values));
+  // From expanded an image's sheet is the live side panel: a tap opens it (owner, image tools spec 1b.2), and the row has no Settings (the panel is open).
   const inPanelNow = () => editsInPanel(atLeastNow('expanded'), true);
   const close = cardBar(
     view,
@@ -1016,13 +1253,14 @@ function imageCard(node: Node, view: EditorView, getPos: () => number | undefine
     t.text.image,
     () => {
       const pos = getPos();
+      // Remove is a tool on the bar now, not in the ⋮.
       return [
-        !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: describe },
+        !inPanelNow() && { icon: blockSettingsIcon, label: t.common.edit, action: () => void describe(), row: 'settings' as const },
         ...moves(view, pos === undefined ? null : view.state.doc.resolve(pos).index(0), sheet()?.template?.locked),
-        !inPanelNow() && { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
       ];
     },
     () => inPanelNow() && void describe(),
+    { tools, remove },
   );
   return { dom, update: () => false, stopEvent: () => true, ignoreMutation: () => true, destroy: close };
 }
@@ -1157,6 +1395,22 @@ export function paint(view: EditorView, color: string | null) {
 }
 
 // An icon given as raw SVG (the block's tools, contextualMenu.ts), as the component a bar button wants: drawn at 20 dp, once per SVG.
+// The width in dp of a text tool on the bar (Alt text): its label in the theme's label font (Label Large: 14 px, weight 500) and M3's 12 dp on each side
+// of a text button's label, rounded up; measured once per label (the language decides it), never from the drawn bar (no layout loop).
+const textWidths = new Map<string, number>();
+function textButtonWidth(label: string): number {
+  let width = textWidths.get(label);
+  if (width === undefined) {
+    const ctx = document.createElement('canvas').getContext('2d');
+    const root = getComputedStyle(document.body);
+    const given = root.getPropertyValue('--type-label-large-size').trim();
+    const px = given.endsWith('rem') ? parseFloat(given) * 16 : parseFloat(given) || 14;
+    if (ctx) ctx.font = `500 ${px}px ${root.fontFamily}`;
+    width = Math.ceil((ctx?.measureText(label).width ?? label.length * 8) + 24);
+    textWidths.set(label, width);
+  }
+  return width;
+}
 const rawIcons = new Map<string, typeof TextB>();
 function rawIcon(svg: string): typeof TextB {
   let icon = rawIcons.get(svg);
@@ -1195,6 +1449,9 @@ const ALIGN_FACES = {
   right: { node: TextAlignRight },
 };
 type Align = keyof typeof ALIGN_FACES;
+/** The keys of the bar's tools that have one: the text engine's own (the same as in textActions.ts), shown in their tooltips. */
+const TOOL_KEYS: Record<string, string | undefined> = { bold: 'Mod+B', italic: 'Mod+I', undo: 'Mod+Z', redo: 'Mod+Shift+Z' };
+
 const alignLabel = (align: Align) => ({ left: t.text.alignLeft, center: t.text.alignCenter, right: t.text.alignRight })[align];
 
 // The alignment where the cursor is, from activeOf's names: left when the block has none.
@@ -1239,8 +1496,37 @@ function inSectionHeading(state: EditorView['state']) {
 const inLabel = (state: EditorView['state']) =>
   ['eyebrow', 'bodyLarge', 'bodyMedium', 'bodySmall'].includes(state.selection.$from.parent.type.name);
 
-// The blocks just put in that are typed in place (blockCard starts the first row of each).
-const fresh = new WeakSet<object>();
+// The Change to actions of the active block in the editor's action registry (src/actions.ts: the command palette finds them): one block is active at a
+// time, so one set is registered. A block that becomes active replaces the set of the one before; a block that is not the owner cannot take it away.
+let changeToRegistered: { owner: object; key: string; dispose: () => void } | null = null;
+function setChangeToActions(owner: object, list: ReturnType<typeof changeToActions> | null) {
+  const key = list?.map((a) => a.id).join() ?? '';
+  if (!list) {
+    if (changeToRegistered?.owner !== owner) return;
+  } else if (changeToRegistered?.owner === owner && changeToRegistered.key === key) {
+    return;
+  }
+  changeToRegistered?.dispose();
+  changeToRegistered = list?.length ? { owner, key, dispose: actions.register(list) } : null;
+}
+
+// A message with Undo (after Change type): the theme's snackbar, its action a text button. Drawn once (it is not React once shown).
+function undoSnackbar(text: string, undo: () => void) {
+  const host = document.createElement('div');
+  const root = createRoot(host);
+  flushSync(() => root.render(<SiteSnackbar text={text} action={{ label: t.text.undo }} />));
+  const el = host.firstElementChild!.cloneNode(true) as HTMLElement;
+  root.unmount();
+  el.querySelector('.snackbar-action')?.addEventListener('click', () => {
+    undo();
+    el.remove();
+  });
+  snackbar({ text, element: el });
+}
+
+// The blocks just put in that are typed in place, by their props, with the row each starts with active (blockCard starts it): 0 for a block
+// from Insert, the row that was active for a block made by Change type (and for the block it was, should Undo bring it back).
+const fresh = new WeakMap<object, number>();
 
 // A block in the text as a card: the block as it looks on the site (its draw, src/apps/<app>/blocks/), in a thin frame;
 // for screen readers its name and what is in it (describe in blocks.ts). Tapping it opens a row of
@@ -1252,6 +1538,7 @@ function blockCard(
   getPos: () => number | undefined,
   asker: () => BlockAsk | undefined,
   cards: Set<() => void>,
+  pick: () => (() => Promise<string | null>) | undefined,
 ) {
   // The block's node: a block typed in place (inline) is changed without being drawn again (update), so the node follows.
   let node = first;
@@ -1316,7 +1603,7 @@ function blockCard(
   // A block with no list (Notice, Video): its props are its one item.
   const single = !!spec?.single;
   const rows = () => (single ? [node.attrs.props as Row] : ((node.attrs.props[spec?.item ?? 'items'] as Row[] | undefined) ?? []));
-  const setItems = (items: Row[], patch?: Record<string, unknown>) => {
+  const setItems = (items: Row[], patch?: Record<string, unknown>, step = false) => {
     const here = at();
     if (here && single) {
       // The typed fields of the one item are put in the props; one that is emptied is left out, as the text of the block would be.
@@ -1333,7 +1620,10 @@ function blockCard(
         if (value === undefined) delete props[name];
         else props[name] = value;
       }
-      view.dispatch(view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props }));
+      const tr = view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props });
+      // Its own undo step (a paste that makes items): typing before it or after it is not undone with it.
+      view.dispatch(step ? closeHistory(tr) : tr);
+      if (step) view.dispatch(closeHistory(view.state.tr));
     }
   };
   const change = (c: Change) => {
@@ -1341,7 +1631,7 @@ function blockCard(
     if (active !== null) dynOpen = false;
     if ('focus' in c) focus = c.focus ?? null;
     if ('col' in c) col = c.col ?? null;
-    if (c.items || c.props) setItems(c.items ?? rows(), c.props);
+    if (c.items || c.props) setItems(c.items ?? rows(), c.props, c.step);
     else draw();
   };
   const draw = () => {
@@ -1423,11 +1713,14 @@ function blockCard(
   };
   // A block just put in (a new List) starts with its first row active and the cursor in it (known by its props, which the new node keeps).
   // The sheet it came from is closing and gives the focus back to what had it: wait until no sheet is open.
-  if (inline && fresh.delete(node.attrs.props)) {
+  const startAt = inline ? fresh.get(node.attrs.props) : undefined;
+  if (startAt !== undefined) {
+    fresh.delete(node.attrs.props);
     let tries = 0;
     const start = () => {
       if (document.querySelector('dialog[open]') && tries++ < 30) return void setTimeout(start, 50);
-      change({ active: 0, focus: { row: 0, field: spec!.fields[0] } });
+      const row = Math.max(0, Math.min(startAt, rows().length - 1));
+      change({ active: row, ...(spec!.grid ? { col: 0 } : {}), focus: { row, field: spec!.fields[0] } });
     };
     setTimeout(start);
   }
@@ -1454,9 +1747,13 @@ function blockCard(
     const last = hidden === false && !!rules?.required?.includes(type) && shownOfType <= 1;
     return { rules, locked, stays: locked || last };
   };
-  const edit = async () => {
-    const props = await asker()?.edit(node.attrs.type, node.attrs.props, false, !keeps().stays);
-    if (props === 'remove') return remove();
+  // From expanded the sheet is live: it changes the block at once (liveBlock), and answers null.
+  // values: a hidden copy's values to open the sheet with (sheetTarget).
+  const edit = async (values?: BlockProps) => {
+    const start = at();
+    const live = () => (start ? liveBlock(view, start.pos, node.attrs.type) : null);
+    const keep = start ? { at: sheetIndexAt(view.state.doc, start.pos), start: values } : undefined;
+    const props = await asker()?.edit(node.attrs.type, node.attrs.props, false, live, undefined, keep);
     const here = at();
     // The block's fields as changed; still hidden if it was.
     if (props && here)
@@ -1474,11 +1771,44 @@ function blockCard(
     const here = at();
     if (here) view.dispatch(view.state.tr.delete(here.pos, here.pos + node.nodeSize));
   };
+  // Change type (lib/changeTo.mjs, docs/superpowers/specs/2026-11-14-paste-and-change-to-design.md): the block made into another list block, where
+  // it is, in one step of its own; its items' titles and texts move over and what the new block cannot show stays in its props (a Table keeps the
+  // other block's items, the other block the Table's rows, and the way back matches them by title). It stays active at the same row, and a
+  // snackbar offers Undo.
+  const changeBlock = (to: string, label: string) => {
+    const here = at();
+    if (!here) return;
+    const byPath = new Map((asker()?.data.site.pages ?? []).map((p) => [p.path, p.title]));
+    const before = node.attrs.props;
+    const props = changeTo(node.attrs.type, to, before, (item) => (typeof item.href === 'string' ? byPath.get(item.href) : undefined));
+    // The same row stays active: a Table's rows count its header row, which is no item.
+    const item = Math.max(0, (active ?? 0) - (node.attrs.type === 'table' && before.header !== false ? 1 : 0));
+    fresh.set(props, item + (to === 'table' && props.header !== false ? 1 : 0));
+    fresh.set(before, active ?? 0);
+    view.dispatch(closeHistory(view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, type: to, props })));
+    view.dispatch(closeHistory(view.state.tr));
+    undoSnackbar(t.text.changedTo(label), () => undoHistory(view.state, view.dispatch));
+  };
+  // The blocks this one can become (targets: by `from` and the template), with their names and icons; none for any other block.
+  const changeTargets = () => {
+    const { rules, stays } = keeps();
+    const have: Record<string, number> = {};
+    for (const b of blocksOf(view.state.doc)) have[b.type] = (have[b.type] ?? 0) + 1;
+    return targets(node.attrs.type, node.attrs.props, { ...rules, have, stays }).flatMap((type) => {
+      const target = asker()?.list.find((b) => b.type === type);
+      return target ? [{ type, label: target.label, icon: target.icon }] : [];
+    });
+  };
+  // The menu's Change type, with those blocks as its next level.
+  const changeRow = (): CardRow | undefined => {
+    const submenu = changeTargets().map((b) => ({ icon: b.icon, label: b.label, action: () => changeBlock(b.type, b.label) }));
+    return submenu.length ? { icon: changeToIcon, label: t.text.changeTo, action: () => {}, submenu } : undefined;
+  };
 
   // The choices that can be made here: no "Edit" without fields (but to where it is edited instead,
   // Block.edit), no move past the start or end. By the template (collections.ts): a locked block is
   // only edited, and the last shown one of a block the page must have cannot be hidden or removed.
-  // From expanded the block's fields are in the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
+  // From expanded the block's fields are in the side panel: a tap opens it, and the menu has no pen (Remove stays in the menu).
   const inPanelNow = () => !inline && editsInPanel(atLeastNow('expanded'), !!block?.fields.length);
   // The block's own menu: Edit, Hide or Show, Move up and down, Remove. A block typed in place has these in the text bar's `⋮` (blockBar.ts); any other block
   // opens them as a row on its card.
@@ -1488,12 +1818,13 @@ function blockCard(
     return [
       block?.fields.length
         ? (!inline || (typeof spec?.blockSettings === 'function' ? spec.blockSettings(node.attrs.props) : spec?.blockSettings)) &&
-          !inPanelNow() && { icon: pencilIcon, label: t.text.blockSettings, action: edit, row: 'settings' as const }
-        : block?.edit && { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
+          !inPanelNow() && { icon: blockSettingsIcon, label: t.text.blockSettings, action: () => edit(), row: 'settings' as const }
+        : block?.edit && { icon: editElsewhereIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
       // A block typed in place that reads a list of the site (Testimonials, Blog posts): the page of the list is in its menu too.
       inline && block?.fields.length && block.edit
-        ? { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) }
+        ? { icon: editElsewhereIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) }
         : undefined,
+      changeRow(),
       block?.shown || (stays && hidden === false)
         ? undefined
         : {
@@ -1504,7 +1835,7 @@ function blockCard(
           },
       ...(locked ? [] : moves(view, i, rules?.locked)),
       { icon: selectAllBlocksIcon, label: t.text.selectBlock, action: () => selectable.start() },
-      stays || inPanelNow() ? undefined : { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
+      stays ? undefined : { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
     ];
   };
   // Selected with other blocks (a mark, a tap, a long press), and moved by dragging its handle, unless the template locks it.
@@ -1526,8 +1857,11 @@ function blockCard(
     // The block's own values that the item's fields depend on (a card's icon, image or video by the block's media).
     const blockValue = () =>
       Object.fromEntries(blockNames.map((n) => [n, node.attrs.props[n] ?? blockFields.find((f) => f.name === n)?.default ?? '']));
+    // The row's other values are under them, read only (a button's text for its style's sample, choiceSamples.tsx); a save writes the
+    // named fields alone (setFields).
     const valueOf = (row: Row, names: string[]) => ({
       ...blockValue(),
+      ...row,
       ...Object.fromEntries(
         names.map((n) => {
           const field = rowFieldsOf([n])[0];
@@ -1611,7 +1945,70 @@ function blockCard(
           : []),
       ];
     };
-    const rowActions = (): BarAction[] => {
+    // A card with an image (Cards, media Image): the image's tools on the bar, as for an image in the text (image tools spec, section 6): Change image,
+    // Crop (the block's one aspect ratio, no chips), Alt text and Remove. From expanded the card's media sheet is the live side panel, with its Alt text field
+    // focused; below it the short alt text sheet is used.
+    const cardImageTools = (): BarAction[] => {
+      const list = rows();
+      if (spec!.grid || single || isDynamic() || active === null || node.attrs.props.media !== 'image' || !spec!.media?.includes('image'))
+        return [];
+      const i = active;
+      const address = String(list[i]?.image ?? '');
+      if (!address) return [];
+      const ratio = ratioProp(node.attrs.props);
+      const own = splitPicture(address);
+      const put = (patch: Row) =>
+        setItems(
+          rows().map((r, j) =>
+            j === i ? (Object.fromEntries(Object.entries({ ...r, ...patch }).filter(([, v]) => v !== '' && v !== undefined)) as Row) : r,
+          ),
+        );
+      // From expanded the card's media sheet opens live beside it at its Alt text field.
+      const openAlt = () => {
+        iconOf = i;
+        dynOpen = false;
+        syncRow(true);
+        reachField(t.blocks.picture.alt);
+      };
+      const live = () => atLeastNow('expanded');
+      return [
+        {
+          kind: 'change-image',
+          label: t.forms.changeImage,
+          action: async () => {
+            const chosen = await pick()?.();
+            if (!chosen) return;
+            // A new image starts as the middle part in the block's ratio (no words), with no alt text of its own.
+            const text = live()
+              ? { alt: '', decorative: false }
+              : ((await asker()?.alt({ src: chosen, alt: '', decorative: false }, 'new')) ?? { alt: '', decorative: false });
+            put({ image: chosen, alt: text.decorative ? '' : text.alt.trim() });
+            if (live()) openAlt();
+          },
+        },
+        {
+          kind: 'crop',
+          label: t.text.crop,
+          action: async () => {
+            const next = await cropView({ src: own.src, format: ratio, crop: own.format === ratio ? own.crop : null, ratios: [ratio] });
+            if (next) put({ image: joinPicture(own.src, next.format, next.crop) });
+          },
+        },
+        {
+          kind: 'alt-text',
+          label: t.blocks.picture.alt,
+          text: true,
+          action: async () => {
+            if (live()) return openAlt();
+            const text = await asker()?.alt({ src: own.src, alt: String(list[i]?.alt ?? ''), decorative: false }, 'edit');
+            if (text) put({ alt: text.decorative ? '' : text.alt.trim() });
+          },
+        },
+        { kind: 'remove', label: t.common.remove, action: () => put({ image: '', alt: '' }) },
+      ];
+    };
+    const rowActions = (): BarAction[] => [...cardImageTools(), ...itemActions()];
+    const itemActions = (): BarAction[] => {
       const list = rows();
       if (spec!.grid) return gridActions(spec!.grid, list as unknown as string[][]);
       // A card's link is the bar's Link, also while the card is still empty (its sheet has the page and the buttons).
@@ -1624,6 +2021,18 @@ function blockCard(
         (active >= list.length || isEmptyRow(list[active]))
       )
         return [{ kind: 'link', label: spec!.texts.link ?? '', action: settings }];
+      // A block with no list and one main link (Video): its Change link opens the sheet at that field, with its text selected.
+      if (single && spec!.texts.changeLink && active !== null)
+        return [
+          {
+            kind: 'change-link',
+            label: spec!.texts.changeLink,
+            action: () => {
+              settings();
+              reachField(spec!.texts.settings ?? '');
+            },
+          },
+        ];
       if (single || isDynamic() || active === null || active >= list.length || isEmptyRow(list[active])) return [];
       const i = active;
       const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: spec!.fields[0] } });
@@ -1750,13 +2159,11 @@ function blockCard(
     const owner = {};
     bar = {
       refresh(shown) {
+        // Change to is in the command palette while the block is active (src/actions.ts), with the same limits as the menu.
+        setChangeToActions(owner, shown ? changeToActions(changeTargets(), changeBlock, t.text.changeToBlock, [t.text.changeTo]) : null);
         if (!shown) return blockBar.hide(owner);
         const action = gear();
-        const split = splitRow(
-          menuItems()
-            .filter((it): it is CardItem => !!it)
-            .map((it) => (it.row === 'settings' ? { ...it, icon: blockSettingsIcon } : it)),
-        );
+        const split = splitRow(menuItems().filter((it): it is CardItem => !!it));
         const state: BlockBarState = {
           name,
           actions: rowActions(),
@@ -1767,7 +2174,10 @@ function blockCard(
         };
         blockBar.show(owner, state);
       },
-      destroy: () => blockBar.hide(owner),
+      destroy: () => {
+        setChangeToActions(owner, null);
+        blockBar.hide(owner);
+      },
     };
     // The settings of the active row (its icon and link), live: from expanded in the side panel while a row is active, below it in a bottom
     // sheet that Edit opens (`open`: a row's slot or Edit; else only an open sheet is updated).
@@ -1801,7 +2211,7 @@ function blockCard(
     // its settings close, and a row with nothing in it is dropped.
     const inside = (target: EventTarget | null) =>
       target instanceof Element &&
-      (dom.contains(target) || !!target.closest('.editor-tools, .editor-menu, .editor-side-sheet, dialog[open]'));
+      (dom.contains(target) || !!target.closest('.editor-tools, .editor-menu, .editor-side-sheet, dialog[open], [data-keeps-block]'));
     const away = (e: Event) => {
       if ((active === null && !dynSelected) || inside(e.target)) return;
       // A dynamic block has no row being typed in: the focus going back to the text (as a sheet opens or closes) is not leaving it, only a tap elsewhere is.
@@ -1832,8 +2242,22 @@ function blockCard(
       document.removeEventListener('focusin', away, true);
     };
   }
+  // A mouse pointing at the block shows its action row over its top (blockRow.ts), taking no space; a touch never points, and a block being dragged or
+  // chosen with others shows none.
+  const pointer = {};
+  dom.addEventListener('pointerenter', (e) => {
+    if (e.pointerType !== 'mouse' || dom.classList.contains('site-block-dragging') || blockSelection.places().length) return;
+    const split = splitRow(
+      menuItems()
+        .filter((it): it is CardItem => !!it)
+        .map((it) => (it.row === 'settings' ? { ...it, icon: blockSettingsIcon } : it)),
+    );
+    blockBar.point(pointer, { host: dom, items: split.row });
+  });
+  dom.addEventListener('pointerleave', () => blockBar.unpoint(pointer));
   // A block typed in place has its tools on the bar through `bar` (rows); any other block is selected by a tap (cardBar).
   const close = inline ? () => {} : cardBar(view, dom, card, name, menuItems, () => inPanelNow() && void edit());
+  reopens.set(dom, (values) => void edit(values));
   // A changed block is drawn anew (update false); taps on the card and its menu are not ProseMirror's.
   return {
     dom,
@@ -1869,6 +2293,7 @@ function blockCard(
     ignoreMutation: () => true,
     destroy: () => {
       close();
+      blockBar.unpoint(pointer);
       selectable.destroy();
       stopAway();
       bar?.destroy();
@@ -1881,7 +2306,7 @@ function blockCard(
 }
 
 export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
-  { value, onChange, addImage, blocks, sheet: sheetProp, short, h1, startFocused, onH1, looks, sections, frame },
+  { value, onChange, addImage, blocks, sheet: sheetProp, short, h1, startFocused, onH1, looks, sections, frame, onPreview, viewOnSite },
   ref,
 ) {
   const spaced = !!blocks;
@@ -1895,6 +2320,16 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   h1Changed.current = onH1;
   const sheeted = useRef(blocks ?? sheetProp);
   sheeted.current = blocks ?? sheetProp;
+  // The text is loaded: the sheet's hidden copy of this page (sheetCopy.mjs) can be offered, once the form knows the page (`copy`).
+  const [ready, setReady] = useState(false);
+  const copyKey = (blocks ?? sheetProp)?.copy;
+  useEffect(() => {
+    const view = ready && editor.current?.action((ctx) => ctx.get(editorViewCtx));
+    if (view && copyKey) sheeted.current?.offer((index) => sheetTarget(view, index));
+  }, [ready, copyKey]);
+  // The Library's picker for an image's Change image (imageCard).
+  const picking = useRef(addImage);
+  picking.current = addImage;
   const looked = useRef(looks);
   looked.current = looks;
   // What applies where the cursor is (activeOf), marked in the toolbar.
@@ -1912,6 +2347,16 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // The `⋮` button, and the menu under it while it is open; the Alignment and Color menus of its rows open under it too.
   const moreButton = useRef<HTMLButtonElement>(null);
   const [moreAt, setMoreAt] = useState<HTMLElement | null>(null);
+  // The ⋮ menu's next level (a row's submenu: Change type), shown in place of its rows with a back row; null: its own rows.
+  const [moreLevel, setMoreLevel] = useState<CardRow | null>(null);
+  useEffect(() => void (!moreAt && setMoreLevel(null)), [moreAt]);
+  // The first row of the level that was opened or gone back to has the focus, so the keyboard goes on from there.
+  const levelShown = useRef(false);
+  useEffect(() => {
+    if (!levelShown.current && !moreLevel) return;
+    levelShown.current = !!moreLevel;
+    document.querySelector<HTMLElement>('.editor-menu [role^="menuitem"]')?.focus({ preventScroll: true });
+  }, [moreLevel]);
   const [colorAt, setColorAt] = useState<HTMLElement | null>(null);
   // The bar's width, in dp, measured with a ResizeObserver (never a timer): how many tools fit (textBar.mjs).
   const [barWidth, setBarWidth] = useState(0);
@@ -1975,10 +2420,28 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           }),
         }),
     );
-    const imageView = $view(imageSchema.node, () => (node, view, getPos) => imageCard(node, view, getPos, () => sheeted.current));
+    const imageView = $view(
+      imageSchema.node,
+      () => (node, view, getPos) =>
+        imageCard(
+          node,
+          view,
+          getPos,
+          () => sheeted.current,
+          () => picking.current,
+        ),
+    );
     const cardView = $view(
       siteBlockSchema.node,
-      () => (node, view, getPos) => blockCard(node, view, getPos, () => sheeted.current, cards.current),
+      () => (node, view, getPos) =>
+        blockCard(
+          node,
+          view,
+          getPos,
+          () => sheeted.current,
+          cards.current,
+          () => picking.current,
+        ),
     );
     // The look of each part on the site, as data-look on it.
     const looking = $prose(
@@ -2014,6 +2477,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(tapBelow)
       .use(checkToggle)
       .use(history)
+      .use(liveTracking)
       .use(clipboard);
     // A page (h1) keeps its first heading as its H1 and has no other H1 (firstHeading.mjs); a blog post's H1 is its title.
     if (h1) made = made.use(firstHeading);
@@ -2036,6 +2500,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           view.focus();
         });
       loaded = true;
+      setReady(true);
     });
     return () => {
       cancelled = true;
@@ -2227,13 +2692,16 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     }
   }
 
-  // The sheet with the settings of the section the cursor is in (its colour, image and width), then those set.
+  // The sheet with the settings of the section the cursor is in (its colour and width, and an H2's image), then those set.
   async function sectionSettings() {
     let current: ReturnType<typeof sectionHeading> = null;
     editor.current?.action((ctx) => void (current = sectionHeading(ctx.get(editorViewCtx).state)));
     const at = current as ReturnType<typeof sectionHeading>;
     if (!at) return;
-    const answered = await holdWhile(Promise.resolve((blocks ?? sheetProp)?.section(at, { image: true })));
+    // From expanded the sheet is live: it changes the heading at once (liveSection), and answers null.
+    const view = editor.current?.action((ctx) => ctx.get(editorViewCtx));
+    const live = view && (() => liveSection(view, at.pos));
+    const answered = await holdWhile(Promise.resolve((blocks ?? sheetProp)?.section(at, { image: at.level === 2, width: true, live })));
     if (!answered) return;
     editor.current?.action((ctx) => {
       const view = ctx.get(editorViewCtx);
@@ -2242,14 +2710,51 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     });
   }
 
-  // A new image from the gallery, then the sheet with it and what it shows, where it can still be
-  // changed or left out (the browser's own box for what it shows without a sheet).
+  // A new image from the gallery. From expanded the image goes in at once and its sheet opens live beside it with the Alt text field focused, with no
+  // Insert (Undo or Remove takes it out). Below expanded the short sheet for its alt text comes first (Skip keeps the image without a text of its own: the
+  // Library's text is used), then the image goes in as Original. The crop view does not open by itself (image tools spec, decision 5 and 9.1).
   async function image() {
     const src = await holdWhile(addImage!());
     if (!src) return;
     const sheet = blocks ?? sheetProp;
-    const picked = await sheet?.edit(IMAGE, { src, alt: '' }, true);
-    if (picked && picked !== 'remove') run(insertImageCommand, { src: imageSrc(picked), alt: String(picked.alt ?? '').trim() });
+    if (sheet && liveSheet('fields', atLeastNow('expanded'))) {
+      run(insertImageCommand, { src, alt: '' });
+      const view = editor.current?.action((ctx) => ctx.get(editorViewCtx));
+      if (!view) return;
+      // The image just put in: the one with this address nearest the cursor, which is after it.
+      let at = -1;
+      const cursor = view.state.selection.from;
+      view.state.doc.descendants((n, pos) => {
+        if (n.type.name === 'image' && n.attrs.src === src && (at < 0 || Math.abs(pos - cursor) < Math.abs(at - cursor))) at = pos;
+      });
+      if (at >= 0) void sheet.edit(IMAGE, { src, alt: '' }, false, () => liveImage(view, at), 'alt');
+      return;
+    }
+    const own = (await holdWhile(sheet?.alt({ src, alt: '', decorative: false }, 'new') ?? Promise.resolve(null))) ?? {
+      alt: '',
+      decorative: false,
+    };
+    run(insertImageCommand, { src: imageSrc({ src, decorative: own.decorative }), alt: own.alt.trim() });
+    // The sheet closes as it answers, and the browser then puts the focus back in the text with the caret at the start of it, which the text takes
+    // as its selection a moment later. Once no sheet is open the text takes the focus again with its caret after the image, so the next thing typed
+    // or put in comes after the image.
+    const view = editor.current?.action((ctx) => ctx.get(editorViewCtx));
+    if (!view) return;
+    const caret = view.state.selection.from;
+    const back = () => {
+      if (view.isDestroyed) return;
+      if (view.state.selection.from !== caret && caret <= view.state.doc.content.size)
+        view.dispatch(view.state.tr.setSelection(Selection.near(view.state.doc.resolve(caret))));
+      view.focus();
+    };
+    const sheetOpen = () => !!document.querySelector('dialog[open]');
+    if (!sheetOpen()) return back();
+    const closed = new MutationObserver(() => {
+      if (sheetOpen()) return;
+      closed.disconnect();
+      back();
+    });
+    closed.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['open'] });
   }
 
   // Puts the chosen block where the cursor is (a paragraph is split around it), or after the block
@@ -2263,14 +2768,15 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       have = blocksOf(doc).map((b) => b.type);
       doc.descendants((n) => void (n.type.name === 'image' && have.push(IMAGE)));
     });
-    const chosen = await holdWhile(blocks!.choose({ image: !!addImage, have }));
+    // live: from expanded a block with fields comes back at once (`open`), and its sheet opens live beside it once it is in.
+    const chosen = await holdWhile(blocks!.choose({ image: !!addImage, have, live: true }));
     if (!chosen) return;
     if (chosen.type === IMAGE) return image();
     editor.current?.action((ctx) => {
       const view = ctx.get(editorViewCtx);
       const { state } = view;
       const node = siteBlockSchema.type(ctx).create({ type: chosen.type, props: chosen.props });
-      if (typedInPlace(blocks!.list.find((b) => b.type === chosen.type))) fresh.add(chosen.props);
+      if (typedInPlace(blocks!.list.find((b) => b.type === chosen.type))) fresh.set(chosen.props, 0);
       // At the top level of the text, never inside a list item or a quote (a block there is drawn indented and written indented).
       // `end`: where the new block ends, when the cursor must be moved past it (-1: it is in text already).
       let { tr, end } = insertBlock(state, node);
@@ -2290,6 +2796,10 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       }
       view.dispatch(tr.scrollIntoView());
       view.focus();
+      if (!chosen.open) return;
+      let at = -1;
+      view.state.doc.forEach((n: Node, offset: number) => void (n === node && (at = offset)));
+      if (at >= 0) void blocks!.edit(chosen.type, chosen.props, false, () => liveBlock(view, at, chosen.type));
     });
   }
 
@@ -2375,8 +2885,92 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       : [];
   const blockMenu = block_?.menu ?? [];
   // Undo, Redo and Insert block (never in the ⋮) stand at the right end of the bar in every place, then the ⋮ (owner decision, 14 Nov). Section
-  // settings is a row of the ⋮ (always there while it applies).
+  // settings is a row of the ⋮ (always there while it applies). A page's Preview stands before Undo while every tool fits, else it is in the ⋮;
+  // View on site is always in the ⋮, in its last group (one save while writing, 3.3).
   const fixedIds = ['undo', 'redo', ...(hasInsert ? ['insert'] : [])];
+  const spareIds = onPreview ? ['preview'] : [];
+  // The text's actions for the command palette (textActions.ts): the functions the bar runs, called through a ref so they are always the latest, and the
+  // names the bar draws. Registered while the editor is mounted (one editor owns them: a second one on the same screen leaves them to the first).
+  const textApi = useRef<TextApi>(null!);
+  textApi.current = {
+    bold: () => run(toggleStrongCommand),
+    italic: () => run(toggleEmphasisCommand),
+    link,
+    undo: () => run(undoCommand),
+    redo: () => run(redoCommand),
+    setKind,
+    align: (align) => editor.current?.action((ctx) => alignSelection(ctx.get(editorViewCtx), align)),
+    sectionSettings: () => void sectionSettings(),
+    insertBlock: blocks ? () => void block() : undefined,
+    insertImage: addImage ? () => void image() : undefined,
+    preview: onPreview,
+    viewOnSite: viewOnSite ? () => void window.open(viewOnSite, '_blank', 'noopener') : undefined,
+  };
+  const canInsertBlock = !!blocks;
+  const canPreview = !!onPreview;
+  const canViewOnSite = !!viewOnSite;
+  const canInsertImage = !!addImage;
+  useEffect(() => {
+    const call =
+      (name: 'bold' | 'italic' | 'link' | 'undo' | 'redo' | 'sectionSettings' | 'insertBlock' | 'insertImage' | 'preview' | 'viewOnSite') =>
+      () =>
+        textApi.current[name]?.();
+    const labels: TextLabels = {
+      bold: t.text.bold,
+      italic: t.text.italic,
+      link: t.text.link,
+      undo: t.text.undo,
+      redo: t.text.redo,
+      styles: {
+        h1: t.text.pageHeading,
+        h2: t.text.heading,
+        h3: t.text.subheading,
+        large: t.text.bodyLarge,
+        medium: t.text.bodyMedium,
+        small: t.text.bodySmall,
+        label: t.text.label,
+        quote: t.text.quote,
+      },
+      lists: { bullet: t.text.bulletList, check: t.text.checkList, ordered: t.text.orderedList },
+      align: { left: alignLabel('left'), center: alignLabel('center'), right: alignLabel('right') },
+      sectionSettings: t.text.sectionSettings,
+      insertBlock: t.text.insertBlock,
+      insertImage: t.text.image,
+      preview: t.preview.button,
+      viewOnSite: t.app.viewOnSite,
+    };
+    const list = textActions(
+      {
+        bold: call('bold'),
+        italic: call('italic'),
+        link: call('link'),
+        undo: call('undo'),
+        redo: call('redo'),
+        setKind: (kind) => textApi.current.setKind(kind),
+        align: (align) => textApi.current.align(align),
+        sectionSettings: call('sectionSettings'),
+        insertBlock: canInsertBlock ? call('insertBlock') : undefined,
+        insertImage: canInsertImage ? call('insertImage') : undefined,
+        preview: canPreview ? call('preview') : undefined,
+        viewOnSite: canViewOnSite ? call('viewOnSite') : undefined,
+      },
+      labels,
+    ).filter((a) => !actions.get(a.id));
+    const dispose = list.length ? actions.register(list) : () => {};
+    // After the palette has closed, an action takes the focus back to the text first.
+    editorCtx.setFocus(() => editor.current?.action((ctx) => ctx.get(editorViewCtx).focus()));
+    return () => {
+      dispose();
+      editorCtx.clear();
+    };
+  }, [canInsertBlock, canInsertImage, canPreview, canViewOnSite]);
+  // Where the user is, for the palette (editorCtx.ts): the text's actions apply while no block is active; what applies at the cursor; the heading levels.
+  const noBlock = !block_;
+  const activeNames = active.join();
+  const levelNames = headingLevels.join();
+  useEffect(() => {
+    editorCtx.set({ text: noBlock, section: settingsShown, active, levels: headingLevels });
+  }, [noBlock, settingsShown, activeNames, levelNames]);
   useLayoutEffect(() => {
     const bar = toolbar.current!;
     const measure = () => setBarWidth(bar.clientWidth);
@@ -2387,12 +2981,18 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   }, []);
   // A menu of one of the ⋮ menu's rows is open under the ⋮ button.
   const underMore = [kindsAt?.at, alignAt, colorAt].some((at) => !!at && at === moreButton.current);
+  // The text tools (Alt text) are as wide as their label in this language: planned and drawn at that width.
+  const textWidths = Object.fromEntries(
+    (block_?.actions ?? []).filter((a) => a.text).map((a) => [`block:${a.kind}`, textButtonWidth(a.label)]),
+  );
   const plan = planBar({
     // The count with its cross is two buttons wide (TOOL_WIDTH in textBar.mjs).
     width: barWidth,
     context: contextIds,
     fixed: fixedIds,
-    more: blockMenu.length > 0 || settingsShown,
+    spare: spareIds,
+    more: blockMenu.length > 0 || settingsShown || !!viewOnSite,
+    widths: textWidths,
   });
   // The bar's motion (barMotion.mjs): the contextual tools slide in from the left and push the main tools right when a context starts, slide out
   // when it ends, and fade in place from one context to another. FLIP: the new layout is measured, then the old place is animated from, with the
@@ -2462,7 +3062,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     const row = block_!.actions.find((a) => a.kind === id)!;
     return {
       label: row.label,
-      icon: rawIcon(barIcons[row.kind]),
+      icon: row.text ? undefined : rawIcon(barIcons[row.kind]),
+      text: row.text,
       action: row.action,
       pressed: row.pressed,
       disabled: row.disabled,
@@ -2471,7 +3072,16 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   };
   const toolOf = (
     id: string,
-  ): { label: string; icon: typeof TextB; action: () => void; on?: string; pressed?: boolean; disabled?: boolean; reason?: string } => {
+  ): {
+    label: string;
+    icon?: typeof TextB;
+    text?: boolean;
+    action: () => void;
+    on?: string;
+    pressed?: boolean;
+    disabled?: boolean;
+    reason?: string;
+  } => {
     // The block's tools are named 'block:<kind>' (not the text's 'link').
     if (id.startsWith('block:')) return blockTool(id.slice(6));
     switch (id) {
@@ -2482,13 +3092,15 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       case 'link':
         return { label: t.text.link, icon: LinkSimple, action: link, on: 'link' };
       case 'insert':
-        return { label: insertLabel, icon: blocks ? AddIcon : Image, action: blocks ? block : image };
+        return { label: insertLabel, icon: blocks ? AddBlockIcon : Image, action: blocks ? block : image };
       case 'undo':
         return { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand) };
       case 'redo':
         return { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand) };
+      case 'preview':
+        return { label: t.preview.button, icon: PreviewIcon, action: () => onPreview?.() };
       default:
-        return { label: t.text.sectionSettings, icon: SectionSettingsIcon, action: sectionSettings };
+        return { label: t.text.sectionSettings, icon: rawIcon(settingsHereIcon), action: sectionSettings };
     }
   };
   const menuOf = (id: string) => ({ style: 'style', list: 'list' })[id] as KindGroup | undefined;
@@ -2535,15 +3147,17 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       );
     if (id === 'block:count' && block_?.count)
       return <ToolbarButton key={id} icon={CloseIcon} label={block_.count.label} count={block_.count.n} onClick={block_.count.action} />;
-    const { label, icon, action, on, pressed, disabled, reason } = toolOf(id);
+    const { label, icon, text, action, on, pressed, disabled, reason } = toolOf(id);
     return (
       <ToolbarButton
         key={id}
         icon={icon}
         label={label}
+        text={text ? { width: toolWidth(id, textWidths) } : undefined}
         selected={on ? active.includes(on) : pressed}
         disabled={disabled}
         reason={reason}
+        shortcutKey={TOOL_KEYS[id]}
         onClick={action}
       />
     );
@@ -2587,7 +3201,14 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // In the `⋮` menu the context's tools come first, then a divider, then the main tools.
   const MORE_ORDER = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color'];
   const moreContext = [...plan.more.context].sort((a, b) => MORE_ORDER.indexOf(a) - MORE_ORDER.indexOf(b));
-  const moreMain = [...plan.more.fixed, ...(settingsShown ? ['settings'] : [])];
+  // Preview comes after Section settings.
+  const moreMain = [
+    ...plan.more.fixed.filter((id) => id !== 'preview'),
+    ...(settingsShown ? ['settings'] : []),
+    ...plan.more.fixed.filter((id) => id === 'preview'),
+  ];
+  // The ⋮ menu's groups, each after a divider: the context's tools, the main tools, the block's own menu, then View on site.
+  const moreGroups = moreContext.length + moreMain.length + blockMenu.length;
 
   return (
     <div className="editor-text-box rounded-panel bg-surface-container-lowest">
@@ -2637,16 +3258,55 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           </div>
         </div>
       </Toolbar>
-      <Menu popup="end" anchor={moreAt} label={t.text.more} onClose={() => setMoreAt(null)}>
-        {moreContext.map(moreRows)}
-        {moreContext.length > 0 && moreMain.length > 0 && <MenuDivider />}
-        {moreMain.map(moreRows)}
-        {blockMenu.length > 0 && (moreContext.length > 0 || moreMain.length > 0) && <MenuDivider />}
-        {blockMenu.map((row) => (
-          <MenuItem key={row.label} icon={rawIcon(row.icon)} onClick={() => row.action(false)}>
-            {row.label}
-          </MenuItem>
-        ))}
+      <Menu
+        popup="end"
+        anchor={moreAt}
+        label={moreLevel?.label ?? t.text.more}
+        onBack={moreLevel ? () => setMoreLevel(null) : undefined}
+        onClose={() => setMoreAt(null)}
+      >
+        {moreLevel ? (
+          <>
+            {/* The next level: back to the menu's rows (Left arrow too), then the submenu's rows. */}
+            <MenuItem icon={rawIcon(changeToIcon)} back label={t.text.backToMenu(moreLevel.label)} onClick={() => setMoreLevel(null)}>
+              {moreLevel.label}
+            </MenuItem>
+            <MenuDivider />
+            {moreLevel.submenu!.map((sub) => (
+              <MenuItem
+                key={sub.label}
+                icon={sub.icon}
+                onKeyDown={(e) => e.key === 'ArrowLeft' && (e.preventDefault(), setMoreLevel(null))}
+                onClick={sub.action}
+              >
+                {sub.label}
+              </MenuItem>
+            ))}
+          </>
+        ) : (
+          <>
+            {moreContext.map(moreRows)}
+            {moreContext.length > 0 && moreMain.length > 0 && <MenuDivider />}
+            {moreMain.map(moreRows)}
+            {blockMenu.length > 0 && (moreContext.length > 0 || moreMain.length > 0) && <MenuDivider />}
+            {blockMenu.map((row) => (
+              <MenuItem
+                key={row.label}
+                icon={rawIcon(row.icon)}
+                opens={!!row.submenu}
+                onClick={() => (row.submenu ? setMoreLevel(row) : row.action(false))}
+              >
+                {row.label}
+              </MenuItem>
+            ))}
+            {viewOnSite && moreGroups > 0 && <MenuDivider />}
+            {viewOnSite && (
+              <MenuItem icon={ViewOnSiteIcon} onClick={() => void window.open(viewOnSite, '_blank', 'noopener')}>
+                {t.app.viewOnSite}
+              </MenuItem>
+            )}
+          </>
+        )}
       </Menu>
       <Menu popup="start" anchor={alignAt} label={t.text.alignment} onClose={() => setAlignAt(null)}>
         {(Object.keys(ALIGN_FACES) as Align[]).map((align) => (

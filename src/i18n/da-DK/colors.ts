@@ -74,6 +74,6 @@ export const colors: Messages['colors'] = {
   },
   standard: 'Nulstil til standardfarver',
   standardHint: 'Gælder, når du gemmer.',
-  icons: 'Rediger logo og ikon under Virksomheden › Logo og ikon.',
+  icons: 'Rediger logo og favicon under Virksomheden › Logo og favicon.',
   commit: 'Editor: nye farver',
 };

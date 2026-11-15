@@ -56,6 +56,14 @@ owner sees screenshots in the pull request:
   squash-merges as usual under **Merging** (the owner never merges). *What to change*: the PM sends the change to the
   session of the pull request, or starts a new session with the whole task and the pull request's link when that session
   is gone; the new head gets new screenshots and a new report.
+
+  The PM opens the screenshot files itself and looks at them: it fetches the orphan branch `pr-screenshots/<number>`
+  (`git fetch origin pr-screenshots/<number>`, then `git archive` its `shots/` folder into the session's scratchpad
+  directory) and opens each PNG with the Read tool, which shows the image. It never reports on screenshots it has not
+  opened and never relies on a worker's description of them. Its report then says in one or two lines what the images
+  show (does the change match what the pull request says, anything odd), and for a screen the owner has to judge it
+  also sends the images with the file-sending tool (`SendUserFile`, `display: render`), so the owner sees them in the
+  conversation and not only on GitHub. A change nobody sees needs none of this.
 - **A change nobody sees** (docs, tests, CI, Worker internals, tooling) needs no screenshots and no approval, and is
   merged as usual.
 - There is no separate "screenshots" session and no Artifact page: the images live in the pull request.
@@ -101,10 +109,49 @@ owner) and keep it current.
 
 The PM never codes. No edits to source, tests, docs or `CLAUDE.md` in its own session. Every change, however small,
 goes to a new session (`create_session`) with the whole task in its first prompt. Every session the PM starts has a
-title that starts with the version, for example `0.16 plan: MCP and Appstore sections`. Its first prompt also carries
+title that starts with the version, for example `0.16 plan: MCP and Appstore sections`.
+
+**Every brief starts with the `developer` skill.** The first sentence of the first prompt of every session the PM
+starts (build, fix or docs), copied word for word: "Before anything else, load the `developer` skill
+(`.claude/skills/developer/SKILL.md`) and follow it; it says which other skills to load." The `developer` skill holds the
+rules every developer session follows (the skills by task, the pull request's duties, the owner's design rules); the
+brief does not repeat them. The PM checks that every active session did it: it asks a session that did not announce
+"Using developer" to load the skill, and does not merge a pull request from a session that never did.
+
+The first prompt also carries
 this rule, in these words: "When a change the owner can see (the editor or the site) is done and `check` is green, add
 before and after screenshots of every changed screen to a comment on your own pull request, as the `pm` skill's
 *Screenshots in the pull request* says, and tell the PM with the link and head sha. A change nobody sees needs none."
+
+When the change builds a new component or edits an existing component's design (look, measurements, behaviour, states),
+the brief also tells the session to read the M3 pages with Playwright (skill `material-3`, *Reading the real pages*) and
+to say in its pull request which pages were read. The PM checks that the pull request says it before merging; a pull
+request that does not is not merged. A session that only uses an existing theme component as it is needs no reading.
+
+When the change touches CSS, layout, forms, accessibility or performance, the brief also tells the session to use Modern
+Web Guidance (skill `developer`, *4a*) and to name the guides it read in its pull request. The PM checks that the pull
+request names them. When a session sends a conflict between a guide and the owner's rules, Material 3 or a theme
+component, the PM does not decide: it brings the conflict to the owner and tells the session the answer.
+Owner rule, 15 Nov: "We follow the best practices in modern web from Google." Where a guide covers behaviour, markup, accessibility or performance, we follow it; Material 3 still decides how things look and are named.
+
+**The order of priority.** Owner rule, 15 Nov 2026: "Priority: 1 Modern web, 2 MD3 Expressive, 3 MD3, 4 MD2 with MD3 styling, 5 self-made. Remember the priority and stop asking me all the questions you can answer yourself. The fifth priority is self-made and that is a decision I need to take."
+
+1. Where two conflict, the lower number wins: 1 Modern web (Chrome's Modern Web Guidance: behaviour, markup, accessibility, performance), 2 Material 3 Expressive (where a component has an Expressive variant; `material-3` rule 4), 3 Material 3 (baseline), 4 Material 2 with Material 3 styling, 5 self-made.
+2. The PM, and every session it briefs, decides with this order itself and does not ask the owner a question the order answers.
+3. Only a priority 5 solution (nothing from 1 to 4 covers it, so we would make it ourselves) is the owner's decision. The PM then asks the owner once, with the evidence and a recommendation.
+4. A real deviation from 1 to 4 is still recorded in `docs/material-deviations.md` (skill `material-3`).
+
+**No new component without the owner.** The PM never lets a session build a new component, or fix one in the theme,
+without the owner's approval. A session that finds a component missing or off Material 3 stops and reports to the PM
+(skill `developer`, *The hard rule: no own components*). The PM asks the owner in a short message: what is missing, why,
+and the closest existing component. Only after the owner's explicit yes does it tell the session to build it in the
+theme (M3 pages read with Playwright, shown in the theme's component gallery), and it notes who approved and the date.
+
+**The Components line.** Every pull request description has a *Components* line (skill `developer`): each component it
+uses and whether it is existing, fixed in the theme with owner approval or new in the theme with owner approval (who,
+the date, and the M3 pages read). The PM does not merge a pull request without that line, or one that adds a
+screen-specific component (own classes, markup or CSS for a control or surface, a copy of a component, or a variant for
+one screen) or a theme component the owner did not approve; it sends the session back to the theme.
 
 **A PM may only start Haiku and Sonnet sessions.** Every `create_session` sets `model` to a Haiku or Sonnet model (`claude-haiku-5-5` or `claude-sonnet-5-5`), and a PM never starts a session on Opus, Fable or the inherited default, and never changes a session's model to anything higher.
 
@@ -163,7 +210,7 @@ owner still releases every version.
 
 ## Reports
 
-Short, English only (`CLAUDE.md`), and only what the owner has to do or decide. A pull request the owner has to act on is always assigned to them, and the report gives its link.
+Short, English only (`CLAUDE.md`), and only what the owner has to do or decide. A pull request the owner has to act on is always assigned to them, and the report gives its link. A report on a change the owner sees also shows the screenshots (*The owner approves what the owner sees*).
 
 Every suggestion, question or decision the PM puts to the owner follows Simon Sinek's Golden Circle ("Start with Why"):
 a title that names the action, then three parts, **one short sentence each**, always in this order:

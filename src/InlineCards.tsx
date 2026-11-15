@@ -15,7 +15,7 @@ import InlineItems, { InlineField, InlineSlot, type Item } from './InlineItems';
 import type { InlineViewProps } from './inlineViews';
 import { sharedIn } from './shared';
 import shared from './standard/cards/shared';
-import { shownCards, type LinkCard, type LinkCardProps } from './standard/cards/view';
+import { ratioProp, shownCards, type LinkCard, type LinkCardProps } from './standard/cards/view';
 import { cardKinds, type CardKind } from '@theme/ui/Card';
 import Buttons from '@theme/blocks/buttons/Buttons';
 import { CardMedia } from '@theme/blocks/cards/LinkCards';
@@ -24,7 +24,7 @@ import { CardMedia } from '@theme/blocks/cards/LinkCards';
 const hasMedia = (card: LinkCard) => !!(card.icon || card.image || card.video);
 
 export default function InlineCards({ items, props, data, active, focus, onChange, onSettings, onIcon, onProps }: InlineViewProps) {
-  const cards = shownCards(items as LinkCardProps[], data, props.media);
+  const cards = shownCards(items as LinkCardProps[], data, props.media, ratioProp(props));
   const type: CardKind = cardKinds.find((k) => k === props.design) ?? 'outlined';
   const colored = type === 'filled' && props.color ? `block-cards-${props.color}` : undefined;
   const media = cards[0]?.media ?? 'icon';
@@ -89,6 +89,7 @@ export default function InlineCards({ items, props, data, active, focus, onChang
         start={3}
         add={t.blocks.cards.addCard}
         onChange={onChange}
+        paste="text"
         wrap={(list) => <ul className={['block-cards', 'inline-cards', colored].filter(Boolean).join(' ')}>{list}</ul>}
         renderItem={({ item, index: i, here, next, field }) => {
           const card = cards[i];
@@ -105,7 +106,13 @@ export default function InlineCards({ items, props, data, active, focus, onChang
               >
                 {card && hasMedia(card) ? (
                   // A media that is set is changed by a tap on it, on any card: its picker, to replace or remove it, and the card is the active one.
-                  <button type="button" className="inline-card-media" aria-label={t.blocks.cards.media} onClick={() => onIcon(i)}>
+                  // An image is its own tap target: a tap selects the card, and the bar has the image's tools (Change image, Crop, Alt text, Remove).
+                  <button
+                    type="button"
+                    className="inline-card-media"
+                    aria-label={t.blocks.cards.media}
+                    onClick={() => (card.image ? !here && onChange({ active: i }) : onIcon(i))}
+                  >
                     <CardMedia card={card} />
                   </button>
                 ) : (
@@ -134,7 +141,10 @@ export default function InlineCards({ items, props, data, active, focus, onChang
                   {field('title', t.blocks.cards.title, next ? t.blocks.cards.newCard : t.blocks.cards.title)}
                 </span>
                 <span className="block-card-subhead">{field('subhead', t.blocks.cards.subhead, t.blocks.cards.subhead)}</span>
-                <span className="block-card-text">{field('text', t.blocks.cards.text, t.blocks.cards.text)}</span>
+                {/* The text is optional: a card without one has no empty text area unless it is the one being typed in. */}
+                {(here || next || String(item.text ?? '').trim() !== '') && (
+                  <span className="block-card-text">{field('text', t.blocks.cards.text, t.blocks.cards.text)}</span>
+                )}
                 {card?.href && <span className="block-card-more">{more}</span>}
                 {!card?.href && here && buttonsOf(i, item)}
                 {!card?.href && !here && (card?.buttons.length ?? 0) > 0 && (

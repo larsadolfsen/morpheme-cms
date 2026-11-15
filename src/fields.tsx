@@ -26,7 +26,7 @@ import {
   MultiChoice,
   SupportingText,
   PhoneField,
-  SegmentedButton,
+  ChoiceGroup,
   Select,
   SheetActions,
   SheetBody,
@@ -59,7 +59,8 @@ import { ToolSelect } from './ToolSelect';
 import { MoveButtons } from './MoveButtons';
 import { movedList } from './moveItem.mjs';
 import { iconColorOf, iconColorOptions } from './iconColor';
-import { clean, inPairs, inUse, newItem, phoneParts, phoneText, problemAt, problemOf, type Around, type Problem } from './check';
+import { choiceSample, sampleTextOf } from './choiceSamples';
+import { clean, fieldProblem, inPairs, inUse, newItem, phoneParts, phoneText, problemAt, type Around, type Problem } from './check';
 import { Icon, useAllIconNames } from './icon';
 import { t } from './i18n';
 import { shownLibraryAlt } from './imageAlt.mjs';
@@ -323,8 +324,12 @@ function FieldControl({ field, value, onChange }: Props) {
   const own = useContext(PathHere) === field.name;
   const id = useId();
   const text = value == null ? '' : String(value);
-  // What is wrong with the text, shown under it once it has been typed.
-  const [wrong, setWrong] = useState<string | null>(null);
+  // What is wrong with the value by the same checks Save makes (fieldProblem): the browser's own validity of a text, number
+  // or string field (setCustomValidity in the theme's text field, so the field is marked by `:user-invalid` once it has been
+  // worked in and is never wrong while Save passes), and the mark at once when Save stopped at this field (useWrongField).
+  const wrongHere = useContext(WrongField)?.path === useContext(PathHere);
+  const found = fieldProblem(field, value);
+  const wrong: { invalid?: string; problem?: string } = { invalid: found?.line, problem: wrongHere ? found?.line : undefined };
   // A phone number's country code (Field.phone), the last it had: kept when the number is emptied,
   // and when it is picked before the number is typed.
   const [pickedCode, setPickedCode] = useState(() => (field.phone && text.trim() ? phoneParts(field, text)[0] : undefined));
@@ -337,7 +342,6 @@ function FieldControl({ field, value, onChange }: Props) {
   const inField: InField = {
     label: field.label,
     hint: fromLibrary ? t.media.altUsing : hintOf(field, text),
-    problem: wrong ? `${wrong}.` : undefined,
     limit: field.max,
   };
   let inside = false;
@@ -377,6 +381,7 @@ function FieldControl({ field, value, onChange }: Props) {
         <TextArea
           id={id}
           {...inField}
+          {...wrong}
           rows={4}
           value={text}
           placeholder={fromLibrary ?? field.placeholder?.(context.site)}
@@ -399,9 +404,9 @@ function FieldControl({ field, value, onChange }: Props) {
         <TextField
           id={id}
           {...inField}
+          {...wrong}
           type="number"
           inputMode="numeric"
-          min={0}
           value={text}
           onChange={(e) => onChange(e.target.value === '' ? '' : Number(e.target.value))}
         />
@@ -433,7 +438,12 @@ function FieldControl({ field, value, onChange }: Props) {
       if (field.segments) {
         // Without a value (saved before the field was there), its default, as the fields that depend on it have it (inUse).
         const shown = text || String(field.default ?? '');
-        control = <SegmentedButton label={field.label} value={shown} options={offered} dots={field.dots} onChange={onChange} />;
+        // A look's sample on each row of the list (Field.sample), with the entry's own text (a button's).
+        const sampleLabel = field.sample ? sampleTextOf(field.sample, around?.value, context) : undefined;
+        const choices = field.sample
+          ? offered.map((o) => ({ ...o, sample: choiceSample(field.sample!, o.value, { label: sampleLabel }) }))
+          : offered;
+        control = <ChoiceGroup label={field.label} value={shown} options={choices} dots={field.dots} labelHidden onChange={onChange} />;
         // A saved icon color that is now below 3:1 on the page keeps its color; the field says so (not a block).
         if (colored?.low)
           control = (
@@ -562,6 +572,7 @@ function FieldControl({ field, value, onChange }: Props) {
         <TextField
           id={id}
           {...inField}
+          {...wrong}
           value={number}
           placeholder={fromLibrary ?? field.placeholder?.(context.site)}
           inputMode={field.digitsInPairs ? 'tel' : field.type === 'string' && field.name === 'email' ? 'email' : undefined}
@@ -569,8 +580,6 @@ function FieldControl({ field, value, onChange }: Props) {
             const typed = full(e.target.value);
             onChange(typed);
             if (field.phone && typed.trim()) setPickedCode(phoneParts(field, typed)[0]);
-            // Once shown, the problem goes as soon as it is put right.
-            if (wrong) setWrong(problemOf(field, typed.trim()));
           }}
           // A text with a form is checked once it is typed (without spaces around it), and a number
           // in pairs is written so.
@@ -583,7 +592,6 @@ function FieldControl({ field, value, onChange }: Props) {
                       ? addressOf(text, field.address) || text.trim()
                       : text.trim();
                   if (typed !== text) onChange(typed);
-                  setWrong(problemOf(field, typed));
                 }
               : undefined
           }
@@ -598,7 +606,6 @@ function FieldControl({ field, value, onChange }: Props) {
               if (number.trim()) {
                 const typed = inPairs(field, phoneText(field, c, number));
                 onChange(typed);
-                setWrong(problemOf(field, typed));
               }
             }}
           >
@@ -614,7 +621,6 @@ function FieldControl({ field, value, onChange }: Props) {
       label={field.label}
       htmlFor={id}
       hint={hintOf(field, text)}
-      problem={wrong ? { id: `${id}-problem`, text: wrong } : undefined}
       count={field.max ? { length: text.length, max: field.max } : undefined}
     >
       {control}
@@ -682,7 +688,7 @@ function MarkdownField({ value, onChange }: { value: string; onChange: (v: unkno
   );
 }
 
-// The same with the blocks its template allows (Field.template: a "Banner"'s image and "Buttons"), put in with "+"
+// The same with the blocks its template allows (Field.template: an image and "Buttons"), put in with "+"
 // as in a page's text, in the sheet of the blocks (BlockDialog.tsx) over the sheet or form the field is in. An image
 // only when the template has 'image', without a format or crop of its own.
 function MarkdownWithBlocks({ value, template, onChange }: { value: string; template: Template; onChange: (v: unknown) => void }) {
@@ -974,10 +980,10 @@ export function MenuList({
     close();
   };
   // Closed (Cancel, the cross, a swipe down, Esc, a tap beside it) with the fields changed: the owner is
-  // asked whether to keep them ("Add", "Save"), leave them or stay.
+  // asked whether to keep them (Keep), leave them (Discard) or stay.
   const leave = async () => {
     if (!editing || JSON.stringify(clean(own, editing.value)) === editing.was) return cancel();
-    const choice = await closeChanged(editing.fresh ? t.forms.add : t.common.save);
+    const choice = await closeChanged();
     if (choice === 'keep') save();
     else if (choice === 'discard') cancel();
   };

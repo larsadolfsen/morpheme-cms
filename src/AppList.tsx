@@ -27,7 +27,7 @@
 // redirects and links only one app is active (lib/appTypes.mjs): installing or turning on another asks first, then
 // turns the active one off (it stays installed, with its settings and data), in the same commit.
 import { useEffect, useState, type ReactNode } from 'react';
-import { Gear, Info, UserCircle, type Icon } from '@phosphor-icons/react';
+import { Info, UserCircle, type Icon } from '@phosphor-icons/react';
 import Screen from './Screen';
 import { Button, EmptyNote, Group, LeadingIcon, SupportingText, SearchRow, useKept, ListItem, type TabChoice } from './ui';
 import { pagesWith } from './BlockSettings';
@@ -40,7 +40,7 @@ import { appsFileText, readAppsFile, withInstalled, withOff } from '../lib/appsF
 import { rivalsOf, withRivalsOff } from '../lib/appTypes.mjs';
 import { CATEGORIES, categoryOf, roleOf, type Role } from '../lib/storeCategories.mjs';
 import { filterByRole, mcpOf, serviceOf } from './sectionChoice.mjs';
-import { AnyIcon } from './icon';
+import { AnyIcon, Icon as NamedIcon } from './icon';
 import {
   appChanges,
   appFolder,
@@ -882,13 +882,18 @@ type AppProps = { app: SiteApp; env: Env; files: RepoFile[] };
 
 type AppTab = 'settings' | 'information';
 
+/** The Settings tab's icon: `settings` (the gear), which only the editor's Settings and an app's Settings tab draw (one icon per meaning). */
+const SettingsIcon = (({ size, className }: { size?: number | string; className?: string }) => (
+  <NamedIcon name="settings" size={Number(size) || 24} className={className} />
+)) as unknown as Icon;
+
 /** The tabs of an installed app's page, in the top bar: Settings (#apps/<id>) and Information (#apps/<id>/about). A form
  * with unsaved changes asks first, as for every address (App.tsx). */
 const tabsOf = (app: SiteApp, tab: AppTab): TabChoice<AppTab> => ({
   label: t.apps.tabs,
   value: tab,
   options: [
-    { value: 'settings', label: t.apps.tabSettings, icon: Gear },
+    { value: 'settings', label: t.apps.tabSettings, icon: SettingsIcon },
     { value: 'information', label: t.apps.tabInfo, icon: Info },
   ],
   onChange: (v) => (location.hash = v === 'settings' ? appHref(app) : `${appHref(app)}/${INFO_KEY}`),

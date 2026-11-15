@@ -75,7 +75,7 @@ export function relationsOf(files: RepoFile[]): Record<Relation, Option[]> {
       .sort(byLabel),
     // The front page (/) and the blog (/blog/), whichever pages they are, the blog by its page's title.
     fixed: [
-      { value: '/', label: siteText('Front page'), inMenu: menu.has('/') },
+      { value: '/', label: siteText('Home page'), inMenu: menu.has('/') },
       {
         value: '/blog/',
         label: String((standardFile(files, 'blog') && fm(standardFile(files, 'blog')!).title) || siteText('Blog')),
@@ -124,7 +124,7 @@ export function relationsOf(files: RepoFile[]): Record<Relation, Option[]> {
 
 const frontPage = (files: RepoFile[]) => ({
   to: standardFile(files, 'front')?.path ?? config.standardPages,
-  text: siteText('Edit the front page'),
+  text: siteText('Edit the home page'),
 });
 
 // Where a button that opens a promotion is: a page (`path`), the shared buttons (on any page: neither), or an action bar
@@ -146,7 +146,7 @@ function openersOf(slug: string, files: { path: string; text: string }[]): Opene
   const found: Opener[] = [];
   for (const f of files) {
     if (f.path.startsWith(`${config.folders.pages}/`) && f.path.endsWith('.md')) {
-      // Also a "Buttons" block in a block's text (a "Banner"'s), where its quotes are written as &quot;.
+      // Also a "Buttons" block in a block's text , where its quotes are written as &quot;.
       if (!/data-block=(?:"|\\&quot;)buttons/.test(f.text)) continue;
       const d = fm(f as RepoFile);
       if (
@@ -250,7 +250,7 @@ export function siteProblems(files: { path: string; text: string }[]): string[] 
     try {
       const profiles = upgradeSocial(JSON.parse(social.text) as Record<string, unknown>).profiles;
       for (const url of twiceIn(Array.isArray(profiles) ? profiles : []))
-        problems.push(`${social.path}: ${siteText('The address {url} is in the list of profiles more than once.', { url })}`);
+        problems.push(`${social.path}: ${siteText('The URL {url} is in the list of profiles more than once.', { url })}`);
     } catch {
       // A file that is not JSON is found by the check of the files' own rules.
     }
@@ -305,7 +305,7 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
     const used = standardPages.find((p) => standardFile(files, p.key)?.path === file.path);
     if (used)
       return {
-        text: siteText('{page} is a default page, so it cannot be deleted. Pick another page under "Default pages" first.', {
+        text: siteText('{page} is a default page, so it cannot be deleted. Select another page under "Default pages" first.', {
           page: siteText(used.the),
         }),
         error: true,
@@ -369,14 +369,14 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
     const fp = front.posts as Record<string, unknown> | undefined;
     if ((fp?.categories as string[] | undefined)?.includes(slug) || fp?.link === slug)
       return {
-        text: siteText('The tag picks the posts on the front page under "From the blog". Pick another one first.'),
+        text: siteText('The tag selects the posts on the home page under "From the blog". Select another one first.'),
         error: true,
         edit: frontPage(files),
       };
   }
   if (collection.id === 'blog' && ((front.posts as Record<string, unknown>)?.picked as string[])?.includes(slug))
     return {
-      text: siteText('The post is picked for the front page under "From the blog". Pick another one first.'),
+      text: siteText('The post is selected for the home page under "From the blog". Select another one first.'),
       error: true,
       edit: frontPage(files),
     };
@@ -388,7 +388,7 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
     );
     if (page)
       return {
-        text: siteText('The post is picked in a block of blog posts on the page "{page}". Pick another one first.', {
+        text: siteText('The post is selected in a block of blog posts on the page "{page}". Select another one first.', {
           page: String(fm(page).title),
         }),
         error: true,
@@ -404,8 +404,8 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
       return {
         text: siteText(
           post
-            ? 'The tag is picked in a block in the blog post "{page}". Pick another one first.'
-            : 'The tag is picked in a block on the page "{page}". Pick another one first.',
+            ? 'The tag is selected in a block in the blog post "{page}". Select another one first.'
+            : 'The tag is selected in a block on the page "{page}". Select another one first.',
           { page: use.name },
         ),
         error: true,
@@ -458,11 +458,11 @@ export const testimonialsOf = (files: RepoFile[]) =>
     .map((f) => ({ ...(json(f) as TestimonialRow & { order?: number }), slug: slugOf(f.path, 'src/data/testimonials') }))
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-/** What is at an address, as said in a message: 'the front page', 'the page "About me" (/about-me/)',
+/** What is at an address, as said in a message: 'the home page', 'the page "About me" (/about-me/)',
  * or the address (where a redirect sends to, App.tsx). */
 export function whatIsAt(address: string, relations: Record<Relation, Option[]>): string {
   const base = address.split('#')[0];
-  if (base === '/') return siteText('the front page');
+  if (base === '/') return siteText('the home page');
   if (base === '/blog/') return siteText('the blog');
   const page = [...relations.fixed, ...relations.pages].find((o) => o.value === base);
   if (page) return siteText('the page "{name}" ({address})', { name: page.label, address });

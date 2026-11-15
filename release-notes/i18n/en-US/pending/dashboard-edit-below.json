@@ -1,0 +1,6 @@
+{
+  "id": "dashboard-edit-below",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "On the start screen, Edit dashboard is a button below the widgets, not a pencil in the top bar"
+}

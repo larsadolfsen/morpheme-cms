@@ -25,14 +25,14 @@ export const common = {
   notSaved: (error: string) => `Couldn’t save: ${error}`,
   backTo: (to: string) => `Back to ${to}`,
   /** The swatch of a colour field (ColorField), for screen readers. */
-  pickColor: (name: string) => `${name}: pick a color`,
+  pickColor: (name: string) => `${name}: select a color`,
   /** The lock on the source color in the generator (ColorTiles), a toggle: on while it is locked. */
   lockColor: (name: string) => `Lock ${name.toLowerCase()}`,
   notAColor: 'Write the color as # and 6 characters, for example, #a3345a.',
   /** The country code before a phone number (PhoneField): its button, for screen readers, and its sheet. */
   phoneCode: {
-    label: (country: string, code: string) => `Country code: ${country}, ${code}. Pick another country`,
-    title: 'Pick a country',
+    label: (country: string, code: string) => `Country code: ${country}, ${code}. Select another country`,
+    title: 'Select a country',
     search: 'Search countries',
   },
   /** The sheet a colour is picked in (ColorField). */
@@ -60,7 +60,7 @@ export const common = {
     end: 'End date',
     format: 'mm/dd/yyyy',
     wrongFormat: 'Enter the date as mm/dd/yyyy.',
-    notAllowed: 'The date can’t be picked.',
+    notAllowed: 'The date can’t be selected.',
     endBeforeStart: 'The end date is before the start date.',
     previousMonth: 'Previous month',
     nextMonth: 'Next month',
@@ -104,7 +104,7 @@ export const common = {
     company: 'Business',
     header: 'Header',
     footer: 'Footer',
-    lists: 'Dynamic lists',
+    lists: 'Lists',
     blocks: 'Block templates',
     media: 'Files',
     /** How the site looks (#appearance, Library.tsx Theme): the theme, the colours, the logo and icon, and the site's own
@@ -119,9 +119,9 @@ export const common = {
     /** How the site moves, Material 3's motion schemes (#appearance/motion, MotionSchemes in Library.tsx). */
     motion: 'Motion',
     /** The block drawn in a column beside the text of the pages (#global/side-column, SideColumn.tsx). */
-    sideColumn: 'Side column',
+    sideColumn: 'Sidebar',
     colors: 'Colors',
-    brand: 'Logo and icon',
+    brand: 'Logo and favicon',
     blockSettings: 'Block settings',
     /** The apps that come with the site (AppList.tsx, #apps). */
     apps: 'Apps',
@@ -134,7 +134,7 @@ export const common = {
     /** The screen the cog at the bottom of the main drawer opens (#settings), and the first part of the path to a setting (placeOf in site.ts). */
     settings: 'Settings',
     /** A row of Settings: R2 caching and the build settings (#developer/caching, Advanced.tsx). */
-    caching: 'Caching and builds',
+    caching: 'R2 caching and builds',
     /** Under Indstillinger: the assistants connected to the site (#assistants, Assistants.tsx). */
     assistants: 'Assistants',
     /** Under Indstillinger: the licences of what the site and the editor are made with (#licenses, Licenses.tsx). */

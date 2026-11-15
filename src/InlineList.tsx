@@ -61,6 +61,7 @@ export default function InlineList({
       fields={['title', 'text']}
       add={t.blocks.list.addRow}
       onChange={onChange}
+      paste
       wrap={(rows) => <SiteList className="block-list inline-list">{rows}</SiteList>}
       renderItem={({ item, index: i, here, next, field }) => {
         const r = item as Row;

@@ -1,0 +1,6 @@
+{
+  "src/editor.css|dark-mode": {
+    "max": 1,
+    "why": "Google-preview colours in the editor; the editor's own workspace. To move to color-scheme and light-dark() (audit S1)."
+  }
+}

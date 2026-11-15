@@ -22,7 +22,7 @@ import { tmpdir } from 'node:os';
 import { constants, inflateSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
-import { CMS_STATUS, openEditor, serveBuilt, virtualFile } from './built-site.mjs';
+import { CMS_STATUS, clickPreview, openEditor, serveBuilt, virtualFile } from './built-site.mjs';
 import { toolWidth } from '../src/textBar.mjs';
 import { allow, nestedUnits } from './spacing-grid.allow.mjs';
 import { installedApps } from '../lib/apps.mjs';
@@ -36,7 +36,9 @@ import { buildTestSite } from './test-site.mjs';
 const i18nDir = fileURLToPath(new URL('../src/i18n/da-DK/', import.meta.url));
 const bundled = await build({
   stdin: {
-    contents: ['apps', 'app', 'cms', 'dashboard', 'common', 'library'].map((name) => `export { ${name} } from './${name}.ts';`).join('\n'),
+    contents: ['apps', 'app', 'cms', 'dashboard', 'common', 'library', 'text', 'blocks']
+      .map((name) => `export { ${name} } from './${name}.ts';`)
+      .join('\n'),
     resolveDir: i18nDir,
     loader: 'ts',
   },
@@ -47,7 +49,16 @@ const bundled = await build({
   logLevel: 'silent',
 });
 const texts = await import(`data:text/javascript;base64,${Buffer.from(bundled.outputFiles[0].text).toString('base64')}`);
-const { apps: da, app: daApp, cms: daCms, dashboard: daDashboard, common: daCommon, library: daLibrary } = texts;
+const {
+  apps: da,
+  app: daApp,
+  cms: daCms,
+  dashboard: daDashboard,
+  common: daCommon,
+  library: daLibrary,
+  text: daText,
+  blocks: daBlocks,
+} = texts;
 
 // The theme's springs (lib/motion.ts, TypeScript too): what the bar's slide and fade must last and follow.
 const motionBundle = await build({
@@ -213,6 +224,95 @@ const shownItems = (selector) =>
     .map((e) => ({ href: e.getAttribute('href'), text: e.innerText.trim(), tag: e.tagName, ...e.getBoundingClientRect().toJSON() }))
     .filter((e) => e.width > 0 && e.height > 0);
 
+/** Keyboard focus is visible (Modern Web Guidance, `accessibility`: "Don't disable browser native focus indicators without providing a
+ * replacement ... at least 3:1", WCAG 2.4.7 and 1.4.11; the 13 `outline: none` of the theme and the editor, A1 of the audit of 15 Nov 2026).
+ * Tabs through every stop of a screen; at each one it takes a picture of the element and 12 px around it focused and unfocused, and
+ * fails when nothing changed (no indicator) or when the changed pixels have less than 3:1 contrast between the two (a state layer alone).
+ * An element that is only read by a screen reader (the radio in a ChoiceTile) is measured on the label that holds it.
+ * FOCUS_ALLOW: the stops that are allowed to show only the caret, each with its reason. */
+const FOCUS_ALLOW = [];
+async function checkFocusIndicators(width, hash) {
+  const label = `${width}px focus indicators ${hash || 'start'}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: phone ? 800 : 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate((h) => (location.hash = h), hash);
+  await page.waitForTimeout(800);
+  await page.mouse.move(0, 0);
+  await page.evaluate(() => document.activeElement?.blur());
+  const lum = (r, g, b) => {
+    const f = (c) => ((c /= 255) <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  };
+  const seen = new Set();
+  let stops = 0;
+  for (let i = 0; i < 400; i++) {
+    await page.keyboard.press('Tab');
+    await page.waitForTimeout(150);
+    // Tab only scrolls a stop into view when it is hidden: one cut by the window's edge hides its indicator, so it is centred first.
+    const hasStop = await page.evaluate(() => {
+      const e = document.activeElement;
+      if (!e || e === document.body) return false;
+      e.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
+      return true;
+    });
+    // Then two frames to settle: a stop in a part that CSS anchor positioning places (the rich tooltip's link) is laid out again
+    // after the scroll, and measured at once it is still where it was before it.
+    if (hasStop) await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+    const info = await page.evaluate(() => {
+      const e = document.activeElement;
+      if (!e || e === document.body) return null;
+      let box = e.getBoundingClientRect();
+      // A hidden control (the radio of a ChoiceTile) shows its focus on the label that holds it.
+      if (box.width < 4 || box.height < 4) box = (e.closest('label') ?? e.parentElement).getBoundingClientRect();
+      const cls = typeof e.className === 'string' ? e.className.trim().split(/\s+/).join('.') : '';
+      return {
+        name: `${e.tagName.toLowerCase()}${cls ? `.${cls}` : ''}${e.getAttribute('aria-label') ? `[${e.getAttribute('aria-label')}]` : ''}`,
+        key: `${e.outerHTML.slice(0, 160)}@${Math.round(box.x)},${Math.round(box.y)}`,
+        x: box.x,
+        y: box.y,
+        w: box.width,
+        h: box.height,
+      };
+    });
+    if (!info) break;
+    if (seen.has(info.key)) break;
+    seen.add(info.key);
+    const pad = 12;
+    const vh = phone ? 800 : 900;
+    if (info.w < 4 || info.h < 4 || info.y + info.h < 0 || info.y > vh - 4 || info.x + info.w < 0 || info.x > width - 4) continue;
+    const x = Math.max(0, Math.floor(info.x - pad));
+    const y = Math.max(0, Math.floor(info.y - pad));
+    const clip = { x, y, width: Math.ceil(Math.min(info.w + 2 * pad, width - x)), height: Math.ceil(Math.min(info.h + 2 * pad, vh - y)) };
+    const focused = await page.screenshot({ clip }).catch(() => null);
+    if (!focused) continue;
+    stops++;
+    await page.evaluate(() => document.activeElement.blur());
+    await page.waitForTimeout(250);
+    const plain = await page.screenshot({ clip });
+    const a = await sharp(focused).raw().toBuffer({ resolveWithObject: true });
+    const b = await sharp(plain).raw().toBuffer();
+    const channels = a.info.channels;
+    let changed = 0;
+    let best = 1;
+    for (let k = 0; k < a.data.length; k += channels) {
+      if (Math.abs(a.data[k] - b[k]) + Math.abs(a.data[k + 1] - b[k + 1]) + Math.abs(a.data[k + 2] - b[k + 2]) <= 24) continue;
+      changed++;
+      const l1 = lum(a.data[k], a.data[k + 1], a.data[k + 2]);
+      const l2 = lum(b[k], b[k + 1], b[k + 2]);
+      best = Math.max(best, (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05));
+    }
+    if (FOCUS_ALLOW.some((allowed) => allowed.match.test(info.name))) continue;
+    if (changed < 12 || best < 3) await sharp(focused).toFile(join(shots, `focus-${width}-${stops}.png`));
+    if (changed < 12) problems.push(`${label}: ${info.name} shows no indicator when it has the keyboard focus`);
+    else if (best < 3)
+      problems.push(`${label}: the focus indicator of ${info.name} (${info.key}) has ${best.toFixed(2)}:1 contrast, under 3:1`);
+  }
+  if (stops < 5) problems.push(`${label}: only ${stops} stops were checked`);
+  await page.close();
+}
+
 /** The "New in" card on the start screen, with the tall portrait photo of the 0.16 edition (1280x2272) in place of its own: the photo and the card stay inside the card's own box and above the widgets, never painted over them (375, 690 and 1280 px). */
 async function checkUpdatesCard(width, height) {
   const label = `${width}px`;
@@ -264,9 +364,1195 @@ async function checkStartSubtitle() {
       const got = await subtitle.evaluate((e) => ({ text: e.innerText.trim(), scroll: e.scrollWidth, client: e.clientWidth }));
       if (got.scroll > got.client) problems.push(`${label}: "${got.text}" is cut off (${got.scroll} > ${got.client})`);
       if (/yesterday|today|\bat\b/i.test(got.text)) problems.push(`${label}: the long form is back: "${got.text}"`);
+      // The site's name in the bar is not cut off either (owner: "Mor…" at 375 px): the title of the start screen's bar shows whole.
+      const name = await page.evaluate(() => {
+        const h = [...document.querySelectorAll('header h1')].find((e) => e.getClientRects().length > 0);
+        return h ? { text: h.textContent.trim(), scroll: h.scrollWidth, client: h.clientWidth } : null;
+      });
+      if (name && name.scroll > name.client)
+        problems.push(`${label}: the site name "${name.text}" is cut off (${name.scroll} > ${name.client})`);
       await page.close();
     }
   }
+}
+
+/** Every visible choice group (.choice-group) in `root`, measured in the page: its form, its choices' boxes, whether two overlap
+ * or a label is cut off, what the buttons need against the room they get, the targets (buttons) and row heights (list), its
+ * name, and its samples. Run with locator.evaluate. */
+function choiceGroupsIn(root) {
+  return [...root.querySelectorAll('.choice-group')]
+    .filter((g) => g.getClientRects().length > 0)
+    .map((g) => {
+      const form = g.dataset.form;
+      const visible =
+        form === 'buttons' ? g.querySelector(':scope > .choice-group-buttons') : g.querySelector(':scope > .choice-group-list');
+      const items = form === 'buttons' ? [...visible.children] : [...visible.querySelectorAll('.list-item-container')];
+      const boxes = items.map((el) => el.getBoundingClientRect());
+      const overlap = boxes.some((a, i) =>
+        boxes.some((b, j) => j > i && a.left < b.right - 0.5 && b.left < a.right - 0.5 && a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5),
+      );
+      const labels =
+        form === 'buttons'
+          ? items.map((b) => b.querySelector('.choice-group-label'))
+          : items.map((r) => r.querySelector('.list-item-headline'));
+      const clipped = labels
+        .filter((l) => l && !l.classList.contains('choice-group-label-hidden') && l.scrollWidth > l.clientWidth + 0.5)
+        .map((l) => l.textContent);
+      const measured = [...g.querySelectorAll(':scope > .choice-group-measure > *')].map((b) => b.getBoundingClientRect().width);
+      const row = g.querySelector(':scope > .choice-group-measure');
+      const room = row ? row.getBoundingClientRect().width : 0;
+      const needed = measured.length
+        ? Math.max(...measured) * measured.length + (measured.length - 1) * (parseFloat(getComputedStyle(row).columnGap) || 0)
+        : 0;
+      const targets =
+        form === 'buttons'
+          ? items.map((b) => Math.max(b.getBoundingClientRect().height, parseFloat(getComputedStyle(b, '::after').height) || 0))
+          : [];
+      const heights = form === 'list' ? boxes.map((b) => b.height) : [];
+      const name =
+        form === 'buttons'
+          ? (visible.getAttribute('role') === 'group' && visible.getAttribute('aria-label')) || ''
+          : (visible.querySelector(':scope > legend')?.textContent ?? '');
+      // The list's alignment: the radio's circle at the group's left edge, the label on the circle's middle line, a sample's right edge (a
+      // text button's text) at the group's right edge.
+      const gr = g.getBoundingClientRect();
+      const lis = form === 'list' ? [...visible.querySelectorAll('li')] : [];
+      const circleOff = lis.map((li) => li.querySelector('input[type="radio"]').getBoundingClientRect().left - gr.left);
+      const centreOff = lis.map((li) => {
+        const c = li.querySelector('input[type="radio"]').getBoundingClientRect();
+        const t = li.querySelector('.list-item-headline').getBoundingClientRect();
+        return (c.top + c.bottom) / 2 - (t.top + t.bottom) / 2;
+      });
+      const sampleOff = lis.flatMap((li) => {
+        const slot = li.querySelector('.choice-group-sample');
+        const b =
+          slot &&
+          [...slot.querySelectorAll('.button')].find(
+            (x) => x.getClientRects().length && !x.closest('[aria-hidden="true"][style*="hidden"]'),
+          );
+        if (!b) return [];
+        const pad = b.classList.contains('button-text') ? parseFloat(getComputedStyle(b).paddingRight) : 0;
+        return [b.getBoundingClientRect().right - pad - gr.right];
+      });
+      return {
+        form,
+        circleOff,
+        centreOff,
+        sampleOff,
+        forced: g.hasAttribute('data-forced'),
+        narrow: !!g.closest('[data-choice-narrow]'),
+        n: items.length,
+        samples: g.querySelectorAll(':scope > .choice-group-list .choice-group-sample').length,
+        overlap,
+        clipped,
+        room,
+        needed,
+        targets,
+        heights,
+        name,
+      };
+    });
+}
+
+/** The rules every choice group keeps (choiceGroupsIn): no overlap, no label cut off, buttons only when they fit, 48 px targets
+ * and rows, a name. */
+function checkChoiceGroups(label, groups) {
+  groups.forEach((g, i) => {
+    const at = `${label} group ${i + 1} "${g.name}" (${g.form})`;
+    if (g.overlap) problems.push(`${at}: two choices overlap`);
+    if (g.clipped.length) problems.push(`${at}: cut off: ${g.clipped.join(', ')}`);
+    if (!g.name.trim()) problems.push(`${at}: the group has no name`);
+    if (g.form === 'buttons' && !g.forced && g.needed > g.room + 0.5)
+      problems.push(`${at}: buttons though they need ${g.needed} px of ${g.room}`);
+    if (g.targets.some((t) => t < 47.5)) problems.push(`${at}: a button's target is below 48 px (${g.targets.join(', ')})`);
+    if (g.heights.some((h) => h < 47.5)) problems.push(`${at}: a row is below 48 px (${g.heights.join(', ')})`);
+    if (g.circleOff.some((x) => Math.abs(x) > 1))
+      problems.push(`${at}: a radio's circle is not at the group's left edge (${g.circleOff.map((x) => x.toFixed(1))} px)`);
+    if (g.centreOff.some((x) => Math.abs(x) > 1))
+      problems.push(`${at}: a label is not on its radio's middle line (${g.centreOff.map((x) => x.toFixed(1))} px)`);
+    if (g.sampleOff.some((x) => Math.abs(x) > 1))
+      problems.push(`${at}: a sample does not end at the group's right edge (${g.sampleOff.map((x) => x.toFixed(1))} px)`);
+  });
+}
+
+/** A page with every block whose settings have a choice of a few (the choice group's places, spec section 4): Banner, Blog posts,
+ * Testimonials, Cards (Filled, so Color shows), Image grid, Segmented list and Buttons. */
+const CHOICE_PAGE = [
+  '---\ntitle: "Choices"\ndescription: "d"\n---\n\n# Choices\n\nIntro.\n',
+  block('posts', {}),
+  block('testimonials', { show: 'all', heading: 'Kind words' }),
+  block('cards', { design: 'filled', items: [{ title: 'One', text: 'First' }] }),
+  block('imagegrid', {}),
+  block('segmented', { items: [{ title: 'Row', text: 'Text' }] }),
+  block('buttons', { items: [{ label: 'Book a time', to: 'page', kind: 'filled' }] }),
+].join('\n\n');
+
+/** The choice groups of the editor's fields (fields.tsx, `segments: true`) in their places, on a phone (the 271 px modal sheet) and a
+ * computer (the 312 px side sheet), in English and Danish: each block's Block settings, and a button's Settings. Every group keeps the
+ * rules of checkChoiceGroups. The owner's case by name: Buttons › Settings › Style is the list with five samples at both widths, and
+ * in the list the arrow keys choose. */
+async function checkChoiceGroupFields(width, locale) {
+  const label = `${width}px ${locale} choice group fields`;
+  const touch = width < 600;
+  const say =
+    locale === 'da-DK'
+      ? { block: daText.blockSettings, settings: daBlocks.buttons.settingsAction, style: daBlocks.buttons.kind }
+      : { block: 'Block settings', settings: 'Settings', style: 'Variant' };
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: touch, isMobile: touch, locale });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  const path = 'src/content/pages/zz-choices.md';
+  await openEditor(page, site, { [path]: CHOICE_PAGE });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('.ProseMirror .site-block-card', { timeout: 30_000 });
+  const sheet = () =>
+    page
+      .locator('dialog[open], .editor-side-sheet')
+      .filter({ has: page.locator('.choice-group, .segmented-button') })
+      .last();
+  // A sheet is closed by its Cancel (nothing was changed), else by Escape (the side panel on a computer).
+  const close = async () => {
+    const cancel = page.locator(
+      'dialog[open] .side-sheet-actions button, dialog[open] [aria-label="Close"], dialog[open] [aria-label="Luk"]',
+    );
+    const named = cancel.filter({ hasText: /^(Cancel|Annuller)$/ });
+    // On a phone the block's fields are a subpage: its back arrow is the first button of its app bar.
+    const subpage = page.locator('dialog[open].block-page header button').first();
+    if (await subpage.count()) await subpage.click();
+    else if (await named.count()) await named.last().click();
+    else if (await cancel.count()) await cancel.last().click();
+    else await page.keyboard.press('Escape');
+    await page.waitForFunction(() => !document.querySelector('dialog[open]'), null, { timeout: 3000 }).catch(() => {});
+    await page.waitForTimeout(300);
+  };
+  const cards = page.locator('.ProseMirror > .site-block > .site-block-card');
+  const count = await cards.count();
+  const seen = [];
+  const skipped = [];
+  for (let i = 0; i < count; i++) {
+    const card = cards.nth(i);
+    const name = await card.getAttribute('aria-label');
+    // At the top of the screen, clear of the save bar over the bottom (a phone).
+    await card.evaluate((el) => el.scrollIntoView({ block: 'start' }));
+    await page.waitForTimeout(200);
+    await (touch ? card.tap({ timeout: 5000 }) : card.click({ timeout: 5000 })).catch(() =>
+      problems.push(`${label}: the ${name} block could not be selected`),
+    );
+    // The row opens by its height on the spring: wait for it to stand still.
+    await page.waitForTimeout(800);
+    // A tap on a block that is not typed in place opens its sheet at once on a phone (the sheet is a moment in coming); otherwise Block settings in the active block's
+    // row, or in the row of the block pointed at.
+    // A slow runner draws a block's sheet late (its fields come after it): wait for the choice group in it, then try the tap once more.
+    const opened = () =>
+      sheet()
+        .waitFor({ timeout: 6000 })
+        .then(
+          () => true,
+          () => false,
+        );
+    let isOpen = await opened();
+    if (!isOpen && touch && !(await rowButton(page, say.block).count())) {
+      await card.tap({ timeout: 5000 }).catch(() => {});
+      await page.waitForTimeout(800);
+      isOpen = await opened();
+    }
+    if (!(await sheet().count())) {
+      const active = rowButton(page, say.block);
+      let button = (await active.count()) ? active : page.locator(`.site-block-row [data-row][aria-label="${say.block}"]:visible`);
+      if (!(await button.count()) && touch) {
+        // A block drawn empty here (no testimonials picked on the page) is too low to tap: the keyboard opens it, as for a screen reader.
+        await card.focus();
+        await page.keyboard.press('Enter');
+        await page.waitForTimeout(800);
+        button = page.locator(`.site-block-row [data-row][aria-label="${say.block}"]:visible`);
+      }
+      // Buttons has no block-level choice: its Style is in each button's Settings (below).
+      if (!(await button.count()) && !(await sheet().count())) {
+        if (/^(Buttons|Knapper)$/.test(name)) continue;
+        // The Image grid of a site with no images in Files has no settings to open on a phone (the demo has images): left out, and said so.
+        if (i === 3 && !has('src/data/files')) {
+          skipped.push(name);
+          continue;
+        }
+        problems.push(`${label}: ${name} has no ${say.block}`);
+        if (process.env.CHOICE_DEBUG) await page.screenshot({ path: `${process.env.CHOICE_DEBUG}-${width}-${i}.png` });
+        continue;
+      }
+      if (await button.count())
+        if (
+          !(await button
+            .first()
+            .click({ timeout: 5000 })
+            .then(
+              () => true,
+              () => false,
+            ))
+        ) {
+          problems.push(`${label}: ${say.block} of ${name} could not be pressed`);
+          continue;
+        }
+    }
+    const here = sheet();
+    if (
+      !(await here.waitFor({ timeout: 4000 }).then(
+        () => true,
+        () => false,
+      ))
+    ) {
+      await close();
+      continue;
+    }
+    await page.waitForTimeout(300);
+    const groups = await here.evaluate(choiceGroupsIn);
+    seen.push(...groups.map((g) => g.name));
+    // Blog posts 1, Testimonials 1, Cards 4, Image grid 3, Segmented list 1: the fixture's blocks in their order.
+    if (groups.length !== [1, 1, 4, 3, 1][i])
+      problems.push(
+        `${label} ${name}: ${groups.length} choice groups in its settings, not ${[1, 1, 4, 3, 1][i]} (${groups.map((g) => g.name).join(', ')})`,
+      );
+    checkChoiceGroups(`${label} ${name}`, groups);
+    if (process.env.SHOTS_FULL) await here.screenshot({ path: `${process.env.SHOTS_FULL}-fields-${width}-${locale}-${i}.png` });
+    await close();
+  }
+  // Only a block drawn empty is left out (the Image grid with no images): the other four are opened, and their groups counted above.
+  if (skipped.length > 1 || seen.length < 6)
+    problems.push(
+      `${label}: ${seen.length} choice groups seen in the blocks' settings (${seen.join(', ')}); not opened: ${skipped.join(', ') || 'none'}`,
+    );
+  // The owner's case: a button's Style, the list with a sample of each style.
+  await page.locator('.ProseMirror [data-field="label"]').last().click();
+  await page.waitForTimeout(300);
+  await pressTool(page, say.settings).catch(() => problems.push(`${label}: the button has no ${say.settings}`));
+  const style = page.getByRole('group', { name: say.style, exact: true }).last();
+  if (
+    !(await style.waitFor({ timeout: 4000 }).then(
+      () => true,
+      () => false,
+    ))
+  )
+    problems.push(`${label}: the button's settings have no ${say.style}`);
+  else {
+    const g = (await sheet().evaluate(choiceGroupsIn)).find((x) => x.name === say.style);
+    if (!g || g.form !== 'list' || g.samples !== 5)
+      problems.push(
+        `${label}: Buttons › ${say.settings} › ${say.style} is not the list with five samples (${g?.form}, ${g?.samples} samples)`,
+      );
+    checkChoiceGroups(`${label} button style`, g ? [g] : []);
+    await style.locator('input[type="radio"]:checked').focus();
+    await page.keyboard.press('ArrowDown');
+    const chosen = await style.evaluate((l) => [...l.querySelectorAll('input[type="radio"]')].findIndex((r) => r.checked));
+    if (chosen !== 1) problems.push(`${label}: ArrowDown in ${say.style} did not choose the second style (${chosen})`);
+    if (!(await page.locator('.inline-list-row-active.button-tonal, .ProseMirror .button-tonal').count()))
+      problems.push(`${label}: choosing Tonal by the arrow key did not change the button`);
+    if (process.env.SHOTS_FULL) await sheet().screenshot({ path: `${process.env.SHOTS_FULL}-button-style-${width}-${locale}.png` });
+  }
+  await page.close();
+}
+
+/** The theme's search view driven by React (theme/ui/Search.tsx, SearchView; the command palette's view, spec docs/superpowers/specs/2026-11-13-command-palette-and-context-menus-design.md,
+ * sections 4.1, 4.5 and 4.7) on "Parts" › "UI components" (NavigationRestParts.tsx), on a phone and a computer, in English and Danish: it opens as a modal <dialog> with the focus in its
+ * field, full screen on a phone and docked, in the middle near the top, on a computer; the results are in groups, each named by its label (role=group, aria-labelledby), as options
+ * with their key as trailing text (aria-keyshortcuts), a toggle checked and a disabled one aria-disabled; the arrow keys, Home and End move aria-activedescendant (the focus stays in the
+ * field), Enter runs an option but not a disabled one; typing narrows the groups and a live region says how many; nothing found shows its text and hides the list; Clear empties the
+ * field and keeps it open; Enter on an option and Escape close it and the focus goes back to the button that opened it, and on a computer a tap outside closes it; every row and
+ * button is at least 48 px and the page does not scroll sideways. */
+async function checkSearchViewParts(width, locale) {
+  const label = `${width}px ${locale} search view`;
+  const touch = width < 600;
+  const say =
+    locale === 'da-DK'
+      ? {
+          open: '\u00c5bn s\u00f8gevisningen',
+          groups: ['Seneste', 'Foresl\u00e5et'], // language-ok: the Danish group names the Parts page example must show
+          four: '4 resultater',
+          one: '1 resultat',
+          none: 'Intet passer til s\u00f8gningen',
+          word: 'fed',
+          shortcut: 'Ctrl+B',
+        }
+      : {
+          open: 'Open the search view',
+          groups: ['Recent', 'Suggested'],
+          four: '4 results',
+          one: '1 result',
+          none: 'Nothing fits the search',
+          word: 'bold',
+          shortcut: 'Ctrl+B',
+        };
+  const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#developer/parts/ui'));
+  const part = page.locator('[data-part="Search"]');
+  await part.waitFor({ timeout: 30_000 }).catch(() => problems.push(`${label}: the Search part is not on the page`));
+  if (!(await part.count())) return page.close();
+  await part.scrollIntoViewIfNeeded();
+  const opener = part.getByRole('button', { name: say.open });
+  const view = page.locator('[data-search-controlled] [data-search-view-open]');
+  const input = view.locator('input[role=combobox]');
+  const options = view.locator('[role=option]');
+  const live = view.locator('.search-view-live');
+  const active = () => input.getAttribute('aria-activedescendant');
+  const selected = () => view.locator('[role=option][aria-selected=true]').evaluateAll((els) => els.map((e) => e.id));
+  const focusIsInField = () => input.evaluate((el) => el === document.activeElement);
+  const where = () => page.evaluate(() => document.activeElement?.textContent?.trim() ?? document.activeElement?.tagName);
+
+  await opener.click();
+  await view.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the view does not open`));
+  if (!(await view.count())) return page.close();
+  await page.waitForTimeout(400);
+  const box = await view.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    return {
+      modal: el.matches(':modal'),
+      docked: el.classList.contains('search-view-docked'),
+      left: r.left,
+      right: r.right,
+      top: r.top,
+      width: r.width,
+      height: r.height,
+      vw: innerWidth,
+      vh: innerHeight,
+      sideways: document.documentElement.scrollWidth > innerWidth,
+    };
+  });
+  // Full screen on a phone is a modal <dialog>; from medium the view is a dropdown: not modal, the page behind it stays usable.
+  if (touch !== box.modal) problems.push(`${label}: the view is ${box.modal ? 'modal' : 'not modal'} on a ${touch ? 'phone' : 'computer'}`);
+  if (touch) {
+    if (box.docked || box.width < box.vw - 1 || box.height < box.vh - 1)
+      problems.push(
+        `${label}: on a phone the view is full screen: ${Math.round(box.width)}x${Math.round(box.height)} of ${box.vw}x${box.vh}`,
+      );
+  } else {
+    if (!box.docked) problems.push(`${label}: on a computer the view is docked`);
+    if (box.width > 36 * 16 + 1 || box.top < 0 || box.top > 120 || Math.abs((box.left + box.right) / 2 - box.vw / 2) > 2)
+      problems.push(
+        `${label}: docked, the view is in the middle near the top, at most 36rem wide: left ${Math.round(box.left)}, top ${Math.round(box.top)}, width ${Math.round(box.width)}`,
+      );
+  }
+  if (box.sideways) problems.push(`${label}: the page scrolls sideways with the view open`);
+  if (!(await focusIsInField())) problems.push(`${label}: the focus is not in the field when the view opens`);
+
+  const names = await view
+    .locator('[role=group]')
+    .evaluateAll((els) => els.map((g) => document.getElementById(g.getAttribute('aria-labelledby') ?? '')?.textContent ?? ''));
+  if (JSON.stringify(names) !== JSON.stringify(say.groups))
+    problems.push(`${label}: the groups are named ${JSON.stringify(names)}, not ${JSON.stringify(say.groups)}`);
+  if ((await options.count()) !== 4) problems.push(`${label}: ${await options.count()} options, not 4`);
+  if ((await live.textContent()) !== say.four)
+    problems.push(`${label}: the live region says "${await live.textContent()}", not "${say.four}"`);
+  const opt = await options.evaluateAll((els) =>
+    els.map((e) => ({
+      selected: e.getAttribute('aria-selected'),
+      disabled: e.getAttribute('aria-disabled'),
+      checked: e.getAttribute('aria-checked'),
+      keys: e.getAttribute('aria-keyshortcuts'),
+      trailing: e.querySelector('.list-item-trailing-supporting')?.textContent ?? '',
+      height: e.getBoundingClientRect().height,
+    })),
+  );
+  if (opt[0]?.selected !== 'true') problems.push(`${label}: the first option is not the one the arrow keys are on`);
+  if (opt[2]?.trailing !== say.shortcut || opt[2]?.keys !== 'Control+B')
+    problems.push(`${label}: the key of Bold: "${opt[2]?.trailing}", aria-keyshortcuts "${opt[2]?.keys}"`);
+  if (opt[2]?.checked !== 'true') problems.push(`${label}: the toggle is not checked`);
+  if (opt[3]?.disabled !== 'true') problems.push(`${label}: the disabled option is not aria-disabled`);
+  const short = opt.filter((o) => o.height < 47.5);
+  if (short.length) problems.push(`${label}: ${short.length} option(s) are lower than 48 px`);
+  const buttons = await view
+    .locator('.search-view-header button')
+    .evaluateAll((els) =>
+      els.map((b) => Math.max(b.getBoundingClientRect().height, parseFloat(getComputedStyle(b, '::after').height) || 0)),
+    );
+  if (buttons.some((h) => h < 47.5))
+    problems.push(`${label}: a button of the field's row is lower than 48 px (${buttons.map(Math.round)})`);
+
+  // The arrow keys move the highlight; the focus stays in the field.
+  const ids = await options.evaluateAll((els) => els.map((e) => e.id));
+  await page.keyboard.press('ArrowDown');
+  if ((await active()) !== ids[1] || (await selected()).join() !== ids[1])
+    problems.push(`${label}: ArrowDown does not move to the second option`);
+  await page.keyboard.press('End');
+  if ((await active()) !== ids[3]) problems.push(`${label}: End does not go to the last option`);
+  await page.keyboard.press('ArrowDown');
+  if ((await active()) !== ids[0]) problems.push(`${label}: ArrowDown on the last option does not go round to the first`);
+  await page.keyboard.press('ArrowUp');
+  if ((await active()) !== ids[3]) problems.push(`${label}: ArrowUp on the first option does not go round to the last`);
+  if (!(await focusIsInField())) problems.push(`${label}: the focus left the field while the arrow keys moved`);
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(150);
+  if (!(await view.count())) problems.push(`${label}: Enter on a disabled option closed the view`);
+  await page.keyboard.press('Home');
+
+  // Typing narrows the groups, says how many, and puts the highlight on the first.
+  await page.keyboard.type(say.word);
+  await page.waitForTimeout(150);
+  if ((await options.count()) !== 1) problems.push(`${label}: "${say.word}" leaves ${await options.count()} options, not 1`);
+  if ((await live.textContent()) !== say.one)
+    problems.push(`${label}: the live region says "${await live.textContent()}", not "${say.one}"`);
+  if ((await view.locator('[role=group]').count()) !== 1) problems.push(`${label}: a group with no hit is shown`);
+  if ((await active()) === null) problems.push(`${label}: no option is highlighted after typing`);
+  await input.fill('zzz');
+  await page.waitForTimeout(150);
+  const empty = view.locator('.search-view-empty');
+  if (!(await empty.isVisible()) || (await empty.textContent()) !== say.none)
+    problems.push(`${label}: the text for nothing found is not shown`);
+  if (await view.locator('[role=listbox]').isVisible()) problems.push(`${label}: the list is shown when nothing is found`);
+  if ((await live.textContent()) !== say.none) problems.push(`${label}: the live region does not say nothing was found`);
+  await view.locator('.search-view-clear').click();
+  if ((await input.inputValue()) !== '' || !(await focusIsInField()) || (await options.count()) !== 4)
+    problems.push(`${label}: Clear does not empty the field, keep the focus in it and show the results`);
+
+  // Enter on an option runs it and closes the view; the focus goes back to the button.
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(250);
+  if (await view.count()) problems.push(`${label}: Enter on an option does not close the view`);
+  else if ((await where()) !== say.open)
+    problems.push(`${label}: the focus is not back on the button after Enter (it is on "${await where()}")`);
+  // Escape closes it, with the focus back on the button.
+  await opener.click();
+  await view.waitFor({ timeout: 5000 });
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(250);
+  if (await view.count()) problems.push(`${label}: Escape does not close the view`);
+  else if ((await where()) !== say.open)
+    problems.push(`${label}: the focus is not back on the button after Escape (it is on "${await where()}")`);
+  // On a computer a tap outside it closes it too.
+  if (!touch) {
+    await opener.click();
+    await view.waitFor({ timeout: 5000 });
+    await page.mouse.click(5, 800);
+    await page.waitForTimeout(250);
+    if (await view.count()) problems.push(`${label}: a tap outside does not close the view`);
+  }
+  await page.close();
+}
+
+/** The samples of Buttons › Settings › Style (choiceSamples.tsx) are never cut off: a short label is shown whole on every row (it fits the sample's
+ * width) and a long one is replaced by the editor's "Button", on a phone and a computer, in English and Danish. */
+async function checkButtonStyleSamples(width, locale) {
+  const touch = width < 600;
+  const word = locale === 'da-DK' ? daBlocks.buttons.sample : 'Button';
+  const say = locale === 'da-DK' ? { settings: daBlocks.buttons.settingsAction } : { settings: 'Settings' };
+  const cases = [
+    { text: 'Book', shown: 'Book' },
+    { text: 'Book an appointment with us today', shown: word },
+  ];
+  for (const { text, shown } of cases) {
+    const label = `${width}px ${locale} button style samples (${text.length} characters)`;
+    const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: touch, isMobile: touch, locale });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    const path = 'src/content/pages/zz-samples.md';
+    const md = `---\ntitle: "Samples"\ndescription: "d"\n---\n\n# Samples\n\nIntro.\n\n${block('buttons', { items: [{ label: text, to: 'page', kind: 'filled' }] })}\n`;
+    await openEditor(page, site, { [path]: md });
+    await page.goto(`${site}/editor/#${path}`);
+    await page.waitForSelector('.ProseMirror [data-field="label"]', { timeout: 30_000 });
+    await page.locator('.ProseMirror [data-field="label"]').last().click();
+    await page.waitForTimeout(500);
+    await pressTool(page, say.settings).catch(() => problems.push(`${label}: the button has no ${say.settings}`));
+    const here = page
+      .locator('dialog[open], .editor-side-sheet')
+      .filter({ has: page.locator('.choice-group') })
+      .last();
+    await here.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the settings did not open`));
+    await page.waitForTimeout(600);
+    const samples = await here
+      .evaluate((root) =>
+        [...root.querySelectorAll('.choice-group-list .choice-group-sample')]
+          .filter((slot) => slot.getClientRects().length)
+          .map((slot) => {
+            const button = slot.querySelector('.button:not([aria-hidden] .button)') ?? slot.querySelector('.button');
+            const visible = [...slot.querySelectorAll('.button')].filter((b) => !b.closest('[aria-hidden="true"][style*="hidden"]')).at(0);
+            const b = (visible ?? button).getBoundingClientRect();
+            const r = slot.getBoundingClientRect();
+            // A text button's side padding (it has no surface) may stand over the slot's end: its text is what must be inside.
+            const pad = (visible ?? button).classList.contains('button-text')
+              ? parseFloat(getComputedStyle(visible ?? button).paddingRight)
+              : 0;
+            return {
+              text: (visible ?? button).textContent.trim(),
+              inside: b.left >= r.left - 0.5 && b.right - pad <= r.right + 0.5,
+              whole: slot.scrollWidth - pad <= slot.clientWidth + 0.5,
+            };
+          }),
+      )
+      .catch(() => []);
+    if (samples.length !== 5) problems.push(`${label}: ${samples.length} samples in the list, not 5`);
+    for (const x of samples) {
+      if (x.text !== shown) problems.push(`${label}: a sample says "${x.text}", not "${shown}"`);
+      if (!x.inside || !x.whole) problems.push(`${label}: the sample "${x.text}" is cut off`);
+    }
+    if (process.env.SHOTS_FULL) await here.screenshot({ path: `${process.env.SHOTS_FULL}-samples-${width}-${locale}-${text.length}.png` });
+    await page.close();
+  }
+}
+
+/** The search button in the top bar (src/Screen.tsx SearchButton; spec docs/superpowers/specs/2026-11-13-command-palette-and-context-menus-design.md section 4.2 and 4.8):
+ * on every screen it is one button named "Search" of at least 48 px, the first of the bar's trailing actions (before the screen's own and the bell), with its key in
+ * `aria-keyshortcuts`, and the page does not scroll sideways with it; while rows are selected (the selection's own bar) it is not drawn. */
+async function checkSearchButton(width) {
+  const label = `${width}px search button`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  let where = '';
+  page.on('pageerror', (e) => problems.push(`${label} ${where}: ${e.message}`));
+  await openEditor(page, site);
+  const routes = [
+    '',
+    'settings',
+    'licenses',
+    'seo',
+    'apps',
+    'files',
+    'list/pages',
+    'list/blog',
+    'new/pages',
+    'new/blog',
+    'company/colors',
+    'appearance/themes',
+  ];
+  for (const route of routes) {
+    where = `#${route}`;
+    await page.evaluate((h) => (location.hash = h), route);
+    await page.waitForSelector('header h1', { state: 'attached', timeout: 15_000 }).catch(() => {});
+    await page.waitForTimeout(250);
+    const found = await page.evaluate(() => {
+      const visible = (el) => {
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== 'hidden';
+      };
+      const bar = document.querySelector('header');
+      const heading = bar?.querySelector('h1');
+      let mine = [...(bar?.querySelectorAll('button[aria-label="Search"], [data-search-bar-button]') ?? [])].filter(visible);
+      // On a phone the start screen's search bar is the first thing in the page, not in the top bar.
+      const inPage = !mine.length;
+      if (inPage) mine = [...document.querySelectorAll('[data-search-bar-button]')].filter(visible);
+      // The bar's actions after the title, in the order they are in the page.
+      const after = [...(bar?.querySelectorAll('button, a[href]') ?? [])].filter(
+        (el) => visible(el) && heading && heading.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING,
+      );
+      const box = mine[0]?.getBoundingClientRect();
+      return {
+        n: mine.length,
+        first: inPage || after[0] === mine[0],
+        keys: mine[0]?.getAttribute('aria-keyshortcuts'),
+        w: box?.width ?? 0,
+        h: box?.height ?? 0,
+        sideways: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      };
+    });
+    if (found.n !== 1) problems.push(`${label} ${where}: ${found.n} search buttons in the top bar, not 1`);
+    else {
+      if (!found.first) problems.push(`${label} ${where}: the search button is not the first trailing action of the top bar`);
+      if (found.keys !== 'Control+K') problems.push(`${label} ${where}: aria-keyshortcuts is "${found.keys}", not "Control+K"`);
+      if (found.w < 47.5 || found.h < 47.5) problems.push(`${label} ${where}: the search button is ${found.w}x${found.h}, under 48 px`);
+    }
+    if (found.sideways) problems.push(`${label} ${where}: the page scrolls sideways with the search button`);
+  }
+  await page.close();
+}
+
+/** The command palette (src/CommandPalette.tsx, spec section 4): it opens from the top bar's button and from Ctrl+K, also with the cursor in text (and a second Ctrl+K
+ * closes it); it is a modal view with the focus in its field, full screen on a phone and docked on a computer, 48 px rows and buttons, no sideways scroll; before typing it
+ * shows *Suggested* (the first places of the menu), a place of the menu is found by its name (Files, under Go to), a page by its title (under Pages and posts), a live region
+ * says how many, the arrow keys move the highlight, Enter goes there, closes it and puts the focus on the new screen's heading, and the next time *Recent* has it first;
+ * nothing found says so; Escape closes it and the focus goes back to the button, or to the text. */
+async function checkCommandPalette(width) {
+  const label = `${width}px command palette`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.waitForSelector(':is(header button[aria-label="Search"], [data-search-bar-button]):visible', { timeout: 15_000 });
+  // A page of this site (the demo's and the starter's differ): the first of the pages list, found by its title further down.
+  await page.evaluate(() => (location.hash = '#list/pages'));
+  await page.waitForSelector('main a.list-item-container', { timeout: 15_000 }).catch(() => {});
+  const pageTitle = (
+    await page
+      .locator('main a.list-item-container .list-item-headline')
+      .first()
+      .textContent({ timeout: 3000 })
+      .catch(() => null)
+  )?.trim();
+  await page.evaluate(() => (location.hash = ''));
+  await page.waitForTimeout(300);
+  const button = page.locator(':is(header button[aria-label="Search"], [data-search-bar-button]):visible');
+  // The start screen shows the search bar all the time (M3 contained, 56 px high), not the icon; other screens keep the icon.
+  const homeBar = await page.evaluate(() => {
+    const bar = [...document.querySelectorAll('[data-search-bar-button]')].find((b) => b.getClientRects().length > 0);
+    const r = bar?.getBoundingClientRect();
+    const own = bar?.closest('.search-bar')?.getBoundingClientRect();
+    return {
+      bar: !!r && r.width > 0,
+      height: own?.height ?? 0,
+      left: own?.left ?? 0,
+      icon: [...document.querySelectorAll('header button[aria-label="Search"]')].some((b) => b.getClientRects().length > 0),
+    };
+  });
+  if (!homeBar.bar || Math.abs(homeBar.height - 56) > 0.5)
+    problems.push(`${label}: the start screen has no 56 px search bar (${JSON.stringify(homeBar)})`);
+  // M3 specs, Measurements: an unfocused search bar is 24dp from the screen's edge (on a phone, in the page; from medium it stands in the top bar).
+  if (touch && Math.abs(homeBar.left - 24) > 0.5)
+    problems.push(`${label}: the phone's search bar is ${homeBar.left} dp from the edge, not 24 (M3 specs)`);
+  if (homeBar.icon) problems.push(`${label}: the start screen also has the search icon button`);
+  const view = page.locator('[data-search-controlled] [data-search-view-open]');
+  const input = view.locator('input[role=combobox]');
+  const options = view.locator('[role=option]');
+  const live = view.locator('.search-view-live');
+  const groups = () =>
+    view
+      .locator('.search-view-group')
+      .evaluateAll((els) => els.map((g) => document.getElementById(g.getAttribute('aria-labelledby') ?? '')?.textContent ?? ''));
+  const names = () => options.evaluateAll((els) => els.map((e) => e.querySelector('.list-item-headline')?.textContent ?? ''));
+  const active = () => input.getAttribute('aria-activedescendant');
+  const activeIs = async (i) => (await active()) === (await options.nth(i).getAttribute('id'));
+  const focusOn = () =>
+    page.evaluate(
+      () =>
+        `${document.activeElement?.tagName}:${document.activeElement?.getAttribute('aria-label') ?? ''}:${document.activeElement?.className?.toString().includes('ProseMirror') ?? false}`,
+    );
+  const shut = async (why) => {
+    await page.waitForTimeout(250);
+    if (await view.count()) problems.push(`${label}: the palette is still open ${why}`);
+  };
+
+  // The button opens it: a modal view with the focus in the field, full screen on a phone and docked in the middle near the top on a computer.
+  await button.click();
+  await view.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the button does not open the palette`));
+  if (!(await view.count())) return page.close();
+  await page.waitForTimeout(400);
+  const box = await view.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    return {
+      modal: el.matches(':modal'),
+      docked: el.classList.contains('search-view-docked'),
+      left: r.left,
+      right: r.right,
+      top: r.top,
+      width: r.width,
+      height: r.height,
+      vw: innerWidth,
+      vh: innerHeight,
+      sideways: document.documentElement.scrollWidth > innerWidth,
+    };
+  });
+  if (touch !== box.modal)
+    problems.push(
+      `${label}: the palette is ${box.modal ? 'modal' : 'not modal'} on a ${touch ? 'phone' : 'computer'} (a dropdown from medium)`,
+    );
+  if (touch) {
+    if (box.docked || box.width < box.vw - 1 || box.height < box.vh - 1)
+      problems.push(
+        `${label}: on a phone the palette is full screen (it is ${Math.round(box.width)}x${Math.round(box.height)} of ${box.vw}x${box.vh})`,
+      );
+  } else {
+    // A dropdown on the search bar of the start screen: its left edge and top are the bar's, as wide as the bar (360 to 720 dp), no scrim.
+    const bar = await page.evaluate(() => document.querySelector('header .search-bar')?.getBoundingClientRect().toJSON());
+    if (
+      !box.docked ||
+      !bar ||
+      Math.abs(box.left - bar.left) > 1 ||
+      Math.abs(box.top - bar.top) > 1 ||
+      Math.abs(box.width - Math.min(720, Math.max(360, bar.width))) > 1
+    )
+      problems.push(
+        `${label}: on a computer the palette is a dropdown on the search bar (palette left ${Math.round(box.left)}, top ${Math.round(box.top)}, width ${Math.round(box.width)}; bar ${JSON.stringify(bar)})`,
+      );
+    if (box.height > box.vh * (2 / 3) + 1 || box.height < 240 - 1)
+      problems.push(`${label}: the dropdown is ${Math.round(box.height)} px high, not 240 dp to 2/3 of the window (M3 specs)`);
+    if (await page.evaluate(() => getComputedStyle(document.querySelector('[data-search-view-open]')).position !== 'fixed'))
+      problems.push(`${label}: the dropdown is not on top of the page`);
+  }
+  if (box.sideways) problems.push(`${label}: the page scrolls sideways with the palette open`);
+  if (!(await input.evaluate((el) => el === document.activeElement)))
+    problems.push(`${label}: the focus is not in the field when it opens`);
+  if ((await view.getAttribute('aria-label')) !== 'Search actions and pages')
+    problems.push(`${label}: the palette is not named "Search actions and pages"`);
+
+  // On a computer it is a dropdown, not a layer: a press outside it closes it (and the page behind it was not inert), then the button opens it again.
+  if (!touch) {
+    if (await page.evaluate(() => !!document.querySelector('[inert]')))
+      problems.push(`${label}: something is inert behind the dropdown (it must not be modal)`);
+    await page.mouse.click(box.vw - 4, box.vh / 2);
+    await shut('after a press outside it');
+    await button.click();
+    await view.waitFor({ timeout: 5000 });
+    await page.waitForTimeout(300);
+  }
+  // Before typing: Suggested, the first places of the menu, 48 px rows, the first one highlighted, the count read aloud.
+  const first = await groups();
+  const n = await options.count();
+  if (first.join() !== 'Suggested' || n < 1 || n > 6)
+    problems.push(`${label}: before typing the palette shows ${JSON.stringify(first)} with ${n} options, not Suggested with 1 to 6`);
+  // Nothing looks selected or focused when it opens: the highlight (the arrow keys' option, aria-activedescendant) starts after a key or the pointer.
+  if (await active()) problems.push(`${label}: an option is highlighted as soon as the palette opens (${await active()})`);
+  if (await view.locator('[role=option][aria-selected=true]').count())
+    problems.push(`${label}: an option is drawn selected as soon as the palette opens`);
+  if (
+    await page.evaluate(
+      () => document.activeElement?.closest('[data-search-view-open]') !== null && document.activeElement?.tagName !== 'INPUT',
+    )
+  )
+    problems.push(`${label}: a control other than the field has the focus when the palette opens`);
+  if ((await live.textContent()) !== `${n} results`)
+    problems.push(`${label}: the live region says "${await live.textContent()}" for ${n} options`);
+  const heights = await options.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height));
+  if (heights.some((h) => h < 47.5)) problems.push(`${label}: an option is lower than 48 px (${heights.map(Math.round)})`);
+  const bars = await view
+    .locator('.search-view-header button')
+    .evaluateAll((els) =>
+      els.map((b) => Math.max(b.getBoundingClientRect().height, parseFloat(getComputedStyle(b, '::after').height) || 0)),
+    );
+  if (bars.some((h) => h < 47.5)) problems.push(`${label}: a button of the field's row is lower than 48 px (${bars.map(Math.round)})`);
+  // The arrow keys move the highlight, the focus stays in the field.
+  await page.keyboard.press('ArrowDown');
+  if (!(await activeIs(0))) problems.push(`${label}: ArrowDown does not go to the first option`);
+  await page.keyboard.press('ArrowDown');
+  if (!(await activeIs(1))) problems.push(`${label}: ArrowDown does not move to the second option`);
+  await page.keyboard.press('ArrowUp');
+  if (!(await activeIs(0))) problems.push(`${label}: ArrowUp does not move back to the first option`);
+  await page.keyboard.press('End');
+  if (!(await activeIs(n - 1))) problems.push(`${label}: End does not go to the last option`);
+  // Escape closes it, and the focus is back on the button.
+  await page.keyboard.press('Escape');
+  await shut('after Escape');
+  if (!(await page.evaluate(() => !!document.activeElement?.matches('header button[aria-label="Search"], [data-search-bar-button]'))))
+    problems.push(`${label}: after Escape the focus is on ${await focusOn()}, not the search button`);
+
+  // A place of the menu is found by its name; Enter goes there, closes the palette and puts the focus on the screen's heading.
+  await page.keyboard.press('Control+k');
+  await view.waitFor({ timeout: 5000 });
+  await page.keyboard.type('files');
+  await page.waitForTimeout(250);
+  const files = { groups: await groups(), names: await names(), live: await live.textContent() };
+  if (files.groups[0] !== 'Go to' || !/^Files/.test(files.names[0] ?? ''))
+    problems.push(`${label}: "files" finds ${JSON.stringify(files.names)} in ${JSON.stringify(files.groups)}, not Files first under Go to`);
+  if (files.live !== `${files.names.length === 1 ? '1 result' : `${files.names.length} results`}`)
+    problems.push(`${label}: the live region says "${files.live}" for ${files.names.length} results`);
+  await page.keyboard.press('Enter');
+  await shut('after Enter');
+  await page.waitForTimeout(500);
+  if ((await page.evaluate(() => location.hash)) !== '#files')
+    problems.push(`${label}: Enter on Files goes to ${await page.evaluate(() => location.hash)}, not #files`);
+  const heading = await page.evaluate(() => `${document.activeElement?.tagName}:${document.activeElement?.textContent?.trim()}`);
+  if (!/^H1:\S/.test(heading)) problems.push(`${label}: after Go to the focus is on "${heading}", not on the screen's heading`);
+
+  // Next time the search typed is first, under Recent searches (history icon, a button that removes it), then what was run, under Recent.
+  await button.click();
+  await view.waitFor({ timeout: 5000 });
+  await page
+    .waitForFunction(
+      () => document.querySelector('[data-search-controlled] .search-view-group-label')?.textContent === 'Recent searches',
+      null,
+      { timeout: 3000 },
+    )
+    .catch(() => {});
+  const again = await groups();
+  const againNames = await names();
+  if (again[0] !== 'Recent searches' || againNames[0] !== 'files')
+    problems.push(
+      `${label}: the next time Recent searches does not have "files" first: ${JSON.stringify(again)} ${JSON.stringify(againNames)}`,
+    );
+  if (again[1] !== 'Recent' || !/^Files/.test(againNames[1] ?? ''))
+    problems.push(`${label}: Recent does not have Files after Recent searches: ${JSON.stringify(again)} ${JSON.stringify(againNames)}`);
+  if (!(await options.first().locator('.list-item-leading svg').count())) problems.push(`${label}: a recent search has no history icon`);
+  if (!(await view.locator('button[aria-label^="Remove"]').count()))
+    problems.push(`${label}: a recent search has no button that removes it`);
+
+  // Material 3's search (spec: contained style): the bar is a filled pill 56 px high in its own container, not a bare list; every row leads with an
+  // icon or a picture; the keyboard's search key submits; a group has its name over it; the chips and the last row come with a query.
+  const look = await view.evaluate((el) => {
+    const bar = el.querySelector('.search-view-header');
+    const bs = getComputedStyle(bar);
+    const r = bar.getBoundingClientRect();
+    const transparent = (c) => c === 'rgba(0, 0, 0, 0)' || c === 'transparent';
+    const docked = el.classList.contains('search-view-docked');
+    // The container of the lists: the view itself full screen, the results container under the bar docked (M3: the bar and the results, 2dp apart).
+    const container = docked ? el.querySelector('.search-view-body') : el;
+    const gap = docked ? el.querySelector('.search-view-body').getBoundingClientRect().top - r.bottom : null;
+    return {
+      docked,
+      gap,
+      barHeight: r.height,
+      barRadius: parseFloat(bs.borderTopLeftRadius),
+      barFilled: !transparent(bs.backgroundColor) && (docked || bs.backgroundColor !== getComputedStyle(container).backgroundColor),
+      viewFilled: !transparent(getComputedStyle(container).backgroundColor),
+      barMargin: r.left - el.getBoundingClientRect().left,
+      hint: el.querySelector('input[role=combobox]').enterKeyHint,
+    };
+  });
+  if (Math.abs(look.barHeight - 56) > 0.5) problems.push(`${label}: the search bar is ${look.barHeight} px high, not 56 (M3 specs)`);
+  if (look.barRadius < 28) problems.push(`${label}: the search bar is not a pill (radius ${look.barRadius})`);
+  if (!look.barFilled) problems.push(`${label}: the search bar has no container of its own: the page is a bare list`);
+  if (!look.viewFilled) problems.push(`${label}: the search view has no container colour`);
+  // M3 tokens: "Search view contained leading margin 12dp" full screen; docked, the bar stands where the bar was, and "docked bar results gap 2dp".
+  if (Math.abs(look.barMargin - (look.docked ? 0 : 12)) > 0.5)
+    problems.push(`${label}: the focused search bar is ${look.barMargin} px from the view's edge, not ${look.docked ? 0 : 12} (M3 tokens)`);
+  if (look.docked && Math.abs(look.gap - 2) > 0.5)
+    problems.push(`${label}: the gap between the bar and the results is ${look.gap} px, not 2 (M3 tokens)`);
+  if (look.hint !== 'search') problems.push(`${label}: the keyboard's key is "${look.hint}", not "search"`);
+  const leadingOf = () => options.evaluateAll((els) => els.map((e) => !!e.querySelector('.list-item-leading svg, .list-item-leading img')));
+  if ((await leadingOf()).some((x) => !x))
+    problems.push(`${label}: before typing a row has no leading icon ${JSON.stringify(await leadingOf())}`);
+  if (await view.locator('.search-view-filters').count()) problems.push(`${label}: the filter chips show before typing`);
+  // A recent search runs again when it is pressed; Delete removes the one the arrows are on.
+  await options.first().click();
+  await page.waitForTimeout(250);
+  if ((await input.inputValue()) !== 'files')
+    problems.push(`${label}: a recent search does not run again (the field says "${await input.inputValue()}")`);
+  await input.fill('s');
+  await page.waitForTimeout(300);
+  const chips = await view.locator('.search-view-filters .chip').allTextContents();
+  if (chips.join() !== 'Actions,Pages,Posts,Images,Files') problems.push(`${label}: the filter chips are ${JSON.stringify(chips)}`);
+  // A chip is not greyed out when something fits it: the pages of this site fit "pages" (the first 30 results are not all of them).
+  const chipOff = await view.locator('.search-view-filters .chip:disabled').count();
+  const pageHit = pageTitle ? pageTitle.trim().split(/\s+/)[0].slice(0, 3) : '';
+  if (pageHit) {
+    await input.fill(pageHit);
+    await page.waitForTimeout(300);
+    const pagesChip = view.locator('.search-view-filters .chip', { hasText: /^Pages$|^Posts$/ });
+    const enabled = await pagesChip.evaluateAll((els) => els.filter((e) => !e.disabled).length);
+    if (!enabled) problems.push(`${label}: no Pages or Posts chip is enabled for "${pageHit}", the first word of the page "${pageTitle}"`);
+    await input.fill('s');
+    await page.waitForTimeout(300);
+  }
+  void chipOff;
+  if ((await view.locator('.search-view-group-label').count()) < 1) problems.push(`${label}: the results have no group name over them`);
+  if ((await leadingOf()).some((x) => !x)) problems.push(`${label}: a result has no leading icon ${JSON.stringify(await leadingOf())}`);
+  const last = (await names()).at(-1) ?? '';
+  if (last !== 'All search results for “s”') problems.push(`${label}: the last row is "${last}", not "All search results for “s”"`);
+  // The chip Actions narrows the results to actions; pressing it again clears it.
+  await view.locator('.search-view-filters .chip', { hasText: 'Actions' }).click();
+  await page.waitForTimeout(250);
+  if (!(await input.evaluate((el) => el === document.activeElement)))
+    problems.push(`${label}: a filter chip took the focus from the field`);
+  // The last row shows all the results and goes away.
+  await page.keyboard.press('End');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(250);
+  if ((await names()).some((n) => n.startsWith('All search results')))
+    problems.push(`${label}: the last row is still there after it was pressed`);
+  if (!(await view.count())) problems.push(`${label}: the last row closed the view, it should show all the results`);
+  await input.fill('');
+  await page.waitForTimeout(250);
+  // Delete removes the recent search the arrows are on.
+  const before = (await names()).length;
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Delete');
+  await page.waitForTimeout(250);
+  if ((await names()).length !== before - 1) problems.push(`${label}: Delete does not remove the recent search`);
+  await page.keyboard.press('Escape');
+  await shut('after the searches');
+  await button.click();
+  await view.waitFor({ timeout: 5000 });
+  // A page is found by its title, under Pages and posts.
+  if (!pageTitle) problems.push(`${label}: the site has no page to find (the pages list is empty)`);
+  else {
+    await input.fill(pageTitle);
+    await page.waitForTimeout(250);
+    const pages = { groups: await groups(), names: await names() };
+    if (!pages.groups.includes('Pages and posts') || !pages.names.includes(pageTitle))
+      problems.push(
+        `${label}: "${pageTitle}" finds ${JSON.stringify(pages.names)} in ${JSON.stringify(pages.groups)}, not that page under Pages and posts`,
+      );
+  }
+  // Nothing found says so, and the field keeps the focus.
+  await input.fill('zzzzqq');
+  await page.waitForTimeout(250);
+  const none = view.locator('.search-view-empty');
+  if (!(await none.isVisible()) || (await none.textContent()) !== 'Nothing found for “zzzzqq”')
+    problems.push(`${label}: nothing found does not say so ("${await none.textContent()}")`);
+  if ((await live.textContent()) !== 'Nothing found')
+    problems.push(`${label}: the live region says "${await live.textContent()}", not "Nothing found"`);
+  if (!(await input.evaluate((el) => el === document.activeElement)))
+    problems.push(`${label}: the field lost the focus when nothing was found`);
+  await page.keyboard.press('Escape');
+  await shut('after nothing found');
+
+  // The key opens it, also with the cursor in text, and a second press closes it; Escape gives the focus back to the text.
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Control+k');
+  await view.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: Ctrl+K does not open the palette with the cursor in text`));
+  if (await view.count()) {
+    if (await page.evaluate(() => document.querySelector('.ProseMirror')?.textContent?.includes('k')))
+      problems.push(`${label}: Ctrl+K typed a letter into the text`);
+    await page.keyboard.press('Control+k');
+    await shut('after a second Ctrl+K');
+    await page.keyboard.press('Control+k');
+    await view.waitFor({ timeout: 5000 });
+    await page.keyboard.press('Escape');
+    await shut('after Escape');
+    if (!(await page.evaluate(() => !!document.activeElement?.closest('.ProseMirror'))))
+      problems.push(`${label}: after Escape the focus is not back in the text (it is on ${await focusOn()})`);
+  }
+
+  await page.close();
+}
+
+/** The text's actions in the palette (src/textActions.ts, spec section 6): with words selected in text, "bold" lists Bold first, Enter makes the selected words bold and the focus is
+ * back in the text; the search button keeps the selection too (it does not take the focus off the text); Italic is found by its name and shows its key. */
+async function checkEditorActions(width) {
+  const label = `${width}px editor actions`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  const view = page.locator('[data-search-controlled] [data-search-view-open]');
+  const input = view.locator('input[role=combobox]');
+  const options = view.locator('[role=option]');
+  const names = () => options.evaluateAll((els) => els.map((e) => e.querySelector('.list-item-headline')?.textContent ?? ''));
+  const shut = async (why) => {
+    await page.waitForTimeout(250);
+    if (await view.count()) problems.push(`${label}: the palette is still open ${why}`);
+  };
+  // Outside a text there is no Bold.
+  await page.waitForTimeout(400);
+  await page.keyboard.press('Control+k');
+  await view.waitFor({ timeout: 5000 });
+  await input.fill('bold');
+  await page.waitForTimeout(250);
+  if ((await names()).includes('Bold')) problems.push(`${label}: Bold is offered outside a text`);
+  await page.keyboard.press('Escape');
+  await shut('after Escape outside a text');
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello world');
+  await page.keyboard.press('Shift+Home');
+  const bold = () => page.evaluate(() => document.querySelector('.ProseMirror strong, .ProseMirror b')?.textContent ?? '');
+
+  // Through the search button the selection stays, and Bold is first for "bold".
+  {
+    await page.locator(':is(header button[aria-label="Search"], [data-search-bar-button]):visible').click();
+    await view.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the button does not open the palette`));
+    if (!(await view.count())) return page.close();
+    await page.waitForTimeout(300);
+    await page.keyboard.type('bold');
+    await page.waitForTimeout(250);
+    const found = await names();
+    if (found[0] !== 'Bold') problems.push(`${label}: "bold" finds ${JSON.stringify(found)}, not Bold first`);
+    await page.keyboard.press('Enter');
+    await shut('after Enter on Bold');
+    await page.waitForTimeout(400);
+    if (!/Hello world/.test(await bold())) problems.push(`${label}: Enter on Bold made "${await bold()}" bold, not the selected words`);
+    if (!(await page.evaluate(() => !!document.activeElement?.closest('.ProseMirror'))))
+      problems.push(`${label}: after Bold the focus is not back in the text`);
+  }
+
+  // Ctrl+K in text: Italic is found, shows its key, and is run.
+  await page.keyboard.press('Control+k');
+  await view.waitFor({ timeout: 5000 });
+  await input.fill('italic');
+  await page.waitForTimeout(250);
+  const italic = await names();
+  if (italic[0] !== 'Italic') problems.push(`${label}: "italic" finds ${JSON.stringify(italic)}, not Italic first`);
+  const keys = await options
+    .first()
+    .evaluate(
+      (e) => e.getAttribute('aria-keyshortcuts') ?? e.querySelector('[aria-keyshortcuts]')?.getAttribute('aria-keyshortcuts') ?? '',
+    );
+  if (!/I/.test(keys)) problems.push(`${label}: Italic shows no key (aria-keyshortcuts "${keys}")`);
+  await page.keyboard.press('Escape');
+  await shut('after Escape');
+
+  await page.close();
+}
+
+/** The palette's last two parts (src/CommandPalette.tsx, ShortcutsSheet.tsx; spec sections 4.6 and 5.4): the action *Keyboard shortcuts* opens a sheet that lists the key of the
+ * search (Ctrl+K) and of every registered action that has one (Bold, Ctrl+B, with a text open); *Clear recent actions* forgets what this browser kept; and signing out forgets it too. */
+async function checkPaletteLast(width) {
+  const label = `${width}px palette shortcuts and recent`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.waitForSelector(':is(header button[aria-label="Search"], [data-search-bar-button]):visible', { timeout: 15_000 });
+  const view = page.locator('[data-search-controlled] [data-search-view-open]');
+  const input = view.locator('input[role=combobox]');
+  const options = view.locator('[role=option]');
+  const names = () => options.evaluateAll((els) => els.map((e) => e.querySelector('.list-item-headline')?.textContent ?? ''));
+  const kept = () => page.evaluate(() => localStorage.getItem('editor-recent-actions'));
+  const shut = async (why) => {
+    await page.waitForTimeout(300);
+    if (await view.count()) problems.push(`${label}: the palette is still open ${why}`);
+  };
+  const run = async (query, first) => {
+    await page.keyboard.press('Control+k');
+    await view.waitFor({ timeout: 5000 });
+    await input.fill(query);
+    await page.waitForTimeout(250);
+    const found = await names();
+    if (found[0] !== first) problems.push(`${label}: "${query}" finds ${JSON.stringify(found)}, not ${first} first`);
+    await page.keyboard.press('Enter');
+    await shut(`after ${first}`);
+    await page.waitForTimeout(300);
+  };
+
+  // A text is open: its keys are in the list, with the search's.
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await run('keyboard shortcuts', 'Keyboard shortcuts');
+  const wanted = [/Search actions and pages.*Ctrl\+K/, /Bold.*Ctrl\+B/, /Italic.*Ctrl\+I/];
+  const missing = (rows) => wanted.filter((want) => !rows.some((r) => want.test(r ?? ''))).map(String);
+  if (touch) {
+    // A phone: a page with a back arrow (owner, 15 Nov), not a sheet; the rows are the ones registered when the action ran.
+    await page
+      .waitForFunction(() => location.hash === '#shortcuts', null, { timeout: 5000 })
+      .catch(() => problems.push(`${label}: on a phone the action does not go to the page #shortcuts `));
+    if (await page.locator('dialog[open]').count()) problems.push(`${label}: on a phone the list is an overlay, not a page`);
+    const rows = await page.locator('main li').evaluateAll((els) => els.map((e) => e.textContent?.replace(/\s+/g, ' ').trim()));
+    if (missing(rows).length) problems.push(`${label}: the page lacks ${missing(rows)} (${JSON.stringify(rows)})`);
+    // The title takes the focus for screen readers, but shows no ring: it is not a control.
+    const ring = await page.evaluate(() => {
+      const h = document.activeElement;
+      return h?.tagName === 'H1' ? getComputedStyle(h).outlineStyle : 'not on the heading';
+    });
+    if (ring !== 'none') problems.push(`${label}: the shortcuts page's title shows a focus ring (outline ${ring})`);
+    const back = page.locator('header a[href="#"]:visible').first();
+    if (!(await back.count())) problems.push(`${label}: the shortcuts page has no back arrow to the start screen`);
+    else {
+      await back.click();
+      await page.waitForTimeout(300);
+      if ((await page.evaluate(() => location.hash)) !== '') problems.push(`${label}: the back arrow does not leave the shortcuts page`);
+    }
+  } else {
+    const sheet = page.locator('dialog[open][aria-label="Keyboard shortcuts"]');
+    await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the shortcuts sheet does not open`));
+    if (await sheet.count()) {
+      const rows = await sheet.locator('li').evaluateAll((els) => els.map((e) => e.textContent?.replace(/\s+/g, ' ').trim()));
+      if (missing(rows).length) problems.push(`${label}: the list lacks ${missing(rows)} (${JSON.stringify(rows)})`);
+      // No control has the focus when it opens (the close button does not show a ring).
+      const on = await page.evaluate(() => document.activeElement?.tagName);
+      if (on === 'BUTTON') problems.push(`${label}: the shortcuts dialog opens with a button focused`);
+      // A dialog in the middle of the screen has no drag handle (the handle belongs to a sheet from the bottom).
+      if (await sheet.locator('.bottom-sheet-drag-handle').evaluateAll((els) => els.some((e) => getComputedStyle(e).display !== 'none')))
+        problems.push(`${label}: the shortcuts dialog shows a drag handle`);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
+      if (await sheet.count()) problems.push(`${label}: Escape does not close the shortcuts sheet`);
+    }
+  }
+
+  // Running the shortcuts action was kept as recent; Clear recent actions forgets it.
+  if (!(await kept())) problems.push(`${label}: nothing was kept after running an action`);
+  await page.evaluate(() => (location.hash = '#'));
+  await page.waitForTimeout(400);
+  await run('clear recent', 'Clear recent actions');
+  await page.waitForTimeout(300);
+  const after = await kept();
+  const clearedOnly = after ? JSON.parse(after).ids : [];
+  if (clearedOnly.length > 1 || (clearedOnly[0] && clearedOnly[0] !== 'palette.clear-recent'))
+    problems.push(`${label}: Clear recent actions leaves ${after}`);
+
+  // Signing out forgets what is kept.
+  await page.evaluate(() =>
+    localStorage.setItem('editor-recent-actions', JSON.stringify({ ids: ['go.files'], counts: { 'go.files': 1 } })),
+  );
+  await page.evaluate(() => (location.hash = '#account'));
+  await page
+    .getByText('Log out', { exact: true })
+    .first()
+    .click({ timeout: 10_000 })
+    .catch(() => problems.push(`${label}: no Log out on the account screen`));
+  await page.waitForTimeout(600);
+  if (await kept()) problems.push(`${label}: signing out leaves the recent actions in this browser`);
+  await page.close();
+}
+
+/** No custom context menu (owner, 13 Nov; spec section 5): a right click (a `contextmenu` event that can be cancelled) in the text, on a row of a List and in a table cell is not
+ * prevented, so the browser's own menu opens. */
+async function checkNoContextMenu(width) {
+  const label = `${width}px no context menu`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  const prevented = (selector) =>
+    page.evaluate((sel) => {
+      const el = document.querySelector(sel);
+      if (!el) return 'missing';
+      const e = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 12, clientY: 12, button: 2 });
+      el.dispatchEvent(e);
+      return e.defaultPrevented;
+    }, selector);
+  const check = async (what, selector) => {
+    const got = await prevented(selector);
+    if (got === 'missing') problems.push(`${label}: ${what} is not there to right click`);
+    else if (got) problems.push(`${label}: a right click on ${what} is prevented, so the browser's menu does not open`);
+  };
+  await check('the text', '.ProseMirror p');
+  await pressInsert(page, touch ? 'tap' : 'click');
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
+  await check('a row of a List', '.inline-list-row-active');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(200);
+  await page.click('.ProseMirror');
+  await page.keyboard.press('Control+End');
+  await page.keyboard.press('Enter');
+  await pressInsert(page, touch ? 'tap' : 'click');
+  await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
+  await page.waitForSelector('.inline-table-cell-active textarea', { timeout: 8000 });
+  await check('a table cell', '.inline-table-cell-active textarea');
+  await page.close();
+}
+
+/** The theme's choice group (theme/ui/ChoiceGroup.tsx, spec docs/superpowers/specs/2026-11-14-choice-group-design.md) on "Parts" ›
+ * "UI components" (ActionParts.tsx), on a phone and a computer, in English and Danish: in every group no two choices overlap and
+ * no label is cut off; it is the buttons only when every button fits; a list row is at least 48 px high and a button's target at
+ * least 48 px; the group is named (role=group with its name, or the fieldset's legend). The group forced to the list has a
+ * sample on each row, the one in the 320 px frame is the list, and in the list the arrow keys choose, in the buttons they move
+ * and Enter chooses. */
+async function checkChoiceGroupParts(width, locale) {
+  const label = `${width}px ${locale} choice group parts`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: touch, isMobile: touch, locale });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#developer/parts/ui'));
+  const part = page.locator('[data-part="ChoiceGroup"]');
+  await part.waitFor({ timeout: 30_000 }).catch(() => problems.push(`${label}: the ChoiceGroup part is not on the page`));
+  if (!(await part.count())) return page.close();
+  await part.scrollIntoViewIfNeeded();
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(300);
+  const groups = await part.evaluate(choiceGroupsIn);
+  if (groups.length !== 3) problems.push(`${label}: ${groups.length} choice groups, not 3`);
+  checkChoiceGroups(label, groups);
+  const [auto, forced, narrow] = groups;
+  if (width >= 1280 && auto?.form !== 'buttons') problems.push(`${label}: three short choices are not side by side at ${width} px`);
+  if (forced && (forced.form !== 'list' || forced.samples !== forced.n))
+    problems.push(`${label}: the forced list has ${forced.samples} samples for ${forced.n} rows`);
+  if (narrow && (!narrow.narrow || narrow.form !== 'list'))
+    problems.push(`${label}: five styles in 320 px are not the list (${narrow.form})`);
+  // The list: the arrow keys choose the next one.
+  const list = part.locator('.choice-group[data-forced] .choice-group-list');
+  await list.locator('input[type="radio"]:checked').focus();
+  await page.keyboard.press('ArrowDown');
+  const chosen = await list.evaluate((l) => [...l.querySelectorAll('input[type="radio"]')].findIndex((r) => r.checked));
+  if (chosen !== 1) problems.push(`${label}: ArrowDown in the list did not choose the second choice (${chosen})`);
+  // The buttons (the first group, where it is the buttons): Tab lands on the chosen one, an arrow moves, Enter chooses.
+  if (auto?.form === 'buttons') {
+    const buttons = part.locator('.choice-group').first().locator(':scope > .choice-group-buttons > button');
+    if ((await buttons.evaluateAll((bs) => bs.filter((b) => b.tabIndex === 0).length)) !== 1)
+      problems.push(`${label}: not exactly one button is in the Tab order`);
+    await buttons.first().focus();
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('Enter');
+    const pressed = await buttons.evaluateAll((bs) => bs.findIndex((b) => b.getAttribute('aria-pressed') === 'true'));
+    if (pressed !== 1) problems.push(`${label}: ArrowRight then Enter in the buttons did not choose the second (${pressed})`);
+  }
+  if (process.env.SHOTS_FULL) await part.screenshot({ path: `${process.env.SHOTS_FULL}-choice-group-${width}-${locale}.png` });
+  await page.close();
 }
 
 /** A modal sheet with a text field on a phone with its on-screen keyboard up (the Source color sheet on Colors, the shared
@@ -282,7 +1568,7 @@ async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300, cus
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#company/colors'));
   if (custom) await page.getByRole('button', { name: 'Custom', exact: true }).click();
-  await page.getByRole('button', { name: `${name}: pick a color` }).click();
+  await page.getByRole('button', { name: `${name}: select a color` }).click();
   const sheet = page.locator(`dialog[open][aria-label="${name}"]`);
   await sheet.waitFor();
   const code = sheet.getByRole('textbox', { name: 'Color code' });
@@ -343,7 +1629,7 @@ async function checkCustomColors(width, height) {
     problems.push(`${label}: the dots are named "${dotNames}"`);
 
   const pick = async (name, hex) => {
-    await page.getByRole('button', { name: `${name}: pick a color` }).click();
+    await page.getByRole('button', { name: `${name}: select a color` }).click();
     const sheet = page.locator(`dialog[open][aria-label="${name}"]`);
     await sheet.waitFor();
     const buttons = await sheet.getByRole('button', { name: /^(Use and lock|Cancel|Use color)$/ }).allInnerTexts();
@@ -508,8 +1794,21 @@ async function checkBottomSheetBar(width, height, keyboard = 0, keyboardUp = fal
   await page.close();
 }
 
-/** A button of the active block's action row by its name (Move up, Move down, Hide on the page, Show on the page, Block settings; Edit on an image card). */
-const rowButton = (page, name) => page.locator(`.site-block-row-button[aria-label="${name}"]:visible`);
+/** A button of the active block's action row by its name (Move up, Move down, Hide, Show, Block settings; Edit on an image card). */
+const rowButton = (page, name) => page.locator(`.site-block-row:not(.site-block-row-hover) [data-row][aria-label="${name}"]:visible`);
+
+/** One choice of a choice group by its name, whichever form it has now: its visible button, or its row of radio buttons (the row's label is the target:
+ * the text under it cannot be pressed on its own). */
+async function chooseOption(page, name) {
+  const button = page.getByRole('button', { name, exact: true }).filter({ visible: true });
+  if (await button.count()) return void (await button.last().click());
+  await page
+    .locator('.choice-group-list .list-item-content')
+    .filter({ hasText: new RegExp(`^${name}$`) })
+    .filter({ visible: true })
+    .last()
+    .click();
+}
 
 /** A tool of the text's one bar by its name: a button of the active block's action row, its button on the bar, or its row in the ⋮ menu when it did not fit (a phone). `how`: 'click' or 'tap'.
  * The bar's buttons keep the cursor where it is. "Edit" is the bar's gear (the row's or item's settings); the block's own settings are Block settings, in the row. */
@@ -534,6 +1833,330 @@ async function pressMore(page, name, how = 'click', which = 'last') {
   const row = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${name}$`) });
   // `last`: the block's own menu, which is last in the ⋮ (a gear named Edit may stand before it); `first`: a tool of the bar that did not fit.
   await row[which]()[how]();
+}
+
+/** A block's sheet on a phone (spec 2026-11-14-one-save-while-writing-design.md, 4.2, 4.3, 10; owner, 14 Nov: full-screen views are pages): a subpage of the
+ * page form, drawn as the crop page is, not a full-screen dialog: the top app bar has the back arrow and the block's name only (no Save in it), the fields are
+ * below, and Save is in the bottom bar; the page's Publish is under it and can't be reached; one Save is visible; it has a step of its own in the history. Back
+ * (the arrow, Esc, the browser's back) with no change leaves at once, with a change asks "Keep your changes?"; Back or Save returns to the page at the scroll
+ * place it was, text unchanged. A change is kept in a hidden copy in this browser: after a reload the page offers "Restore your unsaved changes?" (no button
+ * focused), Restore opens the subpage with the change, still unsaved, and Save writes it and deletes the copy (so does Discard in "Keep your changes?"). (An
+ * image's sheet: the same sheet as a block's fields; every block of the demo is typed in place.) */
+async function checkPhoneSheet(width = 375, height = 740) {
+  const label = `${width}px block sheet on a phone`;
+  const path = BUILT_PAGE;
+  const lines = Array.from({ length: 16 }, (_, i) => `Line ${i + 1} of the page.`).join('\n\n');
+  const text = `---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n${lines}\n\n![The Moon](/images/uploads/2026/10/moon.webp)\n\nMore text.\n`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  // The reload leaves a page with changes: let it go.
+  page.on('dialog', (d) => void d.accept().catch(() => {}));
+  await openEditor(page, site, { [path]: text });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('.ProseMirror .site-picture .site-block-card', { timeout: 30_000 });
+  const copies = () =>
+    page.evaluate(() =>
+      Object.keys(localStorage)
+        .filter((k) => k.startsWith('editor-sheet-copy:'))
+        .map((k) => JSON.parse(localStorage.getItem(k))),
+    );
+  const card = page.locator('.ProseMirror .site-picture .site-block-card').first();
+  const sheet = page.locator('dialog[open].block-page');
+  const back = () => sheet.getByRole('button', { name: /^Back to /, exact: false });
+  const asked = () => page.locator('dialog[open]').filter({ hasText: 'Keep your changes?' });
+  const place = () =>
+    page.evaluate(() => ({
+      scroll: Math.round(scrollY),
+      top: Math.round(document.querySelector('.ProseMirror .site-picture .site-block-card')?.getBoundingClientRect().top ?? -1),
+      step: history.state?.sheet,
+      hash: location.hash,
+      text: [...document.querySelectorAll('.ProseMirror p')].map((p) => p.textContent).join('|'),
+    }));
+  const openSheet = async () => {
+    await card.scrollIntoViewIfNeeded();
+    await card.tap();
+    await page.waitForTimeout(300);
+    await pressTool(page, 'Edit', 'tap');
+    await sheet.waitFor({ timeout: 5000 });
+    await page.waitForTimeout(400);
+  };
+  // The page changed first, so its Publish (and Save draft) is there under the subpage.
+  await page.locator('.ProseMirror p', { hasText: 'More text.' }).click();
+  await page.keyboard.press('End');
+  await page.keyboard.type(' Changed.');
+  await page.waitForTimeout(400);
+  await card.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(300);
+  let before = await place();
+  if (before.scroll < 100) problems.push(`${label}: the page is not scrolled (${before.scroll}), so its scroll place cannot be checked`);
+  await openSheet().catch(() => problems.push(`${label}: Edit on the image did not open a subpage`));
+  if (!(await sheet.count())) return void (await page.close());
+  // Where the page is, as the sheet opens (the tap on the block may have scrolled it a little to show the block's row).
+  before = await place();
+  const look = await page.evaluate(() => {
+    const d = document.querySelector('dialog[open].block-page');
+    const r = d.getBoundingClientRect();
+    const named = (re) =>
+      [...document.querySelectorAll('button')].filter((b) => re.test((b.getAttribute('aria-label') || b.textContent || '').trim()));
+    // A button a finger can reach: drawn, and the topmost thing at its middle is the button.
+    const reachable = (b) => {
+      const box = b.getBoundingClientRect();
+      if (!box.width || !box.height || !b.checkVisibility?.({ visibilityProperty: true })) return false;
+      const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+      return !!hit && b.contains(hit) && !b.closest('[inert]');
+    };
+    const publish = named(/^Publish/).filter((b) => !d.contains(b));
+    const bar = d.querySelector('.bottom-sheet-standard');
+    // What makes the Save row the theme's standard bottom sheet (the same surface and top corners as a BottomSheet container), and where Save
+    // and the fields stand: Save stands inside the sheet's own content padding, and the last field ends above the sheet.
+    const sheetLook = (bar, d) => {
+      const ref = document.body.appendChild(document.createElement('div'));
+      ref.className = 'bottom-sheet-container';
+      const refStyle = getComputedStyle(ref);
+      const style = bar ? getComputedStyle(bar) : null;
+      const save = [...(bar?.querySelectorAll('button') ?? [])].pop()?.getBoundingClientRect();
+      const fields = [...d.querySelectorAll('.block-page-main input, .block-page-main textarea')].filter(
+        (f) => f.getBoundingClientRect().height > 0,
+      );
+      const main = d.querySelector('.block-page-main');
+      main.scrollTo(0, main.scrollHeight);
+      const last = fields.at(-1)?.getBoundingClientRect();
+      const out = {
+        standardSheet: !!bar && bar.classList.contains('bottom-sheet-container') && bar.classList.contains('bottom-sheet-standard'),
+        sheetSurface: style && style.backgroundColor === refStyle.backgroundColor,
+        sheetRadius: style && style.borderTopLeftRadius === refStyle.borderTopLeftRadius && style.borderTopLeftRadius !== '0px',
+        sheetFixed: style?.position === 'fixed',
+        saveEnd: save ? Math.round(window.innerWidth - save.right) : null,
+        // The sheet's own content padding (the theme's): Save stands exactly inside it.
+        sheetPad: bar ? Math.round(parseFloat(getComputedStyle(bar.querySelector('.bottom-sheet-content')).paddingRight)) : null,
+        saveBelow: save && bar ? Math.round(bar.getBoundingClientRect().bottom - save.bottom) : null,
+        saveAbove: save && bar ? Math.round(save.top - bar.getBoundingClientRect().top) : null,
+        lastClear: last && bar ? last.bottom <= bar.getBoundingClientRect().top + 1 : null,
+      };
+      ref.remove();
+      return out;
+    };
+    const top = d.querySelector('header');
+    const save = [...(bar?.querySelectorAll('button') ?? [])].find((b) => b.textContent.trim() === 'Save');
+    const names = (el) => [...(el?.querySelectorAll('button') ?? [])].map((b) => (b.getAttribute('aria-label') || b.textContent).trim());
+    return {
+      rect: [r.left, r.top, r.width, r.height].map(Math.round),
+      modal: d.matches(':modal'),
+      full: !!document.querySelector('dialog[open].dialog-modal-full-screen'),
+      title: d.querySelector('h1')?.textContent.trim(),
+      topButtons: names(top),
+      barButtons: names(bar),
+      saveFilled: !!save && /filled/i.test(save.className + (save.dataset.kind ?? '')),
+      saveAtBottom: !!save && Math.abs(save.getBoundingClientRect().bottom - window.innerHeight) < 40,
+      ...sheetLook(bar, d),
+      removes: named(/^Remove$/).filter((b) => d.contains(b)).length,
+      publish: publish.length,
+      publishReachable: publish.filter(reachable).length,
+      saves: named(/^Save( draft)?$/).filter(reachable).length,
+      focusOnPage: document.activeElement === d,
+      focusVisible: [...document.querySelectorAll(':focus-visible')]
+        .filter((e) => getComputedStyle(e).outlineStyle !== 'none' || getComputedStyle(e).boxShadow !== 'none')
+        .map((e) => e.tagName + ':' + (e.getAttribute('aria-label') ?? '')),
+      step: history.state?.sheet,
+    };
+  });
+  if (look.rect.join() !== `0,0,${width},${height}`) problems.push(`${label}: the subpage does not fill the screen (${look.rect})`);
+  if (!look.modal) problems.push(`${label}: the subpage is not modal`);
+  if (look.full) problems.push(`${label}: the block's sheet is a full-screen dialog, not a page`);
+  if (look.title !== 'Image') problems.push(`${label}: the top bar's title is "${look.title}", not the block's name`);
+  if (look.topButtons.join() !== 'Back to T')
+    problems.push(`${label}: the top bar has ${look.topButtons.join(', ')}, not only the back arrow named "Back to T"`);
+  if (look.barButtons.join() !== 'Save') problems.push(`${label}: the bottom bar has ${look.barButtons.join(', ')}, not only Save`);
+  if (!look.saveAtBottom) problems.push(`${label}: Save is not at the bottom of the screen`);
+  if (!look.standardSheet) problems.push(`${label}: the Save row is not the theme's standard bottom sheet`);
+  if (!look.sheetSurface) problems.push(`${label}: the Save row's surface is not a bottom sheet's`);
+  if (!look.sheetRadius) problems.push(`${label}: the Save row's top corners are not a bottom sheet's`);
+  if (!look.sheetFixed) problems.push(`${label}: the Save row is not fixed to the bottom`);
+  // The grid margin (owner, 15 Nov 2026): 16 dp on compact, never the old 20.
+  if (look.sheetPad !== 16) problems.push(`${label}: the sheet's side padding is ${look.sheetPad} dp, not the grid margin 16`);
+  if (look.saveEnd !== look.sheetPad)
+    problems.push(`${label}: Save ends ${look.saveEnd} dp from the side, not at the sheet's own padding (${look.sheetPad} dp)`);
+  if (look.saveAbove !== 16) problems.push(`${label}: Save is ${look.saveAbove} dp from the sheet's top, not 16`);
+  if (look.saveBelow < 16) problems.push(`${label}: Save is ${look.saveBelow} dp from the sheet's bottom, under 16`);
+  if (!look.lastClear) problems.push(`${label}: the last field stays behind the Save row`);
+  if (look.removes) problems.push(`${label}: the subpage has Remove (it is in the block's ⋮)`);
+  if (!look.publish) problems.push(`${label}: the changed page has no Publish to check under the subpage`);
+  if (look.publishReachable) problems.push(`${label}: the page's Publish can be reached while the subpage is open`);
+  if (look.saves !== 1) problems.push(`${label}: ${look.saves} Save buttons can be reached, not one`);
+  // Owner rule, 15 Nov: no control has the focus at the start; the page has it, without a ring or a tooltip.
+  if (!look.focusOnPage) problems.push(`${label}: the focus does not start on the page itself`);
+  if (look.focusVisible.length) problems.push(`${label}: ${look.focusVisible} has focus-visible styling when the subpage opens`);
+  if (look.step !== 'block-page') problems.push(`${label}: the subpage has no step of its own in the history (${look.step})`);
+  // Back with no change leaves at once, to the same place, text unchanged.
+  await back().tap();
+  await page.waitForTimeout(500);
+  const left = await place();
+  if (await sheet.count()) problems.push(`${label}: Back with no change did not leave the subpage`);
+  if (await asked().count()) problems.push(`${label}: Back with no change asked "Keep your changes?"`);
+  if (left.step === 'block-page') problems.push(`${label}: the subpage's step is still in the history after Back`);
+  if (Math.abs(left.scroll - before.scroll) > 1 || Math.abs(left.top - before.top) > 1)
+    problems.push(`${label}: the page is at ${left.scroll} (block at ${left.top}) after Back, it was at ${before.scroll} (${before.top})`);
+  if (left.text !== before.text || left.hash !== before.hash)
+    problems.push(
+      `${label}: the page under the subpage was changed (${left.hash} vs ${before.hash}; ${left.text === before.text ? 'same text' : `text ${before.text?.length} -> ${left.text?.length}: ${left.text?.slice(-60)}`})`,
+    );
+  // The browser's back (the Android gesture) does the same; with a change it asks, and staying gives the subpage its step back.
+  await openSheet();
+  await page.evaluate(() => history.back());
+  await sheet
+    .waitFor({ state: 'detached', timeout: 4000 })
+    .catch(() => problems.push(`${label}: the browser's back did not leave the subpage`));
+  if ((await place()).hash !== before.hash) problems.push(`${label}: the browser's back left the editor, not only the subpage`);
+  await openSheet();
+  const second = await place();
+  await sheet.getByLabel('Alt text').fill('The Moon, again');
+  await page.evaluate(() => history.back());
+  await asked()
+    .waitFor({ timeout: 4000 })
+    .catch(() => problems.push(`${label}: the browser's back with a change did not ask "Keep your changes?"`));
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  if (!(await sheet.count()) || (await place()).step !== 'block-page')
+    problems.push(`${label}: staying after the browser's back did not keep the subpage and give it its step back`);
+  // Back with a change asks; Esc stays; Discard leaves with the image as it was and deletes the hidden copy.
+  await back().tap();
+  await asked()
+    .waitFor({ timeout: 4000 })
+    .catch(() => problems.push(`${label}: Back with a change did not ask "Keep your changes?"`));
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  if (!(await sheet.count())) problems.push(`${label}: Esc on the question did not stay in the subpage`);
+  await back().tap();
+  await asked().getByRole('button', { name: 'Discard', exact: true }).tap();
+  await page.waitForTimeout(700);
+  if (await sheet.count()) problems.push(`${label}: Discard did not leave the subpage`);
+  if ((await copies()).length) problems.push(`${label}: Discard did not delete the hidden copy`);
+  const same = await card.getAttribute('aria-description');
+  if (same === 'The Moon, again') problems.push(`${label}: Discard changed the image`);
+  const afterDiscard = await place();
+  if (Math.abs(afterDiscard.scroll - second.scroll) > 1)
+    problems.push(`${label}: the page is at ${afterDiscard.scroll} after Discard, it was at ${second.scroll}`);
+  // Save returns to the block at the place the page was.
+  await openSheet();
+  const third = await place();
+  await sheet.getByRole('button', { name: 'Save', exact: true }).tap();
+  await page.waitForTimeout(700);
+  const afterSave = await place();
+  if (await sheet.count()) problems.push(`${label}: Save did not leave the subpage`);
+  if (Math.abs(afterSave.scroll - third.scroll) > 1 || Math.abs(afterSave.top - third.top) > 1)
+    problems.push(
+      `${label}: the page is at ${afterSave.scroll} (block at ${afterSave.top}) after Save, it was at ${third.scroll} (${third.top})`,
+    );
+  if (afterSave.text !== third.text) problems.push(`${label}: Save changed the page's text`);
+  if (afterSave.step === 'block-page') problems.push(`${label}: the subpage's step is still in the history after Save`);
+  // A change is kept in the hidden copy (300 ms after it).
+  await openSheet();
+  await sheet.getByLabel('Alt text').fill('The Moon, changed');
+  await page.waitForTimeout(800);
+  const kept = await copies();
+  if (kept.length !== 1 || kept[0].values?.alt !== 'The Moon, changed' || kept[0].block?.type !== 'image')
+    problems.push(`${label}: the change is not in the hidden copy (${JSON.stringify(kept)})`);
+  // A reload offers it back.
+  await page.reload();
+  await page.waitForSelector('.ProseMirror .site-picture .site-block-card', { timeout: 30_000 });
+  const question = page.locator('dialog[open]', { hasText: 'Restore your unsaved changes?' });
+  await question.waitFor({ timeout: 8000 }).catch(() => problems.push(`${label}: a reload does not offer "Restore your unsaved changes?"`));
+  if (await question.count()) {
+    if (!(await question.getByText('Your changes to Image weren’t saved.').count()))
+      problems.push(`${label}: the restore question does not say "Your changes to Image weren’t saved."`);
+    // The owner's dialog rule: no button has the focus to begin with (Restore filled, Discard outlined).
+    const focused = await page.evaluate(() =>
+      document.activeElement?.closest('button') ? document.activeElement.textContent?.trim() : null,
+    );
+    if (focused) problems.push(`${label}: the button "${focused}" has the focus when the restore question opens`);
+    await question.getByRole('button', { name: 'Restore', exact: true }).tap();
+    await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: Restore did not open the image's subpage`));
+    if (await sheet.count()) {
+      const alt = await sheet.getByLabel('Alt text').inputValue();
+      if (alt !== 'The Moon, changed') problems.push(`${label}: Restore opened the subpage without the change (alt "${alt}")`);
+      const unsaved = await card.getAttribute('aria-description');
+      if (unsaved === 'The Moon, changed') problems.push(`${label}: Restore wrote the change to the image before Save`);
+      await sheet.getByRole('button', { name: 'Save', exact: true }).tap();
+      await page.waitForTimeout(800);
+      if (await sheet.count()) problems.push(`${label}: Save did not leave the subpage`);
+      if ((await copies()).length) problems.push(`${label}: Save did not delete the hidden copy`);
+      const described = await card.getAttribute('aria-description');
+      if (described !== 'The Moon, changed') problems.push(`${label}: Save did not write the change to the image (${described})`);
+      if ((await place()).step === 'block-page') problems.push(`${label}: the subpage's step is still in the history after Save`);
+    }
+  }
+  await page.close();
+}
+
+/** The same hidden copy at computer width (PM decision, 14 Nov): Restore opens the live side sheet with the copy's values already written to the block as
+ * unsaved changes of the page (written through the live link like any edit), with no Save or Cancel in the sheet; the copy is deleted. */
+async function checkComputerRestore(width = 1280, height = 900) {
+  const label = `${width}px restoring a block's sheet`;
+  const path = BUILT_PAGE;
+  const text = '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n![The Moon](/images/uploads/2026/10/moon.webp)\n\nMore text.\n';
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  page.on('dialog', (d) => void d.accept().catch(() => {}));
+  await openEditor(page, site, { [path]: text });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('.ProseMirror .site-picture .site-block-card', { timeout: 30_000 });
+  const card = page.locator('.ProseMirror .site-picture .site-block-card').first();
+  // A copy left by the sheet of a narrower window (the same browser): the block, the values it had and the ones typed.
+  await page.evaluate((file) => {
+    localStorage.setItem(
+      `editor-sheet-copy:${file}`,
+      JSON.stringify({
+        page: file,
+        block: {
+          index: 0,
+          type: 'image',
+          before: { src: '/images/uploads/2026/10/moon.webp', alt: 'The Moon', format: '', crop: null, decorative: false },
+        },
+        values: { src: '/images/uploads/2026/10/moon.webp', alt: 'The Moon, restored', format: '', crop: null, decorative: false },
+        at: Date.now(),
+      }),
+    );
+  }, path);
+  await page.reload();
+  await page.waitForSelector('.ProseMirror .site-picture .site-block-card', { timeout: 30_000 });
+  const question = page.locator('dialog[open]', { hasText: 'Restore your unsaved changes?' });
+  await question.waitFor({ timeout: 8000 }).catch(() => problems.push(`${label}: a reload does not offer "Restore your unsaved changes?"`));
+  if (!(await question.count())) return void (await page.close());
+  await question.getByRole('button', { name: 'Restore', exact: true }).click();
+  const sheet = page.locator('.editor-side-sheet');
+  await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: Restore did not open the live side sheet`));
+  await page.waitForTimeout(600);
+  if (await sheet.count()) {
+    const alt = await sheet.getByLabel('Alt text').inputValue();
+    if (alt !== 'The Moon, restored') problems.push(`${label}: the live sheet does not show the restored value (alt "${alt}")`);
+    const buttons = (await sheet.getByRole('button').allTextContents()).map((b) => b.trim());
+    for (const name of ['Save', 'Cancel', 'Insert'])
+      if (buttons.includes(name)) problems.push(`${label}: the live sheet has ${name} (${buttons})`);
+  }
+  // Written to the block as an unsaved change of the page.
+  const described = await card.getAttribute('aria-description');
+  if (described !== 'The Moon, restored') problems.push(`${label}: the restored value was not written to the image (${described})`);
+  const dirty = await page
+    .locator('button', { hasText: /^Publish/ })
+    .first()
+    .isVisible()
+    .catch(() => false);
+  if (!dirty) problems.push(`${label}: the restored change does not show as a change of the page (no Publish)`);
+  const left = await page.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith('editor-sheet-copy:')).length);
+  if (left) problems.push(`${label}: the hidden copy is still there after Restore`);
+  await page.close();
+}
+
+/** The button that leaves a block's sheet without keeping its changes: Cancel (the modal side sheet, the sheet from the bottom), or the back arrow of the subpage a
+ * block's fields are on a phone ("Back to <the page>"). `scope`: a locator to look in (the sheet, or the page for the open dialog). */
+const cancelOf = (scope) => scope.getByRole('button', { name: /^(Cancel|Back to .+)$/ }).first();
+
+/** Ends a block's or section's sheet with its changes kept: Save where it has one (a phone, a sheet from the bottom), else the close button of the live side sheet
+ * from expanded, whose changes are in the page already (spec 2026-11-14 one Save, 4.1). `which`: the Save button when there are several. */
+async function saveOrClose(page, which = 'first') {
+  const save = page.getByRole('button', { name: 'Save', exact: true }).locator('visible=true');
+  if (await save.count()) return void (await save[which]().click());
+  await page.locator('.editor-side-sheet [data-side-sheet-close]').last().click();
 }
 
 /** The bar's Insert block (always on the bar, never in the ⋮ menu). */
@@ -732,7 +2355,7 @@ async function checkTextBar(width = 360) {
     problems.push(`${label}: the ⋮ menu is outside the visible screen or not under its button`);
   if (menu.rows.some((x) => x.h < 43.4)) problems.push(`${label}: a row of the ⋮ menu is under 44 dp`);
   const listOnBar = inText.names.some((n) => n === 'List' || n.startsWith('List:'));
-  for (const name of [...(listOnBar ? [] : ['Bullet list', 'Check list', 'Numbered list']), 'Color'])
+  for (const name of [...(listOnBar ? [] : ['Bullet list', 'Checklist', 'Numbered list']), 'Color'])
     if (!menu.rows.some((x) => x.name === name))
       problems.push(`${label}: the ⋮ menu lacks "${name}" (${menu.rows.map((x) => x.name).join(', ')})`);
   if (!menu.rows.some((x) => x.name === 'Align left'))
@@ -867,9 +2490,9 @@ async function checkTextBar(width = 360) {
   await page.waitForFunction(() => !document.querySelector('.editor-tools-ghost'), null, { timeout: 4000 });
   await page.waitForTimeout(100);
   const idle = await readBar();
-  // Idle: Undo, Redo, Insert block at the right end, no divider and no ⋮.
-  if (idle.names.join() !== 'Undo,Redo,Insert block')
-    problems.push(`${label}: idle the bar has ${idle.names.join()}, not Undo, Redo, Insert block`);
+  // Idle: Preview, then Undo, Redo, Insert block at the right end, no divider and no ⋮ (a new page: no View on site).
+  if (idle.names.join() !== 'Preview,Undo,Redo,Insert block')
+    problems.push(`${label}: idle the bar has ${idle.names.join()}, not Preview, Undo, Redo, Insert block`);
   const idleEnded = rightEndProblem(idle.names, idle.lastRight, idle.barRight - 1, idle.divider);
   if (idleEnded) problems.push(`${label}: idle: ${idleEnded}`);
   if (Math.abs(idle.height - inText.height) > 0.6)
@@ -920,13 +2543,14 @@ async function checkCardBar(width, height = 800) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
-  // The block's fields are in a sheet on a phone and in the side panel from expanded.
+  // The block's fields are in a sheet on a phone (Insert puts it in) and in the live side panel from expanded (it is in already; the close button closes the panel).
   const sheet = page
     .locator('dialog[open], .editor-side-sheet')
     .filter({ has: page.locator('textarea') })
     .last();
   await sheet.locator('textarea').fill('<iframe src="https://www.youtube.com/embed/abc" title="Clip"></iframe>');
-  await sheet.locator('button', { hasText: /^Insert$/ }).click();
+  if (phone) await sheet.locator('button', { hasText: /^Insert$/ }).click();
+  else await sheet.locator('[data-side-sheet-close]').click();
   await page.waitForSelector('.ProseMirror .site-block-card', { timeout: 6000 });
   await page.locator('.ProseMirror .site-block-card').first().click();
   await page.waitForTimeout(400);
@@ -942,10 +2566,13 @@ async function checkCardBar(width, height = 800) {
     problems.push(`${label}: the bar's first group is "${selected.groups}", not the block's name`);
   const tools = await barTools(page);
   if (tools.bar.some((b) => b.height < 43.4 || b.width < 43.4)) problems.push(`${label}: a button of the card's bar is under 44 x 44 dp`);
-  if (!tools.names.includes('Remove') && phone) problems.push(`${label}: the card's menu has no Remove (${tools.names})`);
-  const rowNames = await page.locator('.site-block-row-button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  // Remove is in the card's ⋮ at every width (from expanded the side sheet has none).
+  if (!tools.names.includes('Remove')) problems.push(`${label}: the card's menu has no Remove (${tools.names})`);
+  const rowNames = await page
+    .locator('.site-block-row:not(.site-block-row-hover) [data-row]')
+    .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   if (!rowNames.includes('Move up')) problems.push(`${label}: the card's action row has no Move up (${rowNames})`);
-  if (tools.names.includes('Move up') || tools.names.includes('Hide on the page'))
+  if (tools.names.includes('Move up') || tools.names.includes('Hide'))
     problems.push(`${label}: Move up or Hide is in the bar as well as in the action row (${tools.names})`);
   if (tools.names.filter((n) => n === 'More').length !== 1) problems.push(`${label}: the bar has no single ⋮ (${tools.names})`);
   if (phone) {
@@ -958,8 +2585,8 @@ async function checkCardBar(width, height = 800) {
     await page
       .waitForSelector('dialog[open] textarea', { timeout: 4000 })
       .catch(() => problems.push(`${label}: the gear did not open the block's sheet`));
-    await page
-      .locator('dialog[open] button', { hasText: /^Cancel$/ })
+    // On a phone the sheet is a subpage: its back arrow leaves it.
+    await cancelOf(page.locator('dialog[open]'))
       .click({ timeout: 3000 })
       .catch(() => {});
     await page.waitForTimeout(300);
@@ -993,10 +2620,927 @@ async function checkCardBar(width, height = 800) {
   await page.close();
 }
 
+/** The live side sheet from expanded (spec 2026-11-14 one Save, 4.1 and 4.4): a block from Insert goes in at once with its sheet open beside it; the sheet has
+ * its headline and close button and no Save, Insert, Cancel or Remove; a change of a field shows in the page at once; Undo takes it back and the sheet shows the
+ * old value; the close button asks nothing; Remove is in the block's ⋮; a tap on the card opens the sheet again, and Undo of the insert closes it. */
+async function checkLiveSideSheet(width = 1280) {
+  const label = `${width}px live side sheet`;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
+  const sheet = page.locator('.editor-side-sheet');
+  const opened = await sheet
+    .locator('textarea')
+    .waitFor({ timeout: 6000 })
+    .then(
+      () => true,
+      () => false,
+    );
+  if (!opened) {
+    problems.push(`${label}: Insert did not open the block's side sheet`);
+    return void (await page.close());
+  }
+  const card = page.locator('.ProseMirror .site-block-card').first();
+  if (!(await card.count())) problems.push(`${label}: the new block is not in the page while its sheet is open (no Insert step)`);
+  const buttons = await sheet.locator('button').evaluateAll((els) => els.map((b) => b.textContent.trim()).filter(Boolean));
+  const extra = buttons.filter((b) => ['Save', 'Insert', 'Cancel', 'Remove'].includes(b));
+  if (extra.length) problems.push(`${label}: the side sheet has ${extra.join(', ')} (it is live: only its close button)`);
+  if (!(await sheet.locator('[data-side-sheet-close]').count())) problems.push(`${label}: the side sheet has no close button`);
+  if (await sheet.locator('.side-sheet-actions').count()) problems.push(`${label}: the side sheet has a row of bottom actions`);
+  // A change shows in the page at once.
+  await sheet.locator('textarea').fill('<p>Live text</p>');
+  await page.waitForTimeout(400);
+  const description = () => card.getAttribute('aria-description').catch(() => '');
+  if (!(await description())?.includes('Live text'))
+    problems.push(`${label}: a change in the sheet is not in the page at once (${await description()})`);
+  // Undo takes it back, and the sheet shows the old value.
+  await page.locator('.editor-tools button[aria-label="Undo"]:visible').first().click();
+  await page.waitForTimeout(400);
+  if ((await description())?.includes('Live text')) problems.push(`${label}: Undo did not take the sheet's change back`);
+  const shown = await sheet
+    .locator('textarea')
+    .inputValue({ timeout: 2000 })
+    .catch(() => null);
+  if (shown !== '') problems.push(`${label}: after Undo the sheet shows "${shown}", not the old value`);
+  // The close button closes it, with no question.
+  await sheet.locator('[data-side-sheet-close]').click();
+  await page.waitForTimeout(400);
+  if (await page.locator('dialog[open]').count()) problems.push(`${label}: closing the live sheet asked a question`);
+  if (await sheet.count()) problems.push(`${label}: the close button did not close the side sheet`);
+  // Remove is in the block's ⋮.
+  await card.click();
+  await page.waitForTimeout(400);
+  if (await page.locator('.editor-side-sheet [data-side-sheet-close]').count())
+    await page.locator('.editor-side-sheet [data-side-sheet-close]').click();
+  await page.waitForTimeout(300);
+  const tools = await barTools(page);
+  if (!tools.names.includes('Remove')) problems.push(`${label}: the block's ⋮ has no Remove (${tools.names})`);
+  // A tap on the card opens the sheet; Undo of the insert takes the block out and closes it.
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(300);
+  await card.click();
+  await sheet
+    .locator('textarea')
+    .waitFor({ timeout: 4000 })
+    .catch(() => problems.push(`${label}: a tap on the card did not open its side sheet`));
+  await page.locator('.editor-tools button[aria-label="Undo"]:visible').first().click();
+  await page.waitForTimeout(600);
+  if (await page.locator('.ProseMirror .site-block-card').count()) problems.push(`${label}: Undo did not take the new block out`);
+  else if (await sheet.count()) problems.push(`${label}: the side sheet stayed open after its block was gone`);
+  await page.close();
+}
+
+/** A block's side sheet has no control focused when it opens (owner rule, 14 Nov 2026): the sheet itself has the focus, so no field or button shows a focus
+ * ring from the start; Tab then goes to its first control. The standard side sheet (from expanded) and the modal one (medium). */
+async function checkSheetFocusOnOpen(width) {
+  const label = `${width}px sheet focus on open`;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
+  const sheet = page.locator('dialog[open] [data-side-sheet-container], .editor-side-sheet').last();
+  await sheet
+    .locator('textarea')
+    .waitFor({ timeout: 6000 })
+    .catch(() => problems.push(`${label}: Insert did not open the block's side sheet`));
+  await page.waitForTimeout(500);
+  const focus = await page.evaluate(() => {
+    const el = document.activeElement;
+    return {
+      container: !!el?.matches('[data-side-sheet-container]'),
+      control: !!el?.matches('input, textarea, select, button, a[href]'),
+      outline: el ? getComputedStyle(el).outlineStyle : '',
+      name: el ? `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''}` : 'none',
+    };
+  });
+  if (focus.control) problems.push(`${label}: a control (${focus.name}) has the focus when the sheet opens`);
+  if (!focus.container) problems.push(`${label}: the focus is on ${focus.name}, not on the sheet itself`);
+  if (focus.container && focus.outline !== 'none') problems.push(`${label}: the sheet shows a focus ring of its own (${focus.outline})`);
+  await page.keyboard.press('Tab');
+  const next = await page.evaluate(
+    () => !!document.activeElement?.closest('[data-side-sheet-container]') && document.activeElement?.tagName !== 'BODY',
+  );
+  if (!next) problems.push(`${label}: Tab from the sheet did not go to a control in it`);
+  await page.close();
+}
+
+/** Closing a changed sheet below expanded (from expanded the side sheet is live and asks nothing: checkLiveSideSheet) (closeChanged, ask.tsx; image tools spec 9.3): the question is "Keep your changes?" with the text that the changes stay in the
+ * page until it is saved, and Discard and Keep in one row, Keep last (M3's basic dialog), with no Cancel; Esc stays in the sheet, Keep does what the sheet's
+ * Insert does, and Discard closes it without the block. */
+async function checkCloseChangedSheet(width, height = 800) {
+  const phone = width < 600;
+  const label = `${width}px closing a changed sheet`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  const sheet = page
+    .locator('dialog[open], .editor-side-sheet')
+    .filter({ has: page.locator('textarea') })
+    .last();
+  const question = page.locator('dialog[open]').filter({ hasText: 'Keep your changes?' });
+  const insertVideo = async () => {
+    await pressInsert(page, 'click');
+    await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
+    await sheet.locator('textarea').fill('<iframe src="https://www.youtube.com/embed/abc" title="Clip"></iframe>');
+  };
+  const cancel = () => cancelOf(sheet).click();
+  await insertVideo();
+  await cancel();
+  if (
+    !(await question.waitFor({ timeout: 4000 }).then(
+      () => true,
+      () => false,
+    ))
+  ) {
+    problems.push(`${label}: Cancel with a change does not ask "Keep your changes?"`);
+    return void (await page.close());
+  }
+  const asked = await question.evaluate((d) => ({
+    text: d.textContent,
+    buttons: [...d.querySelectorAll('button')]
+      .filter((b) => b.offsetParent)
+      .map((b) => ({ name: b.textContent.trim(), x: b.getBoundingClientRect().x, y: b.getBoundingClientRect().y })),
+  }));
+  if (!asked.text.includes('Your changes stay in the page until you save it.'))
+    problems.push(`${label}: the question does not say the changes stay in the page (${asked.text.trim()})`);
+  const names = asked.buttons.map((b) => b.name);
+  if (names.join() !== 'Discard,Keep') problems.push(`${label}: the question's buttons are ${names.join(', ')}, not Discard and Keep`);
+  const [discard, keep] = asked.buttons;
+  if (discard && keep && (Math.abs(discard.y - keep.y) > 1 || keep.x <= discard.x))
+    problems.push(`${label}: Keep is not last in one row with Discard (${JSON.stringify(asked.buttons)})`);
+  // Esc stays in the sheet with the change.
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(400);
+  if (await question.count()) problems.push(`${label}: Esc did not close the question`);
+  if (!(await sheet.count()) || !(await sheet.locator('textarea').inputValue()).includes('youtube'))
+    problems.push(`${label}: Esc on the question did not stay in the sheet with the change`);
+  // Discard closes the sheet without the block.
+  await cancel();
+  await question.getByRole('button', { name: 'Discard', exact: true }).click();
+  await page.waitForTimeout(500);
+  if (await page.locator('.ProseMirror .site-block-card').count()) problems.push(`${label}: Discard inserted the block`);
+  // Keep does what Insert does.
+  await insertVideo();
+  await cancel();
+  await question.getByRole('button', { name: 'Keep', exact: true }).click();
+  await page
+    .waitForSelector('.ProseMirror .site-block-card', { timeout: 6000 })
+    .catch(() => problems.push(`${label}: Keep did not insert the block`));
+  await page.close();
+}
+
+/** A selected image's tools on the bar (image tools spec, section 4): Insert › Image puts an image in the text; a tap selects it, and the bar shows Change image,
+ * Crop, Alt text (a text button, drawn at its planned width) and Remove in that order, the ones that do not fit in the ⋮, with no Remove twice; the row has
+ * Move up and Move down (and Settings below expanded). On a computer the tap also opens its settings in the side sheet; on a phone it only selects, and the row's
+ * Settings opens the sheet. Crop opens the crop view, Alt text the alt text sheet; Remove takes the image out and Undo brings it back. */
+async function checkImageTools(width, height = 800) {
+  const phone = width < 600;
+  const expanded = width >= 840;
+  const label = `${width}px image tools`;
+  if (!has('src/data/files')) return void console.log(`${label}: skipped, the site has no images in its Library, which the demo has.`);
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page
+    .locator('dialog[open] button', { hasText: /^Image/ })
+    .first()
+    .click();
+  await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
+  await page.locator('dialog[open] [data-media-tile]').first().click();
+  const sheet = () => page.locator('dialog[open], .editor-side-sheet').last();
+  // From expanded the image goes in at once with its live sheet open (one Save spec 4.1: no Insert or Skip); below it the short alt text sheet follows,
+  // and Skip keeps the image without a text of its own.
+  if (!expanded)
+    await sheet()
+      .locator('button', { hasText: /^Skip$/ })
+      .click({ timeout: 8000 });
+  const image = page.locator('.ProseMirror .site-picture .site-block-card').first();
+  await image.waitFor({ timeout: 8000 });
+  await page.waitForTimeout(500);
+  await image[phone ? 'tap' : 'click']();
+  await page.waitForTimeout(700);
+  const state = await page.evaluate(() => ({
+    pressed: document.querySelector('.site-picture .site-block-card')?.getAttribute('aria-pressed'),
+    tools: [...document.querySelectorAll('.editor-tools-context button')].map((b) => ({
+      name: b.getAttribute('aria-label') || b.textContent.trim(),
+      text: b.textContent.trim(),
+      w: b.getBoundingClientRect().width,
+      scroll: b.scrollWidth > b.clientWidth + 1,
+    })),
+    row: [...document.querySelectorAll('.site-block-row:not(.site-block-row-hover) [data-row]')].map((b) => b.getAttribute('aria-label')),
+    panel: !!document.querySelector('.editor-side-sheet input, .editor-side-sheet textarea'),
+    dialog: !!document.querySelector('dialog[open]'),
+  }));
+  const TOOLS = ['Change image', 'Crop', 'Alt text', 'Remove'];
+  const names = state.tools.map((b) => b.name);
+  let more = [];
+  if (names.length < 4) {
+    await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+    await page.waitForTimeout(300);
+    more = (await page.locator('[role=menu] [role^=menuitem]').allTextContents()).map((r) => r.trim());
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+  }
+  if (state.pressed !== 'true') problems.push(`${label}: a tap on the image did not select it`);
+  if (names.join() !== TOOLS.slice(0, names.length).join() || !names.length)
+    problems.push(`${label}: the bar's image tools are ${names.join(', ') || 'none'}, not Change image, Crop, Alt text, Remove in order`);
+  for (const name of TOOLS.slice(names.length))
+    if (!more.includes(name)) problems.push(`${label}: ${name} is neither on the bar nor in the ⋮ (${more})`);
+  if (more.filter((r) => r === 'Remove').length + names.filter((n) => n === 'Remove').length !== 1)
+    problems.push(`${label}: Remove is not offered exactly once`);
+  const alt = state.tools.find((b) => b.name === 'Alt text');
+  if (alt && (alt.text !== 'Alt text' || alt.scroll))
+    problems.push(`${label}: Alt text is not a text button showing its whole label (${JSON.stringify(alt)})`);
+  if (state.tools.some((b) => b.name !== 'Alt text' && (b.w < 43.4 || b.text)))
+    problems.push(`${label}: an icon tool is not a 44 dp icon button`);
+  for (const name of ['Move up', 'Move down'])
+    if (!state.row.includes(name)) problems.push(`${label}: the row has no ${name} (${state.row})`);
+  if (expanded && !state.panel) problems.push(`${label}: on a computer the tap did not open the image's settings in the side sheet`);
+  if (!expanded && state.dialog) problems.push(`${label}: below expanded the tap opened a sheet instead of only selecting`);
+  if (!expanded && !state.row.includes('Block settings') && !state.row.includes('Edit'))
+    problems.push(`${label}: the row has no Settings below expanded (${state.row})`);
+  // Crop opens the crop view; Alt text the alt text sheet (the live sheet's field from expanded); Remove takes the image out, Undo brings it back.
+  const tool = async (name) => {
+    await image[phone ? 'tap' : 'click']();
+    await page.waitForTimeout(500);
+    await pressTool(page, name, phone ? 'tap' : 'click');
+    await page.waitForTimeout(900);
+  };
+  const focused = () =>
+    page.evaluate(() => {
+      const el = document.activeElement;
+      const label = el?.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`)?.textContent.trim() : '';
+      return { label, sheet: !!el?.closest('dialog[open], .editor-side-sheet') };
+    });
+  // Cancel below expanded; from expanded the live side sheet has only its close button.
+  const cancel = async () => {
+    await (expanded ? sheet().locator('[data-side-sheet-close]').first() : cancelOf(sheet())).click({ timeout: 3000 }).catch(() => {});
+    await page.waitForTimeout(500);
+  };
+  await tool('Crop');
+  if (!(await page.locator('.crop-page[open]').count())) problems.push(`${label}: Crop did not open the crop view`);
+  await page.locator('.crop-page[open]').getByRole('button', { name: 'Back to Image', exact: true }).click();
+  await page.waitForTimeout(500);
+  await tool('Alt text');
+  if (expanded) {
+    // From expanded the image's live side sheet has the Alt text field focused.
+    const at = await focused();
+    if (at.label !== 'Alt text')
+      problems.push(`${label}: Alt text did not open the image's live sheet at its Alt text field (${JSON.stringify(at)})`);
+  } else {
+    // Below expanded the short alt text sheet opens.
+    const altSheet = page.locator('dialog[open]').filter({ hasText: 'Decorative image' }).last();
+    if (
+      !(await altSheet.getByRole('heading', { name: 'Alt text', exact: true }).count()) &&
+      !(await altSheet.getByText('Alt text', { exact: true }).count())
+    )
+      problems.push(`${label}: Alt text did not open the alt text sheet`);
+  }
+  await cancel();
+  await tool('Remove');
+  if (await page.locator('.ProseMirror .site-picture').count()) problems.push(`${label}: Remove did not take the image out`);
+  await pressTool(page, 'Undo', phone ? 'tap' : 'click');
+  await page.waitForTimeout(500);
+  if (!(await page.locator('.ProseMirror .site-picture').count())) problems.push(`${label}: Undo did not bring the removed image back`);
+  // Delete on the selected image (a keyboard) does what Remove does.
+  if (!phone) {
+    await image.focus();
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(400);
+    await image.focus();
+    await page.keyboard.press('Delete');
+    await page.waitForTimeout(400);
+    if (await page.locator('.ProseMirror .site-picture').count()) problems.push(`${label}: Delete on the selected image did not remove it`);
+  }
+  await page.close();
+}
+/** The crop view (src/CropView.tsx, image tools spec section 3): a page of the editor on every width (owner, 14 Nov), opened by the bar's Crop (never by an image that was
+ * just picked): a top app bar with a back arrow and the title, the page as large as the window with Save in a bottom bar (and Cancel from medium), and the form under it
+ * left as it was (scroll place, text). It starts as Original (the whole image, no frame, the slider off); an aspect ratio gives a frame of that ratio with the theme's
+ * scrim outside it and a two-tone border; the slider and its minus and plus buttons zoom, a drag places the image under the frame, the wheel zooms with a mouse and a
+ * pinch with two fingers; Save writes `#format=…&crop=…` to the image; leaving with changes (the arrow, Cancel, the phone's back gesture) asks "Keep your changes?"; the
+ * image sheet has an Aspect ratio row (no Format chips) that opens the same page. */
+async function checkCropView(width, height = 800) {
+  const phone = width < 600;
+  const label = `${width}px crop view`;
+  if (!has('src/data/files')) return void console.log(`${label}: skipped, the site has no images in its Library, which the demo has.`);
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page
+    .locator('dialog[open] button', { hasText: /^Image/ })
+    .first()
+    .click();
+  await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
+  await page.locator('dialog[open] [data-media-tile]').first().click();
+  // From expanded the image goes in at once with its live sheet open (one Save spec 4.1: no Insert or Skip); below it the short alt text sheet follows,
+  // and Skip keeps the image without a text of its own.
+  if (width < 840)
+    await page
+      .locator('dialog[open], .editor-side-sheet')
+      .last()
+      .locator('button', { hasText: /^Skip$/ })
+      .click({ timeout: 8000 });
+  const image = page.locator('.ProseMirror .site-picture .site-block-card').first();
+  await image.waitFor({ timeout: 8000 });
+  await page.waitForTimeout(800);
+  if (await page.locator('.crop-page[open]').count()) problems.push(`${label}: the crop view opened by itself after the image was picked`);
+  const view = page.locator('.crop-page[open]');
+  const how = phone ? 'tap' : 'click';
+  const select = async () => {
+    await image[how]();
+    await page.waitForTimeout(600);
+  };
+  const open = async () => {
+    await select();
+    await pressTool(page, 'Crop', how);
+    await view.waitFor({ timeout: 5000 });
+    await page.waitForTimeout(500);
+  };
+  const back = () => view.getByRole('button', { name: 'Back to Image', exact: true });
+  const zoom = () => view.locator('input[type=range]').inputValue().then(Number);
+  const pictureBox = () => view.locator('.crop-view-image').boundingBox();
+  const chip = (name) => view.locator('.crop-view-ratios').getByText(name, { exact: true });
+  const asked = () => page.locator('dialog[open]').filter({ hasText: 'Keep your changes?' });
+
+  const scroll0 = await page.evaluate(() => scrollY);
+  await open();
+  // No control has the focus at the start (owner, 15 Nov): the page has it, and nothing shows focus-visible styling.
+  const start = await view.evaluate((d) => ({
+    onPage: document.activeElement === d,
+    styled: [...document.querySelectorAll(':focus-visible')].filter(
+      (e) => getComputedStyle(e).outlineStyle !== 'none' || getComputedStyle(e).boxShadow !== 'none',
+    ).length,
+  }));
+  if (!start.onPage) problems.push(`${label}: the focus does not start on the crop page itself`);
+  if (start.styled) problems.push(`${label}: an element has focus-visible styling when the crop page opens`);
+  // A page on every width: the window's size, a top app bar with the back arrow and the title, a bottom bar with Save (Cancel from medium); not a dialog's parts.
+  const kind = await view.evaluate(
+    (d, vp) => {
+      const r = d.getBoundingClientRect();
+      return {
+        fills: Math.abs(r.width - vp.w) < 1 && Math.abs(r.height - vp.h) < 1,
+        title: d.querySelector('h1')?.textContent,
+        bar: !!d.querySelector('header, .top-app-bar, [class*="top-app-bar"]'),
+        dialogParts: !!d.querySelector('.dialog-basic, .dialog-full-screen, .dialog-headline'),
+        buttons: [...d.querySelectorAll('.bottom-sheet-standard button')].map((b) => b.textContent.trim()),
+        area: d.querySelector('.crop-view-area').getBoundingClientRect().width,
+      };
+    },
+    { w: width, h: height },
+  );
+  if (!kind.fills) problems.push(`${label}: the crop view is not as large as the window`);
+  if (kind.dialogParts) problems.push(`${label}: the crop view is built of a dialog's parts, not a page`);
+  if (kind.title !== 'Crop') problems.push(`${label}: the page's title is "${kind.title}", not Crop`);
+  if (!(await view.getByRole('button', { name: 'Back to Image', exact: true }).count()))
+    problems.push(`${label}: the page has no back arrow`);
+  if (kind.buttons.join() !== (phone ? 'Save' : 'Cancel,Save'))
+    problems.push(`${label}: the bottom bar has ${kind.buttons.join(', ')}, not ${phone ? 'Save' : 'Cancel, Save'}`);
+  if (kind.area < Math.min(width - 48, 300)) problems.push(`${label}: the image area is only ${kind.area} dp wide`);
+  const missing = await view.locator('[data-icon-missing]').evaluateAll((els) => els.map((e) => e.getAttribute('data-icon-missing')));
+  if (missing.length) problems.push(`${label}: the crop view draws a missing icon (${missing})`);
+  // Original: the whole image, no frame, no scrim, the slider and its buttons off.
+  if (await view.locator('.crop-view-frame').count()) problems.push(`${label}: Original has a frame`);
+  if (!(await view.locator('input[type=range]').isDisabled())) problems.push(`${label}: the slider is on for Original`);
+  for (const name of ['Zoom in', 'Zoom out'])
+    if (!(await view.getByRole('button', { name }).isDisabled())) problems.push(`${label}: ${name} is on for Original`);
+  const whole = await view.evaluate((d) => {
+    const a = d.querySelector('.crop-view-area').getBoundingClientRect();
+    const i = d.querySelector('.crop-view-image').getBoundingClientRect();
+    return { inside: i.left >= a.left - 0.5 && i.right <= a.right + 0.5 && i.top >= a.top - 0.5 && i.bottom <= a.bottom + 0.5 };
+  });
+  if (!whole.inside) problems.push(`${label}: Original does not show the whole image in the area`);
+  // The ratios: Original first, then the seven, in one row that scrolls sideways below medium and wraps from medium.
+  const names = await view.locator('.crop-view-ratios > *').allTextContents();
+  if (names.map((n) => n.trim()).join() !== 'Original,1:1,4:5,3:4,2:3,3:2,4:3,16:9')
+    problems.push(`${label}: the aspect ratios are ${names.join(', ')}`);
+  const row = await view.locator('.crop-view-ratios').evaluate((el) => ({
+    scrolls: el.scrollWidth > el.clientWidth + 1,
+    rows: new Set([...el.children].map((c) => Math.round(c.getBoundingClientRect().top))).size,
+  }));
+  if (phone && row.rows !== 1)
+    problems.push(`${label}: the aspect ratios are in ${row.rows} rows below medium, not one that scrolls sideways`);
+  if (!phone && row.scrolls)
+    problems.push(`${label}: the aspect ratios scroll sideways from medium, where they wrap (${JSON.stringify(row)})`);
+  // 3:2: a frame of that ratio, the scrim outside it, a two-tone border.
+  await chip('3:2').click();
+  await page.waitForTimeout(500);
+  const frame = await view.locator('.crop-view-frame').evaluate((f) => {
+    const s = getComputedStyle(f);
+    const b = f.getBoundingClientRect();
+    return { ratio: b.width / b.height, border: s.borderTopWidth, borderColor: s.borderTopColor, shadow: s.boxShadow };
+  });
+  if (Math.abs(frame.ratio - 1.5) > 0.02) problems.push(`${label}: the frame for 3:2 has the ratio ${frame.ratio}`);
+  if (frame.border !== '2px' || !/ 0px 0px 0px 1px$/.test(frame.shadow))
+    problems.push(`${label}: the frame has no 2 dp border with a 1 dp halo (${frame.border}, ${frame.shadow})`);
+  if (frame.borderColor === frame.shadow.replace(/ 0px 0px 0px 1px$/, ''))
+    problems.push(`${label}: the frame's border and halo are one colour`);
+  // The scrim is a layer on the image alone, the frame cut out of it (not a shadow of the frame, which would grey the blank part of the stage too).
+  const shade = await view.evaluate((d) => {
+    const el = d.querySelector('.crop-view-shade');
+    const i = d.querySelector('.crop-view-image').getBoundingClientRect();
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    return {
+      same: Math.abs(r.x - i.x) < 1 && Math.abs(r.y - i.y) < 1 && Math.abs(r.width - i.width) < 1 && Math.abs(r.height - i.height) < 1,
+      clip: getComputedStyle(el).clipPath,
+      bg: getComputedStyle(el).backgroundColor,
+    };
+  });
+  if (!shade) problems.push(`${label}: no scrim layer outside the frame`);
+  else {
+    if (!shade.same) problems.push(`${label}: the scrim layer is not the image's box (${JSON.stringify(shade)})`);
+    if (!/polygon/.test(shade.clip)) problems.push(`${label}: the scrim layer has no hole for the frame (${shade.clip})`);
+    if (/rgba?\(0, 0, 0, 0\)|transparent/.test(shade.bg))
+      problems.push(`${label}: the scrim outside the frame is see-through (${shade.bg})`);
+  }
+  if ((await view.locator('.crop-view-area').evaluate((a) => getComputedStyle(a).backgroundColor)) !== 'rgba(0, 0, 0, 0)')
+    problems.push(`${label}: the image area has a background of its own, not the page's`);
+  const z1 = await zoom();
+  if (Math.abs(z1 - 1) > 0.01) problems.push(`${label}: a new ratio does not start at zoom 1 (${z1})`);
+  // Zoom: the slider and the buttons; the image grows under the frame.
+  const before = await pictureBox();
+  await view.locator('input[type=range]').focus();
+  await page.keyboard.press('End');
+  await page.waitForTimeout(300);
+  if ((await zoom()) < 3.99) problems.push(`${label}: the slider's End key does not zoom to 4`);
+  const after = await pictureBox();
+  if (!(after.width > before.width * 3.5))
+    problems.push(`${label}: zoom 4 does not make the image about 4 times as wide (${before.width} -> ${after.width})`);
+  await view.getByRole('button', { name: 'Zoom out' }).click();
+  await page.waitForTimeout(200);
+  const out = await zoom();
+  if (Math.abs(out - 3.75) > 0.02) problems.push(`${label}: Zoom out does not step the zoom down by a quarter (${out})`);
+  await view.getByRole('button', { name: 'Zoom in' }).click();
+  await view.getByRole('button', { name: 'Zoom in' }).click();
+  if ((await zoom()) > 4.001) problems.push(`${label}: Zoom in goes past 4`);
+  // Drag: the image moves under the fixed frame, and keeps covering it.
+  const area = await view.locator('.crop-view-area').boundingBox();
+  const fbox = () => view.locator('.crop-view-frame').boundingBox();
+  const f0 = await fbox();
+  const p0 = await pictureBox();
+  await page.mouse.move(area.x + area.width / 2, area.y + area.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(area.x + area.width / 2 - 60, area.y + area.height / 2 - 40, { steps: 6 });
+  await page.mouse.up();
+  await page.waitForTimeout(200);
+  const f1 = await fbox();
+  const p1 = await pictureBox();
+  if (Math.abs(f1.x - f0.x) > 0.5 || Math.abs(f1.y - f0.y) > 0.5) problems.push(`${label}: the frame moved with the drag`);
+  if (Math.abs(p1.x - (p0.x - 60)) > 2 || Math.abs(p1.y - (p0.y - 40)) > 2)
+    problems.push(`${label}: a drag by (-60, -40) moved the image by (${p1.x - p0.x}, ${p1.y - p0.y})`);
+  if (!(p1.x <= f1.x + 0.5 && p1.y <= f1.y + 0.5 && p1.x + p1.width >= f1.x + f1.width - 0.5 && p1.y + p1.height >= f1.y + f1.height - 0.5))
+    problems.push(`${label}: the image leaves a gap in the frame after the drag`);
+  // A drag far past the edge stops at the edge.
+  await page.mouse.move(area.x + area.width / 2, area.y + area.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(area.x + area.width / 2 + 2000, area.y + area.height / 2 + 2000, { steps: 4 });
+  await page.mouse.up();
+  const p2 = await pictureBox();
+  if (!(p2.x <= f1.x + 0.5 && p2.y <= f1.y + 0.5)) problems.push(`${label}: the image leaves a gap in the frame when dragged far`);
+  // The pixels, with a white test image: white inside the frame, darkened by the scrim on the image outside it, and the page's own colour where the image
+  // does not reach (the blank part of the stage: no grey strip).
+  await view.locator('.crop-view-image').evaluate((img) => {
+    img.src =
+      'data:image/svg+xml;utf8,' +
+      encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="30"><rect width="40" height="30" fill="white"/></svg>',
+      );
+  });
+  await page.waitForTimeout(400);
+  const f3 = await fbox();
+  const area3 = await view.locator('.crop-view-area').boundingBox();
+  const cy = f3.y + f3.height / 2;
+  const points = [
+    [f3.x + f3.width / 2, cy],
+    [f3.x + f3.width + 6, cy],
+    [f3.x - 6, cy],
+    [area3.x - 6, cy],
+  ];
+  const png = await page.screenshot();
+  const [inside, shaded, blank, pageColour] = await page.evaluate(
+    async ({ b64, points }) => {
+      const img = new Image();
+      img.src = `data:image/png;base64,${b64}`;
+      await img.decode();
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const g = canvas.getContext('2d');
+      g.drawImage(img, 0, 0);
+      return points.map(([x, y]) => [...g.getImageData(Math.round(x), Math.round(y), 1, 1).data].slice(0, 3));
+    },
+    { b64: png.toString('base64'), points },
+  );
+  if (!inside.every((c) => c > 250)) problems.push(`${label}: inside the frame the white test image is ${inside}, not white`);
+  if (!shaded.every((c) => c > 60 && c < 230))
+    problems.push(`${label}: outside the frame the image is ${shaded}, not darkened by the scrim`);
+  if (blank.some((c, n) => Math.abs(c - pageColour[n]) > 3))
+    problems.push(`${label}: the blank part of the stage is ${blank}, not the page's ${pageColour} (a grey strip)`);
+  // The wheel (a mouse) and a pinch (two fingers) zoom.
+  if (!phone) {
+    const z = await zoom();
+    await page.mouse.move(area.x + area.width / 2, area.y + area.height / 2);
+    await page.mouse.wheel(0, 300);
+    await page.waitForTimeout(300);
+    if (!((await zoom()) < z - 0.1)) problems.push(`${label}: the wheel does not zoom out`);
+  } else {
+    const cdp = await page.context().newCDPSession(page);
+    const cx = area.x + area.width / 2;
+    const cy = area.y + area.height / 2;
+    await view.locator('input[type=range]').focus();
+    await page.keyboard.press('Home');
+    await page.waitForTimeout(200);
+    const z = await zoom();
+    const at = (d) => [
+      { x: cx - d, y: cy, id: 1 },
+      { x: cx + d, y: cy, id: 2 },
+    ];
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: at(30) });
+    for (let d = 30; d <= 90; d += 15) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: at(d) });
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await page.waitForTimeout(300);
+    if (!((await zoom()) > z * 2))
+      problems.push(`${label}: a pinch that spreads the fingers three times does not zoom in (${z} -> ${await zoom()})`);
+  }
+  // Save writes the ratio and crop to the image.
+  await view.getByRole('button', { name: 'Save', exact: true }).click();
+  await page.waitForTimeout(700);
+  if (await view.count()) problems.push(`${label}: Save did not close the crop view`);
+  const stepAfter = await page.evaluate(() => ({
+    sheet: history.state?.sheet,
+    hash: location.hash,
+    scroll: scrollY,
+    text: document.querySelector('.ProseMirror')?.textContent,
+  }));
+  if (stepAfter.sheet === 'crop-view') problems.push(`${label}: the page's step is still in the history after Save`);
+  if (Math.abs(stepAfter.scroll - scroll0) > 1)
+    problems.push(`${label}: the editor is at ${stepAfter.scroll} after the crop view, it was at ${scroll0}`);
+  if (stepAfter.hash !== '#new/pages' || !/Hello/.test(stepAfter.text ?? ''))
+    problems.push(`${label}: the editor under the crop view was changed (${stepAfter.hash})`);
+  const saved = await page.evaluate(() => {
+    const box = document.querySelector('.ProseMirror .site-picture .picture-crop');
+    return box && { box: box.getAttribute('style'), img: box.querySelector('img')?.getAttribute('style') };
+  });
+  if (!saved || !/aspect-ratio: 3 \/ 2/.test(saved.box ?? '') || !/translate\(-?\d/.test(saved.img ?? ''))
+    problems.push(`${label}: Save did not cut the image to 3:2 with a crop (${JSON.stringify(saved)})`);
+  // Reopened: 3:2 is chosen. Leaving with a change asks; Discard leaves the image as it was.
+  await open();
+  const chosen = await view
+    .locator('.crop-view-ratios [aria-pressed="true"], .crop-view-ratios [aria-checked="true"], .crop-view-ratios [data-selected]')
+    .allTextContents();
+  if (!chosen.some((c) => c.includes('3:2'))) problems.push(`${label}: reopened, 3:2 is not the chosen ratio (${chosen})`);
+  await chip('1:1').click();
+  await page.waitForTimeout(300);
+  await back().click();
+  await asked()
+    .waitFor({ timeout: 4000 })
+    .catch(() => problems.push(`${label}: closing the crop view with a change did not ask "Keep your changes?"`));
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  if (!(await view.count())) problems.push(`${label}: Esc on the question did not stay in the crop view`);
+  await back().click();
+  await asked().getByRole('button', { name: 'Discard', exact: true }).click();
+  await page.waitForTimeout(500);
+  if (await view.count()) problems.push(`${label}: Discard did not close the crop view`);
+  const still = await page.evaluate(() => document.querySelector('.ProseMirror .site-picture .picture-crop')?.getAttribute('style'));
+  if (!/aspect-ratio: 3 \/ 2/.test(still ?? '')) problems.push(`${label}: Discard changed the image (${still})`);
+  // Closing with nothing changed asks nothing.
+  await open();
+  await back().click();
+  await page.waitForTimeout(400);
+  if ((await asked().count()) || (await view.count())) problems.push(`${label}: closing the crop view with no change asked or stayed open`);
+  // The phone's back gesture (the browser's back) leaves the page: at once when nothing changed, with the question when something did.
+  await open();
+  if ((await page.evaluate(() => history.state?.sheet)) !== 'crop-view')
+    problems.push(`${label}: the page has no step of its own in the history`);
+  await page.evaluate(() => history.back());
+  await view
+    .waitFor({ state: 'detached', timeout: 4000 })
+    .catch(() => problems.push(`${label}: the browser's back did not leave the crop view`));
+  if ((await page.evaluate(() => location.hash)) !== '#new/pages' || !(await page.locator('.ProseMirror').count()))
+    problems.push(`${label}: the browser's back left the editor, not only the crop view`);
+  await open();
+  await chip('4:3').click();
+  await page.evaluate(() => history.back());
+  await asked()
+    .waitFor({ timeout: 4000 })
+    .catch(() => problems.push(`${label}: the browser's back with a change did not ask "Keep your changes?"`));
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  if (!(await view.count())) problems.push(`${label}: staying after the browser's back did not keep the crop view`);
+  if ((await page.evaluate(() => history.state?.sheet)) !== 'crop-view')
+    problems.push(`${label}: staying after the browser's back did not give the page its step back`);
+  await back().click();
+  await asked().getByRole('button', { name: 'Discard', exact: true }).click();
+  await page.waitForTimeout(500);
+  if ((await view.count()) || (await page.evaluate(() => history.state?.sheet)) === 'crop-view')
+    problems.push(`${label}: Discard after the browser's back left the page open or its step in the history`);
+  // The image sheet: an Aspect ratio row with the ratio, no Format chips; it opens the same view and brings the ratio back.
+  await select();
+  const sheetOpen = () => page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Alt text' }).count();
+  if (!(await sheetOpen())) await pressTool(page, 'Edit', how);
+  await page.waitForTimeout(700);
+  const sheet = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Alt text' }).last();
+  const rowItem = sheet.getByRole('button', { name: /Aspect ratio/ }).or(sheet.locator('li', { hasText: 'Aspect ratio' }));
+  if (!(await rowItem.count())) problems.push(`${label}: the image sheet has no Aspect ratio row`);
+  else {
+    const text = (await sheet.locator('li', { hasText: 'Aspect ratio' }).first().textContent()) ?? '';
+    if (!text.includes('3:2')) problems.push(`${label}: the Aspect ratio row does not say 3:2 (${text})`);
+    if (/\bFormat\b/.test((await sheet.textContent()) ?? '')) problems.push(`${label}: the image sheet still says Format`);
+    if (await sheet.locator('.crop-view-ratios, [role=radiogroup]').count())
+      problems.push(`${label}: the image sheet still has the format chips`);
+    await rowItem.first().click();
+    await view.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the Aspect ratio row did not open the crop view`));
+    await chip('1:1').click();
+    await view.getByRole('button', { name: 'Save', exact: true }).click();
+    await page.waitForTimeout(600);
+    const next = (await sheet.locator('li', { hasText: 'Aspect ratio' }).first().textContent()) ?? '';
+    if (!next.includes('1:1')) problems.push(`${label}: after Save in the crop view the row does not say 1:1 (${next})`);
+    if (width >= 840) {
+      // From expanded the sheet is live: the new ratio is in the page already, and closing the sheet asks nothing.
+      await sheet.locator('[data-side-sheet-close]').click();
+      await page.waitForTimeout(500);
+      if (await asked().count()) problems.push(`${label}: closing the live image sheet asked "Keep your changes?"`);
+    } else {
+      // The sheet is changed now: Cancel asks.
+      await cancelOf(sheet).click();
+      await asked()
+        .waitFor({ timeout: 4000 })
+        .catch(() => problems.push(`${label}: closing the image sheet after a new ratio did not ask`));
+      await asked().getByRole('button', { name: 'Discard', exact: true }).click();
+    }
+  }
+  await page.close();
+}
+
+/** The alt text from expanded (image tools spec 9.1 with the live block side sheet, one Save spec 4.1): there is no short sheet. Insert › Image puts the image in at once and
+ * its live side sheet opens beside it with the Alt text field focused: the text typed is on the image at once; the bar's Alt text puts the focus in that field; Change image
+ * puts the new image in without a text of its own and opens the live sheet at its Alt text field. */
+async function checkAltLive(width, height = 800) {
+  const label = `${width}px alt text in the live sheet`;
+  if (!has('src/data/files')) return void console.log(`${label}: skipped, the site has no images in its Library, which the demo has.`);
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  const pics = () => page.locator('.ProseMirror .site-picture .site-block-card');
+  const described = (n) => pics().nth(n).getAttribute('aria-description');
+  const field = () => page.locator('.editor-side-sheet').getByLabel('Alt text');
+  const shortSheet = () => page.locator('dialog[open]').filter({ hasText: 'Decorative image' });
+  const focusedLabel = () =>
+    page.evaluate(() => {
+      const el = document.activeElement;
+      return el?.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`)?.textContent.trim() : '';
+    });
+  const pickTile = async () => {
+    await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
+    await page.locator('dialog[open] [data-media-tile]').first().click();
+    await field().waitFor({ timeout: 6000 });
+    await page.waitForTimeout(600);
+  };
+  await pressInsert(page, 'click');
+  await page
+    .locator('dialog[open] button', { hasText: /^Image/ })
+    .first()
+    .click();
+  await pickTile();
+  if (await shortSheet().count()) problems.push(`${label}: the short alt text sheet opened from expanded, where the live sheet is`);
+  if ((await pics().count()) !== 1) problems.push(`${label}: the image is not in the text at once (${await pics().count()} images)`);
+  if ((await focusedLabel()) !== 'Alt text')
+    problems.push(`${label}: the new image's live sheet does not have the Alt text field focused (${await focusedLabel()})`);
+  await field().fill('A ringed planet');
+  await page.waitForTimeout(500);
+  if ((await described(0)) !== 'A ringed planet')
+    problems.push(`${label}: the text typed is not on the image at once (${await described(0)})`);
+  // The bar's Alt text: the focus goes to the field, showing the image's text.
+  await pics().first().click();
+  await page.waitForTimeout(600);
+  await pressTool(page, 'Alt text', 'click');
+  await page.waitForTimeout(900);
+  if ((await focusedLabel()) !== 'Alt text')
+    problems.push(`${label}: the bar's Alt text did not focus the live sheet's Alt text field (${await focusedLabel()})`);
+  if ((await field().inputValue()) !== 'A ringed planet')
+    problems.push(`${label}: the live sheet shows "${await field().inputValue()}", not the image's text`);
+  await field().fill('Saturn');
+  await page.waitForTimeout(500);
+  if ((await described(0)) !== 'Saturn')
+    problems.push(`${label}: a text typed after the bar's Alt text is not on the image (${await described(0)})`);
+  // Change image: the new image has no text of its own, and its live sheet opens at the Alt text field.
+  await pics().first().click();
+  await page.waitForTimeout(600);
+  await pressTool(page, 'Change image', 'click');
+  await pickTile();
+  if (await shortSheet().count()) problems.push(`${label}: Change image opened the short alt text sheet from expanded`);
+  if (await described(0)) problems.push(`${label}: the changed image has a text of its own (${await described(0)})`);
+  if ((await focusedLabel()) !== 'Alt text')
+    problems.push(`${label}: Change image's live sheet does not have the Alt text field focused (${await focusedLabel()})`);
+  await field().fill('Another view');
+  await page.waitForTimeout(500);
+  if ((await described(0)) !== 'Another view')
+    problems.push(`${label}: the text typed after Change image is not on the image (${await described(0)})`);
+  await page.close();
+}
+
+/** The short alt text sheet (image tools spec 9.1): right after an image is picked (Insert › Image, and Change image in the bar) a sheet asks for its alt text: the
+ * picture, `Decorative image` and `Alt text`, with `Skip` and `Save` (the crop view does not open): Save puts the text on the image, Skip and Esc keep it without a text
+ * of its own; the image is Original. The bar's Alt text opens the same sheet for an image in the text, with `Cancel` and `Save`: Cancel with a change asks "Keep your
+ * changes?", and a decorative image has no text. */
+async function checkAltSheet(width, height = 800) {
+  const phone = width < 600;
+  const label = `${width}px alt text sheet`;
+  if (!has('src/data/files')) return void console.log(`${label}: skipped, the site has no images in its Library, which the demo has.`);
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  const how = phone ? 'tap' : 'click';
+  const sheet = () => page.locator('dialog[open]').filter({ hasText: 'Decorative image' }).last();
+  const pics = () => page.locator('.ProseMirror .site-picture .site-block-card');
+  const buttons = async () => (await sheet().locator('button').allTextContents()).map((b) => b.trim()).filter(Boolean);
+  const pick = async () => {
+    await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
+    await page.locator('dialog[open] [data-media-tile]').first().click();
+    await sheet().waitFor({ timeout: 6000 });
+    await page.waitForTimeout(400);
+  };
+  const insert = async () => {
+    await pressInsert(page, 'click');
+    await page
+      .locator('dialog[open] button', { hasText: /^Image/ })
+      .first()
+      .click();
+    await pick();
+  };
+  // The images are told apart by their text, not by their place: where a new image goes in follows the caret, which the text puts back after a
+  // sheet closes (the browser's focus return) and a click moves, so the n-th image in the text is not always the n-th put in.
+  const texts = () => pics().evaluateAll((els) => els.map((e) => e.getAttribute('aria-description') ?? ''));
+  const at = async (text) => (await texts()).indexOf(text);
+  const asked = () => page.locator('dialog[open]').filter({ hasText: 'Keep your changes?' });
+
+  // Insert › Image: the alt text sheet, not the image's full sheet, and not the crop view.
+  await insert();
+  const first = await sheet().evaluate((d) => ({
+    heading: d.querySelector('[role=heading], h1, h2, h3')?.textContent?.trim(),
+    picture: !!d.querySelector('img'),
+    crop: !!d.querySelector('[aria-label="Aspect ratio"], li'),
+    field: !!d.querySelector('textarea, input[type=text]'),
+  }));
+  if (first.heading !== 'Alt text') problems.push(`${label}: the sheet after a pick is headed "${first.heading}", not Alt text`);
+  if (!first.picture || !first.field) problems.push(`${label}: the alt text sheet has no picture or no field (${JSON.stringify(first)})`);
+  if (first.crop) problems.push(`${label}: the alt text sheet has an Aspect ratio row (it is the image's full sheet?)`);
+  const names = await buttons();
+  if (!names.includes('Skip') || !names.includes('Save') || names.includes('Cancel') || names.includes('Insert'))
+    problems.push(`${label}: the sheet after a pick has the buttons ${names.join(', ')}, not Skip and Save`);
+  if (await page.locator('.crop-page[open]').count()) problems.push(`${label}: the crop view opened after the image was picked`);
+  await sheet().getByLabel('Alt text').fill('A ringed planet');
+  await sheet().getByRole('button', { name: 'Save', exact: true }).click();
+  await pics().first().waitFor({ timeout: 6000 });
+  await page.waitForTimeout(500);
+  if ((await texts()).join('|') !== 'A ringed planet')
+    problems.push(`${label}: Save did not put the text on the image (${(await texts()).join('|')})`);
+  if (await page.locator('.ProseMirror .site-picture .picture-crop').count()) problems.push(`${label}: a new image is not Original`);
+
+  // Skip keeps the image without a text of its own.
+  await page.click('.ProseMirror > p');
+  await page.keyboard.press('End');
+  await page.keyboard.press('Enter');
+  await insert();
+  await sheet().getByRole('button', { name: 'Skip', exact: true }).click();
+  await page.waitForTimeout(600);
+  if ((await pics().count()) !== 2) problems.push(`${label}: Skip did not keep the image (${await pics().count()} images)`);
+  else if ((await texts()).filter(Boolean).join('|') !== 'A ringed planet')
+    problems.push(`${label}: Skip gave the image a text of its own (${(await texts()).join('|')})`);
+  // Esc is Skip.
+  await page.click('.ProseMirror > p');
+  await page.keyboard.press('End');
+  await page.keyboard.press('Enter');
+  await insert();
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(600);
+  if ((await pics().count()) !== 3) problems.push(`${label}: Esc on the sheet did not keep the image (${await pics().count()} images)`);
+
+  // The bar's Alt text: the same sheet with Cancel and Save, showing the text the image has.
+  const edit = async (n) => {
+    await pics().nth(n)[how]();
+    await page.waitForTimeout(600);
+    await pressTool(page, 'Alt text', how);
+    await sheet().waitFor({ timeout: 5000 });
+    await page.waitForTimeout(400);
+  };
+  await edit(await at('A ringed planet'));
+  const shown = await sheet().getByLabel('Alt text').inputValue();
+  if (shown !== 'A ringed planet') problems.push(`${label}: the bar's Alt text shows "${shown}", not the image's text`);
+  const editNames = await buttons();
+  if (!editNames.includes('Cancel') || !editNames.includes('Save') || editNames.includes('Skip'))
+    problems.push(`${label}: the bar's Alt text has the buttons ${editNames.join(', ')}, not Cancel and Save`);
+  await sheet().getByLabel('Alt text').fill('A ringed planet, seen from space');
+  await sheet().getByRole('button', { name: 'Cancel', exact: true }).click();
+  await asked()
+    .waitFor({ timeout: 4000 })
+    .catch(() => problems.push(`${label}: Cancel with a change did not ask "Keep your changes?"`));
+  await asked().getByRole('button', { name: 'Discard', exact: true }).click();
+  await page.waitForTimeout(500);
+  if ((await at('A ringed planet')) < 0) problems.push(`${label}: Discard changed the text (${(await texts()).join('|')})`);
+  // Save with a new text.
+  await edit(await at('A ringed planet'));
+  await sheet().getByLabel('Alt text').fill('Saturn');
+  await sheet().getByRole('button', { name: 'Save', exact: true }).click();
+  await page.waitForTimeout(500);
+  if ((await at('Saturn')) < 0)
+    problems.push(`${label}: Save in the bar's Alt text did not change the text (${(await texts()).join('|')})`);
+  // Decorative: no field, and no text on the image.
+  await edit(await at('Saturn'));
+  await sheet().locator('[role=switch], input[type=checkbox]').first().click();
+  await page.waitForTimeout(300);
+  if (await sheet().getByLabel('Alt text').count()) problems.push(`${label}: a decorative image still has the Alt text field`);
+  await sheet().getByRole('button', { name: 'Save', exact: true }).click();
+  await page.waitForTimeout(500);
+  if ((await at('Saturn')) >= 0) problems.push(`${label}: a decorative image has a text (${(await texts()).join('|')})`);
+
+  // Change image: the same sheet follows the pick, as Skip and Save; the new image is selected, with its tools on the bar.
+  await pics()
+    .nth(await at(''))
+    [how]();
+  await page.waitForTimeout(600);
+  await pressTool(page, 'Change image', how);
+  await pick();
+  const changeNames = await buttons();
+  if (!changeNames.includes('Skip') || !changeNames.includes('Save'))
+    problems.push(`${label}: Change image's sheet has the buttons ${changeNames.join(', ')}, not Skip and Save`);
+  await sheet().getByLabel('Alt text').fill('Another view');
+  await sheet().getByRole('button', { name: 'Save', exact: true }).click();
+  await page.waitForTimeout(700);
+  if ((await at('Another view')) < 0)
+    problems.push(`${label}: Change image did not put the new text on the image (${(await texts()).join('|')})`);
+  if (!(await page.locator('.editor-tools button[aria-label="Alt text"]').count()))
+    problems.push(`${label}: the changed image is not selected, the bar has no Alt text`);
+  await page.close();
+}
+
 /** The active block's action row (src/blockRow.ts): it shows only while a block is active (a real touch tap on a block's rows activates it), its buttons are real 44 x 44 dp
  * buttons (Move up, Move down, Hide or Show, and the handle at its end), Move down is disabled with its reason on the last block and Move up on the first, Hide turns into
  * Show and the row stays, the bar has none of these, the row does not lie under the bar (also with the on-screen keyboard open: a short window), and under reduced motion it is
  * there at once, with no animation. */
+/** How far the selection mark's centre is from the point on the outline's corner curve (the 45 degree point of the card's corner, its 1.5px line centred): {dx, dy} in px. */
+const markOffset = (page) =>
+  page.evaluate(() => {
+    const card = document.querySelector('.site-block-card.site-block-inline');
+    const mark = card.parentElement.querySelector(':scope > .site-block-mark');
+    const c = card.getBoundingClientRect();
+    const m = mark.getBoundingClientRect();
+    const r = parseFloat(getComputedStyle(card).borderTopLeftRadius);
+    const border = parseFloat(getComputedStyle(card).borderTopWidth);
+    const rc = r - border / 2;
+    const into = r - rc * Math.SQRT1_2;
+    return { dx: m.left + m.width / 2 - (c.left + into), dy: m.top + m.height / 2 - (c.top + into) };
+  });
+
 async function checkBlockRow(width, options = {}) {
   const phone = width < 600;
   const { height = 800, reduced = false } = options;
@@ -1023,14 +3567,18 @@ async function checkBlockRow(width, options = {}) {
   const row = page.locator('.site-block-row');
   if (reduced) await page.waitForTimeout(100);
   else await page.waitForTimeout(800);
-  const names = () => page.locator('.site-block-row-button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  if (await page.locator('.site-block-row-hover').count()) problems.push(`${label}: the active block also shows the pointed block's row`);
+  const names = () =>
+    page
+      .locator('.site-block-row:not(.site-block-row-hover) [data-row]')
+      .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   if (!(await row.count())) {
     problems.push(`${label}: no action row for the active block`);
     return void (await page.close());
   }
   if (reduced && (await row.evaluate((el) => el.getAnimations().length)) > 0)
     problems.push(`${label}: the row is animated under reduced motion`);
-  const shape = await page.locator('.site-block-row-button').evaluateAll((els) =>
+  const shape = await page.locator('.site-block-row:not(.site-block-row-hover) [data-row]').evaluateAll((els) =>
     els.map((e) => {
       const r = e.getBoundingClientRect();
       return {
@@ -1042,7 +3590,7 @@ async function checkBlockRow(width, options = {}) {
       };
     }),
   );
-  for (const name of ['Move up', 'Move down', 'Hide on the page'])
+  for (const name of ['Move up', 'Move down', 'Hide'])
     if (!shape.some((b) => b.label === name)) problems.push(`${label}: the row has no "${name}" (${shape.map((b) => b.label)})`);
   if (shape.some((b) => b.w < 43.4 || b.h < 43.4))
     problems.push(`${label}: a button of the row is under 44 x 44 dp (${JSON.stringify(shape)})`);
@@ -1055,21 +3603,166 @@ async function checkBlockRow(width, options = {}) {
   if (!handle || !rowBox || handle.y < rowBox.y - 1 || handle.y + handle.height > rowBox.y + rowBox.height + 1)
     problems.push(`${label}: the handle is not inside the row (${JSON.stringify({ handle, rowBox })})`);
   const bar = await page.locator('.editor-tools').boundingBox();
-  const block = await page.locator('.site-block-card').first().boundingBox();
   if (rowBox && bar && rowBox.y + rowBox.height > bar.y && rowBox.y < bar.y + bar.height)
     problems.push(`${label}: the row lies under the text bar (${JSON.stringify({ rowBox, bar })})`);
-  if (rowBox && block && rowBox.y + rowBox.height > block.y + 1) problems.push(`${label}: the row overlaps the block's content`);
+  // The row is inside the outline, above the block's first item.
+  const firstItem = await page.locator('.site-block-card .inline-list-row').first().boundingBox();
+  if (rowBox && firstItem && rowBox.y + rowBox.height > firstItem.y + 1) problems.push(`${label}: the row overlaps the block's content`);
   const barNames = await page.locator('.editor-tools button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
-  for (const name of ['Move up', 'Move down', 'Hide on the page', 'Show on the page'])
+  for (const name of ['Move up', 'Move down', 'Hide', 'Show'])
     if (barNames.includes(name)) problems.push(`${label}: "${name}" is on the bar as well as in the row`);
+  // The row is inside the block's dotted outline (its card), which has a Card's corner radius and padding (the theme's tokens, read from a probe Card).
+  const frame = await page.evaluate(() => {
+    const card = document.querySelector('.site-block-card.site-block-inline');
+    const r = card.getBoundingClientRect();
+    const rowEl = card.querySelector(':scope > .site-block-row');
+    const probe = document.createElement('div');
+    probe.className = 'card card-outlined';
+    card.parentElement.append(probe);
+    const want = getComputedStyle(probe);
+    const have = getComputedStyle(card);
+    const out = {
+      inside: !!rowEl,
+      row: rowEl && rowEl.getBoundingClientRect().toJSON(),
+      card: r.toJSON(),
+      border: parseFloat(have.borderTopWidth),
+      radius: [have.borderTopLeftRadius, want.borderTopLeftRadius],
+      padding: [have.paddingTop, want.paddingTop, have.paddingLeft, want.paddingLeft],
+    };
+    probe.remove();
+    return out;
+  });
+  if (!frame.inside) problems.push(`${label}: the row is not inside the block's dotted outline`);
+  else if (
+    frame.row.top < frame.card.top + frame.border - 0.5 ||
+    frame.row.bottom > frame.card.bottom ||
+    frame.row.left < frame.card.left + frame.border - 0.5 ||
+    frame.row.right > frame.card.right - frame.border + 0.5
+  )
+    problems.push(`${label}: the row sits outside the dotted outline (${JSON.stringify({ row: frame.row, card: frame.card })})`);
+  if (frame.radius[0] !== frame.radius[1] || frame.radius[0] === '0px')
+    problems.push(`${label}: the outline's corner radius is ${frame.radius[0]}, not the Card's ${frame.radius[1]}`);
+  if (frame.padding[0] !== frame.padding[1] || frame.padding[2] !== frame.padding[3])
+    problems.push(`${label}: the outline's padding is ${frame.padding.slice(0, 2)}/${frame.padding.slice(2)}, not the Card's`);
+  // The row hugs the top of the outline: its space above is the Card's small gap, well under the Card's padding.
+  if (frame.row && frame.row.top - frame.card.top - frame.border > 12)
+    problems.push(`${label}: the row is ${frame.row.top - frame.card.top - frame.border} px below the outline's top edge, too far`);
+  // The selection mark is centred on the outline's corner curve (active).
+  const markActive = await markOffset(page);
+  if (Math.abs(markActive.dx) > 0.75 || Math.abs(markActive.dy) > 0.75)
+    problems.push(`${label}: the selection mark is off the corner curve while active (${JSON.stringify(markActive)})`);
+  // The row's buttons are the theme's icon buttons: no class of their own, and the hover is a probe standard icon button's.
+  const classes = await page
+    .locator('.site-block-row:not(.site-block-row-hover) [data-row]')
+    .evaluateAll((els) => els.map((e) => [...e.classList]));
+  for (const list of classes)
+    if (list.some((c) => !/^icon-button(-|$)/.test(c)))
+      problems.push(`${label}: a row button has a class of its own (${list.join(' ')}); it must be the theme's icon button`);
+  if (classes.some((list) => !list.includes('icon-button') || !list.includes('icon-button-standard')))
+    problems.push(`${label}: a row button is not the theme's standard icon button (${JSON.stringify(classes)})`);
+  const hoverOf = async (locator) => {
+    await locator.hover();
+    await page.waitForTimeout(400);
+    return locator.evaluate((e) => {
+      const c = getComputedStyle(e);
+      return { background: c.backgroundColor, radius: c.borderTopLeftRadius, w: e.getBoundingClientRect().width };
+    });
+  };
+  const probeIcon = page.locator('[data-probe="icon"]');
+  await page.evaluate(() => {
+    const probe = document.createElement('button');
+    probe.type = 'button';
+    probe.dataset.probe = 'icon';
+    probe.className = 'icon-button icon-button-standard';
+    probe.innerHTML = document.querySelector('.site-block-row:not(.site-block-row-hover) [data-row="up"]')?.innerHTML ?? '';
+    document.querySelector('.site-block-row:not(.site-block-row-hover) .site-block-row-inner').prepend(probe);
+  });
+  const wantHover = await hoverOf(probeIcon);
+  await page.evaluate(() => document.querySelector('[data-probe="icon"]').remove());
+  const upHover = await hoverOf(page.locator('.site-block-row:not(.site-block-row-hover) [data-row="up"]'));
+  if (!phone && (upHover.background !== wantHover.background || upHover.radius !== wantHover.radius))
+    problems.push(`${label}: a row button's hover is ${JSON.stringify(upHover)}, not the theme icon button's ${JSON.stringify(wantHover)}`);
+  // A phone has no hover (the theme's state layer is for a pointer that hovers): the hover is compared on a computer.
+  if (!phone && wantHover.background === 'rgba(0, 0, 0, 0)') problems.push(`${label}: the theme icon button shows no state layer on hover`);
+  // `Add list row`: the theme's text button, and its hover container is whole inside the outline.
+  const add = page.locator('.inline-list-add').first();
+  if (await add.count()) {
+    const addHover = await hoverOf(add);
+    const classes2 = await add.evaluate((e) => [...e.classList]);
+    if (!classes2.includes('button') || !classes2.includes('button-text'))
+      problems.push(`${label}: Add list row is not the theme's text button (${classes2})`);
+    const wantText = page.locator('[data-probe="text"]');
+    await page.evaluate(() => {
+      const probe = document.createElement('button');
+      probe.dataset.probe = 'text';
+      probe.className = 'button button-text';
+      probe.textContent = 'x';
+      document.querySelector('.site-block-card.site-block-inline').append(probe);
+    });
+    await wantText.hover();
+    await page.waitForTimeout(400);
+    const textWant = await wantText.evaluate((e) => getComputedStyle(e).backgroundColor);
+    await wantText.evaluate((e) => e.remove());
+    if (!phone && (addHover.background !== textWant || textWant === 'rgba(0, 0, 0, 0)'))
+      problems.push(`${label}: Add list row's hover is ${addHover.background}, not the theme text button's ${textWant}`);
+    const box = await add.boundingBox();
+    const outline = await page.locator('.site-block-card.site-block-inline').boundingBox();
+    const inner = frame.border;
+    if (
+      box.x < outline.x + inner - 0.5 ||
+      box.y < outline.y + inner - 0.5 ||
+      box.x + box.width > outline.x + outline.width - inner + 0.5 ||
+      box.y + box.height > outline.y + outline.height - inner + 0.5
+    )
+      problems.push(`${label}: Add list row's hover container is cut by the outline (${JSON.stringify({ box, outline })})`);
+  }
+  await page.mouse.move(0, 0);
+  // Dragged, the block is lifted as one box: the outline with the row and the handle inside it.
+  {
+    const handleBox = await page.locator('.site-block-has-row > .site-block-handle').boundingBox();
+    await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2 + 30, { steps: 5 });
+    await page.waitForTimeout(300);
+    const lifted = await page.evaluate(() => {
+      const dom = document.querySelector('.site-block-dragging');
+      if (!dom) return null;
+      const card = dom.querySelector(':scope > .site-block-card');
+      const box = dom.getBoundingClientRect();
+      const c = card.getBoundingClientRect();
+      const r = card.querySelector(':scope > .site-block-row')?.getBoundingClientRect();
+      return {
+        shadowOn: getComputedStyle(card).boxShadow !== 'none',
+        radius: getComputedStyle(card).borderTopLeftRadius,
+        box: box.toJSON(),
+        card: c.toJSON(),
+        row: r?.toJSON(),
+      };
+    });
+    const markDrag = await markOffset(page);
+    await page.mouse.up();
+    await page.waitForTimeout(300);
+    if (Math.abs(markDrag.dx) > 0.75 || Math.abs(markDrag.dy) > 0.75)
+      problems.push(`${label}: the selection mark is off the corner curve while dragged (${JSON.stringify(markDrag)})`);
+    if (!lifted) problems.push(`${label}: dragging the handle did not lift the block`);
+    else {
+      if (!lifted.shadowOn) problems.push(`${label}: the lifted block's outline has no shadow`);
+      if (!lifted.row || lifted.row.top < lifted.card.top || lifted.row.bottom > lifted.card.bottom)
+        problems.push(`${label}: while dragged the row is outside the outline (${JSON.stringify(lifted)})`);
+      // The block's box and the outline are the same box (no offset between the lifted box and the dotted line).
+      const near = (a, b) => Math.abs(a - b) <= 1;
+      if (!(near(lifted.box.top, lifted.card.top) && near(lifted.box.bottom, lifted.card.bottom)))
+        problems.push(`${label}: while dragged the outline is offset from the block's box (${JSON.stringify(lifted)})`);
+    }
+  }
   // Hide turns into Show and the row stays.
-  await page.locator('.site-block-row-button[aria-label="Hide on the page"]')[phone ? 'tap' : 'click']();
+  await page.locator('.site-block-row:not(.site-block-row-hover) [data-row][aria-label="Hide"]')[phone ? 'tap' : 'click']();
   await page.waitForTimeout(500);
-  if (!(await names()).includes('Show on the page')) problems.push(`${label}: after Hide the row does not say Show (${await names()})`);
-  await page.locator('.site-block-row-button[aria-label="Show on the page"]')[phone ? 'tap' : 'click']();
+  if (!(await names()).includes('Show')) problems.push(`${label}: after Hide the row does not say Show (${await names()})`);
+  await page.locator('.site-block-row:not(.site-block-row-hover) [data-row][aria-label="Show"]')[phone ? 'tap' : 'click']();
   await page.waitForTimeout(500);
   // The row's buttons are real buttons that Tab reaches.
-  if (await page.locator('.site-block-row-button[tabindex="-1"]').count())
+  if (await page.locator('.site-block-row:not(.site-block-row-hover) [data-row][tabindex="-1"]').count())
     problems.push(`${label}: a button of the row is not reachable with Tab`);
   // The cursor back in the text: the row closes.
   await page.click('.ProseMirror > p');
@@ -1081,10 +3774,262 @@ async function checkBlockRow(width, options = {}) {
   await page.waitForTimeout(reduced ? 200 : 900);
   if (!(await page.locator('.site-block-row').count()))
     problems.push(`${label}: a ${phone ? 'tap' : 'click'} on the block did not bring its row back`);
+  // The row opens and closes without the block's own content moving: the page moves instead (the row grows upward). Sampled every frame.
+  const contentTop = () => page.evaluate(() => document.querySelector('.site-block-card .site-block-preview').getBoundingClientRect().top);
+  const sample = async (act) => {
+    const start = await contentTop();
+    await page.evaluate(() => {
+      window.__tops = [];
+      const one = () => {
+        window.__tops.push(document.querySelector('.site-block-card .site-block-preview')?.getBoundingClientRect().top ?? 0);
+        // After the frame's other callbacks (the row's own scroll hold runs in one), where the frame is painted.
+        window.__raf = requestAnimationFrame(() => setTimeout(one, 0));
+      };
+      one();
+    });
+    await act();
+    await page.waitForTimeout(reduced ? 300 : 1000);
+    const tops = await page.evaluate(() => (cancelAnimationFrame(window.__raf), window.__tops));
+    return { start, drift: Math.max(...tops.map((t) => Math.abs(t - start))), end: Math.abs(tops.at(-1) - start) };
+  };
+  const closed = await sample(() => page.click('.ProseMirror > p'));
+  // With the keyboard open (a short window) the cursor moving into the text scrolls the page by itself: the block's stay is measured in the taller windows.
+  const still = height >= 500;
+  if (still && (closed.drift > 2 || closed.end > 1))
+    problems.push(`${label}: closing the row moves the block's content (${JSON.stringify(closed)})`);
+  if (await page.locator('.site-block-row').count()) problems.push(`${label}: the row stays after the cursor went back to the text`);
+  // Pointing at a block shows its row over its top, taking no space (a computer only).
+  if (!phone) {
+    // (A block narrower than 400 px shows no row on pointing: it would cover the block's first item.)
+    const flow = () =>
+      page.evaluate(() => ({
+        top: document.querySelector('.site-block-card .site-block-preview').getBoundingClientRect().top,
+        height: document.documentElement.scrollHeight,
+        y: scrollY,
+      }));
+    const calm = await flow();
+    await page.locator('.site-block-card').first().hover();
+    await page.waitForTimeout(400);
+    const hovered = await page.evaluate(() => {
+      const row = document.querySelector('.site-block-row-hover');
+      const card = document.querySelector('.site-block-card.site-block-inline');
+      if (!row) return null;
+      const r = row.getBoundingClientRect();
+      const c = card.getBoundingClientRect();
+      return {
+        position: getComputedStyle(row).position,
+        inside: r.top >= c.top && r.bottom <= c.bottom && r.left >= c.left && r.right <= c.right,
+        names: [...row.querySelectorAll('[data-row]')].map((b) => b.getAttribute('aria-label')),
+        classes: [...row.querySelectorAll('[data-row]')].map((b) => [...b.classList].join(' ')),
+        handle: !!document.querySelector('.site-block-has-hover > .site-block-handle'),
+      };
+    });
+    if (!hovered) problems.push(`${label}: pointing at a block shows no action row`);
+    else {
+      if (hovered.position !== 'absolute') problems.push(`${label}: the pointed block's row takes space (${hovered.position})`);
+      if (!hovered.inside) problems.push(`${label}: the pointed block's row is not inside the dotted outline`);
+      for (const name of ['Move up', 'Move down', 'Hide'])
+        if (!hovered.names.includes(name)) problems.push(`${label}: the pointed block's row has no "${name}" (${hovered.names})`);
+      if (hovered.classes.some((c) => c !== 'icon-button icon-button-standard'))
+        problems.push(`${label}: the pointed block's buttons are not the theme icon button (${hovered.classes})`);
+      if (!hovered.handle) problems.push(`${label}: the pointed block shows no drag handle`);
+    }
+    const markHover = await markOffset(page);
+    if (Math.abs(markHover.dx) > 0.75 || Math.abs(markHover.dy) > 0.75)
+      problems.push(`${label}: the selection mark is off the corner curve while pointed at (${JSON.stringify(markHover)})`);
+    const hoverRow = await page.evaluate(() => {
+      const row = document.querySelector('.site-block-row-hover').getBoundingClientRect();
+      const card = document.querySelector('.site-block-card.site-block-inline').getBoundingClientRect();
+      return row.top - card.top;
+    });
+    if (hoverRow > 14) problems.push(`${label}: the pointed block's row is ${hoverRow} px below the outline's top edge, too far`);
+    const moved = await flow();
+    if (Math.abs(moved.top - calm.top) > 0.5 || moved.height !== calm.height || moved.y !== calm.y)
+      problems.push(`${label}: pointing at a block moves the page (${JSON.stringify({ calm, moved })})`);
+    await page.mouse.move(2, 2);
+    await page.waitForTimeout(300);
+    if (await page.locator('.site-block-row-hover').count()) problems.push(`${label}: the pointed block's row stays after the mouse left`);
+  }
+  const opened = await sample(() =>
+    phone ? page.locator('.inline-list-row').first().tap() : page.locator('.inline-list-row').first().click(),
+  );
+  if (still && (opened.drift > 2 || opened.end > 1))
+    problems.push(`${label}: opening the row moves the block's content (${JSON.stringify(opened)})`);
+  if (!(await page.locator('.site-block-row:not(.site-block-row-hover)').count()))
+    problems.push(`${label}: the row did not open on the block`);
   await page.close();
 }
 
-/** Insert block is always on the bar and never in the ⋮ (320, 375 and 1280 px, in text, with a block active and idle): a 44 x 44 dp button with the plus icon (Material's add), right before the ⋮ (or last), after Undo and Redo with no divider; it opens the block picker. */
+/** A page of three blocks, one active, one pointed at (a computer), the rest plain: a block that is neither active nor pointed at shows no action row, no handle and no selection ring, with a mouse or a touch; the row, handle and ring show on the active block and on the one pointed at, and
+ * leave with it (the pointer leaving, a drag ending, another block becoming active); while blocks are being selected the rings show on all blocks. */
+async function checkBlockVisibility(width) {
+  const phone = width < 600;
+  const label = `${width}px block row visibility`;
+  const page = await browser.newPage({ viewport: { width, height: 1100 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  for (let i = 0; i < 3; i++) {
+    await pressInsert(page, 'click');
+    await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+    await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
+    await page.waitForTimeout(400);
+    await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
+    await page.keyboard.press('End');
+    await page.keyboard.press('Enter');
+  }
+  const blocks = page.locator('.ProseMirror .site-block');
+  if ((await blocks.count()) < 3) {
+    problems.push(`${label}: fewer than 3 blocks in the page`);
+    return void (await page.close());
+  }
+  const read = () =>
+    page.evaluate(() =>
+      [...document.querySelectorAll('.ProseMirror .site-block')].map((b) => {
+        const mark = b.querySelector(':scope > .site-block-mark');
+        const handle = b.querySelector(':scope > .site-block-handle');
+        return {
+          row: b.querySelectorAll('.site-block-row:not(.site-block-row-hover)').length,
+          hover: [...b.querySelectorAll('.site-block-row-hover')].filter((el) => el.getClientRects().length).length,
+          mark: mark ? Number(getComputedStyle(mark).opacity) : -1,
+          handle: handle ? Number(getComputedStyle(handle).opacity) : -1,
+          handleHits: handle ? getComputedStyle(handle).pointerEvents : '-',
+        };
+      }),
+    );
+  const plain = (state, name) => {
+    if (state.row || state.hover) problems.push(`${label}: ${name} is not active or pointed at but shows a row (${JSON.stringify(state)})`);
+    if (state.mark !== 0) problems.push(`${label}: ${name} is not active or pointed at but shows the selection ring (${state.mark})`);
+    if (state.handle !== 0 || state.handleHits !== 'none')
+      problems.push(`${label}: ${name} is not active or pointed at but shows its handle (${state.handle}, ${state.handleHits})`);
+  };
+  const shown = (state, name, hovering) => {
+    if (hovering ? !state.hover : !state.row) problems.push(`${label}: ${name} shows no row (${JSON.stringify(state)})`);
+    if (state.mark !== 1) problems.push(`${label}: ${name} shows no selection ring (${state.mark})`);
+    if (state.handle !== 1) problems.push(`${label}: ${name} shows no handle (${state.handle})`);
+  };
+  // Block 3 was typed in last and left: all three plain, the mouse away.
+  await page.click('.ProseMirror > p');
+  await page.mouse.move(2, 2);
+  await page.waitForTimeout(1000);
+  let now = await read();
+  now.forEach((state, i) => plain(state, `block ${i + 1} (none active)`));
+  // Block 1 active.
+  const tapOrClick = async (loc, position) => (phone ? loc.tap({ position }) : loc.click({ position }));
+  await tapOrClick(blocks.nth(0).locator('.inline-list-row [data-field="title"]').first(), { x: 8, y: 8 });
+  await page.waitForTimeout(1000);
+  await page.mouse.move(2, 2);
+  await page.waitForTimeout(400);
+  now = await read();
+  shown(now[0], 'the active block 1', false);
+  plain(now[1], 'block 2 (next to the active block 1)');
+  plain(now[2], 'block 3');
+  if (!phone) {
+    // Block 2 pointed at.
+    await blocks.nth(1).hover({ position: { x: 20, y: 20 } });
+    await page.waitForTimeout(500);
+    now = await read();
+    shown(now[0], 'the active block 1 (block 2 pointed at)', false);
+    shown(now[1], 'the pointed block 2', true);
+    plain(now[2], 'block 3 (block 2 pointed at)');
+    // The pointer leaves: nothing stays on block 2.
+    await page.mouse.move(2, 2);
+    await page.waitForTimeout(500);
+    now = await read();
+    plain(now[1], 'block 2 (the pointer left)');
+    // Pointed at block 3 and then away along the edge.
+    await blocks.nth(2).hover({ position: { x: 20, y: 20 } });
+    await page.waitForTimeout(400);
+    await page.mouse.move(2, 2);
+    await page.waitForTimeout(500);
+    plain((await read())[2], 'block 3 (the pointer left)');
+  }
+  // Another block becomes active: block 1 shows nothing any more.
+  // (A tap on another block first closes the active block's row; the next one goes into the block, as before this change.)
+  await tapOrClick(blocks.nth(2).locator('.inline-list-row [data-field="title"]').first(), { x: 8, y: 8 });
+  await page.waitForTimeout(1100);
+  if (!(await read())[2].row) {
+    await tapOrClick(blocks.nth(2).locator('.inline-list-row [data-field="title"]').first(), { x: 8, y: 8 });
+    await page.waitForTimeout(1100);
+  }
+  await page.mouse.move(2, 2);
+  await page.waitForTimeout(400);
+  now = await read();
+  plain(now[0], 'block 1 (block 3 became active)');
+  shown(now[2], 'the active block 3', false);
+  // A drag ends: the block stays active, the others show nothing, and nothing stays where the pointer was.
+  const handle = await blocks.nth(2).locator(':scope > .site-block-handle').boundingBox();
+  await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2 - 20, { steps: 4 });
+  await page.mouse.up();
+  await page.mouse.move(2, 2);
+  await page.waitForTimeout(1100);
+  now = await read();
+  const active = now.filter((state) => state.row).length;
+  if (active !== 1) problems.push(`${label}: ${active} blocks show a row after a drag ended, not 1 (${JSON.stringify(now)})`);
+  now.forEach((state, i) => state.row || plain(state, `block ${i + 1} (after a drag ended)`));
+  // Blocks being selected: the rings show on all blocks (touch-selection mode, as its spec says), and no row.
+  if (!phone) {
+    await page.click('.ProseMirror > p');
+    await page.waitForTimeout(1000);
+    await blocks.nth(0).hover({ position: { x: 20, y: 20 } });
+    await page.waitForTimeout(400);
+    await blocks.nth(0).locator(':scope > .site-block-mark').click();
+    await page.waitForTimeout(500);
+    now = await read();
+    now.forEach((state, i) => {
+      if (state.mark !== 1) problems.push(`${label}: block ${i + 1} shows no ring while blocks are being selected (${state.mark})`);
+      if (state.row || state.hover) problems.push(`${label}: block ${i + 1} shows a row while blocks are being selected`);
+    });
+    await page.keyboard.press('Escape');
+    await page.mouse.move(2, 2);
+    await page.waitForTimeout(500);
+    now = await read();
+    now.forEach((state, i) => plain(state, `block ${i + 1} (selection left)`));
+  }
+  await page.close();
+}
+
+/** A narrow window with a mouse (a computer at 420 px): pointing at a block shows no row over it (it would cover its first item), and a click on the first item's field goes into it. */
+async function checkBlockRowNarrow() {
+  const label = 'narrow block row';
+  const page = await browser.newPage({ viewport: { width: 420, height: 800 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(900);
+  await page.locator('.site-block-card').first().hover();
+  await page.waitForTimeout(400);
+  const width = await page
+    .locator('.site-block-card')
+    .first()
+    .evaluate((e) => e.clientWidth);
+  if (width >= 400) problems.push(`${label}: the block is ${width} px wide, not narrow (under 400)`);
+  if (await page.locator('.site-block-row-hover').count())
+    problems.push(`${label}: a narrow block pointed at shows a row over its first item`);
+  await page.locator('.inline-list-row [data-field="title"]').first().click();
+  await page.waitForTimeout(600);
+  if (!(await page.locator('.inline-list-row-active').count()))
+    problems.push(`${label}: a click on the first item's field did not go into it`);
+  await page.close();
+}
+
+/** Insert block is always on the bar and never in the ⋮ (320, 375 and 1280 px, in text, with a block active and idle): a 44 x 44 dp button with the add-block icon (widgets with a plus), right before the ⋮ (or last), after Undo and Redo with no divider; it opens the block picker. */
 async function checkInsertBlock(width, height = 800) {
   const phone = width < 600;
   const label = `${width}px Insert block`;
@@ -1115,7 +4060,8 @@ async function checkInsertBlock(width, height = 800) {
     if (!got.insert) return void problems.push(`${where}: no Insert block on the bar (${got.names})`);
     if (Math.abs(got.insert.width - 44) > 0.6 || Math.abs(got.insert.height - 44) > 0.6)
       problems.push(`${where}: Insert block is ${got.insert.width} x ${got.insert.height}, not 44 x 44`);
-    if (got.icon !== 'add') problems.push(`${where}: Insert block has icon ${got.icon}, not the plus (Material's add)`);
+    if (got.icon !== 'add_block')
+      problems.push(`${where}: Insert block has icon ${got.icon}, not the add-block icon (widgets with a plus)`);
     if (got.scrolls) problems.push(`${where}: the bar scrolls`);
     // Undo, Redo, Insert block, then the ⋮ (when there is one), with no divider.
     if (got.dividers) problems.push(`${where}: the bar has a divider`);
@@ -1148,7 +4094,7 @@ async function checkInsertBlock(width, height = 800) {
   await page.close();
 }
 
-/** A block typed in place has its tools on the text's one bar (PR 2 of the contextual toolbar plan): with a List active the bar has the block's group (named by the block), Add above and Add below as 44 x 44 dp buttons, no floating bar anywhere, the block's own menu (Hide on the page, Remove) in the ⋮ (never a second ⋮ on the card), Undo and Redo, no scrolling; the cursor back in the text brings the text tools back. */
+/** A block typed in place has its tools on the text's one bar (PR 2 of the contextual toolbar plan): with a List active the bar has the block's group (named by the block), Add above and Add below as 44 x 44 dp buttons, no floating bar anywhere, the block's own menu (Hide, Remove) in the ⋮ (never a second ⋮ on the card), Undo and Redo, no scrolling; the cursor back in the text brings the text tools back. */
 async function checkBlockBar(width, height = 800) {
   const phone = width < 600;
   const label = `${width}px block bar`;
@@ -1183,10 +4129,12 @@ async function checkBlockBar(width, height = 800) {
     problems.push(`${label}: the block's tools read ${seen.join(', ')}, not in the order ${order.join(', ')}`);
   if (names.indexOf('Add below') > names.indexOf('Add above')) problems.push(`${label}: Add below does not come before Add above`);
   // Move up, Move down and Hide are in the block's action row (blockRow.ts), never on the bar or in the ⋮ as well.
-  const listRow = await page.locator('.site-block-row-button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
-  for (const name of ['Move up', 'Move down', 'Hide on the page'])
+  const listRow = await page
+    .locator('.site-block-row:not(.site-block-row-hover) [data-row]')
+    .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  for (const name of ['Move up', 'Move down', 'Hide'])
     if (!listRow.includes(name)) problems.push(`${label}: the action row has no "${name}" (${listRow})`);
-  for (const name of ['Move up', 'Move down', 'Hide on the page'])
+  for (const name of ['Move up', 'Move down', 'Hide'])
     if (names.includes(name)) problems.push(`${label}: "${name}" is on the bar or in the ⋮ as well as in the action row`);
   if (!more.length) problems.push(`${label}: the ⋮ has no rows`);
   for (const name of ['Remove']) if (!names.includes(name)) problems.push(`${label}: the block's own menu has no "${name}" (${names})`);
@@ -1448,7 +4396,9 @@ async function checkTextBarFit(width) {
   await page.close();
 }
 
-/** On a computer (1280 px) all tools are on the one bar, the text tools at the left and Undo, Redo, Insert block at the right end, no divider, 44 dp tall, with no ⋮. */
+/** On a computer (1280 px, a bar of 478 dp) the text tools are at the left and Undo, Redo, Insert block at the right end, no divider, 44 dp tall. A page's
+ * Preview (one save while writing, 3.3) does not fit beside all seven text tools: it is in the ⋮, which then takes a slot, so Color is in the ⋮ too;
+ * every tool is on the bar or in the ⋮, and the ⋮ holds only what does not fit. */
 async function checkTextBarWide() {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`1280px text bar: ${e.message}`));
@@ -1475,6 +4425,7 @@ async function checkTextBarWide() {
   if (endedWide) problems.push(`1280px text bar: ${endedWide}`);
   // Every icon in the bar's menus is 20 x 20 px: Text style, List, Alignment and Color.
   for (const name of ['Text style', 'List', 'Alignment', 'Color']) {
+    if (!got.names.some((n) => n === name || n.startsWith(`${name}:`))) continue;
     await page.locator(`.editor-tools [aria-label^="${name}"]`).first().click();
     const bad = await menuIconProblems(page);
     if (bad.length) problems.push(`1280px text bar: icons in the ${name} menu are not 20 x 20 px (${bad})`);
@@ -1498,15 +4449,149 @@ async function checkTextBarWide() {
     }
     await page.keyboard.press('Escape');
   }
-  const want = ['Bold', 'Italic', 'Text style', 'List', 'Alignment', 'Link', 'Color', 'Undo', 'Redo', 'Insert block'];
+  const { more } = await barTools(page);
+  const rows = more.map((m) => m.label);
+  const want = ['Bold', 'Italic', 'Text style', 'List', 'Alignment', 'Link', 'Color', 'Undo', 'Redo', 'Insert block', 'Preview'];
   for (const name of want)
+    if (!got.names.some((n) => n === name || n.startsWith(`${name}:`)) && !rows.includes(name))
+      problems.push(`1280px text bar: no ${name} on the bar or in the ⋮ (${got.names.join(', ')} | ${rows.join(', ')})`);
+  for (const name of ['Bold', 'Italic', 'Text style', 'List', 'Alignment', 'Link', 'Undo', 'Redo', 'Insert block'])
     if (!got.names.some((n) => n === name || n.startsWith(`${name}:`)))
-      problems.push(`1280px text bar: no ${name} (${got.names.join(', ')})`);
-  if (got.names.includes('More')) problems.push('1280px text bar: a ⋮ on a bar where everything fits');
+      problems.push(`1280px text bar: ${name} is not on the bar (${got.names.join(', ')})`);
+  if (got.names.includes('More') && rows.some((r) => !['Preview', 'Color'].includes(r)))
+    problems.push(`1280px text bar: the ⋮ holds more than Preview and Color (${rows.join(', ')})`);
   if (got.height < 44 || got.height > 46 || got.small || got.scrolls || got.divider)
     problems.push(
       `1280px text bar: height ${got.height}, ${got.small} buttons not 44 x 44, scrolls ${got.scrolls}, divider ${got.divider} (none wanted)`,
     );
+  await page.close();
+}
+
+/** Preview and View on site are in the text's one bar (docs/superpowers/specs/2026-11-14-one-save-while-writing-design.md, 3.3 and 10; PR 4), on a
+ * saved page: idle, Preview is a 44 dp button right before Undo; in the text it stays on the bar where every tool fits (1280) and is a row of the
+ * ⋮ where the text tools fill the bar (375); View on site is always the ⋮'s last row and opens the page on the site; the page actions (the top
+ * bar, the title row) have neither. Ctrl+S never opens the browser's save dialog (the key is taken) and sends the autosave at once, without
+ * waiting for the moment after the last change. */
+async function checkPreviewInBar(width) {
+  const phone = width < 600;
+  const label = `${width}px Preview in the bar`;
+  const page = await browser.newPage({ viewport: { width, height: 800 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  const puts = [];
+  await page.route('**/api/autosave**', (r) => {
+    if (r.request().method() === 'PUT') puts.push(r.request().postDataJSON());
+    if (r.request().method() === 'GET') return r.fulfill({ status: 404, body: '' });
+    return r.fulfill({ contentType: 'application/json', body: '{}' });
+  });
+  await page.goto(`${site}/editor/#src/content/pages/zz-check-page.md`);
+  await page.waitForSelector('.editor-tools button[aria-label="Undo"]', { timeout: 30_000 });
+  await page.waitForTimeout(300);
+  const names = () =>
+    page.evaluate(() => [...document.querySelectorAll('.editor-tools button:not([hidden])')].map((b) => b.getAttribute('aria-label')));
+  const moreRows = async () => {
+    await page.locator('.editor-tools button[aria-label="More"]').click();
+    await page.waitForSelector('[role=menu][aria-label="More"]', { timeout: 3000 });
+    const rows = await page.evaluate(() =>
+      [...document.querySelectorAll('[role=menu][aria-label="More"] [role^=menuitem]')].map((x) => x.textContent.trim()),
+    );
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(200);
+    return rows;
+  };
+  // The page actions have no Preview and no View on site (only the bar, its ⋮ and, until PR 5, the floating bar may).
+  const outside = await page.evaluate(() =>
+    [...document.querySelectorAll('button, a')]
+      .filter((el) => el.getClientRects().length && !el.closest('.editor-tools, .editor-save-bar, [role=menu], dialog'))
+      .map((el) => el.getAttribute('aria-label') ?? el.textContent.trim())
+      .filter((name) => name === 'Preview' || name === 'View on the website'),
+  );
+  if (outside.length) problems.push(`${label}: the page actions still have ${outside.join(', ')}`);
+  // Idle: Preview, a 44 dp button, right before Undo.
+  const idle = await names();
+  if (idle[idle.indexOf('Undo') - 1] !== 'Preview') problems.push(`${label}: idle, Preview is not right before Undo (${idle.join(', ')})`);
+  const size = await page
+    .locator('.editor-tools button[aria-label="Preview"]')
+    .evaluate((b) => b.getBoundingClientRect().toJSON(), null, { timeout: 2000 })
+    .catch(() => null);
+  if (!size || Math.abs(size.width - 44) > 0.6 || Math.abs(size.height - 44) > 0.6)
+    problems.push(`${label}: Preview on the bar is not 44 x 44 dp (${JSON.stringify(size)})`);
+  if (!idle.includes('More')) problems.push(`${label}: idle, a saved page's bar has no ⋮ for View on site (${idle.join(', ')})`);
+  else {
+    const rows = await moreRows();
+    if (rows.at(-1) !== 'View on the website') problems.push(`${label}: View on site is not the ⋮'s last row (${rows.join(', ')})`);
+    if (rows.includes('Preview')) problems.push(`${label}: idle, Preview is in the ⋮ as well as on the bar`);
+    // View on site opens the page's address on the site in a new tab (window.open is recorded here: the site's own host is not served).
+    await page.evaluate(() => {
+      window.__opened = [];
+      window.open = (...args) => (window.__opened.push(args), null);
+    });
+    await page.locator('.editor-tools button[aria-label="More"]').click();
+    await page.locator('[role=menu][aria-label="More"] [role^=menuitem]', { hasText: /^View on the website$/ }).click();
+    const opened = await page.evaluate(() => window.__opened);
+    if (opened.length !== 1 || !String(opened[0][0]).includes('/zz-check-page') || opened[0][1] !== '_blank')
+      problems.push(`${label}: View on site did not open the page in a new tab (${JSON.stringify(opened)})`);
+  }
+  // In the text: on the bar while every text tool fits, else in the ⋮ (after Section settings, before View on site), as on a phone's bar.
+  await page.click('.ProseMirror p');
+  await page.keyboard.press('End');
+  await page.waitForSelector('.editor-tools button[aria-label="Bold"]', { timeout: 5000 }).catch(() => {});
+  const inText = await names();
+  const rows = await moreRows();
+  if (!inText.includes('Preview') && !rows.includes('Preview'))
+    problems.push(`${label}: in the text Preview is neither on the bar nor in the ⋮ (${inText.join(', ')} | ${rows.join(', ')})`);
+  if (inText.includes('Preview') && inText.includes('More') && rows.some((r) => /^(Link|Color|Align |Text style)/.test(r)))
+    problems.push(`${label}: in the text Preview is on the bar while text tools are in the ⋮ (${inText.join(', ')} | ${rows.join(', ')})`);
+  if (phone && !rows.includes('Preview')) problems.push(`${label}: in the text Preview is not in the ⋮ (${rows.join(', ')})`);
+  if (rows.includes('Section settings') && rows.includes('Preview') && rows.indexOf('Preview') < rows.indexOf('Section settings'))
+    problems.push(`${label}: Preview comes before Section settings in the ⋮ (${rows.join(', ')})`);
+  if (rows.at(-1) !== 'View on the website')
+    problems.push(`${label}: in the text View on site is not the ⋮'s last row (${rows.join(', ')})`);
+  // Ctrl+S: the browser's own save is never asked (the key's default is prevented), and the autosave goes out at once (not after 1.9 s).
+  await page.click('.ProseMirror p');
+  await page.keyboard.press('End');
+  await page.evaluate(() => {
+    window.__saveKey = null;
+    addEventListener('keydown', (e) => e.key.toLowerCase() === 's' && (e.ctrlKey || e.metaKey) && (window.__saveKey = e.defaultPrevented));
+  });
+  await page.keyboard.type(' saved now');
+  const before = puts.length;
+  await page.keyboard.press('Control+s');
+  await page.waitForTimeout(700);
+  if ((await page.evaluate(() => window.__saveKey)) !== true)
+    problems.push(`${label}: Ctrl+S is not taken (the browser would ask to save)`);
+  if (puts.length === before) problems.push(`${label}: Ctrl+S did not send the autosave at once`);
+  else if (!String(puts.at(-1)?.text ?? '').includes('saved now'))
+    problems.push(`${label}: Ctrl+S sent an autosave without the change (${JSON.stringify(puts.at(-1)).slice(0, 200)})`);
+  await page.close();
+}
+
+/** Ctrl+S where the draft cannot save itself (R2 caching off: the Worker answers 409 off) runs what Save draft does: the page is committed. */
+async function checkSaveKeyNoAutosave() {
+  const label = '1280px Ctrl+S without autosave';
+  const page = await browser.newPage({ viewport: { width: 1280, height: 800 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  const commits = [];
+  await page.route('**/api/github/commit', (r) => {
+    commits.push(JSON.parse(r.request().postData() || '{}'));
+    return r.fulfill({ contentType: 'application/json', body: JSON.stringify({ commit: 'head', blobs: {} }) });
+  });
+  await page.route('**/api/autosave**', (r) =>
+    r.request().method() === 'GET'
+      ? r.fulfill({ status: 404, body: '' })
+      : r.fulfill({ status: 409, contentType: 'application/json', body: JSON.stringify({ error: 'off' }) }),
+  );
+  await page.goto(`${site}/editor/#src/content/pages/zz-check-page.md`);
+  await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
+  await page.click('.ProseMirror p');
+  await page.keyboard.press('End');
+  await page.keyboard.type(' kept by the key');
+  await page.keyboard.press('Control+s');
+  for (let i = 0; i < 40 && !commits.length; i++) await page.waitForTimeout(200);
+  const sent = commits.flatMap((c) => (c.changes ?? []).map((x) => Buffer.from(x.content ?? '', 'base64').toString('utf8')));
+  if (!sent.some((text) => text.includes('kept by the key')))
+    problems.push(`${label}: Ctrl+S did not save the page (${commits.length} commits)`);
   await page.close();
 }
 
@@ -1843,7 +4928,10 @@ async function checkSelection() {
       .getByRole('button', { name: /^Notifications/ })
       .first()
       .click();
-    const sheet = page.getByRole('dialog', { name: 'Notifications' });
+    // Below 600 dp the notifications are a page (route notifications), from 600 dp a side sheet.
+    const onPage = (page.viewportSize()?.width ?? 0) < 600;
+    const sheet = onPage ? page.locator('main') : page.getByRole('dialog', { name: 'Notifications' });
+    const scope = onPage ? 'main' : 'dialog';
     await sheet.waitFor();
     await page.waitForTimeout(600);
     const items = sheet.locator('[role=checkbox], .list-item-container', { hasText: /Selection check/ });
@@ -1856,29 +4944,119 @@ async function checkSelection() {
       await page.waitForTimeout(800);
       await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
       await page.waitForTimeout(300);
-      if ((await checked(page, 'dialog')) !== 1) problems.push(`${label}: a press and hold does not select a notification`);
+      if ((await checked(page, scope)) !== 1) problems.push(`${label}: a press and hold does not select a notification`);
       const b2 = await items.nth(1).boundingBox();
       await page.touchscreen.tap(b2.x + b2.width / 2, b2.y + b2.height / 2);
       await page.waitForTimeout(300);
       if (!/^2 selected$/.test((await count(page)) ?? ''))
         problems.push(`${label}: the notifications' count is not announced ("2 selected")`);
-      await sheet.getByRole('button', { name: 'Cancel' }).click();
-      if (await checked(page, 'dialog')) problems.push(`${label}: Cancel does not unselect the notifications`);
+      await page.getByRole('button', { name: 'Close selection' }).click();
+      if (await checked(page, scope)) problems.push(`${label}: Cancel does not unselect the notifications`);
     } else {
       await items.nth(0).focus();
       await page.keyboard.press('Space');
-      if (await checked(page, 'dialog')) problems.push(`${label}: Space selected a notification before selecting had started`);
+      if (await checked(page, scope)) problems.push(`${label}: Space selected a notification before selecting had started`);
       await items.nth(0).click({ modifiers: ['Shift'] });
       await items.nth(1).focus();
       await page.keyboard.press('Space');
-      if ((await checked(page, 'dialog')) !== 2) problems.push(`${label}: Shift+click and Space do not select notifications`);
+      if ((await checked(page, scope)) !== 2) problems.push(`${label}: Shift+click and Space do not select notifications`);
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);
-      if (await checked(page, 'dialog')) problems.push(`${label}: Escape does not unselect the notifications`);
+      if (await checked(page, scope)) problems.push(`${label}: Escape does not unselect the notifications`);
       if (!(await sheet.isVisible())) problems.push(`${label}: Escape with some selected closed the notifications' sheet`);
     }
     await page.close();
   }
+}
+
+/** A file's details in Files on a phone (Media.tsx): a subpage of Files (route files/<address>), not a dialog: the editor's top bar
+ * with a back arrow, the file name and Download; the image is the first thing under it, in view; the toolbar says "1 of N" from the
+ * English texts and Next moves to the next file in the same subpage; Back returns to the list at the same scroll position, with the
+ * file's tile still there; a reload on the subpage reopens the file. */
+async function checkFilesDialog() {
+  const label = 'files subpage 375';
+  const page = await browser.newPage({ viewport: { width: 375, height: 800 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#files'));
+  const some = await page
+    .waitForSelector('main [data-media-tile]', { timeout: 8000 })
+    .then(() => true)
+    .catch(() => false);
+  if (!some) return void (await page.close());
+  await page.waitForTimeout(800);
+  const tiles = page.locator('main [data-media-tile]');
+  const index = Math.min(5, (await tiles.count()) - 1);
+  await tiles.nth(index).scrollIntoViewIfNeeded();
+  const before = await page.evaluate(() => scrollY);
+  const isImage = (await tiles.nth(index).locator('img').count()) > 0;
+  const tileName = await tiles.nth(index).getAttribute('aria-label');
+  await tiles.nth(index).click();
+  await page
+    .waitForFunction(() => location.hash.startsWith('#files/'), null, { timeout: 5000 })
+    .catch(() => problems.push(`${label}: the address did not change`));
+  await page.waitForTimeout(500);
+  if (await page.locator('dialog[open]').count()) problems.push(`${label}: a dialog opened, not a subpage`);
+  const look = await page.evaluate(() => {
+    const main = document.querySelector('main');
+    const img = main?.querySelector('img:not([data-media-tile] img)');
+    const ir = img?.getBoundingClientRect();
+    const toolbar = main?.querySelector('[role=toolbar] [aria-live]');
+    return {
+      title: document.querySelector('h1')?.textContent ?? '',
+      back: !!document.querySelector('a[aria-label^="Back to"]'),
+      close: !!document.querySelector('.dialog-full-screen'),
+      download: !!document.querySelector('a[download]'),
+      imageInView: !!ir && ir.top >= 0 && ir.top < innerHeight / 2 && ir.height > 50,
+      count: toolbar?.textContent ?? '',
+    };
+  });
+  if (!look.title.trim()) problems.push(`${label}: no file name as headline`);
+  if (!look.back) problems.push(`${label}: no back arrow`);
+  if (look.close) problems.push(`${label}: a full-screen dialog is drawn`);
+  if (!look.download) problems.push(`${label}: no Download in the top bar`);
+  if (isImage && !look.imageInView) problems.push(`${label}: the image is not in view at the top`);
+  if (look.count && !/^\d+ of \d+$/.test(look.count)) problems.push(`${label}: the position says "${look.count}", not "N of M"`);
+  if (look.count) {
+    const was = look.count;
+    await page.locator('main [role=toolbar] button').last().click();
+    await page.waitForTimeout(300);
+    const now = await page.locator('main [role=toolbar] [aria-live]').textContent();
+    if (now === was) problems.push(`${label}: Next does not move to another file ("${now}")`);
+    await page.locator('main [role=toolbar] button').first().click();
+    await page.waitForTimeout(300);
+  }
+  // A reload on the subpage reopens the file.
+  const hash = await page.evaluate(() => location.hash);
+  await page.reload();
+  await page
+    .waitForSelector('a[aria-label^="Back to"]', { timeout: 8000 })
+    .catch(() => problems.push(`${label}: a reload does not reopen the subpage`));
+  await page.evaluate(() => history.back()).catch(() => {});
+  await page.close();
+  // Back returns to the list at the scroll position.
+  const back = await browser.newPage({ viewport: { width: 375, height: 800 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  await openEditor(back, site);
+  await back.evaluate(() => (location.hash = '#files'));
+  await back.waitForSelector('main [data-media-tile]', { timeout: 8000 });
+  await back.waitForTimeout(800);
+  await back.locator('main [data-media-tile]').nth(index).scrollIntoViewIfNeeded();
+  const top = await back.evaluate(() => scrollY);
+  await back.locator('main [data-media-tile]').nth(index).click();
+  await back.waitForFunction(() => location.hash.startsWith('#files/'));
+  await back.waitForTimeout(300);
+  await back.locator('a[aria-label^="Back to"]').first().click();
+  await back
+    .waitForFunction(() => location.hash === '#files', null, { timeout: 5000 })
+    .catch(() => problems.push(`${label}: Back does not return to the list`));
+  await back.waitForTimeout(500);
+  const after = await back.evaluate(() => scrollY);
+  if (Math.abs(after - top) > 2) problems.push(`${label}: Back returned to scroll ${after}, not ${top}`);
+  if (tileName && !(await back.locator(`main [data-media-tile][aria-label="${tileName}"]`).isVisible()))
+    problems.push(`${label}: the file's tile is not visible after Back`);
+  void before;
+  void hash;
+  await back.close();
 }
 
 /** Selecting files in Filer (Media.tsx): a long press on a tile (phone) or the mark on hover (computer) selects it; the tiles show
@@ -2227,7 +5405,14 @@ async function checkBlockDrag(width) {
   if (first.width < 44 || first.height < 44) problems.push(`${label}: a handle is smaller than 44 x 44 (${first.width}x${first.height})`);
   const opacity = () => handles.nth(1).evaluate((el) => getComputedStyle(el).opacity);
   if (phone) {
-    if ((await opacity()) !== '1') problems.push(`${label}: a touch does not always see the handle`);
+    // A touch sees a handle only on the active block (it is the end of the block's row); go into the second block first.
+    if ((await opacity()) !== '0') problems.push(`${label}: a touch sees the handle of a block that is not active`);
+    const field = page.locator('.ProseMirror .site-block').nth(1).locator('.inline-list-row [data-field]').first();
+    for (let tries = 0; tries < 3 && (await opacity()) !== '1'; tries++) {
+      await field.tap({ position: { x: 8, y: 8 } });
+      await page.waitForTimeout(1100);
+    }
+    if ((await opacity()) !== '1') problems.push(`${label}: a touch does not see the handle of the active block`);
   } else {
     await page.mouse.move(5, 5);
     await page.waitForTimeout(400);
@@ -2335,8 +5520,18 @@ async function checkBlockMove(width) {
   const before = await names();
   // Select the first block (a long press on its handle on a phone, the mark with a mouse), then the third.
   if (phone) {
+    // The handle is the end of the active block's row: go into the first block (a tap on another block first closes the active one's row), then press its handle.
+    const handle0 = blocks.nth(0).locator('.site-block-handle');
+    for (let tries = 0; tries < 3 && (await handle0.evaluate((el) => getComputedStyle(el).opacity)) !== '1'; tries++) {
+      await blocks
+        .nth(0)
+        .locator('.inline-list-row [data-field]')
+        .first()
+        .tap({ position: { x: 8, y: 8 } });
+      await page.waitForTimeout(1100);
+    }
     const cdp = await page.context().newCDPSession(page);
-    const [hx, hy] = await centre(blocks.nth(0).locator('.site-block-handle'));
+    const [hx, hy] = await centre(handle0);
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: hx, y: hy }] });
     await page.waitForTimeout(700);
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
@@ -2471,6 +5666,8 @@ async function checkBlockSelect(width) {
     await page.keyboard.press('End');
     await page.keyboard.press('Enter');
   }
+  // The row of the block just left closes with the page scrolling to keep the blocks in place: measure after it has settled.
+  await page.waitForTimeout(900);
   const blocks = page.locator('.ProseMirror .site-block');
   if ((await blocks.count()) < 2) {
     problems.push(`${label}: fewer than 2 blocks in the page`);
@@ -2494,6 +5691,15 @@ async function checkBlockSelect(width) {
   };
   const handle0 = blocks.nth(0).locator('.site-block-handle');
   if (phone) {
+    // The handle is the end of the active block's row: go into the first block (a tap on another block first closes the active one's row), then press its handle.
+    for (let tries = 0; tries < 3 && (await handle0.evaluate((el) => getComputedStyle(el).opacity)) !== '1'; tries++) {
+      await blocks
+        .nth(0)
+        .locator('.inline-list-row [data-field]')
+        .first()
+        .tap({ position: { x: 8, y: 8 } });
+      await page.waitForTimeout(1100);
+    }
     const cdp = await page.context().newCDPSession(page);
     const [hx, hy] = await centre(handle0);
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: hx, y: hy }] });
@@ -2530,7 +5736,7 @@ async function checkBlockSelect(width) {
   await page.waitForTimeout(300);
   const rows = await page.locator('[role=menu] [role^=menuitem]').allTextContents();
   const clean = rows.map((r) => r.trim());
-  for (const name of ['Hide on the page', 'Remove', 'Select all'])
+  for (const name of ['Hide', 'Remove', 'Select all'])
     if (!clean.includes(name)) problems.push(`${label}: the bar's menu has no "${name}" (${clean.join(', ')})`);
   if (clean.includes('Duplicate')) problems.push(`${label}: Duplicate is offered with two blocks selected`);
   // Remove asks first (and Escape leaves the blocks as they are).
@@ -2549,7 +5755,7 @@ async function checkBlockSelect(width) {
   await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
   await page.waitForTimeout(300);
   await page
-    .locator('[role=menu] [role^=menuitem]', { hasText: /^Hide on the page$/ })
+    .locator('[role=menu] [role^=menuitem]', { hasText: /^Hide$/ })
     .first()
     .click();
   await page.waitForTimeout(500);
@@ -2729,7 +5935,7 @@ async function checkSelectionBox() {
       .getByRole('button', { name: /^Notifications/ })
       .first()
       .click();
-    const sheet = page.getByRole('dialog', { name: 'Notifications' });
+    const sheet = (page.viewportSize()?.width ?? 0) < 600 ? page.locator('main') : page.getByRole('dialog', { name: 'Notifications' });
     await sheet.waitFor();
     await page.waitForTimeout(600);
     const items = sheet.locator('.list-item-selectable', { hasText: /Box check/ });
@@ -2804,6 +6010,65 @@ async function checkDensitySetting(width, height) {
   await page.waitForFunction(() => document.documentElement.dataset.density === '1', null, { timeout: 10000 }).catch(() => {});
   if ((await attribute()) !== '1' || (await stored()) !== 'large')
     problems.push(`${width}px density setting: the account's Large did not replace the copy (${await attribute()}, ${await stored()})`);
+  await page.close();
+}
+
+/** A text field is marked by the browser's own validity (`:user-invalid`), as Material 3 draws its error state: nothing is wrong
+ * before the person has worked in it, and after typing a wrong text and leaving it the edge, the name and the icon are in the
+ * error colour, the line under it says what is wrong in place of the supporting line (it does not add one), aria-invalid is true
+ * and the line is in aria-describedby; once it is put right all of that is gone, the layout has not moved, and a field the
+ * person has not touched is never marked. */
+async function checkUserInvalid(width, height, theme) {
+  const touch = width < 600;
+  const label = `${width}px ${theme} text field :user-invalid`;
+  const page = await browser.newPage({
+    viewport: { width, height },
+    hasTouch: touch,
+    isMobile: touch,
+    locale: 'en-US',
+    colorScheme: theme,
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#developer/parts/ui'));
+  const input = page.locator('[data-part="TextField"] input[data-part="invalid-field"]').first();
+  await input.waitFor({ timeout: 30_000 }).catch(() => problems.push(`${label}: the required field is not in the TextField part`));
+  if (!(await input.count())) return page.close();
+  await input.scrollIntoViewIfNeeded();
+  const read = () =>
+    input.evaluate((el) => {
+      const root = el.closest('.text-field');
+      const shown = (node) => !!node && getComputedStyle(node).display !== 'none';
+      const rect = root.getBoundingClientRect();
+      return {
+        invalid: el.matches(':user-invalid'),
+        edge: getComputedStyle(el.closest('.text-field-container')).boxShadow,
+        said: shown(root.querySelector('.text-field-invalid-text')),
+        supporting: shown(root.querySelector('.text-field-supporting:not(.text-field-invalid-text)')),
+        icon: shown(root.querySelector('.text-field-error-icon')),
+        aria: el.getAttribute('aria-invalid'),
+        described: (el.getAttribute('aria-describedby') ?? '').includes(root.querySelector('.text-field-invalid-text')?.id ?? '\0'),
+        height: Math.round(rect.height),
+      };
+    });
+  const before = await read();
+  if (before.invalid || before.said || before.icon || !before.supporting || before.aria === 'true')
+    problems.push(`${label}: marked before it was touched (${JSON.stringify(before)})`);
+  await input.focus();
+  await input.fill('name@');
+  await input.blur();
+  const wrong = await read();
+  if (!wrong.invalid || !wrong.said || wrong.supporting || !wrong.icon || wrong.aria !== 'true' || !wrong.described)
+    problems.push(`${label}: not marked after a wrong text was typed and left (${JSON.stringify(wrong)})`);
+  if (wrong.edge === before.edge) problems.push(`${label}: the edge did not change to the error's`);
+  if (wrong.height !== before.height)
+    problems.push(`${label}: the line under the field moved the layout (${before.height} to ${wrong.height})`);
+  await input.focus();
+  await input.fill('name@example.com');
+  await input.blur();
+  const right = await read();
+  if (right.invalid || right.said || right.icon || !right.supporting || right.aria === 'true' || right.described)
+    problems.push(`${label}: still marked after it was put right (${JSON.stringify(right)})`);
   await page.close();
 }
 
@@ -3161,8 +6426,25 @@ async function checkEmptyHint() {
             }
             await page.waitForTimeout(500);
           }
+          // A page's H1 has no image (owner, 14 Nov 2026): its Section settings have a colour and a width only.
+          const sheet = page.locator('dialog[open], .editor-side-sheet').first();
+          // On a phone the section settings are a page (owner, 15 Nov): no control has the focus at the start, the page has it, with no ring.
+          if (touch) {
+            const start = await sheet.evaluate((d) => ({
+              onPage: document.activeElement === d,
+              styled: [...document.querySelectorAll(':focus-visible')].filter(
+                (e) => getComputedStyle(e).outlineStyle !== 'none' || getComputedStyle(e).boxShadow !== 'none',
+              ).length,
+            }));
+            if (!start.onPage) problems.push(`${name}: the focus does not start on the section settings page itself`);
+            if (start.styled) problems.push(`${name}: an element has focus-visible styling when the section settings page opens`);
+          }
+          if (await sheet.getByText('Background image', { exact: true }).count())
+            problems.push(`${name}: the Main heading's Section settings offer a background image`);
+          if (!(await sheet.getByText('Width', { exact: true }).count()))
+            problems.push(`${name}: the Main heading's Section settings have no Width`);
           await page.getByText('Primary', { exact: true }).first().click();
-          await page.getByRole('button', { name: 'Save', exact: true }).first().click();
+          await saveOrClose(page);
           await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 10_000 });
           await page.waitForTimeout(300);
         }
@@ -3233,12 +6515,45 @@ async function checkListMarkers(width) {
   await page.waitForSelector('ul.list', { timeout: 30_000 });
   const inEditor = await page.evaluate(markers);
   if (inEditor.length) problems.push(`${width}px editor: a List row has a list marker (${[...new Set(inEditor)].join('; ')})`);
-  await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await clickPreview(page);
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('ul.block-list', { timeout: 30_000 });
   const inPreview = await frame.evaluate(markers);
   if (inPreview.length) problems.push(`${width}px Preview: a List row has a list marker (${[...new Set(inPreview)].join('; ')})`);
+  await page.close();
+}
+
+/** The FAB never covers the footer (Screen.tsx useFabLift): on every screen that has both, at the top, in the middle and at the bottom
+ * of the page, the FAB's box and the footer's do not overlap. The screens are the start screen and the lists with a create button. */
+async function checkFabAboveFooter(width) {
+  const label = `${width}px FAB above the footer`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  let seen = 0;
+  for (const route of ['#', '#seo/redirects/all', '#media', '#links']) {
+    await page.evaluate((r) => (location.hash = r), route);
+    await page.waitForTimeout(1200);
+    for (const at of [0, 0.5, 1]) {
+      await page.evaluate((f) => window.scrollTo(0, (document.documentElement.scrollHeight - innerHeight) * f), at);
+      await page.waitForTimeout(250);
+      const m = await page.evaluate(() => {
+        const fab = document.querySelector('.editor-fab')?.getBoundingClientRect();
+        const footer = document.querySelector('footer.editor-footer')?.getBoundingClientRect();
+        if (!fab || !footer) return null;
+        return { fabTop: fab.top, fabBottom: fab.bottom, footerTop: footer.top, footerBottom: footer.bottom, h: innerHeight };
+      });
+      if (!m) continue;
+      seen++;
+      if (m.footerTop < m.h && m.footerBottom > 0 && m.fabBottom > m.footerTop + 0.5 && m.fabTop < m.footerBottom)
+        problems.push(
+          `${label}: on ${route} (scrolled to ${at * 100}%) the FAB (${Math.round(m.fabTop)}–${Math.round(m.fabBottom)}) overlaps the footer (${Math.round(m.footerTop)}–${Math.round(m.footerBottom)})`,
+        );
+    }
+  }
+  if (!seen) problems.push(`${label}: no screen with both a FAB and the footer was found`);
   await page.close();
 }
 
@@ -3317,8 +6632,8 @@ async function checkSavedLabel(page, width) {
   const inEditor = await labelNow();
   if (!inEditor || inEditor.size !== '12px')
     problems.push(`${label}: a saved lone label is not a label in the editor (${JSON.stringify(inEditor)})`);
-  await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await clickPreview(page);
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('[data-editor="text"] .label-medium', { timeout: 30_000 });
   const drawn = await frame.evaluate(() => {
@@ -3423,8 +6738,8 @@ async function checkPreviewSection() {
   await openEditor(page, site, { [path]: text });
   await page.goto(`${site}/editor/#${path}`);
   await page.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
-  await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await clickPreview(page);
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('[data-editor="text"]', { timeout: 30_000 });
   const got = await frame.evaluate(() => {
@@ -3502,14 +6817,14 @@ async function checkSectionCardContrast() {
   }
 }
 
-/** A page whose H1 section has a background (a colour or an image) has it start right under the navigation bar (gap 0 ±1px), on the site and in the Preview at 390 and 600; a page whose H1 section has none keeps its space under the bar. */
+/** A page whose H1 section has a background (a colour) has it start right under the navigation bar (gap 0 ±1px), on the site and in the Preview at 390 and 600; a page whose H1 section has none keeps its space under the bar, also with an image left in an old marker (a page's H1 has no image). */
 async function checkH1SectionGap() {
   const path = BUILT_PAGE;
   const source = PAGE_SOURCE;
   const picture = '/images/uploads/2026/10/earth-from-space.webp';
   const variants = [
     { name: 'colour', marker: '<div data-section="tertiary"></div>\n\n', background: true },
-    { name: 'image', marker: `<div data-section="" data-picture="${picture}" data-alt="Earth"></div>\n\n`, background: true },
+    { name: 'image (ignored)', marker: `<div data-section="" data-picture="${picture}" data-alt="Earth"></div>\n\n`, background: false },
     { name: 'none', marker: '', background: false },
   ];
   const measure = () => {
@@ -3533,9 +6848,9 @@ async function checkH1SectionGap() {
     page.on('pageerror', (e) => problems.push(`H1 section gap: ${e.message}`));
     await openEditor(page, site, { [path]: text });
     await page.goto(`${site}/editor/#${path}`);
-    await page.getByRole('button', { name: 'Preview' }).first().click({ timeout: 30_000 });
-    await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
-    const slider = page.locator('dialog[open] [role="slider"]').first();
+    await clickPreview(page);
+    await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
+    const slider = page.locator('[data-preview-page] [role="slider"]').first();
     const width = async () => Number(await slider.getAttribute('aria-valuenow'));
     for (const w of [390, 600]) {
       await slider.focus();
@@ -3585,9 +6900,9 @@ async function checkFullSection() {
   await openEditor(page, site, { [path]: text });
   await page.goto(`${site}/editor/#${path}`);
   await page.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
-  await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
-  const slider = page.locator('dialog[open] [role="slider"]').first();
+  await clickPreview(page);
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
+  const slider = page.locator('[data-preview-page] [role="slider"]').first();
   const width = async () => Number(await slider.getAttribute('aria-valuenow'));
   for (const w of [840, 1200, 1600]) {
     await slider.focus();
@@ -3605,8 +6920,8 @@ async function checkFullSection() {
   await openEditor(phone, site, { [path]: text });
   await phone.goto(`${site}/editor/#${path}`);
   await phone.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
-  await phone.getByRole('button', { name: 'Preview' }).first().click();
-  await phone.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await clickPreview(phone);
+  await phone.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const small = phone.frames().find((f) => f !== phone.mainFrame());
   await small.waitForSelector('section.text-section-full', { timeout: 30_000 });
   verify('375px Preview full section', await small.evaluate(measure));
@@ -3622,22 +6937,22 @@ async function checkPreviewDraft(width) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site, { [path]: text });
   await page.goto(`${site}/editor/#${path}`);
-  await page.getByRole('button', { name: 'Preview' }).first().click({ timeout: 30_000 });
+  await clickPreview(page);
   await page.waitForFunction(
     () => {
-      const d = document.querySelector('dialog[open]');
+      const d = document.querySelector('[data-preview-page]');
       return d && (d.querySelector('iframe') || /Couldn.t create the preview/.test(d.textContent));
     },
     null,
     { timeout: 30_000 },
   );
   const failed = await page.evaluate(
-    () => document.querySelector('dialog[open]')?.textContent.match(/Couldn.t create the preview[^]*/)?.[0],
+    () => document.querySelector('[data-preview-page]')?.textContent.match(/Couldn.t create the preview[^]*/)?.[0],
   );
   if (failed) problems.push(`${label}: ${failed.slice(0, 120)}`);
   const bar = await page.evaluate(() => {
-    const caption = document.querySelector('dialog[open] [data-preview-width]').getBoundingClientRect();
-    const area = document.querySelector('dialog[open] [role="group"]').closest('.overflow-x-auto');
+    const caption = document.querySelector('[data-preview-page] [data-preview-width]').getBoundingClientRect();
+    const area = document.querySelector('[data-preview-page] [role="group"]').closest('.overflow-x-auto');
     const a = area.getBoundingClientRect();
     const apart =
       a.right <= caption.left + 0.5 || a.left >= caption.right - 0.5 || a.bottom <= caption.top + 0.5 || a.top >= caption.bottom - 0.5;
@@ -3764,7 +7079,7 @@ async function checkImageGridAdd(width, height) {
   const before = await page.locator('.site-block-inline .block-imagegrid-grid li').count();
   await page.getByRole('button', { name: 'Add images' }).click();
   await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
-  if (!(await page.locator('dialog[open]').getByText('Choose images').count()))
+  if (!(await page.locator('dialog[open]').getByText('Select images').count()))
     problems.push(`${label}: the picker is not the one for several images`);
   if (await page.locator('dialog[open]').getByRole('button', { name: 'Upload a new image' }).count())
     problems.push(`${label}: the picker for several images offers an upload`);
@@ -3796,7 +7111,7 @@ async function checkImageGridAdd(width, height) {
 /** The single blocks typed in place (Notice, Video): one item, no add button, no faded empty item. */
 const inlineSingles = [
   { name: 'notice', hint: 'A highlighted message.', field: 'text', text: 'Hello **there**', slot: false },
-  { name: 'video', hint: 'A YouTube or Vimeo video.', field: 'title', text: 'My film', slot: true },
+  { name: 'video', hint: 'A YouTube or Vimeo video.', field: 'title', text: 'My film', slot: false },
 ];
 
 /** An empty row in a block typed in place (the Segmented list's "New row" left empty) is not a snackbar and a page that cannot be saved: Save draft or Publish scrolls to the block and asks (375 px, touch): "You have an empty segmented list row." with Remove item (the row goes, nothing is saved), the action tapped (the page is saved without the empty rows) and Cancel (nothing changes). A page without an empty row saves as before, with no question. */
@@ -4003,6 +7318,194 @@ async function checkInlineSingle(width, height, { name, hint, field, text, slot 
   await page.close();
 }
 
+/** A video's Change link (image tools spec, section 8): a tap on the frame selects the video, its bar has Change link first (no slot over the frame), the row keeps Hide and Settings, and Change link opens the video's sheet with the Video link field focused and its text selected; what is pasted replaces the link and Save keeps it. */
+async function checkVideoChangeLink(width, height = 800) {
+  const phone = width < 600;
+  const expanded = width >= 840;
+  const label = `${width}px video change link`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, phone ? 'tap' : 'click');
+  await page.locator('dialog[open] button', { hasText: 'A YouTube or Vimeo video.' }).first().click();
+  await page.waitForSelector('.site-block-inline [data-field="title"]');
+  await page.keyboard.type('My film');
+  await page.waitForTimeout(300);
+  const tap = (loc) => (phone ? loc.tap() : loc.click());
+  // Away from the block, then a tap on its frame selects it.
+  await tap(page.locator('.ProseMirror > p').first());
+  await page.waitForTimeout(400);
+  if (await page.locator('.editor-tools-context button[aria-label="Change link"]').count())
+    problems.push(`${label}: Change link is on the bar while the video is not selected`);
+  await tap(page.locator('.inline-video-frame'));
+  await page.waitForTimeout(700);
+  if (await page.locator('.site-block-inline .inline-list-slot').count())
+    problems.push(`${label}: a slot is still drawn over the video frame`);
+  const bar = await page.evaluate(() => ({
+    tools: [...document.querySelectorAll('.editor-tools-context button')].map((b) => b.getAttribute('aria-label') || b.textContent.trim()),
+    row: [...document.querySelectorAll('.site-block-row:not(.site-block-row-hover) [data-row]')].map((b) => b.getAttribute('aria-label')),
+  }));
+  if (bar.tools[0] !== 'Change link') problems.push(`${label}: the bar's first tool is "${bar.tools[0]}", not Change link (${bar.tools})`);
+  if (!bar.row.some((n) => /settings|edit/i.test(n ?? ''))) await page.screenshot({ path: join(shots, `video-change-link-${width}.png`) });
+  const sheetOpen = () => page.locator('dialog[open], .editor-side-sheet').last();
+  if (expanded) {
+    // From expanded the tap opened the sheet beside the video already; Change link focuses its field.
+    if (!(await page.locator('.editor-side-sheet').count())) problems.push(`${label}: the tap did not open the video's sheet`);
+  }
+  await page.locator('.editor-tools-context button[aria-label="Change link"]').first().click();
+  await page.waitForTimeout(900);
+  const url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+  const focused = await page.evaluate(() => {
+    const el = document.activeElement;
+    return {
+      label: el?.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`)?.textContent.trim() : null,
+      selected: el && 'selectionStart' in el ? el.selectionEnd - el.selectionStart : -1,
+      empty: !el?.value,
+    };
+  });
+  if (focused.label !== 'Video link') problems.push(`${label}: Change link left the focus on "${focused.label}", not the Video link field`);
+  await page.keyboard.type(url);
+  await page.waitForTimeout(400);
+  const typed = await page.evaluate(() => document.activeElement?.value);
+  if (typed !== url) problems.push(`${label}: the Video link field has "${typed}" after typing`);
+  const save = sheetOpen().locator('button', { hasText: /^(Save|Done)$/ });
+  if (await save.count()) await save.first().click();
+  await page.waitForTimeout(700);
+  const kept = await page.evaluate(
+    () =>
+      document
+        .querySelector(
+          '.site-block-inline iframe, .site-block-inline [data-video], .site-block-inline a[href*="youtu"], .site-block-inline img',
+        )
+        ?.outerHTML.slice(0, 300) ?? '',
+  );
+  if (!kept.includes('dQw4w9WgXcQ')) problems.push(`${label}: the video does not show the new link (${kept})`);
+  // The Thumbnail field: the sheet has it, an image chosen there is the frame's still (the same View.tsx draws it, selected or not), and it is a local image.
+  const stillSrc = () => page.locator('.site-block-inline .video-facade-image').first().getAttribute('src');
+  // The sheet is still open (a phone's bottom sheet, a computer's side sheet); if not, Change link opens it.
+  if (!(await sheetOpen().getByText('Thumbnail', { exact: true }).count())) {
+    await page.locator('.editor-tools-context button[aria-label="Change link"]').first().click();
+    await page.waitForTimeout(900);
+  }
+  const thumb = sheetOpen().getByText('Thumbnail', { exact: true });
+  if (!(await thumb.count())) problems.push(`${label}: the video's sheet has no Thumbnail field`);
+  // A site with no images in its Library (the starter) has none to choose: the field is checked, the drawing is the demo's.
+  else if (!has('src/data/files'))
+    console.log(`${label}: the thumbnail is not chosen, the site has no images in its Library, which the demo has.`);
+  else {
+    await sheetOpen().locator('button', { hasText: 'Select image' }).first().click();
+    await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
+    await page.locator('dialog[open] [data-media-tile]').first().click();
+    const use = page.locator('dialog[open]').getByRole('button', { name: /^(Use|Choose|Select)/ });
+    if (await use.count()) await use.first().click();
+    await page.waitForTimeout(900);
+    const save2 = sheetOpen().locator('button', { hasText: /^(Save|Done)$/ });
+    if (await save2.count()) await save2.first().click();
+    await page.waitForTimeout(900);
+    const src = await stillSrc();
+    if (!src || src.includes('i.ytimg.com') || src.includes('/_video/'))
+      problems.push(`${label}: the frame draws "${src}", not the chosen thumbnail`);
+    await page.screenshot({ path: join(shots, `video-thumbnail-${width}.png`) });
+  }
+  await page.close();
+}
+
+async function checkCardImage(width, height = 800) {
+  const phone = width < 600;
+  const label = `${width}px card image`;
+  if (!has('src/data/files')) return void console.log(`${label}: skipped, the site has no images in its Library, which the demo has.`);
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, phone ? 'tap' : 'click');
+  await page.locator('dialog[open] button', { hasText: 'Cards that link to pages.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.keyboard.type('One');
+  await page.waitForTimeout(300);
+  await page.locator('.inline-list-row-active .inline-list-slot[aria-label="Image"]').click();
+  await page.waitForTimeout(1000);
+  await page
+    .locator('dialog[open] button, .editor-side-sheet button', { hasText: /^Select image$/ })
+    .first()
+    .click();
+  await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
+  await page.locator('dialog[open] [data-media-tile]').first().click();
+  await page.waitForTimeout(800);
+  // Closing the card's sheet on a phone (a side sheet stays open beside the card).
+  await page
+    .locator('dialog[open] button[aria-label="Close"]')
+    .click({ timeout: 2000 })
+    .catch(() => {});
+  await page.waitForTimeout(500);
+  const tap = (loc) => (phone ? loc.tap() : loc.click());
+  await tap(page.locator('.inline-list-row [data-field="title"]').first());
+  await page.waitForTimeout(400);
+  const picture = () =>
+    page.evaluate(() => {
+      const box = document.querySelector('.block-card-picture');
+      const r = box?.getBoundingClientRect();
+      return box ? { ratio: Math.round((r.width / r.height) * 100) / 100, img: !!box.querySelector('img') } : null;
+    });
+  const first = await picture();
+  if (!first?.img) problems.push(`${label}: the card has no image`);
+  else if (first.ratio !== 1.5) problems.push(`${label}: a Cards block without a ratio draws its image in ${first.ratio}, not 3:2`);
+  // The block's settings have Image aspect ratio (no Original); 1:1 makes every card's image a square, with no crop view opened.
+  await page.getByRole('button', { name: 'Block settings' }).first().click();
+  await page.waitForTimeout(900);
+  const settings = page.locator('dialog[open], .editor-side-sheet').last();
+  if (!(await settings.locator('label', { hasText: /^Image aspect ratio$/ }).count()))
+    problems.push(`${label}: the block's settings have no Image aspect ratio`);
+  await page.locator('dialog[open] button, .editor-side-sheet button', { hasText: /^3:2$/ }).first().click();
+  await page.waitForTimeout(300);
+  const offered = await page.evaluate(() =>
+    [...document.querySelectorAll('dialog[open]:last-of-type button, .editor-menu button, [role="listbox"] *')].map((o) =>
+      o.textContent.trim(),
+    ),
+  );
+  if (offered.includes('Original')) problems.push(`${label}: Image aspect ratio offers Original`);
+  await page.locator('dialog[open] button, .editor-menu button, [role="listbox"] *', { hasText: /^1:1$/ }).last().click();
+  await page.waitForTimeout(400);
+  await settings
+    .getByRole('button', { name: 'Save', exact: true })
+    .click({ timeout: 3000 })
+    .catch(() => {});
+  await page.waitForTimeout(800);
+  const square = await picture();
+  if (square?.ratio !== 1) problems.push(`${label}: after 1:1 the card's image box is ${square?.ratio}, not square`);
+  // Crop in the bar: the crop view of the block's ratio only, no ratio chips; Save puts the ratio and the crop after the image's address.
+  await tap(page.locator('.inline-list-row [data-field="title"]').first());
+  await page.waitForTimeout(400);
+  await tap(page.locator('.editor-tools-context button[aria-label="Crop"]').first());
+  await page
+    .waitForSelector('dialog.crop-page[open]', { timeout: 8000 })
+    .catch(() => problems.push(`${label}: Crop did not open the crop page`));
+  if (await page.locator('.crop-view-ratios').count()) problems.push(`${label}: the crop view of a card shows aspect ratio chips`);
+  // Moving the image with the arrow keys (by 2 %) makes a crop of its own.
+  await page.locator('.crop-view-frame').focus();
+  for (const key of ['ArrowLeft', 'ArrowLeft', 'ArrowUp', 'ArrowUp']) await page.keyboard.press(key);
+  await page
+    .locator('dialog.crop-page button', { hasText: /^Save$/ })
+    .click({ timeout: 3000 })
+    .catch(() => {});
+  await page.waitForTimeout(800);
+  const cut = await page.evaluate(() => document.querySelector('.block-card-picture img')?.getAttribute('style') ?? '');
+  if (!/transform/.test(cut)) problems.push(`${label}: the saved crop is not drawn on the card (style "${cut}")`);
+  await page.screenshot({ path: join(shots, `card-image-${width}.png`) });
+  await page.close();
+}
+
 /** Every block that picks an icon has the same control for it (the round button of ui.tsx, SlotButton): a plus while the row is active and has none, the icon once it
  * has one, and a tap on the icon of a row that is not the active one opens the icon picker for that row and makes it the active one, in one tap. */
 async function checkIconSlots(width, height, { name, hint, field = 'title' }) {
@@ -4094,8 +7597,8 @@ async function checkSegmentedArrow(width, height) {
   // The block's own Edit is in the bar's ⋮ menu.
   await pressMore(page, 'Edit');
   await page.waitForTimeout(600);
-  await page.getByText('Always open', { exact: true }).locator('visible=true').last().click();
-  await page.getByRole('button', { name: 'Save', exact: true }).locator('visible=true').last().click();
+  await chooseOption(page, 'Always open');
+  await saveOrClose(page, 'last');
   await page.waitForTimeout(500);
   await page.click('[data-add-row]');
   await page.keyboard.type('Second');
@@ -4200,15 +7703,22 @@ async function checkInlineBlock(
         ),
       );
       const kinds = ['Filled', 'Tonal', 'Elevated', 'Outlined', 'Text'];
-      const group = page.locator('[role="group"][aria-label="Style"], [aria-label="Style"]').last();
-      await group.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's settings have no Style choice`));
-      const names = await group
-        .getByRole('button')
-        .allTextContents()
-        .catch(() => []);
+      // The choice group (ChoiceGroup): its buttons, or its list of radio buttons when they do not fit.
+      const group = page.getByRole('group', { name: 'Variant', exact: true }).last();
+      await group.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's settings have no Variant choice`));
+      const radios = await group.getByRole('radio').count();
+      const names = radios
+        ? await group.locator('.list-item-headline').allTextContents()
+        : await group
+            .getByRole('button')
+            .allTextContents()
+            .catch(() => []);
       if (names.map((n) => n.trim()).join() !== kinds.join()) problems.push(`${label}: the button's styles are "${names}", not "${kinds}"`);
-      await group
-        .getByRole('button', { name: 'Outlined', exact: true })
+      await (
+        radios
+          ? group.locator('.list-item-content', { hasText: /^Outlined$/ })
+          : group.getByRole('button', { name: 'Outlined', exact: true })
+      )
         .click({ timeout: 3000 })
         .catch(() => {});
       await page.waitForTimeout(300);
@@ -4377,14 +7887,15 @@ async function checkInlineBlock(
       const shown = await page.locator('.site-block-inline .block-list-button').allTextContents();
       if (shown.map((x) => x.trim()).join() !== 'More questions')
         problems.push(`${label}: the button under the list is "${shown}" when the block is not active, not "More questions"`);
-      await page.click('.site-block-inline [data-field="question"]');
+      // At the field's left end: a block pointed at shows its row over its top right, which covers the middle of the field.
+      await page.click('.site-block-inline [data-field="question"]', { position: { x: 8, y: 8 } });
       await page.locator('.inline-faq-button [data-field="button"]').fill('');
       await page.waitForTimeout(300);
       await page.click('.ProseMirror p');
       await page.waitForTimeout(300);
       if (await page.locator('.site-block-inline .block-list-button').count())
         problems.push(`${label}: the button under the list is still there after its text was cleared`);
-      await page.click('.site-block-inline [data-field="question"]');
+      await page.click('.site-block-inline [data-field="question"]', { position: { x: 8, y: 8 } });
     }
   }
   // A row's buttons: under the active row's text the text button `rowButtons` adds a button whose text is typed there.
@@ -4482,7 +7993,14 @@ async function checkInlineBlock(
     await cardSettings('a card with an icon');
     // A video: the Media choice of the first card, then its link.
     await page.locator('.inline-list-row-active .inline-card-media').click();
-    await page.getByRole('button', { name: 'Video', exact: true }).last().click();
+    // The Media choice is the choice group: buttons when they fit, else the list of radio buttons (the whole row is the target).
+    const mediaVideo = page.getByRole('button', { name: 'Video', exact: true }).last();
+    if (await mediaVideo.count()) await mediaVideo.click();
+    else
+      await page
+        .locator('.choice-group-list .list-item-content', { hasText: /^Video$/ })
+        .last()
+        .click();
     await page.getByRole('textbox', { name: 'Video link' }).fill('https://www.youtube.com/watch?v=aqz-KE-bpKQ');
     await page.waitForTimeout(400);
     await page
@@ -4604,6 +8122,379 @@ async function checkSteps(width, height) {
   }
 }
 
+/** Pasting lines into an empty item makes one item each (spec 2026-11-14-paste-and-change-to-design.md, section 2): in List, Segmented list,
+ * FAQ list, Cards and Steps, three lines pasted into the empty block make three items with those titles (a tab gives the second field its
+ * text), the cursor in the last field of the last; a paste with a `#` line is left as it is; a paste into an empty item after Add below
+ * makes items there and keeps the items before; Ctrl+Z gives the block back as it was before the paste. */
+const pasteBlocks = [
+  { name: 'list', hint: 'Rows with icon, heading and text.', first: 'title', second: 'text', last: 'text' },
+  { name: 'segmented', hint: 'Rows that expand, with a link.', first: 'title', second: 'text', last: 'text' },
+  { name: 'faq', hint: 'Questions that expand to answers.', first: 'question', second: 'answer', last: 'answer' },
+  { name: 'cards', hint: 'Cards that link to pages.', first: 'title', second: 'text', last: 'text' },
+  { name: 'steps', hint: 'Numbered steps.', first: 'title', second: 'text', last: 'text' },
+];
+async function checkInlinePaste(width, height, block) {
+  const label = `${width}px paste in ${block.name}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: block.hint }).first().click();
+  const first = `.inline-list-host [data-row] [data-field="${block.first}"]`;
+  await page.waitForSelector(first);
+  // Pastes `plain` (and `html`) into the first field of row `row`; true when the block took the paste over (preventDefault).
+  const paste = (row, plain, html = '') =>
+    page.evaluate(
+      ([sel, row, plain, html]) => {
+        const data = new DataTransfer();
+        data.setData('text/plain', plain);
+        if (html) data.setData('text/html', html);
+        const field = document.querySelector(sel.replace('[data-row]', `[data-row="${row}"]`));
+        field.focus();
+        return !field.dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+      },
+      [first, row, plain, html],
+    );
+  // The items with something typed in their first field: [first, second].
+  const items = () =>
+    page.evaluate(
+      ([f, s]) =>
+        [...document.querySelectorAll('.inline-list-host [data-row]')]
+          .filter((r) => !r.parentElement.closest('[data-row]'))
+          .map((r) => [r.querySelector(`[data-field="${f}"]`)?.value ?? '', r.querySelector(`[data-field="${s}"]`)?.value ?? ''])
+          .filter(([a]) => a),
+      [block.first, block.second],
+    );
+  if (await paste(0, '# Menu\nTea\nCake')) problems.push(`${label}: a paste with a heading line was taken over`);
+  await page.waitForTimeout(200);
+  if ((await items()).length > 1) problems.push(`${label}: a paste with a heading line made items: ${JSON.stringify(await items())}`);
+  // The heading paste is the browser's own (the event does nothing here): the field is still empty.
+  if (!(await paste(0, '- Order\tChoose it\n- Pay\n- Get it', '<ul><li>Order</li><li>Pay</li><li>Get it</li></ul>')))
+    problems.push(`${label}: three pasted lines were left to the browser`);
+  await page.waitForTimeout(300);
+  const titles = (await items()).map(([a]) => a).join();
+  if (titles !== 'Order,Pay,Get it') problems.push(`${label}: three pasted lines made ${titles}, not Order,Pay,Get it`);
+  const cursor = await page.evaluate(() => {
+    const el = document.activeElement;
+    return `${el?.closest('[data-row]')?.getAttribute('data-row')} ${el?.getAttribute('data-field')}`;
+  });
+  if (cursor !== `2 ${block.last}`)
+    problems.push(`${label}: after the paste the cursor is in ${cursor}, not in the last item's ${block.last}`);
+  // The tab gave the first item its text (an item that folds shows it once it is the active one).
+  await page.locator(first.replace('[data-row]', '[data-row="0"]')).click();
+  await page.waitForTimeout(300);
+  const text = await page.locator(`.inline-list-host [data-row="0"] [data-field="${block.second}"]`).first().inputValue();
+  if (text !== 'Choose it') problems.push(`${label}: the text after the tab in the first line is "${text}", not "Choose it"`);
+  // An empty item after Add below takes a paste too, in its place; the item before it stays.
+  await page.locator('.inline-list-host [data-add-row]').first().click();
+  await page.waitForTimeout(300);
+  if (!(await paste(3, 'Ship\nTrack'))) problems.push(`${label}: lines pasted into an added empty item were left to the browser`);
+  await page.waitForTimeout(300);
+  const after = (await items()).map(([a]) => a).join();
+  if (after !== 'Order,Pay,Get it,Ship,Track') problems.push(`${label}: a paste into an added item gave ${after}`);
+  // Ctrl+Z takes the paste back as one step.
+  await page.keyboard.press('Control+z');
+  await page.waitForTimeout(300);
+  const undone = (await items()).map(([a]) => a).join();
+  if (undone !== 'Order,Pay,Get it') problems.push(`${label}: Ctrl+Z after the paste gave ${undone}, not the items before it`);
+  await page.close();
+}
+
+/** A card's text is optional (spec 2026-11-14-paste-and-change-to-design.md, decision 10): typed in place, a card with only a headline
+ * has no empty text area once another card is active, and on the site the "Only a headline" card of the system's test page (the demo's Blocks page) has no text element. */
+async function checkCardHeadline(width, height) {
+  const label = `${width}px card with only a headline`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Cards that link to pages.' }).first().click();
+  await page.waitForSelector('.inline-cards [data-row="0"] [data-field="title"]');
+  await page.keyboard.type('Tea');
+  // The card being typed in keeps its text field, for the text to be typed next.
+  if (!(await page.locator('.inline-cards [data-row="0"] [data-field="text"]').count()))
+    problems.push(`${label}: the active card has no text field`);
+  await page.locator('.inline-list-host [data-add-row]').first().click();
+  await page.keyboard.type('Cake');
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('With cream');
+  await page.waitForTimeout(300);
+  const fields = await page.evaluate(() =>
+    [...document.querySelectorAll('.inline-cards [data-row]')]
+      .map((c) => (c.querySelector('[data-field="text"]') ? 'text' : 'none'))
+      .join(),
+  );
+  if (fields !== 'none,text') problems.push(`${label}: the cards' text areas are ${fields}, not none (a headline only), text`);
+  await page.close();
+  const sitePage = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  sitePage.on('pageerror', (e) => problems.push(`${label} (site): ${e.message}`));
+  // The system's test page (the demo's Blocks page, on a copy of any site: the starter has no Blocks page of its own).
+  if (!(await onTestPage(sitePage, label))) return sitePage.close();
+  const card = await sitePage.evaluate(() => {
+    const title = [...document.querySelectorAll('.block-card-title')].find((t) => t.textContent.trim() === 'Only a headline');
+    const card = title?.closest('.block-card');
+    return card ? { text: !!card.querySelector('.block-card-text'), height: card.getBoundingClientRect().height } : null;
+  });
+  if (!card) problems.push(`${label} (site): the card "Only a headline" is not on the system's test page`);
+  else if (card.text) problems.push(`${label} (site): a card without text draws an empty text element`);
+  await sitePage.close();
+}
+
+/** Change type (spec 2026-11-14-paste-and-change-to-design.md, section 3): the block's ⋮ menu has Change type first (Block settings and Hide are in the action row),
+ * with an arrow; it opens the next level with a back row and the other five blocks; a List with an icon changed to
+ * Steps keeps its titles and texts, says "Changed to Steps", and back to List shows the icon again; Ctrl+Z after a change, and the
+ * snackbar's Undo, give the block back as it was; and what a block keeps from another is never on the site. */
+async function checkChangeTo(width, height) {
+  const label = `${width}px change to`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.keyboard.type('Opening hours');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('Mon–Fri');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('Parking');
+  await page.waitForTimeout(200);
+  // The first row gets an icon.
+  await page.locator('[data-row="0"] [data-field="title"]').click();
+  await page.locator('[data-row="0"] .inline-list-slot[aria-label="Icon"]').click();
+  const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
+  await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon picker did not open`));
+  await picker.getByRole('button').nth(1).click();
+  await page.waitForTimeout(400);
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  await page.locator('[data-row="0"] [data-field="title"]').click();
+  await page.waitForTimeout(200);
+  const rows = (field) =>
+    page.evaluate(
+      (field) =>
+        [...document.querySelectorAll('.inline-list-host [data-row]')]
+          .filter((r) => !r.parentElement.closest('[data-row]'))
+          .map((r) => [r.querySelector(`[data-field="${field}"]`)?.value ?? '', r.querySelector('[data-field="text"]')?.value ?? '']),
+      field,
+    );
+  // A row that is not active shows its icon slot only when it has an icon: the second row is made active to look at the first.
+  const hasIcon = async () => {
+    await page.locator('.inline-list [data-row="1"] [data-field="title"]').click();
+    await page.waitForTimeout(200);
+    return page.locator('.inline-list [data-row="0"] .inline-list-slot').count();
+  };
+  if (!(await hasIcon())) problems.push(`${label}: the List's first row did not get an icon`);
+  const menuRows = () =>
+    page.locator('[role=menu] [role^=menuitem]:visible').evaluateAll((items) => items.map((i) => i.textContent.trim()));
+  // Opens ⋮ › Change type and chooses the block `to`.
+  const changeTo = async (to) => {
+    await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+    await page.waitForTimeout(200);
+    await page
+      .locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ })
+      .first()
+      .click();
+    await page.waitForTimeout(200);
+    await page
+      .locator('[role=menu] [role^=menuitem]', { hasText: new RegExp(`^${to}$`) })
+      .first()
+      .click();
+    await page.waitForTimeout(500);
+  };
+  await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+  await page.waitForTimeout(200);
+  const first = await menuRows();
+  const at = first.indexOf('Change type');
+  // Block settings, Hide and the moves are the action row's (blockRow.ts), so Change type is the block's first row in the ⋮ (after the bar's tools
+  // that did not fit, on a phone), before Select.
+  if (at < 0 || first[at + 1] !== 'Select')
+    problems.push(`${label}: Change type is not the block's first row, before Select (${first.join(', ')})`);
+  const opener = page.locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ }).first();
+  if ((await opener.getAttribute('aria-haspopup')) !== 'menu') problems.push(`${label}: Change type does not say it opens a menu`);
+  const rowIcon = await opener.locator('.menu-item-leading svg').first().innerHTML();
+  await opener.click();
+  await page.waitForTimeout(200);
+  const level = await menuRows();
+  const want = 'Change type,Segmented list,Steps,FAQ list,Cards,Table';
+  if (level.join() !== want) problems.push(`${label}: Change type's level is ${level.join(', ')}, not ${want}`);
+  // The header of the level has the swap icon of the row (not a back arrow) and says where it goes.
+  const header = page.locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ }).first();
+  if ((await header.locator('.menu-item-leading svg').first().innerHTML()) !== rowIcon)
+    problems.push(`${label}: the header of the Change type level does not draw the icon of its row`);
+  if ((await header.getAttribute('aria-label')) !== 'Change type, back to menu')
+    problems.push(`${label}: the header's name is "${await header.getAttribute('aria-label')}", not "Change type, back to menu"`);
+  // The header, Enter and Escape each go back to the menu's own rows, which stays open; Escape there closes it.
+  await header.click();
+  await page.waitForTimeout(200);
+  if (!(await menuRows()).includes('Select')) problems.push(`${label}: the header did not give the menu's rows again`);
+  await page
+    .locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ })
+    .first()
+    .click();
+  await page.waitForTimeout(200);
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(200);
+  if (!(await menuRows()).includes('Select')) problems.push(`${label}: Enter on the header did not give the menu's rows again`);
+  await page
+    .locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ })
+    .first()
+    .click();
+  await page.waitForTimeout(200);
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(200);
+  if (!(await menuRows()).includes('Select'))
+    problems.push(`${label}: Escape in the level did not give the menu's rows again (it closed the menu)`);
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(200);
+  if (await page.locator('[role=menu]:visible').count()) problems.push(`${label}: Escape at the menu's own rows did not close it`);
+  await changeTo('Steps');
+  if (!(await page.locator('.inline-steps').count())) problems.push(`${label}: Change type › Steps did not make Steps`);
+  const steps = JSON.stringify(await rows('title'));
+  const was = JSON.stringify([
+    ['Opening hours', 'Mon–Fri'],
+    ['Parking', ''],
+  ]);
+  if (steps !== was) problems.push(`${label}: the Steps have ${steps}, not ${was}`);
+  const said = await page.locator('.snackbar-stack .snackbar', { hasText: 'Changed to Steps' }).count();
+  if (!said) problems.push(`${label}: no snackbar "Changed to Steps"`);
+  // Ctrl+Z gives the List back, with its icon.
+  await page.keyboard.press('Control+z');
+  await page.waitForTimeout(500);
+  if (!(await page.locator('.inline-list').count()) || !(await hasIcon()))
+    problems.push(`${label}: Ctrl+Z after Change type did not give the List back with its icon`);
+  // List → Steps → List: the icon is back, and the snackbar's Undo gives Steps again.
+  await page.locator('[data-row="0"] [data-field="title"]').click();
+  await changeTo('Steps');
+  await page.locator('[data-row="0"] [data-field="title"]').click();
+  await changeTo('List');
+  if (!(await hasIcon())) problems.push(`${label}: List → Steps → List lost the first row's icon`);
+  if (JSON.stringify(await rows('title')) !== was)
+    problems.push(`${label}: List → Steps → List has ${JSON.stringify(await rows('title'))}`);
+  await page.locator('.snackbar-stack .snackbar', { hasText: 'Changed to List' }).locator('.snackbar-action').first().click();
+  await page.waitForTimeout(500);
+  if (!(await page.locator('.inline-steps').count())) problems.push(`${label}: the snackbar's Undo did not give Steps back`);
+  // Steps → Table → List: the rows are the steps' titles and texts, with no header row; back in the List the first row has its icon again.
+  await changeTo('Table');
+  const table = await page.evaluate(() => ({
+    rows: [...document.querySelectorAll('.inline-table-box tr[data-row]')].map((tr) =>
+      [...tr.querySelectorAll('textarea')].map((f) => f.value),
+    ),
+    header: document.querySelectorAll('.inline-table-box thead th').length,
+  }));
+  if (JSON.stringify(table.rows) !== was || table.header)
+    problems.push(`${label}: Steps → Table made ${JSON.stringify(table)}, not the rows ${was} with no header row`);
+  await changeTo('List');
+  if (!(await page.locator('.inline-list').count()) || !(await hasIcon()))
+    problems.push(`${label}: Table → List did not give the List with its icon`);
+  if (JSON.stringify(await rows('title')) !== was) problems.push(`${label}: Table → List has ${JSON.stringify(await rows('title'))}`);
+  // Kept data is never on the site: the Steps of the system's test page (the demo's Blocks page) keep a card's subhead and a FAQ answer on their
+  // first step, as Change type leaves them, and the page shows neither.
+  if (await onTestPage(page, label)) {
+    const html = await page.content();
+    if (!html.includes('Pick a block')) problems.push(`${label} (site): the test page's Steps are not there`);
+    if (/Kept from (Cards|a)/.test(html)) problems.push(`${label} (site): the page shows what a block kept from another block`);
+  }
+  await page.close();
+}
+
+/** Pasting into an empty Table (spec 2026-11-14-paste-and-change-to-design.md, section 2, The Table): a spreadsheet's lines with tabs make
+ * its rows and cells, the first line the header row (the setting stays on); a document's `<table>` gives the rows of its html; a paste with a
+ * `#` line, and a paste into a Table with content, are the browser's own; Ctrl+Z gives the empty Table back. */
+async function checkTablePaste(width, height) {
+  const label = `${width}px paste in table`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
+  await page.waitForSelector('.inline-table-cell-active textarea');
+  // Pastes into the cell at row `r`, column `c`; true when the Table took the paste over (preventDefault).
+  const paste = (r, c, plain, html = '') =>
+    page.evaluate(
+      ([r, c, plain, html]) => {
+        const data = new DataTransfer();
+        data.setData('text/plain', plain);
+        if (html) data.setData('text/html', html);
+        const field = document.querySelector(`.inline-table-box [data-row="${r}"] [data-field="${c}"]`);
+        field.focus();
+        return !field.dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+      },
+      [r, c, plain, html],
+    );
+  const grid = () =>
+    page.evaluate(() => ({
+      rows: [...document.querySelectorAll('.inline-table-box tr[data-row]')].map((tr) =>
+        [...tr.querySelectorAll('textarea')].map((f) => f.value),
+      ),
+      header: document.querySelectorAll('.inline-table-box thead th').length,
+      cursor: (() => {
+        const el = document.activeElement;
+        return `${el?.closest('[data-row]')?.getAttribute('data-row')} ${el?.getAttribute('data-field')}`;
+      })(),
+    }));
+  if (await paste(0, 0, '# Prices\tNow\nTea\t4')) problems.push(`${label}: a paste with a heading line was taken over`);
+  if (!(await paste(0, 0, 'Product\tPrice\r\nTea\t4\nCake\t5\n')))
+    problems.push(`${label}: a spreadsheet's lines were left to the browser`);
+  await page.waitForTimeout(300);
+  let now = await grid();
+  const want = JSON.stringify([
+    ['Product', 'Price'],
+    ['Tea', '4'],
+    ['Cake', '5'],
+  ]);
+  if (JSON.stringify(now.rows) !== want) problems.push(`${label}: the pasted lines made ${JSON.stringify(now.rows)}, not ${want}`);
+  if (now.header !== 2) problems.push(`${label}: the first pasted line is not the header row (${now.header} header cells)`);
+  if (now.cursor !== '2 1') problems.push(`${label}: after the paste the cursor is in ${now.cursor}, not in the last cell`);
+  // A Table with content: the paste is the browser's own, into the one cell.
+  if (await paste(1, 0, 'Pie\t6\nBun\t2')) problems.push(`${label}: a paste into a Table with content was taken over`);
+  // Ctrl+Z takes the paste back as one step: the empty Table.
+  await page.keyboard.press('Control+z');
+  await page.waitForTimeout(300);
+  now = await grid();
+  if (now.rows.flat().some((v) => v)) problems.push(`${label}: Ctrl+Z after the paste left ${JSON.stringify(now.rows)}`);
+  // A document's table (Google Docs, Word): its html gives the rows, not its plain text (one cell per line).
+  const html =
+    '<meta charset="utf-8"><table><tbody><tr><td><p><span>Day</span></p></td><td><p><span>Hours</span></p></td></tr><tr><td><p>Mon&nbsp;&ndash;&nbsp;Fri</p></td><td><p>9&ndash;17</p></td></tr></tbody></table>';
+  if (!(await paste(0, 0, 'Day\nHours\nMon – Fri\n9–17', html))) problems.push(`${label}: a document's table was left to the browser`);
+  await page.waitForTimeout(300);
+  now = await grid();
+  const doc = JSON.stringify([
+    ['Day', 'Hours'],
+    ['Mon – Fri', '9–17'],
+  ]);
+  if (JSON.stringify(now.rows) !== doc) problems.push(`${label}: a document's table made ${JSON.stringify(now.rows)}, not ${doc}`);
+  await page.close();
+}
+
 /** The dynamic List (the owner's flow): the dynamic icon in the contextual menu opens the dynamic settings (a bottom sheet on a phone, the side panel on a computer) with `Rows from`; picking a list turns the block into a "Dynamic list" with its state line, `Edit list` and an `Undo` that brings the typed rows back; the toolbar then has no row actions and stays inside the screen. */
 async function checkDynamicList(width, height) {
   const label = `${width}px dynamic list`;
@@ -4693,9 +8584,9 @@ async function checkDynamicPicker(width, height) {
   if ((await block.locator('.list-item-headline').count()) !== 3)
     problems.push(`${label}: the block does not show the 3 items of the list`);
   const before = await buttons();
-  if (before.join('|') !== 'Top line: Title|Bottom line: Body text|Icon: Icon|Link: Link')
+  if (before.join('|') !== 'Label text: Title|Supporting text: Body text|Icon: Icon|Link: Link')
     problems.push(`${label}: the part buttons are "${before.join('|')}", not the list's own fields`);
-  await block.locator('.inline-list-parts button', { hasText: 'Bottom line' }).click();
+  await block.locator('.inline-list-parts button', { hasText: 'Supporting text' }).click();
   const choice = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Field shown' }).first();
   await choice.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the choice of fields did not open`));
   await choice.locator('button.text-field-input').first().click();
@@ -4704,8 +8595,8 @@ async function checkDynamicPicker(width, height) {
   if (phone && (await page.locator('dialog[open]').count())) await page.locator('dialog[open] [aria-label="Close"]').first().click();
   await page.waitForTimeout(400);
   const after = await buttons();
-  if (!after.includes('Bottom line: Title'))
-    problems.push(`${label}: the button does not say "Bottom line: Title" after the pick (${after.join('|')})`);
+  if (!after.includes('Supporting text: Title'))
+    problems.push(`${label}: the button does not say "Supporting text: Title" after the pick (${after.join('|')})`);
   if ((await lines())[0] !== 'Edit on your phone')
     problems.push(`${label}: the bottom line of the first row is "${(await lines())[0]}", not its title`);
   // A tap on the row's own bottom line opens the same choice.
@@ -5039,15 +8930,15 @@ async function checkNewList(width, height, label) {
         .click()
         .catch(() => {});
     await page.waitForTimeout(400);
-    await part('Bottom line')
+    await part('Supporting text')
       .waitFor({ timeout: 8000 })
-      .catch(() => problems.push(`${label}: the picked list shows no Bottom line part`));
+      .catch(() => problems.push(`${label}: the picked list shows no Supporting text part`));
     const parts = await page.evaluate(() => [...document.querySelectorAll('.inline-list-parts button')].map((b) => b.textContent.trim()));
-    if (parts[0] !== 'Top line: Body text' || parts[1] !== 'Bottom line: Body text 2')
+    if (parts[0] !== 'Label text: Body text' || parts[1] !== 'Supporting text: Body text 2')
       problems.push(`${label}: the parts do not name the list's fields (${parts})`);
-    await part('Bottom line').click();
+    await part('Supporting text').click();
     const field = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Field shown' }).first();
-    await field.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Bottom line choice did not open`));
+    await field.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Supporting text choice did not open`));
     await field.locator('button.text-field-input').first().click();
     const offered = await page.evaluate(() => {
       // The open choice is labelled with the field's name (Field shown), as a menu or a sheet of options.
@@ -5057,7 +8948,7 @@ async function checkNewList(width, height, label) {
       return choices;
     });
     if (!offered.includes('Body text') || !offered.includes('Body text 2') || offered.includes('Image'))
-      problems.push(`${label}: the Bottom line offers the wrong fields (${offered})`);
+      problems.push(`${label}: the Supporting text offers the wrong fields (${offered})`);
     // A field added and then an item saved: one commit with the definition and the item (nothing was committed for the field).
     await page.evaluate(() => (location.hash = '#list/zz-fresh-list'));
     // The page typed above is not saved: leaving it asks.
@@ -5110,7 +9001,7 @@ async function serveCoreTestSite() {
 }
 
 /** The Library's images are the theme's image tiles in a staggered grid: cards with media (filled, the image to the edge), each in its own proportions (the box is
- * there before the image loads), 8 px apart, 2 columns on a phone and 4 on a computer, and a selected card has its own surface. */
+ * there before the image loads), a gutter apart (16 px on a phone, 24 px from medium: deviation G1), 2 columns on a phone and 4 on a computer, and a selected card has its own surface. */
 async function checkImageGrid(width, height) {
   const label = `${width}px image grid`;
   const phone = width < 600;
@@ -5157,8 +9048,10 @@ async function checkImageGrid(width, height) {
   const columns = phone ? '2' : '4';
   if (m.tiles === 0) problems.push(`${label}: the Library has no tiles to measure`);
   if (m.columns !== columns) problems.push(`${label}: ${m.columns} columns, expected ${columns}`);
-  if (m.gap !== '8px')
-    problems.push(`${label}: the gap between columns is ${m.gap}, expected 8px (Material 3: "Padding between cards: 8dp max")`);
+  // The theme grid's gutter: 16 px on compact, 24 px from medium (docs/material-deviations.md, G1: the owner's deviation from Material 3's "8dp max").
+  const gutter = width < 600 ? '16px' : '24px';
+  if (m.gap !== gutter)
+    problems.push(`${label}: the gap between columns is ${m.gap}, expected ${gutter} (the theme grid's gutter, deviation G1)`);
   if (m.cards !== m.tiles) problems.push(`${label}: ${m.tiles - m.cards} tiles are not a filled card with media`);
   if (m.square) problems.push(`${label}: ${m.square} tiles are still squares`);
   if (m.sideways) problems.push(`${label}: the page scrolls sideways`);
@@ -5459,7 +9352,7 @@ async function checkIconColor(width, height, scheme = 'light') {
         rows: document.querySelectorAll('[role="group"][aria-label="Icon color"]').length,
         names: [...(group?.querySelectorAll('button') ?? [])].map((b) => b.getAttribute('aria-label')),
         visible: [...(group?.querySelectorAll('button') ?? [])]
-          .map((b) => (b.querySelector('.segmented-button-label').getBoundingClientRect().width > 2 ? b.textContent.trim() : ''))
+          .map((b) => (b.querySelector('.choice-group-label').getBoundingClientRect().width > 2 ? b.textContent.trim() : ''))
           .join(''),
         pressed: [...(group?.querySelectorAll('button') ?? [])]
           .filter((b) => b.getAttribute('aria-pressed') === 'true')
@@ -5506,7 +9399,7 @@ async function checkIconColor(width, height, scheme = 'light') {
       };
       const chips = [...document.querySelectorAll('[role="group"][aria-label="Icon color"] button')];
       const out = chips.map((chip, i) => {
-        const dot = chip.querySelector('.segmented-button-swatch');
+        const dot = chip.querySelector('.choice-group-swatch');
         const box = dot?.getBoundingClientRect();
         const role = ['on-surface', 'primary', 'secondary', 'tertiary'][i];
         return {
@@ -5515,7 +9408,7 @@ async function checkIconColor(width, height, scheme = 'light') {
           circle: !!dot && Math.abs(box.width - box.height) < 0.5 && getComputedStyle(dot).borderRadius !== '0px',
           color: dot ? getComputedStyle(dot).backgroundColor : null,
           want: colorOf(role),
-          check: !!chip.querySelector('.segmented-button-check'),
+          check: !!chip.querySelector('.segmented-button-check, .choice-group-check'),
           width: Math.round(chip.getBoundingClientRect().width),
         };
       });
@@ -5750,11 +9643,7 @@ async function checkInlineTable(width, height) {
   await stripes.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the table's settings have no "Striped rows" switch`));
   if ((await stripes.count()) && (await stripes.isChecked())) problems.push(`${label}: "Striped rows" is not off by default`);
   await stripes.click({ timeout: 3000 }).catch(() => {});
-  await page
-    .getByRole('button', { name: 'Save', exact: true })
-    .last()
-    .click({ timeout: 3000 })
-    .catch(() => {});
+  await saveOrClose(page, 'last').catch(() => {});
   await page.waitForTimeout(400);
   const striped = await rowBg();
   if (!(await page.locator('.inline-table-box[data-striped]').count()))
@@ -5781,7 +9670,7 @@ async function checkInlineTable(width, height) {
   await page.close();
 }
 
-/** A Table's column alignment (375 and 1280 px): a column of numbers is right-aligned, header and cells, and a text column left, in the editor typed in place and on the built site (/blocks/); the bar's Align column left, Centre column, Align column right and Align column automatically change the column of the active cell (the pressed one shown), and the choice is saved with the block (`columns`, a second save writes the same text). */
+/** A Table's column alignment (375 and 1280 px): a column of numbers is right-aligned, header and cells, and a text column left, in the editor typed in place and on the built site (/blocks/); the bar's Align column left, Center column, Align column right and Align column automatically change the column of the active cell (the pressed one shown), and the choice is saved with the block (`columns`, a second save writes the same text). */
 async function checkTableAlign(width, height) {
   const label = `${width}px table alignment`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -5859,11 +9748,11 @@ async function checkTableAlign(width, height) {
       [
         ...buttons.filter((b) => b.pressed !== null).map((b) => [b.label, b.pressed]),
         ...more.filter((m) => m.pressed !== null).map((m) => [m.label, m.pressed]),
-      ].filter(([name]) => /column/.test(name) && /lign|entre/.test(name)),
+      ].filter(([name]) => /column/.test(name) && /lign|Center/.test(name)),
     );
   };
   await cellField(1, 1).click();
-  const names = ['Align column left', 'Centre column', 'Align column right', 'Align column automatically'];
+  const names = ['Align column left', 'Center column', 'Align column right', 'Align column automatically'];
   const first = await bar();
   for (const n of names) if (!(n in first)) problems.push(`${label}: the bar has no "${n}" button (${Object.keys(first)})`);
   if (first['Align column automatically'] !== 'true')
@@ -5878,8 +9767,8 @@ async function checkTableAlign(width, height) {
     problems.push(`${label}: Align column left left the number column ${JSON.stringify(left)}`);
   if (!start(left.textHead)) problems.push(`${label}: another column changed with Align column left (${left.textHead})`);
   if ((await bar())['Align column left'] !== 'true') problems.push(`${label}: Align column left is not shown pressed after it was chosen`);
-  await press('Centre column');
-  if ((await aligns()).numberCell !== 'center') problems.push(`${label}: Centre column did not centre the number column`);
+  await press('Center column');
+  if ((await aligns()).numberCell !== 'center') problems.push(`${label}: Center column did not center the number column`);
   await page.screenshot({ path: join(shots, `table-align-${width}.png`) });
   await press('Align column right');
   await press('Align column automatically');
@@ -5887,7 +9776,7 @@ async function checkTableAlign(width, height) {
     problems.push(`${label}: Align column automatically did not bring back the right alignment of numbers`);
   // Centre the text column and save: the choice is in the saved text, and a second save writes the same.
   await cellField(0, 0).click();
-  await press('Centre column');
+  await press('Center column');
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(300);
   const saved = async () => {
@@ -6117,7 +10006,8 @@ async function checkSectionOnImage() {
         await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; }' });
         // The list row is the active one: the row typed in place, with its icon and arrow.
         await page
-          .click('.site-block-inline [data-field="title"]')
+          // (At the field's left end: a block pointed at shows its row over its top right.)
+          .click('.site-block-inline [data-field="title"]', { position: { x: 8, y: 8 } })
           .catch(() => problems.push(`${label}: the list row cannot be typed in place`));
         await page.mouse.move(0, 0);
         await page.waitForFunction((src) => document.querySelector('.editor-section-picture img')?.complete, image);
@@ -6452,8 +10342,8 @@ async function checkSectionBackground(width, touch) {
   });
   await page.goto(`${site}/editor/#${path}`);
   await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 30_000 });
-  await page.getByRole('button', { name: 'Preview' }).first().click();
-  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  await clickPreview(page);
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('section.text-section-primary', { timeout: 30_000 });
   const panel = await frame.evaluate(() => {
@@ -6687,11 +10577,57 @@ async function checkFoldRows(width, height) {
   await page.close();
 }
 
-/** A page's and a post's form has no "Other fields" fold: "Page settings" ("Post settings") holds the URL, the Short description and the Tags, and the "For review" box (width, height). */
+/** Owner, 14 Nov 2026: "Content is always open. All other sections are closed on load." A page's and a post's form, new and
+ * saved, opens with Content open and with no heading to fold it, and every other section (settings, search engines,
+ * social media, history) folded, on a phone and a computer (width, height). */
+async function checkSectionsOnLoad(width, height) {
+  // A saved page and post: the site's first of each (the demo's, the starter's).
+  const saved = ['pages', 'blog'].flatMap((list) => {
+    const dir = `src/content/${list}`;
+    const first = existsSync(dir)
+      ? readdirSync(dir)
+          .filter((f) => f.endsWith('.md'))
+          .sort()[0]
+      : undefined;
+    return first ? [`#${dir}/${first}`] : [];
+  });
+  for (const hash of ['#new/pages', '#new/blog', ...saved]) {
+    const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${width}px ${hash} sections on load: ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate((h) => (location.hash = h), hash);
+    await page.waitForSelector('.ProseMirror', { timeout: 15000 });
+    await page.waitForTimeout(300);
+    const sections = await page.$$eval('section[data-fold-section]', (els) =>
+      els.map((el) => {
+        const head = el.querySelector(':scope > h2');
+        const button = head.querySelector('button');
+        return {
+          title: head.textContent.trim(),
+          button: !!button,
+          open: button ? button.getAttribute('aria-expanded') === 'true' : !el.querySelector(':scope > div').hidden,
+        };
+      }),
+    );
+    const content = sections.find((s) => s.title === 'Content');
+    if (!content) problems.push(`${width}px ${hash} sections on load: no "Content" section`);
+    else {
+      if (content.button) problems.push(`${width}px ${hash} sections on load: "Content" can be folded`);
+      if (!content.open) problems.push(`${width}px ${hash} sections on load: "Content" is not open`);
+    }
+    const others = sections.filter((s) => s.title !== 'Content');
+    if (!others.length) problems.push(`${width}px ${hash} sections on load: no other sections`);
+    for (const s of others) if (s.open) problems.push(`${width}px ${hash} sections on load: "${s.title}" is open, should be folded`);
+    console.log(`${width}px ${hash} sections on load: ${JSON.stringify(sections.map((s) => [s.title, s.open]))}`);
+    await page.close();
+  }
+}
+
+/** A page's and a post's form has no "Other fields" fold: "Page settings" ("Post settings") holds the URL, the Excerpt and the Tags, and the "For review" box (width, height). */
 async function checkEntrySettings(width, height) {
   for (const [hash, folds, fields] of [
-    ['#new/pages', 'Page settings', ['URL', 'Short description', 'Tags']],
-    ['#new/blog', 'Post settings', ['URL', 'Short description']],
+    ['#new/pages', 'Page settings', ['URL', 'Excerpt', 'Tags']],
+    ['#new/blog', 'Post settings', ['URL', 'Excerpt']],
   ]) {
     const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
     page.on('pageerror', (e) => problems.push(`${width}px ${hash} settings: ${e.message}`));
@@ -6922,6 +10858,17 @@ async function checkDashboardEdit(width, height) {
   await page.waitForTimeout(600);
   await page.screenshot({ path: join(shots, `dashboard-${width}.png`) });
   if (await done.count()) problems.push(`${label}: "${daDashboard.done}" is shown before the edit mode`);
+  // "Edit dashboard" is a text button below the last widget, not in the top bar, with its icon before the text.
+  const editBox = await edit.first().boundingBox();
+  const lastWidgetBottom = await page.evaluate(() => {
+    const main = document.querySelector('main.editor-screen');
+    const headings = [...(main?.querySelectorAll('h2, h3') ?? [])];
+    return Math.max(0, ...headings.map((h) => h.getBoundingClientRect().bottom));
+  });
+  if (!editBox || editBox.y < lastWidgetBottom) problems.push(`${label}: "${daDashboard.edit}" is not below the last widget`);
+  if (await page.locator('header, [role="banner"]').getByRole('button', { name: daDashboard.edit, exact: true }).count())
+    problems.push(`${label}: "${daDashboard.edit}" is still in the top bar`);
+  if (!(await edit.first().locator('svg').count())) problems.push(`${label}: "${daDashboard.edit}" has no leading icon`);
   await edit.click();
   await shown(done, `the button "${daDashboard.done}"`);
   if (await edit.count()) problems.push(`${label}: "${daDashboard.edit}" is still shown in the edit mode`);
@@ -7037,7 +10984,8 @@ async function checkDashboardEdit(width, height) {
     await rhythmSheet.getByRole('button', { name: daCommon.cancel, exact: true }).click();
     await rhythmSheet.waitFor({ state: 'hidden', timeout: 5000 });
     await openRhythm();
-    await rhythmSheet.getByText(daLibrary.blogRhythmEveryWeek, { exact: true }).first().click();
+    // The visible one: the choice group also holds its unseen measuring row and the other form.
+    await rhythmSheet.getByText(daLibrary.blogRhythmEveryWeek, { exact: true }).filter({ visible: true }).first().click();
     await rhythmSheet.getByRole('button', { name: daCommon.save, exact: true }).click();
     await rhythmSheet.waitFor({ state: 'hidden', timeout: 5000 });
   } catch (e) {
@@ -7258,7 +11206,7 @@ async function checkMorpheme(page, state) {
   for (const x of [
     `Version ${CMS_STATUS.running}`,
     'Version 99.0.0 er klar',
-    'Hjemmesiden har ingen GitHub-n\u00f8gle',
+    'Hjemmesiden har intet GitHub-token',
     'A made-up note for the checks.',
   ])
     if (!text.includes(x)) problems.push(`morpheme (${state}): "${x}" is missing`);
@@ -7323,9 +11271,29 @@ for (const [width, height] of [
   await unit(`checkUpdatesCard ${width}`, () => checkUpdatesCard(width, height));
 
 await unit('checkStartSubtitle', () => checkStartSubtitle());
+for (const width of [375, 1280])
+  for (const hash of ['', 'developer/parts/ui', 'developer/parts/editor', 'settings'])
+    await unit(`checkFocusIndicators ${width} ${hash || 'start'}`, () => checkFocusIndicators(width, hash));
+for (const width of [375, 1280])
+  for (const locale of ['en-US', 'da-DK']) await unit(`choice-group parts ${width} ${locale}`, () => checkChoiceGroupParts(width, locale));
+for (const width of [375, 1280])
+  for (const locale of ['en-US', 'da-DK'])
+    await unit(`choice-group fields ${width} ${locale}`, () => checkChoiceGroupFields(width, locale));
+for (const width of [375, 1280])
+  for (const locale of ['en-US', 'da-DK'])
+    await unit(`choice-group button samples ${width} ${locale}`, () => checkButtonStyleSamples(width, locale));
+for (const width of [375, 1280])
+  for (const locale of ['en-US', 'da-DK']) await unit(`search view parts ${width} ${locale}`, () => checkSearchViewParts(width, locale));
+for (const width of [375, 1280]) await unit(`search button ${width}`, () => checkSearchButton(width));
+for (const width of [375, 1280]) await unit(`command palette ${width}`, () => checkCommandPalette(width));
+for (const width of [375, 1280]) await unit(`editor actions ${width}`, () => checkEditorActions(width));
+for (const width of [375, 1280]) await unit(`palette shortcuts and recent ${width}`, () => checkPaletteLast(width));
+for (const width of [375, 1280]) await unit(`no context menu ${width}`, () => checkNoContextMenu(width));
 
 for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
 await unit('checkTextBarWide', () => checkTextBarWide());
+for (const width of [375, 1280]) await unit(`checkPreviewInBar ${width}`, () => checkPreviewInBar(width));
+await unit('checkSaveKeyNoAutosave', () => checkSaveKeyNoAutosave());
 for (const width of [320, 360, 375, 390, 414, 600, 840, 1280]) await unit(`checkTextBarFit ${width}`, () => checkTextBarFit(width));
 for (const [width, reduced] of [
   [375, false],
@@ -7335,10 +11303,22 @@ for (const [width, reduced] of [
   await unit(`checkBarSlide ${width}${reduced ? ' reduced' : ''}`, () => checkBarSlide(width, reduced));
 for (const width of [375, 1280]) await unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
 for (const width of [375, 1280]) await unit(`checkCardBar ${width}`, () => checkCardBar(width));
+await unit('checkLiveSideSheet 1280', () => checkLiveSideSheet(1280));
+await unit('checkPhoneSheet 375', () => checkPhoneSheet(375));
+await unit('checkComputerRestore 1280', () => checkComputerRestore(1280));
+for (const width of [375, 700]) await unit(`checkCloseChangedSheet ${width}`, () => checkCloseChangedSheet(width));
+for (const width of [700, 1280]) await unit(`checkSheetFocusOnOpen ${width}`, () => checkSheetFocusOnOpen(width));
+for (const width of [375, 1280]) await unit(`checkImageTools ${width}`, () => checkImageTools(width));
+for (const width of [375, 1280]) await unit(`checkCropView ${width}`, () => checkCropView(width));
+for (const width of [375, 1280]) await unit(`checkVideoChangeLink ${width}`, () => checkVideoChangeLink(width));
+for (const width of [375, 1280]) await unit(`checkCardImage ${width}`, () => checkCardImage(width));
+for (const width of [375, 1280]) await unit(`checkAltSheet ${width}`, () => (width >= 840 ? checkAltLive(width) : checkAltSheet(width)));
 for (const width of [320, 375, 1280]) await unit(`checkInsertBlock ${width}`, () => checkInsertBlock(width));
 for (const w of [375, 1280]) await unit(`checkBlockRow ${w}`, () => checkBlockRow(w));
 await unit('checkBlockRow 375 reduced', () => checkBlockRow(375, { reduced: true }));
 await unit('checkBlockRow 375 keyboard', () => checkBlockRow(375, { height: 420 }));
+await unit('checkBlockRowNarrow', () => checkBlockRowNarrow());
+for (const w of [375, 1280]) await unit(`checkBlockVisibility ${w}`, () => checkBlockVisibility(w));
 await unit('checkSheetKeyboard 375', () => checkSheetKeyboard(375));
 await unit('checkSheetKeyboard 375 Custom', () => checkSheetKeyboard(375, 740, 300, true));
 for (const [width, height] of [
@@ -7361,6 +11341,7 @@ await unit('checkAppTestPages', () => checkAppTestPages());
 await unit('checkSelection', () => checkSelection());
 await unit('checkSelectionBox', () => checkSelectionBox());
 await unit('checkFilesSelection', () => checkFilesSelection());
+await unit('checkFilesDialog', () => checkFilesDialog());
 await unit('checkRedirectsSelection', () => checkRedirectsSelection());
 await unit('checkDragSelect', () => checkDragSelect());
 await unit('checkTwoFinger', () => checkTwoFinger());
@@ -7419,6 +11400,11 @@ for (const [width, height] of [
   [1280, 900],
 ])
   await unit(`checkSteps ${width}`, () => checkSteps(width, height));
+for (const block of pasteBlocks)
+  for (const w of [375, 1280]) await unit(`checkInlinePaste ${w} ${block.name}`, () => checkInlinePaste(w, w < 600 ? 740 : 900, block));
+for (const w of [375, 1280]) await unit(`checkInlinePaste ${w} table`, () => checkTablePaste(w, w < 600 ? 740 : 900));
+for (const w of [375, 1280]) await unit(`checkChangeTo ${w}`, () => checkChangeTo(w, w < 600 ? 740 : 900));
+for (const w of [375, 1280]) await unit(`checkCardHeadline ${w}`, () => checkCardHeadline(w, w < 600 ? 740 : 900));
 await unit('checkDynamicList 375', () => checkDynamicList(375, 740));
 await unit('checkDynamicList 1280', () => checkDynamicList(1280, 900));
 await unit('checkDynamicPicker 375', () => checkDynamicPicker(375, 740));
@@ -7464,6 +11450,7 @@ for (const [width, height] of [
   [1280, 900],
 ]) {
   await unit(`checkExpandList ${width}`, () => checkExpandList(width, height));
+  await unit(`checkSectionsOnLoad ${width}`, () => checkSectionsOnLoad(width, height));
 }
 await unit('checkFooterTargets 320', () => checkFooterTargets(320, true));
 await unit('checkFooterTargets 375', () => checkFooterTargets(375, true));
@@ -7471,6 +11458,11 @@ await unit('checkFooterTargets 1280', () => checkFooterTargets(1280, false));
 await unit('checkToolbarBox', () => checkToolbarBox());
 await unit('checkDensity 375', () => checkDensity(375, 740));
 await unit('checkDensity 1280', () => checkDensity(1280, 900));
+for (const [width, height] of [
+  [375, 740],
+  [1280, 900],
+])
+  for (const theme of ['light', 'dark']) await unit(`checkUserInvalid ${width} ${theme}`, () => checkUserInvalid(width, height, theme));
 await unit('checkDensityParts 375', () => checkDensityParts(375, 740, true));
 await unit('checkDensityParts 1280', () => checkDensityParts(1280, 900, false));
 await unit('checkDensityLayout 375', () => checkDensityLayout(375, 740));
@@ -7488,6 +11480,7 @@ await unit('checkSectionCardContrast', () => checkSectionCardContrast());
 for (const w of [375, 1280]) await unit(`checkListMarkers ${w}`, () => checkListMarkers(w));
 for (const w of [375, 1280]) await unit(`checkListsAndBlocks ${w}`, () => checkListsAndBlocks(w));
 for (const w of [375, 1280]) await unit(`checkLabelOnAnyLine ${w}`, () => checkLabelOnAnyLine(w));
+for (const w of [375, 1280]) await unit(`checkFabAboveFooter ${w}`, () => checkFabAboveFooter(w));
 for (const w of [360, 375, 390, 414]) await unit(`checkPreviewDraft ${w}`, () => checkPreviewDraft(w));
 
 await browser.close();
