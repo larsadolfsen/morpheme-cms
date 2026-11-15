@@ -415,6 +415,17 @@ Source: `theme/styles/ui.css` (`.search-view-header`, `.search-view-input`). Rea
 - **Why:** Chrome's Modern Web Guidance, `accessibility`: "Mandatory - Don't disable browser native focus indicators without providing a replacement custom focus indicator" (WCAG 2.4.7, 1.4.11, 3:1). Owner approved, 15 Nov 2026 (relayed by the PM).
 - **Date:** 2026-11-15. **PR:** #754.
 
+## The error text of a text field has no alert role (text field `:user-invalid`)
+
+Source: `theme/ui/TextField.tsx` (`.text-field-invalid-text`), `theme/ui/textFieldUpdate.ts` (`syncInvalid`). Read 15 Nov 2026 on m3.material.io (Playwright): `/components/text-fields/overview`, `/specs`, `/guidelines` and `/accessibility`.
+
+### E1. The error text is linked by `aria-describedby`, not announced as an alert
+
+- **Material:** "When there is an error, "alert" is applied to the role and the error message to the text label." and "Text field error messages should be given an “alert” role in accessibility labels" (Text fields, accessibility).
+- **We do:** the line that says what is wrong has no `role="alert"`. While the field is invalid after the person has worked in it (`:user-invalid`), its `aria-invalid` is true and the line's id is in its `aria-describedby`, so a screen reader reads the message once, with the field.
+- **Why:** Chrome's Modern Web Guidance (`validate-input-after-interaction`, `accessible-error-announcement`) says to list the error in `aria-describedby` only while the field is invalid and not to make each message a live region, as a message that is shown rather than changed is not announced reliably and would be read twice. The owner's order puts the modern web guidance before Material 3 here: the PM, 15 Nov 2026 (owner: "We follow modern web").
+- **Date:** 2026-11-15 (owner, through the PM). **PR:** the pull request that adds this entry.
+
 ## The footer's colour scheme (connected button group, #767)
 
 Source: `theme/components/Footer.astro`, `theme/layouts/Base.astro`. Read 15 Nov 2026 on m3.material.io (Playwright): `/components/button-groups/overview`, `/specs`, `/guidelines` and `/accessibility`, and `/components/segmented-buttons/overview`, `/specs`, `/guidelines` and `/accessibility`.
