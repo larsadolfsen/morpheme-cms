@@ -7570,7 +7570,10 @@ async function checkOwnList(width, height) {
   const phone = width < 600;
   // The list and a page that reads it, in memory (the editor reads them as if they were in the site's folder, which a check never writes to).
   const list = 'src/data/services';
-  virtualFile(`${list}/_list.json`, JSON.stringify({ version: 1, label: 'Services', fields: ['title', 'text', 'href', 'image', 'tags'] }));
+  virtualFile(
+    `${list}/_list.json`,
+    JSON.stringify({ version: 1, label: 'Services', fields: ['title', 'text', 'href', 'image', 'tags'], dropped: ['image'] }),
+  );
   virtualFile(`${list}/web-design.json`, JSON.stringify({ order: 1, title: 'Web design', text: 'Sites that last' }));
   virtualFile(`${list}/hosting.json`, JSON.stringify({ order: 2, title: 'Hosting' }));
   // A page that reads the list, so `Delete list` is refused.
@@ -7640,11 +7643,11 @@ async function checkOwnList(width, height) {
       .waitFor({ timeout: 5000 })
       .catch(() => problems.push(`${label}: Edit list did not open the edit page`));
     if (await page.evaluate(() => !location.hash.endsWith('/edit'))) problems.push(`${label}: the edit page is not at list/<id>/edit`);
-    // The list was made in the first format (fields as kind names): it reads as it did. Each of its five fields has the owner's own `Shown` switch (on) and `Remove field`.
+    // The list was made in the first format (fields as kind names): it reads as it did. Each of its five fields has `Remove field` and no `Shown` switch (the block decides what is shown where).
     const fieldRows = await sheet.locator('.own-list-field').count();
     if (fieldRows !== 5) problems.push(`${label}: the edit page has ${fieldRows} fields, not 5`);
     const switches = await sheet.locator('.own-list-field input[type="checkbox"]').count();
-    if (switches !== 5) problems.push(`${label}: the edit page has ${switches} switches, not 5`);
+    if (switches !== 0) problems.push(`${label}: the edit page has ${switches} switches on its fields, not none`);
     const removes = await sheet.getByRole('button', { name: 'Remove field' }).count();
     if (removes !== 5) problems.push(`${label}: the edit page has ${removes} Remove field buttons, not 5`);
     // The bar: a button for each kind, or the kinds that do not fit in its ⋮ (a phone), and nothing else adds a field.
@@ -7929,8 +7932,8 @@ async function checkNewList(width, height, label) {
     };
     await addText(0);
     await addText(1);
-    if ((await edit.locator('.own-list-field input[type="checkbox"]').count()) !== 2)
-      problems.push(`${label}: the edit page does not show two fields with a switch each`);
+    if ((await edit.locator('.own-list-field').count()) !== 2) problems.push(`${label}: the edit page does not show the two fields`);
+    if ((await edit.locator('.own-list-field input[type="checkbox"]').count()) !== 0) problems.push(`${label}: a field has a Shown switch`);
     // Two fields added and still nothing committed; the line under the title says the version is kept, and the bar has Save changes.
     if (commits.length) problems.push(`${label}: a field was committed before the Save (${commits.length} commits)`);
     const line = await page.evaluate(() => document.body.innerText);

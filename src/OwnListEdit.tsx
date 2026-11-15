@@ -1,9 +1,9 @@
 // The edit page of a list the owner made (`#list/<id>/edit`, the owner's decision of 14 November: the round button on the list's page is `Edit list`): the list's
 // name, a bar like the editor's with a button for each field that can be added (Icon, Title, Body text, Image, Link, Tags, as many of a kind as wanted; the bar's
-// planBar puts what does not fit in its `⋮`), each field with a name the owner can change, `Shown`, move up and down, and `Remove field`, then `Add item` and
+// planBar puts what does not fit in its `⋮`), each field with a name the owner can change, move up and down, and `Remove field`, then `Add item` and
 // `Delete list`. A change is kept as the list's waiting version and committed once, with the page's `Save` (src/useOwnList.tsx); only `Delete list` commits at
-// once. A field belongs to the list and is on by default; only the owner's own `Shown` switch hides it (`dropped`): its data stays in the items, and the page says in how
-// many, with `Remove data`. `Remove field` asks, then takes the field and its data out of every item (at the `Save`). The rules are lib/ownList.mjs and
+// once. A field belongs to the list; which of its fields a block shows, and where, is the block's choice (its slot map), so a field has no switch here. `Remove field` asks, then
+// takes the field and its data out of every item (at the `Save`). The rules are lib/ownList.mjs and
 // lib/ownListEdit.mjs. Moving a field changes the order of an item's form, never its data. A locked list (an app's or a standard block's with fixed fields, as the
 // testimonials') gets LockedListEdit: the same page without the field bar, its fields only shown.
 import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
@@ -11,26 +11,13 @@ import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
 import { Icon } from './icon';
 import Screen from './Screen';
 import { SaveBar } from './FormFrame';
-import {
-  Button,
-  Group,
-  IconButton,
-  LinkButton,
-  ListItem,
-  Menu,
-  MenuItem,
-  SupportingText,
-  SwitchRow,
-  TextField,
-  Toolbar,
-  ToolbarButton,
-} from './ui';
+import { Button, Group, IconButton, LinkButton, ListItem, Menu, MenuItem, SupportingText, TextField, Toolbar, ToolbarButton } from './ui';
 import { kindNames } from './ownLists';
 import { ask } from './ask';
 import { t } from './i18n';
 import { planBar } from './textBar.mjs';
 import { KINDS, nameOf } from '../lib/ownList.mjs';
-import { addField, confirmDrop, heldBy, moveField, renamed, renameField, toggleField } from '../lib/ownListEdit.mjs';
+import { addField, confirmDrop, heldBy, moveField, renamed, renameField } from '../lib/ownListEdit.mjs';
 import { useOwnList, type Definition } from './useOwnList';
 import OwnListEntries from './OwnListEntries';
 import type { RepoFile } from './github';
@@ -59,7 +46,6 @@ export default function OwnListEdit({ id, files, saved, env }: { id: string; fil
   const { definition, entries, pending, saving, status, change } = list;
   const [label, setLabel] = useState(definition.label);
   useLayoutEffect(() => setLabel(definition.label), [definition.label]);
-  const dropped = definition.dropped ?? [];
   const names = kindNames();
 
   const rename = () => {
@@ -90,8 +76,6 @@ export default function OwnListEdit({ id, files, saved, env }: { id: string; fil
           <h2 className="mb-1 font-medium">{t.ownList.fields}</h2>
           {definition.fields.length === 0 && <SupportingText>{t.ownList.noFields}</SupportingText>}
           {definition.fields.map((f, i) => {
-            const off = dropped.includes(f.id);
-            const held = off ? heldBy(entries, f.id) : 0;
             const name = String(nameOf(definition, f, names));
             return (
               <div key={f.id} className="own-list-field mb-3" data-field={f.id}>
@@ -118,33 +102,9 @@ export default function OwnListEdit({ id, files, saved, env }: { id: string; fil
                     onClick={() => change(moveField(definition, f.id, 1) as Definition)}
                   />
                 </div>
-                <SwitchRow
-                  label={t.ownList.shown}
-                  selected={!off}
-                  disabled={saving}
-                  // The owner's own choice, on for every new field. Off: nothing to keep when no item has data for it, so it is removed at once; else it is hidden until the data is removed.
-                  onChange={(selected) =>
-                    change(
-                      (selected || heldBy(entries, f.id) > 0
-                        ? toggleField(definition, f.id, selected)
-                        : confirmDrop(definition, f.id, []).definition) as Definition,
-                    )
-                  }
-                />
-                {off ? (
-                  <div className="mb-2">
-                    <SupportingText>{t.ownList.held(held)}</SupportingText>
-                    {held > 0 && (
-                      <Button kind="text" disabled={saving} onClick={() => void remove(f.id, t.ownList.removeData)}>
-                        {t.ownList.removeData}
-                      </Button>
-                    )}
-                  </div>
-                ) : (
-                  <Button kind="text" disabled={saving} onClick={() => void remove(f.id, t.ownList.removeField)}>
-                    {t.ownList.removeField}
-                  </Button>
-                )}
+                <Button kind="text" disabled={saving} onClick={() => void remove(f.id, t.ownList.removeField)}>
+                  {t.ownList.removeField}
+                </Button>
               </div>
             );
           })}

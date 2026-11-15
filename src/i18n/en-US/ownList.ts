@@ -31,15 +31,11 @@ export const ownList = {
   fixedFields: 'The fields of this list are fixed.',
   /** A field's name in `Edit list` (the kind's name until the owner changes it). */
   fieldName: 'Field name',
-  shown: 'Shown',
-  /** Under a field that was switched off: its data is still in the items. */
-  held: (n: number) => `The data in ${n} ${n === 1 ? 'item' : 'items'} stays until you remove it.`,
   moveFieldUp: (name: string) => `Move ${name.toLowerCase()} up`,
   moveFieldDown: (name: string) => `Move ${name.toLowerCase()} down`,
   addKind: (kind: string) => `Add ${kind.toLowerCase()}`,
   fieldTools: 'Fields you can add',
   removeField: 'Remove field',
-  removeData: 'Remove data',
   removeDataAsk: (field: string, n: number) => `Remove ${field.toLowerCase()} from ${n} ${n === 1 ? 'item' : 'items'} for good?`,
   /** `Delete list` is refused while a page or an app reads the list. */
   used: (n: number) => `The list is used on ${n} ${n === 1 ? 'page' : 'pages'}. Remove it from there first.`,

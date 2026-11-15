@@ -38,7 +38,7 @@ export default function NewListDialog({ files, open, onClose }: { files: RepoFil
   function create() {
     const named = idOf(label, taken());
     if (!named.id) return setProblem(named.suggestion ? t.ownList.nameTaken : t.ownList.nameNeeded);
-    const text = definitionText({ version: DEFINITION_VERSION, label: label.trim(), fields: [], dropped: [] });
+    const text = definitionText({ version: DEFINITION_VERSION, label: label.trim(), fields: [] });
     editListDraft(named.id, text);
     dialog.current?.close();
     location.hash = `#list/${named.id}`;

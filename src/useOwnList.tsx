@@ -15,7 +15,7 @@ import { definitionPath, discardListDraft, editListDraft, listDraftOf, pendingOf
 import { useFormPages, useUnsavedGuard } from './FormFrame';
 import type { Env } from './App';
 
-export type Definition = { version: 2; label: string; fields: { id: string; kind: string; label?: string }[]; dropped: string[] };
+export type Definition = { version: 2; label: string; fields: { id: string; kind: string; label?: string }[] };
 
 /** `files` are the site's files with the waiting definition in place (withListDrafts); `saved` are git's. */
 export function useOwnList(id: string, files: RepoFile[], saved: RepoFile[], env: Env, pages: string[] = []) {
@@ -24,7 +24,7 @@ export function useOwnList(id: string, files: RepoFile[], saved: RepoFile[], env
   const state = useListDrafts().find((d) => d.id === id)?.state;
   const committed = saved.find((f) => f.path === definitionPath(id));
   const parsed = parseDefinition(files.find((f) => f.path === definitionPath(id))?.text ?? '').definition as Definition | undefined;
-  const definition: Definition = parsed ?? { version: DEFINITION_VERSION, label: id, fields: [], dropped: [] };
+  const definition: Definition = parsed ?? { version: DEFINITION_VERSION, label: id, fields: [] };
   const collection = useMemo(() => ownListOf(id, definition), [JSON.stringify(definition)]);
   const pending = !!draft;
   const [saving, setSaving] = useState(false);

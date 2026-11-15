@@ -1,0 +1,6 @@
+{
+  "id": "typed-entries-edit-page",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A list’s fields have no Shown switch on the edit page, because each block picks the field it shows in each place"
+}
