@@ -106,7 +106,7 @@ const SHARE = SHARE_FIELDS;
 // fields.tsx).
 type Section = 'settings' | 'content' | 'seo' | 'share' | 'versions';
 // The fields only the settings have: the status, `unlisted`, a page's title and the template. A field of none of the other
-// sections is a setting too (the URL, the short description, the tags …), after these.
+// sections is a setting too (the URL, the excerpt, the tags …), after these.
 const isOwnSetting = (collection: MarkdownCollection, name: string) =>
   STATUS.includes(name) ||
   name === 'unlisted' ||

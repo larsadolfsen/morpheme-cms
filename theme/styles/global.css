@@ -95,6 +95,8 @@
   --bottom-sheet-radius: var(--mo-shape-extra-large);
   --bottom-sheet-line: transparent;
   --bottom-sheet-scrim: var(--mo-scrim-overlay);
+  /* The search view (M3: docked, "with a scrim covering main content"; full screen it covers everything): the scrim over the page behind it, as a dialog's. */
+  --search-view-scrim: var(--mo-scrim-overlay);
   --bottom-sheet-handle: color-mix(in srgb, var(--mo-on-surface-variant) 40%, transparent);
   /* The carousel's page indicator: the dots in the outline, the chosen one a longer pill (in the primary colour). */
   --carousel-dot-colour: var(--mo-outline);

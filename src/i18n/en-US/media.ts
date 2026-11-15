@@ -118,6 +118,8 @@ export const media = {
     alt: (what: string, name: string) => `Editor: change the text of ${what} "${name}"`,
     deleteMany: (count: number) => `Editor: delete ${count} files`,
   },
+  /** The alt text sheet after an image is picked: the button that keeps the image without a text of its own (BlockDialog.tsx, image tools spec 9.1). */
+  altSkip: 'Skip',
   /** The crop view (CropView.tsx) and the image sheet's Aspect ratio row (image tools spec, sections 3 and 10). */
   crop: {
     title: 'Crop',
