@@ -275,6 +275,13 @@ async function checkStartSubtitle() {
       const got = await subtitle.evaluate((e) => ({ text: e.innerText.trim(), scroll: e.scrollWidth, client: e.clientWidth }));
       if (got.scroll > got.client) problems.push(`${label}: "${got.text}" is cut off (${got.scroll} > ${got.client})`);
       if (/yesterday|today|\bat\b/i.test(got.text)) problems.push(`${label}: the long form is back: "${got.text}"`);
+      // The site's name in the bar is not cut off either (owner: "Mor…" at 375 px): the title of the start screen's bar shows whole.
+      const name = await page.evaluate(() => {
+        const h = [...document.querySelectorAll('header h1')].find((e) => e.getClientRects().length > 0);
+        return h ? { text: h.textContent.trim(), scroll: h.scrollWidth, client: h.clientWidth } : null;
+      });
+      if (name && name.scroll > name.client)
+        problems.push(`${label}: the site name "${name.text}" is cut off (${name.scroll} > ${name.client})`);
       await page.close();
     }
   }
@@ -1032,6 +1039,75 @@ async function checkCommandPalette(width) {
     if (!(await page.evaluate(() => !!document.activeElement?.closest('.ProseMirror'))))
       problems.push(`${label}: after Escape the focus is not back in the text (it is on ${await focusOn()})`);
   }
+
+  await page.close();
+}
+
+/** The text's actions in the palette (src/textActions.ts, spec section 6): with words selected in text, "bold" lists Bold first, Enter makes the selected words bold and the focus is
+ * back in the text; the search button keeps the selection too (it does not take the focus off the text); Italic is found by its name and shows its key. */
+async function checkEditorActions(width) {
+  const label = `${width}px editor actions`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  const view = page.locator('[data-search-controlled] dialog[open]');
+  const input = view.locator('input[role=combobox]');
+  const options = view.locator('[role=option]');
+  const names = () => options.evaluateAll((els) => els.map((e) => e.querySelector('.list-item-headline')?.textContent ?? ''));
+  const shut = async (why) => {
+    await page.waitForTimeout(250);
+    if (await view.count()) problems.push(`${label}: the palette is still open ${why}`);
+  };
+  // Outside a text there is no Bold.
+  await page.waitForTimeout(400);
+  await page.keyboard.press('Control+k');
+  await view.waitFor({ timeout: 5000 });
+  await input.fill('bold');
+  await page.waitForTimeout(250);
+  if ((await names()).includes('Bold')) problems.push(`${label}: Bold is offered outside a text`);
+  await page.keyboard.press('Escape');
+  await shut('after Escape outside a text');
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello world');
+  await page.keyboard.press('Shift+Home');
+  const bold = () => page.evaluate(() => document.querySelector('.ProseMirror strong, .ProseMirror b')?.textContent ?? '');
+
+  // Through the search button the selection stays, and Bold is first for "bold".
+  {
+    await page.locator('header button[aria-label="Search"]').click();
+    await view.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the button does not open the palette`));
+    if (!(await view.count())) return page.close();
+    await page.waitForTimeout(300);
+    await page.keyboard.type('bold');
+    await page.waitForTimeout(250);
+    const found = await names();
+    if (found[0] !== 'Bold') problems.push(`${label}: "bold" finds ${JSON.stringify(found)}, not Bold first`);
+    await page.keyboard.press('Enter');
+    await shut('after Enter on Bold');
+    await page.waitForTimeout(400);
+    if (!/Hello world/.test(await bold())) problems.push(`${label}: Enter on Bold made "${await bold()}" bold, not the selected words`);
+    if (!(await page.evaluate(() => !!document.activeElement?.closest('.ProseMirror'))))
+      problems.push(`${label}: after Bold the focus is not back in the text`);
+  }
+
+  // Ctrl+K in text: Italic is found, shows its key, and is run.
+  await page.keyboard.press('Control+k');
+  await view.waitFor({ timeout: 5000 });
+  await input.fill('italic');
+  await page.waitForTimeout(250);
+  const italic = await names();
+  if (italic[0] !== 'Italic') problems.push(`${label}: "italic" finds ${JSON.stringify(italic)}, not Italic first`);
+  const keys = await options
+    .first()
+    .evaluate(
+      (e) => e.getAttribute('aria-keyshortcuts') ?? e.querySelector('[aria-keyshortcuts]')?.getAttribute('aria-keyshortcuts') ?? '',
+    );
+  if (!/I/.test(keys)) problems.push(`${label}: Italic shows no key (aria-keyshortcuts "${keys}")`);
+  await page.keyboard.press('Escape');
+  await shut('after Escape');
 
   await page.close();
 }
@@ -10164,6 +10240,7 @@ for (const width of [375, 1280])
   for (const locale of ['en-US', 'da-DK']) await unit(`search view parts ${width} ${locale}`, () => checkSearchViewParts(width, locale));
 for (const width of [375, 1280]) await unit(`search button ${width}`, () => checkSearchButton(width));
 for (const width of [375, 1280]) await unit(`command palette ${width}`, () => checkCommandPalette(width));
+for (const width of [375, 1280]) await unit(`editor actions ${width}`, () => checkEditorActions(width));
 for (const width of [375, 1280]) await unit(`no context menu ${width}`, () => checkNoContextMenu(width));
 
 for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
