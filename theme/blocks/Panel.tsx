@@ -1,4 +1,5 @@
-// A box: an outlined card (Card.tsx in ../ui/) that is a .block-panel (../styles/blocks.css), with what is in it: its
+// Panel = Material 3's outlined card (m3.material.io/components/cards: "Three variants: elevated, filled, outlined"); the
+// name Panel stays, as the theme and app contracts name it. A box: an outlined card (Card.tsx in ../ui/) that is a .block-panel (../styles/blocks.css), with what is in it: its
 // icon and its title first, when it has them, then the rest (its text, a list, buttons …, each a .block-panel-part with
 // room above it). The boxes of "Links" (links/LinkGroups.tsx) and the apps' boxes (@theme/blocks/Panel). A theme draws
 // it its own way with its own blocks/Panel.tsx, with the same props. `as`: the element, a <section> unless the box is no

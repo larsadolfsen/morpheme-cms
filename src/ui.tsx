@@ -102,7 +102,7 @@ import {
   SiteSwitch,
   SiteTextField,
   SiteToolbar,
-  SiteTopAppBar,
+  SiteAppBar,
   SiteTextFieldButton,
   SiteTimePicker,
   dayPeriods,
@@ -975,6 +975,8 @@ export function SearchRow({
 /** The theme's slider, with its name over it (the zoom when cropping an image): a value between `min` and `max`. */
 export function Slider(props: {
   label: string;
+  /** Only screen readers say the name (the crop view's zoom, between its minus and plus buttons). */
+  hideLabel?: boolean;
   min: number;
   max: number;
   step?: number;
@@ -3700,9 +3702,9 @@ export function TopAppBar({ children }: { children: ReactNode }) {
     return () => removeEventListener('scroll', check);
   }, []);
   return (
-    <SiteTopAppBar className="pt-[env(safe-area-inset-top)]" data-stuck={stuck || undefined}>
+    <SiteAppBar className="pt-[env(safe-area-inset-top)]" data-stuck={stuck || undefined}>
       {children}
-    </SiteTopAppBar>
+    </SiteAppBar>
   );
 }
 
