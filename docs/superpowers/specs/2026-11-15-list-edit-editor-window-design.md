@@ -42,6 +42,7 @@ the **entry form page** is where an entry is typed; the **edit page** (`#list/<i
 7. **(Decided, 15 Nov.)** A list the owner made gets an **`Entry name`** box next to the list's name on the edit page, stored as an optional `singular` in `_list.json`. The FAB menu says `Add <entry name>`; empty means `Add item`. The name is never guessed from the list's name (Q2). #712's `singularOf` guess from the list name is replaced by this when the window is built (a follow-up for #712's session).
 8. **(Decided, 15 Nov. Layout.)** The edit page mimics the page's edit screen on a phone and has the same features: a **`List settings`** accordion at the top (closed by default, as `Page settings`) holding the list name, the `Entry name` box and `Delete list` and nothing else; below it a **`Content`** accordion (open) holding **one editor card**, the page editor's own card, with its bar (Undo, Redo, `+ Insert`, and the text tools while the cursor is in text) and the flow under it; the `+ Insert` offers the three text styles and the field kinds, as the page editor's Insert does for blocks; field blocks are drawn **as the form fields of the entry form page**; the bottom bar is the page editor's Save bar (label `Save changes`, shown while something waits; there is no Publish for lists). The separate `FieldBar` of the old draft is gone (section 3.2).
 9. **(Decided, 15 Nov.)** The list text stands **above the rows, in the order written** (Q3, section 3.1).
+10. **(Decided, 15 Nov. Field kind name.)** The field kind that is shown as `Title` is called **`Name`** in the UI: in the `+ Insert` menu, in the kind line of the settings sheet (`Kind: Name`), in the default field name (a second one is `Name 2`, as `nameOf` numbers kinds) and in the wireframes and mockups. The **stored kind id stays `title`**: no data change, no change to the slots or to `asRows`; only the English label changes, with its Danish text in `da-DK`. Where decisions 2 and 5 above list `Title`, they now mean `Name`. **Every field has a name the owner types on its card**, which is the label of that field on the entry form; the kind's name (`Name`, `Body text`, `Image` …) is only the default of that name and the kind line in the settings sheet.
 
 **Base check.** On `0.19` at `b780512` #704 is not merged: `OwnListEdit.tsx` still has `Shown`, `dropped` and `Remove data`. This spec assumes #704
 has landed. If it has not when the window is built, that PR starts from a rebase on it; `dropped` is never carried into the new window.
@@ -118,7 +119,7 @@ the editor's own (`CLAUDE.md`: the editor's workspace follows the editor, not Ma
    service`) and **`Delete list`** (the last control, as today: refused while a block reads the list, `listUses`). It holds **no fields and no text**.
 2. **`Content`** (open). It holds **one editor card**, the same card as the page editor's: the bar row at its top (Undo, Redo, `+ Insert`, and the text
    tools while the cursor is in text) and the **flow** under it. The flow is **inline text and field blocks in one order**, as a page is: the owner types
-   a heading, then a line of Body medium, then inserts a `Title` field (a block), then more text, then an `Image` field, and so on. A free line between two
+   a heading, then a line of Body medium, then inserts a `Name` field (a block), then more text, then an `Image` field, and so on. A free line between two
    blocks is where the owner types text, as the page editor's free lines between blocks are.
 
 ```
@@ -162,7 +163,7 @@ the editor's own (`CLAUDE.md`: the editor's workspace follows the editor, not Ma
 │▤ ├─────────────────────────────────────────────────┤ Price                │
 │  │ ▸ List settings                                 │ ────────────────     │
 │  ├─────────────────────────────────────────────────┤ Name [ Price       ] │
-│  │ ▾ Content                                       │ Kind: Title          │
+│  │ ▾ Content                                       │ Kind: Name           │
 │  │ ┌─────────────────────────────────────────────┐ │ Used by 12 entries   │
 │  │ │ Aa▾                              ↺  ↻  ＋  ⋮ │ │ [ Remove field ]     │
 │  │ ├─────────────────────────────────────────────┤ │                      │
@@ -197,7 +198,7 @@ empty line next to a block removes the line, not the block (`cardDeletes`); two 
 
 **Field blocks.** A field block is drawn **as the form field of the entry form page** (`#new/<id>`, `DataForm.tsx`): the field's name as its label, and the
 input the person will fill in (a text outline, a body-text area, an icon picker, an image placeholder, a tag chip row), disabled, so the owner sees what the
-entry form will be. The field's **name is typed in place** in its label. Tapping a block makes it active. The block has the page editor's **action row**
+entry form will be. The field's **name is typed in place** in its label: every field has a name the owner types on its card, and that name is the label of the field on the entry form (decision 10); an empty name is the kind's name, `Name`, `Name 2` and so on. Tapping a block makes it active. The block has the page editor's **action row**
 (Move up, Move down, Settings, and the drag handle at the end, `blockRow.ts`). `Hide` and `Show` do not exist (nothing to hide: `Shown` is gone). A block
 moves between texts and other blocks by the handle (`dragSteps`) or by Move up and Move down; as in the page editor, it moves **one part at a time** past
 text lines and blocks.
@@ -210,7 +211,7 @@ text lines and blocks.
   allow (none of bold, italic, link, colour, list, align).
 - **A field block active:** the block's tools from `blockBar`: Move up, Move down, the gear (Settings), `⋮` with `Remove field`.
 - **Always:** **`+ Insert`**, Undo and Redo. `+ Insert` is the page editor's Insert control, with its items replaced: **Heading**, **Body medium**,
-  **Label** (the three text styles), then the field kinds **Icon**, **Title**, **Body text**, **Image**, **Link**, **Tags** (and **Date** when phase 6 of
+  **Label** (the three text styles), then the field kinds **Icon**, **Name**, **Body text**, **Image**, **Link**, **Tags** (and **Date** when phase 6 of
   the framework spec lands). A text style turns the line at the cursor into that style, or, with a block active, puts a new line in that style after it.
   A field kind puts the field block **at the cursor** (after the current line or block, as the page editor's Insert puts a block) and makes it active with
   its name box focused. `planBar` puts what does not fit in the `⋮` menu (four tools at 375 px).
@@ -430,6 +431,7 @@ screen-neutral and compare `check:screens` before and after.
 | :--- | :--- | :--- | :--- | :--- |
 | 0 | This spec, and the corrections to the framework spec and the edit-page plan (section 10). | no | — | empty |
 | 1 | **List page FAB menu.** `Add <entry>` and `Edit list` in a `FabMenu` (a plain `Edit list` FAB for a list with no field); entries are added at `#new/<id>` only; the deviation entry in `docs/material-deviations.md`; labels and Danish; unit test of the FAB's actions (`fabScreens.ts`); a screen check of the menu open at 375 and 1280. | yes | the closed FAB and the open menu, 375 and 1280 | minor |
+| 1b | **Rename the field kind label `Title` to `Name`** (decision 10): change `t.ownList.title` (`src/i18n/en-US/ownList.ts`) and its `da-DK` text (`src/i18n/da-DK/ownList.ts`); the stored kind id stays `title`, so no data and no slot changes; check the tests and screens that expect `Title`: `scripts/editor-screens.mjs` has `getByText('Title')` near line 7623, `getByLabel('Title')` and the `Title` field check near lines 7687 to 7698, and the bar button `Add title` near line 7770 (the button's label is built from the kind's name, so it becomes `Add name`); also `grep` `src/*.test.mjs` and run `check:language`. | yes | the field bar's or the entry form's kind label, 375 | patch |
 | 2 | **Extract `EditorBar`** from `MarkdownEditor.tsx` (section 5, step 1). No behaviour change. | no | none (screens rerun) | empty |
 | 3 | **Card plugins by node name** (step 2) and the **flow editor spike** (step 3): `useFlowEditor` with a JSON document, no Markdown; `BlockHost` if needed. No behaviour change in the page editor. | no | none (screens rerun) | empty |
 | 4 | **Storage of the list text.** `notes` in `parseDefinition` and `definitionText`, `lib/ownListFlow.mjs` (`flowOf`, `definitionOfFlow`, `textsOf`), `check:content`, tests (round trip, a file without `notes` byte-identical, bad style and `after`, ordering rules). The list page draws the text from `notes` (section 7.1) and the demo gets its `Services` list; no editing UI yet. | yes | the list page with the three styles, 375 and 1280, light and dark | minor |
