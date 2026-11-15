@@ -1147,15 +1147,33 @@ async function checkPaletteLast(width) {
   await page.waitForSelector('.ProseMirror');
   await page.click('.ProseMirror');
   await run('keyboard shortcuts', 'Keyboard shortcuts');
-  const sheet = page.locator('dialog[open][aria-label="Keyboard shortcuts"]');
-  await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the shortcuts sheet does not open`));
-  if (await sheet.count()) {
-    const rows = await sheet.locator('li').evaluateAll((els) => els.map((e) => e.textContent?.replace(/\s+/g, ' ').trim()));
-    for (const want of [/Search actions and pages.*Ctrl\+K/, /Bold.*Ctrl\+B/, /Italic.*Ctrl\+I/])
-      if (!rows.some((r) => want.test(r ?? ''))) problems.push(`${label}: the list has no row like ${want} (${JSON.stringify(rows)})`);
-    await page.keyboard.press('Escape');
-    await page.waitForTimeout(300);
-    if (await sheet.count()) problems.push(`${label}: Escape does not close the shortcuts sheet`);
+  const wanted = [/Search actions and pages.*Ctrl\+K/, /Bold.*Ctrl\+B/, /Italic.*Ctrl\+I/];
+  const missing = (rows) => wanted.filter((want) => !rows.some((r) => want.test(r ?? ''))).map(String);
+  if (touch) {
+    // A phone: a page with a back arrow (owner, 15 Nov), not a sheet; the rows are the ones registered when the action ran.
+    await page
+      .waitForFunction(() => location.hash === '#shortcuts', null, { timeout: 5000 })
+      .catch(() => problems.push(`${label}: on a phone the action does not go to the page #shortcuts `));
+    if (await page.locator('dialog[open]').count()) problems.push(`${label}: on a phone the list is an overlay, not a page`);
+    const rows = await page.locator('main li').evaluateAll((els) => els.map((e) => e.textContent?.replace(/\s+/g, ' ').trim()));
+    if (missing(rows).length) problems.push(`${label}: the page lacks ${missing(rows)} (${JSON.stringify(rows)})`);
+    const back = page.locator('header a[href="#"]:visible').first();
+    if (!(await back.count())) problems.push(`${label}: the shortcuts page has no back arrow to the start screen`);
+    else {
+      await back.click();
+      await page.waitForTimeout(300);
+      if ((await page.evaluate(() => location.hash)) !== '') problems.push(`${label}: the back arrow does not leave the shortcuts page`);
+    }
+  } else {
+    const sheet = page.locator('dialog[open][aria-label="Keyboard shortcuts"]');
+    await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the shortcuts sheet does not open`));
+    if (await sheet.count()) {
+      const rows = await sheet.locator('li').evaluateAll((els) => els.map((e) => e.textContent?.replace(/\s+/g, ' ').trim()));
+      if (missing(rows).length) problems.push(`${label}: the list lacks ${missing(rows)} (${JSON.stringify(rows)})`);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
+      if (await sheet.count()) problems.push(`${label}: Escape does not close the shortcuts sheet`);
+    }
   }
 
   // Running the shortcuts action was kept as recent; Clear recent actions forgets it.

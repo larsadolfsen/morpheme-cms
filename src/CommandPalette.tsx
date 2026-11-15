@@ -21,8 +21,7 @@ import { openNotifications } from './notificationsOpen';
 import type { IconRef } from './icon';
 import { closePalette, togglePalette, usePaletteOpen } from './paletteOpen';
 import { forgetRecent, loadRecent, saveRecent } from './paletteRecent';
-import { openShortcuts } from './shortcutsOpen';
-import { ShortcutsSheet } from './ShortcutsSheet';
+import { ShortcutsSheet, showShortcuts } from './ShortcutsSheet';
 import { ariaShortcut, pressed, shortcutText } from './shortcuts';
 import { SiteSearchView } from './themeUi';
 import { t } from './i18n';
@@ -114,7 +113,7 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
         group: 'setting',
         where: {},
         words: ['keys', 'hotkeys'],
-        run: openShortcuts,
+        run: showShortcuts,
       },
       {
         id: 'palette.clear-recent',
