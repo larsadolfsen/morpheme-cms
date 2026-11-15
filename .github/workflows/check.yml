@@ -5,6 +5,15 @@
 # only waits for them all: it is the status check that main's branch protection and the PM look at, and it is green only
 # when every other job is green. The editor's screens are split into as many parts as the matrix of the screens job lists
 # (scripts/editor-screens.mjs --shard K/N, N is the matrix's size, so a part is never left out: list 1..N there).
+#
+# A docs-only pull request skips the heavy jobs (screens, screens-extra, demo, starter). The job `changes` decides from the
+# pull request's diff against its base branch (plain git, then scripts/ci-changes.mjs): docs-only means every changed file is
+# under .claude/skills/ or docs/, a changeset, or CLAUDE.md, AGENTS.md, README.md or SECURITY.md; the Release PR, an empty diff
+# and any other path run everything (when in doubt, run). release-notes/ and CHANGELOG.md are never skipped: check:release-notes,
+# the notes tests and the editor's build read them. `static` runs on every pull request. There is no workflow-level paths-ignore:
+# the job `check` is the required status check and must always report. It is green when `static` and `changes` are green and each
+# heavy job is green, or skipped on a docs-only pull request; a failed, cancelled or wrongly skipped job makes it red
+# (scripts/ci-changes.mjs, tested in scripts/ci-changes.test.mjs; the rule is in .claude/skills/checks, "What CI runs").
 name: Check
 
 on:
@@ -24,6 +33,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Whether the pull request is docs-only (see the header). Any error here gives docs_only=false, so everything runs.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      docs_only: ${{ steps.diff.outputs.docs_only }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          BASE: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          if git diff --name-only "origin/$BASE...HEAD" > changed.txt; then
+            cat changed.txt
+            node scripts/ci-changes.mjs docs-only "$HEAD_REF" < changed.txt | tee -a "$GITHUB_OUTPUT"
+          else
+            echo 'git diff failed: running everything'
+            echo 'docs_only=false' >> "$GITHUB_OUTPUT"
+          fi
+
   # Prettier, the language and unit tests, types, the demo built and each of its pages the same after a save, and the changeset.
   static:
     runs-on: ubuntu-latest
@@ -50,6 +81,8 @@ jobs:
 
   # Every screen of the editor on the built demo, on a phone and on a computer, in parts that run side by side.
   screens:
+    needs: changes
+    if: needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -69,6 +102,8 @@ jobs:
 
   # The checks that run once over the whole built demo (saving twice, unlisted pages, the preview).
   screens-extra:
+    needs: changes
+    if: needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -83,6 +118,8 @@ jobs:
 
   # The demo built with the standard theme.
   demo:
+    needs: changes
+    if: needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -99,6 +136,8 @@ jobs:
   # With its screens: every screen of the editor on the starter too, so the checks sites run never lean on the demo's content.
   # The screens part is split like the demo's (--shard K/N, N is the matrix's size); the rest of the starter's checks run in each part.
   starter:
+    needs: changes
+    if: needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -114,12 +153,17 @@ jobs:
       - run: npx playwright install --with-deps chromium || npx playwright install chromium
       - run: npm run check:starter -- --screens --shard ${{ matrix.shard }}/${{ strategy.job-total }}
 
-  # The one status check that is required: green only when every job above is green (a failed, cancelled or skipped one fails it).
+  # The one status check that is required: green when static and changes are green and every heavy job is green, or skipped on a
+  # docs-only pull request (a failed, cancelled or wrongly skipped one fails it; scripts/ci-changes.mjs).
   check:
     if: always()
-    needs: [static, screens, screens-extra, demo, starter]
+    needs: [changes, static, screens, screens-extra, demo, starter]
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo '${{ toJson(needs) }}'
-          test "${{ needs.static.result }}" = success -a "${{ needs.screens.result }}" = success -a "${{ needs.screens-extra.result }}" = success -a "${{ needs.demo.result }}" = success -a "${{ needs.starter.result }}" = success
+      - uses: actions/checkout@v5
+      - env:
+          NEEDS: ${{ toJson(needs) }}
+          DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
+        run: |
+          echo "$NEEDS"
+          echo "$NEEDS" | node scripts/ci-changes.mjs verdict "$DOCS_ONLY"
