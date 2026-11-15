@@ -54,6 +54,7 @@ const shown = completeColors(withMaterialNames(colors), colorRoles);
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <!-- The top bar in the editor's page colour (pageColor), the screens' own and the app bar's at the top; data-color: that
          of its own mode, for a picked one. -->
+    <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content={pageColor(shown.light)} data-color={pageColor(shown.light)} media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content={pageColor(shown.dark)} data-color={pageColor(shown.dark)} media="(prefers-color-scheme: dark)" />
     <style id="site-colors" is:inline set:html={colorsCss(shown)}></style>
@@ -65,6 +66,7 @@ const shown = completeColors(withMaterialNames(colors), colorRoles);
         const theme = localStorage.getItem('editor-theme');
         if (theme === 'light' || theme === 'dark') {
           document.documentElement.dataset.theme = theme;
+          document.querySelector('meta[name="color-scheme"]').content = theme;
           const metas = [...document.querySelectorAll('meta[name="theme-color"]')];
           const own = metas.find((m) => m.media.includes('dark') === (theme === 'dark'));
           for (const m of metas) m.content = own.dataset.color;
