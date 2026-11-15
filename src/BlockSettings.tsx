@@ -478,33 +478,33 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
 
   return (
     <Screen title={t.common.parts.blockSettings} wide back={backFrom('block-settings')}>
+      <SearchRow
+        value={query}
+        onChange={setQuery}
+        label={t.common.searchIn(t.common.parts.blockSettings)}
+        sort={
+          <Choice
+            title={t.library.sort}
+            icon={ArrowsDownUp}
+            value={sort}
+            options={SORTS.map((s) => ({ value: s, label: t.library.sorts[s] }))}
+            onChange={pickSort}
+          />
+        }
+        filter={filters.length > 0 && <Filters title={t.library.filter} selected={chips.length > 0} groups={filters} />}
+        className="mb-6"
+      />
+      {chips.length > 0 && (
+        <div className="-mt-2 mb-6 flex flex-wrap gap-2">
+          {chips.map((c) => (
+            <InputChip key={c.key} removeLabel={t.library.removeFilter(c.label)} onRemove={c.clear}>
+              {c.label}
+            </InputChip>
+          ))}
+        </div>
+      )}
       <div className="medium:flex medium:items-start medium:gap-6">
         <div className="min-w-0 flex-1">
-          <SearchRow
-            value={query}
-            onChange={setQuery}
-            label={t.common.searchIn(t.common.parts.blockSettings)}
-            sort={
-              <Choice
-                title={t.library.sort}
-                icon={ArrowsDownUp}
-                value={sort}
-                options={SORTS.map((s) => ({ value: s, label: t.library.sorts[s] }))}
-                onChange={pickSort}
-              />
-            }
-            filter={filters.length > 0 && <Filters title={t.library.filter} selected={chips.length > 0} groups={filters} />}
-            className="mb-6"
-          />
-          {chips.length > 0 && (
-            <div className="-mt-2 mb-6 flex flex-wrap gap-2">
-              {chips.map((c) => (
-                <InputChip key={c.key} removeLabel={t.library.removeFilter(c.label)} onRemove={c.clear}>
-                  {c.label}
-                </InputChip>
-              ))}
-            </div>
-          )}
           {!found.length && !(sort === 'group' && inGroups.some((g) => g.empty)) ? (
             <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
           ) : sort === 'group' ? (
