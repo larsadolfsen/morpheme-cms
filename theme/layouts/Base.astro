@@ -149,12 +149,22 @@ const jsonLd = {
     {!noindex && <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />}
     <script is:inline>
       document.documentElement.classList.add('js');
+      // The colour scheme (Modern Web Guidance, dark-mode-toggle): none stored = follow the system. A pinned choice sets
+      // data-theme (the tokens), <meta name="color-scheme"> and both theme-color metas in step; this runs before the first paint.
+      window.setColorScheme = (t) => {
+        const root = document.documentElement;
+        const pinned = t === 'light' || t === 'dark';
+        if (pinned) root.dataset.theme = t;
+        else delete root.dataset.theme;
+        document.querySelector('meta[name="color-scheme"]').content = pinned ? t : 'light dark';
+        const bars = [...document.querySelectorAll('meta[name="theme-color"]')];
+        bars.forEach((m) => (m.dataset.own ??= m.content));
+        const pick = bars.find((m) => m.media.includes(t));
+        bars.forEach((m) => (m.content = pinned && pick ? pick.dataset.own : m.dataset.own));
+      };
       try {
         const t = localStorage.getItem('theme');
-        if (t === 'light' || t === 'dark') {
-          document.documentElement.dataset.theme = t;
-          document.querySelector('meta[name="color-scheme"]').content = t;
-        }
+        if (t === 'light' || t === 'dark') setColorScheme(t);
       } catch {}
       // Safety net: never leave content hidden if the motion script fails to load. When it has loaded
       // (the theme's scripts/motion.ts sets data-motion), the sections not yet scrolled to wait for it.
@@ -228,19 +238,26 @@ const jsonLd = {
     <script>
       import '@theme/scripts/motion';
 
-      // Theme toggle: flips between light and dark and remembers the choice.
+      // Theme toggle (Modern Web Guidance, dark-mode-toggle, two states in the footer): it picks the opposite of what is
+      // shown. A pick that differs from the system is stored; a pick that matches the system removes the stored value, so the
+      // page follows the system again. A stored value is never removed because the system later changes to match it.
+      const scheme = window as unknown as { setColorScheme: (t: string | null) => void };
       document.querySelectorAll('[data-theme-toggle]').forEach((btn) =>
         btn.addEventListener('click', () => {
-          const root = document.documentElement;
-          const isDark = root.dataset.theme === 'dark' || (!root.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
-          const next = isDark ? 'light' : 'dark';
-          root.dataset.theme = next;
-          document.querySelector('meta[name="color-scheme"]')?.setAttribute('content', next);
+          const system = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          const shown = document.documentElement.dataset.theme ?? system;
+          const next = shown === 'dark' ? 'light' : 'dark';
+          scheme.setColorScheme(next === system ? null : next);
           try {
-            localStorage.setItem('theme', next);
+            if (next === system) localStorage.removeItem('theme');
+            else localStorage.setItem('theme', next);
           } catch {}
         }),
       );
+      // The choice changed in another tab.
+      addEventListener('storage', (e) => {
+        if (e.key === 'theme' || e.key === null) scheme.setColorScheme(localStorage.getItem('theme'));
+      });
 
       // Videos from YouTube and Vimeo in the text (packages/editor/lib/video.mjs): the video loads only when it is played.
       document.querySelectorAll<HTMLAnchorElement>('a[data-video]').forEach((link) =>

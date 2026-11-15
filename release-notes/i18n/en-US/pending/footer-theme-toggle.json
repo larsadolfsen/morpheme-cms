@@ -1,0 +1,6 @@
+{
+  "id": "footer-theme-toggle",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "The light and dark toggle in the footer follows your system until you pick, and remembers your pick"
+}
