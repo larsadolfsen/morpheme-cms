@@ -58,8 +58,9 @@ One small module, `worker/sandbox.js`, is the only place that knows the platform
 - Another hosting platform later writes its own implementation of the same three members. Nothing else in the CMS
   changes.
 
-`kind` is one of `error` (the app threw), `cpu`, `subrequests`, `outbound` (a host it may not reach), `unavailable`
-(no Worker Loader: the Free plan, D17), `contract` (an app before contract 7, D27) and `timeout`.
+`kind` is one of `error` (the app threw), `cpu`, `subrequests`, `outbound` (a host it may not reach), `storage` (a
+write of the app's own code refused, spec 2), `unavailable` (no Worker Loader: the Free plan, D17), `contract` (an app
+before contract 7, D27) and `timeout`.
 
 ## How the code gets in
 
@@ -126,6 +127,11 @@ app never sees a cookie, a GitHub token or a key.
 pages' CSP, and the reverse. `manifestProblems` checks it; the store refuses a release whose `worker.js` exists and
 whose `worker` key is missing.
 
+**A data provider has `worker.hosts` without `worker.js`** (spec 3): the site's Worker makes its declared request, so
+the hosts it may reach are server hosts too. Only `hosts` is allowed then (`kv`, `browser` and `github` need code). On
+contract 7 this replaces the `csp` hosts that contract 5's `mediaProviders` use; a contract-5 app keeps its `csp`
+hosts until its next version.
+
 **TCP is not offered in 0.23.** Whether `connect()` passes through `globalOutbound` is **verify**; until it is known,
 `connect` is refused, so an SMTP connector waits and email suppliers are reached over their HTTP APIs (D15).
 
@@ -156,6 +162,9 @@ app_failures (app TEXT, kind TEXT, message TEXT, version TEXT, first_at INTEGER,
 - **After 7 days** still failing: the app's server part pauses (`paused_at`), the built-in takes over (D14), and the
   owner is told by notification and email. The pause is a row, not a commit: nothing is built and nothing is deleted.
   _Turn on_ on the app's page clears the row and starts a new spell.
+- **What pauses:** the app's `fetch`, `scheduled` and `provide`. For a data provider (no code), its declared requests
+  stop. A spell made only of `storage` failures for a full table (`quota`) is shown and notified but never paused:
+  pausing frees no space; the owner deletes rows or the app's data.
 - **Work that must not be lost** is saved by the caller before the app runs: a form's answer is in storage before a
   receiver is called (spec 4).
 - **The publisher hears counts** (D35): with the hourly store poll (`2026-11-14-store-auto-updates-design.md`), the
