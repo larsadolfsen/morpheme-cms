@@ -18,6 +18,8 @@ const api = {
   sectionSettings: () => calls.push('section'),
   insertBlock: () => calls.push('insert-block'),
   insertImage: () => calls.push('insert-image'),
+  preview: () => calls.push('preview'),
+  viewOnSite: () => calls.push('view-on-site'),
 };
 const labels = {
   bold: 'Bold',
@@ -40,6 +42,8 @@ const labels = {
   sectionSettings: 'Section settings',
   insertBlock: 'Insert block',
   insertImage: 'Image',
+  preview: 'Preview',
+  viewOnSite: 'View on site',
 };
 const list = () => textActions(api, labels);
 const byId = (id) => list().find((a) => a.id === id);
@@ -111,4 +115,17 @@ test('running an action calls the editor’s function', () => {
   byId('text.align-right').run({ route: '' });
   byId('section.settings').run({ route: '' });
   assert.deepEqual(calls, ['bold', 'kind:h3', 'kind:check', 'align:right', 'section']);
+});
+
+test('Preview and View on site are the page actions of the one bar: Preview before the fixed tools, View on site in the ⋮, only when the text has them', () => {
+  const preview = byId('page.preview');
+  const view = byId('page.view-on-site');
+  assert.deepEqual(preview.where, { bar: { context: 'fixed', order: -1 } });
+  assert.equal(view.where.more.context, 'fixed');
+  assert.equal(stateOf('page.preview', { route: '' }), 'enabled');
+  preview.run({ route: '' });
+  view.run({ route: '' });
+  assert.deepEqual(calls.slice(-2), ['preview', 'view-on-site']);
+  const without = textActions({ ...api, preview: undefined, viewOnSite: undefined }, labels);
+  assert.ok(!without.some((a) => a.id.startsWith('page.')));
 });
