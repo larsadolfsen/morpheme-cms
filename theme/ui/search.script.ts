@@ -6,6 +6,7 @@
 // are on. The page under it does not scroll while it is open. Run on every page by the theme's Base.astro
 // (blockScripts, packages/editor/site/blockScripts.ts); without a search it does nothing.
 import { atLeast } from '@morphemecms/cms/lib/breakpoints.mjs';
+import { lightDismiss } from '@theme/ui/lightDismiss';
 
 const fold = (text: string) => text.toLocaleLowerCase().normalize('NFKD').replace(/\p{M}/gu, '').trim();
 
@@ -73,10 +74,8 @@ export default function search() {
       narrow();
       input.focus();
     });
-    // A tap outside it (on the backdrop) closes it.
-    view.addEventListener('click', (e) => {
-      if (e.target === view) close();
-    });
+    // A tap outside it (on the backdrop) closes it (light dismiss: lightDismiss.ts).
+    lightDismiss(view, close);
     addEventListener('resize', () => view.open && place(), { passive: true });
     input.addEventListener('input', narrow);
     input.addEventListener('keydown', (e) => {
