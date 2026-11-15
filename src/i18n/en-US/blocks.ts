@@ -617,6 +617,7 @@ export const blocks = {
     label: 'Video',
     hint: 'A YouTube or Vimeo video.',
     url: 'Video link',
+    changeUrl: 'Change link',
     urlProblem: 'Paste the link to the video from YouTube or Vimeo',
     title: 'Title',
     video: 'Video',
