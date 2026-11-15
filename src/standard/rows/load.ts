@@ -1,8 +1,12 @@
 // "Rows from" on the site: the rows a list block gets from the list it reads (a source, rows.mjs), when it is built. Only load.ts files
 // import it (it reads @site/standard), never the editor.
 import { standard } from '@site/standard';
+import { setListReader } from '../../../lib/lists.mjs';
 import { rowsFromItems, sourceOf } from './rows.mjs';
 import type { RowsFrom } from './view';
+
+// A site may override @site/standard, so the reader is registered from here too.
+setListReader((id) => standard.source(id));
 
 /** The rows of a block that reads a list (`from`), with tag filter and `How many`, and the page of the list for `Show all`.
  * Undefined for a block with typed rows. */
