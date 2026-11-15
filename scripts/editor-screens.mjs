@@ -275,6 +275,13 @@ async function checkStartSubtitle() {
       const got = await subtitle.evaluate((e) => ({ text: e.innerText.trim(), scroll: e.scrollWidth, client: e.clientWidth }));
       if (got.scroll > got.client) problems.push(`${label}: "${got.text}" is cut off (${got.scroll} > ${got.client})`);
       if (/yesterday|today|\bat\b/i.test(got.text)) problems.push(`${label}: the long form is back: "${got.text}"`);
+      // The site's name in the bar is not cut off either (owner: "Mor…" at 375 px): the title of the start screen's bar shows whole.
+      const name = await page.evaluate(() => {
+        const h = [...document.querySelectorAll('header h1')].find((e) => e.getClientRects().length > 0);
+        return h ? { text: h.textContent.trim(), scroll: h.scrollWidth, client: h.clientWidth } : null;
+      });
+      if (name && name.scroll > name.client)
+        problems.push(`${label}: the site name "${name.text}" is cut off (${name.scroll} > ${name.client})`);
       await page.close();
     }
   }
@@ -1032,6 +1039,75 @@ async function checkCommandPalette(width) {
     if (!(await page.evaluate(() => !!document.activeElement?.closest('.ProseMirror'))))
       problems.push(`${label}: after Escape the focus is not back in the text (it is on ${await focusOn()})`);
   }
+
+  await page.close();
+}
+
+/** The text's actions in the palette (src/textActions.ts, spec section 6): with words selected in text, "bold" lists Bold first, Enter makes the selected words bold and the focus is
+ * back in the text; the search button keeps the selection too (it does not take the focus off the text); Italic is found by its name and shows its key. */
+async function checkEditorActions(width) {
+  const label = `${width}px editor actions`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  const view = page.locator('[data-search-controlled] dialog[open]');
+  const input = view.locator('input[role=combobox]');
+  const options = view.locator('[role=option]');
+  const names = () => options.evaluateAll((els) => els.map((e) => e.querySelector('.list-item-headline')?.textContent ?? ''));
+  const shut = async (why) => {
+    await page.waitForTimeout(250);
+    if (await view.count()) problems.push(`${label}: the palette is still open ${why}`);
+  };
+  // Outside a text there is no Bold.
+  await page.waitForTimeout(400);
+  await page.keyboard.press('Control+k');
+  await view.waitFor({ timeout: 5000 });
+  await input.fill('bold');
+  await page.waitForTimeout(250);
+  if ((await names()).includes('Bold')) problems.push(`${label}: Bold is offered outside a text`);
+  await page.keyboard.press('Escape');
+  await shut('after Escape outside a text');
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello world');
+  await page.keyboard.press('Shift+Home');
+  const bold = () => page.evaluate(() => document.querySelector('.ProseMirror strong, .ProseMirror b')?.textContent ?? '');
+
+  // Through the search button the selection stays, and Bold is first for "bold".
+  {
+    await page.locator('header button[aria-label="Search"]').click();
+    await view.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the button does not open the palette`));
+    if (!(await view.count())) return page.close();
+    await page.waitForTimeout(300);
+    await page.keyboard.type('bold');
+    await page.waitForTimeout(250);
+    const found = await names();
+    if (found[0] !== 'Bold') problems.push(`${label}: "bold" finds ${JSON.stringify(found)}, not Bold first`);
+    await page.keyboard.press('Enter');
+    await shut('after Enter on Bold');
+    await page.waitForTimeout(400);
+    if (!/Hello world/.test(await bold())) problems.push(`${label}: Enter on Bold made "${await bold()}" bold, not the selected words`);
+    if (!(await page.evaluate(() => !!document.activeElement?.closest('.ProseMirror'))))
+      problems.push(`${label}: after Bold the focus is not back in the text`);
+  }
+
+  // Ctrl+K in text: Italic is found, shows its key, and is run.
+  await page.keyboard.press('Control+k');
+  await view.waitFor({ timeout: 5000 });
+  await input.fill('italic');
+  await page.waitForTimeout(250);
+  const italic = await names();
+  if (italic[0] !== 'Italic') problems.push(`${label}: "italic" finds ${JSON.stringify(italic)}, not Italic first`);
+  const keys = await options
+    .first()
+    .evaluate(
+      (e) => e.getAttribute('aria-keyshortcuts') ?? e.querySelector('[aria-keyshortcuts]')?.getAttribute('aria-keyshortcuts') ?? '',
+    );
+  if (!/I/.test(keys)) problems.push(`${label}: Italic shows no key (aria-keyshortcuts "${keys}")`);
+  await page.keyboard.press('Escape');
+  await shut('after Escape');
 
   await page.close();
 }
@@ -6122,7 +6198,7 @@ async function checkImageGridAdd(width, height) {
 /** The single blocks typed in place (Notice, Video): one item, no add button, no faded empty item. */
 const inlineSingles = [
   { name: 'notice', hint: 'A highlighted message.', field: 'text', text: 'Hello **there**', slot: false },
-  { name: 'video', hint: 'A YouTube or Vimeo video.', field: 'title', text: 'My film', slot: true },
+  { name: 'video', hint: 'A YouTube or Vimeo video.', field: 'title', text: 'My film', slot: false },
 ];
 
 /** An empty row in a block typed in place (the Segmented list's "New row" left empty) is not a snackbar and a page that cannot be saved: Save draft or Publish scrolls to the block and asks (375 px, touch): "You have an empty segmented list row." with Remove item (the row goes, nothing is saved), the action tapped (the page is saved without the empty rows) and Cancel (nothing changes). A page without an empty row saves as before, with no question. */
@@ -6326,6 +6402,167 @@ async function checkInlineSingle(width, height, { name, hint, field, text, slot 
   await page.waitForTimeout(300);
   if ((await page.locator(`.site-block-inline [data-field="${field}"]`).count()) && name === 'notice')
     problems.push(`${label}: the notice still shows its field after the cursor left`);
+  await page.close();
+}
+
+/** A video's Change link (image tools spec, section 8): a tap on the frame selects the video, its bar has Change link first (no slot over the frame), the row keeps Hide and Settings, and Change link opens the video's sheet with the Video link field focused and its text selected; what is pasted replaces the link and Save keeps it. */
+async function checkVideoChangeLink(width, height = 800) {
+  const phone = width < 600;
+  const expanded = width >= 840;
+  const label = `${width}px video change link`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, phone ? 'tap' : 'click');
+  await page.locator('dialog[open] button', { hasText: 'A YouTube or Vimeo video.' }).first().click();
+  await page.waitForSelector('.site-block-inline [data-field="title"]');
+  await page.keyboard.type('My film');
+  await page.waitForTimeout(300);
+  const tap = (loc) => (phone ? loc.tap() : loc.click());
+  // Away from the block, then a tap on its frame selects it.
+  await tap(page.locator('.ProseMirror > p').first());
+  await page.waitForTimeout(400);
+  if (await page.locator('.editor-tools-context button[aria-label="Change link"]').count())
+    problems.push(`${label}: Change link is on the bar while the video is not selected`);
+  await tap(page.locator('.inline-video-frame'));
+  await page.waitForTimeout(700);
+  if (await page.locator('.site-block-inline .inline-list-slot').count())
+    problems.push(`${label}: a slot is still drawn over the video frame`);
+  const bar = await page.evaluate(() => ({
+    tools: [...document.querySelectorAll('.editor-tools-context button')].map((b) => b.getAttribute('aria-label') || b.textContent.trim()),
+    row: [...document.querySelectorAll('.site-block-row:not(.site-block-row-hover) [data-row]')].map((b) => b.getAttribute('aria-label')),
+  }));
+  if (bar.tools[0] !== 'Change link') problems.push(`${label}: the bar's first tool is "${bar.tools[0]}", not Change link (${bar.tools})`);
+  if (!bar.row.some((n) => /settings|edit/i.test(n ?? ''))) await page.screenshot({ path: join(shots, `video-change-link-${width}.png`) });
+  const sheetOpen = () => page.locator('dialog[open], .editor-side-sheet').last();
+  if (expanded) {
+    // From expanded the tap opened the sheet beside the video already; Change link focuses its field.
+    if (!(await page.locator('.editor-side-sheet').count())) problems.push(`${label}: the tap did not open the video's sheet`);
+  }
+  await page.locator('.editor-tools-context button[aria-label="Change link"]').first().click();
+  await page.waitForTimeout(900);
+  const url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+  const focused = await page.evaluate(() => {
+    const el = document.activeElement;
+    return {
+      label: el?.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`)?.textContent.trim() : null,
+      selected: el && 'selectionStart' in el ? el.selectionEnd - el.selectionStart : -1,
+      empty: !el?.value,
+    };
+  });
+  if (focused.label !== 'Video link') problems.push(`${label}: Change link left the focus on "${focused.label}", not the Video link field`);
+  await page.keyboard.type(url);
+  await page.waitForTimeout(400);
+  const typed = await page.evaluate(() => document.activeElement?.value);
+  if (typed !== url) problems.push(`${label}: the Video link field has "${typed}" after typing`);
+  const save = sheetOpen().locator('button', { hasText: /^(Save|Done)$/ });
+  if (await save.count()) await save.first().click();
+  await page.waitForTimeout(700);
+  const kept = await page.evaluate(
+    () =>
+      document
+        .querySelector(
+          '.site-block-inline iframe, .site-block-inline [data-video], .site-block-inline a[href*="youtu"], .site-block-inline img',
+        )
+        ?.outerHTML.slice(0, 300) ?? '',
+  );
+  if (!kept.includes('dQw4w9WgXcQ')) problems.push(`${label}: the video does not show the new link (${kept})`);
+  await page.close();
+}
+
+async function checkCardImage(width, height = 800) {
+  const phone = width < 600;
+  const label = `${width}px card image`;
+  if (!has('src/data/files')) return void console.log(`${label}: skipped, the site has no images in its Library, which the demo has.`);
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, phone ? 'tap' : 'click');
+  await page.locator('dialog[open] button', { hasText: 'Cards that link to pages.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.keyboard.type('One');
+  await page.waitForTimeout(300);
+  await page.locator('.inline-list-row-active .inline-list-slot[aria-label="Image"]').click();
+  await page.waitForTimeout(1000);
+  await page
+    .locator('dialog[open] button, .editor-side-sheet button', { hasText: /^Choose image$/ })
+    .first()
+    .click();
+  await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
+  await page.locator('dialog[open] [data-media-tile]').first().click();
+  await page.waitForTimeout(800);
+  // Closing the card's sheet on a phone (a side sheet stays open beside the card).
+  await page
+    .locator('dialog[open] button[aria-label="Close"]')
+    .click({ timeout: 2000 })
+    .catch(() => {});
+  await page.waitForTimeout(500);
+  const tap = (loc) => (phone ? loc.tap() : loc.click());
+  await tap(page.locator('.inline-list-row [data-field="title"]').first());
+  await page.waitForTimeout(400);
+  const picture = () =>
+    page.evaluate(() => {
+      const box = document.querySelector('.block-card-picture');
+      const r = box?.getBoundingClientRect();
+      return box ? { ratio: Math.round((r.width / r.height) * 100) / 100, img: !!box.querySelector('img') } : null;
+    });
+  const first = await picture();
+  if (!first?.img) problems.push(`${label}: the card has no image`);
+  else if (first.ratio !== 1.5) problems.push(`${label}: a Cards block without a ratio draws its image in ${first.ratio}, not 3:2`);
+  // The block's settings have Image aspect ratio (no Original); 1:1 makes every card's image a square, with no crop view opened.
+  await page.getByRole('button', { name: 'Block settings' }).first().click();
+  await page.waitForTimeout(900);
+  const settings = page.locator('dialog[open], .editor-side-sheet').last();
+  if (!(await settings.locator('label', { hasText: /^Image aspect ratio$/ }).count()))
+    problems.push(`${label}: the block's settings have no Image aspect ratio`);
+  await page.locator('dialog[open] button, .editor-side-sheet button', { hasText: /^3:2$/ }).first().click();
+  await page.waitForTimeout(300);
+  const offered = await page.evaluate(() =>
+    [...document.querySelectorAll('dialog[open]:last-of-type button, .editor-menu button, [role="listbox"] *')].map((o) =>
+      o.textContent.trim(),
+    ),
+  );
+  if (offered.includes('Original')) problems.push(`${label}: Image aspect ratio offers Original`);
+  await page.locator('dialog[open] button, .editor-menu button, [role="listbox"] *', { hasText: /^1:1$/ }).last().click();
+  await page.waitForTimeout(400);
+  await settings
+    .getByRole('button', { name: 'Save', exact: true })
+    .click({ timeout: 3000 })
+    .catch(() => {});
+  await page.waitForTimeout(800);
+  const square = await picture();
+  if (square?.ratio !== 1) problems.push(`${label}: after 1:1 the card's image box is ${square?.ratio}, not square`);
+  // Crop in the bar: the crop view of the block's ratio only, no ratio chips; Save puts the ratio and the crop after the image's address.
+  await tap(page.locator('.inline-list-row [data-field="title"]').first());
+  await page.waitForTimeout(400);
+  await tap(page.locator('.editor-tools-context button[aria-label="Crop"]').first());
+  await page
+    .waitForSelector('dialog.crop-page[open]', { timeout: 8000 })
+    .catch(() => problems.push(`${label}: Crop did not open the crop page`));
+  if (await page.locator('.crop-view-ratios').count()) problems.push(`${label}: the crop view of a card shows aspect ratio chips`);
+  // Moving the image with the arrow keys (by 2 %) makes a crop of its own.
+  await page.locator('.crop-view-frame').focus();
+  for (const key of ['ArrowLeft', 'ArrowLeft', 'ArrowUp', 'ArrowUp']) await page.keyboard.press(key);
+  await page
+    .locator('dialog.crop-page button', { hasText: /^Save$/ })
+    .click({ timeout: 3000 })
+    .catch(() => {});
+  await page.waitForTimeout(800);
+  const cut = await page.evaluate(() => document.querySelector('.block-card-picture img')?.getAttribute('style') ?? '');
+  if (!/transform/.test(cut)) problems.push(`${label}: the saved crop is not drawn on the card (style "${cut}")`);
+  await page.screenshot({ path: join(shots, `card-image-${width}.png`) });
   await page.close();
 }
 
@@ -10093,6 +10330,7 @@ for (const width of [375, 1280])
   for (const locale of ['en-US', 'da-DK']) await unit(`search view parts ${width} ${locale}`, () => checkSearchViewParts(width, locale));
 for (const width of [375, 1280]) await unit(`search button ${width}`, () => checkSearchButton(width));
 for (const width of [375, 1280]) await unit(`command palette ${width}`, () => checkCommandPalette(width));
+for (const width of [375, 1280]) await unit(`editor actions ${width}`, () => checkEditorActions(width));
 for (const width of [375, 1280]) await unit(`no context menu ${width}`, () => checkNoContextMenu(width));
 
 for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
@@ -10111,6 +10349,8 @@ for (const width of [375, 700]) await unit(`checkCloseChangedSheet ${width}`, ()
 for (const width of [700, 1280]) await unit(`checkSheetFocusOnOpen ${width}`, () => checkSheetFocusOnOpen(width));
 for (const width of [375, 1280]) await unit(`checkImageTools ${width}`, () => checkImageTools(width));
 for (const width of [375, 1280]) await unit(`checkCropView ${width}`, () => checkCropView(width));
+for (const width of [375, 1280]) await unit(`checkVideoChangeLink ${width}`, () => checkVideoChangeLink(width));
+for (const width of [375, 1280]) await unit(`checkCardImage ${width}`, () => checkCardImage(width));
 for (const width of [375, 1280]) await unit(`checkAltSheet ${width}`, () => (width >= 840 ? checkAltLive(width) : checkAltSheet(width)));
 for (const width of [320, 375, 1280]) await unit(`checkInsertBlock ${width}`, () => checkInsertBlock(width));
 for (const w of [375, 1280]) await unit(`checkBlockRow ${w}`, () => checkBlockRow(w));

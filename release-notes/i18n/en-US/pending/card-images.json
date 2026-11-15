@@ -1,0 +1,7 @@
+{
+  "id": "card-images",
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Card images",
+  "text": "Cards no longer cut every image to 3:2. Set Image aspect ratio in the Cards block’s settings, and every card follows it; crop each card’s image to choose its part."
+}
