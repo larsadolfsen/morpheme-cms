@@ -15,6 +15,16 @@ Announce "Using checks". Run every command from the root of this repository, on 
 the changeset (skill `changesets`). Its job `check` waits for them all and must be green on the current head before the
 PM merges.
 
+**A docs-only pull request skips the heavy jobs** (`screens`, `screens-extra`, `demo`, `starter`); `static` (Prettier, language,
+changeset, `npm run check`) always runs. The first job `changes` decides from `git diff --name-only origin/<base>...HEAD`
+(`scripts/ci-changes.mjs`, tested in `scripts/ci-changes.test.mjs`). Docs-only means every changed file is under
+`.claude/skills/` or `docs/`, is a changeset (`.changeset/*.md`), or is `CLAUDE.md`, `AGENTS.md`, `README.md` or `SECURITY.md`.
+`release-notes/` and `CHANGELOG.md` are never skipped (`check:release-notes`, the notes tests and the editor's build read them), and
+neither are the Release PR, an empty diff or any other path: when in doubt, everything runs. There is no `paths-ignore`, because
+`check` must always report. It is green when `static` and `changes` are green and each heavy job is green, or skipped on a
+docs-only pull request; a failed, cancelled or wrongly skipped job makes it red. To put a folder on the list, first find which
+checks read it (`grep` the scripts and tests) and change the list and its test in `scripts/ci-changes.mjs` only.
+
 A new push to a pull request cancels that pull request's older queued and running `Check` runs (`concurrency` in
 `check.yml`); only the newest head's run counts.
 
