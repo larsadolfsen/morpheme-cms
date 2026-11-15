@@ -78,4 +78,4 @@ Read `docs/superpowers/specs/2026-11-04-store-connection-design.md` there first;
 - Recommended: PR 1 to 5 in 0.18 (the `0.18` branch, `minor`), because Sara's site is blocked now; `widened()` shown before
   install, withdrawn-version handling in the store's UI and the history's polish in 0.22.
 - If the owner keeps all of it in 0.22: nothing above changes except where the branch is cut.
-- 0.24: when *storage for apps* and *apps that provide to apps* add `needs` keys, `widened()` learns them (one test each).
+- 0.23: when *storage for apps* and *apps that provide to apps* add `needs` keys, `widened()` learns them (one test each).

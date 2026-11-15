@@ -195,7 +195,7 @@ PRs per repository are in the plan. In short:
 core (Worker applies, builds are checked, undo, log, notice) is small because `cms-update.js` is the model, and it fixes a
 real blocked site now. **Recommendation:** pull that core forward into 0.18 (the `0.18` branch allows `minor`), and leave in
 0.22 only what needs the store's bigger changes: `widened()` with the install page, withdrawn versions, the history screen's
-polish. 0.24 (*App platform*) adds nothing here, except that "apps provide to apps" and storage add new `needs` keys that
+polish. 0.23 (*App platform*) adds nothing here, except that "apps provide to apps" and storage add new `needs` keys that
 `widened()` must learn.
 
 **A release rule to add.** A CMS version that raises `THEME_API` or `APP_API` must not reach `latest` before the store has
