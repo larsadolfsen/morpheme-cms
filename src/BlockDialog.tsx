@@ -8,7 +8,7 @@
 // settings (its colour, SectionSettings.tsx), which goes the same way as a block's fields: Cancel, Save, the question when closed changed.
 // The fields and the section settings are in the theme's side sheet (sheetPlacement.mjs): a standard one beside the page from
 // expanded (not modal: the page stays usable, .editor-side-sheet in editor.css), a modal one over the page below it
-// (fields only; the section settings are a sheet from the bottom there). The modal one and the sheet from the bottom end with Save
+// (fields only; the section settings are the standard side sheet from medium, 600 dp). The modal one and the sheet from the bottom end with Save
 // (Insert) and Cancel. The standard one is live when the caller gives it the block (LiveBlock, liveSheet.mjs): each change goes to the
 // block at once, one undo step per field, and it follows the block through Undo and Redo; it has only its headline and close button
 // (no Save, Cancel or Remove; Remove is in the block's menu) and asks nothing when it closes. A sheet keeps its look while it is open,
@@ -331,7 +331,7 @@ export function useBlockDialog(
     if (from instanceof HTMLElement && from !== document.body) trigger.current = from;
     return new Promise<Answer>((resolve) => {
       answer.current = resolve;
-      const link = linked && liveSheet(first.step, atLeastNow('expanded')) ? linked() : null;
+      const link = linked && liveSheet(first.step, atLeastNow('expanded'), !atLeastNow('medium')) ? linked() : null;
       // A live sheet keeps no copy: its changes are on the page.
       copyOf.current = link ? null : (kept ?? null);
       const opened = show(link && (first.step === 'fields' || first.step === 'section') ? { ...first, live: true } : first)!;
@@ -898,12 +898,6 @@ export function useBlockDialog(
               onDone={saveAlt}
               done={t.common.save}
             />
-          </>
-        )}
-        {look === 'sheet' && open?.step === 'section' && (
-          <>
-            <SheetBody>{sectionSettings}</SheetBody>
-            <SheetActions onCancel={() => void leave()} onDone={saveSection} done={t.common.save} />
           </>
         )}
       </BottomSheet>
