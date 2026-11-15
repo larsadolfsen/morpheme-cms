@@ -249,7 +249,7 @@ export const blocks = {
     stepOf: (n: number, total: number) => `Step ${n} of ${total}`,
   },
   accordion: {
-    label: 'Expandable list',
+    label: 'Accordion',
     hint: 'Rows that expand to show text.',
     edit: 'Edit default texts',
     items: 'Rows',
@@ -261,7 +261,7 @@ export const blocks = {
     moreItems: 'More pages',
     moreItem: 'page',
     moreLabel: 'Button text',
-    /** The shared text ("Blocks" › "Expandable list"), and what it starts as on a site in this language. */
+    /** The shared text ("Blocks" › "Accordion"), and what it starts as on a site in this language. */
     more: 'Link text',
     moreHint: '{topic} is the heading of the row.',
     moreText: 'Read more about {topic}',
