@@ -3832,23 +3832,11 @@ export function BottomSheet({
   );
 }
 
-/** What is fixed to the bottom of the screen in the editor (a form's Save and Publish buttons, and the Save row of a block's page
- * and of the crop view on a phone): the theme's standard bottom
+/** What is fixed to the bottom of the screen in the editor (a form's Save and Publish buttons): the theme's standard bottom
  * sheet (Material 3's, no scrim, the page usable behind it), fixed in its one state, without a drag handle or header, named by
  * `label`, with the buttons in it. It stays above the on-screen keyboard; from the medium width it stays a bottom sheet
  * (wide="sheet"), as wide as the theme allows, between the navigation rail and the panels (editor.css). */
-export function ActionSheet({
-  label,
-  className,
-  liftAboveKeyboard = true,
-  children,
-}: {
-  label: string;
-  className?: string;
-  /** False for a sheet in a page that lifts itself above the keyboard (a block's page, BlockDialog.tsx). */
-  liftAboveKeyboard?: boolean;
-  children: ReactNode;
-}) {
+export function ActionSheet({ label, className, children }: { label: string; className?: string; children: ReactNode }) {
   return (
     <SiteBottomSheet
       kind="standard"
@@ -3856,8 +3844,8 @@ export function ActionSheet({
       states={['expanded']}
       dragHandle={false}
       label={label}
-      liftAboveKeyboard={liftAboveKeyboard}
-      className={['editor-action-sheet', className].filter(Boolean).join(' ')}
+      liftAboveKeyboard
+      className={className}
     >
       {children}
     </SiteBottomSheet>

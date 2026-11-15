@@ -930,7 +930,7 @@ export function useBlockDialog(
           <main className="block-page-main">
             <div className="space-y-5">{blockFields}</div>
           </main>
-          <ActionSheet label={t.common.saveChanges} liftAboveKeyboard={false}>
+          <ActionSheet label={t.common.saveChanges}>
             <div className="flex justify-end gap-2">
               <Button kind="filled" onClick={() => save(open.type)}>
                 {open.isNew ? t.blocks.insert : t.common.save}

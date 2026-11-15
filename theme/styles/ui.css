@@ -2115,7 +2115,8 @@
   .bottom-sheet-standard > .bottom-sheet-content {
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 1rem 1.25rem;
+    /* 16 dp from the sides, as a compact window's content has (Material 3 prints no padding for what is in a sheet). */
+    padding: 1rem;
   }
   .bottom-sheet-standard[data-state='collapsed'] > :is(.bottom-sheet-content, .bottom-sheet-footer) {
     display: none;

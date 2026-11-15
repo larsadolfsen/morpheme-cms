@@ -395,17 +395,7 @@
 }
 
 /* Every Save row is the theme's standard bottom sheet (ActionSheet in ui.tsx): the screen leaves room under its last field so
-   nothing is hidden behind it. The sheet's content starts where the screen's fields do (16 dp from the sides, 24 dp from medium),
-   so Save lines up with the fields; Material 3 prints no padding for what is in a bottom sheet (Specs: handle 22 dp, margins),
-   and the vertical 16 dp is the theme's. */
-.editor-action-sheet > .bottom-sheet-content {
-  padding-inline: 1rem;
-}
-@media (width >= theme(--breakpoint-medium)) {
-  .editor-action-sheet > .bottom-sheet-content {
-    padding-inline: 1.5rem;
-  }
-}
+   nothing is hidden behind it. */
 :root:has(.editor-save-bar) .editor-screen {
   padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
 }
@@ -1962,8 +1952,6 @@ dialog {
   border: 0;
   background: var(--mo-surface);
   color: var(--mo-on-surface);
-  /* The layer holds the fixed Save sheet at its own bottom (the layer is lifted above the keyboard, the window's edge is not). */
-  contain: layout;
 }
 .crop-page[open],
 .block-page[open] {
@@ -1993,8 +1981,7 @@ dialog {
   }
 }
 /* A block's fields on a compact window (BlockDialog.tsx): the crop page's layer and column (the rules above), with the fields scrolling inside
-   the column and the page lifted above the on-screen keyboard (followKeyboard sets --keyboard-inset while it is up); its Save sheet then has no
-   safe-area space under it, as a standard bottom sheet that follows the keyboard has not. */
+   the column and the page lifted above the on-screen keyboard (followKeyboard sets --keyboard-inset while it is up); its Save sheet follows the keyboard itself. */
 .block-page-main {
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -2002,9 +1989,6 @@ dialog {
 .block-page[data-keyboard] {
   bottom: var(--keyboard-inset, 0);
   height: auto;
-}
-.block-page[data-keyboard] .editor-action-sheet {
-  padding-bottom: 0;
 }
 .crop-view {
   display: flex;

@@ -1662,7 +1662,7 @@ async function checkPhoneSheet(width = 375, height = 740) {
       return !!hit && b.contains(hit) && !b.closest('[inert]');
     };
     const publish = named(/^Publish/).filter((b) => !d.contains(b));
-    const bar = d.querySelector('.editor-action-sheet');
+    const bar = d.querySelector('.bottom-sheet-standard');
     // What makes the Save row the theme's standard bottom sheet (the same surface and top corners as a BottomSheet container), and where Save
     // and the fields stand: Save's end edge is as far from the side as the fields' end edge, and the last field ends above the sheet.
     const sheetLook = (bar, d) => {
@@ -2757,7 +2757,7 @@ async function checkCropView(width, height = 800) {
         title: d.querySelector('h1')?.textContent,
         bar: !!d.querySelector('header, .top-app-bar, [class*="top-app-bar"]'),
         dialogParts: !!d.querySelector('.dialog-basic, .dialog-full-screen, .dialog-headline'),
-        buttons: [...d.querySelectorAll('.editor-action-sheet button')].map((b) => b.textContent.trim()),
+        buttons: [...d.querySelectorAll('.bottom-sheet-standard button')].map((b) => b.textContent.trim()),
         area: d.querySelector('.crop-view-area').getBoundingClientRect().width,
       };
     },
