@@ -39,6 +39,14 @@ const MAX_ZOOM = 4;
 const PAD = 16;
 const clamp = (n: number, low: number, high: number) => Math.min(high, Math.max(low, n));
 
+type Rect = { x: number; y: number; w: number; h: number };
+/** The scrim's shape: the image's whole box with the frame cut out (both in px, the frame inside the image). */
+const shadeHole = (picture: Rect, frame: Rect) => {
+  const [x, y] = [frame.x - picture.x, frame.y - picture.y];
+  const [x2, y2] = [x + frame.w, y + frame.h];
+  return `polygon(evenodd, 0 0, ${picture.w}px 0, ${picture.w}px ${picture.h}px, 0 ${picture.h}px, 0 0, ${x}px ${y}px, ${x}px ${y2}px, ${x2}px ${y2}px, ${x2}px ${y}px, ${x}px ${y}px)`;
+};
+
 let open: (request: CropRequest, resolve: (answer: CropResult | null) => void) => void = (_, resolve) => resolve(null);
 
 /** Opens the crop view for an image and answers with its new aspect ratio and crop, or null when it was closed without keeping them. */
@@ -247,6 +255,21 @@ function CropDialog({
             draggable={false}
             className="crop-view-image"
             style={{ left: picture.x, top: picture.y, width: picture.w, height: picture.h }}
+          />
+        )}
+        {picture && frame && crop && (
+          // The scrim is on the image only, with the frame cut out of it (an even-odd hole): the stage's own blank part, where the image does not reach,
+          // keeps the page's colour instead of a grey strip.
+          <div
+            aria-hidden="true"
+            className="crop-view-shade"
+            style={{
+              left: picture.x,
+              top: picture.y,
+              width: picture.w,
+              height: picture.h,
+              clipPath: shadeHole(picture, frame),
+            }}
           />
         )}
         {frame && crop && (

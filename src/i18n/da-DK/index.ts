@@ -14,6 +14,7 @@ import { company } from './company';
 import { consents } from './consents';
 import { dashboard } from './dashboard';
 import { ownList } from './ownList';
+import { palette } from './palette';
 import { forms } from './forms';
 import { footer } from './footer';
 import { history } from './history';
@@ -45,6 +46,7 @@ export const daDK: Messages = {
   consents,
   dashboard,
   ownList,
+  palette,
   footer,
   seo,
   keywords,
