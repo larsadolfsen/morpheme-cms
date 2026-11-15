@@ -8892,7 +8892,7 @@ async function serveCoreTestSite() {
 }
 
 /** The Library's images are the theme's image tiles in a staggered grid: cards with media (filled, the image to the edge), each in its own proportions (the box is
- * there before the image loads), 8 px apart, 2 columns on a phone and 4 on a computer, and a selected card has its own surface. */
+ * there before the image loads), a gutter apart (16 px on a phone, 24 px from medium: deviation G1), 2 columns on a phone and 4 on a computer, and a selected card has its own surface. */
 async function checkImageGrid(width, height) {
   const label = `${width}px image grid`;
   const phone = width < 600;
@@ -8939,8 +8939,10 @@ async function checkImageGrid(width, height) {
   const columns = phone ? '2' : '4';
   if (m.tiles === 0) problems.push(`${label}: the Library has no tiles to measure`);
   if (m.columns !== columns) problems.push(`${label}: ${m.columns} columns, expected ${columns}`);
-  if (m.gap !== '8px')
-    problems.push(`${label}: the gap between columns is ${m.gap}, expected 8px (Material 3: "Padding between cards: 8dp max")`);
+  // The theme grid's gutter: 16 px on compact, 24 px from medium (docs/material-deviations.md, G1: the owner's deviation from Material 3's "8dp max").
+  const gutter = width < 600 ? '16px' : '24px';
+  if (m.gap !== gutter)
+    problems.push(`${label}: the gap between columns is ${m.gap}, expected ${gutter} (the theme grid's gutter, deviation G1)`);
   if (m.cards !== m.tiles) problems.push(`${label}: ${m.tiles - m.cards} tiles are not a filled card with media`);
   if (m.square) problems.push(`${label}: ${m.square} tiles are still squares`);
   if (m.sideways) problems.push(`${label}: the page scrolls sideways`);
