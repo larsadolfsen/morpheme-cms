@@ -454,12 +454,12 @@ export const parts = {
     containment: {
       title: 'Dialogs, sheets and carousel',
       dialog:
-        'A dialog over the page with an icon, a heading, a text, and buttons, only the dialog, for example, a pop-up or the cookie question, or over the whole screen on a phone with the close button and the action at the top.',
+        'A dialog over the page with an icon, a heading, a text, and buttons, only the dialog, for example, a pop-up or the cookie question.',
       bottomSheet:
         'A sheet from the bottom: modal over the page, on a computer as a dialog in the middle, for example, the booking sheet, or standard at the bottom of the screen, with the page usable behind it, dragged up and down.',
       carousel:
         'Cards or images in a row that are swiped sideways, with dots under them: all the same size, in several sizes, one large (from the start or in the middle) and one at a time.',
-      dialogKinds: { basic: 'Basic', icon: 'With icon, list, and divider', container: 'Only the box', fullScreen: 'Full screen' },
+      dialogKinds: { basic: 'Basic', icon: 'With icon, list, and divider', container: 'Only the box' },
       sheetKinds: {
         modal: 'Modal, a dialog on a computer',
         modalSideSheet: 'Modal, a side sheet on a computer',
@@ -480,10 +480,8 @@ export const parts = {
         fullScreen: 'One at a time',
       },
       choices: ['First choice', 'Second choice', 'Third choice'],
-      fields: ['Name', 'Email'],
       cancel: 'Cancel',
       accept: 'Accept',
-      save: 'Save',
       page: 'The page behind the sheet can still be used.',
       dragHandle: 'Expand or collapse the sheet',
       openSheet: 'Open the modal sheet',

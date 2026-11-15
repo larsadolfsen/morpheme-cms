@@ -431,13 +431,12 @@ export const parts: Messages['parts'] = {
     /** The theme's dialog, bottom sheet and carousel (packages/editor/theme/ui/), and what is in the examples. */
     containment: {
       title: 'Dialoger, ark og karrusel',
-      dialog:
-        'En dialog over siden med ikon, overskrift, tekst og knapper, kun dialogen (fx et pop op-vindue eller cookiespørgsmålet), eller over hele skærmen på en telefon med lukkeknappen og handlingen øverst.',
+      dialog: 'En dialog over siden med ikon, overskrift, tekst og knapper, kun dialogen (fx et pop op-vindue eller cookiespørgsmålet).',
       bottomSheet:
         'Et ark nedefra: modalt over siden (en dialog i midten på en computer, fx bookingarket), eller standard nederst på skærmen, hvor siden kan bruges bag det, og som trækkes op og ned.',
       carousel:
         'Kort eller billeder på en række, der skubbes til siden, med prikker under: lige store, i flere størrelser, ét stort (fra starten eller i midten) og ét ad gangen.',
-      dialogKinds: { basic: 'Almindelig', icon: 'Med ikon, liste og skillelinje', container: 'Kun boksen', fullScreen: 'Hele skærmen' },
+      dialogKinds: { basic: 'Almindelig', icon: 'Med ikon, liste og skillelinje', container: 'Kun boksen' },
       sheetKinds: {
         modal: 'Modalt, en dialog på en computer',
         modalSideSheet: 'Modalt, et sideark på en computer',
@@ -458,10 +457,8 @@ export const parts: Messages['parts'] = {
         fullScreen: 'Ét ad gangen',
       },
       choices: ['Første valg', 'Andet valg', 'Tredje valg'],
-      fields: ['Navn', 'E-mail'],
       cancel: 'Annuller',
       accept: 'Godkend',
-      save: 'Gem',
       page: 'Siden bag arket kan stadig bruges.',
       dragHandle: 'Fold arket ud eller sammen',
       openSheet: 'Åbn det modale ark',
