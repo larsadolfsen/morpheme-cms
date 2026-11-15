@@ -1,11 +1,11 @@
 /**
  * Tests for the start screen's recent edits and updates since the last visit.
- * Exposes test cases for `versioned`, `unversioned`, `validEdits`, `nextRecent`, `latestEdits`, `continueShown` and `changesSince`.
+ * Exposes test cases for `versioned`, `unversioned`, `validEdits`, `nextRecent`, `latestEdits` and `changesSince`.
  * Depends on `node:test`, `node:assert/strict`, and `./startView.mjs`.
  */
 import { test } from 'node:test';
 import * as assert from 'node:assert/strict';
-import { changesSince, continueShown, KEPT, latestEdits, nextRecent, unversioned, validEdits, versioned } from './startView.mjs';
+import { changesSince, KEPT, latestEdits, nextRecent, unversioned, validEdits, versioned } from './startView.mjs';
 
 const paths = (edits) => edits.map((e) => e.path);
 const edits = (...ps) => ps.map((path, i) => ({ path, at: i }));
@@ -64,13 +64,6 @@ test("merges this browser's edits with the site's history, newest first", () => 
   assert.deepEqual(latestEdits([], {}), []);
 });
 
-test('the card shows until closed, and again after a newer save', () => {
-  assert.equal(continueShown(null, undefined), true);
-  assert.equal(continueShown(10, 5), false);
-  assert.equal(continueShown(10, undefined), false);
-  assert.equal(continueShown(10, 11), true);
-});
-
 test('keeps only the entries with a string path and a finite number time', () => {
   const good = { path: 'a', at: 1 };
   assert.deepEqual(
@@ -88,13 +81,6 @@ test('a null entry or an entry without a path does not throw', () => {
 
 test('an entry with a string time is dropped', () => {
   assert.deepEqual(latestEdits([{ path: 'a', at: '5' }], { a: 3 }), [{ path: 'a', at: 3 }]);
-});
-
-test('a closing time that is not a number counts as not closed', () => {
-  assert.equal(continueShown('10', 5), true);
-  assert.equal(continueShown({}, 5), true);
-  assert.equal(continueShown(NaN, undefined), true);
-  assert.equal(continueShown(0, undefined), true);
 });
 
 test('stored data is read only with the current version', () => {

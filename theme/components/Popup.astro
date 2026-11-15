@@ -45,6 +45,8 @@ const shown = await Promise.all(
 ))}
 
 <script>
+  import { lightDismiss } from '@theme/ui/lightDismiss';
+
   const KEY = 'popups-closed';
   const closed = (): string[] => {
     try {
@@ -67,8 +69,8 @@ const shown = await Promise.all(
     // An app's kind says the visitor is done (signed up): not shown again, also before it is closed.
     d.addEventListener('popup:done', () => remember(d.dataset.popup!));
     d.querySelector('[data-popup-close]')?.addEventListener('click', close);
-    // A tap on the dimmed backdrop (outside the box) closes it.
-    d.addEventListener('click', (e) => e.target === d && close());
+    // A tap on the dimmed backdrop (outside the box) closes it (light dismiss: lightDismiss.ts).
+    lightDismiss(d, close);
     // Its button closes it first, so what it opens (the page, or an app's sheet over it) opens alone.
     d.querySelectorAll('a').forEach((a) => a.addEventListener('click', close));
   }

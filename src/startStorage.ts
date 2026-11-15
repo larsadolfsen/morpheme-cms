@@ -1,6 +1,5 @@
-// What the start screen keeps in this browser (localStorage): the paths saved last, the versions seen, and when the
-// "Continue" card was closed. Exposes `readStored`, `keepStored`, the keys, `storedEdits`, `storedSeen`, `startListOf`
-// and `rememberEdit` (App.tsx onSaved). The rules for what is usable are startView.mjs's.
+// What the start screen keeps in this browser (localStorage): the paths saved last, the versions seen.
+// Exposes `readStored`, `keepStored`, the keys, `storedEdits`, `storedSeen`, `startListOf` and `rememberEdit` (App.tsx onSaved). The rules for what is usable are startView.mjs's.
 import { START_FAB } from './fabScreens';
 import { collectionOf } from './schema';
 import { collections } from './site';
@@ -8,7 +7,6 @@ import { nextRecent, unversioned, validEdits, versioned, type Versions } from '.
 
 export const EDITS = 'editor-recent-edits';
 export const SEEN = 'editor-seen-versions';
-export const CLOSED = 'editor-continue-closed';
 
 export function readStored<T>(key: string): T | null {
   try {

@@ -14,7 +14,7 @@
 // (no Save, Cancel or Remove; Remove is in the block's menu) and asks nothing when it closes. A sheet keeps its look while it is open,
 // even when the window crosses the expanded breakpoint.
 // Their open, close, focus and Escape are the theme's (sideSheet() and standardSideSheet(), sideSheetControl.ts); leave() is their beforeClose.
-// On a compact window (a phone, below medium) a block's fields are a subpage of the page form instead (owner, 14 Nov: full-screen views are
+// On a compact window (a phone, below medium) a block's fields and a section's settings are a subpage of the page form instead (owner, 14 Nov: full-screen views are
 // pages), drawn as the crop view is (CropView.tsx; editor.css gives .block-page the crop page's layer and column): the top app bar with the back arrow and the block's name, the fields, and Save
 // (Insert) in the theme's standard bottom sheet (ActionSheet). It is a layer over the form (a modal <dialog>), so the form keeps its scroll place; it has a step of its own in the
 // history (useSheetBack), so the browser's and Android's back leave it; back with changes asks "Keep your changes?" (closeChanged).
@@ -371,11 +371,13 @@ export function useBlockDialog(
 
   // The subpage (a block's fields on a compact window): a modal <dialog> over the form, as the crop view is. The form under it stays as it was
   // (its scroll place too), and does not scroll; the page's top and bottom bars are the dialog's own; it keeps above the on-screen keyboard.
-  // Focus starts on the back arrow, the first control of its app bar (Material 3).
+  // No control has the focus at the start (owner, 15 Nov): showModal() would focus the back arrow, with a ring and its tooltip, so the page itself
+  // takes the focus, without a ring; Tab reaches the back arrow first.
   useEffect(() => {
     const d = pageDialog.current;
     if (look !== 'subpage' || !d) return;
     if (!d.open) d.showModal();
+    d.focus({ preventScroll: true });
     document.documentElement.style.overflow = 'hidden';
     const stop = siteFollowKeyboard(d);
     return () => {
@@ -905,13 +907,14 @@ export function useBlockDialog(
           </>
         )}
       </BottomSheet>
-      {look === 'subpage' && block && open?.step === 'fields' && (
-        // A block's fields on a compact window: a page of the editor over the form, as the crop view is (editor.css .block-page): the top app
+      {look === 'subpage' && ((block && open?.step === 'fields') || open?.step === 'section') && (
+        // A block's fields (or a section's settings) on a compact window: a page of the editor over the form, as the crop view is (editor.css .block-page): the top app
         // bar with the back arrow and the block's name, the fields, and Save (Insert) in the bottom sheet. Back (the arrow, Esc, the browser's
         // back) with changes asks "Keep your changes?"; the form under it stays as it was.
         <dialog
           ref={pageDialog}
           className="block-page"
+          tabIndex={-1}
           aria-labelledby={headingId}
           onCancel={(e) => {
             if (e.target !== e.currentTarget) return;
@@ -928,12 +931,12 @@ export function useBlockDialog(
             </div>
           </TopAppBar>
           <main className="block-page-main">
-            <div className="space-y-5">{blockFields}</div>
+            <div className="space-y-5">{open.step === 'section' ? sectionSettings : blockFields}</div>
           </main>
           <ActionSheet label={t.common.saveChanges}>
             <div className="flex justify-end gap-2">
-              <Button kind="filled" onClick={() => save(open.type)}>
-                {open.isNew ? t.blocks.insert : t.common.save}
+              <Button kind="filled" onClick={() => (open.step === 'section' ? saveSection() : save(open.type))}>
+                {open.step === 'fields' && open.isNew ? t.blocks.insert : t.common.save}
               </Button>
             </div>
           </ActionSheet>

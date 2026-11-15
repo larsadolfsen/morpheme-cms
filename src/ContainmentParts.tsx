@@ -186,6 +186,26 @@ function Carousels() {
           indicatorLabels={numbers.slice(0, 5).map((n) => say.show(n))}
         />
       </Shown>
+      <Shown label={say.layouts.narrow}>
+        <div className="max-w-xs">
+          <SiteCarousel
+            label={say.roleDescription}
+            roleDescription={say.roleDescription}
+            itemRoleDescription={say.item}
+            items={numbers.slice(0, 5).map((n) => ({
+              key: String(n),
+              label: say.card(n),
+              content: (
+                <div className="block-panel w-full">
+                  <p className="block-panel-title">{say.card(n)}</p>
+                  <p className="block-panel-text">{say.text}</p>
+                </div>
+              ),
+            }))}
+            indicatorLabels={numbers.slice(0, 5).map((n) => say.show(n))}
+          />
+        </div>
+      </Shown>
       <Shown label={say.layouts.multiBrowse}>{images('multi-browse')}</Shown>
       <Shown label={say.layouts.hero}>{images('hero')}</Shown>
       <Shown label={say.layouts.heroCenter}>{images('hero', 'center')}</Shown>
