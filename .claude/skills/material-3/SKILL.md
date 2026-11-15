@@ -22,6 +22,8 @@ page and check it. I don't want to tell you more times to follow MD3."
    `docs/material-deviations.md` in the same pull request as the change: what Material says (quoted), what we do instead,
    why, the date and the pull request. A deviation that is not listed there is a bug.
 
+5. Dialogs are only for short messages (owner, 15 Nov 2026: "Dialogs are only for short messages, not for settings."): a short message, a confirmation or a single short choice. Settings or a form with several controls are a standard side sheet from 600 dp and a page below it (`docs/material-deviations.md`, B3).
+
 Wording follows M3's word choice (`CLAUDE.md`, *Word choice*). A theme's own look is the skill `site-editor-theme`.
 
 ## Reading the real pages

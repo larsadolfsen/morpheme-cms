@@ -1,7 +1,8 @@
 // The look of each step of the block sheet (BlockDialog.tsx): a side sheet beside the page from expanded for the fields,
 // the settings of a row typed in place (`row`) and the section settings, a modal side sheet below expanded for the fields (on a compact
 // window, below medium, a subpage of the page form instead: owner, 14 Nov: full-screen views are pages), else the sheet from the bottom.
-// The section settings are a subpage on a compact window too (owner, 15 Nov).
+// The section settings are a subpage on a compact window too (owner, 15 Nov), and from medium (600 dp) a standard side sheet beside the page
+// (owner, 15 Nov: "the settings should show in the right pane and not be a dialog"; docs/superpowers/specs/2026-11-15-section-settings-pane.md).
 // The side sheet beside the page is live (liveSheet): each change goes to the block at once, with no Save or Cancel (liveSheet.mjs).
 // Exposes sheetLook(step, expanded, compact), inPanel(step, expanded), liveSheet(step, expanded) and editsInPanel(expanded, hasFields); no dependencies.
 
@@ -9,8 +10,8 @@
  * below the `medium` breakpoint (a phone). */
 export function sheetLook(step, expanded, compact = false) {
   if (step === 'fields') return expanded ? 'side-sheet' : compact ? 'subpage' : 'modal-side-sheet';
-  // The section settings on a phone are a subpage too (owner, 15 Nov), with Save in the bottom bar; at medium the sheet from the bottom.
-  if (step === 'section') return expanded ? 'side-sheet' : compact ? 'subpage' : 'sheet';
+  // The section settings on a phone are a subpage too (owner, 15 Nov), with Save in the bottom bar; from medium the pane beside the page.
+  if (step === 'section') return compact ? 'subpage' : 'side-sheet';
   // The settings of a row typed in place (a List's icon and link): beside the page from expanded, open while the row is active, and a
   // modal bottom sheet below it, which fits its content (half the height or less) so the block stays in view above it.
   if (step === 'row') return expanded ? 'side-sheet' : 'sheet';
@@ -18,14 +19,14 @@ export function sheetLook(step, expanded, compact = false) {
 }
 
 /** true exactly when sheetLook(step, expanded) === 'side-sheet'. */
-export function inPanel(step, expanded) {
-  return sheetLook(step, expanded) === 'side-sheet';
+export function inPanel(step, expanded, compact = false) {
+  return sheetLook(step, expanded, compact) === 'side-sheet';
 }
 
 /** true when a sheet is live: each change of its fields goes to the block at once, and it has no Save, Cancel or Remove. Exactly the side
- * sheet beside the page (from expanded); the modal side sheet and the sheet from the bottom keep Save and Cancel. */
-export function liveSheet(step, expanded) {
-  return inPanel(step, expanded);
+ * sheet beside the page (from expanded, and for the section settings from medium); the modal side sheet and the sheet from the bottom keep Save and Cancel. */
+export function liveSheet(step, expanded, compact = false) {
+  return inPanel(step, expanded, compact);
 }
 
 /** true when a card's pen is not needed, as a tap opens its fields in the side panel: the fields sheet is the side panel
