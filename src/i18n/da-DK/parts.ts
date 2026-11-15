@@ -193,7 +193,7 @@ export const parts: Messages['parts'] = {
     draftHint: 'Siden er ikke på hjemmesiden.',
     look: 'Udseende',
     layout: 'Layout',
-    layouts: { single: 'Én kolonne', wide: 'Bred', left: 'Sidepanel til venstre', right: 'Sidepanel til højre' },
+    layouts: { single: 'Én kolonne', wide: 'Bred', left: 'Sidebar til venstre', right: 'Sidebar til højre' },
     kind: 'Type',
     page: 'Side',
     post: 'Indlæg',
