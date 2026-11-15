@@ -311,7 +311,9 @@ image`, a card's `Image` slot), a short **alt text sheet** opens: headline `Alt 
 Library's text is used, as today). The image starts as `Original` (in a card: the block's ratio, middle part); the crop view does
 not open (decision 5). The same sheet is what `Alt text` in the bar opens, with `Cancel` instead of `Skip`. The image is put in at once as `Original`, so closing the sheet by Escape or the cross is `Skip`
 (the image stays; with a text typed it first asks `Keep your changes?`, and `Discard` keeps the image without the text); the bar's `Alt text` leaves the image as it was on `Cancel`, asking first when the
-text changed. A decorative image has no text. A card's `Image` slot gets the sheet with the Cards block's image tools (build plan, PR 5).
+text changed. A decorative image has no text. A card's `Image` slot gets the sheet with the Cards block's image tools (build plan, PR 5). **From expanded there is no short sheet:** the image's settings are the live side sheet (the
+one-Save spec), so a picked image goes in at once and its live sheet opens beside it with the `Alt text` field focused (no `Skip`; typing writes the text at once), `Change image` does the same for
+the new image, and the bar's `Alt text` puts the focus in that field. The short sheet is for windows below expanded.
 
 M3 for the buttons: "If two actions are provided, one must be a confirming action, and the other a dismissing action"; `Skip` is
 the dismissing one and keeps the image, which is what the owner picked.

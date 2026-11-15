@@ -27,12 +27,12 @@ const blog = defineCollection({
     // "Decorative image": `image` is drawn with alt="" (screen readers skip it), whatever `imageAlt` says.
     imageDecorative: z.boolean().optional(),
     ...status,
-    // Google title and description (the <title> and meta description). Empty: built from the title.
+    // meta title and description (the <title> and meta description). Empty: built from the title.
     seoTitle: z.string().optional(),
     seoDescription: z.string().optional(),
     // The image shown when it is shared (og:image). Empty: `image`, else the first image in the text.
     shareImage: z.string().optional(),
-    // The title and description when it is shared (og:title, og:description). Empty: the Google title and description.
+    // The title and description when it is shared (og:title, og:description). Empty: the meta title and description.
     shareTitle: z.string().optional(),
     shareDescription: z.string().optional(),
     // Words that link here from the other pages and posts (packages/editor/site/autolinks.mjs): the primary
@@ -65,12 +65,12 @@ const pages = defineCollection({
     categories: z.array(z.string()).optional().default([]),
     order: z.number().optional().default(0),
     ...status,
-    // Google title and description (the <title> and meta description). Empty: built from the title.
+    // meta title and description (the <title> and meta description). Empty: built from the title.
     seoTitle: z.string().optional(),
     seoDescription: z.string().optional(),
     // The image shown when it is shared (og:image). Empty: the first image in the text.
     shareImage: z.string().optional(),
-    // The title and description when it is shared (og:title, og:description). Empty: the Google title and description.
+    // The title and description when it is shared (og:title, og:description). Empty: the meta title and description.
     shareTitle: z.string().optional(),
     shareDescription: z.string().optional(),
     // Words that link here from the other pages and posts (packages/editor/site/autolinks.mjs): the primary

@@ -8,11 +8,14 @@
 // settings (its colour, SectionSettings.tsx), which goes the same way as a block's fields: Cancel, Save, the question when closed changed.
 // The fields and the section settings are in the theme's side sheet (sheetPlacement.mjs): a standard one beside the page from
 // expanded (not modal: the page stays usable, .editor-side-sheet in editor.css), a modal one over the page below it
-// (fields only; the section settings are a sheet from the bottom there). Both end with Save (Insert) and Cancel.
+// (fields only; the section settings are a sheet from the bottom there). The modal one and the sheet from the bottom end with Save
+// (Insert) and Cancel. The standard one is live when the caller gives it the block (LiveBlock, liveSheet.mjs): each change goes to the
+// block at once, one undo step per field, and it follows the block through Undo and Redo; it has only its headline and close button
+// (no Save, Cancel or Remove; Remove is in the block's menu) and asks nothing when it closes. A sheet keeps its look while it is open,
+// even when the window crosses the expanded breakpoint.
 // Their open, close, focus and Escape are the theme's (sideSheet() and standardSideSheet(), sideSheetControl.ts); leave() is their beforeClose.
-// Another block tapped while one is open closes the open one first (the question when changed). In the standard side sheet a
-// card already in the text also has "Remove" after Cancel in the actions (the answer 'remove'). Exposes useBlockDialog, IMAGE.
-import { useEffect, useId, useRef, useState, type CSSProperties, type ReactElement } from 'react';
+// Another block tapped while one is open closes the open one first (the question when changed). Exposes useBlockDialog, IMAGE.
+import { useEffect, useId, useRef, useState, type ReactElement } from 'react';
 import { ArrowsDownUp, Image } from '@phosphor-icons/react';
 import {
   Button,
@@ -30,7 +33,7 @@ import {
   ProblemNote,
   SheetList,
   SheetGroupTitle,
-  useAtLeast,
+  atLeastNow,
 } from './ui';
 import { blockGroups, htmlBlock, type BlockData, type BlockProps, type SiteBlock } from './blocks';
 import { clean, newValue, problemAt, savedValue } from './check';
@@ -46,10 +49,29 @@ import { t } from './i18n';
 import { snackbar } from '../lib/snackbar';
 import { closeChanged } from './ask';
 import SectionSettings, { type SectionValues } from './SectionSettings';
-import { sheetLook } from './sheetPlacement.mjs';
+import { liveSheet, sheetLook } from './sheetPlacement.mjs';
+import { sheetSteps } from './liveSheet.mjs';
 import { setPanelOpen } from './sidePanel';
 import { SiteSideSheet, siteSideSheet, siteSideSheetDialogClass, siteStandardSideSheet } from './themeUi';
 import { typedInPlace } from './typedInPlace.mjs';
+
+/** Where an image's live sheet opens (from expanded, the bar's Alt text and a new image): its Alt text field. Below expanded the alt text sheet (`BlockAsk.alt`) is used. */
+export type EditFocus = 'alt';
+
+/** Scrolls the open sheet to its Alt text field and puts the focus there, once the sheet has drawn it (it opens after the one before it has closed). */
+function reachAlt() {
+  let tries = 0;
+  const go = () => {
+    const sheet = [...document.querySelectorAll<HTMLElement>('dialog[open], .editor-side-sheet')].at(-1);
+    const label = [...(sheet?.querySelectorAll('label') ?? [])].find((l) => l.textContent?.trim() === t.blocks.picture.alt);
+    const target = label?.htmlFor ? sheet?.querySelector<HTMLElement>(`[id="${CSS.escape(label.htmlFor)}"]`) : null;
+    if (!target) return void (tries++ < 40 && setTimeout(go, 50));
+    target.scrollIntoView({ block: 'center' });
+    target.focus({ preventScroll: true });
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) target.select();
+  };
+  setTimeout(go);
+}
 
 export type BlockAsk = {
   list: SiteBlock[];
@@ -61,11 +83,18 @@ export type BlockAsk = {
   data: BlockData;
   /** Which block to put in, with its fields filled in; null when cancelled. A block can be put in more
    * than once, unless the template says how many (have: the types in the text now, one for each, IMAGE for an image).
-   * image: an image is offered first, and chosen as the type IMAGE. */
-  choose: (offer?: { image?: boolean; have?: string[] }) => Promise<{ type: string; props: BlockProps } | null>;
-  /** New props for a block in the text; null when cancelled. isNew: one about to be put in ("Insert"). removable: the
-   * card may be removed, so the side panel has "Remove"; 'remove' when it is tapped (never when removable is not true). */
-  edit: (type: string, props: BlockProps, isNew?: boolean, removable?: boolean) => Promise<BlockProps | 'remove' | null>;
+   * image: an image is offered first, and chosen as the type IMAGE. live: the caller can put a block in at once and open its live
+   * sheet (`edit` with a LiveBlock); a block with fields then comes with its defaults and `open` true when its sheet would be live,
+   * with no `Insert` of its own. */
+  choose: (offer?: {
+    image?: boolean;
+    have?: string[];
+    live?: boolean;
+  }) => Promise<{ type: string; props: BlockProps; open?: boolean } | null>;
+  /** New props for a block in the text; null when cancelled. isNew: one about to be put in ("Insert"). live: makes the link to the
+   * block in the text, used when the sheet is live (the side sheet from expanded): its changes are then written through it, and the
+   * answer is null when it closes (nothing is left to write). focus: the field the sheet opens at (EditFocus). */
+  edit: (type: string, props: BlockProps, isNew?: boolean, live?: () => LiveBlock | null, focus?: EditFocus) => Promise<BlockProps | null>;
   /** The short sheet for an image's alt text (image tools spec 9.1): its preview, `Decorative image` and `Alt text` (with the Library's text as the hint), and `Skip`
    * (mode 'new', right after an image was picked: the image stays without a text of its own, also when the sheet is closed) or `Cancel` (mode 'edit', the bar's
    * Alt text) and `Save`. The new text and whether the image is decorative; null in 'edit' when it was left. */
@@ -74,8 +103,12 @@ export type BlockAsk = {
     mode: 'new' | 'edit',
   ) => Promise<{ alt: string; decorative: boolean } | null>;
   /** The settings of the section the cursor is in (its colour, null: none, an H2's image and its description, and the width); the new
-   * ones, or null when cancelled. image: the section can have an image (an H2's); width: it can have a width (an H1's or H2's). */
-  section: (current: SectionSettingsOf, options?: { image?: boolean; width?: boolean }) => Promise<SectionSettingsOf | null>;
+   * ones, or null when cancelled. image: the section can have an image (an H2's); width: it can have a width (an H1's or H2's). live: as
+   * `edit`'s. */
+  section: (
+    current: SectionSettingsOf,
+    options?: { image?: boolean; width?: boolean; live?: () => LiveBlock | null },
+  ) => Promise<SectionSettingsOf | null>;
   /** The settings of a row of a block typed in place (a List's icon and link; `inline` in blocks.ts): in the side panel from expanded, kept
    * open and updated while a row is active, and a bottom sheet below it. Live: each change is told to `onChange` at once, with no Save and no
    * Cancel of its own. Not shown while another sheet is open. null closes it. `open` false: only update the settings if they are open already. */
@@ -92,15 +125,29 @@ export type RowSpec = {
   closes?: boolean;
 };
 
+/** The link of a live sheet to its block (or section heading) in the text (MarkdownEditor.tsx). */
+export type LiveBlock = {
+  /** Writes the sheet's values to the block at once, as part of an undo step (liveSheet.mjs, sheetSteps). */
+  write: (props: BlockProps, step: { fresh: boolean; group: number }) => void;
+  /** Who is told the block's props when something else changes them (Undo, Redo); null when the block is gone. */
+  follow: (to: ((props: BlockProps | null) => void) | null) => void;
+  /** The sheet has closed: the undo step ends, and the block is no longer followed. */
+  end: () => void;
+  /** What gets the focus back when the sheet closes and what had it before is gone (the block's card drawn anew by a change). */
+  target?: () => HTMLElement | null;
+};
+
 /** A section's settings in the text: null for what it has not. */
 export type SectionSettingsOf = { color: string | null; image?: string | null; alt?: string | null; width?: string | null };
 
-type Open =
-  | { step: 'choose'; image?: boolean; have?: string[] }
-  | { step: 'fields'; type: string; isNew: boolean; removable?: boolean }
-  | { step: 'section'; image: boolean; width: boolean }
-  | { step: 'row' }
-  | { step: 'alt'; mode: 'new' | 'edit' };
+// wide: the window was at least expanded when the step was shown; its look stays while it is open. live: its changes go to the block at once.
+type Open = (
+  | { step: 'choose'; image?: boolean; have?: string[]; live?: boolean }
+  | { step: 'fields'; type: string; isNew: boolean; live?: boolean }
+  | { step: 'section'; image: boolean; width: boolean; live?: boolean }
+  | { step: 'row'; live?: undefined }
+  | { step: 'alt'; mode: 'new' | 'edit'; live?: undefined }
+) & { wide?: boolean };
 
 const sectionValues = (v: BlockProps): SectionValues => ({
   color: String(v.color ?? ''),
@@ -151,7 +198,7 @@ const image: SiteBlock = {
 };
 // The fields of the alt text sheet: the image's own, without the image (its address stays in the values, for the Library's text).
 const altFields = image.fields.filter((f) => f.name !== 'src');
-type Answer = { type: string; props: BlockProps } | 'remove' | null;
+type Answer = { type: string; props: BlockProps; open?: boolean } | null;
 
 // Text as searched: lower case, without accents (as in PagePicker.tsx).
 const plain = (s: string) =>
@@ -184,7 +231,6 @@ export function useBlockDialog(
   const standard = useRef<HTMLDivElement>(null);
   const standardControls = useRef<ReturnType<typeof siteStandardSideSheet> | null>(null);
   const headingId = useId();
-  const expanded = useAtLeast('expanded');
   const answer = useRef<(a: Answer) => void>(() => {});
   // The row settings shown now (the `row` step).
   const rowSpec = useRef<RowSpec | null>(null);
@@ -195,10 +241,16 @@ export function useBlockDialog(
   const lookNow = useRef('sheet');
   const closing = useRef<Promise<void>>(Promise.resolve());
   const trigger = useRef<HTMLElement | null>(null);
+  // The look is taken from the window as each step is shown, and kept while it is open.
   const show = (next: Open | null) => {
-    openNow.current = next;
-    setOpen(next);
+    const shown: Open | null = next && { ...next, wide: atLeastNow('expanded') };
+    openNow.current = shown;
+    setOpen(shown);
+    return shown;
   };
+  // The live sheet's link to its block, and its undo steps (one per field focus).
+  const live = useRef<LiveBlock | null>(null);
+  const steps = useRef(sheetSteps());
   const [values, setValues] = useState<BlockProps>({});
   const [problem, setProblem] = useState('');
   // Why it cannot be saved, as a message in front of the sheet too (below the fields it can be out of
@@ -222,7 +274,8 @@ export function useBlockDialog(
 
   // Another one asked for while one is open (a tap on another block, or on "+" in the text): the open one is left first
   // (with the question when it is changed), and the new one opens when it has closed. Stay in the open one: null.
-  const ask = async (first: Open, props: BlockProps = {}): Promise<Answer> => {
+  // linked: makes the link to the block, when the sheet is live (its changes then go to the block at once).
+  const ask = async (first: Open, props: BlockProps = {}, linked?: () => LiveBlock | null): Promise<Answer> => {
     const from = document.activeElement;
     await closing.current;
     if (openNow.current && !(await latest.current.leave())) return null;
@@ -230,7 +283,18 @@ export function useBlockDialog(
     if (from instanceof HTMLElement && from !== document.body) trigger.current = from;
     return new Promise<Answer>((resolve) => {
       answer.current = resolve;
-      show(first);
+      const link = linked && liveSheet(first.step, atLeastNow('expanded')) ? linked() : null;
+      const opened = show(link && (first.step === 'fields' || first.step === 'section') ? { ...first, live: true } : first)!;
+      if (link) {
+        live.current = link;
+        steps.current = sheetSteps();
+        // Undo or Redo changed the block: the sheet shows it as it is now. The block gone (its insert undone): the sheet closes.
+        link.follow((now) => {
+          if (openNow.current !== opened) return;
+          if (!now) return void queueMicrotask(() => openNow.current === opened && done(null));
+          setValues(opened.step === 'fields' ? savedValue(blockOf(opened.type)?.fields ?? [], now) : sectionValues(now));
+        });
+      }
       setValues(props);
       if (first.step === 'fields') shown.current = asWritten(first.type, props);
       if (first.step === 'section') shown.current = JSON.stringify(sectionValues(props));
@@ -242,8 +306,9 @@ export function useBlockDialog(
     });
   };
 
-  // Which dialog is open follows the look of the step: the sheet from the bottom, or the modal side sheet (below).
-  const look: string = open ? sheetLook(open.step, expanded) : 'sheet';
+  // Which dialog is open follows the look of the step: the sheet from the bottom, or the modal side sheet (below). It is taken when
+  // the step is shown (show) and kept while it is open: a sheet never switches between live and Save and Cancel mid-edit.
+  const look: string = open ? sheetLook(open.step, !!open.wide) : 'sheet';
   lookNow.current = look;
   useEffect(() => {
     const sheet = dialog.current;
@@ -313,12 +378,33 @@ export function useBlockDialog(
     answer.current(a);
     answer.current = () => {};
     openNow.current = null;
+    // A live sheet ends its undo step and lets go of its block; the focus goes to the block's card when the one tapped was drawn anew.
+    const ended = live.current;
+    live.current = null;
+    steps.current.end();
+    const card = ended && !trigger.current?.isConnected ? ended.target?.() : null;
+    ended?.follow(null);
+    ended?.end();
     closing.current = (async () => {
       if (sideControls.current && sideDialog.current?.open) await sideControls.current.close();
       else if (standardControls.current) await standardControls.current.close();
       else if (dialog.current?.open) dialog.current.close();
+      card?.focus();
       setOpen(null);
     })();
+  };
+
+  // A change in a live sheet, written to the block at once: the changes typed in one field while it has the focus are one undo step,
+  // and each pick is one (liveSheet.mjs).
+  const typedIn = () => {
+    const at = document.activeElement;
+    const typing = 'input:not([type=checkbox]):not([type=radio]):not([type=button]), textarea, [contenteditable="true"]';
+    return at instanceof HTMLElement && standard.current?.contains(at) && at.matches(typing) ? at : null;
+  };
+  const writeLive = (props: BlockProps) => live.current?.write(props, steps.current.change(typedIn()));
+  const changeFields = (next: BlockProps) => {
+    setValues(next);
+    if (open?.step === 'fields' && open.live) writeLive(clean(blockOf(open.type)?.fields ?? [], next));
   };
 
   /** The fields of the block's sheet (the gear): the ones typed where the block stands (a list's heading and subheading) are not repeated. */
@@ -330,16 +416,14 @@ export function useBlockDialog(
     canCrop: crop && !data.page,
     template,
     data,
-    choose: async (offer) => {
-      const answered = await ask({ step: 'choose', image: offer?.image, have: offer?.have });
-      return answered === 'remove' ? null : answered;
-    },
+    choose: (offer) => ask({ step: 'choose', image: offer?.image, have: offer?.have, live: offer?.live }),
     section: async (current, options) => {
       const answered = await ask(
         { step: 'section', image: !!options?.image, width: !!options?.width },
         sectionValues(current as BlockProps),
+        options?.live,
       );
-      if (!answered || answered === 'remove') return null;
+      if (!answered) return null;
       const v = sectionValues(answered.props);
       return { color: v.color || null, image: v.image || null, alt: v.alt || null, width: v.width || null };
     },
@@ -357,18 +441,16 @@ export function useBlockDialog(
       }
       setValues(spec.value);
     },
-    edit: async (type, props, isNew = false, removable = false) => {
+    edit: async (type, props, isNew = false, linked, focus) => {
       const fields = blockOf(type)?.fields ?? [];
+      if (focus === 'alt') reachAlt();
       // A block on the page with what a field it has no value for means; a new one with the defaults.
-      const a = await ask(
-        { step: 'fields', type, isNew, removable },
-        isNew ? { ...newValue(fields), ...props } : savedValue(fields, props),
-      );
-      return a === 'remove' ? a : a && a.props;
+      const a = await ask({ step: 'fields', type, isNew }, isNew ? { ...newValue(fields), ...props } : savedValue(fields, props), linked);
+      return a && a.props;
     },
     alt: async (picture, mode) => {
       const a = await ask({ step: 'alt', mode }, { src: picture.src, alt: picture.alt, decorative: picture.decorative });
-      return a && a !== 'remove' ? { alt: String(a.props.alt ?? ''), decorative: a.props.decorative === true } : null;
+      return a ? { alt: String(a.props.alt ?? ''), decorative: a.props.decorative === true } : null;
     },
   };
 
@@ -384,6 +466,9 @@ export function useBlockDialog(
     if (!fields.length) return done({ type, props: {} });
     // A block typed in place goes in at once, with its first row active (MarkdownEditor.tsx): no sheet. One with `inline` but no view to draw it (an app's block without Inline.tsx) has its sheet.
     if (typedInPlace(blockOf(type))) return done({ type, props: newValue(fields) });
+    // From expanded any other block goes in at once too, with its defaults, and the caller opens its live sheet beside it (no Insert).
+    if (open?.step === 'choose' && open.live && liveSheet('fields', atLeastNow('expanded')))
+      return done({ type, props: newValue(fields), open: true });
     shown.current = asWritten(type, newValue(fields));
     setValues(newValue(fields));
     show({ step: 'fields', type, isNew: true });
@@ -405,8 +490,8 @@ export function useBlockDialog(
       done(a);
       return true;
     };
-    // A row's settings are live: closing them leaves nothing to keep or discard.
-    if (open?.step === 'row') return finish(null);
+    // A row's settings and a live sheet: closing them leaves nothing to keep or discard.
+    if (open?.step === 'row' || open?.live) return finish(null);
     if (open?.step === 'section') {
       if (JSON.stringify(sectionValues(values)) === shown.current) return finish(null);
       const choice = await closeChanged();
@@ -510,10 +595,14 @@ export function useBlockDialog(
       values={sectionValues(values)}
       image={open?.step === 'section' && open.image}
       width={open?.step === 'section' && open.width}
-      onChange={(next) => setValues({ ...next })}
+      onChange={(next) => {
+        setValues({ ...next });
+        if (open?.step === 'section' && open.live) writeLive({ ...next });
+      }}
     />
   );
-  // A side sheet (the same markup, standard or modal): the block's fields or the section settings, with Save (Insert) and Cancel.
+  // A side sheet (the same markup, standard or modal): the block's fields or the section settings, with Save (Insert) and Cancel
+  // unless it is live (its headline and close button only).
   const sideSheetOf = (kind: 'standard' | 'modal') =>
     open &&
     (open.step === 'section' || open.step === 'row' || block) && (
@@ -524,7 +613,7 @@ export function useBlockDialog(
         closeLabel={t.common.close}
         className={kind === 'standard' ? 'editor-side-sheet' : undefined}
         actions={
-          open.step === 'row' ? undefined : (
+          open.step === 'row' || open.live ? undefined : (
             <>
               <Button onClick={() => (open.step === 'fields' ? save(open.type) : saveSection())}>
                 {open.step === 'fields' && open.isNew ? t.blocks.insert : t.common.save}
@@ -532,12 +621,6 @@ export function useBlockDialog(
               <Button kind="outlined" onClick={() => void leave()}>
                 {t.common.cancel}
               </Button>
-              {open.step === 'fields' && open.removable && !open.isNew && look === 'side-sheet' && (
-                // After Save and Cancel in the start-aligned row, in the error colour (the theme's text button with its colour variable).
-                <Button kind="text" style={{ '--button-text-text': 'var(--mo-error)' } as CSSProperties} onClick={() => done('remove')}>
-                  {t.common.remove}
-                </Button>
-              )}
             </>
           )
         }
@@ -561,8 +644,8 @@ export function useBlockDialog(
                   value={values}
                   // Another image starts as Original, with no crop (image tools spec, decision 5).
                   onChange={(v) =>
-                    setValues((was) =>
-                      block!.type === IMAGE && (v as BlockProps).src !== was.src
+                    changeFields(
+                      block!.type === IMAGE && (v as BlockProps).src !== values.src
                         ? { ...(v as BlockProps), format: '', crop: null }
                         : (v as BlockProps),
                     )
@@ -583,7 +666,7 @@ export function useBlockDialog(
                         format: String(values.format ?? ''),
                         crop: (values.crop as Cut) ?? null,
                       });
-                      if (next) setValues((v) => ({ ...v, format: next.format, crop: next.crop }));
+                      if (next) changeFields({ ...values, format: next.format, crop: next.crop });
                     }}
                   />
                 </ul>
@@ -708,8 +791,12 @@ export function useBlockDialog(
         </dialog>
       )}
       {look === 'side-sheet' && (
-        // The standard side sheet is not modal: the page stays usable.
-        <div ref={standard} className="contents">
+        // The standard side sheet is not modal: the page stays usable. The focus leaving it ends a live sheet's undo step.
+        <div
+          ref={standard}
+          className="contents"
+          onBlur={(e) => !e.currentTarget.contains(e.relatedTarget as Node | null) && steps.current.end()}
+        >
           {sideSheetOf('standard')}
         </div>
       )}

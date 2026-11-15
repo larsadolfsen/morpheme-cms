@@ -94,7 +94,7 @@ export const parts = {
     color: 'Primary',
     colorHint: 'Buttons, links, and icons.',
     phone: 'Phone',
-    description: 'Short description',
+    description: 'Excerpt',
     descriptionText: 'A text over several lines.',
     placement: 'Placement',
     top: 'At the top',
