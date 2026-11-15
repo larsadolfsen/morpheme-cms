@@ -15,15 +15,18 @@ Owner rule. **Developers do not invent their own components.** Every control and
 item, sheet, dialog, menu, card, bar, panel …) is the theme's existing component, used through `src/ui.tsx`
 (`theme/ui`). Look in `theme/ui` and `src/ui.tsx` first, and in the list in section 5.
 
-- If the component is missing, or deviates from Material 3, build or fix it **in the theme** (`theme/ui` and its CSS),
-  M3-conform after reading the real M3 pages with Playwright (`material-3`), show it in the theme's component gallery
-  (the editor's *Developer › Parts › UI components*, `#developer/parts/ui`, `src/BlockParts.tsx`), and then use it
-  through `src/ui.tsx`.
+- If the component is missing, or deviates from Material 3, **do not build or fix it yourself.** Stop and tell the PM
+  exactly what is missing and why: the screen, what you need, the closest existing component and the M3 page for it.
+  Then wait. The PM asks the owner. Only after the owner's explicit yes does the PM tell you to build or fix it in the
+  theme (`theme/ui` and its CSS), M3-conform after reading the real M3 pages with Playwright (`material-3`), shown in
+  the theme's component gallery (the editor's *Developer › Parts › UI components*, `#developer/parts/ui`,
+  `src/BlockParts.tsx`), and then used through `src/ui.tsx`.
 - Never write your own classes, markup or CSS for a control or surface on one screen, never copy a component, and never
   add a screen-specific variant.
 - Every pull request description has a **Components** line: each component the change uses, and for each whether it is
-  *existing*, *fixed in the theme* or *new in the theme* (for the last two, the M3 pages read). The PM does not merge a
-  pull request without that line, or with a screen-specific component (`pm` skill).
+  *existing*, *fixed in the theme with owner approval* or *new in the theme with owner approval* (for the last two: who
+  approved, the date, and the M3 pages read). The PM does not merge a pull request without that line, or with a
+  screen-specific component (`pm` skill).
 
 ## 1. Read `CLAUDE.md`
 

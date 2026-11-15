@@ -128,11 +128,17 @@ the brief also tells the session to read the M3 pages with Playwright (skill `ma
 to say in its pull request which pages were read. The PM checks that the pull request says it before merging; a pull
 request that does not is not merged. A session that only uses an existing theme component as it is needs no reading.
 
-**The Components line.** Every pull request description has a *Components* line (skill `developer`, *The hard rule: no own
-components*): each component it uses and whether it is existing, fixed in the theme or new in the theme, with the M3 pages
-read for the last two. The PM does not merge a pull request without that line, or one that adds a screen-specific
-component (own classes, markup or CSS for a control or surface, a copy of a component, or a variant for one screen); it
-sends the session back to the theme.
+**No new component without the owner.** The PM never lets a session build a new component, or fix one in the theme,
+without the owner's approval. A session that finds a component missing or off Material 3 stops and reports to the PM
+(skill `developer`, *The hard rule: no own components*). The PM asks the owner in a short message: what is missing, why,
+and the closest existing component. Only after the owner's explicit yes does it tell the session to build it in the
+theme (M3 pages read with Playwright, shown in the theme's component gallery), and it notes who approved and the date.
+
+**The Components line.** Every pull request description has a *Components* line (skill `developer`): each component it
+uses and whether it is existing, fixed in the theme with owner approval or new in the theme with owner approval (who,
+the date, and the M3 pages read). The PM does not merge a pull request without that line, or one that adds a
+screen-specific component (own classes, markup or CSS for a control or surface, a copy of a component, or a variant for
+one screen) or a theme component the owner did not approve; it sends the session back to the theme.
 
 **A PM may only start Haiku and Sonnet sessions.** Every `create_session` sets `model` to a Haiku or Sonnet model (`claude-haiku-5-5` or `claude-sonnet-5-5`), and a PM never starts a session on Opus, Fable or the inherited default, and never changes a session's model to anything higher.
 
