@@ -4,7 +4,7 @@
 // parent writes them into the draft dashboard (setSettings in DashboardEdit.tsx), so they are saved with Done, never to the
 // repo. The sheet opens when it is mounted; onClose tells the parent that it closed, however (Cancel, Save, Esc, the cross,
 // a tap outside). A field with its own page (Field.page) is not supported here: it has no address (`pageOf`).
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { siteText, t } from './i18n';
 import type { Env } from './App';
 import type { RepoFile } from './github';
@@ -16,7 +16,8 @@ import { useWrongField, type FieldContext } from './fields';
 import { clean, problemAt } from './check';
 import type { Part } from './schema';
 import type { WidgetDefinition } from './widgets';
-import { BottomSheet, SheetActions, SheetBody, SheetTitle } from './ui';
+import { BottomSheet, Button, SheetActions, SheetBody, SheetTitle, atLeastNow } from './ui';
+import { usePane } from './PaneHost';
 
 export function WidgetSettings({
   placement,
@@ -34,10 +35,22 @@ export function WidgetSettings({
   onClose: () => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  // From medium (600 dp) the settings are in the pane beside the page (owner, 15 Nov 2026: settings are a pane, not a dialog), below it the sheet
+  // from the bottom; taken when it opens.
+  const [inPane] = useState(() => atLeastNow('medium'));
+  const opener = useRef<HTMLElement | null>(document.activeElement instanceof HTMLElement ? document.activeElement : null);
+  const headingId = useId();
   useEffect(() => {
     const el = dialog.current;
-    if (el && !el.open) el.showModal();
+    if (!inPane && el && !el.open) el.showModal();
   }, []);
+  // The sheet or the pane goes (the parent is told when it has, however it went).
+  const closeIt = async () => {
+    if (inPane) {
+      await pane.close();
+      onClose();
+    } else dialog.current?.close();
+  };
 
   const settings = definition.settings!;
   const { fields, values: defaults } = settings;
@@ -57,18 +70,47 @@ export function WidgetSettings({
   const save = () => {
     if (wrongField.stop(problemAt(fields, values))) return;
     onSave(changedOf(defaults, clean(fields, values)));
-    dialog.current?.close();
+    void closeIt();
   };
 
+  const fieldsOf = (
+    <PartFormProviders form={form}>
+      <PartFields part={part} files={files} env={env} form={form} />
+    </PartFormProviders>
+  );
+  const pane = usePane(
+    inPane
+      ? {
+          headline: title,
+          headlineId: headingId,
+          beforeClose: async () => {
+            await closeIt();
+            return false;
+          },
+          opener: opener.current,
+          onBack: () => void closeIt(),
+          backLabel: t.common.back,
+          actions: (
+            <>
+              <Button onClick={save}>{t.common.save}</Button>
+              <Button kind="outlined" onClick={() => void closeIt()}>
+                {t.common.cancel}
+              </Button>
+            </>
+          ),
+          children: <div className="space-y-5">{fieldsOf}</div>,
+        }
+      : null,
+  );
+
   return (
-    <BottomSheet ref={dialog} aria-label={title} onClose={onClose} onClick={(e) => e.target === dialog.current && dialog.current?.close()}>
-      <SheetTitle title={title} onClose={() => dialog.current?.close()} />
-      <SheetBody>
-        <PartFormProviders form={form}>
-          <PartFields part={part} files={files} env={env} form={form} />
-        </PartFormProviders>
-      </SheetBody>
-      <SheetActions onCancel={() => dialog.current?.close()} onDone={save} done={t.common.save} />
-    </BottomSheet>
+    <>
+      <BottomSheet ref={dialog} aria-label={title} onClose={onClose} onClick={(e) => e.target === dialog.current && void closeIt()}>
+        <SheetTitle title={title} onClose={() => void closeIt()} />
+        <SheetBody>{fieldsOf}</SheetBody>
+        <SheetActions onCancel={() => void closeIt()} onDone={save} done={t.common.save} />
+      </BottomSheet>
+      {pane.portal}
+    </>
   );
 }

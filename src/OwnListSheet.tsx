@@ -6,8 +6,9 @@
 // `Remove field` asks, then takes the field and its data out of every item (at the final `Save`). `Delete list` is refused while a page or an
 // app reads the list; else it asks, then deletes the entries and the definition in one commit (they stay in the history, under Deleted). The rules
 // are lib/ownList.mjs and lib/ownListEdit.mjs.
-import { useEffect, useImperativeHandle, useRef, useState, type CSSProperties, type Ref } from 'react';
-import { BottomSheet, Button, SheetBody, SheetTitle, SwitchRow, SupportingText, TextField } from './ui';
+import { useEffect, useId, useImperativeHandle, useRef, useState, type CSSProperties, type Ref } from 'react';
+import { BottomSheet, Button, SheetBody, SheetTitle, SwitchRow, SupportingText, TextField, atLeastNow } from './ui';
+import { usePane } from './PaneHost';
 import AddFieldMenu from './AddFieldMenu';
 import { kindNames } from './ownLists';
 import { ask } from './ask';
@@ -59,11 +60,30 @@ export default function OwnListSheet({
   const [busy, setBusy] = useState(false);
   const addAt = useRef<HTMLSpanElement>(null);
   const [adding, setAdding] = useState(false);
+  // From medium (600 dp) the list's settings are in the pane beside the page (owner, 15 Nov 2026: settings are a pane, not a dialog), below it
+  // the sheet from the bottom; taken when it opens and kept while it is open.
+  const [inPane, setInPane] = useState(false);
+  const opener = useRef<HTMLElement | null>(null);
+  const headingId = useId();
   useEffect(() => {
     const sheet = dialog.current;
-    if (open && sheet && !sheet.open) sheet.showModal();
-    if (!open && sheet?.open) sheet.close();
+    if (open) {
+      opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      const wide = atLeastNow('medium');
+      setInPane(wide);
+      if (!wide && sheet && !sheet.open) sheet.showModal();
+    } else {
+      if (sheet?.open) sheet.close();
+      setInPane(false);
+    }
   }, [open]);
+  // The sheet or the pane goes (the page is told when the pane has gone, as it is when the sheet closes).
+  const closeSheet = async () => {
+    if (inPane) {
+      await pane.close();
+      onClose();
+    } else dialog.current?.close();
+  };
   useEffect(() => setLabel(definition.label), [definition.label]);
   // (Hooks first: the handle is made before the sheet decides it has nothing to show.)
 
@@ -97,7 +117,7 @@ export default function OwnListSheet({
     setUnsaved(false);
     // A list that was never saved is not in git: nothing is committed.
     if (!saved) {
-      dialog.current?.close();
+      void closeSheet();
       location.hash = '#lists';
       return;
     }
@@ -111,7 +131,7 @@ export default function OwnListSheet({
         change,
       );
       env.forget(all.map((f: RepoFile) => f.path));
-      dialog.current?.close();
+      void closeSheet();
       location.hash = '#lists';
       env.notify({ text: savedText(change), kind: 'saved' });
     } catch (e) {
@@ -121,90 +141,118 @@ export default function OwnListSheet({
     }
   }
 
-  return (
-    <BottomSheet
-      ref={dialog}
-      aria-label={t.ownList.edit}
-      onClose={(e) => e.target === e.currentTarget && onClose()}
-      onClick={(e) => e.target === dialog.current && dialog.current?.close()}
-    >
-      <SheetTitle title={t.ownList.edit} onClose={() => dialog.current?.close()} />
-      <SheetBody onSubmit={(e) => e.preventDefault()}>
-        <TextField
-          label={t.ownList.name}
-          value={label}
-          disabled={busy}
-          onChange={(e) => setLabel(e.target.value)}
-          onBlur={rename}
-          onKeyDown={(e) => isActionEnter(e) && (e.preventDefault(), rename())}
+  // What the list has: its name, its fields and Delete list.
+  const body = (
+    <>
+      <TextField
+        label={t.ownList.name}
+        value={label}
+        disabled={busy}
+        onChange={(e) => setLabel(e.target.value)}
+        onBlur={rename}
+        onKeyDown={(e) => isActionEnter(e) && (e.preventDefault(), rename())}
+      />
+      <div>
+        <p className="mb-1 font-medium">{t.ownList.fields}</p>
+        {definition.fields.map((f: { id: string; kind: string; label?: string }) => {
+          const off = dropped.includes(f.id);
+          const held = off ? heldBy(entries, f.id) : 0;
+          return (
+            <div key={f.id} className="mb-3">
+              <FieldName
+                kind={t.ownList[f.kind as 'icon']}
+                value={nameOf(definition, f, kindNames())}
+                disabled={busy}
+                onSave={(name) => {
+                  const own = name.trim() === nameOf(definition, { ...f, label: undefined }, kindNames()) ? '' : name;
+                  if (own !== (f.label ?? '')) onChange(renameField(definition, f.id, own));
+                }}
+              />
+              <SwitchRow
+                label={t.ownList.shown}
+                selected={!off}
+                disabled={busy}
+                // The owner's own choice, on for every new field. Off: nothing to keep when no item has data for it, so it is removed at once; else it is hidden until the data is removed.
+                onChange={(selected) =>
+                  onChange(
+                    selected || heldBy(entries, f.id) > 0
+                      ? toggleField(definition, f.id, selected)
+                      : confirmDrop(definition, f.id, []).definition,
+                  )
+                }
+              />
+              {off ? (
+                <div className="mb-2">
+                  <SupportingText>{t.ownList.held(held)}</SupportingText>
+                  {held > 0 && (
+                    <Button kind="text" disabled={busy} onClick={() => void remove(f.id, t.ownList.removeData)}>
+                      {t.ownList.removeData}
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <Button kind="text" disabled={busy} onClick={() => void remove(f.id, t.ownList.removeField)}>
+                  {t.ownList.removeField}
+                </Button>
+              )}
+            </div>
+          );
+        })}
+        <span ref={addAt} className="inline-block">
+          <Button kind="outlined" disabled={busy} aria-haspopup="menu" aria-expanded={adding} onClick={() => setAdding(!adding)}>
+            {t.ownList.addField}
+          </Button>
+        </span>
+        <AddFieldMenu
+          anchor={adding ? addAt.current : null}
+          onPick={(kind) => onChange(addField(definition, kind).definition)}
+          onClose={() => setAdding(false)}
         />
-        <div>
-          <p className="mb-1 font-medium">{t.ownList.fields}</p>
-          {definition.fields.map((f: { id: string; kind: string; label?: string }) => {
-            const off = dropped.includes(f.id);
-            const held = off ? heldBy(entries, f.id) : 0;
-            return (
-              <div key={f.id} className="mb-3">
-                <FieldName
-                  kind={t.ownList[f.kind as 'icon']}
-                  value={nameOf(definition, f, kindNames())}
-                  disabled={busy}
-                  onSave={(name) => {
-                    const own = name.trim() === nameOf(definition, { ...f, label: undefined }, kindNames()) ? '' : name;
-                    if (own !== (f.label ?? '')) onChange(renameField(definition, f.id, own));
-                  }}
-                />
-                <SwitchRow
-                  label={t.ownList.shown}
-                  selected={!off}
-                  disabled={busy}
-                  // The owner's own choice, on for every new field. Off: nothing to keep when no item has data for it, so it is removed at once; else it is hidden until the data is removed.
-                  onChange={(selected) =>
-                    onChange(
-                      selected || heldBy(entries, f.id) > 0
-                        ? toggleField(definition, f.id, selected)
-                        : confirmDrop(definition, f.id, []).definition,
-                    )
-                  }
-                />
-                {off ? (
-                  <div className="mb-2">
-                    <SupportingText>{t.ownList.held(held)}</SupportingText>
-                    {held > 0 && (
-                      <Button kind="text" disabled={busy} onClick={() => void remove(f.id, t.ownList.removeData)}>
-                        {t.ownList.removeData}
-                      </Button>
-                    )}
-                  </div>
-                ) : (
-                  <Button kind="text" disabled={busy} onClick={() => void remove(f.id, t.ownList.removeField)}>
-                    {t.ownList.removeField}
-                  </Button>
-                )}
-              </div>
-            );
-          })}
-          <span ref={addAt} className="inline-block">
-            <Button kind="outlined" disabled={busy} aria-haspopup="menu" aria-expanded={adding} onClick={() => setAdding(!adding)}>
-              {t.ownList.addField}
-            </Button>
-          </span>
-          <AddFieldMenu
-            anchor={adding ? addAt.current : null}
-            onPick={(kind) => onChange(addField(definition, kind).definition)}
-            onClose={() => setAdding(false)}
-          />
-        </div>
-        <Button
-          kind="text"
-          disabled={busy}
-          style={{ '--button-text-text': 'var(--mo-error)' } as CSSProperties}
-          onClick={() => void deleteList()}
-        >
-          {t.ownList.delete}
-        </Button>
-      </SheetBody>
-    </BottomSheet>
+      </div>
+      <Button
+        kind="text"
+        disabled={busy}
+        style={{ '--button-text-text': 'var(--mo-error)' } as CSSProperties}
+        onClick={() => void deleteList()}
+      >
+        {t.ownList.delete}
+      </Button>
+    </>
+  );
+  const pane = usePane(
+    inPane && open
+      ? {
+          headline: t.ownList.edit,
+          headlineId: headingId,
+          beforeClose: async () => {
+            await closeSheet();
+            return false;
+          },
+          opener: opener.current,
+          onBack: () => void closeSheet(),
+          backLabel: t.common.back,
+          children: (
+            <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+              {body}
+            </form>
+          ),
+        }
+      : null,
+  );
+
+  return (
+    <>
+      <BottomSheet
+        ref={dialog}
+        aria-label={t.ownList.edit}
+        onClose={(e) => e.target === e.currentTarget && onClose()}
+        onClick={(e) => e.target === dialog.current && void closeSheet()}
+      >
+        <SheetTitle title={t.ownList.edit} onClose={() => void closeSheet()} />
+        <SheetBody onSubmit={(e) => e.preventDefault()}>{body}</SheetBody>
+      </BottomSheet>
+      {pane.portal}
+    </>
   );
 }
 
