@@ -6,13 +6,19 @@
 # when every other job is green. The editor's screens are split into as many parts as the matrix of the screens job lists
 # (scripts/editor-screens.mjs --shard K/N, N is the matrix's size, so a part is never left out: list 1..N there).
 #
+# A pull request that changes only files that neither `starter` nor `demo` read also skips those two (the 4 starter shards and the
+# demo): the job `changes` prints starter_demo=false, and scripts/ci-changes.mjs (needsStarterDemo) lists what is safe to skip
+# (docs, tests, .claude/, .agents/, changesets, the other workflows, staging-watcher/ and the static-only check scripts); the
+# workflow, ci-changes.mjs, the Release PR, an empty diff and any other path run them (when in doubt, run). `screens`,
+# `screens-extra` and `static` are not affected.
+#
 # A docs-only pull request skips the heavy jobs (screens, screens-extra, demo, starter). The job `changes` decides from the
 # pull request's diff against its base branch (plain git, then scripts/ci-changes.mjs): docs-only means every changed file is
 # under .claude/skills/ or docs/, a changeset, or CLAUDE.md, AGENTS.md, README.md or SECURITY.md; the Release PR, an empty diff
 # and any other path run everything (when in doubt, run). release-notes/ and CHANGELOG.md are never skipped: check:release-notes,
 # the notes tests and the editor's build read them. `static` runs on every pull request. There is no workflow-level paths-ignore:
 # the job `check` is the required status check and must always report. It is green when `static` and `changes` are green and each
-# heavy job is green, or skipped on a docs-only pull request; a failed, cancelled or wrongly skipped job makes it red
+# heavy job is green, or skipped on a docs-only pull request (demo and starter also when starter_demo is false); a failed, cancelled or wrongly skipped job makes it red
 # (scripts/ci-changes.mjs, tested in scripts/ci-changes.test.mjs; the rule is in .claude/skills/checks, "What CI runs").
 name: Check
 
@@ -38,6 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       docs_only: ${{ steps.diff.outputs.docs_only }}
+      starter_demo: ${{ steps.diff.outputs.starter_demo }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -49,10 +56,11 @@ jobs:
         run: |
           if git diff --name-only "origin/$BASE...HEAD" > changed.txt; then
             cat changed.txt
-            node scripts/ci-changes.mjs docs-only "$HEAD_REF" < changed.txt | tee -a "$GITHUB_OUTPUT"
+            node scripts/ci-changes.mjs classify "$HEAD_REF" < changed.txt | tee -a "$GITHUB_OUTPUT"
           else
             echo 'git diff failed: running everything'
             echo 'docs_only=false' >> "$GITHUB_OUTPUT"
+            echo 'starter_demo=true' >> "$GITHUB_OUTPUT"
           fi
 
   # Prettier, the language and unit tests, types, the demo built and each of its pages the same after a save, and the changeset.
@@ -119,7 +127,7 @@ jobs:
   # The demo built with the standard theme.
   demo:
     needs: changes
-    if: needs.changes.outputs.docs_only != 'true'
+    if: needs.changes.outputs.docs_only != 'true' && needs.changes.outputs.starter_demo != 'false'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -137,7 +145,7 @@ jobs:
   # The screens part is split like the demo's (--shard K/N, N is the matrix's size); the rest of the starter's checks run in each part.
   starter:
     needs: changes
-    if: needs.changes.outputs.docs_only != 'true'
+    if: needs.changes.outputs.docs_only != 'true' && needs.changes.outputs.starter_demo != 'false'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -164,6 +172,7 @@ jobs:
       - env:
           NEEDS: ${{ toJson(needs) }}
           DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
+          STARTER_DEMO: ${{ needs.changes.outputs.starter_demo }}
         run: |
           echo "$NEEDS"
-          echo "$NEEDS" | node scripts/ci-changes.mjs verdict "$DOCS_ONLY"
+          echo "$NEEDS" | node scripts/ci-changes.mjs verdict "$DOCS_ONLY" "$STARTER_DEMO"

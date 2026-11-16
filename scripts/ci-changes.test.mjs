@@ -2,7 +2,7 @@
 // Run: node --test scripts/ci-changes.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { isDocsOnly, verdict, HEAVY } from './ci-changes.mjs';
+import { isDocsOnly, needsStarterDemo, verdict, HEAVY, FILTERED } from './ci-changes.mjs';
 
 test('docs-only: skills, docs, changeset and root notes', () => {
   assert.equal(isDocsOnly(['.claude/skills/checks/SKILL.md', 'docs/superpowers/plans/x.md', '.changeset/a-b.md', 'CLAUDE.md']), true);
@@ -71,4 +71,83 @@ test('verdict: static skipped, changes failed or a job missing is red', () => {
   assert.ok(verdict({ ...ok, static: { result: 'skipped' } }, true).length);
   assert.ok(verdict({ ...ok, changes: { result: 'failure' } }, false).length);
   assert.ok(verdict({}, false).length);
+});
+
+test('starter/demo: docs-only and a changeset alone are skipped', () => {
+  assert.equal(needsStarterDemo(['docs/a.md', '.claude/skills/checks/SKILL.md', 'CLAUDE.md']), false);
+  assert.equal(needsStarterDemo(['.changeset/a-b.md']), false);
+  assert.equal(needsStarterDemo(['.changeset/a-b.md', '.changeset/config.json']), false);
+});
+test('starter/demo: release notes and the changelog run (the editor build bundles them)', () => {
+  assert.equal(needsStarterDemo(['release-notes/i18n/en-US/pending/a.json', '.changeset/a.md']), true);
+  assert.equal(needsStarterDemo(['CHANGELOG.md']), true);
+});
+test('starter/demo: a src/, theme/, lib/, starter/, demo/, worker/, pages/ or bin/ change runs', () => {
+  for (const p of [
+    'src/store.ts',
+    'theme/ui/Button.tsx',
+    'lib/blocks.mjs',
+    'starter/src/site/worker.js',
+    'demo/src/content/pages/a.md',
+    'worker/index.js',
+    'pages/index.astro',
+    'bin/morpheme.mjs',
+    'defaults/texts.ts',
+    'site/a.ts',
+  ])
+    assert.equal(needsStarterDemo([p, '.changeset/a.md']), true, p);
+});
+test('starter/demo: a script that the jobs use runs', () => {
+  for (const p of [
+    'scripts/check-starter.mjs',
+    'scripts/starter.mjs',
+    'scripts/demo-build.mjs',
+    'scripts/check-demo.mjs',
+    'scripts/editor-screens.mjs',
+    'scripts/check-worker.mjs',
+    'scripts/fixtures/old-blocks.md',
+    'scripts/release-notes-pending.mjs',
+    'scripts/some-new-script.mjs',
+  ])
+    assert.equal(needsStarterDemo([p]), true, p);
+});
+test('starter/demo: a static-only check script, a test file and another workflow are skipped', () => {
+  assert.equal(needsStarterDemo(['scripts/check-language.mjs', 'scripts/web-allowlist.json', 'scripts/check-density.mjs']), false);
+  assert.equal(needsStarterDemo(['src/store.test.mjs', 'lib/blocks.test.mjs', 'scripts/starter-gitattributes.test.mjs']), false);
+  assert.equal(needsStarterDemo(['.github/workflows/publish.yml', 'staging-watcher/index.js']), false);
+});
+test('starter/demo: package.json, the lock file, wrangler.jsonc and the root config run', () => {
+  for (const p of ['package.json', 'package-lock.json', 'wrangler.jsonc', 'astro.mjs', 'tsconfig.types.json', '.gitattributes', 'LICENSE'])
+    assert.equal(needsStarterDemo([p]), true, p);
+});
+test('starter/demo: a workflow or ci-changes change runs everything, even beside docs', () => {
+  assert.equal(needsStarterDemo(['docs/a.md', '.github/workflows/check.yml']), true);
+  assert.equal(needsStarterDemo(['scripts/ci-changes.mjs']), true);
+  assert.equal(needsStarterDemo(['scripts/ci-changes.test.mjs', '.changeset/a.md']), true);
+});
+test('starter/demo: an empty diff, the Release PR and a path with .. run', () => {
+  assert.equal(needsStarterDemo([]), true);
+  assert.equal(needsStarterDemo(['', '\n']), true);
+  assert.equal(needsStarterDemo(['.changeset/a.md'], 'changeset-release/main'), true);
+  assert.equal(needsStarterDemo(['docs/../src/a.ts']), true);
+});
+test('starter/demo: one path that runs makes the whole pull request run', () => {
+  assert.equal(needsStarterDemo(['docs/a.md', 'scripts/check-language.mjs', 'src/a.ts']), true);
+});
+
+const skipFiltered = { ...ok, ...Object.fromEntries(FILTERED.map((n) => [n, { result: 'skipped' }])) };
+test('verdict: starter and demo skipped by the filter is green, the others must still pass', () => {
+  assert.deepEqual(verdict(skipFiltered, false, false), []);
+  assert.equal(verdict({ ...skipFiltered, screens: { result: 'skipped' } }, false, false).length, 1);
+  assert.equal(verdict({ ...skipFiltered, 'screens-extra': { result: 'failure' } }, false, false).length, 1);
+});
+test('verdict: starter or demo failed or cancelled is red when the filter let them run or skipped them', () => {
+  for (const r of ['failure', 'cancelled']) {
+    assert.equal(verdict({ ...ok, starter: { result: r } }, false, true).length, 1);
+    assert.equal(verdict({ ...skipFiltered, demo: { result: r } }, false, false).length, 1);
+  }
+});
+test('verdict: starter or demo skipped although the filter said run is red', () => {
+  assert.equal(verdict(skipFiltered, false, true).length, FILTERED.length);
+  assert.equal(verdict(skipFiltered, false).length, FILTERED.length);
 });
