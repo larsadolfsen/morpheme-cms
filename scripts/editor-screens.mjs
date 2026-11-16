@@ -2236,6 +2236,7 @@ async function barTools(page) {
   const button = page.locator('.editor-tools [aria-label="More"]:visible');
   if (await button.count()) {
     await button.first().click();
+    await menusSettled(page);
     more = await page.evaluate(() =>
       [...document.querySelectorAll('[role=menu][aria-label="More"] [role^=menuitem]')].map((x) => ({
         label: x.textContent.trim(),
@@ -2285,8 +2286,14 @@ function rightEndProblem(names, ends, edge, hasDivider) {
   return '';
 }
 
+/** Waits until the menus that are opening have stopped (the theme's menu is a popover that scales in from 97%), so a size read is the real one. */
+function menusSettled(page) {
+  return page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))));
+}
+
 /** The icons of the menus that are open (`[role=menu]`) that are not 20 x 20 px: a list of "<row>: <w> x <h>". */
-function menuIconProblems(page) {
+async function menuIconProblems(page) {
+  await menusSettled(page);
   return page.evaluate(() => {
     const bad = [];
     for (const svg of document.querySelectorAll('[role=menu] svg')) {
@@ -2400,6 +2407,7 @@ async function checkTextBar(width = 360) {
   const more = page.locator('.editor-tools [aria-label="More"]');
   await more.click();
   await page.waitForSelector('[role=menu][aria-label="More"]', { timeout: 3000 });
+  await menusSettled(page);
   const menu = await page.evaluate(() => {
     const m = document.querySelector('[role=menu][aria-label="More"]');
     const r = m.getBoundingClientRect();
@@ -2482,13 +2490,15 @@ async function checkTextBar(width = 360) {
   await page.setViewportSize({ width, height: 740 });
   await page.waitForTimeout(200);
   // The Text style menu: one button, at most 8 rows of 44 dp, a page's first heading is Main heading.
-  const rowsOf = () =>
-    page.evaluate(() =>
+  const rowsOf = async () => {
+    await menusSettled(page);
+    return page.evaluate(() =>
       [...document.querySelectorAll('[role=menu] [role^=menuitem]')].map((x) => ({
         name: x.textContent.trim(),
         h: x.getBoundingClientRect().height,
       })),
     );
+  };
   const styleTools = (await barTools(page)).names.filter((n) => n.startsWith('Text style'));
   if (styleTools.length !== 1) problems.push(`${label}: ${styleTools.length} Text style tools on the bar and in the ⋮, not 1`);
   await openStyleMenu(page);
@@ -4164,6 +4174,65 @@ async function checkInsertBlock(width, height = 800) {
   await page
     .waitForSelector('dialog[open]', { timeout: 4000 })
     .catch(() => problems.push(`${label}: Insert block did not open the block picker`));
+  await page.close();
+}
+
+/** The editor's floating parts are placed by CSS anchor positioning (Menu and the tooltip in ui.tsx): a bar menu (Text style, at 375 touch, 768 and 1280) and a tooltip (768 and 1280, with the mouse) are open as popovers, inside the screen and next to the button that opened them. */
+async function checkAnchoredParts(width, height, touch) {
+  const label = `${width}px anchored parts${touch ? ' (touch)' : ''}`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  const near = (m, b, w, h) => {
+    const below = m.top - b.bottom;
+    const above = b.top - m.bottom;
+    const inside = m.left >= 7.5 && m.top >= 7.5 && m.right <= w - 7.5 && m.bottom <= h - 7.5;
+    return { inside, next: (below >= -1 && below <= 12) || (above >= -1 && above <= 12), below, above };
+  };
+  // The bar menu.
+  await openStyleMenu(page);
+  await page.waitForSelector('[role=menu]');
+  await menusSettled(page);
+  const menu = await page.evaluate(() => {
+    const m = [...document.querySelectorAll('[role=menu]')].find((x) => x.getClientRects().length && x.matches(':popover-open'));
+    const b =
+      document.querySelector('.editor-tools [aria-label^="Text style"]:not([hidden])') ??
+      document.querySelector('.editor-tools [aria-label="More"]');
+    if (!m || !b) return null;
+    return { m: m.getBoundingClientRect().toJSON(), b: b.getBoundingClientRect().toJSON(), w: innerWidth, h: innerHeight };
+  });
+  if (!menu) problems.push(`${label}: no open bar menu popover`);
+  else {
+    const at = near(menu.m, menu.b, menu.w, menu.h);
+    if (!at.inside) problems.push(`${label}: the bar menu is not inside the screen (${JSON.stringify(menu.m)})`);
+    if (!at.next) problems.push(`${label}: the bar menu is not next to its button (below ${at.below}, above ${at.above})`);
+  }
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  if (await page.locator('[role=menu]:popover-open').count()) problems.push(`${label}: Escape did not close the bar menu`);
+  // The tooltip, with the mouse.
+  if (!touch) {
+    const button = page.locator('.editor-tools [aria-label="Bold"]:visible').first();
+    await button.hover();
+    await page.waitForTimeout(900);
+    const tip = await page.evaluate(() => {
+      const t = document.querySelector('.editor-tooltip:popover-open');
+      const b = document.querySelector('.editor-tools [aria-label="Bold"]');
+      return t && b
+        ? { m: t.getBoundingClientRect().toJSON(), b: b.getBoundingClientRect().toJSON(), w: innerWidth, h: innerHeight }
+        : null;
+    });
+    if (!tip) problems.push(`${label}: no tooltip over Bold`);
+    else {
+      const at = near(tip.m, tip.b, tip.w, tip.h);
+      if (!at.inside) problems.push(`${label}: the tooltip is not inside the screen (${JSON.stringify(tip.m)})`);
+      if (!at.next) problems.push(`${label}: the tooltip is not next to its button (below ${at.below}, above ${at.above})`);
+    }
+  }
   await page.close();
 }
 
@@ -12220,6 +12289,9 @@ for (const width of [375, 1280]) await unit(`no context menu ${width}`, () => ch
 
 for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
 await unit('checkTextBarWide', () => checkTextBarWide());
+await unit('checkAnchoredParts 375 touch', () => checkAnchoredParts(375, 740, true));
+await unit('checkAnchoredParts 768', () => checkAnchoredParts(768, 900, false));
+await unit('checkAnchoredParts 1280', () => checkAnchoredParts(1280, 900, false));
 for (const width of [375, 1280]) await unit(`checkPreviewInBar ${width}`, () => checkPreviewInBar(width));
 await unit('checkSaveKeyNoAutosave', () => checkSaveKeyNoAutosave());
 for (const width of [320, 360, 375, 390, 414, 600, 840, 1280]) await unit(`checkTextBarFit ${width}`, () => checkTextBarFit(width));
