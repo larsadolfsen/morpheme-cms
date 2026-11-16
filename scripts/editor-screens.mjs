@@ -8981,7 +8981,10 @@ async function checkOwnList(width, height) {
     // The list's menu: `Edit list` opens the sheet with the name, the six switches and `Delete list`; `Delete list` is refused while a page reads the list.
     await page.getByRole('button', { name: 'List menu' }).first().click();
     await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
-    const sheet = page.locator('dialog[open]').filter({ hasText: 'Fields' });
+    // From 600 dp it is the pane beside the page, below it the sheet (a dialog).
+    const sheet = (phone ? page.locator('dialog[open]') : page.locator('.editor-side-sheet').locator('visible=true')).filter({
+      hasText: 'Fields',
+    });
     await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: Edit list did not open its sheet`));
     // The list was made in the first format (fields as kind names): it reads as it did. Each of its five fields has the owner's own `Shown` switch (on) and `Remove field`; and `Add field` is there.
     const switches = await sheet.locator('input[type="checkbox"]').count();
@@ -9071,11 +9074,16 @@ async function checkNewList(width, height, label) {
     const button = page.getByRole('button', { name: 'New list' }).first();
     await button.waitFor({ timeout: 15000 }).catch(() => problems.push(`${label}: no New list button on Lists`));
     await button.click();
-    const dialog = page.locator('dialog[open][aria-label="New list"]');
+    const dialog = phone
+      ? page.locator('dialog[open][aria-label="New list"]')
+      : page.locator('.editor-side-sheet').locator('visible=true').filter({ hasText: 'New list' });
     await dialog.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: New list did not open its dialog`));
     if ((await dialog.locator('input[type="checkbox"]').count()) !== 0) problems.push(`${label}: the dialog still has field switches`);
     const state = await page.evaluate(() => {
-      const d = document.querySelector('dialog[open]');
+      const d =
+        innerWidth < 600
+          ? document.querySelector('dialog[open]')
+          : [...document.querySelectorAll('.editor-side-sheet')].find((x) => x.getClientRects().length > 0);
       const kind = (name) =>
         d.querySelector(`button:is([type="button"],[type="submit"])`) &&
         [...d.querySelectorAll('button')].find((b) => b.textContent.trim() === name);
@@ -9130,7 +9138,9 @@ async function checkNewList(width, height, label) {
     await pick(0);
     await page.getByRole('button', { name: 'List menu' }).first().click();
     await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
-    const edit = page.locator('dialog[open]').filter({ hasText: 'Fields' });
+    const edit = (phone ? page.locator('dialog[open]') : page.locator('.editor-side-sheet').locator('visible=true')).filter({
+      hasText: 'Fields',
+    });
     await edit.getByRole('button', { name: 'Add field' }).click();
     await pick(1);
     if ((await edit.locator('input[type="checkbox"]').count()) !== 2)
@@ -9265,7 +9275,9 @@ async function checkNewList(width, height, label) {
     const before = commits.length;
     await page.getByRole('button', { name: 'List menu' }).first().click();
     await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
-    const again = page.locator('dialog[open]').filter({ hasText: 'Fields' });
+    const again = (phone ? page.locator('dialog[open]') : page.locator('.editor-side-sheet').locator('visible=true')).filter({
+      hasText: 'Fields',
+    });
     await again.getByRole('button', { name: 'Add field' }).click();
     await pick(2, 'Title');
     await again.locator('[aria-label="Close"]').first().click();
