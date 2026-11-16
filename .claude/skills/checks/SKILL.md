@@ -57,5 +57,14 @@ A new push to a pull request cancels that pull request's older queued and runnin
 | `cd .morpheme/demo/site && node ../../../scripts/measure-speed.mjs` | by hand, after `npm run build`, when a speed claim or a performance fix needs numbers (a few minutes, not in CI or `npm run check`; the numbers depend on the machine, so compare runs on the same one) | LCP, CLS, TBT, long tasks, long animation frames and the INP of scripted interactions (open menu, open a sheet, type, scroll, search) on the site's key pages and the editor's key screens, on a phone (375 px, CPU 4x) and a computer. `--runs N`, `--profile mobile\|desktop`, `--only <text>`, `--json <file>`; `CHROMIUM_PATH` for another Chromium. Baseline and method: `docs/performance-baseline.md`. |
 | `npm run check:contrast` | by hand, after `npm run build`, when colours or blocks changed (about 4 minutes per theme, not in CI) | WCAG AA contrast of every block's text, icons and control borders on each section colour, on the site and typed in place in the editor, light and dark, phone and computer. `--all` runs every installed theme; `CONTRAST_DENSITY=-1` checks the editor at Small density. |
 
+## What to run before a push
+
+Before a push a session runs `npm run check` and only the screens units that cover what it changed: `npm run check:screens:shard -- K/N --list`
+finds the unit, and `node ../../../scripts/editor-screens.mjs --only <unit name> <dist>` (from `.morpheme/demo/site/`) runs it.
+The full `check:screens`, `check:demo` and `check:starter` run in CI and are not run locally unless (a) the change is to the
+screens harness itself (the shared helpers in `scripts/editor-screens.mjs`, the Playwright setup), (b) a CI job failed and the
+failure does not reproduce with the changed units, or (c) the PM or the owner asks.
+Why (owner, 16 Nov 2026): CI runs them in shards side by side, and a local full run takes 20+ minutes and does the same work twice.
+
 When a job fails, run the same command locally, fix the cause, and push again; never skip, disable or loosen a check
 or add to an allowlist without the reason the allowlist asks for.

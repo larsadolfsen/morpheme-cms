@@ -59,10 +59,10 @@ Every pull request, whatever the change:
 
 ## 3a. Check in when ready to merge
 
-Owner rule, 15 Nov 2026. When the change is finished and `npm run check` is green locally, do not push, open a pull request
+Owner rule, 15 Nov 2026. When the change is finished and `npm run check` is green locally (which checks to run before a push: skill `checks`, *What to run before a push*), do not push, open a pull request
 or re-run CI on your own. Send the PM one message, `ready: <branch>, <what changed>, local check green`, and wait. Only on
 the PM's "your slot" do you push (or merge `origin/<base>` and push, or open the pull request), then report the link and
-the head sha once `check` is green. While you wait you may merge the base locally and run `npm run check`. The first push
+the head sha once `check` is green. While you wait you may merge the base locally and run `npm run check`; never the full `check:screens` (skill `checks`). The first push
 of a new session follows the same rule: check in first. The PM keeps the order (`pm` skill, *Ready queue and CI slots*).
 
 ## 4. The owner's standing design rules
