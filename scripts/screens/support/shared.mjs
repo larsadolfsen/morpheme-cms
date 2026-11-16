@@ -258,9 +258,9 @@ export async function checkSavedLabel(page, width) {
 
 /** A List typed in the text: while a row is active and the list has rows, the text button "Add list row" is under the last row and adds one, the faded empty row is not there, the active row has a dotted line, and Add above and Add below are icon buttons; when the cursor leaves, the button is gone. */
 export const inlineBlocks = [
-  { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row' },
+  { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row', rowLink: true },
   { name: 'steps', hint: 'Numbered steps.', add: 'Add step', noEdit: true },
-  { name: 'segmented', hint: 'Rows that expand, with a link.', add: 'Add row', rowButtons: 'Add button', surface: true },
+  { name: 'segmented', hint: 'Rows that expand, with a link.', add: 'Add list row', rowLink: true, surface: true },
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true, start: 3 },
   { name: 'pricecards', hint: 'Prices with what is included.', add: 'Add price card', surface: true, field: 'name' },
   { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
