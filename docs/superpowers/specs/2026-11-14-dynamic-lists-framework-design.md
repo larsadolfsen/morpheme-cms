@@ -1,6 +1,6 @@
 # Dynamic lists: a framework for apps, the Dynamic lists app and Dynamic cards (design)
 
-Status: spec and build plan for 0.19, decided (section 13), except Q16 to Q19 (apps extending a CMS list), which are deferred to the app platform plan. Q11 to Q15 were answered by the owner on 16 Nov. No code in this pull request. Written 14 November 2026 from the owner's decisions of the
+Status: spec and build plan for 0.19, decided (section 13), except Q19 (is extending a CMS list built now). Q11 to Q15 are decided (section 13); Q16 to Q18 are questions for the app platform plan (3.10). No code in this pull request. Written 14 November 2026 from the owner's decisions of the
 same day (section 1); decisions 7 to 11 and the governing rule added 16 November. Branch `0.19`. Section 13 holds the decisions on the spec's questions.
 
 Read for this spec:
@@ -318,7 +318,7 @@ Who edits what and who draws it (decisions 9 and 10):
   to a list by anyone else, so the rule holds in code and not only in the screens.
 - **Reading** follows 3.4: an app reads its own lists. **Entries** are the owner's: the entry form (`#new/<id>`) works for every list (decision 10).
 - **When the creator is off or not paid for:** the list, its entries and the blocks that read it stay and keep drawing (6.4); nobody can change
-  its definition until the creator is back. Orphans: Q13, decided.
+  its definition until the creator is back. Orphans: Q13, decided by the going-live rule (never deleted, read-only, still drawn, always exportable).
 
 ### 3.10 An app extending a CMS list (direction; design deferred)
 
@@ -331,7 +331,19 @@ later design must keep these rules, which follow from decisions 8 to 10:
 - The stored value belongs to the entry and is kept when the app is off or removed, drawn by nobody until the app is back (as 3.3 keeps an app's
   entries).
 
-Open and deferred to that plan: Q16 to Q19.
+**Questions for the app platform plan** (not open for 0.19; each with a recommendation):
+
+- Q16: may an app extend another *app's* list, or only a CMS list? Recommend only a CMS list at first: the owner's example is a CMS list, and an app's list is its creator's (3.9).
+- Q17: who draws an added field on the site, the CMS block through a slot the app fills, or only the app's own block? Recommend the CMS block through a slot the app fills: the owner may not use a CMS list in other blocks (decision 9), so the CMS's own block is the only place the field can show.
+- Q18: does an added field show on the entry form for the owner to fill in? Recommend yes, with the app's label, kept when the app is off.
+
+**Prepared for later writes (Q14, owner, 16 Nov: "for now, but prepare for extensions").** For now no app writes entries into a list it did
+not create. The contract and the data are shaped so that this can be allowed later **without a data change on any site**: an entry is a plain
+file in its list's folder with no author or owner key, a list's creator comes from its id (3.9) and not from a stored field, an added field is a
+namespaced key in the entry, and no app function writes entries today (3.4). A later permission is then one new `app.json` key in a later
+contract plus a reader function that checks it; no entry file and no definition changes.
+
+Open: Q19.
 
 ## 4. The Dynamic lists app
 
@@ -788,7 +800,7 @@ and every existing one draws as today):
 | 7, 8, 10 | Release notes, and phase 8 is cancelled. |
 | 9 | Dynamic table is an addition; the typed Table is unchanged (`typedColumns`). |
 
-**Merged or in-flight work that contradicts the decisions** (no code changed here):
+**Merged or in-flight work that contradicts the decisions** (no code changed here). The three items below are **follow-up work for 0.19**: the `locked` key, `SITE_LISTS` and the `Rows from` picker (with `editPageOf`, which moves to `creatorOf`), each a small pull request or part of phase 2, 3 or 4 as marked:
 
 - **Phase 2 (merged): `locked` in `app.json`**, `lib/appManifest.mjs` (`firstParty` option, `locked: false`), `src/ownLists.ts` (`locked !== false`)
   and their tests allow a first-party app's list to be unlocked, and the core then draws the full edit page for it. Decision 8 says the CMS cannot
@@ -834,8 +846,8 @@ PRs 0, 1, 5 and 6); its sorting, pagination and search work on the dynamic rows 
 ## 13. Decisions
 
 Q7 was decided by the owner on 14 Nov. The owner was away and asked the 0.19 PM to decide the rest; the PM decided them as recommended,
-on the owner's behalf, on 14 Nov. The owner may revise any of them. Decisions 7 to 11 of 16 Nov change Q1, Q2 and Q4 (marked), decide Q11 to Q15, and leave four
-questions open (Q16 to Q19, below the table), which belong to the app platform plan.
+on the owner's behalf, on 14 Nov. The owner may revise any of them. Decisions 7 to 11 of 16 Nov change Q1, Q2 and Q4 (marked), decide Q11 to Q15, and leave one
+question open (Q19, below the table); Q16 to Q18 go to the app platform plan (3.10).
 
 | # | Question | Decision | By |
 | :--- | :--- | :--- | :--- |
@@ -851,17 +863,14 @@ questions open (Q16 to Q19, below the table), which belong to the app platform p
 | Q10 | PR B of the edit-page plan | **Cancelled by the owner on 15 Nov:** entries are not typed on the edit page (section 11). | Owner |
 | Q11 | May the site owner add and edit the entries of an app's list or Testimonials in the entry form? | Yes: the owner only adds and edits entries; the definition is the creator's (decision 10, 3.9). | Owner, 16 Nov |
 | Q12 | Do sites that made own lists in 0.17 keep the Dynamic lists app free? | No site has made an own list yet, so nothing to grandfather: the app can become paid without any site losing anything (4.2). | Owner, 16 Nov |
-| Q13 | Who changes a list whose creator is gone (the app is removed or not paid for)? | Nobody, until the creator is back; the list keeps drawing (3.9, 6.4). | Owner, 16 Nov, answered "None" to the PM's options |
-| Q14 | May an app write entries into a list it did not create? | No: no app function writes entries (3.4). | Owner, 16 Nov, as Q13 |
+| Q13 | A list whose creator is gone (the app is removed, not paid for, or paused): what happens to it? | Nothing is deleted by it. By decision 8 only the creator changes a list's definition and by decision 10 the owner only adds and edits content, so while the creator is gone the definition stays as it is and nobody changes it, and the list keeps drawing on the site (6.4). The going-live plan sets the rest: "Nothing is deleted for 12 months, and **Export** always works (decision 6)", "a pause never deletes data" (`2026-11-15-going-live-v1-design.md`, decision 6 and the *Not paid* row), and a lapsed paid item pauses after a grace period (the store's paid-items design, `morpheme-appstore`, not in this repository; what exactly is read-only while paused is that design's). A free app removed for good follows the same rule; the plan does not say more. | Decisions 8 and 10, and the going-live plan |
+| Q14 | May an app write entries into a list it did not create? | For now no. "for now, but prepare for extensions" (owner, 16 Nov): the contract and data are shaped so that it can be allowed later without a data change on any site (3.10). | Owner, 16 Nov |
 | Q15 | What happens to existing blocks filled by `Rows from` from posts, Testimonials or an app's list? | No released site has such a block, so the pickers offer only the Dynamic lists app's own lists and nothing is migrated (4.1). | Owner, 16 Nov |
 
-**Open (decision 11, for the owner, through the PM).** Each has a recommendation; none is built until the owner answers.
+**Open (decision 11, for the owner, through the PM).** It has a recommendation; nothing is built until the owner answers.
 
 | # | Question | Recommendation |
 | :--- | :--- | :--- |
-| Q16 | May an app extend another **app's** list, or only a CMS list (decision 11)? | Only a CMS list in the first version: the owner's example is a CMS list, and an app's list is its creator's (3.9). |
-| Q17 | Who draws an added field on the site: the CMS block through a slot the app fills, or only the app's own block? | The CMS block through a slot the app fills: the owner may not use a CMS list in other blocks (decision 9), so the CMS's own block is the only place the field can show. |
-| Q18 | Does an added field show on the entry form for the owner to fill in? | Yes, with the app's label, and kept when the app is off (3.10). |
 | Q19 | Is extending a CMS list built now (0.19) or later? | Later, with the app platform plan (`2026-11-15-app-platform-0-23.md`). 3.10 only records the direction and its rules. |
 
 ## 14. Not in this spec
