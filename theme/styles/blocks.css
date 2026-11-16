@@ -221,6 +221,10 @@
   .block-steps {
     max-width: var(--block-list-measure-max);
   }
+  /* A post row has a thumbnail (128px) before its text: its columns are wider (30rem), so the date and reading time stay on one line. */
+  .block-posts-rows {
+    --block-list-column-min: 30rem;
+  }
   .list.block-list,
   .list.block-accordion,
   .list.block-testimonial-rows,

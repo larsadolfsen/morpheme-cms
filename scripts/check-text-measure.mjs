@@ -70,7 +70,8 @@ for (const width of [375, 768, 1280, 1580]) {
           } else {
             const grid = block.matches('.block-posts-rows') ? block.querySelector('.theme-post-list') : block;
             const columns = getComputedStyle(grid).gridTemplateColumns.split(' ').length;
-            const wanted = w >= 1080 ? 3 : w >= 720 ? 2 : 1;
+            // A post row has a thumbnail: its columns are at least 480px (two from 984px).
+            const wanted = block.matches('.block-posts-rows') ? (w >= 984 ? 2 : 1) : w >= 1080 ? 3 : w >= 720 ? 2 : 1;
             if (columns !== wanted) out.push(`${name} has ${columns} columns at ${w}px , not ${wanted}`);
           }
           if (!before?.matches?.('p') || !before.closest('.prose')) continue;
