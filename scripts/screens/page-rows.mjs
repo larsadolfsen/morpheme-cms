@@ -942,7 +942,7 @@ async function checkPreviewDraft(width) {
   await page.close();
 }
 
-/** An empty row in a block typed in place (the Segmented list's "New row" left empty) is not a snackbar and a page that cannot be saved: Save or Publish scrolls to the block and asks (375 px, touch): "You have an empty segmented list row." with Remove item (the row goes, nothing is saved), the action tapped (the page is saved without the empty rows) and Cancel (nothing changes). A page without an empty row saves as before, with no question. */
+/** An empty row in a block typed in place (the List - Expand's "New row" left empty) is not a snackbar and a page that cannot be saved: Save or Publish scrolls to the block and asks (375 px, touch): "You have an empty segmented list row." with Remove item (the row goes, nothing is saved), the action tapped (the page is saved without the empty rows) and Cancel (nothing changes). A page without an empty row saves as before, with no question. */
 async function checkEmptyRow(width, height) {
   const label = `${width}px empty row`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -960,7 +960,7 @@ async function checkEmptyRow(width, height) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'tap');
-  await page.locator('dialog[open] button', { hasText: 'Rows that expand, with a link.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Rows that open to show more.' }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
   const dialog = page.locator('dialog[open]');
   const rows = () => page.locator('.inline-list-row[data-row]:not(.inline-list-row-next)').count();
@@ -979,7 +979,7 @@ async function checkEmptyRow(width, height) {
   await press('Publish');
   if (!(await dialog.count())) problems.push(`${label}: a block with no row on Publish did not open a dialog`);
   else {
-    if ((await sayOf()) !== 'Segmented list has no rows. The block will be deleted.')
+    if ((await sayOf()) !== 'List - Expand has no rows. The block will be deleted.')
       problems.push(`${label}: the dialog says "${await sayOf()}"`);
     const got = await buttons();
     if (got.join('|') !== 'Cancel|Delete and publish')
@@ -1014,7 +1014,7 @@ async function checkEmptyRow(width, height) {
     await page.click('.ProseMirror > p');
     await page.keyboard.press('Enter');
     await pressInsert(page, 'tap');
-    await page.locator('dialog[open] button', { hasText: 'Rows that expand, with a link.' }).first().click();
+    await page.locator('dialog[open] button', { hasText: 'Rows that open to show more.' }).first().click();
     await page.waitForSelector('.inline-list-row-active [data-field="title"]');
     await page.keyboard.type('First');
     for (const word of ['Second', 'Third']) {
@@ -1183,7 +1183,7 @@ async function checkChangeTo(width, height) {
   await opener.click();
   await page.waitForTimeout(200);
   const level = await menuRows();
-  const want = 'Change type,Segmented list,Steps,FAQ list,Cards,Table';
+  const want = 'Change type,List - Expand,Steps,FAQ list,Cards,Table';
   if (level.join() !== want) problems.push(`${label}: Change type's level is ${level.join(', ')}, not ${want}`);
   // The header of the level has the swap icon of the row (not a back arrow) and says where it goes.
   const header = page.locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ }).first();
@@ -1325,6 +1325,13 @@ async function checkPageLeftEdge(width) {
           const range = document.createRange();
           range.selectNodeContents(n);
           first = n.textContent.trim() ? ([...range.getClientRects()].find((q) => q.width) ?? null) : null;
+        }
+        // Below 600 dp a plain list (not the segmented design) goes edge to edge (owner, 16 Nov 2026): at the viewport's left edge and as wide as it.
+        if (innerWidth < 600 && c.matches('.block-list:not(.list-segmented), .block-accordion:not(.block-accordion-segmented)')) {
+          const box = c.getBoundingClientRect();
+          if (Math.abs(left) > 1 || Math.abs(box.width - innerWidth) > 1)
+            out.push(`plain list ${c.className.toString().slice(0, 30)} at ${left}, ${box.width} wide, not edge to edge`);
+          continue;
         }
         if (Math.abs(left - text) > 1 && !(first && Math.abs(first.left - text) <= 1.5))
           out.push(`block ${c.className.toString().slice(0, 30)} at ${left}`);

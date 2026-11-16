@@ -8,6 +8,7 @@
 // "Segmented list" can have an icon before its heading and a page after its text.
 import { useId } from 'react';
 import PageRow from '@theme/blocks/accordion/PageRow';
+import { leadingProps } from '@morphemecms/cms/src/standard/list/leading';
 import { Svg } from '@morphemecms/cms/src/icon';
 import Button from '@theme/ui/Button';
 import List, { ListItem } from '@theme/ui/List';
@@ -19,18 +20,25 @@ export default function Accordion({
   several,
   cut,
   oneColumn,
+  segmented,
 }: {
   rows: AccordionRow[];
   group?: string;
   several?: boolean;
-  /** `Max rows` of "Segmented list": the rows from this one on are extra (MoreRows.tsx). */
+  /** `Max rows` of the lists: the rows from this one on are extra (MoreRows.tsx). */
   cut?: number;
   /** The setting Columns is off: one column, whatever the width (data-columns, blocks.css). */
   oneColumn?: boolean;
+  /** Design `segmented`: each row on its own surface (.block-accordion-segmented, global.css); else the rows are on the page, with a line between them. */
+  segmented?: boolean;
 }) {
   const own = useId();
   return (
-    <List expand className="block-accordion" data-columns={oneColumn ? 'one' : undefined}>
+    <List
+      expand
+      className={segmented ? 'block-accordion block-accordion-segmented' : 'block-accordion'}
+      data-columns={oneColumn ? 'one' : undefined}
+    >
       {rows.map((row, i) => (
         <ListItem
           key={i}
@@ -50,6 +58,7 @@ export default function Accordion({
               />
             ) : undefined
           }
+          {...('leading' in row ? leadingProps(row) : {})}
           headline={row.label}
         >
           {'html' in row ? (

@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { cardDesignProblems, cssIn } from './card-designs.mjs';
 
-const css = ['ui.css', 'blocks.css', 'global.css']
+const css = ['ui.css', 'blocks.css', 'cards.css', 'global.css']
   .map((f) => readFileSync(new URL(`../theme/styles/${f}`, import.meta.url), 'utf8'))
   .join('\n');
 

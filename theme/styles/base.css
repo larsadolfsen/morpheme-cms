@@ -5,8 +5,12 @@
 /* The theme's UI components, as Material 3 names them (buttons, icon buttons), and the standard blocks of the editor,
    in this site's design (their variables below). */
 @import './ui.css';
+/* The cards (Card, the Cards and Price cards blocks), the card grid and the Carousel. */
+@import './cards.css';
 @import './type.css';
 @import './blocks.css';
+/* The designs of the lists (List, List - Expand): Default and Card. */
+@import './lists.css';
 /* The theme's variables and the classes the standard theme's components use with them. */
 @import './components.css';
 @import './tokens/base/ref.css';

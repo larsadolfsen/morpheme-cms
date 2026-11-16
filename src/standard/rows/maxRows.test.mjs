@@ -1,4 +1,4 @@
-// Tests `Max rows` of "Segmented list" (maxRows.mjs). Run: node --test src/standard/segmented/maxRows.test.mjs
+// Tests `Max rows` of "Segmented list" (maxRows.mjs). Run: node --test src/standard/expand/maxRows.test.mjs
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { cutAt, maxRowsOf } from './maxRows.mjs';
