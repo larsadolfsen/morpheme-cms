@@ -7,13 +7,14 @@ import { siteT } from '../../i18n';
 import { sharedIn } from '../../shared';
 import type { ViewOf } from '../view';
 import { headOf, type HeadView } from '../head';
+import { columnsOf, type ColumnsView } from '../columns';
 import shared from './shared';
 import { filledLink } from './topic.mjs';
 
 /** A row of a page: its name, its text, its page, the link's text and links to more pages. */
 export type PageRowView = { label: string; text: string; href: string; link: string; more?: { label: string; href: string }[] };
 
-export type AccordionView = HeadView & { group?: string; rows: PageRowView[] };
+export type AccordionView = HeadView & ColumnsView & { group?: string; rows: PageRowView[] };
 
 /** A row as its field writes it. */
 export type PageRowProps = { label: string; href: string; text?: string; more?: { label: string; href: string }[] };
@@ -28,6 +29,7 @@ export const viewOf: ViewOf<AccordionView> = (props, data) => {
   const link: string = sharedIn(data.site, 'accordion', shared.values).more;
   return {
     ...headOf(props),
+    ...columnsOf(props),
     rows: ((props.items ?? []) as PageRowProps[]).map((row) => pageRow(row, row.text?.trim() || siteT.blocks.accordion.opening, link)),
   };
 };

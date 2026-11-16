@@ -13,6 +13,7 @@ import { libraryAltPart } from '../../imageAlt.mjs';
 import type { Image, ViewOf } from '../view';
 import { chosen, tagsOf, tagsShown } from '.';
 import { headOf, type HeadView } from '../head';
+import { columnsOf, type ColumnsView } from '../columns';
 import shared from './shared';
 
 export type TestimonialView = {
@@ -27,14 +28,15 @@ export type TestimonialView = {
   href: string;
 };
 export type TestimonialTexts = { more: string; less: string };
-export type TestimonialsView = HeadView & {
-  layout?: string;
-  testimonials: TestimonialView[];
-  /** What the slider is called for screen readers: its heading, else the block's name (labelOf). */
-  label: string;
-  filters: { slug: string; name: string }[];
-  texts: TestimonialTexts;
-};
+export type TestimonialsView = HeadView &
+  ColumnsView & {
+    layout?: string;
+    testimonials: TestimonialView[];
+    /** What the slider is called for screen readers: its heading, else the block's name (labelOf). */
+    label: string;
+    filters: { slug: string; name: string }[];
+    texts: TestimonialTexts;
+  };
 
 /** What the slider is called for screen readers: the block's heading, else "Testimonials" in the site's language. */
 export const labelOf = (props: Record<string, any>): string => props.heading?.trim() || siteT.blocks.testimonials.label;
@@ -76,6 +78,7 @@ export const viewOf: ViewOf<TestimonialsView> = (props, data) => {
   const rows = chosen(props, data);
   return {
     ...headOf(props),
+    ...columnsOf(props),
     layout: props.layout,
     testimonials: shownTestimonials(rows, data, tagsShown(props)),
     label: labelOf(props),

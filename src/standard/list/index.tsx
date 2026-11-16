@@ -6,6 +6,7 @@ import { defineBlock } from '../../blocks';
 import { iconOptions } from '../../icon';
 import { iconColorField } from '../../iconColor';
 import { t } from '../../i18n';
+import { columnsField } from '../columns';
 import { fromLine, nameWith, rowsFromFields, typed } from '../rows/fields';
 
 type Row = { title?: string };
@@ -49,6 +50,7 @@ export default defineBlock({
         { name: 'href', label: t.blocks.list.href, type: 'relation', to: 'pages', hint: t.blocks.list.hrefHint },
       ],
     },
+    columnsField(),
   ],
   example: {
     items: [

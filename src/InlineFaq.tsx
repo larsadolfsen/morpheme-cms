@@ -13,6 +13,7 @@ import { headOf } from './standard/head';
 import BlockHead from '@theme/blocks/BlockHead';
 import ListButton from '@theme/blocks/ListButton';
 import List, { ListItem } from '@theme/ui/List';
+import { columnsAttr } from './standard/columns';
 
 export default function InlineFaq({ items, props, active, focus, onChange, onProps, onEdit, folds, onFold }: InlineViewProps) {
   const head = headOf(props);
@@ -29,7 +30,7 @@ export default function InlineFaq({ items, props, active, focus, onChange, onPro
         onChange={onChange}
         paste
         wrap={(rows) => (
-          <List expand className="block-accordion">
+          <List expand className="block-accordion" data-columns={columnsAttr(props)}>
             {rows}
           </List>
         )}

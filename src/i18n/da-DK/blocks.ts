@@ -152,6 +152,11 @@ export const blocks: Messages['blocks'] = {
     map: 'Felter i en række',
     empty: 'Ingen poster i listen passer, så der vises ikke noget på siden.',
   },
+  columns: {
+    label: 'Kolonner',
+    toggle: ['Til', 'Fra'] as [string, string],
+    about: 'Til: rækkerne står i kolonner, hvor der er plads. Fra: én kolonne.',
+  },
   list: {
     label: 'Liste',
     hint: 'Rækker med ikon, overskrift og tekst.',

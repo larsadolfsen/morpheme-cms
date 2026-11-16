@@ -71,8 +71,11 @@ for (const width of [375, 768, 1280, 1580]) {
             const grid = block.matches('.block-posts-rows') ? block.querySelector('.theme-post-list') : block;
             const columns = getComputedStyle(grid).gridTemplateColumns.split(' ').length;
             // A post row has a thumbnail: its columns are at least 480px (two from 984px).
-            const wanted = block.matches('.block-posts-rows') ? (w >= 984 ? 2 : 1) : w >= 1080 ? 3 : w >= 720 ? 2 : 1;
-            if (columns !== wanted) out.push(`${name} has ${columns} columns at ${w}px , not ${wanted}`);
+            // The setting Columns is off (data-columns="one"): one column at most 720px wide, whatever the width.
+            const one = block.matches("[data-columns='one']");
+            const wanted = one ? 1 : block.matches('.block-posts-rows') ? (w >= 984 ? 2 : 1) : w >= 1080 ? 3 : w >= 720 ? 2 : 1;
+            if (columns !== wanted) out.push(`${name} has ${columns} columns at ${w}px${one ? ' with Columns off' : ''}, not ${wanted}`);
+            if (one && w > 721) out.push(`${name} with Columns off is ${w}px wide, more than 720px`);
           }
           if (!before?.matches?.('p') || !before.closest('.prose')) continue;
           if (left(block) !== left(before))
@@ -83,6 +86,14 @@ for (const width of [375, 768, 1280, 1580]) {
       { BLOCKS, width },
     );
     for (const f of found) problems.push(`${path} at ${width}px: ${f}`);
+    // The demo's Lists page has a List with the setting Columns off and one with it on (the default), so both values are checked.
+    if (path === '/blocks/lists/') {
+      const both = await page.evaluate(() => [
+        !!document.querySelector(".block-list[data-columns='one']"),
+        !!document.querySelector('.block-list:not([data-columns])'),
+      ]);
+      if (!both[0] || !both[1]) problems.push(`/blocks/lists/ at ${width}px: it needs a List with Columns off and one with Columns on`);
+    }
   }
   await page.close();
 }
