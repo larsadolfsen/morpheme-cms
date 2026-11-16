@@ -34,24 +34,28 @@ async function checkNamesView(width, height, page) {
       }),
     }));
   await tab.goto(`${site}/blocks/${page}/?names=0`, { waitUntil: 'networkidle' });
-  if (await tab.locator('.demo-names-chip').count()) problems.push(`${label}: a label is drawn while the view is off`);
+  if (await tab.locator('[data-demo-names="block"], [data-demo-names="part"]').count())
+    problems.push(`${label}: a label is drawn while the view is off`);
   const off = await boxes();
 
   // The Names button (in the footer) turns the labels on.
-  await tab.locator('.demo-names-toggle').click();
-  if (!(await tab.locator('.demo-names-chip').count())) problems.push(`${label}: the Names button draws no labels`);
+  await tab.locator('[data-demo-names="toggle"]').click();
+  if (!(await tab.locator('[data-demo-names="block"], [data-demo-names="part"]').count()))
+    problems.push(`${label}: the Names button draws no labels`);
   await tab.evaluate(() => localStorage.removeItem('morpheme-demo-names'));
 
   await tab.goto(`${site}/blocks/${page}/?names`, { waitUntil: 'networkidle' });
-  await tab.waitForSelector('.demo-names-chip', { timeout: 10_000 }).catch(() => {});
+  await tab.waitForSelector('[data-demo-names="block"], [data-demo-names="part"]', { timeout: 10_000 }).catch(() => {});
   const found = await tab.evaluate(() => ({
-    blocks: [...document.querySelectorAll('.demo-names-block')].map((e) => e.textContent),
-    parts: [...document.querySelectorAll('.demo-names-part')].map((e) => e.textContent),
+    blocks: [...document.querySelectorAll('[data-demo-names="block"]')].map((e) => e.textContent),
+    parts: [...document.querySelectorAll('[data-demo-names="part"]')].map((e) => e.textContent),
     expected: document.querySelector('script[data-blocks]')?.dataset.blocks.split('|').length ?? 0,
     roots: [...document.querySelectorAll('main .block-in-text')].filter(
       (el) => !el.parentElement.closest('.block-in-text') && !el.matches('.block-list-button, .block-more-button'),
     ).length,
-    events: [...document.querySelectorAll('.demo-names-chip')].filter((e) => getComputedStyle(e).pointerEvents !== 'none').length,
+    events: [...document.querySelectorAll('[data-demo-names="block"], [data-demo-names="part"]')].filter(
+      (e) => getComputedStyle(e).pointerEvents !== 'none',
+    ).length,
   }));
   if (!found.expected) problems.push(`${label}: the page lists no blocks (data-blocks)`);
   if (found.blocks.length !== found.expected || found.roots !== found.expected)
@@ -66,7 +70,10 @@ async function checkNamesView(width, height, page) {
 
   // A label never sits on text: no label's box meets the box of any text in the page.
   const covered = await tab.evaluate(() => {
-    const chips = [...document.querySelectorAll('.demo-names-chip')].map((c) => ({ c, r: c.getBoundingClientRect() }));
+    const chips = [...document.querySelectorAll('[data-demo-names="block"], [data-demo-names="part"]')].map((c) => ({
+      c,
+      r: c.getBoundingClientRect(),
+    }));
     const hits = [];
     const walk = document.createTreeWalker(document.querySelector('main'), NodeFilter.SHOW_TEXT);
     for (let n = walk.nextNode(); n; n = walk.nextNode()) {
@@ -82,6 +89,22 @@ async function checkNamesView(width, height, page) {
     return { hits, mine };
   });
   if (covered.hits.length) problems.push(`${label}: a label covers text (${[...new Set(covered.hits)].slice(0, 4).join('; ')})`);
+  // One name to a line: no two labels share a line, and the label type is the theme's.
+  const stacked = await tab.evaluate(() => {
+    const rects = [...document.querySelectorAll('[data-demo-names="block"], [data-demo-names="part"]')].map((c) =>
+      c.getBoundingClientRect(),
+    );
+    let beside = 0;
+    rects.forEach((a, i) => rects.slice(i + 1).forEach((b) => (a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5 ? beside++ : 0)));
+    const chip = document.querySelector('[data-demo-names="block"]');
+    return {
+      beside,
+      font: chip ? getComputedStyle(chip).fontSize : '',
+      mono: chip ? /mono/i.test(getComputedStyle(chip).fontFamily) : false,
+    };
+  });
+  if (stacked.beside) problems.push(`${label}: ${stacked.beside} pairs of labels share a line`);
+  if (stacked.mono) problems.push(`${label}: a label is monospace`);
   if (covered.mine) problems.push(`${label}: ${covered.mine} labels outside the window's width`);
   if (page === 'lists' && !found.parts.some((p) => /^ListItem · two-line ×\d+$/.test(p)))
     problems.push(`${label}: a run of list rows is not labelled once with its count`);

@@ -5,7 +5,6 @@
 (() => {
   const script = document.currentScript;
   const KEY = 'morpheme-demo-names';
-  const STYLE = '/demo-names.css';
 
   // A block's name as the editor calls it, in the order the blocks are on the page (the build wrote them in `data-blocks`,
   // each `type=Name`, separated by `|`).
@@ -79,14 +78,6 @@
   let layer;
   let queued = false;
 
-  const style = () => {
-    if (document.querySelector(`link[href="${STYLE}"]`)) return;
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = STYLE;
-    document.head.append(link);
-  };
-
   /** The elements to label: the blocks in the text (`.block-in-text` that is not inside another one), then the theme's parts. */
   const targets = () => {
     const main = document.querySelector('main') ?? document.body;
@@ -131,18 +122,27 @@
       const r = t.el.getBoundingClientRect();
       if (r.width === 0 || r.height === 0) continue;
       const chip = document.createElement('span');
-      chip.className = t.block ? 'demo-names-chip demo-names-block' : 'demo-names-chip demo-names-part';
-      const name = document.createElement('span');
       const count = t.block ? 1 : runs.get(t.key);
-      name.textContent = count > 1 ? `${t.text} ×${count}` : t.text;
-      if (!t.block) name.className = 'demo-names-code';
-      chip.append(name);
-      if (t.block && t.code) {
-        const code = document.createElement('span');
-        code.className = 'demo-names-code';
-        code.textContent = t.code;
-        chip.append(code);
-      }
+      chip.textContent = count > 1 ? `${t.text} ×${count}` : t.text;
+      // The theme's Label type (its tokens) in the theme's inverse colors (a block) or container colors (a part), which read on every
+      // section color in light and dark; no class, no color of its own.
+      Object.assign(chip.style, {
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        padding: '0 0.375rem',
+        borderRadius: 'var(--mo-shape-extra-small)',
+        border: '1px solid var(--mo-outline)',
+        fontSize: 'var(--type-label-medium-size)',
+        lineHeight: 'var(--type-label-medium-line-height)',
+        fontWeight: 'var(--type-label-medium-weight)',
+        letterSpacing: 'var(--type-label-medium-tracking)',
+        whiteSpace: 'nowrap',
+        pointerEvents: 'none',
+        background: t.block ? 'var(--mo-inverse-surface)' : 'var(--mo-surface-container-highest)',
+        color: t.block ? 'var(--mo-inverse-on-surface)' : 'var(--mo-on-surface)',
+      });
+      chip.dataset.demoNames = t.block ? 'block' : 'part';
       items.push({ chip, block: t.block, x: r.left + scrollX, y: r.top + scrollY, w: r.width });
     }
     layer.append(...items.map((i) => i.chip));
@@ -156,18 +156,15 @@
       for (const t of range.getClientRects()) texts.push({ left: t.left + scrollX, top: t.top + scrollY, w: t.width, h: t.height });
     }
     const meets = (o, left, top, w, h) => left < o.left + o.w - 1 && o.left + 1 < left + w && top < o.top + o.h - 1 && o.top + 1 < top + h;
-    // A chip sits just above its part's top edge, never on text: the block's first, then the parts. If that spot meets text or another
-    // chip it goes up in small steps, then beside the part, then beside the chips already there; it stays inside the window's width.
-    for (const { chip, x, y, w: pw } of items.sort((a, b) => a.y - b.y || a.x - b.x || b.block - a.block)) {
+    // One name to a line, stacked: a chip sits just above its part's top edge, never on text. One that would meet text or share a line
+    // with another chip goes up a line. The parts are placed first and each block's chip last, so a block's name is on top, its parts under it. It stays inside the window's width.
+    const lines = items.slice().sort((a, b) => a.block - b.block || a.y - b.y || a.x - b.x);
+    for (const { chip, x, y } of lines) {
       const w = chip.offsetWidth;
       const h = chip.offsetHeight;
-      const fit = (left) => Math.max(0, Math.min(left, width - w));
-      const free = (left, top) => top >= 0 && ![...taken, ...texts].some((o) => meets(o, left, top, w, h));
-      const spots = [];
-      for (let up = 2; up <= 42; up += 4) spots.push([fit(x), y - h - up]);
-      spots.push([fit(x + pw + 4), y], [fit(x - w - 4), y]);
-      for (const o of taken) spots.push([fit(o.left + o.w + 4), o.top]);
-      const [left, top] = spots.find(([l, t]) => free(l, t)) ?? [fit(x), Math.max(0, y - h - 2)];
+      const left = Math.max(0, Math.min(x, width - w));
+      let top = Math.max(0, y - h - 2);
+      for (let n = 0; n < 200 && top > 0 && taken.some((o) => top < o.top + o.h && o.top < top + h) || texts.some((o) => meets(o, left, top, w, h)); n++) top -= 2;
       taken.push({ left, top, w, h });
       chip.style.translate = `${left}px ${top}px`;
     }
@@ -180,7 +177,8 @@
 
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = 'button button-outlined button-xsmall demo-names-toggle';
+  button.className = 'button button-outlined button-xsmall';
+  button.dataset.demoNames = 'toggle';
   button.textContent = 'Names';
   const show = () => {
     button.setAttribute('aria-pressed', String(on));
@@ -190,13 +188,12 @@
     on = !on;
     write(on);
     show();
-    if (on) style();
     draw();
   });
 
   const start = () => {
     layer = document.createElement('div');
-    layer.className = 'demo-names-layer';
+    Object.assign(layer.style, { position: 'absolute', top: '0', left: '0', width: '0', height: '0', overflow: 'visible', pointerEvents: 'none', zIndex: '2147483000' });
     layer.setAttribute('aria-hidden', 'true');
     document.body.append(layer);
     // The button goes in the footer, next to the theme's own switch, where it covers no content; a page without that footer has it
@@ -204,13 +201,10 @@
     const bar = document.querySelector('.md-footer-bottom > div');
     if (bar) bar.prepend(button);
     else {
-      button.classList.add('demo-names-fixed');
+      Object.assign(button.style, { position: 'fixed', left: '1rem', bottom: '1rem', zIndex: '2147483001' });
       document.body.append(button);
     }
     show();
-    if (on) style();
-    // The toggle's own stylesheet is needed at once; the labels' wait for it.
-    style();
     draw();
     addEventListener('resize', later);
     addEventListener('scroll', later, { capture: true, passive: true });

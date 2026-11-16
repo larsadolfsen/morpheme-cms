@@ -21,7 +21,7 @@
     "bin",
     "defaults",
     "demo",
-    "!demo/public/demo-names.*",
+    "!demo/public/demo-names.js",
     "!scripts/demo-names.mjs",
     "!scripts/screens/demo-names.mjs",
     "icons",
