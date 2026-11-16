@@ -1,6 +1,6 @@
 // Light or dark: as the phone or computer is set (auto), or always light or dark, picked on the account
 // and kept in this browser. It is set on <html> as data-theme, which the site's colours follow
-// (the theme's styles/global.css); the script in the head of packages/editor/pages/editor/index.astro does the same
+// (the theme's styles/global.css); the script in the head of packages/editor/pages/edit/index.astro does the same
 // before the page is drawn, so it does not flash in the other colours. Its own key, so the site's
 // choice (`theme`) is not changed by the editor's.
 import { colorsCss, isColor, pageColor, type Colors } from '../lib/colors';
@@ -28,7 +28,7 @@ export function setTheme(theme: Theme) {
 }
 
 // The colour of the phone's top bar (the theme-color tags) follows a chosen theme too: each tag has the
-// colour of its own mode in data-color (packages/editor/pages/editor/index.astro), and a picked mode puts its
+// colour of its own mode in data-color (packages/editor/pages/edit/index.astro), and a picked mode puts its
 // colour in both.
 const bars = () => Array.from(document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]'));
 const isDark = (m: HTMLMetaElement) => m.media.includes('dark');

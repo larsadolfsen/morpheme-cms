@@ -1,4 +1,4 @@
-// The Milkdown setup shared by the editor (/editor/) and packages/editor/scripts/editor-roundtrip.mjs, so the check
+// The Milkdown setup shared by the editor (/edit/) and packages/editor/scripts/editor-roundtrip.mjs, so the check
 // runs the same Markdown parser and writer as the browser.
 import { Editor, editorViewCtx, rootCtx, defaultValueCtx, remarkStringifyOptionsCtx, serializerCtx } from '@milkdown/kit/core';
 import { commonmark, headingSchema, paragraphSchema, strongAttr } from '@milkdown/kit/preset/commonmark';

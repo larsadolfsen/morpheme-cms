@@ -22,7 +22,7 @@ export async function logout() {
 }
 
 // Sign in: the Worker sends the browser to GitHub and back, keeps the token in its cookie and opens
-// /editor/ again (packages/editor/worker/oauth.js). A redirect, not a popup, so it works in the installed app too.
+// /edit/ again (packages/editor/worker/oauth.js). A redirect, not a popup, so it works in the installed app too.
 export function login() {
   location.assign('/oauth/auth?provider=github&scope=repo');
 }

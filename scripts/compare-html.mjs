@@ -20,7 +20,7 @@ if (!before || !existsSync(before) || !existsSync(after)) {
 
 const pages = (dir) =>
   readdirSync(dir, { recursive: true })
-    .filter((f) => f.endsWith('.html') && !f.startsWith('editor/') && statSync(join(dir, f)).isFile())
+    .filter((f) => f.endsWith('.html') && !f.startsWith('edit/') && !f.startsWith('editor/') && statSync(join(dir, f)).isFile())
     .sort();
 
 const attributes = (tag) =>

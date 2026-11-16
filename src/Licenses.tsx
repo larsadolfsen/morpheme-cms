@@ -1,5 +1,5 @@
 // "Licenses" (#licenses), under "Settings": the third-party work the site and the editor are made with, as the
-// site was last built (/editor/licenses.json, licensesIntegration in packages/editor/lib/licenses.mjs), with a search by
+// site was last built (/edit/licenses.json, licensesIntegration in packages/editor/lib/licenses.mjs), with a search by
 // name, who made it and the licence's name. First the icon packs (the system's, each with the sets it takes icons from
 // besides its own), then what the editor and the site's own code bring (the npm packages shipped in what is downloaded,
 // the CMS's own licence "Morpheme CMS itself" first, with its version),

@@ -14,7 +14,7 @@
 // the colours from them; changing a colour by hand turns it off. Material's other source of dynamic colour, each page's own image, is an app ("Content-based
 // colors", src/apps/content-colors/: pageColors in packages/editor/site/pageColors.ts). While an app installed changes the pages'
 // colours (hooks/page-colors.ts), each mode shows the pages' colours instead (PageColors), as the site was last built
-// (/editor/page-colors.json, packages/editor/scripts/page-colors.mjs): first a notice that the apps give them, with a button to the
+// (/edit/page-colors.json, packages/editor/scripts/page-colors.mjs): first a notice that the apps give them, with a button to the
 // site's own, which are only the fallback ("Fallback colors", #company/colors/fallback-colors, a page of the same form, so
 // what is unsaved stays), then the apps, each to its settings, the pages with colours from an image (the image, the
 // page and its colours in the mode open), and those with the site's own. Saved with "Save changes" in one commit; the
@@ -574,7 +574,7 @@ function PageColors({ env, files, apps, mode }: { env: Env; files: RepoFile[]; a
   const [pages, setPages] = useState<BuiltPage[] | null>();
   useEffect(() => {
     let current = true;
-    fetch('/editor/page-colors.json', { cache: 'no-store' })
+    fetch('/edit/page-colors.json', { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : null))
       .then((json) => (Array.isArray(json?.pages) ? (json.pages as BuiltPage[]) : null))
       .catch(() => null)

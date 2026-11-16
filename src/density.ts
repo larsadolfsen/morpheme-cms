@@ -1,6 +1,6 @@
 // Density: how much fits on the screen, Large, Medium (the default) or Small, picked on the account (Library) and kept on the
 // person (GET and PUT /api/settings, worker/settings.js) with a copy in this browser. It is set on <html> as data-density, which
-// the theme's styles/base.css turns into the person's step (--mo-density-user); the script in the head of pages/editor/index.astro
+// the theme's styles/base.css turns into the person's step (--mo-density-user); the script in the head of pages/edit/index.astro
 // does the same before the page is drawn, so it does not jump. Its own key, as the editor's colour mode has (theme.ts).
 // Spec: docs/superpowers/specs/2026-11-13-density-design.md.
 import { DEFAULT_DENSITY, DENSITIES, DENSITY_ATTRIBUTE } from './settings.mjs';

@@ -3,11 +3,11 @@
 import type { MouseEventHandler } from 'react';
 import { siteName } from '@site/editor';
 
-/** The site's logo (/editor/icon-192.png) and the site's name (at expanded and wider; for screen readers below), as a link to `#`. */
+/** The site's logo (/edit/icon-192.png) and the site's name (at expanded and wider; for screen readers below), as a link to `#`. */
 export function SiteLogoLink({ onClick, className = '' }: { onClick?: MouseEventHandler<HTMLAnchorElement>; className?: string }) {
   return (
     <a href="#" onClick={onClick} className={`flex min-w-0 shrink-0 items-center gap-3 font-semibold ${className}`}>
-      <img src="/editor/icon-192.png" alt="" className="size-7 shrink-0 rounded-lg" />
+      <img src="/edit/icon-192.png" alt="" className="size-7 shrink-0 rounded-lg" />
       <span className="max-w-48 truncate max-expanded:sr-only">{siteName}</span>
     </a>
   );

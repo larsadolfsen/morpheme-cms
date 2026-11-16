@@ -13,7 +13,7 @@ function findPage(dir) {
   for (const name of readdirSync(dir)) {
     const path = join(dir, name);
     if (statSync(path).isDirectory()) {
-      if (name === '_astro' || name === 'editor') continue;
+      if (name === '_astro' || name === 'edit' || name === 'editor') continue;
       const found = findPage(path);
       if (found) return found;
     } else if (name === 'index.html' && /<dialog[^>]*data-popup=[^>]*data-trigger="scroll"/.test(readFileSync(path, 'utf8'))) return path;

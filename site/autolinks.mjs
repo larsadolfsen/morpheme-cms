@@ -8,7 +8,7 @@
 // linked once per page, at most `maxPerPage` links per page, never to the page itself, never inside
 // headings or existing links, and never as part of a word joined with a hyphen (not "web" in "web-design"). Used by the Markdown pipeline (packages/editor/astro.mjs) and by an import
 // script, which removes the old plugin links so they are not doubled. Each link has data-link="auto", so how many there
-// are of each word can be counted after the build (packages/editor/scripts/link-counts.mjs, /editor/links.json).
+// are of each word can be counted after the build (packages/editor/scripts/link-counts.mjs, /edit/links.json).
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';

@@ -12,7 +12,7 @@
 //   the end of a chain.
 // - the own addresses of the pages that are the front page and the blog page (src/data/standard-pages.json) to / and
 //   /blog/, where they are shown, also at the end of a redirect.
-// - GitHub sign-in for the editor at /editor/ (/oauth/*, packages/editor/worker/oauth.js), kept in a cookie only the Worker reads
+// - GitHub sign-in for the editor at /edit/ (/oauth/*, packages/editor/worker/oauth.js), kept in a cookie only the Worker reads
 //   (packages/editor/worker/session.js), and what the editor asks of GitHub with it (/api/github/*, packages/editor/worker/editor-github.js), the site's
 //   files through the cache in R2 (packages/editor/worker/files.js).
 // - what the editor asks of the app store (/api/store/catalog and /api/store/files/<oid>, packages/editor/worker/store.js), with the
@@ -54,6 +54,7 @@ import { handleMcp } from './mcp.js';
 import { handleMcpConnections } from './mcp-connections.js';
 import { MOVED_PREFIXES, movedAddress } from './movedAddresses.js';
 import { editorHost } from './editor-host.js';
+import { oldEditorAddress, withOldIcon } from './editor-address.js';
 import { handleNotFound, isVisit, json, recordNotFound } from './not-found.js';
 import { forgetOldConsents, handleConsent } from './consent.js';
 import { handleDashboard } from './dashboard.js';
@@ -192,7 +193,10 @@ export default {
     // The editor on its own address: what belongs on the other one is sent there.
     const elsewhere = editorHost(url, env, request);
     if (elsewhere) return elsewhere;
-    // Sign-in for /editor/ first: /oauth/auth has no trailing slash and must not be redirected.
+    // The editor's old address, /editor/, goes on to /edit/ (worker/editor-address.js).
+    const moved = await oldEditorAddress(url, request, env.ASSETS);
+    if (moved) return moved;
+    // Sign-in for /edit/ first: /oauth/auth has no trailing slash and must not be redirected.
     const oauth = url.pathname.startsWith('/oauth/') ? ((await handleMcpOAuth(request, env)) ?? (await handleOAuth(request, env))) : null;
     // The assistants' MCP server and the discovery of its sign-in.
     if (url.pathname === '/mcp') return handleMcp(request, env, ctx);
@@ -223,7 +227,7 @@ export default {
     const target = oauth ? undefined : (redirectFor(url) ?? (await withSlash(url, request, env)));
     let response = target
       ? new Response(null, { status: 301, headers: { location: new URL(target, url.origin).href } })
-      : (oauth ?? (await env.ASSETS.fetch(request)));
+      : (oauth ?? (await withOldIcon(url, request, env.ASSETS, await env.ASSETS.fetch(request))));
     const location = !target && !oauth && response.status >= 300 && response.status < 400 && response.headers.get('location');
     const end = location && onwardOf(location, url);
     if (end && end !== location)

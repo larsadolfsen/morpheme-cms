@@ -67,12 +67,12 @@ export type PageDraft = {
 // but those that read the site's files.
 const markdownHtml = async (markdown: string) => String(await processor.process(markdown));
 
-// The words the site links, as it was last built (/editor/links.json, made by scripts/link-counts.mjs), read once per visit: the same words and
+// The words the site links, as it was last built (/edit/links.json, made by scripts/link-counts.mjs), read once per visit: the same words and
 // settings, run through the same function (lib/autolink-tree.mjs), so the Preview has the links the site has. None when the site has no such file.
 type Links = { enabled: boolean; maxPerPage: number; words: Map<string, string>; pattern: RegExp };
 let linkWords: Promise<Links | null> | undefined;
 const siteLinks = () =>
-  (linkWords ??= fetch('/editor/links.json', { cache: 'no-store' })
+  (linkWords ??= fetch('/edit/links.json', { cache: 'no-store' })
     .then((res) => (res.ok ? res.json() : null))
     .then((found: { enabled?: boolean; maxPerPage?: number; words?: Record<string, { href: string }> } | null) => {
       const words = new Map(Object.entries(found?.words ?? {}).map(([word, { href }]) => [word, href] as [string, string]));

@@ -1,7 +1,7 @@
-// GitHub sign-in for the editor at /editor/ (packages/editor/src/github.ts). See docs/editor.md.
+// GitHub sign-in for the editor at /edit/ (packages/editor/src/github.ts). See docs/editor.md.
 //   /oauth/auth      the editor goes here; we send the browser on to GitHub
 //   /oauth/callback  GitHub sends the browser back here; we swap the code for a token, keep it in a
-//                    cookie only the Worker can read (packages/editor/worker/session.js) and go back to /editor/
+//                    cookie only the Worker can read (packages/editor/worker/session.js) and go back to /edit/
 // A redirect rather than a popup, so it also works in the editor installed as an app on a phone.
 // Needs the Worker secrets GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET from a GitHub App whose
 // callback URL is https://<hostname>/oauth/callback (installed on this repo only; see docs/editor.md).
@@ -86,8 +86,8 @@ async function callback(request, url, env) {
 // shows it with a way back.
 function finish({ token, error }) {
   const body = error
-    ? `<p>${escapeHtml(error)}</p><p><a href="/editor/">${t('Back to the editor')}</a></p>`
-    : `<p>${t('Signing in…')}</p><script>location.replace('/editor/');</script>`;
+    ? `<p>${escapeHtml(error)}</p><p><a href="/edit/">${t('Back to the editor')}</a></p>`
+    : `<p>${t('Signing in…')}</p><script>location.replace('/edit/');</script>`;
   const html = `<!doctype html><html lang="${langOf(config.locale)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Login</title></head>
 <body style="font-family: system-ui, sans-serif; padding: 2rem">${body}</body></html>`;
   const headers = new Headers({

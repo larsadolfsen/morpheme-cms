@@ -4,7 +4,7 @@ public
 .astro
 .wrangler
 package-lock.json
-# Written by the editor (/editor/) in its own form; formatting them here would give changes on every save.
+# Written by the editor (/edit/) in its own form; formatting them here would give changes on every save.
 src/content
 src/data/**/*.json
 src/apps/*/store.json

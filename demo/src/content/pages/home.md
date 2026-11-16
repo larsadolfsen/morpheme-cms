@@ -27,7 +27,7 @@ Free and open source under the MIT license.
 
 <p class="label-medium">Get started</p>
 
-<div data-block="steps" data-props="{&quot;heading&quot;:&quot;Live in three steps&quot;,&quot;intro&quot;:&quot;No servers to manage and nothing to install on your computer.&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Create your site&quot;,&quot;text&quot;:&quot;Your site gets its own repository on GitHub and is hosted on Cloudflare.&quot;},{&quot;title&quot;:&quot;Sign in&quot;,&quot;text&quot;:&quot;Open /editor/ on your site and sign in with your GitHub account.&quot;},{&quot;title&quot;:&quot;Publish&quot;,&quot;text&quot;:&quot;Write, add photos and blocks, and tap Save. Your site updates on its own.&quot;}]}"></div>
+<div data-block="steps" data-props="{&quot;heading&quot;:&quot;Live in three steps&quot;,&quot;intro&quot;:&quot;No servers to manage and nothing to install on your computer.&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Create your site&quot;,&quot;text&quot;:&quot;Your site gets its own repository on GitHub and is hosted on Cloudflare.&quot;},{&quot;title&quot;:&quot;Sign in&quot;,&quot;text&quot;:&quot;Open /edit/ on your site and sign in with your GitHub account.&quot;},{&quot;title&quot;:&quot;Publish&quot;,&quot;text&quot;:&quot;Write, add photos and blocks, and tap Save. Your site updates on its own.&quot;}]}"></div>
 
 <p class="label-medium">From the blog</p>
 

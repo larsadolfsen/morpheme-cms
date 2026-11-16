@@ -4,7 +4,7 @@ public
 .astro
 .wrangler
 package-lock.json
-# Written by the editor (/editor/) in its own form; formatting them here would give changes on every save.
+# Written by the editor (/edit/) in its own form; formatting them here would give changes on every save.
 demo/src/content
 demo/src/data/**/*.json
 # What npx morpheme app-workers writes.

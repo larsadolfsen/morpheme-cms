@@ -21,7 +21,7 @@ export default function BrandForm({ env }: { env: Env }) {
   // The files to save, by path, and what the previews show.
   const [changes, setChanges] = useState<Record<string, string | Uint8Array>>({});
   const [logo, setLogo] = useState<{ url: string; image: Image | null }>({ url: '/logo.svg', image: null });
-  const [icon, setIcon] = useState('/editor/icon-192.png');
+  const [icon, setIcon] = useState('/edit/icon-192.png');
   const [saving, setSaving] = useState(false);
   // Drawing the icons takes a moment.
   const [drawing, setDrawing] = useState(false);

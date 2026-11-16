@@ -219,7 +219,7 @@ test('oauth: sign-in starts at the service, the callback keeps tokens encrypted 
   assert.equal(to.searchParams.get('code_challenge_method'), 'S256');
   const done = await handleMcpClient(req(`callback?code=abc&state=${to.searchParams.get('state')}`), e, deps(ask, { news: oauth }));
   assert.equal(done.status, 302);
-  assert.equal(done.headers.get('location'), 'https://site.test/editor/#apps/news');
+  assert.equal(done.headers.get('location'), 'https://site.test/edit/#apps/news');
   const kept = JSON.stringify(rows(e));
   assert.ok(!kept.includes('access-xyz') && !kept.includes('refresh-xyz'));
   assert.equal((await (await handleMcpClient(req('news'), e, deps(ask, { news: oauth }))).json()).connected, true);

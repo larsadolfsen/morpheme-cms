@@ -4,7 +4,7 @@
 import { config } from './siteConfig.mjs';
 import { inPreview, PREVIEW, renamedPreview } from '../lib/previewAddress.mjs';
 
-export const NOINDEX = [...config.booking.thanks, '/editor/'];
+export const NOINDEX = [...config.booking.thanks, '/edit/', '/editor/'];
 
 // New versions of the service pages, for the owner to compare with the current ones before they replace
 // them: /new/<the current page's address>, e.g. /new/services/consulting/. The overview is

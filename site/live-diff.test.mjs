@@ -51,6 +51,24 @@ test('lists the files changed since the live commit', async () => {
   }
 });
 
+test('a live site built before the editor moved has its version at /editor/ only', async () => {
+  const dir = repo();
+  try {
+    const a = commit(dir, 'README.md', 'x');
+    commit(dir, 'src/content/a.md', 'y');
+    const asked = [];
+    const fetch = async (url) => {
+      asked.push(url);
+      return url.endsWith('/editor/version.json') ? { status: 200, json: async () => ({ commit: a }) } : { status: 404 };
+    };
+    const result = await changedSinceLive({ ...site, cwd: dir, fetch });
+    assert.deepEqual(asked, ['https://example.com/edit/version.json', 'https://example.com/editor/version.json']);
+    assert.deepEqual(result.paths, ['src/content/a.md']);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('a code commit that was never built is still listed', async () => {
   const dir = repo();
   try {

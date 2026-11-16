@@ -1,4 +1,4 @@
-// Opens every screen of the editor (/editor/) in a browser, on a phone and on a computer, and fails
+// Opens every screen of the editor (/edit/) in a browser, on a phone and on a computer, and fails
 // when one breaks: an error on the page, something its Content-Security-Policy stopped, an empty app, or a link to an
 // address with nothing on it, or an icon that is not found (drawn as the question mark, data-icon-missing: Svg in
 // packages/editor/src/icon.tsx), there or on one of the built site's pages. An icon drawn from Material Symbols instead
@@ -88,7 +88,7 @@ const LIST_ONLY = args.includes('--list');
 const onlyAt = args.indexOf('--only');
 const ONLY = onlyAt >= 0 ? args[onlyAt + 1] : null;
 const DIST = resolve(ROOT, args.find((a, i) => !a.startsWith('--') && args[i - 1] !== '--shard' && args[i - 1] !== '--only') ?? 'dist');
-if (!existsSync(join(DIST, 'editor/index.html'))) {
+if (!existsSync(join(DIST, 'edit/index.html'))) {
   console.error(`There is no built site in ${DIST}. Run npm run build first.`);
   process.exit(1);
 }
@@ -357,7 +357,7 @@ async function checkStartSubtitle() {
       const label = `${width}px ${locale} start subtitle (${builtAt.toDateString()})`;
       const page = await browser.newPage({ viewport: { width, height: 800 }, hasTouch: true, isMobile: true, locale });
       page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-      await page.route('**/editor/version.json', (r) => r.fulfill({ json: { commit: 'a'.repeat(40), builtAt: builtAt.toISOString() } }));
+      await page.route('**/edit/version.json', (r) => r.fulfill({ json: { commit: 'a'.repeat(40), builtAt: builtAt.toISOString() } }));
       await openEditor(page, site);
       const subtitle = await page.waitForSelector('[data-subtitle]', { timeout: 30_000 });
       await page.waitForFunction((e) => /\d/.test(e.textContent), subtitle, { timeout: 10_000 }).catch(() => {});
@@ -502,7 +502,7 @@ async function checkChoiceGroupFields(width, locale) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   const path = 'src/content/pages/zz-choices.md';
   await openEditor(page, site, { [path]: CHOICE_PAGE });
-  await page.goto(`${site}/editor/#${path}`);
+  await page.goto(`${site}/edit/#${path}`);
   await page.waitForSelector('.ProseMirror .site-block-card', { timeout: 30_000 });
   const sheet = () =>
     page
@@ -843,7 +843,7 @@ async function checkButtonStyleSamples(width, locale) {
     const path = 'src/content/pages/zz-samples.md';
     const md = `---\ntitle: "Samples"\ndescription: "d"\n---\n\n# Samples\n\nIntro.\n\n${block('buttons', { items: [{ label: text, to: 'page', kind: 'filled' }] })}\n`;
     await openEditor(page, site, { [path]: md });
-    await page.goto(`${site}/editor/#${path}`);
+    await page.goto(`${site}/edit/#${path}`);
     await page.waitForSelector('.ProseMirror [data-field="label"]', { timeout: 30_000 });
     await page.locator('.ProseMirror [data-field="label"]').last().click();
     await page.waitForTimeout(500);
@@ -1871,7 +1871,7 @@ async function checkPhoneSheet(width = 375, height = 740) {
   // The reload leaves a page with changes: let it go.
   page.on('dialog', (d) => void d.accept().catch(() => {}));
   await openEditor(page, site, { [path]: text });
-  await page.goto(`${site}/editor/#${path}`);
+  await page.goto(`${site}/edit/#${path}`);
   await page.waitForSelector('.ProseMirror .site-picture .site-block-card', { timeout: 30_000 });
   const copies = () =>
     page.evaluate(() =>
@@ -2117,7 +2117,7 @@ async function checkComputerRestore(width = 1280, height = 900) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   page.on('dialog', (d) => void d.accept().catch(() => {}));
   await openEditor(page, site, { [path]: text });
-  await page.goto(`${site}/editor/#${path}`);
+  await page.goto(`${site}/edit/#${path}`);
   await page.waitForSelector('.ProseMirror .site-picture .site-block-card', { timeout: 30_000 });
   const card = page.locator('.ProseMirror .site-picture .site-block-card').first();
   // A copy left by the sheet of a narrower window (the same browser): the block, the values it had and the ones typed.
@@ -4626,7 +4626,7 @@ async function checkPreviewInBar(width) {
     if (r.request().method() === 'GET') return r.fulfill({ status: 404, body: '' });
     return r.fulfill({ contentType: 'application/json', body: '{}' });
   });
-  await page.goto(`${site}/editor/#src/content/pages/zz-check-page.md`);
+  await page.goto(`${site}/edit/#src/content/pages/zz-check-page.md`);
   await page.waitForSelector('.editor-tools button[aria-label="Undo"]', { timeout: 30_000 });
   await page.waitForTimeout(300);
   const names = () =>
@@ -4724,7 +4724,7 @@ async function checkSaveKeyNoAutosave() {
       ? r.fulfill({ status: 404, body: '' })
       : r.fulfill({ status: 409, contentType: 'application/json', body: JSON.stringify({ error: 'off' }) }),
   );
-  await page.goto(`${site}/editor/#src/content/pages/zz-check-page.md`);
+  await page.goto(`${site}/edit/#src/content/pages/zz-check-page.md`);
   await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
   await page.click('.ProseMirror p');
   await page.keyboard.press('End');
@@ -7127,7 +7127,7 @@ async function checkListMarkers(width) {
   const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`List markers: ${e.message}`));
   await openEditor(page, site, { [path]: LIST_PAGE });
-  await page.goto(`${site}/editor/#${path}`);
+  await page.goto(`${site}/edit/#${path}`);
   await page.waitForSelector('ul.list', { timeout: 30_000 });
   const inEditor = await page.evaluate(markers);
   if (inEditor.length) problems.push(`${width}px editor: a List row has a list marker (${[...new Set(inEditor)].join('; ')})`);
@@ -7311,7 +7311,7 @@ async function checkSavedLabel(page, width) {
   const text =
     '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<p class="label-medium">Opening hours</p>\n\nMonday to Friday.\n';
   await openEditor(page, site, { [path]: text });
-  await page.goto(`${site}/editor/#${path}`);
+  await page.goto(`${site}/edit/#${path}`);
   await page.waitForSelector('.ProseMirror p.label-medium', { timeout: 30_000 });
   const inEditor = await labelNow();
   if (!inEditor || inEditor.size !== '12px')
@@ -7420,7 +7420,7 @@ async function checkPreviewSection() {
   const page = await browser.newPage({ viewport: { width: 390, height: 800 }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`Preview section: ${e.message}`));
   await openEditor(page, site, { [path]: text });
-  await page.goto(`${site}/editor/#${path}`);
+  await page.goto(`${site}/edit/#${path}`);
   await page.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
   await clickPreview(page);
   await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
@@ -7531,7 +7531,7 @@ async function checkH1SectionGap() {
     const page = await browser.newPage({ viewport: { width: 1700, height: 1000 }, locale: 'en-US' });
     page.on('pageerror', (e) => problems.push(`H1 section gap: ${e.message}`));
     await openEditor(page, site, { [path]: text });
-    await page.goto(`${site}/editor/#${path}`);
+    await page.goto(`${site}/edit/#${path}`);
     await clickPreview(page);
     await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
     const slider = page.locator('[data-preview-page] [role="slider"]').first();
@@ -7582,7 +7582,7 @@ async function checkFullSection() {
   const page = await browser.newPage({ viewport: { width: 1700, height: 1000 }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`Full section: ${e.message}`));
   await openEditor(page, site, { [path]: text });
-  await page.goto(`${site}/editor/#${path}`);
+  await page.goto(`${site}/edit/#${path}`);
   await page.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
   await clickPreview(page);
   await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
@@ -7602,7 +7602,7 @@ async function checkFullSection() {
   // On a phone the Preview is as wide as the screen: the section's background is the window, and nothing scrolls sideways.
   const phone = await browser.newPage({ viewport: { width: 375, height: 800 }, hasTouch: true, isMobile: true, locale: 'en-US' });
   await openEditor(phone, site, { [path]: text });
-  await phone.goto(`${site}/editor/#${path}`);
+  await phone.goto(`${site}/edit/#${path}`);
   await phone.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
   await clickPreview(phone);
   await phone.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
@@ -7620,7 +7620,7 @@ async function checkPreviewDraft(width) {
   const page = await browser.newPage({ viewport: { width, height: 800 }, hasTouch: true, isMobile: true, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site, { [path]: text });
-  await page.goto(`${site}/editor/#${path}`);
+  await page.goto(`${site}/edit/#${path}`);
   await clickPreview(page);
   await page.waitForFunction(
     () => {
@@ -9878,15 +9878,12 @@ async function checkImageGrid(width, height) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site, {});
   // A site with no images (the starter's) has no grid to measure.
-  const images = await page.evaluate(
-    async (base) => Object.keys(await (await fetch(`${base}/editor/thumbnails.json`)).json()).length,
-    site,
-  );
+  const images = await page.evaluate(async (base) => Object.keys(await (await fetch(`${base}/edit/thumbnails.json`)).json()).length, site);
   if (!images) {
     console.log(`${label}: skipped, the site has no images to measure, which the demo has.`);
     return page.close();
   }
-  await page.goto(`${site}/editor/#files`);
+  await page.goto(`${site}/edit/#files`);
   await page.waitForSelector('ul.image-grid', { timeout: 30_000 });
   const m = await page.evaluate(() => {
     const grid = document.querySelector('ul.image-grid');
@@ -11053,7 +11050,7 @@ async function checkSectionOnImage() {
         });
         const text = `---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<div data-section="" data-picture="${image}" data-alt="A photo"></div>\n\n## Her kommer indhold\n\nBody text.\n\n${list}\n\n## Plain\n\nPlain.\n`;
         await openEditor(page, site, { [path]: text });
-        await page.goto(`${site}/editor/#${path}`);
+        await page.goto(`${site}/edit/#${path}`);
         await page.waitForSelector('.ProseMirror > [data-section-picture]', { timeout: 30_000 });
         await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; }' });
         // The list row is the active one: the row typed in place, with its icon and arrow.
@@ -11162,7 +11159,7 @@ async function checkChecklistMarks() {
         )
         .join('\n\n');
       await openEditor(page, site, { [path]: `---\ntitle: "Check list marks"\n---\n\n# Check list marks\n\n${text}\n` });
-      await page.goto(`${site}/editor/#${path}`);
+      await page.goto(`${site}/edit/#${path}`);
       await page.waitForSelector('.ProseMirror li[data-item-type="task"]', { timeout: 30_000 });
       const inEditor = await page.evaluate(`(() => { ${ratioOf}
         const out = {};
@@ -11374,7 +11371,7 @@ async function checkSectionBackground(width, touch) {
   for (const last of [false, true]) {
     const body = `# T\n\nIntro.\n\n<div data-section="primary"></div>\n\n## Blue\n\nBlue text.\n${last ? '' : '\n## Plain\n\nPlain text.\n'}`;
     await openEditor(page, site, { [path]: `---\ntitle: "T"\ndescription: "d"\n---\n\n${body}` });
-    await page.goto(`${site}/editor/#${path}`);
+    await page.goto(`${site}/edit/#${path}`);
     await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 30_000 });
     const got = await page.evaluate(() => {
       const pm = document.querySelector('.ProseMirror');
@@ -11392,7 +11389,7 @@ async function checkSectionBackground(width, touch) {
   await openEditor(page, site, {
     [path]: `---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<div data-section="primary"></div>\n\n## Blue\n\nBlue text.\n\n## Plain\n\nPlain text.\n`,
   });
-  await page.goto(`${site}/editor/#${path}`);
+  await page.goto(`${site}/edit/#${path}`);
   await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 30_000 });
   await clickPreview(page);
   await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });

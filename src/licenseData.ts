@@ -1,5 +1,5 @@
 // The licences of the third-party work the site and the editor are made with ("Licenses" under "Settings",
-// Licenses.tsx), as the build finds them (/editor/licenses.json, licensesIntegration in packages/editor/lib/licenses.mjs),
+// Licenses.tsx), as the build finds them (/edit/licenses.json, licensesIntegration in packages/editor/lib/licenses.mjs),
 // what an app (defineApp) and a theme (theme.json) declare (their own licence and the third-party work they bring), and
 // what the store's catalog has of them (scripts/store-release.mjs, storeLicenses). Also splits the CMS's own licence out
 // of the works the editor and the site bring (splitCms), to be shown first. Depends on PACKAGE (lib/cms-version.mjs).
@@ -59,7 +59,7 @@ export type LicenseOwner = {
   inUse: boolean;
 };
 
-/** What the build wrote (/editor/licenses.json). */
+/** What the build wrote (/edit/licenses.json). */
 export type LicensesFile = { works: LicensedWork[]; owners: LicenseOwner[] };
 
 /** A work an app or a theme declares, as the store's catalog has it: without its text. */
@@ -72,9 +72,9 @@ export type StoreLicenses = { license: string; works: StoreLicense[] };
 // built since it came, or the editor is offline).
 let loaded: Promise<LicensesFile | null> | undefined;
 
-/** The licences as the site was last built (/editor/licenses.json). */
+/** The licences as the site was last built (/edit/licenses.json). */
 export function loadLicenses(): Promise<LicensesFile | null> {
-  loaded ??= fetch('/editor/licenses.json', { cache: 'no-store' })
+  loaded ??= fetch('/edit/licenses.json', { cache: 'no-store' })
     .then((res) => (res.ok ? (res.json() as Promise<LicensesFile>) : null))
     .catch(() => null);
   return loaded;

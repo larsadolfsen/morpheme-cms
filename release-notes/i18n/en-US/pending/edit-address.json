@@ -1,0 +1,7 @@
+{
+  "id": "edit-address",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Editor address",
+  "text": "The editor’s address is shorter to type and to say. Open it at your site’s address followed by /edit/, for example example.com/edit/. Bookmarks to /editor/ and the editor on your home screen still open it, and each device that shows notifications needs them switched on once more."
+}

@@ -143,7 +143,7 @@ const pushWorker = async (ready = true) =>
     ? undefined
     : ready
       ? await navigator.serviceWorker.ready
-      : await navigator.serviceWorker.getRegistration('/editor/');
+      : await navigator.serviceWorker.getRegistration('/edit/');
 
 const b64url = (key: ArrayBuffer | null | undefined) =>
   key
@@ -218,13 +218,13 @@ export async function askToNotify() {
   }
 }
 
-// The message as a notification on the phone or computer (through the service worker, packages/editor/pages/editor/sw.js), when
+// The message as a notification on the phone or computer (through the service worker, packages/editor/pages/edit/sw.js), when
 // "On the phone" is on and the editor is not on screen.
 async function notifyDevice(text: string) {
   if (document.visibilityState === 'visible' || !deviceOn() || !allowed()) return;
-  const options = { body: text, icon: '/editor/icon-192.png', tag: 'site' };
+  const options = { body: text, icon: '/edit/icon-192.png', tag: 'site' };
   try {
-    const worker = await navigator.serviceWorker?.getRegistration('/editor/');
+    const worker = await navigator.serviceWorker?.getRegistration('/edit/');
     if (worker) await worker.showNotification(siteName, options);
     else new Notification(siteName, options);
   } catch {}

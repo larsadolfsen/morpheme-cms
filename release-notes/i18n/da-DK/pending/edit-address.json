@@ -1,0 +1,7 @@
+{
+  "id": "edit-address",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Editorens adresse",
+  "text": "Editorens adresse er kortere at skrive og sige. Åbn den på din hjemmesides adresse efterfulgt af /edit/, for eksempel example.com/edit/. Bogmærker til /editor/ og editoren på din startskærm åbner den stadig, og hver enhed med notifikationer skal have dem slået til igen én gang."
+}

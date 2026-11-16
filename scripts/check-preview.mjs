@@ -9,7 +9,7 @@ import { clickPreview, openEditor, serveBuilt } from './built-site.mjs';
 
 const ROOT = `${process.cwd()}/`;
 const DIST = resolve(ROOT, process.argv[2] ?? 'dist');
-if (!existsSync(join(DIST, 'editor/index.html'))) {
+if (!existsSync(join(DIST, 'edit/index.html'))) {
   console.error(`There is no built site in ${DIST}. Run npm run build first.`);
   process.exit(1);
 }
@@ -166,7 +166,7 @@ for (const scheme of ['light', 'dark']) {
       const page = await context.newPage();
       page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
       await openEditor(page, site);
-      await page.goto(`${site}/editor/#${path}`);
+      await page.goto(`${site}/edit/#${path}`);
       await clickPreview(page);
       await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
       const frame = page.frames().find((f) => f !== page.mainFrame());
@@ -202,7 +202,7 @@ for (const scheme of ['light', 'dark']) {
     `<div data-block="list" data-props="${props}"></div>\n\n## Questions?`,
   );
   await openEditor(page, site, { [file]: text });
-  await page.goto(`${site}/editor/#${file}`);
+  await page.goto(`${site}/edit/#${file}`);
   await clickPreview(page);
   await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());

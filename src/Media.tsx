@@ -8,7 +8,7 @@
 // fields; a docked toolbar under them moves to the file before and after it, "1 of 4", in the same subpage), from medium
 // a side sheet beside the grid (owner, 15 Nov 2026: details are a pane, not a dialog). The list stays mounted, hidden, under the subpage, so its filters stay and the scroll
 // position comes back. The details: the file (FileView.tsx), its file name and where it is used, each a link to that page or post, or
-// "Delete image" (…) when nothing uses it (also not the site's own code, /editor/code-images.json). Its
+// "Delete image" (…) when nothing uses it (also not the site's own code, /edit/code-images.json). Its
 // name, under the title, can be changed with the pencil after it (not one the site's code uses),
 // saved with the tick: the file moves, the pages that use it get the new address in the same commit,
 // and the old address sends on to it (addresses.ts). The FAB uploads a new file, saved at once. The same
@@ -128,7 +128,7 @@ const readdress = (text: string, from: string, to: string) =>
 type Small = { width?: number; height?: number; src?: string };
 let small: Promise<Record<string, Small>> | null = null;
 const thumbnails = () =>
-  (small ??= fetch('/editor/thumbnails.json')
+  (small ??= fetch('/edit/thumbnails.json')
     .then((r) => (r.ok ? (r.json() as Promise<Record<string, Small>>) : {}))
     .catch(() => ({})));
 
@@ -632,7 +632,7 @@ export function useMediaPicker(
 // was built; null until known, or when it could not be asked (then nothing can be deleted).
 let inCode: Promise<string[] | null> | null = null;
 const codeImages = () =>
-  (inCode ??= fetch('/editor/code-images.json')
+  (inCode ??= fetch('/edit/code-images.json')
     .then((r) => (r.ok ? (r.json() as Promise<string[]>) : null))
     .catch(() => null));
 

@@ -1,7 +1,7 @@
 // "Keywords" under the fields of "Internal links" (Part.below, packages/editor/defaults/internalLinks.ts): every primary and secondary
 // keyword of the pages, the posts and the fixed pages with the fields for them ("Search engines"), each with the page it
 // links to, which of its keywords it is and, at the right, how many pages and posts link with it on the site as it was
-// last built (/editor/links.json, packages/editor/scripts/link-counts.mjs; one that another page has too, which wins, links from none).
+// last built (/edit/links.json, packages/editor/scripts/link-counts.mjs; one that another page has too, which wins, links from none).
 // Only those of the published ones, as the site links them (packages/editor/site/autolinks.mjs); a new version of a page (/new/…)
 // gives its own to the page it is for. Over them, as over the lists, a search by word and page, the order (A–Z, the
 // default, under the first letter, Z–A, the most or the fewest links first; kept in this browser) and the funnel with
@@ -94,7 +94,7 @@ export default function Keywords({ files }: { files: RepoFile[] }) {
   // undefined while they load; null when the site has none (not built since they came, or offline).
   const [counts, setCounts] = useState<Counts | null>();
   useEffect(() => {
-    fetch('/editor/links.json', { cache: 'no-store' })
+    fetch('/edit/links.json', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => setCounts(data?.words ?? null))
       .catch(() => setCounts(null));

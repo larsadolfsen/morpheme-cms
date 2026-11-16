@@ -4,7 +4,7 @@
 //     images are put inside an SVG.
 //   Icon: public/favicon.svg (the browser tab, Google), public/favicon.ico (for what asks for that
 //     address), public/apple-touch-icon.png (the site on an iPhone home screen) and the app icons in
-//     public/editor/, drawn on the site's background colour (light mode, colors.json) with the same
+//     public/edit/, drawn on the site's background colour (light mode, colors.json) with the same
 //     margins as packages/editor/scripts/editor-icons.mjs.
 import { t } from './i18n';
 import { cleanSvg } from '../lib/svg.mjs';
@@ -14,10 +14,10 @@ export const FAVICON = 'public/favicon.svg';
 const FAVICON_ICO = 'public/favicon.ico';
 // The PNG icons: size in pixels and the image's share of the width.
 const APP_ICONS: [string, number, number][] = [
-  ['public/editor/icon-192.png', 192, 0.7],
-  ['public/editor/icon-512.png', 512, 0.7],
-  ['public/editor/icon-maskable-512.png', 512, 0.5],
-  ['public/editor/apple-touch-icon.png', 180, 0.66],
+  ['public/edit/icon-192.png', 192, 0.7],
+  ['public/edit/icon-512.png', 512, 0.7],
+  ['public/edit/icon-maskable-512.png', 512, 0.5],
+  ['public/edit/apple-touch-icon.png', 180, 0.66],
   ['public/apple-touch-icon.png', 180, 0.66],
 ];
 export const BRAND_FILES = [LOGO, FAVICON, FAVICON_ICO, ...APP_ICONS.map(([path]) => path)];

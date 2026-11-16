@@ -120,7 +120,7 @@ const STANDARD = {
   /** The menu ("Main menu", its items under `items`), for "Show as menu" among the pages (src/Library.tsx). */
   menu: 'src/data/menu.json',
   /** Addresses of the site that are not pages, which a new page or post cannot have (defineSite adds the files folder's own). */
-  reserved: ['/editor/', '/admin/', '/oauth/', '/images/', '/new/', '/404/'],
+  reserved: ['/edit/', '/editor/', '/admin/', '/oauth/', '/images/', '/new/', '/404/'],
   /** The lists the standard blocks use, by what they hold, and their ids (their addresses, #list/<id>): the
    * testimonials, the list the block "Testimonials" brings (src/standard/testimonials/list.ts), the tags, which a
    * testimonial's "Create a tag" makes a new one of, and the cookies, the list the block "Cookie list" brings. */

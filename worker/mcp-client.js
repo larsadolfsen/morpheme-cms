@@ -412,7 +412,7 @@ async function connect(request, env, app, decl, ask) {
 }
 
 async function callback(request, url, env, deps, ask) {
-  const back = (app) => new Response(null, { status: 302, headers: { location: `${url.origin}/editor/#apps/${app}` } });
+  const back = (app) => new Response(null, { status: 302, headers: { location: `${url.origin}/edit/#apps/${app}` } });
   const state = url.searchParams.get('state') ?? '';
   await tables(env.CONSENT);
   const row = state

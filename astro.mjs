@@ -42,11 +42,16 @@ const PAGES = {
   '/rss.xml': 'rss.xml.js',
   '/robots.txt': 'robots.txt.js',
   '/_headers': 'headers.js',
+  '/edit': 'edit/index.astro',
+  '/edit/code-images.json': 'edit/code-images.json.js',
+  '/edit/manifest.webmanifest': 'edit/manifest.webmanifest.js',
+  '/edit/sw.js': 'edit/sw.js.js',
+  '/edit/thumbnails.json': 'edit/thumbnails.json.js',
+  '/edit/version.json': 'edit/version.json.js',
+  // The editor's old address (/editor/), for a site whose Worker is not the new one yet (the new one sends it on to /edit/ itself):
+  // a page that sends on, the version, and a service worker that removes itself (pages/editor/).
   '/editor': 'editor/index.astro',
-  '/editor/code-images.json': 'editor/code-images.json.js',
-  '/editor/manifest.webmanifest': 'editor/manifest.webmanifest.js',
   '/editor/sw.js': 'editor/sw.js.js',
-  '/editor/thumbnails.json': 'editor/thumbnails.json.js',
   '/editor/version.json': 'editor/version.json.js',
 };
 
@@ -158,7 +163,7 @@ export async function siteConfig() {
       appBuilds(ROOT),
       // The licences of the third-party work in what is downloaded (the browser's bundle, the pages' styles and fonts), of
       // the icon sets the system offers (packages/editor/site/icons.mjs), and of the apps and the themes with what they bring, in
-      // dist/editor/licenses.json for "Licenses" under "Settings" (packages/editor/lib/licenses.mjs).
+      // dist/edit/licenses.json for "Licenses" under "Settings" (packages/editor/lib/licenses.mjs).
       licensesIntegration({
         root: ROOT,
         iconPacks: iconPackLicenses,

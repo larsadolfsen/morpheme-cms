@@ -38,6 +38,7 @@ import { buildSettingsProblems } from './build-settings-problems.mjs';
 import { textProblems } from './text-problems.mjs';
 import { notesOf, releaseProblems } from './releases.mjs';
 import { alreadyChecked } from './already-checked.mjs';
+import { editorAddressProblems } from '../lib/editorAddress.mjs';
 import { oldPreviewWarnings } from '../lib/previewAddress.mjs';
 import { readFields, splitFrontmatter } from '../src/frontmatter.mjs';
 
@@ -248,6 +249,15 @@ result.problems.push(...casingProblems(tracked));
 // The build settings the editor writes under "Caching and builds": only boolean contentLane and paidBuilds; a missing file passes.
 result.problems.push(
   ...buildSettingsProblems(BUILD_SETTINGS_PATH, existsSync(BUILD_SETTINGS_PATH) ? readFileSync(BUILD_SETTINGS_PATH, 'utf8') : undefined),
+);
+
+// No page at the editor's address (/edit/, or /editor/, which sends on to it): the editor is there.
+result.problems.push(
+  ...editorAddressProblems(
+    files
+      .filter((f) => f.path.startsWith('src/content/pages/') && f.path.endsWith('.md'))
+      .map((f) => ({ file: f.path.slice('src/content/pages/'.length), path: readFields(splitFrontmatter(f.text).yaml).path })),
+  ),
 );
 
 // A new version of a page still at the old place (src/content/pages/ny/, or a path under /ny/) is read at /new/ for this

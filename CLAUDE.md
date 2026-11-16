@@ -121,7 +121,7 @@ green before a merge. Which other check fits which change: skill `checks`.
 
 ### One theme for the site and the editor
 
-Both the site and the editor (`/editor/`) use **exactly the same theme** (`theme/styles/global.css`, MD3 tokens,
+Both the site and the editor (`/edit/`) use **exactly the same theme** (`theme/styles/global.css`, MD3 tokens,
 typography and UI components). The editor has no font or style system of its own: everything inherits the theme's tokens,
 surfaces and fonts.
 

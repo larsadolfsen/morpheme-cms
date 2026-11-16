@@ -2,8 +2,8 @@
 // site: the editor's GitHub sign-in is a cookie no script can read (packages/editor/worker/session.js), but a script on the
 // same address (the site's third-party scripts, Google after consent, Calendly) could ask the Worker in the
 // editor's name, and read what the editor keeps in the browser. See docs/editor.md.
-// Without EDITOR_HOST (a variable on the Worker) the editor is at /editor/ on every address, as before.
-//   On EDITOR_HOST: the editor (/editor/), the sign-in (/oauth/), the assistants' MCP address (/mcp, /.well-known/oauth-*), what the editor asks the Worker
+// Without EDITOR_HOST (a variable on the Worker) the editor is at /edit/ on every address, as before.
+//   On EDITOR_HOST: the editor (/edit/), the sign-in (/oauth/), the assistants' MCP address (/mcp, /.well-known/oauth-*), what the editor asks the Worker
 //     (/api/, packages/editor/worker/not-found.js) and files (scripts, styles, images)
 //     are served; the address alone opens the editor; any other page goes to the public site
 //     (PUBLIC_HOST, else EDITOR_HOST without "editor."), so no page of the site runs there.
@@ -25,6 +25,9 @@ export function editorHost(url, env, request) {
   const editor = env.EDITOR_HOST?.trim().toLowerCase();
   if (!editor) return undefined;
   const own =
+    url.pathname.startsWith('/edit/') ||
+    url.pathname === '/edit' ||
+    // The old address: goes on to /edit/ (worker/editor-address.js).
     url.pathname.startsWith('/editor/') ||
     url.pathname === '/editor' ||
     url.pathname.startsWith('/oauth/') ||
@@ -34,15 +37,15 @@ export function editorHost(url, env, request) {
     url.pathname.startsWith('/.well-known/oauth-');
 
   if (url.hostname === editor) {
-    if (url.pathname === '/' && !url.search) return redirect(`https://${editor}/editor/`, 302);
+    if (url.pathname === '/' && !url.search) return redirect(`https://${editor}/edit/`, 302);
     if (own || !PAGE.test(url.pathname) || request?.headers.get('x-editor-preview')) return undefined;
     const site = env.PUBLIC_HOST?.trim() || editor.replace(/^editor\./, '');
     return redirect(`https://${site}${url.pathname}${url.search}`, 302);
   }
 
   if (!own) return undefined;
-  const to = `https://${editor}${url.pathname}${url.search}`;
-  if (url.pathname === '/editor/' || url.pathname === '/editor') return cleanUp(to);
+  const to = `https://${editor}${url.pathname.replace(/^\/editor(?=\/|$)/, '/edit')}${url.search}`;
+  if (/^\/edit(or)?\/?$/.test(url.pathname)) return cleanUp(to);
   // 308 keeps a POST (an assistant's call) a POST.
   return redirect(to, request?.method && request.method !== 'GET' && request.method !== 'HEAD' ? 308 : 301);
 }
@@ -64,7 +67,7 @@ function cleanUp(to) {
     indexedDB.deleteDatabase('editor');
   } catch {}
   try {
-    for (const r of (await navigator.serviceWorker?.getRegistrations()) ?? []) if (new URL(r.scope).pathname.startsWith('/editor/')) await r.unregister();
+    for (const r of (await navigator.serviceWorker?.getRegistrations()) ?? []) if (/^\\/edit(or)?\\//.test(new URL(r.scope).pathname)) await r.unregister();
   } catch {}
   location.replace(${js} + location.hash);
 })();

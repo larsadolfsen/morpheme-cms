@@ -1,4 +1,4 @@
-// Checks that the editor (/editor/) can save every page and blog post without changing the site:
+// Checks that the editor (/edit/) can save every page and blog post without changing the site:
 // each body is loaded into Milkdown and written back, and both versions are rendered with Astro's
 // Markdown pipeline. The HTML must be the same. The front matter, written back without changes, must
 // be the same text. The fixed pages (src/data/*.json with sections) are loaded as their text with the

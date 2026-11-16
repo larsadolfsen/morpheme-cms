@@ -17,7 +17,7 @@ cd .morpheme/demo/site && node ../../../scripts/measure-speed.mjs --runs 3
 - **mobile**: 375 px wide, touch, CPU slowed 4x (`Emulation.setCPUThrottlingRate`), a mid-range phone. **desktop**: 1280 px,
   no slowing. The network is not throttled (local), so LCP shows the CPU's share, not the network's.
 - Each scenario runs 3 times in a fresh browser context; the table shows the median.
-- For the editor, the load numbers include the editor's first load and then opening the screen (`/editor/`, then the hash).
+- For the editor, the load numbers include the editor's first load and then opening the screen (`/edit/`, then the hash).
 - **LCP**, **CLS**, **TBT** (sum of each long task's time over 50 ms from first contentful paint), **long tasks** (over
   50 ms: count and longest) and **LoAF** (longest long animation frame) come from `PerformanceObserver` in the page.
 - **INP** of an interaction is the longest event duration (input to next paint, Event Timing) of one scripted

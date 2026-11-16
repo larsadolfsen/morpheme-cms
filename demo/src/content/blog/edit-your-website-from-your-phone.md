@@ -12,7 +12,7 @@ Most website changes are small and urgent: new opening hours, a photo from this 
 
 ## An app on your home screen
 
-The editor lives at /editor/ on your site. Open it on your phone, add it to your home screen, and it opens full screen with its own icon, just like an app.
+The editor lives at /edit/ on your site. Open it on your phone, add it to your home screen, and it opens full screen with its own icon, just like an app.
 
 **Designed for small screens**
 

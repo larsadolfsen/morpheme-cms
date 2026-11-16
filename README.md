@@ -1,7 +1,7 @@
 # Morpheme CMS
 
 An editor for websites built with [Astro](https://astro.build) and run on [Cloudflare](https://www.cloudflare.com): the
-site's owner edits pages, posts, images and settings in the browser at `/editor/`, and every save is one commit on
+site's owner edits pages, posts, images and settings in the browser at `/edit/`, and every save is one commit on
 GitHub. MIT licensed, see [LICENSE](LICENSE).
 
 `@morphemecms/cms` is the editor, the site's pages and its Astro setup (`siteConfig()` in `astro.mjs`), the
@@ -19,7 +19,7 @@ when a release is made on GitHub with the tag `v<version>`.
 
 ## The editor
 
-The editor for a site built with Astro, at `/editor/`, with no particular site written into it. A site gives it its collections and fields, its rules and its own blocks; the customer edits the content, and every save is one commit on GitHub.
+The editor for a site built with Astro, at `/edit/`, with no particular site written into it. A site gives it its collections and fields, its rules and its own blocks; the customer edits the content, and every save is one commit on GitHub.
 
 The whole guide is in `docs/editor.md` in the site's repo. This file holds only what a site needs to use the package.
 

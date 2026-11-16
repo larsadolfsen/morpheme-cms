@@ -1,4 +1,4 @@
-// The files changed between the commit that is live (the site's /editor/version.json) and HEAD, for morpheme ci-build's
+// The files changed between the commit that is live (the site's /edit/version.json) and HEAD, for morpheme ci-build's
 // lane decision (lib/build-lane.mjs); every doubt gives no list and a reason. Exposes changedSinceLive. Depends on git
 // and fetch.
 import { execFileSync } from 'node:child_process';
@@ -40,7 +40,9 @@ export async function changedSinceLive({ siteUrl, cwd, fetch = globalThis.fetch,
 
   let live;
   try {
-    const res = await fetch(siteUrl + '/editor/version.json', { signal: AbortSignal.timeout(5000) });
+    // /edit/ first; a live site that was built before the editor moved has the version at /editor/ only.
+    let res = await fetch(siteUrl + '/edit/version.json', { signal: AbortSignal.timeout(5000) });
+    if (res.status === 404) res = await fetch(siteUrl + '/editor/version.json', { signal: AbortSignal.timeout(5000) });
     if (res.status !== 200) {
       return { paths: null, reason: 'live commit unknown', live: null };
     }

@@ -1,5 +1,5 @@
 // After a save: tells when the site has been rebuilt with it. Each build writes the commit it was
-// made from to /editor/version.json (packages/editor/pages/editor/version.json.js), and the editor asks for that
+// made from to /edit/version.json (packages/editor/pages/edit/version.json.js), and the editor asks for that
 // until it is the saved commit or a later one. The message is a notification of the type `site` (notificationData.ts),
 // which also comes on the phone or computer when the editor is not on screen. It gives up after 20 minutes, or 10 with paidBuilds.
 // Each save says what it changed ("colors changed", "page “About” changed", t.app.changes): right after it (savedText),
@@ -45,7 +45,7 @@ const EVERY = 10_000;
 type Version = { commit?: string; editor?: string; builtAt?: string; paidBuilds?: boolean };
 async function version(): Promise<Version> {
   try {
-    const res = await fetch('/editor/version.json', { cache: 'no-store' });
+    const res = await fetch('/edit/version.json', { cache: 'no-store' });
     return res.ok ? await res.json() : {};
   } catch {
     return {};
@@ -116,7 +116,7 @@ export const hasUnsaved = () => unsaved;
 // Keeps an open editor up to date. The installed app can stay open for days, and it reads the files
 // straight from GitHub, so after a change to the editor and its files (like the front page becoming
 // sections) an old editor would show them as empty forms. When the site has an editor with other
-// code (the fingerprint in /editor/version.json is not the one in this page,
+// code (the fingerprint in /edit/version.json is not the one in this page,
 // packages/editor/site/editor-version.mjs), the page reloads, as soon as nothing is unsaved: checked when the
 // editor opens, when it comes back on screen, and every minute while it is on screen. onSite: what the
 // site was last built from, at each check (when it was updated, on the start screen).
@@ -147,7 +147,7 @@ export function keepCurrent(onSite?: (v: Version) => void) {
   };
 }
 
-// Notifications go through the service worker (packages/editor/pages/editor/sw.js); registered when the editor opens.
+// Notifications go through the service worker (packages/editor/pages/edit/sw.js); registered when the editor opens.
 export function registerWorker() {
-  navigator.serviceWorker?.register('/editor/sw.js').catch(() => {});
+  navigator.serviceWorker?.register('/edit/sw.js').catch(() => {});
 }

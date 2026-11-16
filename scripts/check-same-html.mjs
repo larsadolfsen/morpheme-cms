@@ -26,11 +26,13 @@ function baseCommit() {
 }
 
 /** The files of a built site that are compared: every page and what is written beside them (feeds, sitemaps, text files), not the editor's own
- * build (`editor/`: its version and build time change with every change). */
+ * build (`edit/`, and the stubs in `editor/`: its version and build time change with every change). */
 const compared = (dir) =>
   readdirSync(dir, { recursive: true })
     .map(String)
-    .filter((f) => !f.startsWith('editor/') && /\.(html|xml|txt|json|rss)$/.test(f) && statSync(join(dir, f)).isFile())
+    .filter(
+      (f) => !f.startsWith('edit/') && !f.startsWith('editor/') && /\.(html|xml|txt|json|rss)$/.test(f) && statSync(join(dir, f)).isFile(),
+    )
     .sort();
 
 /** The package copy of a tree in a node_modules/ of its own, as `npm run build` (demo-build.mjs) makes it, next to links to every other package. */

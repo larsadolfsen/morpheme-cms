@@ -1,4 +1,4 @@
-// After the build: each page's colours as it was built, in dist/editor/page-colors.json, for "Colors" › "Pages" in the
+// After the build: each page's colours as it was built, in dist/edit/page-colors.json, for "Colors" › "Pages" in the
 // editor (Colors.tsx), while an app changes the pages' colours (hooks/page-colors.ts):
 // { pages: [{ path, light: { bg, … }, dark: { … }, app?, image? }] }, by address, read from the <style> Base.astro
 // writes them in (data-page-colors, colorsCss in packages/editor/lib/colors.ts: light mode on :root, dark mode on
@@ -24,7 +24,7 @@ const declarations = (css) =>
 const pages = [];
 for (const file of readdirSync(DIST, { recursive: true, encoding: 'utf8' }).filter((f) => f.endsWith('index.html'))) {
   const path = `/${file.replace(/index\.html$/, '')}`;
-  if (path.startsWith('/editor/') || isPreview(path)) continue;
+  if (path.startsWith('/edit/') || isPreview(path)) continue;
   const style = STYLE.exec(readFileSync(join(DIST, file), 'utf8'));
   if (!style) continue;
   const [, attributes, css] = style;
@@ -39,4 +39,4 @@ for (const file of readdirSync(DIST, { recursive: true, encoding: 'utf8' }).filt
   });
 }
 pages.sort((a, b) => a.path.localeCompare(b.path));
-writeFileSync(join(DIST, 'editor', 'page-colors.json'), `${JSON.stringify({ pages })}\n`);
+writeFileSync(join(DIST, 'edit', 'page-colors.json'), `${JSON.stringify({ pages })}\n`);

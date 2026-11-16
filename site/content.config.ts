@@ -51,7 +51,7 @@ const blog = defineCollection({
 });
 
 // Imported pages. `path` is the exact URL, e.g. /ydelser/raadgivning/
-// Pages created in the editor (/editor/) have no `path`: the file name is the URL (getPages()).
+// Pages created in the editor (/edit/) have no `path`: the file name is the URL (getPages()).
 const pages = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/pages' }),
   schema: z.object({

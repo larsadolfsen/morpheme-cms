@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// The PNG icons (the editor's app icons in public/editor/, the site's public/apple-touch-icon.png and
+// The PNG icons (the editor's app icons in public/edit/, the site's public/apple-touch-icon.png and
 // public/favicon.ico), made from the mark in public/favicon.svg on the site's background colour
 // (light mode, src/data/colors.json). Run again only if the favicon changes:
 // npx morpheme editor-icons
@@ -34,10 +34,10 @@ const png = (px, size) =>
     .toBuffer();
 
 for (const [name, px, size] of [
-  ['editor/icon-192.png', 192, 0.7],
-  ['editor/icon-512.png', 512, 0.7],
-  ['editor/icon-maskable-512.png', 512, 0.5],
-  ['editor/apple-touch-icon.png', 180, 0.66],
+  ['edit/icon-192.png', 192, 0.7],
+  ['edit/icon-512.png', 512, 0.7],
+  ['edit/icon-maskable-512.png', 512, 0.5],
+  ['edit/apple-touch-icon.png', 180, 0.66],
   ['apple-touch-icon.png', 180, 0.66],
 ]) {
   await fs.writeFile(path.join(OUT, name), await png(px, size));

@@ -264,7 +264,7 @@ try {
             const editor = await browser.newPage(ctx);
             editor.on('pageerror', () => {});
             await openEditor(editor, site);
-            await editor.goto(`${site}/editor/#${PAGE}`);
+            await editor.goto(`${site}/edit/#${PAGE}`);
             if (density) await editor.evaluate((d) => document.documentElement.setAttribute('data-density', d), density);
             await editor.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 60_000 }).catch(() => {});
             await editor.addStyleTag({ content: '*,*::before,*::after{transition:none!important;animation:none!important}' });

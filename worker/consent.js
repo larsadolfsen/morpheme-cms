@@ -3,7 +3,7 @@
 // Kept in Cloudflare D1 (the binding CONSENT in wrangler.jsonc), never in the repository: one row per answer, with the
 // random consent id the visitor's browser keeps (consentId in src/scripts/tracking.ts, shown in the banner under
 // "Cookie settings"), when, the yes or no to each category the banner asked about, and the banner it was given in
-// (the commit the site was built from, /editor/version.json). No IP address, no user agent: nothing more about the
+// (the commit the site was built from, /edit/version.json). No IP address, no user agent: nothing more about the
 // visitor than the answer. An answer older than two years is deleted (forgetOldConsents, each hour); the banner asks
 // again after one. Without the binding (a preview of a branch) nothing is kept and the editor says so.
 //   POST   /api/consent                     a visitor's answer, from the site's own pages: { id, choices }
@@ -42,7 +42,7 @@ let version;
 async function versionOf(env, url) {
   if (version) return version;
   try {
-    const res = await env.ASSETS.fetch(new URL('/editor/version.json', url.origin));
+    const res = await env.ASSETS.fetch(new URL('/edit/version.json', url.origin));
     version = String((await res.json()).commit ?? '');
   } catch {
     return '';

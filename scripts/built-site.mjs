@@ -183,7 +183,7 @@ export async function clickPreview(page) {
     .click();
 }
 
-/** Opens the editor (/editor/) of the site at `site` in `page`, signed in, with GitHub answered from the files on disk
+/** Opens the editor (/edit/) of the site at `site` in `page`, signed in, with GitHub answered from the files on disk
  * (`texts`: some with other texts), and waits until it has loaded the site. `store`: the state of the site's key to the
  * store (a key of STORE_STATES). `dashboard`: the fake /api/dashboard (the start screen's widgets): GET answers the last
  * saved layout, or none (the default widgets); each PUT is recorded in `saved` (the bodies as sent), unless `fail` is
@@ -226,7 +226,7 @@ export async function openEditor(page, site, texts = {}, store = 'button', dashb
     const found = workerAnswer(route, JSON.parse(r.request().postData() || '{}'), { ...virtual, ...texts });
     return found ? r.fulfill({ contentType: 'application/json', body: JSON.stringify(found) }) : r.fulfill({ status: 404 });
   });
-  await page.goto(`${site}/editor/`);
+  await page.goto(`${site}/edit/`);
   // The editor has loaded the site when the start screen has its links.
   await page.waitForFunction(() => document.querySelectorAll('a[href^="#"]').length > 3, null, { timeout: 60_000 });
 }

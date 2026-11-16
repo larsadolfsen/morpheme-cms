@@ -1,7 +1,7 @@
 // A fingerprint of the editor's code (the package in packages/editor/, the themes in src/themes/ with their
 // blocks, which one is in use (src/data/theme.json), the icon packs in packages/editor/icons/ and which one is chosen
 // (src/data/icons.json), the apps in src/apps/ and the site's configuration in src/site/), made at
-// build time. It is written both in the editor's page and in /editor/version.json, so an editor that is still open from before a change to it can tell that a
+// build time. It is written both in the editor's page and in /edit/version.json, so an editor that is still open from before a change to it can tell that a
 // newer one is out (packages/editor/src/deploy.ts). Only changes to the editor count: a save of the owner's also
 // gives a new build, but the same fingerprint.
 import { createHash } from 'node:crypto';

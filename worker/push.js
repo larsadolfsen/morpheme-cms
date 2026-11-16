@@ -1,5 +1,5 @@
 // The editor's notifications on the phone or computer also when the editor is closed: Web Push from the Worker
-// (packages/editor/src/notificationData.ts, packages/editor/pages/editor/sw.js). A device where "On the phone" is on under "Account" ›
+// (packages/editor/src/notificationData.ts, packages/editor/pages/edit/sw.js). A device where "On the phone" is on under "Account" ›
 // "Notifications" signs up here with the browser's push subscription, the types it has turned off and the editor's
 // language; the Worker sends to the browser's push service (Google's, Mozilla's, Apple's), which wakes the editor's
 // service worker, which shows it. Kept in Workers KV (the binding PUSH in wrangler.jsonc):
@@ -33,7 +33,7 @@ const DEVICE = 'device:';
 const WAIT = 'wait:';
 const WAITING = 'waiting';
 // How long the editor waits for a save to be on the site (packages/editor/src/deploy.ts): giveUpAfter(paidBuilds), where
-// paidBuilds is in /editor/version.json. Before a wait is checked that is not known: the longest limit is used.
+// paidBuilds is in /edit/version.json. Before a wait is checked that is not known: the longest limit is used.
 const LONGEST = giveUpAfter(false);
 // A device not seen (the editor not opened on it) for half a year drops out by itself.
 const KEEP = 180 * 24 * 60 * 60;
@@ -162,10 +162,10 @@ export async function notifyAll(env, { type, id, text, error, to }, texts = {}) 
   }
 }
 
-/** What the site was last built from (/editor/version.json, packages/editor/pages/editor/version.json.js). */
+/** What the site was last built from (/edit/version.json, packages/editor/pages/edit/version.json.js). */
 async function builtOf(env) {
   try {
-    const res = await env.ASSETS.fetch(new Request('https://assets.local/editor/version.json'));
+    const res = await env.ASSETS.fetch(new Request('https://assets.local/edit/version.json'));
     return res.ok ? await res.json() : {};
   } catch {
     return {};

@@ -1,7 +1,7 @@
 # A site with Morpheme CMS
 
 The website is built with [Astro](https://astro.build), runs on [Cloudflare](https://www.cloudflare.com) and is edited
-in the editor at `/editor/`: pages, posts, images and settings. Every save is one commit in this repository, and
+in the editor at `/edit/`: pages, posts, images and settings. Every save is one commit in this repository, and
 Cloudflare builds and publishes the site by itself afterwards.
 
 The editor, the standard theme *Material* and the site's Worker are the package [`@morphemecms/cms`](https://www.npmjs.com/package/@morphemecms/cms)

@@ -838,7 +838,7 @@
 /* Like an app: no grey flash when tapping links and buttons on a phone, and no zoom on a double tap.
    Nothing sticks out at the side: on Android, anything wider than the screen, even for a moment while
    the page opens, makes Chrome lay the whole page out wider than the screen, and as zooming is off
-   (pages/editor/index.astro) it then stays cut off on the right. */
+   (pages/edit/index.astro) it then stays cut off on the right. */
 html,
 body {
   overflow-x: clip;

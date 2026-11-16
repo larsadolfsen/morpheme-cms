@@ -1,4 +1,4 @@
-// The editor at /editor/ (docs/editor.md): sign in with GitHub, pick a part of the site, edit and
+// The editor at /edit/ (docs/editor.md): sign in with GitHub, pick a part of the site, edit and
 // save. The layout: the full-height navigation rail or drawer (MainMenu.tsx) with, beside it, the top bar (topBarSlot.tsx) over the screen. The address after # says what is open, so reloading keeps it:
 //   (empty)          the start page
 //   list/<id>       the list of a part, e.g. list/prices, and list/<id>/<app> a tab an installed app adds to it
@@ -378,7 +378,7 @@ function Editor() {
   useEffect(() => {
     if (signedIn) syncDensity();
   }, [signedIn]);
-  // A tap on such a notification while the editor is open: to the screen it is about (packages/editor/pages/editor/sw.js).
+  // A tap on such a notification while the editor is open: to the screen it is about (packages/editor/pages/edit/sw.js).
   useEffect(() => {
     const onMessage = (e: MessageEvent) => typeof e.data?.to === 'string' && leaveTo(`#${e.data.to}`);
     navigator.serviceWorker?.addEventListener('message', onMessage);
@@ -768,7 +768,7 @@ function Editor() {
   if (signedIn === false || (signedIn === null && !files)) {
     return (
       <main className="mx-auto flex min-h-dvh max-w-sm flex-col items-center justify-center gap-5 px-6 pb-[env(safe-area-inset-bottom)] text-center">
-        <img src="/editor/icon-192.png" alt="" className="size-20 rounded-[1.375rem] shadow-soft" />
+        <img src="/edit/icon-192.png" alt="" className="size-20 rounded-[1.375rem] shadow-soft" />
         <h1 className="text-2xl font-semibold">{siteName}</h1>
         {signedIn === null && !error ? <EmptyNote busy>{t.app.loading}</EmptyNote> : <Button onClick={login}>{t.app.logIn}</Button>}
         {error && <ProblemNote>{error}</ProblemNote>}

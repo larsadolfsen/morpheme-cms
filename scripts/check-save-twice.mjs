@@ -206,7 +206,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
   // A page stored as Scheduled (an older site) can be edited and saved, as a draft and as published, on a phone: its status is accepted.
   const old = 'src/content/pages/old-scheduled.md';
-  await page.goto(`${site}/editor/#${old}`);
+  await page.goto(`${site}/edit/#${old}`);
   const opened = await page.waitForSelector('[contenteditable=true]', { timeout: 15_000 }).then(
     () => true,
     async () => {
@@ -226,7 +226,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
   for (const name of ['hidden-now', 'hidden-old']) {
     const post = `src/content/blog/${name}.md`;
-    await page.goto(`${site}/editor/#${post}`);
+    await page.goto(`${site}/edit/#${post}`);
     await page.waitForSelector('[contenteditable=true]', { timeout: 15_000 }).catch(() => fail.push(`${name} did not open in the editor`));
     await type(' one');
     await press('Save draft', `${name}: Save draft`);
@@ -240,7 +240,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   }
 
   // A new page, the tab hidden after a few words (the Worker makes the draft page file), then Save draft twice and Publish.
-  await page.goto(`${site}/editor/#new/pages`);
+  await page.goto(`${site}/edit/#new/pages`);
   await page.waitForSelector('[contenteditable=true]');
   await type('From us to you');
   await leave();
