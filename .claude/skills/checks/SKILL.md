@@ -10,10 +10,22 @@ Announce "Using checks". Run every command from the root of this repository, on 
 
 ## What CI runs
 
-`.github/workflows/check.yml` runs on every pull request into `main`, `0.17`, `0.18` and `0.19`: `check`, `check:screens`
-(8 shards), `check:screens:extra`, `check:demo` and `check:starter` (its screens in 4 shards), as jobs side by side, plus
-the changeset (skill `changesets`). Its job `check` waits for them all and must be green on the current head before the
-PM merges.
+`.github/workflows/check.yml` runs on every pull request into `main`, `0.17`, `0.18` and `0.19`, in two sizes (owner, 16 Nov 2026: a
+merge into a version line shows on the demo within minutes). Its job `check` waits for the jobs and must be green on the current head
+before the PM merges.
+
+- **Light check, base is a version line** (`0.17`, `0.18`, `0.19`; not the Release PR): `changes`, `static` (Prettier, language, the
+  changeset, `npm run check`) and `check:screens` in its 8 shards. About 8 minutes (median of the shards 8.0, longest 10.9). It skips
+  `check:screens:extra`, `check:demo` and `check:starter` (the 4 starter shards take a median of 14.2 minutes, the longest 19.8). The
+  PM may merge into a version line on a green light `check`.
+- **Full check, base is `main`**: the merge of a version line into `main` (`merge-0.18-into-main-N`) and the Release PR run everything:
+  `static`, all 8 `screens` shards, `screens-extra`, `demo` and the 4 `starter` shards. A merge of a version line into `main` needs this
+  full run green. Nothing reaches npm `next` or the owner without it.
+- The job `changes` decides with `isLight(base, head)` in `scripts/ci-changes.mjs` and prints `light=true|false`; an empty or unknown
+  base, `main`, the Release PR or any error in the step gives `light=false`, so everything runs. The changeset check is in `static` and
+  stays on every pull request.
+- To make the light check pick `screens` units from the changed files instead of all 8 shards, the screens units must first be split
+  per area (`scripts/editor-screens.mjs`, the PM's screens-split work); until then the light check runs all 8 shards.
 
 **A docs-only pull request skips the heavy jobs** (`screens`, `screens-extra`, `demo`, `starter`); `static` (Prettier, language,
 changeset, `npm run check`) always runs. The first job `changes` decides from `git diff --name-only origin/<base>...HEAD`
@@ -22,7 +34,7 @@ changeset, `npm run check`) always runs. The first job `changes` decides from `g
 `release-notes/` and `CHANGELOG.md` are never skipped (`check:release-notes`, the notes tests and the editor's build read them), and
 neither are the Release PR, an empty diff or any other path: when in doubt, everything runs. There is no `paths-ignore`, because
 `check` must always report. It is green when `static` and `changes` are green and each heavy job is green, or skipped on a
-docs-only pull request; a failed, cancelled or wrongly skipped job makes it red. To put a folder on the list, first find which
+docs-only pull request, or (`screens-extra`, `demo`, `starter`) on a pull request into a version line; a failed, cancelled or wrongly skipped job makes it red. To put a folder on the list, first find which
 checks read it (`grep` the scripts and tests) and change the list and its test in `scripts/ci-changes.mjs` only.
 
 **`starter` and `demo` are also skipped when no changed file can affect them** (`needsStarterDemo` in `scripts/ci-changes.mjs`; the job
@@ -32,7 +44,7 @@ demo), so only paths that neither reads are skipped: docs, `.claude/`, `.agents/
 `check-colors`, `check-css-values`, `check-density`, `phosphor-allowlist.json`, `web-allowlist.json`). Everything else runs them: `src/`,
 `theme/`, `lib/`, `pages/`, `site/`, `worker/`, `bin/`, `defaults/`, `starter/`, `demo/`, `release-notes/`, `package.json`, the lock file,
 `wrangler.jsonc`, any other script, `check.yml` and `ci-changes.mjs` itself, the Release PR and an empty diff. `screens`, `screens-extra`
-and `static` run on every pull request that is not docs-only. The job `check` treats a job skipped by this filter as green. To add a path
+and `static` run on every pull request that is not docs-only (`screens-extra` not on a light one). The job `check` treats a job skipped by this filter as green. To add a path
 to the skip list, first `grep` that neither job reads it (the list's comment says how), and change the list and its test only.
 
 A new push to a pull request cancels that pull request's older queued and running `Check` runs (`concurrency` in

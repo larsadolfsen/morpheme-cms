@@ -22,6 +22,9 @@ request when all of this holds, one pull request at a time, and only after readi
 - its changeset has the level its base branch allows (skill `changesets`; read it each time, never work from memory);
 - for a change the owner can see, the owner has approved it (**The owner approves what the owner sees**).
 
+The light `check` (changes, static, the 8 screens shards) is enough to merge into a version line; a merge of a version line into `main`
+(`merge-0.18-into-main-N`) needs the full run green (skill `checks`, *What CI runs*). When a line is red after a merge, the PM fixes forward.
+
 A pull request that conflicts, has no `check` job or has the wrong changeset is not merged. The PM asks the session
 that owns it to merge `main` (or its base branch) into the branch (never a rebase, amend or force-push on someone else's
 branch) or to fix the changeset, and merges when it is right. After each merge into a version line, it merges that line
