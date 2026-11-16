@@ -8774,6 +8774,72 @@ async function checkInlinePaste(width, height, block) {
   await page.close();
 }
 
+/** A click or a tap in the headline of an inactive card makes that card the active one, at every width: the pointer lands in the card's own field
+ * (nothing is over it), and the card becomes active from the field's focus. A real mouse click and, on a touch screen, a tap. */
+async function checkCardClickActivates(width, height, how) {
+  const label = `${width}px ${how} in an inactive card's headline`;
+  const touch = how === 'tap';
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Cards that link to pages.' }).first().click();
+  await page.waitForSelector('.inline-cards [data-row="0"] [data-field="title"]');
+  await page.keyboard.type('Tea');
+  await page.locator('.inline-list-host [data-add-row]').first().click();
+  await page.keyboard.type('Cake');
+  await page.waitForTimeout(300);
+  const target = page.locator('.inline-cards [data-row="0"] [data-field="title"]').first();
+  await target.scrollIntoViewIfNeeded();
+  const box = await target.boundingBox();
+  const x = box.x + box.width / 2;
+  const y = box.y + box.height / 2;
+  const hit = await page.evaluate(
+    ([px, py]) => {
+      const el = document.elementFromPoint(px, py);
+      return el ? `${el.tagName.toLowerCase()}${el.className ? '.' + String(el.className).split(' ')[0] : ''}` : 'none';
+    },
+    [x, y],
+  );
+  const own = await page.evaluate(
+    ([px, py]) => !!document.elementFromPoint(px, py)?.closest('[data-row="0"] [data-field="title"]'),
+    [x, y],
+  );
+  if (!own) problems.push(`${label}: the point in the headline hits ${hit}, not the headline`);
+  if (touch) await page.touchscreen.tap(x, y);
+  else await page.mouse.click(x, y);
+  await page.waitForTimeout(400);
+  const state = await page.evaluate(() => ({
+    active: document.querySelector('.inline-cards [data-row="0"]')?.getAttribute('aria-current') === 'true',
+    focus: document.activeElement?.closest('[data-field]')?.getAttribute('data-field') ?? document.activeElement?.className ?? '',
+  }));
+  if (!state.active) problems.push(`${label}: the card is not active after it (focus is in "${state.focus}")`);
+  // The same from outside the block: the cursor is in the paragraph above, so no card of the block is active, and a pointer in the second card's headline.
+  await page.locator('.ProseMirror p').first().click();
+  await page.waitForTimeout(300);
+  const second = page.locator('.inline-cards [data-row="1"] [data-field="title"]').first();
+  await second.scrollIntoViewIfNeeded();
+  const box2 = await second.boundingBox();
+  const x2 = box2.x + box2.width / 2;
+  const y2 = box2.y + box2.height / 2;
+  if (touch) await page.touchscreen.tap(x2, y2);
+  else await page.mouse.click(x2, y2);
+  await page.waitForTimeout(400);
+  const outside = await page.evaluate(() => ({
+    active: document.querySelector('.inline-cards [data-row="1"]')?.getAttribute('aria-current') === 'true',
+    focus: document.activeElement?.closest('[data-field]')?.getAttribute('data-field') ?? document.activeElement?.className ?? '',
+  }));
+  if (!outside.active)
+    problems.push(`${label}: from the paragraph above, the second card is not active after it (focus is in "${outside.focus}")`);
+  await page.close();
+}
+
 /** A card's text is optional (spec 2026-11-14-paste-and-change-to-design.md, decision 10): typed in place, a card with only a headline
  * has no empty text area once another card is active, and on the site the "Only a headline" card of the system's test page (the demo's Blocks page) has no text element. */
 async function checkCardHeadline(width, height) {
@@ -12051,6 +12117,13 @@ for (const block of pasteBlocks)
 for (const w of [375, 1280]) await unit(`checkInlinePaste ${w} table`, () => checkTablePaste(w, w < 600 ? 740 : 900));
 for (const w of [375, 1280]) await unit(`checkChangeTo ${w}`, () => checkChangeTo(w, w < 600 ? 740 : 900));
 for (const w of [375, 1280]) await unit(`checkCardHeadline ${w}`, () => checkCardHeadline(w, w < 600 ? 740 : 900));
+for (const [w, h, how] of [
+  [375, 740, 'tap'],
+  [768, 1024, 'click'],
+  [768, 1024, 'tap'],
+  [1280, 900, 'click'],
+])
+  await unit(`checkCardClickActivates ${w} ${how}`, () => checkCardClickActivates(w, h, how));
 await unit('checkDynamicList 375', () => checkDynamicList(375, 740));
 await unit('checkDynamicList 1280', () => checkDynamicList(1280, 900));
 await unit('checkDynamicPicker 375', () => checkDynamicPicker(375, 740));
