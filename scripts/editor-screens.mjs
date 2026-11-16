@@ -9763,6 +9763,38 @@ async function checkInlineTable(width, height) {
   await page.close();
 }
 
+/** A label above a heading (`<p class="label-medium">`, lib/eyebrow.mjs) on the built site's front page, About and App store pages, at 375, 768 and 1280 px, light and dark: the label sits 8 px above its heading
+ * (0.5rem, the same everywhere), so the space of the section the heading belongs to never comes between them (the front page puts the label in the section after it, Home.astro). */
+async function checkLabelGap() {
+  const labelGap = 8;
+  for (const width of [375, 768, 1280])
+    for (const scheme of ['light', 'dark']) {
+      const page = await browser.newPage({ viewport: { width, height: 900 }, colorScheme: scheme, locale: 'en-US' });
+      for (const path of ['/', '/about/', '/app-store/']) {
+        const label = `${width}px ${scheme} ${path}`;
+        const response = await page.goto(new URL(path, site).href).catch(() => null);
+        if (!response || response.status() >= 400) {
+          problems.push(`${label}: the page did not open`);
+          continue;
+        }
+        const gaps = await page.evaluate(() => {
+          const headings = [...document.querySelectorAll('h1, h2, h3')];
+          return [...document.querySelectorAll('main .label-medium')].map((el) => {
+            const heading = headings.find((h) => el.compareDocumentPosition(h) & Node.DOCUMENT_POSITION_FOLLOWING);
+            return {
+              text: el.textContent,
+              gap: heading ? Math.round(heading.getBoundingClientRect().top - el.getBoundingClientRect().bottom) : null,
+            };
+          });
+        });
+        if (!gaps.length) problems.push(`${label}: no label found to measure`);
+        for (const g of gaps)
+          if (g.gap !== labelGap) problems.push(`${label}: the label "${g.text}" is ${g.gap}px above its heading, should be ${labelGap}px`);
+      }
+      await page.close();
+    }
+}
+
 /** A Table's column alignment (375 and 1280 px): a column of numbers is right-aligned, header and cells, and a text column left, in the editor typed in place and on the built site (/blocks/); the bar's Align column left, Center column, Align column right and Align column automatically change the column of the active cell (the pressed one shown), and the choice is saved with the block (`columns`, a second save writes the same text). */
 async function checkTableAlign(width, height) {
   const label = `${width}px table alignment`;
@@ -11514,6 +11546,7 @@ await unit('checkTableAlign 1280', () => checkTableAlign(1280, 800));
 
 await unit('checkTableRadius 375', () => checkTableRadius(375, 740));
 await unit('checkTableRadius 1280', () => checkTableRadius(1280, 800));
+await unit('checkLabelGap', () => checkLabelGap());
 await unit('checkSpacingGrid 375', () => checkSpacingGrid(375, 740));
 await unit('checkSpacingGrid 1280', () => checkSpacingGrid(1280, 800));
 for (const [width, height] of [

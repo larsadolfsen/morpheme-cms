@@ -4,6 +4,8 @@
 import Container from '@theme/components/Container.astro';
 import SectionHeading from '@theme/components/SectionHeading';
 import Inline from '@theme/components/Inline.astro';
+import Markdown from '@theme/components/Markdown.astro';
+import { eyebrowHtml } from '@morphemecms/cms/lib/eyebrow.mjs';
 
 interface Props {
   title?: string;
@@ -13,8 +15,10 @@ interface Props {
   id?: string;
   /** The colour of the panel behind the section (`sectionColor` from the front page's heading, as in a page's text-section). */
   color?: string;
+  /** A label above the heading (lib/eyebrow.mjs): the text's label that came just before the section, kept with it. */
+  label?: string;
 }
-const { title, intro, class: className, id, color } = Astro.props;
+const { title, intro, class: className, id, color, label } = Astro.props;
 const Panel = color ? 'div' : Fragment;
 const panel = color ? { class: `text-section text-section-${color} my-0 pb-(--block-section-padding)` } : {};
 ---
@@ -25,6 +29,7 @@ const panel = color ? { class: `text-section text-section-${color} my-0 pb-(--bl
   data-reveal
 >
   <Panel {...panel}>
+    {label && <Markdown body={eyebrowHtml(label)} />}
     {title && <SectionHeading id={id} text={title} />}
     {intro && (
       <p class="type-body-large mt-3 max-w-[52ch] text-on-surface-variant">
