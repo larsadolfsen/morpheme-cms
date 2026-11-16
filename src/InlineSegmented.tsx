@@ -160,15 +160,15 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
             leading={
               here ? (
                 <span className="inline-segmented-slots">{slots(i, item.icon)}</span>
-              ) : (
+              ) : item.icon ? (
                 <InlineIcon
                   label={t.blocks.segmented.icon}
                   icon={item.icon}
                   here={false}
-                  iconColor={item.icon ? iconColorOf(item.iconColor) : undefined}
+                  iconColor={iconColorOf(item.iconColor)}
                   onClick={() => onIcon(i)}
                 />
-              )
+              ) : undefined
             }
             headline={title}
           >
