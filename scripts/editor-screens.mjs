@@ -2157,7 +2157,11 @@ const cancelOf = (scope) => scope.getByRole('button', { name: /^(Cancel|Back to 
 /** Ends a block's or section's sheet with its changes kept: Save where it has one (a phone, a sheet from the bottom), else the close button of the live side sheet
  * from expanded, whose changes are in the page already (spec 2026-11-14 one Save, 4.1). `which`: the Save button when there are several. */
 async function saveOrClose(page, which = 'first') {
-  const save = page.getByRole('button', { name: 'Save', exact: true }).locator('visible=true');
+  // Not the page's own Save in the bar under the sheet (it is called Save too).
+  const save = page
+    .getByRole('button', { name: 'Save', exact: true })
+    .locator('visible=true')
+    .and(page.locator(':not(.editor-save-bar *)'));
   if (await save.count()) return void (await save[which]().click());
   await page.locator('.editor-side-sheet [data-side-sheet-close]').last().click();
 }
