@@ -445,24 +445,41 @@ Source: `theme/components/Footer.astro`, `theme/layouts/Base.astro`. Read 15 Nov
 - **Why it stays:** no Modern Web Guidance guide prints a rule for one-of-many toggle buttons (searched and read 15 Nov 2026: `accessibility`, `forms`, `toolbar`, `tabs`, `switch`, `dark-mode-toggle`; none mentions radio roles, `aria-checked` or arrow-key groups), and M3's page prints none. The theme's `ChoiceGroup` and this group use `aria-pressed`. Accepted by the PM, 15 Nov 2026; revisit if the guides add it.
 - **Date:** 2026-11-15. **PR:** #767.
 
-## The site's menu is the baseline modal navigation drawer, not the modal expanded navigation rail (D2 of the Modern Web Guidance audit)
+## The site's menu is the modal expanded navigation rail (follow-up of D2 of the Modern Web Guidance audit)
 
-Source: `theme/components/MobileMenu.tsx`, `theme/ui/NavigationDrawer.tsx`, `theme/styles/ui.css`. Read 15 Nov 2026 on m3.material.io (Playwright, every tab): `/components/navigation-drawer/overview`, `/specs`, `/guidelines`, `/accessibility` and `/components/navigation-rail/overview`, `/specs` (all six token sets: Common, Collapsed, Expanded, Item - Common, Item - Vertical, Item - Horizontal, opened), `/guidelines`, `/accessibility`. The measurement and anatomy images of the Specs pages did not load in headless Chromium (blurred placeholders), so numbers that only those images carry are not read here.
+Source: `theme/components/MobileMenu.tsx`, `theme/ui/NavigationDrawer.tsx`, `theme/styles/ui.css`. Read 15 Nov 2026 on m3.material.io (Playwright, every tab): `/components/navigation-drawer/overview`, `/specs`, `/guidelines`, `/accessibility` and `/components/navigation-rail/overview`, `/specs` (the token sets Common, Collapsed, Expanded, Item - Common, Item - Vertical and Item - Horizontal, opened), `/guidelines`, `/accessibility`. The measurement and anatomy images of the Specs pages did not load in headless Chromium (blurred placeholders), so numbers that only those images carry are not read here.
 
-### N1. On a phone the menu has the baseline drawer's look; Expressive's replacement is the modal expanded navigation rail
+### N1. The menu on a phone is the modal expanded navigation rail; the part keeps its name `navigation-drawer`
 
-- **Material, same thing under a new name:** Navigation drawer, Overview: "The navigation drawer is no longer recommended in the Material 3 Expressive update. For those who have updated, use an expanded navigation rail, which has mostly the same functionality of the navigation drawer and adapts better across breakpoints." Navigation rail, Overview: "The expanded nav rail is meant to replace the navigation drawer"; "Expanded: replaces navigation drawer"; configurations "Expanded rail modality: Non-modal, Modal". Specs, Configurations: *Expanded layout*, "Modal": M3 "Available as navigation drawer", M3 Expressive "Available". Guidelines: "The modal configuration overlaps the body content, and should be opened from a menu icon. Use the modal configuration for: Information dense layouts where space is limited; Products with many navigation items"; "Expanded navigation rails can open from menu buttons on mobile"; "Predictive back only applies to the modal expanded navigation rail."
-- **Material, where the look differs** (drawer baseline against the expanded rail; the Specs pages print no value for the rail's container shape and elevation tokens in text):
-  1. Container colour of the modal one: drawer "modal container color #F7F2FA" (Light); expanded rail "modal container color #F3EDF7" (Light). Ours: the level 1 elevation colour (`--mo-elevation-1-color`), the drawer's.
-  2. Width: drawer "container width 360dp"; expanded rail "container width minimum 220dp", "maximum 360dp" (it hugs its content). Ours: 360dp, at most the screen less 56dp.
-  3. Top space: rail "expanded top space 44dp". Ours: 12dp padding, then our own header row.
-  4. Active indicator: drawer "active indicator width 336dp", "height 56dp" (it fills the container); rail "The active indicator hugs the label text in the expanded nav rail. To achieve a similar style to the baseline navigation drawer, consider modifying the active indicator to fill the container"; the item "active indicator height 56dp". Ours fills the container (the drawer's).
-  5. Icon-label space: rail item horizontal "icon-label-space 8dp"; ours 12dp (`--navigation-drawer-item-gap`). Rail item: "leading space 16dp", "trailing space 16dp", "container height 64dp" (short 56dp), "container vertical space 6dp", "between item space 0dp", "vertical trailing space 20dp", icon 24dp. Ours: 16dp padding, 56dp item, full-width.
-  6. Icons and labels: rail "Navigation rail items must use icons that symbolize the content of their page"; "All navigation items require a one word label text". Our site menu has labels only, no icons, and sub-pages that unfold.
-  7. Menu button: rail "The menu button can transition between the collapsed and expanded navigation rails" and "When the navigation rail is expanded, the menu icon should change to represent that it can be collapsed." Ours: a Close (x) button in a header row with the site's logo and name; the opener is the header's menu icon.
-  8. Section labels and dividers: the drawer has a headline and "full-width dividers"; the rail's text prints none. Ours has none in the site menu.
-  9. Edge: rail "should be placed on the leading edge of the window"; "Always put the rail in the same place". Ours can open from the end edge (the header's `menuSide`).
-  10. Scrim and dismissal: the drawer's Guidelines print the scrim ("The scrim is placed directly behind the drawer's sheet and can be tapped or clicked to dismiss the drawer"), dismissal by tapping the scrim or "swiping the drawer toward its anchoring screen edge"; the rail pages print no scrim and say predictive back applies to the modal one. Ours: a scrim and a tap on it, Escape and its button; no swipe.
-- **We do:** the site's menu stays the theme's modal navigation drawer (`navigation-drawer`) with the baseline drawer's look and measurements. This pull request only changes how it is built: a native `<dialog>` opened with `showModal()` (Modern Web Guidance, `dialog` and `navigation-drawer`), with the same springs. Nothing in the list above is built here.
-- **Why:** owner's priority order (15 Nov 2026): modern web first, M3 Expressive second. The drawer's function is the modal expanded rail's, so the part keeps its name `navigation-drawer`; whether to change its look to the rail's, or rename it, is the owner's decision (relayed by the PM, 15 Nov 2026). A rename would change the exported names and the class names a theme uses, so it would need a `THEME_API` bump; the look change alone would not.
-- **Date:** 2026-11-15. **PR:** #768.
+- **Material:** Navigation drawer, Overview: "The navigation drawer is no longer recommended in the Material 3 Expressive update. For those who have updated, use an expanded navigation rail, which has mostly the same functionality of the navigation drawer and adapts better across breakpoints." Navigation rail, Overview: "The expanded nav rail is meant to replace the navigation drawer"; Specs, Configurations, *Expanded layout*, "Modal": M3 "Available as navigation drawer", M3 Expressive "Available"; Guidelines: "Expanded navigation rails can open from menu buttons on mobile".
+- **We do (owner's priority order, 15 Nov 2026: Expressive over plain M3; decided by the PM):** the theme's `navigation-drawer` takes the expanded rail's look where its pages print a value: the modal container is the surface container ("Nav rail expanded modal container color", `--mo-elevation-2-color`) and the standard one the surface ("Nav rail expanded container color"); the container hugs its content, "container width minimum 220dp", "maximum 360dp" (a theme that sets `--navigation-drawer-width` still gets that width); the icon-label space is 8dp ("Nav rail item horizontal icon-label-space 8dp"); and the site's menu has the rail's menu button at its top, on the edge the header's menu button is on, which closes it with a changed icon (`menu-open`; Guidelines: "When the navigation rail is expanded, the menu icon should change to represent that it can be collapsed"), instead of the Close (x) in the head row. The site's logo and name stay beside it, because the menu is the site's own and has no other place for them.
+- **Why the name stays:** a rename changes the exported names and the class names a theme uses, so it needs a `THEME_API` bump; the look change does not. Nothing is removed or renamed here: a new `--navigation-drawer-width-min-default` default, min and max widths instead of a fixed one.
+
+### N2. The active indicator fills the container
+
+- **Material:** Navigation rail, Guidelines: "The active indicator hugs the label text in the expanded nav rail. To achieve a similar style to the baseline navigation drawer, consider modifying the active indicator to fill the container."
+- **We do:** the drawer's active indicator fills the container, as before ("Navigation drawers active indicator width 336dp"). M3 allows it. **Date:** 2026-11-15 (the PM's decision).
+
+### N3. Labels only, and sub-pages, in the site's menu
+
+- **Material:** Navigation rail, Guidelines: "Navigation rail items must use icons that symbolize the content of their page"; "All navigation items require a one word label text."
+- **We do:** the site's menu items are the site's own pages, which have no icons, and an item with sub-pages unfolds them. Items that have an icon (the editor's) use the rail's 8dp icon-label space. **Date:** 2026-11-15.
+
+### N4. The menu can open from the end edge
+
+- **Material:** Navigation rail, Guidelines: "The navigation rail should be placed on the leading edge of the window"; "Always put the rail in the same place".
+- **We do:** the site's menu opens from the edge its button is on (`menuSide` of `header.json`, an owner setting), the end edge included, and its menu button stands on that edge. **Date:** 2026-11-15.
+
+### N5. The scrim, a tap on it and Escape; no custom swipe
+
+- **Material:** Navigation drawer, Guidelines: "Modal navigation drawers use a scrim to block interaction with the rest of an app's content"; dismissal "by tapping the scrim or swiping the drawer toward its anchoring screen edge". Navigation rail, Guidelines: "Predictive back only applies to the modal expanded navigation rail."
+- **We do:** a scrim (the dialog's `::backdrop`), light dismiss and Escape through the native `<dialog>` and its `closedby="any"` and back gesture; no custom swipe (Modern Web Guidance, `dialog`: the browser handles the platform's dismissal). **Date:** 2026-11-15.
+
+### N6. The editor's drawers keep one width
+
+- **Material:** "Nav rail expanded container width minimum 220dp", "maximum 360dp" (it hugs its content).
+- **We do:** the editor's drawers (`.editor-main-drawer-panel`, `src/editor.css`) keep 360dp (at most the screen less 56dp) through their levels and sections, because the layout beside them counts on that width (`--section-pane-width`, the columns). Editor workspace only. **Date:** 2026-11-15.
+
+### N7. Values only the Specs images carry are left as they were
+
+- **Not read:** "Nav rail expanded top space 44dp" is a token, but how the 56dp active indicator sits in the 64dp item container ("container height 64dp", "short container height 56dp", "container vertical space 6dp") and the container's shape and elevation print no value in the page's text. The PM's decision: leave those as they are. We keep the 56dp item, the 12dp top padding and the drawer's corners and level 1 shadow. **Date:** 2026-11-15. **PR:** this pull request.
