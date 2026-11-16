@@ -2,5 +2,6 @@
   "id": "footer-one-line",
   "kind": "line",
   "mark": "improvement",
+  "line": "0.19",
   "text": "På en computer er footeren én række til venstre, og tilføj-knappen bliver nederst til højre"
 }

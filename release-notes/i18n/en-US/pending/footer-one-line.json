@@ -2,5 +2,6 @@
   "id": "footer-one-line",
   "kind": "line",
   "mark": "improvement",
+  "line": "0.19",
   "text": "On a computer the footer is one left-aligned row, and the add button stays at the bottom right"
 }
