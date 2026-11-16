@@ -17,7 +17,7 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react';
-import { editorViewCtx, type Editor } from '@milkdown/kit/core';
+import { editorViewCtx } from '@milkdown/kit/core';
 import type { CmdKey } from '@milkdown/kit/core';
 import type { Ctx } from '@milkdown/kit/ctx';
 import {
@@ -38,7 +38,7 @@ import { $prose, $view, callCommand } from '@milkdown/kit/utils';
 import { Fragment } from '@milkdown/kit/prose/model';
 import type { Mark, Node } from '@milkdown/kit/prose/model';
 import { Decoration, DecorationSet, type EditorView } from '@milkdown/kit/prose/view';
-import { NodeSelection, Plugin, PluginKey, Selection, TextSelection, type EditorState } from '@milkdown/kit/prose/state';
+import { Plugin, PluginKey, Selection, TextSelection } from '@milkdown/kit/prose/state';
 import { liftListItem } from '@milkdown/kit/prose/schema-list';
 import { lift } from '@milkdown/kit/prose/commands';
 import {
@@ -63,6 +63,8 @@ import {
   TextItalic,
   TextT,
 } from '@phosphor-icons/react';
+import { cardDeletes, gapHere, isGap, tapBelow } from './cardKeys';
+import { useFlowEditor } from './FlowEditor';
 import { listKindOf, styleOf } from './styleKind.mjs';
 import { listRows } from './styleMenu.mjs';
 import { sizeListText, sizeOfList } from './listSize.mjs';
@@ -203,99 +205,8 @@ const lookItem = (node: Node): LookItem =>
           ? { kind: 'gap' }
           : { kind: 'p', image: node.content.content.some((n) => n.type.name === 'image') };
 
-// An empty paragraph: a free line between two blocks, which the arrows on a card skip.
-const isGap = (node: Node) => node.type.name === 'paragraph' && node.content.size === 0;
-
-// A card: a block, or an image (in a paragraph of its own).
-const isCard = (node: Node | null | undefined) => !!node && (node.type.name === 'siteBlock' || node.type.name === 'image');
-
-// Whether deleting back (or forward) from the cursor reaches a card: one is selected, right before
-// (after) the cursor, or before (after) the text the cursor is at the start (end) of.
-function nextToCard(state: EditorState, back: boolean) {
-  const { selection } = state;
-  if (selection instanceof NodeSelection) return isCard(selection.node);
-  if (!selection.empty) return false;
-  const $pos = selection.$from;
-  if (isCard(back ? $pos.nodeBefore : $pos.nodeAfter)) return true;
-  if ($pos.parentOffset !== (back ? 0 : $pos.parent.content.size)) return false;
-  const next = $pos.node(-1).maybeChild($pos.index(-1) + (back ? -1 : 1));
-  return isCard(next) || isCard(back ? next?.lastChild : next?.firstChild);
-}
-
-// Deleting next to a card is ProseMirror's, as with a hardware keyboard (the card is selected, then
-// removed). The keyboards of phones delete without a key (only beforeinput), and the browser then
-// deleted the card, or what is in it, without ProseMirror knowing.
-const cardDeletes = $prose(
-  () =>
-    new Plugin({
-      props: {
-        handleDOMEvents: {
-          beforeinput: (view, event) => {
-            const back = /^delete\w*Backward$/.test(event.inputType);
-            if (!back && !/^delete\w*Forward$/.test(event.inputType)) return false;
-            if (!nextToCard(view.state, back)) return false;
-            event.preventDefault();
-            const key = new KeyboardEvent('keydown', { key: back ? 'Backspace' : 'Delete', keyCode: back ? 8 : 46 });
-            view.someProp('handleKeyDown', (f) => f(view, key));
-            return true;
-          },
-        },
-      },
-    }),
-);
-
-// The free line the cursor is in, which opens up to write in (editor.css; the others are thin).
-const gapHere = $prose(
-  () =>
-    new Plugin({
-      props: {
-        decorations: ({ doc, selection: { $from, empty } }) =>
-          empty && $from.depth === 1 && isGap($from.parent)
-            ? DecorationSet.create(doc, [Decoration.node($from.before(), $from.after(), { class: 'editor-gap-here' })])
-            : null,
-      },
-    }),
-);
-
-// A tap in the white below a section's last part, or between two sections (the text's own padding, no node there), puts the cursor in a
-// free line there: the empty paragraph that is already after the part, or a new one that exists only in the editor (markdownOf leaves
-// an empty paragraph out of the saved text, so nothing is written unless something is typed in it).
-const tapBelow = $prose(
-  () =>
-    new Plugin({
-      props: {
-        handleDOMEvents: {
-          click: (view, event) => {
-            if (event.target !== view.dom) return false;
-            const { doc, schema } = view.state;
-            const y = (event as MouseEvent).clientY;
-            const sections = (node: Node) => node.type.name === 'heading' && node.attrs.level <= 2;
-            let hit: { node: Node; pos: number; next: Node | null } | null = null;
-            doc.forEach((node, pos, i) => {
-              const dom = view.nodeDOM(pos);
-              if (dom instanceof HTMLElement && dom.getBoundingClientRect().bottom <= y) hit = { node, pos, next: doc.maybeChild(i + 1) };
-            });
-            const at = hit as { node: Node; pos: number; next: Node | null } | null;
-            if (!at) return false;
-            let h2 = false;
-            doc.forEach((node) => void (h2 ||= node.type.name === 'heading' && node.attrs.level === 2));
-            // The end of the text (when it has sections), or the end of a section: the next part is the heading that starts another.
-            if (at.next ? !sections(at.next) : !h2) return false;
-            let tr = view.state.tr;
-            let free = at.pos + 1;
-            if (!isGap(at.node)) {
-              free = at.pos + at.node.nodeSize + 1;
-              tr = tr.insert(at.pos + at.node.nodeSize, schema.nodes.paragraph.create()).setMeta('addToHistory', false);
-            }
-            view.dispatch(tr.setSelection(Selection.near(tr.doc.resolve(free), -1)).scrollIntoView());
-            view.focus();
-            event.preventDefault();
-            return true;
-          },
-        },
-      },
-    }),
-);
+// The page's cards, for the card keys and free lines (src/cardKeys.ts).
+const CARDS = ['siteBlock', 'image'];
 
 // A tap on the box of a check list item (its ::before, in the padding left of the text; editor.css) checks or unchecks it.
 const checkToggle = $prose(
@@ -2369,21 +2280,12 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
 ) {
   const spaced = !!blocks;
   const framed = frame ?? !sections;
-  const root = useRef<HTMLDivElement>(null);
-  const editor = useRef<Editor | null>(null);
   const changed = useRef(onChange);
   changed.current = onChange;
   const h1Changed = useRef(onH1);
   h1Changed.current = onH1;
   const sheeted = useRef(blocks ?? sheetProp);
   sheeted.current = blocks ?? sheetProp;
-  // The text is loaded: the sheet's hidden copy of this page (sheetCopy.mjs) can be offered, once the form knows the page (`copy`).
-  const [ready, setReady] = useState(false);
-  const copyKey = (blocks ?? sheetProp)?.copy;
-  useEffect(() => {
-    const view = ready && editor.current?.action((ctx) => ctx.get(editorViewCtx));
-    if (view && copyKey) sheeted.current?.offer((index) => sheetTarget(view, index));
-  }, [ready, copyKey]);
   // The Library's picker for an image's Change image (imageCard).
   const picking = useRef(addImage);
   picking.current = addImage;
@@ -2408,115 +2310,109 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     [data?.lists, data?.testimonials, data?.site, data?.path, data?.page?.values],
   );
 
-  useEffect(() => {
-    let cancelled = false;
-    // Tell the form as soon as the text changes (Milkdown's own listener waits 200 ms); not for the
-    // free lines put in as the text is loaded.
-    let loaded = false;
-    const marking = $prose(
-      () =>
-        new Plugin({
-          view: (view) => {
-            const focus = () => setInText(view.hasFocus());
-            view.dom.addEventListener('focus', focus);
-            view.dom.addEventListener('blur', focus);
-            return {
-              destroy: () => {
-                view.dom.removeEventListener('focus', focus);
-                view.dom.removeEventListener('blur', focus);
-              },
-              update: (view) => {
-                focus();
-                const next = headingChoices(levelsOf(view.state.doc));
-                setChoices((was) => (was.join() === next.join() ? was : next));
-                // On a page the first heading is the H1 by itself (firstHeading.mjs); the Heading button stands for it.
-                const now = [...activeOf(view.state)].map((name) => (h1 && name === 'h1' ? 'h2' : name)).sort();
-                setActive((was) => (was.join() === now.join() ? was : now));
-                setNoColor(inLabel(view.state) || (!!sections && inSectionHeading(view.state)));
-              },
-            };
-          },
-        }),
-    );
-    // On a page, a change of its H1's text is told too (onH1), with what it was.
-    const onEdit = $prose(
-      () =>
-        new Plugin({
-          view: () => ({
-            update: (view, prev) => {
-              if (!loaded || view.state.doc.eq(prev.doc)) return;
-              changed.current();
-              if (!h1) return;
-              const [before, now] = [h1TextOf(prev.doc), h1TextOf(view.state.doc)];
-              if (now !== before) h1Changed.current?.(now, before);
+  // The editor is made once per file (the parent gives each file its own key), by the flow editor's host (FlowEditor.tsx).
+  // The text is loaded (`ready`): the sheet's hidden copy of this page (sheetCopy.mjs) can be offered, once the form knows the page (`copy`).
+  const { root, editor, ready } = useFlowEditor({
+    schema: makeEditor,
+    doc: value,
+    // On a page, a change of its H1's text is told too (onH1), with what it was; the form is told as soon as the text changes (Milkdown's own
+    // listener waits 200 ms), not for the free lines put in as the text is loaded.
+    onChange: (view, prev) => {
+      changed.current();
+      if (!h1) return;
+      const [before, now] = [h1TextOf(prev), h1TextOf(view.state.doc)];
+      if (now !== before) h1Changed.current?.(now, before);
+    },
+    plugins: () => {
+      const marking = $prose(
+        () =>
+          new Plugin({
+            view: (view) => {
+              const focus = () => setInText(view.hasFocus());
+              view.dom.addEventListener('focus', focus);
+              view.dom.addEventListener('blur', focus);
+              return {
+                destroy: () => {
+                  view.dom.removeEventListener('focus', focus);
+                  view.dom.removeEventListener('blur', focus);
+                },
+                update: (view) => {
+                  focus();
+                  const next = headingChoices(levelsOf(view.state.doc));
+                  setChoices((was) => (was.join() === next.join() ? was : next));
+                  // On a page the first heading is the H1 by itself (firstHeading.mjs); the Heading button stands for it.
+                  const now = [...activeOf(view.state)].map((name) => (h1 && name === 'h1' ? 'h2' : name)).sort();
+                  setActive((was) => (was.join() === now.join() ? was : now));
+                  setNoColor(inLabel(view.state) || (!!sections && inSectionHeading(view.state)));
+                },
+              };
             },
           }),
-        }),
-    );
-    const imageView = $view(
-      imageSchema.node,
-      () => (node, view, getPos) =>
-        imageCard(
-          node,
-          view,
-          getPos,
-          () => sheeted.current,
-          () => picking.current,
-        ),
-    );
-    const cardView = $view(
-      siteBlockSchema.node,
-      () => (node, view, getPos) =>
-        blockCard(
-          node,
-          view,
-          getPos,
-          () => sheeted.current,
-          cards.current,
-          () => picking.current,
-        ),
-    );
-    // The look of each part on the site, as data-look on it.
-    const looking = $prose(
-      () =>
-        new Plugin({
-          props: {
-            decorations: (state) => {
-              const looks = looked.current;
-              if (!looks) return null;
-              const nodes: { node: Node; pos: number }[] = [];
-              state.doc.forEach((node, pos) => void nodes.push({ node, pos }));
-              const marks = looks(nodes.map(({ node }) => lookItem(node)));
-              return DecorationSet.create(
-                state.doc,
-                nodes.flatMap(({ node, pos }, i) =>
-                  marks[i] ? [Decoration.node(pos, pos + node.nodeSize, { 'data-look': marks[i]! })] : [],
-                ),
-              );
+      );
+      const imageView = $view(
+        imageSchema.node,
+        () => (node, view, getPos) =>
+          imageCard(
+            node,
+            view,
+            getPos,
+            () => sheeted.current,
+            () => picking.current,
+          ),
+      );
+      const cardView = $view(
+        siteBlockSchema.node,
+        () => (node, view, getPos) =>
+          blockCard(
+            node,
+            view,
+            getPos,
+            () => sheeted.current,
+            cards.current,
+            () => picking.current,
+          ),
+      );
+      // The look of each part on the site, as data-look on it.
+      const looking = $prose(
+        () =>
+          new Plugin({
+            props: {
+              decorations: (state) => {
+                const looks = looked.current;
+                if (!looks) return null;
+                const nodes: { node: Node; pos: number }[] = [];
+                state.doc.forEach((node, pos) => void nodes.push({ node, pos }));
+                const marks = looks(nodes.map(({ node }) => lookItem(node)));
+                return DecorationSet.create(
+                  state.doc,
+                  nodes.flatMap(({ node, pos }, i) =>
+                    marks[i] ? [Decoration.node(pos, pos + node.nodeSize, { 'data-look': marks[i]! })] : [],
+                  ),
+                );
+              },
             },
-          },
-        }),
-    );
-    let made = makeEditor(root.current, value)
-      .use(cardView)
-      .use(imageView)
-      .use(cardDeletes)
-      .use(marking)
-      .use(blockSelecting)
-      .use(onEdit)
-      .use(looking)
-      .use(sectionFrame(framed))
-      .use(gapHere)
-      .use(tapBelow)
-      .use(checkToggle)
-      .use(history)
-      .use(liveTracking)
-      .use(clipboard);
-    // A page (h1) keeps its first heading as its H1 and has no other H1 (firstHeading.mjs); a blog post's H1 is its title.
-    if (h1) made = made.use(firstHeading);
-    (spaced ? made.use(spacing) : made).create().then((created) => {
-      if (cancelled) return created.destroy();
-      editor.current = created;
+          }),
+      );
+      return [
+        cardView,
+        imageView,
+        cardDeletes(CARDS),
+        marking,
+        blockSelecting,
+        looking,
+        sectionFrame(framed),
+        gapHere(),
+        tapBelow(),
+        checkToggle,
+        history,
+        liveTracking,
+        clipboard,
+        // A page (h1) keeps its first heading as its H1 and has no other H1 (firstHeading.mjs); a blog post's H1 is its title.
+        ...(h1 ? [firstHeading] : []),
+        ...(spaced ? [spacing] : []),
+      ].flat();
+    },
+    onCreated: (created) => {
       // The free lines between the blocks of the text as it is loaded, and the cursor in the first,
       // so a key pressed before the text is tapped does not replace the first block.
       if (spaced)
@@ -2532,16 +2428,13 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           view.dispatch(view.state.tr.setSelection(Selection.atStart(view.state.doc)).setMeta('addToHistory', false));
           view.focus();
         });
-      loaded = true;
-      setReady(true);
-    });
-    return () => {
-      cancelled = true;
-      editor.current?.destroy();
-      editor.current = null;
-    };
-    // The editor is made once per file; the parent gives each file its own key.
-  }, []);
+    },
+  });
+  const copyKey = (blocks ?? sheetProp)?.copy;
+  useEffect(() => {
+    const view = ready && editor.current?.action((ctx) => ctx.get(editorViewCtx));
+    if (view && copyKey) sheeted.current?.offer((index) => sheetTarget(view, index));
+  }, [ready, copyKey]);
 
   useImperativeHandle(ref, () => ({
     markdown: () => editor.current?.action(markdownOf) ?? null,
