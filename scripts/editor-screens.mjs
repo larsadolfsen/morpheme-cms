@@ -6570,6 +6570,48 @@ async function checkLinkAndItemPanes(width) {
   }
 }
 
+/** A redirect, the name of a new list and an own list's settings (Edit list): from 600 dp each is the pane beside the page, not a dialog (owner, 15 Nov 2026: dialogs are only for short messages, not for settings); on a phone each is still the dialog or the sheet from the bottom. */
+async function checkListAndRedirectPanes(width) {
+  const phone = width < 600;
+  const label = `${width}px list and redirect panes`;
+  const expectIt = async (page, what) => {
+    await page.waitForTimeout(700);
+    const got = await page.evaluate(() => ({
+      pane: !!document.querySelector('aside.editor-side-sheet:not([hidden])'),
+      dialogs: document.querySelectorAll('dialog[open]').length,
+    }));
+    if (phone) {
+      if (got.pane || got.dialogs !== 1) problems.push(`${label}: ${what} is not a dialog or a sheet on a phone (${JSON.stringify(got)})`);
+    } else {
+      if (!got.pane) problems.push(`${label}: ${what} is not the pane beside the page`);
+      if (got.dialogs) problems.push(`${label}: ${what} has a dialog open over the page`);
+    }
+  };
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  // A redirect.
+  await page.evaluate(() => (location.hash = '#seo/redirects/all'));
+  await page.getByRole('button', { name: 'New redirect' }).first().click({ timeout: 10_000 });
+  await expectIt(page, 'a new redirect');
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(500);
+  // A new list: its name, then the list's own settings.
+  await page.evaluate(() => (location.hash = '#lists'));
+  await page.getByRole('button', { name: 'New list' }).first().click({ timeout: 10_000 });
+  await expectIt(page, 'the name of a new list');
+  await page.locator('#new-list-name').fill('Team');
+  await page.getByRole('button', { name: 'Create', exact: true }).first().click();
+  await page.waitForFunction(() => location.hash.startsWith('#list/'), null, { timeout: 10_000 });
+  await page.waitForTimeout(700);
+  if (await page.locator('aside.editor-side-sheet:not([hidden])').count())
+    problems.push(`${label}: the pane of a new list is still open after Create`);
+  await page.getByRole('button', { name: 'List menu' }).first().click({ timeout: 10_000 });
+  await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
+  await expectIt(page, "an own list's settings");
+  await page.close();
+}
+
 /** On a new page with only its H1 (plain, and on a section colour), a line to write in is under it: on a phone with real touch (375 px) and on a computer with a mouse (1280 px), a tap on the hint line, a tap in the white under the page and Enter at the end of the heading each put the cursor in it, and what is typed goes there, not in the heading. */
 async function checkEmptyHint() {
   const devices = [
@@ -11539,6 +11581,7 @@ for (const [width, height] of [
   [1280, 900],
 ])
   await unit(`checkDraftsCard ${width}`, () => checkDraftsCard(width, height));
+for (const width of [375, 768, 1280]) await unit(`checkListAndRedirectPanes ${width}`, () => checkListAndRedirectPanes(width));
 for (const width of [375, 768, 1280]) await unit(`checkLinkAndItemPanes ${width}`, () => checkLinkAndItemPanes(width));
 for (const width of [375, 768, 1280]) await unit(`checkBlockSettingsPane ${width}`, () => checkBlockSettingsPane(width));
 await unit('checkEmptyHint', () => checkEmptyHint());
