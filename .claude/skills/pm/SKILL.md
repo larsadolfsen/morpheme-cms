@@ -39,7 +39,7 @@ it started still never merge their own pull requests.
 **Nothing left behind.** The PM keeps one list of everything in flight and works it until it is empty: pull requests
 waiting to merge, sessions that went quiet without a pull request (it starts a fresh session with the whole task in its
 first prompt when a session stays stuck), release notes and changesets a merged change still lacks, follow-ups the
-sessions report, branches that are fully merged, and open questions for the owner. It tells the owner only what the
+sessions report, branches that are fully merged (deleted only after their change is in a successful `next` build), and open questions for the owner. It tells the owner only what the
 owner has to do or decide, such as approving a `next` build on npmjs.com and which version to approve, because every
 merge to `main` stages a new `next` build that only the owner approves. A pull request the owner has to see is assigned
 to the owner; the owner does not see the rest.
@@ -84,7 +84,7 @@ travel in git:
    package or the pull request's diff.
 3. In the comment, link each image as
    `![caption](https://github.com/<owner>/<repo>/blob/pr-screenshots/<number>/shots/<file>.png?raw=true)`.
-4. After the pull request is merged or closed, delete the branch.
+4. Keep the branch. Owner rule, 16 Nov 2026: "New rules don't delete a branch on git until it has been released successfully to next." No branch is deleted on git (a pull request's own branch, its `pr-screenshots/<number>` branch, or any other) until its change has been released successfully to `next` (a `next` build that contains it is staged on npm). A branch whose change never reaches `next` (a closed, unmerged pull request) is kept.
 
 *Checked 14 Nov 2026 (pull request #632):* a pushed orphan branch and a comment with this link work, and GitHub renders the
 comment as an `<img>` of the link. Not yet checked: that the owner's browser shows the image in this private repository.
