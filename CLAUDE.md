@@ -91,8 +91,8 @@ Worker, the starter or the demo is a pull request here.
 
 ### Key folders
 
-- **`theme/`**: the default theme *Material*. `theme/styles/`: MD3 tokens (3-tier: `md.ref.*`, `md.sys.*`, `md.comp.*`),
-  typography (Roboto / Roboto Flex), elevation and colour scales. `theme/ui/`: M3 UI components. `theme/blocks/`: the
+- **`theme/`**: the default theme *Material*. `theme/styles/`: the rules that use the tokens (`ui.css`, `blocks.css`, `global.css` …);
+  the tokens themselves (every custom-property declaration) are in `theme/styles/tokens/` (`docs/theme-token-files.md`). `theme/ui/`: M3 UI components. `theme/blocks/`: the
   default blocks' look (`View.tsx`, CSS).
 - **`src/` and `pages/`**: the editor. `src/`: React UI, screens, fields, state (`store.ts`), live preview
   (`pagePreview.tsx`), block registry (`blocks.ts`), the start screen's widgets and dashboard (`DashboardGrid.tsx`,
