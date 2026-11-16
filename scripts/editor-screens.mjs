@@ -22,7 +22,7 @@ import { tmpdir } from 'node:os';
 import { constants, inflateSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
-import { CMS_STATUS, clickPreview, openEditor, serveBuilt, virtualFile } from './built-site.mjs';
+import { CMS_STATUS, clickPreview, openEditor, removeVirtualFile, serveBuilt, virtualFile } from './built-site.mjs';
 import { toolWidth } from '../src/textBar.mjs';
 import { allow, nestedUnits } from './spacing-grid.allow.mjs';
 import { installedApps } from '../lib/apps.mjs';
@@ -188,9 +188,6 @@ make(
   'src/content/pages/zz-check-page.md',
   `---\ntitle: "${FIXTURE_PAGE}"\n---\n\n# ${FIXTURE_PAGE}\n\nMade by check:screens, never saved.\n`,
 );
-make('src/content/pages/zz-discard-plain.md', `---\ntitle: "Discard plain"\n---\n\n# Discard plain\n\nPublished text.\n`);
-make('src/content/pages/zz-discard-waiting.md', `---\ntitle: "Discard waiting"\n---\n\n# Discard waiting\n\nPublished text.\n`);
-make('src/drafts/pages/zz-discard-waiting.md', `---\ntitle: "Discard waiting"\n---\n\n# Discard waiting\n\nPublished text. waiting text\n`);
 /** A post that is not on the blog: the demo's, or the one made here. */
 const UNLISTED_POST = existsSync(join(ROOT, 'src/content/blog/not-on-the-blog.md'))
   ? 'A post only for those with the link'
@@ -4642,6 +4639,13 @@ async function checkDiscardInBar(width) {
   const label = `${width}px Discard in the bar`;
   const page = await browser.newPage({ viewport: { width, height: 800 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  // Made for this unit only: a draft left in the site would show in the start screen's drafts card of the other checks.
+  make('src/content/pages/zz-discard-plain.md', `---\ntitle: "Discard plain"\n---\n\n# Discard plain\n\nPublished text.\n`);
+  make('src/content/pages/zz-discard-waiting.md', `---\ntitle: "Discard waiting"\n---\n\n# Discard waiting\n\nPublished text.\n`);
+  make(
+    'src/drafts/pages/zz-discard-waiting.md',
+    `---\ntitle: "Discard waiting"\n---\n\n# Discard waiting\n\nPublished text. waiting text\n`,
+  );
   await openEditor(page, site);
   const commits = [];
   await page.route('**/api/github/commit', (r) => {
@@ -4737,6 +4741,8 @@ async function checkDiscardInBar(width) {
     await page.waitForTimeout(300);
     if (await bar.count()) problems.push(`${at}: the bar is still there after Discard`);
   }
+  for (const f of ['zz-discard-plain', 'zz-discard-waiting']) removeVirtualFile(`src/content/pages/${f}.md`);
+  removeVirtualFile('src/drafts/pages/zz-discard-waiting.md');
   await page.close();
 }
 

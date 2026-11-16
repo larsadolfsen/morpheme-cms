@@ -25,6 +25,8 @@ const types = {
  * site's folder, so a crash or a stray commit can leave nothing in a site. By path, as `texts` are. */
 const virtual = {};
 export const virtualFile = (path, text) => void (virtual[path] = text);
+/** Takes a file a check made away again (a check whose file would show in the others' lists). */
+export const removeVirtualFile = (path) => void delete virtual[path];
 
 /** Serves the built site in `dist`; gives the server and its address. */
 export async function serveBuilt(dist) {
