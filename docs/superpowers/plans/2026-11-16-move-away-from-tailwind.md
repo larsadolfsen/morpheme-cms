@@ -1,10 +1,45 @@
 # Moving the CMS away from Tailwind: plan
 
-Status: plan, 16 Nov 2026. Written in a brainstorm session: no code, no builds, no checks run. Every number below comes
+Status: plan, 16 Nov 2026, revised 16 Nov 2026 (owner: all tokens `--mo-`, no aliases; see *Revision* below). Written in a brainstorm session: no code, no builds, no checks run. Every number below comes
 from `git grep` or a script on `origin/0.18` at `795b68c` (`package.json` says `0.17.0`, the released line; the work is on
 the `0.18` branch). Owner direction, decided and not reopened: in the long run the CMS has no Tailwind. Reasons: one
 dependency less, one naming system (`--mo-` for every shared custom property), and the priority order of
 `developer` §4a (1 Modern web, 2 M3 Expressive, 3 M3, 4 M2 with M3 styling, 5 self-made). Not 0.18.
+
+## Revision 16 Nov (owner): `--mo-` is the goal, and removing Tailwind is how we get there
+
+Owner: every custom property of the CMS is `--mo-*`, with no aliases (the old names are removed, not kept for a version line). This
+changes what the plan is for. Removing Tailwind is no longer only a dependency cleanup; it is the step that finishes the rename,
+because the names Tailwind reads cannot be renamed while Tailwind is installed (it builds utilities from the `--color-*`,
+`--text-*`, `--font-sans`, `--radius-*`, `--shadow-*`, `--ease-*` and `--breakpoint-*` namespaces).
+
+### Who renames what
+
+| Group | Names | Who and when |
+| :-- | :-- | :-- |
+| Names that are not Tailwind's and have no `--mo-` yet (for example `--radius`, `--radius-small`, `--panel-shadow`, `--ease`, `--card-gap`, `--type-*`) | about 1,000 declarations in all, one origin folder each (`theme/styles/tokens/<origin>/`) | The Tokens session: PR 1 moves ref+sys, PR 2 moves component tokens, PR 3 renames, PR 4 adds the fallbacks. Starts now. This is the old "PR 0" of §6, made concrete. |
+| Tailwind's aliases: `--color-*` (45), `--text-*` (60 with their `--line-height`, `--letter-spacing` and `--font-weight` parts), `--radius-panel*`, `--shadow-soft`, `--ease-soft` | `@theme inline` in `base.css:166` and `global.css:571`. Every one is an alias of a name that is `--mo-*` or becomes it in PR 3 (`--color-primary: var(--mo-primary)`, `--text-label-small: var(--type-label-small-size)`) | They are not renamed, they are **deleted** in §6 PR 10, with `@theme`. Before that, PRs 3 to 6 remove the last utility that reads them, and the 4 `var(--color-*)`, 94 `var(--text-*)` (`ui.css` 71, `global.css` 1 and the rest in `src/`), 16 `var(--radius*)` and 17 `var(--font-sans)` reads in CSS are pointed at the `--mo-*` name they alias (a tested mechanical edit, one PR per name family, no change of value). |
+| Tailwind-owned names with a real value: `--breakpoint-*` (4, `base.css:283`), `--container-3xl` (1 read), `--font-sans` | `@theme static` and one `@theme inline` line | §6 PR 2 gives the breakpoints their `--mo-breakpoint-*` home (plain declarations; a test keeps them equal to `lib/breakpoints.mjs`); `--font-sans` becomes `--mo-font-sans` in PR 3's last slice; `--container-3xl` becomes a `--mo-` token |
+| `--tw-prose-*` (14 names, 43 lines) | `src/editor.css`, `base.css`, `blocks.css` | §6 PR 7: `--mo-prose-*`, when `prose` is our own CSS |
+| `--tw-*` the engine's own | none we write | gone with Tailwind; the permanent check (PR 11) fails on any `--tw-` |
+| Theme-owned names | `--<theme>-*` | stay, as in `morpheme-apps` |
+
+**Rule for the end state, and the check that holds it:** every custom property declared in the CMS's own CSS starts with `--mo-ref-`, `--mo-sys-` or `--mo-comp-` (Material 3's three tiers, `md` written `mo`), except
+a theme's own `--<theme>-*`. The check (PR 11) lists every `--name:` declaration and
+fails on one outside the rule; the Tokens session builds the list and the allowlist in its PR 3, and PR 11 turns the allowlist off for
+the Tailwind names.
+
+### What changes in the order of work
+
+1. **Tokens first (now, the Tokens session).** Its PRs 1 to 4 do not touch Tailwind's names: they move, rename and add fallbacks only for what is not Tailwind's. Its fallbacks (PR 4) use the final `--mo-` names, so a theme that sets a faulty value still has a value.
+2. **The Tailwind aliases are repointed before they are deleted.** A `var(--text-label-small)` read becomes `var(--mo-type-label-small-size)` while Tailwind is still installed, so that PR 10 only deletes dead lines. Each repointing PR is byte-identical in the built CSS after normalising (the proof the Tokens session already runs: the computed value of every custom property on every element of the demo, light and dark, three widths).
+3. **No aliases** also means no `--text-*` or `--color-*` left behind "for themes". The break for an installed theme or app that reads an old name is the same one §5 already counts for utility classes, in the same release (`THEME_API` and `APP_API` 6, 0.23). The Tokens session lists, after its PR 2, every renamed name and who reads it outside this repository.
+4. **Version lines are unchanged:** renames of non-Tailwind names (Tokens PR 3) land after 0.18.0, in the line the owner chooses; the Tailwind steps stay 0.21 (deprecate) and 0.23 (remove). Because there are no aliases, a rename that a theme or app can read is a break, so it is raised with the removal in 0.23 unless the owner decides to take it earlier with its own contract bump.
+
+### Open questions for the owner (new, in addition to the six below; the first is now decided)
+
+1. **Component tokens: decided (owner, 16 Nov).** Yes, they are `--mo-` too, and the whole system follows Material 3's token naming with `md` replaced by `mo`: the three tiers `--mo-ref-*` (reference), `--mo-sys-*` (system roles) and `--mo-comp-<component>-*` (component), in the pattern m3.material.io prints for each tier (the Tokens session reads the real pages and records the pattern per group in its plan, never from memory). The same tiers are the `md.ref.*`, `md.sys.*` and `md.comp.*` of `CLAUDE.md`. Consequence to confirm with the owner, because there are no aliases: the roles that are already `--mo-*` today (`--mo-primary`, `--mo-surface`, `--mo-space-*`, `--mo-shape-*`) move into the `--mo-sys-*` tier too, and a theme or app that sets or reads them breaks in the same release (§5). The plan's table above shows the end names; the Tokens session's PR 3 carries the full current-to-new table.
+2. **Can a rename earlier than 0.23 break a theme or an app?** Without aliases it can. The first step is to read `venus` and the store apps (§1.9) and count real readers of the old names; if there are none, Tokens PR 3 may go before 0.23.
 
 ## Decisions for the owner (six, each with my recommendation)
 
@@ -364,7 +399,7 @@ Each pull request is one logical change, keeps the rendered result identical, an
 
 | # | PR | Files it touches | Checks | Size |
 | :-- | :-- | :-- | :-- | :-- |
-| 0 | **The `--mo-` rename** (the parallel session; not this plan's work). Done first. It must keep `--color-*`, `--text-*` and `--breakpoint-*` Tailwind names (they end here), and give `--font-sans` (17 reads), `--radius-panel` (6), `--shadow-soft`, `--ease-soft` and `--breakpoint-*` a `--mo-` home. | CSS and TSX that read them | its own | (theirs) |
+| 0 | **The `--mo-` rename of everything that is not Tailwind's** (the Tokens session, PRs 1 to 4 of its plan; see the Revision above). Done first, and without aliases. It keeps `--color-*`, `--text-*` and the other Tailwind aliases untouched; they are repointed in the steps below and deleted in PR 10. It gives `--font-sans` (17 reads), `--radius-panel` (6), `--shadow-soft`, `--ease-soft` and `--breakpoint-*` a `--mo-` home. | CSS and TSX that read them | its own | (theirs) |
 | 1 | **Proof tools and the counter.** `scripts/tailwind-inventory.mjs` (my §1 script, cleaned; prints this plan's tables), `scripts/compare-styles.mjs` (§4), `compare-html` option to ignore class names but keep structure, a **ratchet** `check:tailwind` that counts utilities, `theme()` and `@theme` per file and fails when a count goes up (like `check:web`, `scripts/tailwind-allowlist.json`, a lowering fixes it), and a tested `lib/` helper for the class scan | `scripts/` only, `package.json` scripts, `docs` | `npm run check`; runs itself on the demo and the starter | medium |
 | 2 | **Breakpoints as literals.** Replace the 59 `theme(--breakpoint-…)` in `@media` with `37.5rem 52.5rem 75rem` (and `100rem`); `--container-3xl` in `src/editor.css:729` with its value as a token. `@theme static` stays (the `medium:` variants still need it). `site/breakpoints.mjs` rule 1 inverted (§2). The three off-table literals decided one by one. | `theme/styles/*.css` (5), `src/editor.css`, `site/breakpoints.mjs`, its test | `npm run check`; built CSS of the demo and the starter byte-equal after whitespace normalising (it already compiled to the same literals); `check:themes` | small |
 | 3 | **The layout vocabulary and `theme/`** (379 uses, 35 files). Add `theme/styles/layout.css`; replace utilities in `theme/` with vocabulary or part CSS; the carousel and chip-set bleed move to one gutter token; `medium:type-*` in 3 files becomes `@media`. `defaults/popup.tsx` (2). Tailwind still builds the rest. | `theme/components/*`, `theme/layouts/*`, `theme/templates/*`, `theme/ui/*`, `theme/styles/{layout,components,blocks,ui}.css`, `defaults/popup.tsx` | `compare-styles` on the demo and the starter (4 widths, light, dark); `check:screens` (the Blocks page spacing check uses the 4 dp grid, so the replacement spaces are checked); `check:density`, `check:css-values`, `check:themes`; `check:demo`, `check:starter` | large |
