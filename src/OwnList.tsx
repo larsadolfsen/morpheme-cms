@@ -4,6 +4,7 @@
 // and the waiting version: making the list and changing its fields is kept (src/listDraft.ts) until a `Save`, the page's own or an item's (App.tsx adds the
 // waiting definition to that commit). The state is src/useOwnList.tsx's.
 import { List } from './Library';
+import ListText from './ListText';
 import Screen from './Screen';
 import { SaveBar } from './FormFrame';
 import { LinkButton, SupportingText } from './ui';
@@ -22,6 +23,7 @@ export default function OwnList({ id, files, saved, env }: { id: string; files: 
     return (
       <Screen title={definition.label} back={{ href: '#lists', label: t.common.parts.lists }} status={status}>
         <div className="editor-text">
+          <ListText notes={definition.notes} />
           <SupportingText>{t.ownList.noFields}</SupportingText>
           <LinkButton kind="filled" href={editAt} className="mt-4">
             {t.ownList.edit}
@@ -35,7 +37,12 @@ export default function OwnList({ id, files, saved, env }: { id: string; files: 
       collection={collection}
       files={files}
       env={env}
-      own={{ status, fab: <ListEditFab id={id} entry={singularOf(definition.label) || 'item'} />, after: bar }}
+      own={{
+        status,
+        before: <ListText notes={definition.notes} />,
+        fab: <ListEditFab id={id} entry={singularOf(definition.label) || 'item'} />,
+        after: bar,
+      }}
     />
   );
 }

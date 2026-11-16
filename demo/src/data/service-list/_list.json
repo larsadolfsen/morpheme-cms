@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "label": "Services",
+  "fields": [
+    { "id": "title", "kind": "title", "label": "Name" },
+    { "id": "text", "kind": "text", "label": "Price" }
+  ],
+  "notes": [
+    { "style": "heading", "text": "Keep each service to two lines", "after": null },
+    {
+      "style": "body",
+      "text": "Add the price in the last field. Only services with the tag \"home\" show on the front page.",
+      "after": null
+    },
+    { "style": "label", "text": "Publishing", "after": "title" }
+  ]
+}
