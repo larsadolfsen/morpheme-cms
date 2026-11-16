@@ -5,7 +5,7 @@ import { clickPreview, openEditor } from '../built-site.mjs';
 import { BUILT_PAGE, DIST, PAGE_SOURCE, browser, problems, site } from './support/context.mjs';
 import { onTestPage, ratioOf } from './support/shared.mjs';
 
-/** The Preview (the binoculars) draws a section's background from the page's text as saved, also when the built site does not have the section yet (it is rebuilt after a save), and with the colour the editor shows. */
+/** The Preview (the devices icon) draws a section's background from the page's text as saved, also when the built site does not have the section yet (it is rebuilt after a save), and with the colour the editor shows. */
 async function checkPreviewSection() {
   const path = BUILT_PAGE;
   // (A text of its own: a site's page need not have a heading to put the section on.)
@@ -204,6 +204,44 @@ async function checkFullSection() {
   await small.waitForSelector('section.text-section-full', { timeout: 30_000 });
   verify('375px Preview full section', await small.evaluate(measure));
   await phone.close();
+}
+
+/** A label above a heading (`<p class="label-medium">`, lib/eyebrow.mjs) on the demo's front page, About and App store pages, at 375, 768 and 1280 px, light and dark: the label sits 8 px above its heading
+ * (0.5rem, the same everywhere), so the space of the section the heading belongs to never comes between them (the front page puts the label in the section after it, Home.astro). */
+async function checkLabelGap() {
+  const labelGap = 8;
+  // Only the demo has these pages and labels: a site without them (the starter) has nothing to measure.
+  const probe = await browser.newPage({ locale: 'en-US' });
+  const response = await probe.goto(new URL('/about/', site).href).catch(() => null);
+  const hasLabels = !!response && response.status() < 400 && (await probe.locator('main .label-medium').count()) > 0;
+  await probe.close();
+  if (!hasLabels) return;
+  for (const width of [375, 768, 1280])
+    for (const scheme of ['light', 'dark']) {
+      const page = await browser.newPage({ viewport: { width, height: 900 }, colorScheme: scheme, locale: 'en-US' });
+      for (const path of ['/', '/about/', '/app-store/']) {
+        const label = `${width}px ${scheme} ${path}`;
+        const response = await page.goto(new URL(path, site).href).catch(() => null);
+        if (!response || response.status() >= 400) {
+          problems.push(`${label}: the page did not open`);
+          continue;
+        }
+        const gaps = await page.evaluate(() => {
+          const headings = [...document.querySelectorAll('h1, h2, h3')];
+          return [...document.querySelectorAll('main .label-medium')].map((el) => {
+            const heading = headings.find((h) => el.compareDocumentPosition(h) & Node.DOCUMENT_POSITION_FOLLOWING);
+            return {
+              text: el.textContent,
+              gap: heading ? Math.round(heading.getBoundingClientRect().top - el.getBoundingClientRect().bottom) : null,
+            };
+          });
+        });
+        if (!gaps.length) problems.push(`${label}: no label found to measure`);
+        for (const g of gaps)
+          if (g.gap !== labelGap) problems.push(`${label}: the label "${g.text}" is ${g.gap}px above its heading, should be ${labelGap}px`);
+      }
+      await page.close();
+    }
 }
 
 /** A section on an image (no colour): the text, the placeholder, the icons and the arrow of a list row typed in place are the theme's colour for text on an image, as on the site, and read on the image's scrim (4.5:1 for text, 3:1 for an icon), on a dark and on a bright photo, light and dark mode, on a phone and a computer. The contrast is taken against the scrim as drawn (the shade over the photo's average colour at the height of the part), so a part drawn in the page's own colours instead (dark on the dark scrim) fails. */
@@ -416,6 +454,7 @@ async function checkTapBelowSection(width, touch) {
 
 export function register(unit) {
   unit('checkSectionOnImage', () => checkSectionOnImage());
+  unit('checkLabelGap', () => checkLabelGap());
   unit('checkFullWidthSection', () => checkFullWidthSection());
   unit('checkSectionBackground 375', () => checkSectionBackground(375, true));
   unit('checkSectionBackground 1280', () => checkSectionBackground(1280, false));

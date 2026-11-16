@@ -39,6 +39,8 @@ command palette 375
 command palette 1280
 editor actions 375
 editor actions 1280
+Preview icon 375
+Preview icon 1280
 palette shortcuts and recent 375
 palette shortcuts and recent 1280
 no context menu 375
@@ -235,6 +237,7 @@ checkTableAlign 375
 checkTableAlign 1280
 checkTableRadius 375
 checkTableRadius 1280
+checkLabelGap
 checkPostMeta 768 light
 checkPostMeta 768 dark
 checkSpacingGrid 375

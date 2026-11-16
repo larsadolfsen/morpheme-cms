@@ -25,6 +25,16 @@ neither are the Release PR, an empty diff or any other path: when in doubt, ever
 docs-only pull request; a failed, cancelled or wrongly skipped job makes it red. To put a folder on the list, first find which
 checks read it (`grep` the scripts and tests) and change the list and its test in `scripts/ci-changes.mjs` only.
 
+**`starter` and `demo` are also skipped when no changed file can affect them** (`needsStarterDemo` in `scripts/ci-changes.mjs`; the job
+`changes` prints `starter_demo=false`). Both jobs work on the package as it ships (`starter` packs it, `demo` builds the editor and the
+demo), so only paths that neither reads are skipped: docs, `.claude/`, `.agents/`, changesets, the other workflows, `staging-watcher/`,
+`*.test.*` files and the static-only check scripts and allowlists (`check-language`, `check-phosphor`, `check-web`, `check-editor-colors`,
+`check-colors`, `check-css-values`, `check-density`, `phosphor-allowlist.json`, `web-allowlist.json`). Everything else runs them: `src/`,
+`theme/`, `lib/`, `pages/`, `site/`, `worker/`, `bin/`, `defaults/`, `starter/`, `demo/`, `release-notes/`, `package.json`, the lock file,
+`wrangler.jsonc`, any other script, `check.yml` and `ci-changes.mjs` itself, the Release PR and an empty diff. `screens`, `screens-extra`
+and `static` run on every pull request that is not docs-only. The job `check` treats a job skipped by this filter as green. To add a path
+to the skip list, first `grep` that neither job reads it (the list's comment says how), and change the list and its test only.
+
 A new push to a pull request cancels that pull request's older queued and running `Check` runs (`concurrency` in
 `check.yml`); only the newest head's run counts.
 
