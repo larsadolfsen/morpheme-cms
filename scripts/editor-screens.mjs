@@ -3964,9 +3964,7 @@ async function checkBlockVisibility(width) {
   for (let i = 0; i < 3; i++) {
     // Each new block lands above the ones before it; go on once it is the active one (insertBlock).
     await insertBlock(page, 'Rows with icon, heading and text.', i + 1, 0);
-    await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
-    await page.keyboard.press('End');
-    await page.keyboard.press('Enter');
+    await lineUnderHello(page);
   }
   const blocks = page.locator('.ProseMirror .site-block');
   if ((await blocks.count()) < 3) {
@@ -5532,6 +5530,61 @@ async function checkTwoFinger() {
   await page.close();
 }
 
+/** The line the text cursor is in, as the page shows it (its tag, its text, the tag of the line before it and the class of the line after it). It runs in the page. */
+function cursorLineNow() {
+  const node = getSelection()?.anchorNode;
+  const el = node?.nodeType === 3 ? node.parentElement : node;
+  const line = el?.closest?.('.ProseMirror > *');
+  return {
+    tag: line?.tagName ?? null,
+    text: line?.textContent ?? null,
+    prev: line?.previousElementSibling?.tagName ?? null,
+    next: line?.nextElementSibling?.className || line?.nextElementSibling?.tagName || null,
+  };
+}
+
+/** Waits until the text cursor is in the line `want` describes (its text, the tag of the line before it, the class of the line after it): the state a following key
+ * or Insert relies on, not a pause. On a timeout it says where the cursor was. */
+async function cursorLine(page, what, want) {
+  await page
+    .waitForFunction(
+      (w) => {
+        const node = getSelection()?.anchorNode;
+        const el = node?.nodeType === 3 ? node.parentElement : node;
+        const line = el?.closest?.('.ProseMirror > *');
+        return (
+          line?.tagName === 'P' &&
+          line.textContent === w.text &&
+          line.previousElementSibling?.tagName === (w.prev ?? line.previousElementSibling?.tagName) &&
+          (w.next === undefined || !!line.nextElementSibling?.classList.contains(w.next))
+        );
+      },
+      want,
+      { timeout: 10000 },
+    )
+    .catch(async (error) => {
+      const found = `cursor ${what} (${JSON.stringify(want)}) found ${JSON.stringify(await page.evaluate(cursorLineNow).catch(() => null))}`;
+      console.error(found);
+      error.message += `\n${found}`;
+      error.stack = `${error.name}: ${error.message}\n${String(error.stack ?? '')
+        .split('\n')
+        .filter((l) => /^\s+at /.test(l))
+        .join('\n')}`;
+      throw error;
+    });
+}
+
+/** Puts the cursor in a new empty line under the 'Hello' line, above the first block, so the next block goes in there. End and Enter go where the cursor is: wait until the
+ * click has put it in 'Hello', then until Enter has opened the empty line. A key before that goes to the line after the blocks, and the block put in then lands under the
+ * first one (insertBlock then finds its row on the second block). */
+async function lineUnderHello(page) {
+  await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
+  await cursorLine(page, 'in the Hello line', { text: 'Hello' });
+  await page.keyboard.press('End');
+  await page.keyboard.press('Enter');
+  await cursorLine(page, 'in the empty line under Hello', { text: '', prev: 'P', next: 'site-block' });
+}
+
 /** Puts a block in at the cursor and waits until it is the active block, as a person sees it. A new block takes its first row only once the insert dialog has let
  * go of the focus (MarkdownEditor.tsx, startAt: up to 1.5 s on a slow machine), and until then the block that was active still is, with its row and its handle; and
  * the row of that block matches `.inline-list-row-active` too, so that selector is no sign. The wait is for the state itself: `count` blocks, the new one (`at`) the
@@ -5616,9 +5669,7 @@ async function checkBlockDrag(width) {
   await page.waitForTimeout(300);
   const insert = (hint, count, at) => insertBlock(page, hint, count, at);
   await insert('Numbered steps.', 1, 0);
-  await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
-  await page.keyboard.press('End');
-  await page.keyboard.press('Enter');
+  await lineUnderHello(page);
   // The new block lands above the first one (the cursor is in the line under 'Hello'), and its action row has opened (it moves the handle and the blocks below).
   await insert('Rows with icon, heading and text.', 2, 0);
   // Away from any block's row, so no bar or keyboard is in the way.
@@ -5718,9 +5769,7 @@ async function checkBlockMove(width) {
   for (const [n, hint] of hints.entries()) {
     // Each new block lands above the ones before it (the cursor is in the line under 'Hello'); the check goes on once it is the active one.
     await insertBlock(page, hint, n + 1, 0);
-    await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
-    await page.keyboard.press('End');
-    await page.keyboard.press('Enter');
+    await lineUnderHello(page);
   }
   const blocks = page.locator('.ProseMirror .site-block');
   if ((await blocks.count()) < 3) {
@@ -5920,9 +5969,7 @@ async function checkBlockSelect(width) {
     // Each new block lands above the ones before it; go on once it is the active one (insertBlock).
     await insertBlock(page, hint, n + 1, 0);
     // Away from the rows, so the next block goes after this one.
-    await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
-    await page.keyboard.press('End');
-    await page.keyboard.press('Enter');
+    await lineUnderHello(page);
   }
   // The row of the block just left closes with the page scrolling to keep the blocks in place: measure after it has settled.
   await page.waitForTimeout(900);
