@@ -493,8 +493,15 @@ async function checkFocusFrame() {
         width < 600 ? page.locator(selector).first().tap({ position }) : page.locator(selector).first().click({ position });
       // Cursor in a section's text: the whole text has no outline and only that section has the frame.
       await tap('.ProseMirror > p:has-text("Alpha body")', { x: 6, y: 6 });
+      // Wait for the tapped section itself: focusing the editor first puts the cursor where it was (the top text), which is marked too.
       await page
-        .waitForSelector('.ProseMirror:focus-visible > [data-section-focus]', { timeout: 10_000 })
+        .waitForFunction(
+          () =>
+            document.querySelector('.ProseMirror').matches(':focus-visible') &&
+            [...document.querySelectorAll('.ProseMirror > p[data-section-focus]')].some((p) => p.textContent.includes('Alpha body')),
+          null,
+          { timeout: 10_000 },
+        )
         .catch(() => problems.push(`${label}: the section under the cursor has no frame`));
       let got = await page.evaluate(read(true));
       if (got.editorOutline !== 'none')
