@@ -2198,6 +2198,7 @@ async function barTools(page) {
   const button = page.locator('.editor-tools [aria-label="More"]:visible');
   if (await button.count()) {
     await button.first().click();
+    await menusSettled(page);
     more = await page.evaluate(() =>
       [...document.querySelectorAll('[role=menu][aria-label="More"] [role^=menuitem]')].map((x) => ({
         label: x.textContent.trim(),
