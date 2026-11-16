@@ -36,6 +36,59 @@ async function checkListMarkers(width) {
   await page.close();
 }
 
+/** One left edge for a List (375, 768 and 1280 px), on the site (the demo's Blocks page, /blocks/lists/) and typed in place in the editor. A List with no drawn container
+ * (its rows on the page) starts its rows' own content, the leading icon or else the text, on the page's text edge; the 16 dp inside a row is the drawn container's
+ * (M3 Lists › Specs, "Leading element left padding 16dp"), so a Segmented list, whose rows are on a surface, keeps it: its container is on the text edge and its icon
+ * one 16 dp padding in. Real geometry, a half pixel of rounding allowed. */
+async function checkListLeftEdge(width) {
+  const label = `${width}px list left edge`;
+  const page = await browser.newPage({ viewport: { width, height: width < 600 ? 800 : 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  const measure = (rootSelector) => {
+    const root = document.querySelector(rootSelector);
+    const text = root.querySelector('p').getBoundingClientRect().left;
+    const out = { text, rows: [] };
+    for (const ul of root.querySelectorAll('ul.block-list')) {
+      const row = ul.querySelector('.list-item-container');
+      if (!row) continue;
+      const lead = row.querySelector('.list-item-leading-icon, .list-item-leading') ?? row.querySelector('.list-item-content');
+      const filled = ul.classList.contains('list-segmented');
+      out.rows.push({
+        kind: filled ? 'segmented' : 'plain',
+        container: (filled ? ul.querySelector('li') : row).getBoundingClientRect().left,
+        content: lead.getBoundingClientRect().left,
+        pad: parseFloat(getComputedStyle(row).paddingLeft),
+      });
+    }
+    return out;
+  };
+  const verify = (where, got) => {
+    if (!got.rows.some((r) => r.kind === 'plain')) problems.push(`${label}: ${where} has no List without a container to measure`);
+    for (const r of got.rows) {
+      if (Math.abs(r.container - got.text) > 0.5)
+        problems.push(`${label}: ${where} a ${r.kind} list's container starts at ${r.container}, not on the text's edge ${got.text}`);
+      if (r.kind === 'plain' && Math.abs(r.content - got.text) > 0.5)
+        problems.push(
+          `${label}: ${where} a List's row content starts at ${r.content}, ${r.content - got.text} px in from the text's edge ${got.text}`,
+        );
+      if (r.kind === 'segmented' && Math.abs(r.content - got.text - 16) > 0.5)
+        problems.push(
+          `${label}: ${where} a Segmented list's row content starts ${r.content - got.text} px in from its container, not the 16 dp padding`,
+        );
+    }
+  };
+  if (await onTestPage(page, label)) {
+    await page.waitForSelector('main .prose ul.block-list');
+    verify('on the site', await page.evaluate(measure, 'main .prose'));
+  }
+  await openEditor(page, site, { [BUILT_PAGE]: LIST_PAGE });
+  await page.goto(`${site}/editor/#${BUILT_PAGE}`);
+  await page.waitForSelector('.ProseMirror ul.block-list', { timeout: 30_000 });
+  await page.evaluate(() => document.fonts.ready);
+  verify('in the editor', await page.evaluate(measure, '.ProseMirror'));
+  await page.close();
+}
+
 /** The setting Columns of List, Segmented list and FAQ list (standard/columns.ts): on (the default, and what a block from before has) the rows sit in as many columns as fit the list's
  * width, at least 344px each, never more than three; off (`data-columns="one"`) one column at most 720px wide. In the editor and in the Preview, at 375, 768 and 1280. */
 async function checkListColumns(width) {
@@ -1230,6 +1283,7 @@ async function checkSectionsOnLoad(width, height) {
 export function register(unit) {
   for (const block of liveLists)
     for (const w of [375, 1280]) unit(`checkLiveList ${w} ${block.name}`, () => checkLiveList(w, w < 600 ? 740 : 900, block));
+  for (const w of [375, 768, 1280]) unit(`checkListLeftEdge ${w}`, () => checkListLeftEdge(w));
   for (const w of [375, 768, 1280]) unit(`checkChevronRows ${w}`, () => checkChevronRows(w));
   for (const w of [768, 1280]) unit(`checkChevronUnderHoverRow ${w}`, () => checkChevronUnderHoverRow(w));
   unit('checkListRowColors', () => checkListRowColors());
