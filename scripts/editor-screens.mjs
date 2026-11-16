@@ -6666,6 +6666,57 @@ async function checkLinkAndItemPanes(width) {
   }
 }
 
+/** A redirect, the name of a new list and an own list's settings (Edit list): from 600 dp each is the pane beside the page, not a dialog (owner, 15 Nov 2026: dialogs are only for short messages, not for settings); on a phone each is still the dialog or the sheet from the bottom. */
+async function checkListAndRedirectPanes(width) {
+  const phone = width < 600;
+  const label = `${width}px list and redirect panes`;
+  const expectIt = async (page, what) => {
+    await page.waitForTimeout(700);
+    // The pane and the closed dialog do not both hold the fields: no id twice in the page.
+    const twice = await page.evaluate(() => {
+      const seen = new Set();
+      const twice = [];
+      for (const e of document.querySelectorAll('[id]')) {
+        if (seen.has(e.id)) twice.push(e.id);
+        seen.add(e.id);
+      }
+      return twice;
+    });
+    if (twice.length) problems.push(`${label}: ${what} has the same id twice in the page (${twice.slice(0, 3).join(', ')})`);
+    const got = await page.evaluate(() => ({
+      pane: !!document.querySelector('aside.editor-side-sheet:not([hidden])'),
+      dialogs: document.querySelectorAll('dialog[open]').length,
+    }));
+    if (phone) {
+      if (got.pane || got.dialogs !== 1) problems.push(`${label}: ${what} is not a dialog or a sheet on a phone (${JSON.stringify(got)})`);
+    } else {
+      if (!got.pane) problems.push(`${label}: ${what} is not the pane beside the page`);
+      if (got.dialogs) problems.push(`${label}: ${what} has a dialog open over the page`);
+    }
+  };
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  // A redirect.
+  await page.evaluate(() => (location.hash = '#seo/redirects/all'));
+  await page.getByRole('button', { name: 'New redirect' }).first().click({ timeout: 10_000 });
+  await expectIt(page, 'a new redirect');
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(500);
+  // A new list: its name, then the list's own settings.
+  await page.evaluate(() => (location.hash = '#lists'));
+  await page.getByRole('button', { name: 'New list' }).first().click({ timeout: 10_000 });
+  await expectIt(page, 'the name of a new list');
+  await page.locator('#new-list-name').fill('Team');
+  await page.getByRole('button', { name: 'Create', exact: true }).first().click();
+  await page.waitForFunction(() => location.hash.startsWith('#list/'), null, { timeout: 10_000 });
+  await page.waitForTimeout(700);
+  if (await page.locator('aside.editor-side-sheet:not([hidden])').count())
+    problems.push(`${label}: the pane of a new list is still open after Create`);
+  // (0.19: `Edit list` is the edit page, not a pane or a sheet, so the own list's settings are not checked here.)
+  await page.close();
+}
+
 /** On a new page with only its H1 (plain, and on a section colour), a line to write in is under it: on a phone with real touch (375 px) and on a computer with a mouse (1280 px), a tap on the hint line, a tap in the white under the page and Enter at the end of the heading each put the cursor in it, and what is typed goes there, not in the heading. */
 async function checkEmptyHint() {
   const devices = [
@@ -9222,11 +9273,16 @@ async function checkNewList(width, height, label) {
     const button = page.getByRole('button', { name: 'New list' }).first();
     await button.waitFor({ timeout: 15000 }).catch(() => problems.push(`${label}: no New list button on Lists`));
     await button.click();
-    const dialog = page.locator('dialog[open][aria-label="New list"]');
+    const dialog = phone
+      ? page.locator('dialog[open][aria-label="New list"]')
+      : page.locator('.editor-side-sheet').locator('visible=true').filter({ hasText: 'New list' });
     await dialog.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: New list did not open its dialog`));
     if ((await dialog.locator('input[type="checkbox"]').count()) !== 0) problems.push(`${label}: the dialog still has field switches`);
     const state = await page.evaluate(() => {
-      const d = document.querySelector('dialog[open]');
+      const d =
+        innerWidth < 600
+          ? document.querySelector('dialog[open]')
+          : [...document.querySelectorAll('.editor-side-sheet')].find((x) => x.getClientRects().length > 0);
       const kind = (name) =>
         d.querySelector(`button:is([type="button"],[type="submit"])`) &&
         [...d.querySelectorAll('button')].find((b) => b.textContent.trim() === name);
@@ -11426,7 +11482,11 @@ async function checkDashboardEdit(width, height) {
   // field "Post every"; the sheet is closed with Cancel (nothing changes), opened again, "Week" is picked and saved. The
   // draft keeps it, and Done below sends it with the placement.
   const rhythm = daLibrary.blogRhythmWidgetLabel;
-  const rhythmSheet = adding.getByRole('dialog', { name: daDashboard.settingsOf(rhythm), exact: true });
+  // From 600 dp the settings are the pane beside the page (a standard side sheet), below it a dialog.
+  const rhythmSheet =
+    width < 600
+      ? adding.getByRole('dialog', { name: daDashboard.settingsOf(rhythm), exact: true })
+      : adding.locator('.editor-side-sheet').filter({ hasText: daDashboard.settingsOf(rhythm) });
   const openRhythm = async () => {
     await adding.getByRole('button', { name: daDashboard.cardMenu(rhythm), exact: true }).click();
     await adding.getByRole('menuitem', { name: daDashboard.settings, exact: true }).click();
@@ -11792,6 +11852,7 @@ for (const [width, height] of [
   [1280, 900],
 ])
   await unit(`checkDraftsCard ${width}`, () => checkDraftsCard(width, height));
+for (const width of [375, 768, 1280]) await unit(`checkListAndRedirectPanes ${width}`, () => checkListAndRedirectPanes(width));
 for (const width of [375, 768, 1280]) await unit(`checkLinkAndItemPanes ${width}`, () => checkLinkAndItemPanes(width));
 for (const width of [375, 768, 1280]) await unit(`checkBlockSettingsPane ${width}`, () => checkBlockSettingsPane(width));
 await unit('checkEmptyHint', () => checkEmptyHint());

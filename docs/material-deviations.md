@@ -294,6 +294,7 @@ Source: `src/BlockDialog.tsx` (the `subpage` look), `src/sheetPlacement.mjs`, `s
 - **Why:** owner decision, 15 Nov 2026. Section settings first (`docs/superpowers/specs/2026-11-15-section-settings-pane.md`); the other surfaces in their own pull requests.
 - **Also a pane from 600 dp (pane PR 2):** a block's fields (and an image's alt text), a List row's settings and the Block settings details (`src/BlockSettings.tsx`, beside the list; below 600 dp still the sheet from the bottom until its page is built).
 - **Also a pane from 600 dp (pane PR 3b):** the link of a text (`src/LinkSheet.tsx`), a link of the profiles (`src/LinkList.tsx`) and an item of a menu (`MenuList` in `src/fields.tsx`), fed into the pane host (`src/PaneHost.tsx`); one opened while another pane is open is on top of it with the theme side sheet's back icon (M3 side-sheets/overview: "Side sheets can contain a back icon for navigation"). Below 600 dp they stay the sheet from the bottom. The page picker inside the link stays a sheet (a choice).
+- **Also a pane from 600 dp (pane PR 4):** an own list's settings (`src/OwnListSheet.tsx`), the name of a new list (`src/NewListDialog.tsx`, a dialog before), a widget's settings (`src/WidgetSettings.tsx`), an app's add-on (`src/AppAdds.tsx`) and a redirect (`src/Redirects.tsx`), fed into the pane host; below 600 dp they stay the dialog or the sheet from the bottom. The content is drawn in the pane or in the sheet, never in both.
 - **Date:** 2026-11-15. **PR:** #774 (section settings).
 
 ## Preview and View on site in the text's bar

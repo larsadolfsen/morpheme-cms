@@ -784,6 +784,10 @@
   :root[data-side-panel] .editor-save-bar {
     right: var(--side-panel-width);
   }
+  /* The screen's create button stands beside the pane, not on it (a redirect or a new list opens the pane from it). */
+  :root[data-side-panel] .editor-fab {
+    right: calc(var(--side-panel-width) + 1rem + env(safe-area-inset-right));
+  }
   .editor-side-sheet {
     position: fixed;
     inset: 0 0 0 auto;
