@@ -46,21 +46,58 @@ let pages: Promise<Map<string, Page>> | undefined;
 let tagPages: Promise<Set<string>> | undefined;
 const byPath = () => (pages ??= getPages().then((all) => new Map(all.map((p) => [p.data.path, p]))));
 
-// The lists the apps bring that say which of their fields fill a row (`asRows`, app.json), by id, with the folder their entries are in.
+// The lists the apps bring, by id, with the folder their entries are in and which of their fields fill a row (`asRows`, as app.json says it for a list in
+// code); a contract 6 list is data (`fields` with kinds, lib/appLists.mjs): its id is `<app id>.<id>`, its entries are in `src/data/<app id>.<id>/`, and
+// `page` says where `Show all` goes (a path, or `settings:<field>` for an address in the app's settings).
 type AsRows = { title: string; text?: string; icon?: string; href?: string; tags?: string };
-const rowLists = new Map<string, { folder: string; asRows: AsRows }>(
-  Object.values(
-    import.meta.glob<{ lists?: { id: string; folder: string; asRows?: AsRows }[] }>('/src/apps/*/app.json', {
-      eager: true,
-      import: 'default',
+type ManifestList = {
+  id: string;
+  folder?: string;
+  asRows?: AsRows;
+  fields?: { id: string; kind: string }[];
+  dropped?: string[];
+  page?: string;
+};
+type ManifestOfApp = { api?: number; lists?: ManifestList[]; settings?: { values?: Record<string, unknown> } };
+const appManifests = import.meta.glob<ManifestOfApp>('/src/apps/*/app.json', { eager: true, import: 'default' });
+const rowLists = new Map<string, { folder: string; asRows: AsRows; page?: string; app?: string; settings?: Record<string, unknown> }>(
+  Object.entries(appManifests).flatMap(([file, manifest]) =>
+    (manifest.lists ?? []).flatMap((l) => {
+      if (manifest.api === 6 && l.fields) {
+        const app = file.split('/').at(-2)!;
+        const id = `${app}.${l.id}`;
+        return [
+          [
+            id,
+            {
+              folder: id,
+              asRows: asRowsOf({ fields: l.fields as never, dropped: l.dropped }),
+              page: l.page,
+              app,
+              settings: manifest.settings?.values,
+            },
+          ] as const,
+        ];
+      }
+      return l.asRows && l.folder ? [[l.id, { folder: l.folder, asRows: l.asRows }] as const] : [];
     }),
-  )
-    .flatMap((manifest) => manifest.lists ?? [])
-    .flatMap((l) => (l.asRows ? [[l.id, { folder: l.folder, asRows: l.asRows }] as const] : [])),
+  ),
 );
 const dataFiles = import.meta.glob<Record<string, unknown>>('@data/*/*.json', { import: 'default' });
 // The lists the owner made: their definitions, `@data/<id>/_list.json`, as text (lib/ownList.mjs).
 const ownDefinitions = import.meta.glob<string>('@data/*/_list.json', { query: '?raw', import: 'default' });
+
+/** The address an app's list sends `Show all` to when it names a setting of the app: the owner's value (`src/data/apps/<app>.json`) over the app's own. */
+const settingPage = async (
+  app: string | undefined,
+  values: Record<string, unknown> | undefined,
+  field: string,
+): Promise<string | undefined> => {
+  const file = Object.keys(dataFiles).find((f) => f.endsWith(`/apps/${app}.json`));
+  const saved = file ? await dataFiles[file]() : {};
+  const value = saved[field] ?? values?.[field];
+  return typeof value === 'string' && value.startsWith('/') ? value : undefined;
+};
 
 export const standard: StandardSite = {
   texts: blockTexts,
@@ -96,7 +133,10 @@ export const standard: StandardSite = {
         .map(async ([, load]) => load()),
     );
     entries.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
-    return { items: entries.map((e) => itemOfEntry(e, list.asRows) as SourceItem) };
+    const page = list.page?.startsWith('settings:')
+      ? await settingPage(list.app, list.settings, list.page.slice('settings:'.length))
+      : list.page;
+    return { items: entries.map((e) => itemOfEntry(e, list.asRows) as SourceItem), ...(page ? { page } : {}) };
   },
   // A new version of a page (/new/…) shows the openings of the new versions of the pages it links to.
   async pageOpening(href, preview) {

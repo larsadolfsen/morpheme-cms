@@ -1,0 +1,43 @@
+{
+  "api": 6,
+  "label": "FAQ example",
+  "publisher": "Morpheme",
+  "license": "MIT",
+  "icon": "list-numbers",
+  "hint": "Write your questions once, show them on any page.",
+  "description": "The demo's own app, written to contract 6 with no code: a list of questions and one block, FAQ from Questions, drawn by the core's FAQ list. check:screens opens it on a phone and a computer.",
+  "category": "content",
+  "version": "1.0.0",
+  "role": "plugin",
+  "lists": [
+    {
+      "id": "questions",
+      "label": "Questions",
+      "singular": "Question",
+      "icon": "list-numbers",
+      "version": 2,
+      "fields": [
+        { "id": "question", "kind": "title", "label": "Question" },
+        { "id": "answer", "kind": "text", "label": "Answer" },
+        { "id": "topic", "kind": "tags", "label": "Topic" }
+      ],
+      "locked": true,
+      "examples": [
+        { "question": "Can I return an item?", "answer": "Yes, within 30 days of delivery." },
+        { "question": "How long is delivery?", "answer": "Two to four working days." }
+      ]
+    }
+  ],
+  "listBlocks": [
+    {
+      "type": "faq",
+      "label": "FAQ from Questions",
+      "icon": "list-numbers",
+      "hint": "Questions from your Questions list.",
+      "draws": "faq",
+      "list": "questions",
+      "map": { "title": "question", "text": "answer", "tags": "topic" },
+      "settings": ["tags", "howMany", "button", "only"]
+    }
+  ]
+}

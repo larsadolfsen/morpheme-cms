@@ -53,6 +53,7 @@ import { activeOf, readAppsFile } from '../lib/appsFile.mjs';
 import { definitionOf, type AppDefinitionData } from '../lib/appDefinition.mjs';
 import type { AppManifest } from '../lib/appManifest.mjs';
 import { AnyIcon } from './icon';
+import { appListOf } from './ownLists';
 
 /** An app's settings, on its page once it is installed (#apps/<app>, AppList.tsx). */
 export type AppSettings = {
@@ -266,7 +267,18 @@ export function appFromManifest(
     ...(kinds
       ? { kinds: Object.fromEntries(Object.entries(kinds).map(([list, k]) => [list, { ...k, icon: iconOf(String(k.icon)) }])) }
       : {}),
-    ...(lists ? { lists: lists.map((l) => ({ ...(l as object), icon: iconOf(String((l as { icon?: string }).icon)) })) } : {}),
+    ...(lists
+      ? {
+          lists: lists.flatMap((l) => {
+            const list = { ...(l as object), icon: iconOf(String((l as { icon?: string }).icon)) } as AppList & { fields?: unknown[] };
+            // Contract 6 writes a list as data (its fields have kinds); the core makes the list the editor shows. Older apps bring a list in code.
+            if (manifest.api !== 6 || !id || !Array.isArray(list.fields) || !list.fields.some((f) => (f as { kind?: string }).kind))
+              return [list];
+            const made = appListOf(id, list as unknown as Parameters<typeof appListOf>[1]);
+            return made ? [made] : [];
+          }),
+        }
+      : {}),
   } as unknown as AppDefinition;
 }
 

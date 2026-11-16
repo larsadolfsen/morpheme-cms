@@ -1,7 +1,7 @@
 // The lists an owner makes (docs/superpowers/plans/2026-11-12-new-list.md): a folder `<data>/<id>/` with one JSON file per entry and
 // its definition in `<data>/<id>/_list.json` (lib/ownList.mjs). Read from the site's files, so a site without a `_list.json` gets
 // nothing from here. `ownListsOf(files)` makes them as lists (OwnedList), as the standard blocks' and the apps' are.
-import { ListChecks } from '@phosphor-icons/react';
+import { ListChecks, type Icon } from '@phosphor-icons/react';
 import { config } from '@site/config';
 import { asRowsOf, DEFINITION_FILE, fieldsOf, labelOfEntry, nameOf, parseDefinition } from '../lib/ownList.mjs';
 import { t } from './i18n';
@@ -71,6 +71,29 @@ export function ownListOf(id: string, definition: Definition): OwnedList {
     fields: fieldsOf(definition).map((f: { id: string; kind: string }) => fieldOf(f, nameOf(definition, f, names))),
     asRows: asRowsOf(definition),
     fieldKinds: Object.fromEntries((fieldsOf(definition) as { id: string; kind: string }[]).map((f) => [f.id, f.kind])),
+  };
+}
+
+/** A list an app writes as data (`lists` in a contract 6 app.json, lib/appLists.mjs) as a list the editor shows: its entries are in `src/data/<app id>.<id>/`
+ * and it is `<app id>.<id>` everywhere (`Rows from`, `#list/<id>`). It is locked unless the app says `locked: false`; the owner does not delete it.
+ * Null when its fields do not parse (the check says why). @param {string} app @param icon the list's icon, made from its name */
+export function appListOf(
+  app: string,
+  list: { id: string; singular: string; icon: Icon; locked?: boolean; examples?: Record<string, unknown>[] } & Record<string, unknown>,
+): OwnedList | null {
+  const { id, singular, icon, locked, page: _page, examples, ...rest } = list;
+  const { definition } = parseDefinition(JSON.stringify(rest));
+  if (!definition) return null;
+  const own = ownListOf(`${app}.${id}`, definition);
+  return {
+    ...own,
+    icon,
+    create: `New ${singular.toLowerCase()}`,
+    singular,
+    deletable: false,
+    locked: locked !== false,
+    summary: (d) => labelOfEntry(definition, d) || singular,
+    ...(examples ? { examples } : {}),
   };
 }
 
