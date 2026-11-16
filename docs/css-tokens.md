@@ -22,3 +22,9 @@ Owner rule, 16 Nov 2026. `npm run check:css-tokens` enforces it.
   they stay.
 - **Count mode until the rename lands.** The unprefixed names that exist today are counted per file in the same list (`files`): a file may have as many as
   listed, never more, and a new file none. A count can only fall: lower it when it does.
+
+## The report
+
+`node scripts/check-css-tokens.mjs --report` lists the names declared on `:root` that nothing reads, and those only one place reads (a part's class in
+a stylesheet, or one source file). Those move into that place's stylesheet, never onto `:root`, when the rename happens. The report never fails the
+check; the summary line of `npm run check:css-tokens` shows its two counts.

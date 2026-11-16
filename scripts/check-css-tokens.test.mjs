@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { cssOf, declared, findProblems, isRootSelector } from './check-css-tokens.mjs';
+import { cssOf, declared, findProblems, isRootSelector, readers, report } from './check-css-tokens.mjs';
 
 const allow = JSON.parse(readFileSync(new URL('css-tokens-allowlist.json', import.meta.url), 'utf8'));
 const none = { ...allow, files: {} };
@@ -73,6 +73,33 @@ test('the <style> of an .astro file is read, the markup is not', () => {
   const astro = '---\nconst a = 1;\n---\n<div style="--x: 1"></div>\n<style>:root { --astro-gap: 1px; }</style>';
   assert.equal(cssOf('Base.astro', astro), ':root { --astro-gap: 1px; }');
   assert.match(run({ 'Base.astro': cssOf('Base.astro', astro) }).join('\n'), /--astro-gap/);
+});
+
+test('the report lists :root names nothing reads and names one place reads', () => {
+  const cms = { 'a.css': ':root { --lonely: 1; --card-gap: 8px; --text-size: 1rem; --mo-x: 2; }' };
+  const styles = {
+    'a.css':
+      cms['a.css'] +
+      ' .card { gap: var(--card-gap); } .card-b { gap: var(--card-gap); } .chip { size: var(--text-size); } .badge { size: var(--text-size); }',
+  };
+  const r = report(cms, readers(styles, { 'x.tsx': "el.style.setProperty('--text-size', '1')" }));
+  assert.deepEqual(r.unread, ['--lonely', '--mo-x']);
+  assert.deepEqual(
+    r.single.map(([n]) => n),
+    [],
+  );
+  const one = report(
+    { 'a.css': ':root { --card-gap: 8px; }' },
+    readers({ 'a.css': '.card { gap: var(--card-gap); } .card:hover { gap: var(--card-gap); }' }, {}),
+  );
+  assert.deepEqual(one.single, [['--card-gap', 'a.css:card']]);
+});
+
+test('a declaration is not a read, a script string and a Tailwind (--x) are', () => {
+  const reads = readers({ 'a.css': ':root { --a: 1; }' }, { 'a.tsx': 'className="px-(--b)" s(\'--c\')', 'b.css': '' });
+  assert.equal(reads.has('--a'), false);
+  assert.deepEqual([...reads.get('--b')], ['a.tsx']);
+  assert.deepEqual([...reads.get('--c')], ['a.tsx']);
 });
 
 test('the repository passes today', () => {

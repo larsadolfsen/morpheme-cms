@@ -9,7 +9,8 @@
 //     until the rename has landed it counts mode: a file may have as many unprefixed names as in the list (never more), a new file none;
 //  2. a custom property declared by an app or a theme (folders `apps/*` and `themes/*` under `src/` of the demo and the starter, or of the site
 //     given with `--site <folder>`) with a name the CMS declares (a collision), or declared on :root, html or body without the prefix.
-// Run: npm run check:css-tokens; `--list` prints the current counts as the allowlist's `files`.
+// Run: npm run check:css-tokens; `--list` prints the current counts as the allowlist's `files`; `--report` lists the names declared on :root that nothing
+// reads and those only one place reads (they move into that place's stylesheet later, never onto :root). The report never fails the check.
 // Depends on: git (lists the files), postcss.
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
@@ -100,6 +101,45 @@ export function counts(cms, allow) {
   return out;
 }
 
+/**
+ * Where each custom property is read, for the report: `reads` maps a name to the set of readers. A reader in a stylesheet is the first class of
+ * the rule's selector (the part or the block that uses it; `*` for a rule with none), in any other file it is the file. A name counts as read
+ * in `var(--x)`, in `theme(--x)`, in a Tailwind `(--x)` or `[--x]`, and in a script's string (`'--x'`).
+ * @param {Record<string, string>} styles file → CSS  @param {Record<string, string>} others file → text of every other source file
+ */
+export function readers(styles, others) {
+  const reads = new Map();
+  const add = (name, who) => reads.set(name, (reads.get(name) ?? new Set()).add(who));
+  for (const [file, css] of Object.entries(styles)) {
+    let tree;
+    try {
+      tree = postcss.parse(css);
+    } catch {
+      continue;
+    }
+    tree.walkDecls((decl) => {
+      const owner = decl.parent?.type === 'rule' ? (decl.parent.selector.match(/\.([\w-]+)/)?.[1] ?? '*') : (decl.parent?.type ?? '*');
+      for (const [, name] of decl.value.matchAll(/(--[\w-]+)/g)) add(name, `${file.replace(/^.*\//, '')}:${owner}`);
+    });
+  }
+  for (const [file, text] of Object.entries(others)) for (const [, name] of text.matchAll(/(--[\w-]+)(?!\s*:)/g)) add(name, file);
+  return reads;
+}
+
+/** The report: names declared on the root that nothing reads, and names only one reader reads (those move into that block's stylesheet, never onto :root). */
+export function report(cms, reads) {
+  const unread = [];
+  const single = [];
+  for (const css of Object.values(cms))
+    for (const n of declared(css).root) {
+      const who = reads.get(n);
+      if (!who || !who.size) unread.push(n);
+      else if (who.size === 1 && !n.startsWith('--mo-')) single.push([n, [...who][0]]);
+    }
+  const uniq = (list) => [...new Map(list.map((x) => [Array.isArray(x) ? x[0] : x, x])).values()].sort();
+  return { unread: uniq(unread), single: uniq(single) };
+}
+
 const read = (path) => readFileSync(path, 'utf8');
 
 /** CMS files: theme/**, src/*.css, starter/** (stylesheets and `<style>` of .astro). */
@@ -146,6 +186,30 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.exit(1);
   }
   const files = counts(cms, allow);
+  const everything = execFileSync('git', ['ls-files', 'theme', 'src', 'starter', 'demo', 'site', 'lib', 'pages', 'defaults', 'worker'], {
+    cwd: root,
+    encoding: 'utf8',
+  })
+    .split('\n')
+    .filter((f) => /\.(css|astro|tsx?|mjs|js|html)$/.test(f));
+  const styles = {};
+  const others = {};
+  for (const f of everything) {
+    const text = read(root + f);
+    if (/\.css$/.test(f)) styles[f] = text;
+    else {
+      const css = cssOf(f, text);
+      if (css && f.endsWith('.astro')) styles[f] = css;
+      others[f] = text;
+    }
+  }
+  const { unread, single } = report(cms, readers(styles, others));
+  if (process.argv.includes('--report')) {
+    console.log(`Declared on :root and never read (${unread.length}):\n  ${unread.join('\n  ')}`);
+    console.log(`\nDeclared on :root and read by one place only (${single.length}), they move into that place's stylesheet:`);
+    for (const [name, who] of single) console.log(`  ${name}  ←  ${who}`);
+    process.exit(0);
+  }
   const total = Object.values(files).reduce((n, f) => n + f.max, 0);
   for (const [file, { max }] of Object.entries(allow.files ?? {}))
     if ((files[file]?.max ?? 0) < max)
