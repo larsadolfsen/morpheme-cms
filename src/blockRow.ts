@@ -189,6 +189,31 @@ function syncPointed() {
     pointedAt = { host: want.host, el };
   }
   draw(pointedAt.el, want, want.host.querySelector(':scope > .site-block-card')?.getAttribute('aria-label') ?? '');
+  // The row also covers a whole column of a block that is wide enough (the second card of two): that item could then not be clicked, so the block shows its row only once it is active.
+  if (covers(pointedAt.el, want.host)) {
+    pointedAt.host.classList.remove('site-block-has-hover');
+    pointedAt.el.remove();
+    pointedAt = null;
+  }
+}
+
+/** The row lies over something the pointer would then miss: an item of its block that is narrower than the block (a column, as a card in a row of cards), or another control of the
+ * block (a button, a link, a row's chevron). An item the full width of the block (a list's line) is not one: its text starts at the left, away from the right-aligned row. */
+function covers(row: HTMLElement, host: HTMLElement) {
+  const card = host.querySelector<HTMLElement>(':scope > .site-block-card');
+  const inner = row.querySelector<HTMLElement>('.site-block-row-inner')?.getBoundingClientRect();
+  if (!card || !inner) return false;
+  const under = (el: HTMLElement) => {
+    const box = el.getBoundingClientRect();
+    return box.left < inner.right && box.right > inner.left && box.top < inner.bottom && box.bottom > inner.top;
+  };
+  const items = [...card.querySelectorAll<HTMLElement>('[data-row]')].filter(
+    (item) => !row.contains(item) && item.getBoundingClientRect().width < card.clientWidth * 0.9,
+  );
+  const controls = [...card.querySelectorAll<HTMLElement>('button, a[href], summary, .list-item-expand-icon')].filter(
+    (el) => !row.contains(el) && !el.closest('.site-block-handle'),
+  );
+  return [...items, ...controls].some(under);
 }
 
 function sync() {
