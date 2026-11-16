@@ -9,10 +9,10 @@
   .block-accordion-segmented:has(.list-item-leading-avatar, .list-item-leading-image, .list-item-leading-video) {
     --list-expand-padding-inline: 1rem;
   }
-  /* A row's square and landscape image have square corners (owner, 16 Nov 2026: "1:1 images are not round. Only avatars are round"); only the avatar is round. */
+  /* A row's square and landscape image has Material 3's small corner, 8 dp (owner, 16 Nov 2026, from the M3 segmented list with images); only the avatar is round. */
   .block-list,
   .block-accordion {
-    --list-item-image-radius: 0;
+    --list-item-image-radius: var(--mo-shape-small);
   }
   /* The plain design of a list (its rows on the page, no drawn container) starts its rows' own content, the leading icon or else the text, on the text's
      left edge (the row's 16 dp, M3 Lists › Specs "leading space", belongs to a drawn container, which only the segmented design has: .list-segmented,
