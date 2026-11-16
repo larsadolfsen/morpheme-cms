@@ -11288,7 +11288,11 @@ async function checkDashboardEdit(width, height) {
   // field "Post every"; the sheet is closed with Cancel (nothing changes), opened again, "Week" is picked and saved. The
   // draft keeps it, and Done below sends it with the placement.
   const rhythm = daLibrary.blogRhythmWidgetLabel;
-  const rhythmSheet = adding.getByRole('dialog', { name: daDashboard.settingsOf(rhythm), exact: true });
+  // From 600 dp the settings are the pane beside the page (a standard side sheet), below it a dialog.
+  const rhythmSheet =
+    width < 600
+      ? adding.getByRole('dialog', { name: daDashboard.settingsOf(rhythm), exact: true })
+      : adding.locator('.editor-side-sheet').filter({ hasText: daDashboard.settingsOf(rhythm) });
   const openRhythm = async () => {
     await adding.getByRole('button', { name: daDashboard.cardMenu(rhythm), exact: true }).click();
     await adding.getByRole('menuitem', { name: daDashboard.settings, exact: true }).click();
