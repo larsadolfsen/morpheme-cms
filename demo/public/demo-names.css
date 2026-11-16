@@ -1,0 +1,50 @@
+/* The demo's Names view (demo-names.js): only the demo's build puts this file in a page. The labels sit in a layer over the page, so
+   they take no room; their colors are the theme's tokens, so they read in light and dark. */
+.demo-names-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 2147483000;
+}
+.demo-names-chip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  gap: 0.375rem;
+  align-items: baseline;
+  max-width: 18rem;
+  padding: 0.0625rem 0.375rem;
+  border: 1px solid var(--mo-outline);
+  border-radius: 0.25rem;
+  font: 600 0.6875rem/1rem ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.demo-names-block {
+  background: var(--mo-inverse-surface);
+  color: var(--mo-inverse-on-surface);
+  font-family: system-ui, sans-serif;
+}
+.demo-names-part {
+  background: var(--mo-tertiary-container);
+  color: var(--mo-on-tertiary-container);
+}
+.demo-names-code {
+  font: 500 0.6875rem/1rem ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  opacity: 0.85;
+}
+.demo-names-toggle {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 2147483001;
+}
+.demo-names-toggle[aria-pressed='true'] {
+  background: var(--mo-primary);
+  color: var(--mo-on-primary);
+}
