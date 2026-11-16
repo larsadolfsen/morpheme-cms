@@ -1217,9 +1217,11 @@ async function checkExpandList(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   if (!(await onTestPage(page, label))) return page.close();
-  const list = page.locator('ul.list.list-expand:has(> li:nth-child(2))').first();
+  // The segmented design (the FAQ and the segmented List - Expand) has the 16 px corner on its list; the plain design is the rows on the page, and
+  // edge to edge on a phone with no corner (checkListLeftEdge), so it is not the one measured here.
+  const list = page.locator('ul.list.list-expand.block-accordion-segmented:has(> li:nth-child(2))').first();
   if (!(await list.count())) {
-    problems.push(`${label}: no List with expand and two items on the Blocks pages`);
+    problems.push(`${label}: no segmented List with expand and two items on the Blocks pages`);
     return page.close();
   }
   await list.evaluate((el) => el.scrollIntoView({ block: 'center' }));
