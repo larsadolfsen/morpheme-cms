@@ -41,7 +41,7 @@ waiting to merge, sessions that went quiet without a pull request (it starts a f
 first prompt when a session stays stuck), release notes and changesets a merged change still lacks, follow-ups the
 sessions report, branches that are fully merged (deleted only after their change is in a successful `next` build), and open questions for the owner. It tells the owner only what the
 owner has to do or decide, such as approving a `next` build on npmjs.com and which version to approve, because every
-merge to `main` stages a new `next` build that only the owner approves. A pull request the owner has to see is assigned
+merge to `main` stages a new `next` build that only the owner approves (a version line may also stage one at a milestone, only the PM, by the rule in the `changesets` skill, *A version line may stage `next` at a milestone*). A pull request the owner has to see is assigned
 to the owner; the owner does not see the rest.
 
 **The owner approves what the owner sees.** Owner decision, 14 Nov 2026. A change the owner can see (the editor or the

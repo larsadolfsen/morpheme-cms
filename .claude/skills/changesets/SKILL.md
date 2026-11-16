@@ -33,8 +33,25 @@ level its base branch does not allow is not merged; fix the changeset.
 | `0.20` and later | — | 0.20 and later lines follow the roadmap and are cut from the previous line's branch when their work starts | — |
 
 A version line's branch is never merged back the other way except as its release (the `pm` skill, *Two version lines at
-the same time*). Only `main` has a Release PR and builds `next` and `latest`; every merge to `main` stages a `next` build
+the same time*). Only `main` has a Release PR and builds `latest`; every merge to `main` stages a `next` build
 that only the owner approves on npmjs.com.
+
+### A version line may stage `next` at a milestone
+
+Owner rule, 16 Nov 2026. The owner said: "In 0.17 everything was released into next. That was too much. In 0.18 nothing
+was released into next. That is too little." and then: "write the new rule that the next version also is allowed to
+merge into next". So a version line's branch, also a later line such as `0.19` while `0.17` and `0.18` are not
+released, may stage a test version under npm's `next` tag from its own branch, at a milestone:
+
+- Only the PM triggers it, with the manual button: the workflow *Publish*, *Run workflow*, on the line's branch
+  (`workflow_dispatch` in `.github/workflows/publish.yml`; it refuses `main` and `changeset-release/*`). The version is
+  `<line>.0-next-<time>` (`0.19.0-next-<time>` on `0.19`).
+- Only when a finished feature's pull requests are merged and the owner has approved them; never for a single small
+  fix; at most about once a day.
+- Every staged build still waits for the owner's approval on npmjs.com (2FA). The PM tells the owner the exact version
+  to approve and what it contains (the `pm` skill's report form).
+- It is never a release: no `latest`, no tag, no GitHub release, no Release PR, and no version change committed to the
+  branch. The branch still reaches `main` only as the table above says.
 
 ## What happens to the changesets
 
