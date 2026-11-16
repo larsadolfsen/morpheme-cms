@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const read = (file) => readFileSync(new URL(file, import.meta.url), 'utf8');
-const editor = read('./MarkdownEditor.tsx');
+const editor = read('./MarkdownEditor.tsx') + read('./EditorBar.tsx');
 const css = read('./editor.css');
 const ui = read('./ui.tsx');
 

@@ -76,7 +76,7 @@
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
   },
   "src/DashboardEdit.tsx": {
-    "max": 7,
+    "max": 6,
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
   },
   "src/DashboardGrid.tsx": {
@@ -116,7 +116,7 @@
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
   },
   "src/InlineVideo.tsx": {
-    "max": 1,
+    "max": 0,
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
   },
   "src/Keywords.tsx": {
