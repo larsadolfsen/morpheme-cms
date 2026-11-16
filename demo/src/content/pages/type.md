@@ -106,3 +106,36 @@ The theme has 16 type styles: Material 3's 15 type roles and the lead. Each is a
 <p class="type-label-small" data-type-sample="type-label-small">New this week</p>
 
 <p class="body-small" data-type-spec="type-label-small"><code>.type-label-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+
+## Text lists
+
+Lists in a text are type too: how a bullet list, a numbered list and a check list look in prose. They are not the List block. The numbers are read from the first item as your browser draws it.
+
+### Bullet list
+
+- Fresh bread, baked at dawn
+- Seasonal produce from the valley
+  - Apples and pears in autumn
+  - Berries in summer
+- Honey, jam and preserves
+
+<p class="body-small" data-type-list-spec="bullet"><code>ul</code> <span data-type-values>Size, line height, tracking, weight, indent, item space and marker color appear here.</span></p>
+
+### Numbered list
+
+1. Arrive before nine for the best choice
+2. Bring a bag or a basket
+   1. Cloth bags are sold at the gate
+   2. Baskets can be borrowed
+3. Pay at each stall
+
+<p class="body-small" data-type-list-spec="numbered"><code>ol</code> <span data-type-values>Size, line height, tracking, weight, indent, item space and marker color appear here.</span></p>
+
+### Check list
+
+- [x] Order the bread for Saturday
+- [x] Pick up the honey
+- [ ] Ask about the plum jam
+- [ ] Book a table for the autumn supper
+
+<p class="body-small" data-type-list-spec="checklist"><code>ul.contains-task-list</code> <span data-type-values>Size, line height, tracking, weight, indent, item space and check color appear here.</span></p>
