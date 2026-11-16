@@ -9790,6 +9790,74 @@ async function checkCardsSpacing(width, height) {
   await page.close();
 }
 
+/** The Cards block typed in the page editor (the demo's Blocks page) has the site's card, at 375, 768 and 1280 px: a card without a subhead draws no empty subhead row (so no room is kept for it) and has the same padding (16 on every side), icon to headline (16), headline to text (8) and gap between cards (8) as checkCardsSpacing asserts on the site; a tap in the card shows its subhead row with its hint, 4 px under the headline and 8 over the text, so the owner can add one. Reads the geometry once the card is active, never after a fixed wait. */
+async function checkCardsEditorSpacing(width, height) {
+  const label = `${width}px cards spacing in the editor`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#src/content/pages/blocks.md'));
+  await page.waitForSelector('ul.block-cards .block-card-title', { timeout: 30_000 });
+  const measure = (index) =>
+    page.evaluate((i) => {
+      const r = (e) => e.getBoundingClientRect();
+      const px = (n) => Math.round(n * 10) / 10;
+      const list = document.querySelector('ul.block-cards');
+      const cards = [...list.querySelectorAll('.block-card')];
+      const card = cards[i];
+      const c = r(card);
+      const border = parseFloat(getComputedStyle(card).borderTopWidth);
+      const media = card.querySelector('.block-card-icon');
+      const title = card.querySelector('.block-card-title');
+      const sub = card.querySelector('.block-card-subhead');
+      const text = card.querySelector('.block-card-text');
+      const cols = getComputedStyle(list).gridTemplateColumns.split(' ').length;
+      return {
+        sub: !!sub,
+        top: px(r(media).top - c.top - border),
+        left: px(r(title).left - c.left - border),
+        right: px(c.right - border - r(title).right),
+        bottom: px(c.bottom - border - r(card.querySelector('.block-card-more, .block-card-actions') ?? text).bottom),
+        cols,
+        // Cards side by side are as high as the tallest of their row.
+        rowHeights: cards.slice(0, cols).map((x) => px(r(x).height)),
+        mediaToTitle: px(r(title).top - r(media).bottom),
+        titleToSub: sub ? px(r(sub).top - r(title).bottom) : null,
+        toText: px(r(text).top - r(sub ?? title).bottom),
+        rowGap: cards.length > cols ? px(r(cards[cols]).top - r(cards[0]).bottom) : null,
+        colGap: cols > 1 ? px(r(cards[1]).left - r(cards[0]).right) : null,
+      };
+    }, index);
+  const want = (what, got, expected) => {
+    if (got !== expected) problems.push(`${label}: ${what} is ${got}, not ${expected}`);
+  };
+  // The first card has no subhead (the demo's "With an icon"): at rest it has no subhead row.
+  const rest = await measure(0);
+  want('the subhead row of a card with none, at rest (present)', rest.sub, false);
+  want('the room above the icon', rest.top, 16);
+  want('the room at the left', rest.left, 16);
+  want('the room at the right', rest.right, 16);
+  if (rest.cols === 1) want('the room under the text', rest.bottom, 16);
+  else if (new Set(rest.rowHeights).size !== 1)
+    problems.push(`${label}: the cards of a row are not equally high (${rest.rowHeights.join(', ')})`);
+  want('the icon to the headline', rest.mediaToTitle, 16);
+  want('the headline to the text', rest.toText, 8);
+  if (rest.rowGap !== null) want('the gap between cards in a column', rest.rowGap, 8);
+  if (rest.colGap !== null) want('the gap between cards in a row', rest.colGap, 8);
+  // A tap in the card makes it active: its subhead row appears, with its hint, in the site's rhythm.
+  // Focus in the headline is what makes a card active (InlineItems.tsx onFocus), on any width.
+  await page.locator('ul.block-cards .block-card').first().locator('[data-field="title"]').focus();
+  await page.waitForSelector('ul.block-cards .block-card:first-child .block-card-subhead', { timeout: 10_000 }).catch(() => {});
+  const active = await measure(0);
+  want('the subhead row of the active card (present)', active.sub, true);
+  if (active.sub) {
+    want('the headline to the subhead of the active card', active.titleToSub, 4);
+    want('the subhead to the text of the active card', active.toText, 8);
+  }
+  await page.close();
+}
+
 /** The color of an icon (`iconColor`): the row's icon picker has the choice next to the icon (Primary, Secondary, Tertiary); a picked color is on the row (`data-icon-color`) and drawn in the theme's color role, in the editor like on the site. */
 async function checkIconColor(width, height, scheme = 'light') {
   const label = `${width}px icon color (${scheme})`;
@@ -11841,12 +11909,16 @@ for (const [width, height] of [
   [1280, 900],
 ])
   await unit(`checkImageGrid ${width}`, () => checkImageGrid(width, height));
+// 768 px: the grid wraps to two columns, the gaps stay 8 (the site and the page editor).
+await unit('checkCardsSpacing 768', () => checkCardsSpacing(768, 1024));
+await unit('checkCardsEditorSpacing 768', () => checkCardsEditorSpacing(768, 1024));
 for (const [width, height] of [
   [375, 740],
   [1280, 900],
 ]) {
   await unit(`checkCardsCarousel ${width}`, () => checkCardsCarousel(width, height));
   await unit(`checkCardsSpacing ${width}`, () => checkCardsSpacing(width, height));
+  await unit(`checkCardsEditorSpacing ${width}`, () => checkCardsEditorSpacing(width, height));
   for (const scheme of ['light', 'dark'])
     await unit(`checkCardIconText ${width} ${scheme}`, () => checkCardIconText(width, height, scheme));
   for (const scheme of ['light', 'dark']) await unit(`checkIconColor ${width} ${scheme}`, () => checkIconColor(width, height, scheme));
