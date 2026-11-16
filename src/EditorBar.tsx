@@ -9,7 +9,7 @@
 // state of the text where the cursor is (`active` ... `noColor`) with the three things the menus change (`setKind`, `setAlign`, `setColor`).
 // The bar keeps the state of its own menus and its width. It draws a fragment: the Toolbar and its menus, which the host puts above its text.
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { ListBullets, Palette, TextAlignCenter, TextAlignLeft, TextAlignRight, TextT, type TextB } from '@phosphor-icons/react';
+import type { TextB } from '@phosphor-icons/react';
 import { TEXT_COLORS, colorClass } from '../lib/text-colors.mjs';
 import { motionReduced, motionTiming } from '../lib/motion';
 import { barSlideKind } from './barMotion.mjs';
@@ -35,19 +35,8 @@ export function rawIcon(svg: string): typeof TextB {
   return icon;
 }
 
-// The icon of a button when its style is not on: the general text (T) and list icons.
-const GENERIC_ICONS = {
-  text: { node: TextT },
-  list: { node: ListBullets },
-};
-
-// The alignments of a paragraph or a smaller heading (lib/text-align.mjs), each with its icon and name; left is the text's own.
-export const ALIGN_FACES = {
-  left: { node: TextAlignLeft },
-  center: { node: TextAlignCenter },
-  right: { node: TextAlignRight },
-};
-export type Align = keyof typeof ALIGN_FACES;
+/** Which way a paragraph is aligned (lib/text-align.mjs); left is the text's own. */
+export type Align = 'left' | 'center' | 'right';
 export const alignLabel = (align: Align) => ({ left: t.text.alignLeft, center: t.text.alignCenter, right: t.text.alignRight })[align];
 /** The keys of the bar's tools that have one: the text engine's own (the same as in textActions.ts), shown in their tooltips. */
 const TOOL_KEYS: Record<string, string | undefined> = { bold: 'Mod+B', italic: 'Mod+I', undo: 'Mod+Z', redo: 'Mod+Shift+Z' };
@@ -108,6 +97,8 @@ export type EditorBarProps = {
   alignNow: Align;
   alignOn: boolean;
   noColor: boolean;
+  /** The icons the host draws: one per alignment, the Color tool, and the List button while no list is on (the bar imports no icon pack of its own). */
+  icons: { align: Record<Align, typeof TextB>; color: typeof TextB; list: typeof TextB };
   /** What the menus change. */
   setKind: (kind: string) => void;
   setAlign: (align: Align) => void;
@@ -139,6 +130,7 @@ export function EditorBar({
   alignNow,
   alignOn,
   noColor,
+  icons,
   setKind,
   setAlign,
   setColor: color,
@@ -248,7 +240,7 @@ export function EditorBar({
       const [icon, label] =
         group === 'style'
           ? [styleFace.icon, styleLabel]
-          : [listFace?.icon ?? GENERIC_ICONS.list.node, listFace ? t.text.listIs(listFace.label) : t.text.list];
+          : [listFace?.icon ?? icons.list, listFace ? t.text.listIs(listFace.label) : t.text.list];
       return (
         <ToolbarButton
           key={id}
@@ -263,7 +255,7 @@ export function EditorBar({
       return (
         <ToolbarButton
           key={id}
-          icon={ALIGN_FACES[alignNow].node}
+          icon={icons.align[alignNow]}
           label={t.text.alignmentIs(alignLabel(alignNow))}
           menu={!!alignAt && alignAt.closest('.editor-tools') !== null && alignAt !== moreButton.current}
           disabled={!alignOn}
@@ -274,7 +266,7 @@ export function EditorBar({
       return (
         <ToolbarButton
           key={id}
-          icon={Palette}
+          icon={icons.color}
           label={t.text.color}
           menu={!!colorAt && colorAt !== moreButton.current}
           disabled={noColor}
@@ -317,13 +309,13 @@ export function EditorBar({
       ));
     if (id === 'align')
       return (
-        <MenuItem key={id} icon={ALIGN_FACES[alignNow].node} disabled={!alignOn} onClick={under(() => setAlignAt(moreButton.current))}>
+        <MenuItem key={id} icon={icons.align[alignNow]} disabled={!alignOn} onClick={under(() => setAlignAt(moreButton.current))}>
           {alignLabel(alignNow)}
         </MenuItem>
       );
     if (id === 'color')
       return (
-        <MenuItem key={id} icon={Palette} disabled={noColor} onClick={under(() => setColorAt(moreButton.current))}>
+        <MenuItem key={id} icon={icons.color} disabled={noColor} onClick={under(() => setColorAt(moreButton.current))}>
           {t.text.color}
         </MenuItem>
       );
@@ -477,10 +469,10 @@ export function EditorBar({
         )}
       </Menu>
       <Menu popup="start" anchor={alignAt} label={t.text.alignment} onClose={() => setAlignAt(null)}>
-        {(Object.keys(ALIGN_FACES) as Align[]).map((align) => (
+        {(Object.keys(icons.align) as Align[]).map((align) => (
           <MenuItem
             key={align}
-            icon={ALIGN_FACES[align].node}
+            icon={icons.align[align]}
             selected={alignNow === align}
             onClick={() => {
               setAlignAt(null);

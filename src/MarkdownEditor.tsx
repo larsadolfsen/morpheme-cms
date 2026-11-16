@@ -49,14 +49,19 @@ import {
   ListBullets,
   ListChecks,
   ListNumbers,
+  Palette,
   Quotes,
   Tag,
   TextAa,
+  TextAlignCenter,
+  TextAlignLeft,
+  TextAlignRight,
   TextB,
   TextHThree,
   TextHOne,
   TextHTwo,
   TextItalic,
+  TextT,
 } from '@phosphor-icons/react';
 import { listKindOf, styleOf } from './styleKind.mjs';
 import { listRows } from './styleMenu.mjs';
@@ -1417,6 +1422,19 @@ function textButtonWidth(label: string): number {
 }
 /** The Table's Column type is a row of the block's tools in the ⋮ menu (`with: 'tools'`), grouped with the add, delete and align rows. */
 const withColumnType = (menu: CardRow[], row: CardRow | undefined): CardRow[] => (row ? [{ ...row, with: 'tools' }, ...menu] : menu);
+
+// The icon of a button when its style is not on: the general text (T) and list icons.
+const GENERIC_ICONS = {
+  text: { node: TextT },
+  list: { node: ListBullets },
+};
+
+// The alignments of a paragraph or a smaller heading (lib/text-align.mjs), each with its icon and name; left is the text's own.
+const ALIGN_FACES = {
+  left: { node: TextAlignLeft },
+  center: { node: TextAlignCenter },
+  right: { node: TextAlignRight },
+};
 
 // The icon of each text style and list kind, for the bar's Text style and List menus (the names are STYLE_KINDS, styleKind.mjs).
 const KIND_ICONS = {
@@ -3070,6 +3088,11 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         alignNow={alignNow}
         alignOn={alignOn}
         noColor={noColor}
+        icons={{
+          align: { left: ALIGN_FACES.left.node, center: ALIGN_FACES.center.node, right: ALIGN_FACES.right.node },
+          color: Palette,
+          list: GENERIC_ICONS.list.node,
+        }}
         setKind={setKind}
         setAlign={(align) => editor.current?.action((ctx) => alignSelection(ctx.get(editorViewCtx), align))}
         setColor={color}

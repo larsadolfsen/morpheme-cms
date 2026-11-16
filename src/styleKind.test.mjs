@@ -109,18 +109,19 @@ test('the one Text style button shows a heading level while a heading is on, els
 });
 
 test('the generic icons are the general T and the bullet list, of Phosphor', () => {
-  const source = readFileSync(new URL('./EditorBar.tsx', import.meta.url), 'utf8');
+  const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
   assert.match(source, /text: \{ node: TextT \}/);
   assert.match(source, /list: \{ node: ListBullets \}/);
 });
 
 // The alignment button (lib/text-align.mjs) is on the bar with Phosphor's three alignment icons; a row of the `⋮` menu opens its menu on a phone.
 test('the alignment has a button on the bar and a row in the ⋮ menu', () => {
-  const source = readFileSync(new URL('./EditorBar.tsx', import.meta.url), 'utf8');
+  const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
+  const barSource = readFileSync(new URL('./EditorBar.tsx', import.meta.url), 'utf8');
   assert.match(source, /left: \{ node: TextAlignLeft \}/);
   assert.match(source, /center: \{ node: TextAlignCenter \}/);
   assert.match(source, /right: \{ node: TextAlignRight \}/);
-  assert.match(source, /if \(id === 'align'\)/, 'the bar and the ⋮ menu');
+  assert.match(barSource, /if \(id === 'align'\)/, 'the bar and the ⋮ menu');
 });
 
 // Every toolbar icon is drawn at the same size and stroke: the T icons of the three body styles (src/icons/text-t-*.svg) are Phosphor's
