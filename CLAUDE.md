@@ -113,9 +113,8 @@ Worker, the starter or the demo is a pull request here.
 
 ### Before you push
 
-Run `npm run check`, and after a change to the editor also `npm run check:screens` (after `npm run build`). CI
-(`.github/workflows/check.yml`) runs the checks as jobs side by side; its job `check` waits for them all and must be
-green before a merge. Which other check fits which change: skill `checks`.
+Run `npm run check`. CI (`.github/workflows/check.yml`) runs the other checks as jobs side by side; its job `check` waits
+for them all and must be green before a merge. Which checks to run locally, and which only CI runs: skill `checks`.
 
 ## Rules for code
 
