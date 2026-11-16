@@ -38,13 +38,9 @@
   font: 500 0.6875rem/1rem ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
   opacity: 0.85;
 }
-.demo-names-toggle {
+.demo-names-fixed {
   position: fixed;
   left: 1rem;
-  bottom: 5.5rem;
+  bottom: 1rem;
   z-index: 2147483001;
-}
-.demo-names-toggle[aria-pressed='true'] {
-  background: var(--mo-primary);
-  color: var(--mo-on-primary);
 }

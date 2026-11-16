@@ -37,6 +37,11 @@ async function checkNamesView(width, height, page) {
   if (await tab.locator('.demo-names-chip').count()) problems.push(`${label}: a label is drawn while the view is off`);
   const off = await boxes();
 
+  // The Names button (in the footer) turns the labels on.
+  await tab.locator('.demo-names-toggle').click();
+  if (!(await tab.locator('.demo-names-chip').count())) problems.push(`${label}: the Names button draws no labels`);
+  await tab.evaluate(() => localStorage.removeItem('morpheme-demo-names'));
+
   await tab.goto(`${site}/blocks/${page}/?names`, { waitUntil: 'networkidle' });
   await tab.waitForSelector('.demo-names-chip', { timeout: 10_000 }).catch(() => {});
   const found = await tab.evaluate(() => ({
@@ -55,9 +60,31 @@ async function checkNamesView(width, height, page) {
     problems.push(`${label}: a block has no name (${found.blocks.filter((b) => b.startsWith('Block')).join(', ')})`);
   for (const name of BLOCKS[page]) if (!found.blocks.some((b) => b.startsWith(name))) problems.push(`${label}: no block label "${name}"`);
   for (const part of PAGES[page])
-    if (!found.parts.includes(part)) problems.push(`${label}: no label "${part}" (found ${[...new Set(found.parts)].join(', ')})`);
+    if (!found.parts.some((p) => p === part || p.startsWith(`${part} ×`)))
+      problems.push(`${label}: no label "${part}" (found ${[...new Set(found.parts)].join(', ')})`);
   if (found.events) problems.push(`${label}: a label takes pointer events`);
 
+  // A label never sits on text: no label's box meets the box of any text in the page.
+  const covered = await tab.evaluate(() => {
+    const chips = [...document.querySelectorAll('.demo-names-chip')].map((c) => ({ c, r: c.getBoundingClientRect() }));
+    const hits = [];
+    const walk = document.createTreeWalker(document.querySelector('main'), NodeFilter.SHOW_TEXT);
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+      if (!n.textContent.trim() || !n.parentElement.checkVisibility()) continue;
+      const range = document.createRange();
+      range.selectNodeContents(n);
+      for (const t of range.getClientRects())
+        for (const { c, r } of chips)
+          if (Math.min(t.right, r.right) - Math.max(t.left, r.left) > 1 && Math.min(t.bottom, r.bottom) - Math.max(t.top, r.top) > 1)
+            hits.push(`${c.textContent} on "${n.textContent.trim().slice(0, 20)}"`);
+    }
+    const mine = chips.filter(({ r }) => r.left < 0 || r.right > document.documentElement.clientWidth + 0.5).length;
+    return { hits, mine };
+  });
+  if (covered.hits.length) problems.push(`${label}: a label covers text (${[...new Set(covered.hits)].slice(0, 4).join('; ')})`);
+  if (covered.mine) problems.push(`${label}: ${covered.mine} labels outside the window's width`);
+  if (page === 'lists' && !found.parts.some((p) => /^ListItem · two-line ×\d+$/.test(p)))
+    problems.push(`${label}: a run of list rows is not labelled once with its count`);
   const on = await boxes();
   if (on.page.join() !== off.page.join())
     problems.push(`${label}: the page is ${on.page.join('×')} with the view on, ${off.page.join('×')} off`);
