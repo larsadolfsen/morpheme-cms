@@ -900,7 +900,7 @@ export function useBlockDialog(
           </ActionSheet>
         </dialog>
       )}
-      {pane.element}
+      {pane.portal}
     </>
   );
   return [asker, element];

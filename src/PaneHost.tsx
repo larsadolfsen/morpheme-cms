@@ -2,7 +2,7 @@
 // is shown is fed in (owner, 15 Nov 2026: settings are a pane, not a dialog; docs/superpowers/specs/2026-11-15-section-settings-pane.md).
 // This is editor state only: the markup and the look are the theme's side sheet and `.editor-side-sheet` (editor.css), as BlockDialog's own
 // slot had them. <PaneHost /> in App.tsx is the place (an empty slot). A screen feeds its content with usePane(entry) on each render (entry
-// null: nothing) and puts `element` in what it renders: the content is drawn into the slot with a portal, so it stays in the screen's own React
+// null: nothing) and puts the returned `portal` in what it renders: the content is drawn into the slot with a portal, so it stays in the screen's own React
 // context (the form's fields, for one). The pane fed last is shown (one opened from inside another is on top of it; when it goes, the first
 // shows again). While one is open the root has [data-side-panel] (the page makes room for it) and setPanelOpen(true) (sidePanel.ts). The
 // theme's standardSideSheet() opens it (the pane itself has the focus, no control shows a ring) and asks `beforeClose` before the close button
@@ -58,7 +58,7 @@ function drop(id: string) {
   publish();
 }
 
-/** Feeds the pane (entry) or takes it away (null). Call it on every render with what is to be shown now, and put `element` in what the
+/** Feeds the pane (entry) or takes it away (null). Call it on every render with what is to be shown now, and put the returned `portal` in what the
  * component renders. close() hides the pane (the focus goes back to its opener); the caller then stops feeding it. */
 export function usePane(entry: PaneEntry | null) {
   const id = useId();
@@ -69,8 +69,8 @@ export function usePane(entry: PaneEntry | null) {
     else drop(id);
   }, [has, id]);
   useLayoutEffect(() => () => drop(id), [id]);
-  const element = entry && slot ? createPortal(<Pane id={id} entry={entry} top={open.at(-1) === id} />, slot) : null;
-  return { element, close: () => closers.get(id)?.() ?? Promise.resolve() };
+  const portal = entry && slot ? createPortal(<Pane id={id} entry={entry} top={open.at(-1) === id} />, slot) : null;
+  return { portal, close: () => closers.get(id)?.() ?? Promise.resolve() };
 }
 
 function Pane({ id, entry, top }: { id: string; entry: PaneEntry; top: boolean }) {
