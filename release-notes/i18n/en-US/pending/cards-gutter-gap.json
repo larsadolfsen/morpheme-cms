@@ -1,0 +1,6 @@
+{
+  "id": "cards-gutter-gap",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Cards, price cards and panels have more room between them, the same as the image grid"
+}

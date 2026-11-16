@@ -587,14 +587,17 @@ async function checkCardsSpacing(width, height) {
   const want = (what, got, expected) => {
     if (got !== expected) problems.push(`${label}: ${what} is ${got}, not ${expected}`);
   };
-  if (m.cols === 1) want('the gap between stacked cards', m.stacked, 8);
+  // The room between cards is the grid gutter: 16 on compact, 24 from medium (owner, 15 Nov 2026; docs/material-deviations.md, G1).
+  const gutter = width < 600 ? 16 : 24;
+  if (m.cols === 1) want('the gap between stacked cards', m.stacked, gutter);
   else {
-    want('the gap between cards in a row', m.colGap, 8);
-    want('the gap between cards in a column', m.rowGap, 8);
+    want('the gap between cards in a row', m.colGap, gutter);
+    want('the gap between cards in a column', m.rowGap, gutter);
   }
-  want('the gap in the CSS', m.css, '8px');
+  want('the gap in the CSS', m.css, `${gutter}px`);
   want('the card padding', m.padding, '16px');
-  want("the carousel gap (the same as the cards' own)", m.carouselGap, m.css);
+  // The phone carousel scrolls its cards 8px apart (Material 3's carousel); from medium it is the grid, with the cards' own gap.
+  if (m.carouselGap) want('the carousel gap', m.carouselGap, width < 600 ? '8px' : m.css);
   want("the room from a card's edge to its text on the left", m.iconCard.left, 16);
   want("the room from a card's edge to its text on the right", m.iconCard.right, 16);
   want('the icon to the headline', m.iconCard.mediaToTitle, 16);
@@ -604,6 +607,54 @@ async function checkCardsSpacing(width, height) {
   want('the text to the link', m.linkCard.textToMore, 16);
   want("the link to the card's bottom edge", m.linkCard.moreBottom, 16);
   await page.close();
+}
+
+/** The room between cards is the grid gutter (16 px on compact, 24 px from medium; docs/material-deviations.md, G1) on the demo's Cards, Price cards and Image grid pages (/blocks/<name>/), at 375, 768 and 1280 px, and the page does not scroll sideways. A site without those pages (the starter) has none to measure. */
+async function checkCardGutter(width, height) {
+  const label = `${width}px gap between cards`;
+  const phone = width < 600;
+  const gutter = phone ? 16 : 24;
+  const pages = [
+    ['Cards', 'cards', 'ul.block-cards', true],
+    ['Price cards', 'price-cards', '.block-plans-list', true],
+    ['Image grid', 'image-grid', '.image-grid', false],
+  ];
+  for (const [name, slug, selector, hasRows] of pages) {
+    if (!existsSync(join(ROOT, `src/content/pages/blocks-${slug}.md`))) {
+      console.log(`${label}: skipped the ${name} page, the site has none, which the demo has.`);
+      continue;
+    }
+    const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    const response = await page.goto(new URL(`/blocks/${slug}/`, site).href).catch(() => null);
+    if (!response || response.status() >= 400) {
+      problems.push(`${label}: /blocks/${slug}/ did not open`);
+      await page.close();
+      continue;
+    }
+    await page.waitForSelector(selector, { timeout: 8000 }).catch(() => {});
+    const m = await page.evaluate((sel) => {
+      const root = getComputedStyle(document.documentElement);
+      const token = parseFloat(root.getPropertyValue('--mo-grid-gutter')) * parseFloat(root.fontSize);
+      const el = document.querySelector(sel);
+      const cs = el && getComputedStyle(el);
+      return {
+        token,
+        column: el ? parseFloat(cs.columnGap) : null,
+        row: el ? parseFloat(cs.rowGap) : null,
+        wide: document.documentElement.scrollWidth - innerWidth,
+      };
+    }, selector);
+    if (m.token !== gutter) problems.push(`${label}: the gutter is ${m.token}, not ${gutter}`);
+    if (m.row === null) problems.push(`${label}: the ${name} page has no ${name} block`);
+    else {
+      if (hasRows && m.row !== gutter) problems.push(`${label}: the ${name} row gap is ${m.row}, not the gutter ${gutter}`);
+      if (!Number.isNaN(m.column) && m.column !== gutter && m.column !== 0)
+        problems.push(`${label}: the ${name} column gap is ${m.column}, not the gutter ${gutter}`);
+    }
+    if (m.wide > 1) problems.push(`${label}: the ${name} page scrolls sideways by ${m.wide}px`);
+    await page.close();
+  }
 }
 
 /** The Cards block typed in the page editor (the demo's Cards page) has the site's card, at 375, 768 and 1280 px (on the demo's Cards page): a card without a subhead draws no empty subhead row (so no room is kept for it) and has the same padding (16 on every side), icon to headline (16), headline to text (8) and gap between cards (8) as checkCardsSpacing asserts on the site; a tap in the card shows its subhead row with its hint, 4 px under the headline and 8 over the text, so the owner can add one. Reads the geometry once the card is active, never after a fixed wait. */
@@ -950,6 +1001,7 @@ export function register(unit) {
     unit(`checkImageGrid ${width}`, () => checkImageGrid(width, height));
   // 768 px: the grid wraps to two columns, the gaps stay 8 (the site and the page editor).
   unit('checkCardsSpacing 768', () => checkCardsSpacing(768, 1024));
+  unit('checkCardGutter 768', () => checkCardGutter(768, 1024));
   unit('checkCardsEditorSpacing 768', () => checkCardsEditorSpacing(768, 1024));
   unit('checkCardsElevation 768', () => checkCardsElevation(768, 1024));
   for (const [width, height] of [
@@ -958,6 +1010,7 @@ export function register(unit) {
   ]) {
     unit(`checkCardsCarousel ${width}`, () => checkCardsCarousel(width, height));
     unit(`checkCardsSpacing ${width}`, () => checkCardsSpacing(width, height));
+    unit(`checkCardGutter ${width}`, () => checkCardGutter(width, height));
     unit(`checkCardsEditorSpacing ${width}`, () => checkCardsEditorSpacing(width, height));
     unit(`checkCardsElevation ${width}`, () => checkCardsElevation(width, height));
     for (const scheme of ['light', 'dark']) unit(`checkPostMeta ${width} ${scheme}`, () => checkPostMeta(width, height, scheme));
