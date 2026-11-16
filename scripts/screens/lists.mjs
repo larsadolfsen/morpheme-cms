@@ -534,6 +534,23 @@ async function checkListMenuOpens(width, height, touch) {
   await page.close();
 }
 
+/** What the page shows of the Edit list sheet, for a message that names it when a wait or a count in checkOwnList fails (a diagnostic: it waits for nothing). */
+const ownListState = async (page) => {
+  try {
+    const seen = await page.evaluate(() => ({
+      hash: location.hash,
+      dialogs: [...document.querySelectorAll('dialog[open]')].map((d) => d.textContent.slice(0, 40)),
+      sideSheets: [...document.querySelectorAll('.editor-side-sheet')].map((e) => ({
+        visible: e.checkVisibility(),
+        text: e.textContent.slice(0, 40),
+      })),
+    }));
+    return JSON.stringify({ ...seen, removeButtons: await page.getByRole('button', { name: 'Remove field' }).count() });
+  } catch {
+    return 'state not readable';
+  }
+};
+
 /** The page of a list the owner made (#list/<id>, OwnList.tsx): the testimonials' list page and item page with the list's own fields. A list with a definition and two entries opens with two rows, no horizontal overflow; the active row has the dotted outline and no background, `Add list row` shows under an active list and is gone when the cursor leaves, the toolbar has Add above and Add below, Enter in the title goes to the text, and only the fields the list has are there (no icon slot, no link slot). */
 async function checkOwnList(width, height) {
   const label = `${width}px own list`;
@@ -604,7 +621,9 @@ async function checkOwnList(width, height) {
     const sheet = (phone ? page.locator('dialog[open]') : page.locator('.editor-side-sheet').locator('visible=true')).filter({
       hasText: 'Fields',
     });
-    await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: Edit list did not open its sheet`));
+    await sheet
+      .waitFor({ timeout: 5000 })
+      .catch(async () => problems.push(`${label}: Edit list did not open its sheet (${await ownListState(page)})`));
     // The list was made in the first format (fields as kind names): it reads as it did. Each of its five fields has the owner's own `Shown` switch (on) and `Remove field`; and `Add field` is there.
     const switches = await sheet.locator('input[type="checkbox"]').count();
     if (switches !== 5) problems.push(`${label}: Edit list has ${switches} switches, not 5`);
@@ -615,7 +634,13 @@ async function checkOwnList(width, height) {
     if (!(await sheet.getByLabel('Name').count())) problems.push(`${label}: Edit list has no name field`);
     // Remove field waits for the Save, like adding a field: it asks, takes the field out of the sheet, commits nothing, and leaving without saving undoes it.
     const removeBody = async () => {
-      await sheet.getByRole('button', { name: 'Remove field' }).nth(1).click();
+      await sheet
+        .getByRole('button', { name: 'Remove field' })
+        .nth(1)
+        .click()
+        .catch(async (e) => {
+          throw new Error(`${label}: no second Remove field button to press (${await ownListState(page)})\n${e.message}`, { cause: e });
+        });
       await page
         .locator('dialog[open]')
         .last()
@@ -647,7 +672,7 @@ async function checkOwnList(width, height) {
       .waitFor({ timeout: 5000 })
       .catch(() => {});
     if ((await sheet.getByRole('button', { name: 'Remove field' }).count()) !== 5)
-      problems.push(`${label}: the removed field did not come back after Discard`);
+      problems.push(`${label}: the removed field did not come back after Discard (${await ownListState(page)})`);
     if (commits.length) problems.push(`${label}: Discard committed (${commits.length} commits)`);
     await removeBody();
     await sheet.locator('[aria-label="Close"]').first().click();
