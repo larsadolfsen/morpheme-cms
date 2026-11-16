@@ -198,6 +198,10 @@
   /* Cards (ui.css): 12px corners; outlined on the surface with the outline variant, elevated on a low container with
      the first elevation, filled on the highest container. */
   --card-radius: var(--mo-shape-medium);
+  /* An elevated card is elevated all the time (owner, 16 Nov 2026; m3.material.io/components/cards/guidelines: "Elevated cards have a drop shadow"): level 1 at
+     rest and level 2 pointed at, though the theme's other parts have no shadow at rest (--mo-elevation-N-rest-shadow above). */
+  --card-elevated-shadow: var(--mo-elevation-1-shadow);
+  --card-elevated-hover-shadow: var(--mo-elevation-2-shadow);
   /* The List "expand" container (the questions and answers block): 16px (Material 3 lists page). */
   --list-expand-radius: var(--mo-shape-large);
   /* The room between cards side by side or under each other: 8px (Material 3's at most). */

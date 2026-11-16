@@ -2484,10 +2484,8 @@
   :is(a, button:enabled).card:focus-visible::before {
     opacity: var(--card-focus-layer, 0.1);
   }
-  /* An elevated card is elevated all the time (owner, 16 Nov 2026; m3.material.io/components/cards/guidelines: "Elevated cards have a drop shadow"): level 1
-     at rest, whatever the theme's resting shadows (--mo-elevation-N-rest-shadow, off in the standard theme) say for other parts. */
   .card-elevated {
-    --card-shadow: var(--card-elevated-shadow, var(--mo-elevation-1-shadow));
+    --card-shadow: var(--card-elevated-shadow, var(--mo-elevation-1-rest-shadow));
   }
   .card-filled {
     --card-shadow: var(--card-filled-shadow, var(--mo-elevation-0-shadow));
@@ -2497,7 +2495,7 @@
   }
   @media (hover: hover) {
     :is(a, button:enabled).card-elevated:hover:not(:active, .card-dragged) {
-      --card-shadow: var(--card-elevated-hover-shadow, var(--mo-elevation-2-shadow));
+      --card-shadow: var(--card-elevated-hover-shadow, var(--card-elevated-shadow, var(--mo-elevation-2-shadow)));
     }
     a.card-filled:hover:not(:active, .card-dragged) {
       --card-shadow: var(--card-filled-hover-shadow, var(--card-filled-shadow, var(--mo-elevation-1-shadow)));
