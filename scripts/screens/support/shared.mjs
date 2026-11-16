@@ -215,8 +215,8 @@ export async function insertBlock(page, hint, count, at) {
           focus: document.activeElement ? `${document.activeElement.tagName}.${document.activeElement.className}` : null,
         }))
         .catch(() => null);
-      e.message = `insertBlock(${hint}, ${count}, ${at}) found ${JSON.stringify(found)}\n${e.message}`;
-      throw e;
+      // A new error: Node prints the stack, which was made with the old message.
+      throw new Error(`insertBlock(${hint}, ${count}, ${at}) found ${JSON.stringify(found)}\n${e.message}`, { cause: e });
     });
 }
 

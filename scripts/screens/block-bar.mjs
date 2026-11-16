@@ -665,9 +665,7 @@ async function checkBlockMove(width) {
   for (const [n, hint] of hints.entries()) {
     // Each new block lands above the ones before it (the cursor is in the line under 'Hello'); the check goes on once it is the active one.
     await insertBlock(page, hint, n + 1, 0);
-    await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
-    await page.keyboard.press('End');
-    await page.keyboard.press('Enter');
+    await newLineUnder(page, 'Hello');
   }
   const blocks = page.locator('.ProseMirror .site-block');
   if ((await blocks.count()) < 3) {
@@ -837,9 +835,7 @@ async function checkBlockSelect(width) {
     // Each new block lands above the ones before it; go on once it is the active one (insertBlock).
     await insertBlock(page, hint, n + 1, 0);
     // Away from the rows, so the next block goes after this one.
-    await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
-    await page.keyboard.press('End');
-    await page.keyboard.press('Enter');
+    await newLineUnder(page, 'Hello');
   }
   // The row of the block just left closes with the page scrolling to keep the blocks in place: measure after it has settled.
   await page.waitForTimeout(900);
