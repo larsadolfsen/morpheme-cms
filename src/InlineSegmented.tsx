@@ -8,14 +8,14 @@
 import { iconColorOf } from './iconColor';
 import { t } from './i18n';
 import { SiteIconButton, SiteList, SiteListItem } from './themeUi';
-import InlineItems, { InlineField, InlineIcon, InlineSlot, type Item } from './InlineItems';
+import InlineItems, { foldOf, InlineField, InlineIcon, InlineSlot, type Item } from './InlineItems';
 import { SiteButton } from './themeUi';
 import type { InlineViewProps } from './inlineViews';
 
 /** A row has at most one text button (its `buttons` field, `maxItems`); extra ones from before show and can be deleted. */
 export const maxButtons = 1;
 
-export default function InlineSegmented({ items, props, active, focus, onChange, onSettings, onIcon }: InlineViewProps) {
+export default function InlineSegmented({ items, props, active, focus, onChange, onSettings, onIcon, folds, onFold }: InlineViewProps) {
   const all = props.show === 'all';
   const twoLines = active !== null || items.some((r) => r.text);
   const slots = (i: number, icon?: string) => (
@@ -148,14 +148,15 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
               }
             />
           );
-        // Open while it is the active row (a tap on the summary does not fold it: the heading is typed there).
+        // Open while it is the active row, or as the chevron left it (a tap on the heading does not fold it: the heading is typed there).
+        const fold = foldOf(i, here, folds, onFold);
         return (
           <SiteListItem
             key={i}
             expand
-            expandOpen={here}
+            expandOpen={fold.open}
             expandProps={{ 'data-row': i, 'aria-current': here ? 'true' : undefined, 'aria-label': label, className: classes }}
-            onClick={(e) => e.preventDefault()}
+            {...fold.summary}
             leading={
               here ? (
                 <span className="inline-segmented-slots">{slots(i, item.icon)}</span>
