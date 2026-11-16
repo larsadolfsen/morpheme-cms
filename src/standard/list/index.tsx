@@ -7,7 +7,7 @@ import { defineBlock } from '../../blocks';
 import { t } from '../../i18n';
 import { columnsField } from '../columns';
 import { fromLine, nameWith, rowsFromFields, typed } from '../rows/fields';
-import { designField, listInline, listRowFields, moreFields } from '../rows/listParts';
+import { designField, leadingField, listInline, listRowFields, moreFields } from '../rows/listParts';
 
 type Row = { title?: string };
 
@@ -32,6 +32,7 @@ export default defineBlock({
       fields: listRowFields({ pageTitle: true }),
     },
     designField,
+    leadingField,
     columnsField(),
     ...moreFields,
   ],

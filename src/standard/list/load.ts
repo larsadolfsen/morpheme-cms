@@ -1,5 +1,6 @@
 // "List" on the site (view.ts): the pages' titles as the site has them (@site/standard) for a row with a page and no heading.
 import { standard } from '@site/standard';
+import { imageOf } from '../load';
 import type { Load } from '../view';
 import { loadRows } from '../rows/load';
 import { withRows } from '../rows/rows.mjs';
@@ -14,5 +15,5 @@ export const load: Load<ListView> = async (all, { texts }) => {
   for (const row of (props.items ?? []) as { title?: string; href?: string }[]) {
     if (row.href && !row.title?.trim() && !titles.has(row.href)) titles.set(row.href, await standard.pageTitle(row.href));
   }
-  return listOf(props, (href) => titles.get(href), texts.showMore ?? shared.values.showMore);
+  return listOf(props, (href) => titles.get(href), texts.showMore ?? shared.values.showMore, imageOf);
 };

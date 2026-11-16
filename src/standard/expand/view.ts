@@ -12,7 +12,9 @@ import { editorRows } from '../rows/view';
 import { withRows } from '../rows/rows.mjs';
 import { headOf, type HeadView } from '../head';
 import { columnsOf, type ColumnsView } from '../columns';
-import { listSettings, type ListRow, type ListView } from '../list/view';
+import { leadingOf, listSettings, type ListRow, type ListRowProps, type ListView } from '../list/view';
+import { shownAt } from '../../images';
+import { libraryAltPart } from '../../imageAlt.mjs';
 import { iconColorOf } from '../../iconColor';
 
 /** A row that folds out: its heading, its text as HTML (empty without one), its icon and its page with the link's text. */
@@ -21,6 +23,10 @@ export type FoldRow = {
   html: string;
   icon?: string;
   iconColor?: string;
+  /** What leads the row when it is an image (list/view.ts leadingOf). */
+  leading?: ListRow['leading'];
+  image?: ListRow['image'];
+  letter?: string;
   href?: string;
   link?: string;
   buttons?: { label: string; href: string }[];
@@ -56,9 +62,15 @@ const buttonsOf = (buttons: unknown): FoldRow['buttons'] => {
   return list.length ? list : undefined;
 };
 
+const isKind = (leading: unknown) => leading === 'avatar' || leading === 'square' || leading === 'landscape';
+
 /** The view from the block's fields, without what only the site can know (its group). */
-export const expandOf = (props: Record<string, any>, showMore: string = listShared.values.showMore as string): ExpandView => {
-  const items = (props.items ?? []) as ListRow[];
+export const expandOf = (
+  props: Record<string, any>,
+  showMore: string = listShared.values.showMore as string,
+  imageOf: (src: string) => { src: string; alt?: string } = (src) => ({ src }),
+): ExpandView => {
+  const items = ((props.items ?? []) as ListRowProps[]).map((r) => ({ ...r, leading: props.leading })) as ListRow[];
   return {
     ...headOf(props),
     ...columnsOf(props),
@@ -68,8 +80,9 @@ export const expandOf = (props: Record<string, any>, showMore: string = listShar
     rows: items.map((r) => ({
       label: r.title,
       html: paragraphs(r.text ?? ''),
-      icon: r.icon || undefined,
-      iconColor: r.icon ? iconColorOf(r.iconColor) : undefined,
+      ...leadingOf(r as ListRowProps, r.title ?? '', imageOf),
+      icon: !isKind(r.leading) && r.icon ? r.icon : undefined,
+      iconColor: !isKind(r.leading) && r.icon ? iconColorOf(r.iconColor) : undefined,
       href: r.href || undefined,
       link: r.href ? siteT.blocks.expand.readMore : undefined,
       buttons: buttonsOf(r.buttons),
@@ -80,6 +93,9 @@ export const expandOf = (props: Record<string, any>, showMore: string = listShar
 
 /** In the editor a row with a page and no text of its own says it shows the beginning of the page's text. */
 export const viewOf: ViewOf<ExpandView> = (props, data) => {
-  const view = expandOf(withRows(props, editorRows(props, data)), sharedIn(data.site, 'list', listShared.values).showMore);
+  const view = expandOf(withRows(props, editorRows(props, data)), sharedIn(data.site, 'list', listShared.values).showMore, (src) => ({
+    src: shownAt(src),
+    ...libraryAltPart(data.libraryAlt?.(src)),
+  }));
   return { ...view, rows: view.rows.map((r) => (!r.html && r.href ? { ...r, html: `<p>${siteT.blocks.accordion.opening}</p>` } : r)) };
 };

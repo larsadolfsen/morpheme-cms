@@ -176,6 +176,13 @@ export const blocks = {
     design: 'Design',
     designPlain: 'Plain',
     designSegmented: 'Segmented',
+    /** What leads a row: its icon, an avatar, a square image or a landscape image (chosen for each row). */
+    leading: 'Leading',
+    leadingIcon: 'Icon',
+    leadingAvatar: 'Avatar',
+    leadingSquare: 'Square image',
+    leadingLandscape: 'Landscape image',
+    image: 'Image',
     maxRows: 'Maximum rows',
     maxRowsHint: 'How many rows show at first. A button under them shows the rest. If empty, all rows show.',
     showMore: 'Button label (show more)',

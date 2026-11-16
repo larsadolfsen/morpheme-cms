@@ -9,6 +9,9 @@
 import { ImageSquare, LinkSimple, Tag } from '@phosphor-icons/react';
 import type { MouseEvent } from 'react';
 import { iconColorOf } from './iconColor';
+import { shownAt } from './images';
+import { leadingProps } from './standard/list/leading';
+import { leadingOf, type ListRowProps } from './standard/list/view';
 import { t } from './i18n';
 import { SiteButton, SiteList, SiteListItem } from './themeUi';
 import { columnsAttr } from './standard/columns';
@@ -22,7 +25,10 @@ export type Row = {
   text?: string;
   href?: string;
   heading?: boolean;
+  /** What leads the row: an icon (no value), an avatar, a square image or a landscape image (the image is `image`). */
+  leading?: string;
   image?: string;
+  alt?: string;
   tags?: string[];
 };
 
@@ -99,6 +105,33 @@ export default function InlineList({
       }
       renderItem={({ item, index: i, here, next, field }) => {
         const r = item as Row;
+        // What leads the row: its icon (the shared control: empty, a plus, while the row is active), or an avatar or an image (the real one while the row is not
+        // active, the slot that opens the row's media sheet while it is). A tap on the slot opens the sheet of the row's media, where its kind is chosen.
+        const leadFor = (row: Row, active: boolean, at: number) => {
+          if (!withIcon) return {};
+          const lead = leadingOf({ ...row, leading: props?.leading } as ListRowProps, row.title ?? '', (src) => ({ src: shownAt(src) }));
+          if (lead.leading)
+            return active
+              ? {
+                  leading: (
+                    <InlineSlot label={t.blocks.list.leading} onClick={() => onIcon(at)}>
+                      {lead.image || lead.letter ? <ImageSquare size={24} weight="fill" /> : <ImageSquare size={24} />}
+                    </InlineSlot>
+                  ),
+                }
+              : leadingProps(lead);
+          return {
+            leading: (
+              <InlineIcon
+                label={t.blocks.list.icon}
+                icon={row.icon}
+                here={active}
+                iconColor={row.icon ? iconColorOf(row.iconColor) : undefined}
+                onClick={() => onIcon(at)}
+              />
+            ),
+          };
+        };
         // The link slot at the end of the active row: the same control in every look, it opens the row's sheet.
         const linkSlot =
           here && withHref ? (
@@ -121,17 +154,7 @@ export default function InlineList({
                 className: ['inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next'].filter(Boolean).join(' '),
               }}
               {...open.summary}
-              leading={
-                withIcon ? (
-                  <InlineIcon
-                    label={t.blocks.list.icon}
-                    icon={r.icon}
-                    here={here}
-                    iconColor={r.icon ? iconColorOf(r.iconColor) : undefined}
-                    onClick={() => onIcon(i)}
-                  />
-                ) : undefined
-              }
+              {...leadFor(r, here, i)}
               headline={field('title', t.blocks.list.title, next ? t.blocks.list.newRow : t.blocks.list.title)}
               trailing={linkSlot}
             >
@@ -146,18 +169,7 @@ export default function InlineList({
             aria-current={here ? 'true' : undefined}
             aria-label={next ? t.blocks.list.newRow : t.blocks.list.rowOf(i + 1, items.length)}
             className={['inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next'].filter(Boolean).join(' ')}
-            // The icon is the shared control: empty (a plus) while the row is active, and its icon, a tap on which opens the picker, on any row that has one.
-            leading={
-              withIcon ? (
-                <InlineIcon
-                  label={t.blocks.list.icon}
-                  icon={r.icon}
-                  here={here}
-                  iconColor={r.icon ? iconColorOf(r.iconColor) : undefined}
-                  onClick={() => onIcon(i)}
-                />
-              ) : undefined
-            }
+            {...leadFor(r, here, i)}
             data-icon-color={r.icon ? iconColorOf(r.iconColor) : undefined}
             headline={field('title', t.blocks.list.title, next ? t.blocks.list.newRow : t.blocks.list.title)}
             supporting={

@@ -12,7 +12,17 @@ import { columnsOf, type ColumnsView } from '../columns';
 
 /** A row that folds out: a question and its answer as HTML, or a page's row ("Accordion", PageRow). */
 export type AccordionRow =
-  | { label: string; html: string; icon?: string; href?: string; link?: string; buttons?: { label: string; href: string }[] }
+  | {
+      label: string;
+      html: string;
+      icon?: string;
+      leading?: 'avatar' | 'square' | 'landscape';
+      image?: { src: string; alt?: string };
+      letter?: string;
+      href?: string;
+      link?: string;
+      buttons?: { label: string; href: string }[];
+    }
   | { label: string; page: PageRowView };
 
 export type FaqView = HeadView &

@@ -4,6 +4,11 @@
   here in a following change (docs/theme-css-split.md). Imported by base.css after blocks.css, in the same layer, so these win over the block's own.
 */
 @layer components {
+  /* A row's square and landscape image have square corners (owner, 16 Nov 2026: "1:1 images are not round. Only avatars are round"); only the avatar is round. */
+  .block-list,
+  .block-accordion {
+    --list-item-image-radius: 0;
+  }
   /* The plain design of a list (its rows on the page, no drawn container) starts its rows' own content, the leading icon or else the text, on the text's
      left edge (the row's 16 dp, M3 Lists › Specs "leading space", belongs to a drawn container, which only the segmented design has: .list-segmented,
      .block-accordion-segmented). On compact screens it is also full width (owner, 16 Nov 2026: "Full width on compact screens"; M3 Lists "edge-to-edge in compact
@@ -31,6 +36,9 @@
     }
     .block-accordion:not(.block-accordion-segmented) {
       --list-expand-padding-inline: var(--block-list-layer-room);
+      /* Edge to edge, an open item's colour has square corners too. */
+      --list-expand-open-radius: 0;
+      --list-expand-radius: 0;
     }
   }
 }

@@ -8,6 +8,7 @@
 // "Segmented list" can have an icon before its heading and a page after its text.
 import { useId } from 'react';
 import PageRow from '@theme/blocks/accordion/PageRow';
+import { leadingProps } from '@morphemecms/cms/src/standard/list/leading';
 import { Svg } from '@morphemecms/cms/src/icon';
 import Button from '@theme/ui/Button';
 import List, { ListItem } from '@theme/ui/List';
@@ -57,6 +58,7 @@ export default function Accordion({
               />
             ) : undefined
           }
+          {...('leading' in row ? leadingProps(row) : {})}
           headline={row.label}
         >
           {'html' in row ? (

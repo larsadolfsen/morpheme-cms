@@ -3,7 +3,7 @@
 // toolbar and the add action, and the row's `inline` settings. The List's way is the reference: a link icon button at the end of the active row
 // (the toolbar's Link too), the row's other settings in its sheet, `Add list row` under the last row. The two blocks differ only in what they
 // show (`buttons` of a row that folds out, a page title for a row with a page and no heading) and in the look (the theme's CSS).
-import { Rows, SquaresFour } from '@phosphor-icons/react';
+import { Rectangle, Rows, Shapes, SquaresFour, Square, UserCircle } from '@phosphor-icons/react';
 import { iconOptions } from '../../icon';
 import { iconColorField } from '../../iconColor';
 import { t } from '../../i18n';
@@ -20,12 +20,46 @@ export const listTexts = {
   icon: t.blocks.list.icon,
 };
 
+/** The kinds of leading that are an image (the icon is the empty choice). */
+export const LEADING_IMAGES = ['avatar', 'square', 'landscape'];
+
+/** What leads the rows: one choice for the whole block, as the media of Cards: an icon (no value), an avatar (the image, or the first letter of the heading
+ * without one), a square image or a landscape image. The rows' icon or image fields depend on it. */
+export const leadingField: Field = {
+  name: 'leading',
+  label: t.blocks.list.leading,
+  type: 'select',
+  segments: true,
+  options: [
+    { label: t.blocks.list.leadingIcon, value: '', icon: Shapes },
+    { label: t.blocks.list.leadingAvatar, value: 'avatar', icon: UserCircle },
+    { label: t.blocks.list.leadingSquare, value: 'square', icon: Square },
+    { label: t.blocks.list.leadingLandscape, value: 'landscape', icon: Rectangle },
+  ],
+};
+
 /** A row's fields, in the sheet's order. `buttons`: the text button at the bottom of a row that folds out (List - Expand). `pageTitle`: a row with
  * a page may have no heading and then shows the page's title (List); else the heading is required. */
 export const listRowFields = ({ buttons, pageTitle }: { buttons?: boolean; pageTitle?: boolean }): Field[] => [
   // The color comes first, so it is chosen before the icons below it.
-  iconColorField,
-  { name: 'icon', label: t.blocks.list.icon, type: 'select', icons: true, options: iconOptions(t.blocks.icons) },
+  { ...iconColorField, only: { field: 'leading', is: [''] } },
+  {
+    name: 'icon',
+    label: t.blocks.list.icon,
+    type: 'select',
+    icons: true,
+    options: iconOptions(t.blocks.icons),
+    only: { field: 'leading', is: [''] },
+  },
+  { name: 'image', label: t.blocks.list.image, type: 'image', only: { field: 'leading', is: LEADING_IMAGES } },
+  {
+    name: 'alt',
+    label: t.blocks.picture.alt,
+    type: 'string',
+    hint: t.blocks.picture.altHint,
+    libraryText: 'image',
+    only: { field: 'leading', is: LEADING_IMAGES },
+  },
   pageTitle
     ? { name: 'title', label: t.blocks.list.title, type: 'string', hint: t.blocks.list.titleHint }
     : { name: 'title', label: t.blocks.list.title, type: 'string', required: true },
@@ -77,7 +111,8 @@ export const moreFields: Field[] = [
 export const listInline = ({ buttons }: { buttons?: boolean }): InlineSpec => ({
   item: 'items',
   fields: ['title', 'text'],
-  media: ['icon', 'iconColor'],
+  media: ['icon', 'iconColor', 'image', 'alt'],
+  blockMedia: ['leading'],
   ...(buttons ? { settings: ['href', 'buttons'] } : { link: 'href' }),
   texts: listTexts,
 });
