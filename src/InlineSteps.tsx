@@ -21,12 +21,7 @@ export default function InlineSteps({ items, props, active, focus, onChange }: I
         add={t.blocks.steps.addStep}
         onChange={onChange}
         paste
-        wrap={(steps) => (
-          <ol className="block-steps inline-steps">
-            <span className="block-steps-line" aria-hidden="true"></span>
-            {steps}
-          </ol>
-        )}
+        wrap={(steps) => <ol className="block-steps inline-steps">{steps}</ol>}
         renderItem={({ index: i, here, next, field }) => (
           <li
             key={i}
