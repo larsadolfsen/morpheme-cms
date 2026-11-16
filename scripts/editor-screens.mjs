@@ -5863,6 +5863,36 @@ async function checkBlockMove(width) {
   await page.close();
 }
 
+/** A new block takes its first row once the insert dialog has closed (MarkdownEditor.tsx, startAt: its `close` event), however late that is: the dialog's close is held
+ * back by 3 s here (twice the 1.5 s the editor once gave up after), and the new block must still become the active one, with the cursor in its first row, and not
+ * before the dialog is gone (the button that opened the dialog gets the focus back at the close). */
+async function checkInsertDialogClosesLate(width) {
+  const label = `insert, dialog closes late ${width}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await page.evaluate(() => {
+    const close = HTMLDialogElement.prototype.close;
+    HTMLDialogElement.prototype.close = function (...args) {
+      setTimeout(() => close.apply(this, args), 3000);
+    };
+  });
+  // insertBlock waits until the new block is the only one with a row and that row is active.
+  await insertBlock(page, 'Numbered steps.', 1, 0);
+  if (await page.evaluate(() => !!document.querySelector('dialog[open]')))
+    problems.push(`${label}: the new block took its row while the insert dialog was still open`);
+  const inRow = await page.evaluate(() => !!document.activeElement?.closest('.ProseMirror .site-block'));
+  if (!inRow) problems.push(`${label}: the cursor is not in the new block's first row once the dialog has closed`);
+  await page.close();
+}
+
 /** Selecting several blocks of a page (blockSelectable and selectionBar in MarkdownEditor.tsx): a long press on a block's handle (touch) or a click on the mark of the block
  * pointed at (mouse) selects it; the text is then read-only and every block shows its mark; a tap or click on another block adds it without opening it; the bar
  * has the count with a cross first and Hide, Remove and Select all in its `⋮` (Duplicate only with one block selected); Remove asks first; Hide hides all selected;
@@ -12333,6 +12363,7 @@ await unit('checkDragSelect', () => checkDragSelect());
 await unit('checkTwoFinger', () => checkTwoFinger());
 for (const w of [375, 1280]) await unit(`checkBlockDrag ${w}`, () => checkBlockDrag(w));
 for (const w of [375, 1280]) await unit(`checkBlockSelect ${w}`, () => checkBlockSelect(w));
+for (const w of [375, 1280]) await unit(`checkInsertDialogClosesLate ${w}`, () => checkInsertDialogClosesLate(w));
 for (const w of [375, 1280]) await unit(`checkBlockMove ${w}`, () => checkBlockMove(w));
 await unit('checkUnlistedPost', () => checkUnlistedPost());
 await unit('checkLibraryAlt', () => checkLibraryAlt());
