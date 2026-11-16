@@ -57,6 +57,7 @@ Every pull request, whatever the change:
 - When `origin/<base>` moves, merge it into your branch (never a rebase, amend or force-push on a branch that is
   shared).
 - You never release (`CLAUDE.md`, *Only the owner releases a new version*).
+- You push your own branch only: never `main`, `0.18` or `0.19`, and never with force. A session whose push is denied tells the PM and does not work around it.
 - A change that needs a new screens check adds its unit to its area's file, `scripts/screens/<area>.mjs` (skill `checks`), never to `scripts/editor-screens.mjs` (the runner) and never to `scripts/screens/order.txt`.
 
 ## 3a. Check in when ready to merge
