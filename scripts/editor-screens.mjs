@@ -6472,6 +6472,17 @@ async function checkLinkAndItemPanes(width) {
     }));
   const expect = async (page, what) => {
     await page.waitForTimeout(700);
+    // The pane and the closed sheet do not both hold the fields: no id twice in the page.
+    const twice = await page.evaluate(() => {
+      const seen = new Set();
+      const twice = [];
+      for (const e of document.querySelectorAll('[id]')) {
+        if (seen.has(e.id)) twice.push(e.id);
+        seen.add(e.id);
+      }
+      return twice;
+    });
+    if (twice.length) problems.push(`${label}: ${what} has the same id twice in the page (${twice.slice(0, 3).join(', ')})`);
     const got = await shown(page);
     if (phone) {
       if (got.pane || got.dialogs !== 1)

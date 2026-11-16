@@ -195,7 +195,7 @@ export function LinkList({
         onClick={(e) => e.target === dialog.current && close()}
       >
         <SheetTitle title={editing?.index == null ? t.forms.links.add : nameOf(String(value[editing.index]?.url ?? ''))} onClose={close} />
-        {editing && (
+        {editing && !inPane && (
           <SheetBody
             onSubmit={(e) => {
               e.preventDefault();
