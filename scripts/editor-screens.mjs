@@ -7257,7 +7257,49 @@ async function checkListsAndBlocks(width) {
   await page.close();
 }
 
-/** The Preview (the binoculars) draws a section's background from the page's text as saved, also when the built site does not have the section yet (it is rebuilt after a save), and with the colour the editor shows. */
+/** Every Preview action of a page (the text bar's button, its row in the `⋮`, the Save bar's button) draws one icon, the monitor with a phone (Material Symbols' `devices`, Phosphor's `devices`, Lucide's `monitor-smartphone`; owner, 16 Nov 2026: "Use the monitor-cellphone icon for preview everywhere"). The Material pack's file is the reference. */
+async function checkPreviewIcon(width) {
+  const label = `${width}px Preview icon`;
+  const touch = width < 600;
+  const reference = readFileSync(new URL('../icons/material-symbols/devices.svg', import.meta.url), 'utf8').match(/<path d="([^"]+)"/)?.[1];
+  if (!reference) return problems.push(`${label}: icons/material-symbols/devices.svg has no path`);
+  const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.waitForSelector('.editor-tools button[aria-label="Undo"]', { timeout: 30_000 });
+  const drawn = (scope) =>
+    page.evaluate(
+      ([scope]) =>
+        [...document.querySelectorAll(scope)]
+          .filter((e) => e.getBoundingClientRect().width > 0)
+          .map((e) => e.querySelector('svg')?.innerHTML ?? ''),
+      [scope],
+    );
+  const found = await drawn('.editor-tools button[aria-label="Preview"]');
+  const saveBar = await page.evaluate(() =>
+    [...document.querySelectorAll('.editor-save-bar button')]
+      .filter((b) => b.textContent?.trim() === 'Preview' && b.getBoundingClientRect().width > 0)
+      .map((b) => b.querySelector('svg')?.innerHTML ?? ''),
+  );
+  found.push(...saveBar);
+  await page.locator('.editor-tools button[aria-label="More"]').first().click();
+  found.push(
+    ...(await page.evaluate(() =>
+      [...document.querySelectorAll('[role=menu][aria-label="More"] [role^=menuitem]')]
+        .filter((e) => e.textContent?.trim() === 'Preview')
+        .map((e) => e.querySelector('svg')?.innerHTML ?? ''),
+    )),
+  );
+  if (!found.length) problems.push(`${label}: no Preview action is shown`);
+  for (const svg of found) if (!svg.includes(reference)) problems.push(`${label}: a Preview action draws another icon than devices`);
+  await page.close();
+}
+
+/** The Preview (the devices icon) draws a section's background from the page's text as saved, also when the built site does not have the section yet (it is rebuilt after a save), and with the colour the editor shows. */
 async function checkPreviewSection() {
   const path = BUILT_PAGE;
   // (A text of its own: a site's page need not have a heading to put the section on.)
@@ -12130,6 +12172,7 @@ for (const width of [375, 1280])
 for (const width of [375, 1280]) await unit(`search button ${width}`, () => checkSearchButton(width));
 for (const width of [375, 1280]) await unit(`command palette ${width}`, () => checkCommandPalette(width));
 for (const width of [375, 1280]) await unit(`editor actions ${width}`, () => checkEditorActions(width));
+for (const width of [375, 1280]) await unit(`Preview icon ${width}`, () => checkPreviewIcon(width));
 for (const width of [375, 1280]) await unit(`palette shortcuts and recent ${width}`, () => checkPaletteLast(width));
 for (const width of [375, 1280]) await unit(`no context menu ${width}`, () => checkNoContextMenu(width));
 
