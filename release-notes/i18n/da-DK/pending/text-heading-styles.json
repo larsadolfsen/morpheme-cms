@@ -1,0 +1,7 @@
+{
+  "id": "text-heading-styles",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Overskrifter i tekst",
+  "text": "Hvert overskriftsniveau i en tekst har sin egen størrelse. Overskrifter, citater og de mindste overskrifter bruger nu temaets tekststile, i editoren og på hjemmesiden. Overskrift 2 til 4 er, som de var."
+}

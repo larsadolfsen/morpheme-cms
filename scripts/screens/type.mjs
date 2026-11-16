@@ -139,11 +139,72 @@ async function checkTypePage(width, height) {
   await tab.close();
 }
 
+// Each level of a text's headings is one role of the type scale (theme/styles/base.css, "The text's headings"), and a quote is body large:
+// the demo's Typography page (demo/src/content/pages/typography.md) has one of each, written "Heading 1" to "Heading 6".
+const HEADINGS = {
+  h1: 'display-small',
+  h2: 'headline-medium',
+  h3: 'title-large',
+  h4: 'title-medium',
+  h5: 'title-small',
+  h6: 'label-medium',
+};
+
+/** H1 to H6 and the quote in the text of /typography/ have the size, line height, weight and tracking of their role's token. */
+async function checkTypographyHeadings(width, height) {
+  const label = `${width}px Typography page`;
+  const tab = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  tab.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await tab.goto(`${site}/typography/`, { waitUntil: 'networkidle' });
+  const rows = await tab.evaluate((levels) => {
+    const probe = document.createElement('div');
+    document.body.append(probe);
+    const read = (el, role) => {
+      probe.style.cssText = `position:absolute;visibility:hidden;font-size:var(--type-${role}-size);line-height:var(--type-${role}-line-height);font-weight:var(--type-${role}-weight);letter-spacing:var(--type-${role}-tracking)`;
+      const token = getComputedStyle(probe);
+      const own = getComputedStyle(el);
+      return ['fontSize', 'lineHeight', 'fontWeight', 'letterSpacing'].map((key) => [key, own[key], token[key]]);
+    };
+    const out = Object.entries(levels).map(([tag, role]) => {
+      const n = tag.slice(1);
+      const el = [...document.querySelectorAll(`main .prose ${tag}`)].find((e) =>
+        new RegExp(`^Heading ${n}\\b`).test(e.textContent.trim()),
+      );
+      return el ? { name: `${tag} (${role})`, values: read(el, role) } : { name: `${tag} (${role})`, missing: true };
+    });
+    const quote = document.querySelector('main .prose blockquote');
+    out.push(
+      quote
+        ? {
+            name: 'quote (body-large)',
+            values: read(quote, 'body-large'),
+            italic: getComputedStyle(quote).fontStyle !== 'normal',
+            line: parseFloat(getComputedStyle(quote).borderInlineStartWidth) > 0,
+          }
+        : { name: 'quote (body-large)', missing: true },
+    );
+    probe.remove();
+    return out;
+  }, HEADINGS);
+  for (const r of rows) {
+    if (r.missing) problems.push(`${label}: no ${r.name} in the text`);
+    else {
+      for (const [key, own, token] of r.values)
+        if (own !== token) problems.push(`${label}: ${r.name} ${key} is ${own}, the token is ${token}`);
+      if (r.italic) problems.push(`${label}: ${r.name} is italic`);
+      if (r.line === false) problems.push(`${label}: ${r.name} has no line beside it`);
+    }
+  }
+  await tab.close();
+}
+
 export function register(unit) {
-  if (!existsSync(join(DIST, 'type/index.html'))) return;
-  for (const [width, height] of [
+  const sizes = [
     [375, 740],
     [1280, 900],
-  ])
-    unit(`checkTypePage ${width}`, () => checkTypePage(width, height));
+  ];
+  if (existsSync(join(DIST, 'type/index.html')))
+    for (const [width, height] of sizes) unit(`checkTypePage ${width}`, () => checkTypePage(width, height));
+  if (existsSync(join(DIST, 'typography/index.html')))
+    for (const [width, height] of sizes) unit(`checkTypographyHeadings ${width}`, () => checkTypographyHeadings(width, height));
 }
