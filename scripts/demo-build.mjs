@@ -6,6 +6,7 @@ import { cpSync, mkdirSync, renameSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { binOf } from './bin.mjs';
+import { addNamesView } from './demo-names.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const npm = process.env.npm_execpath ? [process.execPath, process.env.npm_execpath] : ['npm'];
@@ -39,4 +40,6 @@ renameSync(demoSite(), site);
 const run = (args) => execFileSync(process.execPath, args, { cwd: site, stdio: 'inherit' });
 run([join(self, 'scripts/check-content.mjs')]);
 run([binOf('astro', 'astro', site), 'build']);
+// The demo's Names view (demo/public/demo-names.js): a script of the demo's own, in its pages only.
+console.log(`Names view: ${addNamesView(site)} pages`);
 run([join(self, 'bin/morpheme.mjs'), 'after-build']);
