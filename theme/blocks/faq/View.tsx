@@ -11,7 +11,7 @@ export default function Faq({ view }: { view: FaqView }) {
     <>
       <BlockHead view={view} />
       <div className={inText}>
-        <Accordion rows={view.rows} group={view.group} several={view.several} />
+        <Accordion rows={view.rows} group={view.group} several={view.several} oneColumn={view.oneColumn} />
       </div>
       <ListButton button={view.button} className={inText} />
     </>

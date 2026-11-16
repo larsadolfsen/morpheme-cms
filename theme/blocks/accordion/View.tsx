@@ -10,7 +10,7 @@ export default function AccordionBlock({ view }: { view: AccordionView }) {
     <>
       <BlockHead view={view} />
       <div className={useInText() || undefined}>
-        <Accordion rows={view.rows.map((page) => ({ label: page.label, page }))} group={view.group} />
+        <Accordion rows={view.rows.map((page) => ({ label: page.label, page }))} group={view.group} oneColumn={view.oneColumn} />
       </div>
     </>
   );

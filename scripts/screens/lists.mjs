@@ -36,6 +36,66 @@ async function checkListMarkers(width) {
   await page.close();
 }
 
+/** The setting Columns of List, Segmented list and FAQ list (standard/columns.ts): on (the default, and what a block from before has) the rows sit in as many columns as fit the list's
+ * width, at least 344px each, never more than three; off (`data-columns="one"`) one column at most 720px wide. In the editor and in the Preview, at 375, 768 and 1280. */
+async function checkListColumns(width) {
+  const label = `${width}px list columns`;
+  const rows = [
+    { title: 'One', text: 'First' },
+    { title: 'Two', text: 'Second' },
+    { title: 'Three', text: 'Third' },
+  ];
+  const src = [
+    '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n',
+    block('list', { items: rows }),
+    block('list', { columns: false, items: rows }),
+    block('segmented', { items: rows }),
+    block('segmented', { columns: false, items: rows }),
+    block('faq', { items: rows.map((r) => ({ question: r.title, answer: r.text })) }),
+    block('faq', { columns: false, items: rows.map((r) => ({ question: r.title, answer: r.text })) }),
+  ].join('\n\n');
+  const measure = () =>
+    [...document.querySelectorAll('ul.block-list, ul.block-accordion')].map((ul) => {
+      const w = Math.round(ul.getBoundingClientRect().width);
+      return {
+        name: ul.className.split(' ').find((c) => c.startsWith('block-')),
+        one: ul.dataset.columns === 'one',
+        width: w,
+        columns: getComputedStyle(ul).gridTemplateColumns.split(' ').length,
+      };
+    });
+  const verify = (where, found) => {
+    if (found.filter((b) => b.one).length !== 3 || found.filter((b) => !b.one).length !== 3)
+      return problems.push(
+        `${label} ${where}: expected 3 lists with Columns off and 3 with it on, found ${JSON.stringify(found.map((b) => b.one))}`,
+      );
+    for (const b of found) {
+      if (b.one) {
+        if (b.columns !== 1 || b.width > 721)
+          problems.push(
+            `${label} ${where}: ${b.name} with Columns off has ${b.columns} columns and is ${b.width}px wide (one column, at most 720px)`,
+          );
+      } else {
+        const wanted = b.width >= 1080 ? 3 : b.width >= 720 ? 2 : 1;
+        if (b.columns !== wanted)
+          problems.push(`${label} ${where}: ${b.name} with Columns on has ${b.columns} columns at ${b.width}px, not ${wanted}`);
+      }
+    }
+  };
+  const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site, { [BUILT_PAGE]: src });
+  await page.goto(`${site}/editor/#${BUILT_PAGE}`);
+  await page.waitForSelector('ul.block-list', { timeout: 30_000 });
+  verify('in the editor', await page.evaluate(measure));
+  await clickPreview(page);
+  await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
+  const frame = page.frames().find((f) => f !== page.mainFrame());
+  await frame.waitForSelector('ul.block-list', { timeout: 30_000 });
+  verify('in the Preview', await frame.evaluate(measure));
+  await page.close();
+}
+
 /** The hover action row is not drawn over a control of the block: a mouse over the first row of a Segmented list or Questions and answers shows no row over the row's chevron, at 768
  * and 1280 (the block shows its row once it is active). The drag handle is its own part (it has its own rules). */
 async function checkChevronUnderHoverRow(width) {
@@ -1151,5 +1211,6 @@ export function register(unit) {
     unit(`checkSectionsOnLoad ${width}`, () => checkSectionsOnLoad(width, height));
   }
   for (const w of [375, 1280]) unit(`checkListMarkers ${w}`, () => checkListMarkers(w));
+  for (const w of [375, 768, 1280]) unit(`checkListColumns ${w}`, () => checkListColumns(w));
   for (const w of [375, 1280]) unit(`checkListsAndBlocks ${w}`, () => checkListsAndBlocks(w));
 }

@@ -20,6 +20,7 @@ export default function Posts({ view }: { view: PostsView }) {
         className={[useInText() || 'block-in-text', 'block-posts-in-text', view.design !== 'featured' && 'block-posts-rows']
           .filter(Boolean)
           .join(' ')}
+        data-columns={view.oneColumn ? 'one' : undefined}
       >
         {view.note && <p className="block-posts-note">{view.note}</p>}
         {view.design === 'featured' ? (

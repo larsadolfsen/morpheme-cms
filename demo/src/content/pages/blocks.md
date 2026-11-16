@@ -70,6 +70,10 @@ Rows under each other, as your theme draws a list. A row can have an icon, a tex
 
 <div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Scheduled&quot;,&quot;text&quot;:&quot;Publishes on its own at the time you pick.&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Draft&quot;,&quot;text&quot;:&quot;Stays in the editor until you publish it.&quot;},{&quot;icon&quot;:&quot;door-open&quot;,&quot;title&quot;:&quot;Hidden&quot;,&quot;text&quot;:&quot;Opens at its address but stays off Google.&quot;}]}"></div>
 
+### List in one column
+
+<div data-block="list" data-props="{&quot;columns&quot;:false,&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Scheduled&quot;,&quot;text&quot;:&quot;Publishes on its own at the time you pick.&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Draft&quot;,&quot;text&quot;:&quot;Stays in the editor until you publish it.&quot;},{&quot;icon&quot;:&quot;door-open&quot;,&quot;title&quot;:&quot;Hidden&quot;,&quot;text&quot;:&quot;Opens at its address but stays off Google.&quot;}]}"></div>
+
 ### List with icons and links
 
 <div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;book-open&quot;,&quot;title&quot;:&quot;Blocks&quot;,&quot;text&quot;:&quot;Every block a page can be built from.&quot;,&quot;href&quot;:&quot;/blocks/&quot;},{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;App store&quot;,&quot;text&quot;:&quot;Apps and themes you install with one tap.&quot;,&quot;href&quot;:&quot;/app-store/&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;About&quot;,&quot;text&quot;:&quot;What the editor is built on.&quot;,&quot;href&quot;:&quot;/about/&quot;}]}"></div>
