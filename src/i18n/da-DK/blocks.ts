@@ -59,6 +59,9 @@ export const blocks: Messages['blocks'] = {
   segmented: {
     label: 'Segmenteret liste',
     hint: 'Rækker, der foldes ud, med link.',
+    /** Read by name for any block (pageEmptyRows.ts): the rows and one row, in the sentence about an empty block. */
+    items: 'Rækker',
+    item: 'række',
     only: 'Kun én åben',
     onlyToggle: ['Til', 'Fra'] as [string, string],
     onlyHint: 'Når du åbner en række, lukkes den åbne.',

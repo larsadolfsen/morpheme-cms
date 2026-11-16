@@ -69,6 +69,9 @@ export const blocks = {
   segmented: {
     label: 'Segmented list',
     hint: 'Rows that expand, with a link.',
+    /** Read by name for any block (pageEmptyRows.ts): the rows and one row, in the sentence about an empty block. */
+    items: 'Rows',
+    item: 'row',
     rowButtons: 'Buttons',
     rowButton: 'button',
     rowButtonsHint: 'Text buttons at the bottom of the open row, each with a page.',
