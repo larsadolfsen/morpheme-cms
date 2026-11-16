@@ -5,7 +5,13 @@ import type { BlockDefinition } from './blocks';
 import type { BarAction } from './contextualMenu';
 
 /** A row of a menu row's submenu (Change type's blocks): the block's icon (a component), its name, what it does. */
-export type SubRow = { icon: BlockDefinition['icon']; label: string; action: () => void };
+export type SubRow = {
+  icon: BlockDefinition['icon'];
+  label: string;
+  action: () => void;
+  /** The chosen one of a few (the Table's column type). */
+  selected?: boolean;
+};
 
 /** A row of the block's own menu (Edit, Hide, Move up, Move down, Remove): a raw SVG icon, its name, what it does (`keyboard`: chosen with the keyboard). */
 export type CardRow = {
@@ -17,6 +23,8 @@ export type CardRow = {
   disabled?: { reason: string };
   /** It opens these rows as the menu's next level (Change type), with a back row; `action` is not called. */
   submenu?: SubRow[];
+  /** `tools`: the row is shown with the block's tools at the top of the ⋮ menu (the Table's Column type), not with its own rows below the divider. */
+  with?: 'tools';
 };
 
 /** A button of the block's action row (blockRow.ts): the block's own actions above its top item. `kind` says which. */

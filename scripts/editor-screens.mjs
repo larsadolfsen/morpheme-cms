@@ -1831,6 +1831,25 @@ async function pressMore(page, name, how = 'click', which = 'last') {
   if (settings && (await settings.count())) return void (await settings.first()[how]());
   await page.locator('.editor-tools [aria-label="More"]:visible').first()[how]();
   const row = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${name}$`) });
+  // A tool of a Table is in the group that bundles it (Add, Delete, Align column): open the groups until one has it. The menu is given time to draw first (a slow runner draws it late).
+  await row
+    .first()
+    .waitFor({ timeout: 3000 })
+    .catch(() => {});
+  if (!(await row.count())) {
+    for (const group of TABLE_GROUP_ROWS) {
+      const opener = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${group}$`) });
+      if (!(await opener.count())) continue;
+      await opener.first().click();
+      await page.waitForTimeout(150);
+      const inside = page
+        .locator(`[role=menu][aria-label="${group}"] [role^=menuitem]`)
+        .filter({ hasText: new RegExp(`^${group === 'Align column' ? (ALIGN_SHORT[name] ?? name) : name}$`) });
+      if (await inside.count()) return void (await inside.first()[how]());
+      await closeMore(page);
+      await page.locator('.editor-tools [aria-label="More"]:visible').first()[how]();
+    }
+  }
   // `last`: the block's own menu, which is last in the ⋮ (a gear named Edit may stand before it); `first`: a tool of the bar that did not fit.
   await row[which]()[how]();
 }
@@ -2177,6 +2196,25 @@ async function openStyleMenu(page) {
 }
 
 /** What the bar and its ⋮ menu hold now: `bar` its buttons (name, title, icon, size, pressed), `more` the rows of the ⋮ menu (opened and closed again by its button, so the cursor stays in its field). */
+/** The rows of the ⋮ menu that bundle a Table's tools and open them as its next level. */
+/** Closes the ⋮ menu from any level: Escape goes back one level at a time. */
+async function closeMore(page) {
+  for (let n = 0; n < 4 && (await page.locator('[role=menu]:visible').count()); n++) {
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(150);
+  }
+}
+
+const TABLE_GROUP_ROWS = ['Add', 'Delete', 'Align column', 'Column type'];
+/** Under Align column a row says only the side; these are the names its tools have on the bar. */
+const ALIGN_FULL = {
+  Left: 'Align column left',
+  Center: 'Center column',
+  Right: 'Align column right',
+  Automatic: 'Align column automatically',
+};
+const ALIGN_SHORT = Object.fromEntries(Object.entries(ALIGN_FULL).map(([k, v]) => [v, k]));
+
 async function barTools(page) {
   const bar = await page.evaluate(() =>
     [...document.querySelectorAll('.editor-tools button:not([hidden])')].map((b) => {
@@ -2206,6 +2244,33 @@ async function barTools(page) {
       })),
     );
     await button.first().click();
+    // The Table bundles related tools into rows that open a submenu (Add, Delete, Align column, Column type): their tools are listed too, as the menu's.
+    for (const group of TABLE_GROUP_ROWS) {
+      if (!more.some((m) => m.label === group)) continue;
+      await button.first().click();
+      await page
+        .locator('[role=menu][aria-label="More"] [role^=menuitem]')
+        .filter({ hasText: new RegExp(`^${group}$`) })
+        .first()
+        .click();
+      await page.waitForTimeout(150);
+      more.push(
+        ...(
+          await page.evaluate(
+            (name) =>
+              [...document.querySelectorAll(`[role=menu][aria-label="${name}"] [role^=menuitem]`)]
+                .filter((x) => !x.hasAttribute('data-back') && x.textContent.trim() !== name)
+                .map((x) => ({
+                  label: x.textContent.trim(),
+                  pressed: x.getAttribute('aria-checked'),
+                  height: x.getBoundingClientRect().height,
+                })),
+            group,
+          )
+        ).map((m) => (group === 'Align column' ? { ...m, label: ALIGN_FULL[m.label] ?? m.label } : m)),
+      );
+      await closeMore(page);
+    }
   }
   return { bar, more, names: [...bar.map((b) => b.label), ...more.map((m) => m.label)] };
 }
@@ -10473,6 +10538,189 @@ async function checkTableAlign(width, height) {
   await page.close();
 }
 
+/** A Table's column type (375 and 1280 px): the block's ⋮ menu has Column type (Automatic, Text, Number) after Change to; Number ends the column at the right with tabular figures, in the editor typed in place and on the built site, even for a cell that is not a number; Automatic and Text take it back or keep it left; the kind is saved with the block (`columns`), a second save writes the same text, and one undo takes a change back. */
+async function checkTableKinds(width, height) {
+  const label = `${width}px table kinds`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  // The built site: a Number column is drawn with tabular figures, a text column is not.
+  if (await onTestPage(page, label)) {
+    const site = await page.evaluate(() => {
+      const fig = (sel) => getComputedStyle(document.querySelector(sel)).fontVariantNumeric;
+      return { number: fig('.block-table-grid td.data-table-number'), text: fig('.block-table-grid tbody td:not(.data-table-number)') };
+    });
+    if (site.number && !/tabular-nums/.test(site.number))
+      problems.push(`${label}: the site's Number column has no tabular figures (${site.number})`);
+    if (/tabular-nums/.test(site.text)) problems.push(`${label}: a text column has tabular figures on the site`);
+  }
+  await openEditor(page, site);
+  const commits = [];
+  await page.route('**/api/github/commit', (r) => {
+    commits.push(JSON.parse(r.request().postData() || '{}'));
+    return r.fulfill({ contentType: 'application/json', body: JSON.stringify({ commit: 'head', blobs: {} }) });
+  });
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'tap');
+  await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
+  await page.waitForSelector('.inline-table-cell-active textarea');
+  const cellField = (r, c) => page.locator(`.inline-table-box [data-row="${r}"] [data-field="${c}"]`);
+  const menu = async (name) => {
+    await pressTool(page, name);
+    await page.waitForTimeout(250);
+  };
+  await page.keyboard.type('Name');
+  await menu('Add column after');
+  await page.keyboard.type('Figures');
+  await menu('Add row below');
+  await page.keyboard.type('about 5');
+  await cellField(1, 0).click();
+  await page.keyboard.type('a');
+  const look = () =>
+    page.evaluate(() => {
+      const td = document.querySelector('.inline-table-box [data-row="1"] td:nth-child(2)');
+      const th = document.querySelector('.inline-table-box thead th:nth-child(2)');
+      return {
+        cell: getComputedStyle(td).textAlign,
+        head: getComputedStyle(th).textAlign,
+        figures: getComputedStyle(td).fontVariantNumeric,
+      };
+    });
+  const end = (v) => v === 'end' || v === 'right';
+  const start = (v) => (v === 'end' ? false : v === 'start' || v === 'left');
+  const first = await look();
+  if (!start(first.cell) || /tabular-nums/.test(first.figures))
+    problems.push(`${label}: a column with a word in it is not plain text at first (${JSON.stringify(first)})`);
+  // The ⋮ menu bundles the Table's tools: Add, Delete and Align column open their tools as the menu's next level, Column type with them; every tool stays reachable.
+  await cellField(1, 1).click();
+  const more = page.locator('.editor-tools [aria-label="More"]:visible').first();
+  await more.click();
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: join(shots, `table-menu-open-${width}.png`) });
+  const top = (await page.locator('[role=menu][aria-label="More"] [role^=menuitem]').allInnerTexts()).map((n) => n.trim());
+  const flat = [
+    'Delete row',
+    'Delete column',
+    'Align column left',
+    'Center column',
+    'Align column right',
+    'Align column automatically',
+  ].filter((n) => top.includes(n));
+  if (flat.length) problems.push(`${label}: the ⋮ menu lists ${flat.join(', ')} as rows of their own, not in a group (${top.join(', ')})`);
+  await closeMore(page);
+  const { names } = await barTools(page);
+  for (const n of [
+    'Add row above',
+    'Add row below',
+    'Add column before',
+    'Add column after',
+    'Delete row',
+    'Delete column',
+    'Align column left',
+    'Center column',
+    'Align column right',
+    'Align column automatically',
+  ])
+    if (!names.includes(n)) problems.push(`${label}: "${n}" cannot be reached from the bar or the ⋮ menu (${names.join(', ')})`);
+  for (const group of TABLE_GROUP_ROWS) {
+    await more.click();
+    const opener = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${group}$`) });
+    if (!(await opener.count())) {
+      await closeMore(page);
+      continue;
+    }
+    await opener.first().click();
+    await page.waitForTimeout(250);
+    await page.screenshot({ path: join(shots, `table-menu-${group.toLowerCase().replace(/ /g, '-')}-${width}.png`) });
+    await closeMore(page);
+  }
+  // ⋮ › Column type, and its level.
+  const level = async () => {
+    await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+    const names = await page.locator('[role=menu][aria-label="More"] [role^=menuitem]').allInnerTexts();
+    const at = names.map((n) => n.trim()).indexOf('Column type');
+    if (at < 0) return (problems.push(`${label}: the ⋮ menu has no Column type (${names})`), null);
+    const opener = page.locator('[role=menu][aria-label="More"] [role^=menuitem]', { hasText: /^Column type$/ }).first();
+    if ((await opener.getAttribute('aria-haspopup')) !== 'menu') problems.push(`${label}: Column type does not say it opens a menu`);
+    await opener.click();
+    await page.waitForTimeout(250);
+    return page.locator('[role=menu][aria-label="Column type"] [role^=menuitem]');
+  };
+  const rowsOf = async (items) => (await items.allInnerTexts()).map((n) => n.trim()).filter((n) => n !== 'Column type');
+  await cellField(1, 1).click();
+  const items = await level();
+  if (items) {
+    const got = await rowsOf(items);
+    if (got.join() !== 'Automatic,Text,Number')
+      problems.push(`${label}: Column type's level is ${got.join(', ')}, not Automatic, Text, Number`);
+    await page.screenshot({ path: join(shots, `table-kinds-menu-${width}.png`) });
+    await items
+      .filter({ hasText: /^Number$/ })
+      .first()
+      .click();
+    await page.waitForTimeout(300);
+    const number = await look();
+    if (!end(number.cell) || !end(number.head) || !/tabular-nums/.test(number.figures))
+      problems.push(`${label}: Number did not end the column with tabular figures (${JSON.stringify(number)})`);
+    await page.screenshot({ path: join(shots, `table-kinds-${width}.png`) });
+  }
+  // The choice is shown chosen, and Text puts the column back at the start, with plain figures.
+  const again = await level();
+  if (again) {
+    const chosen = await again.evaluateAll((els) =>
+      els.filter((e) => e.getAttribute('aria-checked') === 'true').map((e) => e.textContent.trim()),
+    );
+    if (chosen.join() !== 'Number') problems.push(`${label}: Number is not shown chosen (${chosen})`);
+    await again
+      .filter({ hasText: /^Text$/ })
+      .first()
+      .click();
+    await page.waitForTimeout(300);
+    const text = await look();
+    if (!start(text.cell) || /tabular-nums/.test(text.figures))
+      problems.push(`${label}: Text did not take the Number look back (${JSON.stringify(text)})`);
+  }
+  // Number again, then save: the kind is in the saved text, and a second save writes the same.
+  const third = await level();
+  if (third) {
+    await third
+      .filter({ hasText: /^Number$/ })
+      .first()
+      .click();
+    await page.waitForTimeout(300);
+  }
+  // One undo takes the last kind change back, and redo brings it again (from the text above the table: a cell's own field keeps the browser's undo).
+  await page.click('.ProseMirror > p');
+  await page.keyboard.press('Control+z');
+  await page.waitForTimeout(300);
+  if (!start((await look()).cell)) problems.push(`${label}: undo did not take the kind change back`);
+  await page.keyboard.press('Control+Shift+z');
+  await page.waitForTimeout(300);
+  if (!end((await look()).cell)) problems.push(`${label}: redo did not bring the kind change back`);
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(300);
+  const saved = async () => {
+    const before = commits.length;
+    if (!(await page.locator('button', { hasText: /^Save draft$/ }).count())) return [];
+    await page
+      .locator('button', { hasText: /^Save draft$/ })
+      .first()
+      .evaluate((b) => b.click());
+    await page.waitForTimeout(900);
+    return commits.slice(before).flatMap((c) => c.changes.map((x) => Buffer.from(x.content ?? '', 'base64').toString('utf8')));
+  };
+  const one = await saved();
+  const text = one.find((t) => t.includes('data-block="table"')) ?? '';
+  if (!/columns[^\]]*number/.test(text)) problems.push(`${label}: the saved page does not carry the column's kind`);
+  const two = await saved();
+  if (two.length && two.join() !== one.join()) problems.push(`${label}: a second save wrote another text`);
+  await page.close();
+}
+
 /** The Table's outer box has the same corner radius as a card (the Cards block's `.card`: both read the theme's --card-radius), with its header clipped to it, on the built site at 375 and 1280 px. */
 async function checkTableRadius(width, height) {
   const label = `${width}px table radius`;
@@ -12101,6 +12349,8 @@ await unit('checkInlineTable 375', () => checkInlineTable(375, 740));
 await unit('checkInlineTable 1280', () => checkInlineTable(1280, 800));
 await unit('checkTableAlign 375', () => checkTableAlign(375, 740));
 await unit('checkTableAlign 1280', () => checkTableAlign(1280, 800));
+await unit('checkTableKinds 375', () => checkTableKinds(375, 740));
+await unit('checkTableKinds 1280', () => checkTableKinds(1280, 800));
 
 await unit('checkTableRadius 375', () => checkTableRadius(375, 740));
 await unit('checkTableRadius 1280', () => checkTableRadius(1280, 800));

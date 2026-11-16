@@ -8163,6 +8163,10 @@
   :is(.data-table, .block-table-grid) :is(th, td):is(.data-table-right, .block-table-right) {
     text-align: end;
   }
+  /* A Number column (src/standard/table/rows.mjs, kind): its figures line up, digit under digit. */
+  :is(.data-table, .block-table-grid) :is(th, td).data-table-number {
+    font-variant-numeric: tabular-nums;
+  }
   /* The table's last row has no line (the outline closes it). The header row is the last row of its own thead, so a plain tr:last-child
      took its line away: only the last row of the table's last group counts. */
   :is(.data-table, .block-table-grid) table > :last-child > tr:last-child :is(th, td) {
