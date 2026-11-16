@@ -269,14 +269,14 @@ async function checkInlineBlock(
       problems.push(`${label}: the typed fields of a card are "${fields}", not "title,subhead,text"`);
   }
   if (name === 'buttons') {
-    // An empty button's hint is the button kind's own text colour (never the page's), for every kind, and its settings offer the five kinds side by side.
+    // An empty button's hint is the button kind's own text colour (never the page's), for every kind, and its settings offer the four kinds (no Elevated) side by side.
     const hint = await page.evaluate(() => {
       const row = document.querySelector('.inline-list-row-active');
       const field = row.querySelector('.inline-list-field');
       const out = {};
       const was = row.className;
-      for (const kind of ['filled', 'tonal', 'elevated', 'outlined', 'text']) {
-        row.classList.remove('button-filled', 'button-tonal', 'button-elevated', 'button-outlined', 'button-text');
+      for (const kind of ['filled', 'tonal', 'outlined', 'text']) {
+        row.classList.remove('button-filled', 'button-tonal', 'button-outlined', 'button-text');
         row.classList.add(`button-${kind}`);
         out[kind] = [getComputedStyle(field, '::placeholder').color, getComputedStyle(row).color, getComputedStyle(field).color];
       }
@@ -293,7 +293,7 @@ async function checkInlineBlock(
           `${label}: the toolbar has no way to open the button's settings ${JSON.stringify((await barTools(page)).names)} ${e.message.slice(0, 200)}`,
         ),
       );
-      const kinds = ['Filled', 'Tonal', 'Elevated', 'Outlined', 'Text'];
+      const kinds = ['Filled', 'Tonal', 'Outlined', 'Text'];
       // The choice group (ChoiceGroup): its buttons, or its list of radio buttons when they do not fit.
       const group = page.getByRole('group', { name: 'Variant', exact: true }).last();
       await group.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's settings have no Variant choice`));

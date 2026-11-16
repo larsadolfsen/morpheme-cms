@@ -52,7 +52,7 @@ export function demoBlocksProblems(text, { offered, former }, legacy = legacyBlo
   return problems;
 }
 
-/** The values of the choices a field offers, read from the block's code: `buttonKinds` (src/standard/view.tsx) or the `options` of the field `name` in the block's index.tsx. */
+/** The values of the choices a field offers, read from the block's code: `blockButtonKinds` (src/standard/view.tsx) or the `options` of the field `name` in the block's index.tsx. */
 export function offeredValues(source, name) {
   const at = source.search(new RegExp(`name:\\s*'${name}'`));
   if (at < 0) return [];
@@ -87,8 +87,8 @@ export function styleProblems(text, dir = join(root, 'src/standard')) {
   const problems = [];
   const buttons = propsOf(text, 'buttons').flatMap((p) => p.items ?? []);
   const view = readFileSync(join(dir, 'view.tsx'), 'utf8');
-  const kinds = [...(view.match(/buttonKinds = \[([^\]]*)\]/)?.[1] ?? '').matchAll(/'([^']+)'/g)].map((m) => m[1]);
-  if (!kinds.length) problems.push('buttonKinds not found in src/standard/view.tsx.');
+  const kinds = [...(view.match(/blockButtonKinds = \[([^\]]*)\]/)?.[1] ?? '').matchAll(/'([^']+)'/g)].map((m) => m[1]);
+  if (!kinds.length) problems.push('blockButtonKinds not found in src/standard/view.tsx.');
   for (const k of kinds) {
     if (!buttons.some((b) => (b.kind ?? 'filled') === k)) problems.push(`The Buttons example shows no "${k}" button.`);
   }

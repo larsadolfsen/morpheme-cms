@@ -366,8 +366,7 @@
   /* The text button under the last row of "Segmented list" and "FAQ list" (ListButton.tsx). */
   .block-list-button {
     margin-top: 0.5rem;
-    /* A text button has no container at rest, so its label stands in from its edge by the button's side padding (Material's
-       12dp): the button moves out by that much and its label lines up with the list's edge. */
+    /* A text button has no container at rest, so its label stands in from its edge by the button's side padding: the button moves out by that much and its label lines up with the list's edge. */
     margin-inline-start: calc(-1 * var(--button-text-padding, 1rem));
   }
   /* `Max rows` of "Segmented list" (MoreRows.tsx, segmented/more.ts): without script all rows show and the button is hidden; with
@@ -670,7 +669,7 @@
      the top and either a link (the whole card) or buttons, two side by side from small screens (cards/LinkCards.tsx). */
   .block-cards {
     display: grid;
-    gap: var(--card-gap, 0.5rem);
+    gap: var(--mo-grid-gutter);
     padding: 0;
     list-style: none;
   }
@@ -799,7 +798,7 @@
     .block-cards-carousel .carousel-items {
       display: grid;
       overflow-x: visible;
-      gap: var(--card-gap, 0.5rem);
+      gap: var(--mo-grid-gutter);
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .block-cards-carousel .carousel-item {
@@ -996,15 +995,15 @@
   .block-panels {
     display: grid;
     /* Two side by side where there is room for 17rem each, never more. */
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(17rem, calc(50% - 0.5rem))), 1fr));
-    gap: var(--card-gap, 0.5rem);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(17rem, calc(50% - var(--mo-grid-gutter) / 2))), 1fr));
+    gap: var(--mo-grid-gutter);
   }
   .block-panels.block-in-text {
     margin-block: 2.5rem;
   }
   /* Boxes with values to copy: side by side only where each has room for its values with their buttons. */
   .block-panels:has(.block-copy-rows) {
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(23rem, calc(50% - 0.5rem))), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(23rem, calc(50% - var(--mo-grid-gutter) / 2))), 1fr));
   }
   /* "Links": a box's heading linking to its page, and its pages under it in a list (.list in ui.css). */
   .block-panel-title a {
@@ -1488,7 +1487,7 @@
   }
   .block-price-cards {
     display: grid;
-    gap: var(--card-gap, 0.5rem);
+    gap: var(--mo-grid-gutter);
   }
   /* A big price, an elevated card (.card in ui.css). */
   .block-price-card {
@@ -1762,7 +1761,7 @@
   }
   .block-plans-list {
     display: grid;
-    gap: var(--card-gap, 0.5rem);
+    gap: var(--mo-grid-gutter);
     margin: 0;
     padding: 0;
     list-style: none;
