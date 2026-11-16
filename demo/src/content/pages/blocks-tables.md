@@ -10,7 +10,7 @@ seoDescription: "Tables, shown live."
 
 [All blocks](/blocks/)
 
-Drawn by a table inside a Card: the Table block.
+Drawn by a table inside a Card: the Table block and the Cookie list block.
 
 
 ## Table with a header row
@@ -22,3 +22,9 @@ Rows and columns of text, with a header row on top, or none, and a tinted backgr
 ## Table with striped rows and no header
 
 <div data-block="table" data-props="{&quot;header&quot;:false,&quot;striped&quot;:true,&quot;rows&quot;:[[&quot;Monday to Friday&quot;,&quot;9 am to 5 pm&quot;],[&quot;Saturday&quot;,&quot;10 am to 2 pm&quot;],[&quot;Sunday&quot;,&quot;Closed&quot;],[&quot;Holidays&quot;,&quot;Closed&quot;]]}"></div>
+
+## Cookie list
+
+The cookies your site sets are read from the site itself. The privacy policy has one too.
+
+<div data-block="cookies"></div>

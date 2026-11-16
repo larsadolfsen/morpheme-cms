@@ -121,13 +121,12 @@ export const blockPages = {
   cards: { title: 'Cards', kind: 'basic', types: ['cards', 'notice'], via: '@theme/ui/Card' },
   lists: { title: 'Lists', kind: 'basic', types: ['list', 'segmented', 'faq'], via: '@theme/ui/List' },
   steps: { title: 'Steps', kind: 'basic', types: ['steps'], via: '<ol' },
-  tables: { title: 'Tables', kind: 'basic', types: ['table'], via: '<table' },
+  tables: { title: 'Tables', kind: 'basic', types: ['table', 'cookies'], via: '<table' },
   testimonials: { title: 'Testimonials', kind: 'special', types: ['testimonials'] },
   'price-cards': { title: 'Price cards', kind: 'special', types: ['pricecards'] },
   'blog-posts': { title: 'Blog posts', kind: 'special', types: ['posts'] },
   'image-grid': { title: 'Image grid', kind: 'special', types: ['imagegrid'] },
   video: { title: 'Video', kind: 'special', types: ['video'] },
-  'cookie-list': { title: 'Cookie list', kind: 'special', types: ['cookies'] },
 };
 
 const pagesDir = join(root, 'demo/src/content/pages');
