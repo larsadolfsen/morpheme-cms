@@ -1,4 +1,4 @@
-// The rows of "List" and (always open) of "Segmented list": the theme's list (List.tsx in ../../ui/), standard (its lines between the rows are the
+// The rows of "List": the theme's list (List.tsx in ../../ui/), standard (its lines between the rows are the
 // theme's: --list-divider, none in Material) or `segmented`. Each row is an item with its icon leading it, its heading as
 // the headline and its text as the supporting text, and, with a page, the whole row is a link with an arrow after it.
 // If any row has a text, all rows have two lines, so they look alike. `className`: the classes of where it is (the
@@ -17,7 +17,7 @@ export default function Rows({
   items: ListRow[];
   segmented?: boolean;
   className?: string;
-  /** `Max rows` of "Segmented list": the rows from this one on are extra (MoreRows.tsx). */
+  /** `Max rows` of the lists: the rows from this one on are extra (MoreRows.tsx). */
   cut?: number;
   /** The setting Columns is off: one column, whatever the width (data-columns, blocks.css). */
   oneColumn?: boolean;

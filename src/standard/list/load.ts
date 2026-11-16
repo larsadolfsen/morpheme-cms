@@ -3,9 +3,10 @@ import { standard } from '@site/standard';
 import type { Load } from '../view';
 import { loadRows } from '../rows/load';
 import { withRows } from '../rows/rows.mjs';
+import shared from './shared';
 import { listOf, type ListView } from './view';
 
-export const load: Load<ListView> = async (all) => {
+export const load: Load<ListView> = async (all, { texts }) => {
   const found = await loadRows(all);
   if (found && !found.rows.length) return null;
   const props = withRows(all, found);
@@ -13,5 +14,5 @@ export const load: Load<ListView> = async (all) => {
   for (const row of (props.items ?? []) as { title?: string; href?: string }[]) {
     if (row.href && !row.title?.trim() && !titles.has(row.href)) titles.set(row.href, await standard.pageTitle(row.href));
   }
-  return listOf(props, (href) => titles.get(href));
+  return listOf(props, (href) => titles.get(href), texts.showMore ?? shared.values.showMore);
 };

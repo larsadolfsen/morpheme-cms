@@ -4,7 +4,7 @@ import { clickPreview, openEditor, virtualFile } from '../built-site.mjs';
 import { BUILT_PAGE, LIST_PAGE, block, browser, has, problems, shots, site } from './support/context.mjs';
 import { barTools, liveLists, onTestPage, openStyleMenu, pressInsert, pressMore, pressTool, ratioOf } from './support/shared.mjs';
 
-/** The rows of a List, Segmented list and FAQ are Material's: no list marker (list-style, ::marker), in the editor and in the Preview (where the page's text style, prose, must not reach them) and on the site. */
+/** The rows of a List, List - Expand and FAQ are Material's: no list marker (list-style, ::marker), in the editor and in the Preview (where the page's text style, prose, must not reach them) and on the site. */
 async function checkListMarkers(width) {
   const path = BUILT_PAGE;
   const markers = () =>
@@ -36,7 +36,7 @@ async function checkListMarkers(width) {
   await page.close();
 }
 
-/** The setting Columns of List, Segmented list and FAQ list (standard/columns.ts): on (the default, and what a block from before has) the rows sit in as many columns as fit the list's
+/** The setting Columns of List, List - Expand and FAQ list (standard/columns.ts): on (the default, and what a block from before has) the rows sit in as many columns as fit the list's
  * width, at least 344px each, never more than three; off (`data-columns="one"`) one column at most 720px wide. In the editor and in the Preview, at 375, 768 and 1280. */
 async function checkListColumns(width) {
   const label = `${width}px list columns`;
@@ -49,8 +49,8 @@ async function checkListColumns(width) {
     '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n',
     block('list', { items: rows }),
     block('list', { columns: false, items: rows }),
-    block('segmented', { items: rows }),
-    block('segmented', { columns: false, items: rows }),
+    block('expand', { items: rows }),
+    block('expand', { columns: false, items: rows }),
     block('faq', { items: rows.map((r) => ({ question: r.title, answer: r.text })) }),
     block('faq', { columns: false, items: rows.map((r) => ({ question: r.title, answer: r.text })) }),
   ].join('\n\n');
@@ -96,13 +96,13 @@ async function checkListColumns(width) {
   await page.close();
 }
 
-/** The hover action row is not drawn over a control of the block: a mouse over the first row of a Segmented list or Questions and answers shows no row over the row's chevron, at 768
+/** The hover action row is not drawn over a control of the block: a mouse over the first row of a List - Expand or Questions and answers shows no row over the row's chevron, at 768
  * and 1280 (the block shows its row once it is active). The drag handle, in the block's top left corner, shows only on the active block: it takes no pointer on a block that is only pointed at. */
 async function checkChevronUnderHoverRow(width) {
   const label = `${width}px chevron under the hover row`;
   const src = [
     '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n',
-    block('segmented', {
+    block('expand', {
       items: [
         { title: 'One', text: 'First' },
         { title: 'Two', text: 'Second' },
@@ -143,7 +143,7 @@ async function checkChevronUnderHoverRow(width) {
   await page.close();
 }
 
-/** Rows that fold out, typed in place (Segmented list, Questions and answers): the chevron opens and closes any row as on the site, Enter or Space on the focused
+/** Rows that fold out, typed in place (List - Expand, Questions and answers): the chevron opens and closes any row as on the site, Enter or Space on the focused
  * head does too, a tap on the head's own surface (not the title, not the chevron) folds nothing, and typing in the page's text does not collapse an open row.
  * What is folded is a view state: the page does not change (Undo stays off). */
 async function checkChevronRows(width) {
@@ -151,7 +151,7 @@ async function checkChevronRows(width) {
   const phone = width < 600;
   const src = [
     '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n',
-    block('segmented', {
+    block('expand', {
       items: [
         { title: 'One', text: 'First' },
         { title: 'Two', text: 'Second' },
@@ -173,7 +173,7 @@ async function checkChevronRows(width) {
   await page.waitForSelector('.inline-list-host details.list-item-expand', { timeout: 30_000 });
   const undoOff = () => page.locator('.editor-tools button[aria-label="Undo"]').first().isDisabled();
   for (const [at, name] of [
-    [0, 'Segmented list'],
+    [0, 'List - Expand'],
     [1, 'Questions and answers'],
   ]) {
     // The cursor is out of every block: no row's settings panel narrows the page while a row is tapped.

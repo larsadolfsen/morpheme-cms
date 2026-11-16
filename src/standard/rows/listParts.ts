@@ -1,8 +1,9 @@
-// What "List" and "Segmented list" share (owner, 16 Nov 2026: "The white list is the correct one": the two are one block that differs only in its
+// What "List" and "List - Expand" share (owner, 16 Nov 2026: "The white list is the correct one": the two are one block that differs only in its
 // look, so a row has the same fields, the same texts, and is edited the same way in both): the row's fields, the texts of the typed-in-place
 // toolbar and the add action, and the row's `inline` settings. The List's way is the reference: a link icon button at the end of the active row
 // (the toolbar's Link too), the row's other settings in its sheet, `Add list row` under the last row. The two blocks differ only in what they
 // show (`buttons` of a row that folds out, a page title for a row with a page and no heading) and in the look (the theme's CSS).
+import { Rows, SquaresFour } from '@phosphor-icons/react';
 import { iconOptions } from '../../icon';
 import { iconColorField } from '../../iconColor';
 import { t } from '../../i18n';
@@ -19,7 +20,7 @@ export const listTexts = {
   icon: t.blocks.list.icon,
 };
 
-/** A row's fields, in the sheet's order. `buttons`: the text button at the bottom of a row that folds out (Segmented list). `pageTitle`: a row with
+/** A row's fields, in the sheet's order. `buttons`: the text button at the bottom of a row that folds out (List - Expand). `pageTitle`: a row with
  * a page may have no heading and then shows the page's title (List); else the heading is required. */
 export const listRowFields = ({ buttons, pageTitle }: { buttons?: boolean; pageTitle?: boolean }): Field[] => [
   // The color comes first, so it is chosen before the icons below it.
@@ -35,19 +36,40 @@ export const listRowFields = ({ buttons, pageTitle }: { buttons?: boolean; pageT
         // Text buttons at the bottom of an open row (the "more" links of an old Accordion); drawn in a list that folds out.
         {
           name: 'buttons',
-          label: t.blocks.segmented.rowButtons,
-          singular: t.blocks.segmented.rowButton,
-          hint: t.blocks.segmented.rowButtonsHint,
+          label: t.blocks.expand.rowButtons,
+          singular: t.blocks.expand.rowButton,
+          hint: t.blocks.expand.rowButtonsHint,
           type: 'list',
           maxItems: 1,
           summary: 'label',
           fields: [
-            { name: 'label', label: t.blocks.segmented.rowButtonText, type: 'string', max: 30, required: true },
+            { name: 'label', label: t.blocks.expand.rowButtonText, type: 'string', max: 30, required: true },
             { name: 'href', label: t.blocks.list.href, type: 'relation', to: 'pages', required: true },
           ],
         },
       ] as Field[])
     : []),
+];
+
+/** The design of a list (`design`, owner, 16 Nov 2026): the rows on the page, or each row on its own surface, a card (Material 3's standard and
+ * segmented styles). No value is the default. The same for List and List - Expand. */
+export const designField: Field = {
+  name: 'design',
+  label: t.blocks.list.design,
+  type: 'select',
+  segments: true,
+  options: [
+    { label: t.blocks.list.designDefault, value: '', icon: Rows },
+    { label: t.blocks.list.designCard, value: 'card', icon: SquaresFour },
+  ],
+};
+
+/** The settings both lists have under their rows: how many rows show at first (`Max rows`, with a button for the rest) and a text button under the
+ * last row. */
+export const moreFields: Field[] = [
+  { name: 'maxRows', label: t.blocks.list.maxRows, type: 'number', hint: t.blocks.list.maxRowsHint },
+  { name: 'button', label: t.blocks.list.button, type: 'string', max: 30, hint: t.blocks.list.buttonHint },
+  { name: 'buttonHref', label: t.blocks.list.buttonHref, type: 'relation', to: 'pages' },
 ];
 
 /** How a list's rows are typed in place: the heading and the text where they stand, the icon in a slot, the page (and a row's buttons) in the

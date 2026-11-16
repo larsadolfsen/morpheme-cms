@@ -56,8 +56,8 @@ export const blocks: Messages['blocks'] = {
     questionMenu: 'Spørgsmål',
     questionSettings: 'Spørgsmålsindstillinger',
   },
-  segmented: {
-    label: 'Segmenteret liste',
+  expand: {
+    label: 'Liste - Udvid',
     hint: 'Rækker, der foldes ud, med link.',
     /** Read by name for any block (pageEmptyRows.ts): the rows and one row, in the sentence about an empty block. */
     items: 'Rækker',
@@ -69,18 +69,8 @@ export const blocks: Messages['blocks'] = {
     rowButton: 'knap',
     rowButtonsHint: 'Tekstknapper nederst i den åbne række, hver med en side.',
     rowButtonText: 'Knapetiket',
-    show: 'Rækker',
-    showFold: 'Udvid',
-    showAll: 'Altid åbne',
-    maxRows: 'Maksimalt antal rækker',
-    maxRowsHint: 'Hvor mange rækker der vises først. En knap under dem viser resten. Hvis feltet er tomt, vises alle rækker.',
-    showMore: 'Knapetiket (vis mere)',
-    showMoreText: 'Vis mere',
     /** The link in an open row, without the row's heading (in the site's language). */
     readMore: 'Læs mere',
-    button: 'Knapetiket',
-    buttonHint: 'En tekstknap under den sidste række. Hvis feltet er tomt, er der ingen knap.',
-    buttonHref: 'Knapside',
     more: 'Læs mere om {topic}',
     exampleTitle: 'Overskrift',
     exampleText: 'En kort tekst om rækken.',
@@ -164,6 +154,17 @@ export const blocks: Messages['blocks'] = {
     addRow: 'Tilføj listerække',
     newRow: 'Ny række',
     rowOf: (n: number, total: number) => `Række ${n} af ${total}`,
+    /** The design of a list: rows on the page, or each row on its own surface (a card). */
+    design: 'Design',
+    designDefault: 'Standard',
+    designCard: 'Kort',
+    maxRows: 'Maksimalt antal rækker',
+    maxRowsHint: 'Hvor mange rækker der vises først. En knap under dem viser resten. Hvis feltet er tomt, vises alle rækker.',
+    showMore: 'Knapetiket (vis mere)',
+    showMoreText: 'Vis mere',
+    button: 'Knapetiket',
+    buttonHint: 'En tekstknap under den sidste række. Hvis feltet er tomt, er der ingen knap.',
+    buttonHref: 'Knapside',
   },
   points: {
     label: 'Punkter med ikon',

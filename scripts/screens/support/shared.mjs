@@ -260,7 +260,7 @@ export async function checkSavedLabel(page, width) {
 export const inlineBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row', rowLink: true },
   { name: 'steps', hint: 'Numbered steps.', add: 'Add step', noEdit: true },
-  { name: 'segmented', hint: 'Rows that expand, with a link.', add: 'Add list row', rowLink: true, surface: true },
+  { name: 'expand', hint: 'Rows that expand, with a link.', add: 'Add list row', rowLink: true, surface: true },
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true, start: 3 },
   { name: 'pricecards', hint: 'Prices with what is included.', add: 'Add price card', surface: true, field: 'name' },
   { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },

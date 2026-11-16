@@ -1,9 +1,14 @@
 // What "List" shows (its view, drawn by the theme's View.tsx and Rows.tsx): each row's icon, heading, text and page. A row with a page and no heading of its own has the page's title (the pages' links of "Links" are
 // rows like that), one whose page is missing is left out, and one with only a text keeps it. In the editor: viewOf, from the site's pages; on the site: load.ts. (The label,
 // heading and intro the block had are the text's own now, lib/remark-list-head.mjs.)
+import { sharedIn } from '../../shared';
 import type { ViewOf } from '../view';
 import { editorRows } from '../rows/view';
 import { withRows } from '../rows/rows.mjs';
+import { maxRowsOf } from '../rows/maxRows.mjs';
+import listShared from './shared';
+
+export { cutAt, maxRowsOf } from '../rows/maxRows.mjs';
 import { columnsOf, type ColumnsView } from '../columns';
 
 /** `iconColor`: a color role of the site (src/iconColor.ts), Primary without one. */
@@ -15,14 +20,39 @@ export type ListRow = {
   href?: string;
   buttons?: { label: string; href: string }[];
 };
-export type ListView = ColumnsView & { items: ListRow[] };
+/** `design`: each row on its own surface (`card`), else the rows on the page. `max`: `Max rows`, how many rows show before the button (maxRows.mjs). */
+export type ListView = ColumnsView & {
+  items: ListRow[];
+  design?: 'card';
+  max?: number;
+  /** A text button under the last row. */
+  button?: { label: string; href?: string };
+  /** The text of the button that shows the rest of the rows (shared text, "Blocks" › "List"). */
+  showMore: string;
+};
+
+/** What the block's fields say besides its rows: its design, `Max rows` and the text button under the last row (the same for "List - Expand"). */
+export const listSettings = (props: Record<string, any>): Pick<ListView, 'design' | 'max' | 'button'> => {
+  const label = typeof props.button === 'string' ? props.button.trim() : '';
+  return {
+    design: props.design === 'card' ? 'card' : undefined,
+    max: maxRowsOf(props.maxRows),
+    button: label ? { label, href: props.buttonHref || undefined } : undefined,
+  };
+};
 
 /** A row as its fields write it: without a heading of its own when it has a page. */
 export type ListRowProps = Partial<ListRow>;
 
 /** The view from the block's fields; `titleOf`: a page's title by its address, undefined when there is no such page. */
-export const listOf = (props: Record<string, any>, titleOf: (href: string) => string | undefined): ListView => ({
+export const listOf = (
+  props: Record<string, any>,
+  titleOf: (href: string) => string | undefined,
+  showMore: string = listShared.values.showMore as string,
+): ListView => ({
   ...columnsOf(props),
+  ...listSettings(props),
+  showMore,
   items: ((props.items ?? []) as ListRowProps[]).flatMap((row) => {
     const title = row.title?.trim() || (row.href ? titleOf(row.href) : undefined);
     // A row with no heading and no page still has its text: it is shown (with an empty heading), never dropped. A row with nothing in it, or whose
@@ -34,5 +64,9 @@ export const listOf = (props: Record<string, any>, titleOf: (href: string) => st
 
 export const viewOf: ViewOf<ListView> = (props, data) => {
   const byPath = new Map(data.site.pages.map((p) => [p.path, p.title]));
-  return listOf(withRows(props, editorRows(props, data)), (href) => byPath.get(href));
+  return listOf(
+    withRows(props, editorRows(props, data)),
+    (href) => byPath.get(href),
+    sharedIn(data.site, 'list', listShared.values).showMore,
+  );
 };

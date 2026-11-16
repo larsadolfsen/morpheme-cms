@@ -37,7 +37,7 @@ test("the state layers and the focus ring are the List's own tokens, the corner 
 });
 
 test('the FAQ is drawn on the part, with no accordion rules of its own left', () => {
-  assert.match(accordion, /<List expand className="block-accordion"[^>]*>/);
+  assert.match(accordion, /<List expand className=\{card \? 'block-accordion block-accordion-card' : 'block-accordion'\}[^>]*>/);
   assert.match(accordion, /<ListItem[\s\S]*?\bexpand\b/);
   assert.doesNotMatch(accordion.replace(/^\/\/.*$/gm, ''), /<details|<summary/);
   for (const old of [

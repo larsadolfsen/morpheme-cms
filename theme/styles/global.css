@@ -893,11 +893,13 @@
     color: var(--mo-primary);
   }
 
-  /* "Questions and answers": the List "expand" kind (ui.css) with each item on its own surface container, 2px apart, 16px outer and 4px
-     inner corners, and a state layer on the item pointed at. */
+  /* The List "expand" kind (ui.css) of "List - Expand" and "FAQ list". Its default design is the rows on the page with a line between them; its
+     card design has each item on its own surface container, 2px apart, 16px outer and 4px inner corners, and a state layer on the item pointed at. */
   .block-accordion {
     --list-expand-surface: transparent;
     --list-expand-shadow: none;
+  }
+  .block-accordion-card {
     --list-expand-gap: 0.125rem;
     --list-expand-item-surface: var(--mo-surface-container);
     --list-expand-item-radius: var(--mo-shape-extra-small);

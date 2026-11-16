@@ -19,18 +19,21 @@ export default function Accordion({
   several,
   cut,
   oneColumn,
+  card,
 }: {
   rows: AccordionRow[];
   group?: string;
   several?: boolean;
-  /** `Max rows` of "Segmented list": the rows from this one on are extra (MoreRows.tsx). */
+  /** `Max rows` of the lists: the rows from this one on are extra (MoreRows.tsx). */
   cut?: number;
   /** The setting Columns is off: one column, whatever the width (data-columns, blocks.css). */
   oneColumn?: boolean;
+  /** Design `card`: each row on its own surface (.block-accordion-card, global.css); else the rows are on the page, with a line between them. */
+  card?: boolean;
 }) {
   const own = useId();
   return (
-    <List expand className="block-accordion" data-columns={oneColumn ? 'one' : undefined}>
+    <List expand className={card ? 'block-accordion block-accordion-card' : 'block-accordion'} data-columns={oneColumn ? 'one' : undefined}>
       {rows.map((row, i) => (
         <ListItem
           key={i}

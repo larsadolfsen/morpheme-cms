@@ -1,10 +1,10 @@
-// `Max rows` of "Segmented list": the list (its rows after the first `cut` carry data-extra, put on them by Accordion.tsx and
+// `Max rows` of the lists: the list (its rows after the first `cut` carry data-extra, put on them by Accordion.tsx and
 // list/Rows.tsx) in a wrapper with the text button `Show more` under it. All rows are in the HTML; the button is hidden and all
-// rows show until script (segmented/script.ts on the site, here in the editor's preview) hides the extra ones and shows the
+// rows show until script (list/script.ts on the site, here in the editor's preview) hides the extra ones and shows the
 // button. The button is a toggle for aria-expanded and names the list in aria-controls; after it is used it is gone.
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import Button from '@theme/ui/Button';
-import { cutMoreRows, showMoreRows } from '@theme/blocks/segmented/more';
+import { cutMoreRows, showMoreRows } from '@theme/blocks/list/more';
 
 export default function MoreRows({
   cut,

@@ -1,19 +1,18 @@
-// What "Segmented list" shows (its view, drawn by the theme's View.tsx): its head, its rows (an icon, a heading, a text and a page),
-// whether they fold out (closed to begin with, one open at a time with `only`) or are always open (`all`, a "List" from before with each
-// row on its own surface), and the text button under the last row. In the editor: viewOf; on the site: load.ts.
+// What "List - Expand" shows (its view, drawn by the theme's View.tsx): its head, its rows (an icon, a heading, a text and a page),
+// that fold out (closed to begin with, one open at a time with `only`), its design (the rows on the page, or each on its own surface: `card`)
+// and the text button under the last row. In the editor: viewOf; on the site: load.ts.
 import { siteT } from '../../i18n';
 import { oneLine } from '../../../lib/one-line.mjs';
 import { sharedIn } from '../../shared';
-import segmentedShared from './shared';
-import { maxRowsOf } from './maxRows.mjs';
+import listShared from '../list/shared';
 
-export { cutAt, maxRowsOf } from './maxRows.mjs';
+export { cutAt, maxRowsOf } from '../rows/maxRows.mjs';
 import type { ViewOf } from '../view';
 import { editorRows } from '../rows/view';
 import { withRows } from '../rows/rows.mjs';
 import { headOf, type HeadView } from '../head';
 import { columnsOf, type ColumnsView } from '../columns';
-import type { ListRow } from '../list/view';
+import { listSettings, type ListRow, type ListView } from '../list/view';
 import { iconColorOf } from '../../iconColor';
 
 /** A row that folds out: its heading, its text as HTML (empty without one), its icon and its page with the link's text. */
@@ -27,20 +26,15 @@ export type FoldRow = {
   buttons?: { label: string; href: string }[];
 };
 
-export type SegmentedView = HeadView &
-  ColumnsView & {
-    /** The rows folded out (closed, one open at a time when `group`) or always open (`all`: the rows of a "List"). */
-    all: boolean;
+export type ExpandView = HeadView &
+  ColumnsView &
+  Pick<ListView, 'design' | 'max' | 'button' | 'showMore'> & {
+    /** The rows folded out: closed, one open at a time when `group`. */
     group?: string;
     /** Any number of rows can be open at once (`only` is off). */
     several: boolean;
     items: ListRow[];
     rows: FoldRow[];
-    button?: { label: string; href?: string };
-    /** `Max rows`: how many rows show before the button; empty or not a whole number of at least 1: all rows (cutAt). */
-    max?: number;
-    /** The text of the button that shows the rest of the rows (shared text, "Blocks" › "Segmented list"). */
-    showMore: string;
   };
 
 const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -63,13 +57,12 @@ const buttonsOf = (buttons: unknown): FoldRow['buttons'] => {
 };
 
 /** The view from the block's fields, without what only the site can know (its group). */
-export const segmentedOf = (props: Record<string, any>, showMore: string = segmentedShared.values.showMore as string): SegmentedView => {
+export const expandOf = (props: Record<string, any>, showMore: string = listShared.values.showMore as string): ExpandView => {
   const items = (props.items ?? []) as ListRow[];
-  const label = typeof props.button === 'string' ? props.button.trim() : '';
   return {
     ...headOf(props),
     ...columnsOf(props),
-    all: props.show === 'all',
+    ...listSettings(props),
     several: props.only === false,
     items,
     rows: items.map((r) => ({
@@ -78,18 +71,15 @@ export const segmentedOf = (props: Record<string, any>, showMore: string = segme
       icon: r.icon || undefined,
       iconColor: r.icon ? iconColorOf(r.iconColor) : undefined,
       href: r.href || undefined,
-      link: r.href ? siteT.blocks.segmented.readMore : undefined,
+      link: r.href ? siteT.blocks.expand.readMore : undefined,
       buttons: buttonsOf(r.buttons),
     })),
-    button: label ? { label, href: props.buttonHref || undefined } : undefined,
-    max: maxRowsOf(props.maxRows),
     showMore,
   };
 };
 
 /** In the editor a row with a page and no text of its own says it shows the beginning of the page's text. */
-export const viewOf: ViewOf<SegmentedView> = (props, data) => {
-  const view = segmentedOf(withRows(props, editorRows(props, data)), sharedIn(data.site, 'segmented', segmentedShared.values).showMore);
-  if (view.all) return view;
+export const viewOf: ViewOf<ExpandView> = (props, data) => {
+  const view = expandOf(withRows(props, editorRows(props, data)), sharedIn(data.site, 'list', listShared.values).showMore);
   return { ...view, rows: view.rows.map((r) => (!r.html && r.href ? { ...r, html: `<p>${siteT.blocks.accordion.opening}</p>` } : r)) };
 };
