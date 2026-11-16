@@ -1171,7 +1171,7 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.25rem 0 1rem 1rem;
+    padding: 0.25rem 0.25rem 1rem;
   }
   .md-drawer-name {
     font-size: var(--type-title-medium-size);
