@@ -180,7 +180,14 @@
   .prose > :last-child {
     margin-bottom: 0;
   }
-  /* The text's headings: a headline, a title under it and a smaller title under that (the type scale, ui.css). */
+  /* The text's headings, one role of the type scale for each level (tokens/ui/ref.css): H1 display small, H2 headline medium, H3 title
+     large, H4 title medium, H5 title small, H6 label medium. */
+  .prose :where(h1) {
+    font-size: var(--type-display-small-size);
+    line-height: var(--type-display-small-line-height);
+    font-weight: var(--type-display-small-weight);
+    letter-spacing: var(--type-display-small-tracking);
+  }
   .prose :where(h2) {
     font-size: var(--type-headline-medium-size);
     line-height: var(--type-headline-medium-line-height);
@@ -198,6 +205,27 @@
     line-height: var(--type-title-medium-line-height);
     font-weight: var(--type-title-medium-weight);
     letter-spacing: var(--type-title-medium-tracking);
+  }
+  .prose :where(h5) {
+    font-size: var(--type-title-small-size);
+    line-height: var(--type-title-small-line-height);
+    font-weight: var(--type-title-small-weight);
+    letter-spacing: var(--type-title-small-tracking);
+  }
+  .prose :where(h6) {
+    font-size: var(--type-label-medium-size);
+    line-height: var(--type-label-medium-line-height);
+    font-weight: var(--type-label-medium-weight);
+    letter-spacing: var(--type-label-medium-tracking);
+  }
+  /* A quote in the text: body large, in the regular weight and upright (the plugin sets 500 and italic); its line beside it and its
+     quote marks are the plugin's, in the theme's primary colour (--tw-prose-quote-borders). */
+  .prose :where(blockquote) {
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
+    font-style: normal;
   }
   /* Code in a line (cookie names in the privacy policy): on a tint, without the plugin's backticks. */
   .prose :where(:not(pre) > code):not(:where(.not-prose code)) {
