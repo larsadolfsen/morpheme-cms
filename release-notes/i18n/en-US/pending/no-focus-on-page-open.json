@@ -1,0 +1,6 @@
+{
+  "id": "no-focus-on-page-open",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A block’s page and Crop open with no focus ring on the back arrow"
+}

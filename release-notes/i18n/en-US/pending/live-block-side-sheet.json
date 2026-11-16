@@ -1,7 +1,0 @@
-{
-  "id": "live-block-side-sheet",
-  "kind": "paragraph",
-  "mark": "improvement",
-  "title": "Saving a page",
-  "text": "A page has one way to save. It saves itself as a draft while you write, and Publish is at the top right. On a computer a block’s settings change the page at once and Undo takes a change back; on a phone they open on a page of their own with Save at the bottom."
-}

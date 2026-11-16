@@ -2198,6 +2198,7 @@ async function barTools(page) {
   const button = page.locator('.editor-tools [aria-label="More"]:visible');
   if (await button.count()) {
     await button.first().click();
+    await menusSettled(page);
     more = await page.evaluate(() =>
       [...document.querySelectorAll('[role=menu][aria-label="More"] [role^=menuitem]')].map((x) => ({
         label: x.textContent.trim(),
@@ -2220,8 +2221,14 @@ function rightEndProblem(names, ends, edge, hasDivider) {
   return '';
 }
 
+/** Waits until the menus that are opening have stopped (the theme's menu is a popover that scales in from 97%), so a size read is the real one. */
+function menusSettled(page) {
+  return page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))));
+}
+
 /** The icons of the menus that are open (`[role=menu]`) that are not 20 x 20 px: a list of "<row>: <w> x <h>". */
-function menuIconProblems(page) {
+async function menuIconProblems(page) {
+  await menusSettled(page);
   return page.evaluate(() => {
     const bad = [];
     for (const svg of document.querySelectorAll('[role=menu] svg')) {
@@ -2335,6 +2342,7 @@ async function checkTextBar(width = 360) {
   const more = page.locator('.editor-tools [aria-label="More"]');
   await more.click();
   await page.waitForSelector('[role=menu][aria-label="More"]', { timeout: 3000 });
+  await menusSettled(page);
   const menu = await page.evaluate(() => {
     const m = document.querySelector('[role=menu][aria-label="More"]');
     const r = m.getBoundingClientRect();
@@ -2417,13 +2425,15 @@ async function checkTextBar(width = 360) {
   await page.setViewportSize({ width, height: 740 });
   await page.waitForTimeout(200);
   // The Text style menu: one button, at most 8 rows of 44 dp, a page's first heading is Main heading.
-  const rowsOf = () =>
-    page.evaluate(() =>
+  const rowsOf = async () => {
+    await menusSettled(page);
+    return page.evaluate(() =>
       [...document.querySelectorAll('[role=menu] [role^=menuitem]')].map((x) => ({
         name: x.textContent.trim(),
         h: x.getBoundingClientRect().height,
       })),
     );
+  };
   const styleTools = (await barTools(page)).names.filter((n) => n.startsWith('Text style'));
   if (styleTools.length !== 1) problems.push(`${label}: ${styleTools.length} Text style tools on the bar and in the ⋮, not 1`);
   await openStyleMenu(page);
@@ -3560,9 +3570,7 @@ async function checkBlockRow(width, options = {}) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
-  await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
+  await insertBlock(page, 'Rows with icon, heading and text.', 1, 0);
   await page.keyboard.type('Design');
   const row = page.locator('.site-block-row');
   if (reduced) await page.waitForTimeout(100);
@@ -3875,10 +3883,8 @@ async function checkBlockVisibility(width) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   for (let i = 0; i < 3; i++) {
-    await pressInsert(page, 'click');
-    await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
-    await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
-    await page.waitForTimeout(400);
+    // Each new block lands above the ones before it; go on once it is the active one (insertBlock).
+    await insertBlock(page, 'Rows with icon, heading and text.', i + 1, 0);
     await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
     await page.keyboard.press('End');
     await page.keyboard.press('Enter');
@@ -4008,9 +4014,7 @@ async function checkBlockRowNarrow() {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
-  await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
+  await insertBlock(page, 'Rows with icon, heading and text.', 1, 0);
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(900);
   await page.locator('.site-block-card').first().hover();
@@ -4091,6 +4095,65 @@ async function checkInsertBlock(width, height = 800) {
   await page
     .waitForSelector('dialog[open]', { timeout: 4000 })
     .catch(() => problems.push(`${label}: Insert block did not open the block picker`));
+  await page.close();
+}
+
+/** The editor's floating parts are placed by CSS anchor positioning (Menu and the tooltip in ui.tsx): a bar menu (Text style, at 375 touch, 768 and 1280) and a tooltip (768 and 1280, with the mouse) are open as popovers, inside the screen and next to the button that opened them. */
+async function checkAnchoredParts(width, height, touch) {
+  const label = `${width}px anchored parts${touch ? ' (touch)' : ''}`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  const near = (m, b, w, h) => {
+    const below = m.top - b.bottom;
+    const above = b.top - m.bottom;
+    const inside = m.left >= 7.5 && m.top >= 7.5 && m.right <= w - 7.5 && m.bottom <= h - 7.5;
+    return { inside, next: (below >= -1 && below <= 12) || (above >= -1 && above <= 12), below, above };
+  };
+  // The bar menu.
+  await openStyleMenu(page);
+  await page.waitForSelector('[role=menu]');
+  await menusSettled(page);
+  const menu = await page.evaluate(() => {
+    const m = [...document.querySelectorAll('[role=menu]')].find((x) => x.getClientRects().length && x.matches(':popover-open'));
+    const b =
+      document.querySelector('.editor-tools [aria-label^="Text style"]:not([hidden])') ??
+      document.querySelector('.editor-tools [aria-label="More"]');
+    if (!m || !b) return null;
+    return { m: m.getBoundingClientRect().toJSON(), b: b.getBoundingClientRect().toJSON(), w: innerWidth, h: innerHeight };
+  });
+  if (!menu) problems.push(`${label}: no open bar menu popover`);
+  else {
+    const at = near(menu.m, menu.b, menu.w, menu.h);
+    if (!at.inside) problems.push(`${label}: the bar menu is not inside the screen (${JSON.stringify(menu.m)})`);
+    if (!at.next) problems.push(`${label}: the bar menu is not next to its button (below ${at.below}, above ${at.above})`);
+  }
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  if (await page.locator('[role=menu]:popover-open').count()) problems.push(`${label}: Escape did not close the bar menu`);
+  // The tooltip, with the mouse.
+  if (!touch) {
+    const button = page.locator('.editor-tools [aria-label="Bold"]:visible').first();
+    await button.hover();
+    await page.waitForTimeout(900);
+    const tip = await page.evaluate(() => {
+      const t = document.querySelector('.editor-tooltip:popover-open');
+      const b = document.querySelector('.editor-tools [aria-label="Bold"]');
+      return t && b
+        ? { m: t.getBoundingClientRect().toJSON(), b: b.getBoundingClientRect().toJSON(), w: innerWidth, h: innerHeight }
+        : null;
+    });
+    if (!tip) problems.push(`${label}: no tooltip over Bold`);
+    else {
+      const at = near(tip.m, tip.b, tip.w, tip.h);
+      if (!at.inside) problems.push(`${label}: the tooltip is not inside the screen (${JSON.stringify(tip.m)})`);
+      if (!at.next) problems.push(`${label}: the tooltip is not next to its button (below ${at.below}, above ${at.above})`);
+    }
+  }
   await page.close();
 }
 
@@ -5363,6 +5426,49 @@ async function checkTwoFinger() {
   await page.close();
 }
 
+/** Puts a block in at the cursor and waits until it is the active block, as a person sees it. A new block takes its first row only once the insert dialog has let
+ * go of the focus (MarkdownEditor.tsx, startAt: up to 1.5 s on a slow machine), and until then the block that was active still is, with its row and its handle; and
+ * the row of that block matches `.inline-list-row-active` too, so that selector is no sign. The wait is for the state itself: `count` blocks, the new one (`at`) the
+ * only one with a row, that row open (no height animation running). A click or a key before that would go to the field the new block is about to take. */
+async function insertBlock(page, hint, count, at) {
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: hint }).first().click();
+  await page.waitForFunction(
+    ([n, i]) => {
+      const blocks = [...document.querySelectorAll('.ProseMirror .site-block')];
+      const open = blocks.filter((b) => b.classList.contains('site-block-has-row'));
+      return (
+        blocks.length === n &&
+        open.length === 1 &&
+        open[0] === blocks[i] &&
+        !!open[0].querySelector('.inline-list-row-active') &&
+        !document.querySelector('.ProseMirror .site-block-row-moving')
+      );
+    },
+    [count, at],
+    { timeout: 10000 },
+  );
+}
+
+/** The opacity of the handle of the block at `index`, read once it is `want` and no transition runs on it (the handle fades): the wait is for that condition, never a
+ * fixed time and never two equal reads, which a stalled frame also gives. After 3 s it returns what the handle shows, so the caller reports it. */
+async function handleOpacity(page, index, want) {
+  await page
+    .waitForFunction(
+      ([i, o]) => {
+        const el = document.querySelectorAll('.ProseMirror .site-block-handle')[i];
+        return !!el && getComputedStyle(el).opacity === o && el.getAnimations().length === 0;
+      },
+      [index, want],
+      { timeout: 3000 },
+    )
+    .catch(() => {});
+  return page
+    .locator('.ProseMirror .site-block-handle')
+    .nth(index)
+    .evaluate((el) => getComputedStyle(el).opacity);
+}
+
 /** Dragging a block by its handle (blockHandle in MarkdownEditor.tsx): every block has a handle at its top right, at least 44 px, always shown with a
  * touch and on the block pointed at with a mouse; dragging it above the block before moves the block there (the order in the text changes), a tap on it
  * does nothing. A touch drag is made with real touch events. */
@@ -5378,19 +5484,13 @@ async function checkBlockDrag(width) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  const insert = async (hint) => {
-    await pressInsert(page, 'click');
-    await page.locator('dialog[open] button', { hasText: hint }).first().click();
-    await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
-    await page.waitForTimeout(400);
-  };
-  await insert('Numbered steps.');
+  const insert = (hint, count, at) => insertBlock(page, hint, count, at);
+  await insert('Numbered steps.', 1, 0);
   await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
   await page.keyboard.press('End');
   await page.keyboard.press('Enter');
-  await insert('Rows with icon, heading and text.');
-  // The active block's action row has opened (it moves the handle and the blocks below): measure after it has settled.
-  await page.waitForTimeout(900);
+  // The new block lands above the first one (the cursor is in the line under 'Hello'), and its action row has opened (it moves the handle and the blocks below).
+  await insert('Rows with icon, heading and text.', 2, 0);
   // Away from any block's row, so no bar or keyboard is in the way.
   const names = () => page.locator('.ProseMirror .site-block-card').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   const before = await names();
@@ -5403,36 +5503,25 @@ async function checkBlockDrag(width) {
   const box = (i) => handles.nth(i).boundingBox();
   const first = await box(0);
   if (first.width < 44 || first.height < 44) problems.push(`${label}: a handle is smaller than 44 x 44 (${first.width}x${first.height})`);
-  // The handle fades (a transition on its opacity): read it once it has stopped changing, two reads 120 ms apart the same (at most 2 s), so a
-  // read in the middle of the fade is never taken for the end of it.
-  const opacity = async () => {
-    const read = () => handles.nth(1).evaluate((el) => getComputedStyle(el).opacity);
-    let now = await read();
-    for (let i = 0; i < 16; i++) {
-      await page.waitForTimeout(120);
-      const next = await read();
-      if (next === now) return now;
-      now = next;
-    }
-    return now;
-  };
+  const opacity = (want) => handleOpacity(page, 1, want);
   if (phone) {
     // A touch sees a handle only on the active block (it is the end of the block's row); go into the second block first.
-    if ((await opacity()) !== '0') problems.push(`${label}: a touch sees the handle of a block that is not active`);
+    if ((await opacity('0')) !== '0') problems.push(`${label}: a touch sees the handle of a block that is not active`);
     const field = page.locator('.ProseMirror .site-block').nth(1).locator('.inline-list-row [data-field]').first();
-    for (let tries = 0; tries < 3 && (await opacity()) !== '1'; tries++) {
+    // The tap may land while the page still moves (a row opening or closing): tap again until the block is active (the wait is for its handle to show).
+    for (let tries = 0; tries < 3; tries++) {
       await field.tap({ position: { x: 8, y: 8 } });
-      await page.waitForTimeout(1100);
+      if ((await opacity('1')) === '1') break;
     }
-    if ((await opacity()) !== '1') problems.push(`${label}: a touch does not see the handle of the active block`);
+    if ((await opacity('1')) !== '1') problems.push(`${label}: a touch does not see the handle of the active block`);
   } else {
     await page.mouse.move(5, 5);
     await page.waitForTimeout(400);
-    if ((await opacity()) !== '0') problems.push(`${label}: a mouse sees a handle before it points at the block`);
+    if ((await opacity('0')) !== '0') problems.push(`${label}: a mouse sees a handle before it points at the block`);
     const b = await box(1);
     await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
     await page.waitForTimeout(400);
-    if ((await opacity()) !== '1') problems.push(`${label}: a mouse does not see the handle of the block it points at`);
+    if ((await opacity('1')) !== '1') problems.push(`${label}: a mouse does not see the handle of the block it points at`);
   }
   // A tap on the handle moves nothing.
   const second = await box(1);
@@ -5495,11 +5584,10 @@ async function checkBlockMove(width) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  for (const hint of ['Numbered steps.', 'Rows with icon, heading and text.', 'Numbered steps.']) {
-    await pressInsert(page, 'click');
-    await page.locator('dialog[open] button', { hasText: hint }).first().click();
-    await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
-    await page.waitForTimeout(400);
+  const hints = ['Numbered steps.', 'Rows with icon, heading and text.', 'Numbered steps.'];
+  for (const [n, hint] of hints.entries()) {
+    // Each new block lands above the ones before it (the cursor is in the line under 'Hello'); the check goes on once it is the active one.
+    await insertBlock(page, hint, n + 1, 0);
     await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
     await page.keyboard.press('End');
     await page.keyboard.press('Enter');
@@ -5534,13 +5622,13 @@ async function checkBlockMove(width) {
   if (phone) {
     // The handle is the end of the active block's row: go into the first block (a tap on another block first closes the active one's row), then press its handle.
     const handle0 = blocks.nth(0).locator('.site-block-handle');
-    for (let tries = 0; tries < 3 && (await handle0.evaluate((el) => getComputedStyle(el).opacity)) !== '1'; tries++) {
+    for (let tries = 0; tries < 3; tries++) {
       await blocks
         .nth(0)
         .locator('.inline-list-row [data-field]')
         .first()
         .tap({ position: { x: 8, y: 8 } });
-      await page.waitForTimeout(1100);
+      if ((await handleOpacity(page, 0, '1')) === '1') break;
     }
     const cdp = await page.context().newCDPSession(page);
     const [hx, hy] = await centre(handle0);
@@ -5668,11 +5756,9 @@ async function checkBlockSelect(width) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  for (const hint of ['Numbered steps.', 'Rows with icon, heading and text.']) {
-    await pressInsert(page, 'click');
-    await page.locator('dialog[open] button', { hasText: hint }).first().click();
-    await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
-    await page.waitForTimeout(400);
+  for (const [n, hint] of ['Numbered steps.', 'Rows with icon, heading and text.'].entries()) {
+    // Each new block lands above the ones before it; go on once it is the active one (insertBlock).
+    await insertBlock(page, hint, n + 1, 0);
     // Away from the rows, so the next block goes after this one.
     await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
     await page.keyboard.press('End');
@@ -5704,14 +5790,12 @@ async function checkBlockSelect(width) {
   const handle0 = blocks.nth(0).locator('.site-block-handle');
   if (phone) {
     // The handle is the end of the active block's row: go into the first block (a tap on another block first closes the active one's row), then press its handle.
-    for (let tries = 0; tries < 3 && (await handle0.evaluate((el) => getComputedStyle(el).opacity)) !== '1'; tries++) {
+    for (let tries = 0; tries < 3 && (await handleOpacity(page, 0, '1')) !== '1'; tries++)
       await blocks
         .nth(0)
         .locator('.inline-list-row [data-field]')
         .first()
         .tap({ position: { x: 8, y: 8 } });
-      await page.waitForTimeout(1100);
-    }
     const cdp = await page.context().newCDPSession(page);
     const [hx, hy] = await centre(handle0);
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: hx, y: hy }] });
@@ -6063,13 +6147,24 @@ async function checkUserInvalid(width, height, theme) {
         height: Math.round(rect.height),
       };
     });
+  // The edge moves through the theme's motion (a transition), so a read in the frame after a blur can still give the old value.
+  // Wait, frame by frame and bounded, until the read is what the unit expects; on a timeout the last read is checked as before.
+  const readUntil = async (ok) => {
+    const end = Date.now() + 5000;
+    let now = await read();
+    while (!ok(now) && Date.now() < end) {
+      await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => done())));
+      now = await read();
+    }
+    return now;
+  };
   const before = await read();
   if (before.invalid || before.said || before.icon || !before.supporting || before.aria === 'true')
     problems.push(`${label}: marked before it was touched (${JSON.stringify(before)})`);
   await input.focus();
   await input.fill('name@');
   await input.blur();
-  const wrong = await read();
+  const wrong = await readUntil((now) => now.edge !== before.edge);
   if (!wrong.invalid || !wrong.said || wrong.supporting || !wrong.icon || wrong.aria !== 'true' || !wrong.described)
     problems.push(`${label}: not marked after a wrong text was typed and left (${JSON.stringify(wrong)})`);
   if (wrong.edge === before.edge) problems.push(`${label}: the edge did not change to the error's`);
@@ -6078,9 +6173,10 @@ async function checkUserInvalid(width, height, theme) {
   await input.focus();
   await input.fill('name@example.com');
   await input.blur();
-  const right = await read();
+  const right = await readUntil((now) => now.edge === before.edge);
   if (right.invalid || right.said || right.icon || !right.supporting || right.aria === 'true' || right.described)
     problems.push(`${label}: still marked after it was put right (${JSON.stringify(right)})`);
+  if (right.edge !== before.edge) problems.push(`${label}: the edge did not return to the normal one after it was put right`);
   // The error line is read once, with the field (aria-describedby), not as an alert; and a number that cannot be read (validity.badInput)
   // says so in words instead of going red with none.
   if (await page.locator('[data-part="TextField"] .text-field-invalid-text[role]').count())
@@ -6457,6 +6553,226 @@ async function checkBlockSettingsPane(width) {
     if (got.dialogs) problems.push(`${label}: a dialog is open over the page while the details are in the pane`);
     if (!got.close) problems.push(`${label}: the pane has no close button`);
     if (!got.clear) problems.push(`${label}: the list is covered by the pane`);
+  }
+  await page.close();
+}
+
+/** The link of some text, a link added to the list of profiles (Business › Social media) and an item of the main menu: from 600 dp each is the pane beside the page, not a dialog (owner, 15 Nov 2026: dialogs are only for short messages, not for settings), and closing the pane gives the focus back to what opened it; on a phone each is still the sheet from the bottom. */
+async function checkLinkAndItemPanes(width) {
+  const phone = width < 600;
+  const label = `${width}px link and item panes`;
+  const shown = (page) =>
+    page.evaluate(() => ({
+      pane: !!document.querySelector('aside.editor-side-sheet:not([hidden])'),
+      dialogs: document.querySelectorAll('dialog[open]').length,
+    }));
+  const expect = async (page, what) => {
+    await page.waitForTimeout(700);
+    // The pane and the closed sheet do not both hold the fields: no id twice in the page.
+    const twice = await page.evaluate(() => {
+      const seen = new Set();
+      const twice = [];
+      for (const e of document.querySelectorAll('[id]')) {
+        if (seen.has(e.id)) twice.push(e.id);
+        seen.add(e.id);
+      }
+      return twice;
+    });
+    if (twice.length) problems.push(`${label}: ${what} has the same id twice in the page (${twice.slice(0, 3).join(', ')})`);
+    const got = await shown(page);
+    if (phone) {
+      if (got.pane || got.dialogs !== 1)
+        problems.push(`${label}: ${what} is not the sheet from the bottom on a phone (${JSON.stringify(got)})`);
+    } else {
+      if (!got.pane) problems.push(`${label}: ${what} is not the pane beside the page`);
+      if (got.dialogs) problems.push(`${label}: ${what} has a dialog open over the page`);
+    }
+  };
+  const closeIt = async (page, what, opener) => {
+    if (phone) return void (await page.keyboard.press('Escape'));
+    await page.locator('aside.editor-side-sheet [data-side-sheet-close]').last().click();
+    await page.waitForTimeout(500);
+    if (await page.locator('aside.editor-side-sheet:not([hidden])').count()) problems.push(`${label}: the pane of ${what} did not close`);
+    if (opener && !(await page.evaluate((sel) => document.activeElement?.matches(sel), opener)))
+      problems.push(`${label}: after the pane of ${what} closed, the focus did not go back to what opened it`);
+  };
+  const open = async () => {
+    const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await openEditor(page, site);
+    return page;
+  };
+  // The profiles: Add link.
+  let page = await open();
+  await page.evaluate(() => (location.hash = '#company/social-media'));
+  await page.getByRole('button', { name: 'Add link' }).first().waitFor({ timeout: 10_000 });
+  await page.getByRole('button', { name: 'Add link' }).first().click();
+  await expect(page, 'Add link');
+  await closeIt(page, 'Add link', null);
+  await page.close();
+  // The main menu: an item.
+  page = await open();
+  await page.evaluate(() => (location.hash = '#src/data/menu.json'));
+  const addItem = page
+    .getByRole('button', { name: /^Add/ })
+    .filter({ hasNotText: /^Add link/ })
+    .first();
+  await addItem.waitFor({ timeout: 10_000 });
+  await addItem.click();
+  await expect(page, "a menu item's fields");
+  await page.close();
+  // The link of some text (the bar's Link, with the text selected).
+  if (!phone) {
+    page = await open();
+    await page.evaluate(() => (location.hash = '#new/pages'));
+    await page.waitForSelector('.ProseMirror');
+    await page.click('.ProseMirror');
+    await page.keyboard.type('Hello world');
+    await page.keyboard.press('ControlOrMeta+a');
+    await page.waitForTimeout(400);
+    await page.getByRole('button', { name: 'Link', exact: true }).first().click();
+    await expect(page, 'the link of a text');
+    await closeIt(page, 'the link of a text', null);
+    await page.close();
+    // The link of a text while a block's pane is open: it opens on top of that pane with a back arrow, and Back shows the block's pane again.
+    page = await open();
+    await page.evaluate(() => (location.hash = '#new/pages'));
+    await page.waitForSelector('.ProseMirror');
+    await page.click('.ProseMirror');
+    await page.keyboard.type('Hello world');
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(300);
+    await pressInsert(page, 'click');
+    await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
+    await page.waitForTimeout(700);
+    await page.getByText('Hello world').first().dblclick();
+    await page.waitForTimeout(400);
+    // The bar has less room beside the block's pane: Link is then in the More menu.
+    const direct = page.getByRole('button', { name: 'Link', exact: true });
+    if (await direct.count()) await direct.first().click();
+    else {
+      await page.getByRole('button', { name: 'More', exact: true }).first().dispatchEvent('click');
+      await page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: /^Link/ }).first().click();
+    }
+    await page.waitForTimeout(700);
+    const nested = await page.evaluate(() => {
+      const shown = [...document.querySelectorAll('aside.editor-side-sheet')].filter((a) => !a.closest('.hidden'));
+      return {
+        shown: shown.length,
+        title: shown[0]?.querySelector('.side-sheet-headline')?.textContent,
+        back: !!shown[0]?.querySelector('[data-side-sheet-back]'),
+      };
+    });
+    if (nested.shown !== 1 || nested.title !== 'Link' || !nested.back)
+      problems.push(`${label}: the link over a block's pane is not the one pane shown with a back arrow (${JSON.stringify(nested)})`);
+    await page.locator('aside.editor-side-sheet [data-side-sheet-back]').first().click();
+    await page.waitForTimeout(600);
+    const back = await page.evaluate(() => {
+      const shown = [...document.querySelectorAll('aside.editor-side-sheet')].filter((a) => !a.closest('.hidden'));
+      return { shown: shown.length, title: shown[0]?.querySelector('.side-sheet-headline')?.textContent };
+    });
+    if (back.shown !== 1 || back.title === 'Link')
+      problems.push(`${label}: Back does not show the block's pane again (${JSON.stringify(back)})`);
+    await page.close();
+  }
+}
+
+/** A redirect, the name of a new list and an own list's settings (Edit list): from 600 dp each is the pane beside the page, not a dialog (owner, 15 Nov 2026: dialogs are only for short messages, not for settings); on a phone each is still the dialog or the sheet from the bottom. */
+async function checkListAndRedirectPanes(width) {
+  const phone = width < 600;
+  const label = `${width}px list and redirect panes`;
+  const expectIt = async (page, what) => {
+    await page.waitForTimeout(700);
+    // The pane and the closed dialog do not both hold the fields: no id twice in the page.
+    const twice = await page.evaluate(() => {
+      const seen = new Set();
+      const twice = [];
+      for (const e of document.querySelectorAll('[id]')) {
+        if (seen.has(e.id)) twice.push(e.id);
+        seen.add(e.id);
+      }
+      return twice;
+    });
+    if (twice.length) problems.push(`${label}: ${what} has the same id twice in the page (${twice.slice(0, 3).join(', ')})`);
+    const got = await page.evaluate(() => ({
+      pane: !!document.querySelector('aside.editor-side-sheet:not([hidden])'),
+      dialogs: document.querySelectorAll('dialog[open]').length,
+    }));
+    if (phone) {
+      if (got.pane || got.dialogs !== 1) problems.push(`${label}: ${what} is not a dialog or a sheet on a phone (${JSON.stringify(got)})`);
+    } else {
+      if (!got.pane) problems.push(`${label}: ${what} is not the pane beside the page`);
+      if (got.dialogs) problems.push(`${label}: ${what} has a dialog open over the page`);
+    }
+  };
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  // A redirect.
+  await page.evaluate(() => (location.hash = '#seo/redirects/all'));
+  await page.getByRole('button', { name: 'New redirect' }).first().click({ timeout: 10_000 });
+  await expectIt(page, 'a new redirect');
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(500);
+  // A new list: its name, then the list's own settings.
+  await page.evaluate(() => (location.hash = '#lists'));
+  await page.getByRole('button', { name: 'New list' }).first().click({ timeout: 10_000 });
+  await expectIt(page, 'the name of a new list');
+  await page.locator('#new-list-name').fill('Team');
+  await page.getByRole('button', { name: 'Create', exact: true }).first().click();
+  await page.waitForFunction(() => location.hash.startsWith('#list/'), null, { timeout: 10_000 });
+  await page.waitForTimeout(700);
+  if (await page.locator('aside.editor-side-sheet:not([hidden])').count())
+    problems.push(`${label}: the pane of a new list is still open after Create`);
+  await page.getByRole('button', { name: 'List menu' }).first().click({ timeout: 10_000 });
+  await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
+  await expectIt(page, "an own list's settings");
+  await page.close();
+}
+
+/** A file's details in Files (Media.tsx): from 600 dp the side sheet beside the grid (the grid stays in view, the address stays #files), on a phone a subpage of Files (owner, 15 Nov 2026: details are a pane, not a dialog). */
+async function checkFilesPane(width) {
+  const phone = width < 600;
+  const label = `${width}px file details`;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#files'));
+  // A site with no files (the starter) has nothing to open: like the other Files checks, this one ends there.
+  const some = await page
+    .waitForSelector('main [data-media-tile]', { timeout: 8000 })
+    .then(() => true)
+    .catch(() => false);
+  if (!some) return void (await page.close());
+  await page.waitForTimeout(600);
+  await page.locator('main [data-media-tile]').first().click();
+  await page.waitForTimeout(900);
+  const got = await page.evaluate(() => ({
+    hash: location.hash,
+    pane: !!document.querySelector('aside.side-sheet-container:not([hidden])'),
+    dialogs: document.querySelectorAll('dialog[open]').length,
+    tiles: [...document.querySelectorAll('main [data-media-tile]')].filter((t) => t.getBoundingClientRect().width > 0).length,
+  }));
+  if (phone) {
+    if (!got.hash.startsWith('#files/') || got.pane)
+      problems.push(`${label}: on a phone the details are not a subpage of Files (${JSON.stringify(got)})`);
+  } else {
+    if (got.hash !== '#files') problems.push(`${label}: the address changed to ${got.hash} (the details are beside the grid)`);
+    if (!got.pane) problems.push(`${label}: the file's details are not the side sheet beside the grid`);
+    if (got.dialogs) problems.push(`${label}: a dialog is open over Files`);
+    if (!got.tiles) problems.push(`${label}: the grid is not in view beside the details`);
+    // The create button stands beside the open details, not on them.
+    const overlap = await page.evaluate(() => {
+      const fab = document.querySelector('.editor-fab');
+      const sheet = document.querySelector('aside.side-sheet-container:not([hidden])');
+      if (!fab || !sheet) return 'missing';
+      const f = fab.getBoundingClientRect();
+      const r = sheet.getBoundingClientRect();
+      const hit = f.left < r.right && f.right > r.left && f.top < r.bottom && f.bottom > r.top;
+      return hit ? `fab ${Math.round(f.left)}-${Math.round(f.right)}, sheet ${Math.round(r.left)}-${Math.round(r.right)}` : '';
+    });
+    if (overlap === 'missing') problems.push(`${label}: no create button or no details sheet to compare`);
+    else if (overlap) problems.push(`${label}: the create button is on the details (${overlap})`);
   }
   await page.close();
 }
@@ -8155,6 +8471,45 @@ async function checkSteps(width, height) {
     ])
   )
     problems.push(`${label}: Enter did not go heading, text, next step: ${JSON.stringify(now)}`);
+  // The heading's first line is centred on the number (within 1 px), read from the real boxes: the field's top plus its border and padding
+  // plus half its line height, against the number's middle.
+  const off = await page.evaluate(() =>
+    [...document.querySelectorAll('.inline-steps .block-step[data-row]:not(.inline-list-row-next)')].map((li) => {
+      const n = li.querySelector('.block-step-number').getBoundingClientRect();
+      const f = li.querySelector('[data-field="title"]');
+      const c = getComputedStyle(f);
+      const lh = parseFloat(c.lineHeight) || parseFloat(c.fontSize) * 1.2;
+      const first = f.getBoundingClientRect().top + parseFloat(c.borderTopWidth) + parseFloat(c.paddingTop) + lh / 2;
+      return Math.abs(first - (n.top + n.height / 2));
+    }),
+  );
+  if (!off.length || off.some((d) => !(d <= 1)))
+    problems.push(`${label}: a step's heading is not centred on its number (off by ${off.map((d) => d.toFixed(1)).join(', ')} px)`);
+  // The line joins a number to the next number and stops: every step but the last draws it down to the next number's middle (within 1 px),
+  // and the last draws none. Read from the real boxes, as a step is added, so the last one changes.
+  const lineProblems = () =>
+    page.evaluate(() => {
+      const lis = [...document.querySelectorAll('.inline-steps .block-step')];
+      const out = [];
+      lis.forEach((li, i) => {
+        const c = getComputedStyle(li, '::before');
+        const drawn = c.content !== 'none' && c.content !== 'normal';
+        if (i === lis.length - 1) {
+          if (drawn) out.push(`the last step draws a line`);
+          return;
+        }
+        if (!drawn) return out.push(`step ${i + 1} draws no line`);
+        const r = li.getBoundingClientRect();
+        const to = lis[i + 1].querySelector('.block-step-number').getBoundingClientRect();
+        const from = li.querySelector('.block-step-number').getBoundingClientRect();
+        const top = r.top + parseFloat(c.top);
+        const bottom = r.bottom - parseFloat(c.bottom);
+        if (Math.abs(top - (from.top + from.height / 2)) > 1 || Math.abs(bottom - (to.top + to.height / 2)) > 1)
+          out.push(`step ${i + 1}'s line does not run from its number to the next (${top.toFixed(1)} to ${bottom.toFixed(1)})`);
+      });
+      return out;
+    });
+  for (const p of await lineProblems()) problems.push(`${label}: ${p}`);
   // Enter in the heading goes to the text and Enter in an empty text adds nothing (a heading without text is kept as it is); in the text
   // with something in it Enter adds a step, and Backspace in its empty heading removes it again.
   await page.keyboard.press('Enter');
@@ -8176,6 +8531,7 @@ async function checkSteps(width, height) {
   now = await steps();
   if (now[1]?.title !== 'Order' || now.map((s) => s.number).join() !== '1,2,3')
     problems.push(`${label}: Move down did not move and renumber the step: ${JSON.stringify(now)}`);
+  for (const p of await lineProblems()) problems.push(`${label}: after a move, ${p}`);
   await page.close();
   // Pasting lines into an empty Steps block makes a step of each; headings among them leave the paste as it is.
   for (const [html, plain, expected] of [
@@ -8703,6 +9059,52 @@ async function checkDynamicPicker(width, height) {
   await page.close();
 }
 
+/** The list's menu (OwnList.tsx `List menu`) opens with `Edit list` and `Delete list` at every width, with a mouse and with touch: the top bar and the title row both draw the button, and the menu anchors to the one that was clicked, not the hidden one. */
+async function checkListMenuOpens(width, height, touch) {
+  const label = `${width}px list menu${touch ? ' (touch)' : ''}`;
+  virtualFile('src/data/menus/_list.json', JSON.stringify({ version: 1, label: 'Menus', fields: ['title'] }));
+  virtualFile('src/data/menus/one.json', JSON.stringify({ order: 1, title: 'One' }));
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#list/menus'));
+  const button = page.getByRole('button', { name: 'List menu' }).locator('visible=true').first();
+  await button.waitFor({ timeout: 15000 }).catch(() => problems.push(`${label}: no visible List menu button`));
+  await (touch ? button.tap() : button.click());
+  await page.waitForTimeout(700);
+  const opened = await page
+    .getByRole('menuitem', { name: 'Edit list' })
+    .first()
+    .isVisible()
+    .catch(() => false);
+  if (!opened) problems.push(`${label}: List menu did not open its menu`);
+  else if (!(await page.getByRole('menuitem', { name: 'Delete list' }).first().isVisible()))
+    problems.push(`${label}: the menu has no Delete list`);
+  else if (!touch && width >= 600) {
+    // The menu is a popover at its button (CSS anchor positioning): on the screen, 8 dp or more from every edge, and touching the button's column.
+    const at = await page.evaluate(() => {
+      const menu = document.querySelector('.editor-menu');
+      const button = [...document.querySelectorAll('button[aria-label="List menu"]')].find((b) => b.getClientRects().length);
+      if (!menu || !button) return null;
+      const m = menu.getBoundingClientRect();
+      const b = button.getBoundingClientRect();
+      return { m, b, popover: menu.matches(':popover-open'), w: innerWidth, h: innerHeight };
+    });
+    if (!at) problems.push(`${label}: no menu or button to measure`);
+    else {
+      if (!at.popover) problems.push(`${label}: the menu is not a popover`);
+      if (at.m.left < 7.5 || at.m.top < 7.5 || at.m.right > at.w - 7.5 || at.m.bottom > at.h - 7.5)
+        problems.push(`${label}: the menu is not inside the screen (${JSON.stringify(at.m)})`);
+      const gapBelow = at.m.top - at.b.bottom;
+      const gapAbove = at.b.top - at.m.bottom;
+      if (!((gapBelow >= -1 && gapBelow <= 12) || (gapAbove >= -1 && gapAbove <= 12)))
+        problems.push(`${label}: the menu is not next to its button (below ${gapBelow}, above ${gapAbove})`);
+      if (at.m.left > at.b.right || at.m.right < at.b.left) problems.push(`${label}: the menu is not over its button's column`);
+    }
+  }
+  await page.close();
+}
+
 /** The page of a list the owner made (#list/<id>, OwnList.tsx): the testimonials' list page and item page with the list's own fields. A list with a definition and two entries opens with two rows, no horizontal overflow; the active row has the dotted outline and no background, `Add list row` shows under an active list and is gone when the cursor leaves, the toolbar has Add above and Add below, Enter in the title goes to the text, and only the fields the list has are there (no icon slot, no link slot). */
 async function checkOwnList(width, height) {
   const label = `${width}px own list`;
@@ -8769,7 +9171,10 @@ async function checkOwnList(width, height) {
     // The list's menu: `Edit list` opens the sheet with the name, the six switches and `Delete list`; `Delete list` is refused while a page reads the list.
     await page.getByRole('button', { name: 'List menu' }).first().click();
     await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
-    const sheet = page.locator('dialog[open]').filter({ hasText: 'Fields' });
+    // From 600 dp it is the pane beside the page, below it the sheet (a dialog).
+    const sheet = (phone ? page.locator('dialog[open]') : page.locator('.editor-side-sheet').locator('visible=true')).filter({
+      hasText: 'Fields',
+    });
     await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: Edit list did not open its sheet`));
     // The list was made in the first format (fields as kind names): it reads as it did. Each of its five fields has the owner's own `Shown` switch (on) and `Remove field`; and `Add field` is there.
     const switches = await sheet.locator('input[type="checkbox"]').count();
@@ -8806,6 +9211,12 @@ async function checkOwnList(width, height) {
     await page.getByText('Hosting', { exact: true }).first().waitFor({ timeout: 10000 });
     await page.getByRole('button', { name: 'List menu' }).first().click();
     await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
+    // The pane or sheet takes a moment to open: wait for its fifth field before counting.
+    await sheet
+      .getByRole('button', { name: 'Remove field' })
+      .nth(4)
+      .waitFor({ timeout: 5000 })
+      .catch(() => {});
     if ((await sheet.getByRole('button', { name: 'Remove field' }).count()) !== 5)
       problems.push(`${label}: the removed field did not come back after Discard`);
     if (commits.length) problems.push(`${label}: Discard committed (${commits.length} commits)`);
@@ -8859,11 +9270,16 @@ async function checkNewList(width, height, label) {
     const button = page.getByRole('button', { name: 'New list' }).first();
     await button.waitFor({ timeout: 15000 }).catch(() => problems.push(`${label}: no New list button on Lists`));
     await button.click();
-    const dialog = page.locator('dialog[open][aria-label="New list"]');
+    const dialog = phone
+      ? page.locator('dialog[open][aria-label="New list"]')
+      : page.locator('.editor-side-sheet').locator('visible=true').filter({ hasText: 'New list' });
     await dialog.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: New list did not open its dialog`));
     if ((await dialog.locator('input[type="checkbox"]').count()) !== 0) problems.push(`${label}: the dialog still has field switches`);
     const state = await page.evaluate(() => {
-      const d = document.querySelector('dialog[open]');
+      const d =
+        innerWidth < 600
+          ? document.querySelector('dialog[open]')
+          : [...document.querySelectorAll('.editor-side-sheet')].find((x) => x.getClientRects().length > 0);
       const kind = (name) =>
         d.querySelector(`button:is([type="button"],[type="submit"])`) &&
         [...d.querySelectorAll('button')].find((b) => b.textContent.trim() === name);
@@ -8918,7 +9334,9 @@ async function checkNewList(width, height, label) {
     await pick(0);
     await page.getByRole('button', { name: 'List menu' }).first().click();
     await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
-    const edit = page.locator('dialog[open]').filter({ hasText: 'Fields' });
+    const edit = (phone ? page.locator('dialog[open]') : page.locator('.editor-side-sheet').locator('visible=true')).filter({
+      hasText: 'Fields',
+    });
     await edit.getByRole('button', { name: 'Add field' }).click();
     await pick(1);
     if ((await edit.locator('input[type="checkbox"]').count()) !== 2)
@@ -9053,7 +9471,9 @@ async function checkNewList(width, height, label) {
     const before = commits.length;
     await page.getByRole('button', { name: 'List menu' }).first().click();
     await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
-    const again = page.locator('dialog[open]').filter({ hasText: 'Fields' });
+    const again = (phone ? page.locator('dialog[open]') : page.locator('.editor-side-sheet').locator('visible=true')).filter({
+      hasText: 'Fields',
+    });
     await again.getByRole('button', { name: 'Add field' }).click();
     await pick(2, 'Title');
     await again.locator('[aria-label="Close"]').first().click();
@@ -11096,7 +11516,11 @@ async function checkDashboardEdit(width, height) {
   // field "Post every"; the sheet is closed with Cancel (nothing changes), opened again, "Week" is picked and saved. The
   // draft keeps it, and Done below sends it with the placement.
   const rhythm = daLibrary.blogRhythmWidgetLabel;
-  const rhythmSheet = adding.getByRole('dialog', { name: daDashboard.settingsOf(rhythm), exact: true });
+  // From 600 dp the settings are the pane beside the page (a standard side sheet), below it a dialog.
+  const rhythmSheet =
+    width < 600
+      ? adding.getByRole('dialog', { name: daDashboard.settingsOf(rhythm), exact: true })
+      : adding.locator('.editor-side-sheet').filter({ hasText: daDashboard.settingsOf(rhythm) });
   const openRhythm = async () => {
     await adding.getByRole('button', { name: daDashboard.cardMenu(rhythm), exact: true }).click();
     await adding.getByRole('menuitem', { name: daDashboard.settings, exact: true }).click();
@@ -11417,6 +11841,9 @@ for (const width of [375, 1280]) await unit(`no context menu ${width}`, () => ch
 
 for (const width of [360, 375, 390, 414]) await unit(`checkTextBar ${width}`, () => checkTextBar(width));
 await unit('checkTextBarWide', () => checkTextBarWide());
+await unit('checkAnchoredParts 375 touch', () => checkAnchoredParts(375, 740, true));
+await unit('checkAnchoredParts 768', () => checkAnchoredParts(768, 900, false));
+await unit('checkAnchoredParts 1280', () => checkAnchoredParts(1280, 900, false));
 for (const width of [375, 1280]) await unit(`checkPreviewInBar ${width}`, () => checkPreviewInBar(width));
 await unit('checkSaveKeyNoAutosave', () => checkSaveKeyNoAutosave());
 for (const width of [320, 360, 375, 390, 414, 600, 840, 1280]) await unit(`checkTextBarFit ${width}`, () => checkTextBarFit(width));
@@ -11462,6 +11889,9 @@ for (const [width, height] of [
   [1280, 900],
 ])
   await unit(`checkDraftsCard ${width}`, () => checkDraftsCard(width, height));
+for (const width of [375, 768, 1000, 1280]) await unit(`checkFilesPane ${width}`, () => checkFilesPane(width));
+for (const width of [375, 768, 1280]) await unit(`checkListAndRedirectPanes ${width}`, () => checkListAndRedirectPanes(width));
+for (const width of [375, 768, 1280]) await unit(`checkLinkAndItemPanes ${width}`, () => checkLinkAndItemPanes(width));
 for (const width of [375, 768, 1280]) await unit(`checkBlockSettingsPane ${width}`, () => checkBlockSettingsPane(width));
 await unit('checkEmptyHint', () => checkEmptyHint());
 await unit('checkLongPressDelete', () => checkLongPressDelete());
@@ -11525,6 +11955,7 @@ await unit('checkEmptyRow 375', () => checkEmptyRow(375, 740));
 await unit('checkInsertNeverOpensSheet 1280', () => checkInsertNeverOpensSheet(1280, 900));
 for (const [width, height] of [
   [375, 740],
+  [768, 900],
   [1280, 900],
 ])
   await unit(`checkSteps ${width}`, () => checkSteps(width, height));
@@ -11538,6 +11969,9 @@ await unit('checkDynamicList 1280', () => checkDynamicList(1280, 900));
 await unit('checkDynamicPicker 375', () => checkDynamicPicker(375, 740));
 await unit('checkDynamicPicker 1280', () => checkDynamicPicker(1280, 900));
 await unit('checkOwnList 375', () => checkOwnList(375, 740));
+await unit('checkListMenuOpens 375 touch', () => checkListMenuOpens(375, 740, true));
+await unit('checkListMenuOpens 768', () => checkListMenuOpens(768, 900, false));
+await unit('checkListMenuOpens 1280', () => checkListMenuOpens(1280, 900, false));
 await unit('checkOwnList 1280', () => checkOwnList(1280, 900));
 await unit('checkInlineTable 375', () => checkInlineTable(375, 740));
 await unit('checkInlineTable 1280', () => checkInlineTable(1280, 800));

@@ -537,7 +537,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
         onClick={(e) => e.target === dialog.current && dialog.current?.close()}
       >
         <SheetTitle title={sheet?.label ?? ''} onClose={() => dialog.current?.close()} />
-        {sheet && <SheetBody>{sheetBody(sheet)}</SheetBody>}
+        {sheet && !pane && <SheetBody>{sheetBody(sheet)}</SheetBody>}
       </BottomSheet>
     </Screen>
   );

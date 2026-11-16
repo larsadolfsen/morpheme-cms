@@ -1,9 +1,10 @@
 // What an app adds to the site, on its page: its blocks, the lists it brings and its kinds of the site's lists. Installed,
 // each row has its switch and opens a sheet with where it is used and the same switch; not installed, the rows are plain.
 // Exposes AppAdds (default). Depends on BlockSettings.tsx (the switches), AppList.tsx (listsOf, entriesOf, kindsOf) and ./ui.
-import { useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { BlockSwitch, blockSwitchTexts, KindSwitch, kindSwitchTexts, pagesWith, useOnOff } from './BlockSettings';
-import { BottomSheet, Group, LeadingIcon, LinkButton, ListItem, listClass, SheetBody, SheetTitle, Switch } from './ui';
+import { BottomSheet, Group, LeadingIcon, LinkButton, ListItem, listClass, SheetBody, SheetTitle, Switch, atLeastNow } from './ui';
+import { usePane } from './PaneHost';
 import type { RepoFile } from './github';
 import type { Env } from './App';
 import { kindKey, type SiteApp } from './apps';
@@ -94,6 +95,11 @@ function SwitchedRow({
 export default function AppAdds({ app, env, files, on }: { app: SiteApp; env: Env; files: RepoFile[]; on: boolean }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [openKey, setOpenKey] = useState<string | null>(null);
+  // From medium (600 dp) the add-on's settings are in the pane beside the page (owner, 15 Nov 2026: settings are a pane, not a dialog), below it
+  // the sheet from the bottom; taken when it opens and kept while it is open.
+  const [inPane, setInPane] = useState(false);
+  const opener = useRef<HTMLElement | null>(null);
+  const headingId = useId();
   // While one row's switch saves, the others wait.
   const [switching, setSwitching] = useState(false);
   const adds = addsOf(app, files);
@@ -116,7 +122,10 @@ export default function AppAdds({ app, env, files, on }: { app: SiteApp; env: En
               onBusy={setSwitching}
               onOpen={() => {
                 setOpenKey(a.key);
-                dialog.current?.showModal();
+                opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+                const wide = atLeastNow('medium');
+                setInPane(wide);
+                if (!wide) dialog.current?.showModal();
               }}
             />
           ) : (
@@ -125,6 +134,62 @@ export default function AppAdds({ app, env, files, on }: { app: SiteApp; env: En
         )}
       </Group>
     );
+
+  // The sheet or the pane goes.
+  const closeIt = async () => {
+    if (inPane) {
+      await pane.close();
+      setOpenKey(null);
+      setInPane(false);
+    } else dialog.current?.close();
+  };
+  // What the add-on shows: what it is, its switch and where it is used.
+  const details = open && (
+    <>
+      <div className="flex items-start gap-3">
+        <LeadingIcon icon={open.icon} />
+        <p className="pt-1.5 text-on-surface-variant">{open.hint ?? open.label}</p>
+      </div>
+      {open.block ? (
+        <BlockSwitch block={open.block} env={env} files={files} />
+      ) : (
+        <KindSwitch app={app} list={open.key} env={env} files={files} />
+      )}
+      {open.create && !offBlocks(files).includes(kindKey(open.key, app.id)) && (
+        <LinkButton href={open.create.href} onClick={() => void closeIt()}>
+          {open.create.label}
+        </LinkButton>
+      )}
+      <div>
+        <p className="mb-1 font-medium">{t.apps.used}</p>
+        {open.uses.length ? (
+          <ul className={listClass}>
+            {open.uses.map((u) => (
+              <ListItem key={u.href} href={u.href} onClick={() => void closeIt()} headline={u.title} />
+            ))}
+          </ul>
+        ) : (
+          <p className="text-on-surface-variant">{t.apps.notUsed}</p>
+        )}
+      </div>
+    </>
+  );
+  const pane = usePane(
+    inPane && open
+      ? {
+          headline: open.label,
+          headlineId: headingId,
+          beforeClose: async () => {
+            await closeIt();
+            return false;
+          },
+          opener: opener.current,
+          onBack: () => void closeIt(),
+          backLabel: t.common.back,
+          children: <div className="space-y-5">{details}</div>,
+        }
+      : null,
+  );
 
   return (
     <>
@@ -150,40 +215,12 @@ export default function AppAdds({ app, env, files, on }: { app: SiteApp; env: En
         ref={dialog}
         aria-label={open?.label}
         onClose={(e) => e.target === e.currentTarget && setOpenKey(null)}
-        onClick={(e) => e.target === dialog.current && dialog.current?.close()}
+        onClick={(e) => e.target === dialog.current && void closeIt()}
       >
-        <SheetTitle title={open?.label ?? ''} onClose={() => dialog.current?.close()} />
-        {open && (
-          <SheetBody>
-            <div className="flex items-start gap-3">
-              <LeadingIcon icon={open.icon} />
-              <p className="pt-1.5 text-on-surface-variant">{open.hint ?? open.label}</p>
-            </div>
-            {open.block ? (
-              <BlockSwitch block={open.block} env={env} files={files} />
-            ) : (
-              <KindSwitch app={app} list={open.key} env={env} files={files} />
-            )}
-            {open.create && !offBlocks(files).includes(kindKey(open.key, app.id)) && (
-              <LinkButton href={open.create.href} onClick={() => dialog.current?.close()}>
-                {open.create.label}
-              </LinkButton>
-            )}
-            <div>
-              <p className="mb-1 font-medium">{t.apps.used}</p>
-              {open.uses.length ? (
-                <ul className={listClass}>
-                  {open.uses.map((u) => (
-                    <ListItem key={u.href} href={u.href} onClick={() => dialog.current?.close()} headline={u.title} />
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-on-surface-variant">{t.apps.notUsed}</p>
-              )}
-            </div>
-          </SheetBody>
-        )}
+        <SheetTitle title={open?.label ?? ''} onClose={() => void closeIt()} />
+        {open && !inPane && <SheetBody>{details}</SheetBody>}
       </BottomSheet>
+      {pane.portal}
     </>
   );
 }

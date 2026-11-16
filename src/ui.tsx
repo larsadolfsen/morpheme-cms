@@ -412,18 +412,24 @@ function placeTip(tip: HTMLElement, anchor: Element) {
 function useTooltip(text: string, own: TooltipHandlers = {}) {
   const tip = useRef<HTMLSpanElement>(null);
   const timer = useRef<number>(undefined);
+  const shownAt = useRef<HTMLElement | null>(null);
   useEffect(() => () => clearTimeout(timer.current), []);
   const show = (anchor: Element) => {
     const el = tip.current;
     if (!el?.showPopover || !anchor.isConnected) return;
     try {
       if (!el.matches(':popover-open')) el.showPopover();
-      placeTip(el, anchor);
+      // Only one tooltip is open at a time, so one anchor name does: the CSS (editor.css, .editor-tooltip) places it at the element.
+      if (anchoredByCss) (anchor as HTMLElement).style.setProperty('anchor-name', '--editor-tooltip');
+      else placeTip(el, anchor);
+      shownAt.current = anchor as HTMLElement;
     } catch {}
   };
   const hide = () => {
     clearTimeout(timer.current);
     const el = tip.current;
+    shownAt.current?.style.removeProperty('anchor-name');
+    shownAt.current = null;
     try {
       if (el?.matches(':popover-open')) el.hidePopover();
     } catch {}
@@ -2097,6 +2103,9 @@ export function Option({
 // ---------------------------------------------------------------------------------------------------
 // The menu
 
+// Whether the browser places the editor's menus by CSS anchor positioning (the theme's own test: ui.css, Dropdown menu).
+const anchoredByCss = typeof CSS !== 'undefined' && CSS.supports('position-area', 'block-end') && CSS.supports('anchor-name', '--a');
+
 /** A menu under the button that opened it (`anchor`; null while it is closed): the theme's menu with its choices
  * (MenuItem) over the screen, placed as the theme places one (sitePlaceMenu: under the button, over it when there is no
  * room under it), and again when the page scrolls or the window changes; on a phone in a sheet from the bottom with
@@ -2136,6 +2145,8 @@ export function Menu({
   back.current = onBack;
   const sheet = useRef<HTMLDialogElement>(null);
   const wide = useAtLeast('medium') || !!popup;
+  // The name the menu's CSS anchor has (only letters, digits, - and _), put on the button while the menu is open.
+  const anchorName = `--editor-menu-${useId().replace(/[^\w-]/g, '')}`;
   useEffect(() => {
     if (wide) return;
     const el = sheet.current;
@@ -2149,6 +2160,13 @@ export function Menu({
   // Before it is painted, so it is never seen anywhere else than at its button.
   useLayoutEffect(() => {
     if (!anchor || !wide) return;
+    const el = menu.current;
+    // A popover (always over everything, also a dialog), placed by CSS anchor positioning at the button (editor.css, .editor-menu);
+    // where the browser lacks it, by the theme's script (sitePlaceMenu) as before.
+    try {
+      if (el && !el.matches(':popover-open')) el.showPopover();
+    } catch {}
+    if (anchoredByCss) anchor.style.setProperty('anchor-name', anchorName);
     const close = (e: Event) => {
       if (e.type === 'keydown' && (e as globalThis.KeyboardEvent).key !== 'Escape') return;
       // A tap on the button itself is its own: it closes the menu.
@@ -2171,6 +2189,13 @@ export function Menu({
     const place = () => {
       if (!anchor.isConnected || !anchor.getClientRects().length) return onClose();
       if (!menu.current) return;
+      // The bar's menus have the height the visible screen allows (not under the keyboard), by the visual viewport.
+      if (popup) {
+        const screen = visualViewport ?? { offsetTop: 0, height: innerHeight };
+        const top = anchor.getBoundingClientRect().bottom + 4;
+        menu.current.style.maxHeight = `${Math.max(88, screen.offsetTop + screen.height - top - 8)}px`;
+      }
+      if (anchoredByCss) return;
       if (attached) {
         const { width } = anchor.getBoundingClientRect();
         Object.assign(menu.current.style, {
@@ -2198,12 +2223,15 @@ export function Menu({
     for (const type of ['pointerdown', 'keydown']) document.addEventListener(type, close, true);
     addEventListener('scroll', place, { capture: true, passive: true });
     addEventListener('resize', place, { passive: true });
+    visualViewport?.addEventListener('resize', place);
     return () => {
       for (const type of ['pointerdown', 'keydown']) document.removeEventListener(type, close, true);
       removeEventListener('scroll', place, { capture: true });
       removeEventListener('resize', place);
+      visualViewport?.removeEventListener('resize', place);
+      if (anchoredByCss) anchor.style.removeProperty('anchor-name');
     };
-  }, [anchor, wide, attached, keyboard, popup]);
+  }, [anchor, wide, attached, keyboard, popup, anchorName]);
   if (!wide)
     return (
       <BottomSheet
@@ -2232,7 +2260,11 @@ export function Menu({
       ref={menu}
       role="menu"
       aria-label={label}
-      className="editor-menu fixed z-30 focus:outline-none"
+      className="editor-menu dropdown-menu-menu focus:outline-none"
+      popover="manual"
+      data-menu-attached={attached ? '' : undefined}
+      data-menu-popup={popup}
+      style={anchoredByCss ? ({ positionAnchor: anchorName } as CSSProperties) : undefined}
       tabIndex={attached ? -1 : undefined}
       onClick={(e: MouseEvent) => {
         // A row that opens the next level, or goes back from it, keeps the menu open.
@@ -3206,7 +3238,20 @@ export function useKept<T>(key: string | null, first: T): [T, (value: T) => void
 /** On a computer: what is picked in a screen's list or grid (a file in Files), in the theme's side sheet at the right
  * of it, with its title and a cross that closes it; it stays in view while the screen scrolls. On a
  * phone the same is in a sheet (useAtLeast). */
-export function SideSheet({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+export function SideSheet({
+  title,
+  onClose,
+  onBack,
+  backLabel,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  /** A back icon button before the title, for a sheet that shows another region of itself; `backLabel` names it. */
+  onBack?: () => void;
+  backLabel?: string;
+  children: ReactNode;
+}) {
   const id = useId();
   return (
     <SiteSideSheet
@@ -3214,6 +3259,8 @@ export function SideSheet({ title, onClose, children }: { title: string; onClose
       headlineId={id}
       closeLabel={t.common.close}
       onClose={onClose}
+      onBack={onBack}
+      backLabel={backLabel}
       className="editor-reveal sticky top-8 max-h-[calc(100dvh-3rem)] self-start"
     >
       <div className="space-y-5">{children}</div>

@@ -4,7 +4,7 @@
 // Worker, so older answers are found too) and the order (kept in this browser); in the top bar the download of all of
 // them as CSV. Tapping one opens a sheet with when, the banner's version and each yes or no, and the button that deletes
 // every answer with its id (when the visitor asks for it).
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { ArrowsDownUp, DownloadSimple, Trash } from '@phosphor-icons/react';
 import { ask } from './ask';
 import Screen from './Screen';
@@ -23,7 +23,9 @@ import {
   BottomSheet,
   useKept,
   ListItem,
+  atLeastNow,
 } from './ui';
+import { usePane } from './PaneHost';
 import type { Env } from './App';
 import { CONSENT_API, deleteConsents, loadConsents, type ConsentAnswer } from './consentData';
 import { CONSENT_CATEGORIES } from '../lib/cookieCategories.mjs';
@@ -78,9 +80,26 @@ export default function Consents({ env, back }: { env: Env; back: { href: string
     };
   }, [q]);
 
+  // From medium (600 dp) a consent record is in the pane beside the page (owner, 15 Nov 2026: details are a pane, not a dialog), below it the
+  // sheet from the bottom; taken when it opens and kept while it is open.
+  const [inPane, setInPane] = useState(false);
+  const opener = useRef<HTMLElement | null>(null);
+  const headingId = useId();
   useEffect(() => {
-    if (open) dialog.current?.showModal();
+    if (!open) return;
+    opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const wide = atLeastNow('medium');
+    setInPane(wide);
+    if (!wide) dialog.current?.showModal();
   }, [open]);
+  // The sheet or the pane goes.
+  const closeSheet = async () => {
+    if (inPane) {
+      await pane.close();
+      setOpen(null);
+      setInPane(false);
+    } else dialog.current?.close();
+  };
 
   function pickSort(next: Sort) {
     setSort(next);
@@ -95,7 +114,7 @@ export default function Consents({ env, back }: { env: Env; back: { href: string
     try {
       const n = await deleteConsents(id);
       setFound((was) => was && { entries: was.entries.filter((e) => e.id !== id), total: was.total - n });
-      dialog.current?.close();
+      void closeSheet();
       env.notify({ text: t.consents.deleted, kind: 'saved' });
     } catch (e) {
       env.notify({ text: t.consents.notDeleted((e as Error).message), error: true, kind: 'failed' });
@@ -105,6 +124,34 @@ export default function Consents({ env, back }: { env: Env; back: { href: string
   }
 
   const shown = [...(found?.entries ?? [])].sort((a, b) => (sort === 'newest' ? b.at.localeCompare(a.at) : a.at.localeCompare(b.at)));
+  // What the record shows: when it was answered, what, and Delete.
+  const details = open && (
+    <>
+      <SupportingText>{t.consents.answered(when(new Date(open.at)))}</SupportingText>
+      <SupportingText>{summary(open)}</SupportingText>
+      {open.version && <SupportingText>{t.consents.version(open.version.slice(0, 7))}</SupportingText>}
+      <Button kind="outlined" icon={Trash} disabled={deleting} onClick={() => remove(open.id)}>
+        {t.consents.deleteAll}
+      </Button>
+    </>
+  );
+  const pane = usePane(
+    inPane && open
+      ? {
+          headline: open.id,
+          headlineId: headingId,
+          beforeClose: async () => {
+            await closeSheet();
+            return false;
+          },
+          opener: opener.current,
+          onBack: () => void closeSheet(),
+          backLabel: t.common.back,
+          children: <div className="space-y-5">{details}</div>,
+        }
+      : null,
+  );
+
   return (
     <Screen
       title={t.consents.title}
@@ -156,20 +203,12 @@ export default function Consents({ env, back }: { env: Env; back: { href: string
       <BottomSheet
         ref={dialog}
         onClose={(e) => e.target === e.currentTarget && setOpen(null)}
-        onClick={(e) => e.target === dialog.current && dialog.current?.close()}
+        onClick={(e) => e.target === dialog.current && void closeSheet()}
       >
-        <SheetTitle title={open?.id ?? ''} onClose={() => dialog.current?.close()} />
-        {open && (
-          <SheetBody onSubmit={(e) => e.preventDefault()}>
-            <SupportingText>{t.consents.answered(when(new Date(open.at)))}</SupportingText>
-            <SupportingText>{summary(open)}</SupportingText>
-            {open.version && <SupportingText>{t.consents.version(open.version.slice(0, 7))}</SupportingText>}
-            <Button kind="outlined" icon={Trash} disabled={deleting} onClick={() => remove(open.id)}>
-              {t.consents.deleteAll}
-            </Button>
-          </SheetBody>
-        )}
+        <SheetTitle title={open?.id ?? ''} onClose={() => void closeSheet()} />
+        {open && !inPane && <SheetBody onSubmit={(e) => e.preventDefault()}>{details}</SheetBody>}
       </BottomSheet>
+      {pane.portal}
     </Screen>
   );
 }
