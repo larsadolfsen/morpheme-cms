@@ -33,7 +33,7 @@ export default function PopupView({ popup, Part, part }: { popup: PopupBoxView; 
         />
       )}
       <div className="p-6 medium:p-8">
-        <h2 id={`popup-${popup.slug}`} className={popup.image ? 'type-headline-small' : 'pr-12 type-headline-small'}>
+        <h2 id={`popup-${popup.slug}`} className={popup.image ? 'type-headline-small' : 'type-headline-small pr-12'}>
           {popup.heading}
         </h2>
         {popup.text.map((t, i) => (

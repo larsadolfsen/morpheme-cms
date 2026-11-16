@@ -1,4 +1,4 @@
-// Every token of the type scale in ui.css against Material 3's table
+// Every token of the type scale in ui.css (the classes that read them are in type.css) against Material 3's table
 // (https://m3.material.io/styles/typography/type-scale-tokens, md.sys.typescale.<role>-<size>): size, line height and tracking
 // in px, weight, the font, and the prominent weight of the labels. Values as M3 publishes them, not rounded.
 import test from 'node:test';
@@ -17,6 +17,7 @@ const withTokens = (name, origin) =>
       .map((f) => read(`./tokens/${origin}/${f}`)),
   ].join('\n');
 const css = withTokens('./ui.css', 'ui');
+const typeCss = readFileSync(new URL('./type.css', import.meta.url), 'utf8');
 const root = css; // the type scale's tokens are in tokens/ui/ref.css
 const token = (name) => root.match(new RegExp(`--${name}: ([^;]+);`))?.[1];
 const px = (value) => (value.endsWith('rem') ? parseFloat(value) * 16 : parseFloat(value));
@@ -52,4 +53,35 @@ for (const [style, [size, lineHeight, weight, tracking]] of Object.entries(M3)) 
 
 test('the labels have M3 prominent weight 700', () => {
   for (const size of ['large', 'medium', 'small']) assert.equal(Number(token(`type-label-${size}-prominent-weight`)), 700);
+});
+
+test('type.css has one class for each of the 15 roles and the lead, each reading its own four tokens', () => {
+  const classes = [...typeCss.matchAll(/^ {2}\.(type-[a-z-]+) \{\n([^}]*)\}/gm)];
+  assert.deepEqual(
+    classes.map((m) => m[1]),
+    [...Object.keys(M3).map((s) => `type-${s}`), 'type-lead'].sort((a, b) => typeCss.indexOf(`.${a} {`) - typeCss.indexOf(`.${b} {`)),
+  );
+  for (const [, name, body] of classes) {
+    const role = name.slice('type-'.length);
+    const lines = body
+      .trim()
+      .split('\n')
+      .map((l) => l.trim());
+    const want = [
+      `font-size: var(--type-${role}-size);`,
+      `line-height: var(--type-${role}-line-height);`,
+      `font-weight: var(--type-${role}-weight);`,
+      `letter-spacing: var(--type-${role}-tracking);`,
+    ];
+    assert.deepEqual(
+      lines.filter((l) => !l.startsWith('--prose-space') && !l.startsWith('/*')),
+      want,
+      name,
+    );
+    assert.equal(lines.includes('--prose-space: 1.5rem;'), role === 'lead', `${name} --prose-space`);
+  }
+});
+
+test('the classes sit in @layer utilities, as the Tailwind utilities did', () => {
+  assert.match(typeCss, /^@layer utilities \{/m);
 });
