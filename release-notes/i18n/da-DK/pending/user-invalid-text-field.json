@@ -1,0 +1,6 @@
+{
+  "id": "user-invalid-text-field",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Et tekstfelt viser først, hvad der er forkert, når du forlader det, med rettelsen under feltet"
+}

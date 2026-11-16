@@ -45,6 +45,9 @@ const shown = await Promise.all(
 ))}
 
 <script>
+  import { openModal } from '@theme/ui/dialogFocus';
+  import { lightDismiss } from '@theme/ui/lightDismiss';
+
   const KEY = 'popups-closed';
   const closed = (): string[] => {
     try {
@@ -67,8 +70,8 @@ const shown = await Promise.all(
     // An app's kind says the visitor is done (signed up): not shown again, also before it is closed.
     d.addEventListener('popup:done', () => remember(d.dataset.popup!));
     d.querySelector('[data-popup-close]')?.addEventListener('click', close);
-    // A tap on the dimmed backdrop (outside the box) closes it.
-    d.addEventListener('click', (e) => e.target === d && close());
+    // A tap on the dimmed backdrop (outside the box) closes it (light dismiss: lightDismiss.ts).
+    lightDismiss(d, close);
     // Its button closes it first, so what it opens (the page, or an app's sheet over it) opens alone.
     d.querySelectorAll('a').forEach((a) => a.addEventListener('click', close));
   }
@@ -80,7 +83,7 @@ const shown = await Promise.all(
     if (!d || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || (e as MouseEvent).button !== 0) return;
     e.preventDefault();
     all.forEach((p) => p.open && p.close());
-    d.showModal();
+    openModal(d);
   });
 
   // The one that opens by itself: the first the visitor has not closed.
@@ -93,7 +96,7 @@ const shown = await Promise.all(
       [...document.querySelectorAll('dialog')].some((d) => d !== popup && d.open);
     const show = () => {
       if (popup.open) return;
-      if (!busy()) return popup.showModal();
+      if (!busy()) return openModal(popup);
       setTimeout(show, 1000);
     };
 

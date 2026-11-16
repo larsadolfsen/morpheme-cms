@@ -11,7 +11,7 @@
 // option). All of it is drawn with the
 // made-up site of examples.ts, never the site's own, with the search, the order and the filter of "Editor"
 // (PartsShown.tsx). Nothing here is saved.
-import { useMemo } from 'react';
+import { useMemo, type CSSProperties } from 'react';
 import Screen from './Screen';
 import { Part, PartGroup, PartsShown } from './PartsShown';
 import { CoverageSummary } from './CoverageSummary';
@@ -307,6 +307,15 @@ function FieldParts() {
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" defaultValue={screens.fieldValue} />
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" supporting={screens.fieldSupporting} />
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" defaultValue="name@" error={screens.fieldError} />
+                <SiteTextField
+                  kind={kind}
+                  label={screens.fieldLabel}
+                  type="email"
+                  required
+                  data-part="invalid-field"
+                  supporting={screens.fieldSupporting}
+                  invalidText={screens.fieldError}
+                />
                 <SiteTextField kind={kind} label={screens.fieldLabel} hideLabel type="email" placeholder={screens.fieldPlaceholder} />
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" disabled />
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" leadingIcon="envelope-simple" />
@@ -322,6 +331,14 @@ function FieldParts() {
                 />
                 <SiteTextField kind={kind} label={screens.fieldPhone} type="tel" prefix={screens.fieldPrefix} defaultValue="12 34 56 78" />
                 <SiteTextField kind={kind} label={screens.fieldPrice} inputMode="numeric" suffix={screens.fieldSuffix} defaultValue="450" />
+                <SiteTextField
+                  kind={kind}
+                  label={screens.fieldPrice}
+                  type="number"
+                  data-part="invalid-number"
+                  supporting={screens.fieldNameSupporting}
+                  invalidText={t.check.notANumber}
+                />
                 <SiteTextField
                   kind={kind}
                   label={screens.fieldLabel}
@@ -407,7 +424,11 @@ function CardParts() {
       </Part>
       <Part name="List" use={say.list}>
         <Preview>
-          <div className="grid items-start gap-4 p-4 expanded:grid-cols-2">
+          {/* The page is Surface, so the segmented list's rows are on the surface container here (the theme's default, Surface, is for a list on a higher container). */}
+          <div
+            className="grid items-start gap-4 p-4 expanded:grid-cols-2"
+            style={{ '--list-segmented-surface': 'var(--mo-surface-container)' } as CSSProperties}
+          >
             <SiteCard>
               <SiteList>
                 <SiteListItem headline={one} />

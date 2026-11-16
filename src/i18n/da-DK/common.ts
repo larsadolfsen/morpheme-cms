@@ -23,6 +23,7 @@ export const common: Messages['common'] = {
   noMatch: 'Ingen resultater',
   notSaved: (error) => `Kunne ikke gemme: ${error}`,
   backTo: (to) => `Tilbage til ${to}`,
+  back: 'Tilbage',
   pickColor: (name) => `${name}: vælg farve`,
   lockColor: (name) => `Lås ${name.toLowerCase()}`,
   notAColor: 'Skriv farven som # og seks tegn, fx #a3345a.',

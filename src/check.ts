@@ -180,6 +180,24 @@ export function check(fields: Field[], value: Record<string, unknown>, where = '
   return problemAt(fields, value, where, around)?.text ?? null;
 }
 
+/** What is wrong with one field's own value: the message Save gives (`text`, with the field's name in it) and the shorter
+ * one for under the field (`line`, ended with a period as the editor writes it). The same checks, in the same order, problemAt makes for the field,
+ * so a field is marked wrong (the text field's `:user-invalid`, from setCustomValidity) exactly when Save would stop. */
+export function fieldProblem(f: Field, v: unknown, label = f.label): { text: string; line: string } | null {
+  const empty = v == null || v === '' || (Array.isArray(v) && v.length === 0);
+  const both = (text: string) => ({ text, line: text });
+  if (f.required && empty) return both(t.check.fillIn(label));
+  if (!empty && !ofItsKind(f, v)) return both(t.check.wrong(label, t.check.kinds[kindOf(f)]));
+  // An icon field also takes the name of any icon the site draws (Material Symbols', Phosphor's: the icon picker's search); that the
+  // site has it is found where the icon is drawn (data-icon-missing, check:screens).
+  const anyIcon = f.icons && typeof v === 'string' && /^[a-z0-9_-]+$/.test(v);
+  if (f.type === 'select' && f.options && !empty && !anyIcon && !f.options.some((o) => o.value === v))
+    return both(t.check.notAnOption(label, String(v)));
+  const form = typeof v === 'string' && problemOf(f, v);
+  if (form) return { text: t.check.wrong(label, form), line: `${form}.` };
+  return null;
+}
+
 /** As check, with the field the problem is about (Problem). */
 export function problemAt(fields: Field[], value: Record<string, unknown>, where = '', around?: Around, at = ''): Problem | null {
   const here: Around = { fields, value, around };
@@ -188,17 +206,9 @@ export function problemAt(fields: Field[], value: Record<string, unknown>, where
     const v = value?.[f.name];
     const label = where ? `${where} › ${f.label}` : f.label;
     const path = at ? `${at}.${f.name}` : f.name;
-    const empty = v == null || v === '' || (Array.isArray(v) && v.length === 0);
     const wrong = (text: string) => ({ text, path });
-    if (f.required && empty) return wrong(t.check.fillIn(label));
-    if (!empty && !ofItsKind(f, v)) return wrong(t.check.wrong(label, t.check.kinds[kindOf(f)]));
-    // An icon field also takes the name of any icon the site draws (Material Symbols', Phosphor's: the icon picker's search); that the
-    // site has it is found where the icon is drawn (data-icon-missing, check:screens).
-    const anyIcon = f.icons && typeof v === 'string' && /^[a-z0-9_-]+$/.test(v);
-    if (f.type === 'select' && f.options && !empty && !anyIcon && !f.options.some((o) => o.value === v))
-      return wrong(t.check.notAnOption(label, String(v)));
-    const form = typeof v === 'string' && problemOf(f, v);
-    if (form) return wrong(t.check.wrong(label, form));
+    const own = fieldProblem(f, v, label);
+    if (own) return wrong(own.text);
     if (f.type === 'markdown' && f.template && typeof v === 'string') {
       const [rule] = textProblems(f.template, v);
       if (rule) return wrong(t.check.inField(label, rule));

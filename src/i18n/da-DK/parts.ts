@@ -431,13 +431,12 @@ export const parts: Messages['parts'] = {
     /** The theme's dialog, bottom sheet and carousel (packages/editor/theme/ui/), and what is in the examples. */
     containment: {
       title: 'Dialoger, ark og karrusel',
-      dialog:
-        'En dialog over siden med ikon, overskrift, tekst og knapper, kun dialogen (fx et pop op-vindue eller cookiespørgsmålet), eller over hele skærmen på en telefon med lukkeknappen og handlingen øverst.',
+      dialog: 'En dialog over siden med ikon, overskrift, tekst og knapper, kun dialogen (fx et pop op-vindue eller cookiespørgsmålet).',
       bottomSheet:
         'Et ark nedefra: modalt over siden (en dialog i midten på en computer, fx bookingarket), eller standard nederst på skærmen, hvor siden kan bruges bag det, og som trækkes op og ned.',
       carousel:
         'Kort eller billeder på en række, der skubbes til siden, med prikker under: lige store, i flere størrelser, ét stort (fra starten eller i midten) og ét ad gangen.',
-      dialogKinds: { basic: 'Almindelig', icon: 'Med ikon, liste og skillelinje', container: 'Kun boksen', fullScreen: 'Hele skærmen' },
+      dialogKinds: { basic: 'Almindelig', icon: 'Med ikon, liste og skillelinje', container: 'Kun boksen' },
       sheetKinds: {
         modal: 'Modalt, en dialog på en computer',
         modalSideSheet: 'Modalt, et sideark på en computer',
@@ -455,13 +454,12 @@ export const parts: Messages['parts'] = {
         multiBrowse: 'Flere størrelser',
         hero: 'Ét stort',
         heroCenter: 'Ét stort i midten',
+        narrow: 'Uden ramme, i en smal kolonne',
         fullScreen: 'Ét ad gangen',
       },
       choices: ['Første valg', 'Andet valg', 'Tredje valg'],
-      fields: ['Navn', 'E-mail'],
       cancel: 'Annuller',
       accept: 'Godkend',
-      save: 'Gem',
       page: 'Siden bag arket kan stadig bruges.',
       dragHandle: 'Fold arket ud eller sammen',
       openSheet: 'Åbn det modale ark',
@@ -620,10 +618,11 @@ export const parts: Messages['parts'] = {
       sliderSizes: { xsmall: 'Ekstra lille', small: 'Lille', medium: 'Mellem', large: 'Stor', xlarge: 'Ekstra stor' },
       verticalSliders: 'Lodret',
       kinds: { 'full-width': 'Fuld bredde', inset: 'Rykket ind', 'middle-inset': 'Rykket ind fra begge sider', vertical: 'Lodret' },
-      sheetKinds: { standard: 'Ved siden af siden', modal: 'Over siden' },
+      sheetKinds: { standard: 'Ved siden af siden', withBack: 'Ved siden af siden, med en tilbage-pil', modal: 'Over siden' },
       page: 'Siden, arket hører til.',
       heading: 'Filtre',
       text: 'Det, arket viser.',
+      back: 'Tilbage',
       close: 'Luk',
       apply: 'Brug',
       cancel: 'Annuller',
@@ -682,7 +681,7 @@ export const parts: Messages['parts'] = {
       content: 'Sidens indhold står her.',
       openRail: 'Åbn navigation',
       search:
-        'Søgefeltet og det, det åbner: feltet med knappen tilbage og resultaterne, der passer til det skrevne. En søgevisning, som siden styrer, grupperer også resultaterne under et navn, viser en tast ved siden af et punkt og beholder et punkt, der ikke kan bruges nu.',
+        'Søgefeltet og det, det åbner: feltet med knappen tilbage og resultaterne, der passer til det skrevne. En søgevisning, som siden styrer, grupperer også resultaterne under et navn, viser en tast ved siden af et punkt og beholder et punkt, der ikke kan bruges nu. Søgefeltet kan være en knap, der åbner visningen, og en gruppe har sit navn over sig (en kategorietiket).',
       toolbar:
         'Handlinger på en række: i hele bredden nederst, som linjen nederst på en telefon, eller svævende, i fladen eller den primære farve, på tværs eller lodret, også med en knap ved siden af og foldet sammen til knappen.',
       name: 'Navigation',

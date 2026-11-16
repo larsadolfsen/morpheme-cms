@@ -19,7 +19,18 @@ import { useContext, useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Bell, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
 import { t } from './i18n';
-import { IconButton, IconLink, MenuButton, TabPanel, TabRow, TopAppBar, useMenuLayout, type TabChoice } from './ui';
+import {
+  IconButton,
+  IconLink,
+  MenuButton,
+  SearchBarButton,
+  TabPanel,
+  TabRow,
+  TopAppBar,
+  useAtLeast,
+  useMenuLayout,
+  type TabChoice,
+} from './ui';
 import { up } from './nav';
 import EditorFooter from './EditorFooter';
 import { FabPresenceContext, useCountFabs, useFabLift } from './fabPresence';
@@ -79,20 +90,21 @@ export function WebsiteLink() {
   return <IconLink href="/" target="_blank" rel="noopener" onClick={openWindow} icon={ArrowSquareOut} label={t.library.openWebsite} />;
 }
 
-/** The bell in the top bar, before the link to the website: opens the notifications in a side sheet (Notifications.tsx,
- * notificationsOpen.ts), with a dot while some are not seen yet. */
+/** The bell in the top bar, before the link to the website: opens the notifications in a side sheet from 600 dp, below it goes to the
+ * notifications' page (Notifications.tsx, notificationsOpen.ts), with a dot while some are not seen yet. */
 export function NotificationsButton({ className = '' }: { className?: string }) {
   const count = unseen(useNotifications());
   const open = useNotificationsOpen();
+  const phone = !useAtLeast('medium');
   return (
     <IconButton
       icon={Bell}
       label={count ? t.library.notificationsNew(count) : t.library.notifications}
-      aria-haspopup="dialog"
-      aria-expanded={open}
+      aria-haspopup={phone ? undefined : 'dialog'}
+      aria-expanded={phone ? undefined : open}
       badge={count > 0}
       className={className}
-      onClick={openNotifications}
+      onClick={() => (phone ? (location.hash = 'notifications') : openNotifications())}
     />
   );
 }
@@ -117,6 +129,24 @@ export function SearchButton({ className = '' }: { className?: string }) {
       onClick={(e) => {
         // The press did not focus the button (see above): it takes the focus now, so closing the palette gives it back here.
         e.currentTarget.focus({ preventScroll: true });
+        openPalette();
+      }}
+    />
+  );
+}
+
+/** The search bar of the start screen (M3's contained search bar, 56dp, in the top bar in place of the search icon: "Search app bars have a search field
+ * instead of heading text"): the theme's bar (ui.tsx SearchBarButton) that opens the command palette, as Ctrl+K and the icon do. Its hint is its name. */
+export function PaletteBar({ className = '' }: { className?: string }) {
+  const open = usePaletteOpen();
+  return (
+    <SearchBarButton
+      label={t.palette.label}
+      open={open}
+      keys={ariaShortcut('Mod+K')}
+      className={`max-w-[45rem] min-w-0 flex-1 ${className}`}
+      onOpen={(button) => {
+        button.focus({ preventScroll: true });
         openPalette();
       }}
     />
@@ -160,6 +190,8 @@ export default function Screen<T extends string>({
   useFabLift(fabs.count > 0);
   // The way here, without the start screen: the logo in the bar is the way there.
   const crumbs = back && back.href !== '#' ? [back] : [];
+  // The start screen shows the search bar in its top bar, in place of the title and the search icon.
+  const searchBar = home && !selection;
   const bar = (
     <TopAppBar>
       <div className={`flex h-16 items-center px-2 medium:gap-3 medium:px-6 ${home ? 'gap-0.5' : 'gap-1'}`}>
@@ -172,7 +204,8 @@ export default function Screen<T extends string>({
           />
         )}
         {/* The start screen's logo stands beside the site's name, which says the same: on a phone the name gets its width (the bar has four actions there). */}
-        {!full && <SiteLogoLink onClick={leave()} className={home ? 'hidden medium:flex' : 'hidden expanded:flex'} />}
+        {/* Not on the start screen's bar from medium: the search bar gets the room (owner, 15 Nov: "The logo in the header is not a necessity. Usability is most important."). */}
+        {!full && !searchBar && <SiteLogoLink onClick={leave()} className={home ? 'hidden medium:flex' : 'hidden expanded:flex'} />}
         {back && (
           <a
             href={back.href}
@@ -184,7 +217,10 @@ export default function Screen<T extends string>({
             <ArrowLeft size={24} />
           </a>
         )}
-        <div className={`flex min-w-0 flex-1 flex-col ${home ? 'medium:pl-1' : 'pl-1'} ${full ? '' : 'expanded:hidden'}`}>
+        {/* The start screen: from medium the top bar is the search bar and the title and status stand under it; on a phone the title stays in the bar and the search bar is the first thing in the page. */}
+        <div
+          className={`min-w-0 flex-col ${searchBar ? 'flex flex-1 medium:hidden' : `flex flex-1 ${home ? 'medium:pl-1' : 'pl-1'} ${full ? '' : 'expanded:hidden'}`}`}
+        >
           <h1 className="truncate text-title-large">{title}</h1>
           {status && (
             <p data-subtitle className="truncate text-xs text-on-surface-variant">
@@ -192,8 +228,14 @@ export default function Screen<T extends string>({
             </p>
           )}
         </div>
-        {!full && <div className="hidden min-w-0 flex-1 expanded:block" />}
-        {!selection && <SearchButton />}
+        {searchBar ? (
+          <PaletteBar className="hidden medium:flex" />
+        ) : (
+          <>
+            {!full && <div className="hidden min-w-0 flex-1 expanded:block" />}
+            {!selection && <SearchButton />}
+          </>
+        )}
         <div className="flex shrink-0 items-center justify-end gap-1">
           {selection ?? (
             <>
@@ -233,7 +275,13 @@ export default function Screen<T extends string>({
           className={`editor-screen flex min-w-0 flex-1 flex-col px-4 pt-6 pb-[env(safe-area-inset-bottom)] medium:px-6 medium:pt-8 medium:pb-4 ${width}`}
         >
           {/* At expanded and wider: the way here, the title and the status, under the bar. */}
-          <div className="mb-6 hidden min-w-0 items-center gap-x-2 expanded:flex">
+          {searchBar && (
+            // M3 specs, Measurements: the unfocused search bar is 24dp from the screen's edges (the page has 16dp).
+            <div className="mx-2 mb-6 flex medium:hidden">
+              <PaletteBar className="max-w-none" />
+            </div>
+          )}
+          <div className={`mb-6 min-w-0 items-center gap-x-2 ${searchBar ? 'hidden medium:flex' : 'hidden expanded:flex'}`}>
             {crumbs.length > 0 && (
               <nav aria-label={t.library.breadcrumbs} className="flex shrink-0 items-center gap-2 text-on-surface-variant">
                 {crumbs.map((c) => (
@@ -246,8 +294,12 @@ export default function Screen<T extends string>({
                 ))}
               </nav>
             )}
-            <h1 className="truncate font-medium">{title}</h1>
-            {status && <p className="shrink-0 text-sm text-on-surface-variant">{status}</p>}
+            <h1 className={searchBar ? 'truncate text-title-large' : 'truncate font-medium'}>{title}</h1>
+            {status && (
+              <p data-subtitle={searchBar ? '' : undefined} className="shrink-0 text-sm text-on-surface-variant">
+                {status}
+              </p>
+            )}
             {/* The icons are taller than the text: the negative margin keeps the row's height. */}
             {pageActions && <div className="-my-3 ml-auto flex shrink-0 items-center gap-1">{pageActions}</div>}
           </div>

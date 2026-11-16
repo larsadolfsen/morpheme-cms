@@ -10,7 +10,7 @@ import { ArrowDown, ArrowUp, DotsSixVertical, DotsThreeVertical, GearSix, Trash 
 import { t } from './i18n';
 import { apps } from './site';
 import { activeApps } from './apps';
-import { allWidgets, type WidgetDefinition } from './widgets';
+import { allWidgets, spanClass, type WidgetDefinition } from './widgets';
 import { cmsWidgets } from './cmsWidgets';
 import { DashboardSaveError, loadDashboard, placementsOf, saveDashboard } from './dashboardStore';
 import { addWidget, removeWidget, setSettings as setPlacementSettings, withoutMissing } from './dashboard.mjs';
@@ -204,7 +204,7 @@ export function EditableCards({
       <div aria-live="polite" className="sr-only">
         {dash.announcement}
       </div>
-      <div ref={grid} className="grid items-start gap-4 medium:grid-cols-2">
+      <div ref={grid} className="image-grid [--grid-columns:2]">
         {shown.map(({ placement, definition }) => {
           const dragging = drag?.id === placement.id;
           return (
@@ -214,7 +214,7 @@ export function EditableCards({
               aria-label={definition.label}
               data-card={placement.id}
               style={dragging ? { transform: `translate(${drag.dx}px, ${drag.dy}px)` } : undefined}
-              className={`relative rounded-(--block-radius) bg-surface-container-low pb-2 ${
+              className={`${spanClass(definition.span)} relative rounded-(--block-radius) bg-surface-container-low pb-2 ${
                 dragging ? 'card-dragged z-10 shadow-(--mo-elevation-4-shadow)' : ''
               } ${drag?.over === placement.id ? 'outline-2 outline-primary' : ''}`}
             >
