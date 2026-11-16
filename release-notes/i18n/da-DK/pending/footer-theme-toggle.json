@@ -1,6 +1,7 @@
 {
   "id": "footer-theme-toggle",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "Bunden har en indstilling for farvetema med Lys, Auto og Mørk: Auto følger systemet, og dit valg huskes"
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Lys og mørk",
+  "text": "Besøgende kan vælge det udseende, de bedst kan lide. Sidefoden har en indstilling for farvetema med Lys, Auto og Mørk. Auto følger systemet, og valget huskes."
 }

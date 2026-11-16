@@ -1,0 +1,6 @@
+{
+  "id": "anchor-positioned-menus",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Dropdown menus stay inside the window and never cover their button"
+}
