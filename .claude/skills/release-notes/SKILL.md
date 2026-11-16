@@ -133,7 +133,11 @@ Danish words from `src/i18n/da-DK/`, and the same length cap. Keep `id`,
 
 ## Editions
 
-Each minor line is an edition named after a place: one free nature photo from [Unsplash](https://unsplash.com) (never
+**An edition is named after the country of its photo** (owner, 16 Nov 2026: "From now on we will name them after countries,
+not locations."; the earlier editions were renamed to their countries the same day). `name` is the country (`Kenya`, `Italy`), as the page says
+it in every language; `place` keeps the full place. Two editions may share a country.
+
+Each minor line is an edition named after a place (from 16 Nov 2026 its country, see above): one free nature photo from [Unsplash](https://unsplash.com) (never
 Unsplash+) and the name of where it was taken, for every version of the line (0.14.0, 0.14.1, … and its test versions).
 After an update, the start screen shows the photo and "Morpheme <name> <version>" in a small message; the Morpheme page
 shows it under the line's newest version.
