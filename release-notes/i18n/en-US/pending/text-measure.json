@@ -1,0 +1,7 @@
+{
+  "id": "text-measure",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Text width",
+  "text": "Long lines are hard to read. Paragraphs and headings on a page are 40 to 60 characters wide. Lists, accordions, Steps and Blog posts lists are as wide as the paragraph above them, while Cards, images and tables keep the full page width."
+}

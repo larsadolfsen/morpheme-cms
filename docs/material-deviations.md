@@ -498,3 +498,11 @@ Source: `theme/components/MobileMenu.tsx`, `theme/ui/NavigationDrawer.tsx`, `the
 ### N7. Values only the Specs images carry are left as they were
 
 - **Not read:** "Nav rail expanded top space 44dp" is a token, but how the 56dp active indicator sits in the 64dp item container ("container height 64dp", "short container height 56dp", "container vertical space 6dp") and the container's shape and elevation print no value in the page's text. The PM's decision: leave those as they are. We keep the 56dp item, the 12dp top padding and the drawer's corners and level 1 shadow. **Date:** 2026-11-15. **PR:** this pull request.
+
+## Text measure
+
+### T1. The page's text is 40ch to 60ch wide (owner decision)
+
+- **Material:** Material 3 prints no maximum or minimum text width for body text.
+- **We do:** a paragraph or heading of a page's text is at least `--block-text-measure-min` (40ch) and at most `--block-text-measure-max` (60ch) wide (`theme/styles/blocks.css`), as `min-width: min(40ch, 100%)` so a narrow container never scrolls sideways. Blocks of plain text rows (List, Segmented list and its accordion rows, Steps, Blog posts as a list, Testimonials list) use the same maximum, so a list is as wide as the paragraph above it; wide visual blocks keep the container's width. The page container is unchanged. It was 66ch (the accordion and Steps 48rem).
+- **Why:** the owner's own rule ("p { min-width: 40ch; max-width: 60ch; }", "yes, do that"). **Date:** 2026-11-16. **PR:** this pull request.
