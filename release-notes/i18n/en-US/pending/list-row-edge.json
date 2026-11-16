@@ -1,0 +1,6 @@
+{
+  "id": "list-row-edge",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A List starts its icons and text on the same left edge as the text above it"
+}

@@ -163,6 +163,20 @@ async function checkListDesigns(width, height) {
       slots: [...document.querySelectorAll('.inline-list-row-active .inline-list-slot')].map((x) => x.getAttribute('aria-label')),
       add: [...document.querySelectorAll('[data-add-row]')].map((x) => x.textContent.trim()),
       own: document.querySelectorAll('[data-row-link], [data-add-button], [data-row-arrow], .inline-segmented-buttons').length,
+      // The Default design is full width (owner, 16 Nov 2026): the row's layer is 16 dp wider than the text column on each side, its leading icon on the text's edge.
+      edge: (() => {
+        const row = document.querySelector('.inline-list-row-active');
+        const box = row?.matches('.list-item-container') ? row : row?.querySelector('.list-item-container');
+        const lead = box?.querySelector('.list-item-leading');
+        const text = document.querySelector('.ProseMirror p')?.getBoundingClientRect().left;
+        return box && lead && text !== undefined
+          ? {
+              layer: box.getBoundingClientRect().left - text,
+              icon: lead.getBoundingClientRect().left - text,
+              wide: document.documentElement.scrollWidth - window.innerWidth,
+            }
+          : null;
+      })(),
       // The link slot is at the end of the row: to the right of the heading.
       end: (() => {
         const row = document.querySelector('.inline-list-row-active');
@@ -179,7 +193,7 @@ async function checkListDesigns(width, height) {
       .waitFor({ timeout: 4000 })
       .then(() => true)
       .catch(() => false);
-    seen.push({ look, ...got, opened });
+    seen.push({ look, card, ...got, opened });
     await page.close();
   }
   const [first] = seen;
@@ -190,6 +204,17 @@ async function checkListDesigns(width, height) {
     if (one.add.join() !== 'Add list row') problems.push(`${label}: ${one.look} has the add button "${one.add}", not "Add list row"`);
     if (one.own) problems.push(`${label}: ${one.look} has a text row or a button of its own for the row's link`);
     if (!one.end) problems.push(`${label}: ${one.look}: the link slot is not at the end of the row`);
+    if (!one.edge) problems.push(`${label}: ${one.look}: no row layer or leading icon to measure`);
+    else {
+      // Default: the layer starts 16 dp before the text's edge and the icon on it; Card: the container on the text's edge (its icon one 16 dp padding in).
+      // The rows that fold out have the 24 dp padding of the theme's accordion (global.css) inside their card.
+      const [layer, icon] = one.card ? [0, one.look.includes('Expand') ? 24 : 16] : [-16, 0];
+      if (Math.abs(one.edge.layer - layer) > 0.5)
+        problems.push(`${label}: ${one.look}: the row starts ${one.edge.layer} px from the text's edge, not ${layer}`);
+      if (Math.abs(one.edge.icon - icon) > 1)
+        problems.push(`${label}: ${one.look}: the leading icon starts ${one.edge.icon} px from the text's edge, not ${icon}`);
+      if (one.edge.wide > 0.5) problems.push(`${label}: ${one.look}: the page scrolls sideways by ${one.edge.wide}px`);
+    }
     if (!one.opened) problems.push(`${label}: ${one.look}: the link slot did not open the row's page field`);
   }
 }

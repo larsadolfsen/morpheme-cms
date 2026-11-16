@@ -1,0 +1,6 @@
+{
+  "id": "list-full-width",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A List in the Default design is full width: a pressed row reaches the screen edge on a phone"
+}
