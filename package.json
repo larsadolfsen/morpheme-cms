@@ -53,6 +53,7 @@
     "check:preview": "cd .morpheme/demo/site && node ../../../bin/morpheme.mjs check:preview",
     "check:contrast": "cd .morpheme/demo/site && node ../../../bin/morpheme.mjs check:contrast",
     "check:demo": "node bin/morpheme.mjs check:demo",
+    "check:same-html": "node bin/morpheme.mjs check:same-html",
     "check:starter": "node scripts/check-starter.mjs",
     "test": "node --test \"{defaults,lib,scripts,site,src,theme,worker}/**/*.test.mjs\"",
     "icons": "node scripts/icon-packs.mjs",
