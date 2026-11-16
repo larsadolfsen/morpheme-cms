@@ -43,7 +43,12 @@ const surfaces = [
   ['modal side sheet', 'background: var(--side-sheet-modal-surface, var(--side-sheet-surface, var(--mo-elevation-1-color)));', 2],
   ['scrolled top app bar', 'background: var(--top-app-bar-stuck-surface, var(--mo-elevation-2-color));', 1],
   ['menu, menu group and select list', 'background: var(--menu-surface, var(--mo-elevation-2-color));', 3],
-  ['navigation drawer', 'background: var(--navigation-drawer-surface, var(--mo-elevation-1-color));', 1],
+  ['modal navigation drawer (the expanded rail, modal)', 'background: var(--navigation-drawer-surface, var(--mo-elevation-2-color));', 1],
+  [
+    'standard navigation drawer (the expanded rail, standard)',
+    'background: var(--navigation-drawer-surface, var(--mo-elevation-0-color));',
+    1,
+  ],
   ['rich tooltip', 'background: var(--tooltip-rich-surface, var(--mo-elevation-2-color));', 1],
   ['standard navigation rail', 'background: var(--navigation-rail-surface, var(--mo-elevation-0-color));', 1],
   ['modal navigation rail', 'background: var(--navigation-rail-modal-surface, var(--mo-elevation-2-color));', 1],

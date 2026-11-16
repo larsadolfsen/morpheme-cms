@@ -15,11 +15,7 @@ export { default as SiteCheckbox } from '@theme/ui/Checkbox';
 export { default as SiteChip, chipKinds } from '@theme/ui/Chip';
 export { default as SiteChipSet, chipSetLayouts } from '@theme/ui/ChipSet';
 export { bottomSheet as siteBottomSheet, followKeyboard as siteFollowKeyboard } from '@theme/ui/bottomSheetControl';
-export {
-  default as SiteDialog,
-  dialogModalClass as siteDialogModalClass,
-  dialogFullScreenModalClass as siteDialogFullScreenModalClass,
-} from '@theme/ui/Dialog';
+export { default as SiteDialog, dialogModalClass as siteDialogModalClass } from '@theme/ui/Dialog';
 export {
   default as SiteBottomSheet,
   BottomSheetHeader as SiteBottomSheetHeader,
@@ -40,7 +36,7 @@ export {
   listClasses as siteListClasses,
 } from '@theme/ui/List';
 /** The theme's navigation parts (the header's), for "Parts" › "UI components" (NavigationParts.tsx). */
-/** The app bar (Material 3's name); SiteTopAppBar is the same, its old name, kept while THEME_API is 4. */
+/** The app bar (Material 3's name); SiteTopAppBar is the same, its old name, kept while THEME_API is 5. */
 export { default as SiteAppBar, default as SiteTopAppBar } from '@theme/ui/AppBar';
 export {
   Menu as SiteMenu,
@@ -51,7 +47,7 @@ export {
   menuClass as siteMenuClass,
 } from '@theme/ui/Menu';
 export { placeMenu as sitePlaceMenu } from '@theme/ui/dropdownMenu.script';
-/** The text field menu (Material 3's name); SiteExposedDropdownMenu is the same, its old name, kept while THEME_API is 4. */
+/** The text field menu (Material 3's name); SiteExposedDropdownMenu is the same, its old name, kept while THEME_API is 5. */
 export { default as SiteTextFieldMenu, default as SiteExposedDropdownMenu } from '@theme/ui/TextFieldMenu';
 export {
   NavigationDrawer as SiteNavigationDrawer,
@@ -104,7 +100,14 @@ export {
   NavigationRailItem as SiteNavigationRailItem,
   NavigationRailSection as SiteNavigationRailSection,
 } from '@theme/ui/NavigationRail';
-export { default as SiteSearch, SearchBar as SiteSearchBar, SearchView as SiteSearchView } from '@theme/ui/Search';
+export {
+  default as SiteSearch,
+  SearchBar as SiteSearchBar,
+  SearchBarButton as SiteSearchBarButton,
+  SearchGroupLabel as SiteSearchGroupLabel,
+  SearchView as SiteSearchView,
+} from '@theme/ui/Search';
+export type { SearchViewItem } from '@theme/ui/Search';
 export { default as SiteToolbar } from '@theme/ui/Toolbar';
 /** The theme's date and time pickers, for "Parts" › "UI components" (PickerParts.tsx). */
 export { default as SiteDatePicker, datePickerTexts } from '@theme/ui/DatePicker';

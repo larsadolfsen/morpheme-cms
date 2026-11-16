@@ -24,6 +24,7 @@ export const common = {
   noMatch: 'No results',
   notSaved: (error: string) => `Couldn’t save: ${error}`,
   backTo: (to: string) => `Back to ${to}`,
+  back: 'Back',
   /** The swatch of a colour field (ColorField), for screen readers. */
   pickColor: (name: string) => `${name}: select a color`,
   /** The lock on the source color in the generator (ColorTiles), a toggle: on while it is locked. */

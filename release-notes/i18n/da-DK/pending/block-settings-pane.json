@@ -1,0 +1,7 @@
+{
+  "id": "block-settings-pane",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Rude til blokindstillinger",
+  "text": "Teksten bliver stående, mens du ændrer en blok. Vælg en blok, så åbner dens indstillinger i en rude til højre uden en dialog over siden, og hver ændring gælder med det samme. På en telefon er de stadig en side med en tilbage-pil."
+}

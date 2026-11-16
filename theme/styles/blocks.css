@@ -806,13 +806,13 @@
   }
   @media (width >= theme(--breakpoint-medium)) {
     .block-imagegrid-grid[data-columns='2'] {
-      column-count: 2;
+      --grid-columns: 2;
     }
     .block-imagegrid-grid[data-columns='3'] {
-      column-count: 3;
+      --grid-columns: 3;
     }
     .block-imagegrid-grid[data-columns='4'] {
-      column-count: 4;
+      --grid-columns: 4;
     }
   }
   .block-imagegrid-grid > li[hidden] {
@@ -858,6 +858,9 @@
   .block-list {
     --list-item-leading-icon-color: var(--block-text);
     --list-item-trailing-text: var(--block-text);
+    /* A segmented list stands on the page, which is Surface: its rows on Surface would vanish, so the block's are on the surface container (the
+       theme's default is M3's Surface, for a list on a higher container; owner, 15 Nov 2026, docs/material-deviations.md SV12). */
+    --list-segmented-surface: var(--mo-surface-container);
   }
   /* The color of an icon in a row or a card (`iconColor`, src/iconColor.ts): one of the theme's color roles; without one, the text colour (Text in the editor). */
   [data-icon-color='primary'] {

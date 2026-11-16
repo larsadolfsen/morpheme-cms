@@ -12,8 +12,11 @@ export const theme = {
   actions: 'Actions',
   cookies: 'Cookies',
   cookieSettings: 'Cookie settings',
-  darkTheme: 'Dark theme',
-  lightTheme: 'Light theme',
+  /** The footer's colour scheme setting (Footer.astro): the group's name, and its three choices; Auto follows the system. */
+  colorScheme: 'Theme',
+  schemeLight: 'Light',
+  schemeAuto: 'Auto',
+  schemeDark: 'Dark',
   tags: 'Tags',
   allPosts: 'All',
   noPosts: 'No posts here yet',

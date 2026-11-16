@@ -12,8 +12,11 @@ export const theme: Messages['theme'] = {
   actions: 'Handlinger',
   cookies: 'Cookies',
   cookieSettings: 'Cookieindstillinger',
-  darkTheme: 'Mørkt tema',
-  lightTheme: 'Lyst tema',
+  /** The footer's colour scheme setting (Footer.astro): the group's name, and its three choices; Auto follows the system. */
+  colorScheme: 'Farvetema',
+  schemeLight: 'Lys',
+  schemeAuto: 'Auto',
+  schemeDark: 'Mørk',
   tags: 'Tags',
   allPosts: 'Alle',
   noPosts: 'Her er ingen indlæg endnu',

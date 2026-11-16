@@ -91,12 +91,36 @@ comment as an `<img>` of the link. Not yet checked: that the owner's browser sho
 The first session that adds screenshots looks at the comment, and if the image does not show, it tries another way that
 leaves nothing in the shipped package. It then tells the PM exactly what worked, and the PM has this paragraph updated.
 
+**CI slots (owner rule, 15 Nov 2026).** The PM allows 1 to 4 pull requests in CI at once, a `Check` run queued or running.
+It decides by overlap. Pull requests that change different files run together, up to 4. Pull requests that change the
+same files run one after another, because the first merge forces a merge of the base and a new run in the second. A
+fix of a red base branch always goes first. Why not more than 4: one `Check` run is about 19 jobs and about 20 run at
+once, so more only queues. A session pushes, re-runs or merges `origin/<line>` into its pull request only when the PM
+says "your slot". It may merge the base locally and run `npm run check`, but it does not push. The PM counts the active
+runs with `gh api "repos/larsadolfsen/morpheme-cms/actions/runs?status=queued"` and `status=in_progress`, and gives the
+next slot when a pull request merges or goes red and is sent back. A push that supersedes a run is cancelled by
+`concurrency` (only the newest head counts). The PM may cancel a run it queued itself when a slot is needed (the owner
+approved this on 15 Nov). The one re-run of failed jobs per run stays as it is. Docs-only pull requests count as a slot
+until the docs-only CI skip (#770) is merged; after that they are light.
+
 **Cloudflare builds.** The PM keeps an eye out for failed Cloudflare builds: the `Workers Builds: …` check on every
 pull request and on `main` (the demo, `morpheme-demo`), and the builds of `morpheme-staging` and of the sites that
 install the `next` version. A failed build is never left unmentioned. The PM reads the build log, finds the cause and
 says which change caused it. Then it either has a fix made, in a session in the repository that owns the fix and as a
 normal pull request, or it tells the owner exactly what failed and what it needs. It does not deploy or run `wrangler`
 against the live Cloudflare account itself.
+
+**Ready queue and CI slots (owner rule, 15 Nov 2026).** Sessions send a "ready: …" message when their change is done and
+checked locally (`developer` skill, *3a*). The PM keeps the queue in the order of those messages; a fix of a red base
+branch goes first. It allows 1 to 4 pull requests in CI at once, decided by overlap: pull requests that change different
+files run together, up to 4; pull requests that change the same files run one after another. The cap is 4 because one
+`Check` run is about 19 jobs and about 20 run at once. The PM tells the next session "your slot", starts or re-runs the
+CI itself when a session has pushed out of turn, and tells the 0.19 PM after each merge into 0.18 (`changesets`).
+
+"Overlap" means the same files or the same area of behaviour: two pull requests on the focus rings, the same dialog or the
+same menu overlap even when they touch different files, and the PM judges. Overlapping pull requests go one after another,
+and each merges the new base before its run. Docs-only pull requests (skills, notes, changesets) and small independent
+pull requests may share a slot. Two pull requests can each be green apart and break once both are merged.
 
 ## Phase 1 - Take stock (read-only)
 
@@ -127,6 +151,19 @@ When the change builds a new component or edits an existing component's design (
 the brief also tells the session to read the M3 pages with Playwright (skill `material-3`, *Reading the real pages*) and
 to say in its pull request which pages were read. The PM checks that the pull request says it before merging; a pull
 request that does not is not merged. A session that only uses an existing theme component as it is needs no reading.
+
+When the change touches CSS, layout, forms, accessibility or performance, the brief also tells the session to use Modern
+Web Guidance (skill `developer`, *4a*) and to name the guides it read in its pull request. The PM checks that the pull
+request names them. When a session sends a conflict between a guide and the owner's rules, Material 3 or a theme
+component, the PM does not decide: it brings the conflict to the owner and tells the session the answer.
+Owner rule, 15 Nov: "We follow the best practices in modern web from Google." Where a guide covers behaviour, markup, accessibility or performance, we follow it; Material 3 still decides how things look and are named.
+
+**The order of priority.** Owner rule, 15 Nov 2026: "Priority: 1 Modern web, 2 MD3 Expressive, 3 MD3, 4 MD2 with MD3 styling, 5 self-made. Remember the priority and stop asking me all the questions you can answer yourself. The fifth priority is self-made and that is a decision I need to take."
+
+1. Where two conflict, the lower number wins: 1 Modern web (Chrome's Modern Web Guidance: behaviour, markup, accessibility, performance), 2 Material 3 Expressive (where a component has an Expressive variant; `material-3` rule 4), 3 Material 3 (baseline), 4 Material 2 with Material 3 styling, 5 self-made.
+2. The PM, and every session it briefs, decides with this order itself and does not ask the owner a question the order answers.
+3. Only a priority 5 solution (nothing from 1 to 4 covers it, so we would make it ourselves) is the owner's decision. The PM then asks the owner once, with the evidence and a recommendation.
+4. A real deviation from 1 to 4 is still recorded in `docs/material-deviations.md` (skill `material-3`).
 
 **No new component without the owner.** The PM never lets a session build a new component, or fix one in the theme,
 without the owner's approval. A session that finds a component missing or off Material 3 stops and reports to the PM

@@ -8,24 +8,25 @@
 // settings (its colour, SectionSettings.tsx), which goes the same way as a block's fields: Cancel, Save, the question when closed changed.
 // The fields and the section settings are in the theme's side sheet (sheetPlacement.mjs): a standard one beside the page from
 // expanded (not modal: the page stays usable, .editor-side-sheet in editor.css), a modal one over the page below it
-// (fields only; the section settings are a sheet from the bottom there). The modal one and the sheet from the bottom end with Save
+// (fields only; the section settings are the standard side sheet from medium, 600 dp). The modal one and the sheet from the bottom end with Save
 // (Insert) and Cancel. The standard one is live when the caller gives it the block (LiveBlock, liveSheet.mjs): each change goes to the
 // block at once, one undo step per field, and it follows the block through Undo and Redo; it has only its headline and close button
 // (no Save, Cancel or Remove; Remove is in the block's menu) and asks nothing when it closes. A sheet keeps its look while it is open,
 // even when the window crosses the expanded breakpoint.
 // Their open, close, focus and Escape are the theme's (sideSheet() and standardSideSheet(), sideSheetControl.ts); leave() is their beforeClose.
-// On a compact window (a phone, below medium) a block's fields are a subpage of the page form instead (owner, 14 Nov: full-screen views are
-// pages), drawn as the crop view is (CropView.tsx; editor.css gives .block-page the crop page's rules): the top app bar with the back arrow and the block's name, the fields, and Save
-// (Insert) in the bottom bar. It is a layer over the form (a modal <dialog>), so the form keeps its scroll place; it has a step of its own in the
+// On a compact window (a phone, below medium) a block's fields and a section's settings are a subpage of the page form instead (owner, 14 Nov: full-screen views are
+// pages), drawn as the crop view is (CropView.tsx; editor.css gives .block-page the crop page's layer and column): the top app bar with the back arrow and the block's name, the fields, and Save
+// (Insert) in the theme's standard bottom sheet (ActionSheet). It is a layer over the form (a modal <dialog>), so the form keeps its scroll place; it has a step of its own in the
 // history (useSheetBack), so the browser's and Android's back leave it; back with changes asks "Keep your changes?" (closeChanged).
-// Below expanded the fields of a block on the page (edit with `keep`) are kept in a hidden copy in this browser while they are changed
+// Below medium the fields of a block on the page (edit with `keep`) are kept in a hidden copy in this browser while they are changed
 // (sheetCopy.mjs, one per page, `copy`), deleted when the sheet is answered; offer() asks to put a copy back when the page opens again:
-// Restore opens the subpage (or the modal side sheet at medium) with the copy's values, still unsaved, and from expanded the live side sheet
+// Restore opens the subpage (or the modal side sheet at medium) with the copy's values, still unsaved, and from medium the live side sheet
 // with them written to the block like any change.
 // Another block tapped while one is open closes the open one first (the question when changed). Exposes useBlockDialog, IMAGE.
 import { useCallback, useEffect, useId, useRef, useState, type ReactElement } from 'react';
 import { ArrowsDownUp, Image } from '@phosphor-icons/react';
 import {
+  ActionSheet,
   Button,
   Choice,
   Filters,
@@ -61,13 +62,13 @@ import { choose as askChoice, closeChanged } from './ask';
 import SectionSettings, { type SectionValues } from './SectionSettings';
 import { liveSheet, sheetLook } from './sheetPlacement.mjs';
 import { sheetSteps } from './liveSheet.mjs';
-import { setPanelOpen } from './sidePanel';
-import { SiteSideSheet, siteFollowKeyboard, siteSideSheet, siteSideSheetDialogClass, siteStandardSideSheet } from './themeUi';
+import { usePane } from './PaneHost';
+import { siteFollowKeyboard } from './themeUi';
 import { typedInPlace } from './typedInPlace.mjs';
 import { useSheetBack } from './useSheetBack';
 import { drop as dropCopy, keep as keepCopy, matches as copyMatches, take as takeCopy } from './sheetCopy.mjs';
 
-/** Where an image's live sheet opens (from expanded, the bar's Alt text and a new image): its Alt text field. Below expanded the alt text sheet (`BlockAsk.alt`) is used. */
+/** Where an image's live sheet opens (from medium, the bar's Alt text and a new image): its Alt text field. Below medium the alt text sheet (`BlockAsk.alt`) is used. */
 export type EditFocus = 'alt';
 
 /** Scrolls the open sheet to its field labelled `name` (the Alt text field; a video's link, `reachField`) and puts the focus there, once the sheet has drawn it (it opens after the one before it has closed). */
@@ -104,7 +105,7 @@ export type BlockAsk = {
     live?: boolean;
   }) => Promise<{ type: string; props: BlockProps; open?: boolean } | null>;
   /** New props for a block in the text; null when cancelled. isNew: one about to be put in ("Insert"). live: makes the link to the
-   * block in the text, used when the sheet is live (the side sheet from expanded): its changes are then written through it, and the
+   * block in the text, used when the sheet is live (the side sheet from medium): its changes are then written through it, and the
    * answer is null when it closes (nothing is left to write). focus: the field the sheet opens at (EditFocus). */
   edit: (
     type: string,
@@ -114,7 +115,7 @@ export type BlockAsk = {
     focus?: EditFocus,
     keep?: KeepAt,
   ) => Promise<BlockProps | null>;
-  /** The page whose sheets keep a hidden copy below expanded (sheetCopy.mjs); undefined: none kept (another form, or not known yet). */
+  /** The page whose sheets keep a hidden copy below medium (sheetCopy.mjs); undefined: none kept (another form, or not known yet). */
   copy?: string;
   /** Once the page's text is loaded: offers to put back the page's hidden copy ("Restore your unsaved changes?") when the block it was
    * typed for is still there (find: the block or image at that index, null when there is none). Asks once per page. */
@@ -133,7 +134,7 @@ export type BlockAsk = {
     current: SectionSettingsOf,
     options?: { image?: boolean; width?: boolean; live?: () => LiveBlock | null },
   ) => Promise<SectionSettingsOf | null>;
-  /** The settings of a row of a block typed in place (a List's icon and link; `inline` in blocks.ts): in the side panel from expanded, kept
+  /** The settings of a row of a block typed in place (a List's icon and link; `inline` in blocks.ts): in the side panel from medium, kept
    * open and updated while a row is active, and a bottom sheet below it. Live: each change is told to `onChange` at once, with no Save and no
    * Cancel of its own. Not shown while another sheet is open. null closes it. `open` false: only update the settings if they are open already. */
   row: (spec: RowSpec | null, open?: boolean) => void;
@@ -250,7 +251,7 @@ const groupOf = (b: SiteBlock) => (b.app ? (apps.find((a) => a.id === b.app)?.la
 const standardGroups: string[] = blockGroups.map((g) => t.blockSettings.groups[g]);
 
 /** crop: an image can be cut to a format (not in a block's text, whose image the theme lays out). copy: the page whose sheets keep a hidden
- * copy below expanded. back: the name of the screen the subpage goes back to (the page's title). */
+ * copy below medium. back: the name of the screen the subpage goes back to (the page's title). */
 export function useBlockDialog(
   list: SiteBlock[] = siteBlocks,
   data: BlockData,
@@ -259,14 +260,10 @@ export function useBlockDialog(
 ): [BlockAsk, ReactElement] {
   const blockOf = (type: string) => (type === IMAGE ? image : type === HTML ? htmlBlock : list.find((b) => b.type === type));
   const dialog = useRef<HTMLDialogElement>(null);
-  // The modal side sheet's <dialog> (below expanded) and its controls; the standard one's box (from expanded).
-  const sideDialog = useRef<HTMLDialogElement>(null);
-  const sideControls = useRef<ReturnType<typeof siteSideSheet> | null>(null);
-  const standard = useRef<HTMLDivElement>(null);
-  const standardControls = useRef<ReturnType<typeof siteStandardSideSheet> | null>(null);
+  // The modal side sheet's <dialog> (below medium) and its controls; the standard one's box (from medium).
   // The subpage's <dialog> (a block's fields on a compact window).
   const pageDialog = useRef<HTMLDialogElement>(null);
-  // The hidden copy of the open block's fields (below expanded): where the block is and its props when it opened; null when none is kept.
+  // The hidden copy of the open block's fields (below medium): where the block is and its props when it opened; null when none is kept.
   const copyOf = useRef<{ index: number; type: string; before: BlockProps } | null>(null);
   // The page whose copy has been offered (offer() asks once).
   const offerMade = useRef<string | undefined>(undefined);
@@ -283,7 +280,7 @@ export function useBlockDialog(
   const trigger = useRef<HTMLElement | null>(null);
   // The look is taken from the window as each step is shown, and kept while it is open.
   const show = (next: Open | null) => {
-    const shown: Open | null = next && { ...next, wide: atLeastNow('expanded'), compact: !atLeastNow('medium') };
+    const shown: Open | null = next && { ...next, wide: atLeastNow('medium'), compact: !atLeastNow('medium') };
     openNow.current = shown;
     setOpen(shown);
     return shown;
@@ -330,7 +327,7 @@ export function useBlockDialog(
     if (from instanceof HTMLElement && from !== document.body) trigger.current = from;
     return new Promise<Answer>((resolve) => {
       answer.current = resolve;
-      const link = linked && liveSheet(first.step, atLeastNow('expanded')) ? linked() : null;
+      const link = linked && liveSheet(first.step, atLeastNow('medium')) ? linked() : null;
       // A live sheet keeps no copy: its changes are on the page.
       copyOf.current = link ? null : (kept ?? null);
       const opened = show(link && (first.step === 'fields' || first.step === 'section') ? { ...first, live: true } : first)!;
@@ -359,7 +356,7 @@ export function useBlockDialog(
 
   // Which dialog is open follows the look of the step: the sheet from the bottom, or the modal side sheet (below). It is taken when
   // the step is shown (show) and kept while it is open: a sheet never switches between live and Save and Cancel mid-edit.
-  const look: string = open ? sheetLook(open.step, !!open.wide, !!open.compact) : 'sheet';
+  const look: string = open ? sheetLook(open.step, !!open.wide) : 'sheet';
   lookNow.current = look;
   useEffect(() => {
     const sheet = dialog.current;
@@ -370,11 +367,13 @@ export function useBlockDialog(
 
   // The subpage (a block's fields on a compact window): a modal <dialog> over the form, as the crop view is. The form under it stays as it was
   // (its scroll place too), and does not scroll; the page's top and bottom bars are the dialog's own; it keeps above the on-screen keyboard.
-  // Focus starts on the back arrow, the first control of its app bar (Material 3).
+  // No control has the focus at the start (owner, 15 Nov): showModal() would focus the back arrow, with a ring and its tooltip, so the page itself
+  // takes the focus, without a ring; Tab reaches the back arrow first.
   useEffect(() => {
     const d = pageDialog.current;
     if (look !== 'subpage' || !d) return;
     if (!d.open) d.showModal();
+    d.focus({ preventScroll: true });
     document.documentElement.style.overflow = 'hidden';
     const stop = siteFollowKeyboard(d);
     return () => {
@@ -389,7 +388,7 @@ export function useBlockDialog(
   }, []);
   useSheetBack(look === 'subpage' && !!open, onBack, 'block-page');
 
-  // The hidden copy (below expanded): kept 300 ms after each change while the fields differ from what was shown, deleted when they are
+  // The hidden copy (below medium): kept 300 ms after each change while the fields differ from what was shown, deleted when they are
   // the same again; done() deletes it when the sheet is answered.
   useEffect(() => {
     const at = copyOf.current;
@@ -409,39 +408,6 @@ export function useBlockDialog(
     await latest.current.leave();
     return false;
   };
-
-  // The modal side sheet (below expanded).
-  useEffect(() => {
-    const d = sideDialog.current;
-    if (look !== 'modal-side-sheet' || !d) return;
-    sideControls.current = siteSideSheet(d, { beforeClose });
-    sideControls.current.open();
-    return () => {
-      sideControls.current = null;
-      document.documentElement.style.overflow = '';
-    };
-  }, [look]);
-
-  // The standard side sheet (from expanded): the page makes room for it (editor.css: [data-side-panel]), the focus moves
-  // into it and back to what had it before when it closes.
-  useEffect(() => {
-    if (look !== 'side-sheet') return;
-    document.documentElement.setAttribute('data-side-panel', '');
-    setPanelOpen(true);
-    const box = standard.current?.querySelector<HTMLElement>('[data-side-sheet-container]');
-    if (box) {
-      // The settings of a row are beside the row being typed in: the cursor stays where it is.
-      const typing = openNow.current?.step === 'row' ? document.activeElement : null;
-      standardControls.current = siteStandardSideSheet(box, { beforeClose });
-      standardControls.current.open(trigger.current ?? undefined);
-      if (typing instanceof HTMLElement && typing !== document.body) typing.focus({ preventScroll: true });
-    }
-    return () => {
-      standardControls.current = null;
-      document.documentElement.removeAttribute('data-side-panel');
-      setPanelOpen(false);
-    };
-  }, [look]);
 
   // The search, once the list to choose from is shown. The keyboard would cover the list on a phone;
   // there it opens when the search is tapped.
@@ -477,8 +443,7 @@ export function useBlockDialog(
     ended?.end();
     closing.current = (async () => {
       if (pageDialog.current?.open) pageDialog.current.close();
-      else if (sideControls.current && sideDialog.current?.open) await sideControls.current.close();
-      else if (standardControls.current) await standardControls.current.close();
+      else if (lookNow.current === 'side-sheet') await pane.close();
       else if (dialog.current?.open) dialog.current.close();
       card?.focus();
       setOpen(null);
@@ -490,7 +455,7 @@ export function useBlockDialog(
   const typedIn = () => {
     const at = document.activeElement;
     const typing = 'input:not([type=checkbox]):not([type=radio]):not([type=button]), textarea, [contenteditable="true"]';
-    return at instanceof HTMLElement && standard.current?.contains(at) && at.matches(typing) ? at : null;
+    return at instanceof HTMLElement && at.closest('.editor-side-sheet') && at.matches(typing) ? at : null;
   };
   const writeLive = (props: BlockProps) => live.current?.write(props, steps.current.change(typedIn()));
   const changeFields = (next: BlockProps) => {
@@ -566,8 +531,8 @@ export function useBlockDialog(
       }).then((a) => {
         if (a?.choice === 'restore') {
           here.open(kept.values);
-          // From expanded the values go to the page at once, so the copy has done its work.
-          if (atLeastNow('expanded')) dropCopy(copy);
+          // From medium the values go to the page at once, so the copy has done its work.
+          if (atLeastNow('medium')) dropCopy(copy);
         } else if (a?.choice === 'discard') dropCopy(copy);
       });
     },
@@ -589,8 +554,8 @@ export function useBlockDialog(
     if (!fields.length) return done({ type, props: {} });
     // A block typed in place goes in at once, with its first row active (MarkdownEditor.tsx): no sheet. One with `inline` but no view to draw it (an app's block without Inline.tsx) has its sheet.
     if (typedInPlace(blockOf(type))) return done({ type, props: newValue(fields) });
-    // From expanded any other block goes in at once too, with its defaults, and the caller opens its live sheet beside it (no Insert).
-    if (open?.step === 'choose' && open.live && liveSheet('fields', atLeastNow('expanded')))
+    // From medium any other block goes in at once too, with its defaults, and the caller opens its live sheet beside it (no Insert).
+    if (open?.step === 'choose' && open.live && liveSheet('fields', atLeastNow('medium')))
       return done({ type, props: newValue(fields), open: true });
     shown.current = asWritten(type, newValue(fields));
     setValues(newValue(fields));
@@ -769,33 +734,35 @@ export function useBlockDialog(
       {problem && <ProblemNote>{problem}</ProblemNote>}
     </>
   );
-  // A side sheet (the same markup, standard or modal): the block's fields or the section settings, with Save (Insert) and Cancel
-  // unless it is live (its headline and close button only).
-  const sideSheetOf = (kind: 'standard' | 'modal') =>
-    open &&
-    (open.step === 'section' || open.step === 'row' || block) && (
-      <SiteSideSheet
-        kind={kind}
-        headline={open.step === 'fields' && open.isNew ? t.blocks.insert : title}
-        headlineId={headingId}
-        closeLabel={t.common.close}
-        className={kind === 'standard' ? 'editor-side-sheet' : undefined}
-        actions={
-          open.step === 'row' || open.live ? undefined : (
-            <>
-              <Button onClick={() => (open.step === 'fields' ? save(open.type) : saveSection())}>
-                {open.step === 'fields' && open.isNew ? t.blocks.insert : t.common.save}
-              </Button>
-              <Button kind="outlined" onClick={() => void leave()}>
-                {t.common.cancel}
-              </Button>
-            </>
-          )
+  // The pane beside the page (PaneHost.tsx): the block's fields, the section settings or the settings of a row, with Save (Insert) and Cancel
+  // unless it is live (its headline and close button only). Fed on every render while its look is the side sheet.
+  const inPane = look === 'side-sheet' && open && (open.step === 'section' || open.step === 'row' || block);
+  const pane = usePane(
+    inPane
+      ? {
+          headline: open.step === 'fields' && open.isNew ? t.blocks.insert : title,
+          headlineId: headingId,
+          beforeClose,
+          opener: trigger.current,
+          keepFocus: open.step === 'row',
+          onBlur: () => steps.current.end(),
+          actions:
+            open.step === 'row' || open.live ? undefined : (
+              <>
+                <Button onClick={() => (open.step === 'fields' ? save(open.type) : saveSection())}>
+                  {open.step === 'fields' && open.isNew ? t.blocks.insert : t.common.save}
+                </Button>
+                <Button kind="outlined" onClick={() => void leave()}>
+                  {t.common.cancel}
+                </Button>
+              </>
+            ),
+          children: (
+            <div className="space-y-5">{open.step === 'row' ? rowFields : open.step === 'section' ? sectionSettings : blockFields}</div>
+          ),
         }
-      >
-        <div className="space-y-5">{open.step === 'row' ? rowFields : open.step === 'section' ? sectionSettings : blockFields}</div>
-      </SiteSideSheet>
-    );
+      : null,
+  );
   const element = (
     <>
       <BottomSheet
@@ -897,20 +864,15 @@ export function useBlockDialog(
             />
           </>
         )}
-        {look === 'sheet' && open?.step === 'section' && (
-          <>
-            <SheetBody>{sectionSettings}</SheetBody>
-            <SheetActions onCancel={() => void leave()} onDone={saveSection} done={t.common.save} />
-          </>
-        )}
       </BottomSheet>
-      {look === 'subpage' && block && open?.step === 'fields' && (
-        // A block's fields on a compact window: a page of the editor over the form, as the crop view is (editor.css .block-page): the top app
-        // bar with the back arrow and the block's name, the fields, and Save (Insert) in the bottom bar. Back (the arrow, Esc, the browser's
+      {look === 'subpage' && ((block && open?.step === 'fields') || open?.step === 'section') && (
+        // A block's fields (or a section's settings) on a compact window: a page of the editor over the form, as the crop view is (editor.css .block-page): the top app
+        // bar with the back arrow and the block's name, the fields, and Save (Insert) in the bottom sheet. Back (the arrow, Esc, the browser's
         // back) with changes asks "Keep your changes?"; the form under it stays as it was.
         <dialog
           ref={pageDialog}
           className="block-page"
+          tabIndex={-1}
           aria-labelledby={headingId}
           onCancel={(e) => {
             if (e.target !== e.currentTarget) return;
@@ -927,30 +889,18 @@ export function useBlockDialog(
             </div>
           </TopAppBar>
           <main className="block-page-main">
-            <div className="space-y-5">{blockFields}</div>
+            <div className="space-y-5">{open.step === 'section' ? sectionSettings : blockFields}</div>
           </main>
-          <div role="group" aria-label={t.common.saveChanges} className="block-page-bar">
-            <Button kind="filled" onClick={() => save(open.type)}>
-              {open.isNew ? t.blocks.insert : t.common.save}
-            </Button>
-          </div>
+          <ActionSheet label={t.common.saveChanges}>
+            <div className="flex justify-end gap-2">
+              <Button kind="filled" onClick={() => (open.step === 'section' ? saveSection() : save(open.type))}>
+                {open.step === 'fields' && open.isNew ? t.blocks.insert : t.common.save}
+              </Button>
+            </div>
+          </ActionSheet>
         </dialog>
       )}
-      {look === 'modal-side-sheet' && (
-        <dialog ref={sideDialog} className={siteSideSheetDialogClass} aria-labelledby={headingId}>
-          {sideSheetOf('modal')}
-        </dialog>
-      )}
-      {look === 'side-sheet' && (
-        // The standard side sheet is not modal: the page stays usable. The focus leaving it ends a live sheet's undo step.
-        <div
-          ref={standard}
-          className="contents"
-          onBlur={(e) => !e.currentTarget.contains(e.relatedTarget as Node | null) && steps.current.end()}
-        >
-          {sideSheetOf('standard')}
-        </div>
-      )}
+      {pane.portal}
     </>
   );
   return [asker, element];

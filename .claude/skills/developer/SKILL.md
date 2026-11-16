@@ -57,6 +57,14 @@ Every pull request, whatever the change:
   shared).
 - You never release (`CLAUDE.md`, *Only the owner releases a new version*).
 
+## 3a. Check in when ready to merge
+
+Owner rule, 15 Nov 2026. When the change is finished and `npm run check` is green locally, do not push, open a pull request
+or re-run CI on your own. Send the PM one message, `ready: <branch>, <what changed>, local check green`, and wait. Only on
+the PM's "your slot" do you push (or merge `origin/<base>` and push, or open the pull request), then report the link and
+the head sha once `check` is green. While you wait you may merge the base locally and run `npm run check`. The first push
+of a new session follows the same rule: check in first. The PM keeps the order (`pm` skill, *Ready queue and CI slots*).
+
 ## 4. The owner's standing design rules
 
 Short forms, for a developer to know before reading the specs. A rule changes only where it lives.
@@ -66,6 +74,7 @@ Short forms, for a developer to know before reading the specs. A rule changes on
   the owner's dialog rule is quoted in `docs/superpowers/specs/2026-11-14-one-save-while-writing-design.md`, 3.4).
 - **Save on a phone.** Every `Save` goes in the bottom bar, and that bar is the standard bottom sheet, with no custom
   design (`docs/material-deviations.md`, *Editor-only bars*, item 3, and *A block's sheet on a phone*, B1).
+- **Dialogs are only for short messages** (owner, 15 Nov): a dialog is a short message, a confirmation or a single short choice. Settings or a form with several controls are the theme's standard side sheet beside the page from 600 dp and a page below 600 dp (`docs/material-deviations.md`, B3).
 - **Pages on a phone.** Below 600 dp no view is a full-screen dialog or a side sheet: each is a page with a back arrow in
   the top app bar, and Back with unsaved changes asks "Keep your changes?" (`docs/material-deviations.md`, B2). The
   computer keeps the side sheet.
@@ -74,6 +83,25 @@ Short forms, for a developer to know before reading the specs. A rule changes on
 - **Icons are Material Symbols**, drawn by name through the shared `Icon` (`CLAUDE.md`, *Icons are Material Symbols*).
 - **A deviation from Material 3** is allowed only in the editor's own workspace or when the owner says so in words, and is
   recorded in `docs/material-deviations.md` in the same pull request (`material-3`).
+
+## 4a. Modern Web Guidance
+
+Chrome's Modern Web Guidance (a devDependency, never shipped in the package) holds guides on current web platform
+practice. Before you write or change CSS, layout, forms, accessibility or performance code, search and retrieve the guides
+for the topic through the npm script, and name the guides you read in the pull request description:
+
+- `npm run audit:web -- search "<2–5 words>"`, then `npm run audit:web -- retrieve "<guide id>"`.
+- `npm run audit:web -- legacy-scan <folder> --json` finds legacy patterns; use it for an audit, not for a feature. `npm run check:web` runs it in `npm run check` and fails on a new finding; a fix removes its line from `scripts/web-allowlist.json`.
+
+Owner rule, 15 Nov: "We follow the best practices in modern web from Google." Where a guide covers behaviour, markup, accessibility or performance, we follow it; Material 3 still decides how things look and are named. A real conflict between the two goes to the PM, as below.
+
+**Priority order** (owner, 15 Nov 2026; `pm` skill, *The order of priority*): 1 Modern web, 2 Material 3 Expressive, 3 Material 3, 4 Material 2 with Material 3 styling, 5 self-made; the lower number wins. Decide with it yourself. Stop and tell the PM only when the answer would be priority 5 (nothing from 1 to 4 covers it).
+
+Order of authority: the owner's rules, Material 3 and the theme components through `ui.tsx` win over the guidance. When a
+guide conflicts with one of them, you do not decide: stop, and send the PM the conflict (what the guide says, what our
+rule says, which screen or file, the closest option). The PM brings it to the owner, and you wait. Nothing is changed
+against an M3 rule or a theme component without the owner's yes. The audit is in
+`docs/superpowers/specs/2026-11-15-modern-web-guidance-audit.md`.
 
 ## 5. The components
 
@@ -103,6 +131,7 @@ are `…/specs`, `…/guidelines` and `…/accessibility` under the same address
 | `Chip`, `ChipSet` (`ui.tsx` `InputChip`, `FilterChip`, `ChipField`, `ChipSet`) | a filter, input or suggestion, in a row | [chips](https://m3.material.io/components/chips/overview) |
 | `List`, `ListItem` (`ui.tsx` `ListItem`, `PickListItem`, `ChoiceListItem`) | rows of text, icons and actions | [lists](https://m3.material.io/components/lists/overview) |
 | `Card`, `CardMedia` | a content container for one subject | [cards](https://m3.material.io/components/cards/overview) |
+| Grid (`.image-grid`, `.grid-span-full`; tokens `--grid-columns`, `--grid-gutter`, `--grid-margin`, `--grid-layout-columns`) | cards of different heights in columns, no holes; on any page of the editor and the site; `docs/theme-grid.md` | [grids](https://m3.material.io/foundations/layout/grids-spacing/grids) |
 | `Carousel` (`ui.tsx` `ImageCarousel`) | a scrolling row of images or cards | [carousel](https://m3.material.io/components/carousel/overview) |
 | `Divider` | separates content | [divider](https://m3.material.io/components/divider/overview) |
 | `Badge` | a count or dot on another part | [badges](https://m3.material.io/components/badges/overview) |
@@ -113,7 +142,7 @@ are `…/specs`, `…/guidelines` and `…/accessibility` under the same address
 | `Toolbar` (`ui.tsx` `Toolbar`, `ToolbarButton`) | actions for the content in view | [toolbars](https://m3.material.io/components/toolbars/overview) |
 | `NavigationBar`, `NavigationRail`, `NavigationDrawer` (`ui.tsx` `MainDrawer…`, `MainRail…`) | moving between the main places | [navigation-bar](https://m3.material.io/components/navigation-bar/overview), [navigation-rail](https://m3.material.io/components/navigation-rail/overview), [navigation-drawer](https://m3.material.io/components/navigation-drawer/overview) |
 | `Tabs` (`ui.tsx` `TabRow`, `TabPanel`) | switching between views of the same content | [tabs](https://m3.material.io/components/tabs/overview) |
-| `Search` (`SearchBar`, `SearchView`; `ui.tsx` `SearchBar`, `SearchRow`) | searching, with suggestions | [search](https://m3.material.io/components/search/overview) |
+| `Search` (`SearchBar`, `SearchBarButton`, `SearchGroupLabel`, `SearchView`; `ui.tsx` `SearchBar`, `SearchBarButton`, `SearchRow`) | searching, with suggestions | [search](https://m3.material.io/components/search/overview) |
 | `DatePicker`, `TimePicker` (`ui.tsx` `DatePicker`, `TimePicker`, `DateTimeField`) | a date or a time | [date-pickers](https://m3.material.io/components/date-pickers/overview), [time-pickers](https://m3.material.io/components/time-pickers/overview) |
 | `LoadingIndicator`, `ProgressIndicator` | waiting, and progress | [loading-indicator](https://m3.material.io/components/loading-indicator/overview), [progress-indicators](https://m3.material.io/components/progress-indicators/overview) |
 | `Snackbar` | a short message about a process | [snackbar](https://m3.material.io/components/snackbar/overview) |

@@ -35,6 +35,7 @@ import { useOwnList, type Definition } from './useOwnList';
 import type { RepoFile } from './github';
 import type { Env } from './App';
 import type { OwnedList } from './schema';
+import { isActionEnter } from '../lib/enterKey.mjs';
 
 /** The icons of the bar, drawn by name in the pack in use (src/icon.tsx). */
 const named = (name: string) =>
@@ -82,7 +83,7 @@ export default function OwnListEdit({ id, files, saved, env }: { id: string; fil
           disabled={saving}
           onChange={(e) => setLabel(e.target.value)}
           onBlur={rename}
-          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), rename())}
+          onKeyDown={(e) => isActionEnter(e) && (e.preventDefault(), rename())}
         />
         <FieldBar disabled={saving} onAdd={(kind) => change(addField(definition, kind).definition as Definition)} />
         <div>
@@ -232,7 +233,7 @@ function FieldName({ kind, value, disabled, onSave }: { kind: string; value: str
       disabled={disabled}
       onChange={(e) => setText(e.target.value)}
       onBlur={() => onSave(text)}
-      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), onSave(text))}
+      onKeyDown={(e) => isActionEnter(e) && (e.preventDefault(), onSave(text))}
     />
   );
 }
