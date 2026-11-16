@@ -14,7 +14,7 @@
 // Under the content of every screen is the editor's footer (EditorFooter.tsx), at the bottom of the window when the content
 // is short (the screen fills the column under the bar, TopBarLayout). While the screen has a floating action button
 // (fabPresence.tsx), the content leaves room for it above the footer (data-clearance, --fab-room) and the FAB stands above the
-// footer whenever the footer is in the window (useFabLift: --editor-fab-lift, editor.css), so it never covers the footer.
+// footer below 600 dp when it would overlap it (useFabLift: --editor-fab-lift, editor.css), so it never covers the footer.
 import { useContext, useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Bell, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
