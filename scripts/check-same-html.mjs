@@ -3,7 +3,7 @@
 // every page's HTML is compared byte for byte. A change that must show no difference on any site (the dynamic lists framework's migration) fails
 // here when one character of a page differs. Run by `npm run check:demo` (check-demo.mjs) after `npm run build`, which makes the package copy
 // this tree is built with: `npm run check:same-html`. The base is `SAME_HTML_BASE` (a git ref), else `origin/<the pull request's base branch>`
-// (GITHUB_BASE_REF), else `origin/0.19`; without one the check is skipped on a computer and fails in CI.
+// (GITHUB_BASE_REF), else `origin/0.19`; without one the check is skipped on a computer and fails in CI. It runs only in the CMS's own checkout (see below).
 import { execFileSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -65,6 +65,14 @@ async function build(tree, label) {
   const dist = join(site, 'dist');
   execFileSync(process.execPath, [binOf('astro', 'astro', site), 'build', '--outDir', dist], { cwd: site, stdio: 'inherit' });
   return dist;
+}
+
+// Only in this repository's own checkout: a site that installs the package runs `check:demo` too (npx morpheme check:demo), and there the package has no
+// git history and nothing to compare with. It skips with one line and never fails, whatever CI variable is set.
+const REPOSITORY = 'larsadolfsen/morpheme-cms';
+if (!existsSync(join(root, '.git')) || (process.env.GITHUB_REPOSITORY && process.env.GITHUB_REPOSITORY !== REPOSITORY)) {
+  console.log('check:same-html skipped: it runs only in the CMS repository (morpheme-cms).');
+  process.exit(0);
 }
 
 const base = baseCommit();
