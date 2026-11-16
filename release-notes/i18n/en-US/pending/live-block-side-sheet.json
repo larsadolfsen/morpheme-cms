@@ -1,7 +1,0 @@
-{
-  "id": "live-block-side-sheet",
-  "kind": "paragraph",
-  "mark": "improvement",
-  "title": "Block settings",
-  "text": "A block’s settings no longer ask for a second Save. On a computer they change the page at once, Undo takes a change back, and Remove is in the block’s ⋮ menu. On a phone they open on a page with Save at the bottom."
-}

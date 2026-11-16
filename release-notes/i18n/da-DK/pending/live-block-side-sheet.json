@@ -1,7 +1,0 @@
-{
-  "id": "live-block-side-sheet",
-  "kind": "paragraph",
-  "mark": "improvement",
-  "title": "Blokindstillinger",
-  "text": "En bloks indstillinger beder ikke længere om endnu et Gem. På en computer ændrer de siden med det samme, Fortryd tager en ændring tilbage, og Fjern ligger i blokkens ⋮-menu. På en telefon åbner de på en side med Gem nederst."
-}

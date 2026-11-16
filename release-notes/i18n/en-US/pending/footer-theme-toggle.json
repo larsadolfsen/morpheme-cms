@@ -1,6 +1,7 @@
 {
   "id": "footer-theme-toggle",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "The footer has a Theme setting with Light, Auto and Dark: Auto follows the system, and your pick is remembered"
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Light and dark",
+  "text": "Visitors can pick the look they like. The footer has a Theme setting with Light, Auto and Dark. Auto follows the system, and the pick is remembered."
 }
