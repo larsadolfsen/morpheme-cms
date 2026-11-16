@@ -1,4 +1,4 @@
-// `Max rows` of "Segmented list" in a browser (MoreRows.tsx): all rows are in the HTML, and without script all show and the
+// `Max rows` of "List" and "List - Expand" in a browser (MoreRows.tsx): all rows are in the HTML, and without script all show and the
 // button is hidden. Here the rows after the first `Max rows` are hidden (data-cut on the list's wrapper, the rows' own data-extra
 // in CSS, ../../styles/blocks.css) and the button shows; a tap on it shows the rest in place, moves the focus to the first of
 // them and the button goes. Used by script.ts on the site and by MoreRows.tsx in the editor's preview.

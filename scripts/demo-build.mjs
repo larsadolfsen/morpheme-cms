@@ -7,6 +7,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { binOf } from './bin.mjs';
 import { addNamesView } from './demo-names.mjs';
+import { addTypeView } from './demo-type.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const npm = process.env.npm_execpath ? [process.execPath, process.env.npm_execpath] : ['npm'];
@@ -42,4 +43,6 @@ run([join(self, 'scripts/check-content.mjs')]);
 run([binOf('astro', 'astro', site), 'build']);
 // The demo's Names view (demo/public/demo-names.js): a script of the demo's own, in its pages only.
 console.log(`Names view: ${addNamesView(site)} pages`);
+// The Type page's numbers (demo/public/demo-type.js), in that page only.
+console.log(`Type view: ${addTypeView(site)} page`);
 run([join(self, 'bin/morpheme.mjs'), 'after-build']);

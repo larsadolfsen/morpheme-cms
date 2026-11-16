@@ -18,14 +18,6 @@
     --list-segmented-surface: var(--mo-surface-container);
   }
 }
-/* A List with no drawn container (its rows on the page, no surface) starts its rows' own content on the text's left edge: the 16 dp inside
-     a row (M3 Lists › Specs, "leading space") belongs to a drawn container, which only a Segmented list (.list-segmented) and an accordion
-     (.list-expand, .block-accordion) have. The site and the editor's typed-in-place List use the same class, so they share the edge. */
-@layer components {
-  .block-list:not(.list-segmented) {
-    --list-item-padding-inline: 0;
-  }
-}
 /* The color of an icon in a row or a card (`iconColor`, src/iconColor.ts): one of the theme's color roles; without one, the text colour (Text in the editor). */
 @layer components {
   [data-icon-color='primary'] {
@@ -65,10 +57,5 @@
     --list-item-min-height: auto;
     --list-item-padding-block: 0.25em;
     --list-item-padding-inline: 0;
-  }
-}
-@layer components {
-  .block-plan-features {
-    --list-item-padding-block: 0.25rem;
   }
 }

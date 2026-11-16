@@ -1,0 +1,15 @@
+/*
+  The plain and segmented designs of the lists (List and List - Expand; the FAQ list has the segmented look): the rules that are new with the setting
+  `Design` (standard/rows/listParts.ts). The older rules of the lists are still in ui.css (the List part) and blocks.css (their blocks); they move
+  here in a following change (docs/theme-css-split.md). Imported by base.css after blocks.css, in the same layer, so these win over the block's own.
+*/
+@import './tokens/lists/comp/list.css';
+@import './tokens/lists/sys.css';
+@layer components {
+  @media (width < theme(--breakpoint-medium)) {
+    .block-list:not(.list-segmented),
+    .block-accordion:not(.block-accordion-segmented) {
+      margin-inline: calc(-1 * var(--block-list-layer-room));
+    }
+  }
+}

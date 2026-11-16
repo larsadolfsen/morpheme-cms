@@ -36,7 +36,7 @@ export default function BlogPosts({ posts }: { posts: PostView[] }) {
         )}
         <div className="expanded:col-span-5">
           <PostMeta post={featured} />
-          <h2 className="mt-2 type-headline-medium transition-colors group-hover:text-primary medium:type-headline-large">
+          <h2 className="type-headline-medium medium:type-headline-large mt-2 transition-colors group-hover:text-primary">
             {featured.title}
           </h2>
           <p className="mt-3 text-on-surface-variant">{featured.description}</p>

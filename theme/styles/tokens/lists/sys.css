@@ -1,0 +1,10 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+@layer components {
+  @media (width < theme(--breakpoint-medium)) {
+    .block-list:not(.list-segmented),
+    .block-accordion:not(.block-accordion-segmented) {
+      --block-list-layer-room: 1rem;
+    }
+  }
+}

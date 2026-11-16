@@ -65,10 +65,10 @@ export const blocks = {
     questionMenu: 'Question',
     questionSettings: 'Question settings',
   },
-  /** "Segmented list" (standard/segmented/). */
-  segmented: {
-    label: 'Segmented list',
-    hint: 'Rows that expand, with a link.',
+  /** "List - Expand" (standard/expand/). */
+  expand: {
+    label: 'List - Expand',
+    hint: 'Rows that open to show more.',
     /** Read by name for any block (pageEmptyRows.ts): the rows and one row, in the sentence about an empty block. */
     items: 'Rows',
     item: 'row',
@@ -79,18 +79,8 @@ export const blocks = {
     only: 'Only one open',
     onlyToggle: ['On', 'Off'] as [string, string],
     onlyHint: 'Opening a row closes the open one.',
-    show: 'Rows',
-    showFold: 'Expand',
-    showAll: 'Always open',
-    maxRows: 'Maximum rows',
-    maxRowsHint: 'How many rows show at first. A button under them shows the rest. If empty, all rows show.',
-    showMore: 'Button label (show more)',
-    showMoreText: 'Show more',
     /** The link in an open row, without the row's heading (in the site's language). */
     readMore: 'Read more',
-    button: 'Button label',
-    buttonHint: 'A text button under the last row. If empty, there is no button.',
-    buttonHref: 'Button page',
     /** The link in an open row (in the site’s language). */
     more: 'Read more about {topic}',
     exampleTitle: 'Heading',
@@ -182,6 +172,24 @@ export const blocks = {
     newRow: 'New row',
     /** A row of the list typed in place: its place, for screen readers (row 2 of 4). */
     rowOf: (n: number, total: number) => `Row ${n} of ${total}`,
+    /** The design of a list: rows on the page (plain), or each row on its own surface (segmented). */
+    design: 'Design',
+    designPlain: 'Plain',
+    designSegmented: 'Segmented',
+    /** What leads a row: its icon, an avatar, a square image or a landscape image (chosen for each row). */
+    leading: 'Leading',
+    leadingIcon: 'Icon',
+    leadingAvatar: 'Avatar',
+    leadingSquare: 'Square image',
+    leadingLandscape: 'Landscape image',
+    image: 'Image',
+    maxRows: 'Maximum rows',
+    maxRowsHint: 'How many rows show at first. A button under them shows the rest. If empty, all rows show.',
+    showMore: 'Button label (show more)',
+    showMoreText: 'Show more',
+    button: 'Button label',
+    buttonHint: 'A text button under the last row. If empty, there is no button.',
+    buttonHref: 'Button page',
   },
   points: {
     label: 'Points with icon',

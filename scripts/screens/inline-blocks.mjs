@@ -123,19 +123,20 @@ async function checkIconSlots(width, height, { name, hint, field = 'title' }) {
   await page.close();
 }
 
-/** A List and a Segmented list (folding out, and always open) are one block that differs in its look only (owner, 16 Nov 2026: "The white list is the correct one"): the active
+/** A List and a List - Expand, each in the design Plain and Segmented (owner, 16 Nov 2026: "The white list is the correct one"), are edited the same way: the active
  * row has the same slots (its icon and its link, at its end), the toolbar the same Link, the add button the same text, and the link slot the same sheet with its page; nothing is
- * drawn at the bottom of a row. Each look is measured, then compared with the List's. */
-async function checkListLooks(width, height) {
-  const label = `${width}px inline list looks`;
+ * drawn at the bottom of a row; the design is a setting of the block (Plain or Segmented) that changes only how the rows are drawn. Each is measured, then compared with the List's. */
+async function checkListDesigns(width, height) {
+  const label = `${width}px inline list designs`;
   const phone = width < 600;
   const looks = [
     { look: 'List', hint: 'Rows with icon, heading and text.' },
-    { look: 'Segmented list', hint: 'Rows that expand, with a link.' },
-    { look: 'Segmented list, always open', hint: 'Rows that expand, with a link.', always: true },
+    { look: 'List, Segmented', hint: 'Rows with icon, heading and text.', card: true },
+    { look: 'List - Expand', hint: 'Rows that open to show more.' },
+    { look: 'List - Expand, Segmented', hint: 'Rows that open to show more.', card: true },
   ];
   const seen = [];
-  for (const { look, hint, always } of looks) {
+  for (const { look, hint, card } of looks) {
     const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
     page.on('pageerror', (e) => problems.push(`${label} (${look}): ${e.message}`));
     await openEditor(page, site);
@@ -149,17 +150,33 @@ async function checkListLooks(width, height) {
     await page.locator('dialog[open] button', { hasText: hint }).first().click();
     await page.waitForSelector('.inline-list-row-active [data-field="title"]', { timeout: 8000 });
     await page.keyboard.type('First');
-    if (always) {
-      // "Always open" is in the block's own settings (the bar's ⋮ menu).
+    if (card) {
+      // The design is in the block's own settings (the bar's ⋮ menu).
       await pressMore(page, 'Edit');
-      await chooseOption(page, 'Always open');
+      await chooseOption(page, 'Segmented');
       await saveOrClose(page, 'last');
+      // The rows are on their own surfaces now (the theme's segmented list, or the card class of the rows that fold out).
+      await page.locator('.list-segmented, .block-accordion-segmented').first().waitFor({ timeout: 8000 });
     }
     await page.locator('[data-add-row]').waitFor({ timeout: 8000 });
     const got = await page.evaluate(() => ({
       slots: [...document.querySelectorAll('.inline-list-row-active .inline-list-slot')].map((x) => x.getAttribute('aria-label')),
       add: [...document.querySelectorAll('[data-add-row]')].map((x) => x.textContent.trim()),
       own: document.querySelectorAll('[data-row-link], [data-add-button], [data-row-arrow], .inline-segmented-buttons').length,
+      // The plain design is full width on a compact screen (owner, 16 Nov 2026): the row's layer is 16 dp wider than the text column on each side, its leading icon on the text's edge.
+      edge: (() => {
+        const row = document.querySelector('.inline-list-row-active');
+        const box = row?.matches('.list-item-container') ? row : row?.querySelector('.list-item-container');
+        const lead = box?.querySelector('.list-item-leading');
+        const text = document.querySelector('.ProseMirror p')?.getBoundingClientRect().left;
+        return box && lead && text !== undefined
+          ? {
+              layer: box.getBoundingClientRect().left - text,
+              icon: lead.getBoundingClientRect().left - text,
+              wide: document.documentElement.scrollWidth - window.innerWidth,
+            }
+          : null;
+      })(),
       // The link slot is at the end of the row: to the right of the heading.
       end: (() => {
         const row = document.querySelector('.inline-list-row-active');
@@ -176,7 +193,7 @@ async function checkListLooks(width, height) {
       .waitFor({ timeout: 4000 })
       .then(() => true)
       .catch(() => false);
-    seen.push({ look, ...got, opened });
+    seen.push({ look, card, ...got, opened });
     await page.close();
   }
   const [first] = seen;
@@ -187,6 +204,17 @@ async function checkListLooks(width, height) {
     if (one.add.join() !== 'Add list row') problems.push(`${label}: ${one.look} has the add button "${one.add}", not "Add list row"`);
     if (one.own) problems.push(`${label}: ${one.look} has a text row or a button of its own for the row's link`);
     if (!one.end) problems.push(`${label}: ${one.look}: the link slot is not at the end of the row`);
+    if (!one.edge) problems.push(`${label}: ${one.look}: no row layer or leading icon to measure`);
+    else {
+      // Default: on a compact screen the layer starts 16 dp before the text's edge, else on it, and the icon on the text's edge; Card: the container on the text's edge (its icon one 16 dp padding in).
+      // The rows that fold out have the 24 dp padding of the theme's accordion (global.css) inside their card.
+      const [layer, icon] = one.card ? [0, one.look.includes('Expand') ? 24 : 16] : [width < 600 ? -16 : 0, 0];
+      if (Math.abs(one.edge.layer - layer) > 0.5)
+        problems.push(`${label}: ${one.look}: the row starts ${one.edge.layer} px from the text's edge, not ${layer}`);
+      if (Math.abs(one.edge.icon - icon) > 1)
+        problems.push(`${label}: ${one.look}: the leading icon starts ${one.edge.icon} px from the text's edge, not ${icon}`);
+      if (one.edge.wide > 0.5) problems.push(`${label}: ${one.look}: the page scrolls sideways by ${one.edge.wide}px`);
+    }
     if (!one.opened) problems.push(`${label}: ${one.look}: the link slot did not open the row's page field`);
   }
 }
@@ -461,7 +489,7 @@ async function checkInlineBlock(
       await page.click('.site-block-inline [data-field="question"]', { position: { x: 8, y: 8 } });
     }
   }
-  // A row's link (List and Segmented list alike, owner, 16 Nov 2026): the link slot at the end of the active row and the toolbar's Link, no text row of
+  // A row's link (List and List - Expand alike, owner, 16 Nov 2026): the link slot at the end of the active row and the toolbar's Link, no text row of
   // its own at the bottom of the row and no text button typed there; the slot opens the row's sheet, which has the page.
   if (rowLink) {
     const slots = await page
@@ -709,13 +737,13 @@ async function checkSteps(width, height) {
   }
 }
 
-/** Pasting lines into an empty item makes one item each (spec 2026-11-14-paste-and-change-to-design.md, section 2): in List, Segmented list,
+/** Pasting lines into an empty item makes one item each (spec 2026-11-14-paste-and-change-to-design.md, section 2): in List, List - Expand,
  * FAQ list, Cards and Steps, three lines pasted into the empty block make three items with those titles (a tab gives the second field its
  * text), the cursor in the last field of the last; a paste with a `#` line is left as it is; a paste into an empty item after Add below
  * makes items there and keeps the items before; Ctrl+Z gives the block back as it was before the paste. */
 const pasteBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', first: 'title', second: 'text', last: 'text' },
-  { name: 'segmented', hint: 'Rows that expand, with a link.', first: 'title', second: 'text', last: 'text' },
+  { name: 'expand', hint: 'Rows that open to show more.', first: 'title', second: 'text', last: 'text' },
   { name: 'faq', hint: 'Questions that expand to answers.', first: 'question', second: 'answer', last: 'answer' },
   { name: 'cards', hint: 'Cards that link to pages.', first: 'title', second: 'text', last: 'text' },
   { name: 'steps', hint: 'Numbered steps.', first: 'title', second: 'text', last: 'text' },
@@ -875,7 +903,7 @@ export function register(unit) {
     [375, 740],
     [1280, 900],
   ])
-    for (const name of ['list', 'segmented', 'buttons', 'cards'])
+    for (const name of ['list', 'expand', 'buttons', 'cards'])
       unit(`checkIconSlots ${width} ${name}`, () =>
         checkIconSlots(
           width,
@@ -893,7 +921,7 @@ export function register(unit) {
     [768, 900],
     [1280, 900],
   ])
-    unit(`checkListLooks ${w}`, () => checkListLooks(w, h));
+    unit(`checkListDesigns ${w}`, () => checkListDesigns(w, h));
   for (const [width, height] of [
     [375, 740],
     [768, 900],

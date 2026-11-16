@@ -51,3 +51,39 @@
     --card-shadow: var(--card-outlined-dragged-shadow, var(--mo-elevation-3-shadow));
   }
 }
+/* A filled card on one of Material's containers ("Cards", `color`): the primary, secondary or tertiary container, its text and icon in the
+     colour that is read on it. Without a colour it is the surface container (--card-filled-surface, below). A theme that has no container
+     role has the block's own colours. */
+@layer components {
+  :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary) .block-card {
+    --card-filled-line: transparent;
+  }
+}
+@layer components {
+  .block-cards-primary .block-card {
+    --card-filled-surface: var(--mo-primary-container, var(--block-primary));
+  }
+}
+@layer components {
+  .block-cards-secondary .block-card {
+    --card-filled-surface: var(--mo-secondary-container, var(--block-secondary));
+  }
+}
+@layer components {
+  .block-cards-tertiary .block-card {
+    --card-filled-surface: var(--mo-tertiary-container, var(--block-tertiary));
+  }
+}
+@layer components {
+  .block-price-extra {
+    --card-radius: var(--block-radius-small);
+    --card-padding: 1rem;
+  }
+}
+@layer components {
+  @media (width >= theme(--breakpoint-medium)) {
+    .block-price-card {
+      --card-padding: 2rem;
+    }
+  }
+}

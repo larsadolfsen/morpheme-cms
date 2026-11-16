@@ -52,18 +52,22 @@
   --list-segmented-pressed-surface: var(--mo-pressed);
   --list-segmented-disabled-surface: color-mix(in srgb, var(--mo-on-surface) 10%, transparent);
 }
-/* "Questions and answers": the List "expand" kind (ui.css) with each item on its own surface container, 2px apart, 16px outer and 4px
-     inner corners, and a state layer on the item pointed at. */
+/* The List "expand" kind (ui.css) of "List - Expand" and "FAQ list". Its plain design is the rows on the page with a line between them; its
+     card design has each item on its own surface container, 2px apart, 16px outer and 4px inner corners, and a state layer on the item pointed at. */
 @layer components {
   .block-accordion {
     --list-expand-surface: transparent;
     --list-expand-shadow: none;
+    --list-expand-padding-block: 1rem;
+  }
+}
+@layer components {
+  .block-accordion-segmented {
     --list-expand-gap: 0.125rem;
     --list-expand-item-surface: var(--mo-surface-container);
     --list-expand-item-radius: var(--mo-shape-extra-small);
     --list-expand-divider-width: 0px;
     --list-expand-padding-inline: 1.5rem;
-    --list-expand-padding-block: 1rem;
     --list-expand-open-radius: var(--mo-shape-large);
     --list-expand-icon-open-surface: var(--mo-surface-container-high);
   }

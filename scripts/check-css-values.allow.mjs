@@ -23,7 +23,7 @@ export const allow = [
     reason: "the checkbox's own 2px square corner (M3: 2dp), and the error ring's 3px over it",
   },
   {
-    file: /blocks\.css$|ui\.css$/,
+    file: /blocks\.css$|ui\.css$|cards\.css$/,
     line: /^border-radius: calc\(/,
     reason: 'optical roundness: the container corner minus its padding or border',
   },
@@ -50,7 +50,7 @@ export const allow = [
       "a crop handle's 3px corner and 1.5px line, the app icon's 22px corner (the icon's own shape, as on a phone's home screen) and a 3px line: not steps of a scale",
   },
   {
-    file: /blocks\.css$|ui\.css$|global\.css$|base\.css$|components\.css$/,
+    file: /blocks\.css$|ui\.css$|cards\.css$|global\.css$|base\.css$|components\.css$/,
     line: /^(font-size|line-height|letter-spacing)\b/,
     reason: 'not yet moved to the type scale: tracked for the next pull request of the shape and type sweep',
   },

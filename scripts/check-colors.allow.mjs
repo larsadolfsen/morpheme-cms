@@ -63,7 +63,7 @@ export const allow = [
   { kind: 'fixed-colour', file: /^(src\/i18n\/|lib\/hooks\.ts)/, line: any, reason: 'a text that names a colour' },
   {
     kind: 'fixed-colour',
-    file: /^theme\/styles\/(base|global|ui|tokens\/[a-z]+\/[a-z-]+)\.css$/,
+    file: /^theme\/styles\/(base|global|ui|cards|tokens\/[a-z]+\/[a-z-]+)\.css$/,
     line: /^\s*(--mo-elevation-0-shadow: 0 0 #0000|.*\(0 0 #0000)|0 0 #0000/,
     reason: 'no shadow',
   },

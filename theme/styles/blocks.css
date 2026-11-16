@@ -492,150 +492,6 @@
     column-gap: 0.5rem;
     margin-block-end: calc((1.25rem - var(--button-height, 3rem)) / 2);
   }
-
-  /* "Cards": Material 3's cards (.card in ui.css: outlined, filled or elevated), each with an icon, an image, a video or nothing at
-     the top and either a link (the whole card) or buttons, two side by side from small screens (cards/LinkCards.tsx). */
-  .block-cards {
-    display: grid;
-    gap: var(--mo-grid-gutter);
-    padding: 0;
-    list-style: none;
-  }
-  .block-card {
-    display: flex;
-    height: 100%;
-    flex-direction: column;
-    /* Its edge a border (the outlined card's line, none on the others), so an image at the top stays inside it. */
-    border: 1px solid transparent;
-    /* The card's shadow as it is now (ui.css: at rest, pointed at, dragged), without its line. */
-    box-shadow: var(--card-shadow, 0 0 #0000);
-    color: inherit;
-    /* The same with a page (a link, as the site has links) and without one (not a link). */
-    font-weight: 500;
-    text-decoration: none;
-    transition:
-      border-color var(--motion-effects),
-      box-shadow var(--motion-effects);
-  }
-  .block-card.card-outlined {
-    border-color: var(--card-outlined-line, var(--block-line));
-  }
-  /* An icon without a colour of its own (`iconColor`) is the text colour, as a row's icon is (Text in the editor's Icon color); v0.16.0 drew it in the accent. */
-  .block-card-icon {
-    color: var(--block-text);
-  }
-  /* A video at the top fills it as an image does, with its play button. */
-  .block-card-video {
-    display: block;
-    margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0;
-    overflow: hidden;
-    border-radius: calc(var(--card-radius, var(--block-radius)) - 1px) calc(var(--card-radius, var(--block-radius)) - 1px) 0 0;
-  }
-  /* The action area: its buttons in a row at the bottom of the card. */
-  .block-card-actions {
-    display: flex;
-    margin-top: auto;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    padding-top: var(--card-action-gap, 1rem);
-  }
-  /* The image fills the top of the card, out to its edges. */
-  .block-card-picture {
-    display: block;
-    margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0;
-    overflow: hidden;
-    border-radius: calc(var(--card-radius, var(--block-radius)) - 1px) calc(var(--card-radius, var(--block-radius)) - 1px) 0 0;
-    background: var(--block-tint);
-    aspect-ratio: 3 / 2;
-  }
-  .block-card-picture img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: scale var(--motion-spatial-slow);
-  }
-  .block-card-title {
-    margin-top: var(--card-media-gap, 1rem);
-    font-size: var(--type-title-large-size);
-    line-height: var(--type-title-large-line-height);
-    font-weight: var(--type-title-large-weight);
-    letter-spacing: var(--type-title-large-tracking);
-  }
-  /* Only text: the heading at the top. */
-  .block-card-title:first-child {
-    margin-top: 0;
-  }
-  .block-card-text {
-    margin-top: var(--card-text-gap, 0.5rem);
-    color: var(--block-muted);
-  }
-  .block-card-more {
-    display: inline-flex;
-    margin-top: auto;
-    align-items: center;
-    gap: 0.5rem;
-    padding-top: var(--card-action-gap, 1rem);
-    font-weight: 500;
-    color: var(--block-accent);
-  }
-  .block-card-arrow {
-    transition: translate var(--motion-spatial);
-  }
-  /* "Cards" on a phone as a carousel (`phone`, LinkCards.tsx): Material 3's uncontained layout (m3.material.io/components/carousel), which M3 gives to
-     text-heavy items. Below 600 px the cards are swiped sideways: items 8 dp apart, 8 dp above and below (room for an elevated card's shadow),
-     corners of 28 dp, the first 16 dp from the screen's edge, the next one peeking in; `Show all` under the dots turns it into the stacked cards
-     in place (data-expanded, set by script.ts). From 600 px the cards are the grid, with no dots and no button. */
-  .block-cards-carousel .block-card {
-    border-radius: var(--carousel-item-radius, var(--mo-shape-extra-large, 1.75rem));
-  }
-  .block-cards-show-all {
-    display: none;
-  }
-  @media (width < theme(--breakpoint-medium)) {
-    .block-cards-carousel .carousel-items {
-      overflow-x: auto;
-      gap: var(--card-gap, 0.5rem);
-      padding-block: 0.5rem;
-      padding-inline: 1rem;
-      scroll-padding-inline: 1rem;
-    }
-    .block-cards-carousel .carousel-item {
-      width: 85%;
-    }
-    .js .block-cards-show-all {
-      display: flex;
-      justify-content: center;
-      padding: 0.25rem;
-    }
-    .block-cards-carousel[data-expanded] .carousel-items {
-      display: grid;
-      overflow-x: visible;
-      margin: 0;
-      padding-inline: 0;
-      scroll-padding-inline: 0;
-    }
-    .block-cards-carousel[data-expanded] .carousel-item {
-      width: auto;
-    }
-    .block-cards-carousel[data-expanded] .carousel-indicator {
-      display: none;
-    }
-  }
-  @media (width >= theme(--breakpoint-medium)) {
-    .block-cards-carousel .carousel-items {
-      display: grid;
-      overflow-x: visible;
-      gap: var(--mo-grid-gutter);
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .block-cards-carousel .carousel-item {
-      width: auto;
-    }
-    .block-cards-carousel .carousel-indicator {
-      display: none;
-    }
-  }
   /* The subhead: the small line under the headline (a byline, a date, a place). */
   /* "Image grid" (blocks/imagegrid/View.tsx): the tag filter over the staggered grid (.image-grid in ui.css), the text under an image on its card. The filter
      and its count are drawn hidden and shown by script.ts; the columns can be set to 2, 3 or 4 on a computer (data-columns). */
@@ -674,50 +530,9 @@
   .block-imagegrid-grid > li[hidden] {
     display: none;
   }
-  .card-text {
-    display: block;
-    padding: var(--card-media-gap, 1rem) var(--card-padding, 1rem) var(--card-padding, 1rem);
-  }
-  .card-subhead,
-  .card-supporting {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .card-subhead {
-    -webkit-line-clamp: 1;
-    font-size: var(--type-label-medium-size, 0.75rem);
-    line-height: var(--type-label-medium-line-height, 1rem);
-    color: var(--block-muted);
-  }
-  .card-supporting {
-    -webkit-line-clamp: 2;
-    margin-top: var(--card-subhead-gap, 0.25rem);
-    font-size: var(--type-body-medium-size, 0.875rem);
-    line-height: var(--type-body-medium-line-height, 1.25rem);
-  }
-  .block-card-subhead {
-    margin-top: var(--card-subhead-gap, 0.25rem);
-    font-size: var(--type-body-medium-size, 0.875rem);
-    line-height: var(--type-body-medium-line-height, 1.25rem);
-    color: var(--block-muted);
-  }
   .block-accordion-lead[data-icon-color],
   .block-card .block-card-icon[data-icon-color] {
     color: var(--icon-color);
-  }
-  .block-cards-primary .block-card {
-    color: var(--mo-on-primary-container, var(--block-on-primary));
-  }
-  .block-cards-secondary .block-card {
-    color: var(--mo-on-secondary-container, var(--block-on-secondary));
-  }
-  .block-cards-tertiary .block-card {
-    color: var(--mo-on-tertiary-container, var(--block-on-tertiary));
-  }
-  :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary)
-    :is(.block-card-icon, .block-card-text, .block-card-subhead, .block-card-more) {
-    color: inherit;
   }
   /* A panel (Panel.tsx): an outlined card (.card in ui.css) for a block that is one box (e.g. an app's about
      or price block), with an icon, a heading and a text at the top, and parts under a line. */
@@ -1241,28 +1056,6 @@
   .block-prices.block-in-text {
     margin-block: 2.5rem;
   }
-  .block-price-cards {
-    display: grid;
-    gap: var(--mo-grid-gutter);
-  }
-  /* A big price, an elevated card (.card in ui.css). */
-  .block-price-card {
-    display: flex;
-    flex-direction: column;
-  }
-  .block-price-card-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-  .block-price-card-title {
-    margin: 0;
-    font-size: var(--type-headline-small-size);
-    line-height: var(--type-headline-small-line-height);
-    font-weight: var(--type-headline-small-weight);
-    letter-spacing: var(--type-headline-small-tracking);
-  }
   /* A small fact in a light pill (the duration), its icon in the accent. */
   .block-tag {
     display: inline-flex;
@@ -1280,44 +1073,6 @@
   }
   .block-tag svg {
     color: var(--block-accent);
-  }
-  .block-price-amount {
-    margin-top: 1.5rem;
-    font-size: var(--type-display-medium-size);
-    line-height: var(--type-display-medium-line-height);
-    font-weight: var(--type-display-medium-weight);
-    letter-spacing: var(--type-display-medium-tracking);
-    font-variant-numeric: tabular-nums;
-  }
-  .block-price-unit {
-    margin-top: var(--card-subhead-gap, 0.25rem);
-    color: var(--block-muted);
-  }
-  /* A punch card's offer in a price card, a filled card with smaller corners. */
-  .block-price-extra {
-    margin-top: 1.5rem;
-  }
-  .block-price-extra-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 500;
-  }
-  .block-price-extra-title svg {
-    color: var(--block-accent);
-  }
-  .block-price-extra-text {
-    margin-top: var(--card-subhead-gap, 0.25rem);
-    color: var(--block-muted);
-  }
-  .block-price-extra-text strong {
-    color: var(--block-text);
-    font-weight: 500;
-    font-variant-numeric: tabular-nums;
-  }
-  .block-price-card > .block-arrow-link {
-    align-self: flex-start;
-    margin-top: var(--card-action-gap, 1rem);
   }
   .block-price-list {
     margin: 0;
@@ -1392,22 +1147,10 @@
     flex-shrink: 0;
     margin-top: 0.125rem;
   }
-
-  @media (hover: hover) {
-    a.block-card:hover .block-card-arrow {
-      translate: 0.25rem 0;
-    }
-    a.block-card:hover .block-card-picture img {
-      scale: 1.03;
-    }
-  }
   @media (width >= theme(--breakpoint-medium)) {
     .block-buttons {
       flex-direction: row;
       flex-wrap: wrap;
-    }
-    .block-cards {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .block-price-row {
       grid-template-columns: 1fr auto;
@@ -1454,21 +1197,6 @@
     .block-prices {
       gap: 1.25rem;
     }
-    .block-price-cards {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .block-price-card-title {
-      font-size: var(--type-headline-medium-size);
-      line-height: var(--type-headline-medium-line-height);
-      font-weight: var(--type-headline-medium-weight);
-      letter-spacing: var(--type-headline-medium-tracking);
-    }
-    .block-price-amount {
-      font-size: var(--type-display-large-size);
-      line-height: var(--type-display-large-line-height);
-      font-weight: var(--type-display-large-weight);
-      letter-spacing: var(--type-display-large-tracking);
-    }
     .block-price-list {
       padding-inline: 2rem;
     }
@@ -1481,120 +1209,13 @@
     grid-template-columns: repeat(auto-fill, minmax(min(100%, max(16rem, calc(50% - 1rem))), 1fr));
     column-gap: 2rem;
   }
-
-  /* "Price cards" (pricecards/View.tsx): the cards side by side, as many columns as there are cards where the block has
-     room for them (it is a container: two from 34rem, three from 40rem, four from 56rem; four two by two before that),
-     else under each other. Each card an outlined card (.card in ui.css): its name, its price large with what it is for
-     beside it, its text, what is included under a line (.block-checklist) and its button at the bottom in the card's
-     width, so the buttons of cards side by side are in line; the highlighted one with an edge in the accent and its
-     label in a pill in the accent over its name. */
-  .block-plans {
-    container-type: inline-size;
-  }
-  .block-plans.block-in-text {
-    margin-block: 2.5rem;
-  }
-  .block-plans-list {
-    display: grid;
-    gap: var(--mo-grid-gutter);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  @container (width >= 34rem) {
-    .block-plans-2,
-    .block-plans-4 {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  @container (width >= 40rem) {
-    .block-plans-3 {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-  @container (width >= 56rem) {
-    .block-plans-4 {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-  .block-plan {
-    display: flex;
-    flex-direction: column;
-    color: var(--block-text);
-    /* The price is as large as the card has room for (cqi). */
-    container-type: inline-size;
-  }
-  .block-plan-featured {
-    box-shadow: inset 0 0 0 2px var(--block-accent);
-  }
-  .block-plan-badge {
-    align-self: flex-start;
-    margin-bottom: 0.75rem;
-    border-radius: var(--block-control-radius);
-    background: var(--block-accent);
-    color: var(--block-on-accent);
-    padding: 0.25rem 0.75rem;
-    font-size: var(--type-label-medium-size);
-    line-height: var(--type-label-medium-line-height);
-    font-weight: var(--type-label-medium-weight);
-    letter-spacing: var(--type-label-medium-tracking);
-  }
-  .block-plan-name {
-    margin: 0;
-    font-size: var(--type-title-large-size);
-    line-height: var(--type-title-large-line-height);
-    font-weight: var(--type-title-large-weight);
-    letter-spacing: var(--type-title-large-tracking);
-  }
-  .block-plan-price {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.25rem 0.5rem;
-    margin: 1rem 0 0;
-  }
-  .block-plan-amount {
-    font-size: clamp(var(--type-headline-small-size), 16cqi, var(--type-display-small-size));
-    line-height: var(--type-headline-large-line-height);
-    font-weight: var(--type-headline-large-weight);
-    letter-spacing: var(--type-headline-large-tracking);
-    font-variant-numeric: tabular-nums;
-  }
-  .block-plan-unit {
-    color: var(--block-muted);
-  }
-  .block-plan-text {
-    margin: 0.75rem 0 0;
-    color: var(--block-muted);
-  }
-  .block-plan-features {
-    margin-top: 1.5rem;
-    border-top: 1px solid var(--block-line);
-    padding-top: 0.5rem;
-  }
   .block-buttons.block-plan-buttons {
     flex-direction: column;
     margin-top: auto;
     padding-top: 1.5rem;
   }
-  /* A narrow card: a long text on its button goes onto two lines rather than out of the card. */
-  .block-plan-buttons .button {
-    padding-block: 0.75rem;
-    padding-inline: 1rem;
-    white-space: normal;
-    text-align: center;
-    line-height: 1.25;
-  }
 
   /* ---- end of "Checklist" and "Price cards" ---- */
-
-  @media (prefers-reduced-motion: reduce) {
-    .block-card,
-    .block-card-arrow,
-    .block-card-picture img {
-      transition: none;
-    }
-  }
 }
 
 @layer fallback {

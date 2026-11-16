@@ -73,11 +73,9 @@
    the names in the icon packs' maps (MATERIAL_SYMBOLS, LUCIDE, site/icons.mjs) and the tests' examples are not classes. */
 @import './tokens/ui/comp/badge.css';
 @import './tokens/ui/comp/button.css';
-@import './tokens/ui/comp/card.css';
 @import './tokens/ui/comp/carousel.css';
 @import './tokens/ui/comp/checkbox.css';
 @import './tokens/ui/comp/divider.css';
-@import './tokens/ui/comp/grid.css';
 @import './tokens/ui/comp/icon-button.css';
 @import './tokens/ui/comp/lightbox.css';
 @import './tokens/ui/comp/list.css';
@@ -98,105 +96,6 @@
 @source '../..';
 @source not '../../site/icons.mjs';
 @source not '../../**/*.test.mjs';
-/* A role as a utility, for a theme's own components and layouts: type-title-large, medium:type-headline-small … */
-@utility type-display-large {
-  font-size: var(--type-display-large-size);
-  line-height: var(--type-display-large-line-height);
-  font-weight: var(--type-display-large-weight);
-  letter-spacing: var(--type-display-large-tracking);
-}
-@utility type-display-medium {
-  font-size: var(--type-display-medium-size);
-  line-height: var(--type-display-medium-line-height);
-  font-weight: var(--type-display-medium-weight);
-  letter-spacing: var(--type-display-medium-tracking);
-}
-@utility type-display-small {
-  font-size: var(--type-display-small-size);
-  line-height: var(--type-display-small-line-height);
-  font-weight: var(--type-display-small-weight);
-  letter-spacing: var(--type-display-small-tracking);
-}
-@utility type-headline-large {
-  font-size: var(--type-headline-large-size);
-  line-height: var(--type-headline-large-line-height);
-  font-weight: var(--type-headline-large-weight);
-  letter-spacing: var(--type-headline-large-tracking);
-}
-@utility type-headline-medium {
-  font-size: var(--type-headline-medium-size);
-  line-height: var(--type-headline-medium-line-height);
-  font-weight: var(--type-headline-medium-weight);
-  letter-spacing: var(--type-headline-medium-tracking);
-}
-@utility type-headline-small {
-  font-size: var(--type-headline-small-size);
-  line-height: var(--type-headline-small-line-height);
-  font-weight: var(--type-headline-small-weight);
-  letter-spacing: var(--type-headline-small-tracking);
-}
-@utility type-title-large {
-  font-size: var(--type-title-large-size);
-  line-height: var(--type-title-large-line-height);
-  font-weight: var(--type-title-large-weight);
-  letter-spacing: var(--type-title-large-tracking);
-}
-@utility type-lead {
-  /* The space of a lead paragraph in a text (.prose, base.css): 24px, on the 4dp grid. */
-  --prose-space: 1.5rem;
-  font-size: var(--type-lead-size);
-  line-height: var(--type-lead-line-height);
-  font-weight: var(--type-lead-weight);
-  letter-spacing: var(--type-lead-tracking);
-}
-@utility type-title-medium {
-  font-size: var(--type-title-medium-size);
-  line-height: var(--type-title-medium-line-height);
-  font-weight: var(--type-title-medium-weight);
-  letter-spacing: var(--type-title-medium-tracking);
-}
-@utility type-title-small {
-  font-size: var(--type-title-small-size);
-  line-height: var(--type-title-small-line-height);
-  font-weight: var(--type-title-small-weight);
-  letter-spacing: var(--type-title-small-tracking);
-}
-@utility type-body-large {
-  font-size: var(--type-body-large-size);
-  line-height: var(--type-body-large-line-height);
-  font-weight: var(--type-body-large-weight);
-  letter-spacing: var(--type-body-large-tracking);
-}
-@utility type-body-medium {
-  font-size: var(--type-body-medium-size);
-  line-height: var(--type-body-medium-line-height);
-  font-weight: var(--type-body-medium-weight);
-  letter-spacing: var(--type-body-medium-tracking);
-}
-@utility type-body-small {
-  font-size: var(--type-body-small-size);
-  line-height: var(--type-body-small-line-height);
-  font-weight: var(--type-body-small-weight);
-  letter-spacing: var(--type-body-small-tracking);
-}
-@utility type-label-large {
-  font-size: var(--type-label-large-size);
-  line-height: var(--type-label-large-line-height);
-  font-weight: var(--type-label-large-weight);
-  letter-spacing: var(--type-label-large-tracking);
-}
-@utility type-label-medium {
-  font-size: var(--type-label-medium-size);
-  line-height: var(--type-label-medium-line-height);
-  font-weight: var(--type-label-medium-weight);
-  letter-spacing: var(--type-label-medium-tracking);
-}
-@utility type-label-small {
-  font-size: var(--type-label-small-size);
-  line-height: var(--type-label-small-line-height);
-  font-weight: var(--type-label-small-weight);
-  letter-spacing: var(--type-label-small-tracking);
-}
 
 @layer components {
   /* A target keeps its size at every density step (m3.material.io/foundations/layout/grids-spacing/density: "Accessible targets should
@@ -1883,140 +1782,6 @@
       max-height: calc(100dvh - var(--bottom-sheet-margin-wide, 3.5rem));
     }
   }
-
-  /* A carousel: its items in a row to swipe, and the page indicator under them.
-     The number of items in view follows the carousel's own width, not the window's: a carousel in a narrow column or a side sheet shows one item at a
-     time on a wide window too (Modern Web Guidance, `responsive-design` and `size-aware-styling`: "Use @container queries to create component-driven
-     responsive layouts"). The widths are M3's window classes less the page margins (16 dp below medium, 24 dp from it), so a carousel as wide as the
-     page changes where it did: 2 items from 35.5rem (medium, 600 dp, less 2 x 16 dp; a page at 600 to 615 dp shows one), 3 from 49.5rem (expanded, 840 dp,
-     less 2 x 24 dp). The page's own columns stay on the window (breakpoints in lib/breakpoints.mjs). */
-  .carousel {
-    container: carousel / inline-size;
-  }
-  .carousel-items {
-    display: flex;
-    gap: var(--carousel-gap, 0.5rem);
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    margin: 0 calc(-1 * var(--carousel-bleed, 0rem));
-    padding: 0 var(--carousel-bleed, 0rem);
-    scroll-padding-inline: var(--carousel-bleed, 0rem);
-    list-style: none;
-  }
-  .carousel-items::-webkit-scrollbar {
-    display: none;
-  }
-  .carousel-item {
-    display: flex;
-    width: 86%;
-    flex-shrink: 0;
-    scroll-snap-align: start;
-  }
-  .carousel-indicator {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 1.25rem;
-  }
-  .carousel-indicator[hidden] {
-    display: none;
-  }
-  .carousel-indicator-dot {
-    display: grid;
-    width: 1.5rem;
-    height: 1.5rem;
-    place-items: center;
-    border: 0;
-    padding: 0;
-    background: none;
-  }
-  .carousel-indicator-dot > span {
-    display: block;
-    width: var(--carousel-dot-size, 0.5rem);
-    height: var(--carousel-dot-size, 0.5rem);
-    border-radius: var(--mo-shape-full);
-    background: var(--carousel-dot-colour, var(--block-line));
-    transition:
-      width var(--motion-spatial),
-      height var(--motion-spatial),
-      background-color var(--motion-effects);
-  }
-  .carousel-indicator-dot[aria-current='true'] > span {
-    width: var(--carousel-dot-selected-width, 1.25rem);
-    background: var(--carousel-dot-selected-colour, var(--block-accent));
-  }
-  @container carousel (width >= 35.5rem) {
-    .carousel-item {
-      width: calc((100% - 1rem) / 2);
-    }
-    .carousel-items {
-      margin: 0;
-      padding: 0;
-      scroll-padding-inline: 0;
-    }
-  }
-  @container carousel (width >= 49.5rem) {
-    .carousel-item {
-      width: calc((100% - 2rem) / 3);
-    }
-  }
-
-  /* The contained layouts: within the text's width and as high as the theme says, what is in each item filling its
-     mask with the item's corners; multi-browse's and a hero's masks moved and clipped by carouselLayout.ts (before it
-     runs, every item as wide as a large one). */
-  .carousel-contained .carousel-items {
-    height: var(--carousel-height, 14rem);
-    gap: var(--carousel-contained-gap, 0.5rem);
-    margin: 0;
-    padding: 0;
-    scroll-padding-inline: 0;
-  }
-  .carousel-contained .carousel-item {
-    width: var(--carousel-item-width, 75%);
-  }
-  .carousel-multi-browse .carousel-item {
-    width: var(--carousel-item-width, var(--carousel-large-item-width));
-  }
-  .carousel-hero .carousel-item {
-    width: var(--carousel-item-width, calc(100% - var(--carousel-small-item-max-width) - var(--carousel-contained-gap, 0.5rem)));
-  }
-  .carousel-item-mask {
-    position: relative;
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    border-radius: var(--carousel-item-radius, var(--block-radius));
-    background: var(--carousel-item-surface, var(--block-tint));
-    clip-path: inset(0 var(--carousel-mask-inset, 0px) round var(--carousel-item-radius, var(--block-radius)));
-  }
-  .carousel-item-mask > :is(img, image, video) {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  /* Full-screen: one item at a time, as wide as the carousel, out to a phone's edges without corners there. */
-  .carousel-full-screen .carousel-items {
-    height: var(--carousel-full-screen-height, min(75svh, 36rem));
-    gap: 0;
-    margin: 0 calc(-1 * var(--carousel-bleed, 0rem));
-  }
-  .carousel-full-screen .carousel-item {
-    width: 100%;
-    scroll-snap-stop: always;
-  }
-  @media (width < theme(--breakpoint-medium)) {
-    .carousel-full-screen .carousel-item-mask {
-      border-radius: var(--carousel-full-screen-radius, 0);
-      clip-path: none;
-    }
-  }
-  @media (width >= theme(--breakpoint-medium)) {
-    .carousel-full-screen .carousel-items {
-      margin: 0;
-    }
-  }
 }
 
 /* ---- Cards and lists: Card, List ---- */
@@ -2085,11 +1850,6 @@
     --list-segmented-selected-surface, --list-segmented-selected-text   a segmented list
 */
 @layer components {
-  .card {
-    display: block;
-    border-radius: var(--card-radius, var(--block-radius));
-    padding: var(--card-padding, 1rem);
-  }
   a.card {
     color: inherit;
     text-decoration: none;
@@ -2099,54 +1859,6 @@
   :where(a.card) {
     transition: box-shadow 0.3s var(--block-ease-quick);
   }
-  /* The state layer (M3's): a card that is a link or a button, tinted in its text's colour over the whole card in its
-     shape, 8% when pointed at and 10% with focus from the keyboard. It is under the ripple (the ripple is the last in the
-     card) and does not take a click. */
-  :is(a, button).card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: currentColor;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity var(--motion-effects);
-  }
-  @media (hover: hover) {
-    :is(a, button:enabled).card:hover::before {
-      opacity: var(--card-hover-layer, 0.08);
-    }
-  }
-  :is(a, button:enabled).card:focus-visible::before {
-    opacity: var(--card-focus-layer, 0.1);
-  }
-  .card-dragged {
-    cursor: grabbing;
-  }
-  .card-elevated {
-    background: var(--card-elevated-surface, var(--mo-elevation-1-color));
-    box-shadow:
-      inset 0 0 0 1px var(--card-elevated-line, transparent),
-      var(--card-shadow);
-  }
-  .card-filled {
-    background: var(--card-filled-surface, var(--block-tint));
-    box-shadow:
-      inset 0 0 0 1px var(--card-filled-line, transparent),
-      var(--card-shadow);
-  }
-  .card-outlined {
-    background: var(--card-outlined-surface, var(--mo-elevation-0-color));
-    box-shadow:
-      inset 0 0 0 1px var(--card-outlined-line, var(--block-line)),
-      var(--card-shadow);
-  }
-  /* A card with media (CardMedia): the image to the card's edge, no padding, in the card's corners. */
-  .card-with-media {
-    position: relative;
-    padding: 0;
-    overflow: hidden;
-  }
   button.card {
     width: 100%;
     border: 0;
@@ -2155,66 +1867,7 @@
     text-align: start;
     cursor: pointer;
   }
-  .card-media {
-    display: block;
-    width: 100%;
-    overflow: hidden;
-    border-radius: inherit;
-  }
-  .card-media > picture {
-    display: contents;
-  }
-  .card-media img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  /* Selected (Material 3's Selection page: "a check mark icon, a checkbox component, a change in surface color, or a
-     combination"): the selected surface and a check mark. The only ring is the focus ring. */
-  .card-selected {
-    background: var(--card-selected-surface, var(--mo-secondary-container));
-    color: var(--card-selected-text, var(--mo-on-secondary-container));
-  }
-  .card-check {
-    position: absolute;
-    inset-block-start: 8px;
-    inset-inline-end: 8px;
-    box-sizing: content-box;
-    padding: 3px;
-    border-radius: 50%;
-    background: var(--mo-primary);
-    color: var(--mo-on-primary);
-  }
-
-  /* The theme grid (docs/theme-grid.md; M3 Cards: "customized in code to show cards in staggered or mosaic grids"): columns of
-     cards in their own heights, --mo-grid-gutter apart both ways (16px on compact, 24px from medium: owner values; M3 Spacing says
-     "Cards should maintain consistent horizontal spacing to establish a strong rhythm when their height varies" and prints no
-     gutter). --grid-columns is how many cards stand side by side, per breakpoint; M3's layout grid itself has 4 columns on
-     compact, 8 on medium and expanded and 12 on large and extra-large (--mo-grid-layout-columns, in global.css, what a span counts
-     in). A part with other counts sets --grid-columns on its element. */
-  .image-grid {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    column-count: var(--grid-columns);
-    column-gap: var(--mo-grid-gutter, 16px);
-  }
-  .image-grid > * {
-    break-inside: avoid;
-    margin-block-end: var(--mo-grid-gutter, 16px);
-  }
-  /* A card across all the columns (a span of the whole grid; the cards before and after it pack in their own columns).
-     Spans of other widths are not possible in columns: see docs/theme-grid.md. */
-  .image-grid > .grid-span-full {
-    column-span: all;
-  }
   /* A card across all the columns on compact only, one column from medium. */
-  @media (width < theme(--breakpoint-medium)) {
-    .image-grid > .grid-span-compact {
-      column-span: all;
-    }
-  }
 
   .list {
     margin: 0;
@@ -2642,17 +2295,23 @@
     rotate: 180deg;
     background: var(--list-expand-icon-open-surface, var(--mo-surface-container));
   }
+  /* The state layer (hovered, focused, pressed) is on the whole item, its open body too (owner, 16 Nov 2026: "The whole body should have the touch colour"),
+     so an open item is one colour; the summary keeps its text and the focus ring. */
   @media (hover: hover) {
-    .list-item-expand-summary:hover {
+    .list-item-expand:has(> .list-item-expand-summary:hover) {
       background: var(--list-item-hover-surface, transparent);
+    }
+    .list-item-expand-summary:hover {
       color: var(--list-item-hover-text, var(--block-accent));
     }
   }
-  .list-item-expand-summary:focus-visible {
+  .list-item-expand:has(> .list-item-expand-summary:focus-visible) {
     background: var(--list-item-focus-surface, var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent)));
+  }
+  .list-item-expand-summary:focus-visible {
     outline: 3px solid var(--list-item-focus-indicator-color, var(--mo-primary));
   }
-  .list-item-expand-summary:active {
+  .list-item-expand:has(> .list-item-expand-summary:active) {
     background: var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent));
   }
   .list-item-expand-body {

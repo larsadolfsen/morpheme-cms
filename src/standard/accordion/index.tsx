@@ -13,7 +13,7 @@ import { example } from './shared';
 
 export default defineBlock({
   group: 'lists',
-  // An Accordion is a Segmented list now (lib/blocks.mjs); this block stays for one with links to more pages in a row.
+  // An Accordion is a List - Expand now (lib/blocks.mjs); this block stays for one with links to more pages in a row.
   former: true,
   label: t.blocks.accordion.label,
   icon: Rows,

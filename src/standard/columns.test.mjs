@@ -5,9 +5,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
-const blocks = ['list', 'segmented', 'faq', 'accordion', 'posts', 'testimonials'];
+const blocks = ['list', 'expand', 'faq', 'accordion', 'posts', 'testimonials'];
 
-test('List, Segmented list, FAQ list, Accordion, Blog posts and Testimonials have the setting Columns, and their views carry it', () => {
+test('List, List - Expand, FAQ list, Accordion, Blog posts and Testimonials have the setting Columns, and their views carry it', () => {
   for (const name of blocks) {
     assert.match(read(`./${name}/index.tsx`), /columnsField\(/, `${name} has no Columns field`);
     const views = [`./${name}/view.ts`, `./${name}/load.ts`].map((f) => {
