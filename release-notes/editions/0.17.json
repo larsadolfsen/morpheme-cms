@@ -1,5 +1,8 @@
 {
-  "name": "Sri Lanka",
+  "name": {
+    "en-US": "Sri Lanka",
+    "da-DK": "Sri Lanka"
+  },
   "place": {
     "en-US": "Nine Arch Bridge Road, Sri Lanka",
     "da-DK": "Nine Arch Bridge Road, Sri Lanka"
