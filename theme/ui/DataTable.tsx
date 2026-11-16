@@ -12,13 +12,15 @@ import Card from './Card';
 export type DataAlign = 'left' | 'center' | 'right';
 
 /** The classes of a cell in a column with an alignment (none: the table's own, start). */
-export const dataCellClass = (align: DataAlign | undefined) => (align ? `data-table-${align} block-table-${align}` : undefined);
+export const dataCellClass = (align: DataAlign | undefined, kind?: string) =>
+  [align && `data-table-${align} block-table-${align}`, kind === 'number' && 'data-table-number'].filter(Boolean).join(' ') || undefined;
 
 export default function DataTable({
   label,
   head,
   rows,
   align,
+  kinds,
   rowHeader,
   striped,
   className,
@@ -32,6 +34,8 @@ export default function DataTable({
   rows: ReactNode[][];
   /** The alignment of each column; none: every column at the start. */
   align?: DataAlign[];
+  /** The drawn kind of each column (theme/ui/dataTableCells.mjs, kindOf); a `number` column is drawn with tabular figures. */
+  kinds?: string[];
   /** The column whose cells name their row (`th scope="row"`); none: every body cell is a `td`. */
   rowHeader?: number;
   /** Every second body row in a quieter background. */
@@ -55,7 +59,7 @@ export default function DataTable({
           <thead>
             <tr>
               {head.map((c, i) => (
-                <th key={i} scope="col" className={dataCellClass(align?.[i])}>
+                <th key={i} scope="col" className={dataCellClass(align?.[i], kinds?.[i])}>
                   {c}
                 </th>
               ))}
@@ -67,11 +71,11 @@ export default function DataTable({
             <tr key={i}>
               {r.map((c, j) =>
                 j === rowHeader ? (
-                  <th key={j} scope="row" className={dataCellClass(align?.[j])}>
+                  <th key={j} scope="row" className={dataCellClass(align?.[j], kinds?.[j])}>
                     {c}
                   </th>
                 ) : (
-                  <td key={j} className={dataCellClass(align?.[j])}>
+                  <td key={j} className={dataCellClass(align?.[j], kinds?.[j])}>
                     {c}
                   </td>
                 ),

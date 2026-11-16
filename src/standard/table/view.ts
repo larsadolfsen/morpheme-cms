@@ -4,15 +4,31 @@
 // when all are numbers, else left. The same in the editor (viewOf) and on the site (load.ts): only its fields.
 import { siteT } from '../../i18n';
 import type { ViewOf } from '../view';
-import { alignOf, rectangle } from './rows.mjs';
+import { kindOf } from '../../../theme/ui/dataTableCells.mjs';
+import { alignOf, columnsOf, rectangle } from './rows.mjs';
 
 /** `label` names the scroll box for a screen reader, in the site's language. */
-export type TableView = { header: boolean; striped: boolean; rows: string[][]; align: ('left' | 'center' | 'right')[]; label: string };
+export type TableView = {
+  header: boolean;
+  striped: boolean;
+  rows: string[][];
+  align: ('left' | 'center' | 'right')[];
+  kinds: ('text' | 'number')[];
+  label: string;
+};
 
 export const tableOf = (props: Record<string, any>): TableView => {
   const header = props.header !== false;
   const rows = rectangle(props.rows);
-  return { header, striped: props.striped === true, rows, align: alignOf(rows, header, props.columns), label: siteT.blocks.table.label };
+  const kinds = columnsOf(props.columns, rows[0].length).map(kindOf);
+  return {
+    header,
+    striped: props.striped === true,
+    rows,
+    align: alignOf(rows, header, props.columns),
+    kinds,
+    label: siteT.blocks.table.label,
+  };
 };
 
 export const viewOf: ViewOf<TableView> = tableOf;

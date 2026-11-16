@@ -13,6 +13,7 @@ export default function Table({ view }: { view: TableView }) {
       head={view.header ? first : null}
       rows={view.header ? rest : view.rows}
       align={view.align}
+      kinds={view.kinds}
       striped={view.striped}
     />
   );
