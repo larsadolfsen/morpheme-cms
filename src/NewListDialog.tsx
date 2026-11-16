@@ -49,7 +49,7 @@ export default function NewListDialog({ files, open, onClose }: { files: RepoFil
     } else dialog.current?.close();
   };
 
-  /** Every id and folder in use: the collections, the folders of the data folder and the CMS's own lists (an own list never takes one: `creatorOf`). */
+  /** Every id and folder in use: the collections, the folders of the data folder and the system lists (an own list never takes one: `creatorOf`). */
   const taken = () => {
     const prefix = `${config.folders.data}/`;
     const folders = files.filter((f) => f.path.startsWith(prefix)).map((f) => f.path.slice(prefix.length).split('/')[0]);
