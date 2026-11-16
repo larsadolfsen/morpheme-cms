@@ -6939,6 +6939,36 @@ async function checkListMarkers(width) {
   await page.close();
 }
 
+/** The hover row never takes a click meant for a control of the block: a mouse over the first row of a Segmented list or Questions and answers can click its chevron, at 768 and 1280
+ * (the row's buttons and handle lay over it). */
+async function checkChevronUnderHoverRow(width) {
+  const label = `${width}px chevron under the hover row`;
+  const src = [
+    '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n',
+    block('segmented', {
+      items: [
+        { title: 'One', text: 'First' },
+        { title: 'Two', text: 'Second' },
+      ],
+    }),
+  ].join('\n\n');
+  const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site, { [BUILT_PAGE]: src });
+  await page.goto(`${site}/editor/#${BUILT_PAGE}`);
+  await page.waitForSelector('.inline-list-host details.list-item-expand', { timeout: 30_000 });
+  await page.locator('.ProseMirror > p').first().click();
+  await page.waitForFunction(() => !document.querySelector('.inline-list-row-active'), null, { timeout: 8000 });
+  const first = page.locator('.inline-list-host details.list-item-expand').first();
+  const icon = await first.locator('.list-item-expand-icon').boundingBox();
+  await page.mouse.move(icon.x + icon.width / 2, icon.y + icon.height / 2);
+  await page.waitForTimeout(500);
+  await page.mouse.click(icon.x + icon.width / 2, icon.y + icon.height / 2);
+  await page.waitForTimeout(400);
+  if (!(await first.evaluate((d) => d.open))) problems.push(`${label}: a mouse click on the first row's chevron does not open the row`);
+  await page.close();
+}
+
 /** Rows that fold out, typed in place (Segmented list, Questions and answers): the chevron opens and closes any row as on the site, Enter or Space on the focused
  * head does too, a tap on the head's own surface (not the title, not the chevron) folds nothing, and typing in the page's text does not collapse an open row.
  * What is folded is a view state: the page does not change (Undo stays off). */
@@ -12122,6 +12152,7 @@ for (const block of pasteBlocks)
   for (const w of [375, 1280]) await unit(`checkInlinePaste ${w} ${block.name}`, () => checkInlinePaste(w, w < 600 ? 740 : 900, block));
 for (const w of [375, 1280]) await unit(`checkInlinePaste ${w} table`, () => checkTablePaste(w, w < 600 ? 740 : 900));
 for (const w of [375, 1280]) await unit(`checkChangeTo ${w}`, () => checkChangeTo(w, w < 600 ? 740 : 900));
+for (const w of [768, 1280]) await unit(`checkChevronUnderHoverRow ${w}`, () => checkChevronUnderHoverRow(w));
 for (const w of [375, 1280]) await unit(`checkCardHeadline ${w}`, () => checkCardHeadline(w, w < 600 ? 740 : 900));
 for (const [w, h, how] of [
   [375, 740, 'tap'],
