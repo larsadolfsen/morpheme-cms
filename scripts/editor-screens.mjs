@@ -6945,12 +6945,14 @@ async function checkChevronRows(width) {
       items: [
         { title: 'One', text: 'First' },
         { title: 'Two', text: 'Second' },
+        { title: 'Three', text: 'Third' },
       ],
     }),
     block('faq', {
       items: [
         { question: 'Why?', answer: 'Because.' },
         { question: 'Who?', answer: 'Me.' },
+        { question: 'How?', answer: 'Well.' },
       ],
     }),
   ].join('\n\n');
@@ -6999,6 +7001,45 @@ async function checkChevronRows(width) {
     await row.locator('.list-item-expand-icon').click();
     await shown().catch(() => problems.push(`${label} ${name}: a tap on the chevron does not open the row and show its text`));
     if ((await state()) !== 'true') problems.push(`${label} ${name}: the open row has aria-expanded ${await state()}`);
+    // The open row is round on all four corners, as large as the list's ends; its closed neighbours keep the small inner corners; the body text
+    // starts where the title does (the connected button group's selected item, Material 3's Button groups and Lists specs).
+    const corners = await page
+      .waitForFunction(
+        ([h]) => {
+          const lis = [...document.querySelectorAll('.inline-list-host')[h].querySelectorAll('.list-expand > li')];
+          const r = (li) => {
+            const c = getComputedStyle(li);
+            return [c.borderTopLeftRadius, c.borderTopRightRadius, c.borderBottomRightRadius, c.borderBottomLeftRadius].map(parseFloat);
+          };
+          const open = r(lis[1]);
+          if (!open.every((x) => x >= 15.5)) return null;
+          const d = lis[1].querySelector('details');
+          return {
+            open,
+            first: r(lis[0]),
+            last: r(lis[2]),
+            title: d.querySelector('summary [data-field]').getBoundingClientRect().left,
+            body: d.querySelector('.block-accordion-answer').getBoundingClientRect().left,
+          };
+        },
+        [at],
+        { timeout: 8000 },
+      )
+      .then((x) => x.jsonValue())
+      .catch(() => null);
+    if (!corners) problems.push(`${label} ${name}: the open row is not round on all four corners`);
+    else {
+      if (corners.first[2] >= corners.open[0] || corners.first[3] >= corners.open[0])
+        problems.push(
+          `${label} ${name}: the closed row above the open one has ${corners.first} corners, not smaller than the open row's ${corners.open}`,
+        );
+      if (corners.last[0] >= corners.open[0] || corners.last[1] >= corners.open[0])
+        problems.push(
+          `${label} ${name}: the closed row below the open one has ${corners.last} corners, not smaller than the open row's ${corners.open}`,
+        );
+      if (Math.abs(corners.title - corners.body) > 1)
+        problems.push(`${label} ${name}: the open row's text starts at ${corners.body}, its title at ${corners.title}`);
+    }
     // The whole height of the head at the chevron is its target (not only the 24 px glyph).
     const icon = await row.locator('.list-item-expand-icon').boundingBox();
     const top = await head.boundingBox();

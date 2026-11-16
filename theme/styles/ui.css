@@ -3088,7 +3088,7 @@
   }
   .list-item-expand[open] > .list-item-expand-summary .list-item-expand-icon {
     rotate: 180deg;
-    background: var(--list-expand-icon-open-surface, color-mix(in srgb, currentColor 8%, transparent));
+    background: var(--list-expand-icon-open-surface, var(--mo-surface-container));
   }
   @media (hover: hover) {
     .list-item-expand-summary:hover {
