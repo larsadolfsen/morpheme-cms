@@ -142,7 +142,7 @@ export default function ActionParts() {
             <StyleChoice styles={['filled', 'tonal', 'outlined']} />
             <StyleChoice styles={['filled', 'tonal', 'outlined']} form="list" />
             <div className="space-y-2">
-              <p className="type-label-large">{say.narrow}</p>
+              <p className="mo-type-label-large">{say.narrow}</p>
               <div className="max-w-80" data-choice-narrow>
                 <StyleChoice styles={buttonStyles} />
               </div>

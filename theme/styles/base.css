@@ -131,7 +131,7 @@
     margin-top: 1rem;
   }
   /* The text's spaces are on the 4dp grid (Material 3's spacing units are multiples of 4dp and 8dp; it prints no paragraph
-   or heading space, so these are the nearest rule): a paragraph 16px, a lead paragraph 24px (--prose-space, set by .type-lead
+   or heading space, so these are the nearest rule): a paragraph 16px, a lead paragraph 24px (--prose-space, set by .mo-type-lead
    and .post-lead), a title above 32px and below 12px (the h2's 56 and 28 are on the grid already). They replace the typography
    plugin's em spaces (17.5, 27.5, 35.19, 13.2), which land off the grid. Not the paragraphs of a list item, which the
    plugin spaces itself, and the first and last child keep no space, as the plugin has it. */

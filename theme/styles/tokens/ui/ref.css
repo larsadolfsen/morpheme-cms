@@ -176,7 +176,7 @@
   --type-label-small-tracking: 0.03125rem;
   --type-label-small-font: var(--font-sans);
   --type-label-small-prominent-weight: 700;
-  /* The lead (an intro paragraph: type-lead, a blog post's first paragraph, a single page's first paragraph). Each is the
+  /* The lead (an intro paragraph: mo-type-lead, a blog post's first paragraph, a single page's first paragraph). Each is the
      title large's; a theme sets these four to change every lead. */
   --type-lead-size: var(--type-title-large-size);
   --type-lead-line-height: var(--type-title-large-line-height);

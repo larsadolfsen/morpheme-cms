@@ -18,7 +18,7 @@ export default function PostCard({ post }: { post: PostView }) {
         />
       )}
       <div className="p-4">
-        <h3 className="type-title-medium">{post.title}</h3>
+        <h3 className="mo-type-title-medium">{post.title}</h3>
         <PostMeta post={post} className="mt-2" />
       </div>
     </Card>

@@ -37,8 +37,8 @@ async function checkTypePage(width, height) {
     document.body.append(probe);
     const px = (value) => `${Math.round(parseFloat(value) * 100) / 100} px`;
     const rows = styles.map((name) => {
-      const sample = document.querySelector(`[data-type-sample="type-${name}"]`);
-      const spec = document.querySelector(`[data-type-spec="type-${name}"]`);
+      const sample = document.querySelector(`[data-type-sample="mo-type-${name}"]`);
+      const spec = document.querySelector(`[data-type-spec="mo-type-${name}"]`);
       if (!sample || !spec) return { name, missing: true };
       probe.style.cssText = `position:absolute;visibility:hidden;font-size:var(--type-${name}-size);line-height:var(--type-${name}-line-height);font-weight:var(--type-${name}-weight);letter-spacing:var(--type-${name}-tracking)`;
       const token = getComputedStyle(probe);
@@ -46,13 +46,13 @@ async function checkTypePage(width, height) {
       const tracking = own.letterSpacing === 'normal' ? '0 px' : px(own.letterSpacing);
       return {
         name,
-        classed: sample.classList.contains(`type-${name}`),
+        classed: sample.classList.contains(`mo-type-${name}`),
         size: [own.fontSize, token.fontSize],
         lineHeight: [own.lineHeight, token.lineHeight],
         weight: [own.fontWeight, token.fontWeight],
         tracking: [own.letterSpacing, token.letterSpacing],
         shown: spec.textContent,
-        want: `.type-${name} Size ${px(own.fontSize)} · line height ${px(own.lineHeight)} · tracking ${tracking} · weight ${own.fontWeight}`,
+        want: `.mo-type-${name} Size ${px(own.fontSize)} · line height ${px(own.lineHeight)} · tracking ${tracking} · weight ${own.fontWeight}`,
         visible: sample.checkVisibility() && spec.checkVisibility(),
         overflow: sample.scrollWidth > sample.clientWidth + 1,
       };
@@ -62,16 +62,16 @@ async function checkTypePage(width, height) {
   }, STYLES);
   for (const r of found.rows) {
     if (r.missing) {
-      problems.push(`${label}: no sample or line for type-${r.name}`);
+      problems.push(`${label}: no sample or line for mo-type-${r.name}`);
       continue;
     }
-    if (!r.classed) problems.push(`${label}: type-${r.name} sample does not have its class`);
+    if (!r.classed) problems.push(`${label}: mo-type-${r.name} sample does not have its class`);
     for (const key of ['size', 'lineHeight', 'weight', 'tracking'])
-      if (r[key][0] !== r[key][1]) problems.push(`${label}: type-${r.name} ${key} is ${r[key][0]}, its token is ${r[key][1]}`);
+      if (r[key][0] !== r[key][1]) problems.push(`${label}: mo-type-${r.name} ${key} is ${r[key][0]}, its token is ${r[key][1]}`);
     if (r.shown.replace(/\s+/g, ' ').trim() !== r.want)
-      problems.push(`${label}: type-${r.name} line says "${r.shown}", expected "${r.want}"`);
-    if (!r.visible) problems.push(`${label}: type-${r.name} is not visible`);
-    if (r.overflow) problems.push(`${label}: type-${r.name} sample is wider than its box`);
+      problems.push(`${label}: mo-type-${r.name} line says "${r.shown}", expected "${r.want}"`);
+    if (!r.visible) problems.push(`${label}: mo-type-${r.name} is not visible`);
+    if (r.overflow) problems.push(`${label}: mo-type-${r.name} sample is wider than its box`);
   }
   // The text lists: each list has its line, which says what the browser draws for the first item; the text is body medium (the prose size),
   // the list is indented, a nested list is inside the bullet and numbered ones, and a check is drawn in a colour that is not the text's.

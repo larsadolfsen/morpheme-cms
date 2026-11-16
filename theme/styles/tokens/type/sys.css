@@ -1,13 +1,13 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
 @layer utilities {
-  .type-lead {
+  .mo-type-lead {
     /* The space of a lead paragraph in a text (.prose, base.css): 24px, on the 4dp grid. */
     --prose-space: 1.5rem;
   }
 }
 @layer utilities {
-  .\[\&\>p\:first-child\]\:type-lead > p:first-child {
+  .\[\&\>p\:first-child\]\:mo-type-lead > p:first-child {
     --prose-space: 1.5rem;
   }
 }
