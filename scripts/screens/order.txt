@@ -141,8 +141,13 @@ checkUnlistedPost
 checkLibraryAlt
 checkImageGrid 375
 checkImageGrid 1280
+checkCardsSpacing 768
+checkCardsEditorSpacing 768
+checkCardsElevation 768
 checkCardsCarousel 375
 checkCardsSpacing 375
+checkCardsEditorSpacing 375
+checkCardsElevation 375
 checkPostMeta 375 light
 checkPostMeta 375 dark
 checkCardIconText 375 light
@@ -151,6 +156,8 @@ checkIconColor 375 light
 checkIconColor 375 dark
 checkCardsCarousel 1280
 checkCardsSpacing 1280
+checkCardsEditorSpacing 1280
+checkCardsElevation 1280
 checkPostMeta 1280 light
 checkPostMeta 1280 dark
 checkCardIconText 1280 light

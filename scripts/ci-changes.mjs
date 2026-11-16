@@ -1,8 +1,9 @@
 // What CI decides from a pull request's diff (.github/workflows/check.yml, jobs `changes` and `check`; skill checks, "What CI runs").
 // Depends on node:process only; tested by scripts/ci-changes.test.mjs.
 //   node scripts/ci-changes.mjs docs-only <head ref>   reads the changed paths (one per line) on stdin and prints docs_only=true|false
-//   node scripts/ci-changes.mjs classify <head ref>    the same, and also starter_demo=true|false (whether `starter` and `demo` must run)
-//   node scripts/ci-changes.mjs verdict <docs_only> [<starter_demo>]  reads `needs` (JSON, as Actions gives it) on stdin; exits 1 when `check` must be red
+//   node scripts/ci-changes.mjs classify <head ref> [<base>]  the same, and also starter_demo=true|false (whether `starter` and `demo` must run)
+//                                                      and light=true|false (a pull request into a version line: the light check)
+//   node scripts/ci-changes.mjs verdict <docs_only> [<starter_demo> [<light>]]  reads `needs` (JSON, as Actions gives it) on stdin; exits 1 when `check` must be red
 import { argv, stdin, exit } from 'node:process';
 
 /** The Release PR (changesets into CHANGELOG.md and the version) always runs everything. */
@@ -73,6 +74,22 @@ export function needsStarterDemo(paths, headRef = '') {
   return !changed.every((p) => !p.includes('..') && NO_STARTER_DEMO.some((re) => re.test(p)));
 }
 
+/** A version line's branch (`0.18`): its pull requests run the light check; `main` and anything else run everything. */
+const VERSION_LINE = /^0\.\d+$/;
+/** The heavy jobs a light check skips; the 8 `screens` shards still run. They run in full on a pull request into `main`. */
+export const LIGHT_SKIPPED = ['screens-extra', 'demo', 'starter'];
+
+/**
+ * Whether the pull request gets the light check: its base is a version line and it is not the Release PR. When in doubt, false
+ * (an empty or unknown base, `main`, the Release PR): everything runs.
+ * @param {string} [base] the pull request's base branch
+ * @param {string} [headRef]
+ */
+export function isLight(base = '', headRef = '') {
+  if (headRef === RELEASE_BRANCH) return false;
+  return VERSION_LINE.test(base.trim());
+}
+
 /** The jobs that are skipped on a docs-only pull request. `static` and `changes` always run. */
 export const HEAVY = ['screens', 'screens-extra', 'demo', 'starter'];
 /** The heavy jobs that are also skipped when no changed file can affect them (needsStarterDemo is false). */
@@ -85,9 +102,10 @@ export const FILTERED = ['demo', 'starter'];
  * @param {Record<string, {result?: string}>} needs
  * @param {boolean} docsOnly
  * @param {boolean} [starterDemo] whether `starter` and `demo` had to run
+ * @param {boolean} [light] a pull request into a version line: screens-extra, demo and starter are skipped
  * @returns {string[]}
  */
-export function verdict(needs, docsOnly, starterDemo = true) {
+export function verdict(needs, docsOnly, starterDemo = true, light = false) {
   const problems = [];
   const result = (name) => needs?.[name]?.result;
   for (const name of ['changes', 'static']) {
@@ -95,7 +113,7 @@ export function verdict(needs, docsOnly, starterDemo = true) {
   }
   for (const name of HEAVY) {
     const r = result(name);
-    const skip = docsOnly || (FILTERED.includes(name) && !starterDemo);
+    const skip = docsOnly || (light && LIGHT_SKIPPED.includes(name)) || (FILTERED.includes(name) && !starterDemo);
     const expected = skip ? 'skipped' : 'success';
     if (r !== expected) problems.push(`${name}: ${r ?? 'missing'}, must be ${expected}`);
   }
@@ -118,19 +136,22 @@ if (import.meta.url === `file://${argv[1]}`) {
     const docsOnly = isDocsOnly(paths, arg);
     console.log(`docs_only=${docsOnly}`);
     console.log(`starter_demo=${!docsOnly && needsStarterDemo(paths, arg)}`);
+    console.log(`light=${isLight(argv[4] ?? '', arg)}`);
   } else if (mode === 'verdict') {
-    const problems = verdict(JSON.parse(input), arg === 'true', argv[4] !== 'false');
+    const problems = verdict(JSON.parse(input), arg === 'true', argv[4] !== 'false', argv[5] === 'true');
     for (const p of problems) console.log(`FAIL ${p}`);
     if (problems.length) exit(1);
     console.log(
       arg === 'true'
         ? 'Green: docs-only pull request, heavy jobs skipped on purpose.'
-        : argv[4] === 'false'
-          ? 'Green: starter and demo skipped on purpose (no changed file can affect them), every other job passed.'
-          : 'Green: every job passed.',
+        : argv[5] === 'true'
+          ? 'Green: light check for a pull request into a version line (screens-extra, demo and starter run when it is merged into main), every other job passed.'
+          : argv[4] === 'false'
+            ? 'Green: starter and demo skipped on purpose (no changed file can affect them), every other job passed.'
+            : 'Green: every job passed.',
     );
   } else {
-    console.error('usage: ci-changes.mjs docs-only|classify <head ref> | verdict <docs_only> [<starter_demo>]');
+    console.error('usage: ci-changes.mjs docs-only|classify <head ref> [<base>] | verdict <docs_only> [<starter_demo> [<light>]]');
     exit(2);
   }
 }

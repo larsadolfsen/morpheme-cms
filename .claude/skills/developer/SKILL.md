@@ -60,10 +60,10 @@ Every pull request, whatever the change:
 
 ## 3a. Check in when ready to merge
 
-Owner rule, 15 Nov 2026. When the change is finished and `npm run check` is green locally, do not push, open a pull request
+Owner rule, 15 Nov 2026. When the change is finished and `npm run check` is green locally (which checks to run before a push: skill `checks`, *What to run before a push*), do not push, open a pull request
 or re-run CI on your own. Send the PM one message, `ready: <branch>, <what changed>, local check green`, and wait. Only on
 the PM's "your slot" do you push (or merge `origin/<base>` and push, or open the pull request), then report the link and
-the head sha once `check` is green. While you wait you may merge the base locally and run `npm run check`. The first push
+the head sha once `check` is green. While you wait you may merge the base locally and run `npm run check`; never the full `check:screens` (skill `checks`). The first push
 of a new session follows the same rule: check in first. The PM keeps the order (`pm` skill, *Ready queue and CI slots*).
 
 ## 4. The owner's standing design rules
@@ -81,6 +81,11 @@ Short forms, for a developer to know before reading the specs. A rule changes on
   computer keeps the side sheet.
 - **Standard names.** Use the standard name of a field or a feature (Material 3's, the web's, the real product's),
   never a new one (`docs/superpowers/specs/2026-11-14-standard-names-audit.md`).
+- **CSS custom properties** (owner, 16 Nov 2026; `docs/css-tokens.md`, `npm run check:css-tokens`). A shared value is a `--mo-…` token: the CMS owns
+  the name, the theme sets its value once on `:root`, and a block, an app block or a section overrides it on its own root element. Never make a second
+  name for a value that has a `--mo-` name (no `--venus-gap`, no theme or app prefix); if the CMS has no name for a value, add one to the CMS's list
+  and document it. A token only one block uses is declared on that block, nothing unprefixed on `:root`, `html` or `body`, and an app or theme never
+  redeclares a name the CMS declares.
 - **Icons are Material Symbols**, drawn by name through the shared `Icon` (`CLAUDE.md`, *Icons are Material Symbols*).
 - **A deviation from Material 3** is allowed only in the editor's own workspace or when the owner says so in words, and is
   recorded in `docs/material-deviations.md` in the same pull request (`material-3`).
@@ -132,7 +137,7 @@ are `…/specs`, `…/guidelines` and `…/accessibility` under the same address
 | `Chip`, `ChipSet` (`ui.tsx` `InputChip`, `FilterChip`, `ChipField`, `ChipSet`) | a filter, input or suggestion, in a row | [chips](https://m3.material.io/components/chips/overview) |
 | `List`, `ListItem` (`ui.tsx` `ListItem`, `PickListItem`, `ChoiceListItem`) | rows of text, icons and actions | [lists](https://m3.material.io/components/lists/overview) |
 | `Card`, `CardMedia` | a content container for one subject | [cards](https://m3.material.io/components/cards/overview) |
-| Grid (`.image-grid`, `.grid-span-full`; tokens `--grid-columns`, `--grid-gutter`, `--grid-margin`, `--grid-layout-columns`) | cards of different heights in columns, no holes; on any page of the editor and the site; `docs/theme-grid.md` | [grids](https://m3.material.io/foundations/layout/grids-spacing/grids) |
+| Grid (`.image-grid`, `.grid-span-full`; tokens `--grid-columns`, `--mo-grid-gutter`, `--mo-grid-margin`, `--mo-grid-layout-columns`) | cards of different heights in columns, no holes; on any page of the editor and the site; `docs/theme-grid.md` | [grids](https://m3.material.io/foundations/layout/grids-spacing/grids) |
 | `Carousel` (`ui.tsx` `ImageCarousel`) | a scrolling row of images or cards | [carousel](https://m3.material.io/components/carousel/overview) |
 | `Divider` | separates content | [divider](https://m3.material.io/components/divider/overview) |
 | `Badge` | a count or dot on another part | [badges](https://m3.material.io/components/badges/overview) |
