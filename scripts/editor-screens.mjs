@@ -6933,6 +6933,124 @@ async function checkListMarkers(width) {
   await page.close();
 }
 
+/** Rows that fold out, typed in place (Segmented list, Questions and answers): the chevron opens and closes any row as on the site, Enter or Space on the focused
+ * head does too, a tap on the head's own surface (not the title, not the chevron) folds nothing, and typing in the page's text does not collapse an open row.
+ * What is folded is a view state: the page does not change (Undo stays off). */
+async function checkChevronRows(width) {
+  const label = `${width}px rows that fold`;
+  const phone = width < 600;
+  const src = [
+    '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n',
+    block('segmented', {
+      items: [
+        { title: 'One', text: 'First' },
+        { title: 'Two', text: 'Second' },
+      ],
+    }),
+    block('faq', {
+      items: [
+        { question: 'Why?', answer: 'Because.' },
+        { question: 'Who?', answer: 'Me.' },
+      ],
+    }),
+  ].join('\n\n');
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site, { [BUILT_PAGE]: src });
+  await page.goto(`${site}/editor/#${BUILT_PAGE}`);
+  await page.waitForSelector('.inline-list-host details.list-item-expand', { timeout: 30_000 });
+  const undoOff = () => page.locator('.editor-tools button[aria-label="Undo"]').first().isDisabled();
+  for (const [at, name] of [
+    [0, 'Segmented list'],
+    [1, 'Questions and answers'],
+  ]) {
+    // The cursor is out of every block: no row's settings panel narrows the page while a row is tapped.
+    await page.locator('.ProseMirror > p').first().click();
+    await page.waitForFunction(
+      () => !document.querySelector('.editor-side-sheet, dialog[open]') && !document.querySelector('.inline-list-row-active'),
+      null,
+      { timeout: 8000 },
+    );
+    const host = page.locator('.inline-list-host').nth(at);
+    const row = host.locator('details.list-item-expand').nth(1);
+    const head = row.locator('summary');
+    const state = () => head.getAttribute('aria-expanded');
+    const shown = () =>
+      page.waitForFunction(
+        ([h, r]) => {
+          const d = document.querySelectorAll('.inline-list-host')[h].querySelectorAll('details.list-item-expand')[r];
+          const a = d.querySelector('.block-accordion-answer');
+          return d.open && !!a && a.getBoundingClientRect().height > 0;
+        },
+        [at, 1],
+        { timeout: 8000 },
+      );
+    const shut = () =>
+      page.waitForFunction(
+        ([h, r]) => !document.querySelectorAll('.inline-list-host')[h].querySelectorAll('details.list-item-expand')[r].open,
+        [at, 1],
+        { timeout: 8000 },
+      );
+    if ((await state()) !== 'false')
+      problems.push(`${label} ${name}: a row that is not active has aria-expanded ${await state()}, not false`);
+    const box = await head.boundingBox();
+    if (box && box.height < 48) problems.push(`${label} ${name}: the row's head is ${box.height} px high, under 48`);
+    // The chevron opens the row, a second tap closes it.
+    await row.locator('.list-item-expand-icon').click();
+    await shown().catch(() => problems.push(`${label} ${name}: a tap on the chevron does not open the row and show its text`));
+    if ((await state()) !== 'true') problems.push(`${label} ${name}: the open row has aria-expanded ${await state()}`);
+    // The whole height of the head at the chevron is its target (not only the 24 px glyph).
+    const icon = await row.locator('.list-item-expand-icon').boundingBox();
+    const top = await head.boundingBox();
+    await page.mouse.click(icon.x + icon.width / 2, top.y + 3);
+    await shut().catch(() => problems.push(`${label} ${name}: a second tap on the chevron does not close the row`));
+    // Enter and Space on the focused head.
+    await head.focus();
+    await page.keyboard.press('Enter');
+    await shown().catch(() => problems.push(`${label} ${name}: Enter on the focused row does not open it`));
+    await page.keyboard.press('Space');
+    await page.waitForTimeout(500);
+    await shut().catch(() => problems.push(`${label} ${name}: Space on the focused row does not close it`));
+    // A tap on the head's own surface, outside the title and the chevron, folds nothing.
+    const edge = await head.boundingBox();
+    await page.mouse.click(edge.x + 2, edge.y + edge.height / 2);
+    await page.waitForTimeout(300);
+    if ((await state()) !== 'false') problems.push(`${label} ${name}: a tap on the row's surface folds it`);
+    // Typing in the page's text does not collapse an open row.
+    await row.locator('.list-item-expand-icon').click();
+    await shown();
+    await page.locator('.ProseMirror > p').first().click();
+    await page.keyboard.type('abc');
+    await page.waitForTimeout(400);
+    if ((await state()) !== 'true') problems.push(`${label} ${name}: typing in the page's text collapsed the open row`);
+    // A tap on the title opens a row the chevron closed, and types there.
+    await row.locator('.list-item-expand-icon').click();
+    await shut();
+    await row.locator('textarea').first().click();
+    await shown().catch(() => problems.push(`${label} ${name}: a tap on the title of a closed row does not open it`));
+    await row.locator('.list-item-expand-icon').click();
+    await shut();
+  }
+  // The page is the same: no step of the fold is an edit, so Undo is still off (the typing above is the only change; check on a fresh page below).
+  const fresh = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  fresh.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(fresh, site, { [BUILT_PAGE]: src });
+  await fresh.goto(`${site}/editor/#${BUILT_PAGE}`);
+  await fresh.waitForSelector('.inline-list-host details.list-item-expand', { timeout: 30_000 });
+  const undoBefore = await fresh.locator('.editor-tools button[aria-label="Undo"]').first().isDisabled();
+  for (let h = 0; h < 2; h++) {
+    const icon = fresh.locator('.inline-list-host').nth(h).locator('.list-item-expand-icon').nth(1);
+    await icon.click();
+    await fresh.waitForFunction((n) => document.querySelectorAll('.inline-list-host')[n].querySelectorAll('details')[1].open, h);
+    await icon.click();
+  }
+  await fresh.waitForTimeout(300);
+  if ((await fresh.locator('.editor-tools button[aria-label="Undo"]').first().isDisabled()) !== undoBefore)
+    problems.push(`${label}: folding a row is an edit of the page (Undo changed)`);
+  await fresh.close();
+  await page.close();
+}
+
 /** The FAB never covers the footer (Screen.tsx useFabLift): on every screen that has both, at the top, in the middle and at the bottom
  * of the page, the FAB's box and the footer's do not overlap. The screens are the start screen and the lists with a create button. */
 async function checkFabAboveFooter(width) {
@@ -8471,6 +8589,45 @@ async function checkSteps(width, height) {
     ])
   )
     problems.push(`${label}: Enter did not go heading, text, next step: ${JSON.stringify(now)}`);
+  // The heading's first line is centred on the number (within 1 px), read from the real boxes: the field's top plus its border and padding
+  // plus half its line height, against the number's middle.
+  const off = await page.evaluate(() =>
+    [...document.querySelectorAll('.inline-steps .block-step[data-row]:not(.inline-list-row-next)')].map((li) => {
+      const n = li.querySelector('.block-step-number').getBoundingClientRect();
+      const f = li.querySelector('[data-field="title"]');
+      const c = getComputedStyle(f);
+      const lh = parseFloat(c.lineHeight) || parseFloat(c.fontSize) * 1.2;
+      const first = f.getBoundingClientRect().top + parseFloat(c.borderTopWidth) + parseFloat(c.paddingTop) + lh / 2;
+      return Math.abs(first - (n.top + n.height / 2));
+    }),
+  );
+  if (!off.length || off.some((d) => !(d <= 1)))
+    problems.push(`${label}: a step's heading is not centred on its number (off by ${off.map((d) => d.toFixed(1)).join(', ')} px)`);
+  // The line joins a number to the next number and stops: every step but the last draws it down to the next number's middle (within 1 px),
+  // and the last draws none. Read from the real boxes, as a step is added, so the last one changes.
+  const lineProblems = () =>
+    page.evaluate(() => {
+      const lis = [...document.querySelectorAll('.inline-steps .block-step')];
+      const out = [];
+      lis.forEach((li, i) => {
+        const c = getComputedStyle(li, '::before');
+        const drawn = c.content !== 'none' && c.content !== 'normal';
+        if (i === lis.length - 1) {
+          if (drawn) out.push(`the last step draws a line`);
+          return;
+        }
+        if (!drawn) return out.push(`step ${i + 1} draws no line`);
+        const r = li.getBoundingClientRect();
+        const to = lis[i + 1].querySelector('.block-step-number').getBoundingClientRect();
+        const from = li.querySelector('.block-step-number').getBoundingClientRect();
+        const top = r.top + parseFloat(c.top);
+        const bottom = r.bottom - parseFloat(c.bottom);
+        if (Math.abs(top - (from.top + from.height / 2)) > 1 || Math.abs(bottom - (to.top + to.height / 2)) > 1)
+          out.push(`step ${i + 1}'s line does not run from its number to the next (${top.toFixed(1)} to ${bottom.toFixed(1)})`);
+      });
+      return out;
+    });
+  for (const p of await lineProblems()) problems.push(`${label}: ${p}`);
   // Enter in the heading goes to the text and Enter in an empty text adds nothing (a heading without text is kept as it is); in the text
   // with something in it Enter adds a step, and Backspace in its empty heading removes it again.
   await page.keyboard.press('Enter');
@@ -8492,6 +8649,7 @@ async function checkSteps(width, height) {
   now = await steps();
   if (now[1]?.title !== 'Order' || now.map((s) => s.number).join() !== '1,2,3')
     problems.push(`${label}: Move down did not move and renumber the step: ${JSON.stringify(now)}`);
+  for (const p of await lineProblems()) problems.push(`${label}: after a move, ${p}`);
   await page.close();
   // Pasting lines into an empty Steps block makes a step of each; headings among them leave the paste as it is.
   for (const [html, plain, expected] of [
@@ -11993,6 +12151,7 @@ for (const [w, h] of [
 for (const block of liveLists)
   for (const w of [375, 1280]) await unit(`checkLiveList ${w} ${block.name}`, () => checkLiveList(w, w < 600 ? 740 : 900, block));
 for (const w of [375, 1280]) await unit(`checkImageGridAdd ${w}`, () => checkImageGridAdd(w, w < 600 ? 740 : 900));
+for (const w of [375, 768, 1280]) await unit(`checkChevronRows ${w}`, () => checkChevronRows(w));
 await unit('checkListRowColors', () => checkListRowColors());
 await unit('checkSectionOnImage', () => checkSectionOnImage());
 await unit('checkInsertNeverOpensSheet 375', () => checkInsertNeverOpensSheet(375, 740));
@@ -12000,6 +12159,7 @@ await unit('checkEmptyRow 375', () => checkEmptyRow(375, 740));
 await unit('checkInsertNeverOpensSheet 1280', () => checkInsertNeverOpensSheet(1280, 900));
 for (const [width, height] of [
   [375, 740],
+  [768, 900],
   [1280, 900],
 ])
   await unit(`checkSteps ${width}`, () => checkSteps(width, height));
