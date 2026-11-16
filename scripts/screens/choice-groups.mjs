@@ -115,7 +115,7 @@ const CHOICE_PAGE = [
 
 /** The choice groups of the editor's fields (fields.tsx, `segments: true`) in their places, on a phone (the 271 px modal sheet) and a
  * computer (the 312 px side sheet), in English and Danish: each block's Block settings, and a button's Settings. Every group keeps the
- * rules of checkChoiceGroups. The owner's case by name: Buttons › Settings › Style is the list with five samples at both widths, and
+ * rules of checkChoiceGroups. The owner's case by name: Buttons › Settings › Style is the list with four samples (Filled, Tonal, Outlined, Text) at both widths, and
  * in the list the arrow keys choose. */
 async function checkChoiceGroupFields(width, locale) {
   const label = `${width}px ${locale} choice group fields`;
@@ -264,9 +264,9 @@ async function checkChoiceGroupFields(width, locale) {
     problems.push(`${label}: the button's settings have no ${say.style}`);
   else {
     const g = (await sheet().evaluate(choiceGroupsIn)).find((x) => x.name === say.style);
-    if (!g || g.form !== 'list' || g.samples !== 5)
+    if (!g || g.form !== 'list' || g.samples !== 4)
       problems.push(
-        `${label}: Buttons › ${say.settings} › ${say.style} is not the list with five samples (${g?.form}, ${g?.samples} samples)`,
+        `${label}: Buttons › ${say.settings} › ${say.style} is not the list with four samples (${g?.form}, ${g?.samples} samples)`,
       );
     checkChoiceGroups(`${label} button style`, g ? [g] : []);
     await style.locator('input[type="radio"]:checked').focus();
@@ -329,7 +329,7 @@ async function checkButtonStyleSamples(width, locale) {
           }),
       )
       .catch(() => []);
-    if (samples.length !== 5) problems.push(`${label}: ${samples.length} samples in the list, not 5`);
+    if (samples.length !== 4) problems.push(`${label}: ${samples.length} samples in the list, not 4`);
     for (const x of samples) {
       if (x.text !== shown) problems.push(`${label}: a sample says "${x.text}", not "${shown}"`);
       if (!x.inside || !x.whole) problems.push(`${label}: the sample "${x.text}" is cut off`);
@@ -388,7 +388,45 @@ async function checkChoiceGroupParts(width, locale) {
   await page.close();
 }
 
+/** The Buttons block offers four styles (Filled, Tonal, Outlined, Text; no Elevated), and a button saved as `elevated` is drawn, and shown in its
+ * Variant choice, as Tonal: on a phone and a computer, the picker has exactly those four options in that order and the saved page does not crash. */
+async function checkButtonStyleOptions(width) {
+  const label = `${width}px button style options`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  const path = 'src/content/pages/zz-elevated.md';
+  const md = `---\ntitle: "Elevated"\ndescription: "d"\n---\n\n# Elevated\n\nIntro.\n\n${block('buttons', { items: [{ label: 'Old one', to: 'page', kind: 'elevated' }] })}\n`;
+  await openEditor(page, site, { [path]: md });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('.ProseMirror .site-block-card, .ProseMirror .inline-buttons', { timeout: 30_000 });
+  await page.locator('.ProseMirror [data-field="label"]').last().click();
+  await page.waitForTimeout(300);
+  if (!(await page.locator('.ProseMirror .button-tonal').count()))
+    problems.push(`${label}: a saved elevated button is not drawn as tonal in the editor`);
+  if (await page.locator('.ProseMirror .button-elevated').count())
+    problems.push(`${label}: a saved elevated button is still drawn elevated`);
+  await pressTool(page, 'Settings').catch(() => problems.push(`${label}: the button has no Settings`));
+  const style = page.getByRole('group', { name: 'Variant', exact: true }).last();
+  if (
+    !(await style.waitFor({ timeout: 4000 }).then(
+      () => true,
+      () => false,
+    ))
+  )
+    problems.push(`${label}: the button's settings have no Variant`);
+  else {
+    const names = (await style.locator('.list-item-headline').allTextContents()).map((n) => n.trim());
+    if (names.join() !== 'Filled,Tonal,Outlined,Text')
+      problems.push(`${label}: the styles are "${names}", not "Filled,Tonal,Outlined,Text"`);
+    const checked = await style.evaluate((l) => [...l.querySelectorAll('input[type="radio"]')].findIndex((r) => r.checked));
+    if (checked !== 1) problems.push(`${label}: a saved elevated button does not show Tonal as chosen (${checked})`);
+  }
+  await page.close();
+}
+
 export function register(unit) {
+  for (const width of [375, 1280]) unit(`choice-group button style options ${width}`, () => checkButtonStyleOptions(width));
   for (const width of [375, 1280])
     for (const locale of ['en-US', 'da-DK']) unit(`choice-group parts ${width} ${locale}`, () => checkChoiceGroupParts(width, locale));
   for (const width of [375, 1280])
