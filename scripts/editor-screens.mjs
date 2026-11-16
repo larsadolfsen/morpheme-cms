@@ -1831,6 +1831,25 @@ async function pressMore(page, name, how = 'click', which = 'last') {
   if (settings && (await settings.count())) return void (await settings.first()[how]());
   await page.locator('.editor-tools [aria-label="More"]:visible').first()[how]();
   const row = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${name}$`) });
+  // A tool of a Table is in the group that bundles it (Add, Delete, Align column): open the groups until one has it. The menu is given time to draw first (a slow runner draws it late).
+  await row
+    .first()
+    .waitFor({ timeout: 3000 })
+    .catch(() => {});
+  if (!(await row.count())) {
+    for (const group of TABLE_GROUP_ROWS) {
+      const opener = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${group}$`) });
+      if (!(await opener.count())) continue;
+      await opener.first().click();
+      await page.waitForTimeout(150);
+      const inside = page
+        .locator(`[role=menu][aria-label="${group}"] [role^=menuitem]`)
+        .filter({ hasText: new RegExp(`^${group === 'Align column' ? (ALIGN_SHORT[name] ?? name) : name}$`) });
+      if (await inside.count()) return void (await inside.first()[how]());
+      await closeMore(page);
+      await page.locator('.editor-tools [aria-label="More"]:visible').first()[how]();
+    }
+  }
   // `last`: the block's own menu, which is last in the ⋮ (a gear named Edit may stand before it); `first`: a tool of the bar that did not fit.
   await row[which]()[how]();
 }
@@ -2177,6 +2196,25 @@ async function openStyleMenu(page) {
 }
 
 /** What the bar and its ⋮ menu hold now: `bar` its buttons (name, title, icon, size, pressed), `more` the rows of the ⋮ menu (opened and closed again by its button, so the cursor stays in its field). */
+/** The rows of the ⋮ menu that bundle a Table's tools and open them as its next level. */
+/** Closes the ⋮ menu from any level: Escape goes back one level at a time. */
+async function closeMore(page) {
+  for (let n = 0; n < 4 && (await page.locator('[role=menu]:visible').count()); n++) {
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(150);
+  }
+}
+
+const TABLE_GROUP_ROWS = ['Add', 'Delete', 'Align column', 'Column type'];
+/** Under Align column a row says only the side; these are the names its tools have on the bar. */
+const ALIGN_FULL = {
+  Left: 'Align column left',
+  Center: 'Center column',
+  Right: 'Align column right',
+  Automatic: 'Align column automatically',
+};
+const ALIGN_SHORT = Object.fromEntries(Object.entries(ALIGN_FULL).map(([k, v]) => [v, k]));
+
 async function barTools(page) {
   const bar = await page.evaluate(() =>
     [...document.querySelectorAll('.editor-tools button:not([hidden])')].map((b) => {
@@ -2206,6 +2244,33 @@ async function barTools(page) {
       })),
     );
     await button.first().click();
+    // The Table bundles related tools into rows that open a submenu (Add, Delete, Align column, Column type): their tools are listed too, as the menu's.
+    for (const group of TABLE_GROUP_ROWS) {
+      if (!more.some((m) => m.label === group)) continue;
+      await button.first().click();
+      await page
+        .locator('[role=menu][aria-label="More"] [role^=menuitem]')
+        .filter({ hasText: new RegExp(`^${group}$`) })
+        .first()
+        .click();
+      await page.waitForTimeout(150);
+      more.push(
+        ...(
+          await page.evaluate(
+            (name) =>
+              [...document.querySelectorAll(`[role=menu][aria-label="${name}"] [role^=menuitem]`)]
+                .filter((x) => !x.hasAttribute('data-back') && x.textContent.trim() !== name)
+                .map((x) => ({
+                  label: x.textContent.trim(),
+                  pressed: x.getAttribute('aria-checked'),
+                  height: x.getBoundingClientRect().height,
+                })),
+            group,
+          )
+        ).map((m) => (group === 'Align column' ? { ...m, label: ALIGN_FULL[m.label] ?? m.label } : m)),
+      );
+      await closeMore(page);
+    }
   }
   return { bar, more, names: [...bar.map((b) => b.label), ...more.map((m) => m.label)] };
 }
@@ -4665,31 +4730,58 @@ async function checkAppTestPages() {
     for (const p of test.problems) problems.push(p);
     if (test.problems.length) continue;
     const path = `src/content/pages/zz-app-${id}.md`;
-    const label = `app ${id} (${test.source})`;
-    const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, locale: 'en-US' });
-    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-    // (A resource the local server does not have, such as a photo, is a 404 here and nothing of the app's.)
-    page.on(
-      'console',
-      (m) => m.type() === 'error' && !/Failed to load resource/.test(m.text()) && problems.push(`${label}: console error: ${m.text()}`),
-    );
-    try {
-      await openEditor(page, site, { [path]: test.text });
-      await page.evaluate((hash) => (location.hash = hash), `#${path}`);
-      await page.waitForSelector('.ProseMirror', { timeout: 15000 });
-      await page.waitForTimeout(800);
-      const drawn = await page.evaluate(
-        () =>
-          document.querySelectorAll('.ProseMirror [data-block], .ProseMirror .site-block-inline, .ProseMirror .site-block-preview').length,
+    // On a computer and on a phone (an app's blocks must fit both).
+    for (const width of [1280, 375]) {
+      const label = `app ${id} (${test.source}, ${width} px)`;
+      const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+      page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+      // (A resource the local server does not have, such as a photo, is a 404 here and nothing of the app's.)
+      page.on(
+        'console',
+        (m) => m.type() === 'error' && !/Failed to load resource/.test(m.text()) && problems.push(`${label}: console error: ${m.text()}`),
       );
-      if (drawn < test.types.length)
-        problems.push(
-          `${label}: the editor draws ${drawn} blocks of the page, the app has ${test.types.length} (${test.types.join(', ')})`,
+      try {
+        await openEditor(page, site, { [path]: test.text });
+        await page.evaluate((hash) => (location.hash = hash), `#${path}`);
+        await page.waitForSelector('.ProseMirror', { timeout: 15000 });
+        await page.waitForTimeout(800);
+        const drawn = await page.evaluate(
+          () =>
+            document.querySelectorAll('.ProseMirror [data-block], .ProseMirror .site-block-inline, .ProseMirror .site-block-preview')
+              .length,
         );
-    } catch (error) {
-      problems.push(`${label}: the test page does not open in the editor (${error.message.split('\n')[0]})`);
-    } finally {
-      await page.close();
+        // A list block (`listBlocks`) shows what its list holds, as on the site: its card is not empty, and its rows are those of the app's list.
+        if (test.types.some((t) => t.startsWith(`${id}.`))) {
+          const cards = await page.evaluate(() =>
+            [...document.querySelectorAll('.ProseMirror .site-block-card')].map((c) => ({
+              name: c.getAttribute('aria-label') ?? '',
+              rows: c.querySelectorAll('.inline-list li, .list-item-container, details').length,
+            })),
+          );
+          for (const card of cards.filter((c) => !c.rows))
+            problems.push(`${label}: the block "${card.name}" shows no rows in the editor, but the app's list has entries`);
+        }
+        // And `Insert` offers each list block under its own name.
+        const listBlocks = JSON.parse(readFileSync(join(ROOT, 'src/apps', id, 'app.json'), 'utf8')).listBlocks ?? [];
+        if (listBlocks.length) {
+          await page.locator('.ProseMirror h1').first().click();
+          await pressInsert(page);
+          const dialog = page.getByRole('dialog').last();
+          await dialog.waitFor({ timeout: 5000 });
+          const text = await dialog.innerText();
+          for (const b of listBlocks)
+            if (!text.includes(b.label)) problems.push(`${label}: Insert does not offer the list block "${b.label}"`);
+          await page.keyboard.press('Escape');
+        }
+        if (drawn < test.types.length)
+          problems.push(
+            `${label}: the editor draws ${drawn} blocks of the page, the app has ${test.types.length} (${test.types.join(', ')})`,
+          );
+      } catch (error) {
+        problems.push(`${label}: the test page does not open in the editor (${error.message.split('\n')[0]})`);
+      } finally {
+        await page.close();
+      }
     }
   }
 }
@@ -6929,7 +7021,7 @@ async function checkFabAboveFooter(width) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   let seen = 0;
-  for (const route of ['#', '#seo/redirects/all', '#media', '#links']) {
+  for (const route of ['#', '#seo/redirects/all', '#media', '#links', '#list/testimonials']) {
     await page.evaluate((r) => (location.hash = r), route);
     await page.waitForTimeout(1200);
     for (const at of [0, 0.5, 1]) {
@@ -6947,6 +7039,25 @@ async function checkFabAboveFooter(width) {
         problems.push(
           `${label}: on ${route} (scrolled to ${at * 100}%) the FAB (${Math.round(m.fabTop)}–${Math.round(m.fabBottom)}) overlaps the footer (${Math.round(m.footerTop)}–${Math.round(m.footerBottom)})`,
         );
+      // A FAB menu opened: its items stand above the FAB, so they clear the footer too.
+      const menu = page.locator('.editor-fab .fab-menu-button');
+      if (await menu.count()) {
+        await menu.click();
+        await page.waitForTimeout(500);
+        const items = await page.evaluate(() => {
+          const footer = document.querySelector('footer.editor-footer')?.getBoundingClientRect();
+          const rows = [...document.querySelectorAll('.editor-fab .fab-menu-list a, .editor-fab .fab-menu-list button')].filter(
+            (e) => e.getClientRects().length,
+          );
+          return { footerTop: footer?.top ?? Infinity, h: innerHeight, bottoms: rows.map((e) => e.getBoundingClientRect().bottom) };
+        });
+        if (items.footerTop < items.h && items.bottoms.some((b) => b > items.footerTop + 0.5))
+          problems.push(
+            `${label}: on ${route} (scrolled to ${at * 100}%) an item of the open FAB menu overlaps the footer (${items.bottoms.map(Math.round)} / ${Math.round(items.footerTop)})`,
+          );
+        await page.keyboard.press('Escape');
+        await page.waitForTimeout(300);
+      }
     }
   }
   if (!seen) problems.push(`${label}: no screen with both a FAB and the footer was found`);
@@ -9212,10 +9323,13 @@ async function checkOwnList(width, height) {
     for (const row of ['Web design', 'Hosting'])
       if (!(await page.getByText(row, { exact: true }).count())) problems.push(`${label}: no row "${row}"`);
     if ((await page.getByRole('button', { name: 'Move down' }).count()) < 2) problems.push(`${label}: the rows have no Move down`);
-    // The round button is `Edit list` (a pencil) and opens the edit page; adding an item is not on it any more.
-    if (!(await page.getByLabel('Edit list', { exact: true }).count()))
-      problems.push(`${label}: the list page's round button is not Edit list`);
-    if (await page.getByLabel('Add item', { exact: true }).count()) problems.push(`${label}: the list page still has an Add item button`);
+    // The round button is a FAB menu (Material 3: "opens from a FAB to show multiple related actions"): `Edit list` opens the edit page and `Add service` (the list is named
+    // Services) opens the entry's form. Closed, it shows neither.
+    if (!(await page.getByRole('button', { name: 'List actions', exact: true }).count()))
+      problems.push(`${label}: the list page's round button is not the List actions menu`);
+    if (await page.getByLabel('Add item', { exact: true }).count())
+      problems.push(`${label}: the list page still has a plain Add item button`);
+    await listMenu(page, label, ['Edit list', 'Add service']);
     if (await page.getByRole('button', { name: 'List menu' }).count()) problems.push(`${label}: the list page still has the List menu`);
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
       problems.push(`${label}: the list page scrolls sideways`);
@@ -9246,7 +9360,7 @@ async function checkOwnList(width, height) {
     await page.evaluate(() => (location.hash = '#list/services'));
     await page.getByText('Hosting', { exact: true }).first().waitFor({ timeout: 10000 });
     // `Edit list` (the round button) opens the edit page: the name, the bar with a button for each kind of field, the fields (each with a switch, move up and down and `Remove field`) and `Delete list`.
-    await page.getByLabel('Edit list', { exact: true }).first().click();
+    await (await listAction(page, 'Edit list')).click();
     const sheet = page.locator('main');
     await sheet
       .getByText('Fields', { exact: true })
@@ -9375,14 +9489,34 @@ async function checkOwnList(width, height) {
 
 /** A locked list (Testimonials, its fields fixed in code): its round button is `Edit list` too, and its edit page shows its fields without the bar that adds one,
  * with nothing that renames, moves or removes a field or deletes the list, and `Add item`. No horizontal overflow. */
+/** The list page's FAB menu opened (its button, `List actions`), and the item with this name in it. */
+async function listAction(page, name) {
+  const button = page.getByRole('button', { name: 'List actions', exact: true });
+  if (await button.count()) await button.click();
+  return page.locator('.fab-menu-list').getByText(name, { exact: true });
+}
+
+/** The FAB menu of a list page holds exactly these actions, in this order, shown while it is open, and none of them while it is closed. */
+async function listMenu(page, label, names) {
+  await listAction(page, names[0]);
+  const shown = await page.locator('.fab-menu-list a:visible, .fab-menu-list button:visible').allInnerTexts();
+  if (shown.map((x) => x.trim()).join('|') !== names.join('|'))
+    problems.push(`${label}: the list page's FAB menu has ${JSON.stringify(shown)}, not ${JSON.stringify(names)}`);
+  await page.keyboard.press('Escape');
+  if (await page.locator('.fab-menu-list a:visible').count()) problems.push(`${label}: Escape did not close the list page's FAB menu`);
+}
+
 async function checkLockedList(page, width, label) {
   label = `${label} locked`;
   await page.evaluate(() => (location.hash = '#list/testimonials'));
-  const edit = page.getByLabel('Edit list', { exact: true }).first();
-  await edit.waitFor({ timeout: 15000 }).catch(() => problems.push(`${label}: the Testimonials page's round button is not Edit list`));
+  await page
+    .getByRole('button', { name: 'List actions', exact: true })
+    .waitFor({ timeout: 15000 })
+    .catch(() => problems.push(`${label}: the Testimonials page's round button is not the List actions menu`));
   if (await page.getByLabel('New testimonial', { exact: true }).count())
     problems.push(`${label}: the Testimonials page still has a New testimonial round button`);
-  await edit.click().catch(() => {});
+  await listMenu(page, label, ['Edit list', 'Add testimonial']);
+  await (await listAction(page, 'Edit list')).click().catch(() => {});
   const main = page.locator('main');
   await main
     .getByText('The fields of this list are fixed.')
@@ -10458,6 +10592,189 @@ async function checkTableAlign(width, height) {
   const text = one.find((t) => t.includes('data-block="table"')) ?? '';
   if (!/columns[^\]]*center/.test(text)) problems.push(`${label}: the saved page does not carry the column's alignment`);
   if (/columns[^\]]*right/.test(text)) problems.push(`${label}: an automatic column was saved with a fixed alignment`);
+  const two = await saved();
+  if (two.length && two.join() !== one.join()) problems.push(`${label}: a second save wrote another text`);
+  await page.close();
+}
+
+/** A Table's column type (375 and 1280 px): the block's ⋮ menu has Column type (Automatic, Text, Number) after Change to; Number ends the column at the right with tabular figures, in the editor typed in place and on the built site, even for a cell that is not a number; Automatic and Text take it back or keep it left; the kind is saved with the block (`columns`), a second save writes the same text, and one undo takes a change back. */
+async function checkTableKinds(width, height) {
+  const label = `${width}px table kinds`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  // The built site: a Number column is drawn with tabular figures, a text column is not.
+  if (await onTestPage(page, label)) {
+    const site = await page.evaluate(() => {
+      const fig = (sel) => getComputedStyle(document.querySelector(sel)).fontVariantNumeric;
+      return { number: fig('.block-table-grid td.data-table-number'), text: fig('.block-table-grid tbody td:not(.data-table-number)') };
+    });
+    if (site.number && !/tabular-nums/.test(site.number))
+      problems.push(`${label}: the site's Number column has no tabular figures (${site.number})`);
+    if (/tabular-nums/.test(site.text)) problems.push(`${label}: a text column has tabular figures on the site`);
+  }
+  await openEditor(page, site);
+  const commits = [];
+  await page.route('**/api/github/commit', (r) => {
+    commits.push(JSON.parse(r.request().postData() || '{}'));
+    return r.fulfill({ contentType: 'application/json', body: JSON.stringify({ commit: 'head', blobs: {} }) });
+  });
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'tap');
+  await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
+  await page.waitForSelector('.inline-table-cell-active textarea');
+  const cellField = (r, c) => page.locator(`.inline-table-box [data-row="${r}"] [data-field="${c}"]`);
+  const menu = async (name) => {
+    await pressTool(page, name);
+    await page.waitForTimeout(250);
+  };
+  await page.keyboard.type('Name');
+  await menu('Add column after');
+  await page.keyboard.type('Figures');
+  await menu('Add row below');
+  await page.keyboard.type('about 5');
+  await cellField(1, 0).click();
+  await page.keyboard.type('a');
+  const look = () =>
+    page.evaluate(() => {
+      const td = document.querySelector('.inline-table-box [data-row="1"] td:nth-child(2)');
+      const th = document.querySelector('.inline-table-box thead th:nth-child(2)');
+      return {
+        cell: getComputedStyle(td).textAlign,
+        head: getComputedStyle(th).textAlign,
+        figures: getComputedStyle(td).fontVariantNumeric,
+      };
+    });
+  const end = (v) => v === 'end' || v === 'right';
+  const start = (v) => (v === 'end' ? false : v === 'start' || v === 'left');
+  const first = await look();
+  if (!start(first.cell) || /tabular-nums/.test(first.figures))
+    problems.push(`${label}: a column with a word in it is not plain text at first (${JSON.stringify(first)})`);
+  // The ⋮ menu bundles the Table's tools: Add, Delete and Align column open their tools as the menu's next level, Column type with them; every tool stays reachable.
+  await cellField(1, 1).click();
+  const more = page.locator('.editor-tools [aria-label="More"]:visible').first();
+  await more.click();
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: join(shots, `table-menu-open-${width}.png`) });
+  const top = (await page.locator('[role=menu][aria-label="More"] [role^=menuitem]').allInnerTexts()).map((n) => n.trim());
+  const flat = [
+    'Delete row',
+    'Delete column',
+    'Align column left',
+    'Center column',
+    'Align column right',
+    'Align column automatically',
+  ].filter((n) => top.includes(n));
+  if (flat.length) problems.push(`${label}: the ⋮ menu lists ${flat.join(', ')} as rows of their own, not in a group (${top.join(', ')})`);
+  await closeMore(page);
+  const { names } = await barTools(page);
+  for (const n of [
+    'Add row above',
+    'Add row below',
+    'Add column before',
+    'Add column after',
+    'Delete row',
+    'Delete column',
+    'Align column left',
+    'Center column',
+    'Align column right',
+    'Align column automatically',
+  ])
+    if (!names.includes(n)) problems.push(`${label}: "${n}" cannot be reached from the bar or the ⋮ menu (${names.join(', ')})`);
+  for (const group of TABLE_GROUP_ROWS) {
+    await more.click();
+    const opener = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${group}$`) });
+    if (!(await opener.count())) {
+      await closeMore(page);
+      continue;
+    }
+    await opener.first().click();
+    await page.waitForTimeout(250);
+    await page.screenshot({ path: join(shots, `table-menu-${group.toLowerCase().replace(/ /g, '-')}-${width}.png`) });
+    await closeMore(page);
+  }
+  // ⋮ › Column type, and its level.
+  const level = async () => {
+    await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+    const names = await page.locator('[role=menu][aria-label="More"] [role^=menuitem]').allInnerTexts();
+    const at = names.map((n) => n.trim()).indexOf('Column type');
+    if (at < 0) return (problems.push(`${label}: the ⋮ menu has no Column type (${names})`), null);
+    const opener = page.locator('[role=menu][aria-label="More"] [role^=menuitem]', { hasText: /^Column type$/ }).first();
+    if ((await opener.getAttribute('aria-haspopup')) !== 'menu') problems.push(`${label}: Column type does not say it opens a menu`);
+    await opener.click();
+    await page.waitForTimeout(250);
+    return page.locator('[role=menu][aria-label="Column type"] [role^=menuitem]');
+  };
+  const rowsOf = async (items) => (await items.allInnerTexts()).map((n) => n.trim()).filter((n) => n !== 'Column type');
+  await cellField(1, 1).click();
+  const items = await level();
+  if (items) {
+    const got = await rowsOf(items);
+    if (got.join() !== 'Automatic,Text,Number')
+      problems.push(`${label}: Column type's level is ${got.join(', ')}, not Automatic, Text, Number`);
+    await page.screenshot({ path: join(shots, `table-kinds-menu-${width}.png`) });
+    await items
+      .filter({ hasText: /^Number$/ })
+      .first()
+      .click();
+    await page.waitForTimeout(300);
+    const number = await look();
+    if (!end(number.cell) || !end(number.head) || !/tabular-nums/.test(number.figures))
+      problems.push(`${label}: Number did not end the column with tabular figures (${JSON.stringify(number)})`);
+    await page.screenshot({ path: join(shots, `table-kinds-${width}.png`) });
+  }
+  // The choice is shown chosen, and Text puts the column back at the start, with plain figures.
+  const again = await level();
+  if (again) {
+    const chosen = await again.evaluateAll((els) =>
+      els.filter((e) => e.getAttribute('aria-checked') === 'true').map((e) => e.textContent.trim()),
+    );
+    if (chosen.join() !== 'Number') problems.push(`${label}: Number is not shown chosen (${chosen})`);
+    await again
+      .filter({ hasText: /^Text$/ })
+      .first()
+      .click();
+    await page.waitForTimeout(300);
+    const text = await look();
+    if (!start(text.cell) || /tabular-nums/.test(text.figures))
+      problems.push(`${label}: Text did not take the Number look back (${JSON.stringify(text)})`);
+  }
+  // Number again, then save: the kind is in the saved text, and a second save writes the same.
+  const third = await level();
+  if (third) {
+    await third
+      .filter({ hasText: /^Number$/ })
+      .first()
+      .click();
+    await page.waitForTimeout(300);
+  }
+  // One undo takes the last kind change back, and redo brings it again (from the text above the table: a cell's own field keeps the browser's undo).
+  await page.click('.ProseMirror > p');
+  await page.keyboard.press('Control+z');
+  await page.waitForTimeout(300);
+  if (!start((await look()).cell)) problems.push(`${label}: undo did not take the kind change back`);
+  await page.keyboard.press('Control+Shift+z');
+  await page.waitForTimeout(300);
+  if (!end((await look()).cell)) problems.push(`${label}: redo did not bring the kind change back`);
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(300);
+  const saved = async () => {
+    const before = commits.length;
+    if (!(await page.locator('button', { hasText: /^Save draft$/ }).count())) return [];
+    await page
+      .locator('button', { hasText: /^Save draft$/ })
+      .first()
+      .evaluate((b) => b.click());
+    await page.waitForTimeout(900);
+    return commits.slice(before).flatMap((c) => c.changes.map((x) => Buffer.from(x.content ?? '', 'base64').toString('utf8')));
+  };
+  const one = await saved();
+  const text = one.find((t) => t.includes('data-block="table"')) ?? '';
+  if (!/columns[^\]]*number/.test(text)) problems.push(`${label}: the saved page does not carry the column's kind`);
   const two = await saved();
   if (two.length && two.join() !== one.join()) problems.push(`${label}: a second save wrote another text`);
   await page.close();
@@ -12093,6 +12410,8 @@ await unit('checkInlineTable 375', () => checkInlineTable(375, 740));
 await unit('checkInlineTable 1280', () => checkInlineTable(1280, 800));
 await unit('checkTableAlign 375', () => checkTableAlign(375, 740));
 await unit('checkTableAlign 1280', () => checkTableAlign(1280, 800));
+await unit('checkTableKinds 375', () => checkTableKinds(375, 740));
+await unit('checkTableKinds 1280', () => checkTableKinds(1280, 800));
 
 await unit('checkTableRadius 375', () => checkTableRadius(375, 740));
 await unit('checkTableRadius 1280', () => checkTableRadius(1280, 800));

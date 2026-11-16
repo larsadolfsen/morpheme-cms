@@ -6,6 +6,7 @@ import type { Contract, View } from './view';
 import { parseBlock } from '../../lib/blocks.mjs';
 import { sideBlockOf } from '../../lib/side-block.mjs';
 import { sideSetting } from '../../site/side';
+import { listBlocksOf, withList } from './listBlocks';
 
 const byType = <T>(found: Record<string, T>) => Object.fromEntries(Object.entries(found).map(([file, m]) => [file.split('/').at(-2)!, m]));
 const defaults = <T>(found: Record<string, { default: T }>) =>
@@ -24,6 +25,15 @@ export const blockLoads: Record<string, Contract<any>> = {
   ...byType(appLooks.loads),
 };
 
+// The blocks an app draws with no code (`listBlocks` in its app.json): the core's block they draw, its view and its load.ts, with the app's list as `from`
+// whatever the saved props say. Every theme draws them the day it draws the core block.
+for (const lb of listBlocksOf(appLooks.manifests)) {
+  const contract = blockLoads[lb.draws];
+  if (!contract || !blockViews[lb.draws]) continue;
+  blockViews[lb.type] = blockViews[lb.draws];
+  blockLoads[lb.type] = { ...contract, load: (props, ctx) => contract.load(withList(props, lb), ctx) };
+}
+
 /** The block type drawn in a column beside the text of a page, or null: the one src/data/side.json chooses, when its
  * load.ts says `beside` and the page's template has a sidebar (lib/side-block.mjs). The theme's page layout
  * (PageLayout.astro) draws it with Block.astro, given the page's text as `html`. */
@@ -31,7 +41,7 @@ export const sideBlock = (template: string): string | null =>
   sideBlockOf(template, sideSetting, (type) => blockLoads[type]?.beside === true);
 
 // A block's tag in the text, at its very end (blocks.mjs writes it so).
-const END = /<div data-block="([\w-]+)"(?: data-props="[^"]*")?\s*><\/div>\s*$/;
+const END = /<div data-block="([\w.-]+)"(?: data-props="[^"]*")?\s*><\/div>\s*$/;
 
 /** The block that ends a page's text, when its type is drawn across the page (`across` in its load.ts, e.g. an app's
  * booking block): its type and props, and the text without it, for the theme's page layout to draw it below the

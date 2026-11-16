@@ -12,7 +12,7 @@
 // blocks/, each with its own View.tsx and viewOf.ts for view.ts (it would differ from View.tsx only in case); they
 // are offered once the app is installed. A theme has no blocks of its own, only the look of the standard ones.
 import type { ReactNode } from 'react';
-import { activeApps, appIdOf } from './apps';
+import { activeApps, appIdOf, iconOf } from './apps';
 import { htmlBlock, type BlockData, type BlockDefinition, type BlockProps, type DrawBlock, type SiteBlock } from './blocks';
 import { check, templateProblems } from './check';
 import { slugOf, type Field, type Lead, type Template } from './schema';
@@ -21,7 +21,8 @@ import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { partsOfMarkdown, sectionsFromParts } from './sections.mjs';
 import { blockViews } from './standard/themeBlocks';
 import { InEditor, OnSite, type View, type ViewOf } from './standard/view';
-import { appBlocks, appInlines, appViewOfs, appViews } from './appFiles';
+import { appBlocks, appInlines, appManifests, appViewOfs, appViews } from './appFiles';
+import { listBlocksOf, withList, type ListBlockManifest } from './standard/listBlocks';
 import { inlineViews } from './inlineViews';
 import { blocksIn, splitBlocks } from '../lib/blocks.mjs';
 import { t } from './i18n';
@@ -51,14 +52,43 @@ export const standardTypes = new Set(Object.keys(standard).map(typeOf));
 
 /** The blocks that can be put in the text of a page: the standard ones (and HTML on a line of its own)
  * and the apps'. */
+const standardBlocks: SiteBlock[] = Object.entries(standard).map(([path, m]) => ({
+  ...m.default,
+  draw: drawn(blockViews[typeOf(path)], views[beside(path, 'view.ts')]?.viewOf),
+  inlineView: inlineViews[typeOf(path)],
+  type: typeOf(path),
+  standard: true,
+}));
+
+/** The blocks an app draws with no code (`listBlocks` in its app.json, contract 6): the core's block it draws, with its own name, icon and hint, its
+ * list fixed (the block never reads another) and only the settings the app offers. Offered under `From your content` once the app is installed. */
+const listBlocks: SiteBlock[] = listBlocksOf(appManifests as unknown as Record<string, ListBlockManifest>).flatMap((lb) => {
+  const base = standardBlocks.find((b) => b.type === lb.draws);
+  if (!base) return [];
+  // Only the name and the hint are the app's own texts (translated through its texts.json); the fields are the core block's, in the editor's language already.
+  const named = localSiteBlock({ ...base, type: lb.type, label: lb.label, hint: lb.hint, fields: [] });
+  return [
+    {
+      ...base,
+      type: lb.type,
+      label: named.label,
+      hint: named.hint,
+      icon: iconOf(lb.icon),
+      nameOf: () => named.label,
+      fields: base.fields.filter((f) => !lb.hidden.includes(f.name)),
+      start: lb.start,
+      draw: base.draw && ((props, data) => base.draw!(withList(props, lb), data)),
+      standard: false,
+      app: lb.app,
+      group: 'content',
+      listBlock: true,
+    },
+  ];
+});
+
 export const siteBlocks: SiteBlock[] = [
-  ...Object.entries(standard).map(([path, m]) => ({
-    ...m.default,
-    draw: drawn(blockViews[typeOf(path)], views[beside(path, 'view.ts')]?.viewOf),
-    inlineView: inlineViews[typeOf(path)],
-    type: typeOf(path),
-    standard: true,
-  })),
+  ...standardBlocks,
+  ...listBlocks,
   ...Object.entries(fromApps).map(([path, m]) =>
     localSiteBlock({
       ...m.default,

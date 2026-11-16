@@ -230,7 +230,37 @@ Rules:
 - The entries live in `src/data/<app id>.<id>/`, one JSON file per entry. The dot never occurs in an own list's id, so the two never collide.
 - An app's list keeps its entries when the app is turned off or removed. Only the owner deletes them.
 - An unknown key in a list, a wrong `id`, a field the parser refuses, `locked: false` in a third-party app, or a `page` that is no path and names no setting fails the check.
-- `listBlocks` and the app's bundled blocks are not part of this contract yet.
+- The app's bundled blocks are not part of this contract yet.
+
+### List blocks, with no code
+
+`listBlocks` (contract 6 only; contracts 4 and 5 fail on it as an unknown key) gives the app a block that the core draws from one of the app's lists. The app writes no `blocks/` folder and no drawing: the block uses the view, the `load.ts` and the theme's look of the core block named by `draws`, so every theme draws it the day it draws that block.
+
+```json
+"listBlocks": [
+  {
+    "type": "faq",
+    "label": "FAQ from Questions",
+    "icon": "list-numbers",
+    "hint": "Questions from your Questions list.",
+    "draws": "faq",
+    "list": "questions",
+    "map": { "title": "question", "text": "answer", "tags": "topic" },
+    "settings": ["tags", "howMany", "button", "only"]
+  }
+]
+```
+
+| Key | Meaning |
+|---|---|
+| `type` | Matches `^[a-z][a-z0-9-]{0,39}$`, once per app. The block is `<app id>.<type>` in a page (`<div data-block="<app id>.faq" …>`). |
+| `label`, `icon`, `hint` | Its name, icon and hint under `Insert`, in the group *From your content*. Danish texts go in `texts.json`. |
+| `draws` | The core block it draws: `list`, `segmented` or `faq`. |
+| `list` | One of the app's own lists (`lists`), or `posts` or `testimonials`. Fixed: the block never reads another list. |
+| `map` | The default `map` of slot (`title`, `text`, `icon`, `href`, `tags`) to a field of the list. The owner can still change it per block. Not for `posts` and `testimonials`, whose parts are fixed. |
+| `settings` | Which settings of the drawn block the owner sees: `tags`, `howMany`, and the block's own (`button`, `only`, `show`, `maxRows`, `card`, `design`, as the block has them). The heading and intro are always there; every other setting keeps the block's default. |
+
+The app's list has the id `<app id>.<id>` on the site (its entries are in `src/data/<app id>.<id>/`), so two apps never collide. An unknown `draws`, a `list` the app lacks, a `map` to a field the list lacks and a `settings` entry the drawn block lacks fail the check. A block with `check-page.md` is checked by `check:screens` on a phone and a computer: put it in the page as `<app id>.<type>`.
 
 ## Contract 3: `@app/self`
 

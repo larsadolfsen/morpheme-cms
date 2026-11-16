@@ -38,7 +38,7 @@ import { iconPack, iconPacks } from './iconPacks';
 import { theme, themes, type ThemeInfo } from './themes';
 import { StartFab } from './StartFab';
 import { ListFab } from './ListFab';
-import { EditFab } from './CreateFab';
+import { ListEditFab } from './CreateFab';
 import { StartStatus } from './StartStatus';
 import { FirstRunCard } from './FirstRun';
 import { Dashboard } from './DashboardGrid';
@@ -1681,7 +1681,7 @@ export function List({
       {/* A new entry: the list's FAB, or a FAB menu of its kinds when it has several (a pop-up: Standard or an app's, e.g. Mailchimp). */}
       {own?.fab ??
         (collection.kind === 'folder' && (collection as OwnedList).locked ? (
-          <EditFab label={t.ownList.edit} href={`#list/${collection.id}/edit`} />
+          <ListEditFab id={collection.id} entry={collection.singular.toLowerCase()} />
         ) : (
           <ListFab collection={collection} kinds={kinds} />
         ))}

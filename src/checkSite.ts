@@ -204,7 +204,12 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
       tagList?.kind === 'folder'
         ? files.filter((f) => f.path.startsWith(`${tagList.folder}/`)).map((f) => slugOf(f.path, tagList.folder))
         : [],
-    known: ['posts', 'testimonials', ...collections.filter((c) => c.kind === 'folder' && (c as OwnedList).asRows).map((c) => c.id)],
+    // Every list a block can read: the site's, the standard blocks' and the apps' (writtenCollections), such as an app's list `<app id>.<id>` (contract 6).
+    known: [
+      'posts',
+      'testimonials',
+      ...[...collections, ...writtenCollections].filter((c) => c.kind === 'folder' && (c as OwnedList).asRows).map((c) => c.id),
+    ],
     blocks: files.flatMap((f) =>
       f.path.endsWith('.md')
         ? splitBlocks(f.text, null).flatMap((part) =>

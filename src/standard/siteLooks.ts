@@ -3,6 +3,7 @@
 // (src/themes/<theme>/blocks/<type>/, @theme), else in the standard theme (packages/editor/theme/blocks/), and the apps'
 // blocks' (src/apps/<app>/blocks/<type>/: View.tsx and load.ts). Apart from apps.ts, which the editor loads too.
 import type { Contract, View } from './view';
+import type { ListBlockManifest } from './listBlocks';
 
 type Views = Record<string, { default: View<any> }>;
 
@@ -16,4 +17,6 @@ export const themeViews = {
 export const appLooks = {
   views: import.meta.glob<{ default: View<any> }>('/src/apps/*/blocks/*/View.tsx', { eager: true }) as Views,
   loads: import.meta.glob<Contract<any>>('/src/apps/*/blocks/*/load.ts', { eager: true }),
+  /** The apps' app.json, for the blocks they draw with no code (`listBlocks`, listBlocks.ts). */
+  manifests: import.meta.glob<ListBlockManifest>('/src/apps/*/app.json', { eager: true, import: 'default' }),
 };
