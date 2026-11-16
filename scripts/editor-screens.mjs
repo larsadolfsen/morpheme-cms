@@ -6270,13 +6270,24 @@ async function checkUserInvalid(width, height, theme) {
         height: Math.round(rect.height),
       };
     });
+  // The edge moves through the theme's motion (a transition), so a read in the frame after a blur can still give the old value.
+  // Wait, frame by frame and bounded, until the read is what the unit expects; on a timeout the last read is checked as before.
+  const readUntil = async (ok) => {
+    const end = Date.now() + 5000;
+    let now = await read();
+    while (!ok(now) && Date.now() < end) {
+      await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => done())));
+      now = await read();
+    }
+    return now;
+  };
   const before = await read();
   if (before.invalid || before.said || before.icon || !before.supporting || before.aria === 'true')
     problems.push(`${label}: marked before it was touched (${JSON.stringify(before)})`);
   await input.focus();
   await input.fill('name@');
   await input.blur();
-  const wrong = await read();
+  const wrong = await readUntil((now) => now.edge !== before.edge);
   if (!wrong.invalid || !wrong.said || wrong.supporting || !wrong.icon || wrong.aria !== 'true' || !wrong.described)
     problems.push(`${label}: not marked after a wrong text was typed and left (${JSON.stringify(wrong)})`);
   if (wrong.edge === before.edge) problems.push(`${label}: the edge did not change to the error's`);
@@ -6285,9 +6296,10 @@ async function checkUserInvalid(width, height, theme) {
   await input.focus();
   await input.fill('name@example.com');
   await input.blur();
-  const right = await read();
+  const right = await readUntil((now) => now.edge === before.edge);
   if (right.invalid || right.said || right.icon || !right.supporting || right.aria === 'true' || right.described)
     problems.push(`${label}: still marked after it was put right (${JSON.stringify(right)})`);
+  if (right.edge !== before.edge) problems.push(`${label}: the edge did not return to the normal one after it was put right`);
   // The error line is read once, with the field (aria-describedby), not as an alert; and a number that cannot be read (validity.badInput)
   // says so in words instead of going red with none.
   if (await page.locator('[data-part="TextField"] .text-field-invalid-text[role]').count())
