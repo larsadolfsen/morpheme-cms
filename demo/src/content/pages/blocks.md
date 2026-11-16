@@ -22,7 +22,7 @@ Group related ideas with an icon, a photo or just text, each linking to a page i
 
 ### Cards with icons
 
-<div data-block="cards" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;With an icon&quot;,&quot;text&quot;:&quot;Icons come from the icon pack you choose under Appearance.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;On a surface&quot;,&quot;text&quot;:&quot;Cards use your theme’s surfaces, corners and shadows.&quot;,&quot;icon&quot;:&quot;heart&quot;,&quot;subhead&quot;:&quot;Outlined, Filled or Elevated&quot;,&quot;iconColor&quot;:&quot;tertiary&quot;},{&quot;title&quot;:&quot;With a link&quot;,&quot;text&quot;:&quot;Link a card to a page and “Learn more” appears at the bottom.&quot;,&quot;href&quot;:&quot;/about/&quot;,&quot;icon&quot;:&quot;book-open&quot;,&quot;iconColor&quot;:&quot;secondary&quot;},{&quot;title&quot;:&quot;Any number&quot;,&quot;text&quot;:&quot;Add as many cards as you like; they wrap neatly on every screen.&quot;,&quot;icon&quot;:&quot;medal&quot;}]}"></div>
+<div data-block="cards" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;With an icon&quot;,&quot;text&quot;:&quot;Icons come from the icon pack you choose under Appearance.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;On a surface&quot;,&quot;text&quot;:&quot;Cards use your theme’s surfaces, corners and shadows.&quot;,&quot;icon&quot;:&quot;heart&quot;,&quot;subhead&quot;:&quot;Outlined, Filled or Elevated&quot;,&quot;iconColor&quot;:&quot;tertiary&quot;},{&quot;title&quot;:&quot;With a link&quot;,&quot;text&quot;:&quot;Link a card to a page and “Read more” appears at the bottom.&quot;,&quot;href&quot;:&quot;/about/&quot;,&quot;icon&quot;:&quot;book-open&quot;,&quot;iconColor&quot;:&quot;secondary&quot;},{&quot;title&quot;:&quot;Any number&quot;,&quot;text&quot;:&quot;Add as many cards as you like; they wrap neatly on every screen.&quot;,&quot;icon&quot;:&quot;medal&quot;}]}"></div>
 
 ### Filled cards without media
 
@@ -42,7 +42,7 @@ Group related ideas with an icon, a photo or just text, each linking to a page i
 
 ### Filled cards with a video
 
-<div data-block="cards" data-props="{&quot;design&quot;:&quot;filled&quot;,&quot;media&quot;:&quot;video&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;With a video&quot;,&quot;text&quot;:&quot;A video shows its still with a play button.&quot;,&quot;video&quot;:&quot;https://www.youtube.com/watch?v=aqz-KE-bpKQ&quot;},{&quot;title&quot;:&quot;The same on every card&quot;,&quot;text&quot;:&quot;The first card sets the media for all of them, so the cards stay aligned.&quot;}],&quot;color&quot;:&quot;tertiary&quot;}"></div>
+<div data-block="cards" data-props="{&quot;design&quot;:&quot;filled&quot;,&quot;media&quot;:&quot;video&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;With a video&quot;,&quot;text&quot;:&quot;A video shows its still with a play button.&quot;,&quot;video&quot;:&quot;https://www.youtube.com/watch?v=aqz-KE-bpKQ&quot;},{&quot;title&quot;:&quot;One media for all cards&quot;,&quot;text&quot;:&quot;The block sets the media; each card gives its own video.&quot;}],&quot;color&quot;:&quot;tertiary&quot;}"></div>
 
 ### Cards in a phone carousel
 
