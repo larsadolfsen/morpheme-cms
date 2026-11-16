@@ -1,6 +1,6 @@
 # Dynamic lists: a framework for apps, the Dynamic lists app and Dynamic cards (design)
 
-Status: spec and build plan for 0.19, decided (section 13), except Q19 (is extending a CMS list built now) and Q20 (the store's "not shown on the site" against the governing rule). Q11 to Q15 are decided (section 13); Q16 to Q18 are questions for the app platform plan (3.10). No code in this pull request. Written 14 November 2026 from the owner's decisions of the
+Status: spec and build plan for 0.19, decided (section 13), except Q19 (is extending a CMS list built now). Q11 to Q15 and Q20 are decided (section 13); Q16 to Q18 are questions for the app platform plan (3.10). No code in this pull request. Written 14 November 2026 from the owner's decisions of the
 same day (section 1); decisions 7 to 11 and the governing rule added 16 November. Branch `0.19`. Section 13 holds the decisions on the spec's questions.
 
 Read for this spec:
@@ -275,7 +275,7 @@ app's list and an own list. The edit page (`#list/<id>/edit`) depends on the cre
   renamed, moved or removed, no `Delete list`. The CMS cannot change a list it did not make.
 - An own list's edit window (`2026-11-15-list-edit-editor-window-design.md`), its field bar, `New list` and `Delete list` are the Dynamic
   lists app's (section 4), drawn into the core's page through a slot (`listEdit`, as `versionSwitch` is today, *Slots* in
-  `docs/app-contract.md`). With that app off or not paid for, an own list's edit page shows the same read-only fields and the line of 4.3.
+  `docs/app-contract.md`). With that app off, not paid for or uninstalled, an own list is deactivated (Q20): its edit page shows the same read-only fields and the line of 4.3, nothing can be changed, only the data can be exported.
 
 The editor's menu section is already called `Dynamic lists` (`t.common.lists`); it lists every list the site has.
 
@@ -318,7 +318,7 @@ Who edits what and who draws it (decisions 9 and 10):
   to a list by anyone else, so the rule holds in code and not only in the screens.
 - **Reading** follows 3.4: an app reads its own lists. **Entries** are the owner's: the entry form (`#new/<id>`) works for every list (decision 10).
 - **When the creator is off or not paid for:** the list, its entries and the blocks that read it stay and keep drawing (6.4); nobody can change
-  its definition until the creator is back. Orphans: Q13, decided by the store's paid-items rule and the going-live rule (never deleted, shown dimmed and read-only under Lists).
+  its definition until the creator is back. Orphans: Q13 and Q20, decided (never deleted, still shown on the site, deactivated in the editor, exportable).
 
 ### 3.10 An app extending a CMS list (direction; design deferred)
 
@@ -453,7 +453,7 @@ While the app is free (4.2), a site that upgrades gets the bundled app installed
 
 The site still draws every dynamic block (reading and drawing are core). The editor still shows the blocks as the site draws them and
 the lists' entries; only the owner's tools are gone (4.3). The lists, their entries and the blocks' props are kept. Nothing breaks, so
-turning the app off is safe and turning it on again brings everything back. The Blog posts, Testimonials and Dynamic list blocks are core blocks, so under the store's decision 5 they declare "keep showing", and every existing one keeps drawing exactly as today (governing rule; Q13, Q20). The same holds when the app is later not paid for or paused (4.2, point 3), and under the store's decision 6 the list stays under Lists, shown inactive (dimmed, read-only) with a button to bring the app back (Q13): only the owner's tools are gone, and
+turning the app off is safe and turning it on again brings everything back. The Blog posts, Testimonials and Dynamic list blocks are core blocks, so under the store's decision 5 they declare "keep showing", and every existing one keeps drawing exactly as today (governing rule; Q13, Q20). The owner's answer of 16 Nov (Q20) is the rule: while the Dynamic lists app, or the app that made a list, is off, paused or uninstalled, **its lists keep showing on the site and are deactivated in the editor**: nothing can be changed, only the data can be exported, and they become active again when the app is activated again or a Dynamic lists app is installed ("It is the owners data not ours."). The same holds when the app is later not paid for or paused (4.2, point 3), and the list stays under Lists, shown inactive (dimmed, read-only) with a button to bring the app back: `Renew` for a paused app, `Install` for one that was uninstalled (the store's decision 6, Q13): only the owner's tools are gone, and
 no list can be created or changed until the app is back (3.9).
 
 ## 7. Worked example: a third-party FAQ app
@@ -846,8 +846,8 @@ PRs 0, 1, 5 and 6); its sorting, pagination and search work on the dynamic rows 
 ## 13. Decisions
 
 Q7 was decided by the owner on 14 Nov. The owner was away and asked the 0.19 PM to decide the rest; the PM decided them as recommended,
-on the owner's behalf, on 14 Nov. The owner may revise any of them. Decisions 7 to 11 of 16 Nov change Q1, Q2 and Q4 (marked), decide Q11 to Q15, and leave two
-questions open (Q19 and Q20, below the table); Q16 to Q18 go to the app platform plan (3.10).
+on the owner's behalf, on 14 Nov. The owner may revise any of them. Decisions 7 to 11 of 16 Nov change Q1, Q2 and Q4 (marked), decide Q11 to Q15 and Q20, and leave one
+question open (Q19, below the table); Q16 to Q18 go to the app platform plan (3.10).
 
 | # | Question | Decision | By |
 | :--- | :--- | :--- | :--- |
@@ -863,15 +863,15 @@ questions open (Q19 and Q20, below the table); Q16 to Q18 go to the app platform
 | Q10 | PR B of the edit-page plan | **Cancelled by the owner on 15 Nov:** entries are not typed on the edit page (section 11). | Owner |
 | Q11 | May the site owner add and edit the entries of an app's list or Testimonials in the entry form? | Yes: the owner only adds and edits entries; the definition is the creator's (decision 10, 3.9). | Owner, 16 Nov |
 | Q12 | Do sites that made own lists in 0.17 keep the Dynamic lists app free? | No site has made an own list yet, so nothing to grandfather: the app can become paid without any site losing anything (4.2). | Owner, 16 Nov |
-| Q13 | A list whose creator is gone (the app is removed, not paid for, or paused): what happens to it? | Decided by the store's paid-items design (`morpheme-appstore`, `docs/superpowers/specs/2026-11-15-paid-items-design.md`, decisions 4 to 6; not in this repository, quoted as the PM relayed it) and, for an unpaid site, going-live decision 6 (`2026-11-15-going-live-v1-design.md`). The store's rule: "4. A lapsed item pauses on the site after a grace period. It is not removed. Its content and settings stay, so renewing brings it back on the next build. 5. Some app blocks keep showing what they have when paused. … An app's own blocks declare whether they hide or keep showing their last data. 6. A pause never deletes data. What an app's lists hold (for example a dynamic list's entries) stays in the site's repository. While the app is not active it is not shown on the site. Under Lists the list stays, shown as inactive (dimmed, read-only) with a button to bring the app back: Renew for a paused app, Install for one that was uninstalled. The owner can delete it by hand there. Renewing or installing shows it again as it was." Going-live decision 6: "Nothing is deleted for 12 months, and **Export** always works." So the list's definition stays as it is and nobody changes it (decisions 8 and 10), its entries are kept, and it shows dimmed and read-only under Lists with `Renew` or `Install`. The Dynamic list, Testimonials and Blog posts blocks are core blocks, so under decision 5 they declare "keep showing" and existing ones keep drawing (governing rule, 6.4). Whether this fits decision 6's "not shown on the site": Q20. | The store's paid-items rule and going-live decision 6 |
+| Q13 | A list whose creator is gone (the app is removed, not paid for, or paused): what happens to it? | Decided by the store's paid-items design (`morpheme-appstore`, `docs/superpowers/specs/2026-11-15-paid-items-design.md`, decisions 4 to 6; not in this repository, quoted as the PM relayed it) and, for an unpaid site, going-live decision 6 (`2026-11-15-going-live-v1-design.md`). The store's rule: "4. A lapsed item pauses on the site after a grace period. It is not removed. Its content and settings stay, so renewing brings it back on the next build. 5. Some app blocks keep showing what they have when paused. … An app's own blocks declare whether they hide or keep showing their last data. 6. A pause never deletes data. What an app's lists hold (for example a dynamic list's entries) stays in the site's repository. While the app is not active it is not shown on the site. Under Lists the list stays, shown as inactive (dimmed, read-only) with a button to bring the app back: Renew for a paused app, Install for one that was uninstalled. The owner can delete it by hand there. Renewing or installing shows it again as it was." Going-live decision 6: "Nothing is deleted for 12 months, and **Export** always works." So the list's definition stays as it is and nobody changes it (decisions 8 and 10), its entries are kept, and it shows dimmed and read-only under Lists with `Renew` or `Install`. The Dynamic list, Testimonials and Blog posts blocks are core blocks, so under decision 5 they declare "keep showing" and existing ones keep drawing (governing rule, 6.4). Q20 (the owner, 16 Nov) amends decision 6 on two points. | The store's paid-items rule (amended by Q20) and going-live decision 6 |
 | Q14 | May an app write entries into a list it did not create? | For now no. "for now, but prepare for extensions" (owner, 16 Nov): the contract and data are shaped so that it can be allowed later without a data change on any site (3.10). | Owner, 16 Nov |
+| Q20 | Does the store's decision 6 ("While the app is not active it is not shown on the site"; "The owner can delete it by hand there") fit the governing rule and decision 8? | No, and the owner decided otherwise (16 Nov): "Yes keep showing dynamic lists but \"deactivate\" them so only data can be exported. They activate if the app is activated or a dynamic app is installed. It is the owners data not ours." So the lists keep showing on the site while their app is off, paused or uninstalled, and in the editor they are deactivated: nothing can be changed (so no "delete by hand"), only the data can be exported (going-live's **Export**). **Difference from the store's decision 6:** it says "not shown on the site" and "the owner can delete it by hand"; the store's paid-items design in `morpheme-appstore` must be brought in line with this (not part of this PR). | Owner, 16 Nov |
 | Q15 | What happens to existing blocks filled by `Rows from` from posts, Testimonials or an app's list? | No released site has such a block, so the pickers offer only the Dynamic lists app's own lists and nothing is migrated (4.1). | Owner, 16 Nov |
 
-**Open (decision 11 and the store's rule, for the owner, through the PM).** Each has a recommendation; nothing is built until the owner answers.
+**Open (decision 11, for the owner, through the PM).** It has a recommendation; nothing is built until the owner answers.
 
 | # | Question | Recommendation |
 | :--- | :--- | :--- |
-| Q20 | The store's decision 6 says "While the app is not active it is not shown on the site", and "The owner can delete it by hand there". The governing rule says existing Dynamic list blocks keep drawing, and decision 8 says only the creator changes a list. Do both hold? | Yes, read narrowly. "Not shown" applies to what the app itself provides (its own blocks and its `listBlocks`, as each declares in decision 5), not to a core block that reads its list: the Dynamic list, Testimonials and Blog posts blocks keep showing (they declare "keep showing"). "Delete by hand" is the owner's deliberate removal of the list's data under Lists (the store's rule), the one action on a list that is not the creator's change; it asks first and says which blocks read the list (the app's `Delete list` refuses while a block reads it, 4.1). |
 | Q19 | Is extending a CMS list built now (0.19) or later? | Later, with the app platform plan (`2026-11-15-app-platform-0-23.md`). 3.10 only records the direction and its rules. |
 
 ## 14. Not in this spec
