@@ -1,6 +1,6 @@
 # Dynamic lists: a framework for apps, the Dynamic lists app and Dynamic cards (design)
 
-Status: spec and build plan for 0.19, decided (section 13), except the open questions Q12 to Q19 that the owner's decisions 7 to 11 of 16 Nov leave. No code in this pull request. Written 14 November 2026 from the owner's decisions of the
+Status: spec and build plan for 0.19, decided (section 13), except Q16 to Q19 (apps extending a CMS list), which are deferred to the app platform plan. Q11 to Q15 were answered by the owner on 16 Nov. No code in this pull request. Written 14 November 2026 from the owner's decisions of the
 same day (section 1); decisions 7 to 11 and the governing rule added 16 November. Branch `0.19`. Section 13 holds the decisions on the spec's questions.
 
 Read for this spec:
@@ -191,11 +191,11 @@ const found = listItems(data, 'app_123.faq', { tags, howMany, map }, slots);
 - The editor's and the site's results are the same by construction: both call one pure function over the entries (as
   `rowsFromItems` now); only the way the entries are fetched differs.
 - **Sources that are not folders** are lists to the reader too: `posts` (the blog's published, not hidden posts) and `testimonials`
-  keep their ids, so a saved `from: 'posts'` reads as before (governing rule; 13, Q15 for new blocks). Their fields are declared in the core like an app's list (section 8.3), so
+  keep their ids, so a saved `from: 'posts'` reads as before (governing rule). Their fields are declared in the core like an app's list (section 8.3), so
   the special cases by id in `rows/view.ts`, `defaults/standard.ts` and `checkSite.ts` go away.
 - **Who reads which list** (decisions 8 and 9): an app reads the lists it created, never another app's. The CMS's own blocks (Blog posts,
   Testimonials) read the CMS's lists. The standard blocks' `Rows from`, Dynamic cards and Dynamic table read the Dynamic lists app's lists (own
-  lists) and, for a block saved before, the source it already has (Q15). `readList` checks the caller against `creatorOf` (3.9) and never writes.
+  lists) and, for a block saved before with another source, the source it has (no released site has one, Q15). `readList` checks the caller against `creatorOf` (3.9) and never writes.
 - `readList` is for `load.ts` and `viewOf.ts` (full places). The sandbox (hooks, after-build) gets nothing new; its three imports stay.
 
 ### 3.5 Slots and the mapping
@@ -318,7 +318,7 @@ Who edits what and who draws it (decisions 9 and 10):
   to a list by anyone else, so the rule holds in code and not only in the screens.
 - **Reading** follows 3.4: an app reads its own lists. **Entries** are the owner's: the entry form (`#new/<id>`) works for every list (decision 10).
 - **When the creator is off or not paid for:** the list, its entries and the blocks that read it stay and keep drawing (6.4); nobody can change
-  its definition until the creator is back. Orphans: 13, Q13.
+  its definition until the creator is back. Orphans: Q13, decided.
 
 ### 3.10 An app extending a CMS list (direction; design deferred)
 
@@ -331,7 +331,7 @@ later design must keep these rules, which follow from decisions 8 to 10:
 - The stored value belongs to the entry and is kept when the app is off or removed, drawn by nobody until the app is back (as 3.3 keeps an app's
   entries).
 
-Open: Q16 to Q19.
+Open and deferred to that plan: Q16 to Q19.
 
 ## 4. The Dynamic lists app
 
@@ -341,7 +341,7 @@ A first-party app, **Dynamic lists** (`dynamic-lists`), that gives the owner:
 
 - `New list` and own lists, of which it is the creator and so the only tool that makes, changes and deletes them (3.9): the definition in `src/data/<id>/_list.json`, the editor window of the 2026-11-15 spec (inline text for the list page with field blocks of any
   number of each kind, now also `Date`, rename, move, Remove field; `Shown` is gone, #704), `Delete list` (refused while a block reads it);
-- `Rows from` on the standard List, Segmented list, FAQ list, **Cards** (new: Dynamic cards, section 8) and **Table** (new: Dynamic table, section 9): the list choice (the Dynamic lists app's own lists only, decision 9; a block saved with posts, Testimonials or an app's list keeps it, Q15), `Only with these tags`, `How many`, `Show all`, the field picker on the block's
+- `Rows from` on the standard List, Segmented list, FAQ list, **Cards** (new: Dynamic cards, section 8) and **Table** (new: Dynamic table, section 9): the list choice (the Dynamic lists app's own lists only, decision 9; no released site has a block filled from anything else, so there is nothing to migrate, Q15), `Only with these tags`, `How many`, `Show all`, the field picker on the block's
   slots (a tap on a part), `Fill from a list` in the block's toolbar, `Edit list`, the state line (`From Services · tag home · 3 items`)
   and the `Dynamic …` names;
 - its texts in English and Danish (`texts.json`).
@@ -370,7 +370,7 @@ What must hold from the first release, so the later step needs **no data change 
    as before. The `off` key is that state's only record in 0.19; the store will set it from the licence later.
 4. **The creator is the same before and after** (3.9): own lists stay the Dynamic lists app's lists whether it is bundled or bought.
 
-Whether sites that made own lists in 0.17 get the app free is open (13, Q12).
+No site has made an own list yet (owner, 16 Nov, Q12), so no site needs the app free to keep its lists: it can become paid without any site losing anything.
 
 | | Bundled in `morpheme-cms` | Store app in `morpheme-apps` |
 | :--- | :--- | :--- |
@@ -771,7 +771,7 @@ Content changes:
 - **Phase 4** builds `off` as the one "not available" state of 4.2 (point 3), draws the edit window, `New list` and `Delete list` only for lists the
   app made, makes the save plan refuse a write by any other party, and shows `LockedListEdit` with 4.3's line when the app is off. Same-HTML check
   with the app off is part of 6.3 (already there).
-- **Phase 4** also makes the picker of `Rows from` offer only the Dynamic lists app's lists for a new block, and keeps the source of a saved one (Q15).
+- **Phase 4** also makes the picker of `Rows from` offer only the Dynamic lists app's lists for a new block, and needs no migration (Q15).
 - **Phase 5** drops the posts and Testimonials card mappings (8.2, 8.3). **Phases 6 to 10** do not change.
 
 **How each phase keeps the governing rule** (the Testimonials block, the Blog posts block and the Dynamic list block are never deleted or replaced,
@@ -796,7 +796,7 @@ and every existing one draws as today):
 - **Phase 3 (#721, merged):** `lib/appListBlocks.mjs` lets a `listBlocks` entry read `posts` and `testimonials` (`SITE_LISTS`), which decision 9 does not
   allow (an app reads its own lists). Fix: drop `SITE_LISTS` and its tests; no site can have used it yet (contract 6 is unreleased).
 - **Today's `Rows from` picker** (`src/standard/rows/`) offers posts, Testimonials and every app's list. Decision 9 narrows it for a new block (phase 4);
-  blocks saved with those sources must keep drawing (Q15).
+  a block saved with one of those sources would still be read, but the owner says no released site has one (Q15).
 - **#616 and phase 1 leftovers:** `src/OwnListEdit.tsx`, `lib/ownListEdit.mjs` `editPageOf` give the whole page to `own` lists and the read-only page to
   `locked` ones. That is the creator rule for the CMS's own lists; it must move to `creatorOf` (an own list's page only with the Dynamic lists app
   on). No contradiction otherwise.
@@ -834,13 +834,13 @@ PRs 0, 1, 5 and 6); its sorting, pagination and search work on the dynamic rows 
 ## 13. Decisions
 
 Q7 was decided by the owner on 14 Nov. The owner was away and asked the 0.19 PM to decide the rest; the PM decided them as recommended,
-on the owner's behalf, on 14 Nov. The owner may revise any of them. Decisions 7 to 11 of 16 Nov change Q1, Q2 and Q4 (marked), decide Q11, and leave eight
-questions open (Q12 to Q19, below the table).
+on the owner's behalf, on 14 Nov. The owner may revise any of them. Decisions 7 to 11 of 16 Nov change Q1, Q2 and Q4 (marked), decide Q11 to Q15, and leave four
+questions open (Q16 to Q19, below the table), which belong to the app platform plan.
 
 | # | Question | Decision | By |
 | :--- | :--- | :--- | :--- |
 | Q1 | Where does the Dynamic lists app live? | Bundled in this repository and shipped in `@morphemecms/cms` (4.2). **Since 16 Nov (decision 7):** for now; later an item bought in the store. | PM 0.19, for the owner |
-| Q2 | Is it installed by default? | Yes, on new and upgraded sites, with an `Enabled` switch in the store to turn it off (6.4). **Since 16 Nov:** while it is free; paying is open (Q12). | PM 0.19, for the owner |
+| Q2 | Is it installed by default? | Yes, on new and upgraded sites, with an `Enabled` switch in the store to turn it off (6.4). **Since 16 Nov:** while it is free; it becomes paid later with no site losing anything (Q12). | PM 0.19, for the owner |
 | Q3 | Which contract do the new `app.json` keys belong to? | Contract 6: `APP_APIS [4, 5, 6]`; no app written to 4 or 5 stops working (3.8). | PM 0.19, for the owner |
 | Q4 | Can the owner add fields to an app's list? | No. ~~`locked: false` for first-party apps~~ is gone (decision 8): only the app that made a list changes its fields (3.1, 3.9). | PM 0.19, for the owner |
 | Q5 | What moves to the app? | Only the owner's tools. Reading and drawing a dynamic block stay in the core, so turning the app off never changes a site (6.4). | PM 0.19, for the owner |
@@ -850,15 +850,15 @@ questions open (Q12 to Q19, below the table).
 | Q9 | A dynamic table's default columns | Every visible field in the list's order, without tags and with one image (9.2). | PM 0.19, for the owner |
 | Q10 | PR B of the edit-page plan | **Cancelled by the owner on 15 Nov:** entries are not typed on the edit page (section 11). | Owner |
 | Q11 | May the site owner add and edit the entries of an app's list or Testimonials in the entry form? | Yes: the owner only adds and edits entries; the definition is the creator's (decision 10, 3.9). | Owner, 16 Nov |
+| Q12 | Do sites that made own lists in 0.17 keep the Dynamic lists app free? | No site has made an own list yet, so nothing to grandfather: the app can become paid without any site losing anything (4.2). | Owner, 16 Nov |
+| Q13 | Who changes a list whose creator is gone (the app is removed or not paid for)? | Nobody, until the creator is back; the list keeps drawing (3.9, 6.4). | Owner, 16 Nov, answered "None" to the PM's options |
+| Q14 | May an app write entries into a list it did not create? | No: no app function writes entries (3.4). | Owner, 16 Nov, as Q13 |
+| Q15 | What happens to existing blocks filled by `Rows from` from posts, Testimonials or an app's list? | No released site has such a block, so the pickers offer only the Dynamic lists app's own lists and nothing is migrated (4.1). | Owner, 16 Nov |
 
-**Open (decisions 7 to 11 of 16 Nov; for the owner, through the PM).** Each has a recommendation; none is built until the owner answers.
+**Open (decision 11, for the owner, through the PM).** Each has a recommendation; none is built until the owner answers.
 
 | # | Question | Recommendation |
 | :--- | :--- | :--- |
-| Q12 | The Dynamic lists app "will become an app that you will need to buy later": do sites that already made own lists or `Rows from` blocks in 0.17 keep the app free (grandfathered), or must they buy it to change those lists? | Grandfather them: 0.17 gave these tools with the core, and the data is theirs. Sites that start after the paid step buy it. The store decides how it records this, so the core only needs the `off` state of 4.2. |
-| Q13 | A list whose creator is gone (the app is removed, or the Dynamic lists app is not paid for): who may delete its definition and entries? Under decision 8 the CMS may not. | Nobody changes the definition until the creator is back; the list keeps drawing. For an app removed for good, the store's *Uninstall* offers `Also remove its data` and deletes the app's lists as part of the app. The owner may always delete the entries of any list in the entry form (decision 10). |
-| Q14 | May another app add or change **entries** in a list it did not create (for example an events app filling an owner's list)? | No in 0.19: no app function writes entries (the sandbox gets nothing new, 3.4). If wanted later, it is a new, explicit permission the owner gives per app. |
-| Q15 | Sites from 0.17 and 0.18 may already have a List or FAQ list block filled by `Rows from` posts, Testimonials or an app's list (6.3's fixture has two). What happens to them now that the picker offers only the Dynamic lists app's lists? | They keep drawing exactly as today (governing rule), and their settings show the source read only. The picker does not offer those sources for a new block. The owner may switch a saved block to another list, never back. |
 | Q16 | May an app extend another **app's** list, or only a CMS list (decision 11)? | Only a CMS list in the first version: the owner's example is a CMS list, and an app's list is its creator's (3.9). |
 | Q17 | Who draws an added field on the site: the CMS block through a slot the app fills, or only the app's own block? | The CMS block through a slot the app fills: the owner may not use a CMS list in other blocks (decision 9), so the CMS's own block is the only place the field can show. |
 | Q18 | Does an added field show on the entry form for the owner to fill in? | Yes, with the app's label, and kept when the app is off (3.10). |
