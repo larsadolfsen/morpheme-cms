@@ -2,4 +2,4 @@
 '@morphemecms/cms': patch
 ---
 
-A click on a card's headline in a row of cards edits that card, also when the block's action row would lie over it.
+A mouse click on a card's headline or on a list row's chevron works while the block's action buttons are over it.
