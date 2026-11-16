@@ -220,7 +220,6 @@ An app declares a list in `lists`, in the format of an own list's `_list.json` p
 | `id` | yes | The list's id in the app. Matches `^[a-z][a-z0-9-]{0,39}$` and is used once. |
 | `label`, `singular`, `icon` | yes | The list's name, one entry's name and a Material Symbols icon name. |
 | `version`, `fields` | yes | As `_list.json` version 2: each field is `{ id, kind, label? }`. The parser is the one of own lists (`parseDefinition`). |
-| `locked` | no, default `true` | The owner cannot add, rename, move or remove fields. `false` is only for first-party apps in 0.19. |
 | `page` | no | Where `Show all` goes: a path such as `/faq/`, or `settings:<field>`, a field of the app's `settings`. None: the block's own `buttonHref`. |
 | `examples` | no | Made-up entries for the store's images and the parts' previews. |
 
@@ -229,7 +228,7 @@ Rules:
 - The kinds are `icon`, `title`, `text`, `image`, `href`, `tags` and the new `date` (stored as `YYYY-MM-DD`). The kind exists in 0.19; its button in the field bar comes later.
 - The entries live in `src/data/<app id>.<id>/`, one JSON file per entry. The dot never occurs in an own list's id, so the two never collide.
 - An app's list keeps its entries when the app is turned off or removed. Only the owner deletes them.
-- An unknown key in a list, a wrong `id`, a field the parser refuses, `locked: false` in a third-party app, or a `page` that is no path and names no setting fails the check.
+- An unknown key in a list, a wrong `id`, a field the parser refuses, the removed key `locked` (an app's list is always read only for the owner: only the app changes its fields), or a `page` that is no path and names no setting fails the check.
 - The app's bundled blocks are not part of this contract yet.
 
 ### List blocks, with no code
@@ -256,8 +255,8 @@ Rules:
 | `type` | Matches `^[a-z][a-z0-9-]{0,39}$`, once per app. The block is `<app id>.<type>` in a page (`<div data-block="<app id>.faq" …>`). |
 | `label`, `icon`, `hint` | Its name, icon and hint under `Insert`, in the group *From your content*. Danish texts go in `texts.json`. |
 | `draws` | The core block it draws: `list`, `segmented` or `faq`. |
-| `list` | One of the app's own lists (`lists`), or `posts` or `testimonials`. Fixed: the block never reads another list. |
-| `map` | The default `map` of slot (`title`, `text`, `icon`, `href`, `tags`) to a field of the list. The owner can still change it per block. Not for `posts` and `testimonials`, whose parts are fixed. |
+| `list` | One of the app's own lists (`lists`). Not `posts`, `testimonials` or another app's list: an app reads only the lists it made. Fixed: the block never reads another list. |
+| `map` | The default `map` of slot (`title`, `text`, `icon`, `href`, `tags`) to a field of the list. The owner can still change it per block. |
 | `settings` | Which settings of the drawn block the owner sees: `tags`, `howMany`, and the block's own (`button`, `only`, `show`, `maxRows`, `card`, `design`, as the block has them). The heading and intro are always there; every other setting keeps the block's default. |
 
 The app's list has the id `<app id>.<id>` on the site (its entries are in `src/data/<app id>.<id>/`), so two apps never collide. An unknown `draws`, a `list` the app lacks, a `map` to a field the list lacks and a `settings` entry the drawn block lacks fail the check. A block with `check-page.md` is checked by `check:screens` on a phone and a computer: put it in the page as `<app id>.<type>`.

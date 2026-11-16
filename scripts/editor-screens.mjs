@@ -5539,21 +5539,38 @@ async function checkTwoFinger() {
 async function insertBlock(page, hint, count, at) {
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
-  await page.waitForFunction(
-    ([n, i]) => {
-      const blocks = [...document.querySelectorAll('.ProseMirror .site-block')];
-      const open = blocks.filter((b) => b.classList.contains('site-block-has-row'));
-      return (
-        blocks.length === n &&
-        open.length === 1 &&
-        open[0] === blocks[i] &&
-        !!open[0].querySelector('.inline-list-row-active') &&
-        !document.querySelector('.ProseMirror .site-block-row-moving')
-      );
-    },
-    [count, at],
-    { timeout: 10000 },
-  );
+  await page
+    .waitForFunction(
+      ([n, i]) => {
+        const blocks = [...document.querySelectorAll('.ProseMirror .site-block')];
+        const open = blocks.filter((b) => b.classList.contains('site-block-has-row'));
+        return (
+          blocks.length === n &&
+          open.length === 1 &&
+          open[0] === blocks[i] &&
+          !!open[0].querySelector('.inline-list-row-active') &&
+          !document.querySelector('.ProseMirror .site-block-row-moving')
+        );
+      },
+      [count, at],
+      { timeout: 10000 },
+    )
+    .catch(async (error) => {
+      // Say what the editor showed: a bare timeout names no cause.
+      const state = await page
+        .evaluate(() => ({
+          dialogOpen: !!document.querySelector('dialog[open]'),
+          blocks: [...document.querySelectorAll('.ProseMirror .site-block')].map((b) => ({
+            row: b.classList.contains('site-block-has-row'),
+            active: !!b.querySelector('.inline-list-row-active'),
+          })),
+          moving: !!document.querySelector('.ProseMirror .site-block-row-moving'),
+          focus: `${document.activeElement?.tagName}.${document.activeElement?.className}`,
+        }))
+        .catch(() => null);
+      error.message += `\ninsertBlock(${hint}, ${count}, ${at}) found ${JSON.stringify(state)}`;
+      throw error;
+    });
 }
 
 /** The opacity of the handle of the block at `index`, read once it is `want` and no transition runs on it (the handle fades): the wait is for that condition, never a
@@ -5843,6 +5860,36 @@ async function checkBlockMove(width) {
     await page.waitForTimeout(300);
     if ((await selected()) !== 2) problems.push(`${label}: Shift+Arrow did not extend the selection (${await selected()})`);
   }
+  await page.close();
+}
+
+/** A new block takes its first row once the insert dialog has closed (MarkdownEditor.tsx, startAt: its `close` event), however late that is: the dialog's close is held
+ * back by 3 s here (twice the 1.5 s the editor once gave up after), and the new block must still become the active one, with the cursor in its first row, and not
+ * before the dialog is gone (the button that opened the dialog gets the focus back at the close). */
+async function checkInsertDialogClosesLate(width) {
+  const label = `insert, dialog closes late ${width}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await page.evaluate(() => {
+    const close = HTMLDialogElement.prototype.close;
+    HTMLDialogElement.prototype.close = function (...args) {
+      setTimeout(() => close.apply(this, args), 3000);
+    };
+  });
+  // insertBlock waits until the new block is the only one with a row and that row is active.
+  await insertBlock(page, 'Numbered steps.', 1, 0);
+  if (await page.evaluate(() => !!document.querySelector('dialog[open]')))
+    problems.push(`${label}: the new block took its row while the insert dialog was still open`);
+  const inRow = await page.evaluate(() => !!document.activeElement?.closest('.ProseMirror .site-block'));
+  if (!inRow) problems.push(`${label}: the cursor is not in the new block's first row once the dialog has closed`);
   await page.close();
 }
 
@@ -8765,6 +8812,45 @@ async function checkSteps(width, height) {
     ])
   )
     problems.push(`${label}: Enter did not go heading, text, next step: ${JSON.stringify(now)}`);
+  // The heading's first line is centred on the number (within 1 px), read from the real boxes: the field's top plus its border and padding
+  // plus half its line height, against the number's middle.
+  const off = await page.evaluate(() =>
+    [...document.querySelectorAll('.inline-steps .block-step[data-row]:not(.inline-list-row-next)')].map((li) => {
+      const n = li.querySelector('.block-step-number').getBoundingClientRect();
+      const f = li.querySelector('[data-field="title"]');
+      const c = getComputedStyle(f);
+      const lh = parseFloat(c.lineHeight) || parseFloat(c.fontSize) * 1.2;
+      const first = f.getBoundingClientRect().top + parseFloat(c.borderTopWidth) + parseFloat(c.paddingTop) + lh / 2;
+      return Math.abs(first - (n.top + n.height / 2));
+    }),
+  );
+  if (!off.length || off.some((d) => !(d <= 1)))
+    problems.push(`${label}: a step's heading is not centred on its number (off by ${off.map((d) => d.toFixed(1)).join(', ')} px)`);
+  // The line joins a number to the next number and stops: every step but the last draws it down to the next number's middle (within 1 px),
+  // and the last draws none. Read from the real boxes, as a step is added, so the last one changes.
+  const lineProblems = () =>
+    page.evaluate(() => {
+      const lis = [...document.querySelectorAll('.inline-steps .block-step')];
+      const out = [];
+      lis.forEach((li, i) => {
+        const c = getComputedStyle(li, '::before');
+        const drawn = c.content !== 'none' && c.content !== 'normal';
+        if (i === lis.length - 1) {
+          if (drawn) out.push(`the last step draws a line`);
+          return;
+        }
+        if (!drawn) return out.push(`step ${i + 1} draws no line`);
+        const r = li.getBoundingClientRect();
+        const to = lis[i + 1].querySelector('.block-step-number').getBoundingClientRect();
+        const from = li.querySelector('.block-step-number').getBoundingClientRect();
+        const top = r.top + parseFloat(c.top);
+        const bottom = r.bottom - parseFloat(c.bottom);
+        if (Math.abs(top - (from.top + from.height / 2)) > 1 || Math.abs(bottom - (to.top + to.height / 2)) > 1)
+          out.push(`step ${i + 1}'s line does not run from its number to the next (${top.toFixed(1)} to ${bottom.toFixed(1)})`);
+      });
+      return out;
+    });
+  for (const p of await lineProblems()) problems.push(`${label}: ${p}`);
   // Enter in the heading goes to the text and Enter in an empty text adds nothing (a heading without text is kept as it is); in the text
   // with something in it Enter adds a step, and Backspace in its empty heading removes it again.
   await page.keyboard.press('Enter');
@@ -8786,6 +8872,7 @@ async function checkSteps(width, height) {
   now = await steps();
   if (now[1]?.title !== 'Order' || now.map((s) => s.number).join() !== '1,2,3')
     problems.push(`${label}: Move down did not move and renumber the step: ${JSON.stringify(now)}`);
+  for (const p of await lineProblems()) problems.push(`${label}: after a move, ${p}`);
   await page.close();
   // Pasting lines into an empty Steps block makes a step of each; headings among them leave the paste as it is.
   for (const [html, plain, expected] of [
@@ -12386,6 +12473,7 @@ await unit('checkDragSelect', () => checkDragSelect());
 await unit('checkTwoFinger', () => checkTwoFinger());
 for (const w of [375, 1280]) await unit(`checkBlockDrag ${w}`, () => checkBlockDrag(w));
 for (const w of [375, 1280]) await unit(`checkBlockSelect ${w}`, () => checkBlockSelect(w));
+for (const w of [375, 1280]) await unit(`checkInsertDialogClosesLate ${w}`, () => checkInsertDialogClosesLate(w));
 for (const w of [375, 1280]) await unit(`checkBlockMove ${w}`, () => checkBlockMove(w));
 await unit('checkUnlistedPost', () => checkUnlistedPost());
 await unit('checkLibraryAlt', () => checkLibraryAlt());
@@ -12438,6 +12526,7 @@ await unit('checkEmptyRow 375', () => checkEmptyRow(375, 740));
 await unit('checkInsertNeverOpensSheet 1280', () => checkInsertNeverOpensSheet(1280, 900));
 for (const [width, height] of [
   [375, 740],
+  [768, 900],
   [1280, 900],
 ])
   await unit(`checkSteps ${width}`, () => checkSteps(width, height));

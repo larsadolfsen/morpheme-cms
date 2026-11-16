@@ -1,5 +1,8 @@
 {
-  "name": "Passo Giau",
+  "name": {
+    "en-US": "Italy",
+    "da-DK": "Italien"
+  },
   "place": {
     "en-US": "Passo Giau, Dolomites, Italy",
     "da-DK": "Passo Giau, Dolomitterne, Italien"

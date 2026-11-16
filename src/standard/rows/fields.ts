@@ -4,6 +4,7 @@
 import { t } from '../../i18n';
 import type { BlockData, BlockProps } from '../../blocks';
 import type { Field } from '../../schema';
+import { coreListOf } from '../../../lib/coreLists.mjs';
 import { sourceOf } from './rows.mjs';
 import { editorRows } from './view';
 
@@ -57,5 +58,5 @@ export const fromLine = (props: BlockProps, data: BlockData): string[] => {
 /** Where `Edit list` goes: the page of the list the block reads (its entries are edited there only, never in the block). Posts have none here. */
 export const listPageOf = (props: BlockProps): string | undefined => {
   const source = sourceOf(props.from);
-  return source && source !== 'posts' ? `#list/${source}` : undefined;
+  return source && !coreListOf(source)?.readOnly ? `#list/${source}` : undefined;
 };

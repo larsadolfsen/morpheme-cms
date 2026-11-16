@@ -2,5 +2,6 @@
   "id": "table-header-line",
   "kind": "line",
   "mark": "improvement",
+  "line": "0.19",
   "text": "Overskriftsrækken i en tabel har en streg under sig"
 }

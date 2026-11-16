@@ -1,5 +1,8 @@
 {
-  "name": "Multnomah",
+  "name": {
+    "en-US": "USA",
+    "da-DK": "USA"
+  },
   "place": {
     "en-US": "Multnomah Falls, Oregon, USA",
     "da-DK": "Multnomah Falls, Oregon, USA"
