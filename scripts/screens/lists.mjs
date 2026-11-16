@@ -212,6 +212,7 @@ async function checkChevronRows(width) {
   const src = [
     '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n',
     block('expand', {
+      design: 'card',
       items: [
         { title: 'One', text: 'First' },
         { title: 'Two', text: 'Second' },

@@ -30,7 +30,7 @@ export default function InlineFaq({ items, props, active, focus, onChange, onPro
         onChange={onChange}
         paste
         wrap={(rows) => (
-          <List expand className="block-accordion" data-columns={columnsAttr(props)}>
+          <List expand className="block-accordion block-accordion-card" data-columns={columnsAttr(props)}>
             {rows}
           </List>
         )}
