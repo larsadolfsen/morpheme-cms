@@ -21,7 +21,7 @@ the **entry form page** is where an entry is typed; the **edit page** (`#list/<i
 
 ## 1. Owner decisions (15 November 2026, through the 0.19 PM)
 
-1. A dynamic list (an own list such as Services or Testimonials) has two screens. The **list page** shows its entries as rows with move
+1. A dynamic list (an own list such as Services, or Testimonials, which the CMS made) has two screens. The **list page** shows its entries as rows with move
    arrows and a round FAB. The FAB becomes a **FAB menu** with `Edit list` and `Add <entry>` (for example `Add testimonial`). Entries are
    added on the entry form page (name, image, alt text, text fields, tags and so on), **never on the edit page**. The edit page is only for
    the list's structure.
@@ -232,6 +232,8 @@ The page has the same content in both: the field's **name**, the **kind** (read 
 ### 3.3 Locked lists
 
 `LockedListEdit` (Testimonials, an app's locked list) is unchanged: its fields are read-only rows, no window, no text. **Decided by the owner on 15 Nov (Q1, decision 6).**
+
+**Since 16 Nov (owner decision 8 of the framework spec, section 3.9):** a list belongs to whoever made it. The window, its text and `Delete list` are for own lists only, which the Dynamic lists app creates; every list the CMS (Testimonials) or an app made opens `LockedListEdit`, and the CMS cannot change an app's list. With the Dynamic lists app off or not paid for, an own list's edit page shows the same read-only rows. Whether the owner may still add entries to an app's list in `#new/<id>` is open (framework spec, Q11), so `Add <entry>` on such a list waits for that answer.
 
 ### 3.4 One field flow editor for lists and forms (decision 12)
 

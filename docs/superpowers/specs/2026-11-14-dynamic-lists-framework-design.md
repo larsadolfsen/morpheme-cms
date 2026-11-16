@@ -1,7 +1,7 @@
 # Dynamic lists: a framework for apps, the Dynamic lists app and Dynamic cards (design)
 
-Status: spec and build plan for 0.19, decided (section 13). No code in this pull request. Written 14 November 2026 from the owner's decisions of the
-same day (section 1). Branch `0.19`. Section 13 holds the decisions on the spec's questions.
+Status: spec and build plan for 0.19, decided (section 13), except the open questions Q11 to Q14 of the owner's decisions 7 and 8 of 16 Nov. No code in this pull request. Written 14 November 2026 from the owner's decisions of the
+same day (section 1); decisions 7 and 8 added 16 November. Branch `0.19`. Section 13 holds the decisions on the spec's questions.
 
 Read for this spec:
 
@@ -18,9 +18,10 @@ Read for this spec:
 
 Words: a **list** is a set of entries with fields (Testimonials, a list the owner made, an app's list). A **slot** is a part a block
 draws (a row's top line, a card's image). The **mapping** says which field of the list fills which slot, per block. A **dynamic block**
-is a block whose items come from a list (`from` is set) instead of being typed.
+is a block whose items come from a list (`from` is set) instead of being typed. A list's **creator** is whoever made it: the CMS, the Dynamic
+lists app, or another app (section 3.9).
 
-## 1. Owner decisions (14 November 2026, through the 0.19 PM)
+## 1. Owner decisions (14 and 16 November 2026, through the 0.19 PM)
 
 The goal: a framework so that other people can build, for example, an FAQ block that is filled from a dynamic list and sell it in the
 store, instead of an FAQ the owner fills in by hand.
@@ -41,6 +42,12 @@ store, instead of an FAQ the owner fills in by hand.
 6. ~~**PR B** of `docs/superpowers/plans/2026-11-14-dynamic-list-edit-page.md` (an own list's entries typed in place on its edit page).~~
    **Cancelled by the owner on 15 Nov 2026:** entries are added on the entry form page, never on the edit page. The edit page is an editor
    window for the list's structure and its list-page text (`2026-11-15-list-edit-editor-window-design.md`).
+
+7. **Paid later** (16 Nov 2026, to the 0.19 PM): "Dynamic lists will become an app that you will need to buy later." The app stays built
+   in this repository for now; later it becomes an item the owner buys in the store (section 4.2).
+8. **A list belongs to whoever made it** (16 Nov 2026, same message): "Only apps or the cms can create and edit dynamic lists they create."
+   Each list has one creator, and only the creator can create the list and change or delete its definition (section 3.9). Reading a list stays
+   open to every app. Where the sentence leaves a question, section 13 lists it as open (Q11 to Q14).
 
 Decision 3 replaces the earlier idea of the same day ("the Blog posts block becomes a Cards block filled from Posts"). So no Blog
 posts block is migrated. That matters, because today's Blog posts block is **not** drawn as cards: it draws the theme's post list
@@ -74,7 +81,8 @@ Two facts shape the design:
 
 The core keeps everything a list and a dynamic block need to **work**; the app adds what the owner uses to **make** lists and dynamic
 blocks (section 4). One line between them: *data and drawing are core; the owner's tools for own lists and `Rows from` are the app's.*
-A site therefore never draws differently because an app was turned off (section 6.4).
+A site therefore never draws differently because an app was turned off or is not paid for (section 6.4). Who may create and change a list is
+a third line: the list's creator only (section 3.9).
 
 ### 3.1 Defining a list
 
@@ -96,7 +104,6 @@ one way of drawing a list's form:
         { "id": "answer", "kind": "text", "label": "Answer" },
         { "id": "tags", "kind": "tags" }
       ],
-      "locked": true,
       "page": "settings:faqPage",
       "examples": [{ "question": "Can I return an item?", "answer": "Yes, within 30 days." }]
     }
@@ -109,11 +116,11 @@ one way of drawing a list's form:
 | `id` | yes | The list's id inside the app. The site's id is `<app id>.<id>` (section 3.3), so two apps never collide. |
 | `label`, `singular`, `icon` | yes | Its name, one entry's name, a Material Symbols name (CLAUDE.md *Icons*; Phosphor names are read as today). |
 | `version`, `fields` | yes | As `_list.json` version 2: each field `{ id, kind, label? }`, any number of each kind. |
-| `locked` | no, default `true` | The owner cannot add, rename, move or remove fields (#616's `LockedListEdit`). Section 13, Q4. |
+| ~~`locked`~~ | removed (decision 8) | Was: the owner cannot add, rename, move or remove fields. Now that is the rule for every list, because the app is the creator: only the app changes its list's fields, in a new version of `app.json`. The CMS shows them read only (`LockedListEdit`). Section 13, Q4. |
 | `page` | no | Where `Show all` goes: an address (`/faq/`), or `settings:<field>` for an address the owner sets in the app's settings. None: the block's own `buttonHref`, as today. |
 | `examples` | no | Made-up entries for the store's images and the parts' previews, as `OwnedList.examples`. |
 
-Rules: the parser's rules for `_list.json`, plus `id` matches `^[a-z][a-z0-9-]{0,39}$`, and `page` is a path or `settings:` a field of
+Rules: the parser's rules for `_list.json`, plus `id` matches `^[a-z][a-z0-9-]{0,39}$`, an app declares only lists with its own app id (3.9), and `page` is a path or `settings:` a field of
 the app's settings. A list written in the old shape (a `FolderCollection` with code, `summary` as a function) is still read from an app's
 `index.ts` as before; only `app.json` gets the data shape. The core turns either into the `OwnedList` the editor already shows, with
 `asRows` and `fieldKinds` made by `asRowsOf` (as `ownListOf` does now), so there is no second way of drawing a list.
@@ -136,8 +143,9 @@ Testimonials do today:
 - an app's list: `src/data/<app id>.<id>/`. The dot cannot be in an own list's id (`slugify` makes only `a-z0-9-`), so the two never collide.
 
 An app's list keeps its entries when the app is turned off or removed, as an app's folder and settings are kept today
-(`docs/app-contract.md`, *App types*). Removing the entries is the owner's choice in the list's page (`Delete list`, #616), never a side
-effect of uninstalling.
+(`docs/app-contract.md`, *App types*). Removing the entries of an own list is the owner's choice in the Dynamic lists app's `Delete list` (#616), never a side
+effect of uninstalling. An app's list is not deleted from the CMS (3.9). A list's definition lives where its creator keeps it: an app's list in
+the app's `app.json`, an own list in `_list.json` (written only by the Dynamic lists app), a core list in the core.
 
 ### 3.4 Reading the items
 
@@ -167,6 +175,8 @@ const found = listItems(data, 'app_123.faq', { tags, howMany, map }, slots);
 - **Sources that are not folders** are lists to the reader too: `posts` (the blog's published, not hidden posts) and `testimonials`
   keep their ids, so a saved `from: 'posts'` reads as before. Their fields are declared in the core like an app's list (section 8.3), so
   the special cases by id in `rows/view.ts`, `defaults/standard.ts` and `checkSite.ts` go away.
+- **Reading is open** (decision 8): `readList` and `listItems` read any list, whoever made it (an own list, Testimonials, posts or another
+  app's), for `Rows from`, Dynamic cards, a table and a third party's `listBlocks`. They never write.
 - `readList` is for `load.ts` and `viewOf.ts` (full places). The sandbox (hooks, after-build) gets nothing new; its three imports stay.
 
 ### 3.5 Slots and the mapping
@@ -239,12 +249,14 @@ block with code (`blocks/`, a `full` place) and call `readList` from its `load.t
 
 ### 3.7 The list's pages in the editor, for any list
 
-The core draws the list's page (`#list/<id>`, the entries, with a FAB menu `Edit list` / `Add <entry>`) and its edit page (`#list/<id>/edit`, the
-fields, #616; for an own list the editor window of `2026-11-15-list-edit-editor-window-design.md`) for **every**
-list: Testimonials, an app's list and an own list. A locked list opens `LockedListEdit`: its fields shown, `New <singular>`, nothing
-renamed, moved or removed. An unlocked app list (section 13, Q4) opens the full edit page. The own list's field bar, `New list` and
-`Delete list` for own lists are the app's (section 4), drawn into the core's page through a slot (`listEdit`, as `versionSwitch` is
-today, *Slots* in `docs/app-contract.md`).
+The core draws the list's page (`#list/<id>`, the entries, with a FAB menu `Edit list` / `Add <entry>`) for **every** list: Testimonials, an
+app's list and an own list. The edit page (`#list/<id>/edit`) depends on the creator (3.9):
+
+- A list the CMS or another app made (Testimonials, an app's list) opens `LockedListEdit`: its fields shown read only, nothing added,
+  renamed, moved or removed, no `Delete list`. The CMS cannot change a list it did not make.
+- An own list's edit window (`2026-11-15-list-edit-editor-window-design.md`), its field bar, `New list` and `Delete list` are the Dynamic
+  lists app's (section 4), drawn into the core's page through a slot (`listEdit`, as `versionSwitch` is today, *Slots* in
+  `docs/app-contract.md`). With that app off or not paid for, an own list's edit page shows the same read-only fields and the line of 4.3.
 
 The editor's menu section is already called `Dynamic lists` (`t.common.lists`); it lists every list the site has.
 
@@ -255,7 +267,31 @@ The editor's menu section is already called `Dynamic lists` (`t.common.lists`); 
   becomes `[4, 5, 6]` and `APP_API` 6. **No app written to 4 or 5 stops working**: they are read exactly as now (section 13, Q3).
 - `docs/app-contract.md` gets a section *Contract 6: lists and list blocks* with sections 3.1 to 3.7, the worked example of section 7,
   and the import `@morphemecms/cms/lib/lists` added to what a `full` place may import (the sandbox's list is unchanged).
+- Contract 6 checks that a list's `id` belongs to the declaring app (3.9) and no longer accepts `locked`; contract 6 is not released, so
+  no site has it.
 - `slots` on `defineBlock` is an optional field of a block, not an `app.json` key; like `inline`, it needs no step of its own.
+
+### 3.9 A list belongs to whoever made it (decision 8)
+
+Each list has **one creator**, and only the creator may create the list and change or delete its definition (its name, entry name, fields,
+kinds, notes and `page`).
+
+| List | Creator | Who changes its definition |
+| :--- | :--- | :--- |
+| `posts`, `testimonials` | the CMS | the CMS, in a release. The owner sees the fields read only. |
+| An own list (`src/data/<id>/_list.json`, made with `New list`) | the Dynamic lists app | that app's tools (4.1): its edit window, `New list`, `Delete list`. |
+| An app's list (`app.json` `lists`, id `<app id>.<id>`) | that app | that app, in a new version of its `app.json`. |
+
+- **Derived, not stored.** The creator comes from the id: `posts` and `testimonials` are the CMS's, an id with a dot is the app named before
+  the dot, any other id is an own list. No site file changes, and a later move of the Dynamic lists app to the store changes no creator (4.2).
+  A new `creatorOf(id)` in `lib/lists.mjs` gives it; an own list cannot take a core list's id (`idOf`'s `taken` check) and an app cannot declare
+  a list under another app's id.
+- **What another party cannot do:** another app cannot create, change or delete a list; the CMS cannot change an app's list, nor an own list
+  without the Dynamic lists app; the Dynamic lists app cannot change an app's or a core list. `parseDefinition` and the save plan refuse a write
+  to a list by anyone else, so the rule holds in code and not only in the screens.
+- **What stays open:** reading (3.4). The entries are a separate question (13, Q11).
+- **When the creator is off or not paid for:** the list, its entries and the blocks that read it stay and keep drawing (6.4); nobody can change
+  its definition until the creator is back. Orphans: 13, Q13.
 
 ## 4. The Dynamic lists app
 
@@ -263,7 +299,7 @@ The editor's menu section is already called `Dynamic lists` (`t.common.lists`); 
 
 A first-party app, **Dynamic lists** (`dynamic-lists`), that gives the owner:
 
-- `New list` and own lists: the definition in `src/data/<id>/_list.json`, the editor window of the 2026-11-15 spec (inline text for the list page with field blocks of any
+- `New list` and own lists, of which it is the creator and so the only tool that makes, changes and deletes them (3.9): the definition in `src/data/<id>/_list.json`, the editor window of the 2026-11-15 spec (inline text for the list page with field blocks of any
   number of each kind, now also `Date`, rename, move, Remove field; `Shown` is gone, #704), `Delete list` (refused while a block reads it);
 - `Rows from` on the standard List, Segmented list, FAQ list, **Cards** (new: Dynamic cards, section 8) and **Table** (new: Dynamic table, section 9): the list choice (own lists,
   the blog's posts, Testimonials and every app's list), `Only with these tags`, `How many`, `Show all`, the field picker on the block's
@@ -275,9 +311,27 @@ It is built only on the framework: `lib/lists` (reading), `slots` on the standar
 block-settings slot of section 4.3 and `parseDefinition`. It imports no other core file. A check (`scripts/check-app-imports.mjs`,
 new) fails if it does, so the app proves the framework is enough for a third party.
 
-### 4.2 Where it lives: bundled in this repository (decided, Q1)
+### 4.2 Where it lives: bundled now, an item to buy later (decided, Q1, decision 7)
 
 **Decision (Q1, Q2): a bundled app in this repository, `apps/dynamic-lists/`, shipped inside `@morphemecms/cms`, installed by default.**
+
+**Decision 7 (16 Nov) changes the end, not the build.** The app stays built in this repository for now: the plan of section 11 does not
+change, and the table below is how it ships in 0.19. Later it becomes an item the owner buys in the store. Payment, the price and the
+licence check are not designed here: they are the store's paid-items design (`morpheme-appstore`, `docs/superpowers/specs/2026-11-15-paid-items-design.md`,
+which is not in this repository).
+
+What must hold from the first release, so the later step needs **no data change on a site**:
+
+1. **Data and drawing stay in the core.** An own list's `_list.json` and entries, the saved `from`, `tags`, `howMany`, `map` and `columns`, and
+   the reader stay readable by the core and keep drawing when the app is off or not paid for (6.4). Buying changes who can *change* lists, never
+   what the site shows.
+2. **The app is separable.** It imports only the framework (the import check of 4.1) and takes the bundled path through `off` (below), so it can
+   move to the store as a package without a core change.
+3. **One "not available" state.** *Off* and *not paid for* read the same in the core: the app is not active, its tools are gone, the site draws
+   as before. The `off` key is that state's only record in 0.19; the store will set it from the licence later.
+4. **The creator is the same before and after** (3.9): own lists stay the Dynamic lists app's lists whether it is bundled or bought.
+
+Whether sites that made own lists in 0.17 get the app free is open (13, Q12).
 
 | | Bundled in `morpheme-cms` | Store app in `morpheme-apps` |
 | :--- | :--- | :--- |
@@ -285,12 +339,12 @@ new) fails if it does, so the app proves the framework is enough for a third par
 | Framework changes | Land in one pull request with the app that uses them, checked by `check:screens`. | Two repositories, two releases, an order to keep. |
 | Proves the framework | Yes, through the import check of 4.1. | Yes. |
 | `full` places | Allowed (first party). | Allowed (first party). |
-| The store | Shown in the store as installed, with its page, so the owner can find and turn it off. | Sold or given in the store as any app. |
+| The store | In 0.19: shown in the store as installed, with its page, so the owner can find and turn it off. Later (decision 7): the same page as an item to buy. | Sold or given in the store as any app. |
 
 What "bundled" needs (new, small): the core reads apps from the package's `apps/` as well as the site's `src/apps/` (`src/appFiles.ts`,
 `defaults/standard.ts`, `defaults/opens.ts`, `defaults/texts.ts`, `lib/apps.mjs` globs). A bundled app is installed unless
 `src/data/apps.json` lists it under a new optional key `off` (`{ "installed": [...], "off": ["dynamic-lists"] }`). The store shows
-it with an `Enabled` switch and no `Uninstall`. A site's own `src/apps/dynamic-lists/` wins over the bundled one (as `@site/` wins over
+it, in 0.19, with an `Enabled` switch and no `Uninstall`; the paid step later replaces them with the store's own states (not designed here). A site's own `src/apps/dynamic-lists/` wins over the bundled one (as `@site/` wins over
 `defaults/`), so a site can pin its own copy.
 
 ### 4.3 How the app adds `Rows from` to the standard blocks
@@ -298,7 +352,7 @@ it with an `Enabled` switch and no `Uninstall`. A site's own `src/apps/dynamic-l
 The core blocks declare `slots` (section 3.5). The core shows a block's dynamic settings only when an installed app offers a **list
 picker** for blocks with slots: a new editor slot, `blockFrom`, that the app fills. With the app on, a List, Segmented list, FAQ list, Table or
 Cards block gets `Rows from` and the rest; with it off, the block's settings show no `Rows from`, and a block that already reads a list
-keeps drawing it (section 6.4) with a line in its settings: `This block is filled from a list. Turn on Dynamic lists to change it.`
+keeps drawing it (section 6.4) with a line in its settings: `This block is filled from a list. Turn on Dynamic lists to change it.` (Once the app is paid, the store gives the second sentence its wording.)
 
 ## 5. What moves where
 
@@ -307,12 +361,13 @@ keeps drawing it (section 6.4) with a line in its settings: `This block is fille
 | `lib/ownList.mjs` (`parseDefinition`, `fieldsOf`, `asRowsOf`, `isEntryPath`, `KINDS`) | **Core**, unchanged in place (the framework's list format). |
 | `lib/ownList.mjs` editing helpers, `lib/ownListEdit.mjs`, `lib/ownListSave.mjs`'s save plan | **App** (`apps/dynamic-lists/lib/`). |
 | `src/ownLists.ts` (`ownListsOf`) | **Core**: the editor must know every list a block may read even with the app off. |
-| `src/OwnList.tsx`, `src/OwnListEdit.tsx` (field bar), `src/useOwnList.tsx`, `src/AddFieldMenu.tsx`, `New list` | **App**, drawn through `listEdit` and the store's menu. `LockedListEdit` and the entries page stay **core** (3.7). |
+| `src/OwnList.tsx`, `src/OwnListEdit.tsx` (field bar), `src/useOwnList.tsx`, `src/AddFieldMenu.tsx`, `New list` | **App**, drawn through `listEdit` and the store's menu. `LockedListEdit` (now for every list the app did not make) and the entries page stay **core** (3.7). |
 | `src/standard/rows/rows.mjs` | **Core**, as `lib/lists.mjs` (3.4, 3.5). `src/standard/rows/rows.mjs` re-exports it for one release. |
 | `src/standard/rows/load.ts`, `defaults/standard.ts` `source` | **Core** (`readList`). `StandardSite.source` stays for one release as a call of `readList`, so a site that overrides `@site/standard` keeps building. |
 | `src/standard/rows/fields.ts` (`from`, `tags`, `howMany`, `map`, `nameWith`, `fromLine`, `listPageOf`) | The props and their drawing: **core**. The fields in the settings, `Fill from a list`, the picker, the names: **app**, through `blockFrom`. |
 | `src/standard/rows/view.ts` (`editorRows`, `sourceItems`, `rowSources`, `rowParts`) | `editorRows`, `sourceItems`: **core** (`listItems`). `rowSources`, `rowParts`: **app**. |
-| Testimonials, special-cased by id | **Core**, declared as a list (3.1 shape, `locked`, `page: testimonialsPath`). |
+| Testimonials, special-cased by id | **Core**, declared as a list (3.1 shape, `page: testimonialsPath`); the CMS is its creator (3.9). |
+| Who may create and change a list | **Core**: `creatorOf` in `lib/lists.mjs` and the refusal in the save plan (3.9). The tools that create and change own lists are the app's, as above. Nothing but the creator writes a definition. |
 | The i18n keys `blocks.rows.*`, `ownList.*` | The app's `texts.json` for its words; the core keeps the few it draws (`blocks.rows.empty`, the line of 4.3). |
 
 ## 6. Migrating sites with no visible change
@@ -331,7 +386,7 @@ No site file is rewritten. Every step is `minor` or `patch`; none is `major` (th
 
 ### 6.2 The tools on an upgraded site
 
-A site that upgrades gets the bundled app installed (4.2), so the owner sees the same `New list`, list pages, `Rows from`, picker,
+While the app is free (4.2), a site that upgrades gets the bundled app installed, so the owner sees the same `New list`, list pages, `Rows from`, picker,
 `Edit list` and names in the same places. The only new things are Dynamic cards and the `Date` field kind, both additions.
 
 ### 6.3 The proof
@@ -347,7 +402,8 @@ A site that upgrades gets the bundled app installed (4.2), so the owner sees the
 
 The site still draws every dynamic block (reading and drawing are core). The editor still shows the blocks as the site draws them and
 the lists' entries; only the owner's tools are gone (4.3). The lists, their entries and the blocks' props are kept. Nothing breaks, so
-turning the app off is safe and turning it on again brings everything back.
+turning the app off is safe and turning it on again brings everything back. The same holds when the app is later not paid for (4.2, point 3): only the owner's tools are gone, and
+no list can be created or changed until the app is back (3.9).
 
 ## 7. Worked example: a third-party FAQ app
 
@@ -419,7 +475,7 @@ src/apps/app_7f3c…/
 What the owner gets after installing it:
 
 1. Under **Dynamic lists**: *Questions*, with `New question`, each entry's form (Question, Answer, Topic) and `Edit list` showing the
-   three fields locked.
+   three fields read only: the app made the list, so only the app changes them. (Whether the owner may add and edit the entries here: 13, Q11.)
 2. In **Insert**, under *From your content*: *FAQ from Questions*. On the page it is drawn as the theme's FAQ list, typed nowhere: its
    questions come from the list. Its settings: `Only with these tags` (named *Topic*), `How many`, `Show all` (to the FAQ page set in
    the app's settings), `Only one open`. A tap on a question's line offers the list's title fields (here only *Question*).
@@ -466,7 +522,7 @@ per-block name, decided in the build PR).
 
 ### 8.3 Posts and Testimonials as lists
 
-Declared in the core with the 3.1 shape (locked, read only for posts: they are written as posts, not in a list page):
+Declared in the core with the 3.1 shape. The CMS is their creator (3.9), so their fields are read only to the owner and to every app, which may still read them (Dynamic cards from posts is reading). Posts have no entries in a list page: they are written as posts.
 
 - `posts`: `title` (title), `description` (text), `image` (image), `date` (date), `href` (href, the post's address), `categories`
   (tags). Order: newest first. Page: the blog (`standard.posts.all({}).href`). Hidden and draft posts are never read (as today).
@@ -663,6 +719,32 @@ skill `checks`; a change the owner sees follows the screenshot rule of the `pm` 
 | 9 | **Dynamic table** (section 9): `columns[].field`, `typedColumns`, `slots: 'columns'`, `listColumns`, the kind mapping, the header picker, the column menu's actions, Change to with Table (10), `"draws": "table"`. Screens: a dynamic table with each column kind built so far, sorting, pagination and search on, 375 and 1280 px. | yes | minor |
 | 10 | **Release notes** for 9 (the list-page and editor-window notes are in the 2026-11-15 spec's plan). | yes | empty |
 
+**What decisions 7 and 8 change in the plan (16 Nov).** No phase is added, dropped or reordered, and the app stays in this repository (phase 4).
+Content changes:
+
+- **Phase 1** adds `creatorOf(id)` to `lib/lists.mjs` (3.9) and its tests.
+- **Phase 2** drops the `locked` key (3.1) and checks that a list's id belongs to its app (3.8, 3.9).
+- **Phase 3** keeps `listBlocks.list` as it is (reading is open). Nothing changes.
+- **Phase 4** builds `off` as the one "not available" state of 4.2 (point 3), draws the edit window, `New list` and `Delete list` only for lists the
+  app made, makes the save plan refuse a write by any other party, and shows `LockedListEdit` with 4.3's line when the app is off. Same-HTML check
+  with the app off is part of 6.3 (already there).
+- **Phases 5 to 10** do not change (reading and drawing).
+
+**Merged or in-flight work that contradicts the decisions** (no code changed here):
+
+- **Phase 2 (merged): `locked` in `app.json`**, `lib/appManifest.mjs` (`firstParty` option, `locked: false`), `src/ownLists.ts` (`locked !== false`)
+  and their tests allow a first-party app's list to be unlocked, and the core then draws the full edit page for it. Decision 8 says the CMS cannot
+  edit an app's list. Fix: remove the key and the option, and make `LockedListEdit` the page for every list that is not an own list.
+- **Phase 3 (#721, merged):** consistent. `listBlocks` only reads; `siteListId` names `posts` and `testimonials` as lists "no app owns", which should
+  read "the CMS's" when `creatorOf` lands.
+- **#616 and phase 1 leftovers:** `src/OwnListEdit.tsx`, `lib/ownListEdit.mjs` `editPageOf` give the whole page to `own` lists and the read-only page to
+  `locked` ones. That is the creator rule for the CMS's own lists; it must move to `creatorOf` (an own list's page only with the Dynamic lists app
+  on). No contradiction otherwise.
+- **The 2026-11-15 spec's PRs 1 to 5:** PR 1 (FAB menu, merged as #712) is consistent: the menu only opens the edit page and the entry form. PRs 4 and
+  5 (`notes`, `singular`, the editor window) write only own lists, which the Dynamic lists app creates, so they agree; PR 5's host must be drawn
+  through `listEdit` only for the app's lists. `Add <entry>` on an app's list depends on Q11. The window spec's section 3.3 (locked lists) is
+  unchanged.
+
 Phases 1 and 2 can be built side by side; 3 needs 1 and 2; 4 needs 1 and #616; 5 needs 1 and 4 (it adds Cards to the app's picker); 6
 needs 4. Phase 8 is cancelled. Phase 9 needs 4, 6 and the Table's `DataTable` and column kinds (its own
 PRs 0, 1, 5 and 6); its sorting, pagination and search work on the dynamic rows the day those Table PRs land.
@@ -678,6 +760,9 @@ PRs 0, 1, 5 and 6); its sorting, pagination and search work on the dynamic rows 
 - **Dynamic table, unit:** default columns of a list (tags out, one image), the kind mapping of 9.3 with a stored kind the field cannot
   take, a removed field's empty cells, `typedColumns` kept through rows and columns added to the typed table, Change to a Table and
   back (deep-equal round trip).
+- **Creator (3.9):** `creatorOf` for `posts`, `testimonials`, `app_123.faq` and an own list; the save plan and `parseDefinition` refuse a write to a
+  list by a party that did not make it; contract 6 refuses a list id under another app and the `locked` key; the edit page of an app's list is
+  read only whatever the app declares; an own list is read-only with the app off, and the site draws the same HTML.
 - **Same HTML:** 6.3's fixture, before and after phases 1, 4, 5 and 9 (a typed Table is in the fixture).
 - **Screens:** today's dynamic-block screens with the app on; the app off; the FAQ example app; Dynamic cards (8.7's states, the
   carousel with a list page, 375 and 1280 px, every section colour as `inlineBlocks` already runs).
@@ -687,14 +772,15 @@ PRs 0, 1, 5 and 6); its sorting, pagination and search work on the dynamic rows 
 ## 13. Decisions
 
 Q7 was decided by the owner on 14 Nov. The owner was away and asked the 0.19 PM to decide the rest; the PM decided them as recommended,
-on the owner's behalf, on 14 Nov. The owner may revise any of them.
+on the owner's behalf, on 14 Nov. The owner may revise any of them. Decisions 7 and 8 of 16 Nov change Q1, Q2 and Q4 (marked) and leave four
+questions open (Q11 to Q14, below the table).
 
 | # | Question | Decision | By |
 | :--- | :--- | :--- | :--- |
-| Q1 | Where does the Dynamic lists app live? | Bundled in this repository and shipped in `@morphemecms/cms` (4.2). | PM 0.19, for the owner |
-| Q2 | Is it installed by default? | Yes, on new and upgraded sites, with an `Enabled` switch in the store to turn it off (6.4). | PM 0.19, for the owner |
+| Q1 | Where does the Dynamic lists app live? | Bundled in this repository and shipped in `@morphemecms/cms` (4.2). **Since 16 Nov (decision 7):** for now; later an item bought in the store. | PM 0.19, for the owner |
+| Q2 | Is it installed by default? | Yes, on new and upgraded sites, with an `Enabled` switch in the store to turn it off (6.4). **Since 16 Nov:** while it is free; paying is open (Q12). | PM 0.19, for the owner |
 | Q3 | Which contract do the new `app.json` keys belong to? | Contract 6: `APP_APIS [4, 5, 6]`; no app written to 4 or 5 stops working (3.8). | PM 0.19, for the owner |
-| Q4 | Can the owner add fields to an app's list? | No: an app's list is locked by default, and `locked: false` is allowed only for first-party apps in 0.19 (3.1). | PM 0.19, for the owner |
+| Q4 | Can the owner add fields to an app's list? | No. ~~`locked: false` for first-party apps~~ is gone (decision 8): only the app that made a list changes its fields (3.1, 3.9). | PM 0.19, for the owner |
 | Q5 | What moves to the app? | Only the owner's tools. Reading and drawing a dynamic block stay in the core, so turning the app off never changes a site (6.4). | PM 0.19, for the owner |
 | Q6 | Dynamic cards as a carousel with a list page | One `Show all` button, to the list's page; never two buttons (8.5). | PM 0.19, for the owner |
 | Q7 | Third-party blocks | Without code only in 0.19: a third party sells list blocks through `listBlocks`, drawn by the core's dynamic blocks; blocks with code stay first-party (3.6). | Owner |
@@ -702,9 +788,19 @@ on the owner's behalf, on 14 Nov. The owner may revise any of them.
 | Q9 | A dynamic table's default columns | Every visible field in the list's order, without tags and with one image (9.2). | PM 0.19, for the owner |
 | Q10 | PR B of the edit-page plan | **Cancelled by the owner on 15 Nov:** entries are not typed on the edit page (section 11). | Owner |
 
+**Open (decisions 7 and 8 of 16 Nov; for the owner, through the PM).** Each has a recommendation; none is built until the owner answers.
+
+| # | Question | Recommendation |
+| :--- | :--- | :--- |
+| Q11 | "Only apps or the cms can create and edit dynamic lists they create": may the site owner still add, edit and delete the **entries** of an app's list (and of Testimonials) in the CMS's entry form (`#new/<id>`)? Or does "edit" cover entries too, so only the creator app can? | Yes, the owner edits entries. The entries are the owner's content, the entry form is core for every list, and the decision is about who makes and changes the *list* (its definition). An app that wants no owner edits could later say so with an `app.json` key. |
+| Q12 | The Dynamic lists app "will become an app that you will need to buy later": do sites that already made own lists or `Rows from` blocks in 0.17 keep the app free (grandfathered), or must they buy it to change those lists? | Grandfather them: 0.17 gave these tools with the core, and the data is theirs. Sites that start after the paid step buy it. The store decides how it records this, so the core only needs the `off` state of 4.2. |
+| Q13 | A list whose creator is gone (the app is removed, or the Dynamic lists app is not paid for): who may delete its definition and entries? Under decision 8 the CMS may not. | Nobody changes the definition until the creator is back; the list keeps drawing. For an app removed for good, the store's *Uninstall* offers `Also remove its data` and deletes the app's lists as part of the app. The owner may always delete the entries of any list in the entry form (Q11). |
+| Q14 | May another app add or change **entries** in a list it did not create (for example an events app filling an owner's list)? | No in 0.19: no app function writes entries (the sandbox gets nothing new, 3.4). If wanted later, it is a new, explicit permission the owner gives per app. |
+
 ## 14. Not in this spec
 
 - A visitor-facing filter or sort on dynamic blocks (M3 says it goes outside the collection; a later spec).
 - A site page of its own for an own list (own lists have none today; `Show all` uses the block's address).
 - Changes to the Blog posts block (decision 3).
-- Paid or licensed lists in the store (the store's own specs in `morpheme-appstore`).
+- Paid or licensed lists, and the payment, price and licence check of the Dynamic lists app: the store's paid-items design in `morpheme-appstore`
+  (`docs/superpowers/specs/2026-11-15-paid-items-design.md`). This spec only says what must hold so that step needs no data change (4.2).
