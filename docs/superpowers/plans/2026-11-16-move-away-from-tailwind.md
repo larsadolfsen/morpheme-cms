@@ -24,8 +24,8 @@ because the names Tailwind reads cannot be renamed while Tailwind is installed (
 | `--tw-*` the engine's own | none we write | gone with Tailwind; the permanent check (PR 11) fails on any `--tw-` |
 | Theme-owned names | `--<theme>-*` | stay, as in `morpheme-apps` |
 
-**Rule for the end state, and the check that holds it:** every custom property declared in the CMS's own CSS starts with `--mo-`, except
-a theme's own `--<theme>-*` and a component's private name (open question 1). The check (PR 11) lists every `--name:` declaration and
+**Rule for the end state, and the check that holds it:** every custom property declared in the CMS's own CSS starts with `--mo-ref-`, `--mo-sys-` or `--mo-comp-` (Material 3's three tiers, `md` written `mo`), except
+a theme's own `--<theme>-*`. The check (PR 11) lists every `--name:` declaration and
 fails on one outside the rule; the Tokens session builds the list and the allowlist in its PR 3, and PR 11 turns the allowlist off for
 the Tailwind names.
 
@@ -36,9 +36,9 @@ the Tailwind names.
 3. **No aliases** also means no `--text-*` or `--color-*` left behind "for themes". The break for an installed theme or app that reads an old name is the same one §5 already counts for utility classes, in the same release (`THEME_API` and `APP_API` 6, 0.23). The Tokens session lists, after its PR 2, every renamed name and who reads it outside this repository.
 4. **Version lines are unchanged:** renames of non-Tailwind names (Tokens PR 3) land after 0.18.0, in the line the owner chooses; the Tailwind steps stay 0.21 (deprecate) and 0.23 (remove). Because there are no aliases, a rename that a theme or app can read is a break, so it is raised with the removal in 0.23 unless the owner decides to take it earlier with its own contract bump.
 
-### Open questions for the owner (new, in addition to the six below)
+### Open questions for the owner (new, in addition to the six below; the first is now decided)
 
-1. **Component tokens** (`--button-*`, `--list-*`, `--panel-*`): `--mo-<component>-*` for all of them (uniform, a very large rename), or keep them as private names that are never part of the theme contract (my recommendation: keep, and say so in the allowlist)? The owner's "all tokens `--mo-`" and "only the truly globals" point both ways; this decides it.
+1. **Component tokens: decided (owner, 16 Nov).** Yes, they are `--mo-` too, and the whole system follows Material 3's token naming with `md` replaced by `mo`: the three tiers `--mo-ref-*` (reference), `--mo-sys-*` (system roles) and `--mo-comp-<component>-*` (component), in the pattern m3.material.io prints for each tier (the Tokens session reads the real pages and records the pattern per group in its plan, never from memory). The same tiers are the `md.ref.*`, `md.sys.*` and `md.comp.*` of `CLAUDE.md`. Consequence to confirm with the owner, because there are no aliases: the roles that are already `--mo-*` today (`--mo-primary`, `--mo-surface`, `--mo-space-*`, `--mo-shape-*`) move into the `--mo-sys-*` tier too, and a theme or app that sets or reads them breaks in the same release (§5). The plan's table above shows the end names; the Tokens session's PR 3 carries the full current-to-new table.
 2. **Can a rename earlier than 0.23 break a theme or an app?** Without aliases it can. The first step is to read `venus` and the store apps (§1.9) and count real readers of the old names; if there are none, Tokens PR 3 may go before 0.23.
 
 ## Decisions for the owner (six, each with my recommendation)
