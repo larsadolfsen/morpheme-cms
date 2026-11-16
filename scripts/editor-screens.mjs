@@ -7239,7 +7239,7 @@ async function checkFocusFrame() {
     const first = parts.findIndex((e) => e.textContent.includes('Alpha'));
     const last = parts.findIndex((e) => e.textContent.includes('Beta')) - 1;
     const rows = parts.map((e, i) => ({ inAlpha: i >= first && i <= last, text: e.textContent.trim().slice(0, 12), focus: e.dataset.sectionFocus ?? null, drawn: getComputedStyle(e, '::after').content !== 'none' && getComputedStyle(e, '::after').content !== 'normal', line: getComputedStyle(e, '::after').borderInlineStartStyle, width: getComputedStyle(e, '::after').borderInlineStartWidth }));
-    const out = { editorOutline: getComputedStyle(pm).outlineStyle, focused: pm.matches(':focus'), rows, contrast: {} };
+    const out = { editorOutline: getComputedStyle(pm).outlineStyle, focused: pm.matches(':focus-visible'), rows, contrast: {} };
     if (${colors}) {
       const alpha = parts[first];
       const block = parts.find((e) => e.matches('.site-block-inline') || e.querySelector('.site-block-inline'));
@@ -7247,7 +7247,7 @@ async function checkFocusFrame() {
       for (const color of ['surface', 'primary', 'secondary', 'tertiary']) {
         for (const e of parts.slice(first, last + 1)) { e.setAttribute('data-section-color', color); e.setAttribute('data-section-box', 'only'); }
         out.contrast[color] = {
-          frame: pm.matches(':focus') ? ratio(getComputedStyle(alpha, '::after').borderInlineStartColor, alpha) : null,
+          frame: pm.matches(':focus-visible') ? ratio(getComputedStyle(alpha, '::after').borderInlineStartColor, alpha) : null,
           block: blockEl ? ratio(getComputedStyle(blockEl).outlineColor, block, 1, blockEl) : null,
           blockBorder: blockEl ? getComputedStyle(blockEl).outlineStyle : null,
         };
@@ -7268,7 +7268,7 @@ async function checkFocusFrame() {
       // Cursor in a section's text: the whole text has no outline and only that section has the frame.
       await tap('.ProseMirror > p:has-text("Alpha body")', { x: 6, y: 6 });
       await page
-        .waitForSelector('.ProseMirror:focus > [data-section-focus]', { timeout: 10_000 })
+        .waitForSelector('.ProseMirror:focus-visible > [data-section-focus]', { timeout: 10_000 })
         .catch(() => problems.push(`${label}: the section under the cursor has no frame`));
       let got = await page.evaluate(read(true));
       if (got.editorOutline !== 'none')
@@ -7298,7 +7298,7 @@ async function checkFocusFrame() {
       await tap('.site-block-inline [data-field="title"]', { x: 8, y: 8 });
       await page
         .waitForFunction(
-          () => !document.querySelector('.ProseMirror').matches(':focus') && document.querySelector('.site-block-inline:focus-within'),
+          () => !document.querySelector('.ProseMirror').matches(':focus-visible') && document.querySelector('.site-block-inline:focus-within'),
           null,
           { timeout: 10_000 },
         )
