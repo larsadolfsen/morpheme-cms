@@ -1,12 +1,12 @@
-// What the editor's footer and its "System status" screen say (EditorFooter.tsx, ServiceStatus.tsx).
+// What the editor's footer and its "Status" screen say (EditorFooter.tsx, ServiceStatus.tsx).
 import type { Messages } from '../en-US';
 
 export const footer: Messages['footer'] = {
   support: 'Support',
-  status: 'Driftsstatus',
+  status: 'Status',
   terms: 'Vilkår',
-  security: 'Rapportér sikkerhedsfejl',
-  privacy: 'Privatlivspolitik',
+  security: 'Sikkerhed',
+  privacy: 'Privatliv',
   openStatusPage: 'Åbn statusside',
   loading: 'Tjekker status…',
   state: {

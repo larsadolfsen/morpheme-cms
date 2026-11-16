@@ -1,10 +1,10 @@
 // The copyright line at the end of the editor's footer row: body-medium in the on-surface-variant colour, as tall as a link (36px)
-// so the row stays level. Exposes FooterCopyright. Uses copyright from lib/footerLinks.mjs, with the current year.
+// so the row stays level (no end padding below 600 dp, so it fits the last of three columns at 320). Exposes FooterCopyright. Uses copyright from lib/footerLinks.mjs, with the current year.
 import { copyright } from '../lib/footerLinks.mjs';
 
 export default function FooterCopyright() {
   return (
-    <span className="inline-flex min-h-9 items-center px-3 type-body-medium text-on-surface-variant">
+    <span className="inline-flex min-h-9 items-center px-3 max-medium:pe-0 type-body-medium text-on-surface-variant">
       {copyright(new Date().getFullYear())}
     </span>
   );

@@ -1,10 +1,10 @@
-// What the editor's footer and its "System status" screen say (EditorFooter.tsx, ServiceStatus.tsx).
+// What the editor's footer and its "Status" screen say (EditorFooter.tsx, ServiceStatus.tsx).
 export const footer = {
   support: 'Support',
-  status: 'System status',
+  status: 'Status',
   terms: 'Terms of use',
-  security: 'Report security issues',
-  privacy: 'Privacy policy',
+  security: 'Security',
+  privacy: 'Privacy',
   openStatusPage: 'Open status page',
   loading: 'Checking the status…',
   state: {

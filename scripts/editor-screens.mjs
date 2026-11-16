@@ -11411,7 +11411,7 @@ async function checkTapBelowSection(width, touch) {
 /** The footer links are the one named exception to the 44/48 px target checks of this file: they are exactly 36 px high by the owner's decision (14 Nov 2026, "Make the footer links 36px high clickable"), a deviation from M3's 48dp target allowed in the editor's workspace (docs/material-deviations.md, "Footer links"). No other check here skips them; this one asserts the number, so the exception is as narrow as the owner's 36 (35 or 37 fails, and so does a link narrower than its label plus 24 px). */
 const FOOTER_LINK_HEIGHT = 36;
 
-/** The editor's footer links (Support, System status, the legal links, Licenses) are exactly 36 px high at 320, 375 (touch) and 1280 px, as wide as their label plus 24 px of their own padding, never overlapping, with no sideways scroll; the lines of a wrapped row are 8px apart or more; the dividers are 16 px high and centred on the row. */
+/** The editor's footer links (Support, Status, Security, Privacy, Licenses) are exactly 36 px high at 320, 375 (touch) and 1280 px, as wide as their label plus 24 px of their own padding, never overlapping, with no sideways scroll; the lines of a wrapped row are 8px apart or more; the dividers are 16 px high and centred on the row. Below 600 dp the five links and the copyright line are two rows of three (Support, Status, Security / Privacy, Licenses, the copyright, owner 16 Nov), each row inside the window. */
 async function checkFooterTargets(width, touch) {
   const page = await browser.newPage({ viewport: { width, height: touch ? 800 : 900 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${width}px footer links: ${e.message}`));
@@ -11430,8 +11430,29 @@ async function checkFooterTargets(width, touch) {
       ...box(d),
       visible: getComputedStyle(d).visibility !== 'hidden',
     }));
-    return { links, dividers, scrolls: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+    const items = [...document.querySelectorAll('footer nav > a, footer nav > span:not([data-divider])')].map((el) => ({
+      name: ([...el.childNodes].find((n) => n.nodeType === Node.TEXT_NODE && n.textContent.trim()) ?? el).textContent.trim(),
+      ...box(el),
+    }));
+    return { links, items, dividers, scrolls: document.documentElement.scrollWidth > document.documentElement.clientWidth };
   });
+  if (width < 600) {
+    const rows = [];
+    for (const it of got.items) {
+      const row = rows.find((r) => Math.abs(r[0].top - it.top) < 1);
+      if (row) row.push(it);
+      else rows.push([it]);
+    }
+    const names = rows.map((r) => r.map((i) => i.name.replace(/^© \d{4} .*/, '©')).join(' | '));
+    const want = ['Support | Status | Security', 'Privacy | Licenses | ©'];
+    if (names.join(' / ') !== want.join(' / ')) problems.push(
+        `${width}px footer: the rows are "${names.join(' / ')}", should be "${want.join(' / ')}" (${got.items.map((i) => `${i.name} ${Math.round(i.width)}x${Math.round(i.height)}`).join(', ')})`,
+      );
+    for (const it of got.items)
+      if (it.left < -0.5 || it.right > width + 0.5) problems.push(`${width}px footer: "${it.name}" is outside the window (${Math.round(it.left)}–${Math.round(it.right)})`);
+    for (const d of got.dividers.filter((x) => x.visible && x.width > 0))
+      if (d.left < 0 || d.right > width) problems.push(`${width}px footer: a divider is outside the window`);
+  }
   const boxes = got.links;
   if (boxes.length < 4) problems.push(`${width}px footer links: only ${boxes.length} found`);
   for (const b of boxes) {
