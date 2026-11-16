@@ -1,6 +1,5 @@
 // The editor's footer row: support, system status (with a dot for how the services are), the legal links and "Licenses", then
-// the copyright line, with a thin divider between each, centred and wrapping below the expanded window (840 dp) (below 600 dp, pulled out by the links' 12px padding like the large layout so the copyright fits at 320
-// a grid of two rows of three: the divider between the rows, the sixth child, is not shown), and from there
+// the copyright line, with a thin divider between each, centred and wrapping below the expanded window (840 dp) (below 600 dp a grid of two rows of three, styled in editor.css), and from there
 // left-aligned on the content's start edge (the links' 12px side padding is pulled back at both ends), still wrapping if one row does not fit (a divider at the start or end of a line is hidden:
 // useStrayDividers.ts). Exposes FooterLinks. Uses FooterLink, FooterDivider, FooterCopyright, the theme's Badge and
 // FOOTER_LINKS from lib/footerLinks.mjs.
@@ -19,10 +18,7 @@ export default function FooterLinks({ state }: { state: ServiceState }) {
   const row = useRef<HTMLElement>(null);
   useStrayDividers(row);
   return (
-    <nav
-      ref={row}
-      className="flex flex-wrap items-center justify-center gap-y-2 max-medium:-mx-3 max-medium:grid max-medium:grid-cols-[auto_1px_auto_1px_auto] expanded:-mx-3 expanded:justify-start max-medium:[&>:nth-child(6)]:hidden"
-    >
+    <nav ref={row} className="flex flex-wrap items-center justify-center gap-y-2 expanded:-mx-3 expanded:justify-start">
       {visibleLinks(FOOTER_LINKS).map(({ id, href }, i) => (
         <Fragment key={id}>
           {i > 0 && <FooterDivider />}

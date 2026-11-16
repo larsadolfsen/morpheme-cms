@@ -654,6 +654,27 @@
   z-index: 30;
 }
 
+/* The footer's row below 600 dp (FooterLinks.tsx): two rows of three, as a grid of five tracks (item, divider, item, divider, item) with the
+   divider between the rows (the sixth child) not shown; the items start-aligned in their columns; the row pulled out by the links' 12 px
+   padding (as from 840 dp) and the copyright line without end padding, so it fits the last column at 320 px. It is here and not in
+   utility classes so the site's pages, which share the utilities, stay byte for byte the same (check:same-html). */
+@media (width < theme(--breakpoint-medium)) {
+  .editor-footer nav {
+    display: grid;
+    grid-template-columns: auto 1px auto 1px auto;
+    margin-inline: -0.75rem;
+  }
+  .editor-footer nav > :nth-child(6) {
+    display: none;
+  }
+  .editor-footer nav > a {
+    justify-content: flex-start;
+  }
+  .editor-footer nav > span:not([data-divider]) {
+    padding-inline-end: 0;
+  }
+}
+
 /* A FAB whose action runs or cannot be used now (FabAction.busy, .disabled): dimmed, and nothing to press. */
 .editor-fab :is(.extended-fab, .fab):disabled {
   opacity: 0.38;
