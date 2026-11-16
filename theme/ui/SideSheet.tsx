@@ -5,7 +5,8 @@
 // <aside> named by its headline, its place the page's; or 'modal', over the page in a <dialog> with sideSheetClass over
 // the scrim, which sideSheet() in sideSheetControl.ts opens, closes and lets slide in from the side (the <dialog> gets
 // aria-labelledby with `headlineId`). A standard one takes an `id` and `hidden`: a button with data-side-sheet-open="<id>"
-// shows it (sideSheet.script.ts, standardSideSheet()). How it looks is the theme's (--side-sheet-*). In the editor only drawn, as high as
+// shows it (sideSheet.script.ts, standardSideSheet()). An optional back icon button before the headline (`onBack`, named `backLabel`): M3's
+// "Side sheets can contain a back icon for navigation" (side-sheets overview), for a sheet that shows another region of itself. How it looks is the theme's (--side-sheet-*). In the editor only drawn, as high as
 // its place.
 import type { ReactNode } from 'react';
 import IconButton from '@theme/ui/IconButton';
@@ -24,6 +25,8 @@ export default function SideSheet({
   hidden,
   closeLabel,
   onClose,
+  backLabel,
+  onBack,
   actions,
   className,
   children,
@@ -36,6 +39,9 @@ export default function SideSheet({
   hidden?: boolean;
   closeLabel?: string;
   onClose?: () => void;
+  /** A back icon button before the headline, for a sheet that shows another region of itself; `backLabel` names it. */
+  backLabel?: string;
+  onBack?: () => void;
   actions?: ReactNode;
   className?: string;
   children: ReactNode;
@@ -49,7 +55,8 @@ export default function SideSheet({
       aria-labelledby={kind === 'standard' ? headlineId : undefined}
       data-side-sheet-container=""
     >
-      <div className="side-sheet-header">
+      <div className="side-sheet-header" data-has-back={onBack ? '' : undefined}>
+        {onBack && <IconButton icon="arrow-left" label={backLabel ?? ''} data-side-sheet-back="" onClick={onBack} />}
         <h2 id={headlineId} className="side-sheet-headline">
           {headline}
         </h2>
