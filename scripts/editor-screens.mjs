@@ -9875,6 +9875,56 @@ async function checkCardsCarousel(width, height) {
 }
 
 /** The spacing of a "Cards" block on the site (the demo's Blocks page), at 375 and 1280 px: one rule for stacked cards, a grid and the carousel. Material 3 prints 16dp left and right padding and "8dp max" between cards (m3.material.io/components/cards/specs, Measurements), and is silent inside a card, so the room there is on the 4dp half-step and the 8dp grid: the media or icon to the headline 16, the headline to the subhead 4, to the text 8, the text to the link 16. Fails on the old 2, 6 and 20 px. */
+/** The posts of every Blog posts block on the system's test page (a list and the newest large over the list; picked, by category, all) read as one text
+ * group (Material 3 Lists: the overline stands directly over the headline, and is label small): in each row the date and reading time are one line, label
+ * small, and the headline starts where the overline ends; the gap is the same in every row and variant, with and without a thumbnail and with a headline of
+ * two lines. Its cause was the meta in body medium inside the overline: it wrapped on a phone and left a line of space over the title. */
+async function checkPostMeta(width, height, scheme) {
+  const label = `${width}px ${scheme} blog posts meta`;
+  // A site with no blog posts (the starter's) has no rows to measure; the demo has.
+  if (!has('src/content/blog')) return void console.log(`${label}: skipped, the site has no blog posts, which the demo has.`);
+  const phone = width < 600;
+  const page = await browser.newPage({
+    viewport: { width, height },
+    hasTouch: phone,
+    isMobile: phone,
+    locale: 'en-US',
+    colorScheme: scheme,
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onTestPage(page, label))) return page.close();
+  const rows = await page.evaluate(() => {
+    const r = (e) => e.getBoundingClientRect();
+    return [...document.querySelectorAll('.block-posts-in-text .list-item-container')].map((row) => {
+      const o = row.querySelector('.list-item-overline');
+      const h = row.querySelector('.list-item-headline');
+      const lines = Math.round(r(h).height / parseFloat(getComputedStyle(h).lineHeight));
+      return {
+        title: h.textContent,
+        gap: Math.round((r(h).top - r(o).bottom) * 10) / 10,
+        metaHeight: Math.round(r(o).height * 10) / 10,
+        metaFont: getComputedStyle(o.firstElementChild).fontSize,
+        overlineFont: getComputedStyle(o).fontSize,
+        lineHeight: parseFloat(getComputedStyle(o).lineHeight),
+        thumb: !!row.querySelector('.list-item-leading-image, .list-item-leading-video, .list-item-leading'),
+        lines,
+      };
+    });
+  });
+  if (!rows.length) problems.push(`${label}: no post rows on the test page`);
+  for (const row of rows) {
+    const at = `${label}, "${row.title}"`;
+    if (row.metaFont !== row.overlineFont)
+      problems.push(`${at}: the meta is ${row.metaFont}, not the overline's ${row.overlineFont} (label small)`);
+    if (row.metaHeight > row.lineHeight + 0.5)
+      problems.push(`${at}: the date and reading time wrap to more than one line (${row.metaHeight} px)`);
+    if (Math.abs(row.gap) > 0.5) problems.push(`${at}: ${row.gap} px between the meta line and the title, not 0`);
+  }
+  if (new Set(rows.map((x) => x.gap)).size > 1)
+    problems.push(`${label}: the gap between the meta and the title is not the same in every row`);
+  await page.close();
+}
+
 async function checkCardsSpacing(width, height) {
   const label = `${width}px cards spacing`;
   const phone = width < 600;
@@ -12005,6 +12055,7 @@ for (const [width, height] of [
 ]) {
   await unit(`checkCardsCarousel ${width}`, () => checkCardsCarousel(width, height));
   await unit(`checkCardsSpacing ${width}`, () => checkCardsSpacing(width, height));
+  for (const scheme of ['light', 'dark']) await unit(`checkPostMeta ${width} ${scheme}`, () => checkPostMeta(width, height, scheme));
   for (const scheme of ['light', 'dark'])
     await unit(`checkCardIconText ${width} ${scheme}`, () => checkCardIconText(width, height, scheme));
   for (const scheme of ['light', 'dark']) await unit(`checkIconColor ${width} ${scheme}`, () => checkIconColor(width, height, scheme));
@@ -12067,6 +12118,8 @@ await unit('checkTableAlign 1280', () => checkTableAlign(1280, 800));
 
 await unit('checkTableRadius 375', () => checkTableRadius(375, 740));
 await unit('checkTableRadius 1280', () => checkTableRadius(1280, 800));
+await unit('checkPostMeta 768 light', () => checkPostMeta(768, 900, 'light'));
+await unit('checkPostMeta 768 dark', () => checkPostMeta(768, 900, 'dark'));
 await unit('checkSpacingGrid 375', () => checkSpacingGrid(375, 740));
 await unit('checkSpacingGrid 1280', () => checkSpacingGrid(1280, 800));
 for (const [width, height] of [
