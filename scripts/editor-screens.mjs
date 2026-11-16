@@ -5609,12 +5609,7 @@ async function checkBlockHandleCorner(width) {
           () => false,
         );
     let active = false;
-    for (const selector of [
-      '[data-field]',
-      '[contenteditable="true"]',
-      'button:not(.site-block-handle):not([data-row])',
-      '.site-block-preview',
-    ]) {
+    for (const selector of ['[data-field]:visible', '[contenteditable="true"]:visible', '.site-block-preview']) {
       const target = card.locator(selector).first();
       if (!(await target.count())) continue;
       await target.scrollIntoViewIfNeeded().catch(() => {});
@@ -5626,6 +5621,12 @@ async function checkBlockHandleCorner(width) {
     if (!active) {
       problems.push(`${label}: the ${name} block did not become active`);
       continue;
+    }
+    // A tap on a block that is only a preview (a list of the site) also selects it: Escape lets the selection go, and the block stays active.
+    if (await page.locator('.ProseMirror .site-block-marks').count()) {
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => !document.querySelector('.ProseMirror .site-block-marks'), null, { timeout: 3000 }).catch(() => {});
+      await open();
     }
     const m = await block.evaluate((el) => {
       const rect = (s) => el.querySelector(s)?.getBoundingClientRect();
