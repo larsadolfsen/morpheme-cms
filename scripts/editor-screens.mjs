@@ -5539,21 +5539,38 @@ async function checkTwoFinger() {
 async function insertBlock(page, hint, count, at) {
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
-  await page.waitForFunction(
-    ([n, i]) => {
-      const blocks = [...document.querySelectorAll('.ProseMirror .site-block')];
-      const open = blocks.filter((b) => b.classList.contains('site-block-has-row'));
-      return (
-        blocks.length === n &&
-        open.length === 1 &&
-        open[0] === blocks[i] &&
-        !!open[0].querySelector('.inline-list-row-active') &&
-        !document.querySelector('.ProseMirror .site-block-row-moving')
-      );
-    },
-    [count, at],
-    { timeout: 10000 },
-  );
+  await page
+    .waitForFunction(
+      ([n, i]) => {
+        const blocks = [...document.querySelectorAll('.ProseMirror .site-block')];
+        const open = blocks.filter((b) => b.classList.contains('site-block-has-row'));
+        return (
+          blocks.length === n &&
+          open.length === 1 &&
+          open[0] === blocks[i] &&
+          !!open[0].querySelector('.inline-list-row-active') &&
+          !document.querySelector('.ProseMirror .site-block-row-moving')
+        );
+      },
+      [count, at],
+      { timeout: 10000 },
+    )
+    .catch(async (error) => {
+      // Say what the editor showed: a bare timeout names no cause.
+      const state = await page
+        .evaluate(() => ({
+          dialogOpen: !!document.querySelector('dialog[open]'),
+          blocks: [...document.querySelectorAll('.ProseMirror .site-block')].map((b) => ({
+            row: b.classList.contains('site-block-has-row'),
+            active: !!b.querySelector('.inline-list-row-active'),
+          })),
+          moving: !!document.querySelector('.ProseMirror .site-block-row-moving'),
+          focus: `${document.activeElement?.tagName}.${document.activeElement?.className}`,
+        }))
+        .catch(() => null);
+      error.message += `\ninsertBlock(${hint}, ${count}, ${at}) found ${JSON.stringify(state)}`;
+      throw error;
+    });
 }
 
 /** The opacity of the handle of the block at `index`, read once it is `want` and no transition runs on it (the handle fades): the wait is for that condition, never a
@@ -5843,6 +5860,36 @@ async function checkBlockMove(width) {
     await page.waitForTimeout(300);
     if ((await selected()) !== 2) problems.push(`${label}: Shift+Arrow did not extend the selection (${await selected()})`);
   }
+  await page.close();
+}
+
+/** A new block takes its first row once the insert dialog has closed (MarkdownEditor.tsx, startAt: its `close` event), however late that is: the dialog's close is held
+ * back by 3 s here (twice the 1.5 s the editor once gave up after), and the new block must still become the active one, with the cursor in its first row, and not
+ * before the dialog is gone (the button that opened the dialog gets the focus back at the close). */
+async function checkInsertDialogClosesLate(width) {
+  const label = `insert, dialog closes late ${width}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await page.evaluate(() => {
+    const close = HTMLDialogElement.prototype.close;
+    HTMLDialogElement.prototype.close = function (...args) {
+      setTimeout(() => close.apply(this, args), 3000);
+    };
+  });
+  // insertBlock waits until the new block is the only one with a row and that row is active.
+  await insertBlock(page, 'Numbered steps.', 1, 0);
+  if (await page.evaluate(() => !!document.querySelector('dialog[open]')))
+    problems.push(`${label}: the new block took its row while the insert dialog was still open`);
+  const inRow = await page.evaluate(() => !!document.activeElement?.closest('.ProseMirror .site-block'));
+  if (!inRow) problems.push(`${label}: the cursor is not in the new block's first row once the dialog has closed`);
   await page.close();
 }
 
@@ -12365,6 +12412,7 @@ await unit('checkDragSelect', () => checkDragSelect());
 await unit('checkTwoFinger', () => checkTwoFinger());
 for (const w of [375, 1280]) await unit(`checkBlockDrag ${w}`, () => checkBlockDrag(w));
 for (const w of [375, 1280]) await unit(`checkBlockSelect ${w}`, () => checkBlockSelect(w));
+for (const w of [375, 1280]) await unit(`checkInsertDialogClosesLate ${w}`, () => checkInsertDialogClosesLate(w));
 for (const w of [375, 1280]) await unit(`checkBlockMove ${w}`, () => checkBlockMove(w));
 await unit('checkUnlistedPost', () => checkUnlistedPost());
 await unit('checkLibraryAlt', () => checkLibraryAlt());
