@@ -5429,6 +5429,46 @@ async function checkTwoFinger() {
   await page.close();
 }
 
+/** Puts the cursor in a new empty line under the line `text`: a click on the line, End, Enter. The first block put in still holds the focus in its first row, and a
+ * click away from it closes that row (blockRow in MarkdownEditor.tsx, `away`) while the editor takes the selection from the click on its own turn; an End and an
+ * Enter before that act on the old selection (the line after the block), and the next block then lands under the first one, not above it. So the wait is for the
+ * state: the editor has the focus with the cursor in the line, and, after Enter, the cursor is in an empty line right under it. If Enter went to the old place
+ * the line has no empty line under it; the step is then done again (it only adds a free line). */
+async function newLineUnder(page, text) {
+  const line = page.locator('.ProseMirror p', { hasText: text }).first();
+  const underNow = () =>
+    page.waitForFunction(
+      (t) => {
+        const p = [...document.querySelectorAll('.ProseMirror > p')].find((e) => e.textContent.includes(t));
+        const next = p?.nextElementSibling;
+        const at = getSelection()?.anchorNode;
+        return !!next && next.tagName === 'P' && next.textContent === '' && !!at && next.contains(at);
+      },
+      text,
+      { timeout: 3000 },
+    );
+  for (let tries = 0; ; tries++) {
+    await line.click();
+    // The cursor is in the line, in the editor, and the block's row has let go of the focus.
+    await page.waitForFunction(
+      (t) => {
+        const at = getSelection()?.anchorNode;
+        const p = at && (at.nodeType === 1 ? at : at.parentElement)?.closest('.ProseMirror > p');
+        return !!p && p.textContent.includes(t) && document.activeElement?.classList.contains('ProseMirror');
+      },
+      text,
+      { timeout: 5000 },
+    );
+    await page.keyboard.press('End');
+    await page.keyboard.press('Enter');
+    try {
+      return await underNow();
+    } catch (e) {
+      if (tries >= 2) throw e;
+    }
+  }
+}
+
 /** Puts a block in at the cursor and waits until it is the active block, as a person sees it. A new block takes its first row only once the insert dialog has let
  * go of the focus (MarkdownEditor.tsx, startAt: up to 1.5 s on a slow machine), and until then the block that was active still is, with its row and its handle; and
  * the row of that block matches `.inline-list-row-active` too, so that selector is no sign. The wait is for the state itself: `count` blocks, the new one (`at`) the
@@ -5436,21 +5476,38 @@ async function checkTwoFinger() {
 async function insertBlock(page, hint, count, at) {
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
-  await page.waitForFunction(
-    ([n, i]) => {
-      const blocks = [...document.querySelectorAll('.ProseMirror .site-block')];
-      const open = blocks.filter((b) => b.classList.contains('site-block-has-row'));
-      return (
-        blocks.length === n &&
-        open.length === 1 &&
-        open[0] === blocks[i] &&
-        !!open[0].querySelector('.inline-list-row-active') &&
-        !document.querySelector('.ProseMirror .site-block-row-moving')
-      );
-    },
-    [count, at],
-    { timeout: 10000 },
-  );
+  await page
+    .waitForFunction(
+      ([n, i]) => {
+        const blocks = [...document.querySelectorAll('.ProseMirror .site-block')];
+        const open = blocks.filter((b) => b.classList.contains('site-block-has-row'));
+        return (
+          blocks.length === n &&
+          open.length === 1 &&
+          open[0] === blocks[i] &&
+          !!open[0].querySelector('.inline-list-row-active') &&
+          !document.querySelector('.ProseMirror .site-block-row-moving')
+        );
+      },
+      [count, at],
+      { timeout: 10000 },
+    )
+    .catch(async (e) => {
+      // What the editor showed when the wait gave up, so a failure in CI says which state was missing.
+      const found = await page
+        .evaluate(() => ({
+          dialogOpen: !!document.querySelector('dialog[open]'),
+          blocks: [...document.querySelectorAll('.ProseMirror .site-block')].map((b) => ({
+            row: b.classList.contains('site-block-has-row'),
+            active: !!b.querySelector('.inline-list-row-active'),
+          })),
+          moving: !!document.querySelector('.ProseMirror .site-block-row-moving'),
+          focus: document.activeElement ? `${document.activeElement.tagName}.${document.activeElement.className}` : null,
+        }))
+        .catch(() => null);
+      e.message = `insertBlock(${hint}, ${count}, ${at}) found ${JSON.stringify(found)}\n${e.message}`;
+      throw e;
+    });
 }
 
 /** The opacity of the handle of the block at `index`, read once it is `want` and no transition runs on it (the handle fades): the wait is for that condition, never a
@@ -5489,9 +5546,7 @@ async function checkBlockDrag(width) {
   await page.waitForTimeout(300);
   const insert = (hint, count, at) => insertBlock(page, hint, count, at);
   await insert('Numbered steps.', 1, 0);
-  await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
-  await page.keyboard.press('End');
-  await page.keyboard.press('Enter');
+  await newLineUnder(page, 'Hello');
   // The new block lands above the first one (the cursor is in the line under 'Hello'), and its action row has opened (it moves the handle and the blocks below).
   await insert('Rows with icon, heading and text.', 2, 0);
   // Away from any block's row, so no bar or keyboard is in the way.
