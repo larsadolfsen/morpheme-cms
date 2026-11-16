@@ -67,6 +67,9 @@ type Props<T extends string> = {
   /** A page or post that is published in steps: `Publish` at the end of the bar, shown
    * also when nothing is unsaved, and its other actions (`Unpublish`, `Discard draft`) above "Delete". */
   publish?: Publish;
+  /** `Discard` at the start of the bar (a page or post): throws away the changes since it was published. It is disabled while `canDiscard` is false. */
+  onDiscard?: () => void;
+  canDiscard?: boolean;
   /** The fields beside the text on a wide computer screen (FormColumns in ui.tsx). */
   panel?: boolean;
   /** A list (the menu): as wide as the other lists on a computer. */
@@ -219,6 +222,8 @@ export default function FormFrame<T extends string>({
   deleteLabel,
   saveLabel,
   publish,
+  onDiscard,
+  canDiscard,
   panel,
   wide,
   children,
@@ -288,6 +293,11 @@ export default function FormFrame<T extends string>({
                 className={publish?.label ? 'max-medium:hidden' : undefined}
               >
                 {t.preview.button}
+              </Button>
+            )}
+            {onDiscard && (
+              <Button kind="text" disabled={saving || !canDiscard} onClick={onDiscard}>
+                {t.app.discard}
               </Button>
             )}
             {(dirty || saving) && (

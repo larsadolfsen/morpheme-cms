@@ -188,6 +188,9 @@ make(
   'src/content/pages/zz-check-page.md',
   `---\ntitle: "${FIXTURE_PAGE}"\n---\n\n# ${FIXTURE_PAGE}\n\nMade by check:screens, never saved.\n`,
 );
+make('src/content/pages/zz-discard-plain.md', `---\ntitle: "Discard plain"\n---\n\n# Discard plain\n\nPublished text.\n`);
+make('src/content/pages/zz-discard-waiting.md', `---\ntitle: "Discard waiting"\n---\n\n# Discard waiting\n\nPublished text.\n`);
+make('src/drafts/pages/zz-discard-waiting.md', `---\ntitle: "Discard waiting"\n---\n\n# Discard waiting\n\nPublished text. waiting text\n`);
 /** A post that is not on the blog: the demo's, or the one made here. */
 const UNLISTED_POST = existsSync(join(ROOT, 'src/content/blog/not-on-the-blog.md'))
   ? 'A post only for those with the link'
@@ -1722,7 +1725,7 @@ async function checkCustomColors(width, height) {
   await page.close();
 }
 
-/** What is fixed to the bottom of a form (the page form's Save draft and Publish buttons, FormFrame.tsx) is the theme's standard
+/** What is fixed to the bottom of a form (the page form's Save and Publish buttons, FormFrame.tsx) is the theme's standard
  * bottom sheet (ActionSheet in src/ui.tsx), not a bar of its own: the same surface and top corners as a BottomSheet container,
  * at the bottom of the screen, above the on-screen keyboard when it is up (emulated by a smaller visual viewport), and the
  * form's last field scrolls clear of it. At 375 px with the keyboard closed and open, and at 1280 px. */
@@ -1880,7 +1883,7 @@ async function checkPhoneSheet(width = 375, height = 740) {
     await sheet.waitFor({ timeout: 5000 });
     await page.waitForTimeout(400);
   };
-  // The page changed first, so its Publish (and Save draft) is there under the subpage.
+  // The page changed first, so its Publish (and Save) is there under the subpage.
   await page.locator('.ProseMirror p', { hasText: 'More text.' }).click();
   await page.keyboard.press('End');
   await page.keyboard.type(' Changed.');
@@ -4629,7 +4632,111 @@ async function checkPreviewInBar(width) {
   await page.close();
 }
 
-/** Ctrl+S where the draft cannot save itself (R2 caching off: the Worker answers 409 off) runs what Save draft does: the page is committed. */
+/** `Discard` in the page form's bar (375, 768, 1280): at the start of the bar before Save and Publish (a text button), disabled with nothing to discard, enabled after an edit; it asks first (no control focused, Cancel keeps everything), and the confirm goes back to the published version: the saved draft is removed in a commit, undo starts again, the message shows, and the buttons are as with no changes. All three buttons fit in one row. */
+async function checkDiscardInBar(width) {
+  const phone = width < 600;
+  const label = `${width}px Discard in the bar`;
+  const page = await browser.newPage({ viewport: { width, height: 800 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  const commits = [];
+  await page.route('**/api/github/commit', (r) => {
+    commits.push(JSON.parse(r.request().postData() || '{}'));
+    return r.fulfill({ contentType: 'application/json', body: JSON.stringify({ commit: 'head', blobs: {} }) });
+  });
+  await page.route('**/api/autosave**', (r) =>
+    r.request().method() === 'GET' ? r.fulfill({ status: 404, body: '' }) : r.fulfill({ contentType: 'application/json', body: '{}' }),
+  );
+  const bar = page.locator('.editor-save-bar');
+  const button = (name) => bar.getByRole('button', { name, exact: true });
+  const tap = (loc) => (phone ? loc.tap() : loc.click());
+  const text = () => page.locator('.ProseMirror').first().innerText();
+  const rows = async () =>
+    bar.evaluate((b) =>
+      [...b.querySelectorAll('button')]
+        .filter((x) => x.getClientRects().length)
+        .map((x) => {
+          const r = x.getBoundingClientRect();
+          return { name: x.textContent.trim(), x: r.x, y: r.y, w: r.width, h: r.height, right: r.right };
+        }),
+    );
+  const dialog = page.locator('dialog[open]');
+
+  for (const [name, path, draft] of [
+    ['a page with a saved draft', 'src/content/pages/zz-discard-waiting.md', true],
+    ['a page with no draft', 'src/content/pages/zz-discard-plain.md', false],
+  ]) {
+    const at = `${label}, ${name}`;
+    commits.length = 0;
+    await page.goto(`${site}/editor/#${path}`);
+    await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
+    // Published with no changes and no draft: no bar. With a draft: Discard enabled before any edit.
+    if (!draft) {
+      if (await bar.count()) problems.push(`${at}: a published page with no changes has a bar`);
+      await page.click('.ProseMirror p');
+      await page.keyboard.press('End');
+      await page.keyboard.type(' typed here');
+    }
+    await bar.waitFor({ timeout: 10_000 });
+    const names = (await rows()).map((b) => b.name).filter((n) => n !== 'Preview');
+    const want = draft ? ['Discard', 'Publish'] : ['Discard', 'Save', 'Publish'];
+    if (names.join() !== want.join()) problems.push(`${at}: the bar has ${names.join(', ')}, not ${want.join(', ')}`);
+    const discard = button('Discard');
+    if (await discard.isDisabled()) problems.push(`${at}: Discard is disabled though there is something to discard`);
+    // One row, nothing clipped, 48 dp targets.
+    const geometry = await rows();
+    if (geometry.some((b) => Math.abs(b.y - geometry[0].y) > 1)) problems.push(`${at}: the buttons wrap (${JSON.stringify(geometry)})`);
+    if (geometry.some((b) => b.x < 0 || b.right > width + 0.5)) problems.push(`${at}: a button is clipped (${JSON.stringify(geometry)})`);
+    // As high as the other buttons of the bar (the editor's density gives every button 40 dp; a bigger one would be a variant of its own).
+    const d = geometry.find((b) => b.name === 'Discard');
+    const publish = geometry.find((b) => b.name === 'Publish');
+    if (d && publish && Math.abs(d.h - publish.h) > 0.5) problems.push(`${at}: Discard is ${d.h} dp high, Publish ${publish.h}`);
+    const order = geometry.map((b) => b.name).filter((n) => n !== 'Preview');
+    if (order.join() !== want.join()) problems.push(`${at}: the buttons run ${order.join(', ')}`);
+
+    // Cancel keeps everything, and no control has the focus when the dialog opens.
+    await tap(discard);
+    await dialog.waitFor({ timeout: 5000 });
+    if (!(await dialog.innerText()).includes('goes back to its published version'))
+      problems.push(`${at}: the question says "${await dialog.innerText()}"`);
+    const focused = await page.evaluate(() => document.activeElement?.tagName);
+    if (focused === 'BUTTON' || focused === 'INPUT') problems.push(`${at}: ${focused} has the focus when the question opens`);
+    await tap(dialog.getByRole('button', { name: 'Cancel', exact: true }));
+    await dialog.waitFor({ state: 'detached', timeout: 5000 }).catch(() => {});
+    if (commits.length) problems.push(`${at}: Cancel committed`);
+    if (!draft && !(await text()).includes('typed here')) problems.push(`${at}: Cancel lost the edit`);
+
+    // Discard: the published text, the draft removed, a message, and the buttons as with no changes.
+    await tap(discard);
+    await dialog.waitFor({ timeout: 5000 });
+    await tap(dialog.getByRole('button', { name: 'Discard', exact: true }));
+    await page.waitForFunction(() => !document.querySelector('dialog[open]'), null, { timeout: 5000 });
+    await page
+      .locator('.snackbar-stack .snackbar', { hasText: 'discarded' })
+      .first()
+      .waitFor({ timeout: 10_000 })
+      .catch(() => {});
+    if (!(await page.locator('.snackbar-stack .snackbar', { hasText: 'discarded' }).count()))
+      problems.push(`${at}: no message that the changes are discarded`);
+    const now = await text();
+    if (/typed here|waiting text/.test(now)) problems.push(`${at}: the page is not its published version (${now})`);
+    if (!now.includes('Published text')) problems.push(`${at}: the published text is missing (${now})`);
+    if (draft) {
+      const removed = commits.flatMap((c) => c.changes ?? []).filter((x) => x.path === 'src/drafts/pages/zz-discard-waiting.md');
+      if (commits.length !== 1 || !removed.length || !removed.every((x) => x.delete || x.deleted || x.content == null))
+        problems.push(`${at}: Discard did not remove the draft in one commit (${JSON.stringify(commits)})`);
+    } else if (commits.length) problems.push(`${at}: Discard of unsaved edits committed`);
+    // Undo starts again: Ctrl+Z does not bring the typed text back.
+    await page.click('.ProseMirror p');
+    await page.keyboard.press('Control+z');
+    if (/typed here|waiting text/.test(await text())) problems.push(`${at}: undo brought the discarded text back`);
+    await page.waitForTimeout(300);
+    if (await bar.count()) problems.push(`${at}: the bar is still there after Discard`);
+  }
+  await page.close();
+}
+
+/** Ctrl+S where the draft cannot save itself (R2 caching off: the Worker answers 409 off) runs what Save does: the page is committed. */
 async function checkSaveKeyNoAutosave() {
   const label = '1280px Ctrl+S without autosave';
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 }, locale: 'en-US' });
@@ -7523,7 +7630,7 @@ const inlineSingles = [
   { name: 'video', hint: 'A YouTube or Vimeo video.', field: 'title', text: 'My film', slot: false },
 ];
 
-/** An empty row in a block typed in place (the Segmented list's "New row" left empty) is not a snackbar and a page that cannot be saved: Save draft or Publish scrolls to the block and asks (375 px, touch): "You have an empty segmented list row." with Remove item (the row goes, nothing is saved), the action tapped (the page is saved without the empty rows) and Cancel (nothing changes). A page without an empty row saves as before, with no question. */
+/** An empty row in a block typed in place (the Segmented list's "New row" left empty) is not a snackbar and a page that cannot be saved: Save or Publish scrolls to the block and asks (375 px, touch): "You have an empty segmented list row." with Remove item (the row goes, nothing is saved), the action tapped (the page is saved without the empty rows) and Cancel (nothing changes). A page without an empty row saves as before, with no question. */
 async function checkEmptyRow(width, height) {
   const label = `${width}px empty row`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -7589,7 +7696,7 @@ async function checkEmptyRow(width, height) {
         `${label}: Delete and publish left ${await blocks()} blocks, ${commits.length} commits, dialog ${await dialog.count()}`,
       );
   }
-  // A list with an empty row between its rows: Remove item takes that row, Save draft saves without it.
+  // A list with an empty row between its rows: Remove item takes that row, Save saves without it.
   const first = commits.length;
   const makeList = async () => {
     await page.click('.ProseMirror > p');
@@ -7611,19 +7718,19 @@ async function checkEmptyRow(width, height) {
   };
   await makeList();
   if ((await rows()) !== 3) problems.push(`${label}: expected 3 rows before saving, got ${await rows()}`);
-  await press('Save draft', true);
-  if (!(await dialog.count())) problems.push(`${label}: an empty row between rows on Save draft did not open a dialog`);
+  await press('Save', true);
+  if (!(await dialog.count())) problems.push(`${label}: an empty row between rows on Save did not open a dialog`);
   else {
     const got = await buttons();
-    if (got.join('|') !== 'Remove item|Save draft|Cancel')
-      problems.push(`${label}: the dialog has "${got.join('|')}", not "Remove item|Save draft|Cancel"`);
+    if (got.join('|') !== 'Remove item|Save|Cancel')
+      problems.push(`${label}: the dialog has "${got.join('|')}", not "Remove item|Save|Cancel"`);
     await dialog.getByRole('button', { name: 'Remove item' }).tap();
     await page.waitForTimeout(400);
     if (commits.length !== first || (await rows()) !== 2 || (await blocks()) !== 1)
       problems.push(`${label}: Remove item left ${await rows()} rows (not 2), ${commits.length} commits`);
   }
   // Saved as it is now: no question, and no empty row in the file.
-  await press('Save draft', true);
+  await press('Save', true);
   if (await dialog.count()) problems.push(`${label}: a list without an empty row still asked`);
   if (commits.length === first) problems.push(`${label}: a list without an empty row was not saved`);
   else if (/"title":""/.test(sent(first).join('\n'))) problems.push(`${label}: the saved page has an empty row`);
@@ -7638,14 +7745,14 @@ async function checkEmptyRow(width, height) {
   await page.locator('[data-add-row]').tap();
   await page.waitForTimeout(300);
   if ((await rows()) !== 3) problems.push(`${label}: expected 3 rows with a new empty one, got ${await rows()}`);
-  await press('Save draft', true);
+  await press('Save', true);
   if (!(await dialog.count())) problems.push(`${label}: the new empty row did not open the dialog`);
   else {
-    await dialog.getByRole('button', { name: 'Save draft' }).tap();
+    await dialog.getByRole('button', { name: 'Save' }).tap();
     await page.waitForTimeout(1200);
-    if (commits.length === before) problems.push(`${label}: Save draft in the dialog saved nothing`);
-    else if (/"title":""/.test(sent(before).join('\n'))) problems.push(`${label}: Save draft in the dialog saved the empty row`);
-    if ((await rows()) !== 2) problems.push(`${label}: after Save draft in the dialog the list has ${await rows()} rows, not 2`);
+    if (commits.length === before) problems.push(`${label}: Save in the dialog saved nothing`);
+    else if (/"title":""/.test(sent(before).join('\n'))) problems.push(`${label}: Save in the dialog saved the empty row`);
+    if ((await rows()) !== 2) problems.push(`${label}: after Save in the dialog the list has ${await rows()} rows, not 2`);
   }
   await page.close();
 }
@@ -10254,10 +10361,10 @@ async function checkTableAlign(width, height) {
   await page.waitForTimeout(300);
   const saved = async () => {
     const before = commits.length;
-    // A page with nothing changed has no Save draft to press: nothing is written a second time.
-    if (!(await page.locator('button', { hasText: /^Save draft$/ }).count())) return [];
+    // A page with nothing changed has no Save to press: nothing is written a second time.
+    if (!(await page.locator('button', { hasText: /^Save$/ }).count())) return [];
     await page
-      .locator('button', { hasText: /^Save draft$/ })
+      .locator('button', { hasText: /^Save$/ })
       .first()
       .evaluate((b) => b.click());
     await page.waitForTimeout(900);
@@ -11774,6 +11881,7 @@ await unit('checkAnchoredParts 768', () => checkAnchoredParts(768, 900, false));
 await unit('checkAnchoredParts 1280', () => checkAnchoredParts(1280, 900, false));
 for (const width of [375, 1280]) await unit(`checkPreviewInBar ${width}`, () => checkPreviewInBar(width));
 await unit('checkSaveKeyNoAutosave', () => checkSaveKeyNoAutosave());
+for (const width of [375, 768, 1280]) await unit(`checkDiscardInBar ${width}`, () => checkDiscardInBar(width));
 for (const width of [320, 360, 375, 390, 414, 600, 840, 1280]) await unit(`checkTextBarFit ${width}`, () => checkTextBarFit(width));
 for (const [width, reduced] of [
   [375, false],
