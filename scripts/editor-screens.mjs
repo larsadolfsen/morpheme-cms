@@ -10183,10 +10183,16 @@ async function checkInlineTable(width, height) {
   await page.close();
 }
 
-/** A label above a heading (`<p class="label-medium">`, lib/eyebrow.mjs) on the built site's front page, About and App store pages, at 375, 768 and 1280 px, light and dark: the label sits 8 px above its heading
+/** A label above a heading (`<p class="label-medium">`, lib/eyebrow.mjs) on the demo's front page, About and App store pages, at 375, 768 and 1280 px, light and dark: the label sits 8 px above its heading
  * (0.5rem, the same everywhere), so the space of the section the heading belongs to never comes between them (the front page puts the label in the section after it, Home.astro). */
 async function checkLabelGap() {
   const labelGap = 8;
+  // Only the demo has these pages and labels: a site without them (the starter) has nothing to measure.
+  const probe = await browser.newPage({ locale: 'en-US' });
+  const response = await probe.goto(new URL('/about/', site).href).catch(() => null);
+  const hasLabels = !!response && response.status() < 400 && (await probe.locator('main .label-medium').count()) > 0;
+  await probe.close();
+  if (!hasLabels) return;
   for (const width of [375, 768, 1280])
     for (const scheme of ['light', 'dark']) {
       const page = await browser.newPage({ viewport: { width, height: 900 }, colorScheme: scheme, locale: 'en-US' });
