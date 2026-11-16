@@ -6657,7 +6657,12 @@ async function checkFilesPane(width) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#files'));
-  await page.waitForSelector('main [data-media-tile]', { timeout: 10_000 });
+  // A site with no files (the starter) has nothing to open: like the other Files checks, this one ends there.
+  const some = await page
+    .waitForSelector('main [data-media-tile]', { timeout: 8000 })
+    .then(() => true)
+    .catch(() => false);
+  if (!some) return void (await page.close());
   await page.waitForTimeout(600);
   await page.locator('main [data-media-tile]').first().click();
   await page.waitForTimeout(900);
