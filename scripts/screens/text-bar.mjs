@@ -796,9 +796,9 @@ async function checkDiscardInBar(width) {
   const page = await browser.newPage({ viewport: { width, height: 800 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   // Made for this unit only: a draft left in the site would show in the start screen's drafts card of the other checks.
-  make('src/content/pages/zz-discard-plain.md', `---\ntitle: "Discard plain"\n---\n\n# Discard plain\n\nPublished text.\n`);
-  make('src/content/pages/zz-discard-waiting.md', `---\ntitle: "Discard waiting"\n---\n\n# Discard waiting\n\nPublished text.\n`);
-  make(
+  virtualFile('src/content/pages/zz-discard-plain.md', `---\ntitle: "Discard plain"\n---\n\n# Discard plain\n\nPublished text.\n`);
+  virtualFile('src/content/pages/zz-discard-waiting.md', `---\ntitle: "Discard waiting"\n---\n\n# Discard waiting\n\nPublished text.\n`);
+  virtualFile(
     'src/drafts/pages/zz-discard-waiting.md',
     `---\ntitle: "Discard waiting"\n---\n\n# Discard waiting\n\nPublished text. waiting text\n`,
   );
