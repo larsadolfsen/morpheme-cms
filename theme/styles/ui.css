@@ -1956,7 +1956,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 0 var(--grid-margin, 1rem) 0.75rem;
+    padding: 0 var(--mo-grid-margin, 1rem) 0.75rem;
     border-bottom: 1px solid var(--bottom-sheet-line, var(--block-line));
   }
   .bottom-sheet-heading {
@@ -1988,7 +1988,7 @@
   }
   .bottom-sheet-peek {
     flex: none;
-    padding: 0.75rem var(--grid-margin, 1rem) 1rem;
+    padding: 0.75rem var(--mo-grid-margin, 1rem) 1rem;
   }
   .bottom-sheet-content {
     position: relative;
@@ -2038,7 +2038,7 @@
   .bottom-sheet-footer {
     flex-shrink: 0;
     margin: 0;
-    padding: 0.75rem var(--grid-margin, 1rem);
+    padding: 0.75rem var(--mo-grid-margin, 1rem);
     border-top: 1px solid var(--bottom-sheet-line, var(--block-line));
     font-size: var(--type-body-medium-size);
     line-height: var(--type-body-medium-line-height);
@@ -2118,7 +2118,7 @@
   .bottom-sheet-standard > .bottom-sheet-content {
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 1rem var(--grid-margin, 1rem);
+    padding: 1rem var(--mo-grid-margin, 1rem);
   }
   .bottom-sheet-standard[data-state='collapsed'] > :is(.bottom-sheet-content, .bottom-sheet-footer) {
     display: none;
@@ -2399,7 +2399,7 @@
     --card-<kind>-surface, --card-<kind>-line, --card-<kind>-shadow   each kind's surface, its edge (a 1px line inside
                                     it, transparent for none) and its shadow (0 0 #0000 for none): elevated level 1,
                                     filled and outlined level 0
-    --card-<kind>-hover-shadow      a card that is a link, pointed at: elevated level 2, filled and outlined level 1 (a
+    --card-<kind>-hover-shadow      a card that is a link (an elevated one: a button too), pointed at: elevated level 2, filled and outlined level 1 (a
                                     theme that sets only the one at rest keeps it); pressed, as at rest
     --card-<kind>-dragged-shadow    dragged: elevated level 4, filled and outlined level 3
   Set here by the kind and the state, not by a theme: --card-shadow, the shadow a card has now (a block that draws
@@ -2494,7 +2494,7 @@
     --card-shadow: var(--card-outlined-shadow, var(--mo-elevation-0-shadow));
   }
   @media (hover: hover) {
-    a.card-elevated:hover:not(:active, .card-dragged) {
+    :is(a, button:enabled).card-elevated:hover:not(:active, .card-dragged) {
       --card-shadow: var(--card-elevated-hover-shadow, var(--card-elevated-shadow, var(--mo-elevation-2-shadow)));
     }
     a.card-filled:hover:not(:active, .card-dragged) {
@@ -2581,10 +2581,10 @@
   }
 
   /* The theme grid (docs/theme-grid.md; M3 Cards: "customized in code to show cards in staggered or mosaic grids"): columns of
-     cards in their own heights, --grid-gutter apart both ways (16px on compact, 24px from medium: owner values; M3 Spacing says
+     cards in their own heights, --mo-grid-gutter apart both ways (16px on compact, 24px from medium: owner values; M3 Spacing says
      "Cards should maintain consistent horizontal spacing to establish a strong rhythm when their height varies" and prints no
      gutter). --grid-columns is how many cards stand side by side, per breakpoint; M3's layout grid itself has 4 columns on
-     compact, 8 on medium and expanded and 12 on large and extra-large (--grid-layout-columns, in global.css, what a span counts
+     compact, 8 on medium and expanded and 12 on large and extra-large (--mo-grid-layout-columns, in global.css, what a span counts
      in). A part with other counts sets --grid-columns on its element. */
   .image-grid {
     --grid-columns: 2;
@@ -2592,11 +2592,11 @@
     padding: 0;
     list-style: none;
     column-count: var(--grid-columns);
-    column-gap: var(--grid-gutter, 16px);
+    column-gap: var(--mo-grid-gutter, 16px);
   }
   .image-grid > * {
     break-inside: avoid;
-    margin-block-end: var(--grid-gutter, 16px);
+    margin-block-end: var(--mo-grid-gutter, 16px);
   }
   /* A card across all the columns (a span of the whole grid; the cards before and after it pack in their own columns).
      Spans of other widths are not possible in columns: see docs/theme-grid.md. */
