@@ -6643,13 +6643,9 @@ async function checkListAndRedirectPanes(width) {
   await page.waitForTimeout(700);
   if (await page.locator('aside.editor-side-sheet:not([hidden])').count())
     problems.push(`${label}: the pane of a new list is still open after Create`);
-  // Known gap: at 768 the list menu does not open on a list that is not saved yet (also on 0.18 before the pane pull requests), so Edit list is
-  // checked at the other widths only until that is fixed.
-  if (width !== 768) {
-    await page.getByRole('button', { name: 'List menu' }).first().click({ timeout: 10_000 });
-    await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
-    await expectIt(page, "an own list's settings");
-  }
+  await page.getByRole('button', { name: 'List menu' }).first().click({ timeout: 10_000 });
+  await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
+  await expectIt(page, "an own list's settings");
   await page.close();
 }
 
@@ -8925,6 +8921,30 @@ async function checkDynamicPicker(width, height) {
   await page.close();
 }
 
+/** The list's menu (OwnList.tsx `List menu`) opens with `Edit list` and `Delete list` at every width, with a mouse and with touch: the top bar and the title row both draw the button, and the menu anchors to the one that was clicked, not the hidden one. */
+async function checkListMenuOpens(width, height, touch) {
+  const label = `${width}px list menu${touch ? ' (touch)' : ''}`;
+  virtualFile('src/data/menus/_list.json', JSON.stringify({ version: 1, label: 'Menus', fields: ['title'] }));
+  virtualFile('src/data/menus/one.json', JSON.stringify({ order: 1, title: 'One' }));
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#list/menus'));
+  const button = page.getByRole('button', { name: 'List menu' }).locator('visible=true').first();
+  await button.waitFor({ timeout: 15000 }).catch(() => problems.push(`${label}: no visible List menu button`));
+  await (touch ? button.tap() : button.click());
+  await page.waitForTimeout(700);
+  const opened = await page
+    .getByRole('menuitem', { name: 'Edit list' })
+    .first()
+    .isVisible()
+    .catch(() => false);
+  if (!opened) problems.push(`${label}: List menu did not open its menu`);
+  else if (!(await page.getByRole('menuitem', { name: 'Delete list' }).first().isVisible()))
+    problems.push(`${label}: the menu has no Delete list`);
+  await page.close();
+}
+
 /** The page of a list the owner made (#list/<id>, OwnList.tsx): the testimonials' list page and item page with the list's own fields. A list with a definition and two entries opens with two rows, no horizontal overflow; the active row has the dotted outline and no background, `Add list row` shows under an active list and is gone when the cursor leaves, the toolbar has Add above and Add below, Enter in the title goes to the text, and only the fields the list has are there (no icon slot, no link slot). */
 async function checkOwnList(width, height) {
   const label = `${width}px own list`;
@@ -8991,7 +9011,10 @@ async function checkOwnList(width, height) {
     // The list's menu: `Edit list` opens the sheet with the name, the six switches and `Delete list`; `Delete list` is refused while a page reads the list.
     await page.getByRole('button', { name: 'List menu' }).first().click();
     await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
-    const sheet = page.locator('dialog[open]').filter({ hasText: 'Fields' });
+    // From 600 dp it is the pane beside the page, below it the sheet (a dialog).
+    const sheet = (phone ? page.locator('dialog[open]') : page.locator('.editor-side-sheet').locator('visible=true')).filter({
+      hasText: 'Fields',
+    });
     await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: Edit list did not open its sheet`));
     // The list was made in the first format (fields as kind names): it reads as it did. Each of its five fields has the owner's own `Shown` switch (on) and `Remove field`; and `Add field` is there.
     const switches = await sheet.locator('input[type="checkbox"]').count();
@@ -9028,6 +9051,12 @@ async function checkOwnList(width, height) {
     await page.getByText('Hosting', { exact: true }).first().waitFor({ timeout: 10000 });
     await page.getByRole('button', { name: 'List menu' }).first().click();
     await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
+    // The pane or sheet takes a moment to open: wait for its fifth field before counting.
+    await sheet
+      .getByRole('button', { name: 'Remove field' })
+      .nth(4)
+      .waitFor({ timeout: 5000 })
+      .catch(() => {});
     if ((await sheet.getByRole('button', { name: 'Remove field' }).count()) !== 5)
       problems.push(`${label}: the removed field did not come back after Discard`);
     if (commits.length) problems.push(`${label}: Discard committed (${commits.length} commits)`);
@@ -9081,11 +9110,16 @@ async function checkNewList(width, height, label) {
     const button = page.getByRole('button', { name: 'New list' }).first();
     await button.waitFor({ timeout: 15000 }).catch(() => problems.push(`${label}: no New list button on Lists`));
     await button.click();
-    const dialog = page.locator('dialog[open][aria-label="New list"]');
+    const dialog = phone
+      ? page.locator('dialog[open][aria-label="New list"]')
+      : page.locator('.editor-side-sheet').locator('visible=true').filter({ hasText: 'New list' });
     await dialog.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: New list did not open its dialog`));
     if ((await dialog.locator('input[type="checkbox"]').count()) !== 0) problems.push(`${label}: the dialog still has field switches`);
     const state = await page.evaluate(() => {
-      const d = document.querySelector('dialog[open]');
+      const d =
+        innerWidth < 600
+          ? document.querySelector('dialog[open]')
+          : [...document.querySelectorAll('.editor-side-sheet')].find((x) => x.getClientRects().length > 0);
       const kind = (name) =>
         d.querySelector(`button:is([type="button"],[type="submit"])`) &&
         [...d.querySelectorAll('button')].find((b) => b.textContent.trim() === name);
@@ -9140,7 +9174,9 @@ async function checkNewList(width, height, label) {
     await pick(0);
     await page.getByRole('button', { name: 'List menu' }).first().click();
     await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
-    const edit = page.locator('dialog[open]').filter({ hasText: 'Fields' });
+    const edit = (phone ? page.locator('dialog[open]') : page.locator('.editor-side-sheet').locator('visible=true')).filter({
+      hasText: 'Fields',
+    });
     await edit.getByRole('button', { name: 'Add field' }).click();
     await pick(1);
     if ((await edit.locator('input[type="checkbox"]').count()) !== 2)
@@ -9275,7 +9311,9 @@ async function checkNewList(width, height, label) {
     const before = commits.length;
     await page.getByRole('button', { name: 'List menu' }).first().click();
     await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
-    const again = page.locator('dialog[open]').filter({ hasText: 'Fields' });
+    const again = (phone ? page.locator('dialog[open]') : page.locator('.editor-side-sheet').locator('visible=true')).filter({
+      hasText: 'Fields',
+    });
     await again.getByRole('button', { name: 'Add field' }).click();
     await pick(2, 'Title');
     await again.locator('[aria-label="Close"]').first().click();
@@ -11286,7 +11324,11 @@ async function checkDashboardEdit(width, height) {
   // field "Post every"; the sheet is closed with Cancel (nothing changes), opened again, "Week" is picked and saved. The
   // draft keeps it, and Done below sends it with the placement.
   const rhythm = daLibrary.blogRhythmWidgetLabel;
-  const rhythmSheet = adding.getByRole('dialog', { name: daDashboard.settingsOf(rhythm), exact: true });
+  // From 600 dp the settings are the pane beside the page (a standard side sheet), below it a dialog.
+  const rhythmSheet =
+    width < 600
+      ? adding.getByRole('dialog', { name: daDashboard.settingsOf(rhythm), exact: true })
+      : adding.locator('.editor-side-sheet').filter({ hasText: daDashboard.settingsOf(rhythm) });
   const openRhythm = async () => {
     await adding.getByRole('button', { name: daDashboard.cardMenu(rhythm), exact: true }).click();
     await adding.getByRole('menuitem', { name: daDashboard.settings, exact: true }).click();
@@ -11731,6 +11773,9 @@ await unit('checkDynamicList 1280', () => checkDynamicList(1280, 900));
 await unit('checkDynamicPicker 375', () => checkDynamicPicker(375, 740));
 await unit('checkDynamicPicker 1280', () => checkDynamicPicker(1280, 900));
 await unit('checkOwnList 375', () => checkOwnList(375, 740));
+await unit('checkListMenuOpens 375 touch', () => checkListMenuOpens(375, 740, true));
+await unit('checkListMenuOpens 768', () => checkListMenuOpens(768, 900, false));
+await unit('checkListMenuOpens 1280', () => checkListMenuOpens(1280, 900, false));
 await unit('checkOwnList 1280', () => checkOwnList(1280, 900));
 await unit('checkInlineTable 375', () => checkInlineTable(375, 740));
 await unit('checkInlineTable 1280', () => checkInlineTable(1280, 800));
