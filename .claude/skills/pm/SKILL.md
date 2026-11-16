@@ -116,6 +116,11 @@ against the live Cloudflare account itself.
 gives slots as *CI slots* above says, tells the next session "your slot", starts or re-runs the CI itself when a session has
 pushed out of turn, and tells the 0.19 PM after each merge into 0.18 (`changesets`).
 
+**Fewer sessions (owner rule, 16 Nov 2026).** A new request from the owner goes to the open session that already works on the
+same part (same block, same screen, same files), as a second PR after the first merges, or as a follow-up on the same branch
+if the first has not opened yet. A new session is started only when no open session has that part. Related bug requests are
+grouped into one session per part (for example Cards, Lists, page editor rows, text width).
+
 "Overlap" means the same files or the same area of behaviour: two pull requests on the focus rings, the same dialog or the
 same menu overlap even when they touch different files, and the PM judges. Overlapping pull requests go one after another,
 and each merges the new base before its run. Docs-only pull requests (skills, notes, changesets) and small independent
