@@ -431,7 +431,7 @@ export function SearchView({
                 aria-labelledby={group.label ? `${list}-group-${group.id}` : undefined}
               >
                 {group.label && <SearchGroupLabel id={`${list}-group-${group.id}`}>{group.label}</SearchGroupLabel>}
-                <List role="none" dividers="none">
+                <List role="none" kind="segmented">
                   {group.items.map((item) => {
                     index += 1;
                     return (

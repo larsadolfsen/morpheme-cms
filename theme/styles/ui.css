@@ -3370,8 +3370,9 @@
   .navigation-drawer-subitem, a sub-page ([data-active]); .navigation-drawer-section, items under a label
   (.navigation-drawer-section-label, title small) with, in one that follows another, the divider
   (.navigation-drawer-section-divider, edge to edge).
-    --navigation-drawer-width (360dp, at most the screen less 56dp), --navigation-drawer-radius (0 16dp 16dp 0; under
-    right-to-left --navigation-drawer-radius-rtl), --navigation-drawer-surface (level 1's colour),
+    --navigation-drawer-width (set: that width; else it hugs its content from 220dp to 360dp, at most the screen less 56dp),
+    --navigation-drawer-radius (0 16dp 16dp 0; under right-to-left --navigation-drawer-radius-rtl), --navigation-drawer-surface
+    (the modal one: the surface container, level 2's colour; the standard one: the surface),
     --navigation-drawer-shadow (level 1), --navigation-drawer-scrim, --navigation-drawer-inset (12dp each side, from
     the edges to the items), --navigation-drawer-padding (all of it, with room for the home indicator),
     --navigation-drawer-section-gap (8dp around the divider), --navigation-drawer-section-label-text
@@ -3940,6 +3941,7 @@
   /* The drawer's defaults, each once: the others read them as the fallback of their --navigation-drawer-* variable. */
   :root {
     --navigation-drawer-width-default: min(22.5rem, calc(100vw - 3.5rem));
+    --navigation-drawer-width-min-default: min(13.75rem, calc(100vw - 3.5rem));
     --navigation-drawer-bleed-default: 2rem;
     --navigation-drawer-inset-default: 0.75rem;
   }
@@ -3949,7 +3951,10 @@
   }
   .navigation-drawer {
     display: flex;
-    width: var(--navigation-drawer-width, var(--navigation-drawer-width-default));
+    /* Expanded navigation rail (M3 Expressive, "Expanded layout: Modal"): it hugs its content, "container width minimum 220dp",
+       "maximum 360dp"; a theme that sets --navigation-drawer-width gets that width, as it did. */
+    min-width: var(--navigation-drawer-width, var(--navigation-drawer-width-min-default));
+    max-width: var(--navigation-drawer-width, var(--navigation-drawer-width-default));
     flex-direction: column;
     overflow-y: auto;
     border-radius: var(--navigation-drawer-radius, 0 1rem 1rem 0);
@@ -3957,7 +3962,8 @@
       --navigation-drawer-padding,
       0.75rem var(--navigation-drawer-inset, var(--navigation-drawer-inset-default)) max(1rem, env(safe-area-inset-bottom))
     );
-    background: var(--navigation-drawer-surface, var(--mo-elevation-1-color));
+    /* Expanded rail, modal: "Nav rail expanded modal container color", the surface container (level 2's colour). */
+    background: var(--navigation-drawer-surface, var(--mo-elevation-2-color));
     box-shadow: var(--navigation-drawer-shadow, var(--mo-elevation-1-rest-shadow));
   }
   .navigation-drawer:dir(rtl) {
@@ -3974,7 +3980,11 @@
      items as far in from the edge as before (the strip added to the padding), so the drawer still covers the edge
      while an overshooting spring carries it a little past its place. */
   .navigation-drawer.navigation-drawer-bleed {
-    width: calc(
+    min-width: calc(
+      var(--navigation-drawer-width, var(--navigation-drawer-width-min-default)) +
+        var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+    );
+    max-width: calc(
       var(--navigation-drawer-width, var(--navigation-drawer-width-default)) +
         var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
     );
@@ -4001,13 +4011,15 @@
     height: 100%;
     flex-shrink: 0;
     box-shadow: var(--navigation-drawer-standard-shadow, var(--mo-elevation-0-shadow, none));
+    /* Expanded rail, standard: "Nav rail expanded container color", the surface. */
+    background: var(--navigation-drawer-surface, var(--mo-elevation-0-color));
   }
   .navigation-drawer-item {
     display: flex;
     min-height: var(--navigation-drawer-item-height, 3.5rem);
     flex: 1;
     align-items: center;
-    gap: var(--navigation-drawer-item-gap, 0.75rem);
+    gap: var(--navigation-drawer-item-gap, 0.5rem);
     border-radius: var(--navigation-drawer-item-radius, var(--mo-shape-full));
     padding: var(--navigation-drawer-item-padding, 0 1rem);
     color: var(--navigation-drawer-item-text, var(--block-muted));
@@ -4050,7 +4062,11 @@
     inset-inline-start: calc(-1 * var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default)));
   }
   .navigation-drawer-dialog.navigation-drawer-bleed > .navigation-drawer {
-    width: calc(
+    min-width: calc(
+      var(--navigation-drawer-width, var(--navigation-drawer-width-min-default)) +
+        var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+    );
+    max-width: calc(
       var(--navigation-drawer-width, var(--navigation-drawer-width-default)) +
         var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
     );
@@ -7222,10 +7238,6 @@
     scroll-padding-inline: 0.75rem;
   }
   .search-view-results {
-    /* The highlight of the option the arrow keys or the pointer are on runs the whole width, with square corners. */
-    --list-item-radius: 0;
-    --list-item-hover-radius: 0;
-    --list-item-pressed-radius: 0;
     min-height: 0;
     flex: 1;
     overflow-y: auto;
