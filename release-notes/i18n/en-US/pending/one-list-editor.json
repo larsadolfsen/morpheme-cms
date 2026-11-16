@@ -1,0 +1,6 @@
+{
+  "id": "one-list-editor",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A Segmented list edits its rows like a List, with the link icon at the end of the row"
+}
