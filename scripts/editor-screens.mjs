@@ -6147,13 +6147,24 @@ async function checkUserInvalid(width, height, theme) {
         height: Math.round(rect.height),
       };
     });
+  // The edge moves through the theme's motion (a transition), so a read in the frame after a blur can still give the old value.
+  // Wait, frame by frame and bounded, until the read is what the unit expects; on a timeout the last read is checked as before.
+  const readUntil = async (ok) => {
+    const end = Date.now() + 5000;
+    let now = await read();
+    while (!ok(now) && Date.now() < end) {
+      await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => done())));
+      now = await read();
+    }
+    return now;
+  };
   const before = await read();
   if (before.invalid || before.said || before.icon || !before.supporting || before.aria === 'true')
     problems.push(`${label}: marked before it was touched (${JSON.stringify(before)})`);
   await input.focus();
   await input.fill('name@');
   await input.blur();
-  const wrong = await read();
+  const wrong = await readUntil((now) => now.edge !== before.edge);
   if (!wrong.invalid || !wrong.said || wrong.supporting || !wrong.icon || wrong.aria !== 'true' || !wrong.described)
     problems.push(`${label}: not marked after a wrong text was typed and left (${JSON.stringify(wrong)})`);
   if (wrong.edge === before.edge) problems.push(`${label}: the edge did not change to the error's`);
@@ -6162,9 +6173,10 @@ async function checkUserInvalid(width, height, theme) {
   await input.focus();
   await input.fill('name@example.com');
   await input.blur();
-  const right = await read();
+  const right = await readUntil((now) => now.edge === before.edge);
   if (right.invalid || right.said || right.icon || !right.supporting || right.aria === 'true' || right.described)
     problems.push(`${label}: still marked after it was put right (${JSON.stringify(right)})`);
+  if (right.edge !== before.edge) problems.push(`${label}: the edge did not return to the normal one after it was put right`);
   // The error line is read once, with the field (aria-describedby), not as an alert; and a number that cannot be read (validity.badInput)
   // says so in words instead of going red with none.
   if (await page.locator('[data-part="TextField"] .text-field-invalid-text[role]').count())
@@ -8459,6 +8471,45 @@ async function checkSteps(width, height) {
     ])
   )
     problems.push(`${label}: Enter did not go heading, text, next step: ${JSON.stringify(now)}`);
+  // The heading's first line is centred on the number (within 1 px), read from the real boxes: the field's top plus its border and padding
+  // plus half its line height, against the number's middle.
+  const off = await page.evaluate(() =>
+    [...document.querySelectorAll('.inline-steps .block-step[data-row]:not(.inline-list-row-next)')].map((li) => {
+      const n = li.querySelector('.block-step-number').getBoundingClientRect();
+      const f = li.querySelector('[data-field="title"]');
+      const c = getComputedStyle(f);
+      const lh = parseFloat(c.lineHeight) || parseFloat(c.fontSize) * 1.2;
+      const first = f.getBoundingClientRect().top + parseFloat(c.borderTopWidth) + parseFloat(c.paddingTop) + lh / 2;
+      return Math.abs(first - (n.top + n.height / 2));
+    }),
+  );
+  if (!off.length || off.some((d) => !(d <= 1)))
+    problems.push(`${label}: a step's heading is not centred on its number (off by ${off.map((d) => d.toFixed(1)).join(', ')} px)`);
+  // The line joins a number to the next number and stops: every step but the last draws it down to the next number's middle (within 1 px),
+  // and the last draws none. Read from the real boxes, as a step is added, so the last one changes.
+  const lineProblems = () =>
+    page.evaluate(() => {
+      const lis = [...document.querySelectorAll('.inline-steps .block-step')];
+      const out = [];
+      lis.forEach((li, i) => {
+        const c = getComputedStyle(li, '::before');
+        const drawn = c.content !== 'none' && c.content !== 'normal';
+        if (i === lis.length - 1) {
+          if (drawn) out.push(`the last step draws a line`);
+          return;
+        }
+        if (!drawn) return out.push(`step ${i + 1} draws no line`);
+        const r = li.getBoundingClientRect();
+        const to = lis[i + 1].querySelector('.block-step-number').getBoundingClientRect();
+        const from = li.querySelector('.block-step-number').getBoundingClientRect();
+        const top = r.top + parseFloat(c.top);
+        const bottom = r.bottom - parseFloat(c.bottom);
+        if (Math.abs(top - (from.top + from.height / 2)) > 1 || Math.abs(bottom - (to.top + to.height / 2)) > 1)
+          out.push(`step ${i + 1}'s line does not run from its number to the next (${top.toFixed(1)} to ${bottom.toFixed(1)})`);
+      });
+      return out;
+    });
+  for (const p of await lineProblems()) problems.push(`${label}: ${p}`);
   // Enter in the heading goes to the text and Enter in an empty text adds nothing (a heading without text is kept as it is); in the text
   // with something in it Enter adds a step, and Backspace in its empty heading removes it again.
   await page.keyboard.press('Enter');
@@ -8480,6 +8531,7 @@ async function checkSteps(width, height) {
   now = await steps();
   if (now[1]?.title !== 'Order' || now.map((s) => s.number).join() !== '1,2,3')
     problems.push(`${label}: Move down did not move and renumber the step: ${JSON.stringify(now)}`);
+  for (const p of await lineProblems()) problems.push(`${label}: after a move, ${p}`);
   await page.close();
   // Pasting lines into an empty Steps block makes a step of each; headings among them leave the paste as it is.
   for (const [html, plain, expected] of [
@@ -11871,6 +11923,7 @@ await unit('checkEmptyRow 375', () => checkEmptyRow(375, 740));
 await unit('checkInsertNeverOpensSheet 1280', () => checkInsertNeverOpensSheet(1280, 900));
 for (const [width, height] of [
   [375, 740],
+  [768, 900],
   [1280, 900],
 ])
   await unit(`checkSteps ${width}`, () => checkSteps(width, height));
