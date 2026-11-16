@@ -5,7 +5,7 @@ import { DIST, browser, problems, site } from './support/context.mjs';
 // The demo's Names view (demo/public/demo-names.js, scripts/demo-names.mjs): only the demo has it, so a built site that is not the demo (no
 // Blocks pages) has nothing to check.
 const PAGES = {
-  buttons: ['Button · filled', 'Button · tonal', 'Button · elevated', 'Button · outlined', 'Button · text'],
+  buttons: ['Button · filled', 'Button · tonal', 'Button · outlined', 'Button · text'],
   lists: ['ListItem · two-line', 'Button · text'],
 };
 const BLOCKS = { buttons: ['Buttons'], lists: ['List', 'Segmented list', 'FAQ list'] };

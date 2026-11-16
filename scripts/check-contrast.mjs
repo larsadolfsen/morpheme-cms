@@ -206,9 +206,9 @@ const body = hasComponentPages
   : existsSync(siteBlocks)
     ? readFileSync(siteBlocks, 'utf8').replace(/^---[\s\S]*?---\n/, '')
     : demoBlocksTestBody();
-// Every kind of button (Material's five), whatever the Blocks page shows.
+// Every kind of button the block offers, whatever the Blocks page shows.
 const kinds = `## Button kinds\n\n${blockHtml('buttons', {
-  items: ['filled', 'tonal', 'elevated', 'outlined', 'text'].map((kind) => ({
+  items: ['filled', 'tonal', 'outlined', 'text'].map((kind) => ({
     label: kind,
     to: 'page',
     href: '/about/',

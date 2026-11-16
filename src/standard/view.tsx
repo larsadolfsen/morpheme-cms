@@ -107,6 +107,12 @@ export type Contract<V> = {
 export const buttonKinds = ['filled', 'tonal', 'elevated', 'outlined', 'text'] as const;
 export type ButtonKind = (typeof buttonKinds)[number];
 
+/** The kinds a Buttons block's button offers (owner, 16 Nov 2026: Material's five common buttons without Elevated, which looks flat
+ * on the site's surface): the style choice of a button in "Buttons", "Cards" and "Price cards". A saved `elevated` is drawn as tonal
+ * (kindOf in buttons/view.ts) and `morpheme migrate` writes it as tonal; the theme's Button keeps every kind in `buttonKinds`. */
+export const blockButtonKinds = ['filled', 'tonal', 'outlined', 'text'] as const;
+export type BlockButtonKind = (typeof blockButtonKinds)[number];
+
 /** The kinds of an icon button, as Material 3 names them (m3.material.io/components/icon-buttons), drawn by the
  * theme's IconButton (ui/IconButton.tsx). */
 export const iconButtonKinds = ['standard', 'filled', 'tonal', 'outlined'] as const;
