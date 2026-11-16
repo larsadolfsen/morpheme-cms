@@ -8,7 +8,7 @@ import { iconOptions } from '../../icon';
 import type { Field } from '../../schema';
 import type { BlockData } from '../../blocks';
 import type { ButtonTargetName } from '../site';
-import { buttonKinds } from '../view';
+import { blockButtonKinds } from '../view';
 
 /** A button as the field writes it; `open`: what a target that picks something has picked (a promotion's file name). */
 export type Button = { label?: string; to?: string; href?: string; open?: string; kind?: string; icon?: string };
@@ -68,7 +68,7 @@ export const buttonList: Field = {
       sample: 'button',
       required: true,
       default: 'filled',
-      options: buttonKinds.map((k) => ({ label: t.blocks.buttons.kinds[k], value: k })),
+      options: blockButtonKinds.map((k) => ({ label: t.blocks.buttons.kinds[k], value: k })),
     },
     {
       name: 'icon',

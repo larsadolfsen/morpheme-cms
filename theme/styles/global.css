@@ -150,7 +150,7 @@
   --button-xsmall-height: 2rem;
   --button-xsmall-padding: 1rem;
   --button-xsmall-gap: 0.5rem;
-  --button-text-padding: 0.75rem;
+  --button-text-padding: 1.5rem;
   --button-filled-hover: color-mix(in srgb, var(--mo-on-primary) 8%, var(--mo-primary));
   --button-tonal-surface: var(--mo-surface-container-high);
   --button-tonal-text: var(--mo-on-surface);
@@ -204,7 +204,7 @@
   --card-elevated-hover-shadow: var(--mo-elevation-2-shadow);
   /* The List "expand" container (the questions and answers block): 16px (Material 3 lists page). */
   --list-expand-radius: var(--mo-shape-large);
-  /* The room between cards side by side or under each other: 8px (Material 3's at most). */
+  /* The small step the editor uses for a block's row and handle (8px). The room between cards is --mo-grid-gutter below (owner, 15 Nov 2026, G1). */
   --card-gap: 0.5rem;
   /* The theme grid (.image-grid, docs/theme-grid.md): the page margin and the gutter between cards, 16px on compact and 24px from
      medium. Owner values (15 Nov 2026); Material 3's Grids pages print no margin or gutter value. --mo-grid-layout-columns: Material 3's

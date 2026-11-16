@@ -1,0 +1,6 @@
+{
+  "id": "text-button-padding",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Text buttons have the same side padding as the other buttons"
+}
