@@ -3,20 +3,21 @@
 // loadButtons (load.ts), which knows the site's pages and targets.
 import type { BlockData } from '../../blocks';
 import { sharedIn } from '../../shared';
-import { buttonKinds, type ButtonKind, type ViewOf } from '../view';
+import { blockButtonKinds, type BlockButtonKind, type ButtonKind, type ViewOf } from '../view';
 import { textOf, type Button } from './fields';
 import shared from './shared';
 
 /** A button as it is drawn: where it goes, its text, what it is called for a screen reader when that is more than its
- * text (`label`), what it opens on the page (`open`: its data-open), its kind (Material's: filled, tonal, elevated,
- * outlined or text) and its icon (the arrow goes after the text, the others before it). */
+ * text (`label`), what it opens on the page (`open`: its data-open), its kind (Material's: filled, tonal, outlined
+ * or text; a site's or an app's own buttons may still say elevated) and its icon (the arrow goes after the text, the others before it). */
 export type ButtonView = { href: string; text: string; label?: string; open?: string; kind: ButtonKind; icon?: string };
 
 /** "Buttons": its buttons. */
 export type ButtonsView = { buttons: ButtonView[] };
 
-/** A button's kind: its own, else filled. */
-export const kindOf = (b: Button): ButtonKind => buttonKinds.find((k) => k === b.kind) ?? 'filled';
+/** A button's kind: its own, else filled. A saved `elevated` (the block no longer offers it) is drawn as tonal. */
+export const kindOf = (b: Button): BlockButtonKind =>
+  b.kind === 'elevated' ? 'tonal' : (blockButtonKinds.find((k) => k === b.kind) ?? 'filled');
 
 /** Buttons in the editor: their own, else the shared ones ("Blocks" › "Buttons"). */
 export const buttonsOf = (items: Button[] | undefined, data: BlockData): ButtonView[] =>

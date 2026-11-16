@@ -1,0 +1,7 @@
+{
+  "id": "buttons-no-elevated",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Knapstile",
+  "text": "Knapper ser ikke længere flade og grå ud på siden. Vælg Fyldt, Tonet, Med ramme eller Tekst under Indstillinger › Variant. Hævet er væk; knapper, der brugte den, vises som Tonet, og morpheme migrate gemmer dem sådan."
+}

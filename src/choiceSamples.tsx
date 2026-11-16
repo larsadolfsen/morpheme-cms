@@ -5,7 +5,7 @@
 // has no text.
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { SiteButton } from './themeUi';
-import { buttonKinds, type ButtonKind } from './standard/view';
+import { blockButtonKinds, type ButtonKind } from './standard/view';
 import { t } from './i18n';
 import { textOf, type Button } from './standard/buttons/fields';
 import type { BlockData } from './blocks';
@@ -70,7 +70,7 @@ export function sampleTextOf(
 
 /** The sample of the look `value` of a `kind` field; `label`: the entry's own text, where the sample shows it. */
 export function choiceSample(kind: ChoiceSampleKind, value: string, { label }: { label?: string } = {}): ReactNode {
-  if (kind === 'button' && (buttonKinds as readonly string[]).includes(value))
+  if (kind === 'button' && (blockButtonKinds as readonly string[]).includes(value))
     return <ButtonSample kind={value as ButtonKind} label={label} />;
   return null;
 }
