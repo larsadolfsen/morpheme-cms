@@ -103,8 +103,10 @@ export function menusSettled(page) {
   return page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))));
 }
 
-/** The contrast (WCAG) of a hint line (a pseudo-element of the element) on each section colour, with the section's own colours set on the element as sectionFrame.ts does. */
-export function hintContrasts(page, selector, pseudo) {
+/** The contrast (WCAG) of a hint line (a pseudo-element of the element, which must be in the page: it is waited for) on each section colour, with the section's own colours set on the element as sectionFrame.ts does. */
+export async function hintContrasts(page, selector, pseudo) {
+  // The line gets its class (`editor-gap-here`) in the editor's own turn after a key: wait for the element, then read it.
+  await page.waitForSelector(selector, { state: 'attached', timeout: 5000 });
   return page.evaluate(
     ([selector, pseudo]) => {
       const el = document.querySelector(selector);
