@@ -69,13 +69,6 @@ export const blocks = {
   segmented: {
     label: 'Segmented list',
     hint: 'Rows that expand, with a link.',
-    items: 'Rows',
-    item: 'row',
-    icon: 'Icon',
-    title: 'Heading',
-    text: 'Text',
-    href: 'Page',
-    hrefHint: 'If empty, the row has no link.',
     rowButtons: 'Buttons',
     rowButton: 'button',
     rowButtonsHint: 'Text buttons at the bottom of the open row, each with a page.',
@@ -99,18 +92,6 @@ export const blocks = {
     more: 'Read more about {topic}',
     exampleTitle: 'Heading',
     exampleText: 'A short text about the row.',
-    /** The floating toolbar of a Segmented list typed in place. */
-    addAbove: 'Add above',
-    addBelow: 'Add below',
-    row: 'Row',
-    rowSettings: 'Row settings',
-    link: 'Link',
-    addRow: 'Add row',
-    newRow: 'New row',
-    addButton: 'Add button',
-    buttonText: 'Button label',
-    /** A row typed in place: its place, for screen readers (row 2 of 4). */
-    rowOf: (n: number, total: number) => `Row ${n} of ${total}`,
   },
   notice: {
     label: 'Notice',

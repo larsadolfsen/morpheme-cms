@@ -7375,9 +7375,9 @@ async function checkPreviewDraft(width) {
 
 /** A List typed in the text: while a row is active and the list has rows, the text button "Add list row" is under the last row and adds one, the faded empty row is not there, the active row has a dotted line, and Add above and Add below are icon buttons; when the cursor leaves, the button is gone. */
 const inlineBlocks = [
-  { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row' },
+  { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row', rowLink: true },
   { name: 'steps', hint: 'Numbered steps.', add: 'Add step', noEdit: true },
-  { name: 'segmented', hint: 'Rows that expand, with a link.', add: 'Add row', rowButtons: 'Add button', surface: true },
+  { name: 'segmented', hint: 'Rows that expand, with a link.', add: 'Add list row', rowLink: true, surface: true },
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true, start: 3 },
   { name: 'pricecards', hint: 'Prices with what is included.', add: 'Add price card', surface: true, field: 'name' },
   { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
@@ -7977,70 +7977,78 @@ async function checkIconSlots(width, height, { name, hint, field = 'title' }) {
   await page.close();
 }
 
-/** A Segmented list whose rows are always open draws an arrow on a closed row that has a link; tapping it makes that row active and opens the row's link settings in one tap. */
-async function checkSegmentedArrow(width, height) {
-  const label = `${width}px inline segmented arrow`;
+/** A List and a Segmented list (folding out, and always open) are one block that differs in its look only (owner, 16 Nov 2026: "The white list is the correct one"): the active
+ * row has the same slots (its icon and its link, at its end), the toolbar the same Link, the add button the same text, and the link slot the same sheet with its page; nothing is
+ * drawn at the bottom of a row. Each look is measured, then compared with the List's. */
+async function checkListLooks(width, height) {
+  const label = `${width}px inline list looks`;
   const phone = width < 600;
-  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
-  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  await openEditor(page, site);
-  await page.evaluate(() => (location.hash = '#new/pages'));
-  await page.waitForSelector('.ProseMirror');
-  await page.click('.ProseMirror');
-  await page.keyboard.type('Hello');
-  await page.keyboard.press('Enter');
-  await page.waitForTimeout(300);
-  await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Rows that expand, with a link.' }).first().click();
-  await page.waitForSelector('.inline-list-row-active [data-field="title"]', { timeout: 8000 });
-  await page.keyboard.type('First');
-  await page.waitForTimeout(300);
-  // Row 1 gets a page (its link), in the row's settings.
-  if (phone) await pressTool(page, 'Edit');
-  await page.locator('[aria-label="Row settings"] button.text-field-input, .editor-side-sheet button.text-field-input').first().click();
-  await page.getByText(FIXTURE_PAGE, { exact: true }).locator('visible=true').last().click();
-  await page.waitForTimeout(400);
-  if (phone) await page.locator('dialog[open] [aria-label="Close"]').first().click();
-  await page.waitForTimeout(400);
-  // The rows are always open ("Always open" in the block's settings), so a closed row draws its arrow.
-  // The block's own Edit is in the bar's ⋮ menu.
-  await pressMore(page, 'Edit');
-  await page.waitForTimeout(600);
-  await chooseOption(page, 'Always open');
-  await saveOrClose(page, 'last');
-  await page.waitForTimeout(500);
-  await page.click('[data-add-row]');
-  await page.keyboard.type('Second');
-  await page.click('[data-add-row]');
-  await page.keyboard.type('Third');
-  await page.waitForTimeout(400);
-  const arrows = await page.evaluate(() => ({
-    row: [...document.querySelectorAll('.inline-list-row[data-row]:not(.inline-list-row-next)')].map(
-      (r) => r.querySelectorAll('[data-row-arrow]').length,
-    ),
-    name: document.querySelector('[data-row-arrow]')?.getAttribute('aria-label'),
-    tag: document.querySelector('[data-row-arrow]')?.tagName,
-  }));
-  if (arrows.row.join() !== '1,0,0')
-    problems.push(`${label}: the arrows by row are ${arrows.row}, not 1,0,0 (only a closed row with a link has one)`);
-  if (arrows.tag !== 'BUTTON' || arrows.name !== 'Link')
-    problems.push(`${label}: the arrow is a ${arrows.tag} named "${arrows.name}", not a button named "Link"`);
-  if (process.env.SHOTS_FULL) await page.screenshot({ path: `${process.env.SHOTS_FULL}-segmented-arrow-${width}.png` });
-  // One tap on the arrow: row 1 is the active one and its link settings are open (the sheet on a phone, the side panel on a computer).
-  await page.locator('[data-row="0"] [data-row-arrow]').click();
-  await page.waitForTimeout(600);
-  const tapped = await page.evaluate(() => document.querySelector('.inline-list-row-active')?.dataset.row);
-  if (tapped !== '0') problems.push(`${label}: the arrow did not make its row active (row ${tapped})`);
-  const settings = phone ? page.locator('dialog[open][aria-label="Row settings"]') : page.locator('.editor-side-sheet');
-  if (!(await settings.getByText('Page', { exact: true }).count()) || !(await settings.getByText(FIXTURE_PAGE).count()))
-    problems.push(`${label}: the arrow did not open the row's link settings with its page`);
-  await page.close();
+  const looks = [
+    { look: 'List', hint: 'Rows with icon, heading and text.' },
+    { look: 'Segmented list', hint: 'Rows that expand, with a link.' },
+    { look: 'Segmented list, always open', hint: 'Rows that expand, with a link.', always: true },
+  ];
+  const seen = [];
+  for (const { look, hint, always } of looks) {
+    const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${label} (${look}): ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#new/pages'));
+    await page.waitForSelector('.ProseMirror');
+    await page.click('.ProseMirror');
+    await page.keyboard.type('Hello');
+    await page.keyboard.press('Enter');
+    await page.waitForSelector('.ProseMirror p:nth-child(2)');
+    await pressInsert(page, 'click');
+    await page.locator('dialog[open] button', { hasText: hint }).first().click();
+    await page.waitForSelector('.inline-list-row-active [data-field="title"]', { timeout: 8000 });
+    await page.keyboard.type('First');
+    if (always) {
+      // "Always open" is in the block's own settings (the bar's ⋮ menu).
+      await pressMore(page, 'Edit');
+      await chooseOption(page, 'Always open');
+      await saveOrClose(page, 'last');
+    }
+    await page.locator('[data-add-row]').waitFor({ timeout: 8000 });
+    const got = await page.evaluate(() => ({
+      slots: [...document.querySelectorAll('.inline-list-row-active .inline-list-slot')].map((x) => x.getAttribute('aria-label')),
+      add: [...document.querySelectorAll('[data-add-row]')].map((x) => x.textContent.trim()),
+      own: document.querySelectorAll('[data-row-link], [data-add-button], [data-row-arrow], .inline-segmented-buttons').length,
+      // The link slot is at the end of the row: to the right of the heading.
+      end: (() => {
+        const row = document.querySelector('.inline-list-row-active');
+        const slot = row?.querySelector('.inline-list-slot[aria-label="Page"]');
+        const field = row?.querySelector('[data-field="title"]');
+        return !!slot && !!field && slot.getBoundingClientRect().left >= field.getBoundingClientRect().left;
+      })(),
+    }));
+    await page.locator('.inline-list-row-active .inline-list-slot[aria-label="Page"]').click();
+    const sheet = phone ? page.locator('dialog[open]') : page.locator('.editor-side-sheet');
+    const opened = await sheet
+      .getByText('Page', { exact: true })
+      .first()
+      .waitFor({ timeout: 4000 })
+      .then(() => true)
+      .catch(() => false);
+    seen.push({ look, ...got, opened });
+    await page.close();
+  }
+  const [first] = seen;
+  if (first.slots.join() !== 'Icon,Page') problems.push(`${label}: the List's active row has the slots "${first.slots}", not "Icon,Page"`);
+  for (const one of seen) {
+    if (one.slots.join() !== first.slots.join())
+      problems.push(`${label}: ${one.look} has the slots "${one.slots}", the List "${first.slots}"`);
+    if (one.add.join() !== 'Add list row') problems.push(`${label}: ${one.look} has the add button "${one.add}", not "Add list row"`);
+    if (one.own) problems.push(`${label}: ${one.look} has a text row or a button of its own for the row's link`);
+    if (!one.end) problems.push(`${label}: ${one.look}: the link slot is not at the end of the row`);
+    if (!one.opened) problems.push(`${label}: ${one.look}: the link slot did not open the row's page field`);
+  }
 }
 /** `surface`: the item is a card with a container of its own, so it has a background colour. `start`: how many empty, faded items a new block starts with (the first active; typing in one makes the first item, and the others go). */
 async function checkInlineBlock(
   width,
   height,
-  { name, hint, add, surface, noEdit, rowButtons, listButton, field = 'title', open, start = 1 },
+  { name, hint, add, surface, noEdit, rowLink, listButton, field = 'title', open, start = 1 },
 ) {
   const label = `${width}px inline ${name}`;
   const phone = width < 600;
@@ -8307,36 +8315,20 @@ async function checkInlineBlock(
       await page.click('.site-block-inline [data-field="question"]', { position: { x: 8, y: 8 } });
     }
   }
-  // A row's buttons: under the active row's text the text button `rowButtons` adds a button whose text is typed there.
-  if (rowButtons) {
-    const adds = await page.locator('[data-add-button]').allTextContents();
-    if (adds.map((s) => s.trim()).join() !== rowButtons)
-      problems.push(`${label}: expected the button "${rowButtons}" in the active row, got "${adds}"`);
-    // No Link at the top of the row (its slots or the toolbar): the row's page is set by `Link` at the bottom, where the site draws it.
-    if (await page.locator('.inline-segmented-slots [aria-label="Link"], .inline-list-row-active > [aria-label="Link"]').count())
-      problems.push(`${label}: the top of the row has a Link slot`);
-    if ((await state()).bar.some((b) => b.label === 'Link')) problems.push(`${label}: the toolbar has a Link button`);
-    if ((await page.locator('.inline-list-row-active [data-row-link]').count()) !== 1)
-      problems.push(`${label}: the bottom of the active row has no Link button`);
-    await page.click('[data-add-button]');
-    await page.keyboard.type('More');
-    await page.waitForTimeout(300);
-    const typed = await page
-      .locator('.inline-segmented-button textarea')
-      .inputValue()
-      .catch(() => null);
-    if (typed !== 'More') problems.push(`${label}: the text typed in a row's new button is "${typed}", not "More"`);
-    // A row has at most one button: with one, `Add button` is gone and Enter in its text adds no second.
-    await page.keyboard.press('Enter');
-    await page.waitForTimeout(300);
-    if ((await page.locator('[data-add-button]').count()) !== 0)
-      problems.push(`${label}: "${rowButtons}" stays although the row has a button`);
-    if ((await page.locator('.inline-segmented-button').count()) !== 1) problems.push(`${label}: a row got a second button`);
-    // `Link` at the bottom opens the row's sheet, which has the page (and it can be cleared there).
-    await page.locator('.inline-list-row-active [data-row-link]').click();
+  // A row's link (List and Segmented list alike, owner, 16 Nov 2026): the link slot at the end of the active row and the toolbar's Link, no text row of
+  // its own at the bottom of the row and no text button typed there; the slot opens the row's sheet, which has the page.
+  if (rowLink) {
+    const slots = await page
+      .locator('.inline-list-row-active .inline-list-slot')
+      .evaluateAll((b) => b.map((x) => x.getAttribute('aria-label')));
+    if (slots.join() !== 'Icon,Page') problems.push(`${label}: the active row's slots are "${slots}", not "Icon,Page"`);
+    if (await page.locator('[data-row-link], [data-add-button], .inline-segmented-buttons').count())
+      problems.push(`${label}: the row has a text row or a button of its own for its link`);
+    if (!(await state()).bar.some((b) => b.label === 'Link')) problems.push(`${label}: the toolbar has no Link button`);
+    await page.locator('.inline-list-row-active .inline-list-slot[aria-label="Page"]').click();
     await page.waitForTimeout(500);
-    if (!(await page.getByText('Page', { exact: true }).count()))
-      problems.push(`${label}: the bottom Link did not open the row's page field`);
+    if (!(await page.getByText('Page', { exact: true }).locator('visible=true').count()))
+      problems.push(`${label}: the link slot did not open the row's page field`);
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
   }
@@ -11870,9 +11862,10 @@ for (const block of inlineSingles)
 for (const block of inlineBlocks) await unit(`checkInlineBlock 1280 ${block.name}`, () => checkInlineBlock(1280, 900, block));
 for (const [w, h] of [
   [375, 740],
+  [768, 900],
   [1280, 900],
 ])
-  await unit(`checkSegmentedArrow ${w}`, () => checkSegmentedArrow(w, h));
+  await unit(`checkListLooks ${w}`, () => checkListLooks(w, h));
 for (const block of liveLists)
   for (const w of [375, 1280]) await unit(`checkLiveList ${w} ${block.name}`, () => checkLiveList(w, w < 600 ? 740 : 900, block));
 for (const w of [375, 1280]) await unit(`checkImageGridAdd ${w}`, () => checkImageGridAdd(w, w < 600 ? 740 : 900));

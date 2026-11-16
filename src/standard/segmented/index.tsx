@@ -4,11 +4,10 @@
 // (packages/editor/theme/blocks/segmented/View.tsx; what it shows: view.ts, and load.ts on the site).
 import { Rows, SquaresFour } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
-import { iconOptions } from '../../icon';
-import { iconColorField } from '../../iconColor';
 import { t } from '../../i18n';
 import { headFields } from '../head';
 import { fromLine, nameWith, rowsFromFields, typed } from '../rows/fields';
+import { listInline, listRowFields } from '../rows/listParts';
 
 type Row = { title?: string };
 
@@ -18,57 +17,22 @@ export default defineBlock({
   icon: SquaresFour,
   nameOf: (p) => nameWith(t.blocks.segmented.label, p),
   hint: t.blocks.segmented.hint,
-  // Typed in place (InlineSegmented.tsx): the heading and text where they stand; the icon is picked in a slot, the page and the buttons in the
-  // row's sheet. Edit keeps the block's own settings (Only one open, Rows, Max rows, the text button).
-  inline: {
-    item: 'items',
-    fields: ['title', 'text'],
-    media: ['icon', 'iconColor'],
-    settings: ['href', 'buttons'],
-    blockSettings: true,
-    barLink: false,
-    texts: {
-      addAbove: t.blocks.segmented.addAbove,
-      addBelow: t.blocks.segmented.addBelow,
-      link: t.blocks.segmented.link,
-      row: t.blocks.segmented.row,
-      settings: t.blocks.segmented.rowSettings,
-      icon: t.blocks.segmented.icon,
-    },
-  },
+  // Typed in place as the List is (InlineList.tsx, which InlineSegmented.tsx hands over to): the heading and text where they stand, the icon in a slot,
+  // the page and the row's button in the row's sheet, which the link slot and the toolbar's Link open. Edit keeps the block's own settings (Only one
+  // open, Rows, Max rows, the text button).
+  inline: { ...listInline({ buttons: true }), blockSettings: true },
   fields: [
     ...headFields,
     ...rowsFromFields,
     {
       name: 'items',
       only: typed,
-      label: t.blocks.segmented.items,
-      singular: t.blocks.segmented.item,
+      label: t.blocks.list.items,
+      singular: t.blocks.list.item,
       type: 'list',
       summary: 'title',
       required: true,
-      fields: [
-        // The color comes first, so it is chosen before the icons below it.
-        iconColorField,
-        { name: 'icon', label: t.blocks.segmented.icon, type: 'select', icons: true, options: iconOptions(t.blocks.icons) },
-        { name: 'title', label: t.blocks.segmented.title, type: 'string', required: true },
-        { name: 'text', label: t.blocks.segmented.text, type: 'text' },
-        { name: 'href', label: t.blocks.segmented.href, type: 'relation', to: 'pages', hint: t.blocks.segmented.hrefHint },
-        // Text buttons at the bottom of an open row (the "more" links of an old Accordion); drawn in a list that folds out.
-        {
-          name: 'buttons',
-          label: t.blocks.segmented.rowButtons,
-          singular: t.blocks.segmented.rowButton,
-          hint: t.blocks.segmented.rowButtonsHint,
-          type: 'list',
-          maxItems: 1,
-          summary: 'label',
-          fields: [
-            { name: 'label', label: t.blocks.segmented.rowButtonText, type: 'string', max: 30, required: true },
-            { name: 'href', label: t.blocks.segmented.href, type: 'relation', to: 'pages', required: true },
-          ],
-        },
-      ],
+      fields: listRowFields({ buttons: true }),
     },
     {
       name: 'only',
@@ -100,9 +64,9 @@ export default defineBlock({
   ],
   example: {
     items: [
-      { icon: 'clock', title: t.blocks.segmented.exampleTitle, text: t.blocks.segmented.exampleText },
-      { icon: 'info', title: t.blocks.segmented.exampleTitle, text: t.blocks.segmented.exampleText },
-      { icon: 'map-pin', title: t.blocks.segmented.exampleTitle, text: t.blocks.segmented.exampleText },
+      { icon: 'clock', title: t.blocks.list.exampleTitle, text: t.blocks.list.exampleText },
+      { icon: 'info', title: t.blocks.list.exampleTitle, text: t.blocks.list.exampleText },
+      { icon: 'map-pin', title: t.blocks.list.exampleTitle, text: t.blocks.list.exampleText },
     ],
   },
   detail: (p, data) => (p.from ? [...fromLine(p, data)] : [((p.items ?? []) as Row[]).map((r) => r.title ?? '').join(' · ')]),

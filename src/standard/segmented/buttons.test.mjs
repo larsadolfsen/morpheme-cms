@@ -5,6 +5,6 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
 test("the row's `buttons` field has maxItems 1", () => {
-  const src = readFileSync(new URL('./index.tsx', import.meta.url), 'utf8');
+  const src = readFileSync(new URL('../rows/listParts.ts', import.meta.url), 'utf8');
   assert.match(src, /name: 'buttons',[\s\S]*?maxItems: 1,[\s\S]*?summary: 'label'/);
 });
