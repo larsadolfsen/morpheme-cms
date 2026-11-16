@@ -48,7 +48,14 @@ async function checkListLeftEdge(width) {
   const measure = (rootSelector) => {
     const root = document.querySelector(rootSelector);
     const text = root.querySelector('p').getBoundingClientRect().left;
-    const out = { text, wide: document.documentElement.scrollWidth - window.innerWidth, rows: [] };
+    const out = { text, wide: document.documentElement.scrollWidth - window.innerWidth, view: window.innerWidth, rows: [], cards: [] };
+    // The card based blocks keep the normal side margin on a compact screen: only the Default list is edge to edge.
+    for (const el of root.querySelectorAll('.block-card, .block-plan, .block-testimonial')) {
+      const box = el.getBoundingClientRect();
+      // The cards of a carousel run off the window on purpose.
+      if (box.left >= window.innerWidth - 1 || el.closest('.carousel')) continue;
+      out.cards.push({ name: el.className.split(' ')[0], left: box.left, right: box.right });
+    }
     for (const ul of root.querySelectorAll('ul.block-list')) {
       const row = ul.querySelector('.list-item-container');
       if (!row) continue;
@@ -67,6 +74,16 @@ async function checkListLeftEdge(width) {
   const verify = (where, got) => {
     if (!got.rows.some((r) => r.kind === 'plain')) problems.push(`${label}: ${where} has no List without a container to measure`);
     if (got.wide > 0.5) problems.push(`${label}: ${where} the page scrolls sideways by ${got.wide}px`);
+    for (const c of got.cards)
+      if (c.left < got.text - 0.5 || c.right > got.view - (got.text - 0.5))
+        problems.push(`${label}: ${where} a ${c.name} reaches ${c.left} to ${c.right}, outside the side margin of ${got.text}`);
+    // On a compact screen the Default list's rows go from edge to edge of the window; every card based list keeps the margin.
+    if (width < 600 && where === 'on the site')
+      for (const r of got.rows)
+        if (r.kind === 'plain' && (Math.abs(r.container) > 0.5 || Math.abs(r.right - got.view) > 0.5))
+          problems.push(
+            `${label}: ${where} a Default list's row is from ${r.container} to ${r.right}, not the whole window of ${got.view}px`,
+          );
     for (const r of got.rows) {
       // Default design: on a compact screen the row's layer starts 16 dp before the text's edge (full width), else on it; Card design: its container is on the text's edge.
       const want = r.kind === 'plain' && width < 600 ? got.text - 16 : got.text;
@@ -87,6 +104,17 @@ async function checkListLeftEdge(width) {
   if (await onTestPage(page, label)) {
     await page.waitForSelector('main .prose ul.block-list');
     verify('on the site', await page.evaluate(measure, 'main .prose'));
+    // Edge to edge, the layer of a Default list's row has square corners, also pointed at (owner, 16 Nov 2026: "No border radius when full width").
+    if (width < 600) {
+      const row = page.locator('main .prose ul.block-list:not(.list-segmented) a.list-item-container').first();
+      await row.hover();
+      await page.waitForTimeout(400);
+      const radius = await row.evaluate(
+        (el) => getComputedStyle(el).borderTopLeftRadius + ' ' + getComputedStyle(el).borderBottomRightRadius,
+      );
+      if (radius !== '0px 0px')
+        problems.push(`${label}: a Default list's row pointed at has the corners ${radius}, not square, when it is full width`);
+    }
   }
   await openEditor(page, site, { [BUILT_PAGE]: LIST_PAGE });
   await page.goto(`${site}/editor/#${BUILT_PAGE}`);
