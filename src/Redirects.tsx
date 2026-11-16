@@ -509,7 +509,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
         onClick={(e) => e.target === dialog.current && void closeSheet()}
       >
         <SheetTitle title={editTitle} onClose={() => void closeSheet()} />
-        {editing && (
+        {editing && !inPane && (
           <SheetBody
             onSubmit={(e) => {
               e.preventDefault();

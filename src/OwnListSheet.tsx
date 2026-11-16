@@ -249,7 +249,7 @@ export default function OwnListSheet({
         onClick={(e) => e.target === dialog.current && void closeSheet()}
       >
         <SheetTitle title={t.ownList.edit} onClose={() => void closeSheet()} />
-        <SheetBody onSubmit={(e) => e.preventDefault()}>{body}</SheetBody>
+        {!inPane && <SheetBody onSubmit={(e) => e.preventDefault()}>{body}</SheetBody>}
       </BottomSheet>
       {pane.portal}
     </>

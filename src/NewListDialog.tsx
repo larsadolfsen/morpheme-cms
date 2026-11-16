@@ -112,24 +112,26 @@ export default function NewListDialog({ files, open, onClose }: { files: RepoFil
   return (
     <>
       <Dialog ref={dialog} tabIndex={-1} aria-label={t.ownList.new} onClose={onClose} className="focus:outline-none">
-        <form
-          method="dialog"
-          onSubmit={(e) => {
-            e.preventDefault();
-            create();
-          }}
-        >
-          <h2 className="mb-4 text-body-large font-medium">{t.ownList.new}</h2>
-          {nameField}
-          <div className="mt-6 flex justify-end gap-2">
-            <Button kind="outlined" type="button" onClick={() => void closeIt()}>
-              {t.common.cancel}
-            </Button>
-            <Button kind="filled" type="submit">
-              {t.ownList.make}
-            </Button>
-          </div>
-        </form>
+        {!inPane && (
+          <form
+            method="dialog"
+            onSubmit={(e) => {
+              e.preventDefault();
+              create();
+            }}
+          >
+            <h2 className="mb-4 text-body-large font-medium">{t.ownList.new}</h2>
+            {nameField}
+            <div className="mt-6 flex justify-end gap-2">
+              <Button kind="outlined" type="button" onClick={() => void closeIt()}>
+                {t.common.cancel}
+              </Button>
+              <Button kind="filled" type="submit">
+                {t.ownList.make}
+              </Button>
+            </div>
+          </form>
+        )}
       </Dialog>
       {pane.portal}
     </>

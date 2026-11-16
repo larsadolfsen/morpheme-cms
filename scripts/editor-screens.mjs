@@ -6587,6 +6587,17 @@ async function checkListAndRedirectPanes(width) {
   const label = `${width}px list and redirect panes`;
   const expectIt = async (page, what) => {
     await page.waitForTimeout(700);
+    // The pane and the closed dialog do not both hold the fields: no id twice in the page.
+    const twice = await page.evaluate(() => {
+      const seen = new Set();
+      const twice = [];
+      for (const e of document.querySelectorAll('[id]')) {
+        if (seen.has(e.id)) twice.push(e.id);
+        seen.add(e.id);
+      }
+      return twice;
+    });
+    if (twice.length) problems.push(`${label}: ${what} has the same id twice in the page (${twice.slice(0, 3).join(', ')})`);
     const got = await page.evaluate(() => ({
       pane: !!document.querySelector('aside.editor-side-sheet:not([hidden])'),
       dialogs: document.querySelectorAll('dialog[open]').length,

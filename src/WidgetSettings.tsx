@@ -106,9 +106,13 @@ export function WidgetSettings({
   return (
     <>
       <BottomSheet ref={dialog} aria-label={title} onClose={onClose} onClick={(e) => e.target === dialog.current && void closeIt()}>
-        <SheetTitle title={title} onClose={() => void closeIt()} />
-        <SheetBody>{fieldsOf}</SheetBody>
-        <SheetActions onCancel={() => void closeIt()} onDone={save} done={t.common.save} />
+        {!inPane && (
+          <>
+            <SheetTitle title={title} onClose={() => void closeIt()} />
+            <SheetBody>{fieldsOf}</SheetBody>
+            <SheetActions onCancel={() => void closeIt()} onDone={save} done={t.common.save} />
+          </>
+        )}
       </BottomSheet>
       {pane.portal}
     </>

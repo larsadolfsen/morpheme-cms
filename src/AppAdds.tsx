@@ -218,7 +218,7 @@ export default function AppAdds({ app, env, files, on }: { app: SiteApp; env: En
         onClick={(e) => e.target === dialog.current && void closeIt()}
       >
         <SheetTitle title={open?.label ?? ''} onClose={() => void closeIt()} />
-        {open && <SheetBody>{details}</SheetBody>}
+        {open && !inPane && <SheetBody>{details}</SheetBody>}
       </BottomSheet>
       {pane.portal}
     </>
