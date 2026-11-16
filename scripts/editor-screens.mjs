@@ -6425,6 +6425,42 @@ async function checkDensity(width, height) {
   await page.close();
 }
 
+/** Block settings (#block-settings): from 600 dp a block's details are the standard side sheet beside the list (owner, 15 Nov 2026: dialogs are only for short messages, not for settings), no dialog over the page; on a phone they are the sheet from the bottom. */
+async function checkBlockSettingsPane(width) {
+  const label = `${width}px block settings`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#block-settings'));
+  const row = page.getByRole('button', { name: /^Accordion/ }).first();
+  await row.waitFor({ timeout: 10_000 });
+  await row.click();
+  await page.waitForTimeout(500);
+  const got = await page.evaluate(() => {
+    const aside = document.querySelector('aside.side-sheet-container:not([hidden])');
+    const box = aside?.getBoundingClientRect();
+    const first = [...document.querySelectorAll('main button, main [role=button]')]
+      .find((b) => /^Accordion/.test(b.textContent.trim()))
+      ?.getBoundingClientRect();
+    return {
+      aside: !!aside,
+      dialogs: document.querySelectorAll('dialog[open]').length,
+      close: !!aside?.querySelector('[data-side-sheet-close]'),
+      clear: !!box && !!first && first.right <= box.left + 1,
+    };
+  });
+  if (phone) {
+    if (got.aside || got.dialogs !== 1) problems.push(`${label}: on a phone the details are not the sheet from the bottom`);
+  } else {
+    if (!got.aside) problems.push(`${label}: the block's details are not a standard side sheet (pane)`);
+    if (got.dialogs) problems.push(`${label}: a dialog is open over the page while the details are in the pane`);
+    if (!got.close) problems.push(`${label}: the pane has no close button`);
+    if (!got.clear) problems.push(`${label}: the list is covered by the pane`);
+  }
+  await page.close();
+}
+
 /** On a new page with only its H1 (plain, and on a section colour), a line to write in is under it: on a phone with real touch (375 px) and on a computer with a mouse (1280 px), a tap on the hint line, a tap in the white under the page and Enter at the end of the heading each put the cursor in it, and what is typed goes there, not in the heading. */
 async function checkEmptyHint() {
   const devices = [
@@ -11363,7 +11399,9 @@ for (const width of [375, 1280]) await unit(`checkCardBar ${width}`, () => check
 await unit('checkLiveSideSheet 1280', () => checkLiveSideSheet(1280));
 await unit('checkPhoneSheet 375', () => checkPhoneSheet(375));
 await unit('checkComputerRestore 1280', () => checkComputerRestore(1280));
-for (const width of [375, 700]) await unit(`checkCloseChangedSheet ${width}`, () => checkCloseChangedSheet(width));
+// From medium the block's sheet is the live side sheet and asks nothing (checkLiveSideSheet), so only the subpage on a phone asks.
+for (const width of [375]) await unit(`checkCloseChangedSheet ${width}`, () => checkCloseChangedSheet(width));
+await unit('checkLiveSideSheet 700', () => checkLiveSideSheet(700));
 for (const width of [700, 1280]) await unit(`checkSheetFocusOnOpen ${width}`, () => checkSheetFocusOnOpen(width));
 for (const width of [375, 1280]) await unit(`checkImageTools ${width}`, () => checkImageTools(width));
 for (const width of [375, 1280]) await unit(`checkCropView ${width}`, () => checkCropView(width));
@@ -11392,6 +11430,7 @@ for (const [width, height] of [
   [1280, 900],
 ])
   await unit(`checkDraftsCard ${width}`, () => checkDraftsCard(width, height));
+for (const width of [375, 768, 1280]) await unit(`checkBlockSettingsPane ${width}`, () => checkBlockSettingsPane(width));
 await unit('checkEmptyHint', () => checkEmptyHint());
 await unit('checkLongPressDelete', () => checkLongPressDelete());
 await unit('checkAppTestPages', () => checkAppTestPages());

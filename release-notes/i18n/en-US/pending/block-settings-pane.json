@@ -1,0 +1,7 @@
+{
+  "id": "block-settings-pane",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Block settings pane",
+  "text": "The text stays in view while you change a block. Select a block and its settings open in a pane at the right, with no dialog over the page, and each change applies at once. On a phone they stay a page with a back arrow."
+}
