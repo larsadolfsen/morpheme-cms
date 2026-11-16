@@ -1,6 +1,6 @@
 // The page's text measure (owner, 16 Nov 2026: a paragraph is 40ch to 60ch wide, --block-text-measure-min/-max in blocks.css): on every built
 // page of the site, at 1280 and 1580, a plain-text block (List, Segmented list, accordion, Steps, Blog posts as a list, Testimonials list)
-// starts at the same left edge as the paragraph above it, is at most 720px wide (two columns across the container from 1200px), no paragraph is wider than 60ch of its own font, and at 375 and 768 nothing scrolls sideways.
+// starts at the same left edge as the paragraph above it, is in columns of at least 344px (Steps at most 720px wide), no paragraph is wider than 60ch of its own font, and at 375 and 768 nothing scrolls sideways.
 // Run in a site's folder after the site is built: node …/scripts/check-text-measure.mjs (check:screens:extra).
 import { createServer } from 'node:http';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
@@ -61,15 +61,18 @@ for (const width of [375, 768, 1280, 1580]) {
         for (const block of document.querySelectorAll(BLOCKS)) {
           let before = block.parentElement.previousElementSibling ?? block.previousElementSibling;
           for (let e = block; e && !before?.matches?.('p'); e = e.parentElement) before = e.previousElementSibling;
-          // A column of rows is at most 720px wide; from 1200px the rows of a list (not Steps) are two columns across the page container.
+          // Steps is one column at most 720px wide. The rows of a list are columns of at least 344px as far as they fit the list's own width:
+          // one below 720px, two from 720px, three from 1080px .
           const w = Math.round(block.getBoundingClientRect().width);
-          const columns = getComputedStyle(
-            block.matches('.block-posts-rows') ? (block.querySelector('.theme-post-list') ?? block) : block,
-          ).gridTemplateColumns.split(' ').length;
           const name = block.className.toString().split(' ')[0];
-          if (width >= 1200 && !block.matches('.block-steps')) {
-            if (columns !== 2 && block.children.length > 1) out.push(`${name} has ${columns} column at ${width}px, not two`);
-          } else if (w > 721) out.push(`${name} is ${w}px wide, more than 720px`);
+          if (block.matches('.block-steps')) {
+            if (w > 721) out.push(`${name} is ${w}px wide, more than 720px`);
+          } else {
+            const grid = block.matches('.block-posts-rows') ? block.querySelector('.theme-post-list') : block;
+            const columns = getComputedStyle(grid).gridTemplateColumns.split(' ').length;
+            const wanted = w >= 1080 ? 3 : w >= 720 ? 2 : 1;
+            if (columns !== wanted) out.push(`${name} has ${columns} columns at ${w}px , not ${wanted}`);
+          }
           if (!before?.matches?.('p') || !before.closest('.prose')) continue;
           if (left(block) !== left(before))
             out.push(`${block.className.toString().split(' ')[0]} starts at ${left(block)}px, the text above it at ${left(before)}px`);

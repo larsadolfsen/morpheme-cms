@@ -3,5 +3,5 @@
   "kind": "paragraph",
   "mark": "improvement",
   "title": "Tekstbredde",
-  "text": "Lange linjer er svære at læse. Afsnit og overskrifter er 40 til 60 tegn brede. Lister, accordions, Trin og lister med blogindlæg er højst 720 pixels brede, og i et bredt vindue står listens rækker i to kolonner. Kort, billeder og tabeller har sidens fulde bredde."
+  "text": "Lange linjer er svære at læse. Afsnit og overskrifter er 40 til 60 tegn brede. Rækkerne i lister, accordions og lister med blogindlæg står i så mange kolonner, som der er plads til, op til tre, og Trin er højst 720 pixels bredt. Kort, billeder og tabeller har sidens fulde bredde."
 }
