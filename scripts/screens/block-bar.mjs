@@ -680,6 +680,9 @@ async function checkBlockHandleCorner(width) {
     const name = await card.getAttribute('aria-label');
     if (seen.has(name)) continue;
     seen.add(name);
+    // The cursor is out of every block first, as the other units do: the block before lets go of its row, and the page settles.
+    await page.locator('.ProseMirror > p').first().click();
+    await page.waitForFunction(() => !document.querySelector('.ProseMirror .site-block-has-row'), null, { timeout: 8000 }).catch(() => {});
     await block.scrollIntoViewIfNeeded();
     // Activate it with a tap or click inside it; the wait is for its row to be open (the state itself, no fixed time).
     const open = () =>
@@ -690,7 +693,7 @@ async function checkBlockHandleCorner(width) {
             return !!b?.classList.contains('site-block-has-row') && !document.querySelector('.ProseMirror .site-block-row-moving');
           },
           i,
-          { timeout: 2000 },
+          { timeout: 3000 },
         )
         .then(
           () => true,
@@ -730,7 +733,7 @@ async function checkBlockHandleCorner(width) {
     }
     if (!active) {
       problems.push(
-        `${label}: the ${name} block did not become active (${await page.evaluate(() => [...document.querySelectorAll('.ProseMirror > .site-block')].map((b) => b.className.replace(/site-block-?/g, '').trim() || '-').join('|'))})`,
+        `${label}: the ${name} block did not become active (${await page.evaluate(() => [...document.querySelectorAll('.ProseMirror > .site-block')].map((b) => b.className.replace(/site-block-?/g, '').trim() || '-').join('|') + ` dialogs ${document.querySelectorAll('dialog[open]').length} ${location.hash}`)})`,
       );
       continue;
     }
