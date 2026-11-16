@@ -895,21 +895,29 @@
        theme's default is M3's Surface, for a list on a higher container; owner, 15 Nov 2026, docs/material-deviations.md SV12). */
     --list-segmented-surface: var(--mo-surface-container);
   }
-  /* The Default design of a list (its rows on the page, no drawn container) is full width (owner, 16 Nov 2026: "Plain lists should be full width"; M3 Lists
-     "edge-to-edge in compact windows"): the layer of a row (hovered, pressed, focused, selected) reaches the row's 16 dp (M3 Lists › Specs, "leading space")
-     past the text column on both sides, and the row's content (the leading icon, the text, the trailing icon) stays on the text edges. It is the row's own
-     inner padding and an equal negative margin of the list. A Card design (.list-segmented, .block-accordion-card) has its container on the text edge and
-     keeps the padding inside it. */
-  .block-list:not(.list-segmented),
-  .block-accordion:not(.block-accordion-card) {
-    --block-list-layer-room: 1rem;
-    margin-inline: calc(-1 * var(--block-list-layer-room));
-  }
+  /* The Default design of a list (its rows on the page, no drawn container) starts its rows' own content, the leading icon or else the text, on the text's
+     left edge (the row's 16 dp, M3 Lists › Specs "leading space", belongs to a drawn container, which only the Card design has: .list-segmented,
+     .block-accordion-card). On compact screens it is also full width (owner, 16 Nov 2026: "Full width on compact screens"; M3 Lists "edge-to-edge in compact
+     windows"): the layer of a row (hovered, pressed, focused, selected) reaches the row's 16 dp past the text column on both sides, the content stays on the text
+     edges. It is the row's own inner padding and an equal negative margin of the list; from medium the layer is on the text column. */
   .block-list:not(.list-segmented) {
-    --list-item-padding-inline: var(--block-list-layer-room);
+    --list-item-padding-inline: 0;
   }
   .block-accordion:not(.block-accordion-card) {
-    --list-expand-padding-inline: var(--block-list-layer-room);
+    --list-expand-padding-inline: 0;
+  }
+  @media (width < theme(--breakpoint-medium)) {
+    .block-list:not(.list-segmented),
+    .block-accordion:not(.block-accordion-card) {
+      --block-list-layer-room: 1rem;
+      margin-inline: calc(-1 * var(--block-list-layer-room));
+    }
+    .block-list:not(.list-segmented) {
+      --list-item-padding-inline: var(--block-list-layer-room);
+    }
+    .block-accordion:not(.block-accordion-card) {
+      --list-expand-padding-inline: var(--block-list-layer-room);
+    }
   }
   /* The color of an icon in a row or a card (`iconColor`, src/iconColor.ts): one of the theme's color roles; without one, the text colour (Text in the editor). */
   [data-icon-color='primary'] {

@@ -37,9 +37,9 @@ async function checkListMarkers(width) {
 }
 
 /** One left edge for a List (375, 768 and 1280 px), on the site (the demo's Blocks page, /blocks/lists/) and typed in place in the editor. A List in the Default design
- * (its rows on the page, no drawn container) starts its rows' own content, the leading icon or else the text, on the page's text edge, and is full width: the row's layer
- * (hover, pressed, focus ring, selected) is 16 dp wider than the text column on each side (owner, 16 Nov 2026; M3 Lists "edge-to-edge in compact windows", Specs "leading space 16dp"),
- * and the page does not scroll sideways. A list in the Card design (the theme's segmented list) has its container on the text edge and its icon one 16 dp padding in. Real
+ * (its rows on the page, no drawn container) starts its rows' own content, the leading icon or else the text, on the page's text edge, and on a compact screen (below 600 px) is full
+ * width: the row's layer (hover, pressed, focus ring, selected) is 16 dp wider than the text column on each side (owner, 16 Nov 2026: "Full width on compact screens"; M3 Lists
+ * "edge-to-edge in compact windows", Specs "leading space 16dp"); from medium the layer is on the text column. The page does not scroll sideways. A list in the Card design (the theme's segmented list) has its container on the text edge and its icon one 16 dp padding in. Real
  * geometry, a half pixel of rounding allowed. */
 async function checkListLeftEdge(width) {
   const label = `${width}px list left edge`;
@@ -68,8 +68,8 @@ async function checkListLeftEdge(width) {
     if (!got.rows.some((r) => r.kind === 'plain')) problems.push(`${label}: ${where} has no List without a container to measure`);
     if (got.wide > 0.5) problems.push(`${label}: ${where} the page scrolls sideways by ${got.wide}px`);
     for (const r of got.rows) {
-      // Default design: the row's layer starts 16 dp before the text's edge (full width); Card design: its container is on the text's edge.
-      const want = r.kind === 'plain' ? got.text - 16 : got.text;
+      // Default design: on a compact screen the row's layer starts 16 dp before the text's edge (full width), else on it; Card design: its container is on the text's edge.
+      const want = r.kind === 'plain' && width < 600 ? got.text - 16 : got.text;
       if (Math.abs(r.container - want) > 0.5)
         problems.push(
           `${label}: ${where} a ${r.kind} list's ${r.kind === 'plain' ? 'row layer' : 'container'} starts at ${r.container}, not at ${want} (the text's edge is ${got.text})`,
