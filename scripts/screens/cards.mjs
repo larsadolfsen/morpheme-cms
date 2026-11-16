@@ -657,6 +657,55 @@ async function checkCardMediaCorners(width, height) {
   await page.close();
 }
 
+/** A video in a card keeps its box when it is played (the demo's Cards page, /blocks/cards/): the iframe that takes the still's place (Base.astro) has the still's width and height and no margin, so the card does not grow, at 375 and 1280 px. A site without that page (the starter) has none to measure. */
+async function checkCardVideoPlay(width, height) {
+  const label = `${width}px card video played`;
+  const phone = width < 600;
+  if (!existsSync(join(ROOT, 'src/content/pages/blocks-cards.md')))
+    return void console.log(`${label}: skipped, the site has no Cards page, which the demo has.`);
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  // The player's own address is not needed: the iframe's box is what is measured, and the page is offline-safe without it.
+  await page.route(/youtube|youtu\.be|vimeo/, (route) => route.fulfill({ status: 200, contentType: 'text/html', body: '' }));
+  const response = await page.goto(new URL('/blocks/cards/', site).href).catch(() => null);
+  if (!response || response.status() >= 400) {
+    problems.push(`${label}: /blocks/cards/ did not open`);
+    return page.close();
+  }
+  const facade = page.locator('.block-card-video a.video-facade').first();
+  if (!(await facade.count())) {
+    problems.push(`${label}: the Cards page has no video card`);
+    return page.close();
+  }
+  await facade.scrollIntoViewIfNeeded();
+  const box = () =>
+    page.evaluate(() => {
+      const card = document.querySelector('.block-card-video').closest('.block-card');
+      const media = document.querySelector('.block-card-video').firstElementChild;
+      const r = (e) => e.getBoundingClientRect();
+      const cs = getComputedStyle(media);
+      return {
+        card: Math.round(r(card).height * 10) / 10,
+        w: Math.round(r(media).width * 10) / 10,
+        h: Math.round(r(media).height * 10) / 10,
+        tag: media.tagName,
+        margin: cs.marginTop + ' ' + cs.marginBottom,
+        radius: cs.borderTopLeftRadius + ' ' + cs.borderBottomLeftRadius,
+      };
+    });
+  const before = await box();
+  await facade.click();
+  await page.waitForSelector('.block-card-video iframe', { timeout: 8000 });
+  const after = await box();
+  if (after.tag !== 'IFRAME') problems.push(`${label}: the video did not replace the still (${after.tag})`);
+  if (after.card !== before.card) problems.push(`${label}: the card is ${after.card}px tall after the video starts, was ${before.card}px`);
+  if (after.w !== before.w || after.h !== before.h)
+    problems.push(`${label}: the video is ${after.w}x${after.h}, the still was ${before.w}x${before.h}`);
+  if (after.margin !== '0px 0px') problems.push(`${label}: the video has a margin (${after.margin})`);
+  if (after.radius !== before.radius) problems.push(`${label}: the video's corners are ${after.radius}, the still's were ${before.radius}`);
+  await page.close();
+}
+
 /** The room between cards is the grid gutter (16 px on compact, 24 px from medium; docs/material-deviations.md, G1) on the demo's Cards, Price cards and Image grid pages (/blocks/<name>/), at 375, 768 and 1280 px, and the page does not scroll sideways. A site without those pages (the starter) has none to measure. */
 async function checkCardGutter(width, height) {
   const label = `${width}px gap between cards`;
@@ -1060,6 +1109,7 @@ export function register(unit) {
     unit(`checkCardsSpacing ${width}`, () => checkCardsSpacing(width, height));
     unit(`checkCardGutter ${width}`, () => checkCardGutter(width, height));
     unit(`checkCardMediaCorners ${width}`, () => checkCardMediaCorners(width, height));
+    unit(`checkCardVideoPlay ${width}`, () => checkCardVideoPlay(width, height));
     unit(`checkCardsEditorSpacing ${width}`, () => checkCardsEditorSpacing(width, height));
     unit(`checkCardsElevation ${width}`, () => checkCardsElevation(width, height));
     for (const scheme of ['light', 'dark']) unit(`checkPostMeta ${width} ${scheme}`, () => checkPostMeta(width, height, scheme));
