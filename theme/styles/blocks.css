@@ -96,6 +96,15 @@
   --block-ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
   --block-ease-quick: var(--motion-ease-quick, cubic-bezier(0.2, 0, 0, 1));
   --block-page-width: 72rem;
+  /* The measure of the page's text (owner, 16 Nov 2026): a paragraph is at least --block-text-measure-min and at most
+     --block-text-measure-max wide. A min-width wins over a max-width, so use it as min(var(--block-text-measure-min), 100%):
+     on a container narrower than the minimum the text takes the container and never scrolls sideways. */
+  --block-text-measure-min: 40ch;
+  --block-text-measure-max: 60ch;
+  /* The most the text column of Steps is wide (owner, 16 Nov 2026): 720px. */
+  --block-list-measure-max: 45rem;
+  /* The least a column of list rows is wide: 21.5rem (344px), so that two columns and their gutter fit in 720px, and three in the page container's 1104px. */
+  --block-list-column-min: 21.5rem;
   --block-gutter: 1rem;
   --block-section-padding: 1.5rem;
   --block-section-margin: 2rem;
@@ -198,9 +207,36 @@
     padding-inline: var(--section-inset);
   }
   /* Only the background is the whole width: the content stays in the page's text column, as the text outside a section does (the
-     page's text keeps its paragraphs and headings at 66ch, PageLayout.astro; blocks, not-prose, span the container). */
+     page's text keeps its paragraphs and headings at the text measure, PageLayout.astro; blocks, not-prose, span the container). */
   .text-section-full > :not(.not-prose, .text-section-image) {
-    max-width: 66ch;
+    max-width: var(--block-text-measure-max);
+    min-width: min(var(--block-text-measure-min), 100%);
+  }
+  /* Blocks of plain text rows (owner, 16 Nov 2026). Steps is one column at most --block-list-measure-max (720px) wide, left aligned
+     with the paragraph above it. The rows of a List, Segmented list (and its accordion rows), Blog posts as a list and Testimonials
+     list are columns at least --block-list-column-min wide, as many as fit in the list's own width: one column below two of them
+     (it is narrower than 720px, so it is never wider), two columns from 720px (a tablet's page), three from 1080px, never more in the page container
+     (1104px). It follows the list's width, not the window's (Modern Web Guidance, `responsive-design`). Wide visual blocks
+     (Cards, Image grid, Video, Carousel, Price cards, Table, Hero) keep the container's width. */
+  .block-steps {
+    max-width: var(--block-list-measure-max);
+  }
+  /* A post row has a thumbnail (128px) before its text: its columns are wider (30rem), so the date and reading time stay on one line. */
+  .block-posts-rows {
+    --block-list-column-min: 30rem;
+  }
+  .list.block-list:not([data-columns='one']),
+  .list.block-accordion:not([data-columns='one']),
+  .list.block-testimonial-rows:not([data-columns='one']),
+  .block-posts-rows:not([data-columns='one']) .theme-post-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(var(--block-list-column-min), 100%), 1fr));
+    align-items: start;
+    column-gap: var(--block-gutter);
+  }
+  /* The setting Columns is off (data-columns="one", standard/columns.ts): one column, at most as wide as Steps. */
+  :is(.block-list, .block-accordion, .block-testimonial-rows, .block-posts-rows)[data-columns='one'] {
+    max-width: var(--block-list-measure-max);
   }
   body:has(.text-section-full) {
     overflow-x: clip;
@@ -263,7 +299,6 @@
   .block-steps {
     --block-step-gap: 2.5rem;
     position: relative;
-    max-width: 48rem;
   }
   .block-steps.block-in-text {
     margin-block: 2.5rem;
@@ -321,7 +356,6 @@
 
   /* "Questions and answers": rows that fold out, one open at a time (faq/Accordion.tsx). */
   .block-accordion {
-    max-width: 48rem;
     /* The rows' padding follows the block: 20px, 32px from medium (the List "expand" kind, ui/List.tsx, is drawn by ui.css). */
     --list-expand-padding-inline: 1.25rem;
   }
@@ -347,7 +381,7 @@
   }
   /* An answer as it was written: paragraphs and lists apart, links in the accent. */
   .block-accordion-answer {
-    max-width: 60ch;
+    max-width: var(--block-text-measure-max);
     font-size: var(--type-body-large-size);
     line-height: var(--type-body-large-line-height);
     font-weight: var(--type-body-large-weight);
@@ -611,7 +645,7 @@
   /* "Accordion": a row's text, the link to its page and links to more specific pages under it
      (accordion/PageRow.tsx). */
   .block-row-text {
-    max-width: 60ch;
+    max-width: var(--block-text-measure-max);
     font-size: var(--type-body-large-size);
     line-height: var(--type-body-large-line-height);
     font-weight: var(--type-body-large-weight);
@@ -629,6 +663,7 @@
   .block-row-links:has(> .button-text) {
     margin-inline-start: calc(-1 * var(--button-text-padding, 1rem));
     column-gap: 0.5rem;
+    margin-block-end: calc((1.25rem - var(--button-height, 3rem)) / 2);
   }
 
   /* "Cards": Material 3's cards (.card in ui.css: outlined, filled or elevated), each with an icon, an image, a video or nothing at
@@ -961,7 +996,7 @@
   .block-panels {
     display: grid;
     /* Two side by side where there is room for 17rem each, never more. */
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, max(17rem, calc(50% - 0.5rem))), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(17rem, calc(50% - 0.5rem))), 1fr));
     gap: var(--card-gap, 0.5rem);
   }
   .block-panels.block-in-text {
@@ -969,7 +1004,7 @@
   }
   /* Boxes with values to copy: side by side only where each has room for its values with their buttons. */
   .block-panels:has(.block-copy-rows) {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, max(23rem, calc(50% - 0.5rem))), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(23rem, calc(50% - 0.5rem))), 1fr));
   }
   /* "Links": a box's heading linking to its page, and its pages under it in a list (.list in ui.css). */
   .block-panel-title a {
@@ -987,7 +1022,7 @@
   .block-points {
     --list-item-padding-inline: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
     column-gap: 1.5rem;
   }
   .block-points.block-in-text {
@@ -1005,7 +1040,7 @@
      (e.g. an app's address block). */
   .block-media {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
     align-items: center;
     gap: 1.5rem 3rem;
   }
@@ -1709,7 +1744,7 @@
   }
   .block-checklist:not(.block-plan-features):has(> :nth-child(6)) {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, max(16rem, calc(50% - 1rem))), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(16rem, calc(50% - 1rem))), 1fr));
     column-gap: 2rem;
   }
 
@@ -1833,6 +1868,11 @@
   /* "Steps": the heading has no space above it, so the text's heading space (.prose h3, also in this layer) does not push it off the number. */
   .prose .block-step-title {
     margin-block: 0;
+  }
+  /* The room under an open row is the body's padding alone: the last paragraph's margin (the text's, .prose in base.css, is in this layer
+     too) adds none. A text button's own height is taken off its row (.block-row-links above). */
+  .block-accordion-answer > :last-child {
+    margin-bottom: 0;
   }
   /* "Video": the video before it is played (video/, packages/editor/lib/video.mjs); the video takes its
    place. Outside the layers, as it is a link in the text's style (.prose), whose link style it undoes. */
@@ -1978,7 +2018,11 @@
   /* A label above a heading in a text (packages/editor/lib/eyebrow.mjs): a block's label, with the heading's space above
    it and close to its heading. */
   .prose .label-medium {
-    margin-block: 2em 0;
+    margin-block: 2em 0.5rem;
+  }
+  /* A label that ends its text belongs to the heading after it (the front page, Home.astro): it keeps the same space under it. */
+  .prose > .label-medium:last-child {
+    margin-bottom: 0.5rem;
   }
   .prose .label-medium + :is(h1, h2, h3),
   .prose .label-medium + :not(h1, h2, h3, .label-medium) {

@@ -3,6 +3,7 @@
 // is missing is left out. One open at a time in each list (its own group, by its place in the text).
 import { standard } from '@site/standard';
 import type { Load } from '../view';
+import { columnsOf } from '../columns';
 import { headOf } from '../head';
 import shared from './shared';
 import { pageRow, type AccordionView, type PageRowProps } from './view';
@@ -17,6 +18,7 @@ export const load: Load<AccordionView> = async (props, { texts, index, preview }
   );
   return {
     ...headOf(props),
+    ...columnsOf(props),
     group: `accordion-${index}`,
     rows: rows.filter((row) => row !== null),
   };

@@ -8,25 +8,27 @@ import type { ViewOf } from '../view';
 import { editorRows } from '../rows/view';
 import { asQuestions, withRows } from '../rows/rows.mjs';
 import { headOf, type HeadView } from '../head';
+import { columnsOf, type ColumnsView } from '../columns';
 
 /** A row that folds out: a question and its answer as HTML, or a page's row ("Accordion", PageRow). */
 export type AccordionRow =
   | { label: string; html: string; icon?: string; href?: string; link?: string; buttons?: { label: string; href: string }[] }
   | { label: string; page: PageRowView };
 
-export type FaqView = HeadView & {
-  group?: string;
-  /** Any number of questions can be open at once (`only` is off). */
-  several: boolean;
-  rows: AccordionRow[];
-  /** The text button under the last question. */
-  button?: { label: string; href?: string };
-};
+export type FaqView = HeadView &
+  ColumnsView & {
+    group?: string;
+    /** Any number of questions can be open at once (`only` is off). */
+    several: boolean;
+    rows: AccordionRow[];
+    /** The text button under the last question. */
+    button?: { label: string; href?: string };
+  };
 
 /** What the block's fields say besides its head and questions: whether several can be open, and the button. */
-export const faqSettings = (props: Record<string, any>): Pick<FaqView, 'several' | 'button'> => {
+export const faqSettings = (props: Record<string, any>): Pick<FaqView, 'several' | 'button' | 'oneColumn'> => {
   const label = typeof props.button === 'string' ? props.button.trim() : '';
-  return { several: props.only === false, button: label ? { label, href: props.buttonHref || undefined } : undefined };
+  return { ...columnsOf(props), several: props.only === false, button: label ? { label, href: props.buttonHref || undefined } : undefined };
 };
 
 /** A question as its field writes it. */

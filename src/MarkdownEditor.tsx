@@ -1660,6 +1660,7 @@ function blockCard(
               }))}
               onPart={rowParts(node.attrs.props) ? (part) => pickPart(part) : undefined}
               rows={dynamic.rows}
+              oneColumn={node.attrs.props.columns === false}
               line={fromLine(node.attrs.props, ask.data)[0] ?? ''}
               empty={dynamic.rows.length === 0}
               editList={listPageOf(node.attrs.props) ? () => (location.hash = listPageOf(node.attrs.props)!) : undefined}
@@ -1723,17 +1724,32 @@ function blockCard(
     flushSync(() => root.render(image));
   };
   // A block just put in (a new List) starts with its first row active and the cursor in it (known by its props, which the new node keeps).
-  // The sheet it came from is closing and gives the focus back to what had it: wait until no sheet is open.
+  // The sheet it came from is closing and gives the focus back to what had it: start once it has closed (its `close` event, or a dialog that
+  // leaves the page), never by a timer's guess: a start while it is still open loses the focus to the button that opened it.
   const startAt = inline ? fresh.get(node.attrs.props) : undefined;
+  let stopStart = () => {};
   if (startAt !== undefined) {
     fresh.delete(node.attrs.props);
-    let tries = 0;
     const start = () => {
-      if (document.querySelector('dialog[open]') && tries++ < 30) return void setTimeout(start, 50);
       const row = Math.max(0, Math.min(startAt, rows().length - 1));
       change({ active: row, ...(spec!.grid ? { col: 0 } : {}), focus: { row, field: spec!.fields[0] } });
     };
-    setTimeout(start);
+    const waiting = () => !!document.querySelector('dialog[open]');
+    const check = () => {
+      if (waiting()) return;
+      stopStart();
+      start();
+    };
+    if (waiting()) {
+      const watcher = new MutationObserver(check);
+      watcher.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['open'] });
+      document.addEventListener('close', check, true);
+      stopStart = () => {
+        watcher.disconnect();
+        document.removeEventListener('close', check, true);
+        stopStart = () => {};
+      };
+    } else setTimeout(start);
   }
   draw();
   cards.add(draw);
@@ -2303,6 +2319,7 @@ function blockCard(
     stopEvent: () => true,
     ignoreMutation: () => true,
     destroy: () => {
+      stopStart();
       close();
       blockBar.unpoint(pointer);
       selectable.destroy();
@@ -3371,7 +3388,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       </Menu>
       <div
         ref={root}
-        className={`editor-text prose max-w-none rounded-b-panel border-x border-b border-outline-variant px-5 py-4 medium:px-8 ${short ? 'editor-text-short' : ''} ${spaced ? 'editor-spaced' : ''}`}
+        className={`editor-text prose max-w-none rounded-b-panel border-x border-b border-outline-variant px-(--mo-grid-margin) py-4 ${short ? 'editor-text-short' : ''} ${spaced ? 'editor-spaced' : ''}`}
         style={
           { '--editor-gap-text': JSON.stringify(t.text.typeHere), '--editor-empty-text': JSON.stringify(t.text.emptyHint) } as CSSProperties
         }

@@ -8,6 +8,7 @@ import { Rows } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { t } from '../../i18n';
 import { headFields } from '../head';
+import { columnsField } from '../columns';
 import { example } from './shared';
 
 export default defineBlock({
@@ -44,6 +45,7 @@ export default defineBlock({
         },
       ],
     },
+    columnsField(),
   ],
   example,
   detail: (p) => [((p.items ?? []) as { label?: string }[]).map((row) => row.label).join(' · ')],

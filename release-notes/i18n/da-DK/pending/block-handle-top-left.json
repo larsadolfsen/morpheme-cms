@@ -1,0 +1,6 @@
+{
+  "id": "block-handle-top-left",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Blokkens trækhåndtag sidder i dens øverste venstre hjørne og vises kun på den aktive blok"
+}

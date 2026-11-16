@@ -5,6 +5,7 @@ import { Question } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { t } from '../../i18n';
 import { headFields } from '../head';
+import { columnsField } from '../columns';
 import { fromLine, nameWith, rowsFromFields, typed } from '../rows/fields';
 
 export default defineBlock({
@@ -54,6 +55,7 @@ export default defineBlock({
       default: true,
       missing: true,
     },
+    columnsField(),
     { name: 'button', label: t.blocks.faq.button, type: 'string', max: 30, hint: t.blocks.faq.buttonHint },
     { name: 'buttonHref', label: t.blocks.faq.buttonHref, type: 'relation', to: 'pages' },
   ],

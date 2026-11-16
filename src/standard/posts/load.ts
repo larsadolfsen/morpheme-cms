@@ -5,6 +5,7 @@ import { standard } from '@site/standard';
 import { imageOf } from '../load';
 import type { ListedPost } from '../site';
 import type { Load } from '../view';
+import { columnsOf } from '../columns';
 import { headOf } from '../head';
 import shared, { allPostsText, postCount } from './shared';
 import { designOf, type PostView, type PostsView } from './view';
@@ -19,7 +20,7 @@ export const load: Load<PostsView> = async (props, { texts }) => {
     const categories = Array.isArray(props.categories) ? props.categories.map(String) : [];
     const posts = await standard.posts.list(categories);
     if (!posts.length && design === 'list') return null;
-    return { ...headOf(props), design, posts: loadPosts(posts), count: posts.length, random: false };
+    return { ...headOf(props), ...columnsOf(props), design, posts: loadPosts(posts), count: posts.length, random: false };
   }
   const count = postCount(props.count);
   const { posts, random } = await standard.posts.choose(props, count);
@@ -27,6 +28,7 @@ export const load: Load<PostsView> = async (props, { texts }) => {
   const all = standard.posts.all(props);
   return {
     ...headOf(props),
+    ...columnsOf(props),
     design,
     posts: loadPosts(posts),
     count,

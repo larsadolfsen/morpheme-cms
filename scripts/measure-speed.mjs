@@ -69,8 +69,9 @@ const SITE_SCENARIOS = [
     ],
   },
   {
-    name: 'site: blocks page',
-    url: '/blocks/',
+    // The Blocks page was one page of 36 blocks until it was split into a page for each component; the Lists page has the most (12).
+    name: 'site: lists page',
+    url: '/blocks/lists/',
     ready: 'main',
     acts: [
       ['open menu', siteMenu],
@@ -101,7 +102,7 @@ const EDITOR_SCENARIOS = [
   },
   {
     name: 'editor: page with many blocks',
-    hash: '#src/content/pages/blocks.md',
+    hash: '#src/content/pages/blocks-lists.md',
     ready: '.ProseMirror .site-block-card',
     acts: [
       ['scroll', scroll],

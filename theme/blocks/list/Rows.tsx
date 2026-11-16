@@ -12,16 +12,23 @@ export default function Rows({
   segmented,
   className,
   cut,
+  oneColumn,
 }: {
   items: ListRow[];
   segmented?: boolean;
   className?: string;
   /** `Max rows` of "Segmented list": the rows from this one on are extra (MoreRows.tsx). */
   cut?: number;
+  /** The setting Columns is off: one column, whatever the width (data-columns, blocks.css). */
+  oneColumn?: boolean;
 }) {
   const withText = items.some((r) => r.text);
   return (
-    <List kind={segmented ? 'segmented' : 'standard'} className={className ? `block-list ${className}` : 'block-list'}>
+    <List
+      kind={segmented ? 'segmented' : 'standard'}
+      className={className ? `block-list ${className}` : 'block-list'}
+      data-columns={oneColumn ? 'one' : undefined}
+    >
       {items.map((r, i) => (
         <ListItem
           key={i}

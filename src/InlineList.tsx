@@ -9,6 +9,7 @@ import type { MouseEvent } from 'react';
 import { iconColorOf } from './iconColor';
 import { t } from './i18n';
 import { SiteButton, SiteList, SiteListItem } from './themeUi';
+import { columnsAttr } from './standard/columns';
 import InlineItems, { InlineIcon, InlineSlot, type Change, type Focus, type Item } from './InlineItems';
 
 export type { Change, Focus };
@@ -25,6 +26,7 @@ export type Row = {
 
 export default function InlineList({
   items,
+  props,
   active,
   focus,
   onChange,
@@ -35,6 +37,8 @@ export default function InlineList({
   onTags,
 }: {
   items: Row[];
+  /** The block's own props: its setting Columns. */
+  props?: Record<string, any>;
   /** The row being edited; null while the list is not. */
   active: number | null;
   /** The field to put the cursor in, once (a new object asks again). */
@@ -62,7 +66,11 @@ export default function InlineList({
       add={t.blocks.list.addRow}
       onChange={onChange}
       paste
-      wrap={(rows) => <SiteList className="block-list inline-list">{rows}</SiteList>}
+      wrap={(rows) => (
+        <SiteList className="block-list inline-list" data-columns={columnsAttr(props)}>
+          {rows}
+        </SiteList>
+      )}
       renderItem={({ item, index: i, here, next, field }) => {
         const r = item as Row;
         return (
@@ -132,8 +140,11 @@ export function RowsFromList({
   undo,
   parts,
   onPart,
+  oneColumn,
 }: {
   rows: Row[];
+  /** The setting Columns is off. */
+  oneColumn?: boolean;
   line: string;
   empty: boolean;
   editList?: () => void;
@@ -184,7 +195,7 @@ export function RowsFromList({
           ))}
         </div>
       )}
-      <SiteList className="block-list inline-list" onClick={tapped}>
+      <SiteList className="block-list inline-list" data-columns={oneColumn ? 'one' : undefined} onClick={tapped}>
         {rows.map((r, i) => (
           <SiteListItem
             key={i}
