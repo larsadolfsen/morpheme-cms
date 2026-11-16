@@ -7,11 +7,19 @@
 # cannot cancel a wait. Rebuilding morpheme-staging for an approved next version is the job of
 # staging-follows-next.yml, which compares npm's next tag every ten minutes. "latest" waits (up to four hours) and is
 # never cancelled by a newer run.
+#
+# Manual button (workflow_dispatch; owner rule 16 Nov 2026, skill changesets): run on a version line's branch (for
+# example 0.19), the job "line-next" stages <line>.0-next-<time> under next, in the same way as the "next" job: only
+# npm stage publish --tag next; no latest, no tag, no GitHub release, no Release PR, nothing committed. It refuses
+# main (which keeps its push-driven jobs) and changeset-release/*. npm's trusted publisher trusts this file by name,
+# so a dispatch on a line branch uses that branch's copy of it. The PM must check on npmjs.com's trusted-publisher
+# setting whether it limits the branch or an environment; if it does, the dispatch fails until the owner widens it.
 name: Publish
 
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -20,6 +28,8 @@ permissions:
 
 jobs:
   release:
+    # The push-driven jobs belong to main; the manual button runs only line-next.
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     # One at a time; the jobs that wait for an approval do not hold it.
     concurrency: release
@@ -103,4 +113,44 @@ jobs:
       - run: |
           v=$(node -p "require('./package.json').version")
           if [ "$v" = "$(git show HEAD:package.json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")" ]; then exit 0; fi
+          npm stage publish --tag next
+
+  # The manual button: stages a next test version from a version line's branch. Stages only and ends.
+  line-next:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    # Shares the queue of the "next" job, so two stagings never run at once.
+    concurrency:
+      group: publish-next
+      cancel-in-progress: false
+    timeout-minutes: 15
+    env:
+      BRANCH: ${{ github.ref_name }}
+    steps:
+      # Only a version line's branch (0.19, 0.20 ...): never main, changeset-release/* or any other branch.
+      - name: Refuse any branch that is not a version line
+        run: |
+          if ! printf '%s' "$BRANCH" | grep -Eq '^[0-9]+\.[0-9]+$'; then
+            echo "::error::Run this on a version line's branch such as 0.19, not on '$BRANCH'."
+            exit 1
+          fi
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: npm install -g npm@^11.15.0
+      - run: npm ci --no-audit --no-fund
+      # Only in this checkout: nothing is committed. The snapshot only tells whether a non-empty changeset is pending.
+      - run: npx changeset version --snapshot next
+      # The snapshot's calculated version follows package.json (0.17.0 on the 0.19 line, so 0.18.0-next-...), which does
+      # not sort as the line's. The line's own version is <line>.0-next-<time>, the same time format as the snapshot's.
+      - run: |
+          v=$(node -p "require('./package.json').version")
+          if [ "$v" = "$(git show HEAD:package.json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")" ]; then
+            echo "Only empty changesets pending: nothing to stage."
+            exit 0
+          fi
+          line_v="$BRANCH.0-next-$(date -u +%Y%m%d%H%M%S)"
+          npm pkg set version="$line_v"
           npm stage publish --tag next
