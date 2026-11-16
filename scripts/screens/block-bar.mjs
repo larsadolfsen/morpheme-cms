@@ -2,7 +2,7 @@ import { openEditor } from '../built-site.mjs';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { ROOT, browser, problems, site } from './support/context.mjs';
-import { barTools, cancelOf, insertBlock, pressInsert, pressMore, pressTool } from './support/shared.mjs';
+import { barTools, cancelOf, insertBlock, newLineUnder, pressInsert, pressMore, pressTool } from './support/shared.mjs';
 
 /** A card that is not typed in place (HTML code here; an image, Testimonials and the like work the same) has its tools on the text's one bar (PR 4 of the contextual toolbar plan): a tap on it selects it
  * (marked, no pop-up on the card), the bar gets a group named by the block, its Edit as the gear (on a phone; from expanded a tap opens the side panel) and the rest of its menu (Move up, Remove) in the ⋮,
@@ -566,9 +566,7 @@ async function checkBlockDrag(width) {
   await page.waitForTimeout(300);
   const insert = (hint, count, at) => insertBlock(page, hint, count, at);
   await insert('Numbered steps.', 1, 0);
-  await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
-  await page.keyboard.press('End');
-  await page.keyboard.press('Enter');
+  await newLineUnder(page, 'Hello');
   // The new block lands above the first one (the cursor is in the line under 'Hello'), and its action row has opened (it moves the handle and the blocks below).
   await insert('Rows with icon, heading and text.', 2, 0);
   // Away from any block's row, so no bar or keyboard is in the way.
@@ -829,9 +827,7 @@ async function checkBlockMove(width) {
   for (const [n, hint] of hints.entries()) {
     // Each new block lands above the ones before it (the cursor is in the line under 'Hello'); the check goes on once it is the active one.
     await insertBlock(page, hint, n + 1, 0);
-    await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
-    await page.keyboard.press('End');
-    await page.keyboard.press('Enter');
+    await newLineUnder(page, 'Hello');
   }
   const blocks = page.locator('.ProseMirror .site-block');
   if ((await blocks.count()) < 3) {
@@ -1001,9 +997,7 @@ async function checkBlockSelect(width) {
     // Each new block lands above the ones before it; go on once it is the active one (insertBlock).
     await insertBlock(page, hint, n + 1, 0);
     // Away from the rows, so the next block goes after this one.
-    await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
-    await page.keyboard.press('End');
-    await page.keyboard.press('Enter');
+    await newLineUnder(page, 'Hello');
   }
   // The row of the block just left closes with the page scrolling to keep the blocks in place: measure after it has settled.
   await page.waitForTimeout(900);
