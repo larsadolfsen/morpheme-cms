@@ -170,7 +170,7 @@ async function checkCustomColors(width, height) {
   await page.close();
 }
 
-/** What is fixed to the bottom of a form (the page form's Save draft and Publish buttons, FormFrame.tsx) is the theme's standard
+/** What is fixed to the bottom of a form (the page form's Save and Publish buttons, FormFrame.tsx) is the theme's standard
  * bottom sheet (ActionSheet in src/ui.tsx), not a bar of its own: the same surface and top corners as a BottomSheet container,
  * at the bottom of the screen, above the on-screen keyboard when it is up (emulated by a smaller visual viewport), and the
  * form's last field scrolls clear of it. At 375 px with the keyboard closed and open, and at 1280 px. */
@@ -287,7 +287,7 @@ async function checkPhoneSheet(width = 375, height = 740) {
     await sheet.waitFor({ timeout: 5000 });
     await page.waitForTimeout(400);
   };
-  // The page changed first, so its Publish (and Save draft) is there under the subpage.
+  // The page changed first, so its Publish (and Save) is there under the subpage.
   await page.locator('.ProseMirror p', { hasText: 'More text.' }).click();
   await page.keyboard.press('End');
   await page.keyboard.type(' Changed.');

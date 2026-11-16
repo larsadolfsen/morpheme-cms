@@ -100,7 +100,7 @@ export const forms: Messages['forms'] = {
     scheduledCancelled: (what) => `Planlægningen af ${what} annulleret`,
     unpublish: 'Fjern fra hjemmesiden',
     discardDraft: 'Kassér kladde',
-    saveDraft: 'Gem kladde',
+    saveDraft: 'Gem',
     draftLine: 'Kladde',
     waitingLine: 'Ikke udgivne ændringer',
     publishedLine: (when) => `Udgivet · Ændret ${when}`,
@@ -109,8 +109,9 @@ export const forms: Messages['forms'] = {
     unpublishTitle: (post) => `Fjern ${post ? 'indlægget' : 'siden'} fra hjemmesiden?`,
     unpublishText: (post) =>
       `${post ? 'Indlægget' : 'Siden'} forsvinder fra hjemmesiden og bliver en kladde. Ændringer, der venter på at blive udgivet, bliver liggende.`,
-    discardTitle: 'Kassér kladden?',
-    discardText: (name) => `Dine ikke udgivne ændringer i ${name} bliver slettet. Den udgivne version bliver, som den er.`,
+    discardTitle: 'Kassér ændringerne?',
+    discardText: (post, published) =>
+      `${post ? 'Indlægget' : 'Siden'} går tilbage til sin ${published ? 'udgivne' : 'senest gemte'} version.`,
     addressWaiting: 'Udgiv eller kassér ændringerne, før du ændrer URL’en.',
     standardPage: 'Siden er valgt som standardside og skal derfor forblive udgivet.',
     published: (what) => `${what} udgivet`,

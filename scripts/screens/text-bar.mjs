@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { constants, inflateSync } from 'node:zlib';
-import { openEditor } from '../built-site.mjs';
+import { openEditor, removeVirtualFile, virtualFile } from '../built-site.mjs';
 import { toolWidth } from '../../src/textBar.mjs';
 import { DEFAULT_SCHEME, SPRINGS, browser, isMotionScheme, problems, site, springCss } from './support/context.mjs';
 import { barTools, menusSettled, openStyleMenu, pressInsert } from './support/shared.mjs';
@@ -789,7 +789,120 @@ async function checkPreviewInBar(width) {
   await page.close();
 }
 
-/** Ctrl+S where the draft cannot save itself (R2 caching off: the Worker answers 409 off) runs what Save draft does: the page is committed. */
+/** `Discard` in the page form's bar (375, 768, 1280): at the start of the bar before Save and Publish (a text button), disabled with nothing to discard, enabled after an edit; it asks first (no control focused, Cancel keeps everything), and the confirm goes back to the published version: the saved draft is removed in a commit, undo starts again, the message shows, and the buttons are as with no changes. All three buttons fit in one row. */
+async function checkDiscardInBar(width) {
+  const phone = width < 600;
+  const label = `${width}px Discard in the bar`;
+  const page = await browser.newPage({ viewport: { width, height: 800 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  // Made for this unit only: a draft left in the site would show in the start screen's drafts card of the other checks.
+  virtualFile('src/content/pages/zz-discard-plain.md', `---\ntitle: "Discard plain"\n---\n\n# Discard plain\n\nPublished text.\n`);
+  virtualFile('src/content/pages/zz-discard-waiting.md', `---\ntitle: "Discard waiting"\n---\n\n# Discard waiting\n\nPublished text.\n`);
+  virtualFile(
+    'src/drafts/pages/zz-discard-waiting.md',
+    `---\ntitle: "Discard waiting"\n---\n\n# Discard waiting\n\nPublished text. waiting text\n`,
+  );
+  await openEditor(page, site);
+  const commits = [];
+  await page.route('**/api/github/commit', (r) => {
+    commits.push(JSON.parse(r.request().postData() || '{}'));
+    return r.fulfill({ contentType: 'application/json', body: JSON.stringify({ commit: 'head', blobs: {} }) });
+  });
+  await page.route('**/api/autosave**', (r) =>
+    r.request().method() === 'GET' ? r.fulfill({ status: 404, body: '' }) : r.fulfill({ contentType: 'application/json', body: '{}' }),
+  );
+  const bar = page.locator('.editor-save-bar');
+  const button = (name) => bar.getByRole('button', { name, exact: true });
+  const tap = (loc) => (phone ? loc.tap() : loc.click());
+  const text = () => page.locator('.ProseMirror').first().innerText();
+  const rows = async () =>
+    bar.evaluate((b) =>
+      [...b.querySelectorAll('button')]
+        .filter((x) => x.getClientRects().length)
+        .map((x) => {
+          const r = x.getBoundingClientRect();
+          return { name: x.textContent.trim(), x: r.x, y: r.y, w: r.width, h: r.height, right: r.right };
+        }),
+    );
+  const dialog = page.locator('dialog[open]');
+
+  for (const [name, path, draft] of [
+    ['a page with a saved draft', 'src/content/pages/zz-discard-waiting.md', true],
+    ['a page with no draft', 'src/content/pages/zz-discard-plain.md', false],
+  ]) {
+    const at = `${label}, ${name}`;
+    commits.length = 0;
+    await page.goto(`${site}/editor/#${path}`);
+    await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
+    // Published with no changes and no draft: no bar. With a draft: Discard enabled before any edit.
+    if (!draft) {
+      if (await bar.count()) problems.push(`${at}: a published page with no changes has a bar`);
+      await page.click('.ProseMirror p');
+      await page.keyboard.press('End');
+      await page.keyboard.type(' typed here');
+    }
+    await bar.waitFor({ timeout: 10_000 });
+    const names = (await rows()).map((b) => b.name).filter((n) => n !== 'Preview');
+    const want = draft ? ['Discard', 'Publish'] : ['Discard', 'Save', 'Publish'];
+    if (names.join() !== want.join()) problems.push(`${at}: the bar has ${names.join(', ')}, not ${want.join(', ')}`);
+    const discard = button('Discard');
+    if (await discard.isDisabled()) problems.push(`${at}: Discard is disabled though there is something to discard`);
+    // One row, nothing clipped, 48 dp targets.
+    const geometry = await rows();
+    if (geometry.some((b) => Math.abs(b.y - geometry[0].y) > 1)) problems.push(`${at}: the buttons wrap (${JSON.stringify(geometry)})`);
+    if (geometry.some((b) => b.x < 0 || b.right > width + 0.5)) problems.push(`${at}: a button is clipped (${JSON.stringify(geometry)})`);
+    // As high as the other buttons of the bar (the editor's density gives every button 40 dp; a bigger one would be a variant of its own).
+    const d = geometry.find((b) => b.name === 'Discard');
+    const publish = geometry.find((b) => b.name === 'Publish');
+    if (d && publish && Math.abs(d.h - publish.h) > 0.5) problems.push(`${at}: Discard is ${d.h} dp high, Publish ${publish.h}`);
+    const order = geometry.map((b) => b.name).filter((n) => n !== 'Preview');
+    if (order.join() !== want.join()) problems.push(`${at}: the buttons run ${order.join(', ')}`);
+
+    // Cancel keeps everything, and no control has the focus when the dialog opens.
+    await tap(discard);
+    await dialog.waitFor({ timeout: 5000 });
+    if (!(await dialog.innerText()).includes('goes back to its published version'))
+      problems.push(`${at}: the question says "${await dialog.innerText()}"`);
+    const focused = await page.evaluate(() => document.activeElement?.tagName);
+    if (focused === 'BUTTON' || focused === 'INPUT') problems.push(`${at}: ${focused} has the focus when the question opens`);
+    await tap(dialog.getByRole('button', { name: 'Cancel', exact: true }));
+    await dialog.waitFor({ state: 'detached', timeout: 5000 }).catch(() => {});
+    if (commits.length) problems.push(`${at}: Cancel committed`);
+    if (!draft && !(await text()).includes('typed here')) problems.push(`${at}: Cancel lost the edit`);
+
+    // Discard: the published text, the draft removed, a message, and the buttons as with no changes.
+    await tap(discard);
+    await dialog.waitFor({ timeout: 5000 });
+    await tap(dialog.getByRole('button', { name: 'Discard', exact: true }));
+    await page.waitForFunction(() => !document.querySelector('dialog[open]'), null, { timeout: 5000 });
+    await page
+      .locator('.snackbar-stack .snackbar', { hasText: 'discarded' })
+      .first()
+      .waitFor({ timeout: 10_000 })
+      .catch(() => {});
+    if (!(await page.locator('.snackbar-stack .snackbar', { hasText: 'discarded' }).count()))
+      problems.push(`${at}: no message that the changes are discarded`);
+    const now = await text();
+    if (/typed here|waiting text/.test(now)) problems.push(`${at}: the page is not its published version (${now})`);
+    if (!now.includes('Published text')) problems.push(`${at}: the published text is missing (${now})`);
+    if (draft) {
+      const removed = commits.flatMap((c) => c.changes ?? []).filter((x) => x.path === 'src/drafts/pages/zz-discard-waiting.md');
+      if (commits.length !== 1 || !removed.length || !removed.every((x) => x.delete || x.deleted || x.content == null))
+        problems.push(`${at}: Discard did not remove the draft in one commit (${JSON.stringify(commits)})`);
+    } else if (commits.length) problems.push(`${at}: Discard of unsaved edits committed`);
+    // Undo starts again: Ctrl+Z does not bring the typed text back.
+    await page.click('.ProseMirror p');
+    await page.keyboard.press('Control+z');
+    if (/typed here|waiting text/.test(await text())) problems.push(`${at}: undo brought the discarded text back`);
+    await page.waitForTimeout(300);
+    if (await bar.count()) problems.push(`${at}: the bar is still there after Discard`);
+  }
+  for (const f of ['zz-discard-plain', 'zz-discard-waiting']) removeVirtualFile(`src/content/pages/${f}.md`);
+  removeVirtualFile('src/drafts/pages/zz-discard-waiting.md');
+  await page.close();
+}
+
+/** Ctrl+S where the draft cannot save itself (R2 caching off: the Worker answers 409 off) runs what Save does: the page is committed. */
 async function checkSaveKeyNoAutosave() {
   const label = '1280px Ctrl+S without autosave';
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 }, locale: 'en-US' });
@@ -954,6 +1067,7 @@ export function register(unit) {
   unit('checkAnchoredParts 1280', () => checkAnchoredParts(1280, 900, false));
   for (const width of [375, 1280]) unit(`checkPreviewInBar ${width}`, () => checkPreviewInBar(width));
   unit('checkSaveKeyNoAutosave', () => checkSaveKeyNoAutosave());
+  for (const width of [375, 768, 1280]) unit(`checkDiscardInBar ${width}`, () => checkDiscardInBar(width));
   for (const width of [320, 360, 375, 390, 414, 600, 840, 1280]) unit(`checkTextBarFit ${width}`, () => checkTextBarFit(width));
   for (const [width, reduced] of [
     [375, false],
