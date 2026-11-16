@@ -483,23 +483,25 @@ const error = (problem: string | undefined, invalid: unknown) => problem || (inv
  * is wrong. `problem` (InField) marks it at once, as when Save stops there (useWrongField). */
 export type Invalid = { invalid?: string };
 
-/** The theme's text field, with what it says in itself (InField) and what is wrong with it (Invalid). `className` goes on the
- * field around the <input> (its width, its place). */
+/** The theme's text field, with what it says in itself (InField) and what is wrong with it (Invalid). `invalidFallback`: the
+ * words for what the browser finds wrong that the editor's rules do not name (a number field's text that is not a number,
+ * validity.badInput). `className` goes on the field around the <input> (its width, its place). */
 export function TextField({
   label,
   hint,
   problem,
   limit,
   invalid,
+  invalidFallback,
   ...rest
-}: InputHTMLAttributes<HTMLInputElement> & InField & Invalid & { ref?: Ref<HTMLInputElement> }) {
+}: InputHTMLAttributes<HTMLInputElement> & InField & Invalid & { invalidFallback?: string; ref?: Ref<HTMLInputElement> }) {
   return (
     <SiteTextField
       label={label}
       supporting={hint}
       error={error(problem, rest['aria-invalid'])}
       invalid={!!invalid}
-      invalidText={invalid}
+      invalidText={invalid ?? invalidFallback}
       limit={limit}
       {...rest}
     />
@@ -3204,7 +3206,20 @@ export function useKept<T>(key: string | null, first: T): [T, (value: T) => void
 /** On a computer: what is picked in a screen's list or grid (a file in Files), in the theme's side sheet at the right
  * of it, with its title and a cross that closes it; it stays in view while the screen scrolls. On a
  * phone the same is in a sheet (useAtLeast). */
-export function SideSheet({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+export function SideSheet({
+  title,
+  onClose,
+  onBack,
+  backLabel,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  /** A back icon button before the title, for a sheet that shows another region of itself; `backLabel` names it. */
+  onBack?: () => void;
+  backLabel?: string;
+  children: ReactNode;
+}) {
   const id = useId();
   return (
     <SiteSideSheet
@@ -3212,6 +3227,8 @@ export function SideSheet({ title, onClose, children }: { title: string; onClose
       headlineId={id}
       closeLabel={t.common.close}
       onClose={onClose}
+      onBack={onBack}
+      backLabel={backLabel}
       className="editor-reveal sticky top-8 max-h-[calc(100dvh-3rem)] self-start"
     >
       <div className="space-y-5">{children}</div>

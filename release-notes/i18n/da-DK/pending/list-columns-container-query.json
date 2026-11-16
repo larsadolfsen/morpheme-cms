@@ -1,0 +1,6 @@
+{
+  "id": "list-columns-container-query",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "En listerække har overskrift og tekst under hinanden i en smal kolonne og kun side om side, når rækken er bred"
+}

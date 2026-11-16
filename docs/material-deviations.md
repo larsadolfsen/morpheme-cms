@@ -4,6 +4,10 @@ Every place where we deliberately do something other than Material Design 3 (M3)
 decision. Each entry says what Material says, what we do instead, why, the date and the pull request. A deviation that
 is not listed here is a bug. Add the entry in the same pull request as the change.
 
+**Which M3 we follow** (owner, 15 Nov 2026): the theme follows Material 3 Expressive wherever a component has an Expressive variant; otherwise baseline M3.
+
+**Priority order** (owner, 15 Nov 2026): 1. Modern web, 2. M3 Expressive, 3. M3, 4. M2 with M3 styling. Where they conflict, the lower number wins.
+
 Entries from the colour sweep and the CSS sweep were sent by those workers on 2026-11-13; the owner decisions on section
 colours are from the contrast work of the same day (`npm run check:contrast`, `scripts/check-contrast.mjs`).
 
@@ -279,9 +283,20 @@ Source: `src/BlockDialog.tsx` (the `subpage` look), `src/sheetPlacement.mjs`, `s
 ### B2. On a phone every view that is a full-screen dialog or a side sheet is a page
 
 - **Material:** "Full-screen dialogs are for compact breakpoints only, like mobile devices." (dialogs/guidelines); "Modal side sheets are preferred in compact breakpoints, like mobile, due to limited screen size." (side-sheets/guidelines); list-detail on compact: "Only one view is visible at a time, either list or detail", with a back button and an app bar. M3 prints no page with `Save` in a bottom bar (see B1).
-- **We do:** the rule (owner, 15 Nov 2026: "We have agreed on moving away from full screen and sidebar on mobile and instead using pages."): below 600 dp no view of the editor is a full-screen dialog or a side sheet. Each is a page with the top app bar (back arrow and the headline), its content, `Save` filled in the standard bottom sheet when it has one, and Back with unsaved changes asking "Keep your changes?". The computer keeps the side sheet. Built so far: the crop view (#686), the Preview (#696) and a block's settings (#650, B1). The theme's `Dialog` has no full-screen kind any more (`THEME_API` 5). Notifications is a page too (`#notifications`, 15 Nov; the side sheet stays from 600 dp). A section's settings are a page too below 600 dp (15 Nov; a bottom sheet at medium, the side sheet from expanded). Not pages, by the owner's decision of 15 Nov: the lightbox (item 19 above) and the alt text sheet, which stay as they are (the alt text sheet is a bottom sheet with Skip and Save). The settings sheets of 0.20 (`2026-11-14-settings-sheets-design.md`) are not yet pages; that plan already has the subpage.
+- **We do:** the rule (owner, 15 Nov 2026: "We have agreed on moving away from full screen and sidebar on mobile and instead using pages."): below 600 dp no view of the editor is a full-screen dialog or a side sheet. Each is a page with the top app bar (back arrow and the headline), its content, `Save` filled in the standard bottom sheet when it has one, and Back with unsaved changes asking "Keep your changes?". The computer keeps the side sheet. Built so far: the crop view (#686), the Preview (#696) and a block's settings (#650, B1). The theme's `Dialog` has no full-screen kind any more (`THEME_API` 5). Notifications is a page too (`#notifications`, 15 Nov; the side sheet stays from 600 dp). A section's settings are a page too below 600 dp (15 Nov) and, from 600 dp, the live standard side sheet beside the page (owner, 15 Nov: "The settings should show in the right pane and not be a dialog"). M3's supporting-pane page puts a supporting pane below the focus pane at medium and beside it only from expanded (360 dp), while the side-sheets page says standard side sheets are "used mostly in medium to expanded breakpoints"; we follow the owner and the side-sheet page (`docs/superpowers/specs/2026-11-15-section-settings-pane.md`). Not pages, by the owner's decision of 15 Nov: the lightbox (item 19 above) and the alt text sheet, which stay as they are (the alt text sheet is a bottom sheet with Skip and Save). The settings sheets of 0.20 (`2026-11-14-settings-sheets-design.md`) are not yet pages; that plan already has the subpage.
 - **Why:** owner decision, relayed by the 0.18 project manager on 15 Nov 2026.
 - **Date:** 2026-11-15. **PR:** #650 (the rule and the block sheet); the other views in their own pull requests.
+
+### B3. Settings are a pane from 600 dp, not a dialog
+
+- **Material:** dialogs/overview: "Should be dedicated to completing a single task"; dialogs/guidelines: "Dialogs are purposefully interruptive, so they should be used sparingly.", "Common use cases for basic dialogs include alerts, quick selection, and confirmation.", "not every choice or setting warrants interruption"; full-screen dialogs "may be used for ... Dialogs that include components which require keyboard input, such as form fields" and, for medium and expanded, "use a basic dialog". side-sheets/guidelines: standard side sheets "remain visible while people interact with primary content" and may hold "Form controls shown in a side sheet for app settings"; side-sheets/overview: "People can navigate to another region within the sheet" and "Side sheets can contain a back icon for navigation". M3 therefore allows a basic dialog for a form at medium and expanded.
+- **We do:** owner rule, 15 Nov 2026: "Dialogs are only for short messages, not for settings." A dialog is a short message, a confirmation or a single short choice. Settings or a form with several controls are the standard side sheet beside the page from 600 dp and a page below 600 dp (B2). Where a pane opens from inside a pane, the inner content replaces the pane's content with a back arrow, as side-sheets/overview prints. The supporting-pane page puts the pane below at medium; we put it beside from 600 dp (the side-sheets page: "used mostly in medium to expanded").
+- **Why:** owner decision, 15 Nov 2026. Section settings first (`docs/superpowers/specs/2026-11-15-section-settings-pane.md`); the other surfaces in their own pull requests.
+- **Also a pane from 600 dp (pane PR 2):** a block's fields (and an image's alt text), a List row's settings and the Block settings details (`src/BlockSettings.tsx`, beside the list; below 600 dp still the sheet from the bottom until its page is built).
+- **Also a pane from 600 dp (pane PR 3b):** the link of a text (`src/LinkSheet.tsx`), a link of the profiles (`src/LinkList.tsx`) and an item of a menu (`MenuList` in `src/fields.tsx`), fed into the pane host (`src/PaneHost.tsx`); one opened while another pane is open is on top of it with the theme side sheet's back icon (M3 side-sheets/overview: "Side sheets can contain a back icon for navigation"). Below 600 dp they stay the sheet from the bottom. The page picker inside the link stays a sheet (a choice).
+- **Also a pane from 600 dp (pane PR 4):** an own list's settings (`src/OwnListSheet.tsx`), the name of a new list (`src/NewListDialog.tsx`, a dialog before), a widget's settings (`src/WidgetSettings.tsx`), an app's add-on (`src/AppAdds.tsx`) and a redirect (`src/Redirects.tsx`), fed into the pane host; below 600 dp they stay the dialog or the sheet from the bottom. The content is drawn in the pane or in the sheet, never in both.
+- **Also a pane from 600 dp (pane PR 5):** a file's details in Files (`src/Media.tsx`: the side sheet beside the grid from 600 dp instead of 840 dp; below 600 dp the page `files/<address>`) and a consent record (`src/Consents.tsx`, fed into the pane host; its Delete stays a confirmation, `ask()`).
+- **Date:** 2026-11-15. **PR:** #774 (section settings).
 
 ## Preview and View on site in the text's bar
 
@@ -388,6 +403,14 @@ Source: `theme/ui/Search.tsx` (`SearchView`), `theme/styles/ui.css` (`.search-vi
 - **M3 prints no number for:** the space around the chip row in a search view (we use 12dp left and top, 8dp under it); the category label (12/16 label medium, 8dp above, 4dp under, 16dp in) and the gap between groups (8dp); the docked bar's margin (it stands where the closed bar was, so 0, M3 prints the focused 12dp); the docked container's corner radius (the shape tokens show a drawing: we use the theme's 28dp extra-large); a margin between a docked container and the page. These are open points for the owner; SV13 researches them.
 - **Date:** 2026-11-15. **PR:** this pull request.
 
+### SV12. The search view's rows are the theme's segmented list (owner's approval, 15 Nov 2026)
+
+- **Material (Lists, read 15 Nov 2026 with Playwright: overview, specs incl. the token table's Spacing, Shape, Size and Color folders, guidelines, accessibility):** "Use segmented gaps and filled list items to define a list group", "Use gaps for contained lists", "List segment gap 2dp", "Unselected corner radius: 4dp inner, 16dp outer", "Selected corner radius: 16dp", "List list item segmented container color #FEF7FF" (the baseline scheme's Surface), "List list item selected container color #E8DEF8", "One line list item container height 56dp", "Two lines … 72dp", "List list item leading space 16dp", "List list item between space 12dp".
+- **We do:** the theme already has the segmented kind (`List kind="segmented"`, `theme/ui/List.tsx`, `.list-segmented` in `theme/styles/ui.css`, shown in Parts › UI components › List): a 2dp gap (`--list-segmented-gap`), 16dp outer and 4dp inner corners, 16dp when selected, the selected row on the secondary container (the same colour as M3's #E8DEF8). The theme's default row colour is now Surface (`--list-segmented-surface`, M3's "segmented container color"; owner, 15 Nov 2026), for every segmented list. In the search view the lists stand in the page's grid margin on their sides (`--grid-margin`, 16dp compact and 24dp from medium: the owner's grid rule, 15 Nov 2026) with 8dp above and below (`--search-view-results-padding`). M3 prints no side margin for a segmented list (Lists overview, specs, guidelines and accessibility only say a list can "adjust margins" per breakpoint); the Search specs' 24dp and 12dp margins and the "Search view contained leading and trailing margin 12dp" token are the search bar's and the view header's, not the results'. The site's List block and the editor's gallery list already stand inside the page's margin (their page container, 16dp at 375 px), so they get no second one.
+- **Where it differs, and why:** (1) The site's List block with the segmented option (`theme/blocks/list/Rows.tsx`), its preview in the editor (`InlineSegmented`) and the editor's gallery list have their rows on the surface container, not on M3's Surface (`--list-segmented-surface`, set by `.block-list` in `theme/styles/blocks.css` and by the gallery's list preview). M3 prints Surface for the segmented container; those lists stand on a page that is itself Surface, so Surface rows and their 2dp gaps would be invisible. Owner-approved deviation (owner, 15 Nov 2026, relayed by the PM); the theme's default and the search view (a higher container) keep Surface. (2) M3 prints no number for the hovered, focused and pressed corners (drawings in the shape tokens): the theme uses 12dp (owner's yes, 15 Nov 2026). (3) M3 prints no gap between groups of lists: 8dp (owner's yes). Nothing else differs.
+- **Which M3 we follow:** M3 Expressive. The Lists specs table prints: Lists (expressive) "M3 --", "M3 Expressive Available"; Lists (baseline) "M3 Available", "M3 Expressive Not recommended. Use expressive lists instead."; Style Standard "Available / Available", Segmented "M3 --", "M3 Expressive Available". So the segmented list (2dp gaps, rounded items) is M3 Expressive only, not baseline. The Search specs say the same for the contained style ("M3 --", "M3 Expressive Available") and the divided style ("M3 Available", "M3 Expressive Not recommended. Use contained."), and the Search overview dates its Expressive update "February 2025". Where a component has an expressive variant the theme follows it, and the editor's workspace follows its own rules as before.
+- **Date:** 2026-11-15 (owner's approval, relayed by the PM). **PR:** this pull request.
+
 ### B3. The bottom sheet's side padding is the grid margin
 
 - **Material (read with Playwright, 15 Nov 2026, m3.material.io/components/bottom-sheets/overview, /specs, /guidelines, /accessibility):** specs, Measurements: "Bottom sheets span the full window width up to 640dp. When the window width exceeds 640dp, bottom sheets adjust to have a top margin of 56dp and side margins of 56dp", "Drag handle padding top/bottom 22dp", "Top margin 72dp", "Width Full width, up to max-width 640dp". M3 prints no padding for what is inside a sheet, so there is no value to conflict with.
@@ -414,3 +437,64 @@ Source: `theme/styles/ui.css` (`.search-view-header`, `.search-view-input`). Rea
 - **We do:** the bar container of the view (`.search-view-header`) shows the same 2dp accent ring as the closed search bar while the field has focus, drawn as an inset shadow with a transparent outline for forced-colors mode. The same 2dp ring (`--mo-primary`) marks the editor's text typed in place and its typed rows (editor only, no M3 page).
 - **Why:** Chrome's Modern Web Guidance, `accessibility`: "Mandatory - Don't disable browser native focus indicators without providing a replacement custom focus indicator" (WCAG 2.4.7, 1.4.11, 3:1). Owner approved, 15 Nov 2026 (relayed by the PM).
 - **Date:** 2026-11-15. **PR:** #754.
+
+## The error text of a text field has no alert role (text field `:user-invalid`)
+
+Source: `theme/ui/TextField.tsx` (`.text-field-invalid-text`), `theme/ui/textFieldUpdate.ts` (`syncInvalid`). Read 15 Nov 2026 on m3.material.io (Playwright): `/components/text-fields/overview`, `/specs`, `/guidelines` and `/accessibility`.
+
+### E1. The error text is linked by `aria-describedby`, not announced as an alert
+
+- **Material:** "When there is an error, "alert" is applied to the role and the error message to the text label." and "Text field error messages should be given an “alert” role in accessibility labels" (Text fields, accessibility).
+- **We do:** the line that says what is wrong has no `role="alert"`. While the field is invalid after the person has worked in it (`:user-invalid`), its `aria-invalid` is true and the line's id is in its `aria-describedby`, so a screen reader reads the message once, with the field.
+- **Why:** Chrome's Modern Web Guidance (`validate-input-after-interaction`, `accessible-error-announcement`) says to list the error in `aria-describedby` only while the field is invalid and not to make each message a live region, as a message that is shown rather than changed is not announced reliably and would be read twice. The owner's order puts the modern web guidance before Material 3 here: the PM, 15 Nov 2026 (owner: "We follow modern web").
+- **Date:** 2026-11-15 (owner, through the PM). **PR:** the pull request that adds this entry.
+
+## The footer's colour scheme (connected button group, #767)
+
+Source: `theme/components/Footer.astro`, `theme/layouts/Base.astro`. Read 15 Nov 2026 on m3.material.io (Playwright): `/components/button-groups/overview`, `/specs`, `/guidelines` and `/accessibility`, and `/components/segmented-buttons/overview`, `/specs`, `/guidelines` and `/accessibility`.
+
+### F1. A single-choice group of toggle buttons says `aria-pressed`, not `radio`
+
+- **Material:** the button groups' Accessibility page prints "Tab: Initial focus lands on the first button", "Arrow keys: Navigate between items", "Space or Enter: Selects a focused item" and "Identify when buttons are selected"; it names no ARIA roles.
+- **We do:** the three buttons (Light, Auto, Dark) are toggle `Button`s with `aria-pressed` in a `role="group"` (the theme's `ButtonGroup`, as its `ChoiceGroup` does), with one tab stop on the chosen button and the arrow keys moving and choosing. Initial focus lands on the chosen button, as `ChoiceGroup` does, where M3 prints the first.
+- **Why it stays:** no Modern Web Guidance guide prints a rule for one-of-many toggle buttons (searched and read 15 Nov 2026: `accessibility`, `forms`, `toolbar`, `tabs`, `switch`, `dark-mode-toggle`; none mentions radio roles, `aria-checked` or arrow-key groups), and M3's page prints none. The theme's `ChoiceGroup` and this group use `aria-pressed`. Accepted by the PM, 15 Nov 2026; revisit if the guides add it.
+- **Date:** 2026-11-15. **PR:** #767.
+
+## The site's menu is the modal expanded navigation rail (follow-up of D2 of the Modern Web Guidance audit)
+
+Source: `theme/components/MobileMenu.tsx`, `theme/ui/NavigationDrawer.tsx`, `theme/styles/ui.css`. Read 15 Nov 2026 on m3.material.io (Playwright, every tab): `/components/navigation-drawer/overview`, `/specs`, `/guidelines`, `/accessibility` and `/components/navigation-rail/overview`, `/specs` (the token sets Common, Collapsed, Expanded, Item - Common, Item - Vertical and Item - Horizontal, opened), `/guidelines`, `/accessibility`. The measurement and anatomy images of the Specs pages did not load in headless Chromium (blurred placeholders), so numbers that only those images carry are not read here.
+
+### N1. The menu on a phone is the modal expanded navigation rail; the part keeps its name `navigation-drawer`
+
+- **Material:** Navigation drawer, Overview: "The navigation drawer is no longer recommended in the Material 3 Expressive update. For those who have updated, use an expanded navigation rail, which has mostly the same functionality of the navigation drawer and adapts better across breakpoints." Navigation rail, Overview: "The expanded nav rail is meant to replace the navigation drawer"; Specs, Configurations, *Expanded layout*, "Modal": M3 "Available as navigation drawer", M3 Expressive "Available"; Guidelines: "Expanded navigation rails can open from menu buttons on mobile".
+- **We do (owner's priority order, 15 Nov 2026: Expressive over plain M3; decided by the PM):** the theme's `navigation-drawer` takes the expanded rail's look where its pages print a value: the modal container is the surface container ("Nav rail expanded modal container color", `--mo-elevation-2-color`) and the standard one the surface ("Nav rail expanded container color"); the container hugs its content, "container width minimum 220dp", "maximum 360dp" (a theme that sets `--navigation-drawer-width` still gets that width); the icon-label space is 8dp ("Nav rail item horizontal icon-label-space 8dp"); and the site's menu has the rail's menu button at its top, on the edge the header's menu button is on, which closes it with a changed icon (`menu-open`; Guidelines: "When the navigation rail is expanded, the menu icon should change to represent that it can be collapsed"), instead of the Close (x) in the head row. The site's logo and name stay beside it, because the menu is the site's own and has no other place for them.
+- **Why the name stays:** a rename changes the exported names and the class names a theme uses, so it needs a `THEME_API` bump; the look change does not. Nothing is removed or renamed here: a new `--navigation-drawer-width-min-default` default, min and max widths instead of a fixed one.
+
+### N2. The active indicator fills the container
+
+- **Material:** Navigation rail, Guidelines: "The active indicator hugs the label text in the expanded nav rail. To achieve a similar style to the baseline navigation drawer, consider modifying the active indicator to fill the container."
+- **We do:** the drawer's active indicator fills the container, as before ("Navigation drawers active indicator width 336dp"). M3 allows it. **Date:** 2026-11-15 (the PM's decision).
+
+### N3. Labels only, and sub-pages, in the site's menu
+
+- **Material:** Navigation rail, Guidelines: "Navigation rail items must use icons that symbolize the content of their page"; "All navigation items require a one word label text."
+- **We do:** the site's menu items are the site's own pages, which have no icons, and an item with sub-pages unfolds them. Items that have an icon (the editor's) use the rail's 8dp icon-label space. **Date:** 2026-11-15.
+
+### N4. The menu can open from the end edge
+
+- **Material:** Navigation rail, Guidelines: "The navigation rail should be placed on the leading edge of the window"; "Always put the rail in the same place".
+- **We do:** the site's menu opens from the edge its button is on (`menuSide` of `header.json`, an owner setting), the end edge included, and its menu button stands on that edge. **Date:** 2026-11-15.
+
+### N5. The scrim, a tap on it and Escape; no custom swipe
+
+- **Material:** Navigation drawer, Guidelines: "Modal navigation drawers use a scrim to block interaction with the rest of an app's content"; dismissal "by tapping the scrim or swiping the drawer toward its anchoring screen edge". Navigation rail, Guidelines: "Predictive back only applies to the modal expanded navigation rail."
+- **We do:** a scrim (the dialog's `::backdrop`), light dismiss and Escape through the native `<dialog>` and its `closedby="any"` and back gesture; no custom swipe (Modern Web Guidance, `dialog`: the browser handles the platform's dismissal). **Date:** 2026-11-15.
+
+### N6. The editor's drawers keep one width
+
+- **Material:** "Nav rail expanded container width minimum 220dp", "maximum 360dp" (it hugs its content).
+- **We do:** the editor's drawers (`.editor-main-drawer-panel`, `src/editor.css`) keep 360dp (at most the screen less 56dp) through their levels and sections, because the layout beside them counts on that width (`--section-pane-width`, the columns). Editor workspace only. **Date:** 2026-11-15.
+
+### N7. Values only the Specs images carry are left as they were
+
+- **Not read:** "Nav rail expanded top space 44dp" is a token, but how the 56dp active indicator sits in the 64dp item container ("container height 64dp", "short container height 56dp", "container vertical space 6dp") and the container's shape and elevation print no value in the page's text. The PM's decision: leave those as they are. We keep the 56dp item, the 12dp top padding and the drawer's corners and level 1 shadow. **Date:** 2026-11-15. **PR:** this pull request.
