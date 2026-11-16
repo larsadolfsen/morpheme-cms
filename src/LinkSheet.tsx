@@ -3,10 +3,11 @@
 // address (another site, an e-mail, a phone number). askLink() opens it and tells what to do; <LinkAsk />
 // is in App.tsx, with the pages. An e-mail or a phone number becomes a link of its own kind (mailto:,
 // tel:), and an address without https:// gets it.
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Trash } from '@phosphor-icons/react';
 import PagePicker, { type Group } from './PagePicker';
-import { Button, SegmentedButton, BottomSheet, SheetActions, SheetBody, SheetTitle, TextField } from './ui';
+import { Button, SegmentedButton, BottomSheet, SheetActions, SheetBody, SheetTitle, TextField, atLeastNow } from './ui';
+import { usePane } from './PaneHost';
 import { closeChanged } from './ask';
 import { t } from './i18n';
 import { isActionEnter } from '../lib/enterKey.mjs';
@@ -39,6 +40,11 @@ const typedOf = (href: string) => href.replace(/^(mailto|tel):/, '');
 
 export function LinkAsk({ groups }: { groups: Group[] }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  // From medium (600 dp) the link is in the pane beside the page (owner, 15 Nov 2026: settings are a pane, not a dialog), below it the sheet from
+  // the bottom; taken when it opens and kept while it is open.
+  const [inPane, setInPane] = useState(false);
+  const opener = useRef<HTMLElement | null>(null);
+  const headingId = useId();
   const answer = useRef<(a: LinkAnswer) => void>(() => {});
   // The link as it was when the sheet opened, and what it is now.
   const [old, setOld] = useState('');
@@ -62,7 +68,10 @@ export function LinkAsk({ groups }: { groups: Group[] }) {
       setKind(onSite ? 'page' : 'address');
       setPage(onSite ? href : '');
       setAddress(onSite ? '' : typedOf(href));
-      dialog.current?.showModal();
+      opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      const wide = atLeastNow('medium');
+      setInPane(wide);
+      if (!wide) dialog.current?.showModal();
     };
   }, []);
 
@@ -70,7 +79,8 @@ export function LinkAsk({ groups }: { groups: Group[] }) {
   const done = (a: LinkAnswer) => {
     answer.current(a);
     answer.current = () => {};
-    dialog.current?.close();
+    if (inPane) void pane.close().then(() => setInPane(false));
+    else dialog.current?.close();
   };
   const use = () => href && done({ href, text: kind === 'page' ? (pageOf(href)?.label ?? href) : address.trim() });
   // Closed with a change: the owner is asked whether to keep it (Keep), leave it (Discard) or stay.
@@ -81,59 +91,93 @@ export function LinkAsk({ groups }: { groups: Group[] }) {
     else if (choice === 'discard') done(null);
   }
 
-  return (
-    <BottomSheet
-      ref={dialog}
-      aria-label={t.text.link}
-      // A page picked in the sheet over it closes that one, not this.
-      onClose={(e) => e.target === e.currentTarget && answer.current(null)}
-      onCancel={(e) => {
-        if (e.target !== e.currentTarget) return;
-        e.preventDefault();
-        void leave();
-      }}
-      onClick={(e) => e.target === dialog.current && void leave()}
-    >
-      <SheetTitle title={t.text.link} onClose={() => void leave()} />
-      <SheetBody>
-        <SegmentedButton
-          label={t.text.linkTo}
-          value={kind}
-          options={[
-            { value: 'page', label: t.text.linkPage },
-            { value: 'address', label: t.text.linkAddress },
-          ]}
-          onChange={setKind}
-        />
-        {kind === 'page' ? (
-          <PagePicker id="link-page" inField={{ label: t.text.linkPage }} value={page} groups={groups} required onChange={setPage} />
-        ) : (
-          <TextField
-            id="link-address"
-            label={t.forms.address}
-            hint={t.text.linkAddressHint}
-            inputMode="url"
-            autoCapitalize="off"
-            autoCorrect="off"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            onKeyDown={(e) => isActionEnter(e) && (e.preventDefault(), use())}
-          />
-        )}
-      </SheetBody>
-      <SheetActions
-        onCancel={() => void leave()}
-        onDone={use}
-        disabled={!href}
-        done={old ? t.common.save : t.text.insertLink}
-        start={
-          old && (
-            <Button kind="text" icon={Trash} onClick={() => done({ href: '', text: '' })}>
-              {t.text.removeLink}
-            </Button>
-          )
-        }
+  // What the link has: page or address, and the field of each.
+  const fields = (
+    <>
+      <SegmentedButton
+        label={t.text.linkTo}
+        value={kind}
+        options={[
+          { value: 'page', label: t.text.linkPage },
+          { value: 'address', label: t.text.linkAddress },
+        ]}
+        onChange={setKind}
       />
-    </BottomSheet>
+      {kind === 'page' ? (
+        <PagePicker id="link-page" inField={{ label: t.text.linkPage }} value={page} groups={groups} required onChange={setPage} />
+      ) : (
+        <TextField
+          id="link-address"
+          label={t.forms.address}
+          hint={t.text.linkAddressHint}
+          inputMode="url"
+          autoCapitalize="off"
+          autoCorrect="off"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          onKeyDown={(e) => isActionEnter(e) && (e.preventDefault(), use())}
+        />
+      )}
+    </>
+  );
+  const remove = old && (
+    <Button kind="text" icon={Trash} onClick={() => done({ href: '', text: '' })}>
+      {t.text.removeLink}
+    </Button>
+  );
+  const pane = usePane(
+    inPane
+      ? {
+          headline: t.text.link,
+          headlineId: headingId,
+          beforeClose: async () => {
+            await leave();
+            return false;
+          },
+          opener: opener.current,
+          onBack: () => void leave(),
+          backLabel: t.common.back,
+          actions: (
+            <>
+              <Button disabled={!href} onClick={use}>
+                {old ? t.common.save : t.text.insertLink}
+              </Button>
+              <Button kind="outlined" onClick={() => void leave()}>
+                {t.common.cancel}
+              </Button>
+              {remove}
+            </>
+          ),
+          children: <div className="space-y-5">{fields}</div>,
+        }
+      : null,
+  );
+
+  return (
+    <>
+      <BottomSheet
+        ref={dialog}
+        aria-label={t.text.link}
+        // A page picked in the sheet over it closes that one, not this.
+        onClose={(e) => e.target === e.currentTarget && answer.current(null)}
+        onCancel={(e) => {
+          if (e.target !== e.currentTarget) return;
+          e.preventDefault();
+          void leave();
+        }}
+        onClick={(e) => e.target === dialog.current && void leave()}
+      >
+        <SheetTitle title={t.text.link} onClose={() => void leave()} />
+        <SheetBody>{fields}</SheetBody>
+        <SheetActions
+          onCancel={() => void leave()}
+          onDone={use}
+          disabled={!href}
+          done={old ? t.common.save : t.text.insertLink}
+          start={remove}
+        />
+      </BottomSheet>
+      {pane.portal}
+    </>
   );
 }

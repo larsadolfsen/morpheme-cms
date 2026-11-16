@@ -28,6 +28,10 @@ export type PaneEntry = {
   keepFocus?: boolean;
   /** The focus leaves the pane. */
   onBlur?: () => void;
+  /** A back icon button before the headline, for a pane opened from inside another: it shows the other again (the theme's SideSheet
+   * `onBack`); `backLabel` names it. */
+  onBack?: () => void;
+  backLabel?: string;
 };
 
 // The slot, the ids of the panes that are open (the last is on top) and how to close each: outside React, so every screen sees the same.
@@ -59,7 +63,8 @@ function drop(id: string) {
 }
 
 /** Feeds the pane (entry) or takes it away (null). Call it on every render with what is to be shown now, and put the returned `portal` in what the
- * component renders. close() hides the pane (the focus goes back to its opener); the caller then stops feeding it. */
+ * component renders. close() hides the pane (the focus goes back to its opener); the caller then stops feeding it. A pane on top of another
+ * (opened from inside it) shows its `onBack`, as a back icon button. */
 export function usePane(entry: PaneEntry | null) {
   const id = useId();
   useSyncExternalStore(subscribe, snapshot, snapshot);
@@ -69,11 +74,14 @@ export function usePane(entry: PaneEntry | null) {
     else drop(id);
   }, [has, id]);
   useLayoutEffect(() => () => drop(id), [id]);
-  const portal = entry && slot ? createPortal(<Pane id={id} entry={entry} top={open.at(-1) === id} />, slot) : null;
+  const portal =
+    entry && slot
+      ? createPortal(<Pane id={id} entry={entry} top={open.at(-1) === id} nested={open.length > 1 && open.at(-1) === id} />, slot)
+      : null;
   return { portal, close: () => closers.get(id)?.() ?? Promise.resolve() };
 }
 
-function Pane({ id, entry, top }: { id: string; entry: PaneEntry; top: boolean }) {
+function Pane({ id, entry, top, nested }: { id: string; entry: PaneEntry; top: boolean; nested: boolean }) {
   const box = useRef<HTMLDivElement>(null);
   const latest = useRef(entry);
   latest.current = entry;
@@ -90,9 +98,16 @@ function Pane({ id, entry, top }: { id: string; entry: PaneEntry; top: boolean }
       closers.delete(id);
     };
   }, [id]);
-  // It opens (and has the focus) once it is the one shown: not before, as a pane that is not shown cannot take the focus.
+  // It opens (and has the focus) once it is the one shown: not before, as a pane that is not shown cannot take the focus. One shown again
+  // (the pane opened from inside it has gone) takes the focus back.
+  const shownBefore = useRef(false);
   useEffect(() => {
     if (!top || !controls.current) return;
+    if (shownBefore.current) {
+      box.current?.querySelector<HTMLElement>('[data-side-sheet-container]')?.focus({ preventScroll: true });
+      return;
+    }
+    shownBefore.current = true;
     // The settings of a row are beside the row being typed in: the cursor stays where it is.
     const typing = latest.current.keepFocus ? document.activeElement : null;
     controls.current.open(latest.current.opener ?? undefined);
@@ -109,6 +124,8 @@ function Pane({ id, entry, top }: { id: string; entry: PaneEntry; top: boolean }
         headlineId={entry.headlineId}
         closeLabel={t.common.close}
         className="editor-side-sheet"
+        onBack={nested ? entry.onBack : undefined}
+        backLabel={entry.backLabel}
         actions={entry.actions}
       >
         {entry.children}

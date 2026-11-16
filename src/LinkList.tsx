@@ -5,7 +5,7 @@
 // let in. What is changed here is saved with the form (CompanyForm.tsx). Exposes LinkList (the list) and networkIcons
 // (the icon of each network known, by its id). Uses the rows, the sheet and the FAB of ui.tsx and CreateFab.tsx, the
 // arrows of MoveButtons.tsx, and the address logic of linkAddress.mjs.
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { FacebookLogo, Globe, LinkedinLogo, PinterestLogo, Trash, XLogo, type Icon } from '@phosphor-icons/react';
 import { networkOf, type NetworkId } from '../site/social.mjs';
 import { nameOf, problemOf, shownAddress, typedLink } from './linkAddress.mjs';
@@ -13,7 +13,8 @@ import { CreateFab } from './CreateFab';
 import { MoveButtons } from './MoveButtons';
 import { movedList } from './moveItem.mjs';
 import type { Field } from './schema';
-import { BottomSheet, Button, EmptyNote, Label, ListItem, listClass, SheetBody, SheetTitle, TextField } from './ui';
+import { BottomSheet, Button, EmptyNote, Label, ListItem, listClass, SheetBody, SheetTitle, TextField, atLeastNow } from './ui';
+import { usePane } from './PaneHost';
 import { t } from './i18n';
 
 /** The icon of each network known (NETWORKS in site/social.mjs), as the share buttons have them; any other link has the
@@ -51,12 +52,26 @@ export function LinkList({
   // The link open in the sheet: its place in the list (null: a new one) and its address as typed.
   const [editing, setEditing] = useState<{ index: number | null; typed: string } | null>(null);
   const [problem, setProblem] = useState('');
+  // From medium (600 dp) the link is in the pane beside the page (owner, 15 Nov 2026: settings are a pane, not a dialog), below it the sheet
+  // from the bottom; taken when it opens and kept while it is open.
+  const [inPane, setInPane] = useState(false);
+  const opener = useRef<HTMLElement | null>(null);
+  const headingId = useId();
   const open = (index: number | null) => {
     setEditing({ index, typed: index === null ? '' : String(value[index]?.url ?? '') });
     setProblem('');
-    dialog.current?.showModal();
+    opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const wide = atLeastNow('medium');
+    setInPane(wide);
+    if (!wide) dialog.current?.showModal();
   };
-  const close = () => dialog.current?.close();
+  const close = async () => {
+    if (inPane) {
+      await pane.close();
+      setEditing(null);
+      setInPane(false);
+    } else dialog.current?.close();
+  };
   // A link that keeps the form from being saved is opened in the sheet, with what is wrong.
   useEffect(() => {
     if (!wrong || !value[wrong.index]) return;
@@ -91,6 +106,60 @@ export function LinkList({
 
   const typed = editing ? typedLink(editing.typed) : '';
   const network = typed ? networkOf(typed) : null;
+  // The buttons: the one to do, and Remove for a link that is in the list.
+  const buttons = (
+    <>
+      <Button type="submit">{editing?.index === null ? t.forms.links.addButton : t.forms.links.done}</Button>
+      {editing && editing.index !== null && (
+        <Button kind="outlined" icon={Trash} onClick={() => remove(editing.index!)}>
+          {t.forms.links.remove}
+        </Button>
+      )}
+    </>
+  );
+  const pane = usePane(
+    inPane && editing
+      ? {
+          headline: editing.index == null ? t.forms.links.add : nameOf(String(value[editing.index]?.url ?? '')),
+          headlineId: headingId,
+          beforeClose: async () => {
+            await close();
+            return false;
+          },
+          opener: opener.current,
+          onBack: () => void close(),
+          backLabel: t.common.back,
+          children: (
+            <form
+              className="space-y-5"
+              onSubmit={(e) => {
+                e.preventDefault();
+                done();
+              }}
+            >
+              <div>
+                <TextField
+                  id="link-url"
+                  label={address?.label ?? t.forms.links.address}
+                  hint={network ? t.forms.links.found(network.name) : t.forms.links.hint}
+                  problem={problem || undefined}
+                  value={editing.typed}
+                  inputMode="url"
+                  autoComplete="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
+                  onChange={(e) => {
+                    setEditing({ ...editing, typed: e.target.value });
+                    setProblem('');
+                  }}
+                />
+              </div>
+              {buttons}
+            </form>
+          ),
+        }
+      : null,
+  );
   return (
     <div>
       <Label hint={hint}>{field.label}</Label>
@@ -150,15 +219,11 @@ export function LinkList({
                 }}
               />
             </div>
-            <Button type="submit">{editing.index === null ? t.forms.links.addButton : t.forms.links.done}</Button>
-            {editing.index !== null && (
-              <Button kind="outlined" icon={Trash} onClick={() => remove(editing.index!)}>
-                {t.forms.links.remove}
-              </Button>
-            )}
+            {buttons}
           </SheetBody>
         )}
       </BottomSheet>
+      {pane.portal}
       <CreateFab label={t.forms.links.add} onClick={() => open(null)} />
     </div>
   );
