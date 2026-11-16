@@ -5469,8 +5469,7 @@ async function handleOpacity(page, index, want) {
     .evaluate((el) => getComputedStyle(el).opacity);
 }
 
-/** Dragging a block by its handle (blockHandle in MarkdownEditor.tsx): every block has a handle at its top left corner, at least 48 px, always shown with a
- * touch and on the block pointed at with a mouse; dragging it above the block before moves the block there (the order in the text changes), a tap on it
+/** Dragging a block by its handle (blockHandle in MarkdownEditor.tsx): every block has a handle at its top left corner, at least 48 px, shown on the active block (not on one a mouse only points at, where it would cover the first item); dragging it above the block before moves the block there (the order in the text changes), a tap on it
  * does nothing. A touch drag is made with real touch events. */
 async function checkBlockDrag(width) {
   const label = `block drag ${width}`;
@@ -5515,13 +5514,21 @@ async function checkBlockDrag(width) {
     }
     if ((await opacity('1')) !== '1') problems.push(`${label}: a touch does not see the handle of the active block`);
   } else {
+    // A mouse pointing at a block shows the row's buttons over its top but not the handle (at the block's left it would cover the first item): the handle is there once the block is active.
     await page.mouse.move(5, 5);
     await page.waitForTimeout(400);
-    if ((await opacity('0')) !== '0') problems.push(`${label}: a mouse sees a handle before it points at the block`);
-    const b = await box(1);
+    if ((await opacity('0')) !== '0') problems.push(`${label}: a mouse sees a handle before the block is active`);
+    const field = page.locator('.ProseMirror .site-block').nth(1).locator('.inline-list-row [data-field]').first();
+    const b = await field.boundingBox();
     await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
     await page.waitForTimeout(400);
-    if ((await opacity('1')) !== '1') problems.push(`${label}: a mouse does not see the handle of the block it points at`);
+    if ((await opacity('0')) !== '0')
+      problems.push(`${label}: a mouse sees the handle of a block it only points at, where it covers the block's first item`);
+    for (let tries = 0; tries < 3; tries++) {
+      await field.click();
+      if ((await opacity('1')) === '1') break;
+    }
+    if ((await opacity('1')) !== '1') problems.push(`${label}: a mouse does not see the handle of the active block`);
   }
   // A tap on the handle moves nothing.
   const second = await box(1);

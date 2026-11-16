@@ -961,7 +961,7 @@ html {
   background: transparent;
 }
 
-.editor-text :is(.site-block-has-row, .site-block-has-hover) > .site-block-handle {
+.editor-text .site-block-has-row > .site-block-handle {
   /* In the row's start: the row's own height, below the card's border and gap from its top edge. */
   top: calc(1.5px + var(--card-gap, 0.5rem));
   opacity: 1;
@@ -977,14 +977,14 @@ html {
   cursor: default;
 }
 
-/* A block that is neither active nor pointed at shows no handle (it is the start of the action row), with a mouse or a touch; the handle, like the row, is there while the block is
-   active, pointed at (a mouse, on a block wide enough for the row: on a narrow one the handle would cover its first item), being dragged, in focus with the keyboard, or while blocks are being selected. Hidden, it takes no pointer. */
+/* A block that is not active shows no handle (it is the start of the action row), with a mouse or a touch. A mouse pointing at a block shows the row's buttons over its top but not the handle:
+   at the block's left it would cover the first item. The handle is there while the block is active, being dragged, in focus with the keyboard, or while blocks are being selected. Hidden, it takes no pointer. */
 .editor-text .site-block-handle {
   opacity: 0;
   pointer-events: none;
 }
 
-.editor-text :is(.site-block-has-row, .site-block-has-hover, .site-block-marks, .site-block-dragging) > .site-block-handle,
+.editor-text :is(.site-block-has-row, .site-block-marks, .site-block-dragging) > .site-block-handle,
 .editor-text .site-block-handle:focus-visible {
   opacity: 1;
   pointer-events: auto;
