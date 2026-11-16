@@ -2,5 +2,5 @@
   "id": "cards-click-hover-row",
   "kind": "line",
   "mark": "improvement",
-  "text": "A mouse click on a card’s headline or a row’s chevron works while the block’s buttons are over it"
+  "text": "A click on a card's headline edits that card, not the buttons above it"
 }

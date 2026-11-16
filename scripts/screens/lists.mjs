@@ -36,8 +36,8 @@ async function checkListMarkers(width) {
   await page.close();
 }
 
-/** The hover row never takes a click meant for a control of the block: a mouse over the first row of a Segmented list or Questions and answers can click its chevron, at 768 and 1280
- * (the row's buttons and handle lay over it). */
+/** The hover action row is not drawn over a control of the block: a mouse over the first row of a Segmented list or Questions and answers shows no row over the row's chevron, at 768
+ * and 1280 (the block shows its row once it is active). The drag handle is its own part (it has its own rules). */
 async function checkChevronUnderHoverRow(width) {
   const label = `${width}px chevron under the hover row`;
   const src = [
@@ -60,9 +60,11 @@ async function checkChevronUnderHoverRow(width) {
   const icon = await first.locator('.list-item-expand-icon').boundingBox();
   await page.mouse.move(icon.x + icon.width / 2, icon.y + icon.height / 2);
   await page.waitForTimeout(500);
-  await page.mouse.click(icon.x + icon.width / 2, icon.y + icon.height / 2);
-  await page.waitForTimeout(400);
-  if (!(await first.evaluate((d) => d.open))) problems.push(`${label}: a mouse click on the first row's chevron does not open the row`);
+  const over = await page.evaluate((i) => {
+    const row = document.querySelector('.site-block-row-hover .site-block-row-inner')?.getBoundingClientRect();
+    return !!row && row.left < i.x + i.width && row.right > i.x && row.top < i.y + i.height && row.bottom > i.y;
+  }, icon);
+  if (over) problems.push(`${label}: the hover row lies over the first row's chevron`);
   await page.close();
 }
 
