@@ -70,7 +70,7 @@ export const allow = [
   // Status colours: Material 3 has no success or warning role.
   {
     kind: 'fixed-colour',
-    file: /^theme\/styles\/global\.css$/,
+    file: /^theme\/styles\/(global|tokens\/material\/comp\/badge)\.css$/,
     line: /--badge-(ok|minor|major)/,
     reason: 'status badges: Material 3 has no success or warning role',
   },

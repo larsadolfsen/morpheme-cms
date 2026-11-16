@@ -1,0 +1,8 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+@layer components {
+  .toolbar.theme-action-bar-row {
+    --toolbar-docked-line-width: 0px;
+    --toolbar-docked-backdrop: none;
+  }
+}

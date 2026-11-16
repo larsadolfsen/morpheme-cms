@@ -29,20 +29,8 @@
       display: var(--theme-logo-role-display-large);
     }
   }
-  /* The list of posts (PostList.tsx): a List with a leading image, 88 high on a phone and 128 from medium (larger imagery on
-     larger screens), a rule above each row (a divider of its own: the grid has two columns), the image's corners
-     --theme-post-picture-radius (Material 3: 8dp). */
-  .theme-post-list {
-    --list-item-image-size: 5.5rem;
-    --list-item-image-radius: var(--theme-post-picture-radius);
-  }
   .theme-post-list.list > li {
     border-top: 1px solid var(--mo-outline-variant);
-  }
-  @media (width >= theme(--breakpoint-medium)) {
-    .theme-post-list {
-      --list-item-image-size: 8rem;
-    }
   }
   .theme-post-picture {
     object-fit: cover;
@@ -82,8 +70,6 @@
     padding: 0;
   }
   .toolbar.theme-action-bar-row {
-    --toolbar-docked-line-width: 0px;
-    --toolbar-docked-backdrop: none;
     background: none;
   }
   /* Its buttons and its text, in the row, on the site and as the editor draws it: one button alone the whole width; two side by side
@@ -101,10 +87,6 @@
     flex: 1 0 auto;
   }
   .theme-action-bar-text {
-    --list-item-padding-block: 0;
-    --list-item-padding-inline: 0;
-    --list-item-min-height: auto;
-    --list-item-two-line-min-height: auto;
     flex: 1000 1 0;
     min-width: 8rem;
   }

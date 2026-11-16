@@ -1,0 +1,13 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+@layer components {
+  .list-item-control {
+    --checkbox-gap: 0;
+    --checkbox-offset: 0;
+  }
+}
+@layer components {
+  .list-item-select-box {
+    --checkbox-gap: 0;
+  }
+}

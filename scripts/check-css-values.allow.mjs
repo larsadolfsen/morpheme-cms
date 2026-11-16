@@ -6,7 +6,11 @@ export const allow = [
     line: /^--(radius|radius-small|block-radius|block-radius-small|block-control-radius): /,
     reason: 'the fallback corners for a theme that sets no steps (global.css sets the ten steps and maps these to them)',
   },
-  { file: /global\.css$/, line: /^--slider-track-inner-radius: 0\.125rem/, reason: "the slider's inner track corner: M3 draws it 2dp" },
+  {
+    file: /global\.css$|tokens\/material\/comp\/slider\.css$/,
+    line: /^--slider-track-inner-radius: 0\.125rem/,
+    reason: "the slider's inner track corner: M3 draws it 2dp",
+  },
   {
     file: /base\.css$/,
     line: /^border-radius: 6px/,

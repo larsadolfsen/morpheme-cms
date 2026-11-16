@@ -1,0 +1,27 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  --badge-radius: var(--mo-shape-full);
+  --badge-surface: var(--mo-error);
+  --badge-text: var(--mo-on-error);
+  /* A badge's status tones (Badge `tone`): each at least 3:1 on the page and surface colours (WCAG 1.4.11). Yellow
+     and orange are darker here and brighter in dark mode (below). */
+  --badge-ok: #1e8e3e;
+  --badge-minor: #b06e00;
+  --badge-major: #c25e00;
+  --badge-unknown: var(--mo-outline);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --badge-minor: #f9ab00;
+    --badge-major: #e8710a;
+  }
+}
+/* The same elevation in dark mode (the standard theme's shadow there is another). */
+:root[data-theme='dark'] {
+  --badge-minor: #f9ab00;
+  --badge-major: #e8710a;
+}

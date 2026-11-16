@@ -1,0 +1,7 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+@layer components {
+  .badge-anchor:has(> .icon-button) {
+    --badge-anchor-inset: calc((var(--icon-button-size, 2.75rem) - var(--icon-button-icon-size, 1.375rem)) / 2);
+  }
+}

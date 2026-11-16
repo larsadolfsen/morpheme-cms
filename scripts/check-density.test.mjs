@@ -1,15 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { findProblems, blocksOf } from './check-density.mjs';
+import { findProblems, blocksOf, readStyles } from './check-density.mjs';
 
-const real = () =>
-  Object.fromEntries(
-    ['theme/styles/ui.css', 'theme/styles/blocks.css', 'theme/styles/base.css', 'theme/styles/global.css', 'src/editor.css'].map((f) => [
-      f,
-      readFileSync(new URL(`../${f}`, import.meta.url), 'utf8'),
-    ]),
-  );
+const real = () => readStyles(new URL('../', import.meta.url));
 
 test('the theme follows density today', () => assert.deepEqual(findProblems(real()), []));
 

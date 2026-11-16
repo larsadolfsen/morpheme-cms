@@ -1,0 +1,25 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* The search view (M3: docked, "with a scrim covering main content"; full screen it covers everything): the scrim over the page behind it, as a dialog's. */
+  --search-view-scrim: var(--mo-scrim-overlay);
+  /* Search (M3 contained style, the recommended one): the bar 56px, full corners, in the high surface container with a state layer; the view
+     full screen in the low surface container and docked in the high one, docked with extra-large corners and the third elevation. */
+  --search-bar-height: 3.5rem;
+  --search-bar-radius: var(--mo-shape-full);
+  --search-bar-padding: 1rem;
+  --search-bar-gap: 1rem;
+  --search-bar-surface: var(--mo-surface-container-high);
+  --search-bar-line: transparent;
+  --search-bar-hover: color-mix(in srgb, var(--mo-on-surface) 8%, var(--mo-surface-container-high));
+  --search-bar-placeholder: var(--mo-on-surface-variant);
+  --search-view-radius: var(--mo-shape-extra-large);
+  --search-view-line: transparent;
+  --search-view-docked-radius: var(--mo-shape-medium);
+  /* The results (and the recent searches) stand in the page's grid margin (16dp compact, 24dp from medium; owner's grid rule, 15 Nov 2026): M3 prints no side margin for a segmented list. */
+  --search-view-results-padding: 0.5rem var(--mo-grid-margin);
+  --search-view-option-surface: var(--mo-hover);
+}

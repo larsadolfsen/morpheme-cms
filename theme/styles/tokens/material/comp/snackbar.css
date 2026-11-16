@@ -1,0 +1,19 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* Communication (ui.css). A badge in the error colours. A snackbar: the inverse surface and its text, extra-small
+     corners, the third elevation, no blur; its action in the inverse primary with a state layer, the close icon in the
+     inverse surface's text colour. A plain tooltip the same surface with extra-small corners; a rich one on a surface container with medium corners, the second elevation and no line. A
+     linear progress indicator 4px high, a 4px gap before its track and the stop indicator at its end; a circular one
+     with a 4px gap. */
+  --snackbar-radius: var(--mo-shape-extra-small);
+  --snackbar-surface: var(--mo-inverse-surface);
+  --snackbar-text: var(--mo-inverse-on-surface);
+  --snackbar-padding-block: 0.875rem;
+  --snackbar-backdrop: none;
+  --snackbar-action-text: var(--mo-inverse-primary);
+  --snackbar-action-hover: color-mix(in srgb, var(--mo-inverse-primary) 8%, transparent);
+}

@@ -1,0 +1,66 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* Buttons (ui.css): M3's small size (40px), as wide as the label, full corners (or square), a label in medium weight; a text
+     button with less room at its sides; tonal in the secondary container, elevated on the lowest container with the
+     first elevation, outlined with M3's outline and its label in the primary colour. */
+  --button-height: 2.5rem;
+  --button-radius: var(--mo-shape-full);
+  /* Square buttons and icon buttons by M3's size: medium corners on the small ones (40px, as these buttons), large on
+     the medium (56px: the hero's buttons on a computer, the medium icon button), extra-large on the large. */
+  --button-xsmall-square-radius: var(--mo-shape-medium);
+  --button-small-square-radius: var(--mo-shape-medium);
+  --button-square-radius: var(--mo-shape-medium);
+  --button-large-square-radius: var(--mo-shape-extra-large);
+  --button-xlarge-square-radius: var(--mo-shape-extra-large);
+  --button-padding: 1.5rem;
+  --button-gap: 0.5rem;
+  --button-font-size: var(--type-label-large-size);
+  --button-weight: var(--type-label-large-weight);
+  --button-letter-spacing: var(--type-label-large-tracking);
+  --button-small-height: 2.5rem;
+  --button-small-padding: 1rem;
+  --button-xsmall-height: 2rem;
+  --button-xsmall-padding: 1rem;
+  --button-xsmall-gap: 0.5rem;
+  --button-text-padding: 1.5rem;
+  --button-filled-hover: color-mix(in srgb, var(--mo-on-primary) 8%, var(--mo-primary));
+  --button-tonal-surface: var(--mo-surface-container-high);
+  --button-tonal-text: var(--mo-on-surface);
+  --button-tonal-hover: color-mix(in srgb, var(--mo-on-surface) 8%, var(--mo-surface-container-high));
+  --button-elevated-text: var(--mo-primary);
+  --button-outlined-surface: transparent;
+  --button-outlined-text: var(--mo-primary);
+  --button-outlined-line: var(--mo-outline);
+  --button-outlined-hover-text: var(--mo-primary);
+  --button-outlined-hover-line: var(--mo-outline);
+  --button-text-text: var(--mo-primary);
+  --button-text-hover: var(--mo-primary-hover);
+  /* The buttons that do more than one thing (ui.css, "Actions"), as M3's. Button groups 12px apart, or connected 2px
+     apart with small corners between them (extra-small for the extra-small buttons, large and large increased for the
+     large and extra-large); a toggle off in a surface container in on-surface-variant, on in the primary colour, with
+     medium corners in a standard group. Segmented buttons 40px high (the buttons' height) with the
+     outline and no container, the chosen in the secondary container with its check. Split buttons 2px apart with
+     extra-small corners between them (small for the large, medium for the extra-large). A FAB menu's actions as pills in the secondary container (the theme's --mo-surface-container-high, below) and its
+     FAB a circle while open. */
+  --button-group-gap: 0.75rem;
+  --button-group-connected-gap: 0.125rem;
+  --button-group-xsmall-inner-radius: var(--mo-shape-extra-small);
+  --button-group-inner-radius: var(--mo-shape-small);
+  --button-group-large-inner-radius: var(--mo-shape-large);
+  --button-group-xlarge-inner-radius: var(--mo-shape-large-increased);
+  --button-group-selected-radius: var(--mo-shape-medium);
+  --button-toggle-surface: var(--mo-surface-container);
+  --button-toggle-text: var(--mo-on-surface-variant);
+  --button-toggle-hover: color-mix(in srgb, var(--mo-on-surface-variant) 8%, var(--mo-surface-container));
+  --button-toggle-selected-surface: var(--mo-primary);
+  --button-toggle-selected-text: var(--mo-on-primary);
+  --button-toggle-selected-hover: color-mix(in srgb, var(--mo-on-primary) 8%, var(--mo-primary));
+}
+.md-footer-bottom {
+  /* Its text button (the cookie settings) with an 18px icon. */
+  --button-icon-size: 1.125rem;
+}

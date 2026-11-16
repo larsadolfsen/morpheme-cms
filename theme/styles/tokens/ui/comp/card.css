@@ -1,0 +1,53 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+@layer components {
+  .card-elevated {
+    --card-shadow: var(--card-elevated-shadow, var(--mo-elevation-1-rest-shadow));
+  }
+}
+@layer components {
+  .card-filled {
+    --card-shadow: var(--card-filled-shadow, var(--mo-elevation-0-shadow));
+  }
+}
+@layer components {
+  .card-outlined {
+    --card-shadow: var(--card-outlined-shadow, var(--mo-elevation-0-shadow));
+  }
+}
+@layer components {
+  @media (hover: hover) {
+    :is(a, button:enabled).card-elevated:hover:not(:active, .card-dragged) {
+      --card-shadow: var(--card-elevated-hover-shadow, var(--card-elevated-shadow, var(--mo-elevation-2-shadow)));
+    }
+  }
+}
+@layer components {
+  @media (hover: hover) {
+    a.card-filled:hover:not(:active, .card-dragged) {
+      --card-shadow: var(--card-filled-hover-shadow, var(--card-filled-shadow, var(--mo-elevation-1-shadow)));
+    }
+  }
+}
+@layer components {
+  @media (hover: hover) {
+    a.card-outlined:hover:not(:active, .card-dragged) {
+      --card-shadow: var(--card-outlined-hover-shadow, var(--card-outlined-shadow, var(--mo-elevation-1-shadow)));
+    }
+  }
+}
+@layer components {
+  .card-elevated.card-dragged {
+    --card-shadow: var(--card-elevated-dragged-shadow, var(--mo-elevation-4-shadow));
+  }
+}
+@layer components {
+  .card-filled.card-dragged {
+    --card-shadow: var(--card-filled-dragged-shadow, var(--mo-elevation-3-shadow));
+  }
+}
+@layer components {
+  .card-outlined.card-dragged {
+    --card-shadow: var(--card-outlined-dragged-shadow, var(--mo-elevation-3-shadow));
+  }
+}

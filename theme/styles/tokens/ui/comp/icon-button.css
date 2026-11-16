@@ -1,0 +1,113 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+@layer components {
+  .icon-button {
+    --icon-button-box: var(--icon-button-size, 2.75rem);
+    --icon-button-ratio: 1;
+    --icon-button-width: calc(var(--icon-button-box) * var(--icon-button-ratio));
+    --icon-button-glyph: var(--icon-button-icon-size, 1.375rem);
+    --icon-button-square: var(--icon-button-square-radius, var(--button-small-square-radius, calc(var(--block-radius-small) * 0.75)));
+    --icon-button-pressed: var(--button-small-pressed-radius, var(--button-pressed-radius));
+    /* Round: half its height (see .button's --button-round). */
+    --icon-button-round: calc(var(--icon-button-box) / 2);
+    --icon-button-corners: var(--icon-button-round);
+  }
+}
+/* The sizes: Material's five, the small one the default; and the widths, narrower or wider than high. */
+@layer components {
+  .icon-button-xsmall {
+    --icon-button-box: var(--icon-button-xsmall-size, 2.25rem);
+    --icon-button-glyph: var(--icon-button-xsmall-icon-size, 1.25rem);
+    --icon-button-square: var(
+      --icon-button-xsmall-square-radius,
+      var(--button-xsmall-square-radius, calc(var(--block-radius-small) * 0.75))
+    );
+    --icon-button-pressed: var(--button-xsmall-pressed-radius, var(--button-pressed-radius));
+  }
+}
+@layer components {
+  .icon-button-medium {
+    --icon-button-box: var(--icon-button-medium-size, 3.75rem);
+    --icon-button-glyph: var(--icon-button-medium-icon-size, 1.5rem);
+    --icon-button-square: var(--icon-button-medium-square-radius, var(--button-square-radius, var(--block-radius-small)));
+    --icon-button-pressed: var(--button-pressed-radius);
+  }
+}
+@layer components {
+  .icon-button-large {
+    --icon-button-box: var(--icon-button-large-size, 6rem);
+    --icon-button-glyph: var(--icon-button-large-icon-size, 2rem);
+    --icon-button-square: var(--icon-button-large-square-radius, var(--button-large-square-radius, calc(var(--block-radius-small) * 1.75)));
+    --icon-button-pressed: var(--button-large-pressed-radius, var(--button-pressed-radius));
+  }
+}
+@layer components {
+  .icon-button-xlarge {
+    --icon-button-box: var(--icon-button-xlarge-size, 8.5rem);
+    --icon-button-glyph: var(--icon-button-xlarge-icon-size, 2.5rem);
+    --icon-button-square: var(
+      --icon-button-xlarge-square-radius,
+      var(--button-xlarge-square-radius, calc(var(--block-radius-small) * 1.75))
+    );
+    --icon-button-pressed: var(--button-xlarge-pressed-radius, var(--button-pressed-radius));
+  }
+}
+@layer components {
+  .icon-button-narrow {
+    --icon-button-ratio: var(--icon-button-narrow-ratio, 0.8);
+  }
+}
+@layer components {
+  .icon-button-wide {
+    --icon-button-ratio: var(--icon-button-wide-ratio, 1.3);
+  }
+}
+/* The shapes: round (the default) or square; a toggle that is on takes the other one. */
+@layer components {
+  .icon-button-square,
+  .icon-button[aria-pressed='true'] {
+    --icon-button-corners: var(--icon-button-square);
+  }
+}
+@layer components {
+  .icon-button-square[aria-pressed='true'] {
+    --icon-button-corners: var(--icon-button-round);
+  }
+}
+@layer components {
+  .text-field-trailing-action {
+    --icon-button-standard-surface: transparent;
+    --icon-button-standard-line: transparent;
+    --icon-button-standard-text: var(--text-field-icon-color, var(--block-muted));
+  }
+}
+@layer components {
+  @media (width >= theme(--breakpoint-medium)) {
+    .bottom-sheet-container[data-wide='side-sheet'] > .bottom-sheet-header {
+      --icon-button-size: 3rem;
+      --icon-button-icon-size: 1.5rem;
+    }
+  }
+}
+@layer components {
+  .snackbar {
+    --icon-button-size: var(--snackbar-close-size, 2.5rem);
+    --icon-button-standard-surface: transparent;
+    --icon-button-standard-line: transparent;
+    --icon-button-standard-text: var(--snackbar-close-text, var(--snackbar-text, var(--mo-inverse-on-surface)));
+  }
+}
+@layer components {
+  .toolbar-vibrant {
+    --icon-button-standard-surface: transparent;
+    --icon-button-standard-line: transparent;
+    --icon-button-standard-text: var(--toolbar-vibrant-text, var(--block-on-accent));
+    --icon-button-filled-surface: var(--toolbar-vibrant-text, var(--block-on-accent));
+    --icon-button-filled-hover: color-mix(
+      in srgb,
+      var(--toolbar-vibrant-surface, var(--block-accent)) 12%,
+      var(--toolbar-vibrant-text, var(--block-on-accent))
+    );
+    --icon-button-filled-text: var(--toolbar-vibrant-surface, var(--block-accent));
+  }
+}

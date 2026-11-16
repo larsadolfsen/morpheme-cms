@@ -1,4 +1,8 @@
 /* In a site's layer of components, so the site's utilities (a margin on the steps) win over them. */
+@import './tokens/blocks/comp/card.css';
+@import './tokens/blocks/comp/grid.css';
+@import './tokens/blocks/comp/icon.css';
+@import './tokens/blocks/comp/list.css';
 @import './tokens/blocks/sys.css';
 @layer components {
   /* A block in the text of a page: the space above and below it. */
@@ -182,12 +186,6 @@
     margin-top: 0.375rem;
     max-width: 50ch;
     color: var(--block-muted);
-  }
-
-  /* "Questions and answers": rows that fold out, one open at a time (faq/Accordion.tsx). */
-  .block-accordion {
-    /* The rows' padding follows the block: 20px, 32px from medium (the List "expand" kind, ui/List.tsx, is drawn by ui.css). */
-    --list-expand-padding-inline: 1.25rem;
   }
   .block-accordion-lead {
     flex-shrink: 0;
@@ -673,17 +671,6 @@
     overflow: hidden;
     clip-path: inset(50%);
   }
-  @media (width >= theme(--breakpoint-medium)) {
-    .block-imagegrid-grid[data-columns='2'] {
-      --grid-columns: 2;
-    }
-    .block-imagegrid-grid[data-columns='3'] {
-      --grid-columns: 3;
-    }
-    .block-imagegrid-grid[data-columns='4'] {
-      --grid-columns: 4;
-    }
-  }
   .block-imagegrid-grid > li[hidden] {
     display: none;
   }
@@ -715,54 +702,17 @@
     line-height: var(--type-body-medium-line-height, 1.25rem);
     color: var(--block-muted);
   }
-  /* A list's row icon and arrow are the row heading's colour (the block's text, which a coloured section swaps to its on-colour), as the
-     section's other text is; only the supporting line stays the quieter --block-muted. A row icon with its own colour (below) keeps it. */
-  .block-list {
-    --list-item-leading-icon-color: var(--block-text);
-    --list-item-trailing-text: var(--block-text);
-    /* A segmented list stands on the page, which is Surface: its rows on Surface would vanish, so the block's are on the surface container (the
-       theme's default is M3's Surface, for a list on a higher container; owner, 15 Nov 2026, docs/material-deviations.md SV12). */
-    --list-segmented-surface: var(--mo-surface-container);
-  }
-  /* A List with no drawn container (its rows on the page, no surface) starts its rows' own content on the text's left edge: the 16 dp inside
-     a row (M3 Lists › Specs, "leading space") belongs to a drawn container, which only a Segmented list (.list-segmented) and an accordion
-     (.list-expand, .block-accordion) have. The site and the editor's typed-in-place List use the same class, so they share the edge. */
-  .block-list:not(.list-segmented) {
-    --list-item-padding-inline: 0;
-  }
-  /* The color of an icon in a row or a card (`iconColor`, src/iconColor.ts): one of the theme's color roles; without one, the text colour (Text in the editor). */
-  [data-icon-color='primary'] {
-    --list-item-leading-icon-color: var(--mo-primary, var(--block-accent));
-    --icon-color: var(--mo-primary, var(--block-accent));
-  }
-  [data-icon-color='secondary'] {
-    --list-item-leading-icon-color: var(--mo-secondary, var(--block-secondary));
-    --icon-color: var(--mo-secondary, var(--block-secondary));
-  }
-  [data-icon-color='tertiary'] {
-    --list-item-leading-icon-color: var(--mo-tertiary, var(--block-tertiary));
-    --icon-color: var(--mo-tertiary, var(--block-tertiary));
-  }
   .block-accordion-lead[data-icon-color],
   .block-card .block-card-icon[data-icon-color] {
     color: var(--icon-color);
   }
-  /* A filled card on one of Material's containers ("Cards", `color`): the primary, secondary or tertiary container, its text and icon in the
-     colour that is read on it. Without a colour it is the surface container (--card-filled-surface, below). A theme that has no container
-     role has the block's own colours. */
-  :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary) .block-card {
-    --card-filled-line: transparent;
-  }
   .block-cards-primary .block-card {
-    --card-filled-surface: var(--mo-primary-container, var(--block-primary));
     color: var(--mo-on-primary-container, var(--block-on-primary));
   }
   .block-cards-secondary .block-card {
-    --card-filled-surface: var(--mo-secondary-container, var(--block-secondary));
     color: var(--mo-on-secondary-container, var(--block-on-secondary));
   }
   .block-cards-tertiary .block-card {
-    --card-filled-surface: var(--mo-tertiary-container, var(--block-tertiary));
     color: var(--mo-on-tertiary-container, var(--block-on-tertiary));
   }
   :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary)
@@ -834,7 +784,6 @@
   /* "Points with icon": a list without dividers (.list in ui.css, points/PointList.tsx), its items side by side where
      there is room for 16rem each. Nothing in it is tapped, so its icons start where the text around it does. */
   .block-points {
-    --list-item-padding-inline: 0;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
     column-gap: 1.5rem;
@@ -1128,9 +1077,6 @@
      (header), the outline variant (container and dividers), the cards' own corner radius (--card-radius) and the theme's hover state layer. The box is a region the
      keyboard can scroll (a focus ring in the accent); a table with many columns scrolls instead of crushing them. */
   .block-table-grid {
-    --card-padding: 0;
-    --card-outlined-surface: transparent;
-    --card-outlined-line: transparent;
     border: 1px solid var(--block-line);
     border-radius: var(--card-radius, var(--block-radius));
     color: var(--block-text);
@@ -1232,8 +1178,6 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    --card-radius: var(--block-radius-small);
-    --card-padding: 0.85rem 1.1rem 0.85rem 0.85rem;
     font-size: var(--type-body-large-size);
     line-height: var(--type-body-large-line-height);
     font-weight: var(--type-body-large-weight);
@@ -1250,9 +1194,6 @@
     flex-shrink: 0;
     color: var(--block-accent);
     transition: transform var(--motion-spatial);
-  }
-  a.block-link-row:hover {
-    --card-outlined-line: var(--block-accent);
   }
   a.block-link-row:hover .block-link-row-arrow {
     transform: translateX(3px);
@@ -1355,8 +1296,6 @@
   /* A punch card's offer in a price card, a filled card with smaller corners. */
   .block-price-extra {
     margin-top: 1.5rem;
-    --card-radius: var(--block-radius-small);
-    --card-padding: 1rem;
   }
   .block-price-extra-title {
     display: flex;
@@ -1484,9 +1423,6 @@
       font-weight: var(--type-body-large-weight);
       letter-spacing: var(--type-body-large-tracking);
     }
-    .block-accordion {
-      --list-expand-padding-inline: 2rem;
-    }
     .block-accordion-answer {
       font-size: var(--type-body-large-size);
       line-height: var(--type-body-large-line-height);
@@ -1497,7 +1433,6 @@
       grid-template-columns: repeat(12, minmax(0, 1fr));
       align-items: center;
       gap: 2.5rem;
-      --card-padding: 3rem;
     }
     .block-cta-picture {
       grid-column: span 2;
@@ -1522,9 +1457,6 @@
     .block-price-cards {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .block-price-card {
-      --card-padding: 2rem;
-    }
     .block-price-card-title {
       font-size: var(--type-headline-medium-size);
       line-height: var(--type-headline-medium-line-height);
@@ -1540,18 +1472,6 @@
     .block-price-list {
       padding-inline: 2rem;
     }
-  }
-  /* ---- "Checklist" and "Price cards" ---- */
-
-  /* "Checklist" (checklist/Checks.tsx), and what is included on a price card: a list without dividers (.list in
-     ui.css), a check before each line; with six or more (not on a card), two columns where there is room for 16rem
-     each, never more. Nothing in it is tapped, so it is spaced as a bulleted or numbered list in the text (half a
-     line between its lines, not the height of a list item one taps), and its checks start where the text around it
-     does. */
-  .block-checklist {
-    --list-item-min-height: auto;
-    --list-item-padding-block: 0.25em;
-    --list-item-padding-inline: 0;
   }
   .block-checklist.block-in-text {
     margin-block: 1rem;
@@ -1648,7 +1568,6 @@
     color: var(--block-muted);
   }
   .block-plan-features {
-    --list-item-padding-block: 0.25rem;
     margin-top: 1.5rem;
     border-top: 1px solid var(--block-line);
     padding-top: 0.5rem;

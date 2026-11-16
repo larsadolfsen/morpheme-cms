@@ -1,0 +1,70 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* The List "expand" container (the questions and answers block): 16px (Material 3 lists page). */
+  --list-expand-radius: var(--mo-shape-large);
+  /* Lists (M3 Expressive's list tokens, m3.material.io/components/lists/specs): items 56, 72 and 88px high by their lines,
+     16px in from their sides, 10px over and under their text and 12px between their elements, without lines between
+     them; 20px icons; the label text in body large (16/24, 400, 0.5; a setting row's name too), the supporting text in
+     body medium, the overline and the trailing text in label small; a state layer in the text's colour when pointed at
+     (8%) and pressed (10%), nothing moving aside; disabled at 38%, a segmented item on a 10% layer of the text's colour.
+     Their corners extra-small (4px), medium (12px) pointed at, pressed and selected; a selected one in the secondary
+     container. Segmented: 2px between the items, the list's outer corners medium (12px), each item on a surface
+     container (a step up from the page; the editor puts the items on the surface over a container page, as Material's
+     spec does, editor.css). */
+  --list-divider: transparent;
+  --list-item-min-height: 3.5rem;
+  --list-item-two-line-min-height: 4.5rem;
+  --list-item-three-line-min-height: 5.5rem;
+  --list-item-padding-block: 0.625rem;
+  --list-item-padding-inline: 1rem;
+  --list-item-gap: 0.75rem;
+  --list-item-radius: var(--mo-shape-extra-small);
+  --list-item-hover-radius: var(--mo-shape-medium);
+  --list-item-pressed-radius: var(--mo-shape-medium);
+  --list-item-selected-radius: var(--mo-shape-large);
+  --list-item-icon-size: 1.25rem;
+  --list-item-hover-surface: var(--mo-hover);
+  --list-item-pressed-surface: var(--mo-pressed);
+  --list-item-hover-icon-color: var(--mo-on-surface-variant);
+  --list-item-focus-surface: var(--mo-pressed);
+  /* M3 (Lists › Specs, token table): md.comp.list.focus.indicator.color = md.sys.color.secondary. */
+  --list-item-focus-indicator-color: var(--mo-secondary);
+  --list-item-hover-text: var(--mo-on-surface);
+  --list-item-hover-trailing-shift: 0;
+  --list-item-selected-surface: var(--mo-secondary-container);
+  --list-item-selected-text: var(--mo-on-secondary-container);
+  --list-item-selected-weight: 400;
+  --list-item-leading-icon-selected-color: var(--mo-primary);
+  --list-item-disabled-opacity: 0.38;
+  --list-segmented-gap: 0.125rem;
+  --list-segmented-radius: var(--mo-shape-large);
+  --list-segmented-inner-radius: var(--mo-shape-extra-small);
+  --list-segmented-hover-radius: var(--mo-shape-medium);
+  --list-segmented-pressed-radius: var(--mo-shape-medium);
+  --list-segmented-selected-radius: var(--mo-shape-large);
+  --list-segmented-padding-inline: 1rem;
+  --list-segmented-surface: var(--mo-surface);
+  --list-segmented-hover-surface: var(--mo-hover);
+  --list-segmented-pressed-surface: var(--mo-pressed);
+  --list-segmented-disabled-surface: color-mix(in srgb, var(--mo-on-surface) 10%, transparent);
+}
+/* "Questions and answers": the List "expand" kind (ui.css) with each item on its own surface container, 2px apart, 16px outer and 4px
+     inner corners, and a state layer on the item pointed at. */
+@layer components {
+  .block-accordion {
+    --list-expand-surface: transparent;
+    --list-expand-shadow: none;
+    --list-expand-gap: 0.125rem;
+    --list-expand-item-surface: var(--mo-surface-container);
+    --list-expand-item-radius: var(--mo-shape-extra-small);
+    --list-expand-divider-width: 0px;
+    --list-expand-padding-inline: 1.5rem;
+    --list-expand-padding-block: 1rem;
+    --list-expand-open-radius: var(--mo-shape-large);
+    --list-expand-icon-open-surface: var(--mo-surface-container-high);
+  }
+}

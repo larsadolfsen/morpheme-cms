@@ -1,0 +1,36 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* Menus: M3 Expressive's vertical menu in its standard colours (m3.material.io/components/menus/specs): on the low surface
+     container with large corners (its groups' inner corners extra-small) and the second elevation's shadow, so it stands
+     in front of the page; items 44px high with 16px at each side and the label in Label large, on corners of their
+     own inside the container (2px from its edge); the chosen one in the tertiary container. 112–280px wide, scrolling
+     when higher than the screen. */
+  --menu-surface: var(--mo-elevation-1-color);
+  --menu-shadow: var(--mo-elevation-2-shadow);
+  --menu-width: max-content;
+  --menu-min-width: 7rem;
+  --menu-max-width: 17.5rem;
+  --menu-max-height: calc(100dvh - 5rem);
+  --menu-radius: var(--mo-shape-large);
+  --menu-group-inner-radius: var(--mo-shape-extra-small);
+  --menu-line: transparent;
+  --menu-padding: 0.125rem;
+  --menu-item-height: 2.75rem;
+  --menu-item-padding: 0 1rem;
+  --menu-item-radius: var(--mo-shape-extra-small);
+  --menu-item-edge-radius: var(--mo-shape-medium);
+  --menu-item-selected-radius: var(--mo-shape-medium);
+  --menu-item-font-size: var(--type-label-large-size);
+  --menu-item-letter-spacing: var(--type-label-large-tracking);
+  --menu-item-weight: var(--type-label-large-weight);
+  --menu-item-text: var(--mo-on-surface);
+  --menu-item-hover-surface: var(--mo-hover);
+  --menu-item-hover-text: var(--mo-on-surface);
+  --menu-item-selected-surface: var(--mo-tertiary-container);
+  --menu-item-selected-text: var(--mo-on-tertiary-container);
+  --menu-item-selected-weight: var(--type-label-large-weight);
+}

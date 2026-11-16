@@ -1,0 +1,162 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+@layer components {
+  .list-item-container {
+    --list-item-shape: var(--list-item-radius, 0);
+    /* The height of its first two lines (the headline and the supporting text's first line), where what stands
+       beside the text stands (below). */
+    --list-item-first-lines: calc(var(--list-item-headline-line-height, 1lh) + var(--list-item-supporting-line-height, 1lh));
+    /* The heights with the density of lists (--mo-density, which goes to -3: a list is read in bulk), 4 px a step, and never
+       below the target (--mo-target): the row is the target, so a row that is denser than the target stays at it. */
+    --list-item-density: calc(var(--mo-density) * var(--mo-density-step));
+    --list-item-box: max(var(--mo-target), calc(var(--list-item-min-height) + var(--list-item-density)));
+    --list-item-two-line-box: max(
+      var(--mo-target),
+      calc(var(--list-item-two-line-min-height, var(--list-item-min-height)) + var(--list-item-density))
+    );
+    --list-item-three-line-box: max(
+      var(--mo-target),
+      calc(var(--list-item-three-line-min-height, var(--list-item-min-height)) + var(--list-item-density))
+    );
+  }
+}
+/* The corners by the state: pointed at, pressed or focused (by the keyboard), and selected (below). */
+@layer components {
+  :is(a, button:enabled).list-item-container:hover,
+  .list-item-with-control:not(.list-item-disabled):hover {
+    --list-item-shape: var(--list-item-hover-radius, var(--list-item-radius, 0));
+  }
+}
+@layer components {
+  :is(a, button:enabled).list-item-container:is(:active, :focus-visible),
+  .list-item-with-control:not(.list-item-disabled):is(:active, :has(:focus-visible)) {
+    --list-item-shape: var(--list-item-pressed-radius, var(--list-item-hover-radius, var(--list-item-radius, 0)));
+  }
+}
+@layer components {
+  .list-item-multi-action {
+    --list-item-shape: var(--list-item-radius, 0);
+  }
+}
+@layer components {
+  .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:hover) {
+    --list-item-shape: var(--list-item-hover-radius, var(--list-item-radius, 0));
+  }
+}
+@layer components {
+  .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:is(:active, :focus-visible)) {
+    --list-item-shape: var(--list-item-pressed-radius, var(--list-item-hover-radius, var(--list-item-radius, 0)));
+  }
+}
+@layer components {
+  .list-item-expand-summary {
+    --list-item-shape: 0;
+    --list-item-padding-block: var(--list-expand-padding-block, 0.875rem);
+    --list-item-padding-inline: var(--list-expand-padding-inline, 1rem);
+    --list-item-gap: var(--list-expand-gap-inline, 1rem);
+    --list-item-headline-size: var(--list-expand-headline-size, var(--type-title-medium-size));
+    --list-item-headline-weight: var(--list-expand-headline-weight, var(--type-title-medium-weight));
+    --list-item-headline-line-height: var(--list-expand-headline-line-height, var(--type-title-medium-line-height));
+    --list-item-headline-letter-spacing: var(--list-expand-headline-letter-spacing, var(--type-title-medium-tracking));
+  }
+}
+@layer components {
+  .list-item-selected {
+    --list-item-shape: var(--list-item-selected-radius, var(--list-item-radius, 0));
+  }
+}
+@layer components {
+  :is(a, button:enabled).list-item-container.list-item-selected:hover {
+    --list-item-shape: var(--list-item-selected-radius, var(--list-item-radius, 0));
+  }
+}
+@layer components {
+  :is(a, button:enabled).list-item-container.list-item-selected:focus-visible {
+    --list-item-shape: var(--list-item-selected-radius, var(--list-item-radius, 0));
+  }
+}
+@layer components {
+  :is(a, button:enabled).list-item-container.list-item-selected:active {
+    --list-item-shape: var(--list-item-selected-radius, var(--list-item-radius, 0));
+  }
+}
+/* Dividers: none, or in from where the items' text starts (inset: after what leads the item below the line), or in
+     from both sides (middle-inset, the theme's divider's inset). */
+@layer components {
+  .list > li {
+    --list-item-leading-room: 0px;
+  }
+}
+@layer components {
+  .list > li:has(> * > :is(.list-item-leading, .list-item-control:first-child)) {
+    --list-item-leading-room: calc(var(--list-item-leading-size, var(--list-item-icon-size, 1.5rem)) + var(--list-item-gap, 1.5rem));
+  }
+}
+@layer components {
+  .list > li:has(> * > .list-item-leading-avatar) {
+    --list-item-leading-size: var(--list-item-avatar-size, 2.5rem);
+  }
+}
+@layer components {
+  .list > li:has(> * > .list-item-leading-image) {
+    --list-item-leading-size: var(--list-item-image-size, 3.5rem);
+  }
+}
+@layer components {
+  .list > li:has(> * > .list-item-leading-video) {
+    --list-item-leading-size: var(--list-item-video-width, 7.125rem);
+  }
+}
+@layer components {
+  .list-segmented > li {
+    --list-item-shape: var(--list-segmented-inner-radius, 0.25rem);
+  }
+}
+@layer components {
+  .list-segmented
+    > li:has(
+      > :is(a, button:enabled).list-item-container:hover,
+      > .list-item-with-control:not(.list-item-disabled):hover,
+      > .list-item-multi-action > :is(a, button:enabled).list-item-container:hover
+    ) {
+    --list-item-shape: var(--list-segmented-hover-radius, var(--list-segmented-inner-radius, 0.25rem));
+  }
+}
+@layer components {
+  .list-segmented
+    > li:has(
+      > :is(a, button:enabled).list-item-container:is(:active, :focus-visible),
+      > .list-item-with-control:not(.list-item-disabled):active,
+      > .list-item-with-control:not(.list-item-disabled) :focus-visible,
+      > .list-item-multi-action > :is(a, button:enabled).list-item-container:is(:active, :focus-visible)
+    ) {
+    --list-item-shape: var(
+      --list-segmented-pressed-radius,
+      var(--list-segmented-hover-radius, var(--list-segmented-inner-radius, 0.25rem))
+    );
+  }
+}
+@layer components {
+  .list-segmented > li:has(> .list-item-selected, > .list-item-with-control :checked) {
+    --list-item-shape: var(--list-segmented-selected-radius, var(--list-segmented-radius, var(--block-radius-small)));
+  }
+}
+/* Selected stays at its corners (Material: 16dp) also while pointed at, pressed or focused. */
+@layer components {
+  .list-segmented > li:has(> .list-item-selected):has(> :is(a, button:enabled).list-item-container:is(:hover, :active, :focus-visible)) {
+    --list-item-shape: var(--list-segmented-selected-radius, var(--list-segmented-radius, var(--block-radius-small)));
+  }
+}
+@layer components {
+  .choice-group-list {
+    /* The rows run as wide as the field's above them: the radio's circle starts where the name and the fields start, and a
+       sample ends where they end (the circle's 40dp state layer overhangs the edge, as Material's radio specs allow). */
+    --list-item-padding-inline: 0px;
+  }
+}
+/* A row is at least 48 dp at every density (Material, radio buttons: "Don't apply density to radio buttons by default"). */
+@layer components {
+  .choice-group-list .list-item-container {
+    --list-item-box: max(3rem, calc(var(--list-item-min-height, 3rem) + var(--mo-density) * var(--mo-density-step)));
+  }
+}

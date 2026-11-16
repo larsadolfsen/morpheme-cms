@@ -26,7 +26,8 @@ In each folder:
   `--mo-elevation-*` and the type scale `--type-*`.
 - `sys.css`: every other token that is not a part's own: `--mo-*` roles, density, grid, state layers, `--block-*`, `--motion-*`,
   `--section-*`, `--panel-*`, `--theme-*`.
-- `comp/<component>.css`: one file per component, for the part's own `--button-*`, `--list-*` and so on (second pull request).
+- `comp/<component>.css`: one file per component, for the part's own `--button-*`, `--list-*` and so on. The file is named after the component as Material 3 names it (`button`,
+  `icon-button`, `top-app-bar`, `progress-indicator` …), so a later rename of the tokens needs no second move.
 
 ## What stayed, and why
 
@@ -40,8 +41,8 @@ In each folder:
 ## Checks that read the files
 
 `check:css-tokens` counts unprefixed names per file (`scripts/css-tokens-allowlist.json`, `files`), now per token file.
-`check:colors` and `check:css-values` allow the same lines in the token files as before. The tests of `theme/styles/` read a
-stylesheet together with its token files.
+`check:colors` and `check:css-values` allow the same lines in the token files as before. `check:density` and the tests of
+`theme/styles/` read a stylesheet together with its token files.
 
 ## Adding a token
 
