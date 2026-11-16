@@ -200,7 +200,7 @@ export default function TextField({
       {(line || counter || saying) && (
         <div className="text-field-supporting-row">
           {saying && (
-            <p id={`${field}-invalid`} className="text-field-supporting text-field-invalid-text" role="alert">
+            <p id={`${field}-invalid`} className="text-field-supporting text-field-invalid-text">
               {saying}
             </p>
           )}

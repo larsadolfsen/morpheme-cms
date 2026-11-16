@@ -57,6 +57,14 @@ Every pull request, whatever the change:
   shared).
 - You never release (`CLAUDE.md`, *Only the owner releases a new version*).
 
+## 3a. Check in when ready to merge
+
+Owner rule, 15 Nov 2026. When the change is finished and `npm run check` is green locally, do not push, open a pull request
+or re-run CI on your own. Send the PM one message, `ready: <branch>, <what changed>, local check green`, and wait. Only on
+the PM's "your slot" do you push (or merge `origin/<base>` and push, or open the pull request), then report the link and
+the head sha once `check` is green. While you wait you may merge the base locally and run `npm run check`. The first push
+of a new session follows the same rule: check in first. The PM keeps the order (`pm` skill, *Ready queue and CI slots*).
+
 ## 4. The owner's standing design rules
 
 Short forms, for a developer to know before reading the specs. A rule changes only where it lives.
@@ -66,6 +74,7 @@ Short forms, for a developer to know before reading the specs. A rule changes on
   the owner's dialog rule is quoted in `docs/superpowers/specs/2026-11-14-one-save-while-writing-design.md`, 3.4).
 - **Save on a phone.** Every `Save` goes in the bottom bar, and that bar is the standard bottom sheet, with no custom
   design (`docs/material-deviations.md`, *Editor-only bars*, item 3, and *A block's sheet on a phone*, B1).
+- **Dialogs are only for short messages** (owner, 15 Nov): a dialog is a short message, a confirmation or a single short choice. Settings or a form with several controls are the theme's standard side sheet beside the page from 600 dp and a page below 600 dp (`docs/material-deviations.md`, B3).
 - **Pages on a phone.** Below 600 dp no view is a full-screen dialog or a side sheet: each is a page with a back arrow in
   the top app bar, and Back with unsaved changes asks "Keep your changes?" (`docs/material-deviations.md`, B2). The
   computer keeps the side sheet.

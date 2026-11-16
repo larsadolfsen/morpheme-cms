@@ -332,6 +332,14 @@ function FieldParts() {
                 <SiteTextField kind={kind} label={screens.fieldPrice} inputMode="numeric" suffix={screens.fieldSuffix} defaultValue="450" />
                 <SiteTextField
                   kind={kind}
+                  label={screens.fieldPrice}
+                  type="number"
+                  data-part="invalid-number"
+                  supporting={screens.fieldNameSupporting}
+                  invalidText={t.check.notANumber}
+                />
+                <SiteTextField
+                  kind={kind}
                   label={screens.fieldLabel}
                   type="email"
                   defaultValue="name@"

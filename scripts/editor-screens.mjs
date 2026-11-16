@@ -5403,7 +5403,19 @@ async function checkBlockDrag(width) {
   const box = (i) => handles.nth(i).boundingBox();
   const first = await box(0);
   if (first.width < 44 || first.height < 44) problems.push(`${label}: a handle is smaller than 44 x 44 (${first.width}x${first.height})`);
-  const opacity = () => handles.nth(1).evaluate((el) => getComputedStyle(el).opacity);
+  // The handle fades (a transition on its opacity): read it once it has stopped changing, two reads 120 ms apart the same (at most 2 s), so a
+  // read in the middle of the fade is never taken for the end of it.
+  const opacity = async () => {
+    const read = () => handles.nth(1).evaluate((el) => getComputedStyle(el).opacity);
+    let now = await read();
+    for (let i = 0; i < 16; i++) {
+      await page.waitForTimeout(120);
+      const next = await read();
+      if (next === now) return now;
+      now = next;
+    }
+    return now;
+  };
   if (phone) {
     // A touch sees a handle only on the active block (it is the end of the block's row); go into the second block first.
     if ((await opacity()) !== '0') problems.push(`${label}: a touch sees the handle of a block that is not active`);
@@ -6069,6 +6081,27 @@ async function checkUserInvalid(width, height, theme) {
   const right = await read();
   if (right.invalid || right.said || right.icon || !right.supporting || right.aria === 'true' || right.described)
     problems.push(`${label}: still marked after it was put right (${JSON.stringify(right)})`);
+  // The error line is read once, with the field (aria-describedby), not as an alert; and a number that cannot be read (validity.badInput)
+  // says so in words instead of going red with none.
+  if (await page.locator('[data-part="TextField"] .text-field-invalid-text[role]').count())
+    problems.push(`${label}: the error line has a role of its own (it is read with the field by aria-describedby)`);
+  const number = page.locator('[data-part="TextField"] input[data-part="invalid-number"]').first();
+  await number.scrollIntoViewIfNeeded();
+  await number.focus();
+  await page.keyboard.type('1e');
+  await number.blur();
+  const typed = await number.evaluate((el) => {
+    const root = el.closest('.text-field');
+    const line = root.querySelector('.text-field-invalid-text');
+    return {
+      bad: el.validity.badInput,
+      invalid: el.matches(':user-invalid'),
+      said: !!line && getComputedStyle(line).display !== 'none' ? line.textContent : '',
+      aria: el.getAttribute('aria-invalid'),
+    };
+  });
+  if (!typed.bad || !typed.invalid || typed.said !== 'Enter a number.' || typed.aria !== 'true')
+    problems.push(`${label}: a number that cannot be read is not marked with its words (${JSON.stringify(typed)})`);
   await page.close();
 }
 
@@ -6392,10 +6425,47 @@ async function checkDensity(width, height) {
   await page.close();
 }
 
+/** Block settings (#block-settings): from 600 dp a block's details are the standard side sheet beside the list (owner, 15 Nov 2026: dialogs are only for short messages, not for settings), no dialog over the page; on a phone they are the sheet from the bottom. */
+async function checkBlockSettingsPane(width) {
+  const label = `${width}px block settings`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#block-settings'));
+  const row = page.getByRole('button', { name: /^Accordion/ }).first();
+  await row.waitFor({ timeout: 10_000 });
+  await row.click();
+  await page.waitForTimeout(500);
+  const got = await page.evaluate(() => {
+    const aside = document.querySelector('aside.side-sheet-container:not([hidden])');
+    const box = aside?.getBoundingClientRect();
+    const first = [...document.querySelectorAll('main button, main [role=button]')]
+      .find((b) => /^Accordion/.test(b.textContent.trim()))
+      ?.getBoundingClientRect();
+    return {
+      aside: !!aside,
+      dialogs: document.querySelectorAll('dialog[open]').length,
+      close: !!aside?.querySelector('[data-side-sheet-close]'),
+      clear: !!box && !!first && first.right <= box.left + 1,
+    };
+  });
+  if (phone) {
+    if (got.aside || got.dialogs !== 1) problems.push(`${label}: on a phone the details are not the sheet from the bottom`);
+  } else {
+    if (!got.aside) problems.push(`${label}: the block's details are not a standard side sheet (pane)`);
+    if (got.dialogs) problems.push(`${label}: a dialog is open over the page while the details are in the pane`);
+    if (!got.close) problems.push(`${label}: the pane has no close button`);
+    if (!got.clear) problems.push(`${label}: the list is covered by the pane`);
+  }
+  await page.close();
+}
+
 /** On a new page with only its H1 (plain, and on a section colour), a line to write in is under it: on a phone with real touch (375 px) and on a computer with a mouse (1280 px), a tap on the hint line, a tap in the white under the page and Enter at the end of the heading each put the cursor in it, and what is typed goes there, not in the heading. */
 async function checkEmptyHint() {
   const devices = [
     ['375px touch', { viewport: { width: 375, height: 740 }, hasTouch: true, isMobile: true }],
+    ['768px mouse', { viewport: { width: 768, height: 900 } }],
     ['1280px mouse', { viewport: { width: 1280, height: 800 } }],
   ];
   for (const [label, options] of devices) {
@@ -6438,6 +6508,29 @@ async function checkEmptyHint() {
             }));
             if (!start.onPage) problems.push(`${name}: the focus does not start on the section settings page itself`);
             if (start.styled) problems.push(`${name}: an element has focus-visible styling when the section settings page opens`);
+          }
+          // From 600 dp the section settings are a pane beside the page, not a dialog (owner, 15 Nov): a standard side sheet (<aside>), no dialog open,
+          // the pane itself has the focus with no ring, and the text stays visible and clear of it.
+          if (!touch) {
+            const pane = await page.evaluate(() => {
+              const aside = document.querySelector('aside.editor-side-sheet:not([hidden])');
+              const text = document.querySelector('.ProseMirror')?.getBoundingClientRect();
+              const box = aside?.getBoundingClientRect();
+              return {
+                aside: !!aside,
+                dialogs: document.querySelectorAll('dialog[open]').length,
+                focused: !!aside && document.activeElement === aside,
+                styled: [...document.querySelectorAll(':focus-visible')].filter(
+                  (e) => getComputedStyle(e).outlineStyle !== 'none' || getComputedStyle(e).boxShadow !== 'none',
+                ).length,
+                clear: !!box && !!text && text.right <= box.left + 1 && text.width > 200,
+              };
+            });
+            if (!pane.aside) problems.push(`${name}: the section settings are not a standard side sheet (pane)`);
+            if (pane.dialogs) problems.push(`${name}: a dialog is open over the page while the section settings are shown`);
+            if (!pane.focused) problems.push(`${name}: the focus does not start on the section settings pane itself`);
+            if (pane.styled) problems.push(`${name}: an element has focus-visible styling when the section settings pane opens`);
+            if (!pane.clear) problems.push(`${name}: the text is covered by the section settings pane or is too narrow beside it`);
           }
           if (await sheet.getByText('Background image', { exact: true }).count())
             problems.push(`${name}: the Main heading's Section settings offer a background image`);
@@ -11306,7 +11399,9 @@ for (const width of [375, 1280]) await unit(`checkCardBar ${width}`, () => check
 await unit('checkLiveSideSheet 1280', () => checkLiveSideSheet(1280));
 await unit('checkPhoneSheet 375', () => checkPhoneSheet(375));
 await unit('checkComputerRestore 1280', () => checkComputerRestore(1280));
-for (const width of [375, 700]) await unit(`checkCloseChangedSheet ${width}`, () => checkCloseChangedSheet(width));
+// From medium the block's sheet is the live side sheet and asks nothing (checkLiveSideSheet), so only the subpage on a phone asks.
+for (const width of [375]) await unit(`checkCloseChangedSheet ${width}`, () => checkCloseChangedSheet(width));
+await unit('checkLiveSideSheet 700', () => checkLiveSideSheet(700));
 for (const width of [700, 1280]) await unit(`checkSheetFocusOnOpen ${width}`, () => checkSheetFocusOnOpen(width));
 for (const width of [375, 1280]) await unit(`checkImageTools ${width}`, () => checkImageTools(width));
 for (const width of [375, 1280]) await unit(`checkCropView ${width}`, () => checkCropView(width));
@@ -11335,6 +11430,7 @@ for (const [width, height] of [
   [1280, 900],
 ])
   await unit(`checkDraftsCard ${width}`, () => checkDraftsCard(width, height));
+for (const width of [375, 768, 1280]) await unit(`checkBlockSettingsPane ${width}`, () => checkBlockSettingsPane(width));
 await unit('checkEmptyHint', () => checkEmptyHint());
 await unit('checkLongPressDelete', () => checkLongPressDelete());
 await unit('checkAppTestPages', () => checkAppTestPages());
