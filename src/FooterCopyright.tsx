@@ -4,7 +4,7 @@ import { copyright } from '../lib/footerLinks.mjs';
 
 export default function FooterCopyright() {
   return (
-    <span className="inline-flex min-h-9 items-center px-3 max-medium:pe-0 type-body-medium text-on-surface-variant">
+    <span className="inline-flex min-h-9 items-center px-3 type-body-medium text-on-surface-variant max-medium:pe-0">
       {copyright(new Date().getFullYear())}
     </span>
   );

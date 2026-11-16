@@ -21,7 +21,7 @@ export default function FooterLinks({ state }: { state: ServiceState }) {
   return (
     <nav
       ref={row}
-      className="flex flex-wrap items-center justify-center gap-y-2 max-medium:-mx-3 max-medium:grid max-medium:grid-cols-[auto_1px_auto_1px_auto] max-medium:[&>:nth-child(6)]:hidden expanded:-mx-3 expanded:justify-start"
+      className="flex flex-wrap items-center justify-center gap-y-2 max-medium:-mx-3 max-medium:grid max-medium:grid-cols-[auto_1px_auto_1px_auto] expanded:-mx-3 expanded:justify-start max-medium:[&>:nth-child(6)]:hidden"
     >
       {visibleLinks(FOOTER_LINKS).map(({ id, href }, i) => (
         <Fragment key={id}>

@@ -11532,11 +11532,13 @@ async function checkFooterTargets(width, touch) {
     }
     const names = rows.map((r) => r.map((i) => i.name.replace(/^© \d{4} .*/, '©')).join(' | '));
     const want = ['Support | Status | Security', 'Privacy | Licenses | ©'];
-    if (names.join(' / ') !== want.join(' / ')) problems.push(
+    if (names.join(' / ') !== want.join(' / '))
+      problems.push(
         `${width}px footer: the rows are "${names.join(' / ')}", should be "${want.join(' / ')}" (${got.items.map((i) => `${i.name} ${Math.round(i.width)}x${Math.round(i.height)}`).join(', ')})`,
       );
     for (const it of got.items)
-      if (it.left < -0.5 || it.right > width + 0.5) problems.push(`${width}px footer: "${it.name}" is outside the window (${Math.round(it.left)}–${Math.round(it.right)})`);
+      if (it.left < -0.5 || it.right > width + 0.5)
+        problems.push(`${width}px footer: "${it.name}" is outside the window (${Math.round(it.left)}–${Math.round(it.right)})`);
     for (const d of got.dividers.filter((x) => x.visible && x.width > 0))
       if (d.left < 0 || d.right > width) problems.push(`${width}px footer: a divider is outside the window`);
   }
