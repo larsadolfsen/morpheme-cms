@@ -73,7 +73,7 @@ export const PACK_SOURCES = {
 /** For each system pack but Phosphor's (whose names they are): Phosphor's name → Material Design Icons' (the package in
  * PACK_SOURCES), for an icon the site or the editor draws that its set has none of. Material Symbols: a brand's logo (the
  * account logged in at GitHub, the SEO choices' Google) and the
- * things it has nothing that shows (binoculars, a hard disk, swatches, a scan frame, the arrows that widen and narrow
+ * things it has nothing that shows (a hard disk, swatches, a scan frame, the arrows that widen and narrow
  * a section). Lucide, which draws no brands: the logos. */
 export const MATERIAL_DESIGN_ICONS = {
   'material-symbols': {
@@ -126,7 +126,6 @@ export const MATERIAL_SYMBOLS = {
   bank: 'account_balance',
   bell: 'notifications',
   bicycle: 'pedal_bike',
-  binoculars: 'preview',
   'book-open': 'import_contacts',
   'book-open-text': 'menu_book',
   browser: 'web',
@@ -168,6 +167,7 @@ export const MATERIAL_SYMBOLS = {
   database: 'database',
   desktop: 'desktop_windows',
   'device-mobile': 'mobile',
+  devices: 'devices',
   'door-open': 'door_open',
   'dots-six-vertical': 'drag_indicator',
   'dots-three-vertical': 'more_vert',
@@ -325,7 +325,6 @@ export const LUCIDE = {
   bank: 'landmark',
   bell: 'bell',
   bicycle: 'bike',
-  binoculars: 'binoculars',
   'book-open': 'book-open',
   'book-open-text': 'book-open-text',
   browser: 'panel-top',
@@ -367,6 +366,7 @@ export const LUCIDE = {
   database: 'database',
   desktop: 'monitor',
   'device-mobile': 'smartphone',
+  devices: 'monitor-smartphone',
   'door-open': 'door-open',
   'dots-six-vertical': 'grip-vertical',
   'dots-three-vertical': 'ellipsis-vertical',

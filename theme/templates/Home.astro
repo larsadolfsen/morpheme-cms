@@ -10,6 +10,7 @@ import Text from '@theme/components/home/Text.astro';
 import PageBlock from '@theme/components/home/PageBlock.astro';
 import Markdown from '@theme/components/Markdown.astro';
 import Block from '@morphemecms/cms/src/standard/Block.astro';
+import { splitTrailingEyebrow } from '@morphemecms/cms/lib/eyebrow.mjs';
 import { sectionClass } from '@morphemecms/cms/lib/text-sections.mjs';
 import { blockTexts } from '@morphemecms/cms/site/site';
 import { site } from '@morphemecms/cms/site/site';
@@ -20,6 +21,36 @@ type Props = FrontPage;
 const { page, heading, headingHtml, sections } = Astro.props;
 // The sections before the H1's panel stay above it; the panel takes the place of the heading.
 const panel = sections.find((s) => s.type === 'top');
+// A label that ends a text belongs to the section after it (a block or a text with a heading), not to a section of its own:
+// its space above would come between the label and the heading. Only a text without a heading hands its label on.
+const takesLabel = (next?: (typeof sections)[number]) =>
+  !!next && next.type !== 'top' && !next.hidden && (next.type !== 'text' || !!next.heading);
+const shown: { section: (typeof sections)[number]; label?: string }[] = [];
+let carried: string | undefined;
+sections.forEach((s, i) => {
+  const next = sections[i + 1];
+  if (s.type === 'top') {
+    // The H1's panel: a label at the end of its text goes on to the section after.
+    const last = s.items[s.items.length - 1];
+    const { body, label } =
+      last && 'markdown' in last && takesLabel(next) ? splitTrailingEyebrow(last.markdown) : { body: '', label: null };
+    if (label !== null) {
+      const items = s.items.slice(0, -1);
+      shown.push({ section: { ...s, items: body ? [...items, { markdown: body }] : items } });
+      carried = label;
+      return;
+    }
+  } else if (s.type === 'text' && !s.heading && takesLabel(next)) {
+    const { body, label } = splitTrailingEyebrow(s.body);
+    if (label !== null) {
+      if (body) shown.push({ section: { ...s, body }, label: carried });
+      carried = label;
+      return;
+    }
+  }
+  shown.push({ section: s, label: s.type === 'top' ? undefined : carried });
+  carried = undefined;
+});
 ---
 
 <Base
@@ -40,7 +71,7 @@ const panel = sections.find((s) => s.type === 'top');
       <h1 class="theme-title max-w-[22ch]">{headingHtml ? <Fragment set:html={headingHtml} /> : heading}</h1>
     </Container>
   )}
-  {sections.map((s, i) => {
+  {shown.map(({ section: s, label }, i) => {
     const first = i === 0 ? 'theme-home-first' : undefined;
     if (s.type === 'top')
       return (
@@ -64,6 +95,10 @@ const panel = sections.find((s) => s.type === 'top');
           </section>
         </Container>
       );
-    return s.type === 'text' ? <Text {...s} class={first} lead={i === 0 && !s.heading} /> : <PageBlock section={s} class={first} />;
+    return s.type === 'text' ? (
+      <Text {...s} class={first} lead={i === 0 && !s.heading} label={label} />
+    ) : (
+      <PageBlock section={s} class={first} label={label} />
+    );
   })}
 </Base>
