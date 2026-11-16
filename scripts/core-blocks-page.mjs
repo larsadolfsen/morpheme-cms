@@ -1,11 +1,12 @@
 // The system's test page for the core blocks: one page with every block the editor offers (src/standard/<type>/), the ones with
-// kinds and designs in each of them. It is the page of the demo's Blocks (demo/src/content/pages/blocks.md, which ships with the package)
+// kinds and designs in each of them. It is the pages of the demo's Blocks (demo/src/content/pages/blocks-*.md, which ship with the package) in one page
 // for the blocks it shows, and the blocks it does not show are added here with props that are valid for them. `noindex` and `nofollow` are
 // the CMS's own SEO settings ("Hide from search engines", "No follow"): the page is marked for robots and is not in the sitemap (check-test-page.mjs
 // checks that both hold). Written only to a temporary copy of a site (test-site.mjs), never to a site's own folder.
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { blockHtml } from '../lib/blocks.mjs';
+import { demoBlocksTestBody } from './demo-blocks.mjs';
 
 export const CORE_PAGE_ID = 'morpheme-check-page';
 export const CORE_PAGE_FILE = `src/content/pages/${CORE_PAGE_ID}.md`;
@@ -19,7 +20,7 @@ export const coreBlockTypes = () =>
     .map((d) => d.name)
     .sort();
 
-/** Blocks the demo's Blocks page does not show, with valid props. */
+/** Blocks the demo's Blocks pages do not show, with valid props. */
 export const EXTRA_BLOCKS = {
   accordion: { items: [{ label: 'First', href: '/', text: 'Opens with a text.' }], more: [{ label: 'More', href: '/' }] },
   checklist: { items: ['First point', 'Second point'] },
@@ -28,10 +29,9 @@ export const EXTRA_BLOCKS = {
   rows: { from: 'highlights', howMany: 3 },
 };
 
-/** The text of the test page: the demo's Blocks page with this page's own front matter, and the blocks it lacks at the end. @returns {string} */
+/** The text of the test page: the examples of the demo's Blocks pages (every component page, one after the other) with this page's own front matter, and the blocks they lack at the end. @returns {string} */
 export function coreBlocksPage() {
-  const demo = here('../demo/src/content/pages/blocks.md');
-  const body = readFileSync(demo, 'utf8').replace(/^---\n[\s\S]*?\n---\n/, '');
+  const body = demoBlocksTestBody();
   const shown = new Set([...body.matchAll(/data-block="([a-z]+)"/g)].map((m) => m[1]));
   const extra = coreBlockTypes()
     .filter((type) => !shown.has(type))

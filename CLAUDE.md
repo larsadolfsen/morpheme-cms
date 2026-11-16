@@ -107,6 +107,8 @@ Worker, the starter or the demo is a pull request here.
   images are taken of. `npm run build` (`scripts/demo-build.mjs`, not in the package) builds it in
   `.morpheme/demo/site/`; `wrangler.jsonc` puts it on the Worker `morpheme-demo`. Each branch gets its own Preview
   (`npx wrangler preview`), whose address Cloudflare writes on the pull request; login and save do not work there.
+  The demo's Blocks are an index (`/blocks/`) and one page for each main component or special block (`/blocks/<name>/`, the file
+  `demo/src/content/pages/blocks-<name>.md`; the list and its rules are in `scripts/demo-blocks.mjs`).
 - **`starter/`**: what a new site starts with (the *Deploy to Cloudflare* button).
 - **`release-notes/`**: owner-facing release notes in English and Danish (skill `release-notes`).
 - **`.changeset/`**: one changeset per pull request (skill `changesets`).

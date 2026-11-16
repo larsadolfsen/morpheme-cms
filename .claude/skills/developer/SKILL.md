@@ -53,6 +53,7 @@ Every pull request, whatever the change:
 - A change the owner can see (the editor or the site) gets before and after screenshots of every changed screen in a
   comment on your own pull request: the `pm` skill, *Screenshots in the pull request* says how. A change nobody sees
   needs none.
+- A change to one component is checked on that component's demo page (`/blocks/<component>/`), not on all of them (`checks`).
 - When `origin/<base>` moves, merge it into your branch (never a rebase, amend or force-push on a branch that is
   shared).
 - You never release (`CLAUDE.md`, *Only the owner releases a new version*).
