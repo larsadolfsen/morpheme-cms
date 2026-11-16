@@ -1,0 +1,36 @@
+/*
+  The Default and Card designs of the lists (List and List - Expand; the FAQ list has the Card look): the rules that are new with the setting
+  `Design` (standard/rows/listParts.ts). The older rules of the lists are still in ui.css (the List part) and blocks.css (their blocks); they move
+  here in a following change (docs/theme-css-split.md). Imported by base.css after blocks.css, in the same layer, so these win over the block's own.
+*/
+@layer components {
+  /* The Default design of a list (its rows on the page, no drawn container) starts its rows' own content, the leading icon or else the text, on the text's
+     left edge (the row's 16 dp, M3 Lists › Specs "leading space", belongs to a drawn container, which only the Card design has: .list-segmented,
+     .block-accordion-card). On compact screens it is also full width (owner, 16 Nov 2026: "Full width on compact screens"; M3 Lists "edge-to-edge in compact
+     windows"): the layer of a row (hovered, pressed, focused, selected) reaches the row's 16 dp past the text column on both sides, the content stays on the text
+     edges, and the layer has square corners. It is the row's own inner padding and an equal negative margin of the list; from medium the layer is on the text column. */
+  .block-list:not(.list-segmented) {
+    --list-item-padding-inline: 0;
+  }
+  .block-accordion:not(.block-accordion-card) {
+    --list-expand-padding-inline: 0;
+  }
+  @media (width < theme(--breakpoint-medium)) {
+    .block-list:not(.list-segmented),
+    .block-accordion:not(.block-accordion-card) {
+      --block-list-layer-room: 1rem;
+      margin-inline: calc(-1 * var(--block-list-layer-room));
+    }
+    .block-list:not(.list-segmented) {
+      --list-item-padding-inline: var(--block-list-layer-room);
+      /* Edge to edge, a row's layer has no rounded corners, at rest, pointed at, pressed or selected (owner, 16 Nov 2026: "No border radius when full width"). */
+      --list-item-radius: 0;
+      --list-item-hover-radius: 0;
+      --list-item-pressed-radius: 0;
+      --list-item-selected-radius: 0;
+    }
+    .block-accordion:not(.block-accordion-card) {
+      --list-expand-padding-inline: var(--block-list-layer-room);
+    }
+  }
+}
