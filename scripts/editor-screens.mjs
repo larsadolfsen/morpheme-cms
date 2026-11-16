@@ -6476,6 +6476,126 @@ async function checkBlockSettingsPane(width) {
   await page.close();
 }
 
+/** The link of some text, a link added to the list of profiles (Business › Social media) and an item of the main menu: from 600 dp each is the pane beside the page, not a dialog (owner, 15 Nov 2026: dialogs are only for short messages, not for settings), and closing the pane gives the focus back to what opened it; on a phone each is still the sheet from the bottom. */
+async function checkLinkAndItemPanes(width) {
+  const phone = width < 600;
+  const label = `${width}px link and item panes`;
+  const shown = (page) =>
+    page.evaluate(() => ({
+      pane: !!document.querySelector('aside.editor-side-sheet:not([hidden])'),
+      dialogs: document.querySelectorAll('dialog[open]').length,
+    }));
+  const expect = async (page, what) => {
+    await page.waitForTimeout(700);
+    // The pane and the closed sheet do not both hold the fields: no id twice in the page.
+    const twice = await page.evaluate(() => {
+      const seen = new Set();
+      const twice = [];
+      for (const e of document.querySelectorAll('[id]')) {
+        if (seen.has(e.id)) twice.push(e.id);
+        seen.add(e.id);
+      }
+      return twice;
+    });
+    if (twice.length) problems.push(`${label}: ${what} has the same id twice in the page (${twice.slice(0, 3).join(', ')})`);
+    const got = await shown(page);
+    if (phone) {
+      if (got.pane || got.dialogs !== 1)
+        problems.push(`${label}: ${what} is not the sheet from the bottom on a phone (${JSON.stringify(got)})`);
+    } else {
+      if (!got.pane) problems.push(`${label}: ${what} is not the pane beside the page`);
+      if (got.dialogs) problems.push(`${label}: ${what} has a dialog open over the page`);
+    }
+  };
+  const closeIt = async (page, what, opener) => {
+    if (phone) return void (await page.keyboard.press('Escape'));
+    await page.locator('aside.editor-side-sheet [data-side-sheet-close]').last().click();
+    await page.waitForTimeout(500);
+    if (await page.locator('aside.editor-side-sheet:not([hidden])').count()) problems.push(`${label}: the pane of ${what} did not close`);
+    if (opener && !(await page.evaluate((sel) => document.activeElement?.matches(sel), opener)))
+      problems.push(`${label}: after the pane of ${what} closed, the focus did not go back to what opened it`);
+  };
+  const open = async () => {
+    const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await openEditor(page, site);
+    return page;
+  };
+  // The profiles: Add link.
+  let page = await open();
+  await page.evaluate(() => (location.hash = '#company/social-media'));
+  await page.getByRole('button', { name: 'Add link' }).first().waitFor({ timeout: 10_000 });
+  await page.getByRole('button', { name: 'Add link' }).first().click();
+  await expect(page, 'Add link');
+  await closeIt(page, 'Add link', null);
+  await page.close();
+  // The main menu: an item.
+  page = await open();
+  await page.evaluate(() => (location.hash = '#src/data/menu.json'));
+  const addItem = page
+    .getByRole('button', { name: /^Add/ })
+    .filter({ hasNotText: /^Add link/ })
+    .first();
+  await addItem.waitFor({ timeout: 10_000 });
+  await addItem.click();
+  await expect(page, "a menu item's fields");
+  await page.close();
+  // The link of some text (the bar's Link, with the text selected).
+  if (!phone) {
+    page = await open();
+    await page.evaluate(() => (location.hash = '#new/pages'));
+    await page.waitForSelector('.ProseMirror');
+    await page.click('.ProseMirror');
+    await page.keyboard.type('Hello world');
+    await page.keyboard.press('ControlOrMeta+a');
+    await page.waitForTimeout(400);
+    await page.getByRole('button', { name: 'Link', exact: true }).first().click();
+    await expect(page, 'the link of a text');
+    await closeIt(page, 'the link of a text', null);
+    await page.close();
+    // The link of a text while a block's pane is open: it opens on top of that pane with a back arrow, and Back shows the block's pane again.
+    page = await open();
+    await page.evaluate(() => (location.hash = '#new/pages'));
+    await page.waitForSelector('.ProseMirror');
+    await page.click('.ProseMirror');
+    await page.keyboard.type('Hello world');
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(300);
+    await pressInsert(page, 'click');
+    await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
+    await page.waitForTimeout(700);
+    await page.getByText('Hello world').first().dblclick();
+    await page.waitForTimeout(400);
+    // The bar has less room beside the block's pane: Link is then in the More menu.
+    const direct = page.getByRole('button', { name: 'Link', exact: true });
+    if (await direct.count()) await direct.first().click();
+    else {
+      await page.getByRole('button', { name: 'More', exact: true }).first().dispatchEvent('click');
+      await page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: /^Link/ }).first().click();
+    }
+    await page.waitForTimeout(700);
+    const nested = await page.evaluate(() => {
+      const shown = [...document.querySelectorAll('aside.editor-side-sheet')].filter((a) => !a.closest('.hidden'));
+      return {
+        shown: shown.length,
+        title: shown[0]?.querySelector('.side-sheet-headline')?.textContent,
+        back: !!shown[0]?.querySelector('[data-side-sheet-back]'),
+      };
+    });
+    if (nested.shown !== 1 || nested.title !== 'Link' || !nested.back)
+      problems.push(`${label}: the link over a block's pane is not the one pane shown with a back arrow (${JSON.stringify(nested)})`);
+    await page.locator('aside.editor-side-sheet [data-side-sheet-back]').first().click();
+    await page.waitForTimeout(600);
+    const back = await page.evaluate(() => {
+      const shown = [...document.querySelectorAll('aside.editor-side-sheet')].filter((a) => !a.closest('.hidden'));
+      return { shown: shown.length, title: shown[0]?.querySelector('.side-sheet-headline')?.textContent };
+    });
+    if (back.shown !== 1 || back.title === 'Link')
+      problems.push(`${label}: Back does not show the block's pane again (${JSON.stringify(back)})`);
+    await page.close();
+  }
+}
+
 /** On a new page with only its H1 (plain, and on a section colour), a line to write in is under it: on a phone with real touch (375 px) and on a computer with a mouse (1280 px), a tap on the hint line, a tap in the white under the page and Enter at the end of the heading each put the cursor in it, and what is typed goes there, not in the heading. */
 async function checkEmptyHint() {
   const devices = [
@@ -11445,6 +11565,7 @@ for (const [width, height] of [
   [1280, 900],
 ])
   await unit(`checkDraftsCard ${width}`, () => checkDraftsCard(width, height));
+for (const width of [375, 768, 1280]) await unit(`checkLinkAndItemPanes ${width}`, () => checkLinkAndItemPanes(width));
 for (const width of [375, 768, 1280]) await unit(`checkBlockSettingsPane ${width}`, () => checkBlockSettingsPane(width));
 await unit('checkEmptyHint', () => checkEmptyHint());
 await unit('checkLongPressDelete', () => checkLongPressDelete());
