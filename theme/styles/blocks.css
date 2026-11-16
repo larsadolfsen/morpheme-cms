@@ -552,12 +552,6 @@
        theme's default is M3's Surface, for a list on a higher container; owner, 15 Nov 2026, docs/material-deviations.md SV12). */
     --list-segmented-surface: var(--mo-surface-container);
   }
-  /* A List with no drawn container (its rows on the page, no surface) starts its rows' own content on the text's left edge: the 16 dp inside
-     a row (M3 Lists › Specs, "leading space") belongs to a drawn container, which only a Segmented list (.list-segmented) and an accordion
-     (.list-expand, .block-accordion) have. The site and the editor's typed-in-place List use the same class, so they share the edge. */
-  .block-list:not(.list-segmented) {
-    --list-item-padding-inline: 0;
-  }
   /* The color of an icon in a row or a card (`iconColor`, src/iconColor.ts): one of the theme's color roles; without one, the text colour (Text in the editor). */
   [data-icon-color='primary'] {
     --list-item-leading-icon-color: var(--mo-primary, var(--block-accent));

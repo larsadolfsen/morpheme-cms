@@ -2522,17 +2522,23 @@
     rotate: 180deg;
     background: var(--list-expand-icon-open-surface, var(--mo-surface-container));
   }
+  /* The state layer (hovered, focused, pressed) is on the whole item, its open body too (owner, 16 Nov 2026: "The whole body should have the touch colour"),
+     so an open item is one colour; the summary keeps its text and the focus ring. */
   @media (hover: hover) {
-    .list-item-expand-summary:hover {
+    .list-item-expand:has(> .list-item-expand-summary:hover) {
       background: var(--list-item-hover-surface, transparent);
+    }
+    .list-item-expand-summary:hover {
       color: var(--list-item-hover-text, var(--block-accent));
     }
   }
-  .list-item-expand-summary:focus-visible {
+  .list-item-expand:has(> .list-item-expand-summary:focus-visible) {
     background: var(--list-item-focus-surface, var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent)));
+  }
+  .list-item-expand-summary:focus-visible {
     outline: 3px solid var(--list-item-focus-indicator-color, var(--mo-primary));
   }
-  .list-item-expand-summary:active {
+  .list-item-expand:has(> .list-item-expand-summary:active) {
     background: var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent));
   }
   .list-item-expand-body {

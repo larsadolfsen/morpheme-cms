@@ -275,6 +275,10 @@
     "max": 1,
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
   },
+  "src/standard/expand/index.tsx": {
+    "max": 1,
+    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
+  },
   "src/standard/faq/index.tsx": {
     "max": 1,
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
@@ -307,8 +311,8 @@
     "max": 1,
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
   },
-  "src/standard/segmented/index.tsx": {
-    "max": 2,
+  "src/standard/rows/listParts.ts": {
+    "max": 6,
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
   },
   "src/standard/steps/index.tsx": {

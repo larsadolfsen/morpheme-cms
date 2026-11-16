@@ -4,7 +4,7 @@ import { clickPreview, openEditor, virtualFile } from '../built-site.mjs';
 import { BUILT_PAGE, LIST_PAGE, block, browser, has, problems, shots, site } from './support/context.mjs';
 import { barTools, liveLists, onTestPage, openStyleMenu, pressInsert, pressMore, pressTool, ratioOf } from './support/shared.mjs';
 
-/** The rows of a List, Segmented list and FAQ are Material's: no list marker (list-style, ::marker), in the editor and in the Preview (where the page's text style, prose, must not reach them) and on the site. */
+/** The rows of a List, List - Expand and FAQ are Material's: no list marker (list-style, ::marker), in the editor and in the Preview (where the page's text style, prose, must not reach them) and on the site. */
 async function checkListMarkers(width) {
   const path = BUILT_PAGE;
   const markers = () =>
@@ -36,10 +36,11 @@ async function checkListMarkers(width) {
   await page.close();
 }
 
-/** One left edge for a List (375, 768 and 1280 px), on the site (the demo's Blocks page, /blocks/lists/) and typed in place in the editor. A List with no drawn container
- * (its rows on the page) starts its rows' own content, the leading icon or else the text, on the page's text edge; the 16 dp inside a row is the drawn container's
- * (M3 Lists › Specs, "Leading element left padding 16dp"), so a Segmented list, whose rows are on a surface, keeps it: its container is on the text edge and its icon
- * one 16 dp padding in. Real geometry, a half pixel of rounding allowed. */
+/** One left edge for a List (375, 768 and 1280 px), on the site (the demo's Blocks page, /blocks/lists/) and typed in place in the editor. A List in the plain design
+ * (its rows on the page, no drawn container) starts its rows' own content, the leading icon or else the text, on the page's text edge, and on a compact screen (below 600 px) is full
+ * width: the row's layer (hover, pressed, focus ring, selected) is 16 dp wider than the text column on each side (owner, 16 Nov 2026: "Full width on compact screens"; M3 Lists
+ * "edge-to-edge in compact windows", Specs "leading space 16dp"); from medium the layer is on the text column. The page does not scroll sideways. A list in the segmented design (the theme's segmented list) has its container on the text edge and its icon one 16 dp padding in. Real
+ * geometry, a half pixel of rounding allowed. */
 async function checkListLeftEdge(width) {
   const label = `${width}px list left edge`;
   const page = await browser.newPage({ viewport: { width, height: width < 600 ? 800 : 900 }, locale: 'en-US' });
@@ -47,7 +48,14 @@ async function checkListLeftEdge(width) {
   const measure = (rootSelector) => {
     const root = document.querySelector(rootSelector);
     const text = root.querySelector('p').getBoundingClientRect().left;
-    const out = { text, rows: [] };
+    const out = { text, wide: document.documentElement.scrollWidth - window.innerWidth, view: window.innerWidth, rows: [], cards: [] };
+    // The card based blocks keep the normal side margin on a compact screen: only the Default list is edge to edge.
+    for (const el of root.querySelectorAll('.block-card, .block-plan, .block-testimonial')) {
+      const box = el.getBoundingClientRect();
+      // The cards of a carousel run off the window on purpose.
+      if (box.left >= window.innerWidth - 1 || el.closest('.carousel')) continue;
+      out.cards.push({ name: el.className.split(' ')[0], left: box.left, right: box.right });
+    }
     for (const ul of root.querySelectorAll('ul.block-list')) {
       const row = ul.querySelector('.list-item-container');
       if (!row) continue;
@@ -56,6 +64,7 @@ async function checkListLeftEdge(width) {
       out.rows.push({
         kind: filled ? 'segmented' : 'plain',
         container: (filled ? ul.querySelector('li') : row).getBoundingClientRect().left,
+        right: (filled ? ul.querySelector('li') : row).getBoundingClientRect().right,
         content: lead.getBoundingClientRect().left,
         pad: parseFloat(getComputedStyle(row).paddingLeft),
       });
@@ -64,9 +73,24 @@ async function checkListLeftEdge(width) {
   };
   const verify = (where, got) => {
     if (!got.rows.some((r) => r.kind === 'plain')) problems.push(`${label}: ${where} has no List without a container to measure`);
+    if (got.wide > 0.5) problems.push(`${label}: ${where} the page scrolls sideways by ${got.wide}px`);
+    for (const c of got.cards)
+      if (c.left < got.text - 0.5 || c.right > got.view - (got.text - 0.5))
+        problems.push(`${label}: ${where} a ${c.name} reaches ${c.left} to ${c.right}, outside the side margin of ${got.text}`);
+    // On a compact screen the Default list's rows go from edge to edge of the window; every card based list keeps the margin.
+    if (width < 600 && where === 'on the site')
+      for (const r of got.rows)
+        if (r.kind === 'plain' && (Math.abs(r.container) > 0.5 || Math.abs(r.right - got.view) > 0.5))
+          problems.push(
+            `${label}: ${where} a Default list's row is from ${r.container} to ${r.right}, not the whole window of ${got.view}px`,
+          );
     for (const r of got.rows) {
-      if (Math.abs(r.container - got.text) > 0.5)
-        problems.push(`${label}: ${where} a ${r.kind} list's container starts at ${r.container}, not on the text's edge ${got.text}`);
+      // Plain design: on a compact screen the row's layer starts 16 dp before the text's edge (full width), else on it; Segmented design: its container is on the text's edge.
+      const want = r.kind === 'plain' && width < 600 ? got.text - 16 : got.text;
+      if (Math.abs(r.container - want) > 0.5)
+        problems.push(
+          `${label}: ${where} a ${r.kind} list's ${r.kind === 'plain' ? 'row layer' : 'container'} starts at ${r.container}, not at ${want} (the text's edge is ${got.text})`,
+        );
       if (r.kind === 'plain' && Math.abs(r.content - got.text) > 0.5)
         problems.push(
           `${label}: ${where} a List's row content starts at ${r.content}, ${r.content - got.text} px in from the text's edge ${got.text}`,
@@ -80,6 +104,17 @@ async function checkListLeftEdge(width) {
   if (await onTestPage(page, label)) {
     await page.waitForSelector('main .prose ul.block-list');
     verify('on the site', await page.evaluate(measure, 'main .prose'));
+    // Edge to edge, the layer of a Default list's row has square corners, also pointed at (owner, 16 Nov 2026: "No border radius when full width").
+    if (width < 600) {
+      const row = page.locator('main .prose ul.block-list:not(.list-segmented) a.list-item-container').first();
+      await row.hover();
+      await page.waitForTimeout(400);
+      const radius = await row.evaluate(
+        (el) => getComputedStyle(el).borderTopLeftRadius + ' ' + getComputedStyle(el).borderBottomRightRadius,
+      );
+      if (radius !== '0px 0px')
+        problems.push(`${label}: a Default list's row pointed at has the corners ${radius}, not square, when it is full width`);
+    }
   }
   await openEditor(page, site, { [BUILT_PAGE]: LIST_PAGE });
   await page.goto(`${site}/editor/#${BUILT_PAGE}`);
@@ -89,7 +124,7 @@ async function checkListLeftEdge(width) {
   await page.close();
 }
 
-/** The setting Columns of List, Segmented list and FAQ list (standard/columns.ts): on (the default, and what a block from before has) the rows sit in as many columns as fit the list's
+/** The setting Columns of List, List - Expand and FAQ list (standard/columns.ts): on (the default, and what a block from before has) the rows sit in as many columns as fit the list's
  * width, at least 344px each, never more than three; off (`data-columns="one"`) one column at most 720px wide. In the editor and in the Preview, at 375, 768 and 1280. */
 async function checkListColumns(width) {
   const label = `${width}px list columns`;
@@ -102,8 +137,8 @@ async function checkListColumns(width) {
     '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n',
     block('list', { items: rows }),
     block('list', { columns: false, items: rows }),
-    block('segmented', { items: rows }),
-    block('segmented', { columns: false, items: rows }),
+    block('expand', { items: rows }),
+    block('expand', { columns: false, items: rows }),
     block('faq', { items: rows.map((r) => ({ question: r.title, answer: r.text })) }),
     block('faq', { columns: false, items: rows.map((r) => ({ question: r.title, answer: r.text })) }),
   ].join('\n\n');
@@ -149,13 +184,13 @@ async function checkListColumns(width) {
   await page.close();
 }
 
-/** The hover action row is not drawn over a control of the block: a mouse over the first row of a Segmented list or Questions and answers shows no row over the row's chevron, at 768
+/** The hover action row is not drawn over a control of the block: a mouse over the first row of a List - Expand or Questions and answers shows no row over the row's chevron, at 768
  * and 1280 (the block shows its row once it is active). The drag handle, in the block's top left corner, shows only on the active block: it takes no pointer on a block that is only pointed at. */
 async function checkChevronUnderHoverRow(width) {
   const label = `${width}px chevron under the hover row`;
   const src = [
     '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n',
-    block('segmented', {
+    block('expand', {
       items: [
         { title: 'One', text: 'First' },
         { title: 'Two', text: 'Second' },
@@ -196,7 +231,7 @@ async function checkChevronUnderHoverRow(width) {
   await page.close();
 }
 
-/** Rows that fold out, typed in place (Segmented list, Questions and answers): the chevron opens and closes any row as on the site, Enter or Space on the focused
+/** Rows that fold out, typed in place (List - Expand, Questions and answers): the chevron opens and closes any row as on the site, Enter or Space on the focused
  * head does too, a tap on the head's own surface (not the title, not the chevron) folds nothing, and typing in the page's text does not collapse an open row.
  * What is folded is a view state: the page does not change (Undo stays off). */
 async function checkChevronRows(width) {
@@ -204,7 +239,8 @@ async function checkChevronRows(width) {
   const phone = width < 600;
   const src = [
     '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n',
-    block('segmented', {
+    block('expand', {
+      design: 'segmented',
       items: [
         { title: 'One', text: 'First' },
         { title: 'Two', text: 'Second' },
@@ -226,7 +262,7 @@ async function checkChevronRows(width) {
   await page.waitForSelector('.inline-list-host details.list-item-expand', { timeout: 30_000 });
   const undoOff = () => page.locator('.editor-tools button[aria-label="Undo"]').first().isDisabled();
   for (const [at, name] of [
-    [0, 'Segmented list'],
+    [0, 'List - Expand'],
     [1, 'Questions and answers'],
   ]) {
     // The cursor is out of every block: no row's settings panel narrows the page while a row is tapped.
@@ -1181,9 +1217,11 @@ async function checkExpandList(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   if (!(await onTestPage(page, label))) return page.close();
-  const list = page.locator('ul.list.list-expand:has(> li:nth-child(2))').first();
+  // The segmented design (the FAQ and the segmented List - Expand) has the 16 px corner on its list; the plain design is the rows on the page, and
+  // edge to edge on a phone with no corner (checkListLeftEdge), so it is not the one measured here.
+  const list = page.locator('ul.list.list-expand.block-accordion-segmented:has(> li:nth-child(2))').first();
   if (!(await list.count())) {
-    problems.push(`${label}: no List with expand and two items on the Blocks pages`);
+    problems.push(`${label}: no segmented List with expand and two items on the Blocks pages`);
     return page.close();
   }
   await list.evaluate((el) => el.scrollIntoView({ block: 'center' }));

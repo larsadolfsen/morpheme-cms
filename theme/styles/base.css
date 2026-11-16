@@ -9,6 +9,8 @@
 @import './cards.css';
 @import './type.css';
 @import './blocks.css';
+/* The designs of the lists (List, List - Expand): Default and Card. */
+@import './lists.css';
 /* The theme's variables and the classes the standard theme's components use with them. */
 @import './components.css';
 @import './tokens/base/ref.css';
