@@ -62,8 +62,8 @@ import { choose as askChoice, closeChanged } from './ask';
 import SectionSettings, { type SectionValues } from './SectionSettings';
 import { liveSheet, sheetLook } from './sheetPlacement.mjs';
 import { sheetSteps } from './liveSheet.mjs';
-import { setPanelOpen } from './sidePanel';
-import { SiteSideSheet, siteFollowKeyboard, siteStandardSideSheet } from './themeUi';
+import { usePane } from './PaneHost';
+import { siteFollowKeyboard } from './themeUi';
 import { typedInPlace } from './typedInPlace.mjs';
 import { useSheetBack } from './useSheetBack';
 import { drop as dropCopy, keep as keepCopy, matches as copyMatches, take as takeCopy } from './sheetCopy.mjs';
@@ -261,8 +261,6 @@ export function useBlockDialog(
   const blockOf = (type: string) => (type === IMAGE ? image : type === HTML ? htmlBlock : list.find((b) => b.type === type));
   const dialog = useRef<HTMLDialogElement>(null);
   // The modal side sheet's <dialog> (below medium) and its controls; the standard one's box (from medium).
-  const standard = useRef<HTMLDivElement>(null);
-  const standardControls = useRef<ReturnType<typeof siteStandardSideSheet> | null>(null);
   // The subpage's <dialog> (a block's fields on a compact window).
   const pageDialog = useRef<HTMLDialogElement>(null);
   // The hidden copy of the open block's fields (below medium): where the block is and its props when it opened; null when none is kept.
@@ -411,27 +409,6 @@ export function useBlockDialog(
     return false;
   };
 
-  // The standard side sheet (from medium): the page makes room for it (editor.css: [data-side-panel]), the focus moves
-  // into it and back to what had it before when it closes.
-  useEffect(() => {
-    if (look !== 'side-sheet') return;
-    document.documentElement.setAttribute('data-side-panel', '');
-    setPanelOpen(true);
-    const box = standard.current?.querySelector<HTMLElement>('[data-side-sheet-container]');
-    if (box) {
-      // The settings of a row are beside the row being typed in: the cursor stays where it is.
-      const typing = openNow.current?.step === 'row' ? document.activeElement : null;
-      standardControls.current = siteStandardSideSheet(box, { beforeClose });
-      standardControls.current.open(trigger.current ?? undefined);
-      if (typing instanceof HTMLElement && typing !== document.body) typing.focus({ preventScroll: true });
-    }
-    return () => {
-      standardControls.current = null;
-      document.documentElement.removeAttribute('data-side-panel');
-      setPanelOpen(false);
-    };
-  }, [look]);
-
   // The search, once the list to choose from is shown. The keyboard would cover the list on a phone;
   // there it opens when the search is tapped.
   const choosing = open?.step === 'choose';
@@ -466,7 +443,7 @@ export function useBlockDialog(
     ended?.end();
     closing.current = (async () => {
       if (pageDialog.current?.open) pageDialog.current.close();
-      else if (standardControls.current) await standardControls.current.close();
+      else if (lookNow.current === 'side-sheet') await pane.close();
       else if (dialog.current?.open) dialog.current.close();
       card?.focus();
       setOpen(null);
@@ -478,7 +455,7 @@ export function useBlockDialog(
   const typedIn = () => {
     const at = document.activeElement;
     const typing = 'input:not([type=checkbox]):not([type=radio]):not([type=button]), textarea, [contenteditable="true"]';
-    return at instanceof HTMLElement && standard.current?.contains(at) && at.matches(typing) ? at : null;
+    return at instanceof HTMLElement && at.closest('.editor-side-sheet') && at.matches(typing) ? at : null;
   };
   const writeLive = (props: BlockProps) => live.current?.write(props, steps.current.change(typedIn()));
   const changeFields = (next: BlockProps) => {
@@ -757,33 +734,35 @@ export function useBlockDialog(
       {problem && <ProblemNote>{problem}</ProblemNote>}
     </>
   );
-  // A side sheet (the same markup, standard or modal): the block's fields or the section settings, with Save (Insert) and Cancel
-  // unless it is live (its headline and close button only).
-  const sideSheetOf = (kind: 'standard' | 'modal') =>
-    open &&
-    (open.step === 'section' || open.step === 'row' || block) && (
-      <SiteSideSheet
-        kind={kind}
-        headline={open.step === 'fields' && open.isNew ? t.blocks.insert : title}
-        headlineId={headingId}
-        closeLabel={t.common.close}
-        className={kind === 'standard' ? 'editor-side-sheet' : undefined}
-        actions={
-          open.step === 'row' || open.live ? undefined : (
-            <>
-              <Button onClick={() => (open.step === 'fields' ? save(open.type) : saveSection())}>
-                {open.step === 'fields' && open.isNew ? t.blocks.insert : t.common.save}
-              </Button>
-              <Button kind="outlined" onClick={() => void leave()}>
-                {t.common.cancel}
-              </Button>
-            </>
-          )
+  // The pane beside the page (PaneHost.tsx): the block's fields, the section settings or the settings of a row, with Save (Insert) and Cancel
+  // unless it is live (its headline and close button only). Fed on every render while its look is the side sheet.
+  const inPane = look === 'side-sheet' && open && (open.step === 'section' || open.step === 'row' || block);
+  const pane = usePane(
+    inPane
+      ? {
+          headline: open.step === 'fields' && open.isNew ? t.blocks.insert : title,
+          headlineId: headingId,
+          beforeClose,
+          opener: trigger.current,
+          keepFocus: open.step === 'row',
+          onBlur: () => steps.current.end(),
+          actions:
+            open.step === 'row' || open.live ? undefined : (
+              <>
+                <Button onClick={() => (open.step === 'fields' ? save(open.type) : saveSection())}>
+                  {open.step === 'fields' && open.isNew ? t.blocks.insert : t.common.save}
+                </Button>
+                <Button kind="outlined" onClick={() => void leave()}>
+                  {t.common.cancel}
+                </Button>
+              </>
+            ),
+          children: (
+            <div className="space-y-5">{open.step === 'row' ? rowFields : open.step === 'section' ? sectionSettings : blockFields}</div>
+          ),
         }
-      >
-        <div className="space-y-5">{open.step === 'row' ? rowFields : open.step === 'section' ? sectionSettings : blockFields}</div>
-      </SiteSideSheet>
-    );
+      : null,
+  );
   const element = (
     <>
       <BottomSheet
@@ -921,16 +900,7 @@ export function useBlockDialog(
           </ActionSheet>
         </dialog>
       )}
-      {look === 'side-sheet' && (
-        // The standard side sheet is not modal: the page stays usable. The focus leaving it ends a live sheet's undo step.
-        <div
-          ref={standard}
-          className="contents"
-          onBlur={(e) => !e.currentTarget.contains(e.relatedTarget as Node | null) && steps.current.end()}
-        >
-          {sideSheetOf('standard')}
-        </div>
-      )}
+      {pane.portal}
     </>
   );
   return [asker, element];

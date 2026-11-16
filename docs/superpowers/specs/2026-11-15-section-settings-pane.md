@@ -81,3 +81,7 @@ M3 prints no second level of side sheet. It prints that "People can navigate to 
 ## Dialogs and settings
 
 Owner rule, 15 Nov 2026: "Dialogs are only for short messages, not for settings." M3 allows a basic dialog for a form at medium and expanded, so this is recorded as a deviation (`docs/material-deviations.md`, B3) with M3's dialog text quoted.
+
+## The pane host (pane PR 3a)
+
+`src/PaneHost.tsx` is the one place of the pane: an empty slot in `App.tsx`. A screen feeds it with `usePane(entry)` on each render and puts the returned `portal` in what it renders (a portal, so the content keeps the screen's own React context, such as the form's fields). The markup and the look are the theme's standard side sheet (`SiteSideSheet`) and `.editor-side-sheet`; the host is editor state only. The pane fed last is shown; one opened from inside another is on top of it, and when it goes the first shows again (the back icon for it needs the theme's side sheet to print one: M3's side-sheets overview prints "Side sheets can contain a back icon for navigation"; the theme's `SideSheet` has none yet, so it waits for the owner's yes in pane PR 3b). `BlockDialog.tsx` is the first screen on it.
