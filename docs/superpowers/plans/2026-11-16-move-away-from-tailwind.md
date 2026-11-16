@@ -164,7 +164,7 @@ I compiled the plugin (`@tailwindcss/typography@0.5.20`, class `prose`) in the s
 4. `ol` (decimal, `type="A|a|I|i|1"` variants, 1.625em start padding), `ul` (disc), the `::marker` colours, `li` spacing (0.5em), nested lists, a list item's first and last paragraph, `dl`, `dt`, `dd`.
 5. `hr` and `hr + *`, `blockquote` (italic 500, start border 0.25rem, 1em padding) and its `::before`/`::after` quote marks.
 6. `h1`-`h4` with their margins, `h2 + *`, `h3 + *`, `h4 + *` (no top margin), `strong` in headings.
-7. `img`, `picture`, `video`, `figure`, `figcaption`.
+7. `img`, `video`, the wrapper element of responsive images, `figure`, `figcaption`.
 8. `kbd`, `code` (weight 600, backticks as `::before`/`::after`), `a code`, headings' `code`, `pre` (colour, background, overflow, padding, radius) and `pre code`.
 9. `table`, `thead`, `tbody tr`, `tfoot`, `th, td` with first/last-child paddings.
 10. `.prose > :first-child` and `> :last-child` (no outer margin).
@@ -328,7 +328,7 @@ Proof that the result is the same (`compare-html` proves the markup is unchanged
 2. `npx morpheme compare-html <before>`: proves the markup is unchanged.
 3. New `scripts/compare-styles.mjs` (PR 1): for each built page, at 375, 700, 900 and 1300 px, Playwright walks every element in document order, and compares
    `getComputedStyle` for a fixed list of about 60 properties (type, spacing, colour, border, display, position, size) and the bounding box, in light and dark and on each section colour.
-   It reports the first differing element and property. For `prose` it also compares one fixture page that has every element the plugin styles (h1-h4, p with lead, `ol type=A|a|I|i`, nested lists, `dl`, `blockquote`, `pre`, `code`, `kbd`, `table` with `tfoot`, `figure` with `figcaption`, `hr`, `img`, `picture`,
+   It reports the first differing element and property. For `prose` it also compares one fixture page that has every element the plugin styles (h1-h4, p with lead, `ol type=A|a|I|i`, nested lists, `dl`, `blockquote`, `pre`, `code`, `kbd`, `table` with `tfoot`, `figure` with `figcaption`, `hr`, `img`, 
    `video`, a `not-prose` block inside text). `demo/src/content/pages/typography.md` is the start; a fixture is added under `demo/`.
 4. The editor: `check:screens` already opens every screen; the same comparison runs in its Playwright on the editor's text field (`.editor-text.prose`) and the Preview.
 
