@@ -283,6 +283,8 @@ Everything else becomes component CSS named after the part (`.header-actions`, `
 `components.css`, `src/editor.css`) with logical properties, `gap` and tokens. That is how the theme's own parts in `theme/ui` work already; it is not an "invented
 component", it is the existing rule applied to the markup that skipped it.
 
+Where a token lives (PM, 16 Nov): a token that only one block reads moves into that block's own stylesheet, on the block's root element (Astro ships a block's CSS only on the pages that use it, so the token costs nothing elsewhere); a shared `--mo-*` token stays on `:root`. This applies to the tokens the migration touches: the carousel and chip-set bleed (§1.3) become one gutter token on `:root` only if more than one part reads it, and `--mo-columns` and `--mo-gap` of the vocabulary are set on the element that uses them, never on `:root`.
+
 Rules: (1) a utility-looking name never comes back (the check, §6 PR 11); (2) a vocabulary class sets layout only, never colour, type, shape or state (those
 belong to the part and its tokens); (3) numbers come from `--mo-space-*`, `--mo-shape-*` and the type tokens; (4) a new vocabulary class needs a use of three or more places and goes in the table here
 first. Spacing between blocks (`mb-8` 45, `mt-2`…) is not a layout primitive: it is the part's own spacing and becomes a token or a part rule, one at a time.
