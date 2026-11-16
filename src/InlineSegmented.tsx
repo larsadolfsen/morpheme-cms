@@ -6,11 +6,12 @@
 import InlineList, { type Row } from './InlineList';
 import type { InlineViewProps } from './inlineViews';
 
-export default function InlineSegmented({ items, props, active, focus, onChange, onSettings, onIcon }: InlineViewProps) {
+export default function InlineSegmented({ items, props, active, focus, onChange, onSettings, onIcon, folds, onFold }: InlineViewProps) {
   const all = props.show === 'all';
   return (
     <InlineList
       items={items as Row[]}
+      props={props}
       active={active}
       focus={focus}
       onChange={onChange}
@@ -18,6 +19,8 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
       onIcon={onIcon}
       kind={all ? 'segmented' : 'standard'}
       fold={!all}
+      folds={folds}
+      onFold={onFold}
     />
   );
 }

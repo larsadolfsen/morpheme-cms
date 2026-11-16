@@ -63,6 +63,12 @@
   --editor-section-gap: 2rem;
   --editor-section-rhythm: 0.625em;
 
+  /* The frame the editor draws round a block (the dotted line of .site-block-card): it hangs this far outside the text column on each side, a fixed outset
+     (4 dp grid), and the block's own content stays on the column's edge, as on the site. The line's width is part of the outset: the padding inside the
+     line is the outset less the line. The text field's padding (--editor-pad-x) is at least the outset, so the frame is never clipped by the text field. */
+  --editor-frame-outset: 0.5rem;
+  --editor-frame-line: 1.5px;
+
   /* A form's "on this page" area (SectionPane in ui.tsx) against the window's end edge: its width (the card is as wide as the navigation drawer), the card in it
      stands --section-pane-gap in from the end edge and from the window's top edge. */
   --section-pane-width: calc(var(--navigation-drawer-width, 22.5rem) + var(--section-pane-gap));
@@ -128,15 +134,11 @@
   margin-block: 0;
 }
 
-/* The text field's own padding (MarkdownEditor.tsx: px-5 py-4, medium:px-8); a section of the whole width reaches out of it. */
+/* The text field's own padding (MarkdownEditor.tsx: px-(--mo-grid-margin) py-4); a section of the whole width reaches out of it. The sides are the theme's
+   page margin, as on the site (16 dp compact, 24 dp from medium), so the text starts at the same distance from its edge as on the site. */
 .editor-text {
-  --editor-pad-x: 1.25rem;
+  --editor-pad-x: var(--mo-grid-margin, 1rem);
   --editor-pad-y: 1rem;
-}
-@media (width >= theme(--breakpoint-medium)) {
-  .editor-text {
-    --editor-pad-x: 2rem;
-  }
 }
 
 /* The dotted line at the start of an H2 section (data-section-part='start', sectionFrame.ts): a divider across the text. The line
@@ -858,14 +860,15 @@ html {
 
 .editor-text .site-block-card {
   display: block;
-  width: calc(100% + 1.25rem);
-  margin-inline: -0.625rem;
+  width: calc(100% + 2 * var(--editor-frame-outset));
+  margin-inline: calc(-1 * var(--editor-frame-outset));
   position: relative;
   /* The dotted outline is a Card's: its corner radius and padding, the theme's tokens (the same fallbacks as .card), so the action row, the items and the
      add button line up inside it. */
   border-radius: var(--card-radius, var(--block-radius));
-  border: 1.5px dashed color-mix(in srgb, var(--mo-on-surface-variant) 45%, transparent);
-  padding: var(--card-padding, 1rem);
+  border: var(--editor-frame-line) dashed color-mix(in srgb, var(--mo-on-surface-variant) 45%, transparent);
+  padding-block: var(--card-padding, 1rem);
+  padding-inline: calc(var(--editor-frame-outset) - var(--editor-frame-line));
   text-align: left;
   cursor: pointer;
   transition: border-color var(--motion-effects);
@@ -879,13 +882,15 @@ html {
 .editor-text .site-block-handle {
   position: absolute;
   top: 0.25rem;
-  right: 0.25rem;
+  /* The block's top left corner (owner, 16 Nov): the one place to drag a block. A 48 dp touch target, drawn inside the frame, its edge 24 dp in from the frame's left
+     edge, where the selection mark's 48 dp target (centred on the outline's corner curve) ends, so the two never overlap (the card is the frame outset wider than the block on each side). */
+  left: calc(var(--card-radius, var(--block-radius)) * 0.2929 + 0.53px + 1.5rem - var(--editor-frame-outset));
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  inline-size: 2.75rem;
-  block-size: 2.75rem;
+  inline-size: 3rem;
+  block-size: 3rem;
   padding: 0;
   border: 0;
   border-radius: 50%;
@@ -896,13 +901,13 @@ html {
   transition: opacity var(--motion-effects);
 }
 
-/* The active block's action row (blockRow.ts): inside the block's dotted outline (the card), at the top of its padding, right-aligned, 44 dp high, in the card's flow so
+/* The active block's action row (blockRow.ts): inside the block's dotted outline (the card), at the top of its padding, 48 dp high, with the drag handle at its start, in the card's flow so
    the block makes room for it (its height opens with the spatial spring). Its buttons are the theme's standard icon buttons (iconButtonClass), no style of their own here.
-   The block's drag handle is its last button: it moves into the row's end while the row is open. */
+   The block's drag handle is at the row's start, in the block's top left corner, 48 dp like the row (the row is as high as the handle's touch target). */
 .editor-text .site-block-row {
   display: block;
   box-sizing: border-box;
-  block-size: 2.75rem;
+  block-size: 3rem;
 }
 
 /* The row hugs the top of the outline: it is pulled up into the card's padding, so the space above it is the Card's gap (the theme's small step), not its full padding; the
@@ -917,7 +922,7 @@ html {
   position: absolute;
   z-index: 1;
   inset-block-start: calc(1.5px + var(--card-gap, 0.5rem));
-  inset-inline: calc(1.5px + var(--card-padding, 1rem));
+  inset-inline: calc(var(--editor-frame-outset) - var(--editor-frame-line));
   pointer-events: none;
 }
 
@@ -932,6 +937,8 @@ html {
   border-radius: var(--mo-shape-full);
   background: var(--mo-surface);
   pointer-events: auto;
+  /* The handle is a separate round part at the left on its own surface, so the pill holds only the buttons. */
+  padding-inline-start: 0;
 }
 
 .editor-text .site-block-row-moving {
@@ -942,8 +949,14 @@ html {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  block-size: 2.75rem;
-  padding-inline-end: 2.75rem;
+  block-size: 3rem;
+  /* Room for the handle at the start: it ends 4.5 rem past the selection mark's centre; the buttons stay clear of it. */
+  padding-inline-start: calc(var(--card-radius, var(--block-radius)) * 0.2929 + 0.53px + 4.5rem - var(--editor-frame-outset));
+}
+
+/* A hidden block's badge (32 dp, 16 dp from the frame's top and right) lies at the row's end: the buttons stop short of it. */
+.editor-text .site-block-hidden .site-block-row-inner {
+  padding-inline-end: calc(3rem - var(--editor-frame-outset));
 }
 
 /* A button that cannot be used (a block that cannot move further): shown, in its place, with the reason; the theme's disabled look, no state layer. */
@@ -956,11 +969,13 @@ html {
   background: transparent;
 }
 
-.editor-text :is(.site-block-has-row, .site-block-has-hover) > .site-block-handle {
-  /* In the row's end: the card's border and padding in from its top and right edge (the card is 0.625rem wider than the block on each side). */
+.editor-text .site-block-has-row > .site-block-handle {
+  /* In the row's start: the row's own height, below the card's border and gap from its top edge. */
   top: calc(1.5px + var(--card-gap, 0.5rem));
-  right: calc(var(--card-padding, 1rem) + 1.5px - 0.625rem);
   opacity: 1;
+}
+
+.editor-text .site-block-has-row > .site-block-handle {
   background: transparent;
 }
 
@@ -970,35 +985,28 @@ html {
   cursor: default;
 }
 
-/* A block that is neither active nor pointed at shows no handle (it is the end of the action row), with a mouse or a touch; the handle, like the row, is there while the block is
-   active, pointed at (a mouse), being dragged, in focus with the keyboard, or while blocks are being selected. Hidden, it takes no pointer. */
+/* A block that is not active shows no handle (it is the start of the action row), with a mouse or a touch. A mouse pointing at a block shows the row's buttons over its top but not the handle:
+   at the block's left it would cover the first item. The handle is there while the block is active, being dragged, in focus with the keyboard, or while blocks are being selected. Hidden, it takes no pointer. */
 .editor-text .site-block-handle {
   opacity: 0;
   pointer-events: none;
 }
 
-.editor-text :is(.site-block-has-row, .site-block-has-hover, .site-block-marks, .site-block-dragging) > .site-block-handle,
+.editor-text :is(.site-block-has-row, .site-block-marks, .site-block-dragging) > .site-block-handle,
 .editor-text .site-block-handle:focus-visible {
   opacity: 1;
   pointer-events: auto;
-}
-
-@media (hover: hover) {
-  .editor-text .site-block:hover > .site-block-handle {
-    opacity: 1;
-    pointer-events: auto;
-  }
 }
 
 /* The mark on a block that can be selected with others (Material's Selection page, the photo grid): a round circle centred on the block's top left corner (so it covers nothing in the block, as in M3's example), empty, filled with a check
    while the block is selected; a mouse sees it on the block pointed at, the active block shows it, and every block shows it once some block is selected; any other block shows none. Its target is 48 dp. */
 .editor-text .site-block-mark {
   position: absolute;
-  /* Centred on the outline's corner curve: the card is 0.625rem wider than the block on each side, and the 45 degree point of a corner with the Card's radius r (its
+  /* Centred on the outline's corner curve: the card is the frame outset wider than the block on each side, and the 45 degree point of a corner with the Card's radius r (its
      1.5px line centred) lies r * (1 - cos 45) + 0.53px in from the corner, along both edges. */
   --mark-in: calc(var(--card-radius, var(--block-radius)) * 0.2929 + 0.53px);
   top: calc(var(--mark-in) - 1.5rem);
-  left: calc(var(--mark-in) - 0.625rem - 1.5rem);
+  left: calc(var(--mark-in) - var(--editor-frame-outset) - 1.5rem);
   z-index: 2;
   display: flex;
   align-items: center;
@@ -1231,6 +1239,12 @@ html {
   flex-wrap: wrap;
   gap: 0 0.5rem;
   margin: 0 0 0.5rem;
+}
+
+/* A typed row's icon slot is an element that draws nothing while the row is not active and has no icon (InlineIcon). The empty slot would still take the row's gap, so a
+   row's title would start a gap further in than on the site, where a row without an icon has no slot: the rows share one inner padding, left and right. */
+.editor-text .list-item-leading:empty {
+  display: none;
 }
 
 /* The row being typed in has a dotted line round it in the text's own colour (3:1 on every section colour, unlike the section frame's quiet line); the empty row of an empty list is faded. */

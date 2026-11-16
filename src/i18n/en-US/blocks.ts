@@ -152,6 +152,12 @@ export const blocks = {
     map: 'Fields in a row',
     empty: 'No items in the list match, so nothing shows on the page.',
   },
+  /** The setting "Columns" of the blocks that draw rows as a list (standard/columns.ts). */
+  columns: {
+    label: 'Columns',
+    toggle: ['On', 'Off'] as [string, string],
+    about: 'On: rows sit in columns where there is room. Off: one column.',
+  },
   list: {
     label: 'List',
     hint: 'Rows with icon, heading and text.',

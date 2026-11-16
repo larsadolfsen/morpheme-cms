@@ -4,5 +4,5 @@ import type { ListView } from '@morphemecms/cms/src/standard/list/view';
 import { useInText } from '@morphemecms/cms/src/standard/view';
 
 export default function ListBlock({ view }: { view: ListView }) {
-  return <Rows items={view.items} className={useInText() || undefined} />;
+  return <Rows items={view.items} className={useInText() || undefined} oneColumn={view.oneColumn} />;
 }

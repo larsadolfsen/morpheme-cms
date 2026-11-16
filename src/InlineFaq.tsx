@@ -6,15 +6,16 @@
 // field under `Add question` while the block is active (empty: none) and its page is picked in the link slot (Edit).
 import { LinkSimple } from '@phosphor-icons/react';
 import { t } from './i18n';
-import InlineItems, { InlineField, InlineSlot } from './InlineItems';
+import InlineItems, { foldOf, InlineField, InlineSlot } from './InlineItems';
 import type { InlineViewProps } from './inlineViews';
 import { faqSettings } from './standard/faq/view';
 import { headOf } from './standard/head';
 import BlockHead from '@theme/blocks/BlockHead';
 import ListButton from '@theme/blocks/ListButton';
 import List, { ListItem } from '@theme/ui/List';
+import { columnsAttr } from './standard/columns';
 
-export default function InlineFaq({ items, props, active, focus, onChange, onProps, onEdit }: InlineViewProps) {
+export default function InlineFaq({ items, props, active, focus, onChange, onProps, onEdit, folds, onFold }: InlineViewProps) {
   const head = headOf(props);
   const button = faqSettings(props).button;
   return (
@@ -29,28 +30,32 @@ export default function InlineFaq({ items, props, active, focus, onChange, onPro
         onChange={onChange}
         paste
         wrap={(rows) => (
-          <List expand className="block-accordion">
+          <List expand className="block-accordion" data-columns={columnsAttr(props)}>
             {rows}
           </List>
         )}
-        renderItem={({ index: i, here, next, field }) => (
-          // The question is typed, so the summary does not fold: the active question is the open one.
-          <ListItem
-            key={i}
-            expand
-            expandOpen={here}
-            expandProps={{
-              'data-row': i,
-              'aria-current': here ? 'true' : undefined,
-              'aria-label': next ? t.blocks.faq.newQuestion : t.blocks.faq.questionOf(i + 1, items.length),
-              className: ['inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next'].filter(Boolean).join(' '),
-            }}
-            onClick={(e) => e.preventDefault()}
-            headline={field('question', t.blocks.faq.question, next ? t.blocks.faq.newQuestion : t.blocks.faq.question)}
-          >
-            {here && <div className="block-accordion-answer">{field('answer', t.blocks.faq.answer, t.blocks.faq.answer)}</div>}
-          </ListItem>
-        )}
+        renderItem={({ index: i, here, next, field }) => {
+          // The question is typed, so a tap on it does not fold the row: the active question is the open one, and the chevron opens or closes any row.
+          const fold = foldOf(i, here, folds, onFold);
+          return (
+            <ListItem
+              key={i}
+              expand
+              expandOpen={fold.open}
+              expandProps={{
+                'data-row': i,
+                'aria-current': here ? 'true' : undefined,
+                'aria-label': next ? t.blocks.faq.newQuestion : t.blocks.faq.questionOf(i + 1, items.length),
+                className: ['inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next'].filter(Boolean).join(' '),
+              }}
+              {...fold.summary}
+              headline={field('question', t.blocks.faq.question, next ? t.blocks.faq.newQuestion : t.blocks.faq.question)}
+            >
+              {/* A closed row keeps its answer in the page, so the text is still there for the editor's checks; the open row's is typed. */}
+              {(here || !next) && <div className="block-accordion-answer">{field('answer', t.blocks.faq.answer, t.blocks.faq.answer)}</div>}
+            </ListItem>
+          );
+        }}
       />
       {/* While the block is active the button under the list is typed where it stands (empty: no button) and its page is picked in a slot
           (Edit); else it is drawn as the site draws it. */}

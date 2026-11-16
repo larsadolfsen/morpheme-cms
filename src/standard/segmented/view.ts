@@ -12,6 +12,7 @@ import type { ViewOf } from '../view';
 import { editorRows } from '../rows/view';
 import { withRows } from '../rows/rows.mjs';
 import { headOf, type HeadView } from '../head';
+import { columnsOf, type ColumnsView } from '../columns';
 import type { ListRow } from '../list/view';
 import { iconColorOf } from '../../iconColor';
 
@@ -26,20 +27,21 @@ export type FoldRow = {
   buttons?: { label: string; href: string }[];
 };
 
-export type SegmentedView = HeadView & {
-  /** The rows folded out (closed, one open at a time when `group`) or always open (`all`: the rows of a "List"). */
-  all: boolean;
-  group?: string;
-  /** Any number of rows can be open at once (`only` is off). */
-  several: boolean;
-  items: ListRow[];
-  rows: FoldRow[];
-  button?: { label: string; href?: string };
-  /** `Max rows`: how many rows show before the button; empty or not a whole number of at least 1: all rows (cutAt). */
-  max?: number;
-  /** The text of the button that shows the rest of the rows (shared text, "Blocks" › "Segmented list"). */
-  showMore: string;
-};
+export type SegmentedView = HeadView &
+  ColumnsView & {
+    /** The rows folded out (closed, one open at a time when `group`) or always open (`all`: the rows of a "List"). */
+    all: boolean;
+    group?: string;
+    /** Any number of rows can be open at once (`only` is off). */
+    several: boolean;
+    items: ListRow[];
+    rows: FoldRow[];
+    button?: { label: string; href?: string };
+    /** `Max rows`: how many rows show before the button; empty or not a whole number of at least 1: all rows (cutAt). */
+    max?: number;
+    /** The text of the button that shows the rest of the rows (shared text, "Blocks" › "Segmented list"). */
+    showMore: string;
+  };
 
 const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 /** A row's text as paragraphs: a blank line starts a new one. */
@@ -66,6 +68,7 @@ export const segmentedOf = (props: Record<string, any>, showMore: string = segme
   const label = typeof props.button === 'string' ? props.button.trim() : '';
   return {
     ...headOf(props),
+    ...columnsOf(props),
     all: props.show === 'all',
     several: props.only === false,
     items,

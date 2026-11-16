@@ -1,0 +1,7 @@
+{
+  "id": "text-measure",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Text width",
+  "text": "Long lines are hard to read. Paragraphs and headings are 40 to 60 characters wide. The rows of lists, accordions and Blog posts lists sit in as many columns as fit, up to three, and Steps is at most 720 pixels wide. Cards, images and tables keep the full page width."
+}

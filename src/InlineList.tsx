@@ -11,7 +11,8 @@ import type { MouseEvent } from 'react';
 import { iconColorOf } from './iconColor';
 import { t } from './i18n';
 import { SiteButton, SiteList, SiteListItem } from './themeUi';
-import InlineItems, { InlineIcon, InlineSlot, type Change, type Focus, type Item } from './InlineItems';
+import { columnsAttr } from './standard/columns';
+import InlineItems, { foldOf, InlineIcon, InlineSlot, type Change, type Focus, type Item } from './InlineItems';
 
 export type { Change, Focus };
 export type Row = {
@@ -27,6 +28,7 @@ export type Row = {
 
 export default function InlineList({
   items,
+  props,
   active,
   focus,
   onChange,
@@ -37,8 +39,12 @@ export default function InlineList({
   onTags,
   kind,
   fold,
+  folds,
+  onFold,
 }: {
   items: Row[];
+  /** The block's own props: its setting Columns. */
+  props?: Record<string, any>;
   /** The row being edited; null while the list is not. */
   active: number | null;
   /** The field to put the cursor in, once (a new object asks again). */
@@ -57,6 +63,9 @@ export default function InlineList({
   kind?: 'standard' | 'segmented';
   /** The rows fold out (a Segmented list that is not always open): the active row is open, its text typed in it. */
   fold?: boolean;
+  /** The rows of a block that folds out the owner opened or closed with the chevron (a view state), and what a tap on a chevron says. */
+  folds?: Record<number, boolean>;
+  onFold?: (row: number, open: boolean | null) => void;
 }) {
   const [withIcon, withText, withHref] = [show.icon !== false, show.text !== false, show.href !== false];
   // While one row is active every row has its two lines, so the list does not change height when another is made active; else, as the site.
@@ -72,11 +81,11 @@ export default function InlineList({
       paste
       wrap={(rows) =>
         fold ? (
-          <SiteList expand className="block-accordion inline-segmented">
+          <SiteList expand className="block-accordion inline-segmented" data-columns={columnsAttr(props)}>
             {rows}
           </SiteList>
         ) : (
-          <SiteList kind={kind} className="block-list inline-list">
+          <SiteList kind={kind} className="block-list inline-list" data-columns={columnsAttr(props)}>
             {rows}
           </SiteList>
         )
@@ -90,20 +99,21 @@ export default function InlineList({
               <LinkSimple size={24} />
             </InlineSlot>
           ) : undefined;
-        // Rows that fold out: open while it is the active row (a tap on the summary does not fold it: the heading is typed there).
-        if (fold)
+        // Rows that fold out: open while it is the active row, or as the chevron left it (a tap on the heading does not fold it: the heading is typed there).
+        if (fold) {
+          const open = foldOf(i, here, folds, onFold);
           return (
             <SiteListItem
               key={i}
               expand
-              expandOpen={here}
+              expandOpen={open.open}
               expandProps={{
                 'data-row': i,
                 'aria-current': here ? 'true' : undefined,
                 'aria-label': next ? t.blocks.list.newRow : t.blocks.list.rowOf(i + 1, items.length),
                 className: ['inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next'].filter(Boolean).join(' '),
               }}
-              onClick={(e) => e.preventDefault()}
+              {...open.summary}
               leading={
                 withIcon ? (
                   <InlineIcon
@@ -121,6 +131,7 @@ export default function InlineList({
               <div className="block-accordion-answer">{withText && field('text', t.blocks.list.text, t.blocks.list.text)}</div>
             </SiteListItem>
           );
+        }
         return (
           <SiteListItem
             key={i}
@@ -182,8 +193,11 @@ export function RowsFromList({
   undo,
   parts,
   onPart,
+  oneColumn,
 }: {
   rows: Row[];
+  /** The setting Columns is off. */
+  oneColumn?: boolean;
   line: string;
   empty: boolean;
   editList?: () => void;
@@ -234,7 +248,7 @@ export function RowsFromList({
           ))}
         </div>
       )}
-      <SiteList className="block-list inline-list" onClick={tapped}>
+      <SiteList className="block-list inline-list" data-columns={oneColumn ? 'one' : undefined} onClick={tapped}>
         {rows.map((r, i) => (
           <SiteListItem
             key={i}

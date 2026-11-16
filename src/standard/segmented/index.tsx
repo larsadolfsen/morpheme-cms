@@ -6,6 +6,7 @@ import { Rows, SquaresFour } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { t } from '../../i18n';
 import { headFields } from '../head';
+import { columnsField } from '../columns';
 import { fromLine, nameWith, rowsFromFields, typed } from '../rows/fields';
 import { listInline, listRowFields } from '../rows/listParts';
 
@@ -59,6 +60,7 @@ export default defineBlock({
       type: 'number',
       hint: t.blocks.segmented.maxRowsHint,
     },
+    columnsField(),
     { name: 'button', label: t.blocks.segmented.button, type: 'string', max: 30, hint: t.blocks.segmented.buttonHint },
     { name: 'buttonHref', label: t.blocks.segmented.buttonHref, type: 'relation', to: 'pages' },
   ],

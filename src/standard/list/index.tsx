@@ -4,6 +4,7 @@
 import { ListBullets } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { t } from '../../i18n';
+import { columnsField } from '../columns';
 import { fromLine, nameWith, rowsFromFields, typed } from '../rows/fields';
 import { listInline, listRowFields } from '../rows/listParts';
 
@@ -28,6 +29,7 @@ export default defineBlock({
       required: true,
       fields: listRowFields({ pageTitle: true }),
     },
+    columnsField(),
   ],
   example: {
     items: [
