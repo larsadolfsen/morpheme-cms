@@ -92,7 +92,7 @@ const side =
 const { intro, rest } = h1Settings && !side ? introOf(sideText) : { intro: '', rest: sideText };
 const textClass = side
   ? 'prose max-w-[var(--block-text-measure-max)] min-w-[min(var(--block-text-measure-min),100%)]'
-  : 'prose max-w-none [&>:not(.not-prose)]:max-w-[var(--block-text-measure-max)] [&>:not(.not-prose)]:min-w-[min(var(--block-text-measure-min),100%)] [&>p:first-child]:type-lead [&>p:first-child]:text-on-surface-variant [&>p:first-child]:max-w-[52ch]';
+  : 'prose max-w-none [&>:not(.not-prose)]:max-w-[var(--block-text-measure-max)] [&>:not(.not-prose,.text-section-full)]:min-w-[min(var(--block-text-measure-min),100%)] [&>p:first-child]:type-lead [&>p:first-child]:text-on-surface-variant [&>p:first-child]:max-w-[52ch]';
 ---
 
 <Base
