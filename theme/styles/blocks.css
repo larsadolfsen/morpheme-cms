@@ -101,6 +101,8 @@
      on a container narrower than the minimum the text takes the container and never scrolls sideways. */
   --block-text-measure-min: 40ch;
   --block-text-measure-max: 60ch;
+  /* The most a column of list rows is wide (owner, 16 Nov 2026): 720px. */
+  --block-list-measure-max: 45rem;
   --block-gutter: 1rem;
   --block-section-padding: 1.5rem;
   --block-section-margin: 2rem;
@@ -208,15 +210,37 @@
     max-width: var(--block-text-measure-max);
     min-width: min(var(--block-text-measure-min), 100%);
   }
-  /* Blocks of plain text rows (List, Segmented list and its accordion rows, Blog posts as a list, Testimonials list, Steps) stand in the
-     same column as the paragraph above them. Wide blocks (Cards, Image grid, Video, Carousel, Price cards, Table, Hero) keep the
-     container's width. */
+  /* Blocks of plain text rows (List, Segmented list and its accordion rows, Steps, Blog posts as a list, Testimonials list): one column
+     at most --block-list-measure-max wide (720px), left aligned with the paragraph above them (owner, 16 Nov 2026). From the theme's
+     `large` breakpoint (1200 dp) the rows of a list (not Steps) split into two columns that fill the page container, with no cap on
+     the pair. Wide visual blocks (Cards, Image grid, Video, Carousel, Price cards, Table, Hero) keep the container's width. */
   .block-list,
   .block-accordion,
   .block-steps,
   .block-posts-rows,
   .block-testimonial-rows {
-    max-width: var(--block-text-measure-max);
+    max-width: var(--block-list-measure-max);
+  }
+  @media (width >= theme(--breakpoint-large)) {
+    .block-list,
+    .block-accordion,
+    .block-testimonial-rows,
+    .block-posts-rows {
+      max-width: none;
+    }
+    .list.block-list,
+    .list.block-accordion,
+    .list.block-testimonial-rows,
+    .block-posts-rows .theme-post-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+      column-gap: var(--block-gutter);
+    }
+    /* A line between the rows (a standard list) does not start the second column. */
+    :is(.block-list, .block-accordion, .block-testimonial-rows) > li:nth-child(2) {
+      border-top: 0;
+    }
   }
   body:has(.text-section-full) {
     overflow-x: clip;
