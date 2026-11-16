@@ -1128,7 +1128,7 @@ export function MenuList({
         }}
         onClick={(e) => e.target === sheetRef.current && void leave()}
       >
-        {editing && (
+        {editing && !inPane && (
           <>
             <SheetTitle title={nameOf(editing.value) || capitalFirst(singular)} onClose={() => void leave()} />
             <SheetBody>{itemFields}</SheetBody>

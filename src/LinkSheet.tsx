@@ -168,14 +168,16 @@ export function LinkAsk({ groups }: { groups: Group[] }) {
         onClick={(e) => e.target === dialog.current && void leave()}
       >
         <SheetTitle title={t.text.link} onClose={() => void leave()} />
-        <SheetBody>{fields}</SheetBody>
-        <SheetActions
-          onCancel={() => void leave()}
-          onDone={use}
-          disabled={!href}
-          done={old ? t.common.save : t.text.insertLink}
-          start={remove}
-        />
+        {!inPane && <SheetBody>{fields}</SheetBody>}
+        {!inPane && (
+          <SheetActions
+            onCancel={() => void leave()}
+            onDone={use}
+            disabled={!href}
+            done={old ? t.common.save : t.text.insertLink}
+            start={remove}
+          />
+        )}
       </BottomSheet>
       {pane.portal}
     </>
