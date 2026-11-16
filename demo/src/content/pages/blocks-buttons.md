@@ -8,9 +8,10 @@ seoDescription: "Every kind of button, shown live."
 
 # Buttons
 
+[All blocks](/blocks/)
+
 Drawn by the Button component: the Buttons block.
 
-Part of [Blocks](/blocks/).
 
 ## Buttons
 

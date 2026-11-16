@@ -127,6 +127,9 @@ test('an example on the wrong page, twice, or a page missing from the index is r
   assert.ok(pageProblems(noIndex, blockPages, noCode).some((p) => /index does not list the "Video" page/.test(p)));
   const { video: _gone, ...rest } = real.pages;
   assert.ok(pageProblems({ ...real, pages: rest }, blockPages, noCode).some((p) => /"Video" has no file/.test(p)));
+  // A page without its link back to the index.
+  const noBack = { ...real, pages: { ...real.pages, steps: real.pages.steps.replace('[All blocks](/blocks/)', '') } };
+  assert.ok(pageProblems(noBack, blockPages, noCode).some((p) => /no link back to the index/.test(p)));
   // An example on the index.
   const onIndex = { ...real, index: `${real.index}\n${moved}\n` };
   assert.ok(pageProblems(onIndex, blockPages, noCode).some((p) => /index shows an example/.test(p)));

@@ -8,9 +8,10 @@ seoDescription: "Cards and notices, shown live."
 
 # Cards
 
+[All blocks](/blocks/)
+
 Drawn by the Card component: the Cards block and the Notice block.
 
-Part of [Blocks](/blocks/).
 
 ## Cards with icons
 

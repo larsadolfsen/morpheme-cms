@@ -8,9 +8,10 @@ seoDescription: "Tables, shown live."
 
 # Tables
 
+[All blocks](/blocks/)
+
 Drawn by a table inside a Card: the Table block.
 
-Part of [Blocks](/blocks/).
 
 ## Table with a header row
 

@@ -8,9 +8,10 @@ seoDescription: "The site’s cookies, shown live."
 
 # Cookie list
 
+[All blocks](/blocks/)
+
 A special block: it lists the cookies your site sets, read from the site itself.
 
-Part of [Blocks](/blocks/).
 
 ## Cookie list
 

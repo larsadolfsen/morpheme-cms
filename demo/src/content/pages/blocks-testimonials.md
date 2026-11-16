@@ -8,9 +8,10 @@ seoDescription: "Quotes from the Testimonials list, as cards or as a list."
 
 # Testimonials
 
+[All blocks](/blocks/)
+
 A special block: it reads the Testimonials list and draws it as cards (the Card component, in a Carousel) or as a list (the List component).
 
-Part of [Blocks](/blocks/).
 
 ## Testimonials as cards
 

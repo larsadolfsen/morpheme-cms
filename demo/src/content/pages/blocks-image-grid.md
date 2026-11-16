@@ -8,9 +8,10 @@ seoDescription: "The Library’s images, shown live."
 
 # Image grid
 
+[All blocks](/blocks/)
+
 A special block: it shows the Library’s images as Card tiles, with a filter and a full view.
 
-Part of [Blocks](/blocks/).
 
 ## Image grid: filled cards with a filter
 

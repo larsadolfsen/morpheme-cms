@@ -206,6 +206,8 @@ export function pageProblems({ index, pages }, registry = blockPages, check = { 
     if (!text.includes(`\npath: "/blocks/${slug}/"\n`))
       problems.push(`${blockPageFile(slug)} is not at /blocks/${slug}/ (its front matter path).`);
     if (!text.includes(`\n# ${page.title}\n`)) problems.push(`${blockPageFile(slug)} has no "# ${page.title}" heading.`);
+    if (!text.includes('\n[All blocks](/blocks/)\n'))
+      problems.push(`${blockPageFile(slug)} has no link back to the index ("[All blocks](/blocks/)").`);
     for (const [, type, props = ''] of examplesOf(text)) {
       if (!page.types.includes(type))
         problems.push(

@@ -8,9 +8,10 @@ seoDescription: "Lists, accordions, FAQ lists and check lists, shown live."
 
 # Lists
 
+[All blocks](/blocks/)
+
 Drawn by the List component: the List, Segmented list, FAQ list and Check list blocks.
 
-Part of [Blocks](/blocks/).
 
 ## List with icons
 

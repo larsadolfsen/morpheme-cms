@@ -8,9 +8,10 @@ seoDescription: "Posts from the blog, shown live."
 
 # Blog posts
 
+[All blocks](/blocks/)
+
 A special block: it reads the blog and draws the posts as rows of the List component, with the newest large on top if you choose.
 
-Part of [Blocks](/blocks/).
 
 ## Blog posts: List
 
