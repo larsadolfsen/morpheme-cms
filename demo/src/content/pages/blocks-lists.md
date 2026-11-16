@@ -59,14 +59,6 @@ Questions that unfold to reveal the answer, ready for Google to show in search r
 
 <div data-block="faq" data-props="{&quot;items&quot;:[{&quot;question&quot;:&quot;Can I use a block more than once on a page?&quot;,&quot;answer&quot;:&quot;Yes. Each copy has its own content.&quot;},{&quot;question&quot;:&quot;Can I turn a block off?&quot;,&quot;answer&quot;:&quot;Yes, under Block settings. It can’t be added again until you turn it back on.&quot;}]}"></div>
 
-## FAQ list with read more links and several open
-
-<div data-block="faq" data-props="{&quot;items&quot;:[{&quot;question&quot;:&quot;Where do I start?&quot;,&quot;answer&quot;:&quot;Open the editor and tap a page. [Read more](/get-started/)&quot;},{&quot;question&quot;:&quot;Can I change my theme later?&quot;,&quot;answer&quot;:&quot;Yes, and every word and photo stays. [Read more](/switch-themes-without-losing-anything/)&quot;},{&quot;question&quot;:&quot;Where are my pages kept?&quot;,&quot;answer&quot;:&quot;In your own repository, with every save as a version. [Read more](/every-save-is-a-version/)&quot;}],&quot;only&quot;:false,&quot;button&quot;:&quot;Read more&quot;,&quot;buttonHref&quot;:&quot;/about/&quot;}"></div>
-
-## FAQ list from the blog
-
-<div data-block="faq" data-props="{&quot;from&quot;:&quot;posts&quot;,&quot;howMany&quot;:2}"></div>
-
 ## Check list
 
 Not a block: a check list is typed in the text as a list with check marks (`- [x]`). Quick points with a check mark.
