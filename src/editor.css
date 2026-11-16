@@ -788,6 +788,13 @@
   :root[data-side-panel] .editor-fab {
     right: calc(var(--side-panel-width) + 1rem + env(safe-area-inset-right));
   }
+  /* The same for a standard side sheet in the page's own layout (the details in Files), while it reaches (nearly) the window's edge: the button
+     stands beside it, not on it. The column stops growing at 73.5rem, and from there the button has room at its end. */
+  @media (width < 73.5rem) {
+    :root:has(main .side-sheet-container:not([hidden])) .editor-fab {
+      right: calc(var(--side-sheet-width, 22.5rem) + 2.5rem + env(safe-area-inset-right));
+    }
+  }
   .editor-side-sheet {
     position: fixed;
     inset: 0 0 0 auto;
