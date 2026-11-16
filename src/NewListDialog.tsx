@@ -9,6 +9,7 @@ import { usePane } from './PaneHost';
 import type { RepoFile } from './github';
 import { t } from './i18n';
 import { collectionsFor } from './site';
+import { CORE_LISTS } from '../lib/coreLists.mjs';
 import { DEFINITION_VERSION, idOf } from '../lib/ownList.mjs';
 import { definitionText } from '../lib/ownListEdit.mjs';
 import { editListDraft, listDraftIds } from './listDraft';
@@ -48,11 +49,11 @@ export default function NewListDialog({ files, open, onClose }: { files: RepoFil
     } else dialog.current?.close();
   };
 
-  /** Every id and folder in use: the collections, and the folders of the data folder. */
+  /** Every id and folder in use: the collections, the folders of the data folder and the system lists (an own list never takes one: `creatorOf`). */
   const taken = () => {
     const prefix = `${config.folders.data}/`;
     const folders = files.filter((f) => f.path.startsWith(prefix)).map((f) => f.path.slice(prefix.length).split('/')[0]);
-    return [...collectionsFor(files).map((c) => c.id), ...folders, ...listDraftIds()];
+    return [...collectionsFor(files).map((c) => c.id), ...folders, ...listDraftIds(), ...CORE_LISTS.map((l) => l.id)];
   };
 
   function create() {
