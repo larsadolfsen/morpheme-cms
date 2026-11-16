@@ -43,6 +43,6 @@ run([join(self, 'scripts/check-content.mjs')]);
 run([binOf('astro', 'astro', site), 'build']);
 // The demo's Names view (demo/public/demo-names.js): a script of the demo's own, in its pages only.
 console.log(`Names view: ${addNamesView(site)} pages`);
-// The Type page's numbers (demo/public/demo-type.js), in that page only.
-console.log(`Type view: ${addTypeView(site)} page`);
+// The Typography page's numbers (demo/public/demo-type.js), in that page only.
+console.log(`Typography view: ${addTypeView(site)} page`);
 run([join(self, 'bin/morpheme.mjs'), 'after-build']);

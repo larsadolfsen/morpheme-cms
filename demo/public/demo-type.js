@@ -1,4 +1,4 @@
-// The demo's Type page (demo/src/content/pages/type.md): under each type style, its class name and the size, line height, tracking and
+// The demo's Typography page (demo/src/content/pages/typography.md): under each type style, its class name and the size, line height, tracking and
 // weight the browser gives the sample, read from the computed style, so they follow the width of the screen and the theme. Only the
 // demo's build puts this file in a page (scripts/demo-build.mjs, scripts/demo-type.mjs): never the starter, never a site. No inline
 // script, no eval, no request.
