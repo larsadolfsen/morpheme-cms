@@ -461,19 +461,37 @@ async function checkDashboardEdit(width, height) {
     await adding.getByRole('menuitem', { name: daDashboard.settings, exact: true }).click();
     await rhythmSheet.waitFor({ state: 'visible', timeout: 5000 });
   };
+  // Which step is running, so a timeout below names it (a diagnostic).
+  let step = 'open the sheet';
   try {
     await openRhythm();
     await adding.waitForTimeout(600);
     await adding.screenshot({ path: join(shots, `blog-rhythm-settings-${width}.png`) });
+    step = 'Cancel';
     await rhythmSheet.getByRole('button', { name: daCommon.cancel, exact: true }).click();
+    step = 'the sheet closes after Cancel';
     await rhythmSheet.waitFor({ state: 'hidden', timeout: 5000 });
+    step = 'open the sheet again';
     await openRhythm();
+    step = 'pick Week and Save';
     // The visible one: the choice group also holds its unseen measuring row and the other form.
     await rhythmSheet.getByText(daLibrary.blogRhythmEveryWeek, { exact: true }).filter({ visible: true }).first().click();
     await rhythmSheet.getByRole('button', { name: daCommon.save, exact: true }).click();
+    step = 'the sheet closes after Save';
     await rhythmSheet.waitFor({ state: 'hidden', timeout: 5000 });
   } catch (e) {
-    problems.push(`${label}: Blog rhythm's settings did not open and save through the sheet (${e.message.split('\n')[0]})`);
+    const shown = await adding
+      .evaluate(() => ({
+        sheets: [...document.querySelectorAll('.editor-side-sheet, dialog[open]')].map((n) => ({
+          visible: n.checkVisibility(),
+          text: n.textContent.slice(0, 40),
+        })),
+      }))
+      .then((v) => JSON.stringify(v))
+      .catch(() => 'state not readable');
+    problems.push(
+      `${label}: Blog rhythm's settings did not open and save through the sheet, at the step "${step}" (${e.message.split('\n')[0]}; ${shown})`,
+    );
   }
   await addButton.click();
   await sheet
