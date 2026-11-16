@@ -9763,6 +9763,8 @@ async function checkCardsCarousel(width, height) {
  * two lines. Its cause was the meta in body medium inside the overline: it wrapped on a phone and left a line of space over the title. */
 async function checkPostMeta(width, height, scheme) {
   const label = `${width}px ${scheme} blog posts meta`;
+  // A site with no blog posts (the starter's) has no rows to measure; the demo has.
+  if (!has('src/content/blog')) return void console.log(`${label}: skipped, the site has no blog posts, which the demo has.`);
   const phone = width < 600;
   const page = await browser.newPage({
     viewport: { width, height },
