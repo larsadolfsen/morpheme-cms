@@ -59,7 +59,7 @@ A new push to a pull request cancels that pull request's older queued and runnin
 | `npm run check:screens:shard -- K/N` | to run one part of `check:screens` | Every N-th unit of the screens check (the runner is `scripts/editor-screens.mjs`; the units are in `scripts/screens/<area>.mjs`, one file per area, so **a new unit goes in its area's file and in no other place**: add its `checkSomething` function and its `unit(...)` line to that file's `register` function, and never edit `scripts/screens/order.txt`, which freezes the numbering of the units that existed when the check was split; a unit that is new is numbered after them, in the order of the files); add `--list` to print the part's units without running them. `node ../../../scripts/editor-screens.mjs --only <unit name> <dist>` runs one unit on its own (`CHROMIUM_PATH` for another Chromium). `check:screens:extra` runs the checks over the whole site (save twice, unlisted, preview). `check:screens` with no part runs everything. |
 | `node ../../../bin/morpheme.mjs check:themes` (in `.morpheme/demo/site/`) | a theme, the default theme, blocks or the editor changed | The same with each of the other themes. |
 | `npm run check:starter` | the starter, the Worker or what a site installs changed | The starter works as a site with the package from `npm pack`: its own `npm run check` (the site's types and `check:worker`) and its build. |
-| `npm run check:demo` | the CMS, the default theme or the demo changed | The demo builds with the default theme and follows the editor's rules. |
+| `npm run check:demo` | the CMS, the default theme or the demo changed | The demo builds with the default theme and follows the editor's rules; its Blocks pages are in order: every example on the page of the component that draws it (a special block on its own page), none twice, every page in the index at `/blocks/` (`scripts/demo-blocks.mjs`). |
 | `npm run check:language` | text changed | No Danish text outside the language files (`i18n/da-DK/`); no old word for *image* (`scripts/check-language.mjs`). |
 | `npm run check:density` | a height or vertical padding in the theme changed | Every part of the theme with a height or vertical padding in the density list writes it with the density step; a menu, dialog or snackbar never gets denser than Medium, and no horizontal padding or text size follows density (`scripts/check-density.mjs`; the sizes at each step are in `check:screens`). |
 | `npm run check:editor-colors` | `src/editor.css` or `src/Inline*.tsx` changed | No fixed colour in the editor's block parts (allowlist with reasons). |
@@ -78,6 +78,8 @@ The full `check:screens`, `check:demo` and `check:starter` run in CI and are not
 screens harness itself (the shared helpers in `scripts/editor-screens.mjs`, the Playwright setup), (b) a CI job failed and the
 failure does not reproduce with the changed units, or (c) the PM or the owner asks.
 Why (owner, 16 Nov 2026): CI runs them in shards side by side, and a local full run takes 20+ minutes and does the same work twice.
+
+A change to one component is checked on that component's demo page (`/blocks/<component>/`), not on all of them.
 
 When a job fails, run the same command locally, fix the cause, and push again; never skip, disable or loosen a check
 or add to an allowlist without the reason the allowlist asks for.

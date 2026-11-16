@@ -86,13 +86,13 @@ for (const width of [375, 768, 1280, 1580]) {
       { BLOCKS, width },
     );
     for (const f of found) problems.push(`${path} at ${width}px: ${f}`);
-    // The demo's blocks page has a List with the setting Columns off and one with it on (the default), so both values are checked.
-    if (path === '/blocks/') {
+    // The demo's Lists page has a List with the setting Columns off and one with it on (the default), so both values are checked.
+    if (path === '/blocks/lists/') {
       const both = await page.evaluate(() => [
         !!document.querySelector(".block-list[data-columns='one']"),
         !!document.querySelector('.block-list:not([data-columns])'),
       ]);
-      if (!both[0] || !both[1]) problems.push(`/blocks/ at ${width}px: it needs a List with Columns off and one with Columns on`);
+      if (!both[0] || !both[1]) problems.push(`/blocks/lists/ at ${width}px: it needs a List with Columns off and one with Columns on`);
     }
   }
   await page.close();
