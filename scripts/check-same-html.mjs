@@ -11,6 +11,11 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { binOf } from './bin.mjs';
 import { SITE_017 } from './site-017-fixture.mjs';
 
+// Files that may differ on purpose, each with its reason (same-html-allow.json): a change that moves the editor's address changes the text of the
+// demo's pages that name it, and robots.txt. A file that does not differ is no problem; one that differs and is not listed fails.
+const ALLOWED = JSON.parse(readFileSync(new URL('./same-html-allow.json', import.meta.url), 'utf8'));
+const allowed = new Map(ALLOWED.map(({ file, reason }) => [file, reason]));
+
 const root = fileURLToPath(new URL('../', import.meta.url));
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 const npm = process.env.npm_execpath ? [process.execPath, process.env.npm_execpath] : ['npm'];
@@ -110,7 +115,8 @@ try {
     else {
       const a = readFileSync(join(before, file));
       const b = readFileSync(join(after, file));
-      if (!a.equals(b)) {
+      if (!a.equals(b) && allowed.has(file)) console.log(`${file}: differs, allowed (${allowed.get(file)})`);
+      else if (!a.equals(b)) {
         let i = 0;
         while (a[i] === b[i]) i++;
         const at = (buffer) => JSON.stringify(buffer.toString('utf8', Math.max(0, i - 40), i + 60));

@@ -1,0 +1,18 @@
+[
+  {
+    "file": "robots.txt",
+    "reason": "the editor is at /edit/ (#818): robots.txt disallows it, besides /editor/"
+  },
+  {
+    "file": "index.html",
+    "reason": "the editor is at /edit/ (#818): the demo's front page names the editor's address"
+  },
+  {
+    "file": "get-started/index.html",
+    "reason": "the editor is at /edit/ (#818): the demo's page names the editor's address"
+  },
+  {
+    "file": "edit-your-website-from-your-phone/index.html",
+    "reason": "the editor is at /edit/ (#818): the demo's post names the editor's address"
+  }
+]

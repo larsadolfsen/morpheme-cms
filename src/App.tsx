@@ -89,6 +89,7 @@ import {
 } from './deploy';
 import { readCache, writeCache } from './cache';
 import { forgetNotFound, loadNotFound, type Missing } from './notFound';
+import { EDITOR_ADDRESSES } from '../lib/editorAddress.mjs';
 import { isEntryPath } from '../lib/ownList.mjs';
 import { collectionOf, slugOf, type Collection, type FolderCollection, type OwnedList, type Part, type Relation } from './schema';
 import OwnList from './OwnList';
@@ -288,8 +289,8 @@ const FOLDERS_KEY = JSON.stringify(FOLDERS);
 
 const json = (file: RepoFile) => JSON.parse(file.text) as Record<string, unknown>;
 
-// Addresses of the site that are not pages.
-const RESERVED = config.reserved;
+// Addresses of the site that are not pages, and the editor's own (/edit/, and /editor/ that sends on to it).
+const RESERVED = [...config.reserved, ...EDITOR_ADDRESSES];
 
 /** Why a new page or post cannot have an address (/<slug>/): a message; with `redirect` when the site
  * sends it on elsewhere, which the site's owner may remove (EntryForm.tsx): where it ends after every redirect
