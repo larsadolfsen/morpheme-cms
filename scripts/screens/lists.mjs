@@ -1183,7 +1183,7 @@ async function checkExpandList(width, height) {
   if (!(await onTestPage(page, label))) return page.close();
   const list = page.locator('ul.list.list-expand:has(> li:nth-child(2))').first();
   if (!(await list.count())) {
-    problems.push(`${label}: no List with expand and two items on /blocks/`);
+    problems.push(`${label}: no List with expand and two items on the Blocks pages`);
     return page.close();
   }
   await list.evaluate((el) => el.scrollIntoView({ block: 'center' }));
