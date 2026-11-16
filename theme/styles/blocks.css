@@ -261,6 +261,7 @@
 
   /* "Steps": numbered steps along a line (steps/StepList.tsx). */
   .block-steps {
+    --block-step-gap: 2.5rem;
     position: relative;
     max-width: 48rem;
   }
@@ -268,13 +269,16 @@
     margin-block: 2.5rem;
   }
   .block-steps > :not(:last-child) {
-    margin-bottom: 2.5rem;
+    margin-bottom: var(--block-step-gap);
   }
-  .block-steps-line {
+  /* The line joins a number to the next number and goes no further: each step but the last draws it from its number's middle to the
+     next number's middle (the step's own height, the gap, and half a number). */
+  .block-step:not(:last-child)::before {
+    content: '';
     position: absolute;
     top: 1.5rem;
-    bottom: 1.5rem;
-    left: 1.5rem;
+    bottom: calc(-1 * var(--block-step-gap) - 1.5rem);
+    inset-inline-start: 1.5rem;
     width: 1px;
     background: var(--block-line);
   }
@@ -299,8 +303,9 @@
     letter-spacing: var(--type-title-medium-tracking);
     font-variant-numeric: tabular-nums;
   }
+  /* The heading's first line is centred on the number: the body starts (number height - line height) / 2 down. */
   .block-step-body {
-    padding-top: 0.5rem;
+    padding-top: calc((3rem - var(--type-title-large-line-height)) / 2);
   }
   .block-step-title {
     font-size: var(--type-title-large-size);
@@ -1825,6 +1830,10 @@
 }
 
 @layer fallback {
+  /* "Steps": the heading has no space above it, so the text's heading space (.prose h3, also in this layer) does not push it off the number. */
+  .prose .block-step-title {
+    margin-block: 0;
+  }
   /* "Video": the video before it is played (video/, packages/editor/lib/video.mjs); the video takes its
    place. Outside the layers, as it is a link in the text's style (.prose), whose link style it undoes. */
   .prose .video-facade {
