@@ -609,6 +609,54 @@ async function checkCardsSpacing(width, height) {
   await page.close();
 }
 
+/** The media of a card is its own rounded rectangle (owner, 16 Nov 2026: the Container example of m3.material.io/components/cards): flush with the card's top and sides, its top corners the card's and its bottom corners the card's radius too, so the card's surface shows behind them. Checked on every picture and video of the demo's Cards page (/blocks/cards/, every card kind and the carousel's cards) at 375 and 1280 px; a site without that page (the starter) has none to measure. */
+async function checkCardMediaCorners(width, height) {
+  const label = `${width}px card media corners`;
+  const phone = width < 600;
+  if (!existsSync(join(ROOT, 'src/content/pages/blocks-cards.md')))
+    return void console.log(`${label}: skipped, the site has no Cards page, which the demo has.`);
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  const response = await page.goto(new URL('/blocks/cards/', site).href).catch(() => null);
+  if (!response || response.status() >= 400) {
+    problems.push(`${label}: /blocks/cards/ did not open`);
+    return page.close();
+  }
+  const media = await page.evaluate(() =>
+    [...document.querySelectorAll('.block-card-picture, .block-card-video')].map((m) => {
+      const card = m.closest('.block-card');
+      const c = getComputedStyle(card);
+      const s = getComputedStyle(m);
+      const px = (v) => Math.round(parseFloat(v) * 10) / 10;
+      const border = px(c.borderTopWidth);
+      return {
+        kind: m.className.includes('video') ? 'video' : 'picture',
+        card: card.className.match(/card-(outlined|filled|elevated)/)?.[1],
+        cardRadius: px(c.borderTopLeftRadius),
+        border,
+        tl: px(s.borderTopLeftRadius),
+        tr: px(s.borderTopRightRadius),
+        bl: px(s.borderBottomLeftRadius),
+        br: px(s.borderBottomRightRadius),
+        flush:
+          Math.round(m.getBoundingClientRect().left - card.getBoundingClientRect().left) === border &&
+          Math.round(card.getBoundingClientRect().right - m.getBoundingClientRect().right) === border,
+        carousel: !!m.closest('.block-cards-carousel'),
+      };
+    }),
+  );
+  if (media.length < 2) problems.push(`${label}: only ${media.length} pictures and videos were measured on the Cards page`);
+  for (const m of media) {
+    const what = `${m.kind} in a ${m.card} card${m.carousel ? ' in the carousel' : ''}`;
+    if (m.bl !== m.cardRadius || m.br !== m.cardRadius)
+      problems.push(`${label}: the ${what} has bottom corners ${m.bl}/${m.br}, not the card's ${m.cardRadius}`);
+    if (m.tl > m.cardRadius || m.tr > m.cardRadius || m.tl < m.cardRadius - m.border - 0.5)
+      problems.push(`${label}: the ${what} has top corners ${m.tl}/${m.tr}, not the card's ${m.cardRadius} (less its border)`);
+    if (!m.flush) problems.push(`${label}: the ${what} is not flush with the card's sides`);
+  }
+  await page.close();
+}
+
 /** The room between cards is the grid gutter (16 px on compact, 24 px from medium; docs/material-deviations.md, G1) on the demo's Cards, Price cards and Image grid pages (/blocks/<name>/), at 375, 768 and 1280 px, and the page does not scroll sideways. A site without those pages (the starter) has none to measure. */
 async function checkCardGutter(width, height) {
   const label = `${width}px gap between cards`;
@@ -1011,6 +1059,7 @@ export function register(unit) {
     unit(`checkCardsCarousel ${width}`, () => checkCardsCarousel(width, height));
     unit(`checkCardsSpacing ${width}`, () => checkCardsSpacing(width, height));
     unit(`checkCardGutter ${width}`, () => checkCardGutter(width, height));
+    unit(`checkCardMediaCorners ${width}`, () => checkCardMediaCorners(width, height));
     unit(`checkCardsEditorSpacing ${width}`, () => checkCardsEditorSpacing(width, height));
     unit(`checkCardsElevation ${width}`, () => checkCardsElevation(width, height));
     for (const scheme of ['light', 'dark']) unit(`checkPostMeta ${width} ${scheme}`, () => checkPostMeta(width, height, scheme));

@@ -323,12 +323,15 @@
   .block-card-icon {
     color: var(--block-text);
   }
-  /* A video at the top fills it as an image does, with its play button. */
+  /* A video at the top fills it as an image does, with its play button. The media is its own rounded rectangle, flush with the card's top and sides:
+     its top corners are the card's (clipped by it) and its bottom corners are the card's radius too, so the card's surface shows behind them (the
+     media in M3's Cards page, Container example; no radius is printed for it, so the card's 12dp, --card-radius). */
   .block-card-video {
     display: block;
     margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0;
     overflow: hidden;
-    border-radius: calc(var(--card-radius, var(--block-radius)) - 1px) calc(var(--card-radius, var(--block-radius)) - 1px) 0 0;
+    border-radius: calc(var(--card-radius, var(--block-radius)) - 1px) calc(var(--card-radius, var(--block-radius)) - 1px)
+      var(--card-radius, var(--block-radius)) var(--card-radius, var(--block-radius));
   }
   /* The action area: its buttons in a row at the bottom of the card. */
   .block-card-actions {
@@ -343,7 +346,8 @@
     display: block;
     margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0;
     overflow: hidden;
-    border-radius: calc(var(--card-radius, var(--block-radius)) - 1px) calc(var(--card-radius, var(--block-radius)) - 1px) 0 0;
+    border-radius: calc(var(--card-radius, var(--block-radius)) - 1px) calc(var(--card-radius, var(--block-radius)) - 1px)
+      var(--card-radius, var(--block-radius)) var(--card-radius, var(--block-radius));
     background: var(--block-tint);
     aspect-ratio: 3 / 2;
   }

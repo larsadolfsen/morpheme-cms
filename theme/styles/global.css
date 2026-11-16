@@ -782,7 +782,7 @@
     --card-filled-surface: var(--mo-surface-container);
   }
   .block-card-picture {
-    border-radius: var(--card-radius) var(--card-radius) var(--mo-shape-none) var(--mo-shape-none);
+    border-radius: var(--card-radius);
   }
   .block-card-text {
     font-weight: 400;
