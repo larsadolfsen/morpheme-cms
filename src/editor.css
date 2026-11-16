@@ -396,6 +396,18 @@
   pointer-events: none;
 }
 
+/* Where the browser has CSS anchor positioning it places the tooltip: under its element, in the middle, and over it when there is no
+   room under it (flip-block); a centred box stays 0.5rem inside the window by itself. The element has the anchor name while the
+   tooltip is open (useTooltip in ui.tsx); without anchor positioning the script places it. */
+@supports (anchor-name: --a) and (position-area: top) {
+  .editor-tooltip {
+    position-anchor: --editor-tooltip;
+    position-area: block-end;
+    inset: var(--tooltip-gap, 0.25rem) 0.5rem 0.5rem;
+    position-try-fallbacks: flip-block;
+  }
+}
+
 /* The field that keeps a form from being saved (WrongField in fields.tsx): the edge of the theme's text field
    (.text-field-input, its edge a box-shadow) in the accent colour, flashing gently three times; around the whole field
    when it has no box of its own (an image, icons, a switcher). It stays until the next try or a change. */
@@ -1346,6 +1358,28 @@ html {
    shadow, so it stands in front of the editor's page also in a theme whose menu has the page's colour and no shadow. */
 .editor-menu {
   --menu-shadow: var(--editor-menu-shadow);
+}
+
+/* Where the browser has CSS anchor positioning the menu is placed by the theme's rules for a dropdown menu (ui.css, under the
+   button from its start; the other side when there is no room), with the button as its anchor (Menu in ui.tsx names it). Here
+   only what the editor's menus add: a field's menu (`attached`) is at least as wide as the field and grows from its end edge;
+   a bar menu (`popup`) always opens downwards (it scrolls when it is too high, the script sets its height from the visible
+   screen) and has its leading (`start`) or trailing (`end`) edge on the button's. */
+@supports (position-area: block-end) and (width: anchor-size(width)) {
+  .editor-menu[data-menu-attached] {
+    width: max-content;
+    min-width: anchor-size(width);
+    max-width: max(anchor-size(width), var(--menu-width, 18rem));
+    position-area: block-end span-inline-start;
+    inset: var(--dropdown-menu-gap, 0.25rem) 0 0.5rem 0.5rem;
+  }
+  .editor-menu[data-menu-popup] {
+    position-try-fallbacks: none;
+  }
+  .editor-menu[data-menu-popup='end'] {
+    position-area: block-end span-inline-start;
+    inset: var(--dropdown-menu-gap, 0.25rem) 0 0.5rem 0.5rem;
+  }
 }
 
 /* On a phone the text's box (bar and body) is 354 dp wide at 375 px (352 inside its 1 dp edges), 10.5 dp from each edge instead of the screen's 16 dp (owner decision, 14 Nov:

@@ -168,6 +168,22 @@ const frontSections = async (body, parts) => [
   }
 }
 
+// A page like git-3-3.md: an old marker with only an image before the H1 (0.18 deleted the H1's image). `morpheme migrate` writes the page
+// without it, and the migrated page gives the same page after a save, so check:editor lists the file as one to migrate and does not fail it.
+{
+  const oldTop = '<div data-section="" data-picture="/images/uploads/2026/10/moon.webp"></div>\n\n# Title\n\nText.\n';
+  const migrated = migrateMarkdown(oldTop);
+  const editor = await makeEditor(document.createElement('div'), migrated).use(spacing).use(firstHeading).create();
+  const saved = editor.action(markdownOf);
+  await editor.destroy();
+  if (migrated === oldTop || migrateMarkdown(migrated) !== migrated || (await render(saved)) !== (await render(migrated))) {
+    console.log(
+      `\n✗ a page with an image left in the H1's marker is not migrated, or not the same after a save\n  migrated: ${JSON.stringify(migrated)}\n  saved:    ${JSON.stringify(saved)}`,
+    );
+    process.exit(1);
+  }
+}
+
 // Aligned text (lib/text-align.mjs): the editor writes the alignment lines back as they were, and the site turns them into the
 // classes of the blocks after them (and leaves no line behind).
 {
