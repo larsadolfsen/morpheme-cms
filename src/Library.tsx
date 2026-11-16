@@ -1178,6 +1178,8 @@ export type OwnParts = {
   pageActions?: ReactNode;
   status?: ReactNode;
   after: ReactNode;
+  /** The list's own text, above the rows (src/ListText.tsx). */
+  before?: ReactNode;
   /** The round button, in place of the list's `Add item`. */ fab?: ReactNode;
 };
 
@@ -1586,6 +1588,7 @@ export function List({
           <appTab.tab.page api={(path, init) => env.appApi(appTab.app.id, path, init)} />
         </div>
       )}
+      {!appTab && own?.before}
       {/* The search, in a long list and in every list that can be sorted or filtered (Promovering), with those. */}
       {!appTab && (items.length > 8 || sorts.length > 0 || filters.length > 0) && (
         <SearchRow

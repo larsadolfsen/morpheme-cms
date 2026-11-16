@@ -15,7 +15,13 @@ import { definitionPath, discardListDraft, editListDraft, listDraftOf, pendingOf
 import { useFormPages, useUnsavedGuard } from './FormFrame';
 import type { Env } from './App';
 
-export type Definition = { version: 2; label: string; fields: { id: string; kind: string; label?: string }[]; dropped: string[] };
+export type Definition = {
+  version: 2;
+  label: string;
+  fields: { id: string; kind: string; label?: string }[];
+  dropped: string[];
+  notes?: { style: 'heading' | 'body' | 'label'; text: string; after: string | null }[];
+};
 
 /** `files` are the site's files with the waiting definition in place (withListDrafts); `saved` are git's. */
 export function useOwnList(id: string, files: RepoFile[], saved: RepoFile[], env: Env, pages: string[] = []) {

@@ -9072,6 +9072,112 @@ async function checkDynamicPicker(width, height) {
   await page.close();
 }
 
+/** The text of a list the owner made (`notes`, lib/fieldFlow.mjs) stands above the rows of its list page, in the order written: a heading as an `h2` in the title-large size, a body line in Body medium, a label in Label medium, no horizontal scroll, and the text reads on its surface (4.5:1) in light and dark. A list with no text has no such block. */
+async function checkOwnListText(width, height) {
+  const phone = width < 600;
+  const list = 'src/data/notes-check';
+  const notes = [
+    { style: 'heading', text: 'Keep each service to two lines', after: null },
+    { style: 'body', text: 'Add the price in the last field.', after: null },
+    { style: 'label', text: 'Publishing', after: 'title' },
+  ];
+  const definition = (withNotes) =>
+    JSON.stringify({
+      version: 2,
+      label: 'Notes check',
+      fields: [{ id: 'title', kind: 'title', label: 'Name' }],
+      ...(withNotes ? { notes } : {}),
+    });
+  virtualFile(`${list}/_list.json`, definition(true));
+  virtualFile(`${list}/haircut.json`, JSON.stringify({ order: 1, title: 'Haircut' }));
+  for (const scheme of ['light', 'dark']) {
+    const label = `${width}px own list text, ${scheme}`;
+    const page = await browser.newPage({
+      viewport: { width, height },
+      hasTouch: phone,
+      isMobile: phone,
+      colorScheme: scheme,
+      locale: 'en-US',
+    });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#list/notes-check'));
+    await page
+      .getByText('Haircut', { exact: true })
+      .first()
+      .waitFor({ timeout: 15000 })
+      .catch(() => problems.push(`${label}: the list page has no rows`));
+    const found = await page.evaluate(() => {
+      const at = (text) => [...document.querySelectorAll('main h2, main p')].find((e) => e.textContent === text);
+      const rows = [...document.querySelectorAll('main *')].find((e) => e.textContent === 'Haircut' && !e.children.length);
+      const read = (e) => {
+        if (!e) return null;
+        const s = getComputedStyle(e);
+        let bg = null;
+        for (let n = e; n && !bg; n = n.parentElement) {
+          const c = getComputedStyle(n).backgroundColor;
+          if (c && !/rgba?\(.*, 0\)$/.test(c) && c !== 'transparent') bg = c;
+        }
+        return { tag: e.tagName, size: s.fontSize, color: s.color, bg, top: e.getBoundingClientRect().top };
+      };
+      return {
+        heading: read(at('Keep each service to two lines')),
+        body: read(at('Add the price in the last field.')),
+        label: read(at('Publishing')),
+        row: read(rows),
+        wide: document.documentElement.scrollWidth > innerWidth + 1,
+      };
+    });
+    if (found.wide) problems.push(`${label}: the list page scrolls sideways`);
+    if (!found.heading || found.heading.tag !== 'H2') problems.push(`${label}: the heading line is not an h2`);
+    else if (found.heading.size !== '22px') problems.push(`${label}: the heading is ${found.heading.size}, not title large (22px)`);
+    if (!found.body || found.body.size !== '14px') problems.push(`${label}: the body line is not Body medium (14px): ${found.body?.size}`);
+    if (!found.label || found.label.size !== '12px')
+      problems.push(`${label}: the label line is not Label medium (12px): ${found.label?.size}`);
+    if (found.heading && found.body && found.label && found.row)
+      if (!(found.heading.top < found.body.top && found.body.top < found.label.top && found.label.top < found.row.top))
+        problems.push(`${label}: the text is not above the rows in the order written`);
+    const lum = (rgb) => {
+      const [r, g, b] = rgb
+        .match(/[\d.]+/g)
+        .slice(0, 3)
+        .map((v) => {
+          const c = Number(v) / 255;
+          return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+        });
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    for (const [name, part] of Object.entries({ heading: found.heading, body: found.body, label: found.label })) {
+      if (!part?.bg) continue;
+      const [a, b] = [lum(part.color), lum(part.bg)].sort((x, y) => y - x);
+      const ratio = (a + 0.05) / (b + 0.05);
+      if (ratio < 4.5) problems.push(`${label}: the ${name} text has contrast ${ratio.toFixed(2)}:1, under 4.5:1`);
+    }
+    // No text: the block is gone and the rows stay.
+    virtualFile(`${list}/_list.json`, definition(false));
+    await page.close();
+    const again = await browser.newPage({
+      viewport: { width, height },
+      hasTouch: phone,
+      isMobile: phone,
+      colorScheme: scheme,
+      locale: 'en-US',
+    });
+    again.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await openEditor(again, site);
+    await again.evaluate(() => (location.hash = '#list/notes-check'));
+    await again
+      .getByText('Haircut', { exact: true })
+      .first()
+      .waitFor({ timeout: 15000 })
+      .catch(() => problems.push(`${label}: the list without text has no rows`));
+    if (await again.getByText('Keep each service to two lines', { exact: true }).count())
+      problems.push(`${label}: a list without text still shows text`);
+    await again.close();
+    virtualFile(`${list}/_list.json`, definition(true));
+  }
+}
+
 /** The page of a list the owner made (#list/<id>, OwnList.tsx): the testimonials' list page and item page with the list's own fields. A list with a definition and two entries opens with two rows, no horizontal overflow; the active row has the dotted outline and no background, `Add list row` shows under an active list and is gone when the cursor leaves, the toolbar has Add above and Add below, Enter in the title goes to the text, and only the fields the list has are there (no icon slot, no link slot). */
 async function checkOwnList(width, height) {
   const label = `${width}px own list`;
@@ -11981,6 +12087,8 @@ await unit('checkDynamicPicker 375', () => checkDynamicPicker(375, 740));
 await unit('checkDynamicPicker 1280', () => checkDynamicPicker(1280, 900));
 await unit('checkOwnList 375', () => checkOwnList(375, 740));
 await unit('checkOwnList 1280', () => checkOwnList(1280, 900));
+await unit('checkOwnListText 375', () => checkOwnListText(375, 740));
+await unit('checkOwnListText 1280', () => checkOwnListText(1280, 900));
 await unit('checkInlineTable 375', () => checkInlineTable(375, 740));
 await unit('checkInlineTable 1280', () => checkInlineTable(1280, 800));
 await unit('checkTableAlign 375', () => checkTableAlign(375, 740));
