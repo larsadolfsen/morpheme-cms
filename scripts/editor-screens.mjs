@@ -5403,7 +5403,19 @@ async function checkBlockDrag(width) {
   const box = (i) => handles.nth(i).boundingBox();
   const first = await box(0);
   if (first.width < 44 || first.height < 44) problems.push(`${label}: a handle is smaller than 44 x 44 (${first.width}x${first.height})`);
-  const opacity = () => handles.nth(1).evaluate((el) => getComputedStyle(el).opacity);
+  // The handle fades (a transition on its opacity): read it once it has stopped changing, two reads 120 ms apart the same (at most 2 s), so a
+  // read in the middle of the fade is never taken for the end of it.
+  const opacity = async () => {
+    const read = () => handles.nth(1).evaluate((el) => getComputedStyle(el).opacity);
+    let now = await read();
+    for (let i = 0; i < 16; i++) {
+      await page.waitForTimeout(120);
+      const next = await read();
+      if (next === now) return now;
+      now = next;
+    }
+    return now;
+  };
   if (phone) {
     // A touch sees a handle only on the active block (it is the end of the block's row); go into the second block first.
     if ((await opacity()) !== '0') problems.push(`${label}: a touch sees the handle of a block that is not active`);
@@ -6417,6 +6429,7 @@ async function checkDensity(width, height) {
 async function checkEmptyHint() {
   const devices = [
     ['375px touch', { viewport: { width: 375, height: 740 }, hasTouch: true, isMobile: true }],
+    ['768px mouse', { viewport: { width: 768, height: 900 } }],
     ['1280px mouse', { viewport: { width: 1280, height: 800 } }],
   ];
   for (const [label, options] of devices) {
@@ -6459,6 +6472,29 @@ async function checkEmptyHint() {
             }));
             if (!start.onPage) problems.push(`${name}: the focus does not start on the section settings page itself`);
             if (start.styled) problems.push(`${name}: an element has focus-visible styling when the section settings page opens`);
+          }
+          // From 600 dp the section settings are a pane beside the page, not a dialog (owner, 15 Nov): a standard side sheet (<aside>), no dialog open,
+          // the pane itself has the focus with no ring, and the text stays visible and clear of it.
+          if (!touch) {
+            const pane = await page.evaluate(() => {
+              const aside = document.querySelector('aside.editor-side-sheet:not([hidden])');
+              const text = document.querySelector('.ProseMirror')?.getBoundingClientRect();
+              const box = aside?.getBoundingClientRect();
+              return {
+                aside: !!aside,
+                dialogs: document.querySelectorAll('dialog[open]').length,
+                focused: !!aside && document.activeElement === aside,
+                styled: [...document.querySelectorAll(':focus-visible')].filter(
+                  (e) => getComputedStyle(e).outlineStyle !== 'none' || getComputedStyle(e).boxShadow !== 'none',
+                ).length,
+                clear: !!box && !!text && text.right <= box.left + 1 && text.width > 200,
+              };
+            });
+            if (!pane.aside) problems.push(`${name}: the section settings are not a standard side sheet (pane)`);
+            if (pane.dialogs) problems.push(`${name}: a dialog is open over the page while the section settings are shown`);
+            if (!pane.focused) problems.push(`${name}: the focus does not start on the section settings pane itself`);
+            if (pane.styled) problems.push(`${name}: an element has focus-visible styling when the section settings pane opens`);
+            if (!pane.clear) problems.push(`${name}: the text is covered by the section settings pane or is too narrow beside it`);
           }
           if (await sheet.getByText('Background image', { exact: true }).count())
             problems.push(`${name}: the Main heading's Section settings offer a background image`);
