@@ -7238,10 +7238,6 @@
     scroll-padding-inline: 0.75rem;
   }
   .search-view-results {
-    /* The highlight of the option the arrow keys or the pointer are on runs the whole width, with square corners. */
-    --list-item-radius: 0;
-    --list-item-hover-radius: 0;
-    --list-item-pressed-radius: 0;
     min-height: 0;
     flex: 1;
     overflow-y: auto;
