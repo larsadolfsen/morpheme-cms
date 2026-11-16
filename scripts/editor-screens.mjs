@@ -7236,8 +7236,8 @@ async function checkFocusFrame() {
         for (const e of parts.slice(first, last + 1)) { e.setAttribute('data-section-color', color); e.setAttribute('data-section-box', 'only'); }
         out.contrast[color] = {
           frame: pm.matches(':focus') ? ratio(getComputedStyle(alpha, '::after').borderInlineStartColor, alpha) : null,
-          block: blockEl ? ratio(getComputedStyle(blockEl).borderTopColor, block, 1, blockEl) : null,
-          blockBorder: blockEl ? getComputedStyle(blockEl).borderTopStyle : null,
+          block: blockEl ? ratio(getComputedStyle(blockEl).outlineColor, block, 1, blockEl) : null,
+          blockBorder: blockEl ? getComputedStyle(blockEl).outlineStyle : null,
         };
       }
     }
@@ -7294,7 +7294,7 @@ async function checkFocusFrame() {
       got = await page.evaluate(read(true));
       if (got.rows.some((r) => r.drawn)) problems.push(`${label}: a section frame is drawn while a block has the focus`);
       for (const [color, c] of Object.entries(got.contrast)) {
-        if (c.blockBorder === 'none') problems.push(`${label}: the focused block has no outline on a ${color} section`);
+        if (c.blockBorder !== 'dotted') problems.push(`${label}: the focused block has no dotted outline on a ${color} section`);
         else if (c.block < 3)
           problems.push(`${label}: the focused block's outline on a ${color} section is ${c.block?.toFixed(2)}:1, under 3:1`);
       }
