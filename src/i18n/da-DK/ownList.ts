@@ -19,6 +19,8 @@ export const ownList: Messages['ownList'] = {
   nameNeeded: 'Giv listen et navn med bogstaver eller tal.',
   nameTaken: 'Der findes allerede en liste med det navn. Vælg et andet navn.',
   edit: 'Rediger liste',
+  listActions: 'Listehandlinger',
+  addEntry: (entry) => `Tilføj ${entry}`,
   delete: 'Slet liste',
   name: 'Navn',
   fields: 'Felter',
