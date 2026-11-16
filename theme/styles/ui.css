@@ -32,7 +32,8 @@
       where it has none of its own)
     --button-pressed-radius, --button-<size>-pressed-radius   the corners while pressed (also an icon button's); none:
       as they are
-    --button-text-padding   the space at a text button's sides (it has no surface)
+    --button-text-padding   the space a text button's label stands in from its edge, as wide as the other buttons' side padding (the shift that
+                            lines a label up with the text above it; the button's own padding is the size's)
     --button-filled-surface, -hover, -text, -shadow, -hover-shadow
     --button-tonal-surface, -hover, -text, -shadow, -hover-shadow
     --button-elevated-surface, -text, -shadow, -hover-shadow   (the shadows: at rest, and pointed at; a theme that
@@ -573,9 +574,8 @@
       box-shadow: inset 0 0 0 1px var(--button-outlined-hover-line, var(--block-accent));
     }
   }
-  /* Text: a small step beside the others, only its label in the accent. */
+  /* Text: no container, only its label in the accent; its side padding is the other buttons' (owner, 16 Nov 2026), whatever its size. */
   .button-text {
-    --button-inline: var(--button-text-padding, 1rem);
     background: transparent;
     color: var(--button-text-text, var(--block-accent));
   }
