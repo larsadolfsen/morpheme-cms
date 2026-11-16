@@ -6643,13 +6643,9 @@ async function checkListAndRedirectPanes(width) {
   await page.waitForTimeout(700);
   if (await page.locator('aside.editor-side-sheet:not([hidden])').count())
     problems.push(`${label}: the pane of a new list is still open after Create`);
-  // Known gap: at 768 the list menu does not open on a list that is not saved yet (also on 0.18 before the pane pull requests), so Edit list is
-  // checked at the other widths only until that is fixed.
-  if (width !== 768) {
-    await page.getByRole('button', { name: 'List menu' }).first().click({ timeout: 10_000 });
-    await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
-    await expectIt(page, "an own list's settings");
-  }
+  await page.getByRole('button', { name: 'List menu' }).first().click({ timeout: 10_000 });
+  await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
+  await expectIt(page, "an own list's settings");
   await page.close();
 }
 
