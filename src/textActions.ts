@@ -191,7 +191,7 @@ export function textActions(api: TextApi, labels: TextLabels): EditorAction[] {
     out.push({
       id: 'page.preview',
       label: labels.preview,
-      icon: 'preview',
+      icon: 'devices',
       words: ['preview page', 'see page'],
       group: 'page',
       where: { bar: { context: 'fixed', order: -1 } },
