@@ -391,7 +391,8 @@
   .prose :where(p):not(:where(li > p)) {
     margin-block: 0 var(--prose-space, 1rem);
   }
-  .prose :where(h3) {
+  /* Not the headline of a list item (a post's title in the Blog posts block): its space and size are the list item's. */
+  .prose :where(h3):not(:where(.list-item-headline h3)) {
     margin-block: 2rem 0.75rem;
   }
   .prose > :first-child {
@@ -407,7 +408,7 @@
     font-weight: var(--type-headline-medium-weight);
     letter-spacing: var(--type-headline-medium-tracking);
   }
-  .prose :where(h3) {
+  .prose :where(h3):not(:where(.list-item-headline h3)) {
     font-size: var(--type-title-large-size);
     line-height: var(--type-title-large-line-height);
     font-weight: var(--type-title-large-weight);

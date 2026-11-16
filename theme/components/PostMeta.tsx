@@ -17,12 +17,19 @@ export default function PostMeta({
   /** `span` where it stands in a phrase (a list item's overline). */
   as?: 'p' | 'span';
 }) {
+  // In a list item's overline (`span`) the text takes the overline's own size and colour (label small), not body medium: a larger
+  // text wrapped on a phone and left a line of space over the headline.
+  const inOverline = Tag === 'span';
   return (
-    <Tag className={['flex flex-wrap items-center gap-x-2 type-body-medium text-on-surface-variant', className].filter(Boolean).join(' ')}>
+    <Tag
+      className={['flex flex-wrap items-center gap-x-2', !inOverline && 'type-body-medium text-on-surface-variant', className]
+        .filter(Boolean)
+        .join(' ')}
+    >
       <time dateTime={post.date}>{post.dateText}</time>
       <span aria-hidden="true">·</span>
       <span className="inline-flex items-center gap-1">
-        <Svg name="clock" size={15} />
+        <Svg name="clock" size={inOverline ? 12 : 15} />
         {siteT.theme.readingTime(post.minutes)}
       </span>
       {tags && tags.length > 0 && (

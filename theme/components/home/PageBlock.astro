@@ -8,11 +8,12 @@ import { blockTexts } from '@morphemecms/cms/site/site';
 interface Props {
   section: { type: string; hidden?: boolean; sectionColor?: string } & Record<string, unknown>;
   class?: string;
+  label?: string;
 }
 const { type, hidden, sectionColor, ...props } = Astro.props.section;
 ---
 
-<Section class={Astro.props.class} color={sectionColor}>
+<Section class={Astro.props.class} color={sectionColor} label={Astro.props.label}>
   <div class="block-place">
     <Block type={type} props={props} texts={blockTexts[type]} />
   </div>

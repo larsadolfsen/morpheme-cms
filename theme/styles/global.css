@@ -904,7 +904,8 @@
     --list-expand-divider-width: 0px;
     --list-expand-padding-inline: 1.5rem;
     --list-expand-padding-block: 1rem;
-    --list-expand-body-padding-bottom: 1.5rem;
+    --list-expand-open-radius: var(--mo-shape-large);
+    --list-expand-icon-open-surface: var(--mo-surface-container-high);
   }
 
   /* "Cards": Material 3's three (outlined, filled, elevated: the card's `design`, ui.css); the filled one on the surface container (or the
