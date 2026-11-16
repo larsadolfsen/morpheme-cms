@@ -7298,7 +7298,8 @@ async function checkFocusFrame() {
       await tap('.site-block-inline [data-field="title"]', { x: 8, y: 8 });
       await page
         .waitForFunction(
-          () => !document.querySelector('.ProseMirror').matches(':focus-visible') && document.querySelector('.site-block-inline:focus-within'),
+          () =>
+            !document.querySelector('.ProseMirror').matches(':focus-visible') && document.querySelector('.site-block-inline:focus-within'),
           null,
           { timeout: 10_000 },
         )

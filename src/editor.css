@@ -98,7 +98,9 @@
 .editor-text .ProseMirror:focus-visible > [data-section-focus]:is([data-section-box], [data-section-width='full'])::after {
   inset-inline: 0;
 }
-.editor-text .ProseMirror:focus-visible > :is([data-section-focus='start'], [data-section-focus='only']):not([data-section-part='start'])::after {
+.editor-text
+  .ProseMirror:focus-visible
+  > :is([data-section-focus='start'], [data-section-focus='only']):not([data-section-part='start'])::after {
   border-block-start-width: 2px;
 }
 .editor-text .ProseMirror:focus-visible > :is([data-section-focus='end'], [data-section-focus='only'])::after {
