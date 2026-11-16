@@ -558,8 +558,7 @@ export function useBlockDialog(
     // A block typed in place goes in at once, with its first row active (MarkdownEditor.tsx): no sheet. One with `inline` but no view to draw it (an app's block without Inline.tsx) has its sheet.
     if (typedInPlace(blockOf(type))) return done({ type, props: start });
     // From medium any other block goes in at once too, with its defaults, and the caller opens its live sheet beside it (no Insert).
-    if (open?.step === 'choose' && open.live && liveSheet('fields', atLeastNow('medium')))
-      return done({ type, props: start, open: true });
+    if (open?.step === 'choose' && open.live && liveSheet('fields', atLeastNow('medium'))) return done({ type, props: start, open: true });
     shown.current = asWritten(type, start);
     setValues(start);
     show({ step: 'fields', type, isNew: true });
