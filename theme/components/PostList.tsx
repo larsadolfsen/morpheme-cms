@@ -21,11 +21,14 @@ export default function PostList({
   posts,
   count = posts.length,
   random = false,
+  columns = 2,
   className,
 }: {
   posts: PostView[];
   count?: number;
   random?: boolean;
+  /** Two columns from expanded (the blog page), or one (the block in the text column, which is one text measure wide). */
+  columns?: 1 | 2;
   className?: string;
 }) {
   const onSite = useOnSite();
@@ -33,7 +36,7 @@ export default function PostList({
     <>
       <List
         dividers="none"
-        className={['theme-post-list grid gap-x-6 expanded:grid-cols-2', className].filter(Boolean).join(' ')}
+        className={['theme-post-list grid gap-x-6', columns === 2 && 'expanded:grid-cols-2', className].filter(Boolean).join(' ')}
         data-random-posts={random ? count : undefined}
       >
         {posts.map((post, i) => (
