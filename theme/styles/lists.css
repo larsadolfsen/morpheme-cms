@@ -4,6 +4,11 @@
   here in a following change (docs/theme-css-split.md). Imported by base.css after blocks.css, in the same layer, so these win over the block's own.
 */
 @layer components {
+  /* A segmented List - Expand whose rows lead with an avatar or an image starts the media 16 dp in, as the segmented List does (owner, 16 Nov 2026: "too much padding
+     left of the media"); the 24 dp of the old segmented look stays for rows with no media. */
+  .block-accordion-segmented:has(.list-item-leading-avatar, .list-item-leading-image, .list-item-leading-video) {
+    --list-expand-padding-inline: 1rem;
+  }
   /* A row's square and landscape image have square corners (owner, 16 Nov 2026: "1:1 images are not round. Only avatars are round"); only the avatar is round. */
   .block-list,
   .block-accordion {

@@ -237,7 +237,7 @@ export function pageProblems({ index, pages }, registry = blockPages, check = { 
 }
 
 /**
- * Each example has a "##" subheading naming it, between the example before it and itself (a sentence about the block may stand between
+ * Each example has a "##" subheading naming it (or a "###" under a "##" that shows its designs together), between the example before it and itself (a sentence about the block may stand between
  * them), the subheadings differ, and no two examples of a block are the same.
  */
 export function exampleProblems(text) {
@@ -245,11 +245,14 @@ export function exampleProblems(text) {
   const seen = new Map();
   const headings = new Set();
   let heading = '';
+  let section = '';
   for (const line of text.split('\n')) {
     const m = line.match(/^<div data-block="([^"]+)"(?: data-props="([^"]*)")?/);
     if (!m) {
-      if (line.startsWith('# ')) heading = '';
-      if (line.startsWith('## ')) heading = line.slice(3).trim();
+      if (line.startsWith('# ')) heading = section = '';
+      if (line.startsWith('## ')) heading = section = line.slice(3).trim();
+      // A "###" names one design of the example in its "##" section.
+      if (line.startsWith('### ')) heading = `${section}, ${line.slice(4).trim()}`;
       continue;
     }
     const [, type, props = ''] = m;
