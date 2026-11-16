@@ -2,5 +2,6 @@
   "id": "list-fab-menu",
   "kind": "line",
   "mark": "improvement",
+  "line": "0.19",
   "text": "En listes side har en rund menu med Rediger liste og en knap til at tilføje en række, fx Tilføj udtalelse"
 }

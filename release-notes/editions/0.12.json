@@ -1,5 +1,8 @@
 {
-  "name": "Matterhorn",
+  "name": {
+    "en-US": "Switzerland",
+    "da-DK": "Schweiz"
+  },
   "place": {
     "en-US": "Matterhorn, Switzerland",
     "da-DK": "Matterhorn, Schweiz"

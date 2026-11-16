@@ -1,5 +1,8 @@
 {
-  "name": "Lake Louise",
+  "name": {
+    "en-US": "Canada",
+    "da-DK": "Canada"
+  },
   "place": {
     "en-US": "Lake Louise, Alberta, Canada",
     "da-DK": "Lake Louise, Alberta, Canada"
