@@ -1,0 +1,6 @@
+{
+  "id": "open-row-room",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "An open row of an accordion has less room under its text, and is round on all four corners"
+}

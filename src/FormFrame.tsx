@@ -8,7 +8,8 @@
 // "View on site" of the other forms (`view`) is a page action (Screen.tsx `pageActions`: the end of the title row from expanded, the top
 // bar below it).
 import { useContext, useEffect, useRef, useState, type ReactNode } from 'react';
-import { ArrowSquareOut, Binoculars, Trash } from '@phosphor-icons/react';
+import { ArrowSquareOut, Trash } from '@phosphor-icons/react';
+import { PreviewIcon } from './icon';
 import Screen, { type Back } from './Screen';
 import { ScreenHidden } from './screenHidden';
 import { ActionSheet, Button, Group, IconLink, LoadingIndicator, type TabChoice, ListItem } from './ui';
@@ -287,7 +288,7 @@ export default function FormFrame<T extends string>({
             {onPreview && (
               <Button
                 kind="outlined"
-                icon={Binoculars}
+                icon={PreviewIcon}
                 onClick={onPreview}
                 // With two more buttons there is no room for it on a phone: the text's bar has it too.
                 className={publish?.label ? 'max-medium:hidden' : undefined}

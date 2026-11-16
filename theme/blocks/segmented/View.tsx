@@ -19,10 +19,10 @@ export default function Segmented({ view }: { view: SegmentedView }) {
       <BlockHead view={view} />
       <MoreRows cut={cut} label={view.showMore} className={inText}>
         {view.all ? (
-          <Rows items={view.items} segmented className={inText} cut={cut} />
+          <Rows items={view.items} segmented className={inText} cut={cut} oneColumn={view.oneColumn} />
         ) : (
           <div className={inText}>
-            <Accordion rows={view.rows} group={view.group} several={view.several} cut={cut} />
+            <Accordion rows={view.rows} group={view.group} several={view.several} cut={cut} oneColumn={view.oneColumn} />
           </div>
         )}
       </MoreRows>

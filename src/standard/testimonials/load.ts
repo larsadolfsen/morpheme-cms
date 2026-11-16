@@ -7,6 +7,7 @@ import { imageOf } from '../load';
 import type { TestimonialItem } from '../site';
 import type { Load } from '../view';
 import { tagsShown } from '.';
+import { columnsOf } from '../columns';
 import { headOf } from '../head';
 import shared from './shared';
 import { labelOf, type TestimonialsView, type TestimonialTexts, type TestimonialView } from './view';
@@ -49,6 +50,7 @@ export const load: Load<TestimonialsView> = async (props, { texts }) => {
   const slugs = props.layout === 'list' && props.filter !== false ? [...new Set(items.flatMap((t) => t.categories))] : [];
   return {
     ...headOf(props),
+    ...columnsOf(props),
     layout: props.layout,
     testimonials: await loadTestimonials(items, tagsShown(props)),
     label: labelOf(props),

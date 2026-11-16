@@ -10,6 +10,7 @@ import { shownImage, type Image, type ViewOf } from '../view';
 import { postsOf } from '.';
 import type { PostChoice } from '../site';
 import { headOf, type HeadView } from '../head';
+import { columnsOf, type ColumnsView } from '../columns';
 
 export type PostView = {
   href: string;
@@ -20,15 +21,16 @@ export type PostView = {
   date: string;
   minutes: number;
 };
-export type PostsView = HeadView & {
-  design: 'list' | 'featured';
-  posts: PostView[];
-  count: number;
-  random: boolean;
-  all?: { href: string; text: string };
-  note?: string;
-  more?: string;
-};
+export type PostsView = HeadView &
+  ColumnsView & {
+    design: 'list' | 'featured';
+    posts: PostView[];
+    count: number;
+    random: boolean;
+    all?: { href: string; text: string };
+    note?: string;
+    more?: string;
+  };
 
 /** Its design: the newest large, or a list (also one from before there was a choice). */
 export const designOf = (props: Record<string, unknown>): PostsView['design'] => (props.design === 'featured' ? 'featured' : 'list');
@@ -52,6 +54,7 @@ export const viewOf: ViewOf<PostsView> = (props, data) => {
   const shown = props.show === 'all' ? posts.slice(0, SHOWN) : posts;
   return {
     ...headOf(props),
+    ...columnsOf(props),
     design: designOf(props),
     posts: shown.map(shownPost),
     count: shown.length,

@@ -144,7 +144,7 @@ the M3 `--breakpoint-*` tokens as part of 4. A bump (to 5) makes every store the
 (`docs/superpowers/plans/2026-11-14-store-auto-updates-plan.md` line 73: the store needs a version of each theme before a
 CMS that raises it goes to `latest`). The grid can avoid that: build it from what themes already must have (the
 `--breakpoint-*` tokens and Tailwind's `columns-*` and `grid-cols-*` utilities, which the editor and the theme already use),
-and give every new token a fallback (`var(--grid-gutter, 1rem)`, the `--card-gap, 8px` pattern). An older theme then
+and give every new token a fallback (`var(--mo-grid-gutter, 1rem)`, the `--card-gap, 8px` pattern). An older theme then
 renders the same as today. Bump to 5 only if a later change makes a theme *define* something new, and then together with
 a store release of every theme.
 
@@ -157,11 +157,11 @@ today's result (tokens behind the current values) need none.
 be shown in *Developer › Parts › UI components* and used through `src/ui.tsx`.
 
 - Tokens (`theme/styles`, new): `--grid-columns` (4 / 8 / 12 by breakpoint, via the existing `--breakpoint-*`),
-  `--grid-margin`, `--grid-gutter`. M3 prints no value for either (section 1). Owner's values (15 Nov): **margin 16 px compact, 24 px from
+  `--mo-grid-margin`, `--mo-grid-gutter`. M3 prints no value for either (section 1). Owner's values (15 Nov): **margin 16 px compact, 24 px from
   medium; gutter 16 px compact, 24 px from medium** (Space 200 and Space 300 on M3's scale). They match today's page
   margin and `--block-gutter` (1rem, 1.5rem from 600). The 8 px `--card-gap` is replaced by the grid gutter wherever a
   place moves onto the grid (owner-approved deviation G1, below).
-- One layout part: a container with `column-count` from the token above (2 / 4 / 6), `column-gap: var(--grid-gutter)`,
+- One layout part: a container with `column-count` from the token above (2 / 4 / 6), `column-gap: var(--mo-grid-gutter)`,
   children `break-inside: avoid` with the same gap below, and a *full* modifier (`column-span: all`). Editor components
   would use it through `src/ui.tsx`; no screen writes its own columns. It needs no script.
 - The media grid and image grid block already use this technique (`.image-grid`, `column-count`). What changes is the

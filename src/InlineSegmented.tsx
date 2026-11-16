@@ -11,6 +11,7 @@ import { SiteIconButton, SiteList, SiteListItem } from './themeUi';
 import InlineItems, { foldOf, InlineField, InlineIcon, InlineSlot, type Item } from './InlineItems';
 import { SiteButton } from './themeUi';
 import type { InlineViewProps } from './inlineViews';
+import { columnsAttr } from './standard/columns';
 
 /** A row has at most one text button (its `buttons` field, `maxItems`); extra ones from before show and can be deleted. */
 export const maxButtons = 1;
@@ -83,11 +84,11 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
       paste
       wrap={(rows) =>
         all ? (
-          <SiteList kind="segmented" className="block-list inline-list">
+          <SiteList kind="segmented" className="block-list inline-list" data-columns={columnsAttr(props)}>
             {rows}
           </SiteList>
         ) : (
-          <SiteList expand className="block-accordion inline-segmented">
+          <SiteList expand className="block-accordion inline-segmented" data-columns={columnsAttr(props)}>
             {rows}
           </SiteList>
         )
@@ -160,15 +161,15 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
             leading={
               here ? (
                 <span className="inline-segmented-slots">{slots(i, item.icon)}</span>
-              ) : (
+              ) : item.icon ? (
                 <InlineIcon
                   label={t.blocks.segmented.icon}
                   icon={item.icon}
                   here={false}
-                  iconColor={item.icon ? iconColorOf(item.iconColor) : undefined}
+                  iconColor={iconColorOf(item.iconColor)}
                   onClick={() => onIcon(i)}
                 />
-              )
+              ) : undefined
             }
             headline={title}
           >
