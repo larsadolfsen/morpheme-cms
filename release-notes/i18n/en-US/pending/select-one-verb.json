@@ -1,0 +1,6 @@
+{
+  "id": "select-one-verb",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "The editor says Select, not Pick or Choose, when you select something"
+}

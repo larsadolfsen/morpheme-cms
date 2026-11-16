@@ -1,7 +1,0 @@
-{
-  "id": "list-widget-redirect-panes",
-  "kind": "paragraph",
-  "mark": "improvement",
-  "title": "Lists, widgets and redirects",
-  "text": "The page stays in view while you change them. Make a new list, press Edit list, open a widget’s settings, or add a redirect, and the fields open in a pane at the right. On a phone they stay a sheet."
-}

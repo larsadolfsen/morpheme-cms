@@ -1,0 +1,6 @@
+{
+  "id": "web-guidance-small-findings",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Form controls and scrollbars follow your system’s light or dark scheme, and sheets fit the screen on a phone"
+}
