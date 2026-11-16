@@ -12,7 +12,7 @@
 // the lists under "Content", the search, the order (kept in this browser; by address under the first
 // letter) and, over the redirects, the funnel that shows only those to one page or post, picked as a
 // chip. The Save and Delete buttons show the loading indicator while their save runs (Forget does not).
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { ArrowRight, ArrowsDownUp, Funnel, LinkBreak, Signpost, Trash, X } from '@phosphor-icons/react';
 import { addressOf, escape, REDIRECTS } from './addresses';
 import { ask } from './ask';
@@ -35,7 +35,9 @@ import {
   ProblemNote,
   ListItem,
   IconButton,
+  atLeastNow,
 } from './ui';
+import { usePane } from './PaneHost';
 import type { Env } from './App';
 import type { RepoFile } from './github';
 import { changesOf, entriesOf, flatten, lookup, readAll, REDIRECT_FILES, setRedirect, type AllRedirects } from './redirectData';
@@ -150,9 +152,25 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
   // Which store is running (null: none). Only the button that started it shows busy; all three stay disabled.
   const [running, setRunning] = useState<'save' | 'delete' | null>(null);
   const saving = running !== null;
+  // From medium (600 dp) a redirect is in the pane beside the page (owner, 15 Nov 2026: settings are a pane, not a dialog), below it the sheet
+  // from the bottom; taken when it opens and kept while it is open.
+  const [inPane, setInPane] = useState(false);
+  const opener = useRef<HTMLElement | null>(null);
+  const headingId = useId();
   const open = (e: Editing) => {
     setEditing(e);
-    dialog.current?.showModal();
+    opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const wide = atLeastNow('medium');
+    setInPane(wide);
+    if (!wide) dialog.current?.showModal();
+  };
+  // The sheet or the pane goes.
+  const closeSheet = async () => {
+    if (inPane) {
+      await pane.close();
+      setEditing(null);
+      setInPane(false);
+    } else dialog.current?.close();
   };
 
   // Saves the redirects as they are after a change, in one commit, none through another.
@@ -228,7 +246,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
     if (!done) return;
     // Sent on: no longer an address that does not exist.
     if (editing.missing) await forget([from]);
-    dialog.current?.close();
+    void closeSheet();
   }
 
   async function remove(from: string) {
@@ -240,12 +258,12 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
     const flat = flatten(all);
     if (typeof flat === 'string') return env.notify({ text: flat, error: true });
     const change = t.app.changes.deleted(t.app.changes.redirect(from));
-    if (await store(setRedirect(flat, from, null), siteT.redirects.commit.delete(from), change, 'delete')) dialog.current?.close();
+    if (await store(setRedirect(flat, from, null), siteT.redirects.commit.delete(from), change, 'delete')) void closeSheet();
   }
 
   async function drop(path: string) {
     if (await forget([path])) {
-      dialog.current?.close();
+      void closeSheet();
       env.notify({ text: t.redirects.missing.forgotten, kind: 'saved' });
     }
   }
@@ -282,6 +300,79 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
       </Screen>
     );
   }
+  // What a redirect has: what it is for an address that was not found, the addresses, and the buttons.
+  const redirectFields = editing && (
+    <>
+      {m && (
+        <SupportingText>
+          {t.redirects.missing.details(m.count, when(new Date(m.first)), when(new Date(m.last)), m.from && whatIsAt(m.from, env.relations))}
+        </SupportingText>
+      )}
+      {editing.isNew && !m && (
+        <div>
+          <TextField
+            id="redirect-from"
+            label={t.redirects.from}
+            hint={t.redirects.fromHint}
+            value={editing.from}
+            autoComplete="off"
+            onChange={(e) => setEditing({ ...editing, from: e.target.value })}
+          />
+        </div>
+      )}
+      <div>
+        <TextField
+          id="redirect-to"
+          label={t.redirects.to}
+          hint={to ? t.redirects.sendsTo(name(to), name(to) === to && to.startsWith('/')) : t.redirects.toHint}
+          value={editing.to}
+          autoComplete="off"
+          onChange={(e) => setEditing({ ...editing, to: e.target.value })}
+        />
+      </div>
+      <Button type="submit" busy={running === 'save'} disabled={saving}>
+        {m ? t.redirects.missing.sendOn : t.common.save}
+      </Button>
+      {m && (
+        <Button kind="outlined" icon={X} disabled={saving} onClick={() => drop(m.path)}>
+          {t.redirects.missing.forget}
+        </Button>
+      )}
+      {!editing.isNew && (
+        <Button kind="outlined" icon={Trash} busy={running === 'delete'} disabled={saving} onClick={() => remove(editing.from)}>
+          {t.redirects.deleteRedirect}
+        </Button>
+      )}
+    </>
+  );
+  const editTitle = editing?.isNew && !editing.missing ? t.redirects.new : (editing?.from ?? '');
+  const pane = usePane(
+    inPane && editing
+      ? {
+          headline: editTitle,
+          headlineId: headingId,
+          beforeClose: async () => {
+            await closeSheet();
+            return false;
+          },
+          opener: opener.current,
+          onBack: () => void closeSheet(),
+          backLabel: t.common.back,
+          children: (
+            <form
+              className="space-y-5"
+              onSubmit={(e) => {
+                e.preventDefault();
+                save();
+              }}
+            >
+              {redirectFields}
+            </form>
+          ),
+        }
+      : null,
+  );
+
   return (
     <Screen
       title={
@@ -415,67 +506,21 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
       <BottomSheet
         ref={dialog}
         onClose={(e) => e.target === e.currentTarget && setEditing(null)}
-        onClick={(e) => e.target === dialog.current && dialog.current?.close()}
+        onClick={(e) => e.target === dialog.current && void closeSheet()}
       >
-        <SheetTitle
-          title={editing?.isNew && !editing.missing ? t.redirects.new : (editing?.from ?? '')}
-          onClose={() => dialog.current?.close()}
-        />
-        {editing && (
+        <SheetTitle title={editTitle} onClose={() => void closeSheet()} />
+        {editing && !inPane && (
           <SheetBody
             onSubmit={(e) => {
               e.preventDefault();
               save();
             }}
           >
-            {m && (
-              <SupportingText>
-                {t.redirects.missing.details(
-                  m.count,
-                  when(new Date(m.first)),
-                  when(new Date(m.last)),
-                  m.from && whatIsAt(m.from, env.relations),
-                )}
-              </SupportingText>
-            )}
-            {editing.isNew && !m && (
-              <div>
-                <TextField
-                  id="redirect-from"
-                  label={t.redirects.from}
-                  hint={t.redirects.fromHint}
-                  value={editing.from}
-                  autoComplete="off"
-                  onChange={(e) => setEditing({ ...editing, from: e.target.value })}
-                />
-              </div>
-            )}
-            <div>
-              <TextField
-                id="redirect-to"
-                label={t.redirects.to}
-                hint={to ? t.redirects.sendsTo(name(to), name(to) === to && to.startsWith('/')) : t.redirects.toHint}
-                value={editing.to}
-                autoComplete="off"
-                onChange={(e) => setEditing({ ...editing, to: e.target.value })}
-              />
-            </div>
-            <Button type="submit" busy={running === 'save'} disabled={saving}>
-              {m ? t.redirects.missing.sendOn : t.common.save}
-            </Button>
-            {m && (
-              <Button kind="outlined" icon={X} disabled={saving} onClick={() => drop(m.path)}>
-                {t.redirects.missing.forget}
-              </Button>
-            )}
-            {!editing.isNew && (
-              <Button kind="outlined" icon={Trash} busy={running === 'delete'} disabled={saving} onClick={() => remove(editing.from)}>
-                {t.redirects.deleteRedirect}
-              </Button>
-            )}
+            {redirectFields}
           </SheetBody>
         )}
       </BottomSheet>
+      {pane.portal}
       {tab === 'redirects' && (
         <CreateFab label={t.redirects.new} disabled={!files} onClick={() => open({ from: '', to: '', isNew: true })} />
       )}

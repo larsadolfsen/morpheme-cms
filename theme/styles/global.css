@@ -147,7 +147,7 @@
   --button-letter-spacing: var(--type-label-large-tracking);
   --button-small-height: 2.5rem;
   --button-small-padding: 1rem;
-  --button-xsmall-height: 2.5rem;
+  --button-xsmall-height: 2rem;
   --button-xsmall-padding: 1rem;
   --button-xsmall-gap: 0.5rem;
   --button-text-padding: 0.75rem;
@@ -260,7 +260,7 @@
   --list-segmented-pressed-radius: var(--mo-shape-medium);
   --list-segmented-selected-radius: var(--mo-shape-large);
   --list-segmented-padding-inline: 1rem;
-  --list-segmented-surface: var(--mo-surface-container);
+  --list-segmented-surface: var(--mo-surface);
   --list-segmented-hover-surface: var(--mo-hover);
   --list-segmented-pressed-surface: var(--mo-pressed);
   --list-segmented-disabled-surface: color-mix(in srgb, var(--mo-on-surface) 10%, transparent);
@@ -476,7 +476,8 @@
   --search-view-radius: var(--mo-shape-extra-large);
   --search-view-line: transparent;
   --search-view-docked-radius: var(--mo-shape-medium);
-  --search-view-results-padding: 0.5rem 0;
+  /* The results (and the recent searches) stand in the page's grid margin (16dp compact, 24dp from medium; owner's grid rule, 15 Nov 2026): M3 prints no side margin for a segmented list. */
+  --search-view-results-padding: 0.5rem var(--grid-margin);
   --search-view-option-surface: var(--mo-hover);
   /* Toolbars (M3 Expressive): in a surface container, docked without a line or blur, floating with full corners and
      the third elevation;
@@ -1171,7 +1172,7 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.25rem 0 1rem 1rem;
+    padding: 0.25rem 0.25rem 1rem;
   }
   .md-drawer-name {
     font-size: var(--type-title-medium-size);
@@ -1336,9 +1337,19 @@
     margin-top: 0.5rem;
     font-weight: 500;
   }
+  /* On a phone the practical links are two equal columns of the grid (compact: 4 columns, 2 each) with the grid's gutter between,
+     in reading order across, then down (the document order, so the tab order and a screen reader follow what is seen). The
+     rows keep their height and target (the item's 3rem). From the medium width the list is one column as before. */
+  @media (width < theme(--breakpoint-medium)) {
+    .md-footer-column > .md-footer-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--grid-gutter);
+    }
+  }
 }
 .md-footer-bottom {
-  /* Its text buttons (the cookie settings, light or dark) with an 18px icon. */
+  /* Its text button (the cookie settings) with an 18px icon. */
   --button-icon-size: 1.125rem;
 }
 @layer fallback {
@@ -1356,8 +1367,10 @@
     font-weight: var(--type-body-medium-weight);
     letter-spacing: var(--type-body-medium-tracking);
   }
-  .md-footer-bottom > div {
-    margin-inline: -0.75rem;
+  /* Only the text button's own padding is pulled out, so its text starts on the margin; the button group sits on the content
+     edges. */
+  .md-footer-bottom > div > [data-cookie-settings] {
+    margin-inline-start: -0.75rem;
   }
   /* Room under the footer's last line for the FAB, or for the bar at the bottom of the screen: in the footer instead of
    under the page (components.css), so the footer reaches the bar. */

@@ -32,25 +32,25 @@
      that can be done better, and the score's ring (from 90 good, from 50 average, else bad) with its number and the
      light circle in it; the same in every theme. */
   --editor-status-good: #0cce6b;
-  --editor-status-good-text: #008800;
+  --editor-status-good-text: light-dark(#008800, var(--editor-status-good));
   --editor-status-good-surface: color-mix(in srgb, #0cce6b 10%, var(--mo-surface-container-lowest));
   --editor-status-average: #ffa400;
-  --editor-status-average-text: #c33300;
+  --editor-status-average-text: light-dark(#c33300, var(--editor-status-average));
   --editor-status-average-surface: color-mix(in srgb, #ffa400 10%, var(--mo-surface-container-lowest));
   --editor-status-bad: #ff4e42;
-  --editor-status-bad-text: #cc0000;
+  --editor-status-bad-text: light-dark(#cc0000, var(--editor-status-bad));
   --editor-status-bad-surface: color-mix(in srgb, #ff4e42 10%, var(--mo-surface-container-lowest));
 
-  /* A Google result (SearchPreview.tsx) in Google's own colours, light: its background, the title (on a computer, and on a
-     phone), the site's name, the address and the text, the date before the text, and the 8 px band above and below a
+  /* A Google result (SearchPreview.tsx) in Google's own colours, light and dark (light-dark() follows the
+     root's color-scheme, so the system setting and data-theme both work): its background, the title (on a computer, and on a phone), the site's name, the address and the text, the date before the text, and the 8 px band above and below a
      phone's result. */
-  --google-background: #fff;
-  --google-title: #1a0dab;
-  --google-title-phone: #1558d6;
-  --google-site: #202124;
-  --google-text: #4d5156;
-  --google-date: #70757a;
-  --google-separator: #ecedef;
+  --google-background: light-dark(#fff, #1f1f1f);
+  --google-title: light-dark(#1a0dab, #99c3ff);
+  --google-title-phone: light-dark(#1558d6, #99c3ff);
+  --google-site: light-dark(#202124, #dadce0);
+  --google-text: light-dark(#4d5156, #bfbfbf);
+  --google-date: light-dark(#70757a, #9aa0a6);
+  --google-separator: light-dark(#ecedef, #303134);
   /* The site's circle: its fill and ring and the letter in it, the same in light and dark. */
   --google-icon-fill: #fff;
   --google-icon-ring: #dadce0;
@@ -72,34 +72,6 @@
      `panel` in ui.tsx from large): M3's side sheet is 400dp (25rem) wide at most; where the window is narrower it is half
      the space beside the start panel, the content column taking the other half (see below). */
   --side-panel-width: min(25rem, calc((100vw - var(--column-start)) / 2));
-}
-
-/* In dark mode the score's number in the light colours, which are read on the dark, and Google's dark colours. */
-@media (prefers-color-scheme: dark) {
-  :where(:root:not([data-theme='light'])) {
-    --google-background: #1f1f1f;
-    --google-title: #99c3ff;
-    --google-title-phone: #99c3ff;
-    --google-site: #dadce0;
-    --google-text: #bfbfbf;
-    --google-date: #9aa0a6;
-    --google-separator: #303134;
-    --editor-status-good-text: var(--editor-status-good);
-    --editor-status-average-text: var(--editor-status-average);
-    --editor-status-bad-text: var(--editor-status-bad);
-  }
-}
-:where(:root[data-theme='dark']) {
-  --google-background: #1f1f1f;
-  --google-title: #99c3ff;
-  --google-title-phone: #99c3ff;
-  --google-site: #dadce0;
-  --google-text: #bfbfbf;
-  --google-date: #9aa0a6;
-  --google-separator: #303134;
-  --editor-status-good-text: var(--editor-status-good);
-  --editor-status-average-text: var(--editor-status-average);
-  --editor-status-bad-text: var(--editor-status-bad);
 }
 
 /* The text field (MarkdownEditor.tsx). The rest of the editor uses the site's Tailwind classes. */
@@ -606,6 +578,12 @@
   }
 }
 
+/* The editor's drawers keep one width through their levels and sections (the layout beside them counts on it: --section-pane-width and
+   the columns); the theme's drawer hugs its content (the expanded rail). An editor-only choice (docs/material-deviations.md, N2). */
+.editor-main-drawer-panel {
+  --navigation-drawer-width: min(22.5rem, calc(100vw - 3.5rem));
+}
+
 .editor-main-rail {
   --navigation-rail-padding: 0.5rem 0.5rem 1.5rem;
 }
@@ -790,7 +768,7 @@
    end edge from the top of the window to its bottom (M3), with its divider the whole height. BlockDialog.tsx sets
    [data-side-panel] on the root while it is open: the top bar (.editor-top-bar-slot, topBarSlot.tsx) ends at the sheet's
    start edge, it takes the "on this page" area's place (that is hidden), and the content, which stays in use, keeps clear of it. */
-@media (width >= theme(--breakpoint-expanded)) {
+@media (width >= theme(--breakpoint-medium)) {
   :root[data-side-panel] {
     --column-end: var(--side-panel-width);
   }
@@ -805,6 +783,17 @@
   }
   :root[data-side-panel] .editor-save-bar {
     right: var(--side-panel-width);
+  }
+  /* The screen's create button stands beside the pane, not on it (a redirect or a new list opens the pane from it). */
+  :root[data-side-panel] .editor-fab {
+    right: calc(var(--side-panel-width) + 1rem + env(safe-area-inset-right));
+  }
+  /* The same for a standard side sheet in the page's own layout (the details in Files), while it reaches (nearly) the window's edge: the button
+     stands beside it, not on it. The column stops growing at 73.5rem, and from there the button has room at its end. */
+  @media (width < 73.5rem) {
+    :root:has(main .side-sheet-container:not([hidden])) .editor-fab {
+      right: calc(var(--side-sheet-width, 22.5rem) + 2.5rem + env(safe-area-inset-right));
+    }
   }
   .editor-side-sheet {
     position: fixed;

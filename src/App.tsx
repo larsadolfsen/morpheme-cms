@@ -209,6 +209,7 @@ import { movedRoute } from './movedRoutes.mjs';
 import { appType, clearNotifications, isOn, remember, signOff, stopServerWait, syncDevice, told, waitOnServer } from './notificationData';
 import { syncDensity } from './density';
 import Notifications, { NotificationsPage } from './Notifications';
+import PaneHost from './PaneHost';
 import { openNotifications } from './notificationsOpen';
 import { forgetRecent } from './paletteRecent';
 import { ShortcutsPage } from './ShortcutsSheet';
@@ -802,6 +803,7 @@ function Editor() {
           <Ask />
           <CropViewHost />
           <Notifications />
+          <PaneHost />
           <CommandPalette route={route} files={files} />
         </>
       </TopBarLayout>
