@@ -12,7 +12,6 @@ import {
   forwardRef,
   type MouseEvent as ReactMouseEvent,
   useEffect,
-  useLayoutEffect,
   useImperativeHandle,
   useRef,
   useState,
@@ -65,21 +64,20 @@ import {
   TextT,
 } from '@phosphor-icons/react';
 import { listKindOf, styleOf } from './styleKind.mjs';
-import { listRows, styleRows } from './styleMenu.mjs';
-import { planBar, toolWidth } from './textBar.mjs';
+import { listRows } from './styleMenu.mjs';
 import { sizeListText, sizeOfList } from './listSize.mjs';
 import { HTML, insertBlock, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
 import { firstHeading, topHeadings } from './firstHeading.mjs';
 import { h1Of, h1TextOf, h1Written } from './titleH1.mjs';
 import { headingChoices } from '../lib/heading-levels.mjs';
-import { TEXT_COLORS, colorClass } from '../lib/text-colors.mjs';
+import { colorClass } from '../lib/text-colors.mjs';
 import { sectionAttrs, sectionHeading, sectionSettingsOf, setSection } from './sectionState.mjs';
 import { sectionFrame } from './sectionFrame';
 import { IMAGE, reachField, type BlockAsk, type EditFocus, type LiveBlock, type SheetTarget } from './BlockDialog';
 import { cropView } from './CropView';
 import { ratioProp } from './standard/cards/view';
 import { askLink } from './LinkSheet';
-import { atLeastNow, Menu, MenuDivider, MenuItem, Toolbar, ToolbarButton } from './ui';
+import { atLeastNow } from './ui';
 import { editsInPanel, liveSheet } from './sheetPlacement.mjs';
 import { mapRange, stepOf } from './liveSheet.mjs';
 import { shownAt } from './images';
@@ -110,8 +108,8 @@ import { textActions, type TextApi, type TextLabels } from './textActions';
 import { SiteSnackbar } from './themeUi';
 import { changeTo, targets } from '../lib/changeTo.mjs';
 import { t } from './i18n';
-import { motionReduced, motionTiming } from '../lib/motion';
-import { barSlideKind } from './barMotion.mjs';
+import { motionTiming } from '../lib/motion';
+import { alignLabel, EditorBar, rawIcon, type Align, type BarGroup } from './EditorBar';
 import { dragSteps, limitSteps } from './blockDrag.mjs';
 import {
   blockHandleIcon,
@@ -131,7 +129,7 @@ import { ask } from './ask';
 import { canPress, edgeScroll, movedAway } from '@theme/ui/longPressRules.mjs';
 import { canLabel, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
-import { AaIcon, AddBlockIcon, BodyA1Icon, BodyA2Icon, BodyA3Icon, CloseIcon, MoreVertIcon, PreviewIcon, ViewOnSiteIcon } from './icon';
+import { AaIcon, AddBlockIcon, BodyA1Icon, BodyA2Icon, BodyA3Icon, CloseIcon, PreviewIcon } from './icon';
 import { editElsewhereIcon, settingsHereIcon } from './meaningIcons';
 import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
 import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
@@ -1422,32 +1420,8 @@ function textButtonWidth(label: string): number {
   }
   return width;
 }
-const rawIcons = new Map<string, typeof TextB>();
 /** The Table's Column type is a row of the block's tools in the ⋮ menu (`with: 'tools'`), grouped with the add, delete and align rows. */
 const withColumnType = (menu: CardRow[], row: CardRow | undefined): CardRow[] => (row ? [{ ...row, with: 'tools' }, ...menu] : menu);
-function rawIcon(svg: string): typeof TextB {
-  let icon = rawIcons.get(svg);
-  if (!icon) {
-    const html = svg.replace('<svg', '<svg width="20" height="20" fill="currentColor" aria-hidden="true"');
-    icon = (() => (
-      <span aria-hidden="true" className="inline-flex" dangerouslySetInnerHTML={{ __html: html }} />
-    )) as unknown as typeof TextB;
-    rawIcons.set(svg, icon);
-  }
-  return icon;
-}
-
-// The icon of each text style and list kind, for the bar's Text style and List menus (the names are STYLE_KINDS, styleKind.mjs).
-const KIND_ICONS = {
-  large: { node: TextLargeIcon },
-  medium: { node: TextMediumIcon },
-  small: { node: TextSmallIcon },
-  label: { node: Tag },
-  quote: { node: Quotes },
-  bullet: { node: ListBullets },
-  check: { node: ListChecks },
-  ordered: { node: ListNumbers },
-};
 
 // The icon of a button when its style is not on: the general text (T) and list icons.
 const GENERIC_ICONS = {
@@ -1461,11 +1435,18 @@ const ALIGN_FACES = {
   center: { node: TextAlignCenter },
   right: { node: TextAlignRight },
 };
-type Align = keyof typeof ALIGN_FACES;
-/** The keys of the bar's tools that have one: the text engine's own (the same as in textActions.ts), shown in their tooltips. */
-const TOOL_KEYS: Record<string, string | undefined> = { bold: 'Mod+B', italic: 'Mod+I', undo: 'Mod+Z', redo: 'Mod+Shift+Z' };
 
-const alignLabel = (align: Align) => ({ left: t.text.alignLeft, center: t.text.alignCenter, right: t.text.alignRight })[align];
+// The icon of each text style and list kind, for the bar's Text style and List menus (the names are STYLE_KINDS, styleKind.mjs).
+const KIND_ICONS = {
+  large: { node: TextLargeIcon },
+  medium: { node: TextMediumIcon },
+  small: { node: TextSmallIcon },
+  label: { node: Tag },
+  quote: { node: Quotes },
+  bullet: { node: ListBullets },
+  check: { node: ListChecks },
+  ordered: { node: ListNumbers },
+};
 
 // The alignment where the cursor is, from activeOf's names: left when the block has none.
 const alignIn = (active: Iterable<string>): Align => {
@@ -1491,8 +1472,6 @@ export function alignSelection(view: EditorView, align: Align) {
   if (tr.docChanged) view.dispatch(tr);
   view.focus();
 }
-
-type KindGroup = 'style' | 'list';
 
 // The levels of the top-level headings of a document, in order.
 const levelsOf = (doc: EditorView['state']['doc']): number[] => topHeadings(doc).map(({ node }) => node.attrs.level);
@@ -1726,17 +1705,32 @@ function blockCard(
     flushSync(() => root.render(image));
   };
   // A block just put in (a new List) starts with its first row active and the cursor in it (known by its props, which the new node keeps).
-  // The sheet it came from is closing and gives the focus back to what had it: wait until no sheet is open.
+  // The sheet it came from is closing and gives the focus back to what had it: start once it has closed (its `close` event, or a dialog that
+  // leaves the page), never by a timer's guess: a start while it is still open loses the focus to the button that opened it.
   const startAt = inline ? fresh.get(node.attrs.props) : undefined;
+  let stopStart = () => {};
   if (startAt !== undefined) {
     fresh.delete(node.attrs.props);
-    let tries = 0;
     const start = () => {
-      if (document.querySelector('dialog[open]') && tries++ < 30) return void setTimeout(start, 50);
       const row = Math.max(0, Math.min(startAt, rows().length - 1));
       change({ active: row, ...(spec!.grid ? { col: 0 } : {}), focus: { row, field: spec!.fields[0] } });
     };
-    setTimeout(start);
+    const waiting = () => !!document.querySelector('dialog[open]');
+    const check = () => {
+      if (waiting()) return;
+      stopStart();
+      start();
+    };
+    if (waiting()) {
+      const watcher = new MutationObserver(check);
+      watcher.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['open'] });
+      document.addEventListener('close', check, true);
+      stopStart = () => {
+        watcher.disconnect();
+        document.removeEventListener('close', check, true);
+        stopStart = () => {};
+      };
+    } else setTimeout(start);
   }
   draw();
   cards.add(draw);
@@ -2344,6 +2338,7 @@ function blockCard(
     stopEvent: () => true,
     ignoreMutation: () => true,
     destroy: () => {
+      stopStart();
       close();
       blockBar.unpoint(pointer);
       selectable.destroy();
@@ -2364,7 +2359,6 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const spaced = !!blocks;
   const framed = frame ?? !sections;
   const root = useRef<HTMLDivElement>(null);
-  const toolbar = useRef<HTMLDivElement>(null);
   const editor = useRef<Editor | null>(null);
   const changed = useRef(onChange);
   changed.current = onChange;
@@ -2394,30 +2388,6 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const [noColor, setNoColor] = useState(false);
   // A sheet that the bar opened (Settings, a link, Insert) is open: it blurs the text, but the bar keeps its text tools until it closes.
   const [holding, setHolding] = useState(false);
-  // The button that opened a menu with the kinds of text (Text style, List), while it is open.
-  const [kindsAt, setKindsAt] = useState<{ at: HTMLElement; group: KindGroup } | null>(null);
-  // The `⋮` button, and the menu under it while it is open; the Alignment and Color menus of its rows open under it too.
-  const moreButton = useRef<HTMLButtonElement>(null);
-  const [moreAt, setMoreAt] = useState<HTMLElement | null>(null);
-  // The ⋮ menu's next level (a row's submenu: Change type), shown in place of its rows with a back row; null: its own rows.
-  const [moreLevel, setMoreLevel] = useState<CardRow | null>(null);
-  useEffect(() => void (!moreAt && setMoreLevel(null)), [moreAt]);
-  // The first row of the level that was opened or gone back to has the focus, so the keyboard goes on from there.
-  const levelShown = useRef(false);
-  useEffect(() => {
-    if (!levelShown.current && !moreLevel) return;
-    levelShown.current = !!moreLevel;
-    document.querySelector<HTMLElement>('.editor-menu [role^="menuitem"]')?.focus({ preventScroll: true });
-  }, [moreLevel]);
-  const [colorAt, setColorAt] = useState<HTMLElement | null>(null);
-  // The bar's width, in dp, measured with a ResizeObserver (never a timer): how many tools fit (textBar.mjs).
-  const [barWidth, setBarWidth] = useState(0);
-  // The alignment button that opened its menu, while it is open.
-  const [alignAt, setAlignAt] = useState<HTMLElement | null>(null);
-  useEffect(() => {
-    alignAt?.setAttribute('aria-expanded', 'true');
-    return () => alignAt?.setAttribute('aria-expanded', 'false');
-  }, [alignAt]);
   // The previews of the blocks, drawn again when what they show from elsewhere changes: the lists,
   // the testimonials, the rest of the site, the page's address or a fixed page's other fields.
   const cards = useRef(new Set<() => void>());
@@ -3023,82 +2993,11 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   useEffect(() => {
     editorCtx.set({ text: noBlock, section: settingsShown, active, levels: headingLevels });
   }, [noBlock, settingsShown, activeNames, levelNames]);
-  useLayoutEffect(() => {
-    const bar = toolbar.current!;
-    const measure = () => setBarWidth(bar.clientWidth);
-    measure();
-    const watch = new ResizeObserver(measure);
-    watch.observe(bar);
-    return () => watch.disconnect();
-  }, []);
-  // A menu of one of the ⋮ menu's rows is open under the ⋮ button.
-  const underMore = [kindsAt?.at, alignAt, colorAt].some((at) => !!at && at === moreButton.current);
   // The text tools (Alt text) are as wide as their label in this language: planned and drawn at that width.
   const textWidths = Object.fromEntries(
     (block_?.actions ?? []).filter((a) => a.text).map((a) => [`block:${a.kind}`, textButtonWidth(a.label)]),
   );
-  const plan = planBar({
-    // The count with its cross is two buttons wide (TOOL_WIDTH in textBar.mjs).
-    width: barWidth,
-    context: contextIds,
-    fixed: fixedIds,
-    spare: spareIds,
-    more: blockMenu.length > 0 || settingsShown || !!viewOnSite,
-    widths: textWidths,
-  });
-  // The bar's motion (barMotion.mjs): the contextual tools slide in from the left and push the main tools right when a context starts, slide out
-  // when it ends, and fade in place from one context to another. FLIP: the new layout is measured, then the old place is animated from, with the
-  // theme's springs only (motionTiming) and none at all for a visitor who asked for reduced motion. The bar's height and the dividers never move.
   const contextKey = block_ ? (block_.count ? 'block:selection' : `block:${block_.name}`) : textContext ? 'text' : '';
-  const slideRow = useRef<HTMLDivElement>(null);
-  const contextBox = useRef<HTMLDivElement>(null);
-  const mainBox = useRef<HTMLDivElement>(null);
-  const slid = useRef<{ key: string; mainLeft: number; ghost: HTMLElement | null } | null>(null);
-  useLayoutEffect(() => {
-    const row = slideRow.current;
-    const main = mainBox.current;
-    if (!row || !main) return;
-    const context = contextBox.current;
-    const mainLeft = main.offsetLeft;
-    const was = slid.current;
-    const kind = was ? barSlideKind(was.key, contextKey) : 'none';
-    if (was && kind !== 'none' && !motionReduced()) {
-      const spatial = motionTiming('spatial', 'fast');
-      // A slide that is not over is reversed from where it is: its place now counts, not its end.
-      const visibleShift = new DOMMatrixReadOnly(getComputedStyle(main).transform).m41;
-      for (const running of main.getAnimations()) running.cancel();
-      const pushed = mainLeft - was.mainLeft;
-      if (pushed || visibleShift) main.animate([{ transform: `translateX(${visibleShift - pushed}px)` }, { transform: 'none' }], spatial);
-      if (kind === 'enter' && context) {
-        context.animate([{ transform: `translateX(${-context.offsetWidth}px)` }, { transform: 'none' }], spatial);
-      }
-      if (kind === 'leave' && was.ghost) {
-        const ghost = row.appendChild(was.ghost);
-        const gone = () => ghost.remove();
-        ghost.animate([{ transform: 'none' }, { transform: `translateX(${-ghost.offsetWidth}px)` }], spatial).finished.then(gone, gone);
-      }
-      // From one context to another the bars cross-fade: the tools that left (the ghost, out of the row's flow, so nothing below or beside moves)
-      // fade out as the new tools fade in, with the theme's effects spring.
-      if (kind === 'change') {
-        const effects = motionTiming('effects');
-        if (context) context.animate([{ opacity: 0 }, { opacity: 1 }], effects);
-        if (was.ghost) {
-          const ghost = row.appendChild(was.ghost);
-          const gone = () => ghost.remove();
-          ghost.animate([{ opacity: 1 }, { opacity: 0 }], effects).finished.then(gone, gone);
-        }
-      }
-    }
-    // What the contextual tools looked like, to slide them out once the context ends (a copy: they are gone by then).
-    let ghost: HTMLElement | null = null;
-    if (context) {
-      ghost = context.cloneNode(true) as HTMLElement;
-      ghost.classList.add('editor-tools-ghost');
-      ghost.setAttribute('aria-hidden', 'true');
-      ghost.setAttribute('inert', '');
-    }
-    slid.current = { key: contextKey, mainLeft, ghost };
-  });
   // What a tool does and how it looks; the bar draws it as a button, the `⋮` menu as a row.
   const blockTool = (id: string) => {
     if (id === 'count') return { label: block_!.count!.label, icon: CloseIcon, action: block_!.count!.action };
@@ -3155,113 +3054,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         return { label: t.text.sectionSettings, icon: rawIcon(settingsHereIcon), action: sectionSettings };
     }
   };
-  const menuOf = (id: string) => ({ style: 'style', list: 'list' })[id] as KindGroup | undefined;
-  // A button of the bar. Text style, List, Alignment and Color open a menu under them; the others act.
-  const barButton = (id: string) => {
-    if (id === 'style' || id === 'list') {
-      const group = menuOf(id)!;
-      const opened = kindsAt?.group === group;
-      const [icon, label] =
-        group === 'style'
-          ? [styleFace.icon, styleLabel]
-          : [listFace?.icon ?? GENERIC_ICONS.list.node, listFace ? t.text.listIs(listFace.label) : t.text.list];
-      return (
-        <ToolbarButton
-          key={id}
-          icon={icon}
-          label={label}
-          menu={opened}
-          onClick={(e) => setKindsAt(opened ? null : { at: e.currentTarget, group })}
-        />
-      );
-    }
-    if (id === 'align')
-      return (
-        <ToolbarButton
-          key={id}
-          icon={ALIGN_FACES[alignNow].node}
-          label={t.text.alignmentIs(alignLabel(alignNow))}
-          menu={!!alignAt && alignAt.closest('.editor-tools') !== null && alignAt !== moreButton.current}
-          disabled={!alignOn}
-          onClick={(e) => setAlignAt(alignAt === e.currentTarget ? null : e.currentTarget)}
-        />
-      );
-    if (id === 'color')
-      return (
-        <ToolbarButton
-          key={id}
-          icon={Palette}
-          label={t.text.color}
-          menu={!!colorAt && colorAt !== moreButton.current}
-          disabled={noColor}
-          onClick={(e) => setColorAt(colorAt === e.currentTarget ? null : e.currentTarget)}
-        />
-      );
-    if (id === 'block:count' && block_?.count)
-      return <ToolbarButton key={id} icon={CloseIcon} label={block_.count.label} count={block_.count.n} onClick={block_.count.action} />;
-    const { label, icon, text, action, on, pressed, disabled, reason } = toolOf(id);
-    return (
-      <ToolbarButton
-        key={id}
-        icon={icon}
-        label={label}
-        text={text ? { width: toolWidth(id, textWidths) } : undefined}
-        selected={on ? active.includes(on) : pressed}
-        disabled={disabled}
-        reason={reason}
-        shortcutKey={TOOL_KEYS[id]}
-        onClick={action}
-      />
-    );
-  };
-  // A row of the `⋮` menu. Text style, Alignment and Color open their own menu, under the `⋮` button.
-  const moreRows = (id: string) => {
-    const under = (open: () => void) => () => {
-      open();
-    };
-    if (id === 'style')
-      return (
-        <MenuItem key={id} icon={styleFace.icon} onClick={under(() => setKindsAt({ at: moreButton.current!, group: 'style' }))}>
-          {styleLabel}
-        </MenuItem>
-      );
-    if (id === 'list')
-      return lists.map((kind) => (
-        <MenuItem key={kind} icon={LIST_FACES[kind].icon} selected={active.includes(kind)} onClick={() => setKind(kind)}>
-          {LIST_FACES[kind].label}
-        </MenuItem>
-      ));
-    if (id === 'align')
-      return (
-        <MenuItem key={id} icon={ALIGN_FACES[alignNow].node} disabled={!alignOn} onClick={under(() => setAlignAt(moreButton.current))}>
-          {alignLabel(alignNow)}
-        </MenuItem>
-      );
-    if (id === 'color')
-      return (
-        <MenuItem key={id} icon={Palette} disabled={noColor} onClick={under(() => setColorAt(moreButton.current))}>
-          {t.text.color}
-        </MenuItem>
-      );
-    const { label, icon, action, on, pressed, disabled } = toolOf(id);
-    return (
-      <MenuItem key={id} icon={icon} selected={on ? active.includes(on) : pressed} disabled={disabled} onClick={action}>
-        {label}
-      </MenuItem>
-    );
-  };
-  // In the `⋮` menu the context's tools come first, then a divider, then the main tools.
-  const MORE_ORDER = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color'];
-  const moreContext = [...plan.more.context].sort((a, b) => MORE_ORDER.indexOf(a) - MORE_ORDER.indexOf(b));
-  // Preview comes after Section settings.
-  const moreMain = [
-    ...plan.more.fixed.filter((id) => id !== 'preview'),
-    ...(settingsShown ? ['settings'] : []),
-    ...plan.more.fixed.filter((id) => id === 'preview'),
-  ];
-  // Related tools of a Table are bundled into one row that opens them as the menu's next level (Material 3, Menus: "Use groups to bundle similar
+  // Related tools of a Table are bundled into one row of the ⋮ that opens them as the menu's next level (Material 3, Menus: "Use groups to bundle similar
   // actions together", and on web "menus can open submenus"). A group with a single tool in the menu stays a plain row, so every tool stays reachable.
-  const TABLE_GROUPS = [
+  const TABLE_GROUPS: BarGroup[] = [
     { key: 'add', label: t.blocks.table.groupAdd, icon: barIcons.below, ids: ['above', 'below', 'column-before', 'column-after'] },
     { key: 'delete', label: t.blocks.table.groupDelete, icon: barIcons.delete, ids: ['delete-row', 'delete-column'] },
     {
@@ -3269,198 +3064,55 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       label: t.blocks.table.groupAlign,
       icon: barIcons['align-left'],
       ids: ['align-left', 'align-center', 'align-right', 'align-auto'],
+      // Under "Align column" a row says only the side (the group already names the column).
+      short: {
+        'block:align-left': t.blocks.table.alignLeftShort,
+        'block:align-center': t.blocks.table.alignCenterShort,
+        'block:align-right': t.blocks.table.alignRightShort,
+        'block:align-auto': t.blocks.table.columnTypeAuto,
+      },
     },
   ].map((g) => ({ ...g, ids: g.ids.map((i) => `block:${i}`) }));
-  const groupedRows = (ids: string[]) => {
-    const seen = new Set<string>();
-    return ids.flatMap((id) => {
-      const g = TABLE_GROUPS.find((x) => x.ids.includes(id));
-      const members = g ? g.ids.filter((i) => ids.includes(i)) : [];
-      if (!g || members.length < 2) return [moreRows(id)];
-      if (seen.has(g.key)) return [];
-      seen.add(g.key);
-      const level: CardRow = {
-        icon: g.icon,
-        label: g.label,
-        action: () => {},
-        submenu: members.map((i) => {
-          const tool = toolOf(i);
-          // Under "Align column" a row says only the side (the group already names the column); the others keep their names.
-          const short: Record<string, string> = {
-            'block:align-left': t.blocks.table.alignLeftShort,
-            'block:align-center': t.blocks.table.alignCenterShort,
-            'block:align-right': t.blocks.table.alignRightShort,
-            'block:align-auto': t.blocks.table.columnTypeAuto,
-          };
-          return { icon: tool.icon ?? rawIcon(''), label: short[i] ?? tool.label, selected: tool.pressed, action: tool.action };
-        }),
-      };
-      return [
-        <MenuItem key={g.key} icon={rawIcon(g.icon)} opens onClick={() => setMoreLevel(level)}>
-          {g.label}
-        </MenuItem>,
-      ];
-    });
-  };
-  const toolRows = blockMenu.filter((row) => row.with === 'tools');
-  const ownRows = blockMenu.filter((row) => row.with !== 'tools');
-  // The ⋮ menu's groups, each after a divider: the context's tools, the main tools, the block's own menu, then View on site.
-  const moreGroups = moreContext.length + moreMain.length + blockMenu.length;
 
   return (
     <div className="editor-text-box rounded-panel bg-surface-container-lowest">
       <span className="sr-only" role="status" aria-live="polite">
         {selecting ? t.text.blocksSelected(picked.places.length) : ''}
       </span>
-      {/* The top edge of the text's box: it draws its own border and rounded corners, so the box's side lines start under it and never run past it when it sticks; no shadow. Stays at the top of the screen while scrolling through the text (under the safe area, as the top bar scrolls away). One row, 44 dp high: the text tools, a divider and the main tools; the `⋮` at its end has what does not fit (textBar.mjs). */}
-      <Toolbar
-        ref={toolbar}
-        label={t.text.tools}
-        className="editor-tools sticky top-[env(safe-area-inset-top)] z-10 rounded-t-panel border border-outline-variant pb-(--toolbar-docked-padding-block)"
-      >
-        <div ref={slideRow} className="editor-tools-slide">
-          {plan.bar.context.length > 0 && (
-            <div ref={contextBox} className="editor-tools-context">
-              <div role="group" aria-label={block_?.name ?? t.text.textTools} className="editor-tools-group">
-                {plan.bar.context.map(barButton)}
-              </div>
-            </div>
-          )}
-          <div ref={mainBox} className="editor-tools-main">
-            <div role="group" aria-label={t.text.pageTools} className="editor-tools-group">
-              {plan.bar.fixed.map(barButton)}
-            </div>
-            {plan.overflow && (
-              <ToolbarButton
-                ref={moreButton}
-                icon={MoreVertIcon}
-                label={t.text.more}
-                popup={!!moreAt || underMore}
-                onClick={(e) => {
-                  // A tap on the ⋮ while one of its rows' menus (Text style, Alignment, Color) is open closes that menu and does not open the ⋮
-                  // menu behind it; else it opens or closes the ⋮ menu, with none of the others open.
-                  if (underMore) {
-                    setKindsAt(null);
-                    setAlignAt(null);
-                    setColorAt(null);
-                    return setMoreAt(null);
-                  }
-                  setKindsAt(null);
-                  setAlignAt(null);
-                  setColorAt(null);
-                  setMoreAt(moreAt ? null : e.currentTarget);
-                }}
-              />
-            )}
-          </div>
-        </div>
-      </Toolbar>
-      <Menu
-        popup="end"
-        anchor={moreAt}
-        label={moreLevel?.label ?? t.text.more}
-        onBack={moreLevel ? () => setMoreLevel(null) : undefined}
-        onClose={() => setMoreAt(null)}
-      >
-        {moreLevel ? (
-          <>
-            {/* The next level: back to the menu's rows (Left arrow too), then the submenu's rows. */}
-            <MenuItem icon={rawIcon(changeToIcon)} back label={t.text.backToMenu(moreLevel.label)} onClick={() => setMoreLevel(null)}>
-              {moreLevel.label}
-            </MenuItem>
-            <MenuDivider />
-            {moreLevel.submenu!.map((sub) => (
-              <MenuItem
-                key={sub.label}
-                icon={sub.icon}
-                selected={sub.selected}
-                onKeyDown={(e) => e.key === 'ArrowLeft' && (e.preventDefault(), setMoreLevel(null))}
-                onClick={sub.action}
-              >
-                {sub.label}
-              </MenuItem>
-            ))}
-          </>
-        ) : (
-          <>
-            {groupedRows(moreContext)}
-            {toolRows.map((row) => (
-              <MenuItem key={row.label} icon={rawIcon(row.icon)} opens onClick={() => setMoreLevel(row)}>
-                {row.label}
-              </MenuItem>
-            ))}
-            {(moreContext.length > 0 || toolRows.length > 0) && moreMain.length > 0 && <MenuDivider />}
-            {groupedRows(moreMain)}
-            {ownRows.length > 0 && (moreContext.length > 0 || moreMain.length > 0 || toolRows.length > 0) && <MenuDivider />}
-            {ownRows.map((row) => (
-              <MenuItem
-                key={row.label}
-                icon={rawIcon(row.icon)}
-                opens={!!row.submenu}
-                onClick={() => (row.submenu ? setMoreLevel(row) : row.action(false))}
-              >
-                {row.label}
-              </MenuItem>
-            ))}
-            {viewOnSite && moreGroups > 0 && <MenuDivider />}
-            {viewOnSite && (
-              <MenuItem icon={ViewOnSiteIcon} onClick={() => void window.open(viewOnSite, '_blank', 'noopener')}>
-                {t.app.viewOnSite}
-              </MenuItem>
-            )}
-          </>
-        )}
-      </Menu>
-      <Menu popup="start" anchor={alignAt} label={t.text.alignment} onClose={() => setAlignAt(null)}>
-        {(Object.keys(ALIGN_FACES) as Align[]).map((align) => (
-          <MenuItem
-            key={align}
-            icon={ALIGN_FACES[align].node}
-            selected={alignNow === align}
-            onClick={() => {
-              setAlignAt(null);
-              editor.current?.action((ctx) => alignSelection(ctx.get(editorViewCtx), align));
-            }}
-          >
-            {alignLabel(align)}
-          </MenuItem>
-        ))}
-      </Menu>
-      {/* The site's colours (text-colors.mjs), each named in its colour, as it is in the text (its class), and "No color" in the text's own, last. */}
-      <Menu popup="start" anchor={colorAt} label={t.text.color} onClose={() => setColorAt(null)}>
-        {TEXT_COLORS.map((name) => (
-          <MenuItem key={name} selected={active.includes(colorClass(name))} onClick={() => color(name)}>
-            <span className={colorClass(name)}>{t.text.colors[name as keyof typeof t.text.colors]}</span>
-          </MenuItem>
-        ))}
-        <MenuItem selected={!active.includes('textColor')} onClick={() => color(null)}>
-          <span className="text-on-surface">{t.text.noColor}</span>
-        </MenuItem>
-      </Menu>
-      {/* Text style: the heading levels the text may have, a divider, then the body sizes, Label and Quote; the rows that do not apply (a heading in a list item, a list or Quote in a heading) are hidden (styleMenu.mjs). */}
-      <Menu
-        popup="start"
-        anchor={kindsAt?.at ?? null}
-        label={kindsAt?.group === 'list' ? t.text.list : t.text.kind}
-        onClose={() => setKindsAt(null)}
-      >
-        {kindsAt?.group === 'style' &&
-          styleRows(active, headingLevels).map((row, i) =>
-            row === '-' ? (
-              <MenuDivider key={`-${i}`} />
-            ) : (
-              <MenuItem key={row} icon={rowIcon(row)} selected={active.includes(row)} onClick={() => setKind(row)}>
-                {STYLE_FACES[row].label}
-              </MenuItem>
-            ),
-          )}
-        {kindsAt?.group === 'list' &&
-          lists.map((kind) => (
-            <MenuItem key={kind} icon={LIST_FACES[kind].icon} selected={active.includes(kind)} onClick={() => setKind(kind)}>
-              {LIST_FACES[kind].label}
-            </MenuItem>
-          ))}
-      </Menu>
+      <EditorBar
+        name={block_?.name ?? t.text.textTools}
+        contextKey={contextKey}
+        context={contextIds}
+        fixed={fixedIds}
+        spare={spareIds}
+        widths={textWidths}
+        tool={toolOf}
+        count={block_?.count}
+        menu={blockMenu}
+        groups={TABLE_GROUPS}
+        settings={settingsShown}
+        viewOnSite={viewOnSite}
+        active={active}
+        levels={headingLevels}
+        styleFace={styleFace}
+        styleLabel={styleLabel}
+        STYLE_FACES={STYLE_FACES}
+        LIST_FACES={LIST_FACES}
+        rowIcon={rowIcon}
+        lists={lists}
+        listFace={listFace}
+        alignNow={alignNow}
+        alignOn={alignOn}
+        noColor={noColor}
+        icons={{
+          align: { left: ALIGN_FACES.left.node, center: ALIGN_FACES.center.node, right: ALIGN_FACES.right.node },
+          color: Palette,
+          list: GENERIC_ICONS.list.node,
+        }}
+        setKind={setKind}
+        setAlign={(align) => editor.current?.action((ctx) => alignSelection(ctx.get(editorViewCtx), align))}
+        setColor={color}
+      />
       <div
         ref={root}
         className={`editor-text prose max-w-none rounded-b-panel border-x border-b border-outline-variant px-5 py-4 medium:px-8 ${short ? 'editor-text-short' : ''} ${spaced ? 'editor-spaced' : ''}`}

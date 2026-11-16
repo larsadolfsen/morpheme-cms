@@ -76,7 +76,8 @@ test('the body icons are one T at three sizes on one baseline', () => {
 
 // Two controls, Text style (headings and text styles as one) and List, each with its own general icon and a label that names the current choice.
 test('Text style and List are two buttons that name their choice', () => {
-  const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
+  // The bar's code moved out of MarkdownEditor.tsx into EditorBar.tsx; the texts it draws are read from both.
+  const source = ['./MarkdownEditor.tsx', './EditorBar.tsx'].map((f) => readFileSync(new URL(f, import.meta.url), 'utf8')).join('\n');
   assert.match(source, /list: \{ node: ListBullets \}/, 'the list button shows the bullet list icon');
   assert.match(source, /t\.text\.listIs\(listFace\.label\)/, 'the bar: "List: …"');
   assert.match(source, /t\.text\.kindIs\(styleFace\.label\)/, 'the bar: "Text style: …"');
@@ -116,10 +117,11 @@ test('the generic icons are the general T and the bullet list, of Phosphor', () 
 // The alignment button (lib/text-align.mjs) is on the bar with Phosphor's three alignment icons; a row of the `⋮` menu opens its menu on a phone.
 test('the alignment has a button on the bar and a row in the ⋮ menu', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
+  const barSource = readFileSync(new URL('./EditorBar.tsx', import.meta.url), 'utf8');
   assert.match(source, /left: \{ node: TextAlignLeft \}/);
   assert.match(source, /center: \{ node: TextAlignCenter \}/);
   assert.match(source, /right: \{ node: TextAlignRight \}/);
-  assert.match(source, /if \(id === 'align'\)/, 'the bar and the ⋮ menu');
+  assert.match(barSource, /if \(id === 'align'\)/, 'the bar and the ⋮ menu');
 });
 
 // Every toolbar icon is drawn at the same size and stroke: the T icons of the three body styles (src/icons/text-t-*.svg) are Phosphor's
@@ -144,7 +146,7 @@ test('the T icons have the same weight and size as Bold and Italic', () => {
   const phosphor = (name) =>
     readFileSync(new URL(`../node_modules/@phosphor-icons/core/assets/regular/${name}.svg`, import.meta.url), 'utf8');
   for (const name of ['text-b', 'text-italic', 'text-t']) assert.match(phosphor(name), /viewBox="0 0 256 256" fill="currentColor"/);
-  const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
+  const source = readFileSync(new URL('./EditorBar.tsx', import.meta.url), 'utf8');
   assert.equal(source.match(/replace\('<svg', '<svg width="(\d+)" height="(\d+)"/g)?.[0], `replace('<svg', '<svg width="20" height="20"`);
   assert.match(readFileSync(new URL('./TextSizeIcons.tsx', import.meta.url), 'utf8'), /size = 20/);
 });
