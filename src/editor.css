@@ -951,6 +951,11 @@ html {
   padding-inline-start: calc(var(--card-radius, var(--block-radius)) * 0.2929 + 0.53px + 4.5rem - var(--card-padding, 1rem) - 1.5px);
 }
 
+/* A hidden block's badge (32 dp, 16 dp from the frame's top and right) lies at the row's end: the buttons stop short of it. */
+.editor-text .site-block-hidden .site-block-row-inner {
+  padding-inline-end: calc(3rem - var(--card-padding, 1rem) - 1.5px);
+}
+
 /* A button that cannot be used (a block that cannot move further): shown, in its place, with the reason; the theme's disabled look, no state layer. */
 .editor-text .site-block-row [data-row][aria-disabled] {
   opacity: 0.35;
