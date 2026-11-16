@@ -5378,19 +5378,35 @@ async function checkBlockDrag(width) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  const insert = async (hint) => {
+  // Puts a block in at the cursor and waits until it is the active block, as a person sees it: a new block takes its first row only once the insert dialog has
+  // let go of the focus (MarkdownEditor.tsx, startAt: up to 1.5 s on a slow machine), and until then the block that was active still is, with its row and its handle.
+  // `.inline-list-row-active` is not enough: the row of the block that was active matches it too. So the wait is for the state itself: `count` blocks, the new one
+  // (`at`) the only one with a row, and that row open (no height animation running).
+  const insert = async (hint, count, at) => {
     await pressInsert(page, 'click');
     await page.locator('dialog[open] button', { hasText: hint }).first().click();
-    await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
-    await page.waitForTimeout(400);
+    await page.waitForFunction(
+      ([n, i]) => {
+        const blocks = [...document.querySelectorAll('.ProseMirror .site-block')];
+        const open = blocks.filter((b) => b.classList.contains('site-block-has-row'));
+        return (
+          blocks.length === n &&
+          open.length === 1 &&
+          open[0] === blocks[i] &&
+          !!open[0].querySelector('.inline-list-row-active') &&
+          !document.querySelector('.ProseMirror .site-block-row-moving')
+        );
+      },
+      [count, at],
+      { timeout: 10000 },
+    );
   };
-  await insert('Numbered steps.');
+  await insert('Numbered steps.', 1, 0);
   await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
   await page.keyboard.press('End');
   await page.keyboard.press('Enter');
-  await insert('Rows with icon, heading and text.');
-  // The active block's action row has opened (it moves the handle and the blocks below): measure after it has settled.
-  await page.waitForTimeout(900);
+  // The new block lands above the first one (the cursor is in the line under 'Hello'), and its action row has opened (it moves the handle and the blocks below).
+  await insert('Rows with icon, heading and text.', 2, 0);
   // Away from any block's row, so no bar or keyboard is in the way.
   const names = () => page.locator('.ProseMirror .site-block-card').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   const before = await names();
@@ -5403,36 +5419,39 @@ async function checkBlockDrag(width) {
   const box = (i) => handles.nth(i).boundingBox();
   const first = await box(0);
   if (first.width < 44 || first.height < 44) problems.push(`${label}: a handle is smaller than 44 x 44 (${first.width}x${first.height})`);
-  // The handle fades (a transition on its opacity): read it once it has stopped changing, two reads 120 ms apart the same (at most 2 s), so a
-  // read in the middle of the fade is never taken for the end of it.
-  const opacity = async () => {
-    const read = () => handles.nth(1).evaluate((el) => getComputedStyle(el).opacity);
-    let now = await read();
-    for (let i = 0; i < 16; i++) {
-      await page.waitForTimeout(120);
-      const next = await read();
-      if (next === now) return now;
-      now = next;
-    }
-    return now;
+  // The handle fades (a transition on its opacity): read it once the state it is going to has been reached and no transition runs on it, the wait is for that
+  // condition (never a fixed time, and never two equal reads, which a stalled frame also gives); what it shows then is returned, and after 3 s what it shows.
+  const opacity = async (want) => {
+    await page
+      .waitForFunction(
+        ([i, o]) => {
+          const el = document.querySelectorAll('.ProseMirror .site-block-handle')[i];
+          return getComputedStyle(el).opacity === o && el.getAnimations().length === 0;
+        },
+        [1, want],
+        { timeout: 3000 },
+      )
+      .catch(() => {});
+    return handles.nth(1).evaluate((el) => getComputedStyle(el).opacity);
   };
   if (phone) {
     // A touch sees a handle only on the active block (it is the end of the block's row); go into the second block first.
-    if ((await opacity()) !== '0') problems.push(`${label}: a touch sees the handle of a block that is not active`);
+    if ((await opacity('0')) !== '0') problems.push(`${label}: a touch sees the handle of a block that is not active`);
     const field = page.locator('.ProseMirror .site-block').nth(1).locator('.inline-list-row [data-field]').first();
-    for (let tries = 0; tries < 3 && (await opacity()) !== '1'; tries++) {
+    // The tap may land while the page still moves (a row opening or closing): tap again until the block is active (the wait is for its handle to show).
+    for (let tries = 0; tries < 3; tries++) {
       await field.tap({ position: { x: 8, y: 8 } });
-      await page.waitForTimeout(1100);
+      if ((await opacity('1')) === '1') break;
     }
-    if ((await opacity()) !== '1') problems.push(`${label}: a touch does not see the handle of the active block`);
+    if ((await opacity('1')) !== '1') problems.push(`${label}: a touch does not see the handle of the active block`);
   } else {
     await page.mouse.move(5, 5);
     await page.waitForTimeout(400);
-    if ((await opacity()) !== '0') problems.push(`${label}: a mouse sees a handle before it points at the block`);
+    if ((await opacity('0')) !== '0') problems.push(`${label}: a mouse sees a handle before it points at the block`);
     const b = await box(1);
     await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
     await page.waitForTimeout(400);
-    if ((await opacity()) !== '1') problems.push(`${label}: a mouse does not see the handle of the block it points at`);
+    if ((await opacity('1')) !== '1') problems.push(`${label}: a mouse does not see the handle of the block it points at`);
   }
   // A tap on the handle moves nothing.
   const second = await box(1);
