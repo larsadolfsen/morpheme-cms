@@ -58,13 +58,13 @@ test('the labels have M3 prominent weight 700', () => {
 });
 
 test('type.css has one class for each of the 15 roles and the lead, each reading its own four tokens', () => {
-  const classes = [...typeCss.matchAll(/^ {2}\.(type-[a-z-]+) \{\n([^}]*)\}/gm)];
+  const classes = [...typeCss.matchAll(/^ {2}\.(mo-type-[a-z-]+) \{\n([^}]*)\}/gm)];
   assert.deepEqual(
     classes.map((m) => m[1]),
-    [...Object.keys(M3).map((s) => `type-${s}`), 'type-lead'].sort((a, b) => typeCss.indexOf(`.${a} {`) - typeCss.indexOf(`.${b} {`)),
+    [...Object.keys(M3).map((s) => `mo-type-${s}`), 'mo-type-lead'].sort((a, b) => typeCss.indexOf(`.${a} {`) - typeCss.indexOf(`.${b} {`)),
   );
   for (const [, name, body] of classes) {
-    const role = name.slice('type-'.length);
+    const role = name.slice('mo-type-'.length);
     const lines = body
       .trim()
       .split('\n')

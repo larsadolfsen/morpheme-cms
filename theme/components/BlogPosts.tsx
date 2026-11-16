@@ -14,7 +14,7 @@ export default function BlogPosts({ posts }: { posts: PostView[] }) {
   if (!featured)
     return (
       <div className="rounded-panel bg-surface-container-high p-8">
-        <p className="type-title-medium">{siteT.theme.noPosts}</p>
+        <p className="mo-type-title-medium">{siteT.theme.noPosts}</p>
         <Link href="/blog/" className="link mt-3 inline-block">
           {siteT.theme.seeAllPosts}
         </Link>
@@ -36,7 +36,7 @@ export default function BlogPosts({ posts }: { posts: PostView[] }) {
         )}
         <div className="expanded:col-span-5">
           <PostMeta post={featured} />
-          <h2 className="type-headline-medium medium:type-headline-large mt-2 transition-colors group-hover:text-primary">
+          <h2 className="mo-type-headline-medium medium:mo-type-headline-large mt-2 transition-colors group-hover:text-primary">
             {featured.title}
           </h2>
           <p className="mt-3 text-on-surface-variant">{featured.description}</p>

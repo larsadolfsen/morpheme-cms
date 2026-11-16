@@ -14,103 +14,103 @@ Everything you can do with text in the editor, drawn as the site draws it in you
 
 ## Type styles
 
-The theme has 16 type styles: Material 3's 15 type roles and the lead. Each is a class, like `type-title-large`. The numbers under each style are read from the style as your browser draws it, so they follow the width of your screen and the theme.
+The theme has 16 type styles: Material 3's 15 type roles and the lead. Each is a class, like `mo-type-title-large`. The numbers under each style are read from the style as your browser draws it, so they follow the width of your screen and the theme.
 
 ### Display large
 
-<p class="type-display-large" data-type-sample="type-display-large">Harbor lights</p>
+<p class="mo-type-display-large" data-type-sample="mo-type-display-large">Harbor lights</p>
 
-<p class="body-small" data-type-spec="type-display-large"><code>.type-display-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="body-small" data-type-spec="mo-type-display-large"><code>.mo-type-display-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Display medium
 
-<p class="type-display-medium" data-type-sample="type-display-medium">Harbor lights at dusk</p>
+<p class="mo-type-display-medium" data-type-sample="mo-type-display-medium">Harbor lights at dusk</p>
 
-<p class="body-small" data-type-spec="type-display-medium"><code>.type-display-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="body-small" data-type-spec="mo-type-display-medium"><code>.mo-type-display-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Display small
 
-<p class="type-display-small" data-type-sample="type-display-small">Harbor lights at dusk</p>
+<p class="mo-type-display-small" data-type-sample="mo-type-display-small">Harbor lights at dusk</p>
 
-<p class="body-small" data-type-spec="type-display-small"><code>.type-display-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="body-small" data-type-spec="mo-type-display-small"><code>.mo-type-display-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Headline large
 
-<p class="type-headline-large" data-type-sample="type-headline-large">Harbor lights at dusk, in bloom</p>
+<p class="mo-type-headline-large" data-type-sample="mo-type-headline-large">Harbor lights at dusk, in bloom</p>
 
-<p class="body-small" data-type-spec="type-headline-large"><code>.type-headline-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="body-small" data-type-spec="mo-type-headline-large"><code>.mo-type-headline-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Headline medium
 
-<p class="type-headline-medium" data-type-sample="type-headline-medium">Harbor lights at dusk, in bloom</p>
+<p class="mo-type-headline-medium" data-type-sample="mo-type-headline-medium">Harbor lights at dusk, in bloom</p>
 
-<p class="body-small" data-type-spec="type-headline-medium"><code>.type-headline-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="body-small" data-type-spec="mo-type-headline-medium"><code>.mo-type-headline-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Headline small
 
-<p class="type-headline-small" data-type-sample="type-headline-small">Harbor lights at dusk, in bloom</p>
+<p class="mo-type-headline-small" data-type-sample="mo-type-headline-small">Harbor lights at dusk, in bloom</p>
 
-<p class="body-small" data-type-spec="type-headline-small"><code>.type-headline-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="body-small" data-type-spec="mo-type-headline-small"><code>.mo-type-headline-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Title large
 
-<p class="type-title-large" data-type-sample="type-title-large">The Larkspur Market opens at nine</p>
+<p class="mo-type-title-large" data-type-sample="mo-type-title-large">The Larkspur Market opens at nine</p>
 
-<p class="body-small" data-type-spec="type-title-large"><code>.type-title-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="body-small" data-type-spec="mo-type-title-large"><code>.mo-type-title-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Lead
 
-<p class="type-lead" data-type-sample="type-lead">The Larkspur Market opens at nine, and the bakery stall is first in line.</p>
+<p class="mo-type-lead" data-type-sample="mo-type-lead">The Larkspur Market opens at nine, and the bakery stall is first in line.</p>
 
-<p class="body-small" data-type-spec="type-lead"><code>.type-lead</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="body-small" data-type-spec="mo-type-lead"><code>.mo-type-lead</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Title medium
 
-<p class="type-title-medium" data-type-sample="type-title-medium">Seasonal produce and fresh bread</p>
+<p class="mo-type-title-medium" data-type-sample="mo-type-title-medium">Seasonal produce and fresh bread</p>
 
-<p class="body-small" data-type-spec="type-title-medium"><code>.type-title-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="body-small" data-type-spec="mo-type-title-medium"><code>.mo-type-title-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Title small
 
-<p class="type-title-small" data-type-sample="type-title-small">Seasonal produce and fresh bread</p>
+<p class="mo-type-title-small" data-type-sample="mo-type-title-small">Seasonal produce and fresh bread</p>
 
-<p class="body-small" data-type-spec="type-title-small"><code>.type-title-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="body-small" data-type-spec="mo-type-title-small"><code>.mo-type-title-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Body large
 
-<p class="type-body-large" data-type-sample="type-body-large">Everything on these stalls is grown, baked or made within thirty miles of the harbor.</p>
+<p class="mo-type-body-large" data-type-sample="mo-type-body-large">Everything on these stalls is grown, baked or made within thirty miles of the harbor.</p>
 
-<p class="body-small" data-type-spec="type-body-large"><code>.type-body-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="body-small" data-type-spec="mo-type-body-large"><code>.mo-type-body-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Body medium
 
-<p class="type-body-medium" data-type-sample="type-body-medium">Everything on these stalls is grown, baked or made within thirty miles of the harbor, and most of it is gone by noon.</p>
+<p class="mo-type-body-medium" data-type-sample="mo-type-body-medium">Everything on these stalls is grown, baked or made within thirty miles of the harbor, and most of it is gone by noon.</p>
 
-<p class="body-small" data-type-spec="type-body-medium"><code>.type-body-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="body-small" data-type-spec="mo-type-body-medium"><code>.mo-type-body-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Body small
 
-<p class="type-body-small" data-type-sample="type-body-small">Open Tuesday to Saturday, nine to five. Closed on public holidays.</p>
+<p class="mo-type-body-small" data-type-sample="mo-type-body-small">Open Tuesday to Saturday, nine to five. Closed on public holidays.</p>
 
-<p class="body-small" data-type-spec="type-body-small"><code>.type-body-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="body-small" data-type-spec="mo-type-body-small"><code>.mo-type-body-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Label large
 
-<p class="type-label-large" data-type-sample="type-label-large">Visit the market</p>
+<p class="mo-type-label-large" data-type-sample="mo-type-label-large">Visit the market</p>
 
-<p class="body-small" data-type-spec="type-label-large"><code>.type-label-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="body-small" data-type-spec="mo-type-label-large"><code>.mo-type-label-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Label medium
 
-<p class="type-label-medium" data-type-sample="type-label-medium">Opening hours</p>
+<p class="mo-type-label-medium" data-type-sample="mo-type-label-medium">Opening hours</p>
 
-<p class="body-small" data-type-spec="type-label-medium"><code>.type-label-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="body-small" data-type-spec="mo-type-label-medium"><code>.mo-type-label-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Label small
 
-<p class="type-label-small" data-type-sample="type-label-small">New this week</p>
+<p class="mo-type-label-small" data-type-sample="mo-type-label-small">New this week</p>
 
-<p class="body-small" data-type-spec="type-label-small"><code>.type-label-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="body-small" data-type-spec="mo-type-label-small"><code>.mo-type-label-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ## Headings
 

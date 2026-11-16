@@ -22,7 +22,7 @@ export default function PostMeta({
   const inOverline = Tag === 'span';
   return (
     <Tag
-      className={['flex flex-wrap items-center gap-x-2', !inOverline && 'type-body-medium text-on-surface-variant', className]
+      className={['flex flex-wrap items-center gap-x-2', !inOverline && 'mo-type-body-medium text-on-surface-variant', className]
         .filter(Boolean)
         .join(' ')}
     >
