@@ -1,88 +1,15 @@
 /* The standard theme: its base (Tailwind, the blocks, its components' classes) and its own look over it, Material 3. */
 @import './base.css';
+@import './tokens/material/ref.css';
+@import './tokens/material/sys.css';
 @import '@fontsource-variable/roboto';
-
-/*
-  Material is every theme's fallback: its rules that set more than custom properties sit in @layer fallback (declared last in
-  base.css), so a theme's own unlayered rules win over them, whatever the specificity. Custom properties stay unlayered.
-
-  The standard theme's look, Material: the site in Material Design 3 (m3.material.io). Roboto and the M3 type scale (regular headlines,
-  medium titles and labels), the M3 shapes (below), tonal surfaces instead of lines, the M3 elevation levels and its emphasized easing; buttons
-  as wide as their label (filled and tonal) and lists in segments. The theme's own parts (the top app bar, the
-  navigation drawer, the FAB, the footer) are at the end.
-
-  The colours are the site's (src/data/colors.json, "Colors" in the editor): Material 3's colour roles
-  (m3.material.io/styles/color/roles), each by its own name as a variable (--mo-primary, --mo-on-surface, --mo-surface-container-high …),
-  and none else. The page is on --mo-surface. They are M3's own when the colours are made from a source colour (dynamic
-  colour), and every text on them keeps the contrast the editor checks (colorPairs), in light and dark mode.
-*/
-/* Material is Medium: its own density step is 0 (base.css explains density). A theme sets another here: 1 is Large, -1 Small. */
-:root {
-  --mo-density-base: 0;
-}
 
 :root,
 :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
 .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
-  /* State layers: on-surface (or primary) over the element, 8% pointed at, 10% pressed. */
-  --mo-hover: color-mix(in srgb, var(--mo-on-surface) 8%, transparent);
-  --mo-pressed: color-mix(in srgb, var(--mo-on-surface) 10%, transparent);
-  --mo-primary-hover: color-mix(in srgb, var(--mo-primary) 8%, transparent);
-  /* M3's elevation levels (m3.material.io/styles/elevation, as material-web draws them: a key and an ambient shadow),
-     the same in light and dark mode. Every part takes its M3 level from them by default (ui.css). */
-  --mo-elevation-0-shadow: 0 0 #0000;
-  --mo-elevation-1-shadow:
-    0 1px 2px color-mix(in srgb, var(--mo-shadow) 30%, transparent), 0 1px 3px 1px color-mix(in srgb, var(--mo-shadow) 15%, transparent);
-  --mo-elevation-2-shadow:
-    0 1px 2px color-mix(in srgb, var(--mo-shadow) 30%, transparent), 0 2px 6px 2px color-mix(in srgb, var(--mo-shadow) 15%, transparent);
-  --mo-elevation-3-shadow:
-    0 1px 3px color-mix(in srgb, var(--mo-shadow) 30%, transparent), 0 4px 8px 3px color-mix(in srgb, var(--mo-shadow) 15%, transparent);
-  --mo-elevation-4-shadow:
-    0 2px 3px color-mix(in srgb, var(--mo-shadow) 30%, transparent), 0 6px 10px 4px color-mix(in srgb, var(--mo-shadow) 15%, transparent);
-  --mo-elevation-5-shadow:
-    0 4px 4px color-mix(in srgb, var(--mo-shadow) 30%, transparent), 0 8px 12px 6px color-mix(in srgb, var(--mo-shadow) 15%, transparent);
-  /* M3 shows elevation by colour: the theme's parts have no shadow at rest. Only the FAB (below) and the lift when a part
-     is pointed at or dragged have one. */
-  --mo-elevation-1-rest-shadow: var(--mo-elevation-0-shadow);
-  --mo-elevation-2-rest-shadow: var(--mo-elevation-0-shadow);
-  --mo-elevation-3-rest-shadow: var(--mo-elevation-0-shadow);
-  --mo-elevation-4-rest-shadow: var(--mo-elevation-0-shadow);
-  --mo-elevation-5-rest-shadow: var(--mo-elevation-0-shadow);
   --fab-shadow: var(--mo-elevation-3-shadow);
   --fab-hover-shadow: var(--mo-elevation-4-shadow);
-  /* The shade over the page behind a dialog, a sheet and the navigation drawer. */
-  --mo-scrim-overlay: color-mix(in srgb, var(--mo-scrim) 32%, transparent);
-  /* M3's corner radius scale (m3.material.io/styles/shape/corner-radius-scale), its ten steps named for how round a
-     corner is. Every corner in the theme is one of them: a part's variable below maps it to its step, as M3's component
-     tokens do, also one corner at a time (a sheet's top, the inner corners of a split button or a menu's groups).
-     Changing a step (--mo-shape-medium) changes every part mapped to it; changing a part's variable (--card-radius)
-     maps that part to another step. Optical roundness (outer radius - padding = inner radius) only where the theme's
-     own layout always puts something in its container's corner (a card's image at its top: the card's corners);
-     never on something whose place is the block's or the content's, which keeps its own step. */
-  --mo-shape-none: 0rem;
-  --mo-shape-extra-small: 0.25rem;
-  --mo-shape-small: 0.5rem;
-  --mo-shape-medium: 0.75rem;
-  --mo-shape-large: 1rem;
-  --mo-shape-large-increased: 1.25rem;
-  --mo-shape-extra-large: 1.75rem;
-  --mo-shape-extra-large-increased: 2rem;
-  --mo-shape-extra-extra-large: 3rem;
-  --mo-shape-full: 9999px;
-
-  --radius: var(--mo-shape-medium);
-  --panel-shadow: var(--mo-elevation-1-rest-shadow);
-  /* The site's motion scheme's curve ("Motion", @morphemecms/cms/lib/motion.ts). */
-  --ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
-
-  --block-surface: var(--mo-surface-container-low);
-  --block-radius: var(--mo-shape-medium);
-  --block-control-radius: var(--mo-shape-full);
-  --block-shadow: var(--mo-elevation-1-rest-shadow);
-  --block-ease: var(--ease);
-  /* Images in a list, a row, a step on the time line: large corners. */
-  --radius-small: var(--mo-shape-large);
 
   /* The standard theme's components (docs/editor.md, "Temaets variabler"). Dialogs (the cookie question, a pop-up):
      extra-large increased corners, a high surface container, no line (the third elevation, as every dialog). */
@@ -104,8 +31,6 @@
   --carousel-item-radius: var(--mo-shape-extra-large);
   --carousel-full-screen-radius: var(--mo-shape-none);
   --carousel-dot-selected-width: 1.5rem;
-  /* The large images at the top of a page, a blog post and the blog: extra-large corners. */
-  --theme-picture-radius: var(--mo-shape-extra-large);
   /* Chips (ui.css; M3 Chips, specs): 32dp, 8dp corners, an outline variant edge and no container, the label and icon in on surface variant; a chosen filter
      chip in the secondary container, its label and check in on secondary container (owner, 15 Nov 2026). */
   --chip-height: 2rem;
@@ -122,10 +47,6 @@
   --chip-selected-hover: color-mix(in srgb, var(--mo-on-secondary-container) 8%, var(--mo-secondary-container));
   --chip-selected-text: var(--mo-on-secondary-container);
   --chip-selected-check: block;
-  /* The page's headline: the M3 type scale (display small on a phone, display medium on a computer). */
-  /* The front page: its headline closer to the first section under it. */
-  --theme-home-first-space: 2.5rem;
-  --theme-home-first-space-large: 4rem;
 
   /* Buttons (ui.css): M3's small size (40px), as wide as the label, full corners (or square), a label in medium weight; a text
      button with less room at its sides; tonal in the secondary container, elevated on the lowest container with the
@@ -206,12 +127,6 @@
   --list-expand-radius: var(--mo-shape-large);
   /* The small step the editor uses for a block's row and handle (8px). The room between cards is --mo-grid-gutter below (owner, 15 Nov 2026, G1). */
   --card-gap: 0.5rem;
-  /* The theme grid (.image-grid, docs/theme-grid.md): the page margin and the gutter between cards, 16px on compact and 24px from
-     medium. Owner values (15 Nov 2026); Material 3's Grids pages print no margin or gutter value. --mo-grid-layout-columns: Material 3's
-     layout grid, 4 columns on compact, 8 on medium and expanded, 12 on large and extra-large (its Grids page, the column mockup). */
-  --mo-grid-margin: 1rem;
-  --mo-grid-gutter: 1rem;
-  --mo-grid-layout-columns: 4;
   /* Inside a "Cards" card, on the 4dp half-step and the 8dp grid (Material 3 prints only the 16px left and right padding and 8px
      between cards): the headline to the subhead 4px, the headline or subhead to the text 8px, the media (and a card's icon) to the
      headline 16px, the text to the link or the buttons 16px. */
@@ -511,65 +426,16 @@
   --time-picker-dial-surface: var(--mo-surface-container-highest);
 }
 
-/* The blocks in a section on the accent (blocks.css) read as an inverted theme: the site's colours below are swapped for
-   it, and the list above (the M3 aliases and the parts' variables, which are resolved where they are declared) is
-   declared again on them (the selector of its rule), so every part takes the swapped colours. The section's own
-   colours are in --section-… (blocks.css). */
-:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
-/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
-.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
-  --mo-on-surface: var(--section-on-accent);
-  --mo-on-surface-variant: var(--section-on-accent);
-  --mo-outline-variant: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
-  --mo-outline: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
-  --mo-surface: var(--section-accent);
-  --mo-primary: var(--section-on-accent);
-  --mo-on-primary: var(--section-accent);
-  --mo-surface-dim: color-mix(in srgb, var(--section-on-accent) 18%, transparent);
-  --mo-surface-bright: var(--section-accent);
-  --mo-surface-container-lowest: color-mix(in srgb, var(--section-on-accent) 6%, transparent);
-  --mo-surface-container-low: color-mix(in srgb, var(--section-on-accent) 8%, transparent);
-  --mo-surface-container: color-mix(in srgb, var(--section-on-accent) 10%, transparent);
-  --mo-surface-container-high: color-mix(in srgb, var(--section-on-accent) 12%, transparent);
-  --mo-surface-container-highest: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
-  --mo-secondary: var(--section-on-accent);
-  --mo-on-secondary: var(--section-accent);
-  --mo-secondary-container: var(--section-container, color-mix(in srgb, var(--section-on-accent) 22%, transparent));
-  --mo-on-secondary-container: var(--section-on-container, var(--section-on-accent));
-  --mo-tertiary: var(--section-on-accent);
-  --mo-on-tertiary: var(--section-accent);
-  --mo-tertiary-container: var(--section-container, color-mix(in srgb, var(--section-on-accent) 22%, transparent));
-  --mo-on-tertiary-container: var(--section-on-container, var(--section-on-accent));
-  --mo-primary-container: var(--section-container, color-mix(in srgb, var(--section-on-accent) 22%, transparent));
-  --mo-on-primary-container: var(--section-on-container, var(--section-on-accent));
-  /* The elevation levels' colours (ui.css, resolved at :root) are the surface containers: declared again here, so an elevated
-     card, button, chip or sheet in the section takes the section's own containers, not the page's (white on near-white). */
-  --mo-elevation-0-color: var(--mo-surface);
-  --mo-elevation-1-color: var(--mo-surface-container-low);
-  --mo-elevation-2-color: var(--mo-surface-container);
-  --mo-elevation-3-color: var(--mo-surface-container-high);
-  --mo-elevation-4-color: var(--mo-surface-container-highest);
-  --mo-elevation-5-color: var(--mo-surface-container-highest);
-  --block-shadow: none;
-  --panel-shadow: none;
-}
-
 /* The same elevation in dark mode (the standard theme's shadow there is another). */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --panel-shadow: var(--mo-elevation-1-rest-shadow);
     --badge-minor: #f9ab00;
     --badge-major: #e8710a;
   }
 }
 :root[data-theme='dark'] {
-  --panel-shadow: var(--mo-elevation-1-rest-shadow);
   --badge-minor: #f9ab00;
   --badge-major: #e8710a;
-}
-
-@theme inline {
-  --font-sans: 'Roboto Variable', Roboto, ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
@@ -1388,18 +1254,5 @@
     body:has(.theme-action-bar, [data-fab]) .md-footer {
       padding-bottom: 5rem;
     }
-  }
-}
-
-@media (width >= theme(--breakpoint-medium)) {
-  :root {
-    --mo-grid-margin: 1.5rem;
-    --mo-grid-gutter: 1.5rem;
-    --mo-grid-layout-columns: 8;
-  }
-}
-@media (width >= theme(--breakpoint-large)) {
-  :root {
-    --mo-grid-layout-columns: 12;
   }
 }
