@@ -27,7 +27,7 @@ import { toolWidth } from '../src/textBar.mjs';
 import { allow, nestedUnits } from './spacing-grid.allow.mjs';
 import { installedApps } from '../lib/apps.mjs';
 import { appCheckPage } from '../lib/appCheckPage.mjs';
-import { CORE_PAGE_ID, coreTestSite } from './core-blocks-page.mjs';
+import { CORE_PAGE_FILE, CORE_PAGE_ID, coreBlocksPage, coreTestSite } from './core-blocks-page.mjs';
 import { buildTestSite } from './test-site.mjs';
 
 // The editor is opened in Danish (locale da-DK below), so the texts it shows are read from its Danish messages. They are
@@ -3650,8 +3650,11 @@ async function checkBlockRow(width, options = {}) {
     problems.push(`${label}: the row sits outside the dotted outline (${JSON.stringify({ row: frame.row, card: frame.card })})`);
   if (frame.radius[0] !== frame.radius[1] || frame.radius[0] === '0px')
     problems.push(`${label}: the outline's corner radius is ${frame.radius[0]}, not the Card's ${frame.radius[1]}`);
-  if (frame.padding[0] !== frame.padding[1] || frame.padding[2] !== frame.padding[3])
-    problems.push(`${label}: the outline's padding is ${frame.padding.slice(0, 2)}/${frame.padding.slice(2)}, not the Card's`);
+  // Above and below the padding is the Card's; at the sides it is the frame's outset less its line (6.5 px), so the block's content stands on the text column's edge.
+  if (frame.padding[0] !== frame.padding[1] || frame.padding[2] !== '6.5px')
+    problems.push(
+      `${label}: the outline's padding is ${frame.padding[0]} (the Card's ${frame.padding[1]}) above and ${frame.padding[2]} at the sides (6.5px: the frame's outset less its line)`,
+    );
   // The row hugs the top of the outline: its space above is the Card's small gap, well under the Card's padding.
   if (frame.row && frame.row.top - frame.card.top - frame.border > 12)
     problems.push(`${label}: the row is ${frame.row.top - frame.card.top - frame.border} px below the outline's top edge, too far`);
@@ -7254,7 +7257,49 @@ async function checkListsAndBlocks(width) {
   await page.close();
 }
 
-/** The Preview (the binoculars) draws a section's background from the page's text as saved, also when the built site does not have the section yet (it is rebuilt after a save), and with the colour the editor shows. */
+/** Every Preview action of a page (the text bar's button, its row in the `⋮`, the Save bar's button) draws one icon, the monitor with a phone (Material Symbols' `devices`, Phosphor's `devices`, Lucide's `monitor-smartphone`; owner, 16 Nov 2026: "Use the monitor-cellphone icon for preview everywhere"). The Material pack's file is the reference. */
+async function checkPreviewIcon(width) {
+  const label = `${width}px Preview icon`;
+  const touch = width < 600;
+  const reference = readFileSync(new URL('../icons/material-symbols/devices.svg', import.meta.url), 'utf8').match(/<path d="([^"]+)"/)?.[1];
+  if (!reference) return problems.push(`${label}: icons/material-symbols/devices.svg has no path`);
+  const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.waitForSelector('.editor-tools button[aria-label="Undo"]', { timeout: 30_000 });
+  const drawn = (scope) =>
+    page.evaluate(
+      ([scope]) =>
+        [...document.querySelectorAll(scope)]
+          .filter((e) => e.getBoundingClientRect().width > 0)
+          .map((e) => e.querySelector('svg')?.innerHTML ?? ''),
+      [scope],
+    );
+  const found = await drawn('.editor-tools button[aria-label="Preview"]');
+  const saveBar = await page.evaluate(() =>
+    [...document.querySelectorAll('.editor-save-bar button')]
+      .filter((b) => b.textContent?.trim() === 'Preview' && b.getBoundingClientRect().width > 0)
+      .map((b) => b.querySelector('svg')?.innerHTML ?? ''),
+  );
+  found.push(...saveBar);
+  await page.locator('.editor-tools button[aria-label="More"]').first().click();
+  found.push(
+    ...(await page.evaluate(() =>
+      [...document.querySelectorAll('[role=menu][aria-label="More"] [role^=menuitem]')]
+        .filter((e) => e.textContent?.trim() === 'Preview')
+        .map((e) => e.querySelector('svg')?.innerHTML ?? ''),
+    )),
+  );
+  if (!found.length) problems.push(`${label}: no Preview action is shown`);
+  for (const svg of found) if (!svg.includes(reference)) problems.push(`${label}: a Preview action draws another icon than devices`);
+  await page.close();
+}
+
+/** The Preview (the devices icon) draws a section's background from the page's text as saved, also when the built site does not have the section yet (it is rebuilt after a save), and with the colour the editor shows. */
 async function checkPreviewSection() {
   const path = BUILT_PAGE;
   // (A text of its own: a site's page need not have a heading to put the section on.)
@@ -9875,6 +9920,56 @@ async function checkCardsCarousel(width, height) {
 }
 
 /** The spacing of a "Cards" block on the site (the demo's Blocks page), at 375 and 1280 px: one rule for stacked cards, a grid and the carousel. Material 3 prints 16dp left and right padding and "8dp max" between cards (m3.material.io/components/cards/specs, Measurements), and is silent inside a card, so the room there is on the 4dp half-step and the 8dp grid: the media or icon to the headline 16, the headline to the subhead 4, to the text 8, the text to the link 16. Fails on the old 2, 6 and 20 px. */
+/** The posts of every Blog posts block on the system's test page (a list and the newest large over the list; picked, by category, all) read as one text
+ * group (Material 3 Lists: the overline stands directly over the headline, and is label small): in each row the date and reading time are one line, label
+ * small, and the headline starts where the overline ends; the gap is the same in every row and variant, with and without a thumbnail and with a headline of
+ * two lines. Its cause was the meta in body medium inside the overline: it wrapped on a phone and left a line of space over the title. */
+async function checkPostMeta(width, height, scheme) {
+  const label = `${width}px ${scheme} blog posts meta`;
+  // A site with no blog posts (the starter's) has no rows to measure; the demo has.
+  if (!has('src/content/blog')) return void console.log(`${label}: skipped, the site has no blog posts, which the demo has.`);
+  const phone = width < 600;
+  const page = await browser.newPage({
+    viewport: { width, height },
+    hasTouch: phone,
+    isMobile: phone,
+    locale: 'en-US',
+    colorScheme: scheme,
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onTestPage(page, label))) return page.close();
+  const rows = await page.evaluate(() => {
+    const r = (e) => e.getBoundingClientRect();
+    return [...document.querySelectorAll('.block-posts-in-text .list-item-container')].map((row) => {
+      const o = row.querySelector('.list-item-overline');
+      const h = row.querySelector('.list-item-headline');
+      const lines = Math.round(r(h).height / parseFloat(getComputedStyle(h).lineHeight));
+      return {
+        title: h.textContent,
+        gap: Math.round((r(h).top - r(o).bottom) * 10) / 10,
+        metaHeight: Math.round(r(o).height * 10) / 10,
+        metaFont: getComputedStyle(o.firstElementChild).fontSize,
+        overlineFont: getComputedStyle(o).fontSize,
+        lineHeight: parseFloat(getComputedStyle(o).lineHeight),
+        thumb: !!row.querySelector('.list-item-leading-image, .list-item-leading-video, .list-item-leading'),
+        lines,
+      };
+    });
+  });
+  if (!rows.length) problems.push(`${label}: no post rows on the test page`);
+  for (const row of rows) {
+    const at = `${label}, "${row.title}"`;
+    if (row.metaFont !== row.overlineFont)
+      problems.push(`${at}: the meta is ${row.metaFont}, not the overline's ${row.overlineFont} (label small)`);
+    if (row.metaHeight > row.lineHeight + 0.5)
+      problems.push(`${at}: the date and reading time wrap to more than one line (${row.metaHeight} px)`);
+    if (Math.abs(row.gap) > 0.5) problems.push(`${at}: ${row.gap} px between the meta line and the title, not 0`);
+  }
+  if (new Set(rows.map((x) => x.gap)).size > 1)
+    problems.push(`${label}: the gap between the meta and the title is not the same in every row`);
+  await page.close();
+}
+
 async function checkCardsSpacing(width, height) {
   const label = `${width}px cards spacing`;
   const phone = width < 600;
@@ -10506,6 +10601,161 @@ async function checkSpacingGrid(width, height) {
     problems.push(
       `${label}: ${what} is not a multiple of 4 px (a space on the 4 dp grid; or an entry of scripts/spacing-grid.allow.mjs with its reason)`,
     );
+  await page.close();
+}
+
+/** In the page: the inner padding of the first row of each block that shows rows with a title and a trailing chevron (the List, Accordion, Questions and answers and Link
+ * collection), by the heading above it: the title's distance from the row's left edge and the chevron's from its right edge. Runs in the page. */
+const rowPadding = () => {
+  const out = {};
+  const root = document.querySelector('.ProseMirror') ?? document.querySelector('main .prose');
+  let head = '';
+  for (const c of root.children) {
+    if (/^H[1-6]$/.test(c.tagName)) {
+      head = c.textContent.trim().toLowerCase();
+      continue;
+    }
+    const row = c.querySelector('.list-item-expand-summary, .list-item-container:has(> .list-item-trailing svg)');
+    if (!row || out[head] || row.querySelector(':scope > .list-item-leading:not(:empty), :scope > .list-item-leading-icon')) continue;
+    const box = row.getBoundingClientRect();
+    const icons = [...row.querySelectorAll('svg')].filter((v) => v.getBoundingClientRect().width);
+    const title = row.querySelector('.list-item-content').getBoundingClientRect();
+    if (icons.length)
+      out[head] = {
+        expand: row.matches('.list-item-expand-summary'),
+        left: title.left - box.left,
+        right: box.right - Math.max(...icons.map((v) => v.getBoundingClientRect().right)),
+      };
+  }
+  return out;
+};
+
+/** One left edge for a page's content (375, 768 and 1280 px), in the editor and on the site. The site is the reference: its text column starts at the theme's page margin
+ * (--grid-margin: 16 dp, 24 dp from medium) and every block's own content starts on that same edge. The editor adds only its frame, which hangs outside the column by
+ * a fixed outset (--editor-frame-outset, 8 dp) and so is never clipped by the text field's edge: the text starts one page margin in from the text field, the blocks'
+ * content on the text's edge (a border drawn at 1 px instead of 1.5 px at a pixel ratio of 1 allows half a pixel), every frame the outset to the left of it, and
+ * the select mark and the handle stay inside the text field. Real geometry (getBoundingClientRect), no sleeps: it waits for the blocks to be drawn. */
+async function checkPageLeftEdge(width) {
+  const label = `${width}px one left edge`;
+  const height = width < 600 ? 800 : 900;
+  const page = await browser.newPage({ viewport: { width, height } });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  const near = (a, b, by = 1) => Math.abs(a - b) <= by;
+  // The site: the Blocks page of the system's test page.
+  let sitePads = {};
+  if (await onTestPage(page, label)) {
+    const built = await page.evaluate(() => {
+      const prose = document.querySelector('main .prose');
+      const text = prose.querySelector('p').getBoundingClientRect().left;
+      const margin = parseFloat(getComputedStyle(document.documentElement).fontSize) * (innerWidth < 600 ? 1 : 1.5);
+      const out = [];
+      for (const c of prose.children) {
+        if (/^(H[1-6]|P)$/.test(c.tagName)) {
+          if (Math.abs(c.getBoundingClientRect().left - text) > 1)
+            out.push(`${c.tagName} ${c.textContent.slice(0, 20)} at ${c.getBoundingClientRect().left}`);
+          continue;
+        }
+        if (!c.getBoundingClientRect().width) continue;
+        const left = c.getBoundingClientRect().left;
+        // A text button's own padding is pulled out so its text starts on the margin (theme/styles/global.css): the text is on the edge.
+        const words = document.createTreeWalker(c, NodeFilter.SHOW_TEXT);
+        let first = null;
+        for (let n = words.nextNode(); n && !first; n = words.nextNode()) {
+          const range = document.createRange();
+          range.selectNodeContents(n);
+          first = n.textContent.trim() ? ([...range.getClientRects()].find((q) => q.width) ?? null) : null;
+        }
+        if (Math.abs(left - text) > 1 && !(first && Math.abs(first.left - text) <= 1.5))
+          out.push(`block ${c.className.toString().slice(0, 30)} at ${left}`);
+      }
+      return { text, margin, out };
+    });
+    // From expanded the site's text is a centred column, not at the margin.
+    sitePads = await page.evaluate(rowPadding);
+    if (width < 1000 && !near(built.text, built.margin))
+      problems.push(`${label}: the site's text starts at ${built.text}, not at the page margin ${built.margin}`);
+    for (const o of built.out) problems.push(`${label}: on the site ${o} is not on the text's left edge ${built.text}`);
+  }
+  // The editor.
+  // The system's test page (every block, the Accordion and the Link collection too) is in memory before the editor loads the site's files, not in the site's folder.
+  virtualFile(CORE_PAGE_FILE, coreBlocksPage());
+  await openEditor(page, site);
+  await page.evaluate((file) => (location.hash = `#${file}`), CORE_PAGE_FILE);
+  await page.waitForSelector('.site-block-card');
+  await page.waitForFunction(
+    () => {
+      const cards = document.querySelectorAll('.site-block-card');
+      return cards.length > 8 && document.querySelectorAll('.site-block-preview').length === cards.length;
+    },
+    null,
+    { timeout: 30_000 },
+  );
+  await page.evaluate(() => document.fonts.ready);
+  // A row's inner padding is equal on its left and right, and the same in the editor as on the site (the title is not pushed in by an empty icon slot).
+  const editorPads = await page.evaluate(rowPadding);
+  for (const [head, pad] of Object.entries(editorPads)) {
+    if (!near(pad.left, pad.right, 1.5))
+      problems.push(
+        `${label}: in the editor the rows of "${head}" have ${pad.left} px of padding on the left and ${pad.right} px on the right`,
+      );
+    const onSite = sitePads[head];
+    // (A Questions and answers block that reads a list is a plain list in the editor's preview: only rows of the same kind are compared.)
+    if (onSite && onSite.expand === pad.expand && !near(pad.left, onSite.left, 1.5))
+      problems.push(
+        `${label}: in the editor the rows of "${head}" have ${pad.left} px of padding on the left, on the site ${onSite.left} px`,
+      );
+  }
+  for (const [head, pad] of Object.entries(sitePads))
+    if (!near(pad.left, pad.right, 1.5))
+      problems.push(
+        `${label}: on the site the rows of "${head}" have ${pad.left} px of padding on the left and ${pad.right} px on the right`,
+      );
+  if (!['accordion', 'links'].every((h) => h in editorPads))
+    problems.push(`${label}: the Accordion and the Link collection have no row to measure (${Object.keys(editorPads)})`);
+  const lefts = ['accordion', 'faq list'].map((h) => editorPads[h]?.left);
+  if (!near(lefts[0], lefts[1], 1))
+    problems.push(`${label}: the Accordion's titles are ${lefts[0]} px in, Questions and answers' ${lefts[1]} px`);
+  for (const cursor of [false, true]) {
+    if (cursor) await page.locator('.ProseMirror p').first().click();
+    const got = await page.evaluate(() => {
+      const field = document.querySelector('.editor-text').getBoundingClientRect();
+      const pm = document.querySelector('.ProseMirror');
+      const text = pm.querySelector('p').getBoundingClientRect().left;
+      const margin = parseFloat(getComputedStyle(document.documentElement).fontSize) * (innerWidth < 600 ? 1 : 1.5);
+      const outset = parseFloat(getComputedStyle(document.querySelector('.editor-text')).getPropertyValue('--editor-frame-outset')) || 0;
+      const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+      const blocks = [...pm.querySelectorAll(':scope > .site-block')].map((b) => {
+        const card = b.querySelector(':scope > .site-block-card').getBoundingClientRect();
+        const body = (b.querySelector('.site-block-preview') ?? b).getBoundingClientRect();
+        const mark = b
+          .querySelector(':scope > .site-block-mark-dot, :scope > .site-block-mark .site-block-mark-dot')
+          ?.getBoundingClientRect();
+        const handle = b.querySelector(':scope > .site-block-handle')?.getBoundingClientRect();
+        return { card: card.left, cardRight: card.right, body: body.left, mark: mark?.left ?? null, handleRight: handle?.right ?? null };
+      });
+      const heads = [...pm.querySelectorAll(':scope > :is(h1, h2, h3, p)')].map((h) => h.getBoundingClientRect().left);
+      return { field: field.left, fieldRight: field.right, text, margin, outset: outset * rem, blocks, heads };
+    });
+    const at = `${label}${cursor ? ' with the cursor in the text' : ''}`;
+    // The text starts a page margin in from the text field's line (1 px).
+    if (!near(got.text - got.field, got.margin + 1))
+      problems.push(
+        `${at}: the text starts ${got.text - got.field} px in from the text field, not the page margin ${got.margin} + its 1 px line`,
+      );
+    if (got.heads.some((l) => !near(l, got.text, 0.5)))
+      problems.push(`${at}: headings and paragraphs do not share one left edge (${[...new Set(got.heads)]})`);
+    if (!got.blocks.length) problems.push(`${at}: no block drawn in the text`);
+    for (const b of got.blocks) {
+      if (!near(got.text - b.card, 8, 0.5))
+        problems.push(`${at}: a block's frame hangs ${got.text - b.card} px outside the text column, not the fixed outset of 8 px`);
+      if (!near(b.body, got.text, 1)) problems.push(`${at}: a block's content starts at ${b.body}, not on the text's edge ${got.text}`);
+      if (b.card < got.field + 1) problems.push(`${at}: a block's frame (${b.card}) is clipped by the text field's edge (${got.field})`);
+      if (b.mark !== null && b.mark < got.field)
+        problems.push(`${at}: a block's select mark (${b.mark}) is outside the text field (${got.field})`);
+      if (b.handleRight !== null && b.handleRight > b.cardRight)
+        problems.push(`${at}: a block's handle ends at ${b.handleRight}, outside its frame (${b.cardRight})`);
+    }
+  }
   await page.close();
 }
 
@@ -11922,6 +12172,7 @@ for (const width of [375, 1280])
 for (const width of [375, 1280]) await unit(`search button ${width}`, () => checkSearchButton(width));
 for (const width of [375, 1280]) await unit(`command palette ${width}`, () => checkCommandPalette(width));
 for (const width of [375, 1280]) await unit(`editor actions ${width}`, () => checkEditorActions(width));
+for (const width of [375, 1280]) await unit(`Preview icon ${width}`, () => checkPreviewIcon(width));
 for (const width of [375, 1280]) await unit(`palette shortcuts and recent ${width}`, () => checkPaletteLast(width));
 for (const width of [375, 1280]) await unit(`no context menu ${width}`, () => checkNoContextMenu(width));
 
@@ -12005,6 +12256,7 @@ for (const [width, height] of [
 ]) {
   await unit(`checkCardsCarousel ${width}`, () => checkCardsCarousel(width, height));
   await unit(`checkCardsSpacing ${width}`, () => checkCardsSpacing(width, height));
+  for (const scheme of ['light', 'dark']) await unit(`checkPostMeta ${width} ${scheme}`, () => checkPostMeta(width, height, scheme));
   for (const scheme of ['light', 'dark'])
     await unit(`checkCardIconText ${width} ${scheme}`, () => checkCardIconText(width, height, scheme));
   for (const scheme of ['light', 'dark']) await unit(`checkIconColor ${width} ${scheme}`, () => checkIconColor(width, height, scheme));
@@ -12067,8 +12319,11 @@ await unit('checkTableAlign 1280', () => checkTableAlign(1280, 800));
 
 await unit('checkTableRadius 375', () => checkTableRadius(375, 740));
 await unit('checkTableRadius 1280', () => checkTableRadius(1280, 800));
+await unit('checkPostMeta 768 light', () => checkPostMeta(768, 900, 'light'));
+await unit('checkPostMeta 768 dark', () => checkPostMeta(768, 900, 'dark'));
 await unit('checkSpacingGrid 375', () => checkSpacingGrid(375, 740));
 await unit('checkSpacingGrid 1280', () => checkSpacingGrid(1280, 800));
+for (const w of [375, 768, 1280]) await unit(`checkPageLeftEdge ${w}`, () => checkPageLeftEdge(w));
 for (const [width, height] of [
   [360, 740],
   [375, 740],
