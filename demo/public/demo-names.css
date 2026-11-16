@@ -41,7 +41,7 @@
 .demo-names-toggle {
   position: fixed;
   left: 1rem;
-  bottom: 1rem;
+  bottom: 5.5rem;
   z-index: 2147483001;
 }
 .demo-names-toggle[aria-pressed='true'] {
