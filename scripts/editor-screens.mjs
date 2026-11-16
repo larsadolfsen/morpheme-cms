@@ -9021,6 +9021,12 @@ async function checkOwnList(width, height) {
     await page.getByText('Hosting', { exact: true }).first().waitFor({ timeout: 10000 });
     await page.getByRole('button', { name: 'List menu' }).first().click();
     await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
+    // The pane or sheet takes a moment to open: wait for its fifth field before counting.
+    await sheet
+      .getByRole('button', { name: 'Remove field' })
+      .nth(4)
+      .waitFor({ timeout: 5000 })
+      .catch(() => {});
     if ((await sheet.getByRole('button', { name: 'Remove field' }).count()) !== 5)
       problems.push(`${label}: the removed field did not come back after Discard`);
     if (commits.length) problems.push(`${label}: Discard committed (${commits.length} commits)`);
