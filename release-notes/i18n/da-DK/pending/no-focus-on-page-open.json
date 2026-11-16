@@ -1,0 +1,6 @@
+{
+  "id": "no-focus-on-page-open",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "En bloks side og Beskær åbner uden fokusramme om tilbage-pilen"
+}
