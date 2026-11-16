@@ -540,17 +540,17 @@ async function checkCardsSpacing(width, height) {
   await page.close();
 }
 
-/** The Cards block typed in the page editor (the demo's Blocks page) has the site's card, at 375, 768 and 1280 px: a card without a subhead draws no empty subhead row (so no room is kept for it) and has the same padding (16 on every side), icon to headline (16), headline to text (8) and gap between cards (8) as checkCardsSpacing asserts on the site; a tap in the card shows its subhead row with its hint, 4 px under the headline and 8 over the text, so the owner can add one. Reads the geometry once the card is active, never after a fixed wait. */
+/** The Cards block typed in the page editor (the demo's Cards page) has the site's card, at 375, 768 and 1280 px (on the demo's Cards page): a card without a subhead draws no empty subhead row (so no room is kept for it) and has the same padding (16 on every side), icon to headline (16), headline to text (8) and gap between cards (8) as checkCardsSpacing asserts on the site; a tap in the card shows its subhead row with its hint, 4 px under the headline and 8 over the text, so the owner can add one. Reads the geometry once the card is active, never after a fixed wait. */
 async function checkCardsEditorSpacing(width, height) {
   const label = `${width}px cards spacing in the editor`;
   const phone = width < 600;
-  // The cards are the demo's Blocks page; a site without it (the starter) has none to measure.
-  if (!existsSync(join(ROOT, 'src/content/pages/blocks.md')))
-    return void console.log(`${label}: skipped, the site has no Blocks page, which the demo has.`);
+  // The cards are the demo's Cards page (/blocks/cards/); a site without it (the starter) has none to measure.
+  if (!existsSync(join(ROOT, 'src/content/pages/blocks-cards.md')))
+    return void console.log(`${label}: skipped, the site has no Cards page, which the demo has.`);
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
-  await page.evaluate(() => (location.hash = '#src/content/pages/blocks.md'));
+  await page.evaluate(() => (location.hash = '#src/content/pages/blocks-cards.md'));
   await page.waitForSelector('ul.block-cards .block-card-title', { timeout: 30_000 });
   const measure = (index) =>
     page.evaluate((i) => {
@@ -645,13 +645,13 @@ async function checkCardsElevation(width, height) {
   onSite.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   if (await onTestPage(onSite, label)) judge('site', await onSite.evaluate(read));
   await onSite.close();
-  // The editor's cards are on the demo's Blocks page; a site without it (the starter) has only the site's to measure.
-  if (!existsSync(join(ROOT, 'src/content/pages/blocks.md')))
-    return void console.log(`${label} (editor): skipped, the site has no Blocks page, which the demo has.`);
+  // The editor's cards are on the demo's Cards page; a site without it (the starter) has only the site's to measure.
+  if (!existsSync(join(ROOT, 'src/content/pages/blocks-cards.md')))
+    return void console.log(`${label} (editor): skipped, the site has no Cards page, which the demo has.`);
   const inEditor = await open({ width, height });
   inEditor.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(inEditor, site);
-  await inEditor.evaluate(() => (location.hash = '#src/content/pages/blocks.md'));
+  await inEditor.evaluate(() => (location.hash = '#src/content/pages/blocks-cards.md'));
   await inEditor.waitForSelector('ul.block-cards .block-card-title', { timeout: 30_000 });
   judge('editor', await inEditor.evaluate(read));
   await inEditor.close();
