@@ -5744,6 +5744,11 @@
     padding-block: calc(var(--side-sheet-padding, 1.5rem) - var(--side-sheet-icon-inset)) 0;
     padding-inline: var(--side-sheet-padding, 1.5rem) calc(var(--side-sheet-padding, 1.5rem) - var(--side-sheet-icon-inset));
   }
+  /* With a back icon button (M3's modal side sheet: "Start padding with icon" 16): 16 from the start edge to the back glyph, then 12 to the
+     headline (the button's own space round the glyph is that 12, so no gap). */
+  .side-sheet-header[data-has-back] {
+    padding-inline-start: calc(1rem - var(--side-sheet-icon-inset));
+  }
   .side-sheet-headline {
     flex: 1;
     min-width: 0;
