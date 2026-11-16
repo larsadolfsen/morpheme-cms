@@ -10,13 +10,13 @@ import { readdirSync } from 'node:fs';
 const withTokens = (name, origin) =>
   [
     read(name),
-    ...readdirSync(new URL(`./tokens/${origin}/`, import.meta.url))
+    ...readdirSync(new URL(`./tokens/${origin}/`, import.meta.url), { recursive: true })
       .filter((f) => f.endsWith('.css'))
       .sort()
       .map((f) => read(`./tokens/${origin}/${f}`)),
   ].join('\n');
-// The card rules are in cards.css (moved out of ui.css), so the text is both files.
-const uiCss = withTokens('./ui.css', 'ui') + read('./cards.css');
+// The card rules are in cards.css (moved out of ui.css), so the text is both files, each with its token files.
+const uiCss = withTokens('./ui.css', 'ui') + withTokens('./cards.css', 'cards');
 
 const count = (text, part) => text.split(part).length - 1;
 

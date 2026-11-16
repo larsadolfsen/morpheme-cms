@@ -71,6 +71,26 @@
 */
 /* The classes in the CMS's own code (this package, also from node_modules/, where Tailwind does not look by itself);
    the names in the icon packs' maps (MATERIAL_SYMBOLS, LUCIDE, site/icons.mjs) and the tests' examples are not classes. */
+@import './tokens/ui/comp/badge.css';
+@import './tokens/ui/comp/button.css';
+@import './tokens/ui/comp/carousel.css';
+@import './tokens/ui/comp/checkbox.css';
+@import './tokens/ui/comp/divider.css';
+@import './tokens/ui/comp/icon-button.css';
+@import './tokens/ui/comp/lightbox.css';
+@import './tokens/ui/comp/list.css';
+@import './tokens/ui/comp/loading-indicator.css';
+@import './tokens/ui/comp/menu.css';
+@import './tokens/ui/comp/navigation.css';
+@import './tokens/ui/comp/progress-indicator.css';
+@import './tokens/ui/comp/radio.css';
+@import './tokens/ui/comp/side-sheet.css';
+@import './tokens/ui/comp/slider.css';
+@import './tokens/ui/comp/split-button.css';
+@import './tokens/ui/comp/switch.css';
+@import './tokens/ui/comp/text-field.css';
+@import './tokens/ui/comp/time-picker.css';
+@import './tokens/ui/comp/toolbar.css';
 @import './tokens/ui/ref.css';
 @import './tokens/ui/sys.css';
 @source '../..';
@@ -97,15 +117,6 @@
   }
   /* Buttons (m3.material.io/components/buttons): a label, an icon before it and optionally one after it (the arrow). */
   .button {
-    --button-box: var(--button-height, 3rem);
-    --button-inline: var(--button-padding, 1.6rem);
-    --button-glyph: var(--button-icon-size, 1.25rem);
-    /* Round is at most half the button's height (Material's full corner), never a huge number, so a corner that
-       changes shape (pressed, toggled) moves between real sizes on the spring, not through 0. */
-    --button-round: min(var(--button-radius, var(--block-control-radius)), var(--button-box) / 2);
-    --button-square: var(--button-square-radius, var(--block-radius-small));
-    --button-pressed: var(--button-pressed-radius);
-    --button-corners: var(--button-round);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -150,7 +161,6 @@
      shrinks to a circle (--button-busy-from is its width, set by Button.tsx); the indicator, in the label's colour,
      stands in the middle. */
   :is(.button-busy, .icon-button-busy) {
-    --button-busy-after: var(--button-busy-delay, 200ms);
     position: relative;
   }
   /* Busy is disabled but not dimmed: full colours, the indicator too. */
@@ -159,21 +169,14 @@
     cursor: progress;
   }
   .button-busy {
-    --button-busy-size: var(--button-busy-indicator-size, max(1.5rem, var(--button-glyph)));
     overflow: hidden;
     animation: button-busy-shrink var(--motion-spatial) var(--button-busy-after) both;
-  }
-  .icon-button-busy {
-    --button-busy-size: var(--icon-button-busy-indicator-size, var(--icon-button-glyph));
   }
   :is(.button-busy, .icon-button-busy) > .button-busy-content {
     display: contents;
     animation: button-busy-hide 0s var(--button-busy-after) forwards;
   }
   :is(.button-busy, .icon-button-busy) > .button-busy-indicator {
-    --loading-indicator-size: var(--button-busy-size);
-    --loading-indicator-shape-size: calc(var(--button-busy-size) * 2.375 / 3);
-    --loading-indicator-colour: currentColor;
     position: absolute;
     inset: 0;
     margin: auto;
@@ -187,11 +190,6 @@
   }
   /* The sizes: Material's five, the medium one the default. */
   .button-xsmall {
-    --button-box: var(--button-xsmall-height, 2rem);
-    --button-inline: var(--button-xsmall-padding, 0.9rem);
-    --button-glyph: calc(var(--button-icon-size, 1.25rem) * 0.9);
-    --button-square: var(--button-xsmall-square-radius, calc(var(--block-radius-small) * 0.75));
-    --button-pressed: var(--button-xsmall-pressed-radius, var(--button-pressed-radius));
     gap: var(--button-xsmall-gap, 0.4rem);
     font-size: var(--button-xsmall-font-size, var(--type-label-large-size));
   }
@@ -200,37 +198,15 @@
     height: var(--button-glyph);
   }
   .button-small {
-    --button-box: var(--button-small-height, 2.6rem);
-    --button-inline: var(--button-small-padding, 1.2rem);
-    --button-square: var(--button-small-square-radius, calc(var(--block-radius-small) * 0.75));
-    --button-pressed: var(--button-small-pressed-radius, var(--button-pressed-radius));
     font-size: var(--button-small-font-size, var(--type-label-large-size));
   }
   .button-large {
-    --button-box: var(--button-large-height, 4rem);
-    --button-inline: var(--button-large-padding, 2.25rem);
-    --button-glyph: var(--button-large-icon-size, 1.5rem);
-    --button-square: var(--button-large-square-radius, calc(var(--block-radius-small) * 1.75));
-    --button-pressed: var(--button-large-pressed-radius, var(--button-pressed-radius));
     gap: var(--button-large-gap, 0.75rem);
     font-size: var(--button-large-font-size, var(--type-headline-small-size));
   }
   .button-xlarge {
-    --button-box: var(--button-xlarge-height, 5.5rem);
-    --button-inline: var(--button-xlarge-padding, 3rem);
-    --button-glyph: var(--button-xlarge-icon-size, 2rem);
-    --button-square: var(--button-xlarge-square-radius, calc(var(--block-radius-small) * 1.75));
-    --button-pressed: var(--button-xlarge-pressed-radius, var(--button-pressed-radius));
     gap: var(--button-xlarge-gap, 1rem);
     font-size: var(--button-xlarge-font-size, var(--type-headline-large-size));
-  }
-  /* The shapes: round (the default) or square; a toggle that is on takes the other one. */
-  .button-square,
-  .button[aria-pressed='true'] {
-    --button-corners: var(--button-square);
-  }
-  .button-square[aria-pressed='true'] {
-    --button-corners: var(--button-round);
   }
 
   /* Filled: the main action, in the accent. */
@@ -376,15 +352,6 @@
 
   /* Icon buttons (m3.material.io/components/icon-buttons): only an icon (its name is read), round or square. */
   .icon-button {
-    --icon-button-box: var(--icon-button-size, 2.75rem);
-    --icon-button-ratio: 1;
-    --icon-button-width: calc(var(--icon-button-box) * var(--icon-button-ratio));
-    --icon-button-glyph: var(--icon-button-icon-size, 1.375rem);
-    --icon-button-square: var(--icon-button-square-radius, var(--button-small-square-radius, calc(var(--block-radius-small) * 0.75)));
-    --icon-button-pressed: var(--button-small-pressed-radius, var(--button-pressed-radius));
-    /* Round: half its height (see .button's --button-round). */
-    --icon-button-round: calc(var(--icon-button-box) / 2);
-    --icon-button-corners: var(--icon-button-round);
     display: inline-grid;
     flex-shrink: 0;
     /* Centred also where a page shows it as flex (medium:flex beside hidden). */
@@ -413,51 +380,6 @@
   .icon-button:disabled {
     opacity: 0.35;
     cursor: default;
-  }
-  /* The sizes: Material's five, the small one the default; and the widths, narrower or wider than high. */
-  .icon-button-xsmall {
-    --icon-button-box: var(--icon-button-xsmall-size, 2.25rem);
-    --icon-button-glyph: var(--icon-button-xsmall-icon-size, 1.25rem);
-    --icon-button-square: var(
-      --icon-button-xsmall-square-radius,
-      var(--button-xsmall-square-radius, calc(var(--block-radius-small) * 0.75))
-    );
-    --icon-button-pressed: var(--button-xsmall-pressed-radius, var(--button-pressed-radius));
-  }
-  .icon-button-medium {
-    --icon-button-box: var(--icon-button-medium-size, 3.75rem);
-    --icon-button-glyph: var(--icon-button-medium-icon-size, 1.5rem);
-    --icon-button-square: var(--icon-button-medium-square-radius, var(--button-square-radius, var(--block-radius-small)));
-    --icon-button-pressed: var(--button-pressed-radius);
-  }
-  .icon-button-large {
-    --icon-button-box: var(--icon-button-large-size, 6rem);
-    --icon-button-glyph: var(--icon-button-large-icon-size, 2rem);
-    --icon-button-square: var(--icon-button-large-square-radius, var(--button-large-square-radius, calc(var(--block-radius-small) * 1.75)));
-    --icon-button-pressed: var(--button-large-pressed-radius, var(--button-pressed-radius));
-  }
-  .icon-button-xlarge {
-    --icon-button-box: var(--icon-button-xlarge-size, 8.5rem);
-    --icon-button-glyph: var(--icon-button-xlarge-icon-size, 2.5rem);
-    --icon-button-square: var(
-      --icon-button-xlarge-square-radius,
-      var(--button-xlarge-square-radius, calc(var(--block-radius-small) * 1.75))
-    );
-    --icon-button-pressed: var(--button-xlarge-pressed-radius, var(--button-pressed-radius));
-  }
-  .icon-button-narrow {
-    --icon-button-ratio: var(--icon-button-narrow-ratio, 0.8);
-  }
-  .icon-button-wide {
-    --icon-button-ratio: var(--icon-button-wide-ratio, 1.3);
-  }
-  /* The shapes: round (the default) or square; a toggle that is on takes the other one. */
-  .icon-button-square,
-  .icon-button[aria-pressed='true'] {
-    --icon-button-corners: var(--icon-button-square);
-  }
-  .icon-button-square[aria-pressed='true'] {
-    --icon-button-corners: var(--icon-button-round);
   }
   /* Standard: only the icon, a light shade when pointed at. */
   .icon-button-standard {
@@ -618,8 +540,6 @@
   /* Text fields (m3.material.io/components/text-fields): the container draws the field (its surface and edge), with
      what is in it in a row: the icon, the prefix, the <input>, the suffix and the icons and buttons at the end. */
   .text-field {
-    /* The field's height with the person's and the theme's density (--mo-density-layout, in base.css): 4 px a step, never the text. */
-    --text-field-box: calc(var(--text-field-height, 3rem) + var(--mo-density-layout) * var(--mo-density-step));
     position: relative;
     display: grid;
     min-width: 0;
@@ -669,11 +589,6 @@
   }
   /* A small box (TextFieldButton's size="small"): as wide as what is chosen, for a row's choice (SettingRow). */
   .text-field-small {
-    --text-field-height: var(--text-field-small-height, 2.5rem);
-    --text-field-padding: var(--text-field-small-padding, 0.75rem);
-    --text-field-font-size: var(--text-field-small-font-size, var(--type-body-medium-size));
-    --text-field-icon-padding: var(--text-field-small-icon-padding, 0.5rem);
-    --text-field-icon-gap: var(--text-field-small-icon-gap, 0.5rem);
     width: max-content;
     max-width: 100%;
   }
@@ -728,7 +643,6 @@
   /* The name in the field, above what is written once there is something (or while it is written in); a placeholder
      shows only then. */
   .text-field-label {
-    --text-field-label-start: var(--text-field-padding, 1.25rem);
     position: absolute;
     top: calc(var(--text-field-box, var(--text-field-height, 3rem)) / 2);
     left: var(--text-field-label-start);
@@ -746,12 +660,6 @@
       left var(--motion-spatial-fast),
       font-size var(--motion-spatial-fast),
       color var(--motion-effects);
-  }
-  /* After the icon before it. */
-  .text-field-with-leading-icon .text-field-label {
-    --text-field-label-start: calc(
-      var(--text-field-icon-padding, 0.875rem) + var(--text-field-icon-size, 1.25rem) + var(--text-field-icon-gap, 0.75rem)
-    );
   }
   .text-field:has(.text-field-label) .text-field-input:not(:focus)::placeholder {
     color: transparent;
@@ -782,7 +690,6 @@
   /* Outlined: the name on the edge, on the field's surface, at its start (also past the icon before it). */
   .text-field-outlined .text-field-input:focus + .text-field-label,
   .text-field-outlined .text-field-input:not(:placeholder-shown) + .text-field-label {
-    --text-field-label-start: var(--text-field-padding, 1.25rem);
     top: 0;
     margin-left: -0.25rem;
     padding: 0 0.25rem;
@@ -824,9 +731,6 @@
   }
   /* The buttons bare (standard icon buttons without their surface), as the icons beside them. */
   .text-field-trailing-action {
-    --icon-button-standard-surface: transparent;
-    --icon-button-standard-line: transparent;
-    --icon-button-standard-text: var(--text-field-icon-color, var(--block-muted));
     display: flex;
     flex-shrink: 0;
     margin-inline-end: 0.125rem;
@@ -1238,89 +1142,6 @@
   }
 }
 
-/* ---- Containment: Dialog, BottomSheet, Carousel ---- */
-/*
-  Dialogs (Dialog.tsx, dialogClass, dialogClassOf, dialogModalClass, and dialog() in
-  dialogControl.ts for what a modal one does in a browser; m3.material.io/components/dialogs): .dialog is the container (a
-  pop-up's box, the cookie question), and .dialog-modal the <dialog> it is shown in over the page, in the middle with
-  the scrim behind it (a pop-up, Popup.astro). With its parts it is Material's basic dialog, .dialog-basic: optionally its
-  icon (.dialog-icon, centred over the headline with .dialog-with-icon), .dialog-headline, .dialog-supporting-text,
-  .dialog-content (what else it shows, scrolling), optionally .dialog-divider and .dialog-actions at its end. There is no
-  full-screen dialog: a full screen is a page with a back arrow.
-    --dialog-radius, --dialog-surface, --dialog-shadow, --dialog-line   the container's corners, surface, shadow
-                     (level 3), edge
-    --dialog-scrim   the shade over the page behind a modal dialog (else --theme-scrim-colour, the text's colour, in
-                     dark mode the page's, seen through)
-    --dialog-max-width   how wide a modal dialog is at most
-    --dialog-padding   the room inside a basic dialog
-    --dialog-icon-color, --dialog-headline-size, --dialog-headline-weight, --dialog-supporting-text-color   its parts
-  A lightbox (Lightbox.tsx, .lightbox in .lightbox-modal, lightboxControl.ts: an image shown bigger; M3 has none): a modal <dialog> with the dialog's container, a header with the close button (.lightbox-header), .lightbox-content,
-  .lightbox-track (images that snap), .lightbox-item, .lightbox-figure, .lightbox-image, .lightbox-caption, .lightbox-previous, .lightbox-next and
-  .lightbox-count; on a compact window over the whole screen, from medium the window less 56 dp on each side.
-    --lightbox-surface   its container, see-through over the scrim (else the scrim colour at 88%)
-    --theme-on-scrim-colour   the colour of its controls and text on the shade (components.css; the scrim colour's opposite)
-  Bottom sheets (BottomSheet.tsx, bottomSheetClass, bottomSheetContainerClass, and bottomSheet() and
-  standardBottomSheet() in bottomSheetControl.ts for what it does in a browser, bottomSheet.script.ts on the site;
-  m3.material.io/components/bottom-sheets): a modal one's <dialog> is .bottom-sheet (an app's: Calendly's calendar), at
-  most 44rem wide and nearly as high as the screen, from the bottom on a phone and in the middle of the screen from
-  the medium width (a dialog there, rounded all round, without the drag handle; with .bottom-sheet-fit as high as what
-  is in it: the editor's sheets; with .bottom-sheet-full as high as the screen, and wider on a computer: the editor's
-  preview of a page); in it .bottom-sheet-container with .bottom-sheet-drag-handle, .bottom-sheet-header
-  (.bottom-sheet-headline, .bottom-sheet-supporting-text and .bottom-sheet-actions: the resize, collapse and close
-  buttons), .bottom-sheet-peek (what a standard one shows even while collapsed), .bottom-sheet-content (what it shows,
-  filling the rest: a frame, and over it what stands in its place, .bottom-sheet-cover) and .bottom-sheet-footer. On a
-  phone bottomSheet() gives a modal one's container data-sized (it opens at the height its data-start says, 'half' or
-  'full', and is pulled by modalSheetSize.ts), data-full at full height (the content scrolls, and a frame takes
-  touches, only then) and data-moving while it is pulled. A standard one is the container itself,
-  .bottom-sheet-standard, at the bottom of the screen (in the editor of its frame, with contain: layout and a size
-  container) without a scrim, its drag handle a button, in the state it rests in (data-state: collapsed, only the
-  handle and the header; half-expanded, at most half as high as the screen; expanded, as high as what it shows, but
-  not to the top; hidden), data-moving while it is dragged or moves, data-full while it is expanded and as high as it
-  can be (the collapse button shows only then).
-    --bottom-sheet-surface, --bottom-sheet-radius, --bottom-sheet-line   its surface (also the cover's), corners, and
-                     the lines under the header and over the footer
-    --bottom-sheet-shadow, --bottom-sheet-shadow-large   its shadow on a phone (and a standard one's; level 1), and as
-                     a dialog from the medium width (level 3)
-    --bottom-sheet-scrim   the shade over the page behind a modal one
-    --bottom-sheet-handle, --bottom-sheet-handle-focus   the drag handle's colour, and while it has the focus
-    --bottom-sheet-start-max-height   how high a sheet starts on a phone at most (50dvh, Material 3's half-expanded); the
-                     rest is dragged up to
-    --bottom-sheet-max-width, --bottom-sheet-top-gap   how wide a standard one is at most, and how far from the top it
-                     stays when it is expanded
-    --bottom-sheet-margin-wide   a standard one with wide="sheet" (from the medium width) stays this far from the
-                     sides and from the top (3.5rem); wide="side-sheet" (the default) draws it as a standard side
-                     sheet at the end of the screen (--side-sheet-* tokens, full height, no handle or buttons, every
-                     part shown); a modal one's wide="dialog" (the default; the dialog in the middle, also a container without
-                     the attribute), "side-sheet" (a modal side sheet at the end: --side-sheet-modal-surface, -radius, -shadow,
-                     -scrim and -width, full height, no handle, slid in from the end) and "sheet" (stays a bottom sheet, as
-                     wide as --bottom-sheet-max-width at most, the margin from the sides and the top, slid up)
-  Carousels (Carousel.tsx, carouselClass, carousel.script.ts and carouselLayout.ts;
-  m3.material.io/components/carousel): .carousel with its items in a row to swipe (.carousel-items, each a
-  .carousel-item; native scroll-snap), and under them the theme's addition to M3's carousel, a page indicator
-  (.carousel-indicator with a .carousel-indicator-dot for each item, the one in view aria-current). Uncontained (no
-  class of its own): each item as wide as the others, one with the next peeking in on a phone, two from the medium width, three
-  from the expanded width, reaching out to a phone's edges. The contained layouts, .carousel-contained with their own:
-  .carousel-multi-browse (large items, a medium and a small one) and .carousel-hero (large ones and a small one;
-  .carousel-center: between two small ones), whose items' masks (.carousel-item-mask, what is in an item, filling it)
-  carouselLayout.ts moves and clips as they scroll (--carousel-item-width on the row, --carousel-mask-inset on a mask,
-  --carousel-mask on an item: 0 to 1 of it masked), and .carousel-full-screen (one item at a time, as wide as the
-  carousel, out to a phone's edges).
-    --carousel-bleed   how far the row of an uncontained or full-screen one reaches out to the edges of a phone's screen
-                     (the site's gutter)
-    --carousel-gap, --carousel-contained-gap   the room between the items, uncontained and contained
-    --carousel-height, --carousel-full-screen-height   how high a contained carousel is, and a full-screen one
-    --carousel-large-item-width   how wide multi-browse's large items are, as near as they fit (in px or rem)
-    --carousel-small-item-min-width, --carousel-small-item-max-width   a small item's narrowest and widest (px or rem)
-    --carousel-item-radius, --carousel-item-surface   a contained item's corners, and what is behind its image
-    --carousel-full-screen-radius   a full-screen one's items' corners on a phone
-    --carousel-dot-size, --carousel-dot-colour, --carousel-dot-selected-width, --carousel-dot-selected-colour
-*/
-:where(:root) {
-  --carousel-large-item-width: 12.5rem;
-  --carousel-small-item-min-width: 2.5rem;
-  --carousel-small-item-max-width: 3.5rem;
-}
-
 @layer components {
   /* A dialog's container. */
   .dialog {
@@ -1436,7 +1257,6 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    --lightbox-ink: var(--theme-on-scrim-colour, var(--mo-surface));
     background: var(--lightbox-surface, color-mix(in srgb, var(--theme-scrim-colour, var(--block-text)) 88%, transparent));
     color: var(--lightbox-ink);
     box-shadow: none;
@@ -1941,9 +1761,6 @@
     /* Both side sheet looks: the header as .side-sheet-header's (its close icon at the standard size, 24 to the glyph from
        the top and end edges, 12 from the headline), the headline in title large, and the actions row of M3's measures. */
     .bottom-sheet-container[data-wide='side-sheet'] > .bottom-sheet-header {
-      --icon-button-size: 3rem;
-      --icon-button-icon-size: 1.5rem;
-      --side-sheet-icon-inset: calc((var(--icon-button-size) - var(--icon-button-icon-size)) / 2);
       gap: 0;
       padding-block: calc(var(--side-sheet-padding, 1.5rem) - var(--side-sheet-icon-inset)) 0;
       padding-inline: var(--side-sheet-padding, 1.5rem) calc(var(--side-sheet-padding, 1.5rem) - var(--side-sheet-icon-inset));
@@ -2062,22 +1879,6 @@
   }
   /* --list-item-shape: the item's corners now, by its state (below). */
   .list-item-container {
-    --list-item-shape: var(--list-item-radius, 0);
-    /* The height of its first two lines (the headline and the supporting text's first line), where what stands
-       beside the text stands (below). */
-    --list-item-first-lines: calc(var(--list-item-headline-line-height, 1lh) + var(--list-item-supporting-line-height, 1lh));
-    /* The heights with the density of lists (--mo-density, which goes to -3: a list is read in bulk), 4 px a step, and never
-       below the target (--mo-target): the row is the target, so a row that is denser than the target stays at it. */
-    --list-item-density: calc(var(--mo-density) * var(--mo-density-step));
-    --list-item-box: max(var(--mo-target), calc(var(--list-item-min-height) + var(--list-item-density)));
-    --list-item-two-line-box: max(
-      var(--mo-target),
-      calc(var(--list-item-two-line-min-height, var(--list-item-min-height)) + var(--list-item-density))
-    );
-    --list-item-three-line-box: max(
-      var(--mo-target),
-      calc(var(--list-item-three-line-min-height, var(--list-item-min-height)) + var(--list-item-density))
-    );
     display: flex;
     min-height: var(--list-item-box, auto);
     align-items: center;
@@ -2213,15 +2014,6 @@
   .list-item-with-control:not(.list-item-disabled):active {
     background: var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent));
   }
-  /* The corners by the state: pointed at, pressed or focused (by the keyboard), and selected (below). */
-  :is(a, button:enabled).list-item-container:hover,
-  .list-item-with-control:not(.list-item-disabled):hover {
-    --list-item-shape: var(--list-item-hover-radius, var(--list-item-radius, 0));
-  }
-  :is(a, button:enabled).list-item-container:is(:active, :focus-visible),
-  .list-item-with-control:not(.list-item-disabled):is(:active, :has(:focus-visible)) {
-    --list-item-shape: var(--list-item-pressed-radius, var(--list-item-hover-radius, var(--list-item-radius, 0)));
-  }
 
   /* Three lines: an overline over the headline and one line under it, or two lines under it; what leads and trails
      the item at its top. */
@@ -2310,11 +2102,6 @@
     border-radius: inherit;
   }
   .list-item-control {
-    --checkbox-gap: 0;
-    --checkbox-offset: 0;
-    --radio-button-gap: 0;
-    --radio-button-offset: 0;
-    --switch-gap: 0;
     position: relative;
     z-index: 1;
     display: flex;
@@ -2333,7 +2120,6 @@
      action's state layer and corners, so pointing at the item shows the whole item; the secondary actions have their
      own. */
   .list-item-multi-action {
-    --list-item-shape: var(--list-item-radius, 0);
     display: flex;
     align-items: center;
     border-radius: var(--list-item-shape);
@@ -2350,11 +2136,7 @@
     background: transparent;
   }
   .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:hover) {
-    --list-item-shape: var(--list-item-hover-radius, var(--list-item-radius, 0));
     background: var(--list-item-hover-surface, transparent);
-  }
-  .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:is(:active, :focus-visible)) {
-    --list-item-shape: var(--list-item-pressed-radius, var(--list-item-hover-radius, var(--list-item-radius, 0)));
   }
   .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:focus-visible) {
     background: var(--list-item-focus-surface, var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent)));
@@ -2376,7 +2158,6 @@
      nothing moves (a text-only item keeps the slot, hidden); on every item once some item is selected (.list-item-selecting). The
      item's trailing count, arrow and text give way to the box in its slot. */
   .list-item-select-box {
-    --checkbox-gap: 0;
     display: none;
     flex-shrink: 0;
     align-items: center;
@@ -2481,14 +2262,6 @@
     display: block;
   }
   .list-item-expand-summary {
-    --list-item-shape: 0;
-    --list-item-padding-block: var(--list-expand-padding-block, 0.875rem);
-    --list-item-padding-inline: var(--list-expand-padding-inline, 1rem);
-    --list-item-gap: var(--list-expand-gap-inline, 1rem);
-    --list-item-headline-size: var(--list-expand-headline-size, var(--type-title-medium-size));
-    --list-item-headline-weight: var(--list-expand-headline-weight, var(--type-title-medium-weight));
-    --list-item-headline-line-height: var(--list-expand-headline-line-height, var(--type-title-medium-line-height));
-    --list-item-headline-letter-spacing: var(--list-expand-headline-letter-spacing, var(--type-title-medium-tracking));
     cursor: pointer;
     list-style: none;
     /* The focus ring sits inside the item, so the list's rounded edge never cuts it off. */
@@ -2571,7 +2344,6 @@
 
   /* Selected, and disabled. */
   .list-item-selected {
-    --list-item-shape: var(--list-item-selected-radius, var(--list-item-radius, 0));
     background: var(--list-item-selected-surface, transparent);
     color: var(--list-item-selected-text, var(--block-accent));
   }
@@ -2584,17 +2356,14 @@
   }
   /* A selected item pointed at or pressed: the state layer over its surface. */
   :is(a, button:enabled).list-item-container.list-item-selected:hover {
-    --list-item-shape: var(--list-item-selected-radius, var(--list-item-radius, 0));
     background: linear-gradient(var(--list-item-hover-surface, transparent) 0 0), var(--list-item-selected-surface, transparent);
   }
   :is(a, button:enabled).list-item-container.list-item-selected:focus-visible {
-    --list-item-shape: var(--list-item-selected-radius, var(--list-item-radius, 0));
     background:
       linear-gradient(var(--list-item-focus-surface, var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent))) 0 0),
       var(--list-item-selected-surface, transparent);
   }
   :is(a, button:enabled).list-item-container.list-item-selected:active {
-    --list-item-shape: var(--list-item-selected-radius, var(--list-item-radius, 0));
     background:
       linear-gradient(var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent)) 0 0),
       var(--list-item-selected-surface, transparent);
@@ -2611,24 +2380,6 @@
   button.list-item-container:disabled,
   .list-item-disabled .list-item-content {
     cursor: default;
-  }
-
-  /* Dividers: none, or in from where the items' text starts (inset: after what leads the item below the line), or in
-     from both sides (middle-inset, the theme's divider's inset). */
-  .list > li {
-    --list-item-leading-room: 0px;
-  }
-  .list > li:has(> * > :is(.list-item-leading, .list-item-control:first-child)) {
-    --list-item-leading-room: calc(var(--list-item-leading-size, var(--list-item-icon-size, 1.5rem)) + var(--list-item-gap, 1.5rem));
-  }
-  .list > li:has(> * > .list-item-leading-avatar) {
-    --list-item-leading-size: var(--list-item-avatar-size, 2.5rem);
-  }
-  .list > li:has(> * > .list-item-leading-image) {
-    --list-item-leading-size: var(--list-item-image-size, 3.5rem);
-  }
-  .list > li:has(> * > .list-item-leading-video) {
-    --list-item-leading-size: var(--list-item-video-width, 7.125rem);
   }
   :is(.list-dividers-none, .list-dividers-inset, .list-dividers-middle-inset, .list-segmented) > li + li {
     border-top: 0;
@@ -2655,42 +2406,16 @@
     gap: var(--list-segmented-gap, 0.1875rem);
   }
   .list-segmented > li {
-    --list-item-shape: var(--list-segmented-inner-radius, 0.25rem);
     border-radius: var(--list-item-shape);
     background: var(--list-segmented-surface, var(--block-tint));
     transition:
       background-color var(--motion-effects),
       border-radius var(--motion-spatial-fast);
   }
-  .list-segmented
-    > li:has(
-      > :is(a, button:enabled).list-item-container:hover,
-      > .list-item-with-control:not(.list-item-disabled):hover,
-      > .list-item-multi-action > :is(a, button:enabled).list-item-container:hover
-    ) {
-    --list-item-shape: var(--list-segmented-hover-radius, var(--list-segmented-inner-radius, 0.25rem));
-  }
-  .list-segmented
-    > li:has(
-      > :is(a, button:enabled).list-item-container:is(:active, :focus-visible),
-      > .list-item-with-control:not(.list-item-disabled):active,
-      > .list-item-with-control:not(.list-item-disabled) :focus-visible,
-      > .list-item-multi-action > :is(a, button:enabled).list-item-container:is(:active, :focus-visible)
-    ) {
-    --list-item-shape: var(
-      --list-segmented-pressed-radius,
-      var(--list-segmented-hover-radius, var(--list-segmented-inner-radius, 0.25rem))
-    );
-  }
   /* (A :has() cannot be in another one: the checked choice in it as a descendant.) */
   .list-segmented > li:has(> .list-item-selected, > .list-item-with-control :checked) {
-    --list-item-shape: var(--list-segmented-selected-radius, var(--list-segmented-radius, var(--block-radius-small)));
     background: var(--list-segmented-selected-surface, var(--mo-secondary-container));
     color: var(--list-segmented-selected-text, var(--mo-on-secondary-container));
-  }
-  /* Selected stays at its corners (Material: 16dp) also while pointed at, pressed or focused. */
-  .list-segmented > li:has(> .list-item-selected):has(> :is(a, button:enabled).list-item-container:is(:hover, :active, :focus-visible)) {
-    --list-item-shape: var(--list-segmented-selected-radius, var(--list-segmented-radius, var(--block-radius-small)));
   }
   /* The first and the last item with the list's corners outside, whatever their state. */
   .list-segmented > li:first-child {
@@ -3179,23 +2904,7 @@
     padding-top: var(--menu-divider-margin, 0.375rem);
   }
   .menu-divider {
-    --divider-color: var(--menu-divider, var(--block-line));
     margin: var(--menu-divider-margin, 0.375rem) 0;
-  }
-
-  /* Vibrant: the menu in the accent, what is on it turned around. */
-  .menu-vibrant {
-    --menu-surface: var(--menu-vibrant-surface, var(--block-accent));
-    --menu-line: transparent;
-    --menu-item-text: var(--menu-vibrant-text, var(--block-on-accent));
-    --menu-item-icon-color: color-mix(in srgb, var(--menu-vibrant-text, var(--block-on-accent)) 80%, transparent);
-    --menu-item-supporting-text: color-mix(in srgb, var(--menu-vibrant-text, var(--block-on-accent)) 80%, transparent);
-    --menu-item-hover-surface: color-mix(in srgb, var(--menu-vibrant-text, var(--block-on-accent)) 14%, transparent);
-    --menu-item-hover-text: var(--menu-vibrant-text, var(--block-on-accent));
-    --menu-item-selected-surface: var(--menu-vibrant-selected-surface, var(--block-on-accent));
-    --menu-item-selected-text: var(--menu-vibrant-selected-text, var(--block-accent));
-    --menu-group-label-text: color-mix(in srgb, var(--menu-vibrant-text, var(--block-on-accent)) 80%, transparent);
-    --menu-divider: color-mix(in srgb, var(--menu-vibrant-text, var(--block-on-accent)) 30%, transparent);
   }
   .menu-vibrant
     .menu-item:is([aria-current='page'], [aria-current='true'], [aria-checked='true'], [aria-pressed='true'])
@@ -3383,14 +3092,6 @@
       background: transparent;
       cursor: default;
     }
-  }
-
-  /* The drawer's defaults, each once: the others read them as the fallback of their --navigation-drawer-* variable. */
-  :root {
-    --navigation-drawer-width-default: min(22.5rem, calc(100vw - 3.5rem));
-    --navigation-drawer-width-min-default: min(13.75rem, calc(100vw - 3.5rem));
-    --navigation-drawer-bleed-default: 2rem;
-    --navigation-drawer-inset-default: 0.75rem;
   }
   /* Navigation drawer, modal (m3.material.io/components/navigation-drawer): the pages in a panel over the page. */
   .navigation-drawer-scrim {
@@ -4134,18 +3835,7 @@
     }
   }
   .button-group-connected > * {
-    --button-group-inner: var(--button-group-inner-radius, calc(var(--block-radius-small) / 2));
     flex: 1 1 auto;
-  }
-  /* The corners between them follow the buttons' size (Material's 4, 8, 8, 16 and 20dp). */
-  .button-group-connected > :is(.button-xsmall, .icon-button-xsmall) {
-    --button-group-inner: var(--button-group-xsmall-inner-radius, calc(var(--block-radius-small) / 4));
-  }
-  .button-group-connected > :is(.button-large, .icon-button-large) {
-    --button-group-inner: var(--button-group-large-inner-radius, var(--block-radius-small));
-  }
-  .button-group-connected > :is(.button-xlarge, .icon-button-xlarge) {
-    --button-group-inner: var(--button-group-xlarge-inner-radius, calc(var(--block-radius-small) * 1.25));
   }
   .button-group-connected > :not(:first-child) {
     border-start-start-radius: var(--button-group-inner);
@@ -4302,22 +3992,10 @@
   }
   .choice-group-list {
     gap: var(--choice-group-gap, 0.25rem);
-    /* The rows run as wide as the field's above them: the radio's circle starts where the name and the fields start, and a
-       sample ends where they end (the circle's 40dp state layer overhangs the edge, as Material's radio specs allow). */
-    --list-item-padding-inline: 0px;
   }
   /* The circle on the row's middle line, as the label is (the box's margins are equal above and below it). */
   .choice-group-list .radio-button-box {
     margin-block: -0.625rem;
-  }
-  /* A row is at least 48 dp at every density (Material, radio buttons: "Don't apply density to radio buttons by default"). */
-  .choice-group-list .list-item-container {
-    --list-item-box: max(3rem, calc(var(--list-item-min-height, 3rem) + var(--mo-density) * var(--mo-density-step)));
-  }
-  /* A sample's button is the theme's smallest size at M3's extra small height (32dp; the theme's own extra small is taller),
-     so it stays a real button of its look and fits its row. */
-  .choice-group-sample .button {
-    --button-xsmall-height: var(--choice-group-sample-button-height, 2rem);
   }
   .choice-group-sample {
     display: flex;
@@ -4358,16 +4036,6 @@
     display: inline-flex;
     flex-shrink: 0;
     gap: var(--split-button-gap, 0.125rem);
-  }
-  /* The corners between the two halves follow the size (Material's 4dp up to medium, 8 and 12dp). */
-  .split-button > .button {
-    --split-button-inner: var(--split-button-inner-radius, calc(var(--block-radius-small) / 4));
-  }
-  .split-button > .button-large {
-    --split-button-inner: var(--split-button-large-inner-radius, calc(var(--block-radius-small) / 2));
-  }
-  .split-button > .button-xlarge {
-    --split-button-inner: var(--split-button-xlarge-inner-radius, calc(var(--block-radius-small) * 0.75));
   }
   .split-button > .split-button-leading {
     border-start-end-radius: var(--split-button-inner);
@@ -4812,48 +4480,14 @@
      from the track's ends, and between them by its value. The size's track, handle and room as the slider's own
      variables (--slider-track-thickness …), from the theme's for each size. */
   .slider {
-    --slider-track-thickness: var(--slider-track-height, 0.375rem);
-    --slider-handle-length: var(--slider-handle-height, 1.25rem);
-    --slider-room: var(--slider-height, 2.75rem);
-    --slider-track-corner: var(--slider-track-radius, var(--mo-shape-full));
-    --slider-icon-length: 1rem;
     display: grid;
     gap: 0.25rem;
     min-width: 0;
-  }
-  /* The sizes (M3 Expressive): a thicker track, and a handle and room that grow with it. */
-  .slider-small {
-    --slider-track-thickness: var(--slider-small-track-height, 0.75rem);
-    --slider-track-corner: var(--slider-small-track-radius, var(--slider-track-radius, var(--mo-shape-full)));
-  }
-  .slider-medium {
-    --slider-track-thickness: var(--slider-medium-track-height, 1.5rem);
-    --slider-track-corner: var(--slider-medium-track-radius, var(--slider-track-radius, var(--mo-shape-full)));
-    --slider-icon-length: var(--slider-medium-icon-size, 1rem);
-  }
-  .slider-large {
-    --slider-track-thickness: var(--slider-large-track-height, 2.25rem);
-    --slider-track-corner: var(--slider-large-track-radius, var(--slider-track-radius, var(--mo-shape-full)));
-    --slider-icon-length: var(--slider-large-icon-size, 1.25rem);
-  }
-  .slider-xlarge {
-    --slider-track-thickness: var(--slider-xlarge-track-height, 3.5rem);
-    --slider-track-corner: var(--slider-xlarge-track-radius, var(--slider-track-radius, var(--mo-shape-full)));
-    --slider-icon-length: var(--slider-xlarge-icon-size, 1.75rem);
-  }
-  .slider-small,
-  .slider-medium,
-  .slider-large,
-  .slider-xlarge {
-    --slider-handle-length: max(var(--slider-handle-height, 1.25rem), var(--slider-track-thickness) + 0.75rem);
-    --slider-room: max(var(--slider-height, 2.75rem), var(--slider-handle-length) + 0.5rem);
   }
   .slider-label {
     font-weight: var(--slider-label-weight, 500);
   }
   .slider-control {
-    /* How far from the track's ends a handle's centre goes at most. */
-    --slider-reach: calc(var(--slider-handle-width, 1.25rem) / 2 + var(--slider-handle-inset, 0px));
     position: relative;
     height: var(--slider-room);
   }
@@ -4895,15 +4529,6 @@
     right: 0;
     border-radius: var(--slider-track-inner-radius, 0) var(--slider-track-corner) var(--slider-track-corner)
       var(--slider-track-inner-radius, 0);
-  }
-  /* Centered: the active track from the middle to the handle, the room round the handle only on its side. */
-  .slider-centered {
-    --slider-gap-start: 0px;
-    --slider-gap-end: var(--slider-track-gap, 0px);
-  }
-  .slider-centered[data-below-center] {
-    --slider-gap-start: var(--slider-track-gap, 0px);
-    --slider-gap-end: 0px;
   }
   .slider-centered .slider-active-track {
     left: calc(var(--slider-reach) + var(--slider-start) * (100% - 2 * var(--slider-reach)) + var(--slider-gap-start));
@@ -5094,7 +4719,6 @@
   /* Vertical: the same slider turned a quarter round, from the bottom up, in a box as tall as --slider-length and as
      wide as its room; its value labels and its icon upright again, the labels beside the handle. */
   .slider-vertical {
-    --slider-along: var(--slider-length, 12rem);
     justify-items: center;
     width: max-content;
   }
@@ -5182,7 +4806,6 @@
      so the header takes that off its top and end padding and has no gap: 24 from the top and the end edges to the glyph,
      12 between the headline and the glyph. */
   .side-sheet-header {
-    --side-sheet-icon-inset: calc((var(--icon-button-size, 3rem) - var(--icon-button-icon-size, 1.5rem)) / 2);
     display: flex;
     flex-shrink: 0;
     align-items: center;
@@ -5349,9 +4972,6 @@
     display: inline-flex;
     vertical-align: middle;
   }
-  .badge-anchor:has(> .icon-button) {
-    --badge-anchor-inset: calc((var(--icon-button-size, 2.75rem) - var(--icon-button-icon-size, 1.375rem)) / 2);
-  }
   .badge-anchor > .badge-small {
     position: absolute;
     top: calc(var(--badge-anchor-inset, 0px) - var(--badge-small-size, 0.375rem) / 2);
@@ -5469,8 +5089,6 @@
   }
   /* The track after the arc and its gaps (only once there is an arc), and nothing of it once the arc reaches round. */
   .circular-progress-indicator-track {
-    --circular-progress-indicator-shown-gap: calc(var(--circular-progress-indicator-gap, 0) * min(1, var(--progress, 0) * 1000));
-    --circular-progress-indicator-rest: calc(100 - var(--progress, 0) * 100 - 2 * var(--circular-progress-indicator-shown-gap));
     stroke: var(--circular-progress-indicator-track, var(--block-tint));
     stroke-dasharray: 0 calc(var(--progress, 0) * 100 + var(--circular-progress-indicator-shown-gap))
       max(0, var(--circular-progress-indicator-rest)) 100;
@@ -5483,15 +5101,6 @@
   .circular-progress-indicator-indeterminate .circular-progress-indicator-active {
     animation: circular-progress-indicator-arc 1.4s var(--block-ease) infinite;
     transition: none;
-  }
-
-  /* Thick (M3 Expressive): a thicker track, and a ring a little bigger. */
-  .linear-progress-indicator-thick {
-    --linear-progress-indicator-height: var(--linear-progress-indicator-thick-height, 0.625rem);
-  }
-  .circular-progress-indicator-thick {
-    --circular-progress-indicator-thickness: var(--circular-progress-indicator-thick-thickness, 8);
-    --circular-progress-indicator-size: var(--circular-progress-indicator-thick-size, 2.75rem);
   }
 
   /* Wavy (M3 Expressive): the active indicator a wave (the part's SVG path, its height and length the part's
@@ -5560,12 +5169,6 @@
     stroke-width: var(--circular-progress-indicator-thickness, 4);
     stroke-linecap: round;
   }
-  .circular-progress-indicator-wavy {
-    --circular-progress-indicator-size: var(--circular-progress-indicator-wavy-size, 3rem);
-  }
-  .circular-progress-indicator-wavy.circular-progress-indicator-thick {
-    --circular-progress-indicator-size: var(--circular-progress-indicator-wavy-thick-size, 3.25rem);
-  }
   .circular-progress-indicator-wavy:not(.circular-progress-indicator-indeterminate) .circular-progress-indicator-active {
     stroke-dasharray: calc(var(--progress, 0) * 100) calc(100 - var(--progress, 0) * 100);
     transform-box: view-box;
@@ -5605,12 +5208,6 @@
   /* A snackbar (m3.material.io/components/snackbar): the standard look a dark surface seen through, the same in light
      and dark mode (as a shadow's colour, the one written here), in the middle of the screen. */
   .snackbar {
-    --button-text-text: var(--snackbar-action-text, var(--snackbar-text, var(--mo-inverse-on-surface)));
-    --button-text-hover: var(--snackbar-action-hover, color-mix(in srgb, currentColor 12%, transparent));
-    --icon-button-size: var(--snackbar-close-size, 2.5rem);
-    --icon-button-standard-surface: transparent;
-    --icon-button-standard-line: transparent;
-    --icon-button-standard-text: var(--snackbar-close-text, var(--snackbar-text, var(--mo-inverse-on-surface)));
     pointer-events: auto;
     max-width: var(--snackbar-max-width, 28rem);
     cursor: default;
@@ -6782,32 +6379,6 @@
   }
   /* Vibrant: in the accent, without a line; what stands on it turned around, as on a banner in the accent. */
   .toolbar-vibrant {
-    --toolbar-docked-line: transparent;
-    --toolbar-floating-line: transparent;
-    --icon-button-standard-surface: transparent;
-    --icon-button-standard-line: transparent;
-    --icon-button-standard-text: var(--toolbar-vibrant-text, var(--block-on-accent));
-    --icon-button-filled-surface: var(--toolbar-vibrant-text, var(--block-on-accent));
-    --icon-button-filled-hover: color-mix(
-      in srgb,
-      var(--toolbar-vibrant-surface, var(--block-accent)) 12%,
-      var(--toolbar-vibrant-text, var(--block-on-accent))
-    );
-    --icon-button-filled-text: var(--toolbar-vibrant-surface, var(--block-accent));
-    --button-filled-surface: var(--toolbar-vibrant-text, var(--block-on-accent));
-    --button-filled-hover: color-mix(
-      in srgb,
-      var(--toolbar-vibrant-surface, var(--block-accent)) 12%,
-      var(--toolbar-vibrant-text, var(--block-on-accent))
-    );
-    --button-filled-text: var(--toolbar-vibrant-surface, var(--block-accent));
-    --button-filled-shadow: none;
-    --button-filled-hover-shadow: none;
-    --button-outlined-surface: transparent;
-    --button-outlined-text: var(--toolbar-vibrant-text, var(--block-on-accent));
-    --button-outlined-line: color-mix(in srgb, var(--toolbar-vibrant-text, var(--block-on-accent)) 55%, transparent);
-    --button-outlined-hover-text: var(--toolbar-vibrant-text, var(--block-on-accent));
-    --button-outlined-hover-line: var(--toolbar-vibrant-text, var(--block-on-accent));
     background: var(--toolbar-vibrant-surface, var(--block-accent));
     color: var(--toolbar-vibrant-text, var(--block-on-accent));
   }
@@ -7176,7 +6747,6 @@
 
   /* The input mode: the theme's text fields, on the dialog's surface (behind an outlined field's name too). */
   .date-picker-input {
-    --text-field-label-surface: var(--dialog-surface, var(--mo-elevation-3-color));
     display: grid;
     gap: 1rem;
     padding: 1.25rem 0.75rem 0.5rem;
@@ -7268,7 +6838,6 @@
 
   /* The dial: the numbers in a ring (the hours 12–23 in one inside it), each in its place by its angle. */
   .time-picker-dial {
-    --time-picker-ring: calc(var(--time-picker-dial-size, 16rem) / 2 - var(--time-picker-dial-knob, 3rem) / 2);
     position: relative;
     width: var(--time-picker-dial-size, 16rem);
     height: var(--time-picker-dial-size, 16rem);

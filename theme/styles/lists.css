@@ -3,47 +3,13 @@
   `Design` (standard/rows/listParts.ts). The older rules of the lists are still in ui.css (the List part) and blocks.css (their blocks); they move
   here in a following change (docs/theme-css-split.md). Imported by base.css after blocks.css, in the same layer, so these win over the block's own.
 */
+@import './tokens/lists/comp/list.css';
+@import './tokens/lists/sys.css';
 @layer components {
-  /* A segmented List - Expand whose rows lead with an avatar or an image starts the media 16 dp in, as the segmented List does (owner, 16 Nov 2026: "too much padding
-     left of the media"); the 24 dp of the old segmented look stays for rows with no media. */
-  .block-accordion-segmented:has(.list-item-leading-avatar, .list-item-leading-image, .list-item-leading-video) {
-    --list-expand-padding-inline: 1rem;
-  }
-  /* A row's square and landscape image has Material 3's small corner, 8 dp (owner, 16 Nov 2026, from the M3 segmented list with images); only the avatar is round. */
-  .block-list,
-  .block-accordion {
-    --list-item-image-radius: var(--mo-shape-small);
-  }
-  /* The plain design of a list (its rows on the page, no drawn container) starts its rows' own content, the leading icon or else the text, on the text's
-     left edge (the row's 16 dp, M3 Lists › Specs "leading space", belongs to a drawn container, which only the segmented design has: .list-segmented,
-     .block-accordion-segmented). On compact screens it is also full width (owner, 16 Nov 2026: "Full width on compact screens"; M3 Lists "edge-to-edge in compact
-     windows"): the layer of a row (hovered, pressed, focused, selected) reaches the row's 16 dp past the text column on both sides, the content stays on the text
-     edges, and the layer has square corners. It is the row's own inner padding and an equal negative margin of the list; from medium the layer is on the text column. */
-  .block-list:not(.list-segmented) {
-    --list-item-padding-inline: 0;
-  }
-  .block-accordion:not(.block-accordion-segmented) {
-    --list-expand-padding-inline: 0;
-  }
   @media (width < theme(--breakpoint-medium)) {
     .block-list:not(.list-segmented),
     .block-accordion:not(.block-accordion-segmented) {
-      --block-list-layer-room: 1rem;
       margin-inline: calc(-1 * var(--block-list-layer-room));
-    }
-    .block-list:not(.list-segmented) {
-      --list-item-padding-inline: var(--block-list-layer-room);
-      /* Edge to edge, a row's layer has no rounded corners, at rest, pointed at, pressed or selected (owner, 16 Nov 2026: "No border radius when full width"). */
-      --list-item-radius: 0;
-      --list-item-hover-radius: 0;
-      --list-item-pressed-radius: 0;
-      --list-item-selected-radius: 0;
-    }
-    .block-accordion:not(.block-accordion-segmented) {
-      --list-expand-padding-inline: var(--block-list-layer-room);
-      /* Edge to edge, an open item's colour has square corners too. */
-      --list-expand-open-radius: 0;
-      --list-expand-radius: 0;
     }
   }
 }

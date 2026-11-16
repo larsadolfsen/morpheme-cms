@@ -1,7 +1,7 @@
 // File access for the theme coverage: reads Material's CSS chain and a theme's own CSS, and builds the source of
 // the virtual module `virtual:theme-coverage`. Exposes materialCssOf, themeOwnCss, coverageModule.
 // Uses site/theme.mjs (themeFolder, STANDARD_THEME), site/themeParts.mjs and site/themeCoverage.mjs.
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { STANDARD_THEME, themeFolder } from './theme.mjs';
@@ -15,12 +15,17 @@ const MATERIAL_FILES = ['base.css', 'ui.css', 'components.css', 'global.css'];
 const IMPORT = /@import\s+(?:url\(\s*)?(['"]?)(\.{1,2}\/[^'")\s;]+)\1\s*\)?[^;]*;/g;
 
 /**
- * Material's CSS (base, ui, components, global) as one text.
+ * Material's CSS (base, ui, components, global) and its token files (tokens/, docs/theme-token-files.md: a class that only sets
+ * a part's variables is there) as one text.
  * @param {string} stylesDir
  * @returns {string}
  */
 export function materialCssOf(stylesDir) {
-  return MATERIAL_FILES.map((f) => readFileSync(join(stylesDir, f), 'utf8')).join('\n');
+  const tokens = readdirSync(join(stylesDir, 'tokens'), { recursive: true })
+    .filter((f) => String(f).endsWith('.css'))
+    .sort()
+    .map((f) => `tokens/${f}`);
+  return [...MATERIAL_FILES, ...tokens].map((f) => readFileSync(join(stylesDir, f), 'utf8')).join('\n');
 }
 
 /**

@@ -1,0 +1,41 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+@layer components {
+  .text-field {
+    /* The field's height with the person's and the theme's density (--mo-density-layout, in base.css): 4 px a step, never the text. */
+    --text-field-box: calc(var(--text-field-height, 3rem) + var(--mo-density-layout) * var(--mo-density-step));
+  }
+}
+@layer components {
+  .text-field-small {
+    --text-field-height: var(--text-field-small-height, 2.5rem);
+    --text-field-padding: var(--text-field-small-padding, 0.75rem);
+    --text-field-font-size: var(--text-field-small-font-size, var(--type-body-medium-size));
+    --text-field-icon-padding: var(--text-field-small-icon-padding, 0.5rem);
+    --text-field-icon-gap: var(--text-field-small-icon-gap, 0.5rem);
+  }
+}
+@layer components {
+  .text-field-label {
+    --text-field-label-start: var(--text-field-padding, 1.25rem);
+  }
+}
+/* After the icon before it. */
+@layer components {
+  .text-field-with-leading-icon .text-field-label {
+    --text-field-label-start: calc(
+      var(--text-field-icon-padding, 0.875rem) + var(--text-field-icon-size, 1.25rem) + var(--text-field-icon-gap, 0.75rem)
+    );
+  }
+}
+@layer components {
+  .text-field-outlined .text-field-input:focus + .text-field-label,
+  .text-field-outlined .text-field-input:not(:placeholder-shown) + .text-field-label {
+    --text-field-label-start: var(--text-field-padding, 1.25rem);
+  }
+}
+@layer components {
+  .date-picker-input {
+    --text-field-label-surface: var(--dialog-surface, var(--mo-elevation-3-color));
+  }
+}

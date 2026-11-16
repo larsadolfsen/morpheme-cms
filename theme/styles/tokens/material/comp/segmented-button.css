@@ -1,0 +1,14 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  --segmented-button-surface: transparent;
+  --segmented-button-line: var(--mo-outline);
+  --segmented-button-padding: 0.75rem;
+  --segmented-button-selected-surface: var(--mo-surface-container-high);
+  --segmented-button-selected-text: var(--mo-on-surface);
+  --segmented-button-selected-hover: color-mix(in srgb, var(--mo-on-surface) 8%, var(--mo-surface-container-high));
+  --segmented-button-radius: var(--mo-shape-full);
+}

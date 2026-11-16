@@ -3,6 +3,9 @@
   (.image-grid, one gutter apart) and the Carousel. Moved here from ui.css and blocks.css with their rules unchanged and in the
   order they had; imported by base.css between ui.css and blocks.css, in the same layer, so the Card's rules still come before the blocks' (a block's rule wins over the Card's, as it did).
 */
+@import './tokens/cards/comp/card.css';
+@import './tokens/cards/comp/grid.css';
+@import './tokens/cards/comp/list.css';
 @layer components {
   /* A carousel: its items in a row to swipe, and the page indicator under them.
      The number of items in view follows the carousel's own width, not the window's: a carousel in a narrow column or a side sheet shows one item at a
@@ -165,36 +168,6 @@
   :is(a, button:enabled).card:focus-visible::before {
     opacity: var(--card-focus-layer, 0.1);
   }
-  .card-elevated {
-    --card-shadow: var(--card-elevated-shadow, var(--mo-elevation-1-rest-shadow));
-  }
-  .card-filled {
-    --card-shadow: var(--card-filled-shadow, var(--mo-elevation-0-shadow));
-  }
-  .card-outlined {
-    --card-shadow: var(--card-outlined-shadow, var(--mo-elevation-0-shadow));
-  }
-  @media (hover: hover) {
-    :is(a, button:enabled).card-elevated:hover:not(:active, .card-dragged) {
-      --card-shadow: var(--card-elevated-hover-shadow, var(--card-elevated-shadow, var(--mo-elevation-2-shadow)));
-    }
-    a.card-filled:hover:not(:active, .card-dragged) {
-      --card-shadow: var(--card-filled-hover-shadow, var(--card-filled-shadow, var(--mo-elevation-1-shadow)));
-    }
-    a.card-outlined:hover:not(:active, .card-dragged) {
-      --card-shadow: var(--card-outlined-hover-shadow, var(--card-outlined-shadow, var(--mo-elevation-1-shadow)));
-    }
-  }
-
-  .card-elevated.card-dragged {
-    --card-shadow: var(--card-elevated-dragged-shadow, var(--mo-elevation-4-shadow));
-  }
-  .card-filled.card-dragged {
-    --card-shadow: var(--card-filled-dragged-shadow, var(--mo-elevation-3-shadow));
-  }
-  .card-outlined.card-dragged {
-    --card-shadow: var(--card-outlined-dragged-shadow, var(--mo-elevation-3-shadow));
-  }
   .card-dragged {
     cursor: grabbing;
   }
@@ -260,7 +233,6 @@
      compact, 8 on medium and expanded and 12 on large and extra-large (--mo-grid-layout-columns, in global.css, what a span counts
      in). A part with other counts sets --grid-columns on its element. */
   .image-grid {
-    --grid-columns: 2;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -279,16 +251,6 @@
   @media (width < theme(--breakpoint-medium)) {
     .image-grid > .grid-span-compact {
       column-span: all;
-    }
-  }
-  @media (width >= theme(--breakpoint-medium)) {
-    .image-grid {
-      --grid-columns: 3;
-    }
-  }
-  @media (width >= theme(--breakpoint-large)) {
-    .image-grid {
-      --grid-columns: 4;
     }
   }
 
@@ -464,22 +426,13 @@
     line-height: var(--type-body-medium-line-height, 1.25rem);
     color: var(--block-muted);
   }
-  /* A filled card on one of Material's containers ("Cards", `color`): the primary, secondary or tertiary container, its text and icon in the
-     colour that is read on it. Without a colour it is the surface container (--card-filled-surface, below). A theme that has no container
-     role has the block's own colours. */
-  :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary) .block-card {
-    --card-filled-line: transparent;
-  }
   .block-cards-primary .block-card {
-    --card-filled-surface: var(--mo-primary-container, var(--block-primary));
     color: var(--mo-on-primary-container, var(--block-on-primary));
   }
   .block-cards-secondary .block-card {
-    --card-filled-surface: var(--mo-secondary-container, var(--block-secondary));
     color: var(--mo-on-secondary-container, var(--block-on-secondary));
   }
   .block-cards-tertiary .block-card {
-    --card-filled-surface: var(--mo-tertiary-container, var(--block-tertiary));
     color: var(--mo-on-tertiary-container, var(--block-on-tertiary));
   }
   :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary)
@@ -523,8 +476,6 @@
   /* A punch card's offer in a price card, a filled card with smaller corners. */
   .block-price-extra {
     margin-top: 1.5rem;
-    --card-radius: var(--block-radius-small);
-    --card-padding: 1rem;
   }
   .block-price-extra-title {
     display: flex;
@@ -562,9 +513,6 @@
     }
     .block-price-cards {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .block-price-card {
-      --card-padding: 2rem;
     }
     .block-price-card-title {
       font-size: var(--type-headline-medium-size);
@@ -668,7 +616,6 @@
   }
   /* .block-checklist.: the Checklist's own `.block-checklist` rule (blocks.css) comes after this file, so this needs the second class to keep winning. */
   .block-checklist.block-plan-features {
-    --list-item-padding-block: 0.25rem;
     margin-top: 1.5rem;
     border-top: 1px solid var(--block-line);
     padding-top: 0.5rem;

@@ -6,7 +6,7 @@
 // (M3: "Text size shouldn't change as the container size scales"). Only base.css, global.css and editor.css set the person's or the
 // theme's step. The browser side (the sizes at each step, a target kept, the page editing area unchanged) is in check:screens.
 // Run by npm run check. A deliberate exception is an entry of EXEMPT with its reason.
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 /** The parts that must read density: where their rule is, and which variable of the three groups they read. */
@@ -86,11 +86,32 @@ export function findProblems(files) {
   return problems;
 }
 
+/** The stylesheets the check reads, each with its token files (theme/styles/tokens/<origin>/, docs/theme-token-files.md): a part's height or
+ * padding is often a token (--text-field-height) that the rule reads. @param {URL} root */
+export function readStyles(root) {
+  const files = {};
+  const tokenFolder = { 'ui.css': 'ui', 'blocks.css': 'blocks', 'base.css': 'base', 'global.css': 'material' };
+  const tokenFiles = (dir) =>
+    readdirSync(new URL(dir, root), { withFileTypes: true }).flatMap((e) =>
+      e.isDirectory() ? tokenFiles(`${dir}${e.name}/`) : e.name.endsWith('.css') ? [`${dir}${e.name}`] : [],
+    );
+  for (const f of [
+    'theme/styles/ui.css',
+    'theme/styles/blocks.css',
+    'theme/styles/base.css',
+    'theme/styles/global.css',
+    'src/editor.css',
+  ]) {
+    const folder = tokenFolder[f.split('/').pop()];
+    const extra = folder ? tokenFiles(`theme/styles/tokens/${folder}/`).map((t) => readFileSync(new URL(t, root), 'utf8')) : [];
+    files[f] = [readFileSync(new URL(f, root), 'utf8'), ...extra].join('\n');
+  }
+  return files;
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const root = new URL('../', import.meta.url);
-  const files = {};
-  for (const f of ['theme/styles/ui.css', 'theme/styles/blocks.css', 'theme/styles/base.css', 'theme/styles/global.css', 'src/editor.css'])
-    files[f] = readFileSync(new URL(f, root), 'utf8');
+  const files = readStyles(root);
   const problems = findProblems(files);
   if (problems.length) {
     console.error(problems.join('\n'));

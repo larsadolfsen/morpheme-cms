@@ -1,0 +1,23 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* Chips (ui.css; M3 Chips, specs): 32dp, 8dp corners, an outline variant edge and no container, the label and icon in on surface variant; a chosen filter
+     chip in the secondary container, its label and check in on secondary container (owner, 15 Nov 2026). */
+  --chip-height: 2rem;
+  --chip-padding: 0.375rem 1rem;
+  /* 6dp over and under a 20dp label line is the 32dp container (M3 Chips, specs: "Container height 32dp"). */
+  --chip-padding-block: 0.375rem;
+  --chip-radius: var(--mo-shape-small);
+  --chip-surface: transparent;
+  --chip-text: var(--mo-on-surface-variant);
+  --chip-line: var(--mo-outline-variant);
+  --chip-hover-line: var(--mo-outline-variant);
+  --chip-hover-text: var(--mo-on-surface-variant);
+  --chip-selected-surface: var(--mo-secondary-container);
+  --chip-selected-hover: color-mix(in srgb, var(--mo-on-secondary-container) 8%, var(--mo-secondary-container));
+  --chip-selected-text: var(--mo-on-secondary-container);
+  --chip-selected-check: block;
+}

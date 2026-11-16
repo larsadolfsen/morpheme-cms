@@ -1,0 +1,14 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+@layer components {
+  @media (width >= theme(--breakpoint-medium)) {
+    .bottom-sheet-container[data-wide='side-sheet'] > .bottom-sheet-header {
+      --side-sheet-icon-inset: calc((var(--icon-button-size) - var(--icon-button-icon-size)) / 2);
+    }
+  }
+}
+@layer components {
+  .side-sheet-header {
+    --side-sheet-icon-inset: calc((var(--icon-button-size, 3rem) - var(--icon-button-icon-size, 1.5rem)) / 2);
+  }
+}

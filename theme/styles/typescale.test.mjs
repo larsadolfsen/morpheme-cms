@@ -11,13 +11,15 @@ import { readdirSync } from 'node:fs';
 const withTokens = (name, origin) =>
   [
     read(name),
-    ...readdirSync(new URL(`./tokens/${origin}/`, import.meta.url))
+    ...readdirSync(new URL(`./tokens/${origin}/`, import.meta.url), { recursive: true })
       .filter((f) => f.endsWith('.css'))
       .sort()
       .map((f) => read(`./tokens/${origin}/${f}`)),
   ].join('\n');
 const css = withTokens('./ui.css', 'ui');
 const typeCss = readFileSync(new URL('./type.css', import.meta.url), 'utf8');
+// The lead's --prose-space is a token, so it is in tokens/type/sys.css (docs/theme-token-files.md), under the same selector.
+const typeTokens = readFileSync(new URL('./tokens/type/sys.css', import.meta.url), 'utf8');
 const root = css; // the type scale's tokens are in tokens/ui/ref.css
 const token = (name) => root.match(new RegExp(`--${name}: ([^;]+);`))?.[1];
 const px = (value) => (value.endsWith('rem') ? parseFloat(value) * 16 : parseFloat(value));
@@ -78,7 +80,7 @@ test('type.css has one class for each of the 15 roles and the lead, each reading
       want,
       name,
     );
-    assert.equal(lines.includes('--prose-space: 1.5rem;'), role === 'lead', `${name} --prose-space`);
+    assert.equal(new RegExp(`\\.${name} \\{[^}]*--prose-space: 1\\.5rem;`).test(typeTokens), role === 'lead', `${name} --prose-space`);
   }
 });
 

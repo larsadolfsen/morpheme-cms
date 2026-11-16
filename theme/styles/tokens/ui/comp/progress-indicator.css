@@ -1,0 +1,30 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+@layer components {
+  .circular-progress-indicator-track {
+    --circular-progress-indicator-shown-gap: calc(var(--circular-progress-indicator-gap, 0) * min(1, var(--progress, 0) * 1000));
+    --circular-progress-indicator-rest: calc(100 - var(--progress, 0) * 100 - 2 * var(--circular-progress-indicator-shown-gap));
+  }
+}
+/* Thick (M3 Expressive): a thicker track, and a ring a little bigger. */
+@layer components {
+  .linear-progress-indicator-thick {
+    --linear-progress-indicator-height: var(--linear-progress-indicator-thick-height, 0.625rem);
+  }
+}
+@layer components {
+  .circular-progress-indicator-thick {
+    --circular-progress-indicator-thickness: var(--circular-progress-indicator-thick-thickness, 8);
+    --circular-progress-indicator-size: var(--circular-progress-indicator-thick-size, 2.75rem);
+  }
+}
+@layer components {
+  .circular-progress-indicator-wavy {
+    --circular-progress-indicator-size: var(--circular-progress-indicator-wavy-size, 3rem);
+  }
+}
+@layer components {
+  .circular-progress-indicator-wavy.circular-progress-indicator-thick {
+    --circular-progress-indicator-size: var(--circular-progress-indicator-wavy-thick-size, 3.25rem);
+  }
+}

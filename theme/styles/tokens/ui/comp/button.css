@@ -1,0 +1,129 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+@layer components {
+  .button {
+    --button-box: var(--button-height, 3rem);
+    --button-inline: var(--button-padding, 1.6rem);
+    --button-glyph: var(--button-icon-size, 1.25rem);
+    /* Round is at most half the button's height (Material's full corner), never a huge number, so a corner that
+       changes shape (pressed, toggled) moves between real sizes on the spring, not through 0. */
+    --button-round: min(var(--button-radius, var(--block-control-radius)), var(--button-box) / 2);
+    --button-square: var(--button-square-radius, var(--block-radius-small));
+    --button-pressed: var(--button-pressed-radius);
+    --button-corners: var(--button-round);
+  }
+}
+@layer components {
+  :is(.button-busy, .icon-button-busy) {
+    --button-busy-after: var(--button-busy-delay, 200ms);
+  }
+}
+@layer components {
+  .button-busy {
+    --button-busy-size: var(--button-busy-indicator-size, max(1.5rem, var(--button-glyph)));
+  }
+}
+@layer components {
+  .icon-button-busy {
+    --button-busy-size: var(--icon-button-busy-indicator-size, var(--icon-button-glyph));
+  }
+}
+@layer components {
+  .button-xsmall {
+    --button-box: var(--button-xsmall-height, 2rem);
+    --button-inline: var(--button-xsmall-padding, 0.9rem);
+    --button-glyph: calc(var(--button-icon-size, 1.25rem) * 0.9);
+    --button-square: var(--button-xsmall-square-radius, calc(var(--block-radius-small) * 0.75));
+    --button-pressed: var(--button-xsmall-pressed-radius, var(--button-pressed-radius));
+  }
+}
+@layer components {
+  .button-small {
+    --button-box: var(--button-small-height, 2.6rem);
+    --button-inline: var(--button-small-padding, 1.2rem);
+    --button-square: var(--button-small-square-radius, calc(var(--block-radius-small) * 0.75));
+    --button-pressed: var(--button-small-pressed-radius, var(--button-pressed-radius));
+  }
+}
+@layer components {
+  .button-large {
+    --button-box: var(--button-large-height, 4rem);
+    --button-inline: var(--button-large-padding, 2.25rem);
+    --button-glyph: var(--button-large-icon-size, 1.5rem);
+    --button-square: var(--button-large-square-radius, calc(var(--block-radius-small) * 1.75));
+    --button-pressed: var(--button-large-pressed-radius, var(--button-pressed-radius));
+  }
+}
+@layer components {
+  .button-xlarge {
+    --button-box: var(--button-xlarge-height, 5.5rem);
+    --button-inline: var(--button-xlarge-padding, 3rem);
+    --button-glyph: var(--button-xlarge-icon-size, 2rem);
+    --button-square: var(--button-xlarge-square-radius, calc(var(--block-radius-small) * 1.75));
+    --button-pressed: var(--button-xlarge-pressed-radius, var(--button-pressed-radius));
+  }
+}
+/* The shapes: round (the default) or square; a toggle that is on takes the other one. */
+@layer components {
+  .button-square,
+  .button[aria-pressed='true'] {
+    --button-corners: var(--button-square);
+  }
+}
+@layer components {
+  .button-square[aria-pressed='true'] {
+    --button-corners: var(--button-round);
+  }
+}
+@layer components {
+  .button-group-connected > * {
+    --button-group-inner: var(--button-group-inner-radius, calc(var(--block-radius-small) / 2));
+  }
+}
+/* The corners between them follow the buttons' size (Material's 4, 8, 8, 16 and 20dp). */
+@layer components {
+  .button-group-connected > :is(.button-xsmall, .icon-button-xsmall) {
+    --button-group-inner: var(--button-group-xsmall-inner-radius, calc(var(--block-radius-small) / 4));
+  }
+}
+@layer components {
+  .button-group-connected > :is(.button-large, .icon-button-large) {
+    --button-group-inner: var(--button-group-large-inner-radius, var(--block-radius-small));
+  }
+}
+@layer components {
+  .button-group-connected > :is(.button-xlarge, .icon-button-xlarge) {
+    --button-group-inner: var(--button-group-xlarge-inner-radius, calc(var(--block-radius-small) * 1.25));
+  }
+}
+/* A sample's button is the theme's smallest size at M3's extra small height (32dp; the theme's own extra small is taller),
+     so it stays a real button of its look and fits its row. */
+@layer components {
+  .choice-group-sample .button {
+    --button-xsmall-height: var(--choice-group-sample-button-height, 2rem);
+  }
+}
+@layer components {
+  .snackbar {
+    --button-text-text: var(--snackbar-action-text, var(--snackbar-text, var(--mo-inverse-on-surface)));
+    --button-text-hover: var(--snackbar-action-hover, color-mix(in srgb, currentColor 12%, transparent));
+  }
+}
+@layer components {
+  .toolbar-vibrant {
+    --button-filled-surface: var(--toolbar-vibrant-text, var(--block-on-accent));
+    --button-filled-hover: color-mix(
+      in srgb,
+      var(--toolbar-vibrant-surface, var(--block-accent)) 12%,
+      var(--toolbar-vibrant-text, var(--block-on-accent))
+    );
+    --button-filled-text: var(--toolbar-vibrant-surface, var(--block-accent));
+    --button-filled-shadow: none;
+    --button-filled-hover-shadow: none;
+    --button-outlined-surface: transparent;
+    --button-outlined-text: var(--toolbar-vibrant-text, var(--block-on-accent));
+    --button-outlined-line: color-mix(in srgb, var(--toolbar-vibrant-text, var(--block-on-accent)) 55%, transparent);
+    --button-outlined-hover-text: var(--toolbar-vibrant-text, var(--block-on-accent));
+    --button-outlined-hover-line: var(--toolbar-vibrant-text, var(--block-on-accent));
+  }
+}

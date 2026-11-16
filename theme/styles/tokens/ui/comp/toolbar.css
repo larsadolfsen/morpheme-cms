@@ -1,0 +1,8 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+@layer components {
+  .toolbar-vibrant {
+    --toolbar-docked-line: transparent;
+    --toolbar-floating-line: transparent;
+  }
+}

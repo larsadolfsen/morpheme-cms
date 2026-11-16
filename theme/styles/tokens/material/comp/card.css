@@ -1,0 +1,72 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* Cards (ui.css): 12px corners; outlined on the surface with the outline variant, elevated on a low container with
+     the first elevation, filled on the highest container. */
+  --card-radius: var(--mo-shape-medium);
+  /* An elevated card is elevated all the time (owner, 16 Nov 2026; m3.material.io/components/cards/guidelines: "Elevated cards have a drop shadow"): level 1 at
+     rest and level 2 pointed at, though the theme's other parts have no shadow at rest (--mo-elevation-N-rest-shadow above). */
+  --card-elevated-shadow: var(--mo-elevation-1-shadow);
+  --card-elevated-hover-shadow: var(--mo-elevation-2-shadow);
+  /* The small step the editor uses for a block's row and handle (8px). The room between cards is --mo-grid-gutter below (owner, 15 Nov 2026, G1). */
+  --card-gap: 0.5rem;
+  /* Inside a "Cards" card, on the 4dp half-step and the 8dp grid (Material 3 prints only the 16px left and right padding and 8px
+     between cards): the headline to the subhead 4px, the headline or subhead to the text 8px, the media (and a card's icon) to the
+     headline 16px, the text to the link or the buttons 16px. */
+  --card-subhead-gap: 0.25rem;
+  --card-text-gap: 0.5rem;
+  --card-media-gap: 1rem;
+  --card-action-gap: 1rem;
+  --card-filled-surface: var(--mo-surface-container-highest);
+  --card-outlined-surface: var(--mo-surface);
+  --card-outlined-line: var(--mo-outline-variant);
+}
+@layer components {
+  .block-notice {
+    --card-filled-surface: var(--mo-surface-container-high);
+  }
+}
+/* "Cards": Material 3's three (outlined, filled, elevated: the card's `design`, ui.css); the filled one on the surface container (or the
+     primary, secondary or tertiary container: blocks.css), with the card's state layer (ui.css) when pointed at or focused. */
+@layer components {
+  .block-card {
+    --card-filled-surface: var(--mo-surface-container);
+  }
+}
+@layer components {
+  .block-testimonial {
+    --card-outlined-surface: var(--mo-surface-container);
+    --card-outlined-line: transparent;
+  }
+}
+/* An invitation: a filled card with extra-large corners, its image with large corners (where it stands is the
+     block's, so it takes no optical roundness from the card). */
+@layer components {
+  .block-cta {
+    --card-radius: var(--mo-shape-extra-large);
+    --card-padding: 1.5rem;
+  }
+}
+@layer components {
+  @media (width >= theme(--breakpoint-medium)) {
+    .block-cta {
+      --card-padding: 2rem;
+    }
+  }
+}
+@layer components {
+  .block-link-row {
+    --card-radius: var(--mo-shape-medium);
+    --card-outlined-surface: var(--mo-surface-container-low);
+    --card-outlined-line: transparent;
+  }
+}
+@layer components {
+  a.block-link-row:hover {
+    --card-outlined-surface: color-mix(in srgb, var(--mo-on-surface) 8%, var(--mo-surface-container-low));
+    --card-outlined-line: transparent;
+  }
+}

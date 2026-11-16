@@ -1,0 +1,27 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+@layer components {
+  .block-table-grid {
+    --card-padding: 0;
+    --card-outlined-surface: transparent;
+    --card-outlined-line: transparent;
+  }
+}
+@layer components {
+  .block-link-row {
+    --card-radius: var(--block-radius-small);
+    --card-padding: 0.85rem 1.1rem 0.85rem 0.85rem;
+  }
+}
+@layer components {
+  a.block-link-row:hover {
+    --card-outlined-line: var(--block-accent);
+  }
+}
+@layer components {
+  @media (width >= theme(--breakpoint-medium)) {
+    .block-cta {
+      --card-padding: 3rem;
+    }
+  }
+}

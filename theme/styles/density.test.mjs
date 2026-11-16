@@ -10,7 +10,7 @@ import { readdirSync } from 'node:fs';
 const withTokens = (name, origin) =>
   [
     read(name),
-    ...readdirSync(new URL(`./tokens/${origin}/`, import.meta.url))
+    ...readdirSync(new URL(`./tokens/${origin}/`, import.meta.url), { recursive: true })
       .filter((f) => f.endsWith('.css'))
       .sort()
       .map((f) => read(`./tokens/${origin}/${f}`)),
