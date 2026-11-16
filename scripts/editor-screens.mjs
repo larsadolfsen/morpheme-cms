@@ -5568,7 +5568,14 @@ async function insertBlock(page, hint, count, at) {
           focus: `${document.activeElement?.tagName}.${document.activeElement?.className}`,
         }))
         .catch(() => null);
-      error.message += `\ninsertBlock(${hint}, ${count}, ${at}) found ${JSON.stringify(state)}`;
+      // Node prints `.stack`, which Playwright built when the error was created, so a changed message alone never reaches the log: write the line out, and put it in the stack too.
+      const found = `insertBlock(${hint}, ${count}, ${at}) found ${JSON.stringify(state)}`;
+      console.error(found);
+      error.message += `\n${found}`;
+      error.stack = `${error.name}: ${error.message}\n${String(error.stack ?? '')
+        .split('\n')
+        .filter((l) => /^\s+at /.test(l))
+        .join('\n')}`;
       throw error;
     });
 }
