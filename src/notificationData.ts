@@ -14,6 +14,7 @@
 // tells it the app's notifications. The bell in the top bar (Screen.tsx NotificationsButton) has a dot while some are not
 // seen; opening the notifications marks them seen. Kept in this browser: the last 50, the choices and the ids of the
 // apps' notifications already told. The key of a notification and the deletion by keys are in notificationKeys.mjs (tested).
+import { oldEndpointToDrop, syncAction } from './pushMigration.mjs';
 import { useSyncExternalStore } from 'react';
 import { siteName } from '@site/editor';
 import { locale, t } from './i18n';
@@ -170,6 +171,14 @@ async function signUp() {
   subscription ??= await worker.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key });
   const signed = await api(PUSH, 'PUT', { subscription: subscription.toJSON(), off: choices.off, locale });
   signedUp = signed.ok ? subscription.endpoint : null;
+  if (!signed.ok) return;
+  // The editor was at /editor/ before: its service worker's subscription is dropped now that this one is saved.
+  const old = await (await navigator.serviceWorker.getRegistration('/editor/'))?.pushManager.getSubscription();
+  const drop = oldEndpointToDrop(old?.endpoint, subscription.endpoint);
+  if (old && drop) {
+    await api(PUSH, 'DELETE', { endpoint: drop }).catch(() => {});
+    await old.unsubscribe().catch(() => {});
+  }
 }
 
 /** Signs this browser off at the Worker ("On the phone" off, "Log out": before the sign-in goes), and from the push
@@ -185,7 +194,11 @@ export async function signOff() {
 /** When the editor opens: signs up again while "On the phone" is on (the Worker may have a new key, or have forgotten
  * a browser not seen for half a year), else signs off. */
 export function syncDevice() {
-  (deviceOn() && allowed() ? signUp() : signOff()).catch(() => {});
+  (syncAction({ permission: typeof Notification === 'undefined' ? 'denied' : Notification.permission, device: choices.device }) ===
+  'sign-up'
+    ? signUp()
+    : signOff()
+  ).catch(() => {});
 }
 
 /** After a save: asks the Worker to say on the phone when the site has been built with `commit` (`text`), or that it
