@@ -21,6 +21,7 @@ on a background in the demo's colors. The photographs are from [Unsplash](https:
 | `earth-from-space.webp` | https://images.unsplash.com/photo-1446776811953-b23d57bd21aa |
 | `moon.webp` | https://images.unsplash.com/photo-1446941611757-91d2c3bd3d45 |
 | `andromeda.webp` | https://images.unsplash.com/photo-1543722530-d2c3201371e7 |
+| `maya-bakery.webp` | https://unsplash.com/photos/woman-in-white-crew-neck-shirt-smiling-IF9TK5Uy-KI, photo by Jake Nackos |
 
 The logo (`public/logo.svg`, and `public/favicon.svg` with the icons, which `npx morpheme editor-icons` wrote) is drawn for
 the demo. The colors are Material 3's scheme of a calm blue, `#425E92` (*tonal spot*).

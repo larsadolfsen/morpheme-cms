@@ -655,6 +655,7 @@
   .block-row-links:has(> .button-text) {
     margin-inline-start: calc(-1 * var(--button-text-padding, 1rem));
     column-gap: 0.5rem;
+    margin-block-end: calc((1.25rem - var(--button-height, 3rem)) / 2);
   }
 
   /* "Cards": Material 3's cards (.card in ui.css: outlined, filled or elevated), each with an icon, an image, a video or nothing at
@@ -1860,6 +1861,11 @@
   .prose .block-step-title {
     margin-block: 0;
   }
+  /* The room under an open row is the body's padding alone: the last paragraph's margin (the text's, .prose in base.css, is in this layer
+     too) adds none. A text button's own height is taken off its row (.block-row-links above). */
+  .block-accordion-answer > :last-child {
+    margin-bottom: 0;
+  }
   /* "Video": the video before it is played (video/, packages/editor/lib/video.mjs); the video takes its
    place. Outside the layers, as it is a link in the text's style (.prose), whose link style it undoes. */
   .prose .video-facade {
@@ -2004,7 +2010,11 @@
   /* A label above a heading in a text (packages/editor/lib/eyebrow.mjs): a block's label, with the heading's space above
    it and close to its heading. */
   .prose .label-medium {
-    margin-block: 2em 0;
+    margin-block: 2em 0.5rem;
+  }
+  /* A label that ends its text belongs to the heading after it (the front page, Home.astro): it keeps the same space under it. */
+  .prose > .label-medium:last-child {
+    margin-bottom: 0.5rem;
   }
   .prose .label-medium + :is(h1, h2, h3),
   .prose .label-medium + :not(h1, h2, h3, .label-medium) {
