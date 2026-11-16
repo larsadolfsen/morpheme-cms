@@ -6,6 +6,7 @@ import type { ListedPost, SourceItem, StandardSite } from '../src/standard/site'
 import { libraryAltPart } from '../src/imageAlt.mjs';
 import { itemOfEntry } from '../src/standard/rows/rows.mjs';
 import { setListReader } from '../lib/lists.mjs';
+import { coreListOf } from '../lib/coreLists.mjs';
 import { asRowsOf, isEntryPath, parseDefinition } from '../lib/ownList.mjs';
 import {
   categoryName,
@@ -99,23 +100,34 @@ const settingPage = async (
   return typeof value === 'string' && value.startsWith('/') ? value : undefined;
 };
 
+/** The entries of the core's lists (lib/coreLists.mjs) as the site has them, with the fields the declaration gives, and where `Show all` goes. */
+const coreEntries: Record<string, () => Promise<{ entries: Record<string, unknown>[]; page: string }>> = {
+  posts: async () => ({
+    entries: (await getPosts()).map((p) => ({ ...listedPost(p), categories: p.data.categories })),
+    page: standard.posts.all({}).href,
+  }),
+  testimonials: async () => ({
+    entries: testimonials.map((t) => ({
+      name: t.name,
+      quote: t.quote[0],
+      image: t.image,
+      href: `${testimonialsPath}#${testimonialId(t)}`,
+      categories: t.categories,
+    })),
+    page: testimonialsPath,
+  }),
+};
+
 export const standard: StandardSite = {
   texts: blockTexts,
   // The items a list block reads: the blog's posts (their tags), the testimonials (the quote's first paragraph), or the entries of an app's
   // list that says its fields (`asRows`), in their order.
   async source(id): Promise<{ items: SourceItem[]; page?: string; missing?: boolean }> {
-    if (id === 'posts') {
-      const items = (await getPosts()).map((p) => ({ ...listedPost(p), text: p.data.description, tags: p.data.categories }));
-      return { items, page: this.posts.all({}).href };
-    }
-    if (id === 'testimonials') {
-      const items = testimonials.map((t) => ({
-        title: t.name,
-        text: t.quote[0],
-        href: `${testimonialsPath}#${testimonialId(t)}`,
-        tags: t.categories,
-      }));
-      return { items, page: testimonialsPath };
+    // A list the core declares (lib/coreLists.mjs: the blog's posts, the testimonials): entries with its fields, then read like any list.
+    const core = coreListOf(id);
+    if (core) {
+      const { entries, page } = await coreEntries[core.id]();
+      return { items: entries.map((e) => itemOfEntry(e, core.asRows) as SourceItem), page };
     }
     // An app's list, else a list the owner made (its fields from its definition); no such list gives no items.
     let list = rowLists.get(id);

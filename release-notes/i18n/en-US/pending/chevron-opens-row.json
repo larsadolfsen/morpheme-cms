@@ -1,0 +1,6 @@
+{
+  "id": "chevron-opens-row",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "The arrow on a row of a Segmented list or Questions and answers opens and closes the row in the editor"
+}

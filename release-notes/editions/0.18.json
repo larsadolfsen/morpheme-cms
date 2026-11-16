@@ -1,5 +1,8 @@
 {
-  "name": "Iceland",
+  "name": {
+    "en-US": "Iceland",
+    "da-DK": "Island"
+  },
   "place": {
     "en-US": "Seljalandsfoss Waterfall, Iceland",
     "da-DK": "Seljalandsfoss-vandfaldet, Island"

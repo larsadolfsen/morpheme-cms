@@ -50,6 +50,12 @@ released, may stage a test version under npm's `next` tag from its own branch, a
   fix; at most about once a day.
 - Every staged build still waits for the owner's approval on npmjs.com (2FA). The PM tells the owner the exact version
   to approve and what it contains (the `pm` skill's report form).
+- **A line's test version has its own notes and edition** (owner, 16 Nov 2026: "When you release a version to next you
+  must write your own release note and not extend 0.18."). Before the PM stages a test version from a line, that line
+  has its own release notes for what it contains and its own edition (`release-notes/editions/<line>.json` with its
+  photo). A line's test version never shows another line's notes: from `0.19` on every pending note added on a line
+  carries `"line": "<line>"` (skill `release-notes`), and the Morpheme page and `release:version` use only the notes of
+  the version's line.
 - It is never a release: no `latest`, no tag, no GitHub release, no Release PR, and no version change committed to the
   branch. The branch still reaches `main` only as the table above says.
 

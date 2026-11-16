@@ -5539,21 +5539,45 @@ async function checkTwoFinger() {
 async function insertBlock(page, hint, count, at) {
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
-  await page.waitForFunction(
-    ([n, i]) => {
-      const blocks = [...document.querySelectorAll('.ProseMirror .site-block')];
-      const open = blocks.filter((b) => b.classList.contains('site-block-has-row'));
-      return (
-        blocks.length === n &&
-        open.length === 1 &&
-        open[0] === blocks[i] &&
-        !!open[0].querySelector('.inline-list-row-active') &&
-        !document.querySelector('.ProseMirror .site-block-row-moving')
-      );
-    },
-    [count, at],
-    { timeout: 10000 },
-  );
+  await page
+    .waitForFunction(
+      ([n, i]) => {
+        const blocks = [...document.querySelectorAll('.ProseMirror .site-block')];
+        const open = blocks.filter((b) => b.classList.contains('site-block-has-row'));
+        return (
+          blocks.length === n &&
+          open.length === 1 &&
+          open[0] === blocks[i] &&
+          !!open[0].querySelector('.inline-list-row-active') &&
+          !document.querySelector('.ProseMirror .site-block-row-moving')
+        );
+      },
+      [count, at],
+      { timeout: 10000 },
+    )
+    .catch(async (error) => {
+      // Say what the editor showed: a bare timeout names no cause.
+      const state = await page
+        .evaluate(() => ({
+          dialogOpen: !!document.querySelector('dialog[open]'),
+          blocks: [...document.querySelectorAll('.ProseMirror .site-block')].map((b) => ({
+            row: b.classList.contains('site-block-has-row'),
+            active: !!b.querySelector('.inline-list-row-active'),
+          })),
+          moving: !!document.querySelector('.ProseMirror .site-block-row-moving'),
+          focus: `${document.activeElement?.tagName}.${document.activeElement?.className}`,
+        }))
+        .catch(() => null);
+      // Node prints `.stack`, which Playwright built when the error was created, so a changed message alone never reaches the log: write the line out, and put it in the stack too.
+      const found = `insertBlock(${hint}, ${count}, ${at}) found ${JSON.stringify(state)}`;
+      console.error(found);
+      error.message += `\n${found}`;
+      error.stack = `${error.name}: ${error.message}\n${String(error.stack ?? '')
+        .split('\n')
+        .filter((l) => /^\s+at /.test(l))
+        .join('\n')}`;
+      throw error;
+    });
 }
 
 /** The opacity of the handle of the block at `index`, read once it is `want` and no transition runs on it (the handle fades): the wait is for that condition, never a
@@ -5843,6 +5867,36 @@ async function checkBlockMove(width) {
     await page.waitForTimeout(300);
     if ((await selected()) !== 2) problems.push(`${label}: Shift+Arrow did not extend the selection (${await selected()})`);
   }
+  await page.close();
+}
+
+/** A new block takes its first row once the insert dialog has closed (MarkdownEditor.tsx, startAt: its `close` event), however late that is: the dialog's close is held
+ * back by 3 s here (twice the 1.5 s the editor once gave up after), and the new block must still become the active one, with the cursor in its first row, and not
+ * before the dialog is gone (the button that opened the dialog gets the focus back at the close). */
+async function checkInsertDialogClosesLate(width) {
+  const label = `insert, dialog closes late ${width}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await page.evaluate(() => {
+    const close = HTMLDialogElement.prototype.close;
+    HTMLDialogElement.prototype.close = function (...args) {
+      setTimeout(() => close.apply(this, args), 3000);
+    };
+  });
+  // insertBlock waits until the new block is the only one with a row and that row is active.
+  await insertBlock(page, 'Numbered steps.', 1, 0);
+  if (await page.evaluate(() => !!document.querySelector('dialog[open]')))
+    problems.push(`${label}: the new block took its row while the insert dialog was still open`);
+  const inRow = await page.evaluate(() => !!document.activeElement?.closest('.ProseMirror .site-block'));
+  if (!inRow) problems.push(`${label}: the cursor is not in the new block's first row once the dialog has closed`);
   await page.close();
 }
 
@@ -7090,6 +7144,124 @@ async function checkListMarkers(width) {
   await frame.waitForSelector('ul.block-list', { timeout: 30_000 });
   const inPreview = await frame.evaluate(markers);
   if (inPreview.length) problems.push(`${width}px Preview: a List row has a list marker (${[...new Set(inPreview)].join('; ')})`);
+  await page.close();
+}
+
+/** Rows that fold out, typed in place (Segmented list, Questions and answers): the chevron opens and closes any row as on the site, Enter or Space on the focused
+ * head does too, a tap on the head's own surface (not the title, not the chevron) folds nothing, and typing in the page's text does not collapse an open row.
+ * What is folded is a view state: the page does not change (Undo stays off). */
+async function checkChevronRows(width) {
+  const label = `${width}px rows that fold`;
+  const phone = width < 600;
+  const src = [
+    '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n',
+    block('segmented', {
+      items: [
+        { title: 'One', text: 'First' },
+        { title: 'Two', text: 'Second' },
+      ],
+    }),
+    block('faq', {
+      items: [
+        { question: 'Why?', answer: 'Because.' },
+        { question: 'Who?', answer: 'Me.' },
+      ],
+    }),
+  ].join('\n\n');
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site, { [BUILT_PAGE]: src });
+  await page.goto(`${site}/editor/#${BUILT_PAGE}`);
+  await page.waitForSelector('.inline-list-host details.list-item-expand', { timeout: 30_000 });
+  const undoOff = () => page.locator('.editor-tools button[aria-label="Undo"]').first().isDisabled();
+  for (const [at, name] of [
+    [0, 'Segmented list'],
+    [1, 'Questions and answers'],
+  ]) {
+    // The cursor is out of every block: no row's settings panel narrows the page while a row is tapped.
+    await page.locator('.ProseMirror > p').first().click();
+    await page.waitForFunction(
+      () => !document.querySelector('.editor-side-sheet, dialog[open]') && !document.querySelector('.inline-list-row-active'),
+      null,
+      { timeout: 8000 },
+    );
+    const host = page.locator('.inline-list-host').nth(at);
+    const row = host.locator('details.list-item-expand').nth(1);
+    const head = row.locator('summary');
+    const state = () => head.getAttribute('aria-expanded');
+    const shown = () =>
+      page.waitForFunction(
+        ([h, r]) => {
+          const d = document.querySelectorAll('.inline-list-host')[h].querySelectorAll('details.list-item-expand')[r];
+          const a = d.querySelector('.block-accordion-answer');
+          return d.open && !!a && a.getBoundingClientRect().height > 0;
+        },
+        [at, 1],
+        { timeout: 8000 },
+      );
+    const shut = () =>
+      page.waitForFunction(
+        ([h, r]) => !document.querySelectorAll('.inline-list-host')[h].querySelectorAll('details.list-item-expand')[r].open,
+        [at, 1],
+        { timeout: 8000 },
+      );
+    if ((await state()) !== 'false')
+      problems.push(`${label} ${name}: a row that is not active has aria-expanded ${await state()}, not false`);
+    const box = await head.boundingBox();
+    if (box && box.height < 48) problems.push(`${label} ${name}: the row's head is ${box.height} px high, under 48`);
+    // The chevron opens the row, a second tap closes it.
+    await row.locator('.list-item-expand-icon').click();
+    await shown().catch(() => problems.push(`${label} ${name}: a tap on the chevron does not open the row and show its text`));
+    if ((await state()) !== 'true') problems.push(`${label} ${name}: the open row has aria-expanded ${await state()}`);
+    // The whole height of the head at the chevron is its target (not only the 24 px glyph).
+    const icon = await row.locator('.list-item-expand-icon').boundingBox();
+    const top = await head.boundingBox();
+    await page.mouse.click(icon.x + icon.width / 2, top.y + 3);
+    await shut().catch(() => problems.push(`${label} ${name}: a second tap on the chevron does not close the row`));
+    // Enter and Space on the focused head.
+    await head.focus();
+    await page.keyboard.press('Enter');
+    await shown().catch(() => problems.push(`${label} ${name}: Enter on the focused row does not open it`));
+    await page.keyboard.press('Space');
+    await page.waitForTimeout(500);
+    await shut().catch(() => problems.push(`${label} ${name}: Space on the focused row does not close it`));
+    // A tap on the head's own surface, outside the title and the chevron, folds nothing.
+    const edge = await head.boundingBox();
+    await page.mouse.click(edge.x + 2, edge.y + edge.height / 2);
+    await page.waitForTimeout(300);
+    if ((await state()) !== 'false') problems.push(`${label} ${name}: a tap on the row's surface folds it`);
+    // Typing in the page's text does not collapse an open row.
+    await row.locator('.list-item-expand-icon').click();
+    await shown();
+    await page.locator('.ProseMirror > p').first().click();
+    await page.keyboard.type('abc');
+    await page.waitForTimeout(400);
+    if ((await state()) !== 'true') problems.push(`${label} ${name}: typing in the page's text collapsed the open row`);
+    // A tap on the title opens a row the chevron closed, and types there.
+    await row.locator('.list-item-expand-icon').click();
+    await shut();
+    await row.locator('textarea').first().click();
+    await shown().catch(() => problems.push(`${label} ${name}: a tap on the title of a closed row does not open it`));
+    await row.locator('.list-item-expand-icon').click();
+    await shut();
+  }
+  // The page is the same: no step of the fold is an edit, so Undo is still off (the typing above is the only change; check on a fresh page below).
+  const fresh = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  fresh.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(fresh, site, { [BUILT_PAGE]: src });
+  await fresh.goto(`${site}/editor/#${BUILT_PAGE}`);
+  await fresh.waitForSelector('.inline-list-host details.list-item-expand', { timeout: 30_000 });
+  const undoBefore = await fresh.locator('.editor-tools button[aria-label="Undo"]').first().isDisabled();
+  for (let h = 0; h < 2; h++) {
+    const icon = fresh.locator('.inline-list-host').nth(h).locator('.list-item-expand-icon').nth(1);
+    await icon.click();
+    await fresh.waitForFunction((n) => document.querySelectorAll('.inline-list-host')[n].querySelectorAll('details')[1].open, h);
+    await icon.click();
+  }
+  await fresh.waitForTimeout(300);
+  if ((await fresh.locator('.editor-tools button[aria-label="Undo"]').first().isDisabled()) !== undoBefore)
+    problems.push(`${label}: folding a row is an edit of the page (Undo changed)`);
+  await fresh.close();
   await page.close();
 }
 
@@ -8765,6 +8937,45 @@ async function checkSteps(width, height) {
     ])
   )
     problems.push(`${label}: Enter did not go heading, text, next step: ${JSON.stringify(now)}`);
+  // The heading's first line is centred on the number (within 1 px), read from the real boxes: the field's top plus its border and padding
+  // plus half its line height, against the number's middle.
+  const off = await page.evaluate(() =>
+    [...document.querySelectorAll('.inline-steps .block-step[data-row]:not(.inline-list-row-next)')].map((li) => {
+      const n = li.querySelector('.block-step-number').getBoundingClientRect();
+      const f = li.querySelector('[data-field="title"]');
+      const c = getComputedStyle(f);
+      const lh = parseFloat(c.lineHeight) || parseFloat(c.fontSize) * 1.2;
+      const first = f.getBoundingClientRect().top + parseFloat(c.borderTopWidth) + parseFloat(c.paddingTop) + lh / 2;
+      return Math.abs(first - (n.top + n.height / 2));
+    }),
+  );
+  if (!off.length || off.some((d) => !(d <= 1)))
+    problems.push(`${label}: a step's heading is not centred on its number (off by ${off.map((d) => d.toFixed(1)).join(', ')} px)`);
+  // The line joins a number to the next number and stops: every step but the last draws it down to the next number's middle (within 1 px),
+  // and the last draws none. Read from the real boxes, as a step is added, so the last one changes.
+  const lineProblems = () =>
+    page.evaluate(() => {
+      const lis = [...document.querySelectorAll('.inline-steps .block-step')];
+      const out = [];
+      lis.forEach((li, i) => {
+        const c = getComputedStyle(li, '::before');
+        const drawn = c.content !== 'none' && c.content !== 'normal';
+        if (i === lis.length - 1) {
+          if (drawn) out.push(`the last step draws a line`);
+          return;
+        }
+        if (!drawn) return out.push(`step ${i + 1} draws no line`);
+        const r = li.getBoundingClientRect();
+        const to = lis[i + 1].querySelector('.block-step-number').getBoundingClientRect();
+        const from = li.querySelector('.block-step-number').getBoundingClientRect();
+        const top = r.top + parseFloat(c.top);
+        const bottom = r.bottom - parseFloat(c.bottom);
+        if (Math.abs(top - (from.top + from.height / 2)) > 1 || Math.abs(bottom - (to.top + to.height / 2)) > 1)
+          out.push(`step ${i + 1}'s line does not run from its number to the next (${top.toFixed(1)} to ${bottom.toFixed(1)})`);
+      });
+      return out;
+    });
+  for (const p of await lineProblems()) problems.push(`${label}: ${p}`);
   // Enter in the heading goes to the text and Enter in an empty text adds nothing (a heading without text is kept as it is); in the text
   // with something in it Enter adds a step, and Backspace in its empty heading removes it again.
   await page.keyboard.press('Enter');
@@ -8786,6 +8997,7 @@ async function checkSteps(width, height) {
   now = await steps();
   if (now[1]?.title !== 'Order' || now.map((s) => s.number).join() !== '1,2,3')
     problems.push(`${label}: Move down did not move and renumber the step: ${JSON.stringify(now)}`);
+  for (const p of await lineProblems()) problems.push(`${label}: after a move, ${p}`);
   await page.close();
   // Pasting lines into an empty Steps block makes a step of each; headings among them leave the paste as it is.
   for (const [html, plain, expected] of [
@@ -9311,6 +9523,112 @@ async function checkDynamicPicker(width, height) {
     .waitFor({ timeout: 5000 })
     .catch(() => problems.push(`${label}: a tap on a row's bottom line did not open the choice of fields`));
   await page.close();
+}
+
+/** The text of a list the owner made (`notes`, lib/fieldFlow.mjs) stands above the rows of its list page, in the order written: a heading as an `h2` in the title-large size, a body line in Body medium, a label in Label medium, no horizontal scroll, and the text reads on its surface (4.5:1) in light and dark. A list with no text has no such block. */
+async function checkOwnListText(width, height) {
+  const phone = width < 600;
+  const list = 'src/data/notes-check';
+  const notes = [
+    { style: 'heading', text: 'Keep each service to two lines', after: null },
+    { style: 'body', text: 'Add the price in the last field.', after: null },
+    { style: 'label', text: 'Publishing', after: 'title' },
+  ];
+  const definition = (withNotes) =>
+    JSON.stringify({
+      version: 2,
+      label: 'Notes check',
+      fields: [{ id: 'title', kind: 'title', label: 'Name' }],
+      ...(withNotes ? { notes } : {}),
+    });
+  virtualFile(`${list}/_list.json`, definition(true));
+  virtualFile(`${list}/haircut.json`, JSON.stringify({ order: 1, title: 'Haircut' }));
+  for (const scheme of ['light', 'dark']) {
+    const label = `${width}px own list text, ${scheme}`;
+    const page = await browser.newPage({
+      viewport: { width, height },
+      hasTouch: phone,
+      isMobile: phone,
+      colorScheme: scheme,
+      locale: 'en-US',
+    });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#list/notes-check'));
+    await page
+      .getByText('Haircut', { exact: true })
+      .first()
+      .waitFor({ timeout: 15000 })
+      .catch(() => problems.push(`${label}: the list page has no rows`));
+    const found = await page.evaluate(() => {
+      const at = (text) => [...document.querySelectorAll('main h2, main p')].find((e) => e.textContent === text);
+      const rows = [...document.querySelectorAll('main *')].find((e) => e.textContent === 'Haircut' && !e.children.length);
+      const read = (e) => {
+        if (!e) return null;
+        const s = getComputedStyle(e);
+        let bg = null;
+        for (let n = e; n && !bg; n = n.parentElement) {
+          const c = getComputedStyle(n).backgroundColor;
+          if (c && !/rgba?\(.*, 0\)$/.test(c) && c !== 'transparent') bg = c;
+        }
+        return { tag: e.tagName, size: s.fontSize, color: s.color, bg, top: e.getBoundingClientRect().top };
+      };
+      return {
+        heading: read(at('Keep each service to two lines')),
+        body: read(at('Add the price in the last field.')),
+        label: read(at('Publishing')),
+        row: read(rows),
+        wide: document.documentElement.scrollWidth > innerWidth + 1,
+      };
+    });
+    if (found.wide) problems.push(`${label}: the list page scrolls sideways`);
+    if (!found.heading || found.heading.tag !== 'H2') problems.push(`${label}: the heading line is not an h2`);
+    else if (found.heading.size !== '22px') problems.push(`${label}: the heading is ${found.heading.size}, not title large (22px)`);
+    if (!found.body || found.body.size !== '14px') problems.push(`${label}: the body line is not Body medium (14px): ${found.body?.size}`);
+    if (!found.label || found.label.size !== '12px')
+      problems.push(`${label}: the label line is not Label medium (12px): ${found.label?.size}`);
+    if (found.heading && found.body && found.label && found.row)
+      if (!(found.heading.top < found.body.top && found.body.top < found.label.top && found.label.top < found.row.top))
+        problems.push(`${label}: the text is not above the rows in the order written`);
+    const lum = (rgb) => {
+      const [r, g, b] = rgb
+        .match(/[\d.]+/g)
+        .slice(0, 3)
+        .map((v) => {
+          const c = Number(v) / 255;
+          return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+        });
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    for (const [name, part] of Object.entries({ heading: found.heading, body: found.body, label: found.label })) {
+      if (!part?.bg) continue;
+      const [a, b] = [lum(part.color), lum(part.bg)].sort((x, y) => y - x);
+      const ratio = (a + 0.05) / (b + 0.05);
+      if (ratio < 4.5) problems.push(`${label}: the ${name} text has contrast ${ratio.toFixed(2)}:1, under 4.5:1`);
+    }
+    // No text: the block is gone and the rows stay.
+    virtualFile(`${list}/_list.json`, definition(false));
+    await page.close();
+    const again = await browser.newPage({
+      viewport: { width, height },
+      hasTouch: phone,
+      isMobile: phone,
+      colorScheme: scheme,
+      locale: 'en-US',
+    });
+    again.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await openEditor(again, site);
+    await again.evaluate(() => (location.hash = '#list/notes-check'));
+    await again
+      .getByText('Haircut', { exact: true })
+      .first()
+      .waitFor({ timeout: 15000 })
+      .catch(() => problems.push(`${label}: the list without text has no rows`));
+    if (await again.getByText('Keep each service to two lines', { exact: true }).count())
+      problems.push(`${label}: a list without text still shows text`);
+    await again.close();
+    virtualFile(`${list}/_list.json`, definition(true));
+  }
 }
 
 /** The page of a list the owner made (#list/<id>, OwnList.tsx): the testimonials' list page and item page with the list's own fields. A list with a definition and two entries opens with two rows, no horizontal overflow; the active row has the dotted outline and no background, `Add list row` shows under an active list and is gone when the cursor leaves, the toolbar has Add above and Add below, Enter in the title goes to the text, and only the fields the list has are there (no icon slot, no link slot). */
@@ -12365,6 +12683,7 @@ await unit('checkDragSelect', () => checkDragSelect());
 await unit('checkTwoFinger', () => checkTwoFinger());
 for (const w of [375, 1280]) await unit(`checkBlockDrag ${w}`, () => checkBlockDrag(w));
 for (const w of [375, 1280]) await unit(`checkBlockSelect ${w}`, () => checkBlockSelect(w));
+for (const w of [375, 1280]) await unit(`checkInsertDialogClosesLate ${w}`, () => checkInsertDialogClosesLate(w));
 for (const w of [375, 1280]) await unit(`checkBlockMove ${w}`, () => checkBlockMove(w));
 await unit('checkUnlistedPost', () => checkUnlistedPost());
 await unit('checkLibraryAlt', () => checkLibraryAlt());
@@ -12410,6 +12729,7 @@ for (const [w, h] of [
 for (const block of liveLists)
   for (const w of [375, 1280]) await unit(`checkLiveList ${w} ${block.name}`, () => checkLiveList(w, w < 600 ? 740 : 900, block));
 for (const w of [375, 1280]) await unit(`checkImageGridAdd ${w}`, () => checkImageGridAdd(w, w < 600 ? 740 : 900));
+for (const w of [375, 768, 1280]) await unit(`checkChevronRows ${w}`, () => checkChevronRows(w));
 await unit('checkListRowColors', () => checkListRowColors());
 await unit('checkSectionOnImage', () => checkSectionOnImage());
 await unit('checkInsertNeverOpensSheet 375', () => checkInsertNeverOpensSheet(375, 740));
@@ -12417,6 +12737,7 @@ await unit('checkEmptyRow 375', () => checkEmptyRow(375, 740));
 await unit('checkInsertNeverOpensSheet 1280', () => checkInsertNeverOpensSheet(1280, 900));
 for (const [width, height] of [
   [375, 740],
+  [768, 900],
   [1280, 900],
 ])
   await unit(`checkSteps ${width}`, () => checkSteps(width, height));
@@ -12431,6 +12752,8 @@ await unit('checkDynamicPicker 375', () => checkDynamicPicker(375, 740));
 await unit('checkDynamicPicker 1280', () => checkDynamicPicker(1280, 900));
 await unit('checkOwnList 375', () => checkOwnList(375, 740));
 await unit('checkOwnList 1280', () => checkOwnList(1280, 900));
+await unit('checkOwnListText 375', () => checkOwnListText(375, 740));
+await unit('checkOwnListText 1280', () => checkOwnListText(1280, 900));
 await unit('checkInlineTable 375', () => checkInlineTable(375, 740));
 await unit('checkInlineTable 1280', () => checkInlineTable(1280, 800));
 await unit('checkTableAlign 375', () => checkTableAlign(375, 740));

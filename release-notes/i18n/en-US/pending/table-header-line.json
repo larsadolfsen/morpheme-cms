@@ -2,5 +2,6 @@
   "id": "table-header-line",
   "kind": "line",
   "mark": "improvement",
+  "line": "0.19",
   "text": "The header row of a Table has a line under it"
 }

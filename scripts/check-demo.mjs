@@ -27,6 +27,11 @@ try {
   run([fileURLToPath(new URL('check-content.mjs', import.meta.url))]);
   run([fileURLToPath(new URL('editor-roundtrip.mjs', import.meta.url))]);
   run([binOf('astro'), 'build', '--outDir', join(dir, 'dist')]);
+  // The migration's proof: the same HTML as the base, with the fixture "0.17 site" (check-same-html.mjs).
+  execFileSync(process.execPath, [fileURLToPath(new URL('check-same-html.mjs', import.meta.url))], {
+    cwd: process.cwd(),
+    stdio: 'inherit',
+  });
   console.log('\nThe demo works with the CMS.');
 } catch {
   console.error('\nThe demo does not work with the CMS (see above).');

@@ -47,6 +47,7 @@ import { colorFields as standardColorFields, colorPairs as standardColorPairs } 
 import { privacy as standardPrivacy } from '../defaults/privacy';
 import { internalLinks as standardInternalLinks } from '../defaults/internalLinks';
 import { appearance as standardAppearance, groups as standardGroups } from '../defaults/editor';
+import { CORE_LISTS } from '../lib/coreLists.mjs';
 import { isRecordPath, recordProblems } from './fileRecords.mjs';
 import { appTexts, DEFAULTS_LOCALE, locales, siteLocale, t, type Texts } from './i18n';
 import { flatten, readAll, REDIRECT_FILES, type AllRedirects } from './redirectData';
@@ -206,8 +207,7 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
         : [],
     // Every list a block can read: the site's, the standard blocks' and the apps' (writtenCollections), such as an app's list `<app id>.<id>` (contract 6).
     known: [
-      'posts',
-      'testimonials',
+      ...CORE_LISTS.map((l) => l.id),
       ...[...collections, ...writtenCollections].filter((c) => c.kind === 'folder' && (c as OwnedList).asRows).map((c) => c.id),
     ],
     blocks: files.flatMap((f) =>

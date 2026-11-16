@@ -31,6 +31,7 @@ const COMMANDS = {
   'check:themes': ['check-themes'],
   'check:contrast': ['check-contrast'],
   'check:demo': ['check-demo'],
+  'check:same-html': ['check-same-html'],
   'compare-html': ['compare-html'],
   'app-workers': ['app-workers'],
   'app-screenshots': ['app-screenshots'],

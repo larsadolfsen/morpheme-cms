@@ -2,6 +2,7 @@
   "id": "list-in-card",
   "kind": "paragraph",
   "mark": "feature",
+  "line": "0.19",
   "title": "Lists in a card",
   "text": "A page of services can be lists under headings, each in a card. Open a list’s settings, choose Card › One card, then Outlined, Filled or Elevated. For a card for each item, use Change to › Cards."
 }

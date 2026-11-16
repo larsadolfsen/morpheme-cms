@@ -21,7 +21,6 @@
         { "id": "answer", "kind": "text", "label": "Answer" },
         { "id": "topic", "kind": "tags", "label": "Topic" }
       ],
-      "locked": true,
       "examples": [
         { "question": "Can I return an item?", "answer": "Yes, within 30 days of delivery." },
         { "question": "How long is delivery?", "answer": "Two to four working days." }
