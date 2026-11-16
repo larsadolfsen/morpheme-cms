@@ -3917,7 +3917,9 @@ async function checkBlockVisibility(width) {
   const shown = (state, name, hovering) => {
     if (hovering ? !state.hover : !state.row) problems.push(`${label}: ${name} shows no row (${JSON.stringify(state)})`);
     if (state.mark !== 1) problems.push(`${label}: ${name} shows no selection ring (${state.mark})`);
-    if (state.handle !== 1) problems.push(`${label}: ${name} shows no handle (${state.handle})`);
+    // The handle is on the active block only: on a block a mouse points at it would cover the block's first item (the row's buttons are at the right).
+    if (hovering ? state.handle !== 0 || state.handleHits !== 'none' : state.handle !== 1)
+      problems.push(`${label}: ${name} ${hovering ? 'shows its handle while only pointed at' : 'shows no handle'} (${state.handle})`);
   };
   // Block 3 was typed in last and left: all three plain, the mouse away.
   await page.click('.ProseMirror > p');
