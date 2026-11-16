@@ -9,7 +9,7 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 
 /** Blocks the editor keeps only for old content (`former: true` in their index.tsx): not offered, so not on the page. */
 export const legacyBlocks = {
-  accordion: 'Accordion is a Segmented list now; kept for old text that has one.',
+  accordion: 'Accordion is a List - Expand now; kept for old text that has one.',
   checklist: 'Check lists are typed in the text (lib/remark-checklist.mjs); the block stays for hidden lists and lists without points.',
   links: 'Link collection is a List now; kept for old text that has one.',
   points: 'Points with icon are a List now (lib/blocks.mjs); kept for old text that has one.',
@@ -57,7 +57,8 @@ export function offeredValues(source, name) {
   const at = source.search(new RegExp(`name:\\s*'${name}'`));
   if (at < 0) return [];
   const from = source.indexOf('options: [', at);
-  const end = from < 0 ? -1 : source.indexOf('\n      ],', from);
+  const close = from < 0 ? -1 : source.slice(from).search(/\n\s*\],/);
+  const end = close < 0 ? -1 : from + close;
   if (end < 0) return [];
   return [...source.slice(from, end).matchAll(/value:\s*'([^']*)'/g)].map((m) => m[1]);
 }
@@ -68,7 +69,8 @@ export const styleChecks = [
   ['cards', 'color', ''],
   ['cards', 'media', 'icon'],
   ['cards', 'phone', ''],
-  ['segmented', 'show', ''],
+  ['list', 'design', '', 'rows/listParts.ts'],
+  ['expand', 'design', '', 'rows/listParts.ts'],
   ['posts', 'design', ''],
   ['posts', 'show', 'categories'],
   ['testimonials', 'layout', 'cards'],
@@ -90,8 +92,8 @@ export function styleProblems(text, dir = join(root, 'src/standard')) {
   for (const k of kinds) {
     if (!buttons.some((b) => (b.kind ?? 'filled') === k)) problems.push(`The Buttons example shows no "${k}" button.`);
   }
-  for (const [type, prop, empty] of styleChecks) {
-    const file = join(dir, type, 'index.tsx');
+  for (const [type, prop, empty, source] of styleChecks) {
+    const file = join(dir, source ?? join(type, 'index.tsx'));
     const values = existsSync(file) ? offeredValues(readFileSync(file, 'utf8'), prop) : [];
     if (!values.length) {
       problems.push(`No options found for "${prop}" of "${type}" in its code; fix styleChecks (scripts/demo-blocks.mjs).`);
@@ -119,7 +121,7 @@ export function styleProblems(text, dir = join(root, 'src/standard')) {
 export const blockPages = {
   buttons: { title: 'Buttons', kind: 'basic', types: ['buttons'], via: '@theme/ui/Button' },
   cards: { title: 'Cards', kind: 'basic', types: ['cards', 'notice'], via: '@theme/ui/Card' },
-  lists: { title: 'Lists', kind: 'basic', types: ['list', 'segmented', 'faq'], via: '@theme/ui/List' },
+  lists: { title: 'Lists', kind: 'basic', types: ['list', 'expand', 'faq'], via: '@theme/ui/List' },
   steps: { title: 'Steps', kind: 'basic', types: ['steps'], via: '<ol' },
   tables: { title: 'Tables', kind: 'basic', types: ['table', 'cookies'], via: '<table' },
   testimonials: { title: 'Testimonials', kind: 'special', types: ['testimonials'] },
@@ -235,7 +237,7 @@ export function pageProblems({ index, pages }, registry = blockPages, check = { 
 }
 
 /**
- * Each example has a "##" subheading naming it, between the example before it and itself (a sentence about the block may stand between
+ * Each example has a "##" subheading naming it (or a "###" under a "##" that shows its designs together), between the example before it and itself (a sentence about the block may stand between
  * them), the subheadings differ, and no two examples of a block are the same.
  */
 export function exampleProblems(text) {
@@ -243,11 +245,14 @@ export function exampleProblems(text) {
   const seen = new Map();
   const headings = new Set();
   let heading = '';
+  let section = '';
   for (const line of text.split('\n')) {
     const m = line.match(/^<div data-block="([^"]+)"(?: data-props="([^"]*)")?/);
     if (!m) {
-      if (line.startsWith('# ')) heading = '';
-      if (line.startsWith('## ')) heading = line.slice(3).trim();
+      if (line.startsWith('# ')) heading = section = '';
+      if (line.startsWith('## ')) heading = section = line.slice(3).trim();
+      // A "###" names one design of the example in its "##" section.
+      if (line.startsWith('### ')) heading = `${section}, ${line.slice(4).trim()}`;
       continue;
     }
     const [, type, props = ''] = m;

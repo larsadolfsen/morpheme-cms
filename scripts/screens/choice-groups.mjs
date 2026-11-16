@@ -236,10 +236,12 @@ async function checkChoiceGroupFields(width, locale) {
     await page.waitForTimeout(300);
     const groups = await here.evaluate(choiceGroupsIn);
     seen.push(...groups.map((g) => g.name));
-    // Blog posts 1, Testimonials 1, Cards 4, Image grid 3, Segmented list 1: the fixture's blocks in their order.
-    if (groups.length !== [1, 1, 4, 3, 1][i])
+    // Blog posts 1, Testimonials 1, Cards 4, Image grid 3, List - Expand 2 (the Segmented list is a List - Expand): the fixture's blocks in their order.
+    // List and List - Expand have two, Design and Leading (what leads the rows, one choice for the block as the media of Cards); every other block has one.
+    const expected = [1, 1, 4, 3, 2][i];
+    if (groups.length !== expected)
       problems.push(
-        `${label} ${name}: ${groups.length} choice groups in its settings, not ${[1, 1, 4, 3, 1][i]} (${groups.map((g) => g.name).join(', ')})`,
+        `${label} ${name}: ${groups.length} choice groups in its settings, not ${expected} (${groups.map((g) => g.name).join(', ')})`,
       );
     checkChoiceGroups(`${label} ${name}`, groups);
     if (process.env.SHOTS_FULL) await here.screenshot({ path: `${process.env.SHOTS_FULL}-fields-${width}-${locale}-${i}.png` });

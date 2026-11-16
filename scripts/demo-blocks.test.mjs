@@ -96,7 +96,7 @@ test('the pages hold every block type of the editor once', () => {
 });
 
 test('a basic page draws its blocks with its component, read from the code', () => {
-  assert.ok(blockReaches('segmented', '@theme/ui/List'));
+  assert.ok(blockReaches('expand', '@theme/ui/List'));
   assert.ok(blockReaches('notice', '@theme/ui/Card'));
   assert.ok(!blockReaches('steps', '@theme/ui/Card'));
 });
