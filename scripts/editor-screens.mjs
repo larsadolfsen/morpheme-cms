@@ -5539,21 +5539,38 @@ async function checkTwoFinger() {
 async function insertBlock(page, hint, count, at) {
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
-  await page.waitForFunction(
-    ([n, i]) => {
-      const blocks = [...document.querySelectorAll('.ProseMirror .site-block')];
-      const open = blocks.filter((b) => b.classList.contains('site-block-has-row'));
-      return (
-        blocks.length === n &&
-        open.length === 1 &&
-        open[0] === blocks[i] &&
-        !!open[0].querySelector('.inline-list-row-active') &&
-        !document.querySelector('.ProseMirror .site-block-row-moving')
-      );
-    },
-    [count, at],
-    { timeout: 10000 },
-  );
+  await page
+    .waitForFunction(
+      ([n, i]) => {
+        const blocks = [...document.querySelectorAll('.ProseMirror .site-block')];
+        const open = blocks.filter((b) => b.classList.contains('site-block-has-row'));
+        return (
+          blocks.length === n &&
+          open.length === 1 &&
+          open[0] === blocks[i] &&
+          !!open[0].querySelector('.inline-list-row-active') &&
+          !document.querySelector('.ProseMirror .site-block-row-moving')
+        );
+      },
+      [count, at],
+      { timeout: 10000 },
+    )
+    .catch(async (error) => {
+      // Say what the editor showed: a bare timeout names no cause.
+      const state = await page
+        .evaluate(() => ({
+          dialogOpen: !!document.querySelector('dialog[open]'),
+          blocks: [...document.querySelectorAll('.ProseMirror .site-block')].map((b) => ({
+            row: b.classList.contains('site-block-has-row'),
+            active: !!b.querySelector('.inline-list-row-active'),
+          })),
+          moving: !!document.querySelector('.ProseMirror .site-block-row-moving'),
+          focus: `${document.activeElement?.tagName}.${document.activeElement?.className}`,
+        }))
+        .catch(() => null);
+      error.message += `\ninsertBlock(${hint}, ${count}, ${at}) found ${JSON.stringify(state)}`;
+      throw error;
+    });
 }
 
 /** The opacity of the handle of the block at `index`, read once it is `want` and no transition runs on it (the handle fades): the wait is for that condition, never a
