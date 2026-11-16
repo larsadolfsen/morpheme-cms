@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { DIST, browser, problems, site } from './support/context.mjs';
 
-// The demo's Type page (demo/src/content/pages/type.md, demo/public/demo-type.js): only the demo has it, so a built site that is not the demo
+// The demo's Typography page (demo/src/content/pages/typography.md, demo/public/demo-type.js): only the demo has it, so a built site that is not the demo
 // has nothing to check. Each of the 16 type styles (Material 3's 15 roles and the lead) is shown with its class name and the size, line
 // height, tracking and weight read from its computed style; then the three text lists (bullet, numbered, check) the same way.
 const STYLES = [
@@ -26,10 +26,10 @@ const STYLES = [
 
 /** Every style on the page has the size, line height, weight and tracking of its token, and the line under it says the same and names the class. */
 async function checkTypePage(width, height) {
-  const label = `${width}px Type page`;
+  const label = `${width}px Typography page, type styles`;
   const tab = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
   tab.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  await tab.goto(`${site}/type/`, { waitUntil: 'networkidle' });
+  await tab.goto(`${site}/typography/`, { waitUntil: 'networkidle' });
   const found = await tab.evaluate((styles) => {
     // What a token is as the browser computes it: a probe that reads the four tokens of a style, in px.
     const probe = document.createElement('div');
@@ -199,12 +199,12 @@ async function checkTypographyHeadings(width, height) {
 }
 
 export function register(unit) {
-  const sizes = [
+  if (!existsSync(join(DIST, 'typography/index.html'))) return;
+  for (const [width, height] of [
     [375, 740],
     [1280, 900],
-  ];
-  if (existsSync(join(DIST, 'type/index.html')))
-    for (const [width, height] of sizes) unit(`checkTypePage ${width}`, () => checkTypePage(width, height));
-  if (existsSync(join(DIST, 'typography/index.html')))
-    for (const [width, height] of sizes) unit(`checkTypographyHeadings ${width}`, () => checkTypographyHeadings(width, height));
+  ]) {
+    unit(`checkTypePage ${width}`, () => checkTypePage(width, height));
+    unit(`checkTypographyHeadings ${width}`, () => checkTypographyHeadings(width, height));
+  }
 }

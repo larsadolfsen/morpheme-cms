@@ -1,8 +1,8 @@
 ---
 title: "Typography"
-description: "Every text style you can use in Morpheme, shown live."
+description: "Every text style you can use in Morpheme, shown live, with the values your browser draws."
 seoTitle: "Typography | Morpheme"
-seoDescription: "Headings, paragraphs, lists, quotes, code, labels and every Material 3 text role, shown on each section color."
+seoDescription: "The 16 type styles with their measured values, headings, paragraphs, lists, quotes, code, labels and every Material 3 text role, shown on each section color."
 keyword: "typography"
 ---
 
@@ -11,6 +11,106 @@ keyword: "typography"
 Everything you can do with text in the editor, drawn as the site draws it in your theme. Change the theme under Appearance and this page changes with it.
 
 <p class="body-large">This is Body large, the intro of a text. Pick it from the T menu.</p>
+
+## Type styles
+
+The theme has 16 type styles: Material 3's 15 type roles and the lead. Each is a class, like `type-title-large`. The numbers under each style are read from the style as your browser draws it, so they follow the width of your screen and the theme.
+
+### Display large
+
+<p class="type-display-large" data-type-sample="type-display-large">Harbor lights</p>
+
+<p class="body-small" data-type-spec="type-display-large"><code>.type-display-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+
+### Display medium
+
+<p class="type-display-medium" data-type-sample="type-display-medium">Harbor lights at dusk</p>
+
+<p class="body-small" data-type-spec="type-display-medium"><code>.type-display-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+
+### Display small
+
+<p class="type-display-small" data-type-sample="type-display-small">Harbor lights at dusk</p>
+
+<p class="body-small" data-type-spec="type-display-small"><code>.type-display-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+
+### Headline large
+
+<p class="type-headline-large" data-type-sample="type-headline-large">Harbor lights at dusk, in bloom</p>
+
+<p class="body-small" data-type-spec="type-headline-large"><code>.type-headline-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+
+### Headline medium
+
+<p class="type-headline-medium" data-type-sample="type-headline-medium">Harbor lights at dusk, in bloom</p>
+
+<p class="body-small" data-type-spec="type-headline-medium"><code>.type-headline-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+
+### Headline small
+
+<p class="type-headline-small" data-type-sample="type-headline-small">Harbor lights at dusk, in bloom</p>
+
+<p class="body-small" data-type-spec="type-headline-small"><code>.type-headline-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+
+### Title large
+
+<p class="type-title-large" data-type-sample="type-title-large">The Larkspur Market opens at nine</p>
+
+<p class="body-small" data-type-spec="type-title-large"><code>.type-title-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+
+### Lead
+
+<p class="type-lead" data-type-sample="type-lead">The Larkspur Market opens at nine, and the bakery stall is first in line.</p>
+
+<p class="body-small" data-type-spec="type-lead"><code>.type-lead</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+
+### Title medium
+
+<p class="type-title-medium" data-type-sample="type-title-medium">Seasonal produce and fresh bread</p>
+
+<p class="body-small" data-type-spec="type-title-medium"><code>.type-title-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+
+### Title small
+
+<p class="type-title-small" data-type-sample="type-title-small">Seasonal produce and fresh bread</p>
+
+<p class="body-small" data-type-spec="type-title-small"><code>.type-title-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+
+### Body large
+
+<p class="type-body-large" data-type-sample="type-body-large">Everything on these stalls is grown, baked or made within thirty miles of the harbor.</p>
+
+<p class="body-small" data-type-spec="type-body-large"><code>.type-body-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+
+### Body medium
+
+<p class="type-body-medium" data-type-sample="type-body-medium">Everything on these stalls is grown, baked or made within thirty miles of the harbor, and most of it is gone by noon.</p>
+
+<p class="body-small" data-type-spec="type-body-medium"><code>.type-body-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+
+### Body small
+
+<p class="type-body-small" data-type-sample="type-body-small">Open Tuesday to Saturday, nine to five. Closed on public holidays.</p>
+
+<p class="body-small" data-type-spec="type-body-small"><code>.type-body-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+
+### Label large
+
+<p class="type-label-large" data-type-sample="type-label-large">Visit the market</p>
+
+<p class="body-small" data-type-spec="type-label-large"><code>.type-label-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+
+### Label medium
+
+<p class="type-label-medium" data-type-sample="type-label-medium">Opening hours</p>
+
+<p class="body-small" data-type-spec="type-label-medium"><code>.type-label-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+
+### Label small
+
+<p class="type-label-small" data-type-sample="type-label-small">New this week</p>
+
+<p class="body-small" data-type-spec="type-label-small"><code>.type-label-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ## Headings
 
@@ -158,34 +258,38 @@ Right aligned paragraph.
 
 ### Center aligned Heading 3
 
-## Lists
+## Text lists
 
-A bulleted list:
+Lists in a text are type too: how a bullet list, a numbered list and a check list look in prose. They are not the List block. The numbers are read from the first item as your browser draws it.
 
-- First point
-- Second point
-- Third point, with a longer text that wraps onto a second line on a narrow screen
+### Bullet list
 
-A numbered list:
+- Fresh bread, baked at dawn
+- Seasonal produce from the valley
+  - Apples and pears in autumn
+  - Berries in summer
+- Honey, jam and preserves, in small jars, in flavors that change with the season and run out by midday on busy Saturdays
 
-1. First step
-2. Second step
-3. Third step
+<p class="body-small" data-type-list-spec="bullet"><code>ul</code> <span data-type-values>Size, line height, tracking, weight, indent, item space and marker color appear here.</span></p>
 
-A nested list:
+### Numbered list
 
-- Plan
-  - Pick a theme
-  - Add pages
-- Publish
-  1. Check the page
-  2. Tap Save
+1. Arrive before nine for the best choice
+2. Bring a bag or a basket
+   1. Cloth bags are sold at the gate
+   2. Baskets can be borrowed
+3. Pay at each stall
 
-A check list:
+<p class="body-small" data-type-list-spec="numbered"><code>ol</code> <span data-type-values>Size, line height, tracking, weight, indent, item space and marker color appear here.</span></p>
 
-- [x] Photos sized for every screen
-- [x] Light and dark mode
-- [ ] Your own domain
+### Check list
+
+- [x] Order the bread for Saturday
+- [x] Pick up the honey
+- [ ] Ask about the plum jam
+- [ ] Book a table for the autumn supper
+
+<p class="body-small" data-type-list-spec="checklist"><code>ul.contains-task-list</code> <span data-type-values>Size, line height, tracking, weight, indent, item space and check color appear here.</span></p>
 
 ## Quote, code and rule
 
@@ -202,22 +306,6 @@ A horizontal rule:
 
 ---
 
-## Table
-
-Rows and columns of text. This table lists the roles used above.
-
-<div data-block="table" data-props="{&quot;header&quot;:true,&quot;rows&quot;:[[&quot;Role&quot;,&quot;Where the site uses it&quot;],[&quot;Headline medium&quot;,&quot;Heading 2&quot;],[&quot;Title large&quot;,&quot;Heading 3&quot;],[&quot;Title medium&quot;,&quot;Heading 4&quot;],[&quot;Body large&quot;,&quot;Intro paragraph&quot;],[&quot;Body medium&quot;,&quot;Paragraph, list, quote, table&quot;],[&quot;Body small&quot;,&quot;Small print and notes&quot;],[&quot;Label medium&quot;,&quot;Label above a heading&quot;],[&quot;Label large&quot;,&quot;Buttons and tabs&quot;]]}"></div>
-
-## Images
-
-An image sits between paragraphs and scales to the screen. Its alt text describes it.
-
-![The Moon against a black sky](/images/uploads/2026/10/moon.webp)
-
-The editor has no caption field, so words under an image are a paragraph.
-
-<p class="body-small">Photo: the Moon, a sample image.</p>
-
 ## Labels
 
 A label sits above a heading. It is Label medium.
@@ -225,10 +313,6 @@ A label sits above a heading. It is Label medium.
 <p class="label-medium">Why Morpheme</p>
 
 ### A heading with a label
-
-Buttons and tabs use Label large.
-
-<div data-block="buttons" data-props="{&quot;items&quot;:[{&quot;label&quot;:&quot;Filled&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/get-started/&quot;,&quot;kind&quot;:&quot;filled&quot;},{&quot;label&quot;:&quot;Tonal&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/get-started/&quot;,&quot;kind&quot;:&quot;tonal&quot;},{&quot;label&quot;:&quot;Outlined&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/get-started/&quot;,&quot;kind&quot;:&quot;outlined&quot;},{&quot;label&quot;:&quot;Text&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/get-started/&quot;,&quot;kind&quot;:&quot;text&quot;}]}"></div>
 
 ## Material 3 text roles
 
@@ -306,19 +390,3 @@ A second paragraph follows the first, with the space the theme puts between para
 <p class="body-small">Body small is for small print, notes and dates.</p>
 
 #### Heading 4: **bold**, *italic*, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
-
-<div data-section="" data-picture="/images/uploads/2026/10/moon.webp" data-alt="The moon over a dark sky"></div>
-
-## Text on a dark image
-
-Text, lists and buttons on a photo take the colour of the text on an image, so they read on a dark photo.
-
-<div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;moon&quot;,&quot;title&quot;:&quot;A dark photo&quot;,&quot;text&quot;:&quot;The row reads on the moon.&quot;,&quot;href&quot;:&quot;/about/&quot;}]}"></div>
-
-<div data-section="" data-picture="/images/uploads/2026/10/earth-from-space.webp" data-alt="The Earth seen from space, a bright photo"></div>
-
-## Text on a bright image
-
-The same section on a bright photo.
-
-<div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;sun&quot;,&quot;title&quot;:&quot;A bright photo&quot;,&quot;text&quot;:&quot;The row reads on the bright photo.&quot;,&quot;href&quot;:&quot;/about/&quot;}]}"></div>
