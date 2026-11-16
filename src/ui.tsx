@@ -3206,7 +3206,20 @@ export function useKept<T>(key: string | null, first: T): [T, (value: T) => void
 /** On a computer: what is picked in a screen's list or grid (a file in Files), in the theme's side sheet at the right
  * of it, with its title and a cross that closes it; it stays in view while the screen scrolls. On a
  * phone the same is in a sheet (useAtLeast). */
-export function SideSheet({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+export function SideSheet({
+  title,
+  onClose,
+  onBack,
+  backLabel,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  /** A back icon button before the title, for a sheet that shows another region of itself; `backLabel` names it. */
+  onBack?: () => void;
+  backLabel?: string;
+  children: ReactNode;
+}) {
   const id = useId();
   return (
     <SiteSideSheet
@@ -3214,6 +3227,8 @@ export function SideSheet({ title, onClose, children }: { title: string; onClose
       headlineId={id}
       closeLabel={t.common.close}
       onClose={onClose}
+      onBack={onBack}
+      backLabel={backLabel}
       className="editor-reveal sticky top-8 max-h-[calc(100dvh-3rem)] self-start"
     >
       <div className="space-y-5">{children}</div>
