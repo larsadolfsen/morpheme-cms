@@ -1,0 +1,6 @@
+{
+  "id": "cards-no-empty-subhead",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Elevated cards always have their shadow, and cards in the editor show no empty Subheading row until you tap into them"
+}

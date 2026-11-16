@@ -1,0 +1,6 @@
+{
+  "id": "cards-no-empty-subhead",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Hævede kort har altid deres skygge, og kort i editoren viser ingen tom underoverskrift, før du trykker i dem"
+}
