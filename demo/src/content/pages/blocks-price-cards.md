@@ -10,7 +10,7 @@ seoDescription: "Plans side by side, shown live."
 
 [All blocks](/blocks/)
 
-A special block with its own plan layout: a Card for each plan, with a Check list and Buttons inside.
+A special block with its own plan layout: a Card for each plan, with its points as a check list and Buttons inside.
 
 
 ## Price cards

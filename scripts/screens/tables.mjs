@@ -249,10 +249,10 @@ async function checkTableAlign(width, height) {
   await page.waitForTimeout(300);
   const saved = async () => {
     const before = commits.length;
-    // A page with nothing changed has no Save draft to press: nothing is written a second time.
-    if (!(await page.locator('button', { hasText: /^Save draft$/ }).count())) return [];
+    // A page with nothing changed has no Save to press: nothing is written a second time.
+    if (!(await page.locator('button', { hasText: /^Save$/ }).count())) return [];
     await page
-      .locator('button', { hasText: /^Save draft$/ })
+      .locator('button', { hasText: /^Save$/ })
       .first()
       .evaluate((b) => b.click());
     await page.waitForTimeout(900);
