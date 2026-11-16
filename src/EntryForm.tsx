@@ -566,7 +566,7 @@ function Form({
   }, [values]);
   // `Ctrl+S` (`⌘S`) saves now and never opens the browser's save dialog (one save while writing, 6): the autosave is sent at once, or,
   // where autosave cannot keep the change (the live page, an earlier version, a new address, R2 caching off, an image not uploaded yet, a
-  // wrong field), what `Save draft` does runs. A modal sheet over the form (a block's sheet on a phone) has its own Save: nothing is saved.
+  // wrong field), what `Save` does runs. A modal sheet over the form (a block's sheet on a phone) has its own Save: nothing is saved.
   const saveKey = useRef(() => {});
   saveKey.current = () => {
     if (!dirty || saving || deleting) return;
@@ -1091,25 +1091,35 @@ function Form({
       env.onSaved(saved, { files: [], removed: [] });
     });
   }
-  // `Discard draft`: the waiting version goes, and the form is the page on the website again.
+  // `Discard draft` (the list under the form) and `Discard` (the bar): what was changed since the page was published goes, saved (the waiting
+  // version, removed through the Worker's commit) or not (the form goes back to the file as last loaded or saved).
   async function discardNow() {
-    if (!waiting) return;
+    if (!waiting && !dirty) return;
     const answer = await choose({
       title: t.forms.versions.discardTitle,
-      text: t.forms.versions.discardText(nameForMessages().entry),
-      choices: [{ value: 'discard', label: t.forms.versions.discardDraft }],
+      text: t.forms.versions.discardText(post, livePublished),
+      choices: [{ value: 'discard', label: t.app.discard }],
     });
     if (!answer) return;
     const { what, entry, singular } = nameForMessages();
-    const changes = commitChanges(discardWaiting({ path: live.path, text: live.text, drafts: { waiting: waiting.text } }), [live, waiting]);
-    await act(siteT.forms.versions.commit.discard(singular, what), changes, t.forms.versions.discarded(entry), false, () => {
-      setWaiting(null);
+    const reset = () => {
       setEditing('waiting');
       setBase(live);
       setValues(valuesOf(collection, live));
       setBodyChanged(false);
       setBody(splitFrontmatter(live.text).body);
       setEra((n) => n + 1);
+    };
+    if (!waiting) {
+      // Nothing is saved to remove: the form is the saved page again (its undo starts again with the new text editor).
+      reset();
+      notify({ text: t.forms.versions.discarded(entry) });
+      return;
+    }
+    const changes = commitChanges(discardWaiting({ path: live.path, text: live.text, drafts: { waiting: waiting.text } }), [live, waiting]);
+    await act(siteT.forms.versions.commit.discard(singular, what), changes, t.forms.versions.discarded(entry), false, () => {
+      setWaiting(null);
+      reset();
       env.onSaved(live, { files: [], removed: [waiting.path] });
     });
   }
@@ -1319,6 +1329,8 @@ function Form({
             onDelete={collection.deletable && !isNew ? () => env.remove(collection, live, setDeleting) : undefined}
             deleteLabel={t.forms.deleteOne(collection.singular)}
             saveLabel={t.forms.versions.saveDraft}
+            onDiscard={isNew ? undefined : () => void discardNow()}
+            canDiscard={dirty || !!waiting}
           >
             {version && <VersionNotice version={version} onCurrent={() => onVersion(null)} />}
             {waiting && !isNew && (

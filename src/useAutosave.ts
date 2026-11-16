@@ -104,7 +104,7 @@ export function useAutosave({
   }
 
   /** `Ctrl+S`: the text is read and sent now. True when autosave keeps it (or there is nothing to keep); false when it cannot (not on, a
-   * field that is wrong, an image not uploaded yet, `R2 caching` off): the form then saves it as `Save draft` does. */
+   * field that is wrong, an image not uploaded yet, `R2 caching` off): the form then saves it as `Save` does. */
   async function now() {
     const cur = latest.current;
     if (!cur.on) return false;

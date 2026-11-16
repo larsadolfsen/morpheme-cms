@@ -125,7 +125,7 @@ export const forms = {
     unpublish: 'Unpublish',
     discardDraft: 'Discard draft',
     /** The Save button while the changes are kept as a draft. */
-    saveDraft: 'Save draft',
+    saveDraft: 'Save',
     /** The top bar's line under the title. */
     draftLine: 'Draft',
     waitingLine: 'Unpublished changes',
@@ -143,9 +143,10 @@ export const forms = {
     unpublishTitle: (post: boolean) => `Unpublish this ${post ? 'post' : 'page'}?`,
     unpublishText: (post: boolean) =>
       `The ${post ? 'post' : 'page'} leaves the website and becomes a draft. Changes that wait to be published stay.`,
-    discardTitle: 'Discard draft?',
-    /** `name`: the page or post, as in “Page About us”. */
-    discardText: (name: string) => `Your unpublished changes to ${name} will be deleted. The published version stays.`,
+    discardTitle: 'Discard your changes?',
+    /** `published`: the page or post has a published version to go back to; else it goes back to its last saved version. */
+    discardText: (post: boolean, published: boolean) =>
+      `The ${post ? 'post' : 'page'} goes back to its ${published ? 'published' : 'last saved'} version.`,
     addressWaiting: 'Publish or discard the changes before you change the URL.',
     standardPage: 'This page is selected as a default page, so it must stay published.',
     /** Names of what changed, for the message after a save (`what`: the page or post). */

@@ -1,16 +1,16 @@
 ---
 title: "Lists"
-description: "Lists, accordions, FAQ lists and check lists, shown live."
+description: "Lists, accordions and FAQ lists, shown live, and the check list typed in the text."
 path: "/blocks/lists/"
 seoTitle: "Lists | Morpheme"
-seoDescription: "Lists, accordions, FAQ lists and check lists, shown live."
+seoDescription: "Lists, accordions and FAQ lists, shown live, and the check list typed in the text."
 ---
 
 # Lists
 
 [All blocks](/blocks/)
 
-Drawn by the List component: the List, Segmented list, FAQ list and Check list blocks.
+Drawn by the List component: the List, Segmented list and FAQ list blocks, and the Check list type in text.
 
 
 ## List with icons
@@ -65,7 +65,7 @@ Questions that unfold to reveal the answer, ready for Google to show in search r
 
 ## Check list
 
-Not a block: a check list is typed in the text as a list with check marks (`- [x]`). Quick points with a check mark.
+A check list is a type, not a block: it is typed in the text as a list with check marks (`- [x]`). Quick points with a check mark.
 
 Quick points with a check mark.
 

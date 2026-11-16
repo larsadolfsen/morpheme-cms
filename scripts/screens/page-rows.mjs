@@ -942,7 +942,7 @@ async function checkPreviewDraft(width) {
   await page.close();
 }
 
-/** An empty row in a block typed in place (the Segmented list's "New row" left empty) is not a snackbar and a page that cannot be saved: Save draft or Publish scrolls to the block and asks (375 px, touch): "You have an empty segmented list row." with Remove item (the row goes, nothing is saved), the action tapped (the page is saved without the empty rows) and Cancel (nothing changes). A page without an empty row saves as before, with no question. */
+/** An empty row in a block typed in place (the Segmented list's "New row" left empty) is not a snackbar and a page that cannot be saved: Save or Publish scrolls to the block and asks (375 px, touch): "You have an empty segmented list row." with Remove item (the row goes, nothing is saved), the action tapped (the page is saved without the empty rows) and Cancel (nothing changes). A page without an empty row saves as before, with no question. */
 async function checkEmptyRow(width, height) {
   const label = `${width}px empty row`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -1008,7 +1008,7 @@ async function checkEmptyRow(width, height) {
         `${label}: Delete and publish left ${await blocks()} blocks, ${commits.length} commits, dialog ${await dialog.count()}`,
       );
   }
-  // A list with an empty row between its rows: Remove item takes that row, Save draft saves without it.
+  // A list with an empty row between its rows: Remove item takes that row, Save saves without it.
   const first = commits.length;
   const makeList = async () => {
     await page.click('.ProseMirror > p');
@@ -1030,19 +1030,19 @@ async function checkEmptyRow(width, height) {
   };
   await makeList();
   if ((await rows()) !== 3) problems.push(`${label}: expected 3 rows before saving, got ${await rows()}`);
-  await press('Save draft', true);
-  if (!(await dialog.count())) problems.push(`${label}: an empty row between rows on Save draft did not open a dialog`);
+  await press('Save', true);
+  if (!(await dialog.count())) problems.push(`${label}: an empty row between rows on Save did not open a dialog`);
   else {
     const got = await buttons();
-    if (got.join('|') !== 'Remove item|Save draft|Cancel')
-      problems.push(`${label}: the dialog has "${got.join('|')}", not "Remove item|Save draft|Cancel"`);
+    if (got.join('|') !== 'Remove item|Save|Cancel')
+      problems.push(`${label}: the dialog has "${got.join('|')}", not "Remove item|Save|Cancel"`);
     await dialog.getByRole('button', { name: 'Remove item' }).tap();
     await page.waitForTimeout(400);
     if (commits.length !== first || (await rows()) !== 2 || (await blocks()) !== 1)
       problems.push(`${label}: Remove item left ${await rows()} rows (not 2), ${commits.length} commits`);
   }
   // Saved as it is now: no question, and no empty row in the file.
-  await press('Save draft', true);
+  await press('Save', true);
   if (await dialog.count()) problems.push(`${label}: a list without an empty row still asked`);
   if (commits.length === first) problems.push(`${label}: a list without an empty row was not saved`);
   else if (/"title":""/.test(sent(first).join('\n'))) problems.push(`${label}: the saved page has an empty row`);
@@ -1057,14 +1057,14 @@ async function checkEmptyRow(width, height) {
   await page.locator('[data-add-row]').tap();
   await page.waitForTimeout(300);
   if ((await rows()) !== 3) problems.push(`${label}: expected 3 rows with a new empty one, got ${await rows()}`);
-  await press('Save draft', true);
+  await press('Save', true);
   if (!(await dialog.count())) problems.push(`${label}: the new empty row did not open the dialog`);
   else {
-    await dialog.getByRole('button', { name: 'Save draft' }).tap();
+    await dialog.getByRole('button', { name: 'Save' }).tap();
     await page.waitForTimeout(1200);
-    if (commits.length === before) problems.push(`${label}: Save draft in the dialog saved nothing`);
-    else if (/"title":""/.test(sent(before).join('\n'))) problems.push(`${label}: Save draft in the dialog saved the empty row`);
-    if ((await rows()) !== 2) problems.push(`${label}: after Save draft in the dialog the list has ${await rows()} rows, not 2`);
+    if (commits.length === before) problems.push(`${label}: Save in the dialog saved nothing`);
+    else if (/"title":""/.test(sent(before).join('\n'))) problems.push(`${label}: Save in the dialog saved the empty row`);
+    if ((await rows()) !== 2) problems.push(`${label}: after Save in the dialog the list has ${await rows()} rows, not 2`);
   }
   await page.close();
 }
