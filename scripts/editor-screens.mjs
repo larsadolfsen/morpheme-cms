@@ -5469,7 +5469,7 @@ async function handleOpacity(page, index, want) {
     .evaluate((el) => getComputedStyle(el).opacity);
 }
 
-/** Dragging a block by its handle (blockHandle in MarkdownEditor.tsx): every block has a handle at its top right, at least 44 px, always shown with a
+/** Dragging a block by its handle (blockHandle in MarkdownEditor.tsx): every block has a handle at its top left corner, at least 48 px, always shown with a
  * touch and on the block pointed at with a mouse; dragging it above the block before moves the block there (the order in the text changes), a tap on it
  * does nothing. A touch drag is made with real touch events. */
 async function checkBlockDrag(width) {
@@ -5502,7 +5502,7 @@ async function checkBlockDrag(width) {
   }
   const box = (i) => handles.nth(i).boundingBox();
   const first = await box(0);
-  if (first.width < 44 || first.height < 44) problems.push(`${label}: a handle is smaller than 44 x 44 (${first.width}x${first.height})`);
+  if (first.width < 48 || first.height < 48) problems.push(`${label}: a handle is smaller than 48 x 48 (${first.width}x${first.height})`);
   const opacity = (want) => handleOpacity(page, 1, want);
   if (phone) {
     // A touch sees a handle only on the active block (it is the end of the block's row); go into the second block first.
@@ -5567,6 +5567,108 @@ async function checkBlockDrag(width) {
     problems.push(`${label}: dragging the handle did not move the block (${before.join()} -> ${after.join()})`);
   if (await page.locator('.ProseMirror .site-block-dragging, .ProseMirror [class*="site-part-drop"]').count())
     problems.push(`${label}: the drag left its marks behind`);
+  await page.close();
+}
+
+/** The drag handle is in the top left corner of every block's frame (owner, 16 Nov): with the block active, on the demo's Blocks page, for each type of block, its box is at least
+ * 48 by 48, inside the frame and the editor's visible width, in the frame's left half and in its top row, and it overlaps neither the action row's buttons, nor the selection
+ * mark (whose own 48 target is centred on the corner), nor the block's content (the row is its own height above it). */
+async function checkBlockHandleCorner(width) {
+  const label = `block handle corner ${width}`;
+  // The starter has no Blocks page of its own: its blocks are the ones the check of the demo measures.
+  if (!existsSync(join(ROOT, 'src/content/pages/blocks.md'))) return console.log(`${label}: skipped, the site has no Blocks page.`);
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#src/content/pages/blocks.md'));
+  await page.waitForSelector('.ProseMirror > .site-block', { timeout: 30_000 });
+  const blocks = page.locator('.ProseMirror > .site-block');
+  const seen = new Set();
+  const count = await blocks.count();
+  for (let i = 0; i < count; i++) {
+    const block = blocks.nth(i);
+    const card = block.locator(':scope > .site-block-card');
+    const name = await card.getAttribute('aria-label');
+    if (seen.has(name)) continue;
+    seen.add(name);
+    await block.scrollIntoViewIfNeeded();
+    // Activate it with a tap or click inside it; the wait is for its row to be open (the state itself, no fixed time).
+    const open = () =>
+      page
+        .waitForFunction(
+          (n) => {
+            const b = document.querySelectorAll('.ProseMirror > .site-block')[n];
+            return !!b?.classList.contains('site-block-has-row') && !document.querySelector('.ProseMirror .site-block-row-moving');
+          },
+          i,
+          { timeout: 2000 },
+        )
+        .then(
+          () => true,
+          () => false,
+        );
+    let active = false;
+    for (const selector of [
+      '[data-field]',
+      '[contenteditable="true"]',
+      'button:not(.site-block-handle):not([data-row])',
+      '.site-block-preview',
+    ]) {
+      const target = card.locator(selector).first();
+      if (!(await target.count())) continue;
+      await target.scrollIntoViewIfNeeded().catch(() => {});
+      await (
+        phone ? target.tap({ position: { x: 6, y: 6 }, timeout: 3000 }) : target.click({ position: { x: 6, y: 6 }, timeout: 3000 })
+      ).catch(() => {});
+      if ((active = await open())) break;
+    }
+    if (!active) {
+      problems.push(`${label}: the ${name} block did not become active`);
+      continue;
+    }
+    const m = await block.evaluate((el) => {
+      const rect = (s) => el.querySelector(s)?.getBoundingClientRect();
+      const handle = rect(':scope > .site-block-handle');
+      const frame = rect(':scope > .site-block-card');
+      const mark = rect(':scope > .site-block-mark');
+      const content = rect(':scope > .site-block-card > .site-block-preview');
+      const buttons = [...el.querySelectorAll('.site-block-row-inner button')].map((b) => b.getBoundingClientRect());
+      const editor = el.closest('.ProseMirror').getBoundingClientRect();
+      const meets = (a, b) =>
+        !!a && !!b && a.left < b.right - 0.6 && a.right > b.left + 0.6 && a.top < b.bottom - 0.6 && a.bottom > b.top + 0.6;
+      return {
+        handle: handle && {
+          w: handle.width,
+          h: handle.height,
+          left: handle.left - frame.left,
+          top: handle.top - frame.top,
+          right: handle.right,
+          vLeft: handle.left,
+        },
+        frameW: frame.width,
+        editorLeft: editor.left,
+        buttons: buttons.some((b) => meets(handle, b)),
+        mark: meets(handle, mark),
+        content: meets(handle, content),
+        shown: getComputedStyle(el.querySelector(':scope > .site-block-handle')).opacity === '1',
+      };
+    });
+    const at = `${label}: ${name}`;
+    if (!m.handle) problems.push(`${at}: no handle`);
+    else {
+      if (m.handle.w < 48 || m.handle.h < 48) problems.push(`${at}: the handle is ${m.handle.w}x${m.handle.h}, under 48x48`);
+      if (m.handle.left > m.frameW / 4 || m.handle.top > 16)
+        problems.push(`${at}: the handle is not in the frame's top left corner (${m.handle.left}, ${m.handle.top})`);
+      if (m.handle.left < 0) problems.push(`${at}: the handle starts outside the frame (${m.handle.left})`);
+      if (m.handle.vLeft < 0 || m.handle.right > width) problems.push(`${at}: the handle is outside the visible width`);
+      if (!m.shown) problems.push(`${at}: the active block's handle is not shown`);
+    }
+    if (m.buttons) problems.push(`${at}: the handle overlaps a button of the action row`);
+    if (m.mark) problems.push(`${at}: the handle overlaps the selection mark`);
+    if (m.content) problems.push(`${at}: the handle overlaps the block's content`);
+  }
+  if (seen.size < 8) problems.push(`${label}: only ${seen.size} kinds of block were measured`);
   await page.close();
 }
 
@@ -11832,6 +11934,7 @@ await unit('checkRedirectsSelection', () => checkRedirectsSelection());
 await unit('checkDragSelect', () => checkDragSelect());
 await unit('checkTwoFinger', () => checkTwoFinger());
 for (const w of [375, 1280]) await unit(`checkBlockDrag ${w}`, () => checkBlockDrag(w));
+for (const w of [375, 768, 1280]) await unit(`checkBlockHandleCorner ${w}`, () => checkBlockHandleCorner(w));
 for (const w of [375, 1280]) await unit(`checkBlockSelect ${w}`, () => checkBlockSelect(w));
 for (const w of [375, 1280]) await unit(`checkBlockMove ${w}`, () => checkBlockMove(w));
 await unit('checkUnlistedPost', () => checkUnlistedPost());

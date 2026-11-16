@@ -879,13 +879,15 @@ html {
 .editor-text .site-block-handle {
   position: absolute;
   top: 0.25rem;
-  right: 0.25rem;
+  /* The block's top left corner (owner, 16 Nov): the one place to drag a block. A 48 dp touch target, drawn inside the frame, its edge 24 dp in from the frame's left
+     edge, where the selection mark's 48 dp target (centred on the outline's corner curve) ends, so the two never overlap (the card is 0.625rem wider than the block on each side). */
+  left: calc(var(--card-radius, var(--block-radius)) * 0.2929 + 0.53px + 1.5rem - 0.625rem);
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  inline-size: 2.75rem;
-  block-size: 2.75rem;
+  inline-size: 3rem;
+  block-size: 3rem;
   padding: 0;
   border: 0;
   border-radius: 50%;
@@ -896,13 +898,13 @@ html {
   transition: opacity var(--motion-effects);
 }
 
-/* The active block's action row (blockRow.ts): inside the block's dotted outline (the card), at the top of its padding, right-aligned, 44 dp high, in the card's flow so
+/* The active block's action row (blockRow.ts): inside the block's dotted outline (the card), at the top of its padding, 48 dp high, with the drag handle at its start, in the card's flow so
    the block makes room for it (its height opens with the spatial spring). Its buttons are the theme's standard icon buttons (iconButtonClass), no style of their own here.
-   The block's drag handle is its last button: it moves into the row's end while the row is open. */
+   The block's drag handle is at the row's start, in the block's top left corner, 48 dp like the row (the row is as high as the handle's touch target). */
 .editor-text .site-block-row {
   display: block;
   box-sizing: border-box;
-  block-size: 2.75rem;
+  block-size: 3rem;
 }
 
 /* The row hugs the top of the outline: it is pulled up into the card's padding, so the space above it is the Card's gap (the theme's small step), not its full padding; the
@@ -932,6 +934,8 @@ html {
   border-radius: var(--mo-shape-full);
   background: var(--mo-surface);
   pointer-events: auto;
+  /* The handle is a separate round part at the left on its own surface, so the pill holds only the buttons. */
+  padding-inline-start: 0;
 }
 
 .editor-text .site-block-row-moving {
@@ -942,8 +946,9 @@ html {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  block-size: 2.75rem;
-  padding-inline-end: 2.75rem;
+  block-size: 3rem;
+  /* Room for the handle at the start: it ends 4.5 rem past the selection mark's centre; the buttons stay clear of it. */
+  padding-inline-start: calc(var(--card-radius, var(--block-radius)) * 0.2929 + 0.53px + 4.5rem - var(--card-padding, 1rem) - 1.5px);
 }
 
 /* A button that cannot be used (a block that cannot move further): shown, in its place, with the reason; the theme's disabled look, no state layer. */
@@ -957,10 +962,12 @@ html {
 }
 
 .editor-text :is(.site-block-has-row, .site-block-has-hover) > .site-block-handle {
-  /* In the row's end: the card's border and padding in from its top and right edge (the card is 0.625rem wider than the block on each side). */
+  /* In the row's start: the row's own height, below the card's border and gap from its top edge. */
   top: calc(1.5px + var(--card-gap, 0.5rem));
-  right: calc(var(--card-padding, 1rem) + 1.5px - 0.625rem);
   opacity: 1;
+}
+
+.editor-text .site-block-has-row > .site-block-handle {
   background: transparent;
 }
 

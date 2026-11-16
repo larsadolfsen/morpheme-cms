@@ -1,5 +1,5 @@
 // The active block's action row (docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md; owner idea, 14 Nov): a small row at the top of the block's dotted outline (inside it, above the block's top
-// item), right-aligned, with the block's own actions (Move up, Move down, Hide or Show, Settings, only when the block has settings) and, at its end, the block's drag handle (drawn there by
+// item), with the block's own actions at its right (Move up, Move down, Hide or Show, Settings, only when the block has settings) and, at its start, the block's drag handle in the block's top left corner (drawn there by
 // CSS: `.site-block-has-row`). It shows only while a block is active and opens by its height, with the editor's spatial spring (motionTiming) and not at all
 // under reduced motion. The buttons are real buttons with the labels the menu rows had; the bar's `⋮` keeps the rest (Remove, other settings).
 // A mouse pointing at a block that is not the active one shows the same row over the block's top, taking no space (`.site-block-row-hover`), so the page never moves on hover; when the block
@@ -12,8 +12,8 @@ import { blockBar, type BlockRow } from './blockBar';
 /** The narrowest block (in px) that shows its row when a mouse points at it: the row is about 230 px wide and lies over the block's first item. */
 const POINTED_MIN = 400;
 
-/** The row's height and its buttons': the editor's one touch size, 44 dp. */
-const SIZE = 44;
+/** The row's height and its buttons': the handle's touch target, 48 dp. */
+const SIZE = 48;
 
 let shown: { host: HTMLElement; el: HTMLElement } | null = null;
 let pointedAt: { host: HTMLElement; el: HTMLElement } | null = null;
