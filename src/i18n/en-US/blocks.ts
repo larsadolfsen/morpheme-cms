@@ -172,10 +172,10 @@ export const blocks = {
     newRow: 'New row',
     /** A row of the list typed in place: its place, for screen readers (row 2 of 4). */
     rowOf: (n: number, total: number) => `Row ${n} of ${total}`,
-    /** The design of a list: rows on the page, or each row on its own surface (a card). */
+    /** The design of a list: rows on the page (plain), or each row on its own surface (segmented). */
     design: 'Design',
-    designDefault: 'Default',
-    designCard: 'Card',
+    designPlain: 'Plain',
+    designSegmented: 'Segmented',
     maxRows: 'Maximum rows',
     maxRowsHint: 'How many rows show at first. A button under them shows the rest. If empty, all rows show.',
     showMore: 'Button label (show more)',

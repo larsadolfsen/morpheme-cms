@@ -20,10 +20,10 @@ export type ListRow = {
   href?: string;
   buttons?: { label: string; href: string }[];
 };
-/** `design`: each row on its own surface (`card`), else the rows on the page. `max`: `Max rows`, how many rows show before the button (maxRows.mjs). */
+/** `design`: each row on its own surface (`segmented`), else the rows on the page. `max`: `Max rows`, how many rows show before the button (maxRows.mjs). */
 export type ListView = ColumnsView & {
   items: ListRow[];
-  design?: 'card';
+  design?: 'segmented';
   max?: number;
   /** A text button under the last row. */
   button?: { label: string; href?: string };
@@ -35,7 +35,7 @@ export type ListView = ColumnsView & {
 export const listSettings = (props: Record<string, any>): Pick<ListView, 'design' | 'max' | 'button'> => {
   const label = typeof props.button === 'string' ? props.button.trim() : '';
   return {
-    design: props.design === 'card' ? 'card' : undefined,
+    design: props.design === 'segmented' ? 'segmented' : undefined,
     max: maxRowsOf(props.maxRows),
     button: label ? { label, href: props.buttonHref || undefined } : undefined,
   };

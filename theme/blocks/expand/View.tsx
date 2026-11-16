@@ -1,5 +1,5 @@
 // "List - Expand": its head in the text (BlockHead.tsx), then its rows, folded out (Accordion.tsx in ../faq/, closed to begin with) in its design (the
-// rows on the page, or each on its own surface: `card`); with `Max rows` the rows after the first ones behind a button `Show more` (MoreRows.tsx);
+// rows on the page, or each on its own surface: `segmented`); with `Max rows` the rows after the first ones behind a button `Show more` (MoreRows.tsx);
 // and its text button under the last row.
 import BlockHead from '@theme/blocks/BlockHead';
 import Accordion from '@theme/blocks/faq/Accordion';
@@ -24,7 +24,7 @@ export default function Expand({ view }: { view: ExpandView }) {
             several={view.several}
             cut={cut}
             oneColumn={view.oneColumn}
-            card={view.design === 'card'}
+            segmented={view.design === 'segmented'}
           />
         </div>
       </MoreRows>

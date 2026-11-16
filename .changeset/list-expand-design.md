@@ -2,4 +2,4 @@
 '@morphemecms/cms': minor
 ---
 
-The Segmented list is now a List with the Card design or a List - Expand: both lists have a Design setting, Default or Card, and pages from before open and look as they did
+The Segmented list is now a List or a List - Expand with the design Segmented: both lists have a Design setting, Plain or Segmented, and pages from before open and look as they did

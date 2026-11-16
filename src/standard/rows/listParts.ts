@@ -52,15 +52,15 @@ export const listRowFields = ({ buttons, pageTitle }: { buttons?: boolean; pageT
 ];
 
 /** The design of a list (`design`, owner, 16 Nov 2026): the rows on the page, or each row on its own surface, a card (Material 3's standard and
- * segmented styles). No value is the default. The same for List and List - Expand. */
+ * segmented styles). No value is the plain design. The same for List and List - Expand. */
 export const designField: Field = {
   name: 'design',
   label: t.blocks.list.design,
   type: 'select',
   segments: true,
   options: [
-    { label: t.blocks.list.designDefault, value: '', icon: Rows },
-    { label: t.blocks.list.designCard, value: 'card', icon: SquaresFour },
+    { label: t.blocks.list.designPlain, value: '', icon: Rows },
+    { label: t.blocks.list.designSegmented, value: 'segmented', icon: SquaresFour },
   ],
 };
 

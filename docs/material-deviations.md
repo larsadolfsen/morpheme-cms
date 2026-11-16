@@ -507,14 +507,6 @@ Source: `theme/components/MobileMenu.tsx`, `theme/ui/NavigationDrawer.tsx`, `the
 - **We do:** a paragraph or heading of a page's text is at least `--block-text-measure-min` (40ch) and at most `--block-text-measure-max` (60ch) wide (`theme/styles/blocks.css`), as `min-width: min(40ch, 100%)` so a narrow container never scrolls sideways. Blocks of plain text rows (List, Segmented list and its accordion rows, Steps, Blog posts as a list, Testimonials list) are columns at least `--block-list-column-min` (21.5rem, 344px) wide, as many as fit the list's own width (one `repeat(auto-fill, minmax(min(…, 100%), 1fr))` rule, no breakpoint): one column below 720px, two from 720px, three from 1080px, never more in the page container (the owner's addition, 16 Nov: "set max width to 720px. If large split into two columns", then "At 3x360px it splits into three"; 344px instead of 360px so that three columns and their 24px gutters fit the 1104px container). Blog posts rows have a thumbnail before the text, so their columns are at least 30rem (480px) wide (two from 984px) and the date and reading time stay on one line. Steps is one column at most `--block-list-measure-max` (720px) wide. Wide visual blocks keep the container's width. The page container is unchanged. It was 66ch for text, and 48rem for the accordion and Steps.
 - **Why:** the owner's own rule ("p { min-width: 40ch; max-width: 60ch; }", "yes, do that"). **Date:** 2026-11-16. **PR:** this pull request.
 
-## The design of a list (owner decision, 16 Nov 2026)
-
-### L1. The List's styles are called Default and Card, not Standard and Segmented
-
-- **Material (Lists, read 16 Nov 2026 with Playwright, overview and guidelines):** "Choose between standard and segmented styles"; "Lists have a new segmented visual style". The Lists specs table prints the styles as Standard and Segmented.
-- **We do:** the editor's setting `Design` of the blocks List and List - Expand offers `Default` and `Card` (Danish `Standard` and `Kort`; the saved value is `design: card`, no value for the default). `Default` is Material's standard style (rows on the page); `Card` is Material's segmented style (the theme's `List kind="segmented"`, and for the rows that fold out, the same surfaces through the `--list-expand-gap` tokens): each row on its own surface, 2dp apart. The theme's parts keep Material's names.
-- **Why:** the owner's words, said twice ("I want two types of list: List and List - Expand. It should be possible to shift design between default and card for both."). The setting is in the editor's own workspace (the block's settings). **Date:** 2026-11-16. **PR:** this pull request.
-
 ## Buttons
 
 ### B1. A text button has the other buttons' side padding (owner decision)

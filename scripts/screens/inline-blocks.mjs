@@ -123,17 +123,17 @@ async function checkIconSlots(width, height, { name, hint, field = 'title' }) {
   await page.close();
 }
 
-/** A List and a List - Expand, each in the design Default and Card (owner, 16 Nov 2026: "The white list is the correct one"), are edited the same way: the active
+/** A List and a List - Expand, each in the design Plain and Segmented (owner, 16 Nov 2026: "The white list is the correct one"), are edited the same way: the active
  * row has the same slots (its icon and its link, at its end), the toolbar the same Link, the add button the same text, and the link slot the same sheet with its page; nothing is
- * drawn at the bottom of a row; the design is a setting of the block (Default or Card) that changes only how the rows are drawn. Each is measured, then compared with the List's. */
+ * drawn at the bottom of a row; the design is a setting of the block (Plain or Segmented) that changes only how the rows are drawn. Each is measured, then compared with the List's. */
 async function checkListDesigns(width, height) {
   const label = `${width}px inline list designs`;
   const phone = width < 600;
   const looks = [
     { look: 'List', hint: 'Rows with icon, heading and text.' },
-    { look: 'List, Card', hint: 'Rows with icon, heading and text.', card: true },
+    { look: 'List, Segmented', hint: 'Rows with icon, heading and text.', card: true },
     { look: 'List - Expand', hint: 'Rows that open to show more.' },
-    { look: 'List - Expand, Card', hint: 'Rows that open to show more.', card: true },
+    { look: 'List - Expand, Segmented', hint: 'Rows that open to show more.', card: true },
   ];
   const seen = [];
   for (const { look, hint, card } of looks) {
@@ -153,17 +153,17 @@ async function checkListDesigns(width, height) {
     if (card) {
       // The design is in the block's own settings (the bar's ⋮ menu).
       await pressMore(page, 'Edit');
-      await chooseOption(page, 'Card');
+      await chooseOption(page, 'Segmented');
       await saveOrClose(page, 'last');
       // The rows are on their own surfaces now (the theme's segmented list, or the card class of the rows that fold out).
-      await page.locator('.list-segmented, .block-accordion-card').first().waitFor({ timeout: 8000 });
+      await page.locator('.list-segmented, .block-accordion-segmented').first().waitFor({ timeout: 8000 });
     }
     await page.locator('[data-add-row]').waitFor({ timeout: 8000 });
     const got = await page.evaluate(() => ({
       slots: [...document.querySelectorAll('.inline-list-row-active .inline-list-slot')].map((x) => x.getAttribute('aria-label')),
       add: [...document.querySelectorAll('[data-add-row]')].map((x) => x.textContent.trim()),
       own: document.querySelectorAll('[data-row-link], [data-add-button], [data-row-arrow], .inline-segmented-buttons').length,
-      // The Default design is full width on a compact screen (owner, 16 Nov 2026): the row's layer is 16 dp wider than the text column on each side, its leading icon on the text's edge.
+      // The plain design is full width on a compact screen (owner, 16 Nov 2026): the row's layer is 16 dp wider than the text column on each side, its leading icon on the text's edge.
       edge: (() => {
         const row = document.querySelector('.inline-list-row-active');
         const box = row?.matches('.list-item-container') ? row : row?.querySelector('.list-item-container');

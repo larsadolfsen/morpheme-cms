@@ -1,4 +1,4 @@
-// "List": Rows.tsx with the spacing of a block in the text, in its design (the rows on the page, or each on its own surface: `card`); with `Max rows` the
+// "List": Rows.tsx with the spacing of a block in the text, in its design (the rows on the page, or each on its own surface: `segmented`); with `Max rows` the
 // rows after the first ones behind a button `Show more` (MoreRows.tsx), and its text button under the last row. It has no head of its own: a
 // label, heading and intro are the text's.
 import ListButton from '@theme/blocks/ListButton';
@@ -14,7 +14,7 @@ export default function ListBlock({ view }: { view: ListView }) {
   return (
     <>
       <MoreRows cut={cut} label={view.showMore} className={inText}>
-        <Rows items={view.items} segmented={view.design === 'card'} className={inText} cut={cut} oneColumn={view.oneColumn} />
+        <Rows items={view.items} segmented={view.design === 'segmented'} className={inText} cut={cut} oneColumn={view.oneColumn} />
       </MoreRows>
       <ListButton button={view.button} className={inText} />
     </>

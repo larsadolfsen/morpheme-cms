@@ -11,7 +11,7 @@ export default defineShared({
   preview: {
     props: {
       maxRows: 3,
-      design: 'card',
+      design: 'segmented',
       items: Array.from({ length: 5 }, (_, i) => ({
         title: `${siteT.blocks.list.exampleTitle} ${i + 1}`,
         text: siteT.blocks.list.exampleText,

@@ -156,8 +156,8 @@ export const blocks: Messages['blocks'] = {
     rowOf: (n: number, total: number) => `Række ${n} af ${total}`,
     /** The design of a list: rows on the page, or each row on its own surface (a card). */
     design: 'Design',
-    designDefault: 'Standard',
-    designCard: 'Kort',
+    designPlain: 'Almindelig',
+    designSegmented: 'Segmenteret',
     maxRows: 'Maksimalt antal rækker',
     maxRowsHint: 'Hvor mange rækker der vises først. En knap under dem viser resten. Hvis feltet er tomt, vises alle rækker.',
     showMore: 'Knapetiket (vis mere)',

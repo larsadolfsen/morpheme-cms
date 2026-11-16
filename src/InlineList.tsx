@@ -4,7 +4,7 @@
 // list has no row there is one, empty and faded: typing in it starts the first row; while it is active and has rows, a text button
 // below the last row (`Add list row`) adds one. The parts, the keys and what is kept are the shared ones of InlineItems.tsx and
 // src/inlineRows.mjs; this is the List's markup on them. List - Expand is typed the same way (InlineExpand.tsx hands over to this): `fold` is its rows that
-// fold out (the active one open, its text typed in it), `design` of the block (or `kind`) its rows on their own surfaces (`card`); the link slot, the
+// fold out (the active one open, its text typed in it), `design` of the block (or `kind`) its rows on their own surfaces (`segmented`); the link slot, the
 // toolbar's Link, the add button and the texts are the same in every design. Depends on the theme's List (themeUi.ts).
 import { ImageSquare, LinkSimple, Tag } from '@phosphor-icons/react';
 import type { MouseEvent } from 'react';
@@ -59,7 +59,7 @@ export default function InlineList({
   /** A list the owner made can have an image and tags: their slots on the active row, which open them (not part of a List block). */
   onImage?: (row: number) => void;
   onTags?: (row: number) => void;
-  /** `segmented`: each row on its own surface (the design `card`); the standard rows are on the page. Without it, the block's own `design` says. */
+  /** `segmented`: each row on its own surface (the design `segmented`); the standard rows are on the page. Without it, the block's own `design` says. */
   kind?: 'standard' | 'segmented';
   /** The rows fold out (a List - Expand): the active row is open, its text typed in it. */
   fold?: boolean;
@@ -67,9 +67,9 @@ export default function InlineList({
   folds?: Record<number, boolean>;
   onFold?: (row: number, open: boolean | null) => void;
 }) {
-  // The design (`design` of the block, or the one the caller says): each row on its own surface (`card`), else the rows on the page.
-  const look = kind ?? (props?.design === 'card' ? 'segmented' : 'standard');
-  const card = look === 'segmented';
+  // The design (`design` of the block, or the one the caller says): each row on its own surface (`segmented`), else the rows on the page.
+  const look = kind ?? (props?.design === 'segmented' ? 'segmented' : 'standard');
+  const segmented = look === 'segmented';
   const [withIcon, withText, withHref] = [show.icon !== false, show.text !== false, show.href !== false];
   // While one row is active every row has its two lines, so the list does not change height when another is made active; else, as the site.
   const twoLines = withText && (active !== null || items.some((r) => r.text));
@@ -86,7 +86,7 @@ export default function InlineList({
         fold ? (
           <SiteList
             expand
-            className={card ? 'block-accordion block-accordion-card inline-segmented' : 'block-accordion inline-segmented'}
+            className={segmented ? 'block-accordion block-accordion-segmented inline-segmented' : 'block-accordion inline-segmented'}
             data-columns={columnsAttr(props)}
           >
             {rows}

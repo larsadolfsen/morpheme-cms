@@ -19,7 +19,7 @@ export default function Accordion({
   several,
   cut,
   oneColumn,
-  card,
+  segmented,
 }: {
   rows: AccordionRow[];
   group?: string;
@@ -28,12 +28,16 @@ export default function Accordion({
   cut?: number;
   /** The setting Columns is off: one column, whatever the width (data-columns, blocks.css). */
   oneColumn?: boolean;
-  /** Design `card`: each row on its own surface (.block-accordion-card, global.css); else the rows are on the page, with a line between them. */
-  card?: boolean;
+  /** Design `segmented`: each row on its own surface (.block-accordion-segmented, global.css); else the rows are on the page, with a line between them. */
+  segmented?: boolean;
 }) {
   const own = useId();
   return (
-    <List expand className={card ? 'block-accordion block-accordion-card' : 'block-accordion'} data-columns={oneColumn ? 'one' : undefined}>
+    <List
+      expand
+      className={segmented ? 'block-accordion block-accordion-segmented' : 'block-accordion'}
+      data-columns={oneColumn ? 'one' : undefined}
+    >
       {rows.map((row, i) => (
         <ListItem
           key={i}
