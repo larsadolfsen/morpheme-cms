@@ -1,0 +1,6 @@
+{
+  "id": "block-handle-top-left",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "The drag handle of a block is in its top left corner"
+}

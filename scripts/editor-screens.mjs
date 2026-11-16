@@ -5609,18 +5609,52 @@ async function checkBlockHandleCorner(width) {
           () => false,
         );
     let active = false;
-    for (const selector of ['[data-field]:visible', '[contenteditable="true"]:visible', '.site-block-preview']) {
+    // The first way that works: a click in a field, the focus put on a field (a field a click cannot reach), then a click in the block's preview.
+    const focusField = card.locator('textarea, [contenteditable="true"]').first();
+    for (const selector of [
+      '[data-field]:visible',
+      'focus',
+      '[contenteditable="true"]:visible',
+      '.site-block-preview h2',
+      '.site-block-preview',
+      'corner',
+    ]) {
+      if (selector === 'corner') {
+        // The frame's bottom right padding, where nothing of the block is.
+        const frame = await card.boundingBox();
+        if (frame)
+          await (phone
+            ? page.touchscreen.tap(frame.x + frame.width - 6, frame.y + frame.height - 6)
+            : page.mouse.click(frame.x + frame.width - 6, frame.y + frame.height - 6));
+        if ((active = await open())) break;
+        continue;
+      }
+      if (selector === 'focus') {
+        if (await focusField.count()) await focusField.focus({ timeout: 3000 }).catch(() => {});
+        if ((active = await open())) break;
+        continue;
+      }
       const target = card.locator(selector).first();
       if (!(await target.count())) continue;
       await target.scrollIntoViewIfNeeded().catch(() => {});
-      await (
-        phone ? target.tap({ position: { x: 6, y: 6 }, timeout: 3000 }) : target.click({ position: { x: 6, y: 6 }, timeout: 3000 })
-      ).catch(() => {});
+      await (phone ? target.tap({ position: { x: 6, y: 6 }, timeout: 3000 }) : target.click({ timeout: 3000 })).catch(() => {});
       if ((active = await open())) break;
     }
     if (!active) {
-      problems.push(`${label}: the ${name} block did not become active`);
+      problems.push(
+        `${label}: the ${name} block did not become active (${await page.evaluate(() => [...document.querySelectorAll('.ProseMirror > .site-block')].map((b) => b.className.replace(/site-block-?/g, '').trim() || '-').join('|'))})`,
+      );
       continue;
+    }
+    // A block that opens its settings beside the page narrows the frame: close that sheet first (the block stays active), as the frame is measured at the page's own width.
+    const closer = page.getByRole('button', { name: 'Close', exact: true }).first();
+    if (await closer.isVisible().catch(() => false)) {
+      await closer.click();
+      // Closing it may let the block go: the focus goes back to its field.
+      if (!(await open()) && (await focusField.count())) {
+        await focusField.focus({ timeout: 3000 }).catch(() => {});
+        await open();
+      }
     }
     // A tap on a block that is only a preview (a list of the site) also selects it: Escape lets the selection go, and the block stays active.
     if (await page.locator('.ProseMirror .site-block-marks').count()) {
@@ -5628,6 +5662,19 @@ async function checkBlockHandleCorner(width) {
       await page.waitForFunction(() => !document.querySelector('.ProseMirror .site-block-marks'), null, { timeout: 3000 }).catch(() => {});
       await open();
     }
+    // The handle fades in with the row: measured once it is shown and no animation runs on it or on the row.
+    await block
+      .evaluate(
+        (el) =>
+          new Promise((done) => {
+            const handle = el.querySelector(':scope > .site-block-handle');
+            const settled = () => getComputedStyle(handle).opacity === '1' && el.getAnimations({ subtree: true }).length === 0;
+            const look = () => (settled() ? done(true) : requestAnimationFrame(look));
+            look();
+            setTimeout(() => done(false), 3000);
+          }),
+      )
+      .catch(() => {});
     const m = await block.evaluate((el) => {
       const rect = (s) => el.querySelector(s)?.getBoundingClientRect();
       const handle = rect(':scope > .site-block-handle');
