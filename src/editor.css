@@ -977,8 +977,8 @@ html {
   cursor: default;
 }
 
-/* A block that is neither active nor pointed at shows no handle (it is the end of the action row), with a mouse or a touch; the handle, like the row, is there while the block is
-   active, pointed at (a mouse), being dragged, in focus with the keyboard, or while blocks are being selected. Hidden, it takes no pointer. */
+/* A block that is neither active nor pointed at shows no handle (it is the start of the action row), with a mouse or a touch; the handle, like the row, is there while the block is
+   active, pointed at (a mouse, on a block wide enough for the row: on a narrow one the handle would cover its first item), being dragged, in focus with the keyboard, or while blocks are being selected. Hidden, it takes no pointer. */
 .editor-text .site-block-handle {
   opacity: 0;
   pointer-events: none;
@@ -988,13 +988,6 @@ html {
 .editor-text .site-block-handle:focus-visible {
   opacity: 1;
   pointer-events: auto;
-}
-
-@media (hover: hover) {
-  .editor-text .site-block:hover > .site-block-handle {
-    opacity: 1;
-    pointer-events: auto;
-  }
 }
 
 /* The mark on a block that can be selected with others (Material's Selection page, the photo grid): a round circle centred on the block's top left corner (so it covers nothing in the block, as in M3's example), empty, filled with a check
