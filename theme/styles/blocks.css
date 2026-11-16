@@ -629,6 +629,11 @@
   /* "Cards": Material 3's cards (.card in ui.css: outlined, filled or elevated), each with an icon, an image, a video or nothing at
      the top and either a link (the whole card) or buttons, two side by side from small screens (cards/LinkCards.tsx). */
   .block-cards {
+    /* An elevated card has its drop shadow (m3.material.io/components/cards/guidelines: "Elevated cards have a drop shadow"): level 1 at
+       rest and level 2 when a link is pointed at, which the theme's resting shadows (all off, global.css) would otherwise take away. Filled and
+       outlined cards stay at level 0. */
+    --card-elevated-shadow: var(--mo-elevation-1-shadow);
+    --card-elevated-hover-shadow: var(--mo-elevation-2-shadow);
     display: grid;
     gap: var(--card-gap, 0.5rem);
     padding: 0;

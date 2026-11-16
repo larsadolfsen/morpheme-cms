@@ -9858,6 +9858,40 @@ async function checkCardsEditorSpacing(width, height) {
   await page.close();
 }
 
+/** The Cards block's kinds have their M3 elevation (m3.material.io/components/cards/guidelines: "Elevated cards have a drop shadow"), on the site (the system's test page) and typed in the page editor, at 375, 768 and 1280 px: an elevated card has a box-shadow at rest, a filled and an outlined card have none. */
+async function checkCardsElevation(width, height) {
+  const label = `${width}px cards elevation`;
+  const phone = width < 600;
+  const read = () =>
+    Object.fromEntries(
+      ['elevated', 'filled', 'outlined'].map((kind) => {
+        const card = document.querySelector(`ul.block-cards .block-card.card-${kind}`);
+        return [kind, card ? getComputedStyle(card).boxShadow : null];
+      }),
+    );
+  const none = /^(none|rgba\(0, 0, 0, 0\) 0px 0px 0px 0px)$/;
+  const judge = (where, shadows) => {
+    if (!shadows.elevated) problems.push(`${label} (${where}): no elevated card to measure`);
+    else if (none.test(shadows.elevated)) problems.push(`${label} (${where}): an elevated card has no shadow`);
+    for (const kind of ['filled', 'outlined'])
+      if (!shadows[kind]) problems.push(`${label} (${where}): no ${kind} card to measure`);
+      else if (!none.test(shadows[kind]))
+        problems.push(`${label} (${where}): a ${kind} card has a shadow, Material 3 gives it none at rest`);
+  };
+  const open = (viewport) => browser.newPage({ viewport, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  const onSite = await open({ width, height });
+  onSite.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (await onTestPage(onSite, label)) judge('site', await onSite.evaluate(read));
+  await onSite.close();
+  const inEditor = await open({ width, height });
+  inEditor.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(inEditor, site);
+  await inEditor.evaluate(() => (location.hash = '#src/content/pages/blocks.md'));
+  await inEditor.waitForSelector('ul.block-cards .block-card-title', { timeout: 30_000 });
+  judge('editor', await inEditor.evaluate(read));
+  await inEditor.close();
+}
+
 /** The color of an icon (`iconColor`): the row's icon picker has the choice next to the icon (Primary, Secondary, Tertiary); a picked color is on the row (`data-icon-color`) and drawn in the theme's color role, in the editor like on the site. */
 async function checkIconColor(width, height, scheme = 'light') {
   const label = `${width}px icon color (${scheme})`;
@@ -11912,6 +11946,7 @@ for (const [width, height] of [
 // 768 px: the grid wraps to two columns, the gaps stay 8 (the site and the page editor).
 await unit('checkCardsSpacing 768', () => checkCardsSpacing(768, 1024));
 await unit('checkCardsEditorSpacing 768', () => checkCardsEditorSpacing(768, 1024));
+await unit('checkCardsElevation 768', () => checkCardsElevation(768, 1024));
 for (const [width, height] of [
   [375, 740],
   [1280, 900],
@@ -11919,6 +11954,7 @@ for (const [width, height] of [
   await unit(`checkCardsCarousel ${width}`, () => checkCardsCarousel(width, height));
   await unit(`checkCardsSpacing ${width}`, () => checkCardsSpacing(width, height));
   await unit(`checkCardsEditorSpacing ${width}`, () => checkCardsEditorSpacing(width, height));
+  await unit(`checkCardsElevation ${width}`, () => checkCardsElevation(width, height));
   for (const scheme of ['light', 'dark'])
     await unit(`checkCardIconText ${width} ${scheme}`, () => checkCardIconText(width, height, scheme));
   for (const scheme of ['light', 'dark']) await unit(`checkIconColor ${width} ${scheme}`, () => checkIconColor(width, height, scheme));
