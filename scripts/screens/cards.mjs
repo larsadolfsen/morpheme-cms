@@ -621,7 +621,7 @@ async function checkCardsElevation(width, height) {
         ['elevated', 'ul.block-cards .block-card.card-elevated'],
         ['filled', 'ul.block-cards .block-card.card-filled'],
         ['outlined', 'ul.block-cards .block-card.card-outlined'],
-        // The Image grid's elevated cards (the demo's "Elevated cards with caption, tags and credit"): elevated at rest too.
+        // The Image grid's elevated cards (the demo's "Image grid: elevated cards with caption, tags and credit"): elevated at rest too.
         ['gridElevated', '.block-imagegrid-grid .card-elevated'],
       ].map(([kind, selector]) => {
         const card = document.querySelector(selector);

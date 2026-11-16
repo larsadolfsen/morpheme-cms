@@ -73,5 +73,9 @@ test('an example without a subheading, or a copy of another, is reported', () =>
   const a = '<div data-block="faq" data-props="{&quot;x&quot;:1}"></div>';
   assert.match(exampleProblems(`${a}\n\n${a}`)[0], /no "###" subheading/);
   assert.ok(exampleProblems(`### One\n\n${a}\n\n### Two\n\n${a}`).some((p) => /are the same/.test(p)));
-  assert.deepEqual(exampleProblems(`${a}`), []);
+  // One example alone needs its subheading too, and a sentence may stand between the subheading and the example.
+  assert.match(exampleProblems(`${a}`)[0], /no "###" subheading/);
+  assert.deepEqual(exampleProblems(`## Group\n\n### One\n\nAbout it.\n\n${a}`), []);
+  // A subheading is for the example right below it, not for the next group's.
+  assert.match(exampleProblems(`### One\n\n${a}\n\n## Group\n\n${a.replace('1', '2')}`)[0], /no "###" subheading/);
 });
