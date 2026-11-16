@@ -30,6 +30,10 @@ export type InlineViewProps = {
   /** The field to put the cursor in, once (a new object asks again). */
   focus: Focus | null;
   onChange: (change: Change) => void;
+  /** A folding block: the rows the owner opened (true) or closed (false) with the chevron, by row; a row not here is open while it is the active one. */
+  folds?: Record<number, boolean>;
+  /** Opens or closes a row (view state only); null gives the row back to the active-row rule. */
+  onFold?: (row: number, open: boolean | null) => void;
   /** The link slot of an item is tapped: its settings. */
   onSettings: (item: number) => void;
   /** The icon (or image) slot of an item is tapped: its picker. */

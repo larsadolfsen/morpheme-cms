@@ -1581,6 +1581,9 @@ function blockCard(
   let focus: Focus | null = null;
   // A grid (the Table): the column of the active cell.
   let col: number | null = null;
+  // A folding block (Questions and answers, Segmented list): the rows the owner opened or closed with the chevron, by row. A view state only: it is
+  // not in the block's content, the Markdown or undo, and typing redraws the block without losing it. A row not here is open while it is the active one.
+  const folds: Record<number, boolean> = {};
   // Its tools in the text's one bar (blockBar.ts), made below: shown while a row is active.
   let bar: { refresh: (shown: boolean) => void; destroy: () => void } | null = null;
   let syncRow: (open: boolean) => void = () => {};
@@ -1631,6 +1634,8 @@ function blockCard(
     if (active !== null) dynOpen = false;
     if ('focus' in c) focus = c.focus ?? null;
     if ('col' in c) col = c.col ?? null;
+    // Rows added or removed move the rows: what was opened by index no longer fits.
+    if (c.items && c.items.length !== rows().length) for (const k of Object.keys(folds)) delete folds[Number(k)];
     if (c.items || c.props) setItems(c.items ?? rows(), c.props, c.step);
     else draw();
   };
@@ -1676,6 +1681,12 @@ function blockCard(
             col={col}
             focus={focus}
             onChange={change}
+            folds={{ ...folds }}
+            onFold={(row, open) => {
+              if (open === null) delete folds[row];
+              else folds[row] = open;
+              draw();
+            }}
             onSettings={settings}
             onEdit={() => void edit()}
             onRow={(spec) => asker()?.row(spec, true)}

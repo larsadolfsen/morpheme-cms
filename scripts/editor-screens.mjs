@@ -6933,6 +6933,124 @@ async function checkListMarkers(width) {
   await page.close();
 }
 
+/** Rows that fold out, typed in place (Segmented list, Questions and answers): the chevron opens and closes any row as on the site, Enter or Space on the focused
+ * head does too, a tap on the head's own surface (not the title, not the chevron) folds nothing, and typing in the page's text does not collapse an open row.
+ * What is folded is a view state: the page does not change (Undo stays off). */
+async function checkChevronRows(width) {
+  const label = `${width}px rows that fold`;
+  const phone = width < 600;
+  const src = [
+    '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n',
+    block('segmented', {
+      items: [
+        { title: 'One', text: 'First' },
+        { title: 'Two', text: 'Second' },
+      ],
+    }),
+    block('faq', {
+      items: [
+        { question: 'Why?', answer: 'Because.' },
+        { question: 'Who?', answer: 'Me.' },
+      ],
+    }),
+  ].join('\n\n');
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site, { [BUILT_PAGE]: src });
+  await page.goto(`${site}/editor/#${BUILT_PAGE}`);
+  await page.waitForSelector('.inline-list-host details.list-item-expand', { timeout: 30_000 });
+  const undoOff = () => page.locator('.editor-tools button[aria-label="Undo"]').first().isDisabled();
+  for (const [at, name] of [
+    [0, 'Segmented list'],
+    [1, 'Questions and answers'],
+  ]) {
+    // The cursor is out of every block: no row's settings panel narrows the page while a row is tapped.
+    await page.locator('.ProseMirror > p').first().click();
+    await page.waitForFunction(
+      () => !document.querySelector('.editor-side-sheet, dialog[open]') && !document.querySelector('.inline-list-row-active'),
+      null,
+      { timeout: 8000 },
+    );
+    const host = page.locator('.inline-list-host').nth(at);
+    const row = host.locator('details.list-item-expand').nth(1);
+    const head = row.locator('summary');
+    const state = () => head.getAttribute('aria-expanded');
+    const shown = () =>
+      page.waitForFunction(
+        ([h, r]) => {
+          const d = document.querySelectorAll('.inline-list-host')[h].querySelectorAll('details.list-item-expand')[r];
+          const a = d.querySelector('.block-accordion-answer');
+          return d.open && !!a && a.getBoundingClientRect().height > 0;
+        },
+        [at, 1],
+        { timeout: 8000 },
+      );
+    const shut = () =>
+      page.waitForFunction(
+        ([h, r]) => !document.querySelectorAll('.inline-list-host')[h].querySelectorAll('details.list-item-expand')[r].open,
+        [at, 1],
+        { timeout: 8000 },
+      );
+    if ((await state()) !== 'false')
+      problems.push(`${label} ${name}: a row that is not active has aria-expanded ${await state()}, not false`);
+    const box = await head.boundingBox();
+    if (box && box.height < 48) problems.push(`${label} ${name}: the row's head is ${box.height} px high, under 48`);
+    // The chevron opens the row, a second tap closes it.
+    await row.locator('.list-item-expand-icon').click();
+    await shown().catch(() => problems.push(`${label} ${name}: a tap on the chevron does not open the row and show its text`));
+    if ((await state()) !== 'true') problems.push(`${label} ${name}: the open row has aria-expanded ${await state()}`);
+    // The whole height of the head at the chevron is its target (not only the 24 px glyph).
+    const icon = await row.locator('.list-item-expand-icon').boundingBox();
+    const top = await head.boundingBox();
+    await page.mouse.click(icon.x + icon.width / 2, top.y + 3);
+    await shut().catch(() => problems.push(`${label} ${name}: a second tap on the chevron does not close the row`));
+    // Enter and Space on the focused head.
+    await head.focus();
+    await page.keyboard.press('Enter');
+    await shown().catch(() => problems.push(`${label} ${name}: Enter on the focused row does not open it`));
+    await page.keyboard.press('Space');
+    await page.waitForTimeout(500);
+    await shut().catch(() => problems.push(`${label} ${name}: Space on the focused row does not close it`));
+    // A tap on the head's own surface, outside the title and the chevron, folds nothing.
+    const edge = await head.boundingBox();
+    await page.mouse.click(edge.x + 2, edge.y + edge.height / 2);
+    await page.waitForTimeout(300);
+    if ((await state()) !== 'false') problems.push(`${label} ${name}: a tap on the row's surface folds it`);
+    // Typing in the page's text does not collapse an open row.
+    await row.locator('.list-item-expand-icon').click();
+    await shown();
+    await page.locator('.ProseMirror > p').first().click();
+    await page.keyboard.type('abc');
+    await page.waitForTimeout(400);
+    if ((await state()) !== 'true') problems.push(`${label} ${name}: typing in the page's text collapsed the open row`);
+    // A tap on the title opens a row the chevron closed, and types there.
+    await row.locator('.list-item-expand-icon').click();
+    await shut();
+    await row.locator('textarea').first().click();
+    await shown().catch(() => problems.push(`${label} ${name}: a tap on the title of a closed row does not open it`));
+    await row.locator('.list-item-expand-icon').click();
+    await shut();
+  }
+  // The page is the same: no step of the fold is an edit, so Undo is still off (the typing above is the only change; check on a fresh page below).
+  const fresh = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  fresh.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(fresh, site, { [BUILT_PAGE]: src });
+  await fresh.goto(`${site}/editor/#${BUILT_PAGE}`);
+  await fresh.waitForSelector('.inline-list-host details.list-item-expand', { timeout: 30_000 });
+  const undoBefore = await fresh.locator('.editor-tools button[aria-label="Undo"]').first().isDisabled();
+  for (let h = 0; h < 2; h++) {
+    const icon = fresh.locator('.inline-list-host').nth(h).locator('.list-item-expand-icon').nth(1);
+    await icon.click();
+    await fresh.waitForFunction((n) => document.querySelectorAll('.inline-list-host')[n].querySelectorAll('details')[1].open, h);
+    await icon.click();
+  }
+  await fresh.waitForTimeout(300);
+  if ((await fresh.locator('.editor-tools button[aria-label="Undo"]').first().isDisabled()) !== undoBefore)
+    problems.push(`${label}: folding a row is an edit of the page (Undo changed)`);
+  await fresh.close();
+  await page.close();
+}
+
 /** The FAB never covers the footer (Screen.tsx useFabLift): on every screen that has both, at the top, in the middle and at the bottom
  * of the page, the FAB's box and the footer's do not overlap. The screens are the start screen and the lists with a create button. */
 async function checkFabAboveFooter(width) {
@@ -11876,6 +11994,7 @@ for (const [w, h] of [
 for (const block of liveLists)
   for (const w of [375, 1280]) await unit(`checkLiveList ${w} ${block.name}`, () => checkLiveList(w, w < 600 ? 740 : 900, block));
 for (const w of [375, 1280]) await unit(`checkImageGridAdd ${w}`, () => checkImageGridAdd(w, w < 600 ? 740 : 900));
+for (const w of [375, 768, 1280]) await unit(`checkChevronRows ${w}`, () => checkChevronRows(w));
 await unit('checkListRowColors', () => checkListRowColors());
 await unit('checkSectionOnImage', () => checkSectionOnImage());
 await unit('checkInsertNeverOpensSheet 375', () => checkInsertNeverOpensSheet(375, 740));
