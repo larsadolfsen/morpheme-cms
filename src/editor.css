@@ -2141,3 +2141,17 @@ dialog {
 .shortcuts-dialog:focus {
   outline: none;
 }
+
+/* The text of a list above its rows (src/ListText.tsx): a label is Label medium, the role the page editor writes for a label. Its own class
+   and not the `type-label-medium` utility, which would add a rule to the site's CSS (the site's HTML does not change for the list text). A
+   label that stands above a heading pairs with it: the gap of 16px shrinks to 8px, as a page's text does (`.label-medium + h3`). */
+.list-text-label {
+  font-size: var(--type-label-medium-size);
+  line-height: var(--type-label-medium-line-height);
+  font-weight: var(--type-label-medium-weight);
+  letter-spacing: var(--type-label-medium-tracking);
+  color: var(--mo-on-surface-variant);
+}
+.list-text-label:has(+ h2) {
+  margin-block-end: -0.5rem;
+}

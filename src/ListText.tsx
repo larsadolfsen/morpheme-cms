@@ -12,8 +12,6 @@ export default function ListText({ notes }: { notes?: { style: 'heading' | 'body
   return (
     <div className="mb-8 flex flex-col gap-4">
       {lines.map((line, i) => {
-        // A label above a heading pairs with it, as a page's text does (`.label-medium + h3`): the row gap is 16, the pair's is 8.
-        const pair = line.style === 'label' && lines[i + 1]?.style === 'heading';
         if (line.style === 'heading')
           return (
             <h2 key={i} className="type-title-large text-balance text-on-surface">
@@ -21,10 +19,7 @@ export default function ListText({ notes }: { notes?: { style: 'heading' | 'body
             </h2>
           );
         return (
-          <p
-            key={i}
-            className={`${line.style === 'label' ? 'type-label-medium text-on-surface-variant' : 'type-body-medium text-on-surface'} text-pretty ${pair ? '-mb-2' : ''}`}
-          >
+          <p key={i} className={line.style === 'label' ? 'list-text-label text-pretty' : 'type-body-medium text-pretty text-on-surface'}>
             {line.text}
           </p>
         );
