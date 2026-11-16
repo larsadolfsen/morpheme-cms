@@ -6653,6 +6653,36 @@ async function checkListAndRedirectPanes(width) {
   await page.close();
 }
 
+/** A file's details in Files (Media.tsx): from 600 dp the side sheet beside the grid (the grid stays in view, the address stays #files), on a phone a subpage of Files (owner, 15 Nov 2026: details are a pane, not a dialog). */
+async function checkFilesPane(width) {
+  const phone = width < 600;
+  const label = `${width}px file details`;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#files'));
+  await page.waitForSelector('main [data-media-tile]', { timeout: 10_000 });
+  await page.waitForTimeout(600);
+  await page.locator('main [data-media-tile]').first().click();
+  await page.waitForTimeout(900);
+  const got = await page.evaluate(() => ({
+    hash: location.hash,
+    pane: !!document.querySelector('aside.side-sheet-container:not([hidden])'),
+    dialogs: document.querySelectorAll('dialog[open]').length,
+    tiles: [...document.querySelectorAll('main [data-media-tile]')].filter((t) => t.getBoundingClientRect().width > 0).length,
+  }));
+  if (phone) {
+    if (!got.hash.startsWith('#files/') || got.pane)
+      problems.push(`${label}: on a phone the details are not a subpage of Files (${JSON.stringify(got)})`);
+  } else {
+    if (got.hash !== '#files') problems.push(`${label}: the address changed to ${got.hash} (the details are beside the grid)`);
+    if (!got.pane) problems.push(`${label}: the file's details are not the side sheet beside the grid`);
+    if (got.dialogs) problems.push(`${label}: a dialog is open over Files`);
+    if (!got.tiles) problems.push(`${label}: the grid is not in view beside the details`);
+  }
+  await page.close();
+}
+
 /** On a new page with only its H1 (plain, and on a section colour), a line to write in is under it: on a phone with real touch (375 px) and on a computer with a mouse (1280 px), a tap on the hint line, a tap in the white under the page and Enter at the end of the heading each put the cursor in it, and what is typed goes there, not in the heading. */
 async function checkEmptyHint() {
   const devices = [
@@ -11622,6 +11652,7 @@ for (const [width, height] of [
   [1280, 900],
 ])
   await unit(`checkDraftsCard ${width}`, () => checkDraftsCard(width, height));
+for (const width of [375, 768, 1280]) await unit(`checkFilesPane ${width}`, () => checkFilesPane(width));
 for (const width of [375, 768, 1280]) await unit(`checkListAndRedirectPanes ${width}`, () => checkListAndRedirectPanes(width));
 for (const width of [375, 768, 1280]) await unit(`checkLinkAndItemPanes ${width}`, () => checkLinkAndItemPanes(width));
 for (const width of [375, 768, 1280]) await unit(`checkBlockSettingsPane ${width}`, () => checkBlockSettingsPane(width));
