@@ -1,5 +1,5 @@
 /* The type scale as classes: one for each of Material 3's 15 type roles, and the lead (an intro paragraph). A role is a class for a
-   theme's own components and layouts: type-title-large, type-headline-small … Each reads the role's four tokens (--type-*, ui.css).
+   theme's own components and layouts: type-title-large, type-headline-small … Each reads the role's four tokens (--type-*, tokens/ui/ref.css).
    They sit in @layer utilities, where Tailwind's @utility rules were, in the alphabetical order Tailwind wrote them in, so the cascade does not change. */
 @layer utilities {
   .type-body-large {

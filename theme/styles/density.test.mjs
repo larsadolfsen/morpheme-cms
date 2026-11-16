@@ -5,8 +5,18 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const read = (name) => readFileSync(new URL(name, import.meta.url), 'utf8');
-const base = read('./base.css');
-const global = read('./global.css');
+import { readdirSync } from 'node:fs';
+/** A stylesheet and the token files it imports (tokens/<origin>/*.css, docs/theme-token-files.md), as one text. */
+const withTokens = (name, origin) =>
+  [
+    read(name),
+    ...readdirSync(new URL(`./tokens/${origin}/`, import.meta.url))
+      .filter((f) => f.endsWith('.css'))
+      .sort()
+      .map((f) => read(`./tokens/${origin}/${f}`)),
+  ].join('\n');
+const base = withTokens('./base.css', 'base');
+const global = withTokens('./global.css', 'material');
 const count = (text, part) => text.split(part).length - 1;
 
 // M3's Space 0 to 900 in dp (m3.material.io/m3/pages/spacing; the audit of 2026-11-13, row 11).
