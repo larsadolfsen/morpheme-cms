@@ -558,6 +558,12 @@ async function checkChoiceGroupFields(width, locale) {
     if (!(await sheet().count())) {
       const active = rowButton(page, say.block);
       let button = (await active.count()) ? active : page.locator(`.site-block-row [data-row][aria-label="${say.block}"]:visible`);
+      if (!(await button.count()) && !touch && (await card.locator('[data-field]').count())) {
+        // A block whose items the hover row would cover (Cards) shows no hover row: a click in its first field makes the block the active one, which has its row.
+        await card.locator('[data-field]').first().click();
+        await page.waitForTimeout(800);
+        button = rowButton(page, say.block);
+      }
       if (!(await button.count()) && touch) {
         // A block drawn empty here (no testimonials picked on the page) is too low to tap: the keyboard opens it, as for a screen reader.
         await card.focus();
