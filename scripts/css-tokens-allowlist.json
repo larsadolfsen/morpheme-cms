@@ -7,79 +7,79 @@
     },
     {
       "pattern": "--color-*",
-      "why": "Tailwind @theme namespace: bg-*, text-*, border-* utilities are built from it. @theme cannot map a utility to another name, and `prefix()` renames the utilities too, so it stays."
+      "why": "Tailwind @theme namespace: bg-*, text-*, border-* utilities are built from it. @theme cannot map a utility to another name, and `prefix()` renames the utilities too, so it stays. Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     },
     {
       "pattern": "--font-*",
-      "why": "Tailwind @theme namespace (font-sans, font-family utilities)."
+      "why": "Tailwind @theme namespace (font-sans, font-family utilities). Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     },
     {
       "pattern": "--text-*",
-      "why": "Tailwind @theme namespace (font-size utilities)."
+      "why": "Tailwind @theme namespace (font-size utilities). Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     },
     {
       "pattern": "--font-weight-*",
-      "why": "Tailwind @theme namespace (font-weight utilities)."
+      "why": "Tailwind @theme namespace (font-weight utilities). Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     },
     {
       "pattern": "--tracking-*",
-      "why": "Tailwind @theme namespace (letter-spacing utilities)."
+      "why": "Tailwind @theme namespace (letter-spacing utilities). Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     },
     {
       "pattern": "--leading-*",
-      "why": "Tailwind @theme namespace (line-height utilities)."
+      "why": "Tailwind @theme namespace (line-height utilities). Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     },
     {
       "pattern": "--breakpoint-*",
-      "why": "Tailwind @theme namespace (medium:, expanded: variants and theme(--breakpoint-\u2026))."
+      "why": "Tailwind @theme namespace (medium:, expanded: variants and theme(--breakpoint-\u2026)). Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     },
     {
       "pattern": "--container-*",
-      "why": "Tailwind @theme namespace (container and max-w utilities)."
+      "why": "Tailwind @theme namespace (container and max-w utilities). Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     },
     {
       "pattern": "--spacing",
-      "why": "Tailwind @theme: the spacing scale base."
+      "why": "Tailwind @theme: the spacing scale base. Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     },
     {
       "pattern": "--spacing-*",
-      "why": "Tailwind @theme namespace (spacing utilities)."
+      "why": "Tailwind @theme namespace (spacing utilities). Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     },
     {
       "pattern": "--radius-*",
-      "why": "Tailwind @theme namespace (rounded-* utilities)."
+      "why": "Tailwind @theme namespace (rounded-* utilities). Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     },
     {
       "pattern": "--shadow-*",
-      "why": "Tailwind @theme namespace (shadow-* utilities)."
+      "why": "Tailwind @theme namespace (shadow-* utilities). Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     },
     {
       "pattern": "--inset-shadow-*",
-      "why": "Tailwind @theme namespace."
+      "why": "Tailwind @theme namespace. Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     },
     {
       "pattern": "--drop-shadow-*",
-      "why": "Tailwind @theme namespace."
+      "why": "Tailwind @theme namespace. Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     },
     {
       "pattern": "--blur-*",
-      "why": "Tailwind @theme namespace."
+      "why": "Tailwind @theme namespace. Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     },
     {
       "pattern": "--perspective-*",
-      "why": "Tailwind @theme namespace."
+      "why": "Tailwind @theme namespace. Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     },
     {
       "pattern": "--aspect-*",
-      "why": "Tailwind @theme namespace (aspect-* utilities)."
+      "why": "Tailwind @theme namespace (aspect-* utilities). Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     },
     {
       "pattern": "--ease-*",
-      "why": "Tailwind @theme namespace (ease-* utilities)."
+      "why": "Tailwind @theme namespace (ease-* utilities). Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     },
     {
       "pattern": "--animate-*",
-      "why": "Tailwind @theme namespace (animate-* utilities)."
+      "why": "Tailwind @theme namespace (animate-* utilities). Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     }
   ],
   "files": {

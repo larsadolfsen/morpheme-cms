@@ -19,7 +19,7 @@ Owner rule, 16 Nov 2026. `npm run check:css-tokens` enforces it.
   `--breakpoint-*`, `--container-*`, `--spacing`, `--spacing-*`, `--radius-*`, `--shadow-*`, `--inset-shadow-*`, `--drop-shadow-*`, `--blur-*`,
   `--perspective-*`, `--aspect-*`, `--ease-*`, `--animate-*`), each with its reason in `scripts/css-tokens-allowlist.json`. `@theme` builds the utilities
   (`bg-primary`, `medium:`) from these exact names and cannot map a utility to another name, and Tailwind's `prefix()` renames the utilities too, so
-  they stay.
+  they stay. They are temporary: `docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md` moves the CMS away from Tailwind.
 - **Count mode until the rename lands.** The unprefixed names that exist today are counted per file in the same list (`files`): a file may have as many as
   listed, never more, and a new file none. A count can only fall: lower it when it does.
 
