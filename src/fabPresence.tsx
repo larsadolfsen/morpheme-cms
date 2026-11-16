@@ -25,7 +25,7 @@ export function useRegisterFab(active: boolean) {
   }, [active, report]);
 }
 
-/** The FAB's own distance from the window's bottom edge, in px (editor.css .editor-fab: 1rem). */
+/** The FAB's own distance from the window's bottom edge, in px (editor.css .editor-fab: 1rem below 600 dp, where the lift applies). */
 const FAB_BOTTOM = 16;
 
 /** For a Screen with a FAB: sets --editor-fab-lift on the page to how far the footer stands up into the window, so the FAB

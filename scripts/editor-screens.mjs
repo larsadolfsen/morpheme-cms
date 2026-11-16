@@ -7016,6 +7016,8 @@ async function checkListMarkers(width) {
 async function checkFabAboveFooter(width) {
   const label = `${width}px FAB and footer`;
   const compact = width < 600;
+  // M3 (fab-menu guidelines): the FAB's margin is 16 dp, and 24 dp from the large window (1200 dp).
+  const margin = width >= 1200 ? 24 : 16;
   const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: compact, isMobile: compact, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
@@ -7068,9 +7070,9 @@ async function checkFabAboveFooter(width) {
         problems.push(
           `${label}: ${where} the FAB (${Math.round(m.fabTop)}–${Math.round(m.fabBottom)}) overlaps the footer (${Math.round(m.footerTop)}–${Math.round(m.footerBottom)})`,
         );
-      if (!compact && Math.abs(m.h - m.fabBottom - 16) > 1)
+      if (!compact && Math.abs(m.h - m.fabBottom - margin) > 1)
         problems.push(
-          `${label}: ${where} the FAB is not at its place at the bottom of the window (its bottom edge is ${Math.round(m.h - m.fabBottom)}px from it, not 16px)`,
+          `${label}: ${where} the FAB is not at its place at the bottom of the window (its bottom edge is ${Math.round(m.h - m.fabBottom)}px from it, not ${margin}px)`,
         );
       if (width >= 840) {
         if (m.fits && m.rows !== 1)
