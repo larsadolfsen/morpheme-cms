@@ -9864,8 +9864,14 @@ async function checkCardsElevation(width, height) {
   const phone = width < 600;
   const read = () =>
     Object.fromEntries(
-      ['elevated', 'filled', 'outlined'].map((kind) => {
-        const card = document.querySelector(`ul.block-cards .block-card.card-${kind}`);
+      [
+        ['elevated', 'ul.block-cards .block-card.card-elevated'],
+        ['filled', 'ul.block-cards .block-card.card-filled'],
+        ['outlined', 'ul.block-cards .block-card.card-outlined'],
+        // The Image grid's elevated cards (the demo's "Elevated cards with caption, tags and credit"): elevated at rest too.
+        ['gridElevated', '.block-imagegrid-grid .card-elevated'],
+      ].map(([kind, selector]) => {
+        const card = document.querySelector(selector);
         return [kind, card ? getComputedStyle(card).boxShadow : null];
       }),
     );
@@ -9873,6 +9879,9 @@ async function checkCardsElevation(width, height) {
   const judge = (where, shadows) => {
     if (!shadows.elevated) problems.push(`${label} (${where}): no elevated card to measure`);
     else if (none.test(shadows.elevated)) problems.push(`${label} (${where}): an elevated card has no shadow`);
+    // The editor draws the Image grid as a preview, which may not have one in view: only the site's is required.
+    if (where === 'site' && (!shadows.gridElevated || none.test(shadows.gridElevated)))
+      problems.push(`${label} (${where}): an elevated Image grid card has no shadow at rest`);
     for (const kind of ['filled', 'outlined'])
       if (!shadows[kind]) problems.push(`${label} (${where}): no ${kind} card to measure`);
       else if (!none.test(shadows[kind]))

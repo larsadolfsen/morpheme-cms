@@ -2399,7 +2399,7 @@
     --card-<kind>-surface, --card-<kind>-line, --card-<kind>-shadow   each kind's surface, its edge (a 1px line inside
                                     it, transparent for none) and its shadow (0 0 #0000 for none): elevated level 1,
                                     filled and outlined level 0
-    --card-<kind>-hover-shadow      a card that is a link, pointed at: elevated level 2, filled and outlined level 1 (a
+    --card-<kind>-hover-shadow      a card that is a link (an elevated one: a button too), pointed at: elevated level 2, filled and outlined level 1 (a
                                     theme that sets only the one at rest keeps it); pressed, as at rest
     --card-<kind>-dragged-shadow    dragged: elevated level 4, filled and outlined level 3
   Set here by the kind and the state, not by a theme: --card-shadow, the shadow a card has now (a block that draws
@@ -2484,8 +2484,10 @@
   :is(a, button:enabled).card:focus-visible::before {
     opacity: var(--card-focus-layer, 0.1);
   }
+  /* An elevated card is elevated all the time (owner, 16 Nov 2026; m3.material.io/components/cards/guidelines: "Elevated cards have a drop shadow"): level 1
+     at rest, whatever the theme's resting shadows (--mo-elevation-N-rest-shadow, off in the standard theme) say for other parts. */
   .card-elevated {
-    --card-shadow: var(--card-elevated-shadow, var(--mo-elevation-1-rest-shadow));
+    --card-shadow: var(--card-elevated-shadow, var(--mo-elevation-1-shadow));
   }
   .card-filled {
     --card-shadow: var(--card-filled-shadow, var(--mo-elevation-0-shadow));
@@ -2494,8 +2496,8 @@
     --card-shadow: var(--card-outlined-shadow, var(--mo-elevation-0-shadow));
   }
   @media (hover: hover) {
-    a.card-elevated:hover:not(:active, .card-dragged) {
-      --card-shadow: var(--card-elevated-hover-shadow, var(--card-elevated-shadow, var(--mo-elevation-2-shadow)));
+    :is(a, button:enabled).card-elevated:hover:not(:active, .card-dragged) {
+      --card-shadow: var(--card-elevated-hover-shadow, var(--mo-elevation-2-shadow));
     }
     a.card-filled:hover:not(:active, .card-dragged) {
       --card-shadow: var(--card-filled-hover-shadow, var(--card-filled-shadow, var(--mo-elevation-1-shadow)));
