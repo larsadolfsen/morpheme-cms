@@ -3560,9 +3560,7 @@ async function checkBlockRow(width, options = {}) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
-  await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
+  await insertBlock(page, 'Rows with icon, heading and text.', 1, 0);
   await page.keyboard.type('Design');
   const row = page.locator('.site-block-row');
   if (reduced) await page.waitForTimeout(100);
@@ -3875,10 +3873,8 @@ async function checkBlockVisibility(width) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   for (let i = 0; i < 3; i++) {
-    await pressInsert(page, 'click');
-    await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
-    await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
-    await page.waitForTimeout(400);
+    // Each new block lands above the ones before it; go on once it is the active one (insertBlock).
+    await insertBlock(page, 'Rows with icon, heading and text.', i + 1, 0);
     await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
     await page.keyboard.press('End');
     await page.keyboard.press('Enter');
@@ -4008,9 +4004,7 @@ async function checkBlockRowNarrow() {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
-  await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
+  await insertBlock(page, 'Rows with icon, heading and text.', 1, 0);
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(900);
   await page.locator('.site-block-card').first().hover();
@@ -5693,11 +5687,9 @@ async function checkBlockSelect(width) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  for (const hint of ['Numbered steps.', 'Rows with icon, heading and text.']) {
-    await pressInsert(page, 'click');
-    await page.locator('dialog[open] button', { hasText: hint }).first().click();
-    await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
-    await page.waitForTimeout(400);
+  for (const [n, hint] of ['Numbered steps.', 'Rows with icon, heading and text.'].entries()) {
+    // Each new block lands above the ones before it; go on once it is the active one (insertBlock).
+    await insertBlock(page, hint, n + 1, 0);
     // Away from the rows, so the next block goes after this one.
     await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
     await page.keyboard.press('End');
