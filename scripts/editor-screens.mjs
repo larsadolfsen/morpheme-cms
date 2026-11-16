@@ -8895,6 +8895,30 @@ async function checkDynamicPicker(width, height) {
   await page.close();
 }
 
+/** The list's menu (OwnList.tsx `List menu`) opens with `Edit list` and `Delete list` at every width, with a mouse and with touch: the top bar and the title row both draw the button, and the menu anchors to the one that was clicked, not the hidden one. */
+async function checkListMenuOpens(width, height, touch) {
+  const label = `${width}px list menu${touch ? ' (touch)' : ''}`;
+  virtualFile('src/data/menus/_list.json', JSON.stringify({ version: 1, label: 'Menus', fields: ['title'] }));
+  virtualFile('src/data/menus/one.json', JSON.stringify({ order: 1, title: 'One' }));
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#list/menus'));
+  const button = page.getByRole('button', { name: 'List menu' }).locator('visible=true').first();
+  await button.waitFor({ timeout: 15000 }).catch(() => problems.push(`${label}: no visible List menu button`));
+  await (touch ? button.tap() : button.click());
+  await page.waitForTimeout(700);
+  const opened = await page
+    .getByRole('menuitem', { name: 'Edit list' })
+    .first()
+    .isVisible()
+    .catch(() => false);
+  if (!opened) problems.push(`${label}: List menu did not open its menu`);
+  else if (!(await page.getByRole('menuitem', { name: 'Delete list' }).first().isVisible()))
+    problems.push(`${label}: the menu has no Delete list`);
+  await page.close();
+}
+
 /** The page of a list the owner made (#list/<id>, OwnList.tsx): the testimonials' list page and item page with the list's own fields. A list with a definition and two entries opens with two rows, no horizontal overflow; the active row has the dotted outline and no background, `Add list row` shows under an active list and is gone when the cursor leaves, the toolbar has Add above and Add below, Enter in the title goes to the text, and only the fields the list has are there (no icon slot, no link slot). */
 async function checkOwnList(width, height) {
   const label = `${width}px own list`;
@@ -11700,6 +11724,9 @@ await unit('checkDynamicList 1280', () => checkDynamicList(1280, 900));
 await unit('checkDynamicPicker 375', () => checkDynamicPicker(375, 740));
 await unit('checkDynamicPicker 1280', () => checkDynamicPicker(1280, 900));
 await unit('checkOwnList 375', () => checkOwnList(375, 740));
+await unit('checkListMenuOpens 375 touch', () => checkListMenuOpens(375, 740, true));
+await unit('checkListMenuOpens 768', () => checkListMenuOpens(768, 900, false));
+await unit('checkListMenuOpens 1280', () => checkListMenuOpens(1280, 900, false));
 await unit('checkOwnList 1280', () => checkOwnList(1280, 900));
 await unit('checkInlineTable 375', () => checkInlineTable(375, 740));
 await unit('checkInlineTable 1280', () => checkInlineTable(1280, 800));
