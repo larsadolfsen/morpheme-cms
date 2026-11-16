@@ -1717,6 +1717,13 @@
     margin-block: 0;
     border-radius: 0;
   }
+  /* The played video (the iframe that takes the link's place, Base.astro) keeps the still's box: the text's margin around an iframe and its corners
+     (.prose iframe, base.css and global.css) would make the card grow when the video starts. */
+  .prose .block-card-video iframe {
+    display: block;
+    margin-block: 0;
+    border-radius: 0;
+  }
   .prose .video-facade svg {
     color: var(--block-accent);
     transition: transform var(--motion-spatial);
