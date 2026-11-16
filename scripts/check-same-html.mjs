@@ -1,15 +1,18 @@
 // The same HTML (docs/superpowers/specs/2026-11-14-dynamic-lists-framework-design.md, 6.3): the demo site with the fixture "0.17 site"
 // (site-017-fixture.mjs) is built twice, with the base of this change (the merge base with the pull request's base branch) and with this tree, and
-// every page's HTML is compared byte for byte. A change that must show no difference on any site (the dynamic lists framework's migration) fails
-// here when one character of a page differs. Run by `npm run check:demo` (check-demo.mjs) after `npm run build`, which makes the package copy
+// the HTML of the pages that guard the lists and the blocks (GUARDED_PAGES in same-html-normalise.mjs: the fixture's three pages and the demo's
+// Blocks page) is compared, with the content hash of each built asset name taken out (a text of the editor changes the site's chunk of the
+// editor's texts and so its hash, which says nothing about drawing). A change that must show no difference on any site (the dynamic lists
+// framework's migration) fails here when one character of those pages differs; another page, robots.txt or a sitemap may change on purpose. Run by `npm run check:demo` (check-demo.mjs) after `npm run build`, which makes the package copy
 // this tree is built with: `npm run check:same-html`. The base is `SAME_HTML_BASE` (a git ref), else `origin/<the pull request's base branch>`
 // (GITHUB_BASE_REF), else `origin/0.19`; without one the check is skipped on a computer and fails in CI. It runs only in the CMS's own checkout (see below).
 import { execFileSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { binOf } from './bin.mjs';
 import { SITE_017 } from './site-017-fixture.mjs';
+import { GUARDED_PAGES, withoutAssetHashes } from './same-html-normalise.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -25,13 +28,8 @@ function baseCommit() {
   }
 }
 
-/** The files of a built site that are compared: every page and what is written beside them (feeds, sitemaps, text files), not the editor's own
- * build (`editor/`: its version and build time change with every change). */
-const compared = (dir) =>
-  readdirSync(dir, { recursive: true })
-    .map(String)
-    .filter((f) => !f.startsWith('editor/') && /\.(html|xml|txt|json|rss)$/.test(f) && statSync(join(dir, f)).isFile())
-    .sort();
+/** The guarded pages a built site has (an empty answer for one that lacks them is a problem of its own, below). */
+const compared = (dir) => GUARDED_PAGES.filter((f) => existsSync(join(dir, f)));
 
 /** The package copy of a tree in a node_modules/ of its own, as `npm run build` (demo-build.mjs) makes it, next to links to every other package. */
 function modulesOf(tree) {
@@ -102,12 +100,13 @@ try {
   const before = await build(worktree, `the base, ${base.slice(0, 9)}`);
   const was = compared(before);
   const now = compared(after);
-  for (const file of was) if (!now.includes(file)) problems.push(`${file}: in the base, not in this change.`);
+  for (const file of GUARDED_PAGES)
+    if (!was.includes(file) || !now.includes(file))
+      problems.push(`${file}: not built${was.includes(file) ? ' by this change' : ' by the base'}.`);
   for (const file of now) {
-    if (!was.includes(file)) problems.push(`${file}: in this change, not in the base.`);
-    else {
-      const a = readFileSync(join(before, file));
-      const b = readFileSync(join(after, file));
+    if (was.includes(file)) {
+      const a = Buffer.from(withoutAssetHashes(readFileSync(join(before, file), 'utf8')));
+      const b = Buffer.from(withoutAssetHashes(readFileSync(join(after, file), 'utf8')));
       if (!a.equals(b)) {
         let i = 0;
         while (a[i] === b[i]) i++;
@@ -116,7 +115,7 @@ try {
       }
     }
   }
-  console.log(`\nCompared ${now.length} files of the demo and the 0.17 fixture.`);
+  console.log(`\nCompared ${now.length} guarded pages of the demo and the 0.17 fixture.`);
 } finally {
   try {
     git('worktree', 'remove', '--force', worktree);
@@ -126,7 +125,7 @@ try {
   rmSync(cache, { recursive: true, force: true });
 }
 if (problems.length) {
-  console.error(`\n${problems.join('\n')}\n\nThe HTML of the site is not the same as the base's (scripts/check-same-html.mjs).`);
+  console.error(`\n${problems.join('\n')}\n\nThe HTML of the guarded pages is not the same as the base's (scripts/check-same-html.mjs).`);
   process.exit(1);
 }
-console.log('The HTML is the same as the base, byte for byte.');
+console.log('The guarded pages are the same as the base, byte for byte (asset hashes aside).');

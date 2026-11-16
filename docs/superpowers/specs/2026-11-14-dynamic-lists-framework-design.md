@@ -437,7 +437,7 @@ While the app is free (4.2), a site that upgrades gets the bundled app installed
 - `scripts/check-content.mjs` fixture **0.17 site**: two own lists (version 1 and version 2 definitions), a Dynamic list with a `map`, a
   Dynamic segmented list with `howMany` and `Show all`, a Dynamic FAQ list from Testimonials, a List from posts. The build of each
   migration PR must give byte-identical HTML for those pages to the build on `0.19` before the PR (a new `check:same-html` step in
-  `check:demo`, comparing `dist/` page by page).
+  `check:demo`, comparing `dist/` page by page). Since 16 Nov 2026 it compares only the guarded pages (the fixture's three and the demo's Blocks page; `scripts/same-html-normalise.mjs`), with the content hash of each `_astro/` asset name taken out: a text of the editor changes the site's `view.*.js` chunk and so its hash, which says nothing about how a block is drawn.
 - `check:screens` runs the editor with the app on (today's screens, unchanged) and with it off (4.3's line, no `Rows from`).
 - `check:starter` builds the starter with the bundled app installed by default.
 
