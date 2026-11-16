@@ -8471,6 +8471,20 @@ async function checkSteps(width, height) {
     ])
   )
     problems.push(`${label}: Enter did not go heading, text, next step: ${JSON.stringify(now)}`);
+  // The heading's first line is centred on the number (within 1 px), read from the real boxes: the field's top plus its border and padding
+  // plus half its line height, against the number's middle.
+  const off = await page.evaluate(() =>
+    [...document.querySelectorAll('.inline-steps .block-step[data-row]:not(.inline-list-row-next)')].map((li) => {
+      const n = li.querySelector('.block-step-number').getBoundingClientRect();
+      const f = li.querySelector('[data-field="title"]');
+      const c = getComputedStyle(f);
+      const lh = parseFloat(c.lineHeight) || parseFloat(c.fontSize) * 1.2;
+      const first = f.getBoundingClientRect().top + parseFloat(c.borderTopWidth) + parseFloat(c.paddingTop) + lh / 2;
+      return Math.abs(first - (n.top + n.height / 2));
+    }),
+  );
+  if (!off.length || off.some((d) => !(d <= 1)))
+    problems.push(`${label}: a step's heading is not centred on its number (off by ${off.map((d) => d.toFixed(1)).join(', ')} px)`);
   // Enter in the heading goes to the text and Enter in an empty text adds nothing (a heading without text is kept as it is); in the text
   // with something in it Enter adds a step, and Backspace in its empty heading removes it again.
   await page.keyboard.press('Enter');
@@ -11883,6 +11897,7 @@ await unit('checkEmptyRow 375', () => checkEmptyRow(375, 740));
 await unit('checkInsertNeverOpensSheet 1280', () => checkInsertNeverOpensSheet(1280, 900));
 for (const [width, height] of [
   [375, 740],
+  [768, 900],
   [1280, 900],
 ])
   await unit(`checkSteps ${width}`, () => checkSteps(width, height));

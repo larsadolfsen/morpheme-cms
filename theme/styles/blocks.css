@@ -299,8 +299,9 @@
     letter-spacing: var(--type-title-medium-tracking);
     font-variant-numeric: tabular-nums;
   }
+  /* The heading's first line is centred on the number: the body starts (number height - line height) / 2 down. */
   .block-step-body {
-    padding-top: 0.5rem;
+    padding-top: calc((3rem - var(--type-title-large-line-height)) / 2);
   }
   .block-step-title {
     font-size: var(--type-title-large-size);
@@ -1825,6 +1826,10 @@
 }
 
 @layer fallback {
+  /* "Steps": the heading has no space above it, so the text's heading space (.prose h3, also in this layer) does not push it off the number. */
+  .prose .block-step-title {
+    margin-block: 0;
+  }
   /* "Video": the video before it is played (video/, packages/editor/lib/video.mjs); the video takes its
    place. Outside the layers, as it is a link in the text's style (.prose), whose link style it undoes. */
   .prose .video-facade {
