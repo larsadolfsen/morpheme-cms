@@ -10,6 +10,7 @@ import {
   inlineBlocks,
   inlineSingles,
   insertBlock,
+  newLineUnder,
   liveLists,
   onTestPage,
   openStyleMenu,
@@ -372,9 +373,7 @@ async function checkBlockVisibility(width) {
   for (let i = 0; i < 3; i++) {
     // Each new block lands above the ones before it; go on once it is the active one (insertBlock).
     await insertBlock(page, 'Rows with icon, heading and text.', i + 1, 0);
-    await page.locator('.ProseMirror p', { hasText: 'Hello' }).first().click();
-    await page.keyboard.press('End');
-    await page.keyboard.press('Enter');
+    await newLineUnder(page, 'Hello');
   }
   const blocks = page.locator('.ProseMirror .site-block');
   if ((await blocks.count()) < 3) {
