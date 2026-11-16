@@ -2,7 +2,7 @@
 // the file, the line's text and the reason. Keep it small: a new entry is reviewed.
 export const allow = [
   {
-    file: /base\.css$|blocks\.css$/,
+    file: /base\.css$|blocks\.css$|tokens\/(base|blocks)\/sys\.css$/,
     line: /^--(radius|radius-small|block-radius|block-radius-small|block-control-radius): /,
     reason: 'the fallback corners for a theme that sets no steps (global.css sets the ten steps and maps these to them)',
   },

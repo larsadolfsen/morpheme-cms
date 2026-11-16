@@ -10,6 +10,8 @@
 @import './blocks.css';
 /* The theme's variables and the classes the standard theme's components use with them. */
 @import './components.css';
+@import './tokens/base/ref.css';
+@import './tokens/base/sys.css';
 
 /*
   Material is every theme's fallback: its rules that set more than custom properties sit in @layer fallback (declared last in
@@ -44,97 +46,10 @@
   (colorPairs in @site/colors). Everything here uses them by name.
 */
 :root {
-  /* M3's spacing scale (m3.material.io/m3/pages/spacing: "The spacing system is measured on an 8dp scale, where space100 = 8dp"):
-     Space 0, 25, 50, 75, 100, 125, 150, 175, 200, 250, 300, 400, 450, 500, 600, 700, 800 and 900 are 0, 2, 4, 6, 8, 10, 12, 14, 16, 20,
-     24, 32, 36, 40, 48, 56, 64 and 72 dp. A theme sets their values; a part reads them by name. */
-  --mo-space-0: 0px;
-  --mo-space-25: 2px;
-  --mo-space-50: 4px;
-  --mo-space-75: 6px;
-  --mo-space-100: 8px;
-  --mo-space-125: 10px;
-  --mo-space-150: 12px;
-  --mo-space-175: 14px;
-  --mo-space-200: 16px;
-  --mo-space-250: 20px;
-  --mo-space-300: 24px;
-  --mo-space-400: 32px;
-  --mo-space-450: 36px;
-  --mo-space-500: 40px;
-  --mo-space-600: 48px;
-  --mo-space-700: 56px;
-  --mo-space-800: 64px;
-  --mo-space-900: 72px;
-
-  /* Density (m3.material.io/foundations/layout/grids-spacing/density: "The density scale is numbered, starting at 0 for a component's
-     default density", "Higher density is typically applied by decreasing the top and bottom padding or overall height by 4dp").
-     Two steps add up: the theme's own (--mo-density-base, a theme sets it: 0 is Medium, 1 Large, -1 Small, down to -3) and the
-     person's (--mo-density-user, set only by the editor through data-density on <html>; a site has none, so it is 0 there).
-     A part writes its size as calc(<default> + var(--mo-density) * var(--mo-density-step)), so at 0 it is the default.
-     Which one a part reads depends on its group: --mo-density for data-heavy parts (lists, tables: -3 to 1), --mo-density-layout for
-     layout and controls (-1 to 1), --mo-density-focus for focused single-task parts (menus, dialogs: never denser than Medium, 0 to 1).
-     Only height and vertical padding follow it, never the text size or the horizontal padding. */
-  --mo-density-base: 0;
-  --mo-density-user: 0;
-  --mo-density-step: 4px;
-  --mo-density: clamp(-3, calc(var(--mo-density-base) + var(--mo-density-user)), 1);
-  --mo-density-layout: clamp(-1, calc(var(--mo-density-base) + var(--mo-density-user)), 1);
-  --mo-density-focus: clamp(0, calc(var(--mo-density-base) + var(--mo-density-user)), 1);
-  /* The smallest target of something to tap or click (m3.material.io/foundations/designing/structure, "Target sizes" and "Pointer
-     targets"): 48 dp on touch, 44 dp for a mouse. Density shrinks the part, never its target (ui.css gives it a hit area). */
-  --mo-target: 44px;
-
-  /* M3's full corner (a pill or a circle): the fallback for a theme that does not set the corner steps (global.css sets all ten). */
-  --mo-shape-full: 9999px;
-  --radius: 0.75rem;
-  /* The corners of something smaller in or beside a panel: an image in a list, a row in a menu, an icon's square. */
-  --radius-small: 1rem;
-  --panel-shadow:
-    0 1px 2px color-mix(in srgb, var(--mo-shadow) 6%, transparent), 0 8px 24px -12px color-mix(in srgb, var(--mo-shadow) 18%, transparent);
-  /* The motion scheme's curve (blocks.css, lib/motion.ts). */
-  --ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
-
-  /* The standard blocks (blocks.css) in this design; in dark mode too, as they
-     follow the tokens above. */
-  --block-text: var(--mo-on-surface);
-  --block-muted: var(--mo-on-surface-variant);
-  --block-accent: var(--mo-primary);
-  --block-accent-hover: color-mix(in srgb, var(--mo-on-primary) 8%, var(--mo-primary));
-  --block-on-accent: var(--mo-on-primary);
-  --block-primary: var(--mo-primary);
-  --block-on-primary: var(--mo-on-primary);
-  --block-secondary: var(--mo-secondary);
-  --block-on-secondary: var(--mo-on-secondary);
-  --block-tertiary: var(--mo-tertiary);
-  --block-on-tertiary: var(--mo-on-tertiary);
-  --block-surface: var(--mo-surface-container-lowest);
-  --block-tint: var(--mo-surface-container-high);
-  --block-stripe: var(--mo-surface-container);
-  --block-line: var(--mo-outline-variant);
-  --block-radius: var(--radius);
-  --block-radius-small: var(--radius-small);
-  --block-control-radius: var(--mo-shape-full);
-  --block-shadow: var(--panel-shadow);
-  --block-ease: var(--ease);
   /* How far a carousel reaches out to the edges of a phone's screen (ui.css): Container.astro's gutter there (px-4). */
   --carousel-bleed: 1rem;
   /* The same for a chip set that scrolls (ui.css). */
   --chip-set-bleed: 1rem;
-}
-
-@media (pointer: coarse) {
-  :root {
-    --mo-target: 48px;
-  }
-}
-
-/* The editor's Density setting (Large, Medium, Small) as the person's step. A site never sets the attribute. A box that must not follow it
-   re-declares --mo-density-user and the three derived variables above, which are computed where they are declared. */
-:root[data-density='1'] {
-  --mo-density-user: 1;
-}
-:root[data-density='-1'] {
-  --mo-density-user: -1;
 }
 /* Follow the system by default (Modern Web Guidance, dark-mode-toggle: the base stays `light dark`); a picked mode pins it. */
 @layer fallback {
@@ -146,148 +61,10 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --panel-shadow:
-      0 1px 2px color-mix(in srgb, var(--mo-shadow) 30%, transparent),
-      0 20px 40px -24px color-mix(in srgb, var(--mo-shadow) 70%, transparent);
-  }
-}
-
-:root[data-theme='dark'] {
-  --panel-shadow:
-    0 1px 2px color-mix(in srgb, var(--mo-shadow) 30%, transparent), 0 20px 40px -24px color-mix(in srgb, var(--mo-shadow) 70%, transparent);
-}
-
 @layer fallback {
   :root[data-theme='dark'] {
     color-scheme: dark;
   }
-}
-
-@theme inline {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --color-primary: var(--mo-primary);
-  --color-on-primary: var(--mo-on-primary);
-  --color-primary-container: var(--mo-primary-container);
-  --color-on-primary-container: var(--mo-on-primary-container);
-  --color-secondary: var(--mo-secondary);
-  --color-on-secondary: var(--mo-on-secondary);
-  --color-secondary-container: var(--mo-secondary-container);
-  --color-on-secondary-container: var(--mo-on-secondary-container);
-  --color-tertiary: var(--mo-tertiary);
-  --color-on-tertiary: var(--mo-on-tertiary);
-  --color-tertiary-container: var(--mo-tertiary-container);
-  --color-on-tertiary-container: var(--mo-on-tertiary-container);
-  --color-error: var(--mo-error);
-  --color-on-error: var(--mo-on-error);
-  --color-error-container: var(--mo-error-container);
-  --color-on-error-container: var(--mo-on-error-container);
-  --color-primary-fixed: var(--mo-primary-fixed);
-  --color-primary-fixed-dim: var(--mo-primary-fixed-dim);
-  --color-on-primary-fixed: var(--mo-on-primary-fixed);
-  --color-on-primary-fixed-variant: var(--mo-on-primary-fixed-variant);
-  --color-secondary-fixed: var(--mo-secondary-fixed);
-  --color-secondary-fixed-dim: var(--mo-secondary-fixed-dim);
-  --color-on-secondary-fixed: var(--mo-on-secondary-fixed);
-  --color-on-secondary-fixed-variant: var(--mo-on-secondary-fixed-variant);
-  --color-tertiary-fixed: var(--mo-tertiary-fixed);
-  --color-tertiary-fixed-dim: var(--mo-tertiary-fixed-dim);
-  --color-on-tertiary-fixed: var(--mo-on-tertiary-fixed);
-  --color-on-tertiary-fixed-variant: var(--mo-on-tertiary-fixed-variant);
-  --color-surface-dim: var(--mo-surface-dim);
-  --color-surface: var(--mo-surface);
-  --color-surface-bright: var(--mo-surface-bright);
-  --color-surface-container-lowest: var(--mo-surface-container-lowest);
-  --color-surface-container-low: var(--mo-surface-container-low);
-  --color-surface-container: var(--mo-surface-container);
-  --color-surface-container-high: var(--mo-surface-container-high);
-  --color-surface-container-highest: var(--mo-surface-container-highest);
-  --color-on-surface: var(--mo-on-surface);
-  --color-on-surface-variant: var(--mo-on-surface-variant);
-  --color-outline: var(--mo-outline);
-  --color-outline-variant: var(--mo-outline-variant);
-  --color-inverse-surface: var(--mo-inverse-surface);
-  --color-inverse-on-surface: var(--mo-inverse-on-surface);
-  --color-inverse-primary: var(--mo-inverse-primary);
-  --color-scrim: var(--mo-scrim);
-  --color-shadow: var(--mo-shadow);
-  --radius-panel: var(--radius);
-  --radius-panel-small: var(--radius-small);
-  --shadow-soft: var(--panel-shadow);
-  --ease-soft: var(--ease);
-  /* M3's type scale as Tailwind's text-<role> (display, headline, title, body, label; large, medium, small): size, line height, tracking and weight from the --type-* tokens (ui.css). */
-  --text-display-large: var(--type-display-large-size);
-  --text-display-large--line-height: var(--type-display-large-line-height);
-  --text-display-large--letter-spacing: var(--type-display-large-tracking);
-  --text-display-large--font-weight: var(--type-display-large-weight);
-  --text-display-medium: var(--type-display-medium-size);
-  --text-display-medium--line-height: var(--type-display-medium-line-height);
-  --text-display-medium--letter-spacing: var(--type-display-medium-tracking);
-  --text-display-medium--font-weight: var(--type-display-medium-weight);
-  --text-display-small: var(--type-display-small-size);
-  --text-display-small--line-height: var(--type-display-small-line-height);
-  --text-display-small--letter-spacing: var(--type-display-small-tracking);
-  --text-display-small--font-weight: var(--type-display-small-weight);
-  --text-headline-large: var(--type-headline-large-size);
-  --text-headline-large--line-height: var(--type-headline-large-line-height);
-  --text-headline-large--letter-spacing: var(--type-headline-large-tracking);
-  --text-headline-large--font-weight: var(--type-headline-large-weight);
-  --text-headline-medium: var(--type-headline-medium-size);
-  --text-headline-medium--line-height: var(--type-headline-medium-line-height);
-  --text-headline-medium--letter-spacing: var(--type-headline-medium-tracking);
-  --text-headline-medium--font-weight: var(--type-headline-medium-weight);
-  --text-headline-small: var(--type-headline-small-size);
-  --text-headline-small--line-height: var(--type-headline-small-line-height);
-  --text-headline-small--letter-spacing: var(--type-headline-small-tracking);
-  --text-headline-small--font-weight: var(--type-headline-small-weight);
-  --text-title-large: var(--type-title-large-size);
-  --text-title-large--line-height: var(--type-title-large-line-height);
-  --text-title-large--letter-spacing: var(--type-title-large-tracking);
-  --text-title-large--font-weight: var(--type-title-large-weight);
-  --text-title-medium: var(--type-title-medium-size);
-  --text-title-medium--line-height: var(--type-title-medium-line-height);
-  --text-title-medium--letter-spacing: var(--type-title-medium-tracking);
-  --text-title-medium--font-weight: var(--type-title-medium-weight);
-  --text-title-small: var(--type-title-small-size);
-  --text-title-small--line-height: var(--type-title-small-line-height);
-  --text-title-small--letter-spacing: var(--type-title-small-tracking);
-  --text-title-small--font-weight: var(--type-title-small-weight);
-  --text-body-large: var(--type-body-large-size);
-  --text-body-large--line-height: var(--type-body-large-line-height);
-  --text-body-large--letter-spacing: var(--type-body-large-tracking);
-  --text-body-large--font-weight: var(--type-body-large-weight);
-  --text-body-medium: var(--type-body-medium-size);
-  --text-body-medium--line-height: var(--type-body-medium-line-height);
-  --text-body-medium--letter-spacing: var(--type-body-medium-tracking);
-  --text-body-medium--font-weight: var(--type-body-medium-weight);
-  --text-body-small: var(--type-body-small-size);
-  --text-body-small--line-height: var(--type-body-small-line-height);
-  --text-body-small--letter-spacing: var(--type-body-small-tracking);
-  --text-body-small--font-weight: var(--type-body-small-weight);
-  --text-label-large: var(--type-label-large-size);
-  --text-label-large--line-height: var(--type-label-large-line-height);
-  --text-label-large--letter-spacing: var(--type-label-large-tracking);
-  --text-label-large--font-weight: var(--type-label-large-weight);
-  --text-label-medium: var(--type-label-medium-size);
-  --text-label-medium--line-height: var(--type-label-medium-line-height);
-  --text-label-medium--letter-spacing: var(--type-label-medium-tracking);
-  --text-label-medium--font-weight: var(--type-label-medium-weight);
-  --text-label-small: var(--type-label-small-size);
-  --text-label-small--line-height: var(--type-label-small-line-height);
-  --text-label-small--letter-spacing: var(--type-label-small-tracking);
-  --text-label-small--font-weight: var(--type-label-small-weight);
-}
-
-/* Material 3's breakpoints (m3.material.io/foundations/layout/breakpoints): Tailwind's medium:, expanded:, large: and
-   extra-large: (and max-…:), and theme(--breakpoint-…) in a @media; the same as lib/breakpoints.mjs for scripts. `static`
-   puts them on :root of every page, so the editor's Preview reads the breakpoints the site has (previewBreakpoints.ts). */
-@theme static {
-  --breakpoint-*: initial;
-  --breakpoint-medium: 37.5rem;
-  --breakpoint-expanded: 52.5rem;
-  --breakpoint-large: 75rem;
-  --breakpoint-extra-large: 100rem;
 }
 
 /* z-index scale (documented, no ad-hoc values): action bar 30, header 40, cookie banner 42 (under the
@@ -378,7 +155,6 @@
     line-height: var(--type-lead-line-height);
     font-weight: var(--type-lead-weight);
     letter-spacing: var(--type-lead-tracking);
-    --prose-space: 1.5rem;
   }
   /* The text right after the lead (no image between): the space the prose puts between paragraphs (16px), not the
    larger space of a text under an image. In the fallback layer on purpose: it must beat the mt-10 / medium:mt-14 utilities. */

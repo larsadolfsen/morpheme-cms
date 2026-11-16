@@ -5,8 +5,18 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const read = (name) => readFileSync(new URL(name, import.meta.url), 'utf8');
+import { readdirSync } from 'node:fs';
+/** A stylesheet and the token files it imports (tokens/<origin>/*.css, docs/theme-token-files.md), as one text. */
+const withTokens = (name, origin) =>
+  [
+    read(name),
+    ...readdirSync(new URL(`./tokens/${origin}/`, import.meta.url))
+      .filter((f) => f.endsWith('.css'))
+      .sort()
+      .map((f) => read(`./tokens/${origin}/${f}`)),
+  ].join('\n');
 // The card rules are in cards.css (moved out of ui.css), so the text is both files.
-const uiCss = read('./ui.css') + read('./cards.css');
+const uiCss = withTokens('./ui.css', 'ui') + read('./cards.css');
 
 const count = (text, part) => text.split(part).length - 1;
 
@@ -126,7 +136,7 @@ test('outlined card keeps --mo-elevation-0-shadow', () => {
 });
 
 // The Material theme (global.css): colour at rest, a shadow only for the FAB and the lift.
-const globalCss = read('./global.css');
+const globalCss = withTokens('./global.css', 'material');
 
 for (let level = 1; level <= 5; level++) {
   test(`global.css sets --mo-elevation-${level}-rest-shadow to no shadow`, () => {

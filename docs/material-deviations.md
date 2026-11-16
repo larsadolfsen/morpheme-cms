@@ -414,7 +414,7 @@ Source: `theme/ui/Search.tsx` (`SearchView`), `theme/styles/ui.css` (`.search-vi
 ### B3. The bottom sheet's side padding is the grid margin
 
 - **Material (read with Playwright, 15 Nov 2026, m3.material.io/components/bottom-sheets/overview, /specs, /guidelines, /accessibility):** specs, Measurements: "Bottom sheets span the full window width up to 640dp. When the window width exceeds 640dp, bottom sheets adjust to have a top margin of 56dp and side margins of 56dp", "Drag handle padding top/bottom 22dp", "Top margin 72dp", "Width Full width, up to max-width 640dp". M3 prints no padding for what is inside a sheet, so there is no value to conflict with.
-- **We do:** the sheet's header, peek, footer and a standard sheet's content have `var(--mo-grid-margin)` at the start and end (16 dp on compact, 24 dp from the medium breakpoint, `theme/styles/global.css`), instead of 20 dp; the editor's `SheetBody`, `SheetActions` and the gallery sample use the same token. M3's grid page prints these margins for the window.
+- **We do:** the sheet's header, peek, footer and a standard sheet's content have `var(--mo-grid-margin)` at the start and end (16 dp on compact, 24 dp from the medium breakpoint, `theme/styles/tokens/material/sys.css`), instead of 20 dp; the editor's `SheetBody`, `SheetActions` and the gallery sample use the same token. M3's grid page prints these margins for the window.
 - **Why:** owner approval, 15 Nov 2026 (relayed by the PM): the fields and lists inside a sheet end at the grid margin, and the sheet's 20 dp made their edges miss. No `THEME_API` name, kind or class changed.
 - **Date:** 2026-11-15. **PR:** this pull request (`bottom-sheet-grid-margin`).
 

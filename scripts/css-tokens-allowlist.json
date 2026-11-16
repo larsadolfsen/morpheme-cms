@@ -31,7 +31,7 @@
     },
     {
       "pattern": "--breakpoint-*",
-      "why": "Tailwind @theme namespace (medium:, expanded: variants and theme(--breakpoint-\u2026)). Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
+      "why": "Tailwind @theme namespace (medium:, expanded: variants and theme(--breakpoint-…)). Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     },
     {
       "pattern": "--container-*",
@@ -87,13 +87,22 @@
       "max": 2
     },
     "theme/styles/base.css": {
-      "max": 26
-    },
-    "theme/styles/components.css": {
-      "max": 25
+      "max": 2
     },
     "theme/styles/global.css": {
-      "max": 325
+      "max": 313
+    },
+    "theme/styles/tokens/base/ref.css": {
+      "max": 1
+    },
+    "theme/styles/tokens/base/sys.css": {
+      "max": 48
+    },
+    "theme/styles/tokens/material/ref.css": {
+      "max": 1
+    },
+    "theme/styles/tokens/material/sys.css": {
+      "max": 11
     },
     "theme/styles/ui.css": {
       "max": 4
