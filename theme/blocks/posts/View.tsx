@@ -16,7 +16,11 @@ export default function Posts({ view }: { view: PostsView }) {
   return (
     <>
       <BlockHead view={view} />
-      <div className={`${useInText() || 'block-in-text'} block-posts-in-text${view.design === 'featured' ? '' : 'block-posts-rows'}`}>
+      <div
+        className={[useInText() || 'block-in-text', 'block-posts-in-text', view.design !== 'featured' && 'block-posts-rows']
+          .filter(Boolean)
+          .join(' ')}
+      >
         {view.note && <p className="block-posts-note">{view.note}</p>}
         {view.design === 'featured' ? (
           <BlogPosts posts={posts} />
