@@ -1,5 +1,5 @@
 import { openEditor } from '../built-site.mjs';
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { ROOT, browser, problems, site } from './support/context.mjs';
 import { barTools, cancelOf, insertBlock, newLineUnder, pressInsert, pressMore, pressTool } from './support/shared.mjs';
@@ -661,152 +661,165 @@ async function checkBlockDrag(width) {
  * mark (whose own 48 target is centred on the corner), nor the block's content (the row is its own height above it). */
 async function checkBlockHandleCorner(width) {
   const label = `block handle corner ${width}`;
-  // The starter has no Blocks page of its own: its blocks are the ones the check of the demo measures.
-  if (!existsSync(join(ROOT, 'src/content/pages/blocks.md'))) return console.log(`${label}: skipped, the site has no Blocks page.`);
-  const phone = width < 600;
-  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
-  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  await openEditor(page, site);
-  await page.evaluate(() => (location.hash = '#src/content/pages/blocks.md'));
-  await page.waitForSelector('.ProseMirror > .site-block', { timeout: 30_000 });
-  const blocks = page.locator('.ProseMirror > .site-block');
+  // The starter has no Blocks pages of its own: its blocks are the ones the check of the demo measures. The demo's Blocks are a page for each
+  // component or special block (blocks-<name>.md), so the kinds of block are collected from every one of them.
+  const pagesDir = join(ROOT, 'src/content/pages');
+  const files = existsSync(pagesDir)
+    ? readdirSync(pagesDir)
+        .filter((f) => /^blocks-.+\.md$/.test(f))
+        .sort()
+    : [];
+  if (!files.length) return console.log(`${label}: skipped, the site has no Blocks pages.`);
   const seen = new Set();
-  const count = await blocks.count();
-  for (let i = 0; i < count; i++) {
-    const block = blocks.nth(i);
-    const card = block.locator(':scope > .site-block-card');
-    const name = await card.getAttribute('aria-label');
-    if (seen.has(name)) continue;
-    seen.add(name);
-    // The cursor is out of every block first, as the other units do: the block before lets go of its row, and the page settles.
-    await page.locator('.ProseMirror > p').first().click();
-    await page.waitForFunction(() => !document.querySelector('.ProseMirror .site-block-has-row'), null, { timeout: 8000 }).catch(() => {});
-    await block.scrollIntoViewIfNeeded();
-    // Activate it with a tap or click inside it; the wait is for its row to be open (the state itself, no fixed time).
-    const open = () =>
-      page
-        .waitForFunction(
-          (n) => {
-            const b = document.querySelectorAll('.ProseMirror > .site-block')[n];
-            return !!b?.classList.contains('site-block-has-row') && !document.querySelector('.ProseMirror .site-block-row-moving');
-          },
-          i,
-          { timeout: 3000 },
-        )
-        .then(
-          () => true,
-          () => false,
+  const phone = width < 600;
+  for (const file of files) {
+    const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate((f) => (location.hash = `#src/content/pages/${f}`), file);
+    await page.waitForSelector('.ProseMirror > .site-block', { timeout: 30_000 });
+    const blocks = page.locator('.ProseMirror > .site-block');
+    const count = await blocks.count();
+    for (let i = 0; i < count; i++) {
+      const block = blocks.nth(i);
+      const card = block.locator(':scope > .site-block-card');
+      const name = await card.getAttribute('aria-label');
+      if (seen.has(name)) continue;
+      seen.add(name);
+      // The cursor is out of every block first, as the other units do: the block before lets go of its row, and the page settles.
+      await page.locator('.ProseMirror > p').first().click();
+      await page
+        .waitForFunction(() => !document.querySelector('.ProseMirror .site-block-has-row'), null, { timeout: 8000 })
+        .catch(() => {});
+      await block.scrollIntoViewIfNeeded();
+      // Activate it with a tap or click inside it; the wait is for its row to be open (the state itself, no fixed time).
+      const open = () =>
+        page
+          .waitForFunction(
+            (n) => {
+              const b = document.querySelectorAll('.ProseMirror > .site-block')[n];
+              return !!b?.classList.contains('site-block-has-row') && !document.querySelector('.ProseMirror .site-block-row-moving');
+            },
+            i,
+            { timeout: 3000 },
+          )
+          .then(
+            () => true,
+            () => false,
+          );
+      let active = false;
+      // The first way that works: a click in a field, the focus put on a field (a field a click cannot reach), then a click in the block's preview.
+      const focusField = card.locator('textarea, [contenteditable="true"]').first();
+      for (const selector of [
+        '[data-field]:visible',
+        'focus',
+        '[contenteditable="true"]:visible',
+        '.site-block-preview h2',
+        '.site-block-preview',
+        'corner',
+      ]) {
+        if (selector === 'corner') {
+          // The frame's bottom right padding, where nothing of the block is.
+          const frame = await card.boundingBox();
+          if (frame)
+            await (phone
+              ? page.touchscreen.tap(frame.x + frame.width - 6, frame.y + frame.height - 6)
+              : page.mouse.click(frame.x + frame.width - 6, frame.y + frame.height - 6));
+          if ((active = await open())) break;
+          continue;
+        }
+        if (selector === 'focus') {
+          if (await focusField.count()) await focusField.focus({ timeout: 3000 }).catch(() => {});
+          if ((active = await open())) break;
+          continue;
+        }
+        const target = card.locator(selector).first();
+        if (!(await target.count())) continue;
+        await target.scrollIntoViewIfNeeded().catch(() => {});
+        await (phone ? target.tap({ position: { x: 6, y: 6 }, timeout: 3000 }) : target.click({ timeout: 3000 })).catch(() => {});
+        if ((active = await open())) break;
+      }
+      if (!active) {
+        problems.push(
+          `${label}: the ${name} block did not become active (${await page.evaluate(() => [...document.querySelectorAll('.ProseMirror > .site-block')].map((b) => b.className.replace(/site-block-?/g, '').trim() || '-').join('|') + ` dialogs ${document.querySelectorAll('dialog[open]').length} ${location.hash}`)})`,
         );
-    let active = false;
-    // The first way that works: a click in a field, the focus put on a field (a field a click cannot reach), then a click in the block's preview.
-    const focusField = card.locator('textarea, [contenteditable="true"]').first();
-    for (const selector of [
-      '[data-field]:visible',
-      'focus',
-      '[contenteditable="true"]:visible',
-      '.site-block-preview h2',
-      '.site-block-preview',
-      'corner',
-    ]) {
-      if (selector === 'corner') {
-        // The frame's bottom right padding, where nothing of the block is.
-        const frame = await card.boundingBox();
-        if (frame)
-          await (phone
-            ? page.touchscreen.tap(frame.x + frame.width - 6, frame.y + frame.height - 6)
-            : page.mouse.click(frame.x + frame.width - 6, frame.y + frame.height - 6));
-        if ((active = await open())) break;
         continue;
       }
-      if (selector === 'focus') {
-        if (await focusField.count()) await focusField.focus({ timeout: 3000 }).catch(() => {});
-        if ((active = await open())) break;
-        continue;
+      // A block that opens its settings beside the page narrows the frame: close that sheet first (the block stays active), as the frame is measured at the page's own width.
+      const closer = page.getByRole('button', { name: 'Close', exact: true }).first();
+      if (await closer.isVisible().catch(() => false)) {
+        await closer.click();
+        // Closing it may let the block go: the focus goes back to its field.
+        if (!(await open()) && (await focusField.count())) {
+          await focusField.focus({ timeout: 3000 }).catch(() => {});
+          await open();
+        }
       }
-      const target = card.locator(selector).first();
-      if (!(await target.count())) continue;
-      await target.scrollIntoViewIfNeeded().catch(() => {});
-      await (phone ? target.tap({ position: { x: 6, y: 6 }, timeout: 3000 }) : target.click({ timeout: 3000 })).catch(() => {});
-      if ((active = await open())) break;
-    }
-    if (!active) {
-      problems.push(
-        `${label}: the ${name} block did not become active (${await page.evaluate(() => [...document.querySelectorAll('.ProseMirror > .site-block')].map((b) => b.className.replace(/site-block-?/g, '').trim() || '-').join('|') + ` dialogs ${document.querySelectorAll('dialog[open]').length} ${location.hash}`)})`,
-      );
-      continue;
-    }
-    // A block that opens its settings beside the page narrows the frame: close that sheet first (the block stays active), as the frame is measured at the page's own width.
-    const closer = page.getByRole('button', { name: 'Close', exact: true }).first();
-    if (await closer.isVisible().catch(() => false)) {
-      await closer.click();
-      // Closing it may let the block go: the focus goes back to its field.
-      if (!(await open()) && (await focusField.count())) {
-        await focusField.focus({ timeout: 3000 }).catch(() => {});
+      // A tap on a block that is only a preview (a list of the site) also selects it: Escape lets the selection go, and the block stays active.
+      if (await page.locator('.ProseMirror .site-block-marks').count()) {
+        await page.keyboard.press('Escape');
+        await page
+          .waitForFunction(() => !document.querySelector('.ProseMirror .site-block-marks'), null, { timeout: 3000 })
+          .catch(() => {});
         await open();
       }
+      // The handle fades in with the row: measured once it is shown and no animation runs on it or on the row.
+      await block
+        .evaluate(
+          (el) =>
+            new Promise((done) => {
+              const handle = el.querySelector(':scope > .site-block-handle');
+              const settled = () => getComputedStyle(handle).opacity === '1' && el.getAnimations({ subtree: true }).length === 0;
+              const look = () => (settled() ? done(true) : requestAnimationFrame(look));
+              look();
+              setTimeout(() => done(false), 3000);
+            }),
+        )
+        .catch(() => {});
+      const m = await block.evaluate((el) => {
+        const rect = (s) => el.querySelector(s)?.getBoundingClientRect();
+        const handle = rect(':scope > .site-block-handle');
+        const frame = rect(':scope > .site-block-card');
+        const mark = rect(':scope > .site-block-mark');
+        const content = rect(':scope > .site-block-card > .site-block-preview');
+        const buttons = [...el.querySelectorAll('.site-block-row-inner button')].map((b) => b.getBoundingClientRect());
+        const editor = el.closest('.ProseMirror').getBoundingClientRect();
+        const meets = (a, b) =>
+          !!a && !!b && a.left < b.right - 0.6 && a.right > b.left + 0.6 && a.top < b.bottom - 0.6 && a.bottom > b.top + 0.6;
+        return {
+          handle: handle && {
+            w: handle.width,
+            h: handle.height,
+            left: handle.left - frame.left,
+            top: handle.top - frame.top,
+            right: handle.right,
+            vLeft: handle.left,
+          },
+          frameW: frame.width,
+          editorLeft: editor.left,
+          buttons: buttons.some((b) => meets(handle, b)),
+          mark: meets(handle, mark),
+          content: meets(handle, content),
+          shown: getComputedStyle(el.querySelector(':scope > .site-block-handle')).opacity === '1',
+        };
+      });
+      const at = `${label}: ${name}`;
+      if (!m.handle) problems.push(`${at}: no handle`);
+      else {
+        if (m.handle.w < 48 || m.handle.h < 48) problems.push(`${at}: the handle is ${m.handle.w}x${m.handle.h}, under 48x48`);
+        if (m.handle.left > m.frameW / 4 || m.handle.top > 16)
+          problems.push(`${at}: the handle is not in the frame's top left corner (${m.handle.left}, ${m.handle.top})`);
+        if (m.handle.left < 0) problems.push(`${at}: the handle starts outside the frame (${m.handle.left})`);
+        if (m.handle.vLeft < 0 || m.handle.right > width) problems.push(`${at}: the handle is outside the visible width`);
+        if (!m.shown) problems.push(`${at}: the active block's handle is not shown`);
+      }
+      if (m.buttons) problems.push(`${at}: the handle overlaps a button of the action row`);
+      if (m.mark) problems.push(`${at}: the handle overlaps the selection mark`);
+      if (m.content) problems.push(`${at}: the handle overlaps the block's content`);
     }
-    // A tap on a block that is only a preview (a list of the site) also selects it: Escape lets the selection go, and the block stays active.
-    if (await page.locator('.ProseMirror .site-block-marks').count()) {
-      await page.keyboard.press('Escape');
-      await page.waitForFunction(() => !document.querySelector('.ProseMirror .site-block-marks'), null, { timeout: 3000 }).catch(() => {});
-      await open();
-    }
-    // The handle fades in with the row: measured once it is shown and no animation runs on it or on the row.
-    await block
-      .evaluate(
-        (el) =>
-          new Promise((done) => {
-            const handle = el.querySelector(':scope > .site-block-handle');
-            const settled = () => getComputedStyle(handle).opacity === '1' && el.getAnimations({ subtree: true }).length === 0;
-            const look = () => (settled() ? done(true) : requestAnimationFrame(look));
-            look();
-            setTimeout(() => done(false), 3000);
-          }),
-      )
-      .catch(() => {});
-    const m = await block.evaluate((el) => {
-      const rect = (s) => el.querySelector(s)?.getBoundingClientRect();
-      const handle = rect(':scope > .site-block-handle');
-      const frame = rect(':scope > .site-block-card');
-      const mark = rect(':scope > .site-block-mark');
-      const content = rect(':scope > .site-block-card > .site-block-preview');
-      const buttons = [...el.querySelectorAll('.site-block-row-inner button')].map((b) => b.getBoundingClientRect());
-      const editor = el.closest('.ProseMirror').getBoundingClientRect();
-      const meets = (a, b) =>
-        !!a && !!b && a.left < b.right - 0.6 && a.right > b.left + 0.6 && a.top < b.bottom - 0.6 && a.bottom > b.top + 0.6;
-      return {
-        handle: handle && {
-          w: handle.width,
-          h: handle.height,
-          left: handle.left - frame.left,
-          top: handle.top - frame.top,
-          right: handle.right,
-          vLeft: handle.left,
-        },
-        frameW: frame.width,
-        editorLeft: editor.left,
-        buttons: buttons.some((b) => meets(handle, b)),
-        mark: meets(handle, mark),
-        content: meets(handle, content),
-        shown: getComputedStyle(el.querySelector(':scope > .site-block-handle')).opacity === '1',
-      };
-    });
-    const at = `${label}: ${name}`;
-    if (!m.handle) problems.push(`${at}: no handle`);
-    else {
-      if (m.handle.w < 48 || m.handle.h < 48) problems.push(`${at}: the handle is ${m.handle.w}x${m.handle.h}, under 48x48`);
-      if (m.handle.left > m.frameW / 4 || m.handle.top > 16)
-        problems.push(`${at}: the handle is not in the frame's top left corner (${m.handle.left}, ${m.handle.top})`);
-      if (m.handle.left < 0) problems.push(`${at}: the handle starts outside the frame (${m.handle.left})`);
-      if (m.handle.vLeft < 0 || m.handle.right > width) problems.push(`${at}: the handle is outside the visible width`);
-      if (!m.shown) problems.push(`${at}: the active block's handle is not shown`);
-    }
-    if (m.buttons) problems.push(`${at}: the handle overlaps a button of the action row`);
-    if (m.mark) problems.push(`${at}: the handle overlaps the selection mark`);
-    if (m.content) problems.push(`${at}: the handle overlaps the block's content`);
+    await page.close();
   }
   if (seen.size < 8) problems.push(`${label}: only ${seen.size} kinds of block were measured`);
-  await page.close();
 }
 
 // Moving the selected blocks together: Move up and Move down on the bar are disabled with their reason while the blocks are not next to each other, every
