@@ -6929,7 +6929,7 @@ async function checkFabAboveFooter(width) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   let seen = 0;
-  for (const route of ['#', '#seo/redirects/all', '#media', '#links']) {
+  for (const route of ['#', '#seo/redirects/all', '#media', '#links', '#list/testimonials']) {
     await page.evaluate((r) => (location.hash = r), route);
     await page.waitForTimeout(1200);
     for (const at of [0, 0.5, 1]) {
@@ -6947,6 +6947,25 @@ async function checkFabAboveFooter(width) {
         problems.push(
           `${label}: on ${route} (scrolled to ${at * 100}%) the FAB (${Math.round(m.fabTop)}–${Math.round(m.fabBottom)}) overlaps the footer (${Math.round(m.footerTop)}–${Math.round(m.footerBottom)})`,
         );
+      // A FAB menu opened: its items stand above the FAB, so they clear the footer too.
+      const menu = page.locator('.editor-fab .fab-menu-button');
+      if (await menu.count()) {
+        await menu.click();
+        await page.waitForTimeout(500);
+        const items = await page.evaluate(() => {
+          const footer = document.querySelector('footer.editor-footer')?.getBoundingClientRect();
+          const rows = [...document.querySelectorAll('.editor-fab .fab-menu-list a, .editor-fab .fab-menu-list button')].filter(
+            (e) => e.getClientRects().length,
+          );
+          return { footerTop: footer?.top ?? Infinity, h: innerHeight, bottoms: rows.map((e) => e.getBoundingClientRect().bottom) };
+        });
+        if (items.footerTop < items.h && items.bottoms.some((b) => b > items.footerTop + 0.5))
+          problems.push(
+            `${label}: on ${route} (scrolled to ${at * 100}%) an item of the open FAB menu overlaps the footer (${items.bottoms.map(Math.round)} / ${Math.round(items.footerTop)})`,
+          );
+        await page.keyboard.press('Escape');
+        await page.waitForTimeout(300);
+      }
     }
   }
   if (!seen) problems.push(`${label}: no screen with both a FAB and the footer was found`);
