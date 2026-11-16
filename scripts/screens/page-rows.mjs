@@ -960,7 +960,7 @@ async function checkEmptyRow(width, height) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'tap');
-  await page.locator('dialog[open] button', { hasText: 'Rows that expand, with a link.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Rows that open to show more.' }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
   const dialog = page.locator('dialog[open]');
   const rows = () => page.locator('.inline-list-row[data-row]:not(.inline-list-row-next)').count();
@@ -1014,7 +1014,7 @@ async function checkEmptyRow(width, height) {
     await page.click('.ProseMirror > p');
     await page.keyboard.press('Enter');
     await pressInsert(page, 'tap');
-    await page.locator('dialog[open] button', { hasText: 'Rows that expand, with a link.' }).first().click();
+    await page.locator('dialog[open] button', { hasText: 'Rows that open to show more.' }).first().click();
     await page.waitForSelector('.inline-list-row-active [data-field="title"]');
     await page.keyboard.type('First');
     for (const word of ['Second', 'Third']) {

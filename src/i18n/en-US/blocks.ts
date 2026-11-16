@@ -68,7 +68,7 @@ export const blocks = {
   /** "List - Expand" (standard/expand/). */
   expand: {
     label: 'List - Expand',
-    hint: 'Rows that expand, with a link.',
+    hint: 'Rows that open to show more.',
     /** Read by name for any block (pageEmptyRows.ts): the rows and one row, in the sentence about an empty block. */
     items: 'Rows',
     item: 'row',

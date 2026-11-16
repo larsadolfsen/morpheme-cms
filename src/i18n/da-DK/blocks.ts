@@ -58,7 +58,7 @@ export const blocks: Messages['blocks'] = {
   },
   expand: {
     label: 'Liste - Udvid',
-    hint: 'Rækker, der foldes ud, med link.',
+    hint: 'Rækker, der åbner og viser mere.',
     /** Read by name for any block (pageEmptyRows.ts): the rows and one row, in the sentence about an empty block. */
     items: 'Rækker',
     item: 'række',

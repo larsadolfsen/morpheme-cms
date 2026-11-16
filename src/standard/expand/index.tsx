@@ -2,7 +2,7 @@
 // links to after the text; one open at a time (`only`) and an optional text button under the last row. It is the "Segmented list" from before
 // (and the "Accordion": FORMER in lib/blocks.mjs), with the `design` of every list: the rows on the page (default) or each on its own surface
 // (`card`). How it looks is the theme's (packages/editor/theme/blocks/expand/View.tsx; what it shows: view.ts, and load.ts on the site).
-import { SquaresFour } from '@phosphor-icons/react';
+import { ArrowsOutLineVertical } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { t } from '../../i18n';
 import { headFields } from '../head';
@@ -15,7 +15,7 @@ type Row = { title?: string };
 export default defineBlock({
   group: 'lists',
   label: t.blocks.expand.label,
-  icon: SquaresFour,
+  icon: ArrowsOutLineVertical,
   nameOf: (p) => nameWith(t.blocks.expand.label, p),
   hint: t.blocks.expand.hint,
   // Typed in place as the List is (InlineList.tsx, which InlineExpand.tsx hands over to): the heading and text where they stand, the icon in a slot,

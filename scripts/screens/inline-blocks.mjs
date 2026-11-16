@@ -132,8 +132,8 @@ async function checkListDesigns(width, height) {
   const looks = [
     { look: 'List', hint: 'Rows with icon, heading and text.' },
     { look: 'List, Card', hint: 'Rows with icon, heading and text.', card: true },
-    { look: 'List - Expand', hint: 'Rows that expand, with a link.' },
-    { look: 'List - Expand, Card', hint: 'Rows that expand, with a link.', card: true },
+    { look: 'List - Expand', hint: 'Rows that open to show more.' },
+    { look: 'List - Expand, Card', hint: 'Rows that open to show more.', card: true },
   ];
   const seen = [];
   for (const { look, hint, card } of looks) {
@@ -743,7 +743,7 @@ async function checkSteps(width, height) {
  * makes items there and keeps the items before; Ctrl+Z gives the block back as it was before the paste. */
 const pasteBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', first: 'title', second: 'text', last: 'text' },
-  { name: 'expand', hint: 'Rows that expand, with a link.', first: 'title', second: 'text', last: 'text' },
+  { name: 'expand', hint: 'Rows that open to show more.', first: 'title', second: 'text', last: 'text' },
   { name: 'faq', hint: 'Questions that expand to answers.', first: 'question', second: 'answer', last: 'answer' },
   { name: 'cards', hint: 'Cards that link to pages.', first: 'title', second: 'text', last: 'text' },
   { name: 'steps', hint: 'Numbered steps.', first: 'title', second: 'text', last: 'text' },
