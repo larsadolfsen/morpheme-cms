@@ -4,7 +4,7 @@
 // Usage: node scripts/release-notes.mjs [root]; exits 1 on a problem or an existing file.
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { imagePath, problemsOf, released, staleImageDirs } from '../lib/releaseNotes.mjs';
+import { belongsToVersion, imagePath, problemsOf, released, staleImageDirs } from '../lib/releaseNotes.mjs';
 import { readPending, repoRoot } from './release-notes-pending.mjs';
 
 const root = repoRoot(process.argv[2]);
@@ -34,7 +34,7 @@ for (const [locale, { file, images }] of Object.entries(result)) {
     mkdirSync(dirname(target), { recursive: true });
     renameSync(join(localeDir, 'pending', `${id}.webp`), target);
   }
-  for (const id of Object.keys(pending[locale])) {
+  for (const id of Object.keys(pending[locale]).filter((id) => belongsToVersion(pending[locale][id].note, version))) {
     rmSync(join(localeDir, 'pending', `${id}.json`));
   }
 }

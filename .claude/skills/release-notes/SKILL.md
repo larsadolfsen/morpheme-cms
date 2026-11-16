@@ -54,6 +54,11 @@ tag. The Release pull request moves everything pending into the file of the vers
 several merges, and of every test version since the last release, end up in that one released version. A test version
 has no notes file of its own: the Morpheme page shows the pending notes under the version it leads to.
 
+**A pending note on a version line from 0.19 on carries `"line": "0.19"`** (the line it is written on), in both languages
+(rule: skill `changesets`, *A version line may stage `next` at a milestone*). A note without `line` belongs to the lines
+before 0.19. A line's test version shows only its own notes, `release:version` moves only the version's own notes into its
+file (and drops `line`), and `check:release-notes` fails on a note added in a pull request into such a line without it.
+
 Files, per language:
 
 - `release-notes/i18n/<locale>/pending/<id>.json`: the note. A `paragraph` has `id`, `kind`, `mark`, `title` and `text`. A line has

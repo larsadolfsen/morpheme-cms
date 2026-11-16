@@ -2,6 +2,7 @@
   "id": "list-in-card",
   "kind": "paragraph",
   "mark": "feature",
+  "line": "0.19",
   "title": "Lister i et kort",
   "text": "En side med ydelser kan være lister under overskrifter, hver i et kort. Åbn listens indstillinger, og vælg Kort › Ét kort og derefter Med kant, Udfyldt eller Hævet. Vil du have et kort til hvert punkt, så brug Skift til › Kort."
 }
