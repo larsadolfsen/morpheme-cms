@@ -43,10 +43,10 @@ export default function OwnList({ id, files, saved, env }: { id: string; files: 
   const collection = useMemo(() => ownListOf(id, definition), [JSON.stringify(definition)]);
   const pending = !!draft;
   const [saving, setSaving] = useState(false);
-  const [menu, setMenu] = useState(false);
+  // The button that opened the menu: the top bar and the page's title row both draw `menuButton`, and only one is shown.
+  const [menu, setMenu] = useState<HTMLElement | null>(null);
   const [editing, setEditing] = useState(false);
   const [adding, setAdding] = useState(false);
-  const menuAt = useRef<HTMLSpanElement>(null);
   const addButton = useRef<HTMLSpanElement>(null);
   const sheet = useRef<{ remove: () => void; add: (kind: string) => void }>(null);
   const without = draft?.without ?? [];
@@ -102,23 +102,21 @@ export default function OwnList({ id, files, saved, env }: { id: string; files: 
   ) : undefined;
 
   const menuButton = (
-    <span ref={menuAt}>
-      <IconButton
-        icon={DotsThreeVertical}
-        label={t.ownList.menu}
-        aria-haspopup="menu"
-        aria-expanded={menu}
-        onClick={() => setMenu(!menu)}
-      />
-    </span>
+    <IconButton
+      icon={DotsThreeVertical}
+      label={t.ownList.menu}
+      aria-haspopup="menu"
+      aria-expanded={!!menu}
+      onClick={(e) => setMenu(menu ? null : e.currentTarget)}
+    />
   );
   const after = (
     <>
-      <Menu anchor={menu ? menuAt.current : null} label={t.ownList.menu} onClose={() => setMenu(false)}>
+      <Menu anchor={menu} label={t.ownList.menu} onClose={() => setMenu(null)}>
         <MenuItem
           icon={PencilSimple}
           onClick={() => {
-            setMenu(false);
+            setMenu(null);
             setEditing(true);
           }}
         >
@@ -127,7 +125,7 @@ export default function OwnList({ id, files, saved, env }: { id: string; files: 
         <MenuItem
           icon={Trash}
           onClick={() => {
-            setMenu(false);
+            setMenu(null);
             sheet.current?.remove();
           }}
         >
