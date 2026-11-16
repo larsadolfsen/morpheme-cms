@@ -6947,16 +6947,15 @@ async function checkListMarkers(width) {
   await page.close();
 }
 
-/** The FAB never covers the footer (Screen.tsx useFabLift): on every screen that has both, at the top, in the middle and at the bottom
- * of the page, the FAB's box and the footer's do not overlap. The screens are the start screen and the lists with a create button. */
+/** The FAB and the footer (owner, 16 Nov): below 600 dp the FAB stands above the footer where it would overlap it; from 600 dp it stays at its place at the bottom right, even with the footer in view; from 840 dp the footer's links and copyright are one row, left-aligned on the content's start edge, and the FAB covers no footer text. */
 async function checkFabAboveFooter(width) {
-  const label = `${width}px FAB above the footer`;
-  const touch = width < 600;
-  const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  const label = `${width}px FAB and footer`;
+  const compact = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: compact, isMobile: compact, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   let seen = 0;
-  for (const route of ['#', '#seo/redirects/all', '#media', '#links']) {
+  for (const route of ['#', '#seo/redirects/all', '#media', '#links', '#list/testimonials']) {
     await page.evaluate((r) => (location.hash = r), route);
     await page.waitForTimeout(1200);
     for (const at of [0, 0.5, 1]) {
@@ -6964,16 +6963,64 @@ async function checkFabAboveFooter(width) {
       await page.waitForTimeout(250);
       const m = await page.evaluate(() => {
         const fab = document.querySelector('.editor-fab')?.getBoundingClientRect();
-        const footer = document.querySelector('footer.editor-footer')?.getBoundingClientRect();
+        const footerEl = document.querySelector('footer.editor-footer');
+        const footer = footerEl?.getBoundingClientRect();
         if (!fab || !footer) return null;
-        return { fabTop: fab.top, fabBottom: fab.bottom, footerTop: footer.top, footerBottom: footer.bottom, h: innerHeight };
+        const nav = footerEl.querySelector('nav');
+        const items = [...footerEl.querySelectorAll('nav > a, nav > span:not([data-divider])')].map((el) => el.getBoundingClientRect());
+        const natural = [...nav.children].reduce((sum, el) => sum + el.getBoundingClientRect().width, 0);
+        const column = footerEl.parentElement.getBoundingClientRect();
+        const style = getComputedStyle(footerEl.parentElement);
+        const start = column.left + parseFloat(style.paddingLeft);
+        const text = [...footerEl.querySelectorAll('nav a, nav > span:not([data-divider])')].map((el) => {
+          const r = document.createRange();
+          r.selectNodeContents(el);
+          return r.getBoundingClientRect();
+        });
+        return {
+          fabTop: fab.top,
+          fabBottom: fab.bottom,
+          fabLeft: fab.left,
+          fabRight: fab.right,
+          footerTop: footer.top,
+          footerBottom: footer.bottom,
+          h: innerHeight,
+          fits: natural <= nav.getBoundingClientRect().width + 0.5,
+          columnW: column.width,
+          rows: new Set(items.map((r) => Math.round(r.top + r.height / 2))).size,
+          firstLeft: items[0]?.left,
+          start,
+          text: text.map((r) => ({ l: r.left, t: r.top, r: r.right, b: r.bottom })),
+          scrollW: document.documentElement.scrollWidth,
+        };
       });
       if (!m) continue;
       seen++;
-      if (m.footerTop < m.h && m.footerBottom > 0 && m.fabBottom > m.footerTop + 0.5 && m.fabTop < m.footerBottom)
+      const where = `on ${route} (scrolled to ${at * 100}%)`;
+      const inView = m.footerTop < m.h && m.footerBottom > 0;
+      const overlaps = inView && m.fabBottom > m.footerTop + 0.5 && m.fabTop < m.footerBottom;
+      if (compact && overlaps)
         problems.push(
-          `${label}: on ${route} (scrolled to ${at * 100}%) the FAB (${Math.round(m.fabTop)}–${Math.round(m.fabBottom)}) overlaps the footer (${Math.round(m.footerTop)}–${Math.round(m.footerBottom)})`,
+          `${label}: ${where} the FAB (${Math.round(m.fabTop)}–${Math.round(m.fabBottom)}) overlaps the footer (${Math.round(m.footerTop)}–${Math.round(m.footerBottom)})`,
         );
+      if (!compact && Math.abs(m.h - m.fabBottom - 16) > 1)
+        problems.push(
+          `${label}: ${where} the FAB is not at its place at the bottom of the window (its bottom edge is ${Math.round(m.h - m.fabBottom)}px from it, not 16px)`,
+        );
+      if (width >= 840) {
+        if (m.fits && m.rows !== 1)
+          problems.push(
+            `${label}: ${where} the footer is ${m.rows} rows, not one though it fits (column ${Math.round(m.columnW)}px, links ${m.text.map((r) => `${Math.round(r.l)}-${Math.round(r.r)}@${Math.round(r.t)}`).join(' ')})`,
+          );
+        // The links are padded 12px each side; their text starts on the content's start edge.
+        if (Math.abs(m.text[0].l - m.start) > 1.5)
+          problems.push(
+            `${label}: ${where} the footer starts at ${Math.round(m.text[0].l)}px, not on the content's start edge (${Math.round(m.start)}px)`,
+          );
+        if (m.scrollW > width) problems.push(`${label}: ${where} the page scrolls sideways (${m.scrollW}px wide)`);
+        const covered = m.text.some((r) => r.r > m.fabLeft && r.l < m.fabRight && r.b > m.fabTop && r.t < m.fabBottom);
+        if (covered) problems.push(`${label}: ${where} the FAB covers footer text`);
+      }
     }
   }
   if (!seen) problems.push(`${label}: no screen with both a FAB and the footer was found`);
@@ -12079,7 +12126,7 @@ await unit('checkSectionCardContrast', () => checkSectionCardContrast());
 for (const w of [375, 1280]) await unit(`checkListMarkers ${w}`, () => checkListMarkers(w));
 for (const w of [375, 1280]) await unit(`checkListsAndBlocks ${w}`, () => checkListsAndBlocks(w));
 for (const w of [375, 1280]) await unit(`checkLabelOnAnyLine ${w}`, () => checkLabelOnAnyLine(w));
-for (const w of [375, 1280]) await unit(`checkFabAboveFooter ${w}`, () => checkFabAboveFooter(w));
+for (const w of [375, 840, 1280, 1600]) await unit(`checkFabAboveFooter ${w}`, () => checkFabAboveFooter(w));
 for (const w of [360, 375, 390, 414]) await unit(`checkPreviewDraft ${w}`, () => checkPreviewDraft(w));
 
 await browser.close();

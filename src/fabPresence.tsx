@@ -3,6 +3,7 @@
 // for the FAB only and to lift the FAB above the footer (Screen.tsx).
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { fabLift } from './fabLift.mjs';
+import { atLeast } from '../lib/breakpoints.mjs';
 
 /** Called with +1 when a FAB appears on the screen and -1 when it goes. Absent outside a Screen. */
 export const FabPresenceContext = createContext<((change: 1 | -1) => void) | null>(null);
@@ -24,16 +25,23 @@ export function useRegisterFab(active: boolean) {
   }, [active, report]);
 }
 
+/** The FAB's own distance from the window's bottom edge, in px (editor.css .editor-fab: 1rem). */
+const FAB_BOTTOM = 16;
+
 /** For a Screen with a FAB: sets --editor-fab-lift on the page to how far the footer stands up into the window, so the FAB
- * (editor.css .editor-fab) stands above the footer while it is in view and at its place otherwise. Follows the scroll, the
+ * (editor.css .editor-fab) stands above the footer only below 600 dp (the medium breakpoint) and only while the footer would
+ * overlap it; from 600 dp, and otherwise, it stays at its place. Follows the scroll, the
  * window's size and the footer's own height (its status dot loads late). */
 export function useFabLift(active: boolean) {
   useEffect(() => {
     if (!active) return;
     const root = document.documentElement;
     const footer = () => document.querySelector('.editor-footer');
-    const update = () =>
-      root.style.setProperty('--editor-fab-lift', `${fabLift(footer()?.getBoundingClientRect().top, window.innerHeight)}px`);
+    const wide = window.matchMedia(atLeast('medium'));
+    const update = () => {
+      const lift = wide.matches ? 0 : fabLift(footer()?.getBoundingClientRect().top, window.innerHeight);
+      root.style.setProperty('--editor-fab-lift', `${lift > FAB_BOTTOM ? lift : 0}px`);
+    };
     update();
     const sizes = new ResizeObserver(update);
     const el = footer();
