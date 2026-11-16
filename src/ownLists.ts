@@ -75,13 +75,13 @@ export function ownListOf(id: string, definition: Definition): OwnedList {
 }
 
 /** A list an app writes as data (`lists` in a contract 6 app.json, lib/appLists.mjs) as a list the editor shows: its entries are in `src/data/<app id>.<id>/`
- * and it is `<app id>.<id>` everywhere (`Rows from`, `#list/<id>`). It is locked unless the app says `locked: false`; the owner does not delete it.
+ * and it is `<app id>.<id>` everywhere (`Rows from`, `#list/<id>`). It is always read only for the owner (decision 8: the app is its creator, so only the app changes its fields); the owner edits entries only and does not delete it.
  * Null when its fields do not parse (the check says why). @param {string} app @param icon the list's icon, made from its name */
 export function appListOf(
   app: string,
-  list: { id: string; singular: string; icon: Icon; locked?: boolean; examples?: Record<string, unknown>[] } & Record<string, unknown>,
+  list: { id: string; singular: string; icon: Icon; examples?: Record<string, unknown>[] } & Record<string, unknown>,
 ): OwnedList | null {
-  const { id, singular, icon, locked, page: _page, examples, ...rest } = list;
+  const { id, singular, icon, page: _page, examples, ...rest } = list;
   const { definition } = parseDefinition(JSON.stringify(rest));
   if (!definition) return null;
   const own = ownListOf(`${app}.${id}`, definition);
@@ -91,7 +91,7 @@ export function appListOf(
     create: `New ${singular.toLowerCase()}`,
     singular,
     deletable: false,
-    locked: locked !== false,
+    locked: true,
     summary: (d) => labelOfEntry(definition, d) || singular,
     ...(examples ? { examples } : {}),
   };

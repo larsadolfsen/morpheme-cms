@@ -54,6 +54,11 @@ tag. The Release pull request moves everything pending into the file of the vers
 several merges, and of every test version since the last release, end up in that one released version. A test version
 has no notes file of its own: the Morpheme page shows the pending notes under the version it leads to.
 
+**A pending note on a version line from 0.19 on carries `"line": "0.19"`** (the line it is written on), in both languages
+(rule: skill `changesets`, *A version line may stage `next` at a milestone*). A note without `line` belongs to the lines
+before 0.19. A line's test version shows only its own notes, `release:version` moves only the version's own notes into its
+file (and drops `line`), and `check:release-notes` fails on a note added in a pull request into such a line without it.
+
 Files, per language:
 
 - `release-notes/i18n/<locale>/pending/<id>.json`: the note. A `paragraph` has `id`, `kind`, `mark`, `title` and `text`. A line has
@@ -128,7 +133,10 @@ Danish words from `src/i18n/da-DK/`, and the same length cap. Keep `id`,
 
 ## Editions
 
-Each minor line is an edition named after a place: one free nature photo from [Unsplash](https://unsplash.com) (never
+**An edition is named after the country of its photo** (owner, 16 Nov 2026: "From now on we will name them after countries,
+not locations."; the earlier editions were renamed to their countries the same day). `name` is the country, a string or per language (`{ "en-US": "Italy", "da-DK": "Italien" }`, falling back to English); `place` keeps the full place. Two editions may share a country.
+
+Each minor line is an edition named after a place (from 16 Nov 2026 its country, see above): one free nature photo from [Unsplash](https://unsplash.com) (never
 Unsplash+) and the name of where it was taken, for every version of the line (0.14.0, 0.14.1, … and its test versions).
 After an update, the start screen shows the photo and "Morpheme <name> <version>" in a small message; the Morpheme page
 shows it under the line's newest version.

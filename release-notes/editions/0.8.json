@@ -1,5 +1,8 @@
 {
-  "name": "Pokljuka",
+  "name": {
+    "en-US": "Slovenia",
+    "da-DK": "Slovenien"
+  },
   "place": {
     "en-US": "Pokljuka, Slovenia",
     "da-DK": "Pokljuka, Slovenien"

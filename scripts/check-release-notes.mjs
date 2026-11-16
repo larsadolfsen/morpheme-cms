@@ -2,13 +2,35 @@
 // the same mark (feature or improvement, also in the released versions' files), and the fields its kind needs (a paragraph: title and text; a line: text only). Notes have no screenshots; a leftover <id>.webp is a problem.
 // Run by npm run check:release-notes; usage: node scripts/check-release-notes.mjs [root]. Exits 1 and prints each problem.
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { compareVersions } from '../lib/cms-version.mjs';
-import { markProblems, orderProblems, problemsOf } from '../lib/releaseNotes.mjs';
+import { LINE_FROM, markProblems, orderProblems, problemsOf } from '../lib/releaseNotes.mjs';
 import { readPending, repoRoot } from './release-notes-pending.mjs';
 
 const root = repoRoot(process.argv[2]);
 const problems = problemsOf(readPending(root));
+
+// A pull request into a version line from LINE_FROM on (0.19, ...) adds its notes with "line": "<that line>", so the line's test
+// version shows only its own notes (skill release-notes). Needs git and origin/<base>; without them nothing is checked here.
+const base = process.env.GITHUB_BASE_REF ?? '';
+if (/^\d+\.\d+$/.test(base) && compareVersions(`${base}.0`, `${LINE_FROM}.0`) >= 0) {
+  let added = [];
+  try {
+    added = execFileSync('git', ['diff', '--name-only', '--diff-filter=A', `origin/${base}...HEAD`, '--', 'release-notes/i18n'], {
+      cwd: root,
+      encoding: 'utf8',
+    })
+      .split('\n')
+      .filter((file) => /\/pending\/[^/]+\.json$/.test(file));
+  } catch {
+    // no git history here: the rule is checked in CI only
+  }
+  for (const file of added) {
+    const line = JSON.parse(readFileSync(join(root, file), 'utf8')).line;
+    if (line !== base) problems.push(`${file}: a note added on the ${base} line needs "line": "${base}" (skill release-notes)`);
+  }
+}
 
 // The order of a version's notes (alphabetical, see the skill release-notes) is checked in the files built by release:version
 // from ORDERED_FROM on; earlier versions were built before the rule and stay as they are. The pending notes have no order

@@ -2,5 +2,6 @@
   "id": "table-column-number",
   "kind": "line",
   "mark": "feature",
+  "line": "0.19",
   "text": "En kolonne i en tabel kan sættes til Tal, så tallene står på linje i højre side"
 }
