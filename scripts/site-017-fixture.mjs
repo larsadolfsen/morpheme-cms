@@ -1,6 +1,6 @@
 // The fixture "0.17 site" (docs/superpowers/specs/2026-11-14-dynamic-lists-framework-design.md, 6.3): what a site made with 0.17 has that the dynamic lists
 // framework must keep drawing the same. Two own lists (a version 1 and a version 2 definition), a Dynamic list with a `map`, a Dynamic segmented list
-// with `howMany` and `Show all`, a Dynamic FAQ list from Testimonials and a List from posts, on two pages. It is laid over the demo site
+// with `howMany` and `Show all`, a Dynamic FAQ list from Testimonials and a List from posts, on three pages (the last has the Testimonials, Blog posts and Dynamic list blocks, which stay their own blocks). It is laid over the demo site
 // (check-same-html.mjs builds it before and after a change and compares the HTML) and its content is checked by the editor's rules (check-content.mjs).
 // Pure data: a map of site file paths to their text.
 
@@ -47,5 +47,14 @@ export const SITE_017 = {
     // A List from posts.
     block('list', { heading: 'Latest posts', from: 'posts', howMany: 3 }),
     block('list', { heading: 'Posts about design', from: 'posts', tags: ['design'] }),
+  ]),
+  // The blocks that stay their own blocks and must draw exactly as today: Testimonials (both layouts), Blog posts (both looks, the list and the large
+  // newest post) and a Dynamic list filled from an own list.
+  'src/content/pages/fixture-own-blocks.md': page('Fixture own blocks', [
+    block('testimonials', { heading: 'Kind words', show: 'all', layout: 'cards' }),
+    block('testimonials', { heading: 'Kind words as a list', show: 'all', layout: 'list' }),
+    block('posts', { heading: 'The blog', show: 'all', design: '', count: '3', order: 'newest' }),
+    block('posts', { heading: 'The newest, large', show: 'all', design: 'featured', count: '3', order: 'newest' }),
+    block('list', { heading: 'Services from an own list', from: 'services' }),
   ]),
 };

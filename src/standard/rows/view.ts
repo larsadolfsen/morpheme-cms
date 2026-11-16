@@ -1,7 +1,6 @@
 // "Rows from" in the editor: the rows a list block gets from the list it reads, drawn from the site's data (BlockData), and the choices
 // of `Rows from`. The same rows as the site's (load.ts), but of the data the editor has, so the Preview of a page shows the same rows as the site.
 import type { BlockData } from '../../blocks';
-import { CORE_LISTS, coreListOf } from '../../../lib/coreLists.mjs';
 import { rowLists } from './lists';
 import { PARTS, fieldOfPart, fieldsForPart, inlineRowsOf, itemOfEntry } from './rows.mjs';
 import type { SourceItem } from '../site';
@@ -14,27 +13,23 @@ export type RowSource = { value: string; label: string; tags: boolean };
 
 const asRowsLists = rowLists;
 
-/** The sources a block can read: the core's lists (the blog's posts, the testimonials: lib/coreLists.mjs) and each list that says its fields (`asRows`). */
+/** The sources a block can read: the blog's posts, the testimonials, and each list that says its fields (`asRows`). */
 export const rowSources = (labels: { posts: string; testimonials: string }): RowSource[] => [
-  ...CORE_LISTS.map((l) => ({ value: l.id, label: labels[l.id], tags: !!l.asRows.tags })),
+  { value: 'posts', label: labels.posts, tags: true },
+  { value: 'testimonials', label: labels.testimonials, tags: true },
   ...asRowsLists().map((l) => ({ value: l.id, label: l.label, tags: !!l.asRows?.tags })),
 ];
 
-/** The entries of the core's lists as the editor has them, with the fields the declaration gives (the same as the site's, defaults/standard.ts). */
-const coreEntries = (id: string, data: BlockData): Record<string, unknown>[] =>
-  id === 'testimonials'
-    ? data.testimonials.map((t) => ({
-        name: t.name,
-        quote: t.quote.split(/\n\s*\n/)[0]?.trim(),
-        href: '',
-        categories: t.categories ?? [],
-      }))
-    : data.site.posts.map((p) => ({ title: p.title, description: p.description, href: `/${p.slug}/`, categories: p.categories }));
-
 /** The items of a source as the editor has them. */
 export const sourceItems = (id: string, data: BlockData): SourceItem[] => {
-  const core = coreListOf(id);
-  if (core) return coreEntries(core.id, data).map((e) => itemOfEntry(e, core.asRows) as SourceItem);
+  if (id === 'posts')
+    return data.site.posts.map((p) => ({ title: p.title, text: p.description, href: `/${p.slug}/`, tags: p.categories }) as SourceItem);
+  if (id === 'testimonials')
+    return data.testimonials.map((t) => ({
+      title: t.name,
+      text: t.quote.split(/\n\s*\n/)[0]?.trim(),
+      tags: t.categories ?? [],
+    })) as SourceItem[];
   const list = asRowsLists().find((l) => l.id === id);
   return list?.asRows ? (data.lists[id] ?? []).map((e) => itemOfEntry(e, list.asRows!) as SourceItem) : [];
 };
