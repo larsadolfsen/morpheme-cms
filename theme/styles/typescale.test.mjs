@@ -5,8 +5,19 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const css = readFileSync(new URL('./ui.css', import.meta.url), 'utf8');
-const root = css.slice(css.indexOf(':where(:root) {'), css.indexOf('/* A role as a utility'));
+const read = (name) => readFileSync(new URL(name, import.meta.url), 'utf8');
+import { readdirSync } from 'node:fs';
+/** A stylesheet and the token files it imports (tokens/<origin>/*.css, docs/theme-token-files.md), as one text. */
+const withTokens = (name, origin) =>
+  [
+    read(name),
+    ...readdirSync(new URL(`./tokens/${origin}/`, import.meta.url))
+      .filter((f) => f.endsWith('.css'))
+      .sort()
+      .map((f) => read(`./tokens/${origin}/${f}`)),
+  ].join('\n');
+const css = withTokens('./ui.css', 'ui');
+const root = css; // the type scale's tokens are in tokens/ui/ref.css
 const token = (name) => root.match(new RegExp(`--${name}: ([^;]+);`))?.[1];
 const px = (value) => (value.endsWith('rem') ? parseFloat(value) * 16 : parseFloat(value));
 
