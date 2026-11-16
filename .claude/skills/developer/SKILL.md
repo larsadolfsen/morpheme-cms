@@ -80,6 +80,11 @@ Short forms, for a developer to know before reading the specs. A rule changes on
   computer keeps the side sheet.
 - **Standard names.** Use the standard name of a field or a feature (Material 3's, the web's, the real product's),
   never a new one (`docs/superpowers/specs/2026-11-14-standard-names-audit.md`).
+- **CSS custom properties** (owner, 16 Nov 2026; `docs/css-tokens.md`, `npm run check:css-tokens`). A shared value is a `--mo-…` token: the CMS owns
+  the name, the theme sets its value once on `:root`, and a block, an app block or a section overrides it on its own root element. Never make a second
+  name for a value that has a `--mo-` name (no `--venus-gap`, no theme or app prefix); if the CMS has no name for a value, add one to the CMS's list
+  and document it. A token only one block uses is declared on that block, nothing unprefixed on `:root`, `html` or `body`, and an app or theme never
+  redeclares a name the CMS declares.
 - **Icons are Material Symbols**, drawn by name through the shared `Icon` (`CLAUDE.md`, *Icons are Material Symbols*).
 - **A deviation from Material 3** is allowed only in the editor's own workspace or when the owner says so in words, and is
   recorded in `docs/material-deviations.md` in the same pull request (`material-3`).
