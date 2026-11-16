@@ -1,7 +1,7 @@
 # Dynamic lists: a framework for apps, the Dynamic lists app and Dynamic cards (design)
 
-Status: spec and build plan for 0.19, decided (section 13), except the open questions Q11 to Q14 of the owner's decisions 7 and 8 of 16 Nov. No code in this pull request. Written 14 November 2026 from the owner's decisions of the
-same day (section 1); decisions 7 and 8 added 16 November. Branch `0.19`. Section 13 holds the decisions on the spec's questions.
+Status: spec and build plan for 0.19, decided (section 13), except the open questions Q12 to Q19 that the owner's decisions 7 to 11 of 16 Nov leave. No code in this pull request. Written 14 November 2026 from the owner's decisions of the
+same day (section 1); decisions 7 to 11 and the governing rule added 16 November. Branch `0.19`. Section 13 holds the decisions on the spec's questions.
 
 Read for this spec:
 
@@ -22,6 +22,10 @@ is a block whose items come from a list (`from` is set) instead of being typed. 
 lists app, or another app (section 3.9).
 
 ## 1. Owner decisions (14 and 16 November 2026, through the 0.19 PM)
+
+**The governing rule (owner, 16 Nov 2026):** "The important thing is that you don't delete the testimonial block and dynamic list and the blog block."
+The Testimonials block, the Blog posts block and the Dynamic list block (a List block filled from a list) are never deleted or replaced, and every
+existing block of those kinds keeps drawing exactly as today, whatever moves into the Dynamic lists app. Section 11 checks every phase against it.
 
 The goal: a framework so that other people can build, for example, an FAQ block that is filled from a dynamic list and sell it in the
 store, instead of an FAQ the owner fills in by hand.
@@ -47,13 +51,27 @@ store, instead of an FAQ the owner fills in by hand.
    in this repository for now; later it becomes an item the owner buys in the store (section 4.2).
 8. **A list belongs to whoever made it** (16 Nov 2026, same message): "Only apps or the cms can create and edit dynamic lists they create."
    Each list has one creator, and only the creator can create the list and change or delete its definition (section 3.9). Reading a list stays
-   open to every app. Where the sentence leaves a question, section 13 lists it as open (Q11 to Q14).
+   open to every app. *Narrowed by decision 9: an app reads its own lists, not other apps'.*
+9. **Three kinds of list** (16 Nov, to the 0.19 PM; this governs decisions 1, 2 and 8): "We will have an app called dynamic lists, that lets the
+   user create and edit dynamic lists and use them in content. Then we have dynamic lists created by apps and cms. The user cannot edit them or
+   use them in their own blocks, only the block provided by the cms or app. I think the testimonial list already is locked from editing."
+   So: (a) the Dynamic lists app's lists: the user creates them, edits their fields and entries, and uses them in blocks (`Rows from`, Dynamic
+   cards, Dynamic table); (b) the CMS's lists (Posts, Testimonials) and (c) another app's lists: the user edits **entries only**, never the fields,
+   and they are drawn only by the block the CMS or that app provides. `Rows from`, Dynamic cards and Dynamic table offer only the Dynamic lists
+   app's own lists. Testimonials is already locked (`lib/ownListEdit.mjs`, `editPageOf({ locked: true })`).
+10. **Entries only** (16 Nov): "The user can only add new content to the dynamic list. So blog and testimonials need to remain their own blocks."
+    The site owner only adds and edits **entries** (content) of a list; the definition (fields, name, delete) belongs to its creator. This settles
+    whether the owner may edit an app's entries in the entry form: yes. The Blog posts block and the Testimonials block stay their own blocks in the
+    core (decision 3 kept Blog posts; this adds Testimonials), and neither is replaced by, or turned into, Dynamic cards or a Dynamic list block.
+11. **Apps may extend a CMS list** (16 Nov): "CMS list can be extended by apps, eg adding a star rating." A decided direction, for example a star
+    rating on Testimonials. Whether it is built now is not decided; the PM recommends later, with the app platform plan
+    (`docs/superpowers/plans/2026-11-15-app-platform-0-23.md`), and its design is deferred to that plan (section 3.10).
 
 Decision 3 replaces the earlier idea of the same day ("the Blog posts block becomes a Cards block filled from Posts"). So no Blog
 posts block is migrated. That matters, because today's Blog posts block is **not** drawn as cards: it draws the theme's post list
 (`PostList.tsx`: thumbnail, date and reading time, title, description, one column on a phone and two from `expanded`) or, with
 `Newest large`, the blog page's `BlogPosts.tsx`. Turning it into Cards would have changed every site's look. It now stays as it is,
-and the blog's posts become one more list that Dynamic cards can read (section 8.3).
+and the blog's posts stay the Blog posts block's own list (decisions 9 and 10, section 8.3).
 
 ## 2. What exists today (checked in the code, 14 Nov)
 
@@ -173,10 +191,11 @@ const found = listItems(data, 'app_123.faq', { tags, howMany, map }, slots);
 - The editor's and the site's results are the same by construction: both call one pure function over the entries (as
   `rowsFromItems` now); only the way the entries are fetched differs.
 - **Sources that are not folders** are lists to the reader too: `posts` (the blog's published, not hidden posts) and `testimonials`
-  keep their ids, so a saved `from: 'posts'` reads as before. Their fields are declared in the core like an app's list (section 8.3), so
+  keep their ids, so a saved `from: 'posts'` reads as before (governing rule; 13, Q15 for new blocks). Their fields are declared in the core like an app's list (section 8.3), so
   the special cases by id in `rows/view.ts`, `defaults/standard.ts` and `checkSite.ts` go away.
-- **Reading is open** (decision 8): `readList` and `listItems` read any list, whoever made it (an own list, Testimonials, posts or another
-  app's), for `Rows from`, Dynamic cards, a table and a third party's `listBlocks`. They never write.
+- **Who reads which list** (decisions 8 and 9): an app reads the lists it created, never another app's. The CMS's own blocks (Blog posts,
+  Testimonials) read the CMS's lists. The standard blocks' `Rows from`, Dynamic cards and Dynamic table read the Dynamic lists app's lists (own
+  lists) and, for a block saved before, the source it already has (Q15). `readList` checks the caller against `creatorOf` (3.9) and never writes.
 - `readList` is for `load.ts` and `viewOf.ts` (full places). The sandbox (hooks, after-build) gets nothing new; its three imports stay.
 
 ### 3.5 Slots and the mapping
@@ -238,7 +257,7 @@ the app's list.
 | `type` | The block's type in the page (`<app id>.<type>` on the site, as an app's blocks are named today). |
 | `label`, `icon`, `hint` | Its name in `Insert` (group *From your content*), its icon, its hint. |
 | `draws` | One of `list`, `segmented`, `faq`, `cards`, `table` (with a default `columns` instead of `map`, section 9): the core block whose view, theme part, inline drawing and settings it uses. |
-| `list` | One of the app's own lists (or `posts` / `testimonials`). Fixed: the owner does not pick another list. |
+| `list` | One of the app's own lists. Not `posts`, `testimonials` or another app's list (decision 9). Fixed: the owner does not pick another list. |
 | `map` | The default mapping. The owner can still change it per place (decision 2 of 13 Nov: "The user decides what fields goes where"). |
 | `settings` | Which of the drawn block's settings the owner sees (`tags`, `howMany`, `button`, and the block's own: `only` for FAQ, `design`, `phone`, `ratio` for Cards). Others keep the block's defaults. |
 
@@ -278,9 +297,17 @@ kinds, notes and `page`).
 
 | List | Creator | Who changes its definition |
 | :--- | :--- | :--- |
-| `posts`, `testimonials` | the CMS | the CMS, in a release. The owner sees the fields read only. |
+| `posts`, `testimonials` | the CMS | the CMS, in a release. The owner sees the fields read only (Testimonials is locked today). |
 | An own list (`src/data/<id>/_list.json`, made with `New list`) | the Dynamic lists app | that app's tools (4.1): its edit window, `New list`, `Delete list`. |
 | An app's list (`app.json` `lists`, id `<app id>.<id>`) | that app | that app, in a new version of its `app.json`. |
+
+Who edits what and who draws it (decisions 9 and 10):
+
+| List | The owner edits | Drawn by |
+| :--- | :--- | :--- |
+| The Dynamic lists app's | fields **and** entries | any block: `Rows from`, Dynamic cards, Dynamic table |
+| The CMS's (Posts, Testimonials) | entries only | the CMS's own block only (Blog posts, Testimonials) |
+| Another app's | entries only | that app's own blocks only (`listBlocks` or blocks with code) |
 
 - **Derived, not stored.** The creator comes from the id: `posts` and `testimonials` are the CMS's, an id with a dot is the app named before
   the dot, any other id is an own list. No site file changes, and a later move of the Dynamic lists app to the store changes no creator (4.2).
@@ -289,9 +316,22 @@ kinds, notes and `page`).
 - **What another party cannot do:** another app cannot create, change or delete a list; the CMS cannot change an app's list, nor an own list
   without the Dynamic lists app; the Dynamic lists app cannot change an app's or a core list. `parseDefinition` and the save plan refuse a write
   to a list by anyone else, so the rule holds in code and not only in the screens.
-- **What stays open:** reading (3.4). The entries are a separate question (13, Q11).
+- **Reading** follows 3.4: an app reads its own lists. **Entries** are the owner's: the entry form (`#new/<id>`) works for every list (decision 10).
 - **When the creator is off or not paid for:** the list, its entries and the blocks that read it stay and keep drawing (6.4); nobody can change
   its definition until the creator is back. Orphans: 13, Q13.
+
+### 3.10 An app extending a CMS list (direction; design deferred)
+
+Decision 11: an app may add a field to a CMS list, for example a star rating on Testimonials. It is a direction. How it is built is designed in
+the app platform plan (`docs/superpowers/plans/2026-11-15-app-platform-0-23.md`), not here; no `app.json` key is added for it in contract 6. The
+later design must keep these rules, which follow from decisions 8 to 10:
+
+- The app **declares** the field in `app.json`, and its id is namespaced by the app (`<app id>.<field id>`), so two apps never collide.
+- The owner **still cannot change the CMS list's own fields** (3.9). The added field belongs to the app; the CMS list's definition stays the CMS's.
+- The stored value belongs to the entry and is kept when the app is off or removed, drawn by nobody until the app is back (as 3.3 keeps an app's
+  entries).
+
+Open: Q16 to Q19.
 
 ## 4. The Dynamic lists app
 
@@ -301,8 +341,7 @@ A first-party app, **Dynamic lists** (`dynamic-lists`), that gives the owner:
 
 - `New list` and own lists, of which it is the creator and so the only tool that makes, changes and deletes them (3.9): the definition in `src/data/<id>/_list.json`, the editor window of the 2026-11-15 spec (inline text for the list page with field blocks of any
   number of each kind, now also `Date`, rename, move, Remove field; `Shown` is gone, #704), `Delete list` (refused while a block reads it);
-- `Rows from` on the standard List, Segmented list, FAQ list, **Cards** (new: Dynamic cards, section 8) and **Table** (new: Dynamic table, section 9): the list choice (own lists,
-  the blog's posts, Testimonials and every app's list), `Only with these tags`, `How many`, `Show all`, the field picker on the block's
+- `Rows from` on the standard List, Segmented list, FAQ list, **Cards** (new: Dynamic cards, section 8) and **Table** (new: Dynamic table, section 9): the list choice (the Dynamic lists app's own lists only, decision 9; a block saved with posts, Testimonials or an app's list keeps it, Q15), `Only with these tags`, `How many`, `Show all`, the field picker on the block's
   slots (a tap on a part), `Fill from a list` in the block's toolbar, `Edit list`, the state line (`From Services · tag home · 3 items`)
   and the `Dynamic …` names;
 - its texts in English and Danish (`texts.json`).
@@ -402,7 +441,7 @@ While the app is free (4.2), a site that upgrades gets the bundled app installed
 
 The site still draws every dynamic block (reading and drawing are core). The editor still shows the blocks as the site draws them and
 the lists' entries; only the owner's tools are gone (4.3). The lists, their entries and the blocks' props are kept. Nothing breaks, so
-turning the app off is safe and turning it on again brings everything back. The same holds when the app is later not paid for (4.2, point 3): only the owner's tools are gone, and
+turning the app off is safe and turning it on again brings everything back. The Blog posts, Testimonials and Dynamic list blocks keep drawing exactly as today (governing rule). The same holds when the app is later not paid for (4.2, point 3): only the owner's tools are gone, and
 no list can be created or changed until the app is back (3.9).
 
 ## 7. Worked example: a third-party FAQ app
@@ -475,7 +514,7 @@ src/apps/app_7f3c…/
 What the owner gets after installing it:
 
 1. Under **Dynamic lists**: *Questions*, with `New question`, each entry's form (Question, Answer, Topic) and `Edit list` showing the
-   three fields read only: the app made the list, so only the app changes them. (Whether the owner may add and edit the entries here: 13, Q11.)
+   three fields read only: the app made the list, so only the app changes them. (The owner adds and edits the entries in this form, decision 10.)
 2. In **Insert**, under *From your content*: *FAQ from Questions*. On the page it is drawn as the theme's FAQ list, typed nowhere: its
    questions come from the list. Its settings: `Only with these tags` (named *Topic*), `How many`, `Show all` (to the FAQ page set in
    the app's settings), `Only one open`. A tap on a question's line offers the list's title fields (here only *Question*).
@@ -496,15 +535,15 @@ per-block name, decided in the build PR).
 
 ### 8.2 The slots and their default mapping
 
-| Slot | Kinds, in order | Default (own list or app list) | From posts | From Testimonials | Drawn as (today's Cards part) |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `image` | `image` | first image field | the post's image (its alt) | the person's image | media, when the block's Media is `Image` |
-| `icon` | `icon` | first icon field | none | none | media, when Media is `Icon` |
-| `title` (required) | `title`, `text` | first title field | the post's title | the name | headline |
-| `subhead` | `date`, `title` | first date field, else none | the post's date (site format) | the context (role, company) | subhead |
-| `text` | `text`, `title` | first text field | the description | the quote's first paragraph | supporting text |
-| `href` | `href` | first link field | the post | its anchor on the Testimonials page | the whole card is the link (`more` at the bottom) |
-| `tags` | `tags` | first tags field | the post's tags | the testimonial's tags | the filter only, not drawn |
+| Slot | Kinds, in order | Default (an own list) | Drawn as (today's Cards part) |
+| :--- | :--- | :--- | :--- |
+| `image` | `image` | first image field | media, when the block's Media is `Image` |
+| `icon` | `icon` | first icon field | media, when Media is `Icon` |
+| `title` (required) | `title`, `text` | first title field | headline |
+| `subhead` | `date`, `title` | first date field, else none | subhead |
+| `text` | `text`, `title` | first text field | supporting text |
+| `href` | `href` | first link field | the whole card is the link (`more` at the bottom) |
+| `tags` | `tags` | first tags field | the filter only, not drawn |
 
 - **Media.** A dynamic Cards block offers Media `None`, `Icon` and `Image`. `Video` is not offered while a list is picked: no kind holds
   a video link. A Cards block whose Media is `Video` keeps it while typed; picking a list sets Media to `Image` when the list has an
@@ -512,25 +551,27 @@ per-block name, decided in the build PR).
 - **Image aspect ratio** (PR #636, section 6): the block's one `ratio` (default 3:2) applies to every card's image. A list's image has
   no card crop, so it is drawn as its middle part in the block's ratio (`object-fit: cover`, #636's rule for a card without a crop).
   The crop view is not offered on a dynamic card: the image is the list's, edited in the list.
-- **Alt text.** A list image's text is the image's own text in Files (`libraryAlt`, as cards already fall back to it); a post's is its
-  `imageAlt`.
+- **Alt text.** A list image's text is the image's own text in Files (`libraryAlt`, as cards already fall back to it).
 - **Buttons.** A dynamic card has no buttons: it is one link (`href`) or a plain card. M3: "A card can be a non-actionable container
   that holds actions like buttons and links, or it can be directly actionable without any buttons or links." The typed cards' buttons
   stay in the file, hidden.
 - **Icon color.** The block's icon color for every card is a block setting in a dynamic block (`iconColor` moves from the card to the
   block while a list is picked; a typed card keeps its own).
 
-### 8.3 Posts and Testimonials as lists
+### 8.3 Posts and Testimonials stay their own blocks
 
-Declared in the core with the 3.1 shape. The CMS is their creator (3.9), so their fields are read only to the owner and to every app, which may still read them (Dynamic cards from posts is reading). Posts have no entries in a list page: they are written as posts.
+Decisions 9 and 10 and the governing rule: the Blog posts block and the Testimonials block stay their own blocks in the core, and neither is
+replaced by, or turned into, a Dynamic cards or Dynamic list block. **Dynamic cards read only the Dynamic lists app's own lists**, so there is no
+Dynamic cards from posts or from Testimonials, and no card mapping for them (an earlier version of this section had one; it is removed).
+
+Posts and Testimonials are still declared in the core with the 3.1 shape, so the CMS's own blocks and every block saved with `from: 'posts'` or
+`from: 'testimonials'` read them through one reader, and the special cases by id go. The CMS is their creator (3.9): the owner edits their
+entries only (Testimonials is locked today), and no app edits or reads them (3.4). Posts have no entries in a list page: they are written as posts.
 
 - `posts`: `title` (title), `description` (text), `image` (image), `date` (date), `href` (href, the post's address), `categories`
   (tags). Order: newest first. Page: the blog (`standard.posts.all({}).href`). Hidden and draft posts are never read (as today).
 - `testimonials`: `name` (title), `context` (title), `quote` (text, first paragraph), `image` (image), `href` (href, its anchor),
   `categories` (tags). Page: `testimonialsPath`.
-
-So Dynamic cards from posts draw post cards (image, title, date, description, the card links to the post): the owner can build what the
-earlier idea wanted, as a new block, while every existing Blog posts block stays the post list it is.
 
 ### 8.4 What happens to typed cards when a list is picked
 
@@ -693,6 +734,8 @@ a dynamic List family block can change to Cards and back. `from`, `tags`, `howMa
 blocks have (title, text, icon, href, tags) and the target ignores the others while keeping them in `map` (the #635 rule: what B cannot
 show stays in the saved block). The change is a one-line rule change in `targets` (`lib/changeTo.mjs`, #645) and a test, in phase 5.
 
+The Blog posts block and the Testimonials block are neither a source nor a target of Change to: no block turns into them or from them (decision 10).
+
 Once the Dynamic table exists (phase 9), **Table joins too**. A dynamic block → Table: `columns` is one column per slot that has a
 field, in the slot order (title, then text, icon, href; a card's image and subhead after them), and the block keeps its `map` unseen.
 Table → a dynamic block: `map` is the kept one when there is one, else each slot takes the first column whose field is of the slot's
@@ -719,30 +762,47 @@ skill `checks`; a change the owner sees follows the screenshot rule of the `pm` 
 | 9 | **Dynamic table** (section 9): `columns[].field`, `typedColumns`, `slots: 'columns'`, `listColumns`, the kind mapping, the header picker, the column menu's actions, Change to with Table (10), `"draws": "table"`. Screens: a dynamic table with each column kind built so far, sorting, pagination and search on, 375 and 1280 px. | yes | minor |
 | 10 | **Release notes** for 9 (the list-page and editor-window notes are in the 2026-11-15 spec's plan). | yes | empty |
 
-**What decisions 7 and 8 change in the plan (16 Nov).** No phase is added, dropped or reordered, and the app stays in this repository (phase 4).
+**What decisions 7 to 11 change in the plan (16 Nov).** No phase is added, dropped or reordered, and the app stays in this repository (phase 4).
 Content changes:
 
 - **Phase 1** adds `creatorOf(id)` to `lib/lists.mjs` (3.9) and its tests.
 - **Phase 2** drops the `locked` key (3.1) and checks that a list's id belongs to its app (3.8, 3.9).
-- **Phase 3** keeps `listBlocks.list` as it is (reading is open). Nothing changes.
+- **Phase 3** limits `listBlocks.list` to the app's own lists (decision 9; 3.6).
 - **Phase 4** builds `off` as the one "not available" state of 4.2 (point 3), draws the edit window, `New list` and `Delete list` only for lists the
   app made, makes the save plan refuse a write by any other party, and shows `LockedListEdit` with 4.3's line when the app is off. Same-HTML check
   with the app off is part of 6.3 (already there).
-- **Phases 5 to 10** do not change (reading and drawing).
+- **Phase 4** also makes the picker of `Rows from` offer only the Dynamic lists app's lists for a new block, and keeps the source of a saved one (Q15).
+- **Phase 5** drops the posts and Testimonials card mappings (8.2, 8.3). **Phases 6 to 10** do not change.
+
+**How each phase keeps the governing rule** (the Testimonials block, the Blog posts block and the Dynamic list block are never deleted or replaced,
+and every existing one draws as today):
+
+| Phase | How |
+| :--- | :--- |
+| 1 | Reader and slots: posts and Testimonials only get a list declaration; their blocks are untouched. 6.3's same-HTML fixture holds a Blog posts block, a Testimonials block, a List from posts and a FAQ list from Testimonials, byte-identical before and after. |
+| 2 | Data and contract only; no block is touched. |
+| 3 | Adds blocks without code; no existing block changes. |
+| 4 | The move into the app (the riskiest). Reading and drawing stay in the core (Q5), so the blocks draw the same with the app on, off or not paid for (6.4); only the settings that change a block move. A saved `from`, `tags`, `howMany` and `map` are read as before, whatever the source (Q15). The same-HTML check runs with the app on **and** off, on the fixture above. |
+| 5 | Adds Dynamic cards as a new path; no Blog posts, Testimonials or List block changes, and none becomes cards (10). |
+| 6 | The `date` kind is an addition. |
+| 7, 8, 10 | Release notes, and phase 8 is cancelled. |
+| 9 | Dynamic table is an addition; the typed Table is unchanged (`typedColumns`). |
 
 **Merged or in-flight work that contradicts the decisions** (no code changed here):
 
 - **Phase 2 (merged): `locked` in `app.json`**, `lib/appManifest.mjs` (`firstParty` option, `locked: false`), `src/ownLists.ts` (`locked !== false`)
   and their tests allow a first-party app's list to be unlocked, and the core then draws the full edit page for it. Decision 8 says the CMS cannot
   edit an app's list. Fix: remove the key and the option, and make `LockedListEdit` the page for every list that is not an own list.
-- **Phase 3 (#721, merged):** consistent. `listBlocks` only reads; `siteListId` names `posts` and `testimonials` as lists "no app owns", which should
-  read "the CMS's" when `creatorOf` lands.
+- **Phase 3 (#721, merged):** `lib/appListBlocks.mjs` lets a `listBlocks` entry read `posts` and `testimonials` (`SITE_LISTS`), which decision 9 does not
+  allow (an app reads its own lists). Fix: drop `SITE_LISTS` and its tests; no site can have used it yet (contract 6 is unreleased).
+- **Today's `Rows from` picker** (`src/standard/rows/`) offers posts, Testimonials and every app's list. Decision 9 narrows it for a new block (phase 4);
+  blocks saved with those sources must keep drawing (Q15).
 - **#616 and phase 1 leftovers:** `src/OwnListEdit.tsx`, `lib/ownListEdit.mjs` `editPageOf` give the whole page to `own` lists and the read-only page to
   `locked` ones. That is the creator rule for the CMS's own lists; it must move to `creatorOf` (an own list's page only with the Dynamic lists app
   on). No contradiction otherwise.
 - **The 2026-11-15 spec's PRs 1 to 5:** PR 1 (FAB menu, merged as #712) is consistent: the menu only opens the edit page and the entry form. PRs 4 and
   5 (`notes`, `singular`, the editor window) write only own lists, which the Dynamic lists app creates, so they agree; PR 5's host must be drawn
-  through `listEdit` only for the app's lists. `Add <entry>` on an app's list depends on Q11. The window spec's section 3.3 (locked lists) is
+  through `listEdit` only for the app's lists. `Add <entry>` stays on every list (decision 10). The window spec's section 3.3 (locked lists) is
   unchanged.
 
 Phases 1 and 2 can be built side by side; 3 needs 1 and 2; 4 needs 1 and #616; 5 needs 1 and 4 (it adds Cards to the app's picker); 6
@@ -763,7 +823,9 @@ PRs 0, 1, 5 and 6); its sorting, pagination and search work on the dynamic rows 
 - **Creator (3.9):** `creatorOf` for `posts`, `testimonials`, `app_123.faq` and an own list; the save plan and `parseDefinition` refuse a write to a
   list by a party that did not make it; contract 6 refuses a list id under another app and the `locked` key; the edit page of an app's list is
   read only whatever the app declares; an own list is read-only with the app off, and the site draws the same HTML.
-- **Same HTML:** 6.3's fixture, before and after phases 1, 4, 5 and 9 (a typed Table is in the fixture).
+- **Same HTML:** 6.3's fixture, before and after phases 1, 4, 5 and 9 (a typed Table, a Blog posts block and a Testimonials block are in the
+  fixture), with the Dynamic lists app on and off.
+- **Reading (3.4):** an app's `readList` of another app's list, of `posts` or of `testimonials` is refused; a saved `from: 'posts'` still reads.
 - **Screens:** today's dynamic-block screens with the app on; the app off; the FAQ example app; Dynamic cards (8.7's states, the
   carousel with a list page, 375 and 1280 px, every section colour as `inlineBlocks` already runs).
 - `check:themes` with each theme, `check:starter` (the bundled app installed by default), `check:language` (no Danish outside the
@@ -772,8 +834,8 @@ PRs 0, 1, 5 and 6); its sorting, pagination and search work on the dynamic rows 
 ## 13. Decisions
 
 Q7 was decided by the owner on 14 Nov. The owner was away and asked the 0.19 PM to decide the rest; the PM decided them as recommended,
-on the owner's behalf, on 14 Nov. The owner may revise any of them. Decisions 7 and 8 of 16 Nov change Q1, Q2 and Q4 (marked) and leave four
-questions open (Q11 to Q14, below the table).
+on the owner's behalf, on 14 Nov. The owner may revise any of them. Decisions 7 to 11 of 16 Nov change Q1, Q2 and Q4 (marked), decide Q11, and leave eight
+questions open (Q12 to Q19, below the table).
 
 | # | Question | Decision | By |
 | :--- | :--- | :--- | :--- |
@@ -787,20 +849,26 @@ questions open (Q11 to Q14, below the table).
 | Q8 | The `Date` kind | Added, in phase 6 (3.2). | PM 0.19, for the owner |
 | Q9 | A dynamic table's default columns | Every visible field in the list's order, without tags and with one image (9.2). | PM 0.19, for the owner |
 | Q10 | PR B of the edit-page plan | **Cancelled by the owner on 15 Nov:** entries are not typed on the edit page (section 11). | Owner |
+| Q11 | May the site owner add and edit the entries of an app's list or Testimonials in the entry form? | Yes: the owner only adds and edits entries; the definition is the creator's (decision 10, 3.9). | Owner, 16 Nov |
 
-**Open (decisions 7 and 8 of 16 Nov; for the owner, through the PM).** Each has a recommendation; none is built until the owner answers.
+**Open (decisions 7 to 11 of 16 Nov; for the owner, through the PM).** Each has a recommendation; none is built until the owner answers.
 
 | # | Question | Recommendation |
 | :--- | :--- | :--- |
-| Q11 | "Only apps or the cms can create and edit dynamic lists they create": may the site owner still add, edit and delete the **entries** of an app's list (and of Testimonials) in the CMS's entry form (`#new/<id>`)? Or does "edit" cover entries too, so only the creator app can? | Yes, the owner edits entries. The entries are the owner's content, the entry form is core for every list, and the decision is about who makes and changes the *list* (its definition). An app that wants no owner edits could later say so with an `app.json` key. |
 | Q12 | The Dynamic lists app "will become an app that you will need to buy later": do sites that already made own lists or `Rows from` blocks in 0.17 keep the app free (grandfathered), or must they buy it to change those lists? | Grandfather them: 0.17 gave these tools with the core, and the data is theirs. Sites that start after the paid step buy it. The store decides how it records this, so the core only needs the `off` state of 4.2. |
-| Q13 | A list whose creator is gone (the app is removed, or the Dynamic lists app is not paid for): who may delete its definition and entries? Under decision 8 the CMS may not. | Nobody changes the definition until the creator is back; the list keeps drawing. For an app removed for good, the store's *Uninstall* offers `Also remove its data` and deletes the app's lists as part of the app. The owner may always delete the entries of any list in the entry form (Q11). |
+| Q13 | A list whose creator is gone (the app is removed, or the Dynamic lists app is not paid for): who may delete its definition and entries? Under decision 8 the CMS may not. | Nobody changes the definition until the creator is back; the list keeps drawing. For an app removed for good, the store's *Uninstall* offers `Also remove its data` and deletes the app's lists as part of the app. The owner may always delete the entries of any list in the entry form (decision 10). |
 | Q14 | May another app add or change **entries** in a list it did not create (for example an events app filling an owner's list)? | No in 0.19: no app function writes entries (the sandbox gets nothing new, 3.4). If wanted later, it is a new, explicit permission the owner gives per app. |
+| Q15 | Sites from 0.17 and 0.18 may already have a List or FAQ list block filled by `Rows from` posts, Testimonials or an app's list (6.3's fixture has two). What happens to them now that the picker offers only the Dynamic lists app's lists? | They keep drawing exactly as today (governing rule), and their settings show the source read only. The picker does not offer those sources for a new block. The owner may switch a saved block to another list, never back. |
+| Q16 | May an app extend another **app's** list, or only a CMS list (decision 11)? | Only a CMS list in the first version: the owner's example is a CMS list, and an app's list is its creator's (3.9). |
+| Q17 | Who draws an added field on the site: the CMS block through a slot the app fills, or only the app's own block? | The CMS block through a slot the app fills: the owner may not use a CMS list in other blocks (decision 9), so the CMS's own block is the only place the field can show. |
+| Q18 | Does an added field show on the entry form for the owner to fill in? | Yes, with the app's label, and kept when the app is off (3.10). |
+| Q19 | Is extending a CMS list built now (0.19) or later? | Later, with the app platform plan (`2026-11-15-app-platform-0-23.md`). 3.10 only records the direction and its rules. |
 
 ## 14. Not in this spec
 
 - A visitor-facing filter or sort on dynamic blocks (M3 says it goes outside the collection; a later spec).
 - A site page of its own for an own list (own lists have none today; `Show all` uses the block's address).
-- Changes to the Blog posts block (decision 3).
+- Changes to the Blog posts block (decision 3) or the Testimonials block (decision 10).
+- Building an app's extension of a CMS list (3.10): the app platform plan.
 - Paid or licensed lists, and the payment, price and licence check of the Dynamic lists app: the store's paid-items design in `morpheme-appstore`
   (`docs/superpowers/specs/2026-11-15-paid-items-design.md`). This spec only says what must hold so that step needs no data change (4.2).

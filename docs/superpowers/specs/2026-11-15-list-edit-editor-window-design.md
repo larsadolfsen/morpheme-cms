@@ -233,7 +233,7 @@ The page has the same content in both: the field's **name**, the **kind** (read 
 
 `LockedListEdit` (Testimonials, an app's locked list) is unchanged: its fields are read-only rows, no window, no text. **Decided by the owner on 15 Nov (Q1, decision 6).**
 
-**Since 16 Nov (owner decision 8 of the framework spec, section 3.9):** a list belongs to whoever made it. The window, its text and `Delete list` are for own lists only, which the Dynamic lists app creates; every list the CMS (Testimonials) or an app made opens `LockedListEdit`, and the CMS cannot change an app's list. With the Dynamic lists app off or not paid for, an own list's edit page shows the same read-only rows. Whether the owner may still add entries to an app's list in `#new/<id>` is open (framework spec, Q11), so `Add <entry>` on such a list waits for that answer.
+**Since 16 Nov (owner decision 8 of the framework spec, section 3.9):** a list belongs to whoever made it. The window, its text and `Delete list` are for own lists only, which the Dynamic lists app creates; every list the CMS (Testimonials) or an app made opens `LockedListEdit`, and the CMS cannot change an app's list. With the Dynamic lists app off or not paid for, an own list's edit page shows the same read-only rows. The owner may add and edit the entries of any list in `#new/<id>` (framework spec, decision 10), so `Add <entry>` stays on every list.
 
 ### 3.4 One field flow editor for lists and forms (decision 12)
 
