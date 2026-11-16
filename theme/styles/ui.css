@@ -3014,7 +3014,8 @@
        --list-expand-padding-inline, --list-expand-padding-block, --list-expand-gap-inline   the item's padding and gap
        --list-expand-headline-size, -weight, -line-height, -letter-spacing   its headline
        --list-expand-icon-size, --list-expand-icon-radius, --list-expand-icon-open-surface   the trailing icon
-       --list-expand-body-padding-bottom   the room under what folds out */
+       --list-expand-body-padding-bottom   the room under what folds out (the item's own padding-block unless set)
+       --list-expand-open-radius   the corners of an item while it is open (M3 prints a selected item's corners: 16dp all around) */
   .list-expand {
     display: grid;
     gap: var(--list-expand-gap, 0);
@@ -3038,6 +3039,11 @@
   .list-expand > li:last-child {
     border-end-start-radius: var(--list-expand-radius, var(--mo-shape-large));
     border-end-end-radius: var(--list-expand-radius, var(--mo-shape-large));
+  }
+  /* An open item takes the open radius on every corner (a segmented list's selected item: 16dp all around, 4dp inner and 16dp outer when
+     not), also when it is the first or last of the list. */
+  .list-expand > li:has(> .list-item-expand[open]) {
+    border-radius: var(--list-expand-open-radius, var(--list-expand-item-radius, 0));
   }
   .list-item-expand {
     display: block;
@@ -3098,12 +3104,15 @@
     background: var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent));
   }
   .list-item-expand-body {
-    padding: 0 var(--list-expand-padding-inline, 1rem) var(--list-expand-body-padding-bottom, 1.5rem);
+    padding: 0 var(--list-expand-padding-inline, 1rem) var(--list-expand-body-padding-bottom, var(--list-expand-padding-block, 0.875rem));
   }
   /* Opening and closing glide where the browser can animate ::details-content (else faq/script.ts does it); none with reduced motion. */
   @media (prefers-reduced-motion: no-preference) {
     .list-expand {
       interpolate-size: allow-keywords;
+    }
+    .list-expand > li {
+      transition: border-radius var(--motion-spatial);
     }
     .list-item-expand::details-content {
       block-size: 0;
