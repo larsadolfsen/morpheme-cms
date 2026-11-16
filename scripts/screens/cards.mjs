@@ -657,7 +657,7 @@ async function checkCardGutter(width, height) {
   }
 }
 
-/** The Cards block typed in the page editor (the demo's Cards page) has the site's card, at 375, 768 and 1280 px (on the demo's Cards page): a card without a subhead draws no empty subhead row (so no room is kept for it) and has the same padding (16 on every side), icon to headline (16), headline to text (8) and gap between cards (8) as checkCardsSpacing asserts on the site; a tap in the card shows its subhead row with its hint, 4 px under the headline and 8 over the text, so the owner can add one. Reads the geometry once the card is active, never after a fixed wait. */
+/** The Cards block typed in the page editor (the demo's Cards page) has the site's card, at 375, 768 and 1280 px (on the demo's Cards page): a card without a subhead draws no empty subhead row (so no room is kept for it) and has the same padding (16 on every side), icon to headline (16), headline to text (8) and gap between cards (the grid gutter, 16 or 24) as checkCardsSpacing asserts on the site; a tap in the card shows its subhead row with its hint, 4 px under the headline and 8 over the text, so the owner can add one. Reads the geometry once the card is active, never after a fixed wait. */
 async function checkCardsEditorSpacing(width, height) {
   const label = `${width}px cards spacing in the editor`;
   const phone = width < 600;
@@ -713,8 +713,8 @@ async function checkCardsEditorSpacing(width, height) {
     problems.push(`${label}: the cards of a row are not equally high (${rest.rowHeights.join(', ')})`);
   want('the icon to the headline', rest.mediaToTitle, 16);
   want('the headline to the text', rest.toText, 8);
-  if (rest.rowGap !== null) want('the gap between cards in a column', rest.rowGap, 8);
-  if (rest.colGap !== null) want('the gap between cards in a row', rest.colGap, 8);
+  if (rest.rowGap !== null) want('the gap between cards in a column', rest.rowGap, width < 600 ? 16 : 24);
+  if (rest.colGap !== null) want('the gap between cards in a row', rest.colGap, width < 600 ? 16 : 24);
   // A tap in the card makes it active: its subhead row appears, with its hint, in the site's rhythm.
   // Focus in the headline is what makes a card active (InlineItems.tsx onFocus), on any width.
   await page.locator('ul.block-cards .block-card').first().locator('[data-field="title"]').focus();
@@ -999,7 +999,7 @@ export function register(unit) {
     [1280, 900],
   ])
     unit(`checkImageGrid ${width}`, () => checkImageGrid(width, height));
-  // 768 px: the grid wraps to two columns, the gaps stay 8 (the site and the page editor).
+  // 768 px: the grid wraps to two columns, the gaps are the grid gutter (the site and the page editor).
   unit('checkCardsSpacing 768', () => checkCardsSpacing(768, 1024));
   unit('checkCardGutter 768', () => checkCardGutter(768, 1024));
   unit('checkCardsEditorSpacing 768', () => checkCardsEditorSpacing(768, 1024));
