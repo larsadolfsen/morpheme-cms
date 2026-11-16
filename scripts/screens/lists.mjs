@@ -37,7 +37,7 @@ async function checkListMarkers(width) {
 }
 
 /** The hover action row is not drawn over a control of the block: a mouse over the first row of a Segmented list or Questions and answers shows no row over the row's chevron, at 768
- * and 1280 (the block shows its row once it is active). The drag handle is its own part (it has its own rules). */
+ * and 1280 (the block shows its row once it is active). The drag handle, in the block's top left corner, shows only on the active block: it takes no pointer on a block that is only pointed at. */
 async function checkChevronUnderHoverRow(width) {
   const label = `${width}px chevron under the hover row`;
   const src = [
@@ -65,6 +65,21 @@ async function checkChevronUnderHoverRow(width) {
     return !!row && row.left < i.x + i.width && row.right > i.x && row.top < i.y + i.height && row.bottom > i.y;
   }, icon);
   if (over) problems.push(`${label}: the hover row lies over the first row's chevron`);
+  // The drag handle (in the block's top left corner) takes no pointer while a mouse only points at the block, and nothing of it lies over the chevron.
+  const handle = await page.evaluate((i) => {
+    const el = document.querySelector('.ProseMirror .site-block > .site-block-handle');
+    const under = document.elementFromPoint(i.x + i.width / 2, i.y + i.height / 2);
+    return { hits: el ? getComputedStyle(el).pointerEvents : 'none', covers: !!under?.closest('.site-block-handle') };
+  }, icon);
+  if (handle.hits !== 'none')
+    problems.push(`${label}: the drag handle takes the pointer while the block is only pointed at (${handle.hits})`);
+  if (handle.covers) problems.push(`${label}: the drag handle lies over the first row's chevron`);
+  // And a click on the chevron opens the row.
+  await first.locator('.list-item-expand-icon').click();
+  await page
+    .waitForFunction(() => document.querySelector('.inline-list-host details.list-item-expand')?.open, null, { timeout: 4000 })
+    .catch(() => {});
+  if (!(await first.evaluate((d) => d.open))) problems.push(`${label}: a click on the first row's chevron does not open it`);
   await page.close();
 }
 
