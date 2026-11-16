@@ -1,11 +1,12 @@
 // Checks the tonal elevation tokens and rules of the base theme (spec: tonal elevation, Material 3).
-// Reads theme/styles/ui.css (and later global.css) as text; no browser, no build.
+// Reads theme/styles/ui.css and cards.css (and later global.css) as text; no browser, no build.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const read = (name) => readFileSync(new URL(name, import.meta.url), 'utf8');
-const uiCss = read('./ui.css');
+// The card rules are in cards.css (moved out of ui.css), so the text is both files.
+const uiCss = read('./ui.css') + read('./cards.css');
 
 const count = (text, part) => text.split(part).length - 1;
 
