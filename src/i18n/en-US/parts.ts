@@ -454,12 +454,12 @@ export const parts = {
     containment: {
       title: 'Dialogs, sheets and carousel',
       dialog:
-        'A dialog over the page with an icon, a heading, a text, and buttons, only the dialog, for example, a pop-up or the cookie question, or over the whole screen on a phone with the close button and the action at the top.',
+        'A dialog over the page with an icon, a heading, a text, and buttons, only the dialog, for example, a pop-up or the cookie question.',
       bottomSheet:
         'A sheet from the bottom: modal over the page, on a computer as a dialog in the middle, for example, the booking sheet, or standard at the bottom of the screen, with the page usable behind it, dragged up and down.',
       carousel:
         'Cards or images in a row that are swiped sideways, with dots under them: all the same size, in several sizes, one large (from the start or in the middle) and one at a time.',
-      dialogKinds: { basic: 'Basic', icon: 'With icon, list, and divider', container: 'Only the box', fullScreen: 'Full screen' },
+      dialogKinds: { basic: 'Basic', icon: 'With icon, list, and divider', container: 'Only the box' },
       sheetKinds: {
         modal: 'Modal, a dialog on a computer',
         modalSideSheet: 'Modal, a side sheet on a computer',
@@ -477,13 +477,12 @@ export const parts = {
         multiBrowse: 'Several sizes',
         hero: 'One large',
         heroCenter: 'One large in the middle',
+        narrow: 'Uncontained, in a narrow column',
         fullScreen: 'One at a time',
       },
       choices: ['First choice', 'Second choice', 'Third choice'],
-      fields: ['Name', 'Email'],
       cancel: 'Cancel',
       accept: 'Accept',
-      save: 'Save',
       page: 'The page behind the sheet can still be used.',
       dragHandle: 'Expand or collapse the sheet',
       openSheet: 'Open the modal sheet',
@@ -644,10 +643,11 @@ export const parts = {
       sliderSizes: { xsmall: 'Extra small', small: 'Small', medium: 'Medium', large: 'Large', xlarge: 'Extra large' },
       verticalSliders: 'Vertical',
       kinds: { 'full-width': 'Full width', inset: 'Inset', 'middle-inset': 'Inset from both sides', vertical: 'Vertical' },
-      sheetKinds: { standard: 'Beside the page', modal: 'Over the page' },
+      sheetKinds: { standard: 'Beside the page', withBack: 'Beside the page, with a back arrow', modal: 'Over the page' },
       page: 'The page the sheet belongs to.',
       heading: 'Filters',
       text: 'What the sheet shows.',
+      back: 'Back',
       close: 'Close',
       apply: 'Apply',
       cancel: 'Cancel',
@@ -707,7 +707,7 @@ export const parts = {
       content: "The page's content stands here.",
       openRail: 'Open navigation',
       search:
-        'The search field and what it opens: the field with the button back and the results that fit what is typed. A search view driven by the page also groups its results under a name, shows a key beside an item, and keeps one item that cannot be used now.',
+        'The search field and what it opens: the field with the button back and the results that fit what is typed. A search view driven by the page also groups its results under a name, shows a key beside an item, and keeps one item that cannot be used now. The search bar can be a button that opens the view, and a group has its name over it (a category label).',
       toolbar:
         'Actions in a row: the whole width at the bottom, as the bar at the bottom of a phone, or floating, on the surface or in the accent, across or vertical, also with a button beside it and folded into the button.',
       name: 'Navigation',

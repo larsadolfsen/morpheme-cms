@@ -89,7 +89,7 @@
   At rest (the shadow reads --mo-elevation-N-rest-shadow), pointed at (hover), pressed and dragged (the lift reads
   --mo-elevation-N-shadow), by Material 3; with focus a part is as at rest:
     level 0  filled, tonal and outlined buttons, icon buttons, filled and outlined cards, chips (not elevated), a
-             standard side sheet, a full-screen dialog on a phone, the top app bar, the navigation bar and rail, the
+             standard side sheet, the top app bar, the navigation bar and rail, the
              search bar, a plain tooltip
     level 1  elevated buttons and chips, elevated cards, bottom sheets, a modal side sheet and navigation drawer, the
              handles of switches and sliders; pointed at: filled and tonal buttons (a toggle too), filled and outlined
@@ -468,7 +468,7 @@
   }
   /* The sizes: Material's five, the medium one the default. */
   .button-xsmall {
-    --button-box: var(--button-xsmall-height, 2.25rem);
+    --button-box: var(--button-xsmall-height, 2rem);
     --button-inline: var(--button-xsmall-padding, 0.9rem);
     --button-glyph: calc(var(--button-icon-size, 1.25rem) * 0.9);
     --button-square: var(--button-xsmall-square-radius, calc(var(--block-radius-small) * 0.75));
@@ -984,9 +984,12 @@
   .text-field-filled .text-field-container:has(> .text-field-input:focus) {
     box-shadow: inset 0 0 0 2px var(--text-field-filled-focus-line, var(--block-accent));
   }
-  .text-field-error .text-field-container,
-  .text-field-error .text-field-container:hover,
-  .text-field-error .text-field-container:has(> .text-field-input:is(:focus, [aria-expanded='true'])) {
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
+    .text-field-container,
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
+    .text-field-container:hover,
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
+    .text-field-container:has(> .text-field-input:is(:focus, [aria-expanded='true'])) {
     box-shadow: inset 0 0 0 2px var(--text-field-error, var(--block-accent));
   }
   /* A choice whose menu is open under it (the button's aria-expanded): the edge as with the focus, which has moved into
@@ -1051,8 +1054,11 @@
   .text-field-filled .text-field-input[aria-expanded='true'] + .text-field-label {
     color: var(--text-field-filled-focus-line, var(--block-accent));
   }
-  .text-field-error .text-field-label,
-  .text-field-error .text-field-input:is(:focus, [aria-expanded='true']) + .text-field-label {
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
+    .text-field-label,
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
+    .text-field-input:is(:focus, [aria-expanded='true'])
+    + .text-field-label {
     color: var(--text-field-error, var(--block-accent));
   }
   /* Outlined: the name on the edge, on the field's surface, at its start (also past the icon before it). */
@@ -1110,7 +1116,7 @@
   /* What is written, or the suffix, nearer to the icons and buttons after it. */
   .text-field-container:has(> .text-field-trailing-action, > .text-field-trailing-icon:not(.text-field-error-icon))
     > :is(.text-field-input, .text-field-suffix):not(:has(~ .text-field-suffix)),
-  .text-field-error
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
     .text-field-container:has(> .text-field-error-icon)
     > :is(.text-field-input, .text-field-suffix):not(:has(~ .text-field-suffix)) {
     padding-inline-end: var(--text-field-icon-gap, 0.75rem);
@@ -1146,11 +1152,12 @@
   .text-field-error-icon {
     display: none;
   }
-  .text-field-error .text-field-error-icon {
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
+    .text-field-error-icon {
     display: block;
     color: var(--text-field-error, var(--block-accent));
   }
-  .text-field-error
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
     .text-field-container:has(> .text-field-error-icon)
     > :is(.text-field-trailing-icon:not(.text-field-error-icon), .text-field-trailing-action) {
     display: none;
@@ -1202,8 +1209,22 @@
     flex: 1;
     margin: 0;
   }
-  .text-field-error .text-field-supporting {
+  :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
+    .text-field-supporting {
     color: var(--text-field-error, var(--block-accent));
+  }
+  /* What is said when the browser finds the field invalid after the person has worked in it (invalidText, `:user-invalid`):
+     it takes the place of the line under the field and does not add one (m3.material.io/components/text-fields/guidelines,
+     Error text: "Swap supporting text with error text"), so the layout does not move. */
+  .text-field-invalid-text {
+    display: none;
+  }
+  .text-field:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text) .text-field-invalid-text {
+    display: block;
+  }
+  .text-field:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)
+    .text-field-supporting:not(.text-field-invalid-text) {
+    display: none;
   }
   .text-field-counter {
     flex-shrink: 0;
@@ -1286,7 +1307,8 @@
     --chip-elevated-surface, --chip-elevated-shadow, --chip-elevated-hover-shadow   an elevated chip (level 1), and
                      pointed at (level 2; a theme that sets only the one at rest keeps it); pressed, as at rest
     --chip-dragged-shadow   the shadow that lifts a dragged chip (level 4)
-    --chip-disabled-opacity   how much of a disabled chip is seen
+    --chip-text   the label and icon of a chip that is not chosen
+    --chip-disabled-text, --chip-disabled-line, --chip-disabled-selected-surface   a disabled chip (38%, 12% and 12% of on surface)
     --chip-avatar-size, --chip-avatar-padding   a person's image, and the room before it
   The label's weight and line height are the text's; a theme sets them with a rule on .chip.
 */
@@ -1302,6 +1324,7 @@
     /* Density takes 2 px off each side, never the text; --chip-padding-block (else 0.55rem) is the room today. */
     padding-block: calc(var(--chip-padding-block, 0.55rem) + var(--mo-density-layout) * var(--mo-density-step) / 2);
     background: var(--chip-surface, var(--block-surface));
+    color: var(--chip-text, inherit);
     box-shadow: inset 0 0 0 1px var(--chip-line, var(--block-line));
     font-family: inherit;
     font-size: var(--chip-font-size, var(--type-label-large-size));
@@ -1317,6 +1340,22 @@
   }
   span.chip {
     cursor: auto;
+  }
+  /* M3 Chips, guidelines: "Chips must also have a minimum 48dp target size, regardless of placement or density. If required, the target can extend beyond the
+     visible container of the chip." The target is behind the chip's own content, so what is in the chip (an input chip's remove button) is hit first. */
+  .chip {
+    position: relative;
+    isolation: isolate;
+  }
+  .chip::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: max(100%, 3rem);
+    transform: translateY(-50%);
   }
   .chip > svg,
   .chip-action > svg,
@@ -1432,13 +1471,19 @@
     box-shadow: var(--chip-dragged-shadow, var(--mo-elevation-4-shadow));
   }
 
-  /* Disabled: seen through, without its shadow, and not to be used. */
+  /* Disabled (M3 Chips: the label and icon at 38% of on surface, the edge at 12%, a chosen chip's container at 12%), and not to be used. */
   .chip:is(:disabled, [aria-disabled='true']) {
-    opacity: var(--chip-disabled-opacity, 0.38);
+    color: var(--chip-disabled-text, color-mix(in srgb, var(--mo-on-surface) 38%, transparent));
+    box-shadow: inset 0 0 0 1px var(--chip-disabled-line, color-mix(in srgb, var(--mo-on-surface) 12%, transparent));
     pointer-events: none;
   }
+  .chip:is(:disabled, [aria-disabled='true']):is([aria-pressed='true'], [aria-current='page'], [data-selected]) {
+    background: var(--chip-disabled-selected-surface, color-mix(in srgb, var(--mo-on-surface) 12%, transparent));
+    box-shadow: none;
+  }
   .chip-elevated:is(:disabled, [aria-disabled='true']) {
-    box-shadow: inset 0 0 0 1px var(--chip-line, var(--block-line));
+    background: var(--chip-disabled-selected-surface, color-mix(in srgb, var(--mo-on-surface) 12%, transparent));
+    box-shadow: none;
   }
 }
 
@@ -1463,8 +1508,8 @@
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
-    padding: 0.25rem var(--chip-set-bleed, 0rem);
-    margin: -0.25rem calc(-1 * var(--chip-set-bleed, 0rem));
+    padding: 0.5rem var(--chip-set-bleed, 0rem);
+    margin: -0.5rem calc(-1 * var(--chip-set-bleed, 0rem));
     scroll-padding-inline: var(--chip-set-bleed, 0rem);
   }
   .chip-set-scroll::-webkit-scrollbar {
@@ -1477,25 +1522,21 @@
 
 /* ---- Containment: Dialog, BottomSheet, Carousel ---- */
 /*
-  Dialogs (Dialog.tsx, dialogClass, dialogClassOf, dialogModalClass, dialogFullScreenModalClass, and dialog() in
+  Dialogs (Dialog.tsx, dialogClass, dialogClassOf, dialogModalClass, and dialog() in
   dialogControl.ts for what a modal one does in a browser; m3.material.io/components/dialogs): .dialog is the container (a
   pop-up's box, the cookie question), and .dialog-modal the <dialog> it is shown in over the page, in the middle with
   the scrim behind it (a pop-up, Popup.astro). With its parts it is Material's basic dialog, .dialog-basic: optionally its
   icon (.dialog-icon, centred over the headline with .dialog-with-icon), .dialog-headline, .dialog-supporting-text,
-  .dialog-content (what else it shows, scrolling), optionally .dialog-divider and .dialog-actions at its end. A full-screen
-  dialog, .dialog-full-screen in .dialog-modal-full-screen: over the whole screen on a phone, with .dialog-header (the
-  close button, the headline and .dialog-header-actions), optionally .dialog-divider, and .dialog-content; from the medium width a
-  dialog in the middle of the screen with the same header.
+  .dialog-content (what else it shows, scrolling), optionally .dialog-divider and .dialog-actions at its end. There is no
+  full-screen dialog: a full screen is a page with a back arrow.
     --dialog-radius, --dialog-surface, --dialog-shadow, --dialog-line   the container's corners, surface, shadow
-                     (level 3; none for a full-screen one on a phone), edge
+                     (level 3), edge
     --dialog-scrim   the shade over the page behind a modal dialog (else --theme-scrim-colour, the text's colour, in
                      dark mode the page's, seen through)
     --dialog-max-width   how wide a modal dialog is at most
-    --dialog-padding   the room inside a basic dialog, and at the sides of a full-screen one's content
+    --dialog-padding   the room inside a basic dialog
     --dialog-icon-color, --dialog-headline-size, --dialog-headline-weight, --dialog-supporting-text-color   its parts
-    --dialog-full-screen-max-width, --dialog-full-screen-headline-size   a full-screen dialog from the medium width, and its
-                     headline in its header
-  A lightbox (Lightbox.tsx, .lightbox in .lightbox-modal, lightboxControl.ts: an image shown bigger; M3 has none): the full-screen dialog with
+  A lightbox (Lightbox.tsx, .lightbox in .lightbox-modal, lightboxControl.ts: an image shown bigger; M3 has none): a modal <dialog> with the dialog's container, a header with the close button (.lightbox-header), .lightbox-content,
   .lightbox-track (images that snap), .lightbox-item, .lightbox-figure, .lightbox-image, .lightbox-caption, .lightbox-previous, .lightbox-next and
   .lightbox-count; on a compact window over the whole screen, from medium the window less 56 dp on each side.
     --lightbox-surface   its container, see-through over the scrim (else the scrim colour at 88%)
@@ -1581,6 +1622,10 @@
     background: transparent;
     color: inherit;
   }
+  /* The dialog itself has the focus when it opens (dialogFocus.ts), so no control looks chosen: no ring on the container. */
+  .dialog-modal:focus {
+    outline: none;
+  }
   .dialog-modal::backdrop {
     background: var(--dialog-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--block-text)) 50%, transparent));
   }
@@ -1665,76 +1710,14 @@
     margin-top: 1rem;
   }
 
-  /* A full-screen dialog: its header (the cross, the headline and the action), and what it shows under it, scrolling. */
-  .dialog-full-screen {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  .dialog-header {
-    display: flex;
-    flex-shrink: 0;
-    align-items: center;
-    gap: 0.25rem;
-    min-height: 3.5rem;
-    padding: 0.25rem 0.75rem 0.25rem 0.25rem;
-  }
-  .dialog-full-screen .dialog-headline {
-    flex: 1;
-    min-width: 0;
-    margin: 0 0 0 0.5rem;
-    font-size: var(--dialog-full-screen-headline-size, var(--type-title-large-size));
-    line-height: var(--type-title-large-line-height);
-  }
-  .dialog-header-actions {
-    display: flex;
-    flex-shrink: 0;
-    gap: 0.25rem;
-  }
-  .dialog-full-screen .dialog-divider {
-    margin: 0;
-  }
-  .dialog-full-screen .dialog-content {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    padding: 1rem var(--dialog-padding, 1.5rem) max(1.5rem, env(safe-area-inset-bottom));
-  }
-  .dialog-full-screen .dialog-supporting-text {
-    margin-bottom: 1rem;
-  }
-  /* On a phone over the whole screen, without corners, edge or shadow. */
-  @media (width < theme(--breakpoint-medium)) {
-    .dialog-modal-full-screen {
-      width: 100%;
-      max-width: none;
-      height: 100%;
-      max-height: none;
-      margin: 0;
-    }
-    .dialog-modal-full-screen > .dialog-full-screen {
-      height: 100%;
-    }
-    .dialog-full-screen {
-      border-radius: 0;
-      box-shadow: none;
-    }
-  }
-  /* From the medium width a dialog in the middle of the screen, with the same header. */
-  @media (width >= theme(--breakpoint-medium)) {
-    .dialog-modal-full-screen {
-      max-width: var(--dialog-full-screen-max-width, 35rem);
-    }
-    .dialog-modal-full-screen > .dialog-full-screen {
-      max-height: min(88dvh, 44rem);
-    }
-  }
-
-  /* A lightbox (Lightbox.tsx, lightboxControl.ts): the full-screen dialog's <dialog> and container with images in a snapping track under its header
+  /* A lightbox (Lightbox.tsx, lightboxControl.ts): a modal <dialog> and the dialog's container with images in a snapping track under its header
      (only the close button). The container is see-through over the scrim, so the image floats on a dark layer (the scrim colour, which is
      the page's in dark mode, so the layer is dark in both): docs/material-deviations.md. On a compact window it fills the screen; from medium it is as
      large as the window less 56 dp on each side (M3: a dialog placed by hand keeps a 56 dp margin) with the dialog's 28 dp corner. */
   .lightbox {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     --lightbox-ink: var(--theme-on-scrim-colour, var(--mo-surface));
     background: var(--lightbox-surface, color-mix(in srgb, var(--theme-scrim-colour, var(--block-text)) 88%, transparent));
     color: var(--lightbox-ink);
@@ -1743,10 +1726,18 @@
   .lightbox .icon-button {
     color: var(--lightbox-ink);
   }
-  .lightbox .dialog-content {
+  .lightbox-header {
     display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    min-height: 3.5rem;
+    padding: 0.25rem;
+  }
+  .lightbox-content {
+    display: flex;
+    flex: 1;
     flex-direction: column;
-    padding: 0;
+    min-height: 0;
     overflow: hidden;
   }
   .lightbox-stage {
@@ -1820,7 +1811,19 @@
   .lightbox-next {
     inset-inline-end: 0.5rem;
   }
+  /* On a compact window the whole window, without corners, edge or shadow. */
   @media (width < theme(--breakpoint-medium)) {
+    .lightbox-modal {
+      width: 100%;
+      max-width: none;
+      height: 100%;
+      max-height: none;
+      margin: 0;
+    }
+    .lightbox-modal > .lightbox {
+      height: 100%;
+      border-radius: 0;
+    }
     .lightbox-previous:not(:focus-visible),
     .lightbox-next:not(:focus-visible) {
       opacity: 0;
@@ -1828,13 +1831,13 @@
     }
   }
   @media (width >= theme(--breakpoint-medium)) {
-    .lightbox-modal.dialog-modal-full-screen {
+    .lightbox-modal {
       width: calc(100% - 7rem);
       max-width: none;
       height: calc(100% - 7rem);
       max-height: none;
     }
-    .lightbox-modal.dialog-modal-full-screen > .lightbox {
+    .lightbox-modal > .lightbox {
       height: 100%;
       max-height: none;
       border-radius: var(--dialog-radius, var(--block-radius));
@@ -1846,7 +1849,7 @@
     .lightbox-modal[open]::backdrop {
       animation: dialog-scrim-in var(--motion-effects);
     }
-    .lightbox-modal[open] :is(.dialog-header, .lightbox-previous, .lightbox-next, .lightbox-count) {
+    .lightbox-modal[open] :is(.lightbox-header, .lightbox-previous, .lightbox-next, .lightbox-count) {
       animation: dialog-scrim-in var(--motion-effects);
     }
     .lightbox-modal[open] .lightbox-image {
@@ -1953,7 +1956,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 0 1.25rem 0.75rem;
+    padding: 0 var(--grid-margin, 1rem) 0.75rem;
     border-bottom: 1px solid var(--bottom-sheet-line, var(--block-line));
   }
   .bottom-sheet-heading {
@@ -1985,7 +1988,7 @@
   }
   .bottom-sheet-peek {
     flex: none;
-    padding: 0.75rem 1.25rem 1rem;
+    padding: 0.75rem var(--grid-margin, 1rem) 1rem;
   }
   .bottom-sheet-content {
     position: relative;
@@ -2035,7 +2038,7 @@
   .bottom-sheet-footer {
     flex-shrink: 0;
     margin: 0;
-    padding: 0.75rem 1.25rem;
+    padding: 0.75rem var(--grid-margin, 1rem);
     border-top: 1px solid var(--bottom-sheet-line, var(--block-line));
     font-size: var(--type-body-medium-size);
     line-height: var(--type-body-medium-line-height);
@@ -2064,11 +2067,11 @@
       display: none;
     }
     .bottom-sheet-fit {
-      max-height: min(80vh, 52rem);
+      max-height: min(80dvh, 52rem);
     }
     .bottom-sheet-full {
       width: min(92vw, 80rem);
-      height: 90vh;
+      height: 90dvh;
     }
     :where(.bottom-sheet-container:not(.bottom-sheet-standard, [data-wide='side-sheet'], [data-wide='sheet'])) > .bottom-sheet-header {
       padding-top: 1rem;
@@ -2115,7 +2118,7 @@
   .bottom-sheet-standard > .bottom-sheet-content {
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 1rem 1.25rem;
+    padding: 1rem var(--grid-margin, 1rem);
   }
   .bottom-sheet-standard[data-state='collapsed'] > :is(.bottom-sheet-content, .bottom-sheet-footer) {
     display: none;
@@ -2245,7 +2248,15 @@
     }
   }
 
-  /* A carousel: its items in a row to swipe, and the page indicator under them. */
+  /* A carousel: its items in a row to swipe, and the page indicator under them.
+     The number of items in view follows the carousel's own width, not the window's: a carousel in a narrow column or a side sheet shows one item at a
+     time on a wide window too (Modern Web Guidance, `responsive-design` and `size-aware-styling`: "Use @container queries to create component-driven
+     responsive layouts"). The widths are M3's window classes less the page margins (16 dp below medium, 24 dp from it), so a carousel as wide as the
+     page changes where it did: 2 items from 35.5rem (medium, 600 dp, less 2 x 16 dp; a page at 600 to 615 dp shows one), 3 from 49.5rem (expanded, 840 dp,
+     less 2 x 24 dp). The page's own columns stay on the window (breakpoints in lib/breakpoints.mjs). */
+  .carousel {
+    container: carousel / inline-size;
+  }
   .carousel-items {
     display: flex;
     gap: var(--carousel-gap, 0.5rem);
@@ -2290,25 +2301,26 @@
     height: var(--carousel-dot-size, 0.5rem);
     border-radius: var(--mo-shape-full);
     background: var(--carousel-dot-colour, var(--block-line));
-    transition: all var(--motion-spatial);
+    transition:
+      width var(--motion-spatial),
+      height var(--motion-spatial),
+      background-color var(--motion-effects);
   }
   .carousel-indicator-dot[aria-current='true'] > span {
     width: var(--carousel-dot-selected-width, 1.25rem);
     background: var(--carousel-dot-selected-colour, var(--block-accent));
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @container carousel (width >= 35.5rem) {
     .carousel-item {
       width: calc((100% - 1rem) / 2);
     }
-  }
-  @media (width >= theme(--breakpoint-medium)) {
     .carousel-items {
       margin: 0;
       padding: 0;
       scroll-padding-inline: 0;
     }
   }
-  @media (width >= theme(--breakpoint-expanded)) {
+  @container carousel (width >= 49.5rem) {
     .carousel-item {
       width: calc((100% - 2rem) / 3);
     }
@@ -2570,29 +2582,43 @@
     color: var(--mo-on-primary);
   }
 
-  /* A staggered grid of cards (image-grid.md in docs; M3 Cards: "customized in code to show cards in staggered or
-     mosaic grids"): columns of cards in their own heights, 8 dp apart (M3: "Padding between cards: 8dp max"). 2 columns
-     on compact, 3 on medium and expanded, 4 from large. M3 prints no column count for a grid: these are ours, on its
-     breakpoints. */
+  /* The theme grid (docs/theme-grid.md; M3 Cards: "customized in code to show cards in staggered or mosaic grids"): columns of
+     cards in their own heights, --grid-gutter apart both ways (16px on compact, 24px from medium: owner values; M3 Spacing says
+     "Cards should maintain consistent horizontal spacing to establish a strong rhythm when their height varies" and prints no
+     gutter). --grid-columns is how many cards stand side by side, per breakpoint; M3's layout grid itself has 4 columns on
+     compact, 8 on medium and expanded and 12 on large and extra-large (--grid-layout-columns, in global.css, what a span counts
+     in). A part with other counts sets --grid-columns on its element. */
   .image-grid {
+    --grid-columns: 2;
     margin: 0;
     padding: 0;
     list-style: none;
-    column-count: 2;
-    column-gap: var(--card-gap, 8px);
+    column-count: var(--grid-columns);
+    column-gap: var(--grid-gutter, 16px);
   }
   .image-grid > * {
     break-inside: avoid;
-    margin-block-end: var(--card-gap, 8px);
+    margin-block-end: var(--grid-gutter, 16px);
+  }
+  /* A card across all the columns (a span of the whole grid; the cards before and after it pack in their own columns).
+     Spans of other widths are not possible in columns: see docs/theme-grid.md. */
+  .image-grid > .grid-span-full {
+    column-span: all;
+  }
+  /* A card across all the columns on compact only, one column from medium. */
+  @media (width < theme(--breakpoint-medium)) {
+    .image-grid > .grid-span-compact {
+      column-span: all;
+    }
   }
   @media (width >= theme(--breakpoint-medium)) {
     .image-grid {
-      column-count: 3;
+      --grid-columns: 3;
     }
   }
   @media (width >= theme(--breakpoint-large)) {
     .image-grid {
-      column-count: 4;
+      --grid-columns: 4;
     }
   }
 
@@ -2680,8 +2706,14 @@
   .list-item-supporting {
     display: block;
   }
-  /* Columns: on a wide screen the headline and the supporting text side by side, each in half the item's text. */
-  @media (width >= theme(--breakpoint-expanded)) {
+  /* Columns: when the item is wide the headline and the supporting text side by side, each in half the item's text. This follows the item's own
+     width, not the window's: an item in a narrow column or a side sheet keeps them under each other on a wide window too (Modern Web Guidance,
+     `responsive-design` and `size-aware-styling`). A container query measures the content box: 47.5rem is M3's expanded window (840 dp) less the page's
+     2 x 24 dp margins and the item's own 2 x 16 dp padding, so an item as wide as the page changes where it did. */
+  .list-item-columns {
+    container: list-item / inline-size;
+  }
+  @container list-item (width >= 47.5rem) {
     .list-item-columns .list-item-content {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -3326,7 +3358,7 @@
   Navigation drawer (NavigationDrawer, NavigationDrawerItem, NavigationDrawerToggle, NavigationDrawerSubitem,
   navigationDrawerClass, navigationDrawerScrimClass): .navigation-drawer, the drawer, over .navigation-drawer-scrim;
   .navigation-drawer-standard, the standard one, beside the content (--navigation-drawer-standard-shadow, level 0);
-  .navigation-drawer-dialog, a <dialog> it is in, at the start edge (its ::backdrop the scrim); .navigation-drawer-end,
+  .navigation-drawer-dialog, a <dialog> it is in, at the start edge (at the end edge with .navigation-drawer-end on it too; its ::backdrop the scrim, faded through --navigation-drawer-scrim-opacity); .navigation-drawer-end,
   one at the end edge (its corners towards the page, mirrored); .navigation-drawer-bleed, one that springs in (on the
   drawer, or on the <dialog> it is in): wider by --navigation-drawer-bleed (32dp) at the edge it comes from, that strip
   off the screen, so a spring that overshoots shows no gap at the edge; .navigation-drawer-item,
@@ -3340,8 +3372,9 @@
   .navigation-drawer-subitem, a sub-page ([data-active]); .navigation-drawer-section, items under a label
   (.navigation-drawer-section-label, title small) with, in one that follows another, the divider
   (.navigation-drawer-section-divider, edge to edge).
-    --navigation-drawer-width (360dp, at most the screen less 56dp), --navigation-drawer-radius (0 16dp 16dp 0; under
-    right-to-left --navigation-drawer-radius-rtl), --navigation-drawer-surface (level 1's colour),
+    --navigation-drawer-width (set: that width; else it hugs its content from 220dp to 360dp, at most the screen less 56dp),
+    --navigation-drawer-radius (0 16dp 16dp 0; under right-to-left --navigation-drawer-radius-rtl), --navigation-drawer-surface
+    (the modal one: the surface container, level 2's colour; the standard one: the surface),
     --navigation-drawer-shadow (level 1), --navigation-drawer-scrim, --navigation-drawer-inset (12dp each side, from
     the edges to the items), --navigation-drawer-padding (all of it, with room for the home indicator),
     --navigation-drawer-section-gap (8dp around the divider), --navigation-drawer-section-label-text
@@ -3750,16 +3783,25 @@
       scale: 0.97;
     }
   }
+  /* Under the button from its start (beside the item for a submenu); the other side when there is no room (flip-block,
+     flip-inline, both), always 0.5rem inside the window. The insets: on the opener's side the gap, on the far side
+     the window's margin (they flip with the menu). Where the browser lacks it the script places the menu. */
   @supports (position-area: block-end) {
     .dropdown-menu-menu[popover] {
       position-area: block-end span-inline-end;
-      position-try-fallbacks: flip-block, flip-inline;
-      margin-block: var(--dropdown-menu-gap, 0.25rem);
+      position-try-fallbacks:
+        flip-block,
+        flip-inline,
+        flip-block flip-inline;
+      inset: var(--dropdown-menu-gap, 0.25rem) 0.5rem 0.5rem 0;
     }
     .menu-submenu[popover] {
       position-area: inline-end span-block-end;
-      position-try-fallbacks: flip-inline, flip-block;
-      margin-inline: var(--menu-submenu-gap, 0.25rem);
+      position-try-fallbacks:
+        flip-inline,
+        flip-block,
+        flip-block flip-inline;
+      inset: 0 0.5rem 0.5rem var(--menu-submenu-gap, 0.25rem);
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -3901,6 +3943,7 @@
   /* The drawer's defaults, each once: the others read them as the fallback of their --navigation-drawer-* variable. */
   :root {
     --navigation-drawer-width-default: min(22.5rem, calc(100vw - 3.5rem));
+    --navigation-drawer-width-min-default: min(13.75rem, calc(100vw - 3.5rem));
     --navigation-drawer-bleed-default: 2rem;
     --navigation-drawer-inset-default: 0.75rem;
   }
@@ -3910,7 +3953,10 @@
   }
   .navigation-drawer {
     display: flex;
-    width: var(--navigation-drawer-width, var(--navigation-drawer-width-default));
+    /* Expanded navigation rail (M3 Expressive, "Expanded layout: Modal"): it hugs its content, "container width minimum 220dp",
+       "maximum 360dp"; a theme that sets --navigation-drawer-width gets that width, as it did. */
+    min-width: var(--navigation-drawer-width, var(--navigation-drawer-width-min-default));
+    max-width: var(--navigation-drawer-width, var(--navigation-drawer-width-default));
     flex-direction: column;
     overflow-y: auto;
     border-radius: var(--navigation-drawer-radius, 0 1rem 1rem 0);
@@ -3918,7 +3964,8 @@
       --navigation-drawer-padding,
       0.75rem var(--navigation-drawer-inset, var(--navigation-drawer-inset-default)) max(1rem, env(safe-area-inset-bottom))
     );
-    background: var(--navigation-drawer-surface, var(--mo-elevation-1-color));
+    /* Expanded rail, modal: "Nav rail expanded modal container color", the surface container (level 2's colour). */
+    background: var(--navigation-drawer-surface, var(--mo-elevation-2-color));
     box-shadow: var(--navigation-drawer-shadow, var(--mo-elevation-1-rest-shadow));
   }
   .navigation-drawer:dir(rtl) {
@@ -3935,7 +3982,11 @@
      items as far in from the edge as before (the strip added to the padding), so the drawer still covers the edge
      while an overshooting spring carries it a little past its place. */
   .navigation-drawer.navigation-drawer-bleed {
-    width: calc(
+    min-width: calc(
+      var(--navigation-drawer-width, var(--navigation-drawer-width-min-default)) +
+        var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+    );
+    max-width: calc(
       var(--navigation-drawer-width, var(--navigation-drawer-width-default)) +
         var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
     );
@@ -3962,13 +4013,15 @@
     height: 100%;
     flex-shrink: 0;
     box-shadow: var(--navigation-drawer-standard-shadow, var(--mo-elevation-0-shadow, none));
+    /* Expanded rail, standard: "Nav rail expanded container color", the surface. */
+    background: var(--navigation-drawer-surface, var(--mo-elevation-0-color));
   }
   .navigation-drawer-item {
     display: flex;
     min-height: var(--navigation-drawer-item-height, 3.5rem);
     flex: 1;
     align-items: center;
-    gap: var(--navigation-drawer-item-gap, 0.75rem);
+    gap: var(--navigation-drawer-item-gap, 0.5rem);
     border-radius: var(--navigation-drawer-item-radius, var(--mo-shape-full));
     padding: var(--navigation-drawer-item-padding, 0 1rem);
     color: var(--navigation-drawer-item-text, var(--block-muted));
@@ -4011,7 +4064,11 @@
     inset-inline-start: calc(-1 * var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default)));
   }
   .navigation-drawer-dialog.navigation-drawer-bleed > .navigation-drawer {
-    width: calc(
+    min-width: calc(
+      var(--navigation-drawer-width, var(--navigation-drawer-width-min-default)) +
+        var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+    );
+    max-width: calc(
       var(--navigation-drawer-width, var(--navigation-drawer-width-default)) +
         var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
     );
@@ -4020,8 +4077,32 @@
         var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
     );
   }
+  /* At the end edge (navigationDrawerEndClass on the <dialog> and on the drawer in it): the strip beyond the screen is the end's. */
+  .navigation-drawer-dialog.navigation-drawer-end {
+    inset-inline: auto 0;
+  }
+  .navigation-drawer-dialog.navigation-drawer-bleed.navigation-drawer-end {
+    inset-inline: auto calc(-1 * var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default)));
+  }
+  .navigation-drawer-dialog.navigation-drawer-bleed.navigation-drawer-end > .navigation-drawer {
+    padding-inline: var(--navigation-drawer-inset, var(--navigation-drawer-inset-default))
+      calc(
+        var(--navigation-drawer-inset, var(--navigation-drawer-inset-default)) +
+          var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+      );
+  }
   .navigation-drawer-dialog::backdrop {
     background: var(--navigation-drawer-scrim, color-mix(in srgb, var(--theme-scrim-colour) 45%, transparent));
+    /* The menu fades it with the motion scheme's springs through this variable, which the backdrop inherits from the dialog. */
+    opacity: var(--navigation-drawer-scrim-opacity, 1);
+  }
+  /* Scrolling in or over it does not move the page behind it (no overflow: hidden on the page). */
+  .navigation-drawer-dialog:modal {
+    overscroll-behavior: contain;
+  }
+  .navigation-drawer-dialog::backdrop {
+    overflow: hidden;
+    overscroll-behavior: contain;
   }
   /* State layers (as the theme's other items): the item's own colour over it, 8% pointed at, 10% focused or pressed. */
   .navigation-drawer-item:hover {
@@ -5665,6 +5746,11 @@
     padding-block: calc(var(--side-sheet-padding, 1.5rem) - var(--side-sheet-icon-inset)) 0;
     padding-inline: var(--side-sheet-padding, 1.5rem) calc(var(--side-sheet-padding, 1.5rem) - var(--side-sheet-icon-inset));
   }
+  /* With a back icon button (M3's modal side sheet: "Start padding with icon" 16): 16 from the start edge to the back glyph, then 12 to the
+     headline (the button's own space round the glyph is that 12, so no gap). */
+  .side-sheet-header[data-has-back] {
+    padding-inline-start: calc(1rem - var(--side-sheet-icon-inset));
+  }
   .side-sheet-headline {
     flex: 1;
     min-width: 0;
@@ -5758,7 +5844,7 @@
     --snackbar-line-height, --snackbar-link-weight
     --snackbar-action-text, --snackbar-action-hover, --snackbar-close-text, --snackbar-close-size
   Tooltips (Tooltip, tooltipClass; m3.material.io/components/tooltips): .tooltip-anchor ([data-tooltip], shown with
-  [data-tooltip-open] by ../ui/tooltip.script.ts, under its anchor with [data-tooltip-below]) with what it is about and
+  [data-tooltip-open] by ../ui/tooltip.script.ts, placed by CSS anchor positioning, and where the browser lacks it by the script, which puts [data-tooltip-below] under its anchor) with what it is about and
   its .tooltip, .tooltip-plain (a short label, in the middle over it) or .tooltip-rich (.tooltip-subhead,
   .tooltip-supporting-text and optionally .tooltip-actions with a text button, .tooltip-action; from its anchor's start).
     --tooltip-gap (between it and its anchor)
@@ -6212,6 +6298,63 @@
     display: flex;
     margin: 0.25rem 0 -0.25rem calc(-1 * var(--button-text-padding, 1rem));
   }
+  /* Anchor positioning (css-layout §5, position-aware-tooltips): where the browser has it, the browser places the tooltip
+     and ui/tooltip.script.ts does not. Plain: over its anchor, in the middle; rich: over it from its start. Both go under
+     the anchor when there is no room above (flip-block), then hang from the anchor's other side, then sit in the middle of
+     the window, always 0.5rem inside it (the tooltip's insets; the one on the anchor's side is the gap). Without it the rules above and the script do the same.
+     Same look, sizes and motion. */
+  @supports (anchor-name: --a) and (anchor-scope: --a) and (position-area: top) {
+    .tooltip-anchor {
+      anchor-scope: --tooltip;
+      anchor-name: --tooltip;
+    }
+    .tooltip {
+      position: fixed;
+      position-anchor: --tooltip;
+      position-area: block-start;
+      inset: 0.5rem;
+      inset-block-end: var(--tooltip-gap, 0.25rem);
+      margin: 0;
+      translate: none;
+      position-try-fallbacks:
+        flip-block, --tooltip-top-end, --tooltip-top-start, --tooltip-bottom-end, --tooltip-bottom-start, --tooltip-top-window,
+        --tooltip-bottom-window;
+    }
+    .tooltip-rich {
+      position-area: block-start span-inline-end;
+      inset-inline: 0 0.5rem;
+      position-try-fallbacks: flip-block, --tooltip-top-start, --tooltip-bottom-start, --tooltip-top-window, --tooltip-bottom-window;
+    }
+    @position-try --tooltip-top-end {
+      position-area: block-start span-inline-end;
+      inset-inline: 0 0.5rem;
+    }
+    @position-try --tooltip-top-start {
+      position-area: block-start span-inline-start;
+      inset-inline: 0.5rem 0;
+    }
+    @position-try --tooltip-bottom-end {
+      position-area: block-end span-inline-end;
+      inset-inline: 0 0.5rem;
+      inset-block: var(--tooltip-gap, 0.25rem) 0.5rem;
+    }
+    @position-try --tooltip-bottom-start {
+      position-area: block-end span-inline-start;
+      inset-inline: 0.5rem 0;
+      inset-block: var(--tooltip-gap, 0.25rem) 0.5rem;
+    }
+    @position-try --tooltip-top-window {
+      position-area: block-start;
+      inset-inline: 0.5rem;
+      justify-self: center;
+    }
+    @position-try --tooltip-bottom-window {
+      position-area: block-end;
+      inset-inline: 0.5rem;
+      justify-self: center;
+      inset-block: var(--tooltip-gap, 0.25rem) 0.5rem;
+    }
+  }
 }
 
 @keyframes button-busy-shrink {
@@ -6441,12 +6584,13 @@
   SearchBar) and .search-view (the <dialog> it opens: over the whole screen on a phone,
   docked where the bar is from the medium width, and so in the editor), in it .search-view-header (back, the field,
   .search-view-input, a role="combobox", and .search-view-clear), .search-view-results (the theme's list as a
-  role="listbox", the option the arrow keys are on with aria-selected) and .search-view-empty (when nothing fits).
+  role="listbox", the option the arrow keys are on with aria-selected), .search-view-filters (the filter chips under the bar, a .chip-set-scroll) and .search-view-empty (when nothing fits).
     --search-bar-height, --search-bar-radius, --search-bar-padding, --search-bar-gap, --search-bar-surface,
     --search-bar-line, --search-bar-shadow, --search-bar-hover, --search-bar-text, --search-bar-placeholder,
     --search-bar-font-size
     --search-view-surface, --search-view-radius, --search-view-line, --search-view-shadow, --search-view-scrim,
-    --search-view-header-height, --search-view-divider, --search-view-max-height, --search-view-results-padding,
+    --search-view-header-height, --search-view-header-surface, --search-view-header-radius, --search-view-header-margin,
+    --search-view-container-surface, --search-view-docked-surface, --search-view-docked-radius, --search-view-docked-gap, --search-view-docked-shadow, --search-view-divider, --search-view-max-height, --search-view-results-padding,
     --search-view-option-surface, --search-view-group-gap, --search-view-group-label-text, --search-view-top-default,
     --search-view-width-default
   Toolbars (Toolbar, toolbarClass, toolbar.script.ts; m3.material.io/components/toolbars, M3 Expressive): .toolbar with
@@ -6878,7 +7022,7 @@
   /* Search (m3.material.io/components/search): the bar, and the view it opens. */
   .search-bar {
     display: flex;
-    min-height: var(--search-bar-height, 3.25rem);
+    min-height: var(--search-bar-height, 3.5rem);
     align-items: center;
     gap: 0.25rem;
     border-radius: var(--search-bar-radius, var(--block-control-radius));
@@ -6896,13 +7040,13 @@
   .search-bar-field {
     display: flex;
     min-width: 0;
-    min-height: var(--search-bar-height, 3.25rem);
+    min-height: var(--search-bar-height, 3.5rem);
     flex: 1;
     align-items: center;
-    gap: var(--search-bar-gap, 0.75rem);
+    gap: var(--search-bar-gap, 1rem);
     border: 0;
     border-radius: inherit;
-    padding: 0 0.5rem 0 var(--search-bar-padding, 1.125rem);
+    padding: 0 0.5rem 0 var(--search-bar-padding, 1rem);
     background: transparent;
     color: inherit;
     font: inherit;
@@ -6980,6 +7124,42 @@
     position: relative;
     height: auto;
   }
+  /* The view's container full screen: M3 specs, Color: "Surface container low", with the bar in "Surface container high". Docked (below) the bar and
+     the results are two containers, both "Surface container high", with a gap between them. */
+  dialog.search-view {
+    background: var(--search-view-container-surface, var(--mo-surface-container-low));
+  }
+  /* From medium the view is a dropdown (M3 docked), not a layer over the page: a panel on the bar (--search-view-top, -left, -width: where the bar is), no
+     scrim and not modal (owner, 15 Nov 2026). */
+  div.search-view.search-view-docked {
+    position: fixed;
+    z-index: 70;
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  /* M3 specs, tokens (contained, read 15 Nov 2026): "Search view contained docked bar results gap 2dp": the bar, where the bar was, and the results container
+     under it. The bar has no margin of its own then (Compose and Material Web keep the bar where it was). Shapes, from Material Web's tokens (`search-view`): bar `contained-docked-bar-shape` corner-full, results `contained-docked-results-shape` corner-medium (12dp, as Compose's `dockedDropdownShape`); 28dp (`docked-container-shape`, extra large) is the divided style's one container. */
+  div.search-view-docked .search-view-header {
+    margin: 0;
+  }
+  div.search-view-docked .search-view-body {
+    margin-top: var(--search-view-docked-gap, 0.125rem);
+    overflow: hidden;
+    border-radius: var(--search-view-docked-radius, var(--mo-shape-medium));
+    background: var(--search-view-docked-surface, var(--mo-surface-container-high));
+    box-shadow: var(--search-view-docked-shadow, none);
+  }
+  /* The chips are 12dp from the container's top edge (the chip set's own 8dp room for the focus ring and 4dp): M3 prints no space for the row. */
+  div.search-view-docked .search-view-filters {
+    margin-top: 0.25rem;
+  }
+  div.search-view.search-view-docked[hidden] {
+    display: none;
+  }
   .search-view:not(:modal),
   .search-view-docked {
     border-radius: var(--search-view-radius, var(--block-radius));
@@ -6989,12 +7169,15 @@
   }
   .search-view-docked {
     inset: var(--search-view-top) auto auto var(--search-view-left);
-    width: max(var(--search-view-width), 22.5rem);
+    width: clamp(22.5rem, var(--search-view-width), 45rem);
     height: auto;
-    max-height: min(var(--search-view-max-height, 36rem), calc(100dvh - var(--search-view-top) - 1rem));
+    /* M3 specs, Measurements: docked container "Width Min: 360dp, max: 720dp", "Height Min: 240dp, max: 2/3 of screen height". */
+    min-height: min(15rem, calc(100dvh - var(--search-view-top) - 1rem));
+    max-height: min(var(--search-view-max-height, 66.667dvh), calc(100dvh - var(--search-view-top) - 1rem));
   }
   @media (prefers-reduced-motion: no-preference) {
-    .search-view:modal {
+    .search-view:modal,
+    div.search-view.search-view-docked {
       animation: search-view-in var(--motion-spatial);
     }
   }
@@ -7004,14 +7187,21 @@
       transform: translateY(-0.5rem);
     }
   }
+  /* The search bar container of the focused view (M3 specs, Measurements: contained, "Height 56dp", margins "Focused: 12dp", the leading and trailing
+     icon 16dp from the edge: a 48dp button with 4dp padding, "4dp" from the button to the text). The bar is a filled pill in "Surface container high";
+     a theme that wants M3's divided style sets --search-view-header-surface: transparent, --search-view-header-radius: 0 and --search-view-divider. */
   .search-view-header {
     display: flex;
     min-height: var(--search-view-header-height, 3.5rem);
     flex-shrink: 0;
     align-items: center;
-    gap: 0.25rem;
-    border-bottom: 1px solid var(--search-view-divider, var(--block-line));
-    padding: 0.25rem;
+    gap: 0;
+    margin: var(--search-view-header-margin, 0.75rem);
+    border-bottom: 1px solid var(--search-view-divider, transparent);
+    border-radius: var(--search-view-header-radius, var(--search-bar-radius, var(--mo-shape-full)));
+    padding: 0 0.25rem;
+    background: var(--search-view-header-surface, var(--search-bar-surface, var(--mo-surface-container-high)));
+    color: var(--search-bar-text, var(--mo-on-surface));
   }
   .search-view-input {
     min-width: 0;
@@ -7025,6 +7215,13 @@
     font-size: var(--search-bar-font-size, var(--type-body-large-size));
     outline: none;
   }
+  /* Keyboard and pointer focus in the field: the same 2dp accent ring as the search bar's, drawn on the bar container (a deviation from the
+     M3 search page, which prints none; owner, 15 Nov 2026, for Google's accessibility guide: a visible focus indicator is mandatory).
+     The transparent outline is what forced-colors mode draws. */
+  .search-view-header:has(.search-view-input:focus-visible) {
+    box-shadow: inset 0 0 0 2px var(--block-accent);
+    outline: 2px solid transparent;
+  }
   .search-view-input::placeholder {
     color: var(--search-bar-placeholder, var(--block-muted));
   }
@@ -7034,14 +7231,42 @@
   .search-view-input:placeholder-shown + .search-view-clear {
     visibility: hidden;
   }
+  /* Filter chips under the bar (M3 guidelines: "Filter chips to narrow down results"): one row that scrolls sideways, in line with the bar's text. */
+  .search-view-body {
+    display: flex;
+    min-height: 0;
+    flex: 1;
+    flex-direction: column;
+  }
+  .search-view-filters {
+    flex-shrink: 0;
+    margin-inline: 0;
+    padding-inline: 0.75rem;
+    scroll-padding-inline: 0.75rem;
+  }
   .search-view-results {
     min-height: 0;
     flex: 1;
     overflow-y: auto;
-    padding: var(--search-view-results-padding, 0.5rem 1rem);
+    padding: var(--search-view-results-padding, 0.5rem 0);
   }
   .search-view-results [role='option'][aria-selected='true'] {
     background: var(--search-view-option-surface, var(--block-tint));
+  }
+  /* M3 Lists, tokens: "List list item trailing space 16dp": the icon of a button after an item is 16dp from the edge (its 48dp target holds 12dp). */
+  .search-view-results .list-item-multi-action {
+    padding-inline-end: 0.25rem;
+  }
+  /* An item with a button after it (a recent search): the one highlight covers the item and its button. */
+  .search-view-results .list-item-multi-action:has(> [role='option'][aria-selected='true']) {
+    background: var(--search-view-option-surface, var(--block-tint));
+  }
+  .search-view-results .list-item-multi-action > [role='option'][aria-selected='true'] {
+    background: transparent;
+  }
+  /* Full screen: the bar clears the notch. */
+  .search-view:modal .search-view-header {
+    margin-top: max(var(--search-view-header-margin, 0.75rem), env(safe-area-inset-top));
   }
   .search-view-empty {
     margin: 0;
@@ -7055,7 +7280,8 @@
     margin-top: var(--search-view-group-gap, 0.5rem);
   }
   .search-view-group-label {
-    padding: 0.5rem 0.75rem 0.25rem;
+    /* In line with the list items' text and icons (M3 lists, specs: "Leading element left padding 16dp"). */
+    padding: 0.5rem 1rem 0.25rem;
     color: var(--search-view-group-label-text, var(--block-muted));
     font-size: var(--type-label-medium-size);
     line-height: var(--type-label-medium-line-height);
@@ -7066,7 +7292,8 @@
     inset: var(--search-view-top-default, 4rem) 0 auto 0;
     margin: 0 auto;
     width: min(var(--search-view-width-default, 36rem), calc(100dvw - 2rem));
-    max-height: min(var(--search-view-max-height, 36rem), calc(100dvh - var(--search-view-top-default, 4rem) - 1rem));
+    min-height: min(15rem, calc(100dvh - var(--search-view-top-default, 4rem) - 1rem));
+    max-height: min(var(--search-view-max-height, 66.667dvh), calc(100dvh - var(--search-view-top-default, 4rem) - 1rem));
   }
   .search-view-live {
     position: absolute;

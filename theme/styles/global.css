@@ -106,18 +106,21 @@
   --carousel-dot-selected-width: 1.5rem;
   /* The large images at the top of a page, a blog post and the blog: extra-large corners. */
   --theme-picture-radius: var(--mo-shape-extra-large);
-  /* Chips (ui.css): 32px, 8px corners, an outline and no container; a chosen filter chip in the secondary container
-     with its check, not in the primary colour. */
+  /* Chips (ui.css; M3 Chips, specs): 32dp, 8dp corners, an outline variant edge and no container, the label and icon in on surface variant; a chosen filter
+     chip in the secondary container, its label and check in on secondary container (owner, 15 Nov 2026). */
   --chip-height: 2rem;
   --chip-padding: 0.375rem 1rem;
+  /* 6dp over and under a 20dp label line is the 32dp container (M3 Chips, specs: "Container height 32dp"). */
+  --chip-padding-block: 0.375rem;
   --chip-radius: var(--mo-shape-small);
   --chip-surface: transparent;
-  --chip-line: var(--mo-outline);
-  --chip-hover-line: var(--mo-outline);
-  --chip-hover-text: currentColor;
-  --chip-selected-surface: var(--mo-surface-container-high);
-  --chip-selected-hover: color-mix(in srgb, var(--mo-on-surface) 8%, var(--mo-surface-container-high));
-  --chip-selected-text: var(--mo-on-surface);
+  --chip-text: var(--mo-on-surface-variant);
+  --chip-line: var(--mo-outline-variant);
+  --chip-hover-line: var(--mo-outline-variant);
+  --chip-hover-text: var(--mo-on-surface-variant);
+  --chip-selected-surface: var(--mo-secondary-container);
+  --chip-selected-hover: color-mix(in srgb, var(--mo-on-secondary-container) 8%, var(--mo-secondary-container));
+  --chip-selected-text: var(--mo-on-secondary-container);
   --chip-selected-check: block;
   /* The page's headline: the M3 type scale (display small on a phone, display medium on a computer). */
   /* The front page: its headline closer to the first section under it. */
@@ -144,7 +147,7 @@
   --button-letter-spacing: var(--type-label-large-tracking);
   --button-small-height: 2.5rem;
   --button-small-padding: 1rem;
-  --button-xsmall-height: 2.5rem;
+  --button-xsmall-height: 2rem;
   --button-xsmall-padding: 1rem;
   --button-xsmall-gap: 0.5rem;
   --button-text-padding: 0.75rem;
@@ -199,6 +202,12 @@
   --list-expand-radius: var(--mo-shape-large);
   /* The room between cards side by side or under each other: 8px (Material 3's at most). */
   --card-gap: 0.5rem;
+  /* The theme grid (.image-grid, docs/theme-grid.md): the page margin and the gutter between cards, 16px on compact and 24px from
+     medium. Owner values (15 Nov 2026); Material 3's Grids pages print no margin or gutter value. --grid-layout-columns: Material 3's
+     layout grid, 4 columns on compact, 8 on medium and expanded, 12 on large and extra-large (its Grids page, the column mockup). */
+  --grid-margin: 1rem;
+  --grid-gutter: 1rem;
+  --grid-layout-columns: 4;
   /* Inside a "Cards" card, on the 4dp half-step and the 8dp grid (Material 3 prints only the 16px left and right padding and 8px
      between cards): the headline to the subhead 4px, the headline or subhead to the text 8px, the media (and a card's icon) to the
      headline 16px, the text to the link or the buttons 16px. */
@@ -251,7 +260,7 @@
   --list-segmented-pressed-radius: var(--mo-shape-medium);
   --list-segmented-selected-radius: var(--mo-shape-large);
   --list-segmented-padding-inline: 1rem;
-  --list-segmented-surface: var(--mo-surface-container);
+  --list-segmented-surface: var(--mo-surface);
   --list-segmented-hover-surface: var(--mo-hover);
   --list-segmented-pressed-surface: var(--mo-pressed);
   --list-segmented-disabled-surface: color-mix(in srgb, var(--mo-on-surface) 10%, transparent);
@@ -454,8 +463,8 @@
   --navigation-rail-indicator-text: var(--mo-on-surface);
   --navigation-rail-indicator-hover: var(--mo-hover);
   --navigation-rail-label-selected-weight: 500;
-  /* Search: the bar 56px, full corners, in the high surface container with a state layer; the view in it too, docked
-     with extra-large corners and the third elevation, with a divider under its header. */
+  /* Search (M3 contained style, the recommended one): the bar 56px, full corners, in the high surface container with a state layer; the view
+     full screen in the low surface container and docked in the high one, docked with extra-large corners and the third elevation. */
   --search-bar-height: 3.5rem;
   --search-bar-radius: var(--mo-shape-full);
   --search-bar-padding: 1rem;
@@ -466,8 +475,9 @@
   --search-bar-placeholder: var(--mo-on-surface-variant);
   --search-view-radius: var(--mo-shape-extra-large);
   --search-view-line: transparent;
-  --search-view-divider: var(--mo-outline-variant);
-  --search-view-results-padding: 0.5rem 0;
+  --search-view-docked-radius: var(--mo-shape-medium);
+  /* The results (and the recent searches) stand in the page's grid margin (16dp compact, 24dp from medium; owner's grid rule, 15 Nov 2026): M3 prints no side margin for a segmented list. */
+  --search-view-results-padding: 0.5rem var(--grid-margin);
   --search-view-option-surface: var(--mo-hover);
   /* Toolbars (M3 Expressive): in a surface container, docked without a line or blur, floating with full corners and
      the third elevation;
@@ -659,6 +669,13 @@
   .chip-filter:is([aria-pressed='true'], [aria-current='page']) {
     padding-left: 0.5rem;
   }
+  /* M3 Chips, specs: "Left/right padding with icon 8dp": the side an icon is on (a leading icon, a person's image is the avatar's own, a trailing icon). */
+  .chip:has(> svg:not(.chip-check, .chip-trailing-icon)) {
+    padding-inline-start: 0.5rem;
+  }
+  .chip:has(> .chip-trailing-icon) {
+    padding-inline-end: 0.5rem;
+  }
   .block-tag {
     border-radius: var(--mo-shape-small);
     background: var(--mo-surface-container-high);
@@ -675,9 +692,21 @@
   .text-field-filled .text-field-container:has(> .text-field-input:focus) {
     box-shadow: inset 0 -2px 0 var(--mo-primary);
   }
-  .text-field-filled.text-field-error .text-field-container,
-  .text-field-filled.text-field-error .text-field-container:hover,
-  .text-field-filled.text-field-error .text-field-container:has(> .text-field-input:focus) {
+  .text-field-filled:is(
+      .text-field-error,
+      .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text))
+    )
+    .text-field-container,
+  .text-field-filled:is(
+      .text-field-error,
+      .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text))
+    )
+    .text-field-container:hover,
+  .text-field-filled:is(
+      .text-field-error,
+      .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text))
+    )
+    .text-field-container:has(> .text-field-input:focus) {
     box-shadow: inset 0 -2px 0 var(--text-field-error, var(--mo-primary));
   }
 
@@ -1144,7 +1173,7 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.25rem 0 1rem 1rem;
+    padding: 0.25rem 0.25rem 1rem;
   }
   .md-drawer-name {
     font-size: var(--type-title-medium-size);
@@ -1309,9 +1338,19 @@
     margin-top: 0.5rem;
     font-weight: 500;
   }
+  /* On a phone the practical links are two equal columns of the grid (compact: 4 columns, 2 each) with the grid's gutter between,
+     in reading order across, then down (the document order, so the tab order and a screen reader follow what is seen). The
+     rows keep their height and target (the item's 3rem). From the medium width the list is one column as before. */
+  @media (width < theme(--breakpoint-medium)) {
+    .md-footer-column > .md-footer-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--grid-gutter);
+    }
+  }
 }
 .md-footer-bottom {
-  /* Its text buttons (the cookie settings, light or dark) with an 18px icon. */
+  /* Its text button (the cookie settings) with an 18px icon. */
   --button-icon-size: 1.125rem;
 }
 @layer fallback {
@@ -1329,8 +1368,10 @@
     font-weight: var(--type-body-medium-weight);
     letter-spacing: var(--type-body-medium-tracking);
   }
-  .md-footer-bottom > div {
-    margin-inline: -0.75rem;
+  /* Only the text button's own padding is pulled out, so its text starts on the margin; the button group sits on the content
+     edges. */
+  .md-footer-bottom > div > [data-cookie-settings] {
+    margin-inline-start: -0.75rem;
   }
   /* Room under the footer's last line for the FAB, or for the bar at the bottom of the screen: in the footer instead of
    under the page (components.css), so the footer reaches the bar. */
@@ -1341,5 +1382,18 @@
     body:has(.theme-action-bar, [data-fab]) .md-footer {
       padding-bottom: 5rem;
     }
+  }
+}
+
+@media (width >= theme(--breakpoint-medium)) {
+  :root {
+    --grid-margin: 1.5rem;
+    --grid-gutter: 1.5rem;
+    --grid-layout-columns: 8;
+  }
+}
+@media (width >= theme(--breakpoint-large)) {
+  :root {
+    --grid-layout-columns: 12;
   }
 }

@@ -15,11 +15,13 @@ const sliderSizes = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
 
 export default function SelectionParts() {
   const grid = 'grid gap-6 p-4 medium:grid-cols-2';
-  const sheet = (kind: 'standard' | 'modal') => (
+  const sheet = (kind: 'standard' | 'modal', back = false) => (
     <SiteSideSheet
       kind={kind}
       headline={say.heading}
       closeLabel={say.close}
+      backLabel={back ? say.back : undefined}
+      onBack={back ? () => {} : undefined}
       actions={
         <>
           <SiteButton>{say.apply}</SiteButton>
@@ -136,6 +138,13 @@ export default function SelectionParts() {
               <div className="flex h-80 overflow-hidden">
                 <p className="hidden min-w-0 flex-1 p-4 text-on-surface-variant medium:block">{say.page}</p>
                 {sheet('standard')}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <p className="px-2 text-sm text-on-surface-variant">{say.sheetKinds.withBack}</p>
+              <div className="flex h-80 overflow-hidden">
+                <p className="hidden min-w-0 flex-1 p-4 text-on-surface-variant medium:block">{say.page}</p>
+                {sheet('standard', true)}
               </div>
             </div>
             <div className="space-y-2">

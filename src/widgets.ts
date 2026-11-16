@@ -26,8 +26,16 @@ export type WidgetDefinition = {
   hint: string;
   icon: Icon;
   settings?: AppSettings;
+  /** The card's width on the start screen's grid (the theme grid, docs/theme-grid.md): `full` goes across all the columns, `column` takes
+   * one. Left out: full on a phone and one column from 600 dp (the start screen's look before widgets had a span). */
+  span?: WidgetSpan;
   component: ComponentType<WidgetProps>;
 };
+
+export type WidgetSpan = 'full' | 'column';
+
+/** The theme grid's class for a card of this span (theme/styles/ui.css). */
+export const spanClass = (span?: WidgetSpan) => (span === 'full' ? 'grid-span-full' : span === 'column' ? '' : 'grid-span-compact');
 
 /** All widgets there are to place, by their full id: the CMS's first (`cms`: cmsWidgets.ts, by key), then those of each app
  * installed (`installed`: the ids of the apps, as tabsOf takes them), in the order of the apps. */

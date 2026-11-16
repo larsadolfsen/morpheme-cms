@@ -1,7 +1,7 @@
 /**
  * What the editor's start screen (Library.tsx Start, widgets/continue.tsx, UpdatesNotice.tsx) shows besides its FAB: the pages and blog posts
  * edited last in this browser, and what was updated since the last visit (the CMS and the apps from the store).
- * Exposes `STORE_VERSION`, `versioned`, `unversioned`, `validEdits`, `nextRecent`, `latestEdits`, `continueShown` and `changesSince`.
+ * Exposes `STORE_VERSION`, `versioned`, `unversioned`, `validEdits`, `nextRecent`, `latestEdits` and `changesSince`.
  * Depends on nothing; the browser's storage is startStorage.ts's.
  */
 
@@ -70,18 +70,6 @@ export function latestEdits(edits, history) {
   const at = new Map(Object.entries(history));
   for (const e of validEdits(edits)) at.set(e.path, Math.max(e.at, at.get(e.path) ?? 0));
   return [...at].map(([path, time]) => ({ path, at: time })).sort((a, b) => b.at - a.at);
-}
-
-/**
- * Whether "Continue where you left off" is shown: until it is closed (`closedAt`), and again once something is saved
- * after that (`latestAt`, the newest edit's time).
- * @param {unknown} closedAt (anything but a number counts as not closed)
- * @param {number | undefined} latestAt
- * @returns {boolean}
- */
-export function continueShown(closedAt, latestAt) {
-  if (typeof closedAt !== 'number' || !Number.isFinite(closedAt) || !closedAt) return true;
-  return (latestAt ?? 0) > closedAt;
 }
 
 /**

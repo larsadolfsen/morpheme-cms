@@ -81,6 +81,7 @@ import {
   SiteIconButton,
   SiteLoadingIndicator,
   SiteSearchBar,
+  SiteSearchBarButton,
   SiteNavigationDrawer,
   SiteNavigationRail,
   SiteNavigationRailItem,
@@ -118,6 +119,7 @@ import { filterIconNames, ICON_CATEGORIES, iconLabel, inIconCategory } from '../
 import { countries, countryName, dialCodes, flagOf, regionOf } from './countries';
 import { byText } from './schema';
 import { contrast } from '../lib/colors';
+import { isActionEnter } from '../lib/enterKey.mjs';
 import { motionTiming } from '../lib/motion';
 import { atLeast, type Breakpoint } from '../lib/breakpoints.mjs';
 import { swipeCloses } from '../lib/drawer-swipe.mjs';
@@ -476,21 +478,57 @@ export type InField = { label?: string; hint?: ReactNode; problem?: string; limi
 
 const error = (problem: string | undefined, invalid: unknown) => problem || (invalid ? true : undefined);
 
-/** The theme's text field, with what it says in itself (InField). `className` goes on the field around the <input> (its
- * width, its place). */
+/** What is wrong with a field by the editor's own rules (fieldProblem in check.ts), as the line under it: it is the browser's
+ * own validity too (setCustomValidity), so the field is marked (`:user-invalid`) once it has been worked in, and only while it
+ * is wrong. `problem` (InField) marks it at once, as when Save stops there (useWrongField). */
+export type Invalid = { invalid?: string };
+
+/** The theme's text field, with what it says in itself (InField) and what is wrong with it (Invalid). `invalidFallback`: the
+ * words for what the browser finds wrong that the editor's rules do not name (a number field's text that is not a number,
+ * validity.badInput). `className` goes on the field around the <input> (its width, its place). */
 export function TextField({
   label,
   hint,
   problem,
   limit,
+  invalid,
+  invalidFallback,
   ...rest
-}: InputHTMLAttributes<HTMLInputElement> & InField & { ref?: Ref<HTMLInputElement> }) {
-  return <SiteTextField label={label} supporting={hint} error={error(problem, rest['aria-invalid'])} limit={limit} {...rest} />;
+}: InputHTMLAttributes<HTMLInputElement> & InField & Invalid & { invalidFallback?: string; ref?: Ref<HTMLInputElement> }) {
+  return (
+    <SiteTextField
+      label={label}
+      supporting={hint}
+      error={error(problem, rest['aria-invalid'])}
+      invalid={!!invalid}
+      invalidText={invalid ?? invalidFallback}
+      limit={limit}
+      {...rest}
+    />
+  );
 }
 
 /** The theme's text field of several lines (`rows` high), as TextField. */
-export function TextArea({ label, hint, problem, limit, ...rest }: TextareaHTMLAttributes<HTMLTextAreaElement> & InField) {
-  return <SiteTextField multiline label={label} supporting={hint} error={error(problem, rest['aria-invalid'])} limit={limit} {...rest} />;
+export function TextArea({
+  label,
+  hint,
+  problem,
+  limit,
+  invalid,
+  ...rest
+}: TextareaHTMLAttributes<HTMLTextAreaElement> & InField & Invalid) {
+  return (
+    <SiteTextField
+      multiline
+      label={label}
+      supporting={hint}
+      error={error(problem, rest['aria-invalid'])}
+      invalid={!!invalid}
+      invalidText={invalid}
+      limit={limit}
+      {...rest}
+    />
+  );
 }
 
 /** The theme's date picker (Material 3's): a field to type a date in, with the calendar that picks it, with what it
@@ -887,7 +925,7 @@ export function SupportingText({ id, children, className = '' }: { id?: string; 
   );
 }
 
-/** The close button in the top end corner of a card that can be closed (a Notice, the start screen's "Continue" card): the
+/** The close button in the top end corner of a card that can be closed (a Notice, the first-run card): the
  * card must be `relative`. */
 export function CloseButton({ onClick }: { onClick: () => void }) {
   return <IconButton icon={X} label={t.common.close} onClick={onClick} className="absolute end-1 top-1" />;
@@ -943,6 +981,36 @@ export function SearchBar({
       ref={inputRef}
       value={value}
       onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
+    />
+  );
+}
+
+/** The search bar that opens the search view (the start screen's, in the top bar or in the page): the theme's contained bar as a button (SearchBarButton in
+ * its Search.tsx). `label` is its hint and its name; `open` says whether the view it opens is open; `keys` is the shortcut for screen readers. */
+export function SearchBarButton({
+  label,
+  open,
+  keys,
+  onOpen,
+  className = '',
+}: {
+  label: string;
+  open: boolean;
+  keys?: string;
+  onOpen: (button: HTMLButtonElement) => void;
+  className?: string;
+}) {
+  return (
+    <SiteSearchBarButton
+      label={label}
+      className={className}
+      aria-expanded={open}
+      aria-keyshortcuts={keys}
+      data-search-bar-button=""
+      // Pressing it keeps the focus and the selection in the text, and the active block: the view lists their actions first.
+      data-keeps-block=""
+      onMouseDown={(e: MouseEvent) => e.preventDefault()}
+      onClick={(e: MouseEvent<HTMLButtonElement>) => onOpen(e.currentTarget)}
     />
   );
 }
@@ -1663,7 +1731,7 @@ export function ChipField({
       enterKeyHint="done"
       onChange={(e) => type(e.target.value)}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') {
+        if (isActionEnter(e)) {
           e.preventDefault();
           done();
         }
@@ -2297,7 +2365,7 @@ export function MenuRow<T extends string>({
 
 /** The fields of a sheet, between SheetTitle and SheetActions, scrolled when there are many. */
 export function SheetBody({ onSubmit, children }: { onSubmit?: (e: FormEvent<HTMLFormElement>) => void; children: ReactNode }) {
-  const className = 'min-h-0 flex-1 space-y-5 overflow-y-auto px-5 pt-2 pb-4';
+  const className = 'min-h-0 flex-1 space-y-5 overflow-y-auto px-(--grid-margin) pt-2 pb-4';
   return onSubmit ? (
     <form className={className} onSubmit={onSubmit}>
       {children}
@@ -2364,7 +2432,7 @@ export function SheetActions({
   return (
     <div className="shrink-0">
       <SiteDivider />
-      <div className="flex items-center gap-2 px-5 py-3">
+      <div className="flex items-center gap-2 px-(--grid-margin) py-3">
         {start}
         <Button kind="outlined" className="ml-auto" onClick={onCancel}>
           {cancel ?? t.common.cancel}
@@ -3138,7 +3206,20 @@ export function useKept<T>(key: string | null, first: T): [T, (value: T) => void
 /** On a computer: what is picked in a screen's list or grid (a file in Files), in the theme's side sheet at the right
  * of it, with its title and a cross that closes it; it stays in view while the screen scrolls. On a
  * phone the same is in a sheet (useAtLeast). */
-export function SideSheet({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+export function SideSheet({
+  title,
+  onClose,
+  onBack,
+  backLabel,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  /** A back icon button before the title, for a sheet that shows another region of itself; `backLabel` names it. */
+  onBack?: () => void;
+  backLabel?: string;
+  children: ReactNode;
+}) {
   const id = useId();
   return (
     <SiteSideSheet
@@ -3146,6 +3227,8 @@ export function SideSheet({ title, onClose, children }: { title: string; onClose
       headlineId={id}
       closeLabel={t.common.close}
       onClose={onClose}
+      onBack={onBack}
+      backLabel={backLabel}
       className="editor-reveal sticky top-8 max-h-[calc(100dvh-3rem)] self-start"
     >
       <div className="space-y-5">{children}</div>
@@ -4146,8 +4229,21 @@ export type FilterGroup = { title: string; value: string; options: ChoiceOption<
  * heading (with what is chosen in it beside it) to its choices, the chosen one marked. One group is open
  * at a time, the first when the sheet opens, and the sheet does not get lower when another opens; a lone
  * group stands open under its heading. A choice is taken at once and the sheet stays open, so another filter can be
- * chosen too; the cross or a tap outside closes it. The funnel is marked while a filter is chosen (selected). */
-export function Filters({ title, selected, groups }: { title: string; selected?: boolean; groups: FilterGroup[] }) {
+ * chosen too; with `onClearAll` a text button at the bottom clears them all; the cross or a tap outside closes it. The funnel is marked while a filter is chosen (selected). */
+export function Filters({
+  title,
+  selected,
+  groups,
+  clearAll,
+  onClearAll,
+}: {
+  title: string;
+  selected?: boolean;
+  groups: FilterGroup[];
+  /** The text button's name at the bottom of the sheet ("Clear all"), with `onClearAll`; it is off while nothing is filtered (`selected`). */
+  clearAll?: string;
+  onClearAll?: () => void;
+}) {
   const dialog = useRef<HTMLDialogElement>(null);
   const first = groups[0]?.title ?? '';
   const [open, setOpen] = useState<string | null>(first);
@@ -4161,9 +4257,21 @@ export function Filters({ title, selected, groups }: { title: string; selected?:
   }
   return (
     <>
-      <IconButton icon={Funnel} label={title} selected={selected} aria-haspopup="dialog" onClick={() => dialog.current?.showModal()} />
+      <IconButton
+        icon={Funnel}
+        label={title}
+        selected={selected}
+        aria-haspopup="dialog"
+        onClick={() => {
+          dialog.current?.showModal();
+          // No control has the focus to begin with (the sheet has it), as in every dialog (ask.tsx).
+          dialog.current?.focus();
+        }}
+      />
       <BottomSheet
         ref={dialog}
+        tabIndex={-1}
+        className="focus:outline-none"
         aria-label={title}
         onClick={(e) => e.target === dialog.current && close()}
         onClose={(e) => {
@@ -4211,6 +4319,16 @@ export function Filters({ title, selected, groups }: { title: string; selected?:
             );
           })}
         </SheetList>
+        {clearAll && onClearAll && (
+          <div className="shrink-0">
+            <SiteDivider />
+            <div className="flex items-center justify-end gap-2 px-5 py-3">
+              <Button kind="text" disabled={!selected} onClick={onClearAll}>
+                {clearAll}
+              </Button>
+            </div>
+          </div>
+        )}
       </BottomSheet>
     </>
   );

@@ -32,25 +32,25 @@
      that can be done better, and the score's ring (from 90 good, from 50 average, else bad) with its number and the
      light circle in it; the same in every theme. */
   --editor-status-good: #0cce6b;
-  --editor-status-good-text: #008800;
+  --editor-status-good-text: light-dark(#008800, var(--editor-status-good));
   --editor-status-good-surface: color-mix(in srgb, #0cce6b 10%, var(--mo-surface-container-lowest));
   --editor-status-average: #ffa400;
-  --editor-status-average-text: #c33300;
+  --editor-status-average-text: light-dark(#c33300, var(--editor-status-average));
   --editor-status-average-surface: color-mix(in srgb, #ffa400 10%, var(--mo-surface-container-lowest));
   --editor-status-bad: #ff4e42;
-  --editor-status-bad-text: #cc0000;
+  --editor-status-bad-text: light-dark(#cc0000, var(--editor-status-bad));
   --editor-status-bad-surface: color-mix(in srgb, #ff4e42 10%, var(--mo-surface-container-lowest));
 
-  /* A Google result (SearchPreview.tsx) in Google's own colours, light: its background, the title (on a computer, and on a
-     phone), the site's name, the address and the text, the date before the text, and the 8 px band above and below a
+  /* A Google result (SearchPreview.tsx) in Google's own colours, light and dark (light-dark() follows the
+     root's color-scheme, so the system setting and data-theme both work): its background, the title (on a computer, and on a phone), the site's name, the address and the text, the date before the text, and the 8 px band above and below a
      phone's result. */
-  --google-background: #fff;
-  --google-title: #1a0dab;
-  --google-title-phone: #1558d6;
-  --google-site: #202124;
-  --google-text: #4d5156;
-  --google-date: #70757a;
-  --google-separator: #ecedef;
+  --google-background: light-dark(#fff, #1f1f1f);
+  --google-title: light-dark(#1a0dab, #99c3ff);
+  --google-title-phone: light-dark(#1558d6, #99c3ff);
+  --google-site: light-dark(#202124, #dadce0);
+  --google-text: light-dark(#4d5156, #bfbfbf);
+  --google-date: light-dark(#70757a, #9aa0a6);
+  --google-separator: light-dark(#ecedef, #303134);
   /* The site's circle: its fill and ring and the letter in it, the same in light and dark. */
   --google-icon-fill: #fff;
   --google-icon-ring: #dadce0;
@@ -74,38 +74,17 @@
   --side-panel-width: min(25rem, calc((100vw - var(--column-start)) / 2));
 }
 
-/* In dark mode the score's number in the light colours, which are read on the dark, and Google's dark colours. */
-@media (prefers-color-scheme: dark) {
-  :where(:root:not([data-theme='light'])) {
-    --google-background: #1f1f1f;
-    --google-title: #99c3ff;
-    --google-title-phone: #99c3ff;
-    --google-site: #dadce0;
-    --google-text: #bfbfbf;
-    --google-date: #9aa0a6;
-    --google-separator: #303134;
-    --editor-status-good-text: var(--editor-status-good);
-    --editor-status-average-text: var(--editor-status-average);
-    --editor-status-bad-text: var(--editor-status-bad);
-  }
-}
-:where(:root[data-theme='dark']) {
-  --google-background: #1f1f1f;
-  --google-title: #99c3ff;
-  --google-title-phone: #99c3ff;
-  --google-site: #dadce0;
-  --google-text: #bfbfbf;
-  --google-date: #9aa0a6;
-  --google-separator: #303134;
-  --editor-status-good-text: var(--editor-status-good);
-  --editor-status-average-text: var(--editor-status-average);
-  --editor-status-bad-text: var(--editor-status-bad);
-}
-
 /* The text field (MarkdownEditor.tsx). The rest of the editor uses the site's Tailwind classes. */
 .editor-text .ProseMirror {
-  min-height: 50vh;
+  min-height: 50dvh;
   outline: none;
+}
+
+/* The text typed in place shows its focus (Modern Web Guidance, accessibility: a visible indicator is mandatory; owner, 15 Nov 2026): the
+   editor's 2 px primary ring, on a click as well as the keyboard, as M3's text fields do. */
+.editor-text .ProseMirror:focus-visible {
+  outline: 2px solid var(--mo-primary);
+  outline-offset: 4px;
 }
 
 /* A text in a field (a section of the front page) is short. */
@@ -394,7 +373,7 @@
   }
 }
 
-/* The save bar is the theme's standard bottom sheet (ActionSheet in ui.tsx): the screen leaves room under its last field so
+/* Every Save row is the theme's standard bottom sheet (ActionSheet in ui.tsx): the screen leaves room under its last field so
    nothing is hidden behind it. */
 :root:has(.editor-save-bar) .editor-screen {
   padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
@@ -599,6 +578,12 @@
   }
 }
 
+/* The editor's drawers keep one width through their levels and sections (the layout beside them counts on it: --section-pane-width and
+   the columns); the theme's drawer hugs its content (the expanded rail). An editor-only choice (docs/material-deviations.md, N2). */
+.editor-main-drawer-panel {
+  --navigation-drawer-width: min(22.5rem, calc(100vw - 3.5rem));
+}
+
 .editor-main-rail {
   --navigation-rail-padding: 0.5rem 0.5rem 1.5rem;
 }
@@ -783,7 +768,7 @@
    end edge from the top of the window to its bottom (M3), with its divider the whole height. BlockDialog.tsx sets
    [data-side-panel] on the root while it is open: the top bar (.editor-top-bar-slot, topBarSlot.tsx) ends at the sheet's
    start edge, it takes the "on this page" area's place (that is hidden), and the content, which stays in use, keeps clear of it. */
-@media (width >= theme(--breakpoint-expanded)) {
+@media (width >= theme(--breakpoint-medium)) {
   :root[data-side-panel] {
     --column-end: var(--side-panel-width);
   }
@@ -798,6 +783,17 @@
   }
   :root[data-side-panel] .editor-save-bar {
     right: var(--side-panel-width);
+  }
+  /* The screen's create button stands beside the pane, not on it (a redirect or a new list opens the pane from it). */
+  :root[data-side-panel] .editor-fab {
+    right: calc(var(--side-panel-width) + 1rem + env(safe-area-inset-right));
+  }
+  /* The same for a standard side sheet in the page's own layout (the details in Files), while it reaches (nearly) the window's edge: the button
+     stands beside it, not on it. The column stops growing at 73.5rem, and from there the button has room at its end. */
+  @media (width < 73.5rem) {
+    :root:has(main .side-sheet-container:not([hidden])) .editor-fab {
+      right: calc(var(--side-sheet-width, 22.5rem) + 2.5rem + env(safe-area-inset-right));
+    }
   }
   .editor-side-sheet {
     position: fixed;
@@ -1139,8 +1135,13 @@ html {
 .contextual-menu button:hover,
 .contextual-menu button:focus-visible,
 .contextual-menu button[aria-expanded='true'] {
-  outline: none;
   background: var(--mo-surface-container-high);
+}
+
+/* Keyboard focus: the editor's 2 px ring in the primary role (a state layer alone is under 3:1 against the bar). */
+.contextual-menu button:focus-visible {
+  outline: 2px solid var(--mo-primary);
+  outline-offset: 2px;
 }
 
 /* A field typed in a row: no frame of its own, the text of the row as the site draws it, and the height of its text. */
@@ -1164,6 +1165,13 @@ html {
 
 .editor-text .inline-list-field:focus {
   outline: none;
+}
+
+/* A row typed in place shows its focus: the editor's 2 px primary ring (owner, 15 Nov 2026), on a click as well as the keyboard. */
+.editor-text .inline-list-field:focus-visible {
+  outline: 2px solid var(--mo-primary);
+  outline-offset: 2px;
+  border-radius: var(--mo-shape-extra-small);
 }
 
 .editor-text .inline-list-field::placeholder {
@@ -1326,7 +1334,12 @@ html {
 .inline-list-slot:hover,
 .inline-list-slot:focus-visible {
   background: var(--mo-surface-container-high);
-  outline: none;
+}
+
+/* Keyboard focus: the editor's 2 px ring in the primary role (the state layer alone is about 1.2:1 against the row). */
+.inline-list-slot:focus-visible {
+  outline: 2px solid var(--mo-primary);
+  outline-offset: 2px;
 }
 
 /* A menu over the page (Menu in ui.tsx: a field's dropdown, a button's menu): the theme's menu, always with the menu
@@ -1935,8 +1948,8 @@ dialog {
 }
 
 /* The crop view (CropView.tsx, image tools spec section 3): a page of the editor on every width, as a layer the size of the window over it (a modal
-   <dialog>, so the form under it keeps its changes and its scroll place): the top app bar, the content in a column as wide as a form, and a bottom bar
-   with Save. A block's subpage on a phone (.block-page, BlockDialog.tsx) has the same layer, column and bar. The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and the part of the image outside it is under the
+   <dialog>, so the form under it keeps its changes and its scroll place): the top app bar, the content in a column as wide as a form, and the Save row
+   in the theme's standard bottom sheet. A block's subpage on a phone (.block-page, BlockDialog.tsx) has the same layer, column and sheet. The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and the part of the image outside it is under the
    theme's scrim, the one its dialogs have behind their container (--dialog-scrim). The frame has a 2 dp border with a 1 dp halo outside it in the other
    inverse colour, so one of the two stands against any image, light or dark (M3 prints no frame: the focus ring's two-tone look). */
 .crop-page,
@@ -1952,6 +1965,10 @@ dialog {
   border: 0;
   background: var(--mo-surface);
   color: var(--mo-on-surface);
+}
+.crop-page:focus,
+.block-page:focus {
+  outline: none;
 }
 .crop-page[open],
 .block-page[open] {
@@ -1969,26 +1986,19 @@ dialog {
   margin-inline: auto;
   padding: 1rem;
 }
-.crop-page-bar,
-.block-page-bar {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
-  background: var(--mo-surface-container);
+.crop-page-main,
+.block-page-main {
+  /* The Save row is the theme's standard bottom sheet (ActionSheet), fixed over the layer: the content ends above it. */
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
 }
 @media (width >= theme(--breakpoint-medium)) {
   .crop-page-main,
   .block-page-main {
-    padding: 1.5rem;
-  }
-  .crop-page-bar,
-  .block-page-bar {
-    padding-inline: 1.5rem;
+    padding: 1.5rem 1.5rem calc(5.5rem + env(safe-area-inset-bottom));
   }
 }
-/* A block's fields on a compact window (BlockDialog.tsx): the crop page's layer, bar and column (the rules above), with the fields scrolling inside
-   the column and the page lifted above the on-screen keyboard (followKeyboard sets --keyboard-inset while it is up). */
+/* A block's fields on a compact window (BlockDialog.tsx): the crop page's layer and column (the rules above), with the fields scrolling inside
+   the column and the page lifted above the on-screen keyboard (followKeyboard sets --keyboard-inset while it is up); its Save sheet follows the keyboard itself. */
 .block-page-main {
   overflow-y: auto;
   overscroll-behavior: contain;

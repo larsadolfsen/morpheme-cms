@@ -2,11 +2,11 @@
 // imported or added in the editor, images.ts) and the PDFs, videos and zip files (the site's files folder, public/files/,
 // /files/ on the site), newest first, with search, the order (newest, oldest, by name), a month or year,
 // the type (Billeder, PDF'er, Videoer, Zip-filer) and whether a page uses them (Gallery). A file that is
-// not an image is a square with its icon and name. Tapping one opens its details: below the expanded width a subpage of
+// not an image is a square with its icon and name. Tapping one opens its details: below the medium width (600 dp) a subpage of
 // Files (route files/<address>; Material 3's list-detail, compact: one view at a time, a back arrow in the top bar that
 // returns to the list, the file name as headline, Download as the action; the file first, in its own proportions, then its
-// fields; a docked toolbar under them moves to the file before and after it, "1 of 4", in the same subpage), from expanded
-// a side sheet beside the grid. The list stays mounted, hidden, under the subpage, so its filters stay and the scroll
+// fields; a docked toolbar under them moves to the file before and after it, "1 of 4", in the same subpage), from medium
+// a side sheet beside the grid (owner, 15 Nov 2026: details are a pane, not a dialog). The list stays mounted, hidden, under the subpage, so its filters stay and the scroll
 // position comes back. The details: the file (FileView.tsx), its file name and where it is used, each a link to that page or post, or
 // "Delete image" (…) when nothing uses it (also not the site's own code, /editor/code-images.json). Its
 // name, under the title, can be changed with the pencil after it (not one the site's code uses),
@@ -369,6 +369,17 @@ function Gallery({
   const order = groups.flatMap((g) => g.items);
   const orderKey = order.join('\n');
   useEffect(() => onShown?.(order), [orderKey]);
+  const dateOptions = [
+    { value: '', label: t.media.allDates },
+    ...years.flatMap((year) => [
+      { value: year, label: t.media.wholeYear(year), group: year },
+      ...months.filter((m) => m.startsWith(`${year}-`)).map((m) => ({ value: m, label: dateName(m), group: year })),
+    ]),
+  ];
+  // In Filer the date is a group of the funnel; the image picker has no funnel, so it keeps its own button.
+  const dateChoice = (
+    <Choice title={t.media.date} icon={CalendarBlank} value={date} selected={!!date} options={dateOptions} onChange={setDate} />
+  );
   const chips = [
     date && { label: dateName(date), clear: () => setDate('') },
     use && { label: use === 'used' ? t.media.inUse : t.common.notInUse, clear: () => setUse('') },
@@ -395,7 +406,14 @@ function Gallery({
           all && (
             <Filters
               title={t.media.filter}
-              selected={!!use || !!kind || !!tag}
+              selected={!!use || !!kind || !!tag || !!date}
+              clearAll={t.media.clearAll}
+              onClearAll={() => {
+                setUse('');
+                setKind('');
+                setTag('');
+                setDate('');
+              }}
               groups={[
                 {
                   title: t.media.use,
@@ -422,26 +440,17 @@ function Gallery({
                   options: [{ value: '', label: t.media.allTags }, ...tagChoices],
                   onChange: setTag,
                 },
+                {
+                  title: t.media.date,
+                  value: date,
+                  options: dateOptions,
+                  onChange: setDate,
+                },
               ].filter((g) => !!g)}
             />
           )
         }
-        date={
-          <Choice
-            title={t.media.date}
-            icon={CalendarBlank}
-            value={date}
-            selected={!!date}
-            options={[
-              { value: '', label: t.media.allDates },
-              ...years.flatMap((year) => [
-                { value: year, label: t.media.wholeYear(year), group: year },
-                ...months.filter((m) => m.startsWith(`${year}-`)).map((m) => ({ value: m, label: dateName(m), group: year })),
-              ]),
-            ]}
-            onChange={setDate}
-          />
-        }
+        date={!all && dateChoice}
       />
       {selection?.selecting && (
         <div className="mt-3 flex">
@@ -646,7 +655,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
   const opened = open && images.some((p) => publicPath(p.path) === open) ? open : null;
   const [src, setSrc] = useState<string | null>(opened);
   // On a computer the file picked is beside the grid; on a phone it is a subpage of Files (the route files/<address>).
-  const wide = useAtLeast('expanded');
+  const wide = useAtLeast('medium');
   const detail = !wide && !!opened;
   const listScroll = useRef(0);
   // The subpage (or the side sheet) is closed: on a phone back to the list (the back arrow does the same through Screen).
@@ -863,7 +872,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
 
   // What is shown about a file: its name (changed with the pencil), the file, where it is used and
   // "Delete". On a computer beside the grid (SideSheet), on a phone in the sheet.
-  // `fileFirst`: the file at the top (the full-screen dialog), before its name.
+  // `fileFirst`: the file at the top (the subpage on a phone), before its name.
   const details = (src: string, fileFirst = false) => (
     <>
       {fileFirst && <FileView src={shownAt(src)} name={fileName(src)} />}
@@ -973,7 +982,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
         )
       }
     >
-      <div hidden={detail} className="expanded:flex expanded:items-start expanded:gap-6">
+      <div hidden={detail} className="medium:flex medium:items-start medium:gap-6">
         <div className="min-w-0 flex-1">
           <Gallery
             srcs={filerAddresses(files)}

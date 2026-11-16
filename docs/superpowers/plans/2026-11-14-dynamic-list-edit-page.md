@@ -11,8 +11,7 @@ Status: owner's decisions of 14 November, for the 0.18 branch. The PM hands the 
   inserted: Icon, Title, Body text, Image, Link, Tags, any number of each kind (#516). Pressing one adds the field.
 - **Fields** can be renamed, removed (the data stays until the owner confirms) and **moved up and down** (the order is the order of an item's form and of
   the list's field mapping; moving never loses data).
-- **Entries** are added, edited and rearranged on the same page, typed in place (the editor's List, `src/InlineList.tsx`; no new design).
-  The Add item screen and an item's screen keep working.
+- ~~**Entries** are added, edited and rearranged on the same page, typed in place.~~ **Changed 15 Nov 2026:** entries are added on the entry form page; the list page's FAB is a menu (`Edit list`, `Add <entry>`); the edit page is an editor window (`2026-11-15-list-edit-editor-window-design.md`).
 - **Locked lists:** an app-supplied list can be marked locked (its fields are fixed, as Testimonials is in `src/standard/testimonials/list.ts`). It
   gets the Edit button and the edit page **without the field bar**. Unlocked lists, owner-made or app-supplied, get the full page.
 
@@ -32,6 +31,6 @@ Status: owner's decisions of 14 November, for the 0.18 branch. The PM hands the 
   sheet removed, `Add item` on the edit page. #616 (branch `own-list-edit-page`) is the reusable start of PR A: `OwnListEdit.tsx`,
   `useOwnList.tsx`, `moveField` in `lib/ownListEdit.mjs` with tests, and `checkOwnList` at 375 and 1280 px. It was not merged into `main` for 0.17;
   it needs the locked-list mark and a merge of the 0.18 branch.
-- **PR B:** entries typed in place on the edit page (the plan's batch 4), after PR A.
+- **PR B:** ~~entries typed in place on the edit page (the plan's batch 4), after PR A.~~ **Cancelled by the owner on 15 Nov 2026:** entries are added on the entry form page, never on the edit page. See `docs/superpowers/specs/2026-11-15-list-edit-editor-window-design.md`.
 
 Each pull request has a unit test and a `check:screens` check at 375 px, a changeset and a release note, English first, then da-DK.

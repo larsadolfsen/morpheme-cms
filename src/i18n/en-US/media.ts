@@ -9,6 +9,7 @@ export const media = {
   wholeYear: (year: string) => `All of ${year}`,
   use: 'Use',
   filter: 'Filter',
+  clearAll: 'Clear all',
   all: 'All',
   kind: 'Type',
   allKinds: 'All types',
@@ -89,7 +90,7 @@ export const media = {
   saveName: 'Save name',
   openPdf: 'Open PDF',
   download: 'Download',
-  /** The file's details on a phone (a full-screen dialog): the move to the file before and after it in the grid, and where it is ("1 of 4"). */
+  /** The file's details on a phone (a subpage): the move to the file before and after it in the grid, and where it is ("1 of 4"). */
   previous: 'Previous file',
   next: 'Next file',
   position: (index: number, total: number) => `${index} of ${total}`,

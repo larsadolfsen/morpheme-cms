@@ -16,9 +16,9 @@ import {
   shortcutConflicts,
 } from '../lib/actionRules.mjs';
 
-/** The palette's groups; `pages` holds the pages and posts a provider gives. */
+/** The palette's groups; `pages` holds the pages and posts a provider gives, `files` the images and files. */
 export type ActionGroup =
-  'go' | 'pages' | 'page' | 'text' | 'section' | 'insert' | 'block' | 'image' | 'table' | 'list' | 'setting' | 'app';
+  'go' | 'pages' | 'files' | 'page' | 'text' | 'section' | 'insert' | 'block' | 'image' | 'table' | 'list' | 'setting' | 'app';
 
 /** Where the user is now. The same Ctx drives the bar, its ⋮ and the palette, so an action is disabled in all of them at once. */
 export type Ctx = {
@@ -83,8 +83,10 @@ export type EditorAction = {
   /** A toggle (Bold) or the current choice (Align centre). */
   pressed?: (ctx: Ctx) => boolean;
   run: (ctx: Ctx) => void;
-  /** A page or post a provider gave (ranked under actions on a tie). */
-  kind?: 'action' | 'page';
+  /** A page, post, image or file a provider gave (ranked under actions on a tie). */
+  kind?: 'action' | 'page' | 'image' | 'file';
+  /** A picture of an image a provider gave, drawn leading its row in the palette (M3 lists: a leading image). */
+  thumb?: string;
 };
 
 /** Actions for a query, given on demand. */
@@ -166,13 +168,21 @@ export function createRegistry() {
   function search(
     query: string,
     ctx: Ctx,
-    opts: { recent?: string[]; counts?: Record<string, number>; groupLabels?: Partial<Record<ActionGroup, string>> } = {},
+    opts: {
+      recent?: string[];
+      counts?: Record<string, number>;
+      groupLabels?: Partial<Record<ActionGroup, string>>;
+      /** More or fewer results than the default cap (the filter chips count all of them). */
+      cap?: number;
+      /** Only these (a filter chip), chosen before the cap, so it never loses its results to the others'. */
+      only?: (action: EditorAction) => boolean;
+    } = {},
   ) {
     const context = ctxGroups(ctx);
     const given = [...providers].flatMap((p) => p(query, ctx));
     const shown = new Map<string, PaletteItem>();
     for (const action of [...all(), ...given]) {
-      if (!inPalette(action) || shown.has(action.id)) continue;
+      if (!inPalette(action) || shown.has(action.id) || (opts.only && !opts.only(action))) continue;
       const how = paletteState(stateOf(action, ctx), action.group, context);
       if (how === 'left-out') continue;
       const disabled = how === 'disabled';
@@ -185,7 +195,13 @@ export function createRegistry() {
       });
     }
     const entries = [...shown.values()].map((item) => ({ ...item.action, item }));
-    const ranked = rankActions(entries, query, { context, ...opts }).map(({ entry, score }) => ({
+    const ranked = rankActions(entries, query, {
+      context,
+      recent: opts.recent,
+      counts: opts.counts,
+      groupLabels: opts.groupLabels,
+      cap: opts.cap,
+    }).map(({ entry, score }) => ({
       entry,
       item: { ...(entry as (typeof entries)[number]).item, score },
     }));
@@ -290,7 +306,7 @@ export function changeToActions(
 }
 
 /** A page or post of the site: its title, its address in the editor, and the list it is in. */
-type PageInfo = { path: string; title: string; href: string; list?: string };
+type PageInfo = { path: string; title: string; href: string; list?: string; icon?: string };
 
 /**
  * The pages and posts by title (and address), for a query: a provider, so a site with thousands of pages registers none. Nothing before typing.
@@ -305,10 +321,38 @@ export function pagesProvider(pages: () => PageInfo[], open: (href: string) => v
         label: p.title,
         words: [p.path],
         path: p.list,
+        icon: p.icon,
         group: 'pages',
         kind: 'page',
         where: {},
         run: () => open(p.href),
+      }))
+      .filter((a) => matchAction(a, query));
+  };
+}
+
+/** An image or a file (a PDF, a video, a zip file) of the site: its name, its address on the site (an image is drawn as its picture), and what it is. */
+type FileInfo = { path: string; name: string; src: string; kind: 'image' | 'file'; icon: string; what: string };
+
+/**
+ * The images and files by name, for a query (a provider, like the pages): they run to the Files screen. Nothing before typing.
+ * The ids are `go.file:<path>`, which recent stores and drops when the file is gone.
+ */
+export function filesProvider(files: () => FileInfo[], open: () => void): ActionProvider {
+  return (query) => {
+    if (!query.trim()) return [];
+    return files()
+      .map((f): EditorAction => ({
+        id: `go.file:${f.path}`,
+        label: f.name,
+        words: [f.path],
+        path: f.what,
+        icon: f.icon,
+        thumb: f.kind === 'image' ? f.src : undefined,
+        group: 'files',
+        kind: f.kind,
+        where: {},
+        run: open,
       }))
       .filter((a) => matchAction(a, query));
   };

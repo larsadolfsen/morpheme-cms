@@ -188,7 +188,7 @@ import {
 import { config, relationsOf, type SiteData, siteName, siteOf, testimonialsOf, usedBy, whatIsAt } from '@site/editor';
 import { themes } from './themes';
 import Screen from './Screen';
-import { Button, EmptyNote, ProblemNote, startRipples } from './ui';
+import { Button, EmptyNote, ProblemNote, startRipples, useAtLeast, atLeastNow } from './ui';
 import { useMenuOpen } from './menuOpen';
 import { MainMenu } from './MainMenu';
 import { CommandPalette } from './CommandPalette';
@@ -210,7 +210,8 @@ import { appRouteOf } from '../lib/appRoute.mjs';
 import { movedRoute } from './movedRoutes.mjs';
 import { appType, clearNotifications, isOn, remember, signOff, stopServerWait, syncDevice, told, waitOnServer } from './notificationData';
 import { syncDensity } from './density';
-import Notifications from './Notifications';
+import Notifications, { NotificationsPage } from './Notifications';
+import PaneHost from './PaneHost';
 import { openNotifications } from './notificationsOpen';
 import { forgetRecent } from './paletteRecent';
 import { ShortcutsPage } from './ShortcutsSheet';
@@ -383,10 +384,11 @@ function Editor() {
     navigator.serviceWorker?.addEventListener('message', onMessage);
     return () => navigator.serviceWorker?.removeEventListener('message', onMessage);
   }, []);
-  // The notifications' old address (#notifications, a screen before they were a side sheet): opens the sheet.
+  // The notifications' address (#notifications): from 600 dp it opens the side sheet over the start screen; below, it is a page (Page).
+  const notificationsSheet = useAtLeast('medium');
   useEffect(() => {
-    if (route === 'notifications') openNotifications();
-  }, [route]);
+    if (route === 'notifications' && notificationsSheet) openNotifications();
+  }, [route, notificationsSheet]);
   // When the site was last updated (built on Cloudflare), for the start screen.
   const [builtAt, setBuiltAt] = useState<Date | null>(null);
   useEffect(() => keepCurrent((v) => v.builtAt && setBuiltAt(new Date(v.builtAt))), []);
@@ -803,6 +805,7 @@ function Editor() {
           <Ask />
           <CropViewHost />
           <Notifications />
+          <PaneHost />
           <CommandPalette route={route} files={files} />
         </>
       </TopBarLayout>
@@ -844,8 +847,9 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (!route) return <Start builtAt={builtAt} files={files} env={env} />;
   if (route === 'shortcuts') return <ShortcutsPage />;
   if (route === 'account') return <Account user={user} files={files} onLogout={onLogout} />;
-  // The old address of the notifications, now a side sheet: the start screen, with the sheet over it (App).
-  if (route === 'notifications') return <Start builtAt={builtAt} files={files} env={env} />;
+  // The notifications: from 600 dp the start screen with the side sheet over it (App); below, a page with a back arrow.
+  if (route === 'notifications')
+    return atLeastNow('medium') ? <Start builtAt={builtAt} files={files} env={env} /> : <NotificationsPage siteName={siteName} />;
   if (route === 'lists') return <Lists files={files} env={env} />;
   if (route === 'company') return <Company files={files} />;
   if (route === 'blocks') return <Blocks files={files} />;

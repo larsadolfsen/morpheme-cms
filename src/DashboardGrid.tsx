@@ -18,7 +18,7 @@ import type { RepoFile } from './github';
 import { EditableCards, saveErrorText, type DashboardEditing } from './DashboardEdit';
 import { AddWidget } from './AddWidget';
 import { WidgetSettings } from './WidgetSettings';
-import { widgetGroups, type WidgetDefinition } from './widgets';
+import { spanClass, widgetGroups, type WidgetDefinition } from './widgets';
 import { Icon } from './icon';
 import { Button, LoadingIndicator, Notice } from './ui';
 
@@ -102,8 +102,13 @@ export function Dashboard({ dash, env, files }: { dash: DashboardEditing; env: E
           )}
         </>
       ) : (
-        <div className="grid items-start gap-4 medium:grid-cols-2">
-          {dash.shown.map(({ placement, definition }) => draw(placement, definition))}
+        <div className="image-grid [--grid-columns:2]">
+          {dash.shown.map(({ placement, definition }) => (
+            // A widget with nothing to say renders nothing: its wrapper is then empty and hidden, so it leaves no gutter.
+            <div key={placement.id} className={`${spanClass(definition.span)} empty:hidden`}>
+              {draw(placement, definition)}
+            </div>
+          ))}
         </div>
       )}
       {!dash.editing && (

@@ -55,6 +55,8 @@ export function applyTheme(chosen: Theme) {
   const root = document.documentElement;
   if (theme === 'auto') delete root.dataset.theme;
   else root.dataset.theme = theme;
+  const scheme = document.querySelector<HTMLMetaElement>('meta[name="color-scheme"]');
+  if (scheme) scheme.content = theme === 'auto' ? 'light dark' : theme;
   const all = bars();
   const picked = all.find((m) => isDark(m) === (theme === 'dark'));
   for (const m of all) m.content = (theme === 'auto' ? m.dataset.color : picked?.dataset.color) ?? m.content;
