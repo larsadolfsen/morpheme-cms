@@ -2,5 +2,5 @@
   "id": "steps-heading-aligned",
   "kind": "line",
   "mark": "improvement",
-  "text": "A step's heading lines up with its number in Steps"
+  "text": "Steps: headings line up with numbers and the line stops at the last one"
 }

@@ -6,7 +6,6 @@ import type { Step } from '@morphemecms/cms/src/standard/steps/view';
 export default function StepList({ items, className }: { items: Step[]; className?: string }) {
   return (
     <ol className={className ? `block-steps ${className}` : 'block-steps'}>
-      <span className="block-steps-line" aria-hidden="true"></span>
       {items.map((s, i) => (
         <li key={i} className="block-step">
           <span aria-hidden="true" className="block-step-number">

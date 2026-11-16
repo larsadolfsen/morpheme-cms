@@ -261,6 +261,7 @@
 
   /* "Steps": numbered steps along a line (steps/StepList.tsx). */
   .block-steps {
+    --block-step-gap: 2.5rem;
     position: relative;
     max-width: 48rem;
   }
@@ -268,13 +269,16 @@
     margin-block: 2.5rem;
   }
   .block-steps > :not(:last-child) {
-    margin-bottom: 2.5rem;
+    margin-bottom: var(--block-step-gap);
   }
-  .block-steps-line {
+  /* The line joins a number to the next number and goes no further: each step but the last draws it from its number's middle to the
+     next number's middle (the step's own height, the gap, and half a number). */
+  .block-step:not(:last-child)::before {
+    content: '';
     position: absolute;
     top: 1.5rem;
-    bottom: 1.5rem;
-    left: 1.5rem;
+    bottom: calc(-1 * var(--block-step-gap) - 1.5rem);
+    inset-inline-start: 1.5rem;
     width: 1px;
     background: var(--block-line);
   }

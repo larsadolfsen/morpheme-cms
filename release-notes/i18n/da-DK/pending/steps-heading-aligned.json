@@ -2,5 +2,5 @@
   "id": "steps-heading-aligned",
   "kind": "line",
   "mark": "improvement",
-  "text": "Et trins overskrift flugter med dets nummer i Trin"
+  "text": "Trin: overskrifter flugter med numrene, og linjen stopper ved det sidste"
 }
