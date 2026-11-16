@@ -6675,6 +6675,18 @@ async function checkFilesPane(width) {
     if (!got.pane) problems.push(`${label}: the file's details are not the side sheet beside the grid`);
     if (got.dialogs) problems.push(`${label}: a dialog is open over Files`);
     if (!got.tiles) problems.push(`${label}: the grid is not in view beside the details`);
+    // The create button stands beside the open details, not on them.
+    const overlap = await page.evaluate(() => {
+      const fab = document.querySelector('.editor-fab');
+      const sheet = document.querySelector('aside.side-sheet-container:not([hidden])');
+      if (!fab || !sheet) return 'missing';
+      const f = fab.getBoundingClientRect();
+      const r = sheet.getBoundingClientRect();
+      const hit = f.left < r.right && f.right > r.left && f.top < r.bottom && f.bottom > r.top;
+      return hit ? `fab ${Math.round(f.left)}-${Math.round(f.right)}, sheet ${Math.round(r.left)}-${Math.round(r.right)}` : '';
+    });
+    if (overlap === 'missing') problems.push(`${label}: no create button or no details sheet to compare`);
+    else if (overlap) problems.push(`${label}: the create button is on the details (${overlap})`);
   }
   await page.close();
 }
@@ -11694,7 +11706,7 @@ for (const [width, height] of [
   [1280, 900],
 ])
   await unit(`checkDraftsCard ${width}`, () => checkDraftsCard(width, height));
-for (const width of [375, 768, 1280]) await unit(`checkFilesPane ${width}`, () => checkFilesPane(width));
+for (const width of [375, 768, 1000, 1280]) await unit(`checkFilesPane ${width}`, () => checkFilesPane(width));
 for (const width of [375, 768, 1280]) await unit(`checkListAndRedirectPanes ${width}`, () => checkListAndRedirectPanes(width));
 for (const width of [375, 768, 1280]) await unit(`checkLinkAndItemPanes ${width}`, () => checkLinkAndItemPanes(width));
 for (const width of [375, 768, 1280]) await unit(`checkBlockSettingsPane ${width}`, () => checkBlockSettingsPane(width));
