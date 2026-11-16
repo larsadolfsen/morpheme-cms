@@ -633,12 +633,24 @@
   bottom: calc(5.5rem + env(safe-area-inset-bottom));
 }
 
+/* The FAB's and the FAB menu's margin to the window's edges: 16 dp, and 24 dp in large and extra large windows (m3.material.io
+   /components/fab-menu/guidelines: "the FAB and FAB menu margins should increase from 16dp to 24dp"). */
+:root {
+  --editor-fab-margin: 1rem;
+}
+@media (width >= theme(--breakpoint-large)) {
+  :root {
+    --editor-fab-margin: 1.5rem;
+  }
+}
+
 /* The screen's main actions (FabMenu in ui.tsx) at the bottom right, above the content; the messages above them. */
 .editor-fab {
   position: fixed;
-  right: calc(1rem + env(safe-area-inset-right));
-  /* Stands 16 dp above the footer while the footer is in the window (--editor-fab-lift, fabPresence.tsx useFabLift). */
-  bottom: max(calc(1rem + env(safe-area-inset-bottom)), calc(var(--editor-fab-lift, 0px) + 1rem));
+  right: calc(var(--editor-fab-margin) + env(safe-area-inset-right));
+  /* Below 600 dp it stands 16 dp above the footer while the footer would overlap it (--editor-fab-lift, fabPresence.tsx
+     useFabLift); from 600 dp the lift is 0 and it stays at its place. */
+  bottom: max(calc(var(--editor-fab-margin) + env(safe-area-inset-bottom)), calc(var(--editor-fab-lift, 0px) + 1rem));
   z-index: 30;
 }
 
@@ -798,7 +810,7 @@
   }
   /* The screen's create button stands beside the pane, not on it (a redirect or a new list opens the pane from it). */
   :root[data-side-panel] .editor-fab {
-    right: calc(var(--side-panel-width) + 1rem + env(safe-area-inset-right));
+    right: calc(var(--side-panel-width) + var(--editor-fab-margin) + env(safe-area-inset-right));
   }
   /* The same for a standard side sheet in the page's own layout (the details in Files), while it reaches (nearly) the window's edge: the button
      stands beside it, not on it. The column stops growing at 73.5rem, and from there the button has room at its end. */
