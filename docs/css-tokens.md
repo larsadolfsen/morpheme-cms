@@ -1,0 +1,24 @@
+# CSS custom properties
+
+Owner rule, 16 Nov 2026. `npm run check:css-tokens` enforces it.
+
+- **A shared value is a `--mo-…` token.** The CMS owns the name. The theme sets its value once at the top (`:root`), and that is the theme's look. A
+  block, an app block or a section may override the same `--mo-…` name on its own root element (its first element, also inside a media query for a
+  phone), and everything inside it inherits the value. That is why tokens are easy to exchange.
+- **Nobody makes a second name for the same thing.** No `--venus-gap`, no `--blog-gap`, no theme or app prefix for a value that has a `--mo-…` name. If
+  a block needs a value the CMS has no `--mo-…` name for, the name is added to the CMS's list and documented here; the block does not invent its own.
+- **A token only one block uses is declared on that block**, not on `:root`.
+- **Nothing unprefixed on `:root`, `html` or `body`.** Generic names such as `--card-gap` are global: an app or theme that declares the same name
+  overrides ours without a sound, and Tailwind shares the page's namespace.
+- **An app or a theme declares no name the CMS declares** (a collision), and no unprefixed name on `:root`.
+
+## What the check allows
+
+- `--tw-*`, Tailwind's own properties.
+- Tailwind's theme namespaces, only inside `@theme` (`--color-*`, `--font-*`, `--text-*`, `--font-weight-*`, `--tracking-*`, `--leading-*`,
+  `--breakpoint-*`, `--container-*`, `--spacing`, `--spacing-*`, `--radius-*`, `--shadow-*`, `--inset-shadow-*`, `--drop-shadow-*`, `--blur-*`,
+  `--perspective-*`, `--aspect-*`, `--ease-*`, `--animate-*`), each with its reason in `scripts/css-tokens-allowlist.json`. `@theme` builds the utilities
+  (`bg-primary`, `medium:`) from these exact names and cannot map a utility to another name, and Tailwind's `prefix()` renames the utilities too, so
+  they stay.
+- **Count mode until the rename lands.** The unprefixed names that exist today are counted per file in the same list (`files`): a file may have as many as
+  listed, never more, and a new file none. A count can only fall: lower it when it does.

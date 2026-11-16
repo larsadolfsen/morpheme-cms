@@ -1,0 +1,102 @@
+{
+  "why": "Count mode until the --mo- rename has landed: a file may declare as many unprefixed names (distinct, on :root/html/body or in @theme) as listed, never more, and a new file none. A count can only fall; lower it when it does.",
+  "names": [
+    {
+      "pattern": "--tw-*",
+      "why": "Tailwind's own internal properties."
+    },
+    {
+      "pattern": "--color-*",
+      "why": "Tailwind @theme namespace: bg-*, text-*, border-* utilities are built from it. @theme cannot map a utility to another name, and `prefix()` renames the utilities too, so it stays."
+    },
+    {
+      "pattern": "--font-*",
+      "why": "Tailwind @theme namespace (font-sans, font-family utilities)."
+    },
+    {
+      "pattern": "--text-*",
+      "why": "Tailwind @theme namespace (font-size utilities)."
+    },
+    {
+      "pattern": "--font-weight-*",
+      "why": "Tailwind @theme namespace (font-weight utilities)."
+    },
+    {
+      "pattern": "--tracking-*",
+      "why": "Tailwind @theme namespace (letter-spacing utilities)."
+    },
+    {
+      "pattern": "--leading-*",
+      "why": "Tailwind @theme namespace (line-height utilities)."
+    },
+    {
+      "pattern": "--breakpoint-*",
+      "why": "Tailwind @theme namespace (medium:, expanded: variants and theme(--breakpoint-\u2026))."
+    },
+    {
+      "pattern": "--container-*",
+      "why": "Tailwind @theme namespace (container and max-w utilities)."
+    },
+    {
+      "pattern": "--spacing",
+      "why": "Tailwind @theme: the spacing scale base."
+    },
+    {
+      "pattern": "--spacing-*",
+      "why": "Tailwind @theme namespace (spacing utilities)."
+    },
+    {
+      "pattern": "--radius-*",
+      "why": "Tailwind @theme namespace (rounded-* utilities)."
+    },
+    {
+      "pattern": "--shadow-*",
+      "why": "Tailwind @theme namespace (shadow-* utilities)."
+    },
+    {
+      "pattern": "--inset-shadow-*",
+      "why": "Tailwind @theme namespace."
+    },
+    {
+      "pattern": "--drop-shadow-*",
+      "why": "Tailwind @theme namespace."
+    },
+    {
+      "pattern": "--blur-*",
+      "why": "Tailwind @theme namespace."
+    },
+    {
+      "pattern": "--perspective-*",
+      "why": "Tailwind @theme namespace."
+    },
+    {
+      "pattern": "--aspect-*",
+      "why": "Tailwind @theme namespace (aspect-* utilities)."
+    },
+    {
+      "pattern": "--ease-*",
+      "why": "Tailwind @theme namespace (ease-* utilities)."
+    },
+    {
+      "pattern": "--animate-*",
+      "why": "Tailwind @theme namespace (animate-* utilities)."
+    }
+  ],
+  "files": {
+    "src/editor.css": {
+      "max": 2
+    },
+    "theme/styles/base.css": {
+      "max": 26
+    },
+    "theme/styles/components.css": {
+      "max": 25
+    },
+    "theme/styles/global.css": {
+      "max": 323
+    },
+    "theme/styles/ui.css": {
+      "max": 4
+    }
+  }
+}
