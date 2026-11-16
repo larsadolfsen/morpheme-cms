@@ -10088,6 +10088,9 @@ async function checkCardsSpacing(width, height) {
 async function checkCardsEditorSpacing(width, height) {
   const label = `${width}px cards spacing in the editor`;
   const phone = width < 600;
+  // The cards are the demo's Blocks page; a site without it (the starter) has none to measure.
+  if (!existsSync(join(ROOT, 'src/content/pages/blocks.md')))
+    return void console.log(`${label}: skipped, the site has no Blocks page, which the demo has.`);
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
@@ -10186,6 +10189,9 @@ async function checkCardsElevation(width, height) {
   onSite.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   if (await onTestPage(onSite, label)) judge('site', await onSite.evaluate(read));
   await onSite.close();
+  // The editor's cards are on the demo's Blocks page; a site without it (the starter) has only the site's to measure.
+  if (!existsSync(join(ROOT, 'src/content/pages/blocks.md')))
+    return void console.log(`${label} (editor): skipped, the site has no Blocks page, which the demo has.`);
   const inEditor = await open({ width, height });
   inEditor.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(inEditor, site);
