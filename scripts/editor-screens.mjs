@@ -2220,8 +2220,14 @@ function rightEndProblem(names, ends, edge, hasDivider) {
   return '';
 }
 
+/** Waits until the menus that are opening have stopped (the theme's menu is a popover that scales in from 97%), so a size read is the real one. */
+function menusSettled(page) {
+  return page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))));
+}
+
 /** The icons of the menus that are open (`[role=menu]`) that are not 20 x 20 px: a list of "<row>: <w> x <h>". */
-function menuIconProblems(page) {
+async function menuIconProblems(page) {
+  await menusSettled(page);
   return page.evaluate(() => {
     const bad = [];
     for (const svg of document.querySelectorAll('[role=menu] svg')) {
@@ -2335,6 +2341,7 @@ async function checkTextBar(width = 360) {
   const more = page.locator('.editor-tools [aria-label="More"]');
   await more.click();
   await page.waitForSelector('[role=menu][aria-label="More"]', { timeout: 3000 });
+  await menusSettled(page);
   const menu = await page.evaluate(() => {
     const m = document.querySelector('[role=menu][aria-label="More"]');
     const r = m.getBoundingClientRect();
@@ -2417,13 +2424,15 @@ async function checkTextBar(width = 360) {
   await page.setViewportSize({ width, height: 740 });
   await page.waitForTimeout(200);
   // The Text style menu: one button, at most 8 rows of 44 dp, a page's first heading is Main heading.
-  const rowsOf = () =>
-    page.evaluate(() =>
+  const rowsOf = async () => {
+    await menusSettled(page);
+    return page.evaluate(() =>
       [...document.querySelectorAll('[role=menu] [role^=menuitem]')].map((x) => ({
         name: x.textContent.trim(),
         h: x.getBoundingClientRect().height,
       })),
     );
+  };
   const styleTools = (await barTools(page)).names.filter((n) => n.startsWith('Text style'));
   if (styleTools.length !== 1) problems.push(`${label}: ${styleTools.length} Text style tools on the bar and in the ⋮, not 1`);
   await openStyleMenu(page);
@@ -8959,6 +8968,28 @@ async function checkListMenuOpens(width, height, touch) {
   if (!opened) problems.push(`${label}: List menu did not open its menu`);
   else if (!(await page.getByRole('menuitem', { name: 'Delete list' }).first().isVisible()))
     problems.push(`${label}: the menu has no Delete list`);
+  else if (!touch && width >= 600) {
+    // The menu is a popover at its button (CSS anchor positioning): on the screen, 8 dp or more from every edge, and touching the button's column.
+    const at = await page.evaluate(() => {
+      const menu = document.querySelector('.editor-menu');
+      const button = [...document.querySelectorAll('button[aria-label="List menu"]')].find((b) => b.getClientRects().length);
+      if (!menu || !button) return null;
+      const m = menu.getBoundingClientRect();
+      const b = button.getBoundingClientRect();
+      return { m, b, popover: menu.matches(':popover-open'), w: innerWidth, h: innerHeight };
+    });
+    if (!at) problems.push(`${label}: no menu or button to measure`);
+    else {
+      if (!at.popover) problems.push(`${label}: the menu is not a popover`);
+      if (at.m.left < 7.5 || at.m.top < 7.5 || at.m.right > at.w - 7.5 || at.m.bottom > at.h - 7.5)
+        problems.push(`${label}: the menu is not inside the screen (${JSON.stringify(at.m)})`);
+      const gapBelow = at.m.top - at.b.bottom;
+      const gapAbove = at.b.top - at.m.bottom;
+      if (!((gapBelow >= -1 && gapBelow <= 12) || (gapAbove >= -1 && gapAbove <= 12)))
+        problems.push(`${label}: the menu is not next to its button (below ${gapBelow}, above ${gapAbove})`);
+      if (at.m.left > at.b.right || at.m.right < at.b.left) problems.push(`${label}: the menu is not over its button's column`);
+    }
+  }
   await page.close();
 }
 
