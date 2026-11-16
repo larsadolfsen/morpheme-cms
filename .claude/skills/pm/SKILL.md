@@ -91,17 +91,18 @@ comment as an `<img>` of the link. Not yet checked: that the owner's browser sho
 The first session that adds screenshots looks at the comment, and if the image does not show, it tries another way that
 leaves nothing in the shipped package. It then tells the PM exactly what worked, and the PM has this paragraph updated.
 
-**CI slots (owner rule, 15 Nov 2026).** The PM allows 1 to 4 pull requests in CI at once, a `Check` run queued or running.
-It decides by overlap. Pull requests that change different files run together, up to 4. Pull requests that change the
-same files run one after another, because the first merge forces a merge of the base and a new run in the second. A
-fix of a red base branch always goes first. Why not more than 4: one `Check` run is about 19 jobs and about 20 run at
-once, so more only queues. A session pushes, re-runs or merges `origin/<line>` into its pull request only when the PM
-says "your slot". It may merge the base locally and run `npm run check`, but it does not push. The PM counts the active
-runs with `gh api "repos/larsadolfsen/morpheme-cms/actions/runs?status=queued"` and `status=in_progress`, and gives the
-next slot when a pull request merges or goes red and is sent back. A push that supersedes a run is cancelled by
-`concurrency` (only the newest head counts). The PM may cancel a run it queued itself when a slot is needed (the owner
-approved this on 15 Nov). The one re-run of failed jobs per run stays as it is. Docs-only pull requests count as a slot
-until the docs-only CI skip (#770) is merged; after that they are light.
+**CI slots (owner rules, 15 and 16 Nov 2026).** A PM keeps at most 3 of its own pull requests in CI at a time, a `Check` run
+queued or running. A fourth gets its slot only when one has finished (merged, or its `check` finished). Pull requests that
+overlap in files or behaviour still go one after another, because the first merge forces a merge of the base and a new run
+in the second; a fix of a red base branch always goes first. When several PMs (version lines) run in this repository, each
+keeps to 3, and a PM asks the other PMs to hold new pull requests when the runner queue is long
+(`gh api "repos/larsadolfsen/morpheme-cms/actions/runs?status=queued"` shows it). Why: one `Check` run is about 19 jobs and
+about 20 run at once, so more only queues. A session pushes, re-runs or merges `origin/<line>` into its pull request only when
+the PM says "your slot". It may merge the base locally and run `npm run check`, but it does not push. The PM counts the active
+runs with the `queued` call above and `status=in_progress`, and gives the next slot when a pull request merges or goes red and
+is sent back. A push that supersedes a run is cancelled by `concurrency` (only the newest head counts). The PM may cancel a run
+it queued itself when a slot is needed (the owner approved this on 15 Nov). The one re-run of failed jobs per run stays as it
+is. The PM keeps a pull request's CI to one push: the session fixes everything before the push, and the brief says so.
 
 **Cloudflare builds.** The PM keeps an eye out for failed Cloudflare builds: the `Workers Builds: …` check on every
 pull request and on `main` (the demo, `morpheme-demo`), and the builds of `morpheme-staging` and of the sites that
@@ -110,12 +111,10 @@ says which change caused it. Then it either has a fix made, in a session in the 
 normal pull request, or it tells the owner exactly what failed and what it needs. It does not deploy or run `wrangler`
 against the live Cloudflare account itself.
 
-**Ready queue and CI slots (owner rule, 15 Nov 2026).** Sessions send a "ready: …" message when their change is done and
-checked locally (`developer` skill, *3a*). The PM keeps the queue in the order of those messages; a fix of a red base
-branch goes first. It allows 1 to 4 pull requests in CI at once, decided by overlap: pull requests that change different
-files run together, up to 4; pull requests that change the same files run one after another. The cap is 4 because one
-`Check` run is about 19 jobs and about 20 run at once. The PM tells the next session "your slot", starts or re-runs the
-CI itself when a session has pushed out of turn, and tells the 0.19 PM after each merge into 0.18 (`changesets`).
+**Ready queue (owner rule, 15 Nov 2026).** Sessions send a "ready: …" message when their change is done and checked locally
+(`developer` skill, *3a*). The PM keeps the queue in the order of those messages; a fix of a red base branch goes first. It
+gives slots as *CI slots* above says, tells the next session "your slot", starts or re-runs the CI itself when a session has
+pushed out of turn, and tells the 0.19 PM after each merge into 0.18 (`changesets`).
 
 "Overlap" means the same files or the same area of behaviour: two pull requests on the focus rings, the same dialog or the
 same menu overlap even when they touch different files, and the PM judges. Overlapping pull requests go one after another,
@@ -142,7 +141,8 @@ rules every developer session follows (the skills by task, the pull request's du
 brief does not repeat them. The PM checks that every active session did it: it asks a session that did not announce
 "Using developer" to load the skill, and does not merge a pull request from a session that never did.
 
-The first prompt also carries
+The first prompt also carries this line: "Do not run the full `check:screens` locally; see the `checks` skill." It also says
+that the pull request's CI is kept to one push, so everything is fixed before it. The first prompt also carries
 this rule, in these words: "When a change the owner can see (the editor or the site) is done and `check` is green, add
 before and after screenshots of every changed screen to a comment on your own pull request, as the `pm` skill's
 *Screenshots in the pull request* says, and tell the PM with the link and head sha. A change nobody sees needs none."
