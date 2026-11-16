@@ -1,5 +1,8 @@
 {
-  "name": "Kenya",
+  "name": {
+    "en-US": "Kenya",
+    "da-DK": "Kenya"
+  },
   "place": {
     "en-US": "Tsavo East National Park, Kenya",
     "da-DK": "Tsavo East National Park, Kenya"

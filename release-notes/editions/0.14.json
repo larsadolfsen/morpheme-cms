@@ -1,5 +1,8 @@
 {
-  "name": "Italy",
+  "name": {
+    "en-US": "Italy",
+    "da-DK": "Italien"
+  },
   "place": {
     "en-US": "Lago di Braies, South Tyrol, Italy",
     "da-DK": "Lago di Braies, Sydtyrol, Italien"

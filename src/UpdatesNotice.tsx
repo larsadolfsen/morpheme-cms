@@ -24,7 +24,7 @@ import { CMS_ROUTE } from './CmsPage';
 import { LICENSES_ROUTE } from './Licenses';
 import { appHref } from './AppList';
 import { runningEdition, runningNotes } from './bundledNotes';
-import { markCounts, notesSince } from '../lib/releaseNotes.mjs';
+import { editionName, markCounts, notesSince } from '../lib/releaseNotes.mjs';
 import { INFO_KEY } from '../lib/appRoute.mjs';
 
 /** The CMS's version and those of the apps installed from the store, as the editor is built with them now. */
@@ -114,8 +114,8 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
   const edition = cms && runningEdition;
   const place = edition && (edition.place[locale] ?? edition.place['en-US']);
   const title = cms
-    ? edition?.name
-      ? t.library.cmsEdition(edition.name, cms.version)
+    ? edition && editionName(edition, locale)
+      ? t.library.cmsEdition(editionName(edition, locale), cms.version)
       : t.library.cmsVersion(cms.version)
     : t.library.appsUpdated(updatedApps.length);
   return (

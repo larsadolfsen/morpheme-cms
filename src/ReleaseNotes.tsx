@@ -5,7 +5,7 @@
 // (UpdatesNotice.tsx) shows them. Exposes ReleaseNotes and VersionNotes; it only composes ReleaseNoteSection.tsx and
 // ReleaseNoteLines.tsx. Depends on lib/releaseNotes.mjs (notesFor) and i18n.
 import { locale, t } from './i18n';
-import { isParagraph, notesFor } from '../lib/releaseNotes.mjs';
+import { editionName, isParagraph, notesFor } from '../lib/releaseNotes.mjs';
 import type { Edition, ReleaseNote } from '../lib/releaseNotes.mjs';
 import { ReleaseNoteSection } from './ReleaseNoteSection';
 import { ReleaseNoteLines } from './ReleaseNoteLines';
@@ -31,7 +31,8 @@ function VersionEntry({ entry, photo }: { entry: VersionNotes; photo: boolean })
   const lines = notes.filter((note) => note.kind === 'line');
   // A test version (0.14.3-next-…) is named as the version it leads to.
   const version = entry.version.split('-')[0];
-  const name = entry.edition?.name ? t.library.cmsEdition(entry.edition.name, version) : t.library.cmsVersion(version);
+  const editionTitle = entry.edition && editionName(entry.edition, locale);
+  const name = editionTitle ? t.library.cmsEdition(editionTitle, version) : t.library.cmsVersion(version);
   return (
     <section className="space-y-5 border-t border-outline-variant pt-5 first-of-type:border-t-0 first-of-type:pt-0">
       <div className="space-y-3">

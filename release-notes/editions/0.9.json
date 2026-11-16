@@ -1,5 +1,8 @@
 {
-  "name": "USA",
+  "name": {
+    "en-US": "USA",
+    "da-DK": "USA"
+  },
   "place": {
     "en-US": "El Capitan, Yosemite, California, USA",
     "da-DK": "El Capitan, Yosemite, Californien, USA"

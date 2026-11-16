@@ -1,5 +1,8 @@
 {
-  "name": "India",
+  "name": {
+    "en-US": "India",
+    "da-DK": "Indien"
+  },
   "place": {
     "en-US": "Bangalore, Karnataka, India",
     "da-DK": "Bangalore, Karnataka, Indien"

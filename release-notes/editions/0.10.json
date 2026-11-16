@@ -1,5 +1,8 @@
 {
-  "name": "Scotland",
+  "name": {
+    "en-US": "Scotland",
+    "da-DK": "Skotland"
+  },
   "place": {
     "en-US": "Quiraing, Isle of Skye, Scotland",
     "da-DK": "Quiraing, Isle of Skye, Skotland"
