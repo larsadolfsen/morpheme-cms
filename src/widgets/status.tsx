@@ -14,7 +14,7 @@ export function StatusWidget(_props: WidgetProps) {
   const { builtAt } = useStartData();
   const titleId = useId();
   return (
-    <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="[--card-padding:1rem]">
+    <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="[--mo-comp-card-padding:1rem]">
       <h2 id={titleId} className="pb-2 font-medium">
         {t.library.statusTitle}
       </h2>

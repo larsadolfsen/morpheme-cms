@@ -1399,7 +1399,7 @@ async function checkOpenPlainExpand(width) {
       open: li.firstElementChild.open,
       bg: css(li).backgroundColor,
       line: css(li).borderTopColor,
-      lineWidth: css(li).borderTopWidth,
+      shadow: css(li).boxShadow,
     }));
   });
   const clear = 'rgba(0, 0, 0, 0)';
@@ -1407,11 +1407,84 @@ async function checkOpenPlainExpand(width) {
     if (li.open && li.bg !== segmentedSurface)
       problems.push(`${label}: the open item's surface is ${li.bg}, not the segmented design's ${segmentedSurface}`);
     if (!li.open && li.bg !== clear) problems.push(`${label}: closed item ${i + 1} has a surface (${li.bg})`);
-    const against = li.open || got[i - 1]?.open;
-    if (against && li.lineWidth !== '0px' && li.line !== clear)
-      problems.push(`${label}: item ${i + 1} has a line (${li.line}) against the open item`);
+    // The line above the open item is its own (clear), and its surface covers the line of the item under it (a shadow of its colour).
+    if (li.open && li.line !== clear) problems.push(`${label}: the open item has a line above it (${li.line})`);
+    if (li.open && !li.shadow.includes(segmentedSurface.replace('rgb(', '').replace(')', '')))
+      problems.push(`${label}: the open item does not cover the line of the item under it (${li.shadow})`);
   });
   if (!got.some((li) => li.open)) problems.push(`${label}: a tap on an item does not open it`);
+  await page.close();
+}
+
+/** The look of the lists in columns (900 and 1280 px, the demo's Lists page): the dividers of a plain List - Expand are between its rows, none above the first row's items and none against
+ * an open item, and the corners of a segmented list are the list's (16 px) on its first and last rows' items and small between rows, in each number of columns (owner, 17 Nov 2026:
+ * "There are dividers that shouldn't be there and corners that does not have the right radius"). */
+async function checkListColumnsLook(width) {
+  const label = `${width}px lists in columns`;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  const response = await page.goto(`${site}/blocks/lists/`).catch(() => null);
+  if (!response || response.status() >= 400) {
+    problems.push(`${label}: the demo's Lists page (/blocks/lists/) did not open`);
+    return page.close();
+  }
+  const columns = await page.evaluate(() => {
+    const list = document.querySelector('.list-segmented.block-list:not([data-columns="one"]):has(> li:nth-child(3))');
+    if (!list) return null;
+    const tops = [...list.children].map((li) => Math.round(li.getBoundingClientRect().top));
+    return {
+      count: tops.filter((t) => t === tops[0]).length,
+      radii: [...list.children].map((li) => {
+        const css = getComputedStyle(li);
+        return [css.borderTopLeftRadius, css.borderBottomLeftRadius];
+      }),
+    };
+  });
+  if (!columns) problems.push(`${label}: no segmented List with three rows and Columns on`);
+  else {
+    // Rows by column: two columns (item 1, 3 / item 2) from 760 px, three (one row) from 1128 px.
+    const big = '16px';
+    const small = '4px';
+    const want =
+      columns.count >= 3
+        ? [
+            [big, big],
+            [big, big],
+            [big, big],
+          ]
+        : [
+            [big, small],
+            [big, big],
+            [small, big],
+          ];
+    columns.radii.forEach((r, i) => {
+      if (r[0] !== want[i][0] || r[1] !== want[i][1])
+        problems.push(`${label}: with ${columns.count} columns, row ${i + 1}'s top and bottom left corners are ${r}, not ${want[i]}`);
+    });
+  }
+  const plain = page.locator('.block-accordion:not(.block-accordion-segmented):has(> li:nth-child(3))').first();
+  if (!(await plain.count())) problems.push(`${label}: no plain List - Expand with three items`);
+  else {
+    await plain.scrollIntoViewIfNeeded();
+    await plain.locator(':scope > li > details > summary').nth(0).click();
+    await page.mouse.move(0, 0);
+    await page.waitForTimeout(700);
+    const got = await plain.evaluate((el) => {
+      const items = [...el.children];
+      const tops = items.map((li) => Math.round(li.getBoundingClientRect().top));
+      const first = tops.filter((t) => t === tops[0]).length;
+      const css = (li) => getComputedStyle(li);
+      return {
+        clip: css(el).clipPath,
+        firstRow: items.slice(0, first).map((li) => css(li).borderTopWidth),
+        openLine: css(items[0]).borderTopColor,
+        openShadow: css(items[0]).boxShadow,
+      };
+    });
+    if (!got.clip || got.clip === 'none') problems.push(`${label}: the plain List - Expand does not hide the dividers of its first row`);
+    if (got.openLine !== 'rgba(0, 0, 0, 0)') problems.push(`${label}: the open item has a line above it (${got.openLine})`);
+    if (!got.openShadow || got.openShadow === 'none') problems.push(`${label}: the open item does not cover the line of the item under it`);
+  }
   await page.close();
 }
 
@@ -1419,6 +1492,7 @@ export function register(unit) {
   for (const block of liveLists)
     for (const w of [375, 1280]) unit(`checkLiveList ${w} ${block.name}`, () => checkLiveList(w, w < 600 ? 740 : 900, block));
   for (const w of [375, 768, 1280]) unit(`checkListLeftEdge ${w}`, () => checkListLeftEdge(w));
+  for (const w of [900, 1280]) unit(`checkListColumnsLook ${w}`, () => checkListColumnsLook(w));
   for (const w of [375, 768, 1280]) unit(`checkListButtonsRow ${w}`, () => checkListButtonsRow(w));
   for (const w of [375, 768, 1280]) unit(`checkOpenPlainExpand ${w}`, () => checkOpenPlainExpand(w));
   for (const w of [375, 768, 1280]) unit(`checkChevronRows ${w}`, () => checkChevronRows(w));

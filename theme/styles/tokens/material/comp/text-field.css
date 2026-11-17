@@ -9,18 +9,18 @@
      indicator under it (on-surface-variant, 2px in the primary colour while written in); what is wrong in the error
      colour. The checkbox 18px, its name
      after 16px (M3's 48px target around it). */
-  --text-field-height: 3.5rem;
-  --text-field-padding: 1rem;
-  --text-field-radius: var(--mo-sys-shape-corner-extra-small);
-  --text-field-outlined-surface: transparent;
-  --text-field-outlined-line: var(--mo-sys-color-outline);
-  --text-field-outlined-hover-line: var(--mo-sys-color-on-surface);
-  --text-field-outlined-focus-line: var(--mo-sys-color-primary);
-  --text-field-filled-surface: var(--mo-sys-color-surface-container-highest);
-  --text-field-filled-line: var(--mo-sys-color-on-surface-variant);
-  --text-field-filled-hover-line: var(--mo-sys-color-on-surface);
-  --text-field-filled-focus-line: var(--mo-sys-color-primary);
-  --text-field-label-surface: var(--mo-sys-color-surface);
-  --text-field-error: var(--mo-sys-color-error);
-  --text-field-disabled-opacity: 0.38;
+  --mo-comp-filled-text-field-container-height: 3.5rem;
+  --mo-comp-text-field-padding: 1rem;
+  --mo-comp-text-field-radius: var(--mo-sys-shape-corner-extra-small);
+  --mo-comp-text-field-outlined-surface: transparent;
+  --mo-comp-outlined-text-field-outline-color: var(--mo-sys-color-outline);
+  --mo-comp-outlined-text-field-hover-outline-color: var(--mo-sys-color-on-surface);
+  --mo-comp-outlined-text-field-focus-outline-color: var(--mo-sys-color-primary);
+  --mo-comp-filled-text-field-container-color: var(--mo-sys-color-surface-container-highest);
+  --mo-comp-text-field-filled-line: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-text-field-filled-hover-line: var(--mo-sys-color-on-surface);
+  --mo-comp-text-field-filled-focus-line: var(--mo-sys-color-primary);
+  --mo-comp-text-field-label-surface: var(--mo-sys-color-surface);
+  --mo-comp-text-field-error: var(--mo-sys-color-error);
+  --mo-comp-text-field-disabled-opacity: 0.38;
 }

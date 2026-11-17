@@ -3,21 +3,21 @@
 @layer components {
   @media (width >= theme(--breakpoint-medium)) {
     .block-imagegrid-grid[data-columns='2'] {
-      --grid-columns: 2;
+      --mo-comp-grid-columns: 2;
     }
   }
 }
 @layer components {
   @media (width >= theme(--breakpoint-medium)) {
     .block-imagegrid-grid[data-columns='3'] {
-      --grid-columns: 3;
+      --mo-comp-grid-columns: 3;
     }
   }
 }
 @layer components {
   @media (width >= theme(--breakpoint-medium)) {
     .block-imagegrid-grid[data-columns='4'] {
-      --grid-columns: 4;
+      --mo-comp-grid-columns: 4;
     }
   }
 }

@@ -90,7 +90,7 @@ export function findProblems(files) {
 }
 
 /** The stylesheets the check reads, each with its token files (theme/styles/tokens/<origin>/, docs/theme-token-files.md): a part's height or
- * padding is often a token (--text-field-height) that the rule reads. @param {URL} root */
+ * padding is often a token (--mo-comp-filled-text-field-container-height) that the rule reads. @param {URL} root */
 export function readStyles(root) {
   const files = {};
   const tokenFolder = { 'ui.css': 'ui', 'blocks.css': 'blocks', 'base.css': 'base', 'global.css': 'material' };

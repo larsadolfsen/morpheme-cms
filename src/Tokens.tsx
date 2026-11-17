@@ -18,7 +18,7 @@ const say = t.parts.tokens;
 const back = { href: '#developer/parts', label: t.common.parts.editorParts };
 
 /** A token: its CSS variable, its name here, and for a part's own the token or the value ui.css gives it when the theme
- * does not set it (its `var(--chip-radius, var(--mo-sys-block-control-radius))`). */
+ * does not set it (its `var(--mo-comp-filter-chip-container-shape, var(--mo-sys-block-control-radius))`). */
 type Token = { token: string; label: string; fallback?: string };
 
 const shape: Token[] = [
@@ -35,16 +35,16 @@ const shape: Token[] = [
 // The UI parts' corners, with what ui.css gives each when the theme does not set it.
 const parts: Token[] = [
   { token: '--mo-comp-button-medium-container-shape-round', label: say.parts.button, fallback: '--mo-sys-block-control-radius' },
-  { token: '--chip-radius', label: say.parts.chip, fallback: '--mo-sys-block-control-radius' },
-  { token: '--text-field-radius', label: say.parts.textField, fallback: '--mo-sys-block-control-radius' },
-  { token: '--card-radius', label: say.parts.card, fallback: '--mo-sys-block-radius' },
-  { token: '--menu-radius', label: say.parts.menu, fallback: '--mo-sys-block-radius-small' },
-  { token: '--dialog-radius', label: say.parts.dialog, fallback: '--mo-sys-block-radius' },
-  { token: '--bottom-sheet-radius', label: say.parts.bottomSheet, fallback: '--mo-sys-block-radius' },
-  { token: '--side-sheet-radius', label: say.parts.sideSheet, fallback: '--mo-sys-block-radius' },
+  { token: '--mo-comp-filter-chip-container-shape', label: say.parts.chip, fallback: '--mo-sys-block-control-radius' },
+  { token: '--mo-comp-text-field-radius', label: say.parts.textField, fallback: '--mo-sys-block-control-radius' },
+  { token: '--mo-comp-card-radius', label: say.parts.card, fallback: '--mo-sys-block-radius' },
+  { token: '--mo-comp-menu-container-shape', label: say.parts.menu, fallback: '--mo-sys-block-radius-small' },
+  { token: '--mo-comp-dialog-container-shape', label: say.parts.dialog, fallback: '--mo-sys-block-radius' },
+  { token: '--mo-comp-sheet-bottom-docked-container-shape', label: say.parts.bottomSheet, fallback: '--mo-sys-block-radius' },
+  { token: '--mo-comp-sheet-side-docked-container-shape', label: say.parts.sideSheet, fallback: '--mo-sys-block-radius' },
   { token: '--mo-comp-fab-container-shape', label: say.parts.fab, fallback: '--mo-sys-block-radius-small' },
-  { token: '--snackbar-radius', label: say.parts.snackbar, fallback: '1rem' },
-  { token: '--search-bar-radius', label: say.parts.searchBar, fallback: '--mo-sys-block-control-radius' },
+  { token: '--mo-comp-snackbar-container-shape', label: say.parts.snackbar, fallback: '1rem' },
+  { token: '--mo-comp-search-bar-container-shape', label: say.parts.searchBar, fallback: '--mo-sys-block-control-radius' },
 ];
 
 // Material 3's elevation levels (ui.css, which every theme has, set to the theme's own look).
@@ -66,10 +66,14 @@ const shadows: Token[] = [
   { token: '--chip-elevated-shadow', label: say.partShadows.chipElevated, fallback: '--mo-sys-elevation-level1-shadow' },
   { token: '--card-filled-shadow', label: say.partShadows.cardFilled, fallback: '--mo-sys-elevation-level0-shadow' },
   { token: '--card-outlined-shadow', label: say.partShadows.cardOutlined, fallback: '--mo-sys-elevation-level0-shadow' },
-  { token: '--card-elevated-shadow', label: say.partShadows.cardElevated, fallback: '--mo-sys-elevation-level1-shadow' },
+  {
+    token: '--mo-comp-elevated-card-container-elevation',
+    label: say.partShadows.cardElevated,
+    fallback: '--mo-sys-elevation-level1-shadow',
+  },
   { token: '--switch-handle-shadow', label: say.partShadows.switchHandle, fallback: '--mo-sys-elevation-level1-shadow' },
   { token: '--slider-handle-shadow', label: say.partShadows.sliderHandle, fallback: '--mo-sys-elevation-level1-shadow' },
-  { token: '--menu-shadow', label: say.partShadows.menu, fallback: '--mo-sys-elevation-level2-shadow' },
+  { token: '--mo-comp-menu-container-elevation', label: say.partShadows.menu, fallback: '--mo-sys-elevation-level2-shadow' },
   { token: '--tooltip-rich-shadow', label: say.partShadows.tooltipRich, fallback: '--mo-sys-elevation-level2-shadow' },
   { token: '--dialog-shadow', label: say.partShadows.dialog, fallback: '--mo-sys-elevation-level3-shadow' },
   { token: '--bottom-sheet-shadow', label: say.partShadows.bottomSheet, fallback: '--mo-sys-elevation-level1-shadow' },

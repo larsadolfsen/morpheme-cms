@@ -8,7 +8,7 @@ export const allow = [
   },
   {
     file: /global\.css$|tokens\/material\/comp\/slider\.css$/,
-    line: /^--slider-track-inner-radius: 0\.125rem/,
+    line: /^--mo-comp-slider-active-track-inner-corner-corner-size: 0\.125rem/,
     reason: "the slider's inner track corner: M3 draws it 2dp",
   },
   {
@@ -29,7 +29,7 @@ export const allow = [
   },
   {
     file: /ui\.css$/,
-    line: /^--menu-item-radius, calc|^border-radius: var\(--menu-item-radius, calc/,
+    line: /^--mo-comp-menu-item-radius, calc|^border-radius: var\(--mo-comp-menu-item-radius, calc/,
     reason: 'a menu item inside the container: the container corner minus its padding',
   },
   {

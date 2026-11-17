@@ -29,11 +29,11 @@ test('declared tells the root, @theme and every other place apart, also in @laye
 
 test('a prefixed name on :root passes, an unprefixed one fails', () => {
   assert.deepEqual(run({ 'a.css': ':root { --mo-card-gap: 8px; }' }), []);
-  assert.match(run({ 'a.css': ':root { --card-gap: 8px; }' }).join('\n'), /a\.css: 1 unprefixed custom property .* --card-gap/);
+  assert.match(run({ 'a.css': ':root { --sample-gap: 8px; }' }).join('\n'), /a\.css: 1 unprefixed custom property .* --sample-gap/);
 });
 
 test("an unprefixed name on a block, not on :root, is the block's own and passes", () => {
-  assert.deepEqual(run({ 'a.css': '.card { --card-gap: 8px; }' }), []);
+  assert.deepEqual(run({ 'a.css': '.card { --sample-gap: 8px; }' }), []);
 });
 
 test('count mode: a file may keep its count, never go over, and a new file gets none', () => {
@@ -60,12 +60,12 @@ test('Tailwind: --tw-* on :root and its theme namespaces in @theme pass; an unkn
 });
 
 test('an app or theme that declares a name the CMS declares collides, on :root or on a block', () => {
-  const cms = { 'theme.css': ':root { --mo-sys-color-primary: red; } .card { --card-gap: 8px; }' };
+  const cms = { 'theme.css': ':root { --mo-sys-color-primary: red; } .card { --sample-gap: 8px; }' };
   assert.match(
     run(cms, { 'apps/x/a.css': '.x { --mo-sys-color-primary: blue; }' }).join('\n'),
     /declares --mo-sys-color-primary, a name the CMS declares/,
   );
-  assert.match(run(cms, { 'apps/x/a.css': '.x { --card-gap: 1px; }' }).join('\n'), /--card-gap/);
+  assert.match(run(cms, { 'apps/x/a.css': '.x { --sample-gap: 1px; }' }).join('\n'), /--sample-gap/);
   assert.deepEqual(run(cms, { 'apps/x/a.css': '.x { --x-gap: 1px; }' }), []);
 });
 
@@ -81,11 +81,11 @@ test('the <style> of an .astro file is read, the markup is not', () => {
 });
 
 test('the report lists :root names nothing reads and names one place reads', () => {
-  const cms = { 'a.css': ':root { --lonely: 1; --card-gap: 8px; --text-size: 1rem; --mo-x: 2; }' };
+  const cms = { 'a.css': ':root { --lonely: 1; --sample-gap: 8px; --text-size: 1rem; --mo-x: 2; }' };
   const styles = {
     'a.css':
       cms['a.css'] +
-      ' .card { gap: var(--card-gap); } .card-b { gap: var(--card-gap); } .chip { size: var(--text-size); } .badge { size: var(--text-size); }',
+      ' .card { gap: var(--sample-gap); } .card-b { gap: var(--sample-gap); } .chip { size: var(--text-size); } .badge { size: var(--text-size); }',
   };
   const r = report(cms, readers(styles, { 'x.tsx': "el.style.setProperty('--text-size', '1')" }));
   assert.deepEqual(r.unread, ['--lonely', '--mo-x']);
@@ -94,10 +94,10 @@ test('the report lists :root names nothing reads and names one place reads', () 
     [],
   );
   const one = report(
-    { 'a.css': ':root { --card-gap: 8px; }' },
-    readers({ 'a.css': '.card { gap: var(--card-gap); } .card:hover { gap: var(--card-gap); }' }, {}),
+    { 'a.css': ':root { --sample-gap: 8px; }' },
+    readers({ 'a.css': '.card { gap: var(--sample-gap); } .card:hover { gap: var(--sample-gap); }' }, {}),
   );
-  assert.deepEqual(one.single, [['--card-gap', 'a.css:card']]);
+  assert.deepEqual(one.single, [['--sample-gap', 'a.css:card']]);
 });
 
 test('a declaration is not a read, a script string and a Tailwind (--x) are', () => {

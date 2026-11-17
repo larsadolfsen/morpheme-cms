@@ -6,10 +6,10 @@
 .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   /* Time pickers: the boxes 96 × 80 with small corners and display-large numbers in the highest surface container, the
      one on the dial in the secondary container, and the 256px dial in the highest surface container. */
-  --time-picker-headline-color: var(--mo-sys-color-on-surface-variant);
-  --time-picker-box-radius: var(--mo-sys-shape-corner-small);
-  --time-picker-box-surface: var(--mo-sys-color-surface-container-highest);
-  --time-picker-box-selected-surface: var(--mo-sys-color-surface-container-high);
-  --time-picker-box-selected-text: var(--mo-sys-color-on-surface);
-  --time-picker-dial-surface: var(--mo-sys-color-surface-container-highest);
+  --mo-comp-time-picker-headline-color: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-time-picker-box-radius: var(--mo-sys-shape-corner-small);
+  --mo-comp-time-picker-box-surface: var(--mo-sys-color-surface-container-highest);
+  --mo-comp-time-picker-box-selected-surface: var(--mo-sys-color-surface-container-high);
+  --mo-comp-time-picker-box-selected-text: var(--mo-sys-color-on-surface);
+  --mo-comp-time-picker-dial-surface: var(--mo-sys-color-surface-container-highest);
 }

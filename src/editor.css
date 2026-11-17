@@ -71,13 +71,13 @@
 
   /* A form's "on this page" area (SectionPane in ui.tsx) against the window's end edge: its width (the card is as wide as the navigation drawer), the card in it
      stands --mo-sys-section-pane-gap in from the end edge and from the window's top edge. */
-  --mo-sys-section-pane-width: calc(var(--navigation-drawer-width, 22.5rem) + var(--mo-sys-section-pane-gap));
+  --mo-sys-section-pane-width: calc(var(--mo-comp-navigation-drawer-width, 22.5rem) + var(--mo-sys-section-pane-gap));
   --mo-sys-section-pane-gap: 2rem;
 
   /* The side panel of a block's fields and the section settings (BlockDialog's standard side sheet from expanded, BottomSheet
      `panel` in ui.tsx from large): M3's side sheet is 400dp (25rem) wide at most; where the window is narrower it is half
      the space beside the start panel, the content column taking the other half (see below). */
-  --side-panel-width: min(25rem, calc((100vw - var(--mo-sys-column-start)) / 2));
+  --mo-comp-side-panel-width: min(25rem, calc((100vw - var(--mo-sys-column-start)) / 2));
 }
 
 /* The text field (MarkdownEditor.tsx). The rest of the editor uses the site's Tailwind classes. */
@@ -522,11 +522,11 @@
   .editor-screen {
     animation: editor-enter var(--mo-sys-motion-spring-default-spatial);
     /* A chip set that scrolls reaches out to the screen's edges: the screen's gutter (px-4, medium:px-6 in Screen.tsx). */
-    --chip-set-bleed: 1rem;
+    --mo-comp-chip-set-bleed: 1rem;
   }
   @media (width >= theme(--breakpoint-medium)) {
     .editor-screen {
-      --chip-set-bleed: 1.5rem;
+      --mo-comp-chip-set-bleed: 1.5rem;
     }
   }
 
@@ -587,22 +587,28 @@
    24px icon: half the difference less than the items' padding). The avatar has a 1px border inside its size.
    The pill is as high as a drawer item (56px); the row around it is the top bar's height. */
 .editor-main-drawer-header {
-  --list-item-padding-block: 0.375rem;
-  --list-item-two-line-min-height: var(--navigation-drawer-item-height, 3.5rem);
+  --mo-comp-list-item-padding-block: 0.375rem;
+  --mo-comp-list-item-two-line-min-height: var(--navigation-drawer-item-height, 3.5rem);
   --editor-drawer-header-text: var(--navigation-drawer-item-text, var(--mo-sys-block-muted));
   --editor-drawer-header-padding: calc(
     var(--navigation-drawer-item-padding-inline, 1rem) - (var(--list-item-avatar-size, 2.5rem) - 1.5rem) / 2
   );
-  --list-item-padding-inline: var(--editor-drawer-header-padding);
-  --list-item-radius: var(--navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
-  --list-item-hover-radius: var(--navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
-  --list-item-hover-surface: var(--navigation-drawer-item-hover, color-mix(in srgb, var(--editor-drawer-header-text) 8%, transparent));
-  --list-item-pressed-surface: var(--navigation-drawer-item-pressed, color-mix(in srgb, var(--editor-drawer-header-text) 10%, transparent));
-  --list-item-hover-text: inherit;
+  --mo-comp-list-item-padding-inline: var(--editor-drawer-header-padding);
+  --mo-comp-list-list-item-container-shape: var(--navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
+  --mo-comp-list-item-hover-radius: var(--navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
+  --mo-comp-list-item-hover-surface: var(
+    --navigation-drawer-item-hover,
+    color-mix(in srgb, var(--editor-drawer-header-text) 8%, transparent)
+  );
+  --mo-comp-list-item-pressed-surface: var(
+    --navigation-drawer-item-pressed,
+    color-mix(in srgb, var(--editor-drawer-header-text) 10%, transparent)
+  );
+  --mo-comp-list-item-hover-text: inherit;
 }
 
 .editor-main-drawer-header .list-item-container:focus-visible {
-  background: var(--list-item-pressed-surface);
+  background: var(--mo-comp-list-item-pressed-surface);
 }
 
 .editor-main-drawer-header .list-item-avatar {
@@ -615,18 +621,18 @@
    level with the top bar's logo, as the drawers' does; the rail's items keep their place. */
 @media (width >= theme(--breakpoint-medium)) {
   .editor-main-drawer-panel {
-    --navigation-drawer-inset: 1.25rem;
+    --mo-comp-navigation-drawer-inset: 1.25rem;
   }
 }
 
 /* The editor's drawers keep one width through their levels and sections (the layout beside them counts on it: --mo-sys-section-pane-width and
    the columns); the theme's drawer hugs its content (the expanded rail). An editor-only choice (docs/material-deviations.md, N2). */
 .editor-main-drawer-panel {
-  --navigation-drawer-width: min(22.5rem, calc(100vw - 3.5rem));
+  --mo-comp-navigation-drawer-width: min(22.5rem, calc(100vw - 3.5rem));
 }
 
 .editor-main-rail {
-  --navigation-rail-padding: 0.5rem 0.5rem 1.5rem;
+  --mo-comp-navigation-rail-padding: 0.5rem 0.5rem 1.5rem;
 }
 
 .editor-main-rail .navigation-rail-header {
@@ -635,7 +641,10 @@
 
 /* The rail (and the room above it for a phone's notch) in the open drawer's colour, so it does not change when the drawer opens. */
 .editor-main-rail-frame {
-  --navigation-rail-surface: var(--navigation-drawer-surface, var(--mo-sys-color-surface-container-low, var(--mo-sys-color-surface)));
+  --mo-comp-navigation-rail-surface: var(
+    --navigation-drawer-surface,
+    var(--mo-sys-color-surface-container-low, var(--mo-sys-color-surface))
+  );
 }
 
 @keyframes editor-pop {
@@ -696,19 +705,19 @@
    stand beside the rail and the drawer, so they need no room. */
 @media (width >= theme(--breakpoint-medium)) {
   .snackbar-stack {
-    padding-left: var(--navigation-rail-width, 5.5rem);
+    padding-left: var(--mo-comp-navigation-rail-container-width, 5.5rem);
   }
   .editor-save-bar {
-    left: var(--navigation-rail-width, 5.5rem);
+    left: var(--mo-comp-navigation-rail-container-width, 5.5rem);
     width: auto;
   }
 }
 @media (width >= theme(--breakpoint-expanded)) {
   :root[data-sidebar='open'] .snackbar-stack {
-    padding-left: var(--navigation-drawer-width, 22.5rem);
+    padding-left: var(--mo-comp-navigation-drawer-width, 22.5rem);
   }
   :root[data-sidebar='open'] .editor-save-bar {
-    left: var(--navigation-drawer-width, 22.5rem);
+    left: var(--mo-comp-navigation-drawer-width, 22.5rem);
   }
 }
 
@@ -759,7 +768,7 @@
 }
 @media (width >= theme(--breakpoint-medium)) {
   :root {
-    --mo-sys-column-start: var(--navigation-rail-width, 5.5rem);
+    --mo-sys-column-start: var(--mo-comp-navigation-rail-container-width, 5.5rem);
   }
   .editor-column {
     margin-inline-start: clamp(
@@ -772,7 +781,7 @@
 }
 @media (width >= theme(--breakpoint-expanded)) {
   :root[data-sidebar='open'] {
-    --mo-sys-column-start: var(--navigation-drawer-width, 22.5rem);
+    --mo-sys-column-start: var(--mo-comp-navigation-drawer-width, 22.5rem);
   }
 }
 
@@ -794,7 +803,7 @@
      height like the standard one; its backdrop is clear. */
   .editor-side-panel {
     inset: 0 0 0 auto;
-    width: var(--side-panel-width);
+    width: var(--mo-comp-side-panel-width);
     height: 100dvh;
   }
   .editor-side-panel:dir(rtl) {
@@ -811,23 +820,23 @@
    start edge, it takes the "on this page" area's place (that is hidden), and the content, which stays in use, keeps clear of it. */
 @media (width >= theme(--breakpoint-medium)) {
   :root[data-side-panel] {
-    --mo-sys-column-end: var(--side-panel-width);
+    --mo-sys-column-end: var(--mo-comp-side-panel-width);
   }
   :root[data-side-panel] .editor-section-pane {
     display: none;
   }
   :root[data-side-panel] .editor-content {
-    padding-inline-end: var(--side-panel-width);
+    padding-inline-end: var(--mo-comp-side-panel-width);
   }
   :root[data-side-panel] .editor-column {
     margin-inline: auto;
   }
   :root[data-side-panel] .editor-save-bar {
-    right: var(--side-panel-width);
+    right: var(--mo-comp-side-panel-width);
   }
   /* The screen's create button stands beside the pane, not on it (a redirect or a new list opens the pane from it). */
   :root[data-side-panel] .editor-fab {
-    right: calc(var(--side-panel-width) + 1rem + env(safe-area-inset-right));
+    right: calc(var(--mo-comp-side-panel-width) + 1rem + env(safe-area-inset-right));
   }
   /* The same for a standard side sheet in the page's own layout (the details in Files), while it reaches (nearly) the window's edge: the button
      stands beside it, not on it. The column stops growing at 73.5rem, and from there the button has room at its end. */
@@ -840,7 +849,7 @@
     position: fixed;
     inset: 0 0 0 auto;
     z-index: 20;
-    width: var(--side-panel-width);
+    width: var(--mo-comp-side-panel-width);
     max-width: none;
     height: 100dvh;
   }
@@ -848,7 +857,7 @@
     inset: 0 auto 0 0;
   }
   :root[data-side-panel] .editor-top-bar-slot {
-    padding-inline-end: var(--side-panel-width);
+    padding-inline-end: var(--mo-comp-side-panel-width);
   }
 }
 
@@ -892,9 +901,9 @@ html {
   position: relative;
   /* The dotted outline is a Card's: its corner radius and padding, the theme's tokens (the same fallbacks as .card), so the action row, the items and the
      add button line up inside it. */
-  border-radius: var(--card-radius, var(--mo-sys-block-radius));
+  border-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
   border: var(--editor-frame-line) dashed color-mix(in srgb, var(--mo-sys-color-on-surface-variant) 45%, transparent);
-  padding-block: var(--card-padding, 1rem);
+  padding-block: var(--mo-comp-card-padding, 1rem);
   padding-inline: calc(var(--editor-frame-outset) - var(--editor-frame-line));
   text-align: left;
   cursor: pointer;
@@ -911,7 +920,7 @@ html {
   top: 0.25rem;
   /* The block's top left corner (owner, 16 Nov): the one place to drag a block. A 48 dp touch target, drawn inside the frame, its edge 24 dp in from the frame's left
      edge, where the selection mark's 48 dp target (centred on the outline's corner curve) ends, so the two never overlap (the card is the frame outset wider than the block on each side). */
-  left: calc(var(--card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px + 1.5rem - var(--editor-frame-outset));
+  left: calc(var(--mo-comp-card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px + 1.5rem - var(--editor-frame-outset));
   z-index: 2;
   display: flex;
   align-items: center;
@@ -940,7 +949,7 @@ html {
 /* The row hugs the top of the outline: it is pulled up into the card's padding, so the space above it is the Card's gap (the theme's small step), not its full padding; the
    sides and the space below the content keep the Card's padding. Its margin opens with its height (blockRow.ts), so the block below moves by one smooth amount. */
 .editor-text .site-block-row:not(.site-block-row-hover) {
-  margin-block-start: calc(var(--card-gap, 0.5rem) - var(--card-padding, 1rem));
+  margin-block-start: calc(var(--mo-comp-card-gap, 0.5rem) - var(--mo-comp-card-padding, 1rem));
 }
 
 /* The row of a block a mouse points at (not the active one): over the top of the block's content, inside its outline, in no flow, so pointing at a block never moves the page.
@@ -948,7 +957,7 @@ html {
 .editor-text .site-block-row-hover {
   position: absolute;
   z-index: 1;
-  inset-block-start: calc(1.5px + var(--card-gap, 0.5rem));
+  inset-block-start: calc(1.5px + var(--mo-comp-card-gap, 0.5rem));
   inset-inline: calc(var(--editor-frame-outset) - var(--editor-frame-line));
   pointer-events: none;
 }
@@ -978,7 +987,9 @@ html {
   align-items: center;
   block-size: 3rem;
   /* Room for the handle at the start: it ends 4.5 rem past the selection mark's centre; the buttons stay clear of it. */
-  padding-inline-start: calc(var(--card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px + 4.5rem - var(--editor-frame-outset));
+  padding-inline-start: calc(
+    var(--mo-comp-card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px + 4.5rem - var(--editor-frame-outset)
+  );
 }
 
 /* A hidden block's badge (32 dp, 16 dp from the frame's top and right) lies at the row's end: the buttons stop short of it. */
@@ -998,7 +1009,7 @@ html {
 
 .editor-text .site-block-has-row > .site-block-handle {
   /* In the row's start: the row's own height, below the card's border and gap from its top edge. */
-  top: calc(1.5px + var(--card-gap, 0.5rem));
+  top: calc(1.5px + var(--mo-comp-card-gap, 0.5rem));
   opacity: 1;
 }
 
@@ -1031,7 +1042,7 @@ html {
   position: absolute;
   /* Centred on the outline's corner curve: the card is the frame outset wider than the block on each side, and the 45 degree point of a corner with the Card's radius r (its
      1.5px line centred) lies r * (1 - cos 45) + 0.53px in from the corner, along both edges. */
-  --mo-sys-mark-in: calc(var(--card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px);
+  --mo-sys-mark-in: calc(var(--mo-comp-card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px);
   top: calc(var(--mo-sys-mark-in) - 1.5rem);
   left: calc(var(--mo-sys-mark-in) - var(--editor-frame-outset) - 1.5rem);
   z-index: 2;
@@ -1337,7 +1348,7 @@ html {
 }
 
 .inline-list-slot[data-icon-color] {
-  color: var(--icon-color);
+  color: var(--mo-comp-icon-color);
 }
 
 /* In a list the row's icon button is the heading's colour, as the icon is on the site (blocks.css, .block-list). */
@@ -1369,7 +1380,7 @@ html {
 
 /* The icon picker's grid draws its icons in the color picked in the Icon color field (IconPicker, iconColor); the chosen one keeps its own colors. */
 [data-icon-grid][data-icon-color] .icon-button:not([aria-pressed='true']) {
-  color: var(--icon-color);
+  color: var(--mo-comp-icon-color);
 }
 
 .inline-list-slot:hover,
@@ -1386,7 +1397,7 @@ html {
 /* A menu over the page (Menu in ui.tsx: a field's dropdown, a button's menu): the theme's menu, always with the menu
    shadow, so it stands in front of the editor's page also in a theme whose menu has the page's colour and no shadow. */
 .editor-menu {
-  --menu-shadow: var(--editor-menu-shadow);
+  --mo-comp-menu-container-elevation: var(--editor-menu-shadow);
 }
 
 /* Where the browser has CSS anchor positioning the menu is placed by the theme's rules for a dropdown menu (ui.css, under the
@@ -1398,7 +1409,7 @@ html {
   .editor-menu[data-menu-attached] {
     width: max-content;
     min-width: anchor-size(width);
-    max-width: max(anchor-size(width), var(--menu-width, 18rem));
+    max-width: max(anchor-size(width), var(--mo-comp-menu-width, 18rem));
     position-area: block-end span-inline-start;
     inset: var(--dropdown-menu-gap, 0.25rem) 0 0.5rem 0.5rem;
   }
@@ -2013,7 +2024,7 @@ dialog {
 /* The crop view (CropView.tsx, image tools spec section 3): a page of the editor on every width, as a layer the size of the window over it (a modal
    <dialog>, so the form under it keeps its changes and its scroll place): the top app bar, the content in a column as wide as a form, and the Save row
    in the theme's standard bottom sheet. A block's subpage on a phone (.block-page, BlockDialog.tsx) has the same layer, column and sheet. The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and the part of the image outside it is under the
-   theme's scrim, the one its dialogs have behind their container (--dialog-scrim). The frame has a 2 dp border with a 1 dp halo outside it in the other
+   theme's scrim, the one its dialogs have behind their container (--mo-comp-dialog-scrim). The frame has a 2 dp border with a 1 dp halo outside it in the other
    inverse colour, so one of the two stands against any image, light or dark (M3 prints no frame: the focus ring's two-tone look). */
 .crop-page,
 .block-page {
@@ -2105,11 +2116,11 @@ dialog {
   box-shadow: 0 0 0 1px var(--mo-sys-color-inverse-surface);
   pointer-events: none;
 }
-/* The part of the image outside the frame is under the theme's scrim, the one its dialogs have behind their container (--dialog-scrim); only the image is, so
+/* The part of the image outside the frame is under the theme's scrim, the one its dialogs have behind their container (--mo-comp-dialog-scrim); only the image is, so
    the blank part of the stage keeps the page's colour. */
 .crop-view-shade {
   position: absolute;
-  background: var(--dialog-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-sys-color-on-surface)) 50%, transparent));
+  background: var(--mo-comp-dialog-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-sys-color-on-surface)) 50%, transparent));
   pointer-events: none;
 }
 .crop-view-frame:focus-visible {

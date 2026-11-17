@@ -5,22 +5,22 @@
      --theme-post-picture-radius (Material 3: 8dp). */
 @layer components {
   .theme-post-list {
-    --list-item-image-size: 5.5rem;
-    --list-item-image-radius: var(--theme-post-picture-radius);
+    --mo-comp-list-item-image-size: 5.5rem;
+    --mo-comp-list-item-image-radius: var(--theme-post-picture-radius);
   }
 }
 @layer components {
   @media (width >= theme(--breakpoint-medium)) {
     .theme-post-list {
-      --list-item-image-size: 8rem;
+      --mo-comp-list-item-image-size: 8rem;
     }
   }
 }
 @layer components {
   .theme-action-bar-text {
-    --list-item-padding-block: 0;
-    --list-item-padding-inline: 0;
-    --list-item-min-height: auto;
-    --list-item-two-line-min-height: auto;
+    --mo-comp-list-item-padding-block: 0;
+    --mo-comp-list-item-padding-inline: 0;
+    --mo-comp-list-list-item-container-height: auto;
+    --mo-comp-list-item-two-line-min-height: auto;
   }
 }
