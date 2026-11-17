@@ -48,7 +48,7 @@ const surfaces = [
   ['elevated card', 'background: var(--card-elevated-surface, var(--mo-sys-elevation-level1-color));', 1],
   ['outlined card', 'background: var(--mo-comp-outlined-card-container-color, var(--mo-sys-elevation-level0-color));', 1],
   ['dialog (also date and time picker)', 'background: var(--dialog-surface, var(--mo-sys-elevation-level3-color));', 1],
-  ['date picker input label notch', '--text-field-label-surface: var(--dialog-surface, var(--mo-sys-elevation-level3-color));', 1],
+  ['date picker input label notch', '--mo-comp-text-field-label-surface: var(--dialog-surface, var(--mo-sys-elevation-level3-color));', 1],
   ['bottom sheet (container and cover)', 'background: var(--bottom-sheet-surface, var(--mo-sys-elevation-level1-color));', 2],
   ['standard side sheet', 'background: var(--side-sheet-surface, var(--mo-sys-elevation-level0-color));', 2],
   ['modal side sheet', 'background: var(--side-sheet-modal-surface, var(--side-sheet-surface, var(--mo-sys-elevation-level1-color)));', 2],
@@ -79,10 +79,10 @@ for (const [part, line, times] of surfaces) {
 // Parts that keep their surface: the top app bar at rest, and the role parts.
 const unchanged = [
   'background: var(--mo-comp-top-app-bar-surface, color-mix(in oklab, var(--mo-sys-color-surface) 85%, transparent));',
-  'background: var(--search-bar-surface, var(--mo-sys-block-surface));',
+  'background: var(--mo-comp-search-bar-container-color, var(--mo-sys-block-surface));',
   'background: var(--navigation-bar-surface, var(--mo-sys-block-surface));',
   'background: var(--mo-comp-filled-card-container-color, var(--mo-sys-block-tint));',
-  'background: var(--switch-handle-surface, var(--mo-sys-block-surface));',
+  'background: var(--mo-comp-switch-unselected-handle-color, var(--mo-sys-block-surface));',
 ];
 
 for (const line of unchanged) {
