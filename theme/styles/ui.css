@@ -4312,10 +4312,6 @@
     --slider-value-surface, --slider-value-text, --slider-value-radius   the value's label
     --slider-value-room   the room over a slider whose values are always shown, for their labels
     --slider-label-weight, --slider-disabled-opacity   the name, and a slider that cannot be moved
-  Dividers (Divider.tsx, dividerClass; m3.material.io/components/divider): .divider, an <hr>, from edge to edge, with
-  .divider-inset (in from the start) or .divider-middle-inset (in from both sides), and .divider-vertical (top to
-  bottom, between things side by side).
-    --divider-color, --divider-thickness, --divider-inset   the line, and how far in an inset one starts
   Side sheets (SideSheet.tsx, sideSheetClass, sideSheetContainerClass, and sideSheet() and standardSideSheet() in
   sideSheetControl.ts for what they do in a browser, sideSheet.script.ts for a button with data-side-sheet-open="<id>"; m3.material.io/components/side-sheets): .side-sheet-container with its kind,
   .side-sheet-standard (beside what it is about, with a line between) or .side-sheet-modal (over the page, in the
@@ -4792,34 +4788,6 @@
     .slider-value {
       transition: opacity var(--mo-sys-motion-spring-fast-effects);
     }
-  }
-
-  /* Dividers. */
-  .divider {
-    flex-shrink: 0;
-    height: 0;
-    margin: 0;
-    border: 0;
-    border-top: var(--divider-thickness, 1px) solid var(--divider-color, var(--mo-sys-block-line));
-  }
-  .divider-inset {
-    margin-inline-start: var(--divider-inset, 1rem);
-  }
-  .divider-middle-inset {
-    margin-inline: var(--divider-inset, 1rem);
-  }
-  .divider-vertical {
-    align-self: stretch;
-    width: 0;
-    height: auto;
-    border-top: 0;
-    border-inline-start: var(--divider-thickness, 1px) solid var(--divider-color, var(--mo-sys-block-line));
-  }
-  .divider-vertical.divider-inset {
-    margin: var(--divider-inset, 1rem) 0 0;
-  }
-  .divider-vertical.divider-middle-inset {
-    margin: var(--divider-inset, 1rem) 0;
   }
 
   /* Side sheets: the header, what it shows (scrolling) and the actions at the bottom. */
