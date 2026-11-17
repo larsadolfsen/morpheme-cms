@@ -36,7 +36,7 @@ const shape: Token[] = [
 const parts: Token[] = [
   { token: '--mo-comp-button-medium-container-shape-round', label: say.parts.button, fallback: '--mo-sys-block-control-radius' },
   { token: '--mo-comp-filter-chip-container-shape', label: say.parts.chip, fallback: '--mo-sys-block-control-radius' },
-  { token: '--text-field-radius', label: say.parts.textField, fallback: '--mo-sys-block-control-radius' },
+  { token: '--mo-comp-text-field-radius', label: say.parts.textField, fallback: '--mo-sys-block-control-radius' },
   { token: '--mo-comp-card-radius', label: say.parts.card, fallback: '--mo-sys-block-radius' },
   { token: '--menu-radius', label: say.parts.menu, fallback: '--mo-sys-block-radius-small' },
   { token: '--dialog-radius', label: say.parts.dialog, fallback: '--mo-sys-block-radius' },
@@ -44,7 +44,7 @@ const parts: Token[] = [
   { token: '--side-sheet-radius', label: say.parts.sideSheet, fallback: '--mo-sys-block-radius' },
   { token: '--mo-comp-fab-container-shape', label: say.parts.fab, fallback: '--mo-sys-block-radius-small' },
   { token: '--snackbar-radius', label: say.parts.snackbar, fallback: '1rem' },
-  { token: '--search-bar-radius', label: say.parts.searchBar, fallback: '--mo-sys-block-control-radius' },
+  { token: '--mo-comp-search-bar-container-shape', label: say.parts.searchBar, fallback: '--mo-sys-block-control-radius' },
 ];
 
 // Material 3's elevation levels (ui.css, which every theme has, set to the theme's own look).

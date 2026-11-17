@@ -2,12 +2,12 @@
 
 @layer components {
   .list-item-control {
-    --checkbox-gap: 0;
-    --checkbox-offset: 0;
+    --mo-comp-checkbox-gap: 0;
+    --mo-comp-checkbox-offset: 0;
   }
 }
 @layer components {
   .list-item-select-box {
-    --checkbox-gap: 0;
+    --mo-comp-checkbox-gap: 0;
   }
 }

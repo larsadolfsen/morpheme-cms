@@ -2,6 +2,6 @@
 
 @layer components {
   .list-item-control {
-    --switch-gap: 0;
+    --mo-comp-switch-gap: 0;
   }
 }

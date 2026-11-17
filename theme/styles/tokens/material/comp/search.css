@@ -5,21 +5,21 @@
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
 .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   /* The search view (M3: docked, "with a scrim covering main content"; full screen it covers everything): the scrim over the page behind it, as a dialog's. */
-  --search-view-scrim: var(--mo-sys-color-scrim-overlay);
+  --mo-comp-search-view-scrim: var(--mo-sys-color-scrim-overlay);
   /* Search (M3 contained style, the recommended one): the bar 56px, full corners, in the high surface container with a state layer; the view
      full screen in the low surface container and docked in the high one, docked with extra-large corners and the third elevation. */
-  --search-bar-height: 3.5rem;
-  --search-bar-radius: var(--mo-sys-shape-corner-full);
-  --search-bar-padding: 1rem;
-  --search-bar-gap: 1rem;
-  --search-bar-surface: var(--mo-sys-color-surface-container-high);
-  --search-bar-line: transparent;
-  --search-bar-hover: color-mix(in srgb, var(--mo-sys-color-on-surface) 8%, var(--mo-sys-color-surface-container-high));
-  --search-bar-placeholder: var(--mo-sys-color-on-surface-variant);
-  --search-view-radius: var(--mo-sys-shape-corner-extra-large);
-  --search-view-line: transparent;
-  --search-view-docked-radius: var(--mo-sys-shape-corner-medium);
+  --mo-comp-search-bar-container-height: 3.5rem;
+  --mo-comp-search-bar-container-shape: var(--mo-sys-shape-corner-full);
+  --mo-comp-search-bar-padding: 1rem;
+  --mo-comp-search-bar-gap: 1rem;
+  --mo-comp-search-bar-container-color: var(--mo-sys-color-surface-container-high);
+  --mo-comp-search-bar-line: transparent;
+  --mo-comp-search-bar-hover: color-mix(in srgb, var(--mo-sys-color-on-surface) 8%, var(--mo-sys-color-surface-container-high));
+  --mo-comp-search-bar-supporting-text-color: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-search-view-radius: var(--mo-sys-shape-corner-extra-large);
+  --mo-comp-search-view-line: transparent;
+  --mo-comp-search-view-docked-container-shape: var(--mo-sys-shape-corner-medium);
   /* The results (and the recent searches) stand in the page's grid margin (16dp compact, 24dp from medium; owner's grid rule, 15 Nov 2026): M3 prints no side margin for a segmented list. */
-  --search-view-results-padding: 0.5rem var(--mo-sys-grid-margin);
-  --search-view-option-surface: var(--mo-sys-state-mo-hover-layer);
+  --mo-comp-search-view-results-padding: 0.5rem var(--mo-sys-grid-margin);
+  --mo-comp-search-view-option-surface: var(--mo-sys-state-mo-hover-layer);
 }
