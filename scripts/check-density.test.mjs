@@ -9,8 +9,8 @@ test('the theme follows density today', () => assert.deepEqual(findProblems(real
 test('a part that drops its density term fails', () => {
   const f = real();
   f['theme/styles/ui.css'] = f['theme/styles/ui.css'].replace(
-    /min-height: calc\(var\(--button-box\)[^;]*;/,
-    'min-height: var(--button-box);',
+    /min-height: calc\(var\(--mo-comp-button-box\)[^;]*;/,
+    'min-height: var(--mo-comp-button-box);',
   );
   assert.match(findProblems(f).join('\n'), /button \(\.button\) ignores density/);
 });

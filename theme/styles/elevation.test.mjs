@@ -78,7 +78,7 @@ for (const [part, line, times] of surfaces) {
 
 // Parts that keep their surface: the top app bar at rest, and the role parts.
 const unchanged = [
-  'background: var(--top-app-bar-surface, color-mix(in oklab, var(--mo-sys-color-surface) 85%, transparent));',
+  'background: var(--mo-comp-top-app-bar-surface, color-mix(in oklab, var(--mo-sys-color-surface) 85%, transparent));',
   'background: var(--search-bar-surface, var(--mo-sys-block-surface));',
   'background: var(--navigation-bar-surface, var(--mo-sys-block-surface));',
   'background: var(--card-filled-surface, var(--mo-sys-block-tint));',
@@ -115,7 +115,7 @@ const restShadows = [
   ['rich tooltip', 'var(--tooltip-rich-shadow, var(--mo-sys-elevation-level2-rest-shadow));', 1],
   ['search view', 'var(--search-view-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 1],
   ['floating toolbar', 'var(--toolbar-floating-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 1],
-  ['FAB and FAB menu', 'box-shadow: var(--fab-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 2],
+  ['FAB and FAB menu', 'box-shadow: var(--mo-comp-fab-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 2],
   ['snackbar', 'box-shadow: var(--snackbar-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 1],
   ['switch handle', 'box-shadow: var(--switch-handle-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 1],
   ['slider handle (both directions)', 'box-shadow: var(--slider-handle-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 2],
@@ -149,8 +149,8 @@ for (let level = 1; level <= 5; level++) {
 }
 
 const addedLines = [
-  ['--fab-shadow: var(--mo-sys-elevation-level3-shadow);', 1],
-  ['--fab-hover-shadow: var(--mo-sys-elevation-level4-shadow);', 1],
+  ['--mo-comp-fab-shadow: var(--mo-sys-elevation-level3-shadow);', 1],
+  ['--mo-comp-fab-hover-shadow: var(--mo-sys-elevation-level4-shadow);', 1],
   ['--mo-sys-block-shadow: var(--mo-sys-elevation-level1-rest-shadow);', 1],
   // Light mode once, then the dark-mode media block and the dark theme attribute.
   ['--mo-sys-panel-shadow: var(--mo-sys-elevation-level1-rest-shadow);', 3],
@@ -196,7 +196,7 @@ test('global.css keeps the extended FAB lines in the navigation drawer', () => {
   assert.equal(
     count(
       globalCss,
-      '  --fab-shadow: var(--mo-sys-elevation-level1-shadow);\n  --fab-hover-shadow: var(--mo-sys-elevation-level2-shadow);\n',
+      '  --mo-comp-fab-shadow: var(--mo-sys-elevation-level1-shadow);\n  --mo-comp-fab-hover-shadow: var(--mo-sys-elevation-level2-shadow);\n',
     ),
     1,
   );

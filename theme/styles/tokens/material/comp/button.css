@@ -7,38 +7,38 @@
   /* Buttons (ui.css): M3's small size (40px), as wide as the label, full corners (or square), a label in medium weight; a text
      button with less room at its sides; tonal in the secondary container, elevated on the lowest container with the
      first elevation, outlined with M3's outline and its label in the primary colour. */
-  --button-height: 2.5rem;
-  --button-radius: var(--mo-sys-shape-corner-full);
+  --mo-comp-button-medium-container-height: 2.5rem;
+  --mo-comp-button-medium-container-shape-round: var(--mo-sys-shape-corner-full);
   /* Square buttons and icon buttons by M3's size: medium corners on the small ones (40px, as these buttons), large on
      the medium (56px: the hero's buttons on a computer, the medium icon button), extra-large on the large. */
-  --button-xsmall-square-radius: var(--mo-sys-shape-corner-medium);
-  --button-small-square-radius: var(--mo-sys-shape-corner-medium);
-  --button-square-radius: var(--mo-sys-shape-corner-medium);
-  --button-large-square-radius: var(--mo-sys-shape-corner-extra-large);
-  --button-xlarge-square-radius: var(--mo-sys-shape-corner-extra-large);
-  --button-padding: 1.5rem;
-  --button-gap: 0.5rem;
-  --button-font-size: var(--mo-sys-typescale-label-large-size);
-  --button-weight: var(--mo-sys-typescale-label-large-weight);
-  --button-letter-spacing: var(--mo-sys-typescale-label-large-tracking);
-  --button-small-height: 2.5rem;
-  --button-small-padding: 1rem;
-  --button-xsmall-height: 2rem;
-  --button-xsmall-padding: 1rem;
-  --button-xsmall-gap: 0.5rem;
-  --button-text-padding: 1.5rem;
-  --button-filled-hover: color-mix(in srgb, var(--mo-sys-color-on-primary) 8%, var(--mo-sys-color-primary));
-  --button-tonal-surface: var(--mo-sys-color-surface-container-high);
-  --button-tonal-text: var(--mo-sys-color-on-surface);
-  --button-tonal-hover: color-mix(in srgb, var(--mo-sys-color-on-surface) 8%, var(--mo-sys-color-surface-container-high));
-  --button-elevated-text: var(--mo-sys-color-primary);
-  --button-outlined-surface: transparent;
-  --button-outlined-text: var(--mo-sys-color-primary);
-  --button-outlined-line: var(--mo-sys-color-outline);
-  --button-outlined-hover-text: var(--mo-sys-color-primary);
-  --button-outlined-hover-line: var(--mo-sys-color-outline);
-  --button-text-text: var(--mo-sys-color-primary);
-  --button-text-hover: var(--mo-sys-color-primary-hover);
+  --mo-comp-button-xsmall-container-shape-square: var(--mo-sys-shape-corner-medium);
+  --mo-comp-button-small-container-shape-square: var(--mo-sys-shape-corner-medium);
+  --mo-comp-button-medium-container-shape-square: var(--mo-sys-shape-corner-medium);
+  --mo-comp-button-large-container-shape-square: var(--mo-sys-shape-corner-extra-large);
+  --mo-comp-button-xlarge-container-shape-square: var(--mo-sys-shape-corner-extra-large);
+  --mo-comp-button-padding: 1.5rem;
+  --mo-comp-button-medium-icon-label-space: 0.5rem;
+  --mo-comp-button-font-size: var(--mo-sys-typescale-label-large-size);
+  --mo-comp-button-weight: var(--mo-sys-typescale-label-large-weight);
+  --mo-comp-button-letter-spacing: var(--mo-sys-typescale-label-large-tracking);
+  --mo-comp-button-small-container-height: 2.5rem;
+  --mo-comp-button-small-padding: 1rem;
+  --mo-comp-button-xsmall-container-height: 2rem;
+  --mo-comp-button-xsmall-padding: 1rem;
+  --mo-comp-button-xsmall-icon-label-space: 0.5rem;
+  --mo-comp-button-text-padding: 1.5rem;
+  --mo-comp-button-filled-hover: color-mix(in srgb, var(--mo-sys-color-on-primary) 8%, var(--mo-sys-color-primary));
+  --mo-comp-button-tonal-container-color: var(--mo-sys-color-surface-container-high);
+  --mo-comp-button-tonal-label-text-color: var(--mo-sys-color-on-surface);
+  --mo-comp-button-tonal-hover: color-mix(in srgb, var(--mo-sys-color-on-surface) 8%, var(--mo-sys-color-surface-container-high));
+  --mo-comp-button-elevated-label-text-color: var(--mo-sys-color-primary);
+  --mo-comp-button-outlined-surface: transparent;
+  --mo-comp-button-outlined-label-text-color: var(--mo-sys-color-primary);
+  --mo-comp-button-outlined-outline-color: var(--mo-sys-color-outline);
+  --mo-comp-button-outlined-hovered-label-text-color: var(--mo-sys-color-primary);
+  --mo-comp-button-outlined-hovered-outline-color: var(--mo-sys-color-outline);
+  --mo-comp-button-text-label-text-color: var(--mo-sys-color-primary);
+  --mo-comp-button-text-hover: var(--mo-sys-color-primary-hover);
   /* The buttons that do more than one thing (ui.css, "Actions"), as M3's. Button groups 12px apart, or connected 2px
      apart with small corners between them (extra-small for the extra-small buttons, large and large increased for the
      large and extra-large); a toggle off in a surface container in on-surface-variant, on in the primary colour, with
@@ -46,21 +46,21 @@
      outline and no container, the chosen in the secondary container with its check. Split buttons 2px apart with
      extra-small corners between them (small for the large, medium for the extra-large). A FAB menu's actions as pills in the secondary container (the theme's --mo-sys-color-surface-container-high, below) and its
      FAB a circle while open. */
-  --button-group-gap: 0.75rem;
-  --button-group-connected-gap: 0.125rem;
-  --button-group-xsmall-inner-radius: var(--mo-sys-shape-corner-extra-small);
-  --button-group-inner-radius: var(--mo-sys-shape-corner-small);
-  --button-group-large-inner-radius: var(--mo-sys-shape-corner-large);
-  --button-group-xlarge-inner-radius: var(--mo-sys-shape-corner-large-increased);
-  --button-group-selected-radius: var(--mo-sys-shape-corner-medium);
-  --button-toggle-surface: var(--mo-sys-color-surface-container);
-  --button-toggle-text: var(--mo-sys-color-on-surface-variant);
-  --button-toggle-hover: color-mix(in srgb, var(--mo-sys-color-on-surface-variant) 8%, var(--mo-sys-color-surface-container));
-  --button-toggle-selected-surface: var(--mo-sys-color-primary);
-  --button-toggle-selected-text: var(--mo-sys-color-on-primary);
-  --button-toggle-selected-hover: color-mix(in srgb, var(--mo-sys-color-on-primary) 8%, var(--mo-sys-color-primary));
+  --mo-comp-button-group-standard-medium-between-space: 0.75rem;
+  --mo-comp-button-group-connected-gap: 0.125rem;
+  --mo-comp-button-group-xsmall-inner-radius: var(--mo-sys-shape-corner-extra-small);
+  --mo-comp-button-group-inner-radius: var(--mo-sys-shape-corner-small);
+  --mo-comp-button-group-large-inner-radius: var(--mo-sys-shape-corner-large);
+  --mo-comp-button-group-xlarge-inner-radius: var(--mo-sys-shape-corner-large-increased);
+  --mo-comp-button-group-selected-radius: var(--mo-sys-shape-corner-medium);
+  --mo-comp-button-filled-unselected-container-color: var(--mo-sys-color-surface-container);
+  --mo-comp-button-filled-unselected-label-text-color: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-button-toggle-hover: color-mix(in srgb, var(--mo-sys-color-on-surface-variant) 8%, var(--mo-sys-color-surface-container));
+  --mo-comp-button-filled-selected-container-color: var(--mo-sys-color-primary);
+  --mo-comp-button-filled-selected-label-text-color: var(--mo-sys-color-on-primary);
+  --mo-comp-button-toggle-selected-hover: color-mix(in srgb, var(--mo-sys-color-on-primary) 8%, var(--mo-sys-color-primary));
 }
 .md-footer-bottom {
   /* Its text button (the cookie settings) with an 18px icon. */
-  --button-icon-size: 1.125rem;
+  --mo-comp-button-medium-icon-size: 1.125rem;
 }

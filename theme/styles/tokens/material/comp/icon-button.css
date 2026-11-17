@@ -4,21 +4,21 @@
 :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
 .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
-  --icon-button-medium-square-radius: var(--mo-sys-shape-corner-large);
+  --mo-comp-icon-button-medium-container-shape-square: var(--mo-sys-shape-corner-large);
   /* Icon buttons: 48 by 48 with a 24px icon; standard in on-surface-variant without a container, tonal in the
      secondary container (the cross on a pop-up, as it can stand on an image). */
-  --icon-button-size: 3rem;
-  --icon-button-icon-size: 1.5rem;
-  --icon-button-standard-text: var(--mo-sys-color-on-surface-variant);
-  --icon-button-tonal-surface: var(--mo-sys-color-surface-container-high);
-  --icon-button-tonal-text: var(--mo-sys-color-on-surface);
-  --icon-button-outlined-surface: transparent;
-  --icon-button-outlined-text: var(--mo-sys-color-on-surface-variant);
-  --icon-button-outlined-line: var(--mo-sys-color-outline);
+  --mo-comp-icon-button-small-container-height: 3rem;
+  --mo-comp-icon-button-small-icon-size: 1.5rem;
+  --mo-comp-icon-button-standard-icon-color: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-icon-button-tonal-container-color: var(--mo-sys-color-surface-container-high);
+  --mo-comp-icon-button-tonal-icon-color: var(--mo-sys-color-on-surface);
+  --mo-comp-icon-button-outlined-surface: transparent;
+  --mo-comp-icon-button-outlined-icon-color: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-icon-button-outlined-outline-color: var(--mo-sys-color-outline);
 }
 @layer components {
   .bottom-sheet-header {
-    --icon-button-size: 2.5rem;
-    --icon-button-icon-size: 1.375rem;
+    --mo-comp-icon-button-small-container-height: 2.5rem;
+    --mo-comp-icon-button-small-icon-size: 1.375rem;
   }
 }
