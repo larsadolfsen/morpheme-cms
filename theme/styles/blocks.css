@@ -91,7 +91,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(var(--mo-sys-block-list-column-min), 100%), 1fr));
     align-items: start;
-    column-gap: var(--mo-sys-block-gutter);
+    column-gap: var(--mo-sys-grid-gutter);
   }
   /* The setting Columns is off (data-columns="one", standard/columns.ts): one column, at most as wide as Steps. */
   :is(.block-list, .block-accordion, .block-testimonial-rows, .block-posts-rows)[data-columns='one'] {

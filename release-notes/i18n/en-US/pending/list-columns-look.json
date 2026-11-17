@@ -1,0 +1,6 @@
+{
+  "id": "list-columns-look",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Lists in columns have lines only between their rows, and the right corners on a wide screen"
+}
