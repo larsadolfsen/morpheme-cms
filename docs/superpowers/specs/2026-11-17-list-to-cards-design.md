@@ -1,7 +1,7 @@
 # 0.19 Cards and lists (design)
 
-Status: brainstorm with the owner, 17 November 2026. **Not approved as a whole**: the decisions below are the owner's, one by
-one; the open questions are in section 9. No code. Roadmap: `docs/superpowers/plans/2026-11-14-roadmap-0-18-to-0-24.md`,
+Status: brainstorm with the owner, 17 November 2026. **Waiting for the owner's approval as a whole**, with the plan
+`docs/superpowers/plans/2026-11-17-cards-and-lists-0-19.md`. Section 9 holds the last decisions. No code. Roadmap: `docs/superpowers/plans/2026-11-14-roadmap-0-18-to-0-24.md`,
 *0.19 Cards and lists*.
 
 It started from the owner's question: "According to M3, a list item may change into a card on larger screens. Should cards
@@ -50,7 +50,7 @@ break: `THEME_API` and `APP_API` go up, and the release note lists the old and n
   number. A component's own value that is not in the set (the outlined card's disabled outline, 0.12) is the component's,
   from its token table.
 - **One focus ring** for every part, 3 dp, offset 2 dp, following the focused part's own corner (`border-radius: inherit`).
-  Its colour is **open** (section 9, Q1). A component's own offset from its token table (the list's −3 dp, inside) is a
+  Its colour is `--mo-color-primary` (section 9, 1). A component's own offset from its token table (the list's −3 dp, inside) is a
   component variable.
 
 ## 4. Step 2: Avatar
@@ -218,23 +218,25 @@ in its own frame, or the theme on container queries (after Tailwind is gone, the
 builder; wide sizes on a phone (scaled, perhaps view only); which previews go (page and post; header, footer and part
 previews; Google's result preview stays). Needs a design, after Tailwind is gone.
 
-## 9. Open questions for the owner
+## 9. The last decisions
 
-1. **The focus ring's colour.** M3's token: `secondary` (cards, lists). `specs/2026-11-13-custom-colors-design.md` found a cream
-   Secondary gives a ring 1.15:1; WCAG 2.2 (1.4.11) needs 3:1, and Modern web comes before M3. Recommendation: `--mo-color-primary`,
-   recorded as a deviation quoting both; it closes that spec's open question.
-2. **Gap 1, buttons in a list item.** Recommendation: a card with one button becomes a single-action item (the row does what the
-   button did); with several, buttons with an icon become trailing icon buttons and the rest go into a trailing overflow menu.
-3. Chips and sliders in a list item.
-4. Linked text in a list item.
-5. Dividers inside a card, and `children`, in a list item.
-6. `columns` and `truncate` (list only).
-7. Trailing text and the trailing icon on a card.
-8. Scope of "nothing stays out": the editor's lists and cards; single cards (*Notice*, *Table*, *Cookie list*, panels, 404);
-   lists inside other components (search suggestions, the choice group's radio list, the accordion).
-9. The looks L1 to L5.
-10. The old `0.19` branch (cut from `0.18` on 14 November): does this work go on it?
-11. The other documents that name versions 0.19 to 0.26 (about 25): renumber them, or keep the roadmap's note ("add one").
+Owner, 17 November: "Lists are more simple. Not all cards should be convertible. No need to ask me." The session decided the
+rest; the owner approves the whole with the plan (`plans/2026-11-17-cards-and-lists-0-19.md`).
+
+1. **Focus ring:** `--mo-color-primary`, a deviation quoting M3's `secondary` token and WCAG 2.2, 1.4.11 (a site's Secondary can
+   give 1.15:1; `specs/2026-11-13-custom-colors-design.md`). Modern web comes before M3.
+2. **Buttons** (owner): one is a single-action item; several are an expanding item with each a nested single-action item.
+3. **Chips and sliders** (owner): they do not belong in a list. A collection whose cards have them offers Cards only.
+4. **Linked text** (owner): a link in the text is one of the card's actions, as in 2; in the row the text is plain.
+5. **Inner dividers** are not drawn in the list form. **Other components** (`children`) as 3: Cards only (*Price cards*, *Table*).
+6. **`columns`** is removed (not in M3's anatomy). **`truncate`** stays (M3: text "can wrap or be truncated").
+7. **A list item as a card:** trailing text at the end of the subhead line; the trailing icon is not drawn.
+8. **Scope:** every group of items on the site and the editor's lists of content go through the collection. Single cards, lists
+   inside another component and the editor's settings rows use `Card` and `ListItem` but do not convert.
+9. **Looks:** standard list (segmented where a block offers it); the block's card kind, default outlined; the description on
+   cards; 2 cards side by side from 600 dp, 3 from 840 dp; each block's own image shape.
+10. **Branches:** the `0.19` branch (the old *Lists and data*, 202 commits) becomes `0.20`; a new `0.19` is cut from `0.18`.
+11. **Other documents** keep their numbers until they are next changed; the roadmap's note says to add one.
 
 ## 10. Sources read
 
