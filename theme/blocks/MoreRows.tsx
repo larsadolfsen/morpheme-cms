@@ -36,7 +36,7 @@ export default function MoreRows({
   return (
     <div ref={root} className="block-more" data-max={cut}>
       <div id={id}>{children}</div>
-      <div className={className ? `block-more-buttons ${className}` : 'block-more-buttons'}>
+      <div className={className ? `block-buttons-row ${className}` : 'block-buttons-row'}>
         <div className={className ? `block-more-button block-list-button ${className}` : 'block-more-button block-list-button'}>
           <Button kind="text" aria-controls={id} aria-expanded="false" onClick={() => root.current && showMoreRows(root.current)}>
             {label}

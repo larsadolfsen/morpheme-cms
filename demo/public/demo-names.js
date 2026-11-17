@@ -53,7 +53,7 @@
   };
 
   // What a block draws beside itself in the text (its "more" button): it has the block's space, but it is not a block of its own.
-  const EXTRA = '.block-list-button, .block-more-button, .block-more-buttons';
+  const EXTRA = '.block-list-button, .block-more-button, .block-buttons-row';
 
   const read = () => {
     const q = new URLSearchParams(location.search);

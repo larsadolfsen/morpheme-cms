@@ -1330,7 +1330,7 @@ async function checkListButtonsRow(width) {
     problems.push(`${label}: the demo's Lists page (/blocks/lists/) did not open`);
     return page.close();
   }
-  const row = page.locator('.block-more-buttons:has(.block-more-button):has(.block-more-button ~ .block-list-button)').first();
+  const row = page.locator('.block-buttons-row:has(.block-more-button):has(.block-more-button ~ .block-list-button)').first();
   if (!(await row.count())) {
     problems.push(`${label}: no list with a row limit has both Show more and a text button under it`);
     return page.close();
