@@ -6,6 +6,21 @@
 @import './tokens/lists/comp/list.css';
 @import './tokens/lists/sys.css';
 @layer components {
+  /* An open item of a plain List - Expand has a surface of its own (owner, 17 Nov 2026: "A plain design list item that is open should have a bg color"): the
+     segmented design's item surface, so the question and its answer are one block; square corners on a phone (edge to edge), the open radius from medium. */
+  .block-accordion:not(.block-accordion-segmented) > li:has(> .list-item-expand[open]) {
+    background: var(--mo-sys-color-surface-container);
+  }
+  /* No line against an open item: its surface is the edge (the line above it and the line under it). */
+  .block-accordion:not(.block-accordion-segmented) > li:has(> .list-item-expand[open]),
+  .block-accordion:not(.block-accordion-segmented) > li:has(> .list-item-expand[open]) + li {
+    border-top-color: transparent;
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .block-accordion:not(.block-accordion-segmented) {
+      --list-expand-open-radius: var(--mo-sys-shape-corner-large);
+    }
+  }
   @media (width < theme(--breakpoint-medium)) {
     .block-list:not(.list-segmented),
     .block-accordion:not(.block-accordion-segmented) {
