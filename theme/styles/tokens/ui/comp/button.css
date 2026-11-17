@@ -108,8 +108,11 @@
 }
 @layer components {
   .snackbar {
-    --mo-comp-button-text-label-text-color: var(--snackbar-action-text, var(--snackbar-text, var(--mo-sys-color-inverse-on-surface)));
-    --mo-comp-button-text-hover: var(--snackbar-action-hover, color-mix(in srgb, currentColor 12%, transparent));
+    --mo-comp-button-text-label-text-color: var(
+      --mo-comp-snackbar-action-label-text-color,
+      var(--mo-comp-snackbar-supporting-text-color, var(--mo-sys-color-inverse-on-surface))
+    );
+    --mo-comp-button-text-hover: var(--mo-comp-snackbar-action-hover, color-mix(in srgb, currentColor 12%, transparent));
   }
 }
 @layer components {

@@ -71,13 +71,13 @@
 
   /* A form's "on this page" area (SectionPane in ui.tsx) against the window's end edge: its width (the card is as wide as the navigation drawer), the card in it
      stands --mo-sys-section-pane-gap in from the end edge and from the window's top edge. */
-  --mo-sys-section-pane-width: calc(var(--navigation-drawer-width, 22.5rem) + var(--mo-sys-section-pane-gap));
+  --mo-sys-section-pane-width: calc(var(--mo-comp-navigation-drawer-width, 22.5rem) + var(--mo-sys-section-pane-gap));
   --mo-sys-section-pane-gap: 2rem;
 
   /* The side panel of a block's fields and the section settings (BlockDialog's standard side sheet from expanded, BottomSheet
      `panel` in ui.tsx from large): M3's side sheet is 400dp (25rem) wide at most; where the window is narrower it is half
      the space beside the start panel, the content column taking the other half (see below). */
-  --side-panel-width: min(25rem, calc((100vw - var(--mo-sys-column-start)) / 2));
+  --mo-comp-side-panel-width: min(25rem, calc((100vw - var(--mo-sys-column-start)) / 2));
 }
 
 /* The text field (MarkdownEditor.tsx). The rest of the editor uses the site's Tailwind classes. */
@@ -621,18 +621,18 @@
    level with the top bar's logo, as the drawers' does; the rail's items keep their place. */
 @media (width >= theme(--breakpoint-medium)) {
   .editor-main-drawer-panel {
-    --navigation-drawer-inset: 1.25rem;
+    --mo-comp-navigation-drawer-inset: 1.25rem;
   }
 }
 
 /* The editor's drawers keep one width through their levels and sections (the layout beside them counts on it: --mo-sys-section-pane-width and
    the columns); the theme's drawer hugs its content (the expanded rail). An editor-only choice (docs/material-deviations.md, N2). */
 .editor-main-drawer-panel {
-  --navigation-drawer-width: min(22.5rem, calc(100vw - 3.5rem));
+  --mo-comp-navigation-drawer-width: min(22.5rem, calc(100vw - 3.5rem));
 }
 
 .editor-main-rail {
-  --navigation-rail-padding: 0.5rem 0.5rem 1.5rem;
+  --mo-comp-navigation-rail-padding: 0.5rem 0.5rem 1.5rem;
 }
 
 .editor-main-rail .navigation-rail-header {
@@ -641,7 +641,10 @@
 
 /* The rail (and the room above it for a phone's notch) in the open drawer's colour, so it does not change when the drawer opens. */
 .editor-main-rail-frame {
-  --navigation-rail-surface: var(--navigation-drawer-surface, var(--mo-sys-color-surface-container-low, var(--mo-sys-color-surface)));
+  --mo-comp-navigation-rail-surface: var(
+    --navigation-drawer-surface,
+    var(--mo-sys-color-surface-container-low, var(--mo-sys-color-surface))
+  );
 }
 
 @keyframes editor-pop {
@@ -702,19 +705,19 @@
    stand beside the rail and the drawer, so they need no room. */
 @media (width >= theme(--breakpoint-medium)) {
   .snackbar-stack {
-    padding-left: var(--navigation-rail-width, 5.5rem);
+    padding-left: var(--mo-comp-navigation-rail-container-width, 5.5rem);
   }
   .editor-save-bar {
-    left: var(--navigation-rail-width, 5.5rem);
+    left: var(--mo-comp-navigation-rail-container-width, 5.5rem);
     width: auto;
   }
 }
 @media (width >= theme(--breakpoint-expanded)) {
   :root[data-sidebar='open'] .snackbar-stack {
-    padding-left: var(--navigation-drawer-width, 22.5rem);
+    padding-left: var(--mo-comp-navigation-drawer-width, 22.5rem);
   }
   :root[data-sidebar='open'] .editor-save-bar {
-    left: var(--navigation-drawer-width, 22.5rem);
+    left: var(--mo-comp-navigation-drawer-width, 22.5rem);
   }
 }
 
@@ -765,7 +768,7 @@
 }
 @media (width >= theme(--breakpoint-medium)) {
   :root {
-    --mo-sys-column-start: var(--navigation-rail-width, 5.5rem);
+    --mo-sys-column-start: var(--mo-comp-navigation-rail-container-width, 5.5rem);
   }
   .editor-column {
     margin-inline-start: clamp(
@@ -778,7 +781,7 @@
 }
 @media (width >= theme(--breakpoint-expanded)) {
   :root[data-sidebar='open'] {
-    --mo-sys-column-start: var(--navigation-drawer-width, 22.5rem);
+    --mo-sys-column-start: var(--mo-comp-navigation-drawer-width, 22.5rem);
   }
 }
 
@@ -800,7 +803,7 @@
      height like the standard one; its backdrop is clear. */
   .editor-side-panel {
     inset: 0 0 0 auto;
-    width: var(--side-panel-width);
+    width: var(--mo-comp-side-panel-width);
     height: 100dvh;
   }
   .editor-side-panel:dir(rtl) {
@@ -817,23 +820,23 @@
    start edge, it takes the "on this page" area's place (that is hidden), and the content, which stays in use, keeps clear of it. */
 @media (width >= theme(--breakpoint-medium)) {
   :root[data-side-panel] {
-    --mo-sys-column-end: var(--side-panel-width);
+    --mo-sys-column-end: var(--mo-comp-side-panel-width);
   }
   :root[data-side-panel] .editor-section-pane {
     display: none;
   }
   :root[data-side-panel] .editor-content {
-    padding-inline-end: var(--side-panel-width);
+    padding-inline-end: var(--mo-comp-side-panel-width);
   }
   :root[data-side-panel] .editor-column {
     margin-inline: auto;
   }
   :root[data-side-panel] .editor-save-bar {
-    right: var(--side-panel-width);
+    right: var(--mo-comp-side-panel-width);
   }
   /* The screen's create button stands beside the pane, not on it (a redirect or a new list opens the pane from it). */
   :root[data-side-panel] .editor-fab {
-    right: calc(var(--side-panel-width) + 1rem + env(safe-area-inset-right));
+    right: calc(var(--mo-comp-side-panel-width) + 1rem + env(safe-area-inset-right));
   }
   /* The same for a standard side sheet in the page's own layout (the details in Files), while it reaches (nearly) the window's edge: the button
      stands beside it, not on it. The column stops growing at 73.5rem, and from there the button has room at its end. */
@@ -846,7 +849,7 @@
     position: fixed;
     inset: 0 0 0 auto;
     z-index: 20;
-    width: var(--side-panel-width);
+    width: var(--mo-comp-side-panel-width);
     max-width: none;
     height: 100dvh;
   }
@@ -854,7 +857,7 @@
     inset: 0 auto 0 0;
   }
   :root[data-side-panel] .editor-top-bar-slot {
-    padding-inline-end: var(--side-panel-width);
+    padding-inline-end: var(--mo-comp-side-panel-width);
   }
 }
 
@@ -1345,7 +1348,7 @@ html {
 }
 
 .inline-list-slot[data-icon-color] {
-  color: var(--icon-color);
+  color: var(--mo-comp-icon-color);
 }
 
 /* In a list the row's icon button is the heading's colour, as the icon is on the site (blocks.css, .block-list). */
@@ -1377,7 +1380,7 @@ html {
 
 /* The icon picker's grid draws its icons in the color picked in the Icon color field (IconPicker, iconColor); the chosen one keeps its own colors. */
 [data-icon-grid][data-icon-color] .icon-button:not([aria-pressed='true']) {
-  color: var(--icon-color);
+  color: var(--mo-comp-icon-color);
 }
 
 .inline-list-slot:hover,
@@ -1394,7 +1397,7 @@ html {
 /* A menu over the page (Menu in ui.tsx: a field's dropdown, a button's menu): the theme's menu, always with the menu
    shadow, so it stands in front of the editor's page also in a theme whose menu has the page's colour and no shadow. */
 .editor-menu {
-  --menu-shadow: var(--editor-menu-shadow);
+  --mo-comp-menu-container-elevation: var(--editor-menu-shadow);
 }
 
 /* Where the browser has CSS anchor positioning the menu is placed by the theme's rules for a dropdown menu (ui.css, under the
@@ -1406,7 +1409,7 @@ html {
   .editor-menu[data-menu-attached] {
     width: max-content;
     min-width: anchor-size(width);
-    max-width: max(anchor-size(width), var(--menu-width, 18rem));
+    max-width: max(anchor-size(width), var(--mo-comp-menu-width, 18rem));
     position-area: block-end span-inline-start;
     inset: var(--dropdown-menu-gap, 0.25rem) 0 0.5rem 0.5rem;
   }
@@ -2021,7 +2024,7 @@ dialog {
 /* The crop view (CropView.tsx, image tools spec section 3): a page of the editor on every width, as a layer the size of the window over it (a modal
    <dialog>, so the form under it keeps its changes and its scroll place): the top app bar, the content in a column as wide as a form, and the Save row
    in the theme's standard bottom sheet. A block's subpage on a phone (.block-page, BlockDialog.tsx) has the same layer, column and sheet. The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and the part of the image outside it is under the
-   theme's scrim, the one its dialogs have behind their container (--dialog-scrim). The frame has a 2 dp border with a 1 dp halo outside it in the other
+   theme's scrim, the one its dialogs have behind their container (--mo-comp-dialog-scrim). The frame has a 2 dp border with a 1 dp halo outside it in the other
    inverse colour, so one of the two stands against any image, light or dark (M3 prints no frame: the focus ring's two-tone look). */
 .crop-page,
 .block-page {
@@ -2113,11 +2116,11 @@ dialog {
   box-shadow: 0 0 0 1px var(--mo-sys-color-inverse-surface);
   pointer-events: none;
 }
-/* The part of the image outside the frame is under the theme's scrim, the one its dialogs have behind their container (--dialog-scrim); only the image is, so
+/* The part of the image outside the frame is under the theme's scrim, the one its dialogs have behind their container (--mo-comp-dialog-scrim); only the image is, so
    the blank part of the stage keeps the page's colour. */
 .crop-view-shade {
   position: absolute;
-  background: var(--dialog-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-sys-color-on-surface)) 50%, transparent));
+  background: var(--mo-comp-dialog-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-sys-color-on-surface)) 50%, transparent));
   pointer-events: none;
 }
 .crop-view-frame:focus-visible {

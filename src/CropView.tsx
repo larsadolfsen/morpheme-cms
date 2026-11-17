@@ -1,6 +1,6 @@
 // The crop view (docs/superpowers/specs/2026-11-14-image-tools-design.md, section 3): a page of the editor, on every width (owner, 14 Nov: full-screen
 // views are pages): a top app bar with a back arrow and its title, the whole image in its real proportions with a frame of the chosen aspect ratio over it
-// and everything outside the frame under the theme's scrim (the one its dialogs have behind their container: --dialog-scrim), the aspect ratios and the
+// and everything outside the frame under the theme's scrim (the one its dialogs have behind their container: --mo-comp-dialog-scrim), the aspect ratios and the
 // zoom, and a bottom bar with Save (and Cancel from medium). A drag places the image under the frame, a pinch (touch) or the wheel (mouse) zooms around
 // the fingers or the pointer, the slider with its minus and plus buttons zooms around the middle. It is a layer over the editor (a modal <dialog> the size
 // of the window, so the form under it keeps its changes and its scroll place), with a step of its own in the history so the phone's back gesture leaves it

@@ -9,9 +9,9 @@
   icon (.dialog-icon, centred over the headline with .dialog-with-icon), .dialog-headline, .dialog-supporting-text,
   .dialog-content (what else it shows, scrolling), optionally .dialog-divider and .dialog-actions at its end. There is no
   full-screen dialog: a full screen is a page with a back arrow.
-    --dialog-radius, --dialog-surface, --dialog-shadow, --dialog-line   the container's corners, surface, shadow
+    --mo-comp-dialog-container-shape, --dialog-surface, --dialog-shadow, --mo-comp-dialog-line   the container's corners, surface, shadow
                      (level 3), edge
-    --dialog-scrim   the shade over the page behind a modal dialog (else --theme-scrim-colour, the text's colour, in
+    --mo-comp-dialog-scrim   the shade over the page behind a modal dialog (else --theme-scrim-colour, the text's colour, in
                      dark mode the page's, seen through)
     --dialog-max-width   how wide a modal dialog is at most
     --dialog-padding   the room inside a basic dialog
@@ -39,12 +39,12 @@
   handle and the header; half-expanded, at most half as high as the screen; expanded, as high as what it shows, but
   not to the top; hidden), data-moving while it is dragged or moves, data-full while it is expanded and as high as it
   can be (the collapse button shows only then).
-    --bottom-sheet-surface, --bottom-sheet-radius, --bottom-sheet-line   its surface (also the cover's), corners, and
+    --bottom-sheet-surface, --mo-comp-sheet-bottom-docked-container-shape, --mo-comp-bottom-sheet-line   its surface (also the cover's), corners, and
                      the lines under the header and over the footer
     --bottom-sheet-shadow, --bottom-sheet-shadow-large   its shadow on a phone (and a standard one's; level 1), and as
                      a dialog from the medium width (level 3)
-    --bottom-sheet-scrim   the shade over the page behind a modal one
-    --bottom-sheet-handle, --bottom-sheet-handle-focus   the drag handle's colour, and while it has the focus
+    --mo-comp-bottom-sheet-scrim   the shade over the page behind a modal one
+    --mo-comp-sheet-bottom-docked-drag-handle-color, --bottom-sheet-handle-focus   the drag handle's colour, and while it has the focus
     --bottom-sheet-start-max-height   how high a sheet starts on a phone at most (50dvh, Material 3's half-expanded); the
                      rest is dragged up to
     --bottom-sheet-max-width, --bottom-sheet-top-gap   how wide a standard one is at most, and how far from the top it

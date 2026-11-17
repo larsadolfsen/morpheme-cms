@@ -86,41 +86,8 @@
     "theme/styles/tokens/base/sys.css": {
       "max": 25
     },
-    "theme/styles/tokens/material/comp/badge.css": {
-      "max": 7
-    },
-    "theme/styles/tokens/material/comp/bottom-sheet.css": {
-      "max": 4
-    },
-    "theme/styles/tokens/material/comp/dialog.css": {
-      "max": 3
-    },
-    "theme/styles/tokens/material/comp/menu.css": {
-      "max": 24
-    },
-    "theme/styles/tokens/material/comp/navigation.css": {
-      "max": 27
-    },
-    "theme/styles/tokens/material/comp/progress-indicator.css": {
-      "max": 4
-    },
-    "theme/styles/tokens/material/comp/setting.css": {
-      "max": 1
-    },
-    "theme/styles/tokens/material/comp/side-sheet.css": {
-      "max": 2
-    },
-    "theme/styles/tokens/material/comp/snackbar.css": {
-      "max": 7
-    },
-    "theme/styles/tokens/material/comp/tooltip.css": {
-      "max": 7
-    },
     "theme/styles/tokens/material/sys.css": {
       "max": 3
-    },
-    "theme/styles/tokens/ui/comp/navigation.css": {
-      "max": 4
     }
   }
 }

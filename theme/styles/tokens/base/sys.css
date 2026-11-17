@@ -61,8 +61,8 @@
     --theme-on-scrim-colour: var(--mo-sys-color-on-surface);
   }
 }
-/* In dark mode the shade is the page's colour, as the text's is light. A theme sets --dialog-scrim and
-   --navigation-drawer-scrim (ui.css) in its :root, and they hold in both modes. */
+/* In dark mode the shade is the page's colour, as the text's is light. A theme sets --mo-comp-dialog-scrim and
+   --mo-comp-navigation-drawer-scrim-color (ui.css) in its :root, and they hold in both modes. */
 :root[data-theme='dark'] {
   --theme-scrim-colour: var(--mo-sys-color-surface);
   --theme-on-scrim-colour: var(--mo-sys-color-on-surface);

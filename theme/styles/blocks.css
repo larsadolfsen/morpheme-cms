@@ -542,7 +542,7 @@
   }
   .block-accordion-lead[data-icon-color],
   .block-card .block-card-icon[data-icon-color] {
-    color: var(--icon-color);
+    color: var(--mo-comp-icon-color);
   }
   /* A panel (Panel.tsx): an outlined card (.card in ui.css) for a block that is one box (e.g. an app's about
      or price block), with an icon, a heading and a text at the top, and parts under a line. */
