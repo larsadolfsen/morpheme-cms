@@ -34,7 +34,7 @@ const shape: Token[] = [
 
 // The UI parts' corners, with what ui.css gives each when the theme does not set it.
 const parts: Token[] = [
-  { token: '--button-radius', label: say.parts.button, fallback: '--mo-sys-block-control-radius' },
+  { token: '--mo-comp-button-medium-container-shape-round', label: say.parts.button, fallback: '--mo-sys-block-control-radius' },
   { token: '--chip-radius', label: say.parts.chip, fallback: '--mo-sys-block-control-radius' },
   { token: '--text-field-radius', label: say.parts.textField, fallback: '--mo-sys-block-control-radius' },
   { token: '--card-radius', label: say.parts.card, fallback: '--mo-sys-block-radius' },
@@ -42,7 +42,7 @@ const parts: Token[] = [
   { token: '--dialog-radius', label: say.parts.dialog, fallback: '--mo-sys-block-radius' },
   { token: '--bottom-sheet-radius', label: say.parts.bottomSheet, fallback: '--mo-sys-block-radius' },
   { token: '--side-sheet-radius', label: say.parts.sideSheet, fallback: '--mo-sys-block-radius' },
-  { token: '--fab-radius', label: say.parts.fab, fallback: '--mo-sys-block-radius-small' },
+  { token: '--mo-comp-fab-container-shape', label: say.parts.fab, fallback: '--mo-sys-block-radius-small' },
   { token: '--snackbar-radius', label: say.parts.snackbar, fallback: '1rem' },
   { token: '--search-bar-radius', label: say.parts.searchBar, fallback: '--mo-sys-block-control-radius' },
 ];
@@ -56,7 +56,11 @@ const LEVELS = [0, 1, 2, 3, 4, 5];
 const shadows: Token[] = [
   { token: '--mo-sys-panel-shadow', label: say.elevation.shadow },
   { token: '--mo-sys-block-shadow', label: say.elevation.blockShadow },
-  { token: '--button-filled-shadow', label: say.partShadows.buttonFilled, fallback: '--mo-sys-elevation-level0-shadow' },
+  {
+    token: '--mo-comp-button-filled-container-elevation',
+    label: say.partShadows.buttonFilled,
+    fallback: '--mo-sys-elevation-level0-shadow',
+  },
   { token: '--button-tonal-shadow', label: say.partShadows.buttonTonal, fallback: '--mo-sys-elevation-level0-shadow' },
   { token: '--button-elevated-shadow', label: say.partShadows.buttonElevated, fallback: '--mo-sys-elevation-level1-shadow' },
   { token: '--chip-elevated-shadow', label: say.partShadows.chipElevated, fallback: '--mo-sys-elevation-level1-shadow' },
@@ -75,7 +79,7 @@ const shadows: Token[] = [
   { token: '--navigation-bar-shadow', label: say.partShadows.navigationBar, fallback: '--mo-sys-elevation-level0-shadow' },
   { token: '--navigation-rail-modal-shadow', label: say.partShadows.navigationRailModal, fallback: '--mo-sys-elevation-level2-shadow' },
   { token: '--top-app-bar-stuck-shadow', label: say.partShadows.topAppBarStuck, fallback: '--mo-sys-elevation-level2-shadow' },
-  { token: '--fab-shadow', label: say.partShadows.fab, fallback: '--mo-sys-elevation-level3-shadow' },
+  { token: '--mo-comp-fab-shadow', label: say.partShadows.fab, fallback: '--mo-sys-elevation-level3-shadow' },
   { token: '--toolbar-floating-shadow', label: say.partShadows.toolbarFloating, fallback: '--mo-sys-elevation-level3-shadow' },
   { token: '--search-bar-shadow', label: say.partShadows.searchBar, fallback: '--mo-sys-elevation-level0-shadow' },
   { token: '--search-view-shadow', label: say.partShadows.searchView, fallback: '--mo-sys-elevation-level3-shadow' },

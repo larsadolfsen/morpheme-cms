@@ -26,7 +26,7 @@
   --editor-menu-shadow: var(--mo-sys-elevation-level2-shadow);
 
   /* The room a screen leaves above its footer for the FAB (Screen.tsx data-clearance): the FAB's 56 dp and its 16 dp margins. */
-  --fab-room: 4.5rem;
+  --mo-comp-fab-room: 4.5rem;
 
   /* How a check went (CheckList: the SEO rating), as PageSpeed shows it: the mark before a check that is fine and one
      that can be done better, and the score's ring (from 90 good, from 50 average, else bad) with its number and the
@@ -1421,7 +1421,7 @@ html {
 
 /* The text's toolbar (MarkdownEditor.tsx, Toolbar in ui.tsx): the box's top edge, in the box's own surface. */
 .editor-tools {
-  --toolbar-standard-surface: var(--editor-menu-surface);
+  --mo-comp-toolbar-docked-container-color: var(--editor-menu-surface);
 }
 
 /* The text box's own side lines run up behind the toolbar when it sticks, so the two cut-outs outside its rounded top corners are
@@ -1502,7 +1502,7 @@ html {
    rests as the other tools do, in the standard icon button's colour (never the accent: only a tool that is on has it). */
 .toolbar-menu-button,
 .toolbar-menu-button:hover {
-  color: var(--icon-button-standard-text, var(--mo-sys-block-text));
+  color: var(--mo-comp-icon-button-standard-icon-color, var(--mo-sys-block-text));
 }
 
 /* Only drawn: the taps go to the card. */

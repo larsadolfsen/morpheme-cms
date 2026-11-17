@@ -6,7 +6,7 @@
 .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   /* The header's parts (ui.css): the top app bar on the background, in a surface container once the page scrolls under
      it (M3 shows its second elevation there by that surface alone), without a line, a shadow or a blur. */
-  --top-app-bar-surface: var(--mo-sys-color-surface);
-  --top-app-bar-line-width: 0;
-  --top-app-bar-backdrop: none;
+  --mo-comp-top-app-bar-surface: var(--mo-sys-color-surface);
+  --mo-comp-top-app-bar-line-width: 0;
+  --mo-comp-top-app-bar-backdrop: none;
 }
