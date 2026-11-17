@@ -29,7 +29,7 @@ export const allow = [
   },
   {
     file: /ui\.css$/,
-    line: /^--menu-item-radius, calc|^border-radius: var\(--menu-item-radius, calc/,
+    line: /^--mo-comp-menu-item-radius, calc|^border-radius: var\(--mo-comp-menu-item-radius, calc/,
     reason: 'a menu item inside the container: the container corner minus its padding',
   },
   {

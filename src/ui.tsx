@@ -2204,7 +2204,7 @@ export function Menu({
         Object.assign(menu.current.style, {
           width: 'max-content',
           minWidth: `${width}px`,
-          maxWidth: `max(${width}px, var(--menu-width, 18rem))`,
+          maxWidth: `max(${width}px, var(--mo-comp-menu-width, 18rem))`,
         });
       }
       sitePlaceMenu(menu.current, anchor);
@@ -2850,9 +2850,9 @@ export function LoadingIndicator({ children }: { children: ReactNode }) {
 
 // The theme's loading indicator as big as the text it is before, in its colour (on a filled button too).
 const inText = {
-  '--loading-indicator-size': '1.25em',
-  '--loading-indicator-shape-size': '1.125em',
-  '--loading-indicator-colour': 'currentColor',
+  '--mo-comp-loading-indicator-active-indicator-size': '1.25em',
+  '--mo-comp-loading-indicator-shape-size': '1.125em',
+  '--mo-comp-loading-indicator-active-indicator-color': 'currentColor',
 } as CSSProperties;
 
 /** What a list or a screen says when it has nothing to show (No …), or while it is fetched (`busy`,
@@ -3389,7 +3389,7 @@ export function MainDrawer({
 // `footer` is the bottom slot: the destinations' box grows to fill the rail, and the slot (the last child in it) is pushed to its end.
 function MainRail({ label, onOpen, footer, children }: { label: string; onOpen: () => void; footer?: ReactNode; children: ReactNode }) {
   return (
-    <aside className="editor-main-rail-frame sticky top-0 z-10 h-dvh shrink-0 self-start bg-(--navigation-rail-surface,var(--mo-sys-color-surface)) pt-[env(safe-area-inset-top)]">
+    <aside className="editor-main-rail-frame sticky top-0 z-10 h-dvh shrink-0 self-start bg-(--mo-comp-navigation-rail-surface,var(--mo-sys-color-surface)) pt-[env(safe-area-inset-top)]">
       <SiteNavigationRail
         label={label}
         menuLabel={t.library.openMenu}

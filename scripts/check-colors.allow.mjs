@@ -71,8 +71,15 @@ export const allow = [
   {
     kind: 'fixed-colour',
     file: /^theme\/styles\/(global|tokens\/material\/comp\/badge)\.css$/,
-    line: /--badge-(ok|minor|major)/,
+    line: /--mo-comp-badge-(ok|minor|major)/,
     reason: 'status badges: Material 3 has no success or warning role',
+  },
+  {
+    kind: 'state-layer',
+    file: /^theme\/styles\/tokens\/material\/comp\/bottom-sheet\.css$/,
+    line: /drag-handle-color/,
+    reason:
+      "the sheet's drag handle in on-surface-variant at 40%, M3's `sheet.bottom.docked.drag-handle.opacity`: a handle, not a state layer (its name says drag)",
   },
   {
     kind: 'state-layer',

@@ -53,7 +53,7 @@ const surfaces = [
   ['standard side sheet', 'background: var(--side-sheet-surface, var(--mo-sys-elevation-level0-color));', 2],
   ['modal side sheet', 'background: var(--side-sheet-modal-surface, var(--side-sheet-surface, var(--mo-sys-elevation-level1-color)));', 2],
   ['scrolled top app bar', 'background: var(--top-app-bar-stuck-surface, var(--mo-sys-elevation-level2-color));', 1],
-  ['menu, menu group and select list', 'background: var(--menu-surface, var(--mo-sys-elevation-level2-color));', 3],
+  ['menu, menu group and select list', 'background: var(--mo-comp-menu-container-color, var(--mo-sys-elevation-level2-color));', 3],
   [
     'modal navigation drawer (the expanded rail, modal)',
     'background: var(--navigation-drawer-surface, var(--mo-sys-elevation-level2-color));',
@@ -65,7 +65,7 @@ const surfaces = [
     1,
   ],
   ['rich tooltip', 'background: var(--tooltip-rich-surface, var(--mo-sys-elevation-level2-color));', 1],
-  ['standard navigation rail', 'background: var(--navigation-rail-surface, var(--mo-sys-elevation-level0-color));', 1],
+  ['standard navigation rail', 'background: var(--mo-comp-navigation-rail-surface, var(--mo-sys-elevation-level0-color));', 1],
   ['modal navigation rail', 'background: var(--navigation-rail-modal-surface, var(--mo-sys-elevation-level2-color));', 1],
   ['search view', 'background: var(--search-view-surface, var(--mo-sys-elevation-level3-color));', 1],
 ];
@@ -80,7 +80,7 @@ for (const [part, line, times] of surfaces) {
 const unchanged = [
   'background: var(--mo-comp-top-app-bar-surface, color-mix(in oklab, var(--mo-sys-color-surface) 85%, transparent));',
   'background: var(--mo-comp-search-bar-container-color, var(--mo-sys-block-surface));',
-  'background: var(--navigation-bar-surface, var(--mo-sys-block-surface));',
+  'background: var(--mo-comp-navigation-bar-container-color, var(--mo-sys-block-surface));',
   'background: var(--mo-comp-filled-card-container-color, var(--mo-sys-block-tint));',
   'background: var(--mo-comp-switch-unselected-handle-color, var(--mo-sys-block-surface));',
 ];
@@ -92,10 +92,10 @@ for (const line of unchanged) {
 }
 
 test('no part reads the old surface fallbacks', () => {
-  assert.equal(count(uiCss, 'var(--menu-surface, var(--mo-sys-block-surface))'), 0);
+  assert.equal(count(uiCss, 'var(--mo-comp-menu-container-color, var(--mo-sys-block-surface))'), 0);
   assert.equal(count(uiCss, 'var(--dialog-surface, var(--mo-sys-block-surface))'), 0);
   assert.equal(count(uiCss, 'var(--navigation-drawer-surface, var(--mo-sys-color-surface-container-low, var(--mo-sys-color-surface)))'), 0);
-  assert.equal(count(uiCss, 'var(--navigation-rail-surface, var(--mo-sys-block-surface))'), 0);
+  assert.equal(count(uiCss, 'var(--mo-comp-navigation-rail-surface, var(--mo-sys-block-surface))'), 0);
 });
 
 // Resting shadows: the part's own variable first, then its level's rest-shadow token.
@@ -115,7 +115,7 @@ const restShadows = [
   ['scrolled top app bar', 'box-shadow: var(--top-app-bar-stuck-shadow, var(--mo-sys-elevation-level2-rest-shadow));', 1],
   ['modal navigation rail', 'box-shadow: var(--navigation-rail-modal-shadow, var(--mo-sys-elevation-level2-rest-shadow));', 1],
   ['navigation drawer', 'box-shadow: var(--navigation-drawer-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 1],
-  ['menu, menu group and select list', 'var(--menu-shadow, var(--mo-sys-elevation-level2-rest-shadow));', 3],
+  ['menu, menu group and select list', 'var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-rest-shadow));', 3],
   ['rich tooltip', 'var(--tooltip-rich-shadow, var(--mo-sys-elevation-level2-rest-shadow));', 1],
   ['search view', 'var(--search-view-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 1],
   ['floating toolbar', 'var(--toolbar-floating-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 1],
@@ -180,7 +180,7 @@ const removedDeclarations = [
   '--dialog-surface',
   '--top-app-bar-stuck-surface',
   '--top-app-bar-stuck-shadow',
-  '--navigation-rail-surface',
+  '--mo-comp-navigation-rail-surface',
   '--navigation-drawer-surface',
   '--tooltip-rich-surface',
   '--search-view-surface',
@@ -197,8 +197,8 @@ for (const name of removedDeclarations) {
 // The menu is M3 Expressive's vertical menu in its standard colours: on the low surface container (level 1's colour), with
 // level 2's shadow, so it stands in front of the page (m3.material.io/components/menus/specs).
 test('global.css puts the menu on level 1 with the level 2 shadow', () => {
-  assert.equal(count(globalCss, '  --menu-surface: var(--mo-sys-elevation-level1-color);\n'), 1);
-  assert.equal(count(globalCss, '  --menu-shadow: var(--mo-sys-elevation-level2-shadow);\n'), 1);
+  assert.equal(count(globalCss, '  --mo-comp-menu-container-color: var(--mo-sys-elevation-level1-color);\n'), 1);
+  assert.equal(count(globalCss, '  --mo-comp-menu-container-elevation: var(--mo-sys-elevation-level2-shadow);\n'), 1);
 });
 
 test('global.css keeps the extended FAB lines in the navigation drawer', () => {

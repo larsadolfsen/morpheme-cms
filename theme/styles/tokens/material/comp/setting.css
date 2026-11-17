@@ -4,5 +4,5 @@
 :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
 .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
-  --setting-row-label-weight: var(--mo-sys-typescale-body-large-weight);
+  --mo-comp-setting-row-label-weight: var(--mo-sys-typescale-body-large-weight);
 }

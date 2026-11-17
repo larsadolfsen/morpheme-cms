@@ -4,7 +4,7 @@
   The elevation levels (m3.material.io/styles/elevation): how high a part stands over the page, level 0 (on it) to
   level 5. A level is a colour and a shadow. Every part's shadow below is one of them by default, at the level Material
   3 gives that part and its state (its tokens: md.comp.<part>.…container.elevation), and keeps its own variable
-  (--mo-comp-elevated-card-container-elevation, --menu-shadow …), so a theme can still give one part another shadow. A theme sets the levels
+  (--mo-comp-elevated-card-container-elevation, --mo-comp-menu-container-elevation …), so a theme can still give one part another shadow. A theme sets the levels
   to its own look, in light and dark mode, and they are its shadows everywhere; the ones here are a plain, neutral look
   of their own.
     --mo-sys-elevation-level0-shadow … --mo-sys-elevation-level5-shadow                   the level's shadow; level 0 is no shadow (0 0 #0000, so it can

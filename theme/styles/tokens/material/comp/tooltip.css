@@ -4,11 +4,11 @@
 :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
 .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
-  --tooltip-plain-surface: var(--mo-sys-color-inverse-surface);
-  --tooltip-plain-text: var(--mo-sys-color-inverse-on-surface);
-  --tooltip-plain-radius: var(--mo-sys-shape-corner-extra-small);
-  --tooltip-rich-text: var(--mo-sys-color-on-surface-variant);
-  --tooltip-rich-subhead: var(--mo-sys-color-on-surface);
-  --tooltip-rich-radius: var(--mo-sys-shape-corner-medium);
-  --tooltip-rich-line: transparent;
+  --mo-comp-plain-tooltip-container-color: var(--mo-sys-color-inverse-surface);
+  --mo-comp-plain-tooltip-supporting-text-color: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-plain-tooltip-container-shape: var(--mo-sys-shape-corner-extra-small);
+  --mo-comp-rich-tooltip-supporting-text-color: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-rich-tooltip-subhead-color: var(--mo-sys-color-on-surface);
+  --mo-comp-rich-tooltip-container-shape: var(--mo-sys-shape-corner-medium);
+  --mo-comp-tooltip-rich-line: transparent;
 }
