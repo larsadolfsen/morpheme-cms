@@ -137,7 +137,7 @@ the editor through `src/themeUi.ts`. It takes the items and the card's kind and 
 - **compact (under 600 dp):** a `List` of `ListItem`s, edge to edge (M3: "Lists should extend edge-to-edge in compact
   windows").
 - **medium and up (600 dp):** the `Card`s on the theme grid (`docs/theme-grid.md`: `--grid-columns`, `--grid-gutter`),
-  with M3's "multiple columns" from expanded.
+  in M3's "multiple columns" (how many: 2.5, L4).
 
 Both are a `<ul>` of `<li>` (`Card as="li"`), so a screen reader hears the same list with the same count in both.
 
@@ -173,6 +173,39 @@ Each is the owner's choice (section 4). Today the content is drawn twice in two 
 `PostView` (`theme/components/posts.ts`) and `LinkCard` (`src/standard/cards/view.ts`) both map to `CollectionItem` with
 no new field: a post's date and reading time are its `subhead`, its description its `supporting`.
 
+### 2.5 The looks: the owner's choice
+
+How the list and the cards look is the owner's decision; nothing in 2.1 to 2.4 fixes it. The screenshots are the real
+theme (Material, the demo built on 2026-11-17, the theme's own classes and CSS), with the demo's posts. Each choice is a
+value of something the theme has today; none needs a new design. Folder: `2026-11-17-list-to-cards-screens/`.
+
+**L1. The list on phones (412 px).** M3 Lists, Specs: "The standard and segmented styles are a visual choice, and don't
+affect a list's behavior." Both are M3 Expressive.
+
+| Standard (today) | Segmented |
+| :--- | :--- |
+| ![Standard list](2026-11-17-list-to-cards-screens/a1-list-standard.png) | ![Segmented list](2026-11-17-list-to-cards-screens/a2-list-segmented.png) |
+
+**L2. The card's kind (1024 px).** M3 Cards: "Each provides the same legibility and functionality, so the variant you use
+depends on style alone." Related posts are outlined today; the *Cards* block lets the owner choose per block, and keeps
+that choice.
+
+| Outlined (today) | Filled | Elevated |
+| :--- | :--- | :--- |
+| ![Outlined cards](2026-11-17-list-to-cards-screens/b1-cards-outlined.png) | ![Filled cards](2026-11-17-list-to-cards-screens/b2-cards-filled.png) | ![Elevated cards](2026-11-17-list-to-cards-screens/b3-cards-elevated.png) |
+
+**L3. The post's description on a card.** The list shows it (two lines); a related post's card does not today. M3 Lists:
+"List items reveal supporting text at expanded breakpoints", so a card shows at least what the list shows.
+
+| Without (today) | With (up to three lines) |
+| :--- | :--- |
+| ![Cards without description](2026-11-17-list-to-cards-screens/b1-cards-outlined.png) | ![Cards with description](2026-11-17-list-to-cards-screens/c1-cards-outlined-with-text.png) |
+
+**L4. Cards side by side.** M3 prints no count. Options: 2 from 600 dp and 3 from 840 dp, or 3 from 600 dp (related posts
+today).
+
+**L5. The image's shape on a card.** 4:3 (related posts today) or 3:2 (the *Cards* block's default).
+
 ## 3. What it costs
 
 - **A new theme component.** The developer rule (`developer` skill, *No own components*) needs the owner's yes before a
@@ -193,3 +226,5 @@ no new field: a post's date and reading time are its `subhead`, its description 
 3. **Measured on:** the collection's own width (modern web, recommended) or the window (M3's window size classes).
 4. **Several buttons in a list item:** an overflow menu (recommended, M3's trailing menu), or only the first button as an
    icon button with the rest left to the card. The second leaves actions out on phones, against the Cards rule quoted above.
+5. **The looks** (2.5): L1 standard or segmented list, L2 outlined, filled or elevated cards, L3 the description on a
+   card or not, L4 how many cards side by side, L5 the image's shape.
