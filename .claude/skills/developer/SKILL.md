@@ -139,7 +139,7 @@ are `…/specs`, `…/guidelines` and `…/accessibility` under the same address
 | `Chip`, `ChipSet` (`ui.tsx` `InputChip`, `FilterChip`, `ChipField`, `ChipSet`) | a filter, input or suggestion, in a row | [chips](https://m3.material.io/components/chips/overview) |
 | `List`, `ListItem` (`ui.tsx` `ListItem`, `PickListItem`, `ChoiceListItem`) | rows of text, icons and actions | [lists](https://m3.material.io/components/lists/overview) |
 | `Card`, `CardMedia` | a content container for one subject | [cards](https://m3.material.io/components/cards/overview) |
-| Grid (`.image-grid`, `.grid-span-full`; tokens `--grid-columns`, `--mo-sys-grid-gutter`, `--mo-sys-grid-margin`, `--mo-sys-grid-layout-columns`) | cards of different heights in columns, no holes; on any page of the editor and the site; `docs/theme-grid.md` | [grids](https://m3.material.io/foundations/layout/grids-spacing/grids) |
+| Grid (`.image-grid`, `.grid-span-full`; tokens `--mo-comp-grid-columns`, `--mo-sys-grid-gutter`, `--mo-sys-grid-margin`, `--mo-sys-grid-layout-columns`) | cards of different heights in columns, no holes; on any page of the editor and the site; `docs/theme-grid.md` | [grids](https://m3.material.io/foundations/layout/grids-spacing/grids) |
 | `Carousel` (`ui.tsx` `ImageCarousel`) | a scrolling row of images or cards | [carousel](https://m3.material.io/components/carousel/overview) |
 | `Divider` | separates content | [divider](https://m3.material.io/components/divider/overview) |
 | `Badge` | a count or dot on another part | [badges](https://m3.material.io/components/badges/overview) |

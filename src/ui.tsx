@@ -1919,8 +1919,8 @@ export function ChoiceCards<T extends string>({
                 disabled
                   ? 'cursor-default opacity-50'
                   : chosen
-                    ? 'cursor-pointer text-on-secondary-container [--card-outlined-line:var(--color-accent)] [--card-outlined-surface:var(--color-secondary-container)]'
-                    : 'cursor-pointer hover:[--card-outlined-surface:var(--color-surface-container-high)]'
+                    ? 'cursor-pointer text-on-secondary-container [--mo-comp-outlined-card-container-color:var(--color-secondary-container)] [--mo-comp-outlined-card-outline-color:var(--color-accent)]'
+                    : 'cursor-pointer hover:[--mo-comp-outlined-card-container-color:var(--color-surface-container-high)]'
               }`}
             >
               <input

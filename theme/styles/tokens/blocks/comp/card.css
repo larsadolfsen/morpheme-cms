@@ -2,26 +2,26 @@
 
 @layer components {
   .block-table-grid {
-    --card-padding: 0;
-    --card-outlined-surface: transparent;
-    --card-outlined-line: transparent;
+    --mo-comp-card-padding: 0;
+    --mo-comp-outlined-card-container-color: transparent;
+    --mo-comp-outlined-card-outline-color: transparent;
   }
 }
 @layer components {
   .block-link-row {
-    --card-radius: var(--mo-sys-block-radius-small);
-    --card-padding: 0.85rem 1.1rem 0.85rem 0.85rem;
+    --mo-comp-card-radius: var(--mo-sys-block-radius-small);
+    --mo-comp-card-padding: 0.85rem 1.1rem 0.85rem 0.85rem;
   }
 }
 @layer components {
   a.block-link-row:hover {
-    --card-outlined-line: var(--mo-sys-block-accent);
+    --mo-comp-outlined-card-outline-color: var(--mo-sys-block-accent);
   }
 }
 @layer components {
   @media (width >= theme(--breakpoint-medium)) {
     .block-cta {
-      --card-padding: 3rem;
+      --mo-comp-card-padding: 3rem;
     }
   }
 }

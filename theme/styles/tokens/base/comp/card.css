@@ -2,6 +2,6 @@
 
 @media (width >= theme(--breakpoint-medium)) {
   .block-panels > .block-panel {
-    --card-padding: 2rem;
+    --mo-comp-card-padding: 2rem;
   }
 }

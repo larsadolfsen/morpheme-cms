@@ -350,7 +350,7 @@
     color: var(--mo-sys-color-primary);
   }
   .block-card-picture {
-    border-radius: var(--card-radius);
+    border-radius: var(--mo-comp-card-radius);
   }
   .block-card-text {
     font-weight: 400;

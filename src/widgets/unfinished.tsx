@@ -37,7 +37,7 @@ export function UnfinishedWidget({ editing }: WidgetProps) {
   const rows = unfinishedOf(entriesOf(files, lists));
   if (!rows.length && !editing) return null;
   return (
-    <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="[--card-padding:1rem_0_0.5rem]">
+    <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="[--mo-comp-card-padding:1rem_0_0.5rem]">
       <h2 id={titleId} className="ps-4 pe-4 pb-2 font-medium">
         {t.library.unfinishedTitle}
       </h2>
