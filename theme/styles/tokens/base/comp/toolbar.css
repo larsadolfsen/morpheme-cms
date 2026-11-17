@@ -2,7 +2,7 @@
 
 @layer components {
   .toolbar.theme-action-bar-row {
-    --toolbar-docked-line-width: 0px;
-    --toolbar-docked-backdrop: none;
+    --mo-comp-toolbar-docked-line-width: 0px;
+    --mo-comp-toolbar-docked-backdrop: none;
   }
 }

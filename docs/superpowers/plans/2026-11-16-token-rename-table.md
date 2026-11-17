@@ -64,8 +64,21 @@ Each PR is its own branch into 0.18, renames its names everywhere in the reposit
 
 ## Readers outside this repository
 
-- **Venus theme:** the PM's check of 17 Nov found only `.type-body-medium`, which is a class (renamed in this repository, already fixed in Venus 1.4.1). The PM's earlier scan of 16 Nov counted token reads in Venus's styles (see the next item); the two scans use different name lists, and the PM reconciles them against the final left-hand column of this table.
-- **morpheme-apps, morpheme-website, Sarashjemmesidedata** (the PM's check, 16 Nov, against the 746-name list): morpheme-apps 334 reads of 169 names, in `themes/venus/styles` (6 files), `apps/calendly/parts` (1), `scripts/variable-names.test.mjs` and docs; morpheme-website 516 reads of 253 names, all in docs, skills and `CLAUDE.md`, none in code; Sarashjemmesidedata 481 reads of 292 names, in its installed copy of Venus (`src/themes/theme_fa395…`, 6 files), `src/apps/sara` and one store app. So the code exposure is the Venus theme, Calendly, Sara's app and a store app. This session could not read those repositories (see the PR text); the PM repeats the scan against the final left-hand column of this table before 3a is pushed.
+The PM's scan of 17 Nov 2026 (it replaces the 16 Nov figure of 334 reads of 169 names and the note that Venus only reads `.type-body-medium`, which was about the type classes, not tokens): the left-hand column of `docs/superpowers/plans/token-rename/map.json` (747 names), whole names only (`(?![\w-])` boundary), on the main branch of each repository, without `node_modules` and lock files. This session did not read these repositories.
+
+- **morpheme-apps:** 379 reads of 178 old names. `themes/venus/styles`: `tokens.css` 63, `controls.css` 92, `lists.css` 44, `panels.css` 42, `header.css` 20, `footer.css` 17, `blog.css` 1 (all Venus, 7 files); `apps/calendly/parts/calendly.ts` 3; `scripts/variable-names.test.mjs`, one doc and `CLAUDE.md` name some. Venus is the one theme and Calendly the one app.
+- **morpheme-website:** no code. 516 text hits only, in `docs/superpowers` (14 files), `docs/rules.md`, `docs/editor.md`, `CLAUDE.md` and two `.agents` skills.
+- **Sarashjemmesidedata:** 516 reads of 299 names, in `src/themes/theme_fa395ad84690acbd` (her installed copy of Venus, 6 files), `src/apps/sara` (1), one installed store app (1) and `docs/editor.md`. Those installed copies change only when she updates Venus or the app from the store at api 6.
+
+So the code exposure is Venus (7 files), Calendly, Sara's app and one store app: each needs the rename and a re-release at api 6, which the PM routes in morpheme-apps. Every name they read is in the table, so nothing is missing from it.
+
+## 3g: the store checklist
+
+From the PM's reading of `src/releases.js` in morpheme-appstore (main), 17 Nov 2026; this session does not read that repository.
+
+1. **The catalog is served per exact contract.** `apisFor(type, number)` returns `[4, 5]` for an app asking for 5 and `[number]` for everything else, and `storeCatalog` selects `releases.api IN (...)`. With `APP_API` and `THEME_API` at 6 the CMS asks `?app=6&theme=6` and gets nothing until an app or theme is released at api 6. No store code has to change for themes (`[6]`). For apps `apisFor('app', 6)` correctly stays `[6]`: apps on 4 and 5 are not offered to an editor at 6, as the owner wants, because they would draw without colours. The `[4, 5]` rule for 5 stays, so older CMS versions keep working. The only store change worth adding is a store test for `?app=6` (a PR in morpheme-appstore, not in this repository).
+2. **Releases are made by `npm run release` in morpheme-apps**, which reads `THEME_API` and `APP_API` from the installed CMS. Venus and every store app must be re-released at api 6 after their tokens are renamed: an owner-only action. The 3g release note and PR text say that the store catalog is empty for contract 6 until then.
+3. **Stored releases at api 4 and 5 stay for ever** and are not touched.
 
 ## How PR 3 will be proved
 

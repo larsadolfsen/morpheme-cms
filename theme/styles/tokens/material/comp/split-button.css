@@ -4,7 +4,7 @@
 :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
 .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
-  --split-button-inner-radius: var(--mo-sys-shape-corner-extra-small);
-  --split-button-large-inner-radius: var(--mo-sys-shape-corner-small);
-  --split-button-xlarge-inner-radius: var(--mo-sys-shape-corner-medium);
+  --mo-comp-split-button-medium-inner-corner-corner-size: var(--mo-sys-shape-corner-extra-small);
+  --mo-comp-split-button-large-inner-corner-corner-size: var(--mo-sys-shape-corner-small);
+  --mo-comp-split-button-xlarge-inner-corner-corner-size: var(--mo-sys-shape-corner-medium);
 }

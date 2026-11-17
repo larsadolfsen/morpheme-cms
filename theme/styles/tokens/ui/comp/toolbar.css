@@ -2,7 +2,7 @@
 
 @layer components {
   .toolbar-vibrant {
-    --toolbar-docked-line: transparent;
-    --toolbar-floating-line: transparent;
+    --mo-comp-toolbar-docked-line: transparent;
+    --mo-comp-toolbar-floating-line: transparent;
   }
 }

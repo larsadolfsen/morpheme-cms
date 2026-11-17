@@ -13,7 +13,7 @@
 // off-centre only as far as the panels beside it require.
 // Under the content of every screen is the editor's footer (EditorFooter.tsx), at the bottom of the window when the content
 // is short (the screen fills the column under the bar, TopBarLayout). While the screen has a floating action button
-// (fabPresence.tsx), the content leaves room for it above the footer (data-clearance, --fab-room) and the FAB stands above the
+// (fabPresence.tsx), the content leaves room for it above the footer (data-clearance, --mo-comp-fab-room) and the FAB stands above the
 // footer whenever the footer is in the window (useFabLift: --editor-fab-lift, editor.css), so it never covers the footer.
 import { useContext, useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
@@ -305,7 +305,7 @@ export default function Screen<T extends string>({
           </div>
           {/* The content flows as blocks; the footer goes to the bottom of a short screen. */}
           <FabPresenceContext.Provider value={fabs.report}>
-            <div className="min-w-0 data-[clearance=true]:mb-[var(--fab-room)]" data-clearance={fabs.count > 0}>
+            <div className="min-w-0 data-[clearance=true]:mb-[var(--mo-comp-fab-room)]" data-clearance={fabs.count > 0}>
               {tabs ? (
                 <TabPanel id={id} value={tabs.value}>
                   {children}

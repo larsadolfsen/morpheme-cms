@@ -998,7 +998,7 @@ async function checkToolbarBox() {
           left: parseFloat(cs.borderLeftWidth),
           right: parseFloat(cs.borderRightWidth),
           radius: [cs.borderTopLeftRadius, cs.borderTopRightRadius],
-          line: cs.getPropertyValue('--toolbar-docked-line-width').trim(),
+          line: cs.getPropertyValue('--mo-comp-toolbar-docked-line-width').trim(),
           side: side('Top'),
         };
       });

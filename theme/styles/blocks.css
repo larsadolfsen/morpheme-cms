@@ -195,7 +195,7 @@
   .block-list-button {
     margin-top: 0.5rem;
     /* A text button has no container at rest, so its label stands in from its edge by the button's side padding: the button moves out by that much and its label lines up with the list's edge. */
-    margin-inline-start: calc(-1 * var(--button-text-padding, 1rem));
+    margin-inline-start: calc(-1 * var(--mo-comp-button-text-padding, 1rem));
   }
   /* `Max rows` of "Segmented list" (MoreRows.tsx, segmented/more.ts): without script all rows show and the button is hidden; with
      script (data-cut) the rows after the first ones are hidden until the button shows them. The last row left has no line under it. */
@@ -206,7 +206,7 @@
      pull out by a text button's side padding, so the buttons themselves have none. */
   .block-more > .block-buttons-row {
     margin-top: 0.5rem;
-    margin-inline-start: calc(-1 * var(--button-text-padding, 1rem));
+    margin-inline-start: calc(-1 * var(--mo-comp-button-text-padding, 1rem));
     gap: 0;
   }
   .block-more > .block-buttons-row > .block-list-button {
@@ -498,9 +498,9 @@
   }
   /* Text buttons under a row's text (accordion/Accordion.tsx, accordion/PageRow.tsx): the same shift, so their labels line up with the text above. */
   .block-row-links:has(> .button-text) {
-    margin-inline-start: calc(-1 * var(--button-text-padding, 1rem));
+    margin-inline-start: calc(-1 * var(--mo-comp-button-text-padding, 1rem));
     column-gap: 0.5rem;
-    margin-block-end: calc((1.25rem - var(--button-height, 3rem)) / 2);
+    margin-block-end: calc((1.25rem - var(--mo-comp-button-medium-container-height, 3rem)) / 2);
   }
   /* The subhead: the small line under the headline (a byline, a date, a place). */
   /* "Image grid" (blocks/imagegrid/View.tsx): the tag filter over the staggered grid (.image-grid in ui.css), the text under an image on its card. The filter

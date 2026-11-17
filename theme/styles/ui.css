@@ -24,24 +24,24 @@
   in its kind's selected colours with its corners square (round when it is square), its icon filled
   (.button-selected-icon in .button-unselected-icon's place) where the site draws it filled. Pressed, the corners are
   the pressed ones, where the theme has them (else as they are).
-    --button-height, --button-padding, --button-gap, --button-radius, --button-font-size, --button-weight,
-    --button-letter-spacing, --button-icon-size   the medium size, its label and its round corners
-    --button-xsmall-height, -padding, -gap, -font-size; --button-small-height, -padding, -font-size;
+    --mo-comp-button-medium-container-height, --mo-comp-button-padding, --mo-comp-button-medium-icon-label-space, --mo-comp-button-medium-container-shape-round, --mo-comp-button-font-size, --mo-comp-button-weight,
+    --mo-comp-button-letter-spacing, --mo-comp-button-medium-icon-size   the medium size, its label and its round corners
+    --mo-comp-button-xsmall-container-height, -padding, -gap, -font-size; --mo-comp-button-small-container-height, -padding, -font-size;
     --button-large-height, -padding, -gap, -font-size, -icon-size; --button-xlarge-…   the other sizes
-    --button-square-radius, --button-<size>-square-radius   the square corners (also an icon button's of the size,
+    --mo-comp-button-medium-container-shape-square, --button-<size>-square-radius   the square corners (also an icon button's of the size,
       where it has none of its own)
     --button-pressed-radius, --button-<size>-pressed-radius   the corners while pressed (also an icon button's); none:
       as they are
-    --button-text-padding   the space a text button's label stands in from its edge, as wide as the other buttons' side padding (the shift that
+    --mo-comp-button-text-padding   the space a text button's label stands in from its edge, as wide as the other buttons' side padding (the shift that
                             lines a label up with the text above it; the button's own padding is the size's)
-    --button-filled-surface, -hover, -text, -shadow, -hover-shadow
-    --button-tonal-surface, -hover, -text, -shadow, -hover-shadow
+    --mo-comp-button-filled-container-color, -hover, -text, -shadow, -hover-shadow
+    --mo-comp-button-tonal-container-color, -hover, -text, -shadow, -hover-shadow
     --button-elevated-surface, -text, -shadow, -hover-shadow   (the shadows: at rest, and pointed at; a theme that
       sets only the one at rest keeps it when pointed at)
-    --button-outlined-surface, -text, -line, -hover-text, -hover-line
-    --button-text-text, -hover
-    --button-toggle-surface, -text, -hover   a filled toggle (a button or an icon button) that is off
-    --button-toggle-selected-surface, -text, -hover, -shadow, -hover-shadow   a filled toggle that is on
+    --mo-comp-button-outlined-surface, -text, -line, -hover-text, -hover-line
+    --mo-comp-button-text-label-text-color, -hover
+    --mo-comp-button-filled-unselected-container-color, -text, -hover   a filled toggle (a button or an icon button) that is off
+    --mo-comp-button-filled-selected-container-color, -text, -hover, -shadow, -hover-shadow   a filled toggle that is on
     --button-tonal-selected-surface, -text, -hover; --button-elevated-selected-…; --button-outlined-selected-…   the
       other kinds on
   A busy button or icon button (busy: disabled, aria-busy, .button-busy or .icon-button-busy; M3 loading indicator): for
@@ -56,7 +56,7 @@
   -outlined, its size, .icon-button-xsmall, none (small), -medium, -large or -xlarge, its width, .icon-button-narrow,
   none or -wide, and its shape, none (round) or .icon-button-square. A toggle as a button's (aria-pressed; the filled
   one off and on in the button toggle's colours; .icon-button-selected-icon and -unselected-icon).
-    --icon-button-size, --icon-button-icon-size   the small size (the default)
+    --mo-comp-icon-button-small-container-height, --mo-comp-icon-button-small-icon-size   the small size (the default)
     --icon-button-xsmall-size, -icon-size; --icon-button-medium-…; --icon-button-large-…; --icon-button-xlarge-…
     --icon-button-square-radius, --icon-button-<size>-square-radius   the square corners, where a theme's icon buttons
       and buttons of the same size are not the same height (else the button's)
@@ -65,9 +65,9 @@
     --icon-button-standard-selected-text; --icon-button-tonal-unselected-surface, -text;
     --icon-button-tonal-selected-surface, -text; --icon-button-outlined-selected-surface, -text   the toggles' that are
       not the filled one's
-  Set here by the sizes, the widths and the shapes, not by a theme: --button-box, --button-inline, --button-glyph,
-  --button-round, --button-square, --button-pressed, --button-corners, --button-busy-after, --button-busy-size,
-  --button-busy-from, and --icon-button-box, -ratio, -width, -glyph, -square, -pressed and -corners.
+  Set here by the sizes, the widths and the shapes, not by a theme: --mo-comp-button-box, --mo-comp-button-inline, --mo-comp-button-glyph,
+  --mo-comp-button-round, --mo-comp-button-square, --mo-comp-button-pressed, --mo-comp-button-corners, --mo-comp-button-busy-after, --mo-comp-button-busy-size,
+  --button-busy-from, and --mo-comp-icon-button-box, -ratio, -width, -glyph, -square, -pressed and -corners.
 */
 /* The classes in the CMS's own code (this package, also from node_modules/, where Tailwind does not look by itself);
    the names in the icon packs' maps (MATERIAL_SYMBOLS, LUCIDE, site/icons.mjs) and the tests' examples are not classes. */
@@ -120,16 +120,16 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--button-gap, 0.6rem);
+    gap: var(--mo-comp-button-medium-icon-label-space, 0.6rem);
     white-space: nowrap;
     border: 0;
-    border-radius: var(--button-corners);
-    min-height: calc(var(--button-box) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-    padding: 0 var(--button-inline);
+    border-radius: var(--mo-comp-button-corners);
+    min-height: calc(var(--mo-comp-button-box) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding: 0 var(--mo-comp-button-inline);
     font-family: inherit;
-    font-weight: var(--button-weight, var(--mo-sys-typescale-title-medium-weight));
-    font-size: var(--button-font-size, var(--mo-sys-typescale-title-medium-size));
-    letter-spacing: var(--button-letter-spacing, var(--mo-sys-typescale-title-medium-tracking));
+    font-weight: var(--mo-comp-button-weight, var(--mo-sys-typescale-title-medium-weight));
+    font-size: var(--mo-comp-button-font-size, var(--mo-sys-typescale-title-medium-size));
+    letter-spacing: var(--mo-comp-button-letter-spacing, var(--mo-sys-typescale-title-medium-tracking));
     line-height: 1;
     text-decoration: none;
     cursor: pointer;
@@ -142,16 +142,16 @@
   }
   .button > svg {
     flex-shrink: 0;
-    width: var(--button-glyph);
-    height: var(--button-glyph);
+    width: var(--mo-comp-button-glyph);
+    height: var(--mo-comp-button-glyph);
   }
   .button > .button-trailing-icon {
-    width: calc(var(--button-glyph) * 0.9);
-    height: calc(var(--button-glyph) * 0.9);
+    width: calc(var(--mo-comp-button-glyph) * 0.9);
+    height: calc(var(--mo-comp-button-glyph) * 0.9);
   }
   .button:active {
     transform: scale(0.98);
-    border-radius: var(--button-pressed, var(--button-corners));
+    border-radius: var(--mo-comp-button-pressed, var(--mo-comp-button-corners));
   }
   .button:disabled {
     opacity: 0.6;
@@ -170,18 +170,18 @@
   }
   .button-busy {
     overflow: hidden;
-    animation: button-busy-shrink var(--mo-sys-motion-spring-default-spatial) var(--button-busy-after) both;
+    animation: button-busy-shrink var(--mo-sys-motion-spring-default-spatial) var(--mo-comp-button-busy-after) both;
   }
   :is(.button-busy, .icon-button-busy) > .button-busy-content {
     display: contents;
-    animation: button-busy-hide 0s var(--button-busy-after) forwards;
+    animation: button-busy-hide 0s var(--mo-comp-button-busy-after) forwards;
   }
   :is(.button-busy, .icon-button-busy) > .button-busy-indicator {
     position: absolute;
     inset: 0;
     margin: auto;
     visibility: hidden;
-    animation: button-busy-show 0s var(--button-busy-after) forwards;
+    animation: button-busy-show 0s var(--mo-comp-button-busy-after) forwards;
   }
   @media (prefers-reduced-motion: reduce) {
     .button-busy {
@@ -190,12 +190,12 @@
   }
   /* The sizes: Material's five, the medium one the default. */
   .button-xsmall {
-    gap: var(--button-xsmall-gap, 0.4rem);
+    gap: var(--mo-comp-button-xsmall-icon-label-space, 0.4rem);
     font-size: var(--button-xsmall-font-size, var(--mo-sys-typescale-label-large-size));
   }
   .button-xsmall > .button-trailing-icon {
-    width: var(--button-glyph);
-    height: var(--button-glyph);
+    width: var(--mo-comp-button-glyph);
+    height: var(--mo-comp-button-glyph);
   }
   .button-small {
     font-size: var(--button-small-font-size, var(--mo-sys-typescale-label-large-size));
@@ -213,32 +213,35 @@
   /* Elevation (M3's): filled and tonal on the page (level 0), lifted to level 1 when pointed at; elevated at level 1,
      at level 2 when pointed at; pressed as at rest (below), disabled without a shadow. */
   .button-filled {
-    background: var(--button-filled-surface, var(--mo-sys-block-accent));
-    color: var(--button-filled-text, var(--mo-sys-block-on-accent));
-    box-shadow: var(--button-filled-shadow, var(--mo-sys-elevation-level0-shadow));
+    background: var(--mo-comp-button-filled-container-color, var(--mo-sys-block-accent));
+    color: var(--mo-comp-button-filled-label-text-color, var(--mo-sys-block-on-accent));
+    box-shadow: var(--mo-comp-button-filled-container-elevation, var(--mo-sys-elevation-level0-shadow));
   }
   @media (hover: hover) {
     .button-filled:hover {
-      background: var(--button-filled-hover, var(--mo-sys-block-accent-hover));
-      box-shadow: var(--button-filled-hover-shadow, var(--button-filled-shadow, var(--mo-sys-elevation-level1-shadow)));
+      background: var(--mo-comp-button-filled-hover, var(--mo-sys-block-accent-hover));
+      box-shadow: var(
+        --mo-comp-button-filled-hovered-container-elevation,
+        var(--mo-comp-button-filled-container-elevation, var(--mo-sys-elevation-level1-shadow))
+      );
     }
   }
   /* Tonal: an important step that is not the main one, on the tint. */
   .button-tonal {
-    background: var(--button-tonal-surface, var(--mo-sys-block-tint));
-    color: var(--button-tonal-text, var(--mo-sys-block-text));
+    background: var(--mo-comp-button-tonal-container-color, var(--mo-sys-block-tint));
+    color: var(--mo-comp-button-tonal-label-text-color, var(--mo-sys-block-text));
     box-shadow: var(--button-tonal-shadow, var(--mo-sys-elevation-level0-shadow));
   }
   @media (hover: hover) {
     .button-tonal:hover {
-      background: var(--button-tonal-hover, color-mix(in srgb, var(--mo-sys-block-text) 8%, var(--mo-sys-block-tint)));
+      background: var(--mo-comp-button-tonal-hover, color-mix(in srgb, var(--mo-sys-block-text) 8%, var(--mo-sys-block-tint)));
       box-shadow: var(--button-tonal-hover-shadow, var(--button-tonal-shadow, var(--mo-sys-elevation-level1-shadow)));
     }
   }
   /* Elevated: on a surface with its shadow, where the page behind it has a colour. */
   .button-elevated {
     background: var(--button-elevated-surface, var(--mo-sys-elevation-level1-color));
-    color: var(--button-elevated-text, var(--mo-sys-block-accent));
+    color: var(--mo-comp-button-elevated-label-text-color, var(--mo-sys-block-accent));
     box-shadow: var(--button-elevated-shadow, var(--mo-sys-elevation-level1-rest-shadow));
   }
   @media (hover: hover) {
@@ -248,7 +251,7 @@
   }
   /* Pressed: back at rest (M3: only pointing at it lifts it). */
   .button-filled:active {
-    box-shadow: var(--button-filled-shadow, var(--mo-sys-elevation-level0-shadow));
+    box-shadow: var(--mo-comp-button-filled-container-elevation, var(--mo-sys-elevation-level0-shadow));
   }
   .button-tonal:active {
     box-shadow: var(--button-tonal-shadow, var(--mo-sys-elevation-level0-shadow));
@@ -258,37 +261,37 @@
   }
   /* Outlined: another choice beside the main one, with a thin edge. */
   .button-outlined {
-    background: var(--button-outlined-surface, var(--mo-sys-block-surface));
-    color: var(--button-outlined-text, var(--mo-sys-block-text));
-    box-shadow: inset 0 0 0 1px var(--button-outlined-line, var(--mo-sys-block-line));
+    background: var(--mo-comp-button-outlined-surface, var(--mo-sys-block-surface));
+    color: var(--mo-comp-button-outlined-label-text-color, var(--mo-sys-block-text));
+    box-shadow: inset 0 0 0 1px var(--mo-comp-button-outlined-outline-color, var(--mo-sys-block-line));
   }
   @media (hover: hover) {
     .button-outlined:hover {
-      color: var(--button-outlined-hover-text, var(--mo-sys-block-accent));
-      box-shadow: inset 0 0 0 1px var(--button-outlined-hover-line, var(--mo-sys-block-accent));
+      color: var(--mo-comp-button-outlined-hovered-label-text-color, var(--mo-sys-block-accent));
+      box-shadow: inset 0 0 0 1px var(--mo-comp-button-outlined-hovered-outline-color, var(--mo-sys-block-accent));
     }
   }
   /* Text: no container, only its label in the accent; its side padding is the other buttons' (owner, 16 Nov 2026), whatever its size. */
   .button-text {
     background: transparent;
-    color: var(--button-text-text, var(--mo-sys-block-accent));
+    color: var(--mo-comp-button-text-label-text-color, var(--mo-sys-block-accent));
   }
   @media (hover: hover) {
     .button-text:hover {
-      background: var(--button-text-hover, color-mix(in srgb, var(--mo-sys-block-accent) 8%, transparent));
+      background: var(--mo-comp-button-text-hover, color-mix(in srgb, var(--mo-sys-block-accent) 8%, transparent));
     }
   }
 
   /* Toggle buttons (aria-pressed): a filled one that is off would look on, so it is in the toggle's surface; the others
      are as their kind when off. On, each kind in its selected colours. */
   .button-filled[aria-pressed='false'] {
-    background: var(--button-toggle-surface, var(--mo-sys-block-tint));
-    color: var(--button-toggle-text, var(--mo-sys-block-text));
+    background: var(--mo-comp-button-filled-unselected-container-color, var(--mo-sys-block-tint));
+    color: var(--mo-comp-button-filled-unselected-label-text-color, var(--mo-sys-block-text));
     box-shadow: var(--mo-sys-elevation-level0-shadow);
   }
   @media (hover: hover) {
     .button-filled[aria-pressed='false']:hover {
-      background: var(--button-toggle-hover, color-mix(in srgb, var(--mo-sys-block-text) 8%, var(--mo-sys-block-tint)));
+      background: var(--mo-comp-button-toggle-hover, color-mix(in srgb, var(--mo-sys-block-text) 8%, var(--mo-sys-block-tint)));
       box-shadow: var(--mo-sys-elevation-level1-shadow);
     }
   }
@@ -296,13 +299,13 @@
     box-shadow: var(--mo-sys-elevation-level0-shadow);
   }
   .button-filled[aria-pressed='true'] {
-    background: var(--button-toggle-selected-surface, var(--mo-sys-block-accent));
-    color: var(--button-toggle-selected-text, var(--mo-sys-block-on-accent));
+    background: var(--mo-comp-button-filled-selected-container-color, var(--mo-sys-block-accent));
+    color: var(--mo-comp-button-filled-selected-label-text-color, var(--mo-sys-block-on-accent));
     box-shadow: var(--button-toggle-selected-shadow, var(--mo-sys-elevation-level0-shadow));
   }
   @media (hover: hover) {
     .button-filled[aria-pressed='true']:hover {
-      background: var(--button-toggle-selected-hover, var(--mo-sys-block-accent-hover));
+      background: var(--mo-comp-button-toggle-selected-hover, var(--mo-sys-block-accent-hover));
       box-shadow: var(--button-toggle-selected-hover-shadow, var(--button-toggle-selected-shadow, var(--mo-sys-elevation-level1-shadow)));
     }
   }
@@ -360,10 +363,10 @@
     /* Centred also where a page shows it as flex (medium:flex beside hidden). */
     place-items: center;
     place-content: center;
-    width: var(--icon-button-width);
-    height: var(--icon-button-box);
+    width: var(--mo-comp-icon-button-width);
+    height: var(--mo-comp-icon-button-box);
     border: 0;
-    border-radius: var(--icon-button-corners);
+    border-radius: var(--mo-comp-icon-button-corners);
     cursor: pointer;
     transition:
       background-color var(--mo-sys-motion-spring-default-effects),
@@ -373,12 +376,12 @@
       border-radius var(--mo-sys-motion-spring-fast-spatial);
   }
   .icon-button > svg {
-    width: var(--icon-button-glyph);
-    height: var(--icon-button-glyph);
+    width: var(--mo-comp-icon-button-glyph);
+    height: var(--mo-comp-icon-button-glyph);
   }
   .icon-button:active {
     transform: scale(0.95);
-    border-radius: var(--icon-button-pressed, var(--icon-button-corners));
+    border-radius: var(--mo-comp-icon-button-pressed, var(--mo-comp-icon-button-corners));
   }
   .icon-button:disabled {
     opacity: 0.35;
@@ -386,42 +389,42 @@
   }
   /* Standard: only the icon, a light shade when pointed at. */
   .icon-button-standard {
-    background: var(--icon-button-standard-surface, transparent);
-    color: var(--icon-button-standard-text, var(--mo-sys-block-text));
-    box-shadow: inset 0 0 0 1px var(--icon-button-standard-line, transparent);
+    background: var(--mo-comp-icon-button-standard-surface, transparent);
+    color: var(--mo-comp-icon-button-standard-icon-color, var(--mo-sys-block-text));
+    box-shadow: inset 0 0 0 1px var(--mo-comp-icon-button-standard-line, transparent);
   }
   @media (hover: hover) {
     .icon-button-standard:hover {
-      background: color-mix(in srgb, currentColor 8%, var(--icon-button-standard-surface, transparent));
+      background: color-mix(in srgb, currentColor 8%, var(--mo-comp-icon-button-standard-surface, transparent));
     }
   }
   /* Filled: the main action, in the accent. */
   .icon-button-filled {
-    background: var(--icon-button-filled-surface, var(--mo-sys-block-accent));
-    color: var(--icon-button-filled-text, var(--mo-sys-block-on-accent));
+    background: var(--mo-comp-icon-button-filled-container-color, var(--mo-sys-block-accent));
+    color: var(--mo-comp-icon-button-filled-icon-color, var(--mo-sys-block-on-accent));
     box-shadow: inset 0 0 0 1px var(--icon-button-filled-line, transparent);
   }
   @media (hover: hover) {
     .icon-button-filled:hover {
-      background: var(--icon-button-filled-hover, var(--mo-sys-block-accent-hover));
+      background: var(--mo-comp-icon-button-filled-hover, var(--mo-sys-block-accent-hover));
     }
   }
   /* Tonal: on the tint, also where it stands on an image (the cross on a pop-up). */
   .icon-button-tonal {
-    background: var(--icon-button-tonal-surface, var(--mo-sys-block-tint));
-    color: var(--icon-button-tonal-text, var(--mo-sys-block-text));
+    background: var(--mo-comp-icon-button-tonal-container-color, var(--mo-sys-block-tint));
+    color: var(--mo-comp-icon-button-tonal-icon-color, var(--mo-sys-block-text));
     box-shadow: inset 0 0 0 1px var(--icon-button-tonal-line, transparent);
   }
   @media (hover: hover) {
     .icon-button-tonal:hover {
-      background: color-mix(in srgb, currentColor 8%, var(--icon-button-tonal-surface, var(--mo-sys-block-tint)));
+      background: color-mix(in srgb, currentColor 8%, var(--mo-comp-icon-button-tonal-container-color, var(--mo-sys-block-tint)));
     }
   }
   /* Outlined: with a thin edge. */
   .icon-button-outlined {
-    background: var(--icon-button-outlined-surface, var(--mo-sys-block-surface));
-    color: var(--icon-button-outlined-text, var(--mo-sys-block-text));
-    box-shadow: inset 0 0 0 1px var(--icon-button-outlined-line, var(--mo-sys-block-line));
+    background: var(--mo-comp-icon-button-outlined-surface, var(--mo-sys-block-surface));
+    color: var(--mo-comp-icon-button-outlined-icon-color, var(--mo-sys-block-text));
+    box-shadow: inset 0 0 0 1px var(--mo-comp-icon-button-outlined-outline-color, var(--mo-sys-block-line));
   }
   @media (hover: hover) {
     .icon-button-outlined:hover {
@@ -437,22 +440,22 @@
     color: var(--icon-button-standard-selected-text, var(--mo-sys-block-accent));
   }
   .icon-button-filled[aria-pressed='false'] {
-    background: var(--button-toggle-surface, var(--mo-sys-block-tint));
-    color: var(--button-toggle-text, var(--mo-sys-block-text));
+    background: var(--mo-comp-button-filled-unselected-container-color, var(--mo-sys-block-tint));
+    color: var(--mo-comp-button-filled-unselected-label-text-color, var(--mo-sys-block-text));
   }
   @media (hover: hover) {
     .icon-button-filled[aria-pressed='false']:hover {
-      background: var(--button-toggle-hover, color-mix(in srgb, var(--mo-sys-block-text) 8%, var(--mo-sys-block-tint)));
+      background: var(--mo-comp-button-toggle-hover, color-mix(in srgb, var(--mo-sys-block-text) 8%, var(--mo-sys-block-tint)));
     }
   }
   .icon-button-filled[aria-pressed='true'] {
-    background: var(--button-toggle-selected-surface, var(--mo-sys-block-accent));
-    color: var(--button-toggle-selected-text, var(--mo-sys-block-on-accent));
+    background: var(--mo-comp-button-filled-selected-container-color, var(--mo-sys-block-accent));
+    color: var(--mo-comp-button-filled-selected-label-text-color, var(--mo-sys-block-on-accent));
     box-shadow: var(--button-toggle-selected-shadow, none);
   }
   @media (hover: hover) {
     .icon-button-filled[aria-pressed='true']:hover {
-      background: var(--button-toggle-selected-hover, var(--mo-sys-block-accent-hover));
+      background: var(--mo-comp-button-toggle-selected-hover, var(--mo-sys-block-accent-hover));
     }
   }
   .icon-button-tonal[aria-pressed='false'] {
@@ -819,7 +822,9 @@
     margin-top: calc((var(--text-field-box, var(--text-field-height, 3rem)) - 1lh) / 2);
   }
   .text-field-multiline .text-field-trailing-action {
-    margin-top: calc((var(--text-field-box, var(--text-field-height, 3rem)) - var(--icon-button-size, 2.75rem)) / 2);
+    margin-top: calc(
+      (var(--text-field-box, var(--text-field-height, 3rem)) - var(--mo-comp-icon-button-small-container-height, 2.75rem)) / 2
+    );
   }
 
   /* The line under it, and the counter at its end. */
@@ -2497,7 +2502,7 @@
   button). The kinds: .top-app-bar-search, .top-app-bar-small (the headline in the bar), .top-app-bar-medium-flexible and
   .top-app-bar-large-flexible (a larger headline under the bar, wrapping; in the bar once [data-collapsed]); with
   .top-app-bar-center the headline (or the search bar's text) in the middle.
-    --top-app-bar-surface, --top-app-bar-line, --top-app-bar-line-width, --top-app-bar-backdrop
+    --mo-comp-top-app-bar-surface, --top-app-bar-line, --mo-comp-top-app-bar-line-width, --mo-comp-top-app-bar-backdrop
     --top-app-bar-stuck-surface (level 2's colour), --top-app-bar-stuck-line, --top-app-bar-stuck-shadow   (the shadow: level 2, M3's on
                      scroll; a theme that shows it by the surface alone, as the standard theme does, sets none)
     --top-app-bar-height, --top-app-bar-padding, --top-app-bar-gap   the bar's height, the room at its sides and between
@@ -2583,7 +2588,7 @@
   with its type style. And in its colour: filled .fab-primary (the accent), .fab-secondary or .fab-tertiary, or tonal
   .fab-primary-container (the accent's container), .fab-secondary-container or .fab-tertiary-container, from the
   site's colours of those names.
-    --fab-size, --fab-radius, --fab-padding, --fab-gap, --fab-icon-size, --fab-shadow, --fab-hover-shadow,
+    --fab-size, --mo-comp-fab-container-shape, --fab-padding, --fab-gap, --fab-icon-size, --mo-comp-fab-shadow, --mo-comp-fab-hover-shadow,
     --fab-label-font-size, --fab-label-weight, --fab-label-letter-spacing   the FAB and the small extended FAB (the
                      shadows of every size: level 3, level 4 when pointed at, as at rest while pressed; a theme that
                      sets only the one at rest keeps it)
@@ -2596,9 +2601,9 @@
 @layer components {
   /* Top app bar (m3.material.io/components/top-app-bar). */
   .top-app-bar {
-    border-bottom: var(--top-app-bar-line-width, 1px) solid var(--top-app-bar-line, transparent);
-    background: var(--top-app-bar-surface, color-mix(in oklab, var(--mo-sys-color-surface) 85%, transparent));
-    backdrop-filter: var(--top-app-bar-backdrop, blur(16px));
+    border-bottom: var(--mo-comp-top-app-bar-line-width, 1px) solid var(--top-app-bar-line, transparent);
+    background: var(--mo-comp-top-app-bar-surface, color-mix(in oklab, var(--mo-sys-color-surface) 85%, transparent));
+    backdrop-filter: var(--mo-comp-top-app-bar-backdrop, blur(16px));
     transition:
       background-color var(--mo-sys-motion-spring-default-effects),
       border-color var(--mo-sys-motion-spring-default-effects),
@@ -3569,9 +3574,9 @@
     min-width: var(--fab-size, 3.5rem);
     align-items: center;
     justify-content: center;
-    border-radius: var(--fab-radius, var(--mo-sys-block-radius-small));
+    border-radius: var(--mo-comp-fab-container-shape, var(--mo-sys-block-radius-small));
     padding: 0 var(--fab-padding, 1rem);
-    box-shadow: var(--fab-shadow, var(--mo-sys-elevation-level3-rest-shadow));
+    box-shadow: var(--mo-comp-fab-shadow, var(--mo-sys-elevation-level3-rest-shadow));
     transition:
       box-shadow var(--mo-sys-motion-spring-default-effects),
       background-color var(--mo-sys-motion-spring-default-effects),
@@ -3588,11 +3593,11 @@
   }
   .fab:hover,
   .extended-fab:hover {
-    box-shadow: var(--fab-hover-shadow, var(--fab-shadow, var(--mo-sys-elevation-level4-shadow)));
+    box-shadow: var(--mo-comp-fab-hover-shadow, var(--mo-comp-fab-shadow, var(--mo-sys-elevation-level4-shadow)));
   }
   .fab:active,
   .extended-fab:active {
-    box-shadow: var(--fab-shadow, var(--mo-sys-elevation-level3-rest-shadow));
+    box-shadow: var(--mo-comp-fab-shadow, var(--mo-sys-elevation-level3-rest-shadow));
   }
   /* The medium and the large size (M3 Expressive): taller, with rounder corners and a larger icon, the theme's corners
      scaled as Material's are (16, 20 and 28px). */
@@ -3600,7 +3605,7 @@
   .extended-fab-medium {
     height: var(--fab-medium-size, 5rem);
     min-width: var(--fab-medium-size, 5rem);
-    border-radius: var(--fab-medium-radius, calc(var(--mo-sys-block-radius-small) * 1.25));
+    border-radius: var(--mo-comp-fab-medium-container-shape, calc(var(--mo-sys-block-radius-small) * 1.25));
   }
   .fab-medium > svg,
   .extended-fab-medium > svg {
@@ -3611,7 +3616,7 @@
   .extended-fab-large {
     height: var(--fab-large-size, 6rem);
     min-width: var(--fab-large-size, 6rem);
-    border-radius: var(--fab-large-radius, calc(var(--mo-sys-block-radius-small) * 1.75));
+    border-radius: var(--mo-comp-fab-large-container-shape, calc(var(--mo-sys-block-radius-small) * 1.75));
   }
   .fab-large > svg,
   .extended-fab-large > svg {
@@ -3632,10 +3637,10 @@
     color: var(--fab-primary-text, var(--mo-sys-block-on-accent));
   }
   .fab-primary:hover {
-    background: var(--fab-primary-hover, var(--mo-sys-block-accent-hover));
+    background: var(--mo-comp-fab-primary-hover, var(--mo-sys-block-accent-hover));
   }
   .fab-primary:active {
-    background: var(--fab-primary-pressed, var(--fab-primary-hover, var(--mo-sys-block-accent-hover)));
+    background: var(--fab-primary-pressed, var(--mo-comp-fab-primary-hover, var(--mo-sys-block-accent-hover)));
   }
   .fab-secondary {
     background: var(--fab-secondary-surface, var(--mo-sys-color-secondary));
@@ -3664,12 +3669,12 @@
     );
   }
   .fab-primary-container {
-    background: var(--fab-primary-container-surface, var(--mo-sys-color-primary-container));
-    color: var(--fab-primary-container-text, var(--mo-sys-color-on-primary-container));
+    background: var(--mo-comp-fab-primary-container-container-color, var(--mo-sys-color-primary-container));
+    color: var(--mo-comp-fab-primary-container-icon-color, var(--mo-sys-color-on-primary-container));
   }
   .fab-primary-container:hover {
     background: var(
-      --fab-primary-container-hover,
+      --mo-comp-fab-primary-container-hover,
       color-mix(in srgb, var(--mo-sys-color-on-primary-container) 8%, var(--mo-sys-color-primary-container))
     );
   }
@@ -3677,18 +3682,18 @@
     background: var(
       --fab-primary-container-pressed,
       var(
-        --fab-primary-container-hover,
+        --mo-comp-fab-primary-container-hover,
         color-mix(in srgb, var(--mo-sys-color-on-primary-container) 8%, var(--mo-sys-color-primary-container))
       )
     );
   }
   .fab-secondary-container {
-    background: var(--fab-secondary-container-surface, var(--mo-sys-color-secondary-container));
-    color: var(--fab-secondary-container-text, var(--mo-sys-color-on-secondary-container));
+    background: var(--mo-comp-fab-secondary-container-surface, var(--mo-sys-color-secondary-container));
+    color: var(--mo-comp-fab-secondary-container-text, var(--mo-sys-color-on-secondary-container));
   }
   .fab-secondary-container:hover {
     background: var(
-      --fab-secondary-container-hover,
+      --mo-comp-fab-secondary-container-hover,
       color-mix(in srgb, var(--mo-sys-color-on-secondary-container) 8%, var(--mo-sys-color-secondary-container))
     );
   }
@@ -3696,7 +3701,7 @@
     background: var(
       --fab-secondary-container-pressed,
       var(
-        --fab-secondary-container-hover,
+        --mo-comp-fab-secondary-container-hover,
         color-mix(in srgb, var(--mo-sys-color-on-secondary-container) 8%, var(--mo-sys-color-secondary-container))
       )
     );
@@ -3778,8 +3783,8 @@
   .icon-button in any size and shape, a toggle with aria-pressed in its look off and on (the buttons' above); in a
   standard group one that is on has the selected corners, in a connected one it is fully round. In a standard group the
   one pressed is a little wider and its neighbours a little narrower (Material's 15 %), unless motion is reduced.
-    --button-group-gap, --button-group-connected-gap, --button-group-selected-radius
-    --button-group-inner-radius (the small and medium buttons'), --button-group-xsmall-inner-radius, -large-, -xlarge-
+    --mo-comp-button-group-standard-medium-between-space, --mo-comp-button-group-connected-gap, --mo-comp-button-group-selected-radius
+    --mo-comp-button-group-inner-radius (the small and medium buttons'), --mo-comp-button-group-xsmall-inner-radius, -large-, -xlarge-
   Toggles' colours are the buttons' (--button-toggle-*, --button-<kind>-selected-*, --icon-button-…-selected-*).
   Segmented button (SegmentedButton, segmentedButtonClass, segmentedButtonSegmentClass): .segmented-button, the frame
   (the whole width on a phone, as wide as its choices from the medium width), with a .segmented-button-segment for each (the chosen with aria-pressed="true"), in it .segmented-button-check (shown
@@ -3787,8 +3792,8 @@
   .segmented-button-label. A segment with a colour (Segment.swatch) has .segmented-button-swatch, a filled circle of it in every
   segment, in place of the check.
     --segmented-button-height, -padding, -gap, -radius, -font-size, -icon-size   (the button's where it has none)
-    --segmented-button-surface, -text, -line, -hover
-    --segmented-button-selected-surface, -selected-text, -selected-hover
+    --mo-comp-segmented-button-surface, -text, -line, -hover
+    --mo-comp-outlined-segmented-button-selected-container-color, -selected-text, -selected-hover
     --segmented-button-selected-check, --segmented-button-selected-icon   whether the chosen shows its check and its
                                                                          icon (none, or a display value: block)
   Choice group (ChoiceGroup, choiceGroupClass): .choice-group, one choice of a few that takes its form by measuring
@@ -3813,14 +3818,14 @@
   is open), and the theme's .menu (.split-button-menu) under it, at its end; in the Button's five sizes, the arrow's
   button as wide as the button is high.
     --split-button-gap, --split-button-menu-gap
-    --split-button-inner-radius (up to medium), --split-button-large-inner-radius, --split-button-xlarge-inner-radius
+    --mo-comp-split-button-medium-inner-corner-corner-size (up to medium), --mo-comp-split-button-large-inner-corner-corner-size, --mo-comp-split-button-xlarge-inner-corner-corner-size
   FAB menu (FabMenu, fabMenuClass): .fab-menu with its colour set, .fab-menu-primary, .fab-menu-secondary or
   .fab-menu-tertiary; its .fab in any size and colour (.fab-menu-button, aria-expanded: .fab-menu-icon, or while open
   the close button: .fab-menu-close-icon, the close size and corners and the set's filled colour, the FAB's
   --fab-<colour>-… variables) and .fab-menu-list above it at its end, each action an .extended-fab (.fab-menu-item) in
   the set's container colour (.fab-primary-container …). It keeps the place of a medium or large FAB while that is the
   smaller close button.
-    --fab-menu-gap, --fab-menu-item-gap, --fab-menu-close-size, --fab-menu-close-radius, --fab-menu-close-icon-size
+    --fab-menu-gap, --fab-menu-item-gap, --fab-menu-close-size, --mo-comp-fab-menu-close-radius, --fab-menu-close-icon-size
 */
 @layer components {
   /* Button groups (m3.material.io/components/button-groups). */
@@ -3828,11 +3833,11 @@
     display: inline-flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--button-group-gap, 0.5rem);
+    gap: var(--mo-comp-button-group-standard-medium-between-space, 0.5rem);
   }
   .button-group-connected {
     flex-wrap: nowrap;
-    gap: var(--button-group-connected-gap, 0.125rem);
+    gap: var(--mo-comp-button-group-connected-gap, 0.125rem);
   }
   .button-group > :is(.button, .icon-button) {
     transition:
@@ -3847,40 +3852,40 @@
   /* Pressed, a button in a standard group is 15 % wider and its neighbours narrower, so the group keeps its width. */
   @media (prefers-reduced-motion: no-preference) {
     .button-group-standard > .button:active {
-      padding-inline: calc(var(--button-inline) * 1.3);
+      padding-inline: calc(var(--mo-comp-button-inline) * 1.3);
     }
     .button-group-standard > .button:has(+ :active),
     .button-group-standard > :active + .button {
-      padding-inline: calc(var(--button-inline) * 0.85);
+      padding-inline: calc(var(--mo-comp-button-inline) * 0.85);
     }
     .button-group-standard > .icon-button:active {
-      width: calc(var(--icon-button-width) * 1.15);
+      width: calc(var(--mo-comp-icon-button-width) * 1.15);
     }
     .button-group-standard > .icon-button:has(+ :active),
     .button-group-standard > :active + .icon-button {
-      width: calc(var(--icon-button-width) * 0.925);
+      width: calc(var(--mo-comp-icon-button-width) * 0.925);
     }
   }
   .button-group-connected > * {
     flex: 1 1 auto;
   }
   .button-group-connected > :not(:first-child) {
-    border-start-start-radius: var(--button-group-inner);
-    border-end-start-radius: var(--button-group-inner);
+    border-start-start-radius: var(--mo-comp-button-group-inner);
+    border-end-start-radius: var(--mo-comp-button-group-inner);
   }
   .button-group-connected > :not(:last-child) {
-    border-start-end-radius: var(--button-group-inner);
-    border-end-end-radius: var(--button-group-inner);
+    border-start-end-radius: var(--mo-comp-button-group-inner);
+    border-end-end-radius: var(--mo-comp-button-group-inner);
   }
   /* A toggle that is on (its colours are the button's): with the selected corners, fully round in a connected group. */
   .button-group > [aria-pressed='true'] {
-    border-radius: var(--button-group-selected-radius, var(--button-round, var(--icon-button-round)));
+    border-radius: var(--mo-comp-button-group-selected-radius, var(--mo-comp-button-round, var(--mo-comp-icon-button-round)));
   }
   .button-group-connected > .button[aria-pressed='true'] {
-    border-radius: var(--button-round);
+    border-radius: var(--mo-comp-button-round);
   }
   .button-group-connected > .icon-button[aria-pressed='true'] {
-    border-radius: var(--icon-button-round);
+    border-radius: var(--mo-comp-icon-button-round);
   }
 
   /* Segmented buttons (m3.material.io/components/segmented-buttons): the choices side by side in one frame, each as
@@ -3890,9 +3895,13 @@
     display: grid;
     grid-auto-columns: 1fr;
     grid-auto-flow: column;
-    border: 1px solid var(--segmented-button-line, var(--button-outlined-line, var(--mo-sys-block-line)));
-    border-radius: var(--segmented-button-radius, var(--button-radius, var(--mo-sys-block-control-radius)));
-    background: var(--segmented-button-surface, var(--mo-sys-block-surface));
+    border: 1px solid
+      var(--mo-comp-outlined-segmented-button-outline-color, var(--mo-comp-button-outlined-outline-color, var(--mo-sys-block-line)));
+    border-radius: var(
+      --mo-comp-segmented-button-radius,
+      var(--mo-comp-button-medium-container-shape-round, var(--mo-sys-block-control-radius))
+    );
+    background: var(--mo-comp-segmented-button-surface, var(--mo-sys-block-surface));
   }
   @media (width >= theme(--breakpoint-medium)) {
     .segmented-button {
@@ -3903,19 +3912,20 @@
     display: inline-flex;
     min-width: 3rem;
     min-height: calc(
-      var(--segmented-button-height, var(--button-height, 3rem)) - 2px + var(--mo-sys-density-layout) * var(--mo-sys-density-step)
+      var(--segmented-button-height, var(--mo-comp-button-medium-container-height, 3rem)) - 2px + var(--mo-sys-density-layout) *
+        var(--mo-sys-density-step)
     );
     align-items: center;
     justify-content: center;
-    gap: var(--segmented-button-gap, var(--button-xsmall-gap, 0.5rem));
+    gap: var(--segmented-button-gap, var(--mo-comp-button-xsmall-icon-label-space, 0.5rem));
     border: 0;
-    padding: 0 var(--segmented-button-padding, 1rem);
+    padding: 0 var(--mo-comp-segmented-button-padding, 1rem);
     background: transparent;
     color: var(--segmented-button-text, var(--mo-sys-block-text));
     font-family: inherit;
     font-size: var(--segmented-button-font-size, var(--button-small-font-size, var(--mo-sys-typescale-label-large-size)));
-    font-weight: var(--button-weight, var(--mo-sys-typescale-label-large-weight));
-    letter-spacing: var(--button-letter-spacing, var(--mo-sys-typescale-label-large-tracking));
+    font-weight: var(--mo-comp-button-weight, var(--mo-sys-typescale-label-large-weight));
+    letter-spacing: var(--mo-comp-button-letter-spacing, var(--mo-sys-typescale-label-large-tracking));
     line-height: 1;
     white-space: nowrap;
     cursor: pointer;
@@ -3924,7 +3934,8 @@
       color var(--mo-sys-motion-spring-default-effects);
   }
   .segmented-button-segment + .segmented-button-segment {
-    border-inline-start: 1px solid var(--segmented-button-line, var(--button-outlined-line, var(--mo-sys-block-line)));
+    border-inline-start: 1px solid
+      var(--mo-comp-outlined-segmented-button-outline-color, var(--mo-comp-button-outlined-outline-color, var(--mo-sys-block-line)));
   }
   .segmented-button-segment:first-child {
     border-start-start-radius: inherit;
@@ -3943,11 +3954,11 @@
     background: var(--segmented-button-hover, color-mix(in srgb, currentColor 8%, transparent));
   }
   .segmented-button-segment[aria-pressed='true'] {
-    background: var(--segmented-button-selected-surface, var(--mo-sys-block-tint));
-    color: var(--segmented-button-selected-text, var(--mo-sys-block-text));
+    background: var(--mo-comp-outlined-segmented-button-selected-container-color, var(--mo-sys-block-tint));
+    color: var(--mo-comp-outlined-segmented-button-selected-label-text-color, var(--mo-sys-block-text));
   }
   .segmented-button-segment[aria-pressed='true']:not(:disabled):hover {
-    background: var(--segmented-button-selected-hover, color-mix(in srgb, var(--mo-sys-block-text) 8%, var(--mo-sys-block-tint)));
+    background: var(--mo-comp-segmented-button-selected-hover, color-mix(in srgb, var(--mo-sys-block-text) 8%, var(--mo-sys-block-tint)));
   }
   .segmented-button-segment:disabled {
     opacity: 0.45;
@@ -4036,7 +4047,7 @@
   }
   /* A sample with no surface (a text button) ends with its text at the row's end, as the others end with their edge. */
   .choice-group-sample .button-text {
-    margin-inline-end: calc(-1 * var(--button-inline));
+    margin-inline-end: calc(-1 * var(--mo-comp-button-inline));
   }
   .choice-group-swatch {
     flex-shrink: 0;
@@ -4067,15 +4078,15 @@
     gap: var(--split-button-gap, 0.125rem);
   }
   .split-button > .split-button-leading {
-    border-start-end-radius: var(--split-button-inner);
-    border-end-end-radius: var(--split-button-inner);
+    border-start-end-radius: var(--mo-comp-split-button-inner);
+    border-end-end-radius: var(--mo-comp-split-button-inner);
   }
   /* The arrow's button as wide as the button is high, in each size. */
   .split-button > .split-button-trailing {
-    width: var(--button-box);
+    width: var(--mo-comp-button-box);
     padding: 0;
-    border-start-start-radius: var(--split-button-inner);
-    border-end-start-radius: var(--split-button-inner);
+    border-start-start-radius: var(--mo-comp-split-button-inner);
+    border-end-start-radius: var(--mo-comp-split-button-inner);
   }
   .split-button > .split-button-trailing[aria-expanded='true'] {
     border-radius: var(--mo-sys-shape-corner-full);
@@ -4173,7 +4184,7 @@
   .fab-menu-button[aria-expanded='true'] {
     height: var(--fab-menu-close-size, var(--fab-size, 3.5rem));
     min-width: var(--fab-menu-close-size, var(--fab-size, 3.5rem));
-    border-radius: var(--fab-menu-close-radius, calc(var(--fab-menu-close-size, var(--fab-size, 3.5rem)) / 2));
+    border-radius: var(--mo-comp-fab-menu-close-radius, calc(var(--fab-menu-close-size, var(--fab-size, 3.5rem)) / 2));
   }
   .fab-menu-button[aria-expanded='true'] > svg {
     width: var(--fab-menu-close-icon-size, var(--fab-icon-size, 1.5rem));
@@ -4184,10 +4195,10 @@
     color: var(--fab-primary-text, var(--mo-sys-block-on-accent));
   }
   .fab-menu-primary > .fab-menu-button[aria-expanded='true']:hover {
-    background: var(--fab-primary-hover, var(--mo-sys-block-accent-hover));
+    background: var(--mo-comp-fab-primary-hover, var(--mo-sys-block-accent-hover));
   }
   .fab-menu-primary > .fab-menu-button[aria-expanded='true']:active {
-    background: var(--fab-primary-pressed, var(--fab-primary-hover, var(--mo-sys-block-accent-hover)));
+    background: var(--fab-primary-pressed, var(--mo-comp-fab-primary-hover, var(--mo-sys-block-accent-hover)));
   }
   .fab-menu-secondary > .fab-menu-button[aria-expanded='true'] {
     background: var(--fab-secondary-surface, var(--mo-sys-color-secondary));
@@ -4374,7 +4385,7 @@
     align-self: center;
   }
   .setting-list-action {
-    margin-inline-start: calc(-1 * var(--button-inline));
+    margin-inline-start: calc(-1 * var(--mo-comp-button-inline));
   }
   /* Switches: a setting row with the track and its handle after the name. */
   .switch {
@@ -5375,7 +5386,7 @@
   }
   .tooltip-actions {
     display: flex;
-    margin: 0.25rem 0 -0.25rem calc(-1 * var(--button-text-padding, 1rem));
+    margin: 0.25rem 0 -0.25rem calc(-1 * var(--mo-comp-button-text-padding, 1rem));
   }
   /* Anchor positioning (css-layout §5, position-aware-tooltips): where the browser has it, the browser places the tooltip
      and ui/tooltip.script.ts does not. Plain: over its anchor, in the middle; rich: over it from its start. Both go under
@@ -5441,7 +5452,7 @@
     width: var(--button-busy-from, auto);
   }
   to {
-    width: var(--button-box);
+    width: var(--mo-comp-button-box);
     padding-inline: 0;
   }
 }
@@ -5678,10 +5689,10 @@
   floating one paired with a FAB stands with it in .toolbar-with-fab (.toolbar-with-fab-vertical: the FAB under it),
   and .toolbar-collapsed while only the FAB is shown.
     --toolbar-gap, --toolbar-fab-gap   the room between its actions, and between it and its FAB
-    --toolbar-docked-padding-block, --toolbar-docked-padding-inline, --toolbar-docked-line, --toolbar-docked-line-width,
-    --toolbar-docked-backdrop   a docked one's room, edge (its width 0 for none) and the blur behind it
-    --toolbar-floating-padding, --toolbar-floating-radius, --toolbar-floating-line, --toolbar-floating-shadow
-    --toolbar-standard-surface, --toolbar-standard-text, --toolbar-vibrant-surface, --toolbar-vibrant-text
+    --toolbar-docked-padding-block, --toolbar-docked-padding-inline, --mo-comp-toolbar-docked-line, --mo-comp-toolbar-docked-line-width,
+    --mo-comp-toolbar-docked-backdrop   a docked one's room, edge (its width 0 for none) and the blur behind it
+    --toolbar-floating-padding, --mo-comp-toolbar-floating-container-shape, --mo-comp-toolbar-floating-line, --toolbar-floating-shadow
+    --mo-comp-toolbar-docked-container-color, --toolbar-standard-text, --toolbar-vibrant-surface, --toolbar-vibrant-text
 */
 @layer components {
   /* Navigation bar (m3.material.io/components/navigation-bar): the destinations side by side, each icon over its label. */
@@ -6399,23 +6410,23 @@
     justify-content: space-between;
     padding: var(--toolbar-docked-padding-block, 0.75rem) var(--toolbar-docked-padding-inline, 1rem)
       max(var(--toolbar-docked-padding-block, 0.75rem), env(safe-area-inset-bottom));
-    border-top: var(--toolbar-docked-line-width, 1px) solid var(--toolbar-docked-line, var(--mo-sys-block-line));
-    backdrop-filter: var(--toolbar-docked-backdrop, blur(16px));
+    border-top: var(--mo-comp-toolbar-docked-line-width, 1px) solid var(--mo-comp-toolbar-docked-line, var(--mo-sys-block-line));
+    backdrop-filter: var(--mo-comp-toolbar-docked-backdrop, blur(16px));
   }
   /* Floating: a pill over the page with its shadow, across or down. */
   .toolbar-floating {
     display: inline-flex;
-    border-radius: var(--toolbar-floating-radius, var(--mo-sys-shape-corner-full));
+    border-radius: var(--mo-comp-toolbar-floating-container-shape, var(--mo-sys-shape-corner-full));
     padding: var(--toolbar-floating-padding, 0.5rem);
     box-shadow:
-      0 0 0 1px var(--toolbar-floating-line, var(--mo-sys-block-line)),
+      0 0 0 1px var(--mo-comp-toolbar-floating-line, var(--mo-sys-block-line)),
       var(--toolbar-floating-shadow, var(--mo-sys-elevation-level3-rest-shadow));
   }
   .toolbar-vertical {
     flex-direction: column;
   }
   .toolbar-standard {
-    background: var(--toolbar-standard-surface, color-mix(in srgb, var(--mo-sys-block-surface) 95%, transparent));
+    background: var(--mo-comp-toolbar-docked-container-color, color-mix(in srgb, var(--mo-sys-block-surface) 95%, transparent));
     color: var(--toolbar-standard-text, var(--mo-sys-block-text));
   }
   /* Vibrant: in the accent, without a line; what stands on it turned around, as on a banner in the accent. */
@@ -6520,12 +6531,12 @@
   }
   .date-picker-field .text-field-input,
   .time-picker-field .text-field-input {
-    padding-right: calc(var(--icon-button-size, 2.75rem) + 0.5rem);
+    padding-right: calc(var(--mo-comp-icon-button-small-container-height, 2.75rem) + 0.5rem);
   }
   .date-picker-field-button,
   .time-picker-field-button {
     position: absolute;
-    top: calc((var(--text-field-box, var(--text-field-height, 3rem)) - var(--icon-button-size, 2.75rem)) / 2);
+    top: calc((var(--text-field-box, var(--text-field-height, 3rem)) - var(--mo-comp-icon-button-small-container-height, 2.75rem)) / 2);
     right: 0.25rem;
   }
 
