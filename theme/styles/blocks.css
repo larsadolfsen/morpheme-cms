@@ -199,8 +199,19 @@
   }
   /* `Max rows` of "Segmented list" (MoreRows.tsx, segmented/more.ts): without script all rows show and the button is hidden; with
      script (data-cut) the rows after the first ones are hidden until the button shows them. The last row left has no line under it. */
-  .block-more:not([data-cut]) > .block-more-button {
+  .block-more:not([data-cut]) .block-more-button {
     display: none;
+  }
+  /* `Show more` and the text button under the last row (`button`) stand on one row, wrapping on a narrow screen; the row carries the spacing above and the pull
+     out by a text button's side padding, so the buttons themselves have none. */
+  .block-more-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+    margin-inline-start: calc(-1 * var(--button-text-padding, 1rem));
+  }
+  .block-more-buttons > .block-list-button {
+    margin: 0;
   }
   .block-more[data-cut] [data-extra],
   .block-more[data-cut] li:has(> [data-extra]) {

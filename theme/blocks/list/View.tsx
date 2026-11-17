@@ -13,10 +13,9 @@ export default function ListBlock({ view }: { view: ListView }) {
   const cut = cutAt(view.max, view.items.length);
   return (
     <>
-      <MoreRows cut={cut} label={view.showMore} className={inText}>
+      <MoreRows cut={cut} label={view.showMore} className={inText} after={<ListButton button={view.button} className={inText} />}>
         <Rows items={view.items} segmented={view.design === 'segmented'} className={inText} cut={cut} oneColumn={view.oneColumn} />
       </MoreRows>
-      <ListButton button={view.button} className={inText} />
     </>
   );
 }
