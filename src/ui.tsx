@@ -361,8 +361,8 @@ const closeToolbar = {
   '--toolbar-gap': '0',
   '--toolbar-docked-padding-block': '0',
   '--toolbar-docked-padding-inline': '0',
-  '--toolbar-docked-line-width': '1px',
-  '--toolbar-docked-line': 'var(--color-outline-variant)',
+  '--mo-comp-toolbar-docked-line-width': '1px',
+  '--mo-comp-toolbar-docked-line': 'var(--color-outline-variant)',
 } as CSSProperties;
 
 // A tool's size in the text's bar: 44 by 44 dp with a 20 dp icon, outside the user's density choice (owner decision, 13 Nov; docs/material-deviations.md).
@@ -373,7 +373,10 @@ const toolbarTextSize = {
   paddingInline: '0',
   whiteSpace: 'nowrap',
 } as CSSProperties;
-const toolbarSize = { '--icon-button-size': '2.75rem', '--icon-button-icon-size': '1.25rem' } as CSSProperties;
+const toolbarSize = {
+  '--mo-comp-icon-button-small-container-height': '2.75rem',
+  '--mo-comp-icon-button-small-icon-size': '1.25rem',
+} as CSSProperties;
 // A tool with a menu there: as high as the others, its icon where an icon button's is (0.625rem in from its start) and
 // the arrow close after it, not a text button's room round a label it does not have (as over the selection, editor.css).
 const toolbarMenuSize = {
@@ -382,7 +385,7 @@ const toolbarMenuSize = {
   justifyContent: 'center',
   paddingInline: '0.125rem',
   gap: '0.125rem',
-  '--button-icon-size': '1.25rem',
+  '--mo-comp-button-medium-icon-size': '1.25rem',
 } as CSSProperties;
 
 // ---------------------------------------------------------------------------------------------------
@@ -2506,9 +2509,9 @@ export function ColorsPreview({ colors, title }: { colors: Record<string, string
   const p = t.colors.preview;
   const vars = {
     ...Object.fromEntries(Object.entries(colors).map(([name, value]) => [`--mo-sys-color-${name}`, value])),
-    '--button-filled-surface': 'var(--mo-sys-color-primary)',
-    '--button-filled-hover': 'color-mix(in srgb, var(--mo-sys-color-on-primary) 8%, var(--mo-sys-color-primary))',
-    '--button-filled-text': 'var(--mo-sys-color-on-primary)',
+    '--mo-comp-button-filled-container-color': 'var(--mo-sys-color-primary)',
+    '--mo-comp-button-filled-hover': 'color-mix(in srgb, var(--mo-sys-color-on-primary) 8%, var(--mo-sys-color-primary))',
+    '--mo-comp-button-filled-label-text-color': 'var(--mo-sys-color-on-primary)',
   } as CSSProperties;
   return (
     <div
@@ -2582,7 +2585,7 @@ export function ColorTiles({ colors, label }: { colors: ColorTile[]; label: stri
           const vars = {
             background: color,
             color: text,
-            '--icon-button-standard-text': text,
+            '--mo-comp-icon-button-standard-icon-color': text,
             '--icon-button-standard-selected-text': text,
           } as CSSProperties;
           return (
@@ -3412,7 +3415,12 @@ function MainDrawerMenuButton({ onClick, header }: { onClick: () => void; header
     <>
       <div className="editor-main-drawer-header flex min-h-(--top-app-bar-height,4rem) items-center gap-1 p-(--navigation-drawer-item-padding,0_1rem) py-0 ps-0">
         <div className="min-w-0 flex-1">{header}</div>
-        <MenuButton label={t.library.closeMenu} open onClick={onClick} className="-me-[calc((var(--icon-button-width)-1.5rem)/2)]" />
+        <MenuButton
+          label={t.library.closeMenu}
+          open
+          onClick={onClick}
+          className="-me-[calc((var(--mo-comp-icon-button-width)-1.5rem)/2)]"
+        />
       </div>
       <SiteDivider kind="middle-inset" className="mb-4" />
     </>
