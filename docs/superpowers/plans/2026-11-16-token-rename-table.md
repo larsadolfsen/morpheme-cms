@@ -42,7 +42,7 @@ CSS custom properties cannot contain dots, so `md.sys.color.primary` becomes `--
 
 1. **Component tokens match M3** ("We match md3"): `md.comp.<component>.<part>.<attribute>` becomes `--mo-comp-<component>-<part>-<attribute>`, with M3's component and part names, read from the real specs pages. Where M3 prints no token for a part or attribute, ours stays under the same prefix and is listed as O. Result: 153 exact, 271 ours.
 2. **Editor and standard-theme tokens** ("agree"): `--theme-*`, `--editor-*`, `--google-*` and `--page-*` become `--mo-comp-<part>-*`, the editor's too, one rule everywhere.
-3. **THEME_API and APP_API 5 to 6, and what APP_APIS keeps: not answered.** Everything else is built first; the contract bump is the last commit of the last PR, and the PM confirms it before it is pushed.
+3. **THEME_API and APP_API go from 5 to 6, and `APP_APIS` then lists only 6** (owner, 17 Nov: "yes"). It is the last, separate commit of the rename PRs (3g below), with the contract tests (`lib/contracts.mjs` and the tests that read it) and a release note for site owners and theme and app authors, in en-US and da-DK, saying that the old names stop working. The store (morpheme-appstore) offers only the contracts the editor reads, so what must change there (the catalog's `app` and `theme` levels and any stored themes and apps written to 5) is for the PM to check: this session does not read that repository.
 
 Totals: **280 exact M3 (S), 22 M3 pattern without a token (S?), 445 ours (O)**, of 747 renamed names.
 
@@ -58,7 +58,7 @@ Each PR is its own branch into 0.18, renames its names everywhere in the reposit
 | 3d | comp | inputs: text-field, checkbox, radio, switch, slider, search, date-picker, time-picker |
 | 3e | comp | navigation (bar, rail, drawer), menu, dialog, snackbar, tooltip, badge, progress and loading indicator, sheets, divider, lightbox |
 | 3f | comp | `--theme-*`, `--editor-*`, `--google-*`, `--page-*` and the rest |
-| 3g | none | the contract bump: `THEME_API` and `APP_API`, `APP_APIS`, `docs/app-contract.md`; the last commit, confirmed by the PM before it is pushed |
+| 3g | none | the contract bump: `THEME_API` and `APP_API` 5 to 6, `APP_APIS` lists only 6, the contract tests, `docs/app-contract.md`, the release note (en-US and da-DK); the last commit, confirmed by the PM before it is pushed |
 
 3a is the widest (its names are written in about 3,700 places in tracked files, the components' in about 2,300), so it goes first and alone; each later PR touches only its own components' CSS and the places that read them. 3a also repoints the right-hand sides of the Tailwind `@theme` aliases that read renamed names.
 
