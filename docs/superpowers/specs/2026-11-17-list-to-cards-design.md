@@ -1,230 +1,247 @@
-# A list on phones, cards on larger screens (design proposal)
+# 0.19 Cards and lists (design)
 
-Status: proposal for the owner, 2026-11-17. No code. Written from a talk with the owner on the same day: "a list item may
-change into a card on larger screens. Should cards and list basically be the same objects but different design?"
+Status: brainstorm with the owner, 17 November 2026. **Not approved as a whole**: the decisions below are the owner's, one by
+one; the open questions are in section 9. No code. Roadmap: `docs/superpowers/plans/2026-11-14-roadmap-0-18-to-0-24.md`,
+*0.19 Cards and lists*.
 
-**The answer in short:** the content is the same object, the drawing is not. An item has one content shape. `ListItem`
-and `Card` stay the two Material components they are, unchanged in their own design, and one new layout part of the theme,
-a **collection**, draws the items as a list below 600 dp and as cards from 600 dp. Text a list item has no room for is left
-out of the list; an action never is.
+It started from the owner's question: "According to M3, a list item may change into a card on larger screens. Should cards
+and lists basically be the same objects but different design?" The owner's answer, in the talk: Material 3's card and list
+item made one to one, and every card and list built on them; nothing stays out.
 
-## 1. What Material 3 says
+## 1. The rules (owner, 17 November)
 
-Read on 2026-11-17 on m3.material.io with Playwright (Chromium): `/components/lists/overview`, `/components/lists/specs`,
-`/components/lists/guidelines`, `/components/lists/accessibility`, `/components/cards/overview`, `/components/cards/specs`,
-`/components/cards/guidelines`, `/components/cards/accessibility`,
-`/foundations/layout/applying-layout/window-size-classes`, `/foundations/layout/canonical-layouts/list-detail`,
-`/foundations/layout/grids-spacing/grids`. The token tables stay collapsed in a script-less read; no token value is quoted.
+- **Follow the M3 token.** Where a token prints a value, that value is used.
+- **No invented tokens; use the globals.** A part reads the global tokens. **If it does not fit, ask the owner.**
+- **Names.** Every global is `--mo-` and M3's system token name (`md.sys.color.secondary` is `--mo-color-secondary`).
+- **Component variables, for a customizer.** The owner will build a customizer that changes things per component. Each value
+  of a component is one variable, `--<component>-<M3 part>-<property>`, named after M3's component token where M3 has one
+  (`md.comp.elevated-card.container.color` is `--card-elevated-container-color`), falling back to a global
+  (`var(--card-padding, var(--mo-space-200))`). Where M3 prints none, the name follows the same pattern and the spec marks it
+  "ours, M3 silent".
+- **M3 Expressive** where a component has it (Lists), else baseline (Cards have no Expressive variant: the four card pages
+  were searched; "expressive" appears only for the container transform of "hero moments").
+- **Standard and reusable.** One rule for all parts, reused; no special case for one component.
+- **Tailwind goes** (section 7).
 
-### The swap
+## 2. Step 0: M3's names for the globals
 
-- Lists, Guidelines, *Swap components*: "Lists are just a compact composition of images, text, and actions. Other
-  components, like cards and carousels, use the same elements but take up more space. At larger breakpoints, consider
-  swapping a list to a component with a similar purpose to take advantage of available space." The image under it:
-  "Information displayed in list items on mobile can change to cards on tablet and desktop."
-- Cards, Guidelines, *Small screens*: "On smaller screens with the compact breakpoint, consider swapping cards for lists,
-  which can display images and text in a more compact form. Make sure that controls, actions, and other
-  component-specific elements are maintained."
-- Window size classes: "Use caution when swapping components. Make sure: The interchangeable components are functionally
-  equivalent. The component swap serves a functional and ergonomic purpose. Don't swap a button for a chip. Be careful when
-  changing between list items and cards." Its table *Common swappable components* lists navigation, dialogs and bottom
-  sheet/menu; it does not list list/card.
-- Lists, *Compact breakpoints*: "Lists should extend edge-to-edge in compact windows. Selecting a list item should open a
-  page with the details." *Medium & expanded*: "a list and the detailed information can appear side-by-side." List-detail:
-  compact 1 pane, medium "1 (recommended) or 2 panes", expanded and up 2 panes.
+Every global becomes `--mo-` and M3's system token name; a clean break (no aliases). It replaces the colour names of
+`plans/2026-11-08-md3-color-variable-names.md` (colours named without M3's `color.` group).
 
-### Showing more or less
+| M3 system token | Today | Step 0 | Uses today |
+| :--- | :--- | :--- | :--- |
+| `md.sys.color.*` | `--mo-secondary` | `--mo-color-secondary` | 673 in 14 files |
+| `md.sys.shape.corner.*` | `--mo-shape-medium` | `--mo-shape-corner-medium` | 189 in 8 files |
+| `md.sys.elevation.level*` | `--mo-elevation-1-…` | `--mo-elevation-level1-…` | 265 in 10 files |
+| `md.sys.state.*` | none (step 1) | `--mo-state-hover-state-layer-opacity` … | new |
+| spacing `space100` … | `--mo-space-100` | unchanged | 63 in 4 files |
 
-- Lists, *Line length*: "A list with a compact breakpoint can become part of a two-column layout at an expanded breakpoint,
-  adjusting the amount of information shown in each list item." The image: "Reduce the amount of information shown at
-  compact breakpoints."
-- Lists, *Swap components*: "Lists can also show more or less content as they scale up and down in size. For example, a
-  list item can reveal more content when the component expands." The image: "List items reveal supporting text at expanded
-  breakpoints."
-- Lists, *Label & supporting text*: "Limit supporting text to one to three lines. Truncate supporting text, depending on
-  screen size."
+Themes (Venus in `morpheme-apps`, whose `scripts/variable-names.test.mjs` checks the names) and apps that set the old names
+break: `THEME_API` and `APP_API` go up, and the release note lists the old and new names.
 
-### The two anatomies
+## 3. Step 1: the shared globals
 
-| List item (Specs, *Anatomy*: "Container and label text are required. All other elements are optional") | Card (Guidelines, *Anatomy*: "The card container is the only required element") |
+- **Shadows at rest: on, at every level** (owner: "Follow the token: 1dp shadow at rest"; then "one global rule"). Each
+  `--mo-elevation-levelN-rest-shadow` is that level's shadow. A part names its level and never writes its own shadow. The
+  card's own shadow variables go. Every part on level 1 or higher is checked against its own M3 token page in the same pull
+  request. It replaces the M3 audit's decision of 13 November (colour-only elevation at rest).
+- **State opacities: M3's five, as globals.** m3.material.io/foundations/interaction/states/state-layers, token set *State
+  opacities*: hover 0.08, focus 0.1, pressed 0.1, dragged 0.16, disabled 0.38. Every part reads them instead of a written
+  number. A component's own value that is not in the set (the outlined card's disabled outline, 0.12) is the component's,
+  from its token table.
+- **One focus ring** for every part, 3 dp, offset 2 dp, following the focused part's own corner (`border-radius: inherit`).
+  Its colour is **open** (section 9, Q1). A component's own offset from its token table (the list's −3 dp, inside) is a
+  component variable.
+
+## 4. Step 2: Avatar
+
+M3 has no avatar component (`/components/avatar` is 404; not on the components index). It is a part of others: Lists, "Leading
+avatar container", "images in circular or expressive shapes to represent a person or entity"; Cards, "thumbnails for an
+avatar or logo". One shared theme part, `Avatar` (a letter or an image), lifted out of `ListItem`, used by the list's
+leading avatar and the card's thumbnail. List tokens: 40 dp, circular, `primary-container` / `on-primary-container`, label
+16 pt / 0.15. In the components list as "M3 has no page", as `ImageTile` and `Lightbox`. Owner: agreed.
+
+## 5. Steps 3 and 4: Card
+
+### 5.1 M3 against ours
+
+Read on m3.material.io/components/cards (Overview, Specs with the token tables opened and previews hidden, Guidelines,
+Accessibility). The token values are the baseline scheme's; written here as roles. Elevation in dp is the level (0, 1, 3, 6,
+8 dp are levels 0 to 4).
+
+| Token | Elevated | Filled | Outlined | Ours today |
+| :--- | :--- | :--- | :--- | :--- |
+| Container | `surface-container-low`, level 1 | `surface-container-highest`, level 0 | `surface`, level 0, outline 1 dp `outline-variant` | elevated ✓ but no shadow at rest; filled `surface-container-high` ✗; outlined ✓ |
+| Shape | 12 dp | 12 dp | 12 dp | ✓ (`--block-radius` 0.75rem) |
+| Padding | 16 dp (Specs, measurements) | | | ✓ |
+| Hover | level 2, layer 0.08 | level 1 | level 1 | ✓ |
+| Focus | level 1, layer 0.1, ring `secondary` 3 dp offset 2 dp | level 0 | level 0, outline `on-surface` | layer ✓; ring `primary`; outline stays `outline-variant` ✗ |
+| Pressed | level 1, layer 0.1 | 0 | 0 | ✓ (ripple) |
+| Dragged | level 4, layer 0.16 | level 3 | level 3 | levels ✓, layer not set ✗ |
+| Disabled | level 1, 0.38, `surface` | 0, 0.38 | outline `outline` 0.12 | none ✗ |
+| Icon | `primary`, 24 dp | | | no slot ✗ |
+
+### 5.2 Decisions
+
+- **Type styles** (M3 prints none for cards). Headline **title-large** (22 / 28, 400; owner: body-large "is too small"; title
+  medium is the same 16 px). Subhead **label-small**, supporting text **body-medium**, meta **label-small**: the list item's
+  M3 tokens. Recorded in `docs/material-deviations.md` as our choice where M3 is silent.
+- **Spacing:** the global M3 spacing steps, today's values, through component variables (section 1): padding
+  `--mo-space-200` (M3's 16 dp), media to headline `--mo-space-200`, headline to subhead `--mo-space-50`, to supporting text
+  `--mo-space-100`, text to actions `--mo-space-200`. The gaps are "ours, M3 silent". Today's `--card-media-gap`,
+  `--card-subhead-gap`, `--card-text-gap`, `--card-action-gap` are renamed to the pattern.
+- **Today's `--card-*` variables** are renamed to M3's names (`--card-elevated-container-color` …); themes that set them
+  break (`THEME_API`).
+- **A link card or a card with actions, never both** (M3 Cards, Accessibility: "An action shouldn't be placed on an
+  actionable surface"). `Card`'s types make both impossible.
+- **The anatomy as named props**, the same names as `ListItem` where they mean the same:
+
+| Prop | M3 part |
 | :--- | :--- |
-| Container | Container |
-| Overline | Subhead ("smaller text elements, such as an article byline or a tagged location") |
-| Label text | Headline ("communicates the subject of the card") |
-| Supporting text, one to three lines | Supporting text ("body content, such as an article summary") |
-| Trailing text ("supplemental details, like a price, count, or date") | none |
-| Leading icon, leading avatar, leading media (image or video) | Media: thumbnail ("an avatar or logo"), image, video |
-| Trailing icon, trailing selection control | Selection controls ("chips, sliders, checkboxes") |
-| Multi-action: "Place supplementary actions, like a bookmark or menu, in the trailing position" | Actions: buttons, icon buttons, linked text, overflow menu ("upper-right or lower-right corner") |
-| Divider | Dividers |
+| `headline` | Headline |
+| `subhead` | Subhead (the list's overline; one name, decided C1) |
+| `supporting` | Supporting text |
+| `media` (image, video), `thumbnail` (`Avatar`), `icon` | Media, thumbnail, icon |
+| `actions` | Buttons, icon buttons, selection controls (chips, sliders, checkboxes), linked text |
+| `menu`, `menuAt` (top or bottom) | Overflow menu ("upper-right or lower-right corner") |
+| `href` | Directly actionable (never with `actions`) |
+| `selected`, `disabled` | States |
+| `children` | "Can also contain other components" (a table, a price list), between the text and the actions |
 
-### One action or several
+  `Card` draws them in M3's order with the spacing and type above. Dividers come by themselves: inset between content and
+  actions, full-width above content that expands (M3: "Use full-width dividers for content that can be expanded").
 
-- Lists, *Behavior*: a single-action item "performs one action, such as navigating to a new page" and "Can't have secondary
-  nested actions"; a multi-action item has "multiple nested actions", the primary one taking "the majority of the space".
-- Cards, Accessibility: "A card can be a non-actionable container that holds actions like buttons and links, or it can be
-  directly actionable without any buttons or links. This is to avoid stacking actionable elements. An action shouldn't be
-  placed on an actionable surface."
-- So a single-action list item and a directly actionable card are the same thing; a multi-action list item and a
-  non-actionable card with buttons are the same thing.
+### 5.3 Step 4: every user of Card
 
-### Collections and keyboard
+Released with step 3, so `THEME_API` goes up once and no block draws the old card. The site: *Cards*, *Price cards*,
+*Notice*, *Table*, *Cookie list*, the panels (`Panel.tsx`, *Links*), *Image grid* (`ImageTile`), *Testimonials*, related
+posts (`PostCard.tsx`), the 404 page. The editor: the start screen's widgets, the inline Cards, Price cards, Notice and Table,
+the media screen, the notices. The theme grid's move of the cards (deviation G1, "the cards move in later pull requests") is
+done here.
 
-- Cards: "Multiple cards can be grouped together into collections displayed in a grid, list, or carousel." "Filter or
-  sorting options should be placed outside of the card collection." "In mobile layouts, components such as lists or cards
-  are stretched to fit the full width of the screen ... When designing for large screens with an expanded breakpoint, use
-  multiple columns to display content."
-- Cards, keyboard: Tab moves to the next directly actionable card, or to the next action in a non-actionable card.
-  Lists, keyboard: a single-action list is one Tab stop and the arrow keys move between items; multi-action items move with
-  the arrow keys between all their actions.
-- Cards, Specs: "12dp corner radius", "Left/right padding 16dp", "Padding between cards 8dp max" (ours: the grid gutter,
-  `docs/material-deviations.md`, G1).
+## 6. Step 5: List and ListItem
 
-M3 prints no hybrid list-card component, no name for the part that swaps, and no breakpoint for this swap. It names the
-group "collection".
+M3 Lists has an Expressive variant (Specs: "Baseline lists … Not recommended. Use expressive lists instead"). Token sets read:
+*List - Common* and *List - Expand*.
 
-## 2. The design
+### 6.1 Where ours differs from the tokens (follow the token)
 
-### 2.1 One content shape, two components
-
-A **collection item** is data, not a component:
-
-```ts
-type CollectionItem = {
-  headline: string;          // required in both
-  subhead?: string;          // a byline, a date, a place
-  supporting?: string;       // body text, a summary
-  meta?: string;             // a price, a count, a date
-  media?: { image: Image; alt?: string } | { icon: string; iconColor?: string } | { video: VideoView };
-  href?: string;             // the whole item is one link (single-action / directly actionable)
-  actions?: ButtonView[];    // the item's buttons (multi-action / non-actionable with buttons)
-  selected?: boolean;
-};
-```
-
-`href` and `actions` exclude each other, as M3's "an action shouldn't be placed on an actionable surface" says. That is
-the rule the Cards block keeps today ("The action area: none on a card with a page", `src/standard/cards/view.ts`).
-
-`ListItem` (`theme/ui/List.tsx`) and `Card` (`theme/ui/Card.tsx`) are not changed in their design and do not learn about
-each other. Neither gets a "looks like the other" variant. A theme that restyles one does not restyle the other.
-
-### 2.2 Each field in each component
-
-| Field | As a list item (compact) | As a card (medium and up) |
+| Part | M3 token | Ours |
 | :--- | :--- | :--- |
-| `headline` | label text (`headline`) | headline |
-| `subhead` | overline (`overline`) | subhead |
-| `meta` | trailing text (`trailingSupporting`) | in the subhead line, after the subhead |
-| `supporting` | supporting text, cut to the lines left (an item is at most three lines) | supporting text, whole |
-| `media` image | leading media (`leadingMedia`, the thumbnail) | media at the top (`CardMedia`) |
-| `media` icon | leading icon (`leadingIcon`) | thumbnail |
-| `media` video | leading video thumbnail (`leadingVideo`); a tap opens the video | video with its play button |
-| `href` | single-action item (`href`) | directly actionable card (`href`) |
-| `actions`, one with an icon | multi-action item: an icon button trailing (`actions`) | button in the action area |
-| `actions`, several or without icons | multi-action item: an overflow menu trailing, one menu item per button | buttons in the action area |
-| `selected` | selected item (`selected`) | selected card (`selected`) |
+| Height, one / two / three lines | 56 / 72 / 88 dp | 48 px minimum and padding |
+| Leading and trailing space; top and bottom; between | 16; 10; 12 dp | 0; about 14; 24 px |
+| Hover | `on-surface` layer 0.08, text unchanged | text turns `primary`, no layer, what trails moves 3 px |
+| Selected | `secondary-container` / `on-secondary-container` | standard: text `primary`, weight 500 |
+| Disabled | 0.38 (state layer 0.1) | 0.6 |
+| Focus ring | `secondary`, 3 dp, offset −3 dp | `primary` |
+| Shape (Expressive) | 4 dp; hovered 12; focused, pressed, dragged, selected 16 | 0 standard; segmented 4 throughout |
+| Segmented | container `surface`; gap 2 dp | `surface-container-high`; 3 px |
+| Dragged | 8 dp (level 4), layer 0.16 | not set |
+| Divider | `outline`, 1 dp | to check |
+| Expand | expanded container `surface`; trailing icon in a circular container, `surface-container-low` when open | to check |
+| Avatar 40 dp, image 56 dp (expressive corner 8), video 114 × 64, icons 20 dp (Expressive), type: label body-large, supporting body-medium, overline and trailing label-small | ✓ |
 
-**The rule for leaving out:** only text may be left out of the list, and only after it is mapped: `subhead` goes to the
-overline and `meta` to the trailing text before anything is cut. `supporting` is cut first (to two lines, then one, then
-none when the overline and headline take the lines). An action, a link, a selection and the media's meaning (its alt text)
-are never left out (Cards: "Make sure that controls, actions, and other component-specific elements are maintained").
+### 6.2 Ours, not M3's (proposal, not yet decided)
 
-### 2.3 The collection part
+`columns` (headline and text side by side on a wide screen), `truncate`, the 3 px hover shift, selected weight 500. Proposal:
+remove the hover shift and the weight (not in the tokens); `columns` and `truncate` are section 9, Q6.
 
-A new layout part in the theme, `theme/ui/Collection.tsx`, shown in the gallery (`#developer/parts/ui`) and exported to
-the editor through `src/themeUi.ts`. It takes the items and the card's kind and draws:
+### 6.3 Decided
 
-- **compact (under 600 dp):** a `List` of `ListItem`s, edge to edge (M3: "Lists should extend edge-to-edge in compact
-  windows").
-- **medium and up (600 dp):** the `Card`s on the theme grid (`docs/theme-grid.md`: `--grid-columns`, `--grid-gutter`),
-  in M3's "multiple columns" (how many: 2.5, L4).
+- **C1:** the small line by the headline is one prop, `subhead`; the list draws it as its overline (above the headline), the
+  card as its subhead (under it).
+- The blog list's headline (today title-medium) follows the list token (body-large).
 
-Both are a `<ul>` of `<li>` (`Card as="li"`), so a screen reader hears the same list with the same count in both.
+## 7. Tailwind goes
 
-**How it switches.** The site is static HTML, so the switch is CSS, not a script: the collection draws both forms and
-shows one. Modern web guidance (`form-factor-adaptation`, `size-aware-styling`, read 2026-11-17 through
-`npm run audit:web`): "Use container queries instead of viewport-width media queries for component layout, so a component
-adapts wherever it is placed." So the collection is a container (`container: collection / inline-size`) and the switch is
-`@container collection (inline-size >= 37.5rem)`, M3's 600 dp, measured on the collection's own width. A collection in a
-narrow column stays a list on a wide window; one across the page swaps at 600. Container queries are Baseline since
-2023-02-14, no fallback needed. CSS custom properties cannot stand in a container query, so the number is written in
-`ui.css` and `lib/breakpoints.test.mjs` checks it against `BREAKPOINTS.medium`.
+About 1,700 utility uses in 243 files, 156 window-width variants (`medium:` …), `@tailwindcss/typography` (`prose`, the page's
+own text), the packages `tailwindcss`, `@tailwindcss/vite`, the typography and Prettier plugins. Owner, 17 November:
 
-The form that is not shown is `display: none`: out of the accessibility tree, out of find-in-page, and its images with
-`loading="lazy"` are not fetched. Every image in a collection is lazy, unless the collection is the page's first content
-(then the shown form's image carries `fetchpriority` as `Img` does today). The editor draws the block's `View.tsx` as the
-site does, so the editor and the Preview's window sizes show the swap with no code of their own.
+1. From now on, new or changed code uses no Tailwind.
+2. Steps 3 to 6 write their CSS without it, with container queries (Modern web guidance, `form-factor-adaptation`: "Use
+   container queries instead of viewport-width media queries for component layout").
+3. A last step replaces `prose` with the theme's own text styles, rewrites what is left, removes the packages and raises
+   `THEME_API` and `APP_API`.
 
-The keyboard follows the form shown: as a list, Tab and the arrow keys of M3's lists; as cards, Tab from card to card or
-action to action. Items of links are Tab stops in both, so a site visitor using only links notices no change.
+It takes over the M3 audit's pull request 11 (type).
 
-### 2.4 Which places swap
+## 8. Steps 6 and 7
 
-Each is the owner's choice (section 4). Today the content is drawn twice in two ways already:
+### 8.1 Step 6: the collection
 
-| Place | Today | Proposed |
+List and cards turn into each other both ways; every card and list goes through it, nothing stays out. The same item (the
+props of 5.2) goes to `ListItem` or `Card`. It takes over the old 0.19's *Dynamic cards* and *A card layout for the List block*.
+
+**The card's anatomy in the list** (owner: "Convert the anatomy of cards to lists"):
+
+| Card | List item | |
 | :--- | :--- | :--- |
-| Block *Blog posts*, design *List* (`theme/components/PostList.tsx`) | `ListItem`s with leading image, overline (date, reading time), headline, supporting; two columns from expanded | a collection: a list on compact, cards from 600 |
-| *Related posts* under a post (`theme/components/PostCard.tsx`, `RelatedPosts.astro`) | three `Card`s on every size | a collection: a list on compact, cards from 600 |
-| Block *Cards* (`theme/blocks/cards/LinkCards.tsx`) | cards; on phones `Stacked` or `Carousel` (`docs/superpowers/specs/2026-11-12-cards-carousel-design.md`) | a third value of *On phones*: `List` |
-| Block *List* (`theme/blocks/list/Rows.tsx`) | `ListItem`s on every size | unchanged; it is a list by the owner's choice of block |
-| The editor's own lists (pages, posts, media, apps) | lists, the Library a grid of cards | not in this proposal: a list in the editor opens an item to edit, which is M3's list-detail, not a swap |
+| Container; thumbnail; image; video; icon | Container; leading avatar; leading image; leading video; leading icon | ✓ |
+| Headline; subhead; supporting text | Label text; overline; supporting text (1 to 3 lines) | ✓ |
+| Primary action area | Single-action item | ✓ |
+| Icon buttons; overflow menu; checkbox, radio, switch | Trailing icon buttons; trailing menu; selection control | ✓ |
+| Selected, disabled, dragged | The same | ✓ |
+| Buttons | none | Q2 |
+| Chips, sliders | none | Q3 |
+| Linked text | not on a whole-row link (M3 Lists: "Don't add interactive elements that make the list item difficult to navigate") | Q4 |
+| Dividers inside a card | dividers are between items | Q5 |
+| Other components (`children`) | only content that folds out (`expand`) | Q5 |
 
-`PostView` (`theme/components/posts.ts`) and `LinkCard` (`src/standard/cards/view.ts`) both map to `CollectionItem` with
-no new field: a post's date and reading time are its `subhead`, its description its `supporting`.
+**The list item's anatomy in the card:** trailing text (a price, a date) and the trailing icon have no place on an M3 card
+(Q7).
 
-### 2.5 The looks: the owner's choice
+**How it switches (the proposal of the first version, to check against "both ways"):** a container query on the collection's
+own width at M3's 600 dp (`@container collection (inline-size >= 37.5rem)`); each collection says its form on phones and on
+larger screens (List or Cards; the Cards block also Carousel on phones). The site draws both forms and shows one
+(`display: none` keeps the other out of the accessibility tree; its lazy images are not loaded). Both are a `<ul>` of `<li>`.
 
-How the list and the cards look is the owner's decision; nothing in 2.1 to 2.4 fixes it. The screenshots are the real
-theme (Material, the demo built on 2026-11-17, the theme's own classes and CSS), with the demo's posts. Each choice is a
-value of something the theme has today; none needs a new design. Folder: `2026-11-17-list-to-cards-screens/`.
+**The looks** (the owner's choice; screenshots of the real theme in `2026-11-17-list-to-cards-screens/`): L1 standard or
+segmented list; L2 outlined, filled or elevated cards; L3 the description on a card; L4 how many cards side by side; L5 the
+image's shape.
 
-**L1. The list on phones (412 px).** M3 Lists, Specs: "The standard and segmented styles are a visual choice, and don't
-affect a list's behavior." Both are M3 Expressive.
-
-| Standard (today) | Segmented |
+| Standard list | Segmented list |
 | :--- | :--- |
 | ![Standard list](2026-11-17-list-to-cards-screens/a1-list-standard.png) | ![Segmented list](2026-11-17-list-to-cards-screens/a2-list-segmented.png) |
 
-**L2. The card's kind (1024 px).** M3 Cards: "Each provides the same legibility and functionality, so the variant you use
-depends on style alone." Related posts are outlined today; the *Cards* block lets the owner choose per block, and keeps
-that choice.
-
-| Outlined (today) | Filled | Elevated |
+| Outlined | Filled | Elevated (today: no shadow at rest) |
 | :--- | :--- | :--- |
 | ![Outlined cards](2026-11-17-list-to-cards-screens/b1-cards-outlined.png) | ![Filled cards](2026-11-17-list-to-cards-screens/b2-cards-filled.png) | ![Elevated cards](2026-11-17-list-to-cards-screens/b3-cards-elevated.png) |
 
-**L3. The post's description on a card.** The list shows it (two lines); a related post's card does not today. M3 Lists:
-"List items reveal supporting text at expanded breakpoints", so a card shows at least what the list shows.
+![Cards with the description](2026-11-17-list-to-cards-screens/c1-cards-outlined-with-text.png)
 
-| Without (today) | With (up to three lines) |
-| :--- | :--- |
-| ![Cards without description](2026-11-17-list-to-cards-screens/b1-cards-outlined.png) | ![Cards with description](2026-11-17-list-to-cards-screens/c1-cards-outlined-with-text.png) |
+### 8.2 Step 7: viewports in the builder
 
-**L4. Cards side by side.** M3 prints no count. Options: 2 from 600 dp and 3 from 840 dp, or 3 from 600 dp (related posts
-today).
+Owner: remove the Preview and let the builder show the page at different viewports. Today the Preview (`pagePreview.tsx`,
+`PreviewScreen.tsx`, `previewBreakpoints.ts`) shows the whole page (header, footer, layout) in a sandboxed frame at M3's five
+window sizes; the builder (`MarkdownEditor.tsx`) draws the text and its blocks only. To decide in its design: the builder's page
+in its own frame, or the theme on container queries (after Tailwind is gone, the second is possible); the whole page in the
+builder; wide sizes on a phone (scaled, perhaps view only); which previews go (page and post; header, footer and part
+previews; Google's result preview stays). Needs a design, after Tailwind is gone.
 
-**L5. The image's shape on a card.** 4:3 (related posts today) or 3:2 (the *Cards* block's default).
+## 9. Open questions for the owner
 
-## 3. What it costs
+1. **The focus ring's colour.** M3's token: `secondary` (cards, lists). `specs/2026-11-13-custom-colors-design.md` found a cream
+   Secondary gives a ring 1.15:1; WCAG 2.2 (1.4.11) needs 3:1, and Modern web comes before M3. Recommendation: `--mo-color-primary`,
+   recorded as a deviation quoting both; it closes that spec's open question.
+2. **Gap 1, buttons in a list item.** Recommendation: a card with one button becomes a single-action item (the row does what the
+   button did); with several, buttons with an icon become trailing icon buttons and the rest go into a trailing overflow menu.
+3. Chips and sliders in a list item.
+4. Linked text in a list item.
+5. Dividers inside a card, and `children`, in a list item.
+6. `columns` and `truncate` (list only).
+7. Trailing text and the trailing icon on a card.
+8. Scope of "nothing stays out": the editor's lists and cards; single cards (*Notice*, *Table*, *Cookie list*, panels, 404);
+   lists inside other components (search suggestions, the choice group's radio list, the accordion).
+9. The looks L1 to L5.
+10. The old `0.19` branch (cut from `0.18` on 14 November): does this work go on it?
+11. The other documents that name versions 0.19 to 0.26 (about 25): renumber them, or keep the roadmap's note ("add one").
 
-- **A new theme component.** The developer rule (`developer` skill, *No own components*) needs the owner's yes before a
-  session builds `Collection`; this spec is that request. It uses `List`, `ListItem`, `Card`, `CardMedia`, `Menu` and the
-  grid as they are.
-- **HTML size.** Each item is in the page twice. For 3 related posts or 12 posts this is a few kB; the images are not
-  doubled (lazy, one shown).
-- **No deviation** from Material 3 if the owner takes the defaults below. The 600 dp line is M3's compact/medium line; the
-  measure on the container is the modern web rule, which comes first (priority 1).
-- **Checks:** `check:screens` gets each place on a compact and a medium width; `check:themes` checks that a theme styles the
-  collection in both forms; `npx morpheme check:demo`. A release note for each place a site owner sees change.
+## 10. Sources read
 
-## 4. For the owner to decide
-
-1. **The approach:** one content shape, `ListItem` and `Card` unchanged, a new theme part `Collection` that swaps them.
-   Yes or no.
-2. **Where:** *Blog posts* (list design), *Related posts*, *Cards* (`On phones: List`). Any or all.
-3. **Measured on:** the collection's own width (modern web, recommended) or the window (M3's window size classes).
-4. **Several buttons in a list item:** an overflow menu (recommended, M3's trailing menu), or only the first button as an
-   icon button with the rest left to the card. The second leaves actions out on phones, against the Cards rule quoted above.
-5. **The looks** (2.5): L1 standard or segmented list, L2 outlined, filled or elevated cards, L3 the description on a
-   card or not, L4 how many cards side by side, L5 the image's shape.
+m3.material.io with Playwright, 17 November 2026: `/components/cards/{overview,specs,guidelines,accessibility}` (token tables
+opened, previews hidden), `/components/lists/{overview,specs,guidelines,accessibility}` (*List - Common*, *List - Expand*),
+`/foundations/interaction/states/state-layers`, `/foundations/interaction/states/applying-states`,
+`/styles/typography/type-scale-tokens`, `/styles/typography/applying-type`,
+`/foundations/layout/applying-layout/window-size-classes`, `/foundations/layout/canonical-layouts/list-detail`,
+`/foundations/layout/grids-spacing/grids`, `/components` (index) and `/components/avatar/overview` (404). Modern web guidance
+(`npm run audit:web`): `size-aware-styling`, `form-factor-adaptation`.
