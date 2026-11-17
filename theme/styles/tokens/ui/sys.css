@@ -2,6 +2,6 @@
 
 @layer components {
   .choice-group {
-    --mo-target: 3rem;
+    --mo-sys-target-size: 3rem;
   }
 }

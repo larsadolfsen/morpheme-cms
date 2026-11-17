@@ -9,16 +9,16 @@
      colour, 28px while pressed, no shadow; 38% when it cannot be changed. */
   --switch-width: 3.25rem;
   --switch-height: 2rem;
-  --switch-track-surface: var(--mo-surface-container-highest);
-  --switch-track-line: var(--mo-outline);
+  --switch-track-surface: var(--mo-sys-color-surface-container-highest);
+  --switch-track-line: var(--mo-sys-color-outline);
   --switch-track-line-width: 2px;
   --switch-handle-size: 1rem;
   --switch-handle-icon-size: 1.5rem;
   --switch-handle-checked-size: 1.5rem;
   --switch-handle-pressed-size: 1.75rem;
-  --switch-handle-surface: var(--mo-outline);
-  --switch-handle-checked-surface: var(--mo-on-primary);
-  --switch-icon-color: var(--mo-surface-container-highest);
-  --switch-icon-checked-color: var(--mo-on-primary-container);
+  --switch-handle-surface: var(--mo-sys-color-outline);
+  --switch-handle-checked-surface: var(--mo-sys-color-on-primary);
+  --switch-icon-color: var(--mo-sys-color-surface-container-highest);
+  --switch-icon-checked-color: var(--mo-sys-color-on-primary-container);
   --switch-disabled-opacity: 0.38;
 }

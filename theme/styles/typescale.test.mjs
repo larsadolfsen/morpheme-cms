@@ -18,7 +18,7 @@ const withTokens = (name, origin) =>
   ].join('\n');
 const css = withTokens('./ui.css', 'ui');
 const typeCss = readFileSync(new URL('./type.css', import.meta.url), 'utf8');
-// The lead's --prose-space is a token, so it is in tokens/type/sys.css (docs/theme-token-files.md), under the same selector.
+// The lead's --mo-sys-prose-space is a token, so it is in tokens/type/sys.css (docs/theme-token-files.md), under the same selector.
 const typeTokens = readFileSync(new URL('./tokens/type/sys.css', import.meta.url), 'utf8');
 const root = css; // the type scale's tokens are in tokens/ui/ref.css
 const token = (name) => root.match(new RegExp(`--${name}: ([^;]+);`))?.[1];
@@ -45,16 +45,16 @@ const M3 = {
 
 for (const [style, [size, lineHeight, weight, tracking]] of Object.entries(M3)) {
   test(`type-${style} is Material 3's md.sys.typescale.${style}`, () => {
-    assert.equal(px(token(`type-${style}-size`)), size);
-    assert.equal(px(token(`type-${style}-line-height`)), lineHeight);
-    assert.equal(Number(token(`type-${style}-weight`)), weight);
-    assert.equal(px(token(`type-${style}-tracking`)), tracking);
-    assert.equal(token(`type-${style}-font`), 'var(--font-sans)');
+    assert.equal(px(token(`mo-sys-typescale-${style}-size`)), size);
+    assert.equal(px(token(`mo-sys-typescale-${style}-line-height`)), lineHeight);
+    assert.equal(Number(token(`mo-sys-typescale-${style}-weight`)), weight);
+    assert.equal(px(token(`mo-sys-typescale-${style}-tracking`)), tracking);
+    assert.equal(token(`mo-sys-typescale-${style}-font`), 'var(--font-sans)');
   });
 }
 
 test('the labels have M3 prominent weight 700', () => {
-  for (const size of ['large', 'medium', 'small']) assert.equal(Number(token(`type-label-${size}-prominent-weight`)), 700);
+  for (const size of ['large', 'medium', 'small']) assert.equal(Number(token(`mo-sys-typescale-label-${size}-prominent-weight`)), 700);
 });
 
 test('type.css has one class for each of the 15 roles and the lead, each reading its own four tokens', () => {
@@ -70,17 +70,21 @@ test('type.css has one class for each of the 15 roles and the lead, each reading
       .split('\n')
       .map((l) => l.trim());
     const want = [
-      `font-size: var(--type-${role}-size);`,
-      `line-height: var(--type-${role}-line-height);`,
-      `font-weight: var(--type-${role}-weight);`,
-      `letter-spacing: var(--type-${role}-tracking);`,
+      `font-size: var(--mo-sys-typescale-${role}-size);`,
+      `line-height: var(--mo-sys-typescale-${role}-line-height);`,
+      `font-weight: var(--mo-sys-typescale-${role}-weight);`,
+      `letter-spacing: var(--mo-sys-typescale-${role}-tracking);`,
     ];
     assert.deepEqual(
-      lines.filter((l) => !l.startsWith('--prose-space') && !l.startsWith('/*')),
+      lines.filter((l) => !l.startsWith('--mo-sys-prose-space') && !l.startsWith('/*')),
       want,
       name,
     );
-    assert.equal(new RegExp(`\\.${name} \\{[^}]*--prose-space: 1\\.5rem;`).test(typeTokens), role === 'lead', `${name} --prose-space`);
+    assert.equal(
+      new RegExp(`\\.${name} \\{[^}]*--mo-sys-prose-space: 1\\.5rem;`).test(typeTokens),
+      role === 'lead',
+      `${name} --mo-sys-prose-space`,
+    );
   }
 });
 

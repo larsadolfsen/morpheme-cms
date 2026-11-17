@@ -17,7 +17,7 @@ const toolbarCss = css
 test('the bar uses no hard-coded colour', () => {
   const code = toolbarCss.replace(/\/\*[\s\S]*?\*\//g, '');
   assert.doesNotMatch(code, /#[0-9a-f]{3,8}\b|\brgba?\(|\bhsla?\(/i);
-  assert.doesNotMatch(code, /var\(--mo-primary\)/);
+  assert.doesNotMatch(code, /var\(--mo-sys-color-primary\)/);
 });
 
 test('a resting tool is the theme icon button, its colours come from the theme (no rule of the bar sets them), and the bar buttons are 44 dp with a 20 dp icon', () => {

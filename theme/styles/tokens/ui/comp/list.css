@@ -6,16 +6,16 @@
     /* The height of its first two lines (the headline and the supporting text's first line), where what stands
        beside the text stands (below). */
     --list-item-first-lines: calc(var(--list-item-headline-line-height, 1lh) + var(--list-item-supporting-line-height, 1lh));
-    /* The heights with the density of lists (--mo-density, which goes to -3: a list is read in bulk), 4 px a step, and never
-       below the target (--mo-target): the row is the target, so a row that is denser than the target stays at it. */
-    --list-item-density: calc(var(--mo-density) * var(--mo-density-step));
-    --list-item-box: max(var(--mo-target), calc(var(--list-item-min-height) + var(--list-item-density)));
+    /* The heights with the density of lists (--mo-sys-density, which goes to -3: a list is read in bulk), 4 px a step, and never
+       below the target (--mo-sys-target-size): the row is the target, so a row that is denser than the target stays at it. */
+    --list-item-density: calc(var(--mo-sys-density) * var(--mo-sys-density-step));
+    --list-item-box: max(var(--mo-sys-target-size), calc(var(--list-item-min-height) + var(--list-item-density)));
     --list-item-two-line-box: max(
-      var(--mo-target),
+      var(--mo-sys-target-size),
       calc(var(--list-item-two-line-min-height, var(--list-item-min-height)) + var(--list-item-density))
     );
     --list-item-three-line-box: max(
-      var(--mo-target),
+      var(--mo-sys-target-size),
       calc(var(--list-item-three-line-min-height, var(--list-item-min-height)) + var(--list-item-density))
     );
   }
@@ -54,10 +54,10 @@
     --list-item-padding-block: var(--list-expand-padding-block, 0.875rem);
     --list-item-padding-inline: var(--list-expand-padding-inline, 1rem);
     --list-item-gap: var(--list-expand-gap-inline, 1rem);
-    --list-item-headline-size: var(--list-expand-headline-size, var(--type-title-medium-size));
-    --list-item-headline-weight: var(--list-expand-headline-weight, var(--type-title-medium-weight));
-    --list-item-headline-line-height: var(--list-expand-headline-line-height, var(--type-title-medium-line-height));
-    --list-item-headline-letter-spacing: var(--list-expand-headline-letter-spacing, var(--type-title-medium-tracking));
+    --list-item-headline-size: var(--list-expand-headline-size, var(--mo-sys-typescale-title-medium-size));
+    --list-item-headline-weight: var(--list-expand-headline-weight, var(--mo-sys-typescale-title-medium-weight));
+    --list-item-headline-line-height: var(--list-expand-headline-line-height, var(--mo-sys-typescale-title-medium-line-height));
+    --list-item-headline-letter-spacing: var(--list-expand-headline-letter-spacing, var(--mo-sys-typescale-title-medium-tracking));
   }
 }
 @layer components {
@@ -138,13 +138,13 @@
 }
 @layer components {
   .list-segmented > li:has(> .list-item-selected, > .list-item-with-control :checked) {
-    --list-item-shape: var(--list-segmented-selected-radius, var(--list-segmented-radius, var(--block-radius-small)));
+    --list-item-shape: var(--list-segmented-selected-radius, var(--list-segmented-radius, var(--mo-sys-block-radius-small)));
   }
 }
 /* Selected stays at its corners (Material: 16dp) also while pointed at, pressed or focused. */
 @layer components {
   .list-segmented > li:has(> .list-item-selected):has(> :is(a, button:enabled).list-item-container:is(:hover, :active, :focus-visible)) {
-    --list-item-shape: var(--list-segmented-selected-radius, var(--list-segmented-radius, var(--block-radius-small)));
+    --list-item-shape: var(--list-segmented-selected-radius, var(--list-segmented-radius, var(--mo-sys-block-radius-small)));
   }
 }
 @layer components {
@@ -157,6 +157,6 @@
 /* A row is at least 48 dp at every density (Material, radio buttons: "Don't apply density to radio buttons by default"). */
 @layer components {
   .choice-group-list .list-item-container {
-    --list-item-box: max(3rem, calc(var(--list-item-min-height, 3rem) + var(--mo-density) * var(--mo-density-step)));
+    --list-item-box: max(3rem, calc(var(--list-item-min-height, 3rem) + var(--mo-sys-density) * var(--mo-sys-density-step)));
   }
 }

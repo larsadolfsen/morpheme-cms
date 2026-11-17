@@ -49,7 +49,7 @@
   },
   "scripts": {
     "build": "node scripts/demo-build.mjs",
-    "check": "npm run format:check && npm run check:language && npm run check:phosphor && npm run check:css-tokens && npm run check:web && npm run check:editor-colors && npm run check:colors && npm run check:css-values && npm run check:density && npm run check:release-notes && npm test && npm run check:types && npm run build && npm run check:site-types && npm run check:editor",
+    "check": "npm run format:check && npm run check:language && npm run check:phosphor && npm run check:css-tokens && npm run check:token-names && npm run check:web && npm run check:editor-colors && npm run check:colors && npm run check:css-values && npm run check:density && npm run check:release-notes && npm test && npm run check:types && npm run build && npm run check:site-types && npm run check:editor",
     "check:site-types": "node scripts/check-site-types.mjs",
     "check:types": "tsc -p tsconfig.types.json --noEmit",
     "check:editor": "cd .morpheme/demo/site && node ../../../bin/morpheme.mjs check:editor",
@@ -66,6 +66,7 @@
     "format:check": "prettier --check .",
     "check:language": "node scripts/check-language.mjs",
     "check:phosphor": "node scripts/check-phosphor.mjs",
+    "check:token-names": "node scripts/check-token-names.mjs",
     "check:css-tokens": "node scripts/check-css-tokens.mjs",
     "check:web": "node scripts/check-web.mjs",
     "check:editor-colors": "node scripts/check-editor-colors.mjs",

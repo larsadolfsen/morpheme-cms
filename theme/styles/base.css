@@ -45,22 +45,22 @@
     scroll-padding-top: 5.5rem;
   }
   body {
-    background: var(--mo-surface);
-    color: var(--mo-on-surface);
+    background: var(--mo-sys-color-surface);
+    color: var(--mo-sys-color-on-surface);
     font-family: var(--font-sans);
-    font-size: var(--type-body-large-size);
-    line-height: var(--type-body-large-line-height);
-    font-weight: var(--type-body-large-weight);
-    letter-spacing: var(--type-body-large-tracking);
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
   ::selection {
-    background: var(--mo-primary);
-    color: var(--mo-on-primary);
+    background: var(--mo-sys-color-primary);
+    color: var(--mo-sys-color-on-primary);
   }
   :focus-visible {
-    outline: 2px solid var(--mo-primary);
+    outline: 2px solid var(--mo-sys-color-primary);
     outline-offset: 3px;
     border-radius: 6px;
   }
@@ -68,8 +68,8 @@
   h2,
   h3 {
     text-wrap: balance;
-    font-weight: var(--type-headline-large-weight);
-    letter-spacing: var(--type-headline-large-tracking);
+    font-weight: var(--mo-sys-typescale-headline-large-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-large-tracking);
   }
   p {
     text-wrap: pretty;
@@ -82,7 +82,7 @@
 
 @layer components {
   .link {
-    color: var(--mo-primary);
+    color: var(--mo-sys-color-primary);
     font-weight: 500;
     text-decoration: underline;
     text-decoration-thickness: 1px;
@@ -95,35 +95,35 @@
 
 /* Long-form text (migrated pages and blog posts). */
 .prose {
-  --tw-prose-body: var(--mo-on-surface);
-  --tw-prose-headings: var(--mo-on-surface);
-  --tw-prose-lead: var(--mo-on-surface-variant);
-  --tw-prose-links: var(--mo-primary);
-  --tw-prose-bold: var(--mo-on-surface);
-  --tw-prose-counters: var(--mo-on-surface-variant);
-  --tw-prose-bullets: var(--mo-primary);
-  --tw-prose-hr: var(--mo-outline-variant);
-  --tw-prose-quotes: var(--mo-on-surface);
-  --tw-prose-quote-borders: var(--mo-primary);
-  --tw-prose-captions: var(--mo-on-surface-variant);
-  --tw-prose-th-borders: var(--mo-outline-variant);
-  --tw-prose-td-borders: var(--mo-outline-variant);
-  --tw-prose-code: var(--mo-on-surface);
+  --tw-prose-body: var(--mo-sys-color-on-surface);
+  --tw-prose-headings: var(--mo-sys-color-on-surface);
+  --tw-prose-lead: var(--mo-sys-color-on-surface-variant);
+  --tw-prose-links: var(--mo-sys-color-primary);
+  --tw-prose-bold: var(--mo-sys-color-on-surface);
+  --tw-prose-counters: var(--mo-sys-color-on-surface-variant);
+  --tw-prose-bullets: var(--mo-sys-color-primary);
+  --tw-prose-hr: var(--mo-sys-color-outline-variant);
+  --tw-prose-quotes: var(--mo-sys-color-on-surface);
+  --tw-prose-quote-borders: var(--mo-sys-color-primary);
+  --tw-prose-captions: var(--mo-sys-color-on-surface-variant);
+  --tw-prose-th-borders: var(--mo-sys-color-outline-variant);
+  --tw-prose-td-borders: var(--mo-sys-color-outline-variant);
+  --tw-prose-code: var(--mo-sys-color-on-surface);
 }
 @layer fallback {
   .prose {
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   /* A blog post's lead: its first paragraph, one step larger than the text (the lead tokens, ui.css: the title large's
      unless a theme sets them). */
   .prose.post-lead {
-    font-size: var(--type-lead-size);
-    line-height: var(--type-lead-line-height);
-    font-weight: var(--type-lead-weight);
-    letter-spacing: var(--type-lead-tracking);
+    font-size: var(--mo-sys-typescale-lead-size);
+    line-height: var(--mo-sys-typescale-lead-line-height);
+    font-weight: var(--mo-sys-typescale-lead-weight);
+    letter-spacing: var(--mo-sys-typescale-lead-tracking);
   }
   /* The text right after the lead (no image between): the space the prose puts between paragraphs (16px), not the
    larger space of a text under an image. In the fallback layer on purpose: it must beat the mt-10 / medium:mt-14 utilities. */
@@ -131,12 +131,12 @@
     margin-top: 1rem;
   }
   /* The text's spaces are on the 4dp grid (Material 3's spacing units are multiples of 4dp and 8dp; it prints no paragraph
-   or heading space, so these are the nearest rule): a paragraph 16px, a lead paragraph 24px (--prose-space, set by .mo-type-lead
+   or heading space, so these are the nearest rule): a paragraph 16px, a lead paragraph 24px (--mo-sys-prose-space, set by .mo-type-lead
    and .post-lead), a title above 32px and below 12px (the h2's 56 and 28 are on the grid already). They replace the typography
    plugin's em spaces (17.5, 27.5, 35.19, 13.2), which land off the grid. Not the paragraphs of a list item, which the
    plugin spaces itself, and the first and last child keep no space, as the plugin has it. */
   .prose :where(p):not(:where(li > p)) {
-    margin-block: 0 var(--prose-space, 1rem);
+    margin-block: 0 var(--mo-sys-prose-space, 1rem);
   }
   /* Not the headline of a list item (a post's title in the Blog posts block): its space and size are the list item's. */
   .prose :where(h3):not(:where(.list-item-headline h3)) {
@@ -151,53 +151,53 @@
   /* The text's headings, one role of the type scale for each level (tokens/ui/ref.css): H1 display small, H2 headline medium, H3 title
      large, H4 title medium, H5 title small, H6 label medium. */
   .prose :where(h1) {
-    font-size: var(--type-display-small-size);
-    line-height: var(--type-display-small-line-height);
-    font-weight: var(--type-display-small-weight);
-    letter-spacing: var(--type-display-small-tracking);
+    font-size: var(--mo-sys-typescale-display-small-size);
+    line-height: var(--mo-sys-typescale-display-small-line-height);
+    font-weight: var(--mo-sys-typescale-display-small-weight);
+    letter-spacing: var(--mo-sys-typescale-display-small-tracking);
   }
   .prose :where(h2) {
-    font-size: var(--type-headline-medium-size);
-    line-height: var(--type-headline-medium-line-height);
-    font-weight: var(--type-headline-medium-weight);
-    letter-spacing: var(--type-headline-medium-tracking);
+    font-size: var(--mo-sys-typescale-headline-medium-size);
+    line-height: var(--mo-sys-typescale-headline-medium-line-height);
+    font-weight: var(--mo-sys-typescale-headline-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-medium-tracking);
   }
   .prose :where(h3):not(:where(.list-item-headline h3)) {
-    font-size: var(--type-title-large-size);
-    line-height: var(--type-title-large-line-height);
-    font-weight: var(--type-title-large-weight);
-    letter-spacing: var(--type-title-large-tracking);
+    font-size: var(--mo-sys-typescale-title-large-size);
+    line-height: var(--mo-sys-typescale-title-large-line-height);
+    font-weight: var(--mo-sys-typescale-title-large-weight);
+    letter-spacing: var(--mo-sys-typescale-title-large-tracking);
   }
   .prose :where(h4) {
-    font-size: var(--type-title-medium-size);
-    line-height: var(--type-title-medium-line-height);
-    font-weight: var(--type-title-medium-weight);
-    letter-spacing: var(--type-title-medium-tracking);
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    line-height: var(--mo-sys-typescale-title-medium-line-height);
+    font-weight: var(--mo-sys-typescale-title-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
   }
   .prose :where(h5) {
-    font-size: var(--type-title-small-size);
-    line-height: var(--type-title-small-line-height);
-    font-weight: var(--type-title-small-weight);
-    letter-spacing: var(--type-title-small-tracking);
+    font-size: var(--mo-sys-typescale-title-small-size);
+    line-height: var(--mo-sys-typescale-title-small-line-height);
+    font-weight: var(--mo-sys-typescale-title-small-weight);
+    letter-spacing: var(--mo-sys-typescale-title-small-tracking);
   }
   .prose :where(h6) {
-    font-size: var(--type-label-medium-size);
-    line-height: var(--type-label-medium-line-height);
-    font-weight: var(--type-label-medium-weight);
-    letter-spacing: var(--type-label-medium-tracking);
+    font-size: var(--mo-sys-typescale-label-medium-size);
+    line-height: var(--mo-sys-typescale-label-medium-line-height);
+    font-weight: var(--mo-sys-typescale-label-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-label-medium-tracking);
   }
   /* A quote in the text: body large, in the regular weight and upright (the plugin sets 500 and italic); its line beside it and its
      quote marks are the plugin's, in the theme's primary colour (--tw-prose-quote-borders). */
   .prose :where(blockquote) {
-    font-size: var(--type-body-large-size);
-    line-height: var(--type-body-large-line-height);
-    font-weight: var(--type-body-large-weight);
-    letter-spacing: var(--type-body-large-tracking);
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
     font-style: normal;
   }
   /* Code in a line (cookie names in the privacy policy): on a tint, without the plugin's backticks. */
   .prose :where(:not(pre) > code):not(:where(.not-prose code)) {
-    background: var(--mo-surface-container-high);
+    background: var(--mo-sys-color-surface-container-high);
     border-radius: 0.3em;
     padding: 0.1em 0.35em;
     font-weight: 500;
@@ -214,7 +214,7 @@
   }
   /* Images in the text; not those in a block of the site in it (not-prose, RichText.astro). */
   .prose :where(img):not(:where(.not-prose img)) {
-    border-radius: var(--radius);
+    border-radius: var(--mo-sys-radius);
     width: 100%;
     height: auto;
   }
@@ -224,7 +224,7 @@
     display: block;
     position: relative;
     overflow: hidden;
-    border-radius: var(--radius);
+    border-radius: var(--mo-sys-radius);
     margin-block: 2em;
   }
   .picture-crop > img {
@@ -241,7 +241,7 @@
     aspect-ratio: 16 / 9;
     height: auto;
     border: 0;
-    border-radius: var(--radius);
+    border-radius: var(--mo-sys-radius);
     margin-block: 2em;
   }
 
@@ -276,18 +276,18 @@
   }
   .block-place > h2,
   .block-place > .block-head > h2 {
-    font-size: var(--type-headline-large-size);
-    line-height: var(--type-headline-large-line-height);
-    font-weight: var(--type-headline-large-weight);
-    letter-spacing: var(--type-headline-large-tracking);
+    font-size: var(--mo-sys-typescale-headline-large-size);
+    line-height: var(--mo-sys-typescale-headline-large-line-height);
+    font-weight: var(--mo-sys-typescale-headline-large-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-large-tracking);
   }
   @media (width >= theme(--breakpoint-medium)) {
     .block-place > h2,
     .block-place > .block-head > h2 {
-      font-size: var(--type-display-medium-size);
-      line-height: var(--type-display-medium-line-height);
-      font-weight: var(--type-display-medium-weight);
-      letter-spacing: var(--type-display-medium-tracking);
+      font-size: var(--mo-sys-typescale-display-medium-size);
+      line-height: var(--mo-sys-typescale-display-medium-line-height);
+      font-weight: var(--mo-sys-typescale-display-medium-weight);
+      letter-spacing: var(--mo-sys-typescale-display-medium-tracking);
     }
   }
   /* Cards placed in the page's full width (a front-page section, PageBlock.astro): three in a row on a computer, as
@@ -306,16 +306,16 @@
     flex-shrink: 0;
     width: 0.5rem;
     height: 0.5rem;
-    border-radius: var(--mo-shape-full);
-    background-color: var(--mo-primary);
+    border-radius: var(--mo-sys-shape-corner-full);
+    background-color: var(--mo-sys-color-primary);
   }
 
   /* Boxes side by side ("Links", an app's boxes): the site's panels (outlined cards, ui.css, without a shadow), with
    more room on a computer and the heading of a section in it. */
   .block-panels .block-panel-title {
-    font-size: var(--type-headline-small-size);
-    line-height: var(--type-headline-small-line-height);
-    font-weight: var(--type-headline-small-weight);
-    letter-spacing: var(--type-headline-small-tracking);
+    font-size: var(--mo-sys-typescale-headline-small-size);
+    line-height: var(--mo-sys-typescale-headline-small-line-height);
+    font-weight: var(--mo-sys-typescale-headline-small-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
   }
 }

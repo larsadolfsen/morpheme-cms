@@ -24,7 +24,7 @@
   @media (width < theme(--breakpoint-medium)) {
     .block-list:not(.list-segmented),
     .block-accordion:not(.block-accordion-segmented) {
-      margin-inline: calc(-1 * var(--block-list-layer-room));
+      margin-inline: calc(-1 * var(--mo-sys-block-list-layer-room));
     }
   }
 }

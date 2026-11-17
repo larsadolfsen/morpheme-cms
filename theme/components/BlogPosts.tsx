@@ -29,7 +29,7 @@ export default function BlogPosts({ posts }: { posts: PostView[] }) {
               image={featured.image}
               alt={featured.imageAlt ?? ''}
               fetchPriority="high"
-              className="aspect-[16/10] w-full object-cover [transition:scale_var(--motion-spatial-slow)] group-hover:scale-[1.03]"
+              className="aspect-[16/10] w-full object-cover [transition:scale_var(--mo-sys-motion-spring-slow-spatial)] group-hover:scale-[1.03]"
               sizes={`(min-width: ${BREAKPOINTS.expanded}px) 55vw, calc(100vw - 40px)`}
             />
           </div>

@@ -12,27 +12,27 @@
 
   /* A section of a page's or post's text with a colour, an image or the whole width of the window (lib/text-sections.mjs,
      RichText.astro): a panel the width of the text column, from its heading to the next (its first and last parts' margins: at
-     the end of the file). The colours are Surface and the theme's Primary, Secondary and Tertiary (--block-primary and the
-     like, with their text colours --block-on-primary …). A section from before Tint is Surface, and Accent is Primary. */
+     the end of the file). The colours are Surface and the theme's Primary, Secondary and Tertiary (--mo-sys-block-primary and the
+     like, with their text colours --mo-sys-block-on-primary …). A section from before Tint is Surface, and Accent is Primary. */
   .text-section {
-    margin-block: var(--block-section-margin) 0;
-    border-radius: var(--block-radius);
-    padding: var(--block-section-padding);
+    margin-block: var(--mo-sys-block-section-margin) 0;
+    border-radius: var(--mo-sys-block-radius);
+    padding: var(--mo-sys-block-section-padding);
     /* The space below belongs inside the colour: it runs down to the next section, or to the end of the text. */
-    padding-block-end: calc(var(--block-section-padding) + var(--block-section-margin));
+    padding-block-end: calc(var(--mo-sys-block-section-padding) + var(--mo-sys-block-section-margin));
   }
   .text-section-surface {
-    background: var(--block-surface);
-    box-shadow: var(--block-shadow);
+    background: var(--mo-sys-block-surface);
+    box-shadow: var(--mo-sys-block-shadow);
   }
   /* An image behind the section (<img class="text-section-image"> first in it, RichText.astro): it fills the panel, darkened
-     from below with the section's colour (Surface: --block-surface; none: --block-hero-shade, the text's colour unless the theme
-     sets it) so the text on it can be read. Without a colour the text is --block-hero-on-shade, the surface's. */
+     from below with the section's colour (Surface: --mo-sys-block-surface; none: --mo-sys-block-hero-shade, the text's colour unless the theme
+     sets it) so the text on it can be read. Without a colour the text is --mo-sys-block-hero-on-shade, the surface's. */
   .text-section-picture {
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    background: var(--section-fill);
+    background: var(--mo-sys-section-fill);
     box-shadow: none;
   }
   .text-section-picture::before {
@@ -42,9 +42,9 @@
     z-index: -1;
     background: linear-gradient(
       to top,
-      color-mix(in srgb, var(--section-shade) 85%, transparent),
-      color-mix(in srgb, var(--section-shade) 55%, transparent) 70%,
-      color-mix(in srgb, var(--section-shade) 40%, transparent)
+      color-mix(in srgb, var(--mo-sys-section-shade) 85%, transparent),
+      color-mix(in srgb, var(--mo-sys-section-shade) 55%, transparent) 70%,
+      color-mix(in srgb, var(--mo-sys-section-shade) 40%, transparent)
     );
   }
   .text-section-image {
@@ -58,44 +58,44 @@
     border-radius: 0;
   }
   /* Across the whole width of the window (`width` full): without corners; it reaches out of the text to the window's edges, from
-     where the text starts at the left of the page's container (--block-page-width, --block-gutter), and its content stays in the text
+     where the text starts at the left of the page's container (--mo-sys-block-page-width, --mo-sys-block-gutter), and its content stays in the text
      column from there (the rule below). The page is clipped at the window's edges while it has one (100vw is a
      scrollbar wider). */
   .text-section-full {
     width: 100vw;
     /* min-width wins over a max-width: a page's text column limits what is in it to a readable width with a utility. */
     min-width: 100vw;
-    margin-left: calc(-1 * var(--section-inset));
+    margin-left: calc(-1 * var(--mo-sys-section-inset));
     border-radius: 0;
-    padding-inline: var(--section-inset);
+    padding-inline: var(--mo-sys-section-inset);
   }
   /* Only the background is the whole width: the content stays in the page's text column, as the text outside a section does (the
      page's text keeps its paragraphs and headings at the text measure, PageLayout.astro; blocks, not-prose, span the container). */
   .text-section-full > :not(.not-prose, .text-section-image) {
-    max-width: var(--block-text-measure-max);
-    min-width: min(var(--block-text-measure-min), 100%);
+    max-width: var(--mo-sys-block-text-measure-max);
+    min-width: min(var(--mo-sys-block-text-measure-min), 100%);
   }
-  /* Blocks of plain text rows (owner, 16 Nov 2026). Steps is one column at most --block-list-measure-max (720px) wide, left aligned
+  /* Blocks of plain text rows (owner, 16 Nov 2026). Steps is one column at most --mo-sys-block-list-measure-max (720px) wide, left aligned
      with the paragraph above it. The rows of a List, Segmented list (and its accordion rows), Blog posts as a list and Testimonials
-     list are columns at least --block-list-column-min wide, as many as fit in the list's own width: one column below two of them
+     list are columns at least --mo-sys-block-list-column-min wide, as many as fit in the list's own width: one column below two of them
      (it is narrower than 720px, so it is never wider), two columns from 720px (a tablet's page), three from 1080px, never more in the page container
      (1104px). It follows the list's width, not the window's (Modern Web Guidance, `responsive-design`). Wide visual blocks
      (Cards, Image grid, Video, Carousel, Price cards, Table, Hero) keep the container's width. */
   .block-steps {
-    max-width: var(--block-list-measure-max);
+    max-width: var(--mo-sys-block-list-measure-max);
   }
   .list.block-list:not([data-columns='one']),
   .list.block-accordion:not([data-columns='one']),
   .list.block-testimonial-rows:not([data-columns='one']),
   .block-posts-rows:not([data-columns='one']) .theme-post-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(var(--block-list-column-min), 100%), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(var(--mo-sys-block-list-column-min), 100%), 1fr));
     align-items: start;
-    column-gap: var(--block-gutter);
+    column-gap: var(--mo-sys-block-gutter);
   }
   /* The setting Columns is off (data-columns="one", standard/columns.ts): one column, at most as wide as Steps. */
   :is(.block-list, .block-accordion, .block-testimonial-rows, .block-posts-rows)[data-columns='one'] {
-    max-width: var(--block-list-measure-max);
+    max-width: var(--mo-sys-block-list-measure-max);
   }
   body:has(.text-section-full) {
     overflow-x: clip;
@@ -105,29 +105,29 @@
      (--section-…): the blocks in it get the variables swapped (below), and a variable cannot swap with another on the
      same element. */
   :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) {
-    background: var(--section-accent);
-    color: var(--section-on-accent);
-    --tw-prose-body: var(--section-on-accent);
-    --tw-prose-headings: var(--section-on-accent);
-    --tw-prose-lead: var(--section-on-accent);
-    --tw-prose-links: var(--section-on-accent);
-    --tw-prose-bold: var(--section-on-accent);
-    --tw-prose-counters: var(--section-on-accent);
-    --tw-prose-bullets: var(--section-on-accent);
-    --tw-prose-hr: var(--section-on-accent);
-    --tw-prose-quotes: var(--section-on-accent);
-    --tw-prose-quote-borders: var(--section-on-accent);
-    --tw-prose-captions: var(--section-on-accent);
-    --tw-prose-code: var(--section-on-accent);
+    background: var(--mo-sys-section-accent);
+    color: var(--mo-sys-section-on-accent);
+    --tw-prose-body: var(--mo-sys-section-on-accent);
+    --tw-prose-headings: var(--mo-sys-section-on-accent);
+    --tw-prose-lead: var(--mo-sys-section-on-accent);
+    --tw-prose-links: var(--mo-sys-section-on-accent);
+    --tw-prose-bold: var(--mo-sys-section-on-accent);
+    --tw-prose-counters: var(--mo-sys-section-on-accent);
+    --tw-prose-bullets: var(--mo-sys-section-on-accent);
+    --tw-prose-hr: var(--mo-sys-section-on-accent);
+    --tw-prose-quotes: var(--mo-sys-section-on-accent);
+    --tw-prose-quote-borders: var(--mo-sys-section-on-accent);
+    --tw-prose-captions: var(--mo-sys-section-on-accent);
+    --tw-prose-code: var(--mo-sys-section-on-accent);
   }
 
   /* "Notice": a short notice in a box with the accent along its left edge (notice/). */
   .block-notice {
-    border-left: 4px solid var(--block-accent);
-    font-size: var(--type-body-large-size);
-    line-height: var(--type-body-large-line-height);
-    font-weight: var(--type-body-large-weight);
-    letter-spacing: var(--type-body-large-tracking);
+    border-left: 4px solid var(--mo-sys-block-accent);
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
   }
 
   /* "Steps": numbered steps along a line (steps/StepList.tsx). */
@@ -138,7 +138,7 @@
     margin-block: 2.5rem;
   }
   .block-steps > :not(:last-child) {
-    margin-bottom: var(--block-step-gap);
+    margin-bottom: var(--mo-sys-block-step-gap);
   }
   /* The line joins a number to the next number and goes no further: each step but the last draws it from its number's middle to the
      next number's middle (the step's own height, the gap, and half a number). */
@@ -146,10 +146,10 @@
     content: '';
     position: absolute;
     top: 1.5rem;
-    bottom: calc(-1 * var(--block-step-gap) - 1.5rem);
+    bottom: calc(-1 * var(--mo-sys-block-step-gap) - 1.5rem);
     inset-inline-start: 1.5rem;
     width: 1px;
-    background: var(--block-line);
+    background: var(--mo-sys-block-line);
   }
   .block-step {
     position: relative;
@@ -163,33 +163,33 @@
     height: 3rem;
     flex-shrink: 0;
     place-items: center;
-    border-radius: var(--mo-shape-full);
-    background: var(--block-accent);
-    color: var(--block-on-accent);
-    font-size: var(--type-title-medium-size);
-    line-height: var(--type-title-medium-line-height);
-    font-weight: var(--type-title-medium-weight);
-    letter-spacing: var(--type-title-medium-tracking);
+    border-radius: var(--mo-sys-shape-corner-full);
+    background: var(--mo-sys-block-accent);
+    color: var(--mo-sys-block-on-accent);
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    line-height: var(--mo-sys-typescale-title-medium-line-height);
+    font-weight: var(--mo-sys-typescale-title-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
     font-variant-numeric: tabular-nums;
   }
   /* The heading's first line is centred on the number: the body starts (number height - line height) / 2 down. */
   .block-step-body {
-    padding-top: calc((3rem - var(--type-title-large-line-height)) / 2);
+    padding-top: calc((3rem - var(--mo-sys-typescale-title-large-line-height)) / 2);
   }
   .block-step-title {
-    font-size: var(--type-title-large-size);
-    line-height: var(--type-title-large-line-height);
-    font-weight: var(--type-title-large-weight);
-    letter-spacing: var(--type-title-large-tracking);
+    font-size: var(--mo-sys-typescale-title-large-size);
+    line-height: var(--mo-sys-typescale-title-large-line-height);
+    font-weight: var(--mo-sys-typescale-title-large-weight);
+    letter-spacing: var(--mo-sys-typescale-title-large-tracking);
   }
   .block-step-text {
     margin-top: 0.375rem;
     max-width: 50ch;
-    color: var(--block-muted);
+    color: var(--mo-sys-block-muted);
   }
   .block-accordion-lead {
     flex-shrink: 0;
-    color: var(--block-muted);
+    color: var(--mo-sys-block-muted);
   }
   /* The text button under the last row of "Segmented list" and "FAQ list" (ListButton.tsx). */
   .block-list-button {
@@ -218,12 +218,12 @@
   }
   /* An answer as it was written: paragraphs and lists apart, links in the accent. */
   .block-accordion-answer {
-    max-width: var(--block-text-measure-max);
-    font-size: var(--type-body-large-size);
-    line-height: var(--type-body-large-line-height);
-    font-weight: var(--type-body-large-weight);
-    letter-spacing: var(--type-body-large-tracking);
-    color: var(--block-muted);
+    max-width: var(--mo-sys-block-text-measure-max);
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
+    color: var(--mo-sys-block-muted);
   }
   .block-accordion-answer * + * {
     margin-top: 0.75em;
@@ -240,11 +240,11 @@
     margin-top: 0.25em;
   }
   .block-accordion-answer strong {
-    color: var(--block-text);
+    color: var(--mo-sys-block-text);
     font-weight: 600;
   }
   .block-accordion-answer a {
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
     font-weight: 500;
     text-decoration: underline;
     text-decoration-thickness: 1px;
@@ -277,13 +277,13 @@
     margin-top: 1rem;
   }
   .block-message[data-failed] {
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
   }
 
   /* A link in a block's text: in the accent, underlined, thicker when
      pointed at. */
   .block-link {
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
     font-weight: 500;
     text-decoration: underline;
     text-decoration-thickness: 1px;
@@ -298,7 +298,7 @@
     align-items: center;
     gap: 0.5rem;
     font-weight: 500;
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
     text-decoration: none;
   }
 
@@ -313,11 +313,11 @@
   /* In the editor's drawing: random posts, of how many; under all of them, how many more there are. */
   .block-posts-note {
     margin: 0 0 1rem;
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-    color: var(--block-muted);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
   }
   .block-posts-more {
     margin: 1rem 0 0;
@@ -337,10 +337,10 @@
   }
   /* In a drawing in the editor, when there is nothing to show. */
   .block-empty {
-    border-radius: var(--block-radius);
-    background: var(--block-tint);
+    border-radius: var(--mo-sys-block-radius);
+    background: var(--mo-sys-block-tint);
     padding: 1.5rem;
-    color: var(--block-muted);
+    color: var(--mo-sys-block-muted);
   }
 
   /* "Testimonial cards": testimonials to leaf through (testimonials/Slider.tsx, a carousel: ui.css). */
@@ -381,11 +381,11 @@
     display: block;
     height: 2.5rem;
     margin-bottom: -1rem;
-    font-size: var(--type-display-large-size);
-    line-height: var(--type-display-large-line-height);
-    font-weight: var(--type-display-large-weight);
-    letter-spacing: var(--type-display-large-tracking);
-    color: var(--block-accent);
+    font-size: var(--mo-sys-typescale-display-large-size);
+    line-height: var(--mo-sys-typescale-display-large-line-height);
+    font-weight: var(--mo-sys-typescale-display-large-weight);
+    letter-spacing: var(--mo-sys-typescale-display-large-tracking);
+    color: var(--mo-sys-block-accent);
   }
   .block-testimonial-tags {
     display: flex;
@@ -394,17 +394,17 @@
     gap: 0.5rem;
   }
   .block-testimonial-tags .chip {
-    font-size: var(--type-label-large-size);
-    line-height: var(--type-label-large-line-height);
-    font-weight: var(--type-label-large-weight);
-    letter-spacing: var(--type-label-large-tracking);
+    font-size: var(--mo-sys-typescale-label-large-size);
+    line-height: var(--mo-sys-typescale-label-large-line-height);
+    font-weight: var(--mo-sys-typescale-label-large-weight);
+    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
   }
   .block-testimonial-text {
     margin: var(--card-text-gap, 0.5rem) 0 0;
-    font-size: var(--type-body-large-size);
-    line-height: var(--type-body-large-line-height);
-    font-weight: var(--type-body-large-weight);
-    letter-spacing: var(--type-body-large-tracking);
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
   }
   .block-testimonial-text > * {
     margin: 0;
@@ -413,7 +413,7 @@
     margin-bottom: 0.75rem;
   }
   .block-testimonial-context {
-    color: var(--block-muted);
+    color: var(--mo-sys-block-muted);
   }
   .block-testimonial-short {
     display: -webkit-box;
@@ -432,18 +432,18 @@
     padding: 0;
     background: none;
     font: inherit;
-    font-size: var(--type-label-large-size);
-    line-height: var(--type-label-large-line-height);
-    font-weight: var(--type-label-large-weight);
-    letter-spacing: var(--type-label-large-tracking);
-    color: var(--block-accent);
+    font-size: var(--mo-sys-typescale-label-large-size);
+    line-height: var(--mo-sys-typescale-label-large-line-height);
+    font-weight: var(--mo-sys-typescale-label-large-weight);
+    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
+    color: var(--mo-sys-block-accent);
     text-decoration: none;
   }
   .block-testimonial-more[hidden] {
     display: none;
   }
   .block-testimonial-more svg {
-    transition: transform var(--motion-spatial);
+    transition: transform var(--mo-sys-motion-spring-default-spatial);
   }
   .block-testimonial-more[aria-expanded='true'] svg {
     transform: rotate(180deg);
@@ -464,7 +464,7 @@
     width: 2.5rem;
     height: 2.5rem;
     flex-shrink: 0;
-    border-radius: var(--mo-shape-full);
+    border-radius: var(--mo-sys-shape-corner-full);
     object-fit: cover;
   }
   .js [data-clamp] {
@@ -482,12 +482,12 @@
   /* "Accordion": a row's text, the link to its page and links to more specific pages under it
      (accordion/PageRow.tsx). */
   .block-row-text {
-    max-width: var(--block-text-measure-max);
-    font-size: var(--type-body-large-size);
-    line-height: var(--type-body-large-line-height);
-    font-weight: var(--type-body-large-weight);
-    letter-spacing: var(--type-body-large-tracking);
-    color: var(--block-muted);
+    max-width: var(--mo-sys-block-text-measure-max);
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
+    color: var(--mo-sys-block-muted);
   }
   .block-row-links {
     display: flex;
@@ -520,15 +520,15 @@
   }
   .block-imagegrid-clear {
     padding: 0 0.75rem;
-    min-height: var(--mo-target, 2.75rem);
+    min-height: var(--mo-sys-target-size, 2.75rem);
     border: 0;
     background: none;
-    color: var(--mo-primary);
+    color: var(--mo-sys-color-primary);
     font: inherit;
     cursor: pointer;
   }
   .block-imagegrid-empty {
-    color: var(--block-muted);
+    color: var(--mo-sys-block-muted);
   }
   .block-imagegrid-count {
     position: absolute;
@@ -547,7 +547,7 @@
   /* A panel (Panel.tsx): an outlined card (.card in ui.css) for a block that is one box (e.g. an app's about
      or price block), with an icon, a heading and a text at the top, and parts under a line. */
   .block-panel {
-    color: var(--block-text);
+    color: var(--mo-sys-block-text);
   }
   .block-panel.block-in-text + .block-panel.block-in-text {
     margin-top: 1rem;
@@ -555,18 +555,18 @@
   .block-panel-icon {
     display: block;
     margin-bottom: 1rem;
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
   }
   .block-panel-title {
     margin: 0;
-    font-size: var(--type-title-large-size);
-    line-height: var(--type-title-large-line-height);
-    font-weight: var(--type-title-large-weight);
-    letter-spacing: var(--type-title-large-tracking);
+    font-size: var(--mo-sys-typescale-title-large-size);
+    line-height: var(--mo-sys-typescale-title-large-line-height);
+    font-weight: var(--mo-sys-typescale-title-large-weight);
+    letter-spacing: var(--mo-sys-typescale-title-large-tracking);
   }
   .block-panel-text {
     margin-top: 0.4rem;
-    color: var(--block-muted);
+    color: var(--mo-sys-block-muted);
   }
   .block-panel > .block-arrow-link {
     margin-top: 1rem;
@@ -585,15 +585,15 @@
   .block-panels {
     display: grid;
     /* Two side by side where there is room for 17rem each, never more. */
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(17rem, calc(50% - var(--mo-grid-gutter) / 2))), 1fr));
-    gap: var(--mo-grid-gutter);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(17rem, calc(50% - var(--mo-sys-grid-gutter) / 2))), 1fr));
+    gap: var(--mo-sys-grid-gutter);
   }
   .block-panels.block-in-text {
     margin-block: 2.5rem;
   }
   /* Boxes with values to copy: side by side only where each has room for its values with their buttons. */
   .block-panels:has(.block-copy-rows) {
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(23rem, calc(50% - var(--mo-grid-gutter) / 2))), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(23rem, calc(50% - var(--mo-sys-grid-gutter) / 2))), 1fr));
   }
   /* "Links": a box's heading linking to its page, and its pages under it in a list (.list in ui.css). */
   .block-panel-title a {
@@ -601,7 +601,7 @@
     text-decoration: none;
   }
   .block-panel-title a:hover {
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
   }
   .block-panel > .list {
     margin-top: 1rem;
@@ -636,23 +636,23 @@
     display: block;
     width: 100%;
     aspect-ratio: 4 / 3;
-    border-radius: var(--block-radius);
+    border-radius: var(--mo-sys-block-radius);
     object-fit: cover;
   }
   .block-media-title {
     margin: 0;
-    font-size: var(--type-headline-small-size);
-    line-height: var(--type-headline-small-line-height);
-    font-weight: var(--type-headline-small-weight);
-    letter-spacing: var(--type-headline-small-tracking);
+    font-size: var(--mo-sys-typescale-headline-small-size);
+    line-height: var(--mo-sys-typescale-headline-small-line-height);
+    font-weight: var(--mo-sys-typescale-headline-small-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
   }
   .block-media-text {
     margin: 1rem 0 0;
     font-style: normal;
-    font-size: var(--type-body-large-size);
-    line-height: var(--type-body-large-line-height);
-    font-weight: var(--type-body-large-weight);
-    letter-spacing: var(--type-body-large-tracking);
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
   }
   .block-media-body > .block-buttons {
     margin-top: 1.5rem;
@@ -666,7 +666,7 @@
     margin: 0;
   }
   .block-copy-rows dt {
-    color: var(--block-muted);
+    color: var(--mo-sys-block-muted);
   }
   .block-copy-rows dd {
     margin: 0;
@@ -688,10 +688,10 @@
   }
   .block-copy-value {
     white-space: nowrap;
-    font-size: var(--type-headline-small-size);
-    line-height: var(--type-headline-small-line-height);
-    font-weight: var(--type-headline-small-weight);
-    letter-spacing: var(--type-headline-small-tracking);
+    font-size: var(--mo-sys-typescale-headline-small-size);
+    line-height: var(--mo-sys-typescale-headline-small-line-height);
+    font-weight: var(--mo-sys-typescale-headline-small-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
     font-variant-numeric: tabular-nums;
   }
   .block-panel > .block-buttons-row {
@@ -706,7 +706,7 @@
     display: inline-block;
     margin-right: 0.5rem;
     vertical-align: -0.2em;
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
   }
 
   /* Steps that go from free to the full price, each more coloured than the one before (`--step`, a share of the
@@ -726,30 +726,30 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    border-radius: var(--block-radius-small);
-    background: color-mix(in srgb, var(--block-accent) var(--step, 0%), var(--block-tint));
+    border-radius: var(--mo-sys-block-radius-small);
+    background: color-mix(in srgb, var(--mo-sys-block-accent) var(--step, 0%), var(--mo-sys-block-tint));
     padding: 1.25rem;
   }
   .block-timeline > li:last-child {
-    background: var(--block-accent);
-    color: var(--block-on-accent);
+    background: var(--mo-sys-block-accent);
+    color: var(--mo-sys-block-on-accent);
   }
   .block-timeline-when {
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-    color: var(--block-muted);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
   }
   .block-timeline > li:last-child .block-timeline-when {
     color: inherit;
     opacity: 0.9;
   }
   .block-timeline-value {
-    font-size: var(--type-title-large-size);
-    line-height: var(--type-title-large-line-height);
-    font-weight: var(--type-title-large-weight);
-    letter-spacing: var(--type-title-large-tracking);
+    font-size: var(--mo-sys-typescale-title-large-size);
+    line-height: var(--mo-sys-typescale-title-large-line-height);
+    font-weight: var(--mo-sys-typescale-title-large-weight);
+    letter-spacing: var(--mo-sys-typescale-title-large-tracking);
   }
   @media (width >= theme(--breakpoint-medium)) {
     .block-timeline {
@@ -764,26 +764,26 @@
       padding: 1.5rem;
     }
     .block-timeline > li:first-child {
-      border-start-start-radius: var(--block-radius);
-      border-end-start-radius: var(--block-radius);
+      border-start-start-radius: var(--mo-sys-block-radius);
+      border-end-start-radius: var(--mo-sys-block-radius);
     }
     .block-timeline > li:last-child {
-      border-start-end-radius: var(--block-radius);
-      border-end-end-radius: var(--block-radius);
+      border-start-end-radius: var(--mo-sys-block-radius);
+      border-end-end-radius: var(--mo-sys-block-radius);
     }
     .block-timeline-value {
       margin-top: 1.5rem;
-      font-size: var(--type-headline-small-size);
-      line-height: var(--type-headline-small-line-height);
-      font-weight: var(--type-headline-small-weight);
-      letter-spacing: var(--type-headline-small-tracking);
+      font-size: var(--mo-sys-typescale-headline-small-size);
+      line-height: var(--mo-sys-typescale-headline-small-line-height);
+      font-weight: var(--mo-sys-typescale-headline-small-weight);
+      letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
     }
   }
 
   /* A part of a panel under a line (over the part's own margin and padding: a list, the facts). */
   .block-panel > .block-panel-part {
     margin-top: 1.25rem;
-    border-top: 1px solid var(--block-line);
+    border-top: 1px solid var(--mo-sys-block-line);
     padding-top: 1.25rem;
   }
   /* Only on phones and tablets (a block a site shows beside the text on a computer). */
@@ -803,24 +803,24 @@
     width: 3.5rem;
     height: 3.5rem;
     flex-shrink: 0;
-    border-radius: var(--block-radius-small);
+    border-radius: var(--mo-sys-block-radius-small);
     object-fit: cover;
     object-position: 50% 20%;
   }
   .block-person-name {
     display: block;
-    font-size: var(--type-title-medium-size);
-    line-height: var(--type-title-medium-line-height);
-    font-weight: var(--type-title-medium-weight);
-    letter-spacing: var(--type-title-medium-tracking);
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    line-height: var(--mo-sys-typescale-title-medium-line-height);
+    font-weight: var(--mo-sys-typescale-title-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
   }
   .block-person-role {
     display: block;
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-    color: var(--block-muted);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
   }
 
   /* A list with an icon in the accent before each line. */
@@ -830,10 +830,10 @@
     margin: 0;
     padding: 0;
     list-style: none;
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   .block-icon-list > li {
     display: flex;
@@ -843,7 +843,7 @@
   .block-icon-list svg {
     flex-shrink: 0;
     margin-top: 0.05rem;
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
   }
 
   /* Facts side by side, each a quiet name over its value, the last one to the right (a duration and a
@@ -855,11 +855,11 @@
     margin: 0;
   }
   .block-facts dt {
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-    color: var(--block-muted);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
   }
   .block-facts dd {
     margin: 0.15rem 0 0;
@@ -869,10 +869,10 @@
     text-align: right;
   }
   .block-facts-amount {
-    font-size: var(--type-title-large-size);
-    line-height: var(--type-title-large-line-height);
-    font-weight: var(--type-title-large-weight);
-    letter-spacing: var(--type-title-large-tracking);
+    font-size: var(--mo-sys-typescale-title-large-size);
+    line-height: var(--mo-sys-typescale-title-large-line-height);
+    font-weight: var(--mo-sys-typescale-title-large-weight);
+    letter-spacing: var(--mo-sys-typescale-title-large-tracking);
     font-variant-numeric: tabular-nums;
   }
 
@@ -885,13 +885,13 @@
   .block-table table {
     width: 100%;
     border-collapse: collapse;
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   .block-table :is(th, td) {
-    border-bottom: 1px solid var(--block-line);
+    border-bottom: 1px solid var(--mo-sys-block-line);
     text-align: left;
     vertical-align: top;
   }
@@ -902,29 +902,29 @@
      (header), the outline variant (container and dividers), the cards' own corner radius (--card-radius) and the theme's hover state layer. The box is a region the
      keyboard can scroll (a focus ring in the accent); a table with many columns scrolls instead of crushing them. */
   .block-table-grid {
-    border: 1px solid var(--block-line);
-    border-radius: var(--card-radius, var(--block-radius));
-    color: var(--block-text);
+    border: 1px solid var(--mo-sys-block-line);
+    border-radius: var(--card-radius, var(--mo-sys-block-radius));
+    color: var(--mo-sys-block-text);
   }
   .block-table-grid:focus-visible {
-    outline: 3px solid var(--block-accent);
+    outline: 3px solid var(--mo-sys-block-accent);
     outline-offset: 2px;
   }
   .block-table-grid :is(th, td) {
     min-width: 6rem;
-    /* A table is data-heavy: its rows read --mo-density (base.css), 4 px a step from 52 dp (Large 56, Small 48, a theme's -2 and -3: 44 and 40). */
-    height: calc(3.25rem + var(--mo-density) * var(--mo-density-step));
+    /* A table is data-heavy: its rows read --mo-sys-density (base.css), 4 px a step from 52 dp (Large 56, Small 48, a theme's -2 and -3: 44 and 40). */
+    height: calc(3.25rem + var(--mo-sys-density) * var(--mo-sys-density-step));
     padding: 0.5rem 1rem;
     vertical-align: middle;
     font-weight: inherit;
   }
   .block-table-grid thead th {
-    height: calc(3.5rem + var(--mo-density) * var(--mo-density-step));
-    background: var(--block-tint);
-    font-size: var(--type-label-large-size);
-    line-height: var(--type-label-large-line-height);
-    font-weight: var(--type-label-large-weight);
-    letter-spacing: var(--type-label-large-tracking);
+    height: calc(3.5rem + var(--mo-sys-density) * var(--mo-sys-density-step));
+    background: var(--mo-sys-block-tint);
+    font-size: var(--mo-sys-typescale-label-large-size);
+    line-height: var(--mo-sys-typescale-label-large-line-height);
+    font-weight: var(--mo-sys-typescale-label-large-weight);
+    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
   }
   /* A column's alignment (view.ts): numbers right, text left, or the owner's choice. */
   .block-table-grid :is(th, td).block-table-left {
@@ -939,22 +939,22 @@
   .block-table-grid tr:last-child :is(th, td) {
     border-bottom: 0;
   }
-  /* "Striped rows": every second body row in the quieter --block-stripe (the header keeps the tint). */
+  /* "Striped rows": every second body row in the quieter --mo-sys-block-stripe (the header keeps the tint). */
   .block-table-grid[data-striped] tbody tr:nth-child(even) {
-    background: var(--block-stripe);
+    background: var(--mo-sys-block-stripe);
   }
   @media (hover: hover) {
     .block-table-grid tbody tr:hover {
-      background: var(--mo-hover, color-mix(in srgb, var(--block-text) 8%, transparent));
+      background: var(--mo-sys-state-mo-hover-layer, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent));
     }
     /* The state layer over the stripe, so a striped row stays striped under the pointer. */
     .block-table-grid[data-striped] tbody tr:nth-child(even):hover {
       background:
         linear-gradient(
-          var(--mo-hover, color-mix(in srgb, var(--block-text) 8%, transparent)),
-          var(--mo-hover, color-mix(in srgb, var(--block-text) 8%, transparent))
+          var(--mo-sys-state-mo-hover-layer, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent)),
+          var(--mo-sys-state-mo-hover-layer, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent))
         ),
-        var(--block-stripe);
+        var(--mo-sys-block-stripe);
     }
   }
 
@@ -965,33 +965,33 @@
     height: 3.5rem;
     flex-shrink: 0;
     place-content: center;
-    border-radius: calc(var(--block-radius-small) - 0.25rem);
-    background: var(--block-tint);
-    color: var(--block-accent);
+    border-radius: calc(var(--mo-sys-block-radius-small) - 0.25rem);
+    background: var(--mo-sys-block-tint);
+    color: var(--mo-sys-block-accent);
     text-align: center;
     line-height: 1.1;
   }
   .block-badge > span {
-    font-size: var(--type-label-small-size);
-    line-height: var(--type-label-small-line-height);
-    font-weight: var(--type-label-small-weight);
-    letter-spacing: var(--type-label-small-tracking);
+    font-size: var(--mo-sys-typescale-label-small-size);
+    line-height: var(--mo-sys-typescale-label-small-line-height);
+    font-weight: var(--mo-sys-typescale-label-small-weight);
+    letter-spacing: var(--mo-sys-typescale-label-small-tracking);
   }
   .block-badge > strong {
-    font-size: var(--type-title-medium-size);
-    line-height: var(--type-title-medium-line-height);
-    font-weight: var(--type-title-medium-weight);
-    letter-spacing: var(--type-title-medium-tracking);
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    line-height: var(--mo-sys-typescale-title-medium-line-height);
+    font-weight: var(--mo-sys-typescale-title-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
     font-variant-numeric: tabular-nums;
   }
   .block-with-badge {
     display: flex;
     align-items: flex-start;
     gap: 1rem;
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   .block-with-badge > p {
     margin: 0;
@@ -1003,11 +1003,11 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    font-size: var(--type-body-large-size);
-    line-height: var(--type-body-large-line-height);
-    font-weight: var(--type-body-large-weight);
-    letter-spacing: var(--type-body-large-tracking);
-    transition: box-shadow var(--motion-effects);
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
+    transition: box-shadow var(--mo-sys-motion-spring-default-effects);
   }
   .block-link-row.block-in-text {
     margin-block: 1.75rem;
@@ -1017,8 +1017,8 @@
   }
   .block-link-row-arrow {
     flex-shrink: 0;
-    color: var(--block-accent);
-    transition: transform var(--motion-spatial);
+    color: var(--mo-sys-block-accent);
+    transition: transform var(--mo-sys-motion-spring-default-spatial);
   }
   a.block-link-row:hover .block-link-row-arrow {
     transform: translateX(3px);
@@ -1036,21 +1036,21 @@
   .block-cta-picture {
     width: 5rem;
     height: 5rem;
-    border-radius: var(--block-radius-small);
+    border-radius: var(--mo-sys-block-radius-small);
     object-fit: cover;
     object-position: 50% 20%;
   }
   .block-cta-title {
     margin: 0;
-    font-size: var(--type-headline-small-size);
-    line-height: var(--type-headline-small-line-height);
-    font-weight: var(--type-headline-small-weight);
-    letter-spacing: var(--type-headline-small-tracking);
+    font-size: var(--mo-sys-typescale-headline-small-size);
+    line-height: var(--mo-sys-typescale-headline-small-line-height);
+    font-weight: var(--mo-sys-typescale-headline-small-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
   }
   .block-cta-text {
     margin-top: 0.5rem;
     max-width: 48ch;
-    color: var(--block-muted);
+    color: var(--mo-sys-block-muted);
   }
   .block-cta-buttons {
     display: grid;
@@ -1073,21 +1073,21 @@
     align-items: center;
     gap: 0.375rem;
     margin-top: 0.25rem;
-    border-radius: var(--block-control-radius);
-    background: var(--block-tint);
+    border-radius: var(--mo-sys-block-control-radius);
+    background: var(--mo-sys-block-tint);
     padding: 0.25rem 0.75rem;
-    font-size: var(--type-label-large-size);
-    line-height: var(--type-label-large-line-height);
-    font-weight: var(--type-label-large-weight);
-    letter-spacing: var(--type-label-large-tracking);
+    font-size: var(--mo-sys-typescale-label-large-size);
+    line-height: var(--mo-sys-typescale-label-large-line-height);
+    font-weight: var(--mo-sys-typescale-label-large-weight);
+    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
   }
   .block-tag svg {
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
   }
   .block-price-list {
     margin: 0;
-    border: 1px solid var(--block-line);
-    border-radius: var(--block-radius);
+    border: 1px solid var(--mo-sys-block-line);
+    border-radius: var(--mo-sys-block-radius);
     padding: 0 1.5rem;
     list-style: none;
   }
@@ -1097,49 +1097,49 @@
     padding-block: 1.25rem;
   }
   .block-price-row + .block-price-row {
-    border-top: 1px solid var(--block-line);
+    border-top: 1px solid var(--mo-sys-block-line);
   }
   .block-price-row-name {
-    font-size: var(--type-title-medium-size);
-    line-height: var(--type-title-medium-line-height);
-    font-weight: var(--type-title-medium-weight);
-    letter-spacing: var(--type-title-medium-tracking);
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    line-height: var(--mo-sys-typescale-title-medium-line-height);
+    font-weight: var(--mo-sys-typescale-title-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
     color: inherit;
     text-decoration: none;
   }
   a.block-price-row-name:hover {
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
   }
   .block-price-row-text {
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-    color: var(--block-muted);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
   }
   .block-price-row-note {
     margin-top: 0.25rem;
     max-width: 60ch;
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-    color: var(--block-muted);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
   }
   .block-price-row-price {
-    font-size: var(--type-headline-small-size);
-    line-height: var(--type-headline-small-line-height);
-    font-weight: var(--type-headline-small-weight);
-    letter-spacing: var(--type-headline-small-tracking);
+    font-size: var(--mo-sys-typescale-headline-small-size);
+    line-height: var(--mo-sys-typescale-headline-small-line-height);
+    font-weight: var(--mo-sys-typescale-headline-small-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
     font-variant-numeric: tabular-nums;
   }
   .block-price-row-price > span {
     display: block;
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-    color: var(--block-muted);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
   }
   /* A quiet text with an icon before it (the terms under the prices). */
   .block-terms {
@@ -1147,11 +1147,11 @@
     gap: 0.625rem;
     margin-top: 1rem;
     max-width: 70ch;
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-    color: var(--block-muted);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
   }
   .block-terms svg {
     flex-shrink: 0;
@@ -1171,16 +1171,16 @@
   }
   @media (width >= theme(--breakpoint-medium)) {
     .block-row-text {
-      font-size: var(--type-body-large-size);
-      line-height: var(--type-body-large-line-height);
-      font-weight: var(--type-body-large-weight);
-      letter-spacing: var(--type-body-large-tracking);
+      font-size: var(--mo-sys-typescale-body-large-size);
+      line-height: var(--mo-sys-typescale-body-large-line-height);
+      font-weight: var(--mo-sys-typescale-body-large-weight);
+      letter-spacing: var(--mo-sys-typescale-body-large-tracking);
     }
     .block-accordion-answer {
-      font-size: var(--type-body-large-size);
-      line-height: var(--type-body-large-line-height);
-      font-weight: var(--type-body-large-weight);
-      letter-spacing: var(--type-body-large-tracking);
+      font-size: var(--mo-sys-typescale-body-large-size);
+      line-height: var(--mo-sys-typescale-body-large-line-height);
+      font-weight: var(--mo-sys-typescale-body-large-weight);
+      letter-spacing: var(--mo-sys-typescale-body-large-tracking);
     }
     .block-cta {
       grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -1199,10 +1199,10 @@
       grid-column: span 4;
     }
     .block-cta-title {
-      font-size: var(--type-headline-medium-size);
-      line-height: var(--type-headline-medium-line-height);
-      font-weight: var(--type-headline-medium-weight);
-      letter-spacing: var(--type-headline-medium-tracking);
+      font-size: var(--mo-sys-typescale-headline-medium-size);
+      line-height: var(--mo-sys-typescale-headline-medium-line-height);
+      font-weight: var(--mo-sys-typescale-headline-medium-weight);
+      letter-spacing: var(--mo-sys-typescale-headline-medium-tracking);
     }
     .block-prices {
       gap: 1.25rem;
@@ -1250,9 +1250,9 @@
     aspect-ratio: 16 / 9;
     margin-block: 2em;
     padding: 1.5rem;
-    border-radius: var(--card-radius, var(--block-radius));
-    background: var(--block-tint);
-    color: var(--block-text);
+    border-radius: var(--card-radius, var(--mo-sys-block-radius));
+    background: var(--mo-sys-block-tint);
+    color: var(--mo-sys-block-text);
     text-align: center;
     text-decoration: none;
   }
@@ -1275,8 +1275,8 @@
     border-radius: 0;
   }
   .prose .video-facade svg {
-    color: var(--block-accent);
-    transition: transform var(--motion-spatial);
+    color: var(--mo-sys-block-accent);
+    transition: transform var(--mo-sys-motion-spring-default-spatial);
   }
   .prose .video-facade:hover svg {
     transform: scale(1.08);
@@ -1286,10 +1286,10 @@
     display: -webkit-box;
     max-width: 40ch;
     overflow: hidden;
-    font-size: var(--type-title-medium-size);
-    line-height: var(--type-title-medium-line-height);
-    font-weight: var(--type-title-medium-weight);
-    letter-spacing: var(--type-title-medium-tracking);
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    line-height: var(--mo-sys-typescale-title-medium-line-height);
+    font-weight: var(--mo-sys-typescale-title-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -1333,10 +1333,10 @@
     filter: drop-shadow(0 2px 8px rgb(0 0 0 / 0.5));
   }
   .video-facade-still .video-facade-title {
-    font-size: var(--type-title-small-size);
-    line-height: var(--type-title-small-line-height);
-    font-weight: var(--type-title-small-weight);
-    letter-spacing: var(--type-title-small-tracking);
+    font-size: var(--mo-sys-typescale-title-small-size);
+    line-height: var(--mo-sys-typescale-title-small-line-height);
+    font-weight: var(--mo-sys-typescale-title-small-weight);
+    letter-spacing: var(--mo-sys-typescale-title-small-tracking);
     color: #fff;
     text-shadow: 0 1px 3px rgb(0 0 0 / 0.8);
   }
@@ -1346,10 +1346,10 @@
       height: 4.5rem;
     }
     .video-facade-still .video-facade-title {
-      font-size: var(--type-title-medium-size);
-      line-height: var(--type-title-medium-line-height);
-      font-weight: var(--type-title-medium-weight);
-      letter-spacing: var(--type-title-medium-tracking);
+      font-size: var(--mo-sys-typescale-title-medium-size);
+      line-height: var(--mo-sys-typescale-title-medium-line-height);
+      font-weight: var(--mo-sys-typescale-title-medium-weight);
+      letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
     }
   }
 
@@ -1372,18 +1372,18 @@
     margin-top: 0.75rem;
   }
   .prose .label-medium {
-    font-size: var(--type-label-medium-size);
-    line-height: var(--type-label-medium-line-height);
-    font-weight: var(--type-label-medium-weight);
-    letter-spacing: var(--type-label-medium-tracking);
-    color: var(--block-accent);
+    font-size: var(--mo-sys-typescale-label-medium-size);
+    line-height: var(--mo-sys-typescale-label-medium-line-height);
+    font-weight: var(--mo-sys-typescale-label-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-label-medium-tracking);
+    color: var(--mo-sys-block-accent);
   }
   .block-head > .block-subheading {
-    font-size: var(--type-title-large-size);
-    line-height: var(--type-title-large-line-height);
-    font-weight: var(--type-title-large-weight);
-    letter-spacing: var(--type-title-large-tracking);
-    color: var(--block-muted);
+    font-size: var(--mo-sys-typescale-title-large-size);
+    line-height: var(--mo-sys-typescale-title-large-line-height);
+    font-weight: var(--mo-sys-typescale-title-large-weight);
+    letter-spacing: var(--mo-sys-typescale-title-large-tracking);
+    color: var(--mo-sys-block-muted);
   }
 
   /* A label above a heading in a text (packages/editor/lib/eyebrow.mjs): a block's label, with the heading's space above
@@ -1403,22 +1403,22 @@
   /* The text styles of a text: "Body medium" is the plain paragraph (and a paragraph stored as body-medium);
    "Body large" (lib/body-large.mjs) and "Body small" (lib/body-size.mjs) are Material 3's body-large and body-small roles. */
   .prose .body-large {
-    font-size: var(--type-body-large-size);
-    line-height: var(--type-body-large-line-height);
-    font-weight: var(--type-body-large-weight);
-    letter-spacing: var(--type-body-large-tracking);
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
   }
   .prose .body-medium {
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   .prose .body-small {
-    font-size: var(--type-body-small-size);
-    line-height: var(--type-body-small-line-height);
-    font-weight: var(--type-body-small-weight);
-    letter-spacing: var(--type-body-small-tracking);
+    font-size: var(--mo-sys-typescale-body-small-size);
+    line-height: var(--mo-sys-typescale-body-small-line-height);
+    font-weight: var(--mo-sys-typescale-body-small-weight);
+    letter-spacing: var(--mo-sys-typescale-body-small-tracking);
   }
 
   /* A check list in a text (`- [ ]`, "Check list" in the editor): Phosphor's check icon in place of the bullet, in the theme's primary
@@ -1439,14 +1439,14 @@
     height: 1.25em;
     margin: 0;
     align-self: center;
-    background-color: var(--block-accent);
+    background-color: var(--mo-sys-block-accent);
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E")
       center / contain no-repeat;
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E")
       center / contain no-repeat;
   }
   .prose li.task-list-item > input[type='checkbox']:not(:checked) {
-    background-color: color-mix(in srgb, var(--block-accent) 35%, transparent);
+    background-color: color-mix(in srgb, var(--mo-sys-block-accent) 35%, transparent);
   }
 
   /* A word or more in one of the site's colours, in a text (packages/editor/lib/text-colors.mjs, the colour button in the
@@ -1455,11 +1455,11 @@
    is in the text's style (.prose), whose colours of bold text and links it goes over. */
   .color-accent,
   .color-accent :is(strong, em, a) {
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
   }
   .color-muted,
   .color-muted :is(strong, em, a) {
-    color: var(--block-muted);
+    color: var(--mo-sys-block-muted);
   }
 
   /* A word in the accent's or the quiet text's colour (above) on a section with the accent as its background would not

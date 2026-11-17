@@ -6,17 +6,17 @@
 
   The theme's variables: what the standard theme's own components (components/, layouts/, templates/) read, so
   another theme changes them in its styles/global.css instead of with selectors on their markup (docs/editor.md,
-  "Temaets variabler"). The defaults give the standard theme's look, from the theme's own --radius, --panel-shadow and colours.
+  "Temaets variabler"). The defaults give the standard theme's look, from the theme's own --mo-sys-radius, --mo-sys-panel-shadow and colours.
   The standard theme's base (base.css) imports this; a theme that writes all its CSS itself imports it too.
 */
 :root {
   /* The colour of the shade over the page behind a pop-up (the dialog's scrim, ui.css) and the navigation drawer
      (ui.css), seen through: the text's, in dark mode the page's. */
-  --theme-scrim-colour: var(--mo-on-surface);
+  --theme-scrim-colour: var(--mo-sys-color-on-surface);
   /* What is drawn on that shade (a lightbox's controls and caption): the opposite of it. */
-  --theme-on-scrim-colour: var(--mo-surface);
+  --theme-on-scrim-colour: var(--mo-sys-color-surface);
   /* The large image at the top of a page or a blog post, and the newest post's on the blog. */
-  --theme-picture-radius: var(--radius);
+  --theme-picture-radius: var(--mo-sys-radius);
   /* How long one page fades into the next when a link is followed (below). */
   --theme-page-fade: 0.35s;
   /* The space above a section of the front page (Section.astro), on a phone and from md, and above its first. */
@@ -36,36 +36,36 @@
   --theme-logo-tile: transparent;
   --theme-logo-tile-padding: 0;
   --theme-logo-tile-radius: 0;
-  --theme-logo-mark: var(--mo-primary);
+  --theme-logo-mark: var(--mo-sys-color-primary);
   --theme-logo-mark-scale: 1;
   --theme-logo-name-weight: 500;
   --theme-logo-name-size: 1em;
   --theme-logo-role-display: block;
   --theme-logo-role-display-large: block;
   /* The images in the list of posts (PostList.tsx, the blog's other posts). */
-  --theme-post-picture-radius: var(--mo-shape-small);
+  --theme-post-picture-radius: var(--mo-sys-shape-corner-small);
   /* A page's and a post's title (.theme-title): display small on a phone, display medium from md (the type scale,
      ui.css). */
-  --theme-title-size: var(--type-display-small-size);
-  --theme-title-leading: var(--type-display-small-line-height);
-  --theme-title-size-large: var(--type-display-medium-size);
+  --theme-title-size: var(--mo-sys-typescale-display-small-size);
+  --theme-title-leading: var(--mo-sys-typescale-display-small-line-height);
+  --theme-title-size-large: var(--mo-sys-typescale-display-medium-size);
 }
 @media (width >= theme(--breakpoint-medium)) {
   :root {
-    --theme-title-leading: var(--type-display-medium-line-height);
+    --theme-title-leading: var(--mo-sys-typescale-display-medium-line-height);
   }
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --theme-scrim-colour: var(--mo-surface);
-    --theme-on-scrim-colour: var(--mo-on-surface);
+    --theme-scrim-colour: var(--mo-sys-color-surface);
+    --theme-on-scrim-colour: var(--mo-sys-color-on-surface);
   }
 }
 /* In dark mode the shade is the page's colour, as the text's is light. A theme sets --dialog-scrim and
    --navigation-drawer-scrim (ui.css) in its :root, and they hold in both modes. */
 :root[data-theme='dark'] {
-  --theme-scrim-colour: var(--mo-surface);
-  --theme-on-scrim-colour: var(--mo-on-surface);
+  --theme-scrim-colour: var(--mo-sys-color-surface);
+  --theme-on-scrim-colour: var(--mo-sys-color-on-surface);
 }
 /* The first section on the front page (templates/Home.astro). */
 @layer components {
@@ -84,75 +84,77 @@
 :root {
   /* Density (m3.material.io/foundations/layout/grids-spacing/density: "The density scale is numbered, starting at 0 for a component's
      default density", "Higher density is typically applied by decreasing the top and bottom padding or overall height by 4dp").
-     Two steps add up: the theme's own (--mo-density-base, a theme sets it: 0 is Medium, 1 Large, -1 Small, down to -3) and the
-     person's (--mo-density-user, set only by the editor through data-density on <html>; a site has none, so it is 0 there).
-     A part writes its size as calc(<default> + var(--mo-density) * var(--mo-density-step)), so at 0 it is the default.
-     Which one a part reads depends on its group: --mo-density for data-heavy parts (lists, tables: -3 to 1), --mo-density-layout for
-     layout and controls (-1 to 1), --mo-density-focus for focused single-task parts (menus, dialogs: never denser than Medium, 0 to 1).
+     Two steps add up: the theme's own (--mo-sys-density-base, a theme sets it: 0 is Medium, 1 Large, -1 Small, down to -3) and the
+     person's (--mo-sys-density-user, set only by the editor through data-density on <html>; a site has none, so it is 0 there).
+     A part writes its size as calc(<default> + var(--mo-sys-density) * var(--mo-sys-density-step)), so at 0 it is the default.
+     Which one a part reads depends on its group: --mo-sys-density for data-heavy parts (lists, tables: -3 to 1), --mo-sys-density-layout for
+     layout and controls (-1 to 1), --mo-sys-density-focus for focused single-task parts (menus, dialogs: never denser than Medium, 0 to 1).
      Only height and vertical padding follow it, never the text size or the horizontal padding. */
-  --mo-density-base: 0;
-  --mo-density-user: 0;
-  --mo-density-step: 4px;
-  --mo-density: clamp(-3, calc(var(--mo-density-base) + var(--mo-density-user)), 1);
-  --mo-density-layout: clamp(-1, calc(var(--mo-density-base) + var(--mo-density-user)), 1);
-  --mo-density-focus: clamp(0, calc(var(--mo-density-base) + var(--mo-density-user)), 1);
+  --mo-sys-density-base: 0;
+  --mo-sys-density-user: 0;
+  --mo-sys-density-step: 4px;
+  --mo-sys-density: clamp(-3, calc(var(--mo-sys-density-base) + var(--mo-sys-density-user)), 1);
+  --mo-sys-density-layout: clamp(-1, calc(var(--mo-sys-density-base) + var(--mo-sys-density-user)), 1);
+  --mo-sys-density-focus: clamp(0, calc(var(--mo-sys-density-base) + var(--mo-sys-density-user)), 1);
   /* The smallest target of something to tap or click (m3.material.io/foundations/designing/structure, "Target sizes" and "Pointer
      targets"): 48 dp on touch, 44 dp for a mouse. Density shrinks the part, never its target (ui.css gives it a hit area). */
-  --mo-target: 44px;
-  --radius: 0.75rem;
-  --panel-shadow:
-    0 1px 2px color-mix(in srgb, var(--mo-shadow) 6%, transparent), 0 8px 24px -12px color-mix(in srgb, var(--mo-shadow) 18%, transparent);
+  --mo-sys-target-size: 44px;
+  --mo-sys-radius: 0.75rem;
+  --mo-sys-panel-shadow:
+    0 1px 2px color-mix(in srgb, var(--mo-sys-color-shadow) 6%, transparent),
+    0 8px 24px -12px color-mix(in srgb, var(--mo-sys-color-shadow) 18%, transparent);
   /* The motion scheme's curve (blocks.css, lib/motion.ts). */
-  --ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
+  --mo-sys-ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
   /* The standard blocks (blocks.css) in this design; in dark mode too, as they
      follow the tokens above. */
-  --block-text: var(--mo-on-surface);
-  --block-muted: var(--mo-on-surface-variant);
-  --block-accent: var(--mo-primary);
-  --block-accent-hover: color-mix(in srgb, var(--mo-on-primary) 8%, var(--mo-primary));
-  --block-on-accent: var(--mo-on-primary);
-  --block-primary: var(--mo-primary);
-  --block-on-primary: var(--mo-on-primary);
-  --block-secondary: var(--mo-secondary);
-  --block-on-secondary: var(--mo-on-secondary);
-  --block-tertiary: var(--mo-tertiary);
-  --block-on-tertiary: var(--mo-on-tertiary);
-  --block-surface: var(--mo-surface-container-lowest);
-  --block-tint: var(--mo-surface-container-high);
-  --block-stripe: var(--mo-surface-container);
-  --block-line: var(--mo-outline-variant);
-  --block-radius: var(--radius);
-  --block-radius-small: var(--radius-small);
-  --block-control-radius: var(--mo-shape-full);
-  --block-shadow: var(--panel-shadow);
-  --block-ease: var(--ease);
+  --mo-sys-block-text: var(--mo-sys-color-on-surface);
+  --mo-sys-block-muted: var(--mo-sys-color-on-surface-variant);
+  --mo-sys-block-accent: var(--mo-sys-color-primary);
+  --mo-sys-block-accent-hover: color-mix(in srgb, var(--mo-sys-color-on-primary) 8%, var(--mo-sys-color-primary));
+  --mo-sys-block-on-accent: var(--mo-sys-color-on-primary);
+  --mo-sys-block-primary: var(--mo-sys-color-primary);
+  --mo-sys-block-on-primary: var(--mo-sys-color-on-primary);
+  --mo-sys-block-secondary: var(--mo-sys-color-secondary);
+  --mo-sys-block-on-secondary: var(--mo-sys-color-on-secondary);
+  --mo-sys-block-tertiary: var(--mo-sys-color-tertiary);
+  --mo-sys-block-on-tertiary: var(--mo-sys-color-on-tertiary);
+  --mo-sys-block-surface: var(--mo-sys-color-surface-container-lowest);
+  --mo-sys-block-tint: var(--mo-sys-color-surface-container-high);
+  --mo-sys-block-stripe: var(--mo-sys-color-surface-container);
+  --mo-sys-block-line: var(--mo-sys-color-outline-variant);
+  --mo-sys-block-radius: var(--mo-sys-radius);
+  --mo-sys-block-radius-small: var(--mo-sys-radius-small);
+  --mo-sys-block-control-radius: var(--mo-sys-shape-corner-full);
+  --mo-sys-block-shadow: var(--mo-sys-panel-shadow);
+  --mo-sys-block-ease: var(--mo-sys-ease);
 }
 @media (pointer: coarse) {
   :root {
-    --mo-target: 48px;
+    --mo-sys-target-size: 48px;
   }
 }
 /* The editor's Density setting (Large, Medium, Small) as the person's step. A site never sets the attribute. A box that must not follow it
-   re-declares --mo-density-user and the three derived variables above, which are computed where they are declared. */
+   re-declares --mo-sys-density-user and the three derived variables above, which are computed where they are declared. */
 :root[data-density='1'] {
-  --mo-density-user: 1;
+  --mo-sys-density-user: 1;
 }
 :root[data-density='-1'] {
-  --mo-density-user: -1;
+  --mo-sys-density-user: -1;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --panel-shadow:
-      0 1px 2px color-mix(in srgb, var(--mo-shadow) 30%, transparent),
-      0 20px 40px -24px color-mix(in srgb, var(--mo-shadow) 70%, transparent);
+    --mo-sys-panel-shadow:
+      0 1px 2px color-mix(in srgb, var(--mo-sys-color-shadow) 30%, transparent),
+      0 20px 40px -24px color-mix(in srgb, var(--mo-sys-color-shadow) 70%, transparent);
   }
 }
 :root[data-theme='dark'] {
-  --panel-shadow:
-    0 1px 2px color-mix(in srgb, var(--mo-shadow) 30%, transparent), 0 20px 40px -24px color-mix(in srgb, var(--mo-shadow) 70%, transparent);
+  --mo-sys-panel-shadow:
+    0 1px 2px color-mix(in srgb, var(--mo-sys-color-shadow) 30%, transparent),
+    0 20px 40px -24px color-mix(in srgb, var(--mo-sys-color-shadow) 70%, transparent);
 }
 @layer fallback {
   .prose.post-lead {
-    --prose-space: 1.5rem;
+    --mo-sys-prose-space: 1.5rem;
   }
 }
