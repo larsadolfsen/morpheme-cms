@@ -1,0 +1,92 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+@layer components {
+  .card-elevated {
+    --mo-comp-card-shadow: var(--mo-comp-elevated-card-container-elevation, var(--mo-sys-elevation-level1-rest-shadow));
+  }
+}
+@layer components {
+  .card-filled {
+    --mo-comp-card-shadow: var(--card-filled-shadow, var(--mo-sys-elevation-level0-shadow));
+  }
+}
+@layer components {
+  .card-outlined {
+    --mo-comp-card-shadow: var(--card-outlined-shadow, var(--mo-sys-elevation-level0-shadow));
+  }
+}
+@layer components {
+  @media (hover: hover) {
+    :is(a, button:enabled).card-elevated:hover:not(:active, .card-dragged) {
+      --mo-comp-card-shadow: var(
+        --mo-comp-elevated-card-hover-container-elevation,
+        var(--mo-comp-elevated-card-container-elevation, var(--mo-sys-elevation-level2-shadow))
+      );
+    }
+  }
+}
+@layer components {
+  @media (hover: hover) {
+    a.card-filled:hover:not(:active, .card-dragged) {
+      --mo-comp-card-shadow: var(--card-filled-hover-shadow, var(--card-filled-shadow, var(--mo-sys-elevation-level1-shadow)));
+    }
+  }
+}
+@layer components {
+  @media (hover: hover) {
+    a.card-outlined:hover:not(:active, .card-dragged) {
+      --mo-comp-card-shadow: var(--card-outlined-hover-shadow, var(--card-outlined-shadow, var(--mo-sys-elevation-level1-shadow)));
+    }
+  }
+}
+@layer components {
+  .card-elevated.card-dragged {
+    --mo-comp-card-shadow: var(--card-elevated-dragged-shadow, var(--mo-sys-elevation-level4-shadow));
+  }
+}
+@layer components {
+  .card-filled.card-dragged {
+    --mo-comp-card-shadow: var(--card-filled-dragged-shadow, var(--mo-sys-elevation-level3-shadow));
+  }
+}
+@layer components {
+  .card-outlined.card-dragged {
+    --mo-comp-card-shadow: var(--card-outlined-dragged-shadow, var(--mo-sys-elevation-level3-shadow));
+  }
+}
+/* A filled card on one of Material's containers ("Cards", `color`): the primary, secondary or tertiary container, its text and icon in the
+     colour that is read on it. Without a colour it is the surface container (--mo-comp-filled-card-container-color, below). A theme that has no container
+     role has the block's own colours. */
+@layer components {
+  :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary) .block-card {
+    --mo-comp-card-filled-line: transparent;
+  }
+}
+@layer components {
+  .block-cards-primary .block-card {
+    --mo-comp-filled-card-container-color: var(--mo-sys-color-primary-container, var(--mo-sys-block-primary));
+  }
+}
+@layer components {
+  .block-cards-secondary .block-card {
+    --mo-comp-filled-card-container-color: var(--mo-sys-color-secondary-container, var(--mo-sys-block-secondary));
+  }
+}
+@layer components {
+  .block-cards-tertiary .block-card {
+    --mo-comp-filled-card-container-color: var(--mo-sys-color-tertiary-container, var(--mo-sys-block-tertiary));
+  }
+}
+@layer components {
+  .block-price-extra {
+    --mo-comp-card-radius: var(--mo-sys-block-radius-small);
+    --mo-comp-card-padding: 1rem;
+  }
+}
+@layer components {
+  @media (width >= theme(--breakpoint-medium)) {
+    .block-price-card {
+      --mo-comp-card-padding: 2rem;
+    }
+  }
+}

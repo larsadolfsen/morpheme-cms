@@ -1,13 +1,20 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { test } from 'node:test';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { cardDesignProblems, cssIn } from './card-designs.mjs';
 
-const css = ['ui.css', 'blocks.css', 'global.css']
-  .map((f) => readFileSync(new URL(`../theme/styles/${f}`, import.meta.url), 'utf8'))
+// The stylesheets and their token files (theme/styles/tokens/, docs/theme-token-files.md).
+const styles = new URL('../theme/styles/', import.meta.url);
+const css = [
+  ...['ui.css', 'blocks.css', 'cards.css', 'global.css'],
+  ...readdirSync(new URL('tokens/', styles), { recursive: true })
+    .filter((f) => f.endsWith('.css'))
+    .map((f) => `tokens/${f}`),
+]
+  .map((f) => readFileSync(new URL(f, styles), 'utf8'))
   .join('\n');
 
 test('The Material theme styles every card design and every filled color', () => {
@@ -15,7 +22,7 @@ test('The Material theme styles every card design and every filled color', () =>
 });
 
 test('A theme that leaves a card design or a filled color unstyled is told so', () => {
-  const sample = `.card-outlined{background:#fff}.card-filled{background:#eee}.block-cards-primary .block-card{--card-filled-surface:red}`;
+  const sample = `.card-outlined{background:#fff}.card-filled{background:#eee}.block-cards-primary .block-card{--mo-comp-filled-card-container-color:red}`;
   const problems = cardDesignProblems(sample);
   assert.equal(problems.length, 4);
   assert.match(problems.join('\n'), /carousel/);

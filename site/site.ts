@@ -81,17 +81,19 @@ export const navShown = menu.enabled !== false;
 /** The links in the bar under the header on a phone (mobile-menu.json, "Mobile menu"); none when it is turned off. */
 export const mobileNav: { label: string; href: string }[] = mobileMenu.enabled ? mobileMenu.items : [];
 
-// "Segmented list" has the link text of the "Accordion" it replaces ("Blocks" › "Accordion"), so a text a site saved there still shows.
+// "List" and "List - Expand" share one text for the button under their rows (`Max rows`: Blocks › List), and "List - Expand" has the link text of the
+// "Accordion" it replaces ("Blocks" › "Accordion"). What a site saved under "Segmented list" (blocks.json, `segmented`) still shows, under the List.
 // The return type keeps the index signature: a site reads `blockTexts.about`, `.buttons`, `.offer` … as `Record<string, any>`.
-const withSegmented = (texts: Record<string, Record<string, any>>): Record<string, Record<string, any>> => ({
-  ...texts,
-  segmented: { ...texts.accordion, ...texts.segmented },
-});
+const withLists = (texts: Record<string, Record<string, any>>): Record<string, Record<string, any>> => {
+  const saved = blocks as Record<string, Record<string, unknown> | undefined>;
+  const list = { ...texts.accordion, ...texts.list, ...saved.segmented, ...saved.list };
+  return { ...texts, list, expand: list, segmented: list };
+};
 
 /** The texts every copy of a block has ("Blocks" in the editor), with {…} for what differs, by
  * the block's type: those written in its shared.ts, with the saved ones (blocks.json) over them. The
  * standard blocks' first, so an app's block (src/apps/<app>/blocks/) by the same name has its own. */
-export const blockTexts = withSegmented(
+export const blockTexts = withLists(
   sharedTexts(
     {
       ...standardShared,

@@ -91,8 +91,8 @@ Worker, the starter or the demo is a pull request here.
 
 ### Key folders
 
-- **`theme/`**: the default theme *Material*. `theme/styles/`: MD3 tokens (3-tier: `md.ref.*`, `md.sys.*`, `md.comp.*`),
-  typography (Roboto / Roboto Flex), elevation and colour scales. `theme/ui/`: M3 UI components. `theme/blocks/`: the
+- **`theme/`**: the default theme *Material*. `theme/styles/`: the rules that use the tokens (`ui.css`, `blocks.css`, `global.css` …);
+  the tokens themselves (every custom-property declaration) are in `theme/styles/tokens/` (`docs/theme-token-files.md`). `theme/ui/`: M3 UI components. `theme/blocks/`: the
   default blocks' look (`View.tsx`, CSS).
 - **`src/` and `pages/`**: the editor. `src/`: React UI, screens, fields, state (`store.ts`), live preview
   (`pagePreview.tsx`), block registry (`blocks.ts`), the start screen's widgets and dashboard (`DashboardGrid.tsx`,
@@ -107,15 +107,16 @@ Worker, the starter or the demo is a pull request here.
   images are taken of. `npm run build` (`scripts/demo-build.mjs`, not in the package) builds it in
   `.morpheme/demo/site/`; `wrangler.jsonc` puts it on the Worker `morpheme-demo`. Each branch gets its own Preview
   (`npx wrangler preview`), whose address Cloudflare writes on the pull request; login and save do not work there.
+  The demo's Blocks are an index (`/blocks/`) and one page for each main component or special block (`/blocks/<name>/`, the file
+  `demo/src/content/pages/blocks-<name>.md`; the list and its rules are in `scripts/demo-blocks.mjs`).
 - **`starter/`**: what a new site starts with (the *Deploy to Cloudflare* button).
 - **`release-notes/`**: owner-facing release notes in English and Danish (skill `release-notes`).
 - **`.changeset/`**: one changeset per pull request (skill `changesets`).
 
 ### Before you push
 
-Run `npm run check`, and after a change to the editor also `npm run check:screens` (after `npm run build`). CI
-(`.github/workflows/check.yml`) runs the checks as jobs side by side; its job `check` waits for them all and must be
-green before a merge. Which other check fits which change: skill `checks`.
+Run `npm run check`. CI (`.github/workflows/check.yml`) runs the other checks as jobs side by side; its job `check` waits
+for them all and must be green before a merge. Which checks to run locally, and which only CI runs: skill `checks`.
 
 ## Rules for code
 

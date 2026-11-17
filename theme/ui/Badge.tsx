@@ -1,9 +1,9 @@
-// A badge (m3.material.io/components/badges, .badge in ../styles/ui.css): a small dot (without `count`: something new)
+// A badge (m3.material.io/components/badges, .badge in ../styles/badge.css): a small dot (without `count`: something new)
 // or a number (`count`, more than `max` shown as "999+"), on what it is about (`children`: an icon or an icon button,
 // at its top end corner, .badge-anchor) or by itself after a label (a navigation drawer's item). The badge is only seen:
 // what it says is read by screen readers from `label` (e.g. "3 nye beskeder"), or, on an icon button, from the button's
 // own name, which should say it. How it looks is the theme's (--badge-*). `tone` (ok, minor, major, unknown) colours the
-// badge as a status (green, yellow, orange, grey; written as data-tone, --badge-ok etc.); without it the badge keeps the
+// badge as a status (green, yellow, orange, grey; written as data-tone, --mo-comp-badge-ok etc.); without it the badge keeps the
 // error colour. An Astro component gives an element the same classes with badgeClass.
 import type { ReactNode } from 'react';
 

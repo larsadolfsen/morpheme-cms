@@ -1,0 +1,7 @@
+{
+  "id": "buttons-no-elevated",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Button styles",
+  "text": "Buttons no longer look flat and gray on the page. Pick Filled, Tonal, Outlined or Text under Settings › Variant. Elevated is gone; buttons that used it show as Tonal, and morpheme migrate saves them that way."
+}

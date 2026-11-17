@@ -90,7 +90,7 @@ function declarations(set: ColorSet): string {
   return Object.entries(set)
     .map(([name, value]) => {
       if (!NAME.test(name) || !isColor(value)) throw new Error(`Not a colour: ${name}: ${JSON.stringify(value)}`);
-      return `--mo-${name}:${value};`;
+      return `--mo-sys-color-${name}:${value};`;
     })
     .join('');
 }

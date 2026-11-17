@@ -36,7 +36,7 @@ export function SearchPreview({
   const id = useId();
   const [device, setDevice] = useState<Device>('mobile');
   const phone = device === 'mobile';
-  const menu = <DotsThreeVertical aria-hidden="true" className="shrink-0 text-(--google-text)" />;
+  const menu = <DotsThreeVertical aria-hidden="true" className="shrink-0 text-(--mo-comp-google-text)" />;
   return (
     <div className="space-y-3">
       <TabRow
@@ -52,21 +52,21 @@ export function SearchPreview({
       <TabPanel id={id} value={device}>
         <figure
           aria-label={t.forms.searchPreview.result}
-          className={`bg-(--google-background) p-4 font-[arial,sans-serif] ${
-            phone ? 'max-w-[360px] border-y-8 border-(--google-separator)' : 'max-w-[600px]'
+          className={`bg-(--mo-comp-google-background) p-4 font-[arial,sans-serif] ${
+            phone ? 'max-w-[360px] border-y-8 border-(--mo-comp-google-separator)' : 'max-w-[600px]'
           }`}
         >
           <div className="flex items-center gap-3">
             <span
               aria-hidden="true"
-              className="flex size-[28px] shrink-0 items-center justify-center rounded-full border border-(--google-icon-ring) bg-(--google-icon-fill) text-xs text-(--google-icon-letter)"
+              className="flex size-[28px] shrink-0 items-center justify-center rounded-full border border-(--mo-comp-google-icon-ring) bg-(--mo-comp-google-icon-fill) text-xs text-(--mo-comp-google-icon-letter)"
             >
               {[...siteName][0]?.toLocaleUpperCase()}
             </span>
             <span className="min-w-0">
-              <span className="block truncate text-sm text-(--google-site)">{siteName}</span>
+              <span className="block truncate text-sm text-(--mo-comp-google-site)">{siteName}</span>
               <span className="flex items-center gap-1">
-                <span className="truncate text-xs text-(--google-text)">{searchCrumbs(domain, path)}</span>
+                <span className="truncate text-xs text-(--mo-comp-google-text)">{searchCrumbs(domain, path)}</span>
                 {!phone && menu}
               </span>
             </span>
@@ -74,13 +74,13 @@ export function SearchPreview({
           </div>
           <span
             className={`block text-[20px] leading-[26px] ${
-              phone ? 'mt-3 line-clamp-2 text-(--google-title-phone)' : 'mt-1.5 truncate text-(--google-title)'
+              phone ? 'mt-3 line-clamp-2 text-(--mo-comp-google-title-phone)' : 'mt-1.5 truncate text-(--mo-comp-google-title)'
             }`}
           >
             {title}
           </span>
-          <p className={`mt-1 text-sm leading-[22px] text-(--google-text) ${phone ? 'line-clamp-3' : 'line-clamp-2'}`}>
-            {date && <span className="text-(--google-date)">{shortDate(date)} — </span>}
+          <p className={`mt-1 text-sm leading-[22px] text-(--mo-comp-google-text) ${phone ? 'line-clamp-3' : 'line-clamp-2'}`}>
+            {date && <span className="text-(--mo-comp-google-date)">{shortDate(date)} — </span>}
             {boldParts(description, keyword).map((part, i) =>
               part.bold ? (
                 <b key={i} className="font-bold">

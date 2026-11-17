@@ -22,6 +22,8 @@ cd .morpheme/demo/site && node ../../../scripts/measure-speed.mjs --runs 3
   50 ms: count and longest) and **LoAF** (longest long animation frame) come from `PerformanceObserver` in the page.
 - **INP** of an interaction is the longest event duration (input to next paint, Event Timing) of one scripted
   interaction with real input; over **200 ms** is poor. The number in brackets is the longest long task during it.
+- The many-blocks page below was the demo's Blocks page, one page of 36 blocks. The demo's Blocks are one page for each component now
+  (`/blocks/<name>/`), and `measure-speed.mjs` measures the Lists page (12 blocks): a run after that is not comparable to the numbers here.
 - Limits: one machine, a simulated phone, the numbers vary between runs (TBT of the many-blocks page was 1.5 to 2.3 s on
   mobile in three full runs), so only differences well over 20% mean something. Compare runs on the same machine.
   Scroll is wheel scroll; it has no INP, so only its long tasks count. The Library and the start screen on a computer have

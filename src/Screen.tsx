@@ -13,7 +13,7 @@
 // off-centre only as far as the panels beside it require.
 // Under the content of every screen is the editor's footer (EditorFooter.tsx), at the bottom of the window when the content
 // is short (the screen fills the column under the bar, TopBarLayout). While the screen has a floating action button
-// (fabPresence.tsx), the content leaves room for it above the footer (data-clearance, --fab-room) and the FAB stands above the
+// (fabPresence.tsx), the content leaves room for it above the footer (data-clearance, --mo-comp-fab-room) and the FAB stands above the
 // footer whenever the footer is in the window (useFabLift: --editor-fab-lift, editor.css), so it never covers the footer.
 import { useContext, useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
@@ -170,10 +170,10 @@ export default function Screen<T extends string>({
   const id = useId();
   const menu = useMenuOpen();
   const { menuButtonInTopBar } = useMenuLayout();
-  // The column's widest width (--column-width, editor.css) is the site's text column (theme `max-w-3xl`, as PostLayout.astro), on a
+  // The column's widest width (--mo-sys-column-width, editor.css) is the site's text column (theme `max-w-3xl`, as PostLayout.astro), on a
   // computer too; only `panel` (a form with its other fields beside the text) is wider, 72rem from large. editor.css (.editor-column) keeps it
   // centred on the window.
-  const width = panel ? 'editor-column large:[--column-width:72rem]' : 'editor-column';
+  const width = panel ? 'editor-column large:[--mo-sys-column-width:72rem]' : 'editor-column';
   // A link out of the screen, through `guard`: the back arrow goes up (nav.ts), the other links as links.
   const leave = (go?: () => void) => (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!go && !back?.guard) return;
@@ -305,7 +305,7 @@ export default function Screen<T extends string>({
           </div>
           {/* The content flows as blocks; the footer goes to the bottom of a short screen. */}
           <FabPresenceContext.Provider value={fabs.report}>
-            <div className="min-w-0 data-[clearance=true]:mb-[var(--fab-room)]" data-clearance={fabs.count > 0}>
+            <div className="min-w-0 data-[clearance=true]:mb-[var(--mo-comp-fab-room)]" data-clearance={fabs.count > 0}>
               {tabs ? (
                 <TabPanel id={id} value={tabs.value}>
                   {children}

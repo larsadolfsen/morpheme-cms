@@ -6,13 +6,13 @@ export const allow = [
   {
     kind: 'fixed-colour',
     file: /^src\/editor\.css$/,
-    line: /--editor-status-|editor-status-/,
+    line: /--mo-comp-editor-status-/,
     reason: "PageSpeed's own ratings (good, average, bad)",
   },
   {
     kind: 'fixed-colour',
     file: /^src\/editor\.css$/,
-    line: /--google-/,
+    line: /--mo-comp-google-/,
     reason: "the search-result preview is Google's own look, light and dark",
   },
   // A colour the owner or a tool chooses.
@@ -63,16 +63,23 @@ export const allow = [
   { kind: 'fixed-colour', file: /^(src\/i18n\/|lib\/hooks\.ts)/, line: any, reason: 'a text that names a colour' },
   {
     kind: 'fixed-colour',
-    file: /^theme\/styles\/(base|global|ui)\.css$/,
-    line: /^\s*(--mo-elevation-0-shadow: 0 0 #0000|.*\(0 0 #0000)|0 0 #0000/,
+    file: /^theme\/styles\/(base|global|ui|cards|tokens\/[a-z]+\/[a-z-]+)\.css$/,
+    line: /^\s*(--mo-sys-elevation-level0-shadow: 0 0 #0000|.*\(0 0 #0000)|0 0 #0000/,
     reason: 'no shadow',
   },
   // Status colours: Material 3 has no success or warning role.
   {
     kind: 'fixed-colour',
-    file: /^theme\/styles\/global\.css$/,
-    line: /--badge-(ok|minor|major)/,
+    file: /^theme\/styles\/(global|tokens\/material\/comp\/badge)\.css$/,
+    line: /--mo-comp-badge-(ok|minor|major)/,
     reason: 'status badges: Material 3 has no success or warning role',
+  },
+  {
+    kind: 'state-layer',
+    file: /^theme\/styles\/tokens\/material\/comp\/bottom-sheet\.css$/,
+    line: /drag-handle-color/,
+    reason:
+      "the sheet's drag handle in on-surface-variant at 40%, M3's `sheet.bottom.docked.drag-handle.opacity`: a handle, not a state layer (its name says drag)",
   },
   {
     kind: 'state-layer',

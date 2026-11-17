@@ -140,8 +140,10 @@ export default function InlineCards({ items, props, data, active, focus, onChang
                 <span className="block-card-title">
                   {field('title', t.blocks.cards.title, next ? t.blocks.cards.newCard : t.blocks.cards.title)}
                 </span>
-                <span className="block-card-subhead">{field('subhead', t.blocks.cards.subhead, t.blocks.cards.subhead)}</span>
-                {/* The text is optional: a card without one has no empty text area unless it is the one being typed in. */}
+                {/* The subhead and the text are optional: a card without one has no empty row (and no room kept for it) unless it is the one being typed in, so a card is as high here as on the site. */}
+                {(here || next || String(item.subhead ?? '').trim() !== '') && (
+                  <span className="block-card-subhead">{field('subhead', t.blocks.cards.subhead, t.blocks.cards.subhead)}</span>
+                )}
                 {(here || next || String(item.text ?? '').trim() !== '') && (
                   <span className="block-card-text">{field('text', t.blocks.cards.text, t.blocks.cards.text)}</span>
                 )}

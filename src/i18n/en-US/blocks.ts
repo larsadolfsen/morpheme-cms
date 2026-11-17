@@ -41,41 +41,13 @@ export const blocks = {
   /** A block's head (standard/head.ts): the label above its heading and the subheading under it. */
   subheading: 'Subheading',
   subheadingHint: 'Shown under the heading.',
-  faq: {
-    label: 'FAQ list',
-    hint: 'Questions that expand to answers.',
-    items: 'Questions',
-    item: 'question',
-    question: 'Question',
-    answer: 'Answer',
-    only: 'Only one open',
-    onlyToggle: ['On', 'Off'] as [string, string],
-    onlyHint: 'Opening a question closes the open one.',
-    button: 'Button label',
-    buttonHint: 'A text button under the last question. If empty, there is no button.',
-    buttonHref: 'Button page',
-    /** The button typed in place under the questions: the empty field's text. */
-    buttonPlaceholder: 'Button label',
-    /** A question typed in place: the add button, the faded question of an empty block, the floating toolbar, a question's place for screen readers. */
-    addQuestion: 'Add question',
-    newQuestion: 'New question',
-    questionOf: (n: number, total: number) => `Question ${n} of ${total}`,
-    addAbove: 'Add above',
-    addBelow: 'Add below',
-    questionMenu: 'Question',
-    questionSettings: 'Question settings',
-  },
-  /** "Segmented list" (standard/segmented/). */
-  segmented: {
-    label: 'Segmented list',
-    hint: 'Rows that expand, with a link.',
+  /** "List - Expand" (standard/expand/). */
+  expand: {
+    label: 'List - Expand',
+    hint: 'Rows that open to show more.',
+    /** Read by name for any block (pageEmptyRows.ts): the rows and one row, in the sentence about an empty block. */
     items: 'Rows',
     item: 'row',
-    icon: 'Icon',
-    title: 'Heading',
-    text: 'Text',
-    href: 'Page',
-    hrefHint: 'If empty, the row has no link.',
     rowButtons: 'Buttons',
     rowButton: 'button',
     rowButtonsHint: 'Text buttons at the bottom of the open row, each with a page.',
@@ -83,34 +55,15 @@ export const blocks = {
     only: 'Only one open',
     onlyToggle: ['On', 'Off'] as [string, string],
     onlyHint: 'Opening a row closes the open one.',
-    show: 'Rows',
-    showFold: 'Expand',
-    showAll: 'Always open',
-    maxRows: 'Maximum rows',
-    maxRowsHint: 'How many rows show at first. A button under them shows the rest. If empty, all rows show.',
-    showMore: 'Button label (show more)',
-    showMoreText: 'Show more',
+    faq: 'Mark as FAQ',
+    faqToggle: ['On', 'Off'] as [string, string],
+    faqHint: 'Tells search engines that the rows are questions and answers, so they can show them under your page.',
     /** The link in an open row, without the row's heading (in the site's language). */
     readMore: 'Read more',
-    button: 'Button label',
-    buttonHint: 'A text button under the last row. If empty, there is no button.',
-    buttonHref: 'Button page',
     /** The link in an open row (in the site’s language). */
     more: 'Read more about {topic}',
     exampleTitle: 'Heading',
     exampleText: 'A short text about the row.',
-    /** The floating toolbar of a Segmented list typed in place. */
-    addAbove: 'Add above',
-    addBelow: 'Add below',
-    row: 'Row',
-    rowSettings: 'Row settings',
-    link: 'Link',
-    addRow: 'Add row',
-    newRow: 'New row',
-    addButton: 'Add button',
-    buttonText: 'Button label',
-    /** A row typed in place: its place, for screen readers (row 2 of 4). */
-    rowOf: (n: number, total: number) => `Row ${n} of ${total}`,
   },
   notice: {
     label: 'Notice',
@@ -168,6 +121,12 @@ export const blocks = {
     map: 'Fields in a row',
     empty: 'No items in the list match, so nothing shows on the page.',
   },
+  /** The setting "Columns" of the blocks that draw rows as a list (standard/columns.ts). */
+  columns: {
+    label: 'Columns',
+    toggle: ['On', 'Off'] as [string, string],
+    about: 'On: rows sit in columns where there is room. Off: one column.',
+  },
   list: {
     label: 'List',
     hint: 'Rows with icon, heading and text.',
@@ -192,6 +151,24 @@ export const blocks = {
     newRow: 'New row',
     /** A row of the list typed in place: its place, for screen readers (row 2 of 4). */
     rowOf: (n: number, total: number) => `Row ${n} of ${total}`,
+    /** The design of a list: rows on the page (plain), or each row on its own surface (segmented). */
+    design: 'Design',
+    designPlain: 'Plain',
+    designSegmented: 'Segmented',
+    /** What leads a row: its icon, an avatar, a square image or a landscape image (chosen for each row). */
+    leading: 'Leading',
+    leadingIcon: 'Icon',
+    leadingAvatar: 'Avatar',
+    leadingSquare: 'Square image',
+    leadingLandscape: 'Landscape image',
+    image: 'Image',
+    maxRows: 'Maximum rows',
+    maxRowsHint: 'How many rows show at first. A button under them shows the rest. If empty, all rows show.',
+    showMore: 'Button label (show more)',
+    showMoreText: 'Show more',
+    button: 'Button label',
+    buttonHint: 'A text button under the last row. If empty, there is no button.',
+    buttonHref: 'Button page',
   },
   points: {
     label: 'Points with icon',

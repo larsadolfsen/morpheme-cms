@@ -10,8 +10,8 @@ const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
 const list = read('./List.tsx');
 const ui = read('../styles/ui.css');
 const blocks = read('../styles/blocks.css');
-const accordion = read('../blocks/faq/Accordion.tsx');
-const script = read('../blocks/faq/script.ts');
+const accordion = read('../blocks/accordion/Accordion.tsx');
+const script = read('../blocks/accordion/script.ts');
 
 test('every class of a folding item has a rule in ui.css', () => {
   const classes = new Set(list.match(/\blist-(?:item-)?expand[a-z-]*/g));
@@ -30,14 +30,17 @@ test('the item is a details with its summary as the item (keyboard and screen re
 
 test("the state layers and the focus ring are the List's own tokens, the corner is M3's 16dp", () => {
   const summary = ui.slice(ui.indexOf('.list-item-expand-summary {'));
-  assert.match(summary, /--list-item-hover-surface/);
-  assert.match(summary, /--list-item-focus-indicator-color/);
+  assert.match(summary, /--mo-comp-list-item-hover-surface/);
+  assert.match(summary, /--mo-comp-list-item-focus-indicator-color/);
   assert.match(summary, /outline: 3px solid/);
-  assert.match(ui, /\.list-expand\s*\{[^}]*--list-expand-radius, var\(--mo-shape-large\)/);
+  assert.match(ui, /\.list-expand\s*\{[^}]*--mo-comp-list-expand-container-shape, var\(--mo-sys-shape-corner-large\)/);
 });
 
 test('the FAQ is drawn on the part, with no accordion rules of its own left', () => {
-  assert.match(accordion, /<List expand className="block-accordion">/);
+  assert.match(
+    accordion,
+    /<List\s+expand\s+className=\{segmented \? 'block-accordion block-accordion-segmented' : 'block-accordion'\}[^>]*>/,
+  );
   assert.match(accordion, /<ListItem[\s\S]*?\bexpand\b/);
   assert.doesNotMatch(accordion.replace(/^\/\/.*$/gm, ''), /<details|<summary/);
   for (const old of [

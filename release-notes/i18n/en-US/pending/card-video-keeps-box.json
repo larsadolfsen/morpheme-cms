@@ -1,0 +1,6 @@
+{
+  "id": "card-video-keeps-box",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A video in a card keeps its size when you play it, so the card no longer grows"
+}

@@ -14,7 +14,7 @@ export default function BlogPosts({ posts }: { posts: PostView[] }) {
   if (!featured)
     return (
       <div className="rounded-panel bg-surface-container-high p-8">
-        <p className="type-title-medium">{siteT.theme.noPosts}</p>
+        <p className="mo-type-title-medium">{siteT.theme.noPosts}</p>
         <Link href="/blog/" className="link mt-3 inline-block">
           {siteT.theme.seeAllPosts}
         </Link>
@@ -24,19 +24,19 @@ export default function BlogPosts({ posts }: { posts: PostView[] }) {
     <>
       <Link href={featured.href} className="group grid items-center gap-6 medium:gap-12 expanded:grid-cols-12">
         {featured.image && (
-          <div className="overflow-hidden rounded-(--theme-picture-radius) expanded:col-span-7">
+          <div className="overflow-hidden rounded-(--mo-comp-theme-picture-radius) expanded:col-span-7">
             <Img
               image={featured.image}
               alt={featured.imageAlt ?? ''}
               fetchPriority="high"
-              className="aspect-[16/10] w-full object-cover [transition:scale_var(--motion-spatial-slow)] group-hover:scale-[1.03]"
+              className="aspect-[16/10] w-full object-cover [transition:scale_var(--mo-sys-motion-spring-slow-spatial)] group-hover:scale-[1.03]"
               sizes={`(min-width: ${BREAKPOINTS.expanded}px) 55vw, calc(100vw - 40px)`}
             />
           </div>
         )}
         <div className="expanded:col-span-5">
           <PostMeta post={featured} />
-          <h2 className="mt-2 type-headline-medium transition-colors group-hover:text-primary medium:type-headline-large">
+          <h2 className="mo-type-headline-medium medium:mo-type-headline-large mt-2 transition-colors group-hover:text-primary">
             {featured.title}
           </h2>
           <p className="mt-3 text-on-surface-variant">{featured.description}</p>

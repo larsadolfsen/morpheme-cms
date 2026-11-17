@@ -2,11 +2,15 @@
 // the file, the line's text and the reason. Keep it small: a new entry is reviewed.
 export const allow = [
   {
-    file: /base\.css$|blocks\.css$/,
-    line: /^--(radius|radius-small|block-radius|block-radius-small|block-control-radius): /,
+    file: /base\.css$|blocks\.css$|tokens\/(base|blocks)\/sys\.css$/,
+    line: /^--mo-sys-(radius|radius-small|block-radius|block-radius-small|block-control-radius): /,
     reason: 'the fallback corners for a theme that sets no steps (global.css sets the ten steps and maps these to them)',
   },
-  { file: /global\.css$/, line: /^--slider-track-inner-radius: 0\.125rem/, reason: "the slider's inner track corner: M3 draws it 2dp" },
+  {
+    file: /global\.css$|tokens\/material\/comp\/slider\.css$/,
+    line: /^--mo-comp-slider-active-track-inner-corner-corner-size: 0\.125rem/,
+    reason: "the slider's inner track corner: M3 draws it 2dp",
+  },
   {
     file: /base\.css$/,
     line: /^border-radius: 6px/,
@@ -19,13 +23,13 @@ export const allow = [
     reason: "the checkbox's own 2px square corner (M3: 2dp), and the error ring's 3px over it",
   },
   {
-    file: /blocks\.css$|ui\.css$/,
+    file: /blocks\.css$|ui\.css$|cards\.css$/,
     line: /^border-radius: calc\(/,
     reason: 'optical roundness: the container corner minus its padding or border',
   },
   {
     file: /ui\.css$/,
-    line: /^--menu-item-radius, calc|^border-radius: var\(--menu-item-radius, calc/,
+    line: /^--mo-comp-menu-item-radius, calc|^border-radius: var\(--mo-comp-menu-item-radius, calc/,
     reason: 'a menu item inside the container: the container corner minus its padding',
   },
   {
@@ -46,7 +50,7 @@ export const allow = [
       "a crop handle's 3px corner and 1.5px line, the app icon's 22px corner (the icon's own shape, as on a phone's home screen) and a 3px line: not steps of a scale",
   },
   {
-    file: /blocks\.css$|ui\.css$|global\.css$|base\.css$|components\.css$/,
+    file: /blocks\.css$|ui\.css$|cards\.css$|global\.css$|base\.css$|components\.css$/,
     line: /^(font-size|line-height|letter-spacing)\b/,
     reason: 'not yet moved to the type scale: tracked for the next pull request of the shape and type sweep',
   },

@@ -212,7 +212,7 @@ export default function OwnListSheet({
       <Button
         kind="text"
         disabled={busy}
-        style={{ '--button-text-text': 'var(--mo-error)' } as CSSProperties}
+        style={{ '--mo-comp-button-text-label-text-color': 'var(--mo-sys-color-error)' } as CSSProperties}
         onClick={() => void deleteList()}
       >
         {t.ownList.delete}

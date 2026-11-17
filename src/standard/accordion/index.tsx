@@ -2,17 +2,18 @@
 // the opening of the page it links to) and a link to its page with the shared text "Read more about {topic}"
 // (shared.ts), and links to more pages under it (`more`, as pills); with a head (../head.ts). The same
 // rows as "Questions and answers". How it looks is the theme's
-// (packages/editor/theme/blocks/accordion/View.tsx, with ../faq/Accordion.tsx and PageRow.tsx); what it shows: view.ts, and
+// (packages/editor/theme/blocks/accordion/View.tsx, with Accordion.tsx and PageRow.tsx); what it shows: view.ts, and
 // load.ts on the site.
 import { Rows } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { t } from '../../i18n';
 import { headFields } from '../head';
+import { columnsField } from '../columns';
 import { example } from './shared';
 
 export default defineBlock({
   group: 'lists',
-  // An Accordion is a Segmented list now (lib/blocks.mjs); this block stays for one with links to more pages in a row.
+  // An Accordion is a List - Expand now (lib/blocks.mjs); this block stays for one with links to more pages in a row.
   former: true,
   label: t.blocks.accordion.label,
   icon: Rows,
@@ -44,6 +45,7 @@ export default defineBlock({
         },
       ],
     },
+    columnsField(),
   ],
   example,
   detail: (p) => [((p.items ?? []) as { label?: string }[]).map((row) => row.label).join(' · ')],

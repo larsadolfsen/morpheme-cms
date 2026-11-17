@@ -38,8 +38,8 @@ const necessary = category('necessary');
   ]}
   style="margin-bottom: env(safe-area-inset-bottom)"
 >
-  <p class="type-title-large">{cookies.heading}</p>
-  <p class="mt-2 type-body-medium text-on-surface-variant">
+  <p class="mo-type-title-large">{cookies.heading}</p>
+  <p class="mt-2 mo-type-body-medium text-on-surface-variant">
     {cookies.text}{' '}
     <a href={more} class="text-primary underline underline-offset-4">
       {cookies.more}
@@ -60,13 +60,13 @@ const necessary = category('necessary');
       {cookies.yes}
     </button>
   </div>
-  <button type="button" data-consent="choose" class="link mt-3 type-body-medium">
+  <button type="button" data-consent="choose" class="link mt-3 mo-type-body-medium">
     {cookies.choose}
   </button>
   <button type="button" data-consent="save" hidden class={`${buttonClass('outlined')} mt-2.5 w-full`}>
     {cookies.save}
   </button>
-  <p data-consent-id hidden class="type-body-small mt-3 break-all text-on-surface-variant">
+  <p data-consent-id hidden class="mo-type-body-small mt-3 break-all text-on-surface-variant">
     {cookies.consentId}: <span></span>
   </p>
 </div>

@@ -17,17 +17,17 @@ const toolbarCss = css
 test('the bar uses no hard-coded colour', () => {
   const code = toolbarCss.replace(/\/\*[\s\S]*?\*\//g, '');
   assert.doesNotMatch(code, /#[0-9a-f]{3,8}\b|\brgba?\(|\bhsla?\(/i);
-  assert.doesNotMatch(code, /var\(--mo-primary\)/);
+  assert.doesNotMatch(code, /var\(--mo-sys-color-primary\)/);
 });
 
 test('a resting tool is the theme icon button, its colours come from the theme (no rule of the bar sets them), and the bar buttons are 44 dp with a 20 dp icon', () => {
   assert.doesNotMatch(toolbarCss, /\.editor-tools button/);
-  assert.match(ui, /'--icon-button-size': '2\.75rem', '--icon-button-icon-size': '1\.25rem'/);
+  assert.match(ui, /'--mo-comp-icon-button-small-container-height': '2\.75rem',\s*'--mo-comp-icon-button-small-icon-size': '1\.25rem'/);
 });
 
 test('a tool with a menu rests in the same colour as the other tools, not the text button accent', () => {
   assert.match(ui, /className="toolbar-menu-button"/);
-  assert.match(css, /\.toolbar-menu-button[^{]*\{[^}]*color: var\(--icon-button-standard-text,/);
+  assert.match(css, /\.toolbar-menu-button[^{]*\{[^}]*color: var\(--mo-comp-icon-button-standard-icon-color,/);
 });
 
 test('every icon of the text toolbar is Phosphor, or one of the text sizes drawn on its grid', () => {

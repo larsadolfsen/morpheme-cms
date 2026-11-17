@@ -8,6 +8,7 @@ import { siteT, t } from '../../i18n';
 import type { Relation } from '../../schema';
 import { sharedIn } from '../../shared';
 import { headFields } from '../head';
+import { columnsField } from '../columns';
 import type { PostChoice } from '../site';
 import shared, { allPostsText, postCount } from './shared';
 
@@ -137,6 +138,8 @@ export default defineBlock({
       hint: t.blocks.posts.linkHint,
       only: { field: 'show', is: ['categories', 'picked'] },
     },
+    // Only the list design has columns: the newest large is drawn the width of the page.
+    columnsField({ field: 'design', is: [''] }),
   ],
   detail: (p, data) => [postsLine(p, data)],
 });
