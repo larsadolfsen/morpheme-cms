@@ -26,6 +26,7 @@
 @import './tokens/base/comp/chip.css';
 @import './tokens/base/comp/list.css';
 @import './tokens/base/comp/toolbar.css';
+@import './tokens/base/registry.css';
 @import './tokens/base/ref.css';
 @import './tokens/base/sys.css';
 /* Follow the system by default (Modern Web Guidance, dark-mode-toggle: the base stays `light dark`); a picked mode pins it. */
