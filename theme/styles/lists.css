@@ -29,8 +29,13 @@
     box-shadow: 0 var(--list-expand-divider-width, 1px) 0 var(--mo-sys-color-surface-container);
   }
   /* The corners of a segmented list in columns: the list's corners (16dp) are on the first row's and the last row's items, the inner ones are small. The columns follow the
-     list's width (one from 0, two from 712px, three from 1080px: --mo-sys-block-list-column-min and the gutter), which is the window's 760px and 1128px; Columns off is one. */
-  @media (width >= 47.5rem) {
+     list's own width (one from 0, two from 712px, three from 1080px: --mo-sys-block-list-column-min and the grid gutter, --mo-sys-grid-gutter), so it is right in the
+     editor's narrower pane too; Columns off is one. The list is the container its items are measured in. */
+  .list-expand.block-accordion-segmented:not([data-columns='one']),
+  .list-segmented.block-list:not([data-columns='one']) {
+    container-type: inline-size;
+  }
+  @container (width >= 44.5rem) {
     .list-expand.block-accordion-segmented:not([data-columns='one']) > li:nth-child(-n + 2) {
       border-start-start-radius: var(--list-expand-radius, var(--mo-sys-shape-corner-large));
       border-start-end-radius: var(--list-expand-radius, var(--mo-sys-shape-corner-large));
@@ -48,7 +53,7 @@
       border-end-end-radius: max(var(--list-item-shape), var(--list-segmented-radius, var(--mo-sys-block-radius-small)));
     }
   }
-  @media (width >= 70.5rem) {
+  @container (width >= 67.5rem) {
     .list-expand.block-accordion-segmented:not([data-columns='one']) > li:nth-child(3) {
       border-start-start-radius: var(--list-expand-radius, var(--mo-sys-shape-corner-large));
       border-start-end-radius: var(--list-expand-radius, var(--mo-sys-shape-corner-large));
