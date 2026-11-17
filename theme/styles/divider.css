@@ -1,0 +1,37 @@
+/*
+  Dividers (Divider.tsx, dividerClass; m3.material.io/components/divider): .divider, an <hr>, from edge to edge, with
+  .divider-inset (in from the start) or .divider-middle-inset (in from both sides), and .divider-vertical (top to
+  bottom, between things side by side).
+    --divider-color, --divider-thickness, --divider-inset   the line, and how far in an inset one starts
+  Moved here from ui.css with its rules unchanged; imported by base.css right after ui.css, in the same layer. No other rule matches a .divider,
+  so the position does not change what wins (docs/superpowers/plans/2026-11-16-css-split.md).
+*/
+@layer components {
+  /* Dividers. */
+  .divider {
+    flex-shrink: 0;
+    height: 0;
+    margin: 0;
+    border: 0;
+    border-top: var(--divider-thickness, 1px) solid var(--divider-color, var(--block-line));
+  }
+  .divider-inset {
+    margin-inline-start: var(--divider-inset, 1rem);
+  }
+  .divider-middle-inset {
+    margin-inline: var(--divider-inset, 1rem);
+  }
+  .divider-vertical {
+    align-self: stretch;
+    width: 0;
+    height: auto;
+    border-top: 0;
+    border-inline-start: var(--divider-thickness, 1px) solid var(--divider-color, var(--block-line));
+  }
+  .divider-vertical.divider-inset {
+    margin: var(--divider-inset, 1rem) 0 0;
+  }
+  .divider-vertical.divider-middle-inset {
+    margin: var(--divider-inset, 1rem) 0;
+  }
+}
