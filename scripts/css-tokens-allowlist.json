@@ -83,12 +83,6 @@
     }
   ],
   "files": {
-    "theme/styles/tokens/base/comp/carousel.css": {
-      "max": 1
-    },
-    "theme/styles/tokens/base/comp/chip.css": {
-      "max": 1
-    },
     "theme/styles/tokens/base/sys.css": {
       "max": 25
     },
@@ -98,26 +92,8 @@
     "theme/styles/tokens/material/comp/bottom-sheet.css": {
       "max": 4
     },
-    "theme/styles/tokens/material/comp/card.css": {
-      "max": 11
-    },
-    "theme/styles/tokens/material/comp/carousel.css": {
-      "max": 4
-    },
-    "theme/styles/tokens/material/comp/checkbox.css": {
-      "max": 2
-    },
-    "theme/styles/tokens/material/comp/chip.css": {
-      "max": 13
-    },
-    "theme/styles/tokens/material/comp/date-picker.css": {
-      "max": 6
-    },
     "theme/styles/tokens/material/comp/dialog.css": {
       "max": 3
-    },
-    "theme/styles/tokens/material/comp/list.css": {
-      "max": 36
     },
     "theme/styles/tokens/material/comp/menu.css": {
       "max": 24
@@ -128,32 +104,14 @@
     "theme/styles/tokens/material/comp/progress-indicator.css": {
       "max": 4
     },
-    "theme/styles/tokens/material/comp/radio.css": {
-      "max": 3
-    },
-    "theme/styles/tokens/material/comp/search.css": {
-      "max": 14
-    },
     "theme/styles/tokens/material/comp/setting.css": {
       "max": 1
     },
     "theme/styles/tokens/material/comp/side-sheet.css": {
       "max": 2
     },
-    "theme/styles/tokens/material/comp/slider.css": {
-      "max": 24
-    },
     "theme/styles/tokens/material/comp/snackbar.css": {
       "max": 7
-    },
-    "theme/styles/tokens/material/comp/switch.css": {
-      "max": 14
-    },
-    "theme/styles/tokens/material/comp/text-field.css": {
-      "max": 14
-    },
-    "theme/styles/tokens/material/comp/time-picker.css": {
-      "max": 6
     },
     "theme/styles/tokens/material/comp/tooltip.css": {
       "max": 7

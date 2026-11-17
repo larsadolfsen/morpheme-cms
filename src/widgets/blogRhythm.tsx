@@ -34,7 +34,7 @@ export function BlogRhythmWidget({ settings, editing }: WidgetProps) {
             nextDue(last, every).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }),
           );
   return (
-    <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="[--card-padding:1rem]">
+    <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="[--mo-comp-card-padding:1rem]">
       <h2 id={titleId} className="pb-2 font-medium">
         {t.library.blogRhythmWidgetLabel}
       </h2>

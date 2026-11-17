@@ -523,21 +523,21 @@
   the .text-field-input (textFieldInputClass) in the container; with aria-expanded while its menu is open (its edge and name in the accent,
   its arrow up), and in .text-field-small a small box as wide as what is chosen. A read-only field ([readonly]) looks as an enabled one; with the focus its edge is the
   line's colour.
-    --text-field-height, --text-field-padding, --text-field-radius, --text-field-font-size   the field
+    --mo-comp-filled-text-field-container-height, --mo-comp-text-field-padding, --mo-comp-text-field-radius, --mo-comp-text-field-font-size   the field
     --text-field-<kind>-surface, -line, -hover-line, -focus-line   each kind's colours and edge (resting, pointed at,
       written in)
-    --text-field-label-color, --text-field-supporting-color, --text-field-error   the name, the line, and what is wrong
-    --text-field-label-surface   behind the name on an outlined field's edge (what the field stands on)
-    --text-field-icon-size, --text-field-icon-color, --text-field-icon-padding, --text-field-icon-gap   the icons, the
+    --text-field-label-color, --text-field-supporting-color, --mo-comp-text-field-error   the name, the line, and what is wrong
+    --mo-comp-text-field-label-surface   behind the name on an outlined field's edge (what the field stands on)
+    --text-field-icon-size, --text-field-icon-color, --mo-comp-text-field-icon-padding, --mo-comp-text-field-icon-gap   the icons, the
       room between the field's edge and an icon, and between an icon and what is written
-    --text-field-affix-color, --text-field-disabled-opacity   the prefix and the suffix, and a field that cannot be used
+    --text-field-affix-color, --mo-comp-text-field-disabled-opacity   the prefix and the suffix, and a field that cannot be used
     --text-field-multiline-radius   the corners of a field with several lines at most (else a pill's are too round)
   Checkboxes (Checkbox.tsx, checkboxClass, and checkbox.script.ts for the indeterminate state on the site): .checkbox, a
   <label> with the box (.checkbox-box: the <input>, .checkbox-input, ticked :checked or neither :indeterminate, and the
   theme's tick, .checkbox-icon, and dash, .checkbox-indeterminate-icon, shown by a theme that draws the box itself with
   appearance: none) and its text (.checkbox-text: .checkbox-label and .checkbox-supporting); .checkbox-error when it
   is wrong (the <input> aria-invalid, and the line under it saying what is wrong).
-    --checkbox-size, --checkbox-offset, --checkbox-gap, --checkbox-color   the box, how far down beside the name it
+    --mo-comp-checkbox-container-size, --mo-comp-checkbox-offset, --mo-comp-checkbox-gap, --checkbox-color   the box, how far down beside the name it
       stands, the room before the name, and its colour ticked
     --checkbox-label-weight, --checkbox-supporting-color   the name and the line under it
     --checkbox-error   a wrong one's box, the ring round it and the line under it (else the text field's error)
@@ -555,8 +555,8 @@
     display: flex;
     align-items: center;
     min-width: 0;
-    min-height: var(--text-field-box, var(--text-field-height, 3rem));
-    border-radius: var(--text-field-radius, var(--mo-sys-block-control-radius));
+    min-height: var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem));
+    border-radius: var(--mo-comp-text-field-radius, var(--mo-sys-block-control-radius));
     transition:
       box-shadow var(--mo-sys-motion-spring-default-effects),
       background-color var(--mo-sys-motion-spring-default-effects);
@@ -565,20 +565,20 @@
     flex: 1;
     align-self: stretch;
     min-width: 0;
-    min-height: var(--text-field-box, var(--text-field-height, 3rem));
+    min-height: var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem));
     border: 0;
     border-radius: inherit;
-    padding: 0 var(--text-field-padding, 1.25rem);
+    padding: 0 var(--mo-comp-text-field-padding, 1.25rem);
     background: transparent;
     color: var(--mo-sys-block-text);
     font: inherit;
-    font-size: var(--text-field-font-size, var(--mo-sys-typescale-body-large-size));
+    font-size: var(--mo-comp-text-field-font-size, var(--mo-sys-typescale-body-large-size));
   }
   .text-field-input:focus {
     outline: none;
   }
   .text-field-container:has(> .text-field-input:disabled) {
-    opacity: var(--text-field-disabled-opacity, 0.6);
+    opacity: var(--mo-comp-text-field-disabled-opacity, 0.6);
   }
   /* A field that is tapped to choose (a button or a link with the field's classes): what is chosen in it, from the start. */
   :is(button, a).text-field-input {
@@ -599,29 +599,30 @@
     max-width: 100%;
   }
   .text-field:has(.text-field-input:disabled) .text-field-supporting-row {
-    opacity: var(--text-field-disabled-opacity, 0.6);
+    opacity: var(--mo-comp-text-field-disabled-opacity, 0.6);
   }
   .text-field-outlined .text-field-container {
-    background: var(--text-field-outlined-surface, var(--mo-sys-block-surface));
-    box-shadow: inset 0 0 0 1px var(--text-field-outlined-line, var(--mo-sys-block-line));
+    background: var(--mo-comp-text-field-outlined-surface, var(--mo-sys-block-surface));
+    box-shadow: inset 0 0 0 1px var(--mo-comp-outlined-text-field-outline-color, var(--mo-sys-block-line));
   }
   .text-field-outlined .text-field-container:hover {
-    box-shadow: inset 0 0 0 1px var(--text-field-outlined-hover-line, var(--text-field-outlined-line, var(--mo-sys-block-line)));
+    box-shadow: inset 0 0 0 1px
+      var(--mo-comp-outlined-text-field-hover-outline-color, var(--mo-comp-outlined-text-field-outline-color, var(--mo-sys-block-line)));
   }
   .text-field-outlined .text-field-container:has(> .text-field-input:focus) {
-    box-shadow: inset 0 0 0 2px var(--text-field-outlined-focus-line, var(--mo-sys-block-accent));
+    box-shadow: inset 0 0 0 2px var(--mo-comp-outlined-text-field-focus-outline-color, var(--mo-sys-block-accent));
   }
   .text-field-filled .text-field-container {
-    background: var(--text-field-filled-surface, var(--mo-sys-block-tint));
-    box-shadow: inset 0 -1px 0 var(--text-field-filled-line, transparent);
+    background: var(--mo-comp-filled-text-field-container-color, var(--mo-sys-block-tint));
+    box-shadow: inset 0 -1px 0 var(--mo-comp-text-field-filled-line, transparent);
   }
   .text-field-filled .text-field-container:hover {
-    box-shadow: inset 0 -1px 0 var(--text-field-filled-hover-line, var(--text-field-filled-line, transparent));
+    box-shadow: inset 0 -1px 0 var(--mo-comp-text-field-filled-hover-line, var(--mo-comp-text-field-filled-line, transparent));
   }
   /* Written in, or wrong: an edge all round in the accent, whatever the field's shape (a theme with a line under its
      filled fields, square at the bottom, draws the line thicker instead). */
   .text-field-filled .text-field-container:has(> .text-field-input:focus) {
-    box-shadow: inset 0 0 0 2px var(--text-field-filled-focus-line, var(--mo-sys-block-accent));
+    box-shadow: inset 0 0 0 2px var(--mo-comp-text-field-filled-focus-line, var(--mo-sys-block-accent));
   }
   :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
     .text-field-container,
@@ -629,30 +630,31 @@
     .text-field-container:hover,
   :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
     .text-field-container:has(> .text-field-input:is(:focus, [aria-expanded='true'])) {
-    box-shadow: inset 0 0 0 2px var(--text-field-error, var(--mo-sys-block-accent));
+    box-shadow: inset 0 0 0 2px var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
   }
   /* A choice whose menu is open under it (the button's aria-expanded): the edge as with the focus, which has moved into
      the menu; and the arrow turned up. */
   .text-field-outlined .text-field-container:has(> .text-field-input[aria-expanded='true']) {
-    box-shadow: inset 0 0 0 2px var(--text-field-outlined-focus-line, var(--mo-sys-block-accent));
+    box-shadow: inset 0 0 0 2px var(--mo-comp-outlined-text-field-focus-outline-color, var(--mo-sys-block-accent));
   }
   .text-field-filled .text-field-container:has(> .text-field-input[aria-expanded='true']) {
-    box-shadow: inset 0 0 0 2px var(--text-field-filled-focus-line, var(--mo-sys-block-accent));
+    box-shadow: inset 0 0 0 2px var(--mo-comp-text-field-filled-focus-line, var(--mo-sys-block-accent));
   }
   /* Read-only: as an enabled field, and with the focus its edge in the line's colour, as it cannot be written in. */
   .text-field-outlined .text-field-container:has(> .text-field-input[readonly]:focus) {
-    box-shadow: inset 0 0 0 2px var(--text-field-outlined-hover-line, var(--text-field-outlined-line, var(--mo-sys-block-line)));
+    box-shadow: inset 0 0 0 2px
+      var(--mo-comp-outlined-text-field-hover-outline-color, var(--mo-comp-outlined-text-field-outline-color, var(--mo-sys-block-line)));
   }
   .text-field-filled .text-field-container:has(> .text-field-input[readonly]:focus) {
-    box-shadow: inset 0 0 0 2px var(--text-field-filled-hover-line, var(--text-field-filled-line, var(--mo-sys-block-line)));
+    box-shadow: inset 0 0 0 2px var(--mo-comp-text-field-filled-hover-line, var(--mo-comp-text-field-filled-line, var(--mo-sys-block-line)));
   }
   /* The name in the field, above what is written once there is something (or while it is written in); a placeholder
      shows only then. */
   .text-field-label {
     position: absolute;
-    top: calc(var(--text-field-box, var(--text-field-height, 3rem)) / 2);
-    left: var(--text-field-label-start);
-    max-width: calc(100% - var(--text-field-label-start) - var(--text-field-padding, 1.25rem));
+    top: calc(var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) / 2);
+    left: var(--mo-comp-text-field-label-start);
+    max-width: calc(100% - var(--mo-comp-text-field-label-start) - var(--mo-comp-text-field-padding, 1.25rem));
     overflow: hidden;
     color: var(--text-field-label-color, var(--mo-sys-block-muted));
     line-height: 1.25;
@@ -675,23 +677,23 @@
     font-size: var(--mo-sys-typescale-body-small-size);
   }
   .text-field-input:focus + .text-field-label {
-    color: var(--text-field-outlined-focus-line, var(--mo-sys-block-accent));
+    color: var(--mo-comp-outlined-text-field-focus-outline-color, var(--mo-sys-block-accent));
   }
   .text-field-input[readonly]:focus + .text-field-label {
     color: var(--text-field-label-color, var(--mo-sys-block-muted));
   }
   .text-field-outlined .text-field-input[aria-expanded='true'] + .text-field-label {
-    color: var(--text-field-outlined-focus-line, var(--mo-sys-block-accent));
+    color: var(--mo-comp-outlined-text-field-focus-outline-color, var(--mo-sys-block-accent));
   }
   .text-field-filled .text-field-input[aria-expanded='true'] + .text-field-label {
-    color: var(--text-field-filled-focus-line, var(--mo-sys-block-accent));
+    color: var(--mo-comp-text-field-filled-focus-line, var(--mo-sys-block-accent));
   }
   :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
     .text-field-label,
   :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
     .text-field-input:is(:focus, [aria-expanded='true'])
     + .text-field-label {
-    color: var(--text-field-error, var(--mo-sys-block-accent));
+    color: var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
   }
   /* Outlined: the name on the edge, on the field's surface, at its start (also past the icon before it). */
   .text-field-outlined .text-field-input:focus + .text-field-label,
@@ -699,7 +701,7 @@
     top: 0;
     margin-left: -0.25rem;
     padding: 0 0.25rem;
-    background: var(--text-field-label-surface, var(--text-field-outlined-surface, var(--mo-sys-block-surface)));
+    background: var(--mo-comp-text-field-label-surface, var(--mo-comp-text-field-outlined-surface, var(--mo-sys-block-surface)));
   }
   /* Filled: the name at the top of the field, what is written under it. */
   .text-field-filled:has(.text-field-label) :is(.text-field-input, .text-field-prefix, .text-field-suffix) {
@@ -711,7 +713,7 @@
     transform: none;
   }
   .text-field-filled .text-field-input:focus + .text-field-label {
-    color: var(--text-field-filled-focus-line, var(--mo-sys-block-accent));
+    color: var(--mo-comp-text-field-filled-focus-line, var(--mo-sys-block-accent));
   }
 
   /* The icons and the text before and after what is written. */
@@ -723,13 +725,13 @@
     color: var(--text-field-icon-color, var(--mo-sys-block-muted));
   }
   .text-field-leading-icon {
-    margin-inline-start: var(--text-field-icon-padding, 0.875rem);
+    margin-inline-start: var(--mo-comp-text-field-icon-padding, 0.875rem);
   }
   .text-field-leading-icon + :is(.text-field-prefix, .text-field-input) {
-    padding-inline-start: var(--text-field-icon-gap, 0.75rem);
+    padding-inline-start: var(--mo-comp-text-field-icon-gap, 0.75rem);
   }
   .text-field-trailing-icon {
-    margin-inline-end: var(--text-field-icon-padding, 0.875rem);
+    margin-inline-end: var(--mo-comp-text-field-icon-padding, 0.875rem);
     transition: rotate var(--mo-sys-motion-spring-fast-spatial);
   }
   .text-field-container:has(> button.text-field-input[aria-expanded='true']) > .text-field-trailing-icon {
@@ -747,7 +749,7 @@
   :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
     .text-field-container:has(> .text-field-error-icon)
     > :is(.text-field-input, .text-field-suffix):not(:has(~ .text-field-suffix)) {
-    padding-inline-end: var(--text-field-icon-gap, 0.75rem);
+    padding-inline-end: var(--mo-comp-text-field-icon-gap, 0.75rem);
   }
   .text-field-prefix,
   .text-field-suffix {
@@ -758,10 +760,10 @@
     transition: opacity var(--mo-sys-motion-spring-default-effects);
   }
   .text-field-prefix {
-    padding-inline-start: var(--text-field-padding, 1.25rem);
+    padding-inline-start: var(--mo-comp-text-field-padding, 1.25rem);
   }
   .text-field-suffix {
-    padding-inline-end: var(--text-field-padding, 1.25rem);
+    padding-inline-end: var(--mo-comp-text-field-padding, 1.25rem);
   }
   .text-field-container:has(> .text-field-prefix) > .text-field-input {
     padding-inline-start: 0.25rem;
@@ -783,7 +785,7 @@
   :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
     .text-field-error-icon {
     display: block;
-    color: var(--text-field-error, var(--mo-sys-block-accent));
+    color: var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
   }
   :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
     .text-field-container:has(> .text-field-error-icon)
@@ -803,12 +805,12 @@
   .text-field-multiline .text-field-container {
     align-items: flex-start;
     border-radius: min(
-      var(--text-field-radius, var(--mo-sys-block-control-radius)),
+      var(--mo-comp-text-field-radius, var(--mo-sys-block-control-radius)),
       var(--text-field-multiline-radius, var(--mo-sys-block-radius))
     );
   }
   .text-field-multiline .text-field-input {
-    padding-block: calc((var(--text-field-box, var(--text-field-height, 3rem)) - 1lh) / 2);
+    padding-block: calc((var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) - 1lh) / 2);
     resize: none;
   }
   .text-field-multiline .text-field-input[data-text-field-grow] {
@@ -816,14 +818,20 @@
     overflow: hidden;
   }
   .text-field-multiline :is(.text-field-leading-icon, .text-field-trailing-icon) {
-    margin-top: calc((var(--text-field-box, var(--text-field-height, 3rem)) - var(--text-field-icon-size, 1.25rem)) / 2);
+    margin-top: calc(
+      (var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) - var(--text-field-icon-size, 1.25rem)) / 2
+    );
   }
   .text-field-multiline :is(.text-field-prefix, .text-field-suffix) {
-    margin-top: calc((var(--text-field-box, var(--text-field-height, 3rem)) - 1lh) / 2);
+    margin-top: calc((var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) - 1lh) / 2);
   }
   .text-field-multiline .text-field-trailing-action {
     margin-top: calc(
-      (var(--text-field-box, var(--text-field-height, 3rem)) - var(--mo-comp-icon-button-small-container-height, 2.75rem)) / 2
+      (
+          var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) -
+            var(--mo-comp-icon-button-small-container-height, 2.75rem)
+        ) /
+        2
     );
   }
 
@@ -831,7 +839,7 @@
   .text-field-supporting-row {
     display: flex;
     gap: 1rem;
-    margin: 0.25rem var(--text-field-padding, 1.25rem) 0;
+    margin: 0.25rem var(--mo-comp-text-field-padding, 1.25rem) 0;
     color: var(--text-field-supporting-color, var(--mo-sys-block-muted));
     font-size: var(--mo-sys-typescale-body-small-size);
     line-height: var(--mo-sys-typescale-body-small-line-height);
@@ -844,7 +852,7 @@
   }
   :is(.text-field-error, .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text)))
     .text-field-supporting {
-    color: var(--text-field-error, var(--mo-sys-block-accent));
+    color: var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
   }
   /* What is said when the browser finds the field invalid after the person has worked in it (invalidText, `:user-invalid`):
      it takes the place of the line under the field and does not add one (m3.material.io/components/text-fields/guidelines,
@@ -866,14 +874,14 @@
   }
   /* Past what it should have at most (limit): in the error's colour. */
   .text-field-counter-over {
-    color: var(--text-field-error, var(--mo-sys-block-accent));
+    color: var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
   }
 
   /* Checkboxes (m3.material.io/components/checkbox): the box beside its name, the browser's own in the accent. */
   .checkbox {
     display: flex;
     align-items: flex-start;
-    gap: var(--checkbox-gap, 0.75rem);
+    gap: var(--mo-comp-checkbox-gap, 0.75rem);
     cursor: pointer;
   }
   .checkbox:has(.checkbox-input:disabled) {
@@ -884,11 +892,11 @@
     display: grid;
     flex-shrink: 0;
     place-items: center;
-    margin-top: var(--checkbox-offset, 0.25rem);
+    margin-top: var(--mo-comp-checkbox-offset, 0.25rem);
   }
   .checkbox-input {
-    width: var(--checkbox-size, 1rem);
-    height: var(--checkbox-size, 1rem);
+    width: var(--mo-comp-checkbox-container-size, 1rem);
+    height: var(--mo-comp-checkbox-container-size, 1rem);
     margin: 0;
     accent-color: var(--checkbox-color, var(--mo-sys-block-accent));
     cursor: inherit;
@@ -902,12 +910,12 @@
   /* Wrong: the box in the error's colour with a ring round it, and the line under it saying why. */
   .checkbox-error .checkbox-input {
     border-radius: 0.1875rem;
-    outline: 2px solid var(--checkbox-error, var(--text-field-error, var(--mo-sys-block-accent)));
+    outline: 2px solid var(--checkbox-error, var(--mo-comp-text-field-error, var(--mo-sys-block-accent)));
     outline-offset: 1px;
-    accent-color: var(--checkbox-error, var(--text-field-error, var(--mo-sys-block-accent)));
+    accent-color: var(--checkbox-error, var(--mo-comp-text-field-error, var(--mo-sys-block-accent)));
   }
   .checkbox-error .checkbox-supporting {
-    color: var(--checkbox-error, var(--text-field-error, var(--mo-sys-block-accent)));
+    color: var(--checkbox-error, var(--mo-comp-text-field-error, var(--mo-sys-block-accent)));
   }
   .checkbox-label {
     display: block;
@@ -932,15 +940,15 @@
   .chip-dragged: while it is dragged; disabled (:disabled, or aria-disabled="true" on what is not a button): seen
   through and not to be used. .chip-removable: an input chip as a <span> with its own button (.chip-action) and the one
   that removes it (.chip-remove), chosen with data-selected.
-    --chip-height, --chip-padding, --chip-gap, --chip-radius, --chip-font-size, --chip-icon-size   its size and label
-    --chip-surface, --chip-line, --chip-hover-text, --chip-hover-line   its colours and edge, and pointed at
-    --chip-selected-surface, --chip-selected-hover, --chip-selected-text   a chosen chip, and pointed at
+    --mo-comp-filter-chip-container-height, --mo-comp-chip-padding, --chip-gap, --mo-comp-filter-chip-container-shape, --chip-font-size, --chip-icon-size   its size and label
+    --mo-comp-chip-surface, --mo-comp-filter-chip-flat-unselected-outline-color, --mo-comp-chip-hover-text, --mo-comp-chip-hover-line   its colours and edge, and pointed at
+    --mo-comp-filter-chip-flat-selected-container-color, --mo-comp-chip-selected-hover, --mo-comp-filter-chip-selected-label-text-color   a chosen chip, and pointed at
     --chip-selected-hover-shadow   a chosen filter chip pointed at (level 1)
-    --chip-selected-check   whether a chosen filter chip shows its check (none, or a display value: block)
+    --mo-comp-chip-selected-check   whether a chosen filter chip shows its check (none, or a display value: block)
     --chip-elevated-surface, --chip-elevated-shadow, --chip-elevated-hover-shadow   an elevated chip (level 1), and
                      pointed at (level 2; a theme that sets only the one at rest keeps it); pressed, as at rest
     --chip-dragged-shadow   the shadow that lifts a dragged chip (level 4)
-    --chip-text   the label and icon of a chip that is not chosen
+    --mo-comp-filter-chip-unselected-label-text-color   the label and icon of a chip that is not chosen
     --chip-disabled-text, --chip-disabled-line, --chip-disabled-selected-surface   a disabled chip (38%, 12% and 12% of on surface)
     --chip-avatar-size, --chip-avatar-padding   a person's image, and the room before it
   The label's weight and line height are the text's; a theme sets them with a rule on .chip.
@@ -950,15 +958,15 @@
     display: inline-flex;
     align-items: center;
     gap: var(--chip-gap, 0.5rem);
-    min-height: calc(var(--chip-height, 0px) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    min-height: calc(var(--mo-comp-filter-chip-container-height, 0px) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
     border: 0;
-    border-radius: var(--chip-radius, var(--mo-sys-block-control-radius));
-    padding: var(--chip-padding, 0.55rem 1rem);
-    /* Density takes 2 px off each side, never the text; --chip-padding-block (else 0.55rem) is the room today. */
-    padding-block: calc(var(--chip-padding-block, 0.55rem) + var(--mo-sys-density-layout) * var(--mo-sys-density-step) / 2);
-    background: var(--chip-surface, var(--mo-sys-block-surface));
-    color: var(--chip-text, inherit);
-    box-shadow: inset 0 0 0 1px var(--chip-line, var(--mo-sys-block-line));
+    border-radius: var(--mo-comp-filter-chip-container-shape, var(--mo-sys-block-control-radius));
+    padding: var(--mo-comp-chip-padding, 0.55rem 1rem);
+    /* Density takes 2 px off each side, never the text; --mo-comp-chip-padding-block (else 0.55rem) is the room today. */
+    padding-block: calc(var(--mo-comp-chip-padding-block, 0.55rem) + var(--mo-sys-density-layout) * var(--mo-sys-density-step) / 2);
+    background: var(--mo-comp-chip-surface, var(--mo-sys-block-surface));
+    color: var(--mo-comp-filter-chip-unselected-label-text-color, inherit);
+    box-shadow: inset 0 0 0 1px var(--mo-comp-filter-chip-flat-unselected-outline-color, var(--mo-sys-block-line));
     font-family: inherit;
     font-size: var(--chip-font-size, var(--mo-sys-typescale-label-large-size));
     line-height: var(--mo-sys-typescale-label-large-line-height);
@@ -998,8 +1006,8 @@
     height: var(--chip-icon-size, 1.125rem);
   }
   .chip:hover {
-    box-shadow: inset 0 0 0 1px var(--chip-hover-line, var(--mo-sys-block-accent));
-    color: var(--chip-hover-text, var(--mo-sys-block-accent));
+    box-shadow: inset 0 0 0 1px var(--mo-comp-chip-hover-line, var(--mo-sys-block-accent));
+    color: var(--mo-comp-chip-hover-text, var(--mo-sys-block-accent));
   }
   /* A filter chip's check: only on the chosen one, and only where the theme shows it. */
   .chip > .chip-check {
@@ -1009,19 +1017,19 @@
   .chip-filter:is([aria-pressed='true'], [aria-current='page']),
   .chip:is(.chip-input, .chip-suggestion)[aria-pressed='true'],
   .chip-removable[data-selected] {
-    background: var(--chip-selected-surface, var(--mo-sys-block-accent));
+    background: var(--mo-comp-filter-chip-flat-selected-container-color, var(--mo-sys-block-accent));
     box-shadow: none;
-    color: var(--chip-selected-text, var(--mo-sys-block-on-accent));
+    color: var(--mo-comp-filter-chip-selected-label-text-color, var(--mo-sys-block-on-accent));
   }
   .chip-filter:is([aria-pressed='true'], [aria-current='page']):hover,
   .chip:is(.chip-input, .chip-suggestion)[aria-pressed='true']:hover,
   .chip-removable[data-selected]:hover {
-    background: var(--chip-selected-hover, var(--chip-selected-surface, var(--mo-sys-block-accent)));
+    background: var(--mo-comp-chip-selected-hover, var(--mo-comp-filter-chip-flat-selected-container-color, var(--mo-sys-block-accent)));
     box-shadow: none;
-    color: var(--chip-selected-text, var(--mo-sys-block-on-accent));
+    color: var(--mo-comp-filter-chip-selected-label-text-color, var(--mo-sys-block-on-accent));
   }
   .chip-filter:is([aria-pressed='true'], [aria-current='page']) > .chip-check {
-    display: var(--chip-selected-check, none);
+    display: var(--mo-comp-chip-selected-check, none);
   }
   /* A chosen filter chip is lifted to level 1 when pointed at, and is on the page again while pressed (M3). */
   .chip-filter:is([aria-pressed='true'], [aria-current='page']):hover {
@@ -1096,7 +1104,7 @@
   .chip-dragged,
   .chip-dragged:hover {
     box-shadow:
-      inset 0 0 0 1px var(--chip-line, var(--mo-sys-block-line)),
+      inset 0 0 0 1px var(--mo-comp-filter-chip-flat-unselected-outline-color, var(--mo-sys-block-line)),
       var(--chip-dragged-shadow, var(--mo-sys-elevation-level4-shadow));
     cursor: grabbing;
   }
@@ -1125,7 +1133,7 @@
   .chip-set-wrap on as many lines as they need, or .chip-set-scroll on one line that scrolls sideways without a
   scrollbar, out to the edges of the screen (the chips keep their width; room above and below for their focus ring).
     --chip-set-gap   the room between the chips
-    --chip-set-bleed   how far a scrolling one reaches out to the edges of the screen (the page's gutter), where its
+    --mo-comp-chip-set-bleed   how far a scrolling one reaches out to the edges of the screen (the page's gutter), where its
                      first chip still starts in line with the text
 */
 @layer components {
@@ -1141,9 +1149,9 @@
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
-    padding: 0.5rem var(--chip-set-bleed, 0rem);
-    margin: -0.5rem calc(-1 * var(--chip-set-bleed, 0rem));
-    scroll-padding-inline: var(--chip-set-bleed, 0rem);
+    padding: 0.5rem var(--mo-comp-chip-set-bleed, 0rem);
+    margin: -0.5rem calc(-1 * var(--mo-comp-chip-set-bleed, 0rem));
+    scroll-padding-inline: var(--mo-comp-chip-set-bleed, 0rem);
   }
   .chip-set-scroll::-webkit-scrollbar {
     display: none;
@@ -1802,9 +1810,9 @@
   with a thin edge); a card that is a link is an <a class="card …">, the whole card the link, lifted and tinted when pointed at or focused;
   .card-dragged while it is dragged to another place. What is on it (its icon, heading, text, image) is the block's
   own (block-…).
-    --card-radius, --card-padding   its corners and the room inside it (16px, as Material 3's)
-    --card-gap                      the editor's small step for a block's row and handle (8px); the room between cards is --mo-sys-grid-gutter (16px, 24px from medium)
-    --card-media-gap, --card-subhead-gap, --card-text-gap, --card-action-gap   inside a "Cards" card (blocks.css): the media to the
+    --mo-comp-card-radius, --mo-comp-card-padding   its corners and the room inside it (16px, as Material 3's)
+    --mo-comp-card-gap                      the editor's small step for a block's row and handle (8px); the room between cards is --mo-sys-grid-gutter (16px, 24px from medium)
+    --mo-comp-card-media-gap, --mo-comp-card-subhead-gap, --mo-comp-card-text-gap, --mo-comp-card-action-gap   inside a "Cards" card (blocks.css): the media to the
                                     headline (16px), the headline to the subhead (4px), to the text (8px), the text to the link or buttons (16px)
     --card-hover-layer, --card-focus-layer   the state layer of a card that links, in its text's colour: pointed at 8%,
                                     focused 10% (opacity)
@@ -1814,7 +1822,7 @@
     --card-<kind>-hover-shadow      a card that is a link (an elevated one: a button too), pointed at: elevated level 2, filled and outlined level 1 (a
                                     theme that sets only the one at rest keeps it); pressed, as at rest
     --card-<kind>-dragged-shadow    dragged: elevated level 4, filled and outlined level 3
-  Set here by the kind and the state, not by a theme: --card-shadow, the shadow a card has now (a block that draws
+  Set here by the kind and the state, not by a theme: --mo-comp-card-shadow, the shadow a card has now (a block that draws
   the card's edge itself, .block-card, takes it).
   Lists (List.tsx, listClass, listClasses, listItemClass; m3.material.io/components/lists): .list (a <ul>, a line
   between its items; .list-dividers-inset from where the text starts, .list-dividers-middle-inset in from both sides,
@@ -1833,31 +1841,31 @@
   each <li> is the item's surface (also around what is beside its container in it: a button, fields folded out), the
   first and the last with the list's corners. A multi-action item (.list-item-multi-action): an item's container and
   secondary actions beside it on one row, which has the container's state.
-    --list-divider   the line between the items (transparent for none)
-    --list-item-min-height, --list-item-two-line-min-height, --list-item-three-line-min-height   by its lines
-    --list-item-padding-block, --list-item-padding-inline, --list-item-gap
-    --list-item-radius, --list-item-hover-radius, --list-item-pressed-radius (also focused), --list-item-selected-radius
-    --list-item-headline-size, --list-item-headline-weight   the headline of every item
-    --list-item-headline-line-height, --list-item-headline-letter-spacing   the headline of every item
+    --mo-comp-list-divider-color   the line between the items (transparent for none)
+    --mo-comp-list-list-item-container-height, --mo-comp-list-item-two-line-min-height, --mo-comp-list-item-three-line-min-height   by its lines
+    --mo-comp-list-item-padding-block, --mo-comp-list-item-padding-inline, --mo-comp-list-item-gap
+    --mo-comp-list-list-item-container-shape, --mo-comp-list-item-hover-radius, --mo-comp-list-item-pressed-radius (also focused), --mo-comp-list-item-selected-radius
+    --mo-comp-list-item-headline-size, --mo-comp-list-item-headline-weight   the headline of every item
+    --mo-comp-list-item-headline-line-height, --mo-comp-list-item-headline-letter-spacing   the headline of every item
     --list-item-supporting-size, --list-item-supporting-line-height, --list-item-overline-size,
     --list-item-overline-line-height, --list-item-trailing-supporting-size   the other texts' size
-    --list-item-supporting-text, --list-item-trailing-text, --list-item-overline-text   their colours
-    --list-item-hover-text, --list-item-hover-surface   an item that links or is a choice, pointed at
-    --list-item-pressed-surface (else the hover surface), --list-item-focus-surface (else the pressed one),
-    --list-item-focus-indicator-color (the 3dp ring inside a focused item; else the accent),
-    --list-item-hover-icon-color (the leading icon and what trails it, pointed at; else the item's text
-    colour for the leading icon, the hover text for what trails), --list-item-hover-trailing-shift (what trails it moves
+    --list-item-supporting-text, --mo-comp-list-item-trailing-text, --list-item-overline-text   their colours
+    --mo-comp-list-item-hover-text, --mo-comp-list-item-hover-surface   an item that links or is a choice, pointed at
+    --mo-comp-list-item-pressed-surface (else the hover surface), --mo-comp-list-item-focus-surface (else the pressed one),
+    --mo-comp-list-item-focus-indicator-color (the 3dp ring inside a focused item; else the accent),
+    --mo-comp-list-item-hover-icon-color (the leading icon and what trails it, pointed at; else the item's text
+    colour for the leading icon, the hover text for what trails), --mo-comp-list-item-hover-trailing-shift (what trails it moves
     aside when pointed at; 0 for not)
-    --list-item-selected-surface, --list-item-selected-text, --list-item-selected-weight, --list-item-disabled-opacity
-    --list-item-leading-icon-color, --list-item-leading-icon-selected-color (ListItemLeadingIcon's `selected`)
-    --list-item-icon-size   the icons that lead and trail an item
-    --list-item-leading-size (what leads an item of its own, for an inset divider)
-    --list-item-avatar-size, --list-item-avatar-surface, --list-item-avatar-text, --list-item-image-size,
-    --list-item-image-radius, --list-item-video-width, --list-item-video-height   the leading kinds
-    --list-segmented-gap, --list-segmented-radius (the list's corners), --list-segmented-inner-radius,
-    --list-segmented-hover-radius, --list-segmented-pressed-radius, --list-segmented-selected-radius,
-    --list-segmented-padding-inline, --list-segmented-surface, --list-segmented-hover-surface (over the surface),
-    --list-segmented-pressed-surface, --list-segmented-disabled-surface,
+    --mo-comp-list-list-item-selected-container-color, --mo-comp-list-list-item-selected-label-text-color, --mo-comp-list-item-selected-weight, --mo-comp-list-item-disabled-opacity
+    --mo-comp-list-list-item-leading-icon-color, --mo-comp-list-item-leading-icon-selected-color (ListItemLeadingIcon's `selected`)
+    --mo-comp-list-item-icon-size   the icons that lead and trail an item
+    --mo-comp-list-item-leading-size (what leads an item of its own, for an inset divider)
+    --list-item-avatar-size, --list-item-avatar-surface, --list-item-avatar-text, --mo-comp-list-item-image-size,
+    --mo-comp-list-item-image-radius, --list-item-video-width, --list-item-video-height   the leading kinds
+    --mo-comp-list-segmented-gap, --mo-comp-list-segmented-radius (the list's corners), --mo-comp-list-segmented-inner-radius,
+    --mo-comp-list-segmented-hover-radius, --mo-comp-list-segmented-pressed-radius, --mo-comp-list-segmented-selected-radius,
+    --mo-comp-list-segmented-padding-inline, --mo-comp-list-list-item-segmented-container-color, --mo-comp-list-segmented-hover-surface (over the surface),
+    --mo-comp-list-segmented-pressed-surface, --mo-comp-list-segmented-disabled-surface,
     --list-segmented-selected-surface, --list-segmented-selected-text   a segmented list
 */
 @layer components {
@@ -1886,16 +1894,16 @@
     list-style: none;
   }
   .list > li + li {
-    border-top: 1px solid var(--list-divider, var(--mo-sys-block-line));
+    border-top: 1px solid var(--mo-comp-list-divider-color, var(--mo-sys-block-line));
   }
-  /* --list-item-shape: the item's corners now, by its state (below). */
+  /* --mo-comp-list-item-shape: the item's corners now, by its state (below). */
   .list-item-container {
     display: flex;
-    min-height: var(--list-item-box, auto);
+    min-height: var(--mo-comp-list-item-box, auto);
     align-items: center;
-    gap: var(--list-item-gap, 1.5rem);
-    border-radius: var(--list-item-shape);
-    padding: var(--list-item-padding-block, 0.85rem) var(--list-item-padding-inline, 0);
+    gap: var(--mo-comp-list-item-gap, 1.5rem);
+    border-radius: var(--mo-comp-list-item-shape);
+    padding: var(--mo-comp-list-item-padding-block, 0.85rem) var(--mo-comp-list-item-padding-inline, 0);
     color: inherit;
     text-decoration: none;
     transition:
@@ -1906,7 +1914,7 @@
      rows). */
   .list-item-two-line,
   .list-item-container:not(.list-item-three-line):has(> .list-item-content > .list-item-supporting) {
-    min-height: var(--list-item-two-line-box, var(--list-item-box, auto));
+    min-height: var(--mo-comp-list-item-two-line-box, var(--mo-comp-list-item-box, auto));
   }
   /* Room enough over and under its two lines for its height, so they and what stands beside them are in the middle
      of an item whose text has no more lines, and at the same place in one whose text runs over more (not with a
@@ -1914,10 +1922,13 @@
   :is(.list-item-two-line, .list-item-container:not(.list-item-three-line):has(> .list-item-content > .list-item-supporting)):not(
     :has(> :is(.list-item-leading-image, .list-item-leading-video))
   ) {
-    padding-block: max(var(--list-item-padding-block, 0.85rem), (var(--list-item-two-line-box, 0px) - var(--list-item-first-lines)) / 2);
+    padding-block: max(
+      var(--mo-comp-list-item-padding-block, 0.85rem),
+      (var(--mo-comp-list-item-two-line-box, 0px) - var(--mo-comp-list-item-first-lines)) / 2
+    );
   }
   .list-item-three-line {
-    min-height: var(--list-item-three-line-box, var(--list-item-box, auto));
+    min-height: var(--mo-comp-list-item-three-line-box, var(--mo-comp-list-item-box, auto));
   }
   .list-item-leading,
   .list-item-trailing {
@@ -1932,8 +1943,8 @@
     align-items: center;
     /* Also beside a text that is not an item's (the editor's rows): the lines' height. */
     max-height: var(
-      --list-item-first-lines,
-      calc(var(--list-item-headline-line-height, 1lh) + var(--list-item-supporting-line-height, 1lh))
+      --mo-comp-list-item-first-lines,
+      calc(var(--mo-comp-list-item-headline-line-height, 1lh) + var(--list-item-supporting-line-height, 1lh))
     );
   }
   /* An image higher than the lines stands in the middle of the item. */
@@ -1964,10 +1975,10 @@
     }
   }
   .list-item-headline {
-    font-size: var(--list-item-headline-size, var(--mo-sys-typescale-body-large-size));
-    font-weight: var(--list-item-headline-weight, var(--mo-sys-typescale-body-large-weight));
-    line-height: var(--list-item-headline-line-height, var(--mo-sys-typescale-body-large-line-height));
-    letter-spacing: var(--list-item-headline-letter-spacing, var(--mo-sys-typescale-body-large-tracking));
+    font-size: var(--mo-comp-list-item-headline-size, var(--mo-sys-typescale-body-large-size));
+    font-weight: var(--mo-comp-list-item-headline-weight, var(--mo-sys-typescale-body-large-weight));
+    line-height: var(--mo-comp-list-item-headline-line-height, var(--mo-sys-typescale-body-large-line-height));
+    letter-spacing: var(--mo-comp-list-item-headline-letter-spacing, var(--mo-sys-typescale-body-large-tracking));
     overflow-wrap: anywhere;
   }
   .list-item-supporting {
@@ -1978,7 +1989,7 @@
     overflow-wrap: anywhere;
   }
   .list-item-trailing {
-    color: var(--list-item-trailing-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-list-item-trailing-text, var(--mo-sys-block-muted));
     transition: transform var(--mo-sys-motion-spring-default-spatial);
   }
   /* An item that is tapped (a button: the editor's rows) is as one that links. */
@@ -1988,32 +1999,35 @@
     cursor: pointer;
   }
   :is(a, button:enabled).list-item-container:hover {
-    background: var(--list-item-hover-surface, transparent);
-    color: var(--list-item-hover-text, var(--mo-sys-block-accent));
+    background: var(--mo-comp-list-item-hover-surface, transparent);
+    color: var(--mo-comp-list-item-hover-text, var(--mo-sys-block-accent));
   }
   :is(a, button:enabled).list-item-container:hover .list-item-trailing {
-    transform: translateX(var(--list-item-hover-trailing-shift, 3px));
-    color: var(--list-item-hover-icon-color, var(--list-item-hover-text, var(--mo-sys-block-accent)));
+    transform: translateX(var(--mo-comp-list-item-hover-trailing-shift, 3px));
+    color: var(--mo-comp-list-item-hover-icon-color, var(--mo-comp-list-item-hover-text, var(--mo-sys-block-accent)));
   }
   :is(a, button:enabled).list-item-container:hover .list-item-leading-icon {
-    color: var(--list-item-hover-icon-color, inherit);
+    color: var(--mo-comp-list-item-hover-icon-color, inherit);
   }
   /* A selected item keeps its colours when pointed at: its text and its icons. */
   :is(a, button:enabled).list-item-container.list-item-selected:hover {
-    color: var(--list-item-selected-text, var(--mo-sys-block-accent));
+    color: var(--mo-comp-list-list-item-selected-label-text-color, var(--mo-sys-block-accent));
   }
   :is(a, button:enabled).list-item-container.list-item-selected:hover :is(.list-item-leading-icon, .list-item-trailing) {
     color: inherit;
   }
-  /* Focused (by the keyboard): M3's focus layer (--list-item-focus-surface, else the pressed one) and its focus
+  /* Focused (by the keyboard): M3's focus layer (--mo-comp-list-item-focus-surface, else the pressed one) and its focus
      indicator: 3dp, inside the item. A choice's row has them while its control has the focus. */
   :is(a, button:enabled).list-item-container:focus-visible {
-    background: var(--list-item-focus-surface, var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent)));
+    background: var(
+      --mo-comp-list-item-focus-surface,
+      var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent))
+    );
   }
   :is(a, button:enabled).list-item-container:focus-visible,
   .list-item-with-control:not(.list-item-disabled):has(:focus-visible),
   .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:focus-visible) {
-    outline: 3px solid var(--list-item-focus-indicator-color, var(--mo-sys-color-primary));
+    outline: 3px solid var(--mo-comp-list-item-focus-indicator-color, var(--mo-sys-color-primary));
     outline-offset: -3px;
   }
   .list-item-with-control :focus-visible,
@@ -2023,7 +2037,7 @@
   /* Pressed: a stronger state layer. */
   :is(a, button:enabled).list-item-container:active,
   .list-item-with-control:not(.list-item-disabled):active {
-    background: var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent));
+    background: var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent));
   }
 
   /* Three lines: an overline over the headline and one line under it, or two lines under it; what leads and trails
@@ -2055,7 +2069,7 @@
   .list-item-trailing-supporting {
     display: flex;
     flex-shrink: 0;
-    color: var(--list-item-trailing-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-list-item-trailing-text, var(--mo-sys-block-muted));
     font-size: var(--list-item-trailing-supporting-size, var(--mo-sys-typescale-label-small-size));
     font-weight: var(--mo-sys-typescale-label-small-weight);
     line-height: var(--mo-sys-typescale-label-small-line-height);
@@ -2064,14 +2078,14 @@
   }
 
   /* What leads it, Material's kinds: an icon, an avatar (a letter, or an image), an image or a video's thumbnail. The
-     icons that lead and trail an item as large as --list-item-icon-size. */
+     icons that lead and trail an item as large as --mo-comp-list-item-icon-size. */
   .list-item-leading-icon {
-    color: var(--list-item-leading-icon-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-list-list-item-leading-icon-color, var(--mo-sys-block-muted));
     transition: color var(--mo-sys-motion-spring-default-effects);
   }
   :is(.list-item-leading-icon, .list-item-trailing) > svg {
-    width: var(--list-item-icon-size, 1.5rem);
-    height: var(--list-item-icon-size, 1.5rem);
+    width: var(--mo-comp-list-item-icon-size, 1.5rem);
+    height: var(--mo-comp-list-item-icon-size, 1.5rem);
   }
   .list-item-avatar {
     display: grid;
@@ -2086,15 +2100,15 @@
     object-fit: cover;
   }
   .list-item-image {
-    width: var(--list-item-image-size, 3.5rem);
-    height: var(--list-item-image-size, 3.5rem);
-    border-radius: var(--list-item-image-radius, var(--mo-sys-block-radius-small));
+    width: var(--mo-comp-list-item-image-size, 3.5rem);
+    height: var(--mo-comp-list-item-image-size, 3.5rem);
+    border-radius: var(--mo-comp-list-item-image-radius, var(--mo-sys-block-radius-small));
     object-fit: cover;
   }
   .list-item-video {
     width: var(--list-item-video-width, 7.125rem);
     height: var(--list-item-video-height, 4rem);
-    border-radius: var(--list-item-image-radius, var(--mo-sys-block-radius-small));
+    border-radius: var(--mo-comp-list-item-image-radius, var(--mo-sys-block-radius-small));
     object-fit: cover;
   }
 
@@ -2119,11 +2133,14 @@
     flex-shrink: 0;
   }
   .list-item-with-control:not(.list-item-disabled):hover {
-    background: var(--list-item-hover-surface, transparent);
-    color: var(--list-item-hover-text, var(--mo-sys-block-accent));
+    background: var(--mo-comp-list-item-hover-surface, transparent);
+    color: var(--mo-comp-list-item-hover-text, var(--mo-sys-block-accent));
   }
   .list-item-with-control:not(.list-item-disabled):has(:focus-visible) {
-    background: var(--list-item-focus-surface, var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent)));
+    background: var(
+      --mo-comp-list-item-focus-surface,
+      var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent))
+    );
   }
 
   /* A multi-action item (Material's, List.tsx's listItemMultiActionClass): its primary action, an item's container (a
@@ -2133,7 +2150,7 @@
   .list-item-multi-action {
     display: flex;
     align-items: center;
-    border-radius: var(--list-item-shape);
+    border-radius: var(--mo-comp-list-item-shape);
     transition:
       background-color var(--mo-sys-motion-spring-default-effects),
       border-radius var(--mo-sys-motion-spring-fast-spatial);
@@ -2147,13 +2164,16 @@
     background: transparent;
   }
   .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:hover) {
-    background: var(--list-item-hover-surface, transparent);
+    background: var(--mo-comp-list-item-hover-surface, transparent);
   }
   .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:focus-visible) {
-    background: var(--list-item-focus-surface, var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent)));
+    background: var(
+      --mo-comp-list-item-focus-surface,
+      var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent))
+    );
   }
   .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:active) {
-    background: var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent));
+    background: var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent));
   }
 
   /* An item a long press selects (List.tsx `selectable`): the press selects it, not its text, and opens no menu. */
@@ -2228,46 +2248,46 @@
   /* Expand (ListItem `expand` in a List with `expand`: Material's "List - Expand", m3.material.io/components/lists/specs, token set
      "List - Expand"): the item is a <details>; its summary is the item's container, its trailing icon a caret in a container that is
      the surface while the item is closed and a surface container while it is open (the icon on-surface in both, as the tokens say),
-     its body (.list-item-expand-body) what folds out. M3 prints the container shape (16dp, here --list-expand-radius) and the trailing
+     its body (.list-item-expand-body) what folds out. M3 prints the container shape (16dp, here --mo-comp-list-expand-container-shape) and the trailing
      icon's shape only as images, and says nothing about the item's padding, its text or how it opens: the nearest M3 pattern is
      used (the List's own item, state layers and 3dp focus ring; the theme's motion). The list: the card (the default: one container
-     with a line between the items) or, with --list-expand-gap, an item on each surface (Material's segmented). Tokens:
-       --list-expand-radius, --list-expand-surface, --list-expand-shadow   the list's container
-       --list-expand-gap, --list-expand-item-surface, --list-expand-item-radius   items on surfaces of their own (segmented)
-       --list-expand-divider, --list-expand-divider-width   the line between the items
-       --list-expand-padding-inline, --list-expand-padding-block, --list-expand-gap-inline   the item's padding and gap
+     with a line between the items) or, with --mo-comp-list-expand-gap, an item on each surface (Material's segmented). Tokens:
+       --mo-comp-list-expand-container-shape, --mo-comp-list-expand-surface, --mo-comp-list-expand-shadow   the list's container
+       --mo-comp-list-expand-gap, --mo-comp-list-expand-item-surface, --mo-comp-list-expand-item-radius   items on surfaces of their own (segmented)
+       --list-expand-divider, --mo-comp-list-expand-divider-width   the line between the items
+       --mo-comp-list-expand-padding-inline, --mo-comp-list-expand-padding-block, --list-expand-gap-inline   the item's padding and gap
        --list-expand-headline-size, -weight, -line-height, -letter-spacing   its headline
-       --list-expand-icon-size, --list-expand-icon-radius, --list-expand-icon-open-surface   the trailing icon
+       --list-expand-icon-size, --list-expand-icon-radius, --mo-comp-list-expand-icon-open-surface   the trailing icon
        --list-expand-body-padding-bottom   the room under what folds out (the item's own padding-block unless set)
-       --list-expand-open-radius   the corners of an item while it is open (M3 prints a selected item's corners: 16dp all around) */
+       --mo-comp-list-expand-open-radius   the corners of an item while it is open (M3 prints a selected item's corners: 16dp all around) */
   .list-expand {
     display: grid;
-    gap: var(--list-expand-gap, 0);
-    border-radius: var(--list-expand-radius, var(--mo-sys-shape-corner-large));
-    background: var(--list-expand-surface, var(--mo-sys-block-surface));
-    box-shadow: var(--list-expand-shadow, var(--mo-sys-block-shadow));
+    gap: var(--mo-comp-list-expand-gap, 0);
+    border-radius: var(--mo-comp-list-expand-container-shape, var(--mo-sys-shape-corner-large));
+    background: var(--mo-comp-list-expand-surface, var(--mo-sys-block-surface));
+    box-shadow: var(--mo-comp-list-expand-shadow, var(--mo-sys-block-shadow));
     overflow: clip;
   }
   .list-expand > li {
-    border-radius: var(--list-expand-item-radius, 0);
-    background: var(--list-expand-item-surface, transparent);
+    border-radius: var(--mo-comp-list-expand-item-radius, 0);
+    background: var(--mo-comp-list-expand-item-surface, transparent);
     overflow: clip;
   }
   .list-expand > li + li {
-    border-top: var(--list-expand-divider-width, 1px) solid var(--list-expand-divider, var(--mo-sys-block-line));
+    border-top: var(--mo-comp-list-expand-divider-width, 1px) solid var(--list-expand-divider, var(--mo-sys-block-line));
   }
   .list-expand > li:first-child {
-    border-start-start-radius: var(--list-expand-radius, var(--mo-sys-shape-corner-large));
-    border-start-end-radius: var(--list-expand-radius, var(--mo-sys-shape-corner-large));
+    border-start-start-radius: var(--mo-comp-list-expand-container-shape, var(--mo-sys-shape-corner-large));
+    border-start-end-radius: var(--mo-comp-list-expand-container-shape, var(--mo-sys-shape-corner-large));
   }
   .list-expand > li:last-child {
-    border-end-start-radius: var(--list-expand-radius, var(--mo-sys-shape-corner-large));
-    border-end-end-radius: var(--list-expand-radius, var(--mo-sys-shape-corner-large));
+    border-end-start-radius: var(--mo-comp-list-expand-container-shape, var(--mo-sys-shape-corner-large));
+    border-end-end-radius: var(--mo-comp-list-expand-container-shape, var(--mo-sys-shape-corner-large));
   }
   /* An open item takes the open radius on every corner (a segmented list's selected item: 16dp all around, 4dp inner and 16dp outer when
      not), also when it is the first or last of the list. */
   .list-expand > li:has(> .list-item-expand[open]) {
-    border-radius: var(--list-expand-open-radius, var(--list-expand-item-radius, 0));
+    border-radius: var(--mo-comp-list-expand-open-radius, var(--mo-comp-list-expand-item-radius, 0));
   }
   .list-item-expand {
     display: block;
@@ -2299,34 +2319,38 @@
       background-color var(--mo-sys-motion-spring-default-effects);
   }
   .list-item-expand-icon > svg {
-    width: var(--list-item-icon-size, 1.25rem);
-    height: var(--list-item-icon-size, 1.25rem);
+    width: var(--mo-comp-list-item-icon-size, 1.25rem);
+    height: var(--mo-comp-list-item-icon-size, 1.25rem);
   }
   .list-item-expand[open] > .list-item-expand-summary .list-item-expand-icon {
     rotate: 180deg;
-    background: var(--list-expand-icon-open-surface, var(--mo-sys-color-surface-container));
+    background: var(--mo-comp-list-expand-icon-open-surface, var(--mo-sys-color-surface-container));
   }
   /* The state layer (hovered, focused, pressed) is on the whole item, its open body too (owner, 16 Nov 2026: "The whole body should have the touch colour"),
      so an open item is one colour; the summary keeps its text and the focus ring. */
   @media (hover: hover) {
     .list-item-expand:has(> .list-item-expand-summary:hover) {
-      background: var(--list-item-hover-surface, transparent);
+      background: var(--mo-comp-list-item-hover-surface, transparent);
     }
     .list-item-expand-summary:hover {
-      color: var(--list-item-hover-text, var(--mo-sys-block-accent));
+      color: var(--mo-comp-list-item-hover-text, var(--mo-sys-block-accent));
     }
   }
   .list-item-expand:has(> .list-item-expand-summary:focus-visible) {
-    background: var(--list-item-focus-surface, var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent)));
+    background: var(
+      --mo-comp-list-item-focus-surface,
+      var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent))
+    );
   }
   .list-item-expand-summary:focus-visible {
-    outline: 3px solid var(--list-item-focus-indicator-color, var(--mo-sys-color-primary));
+    outline: 3px solid var(--mo-comp-list-item-focus-indicator-color, var(--mo-sys-color-primary));
   }
   .list-item-expand:has(> .list-item-expand-summary:active) {
-    background: var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent));
+    background: var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent));
   }
   .list-item-expand-body {
-    padding: 0 var(--list-expand-padding-inline, 1rem) var(--list-expand-body-padding-bottom, var(--list-expand-padding-block, 0.875rem));
+    padding: 0 var(--mo-comp-list-expand-padding-inline, 1rem)
+      var(--list-expand-body-padding-bottom, var(--mo-comp-list-expand-padding-block, 0.875rem));
   }
   /* Opening and closing glide where the browser can animate ::details-content (else accordion/script.ts does it); none with reduced motion. */
   @media (prefers-reduced-motion: no-preference) {
@@ -2355,11 +2379,11 @@
 
   /* Selected, and disabled. */
   .list-item-selected {
-    background: var(--list-item-selected-surface, transparent);
-    color: var(--list-item-selected-text, var(--mo-sys-block-accent));
+    background: var(--mo-comp-list-list-item-selected-container-color, transparent);
+    color: var(--mo-comp-list-list-item-selected-label-text-color, var(--mo-sys-block-accent));
   }
   .list-item-selected .list-item-headline {
-    font-weight: var(--list-item-selected-weight, 500);
+    font-weight: var(--mo-comp-list-item-selected-weight, 500);
   }
   .list-item-selected :is(.list-item-leading-icon, .list-item-supporting, .list-item-overline, .list-item-trailing),
   .list-item-selected .list-item-trailing-supporting {
@@ -2367,26 +2391,37 @@
   }
   /* A selected item pointed at or pressed: the state layer over its surface. */
   :is(a, button:enabled).list-item-container.list-item-selected:hover {
-    background: linear-gradient(var(--list-item-hover-surface, transparent) 0 0), var(--list-item-selected-surface, transparent);
+    background:
+      linear-gradient(var(--mo-comp-list-item-hover-surface, transparent) 0 0),
+      var(--mo-comp-list-list-item-selected-container-color, transparent);
   }
   :is(a, button:enabled).list-item-container.list-item-selected:focus-visible {
     background:
-      linear-gradient(var(--list-item-focus-surface, var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent))) 0 0),
-      var(--list-item-selected-surface, transparent);
+      linear-gradient(
+        var(
+            --mo-comp-list-item-focus-surface,
+            var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent))
+          )
+          0 0
+      ),
+      var(--mo-comp-list-list-item-selected-container-color, transparent);
   }
   :is(a, button:enabled).list-item-container.list-item-selected:active {
     background:
-      linear-gradient(var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent)) 0 0),
-      var(--list-item-selected-surface, transparent);
+      linear-gradient(var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent)) 0 0),
+      var(--mo-comp-list-list-item-selected-container-color, transparent);
   }
   /* The open one's icon, where the item is not drawn selected (ListItemLeadingIcon's `selected`: the editor's open part). */
   .list-item-leading-icon-selected {
-    color: var(--list-item-leading-icon-selected-color, var(--list-item-selected-text, var(--mo-sys-block-accent)));
+    color: var(
+      --mo-comp-list-item-leading-icon-selected-color,
+      var(--mo-comp-list-list-item-selected-label-text-color, var(--mo-sys-block-accent))
+    );
   }
   /* Disabled: what is in it faded (its choice fades by itself), an item that is tapped (a button) too. */
   .list-item-disabled > :not(.list-item-control),
   button.list-item-container:disabled > * {
-    opacity: var(--list-item-disabled-opacity, 0.6);
+    opacity: var(--mo-comp-list-item-disabled-opacity, 0.6);
   }
   button.list-item-container:disabled,
   .list-item-disabled .list-item-content {
@@ -2398,10 +2433,10 @@
   :is(.list-dividers-inset, .list-dividers-middle-inset):not(.list-segmented) > li + li::before {
     content: '';
     display: block;
-    border-top: 1px solid var(--list-divider, var(--mo-sys-block-line));
+    border-top: 1px solid var(--mo-comp-list-divider-color, var(--mo-sys-block-line));
   }
   .list-dividers-inset > li + li::before {
-    margin-inline-start: calc(var(--list-item-padding-inline, 0px) + var(--list-item-leading-room));
+    margin-inline-start: calc(var(--mo-comp-list-item-padding-inline, 0px) + var(--mo-comp-list-item-leading-room));
   }
   .list-dividers-middle-inset > li + li::before {
     margin-inline: var(--divider-inset, 1rem);
@@ -2414,11 +2449,11 @@
   .list-segmented {
     display: flex;
     flex-direction: column;
-    gap: var(--list-segmented-gap, 0.1875rem);
+    gap: var(--mo-comp-list-segmented-gap, 0.1875rem);
   }
   .list-segmented > li {
-    border-radius: var(--list-item-shape);
-    background: var(--list-segmented-surface, var(--mo-sys-block-tint));
+    border-radius: var(--mo-comp-list-item-shape);
+    background: var(--mo-comp-list-list-item-segmented-container-color, var(--mo-sys-block-tint));
     transition:
       background-color var(--mo-sys-motion-spring-default-effects),
       border-radius var(--mo-sys-motion-spring-fast-spatial);
@@ -2430,36 +2465,36 @@
   }
   /* The first and the last item with the list's corners outside, whatever their state. */
   .list-segmented > li:first-child {
-    border-start-start-radius: max(var(--list-item-shape), var(--list-segmented-radius, var(--mo-sys-block-radius-small)));
-    border-start-end-radius: max(var(--list-item-shape), var(--list-segmented-radius, var(--mo-sys-block-radius-small)));
+    border-start-start-radius: max(var(--mo-comp-list-item-shape), var(--mo-comp-list-segmented-radius, var(--mo-sys-block-radius-small)));
+    border-start-end-radius: max(var(--mo-comp-list-item-shape), var(--mo-comp-list-segmented-radius, var(--mo-sys-block-radius-small)));
   }
   .list-segmented > li:last-child {
-    border-end-start-radius: max(var(--list-item-shape), var(--list-segmented-radius, var(--mo-sys-block-radius-small)));
-    border-end-end-radius: max(var(--list-item-shape), var(--list-segmented-radius, var(--mo-sys-block-radius-small)));
+    border-end-start-radius: max(var(--mo-comp-list-item-shape), var(--mo-comp-list-segmented-radius, var(--mo-sys-block-radius-small)));
+    border-end-end-radius: max(var(--mo-comp-list-item-shape), var(--mo-comp-list-segmented-radius, var(--mo-sys-block-radius-small)));
   }
   .list-segmented > li > .list-item-container {
     border-radius: inherit;
-    padding-inline: var(--list-segmented-padding-inline, 1rem);
+    padding-inline: var(--mo-comp-list-segmented-padding-inline, 1rem);
   }
   .list-segmented > li > :is(a, button:enabled).list-item-container:hover,
   .list-segmented > li > .list-item-with-control:not(.list-item-disabled):hover {
-    background: var(--list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent));
+    background: var(--mo-comp-list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent));
   }
   .list-segmented > li > :is(a, button:enabled).list-item-container:active,
   .list-segmented > li > .list-item-with-control:not(.list-item-disabled):active {
     background: var(
-      --list-segmented-pressed-surface,
-      var(--list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent))
+      --mo-comp-list-segmented-pressed-surface,
+      var(--mo-comp-list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent))
     );
   }
   .list-segmented > li > :is(a, button:enabled).list-item-container:focus-visible,
   .list-segmented > li > .list-item-with-control:not(.list-item-disabled):has(:focus-visible),
   .list-segmented > li > .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:focus-visible) {
     background: var(
-      --list-item-focus-surface,
+      --mo-comp-list-item-focus-surface,
       var(
-        --list-segmented-pressed-surface,
-        var(--list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent))
+        --mo-comp-list-segmented-pressed-surface,
+        var(--mo-comp-list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent))
       )
     );
   }
@@ -2467,17 +2502,20 @@
     border-radius: inherit;
   }
   .list-segmented > li > .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:hover) {
-    background: var(--list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent));
+    background: var(--mo-comp-list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent));
   }
   .list-segmented > li > .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:active) {
     background: var(
-      --list-segmented-pressed-surface,
-      var(--list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent))
+      --mo-comp-list-segmented-pressed-surface,
+      var(--mo-comp-list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent))
     );
   }
   /* A disabled item on its own surface (M3 Expressive: a faint layer of the text's colour). */
   .list-segmented > li:has(> .list-item-disabled, > button.list-item-container:disabled) {
-    background: var(--list-segmented-disabled-surface, var(--list-segmented-surface, var(--mo-sys-block-tint)));
+    background: var(
+      --mo-comp-list-segmented-disabled-surface,
+      var(--mo-comp-list-list-item-segmented-container-color, var(--mo-sys-block-tint))
+    );
   }
   .list-segmented > li > :is(.list-item-selected, .list-item-with-control:has(:checked)) {
     background: transparent;
@@ -3018,7 +3056,7 @@
   .exposed-dropdown-menu-select {
     width: 100%;
     appearance: none;
-    padding-inline-end: calc(var(--text-field-padding, 1.25rem) + var(--exposed-dropdown-menu-icon-size, 1.25rem) + 0.5rem);
+    padding-inline-end: calc(var(--mo-comp-text-field-padding, 1.25rem) + var(--exposed-dropdown-menu-icon-size, 1.25rem) + 0.5rem);
     text-overflow: ellipsis;
     cursor: pointer;
   }
@@ -3028,7 +3066,7 @@
   .exposed-dropdown-menu-icon {
     position: absolute;
     top: 50%;
-    inset-inline-end: var(--text-field-padding, 1.25rem);
+    inset-inline-end: var(--mo-comp-text-field-padding, 1.25rem);
     width: var(--exposed-dropdown-menu-icon-size, 1.25rem);
     height: var(--exposed-dropdown-menu-icon-size, 1.25rem);
     color: var(--exposed-dropdown-menu-icon-color, var(--text-field-label-color, var(--mo-sys-block-muted)));
@@ -3044,7 +3082,7 @@
   }
   /* Nothing chosen yet: the name stands in the field, as on an empty text field. */
   .exposed-dropdown-menu:has(.exposed-dropdown-menu-empty:checked) .exposed-dropdown-menu-select:not(:focus) + .text-field-label {
-    top: calc(var(--text-field-box, var(--text-field-height, 3rem)) / 2);
+    top: calc(var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) / 2);
     margin-left: 0;
     padding: 0;
     background: none;
@@ -4267,24 +4305,24 @@
   (.switch-track: the <input role="switch">,
   .switch-input, drawn as the track with appearance: none, and its handle, .switch-handle, with the theme's icons,
   .switch-icon-on and .switch-icon-off, when it has them: .switch-icons).
-    --switch-width, --switch-height, --switch-gap   the track, and the room between the name and it
-    --switch-track-surface, --switch-track-line, --switch-track-line-width   the track off, and its edge
+    --mo-comp-switch-track-width, --mo-comp-switch-track-height, --mo-comp-switch-gap   the track, and the room between the name and it
+    --mo-comp-switch-unselected-track-color, --mo-comp-switch-unselected-track-outline-color, --mo-comp-switch-track-outline-width   the track off, and its edge
     --switch-track-checked-surface   the track on
-    --switch-handle-size, --switch-handle-icon-size, --switch-handle-checked-size, --switch-handle-pressed-size   the
+    --mo-comp-switch-unselected-handle-width, --mo-comp-switch-unselected-icon-size, --mo-comp-switch-selected-handle-width, --mo-comp-switch-pressed-handle-width   the
       handle off, off with its icon, on, and while it is pressed
-    --switch-handle-surface, --switch-handle-checked-surface, --switch-handle-shadow   the handle off and on
-    --switch-icon-size, --switch-icon-color, --switch-icon-checked-color   the icons in the handle, off and on
+    --mo-comp-switch-unselected-handle-color, --mo-comp-switch-selected-handle-color, --switch-handle-shadow   the handle off and on
+    --switch-icon-size, --mo-comp-switch-unselected-icon-color, --mo-comp-switch-selected-icon-color   the icons in the handle, off and on
     --switch-label-weight, --switch-supporting-color   the name and the line under it
-    --switch-disabled-opacity   a switch that cannot be changed
+    --mo-comp-switch-disabled-opacity   a switch that cannot be changed
   Radio buttons (RadioButton.tsx, radioButtonClass, radioGroupClass; m3.material.io/components/radio-button): as the
   checkbox, .radio-button, a <label> with the button (.radio-button-box: the <input>, .radio-button-input, the
   browser's own in the accent, or the theme's with appearance: none) and its text (.radio-button-text:
   .radio-button-label and .radio-button-supporting); the buttons of one choice in .radio-group, a <fieldset> with its
   name in .radio-group-label.
-    --radio-button-size, --radio-button-offset, --radio-button-gap, --radio-button-color   the button, how far down
+    --mo-comp-radio-button-icon-size, --mo-comp-radio-button-offset, --mo-comp-radio-button-gap, --radio-button-color   the button, how far down
       beside the name it stands, the room before the name, and its colour chosen
     --radio-button-label-weight, --radio-button-supporting-color   the name and the line under it
-    --radio-group-gap, --radio-group-label-weight   the room between the buttons, and the choice's name over them
+    --radio-group-gap, --mo-comp-radio-group-label-weight   the room between the buttons, and the choice's name over them
   Sliders (Slider.tsx, sliderClass, and slider.script.ts with sliderUpdate.ts for what it does on the site; m3.material.io/components/
   sliders): .slider (.slider-range with two handles, .slider-centered from the middle, [data-below-center] while its
   handle is before the middle; its size, none for xsmall, .slider-small, .slider-medium, .slider-large or
@@ -4296,26 +4334,22 @@
   (.slider-input, whose thumb is the handle) and the label with each one's value (.slider-value, over its handle while
   it is moved or has the focus; .slider-value-always all the time). Where the handles are is --slider-start and
   --slider-end (0–1) on .slider, which the part and its script set.
-    --slider-height   the room the slider takes (a finger's), with the track in the middle
-    --slider-track-height, --slider-track-radius, --slider-track-inner-radius, --slider-track-gap   the track, its
+    --mo-comp-slider-height   the room the slider takes (a finger's), with the track in the middle
+    --mo-comp-slider-active-track-height, --mo-comp-slider-active-track-shape, --mo-comp-slider-active-track-inner-corner-corner-size, --mo-comp-slider-track-gap   the track, its
       corners at its ends and beside a handle, and the room between it and a handle's centre (0: they meet under it)
     --slider-<size>-track-height, --slider-<size>-track-radius   the other sizes' track (small, medium, large, xlarge);
       their handle is the track's thickness and 0.75rem, and their room the handle's and 0.5rem, at least the xsmall's
     --slider-<size>-icon-size, --slider-icon-active-color, --slider-icon-inactive-color   the icon in the track
       (medium, large, xlarge), on the active track and after the handle
     --slider-length   how tall a vertical slider is
-    --slider-active-track, --slider-inactive-track   their colours
-    --slider-handle-width, --slider-handle-height, --slider-handle-radius, --slider-handle-surface,
-    --slider-handle-line, --slider-handle-line-width, --slider-handle-shadow, --slider-handle-pressed-width   the handle
-    --slider-handle-inset   how far in from the track's ends a handle stops (0: its edge at the end)
-    --slider-stop-size, --slider-stop-color, --slider-stop-active-color   the stops, on the inactive and the active track
-    --slider-value-surface, --slider-value-text, --slider-value-radius   the value's label
-    --slider-value-room   the room over a slider whose values are always shown, for their labels
-    --slider-label-weight, --slider-disabled-opacity   the name, and a slider that cannot be moved
-  Dividers (Divider.tsx, dividerClass; m3.material.io/components/divider): .divider, an <hr>, from edge to edge, with
-  .divider-inset (in from the start) or .divider-middle-inset (in from both sides), and .divider-vertical (top to
-  bottom, between things side by side).
-    --divider-color, --divider-thickness, --divider-inset   the line, and how far in an inset one starts
+    --mo-comp-slider-active-track, --mo-comp-slider-inactive-track   their colours
+    --mo-comp-slider-handle-width, --mo-comp-slider-handle-height, --mo-comp-slider-handle-shape, --mo-comp-slider-handle-color,
+    --slider-handle-line, --mo-comp-slider-handle-line-width, --slider-handle-shadow, --mo-comp-slider-pressed-handle-width   the handle
+    --mo-comp-slider-handle-inset   how far in from the track's ends a handle stops (0: its edge at the end)
+    --slider-stop-size, --mo-comp-slider-inactive-stop-indicator-container-color, --mo-comp-slider-active-stop-indicator-container-color   the stops, on the inactive and the active track
+    --mo-comp-slider-label-container-color, --mo-comp-slider-label-label-text-color, --mo-comp-slider-value-radius   the value's label
+    --mo-comp-slider-value-room   the room over a slider whose values are always shown, for their labels
+    --slider-label-weight, --mo-comp-slider-disabled-active-track-opacity   the name, and a slider that cannot be moved
   Side sheets (SideSheet.tsx, sideSheetClass, sideSheetContainerClass, and sideSheet() and standardSideSheet() in
   sideSheetControl.ts for what they do in a browser, sideSheet.script.ts for a button with data-side-sheet-open="<id>"; m3.material.io/components/side-sheets): .side-sheet-container with its kind,
   .side-sheet-standard (beside what it is about, with a line between) or .side-sheet-modal (over the page, in the
@@ -4350,10 +4384,10 @@
   }
   .setting-row-label {
     display: block;
-    font-size: var(--list-item-headline-size, var(--mo-sys-typescale-body-large-size));
-    line-height: var(--list-item-headline-line-height, var(--mo-sys-typescale-body-large-line-height));
+    font-size: var(--mo-comp-list-item-headline-size, var(--mo-sys-typescale-body-large-size));
+    line-height: var(--mo-comp-list-item-headline-line-height, var(--mo-sys-typescale-body-large-line-height));
     font-weight: var(--setting-row-label-weight, var(--switch-label-weight, 500));
-    letter-spacing: var(--list-item-headline-letter-spacing, var(--mo-sys-typescale-body-large-tracking));
+    letter-spacing: var(--mo-comp-list-item-headline-letter-spacing, var(--mo-sys-typescale-body-large-tracking));
   }
   .setting-row-supporting {
     display: block;
@@ -4364,21 +4398,21 @@
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   /* A list of setting rows (.setting-list, the editor's settings screens): each row is a list item, at least one line
-     high (--list-item-min-height) or, with a line under its name, two (--list-item-two-line-min-height), with the
+     high (--mo-comp-list-list-item-container-height) or, with a line under its name, two (--mo-comp-list-item-two-line-min-height), with the
      list item's padding, so the rows stand apart the same way; what sets a row is centred on it. A button after the
      rows (.setting-list-action) has its icon at the left edge of the names. */
   .setting-list > .setting-row {
     /* A settings form follows the layout density, and its row stays a target. */
     min-height: max(
       var(--mo-sys-target-size),
-      calc(var(--list-item-min-height) + var(--mo-sys-density-layout) * var(--mo-sys-density-step))
+      calc(var(--mo-comp-list-list-item-container-height) + var(--mo-sys-density-layout) * var(--mo-sys-density-step))
     );
-    padding-block: var(--list-item-padding-block);
+    padding-block: var(--mo-comp-list-item-padding-block);
   }
   .setting-list > .setting-row:has(.setting-row-supporting) {
     min-height: max(
       var(--mo-sys-target-size),
-      calc(var(--list-item-two-line-min-height) + var(--mo-sys-density-layout) * var(--mo-sys-density-step))
+      calc(var(--mo-comp-list-item-two-line-min-height) + var(--mo-sys-density-layout) * var(--mo-sys-density-step))
     );
   }
   .setting-list > .setting-row > :not(.setting-row-text) {
@@ -4389,7 +4423,7 @@
   }
   /* Switches: a setting row with the track and its handle after the name. */
   .switch {
-    gap: var(--switch-gap, var(--setting-row-gap, 1rem));
+    gap: var(--mo-comp-switch-gap, var(--setting-row-gap, 1rem));
     cursor: pointer;
   }
   .switch:has(.switch-input:disabled) {
@@ -4399,11 +4433,11 @@
     position: relative;
     display: grid;
     flex-shrink: 0;
-    width: var(--switch-width, 2.75rem);
-    height: var(--switch-height, 1.625rem);
+    width: var(--mo-comp-switch-track-width, 2.75rem);
+    height: var(--mo-comp-switch-track-height, 1.625rem);
   }
   .switch-track:has(.switch-input:disabled) {
-    opacity: var(--switch-disabled-opacity, 0.6);
+    opacity: var(--mo-comp-switch-disabled-opacity, 0.6);
   }
   .switch-input {
     appearance: none;
@@ -4411,8 +4445,8 @@
     height: 100%;
     margin: 0;
     border-radius: var(--mo-sys-shape-corner-full);
-    background: var(--switch-track-surface, color-mix(in srgb, var(--mo-sys-block-muted) 40%, var(--mo-sys-block-line)));
-    box-shadow: inset 0 0 0 var(--switch-track-line-width, 0px) var(--switch-track-line, transparent);
+    background: var(--mo-comp-switch-unselected-track-color, color-mix(in srgb, var(--mo-sys-block-muted) 40%, var(--mo-sys-block-line)));
+    box-shadow: inset 0 0 0 var(--mo-comp-switch-track-outline-width, 0px) var(--mo-comp-switch-unselected-track-outline-color, transparent);
     cursor: inherit;
   }
   .switch-input:checked {
@@ -4423,32 +4457,38 @@
   .switch-handle {
     position: absolute;
     top: 50%;
-    left: calc(var(--switch-height, 1.625rem) / 2);
+    left: calc(var(--mo-comp-switch-track-height, 1.625rem) / 2);
     display: grid;
-    width: var(--switch-handle-size, 1.25rem);
-    height: var(--switch-handle-size, 1.25rem);
+    width: var(--mo-comp-switch-unselected-handle-width, 1.25rem);
+    height: var(--mo-comp-switch-unselected-handle-width, 1.25rem);
     place-items: center;
     border-radius: var(--mo-sys-shape-corner-full);
-    background: var(--switch-handle-surface, var(--mo-sys-block-surface));
+    background: var(--mo-comp-switch-unselected-handle-color, var(--mo-sys-block-surface));
     box-shadow: var(--switch-handle-shadow, var(--mo-sys-elevation-level1-rest-shadow));
-    color: var(--switch-icon-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-switch-unselected-icon-color, var(--mo-sys-block-muted));
     pointer-events: none;
     translate: -50% -50%;
   }
   .switch-icons .switch-handle {
-    width: var(--switch-handle-icon-size, var(--switch-handle-size, 1.25rem));
-    height: var(--switch-handle-icon-size, var(--switch-handle-size, 1.25rem));
+    width: var(--mo-comp-switch-unselected-icon-size, var(--mo-comp-switch-unselected-handle-width, 1.25rem));
+    height: var(--mo-comp-switch-unselected-icon-size, var(--mo-comp-switch-unselected-handle-width, 1.25rem));
   }
   .switch-input:checked + .switch-handle {
-    left: calc(100% - var(--switch-height, 1.625rem) / 2);
-    width: var(--switch-handle-checked-size, var(--switch-handle-size, 1.25rem));
-    height: var(--switch-handle-checked-size, var(--switch-handle-size, 1.25rem));
-    background: var(--switch-handle-checked-surface, var(--mo-sys-block-surface));
-    color: var(--switch-icon-checked-color, var(--mo-sys-block-accent));
+    left: calc(100% - var(--mo-comp-switch-track-height, 1.625rem) / 2);
+    width: var(--mo-comp-switch-selected-handle-width, var(--mo-comp-switch-unselected-handle-width, 1.25rem));
+    height: var(--mo-comp-switch-selected-handle-width, var(--mo-comp-switch-unselected-handle-width, 1.25rem));
+    background: var(--mo-comp-switch-selected-handle-color, var(--mo-sys-block-surface));
+    color: var(--mo-comp-switch-selected-icon-color, var(--mo-sys-block-accent));
   }
   .switch-input:enabled:active + .switch-handle {
-    width: var(--switch-handle-pressed-size, var(--switch-handle-checked-size, var(--switch-handle-size, 1.25rem)));
-    height: var(--switch-handle-pressed-size, var(--switch-handle-checked-size, var(--switch-handle-size, 1.25rem)));
+    width: var(
+      --mo-comp-switch-pressed-handle-width,
+      var(--mo-comp-switch-selected-handle-width, var(--mo-comp-switch-unselected-handle-width, 1.25rem))
+    );
+    height: var(
+      --mo-comp-switch-pressed-handle-width,
+      var(--mo-comp-switch-selected-handle-width, var(--mo-comp-switch-unselected-handle-width, 1.25rem))
+    );
   }
   .switch-icon {
     display: none;
@@ -4478,7 +4518,7 @@
   .radio-button {
     display: flex;
     align-items: flex-start;
-    gap: var(--radio-button-gap, 0.75rem);
+    gap: var(--mo-comp-radio-button-gap, 0.75rem);
     cursor: pointer;
   }
   .radio-button:has(.radio-button-input:disabled) {
@@ -4489,11 +4529,11 @@
     display: grid;
     flex-shrink: 0;
     place-items: center;
-    margin-top: var(--radio-button-offset, 0.25rem);
+    margin-top: var(--mo-comp-radio-button-offset, 0.25rem);
   }
   .radio-button-input {
-    width: var(--radio-button-size, 1rem);
-    height: var(--radio-button-size, 1rem);
+    width: var(--mo-comp-radio-button-icon-size, 1rem);
+    height: var(--mo-comp-radio-button-icon-size, 1rem);
     margin: 0;
     accent-color: var(--radio-button-color, var(--mo-sys-block-accent));
     cursor: inherit;
@@ -4521,13 +4561,13 @@
   .radio-group-label {
     margin-bottom: 0.25rem;
     padding: 0;
-    font-weight: var(--radio-group-label-weight, 600);
+    font-weight: var(--mo-comp-radio-group-label-weight, 600);
   }
 
   /* Sliders: the track in the middle of the room it takes, the native inputs over it with only their thumbs seen (the
-     handles), and a handle's centre where its input's thumb is: half the handle's width and --slider-handle-inset in
+     handles), and a handle's centre where its input's thumb is: half the handle's width and --mo-comp-slider-handle-inset in
      from the track's ends, and between them by its value. The size's track, handle and room as the slider's own
-     variables (--slider-track-thickness …), from the theme's for each size. */
+     variables (--mo-comp-slider-track-thickness …), from the theme's for each size. */
   .slider {
     display: grid;
     gap: 0.25rem;
@@ -4538,70 +4578,86 @@
   }
   .slider-control {
     position: relative;
-    height: var(--slider-room);
+    height: var(--mo-comp-slider-room);
   }
   .slider-control:has(.slider-input:disabled) {
-    opacity: var(--slider-disabled-opacity, 0.6);
+    opacity: var(--mo-comp-slider-disabled-active-track-opacity, 0.6);
   }
   .slider-track {
     position: absolute;
     inset: 50% 0 auto;
     isolation: isolate;
-    height: var(--slider-track-thickness);
+    height: var(--mo-comp-slider-track-thickness);
     translate: 0 -50%;
   }
   .slider-active-track,
   .slider-inactive-track {
     position: absolute;
     inset-block: 0;
-    background: var(--slider-inactive-track, var(--mo-sys-block-line));
+    background: var(--mo-comp-slider-inactive-track, var(--mo-sys-block-line));
   }
   .slider-active-track {
     left: 0;
-    right: calc(100% - var(--slider-reach) - var(--slider-end) * (100% - 2 * var(--slider-reach)) + var(--slider-track-gap, 0px));
-    border-radius: var(--slider-track-corner) var(--slider-track-inner-radius, 0) var(--slider-track-inner-radius, 0)
-      var(--slider-track-corner);
-    background: var(--slider-active-track, var(--mo-sys-block-accent));
+    right: calc(
+      100% - var(--mo-comp-slider-reach) - var(--slider-end) * (100% - 2 * var(--mo-comp-slider-reach)) +
+        var(--mo-comp-slider-track-gap, 0px)
+    );
+    border-radius: var(--mo-comp-slider-track-corner) var(--mo-comp-slider-active-track-inner-corner-corner-size, 0)
+      var(--mo-comp-slider-active-track-inner-corner-corner-size, 0) var(--mo-comp-slider-track-corner);
+    background: var(--mo-comp-slider-active-track, var(--mo-sys-block-accent));
   }
   .slider-range .slider-active-track {
-    left: calc(var(--slider-reach) + var(--slider-start) * (100% - 2 * var(--slider-reach)) + var(--slider-track-gap, 0px));
-    border-radius: var(--slider-track-inner-radius, 0);
+    left: calc(
+      var(--mo-comp-slider-reach) + var(--slider-start) * (100% - 2 * var(--mo-comp-slider-reach)) + var(--mo-comp-slider-track-gap, 0px)
+    );
+    border-radius: var(--mo-comp-slider-active-track-inner-corner-corner-size, 0);
   }
   .slider-inactive-track-start {
     left: 0;
-    right: calc(100% - var(--slider-reach) - var(--slider-start) * (100% - 2 * var(--slider-reach)) + var(--slider-track-gap, 0px));
-    border-radius: var(--slider-track-corner) var(--slider-track-inner-radius, 0) var(--slider-track-inner-radius, 0)
-      var(--slider-track-corner);
+    right: calc(
+      100% - var(--mo-comp-slider-reach) - var(--slider-start) * (100% - 2 * var(--mo-comp-slider-reach)) +
+        var(--mo-comp-slider-track-gap, 0px)
+    );
+    border-radius: var(--mo-comp-slider-track-corner) var(--mo-comp-slider-active-track-inner-corner-corner-size, 0)
+      var(--mo-comp-slider-active-track-inner-corner-corner-size, 0) var(--mo-comp-slider-track-corner);
   }
   .slider-inactive-track-end {
-    left: calc(var(--slider-reach) + var(--slider-end) * (100% - 2 * var(--slider-reach)) + var(--slider-track-gap, 0px));
+    left: calc(
+      var(--mo-comp-slider-reach) + var(--slider-end) * (100% - 2 * var(--mo-comp-slider-reach)) + var(--mo-comp-slider-track-gap, 0px)
+    );
     right: 0;
-    border-radius: var(--slider-track-inner-radius, 0) var(--slider-track-corner) var(--slider-track-corner)
-      var(--slider-track-inner-radius, 0);
+    border-radius: var(--mo-comp-slider-active-track-inner-corner-corner-size, 0) var(--mo-comp-slider-track-corner)
+      var(--mo-comp-slider-track-corner) var(--mo-comp-slider-active-track-inner-corner-corner-size, 0);
   }
   .slider-centered .slider-active-track {
-    left: calc(var(--slider-reach) + var(--slider-start) * (100% - 2 * var(--slider-reach)) + var(--slider-gap-start));
-    right: calc(100% - var(--slider-reach) - var(--slider-end) * (100% - 2 * var(--slider-reach)) + var(--slider-gap-end));
-    border-radius: var(--slider-track-inner-radius, 0);
+    left: calc(
+      var(--mo-comp-slider-reach) + var(--slider-start) * (100% - 2 * var(--mo-comp-slider-reach)) + var(--mo-comp-slider-gap-start)
+    );
+    right: calc(
+      100% - var(--mo-comp-slider-reach) - var(--slider-end) * (100% - 2 * var(--mo-comp-slider-reach)) + var(--mo-comp-slider-gap-end)
+    );
+    border-radius: var(--mo-comp-slider-active-track-inner-corner-corner-size, 0);
   }
   .slider-centered .slider-inactive-track-start {
-    right: calc(100% - var(--slider-reach) - var(--slider-start) * (100% - 2 * var(--slider-reach)) + var(--slider-gap-start));
+    right: calc(
+      100% - var(--mo-comp-slider-reach) - var(--slider-start) * (100% - 2 * var(--mo-comp-slider-reach)) + var(--mo-comp-slider-gap-start)
+    );
   }
   .slider-centered .slider-inactive-track-end {
-    left: calc(var(--slider-reach) + var(--slider-end) * (100% - 2 * var(--slider-reach)) + var(--slider-gap-end));
+    left: calc(var(--mo-comp-slider-reach) + var(--slider-end) * (100% - 2 * var(--mo-comp-slider-reach)) + var(--mo-comp-slider-gap-end));
   }
   .slider-stop {
     position: absolute;
     top: 50%;
-    left: calc(var(--slider-reach) + var(--slider-stop) * (100% - 2 * var(--slider-reach)));
+    left: calc(var(--mo-comp-slider-reach) + var(--slider-stop) * (100% - 2 * var(--mo-comp-slider-reach)));
     width: var(--slider-stop-size, 0.25rem);
     height: var(--slider-stop-size, 0.25rem);
     border-radius: var(--mo-sys-shape-corner-full);
-    background: var(--slider-stop-color, var(--mo-sys-block-muted));
+    background: var(--mo-comp-slider-inactive-stop-indicator-container-color, var(--mo-sys-block-muted));
     translate: -50% -50%;
   }
   .slider-stop[data-active] {
-    background: var(--slider-stop-active-color, var(--mo-sys-block-on-accent));
+    background: var(--mo-comp-slider-active-stop-indicator-container-color, var(--mo-sys-block-on-accent));
   }
   .slider-stop[data-under] {
     visibility: hidden;
@@ -4618,17 +4674,18 @@
   .slider-icon {
     position: absolute;
     top: 50%;
-    left: calc((var(--slider-track-thickness) - var(--slider-icon-length)) / 2);
-    width: var(--slider-icon-length);
-    height: var(--slider-icon-length);
+    left: calc((var(--mo-comp-slider-track-thickness) - var(--mo-comp-slider-icon-length)) / 2);
+    width: var(--mo-comp-slider-icon-length);
+    height: var(--mo-comp-slider-icon-length);
     color: var(--slider-icon-active-color, var(--mo-sys-block-on-accent));
     translate: 0 -50%;
   }
   .slider-icon-inactive {
     display: none;
     left: calc(
-      100% + var(--slider-track-gap, 0px) + max(var(--slider-track-gap, 0px), var(--slider-handle-width, 1.25rem) / 2) +
-        (var(--slider-track-thickness) - var(--slider-icon-length)) / 2
+      100% + var(--mo-comp-slider-track-gap, 0px) +
+        max(var(--mo-comp-slider-track-gap, 0px), var(--mo-comp-slider-handle-width, 1.25rem) / 2) +
+        (var(--mo-comp-slider-track-thickness) - var(--mo-comp-slider-icon-length)) / 2
     );
     color: var(--slider-icon-inactive-color, var(--mo-sys-block-text));
   }
@@ -4658,7 +4715,7 @@
   }
   .slider-input {
     position: absolute;
-    inset: 0 var(--slider-handle-inset, 0px);
+    inset: 0 var(--mo-comp-slider-handle-inset, 0px);
     margin: 0;
     appearance: none;
     background: transparent;
@@ -4687,24 +4744,24 @@
   }
   .slider-input::-webkit-slider-thumb {
     box-sizing: border-box;
-    width: var(--slider-handle-width, 1.25rem);
-    height: var(--slider-handle-length);
-    margin-top: calc((var(--slider-room) - var(--slider-handle-length)) / 2);
+    width: var(--mo-comp-slider-handle-width, 1.25rem);
+    height: var(--mo-comp-slider-handle-length);
+    margin-top: calc((var(--mo-comp-slider-room) - var(--mo-comp-slider-handle-length)) / 2);
     appearance: none;
-    border: var(--slider-handle-line-width, 0.1875rem) solid var(--slider-handle-line, var(--mo-sys-block-surface));
-    border-radius: var(--slider-handle-radius, var(--mo-sys-shape-corner-full));
-    background: var(--slider-handle-surface, var(--mo-sys-block-accent));
+    border: var(--mo-comp-slider-handle-line-width, 0.1875rem) solid var(--slider-handle-line, var(--mo-sys-block-surface));
+    border-radius: var(--mo-comp-slider-handle-shape, var(--mo-sys-shape-corner-full));
+    background: var(--mo-comp-slider-handle-color, var(--mo-sys-block-accent));
     box-shadow: var(--slider-handle-shadow, var(--mo-sys-elevation-level1-rest-shadow));
     pointer-events: auto;
     cursor: grab;
   }
   .slider-input::-moz-range-thumb {
     box-sizing: border-box;
-    width: var(--slider-handle-width, 1.25rem);
-    height: var(--slider-handle-length);
-    border: var(--slider-handle-line-width, 0.1875rem) solid var(--slider-handle-line, var(--mo-sys-block-surface));
-    border-radius: var(--slider-handle-radius, var(--mo-sys-shape-corner-full));
-    background: var(--slider-handle-surface, var(--mo-sys-block-accent));
+    width: var(--mo-comp-slider-handle-width, 1.25rem);
+    height: var(--mo-comp-slider-handle-length);
+    border: var(--mo-comp-slider-handle-line-width, 0.1875rem) solid var(--slider-handle-line, var(--mo-sys-block-surface));
+    border-radius: var(--mo-comp-slider-handle-shape, var(--mo-sys-shape-corner-full));
+    background: var(--mo-comp-slider-handle-color, var(--mo-sys-block-accent));
     box-shadow: var(--slider-handle-shadow, var(--mo-sys-elevation-level1-rest-shadow));
     pointer-events: auto;
     cursor: grab;
@@ -4716,11 +4773,11 @@
     cursor: default;
   }
   .slider-input:enabled:active::-webkit-slider-thumb {
-    width: var(--slider-handle-pressed-width, var(--slider-handle-width, 1.25rem));
+    width: var(--mo-comp-slider-pressed-handle-width, var(--mo-comp-slider-handle-width, 1.25rem));
     cursor: grabbing;
   }
   .slider-input:enabled:active::-moz-range-thumb {
-    width: var(--slider-handle-pressed-width, var(--slider-handle-width, 1.25rem));
+    width: var(--mo-comp-slider-pressed-handle-width, var(--mo-comp-slider-handle-width, 1.25rem));
     cursor: grabbing;
   }
   .slider-input:focus-visible::-webkit-slider-thumb {
@@ -4735,14 +4792,14 @@
      start of its active track). */
   .slider-value {
     position: absolute;
-    bottom: calc(50% + var(--slider-handle-length) / 2 + 0.25rem);
-    left: calc(var(--slider-reach) + var(--slider-end) * (100% - 2 * var(--slider-reach)));
+    bottom: calc(50% + var(--mo-comp-slider-handle-length) / 2 + 0.25rem);
+    left: calc(var(--mo-comp-slider-reach) + var(--slider-end) * (100% - 2 * var(--mo-comp-slider-reach)));
     z-index: 2;
     min-width: 2rem;
-    border-radius: var(--slider-value-radius, var(--mo-sys-block-radius-small));
+    border-radius: var(--mo-comp-slider-value-radius, var(--mo-sys-block-radius-small));
     padding: 0.25rem 0.5rem;
-    background: var(--slider-value-surface, var(--mo-sys-block-text));
-    color: var(--slider-value-text, var(--mo-sys-block-surface));
+    background: var(--mo-comp-slider-label-container-color, var(--mo-sys-block-text));
+    color: var(--mo-comp-slider-label-label-text-color, var(--mo-sys-block-surface));
     font-size: var(--mo-sys-typescale-label-large-size);
     line-height: var(--mo-sys-typescale-label-large-line-height);
     font-weight: var(--mo-sys-typescale-label-large-weight);
@@ -4755,7 +4812,7 @@
   }
   .slider-range .slider-value:first-of-type,
   .slider-centered[data-below-center] .slider-value {
-    left: calc(var(--slider-reach) + var(--slider-start) * (100% - 2 * var(--slider-reach)));
+    left: calc(var(--mo-comp-slider-reach) + var(--slider-start) * (100% - 2 * var(--mo-comp-slider-reach)));
   }
   .slider-input:is(:active, :focus-visible) + .slider-value,
   .slider-value-always {
@@ -4763,7 +4820,7 @@
   }
   /* Room over a slider whose values are always shown, for their labels. */
   .slider:has(.slider-value-always) .slider-control {
-    margin-top: var(--slider-value-room, 1.25rem);
+    margin-top: var(--mo-comp-slider-value-room, 1.25rem);
   }
   /* Vertical: the same slider turned a quarter round, from the bottom up, in a box as tall as --slider-length and as
      wide as its room; its value labels and its icon upright again, the labels beside the handle. */
@@ -4772,13 +4829,14 @@
     width: max-content;
   }
   .slider-vertical .slider-control {
-    width: var(--slider-along);
-    margin: calc((var(--slider-along) - var(--slider-room)) / 2) calc((var(--slider-room) - var(--slider-along)) / 2);
+    width: var(--mo-comp-slider-along);
+    margin: calc((var(--mo-comp-slider-along) - var(--mo-comp-slider-room)) / 2)
+      calc((var(--mo-comp-slider-room) - var(--mo-comp-slider-along)) / 2);
     rotate: -90deg;
   }
   .slider-vertical:has(.slider-value-always) .slider-control {
-    margin-top: calc((var(--slider-along) - var(--slider-room)) / 2);
-    margin-left: calc((var(--slider-room) - var(--slider-along)) / 2 + var(--slider-value-room, 1.25rem) + 1rem);
+    margin-top: calc((var(--mo-comp-slider-along) - var(--mo-comp-slider-room)) / 2);
+    margin-left: calc((var(--mo-comp-slider-room) - var(--mo-comp-slider-along)) / 2 + var(--mo-comp-slider-value-room, 1.25rem) + 1rem);
   }
   .slider-vertical .slider-value {
     /* Turned upright round its middle, and moved so its side, not its middle, is beside the handle (0.875rem: half its
@@ -4792,34 +4850,6 @@
     .slider-value {
       transition: opacity var(--mo-sys-motion-spring-fast-effects);
     }
-  }
-
-  /* Dividers. */
-  .divider {
-    flex-shrink: 0;
-    height: 0;
-    margin: 0;
-    border: 0;
-    border-top: var(--divider-thickness, 1px) solid var(--divider-color, var(--mo-sys-block-line));
-  }
-  .divider-inset {
-    margin-inline-start: var(--divider-inset, 1rem);
-  }
-  .divider-middle-inset {
-    margin-inline: var(--divider-inset, 1rem);
-  }
-  .divider-vertical {
-    align-self: stretch;
-    width: 0;
-    height: auto;
-    border-top: 0;
-    border-inline-start: var(--divider-thickness, 1px) solid var(--divider-color, var(--mo-sys-block-line));
-  }
-  .divider-vertical.divider-inset {
-    margin: var(--divider-inset, 1rem) 0 0;
-  }
-  .divider-vertical.divider-middle-inset {
-    margin: var(--divider-inset, 1rem) 0;
   }
 
   /* Side sheets: the header, what it shows (scrolling) and the actions at the bottom. */
@@ -5675,13 +5705,13 @@
   docked where the bar is from the medium width, and so in the editor), in it .search-view-header (back, the field,
   .search-view-input, a role="combobox", and .search-view-clear), .search-view-results (the theme's list as a
   role="listbox", the option the arrow keys are on with aria-selected), .search-view-filters (the filter chips under the bar, a .chip-set-scroll) and .search-view-empty (when nothing fits).
-    --search-bar-height, --search-bar-radius, --search-bar-padding, --search-bar-gap, --search-bar-surface,
-    --search-bar-line, --search-bar-shadow, --search-bar-hover, --search-bar-text, --search-bar-placeholder,
+    --mo-comp-search-bar-container-height, --mo-comp-search-bar-container-shape, --mo-comp-search-bar-padding, --mo-comp-search-bar-gap, --mo-comp-search-bar-container-color,
+    --mo-comp-search-bar-line, --search-bar-shadow, --mo-comp-search-bar-hover, --search-bar-text, --mo-comp-search-bar-supporting-text-color,
     --search-bar-font-size
-    --search-view-surface, --search-view-radius, --search-view-line, --search-view-shadow, --search-view-scrim,
+    --search-view-surface, --mo-comp-search-view-radius, --mo-comp-search-view-line, --search-view-shadow, --mo-comp-search-view-scrim,
     --search-view-header-height, --search-view-header-surface, --search-view-header-radius, --search-view-header-margin,
-    --search-view-container-surface, --search-view-docked-surface, --search-view-docked-radius, --search-view-docked-gap, --search-view-docked-shadow, --search-view-divider, --search-view-max-height, --search-view-results-padding,
-    --search-view-option-surface, --search-view-group-gap, --search-view-group-label-text, --search-view-top-default,
+    --search-view-container-surface, --search-view-docked-surface, --mo-comp-search-view-docked-container-shape, --search-view-docked-gap, --search-view-docked-shadow, --search-view-divider, --search-view-max-height, --mo-comp-search-view-results-padding,
+    --mo-comp-search-view-option-surface, --search-view-group-gap, --search-view-group-label-text, --search-view-top-default,
     --search-view-width-default
   Toolbars (Toolbar, toolbarClass, toolbar.script.ts; m3.material.io/components/toolbars, M3 Expressive): .toolbar with
   its kind, .toolbar-docked (the whole width with a line over it: the site's bar at the bottom of a phone) or .toolbar-floating (a pill with its shadow, .toolbar-vertical down instead of across), and
@@ -6112,34 +6142,34 @@
   /* Search (m3.material.io/components/search): the bar, and the view it opens. */
   .search-bar {
     display: flex;
-    min-height: var(--search-bar-height, 3.5rem);
+    min-height: var(--mo-comp-search-bar-container-height, 3.5rem);
     align-items: center;
     gap: 0.25rem;
-    border-radius: var(--search-bar-radius, var(--mo-sys-block-control-radius));
+    border-radius: var(--mo-comp-search-bar-container-shape, var(--mo-sys-block-control-radius));
     padding-inline-end: 0.25rem;
-    background: var(--search-bar-surface, var(--mo-sys-block-surface));
+    background: var(--mo-comp-search-bar-container-color, var(--mo-sys-block-surface));
     color: var(--search-bar-text, var(--mo-sys-block-text));
     box-shadow:
-      inset 0 0 0 1px var(--search-bar-line, var(--mo-sys-block-line)),
+      inset 0 0 0 1px var(--mo-comp-search-bar-line, var(--mo-sys-block-line)),
       var(--search-bar-shadow, var(--mo-sys-elevation-level0-shadow));
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
   .search-bar:has(> .search-bar-field:hover) {
     background: var(
-      --search-bar-hover,
-      color-mix(in srgb, var(--mo-sys-block-text) 4%, var(--search-bar-surface, var(--mo-sys-block-surface)))
+      --mo-comp-search-bar-hover,
+      color-mix(in srgb, var(--mo-sys-block-text) 4%, var(--mo-comp-search-bar-container-color, var(--mo-sys-block-surface)))
     );
   }
   .search-bar-field {
     display: flex;
     min-width: 0;
-    min-height: var(--search-bar-height, 3.5rem);
+    min-height: var(--mo-comp-search-bar-container-height, 3.5rem);
     flex: 1;
     align-items: center;
-    gap: var(--search-bar-gap, 1rem);
+    gap: var(--mo-comp-search-bar-gap, 1rem);
     border: 0;
     border-radius: inherit;
-    padding: 0 0.5rem 0 var(--search-bar-padding, 1rem);
+    padding: 0 0.5rem 0 var(--mo-comp-search-bar-padding, 1rem);
     background: transparent;
     color: inherit;
     font: inherit;
@@ -6163,7 +6193,7 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    color: var(--search-bar-placeholder, var(--mo-sys-block-muted));
+    color: var(--mo-comp-search-bar-supporting-text-color, var(--mo-sys-block-muted));
   }
   .search-bar-trailing {
     display: flex;
@@ -6181,7 +6211,7 @@
     font: inherit;
   }
   .search-bar-input::placeholder {
-    color: var(--search-bar-placeholder, var(--mo-sys-block-muted));
+    color: var(--mo-comp-search-bar-supporting-text-color, var(--mo-sys-block-muted));
   }
   .search-bar-input:focus {
     outline: none;
@@ -6211,7 +6241,7 @@
     flex-direction: column;
   }
   .search-view::backdrop {
-    background: var(--search-view-scrim, transparent);
+    background: var(--mo-comp-search-view-scrim, transparent);
   }
   .search-view:not(:modal) {
     position: relative;
@@ -6242,7 +6272,7 @@
   div.search-view-docked .search-view-body {
     margin-top: var(--search-view-docked-gap, 0.125rem);
     overflow: hidden;
-    border-radius: var(--search-view-docked-radius, var(--mo-sys-shape-corner-medium));
+    border-radius: var(--mo-comp-search-view-docked-container-shape, var(--mo-sys-shape-corner-medium));
     background: var(--search-view-docked-surface, var(--mo-sys-color-surface-container-high));
     box-shadow: var(--search-view-docked-shadow, none);
   }
@@ -6255,9 +6285,9 @@
   }
   .search-view:not(:modal),
   .search-view-docked {
-    border-radius: var(--search-view-radius, var(--mo-sys-block-radius));
+    border-radius: var(--mo-comp-search-view-radius, var(--mo-sys-block-radius));
     box-shadow:
-      0 0 0 1px var(--search-view-line, var(--mo-sys-block-line)),
+      0 0 0 1px var(--mo-comp-search-view-line, var(--mo-sys-block-line)),
       var(--search-view-shadow, var(--mo-sys-elevation-level3-rest-shadow));
   }
   .search-view-docked {
@@ -6291,9 +6321,9 @@
     gap: 0;
     margin: var(--search-view-header-margin, 0.75rem);
     border-bottom: 1px solid var(--search-view-divider, transparent);
-    border-radius: var(--search-view-header-radius, var(--search-bar-radius, var(--mo-sys-shape-corner-full)));
+    border-radius: var(--search-view-header-radius, var(--mo-comp-search-bar-container-shape, var(--mo-sys-shape-corner-full)));
     padding: 0 0.25rem;
-    background: var(--search-view-header-surface, var(--search-bar-surface, var(--mo-sys-color-surface-container-high)));
+    background: var(--search-view-header-surface, var(--mo-comp-search-bar-container-color, var(--mo-sys-color-surface-container-high)));
     color: var(--search-bar-text, var(--mo-sys-color-on-surface));
   }
   .search-view-input {
@@ -6316,7 +6346,7 @@
     outline: 2px solid transparent;
   }
   .search-view-input::placeholder {
-    color: var(--search-bar-placeholder, var(--mo-sys-block-muted));
+    color: var(--mo-comp-search-bar-supporting-text-color, var(--mo-sys-block-muted));
   }
   .search-view-input::-webkit-search-cancel-button {
     appearance: none;
@@ -6341,10 +6371,10 @@
     min-height: 0;
     flex: 1;
     overflow-y: auto;
-    padding: var(--search-view-results-padding, 0.5rem 0);
+    padding: var(--mo-comp-search-view-results-padding, 0.5rem 0);
   }
   .search-view-results [role='option'][aria-selected='true'] {
-    background: var(--search-view-option-surface, var(--mo-sys-block-tint));
+    background: var(--mo-comp-search-view-option-surface, var(--mo-sys-block-tint));
   }
   /* M3 Lists, tokens: "List list item trailing space 16dp": the icon of a button after an item is 16dp from the edge (its 48dp target holds 12dp). */
   .search-view-results .list-item-multi-action {
@@ -6352,7 +6382,7 @@
   }
   /* An item with a button after it (a recent search): the one highlight covers the item and its button. */
   .search-view-results .list-item-multi-action:has(> [role='option'][aria-selected='true']) {
-    background: var(--search-view-option-surface, var(--mo-sys-block-tint));
+    background: var(--mo-comp-search-view-option-surface, var(--mo-sys-block-tint));
   }
   .search-view-results .list-item-multi-action > [role='option'][aria-selected='true'] {
     background: transparent;
@@ -6487,15 +6517,15 @@
   .date-picker-menu-item with .date-picker-menu-check), or the input mode (.date-picker-input, the theme's text fields);
   and .date-picker-actions.
     --date-picker-width   how wide it is
-    --date-picker-docked-radius, --date-picker-docked-shadow   a docked picker's corners and shadow (else the dialog's)
-    --date-picker-supporting-color, --date-picker-headline-size, --date-picker-headline-weight, --date-picker-line
+    --mo-comp-date-picker-docked-radius, --date-picker-docked-shadow   a docked picker's corners and shadow (else the dialog's)
+    --mo-comp-date-picker-supporting-color, --date-picker-headline-size, --date-picker-headline-weight, --date-picker-line
                      a modal picker's header: the line over the headline, the headline, and the line under the header
-    --date-picker-menu-button-text, --date-picker-weekday-text   the month and year over the days, and the weekdays
-    --date-picker-day-size, --date-picker-day-radius, --date-picker-day-text, --date-picker-day-hover   a day (also a
+    --mo-comp-date-picker-menu-button-text, --date-picker-weekday-text   the month and year over the days, and the weekdays
+    --date-picker-day-size, --mo-comp-date-picker-day-radius, --date-picker-day-text, --mo-comp-date-picker-day-hover   a day (also a
                      year, a month in a list) and the shade when it is pointed at
     --date-picker-today-text, --date-picker-today-line   today (also this year)
     --date-picker-selected-surface, --date-picker-selected-text   the day picked (also the year shown)
-    --date-picker-range-surface, --date-picker-range-text   the band of a range's days
+    --mo-comp-date-picker-range-surface, --date-picker-range-text   the band of a range's days
   Time pickers (TimePicker.tsx, the picker drawn by TimePickerContainer.tsx, timePicker.script.ts;
   m3.material.io/components/time-pickers): .time-picker-field, the text field with the clock button
   (.time-picker-field-button) and the modal dialog the picker opens in (.time-picker-dialog). The picker is a dialog's
@@ -6510,11 +6540,11 @@
   view, [data-view='dial']), AM and PM under them.
     --time-picker-width, --time-picker-horizontal-width, --time-picker-horizontal-gap   how wide it is, and a
                      horizontal one, with the room between the boxes and the dial
-    --time-picker-headline-color   the headline
-    --time-picker-box-width, --time-picker-box-height, --time-picker-box-radius, --time-picker-box-font-size,
+    --mo-comp-time-picker-headline-color   the headline
+    --time-picker-box-width, --time-picker-box-height, --mo-comp-time-picker-box-radius, --time-picker-box-font-size,
     --time-picker-box-weight   the boxes (also the input mode's fields)
-    --time-picker-box-surface, --time-picker-box-text, --time-picker-box-selected-surface, --time-picker-box-selected-text
-    --time-picker-dial-size, --time-picker-dial-surface, --time-picker-dial-text, --time-picker-dial-knob   the dial and
+    --mo-comp-time-picker-box-surface, --time-picker-box-text, --mo-comp-time-picker-box-selected-surface, --mo-comp-time-picker-box-selected-text
+    --time-picker-dial-size, --mo-comp-time-picker-dial-surface, --time-picker-dial-text, --time-picker-dial-knob   the dial and
                      the circle round a number on it
     --time-picker-hand, --time-picker-hand-text   the hand and the number it points at
     --time-picker-period-width, --time-picker-period-height, --time-picker-period-line, --time-picker-period-text,
@@ -6536,14 +6566,20 @@
   .date-picker-field-button,
   .time-picker-field-button {
     position: absolute;
-    top: calc((var(--text-field-box, var(--text-field-height, 3rem)) - var(--mo-comp-icon-button-small-container-height, 2.75rem)) / 2);
+    top: calc(
+      (
+          var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) -
+            var(--mo-comp-icon-button-small-container-height, 2.75rem)
+        ) /
+        2
+    );
     right: 0.25rem;
   }
 
   /* Where it opens: under the field (docked), or in the middle of the screen (modal: .dialog-modal, its scrim). */
   .date-picker-popover {
     position: absolute;
-    inset: calc(var(--text-field-box, var(--text-field-height, 3rem)) + 0.25rem) auto auto 0;
+    inset: calc(var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) + 0.25rem) auto auto 0;
     z-index: 35;
     width: min(var(--date-picker-width, 22.5rem), calc(100vw - 2rem));
     margin: 0;
@@ -6579,7 +6615,7 @@
     color: var(--mo-sys-block-text);
   }
   .date-picker-docked {
-    border-radius: var(--date-picker-docked-radius, var(--dialog-radius, var(--mo-sys-block-radius)));
+    border-radius: var(--mo-comp-date-picker-docked-radius, var(--dialog-radius, var(--mo-sys-block-radius)));
     box-shadow:
       0 0 0 1px var(--dialog-line, var(--mo-sys-block-line)),
       var(--date-picker-docked-shadow, var(--dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow)));
@@ -6590,7 +6626,7 @@
   }
   .date-picker-supporting-text {
     margin: 0;
-    color: var(--date-picker-supporting-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-date-picker-supporting-color, var(--mo-sys-block-muted));
     font-size: var(--mo-sys-typescale-label-large-size);
     line-height: var(--mo-sys-typescale-label-large-line-height);
     font-weight: var(--mo-sys-typescale-label-large-weight);
@@ -6638,7 +6674,7 @@
     border: 0;
     border-radius: var(--mo-sys-shape-corner-full);
     background: transparent;
-    color: var(--date-picker-menu-button-text, var(--mo-sys-block-text));
+    color: var(--mo-comp-date-picker-menu-button-text, var(--mo-sys-block-text));
     font: inherit;
     font-size: var(--mo-sys-typescale-label-large-size);
     line-height: var(--mo-sys-typescale-label-large-line-height);
@@ -6649,7 +6685,7 @@
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
   .date-picker-menu-button:hover:not(:disabled) {
-    background: var(--date-picker-day-hover, var(--mo-sys-block-tint));
+    background: var(--mo-comp-date-picker-day-hover, var(--mo-sys-block-tint));
   }
   .date-picker-menu-button:disabled {
     opacity: 0.35;
@@ -6694,7 +6730,7 @@
     width: var(--date-picker-day-size, 2.5rem);
     height: var(--date-picker-day-size, 2.5rem);
     border: 0;
-    border-radius: var(--date-picker-day-radius, var(--mo-sys-shape-corner-full));
+    border-radius: var(--mo-comp-date-picker-day-radius, var(--mo-sys-shape-corner-full));
     background: transparent;
     color: var(--date-picker-day-text, var(--mo-sys-block-text));
     font: inherit;
@@ -6710,7 +6746,7 @@
   }
   .date-picker-day:hover:not(:disabled),
   .date-picker-year:hover {
-    background: var(--date-picker-day-hover, var(--mo-sys-block-tint));
+    background: var(--mo-comp-date-picker-day-hover, var(--mo-sys-block-tint));
   }
   .date-picker-day:disabled {
     opacity: 0.38;
@@ -6729,13 +6765,13 @@
   }
   /* A range: a band from the start to the end, behind their circles. */
   .date-picker-cell[data-range='middle'] {
-    background: var(--date-picker-range-surface, var(--mo-sys-block-tint));
+    background: var(--mo-comp-date-picker-range-surface, var(--mo-sys-block-tint));
   }
   .date-picker-cell[data-range='start'] {
-    background: linear-gradient(to right, transparent 50%, var(--date-picker-range-surface, var(--mo-sys-block-tint)) 50%);
+    background: linear-gradient(to right, transparent 50%, var(--mo-comp-date-picker-range-surface, var(--mo-sys-block-tint)) 50%);
   }
   .date-picker-cell[data-range='end'] {
-    background: linear-gradient(to left, transparent 50%, var(--date-picker-range-surface, var(--mo-sys-block-tint)) 50%);
+    background: linear-gradient(to left, transparent 50%, var(--mo-comp-date-picker-range-surface, var(--mo-sys-block-tint)) 50%);
   }
   .date-picker-cell[data-range='middle'] .date-picker-day {
     color: var(--date-picker-range-text, var(--mo-sys-block-text));
@@ -6772,7 +6808,7 @@
     min-height: 3rem;
     padding: 0 1rem;
     border: 0;
-    border-radius: var(--date-picker-day-radius, var(--mo-sys-shape-corner-full));
+    border-radius: var(--mo-comp-date-picker-day-radius, var(--mo-sys-shape-corner-full));
     background: transparent;
     color: var(--date-picker-day-text, var(--mo-sys-block-text));
     font: inherit;
@@ -6784,7 +6820,7 @@
     cursor: pointer;
   }
   .date-picker-menu-item:hover {
-    background: var(--date-picker-day-hover, var(--mo-sys-block-tint));
+    background: var(--mo-comp-date-picker-day-hover, var(--mo-sys-block-tint));
   }
   .date-picker-menu-check {
     flex-shrink: 0;
@@ -6823,7 +6859,7 @@
   .time-picker-headline {
     justify-self: start;
     margin: 0 0 1.25rem;
-    color: var(--time-picker-headline-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-time-picker-headline-color, var(--mo-sys-block-muted));
     font-size: var(--mo-sys-typescale-label-medium-size);
     line-height: var(--mo-sys-typescale-label-medium-line-height);
     font-weight: var(--mo-sys-typescale-label-medium-weight);
@@ -6851,8 +6887,8 @@
     width: var(--time-picker-box-width, 6rem);
     height: var(--time-picker-box-height, 5rem);
     border: 0;
-    border-radius: var(--time-picker-box-radius, var(--mo-sys-block-radius-small));
-    background: var(--time-picker-box-surface, var(--mo-sys-block-tint));
+    border-radius: var(--mo-comp-time-picker-box-radius, var(--mo-sys-block-radius-small));
+    background: var(--mo-comp-time-picker-box-surface, var(--mo-sys-block-tint));
     color: var(--time-picker-box-text, var(--mo-sys-block-text));
     font: inherit;
     font-size: var(--time-picker-box-font-size, var(--mo-sys-typescale-display-large-size));
@@ -6868,11 +6904,11 @@
       color var(--mo-sys-motion-spring-default-effects);
   }
   .time-picker-box:hover {
-    background: color-mix(in srgb, var(--mo-sys-block-text) 8%, var(--time-picker-box-surface, var(--mo-sys-block-tint)));
+    background: color-mix(in srgb, var(--mo-sys-block-text) 8%, var(--mo-comp-time-picker-box-surface, var(--mo-sys-block-tint)));
   }
   .time-picker-box[aria-pressed='true'] {
-    background: var(--time-picker-box-selected-surface, var(--mo-sys-block-accent));
-    color: var(--time-picker-box-selected-text, var(--mo-sys-block-on-accent));
+    background: var(--mo-comp-time-picker-box-selected-surface, var(--mo-sys-block-accent));
+    color: var(--mo-comp-time-picker-box-selected-text, var(--mo-sys-block-on-accent));
   }
   .time-picker-text-field .text-field-input {
     min-height: 0;
@@ -6895,7 +6931,7 @@
     height: var(--time-picker-dial-size, 16rem);
     margin-top: 1.5rem;
     border-radius: var(--mo-sys-shape-corner-full);
-    background: var(--time-picker-dial-surface, var(--mo-sys-block-tint));
+    background: var(--mo-comp-time-picker-dial-surface, var(--mo-sys-block-tint));
     color: var(--time-picker-dial-text, var(--mo-sys-block-text));
     touch-action: none;
     user-select: none;
@@ -6916,14 +6952,16 @@
     letter-spacing: var(--mo-sys-typescale-body-large-tracking);
     font-variant-numeric: tabular-nums;
     pointer-events: none;
-    transform: rotate(var(--time-picker-angle)) translateY(calc(-1 * var(--time-picker-ring))) rotate(calc(-1 * var(--time-picker-angle)));
+    transform: rotate(var(--time-picker-angle)) translateY(calc(-1 * var(--mo-comp-time-picker-ring)))
+      rotate(calc(-1 * var(--time-picker-angle)));
   }
   .time-picker-dial-number[data-inner] {
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
-    transform: rotate(var(--time-picker-angle)) translateY(calc(var(--time-picker-dial-knob, 3rem) * 0.75 - var(--time-picker-ring)))
+    transform: rotate(var(--time-picker-angle))
+      translateY(calc(var(--time-picker-dial-knob, 3rem) * 0.75 - var(--mo-comp-time-picker-ring)))
       rotate(calc(-1 * var(--time-picker-angle)));
   }
   .time-picker-dial-number[data-selected] {
@@ -6935,7 +6973,7 @@
     bottom: 50%;
     left: 50%;
     width: 2px;
-    height: var(--time-picker-ring);
+    height: var(--mo-comp-time-picker-ring);
     margin-left: -1px;
     background: var(--time-picker-hand, var(--mo-sys-block-accent));
     pointer-events: none;
@@ -6943,7 +6981,7 @@
     transform-origin: bottom center;
   }
   .time-picker-dial-hand[data-inner] {
-    height: calc(var(--time-picker-ring) - var(--time-picker-dial-knob, 3rem) * 0.75);
+    height: calc(var(--mo-comp-time-picker-ring) - var(--time-picker-dial-knob, 3rem) * 0.75);
   }
   .time-picker-dial-hand::after {
     content: '';
@@ -6978,7 +7016,7 @@
   .time-picker-error {
     justify-self: stretch;
     margin: 0.75rem 0 0;
-    color: var(--text-field-error, var(--mo-sys-block-accent));
+    color: var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
     font-size: var(--mo-sys-typescale-body-small-size);
     line-height: var(--mo-sys-typescale-body-small-line-height);
     font-weight: var(--mo-sys-typescale-body-small-weight);
@@ -7006,7 +7044,7 @@
     height: var(--time-picker-box-height, 5rem);
     margin-inline-start: 0.75rem;
     overflow: hidden;
-    border-radius: var(--time-picker-box-radius, var(--mo-sys-block-radius-small));
+    border-radius: var(--mo-comp-time-picker-box-radius, var(--mo-sys-block-radius-small));
     box-shadow: inset 0 0 0 1px var(--time-picker-period-line, var(--mo-sys-block-line));
   }
   .time-picker-period-button {

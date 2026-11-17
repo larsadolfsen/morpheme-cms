@@ -46,9 +46,9 @@ const surfaces = [
   ['elevated button', 'background: var(--button-elevated-surface, var(--mo-sys-elevation-level1-color));', 1],
   ['elevated chip', 'background: var(--chip-elevated-surface, var(--mo-sys-elevation-level1-color));', 1],
   ['elevated card', 'background: var(--card-elevated-surface, var(--mo-sys-elevation-level1-color));', 1],
-  ['outlined card', 'background: var(--card-outlined-surface, var(--mo-sys-elevation-level0-color));', 1],
+  ['outlined card', 'background: var(--mo-comp-outlined-card-container-color, var(--mo-sys-elevation-level0-color));', 1],
   ['dialog (also date and time picker)', 'background: var(--dialog-surface, var(--mo-sys-elevation-level3-color));', 1],
-  ['date picker input label notch', '--text-field-label-surface: var(--dialog-surface, var(--mo-sys-elevation-level3-color));', 1],
+  ['date picker input label notch', '--mo-comp-text-field-label-surface: var(--dialog-surface, var(--mo-sys-elevation-level3-color));', 1],
   ['bottom sheet (container and cover)', 'background: var(--bottom-sheet-surface, var(--mo-sys-elevation-level1-color));', 2],
   ['standard side sheet', 'background: var(--side-sheet-surface, var(--mo-sys-elevation-level0-color));', 2],
   ['modal side sheet', 'background: var(--side-sheet-modal-surface, var(--side-sheet-surface, var(--mo-sys-elevation-level1-color)));', 2],
@@ -79,10 +79,10 @@ for (const [part, line, times] of surfaces) {
 // Parts that keep their surface: the top app bar at rest, and the role parts.
 const unchanged = [
   'background: var(--mo-comp-top-app-bar-surface, color-mix(in oklab, var(--mo-sys-color-surface) 85%, transparent));',
-  'background: var(--search-bar-surface, var(--mo-sys-block-surface));',
+  'background: var(--mo-comp-search-bar-container-color, var(--mo-sys-block-surface));',
   'background: var(--navigation-bar-surface, var(--mo-sys-block-surface));',
-  'background: var(--card-filled-surface, var(--mo-sys-block-tint));',
-  'background: var(--switch-handle-surface, var(--mo-sys-block-surface));',
+  'background: var(--mo-comp-filled-card-container-color, var(--mo-sys-block-tint));',
+  'background: var(--mo-comp-switch-unselected-handle-color, var(--mo-sys-block-surface));',
 ];
 
 for (const line of unchanged) {
@@ -102,7 +102,11 @@ test('no part reads the old surface fallbacks', () => {
 const restShadows = [
   ['elevated button', 'box-shadow: var(--button-elevated-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 2],
   ['elevated chip', 'box-shadow: var(--chip-elevated-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 2],
-  ['elevated card', '--card-shadow: var(--card-elevated-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 1],
+  [
+    'elevated card',
+    '--mo-comp-card-shadow: var(--mo-comp-elevated-card-container-elevation, var(--mo-sys-elevation-level1-rest-shadow));',
+    1,
+  ],
   ['modal side sheet (container and wide layout)', 'box-shadow: var(--side-sheet-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 2],
   ['bottom sheet', 'box-shadow: var(--bottom-sheet-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 1],
   ['bottom sheet as a dialog', 'box-shadow: var(--bottom-sheet-shadow-large, var(--mo-sys-elevation-level3-rest-shadow));', 1],
@@ -129,14 +133,19 @@ for (const [part, line, times] of restShadows) {
 
 // The lift stays on --mo-elevation-N-shadow.
 test('elevated card hover still reads --mo-sys-elevation-level2-shadow', () => {
+  // Prettier wraps a long var() over lines, so the text is read with its white space collapsed.
+  const flat = uiCss.replace(/\s+/g, ' ').replace(/\( /g, '(').replace(/ \)/g, ')');
   assert.equal(
-    count(uiCss, '--card-shadow: var(--card-elevated-hover-shadow, var(--card-elevated-shadow, var(--mo-sys-elevation-level2-shadow)));'),
+    count(
+      flat,
+      '--mo-comp-card-shadow: var(--mo-comp-elevated-card-hover-container-elevation, var(--mo-comp-elevated-card-container-elevation, var(--mo-sys-elevation-level2-shadow)));',
+    ),
     1,
   );
 });
 
 test('outlined card keeps --mo-sys-elevation-level0-shadow', () => {
-  assert.equal(count(uiCss, '--card-shadow: var(--card-outlined-shadow, var(--mo-sys-elevation-level0-shadow));'), 1);
+  assert.equal(count(uiCss, '--mo-comp-card-shadow: var(--card-outlined-shadow, var(--mo-sys-elevation-level0-shadow));'), 1);
 });
 
 // The Material theme (global.css): colour at rest, a shadow only for the FAB and the lift.

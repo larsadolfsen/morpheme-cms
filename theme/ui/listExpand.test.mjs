@@ -30,10 +30,10 @@ test('the item is a details with its summary as the item (keyboard and screen re
 
 test("the state layers and the focus ring are the List's own tokens, the corner is M3's 16dp", () => {
   const summary = ui.slice(ui.indexOf('.list-item-expand-summary {'));
-  assert.match(summary, /--list-item-hover-surface/);
-  assert.match(summary, /--list-item-focus-indicator-color/);
+  assert.match(summary, /--mo-comp-list-item-hover-surface/);
+  assert.match(summary, /--mo-comp-list-item-focus-indicator-color/);
   assert.match(summary, /outline: 3px solid/);
-  assert.match(ui, /\.list-expand\s*\{[^}]*--list-expand-radius, var\(--mo-sys-shape-corner-large\)/);
+  assert.match(ui, /\.list-expand\s*\{[^}]*--mo-comp-list-expand-container-shape, var\(--mo-sys-shape-corner-large\)/);
 });
 
 test('the FAQ is drawn on the part, with no accordion rules of its own left', () => {

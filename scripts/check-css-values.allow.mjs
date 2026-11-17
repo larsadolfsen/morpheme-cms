@@ -8,7 +8,7 @@ export const allow = [
   },
   {
     file: /global\.css$|tokens\/material\/comp\/slider\.css$/,
-    line: /^--slider-track-inner-radius: 0\.125rem/,
+    line: /^--mo-comp-slider-active-track-inner-corner-corner-size: 0\.125rem/,
     reason: "the slider's inner track corner: M3 draws it 2dp",
   },
   {

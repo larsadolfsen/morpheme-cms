@@ -4,14 +4,14 @@
      left of the media"); the 24 dp of the old segmented look stays for rows with no media. */
 @layer components {
   .block-accordion-segmented:has(.list-item-leading-avatar, .list-item-leading-image, .list-item-leading-video) {
-    --list-expand-padding-inline: 1rem;
+    --mo-comp-list-expand-padding-inline: 1rem;
   }
 }
 /* A row's square and landscape image has Material 3's small corner, 8 dp (owner, 16 Nov 2026, from the M3 segmented list with images); only the avatar is round. */
 @layer components {
   .block-list,
   .block-accordion {
-    --list-item-image-radius: var(--mo-sys-shape-corner-small);
+    --mo-comp-list-item-image-radius: var(--mo-sys-shape-corner-small);
   }
 }
 /* The plain design of a list (its rows on the page, no drawn container) starts its rows' own content, the leading icon or else the text, on the text's
@@ -21,33 +21,33 @@
      edges, and the layer has square corners. It is the row's own inner padding and an equal negative margin of the list; from medium the layer is on the text column. */
 @layer components {
   .block-list:not(.list-segmented) {
-    --list-item-padding-inline: 0;
+    --mo-comp-list-item-padding-inline: 0;
   }
 }
 @layer components {
   .block-accordion:not(.block-accordion-segmented) {
-    --list-expand-padding-inline: 0;
+    --mo-comp-list-expand-padding-inline: 0;
   }
 }
 @layer components {
   @media (width < theme(--breakpoint-medium)) {
     .block-list:not(.list-segmented) {
-      --list-item-padding-inline: var(--mo-sys-block-list-layer-room);
+      --mo-comp-list-item-padding-inline: var(--mo-sys-block-list-layer-room);
       /* Edge to edge, a row's layer has no rounded corners, at rest, pointed at, pressed or selected (owner, 16 Nov 2026: "No border radius when full width"). */
-      --list-item-radius: 0;
-      --list-item-hover-radius: 0;
-      --list-item-pressed-radius: 0;
-      --list-item-selected-radius: 0;
+      --mo-comp-list-list-item-container-shape: 0;
+      --mo-comp-list-item-hover-radius: 0;
+      --mo-comp-list-item-pressed-radius: 0;
+      --mo-comp-list-item-selected-radius: 0;
     }
   }
 }
 @layer components {
   @media (width < theme(--breakpoint-medium)) {
     .block-accordion:not(.block-accordion-segmented) {
-      --list-expand-padding-inline: var(--mo-sys-block-list-layer-room);
+      --mo-comp-list-expand-padding-inline: var(--mo-sys-block-list-layer-room);
       /* Edge to edge, an open item's colour has square corners too. */
-      --list-expand-open-radius: 0;
-      --list-expand-radius: 0;
+      --mo-comp-list-expand-open-radius: 0;
+      --mo-comp-list-expand-container-shape: 0;
     }
   }
 }

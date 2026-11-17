@@ -2,7 +2,7 @@
 
 @layer components {
   .list-item-control {
-    --radio-button-gap: 0;
-    --radio-button-offset: 0;
+    --mo-comp-radio-button-gap: 0;
+    --mo-comp-radio-button-offset: 0;
   }
 }

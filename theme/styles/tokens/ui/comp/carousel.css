@@ -67,18 +67,18 @@
   carouselLayout.ts moves and clips as they scroll (--carousel-item-width on the row, --carousel-mask-inset on a mask,
   --carousel-mask on an item: 0 to 1 of it masked), and .carousel-full-screen (one item at a time, as wide as the
   carousel, out to a phone's edges).
-    --carousel-bleed   how far the row of an uncontained or full-screen one reaches out to the edges of a phone's screen
+    --mo-comp-carousel-bleed   how far the row of an uncontained or full-screen one reaches out to the edges of a phone's screen
                      (the site's gutter)
     --carousel-gap, --carousel-contained-gap   the room between the items, uncontained and contained
     --carousel-height, --carousel-full-screen-height   how high a contained carousel is, and a full-screen one
-    --carousel-large-item-width   how wide multi-browse's large items are, as near as they fit (in px or rem)
-    --carousel-small-item-min-width, --carousel-small-item-max-width   a small item's narrowest and widest (px or rem)
-    --carousel-item-radius, --carousel-item-surface   a contained item's corners, and what is behind its image
-    --carousel-full-screen-radius   a full-screen one's items' corners on a phone
-    --carousel-dot-size, --carousel-dot-colour, --carousel-dot-selected-width, --carousel-dot-selected-colour
+    --mo-comp-carousel-large-item-width   how wide multi-browse's large items are, as near as they fit (in px or rem)
+    --mo-comp-carousel-small-item-min-width, --mo-comp-carousel-small-item-max-width   a small item's narrowest and widest (px or rem)
+    --mo-comp-carousel-item-container-shape, --carousel-item-surface   a contained item's corners, and what is behind its image
+    --mo-comp-carousel-full-screen-radius   a full-screen one's items' corners on a phone
+    --carousel-dot-size, --mo-comp-carousel-dot-colour, --mo-comp-carousel-dot-selected-width, --carousel-dot-selected-colour
 */
 :where(:root) {
-  --carousel-large-item-width: 12.5rem;
-  --carousel-small-item-min-width: 2.5rem;
-  --carousel-small-item-max-width: 3.5rem;
+  --mo-comp-carousel-large-item-width: 12.5rem;
+  --mo-comp-carousel-small-item-min-width: 2.5rem;
+  --mo-comp-carousel-small-item-max-width: 3.5rem;
 }

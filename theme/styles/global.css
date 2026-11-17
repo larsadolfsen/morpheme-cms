@@ -173,7 +173,7 @@
       .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text))
     )
     .text-field-container:has(> .text-field-input:focus) {
-    box-shadow: inset 0 -2px 0 var(--text-field-error, var(--mo-sys-color-primary));
+    box-shadow: inset 0 -2px 0 var(--mo-comp-text-field-error, var(--mo-sys-color-primary));
   }
 
   /* An M3 checkbox: an 18px box with a 2px edge in on-surface-variant and 2px corners, filled in the primary colour
@@ -350,7 +350,7 @@
     color: var(--mo-sys-color-primary);
   }
   .block-card-picture {
-    border-radius: var(--card-radius);
+    border-radius: var(--mo-comp-card-radius);
   }
   .block-card-text {
     font-weight: 400;

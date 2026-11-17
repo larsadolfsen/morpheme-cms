@@ -6,8 +6,8 @@
 // places are keylines: where each item stands and how wide it is seen, with an item that is just leaving or coming in
 // outside at each end. Scrolled to the start, the large ones are at the start (also in a hero aligned to the centre);
 // scrolled to the end, at the end; between, the layout's own; and from one to the other the keylines move by
-// themselves, so that every item grows and shrinks as it passes. Widths from the theme (--carousel-large-item-width,
-// --carousel-small-item-min-width and -max-width, the gap and the height, in ui.css); what is masked of an item is on it
+// themselves, so that every item grows and shrinks as it passes. Widths from the theme (--mo-comp-carousel-large-item-width,
+// --mo-comp-carousel-small-item-min-width and -max-width, the gap and the height, in ui.css); what is masked of an item is on it
 // as --carousel-mask (0 to 1), for what is on it to fade. The site's carousel.script.ts and, in the editor, Carousel.tsx
 // run it; it gives back what stops it. The other layouts ('uncontained', 'full-screen') are only ui.css.
 export type CarouselLayout = 'multi-browse' | 'uncontained' | 'hero' | 'full-screen';
@@ -110,9 +110,9 @@ export function carouselLayout(root: HTMLElement): () => void {
     const width = row!.clientWidth;
     const gap = parseFloat(getComputedStyle(row!).columnGap) || 0;
     const sizes = arrangement(layout, alignment, items.length, width, gap, {
-      large: lengthOf(root, '--carousel-large-item-width', 200),
-      smallMin: lengthOf(root, '--carousel-small-item-min-width', 40),
-      smallMax: lengthOf(root, '--carousel-small-item-max-width', 56),
+      large: lengthOf(root, '--mo-comp-carousel-large-item-width', 200),
+      smallMin: lengthOf(root, '--mo-comp-carousel-small-item-min-width', 40),
+      smallMax: lengthOf(root, '--mo-comp-carousel-small-item-max-width', 56),
       height: row!.clientHeight,
     });
     large = Math.max(...sizes);
