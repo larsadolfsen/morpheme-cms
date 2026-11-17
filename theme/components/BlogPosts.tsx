@@ -24,7 +24,7 @@ export default function BlogPosts({ posts }: { posts: PostView[] }) {
     <>
       <Link href={featured.href} className="group grid items-center gap-6 medium:gap-12 expanded:grid-cols-12">
         {featured.image && (
-          <div className="overflow-hidden rounded-(--theme-picture-radius) expanded:col-span-7">
+          <div className="overflow-hidden rounded-(--mo-comp-theme-picture-radius) expanded:col-span-7">
             <Img
               image={featured.image}
               alt={featured.imageAlt ?? ''}

@@ -11,7 +11,7 @@
   full-screen dialog: a full screen is a page with a back arrow.
     --mo-comp-dialog-container-shape, --dialog-surface, --dialog-shadow, --mo-comp-dialog-line   the container's corners, surface, shadow
                      (level 3), edge
-    --mo-comp-dialog-scrim   the shade over the page behind a modal dialog (else --theme-scrim-colour, the text's colour, in
+    --mo-comp-dialog-scrim   the shade over the page behind a modal dialog (else --mo-comp-theme-scrim-colour, the text's colour, in
                      dark mode the page's, seen through)
     --dialog-max-width   how wide a modal dialog is at most
     --dialog-padding   the room inside a basic dialog
@@ -20,7 +20,7 @@
   .lightbox-track (images that snap), .lightbox-item, .lightbox-figure, .lightbox-image, .lightbox-caption, .lightbox-previous, .lightbox-next and
   .lightbox-count; on a compact window over the whole screen, from medium the window less 56 dp on each side.
     --lightbox-surface   its container, see-through over the scrim (else the scrim colour at 88%)
-    --theme-on-scrim-colour   the colour of its controls and text on the shade (components.css; the scrim colour's opposite)
+    --mo-comp-theme-on-scrim-colour   the colour of its controls and text on the shade (components.css; the scrim colour's opposite)
   Bottom sheets (BottomSheet.tsx, bottomSheetClass, bottomSheetContainerClass, and bottomSheet() and
   standardBottomSheet() in bottomSheetControl.ts for what it does in a browser, bottomSheet.script.ts on the site;
   m3.material.io/components/bottom-sheets): a modal one's <dialog> is .bottom-sheet (an app's: Calendly's calendar), at

@@ -2,11 +2,11 @@
 
 /* The list of posts (PostList.tsx): a List with a leading image, 88 high on a phone and 128 from medium (larger imagery on
      larger screens), a rule above each row (a divider of its own: the grid has two columns), the image's corners
-     --theme-post-picture-radius (Material 3: 8dp). */
+     --mo-comp-theme-post-picture-radius (Material 3: 8dp). */
 @layer components {
   .theme-post-list {
     --mo-comp-list-item-image-size: 5.5rem;
-    --mo-comp-list-item-image-radius: var(--theme-post-picture-radius);
+    --mo-comp-list-item-image-radius: var(--mo-comp-theme-post-picture-radius);
   }
 }
 @layer components {

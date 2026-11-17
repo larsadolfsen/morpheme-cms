@@ -82,12 +82,5 @@
       "why": "Tailwind @theme namespace (animate-* utilities). Temporary: docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md moves the CMS away from Tailwind, and this entry goes with it."
     }
   ],
-  "files": {
-    "theme/styles/tokens/base/sys.css": {
-      "max": 25
-    },
-    "theme/styles/tokens/material/sys.css": {
-      "max": 3
-    }
-  }
+  "files": {}
 }

@@ -22,8 +22,8 @@
 
 :where(:root) {
   /* The menus and the toolbar of the text: Material 3's menu surface and shadow (elevation level 2). */
-  --editor-menu-surface: var(--mo-sys-color-surface-container-lowest);
-  --editor-menu-shadow: var(--mo-sys-elevation-level2-shadow);
+  --mo-comp-editor-menu-surface: var(--mo-sys-color-surface-container-lowest);
+  --mo-comp-editor-menu-shadow: var(--mo-sys-elevation-level2-shadow);
 
   /* The room a screen leaves above its footer for the FAB (Screen.tsx data-clearance): the FAB's 56 dp and its 16 dp margins. */
   --mo-comp-fab-room: 4.5rem;
@@ -31,43 +31,43 @@
   /* How a check went (CheckList: the SEO rating), as PageSpeed shows it: the mark before a check that is fine and one
      that can be done better, and the score's ring (from 90 good, from 50 average, else bad) with its number and the
      light circle in it; the same in every theme. */
-  --editor-status-good: #0cce6b;
-  --editor-status-good-text: light-dark(#008800, var(--editor-status-good));
-  --editor-status-good-surface: color-mix(in srgb, #0cce6b 10%, var(--mo-sys-color-surface-container-lowest));
-  --editor-status-average: #ffa400;
-  --editor-status-average-text: light-dark(#c33300, var(--editor-status-average));
-  --editor-status-average-surface: color-mix(in srgb, #ffa400 10%, var(--mo-sys-color-surface-container-lowest));
-  --editor-status-bad: #ff4e42;
-  --editor-status-bad-text: light-dark(#cc0000, var(--editor-status-bad));
-  --editor-status-bad-surface: color-mix(in srgb, #ff4e42 10%, var(--mo-sys-color-surface-container-lowest));
+  --mo-comp-editor-status-good: #0cce6b;
+  --mo-comp-editor-status-good-text: light-dark(#008800, var(--mo-comp-editor-status-good));
+  --mo-comp-editor-status-good-surface: color-mix(in srgb, #0cce6b 10%, var(--mo-sys-color-surface-container-lowest));
+  --mo-comp-editor-status-average: #ffa400;
+  --mo-comp-editor-status-average-text: light-dark(#c33300, var(--mo-comp-editor-status-average));
+  --mo-comp-editor-status-average-surface: color-mix(in srgb, #ffa400 10%, var(--mo-sys-color-surface-container-lowest));
+  --mo-comp-editor-status-bad: #ff4e42;
+  --mo-comp-editor-status-bad-text: light-dark(#cc0000, var(--mo-comp-editor-status-bad));
+  --mo-comp-editor-status-bad-surface: color-mix(in srgb, #ff4e42 10%, var(--mo-sys-color-surface-container-lowest));
 
   /* A Google result (SearchPreview.tsx) in Google's own colours, light and dark (light-dark() follows the
      root's color-scheme, so the system setting and data-theme both work): its background, the title (on a computer, and on a phone), the site's name, the address and the text, the date before the text, and the 8 px band above and below a
      phone's result. */
-  --google-background: light-dark(#fff, #1f1f1f);
-  --google-title: light-dark(#1a0dab, #99c3ff);
-  --google-title-phone: light-dark(#1558d6, #99c3ff);
-  --google-site: light-dark(#202124, #dadce0);
-  --google-text: light-dark(#4d5156, #bfbfbf);
-  --google-date: light-dark(#70757a, #9aa0a6);
-  --google-separator: light-dark(#ecedef, #303134);
+  --mo-comp-google-background: light-dark(#fff, #1f1f1f);
+  --mo-comp-google-title: light-dark(#1a0dab, #99c3ff);
+  --mo-comp-google-title-phone: light-dark(#1558d6, #99c3ff);
+  --mo-comp-google-site: light-dark(#202124, #dadce0);
+  --mo-comp-google-text: light-dark(#4d5156, #bfbfbf);
+  --mo-comp-google-date: light-dark(#70757a, #9aa0a6);
+  --mo-comp-google-separator: light-dark(#ecedef, #303134);
   /* The site's circle: its fill and ring and the letter in it, the same in light and dark. */
-  --google-icon-fill: #fff;
-  --google-icon-ring: #dadce0;
-  --google-icon-letter: #202124;
+  --mo-comp-google-icon-fill: #fff;
+  --mo-comp-google-icon-ring: #dadce0;
+  --mo-comp-google-icon-letter: #202124;
 
   /* The dotted frame round an H2 section of a page or blog post (sectionFrame.ts): its line, the space between the line and
      the text, the space above a section, and the space between two parts inside it (em: it scales with the part's text). */
-  --editor-section-frame: 2px dotted var(--mo-sys-block-line);
-  --editor-section-pad: 1rem;
-  --editor-section-gap: 2rem;
-  --editor-section-rhythm: 0.625em;
+  --mo-comp-editor-section-frame: 2px dotted var(--mo-sys-block-line);
+  --mo-comp-editor-section-pad: 1rem;
+  --mo-comp-editor-section-gap: 2rem;
+  --mo-comp-editor-section-rhythm: 0.625em;
 
   /* The frame the editor draws round a block (the dotted line of .site-block-card): it hangs this far outside the text column on each side, a fixed outset
      (4 dp grid), and the block's own content stays on the column's edge, as on the site. The line's width is part of the outset: the padding inside the
-     line is the outset less the line. The text field's padding (--editor-pad-x) is at least the outset, so the frame is never clipped by the text field. */
-  --editor-frame-outset: 0.5rem;
-  --editor-frame-line: 1.5px;
+     line is the outset less the line. The text field's padding (--mo-comp-editor-pad-x) is at least the outset, so the frame is never clipped by the text field. */
+  --mo-comp-editor-frame-outset: 0.5rem;
+  --mo-comp-editor-frame-line: 1.5px;
 
   /* A form's "on this page" area (SectionPane in ui.tsx) against the window's end edge: its width (the card is as wide as the navigation drawer), the card in it
      stands --mo-sys-section-pane-gap in from the end edge and from the window's top edge. */
@@ -164,41 +164,41 @@
 /* The text field's own padding (MarkdownEditor.tsx: px-(--mo-sys-grid-margin) py-4); a section of the whole width reaches out of it. The sides are the theme's
    page margin, as on the site (16 dp compact, 24 dp from medium), so the text starts at the same distance from its edge as on the site. */
 .editor-text {
-  --editor-pad-x: var(--mo-sys-grid-margin, 1rem);
-  --editor-pad-y: 1rem;
+  --mo-comp-editor-pad-x: var(--mo-sys-grid-margin, 1rem);
+  --mo-comp-editor-pad-y: 1rem;
 }
 
 /* The dotted line at the start of an H2 section (data-section-part='start', sectionFrame.ts): a divider across the text. The line
    marks where a section starts; it is not the section's box. */
 .editor-text .ProseMirror > [data-section-part='start'] {
-  margin-block-start: var(--editor-section-gap);
-  border-block-start: var(--editor-section-frame);
-  padding-block-start: var(--editor-section-pad);
+  margin-block-start: var(--mo-comp-editor-section-gap);
+  border-block-start: var(--mo-comp-editor-section-frame);
+  padding-block-start: var(--mo-comp-editor-section-pad);
 }
 
 /* The box of a section with a colour, as the site draws it (data-section-box, data-section-color, sectionFrame.ts): one box made of
    the parts' own backgrounds. The space between two parts is padding, not margin, so the box has no gaps. */
 .editor-text .ProseMirror > [data-section-box] {
   margin-block: 0;
-  padding-inline: var(--editor-section-pad);
-  padding-block: var(--editor-section-rhythm);
+  padding-inline: var(--mo-comp-editor-section-pad);
+  padding-block: var(--mo-comp-editor-section-rhythm);
 }
 
 .editor-text .ProseMirror > :is(ul, ol)[data-section-box] {
-  padding-inline-start: calc(var(--editor-section-pad) + 1.625em);
+  padding-inline-start: calc(var(--mo-comp-editor-section-pad) + 1.625em);
 }
 
 .editor-text .ProseMirror > :is([data-section-box='start'], [data-section-box='only']) {
   border-start-start-radius: var(--mo-sys-block-radius);
   border-start-end-radius: var(--mo-sys-block-radius);
-  padding-block-start: var(--editor-section-pad);
+  padding-block-start: var(--mo-comp-editor-section-pad);
 }
 
 .editor-text .ProseMirror > :is([data-section-box='end'], [data-section-box='only']) {
   border-end-start-radius: var(--mo-sys-block-radius);
   border-end-end-radius: var(--mo-sys-block-radius);
   /* The space below a section's text belongs inside its colour: it runs down to the next section's divider (or the end of the text). */
-  padding-block-end: calc(var(--editor-section-pad) + var(--editor-section-gap));
+  padding-block-end: calc(var(--mo-comp-editor-section-pad) + var(--mo-comp-editor-section-gap));
 }
 /* The gap above the next section's divider is that padding, not a second margin that would show white between them. */
 .editor-text .ProseMirror > :is([data-section-box='end'], [data-section-box='only']) + [data-section-part='start'] {
@@ -208,12 +208,12 @@
 /* A section of the whole width (`width` full) reaches the text field's edges: no margin or corners at the sides, and none above the
    first section or below the last. Its text stays where the other text is. */
 .editor-text .ProseMirror > [data-section-box][data-section-width='full'] {
-  margin-inline: calc(-1 * var(--editor-pad-x));
-  padding-inline: calc(var(--editor-pad-x) + var(--editor-section-pad));
+  margin-inline: calc(-1 * var(--mo-comp-editor-pad-x));
+  padding-inline: calc(var(--mo-comp-editor-pad-x) + var(--mo-comp-editor-section-pad));
   border-radius: 0;
 }
 .editor-text .ProseMirror > :is(ul, ol)[data-section-box][data-section-width='full'] {
-  padding-inline-start: calc(var(--editor-pad-x) + var(--editor-section-pad) + 1.625em);
+  padding-inline-start: calc(var(--mo-comp-editor-pad-x) + var(--mo-comp-editor-section-pad) + 1.625em);
 }
 /* flow-root: the first section's negative margin stays on the section, it does not collapse into the text's own. */
 .editor-text .ProseMirror {
@@ -221,10 +221,10 @@
 }
 .editor-text .ProseMirror > [data-section-box][data-section-width='full']:first-child,
 .editor-text .ProseMirror > [data-section-width='full'][data-section-part='start']:first-child {
-  margin-block-start: calc(-1 * var(--editor-pad-y));
+  margin-block-start: calc(-1 * var(--mo-comp-editor-pad-y));
 }
 .editor-text .ProseMirror > [data-section-box][data-section-width='full']:last-child {
-  margin-block-end: calc(-1 * var(--editor-pad-y));
+  margin-block-end: calc(-1 * var(--mo-comp-editor-pad-y));
 }
 
 /* The colours are the theme's own (blocks.css). On a colour with its own text colour, the prose colours take it, so headings, bold
@@ -252,33 +252,33 @@
 }
 
 .editor-text .ProseMirror {
-  --page-primary-container: var(--mo-sys-color-primary-container, var(--mo-sys-block-tint));
-  --page-on-primary-container: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-text));
-  --page-secondary-container: var(--mo-sys-color-secondary-container, var(--mo-sys-block-tint));
-  --page-on-secondary-container: var(--mo-sys-color-on-secondary-container, var(--mo-sys-block-text));
-  --page-tertiary-container: var(--mo-sys-color-tertiary-container, var(--mo-sys-block-tint));
-  --page-on-tertiary-container: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-text));
+  --mo-comp-page-primary-container: var(--mo-sys-color-primary-container, var(--mo-sys-block-tint));
+  --mo-comp-page-on-primary-container: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-text));
+  --mo-comp-page-secondary-container: var(--mo-sys-color-secondary-container, var(--mo-sys-block-tint));
+  --mo-comp-page-on-secondary-container: var(--mo-sys-color-on-secondary-container, var(--mo-sys-block-text));
+  --mo-comp-page-tertiary-container: var(--mo-sys-color-tertiary-container, var(--mo-sys-block-tint));
+  --mo-comp-page-on-tertiary-container: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-text));
 }
 
 .editor-text .ProseMirror > [data-section-color='primary'] {
   --mo-sys-section-fill: var(--mo-sys-block-primary);
   --mo-sys-section-on: var(--mo-sys-block-on-primary);
-  --mo-sys-section-container: var(--page-primary-container);
-  --mo-sys-section-on-container: var(--page-on-primary-container);
+  --mo-sys-section-container: var(--mo-comp-page-primary-container);
+  --mo-sys-section-on-container: var(--mo-comp-page-on-primary-container);
 }
 
 .editor-text .ProseMirror > [data-section-color='secondary'] {
   --mo-sys-section-fill: var(--mo-sys-block-secondary);
   --mo-sys-section-on: var(--mo-sys-block-on-secondary);
-  --mo-sys-section-container: var(--page-secondary-container);
-  --mo-sys-section-on-container: var(--page-on-secondary-container);
+  --mo-sys-section-container: var(--mo-comp-page-secondary-container);
+  --mo-sys-section-on-container: var(--mo-comp-page-on-secondary-container);
 }
 
 .editor-text .ProseMirror > [data-section-color='tertiary'] {
   --mo-sys-section-fill: var(--mo-sys-block-tertiary);
   --mo-sys-section-on: var(--mo-sys-block-on-tertiary);
-  --mo-sys-section-container: var(--page-tertiary-container);
-  --mo-sys-section-on-container: var(--page-on-tertiary-container);
+  --mo-sys-section-container: var(--mo-comp-page-tertiary-container);
+  --mo-sys-section-on-container: var(--mo-comp-page-on-tertiary-container);
 }
 
 /* The image behind a section (the widget before its first part, placed over the section's parts by sectionFrame.ts): it fills
@@ -481,11 +481,11 @@
    starts at --bottom-sheet-start-max-height at most (ui.css). */
 @media (width < theme(--breakpoint-medium)) {
   .editor-sheet[data-tall] {
-    --editor-sheet-tall: calc(100dvh - max(var(--bottom-sheet-top-gap, 4.5rem), env(safe-area-inset-top)));
-    max-height: var(--editor-sheet-tall);
+    --mo-comp-editor-sheet-tall: calc(100dvh - max(var(--bottom-sheet-top-gap, 4.5rem), env(safe-area-inset-top)));
+    max-height: var(--mo-comp-editor-sheet-tall);
   }
   .editor-sheet.bottom-sheet-full[data-tall] {
-    height: var(--editor-sheet-tall);
+    height: var(--mo-comp-editor-sheet-tall);
   }
 }
 
@@ -589,20 +589,20 @@
 .editor-main-drawer-header {
   --mo-comp-list-item-padding-block: 0.375rem;
   --mo-comp-list-item-two-line-min-height: var(--navigation-drawer-item-height, 3.5rem);
-  --editor-drawer-header-text: var(--navigation-drawer-item-text, var(--mo-sys-block-muted));
-  --editor-drawer-header-padding: calc(
+  --mo-comp-editor-drawer-header-text: var(--navigation-drawer-item-text, var(--mo-sys-block-muted));
+  --mo-comp-editor-drawer-header-padding: calc(
     var(--navigation-drawer-item-padding-inline, 1rem) - (var(--list-item-avatar-size, 2.5rem) - 1.5rem) / 2
   );
-  --mo-comp-list-item-padding-inline: var(--editor-drawer-header-padding);
+  --mo-comp-list-item-padding-inline: var(--mo-comp-editor-drawer-header-padding);
   --mo-comp-list-list-item-container-shape: var(--navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
   --mo-comp-list-item-hover-radius: var(--navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
   --mo-comp-list-item-hover-surface: var(
     --navigation-drawer-item-hover,
-    color-mix(in srgb, var(--editor-drawer-header-text) 8%, transparent)
+    color-mix(in srgb, var(--mo-comp-editor-drawer-header-text) 8%, transparent)
   );
   --mo-comp-list-item-pressed-surface: var(
     --navigation-drawer-item-pressed,
-    color-mix(in srgb, var(--editor-drawer-header-text) 10%, transparent)
+    color-mix(in srgb, var(--mo-comp-editor-drawer-header-text) 10%, transparent)
   );
   --mo-comp-list-item-hover-text: inherit;
 }
@@ -896,15 +896,15 @@ html {
 
 .editor-text .site-block-card {
   display: block;
-  width: calc(100% + 2 * var(--editor-frame-outset));
-  margin-inline: calc(-1 * var(--editor-frame-outset));
+  width: calc(100% + 2 * var(--mo-comp-editor-frame-outset));
+  margin-inline: calc(-1 * var(--mo-comp-editor-frame-outset));
   position: relative;
   /* The dotted outline is a Card's: its corner radius and padding, the theme's tokens (the same fallbacks as .card), so the action row, the items and the
      add button line up inside it. */
   border-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
-  border: var(--editor-frame-line) dashed color-mix(in srgb, var(--mo-sys-color-on-surface-variant) 45%, transparent);
+  border: var(--mo-comp-editor-frame-line) dashed color-mix(in srgb, var(--mo-sys-color-on-surface-variant) 45%, transparent);
   padding-block: var(--mo-comp-card-padding, 1rem);
-  padding-inline: calc(var(--editor-frame-outset) - var(--editor-frame-line));
+  padding-inline: calc(var(--mo-comp-editor-frame-outset) - var(--mo-comp-editor-frame-line));
   text-align: left;
   cursor: pointer;
   transition: border-color var(--mo-sys-motion-spring-default-effects);
@@ -920,7 +920,7 @@ html {
   top: 0.25rem;
   /* The block's top left corner (owner, 16 Nov): the one place to drag a block. A 48 dp touch target, drawn inside the frame, its edge 24 dp in from the frame's left
      edge, where the selection mark's 48 dp target (centred on the outline's corner curve) ends, so the two never overlap (the card is the frame outset wider than the block on each side). */
-  left: calc(var(--mo-comp-card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px + 1.5rem - var(--editor-frame-outset));
+  left: calc(var(--mo-comp-card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px + 1.5rem - var(--mo-comp-editor-frame-outset));
   z-index: 2;
   display: flex;
   align-items: center;
@@ -958,7 +958,7 @@ html {
   position: absolute;
   z-index: 1;
   inset-block-start: calc(1.5px + var(--mo-comp-card-gap, 0.5rem));
-  inset-inline: calc(var(--editor-frame-outset) - var(--editor-frame-line));
+  inset-inline: calc(var(--mo-comp-editor-frame-outset) - var(--mo-comp-editor-frame-line));
   pointer-events: none;
 }
 
@@ -988,13 +988,13 @@ html {
   block-size: 3rem;
   /* Room for the handle at the start: it ends 4.5 rem past the selection mark's centre; the buttons stay clear of it. */
   padding-inline-start: calc(
-    var(--mo-comp-card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px + 4.5rem - var(--editor-frame-outset)
+    var(--mo-comp-card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px + 4.5rem - var(--mo-comp-editor-frame-outset)
   );
 }
 
 /* A hidden block's badge (32 dp, 16 dp from the frame's top and right) lies at the row's end: the buttons stop short of it. */
 .editor-text .site-block-hidden .site-block-row-inner {
-  padding-inline-end: calc(3rem - var(--editor-frame-outset));
+  padding-inline-end: calc(3rem - var(--mo-comp-editor-frame-outset));
 }
 
 /* A button that cannot be used (a block that cannot move further): shown, in its place, with the reason; the theme's disabled look, no state layer. */
@@ -1044,7 +1044,7 @@ html {
      1.5px line centred) lies r * (1 - cos 45) + 0.53px in from the corner, along both edges. */
   --mo-sys-mark-in: calc(var(--mo-comp-card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px);
   top: calc(var(--mo-sys-mark-in) - 1.5rem);
-  left: calc(var(--mo-sys-mark-in) - var(--editor-frame-outset) - 1.5rem);
+  left: calc(var(--mo-sys-mark-in) - var(--mo-comp-editor-frame-outset) - 1.5rem);
   z-index: 2;
   display: flex;
   align-items: center;
@@ -1169,9 +1169,9 @@ html {
   gap: 0.125rem;
   border: 1px solid var(--mo-sys-color-outline-variant);
   border-radius: var(--mo-sys-shape-corner-extra-large);
-  background: var(--editor-menu-surface);
+  background: var(--mo-comp-editor-menu-surface);
   padding: 0.25rem;
-  box-shadow: var(--editor-menu-shadow);
+  box-shadow: var(--mo-comp-editor-menu-shadow);
 }
 
 .contextual-menu[hidden] {
@@ -1397,7 +1397,7 @@ html {
 /* A menu over the page (Menu in ui.tsx: a field's dropdown, a button's menu): the theme's menu, always with the menu
    shadow, so it stands in front of the editor's page also in a theme whose menu has the page's colour and no shadow. */
 .editor-menu {
-  --mo-comp-menu-container-elevation: var(--editor-menu-shadow);
+  --mo-comp-menu-container-elevation: var(--mo-comp-editor-menu-shadow);
 }
 
 /* Where the browser has CSS anchor positioning the menu is placed by the theme's rules for a dropdown menu (ui.css, under the
@@ -1432,7 +1432,7 @@ html {
 
 /* The text's toolbar (MarkdownEditor.tsx, Toolbar in ui.tsx): the box's top edge, in the box's own surface. */
 .editor-tools {
-  --mo-comp-toolbar-docked-container-color: var(--editor-menu-surface);
+  --mo-comp-toolbar-docked-container-color: var(--mo-comp-editor-menu-surface);
 }
 
 /* The text box's own side lines run up behind the toolbar when it sticks, so the two cut-outs outside its rounded top corners are
@@ -1668,7 +1668,7 @@ html {
    or the pointer over it, when it opens up and says so. */
 .editor-spaced {
   /* The hints are the text's own colour (a section's on-colour, or the page's) at placeholder emphasis (85%, for 4.5:1 on every section colour), never a fixed grey. */
-  --editor-hint-color: color-mix(in srgb, currentColor 85%, transparent);
+  --mo-comp-editor-hint-color: color-mix(in srgb, currentColor 85%, transparent);
 }
 
 .editor-spaced .site-block {
@@ -1697,7 +1697,7 @@ html {
 .editor-spaced .ProseMirror:focus > p.editor-gap-here:has(> br:only-child)::before {
   content: var(--editor-gap-text);
   position: absolute;
-  color: var(--editor-hint-color);
+  color: var(--mo-comp-editor-hint-color);
   pointer-events: none;
 }
 
@@ -1709,7 +1709,7 @@ html {
   .editor-spaced .ProseMirror > p:has(> br:only-child):hover::before {
     content: var(--editor-gap-text);
     position: absolute;
-    color: var(--editor-hint-color);
+    color: var(--mo-comp-editor-hint-color);
     pointer-events: none;
   }
 }
@@ -1720,7 +1720,7 @@ html {
 .editor-spaced .ProseMirror > h1:first-child:nth-last-child(2) + p:last-child:has(> br:only-child)::before {
   content: var(--editor-empty-text);
   position: absolute;
-  color: var(--editor-hint-color);
+  color: var(--mo-comp-editor-hint-color);
   pointer-events: none;
 }
 
@@ -1746,14 +1746,14 @@ dialog {
    PageHeading.astro's width): the display role, by the theme's variables, not the weight of a heading in the middle of the text. */
 .editor-text .ProseMirror > h1:first-child {
   max-width: 22ch;
-  font-size: var(--theme-title-size);
-  line-height: var(--theme-title-leading);
+  font-size: var(--mo-comp-theme-title-size);
+  line-height: var(--mo-comp-theme-title-leading);
   font-weight: var(--mo-sys-typescale-display-small-weight);
   letter-spacing: var(--mo-sys-typescale-display-small-tracking);
 }
 @media (width >= theme(--breakpoint-medium)) {
   .editor-text .ProseMirror > h1:first-child {
-    font-size: var(--theme-title-size-large);
+    font-size: var(--mo-comp-theme-title-size-large);
     font-weight: var(--mo-sys-typescale-display-medium-weight);
     letter-spacing: var(--mo-sys-typescale-display-medium-tracking);
   }
@@ -1819,7 +1819,7 @@ dialog {
 }
 
 .editor-text .inline-table-box .inline-table-cell-active {
-  outline: var(--editor-section-frame);
+  outline: var(--mo-comp-editor-section-frame);
   outline-offset: -2px;
 }
 
@@ -2120,7 +2120,10 @@ dialog {
    the blank part of the stage keeps the page's colour. */
 .crop-view-shade {
   position: absolute;
-  background: var(--mo-comp-dialog-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-sys-color-on-surface)) 50%, transparent));
+  background: var(
+    --mo-comp-dialog-scrim,
+    color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-color-on-surface)) 50%, transparent)
+  );
   pointer-events: none;
 }
 .crop-view-frame:focus-visible {

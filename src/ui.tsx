@@ -2959,13 +2959,21 @@ export type Check = { ok: boolean; text: string; fix?: string };
 
 // The ring's colours for each status, as whole class names (so Tailwind finds them).
 const statusTones = {
-  good: { fill: 'fill-(--editor-status-good-surface)', stroke: 'stroke-(--editor-status-good)', text: 'text-(--editor-status-good-text)' },
-  average: {
-    fill: 'fill-(--editor-status-average-surface)',
-    stroke: 'stroke-(--editor-status-average)',
-    text: 'text-(--editor-status-average-text)',
+  good: {
+    fill: 'fill-(--mo-comp-editor-status-good-surface)',
+    stroke: 'stroke-(--mo-comp-editor-status-good)',
+    text: 'text-(--mo-comp-editor-status-good-text)',
   },
-  bad: { fill: 'fill-(--editor-status-bad-surface)', stroke: 'stroke-(--editor-status-bad)', text: 'text-(--editor-status-bad-text)' },
+  average: {
+    fill: 'fill-(--mo-comp-editor-status-average-surface)',
+    stroke: 'stroke-(--mo-comp-editor-status-average)',
+    text: 'text-(--mo-comp-editor-status-average-text)',
+  },
+  bad: {
+    fill: 'fill-(--mo-comp-editor-status-bad-surface)',
+    stroke: 'stroke-(--mo-comp-editor-status-bad)',
+    text: 'text-(--mo-comp-editor-status-bad-text)',
+  },
 };
 
 /** The score of checks from 0 to 100: the share that is fine (100 with none). */
@@ -3042,9 +3050,9 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
   }, [seen, score]);
   const mark = (ok: boolean) =>
     ok ? (
-      <span aria-hidden="true" className="mx-0.5 size-3 shrink-0 rounded-full bg-(--editor-status-good)" />
+      <span aria-hidden="true" className="mx-0.5 size-3 shrink-0 rounded-full bg-(--mo-comp-editor-status-good)" />
     ) : (
-      <svg aria-hidden="true" viewBox="0 0 12 12" className="size-4 shrink-0 fill-(--editor-status-bad)">
+      <svg aria-hidden="true" viewBox="0 0 12 12" className="size-4 shrink-0 fill-(--mo-comp-editor-status-bad)">
         <path d="M6 1 11.5 11H.5Z" />
       </svg>
     );
