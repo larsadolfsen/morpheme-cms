@@ -21,7 +21,7 @@ test('a longer old name is not read as its shorter one, and a new name is not an
 });
 
 test('an unlisted name and an empty list find nothing', () => {
-  assert.deepEqual(oldNamesIn('x: var(--card-gap);', renamed), []);
+  assert.deepEqual(oldNamesIn('x: var(--color-primary);', renamed), []);
   assert.deepEqual(oldNamesIn('x: var(--mo-primary);', {}), []);
 });
 

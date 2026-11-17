@@ -522,11 +522,11 @@
   .editor-screen {
     animation: editor-enter var(--mo-sys-motion-spring-default-spatial);
     /* A chip set that scrolls reaches out to the screen's edges: the screen's gutter (px-4, medium:px-6 in Screen.tsx). */
-    --chip-set-bleed: 1rem;
+    --mo-comp-chip-set-bleed: 1rem;
   }
   @media (width >= theme(--breakpoint-medium)) {
     .editor-screen {
-      --chip-set-bleed: 1.5rem;
+      --mo-comp-chip-set-bleed: 1.5rem;
     }
   }
 
@@ -587,22 +587,28 @@
    24px icon: half the difference less than the items' padding). The avatar has a 1px border inside its size.
    The pill is as high as a drawer item (56px); the row around it is the top bar's height. */
 .editor-main-drawer-header {
-  --list-item-padding-block: 0.375rem;
-  --list-item-two-line-min-height: var(--navigation-drawer-item-height, 3.5rem);
+  --mo-comp-list-item-padding-block: 0.375rem;
+  --mo-comp-list-item-two-line-min-height: var(--navigation-drawer-item-height, 3.5rem);
   --editor-drawer-header-text: var(--navigation-drawer-item-text, var(--mo-sys-block-muted));
   --editor-drawer-header-padding: calc(
     var(--navigation-drawer-item-padding-inline, 1rem) - (var(--list-item-avatar-size, 2.5rem) - 1.5rem) / 2
   );
-  --list-item-padding-inline: var(--editor-drawer-header-padding);
-  --list-item-radius: var(--navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
-  --list-item-hover-radius: var(--navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
-  --list-item-hover-surface: var(--navigation-drawer-item-hover, color-mix(in srgb, var(--editor-drawer-header-text) 8%, transparent));
-  --list-item-pressed-surface: var(--navigation-drawer-item-pressed, color-mix(in srgb, var(--editor-drawer-header-text) 10%, transparent));
-  --list-item-hover-text: inherit;
+  --mo-comp-list-item-padding-inline: var(--editor-drawer-header-padding);
+  --mo-comp-list-list-item-container-shape: var(--navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
+  --mo-comp-list-item-hover-radius: var(--navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
+  --mo-comp-list-item-hover-surface: var(
+    --navigation-drawer-item-hover,
+    color-mix(in srgb, var(--editor-drawer-header-text) 8%, transparent)
+  );
+  --mo-comp-list-item-pressed-surface: var(
+    --navigation-drawer-item-pressed,
+    color-mix(in srgb, var(--editor-drawer-header-text) 10%, transparent)
+  );
+  --mo-comp-list-item-hover-text: inherit;
 }
 
 .editor-main-drawer-header .list-item-container:focus-visible {
-  background: var(--list-item-pressed-surface);
+  background: var(--mo-comp-list-item-pressed-surface);
 }
 
 .editor-main-drawer-header .list-item-avatar {
@@ -892,9 +898,9 @@ html {
   position: relative;
   /* The dotted outline is a Card's: its corner radius and padding, the theme's tokens (the same fallbacks as .card), so the action row, the items and the
      add button line up inside it. */
-  border-radius: var(--card-radius, var(--mo-sys-block-radius));
+  border-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
   border: var(--editor-frame-line) dashed color-mix(in srgb, var(--mo-sys-color-on-surface-variant) 45%, transparent);
-  padding-block: var(--card-padding, 1rem);
+  padding-block: var(--mo-comp-card-padding, 1rem);
   padding-inline: calc(var(--editor-frame-outset) - var(--editor-frame-line));
   text-align: left;
   cursor: pointer;
@@ -911,7 +917,7 @@ html {
   top: 0.25rem;
   /* The block's top left corner (owner, 16 Nov): the one place to drag a block. A 48 dp touch target, drawn inside the frame, its edge 24 dp in from the frame's left
      edge, where the selection mark's 48 dp target (centred on the outline's corner curve) ends, so the two never overlap (the card is the frame outset wider than the block on each side). */
-  left: calc(var(--card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px + 1.5rem - var(--editor-frame-outset));
+  left: calc(var(--mo-comp-card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px + 1.5rem - var(--editor-frame-outset));
   z-index: 2;
   display: flex;
   align-items: center;
@@ -940,7 +946,7 @@ html {
 /* The row hugs the top of the outline: it is pulled up into the card's padding, so the space above it is the Card's gap (the theme's small step), not its full padding; the
    sides and the space below the content keep the Card's padding. Its margin opens with its height (blockRow.ts), so the block below moves by one smooth amount. */
 .editor-text .site-block-row:not(.site-block-row-hover) {
-  margin-block-start: calc(var(--card-gap, 0.5rem) - var(--card-padding, 1rem));
+  margin-block-start: calc(var(--mo-comp-card-gap, 0.5rem) - var(--mo-comp-card-padding, 1rem));
 }
 
 /* The row of a block a mouse points at (not the active one): over the top of the block's content, inside its outline, in no flow, so pointing at a block never moves the page.
@@ -948,7 +954,7 @@ html {
 .editor-text .site-block-row-hover {
   position: absolute;
   z-index: 1;
-  inset-block-start: calc(1.5px + var(--card-gap, 0.5rem));
+  inset-block-start: calc(1.5px + var(--mo-comp-card-gap, 0.5rem));
   inset-inline: calc(var(--editor-frame-outset) - var(--editor-frame-line));
   pointer-events: none;
 }
@@ -978,7 +984,9 @@ html {
   align-items: center;
   block-size: 3rem;
   /* Room for the handle at the start: it ends 4.5 rem past the selection mark's centre; the buttons stay clear of it. */
-  padding-inline-start: calc(var(--card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px + 4.5rem - var(--editor-frame-outset));
+  padding-inline-start: calc(
+    var(--mo-comp-card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px + 4.5rem - var(--editor-frame-outset)
+  );
 }
 
 /* A hidden block's badge (32 dp, 16 dp from the frame's top and right) lies at the row's end: the buttons stop short of it. */
@@ -998,7 +1006,7 @@ html {
 
 .editor-text .site-block-has-row > .site-block-handle {
   /* In the row's start: the row's own height, below the card's border and gap from its top edge. */
-  top: calc(1.5px + var(--card-gap, 0.5rem));
+  top: calc(1.5px + var(--mo-comp-card-gap, 0.5rem));
   opacity: 1;
 }
 
@@ -1031,7 +1039,7 @@ html {
   position: absolute;
   /* Centred on the outline's corner curve: the card is the frame outset wider than the block on each side, and the 45 degree point of a corner with the Card's radius r (its
      1.5px line centred) lies r * (1 - cos 45) + 0.53px in from the corner, along both edges. */
-  --mo-sys-mark-in: calc(var(--card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px);
+  --mo-sys-mark-in: calc(var(--mo-comp-card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px);
   top: calc(var(--mo-sys-mark-in) - 1.5rem);
   left: calc(var(--mo-sys-mark-in) - var(--editor-frame-outset) - 1.5rem);
   z-index: 2;

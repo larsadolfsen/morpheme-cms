@@ -5,7 +5,7 @@
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
 .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   /* The List "expand" container (the questions and answers block): 16px (Material 3 lists page). */
-  --list-expand-radius: var(--mo-sys-shape-corner-large);
+  --mo-comp-list-expand-container-shape: var(--mo-sys-shape-corner-large);
   /* Lists (M3 Expressive's list tokens, m3.material.io/components/lists/specs): items 56, 72 and 88px high by their lines,
      16px in from their sides, 10px over and under their text and 12px between their elements, without lines between
      them; 20px icons; the label text in body large (16/24, 400, 0.5; a setting row's name too), the supporting text in
@@ -15,60 +15,60 @@
      container. Segmented: 2px between the items, the list's outer corners medium (12px), each item on a surface
      container (a step up from the page; the editor puts the items on the surface over a container page, as Material's
      spec does, editor.css). */
-  --list-divider: transparent;
-  --list-item-min-height: 3.5rem;
-  --list-item-two-line-min-height: 4.5rem;
-  --list-item-three-line-min-height: 5.5rem;
-  --list-item-padding-block: 0.625rem;
-  --list-item-padding-inline: 1rem;
-  --list-item-gap: 0.75rem;
-  --list-item-radius: var(--mo-sys-shape-corner-extra-small);
-  --list-item-hover-radius: var(--mo-sys-shape-corner-medium);
-  --list-item-pressed-radius: var(--mo-sys-shape-corner-medium);
-  --list-item-selected-radius: var(--mo-sys-shape-corner-large);
-  --list-item-icon-size: 1.25rem;
-  --list-item-hover-surface: var(--mo-sys-state-mo-hover-layer);
-  --list-item-pressed-surface: var(--mo-sys-state-mo-pressed-layer);
-  --list-item-hover-icon-color: var(--mo-sys-color-on-surface-variant);
-  --list-item-focus-surface: var(--mo-sys-state-mo-pressed-layer);
+  --mo-comp-list-divider-color: transparent;
+  --mo-comp-list-list-item-container-height: 3.5rem;
+  --mo-comp-list-item-two-line-min-height: 4.5rem;
+  --mo-comp-list-item-three-line-min-height: 5.5rem;
+  --mo-comp-list-item-padding-block: 0.625rem;
+  --mo-comp-list-item-padding-inline: 1rem;
+  --mo-comp-list-item-gap: 0.75rem;
+  --mo-comp-list-list-item-container-shape: var(--mo-sys-shape-corner-extra-small);
+  --mo-comp-list-item-hover-radius: var(--mo-sys-shape-corner-medium);
+  --mo-comp-list-item-pressed-radius: var(--mo-sys-shape-corner-medium);
+  --mo-comp-list-item-selected-radius: var(--mo-sys-shape-corner-large);
+  --mo-comp-list-item-icon-size: 1.25rem;
+  --mo-comp-list-item-hover-surface: var(--mo-sys-state-mo-hover-layer);
+  --mo-comp-list-item-pressed-surface: var(--mo-sys-state-mo-pressed-layer);
+  --mo-comp-list-item-hover-icon-color: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-list-item-focus-surface: var(--mo-sys-state-mo-pressed-layer);
   /* M3 (Lists › Specs, token table): md.comp.list.focus.indicator.color = md.sys.color.secondary. */
-  --list-item-focus-indicator-color: var(--mo-sys-color-secondary);
-  --list-item-hover-text: var(--mo-sys-color-on-surface);
-  --list-item-hover-trailing-shift: 0;
-  --list-item-selected-surface: var(--mo-sys-color-secondary-container);
-  --list-item-selected-text: var(--mo-sys-color-on-secondary-container);
-  --list-item-selected-weight: 400;
-  --list-item-leading-icon-selected-color: var(--mo-sys-color-primary);
-  --list-item-disabled-opacity: 0.38;
-  --list-segmented-gap: 0.125rem;
-  --list-segmented-radius: var(--mo-sys-shape-corner-large);
-  --list-segmented-inner-radius: var(--mo-sys-shape-corner-extra-small);
-  --list-segmented-hover-radius: var(--mo-sys-shape-corner-medium);
-  --list-segmented-pressed-radius: var(--mo-sys-shape-corner-medium);
-  --list-segmented-selected-radius: var(--mo-sys-shape-corner-large);
-  --list-segmented-padding-inline: 1rem;
-  --list-segmented-surface: var(--mo-sys-color-surface);
-  --list-segmented-hover-surface: var(--mo-sys-state-mo-hover-layer);
-  --list-segmented-pressed-surface: var(--mo-sys-state-mo-pressed-layer);
-  --list-segmented-disabled-surface: color-mix(in srgb, var(--mo-sys-color-on-surface) 10%, transparent);
+  --mo-comp-list-item-focus-indicator-color: var(--mo-sys-color-secondary);
+  --mo-comp-list-item-hover-text: var(--mo-sys-color-on-surface);
+  --mo-comp-list-item-hover-trailing-shift: 0;
+  --mo-comp-list-list-item-selected-container-color: var(--mo-sys-color-secondary-container);
+  --mo-comp-list-list-item-selected-label-text-color: var(--mo-sys-color-on-secondary-container);
+  --mo-comp-list-item-selected-weight: 400;
+  --mo-comp-list-item-leading-icon-selected-color: var(--mo-sys-color-primary);
+  --mo-comp-list-item-disabled-opacity: 0.38;
+  --mo-comp-list-segmented-gap: 0.125rem;
+  --mo-comp-list-segmented-radius: var(--mo-sys-shape-corner-large);
+  --mo-comp-list-segmented-inner-radius: var(--mo-sys-shape-corner-extra-small);
+  --mo-comp-list-segmented-hover-radius: var(--mo-sys-shape-corner-medium);
+  --mo-comp-list-segmented-pressed-radius: var(--mo-sys-shape-corner-medium);
+  --mo-comp-list-segmented-selected-radius: var(--mo-sys-shape-corner-large);
+  --mo-comp-list-segmented-padding-inline: 1rem;
+  --mo-comp-list-list-item-segmented-container-color: var(--mo-sys-color-surface);
+  --mo-comp-list-segmented-hover-surface: var(--mo-sys-state-mo-hover-layer);
+  --mo-comp-list-segmented-pressed-surface: var(--mo-sys-state-mo-pressed-layer);
+  --mo-comp-list-segmented-disabled-surface: color-mix(in srgb, var(--mo-sys-color-on-surface) 10%, transparent);
 }
 /* The List "expand" kind (ui.css) of "List - Expand" and "FAQ list". Its plain design is the rows on the page with a line between them; its
      card design has each item on its own surface container, 2px apart, 16px outer and 4px inner corners, and a state layer on the item pointed at. */
 @layer components {
   .block-accordion {
-    --list-expand-surface: transparent;
-    --list-expand-shadow: none;
-    --list-expand-padding-block: 1rem;
+    --mo-comp-list-expand-surface: transparent;
+    --mo-comp-list-expand-shadow: none;
+    --mo-comp-list-expand-padding-block: 1rem;
   }
 }
 @layer components {
   .block-accordion-segmented {
-    --list-expand-gap: 0.125rem;
-    --list-expand-item-surface: var(--mo-sys-color-surface-container);
-    --list-expand-item-radius: var(--mo-sys-shape-corner-extra-small);
-    --list-expand-divider-width: 0px;
-    --list-expand-padding-inline: 1.5rem;
-    --list-expand-open-radius: var(--mo-sys-shape-corner-large);
-    --list-expand-icon-open-surface: var(--mo-sys-color-surface-container-high);
+    --mo-comp-list-expand-gap: 0.125rem;
+    --mo-comp-list-expand-item-surface: var(--mo-sys-color-surface-container);
+    --mo-comp-list-expand-item-radius: var(--mo-sys-shape-corner-extra-small);
+    --mo-comp-list-expand-divider-width: 0px;
+    --mo-comp-list-expand-padding-inline: 1.5rem;
+    --mo-comp-list-expand-open-radius: var(--mo-sys-shape-corner-large);
+    --mo-comp-list-expand-icon-open-surface: var(--mo-sys-color-surface-container-high);
   }
 }

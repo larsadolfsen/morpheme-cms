@@ -73,7 +73,7 @@
   }
   @media (width >= theme(--breakpoint-medium)) {
     .block-accordion:not(.block-accordion-segmented) {
-      --list-expand-open-radius: var(--mo-sys-shape-corner-large);
+      --mo-comp-list-expand-open-radius: var(--mo-sys-shape-corner-large);
     }
   }
   @media (width < theme(--breakpoint-medium)) {

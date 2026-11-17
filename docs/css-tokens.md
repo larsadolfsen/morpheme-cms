@@ -8,7 +8,7 @@ Owner rule, 16 Nov 2026. `npm run check:css-tokens` enforces it.
 - **Nobody makes a second name for the same thing.** No `--venus-gap`, no `--blog-gap`, no theme or app prefix for a value that has a `--mo-…` name. If
   a block needs a value the CMS has no `--mo-…` name for, the name is added to the CMS's list and documented here; the block does not invent its own.
 - **A token only one block uses is declared on that block**, not on `:root`.
-- **Nothing unprefixed on `:root`, `html` or `body`.** Generic names such as `--card-gap` are global: an app or theme that declares the same name
+- **Nothing unprefixed on `:root`, `html` or `body`.** Generic names such as `--mo-comp-card-gap` are global: an app or theme that declares the same name
   overrides ours without a sound, and Tailwind shares the page's namespace.
 - **An app or a theme declares no name the CMS declares** (a collision), and no unprefixed name on `:root`.
 

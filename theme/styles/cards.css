@@ -22,9 +22,9 @@
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
-    margin: 0 calc(-1 * var(--carousel-bleed, 0rem));
-    padding: 0 var(--carousel-bleed, 0rem);
-    scroll-padding-inline: var(--carousel-bleed, 0rem);
+    margin: 0 calc(-1 * var(--mo-comp-carousel-bleed, 0rem));
+    padding: 0 var(--mo-comp-carousel-bleed, 0rem);
+    scroll-padding-inline: var(--mo-comp-carousel-bleed, 0rem);
     list-style: none;
   }
   .carousel-items::-webkit-scrollbar {
@@ -59,14 +59,14 @@
     width: var(--carousel-dot-size, 0.5rem);
     height: var(--carousel-dot-size, 0.5rem);
     border-radius: var(--mo-sys-shape-corner-full);
-    background: var(--carousel-dot-colour, var(--mo-sys-block-line));
+    background: var(--mo-comp-carousel-dot-colour, var(--mo-sys-block-line));
     transition:
       width var(--mo-sys-motion-spring-default-spatial),
       height var(--mo-sys-motion-spring-default-spatial),
       background-color var(--mo-sys-motion-spring-default-effects);
   }
   .carousel-indicator-dot[aria-current='true'] > span {
-    width: var(--carousel-dot-selected-width, 1.25rem);
+    width: var(--mo-comp-carousel-dot-selected-width, 1.25rem);
     background: var(--carousel-dot-selected-colour, var(--mo-sys-block-accent));
   }
   @container carousel (width >= 35.5rem) {
@@ -99,19 +99,19 @@
     width: var(--carousel-item-width, 75%);
   }
   .carousel-multi-browse .carousel-item {
-    width: var(--carousel-item-width, var(--carousel-large-item-width));
+    width: var(--carousel-item-width, var(--mo-comp-carousel-large-item-width));
   }
   .carousel-hero .carousel-item {
-    width: var(--carousel-item-width, calc(100% - var(--carousel-small-item-max-width) - var(--carousel-contained-gap, 0.5rem)));
+    width: var(--carousel-item-width, calc(100% - var(--mo-comp-carousel-small-item-max-width) - var(--carousel-contained-gap, 0.5rem)));
   }
   .carousel-item-mask {
     position: relative;
     flex: 1;
     min-width: 0;
     overflow: hidden;
-    border-radius: var(--carousel-item-radius, var(--mo-sys-block-radius));
+    border-radius: var(--mo-comp-carousel-item-container-shape, var(--mo-sys-block-radius));
     background: var(--carousel-item-surface, var(--mo-sys-block-tint));
-    clip-path: inset(0 var(--carousel-mask-inset, 0px) round var(--carousel-item-radius, var(--mo-sys-block-radius)));
+    clip-path: inset(0 var(--carousel-mask-inset, 0px) round var(--mo-comp-carousel-item-container-shape, var(--mo-sys-block-radius)));
   }
   .carousel-item-mask > :is(img, image, video) {
     display: block;
@@ -123,7 +123,7 @@
   .carousel-full-screen .carousel-items {
     height: var(--carousel-full-screen-height, min(75svh, 36rem));
     gap: 0;
-    margin: 0 calc(-1 * var(--carousel-bleed, 0rem));
+    margin: 0 calc(-1 * var(--mo-comp-carousel-bleed, 0rem));
   }
   .carousel-full-screen .carousel-item {
     width: 100%;
@@ -131,7 +131,7 @@
   }
   @media (width < theme(--breakpoint-medium)) {
     .carousel-full-screen .carousel-item-mask {
-      border-radius: var(--carousel-full-screen-radius, 0);
+      border-radius: var(--mo-comp-carousel-full-screen-radius, 0);
       clip-path: none;
     }
   }
@@ -143,8 +143,8 @@
 
   .card {
     display: block;
-    border-radius: var(--card-radius, var(--mo-sys-block-radius));
-    padding: var(--card-padding, 1rem);
+    border-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
+    padding: var(--mo-comp-card-padding, 1rem);
   }
   /* The state layer (M3's): a card that is a link or a button, tinted in its text's colour over the whole card in its
      shape, 8% when pointed at and 10% with focus from the keyboard. It is under the ripple (the ripple is the last in the
@@ -175,19 +175,19 @@
     background: var(--card-elevated-surface, var(--mo-sys-elevation-level1-color));
     box-shadow:
       inset 0 0 0 1px var(--card-elevated-line, transparent),
-      var(--card-shadow);
+      var(--mo-comp-card-shadow);
   }
   .card-filled {
-    background: var(--card-filled-surface, var(--mo-sys-block-tint));
+    background: var(--mo-comp-filled-card-container-color, var(--mo-sys-block-tint));
     box-shadow:
-      inset 0 0 0 1px var(--card-filled-line, transparent),
-      var(--card-shadow);
+      inset 0 0 0 1px var(--mo-comp-card-filled-line, transparent),
+      var(--mo-comp-card-shadow);
   }
   .card-outlined {
-    background: var(--card-outlined-surface, var(--mo-sys-elevation-level0-color));
+    background: var(--mo-comp-outlined-card-container-color, var(--mo-sys-elevation-level0-color));
     box-shadow:
-      inset 0 0 0 1px var(--card-outlined-line, var(--mo-sys-block-line)),
-      var(--card-shadow);
+      inset 0 0 0 1px var(--mo-comp-outlined-card-outline-color, var(--mo-sys-block-line)),
+      var(--mo-comp-card-shadow);
   }
   /* A card with media (CardMedia): the image to the card's edge, no padding, in the card's corners. */
   .card-with-media {
@@ -229,14 +229,14 @@
   /* The theme grid (docs/theme-grid.md; M3 Cards: "customized in code to show cards in staggered or mosaic grids"): columns of
      cards in their own heights, --mo-sys-grid-gutter apart both ways (16px on compact, 24px from medium: owner values; M3 Spacing says
      "Cards should maintain consistent horizontal spacing to establish a strong rhythm when their height varies" and prints no
-     gutter). --grid-columns is how many cards stand side by side, per breakpoint; M3's layout grid itself has 4 columns on
+     gutter). --mo-comp-grid-columns is how many cards stand side by side, per breakpoint; M3's layout grid itself has 4 columns on
      compact, 8 on medium and expanded and 12 on large and extra-large (--mo-sys-grid-layout-columns, in global.css, what a span counts
-     in). A part with other counts sets --grid-columns on its element. */
+     in). A part with other counts sets --mo-comp-grid-columns on its element. */
   .image-grid {
     margin: 0;
     padding: 0;
     list-style: none;
-    column-count: var(--grid-columns);
+    column-count: var(--mo-comp-grid-columns);
     column-gap: var(--mo-sys-grid-gutter, 16px);
   }
   .image-grid > * {
@@ -269,7 +269,7 @@
     /* Its edge a border (the outlined card's line, none on the others), so an image at the top stays inside it. */
     border: 1px solid transparent;
     /* The card's shadow as it is now (ui.css: at rest, pointed at, dragged), without its line. */
-    box-shadow: var(--card-shadow, 0 0 #0000);
+    box-shadow: var(--mo-comp-card-shadow, 0 0 #0000);
     color: inherit;
     /* The same with a page (a link, as the site has links) and without one (not a link). */
     font-weight: 500;
@@ -279,7 +279,7 @@
       box-shadow var(--mo-sys-motion-spring-default-effects);
   }
   .block-card.card-outlined {
-    border-color: var(--card-outlined-line, var(--mo-sys-block-line));
+    border-color: var(--mo-comp-outlined-card-outline-color, var(--mo-sys-block-line));
   }
   /* An icon without a colour of its own (`iconColor`) is the text colour, as a row's icon is (Text in the editor's Icon color); v0.16.0 drew it in the accent. */
   .block-card-icon {
@@ -287,13 +287,14 @@
   }
   /* A video at the top fills it as an image does, with its play button. The media is its own rounded rectangle, flush with the card's top and sides:
      its top corners are the card's (clipped by it) and its bottom corners are the card's radius too, so the card's surface shows behind them (the
-     media in M3's Cards page, Container example; no radius is printed for it, so the card's 12dp, --card-radius). */
+     media in M3's Cards page, Container example; no radius is printed for it, so the card's 12dp, --mo-comp-card-radius). */
   .block-card-video {
     display: block;
-    margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0;
+    margin: calc(-1 * var(--mo-comp-card-padding, 1rem)) calc(-1 * var(--mo-comp-card-padding, 1rem)) 0;
     overflow: hidden;
-    border-radius: calc(var(--card-radius, var(--mo-sys-block-radius)) - 1px) calc(var(--card-radius, var(--mo-sys-block-radius)) - 1px)
-      var(--card-radius, var(--mo-sys-block-radius)) var(--card-radius, var(--mo-sys-block-radius));
+    border-radius: calc(var(--mo-comp-card-radius, var(--mo-sys-block-radius)) - 1px)
+      calc(var(--mo-comp-card-radius, var(--mo-sys-block-radius)) - 1px) var(--mo-comp-card-radius, var(--mo-sys-block-radius))
+      var(--mo-comp-card-radius, var(--mo-sys-block-radius));
   }
   /* The action area: its buttons in a row at the bottom of the card. */
   .block-card-actions {
@@ -301,15 +302,16 @@
     margin-top: auto;
     flex-wrap: wrap;
     gap: 0.5rem;
-    padding-top: var(--card-action-gap, 1rem);
+    padding-top: var(--mo-comp-card-action-gap, 1rem);
   }
   /* The image fills the top of the card, out to its edges. */
   .block-card-picture {
     display: block;
-    margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0;
+    margin: calc(-1 * var(--mo-comp-card-padding, 1rem)) calc(-1 * var(--mo-comp-card-padding, 1rem)) 0;
     overflow: hidden;
-    border-radius: calc(var(--card-radius, var(--mo-sys-block-radius)) - 1px) calc(var(--card-radius, var(--mo-sys-block-radius)) - 1px)
-      var(--card-radius, var(--mo-sys-block-radius)) var(--card-radius, var(--mo-sys-block-radius));
+    border-radius: calc(var(--mo-comp-card-radius, var(--mo-sys-block-radius)) - 1px)
+      calc(var(--mo-comp-card-radius, var(--mo-sys-block-radius)) - 1px) var(--mo-comp-card-radius, var(--mo-sys-block-radius))
+      var(--mo-comp-card-radius, var(--mo-sys-block-radius));
     background: var(--mo-sys-block-tint);
     aspect-ratio: 3 / 2;
   }
@@ -321,7 +323,7 @@
     transition: scale var(--mo-sys-motion-spring-slow-spatial);
   }
   .block-card-title {
-    margin-top: var(--card-media-gap, 1rem);
+    margin-top: var(--mo-comp-card-media-gap, 1rem);
     font-size: var(--mo-sys-typescale-title-large-size);
     line-height: var(--mo-sys-typescale-title-large-line-height);
     font-weight: var(--mo-sys-typescale-title-large-weight);
@@ -332,7 +334,7 @@
     margin-top: 0;
   }
   .block-card-text {
-    margin-top: var(--card-text-gap, 0.5rem);
+    margin-top: var(--mo-comp-card-text-gap, 0.5rem);
     color: var(--mo-sys-block-muted);
   }
   .block-card-more {
@@ -340,7 +342,7 @@
     margin-top: auto;
     align-items: center;
     gap: 0.5rem;
-    padding-top: var(--card-action-gap, 1rem);
+    padding-top: var(--mo-comp-card-action-gap, 1rem);
     font-weight: 500;
     color: var(--mo-sys-block-accent);
   }
@@ -352,7 +354,7 @@
      corners of 28 dp, the first 16 dp from the screen's edge, the next one peeking in; `Show all` under the dots turns it into the stacked cards
      in place (data-expanded, set by script.ts). From 600 px the cards are the grid, with no dots and no button. */
   .block-cards-carousel .block-card {
-    border-radius: var(--carousel-item-radius, var(--mo-sys-shape-corner-extra-large, 1.75rem));
+    border-radius: var(--mo-comp-carousel-item-container-shape, var(--mo-sys-shape-corner-extra-large, 1.75rem));
   }
   .block-cards-show-all {
     display: none;
@@ -360,7 +362,7 @@
   @media (width < theme(--breakpoint-medium)) {
     .block-cards-carousel .carousel-items {
       overflow-x: auto;
-      gap: var(--card-gap, 0.5rem);
+      gap: var(--mo-comp-card-gap, 0.5rem);
       padding-block: 0.5rem;
       padding-inline: 1rem;
       scroll-padding-inline: 1rem;
@@ -404,7 +406,7 @@
 
   .card-text {
     display: block;
-    padding: var(--card-media-gap, 1rem) var(--card-padding, 1rem) var(--card-padding, 1rem);
+    padding: var(--mo-comp-card-media-gap, 1rem) var(--mo-comp-card-padding, 1rem) var(--mo-comp-card-padding, 1rem);
   }
   .card-subhead,
   .card-supporting {
@@ -420,12 +422,12 @@
   }
   .card-supporting {
     -webkit-line-clamp: 2;
-    margin-top: var(--card-subhead-gap, 0.25rem);
+    margin-top: var(--mo-comp-card-subhead-gap, 0.25rem);
     font-size: var(--mo-sys-typescale-body-medium-size, 0.875rem);
     line-height: var(--mo-sys-typescale-body-medium-line-height, 1.25rem);
   }
   .block-card-subhead {
-    margin-top: var(--card-subhead-gap, 0.25rem);
+    margin-top: var(--mo-comp-card-subhead-gap, 0.25rem);
     font-size: var(--mo-sys-typescale-body-medium-size, 0.875rem);
     line-height: var(--mo-sys-typescale-body-medium-line-height, 1.25rem);
     color: var(--mo-sys-block-muted);
@@ -474,7 +476,7 @@
     font-variant-numeric: tabular-nums;
   }
   .block-price-unit {
-    margin-top: var(--card-subhead-gap, 0.25rem);
+    margin-top: var(--mo-comp-card-subhead-gap, 0.25rem);
     color: var(--mo-sys-block-muted);
   }
   /* A punch card's offer in a price card, a filled card with smaller corners. */
@@ -491,7 +493,7 @@
     color: var(--mo-sys-block-accent);
   }
   .block-price-extra-text {
-    margin-top: var(--card-subhead-gap, 0.25rem);
+    margin-top: var(--mo-comp-card-subhead-gap, 0.25rem);
     color: var(--mo-sys-block-muted);
   }
   .block-price-extra-text strong {
@@ -501,7 +503,7 @@
   }
   .block-price-card > .block-arrow-link {
     align-self: flex-start;
-    margin-top: var(--card-action-gap, 1rem);
+    margin-top: var(--mo-comp-card-action-gap, 1rem);
   }
   @media (hover: hover) {
     a.block-card:hover .block-card-arrow {

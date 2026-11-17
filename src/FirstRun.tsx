@@ -26,7 +26,7 @@ export function FirstRunCard({ files }: { files: RepoFile[] }) {
       : [];
   });
   return (
-    <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="relative mb-4 [--card-padding:1rem_0_0.5rem]">
+    <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="relative mb-4 [--mo-comp-card-padding:1rem_0_0.5rem]">
       <h2 id={titleId} className="ps-4 pe-14 pb-2 font-medium">
         {t.library.firstRunTitle}
       </h2>

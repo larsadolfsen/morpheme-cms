@@ -2,20 +2,20 @@
 
 @layer components {
   .image-grid {
-    --grid-columns: 2;
+    --mo-comp-grid-columns: 2;
   }
 }
 @layer components {
   @media (width >= theme(--breakpoint-medium)) {
     .image-grid {
-      --grid-columns: 3;
+      --mo-comp-grid-columns: 3;
     }
   }
 }
 @layer components {
   @media (width >= theme(--breakpoint-large)) {
     .image-grid {
-      --grid-columns: 4;
+      --mo-comp-grid-columns: 4;
     }
   }
 }
