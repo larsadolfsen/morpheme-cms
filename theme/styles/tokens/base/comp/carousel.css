@@ -15,7 +15,7 @@
   The theme's variables have two owners, told apart by their prefix. --mo-… is the contract every theme shares: the base
   reads it and a theme sets it, and none else invents its own (a theme sets --mo-sys-shape-corner-large, it does not add --mo-wide).
   --<theme>-… (--venus-glass) is a theme's own and nothing outside the theme reads it. A name with no prefix is a part's
-  variable (--card-radius, --mo-sys-block-gutter) or the site's data, not the contract. What is in the contract:
+  variable (--mo-comp-card-radius, --mo-sys-block-gutter) or the site's data, not the contract. What is in the contract:
   - The colours are Material 3's colour roles by their own names after the prefix (m3.material.io/styles/color/roles):
     --mo-sys-color-primary, --mo-sys-color-secondary, --mo-sys-color-tertiary and --mo-sys-color-error, each with --mo-on-…, --mo-…-container and
     --mo-on-…-container, and --mo-sys-color-primary-fixed, --mo-sys-color-primary-fixed-dim, --mo-sys-color-on-primary-fixed and
@@ -34,5 +34,5 @@
 */
 :root {
   /* How far a carousel reaches out to the edges of a phone's screen (ui.css): Container.astro's gutter there (px-4). */
-  --carousel-bleed: 1rem;
+  --mo-comp-carousel-bleed: 1rem;
 }

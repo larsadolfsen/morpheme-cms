@@ -4,45 +4,45 @@
 @layer components {
   .block-accordion {
     /* The rows' padding follows the block: 20px, 32px from medium (the List "expand" kind, ui/List.tsx, is drawn by ui.css). */
-    --list-expand-padding-inline: 1.25rem;
+    --mo-comp-list-expand-padding-inline: 1.25rem;
   }
 }
 /* A list's row icon and arrow are the row heading's colour (the block's text, which a coloured section swaps to its on-colour), as the
      section's other text is; only the supporting line stays the quieter --mo-sys-block-muted. A row icon with its own colour (below) keeps it. */
 @layer components {
   .block-list {
-    --list-item-leading-icon-color: var(--mo-sys-block-text);
-    --list-item-trailing-text: var(--mo-sys-block-text);
+    --mo-comp-list-list-item-leading-icon-color: var(--mo-sys-block-text);
+    --mo-comp-list-item-trailing-text: var(--mo-sys-block-text);
     /* A segmented list stands on the page, which is Surface: its rows on Surface would vanish, so the block's are on the surface container (the
        theme's default is M3's Surface, for a list on a higher container; owner, 15 Nov 2026, docs/material-deviations.md SV12). */
-    --list-segmented-surface: var(--mo-sys-color-surface-container);
+    --mo-comp-list-list-item-segmented-container-color: var(--mo-sys-color-surface-container);
   }
 }
 /* The color of an icon in a row or a card (`iconColor`, src/iconColor.ts): one of the theme's color roles; without one, the text colour (Text in the editor). */
 @layer components {
   [data-icon-color='primary'] {
-    --list-item-leading-icon-color: var(--mo-sys-color-primary, var(--mo-sys-block-accent));
+    --mo-comp-list-list-item-leading-icon-color: var(--mo-sys-color-primary, var(--mo-sys-block-accent));
   }
 }
 @layer components {
   [data-icon-color='secondary'] {
-    --list-item-leading-icon-color: var(--mo-sys-color-secondary, var(--mo-sys-block-secondary));
+    --mo-comp-list-list-item-leading-icon-color: var(--mo-sys-color-secondary, var(--mo-sys-block-secondary));
   }
 }
 @layer components {
   [data-icon-color='tertiary'] {
-    --list-item-leading-icon-color: var(--mo-sys-color-tertiary, var(--mo-sys-block-tertiary));
+    --mo-comp-list-list-item-leading-icon-color: var(--mo-sys-color-tertiary, var(--mo-sys-block-tertiary));
   }
 }
 @layer components {
   .block-points {
-    --list-item-padding-inline: 0;
+    --mo-comp-list-item-padding-inline: 0;
   }
 }
 @layer components {
   @media (width >= theme(--breakpoint-medium)) {
     .block-accordion {
-      --list-expand-padding-inline: 2rem;
+      --mo-comp-list-expand-padding-inline: 2rem;
     }
   }
 }
@@ -54,8 +54,8 @@
      does. */
 @layer components {
   .block-checklist {
-    --list-item-min-height: auto;
-    --list-item-padding-block: 0.25em;
-    --list-item-padding-inline: 0;
+    --mo-comp-list-list-item-container-height: auto;
+    --mo-comp-list-item-padding-block: 0.25em;
+    --mo-comp-list-item-padding-inline: 0;
   }
 }
