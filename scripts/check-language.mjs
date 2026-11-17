@@ -129,7 +129,7 @@ const PICTURE_PATHS =
 const PICTURE_ALLOWED = [
   { token: /picture-in-picture/g, why: 'the HTML allow value of the browser feature' },
   {
-    token: /[\w-]*(?:-picture|picture-crop)[\w-]*|--theme-(?:post-)?picture-radius/g,
+    token: /[\w-]*(?:-picture|picture-crop)[\w-]*|--mo-comp-theme-(?:post-)?picture-radius/g,
     why: 'stored names: CSS classes, data attributes and theme tokens that sites rely on, and the id of a pending note',
   },
   { token: /\bblocks\.picture\b|^\s*picture: \{/g, why: 'the i18n key of the image block texts: a code name, not a text' },

@@ -6,13 +6,13 @@ export const allow = [
   {
     kind: 'fixed-colour',
     file: /^src\/editor\.css$/,
-    line: /--editor-status-|editor-status-/,
+    line: /--mo-comp-editor-status-/,
     reason: "PageSpeed's own ratings (good, average, bad)",
   },
   {
     kind: 'fixed-colour',
     file: /^src\/editor\.css$/,
-    line: /--google-/,
+    line: /--mo-comp-google-/,
     reason: "the search-result preview is Google's own look, light and dark",
   },
   // A colour the owner or a tool chooses.

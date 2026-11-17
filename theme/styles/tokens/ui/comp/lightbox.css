@@ -2,6 +2,6 @@
 
 @layer components {
   .lightbox {
-    --mo-comp-lightbox-ink: var(--theme-on-scrim-colour, var(--mo-sys-color-surface));
+    --mo-comp-lightbox-ink: var(--mo-comp-theme-on-scrim-colour, var(--mo-sys-color-surface));
   }
 }

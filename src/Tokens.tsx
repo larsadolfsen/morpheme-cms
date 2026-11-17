@@ -27,9 +27,9 @@ const shape: Token[] = [
   { token: '--mo-sys-block-radius', label: say.shape.blockRadius },
   { token: '--mo-sys-block-radius-small', label: say.shape.blockRadiusSmall },
   { token: '--mo-sys-block-control-radius', label: say.shape.blockControlRadius },
-  { token: '--theme-picture-radius', label: say.shape.imageRadius },
-  { token: '--theme-post-picture-radius', label: say.shape.postImageRadius },
-  { token: '--theme-logo-tile-radius', label: say.shape.logoTileRadius },
+  { token: '--mo-comp-theme-picture-radius', label: say.shape.imageRadius },
+  { token: '--mo-comp-theme-post-picture-radius', label: say.shape.postImageRadius },
+  { token: '--mo-comp-theme-logo-tile-radius', label: say.shape.logoTileRadius },
 ];
 
 // The UI parts' corners, with what ui.css gives each when the theme does not set it.

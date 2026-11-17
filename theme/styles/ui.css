@@ -1185,7 +1185,10 @@
     outline: none;
   }
   .dialog-modal::backdrop {
-    background: var(--mo-comp-dialog-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-sys-block-text)) 50%, transparent));
+    background: var(
+      --mo-comp-dialog-scrim,
+      color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-block-text)) 50%, transparent)
+    );
   }
   @media (prefers-reduced-motion: no-preference) {
     .dialog-modal[open] {
@@ -1276,7 +1279,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: var(--lightbox-surface, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-sys-block-text)) 88%, transparent));
+    background: var(--lightbox-surface, color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-block-text)) 88%, transparent));
     color: var(--mo-comp-lightbox-ink);
     box-shadow: none;
   }
@@ -1762,7 +1765,10 @@
       inset: 0 auto 0 0;
     }
     .bottom-sheet:has(> [data-wide='side-sheet'])::backdrop {
-      background: var(--mo-comp-side-sheet-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-sys-block-text)) 50%, transparent));
+      background: var(
+        --mo-comp-side-sheet-scrim,
+        color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-block-text)) 50%, transparent)
+      );
     }
     .bottom-sheet-container:not(.bottom-sheet-standard)[data-wide='side-sheet'] {
       border-radius: 0;
@@ -3148,7 +3154,7 @@
   }
   /* Navigation drawer, modal (m3.material.io/components/navigation-drawer): the pages in a panel over the page. */
   .navigation-drawer-scrim {
-    background: var(--mo-comp-navigation-drawer-scrim-color, color-mix(in srgb, var(--theme-scrim-colour) 45%, transparent));
+    background: var(--mo-comp-navigation-drawer-scrim-color, color-mix(in srgb, var(--mo-comp-theme-scrim-colour) 45%, transparent));
   }
   .navigation-drawer {
     display: flex;
@@ -3291,7 +3297,7 @@
       );
   }
   .navigation-drawer-dialog::backdrop {
-    background: var(--mo-comp-navigation-drawer-scrim-color, color-mix(in srgb, var(--theme-scrim-colour) 45%, transparent));
+    background: var(--mo-comp-navigation-drawer-scrim-color, color-mix(in srgb, var(--mo-comp-theme-scrim-colour) 45%, transparent));
     /* The menu fades it with the motion scheme's springs through this variable, which the backdrop inherits from the dialog. */
     opacity: var(--navigation-drawer-scrim-opacity, 1);
   }
@@ -4360,7 +4366,7 @@
     --side-sheet-surface, --side-sheet-line   a standard one's surface and the line between it and the page
     --side-sheet-modal-surface, --mo-comp-sheet-side-docked-container-shape, --side-sheet-shadow   a modal one's surface, its corners towards
       the page, and its shadow
-    --mo-comp-side-sheet-scrim   the shade over the page behind a modal one (else --theme-scrim-colour, as the dialog's)
+    --mo-comp-side-sheet-scrim   the shade over the page behind a modal one (else --mo-comp-theme-scrim-colour, as the dialog's)
     --side-sheet-padding, --side-sheet-headline-size, --side-sheet-headline-weight, --side-sheet-actions-line   the
       room inside it, the headline, and the line over the actions
     --side-sheet-content-top   the room over the content (1rem: the first outlined field's label stands above its edge)
@@ -4943,7 +4949,10 @@
     inset: 0 auto 0 0;
   }
   .side-sheet::backdrop {
-    background: var(--mo-comp-side-sheet-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-sys-block-text)) 50%, transparent));
+    background: var(
+      --mo-comp-side-sheet-scrim,
+      color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-block-text)) 50%, transparent)
+    );
   }
   @media (prefers-reduced-motion: no-preference) {
     .side-sheet[open]::backdrop {
@@ -5978,7 +5987,10 @@
     position: fixed;
     inset: 0;
     z-index: 49;
-    background: var(--navigation-rail-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-sys-block-text)) 40%, transparent));
+    background: var(
+      --navigation-rail-scrim,
+      color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-block-text)) 40%, transparent)
+    );
     animation: navigation-rail-scrim-in var(--mo-sys-motion-spring-default-effects);
   }
   .navigation-rail-scrim[hidden] {

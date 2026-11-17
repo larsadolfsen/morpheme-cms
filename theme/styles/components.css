@@ -4,29 +4,29 @@
     display: inline-grid;
     flex-shrink: 0;
     place-items: center;
-    border-radius: var(--theme-logo-tile-radius);
-    background: var(--theme-logo-tile);
-    padding: var(--theme-logo-tile-padding);
+    border-radius: var(--mo-comp-theme-logo-tile-radius);
+    background: var(--mo-comp-theme-logo-tile);
+    padding: var(--mo-comp-theme-logo-tile-padding);
   }
   .theme-logo-mark {
-    width: calc(2.25rem * var(--theme-logo-mark-scale));
-    height: calc(2.5rem * var(--theme-logo-mark-scale));
-    background-color: var(--theme-logo-mark);
+    width: calc(2.25rem * var(--mo-comp-theme-logo-mark-scale));
+    height: calc(2.5rem * var(--mo-comp-theme-logo-mark-scale));
+    background-color: var(--mo-comp-theme-logo-mark);
   }
   .theme-logo-mark-small {
-    width: calc(1.75rem * var(--theme-logo-mark-scale));
-    height: calc(2rem * var(--theme-logo-mark-scale));
+    width: calc(1.75rem * var(--mo-comp-theme-logo-mark-scale));
+    height: calc(2rem * var(--mo-comp-theme-logo-mark-scale));
   }
   .theme-logo-name {
-    font-size: var(--theme-logo-name-size);
-    font-weight: var(--theme-logo-name-weight);
+    font-size: var(--mo-comp-theme-logo-name-size);
+    font-weight: var(--mo-comp-theme-logo-name-weight);
   }
   .theme-logo-role {
-    display: var(--theme-logo-role-display);
+    display: var(--mo-comp-theme-logo-role-display);
   }
   @media (width >= theme(--breakpoint-medium)) {
     .theme-logo-role {
-      display: var(--theme-logo-role-display-large);
+      display: var(--mo-comp-theme-logo-role-display-large);
     }
   }
   .theme-post-list.list > li {
@@ -132,7 +132,7 @@
   @media (prefers-reduced-motion: no-preference) {
     ::view-transition-old(root),
     ::view-transition-new(root) {
-      animation-duration: var(--theme-page-fade);
+      animation-duration: var(--mo-comp-theme-page-fade);
       animation-timing-function: var(--mo-sys-ease);
     }
   }
@@ -145,8 +145,8 @@
   @media (width >= theme(--breakpoint-medium)) {
     .page-with-side {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) var(--theme-side-width);
-      column-gap: var(--theme-side-gap);
+      grid-template-columns: minmax(0, 1fr) var(--mo-comp-theme-side-width);
+      column-gap: var(--mo-comp-theme-side-gap);
       align-items: start;
     }
     .page-with-side > .page-side {
@@ -156,7 +156,7 @@
     }
     /* Template sidebar-left: the column first, though it comes after the text in the page. */
     .page-with-side[data-side='left'] {
-      grid-template-columns: var(--theme-side-width) minmax(0, 1fr);
+      grid-template-columns: var(--mo-comp-theme-side-width) minmax(0, 1fr);
     }
     .page-with-side[data-side='left'] > .page-side {
       order: -1;
@@ -166,14 +166,14 @@
   /* A page's and a post's title (PageHeader.astro, PageLayout.astro, PostLayout.astro, Home.astro): the display role, by
    the variables above. */
   .theme-title {
-    font-size: var(--theme-title-size);
-    line-height: var(--theme-title-leading);
+    font-size: var(--mo-comp-theme-title-size);
+    line-height: var(--mo-comp-theme-title-leading);
     font-weight: var(--mo-sys-typescale-display-small-weight);
     letter-spacing: var(--mo-sys-typescale-display-small-tracking);
   }
   @media (width >= theme(--breakpoint-medium)) {
     .theme-title {
-      font-size: var(--theme-title-size-large);
+      font-size: var(--mo-comp-theme-title-size-large);
       font-weight: var(--mo-sys-typescale-display-medium-weight);
       letter-spacing: var(--mo-sys-typescale-display-medium-tracking);
     }
