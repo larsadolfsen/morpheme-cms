@@ -12,7 +12,7 @@ import { themeCoverage } from './themeCoverage.mjs';
  * Material's CSS files that carry the parts' classes, in this order. A part's rules moved out of ui.css into a file of its
  * own (docs/superpowers/plans/2026-11-16-css-split.md) are listed after it.
  */
-const MATERIAL_FILES = ['base.css', 'ui.css', 'divider.css', 'badge.css', 'components.css', 'global.css'];
+const MATERIAL_FILES = ['base.css', 'ui.css', 'divider.css', 'badge.css', 'snackbar.css', 'components.css', 'global.css'];
 
 /** A relative `@import './x.css';`, `@import "../x.css";` or `@import url(./x.css);`. */
 const IMPORT = /@import\s+(?:url\(\s*)?(['"]?)(\.{1,2}\/[^'")\s;]+)\1\s*\)?[^;]*;/g;
