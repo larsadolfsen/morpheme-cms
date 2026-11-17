@@ -5280,7 +5280,6 @@
   .snackbar-longer-action > .snackbar-actions {
     justify-content: flex-end;
   }
-
 }
 
 @keyframes button-busy-shrink {
