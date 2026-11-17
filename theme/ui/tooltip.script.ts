@@ -7,7 +7,7 @@
 const SHOW_MS = 500;
 const HIDE_MS = 150;
 const EDGE = 8;
-// Where the browser has anchor positioning, the CSS places the tooltip (ui.css, Tooltips); this placement is the fallback.
+// Where the browser has anchor positioning, the CSS places the tooltip (tooltip.css); this placement is the fallback.
 const placedByCss =
   typeof CSS !== 'undefined' && CSS.supports('anchor-name: --a') && CSS.supports('anchor-scope: --a') && CSS.supports('position-area: top');
 

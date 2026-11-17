@@ -11,6 +11,8 @@
 @import './badge.css';
 /* The Snackbar (the stack that holds them and the message). */
 @import './snackbar.css';
+/* The Tooltip (plain and rich, anchored to what it is about). */
+@import './tooltip.css';
 /* The cards (Card, the Cards and Price cards blocks), the card grid and the Carousel. */
 @import './cards.css';
 @import './type.css';
