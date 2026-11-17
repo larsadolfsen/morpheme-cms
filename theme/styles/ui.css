@@ -4985,15 +4985,6 @@
     --mo-comp-progress-indicator-linear-active-indicator-thickness, -radius, -active, -track, -gap, -stop-size, -thick-height
     --mo-comp-circular-progress-indicator-size, -thickness (in 48ths of the size), -active, -track, -gap (in hundredths of the
     ring, with the round ends: 0 for none), -thick-thickness, -thick-size, -wavy-size, -wavy-thick-size
-  Snackbars (Snackbar, snackbarClass; m3.material.io/components/snackbar): .snackbar-stack holds them at the bottom of
-  the screen, the newest lowest (@morphemecms/cms/lib/snackbar.ts, which draws the editor's messages and shows the site's);
-  .snackbar with .snackbar-supporting-text, its links (.snackbar-link, with an arrow) and optionally .snackbar-actions (the
-  action, a text button, .snackbar-action, and the close button, a standard icon button, .snackbar-close), under the
-  text with .snackbar-longer-action. The buttons on it get the snackbar's colours.
-    --mo-comp-snackbar-container-color, --mo-comp-snackbar-supporting-text-color, --mo-comp-snackbar-container-shape, --snackbar-shadow, --mo-comp-snackbar-backdrop (the blur behind it)
-    --mo-comp-snackbar-padding-block, --snackbar-padding-inline, --snackbar-max-width, --snackbar-font-size,
-    --snackbar-line-height, --snackbar-link-weight
-    --mo-comp-snackbar-action-label-text-color, --mo-comp-snackbar-action-hover, --snackbar-close-text, --snackbar-close-size
 */
 @layer components {
   /* Loading indicator (M3 Expressive): a shape that turns and morphs, by itself or in its round container. */
@@ -5195,91 +5186,6 @@
     .circular-progress-indicator-active {
     animation-name: circular-progress-indicator-flow-thick;
   }
-
-  /* Snackbars: where they stand (lib/snackbar.ts puts them there), above an app's bar at the bottom of a phone's screen
-     (data-action-bar) and the save bar in the editor (editor.css). */
-  .snackbar-stack {
-    pointer-events: none;
-    position: fixed;
-    inset-inline: 0;
-    top: auto;
-    bottom: calc(1rem + env(safe-area-inset-bottom));
-    z-index: 40;
-    display: flex;
-    width: auto;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    overflow: visible;
-    margin: 0;
-    border-width: 0;
-    background-color: transparent;
-    padding: 0 1rem;
-  }
-  @media (width < theme(--breakpoint-medium)) {
-    body:has([data-action-bar]) .snackbar-stack {
-      bottom: calc(6.5rem + env(safe-area-inset-bottom));
-    }
-  }
-  /* A snackbar (m3.material.io/components/snackbar): the standard look a dark surface seen through, the same in light
-     and dark mode (as a shadow's colour, the one written here), in the middle of the screen. */
-  .snackbar {
-    pointer-events: auto;
-    max-width: var(--snackbar-max-width, 28rem);
-    cursor: default;
-    border-radius: var(--mo-comp-snackbar-container-shape, 1rem);
-    background: var(--mo-comp-snackbar-container-color, var(--mo-sys-color-inverse-surface));
-    padding: var(--mo-comp-snackbar-padding-block, 0.75rem) var(--snackbar-padding-inline, 1rem);
-    color: var(--mo-comp-snackbar-supporting-text-color, var(--mo-sys-color-inverse-on-surface));
-    font-size: var(--snackbar-font-size, var(--mo-sys-typescale-body-medium-size));
-    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
-    line-height: var(--snackbar-line-height, var(--mo-sys-typescale-body-medium-line-height));
-    box-shadow: var(--snackbar-shadow, var(--mo-sys-elevation-level3-rest-shadow));
-    -webkit-backdrop-filter: var(--mo-comp-snackbar-backdrop, blur(8px));
-    backdrop-filter: var(--mo-comp-snackbar-backdrop, blur(8px));
-    -webkit-user-select: none;
-    user-select: none;
-    touch-action: pan-y;
-  }
-  .snackbar-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-weight: var(--snackbar-link-weight, 500);
-    text-decoration-line: underline;
-    text-underline-offset: 2px;
-  }
-  /* With an action or a close button: the text and then the buttons, in the middle of its height; under the text with
-     a longer action. */
-  .snackbar:has(> .snackbar-actions) {
-    display: flex;
-    align-items: center;
-    gap: 0 0.5rem;
-    padding-block: 0.25rem;
-    padding-inline-end: 0.25rem;
-  }
-  .snackbar:has(> .snackbar-actions) > .snackbar-supporting-text {
-    flex: 1 1 auto;
-    min-width: 0;
-    padding-block: calc(var(--mo-comp-snackbar-padding-block, 0.75rem) - 0.25rem);
-  }
-  .snackbar-actions {
-    display: flex;
-    flex-shrink: 0;
-    align-items: center;
-    gap: 0.25rem;
-  }
-  .snackbar.snackbar-longer-action {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .snackbar-longer-action > .snackbar-supporting-text {
-    padding-inline-end: calc(var(--snackbar-padding-inline, 1rem) - 0.25rem);
-    padding-bottom: 0;
-  }
-  .snackbar-longer-action > .snackbar-actions {
-    justify-content: flex-end;
-  }
 }
 
 @keyframes button-busy-shrink {
@@ -5414,19 +5320,6 @@
   100% {
     stroke-dasharray: 70 100;
     stroke-dashoffset: -99;
-  }
-}
-@layer fallback {
-  @media (prefers-reduced-motion: no-preference) {
-    .snackbar {
-      animation: snackbar-in var(--mo-sys-motion-spring-default-spatial);
-    }
-  }
-}
-@keyframes snackbar-in {
-  from {
-    opacity: 0;
-    transform: translateY(0.5rem);
   }
 }
 @layer fallback {

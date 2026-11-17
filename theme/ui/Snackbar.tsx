@@ -1,4 +1,4 @@
-// A snackbar (m3.material.io/components/snackbar, .snackbar in ../styles/ui.css): a short message at the bottom of the
+// A snackbar (m3.material.io/components/snackbar, .snackbar in ../styles/snackbar.css): a short message at the bottom of the
 // screen, what the site says with one (a new version of a page: layouts/PageLayout.astro). Its supporting text (`text`,
 // on one line or two), evt. links in it, each with an arrow (`links`), evt. an action, a text button (`action`, with
 // its `label` and `href` or other attributes on it), under the text when it is long (`longerAction`), and evt. a
