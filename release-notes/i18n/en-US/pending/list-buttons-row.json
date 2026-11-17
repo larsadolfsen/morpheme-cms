@@ -1,0 +1,6 @@
+{
+  "id": "list-buttons-row",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "In a list with a row limit, Show more and the button under the list stand on one row, and an open row of a plain List - Expand has a background"
+}

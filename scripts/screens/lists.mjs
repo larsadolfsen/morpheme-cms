@@ -1318,10 +1318,109 @@ async function checkSectionsOnLoad(width, height) {
   }
 }
 
+/** `Show more` and the text button under the last row (`button`) of a list with a row limit stand on one row (375, 768 and 1280 px), on the demo's Lists page
+ * (/blocks/lists/, "List with a row limit"): the same top, side by side without overlap, no 2 rem of space under each (the row has the spacing once), and the
+ * row wraps when it is too narrow for both (owner, 17 Nov 2026: "If there is two buttons they should be on a row"). */
+async function checkListButtonsRow(width) {
+  const label = `${width}px list buttons row`;
+  const page = await browser.newPage({ viewport: { width, height: width < 600 ? 800 : 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  const response = await page.goto(`${site}/blocks/lists/`).catch(() => null);
+  if (!response || response.status() >= 400) {
+    problems.push(`${label}: the demo's Lists page (/blocks/lists/) did not open`);
+    return page.close();
+  }
+  const row = page.locator('.block-more-buttons:has(.block-more-button):has(.block-more-button ~ .block-list-button)').first();
+  if (!(await row.count())) {
+    problems.push(`${label}: no list with a row limit has both Show more and a text button under it`);
+    return page.close();
+  }
+  await row.scrollIntoViewIfNeeded();
+  await page.waitForFunction(() => document.querySelector('.block-more[data-cut]'), null, { timeout: 10_000 }).catch(() => {});
+  const got = await row.evaluate((el) => {
+    const [a, b] = [...el.children].map((c) => {
+      const box = c.getBoundingClientRect();
+      const css = getComputedStyle(c);
+      return { top: box.top, left: box.left, right: box.right, mt: css.marginTop, mb: css.marginBottom, shown: css.display !== 'none' };
+    });
+    const css = getComputedStyle(el);
+    const narrow = el.cloneNode(true);
+    narrow.style.width = '120px';
+    narrow.style.position = 'absolute';
+    el.parentElement.append(narrow);
+    const [na, nb] = [...narrow.children].map((c) => c.getBoundingClientRect().top);
+    narrow.remove();
+    return { a, b, display: css.display, wrap: css.flexWrap, na, nb };
+  });
+  if (got.display !== 'flex') problems.push(`${label}: the buttons' row is ${got.display}, not a flex row`);
+  if (!got.a.shown || !got.b) problems.push(`${label}: Show more or the text button is not shown while the list is cut`);
+  else {
+    if (Math.abs(got.a.top - got.b.top) > 1) problems.push(`${label}: the buttons are not on one row (tops ${got.a.top} and ${got.b.top})`);
+    if (got.b.left < got.a.right - 0.5) problems.push(`${label}: the buttons overlap (${got.a.right} and ${got.b.left})`);
+    for (const [name, c] of [
+      ['Show more', got.a],
+      ['the text button', got.b],
+    ])
+      if (c.mt !== '0px' || c.mb !== '0px') problems.push(`${label}: ${name} has its own space around it (${c.mt} above, ${c.mb} below)`);
+  }
+  if (got.wrap !== 'wrap') problems.push(`${label}: the buttons' row is ${got.wrap}, so a narrow screen cannot wrap it`);
+  if (!(got.nb > got.na + 1)) problems.push(`${label}: in 120 px the second button stays on the first one's row (${got.na}, ${got.nb})`);
+  await page.close();
+}
+
+/** An open item of a plain List - Expand has the segmented design's item surface, and a closed one has none (375, 768 and 1280 px, the demo's Lists page): no line is
+ * drawn above an open item or under it (owner, 17 Nov 2026: "A plain design list item that is open should have a bg color"). */
+async function checkOpenPlainExpand(width) {
+  const label = `${width}px open plain expand item`;
+  const page = await browser.newPage({ viewport: { width, height: width < 600 ? 800 : 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  const response = await page.goto(`${site}/blocks/lists/`).catch(() => null);
+  if (!response || response.status() >= 400) {
+    problems.push(`${label}: the demo's Lists page (/blocks/lists/) did not open`);
+    return page.close();
+  }
+  const plain = page.locator('.block-accordion:not(.block-accordion-segmented):has(> li:nth-child(3))').first();
+  if (!(await plain.count())) {
+    problems.push(`${label}: no plain List - Expand with three items on the Lists page`);
+    return page.close();
+  }
+  const segmentedSurface = await page.evaluate(() => {
+    const li = document.querySelector('.block-accordion-segmented > li');
+    return li ? getComputedStyle(li).backgroundColor : null;
+  });
+  const items = plain.locator(':scope > li > details.list-item-expand');
+  await items.nth(1).scrollIntoViewIfNeeded();
+  await items.nth(1).locator('summary').click();
+  await page.mouse.move(0, 0);
+  await page.waitForTimeout(700);
+  const got = await plain.evaluate((el) => {
+    const css = (e) => getComputedStyle(e);
+    return [...el.children].map((li) => ({
+      open: li.firstElementChild.open,
+      bg: css(li).backgroundColor,
+      line: css(li).borderTopColor,
+      lineWidth: css(li).borderTopWidth,
+    }));
+  });
+  const clear = 'rgba(0, 0, 0, 0)';
+  got.forEach((li, i) => {
+    if (li.open && li.bg !== segmentedSurface)
+      problems.push(`${label}: the open item's surface is ${li.bg}, not the segmented design's ${segmentedSurface}`);
+    if (!li.open && li.bg !== clear) problems.push(`${label}: closed item ${i + 1} has a surface (${li.bg})`);
+    const against = li.open || got[i - 1]?.open;
+    if (against && li.lineWidth !== '0px' && li.line !== clear)
+      problems.push(`${label}: item ${i + 1} has a line (${li.line}) against the open item`);
+  });
+  if (!got.some((li) => li.open)) problems.push(`${label}: a tap on an item does not open it`);
+  await page.close();
+}
+
 export function register(unit) {
   for (const block of liveLists)
     for (const w of [375, 1280]) unit(`checkLiveList ${w} ${block.name}`, () => checkLiveList(w, w < 600 ? 740 : 900, block));
   for (const w of [375, 768, 1280]) unit(`checkListLeftEdge ${w}`, () => checkListLeftEdge(w));
+  for (const w of [375, 768, 1280]) unit(`checkListButtonsRow ${w}`, () => checkListButtonsRow(w));
+  for (const w of [375, 768, 1280]) unit(`checkOpenPlainExpand ${w}`, () => checkOpenPlainExpand(w));
   for (const w of [375, 768, 1280]) unit(`checkChevronRows ${w}`, () => checkChevronRows(w));
   for (const w of [768, 1280]) unit(`checkChevronUnderHoverRow ${w}`, () => checkChevronUnderHoverRow(w));
   unit('checkListRowColors', () => checkListRowColors());
