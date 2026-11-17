@@ -17,7 +17,7 @@ export const PARTS = [
   { name: 'text field', file: 'theme/styles/ui.css', selector: '.text-field', reads: '--mo-sys-density-layout' },
   { name: 'choice group row', file: 'theme/styles/ui.css', selector: '.choice-group-list .list-item-container', reads: '--mo-sys-density' },
   { name: 'list item', file: 'theme/styles/ui.css', selector: '.list-item-container', reads: '--mo-sys-density' },
-  { name: 'setting row', file: 'theme/styles/ui.css', selector: '.setting-list > .setting-row', reads: '--mo-sys-density-layout' },
+  { name: 'setting row', file: 'theme/styles/switch.css', selector: '.setting-list > .setting-row', reads: '--mo-sys-density-layout' },
   { name: 'table cell', file: 'theme/styles/blocks.css', selector: '.block-table-grid :is(th, td)', reads: '--mo-sys-density' },
   { name: 'table header', file: 'theme/styles/blocks.css', selector: '.block-table-grid thead th', reads: '--mo-sys-density' },
 ];
@@ -100,6 +100,9 @@ export function readStyles(root) {
     );
   for (const f of [
     'theme/styles/ui.css',
+    'theme/styles/checkbox.css',
+    'theme/styles/switch.css',
+    'theme/styles/radio-button.css',
     'theme/styles/blocks.css',
     'theme/styles/base.css',
     'theme/styles/global.css',

@@ -11,6 +11,10 @@
 @import './badge.css';
 /* The Tooltip (plain and rich, anchored to what it is about). */
 @import './tooltip.css';
+/* The selection controls: Checkbox, Radio button and Switch (with its setting row). */
+@import './checkbox.css';
+@import './switch.css';
+@import './radio-button.css';
 /* The cards (Card, the Cards and Price cards blocks), the card grid and the Carousel. */
 @import './cards.css';
 @import './type.css';

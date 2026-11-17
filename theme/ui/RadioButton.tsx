@@ -1,4 +1,4 @@
-// A radio button (m3.material.io/components/radio-button, .radio-button in ../styles/ui.css): one of a few choices,
+// A radio button (m3.material.io/components/radio-button, .radio-button in ../styles/radio-button.css): one of a few choices,
 // of which only one can be chosen. As the checkbox (Checkbox.tsx): the round button, its name (`label`) beside it and
 // a line under the name (`supporting`), all of it one <label>, so a click anywhere chooses it. The buttons of one
 // choice have the same `name` (on the <input>, with its `value`) and stand in a RadioGroup, the choice's name
