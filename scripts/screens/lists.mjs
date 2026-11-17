@@ -315,8 +315,6 @@ async function checkChevronRows(width) {
           const d = lis[1].querySelector('details');
           return {
             open,
-            // In columns the rows can stand side by side (three in a row from a 1128 px window): they are not above and below each other, so every corner is the list's.
-            sideBySide: Math.abs(lis[0].getBoundingClientRect().top - lis[1].getBoundingClientRect().top) < 1,
             first: r(lis[0]),
             last: r(lis[2]),
             title: d.querySelector('summary [data-field]').getBoundingClientRect().left,
@@ -330,11 +328,11 @@ async function checkChevronRows(width) {
       .catch(() => null);
     if (!corners) problems.push(`${label} ${name}: the open row is not round on all four corners`);
     else {
-      if (!corners.sideBySide && (corners.first[2] >= corners.open[0] || corners.first[3] >= corners.open[0]))
+      if (corners.first[2] >= corners.open[0] || corners.first[3] >= corners.open[0])
         problems.push(
           `${label} ${name}: the closed row above the open one has ${corners.first} corners, not smaller than the open row's ${corners.open}`,
         );
-      if (!corners.sideBySide && (corners.last[0] >= corners.open[0] || corners.last[1] >= corners.open[0]))
+      if (corners.last[0] >= corners.open[0] || corners.last[1] >= corners.open[0])
         problems.push(
           `${label} ${name}: the closed row below the open one has ${corners.last} corners, not smaller than the open row's ${corners.open}`,
         );
