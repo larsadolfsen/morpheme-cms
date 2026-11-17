@@ -1164,10 +1164,10 @@
 @layer components {
   /* A dialog's container. */
   .dialog {
-    border-radius: var(--dialog-radius, var(--mo-sys-block-radius));
+    border-radius: var(--mo-comp-dialog-container-shape, var(--mo-sys-block-radius));
     background: var(--dialog-surface, var(--mo-sys-elevation-level3-color));
     box-shadow:
-      0 0 0 1px var(--dialog-line, var(--mo-sys-block-line)),
+      0 0 0 1px var(--mo-comp-dialog-line, var(--mo-sys-block-line)),
       var(--dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow));
   }
   /* A modal dialog: in the middle of the screen over the scrim, coming up a little as it opens. */
@@ -1185,7 +1185,7 @@
     outline: none;
   }
   .dialog-modal::backdrop {
-    background: var(--dialog-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-sys-block-text)) 50%, transparent));
+    background: var(--mo-comp-dialog-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-sys-block-text)) 50%, transparent));
   }
   @media (prefers-reduced-motion: no-preference) {
     .dialog-modal[open] {
@@ -1277,11 +1277,11 @@
     flex-direction: column;
     overflow: hidden;
     background: var(--lightbox-surface, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-sys-block-text)) 88%, transparent));
-    color: var(--lightbox-ink);
+    color: var(--mo-comp-lightbox-ink);
     box-shadow: none;
   }
   .lightbox .icon-button {
-    color: var(--lightbox-ink);
+    color: var(--mo-comp-lightbox-ink);
   }
   .lightbox-header {
     display: flex;
@@ -1397,7 +1397,7 @@
     .lightbox-modal > .lightbox {
       height: 100%;
       max-height: none;
-      border-radius: var(--dialog-radius, var(--mo-sys-block-radius));
+      border-radius: var(--mo-comp-dialog-container-shape, var(--mo-sys-block-radius));
     }
   }
   /* The scrim and the controls fade in (M3 web: default effects, 200 ms), the image scales in (default spatial, 500 ms); with reduced motion they are
@@ -1467,14 +1467,15 @@
     height: min(var(--bottom-sheet-start-max-height, 50dvh), var(--visual-height, 100dvh));
   }
   .bottom-sheet::backdrop {
-    background: var(--bottom-sheet-scrim, color-mix(in srgb, var(--mo-sys-block-text) 50%, transparent));
+    background: var(--mo-comp-bottom-sheet-scrim, color-mix(in srgb, var(--mo-sys-block-text) 50%, transparent));
   }
   .bottom-sheet-container {
     display: flex;
     flex-direction: column;
     height: 100%;
     overflow: hidden;
-    border-radius: var(--bottom-sheet-radius, var(--mo-sys-block-radius)) var(--bottom-sheet-radius, var(--mo-sys-block-radius)) 0 0;
+    border-radius: var(--mo-comp-sheet-bottom-docked-container-shape, var(--mo-sys-block-radius))
+      var(--mo-comp-sheet-bottom-docked-container-shape, var(--mo-sys-block-radius)) 0 0;
     background: var(--bottom-sheet-surface, var(--mo-sys-elevation-level1-color));
     box-shadow: var(--bottom-sheet-shadow, var(--mo-sys-elevation-level1-rest-shadow));
     padding-bottom: env(safe-area-inset-bottom);
@@ -1497,7 +1498,7 @@
     width: 3rem;
     height: 0.375rem;
     border-radius: var(--mo-sys-shape-corner-full);
-    background: var(--bottom-sheet-handle, var(--mo-sys-block-line));
+    background: var(--mo-comp-sheet-bottom-docked-drag-handle-color, var(--mo-sys-block-line));
   }
   /* The handle shows its focus by a darker bar, as M3's does: a focus ring is cut off by the sheet's rounded top and
      would show as a coloured line between the handle and the headline. */
@@ -1514,7 +1515,7 @@
     justify-content: space-between;
     gap: 1rem;
     padding: 0 var(--mo-sys-grid-margin, 1rem) 0.75rem;
-    border-bottom: 1px solid var(--bottom-sheet-line, var(--mo-sys-block-line));
+    border-bottom: 1px solid var(--mo-comp-bottom-sheet-line, var(--mo-sys-block-line));
   }
   .bottom-sheet-heading {
     min-width: 0;
@@ -1596,7 +1597,7 @@
     flex-shrink: 0;
     margin: 0;
     padding: 0.75rem var(--mo-sys-grid-margin, 1rem);
-    border-top: 1px solid var(--bottom-sheet-line, var(--mo-sys-block-line));
+    border-top: 1px solid var(--mo-comp-bottom-sheet-line, var(--mo-sys-block-line));
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
@@ -1616,7 +1617,7 @@
     }
     /* A modal one only: a standard one stays at the bottom. */
     .bottom-sheet-container:where(:not(.bottom-sheet-standard, [data-wide='side-sheet'], [data-wide='sheet'])) {
-      border-radius: var(--bottom-sheet-radius, var(--mo-sys-block-radius));
+      border-radius: var(--mo-comp-sheet-bottom-docked-container-shape, var(--mo-sys-block-radius));
       box-shadow: var(--bottom-sheet-shadow-large, var(--mo-sys-elevation-level3-rest-shadow));
       padding-bottom: 0;
     }
@@ -1761,12 +1762,12 @@
       inset: 0 auto 0 0;
     }
     .bottom-sheet:has(> [data-wide='side-sheet'])::backdrop {
-      background: var(--side-sheet-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-sys-block-text)) 50%, transparent));
+      background: var(--mo-comp-side-sheet-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-sys-block-text)) 50%, transparent));
     }
     .bottom-sheet-container:not(.bottom-sheet-standard)[data-wide='side-sheet'] {
       border-radius: 0;
-      border-start-start-radius: var(--side-sheet-radius, var(--mo-sys-block-radius));
-      border-end-start-radius: var(--side-sheet-radius, var(--mo-sys-block-radius));
+      border-start-start-radius: var(--mo-comp-sheet-side-docked-container-shape, var(--mo-sys-block-radius));
+      border-end-start-radius: var(--mo-comp-sheet-side-docked-container-shape, var(--mo-sys-block-radius));
       background: var(--side-sheet-modal-surface, var(--side-sheet-surface, var(--mo-sys-elevation-level1-color)));
       box-shadow: var(--side-sheet-shadow, var(--mo-sys-elevation-level1-rest-shadow));
       padding-bottom: 0;
@@ -1781,8 +1782,8 @@
        the top and end edges, 12 from the headline), the headline in title large, and the actions row of M3's measures. */
     .bottom-sheet-container[data-wide='side-sheet'] > .bottom-sheet-header {
       gap: 0;
-      padding-block: calc(var(--side-sheet-padding, 1.5rem) - var(--side-sheet-icon-inset)) 0;
-      padding-inline: var(--side-sheet-padding, 1.5rem) calc(var(--side-sheet-padding, 1.5rem) - var(--side-sheet-icon-inset));
+      padding-block: calc(var(--side-sheet-padding, 1.5rem) - var(--mo-comp-side-sheet-icon-inset)) 0;
+      padding-inline: var(--side-sheet-padding, 1.5rem) calc(var(--side-sheet-padding, 1.5rem) - var(--mo-comp-side-sheet-icon-inset));
     }
     .bottom-sheet-container[data-wide='side-sheet'] .bottom-sheet-headline {
       font-size: var(--side-sheet-headline-size, var(--mo-sys-typescale-title-large-size));
@@ -2561,14 +2562,14 @@
   .menu-item-submenu, its item (aria-expanded) and the .menu-submenu it opens beside it. A dropdown menu:
   .dropdown-menu, its button and its .menu (.dropdown-menu-menu) under it; the menus a button or an item opens are
   popovers, placed with CSS anchor positioning (else by ui/dropdownMenu.script.ts).
-    --menu-width, --menu-min-width, --menu-max-width, --menu-max-height, --menu-radius, --menu-surface, --menu-line,
-    --menu-shadow (level 2), --menu-padding
-    --menu-item-height, --menu-item-padding, --menu-item-radius, --menu-item-edge-radius, --menu-item-selected-radius,
-    --menu-item-gap, --menu-item-font-size,
-    --menu-item-weight, --menu-item-letter-spacing, --menu-item-text, --menu-item-icon-color, --menu-item-supporting-text,
-    --menu-item-hover-surface, --menu-item-hover-text, --menu-item-pressed-surface, --menu-item-selected-surface,
-    --menu-item-selected-text, --menu-item-selected-weight, --menu-item-disabled-opacity
-    --menu-group-gap, --menu-group-inner-radius, --menu-group-label-text, --menu-divider, --menu-divider-margin
+    --mo-comp-menu-width, --mo-comp-menu-min-width, --mo-comp-menu-max-width, --mo-comp-menu-max-height, --mo-comp-menu-container-shape, --mo-comp-menu-container-color, --mo-comp-menu-line,
+    --mo-comp-menu-container-elevation (level 2), --mo-comp-menu-padding
+    --mo-comp-menu-list-item-container-height, --mo-comp-menu-item-padding, --mo-comp-menu-item-radius, --mo-comp-menu-item-edge-radius, --mo-comp-menu-item-selected-radius,
+    --menu-item-gap, --mo-comp-menu-item-font-size,
+    --mo-comp-menu-item-weight, --mo-comp-menu-item-letter-spacing, --mo-comp-menu-list-item-label-text-color, --mo-comp-menu-item-icon-color, --mo-comp-menu-item-supporting-text,
+    --mo-comp-menu-item-hover-surface, --mo-comp-menu-item-hover-text, --menu-item-pressed-surface, --mo-comp-menu-list-item-selected-container-color,
+    --mo-comp-menu-list-item-selected-label-text-color, --mo-comp-menu-item-selected-weight, --menu-item-disabled-opacity
+    --menu-group-gap, --mo-comp-menu-group-inner-radius, --mo-comp-menu-group-label-text, --mo-comp-menu-divider-color, --menu-divider-margin
     --menu-vibrant-surface, --menu-vibrant-text, --menu-vibrant-selected-surface, --menu-vibrant-selected-text
     --menu-submenu-gap, --dropdown-menu-gap   between a submenu and its item, and a dropdown menu and its button
   Exposed dropdown menu (ExposedDropdownMenu, exposedDropdownMenuClass): the theme's text field (.text-field with its
@@ -2594,16 +2595,16 @@
   .navigation-drawer-subitem, a sub-page ([data-active]); .navigation-drawer-section, items under a label
   (.navigation-drawer-section-label, title small) with, in one that follows another, the divider
   (.navigation-drawer-section-divider, edge to edge).
-    --navigation-drawer-width (set: that width; else it hugs its content from 220dp to 360dp, at most the screen less 56dp),
+    --mo-comp-navigation-drawer-width (set: that width; else it hugs its content from 220dp to 360dp, at most the screen less 56dp),
     --navigation-drawer-radius (0 16dp 16dp 0; under right-to-left --navigation-drawer-radius-rtl), --navigation-drawer-surface
     (the modal one: the surface container, level 2's colour; the standard one: the surface),
-    --navigation-drawer-shadow (level 1), --navigation-drawer-scrim, --navigation-drawer-inset (12dp each side, from
+    --navigation-drawer-shadow (level 1), --mo-comp-navigation-drawer-scrim-color, --mo-comp-navigation-drawer-inset (12dp each side, from
     the edges to the items), --navigation-drawer-padding (all of it, with room for the home indicator),
     --navigation-drawer-section-gap (8dp around the divider), --navigation-drawer-section-label-text
     --navigation-drawer-item-height (56dp), -padding (16dp start and end), -gap (12dp), -radius (full), -font-size,
     -line-height, -letter-spacing, -weight (label large), -text (on surface variant), -hover and -pressed (state
     layers), -active-surface (secondary container), -active-text (on secondary container), -active-weight (700)
-    --navigation-drawer-row-gap, --navigation-drawer-toggle-size, --navigation-drawer-toggle-hover
+    --mo-comp-navigation-drawer-row-gap, --mo-comp-navigation-drawer-toggle-size, --mo-comp-navigation-drawer-toggle-hover
     --navigation-drawer-subitem-indent, -line, -padding, -font-size, -text, -active-text
   Tabs (Tabs, Tab, tabsClass, tabsClasses, tabClass, tabs.script.ts): .tabs, a row of tabs to swipe sideways, or sharing
   its width (.tabs-fixed); .tab, a link or a role="tab" button, the open one with aria-current or aria-selected, and in it
@@ -2773,29 +2774,29 @@
 
   /* Menu (m3.material.io/components/menus): pages under an item, or actions, on a surface. */
   .menu {
-    width: var(--menu-width, 18rem);
-    min-width: var(--menu-min-width, 0);
-    max-width: var(--menu-max-width, none);
-    max-height: var(--menu-max-height, none);
+    width: var(--mo-comp-menu-width, 18rem);
+    min-width: var(--mo-comp-menu-min-width, 0);
+    max-width: var(--mo-comp-menu-max-width, none);
+    max-height: var(--mo-comp-menu-max-height, none);
     overflow-y: auto;
-    border-radius: var(--menu-radius, var(--mo-sys-block-radius-small));
-    background: var(--menu-surface, var(--mo-sys-elevation-level2-color));
-    padding: var(--menu-padding, 0.5rem);
+    border-radius: var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small));
+    background: var(--mo-comp-menu-container-color, var(--mo-sys-elevation-level2-color));
+    padding: var(--mo-comp-menu-padding, 0.5rem);
     box-shadow:
-      0 0 0 1px var(--menu-line, var(--mo-sys-block-line)),
-      var(--menu-shadow, var(--mo-sys-elevation-level2-rest-shadow));
+      0 0 0 1px var(--mo-comp-menu-line, var(--mo-sys-block-line)),
+      var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-rest-shadow));
   }
   .menu-item {
     display: flex;
-    min-height: var(--menu-item-height, 0);
+    min-height: var(--mo-comp-menu-list-item-container-height, 0);
     align-items: center;
     gap: var(--menu-item-gap, 0.75rem);
-    border-radius: var(--menu-item-radius, calc(var(--mo-sys-block-radius-small) - 0.25rem));
-    padding: var(--menu-item-padding, 0.5rem 0.75rem);
-    color: var(--menu-item-text, color-mix(in oklab, var(--mo-sys-block-text) 80%, transparent));
-    font-size: var(--menu-item-font-size, var(--mo-sys-typescale-body-medium-size));
-    font-weight: var(--menu-item-weight, inherit);
-    letter-spacing: var(--menu-item-letter-spacing, var(--mo-sys-typescale-body-medium-tracking));
+    border-radius: var(--mo-comp-menu-item-radius, calc(var(--mo-sys-block-radius-small) - 0.25rem));
+    padding: var(--mo-comp-menu-item-padding, 0.5rem 0.75rem);
+    color: var(--mo-comp-menu-list-item-label-text-color, color-mix(in oklab, var(--mo-sys-block-text) 80%, transparent));
+    font-size: var(--mo-comp-menu-item-font-size, var(--mo-sys-typescale-body-medium-size));
+    font-weight: var(--mo-comp-menu-item-weight, inherit);
+    letter-spacing: var(--mo-comp-menu-item-letter-spacing, var(--mo-sys-typescale-body-medium-tracking));
     transition:
       background-color var(--mo-sys-motion-spring-fast-effects),
       color var(--mo-sys-motion-spring-fast-effects);
@@ -2809,31 +2810,31 @@
     cursor: pointer;
   }
   .menu-item:is([aria-current='page'], [aria-current='true'], [aria-checked='true'], [aria-pressed='true'], [aria-selected='true']) {
-    background: var(--menu-item-selected-surface, transparent);
-    color: var(--menu-item-selected-text, var(--mo-sys-block-accent));
-    font-weight: var(--menu-item-selected-weight, 500);
+    background: var(--mo-comp-menu-list-item-selected-container-color, transparent);
+    color: var(--mo-comp-menu-list-item-selected-label-text-color, var(--mo-sys-block-accent));
+    font-weight: var(--mo-comp-menu-item-selected-weight, 500);
   }
   /* Material 3 menus page, Specs: an item has a 4dp corner, the first and last item of a menu or group 12dp on the outer
      corners, and the selected item 12dp. */
   :is(.menu, .menu-group-items) > li:first-child > .menu-item,
   :is(.menu, .menu-group-items) > li:first-child > .menu-item-submenu > .menu-item {
-    border-start-start-radius: var(--menu-item-edge-radius, var(--mo-sys-block-radius-small));
-    border-start-end-radius: var(--menu-item-edge-radius, var(--mo-sys-block-radius-small));
+    border-start-start-radius: var(--mo-comp-menu-item-edge-radius, var(--mo-sys-block-radius-small));
+    border-start-end-radius: var(--mo-comp-menu-item-edge-radius, var(--mo-sys-block-radius-small));
   }
   :is(.menu, .menu-group-items) > li:last-child > .menu-item,
   :is(.menu, .menu-group-items) > li:last-child > .menu-item-submenu > .menu-item {
-    border-end-start-radius: var(--menu-item-edge-radius, var(--mo-sys-block-radius-small));
-    border-end-end-radius: var(--menu-item-edge-radius, var(--mo-sys-block-radius-small));
+    border-end-start-radius: var(--mo-comp-menu-item-edge-radius, var(--mo-sys-block-radius-small));
+    border-end-end-radius: var(--mo-comp-menu-item-edge-radius, var(--mo-sys-block-radius-small));
   }
   .menu-item:is([aria-current='page'], [aria-current='true'], [aria-checked='true'], [aria-pressed='true'], [aria-selected='true']) {
-    border-radius: var(--menu-item-selected-radius, var(--mo-sys-block-radius-small));
+    border-radius: var(--mo-comp-menu-item-selected-radius, var(--mo-sys-block-radius-small));
   }
   .menu-item:is(:hover, [aria-expanded='true']) {
-    background: var(--menu-item-hover-surface, var(--mo-sys-block-tint));
-    color: var(--menu-item-hover-text, var(--mo-sys-block-accent));
+    background: var(--mo-comp-menu-item-hover-surface, var(--mo-sys-block-tint));
+    color: var(--mo-comp-menu-item-hover-text, var(--mo-sys-block-accent));
   }
   .menu-item:active {
-    background: var(--menu-item-pressed-surface, var(--menu-item-hover-surface, var(--mo-sys-block-tint)));
+    background: var(--menu-item-pressed-surface, var(--mo-comp-menu-item-hover-surface, var(--mo-sys-block-tint)));
   }
   .menu-item:is(:disabled, [aria-disabled='true']) {
     opacity: var(--menu-item-disabled-opacity, 0.5);
@@ -2841,7 +2842,7 @@
   }
   .menu-item:is(:disabled, [aria-disabled='true']):is(:hover, :active) {
     background: transparent;
-    color: var(--menu-item-text, color-mix(in oklab, var(--mo-sys-block-text) 80%, transparent));
+    color: var(--mo-comp-menu-list-item-label-text-color, color-mix(in oklab, var(--mo-sys-block-text) 80%, transparent));
   }
   /* An action: a <button> as wide as the menu, drawn as a link item. */
   button.menu-item {
@@ -2849,9 +2850,9 @@
     border: 0;
     background: transparent;
     font: inherit;
-    font-size: var(--menu-item-font-size, var(--mo-sys-typescale-body-medium-size));
-    font-weight: var(--menu-item-weight, inherit);
-    letter-spacing: var(--menu-item-letter-spacing, var(--mo-sys-typescale-body-medium-tracking));
+    font-size: var(--mo-comp-menu-item-font-size, var(--mo-sys-typescale-body-medium-size));
+    font-weight: var(--mo-comp-menu-item-weight, inherit);
+    letter-spacing: var(--mo-comp-menu-item-letter-spacing, var(--mo-sys-typescale-body-medium-tracking));
     text-align: start;
     cursor: pointer;
   }
@@ -2869,7 +2870,7 @@
   .menu-item-icon,
   .menu-item-trailing-icon {
     flex-shrink: 0;
-    color: var(--menu-item-icon-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-menu-item-icon-color, var(--mo-sys-block-muted));
     transition: color var(--mo-sys-motion-spring-fast-effects);
   }
   .menu-item:is(:hover, [aria-expanded='true']) :is(.menu-item-icon, .menu-item-trailing-icon),
@@ -2892,7 +2893,7 @@
     flex-direction: column;
   }
   .menu-item-supporting {
-    color: var(--menu-item-supporting-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-menu-item-supporting-text, var(--mo-sys-block-muted));
     font-size: var(--mo-sys-typescale-body-small-size);
     line-height: var(--mo-sys-typescale-body-small-line-height);
     font-weight: var(--mo-sys-typescale-body-small-weight);
@@ -2900,7 +2901,7 @@
   }
   .menu-item-trailing-supporting {
     flex-shrink: 0;
-    color: var(--menu-item-supporting-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-menu-item-supporting-text, var(--mo-sys-block-muted));
     font-size: var(--mo-sys-typescale-body-small-size);
     line-height: var(--mo-sys-typescale-body-small-line-height);
     font-weight: var(--mo-sys-typescale-body-small-weight);
@@ -2919,7 +2920,7 @@
   .menu-group-label {
     display: block;
     padding: 0.5rem 0.75rem 0.25rem;
-    color: var(--menu-group-label-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-menu-group-label-text, var(--mo-sys-block-muted));
     font-size: var(--mo-sys-typescale-label-medium-size);
     line-height: var(--mo-sys-typescale-label-medium-line-height);
     font-weight: var(--mo-sys-typescale-label-medium-weight);
@@ -2935,24 +2936,24 @@
     box-shadow: none;
   }
   .menu:has(> .menu-group):not(.menu-groups-divider) > .menu-group {
-    border-radius: var(--menu-group-inner-radius, var(--menu-radius, var(--mo-sys-block-radius-small)));
-    background: var(--menu-surface, var(--mo-sys-elevation-level2-color));
-    padding: var(--menu-padding, 0.5rem);
+    border-radius: var(--mo-comp-menu-group-inner-radius, var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small)));
+    background: var(--mo-comp-menu-container-color, var(--mo-sys-elevation-level2-color));
+    padding: var(--mo-comp-menu-padding, 0.5rem);
     box-shadow:
-      0 0 0 1px var(--menu-line, var(--mo-sys-block-line)),
-      var(--menu-shadow, var(--mo-sys-elevation-level2-rest-shadow));
+      0 0 0 1px var(--mo-comp-menu-line, var(--mo-sys-block-line)),
+      var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-rest-shadow));
   }
   .menu:has(> .menu-group):not(.menu-groups-divider) > .menu-group:first-child {
-    border-start-start-radius: var(--menu-radius, var(--mo-sys-block-radius-small));
-    border-start-end-radius: var(--menu-radius, var(--mo-sys-block-radius-small));
+    border-start-start-radius: var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small));
+    border-start-end-radius: var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small));
   }
   .menu:has(> .menu-group):not(.menu-groups-divider) > .menu-group:last-child {
-    border-end-start-radius: var(--menu-radius, var(--mo-sys-block-radius-small));
-    border-end-end-radius: var(--menu-radius, var(--mo-sys-block-radius-small));
+    border-end-start-radius: var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small));
+    border-end-end-radius: var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small));
   }
   .menu-groups-divider > .menu-group + .menu-group {
     margin-top: var(--menu-divider-margin, 0.375rem);
-    border-top: 1px solid var(--menu-divider, var(--mo-sys-block-line));
+    border-top: 1px solid var(--mo-comp-menu-divider-color, var(--mo-sys-block-line));
     padding-top: var(--menu-divider-margin, 0.375rem);
   }
   .menu-divider {
@@ -2969,7 +2970,7 @@
   .menu[popover] {
     position: fixed;
     inset: auto;
-    max-height: var(--menu-max-height, calc(100dvh - 2rem));
+    max-height: var(--mo-comp-menu-max-height, calc(100dvh - 2rem));
     margin: 0;
     border: 0;
     color: var(--mo-sys-block-text);
@@ -3102,25 +3103,25 @@
       display: none;
     }
     .exposed-dropdown-menu-select::picker(select) {
-      max-height: var(--menu-max-height, min(20rem, calc(100dvh - 2rem)));
+      max-height: var(--mo-comp-menu-max-height, min(20rem, calc(100dvh - 2rem)));
       margin-block: var(--dropdown-menu-gap, 0.25rem);
       border: 0;
-      border-radius: var(--menu-radius, var(--mo-sys-block-radius-small));
-      background: var(--menu-surface, var(--mo-sys-elevation-level2-color));
-      padding: var(--menu-padding, 0.5rem);
+      border-radius: var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small));
+      background: var(--mo-comp-menu-container-color, var(--mo-sys-elevation-level2-color));
+      padding: var(--mo-comp-menu-padding, 0.5rem);
       box-shadow:
-        0 0 0 1px var(--menu-line, var(--mo-sys-block-line)),
-        var(--menu-shadow, var(--mo-sys-elevation-level2-rest-shadow));
+        0 0 0 1px var(--mo-comp-menu-line, var(--mo-sys-block-line)),
+        var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-rest-shadow));
       color: var(--mo-sys-block-text);
     }
     .exposed-dropdown-menu-option {
-      min-height: var(--menu-item-height, 0);
-      border-radius: var(--menu-item-radius, calc(var(--mo-sys-block-radius-small) - 0.25rem));
-      padding: var(--menu-item-padding, 0.5rem 0.75rem);
-      color: var(--menu-item-text, color-mix(in oklab, var(--mo-sys-block-text) 80%, transparent));
-      font-size: var(--menu-item-font-size, var(--mo-sys-typescale-body-medium-size));
-      font-weight: var(--menu-item-weight, inherit);
-      letter-spacing: var(--menu-item-letter-spacing, var(--mo-sys-typescale-body-medium-tracking));
+      min-height: var(--mo-comp-menu-list-item-container-height, 0);
+      border-radius: var(--mo-comp-menu-item-radius, calc(var(--mo-sys-block-radius-small) - 0.25rem));
+      padding: var(--mo-comp-menu-item-padding, 0.5rem 0.75rem);
+      color: var(--mo-comp-menu-list-item-label-text-color, color-mix(in oklab, var(--mo-sys-block-text) 80%, transparent));
+      font-size: var(--mo-comp-menu-item-font-size, var(--mo-sys-typescale-body-medium-size));
+      font-weight: var(--mo-comp-menu-item-weight, inherit);
+      letter-spacing: var(--mo-comp-menu-item-letter-spacing, var(--mo-sys-typescale-body-medium-tracking));
       cursor: pointer;
       transition:
         background-color var(--mo-sys-motion-spring-fast-effects),
@@ -3130,14 +3131,14 @@
       display: none;
     }
     .exposed-dropdown-menu-option:checked {
-      background: var(--menu-item-selected-surface, transparent);
-      color: var(--menu-item-selected-text, var(--mo-sys-block-accent));
-      font-weight: var(--menu-item-selected-weight, 500);
+      background: var(--mo-comp-menu-list-item-selected-container-color, transparent);
+      color: var(--mo-comp-menu-list-item-selected-label-text-color, var(--mo-sys-block-accent));
+      font-weight: var(--mo-comp-menu-item-selected-weight, 500);
     }
     .exposed-dropdown-menu-option:is(:hover, :focus-visible) {
       outline: none;
-      background: var(--menu-item-hover-surface, var(--mo-sys-block-tint));
-      color: var(--menu-item-hover-text, var(--mo-sys-block-accent));
+      background: var(--mo-comp-menu-item-hover-surface, var(--mo-sys-block-tint));
+      color: var(--mo-comp-menu-item-hover-text, var(--mo-sys-block-accent));
     }
     .exposed-dropdown-menu-option:disabled {
       opacity: var(--menu-item-disabled-opacity, 0.5);
@@ -3147,20 +3148,20 @@
   }
   /* Navigation drawer, modal (m3.material.io/components/navigation-drawer): the pages in a panel over the page. */
   .navigation-drawer-scrim {
-    background: var(--navigation-drawer-scrim, color-mix(in srgb, var(--theme-scrim-colour) 45%, transparent));
+    background: var(--mo-comp-navigation-drawer-scrim-color, color-mix(in srgb, var(--theme-scrim-colour) 45%, transparent));
   }
   .navigation-drawer {
     display: flex;
     /* Expanded navigation rail (M3 Expressive, "Expanded layout: Modal"): it hugs its content, "container width minimum 220dp",
-       "maximum 360dp"; a theme that sets --navigation-drawer-width gets that width, as it did. */
-    min-width: var(--navigation-drawer-width, var(--navigation-drawer-width-min-default));
-    max-width: var(--navigation-drawer-width, var(--navigation-drawer-width-default));
+       "maximum 360dp"; a theme that sets --mo-comp-navigation-drawer-width gets that width, as it did. */
+    min-width: var(--mo-comp-navigation-drawer-width, var(--mo-comp-navigation-drawer-width-min-default));
+    max-width: var(--mo-comp-navigation-drawer-width, var(--mo-comp-navigation-drawer-container-width));
     flex-direction: column;
     overflow-y: auto;
     border-radius: var(--navigation-drawer-radius, 0 1rem 1rem 0);
     padding: var(
       --navigation-drawer-padding,
-      0.75rem var(--navigation-drawer-inset, var(--navigation-drawer-inset-default)) max(1rem, env(safe-area-inset-bottom))
+      0.75rem var(--mo-comp-navigation-drawer-inset, var(--mo-comp-navigation-drawer-inset-default)) max(1rem, env(safe-area-inset-bottom))
     );
     /* Expanded rail, modal: "Nav rail expanded modal container color", the surface container (level 2's colour). */
     background: var(--navigation-drawer-surface, var(--mo-sys-elevation-level2-color));
@@ -3181,25 +3182,25 @@
      while an overshooting spring carries it a little past its place. */
   .navigation-drawer.navigation-drawer-bleed {
     min-width: calc(
-      var(--navigation-drawer-width, var(--navigation-drawer-width-min-default)) +
-        var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+      var(--mo-comp-navigation-drawer-width, var(--mo-comp-navigation-drawer-width-min-default)) +
+        var(--navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default))
     );
     max-width: calc(
-      var(--navigation-drawer-width, var(--navigation-drawer-width-default)) +
-        var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+      var(--mo-comp-navigation-drawer-width, var(--mo-comp-navigation-drawer-container-width)) +
+        var(--navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default))
     );
-    margin-inline-start: calc(-1 * var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default)));
+    margin-inline-start: calc(-1 * var(--navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default)));
     padding-inline-start: calc(
-      var(--navigation-drawer-inset, var(--navigation-drawer-inset-default)) +
-        var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+      var(--mo-comp-navigation-drawer-inset, var(--mo-comp-navigation-drawer-inset-default)) +
+        var(--navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default))
     );
   }
   .navigation-drawer.navigation-drawer-bleed.navigation-drawer-end {
-    margin-inline: 0 calc(-1 * var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default)));
-    padding-inline: var(--navigation-drawer-inset, var(--navigation-drawer-inset-default))
+    margin-inline: 0 calc(-1 * var(--navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default)));
+    padding-inline: var(--mo-comp-navigation-drawer-inset, var(--mo-comp-navigation-drawer-inset-default))
       calc(
-        var(--navigation-drawer-inset, var(--navigation-drawer-inset-default)) +
-          var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+        var(--mo-comp-navigation-drawer-inset, var(--mo-comp-navigation-drawer-inset-default)) +
+          var(--navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default))
       );
   }
   /* Nothing in it is squeezed when its content is higher than the screen: the drawer scrolls instead. */
@@ -3259,20 +3260,20 @@
      beyond the screen's edge and the drawer in it is that much wider, its items as far in as before (a modal dialog
      clips what sticks out of it, so the strip is the dialog's own). */
   .navigation-drawer-dialog.navigation-drawer-bleed {
-    inset-inline-start: calc(-1 * var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default)));
+    inset-inline-start: calc(-1 * var(--navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default)));
   }
   .navigation-drawer-dialog.navigation-drawer-bleed > .navigation-drawer {
     min-width: calc(
-      var(--navigation-drawer-width, var(--navigation-drawer-width-min-default)) +
-        var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+      var(--mo-comp-navigation-drawer-width, var(--mo-comp-navigation-drawer-width-min-default)) +
+        var(--navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default))
     );
     max-width: calc(
-      var(--navigation-drawer-width, var(--navigation-drawer-width-default)) +
-        var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+      var(--mo-comp-navigation-drawer-width, var(--mo-comp-navigation-drawer-container-width)) +
+        var(--navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default))
     );
     padding-inline-start: calc(
-      var(--navigation-drawer-inset, var(--navigation-drawer-inset-default)) +
-        var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+      var(--mo-comp-navigation-drawer-inset, var(--mo-comp-navigation-drawer-inset-default)) +
+        var(--navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default))
     );
   }
   /* At the end edge (navigationDrawerEndClass on the <dialog> and on the drawer in it): the strip beyond the screen is the end's. */
@@ -3280,17 +3281,17 @@
     inset-inline: auto 0;
   }
   .navigation-drawer-dialog.navigation-drawer-bleed.navigation-drawer-end {
-    inset-inline: auto calc(-1 * var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default)));
+    inset-inline: auto calc(-1 * var(--navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default)));
   }
   .navigation-drawer-dialog.navigation-drawer-bleed.navigation-drawer-end > .navigation-drawer {
-    padding-inline: var(--navigation-drawer-inset, var(--navigation-drawer-inset-default))
+    padding-inline: var(--mo-comp-navigation-drawer-inset, var(--mo-comp-navigation-drawer-inset-default))
       calc(
-        var(--navigation-drawer-inset, var(--navigation-drawer-inset-default)) +
-          var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+        var(--mo-comp-navigation-drawer-inset, var(--mo-comp-navigation-drawer-inset-default)) +
+          var(--navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default))
       );
   }
   .navigation-drawer-dialog::backdrop {
-    background: var(--navigation-drawer-scrim, color-mix(in srgb, var(--theme-scrim-colour) 45%, transparent));
+    background: var(--mo-comp-navigation-drawer-scrim-color, color-mix(in srgb, var(--theme-scrim-colour) 45%, transparent));
     /* The menu fades it with the motion scheme's springs through this variable, which the backdrop inherits from the dialog. */
     opacity: var(--navigation-drawer-scrim-opacity, 1);
   }
@@ -3337,7 +3338,7 @@
   .navigation-drawer-section + .navigation-drawer-section > .navigation-drawer-section-divider {
     display: block;
     margin-block: var(--navigation-drawer-section-gap, 0.5rem);
-    margin-inline: calc(-1 * var(--navigation-drawer-inset, var(--navigation-drawer-inset-default)));
+    margin-inline: calc(-1 * var(--mo-comp-navigation-drawer-inset, var(--mo-comp-navigation-drawer-inset-default)));
   }
   .navigation-drawer-section-label {
     display: flex;
@@ -3406,12 +3407,12 @@
   .navigation-drawer-row {
     display: flex;
     align-items: center;
-    gap: var(--navigation-drawer-row-gap, 0.25rem);
+    gap: var(--mo-comp-navigation-drawer-row-gap, 0.25rem);
   }
   .navigation-drawer-toggle {
     display: grid;
-    width: var(--navigation-drawer-toggle-size, 2.75rem);
-    height: var(--navigation-drawer-toggle-size, 2.75rem);
+    width: var(--mo-comp-navigation-drawer-toggle-size, 2.75rem);
+    height: var(--mo-comp-navigation-drawer-toggle-size, 2.75rem);
     flex-shrink: 0;
     place-items: center;
     border-radius: var(--mo-sys-shape-corner-full);
@@ -3419,7 +3420,7 @@
     transition: background-color var(--mo-sys-motion-spring-fast-effects);
   }
   .navigation-drawer-toggle:hover {
-    background: var(--navigation-drawer-toggle-hover, var(--mo-sys-block-tint));
+    background: var(--mo-comp-navigation-drawer-toggle-hover, var(--mo-sys-block-tint));
   }
   .navigation-drawer-toggle > svg {
     transition: rotate var(--mo-sys-motion-spring-default-spatial);
@@ -4299,7 +4300,7 @@
 /*
   Setting rows (SettingRow.tsx): .setting-row, with its text (.setting-row-text: .setting-row-label and
   .setting-row-supporting) and after it what sets it.
-    --setting-row-gap, --setting-row-label-weight, --setting-row-supporting-color   the room before what sets it, the name
+    --setting-row-gap, --mo-comp-setting-row-label-weight, --setting-row-supporting-color   the room before what sets it, the name
       and the line under it (else the switch's --switch-label-weight and --switch-supporting-color)
   Switches (Switch.tsx, switchClass; m3.material.io/components/switch): .switch, a setting row, a <label>, and after the name the track
   (.switch-track: the <input role="switch">,
@@ -4357,9 +4358,9 @@
   (.side-sheet-headline and the close button), .side-sheet-content (scrolling) and .side-sheet-actions.
     --side-sheet-width   how wide it is (a modal one leaves room for the scrim on a phone)
     --side-sheet-surface, --side-sheet-line   a standard one's surface and the line between it and the page
-    --side-sheet-modal-surface, --side-sheet-radius, --side-sheet-shadow   a modal one's surface, its corners towards
+    --side-sheet-modal-surface, --mo-comp-sheet-side-docked-container-shape, --side-sheet-shadow   a modal one's surface, its corners towards
       the page, and its shadow
-    --side-sheet-scrim   the shade over the page behind a modal one (else --theme-scrim-colour, as the dialog's)
+    --mo-comp-side-sheet-scrim   the shade over the page behind a modal one (else --theme-scrim-colour, as the dialog's)
     --side-sheet-padding, --side-sheet-headline-size, --side-sheet-headline-weight, --side-sheet-actions-line   the
       room inside it, the headline, and the line over the actions
     --side-sheet-content-top   the room over the content (1rem: the first outlined field's label stands above its edge)
@@ -4386,7 +4387,7 @@
     display: block;
     font-size: var(--mo-comp-list-item-headline-size, var(--mo-sys-typescale-body-large-size));
     line-height: var(--mo-comp-list-item-headline-line-height, var(--mo-sys-typescale-body-large-line-height));
-    font-weight: var(--setting-row-label-weight, var(--switch-label-weight, 500));
+    font-weight: var(--mo-comp-setting-row-label-weight, var(--switch-label-weight, 500));
     letter-spacing: var(--mo-comp-list-item-headline-letter-spacing, var(--mo-sys-typescale-body-large-tracking));
   }
   .setting-row-supporting {
@@ -4876,12 +4877,12 @@
   .side-sheet-modal {
     width: 100%;
     height: 100%;
-    border-start-start-radius: var(--side-sheet-radius, var(--mo-sys-block-radius));
-    border-end-start-radius: var(--side-sheet-radius, var(--mo-sys-block-radius));
+    border-start-start-radius: var(--mo-comp-sheet-side-docked-container-shape, var(--mo-sys-block-radius));
+    border-end-start-radius: var(--mo-comp-sheet-side-docked-container-shape, var(--mo-sys-block-radius));
     background: var(--side-sheet-modal-surface, var(--side-sheet-surface, var(--mo-sys-elevation-level1-color)));
     box-shadow: var(--side-sheet-shadow, var(--mo-sys-elevation-level1-rest-shadow));
   }
-  /* M3's measures run to the close icon's glyph, and its button holds the space round the glyph (--side-sheet-icon-inset),
+  /* M3's measures run to the close icon's glyph, and its button holds the space round the glyph (--mo-comp-side-sheet-icon-inset),
      so the header takes that off its top and end padding and has no gap: 24 from the top and the end edges to the glyph,
      12 between the headline and the glyph. */
   .side-sheet-header {
@@ -4889,13 +4890,13 @@
     flex-shrink: 0;
     align-items: center;
     gap: 0;
-    padding-block: calc(var(--side-sheet-padding, 1.5rem) - var(--side-sheet-icon-inset)) 0;
-    padding-inline: var(--side-sheet-padding, 1.5rem) calc(var(--side-sheet-padding, 1.5rem) - var(--side-sheet-icon-inset));
+    padding-block: calc(var(--side-sheet-padding, 1.5rem) - var(--mo-comp-side-sheet-icon-inset)) 0;
+    padding-inline: var(--side-sheet-padding, 1.5rem) calc(var(--side-sheet-padding, 1.5rem) - var(--mo-comp-side-sheet-icon-inset));
   }
   /* With a back icon button (M3's modal side sheet: "Start padding with icon" 16): 16 from the start edge to the back glyph, then 12 to the
      headline (the button's own space round the glyph is that 12, so no gap). */
   .side-sheet-header[data-has-back] {
-    padding-inline-start: calc(1rem - var(--side-sheet-icon-inset));
+    padding-inline-start: calc(1rem - var(--mo-comp-side-sheet-icon-inset));
   }
   .side-sheet-headline {
     flex: 1;
@@ -4942,7 +4943,7 @@
     inset: 0 auto 0 0;
   }
   .side-sheet::backdrop {
-    background: var(--side-sheet-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-sys-block-text)) 50%, transparent));
+    background: var(--mo-comp-side-sheet-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-sys-block-text)) 50%, transparent));
   }
   @media (prefers-reduced-motion: no-preference) {
     .side-sheet[open]::backdrop {
@@ -4962,12 +4963,12 @@
   Badges (Badge, badgeClass; m3.material.io/components/badges): .badge with .badge-small (a dot) or .badge-large (a
   number); on what it is about in .badge-anchor (an icon, or an icon button: at its icon's top end corner), else after a
   label (a navigation drawer's item: at its end); what screen readers read in .badge-label.
-    --badge-surface, --badge-text, --badge-radius
+    --mo-comp-badge-surface, --mo-comp-badge-text, --mo-comp-badge-shape
     --badge-small-size; --badge-large-size, --badge-padding, --badge-font-size, --badge-weight
   Loading indicator (LoadingIndicator, loadingIndicatorClass; M3 Expressive, m3.material.io/components/loading-indicator):
   .loading-indicator with its .loading-indicator-shape, which turns and morphs through Material's shapes (soft burst,
   9-sided cookie, pentagon, pill, sunny, 4-sided cookie, oval); .loading-indicator-contained in its round container.
-    --loading-indicator-size, --loading-indicator-shape-size, --loading-indicator-colour, --loading-indicator-duration
+    --mo-comp-loading-indicator-active-indicator-size, --mo-comp-loading-indicator-shape-size, --mo-comp-loading-indicator-active-indicator-color, --loading-indicator-duration
     --loading-indicator-container, --loading-indicator-contained-colour
   Progress indicators (LinearProgressIndicator, CircularProgressIndicator, linearProgressIndicatorClass,
   circularProgressIndicatorClass; m3.material.io/components/progress-indicators): the value is --progress (0 to 1) on
@@ -4977,24 +4978,24 @@
   and turns, without the track), -thick with a thick track, and -wavy with the active indicator a wave (M3
   Expressive): the line's an SVG path (.linear-progress-indicator-active in .linear-progress-indicator-wave over the
   flat track) flowing along, the ring's nine waves round it, turning slowly.
-    --linear-progress-indicator-height, -radius, -active, -track, -gap, -stop-size, -thick-height
-    --circular-progress-indicator-size, -thickness (in 48ths of the size), -active, -track, -gap (in hundredths of the
+    --mo-comp-progress-indicator-linear-active-indicator-thickness, -radius, -active, -track, -gap, -stop-size, -thick-height
+    --mo-comp-circular-progress-indicator-size, -thickness (in 48ths of the size), -active, -track, -gap (in hundredths of the
     ring, with the round ends: 0 for none), -thick-thickness, -thick-size, -wavy-size, -wavy-thick-size
   Snackbars (Snackbar, snackbarClass; m3.material.io/components/snackbar): .snackbar-stack holds them at the bottom of
   the screen, the newest lowest (@morphemecms/cms/lib/snackbar.ts, which draws the editor's messages and shows the site's);
   .snackbar with .snackbar-supporting-text, its links (.snackbar-link, with an arrow) and optionally .snackbar-actions (the
   action, a text button, .snackbar-action, and the close button, a standard icon button, .snackbar-close), under the
   text with .snackbar-longer-action. The buttons on it get the snackbar's colours.
-    --snackbar-surface, --snackbar-text, --snackbar-radius, --snackbar-shadow, --snackbar-backdrop (the blur behind it)
-    --snackbar-padding-block, --snackbar-padding-inline, --snackbar-max-width, --snackbar-font-size,
+    --mo-comp-snackbar-container-color, --mo-comp-snackbar-supporting-text-color, --mo-comp-snackbar-container-shape, --snackbar-shadow, --mo-comp-snackbar-backdrop (the blur behind it)
+    --mo-comp-snackbar-padding-block, --snackbar-padding-inline, --snackbar-max-width, --snackbar-font-size,
     --snackbar-line-height, --snackbar-link-weight
-    --snackbar-action-text, --snackbar-action-hover, --snackbar-close-text, --snackbar-close-size
+    --mo-comp-snackbar-action-label-text-color, --mo-comp-snackbar-action-hover, --snackbar-close-text, --snackbar-close-size
   Tooltips (Tooltip, tooltipClass; m3.material.io/components/tooltips): .tooltip-anchor ([data-tooltip], shown with
   [data-tooltip-open] by ../ui/tooltip.script.ts, placed by CSS anchor positioning, and where the browser lacks it by the script, which puts [data-tooltip-below] under its anchor) with what it is about and
   its .tooltip, .tooltip-plain (a short label, in the middle over it) or .tooltip-rich (.tooltip-subhead,
   .tooltip-supporting-text and optionally .tooltip-actions with a text button, .tooltip-action; from its anchor's start).
     --tooltip-gap (between it and its anchor)
-    --tooltip-plain-surface, -text, -radius, -padding, -font-size, -weight, -max-width
+    --mo-comp-plain-tooltip-container-color, -text, -radius, -padding, -font-size, -weight, -max-width
     --tooltip-rich-surface, -text, -subhead, -subhead-weight, -radius, -padding, -line, -shadow, -max-width
 */
 @layer components {
@@ -5004,23 +5005,23 @@
     flex-shrink: 0;
     align-items: center;
     justify-content: center;
-    border-radius: var(--badge-radius, var(--mo-sys-shape-corner-full));
-    background: var(--badge-surface, var(--mo-sys-block-accent));
-    color: var(--badge-text, var(--mo-sys-block-on-accent));
+    border-radius: var(--mo-comp-badge-shape, var(--mo-sys-shape-corner-full));
+    background: var(--mo-comp-badge-surface, var(--mo-sys-block-accent));
+    color: var(--mo-comp-badge-text, var(--mo-sys-block-on-accent));
     pointer-events: none;
   }
   /* A status tone (Badge `tone`): the dot in the tone's colour instead of the error colour. */
   .badge[data-tone='ok'] {
-    background: var(--badge-ok);
+    background: var(--mo-comp-badge-ok);
   }
   .badge[data-tone='minor'] {
-    background: var(--badge-minor);
+    background: var(--mo-comp-badge-minor);
   }
   .badge[data-tone='major'] {
-    background: var(--badge-major);
+    background: var(--mo-comp-badge-major);
   }
   .badge[data-tone='unknown'] {
-    background: var(--badge-unknown);
+    background: var(--mo-comp-badge-unknown);
   }
   .badge-small {
     width: var(--badge-small-size, 0.375rem);
@@ -5053,13 +5054,13 @@
   }
   .badge-anchor > .badge-small {
     position: absolute;
-    top: calc(var(--badge-anchor-inset, 0px) - var(--badge-small-size, 0.375rem) / 2);
-    left: calc(100% - var(--badge-anchor-inset, 0px) - var(--badge-small-size, 0.375rem));
+    top: calc(var(--mo-comp-badge-anchor-inset, 0px) - var(--badge-small-size, 0.375rem) / 2);
+    left: calc(100% - var(--mo-comp-badge-anchor-inset, 0px) - var(--badge-small-size, 0.375rem));
   }
   .badge-anchor > .badge-large {
     position: absolute;
-    top: calc(var(--badge-anchor-inset, 0px) - var(--badge-large-size, 1rem) / 2);
-    left: calc(100% - var(--badge-anchor-inset, 0px) - 0.25rem);
+    top: calc(var(--mo-comp-badge-anchor-inset, 0px) - var(--badge-large-size, 1rem) / 2);
+    left: calc(100% - var(--mo-comp-badge-anchor-inset, 0px) - 0.25rem);
   }
   .navigation-drawer-item > .badge {
     margin-inline-start: auto;
@@ -5070,23 +5071,26 @@
     display: inline-grid;
     flex-shrink: 0;
     place-items: center;
-    width: var(--loading-indicator-size, 3rem);
-    height: var(--loading-indicator-size, 3rem);
+    width: var(--mo-comp-loading-indicator-active-indicator-size, 3rem);
+    height: var(--mo-comp-loading-indicator-active-indicator-size, 3rem);
     border-radius: var(--mo-sys-shape-corner-full);
   }
   .loading-indicator-contained {
     background: var(--loading-indicator-container, var(--mo-sys-block-tint));
   }
   .loading-indicator-shape {
-    width: var(--loading-indicator-shape-size, 2.375rem);
-    height: var(--loading-indicator-shape-size, 2.375rem);
-    background: var(--loading-indicator-colour, var(--mo-sys-block-accent));
+    width: var(--mo-comp-loading-indicator-shape-size, 2.375rem);
+    height: var(--mo-comp-loading-indicator-shape-size, 2.375rem);
+    background: var(--mo-comp-loading-indicator-active-indicator-color, var(--mo-sys-block-accent));
     /* prettier-ignore */
     clip-path: polygon(50% 0%, 55% 2%, 59.3% 6.2%, 63.3% 9.1%, 68.2% 9.1%, 74.1% 8.2%, 79.4% 9.5%, 82.3% 14.1%, 83.3% 20.1%, 84.8% 24.7%, 88.8% 27.6%, 94.1% 30.4%, 97.6% 34.5%, 97.2% 40%, 94.5% 45.3%, 93% 50%, 94.5% 54.7%, 97.2% 60%, 97.6% 65.5%, 94.1% 69.6%, 88.8% 72.4%, 84.8% 75.3%, 83.3% 79.9%, 82.3% 85.9%, 79.4% 90.5%, 74.1% 91.8%, 68.2% 90.9%, 63.3% 90.9%, 59.3% 93.8%, 55% 98%, 50% 100%, 45% 98%, 40.7% 93.8%, 36.7% 90.9%, 31.8% 90.9%, 25.9% 91.8%, 20.6% 90.5%, 17.7% 85.9%, 16.7% 79.9%, 15.2% 75.3%, 11.2% 72.4%, 5.9% 69.6%, 2.4% 65.5%, 2.8% 60%, 5.5% 54.7%, 7% 50%, 5.5% 45.3%, 2.8% 40%, 2.4% 34.5%, 5.9% 30.4%, 11.2% 27.6%, 15.2% 24.7%, 16.7% 20.1%, 17.7% 14.1%, 20.6% 9.5%, 25.9% 8.2%, 31.8% 9.1%, 36.7% 9.1%, 40.7% 6.2%, 45% 2%);
     animation: loading-indicator-morph var(--loading-indicator-duration, 4.55s) var(--mo-sys-block-ease) infinite;
   }
   .loading-indicator-contained > .loading-indicator-shape {
-    background: var(--loading-indicator-contained-colour, var(--loading-indicator-colour, var(--mo-sys-block-accent)));
+    background: var(
+      --loading-indicator-contained-colour,
+      var(--mo-comp-loading-indicator-active-indicator-color, var(--mo-sys-block-accent))
+    );
   }
 
   /* Linear progress indicator: the active indicator, a gap and the track, with the stop indicator at its end. */
@@ -5094,9 +5098,9 @@
     position: relative;
     display: block;
     width: 100%;
-    height: var(--linear-progress-indicator-height, 0.375rem);
+    height: var(--mo-comp-progress-indicator-linear-active-indicator-thickness, 0.375rem);
     overflow: hidden;
-    border-radius: var(--linear-progress-indicator-radius, var(--mo-sys-shape-corner-full));
+    border-radius: var(--mo-comp-linear-progress-indicator-radius, var(--mo-sys-shape-corner-full));
   }
   .linear-progress-indicator-active,
   .linear-progress-indicator-track {
@@ -5121,8 +5125,8 @@
     position: absolute;
     top: 50%;
     right: 0;
-    width: var(--linear-progress-indicator-stop-size, 0px);
-    height: var(--linear-progress-indicator-stop-size, 0px);
+    width: var(--mo-comp-linear-progress-indicator-stop-size, 0px);
+    height: var(--mo-comp-linear-progress-indicator-stop-size, 0px);
     translate: 0 -50%;
     border-radius: var(--mo-sys-shape-corner-full);
     background: var(--linear-progress-indicator-active, var(--mo-sys-block-accent));
@@ -5144,8 +5148,8 @@
   .circular-progress-indicator {
     display: inline-block;
     flex-shrink: 0;
-    width: var(--circular-progress-indicator-size, 2.5rem);
-    height: var(--circular-progress-indicator-size, 2.5rem);
+    width: var(--mo-comp-circular-progress-indicator-size, 2.5rem);
+    height: var(--mo-comp-circular-progress-indicator-size, 2.5rem);
   }
   .circular-progress-indicator > svg {
     display: block;
@@ -5154,7 +5158,7 @@
     rotate: -90deg;
   }
   .circular-progress-indicator circle {
-    stroke-width: var(--circular-progress-indicator-thickness, 4);
+    stroke-width: var(--mo-comp-progress-indicator-circular-active-indicator-thickness, 4);
     stroke-linecap: round;
   }
   .circular-progress-indicator-active {
@@ -5169,9 +5173,9 @@
   /* The track after the arc and its gaps (only once there is an arc), and nothing of it once the arc reaches round. */
   .circular-progress-indicator-track {
     stroke: var(--circular-progress-indicator-track, var(--mo-sys-block-tint));
-    stroke-dasharray: 0 calc(var(--progress, 0) * 100 + var(--circular-progress-indicator-shown-gap))
-      max(0, var(--circular-progress-indicator-rest)) 100;
-    opacity: min(1, max(0, var(--circular-progress-indicator-rest) * 10));
+    stroke-dasharray: 0 calc(var(--progress, 0) * 100 + var(--mo-comp-circular-progress-indicator-shown-gap))
+      max(0, var(--mo-comp-circular-progress-indicator-rest)) 100;
+    opacity: min(1, max(0, var(--mo-comp-circular-progress-indicator-rest) * 10));
     transition: stroke-dasharray var(--mo-sys-motion-spring-default-spatial);
   }
   .circular-progress-indicator-indeterminate > svg {
@@ -5187,7 +5191,9 @@
      Its dashes are measured along the path, so the part gives how much longer the wave is than the line
      (--linear-progress-indicator-stretch), and a percentage of the line's SVG (141.4214% is its width) where it is. */
   .linear-progress-indicator-wavy {
-    height: calc(var(--linear-progress-indicator-height, 0.375rem) + 2 * var(--linear-progress-indicator-amplitude));
+    height: calc(
+      var(--mo-comp-progress-indicator-linear-active-indicator-thickness, 0.375rem) + 2 * var(--linear-progress-indicator-amplitude)
+    );
     overflow: visible;
     border-radius: 0;
     background: none;
@@ -5195,8 +5201,8 @@
   .linear-progress-indicator-wavy > .linear-progress-indicator-track {
     inset-block: auto;
     top: 50%;
-    height: var(--linear-progress-indicator-height, 0.375rem);
-    border-radius: var(--linear-progress-indicator-radius, var(--mo-sys-shape-corner-full));
+    height: var(--mo-comp-progress-indicator-linear-active-indicator-thickness, 0.375rem);
+    border-radius: var(--mo-comp-linear-progress-indicator-radius, var(--mo-sys-shape-corner-full));
     translate: 0 -50%;
   }
   .linear-progress-indicator-wave {
@@ -5210,7 +5216,7 @@
   .linear-progress-indicator-wave > .linear-progress-indicator-active {
     fill: none;
     stroke: var(--linear-progress-indicator-active, var(--mo-sys-block-accent));
-    stroke-width: var(--linear-progress-indicator-height, 0.375rem);
+    stroke-width: var(--mo-comp-progress-indicator-linear-active-indicator-thickness, 0.375rem);
     stroke-linecap: round;
     translate: 0 50%;
   }
@@ -5220,13 +5226,14 @@
     stroke-dasharray: max(
         0px,
         calc(
-          var(--linear-progress-indicator-stretch) * (var(--progress, 0) * 141.4214% - var(--linear-progress-indicator-height, 0.375rem))
+          var(--linear-progress-indicator-stretch) *
+            (var(--progress, 0) * 141.4214% - var(--mo-comp-progress-indicator-linear-active-indicator-thickness, 0.375rem))
         )
       )
       100000px;
     stroke-dashoffset: calc(
       -1 * var(--linear-progress-indicator-stretch) *
-        (var(--linear-progress-indicator-wavelength) + var(--linear-progress-indicator-height, 0.375rem) / 2)
+        (var(--linear-progress-indicator-wavelength) + var(--mo-comp-progress-indicator-linear-active-indicator-thickness, 0.375rem) / 2)
     );
     opacity: min(1, calc(var(--progress, 0) * 1000));
     transition: stroke-dasharray var(--mo-sys-motion-spring-default-spatial);
@@ -5245,7 +5252,7 @@
   /* The ring's wave: nine waves round it, a little further in, in a ring a little bigger (a thick one bigger still),
      turning slowly while its arc stands still (a thick one's six waves). */
   .circular-progress-indicator path {
-    stroke-width: var(--circular-progress-indicator-thickness, 4);
+    stroke-width: var(--mo-comp-progress-indicator-circular-active-indicator-thickness, 4);
     stroke-linecap: round;
   }
   .circular-progress-indicator-wavy:not(.circular-progress-indicator-indeterminate) .circular-progress-indicator-active {
@@ -5290,16 +5297,16 @@
     pointer-events: auto;
     max-width: var(--snackbar-max-width, 28rem);
     cursor: default;
-    border-radius: var(--snackbar-radius, 1rem);
-    background: var(--snackbar-surface, var(--mo-sys-color-inverse-surface));
-    padding: var(--snackbar-padding-block, 0.75rem) var(--snackbar-padding-inline, 1rem);
-    color: var(--snackbar-text, var(--mo-sys-color-inverse-on-surface));
+    border-radius: var(--mo-comp-snackbar-container-shape, 1rem);
+    background: var(--mo-comp-snackbar-container-color, var(--mo-sys-color-inverse-surface));
+    padding: var(--mo-comp-snackbar-padding-block, 0.75rem) var(--snackbar-padding-inline, 1rem);
+    color: var(--mo-comp-snackbar-supporting-text-color, var(--mo-sys-color-inverse-on-surface));
     font-size: var(--snackbar-font-size, var(--mo-sys-typescale-body-medium-size));
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
     line-height: var(--snackbar-line-height, var(--mo-sys-typescale-body-medium-line-height));
     box-shadow: var(--snackbar-shadow, var(--mo-sys-elevation-level3-rest-shadow));
-    -webkit-backdrop-filter: var(--snackbar-backdrop, blur(8px));
-    backdrop-filter: var(--snackbar-backdrop, blur(8px));
+    -webkit-backdrop-filter: var(--mo-comp-snackbar-backdrop, blur(8px));
+    backdrop-filter: var(--mo-comp-snackbar-backdrop, blur(8px));
     -webkit-user-select: none;
     user-select: none;
     touch-action: pan-y;
@@ -5324,7 +5331,7 @@
   .snackbar:has(> .snackbar-actions) > .snackbar-supporting-text {
     flex: 1 1 auto;
     min-width: 0;
-    padding-block: calc(var(--snackbar-padding-block, 0.75rem) - 0.25rem);
+    padding-block: calc(var(--mo-comp-snackbar-padding-block, 0.75rem) - 0.25rem);
   }
   .snackbar-actions {
     display: flex;
@@ -5378,10 +5385,10 @@
   /* Plain: a short label on the text's colour. */
   .tooltip-plain {
     max-width: var(--tooltip-plain-max-width, 12.5rem);
-    border-radius: var(--tooltip-plain-radius, 0.5rem);
-    background: var(--tooltip-plain-surface, var(--mo-sys-block-text));
+    border-radius: var(--mo-comp-plain-tooltip-container-shape, 0.5rem);
+    background: var(--mo-comp-plain-tooltip-container-color, var(--mo-sys-block-text));
     padding: var(--tooltip-plain-padding, 0.25rem 0.5rem);
-    color: var(--tooltip-plain-text, var(--mo-sys-color-surface));
+    color: var(--mo-comp-plain-tooltip-supporting-text-color, var(--mo-sys-color-surface));
     font-size: var(--tooltip-plain-font-size, var(--mo-sys-typescale-body-small-size));
     letter-spacing: var(--mo-sys-typescale-body-small-tracking);
     font-weight: var(--tooltip-plain-weight, var(--mo-sys-typescale-body-small-weight));
@@ -5395,20 +5402,20 @@
     flex-direction: column;
     gap: 0.25rem;
     translate: var(--tooltip-shift, 0px) 0;
-    border-radius: var(--tooltip-rich-radius, var(--mo-sys-block-radius-small));
+    border-radius: var(--mo-comp-rich-tooltip-container-shape, var(--mo-sys-block-radius-small));
     background: var(--tooltip-rich-surface, var(--mo-sys-elevation-level2-color));
     padding: var(--tooltip-rich-padding, 0.75rem 1rem);
-    color: var(--tooltip-rich-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-rich-tooltip-supporting-text-color, var(--mo-sys-block-muted));
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
     box-shadow:
-      0 0 0 1px var(--tooltip-rich-line, var(--mo-sys-block-line)),
+      0 0 0 1px var(--mo-comp-tooltip-rich-line, var(--mo-sys-block-line)),
       var(--tooltip-rich-shadow, var(--mo-sys-elevation-level2-rest-shadow));
   }
   .tooltip-subhead {
-    color: var(--tooltip-rich-subhead, var(--mo-sys-block-text));
+    color: var(--mo-comp-rich-tooltip-subhead-color, var(--mo-sys-block-text));
     font-size: var(--mo-sys-typescale-title-small-size);
     line-height: var(--mo-sys-typescale-title-small-line-height);
     font-weight: var(--tooltip-rich-subhead-weight, var(--mo-sys-typescale-title-small-weight));
@@ -5550,7 +5557,10 @@
     translate: calc(-1 * var(--linear-progress-indicator-wavelength)) 50%;
     stroke-dashoffset: calc(
       -1 * var(--linear-progress-indicator-stretch) *
-        (2 * var(--linear-progress-indicator-wavelength) + var(--linear-progress-indicator-height, 0.375rem) / 2)
+        (
+          2 * var(--linear-progress-indicator-wavelength) + var(--mo-comp-progress-indicator-linear-active-indicator-thickness, 0.375rem) /
+            2
+        )
     );
   }
 }
@@ -5669,12 +5679,12 @@
   pill behind the open one's icon. Horizontal items (M3 Expressive; .navigation-bar-start, and .navigation-bar-auto once
   the bar is 600px wide): the icon beside the label, the items as wide as their content in the middle of the bar, the
   pill behind both.
-    --navigation-bar-height, --navigation-bar-surface, --navigation-bar-line, --navigation-bar-shadow
-    --navigation-bar-item-gap, --navigation-bar-item-text, --navigation-bar-item-selected-text
-    --navigation-bar-indicator-width, --navigation-bar-indicator-height, --navigation-bar-indicator-radius,
-    --navigation-bar-indicator-surface, --navigation-bar-indicator-text, --navigation-bar-indicator-hover,
+    --mo-comp-navigation-bar-container-height, --mo-comp-navigation-bar-container-color, --mo-comp-navigation-bar-line, --navigation-bar-shadow
+    --navigation-bar-item-gap, --mo-comp-navigation-bar-inactive-label-text-color, --mo-comp-navigation-bar-active-label-text-color
+    --mo-comp-navigation-bar-active-indicator-width, --navigation-bar-indicator-height, --mo-comp-navigation-bar-active-indicator-shape,
+    --mo-comp-navigation-bar-active-indicator-color, --mo-comp-navigation-bar-indicator-text, --mo-comp-navigation-bar-indicator-hover,
     --navigation-bar-indicator-pressed
-    --navigation-bar-label-font-size, --navigation-bar-label-weight, --navigation-bar-label-selected-weight
+    --navigation-bar-label-font-size, --navigation-bar-label-weight, --mo-comp-navigation-bar-label-selected-weight
     --navigation-bar-horizontal-indicator-height, --navigation-bar-horizontal-indicator-padding,
     --navigation-bar-horizontal-gap, --navigation-bar-horizontal-item-max-width,
     --navigation-bar-horizontal-label-font-size   horizontal items
@@ -5687,16 +5697,16 @@
   expanded rail's modality: standard (beside the content, which makes room for it) or .navigation-rail-modal (over the
   content, which keeps its place, with its shadow and corners, over .navigation-rail-scrim just before it); its
   behaviour: back into the collapsed rail, or .navigation-rail-hide, nothing while it is collapsed.
-    --navigation-rail-width, --navigation-rail-expanded-width, --navigation-rail-padding, --navigation-rail-radius,
-    --navigation-rail-surface (level 0's colour), --navigation-rail-line
-    --navigation-rail-modal-surface (level 2's colour), --navigation-rail-modal-radius, --navigation-rail-modal-shadow,
+    --mo-comp-navigation-rail-container-width, --mo-comp-navigation-rail-expanded-width, --mo-comp-navigation-rail-padding, --navigation-rail-radius,
+    --mo-comp-navigation-rail-surface (level 0's colour), --mo-comp-navigation-rail-line
+    --navigation-rail-modal-surface (level 2's colour), --mo-comp-navigation-rail-modal-radius, --navigation-rail-modal-shadow,
     --navigation-rail-scrim   a modal one, expanded
-    --navigation-rail-item-gap, --navigation-rail-item-text, --navigation-rail-item-selected-text
+    --navigation-rail-item-gap, --mo-comp-navigation-rail-inactive-label-text-color, --mo-comp-navigation-rail-active-label-text-color
     --navigation-rail-indicator-width, --navigation-rail-indicator-height, --navigation-rail-expanded-indicator-height,
-    --navigation-rail-indicator-radius, --navigation-rail-indicator-surface, --navigation-rail-indicator-text,
-    --navigation-rail-indicator-hover
+    --mo-comp-navigation-rail-active-indicator-shape, --mo-comp-navigation-rail-active-indicator-color, --mo-comp-navigation-rail-indicator-text,
+    --mo-comp-navigation-rail-indicator-hover
     --navigation-rail-label-font-size, --navigation-rail-expanded-label-font-size, --navigation-rail-label-weight,
-    --navigation-rail-label-selected-weight, --navigation-rail-section-label-text
+    --mo-comp-navigation-rail-label-selected-weight, --navigation-rail-section-label-text
   The badges on their icons are the theme's Badge (.badge, its --badge-* variables), placed at the icon's corner.
   Search (Search, search.script.ts; m3.material.io/components/search): .search with .search-bar (.search-bar-field, a
   button with the leading icon, .search-bar-leading, and the placeholder, .search-bar-placeholder; and
@@ -5728,11 +5738,11 @@
   /* Navigation bar (m3.material.io/components/navigation-bar): the destinations side by side, each icon over its label. */
   .navigation-bar {
     display: flex;
-    min-height: var(--navigation-bar-height, 4.5rem);
+    min-height: var(--mo-comp-navigation-bar-container-height, 4.5rem);
     padding-bottom: env(safe-area-inset-bottom);
-    background: var(--navigation-bar-surface, var(--mo-sys-block-surface));
+    background: var(--mo-comp-navigation-bar-container-color, var(--mo-sys-block-surface));
     box-shadow:
-      inset 0 1px 0 var(--navigation-bar-line, var(--mo-sys-block-line)),
+      inset 0 1px 0 var(--mo-comp-navigation-bar-line, var(--mo-sys-block-line)),
       var(--navigation-bar-shadow, var(--mo-sys-elevation-level0-shadow));
   }
   .navigation-bar-item {
@@ -5744,12 +5754,12 @@
     justify-content: center;
     gap: var(--navigation-bar-item-gap, 0.25rem);
     padding: 0.5rem 0.25rem;
-    color: var(--navigation-bar-item-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-navigation-bar-inactive-label-text-color, var(--mo-sys-block-muted));
     text-decoration: none;
     -webkit-tap-highlight-color: transparent;
   }
   .navigation-bar-item[aria-current] {
-    color: var(--navigation-bar-item-selected-text, var(--mo-sys-block-text));
+    color: var(--mo-comp-navigation-bar-active-label-text-color, var(--mo-sys-block-text));
   }
   .navigation-bar-item:focus-visible,
   .navigation-rail-item:focus-visible {
@@ -5769,9 +5779,9 @@
     display: contents;
   }
   .navigation-bar-icon {
-    width: var(--navigation-bar-indicator-width, 4rem);
+    width: var(--mo-comp-navigation-bar-active-indicator-width, 4rem);
     height: var(--navigation-bar-indicator-height, 2rem);
-    border-radius: var(--navigation-bar-indicator-radius, var(--mo-sys-shape-corner-full));
+    border-radius: var(--mo-comp-navigation-bar-active-indicator-shape, var(--mo-sys-shape-corner-full));
   }
   .navigation-bar-icon > svg,
   .navigation-rail-icon > svg {
@@ -5779,17 +5789,17 @@
     height: 1.5rem;
   }
   .navigation-bar-item:hover .navigation-bar-icon {
-    background: var(--navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent));
+    background: var(--mo-comp-navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent));
   }
   .navigation-bar-item:active .navigation-bar-icon {
     background: var(
       --navigation-bar-indicator-pressed,
-      var(--navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent))
+      var(--mo-comp-navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent))
     );
   }
   .navigation-bar-item[aria-current] .navigation-bar-icon {
-    background: var(--navigation-bar-indicator-surface, var(--mo-sys-block-tint));
-    color: var(--navigation-bar-indicator-text, var(--mo-sys-block-accent));
+    background: var(--mo-comp-navigation-bar-active-indicator-color, var(--mo-sys-block-tint));
+    color: var(--mo-comp-navigation-bar-indicator-text, var(--mo-sys-block-accent));
   }
   .navigation-bar-label,
   .navigation-rail-label {
@@ -5805,7 +5815,7 @@
     font-weight: var(--navigation-bar-label-weight, var(--mo-sys-typescale-label-medium-weight));
   }
   .navigation-bar-item[aria-current] .navigation-bar-label {
-    font-weight: var(--navigation-bar-label-selected-weight, 700);
+    font-weight: var(--mo-comp-navigation-bar-label-selected-weight, 700);
   }
   /* Horizontal items (M3 Expressive): the icon beside the label, the items as wide as their content in the middle of the
      bar, the pill behind both. Always with .navigation-bar-start; with .navigation-bar-auto once the bar (its container)
@@ -5830,7 +5840,7 @@
     height: var(--navigation-bar-horizontal-indicator-height, 2.5rem);
     align-items: center;
     gap: var(--navigation-bar-horizontal-gap, 0.5rem);
-    border-radius: var(--navigation-bar-indicator-radius, var(--mo-sys-shape-corner-full));
+    border-radius: var(--mo-comp-navigation-bar-active-indicator-shape, var(--mo-sys-shape-corner-full));
     padding-inline: var(--navigation-bar-horizontal-indicator-padding, 1rem);
     transition:
       background-color var(--mo-sys-motion-spring-default-effects),
@@ -5851,17 +5861,17 @@
     left: 0.75rem;
   }
   .navigation-bar-start .navigation-bar-item:hover .navigation-bar-indicator {
-    background: var(--navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent));
+    background: var(--mo-comp-navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent));
   }
   .navigation-bar-start .navigation-bar-item:active .navigation-bar-indicator {
     background: var(
       --navigation-bar-indicator-pressed,
-      var(--navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent))
+      var(--mo-comp-navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent))
     );
   }
   .navigation-bar-start .navigation-bar-item[aria-current] .navigation-bar-indicator {
-    background: var(--navigation-bar-indicator-surface, var(--mo-sys-block-tint));
-    color: var(--navigation-bar-indicator-text, var(--mo-sys-block-accent));
+    background: var(--mo-comp-navigation-bar-active-indicator-color, var(--mo-sys-block-tint));
+    color: var(--mo-comp-navigation-bar-indicator-text, var(--mo-sys-block-accent));
   }
   @container navigation-bar (min-width: 37.5rem) {
     .navigation-bar-auto .navigation-bar-item {
@@ -5881,7 +5891,7 @@
       height: var(--navigation-bar-horizontal-indicator-height, 2.5rem);
       align-items: center;
       gap: var(--navigation-bar-horizontal-gap, 0.5rem);
-      border-radius: var(--navigation-bar-indicator-radius, var(--mo-sys-shape-corner-full));
+      border-radius: var(--mo-comp-navigation-bar-active-indicator-shape, var(--mo-sys-shape-corner-full));
       padding-inline: var(--navigation-bar-horizontal-indicator-padding, 1rem);
       transition:
         background-color var(--mo-sys-motion-spring-default-effects),
@@ -5902,17 +5912,17 @@
       left: 0.75rem;
     }
     .navigation-bar-auto .navigation-bar-item:hover .navigation-bar-indicator {
-      background: var(--navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent));
+      background: var(--mo-comp-navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent));
     }
     .navigation-bar-auto .navigation-bar-item:active .navigation-bar-indicator {
       background: var(
         --navigation-bar-indicator-pressed,
-        var(--navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent))
+        var(--mo-comp-navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent))
       );
     }
     .navigation-bar-auto .navigation-bar-item[aria-current] .navigation-bar-indicator {
-      background: var(--navigation-bar-indicator-surface, var(--mo-sys-block-tint));
-      color: var(--navigation-bar-indicator-text, var(--mo-sys-block-accent));
+      background: var(--mo-comp-navigation-bar-active-indicator-color, var(--mo-sys-block-tint));
+      color: var(--mo-comp-navigation-bar-indicator-text, var(--mo-sys-block-accent));
     }
   }
 
@@ -5933,15 +5943,15 @@
      FAB over them; wide, each destination's icon and label side by side in the pill. */
   .navigation-rail {
     display: flex;
-    width: var(--navigation-rail-width, 5.5rem);
+    width: var(--mo-comp-navigation-rail-container-width, 5.5rem);
     flex-shrink: 0;
     flex-direction: column;
     gap: 1.5rem;
     overflow: hidden;
     border-radius: var(--navigation-rail-radius, 0);
-    padding: var(--navigation-rail-padding, 1rem 0.75rem);
-    background: var(--navigation-rail-surface, var(--mo-sys-elevation-level0-color));
-    box-shadow: inset -1px 0 0 var(--navigation-rail-line, var(--mo-sys-block-line));
+    padding: var(--mo-comp-navigation-rail-padding, 1rem 0.75rem);
+    background: var(--mo-comp-navigation-rail-surface, var(--mo-sys-elevation-level0-color));
+    box-shadow: inset -1px 0 0 var(--mo-comp-navigation-rail-line, var(--mo-sys-block-line));
     transition:
       width var(--mo-sys-motion-spring-default-spatial),
       margin var(--mo-sys-motion-spring-default-spatial),
@@ -5951,16 +5961,16 @@
       visibility 0s linear var(--mo-sys-motion-spring-default-spatial-duration);
   }
   .navigation-rail[data-expanded] {
-    width: var(--navigation-rail-expanded-width, 16rem);
+    width: var(--mo-comp-navigation-rail-expanded-width, 16rem);
     transition-delay: 0s;
   }
   /* Modal: expanded over the content, which keeps its place (the margin takes back what the rail grows by), over the
      scrim. The rail stands in a row beside the content, so its z-index holds without a position of its own. */
   .navigation-rail-modal[data-expanded] {
     z-index: 50;
-    margin-inline-end: calc(var(--navigation-rail-width, 5.5rem) - var(--navigation-rail-expanded-width, 16rem));
-    border-start-end-radius: var(--navigation-rail-modal-radius, var(--mo-sys-block-radius));
-    border-end-end-radius: var(--navigation-rail-modal-radius, var(--mo-sys-block-radius));
+    margin-inline-end: calc(var(--mo-comp-navigation-rail-container-width, 5.5rem) - var(--mo-comp-navigation-rail-expanded-width, 16rem));
+    border-start-end-radius: var(--mo-comp-navigation-rail-modal-radius, var(--mo-sys-block-radius));
+    border-end-end-radius: var(--mo-comp-navigation-rail-modal-radius, var(--mo-sys-block-radius));
     background: var(--navigation-rail-modal-surface, var(--mo-sys-elevation-level2-color));
     box-shadow: var(--navigation-rail-modal-shadow, var(--mo-sys-elevation-level2-rest-shadow));
   }
@@ -5987,7 +5997,7 @@
     box-shadow: none;
   }
   .navigation-rail-hide.navigation-rail-modal[data-expanded] {
-    margin-inline-end: calc(-1 * var(--navigation-rail-expanded-width, 16rem));
+    margin-inline-end: calc(-1 * var(--mo-comp-navigation-rail-expanded-width, 16rem));
   }
   .navigation-rail-header {
     display: flex;
@@ -6029,7 +6039,7 @@
     gap: var(--navigation-rail-item-gap, 0.75rem);
   }
   .navigation-rail-section + .navigation-rail-section {
-    border-top: 1px solid var(--navigation-rail-line, var(--mo-sys-block-line));
+    border-top: 1px solid var(--mo-comp-navigation-rail-line, var(--mo-sys-block-line));
     padding-top: var(--navigation-rail-item-gap, 0.75rem);
   }
   .navigation-rail-section-label {
@@ -6053,7 +6063,7 @@
   .navigation-rail-trailing-supporting {
     display: none;
     margin-inline-start: auto;
-    color: var(--navigation-rail-item-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-navigation-rail-inactive-label-text-color, var(--mo-sys-block-muted));
     font-size: var(--mo-sys-typescale-label-medium-size);
     line-height: var(--mo-sys-typescale-label-medium-line-height);
     font-weight: var(--mo-sys-typescale-label-medium-weight);
@@ -6068,12 +6078,12 @@
     flex-direction: column;
     align-items: center;
     gap: 0.25rem;
-    color: var(--navigation-rail-item-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-navigation-rail-inactive-label-text-color, var(--mo-sys-block-muted));
     text-decoration: none;
     -webkit-tap-highlight-color: transparent;
   }
   .navigation-rail-item[aria-current] {
-    color: var(--navigation-rail-item-selected-text, var(--mo-sys-block-text));
+    color: var(--mo-comp-navigation-rail-active-label-text-color, var(--mo-sys-block-text));
   }
   button.navigation-rail-item {
     width: 100%;
@@ -6085,14 +6095,14 @@
   .navigation-rail-icon {
     width: var(--navigation-rail-indicator-width, 3.5rem);
     height: var(--navigation-rail-indicator-height, 2rem);
-    border-radius: var(--navigation-rail-indicator-radius, var(--mo-sys-shape-corner-full));
+    border-radius: var(--mo-comp-navigation-rail-active-indicator-shape, var(--mo-sys-shape-corner-full));
   }
   .navigation-rail-item:hover .navigation-rail-icon {
-    background: var(--navigation-rail-indicator-hover, color-mix(in srgb, currentColor 8%, transparent));
+    background: var(--mo-comp-navigation-rail-indicator-hover, color-mix(in srgb, currentColor 8%, transparent));
   }
   .navigation-rail-item[aria-current] .navigation-rail-icon {
-    background: var(--navigation-rail-indicator-surface, var(--mo-sys-block-tint));
-    color: var(--navigation-rail-indicator-text, var(--mo-sys-block-accent));
+    background: var(--mo-comp-navigation-rail-active-indicator-color, var(--mo-sys-block-tint));
+    color: var(--mo-comp-navigation-rail-indicator-text, var(--mo-sys-block-accent));
   }
   .navigation-rail-label {
     font-size: var(--navigation-rail-label-font-size, var(--mo-sys-typescale-label-medium-size));
@@ -6100,7 +6110,7 @@
     font-weight: var(--navigation-rail-label-weight, var(--mo-sys-typescale-label-medium-weight));
   }
   .navigation-rail-item[aria-current] .navigation-rail-label {
-    font-weight: var(--navigation-rail-label-selected-weight, 700);
+    font-weight: var(--mo-comp-navigation-rail-label-selected-weight, 700);
   }
   .navigation-rail[data-expanded] .navigation-rail-item {
     align-items: stretch;
@@ -6110,7 +6120,7 @@
     height: var(--navigation-rail-expanded-indicator-height, 3.5rem);
     align-items: center;
     gap: 0.75rem;
-    border-radius: var(--navigation-rail-indicator-radius, var(--mo-sys-shape-corner-full));
+    border-radius: var(--mo-comp-navigation-rail-active-indicator-shape, var(--mo-sys-shape-corner-full));
     padding: 0 1.5rem 0 1rem;
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
@@ -6120,11 +6130,11 @@
     background: none;
   }
   .navigation-rail[data-expanded] .navigation-rail-item:hover .navigation-rail-indicator {
-    background: var(--navigation-rail-indicator-hover, color-mix(in srgb, currentColor 8%, transparent));
+    background: var(--mo-comp-navigation-rail-indicator-hover, color-mix(in srgb, currentColor 8%, transparent));
   }
   .navigation-rail[data-expanded] .navigation-rail-item[aria-current] .navigation-rail-indicator {
-    background: var(--navigation-rail-indicator-surface, var(--mo-sys-block-tint));
-    color: var(--navigation-rail-indicator-text, var(--mo-sys-block-accent));
+    background: var(--mo-comp-navigation-rail-active-indicator-color, var(--mo-sys-block-tint));
+    color: var(--mo-comp-navigation-rail-indicator-text, var(--mo-sys-block-accent));
   }
   .navigation-rail[data-expanded] .navigation-rail-label {
     font-size: var(--navigation-rail-expanded-label-font-size, var(--mo-sys-typescale-label-large-size));
@@ -6615,9 +6625,9 @@
     color: var(--mo-sys-block-text);
   }
   .date-picker-docked {
-    border-radius: var(--mo-comp-date-picker-docked-radius, var(--dialog-radius, var(--mo-sys-block-radius)));
+    border-radius: var(--mo-comp-date-picker-docked-radius, var(--mo-comp-dialog-container-shape, var(--mo-sys-block-radius)));
     box-shadow:
-      0 0 0 1px var(--dialog-line, var(--mo-sys-block-line)),
+      0 0 0 1px var(--mo-comp-dialog-line, var(--mo-sys-block-line)),
       var(--date-picker-docked-shadow, var(--dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow)));
   }
   .date-picker-header {

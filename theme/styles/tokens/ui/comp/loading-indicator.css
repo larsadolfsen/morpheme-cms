@@ -2,8 +2,8 @@
 
 @layer components {
   :is(.button-busy, .icon-button-busy) > .button-busy-indicator {
-    --loading-indicator-size: var(--mo-comp-button-busy-size);
-    --loading-indicator-shape-size: calc(var(--mo-comp-button-busy-size) * 2.375 / 3);
-    --loading-indicator-colour: currentColor;
+    --mo-comp-loading-indicator-active-indicator-size: var(--mo-comp-button-busy-size);
+    --mo-comp-loading-indicator-shape-size: calc(var(--mo-comp-button-busy-size) * 2.375 / 3);
+    --mo-comp-loading-indicator-active-indicator-color: currentColor;
   }
 }

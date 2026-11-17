@@ -9,11 +9,11 @@
      inverse surface's text colour. A plain tooltip the same surface with extra-small corners; a rich one on a surface container with medium corners, the second elevation and no line. A
      linear progress indicator 4px high, a 4px gap before its track and the stop indicator at its end; a circular one
      with a 4px gap. */
-  --snackbar-radius: var(--mo-sys-shape-corner-extra-small);
-  --snackbar-surface: var(--mo-sys-color-inverse-surface);
-  --snackbar-text: var(--mo-sys-color-inverse-on-surface);
-  --snackbar-padding-block: 0.875rem;
-  --snackbar-backdrop: none;
-  --snackbar-action-text: var(--mo-sys-color-inverse-primary);
-  --snackbar-action-hover: color-mix(in srgb, var(--mo-sys-color-inverse-primary) 8%, transparent);
+  --mo-comp-snackbar-container-shape: var(--mo-sys-shape-corner-extra-small);
+  --mo-comp-snackbar-container-color: var(--mo-sys-color-inverse-surface);
+  --mo-comp-snackbar-supporting-text-color: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-snackbar-padding-block: 0.875rem;
+  --mo-comp-snackbar-backdrop: none;
+  --mo-comp-snackbar-action-label-text-color: var(--mo-sys-color-inverse-primary);
+  --mo-comp-snackbar-action-hover: color-mix(in srgb, var(--mo-sys-color-inverse-primary) 8%, transparent);
 }
