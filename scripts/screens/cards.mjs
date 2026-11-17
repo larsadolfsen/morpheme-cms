@@ -732,7 +732,9 @@ async function checkCardGutter(width, height) {
     await page.waitForSelector(selector, { timeout: 8000 }).catch(() => {});
     const m = await page.evaluate((sel) => {
       const root = getComputedStyle(document.documentElement);
-      const token = parseFloat(root.getPropertyValue('--mo-sys-grid-gutter')) * parseFloat(root.fontSize);
+      // The gutter is a registered length (tokens/base/registry.css), so it reads in px; a theme that does not register it may write rem.
+      const gutter = root.getPropertyValue('--mo-sys-grid-gutter').trim();
+      const token = parseFloat(gutter) * (gutter.endsWith('rem') ? parseFloat(root.fontSize) : 1);
       const el = document.querySelector(sel);
       const cs = el && getComputedStyle(el);
       return {

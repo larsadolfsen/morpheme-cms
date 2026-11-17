@@ -91,6 +91,7 @@
 @import './tokens/ui/comp/text-field.css';
 @import './tokens/ui/comp/time-picker.css';
 @import './tokens/ui/comp/toolbar.css';
+@import './tokens/ui/registry.css';
 @import './tokens/ui/ref.css';
 @import './tokens/ui/sys.css';
 @source '../..';
