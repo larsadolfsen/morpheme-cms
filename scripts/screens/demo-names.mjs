@@ -8,7 +8,7 @@ const PAGES = {
   buttons: ['Button · filled', 'Button · tonal', 'Button · outlined', 'Button · text'],
   lists: ['ListItem · two-line', 'Button · text'],
 };
-const BLOCKS = { buttons: ['Buttons'], lists: ['List', 'List - Expand', 'FAQ list'] };
+const BLOCKS = { buttons: ['Buttons'], lists: ['List', 'List - Expand'] };
 
 /** Off by default and no label drawn; with `?names` a label on every block (the editor's name for it) and on the theme's parts the page draws;
  * the layout does not move (every element's box and the page's size are the same On and Off), and the view asks for nothing from another address. */

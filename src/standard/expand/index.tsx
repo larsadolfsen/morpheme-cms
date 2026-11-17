@@ -44,6 +44,17 @@ export default defineBlock({
       default: true,
       missing: true,
     },
+    // The rows are questions and answers: they are in the page's structured data too, as an FAQPage (theme/layouts/PageLayout.astro), which search engines can
+    // show under the page. Their texts are Markdown (bold, italic, links and lists), as the answers of the FAQ list were.
+    {
+      name: 'faq',
+      label: t.blocks.expand.faq,
+      type: 'boolean',
+      toggle: t.blocks.expand.faqToggle,
+      hint: t.blocks.expand.faqHint,
+      default: false,
+      missing: true,
+    },
     designField,
     leadingField,
     columnsField(),

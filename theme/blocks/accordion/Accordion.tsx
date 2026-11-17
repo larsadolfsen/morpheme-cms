@@ -12,7 +12,7 @@ import { leadingProps } from '@morphemecms/cms/src/standard/list/leading';
 import { Svg } from '@morphemecms/cms/src/icon';
 import Button from '@theme/ui/Button';
 import List, { ListItem } from '@theme/ui/List';
-import type { AccordionRow } from '@morphemecms/cms/src/standard/faq/view';
+import type { AccordionRow } from '@morphemecms/cms/src/standard/expand/view';
 
 export default function Accordion({
   rows,

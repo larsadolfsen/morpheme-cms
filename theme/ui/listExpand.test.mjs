@@ -10,8 +10,8 @@ const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
 const list = read('./List.tsx');
 const ui = read('../styles/ui.css');
 const blocks = read('../styles/blocks.css');
-const accordion = read('../blocks/faq/Accordion.tsx');
-const script = read('../blocks/faq/script.ts');
+const accordion = read('../blocks/accordion/Accordion.tsx');
+const script = read('../blocks/accordion/script.ts');
 
 test('every class of a folding item has a rule in ui.css', () => {
   const classes = new Set(list.match(/\blist-(?:item-)?expand[a-z-]*/g));

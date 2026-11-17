@@ -63,7 +63,8 @@ export const listRowFields = ({ buttons, pageTitle }: { buttons?: boolean; pageT
   pageTitle
     ? { name: 'title', label: t.blocks.list.title, type: 'string', hint: t.blocks.list.titleHint }
     : { name: 'title', label: t.blocks.list.title, type: 'string', required: true },
-  { name: 'text', label: t.blocks.list.text, type: 'text' },
+  // A row that folds out has Markdown in its text (bold, italic, links, lists), as the answers of the FAQ list had.
+  { name: 'text', label: t.blocks.list.text, type: buttons ? 'markdown' : 'text' },
   { name: 'href', label: t.blocks.list.href, type: 'relation', to: 'pages', hint: t.blocks.list.hrefHint },
   ...(buttons
     ? ([

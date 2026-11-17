@@ -13,4 +13,4 @@ Questions about the editor, the app store or themes? We’d love to hear from yo
 
 <div data-block="buttons" data-props="{&quot;items&quot;:[{&quot;label&quot;:&quot;&quot;,&quot;to&quot;:&quot;phone&quot;,&quot;kind&quot;:&quot;filled&quot;,&quot;icon&quot;:&quot;phone&quot;}]}"></div>
 
-<div data-block="faq" data-props="{&quot;items&quot;:[{&quot;question&quot;:&quot;Is this a real company?&quot;,&quot;answer&quot;:&quot;No. This is Morpheme’s demo site, with made-up contact details, so you can see how a site looks in every theme.&quot;}]}"></div>
+<div data-block="expand" data-props="{&quot;design&quot;:&quot;segmented&quot;,&quot;faq&quot;:true,&quot;items&quot;:[{&quot;title&quot;:&quot;Is this a real company?&quot;,&quot;text&quot;:&quot;No. This is Morpheme’s demo site, with made-up contact details, so you can see how a site looks in every theme.&quot;}]}"></div>

@@ -11,7 +11,6 @@ import InlineVideo from './InlineVideo';
 import InlineSteps from './InlineSteps';
 import InlineExpand from './InlineExpand';
 import InlineButtons from './InlineButtons';
-import InlineFaq from './InlineFaq';
 import InlinePriceCards from './InlinePriceCards';
 import InlineTestimonials from './InlineTestimonials';
 import InlinePosts from './InlinePosts';
@@ -55,7 +54,6 @@ export const inlineViews: Record<string, ComponentType<InlineViewProps>> = {
   steps: InlineSteps,
   expand: InlineExpand,
   buttons: InlineButtons,
-  faq: InlineFaq,
   pricecards: InlinePriceCards,
   testimonials: InlineTestimonials,
   posts: InlinePosts,
