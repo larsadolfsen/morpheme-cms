@@ -1399,7 +1399,7 @@ async function checkOpenPlainExpand(width) {
       open: li.firstElementChild.open,
       bg: css(li).backgroundColor,
       line: css(li).borderTopColor,
-      lineWidth: css(li).borderTopWidth,
+      shadow: css(li).boxShadow,
     }));
   });
   const clear = 'rgba(0, 0, 0, 0)';
@@ -1407,9 +1407,10 @@ async function checkOpenPlainExpand(width) {
     if (li.open && li.bg !== segmentedSurface)
       problems.push(`${label}: the open item's surface is ${li.bg}, not the segmented design's ${segmentedSurface}`);
     if (!li.open && li.bg !== clear) problems.push(`${label}: closed item ${i + 1} has a surface (${li.bg})`);
-    const against = li.open || got[i - 1]?.open;
-    if (against && li.lineWidth !== '0px' && li.line !== clear)
-      problems.push(`${label}: item ${i + 1} has a line (${li.line}) against the open item`);
+    // The line above the open item is its own (clear), and its surface covers the line of the item under it (a shadow of its colour).
+    if (li.open && li.line !== clear) problems.push(`${label}: the open item has a line above it (${li.line})`);
+    if (li.open && !li.shadow.includes(segmentedSurface.replace('rgb(', '').replace(')', '')))
+      problems.push(`${label}: the open item does not cover the line of the item under it (${li.shadow})`);
   });
   if (!got.some((li) => li.open)) problems.push(`${label}: a tap on an item does not open it`);
   await page.close();
