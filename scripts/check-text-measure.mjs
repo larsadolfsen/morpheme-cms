@@ -1,4 +1,4 @@
-// The page's text measure (owner, 16 Nov 2026: a paragraph is 40ch to 60ch wide, --block-text-measure-min/-max in blocks.css): on every built
+// The page's text measure (owner, 16 Nov 2026: a paragraph is 40ch to 60ch wide, --mo-sys-block-text-measure-min/-max in blocks.css): on every built
 // page of the site, at 1280 and 1580, a plain-text block (List, List - Expand, accordion, Steps, Blog posts as a list, Testimonials list)
 // starts at the same left edge as the paragraph above it, is in columns of at least 344px (Steps at most 720px wide), no paragraph is wider than 60ch of its own font, and at 375 and 768 nothing scrolls sideways.
 // Run in a site's folder after the site is built: node …/scripts/check-text-measure.mjs (check:screens:extra).

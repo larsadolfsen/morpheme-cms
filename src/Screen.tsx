@@ -170,10 +170,10 @@ export default function Screen<T extends string>({
   const id = useId();
   const menu = useMenuOpen();
   const { menuButtonInTopBar } = useMenuLayout();
-  // The column's widest width (--column-width, editor.css) is the site's text column (theme `max-w-3xl`, as PostLayout.astro), on a
+  // The column's widest width (--mo-sys-column-width, editor.css) is the site's text column (theme `max-w-3xl`, as PostLayout.astro), on a
   // computer too; only `panel` (a form with its other fields beside the text) is wider, 72rem from large. editor.css (.editor-column) keeps it
   // centred on the window.
-  const width = panel ? 'editor-column large:[--column-width:72rem]' : 'editor-column';
+  const width = panel ? 'editor-column large:[--mo-sys-column-width:72rem]' : 'editor-column';
   // A link out of the screen, through `guard`: the back arrow goes up (nav.ts), the other links as links.
   const leave = (go?: () => void) => (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!go && !back?.guard) return;

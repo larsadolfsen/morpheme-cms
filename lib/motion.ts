@@ -8,7 +8,7 @@
 //   calm        ours: what moves does so quickly without overshooting, and the sections are shown at once (no reveal)
 // The site writes the scheme's springs into the <head> of its pages as CSS variables (motionCss, with data-motion on
 // <html>), which every transition and animation of the theme takes (ui.css, blocks.css: `transition: transform
-// var(--motion-spatial-fast)`), and its scripts animate with the same springs (motionSpring, for Motion). A visitor who
+// var(--mo-sys-motion-spring-fast-spatial)`), and its scripts animate with the same springs (motionSpring, for Motion). A visitor who
 // has asked for reduced motion gets less, whatever the scheme. No React or browser here: the build uses it too.
 
 import { MOTION_SCHEMES } from './motion-schemes.mjs';
@@ -80,14 +80,14 @@ export function springCss(spring: Spring): { duration: number; easing: string } 
   return { duration: Math.round(duration * 1000), easing: `linear(${points.join(',')})` };
 }
 
-/** A spring's CSS variable: `--motion-spatial-fast`, `--motion-effects` (default), `--motion-effects-slow`. */
-export const motionVariable = (kind: MotionKind, speed: MotionSpeed) => `--motion-${kind}${speed === 'default' ? '' : `-${speed}`}`;
+/** A spring's CSS variable: `--mo-sys-motion-spring-fast-spatial`, `--mo-sys-motion-spring-default-effects` (default), `--mo-sys-motion-spring-slow-effects`. */
+export const motionVariable = (kind: MotionKind, speed: MotionSpeed) => `--mo-sys-motion-spring-${speed}-${kind}`;
 
 /** A scheme as CSS for a <style> in the <head>: each spring as its duration and curve
- * (`--motion-spatial-fast: 290ms linear(…)`), to use as `transition: transform var(--motion-spatial-fast)`, and its
- * duration alone (`--motion-spatial-fast-duration`), for what must last as long as it (a `visibility` that waits for it,
+ * (`--mo-sys-motion-spring-fast-spatial: 290ms linear(…)`), to use as `transition: transform var(--mo-sys-motion-spring-fast-spatial)`, and its
+ * duration alone (`--mo-sys-motion-spring-fast-spatial-duration`), for what must last as long as it (a `visibility` that waits for it,
  * a `display … allow-discrete`); and the default spatial and effects curves alone (--motion-ease, --motion-ease-quick),
- * for what has its own duration (--block-ease and --block-ease-quick in blocks.css, --ease in base.css). */
+ * for what has its own duration (--mo-sys-block-ease and --mo-sys-block-ease-quick in blocks.css, --mo-sys-ease in base.css). */
 export function motionCss(scheme: MotionScheme): string {
   const springs = SPRINGS[scheme];
   const declarations = MOTION_KINDS.flatMap((kind) =>

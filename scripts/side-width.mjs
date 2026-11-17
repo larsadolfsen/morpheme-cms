@@ -10,7 +10,7 @@ export const textClasses = (html) =>
     .replaceAll('&gt;', '>')
     .split(/\s+/) ?? [];
 
-export const MEASURE = 'max-w-[var(--block-text-measure-max)]';
+export const MEASURE = 'max-w-[var(--mo-sys-block-text-measure-max)]';
 
 export const LEAD = ['[&>p:first-child]:mo-type-lead', '[&>p:first-child]:text-on-surface-variant', '[&>p:first-child]:max-w-[52ch]'];
 
@@ -22,7 +22,7 @@ export function leadProblem(text, side) {
 }
 
 /** The width rule for the text's classes: with a column the text stops at the page text measure (the token
- * --block-text-measure-max, since #838; it was a fixed 66ch); without one the text is as wide as its container (max-w-none)
+ * --mo-sys-block-text-measure-max, since #838; it was a fixed 66ch); without one the text is as wide as its container (max-w-none)
  * and only its parts outside the blocks stop at the measure. Returns what is wrong, or null. */
 export function widthProblem(text, side) {
   if (side) return text.includes(MEASURE) && !text.includes('max-w-none') ? null : `its text should be ${MEASURE}, not max-w-none`;

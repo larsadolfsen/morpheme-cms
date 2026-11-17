@@ -7,8 +7,8 @@
   /* A bottom sheet (ui.css; a dialog on a computer): extra-large corners, the lowest surface container (also as a dialog,
      as M3's on every screen), no lines, the scrim, the drag handle in on-surface-variant at 40% (the first elevation,
      the third as a dialog, as every bottom sheet). */
-  --bottom-sheet-radius: var(--mo-shape-extra-large);
+  --bottom-sheet-radius: var(--mo-sys-shape-corner-extra-large);
   --bottom-sheet-line: transparent;
-  --bottom-sheet-scrim: var(--mo-scrim-overlay);
-  --bottom-sheet-handle: color-mix(in srgb, var(--mo-on-surface-variant) 40%, transparent);
+  --bottom-sheet-scrim: var(--mo-sys-color-scrim-overlay);
+  --bottom-sheet-handle: color-mix(in srgb, var(--mo-sys-color-on-surface-variant) 40%, transparent);
 }

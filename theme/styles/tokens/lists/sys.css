@@ -4,7 +4,7 @@
   @media (width < theme(--breakpoint-medium)) {
     .block-list:not(.list-segmented),
     .block-accordion:not(.block-accordion-segmented) {
-      --block-list-layer-room: 1rem;
+      --mo-sys-block-list-layer-room: 1rem;
     }
   }
 }

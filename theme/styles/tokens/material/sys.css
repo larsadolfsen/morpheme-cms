@@ -10,45 +10,45 @@
   navigation drawer, the FAB, the footer) are at the end.
 
   The colours are the site's (src/data/colors.json, "Colors" in the editor): Material 3's colour roles
-  (m3.material.io/styles/color/roles), each by its own name as a variable (--mo-primary, --mo-on-surface, --mo-surface-container-high …),
-  and none else. The page is on --mo-surface. They are M3's own when the colours are made from a source colour (dynamic
+  (m3.material.io/styles/color/roles), each by its own name as a variable (--mo-sys-color-primary, --mo-sys-color-on-surface, --mo-sys-color-surface-container-high …),
+  and none else. The page is on --mo-sys-color-surface. They are M3's own when the colours are made from a source colour (dynamic
   colour), and every text on them keeps the contrast the editor checks (colorPairs), in light and dark mode.
 */
 /* Material is Medium: its own density step is 0 (base.css explains density). A theme sets another here: 1 is Large, -1 Small. */
 :root {
-  --mo-density-base: 0;
+  --mo-sys-density-base: 0;
 }
 :root,
 :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
 .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   /* State layers: on-surface (or primary) over the element, 8% pointed at, 10% pressed. */
-  --mo-hover: color-mix(in srgb, var(--mo-on-surface) 8%, transparent);
-  --mo-pressed: color-mix(in srgb, var(--mo-on-surface) 10%, transparent);
-  --mo-primary-hover: color-mix(in srgb, var(--mo-primary) 8%, transparent);
+  --mo-sys-state-mo-hover-layer: color-mix(in srgb, var(--mo-sys-color-on-surface) 8%, transparent);
+  --mo-sys-state-mo-pressed-layer: color-mix(in srgb, var(--mo-sys-color-on-surface) 10%, transparent);
+  --mo-sys-color-primary-hover: color-mix(in srgb, var(--mo-sys-color-primary) 8%, transparent);
   /* The shade over the page behind a dialog, a sheet and the navigation drawer. */
-  --mo-scrim-overlay: color-mix(in srgb, var(--mo-scrim) 32%, transparent);
-  --radius: var(--mo-shape-medium);
-  --panel-shadow: var(--mo-elevation-1-rest-shadow);
+  --mo-sys-color-scrim-overlay: color-mix(in srgb, var(--mo-sys-color-scrim) 32%, transparent);
+  --mo-sys-radius: var(--mo-sys-shape-corner-medium);
+  --mo-sys-panel-shadow: var(--mo-sys-elevation-level1-rest-shadow);
   /* The site's motion scheme's curve ("Motion", @morphemecms/cms/lib/motion.ts). */
-  --ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
-  --block-surface: var(--mo-surface-container-low);
-  --block-radius: var(--mo-shape-medium);
-  --block-control-radius: var(--mo-shape-full);
-  --block-shadow: var(--mo-elevation-1-rest-shadow);
-  --block-ease: var(--ease);
+  --mo-sys-ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
+  --mo-sys-block-surface: var(--mo-sys-color-surface-container-low);
+  --mo-sys-block-radius: var(--mo-sys-shape-corner-medium);
+  --mo-sys-block-control-radius: var(--mo-sys-shape-corner-full);
+  --mo-sys-block-shadow: var(--mo-sys-elevation-level1-rest-shadow);
+  --mo-sys-block-ease: var(--mo-sys-ease);
   /* The large images at the top of a page, a blog post and the blog: extra-large corners. */
-  --theme-picture-radius: var(--mo-shape-extra-large);
+  --theme-picture-radius: var(--mo-sys-shape-corner-extra-large);
   /* The page's headline: the M3 type scale (display small on a phone, display medium on a computer). */
   /* The front page: its headline closer to the first section under it. */
   --theme-home-first-space: 2.5rem;
   --theme-home-first-space-large: 4rem;
   /* The theme grid (.image-grid, docs/theme-grid.md): the page margin and the gutter between cards, 16px on compact and 24px from
-     medium. Owner values (15 Nov 2026); Material 3's Grids pages print no margin or gutter value. --mo-grid-layout-columns: Material 3's
+     medium. Owner values (15 Nov 2026); Material 3's Grids pages print no margin or gutter value. --mo-sys-grid-layout-columns: Material 3's
      layout grid, 4 columns on compact, 8 on medium and expanded, 12 on large and extra-large (its Grids page, the column mockup). */
-  --mo-grid-margin: 1rem;
-  --mo-grid-gutter: 1rem;
-  --mo-grid-layout-columns: 4;
+  --mo-sys-grid-margin: 1rem;
+  --mo-sys-grid-gutter: 1rem;
+  --mo-sys-grid-layout-columns: 4;
 }
 /* The blocks in a section on the accent (blocks.css) read as an inverted theme: the site's colours below are swapped for
    it, and the list above (the M3 aliases and the parts' variables, which are resolved where they are declared) is
@@ -57,50 +57,50 @@
 :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
 .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
-  --mo-on-surface: var(--section-on-accent);
-  --mo-on-surface-variant: var(--section-on-accent);
-  --mo-outline-variant: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
-  --mo-outline: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
-  --mo-surface: var(--section-accent);
-  --mo-primary: var(--section-on-accent);
-  --mo-on-primary: var(--section-accent);
-  --mo-surface-dim: color-mix(in srgb, var(--section-on-accent) 18%, transparent);
-  --mo-surface-bright: var(--section-accent);
-  --mo-surface-container-lowest: color-mix(in srgb, var(--section-on-accent) 6%, transparent);
-  --mo-surface-container-low: color-mix(in srgb, var(--section-on-accent) 8%, transparent);
-  --mo-surface-container: color-mix(in srgb, var(--section-on-accent) 10%, transparent);
-  --mo-surface-container-high: color-mix(in srgb, var(--section-on-accent) 12%, transparent);
-  --mo-surface-container-highest: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
-  --mo-secondary: var(--section-on-accent);
-  --mo-on-secondary: var(--section-accent);
-  --mo-secondary-container: var(--section-container, color-mix(in srgb, var(--section-on-accent) 22%, transparent));
-  --mo-on-secondary-container: var(--section-on-container, var(--section-on-accent));
-  --mo-tertiary: var(--section-on-accent);
-  --mo-on-tertiary: var(--section-accent);
-  --mo-tertiary-container: var(--section-container, color-mix(in srgb, var(--section-on-accent) 22%, transparent));
-  --mo-on-tertiary-container: var(--section-on-container, var(--section-on-accent));
-  --mo-primary-container: var(--section-container, color-mix(in srgb, var(--section-on-accent) 22%, transparent));
-  --mo-on-primary-container: var(--section-on-container, var(--section-on-accent));
-  --block-shadow: none;
-  --panel-shadow: none;
+  --mo-sys-color-on-surface: var(--mo-sys-section-on-accent);
+  --mo-sys-color-on-surface-variant: var(--mo-sys-section-on-accent);
+  --mo-sys-color-outline-variant: color-mix(in srgb, var(--mo-sys-section-on-accent) 35%, transparent);
+  --mo-sys-color-outline: color-mix(in srgb, var(--mo-sys-section-on-accent) 35%, transparent);
+  --mo-sys-color-surface: var(--mo-sys-section-accent);
+  --mo-sys-color-primary: var(--mo-sys-section-on-accent);
+  --mo-sys-color-on-primary: var(--mo-sys-section-accent);
+  --mo-sys-color-surface-dim: color-mix(in srgb, var(--mo-sys-section-on-accent) 18%, transparent);
+  --mo-sys-color-surface-bright: var(--mo-sys-section-accent);
+  --mo-sys-color-surface-container-lowest: color-mix(in srgb, var(--mo-sys-section-on-accent) 6%, transparent);
+  --mo-sys-color-surface-container-low: color-mix(in srgb, var(--mo-sys-section-on-accent) 8%, transparent);
+  --mo-sys-color-surface-container: color-mix(in srgb, var(--mo-sys-section-on-accent) 10%, transparent);
+  --mo-sys-color-surface-container-high: color-mix(in srgb, var(--mo-sys-section-on-accent) 12%, transparent);
+  --mo-sys-color-surface-container-highest: color-mix(in srgb, var(--mo-sys-section-on-accent) 14%, transparent);
+  --mo-sys-color-secondary: var(--mo-sys-section-on-accent);
+  --mo-sys-color-on-secondary: var(--mo-sys-section-accent);
+  --mo-sys-color-secondary-container: var(--mo-sys-section-container, color-mix(in srgb, var(--mo-sys-section-on-accent) 22%, transparent));
+  --mo-sys-color-on-secondary-container: var(--mo-sys-section-on-container, var(--mo-sys-section-on-accent));
+  --mo-sys-color-tertiary: var(--mo-sys-section-on-accent);
+  --mo-sys-color-on-tertiary: var(--mo-sys-section-accent);
+  --mo-sys-color-tertiary-container: var(--mo-sys-section-container, color-mix(in srgb, var(--mo-sys-section-on-accent) 22%, transparent));
+  --mo-sys-color-on-tertiary-container: var(--mo-sys-section-on-container, var(--mo-sys-section-on-accent));
+  --mo-sys-color-primary-container: var(--mo-sys-section-container, color-mix(in srgb, var(--mo-sys-section-on-accent) 22%, transparent));
+  --mo-sys-color-on-primary-container: var(--mo-sys-section-on-container, var(--mo-sys-section-on-accent));
+  --mo-sys-block-shadow: none;
+  --mo-sys-panel-shadow: none;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --panel-shadow: var(--mo-elevation-1-rest-shadow);
+    --mo-sys-panel-shadow: var(--mo-sys-elevation-level1-rest-shadow);
   }
 }
 :root[data-theme='dark'] {
-  --panel-shadow: var(--mo-elevation-1-rest-shadow);
+  --mo-sys-panel-shadow: var(--mo-sys-elevation-level1-rest-shadow);
 }
 @media (width >= theme(--breakpoint-medium)) {
   :root {
-    --mo-grid-margin: 1.5rem;
-    --mo-grid-gutter: 1.5rem;
-    --mo-grid-layout-columns: 8;
+    --mo-sys-grid-margin: 1.5rem;
+    --mo-sys-grid-gutter: 1.5rem;
+    --mo-sys-grid-layout-columns: 8;
   }
 }
 @media (width >= theme(--breakpoint-large)) {
   :root {
-    --mo-grid-layout-columns: 12;
+    --mo-sys-grid-layout-columns: 12;
   }
 }

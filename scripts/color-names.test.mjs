@@ -1,6 +1,6 @@
 // The theme's shared variables carry the prefix --mo-. The colours are Material 3's colour roles by their own names after
-// it (--mo-primary, --mo-on-surface; m3.material.io/styles/color/roles), an elevation level has a colour and a shadow
-// (--mo-elevation-2-color, --mo-elevation-2-shadow), and the rest of what a theme shares (corner steps, state layers) is
+// it (--mo-sys-color-primary, --mo-sys-color-on-surface; m3.material.io/styles/color/roles), an elevation level has a colour and a shadow
+// (--mo-sys-elevation-level2-color, --mo-sys-elevation-level2-shadow), and the rest of what a theme shares (corner steps, state layers) is
 // --mo-… too. This scans the theme, the editor and the package's libraries for the names from before: a role with no
 // prefix (var(--primary)), --md-… (Material's own prefix, which we do not use), --elevation-N, a name from before the
 // colour roles (var(--accent)) or a Tailwind colour from then (text-muted). The values stored in a site's content (the
@@ -109,13 +109,13 @@ test('no file uses a variable name from before the --mo- prefix', () => {
   assert.deepEqual(found, []);
 });
 
-test('a colour role is never a shadow: --mo-shadow is read only as a colour', () => {
+test('a colour role is never a shadow: --mo-sys-color-shadow is read only as a colour', () => {
   const found = [];
   for (const f of files) {
     readFileSync(ROOT + f, 'utf8')
       .split('\n')
       .forEach((line, i) => {
-        if (/box-shadow\s*:[^;]*var\(--mo-shadow\)/.test(line)) found.push(`${f}:${i + 1}: ${line.trim().slice(0, 100)}`);
+        if (/box-shadow\s*:[^;]*var\(--mo-sys-color-shadow\)/.test(line)) found.push(`${f}:${i + 1}: ${line.trim().slice(0, 100)}`);
       });
   }
   assert.deepEqual(found, []);

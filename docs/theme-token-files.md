@@ -17,7 +17,7 @@ stylesheet. Each stylesheet imports its own token files, so a theme that imports
 | `tokens/blocks/` | `blocks.css` | the blocks' variables (`--block-*`, `--motion-*`, `--section-*`) |
 | `tokens/cards/` | `cards.css` | the card tokens of the Cards CSS (`cards.css`) |
 | `tokens/lists/` | `lists.css` | the list tokens of the Lists CSS (`lists.css`) |
-| `tokens/type/` | `type.css` | the type classes' own tokens (the lead's `--prose-space`) |
+| `tokens/type/` | `type.css` | the type classes' own tokens (the lead's `--mo-sys-prose-space`) |
 | `tokens/base/` | `base.css` | what every theme has: spacing, density, the Tailwind `@theme` names, `--panel-*`, `--theme-*` (from `components.css`, then `base.css`) |
 | `tokens/material/` | `global.css` | the standard theme's look, Material 3: its colours' swaps, shape steps, elevation values, grid, state layers |
 
@@ -55,3 +55,9 @@ In each folder:
 3. Write it on the selector it needs (`:root`, a section, a class), in the same `@layer` and `@media` as a rule would be.
    Nothing unprefixed on `:root` (`docs/css-tokens.md`).
 4. A new file is imported by its folder's stylesheet.
+
+## Renamed tokens
+
+The tokens are being renamed to Material 3's pattern (`--mo-ref-*`, `--mo-sys-*`, `--mo-comp-<component>-*`; plan and table in
+`docs/superpowers/plans/2026-11-16-token-rename-table.md`), with no alias. `scripts/renamed-tokens.json` lists the old names of every
+rename that has landed, and `npm run check:token-names` fails on one that comes back.

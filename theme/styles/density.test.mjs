@@ -41,17 +41,17 @@ const space = {
   900: 72,
 };
 for (const [name, dp] of Object.entries(space))
-  test(`base.css declares --mo-space-${name} as ${dp}px`, () => {
-    assert.equal(count(base, `  --mo-space-${name}: ${dp}px;\n`), 1);
+  test(`base.css declares --mo-ref-space-${name} as ${dp}px`, () => {
+    assert.equal(count(base, `  --mo-ref-space-${name}: ${dp}px;\n`), 1);
   });
 
 const variables = {
-  '--mo-density-base': '0',
-  '--mo-density-user': '0',
-  '--mo-density-step': '4px',
-  '--mo-density': 'clamp(-3, calc(var(--mo-density-base) + var(--mo-density-user)), 1)',
-  '--mo-density-layout': 'clamp(-1, calc(var(--mo-density-base) + var(--mo-density-user)), 1)',
-  '--mo-density-focus': 'clamp(0, calc(var(--mo-density-base) + var(--mo-density-user)), 1)',
+  '--mo-sys-density-base': '0',
+  '--mo-sys-density-user': '0',
+  '--mo-sys-density-step': '4px',
+  '--mo-sys-density': 'clamp(-3, calc(var(--mo-sys-density-base) + var(--mo-sys-density-user)), 1)',
+  '--mo-sys-density-layout': 'clamp(-1, calc(var(--mo-sys-density-base) + var(--mo-sys-density-user)), 1)',
+  '--mo-sys-density-focus': 'clamp(0, calc(var(--mo-sys-density-base) + var(--mo-sys-density-user)), 1)',
 };
 for (const [name, value] of Object.entries(variables))
   test(`base.css declares ${name}`, () => {
@@ -59,10 +59,10 @@ for (const [name, value] of Object.entries(variables))
   });
 
 test('data-density sets the person’s step: Large 1, Small -1, Medium none', () => {
-  assert.equal(count(base, ":root[data-density='1'] {\n  --mo-density-user: 1;\n}"), 1);
-  assert.equal(count(base, ":root[data-density='-1'] {\n  --mo-density-user: -1;\n}"), 1);
+  assert.equal(count(base, ":root[data-density='1'] {\n  --mo-sys-density-user: 1;\n}"), 1);
+  assert.equal(count(base, ":root[data-density='-1'] {\n  --mo-sys-density-user: -1;\n}"), 1);
 });
 
 test('global.css sets Material’s own step to 0 (Medium)', () => {
-  assert.equal(count(global, ':root {\n  --mo-density-base: 0;\n}'), 1);
+  assert.equal(count(global, ':root {\n  --mo-sys-density-base: 0;\n}'), 1);
 });

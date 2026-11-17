@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { LEAD, leadProblem, textClasses, widthProblem } from './side-width.mjs';
 
-const WIDE = ['prose', 'max-w-none', '[&>:not(.not-prose)]:max-w-[var(--block-text-measure-max)]'];
-const NARROW = ['prose', 'max-w-[var(--block-text-measure-max)]'];
+const WIDE = ['prose', 'max-w-none', '[&>:not(.not-prose)]:max-w-[var(--mo-sys-block-text-measure-max)]'];
+const NARROW = ['prose', 'max-w-[var(--mo-sys-block-text-measure-max)]'];
 
 test('a page without a column: text as wide as its container, the text measure for what is not a block', () => {
   assert.equal(widthProblem(WIDE, null), null);
@@ -18,7 +18,7 @@ test('a page with a column: text stops at the text measure', () => {
 
 test('textClasses reads the classes of the text wrapper', () => {
   const html =
-    '<article data-template="single"><div data-editor="text" class="prose max-w-none [&amp;>:not(.not-prose)]:max-w-[var(--block-text-measure-max)]"></div>';
+    '<article data-template="single"><div data-editor="text" class="prose max-w-none [&amp;>:not(.not-prose)]:max-w-[var(--mo-sys-block-text-measure-max)]"></div>';
   assert.deepEqual(textClasses(html), WIDE);
 });
 

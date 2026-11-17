@@ -35,12 +35,12 @@
 
 @layer base {
   body {
-    background: var(--mo-surface);
+    background: var(--mo-sys-color-surface);
   }
   :focus-visible {
-    outline: 3px solid var(--mo-primary);
+    outline: 3px solid var(--mo-sys-color-primary);
     outline-offset: 2px;
-    border-radius: var(--mo-shape-extra-small);
+    border-radius: var(--mo-sys-shape-corner-extra-small);
   }
 }
 
@@ -55,22 +55,22 @@
   }
   .button {
     transition:
-      background-color var(--motion-effects),
-      color var(--motion-effects),
-      box-shadow var(--motion-effects),
-      border-radius var(--motion-spatial-fast);
+      background-color var(--mo-sys-motion-spring-default-effects),
+      color var(--mo-sys-motion-spring-default-effects),
+      box-shadow var(--mo-sys-motion-spring-default-effects),
+      border-radius var(--mo-sys-motion-spring-fast-spatial);
   }
   .button:active {
     transform: none;
-    border-radius: var(--mo-shape-medium);
+    border-radius: var(--mo-sys-shape-corner-medium);
   }
   @media (hover: hover) {
     .button-outlined:hover {
-      background: var(--mo-primary-hover);
+      background: var(--mo-sys-color-primary-hover);
     }
   }
   .button-text:focus-visible {
-    background: color-mix(in srgb, var(--mo-primary) 10%, transparent);
+    background: color-mix(in srgb, var(--mo-sys-color-primary) 10%, transparent);
   }
   /* A text button reaches 48px for a finger, above and below it. */
   .button-text {
@@ -88,7 +88,7 @@
   /* Except on a button that opens a menu: the arrow down says so, and turns up while the menu is open. */
   [aria-haspopup='menu'] > .button-trailing-icon {
     display: inline-block;
-    transition: rotate var(--motion-spatial-fast);
+    transition: rotate var(--mo-sys-motion-spring-fast-spatial);
   }
   [aria-haspopup='menu'][aria-expanded='true'] > .button-trailing-icon {
     rotate: 180deg;
@@ -99,21 +99,21 @@
   .block-testimonial-more {
     min-height: 2.5rem;
     margin-inline: -0.75rem;
-    border-radius: var(--mo-shape-full);
+    border-radius: var(--mo-sys-shape-corner-full);
     padding: 0 0.75rem;
-    font-size: var(--type-label-large-size);
-    line-height: var(--type-label-large-line-height);
-    font-weight: var(--type-label-large-weight);
-    letter-spacing: var(--type-label-large-tracking);
-    transition: background-color var(--motion-effects);
+    font-size: var(--mo-sys-typescale-label-large-size);
+    line-height: var(--mo-sys-typescale-label-large-line-height);
+    font-weight: var(--mo-sys-typescale-label-large-weight);
+    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
+    transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
   .block-arrow-link:hover,
   .block-testimonial-more:hover {
-    background: var(--mo-primary-hover);
+    background: var(--mo-sys-color-primary-hover);
   }
   .block-arrow-link:active,
   .block-testimonial-more:active {
-    background: color-mix(in srgb, var(--mo-primary) 10%, transparent);
+    background: color-mix(in srgb, var(--mo-sys-color-primary) 10%, transparent);
   }
   .block-testimonial-more {
     cursor: pointer;
@@ -122,14 +122,14 @@
      its 18px check before the label, 8px from the edge. */
   .chip {
     transition:
-      background-color var(--motion-effects),
-      box-shadow var(--motion-effects);
+      background-color var(--mo-sys-motion-spring-default-effects),
+      box-shadow var(--mo-sys-motion-spring-default-effects);
   }
   .chip:hover {
-    background: var(--mo-hover);
+    background: var(--mo-sys-state-mo-hover-layer);
   }
   .chip-elevated:hover {
-    background: color-mix(in srgb, var(--mo-on-surface) 8%, var(--chip-elevated-surface, var(--block-surface)));
+    background: color-mix(in srgb, var(--mo-sys-color-on-surface) 8%, var(--chip-elevated-surface, var(--mo-sys-block-surface)));
   }
   .chip-filter:is([aria-pressed='true'], [aria-current='page']) {
     padding-left: 0.5rem;
@@ -142,20 +142,21 @@
     padding-inline-end: 0.5rem;
   }
   .block-tag {
-    border-radius: var(--mo-shape-small);
-    background: var(--mo-surface-container-high);
+    border-radius: var(--mo-sys-shape-corner-small);
+    background: var(--mo-sys-color-surface-container-high);
   }
 
   /* Text fields (their variables above): the filled one's corners square at the bottom, along its active indicator,
      which is 2px in the primary colour while it is written in or wrong. */
   .text-field-filled .text-field-container {
-    border-radius: var(--mo-shape-extra-small) var(--mo-shape-extra-small) var(--mo-shape-none) var(--mo-shape-none);
+    border-radius: var(--mo-sys-shape-corner-extra-small) var(--mo-sys-shape-corner-extra-small) var(--mo-sys-shape-corner-none)
+      var(--mo-sys-shape-corner-none);
   }
   .text-field-filled .text-field-container:hover {
-    background: color-mix(in srgb, var(--mo-on-surface) 8%, var(--mo-surface-container-highest));
+    background: color-mix(in srgb, var(--mo-sys-color-on-surface) 8%, var(--mo-sys-color-surface-container-highest));
   }
   .text-field-filled .text-field-container:has(> .text-field-input:focus) {
-    box-shadow: inset 0 -2px 0 var(--mo-primary);
+    box-shadow: inset 0 -2px 0 var(--mo-sys-color-primary);
   }
   .text-field-filled:is(
       .text-field-error,
@@ -172,7 +173,7 @@
       .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text))
     )
     .text-field-container:has(> .text-field-input:focus) {
-    box-shadow: inset 0 -2px 0 var(--text-field-error, var(--mo-primary));
+    box-shadow: inset 0 -2px 0 var(--text-field-error, var(--mo-sys-color-primary));
   }
 
   /* An M3 checkbox: an 18px box with a 2px edge in on-surface-variant and 2px corners, filled in the primary colour
@@ -182,11 +183,11 @@
     width: 2.5rem;
     height: 2.5rem;
     margin: -0.5rem -0.6875rem -0.6875rem;
-    border-radius: var(--mo-shape-full);
-    transition: background-color var(--motion-effects);
+    border-radius: var(--mo-sys-shape-corner-full);
+    transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
   .checkbox:hover .checkbox-box {
-    background: var(--mo-hover);
+    background: var(--mo-sys-state-mo-hover-layer);
   }
   .checkbox:has(.checkbox-input:disabled):hover .checkbox-box {
     background: transparent;
@@ -195,24 +196,24 @@
     appearance: none;
     width: 1.125rem;
     height: 1.125rem;
-    border: 2px solid var(--mo-on-surface-variant);
+    border: 2px solid var(--mo-sys-color-on-surface-variant);
     border-radius: 2px;
     transition:
-      background-color var(--motion-effects),
-      border-color var(--motion-effects);
+      background-color var(--mo-sys-motion-spring-default-effects),
+      border-color var(--mo-sys-motion-spring-default-effects);
   }
   .checkbox-input:checked,
   .checkbox-input[data-checked] {
-    border-color: var(--mo-primary);
-    background: var(--mo-primary);
+    border-color: var(--mo-sys-color-primary);
+    background: var(--mo-sys-color-primary);
   }
   .checkbox-input:checked + .checkbox-icon,
   .checkbox-input[data-checked] + .checkbox-icon {
     display: block;
-    color: var(--mo-on-primary);
+    color: var(--mo-sys-color-on-primary);
   }
   .checkbox-input:focus-visible {
-    outline: 3px solid var(--mo-primary);
+    outline: 3px solid var(--mo-sys-color-primary);
     outline-offset: 2px;
   }
   .checkbox-box:has(.checkbox-input:disabled) {
@@ -228,31 +229,31 @@
     left: 50%;
     width: 2.5rem;
     height: 2.5rem;
-    border-radius: var(--mo-shape-full);
+    border-radius: var(--mo-sys-shape-corner-full);
     translate: -50% -50%;
-    transition: background-color var(--motion-effects);
+    transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
   .switch:hover .switch-input:enabled + .switch-handle::before {
-    background: var(--mo-hover);
+    background: var(--mo-sys-state-mo-hover-layer);
   }
   .switch:hover .switch-input:enabled:checked + .switch-handle::before {
-    background: var(--mo-primary-hover);
+    background: var(--mo-sys-color-primary-hover);
   }
   /* Focused and pressed: 10%, as M3's state layers (hover is 8%). */
   .switch .switch-input:enabled:focus-visible + .switch-handle::before,
   .switch .switch-input:enabled:active + .switch-handle::before {
-    background: var(--mo-pressed);
+    background: var(--mo-sys-state-mo-pressed-layer);
   }
   .switch .switch-input:enabled:checked:focus-visible + .switch-handle::before,
   .switch .switch-input:enabled:checked:active + .switch-handle::before {
-    background: color-mix(in srgb, var(--mo-primary) 10%, transparent);
+    background: color-mix(in srgb, var(--mo-sys-color-primary) 10%, transparent);
   }
   .switch:hover .switch-input:enabled:not(:checked) + .switch-handle,
   .switch-input:enabled:active:not(:checked) + .switch-handle {
-    background: var(--mo-on-surface-variant);
+    background: var(--mo-sys-color-on-surface-variant);
   }
   .switch-input:focus-visible {
-    outline: 3px solid var(--mo-primary);
+    outline: 3px solid var(--mo-sys-color-primary);
     outline-offset: 2px;
   }
 
@@ -262,29 +263,29 @@
     width: 2.5rem;
     height: 2.5rem;
     margin: -0.5rem -0.625rem -0.625rem;
-    border-radius: var(--mo-shape-full);
-    transition: background-color var(--motion-effects);
+    border-radius: var(--mo-sys-shape-corner-full);
+    transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
   .radio-button:hover .radio-button-box {
-    background: var(--mo-hover);
+    background: var(--mo-sys-state-mo-hover-layer);
   }
   .radio-button:has(.radio-button-input:disabled):hover .radio-button-box {
     background: transparent;
   }
   .radio-button-input {
     appearance: none;
-    border: 2px solid var(--mo-on-surface-variant);
-    border-radius: var(--mo-shape-full);
-    transition: border-color var(--motion-effects);
+    border: 2px solid var(--mo-sys-color-on-surface-variant);
+    border-radius: var(--mo-sys-shape-corner-full);
+    transition: border-color var(--mo-sys-motion-spring-default-effects);
   }
   .radio-button-input:checked {
-    border-color: var(--mo-primary);
-    background: radial-gradient(circle closest-side, var(--mo-primary) 62.5%, transparent calc(62.5% + 0.5px));
+    border-color: var(--mo-sys-color-primary);
+    background: radial-gradient(circle closest-side, var(--mo-sys-color-primary) 62.5%, transparent calc(62.5% + 0.5px));
   }
   .radio-button-input:focus-visible {
-    outline: 3px solid var(--mo-primary);
+    outline: 3px solid var(--mo-sys-color-primary);
     outline-offset: 2px;
-    border-radius: var(--mo-shape-full);
+    border-radius: var(--mo-sys-shape-corner-full);
   }
   .radio-button-box:has(.radio-button-input:disabled) {
     opacity: 0.38;
@@ -299,13 +300,13 @@
   /* An M3 side sheet's headline in on-surface-variant. */
   .side-sheet-headline,
   .bottom-sheet-container[data-wide='side-sheet'] .bottom-sheet-headline {
-    color: var(--mo-on-surface-variant);
+    color: var(--mo-sys-color-on-surface-variant);
   }
 
   /* Icon buttons (their variables above): a state layer when pointed at (the ripple when pressed), no shrinking. The
      cross on a sheet is 40 by 40 with a 22px icon. */
   .icon-button {
-    transition: background-color var(--motion-effects);
+    transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
   .icon-button:active {
     transform: none;
@@ -313,28 +314,28 @@
   @media (hover: hover) {
     .icon-button-standard:hover,
     .icon-button-outlined:hover {
-      background: var(--mo-hover);
-      color: var(--mo-on-surface-variant);
+      background: var(--mo-sys-state-mo-hover-layer);
+      color: var(--mo-sys-color-on-surface-variant);
     }
   }
   @media (hover: hover) {
     .icon-button-outlined:hover {
-      box-shadow: inset 0 0 0 1px var(--mo-outline);
+      box-shadow: inset 0 0 0 1px var(--mo-sys-color-outline);
     }
   }
   @media (hover: hover) {
     .icon-button-tonal:hover {
-      background: color-mix(in srgb, var(--mo-on-surface) 8%, var(--mo-surface-container-high));
+      background: color-mix(in srgb, var(--mo-sys-color-on-surface) 8%, var(--mo-sys-color-surface-container-high));
     }
   }
   /* On a snackbar (the inverse surface): the state layers in its colours. */
   .snackbar .button-text:focus-visible {
-    background: color-mix(in srgb, var(--mo-inverse-primary) 10%, transparent);
+    background: color-mix(in srgb, var(--mo-sys-color-inverse-primary) 10%, transparent);
   }
   @media (hover: hover) {
     .snackbar .icon-button-standard:hover {
-      background: color-mix(in srgb, var(--mo-inverse-on-surface) 8%, transparent);
-      color: var(--mo-inverse-on-surface);
+      background: color-mix(in srgb, var(--mo-sys-color-inverse-on-surface) 8%, transparent);
+      color: var(--mo-sys-color-inverse-on-surface);
     }
   }
 
@@ -345,8 +346,8 @@
 
   /* "Steps": the numbers in the primary container. */
   .block-step-number {
-    background: var(--mo-surface-container-high);
-    color: var(--mo-primary);
+    background: var(--mo-sys-color-surface-container-high);
+    color: var(--mo-sys-color-primary);
   }
   .block-card-picture {
     border-radius: var(--card-radius);
@@ -365,18 +366,18 @@
     display: none;
   }
   .block-cta-title {
-    font-size: var(--type-headline-small-size);
-    line-height: var(--type-headline-small-line-height);
-    font-weight: var(--type-headline-small-weight);
-    letter-spacing: var(--type-headline-small-tracking);
+    font-size: var(--mo-sys-typescale-headline-small-size);
+    line-height: var(--mo-sys-typescale-headline-small-line-height);
+    font-weight: var(--mo-sys-typescale-headline-small-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
   }
   .block-cta-picture {
-    border-radius: var(--mo-shape-large);
+    border-radius: var(--mo-sys-shape-corner-large);
   }
 
   /* A link that is one row: a list item in a card, a state layer when pointed at. */
   .block-link-row {
-    transition: background-color var(--motion-effects);
+    transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
 
   /* A bottom sheet (its variables above): a 32 by 4 drag handle, the headline in M3's headline small. */
@@ -408,18 +409,18 @@
     opacity: 0.38;
   }
   .split-button > .button:active {
-    border-radius: var(--block-control-radius);
+    border-radius: var(--mo-sys-block-control-radius);
   }
   .split-button > .split-button-leading:active {
-    border-start-end-radius: var(--mo-shape-small);
-    border-end-end-radius: var(--mo-shape-small);
+    border-start-end-radius: var(--mo-sys-shape-corner-small);
+    border-end-end-radius: var(--mo-sys-shape-corner-small);
   }
   .split-button > .split-button-trailing:active {
-    border-start-start-radius: var(--mo-shape-small);
-    border-end-start-radius: var(--mo-shape-small);
+    border-start-start-radius: var(--mo-sys-shape-corner-small);
+    border-end-start-radius: var(--mo-sys-shape-corner-small);
   }
   .split-button > .split-button-trailing[aria-expanded='true']:active {
-    border-radius: var(--block-control-radius);
+    border-radius: var(--mo-sys-block-control-radius);
   }
 }
 
@@ -428,7 +429,7 @@
   .prose :where(img):not(:where(.not-prose img)),
   .picture-crop,
   .prose :where(iframe) {
-    border-radius: var(--mo-shape-large);
+    border-radius: var(--mo-sys-shape-corner-large);
   }
 
   /* The mark before the name on a testimonial without an image: an avatar, a circle in the highest surface container
@@ -439,12 +440,12 @@
     width: 2.5rem;
     height: 2.5rem;
     place-items: center;
-    border-radius: var(--mo-shape-full);
-    background: var(--mo-surface-container-highest);
-    color: var(--mo-on-surface);
-    font-size: var(--type-title-medium-size);
-    font-weight: var(--type-title-medium-weight);
-    letter-spacing: var(--type-title-medium-tracking);
+    border-radius: var(--mo-sys-shape-corner-full);
+    background: var(--mo-sys-color-surface-container-highest);
+    color: var(--mo-sys-color-on-surface);
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    font-weight: var(--mo-sys-typescale-title-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
     line-height: 1;
   }
   .block-testimonial-mark::before {
@@ -475,26 +476,26 @@
     min-height: 2.5rem;
     align-items: center;
     gap: 0.25rem;
-    border-radius: var(--mo-shape-full);
+    border-radius: var(--mo-sys-shape-corner-full);
     padding: 0 1rem;
     white-space: nowrap;
-    color: var(--mo-on-surface-variant);
-    font-size: var(--type-label-large-size);
-    line-height: var(--type-label-large-line-height);
-    font-weight: var(--type-label-large-weight);
-    letter-spacing: var(--type-label-large-tracking);
+    color: var(--mo-sys-color-on-surface-variant);
+    font-size: var(--mo-sys-typescale-label-large-size);
+    line-height: var(--mo-sys-typescale-label-large-line-height);
+    font-weight: var(--mo-sys-typescale-label-large-weight);
+    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
     transition:
-      background-color var(--motion-effects),
-      color var(--motion-effects);
+      background-color var(--mo-sys-motion-spring-default-effects),
+      color var(--mo-sys-motion-spring-default-effects);
   }
   .md-nav-item:hover {
-    background: var(--mo-hover);
-    color: var(--mo-on-surface);
+    background: var(--mo-sys-state-mo-hover-layer);
+    color: var(--mo-sys-color-on-surface);
   }
   .md-nav-item:focus-visible,
   .md-nav-item:active {
-    background: var(--mo-pressed);
-    color: var(--mo-on-surface);
+    background: var(--mo-sys-state-mo-pressed-layer);
+    color: var(--mo-sys-color-on-surface);
   }
   /* An item with sub-pages: its label, then the button that opens them. */
   .md-nav-item-parent {
@@ -505,39 +506,39 @@
     width: 2rem;
     height: 2.5rem;
     place-items: center;
-    border-radius: var(--mo-shape-full);
-    color: var(--mo-on-surface-variant);
+    border-radius: var(--mo-sys-shape-corner-full);
+    color: var(--mo-sys-color-on-surface-variant);
     transition:
-      background-color var(--motion-effects),
-      color var(--motion-effects);
+      background-color var(--mo-sys-motion-spring-default-effects),
+      color var(--mo-sys-motion-spring-default-effects);
   }
   .md-nav-toggle:hover {
-    background: var(--mo-hover);
-    color: var(--mo-on-surface);
+    background: var(--mo-sys-state-mo-hover-layer);
+    color: var(--mo-sys-color-on-surface);
   }
   .md-nav-toggle:focus-visible,
   .md-nav-toggle:active {
-    background: var(--mo-pressed);
-    color: var(--mo-on-surface);
+    background: var(--mo-sys-state-mo-pressed-layer);
+    color: var(--mo-sys-color-on-surface);
   }
   .md-nav-toggle > svg {
-    transition: transform var(--motion-spatial-fast);
+    transition: transform var(--mo-sys-motion-spring-fast-spatial);
   }
   .md-nav-toggle[aria-expanded='true'] > svg {
     transform: rotate(180deg);
   }
   .md-nav-item[aria-current='page'],
   li:has(.menu-item[aria-current='page']) > .md-nav-item {
-    background: var(--mo-surface-container-high);
-    color: var(--mo-on-surface);
+    background: var(--mo-sys-color-surface-container-high);
+    color: var(--mo-sys-color-on-surface);
   }
   /* A menu (its variables above): a state layer with focus from the keyboard (the ripple when pressed), and the open page
    in the secondary container also when pointed at. */
   .menu-item:focus-visible {
-    background: var(--mo-pressed);
+    background: var(--mo-sys-state-mo-pressed-layer);
   }
   .menu-item[aria-current='page']:hover {
-    background: var(--mo-surface-container-high);
+    background: var(--mo-sys-color-surface-container-high);
   }
 
   /* The extended FAB (its variables above, Header.astro): at the bottom right of the screen, with the ripple when pressed. It
@@ -580,10 +581,10 @@
     padding: 0.25rem 0.25rem 1rem;
   }
   .md-drawer-name {
-    font-size: var(--type-title-medium-size);
-    line-height: var(--type-title-medium-line-height);
-    font-weight: var(--type-title-medium-weight);
-    letter-spacing: var(--type-title-medium-tracking);
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    line-height: var(--mo-sys-typescale-title-medium-line-height);
+    font-weight: var(--mo-sys-typescale-title-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
   }
   /* Its bottom: the header's call to action (header.json), the phone number and the button in one row sharing the
      drawer's width, as in the header; when they do not fit side by side, the button over the number (wrap-reverse), each
@@ -600,16 +601,16 @@
     white-space: nowrap;
   }
   .md-drawer-role {
-    color: var(--mo-on-surface-variant);
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
+    color: var(--mo-sys-color-on-surface-variant);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   /* An item with sub-pages: its link and the caret in one row, the active indicator around both. */
   .navigation-drawer-row {
-    border-radius: var(--mo-shape-full);
-    transition: background-color var(--motion-effects);
+    border-radius: var(--mo-sys-shape-corner-full);
+    transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
   .navigation-drawer-row > .navigation-drawer-item,
   .navigation-drawer-row > .navigation-drawer-item:hover,
@@ -618,29 +619,29 @@
     background: none;
   }
   .navigation-drawer-row:has(> .navigation-drawer-item:hover) {
-    background: var(--mo-hover);
+    background: var(--mo-sys-state-mo-hover-layer);
   }
   .navigation-drawer-row:has(> .navigation-drawer-item:focus-visible) {
-    background: var(--mo-pressed);
+    background: var(--mo-sys-state-mo-pressed-layer);
   }
   .navigation-drawer-row[data-active] {
-    background: var(--mo-secondary-container);
+    background: var(--mo-sys-color-secondary-container);
   }
   .navigation-drawer-row[data-active] > .navigation-drawer-item {
-    color: var(--mo-on-secondary-container);
+    color: var(--mo-sys-color-on-secondary-container);
   }
   .navigation-drawer-row[data-active]:has(> .navigation-drawer-item:hover) {
-    background: color-mix(in srgb, var(--mo-on-secondary-container) 8%, var(--mo-secondary-container));
+    background: color-mix(in srgb, var(--mo-sys-color-on-secondary-container) 8%, var(--mo-sys-color-secondary-container));
   }
   .navigation-drawer-row[data-active]:has(> .navigation-drawer-item:focus-visible) {
-    background: color-mix(in srgb, var(--mo-on-secondary-container) 10%, var(--mo-secondary-container));
+    background: color-mix(in srgb, var(--mo-sys-color-on-secondary-container) 10%, var(--mo-sys-color-secondary-container));
   }
   .navigation-drawer-toggle {
     margin-right: 0.25rem;
-    color: var(--mo-on-surface-variant);
+    color: var(--mo-sys-color-on-surface-variant);
   }
   .navigation-drawer-toggle:focus-visible {
-    background: var(--mo-pressed);
+    background: var(--mo-sys-state-mo-pressed-layer);
   }
   /* Directly in the drawer ("Call"), not in a row with a caret: as high as its content. */
   .navigation-drawer > .navigation-drawer-item {
@@ -652,21 +653,21 @@
     gap: 0.75rem;
     margin-left: 0;
     border-left: 0;
-    border-radius: var(--mo-shape-full);
+    border-radius: var(--mo-sys-shape-corner-full);
     padding: 0 1.5rem 0 2.25rem;
-    color: var(--mo-on-surface-variant);
-    transition: background-color var(--motion-effects);
+    color: var(--mo-sys-color-on-surface-variant);
+    transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
   .navigation-drawer-subitem:hover {
-    background: var(--mo-hover);
-    color: var(--mo-on-surface-variant);
+    background: var(--mo-sys-state-mo-hover-layer);
+    color: var(--mo-sys-color-on-surface-variant);
   }
   .navigation-drawer-subitem:focus-visible {
-    background: var(--mo-pressed);
+    background: var(--mo-sys-state-mo-pressed-layer);
   }
   .navigation-drawer-subitem[data-active] {
-    background: var(--mo-secondary-container);
-    color: var(--mo-on-secondary-container);
+    background: var(--mo-sys-color-secondary-container);
+    color: var(--mo-sys-color-on-secondary-container);
     font-weight: 400;
   }
 
@@ -674,32 +675,33 @@
    state layer, and text buttons at the bottom. */
   .md-footer {
     margin-top: 6rem;
-    border-radius: var(--mo-shape-extra-large) var(--mo-shape-extra-large) var(--mo-shape-none) var(--mo-shape-none);
-    background: var(--mo-surface-container);
+    border-radius: var(--mo-sys-shape-corner-extra-large) var(--mo-sys-shape-corner-extra-large) var(--mo-sys-shape-corner-none)
+      var(--mo-sys-shape-corner-none);
+    background: var(--mo-sys-color-surface-container);
   }
   .md-footer-name {
     margin-top: 0.75rem;
-    font-size: var(--type-headline-small-size);
-    line-height: var(--type-headline-small-line-height);
-    font-weight: var(--type-headline-small-weight);
-    letter-spacing: var(--type-headline-small-tracking);
+    font-size: var(--mo-sys-typescale-headline-small-size);
+    line-height: var(--mo-sys-typescale-headline-small-line-height);
+    font-weight: var(--mo-sys-typescale-headline-small-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
   }
   .md-footer-text {
     margin-top: 0.5rem;
     max-width: 38ch;
-    color: var(--mo-on-surface-variant);
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
+    color: var(--mo-sys-color-on-surface-variant);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   .md-footer-heading,
   .md-footer-column > p {
-    color: var(--mo-on-surface);
-    font-size: var(--type-label-large-size);
-    line-height: var(--type-label-large-line-height);
-    font-weight: var(--type-label-large-weight);
-    letter-spacing: var(--type-label-large-tracking);
+    color: var(--mo-sys-color-on-surface);
+    font-size: var(--mo-sys-typescale-label-large-size);
+    line-height: var(--mo-sys-typescale-label-large-line-height);
+    font-weight: var(--mo-sys-typescale-label-large-weight);
+    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
   }
   .md-footer-list,
   .md-footer-column > ul {
@@ -711,26 +713,26 @@
     min-height: 3rem;
     align-items: center;
     gap: 1rem;
-    border-radius: var(--mo-shape-full);
+    border-radius: var(--mo-sys-shape-corner-full);
     padding: 0.5rem 1rem;
-    color: var(--mo-on-surface-variant);
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-    transition: background-color var(--motion-effects);
+    color: var(--mo-sys-color-on-surface-variant);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
   .md-footer-item:hover,
   .md-footer-column > ul a:hover {
-    background: var(--mo-hover);
-    color: var(--mo-on-surface);
+    background: var(--mo-sys-state-mo-hover-layer);
+    color: var(--mo-sys-color-on-surface);
   }
   .md-footer-item:focus-visible,
   .md-footer-item:active,
   .md-footer-column > ul a:focus-visible,
   .md-footer-column > ul a:active {
-    background: var(--mo-pressed);
-    color: var(--mo-on-surface);
+    background: var(--mo-sys-state-mo-pressed-layer);
+    color: var(--mo-sys-color-on-surface);
   }
   .md-footer-column > ul > li {
     margin-block: 0;
@@ -749,7 +751,7 @@
     .md-footer-column > .md-footer-list {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: var(--mo-grid-gutter);
+      column-gap: var(--mo-sys-grid-gutter);
     }
   }
 }
@@ -760,13 +762,13 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem 1rem;
-    border-top: 1px solid var(--mo-outline-variant);
+    border-top: 1px solid var(--mo-sys-color-outline-variant);
     padding-top: 1rem;
-    color: var(--mo-on-surface-variant);
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
+    color: var(--mo-sys-color-on-surface-variant);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   /* Only the text button's own padding is pulled out, so its text starts on the margin; the button group sits on the content
      edges. */

@@ -83,20 +83,14 @@
     }
   ],
   "files": {
-    "src/editor.css": {
-      "max": 2
-    },
     "theme/styles/tokens/base/comp/carousel.css": {
       "max": 1
     },
     "theme/styles/tokens/base/comp/chip.css": {
       "max": 1
     },
-    "theme/styles/tokens/base/ref.css": {
-      "max": 1
-    },
     "theme/styles/tokens/base/sys.css": {
-      "max": 48
+      "max": 25
     },
     "theme/styles/tokens/material/comp/badge.css": {
       "max": 7
@@ -185,11 +179,8 @@
     "theme/styles/tokens/material/comp/top-app-bar.css": {
       "max": 3
     },
-    "theme/styles/tokens/material/ref.css": {
-      "max": 1
-    },
     "theme/styles/tokens/material/sys.css": {
-      "max": 11
+      "max": 3
     },
     "theme/styles/tokens/ui/comp/navigation.css": {
       "max": 4

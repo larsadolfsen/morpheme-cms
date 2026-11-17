@@ -49,7 +49,9 @@ test('count mode: a file may keep its count, never go over, and a new file gets 
 
 test('Tailwind: --tw-* on :root and its theme namespaces in @theme pass; an unknown name in @theme fails', () => {
   assert.deepEqual(
-    run({ 'a.css': ':root { --tw-ring: 0; } @theme inline { --color-primary: var(--mo-primary); --breakpoint-medium: 37.5rem; }' }),
+    run({
+      'a.css': ':root { --tw-ring: 0; } @theme inline { --color-primary: var(--mo-sys-color-primary); --breakpoint-medium: 37.5rem; }',
+    }),
     [],
   );
   assert.match(run({ 'a.css': '@theme { --my-thing: 1; }' }).join('\n'), /--my-thing/);
@@ -58,8 +60,11 @@ test('Tailwind: --tw-* on :root and its theme namespaces in @theme pass; an unkn
 });
 
 test('an app or theme that declares a name the CMS declares collides, on :root or on a block', () => {
-  const cms = { 'theme.css': ':root { --mo-primary: red; } .card { --card-gap: 8px; }' };
-  assert.match(run(cms, { 'apps/x/a.css': '.x { --mo-primary: blue; }' }).join('\n'), /declares --mo-primary, a name the CMS declares/);
+  const cms = { 'theme.css': ':root { --mo-sys-color-primary: red; } .card { --card-gap: 8px; }' };
+  assert.match(
+    run(cms, { 'apps/x/a.css': '.x { --mo-sys-color-primary: blue; }' }).join('\n'),
+    /declares --mo-sys-color-primary, a name the CMS declares/,
+  );
   assert.match(run(cms, { 'apps/x/a.css': '.x { --card-gap: 1px; }' }).join('\n'), /--card-gap/);
   assert.deepEqual(run(cms, { 'apps/x/a.css': '.x { --x-gap: 1px; }' }), []);
 });
