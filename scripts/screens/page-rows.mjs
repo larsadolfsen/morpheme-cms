@@ -1293,7 +1293,7 @@ const rowPadding = () => {
 
 /** One left edge for a page's content (375, 768 and 1280 px), in the editor and on the site. The site is the reference: its text column starts at the theme's page margin
  * (--mo-sys-grid-margin: 16 dp, 24 dp from medium) and every block's own content starts on that same edge. The editor adds only its frame, which hangs outside the column by
- * a fixed outset (--editor-frame-outset, 8 dp) and so is never clipped by the text field's edge: the text starts one page margin in from the text field, the blocks'
+ * a fixed outset (--mo-comp-editor-frame-outset, 8 dp) and so is never clipped by the text field's edge: the text starts one page margin in from the text field, the blocks'
  * content on the text's edge (a border drawn at 1 px instead of 1.5 px at a pixel ratio of 1 allows half a pixel), every frame the outset to the left of it, and
  * the select mark and the handle stay inside the text field. Real geometry (getBoundingClientRect), no sleeps: it waits for the blocks to be drawn. */
 async function checkPageLeftEdge(width) {
@@ -1390,7 +1390,8 @@ async function checkPageLeftEdge(width) {
       const pm = document.querySelector('.ProseMirror');
       const text = pm.querySelector('p').getBoundingClientRect().left;
       const margin = parseFloat(getComputedStyle(document.documentElement).fontSize) * (innerWidth < 600 ? 1 : 1.5);
-      const outset = parseFloat(getComputedStyle(document.querySelector('.editor-text')).getPropertyValue('--editor-frame-outset')) || 0;
+      const outset =
+        parseFloat(getComputedStyle(document.querySelector('.editor-text')).getPropertyValue('--mo-comp-editor-frame-outset')) || 0;
       const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
       const blocks = [...pm.querySelectorAll(':scope > .site-block')].map((b) => {
         const card = b.querySelector(':scope > .site-block-card').getBoundingClientRect();

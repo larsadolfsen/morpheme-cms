@@ -8,8 +8,8 @@ import { join } from 'node:path';
 const SRC = new URL('../src/', import.meta.url).pathname;
 // Lines (the text before the colour, a custom property's name or a selector) that may hold a fixed colour, and why.
 const allowed = [
-  [/--editor-status-/, "the ratings of a check (good, average, bad) are PageSpeed's own colours"],
-  [/--google-/, "the search-result preview is Google's own look, in light and dark"],
+  [/--mo-comp-editor-status-/, "the ratings of a check (good, average, bad) are PageSpeed's own colours"],
+  [/--mo-comp-google-/, "the search-result preview is Google's own look, in light and dark"],
   [/transparent|#0000\b/, 'no colour'],
   [/(box-)?shadow/, 'a shadow is black over any colour'],
 ];

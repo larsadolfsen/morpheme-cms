@@ -245,12 +245,12 @@ export function HeadImage(props: Props) {
         type="button"
         onClick={pick}
         aria-label={text ? t.forms.changeImage : t.forms.pickImage}
-        className="relative block aspect-[16/10] w-full overflow-hidden rounded-(--theme-picture-radius) bg-surface-container medium:aspect-[16/9]"
+        className="relative block aspect-[16/10] w-full overflow-hidden rounded-(--mo-comp-theme-picture-radius) bg-surface-container medium:aspect-[16/9]"
       >
         {drawn ? (
           <img src={drawn} alt="" className="size-full object-cover" />
         ) : (
-          <span className="flex size-full items-center justify-center rounded-(--theme-picture-radius) text-on-surface-variant outline-2 -outline-offset-2 outline-outline-variant outline-dashed">
+          <span className="flex size-full items-center justify-center rounded-(--mo-comp-theme-picture-radius) text-on-surface-variant outline-2 -outline-offset-2 outline-outline-variant outline-dashed">
             {t.forms.pickImage}
           </span>
         )}

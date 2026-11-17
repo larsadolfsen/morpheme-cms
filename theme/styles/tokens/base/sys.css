@@ -12,73 +12,73 @@
 :root {
   /* The colour of the shade over the page behind a pop-up (the dialog's scrim, ui.css) and the navigation drawer
      (ui.css), seen through: the text's, in dark mode the page's. */
-  --theme-scrim-colour: var(--mo-sys-color-on-surface);
+  --mo-comp-theme-scrim-colour: var(--mo-sys-color-on-surface);
   /* What is drawn on that shade (a lightbox's controls and caption): the opposite of it. */
-  --theme-on-scrim-colour: var(--mo-sys-color-surface);
+  --mo-comp-theme-on-scrim-colour: var(--mo-sys-color-surface);
   /* The large image at the top of a page or a blog post, and the newest post's on the blog. */
-  --theme-picture-radius: var(--mo-sys-radius);
+  --mo-comp-theme-picture-radius: var(--mo-sys-radius);
   /* How long one page fades into the next when a link is followed (below). */
-  --theme-page-fade: 0.35s;
+  --mo-comp-theme-page-fade: 0.35s;
   /* The space above a section of the front page (Section.astro), on a phone and from md, and above its first. */
-  --theme-section-space: 5rem;
-  --theme-section-space-large: 8rem;
-  --theme-home-first-space: var(--theme-section-space);
-  --theme-home-first-space-large: var(--theme-section-space-large);
+  --mo-comp-theme-section-space: 5rem;
+  --mo-comp-theme-section-space-large: 8rem;
+  --mo-comp-theme-home-first-space: var(--mo-comp-theme-section-space);
+  --mo-comp-theme-home-first-space-large: var(--mo-comp-theme-section-space-large);
   /* The space over the first block on the blog page, under the tags: its posts, close to them. */
-  --theme-blog-first-space: 2.5rem;
-  --theme-blog-first-space-large: 3.5rem;
+  --mo-comp-theme-blog-first-space: 2.5rem;
+  --mo-comp-theme-blog-first-space-large: 3.5rem;
   /* The column beside the text of a page (PageLayout.astro, the block src/data/side.json chooses): its width and the gap
      between it and the text, from md. */
-  --theme-side-width: 20rem;
-  --theme-side-gap: 3rem;
+  --mo-comp-theme-side-width: 20rem;
+  --mo-comp-theme-side-gap: 3rem;
   /* The logo (Logo.astro, and at the top of the menu on a phone): the mark (the site's logo) in a tile, its colour and
      size (a share of the mark's own), the name's weight and size, and the role (hidden with none; on a phone, and from md). */
-  --theme-logo-tile: transparent;
-  --theme-logo-tile-padding: 0;
-  --theme-logo-tile-radius: 0;
-  --theme-logo-mark: var(--mo-sys-color-primary);
-  --theme-logo-mark-scale: 1;
-  --theme-logo-name-weight: 500;
-  --theme-logo-name-size: 1em;
-  --theme-logo-role-display: block;
-  --theme-logo-role-display-large: block;
+  --mo-comp-theme-logo-tile: transparent;
+  --mo-comp-theme-logo-tile-padding: 0;
+  --mo-comp-theme-logo-tile-radius: 0;
+  --mo-comp-theme-logo-mark: var(--mo-sys-color-primary);
+  --mo-comp-theme-logo-mark-scale: 1;
+  --mo-comp-theme-logo-name-weight: 500;
+  --mo-comp-theme-logo-name-size: 1em;
+  --mo-comp-theme-logo-role-display: block;
+  --mo-comp-theme-logo-role-display-large: block;
   /* The images in the list of posts (PostList.tsx, the blog's other posts). */
-  --theme-post-picture-radius: var(--mo-sys-shape-corner-small);
+  --mo-comp-theme-post-picture-radius: var(--mo-sys-shape-corner-small);
   /* A page's and a post's title (.theme-title): display small on a phone, display medium from md (the type scale,
      ui.css). */
-  --theme-title-size: var(--mo-sys-typescale-display-small-size);
-  --theme-title-leading: var(--mo-sys-typescale-display-small-line-height);
-  --theme-title-size-large: var(--mo-sys-typescale-display-medium-size);
+  --mo-comp-theme-title-size: var(--mo-sys-typescale-display-small-size);
+  --mo-comp-theme-title-leading: var(--mo-sys-typescale-display-small-line-height);
+  --mo-comp-theme-title-size-large: var(--mo-sys-typescale-display-medium-size);
 }
 @media (width >= theme(--breakpoint-medium)) {
   :root {
-    --theme-title-leading: var(--mo-sys-typescale-display-medium-line-height);
+    --mo-comp-theme-title-leading: var(--mo-sys-typescale-display-medium-line-height);
   }
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --theme-scrim-colour: var(--mo-sys-color-surface);
-    --theme-on-scrim-colour: var(--mo-sys-color-on-surface);
+    --mo-comp-theme-scrim-colour: var(--mo-sys-color-surface);
+    --mo-comp-theme-on-scrim-colour: var(--mo-sys-color-on-surface);
   }
 }
 /* In dark mode the shade is the page's colour, as the text's is light. A theme sets --mo-comp-dialog-scrim and
    --mo-comp-navigation-drawer-scrim-color (ui.css) in its :root, and they hold in both modes. */
 :root[data-theme='dark'] {
-  --theme-scrim-colour: var(--mo-sys-color-surface);
-  --theme-on-scrim-colour: var(--mo-sys-color-on-surface);
+  --mo-comp-theme-scrim-colour: var(--mo-sys-color-surface);
+  --mo-comp-theme-on-scrim-colour: var(--mo-sys-color-on-surface);
 }
 /* The first section on the front page (templates/Home.astro). */
 @layer components {
   .theme-home-first {
-    --theme-section-space: var(--theme-home-first-space);
-    --theme-section-space-large: var(--theme-home-first-space-large);
+    --mo-comp-theme-section-space: var(--mo-comp-theme-home-first-space);
+    --mo-comp-theme-section-space-large: var(--mo-comp-theme-home-first-space-large);
   }
 }
 /* The first block on the blog page (templates/Blog.astro). */
 @layer components {
   .theme-blog-first {
-    --theme-section-space: var(--theme-blog-first-space);
-    --theme-section-space-large: var(--theme-blog-first-space-large);
+    --mo-comp-theme-section-space: var(--mo-comp-theme-blog-first-space);
+    --mo-comp-theme-section-space-large: var(--mo-comp-theme-blog-first-space-large);
   }
 }
 :root {
