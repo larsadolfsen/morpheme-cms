@@ -40,7 +40,7 @@ async function checkTypePage(width, height) {
       const sample = document.querySelector(`[data-type-sample="mo-type-${name}"]`);
       const spec = document.querySelector(`[data-type-spec="mo-type-${name}"]`);
       if (!sample || !spec) return { name, missing: true };
-      probe.style.cssText = `position:absolute;visibility:hidden;font-size:var(--type-${name}-size);line-height:var(--type-${name}-line-height);font-weight:var(--type-${name}-weight);letter-spacing:var(--type-${name}-tracking)`;
+      probe.style.cssText = `position:absolute;visibility:hidden;font-size:var(--mo-sys-typescale-${name}-size);line-height:var(--mo-sys-typescale-${name}-line-height);font-weight:var(--mo-sys-typescale-${name}-weight);letter-spacing:var(--mo-sys-typescale-${name}-tracking)`;
       const token = getComputedStyle(probe);
       const own = getComputedStyle(sample);
       const tracking = own.letterSpacing === 'normal' ? '0 px' : px(own.letterSpacing);
@@ -79,7 +79,7 @@ async function checkTypePage(width, height) {
     const px = (value) => `${Math.round(parseFloat(value) * 100) / 100} px`;
     const probe = document.createElement('div');
     probe.style.cssText =
-      'position:absolute;visibility:hidden;font-size:var(--type-body-medium-size);line-height:var(--type-body-medium-line-height);font-weight:var(--type-body-medium-weight)';
+      'position:absolute;visibility:hidden;font-size:var(--mo-sys-typescale-body-medium-size);line-height:var(--mo-sys-typescale-body-medium-line-height);font-weight:var(--mo-sys-typescale-body-medium-weight)';
     document.body.append(probe);
     const token = getComputedStyle(probe);
     const rows = [...document.querySelectorAll('[data-type-list-spec]')].map((spec) => {
@@ -160,7 +160,7 @@ async function checkTypographyHeadings(width, height) {
     const probe = document.createElement('div');
     document.body.append(probe);
     const read = (el, role) => {
-      probe.style.cssText = `position:absolute;visibility:hidden;font-size:var(--type-${role}-size);line-height:var(--type-${role}-line-height);font-weight:var(--type-${role}-weight);letter-spacing:var(--type-${role}-tracking)`;
+      probe.style.cssText = `position:absolute;visibility:hidden;font-size:var(--mo-sys-typescale-${role}-size);line-height:var(--mo-sys-typescale-${role}-line-height);font-weight:var(--mo-sys-typescale-${role}-weight);letter-spacing:var(--mo-sys-typescale-${role}-tracking)`;
       const token = getComputedStyle(probe);
       const own = getComputedStyle(el);
       return ['fontSize', 'lineHeight', 'fontWeight', 'letterSpacing'].map((key) => [key, own[key], token[key]]);

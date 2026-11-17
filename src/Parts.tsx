@@ -454,7 +454,11 @@ export default function Parts({ env }: { env: Env }) {
                   }
                 />
                 {/* With a sample of one of the theme's tokens before its name ("Parts" › "Values"). */}
-                <ListItem leading={<LeadingToken kind="shape" value="var(--radius)" />} headline={sample.corners} supporting="--radius" />
+                <ListItem
+                  leading={<LeadingToken kind="shape" value="var(--mo-sys-radius)" />}
+                  headline={sample.corners}
+                  supporting="--mo-sys-radius"
+                />
               </Group>
               <div className={row}>
                 <LeadingIcon icon={FolderSimple} />

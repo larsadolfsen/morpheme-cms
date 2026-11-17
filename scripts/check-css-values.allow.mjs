@@ -3,7 +3,7 @@
 export const allow = [
   {
     file: /base\.css$|blocks\.css$|tokens\/(base|blocks)\/sys\.css$/,
-    line: /^--(radius|radius-small|block-radius|block-radius-small|block-control-radius): /,
+    line: /^--mo-sys-(radius|radius-small|block-radius|block-radius-small|block-control-radius): /,
     reason: 'the fallback corners for a theme that sets no steps (global.css sets the ten steps and maps these to them)',
   },
   {

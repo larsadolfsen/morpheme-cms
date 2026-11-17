@@ -30,7 +30,7 @@
     }
   }
   .theme-post-list.list > li {
-    border-top: 1px solid var(--mo-outline-variant);
+    border-top: 1px solid var(--mo-sys-color-outline-variant);
   }
   .theme-post-picture {
     object-fit: cover;
@@ -42,7 +42,7 @@
      Base.astro). Not from the medium width (a tablet in portrait, a computer): the display rules name both classes, so
      they win over the sheet's own display and its data-wide="side-sheet" whatever the order of the files. */
   .theme-action-bar {
-    transition: transform var(--motion-spatial-slow);
+    transition: transform var(--mo-sys-motion-spring-slow-spatial);
   }
   .theme-action-bar[data-hidden] {
     transform: translateY(100%);
@@ -133,7 +133,7 @@
     ::view-transition-old(root),
     ::view-transition-new(root) {
       animation-duration: var(--theme-page-fade);
-      animation-timing-function: var(--ease);
+      animation-timing-function: var(--mo-sys-ease);
     }
   }
 
@@ -168,14 +168,14 @@
   .theme-title {
     font-size: var(--theme-title-size);
     line-height: var(--theme-title-leading);
-    font-weight: var(--type-display-small-weight);
-    letter-spacing: var(--type-display-small-tracking);
+    font-weight: var(--mo-sys-typescale-display-small-weight);
+    letter-spacing: var(--mo-sys-typescale-display-small-tracking);
   }
   @media (width >= theme(--breakpoint-medium)) {
     .theme-title {
       font-size: var(--theme-title-size-large);
-      font-weight: var(--type-display-medium-weight);
-      letter-spacing: var(--type-display-medium-tracking);
+      font-weight: var(--mo-sys-typescale-display-medium-weight);
+      letter-spacing: var(--mo-sys-typescale-display-medium-tracking);
     }
   }
 }

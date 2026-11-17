@@ -1403,7 +1403,7 @@ function textButtonWidth(label: string): number {
   if (width === undefined) {
     const ctx = document.createElement('canvas').getContext('2d');
     const root = getComputedStyle(document.body);
-    const given = root.getPropertyValue('--type-label-large-size').trim();
+    const given = root.getPropertyValue('--mo-sys-typescale-label-large-size').trim();
     const px = given.endsWith('rem') ? parseFloat(given) * 16 : parseFloat(given) || 14;
     if (ctx) ctx.font = `500 ${px}px ${root.fontFamily}`;
     width = Math.ceil((ctx?.measureText(label).width ?? label.length * 8) + 24);
@@ -3388,7 +3388,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       </Menu>
       <div
         ref={root}
-        className={`editor-text prose max-w-none rounded-b-panel border-x border-b border-outline-variant px-(--mo-grid-margin) py-4 ${short ? 'editor-text-short' : ''} ${spaced ? 'editor-spaced' : ''}`}
+        className={`editor-text prose max-w-none rounded-b-panel border-x border-b border-outline-variant px-(--mo-sys-grid-margin) py-4 ${short ? 'editor-text-short' : ''} ${spaced ? 'editor-spaced' : ''}`}
         style={
           { '--editor-gap-text': JSON.stringify(t.text.typeHere), '--editor-empty-text': JSON.stringify(t.text.emptyHint) } as CSSProperties
         }

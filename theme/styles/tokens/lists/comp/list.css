@@ -11,7 +11,7 @@
 @layer components {
   .block-list,
   .block-accordion {
-    --list-item-image-radius: var(--mo-shape-small);
+    --list-item-image-radius: var(--mo-sys-shape-corner-small);
   }
 }
 /* The plain design of a list (its rows on the page, no drawn container) starts its rows' own content, the leading icon or else the text, on the text's
@@ -32,7 +32,7 @@
 @layer components {
   @media (width < theme(--breakpoint-medium)) {
     .block-list:not(.list-segmented) {
-      --list-item-padding-inline: var(--block-list-layer-room);
+      --list-item-padding-inline: var(--mo-sys-block-list-layer-room);
       /* Edge to edge, a row's layer has no rounded corners, at rest, pointed at, pressed or selected (owner, 16 Nov 2026: "No border radius when full width"). */
       --list-item-radius: 0;
       --list-item-hover-radius: 0;
@@ -44,7 +44,7 @@
 @layer components {
   @media (width < theme(--breakpoint-medium)) {
     .block-accordion:not(.block-accordion-segmented) {
-      --list-expand-padding-inline: var(--block-list-layer-room);
+      --list-expand-padding-inline: var(--mo-sys-block-list-layer-room);
       /* Edge to edge, an open item's colour has square corners too. */
       --list-expand-open-radius: 0;
       --list-expand-radius: 0;

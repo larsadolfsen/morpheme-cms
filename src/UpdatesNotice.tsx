@@ -124,7 +124,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
       as="section"
       role="status"
       aria-labelledby="updates-title"
-      className="mb-8 [--card-elevated-shadow:var(--mo-elevation-1-shadow)] [--card-padding:0]"
+      className="mb-8 [--card-elevated-shadow:var(--mo-sys-elevation-level1-shadow)] [--card-padding:0]"
     >
       <div className="grid overflow-hidden rounded-[inherit] medium:grid-cols-[minmax(10rem,14rem)_1fr]">
         {edition && (
@@ -135,7 +135,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
         <div className="flex min-w-0 flex-col p-4">
           <h2
             id="updates-title"
-            className="text-[length:var(--type-headline-small-size)] leading-[var(--type-headline-small-line-height)] [overflow-wrap:anywhere]"
+            className="text-[length:var(--mo-sys-typescale-headline-small-size)] leading-[var(--mo-sys-typescale-headline-small-line-height)] [overflow-wrap:anywhere]"
           >
             {title}
           </h2>

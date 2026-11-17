@@ -1,29 +1,29 @@
 /* The editor's parts are the theme's UI parts (ui.tsx), in the theme's design; its own parts take the theme's variables
-   (--block-radius, --block-radius-small, --block-shadow). Only what is the editor's alone is here. Low specificity
+   (--mo-sys-block-radius, --mo-sys-block-radius-small, --mo-sys-block-shadow). Only what is the editor's alone is here. Low specificity
    (:where), so a theme's :root wins. */
 @reference '../theme/styles/base.css';
 
 /* Density (theme/styles/base.css) reaches the editor's own screens, not the page and post editing area: what is typed in place
-   there keeps the theme's own step (--mo-density-base) at every choice, as on the site, so a block is drawn as it will be. The
+   there keeps the theme's own step (--mo-sys-density-base) at every choice, as on the site, so a block is drawn as it will be. The
    derived variables are computed where they are declared, so they are declared again here. */
 .editor-text .ProseMirror {
-  --mo-density-user: 0;
-  --mo-density: clamp(-3, var(--mo-density-base), 1);
-  --mo-density-layout: clamp(-1, var(--mo-density-base), 1);
-  --mo-density-focus: clamp(0, var(--mo-density-base), 1);
+  --mo-sys-density-user: 0;
+  --mo-sys-density: clamp(-3, var(--mo-sys-density-base), 1);
+  --mo-sys-density-layout: clamp(-1, var(--mo-sys-density-base), 1);
+  --mo-sys-density-focus: clamp(0, var(--mo-sys-density-base), 1);
 }
 /* The rows that pick the density are always at the default size, so a person can always go back. */
 [data-density-fixed] {
-  --mo-density-user: 0;
-  --mo-density: 0;
-  --mo-density-layout: 0;
-  --mo-density-focus: 0;
+  --mo-sys-density-user: 0;
+  --mo-sys-density: 0;
+  --mo-sys-density-layout: 0;
+  --mo-sys-density-focus: 0;
 }
 
 :where(:root) {
   /* The menus and the toolbar of the text: Material 3's menu surface and shadow (elevation level 2). */
-  --editor-menu-surface: var(--mo-surface-container-lowest);
-  --editor-menu-shadow: var(--mo-elevation-2-shadow);
+  --editor-menu-surface: var(--mo-sys-color-surface-container-lowest);
+  --editor-menu-shadow: var(--mo-sys-elevation-level2-shadow);
 
   /* The room a screen leaves above its footer for the FAB (Screen.tsx data-clearance): the FAB's 56 dp and its 16 dp margins. */
   --fab-room: 4.5rem;
@@ -33,13 +33,13 @@
      light circle in it; the same in every theme. */
   --editor-status-good: #0cce6b;
   --editor-status-good-text: light-dark(#008800, var(--editor-status-good));
-  --editor-status-good-surface: color-mix(in srgb, #0cce6b 10%, var(--mo-surface-container-lowest));
+  --editor-status-good-surface: color-mix(in srgb, #0cce6b 10%, var(--mo-sys-color-surface-container-lowest));
   --editor-status-average: #ffa400;
   --editor-status-average-text: light-dark(#c33300, var(--editor-status-average));
-  --editor-status-average-surface: color-mix(in srgb, #ffa400 10%, var(--mo-surface-container-lowest));
+  --editor-status-average-surface: color-mix(in srgb, #ffa400 10%, var(--mo-sys-color-surface-container-lowest));
   --editor-status-bad: #ff4e42;
   --editor-status-bad-text: light-dark(#cc0000, var(--editor-status-bad));
-  --editor-status-bad-surface: color-mix(in srgb, #ff4e42 10%, var(--mo-surface-container-lowest));
+  --editor-status-bad-surface: color-mix(in srgb, #ff4e42 10%, var(--mo-sys-color-surface-container-lowest));
 
   /* A Google result (SearchPreview.tsx) in Google's own colours, light and dark (light-dark() follows the
      root's color-scheme, so the system setting and data-theme both work): its background, the title (on a computer, and on a phone), the site's name, the address and the text, the date before the text, and the 8 px band above and below a
@@ -58,7 +58,7 @@
 
   /* The dotted frame round an H2 section of a page or blog post (sectionFrame.ts): its line, the space between the line and
      the text, the space above a section, and the space between two parts inside it (em: it scales with the part's text). */
-  --editor-section-frame: 2px dotted var(--block-line);
+  --editor-section-frame: 2px dotted var(--mo-sys-block-line);
   --editor-section-pad: 1rem;
   --editor-section-gap: 2rem;
   --editor-section-rhythm: 0.625em;
@@ -70,14 +70,14 @@
   --editor-frame-line: 1.5px;
 
   /* A form's "on this page" area (SectionPane in ui.tsx) against the window's end edge: its width (the card is as wide as the navigation drawer), the card in it
-     stands --section-pane-gap in from the end edge and from the window's top edge. */
-  --section-pane-width: calc(var(--navigation-drawer-width, 22.5rem) + var(--section-pane-gap));
-  --section-pane-gap: 2rem;
+     stands --mo-sys-section-pane-gap in from the end edge and from the window's top edge. */
+  --mo-sys-section-pane-width: calc(var(--navigation-drawer-width, 22.5rem) + var(--mo-sys-section-pane-gap));
+  --mo-sys-section-pane-gap: 2rem;
 
   /* The side panel of a block's fields and the section settings (BlockDialog's standard side sheet from expanded, BottomSheet
      `panel` in ui.tsx from large): M3's side sheet is 400dp (25rem) wide at most; where the window is narrower it is half
      the space beside the start panel, the content column taking the other half (see below). */
-  --side-panel-width: min(25rem, calc((100vw - var(--column-start)) / 2));
+  --side-panel-width: min(25rem, calc((100vw - var(--mo-sys-column-start)) / 2));
 }
 
 /* The text field (MarkdownEditor.tsx). The rest of the editor uses the site's Tailwind classes. */
@@ -98,7 +98,7 @@
   position: absolute;
   inset: 0 -0.5rem;
   pointer-events: none;
-  border: 0 dotted var(--mo-primary);
+  border: 0 dotted var(--mo-sys-color-primary);
   border-inline-width: 2px;
 }
 .editor-text .ProseMirror:focus-visible > [data-section-focus]:is([data-section-box], [data-section-width='full'])::after {
@@ -114,7 +114,7 @@
 }
 /* The section's own dotted line, at the start of an H2 section, takes the same clear line while the section has the focus. */
 .editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus] {
-  border-block-start-color: var(--mo-primary);
+  border-block-start-color: var(--mo-sys-color-primary);
 }
 .editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus]::after {
   inset-block-start: -2px;
@@ -145,7 +145,7 @@
   top: 0.25em;
   width: 1.25em;
   height: 1.25em;
-  background-color: color-mix(in srgb, var(--mo-primary) 35%, transparent);
+  background-color: color-mix(in srgb, var(--mo-sys-color-primary) 35%, transparent);
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E")
     center / contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E")
@@ -153,7 +153,7 @@
   cursor: pointer;
 }
 .editor-text .ProseMirror li[data-item-type='task'][data-checked='true']::before {
-  background-color: var(--mo-primary);
+  background-color: var(--mo-sys-color-primary);
 }
 
 /* Milkdown puts a paragraph in every list item; on the site, short lists have none. */
@@ -161,10 +161,10 @@
   margin-block: 0;
 }
 
-/* The text field's own padding (MarkdownEditor.tsx: px-(--mo-grid-margin) py-4); a section of the whole width reaches out of it. The sides are the theme's
+/* The text field's own padding (MarkdownEditor.tsx: px-(--mo-sys-grid-margin) py-4); a section of the whole width reaches out of it. The sides are the theme's
    page margin, as on the site (16 dp compact, 24 dp from medium), so the text starts at the same distance from its edge as on the site. */
 .editor-text {
-  --editor-pad-x: var(--mo-grid-margin, 1rem);
+  --editor-pad-x: var(--mo-sys-grid-margin, 1rem);
   --editor-pad-y: 1rem;
 }
 
@@ -189,14 +189,14 @@
 }
 
 .editor-text .ProseMirror > :is([data-section-box='start'], [data-section-box='only']) {
-  border-start-start-radius: var(--block-radius);
-  border-start-end-radius: var(--block-radius);
+  border-start-start-radius: var(--mo-sys-block-radius);
+  border-start-end-radius: var(--mo-sys-block-radius);
   padding-block-start: var(--editor-section-pad);
 }
 
 .editor-text .ProseMirror > :is([data-section-box='end'], [data-section-box='only']) {
-  border-end-start-radius: var(--block-radius);
-  border-end-end-radius: var(--block-radius);
+  border-end-start-radius: var(--mo-sys-block-radius);
+  border-end-end-radius: var(--mo-sys-block-radius);
   /* The space below a section's text belongs inside its colour: it runs down to the next section's divider (or the end of the text). */
   padding-block-end: calc(var(--editor-section-pad) + var(--editor-section-gap));
 }
@@ -230,55 +230,55 @@
 /* The colours are the theme's own (blocks.css). On a colour with its own text colour, the prose colours take it, so headings, bold
    and links stay readable. */
 .editor-text .ProseMirror > [data-section-color='surface'] {
-  background: var(--block-surface);
+  background: var(--mo-sys-block-surface);
 }
 
 .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary']) {
-  --tw-prose-body: var(--section-on);
-  --tw-prose-headings: var(--section-on);
-  --tw-prose-bold: var(--section-on);
-  --tw-prose-links: var(--section-on);
-  --tw-prose-bullets: var(--section-on);
-  --tw-prose-counters: var(--section-on);
-  --tw-prose-code: var(--section-on);
-  --tw-prose-quotes: var(--section-on);
-  --tw-prose-quote-borders: var(--section-on);
-  --tw-prose-captions: var(--section-on);
-  --tw-prose-hr: var(--section-on);
-  --section-accent: var(--section-fill);
-  --section-on-accent: var(--section-on);
-  background: var(--section-fill);
-  color: var(--section-on);
+  --tw-prose-body: var(--mo-sys-section-on);
+  --tw-prose-headings: var(--mo-sys-section-on);
+  --tw-prose-bold: var(--mo-sys-section-on);
+  --tw-prose-links: var(--mo-sys-section-on);
+  --tw-prose-bullets: var(--mo-sys-section-on);
+  --tw-prose-counters: var(--mo-sys-section-on);
+  --tw-prose-code: var(--mo-sys-section-on);
+  --tw-prose-quotes: var(--mo-sys-section-on);
+  --tw-prose-quote-borders: var(--mo-sys-section-on);
+  --tw-prose-captions: var(--mo-sys-section-on);
+  --tw-prose-hr: var(--mo-sys-section-on);
+  --mo-sys-section-accent: var(--mo-sys-section-fill);
+  --mo-sys-section-on-accent: var(--mo-sys-section-on);
+  background: var(--mo-sys-section-fill);
+  color: var(--mo-sys-section-on);
 }
 
 .editor-text .ProseMirror {
-  --page-primary-container: var(--mo-primary-container, var(--block-tint));
-  --page-on-primary-container: var(--mo-on-primary-container, var(--block-text));
-  --page-secondary-container: var(--mo-secondary-container, var(--block-tint));
-  --page-on-secondary-container: var(--mo-on-secondary-container, var(--block-text));
-  --page-tertiary-container: var(--mo-tertiary-container, var(--block-tint));
-  --page-on-tertiary-container: var(--mo-on-tertiary-container, var(--block-text));
+  --page-primary-container: var(--mo-sys-color-primary-container, var(--mo-sys-block-tint));
+  --page-on-primary-container: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-text));
+  --page-secondary-container: var(--mo-sys-color-secondary-container, var(--mo-sys-block-tint));
+  --page-on-secondary-container: var(--mo-sys-color-on-secondary-container, var(--mo-sys-block-text));
+  --page-tertiary-container: var(--mo-sys-color-tertiary-container, var(--mo-sys-block-tint));
+  --page-on-tertiary-container: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-text));
 }
 
 .editor-text .ProseMirror > [data-section-color='primary'] {
-  --section-fill: var(--block-primary);
-  --section-on: var(--block-on-primary);
-  --section-container: var(--page-primary-container);
-  --section-on-container: var(--page-on-primary-container);
+  --mo-sys-section-fill: var(--mo-sys-block-primary);
+  --mo-sys-section-on: var(--mo-sys-block-on-primary);
+  --mo-sys-section-container: var(--page-primary-container);
+  --mo-sys-section-on-container: var(--page-on-primary-container);
 }
 
 .editor-text .ProseMirror > [data-section-color='secondary'] {
-  --section-fill: var(--block-secondary);
-  --section-on: var(--block-on-secondary);
-  --section-container: var(--page-secondary-container);
-  --section-on-container: var(--page-on-secondary-container);
+  --mo-sys-section-fill: var(--mo-sys-block-secondary);
+  --mo-sys-section-on: var(--mo-sys-block-on-secondary);
+  --mo-sys-section-container: var(--page-secondary-container);
+  --mo-sys-section-on-container: var(--page-on-secondary-container);
 }
 
 .editor-text .ProseMirror > [data-section-color='tertiary'] {
-  --section-fill: var(--block-tertiary);
-  --section-on: var(--block-on-tertiary);
-  --section-container: var(--page-tertiary-container);
-  --section-on-container: var(--page-on-tertiary-container);
+  --mo-sys-section-fill: var(--mo-sys-block-tertiary);
+  --mo-sys-section-on: var(--mo-sys-block-on-tertiary);
+  --mo-sys-section-container: var(--page-tertiary-container);
+  --mo-sys-section-on-container: var(--page-on-tertiary-container);
 }
 
 /* The image behind a section (the widget before its first part, placed over the section's parts by sectionFrame.ts): it fills
@@ -289,30 +289,30 @@
 }
 
 .editor-text .editor-section-picture {
-  --section-shade: var(--block-hero-shade, var(--block-text));
+  --mo-sys-section-shade: var(--mo-sys-block-hero-shade, var(--mo-sys-block-text));
   position: absolute;
   z-index: 0;
   margin: 0;
   overflow: hidden;
   pointer-events: none;
-  background: var(--section-shade);
-  border-radius: var(--block-radius);
+  background: var(--mo-sys-section-shade);
+  border-radius: var(--mo-sys-block-radius);
 }
 
 .editor-text .editor-section-picture[data-color='surface'] {
-  --section-shade: var(--block-surface);
+  --mo-sys-section-shade: var(--mo-sys-block-surface);
 }
 
 .editor-text .editor-section-picture[data-color='primary'] {
-  --section-shade: var(--block-primary);
+  --mo-sys-section-shade: var(--mo-sys-block-primary);
 }
 
 .editor-text .editor-section-picture[data-color='secondary'] {
-  --section-shade: var(--block-secondary);
+  --mo-sys-section-shade: var(--mo-sys-block-secondary);
 }
 
 .editor-text .editor-section-picture[data-color='tertiary'] {
-  --section-shade: var(--block-tertiary);
+  --mo-sys-section-shade: var(--mo-sys-block-tertiary);
 }
 
 .editor-text .editor-section-picture[data-width='full'] {
@@ -335,9 +335,9 @@
   inset: 0;
   background: linear-gradient(
     to top,
-    color-mix(in srgb, var(--section-shade) 85%, transparent),
-    color-mix(in srgb, var(--section-shade) 55%, transparent) 70%,
-    color-mix(in srgb, var(--section-shade) 40%, transparent)
+    color-mix(in srgb, var(--mo-sys-section-shade) 85%, transparent),
+    color-mix(in srgb, var(--mo-sys-section-shade) 55%, transparent) 70%,
+    color-mix(in srgb, var(--mo-sys-section-shade) 40%, transparent)
   );
 }
 
@@ -354,22 +354,22 @@
    are the swapped nodes, so they are kept one level up). A part on an image reads them, never its own swapped --block-… (that would
    point at itself and every colour of the part would be lost: the text then falls back to the page's, dark on the dark scrim). */
 .editor-text .ProseMirror {
-  --section-text: var(--block-text);
-  --section-surface: var(--block-surface);
-  --section-picture-fill: var(--block-hero-shade, var(--block-text));
-  --section-picture-on-fill: var(--block-hero-on-shade, var(--block-surface));
+  --mo-sys-section-text: var(--mo-sys-block-text);
+  --mo-sys-section-surface: var(--mo-sys-block-surface);
+  --mo-sys-section-picture-fill: var(--mo-sys-block-hero-shade, var(--mo-sys-block-text));
+  --mo-sys-section-picture-on-fill: var(--mo-sys-block-hero-on-shade, var(--mo-sys-block-surface));
 }
 
 .editor-text .ProseMirror > [data-section-picture]:not([data-section-color]) {
-  --tw-prose-body: var(--section-picture-on-fill);
-  --tw-prose-headings: var(--section-picture-on-fill);
-  --tw-prose-bold: var(--section-picture-on-fill);
-  --tw-prose-links: var(--section-picture-on-fill);
-  --tw-prose-bullets: var(--section-picture-on-fill);
-  --tw-prose-counters: var(--section-picture-on-fill);
-  --section-accent: var(--section-picture-fill);
-  --section-on-accent: var(--section-picture-on-fill);
-  color: var(--section-picture-on-fill);
+  --tw-prose-body: var(--mo-sys-section-picture-on-fill);
+  --tw-prose-headings: var(--mo-sys-section-picture-on-fill);
+  --tw-prose-bold: var(--mo-sys-section-picture-on-fill);
+  --tw-prose-links: var(--mo-sys-section-picture-on-fill);
+  --tw-prose-bullets: var(--mo-sys-section-picture-on-fill);
+  --tw-prose-counters: var(--mo-sys-section-picture-on-fill);
+  --mo-sys-section-accent: var(--mo-sys-section-picture-fill);
+  --mo-sys-section-on-accent: var(--mo-sys-section-picture-on-fill);
+  color: var(--mo-sys-section-picture-on-fill);
 }
 
 .editor-text .ProseMirror > [data-section-picture][data-section-width='full'] {
@@ -382,18 +382,18 @@
   display: inline-block;
   max-width: 100%;
   overflow-wrap: anywhere;
-  border-radius: var(--mo-shape-small);
-  background: var(--mo-surface-container-high);
+  border-radius: var(--mo-sys-shape-corner-small);
+  background: var(--mo-sys-color-surface-container-high);
   padding: 0 0.4em;
   font-family: ui-monospace, monospace;
   font-size: 0.8em;
-  color: var(--mo-on-surface-variant);
+  color: var(--mo-sys-color-on-surface-variant);
 }
 
 /* The bar with "Save" (FormFrame.tsx) slides up when something has been changed; the messages
    (App.tsx) then go above it. */
 .editor-save-bar {
-  animation: editor-rise var(--motion-spatial-fast);
+  animation: editor-rise var(--mo-sys-motion-spring-fast-spatial);
 }
 
 @keyframes editor-rise {
@@ -442,13 +442,13 @@
    when it has no box of its own (an image, icons, a switcher). It stays until the next try or a change. */
 .editor-wrong .text-field-input {
   box-shadow:
-    inset 0 0 0 2px var(--mo-primary),
-    0 0 0 3px color-mix(in srgb, var(--mo-primary) 25%, transparent);
+    inset 0 0 0 2px var(--mo-sys-color-primary),
+    0 0 0 3px color-mix(in srgb, var(--mo-sys-color-primary) 25%, transparent);
 }
 
 .editor-wrong:not(:has(.text-field-input)) {
-  border-radius: var(--mo-shape-large);
-  outline: 2px solid var(--mo-primary);
+  border-radius: var(--mo-sys-shape-corner-large);
+  outline: 2px solid var(--mo-sys-color-primary);
   outline-offset: 6px;
 }
 
@@ -465,7 +465,7 @@
 @keyframes editor-flash {
   50% {
     box-shadow:
-      inset 0 0 0 1px var(--mo-outline-variant),
+      inset 0 0 0 1px var(--mo-sys-color-outline-variant),
       0 0 0 3px transparent;
   }
 }
@@ -497,30 +497,30 @@
    the phone or computer does not ask for less motion. */
 @media (prefers-reduced-motion: no-preference) {
   .editor-sheet[open] {
-    animation: editor-sheet-in var(--motion-spatial);
+    animation: editor-sheet-in var(--mo-sys-motion-spring-default-spatial);
   }
 
   .editor-sheet[open]::backdrop {
-    animation: editor-fade var(--motion-effects);
+    animation: editor-fade var(--mo-sys-motion-spring-default-effects);
   }
 
   @media (width >= theme(--breakpoint-medium)) {
     .editor-sheet[open] {
-      animation: editor-pop var(--motion-spatial-fast);
+      animation: editor-pop var(--mo-sys-motion-spring-fast-spatial);
     }
   }
 
   /* The main drawer (MainDrawer in ui.tsx) slides in from the start edge: the left, the right when the text runs right to left. */
   .editor-main-drawer[open] {
-    animation: editor-main-drawer-in var(--motion-spatial);
+    animation: editor-main-drawer-in var(--mo-sys-motion-spring-default-spatial);
   }
 
   .editor-main-drawer[open]::backdrop {
-    animation: editor-fade var(--motion-effects);
+    animation: editor-fade var(--mo-sys-motion-spring-default-effects);
   }
 
   .editor-screen {
-    animation: editor-enter var(--motion-spatial);
+    animation: editor-enter var(--mo-sys-motion-spring-default-spatial);
     /* A chip set that scrolls reaches out to the screen's edges: the screen's gutter (px-4, medium:px-6 in Screen.tsx). */
     --chip-set-bleed: 1rem;
   }
@@ -531,14 +531,14 @@
   }
 
   .editor-reveal {
-    animation: editor-enter var(--motion-spatial-fast);
+    animation: editor-enter var(--mo-sys-motion-spring-fast-spatial);
   }
 
   .editor-fade-in {
     opacity: 0;
     transition:
-      opacity var(--motion-effects),
-      scale var(--motion-spatial);
+      opacity var(--mo-sys-motion-spring-default-effects),
+      scale var(--mo-sys-motion-spring-default-spatial);
   }
 
   .editor-fade-in[data-loaded] {
@@ -549,8 +549,8 @@
   @layer base {
     :is(button, a):not(:disabled, .ProseMirror *) {
       transition:
-        background-color var(--motion-effects-fast),
-        color var(--motion-effects-fast);
+        background-color var(--mo-sys-motion-spring-fast-effects),
+        color var(--mo-sys-motion-spring-fast-effects);
     }
   }
 }
@@ -589,13 +589,13 @@
 .editor-main-drawer-header {
   --list-item-padding-block: 0.375rem;
   --list-item-two-line-min-height: var(--navigation-drawer-item-height, 3.5rem);
-  --editor-drawer-header-text: var(--navigation-drawer-item-text, var(--block-muted));
+  --editor-drawer-header-text: var(--navigation-drawer-item-text, var(--mo-sys-block-muted));
   --editor-drawer-header-padding: calc(
     var(--navigation-drawer-item-padding-inline, 1rem) - (var(--list-item-avatar-size, 2.5rem) - 1.5rem) / 2
   );
   --list-item-padding-inline: var(--editor-drawer-header-padding);
-  --list-item-radius: var(--navigation-drawer-item-radius, var(--mo-shape-full));
-  --list-item-hover-radius: var(--navigation-drawer-item-radius, var(--mo-shape-full));
+  --list-item-radius: var(--navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
+  --list-item-hover-radius: var(--navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
   --list-item-hover-surface: var(--navigation-drawer-item-hover, color-mix(in srgb, var(--editor-drawer-header-text) 8%, transparent));
   --list-item-pressed-surface: var(--navigation-drawer-item-pressed, color-mix(in srgb, var(--editor-drawer-header-text) 10%, transparent));
   --list-item-hover-text: inherit;
@@ -607,7 +607,7 @@
 
 .editor-main-drawer-header .list-item-avatar {
   box-sizing: border-box;
-  border: 1px solid var(--block-line);
+  border: 1px solid var(--mo-sys-block-line);
 }
 
 /* From medium the drawers (MainDrawer in ui.tsx) take the rail's place (MainRail): they share its icon column, the middle
@@ -619,7 +619,7 @@
   }
 }
 
-/* The editor's drawers keep one width through their levels and sections (the layout beside them counts on it: --section-pane-width and
+/* The editor's drawers keep one width through their levels and sections (the layout beside them counts on it: --mo-sys-section-pane-width and
    the columns); the theme's drawer hugs its content (the expanded rail). An editor-only choice (docs/material-deviations.md, N2). */
 .editor-main-drawer-panel {
   --navigation-drawer-width: min(22.5rem, calc(100vw - 3.5rem));
@@ -635,7 +635,7 @@
 
 /* The rail (and the room above it for a phone's notch) in the open drawer's colour, so it does not change when the drawer opens. */
 .editor-main-rail-frame {
-  --navigation-rail-surface: var(--navigation-drawer-surface, var(--mo-surface-container-low, var(--mo-surface)));
+  --navigation-rail-surface: var(--navigation-drawer-surface, var(--mo-sys-color-surface-container-low, var(--mo-sys-color-surface)));
 }
 
 @keyframes editor-pop {
@@ -715,79 +715,79 @@
 /* The type of the "on this page" card (SectionPane and SectionList in ui.tsx), from the theme's type roles: the small
    caption, the form's name under it, and a section's name (the one in view in medium weight). */
 .section-pane-caption {
-  font-size: var(--type-label-small-size);
-  line-height: var(--type-label-small-line-height);
-  font-weight: var(--type-label-small-weight);
-  letter-spacing: var(--type-label-small-tracking);
+  font-size: var(--mo-sys-typescale-label-small-size);
+  line-height: var(--mo-sys-typescale-label-small-line-height);
+  font-weight: var(--mo-sys-typescale-label-small-weight);
+  letter-spacing: var(--mo-sys-typescale-label-small-tracking);
 }
 .section-pane-title {
-  font-size: var(--type-headline-small-size);
-  line-height: var(--type-headline-small-line-height);
-  font-weight: var(--type-headline-small-weight);
-  letter-spacing: var(--type-headline-small-tracking);
+  font-size: var(--mo-sys-typescale-headline-small-size);
+  line-height: var(--mo-sys-typescale-headline-small-line-height);
+  font-weight: var(--mo-sys-typescale-headline-small-weight);
+  letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
 }
 .section-list-item {
-  font-size: var(--type-body-medium-size);
-  line-height: var(--type-body-medium-line-height);
-  font-weight: var(--type-body-medium-weight);
-  letter-spacing: var(--type-body-medium-tracking);
+  font-size: var(--mo-sys-typescale-body-medium-size);
+  line-height: var(--mo-sys-typescale-body-medium-line-height);
+  font-weight: var(--mo-sys-typescale-body-medium-weight);
+  letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
 }
 .section-list-item[aria-current='location'] {
-  font-weight: var(--type-label-medium-weight);
+  font-weight: var(--mo-sys-typescale-label-medium-weight);
 }
 
 /* The content column (.editor-column: Screen.tsx's tabs row and its main) stands centred on the window, not in the space
-   beside the panels. --column-start and --column-end are the widths of the panels beside the content: the navigation
+   beside the panels. --mo-sys-column-start and --mo-sys-column-end are the widths of the panels beside the content: the navigation
    rail from medium, the standard drawer instead of it from expanded while it is open (:root[data-sidebar='open']; the
    modal drawer below expanded is over the content, so the rail counts), and the "on this page" area at the end from large
-   (.editor-section-pane). The column keeps its width (--column-width, set by Screen.tsx) and moves off the middle only as
+   (.editor-section-pane). The column keeps its width (--mo-sys-column-width, set by Screen.tsx) and moves off the middle only as
    far as it must to stay clear of the panels: its start margin is the middle of the window less the start panel, but
    not less than nothing and not more than the space left between the panels less the column. Only when that space is
    smaller than the column does it get narrower. (Measured against the window's width, 100vw, scrollbar and all.) Below
    medium nothing stands beside the content and the column is centred by auto margins. While the side panel is open (see
    the end of this block) the column is centred in the space between the start panel and the side panel by auto margins
-   (the content's end padding keeps it clear of the panel), still no wider than --column-width. */
+   (the content's end padding keeps it clear of the panel), still no wider than --mo-sys-column-width. */
 :root {
-  --column-start: 0px;
-  --column-end: 0px;
+  --mo-sys-column-start: 0px;
+  --mo-sys-column-end: 0px;
 }
 .editor-column {
   /* The site's text column (PostLayout.astro: max-w-3xl); a form with its fields beside the text is wider (Screen.tsx `panel`). */
-  --column-width: theme(--container-3xl);
-  max-width: var(--column-width);
+  --mo-sys-column-width: theme(--container-3xl);
+  max-width: var(--mo-sys-column-width);
   margin-inline: auto;
 }
 @media (width >= theme(--breakpoint-medium)) {
   :root {
-    --column-start: var(--navigation-rail-width, 5.5rem);
+    --mo-sys-column-start: var(--navigation-rail-width, 5.5rem);
   }
   .editor-column {
     margin-inline-start: clamp(
       0px,
-      (100vw - var(--column-width)) / 2 - var(--column-start),
-      100vw - var(--column-start) - var(--column-end) - var(--column-width)
+      (100vw - var(--mo-sys-column-width)) / 2 - var(--mo-sys-column-start),
+      100vw - var(--mo-sys-column-start) - var(--mo-sys-column-end) - var(--mo-sys-column-width)
     );
     margin-inline-end: auto;
   }
 }
 @media (width >= theme(--breakpoint-expanded)) {
   :root[data-sidebar='open'] {
-    --column-start: var(--navigation-drawer-width, 22.5rem);
+    --mo-sys-column-start: var(--navigation-drawer-width, 22.5rem);
   }
 }
 
 /* The "on this page" area (FormColumns' `pane` in ui.tsx) stands against the window's end edge on large and wider: the
-   content keeps clear of it (its end padding; --column-end tells the column, so it stays centred on the window while
+   content keeps clear of it (its end padding; --mo-sys-column-end tells the column, so it stays centred on the window while
    there is room), and the save bar ends where the area begins. */
 @media (width >= theme(--breakpoint-large)) {
   :root:has(.editor-section-pane:not([hidden] *)) {
-    --column-end: var(--section-pane-width);
+    --mo-sys-column-end: var(--mo-sys-section-pane-width);
   }
   .editor-content:has(.editor-section-pane:not([hidden] *)) {
-    padding-inline-end: var(--section-pane-width);
+    padding-inline-end: var(--mo-sys-section-pane-width);
   }
   :root:has(.editor-section-pane:not([hidden] *)) .editor-save-bar {
-    right: var(--section-pane-width);
+    right: var(--mo-sys-section-pane-width);
   }
 
   /* BottomSheet's `panel` (.editor-side-panel): the theme's modal side sheet at the window's end edge, the full window
@@ -811,7 +811,7 @@
    start edge, it takes the "on this page" area's place (that is hidden), and the content, which stays in use, keeps clear of it. */
 @media (width >= theme(--breakpoint-medium)) {
   :root[data-side-panel] {
-    --column-end: var(--side-panel-width);
+    --mo-sys-column-end: var(--side-panel-width);
   }
   :root[data-side-panel] .editor-section-pane {
     display: none;
@@ -892,18 +892,18 @@ html {
   position: relative;
   /* The dotted outline is a Card's: its corner radius and padding, the theme's tokens (the same fallbacks as .card), so the action row, the items and the
      add button line up inside it. */
-  border-radius: var(--card-radius, var(--block-radius));
-  border: var(--editor-frame-line) dashed color-mix(in srgb, var(--mo-on-surface-variant) 45%, transparent);
+  border-radius: var(--card-radius, var(--mo-sys-block-radius));
+  border: var(--editor-frame-line) dashed color-mix(in srgb, var(--mo-sys-color-on-surface-variant) 45%, transparent);
   padding-block: var(--card-padding, 1rem);
   padding-inline: calc(var(--editor-frame-outset) - var(--editor-frame-line));
   text-align: left;
   cursor: pointer;
-  transition: border-color var(--motion-effects);
+  transition: border-color var(--mo-sys-motion-spring-default-effects);
 }
 
 .editor-text .site-block-card:hover,
 .editor-text .site-block-card[aria-pressed='true'] {
-  border-color: var(--mo-primary);
+  border-color: var(--mo-sys-color-primary);
 }
 
 .editor-text .site-block-handle {
@@ -911,7 +911,7 @@ html {
   top: 0.25rem;
   /* The block's top left corner (owner, 16 Nov): the one place to drag a block. A 48 dp touch target, drawn inside the frame, its edge 24 dp in from the frame's left
      edge, where the selection mark's 48 dp target (centred on the outline's corner curve) ends, so the two never overlap (the card is the frame outset wider than the block on each side). */
-  left: calc(var(--card-radius, var(--block-radius)) * 0.2929 + 0.53px + 1.5rem - var(--editor-frame-outset));
+  left: calc(var(--card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px + 1.5rem - var(--editor-frame-outset));
   z-index: 2;
   display: flex;
   align-items: center;
@@ -921,11 +921,11 @@ html {
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--mo-surface) 80%, transparent);
-  color: var(--mo-on-surface-variant);
+  background: color-mix(in srgb, var(--mo-sys-color-surface) 80%, transparent);
+  color: var(--mo-sys-color-on-surface-variant);
   cursor: grab;
   touch-action: none;
-  transition: opacity var(--motion-effects);
+  transition: opacity var(--mo-sys-motion-spring-default-effects);
 }
 
 /* The active block's action row (blockRow.ts): inside the block's dotted outline (the card), at the top of its padding, 48 dp high, with the drag handle at its start, in the card's flow so
@@ -961,8 +961,8 @@ html {
 .editor-text .site-block-row-hover .site-block-row-inner {
   inline-size: fit-content;
   margin-inline-start: auto;
-  border-radius: var(--mo-shape-full);
-  background: var(--mo-surface);
+  border-radius: var(--mo-sys-shape-corner-full);
+  background: var(--mo-sys-color-surface);
   pointer-events: auto;
   /* The handle is a separate round part at the left on its own surface, so the pill holds only the buttons. */
   padding-inline-start: 0;
@@ -978,7 +978,7 @@ html {
   align-items: center;
   block-size: 3rem;
   /* Room for the handle at the start: it ends 4.5 rem past the selection mark's centre; the buttons stay clear of it. */
-  padding-inline-start: calc(var(--card-radius, var(--block-radius)) * 0.2929 + 0.53px + 4.5rem - var(--editor-frame-outset));
+  padding-inline-start: calc(var(--card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px + 4.5rem - var(--editor-frame-outset));
 }
 
 /* A hidden block's badge (32 dp, 16 dp from the frame's top and right) lies at the row's end: the buttons stop short of it. */
@@ -1008,7 +1008,7 @@ html {
 
 /* Disabled while several blocks are selected: the theme's disabled colours, no grab cursor. */
 .editor-text .site-block-handle[aria-disabled] {
-  color: color-mix(in srgb, var(--mo-on-surface) 38%, transparent);
+  color: color-mix(in srgb, var(--mo-sys-color-on-surface) 38%, transparent);
   cursor: default;
 }
 
@@ -1031,9 +1031,9 @@ html {
   position: absolute;
   /* Centred on the outline's corner curve: the card is the frame outset wider than the block on each side, and the 45 degree point of a corner with the Card's radius r (its
      1.5px line centred) lies r * (1 - cos 45) + 0.53px in from the corner, along both edges. */
-  --mark-in: calc(var(--card-radius, var(--block-radius)) * 0.2929 + 0.53px);
-  top: calc(var(--mark-in) - 1.5rem);
-  left: calc(var(--mark-in) - var(--editor-frame-outset) - 1.5rem);
+  --mo-sys-mark-in: calc(var(--card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px);
+  top: calc(var(--mo-sys-mark-in) - 1.5rem);
+  left: calc(var(--mo-sys-mark-in) - var(--editor-frame-outset) - 1.5rem);
   z-index: 2;
   display: flex;
   align-items: center;
@@ -1042,7 +1042,7 @@ html {
   block-size: 3rem;
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--motion-effects);
+  transition: opacity var(--mo-sys-motion-spring-default-effects);
 }
 
 .editor-text .site-block-mark-dot {
@@ -1053,23 +1053,23 @@ html {
   block-size: 1.5rem;
   /* Part of the dotted outline it sits on: the same line (width, style and colour), on the surface the line is drawn on, with no shadow. */
   box-sizing: border-box;
-  border: 1.5px dashed color-mix(in srgb, var(--mo-on-surface-variant) 45%, transparent);
+  border: 1.5px dashed color-mix(in srgb, var(--mo-sys-color-on-surface-variant) 45%, transparent);
   border-radius: 50%;
-  background: var(--mo-surface);
+  background: var(--mo-sys-color-surface);
   color: transparent;
   box-shadow: none;
-  transition: border-color var(--motion-effects);
+  transition: border-color var(--mo-sys-motion-spring-default-effects);
 }
 
 .editor-text .site-block:hover .site-block-mark:not([data-mark='on']) .site-block-mark-dot {
-  border-color: var(--mo-primary);
+  border-color: var(--mo-sys-color-primary);
 }
 
 .editor-text .site-block-mark[data-mark='on'] .site-block-mark-dot {
   border-style: solid;
-  border-color: var(--mo-primary);
-  background: var(--mo-primary);
-  color: var(--mo-on-primary);
+  border-color: var(--mo-sys-color-primary);
+  background: var(--mo-sys-color-primary);
+  color: var(--mo-sys-color-on-primary);
   box-shadow: none;
 }
 
@@ -1092,22 +1092,22 @@ html {
 
 /* The lifted box is the dotted outline with its row inside it, with its corners. */
 .editor-text .site-block-dragging > .site-block-card {
-  box-shadow: var(--mo-elevation-4-shadow);
-  background: var(--mo-surface);
+  box-shadow: var(--mo-sys-elevation-level4-shadow);
+  background: var(--mo-sys-color-surface);
 }
 
 .editor-text .site-part-drop-above {
-  box-shadow: 0 -3px 0 0 var(--mo-primary);
+  box-shadow: 0 -3px 0 0 var(--mo-sys-color-primary);
 }
 
 .editor-text .site-part-drop-below {
-  box-shadow: 0 3px 0 0 var(--mo-primary);
+  box-shadow: 0 3px 0 0 var(--mo-sys-color-primary);
 }
 
 /* A block in focus shows it with its own outline: a 2 px line in the focus colour, the primary role (a section on a colour swaps it to its
    on-colour). */
 .editor-text .site-block-card:focus-visible {
-  outline: 2px dotted var(--mo-primary);
+  outline: 2px dotted var(--mo-sys-color-primary);
   outline-offset: 2px;
 }
 
@@ -1120,9 +1120,9 @@ html {
   width: 2rem;
   height: 2rem;
   place-items: center;
-  border-radius: var(--mo-shape-full);
-  background: var(--mo-on-surface);
-  color: var(--mo-surface);
+  border-radius: var(--mo-sys-shape-corner-full);
+  background: var(--mo-sys-color-on-surface);
+  color: var(--mo-sys-color-surface);
 }
 
 /* A block typed in place (InlineList.tsx, MarkdownEditor.tsx): the block as the site draws it, its text as fields. The frame is the
@@ -1140,8 +1140,8 @@ html {
   pointer-events: none;
 }
 .editor-text .site-block-inline:focus-within {
-  border-color: var(--mo-primary);
-  outline: 2px dotted var(--mo-primary);
+  border-color: var(--mo-sys-color-primary);
+  outline: 2px dotted var(--mo-sys-color-primary);
   outline-offset: 2px;
 }
 
@@ -1156,8 +1156,8 @@ html {
   justify-content: center;
   align-items: center;
   gap: 0.125rem;
-  border: 1px solid var(--mo-outline-variant);
-  border-radius: var(--mo-shape-extra-large);
+  border: 1px solid var(--mo-sys-color-outline-variant);
+  border-radius: var(--mo-sys-shape-corner-extra-large);
   background: var(--editor-menu-surface);
   padding: 0.25rem;
   box-shadow: var(--editor-menu-shadow);
@@ -1175,9 +1175,9 @@ html {
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
-  border-radius: var(--mo-shape-full);
+  border-radius: var(--mo-sys-shape-corner-full);
   padding-inline: 0.75rem;
-  font-size: var(--type-body-medium-size);
+  font-size: var(--mo-sys-typescale-body-medium-size);
   font-weight: 500;
   white-space: nowrap;
 }
@@ -1185,12 +1185,12 @@ html {
 .contextual-menu button:hover,
 .contextual-menu button:focus-visible,
 .contextual-menu button[aria-expanded='true'] {
-  background: var(--mo-surface-container-high);
+  background: var(--mo-sys-color-surface-container-high);
 }
 
 /* Keyboard focus: the editor's 2 px ring in the primary role (a state layer alone is under 3:1 against the bar). */
 .contextual-menu button:focus-visible {
-  outline: 2px solid var(--mo-primary);
+  outline: 2px solid var(--mo-sys-color-primary);
   outline-offset: 2px;
 }
 
@@ -1219,9 +1219,9 @@ html {
 
 /* A row typed in place shows its focus: the editor's 2 px primary ring (owner, 15 Nov 2026), on a click as well as the keyboard. */
 .editor-text .inline-list-field:focus-visible {
-  outline: 2px solid var(--mo-primary);
+  outline: 2px solid var(--mo-sys-color-primary);
   outline-offset: 2px;
-  border-radius: var(--mo-shape-extra-small);
+  border-radius: var(--mo-sys-shape-corner-extra-small);
 }
 
 .editor-text .inline-list-field::placeholder {
@@ -1252,15 +1252,15 @@ html {
 }
 
 .editor-text .inline-field-name {
-  color: var(--mo-on-surface-variant);
-  font-size: var(--type-body-small-size, 0.75rem);
+  color: var(--mo-sys-color-on-surface-variant);
+  font-size: var(--mo-sys-typescale-body-small-size, 0.75rem);
 }
 
 /* A List that reads a list: the line that says which, over its rows. */
 .editor-text .inline-list-from {
   margin: 0 0 0.5rem;
-  color: var(--mo-on-surface-variant);
-  font-size: var(--type-body-medium-size);
+  color: var(--mo-sys-color-on-surface-variant);
+  font-size: var(--mo-sys-typescale-body-medium-size);
 }
 
 /* A dynamic block that can pick the fields of its list: a text button for each part of a row (top line, bottom line, icon, link). */
@@ -1290,11 +1290,11 @@ html {
 .editor-text .inline-cards-chip {
   display: inline-block;
   margin-bottom: 0.5rem;
-  border-radius: var(--mo-shape-full);
+  border-radius: var(--mo-sys-shape-corner-full);
   padding: 2px 10px;
-  background: var(--mo-secondary-container);
-  color: var(--mo-on-secondary-container);
-  font-size: var(--type-body-small-size);
+  background: var(--mo-sys-color-secondary-container);
+  color: var(--mo-sys-color-on-secondary-container);
+  font-size: var(--mo-sys-typescale-body-small-size);
 }
 /* A card's media that is set: a button over it, a tap changes it (Cards, InlineCards.tsx). */
 .editor-text .inline-card-media {
@@ -1308,8 +1308,8 @@ html {
   cursor: pointer;
 }
 .editor-text .inline-list-slot[aria-pressed='true'] {
-  background: var(--mo-secondary-container);
-  color: var(--mo-on-secondary-container);
+  background: var(--mo-sys-color-secondary-container);
+  color: var(--mo-sys-color-on-secondary-container);
 }
 /* A card's buttons while it is active: the text of each is typed on the button itself (InlineCards.tsx), drawn as a tonal pill. */
 .editor-text .inline-card-button {
@@ -1317,14 +1317,14 @@ html {
   min-width: 6rem;
   min-height: 2.5rem;
   align-items: center;
-  border-radius: var(--mo-shape-full);
+  border-radius: var(--mo-sys-shape-corner-full);
   padding-inline: 1rem;
-  background: var(--mo-secondary-container);
-  color: var(--mo-on-secondary-container);
+  background: var(--mo-sys-color-secondary-container);
+  color: var(--mo-sys-color-on-secondary-container);
 }
 /* A card's next button: empty and quiet (on-surface-variant, not an opacity, which kept it under 3:1) until it is made (Cards, InlineCards.tsx). */
 .editor-text .inline-card-next-button {
-  color: var(--mo-on-surface-variant);
+  color: var(--mo-sys-color-on-surface-variant);
 }
 
 .inline-list-slot {
@@ -1332,8 +1332,8 @@ html {
   width: 2.5rem;
   height: 2.5rem;
   place-items: center;
-  border-radius: var(--mo-shape-full);
-  color: var(--mo-on-surface-variant);
+  border-radius: var(--mo-sys-shape-corner-full);
+  color: var(--mo-sys-color-on-surface-variant);
 }
 
 .inline-list-slot[data-icon-color] {
@@ -1342,29 +1342,29 @@ html {
 
 /* In a list the row's icon button is the heading's colour, as the icon is on the site (blocks.css, .block-list). */
 .block-list .inline-list-slot:not([data-icon-color]) {
-  color: var(--block-text);
+  color: var(--mo-sys-block-text);
 }
 
 /* The chosen icon's tile in the grid is filled with the picked color (Text, without one) and its icon is read on it. */
 [data-icon-grid] {
-  --tile-fill: var(--mo-on-surface);
-  --tile-on: var(--mo-surface);
+  --mo-sys-tile-fill: var(--mo-sys-color-on-surface);
+  --mo-sys-tile-on: var(--mo-sys-color-surface);
 }
 [data-icon-grid][data-icon-color='primary'] {
-  --tile-fill: var(--mo-primary);
-  --tile-on: var(--mo-on-primary);
+  --mo-sys-tile-fill: var(--mo-sys-color-primary);
+  --mo-sys-tile-on: var(--mo-sys-color-on-primary);
 }
 [data-icon-grid][data-icon-color='secondary'] {
-  --tile-fill: var(--mo-secondary);
-  --tile-on: var(--mo-on-secondary);
+  --mo-sys-tile-fill: var(--mo-sys-color-secondary);
+  --mo-sys-tile-on: var(--mo-sys-color-on-secondary);
 }
 [data-icon-grid][data-icon-color='tertiary'] {
-  --tile-fill: var(--mo-tertiary);
-  --tile-on: var(--mo-on-tertiary);
+  --mo-sys-tile-fill: var(--mo-sys-color-tertiary);
+  --mo-sys-tile-on: var(--mo-sys-color-on-tertiary);
 }
 [data-icon-grid] .icon-button[aria-pressed='true'] {
-  background: var(--tile-fill);
-  color: var(--tile-on);
+  background: var(--mo-sys-tile-fill);
+  color: var(--mo-sys-tile-on);
 }
 
 /* The icon picker's grid draws its icons in the color picked in the Icon color field (IconPicker, iconColor); the chosen one keeps its own colors. */
@@ -1374,12 +1374,12 @@ html {
 
 .inline-list-slot:hover,
 .inline-list-slot:focus-visible {
-  background: var(--mo-surface-container-high);
+  background: var(--mo-sys-color-surface-container-high);
 }
 
 /* Keyboard focus: the editor's 2 px ring in the primary role (the state layer alone is about 1.2:1 against the row). */
 .inline-list-slot:focus-visible {
-  outline: 2px solid var(--mo-primary);
+  outline: 2px solid var(--mo-sys-color-primary);
   outline-offset: 2px;
 }
 
@@ -1438,12 +1438,12 @@ html {
 
 .editor-tools::before {
   left: -1px;
-  background: radial-gradient(circle at 100% 100%, transparent var(--radius-panel), var(--mo-surface) var(--radius-panel));
+  background: radial-gradient(circle at 100% 100%, transparent var(--radius-panel), var(--mo-sys-color-surface) var(--radius-panel));
 }
 
 .editor-tools::after {
   right: -1px;
-  background: radial-gradient(circle at 0 100%, transparent var(--radius-panel), var(--mo-surface) var(--radius-panel));
+  background: radial-gradient(circle at 0 100%, transparent var(--radius-panel), var(--mo-sys-color-surface) var(--radius-panel));
 }
 
 /* The bar is one row, 44 dp high: the tools of the place at the left, Undo, Redo, Insert block and the `⋮` at the right end, no divider between them. It never scrolls (textBar.mjs picks what is
@@ -1502,7 +1502,7 @@ html {
    rests as the other tools do, in the standard icon button's colour (never the accent: only a tool that is on has it). */
 .toolbar-menu-button,
 .toolbar-menu-button:hover {
-  color: var(--icon-button-standard-text, var(--block-text));
+  color: var(--icon-button-standard-text, var(--mo-sys-block-text));
 }
 
 /* Only drawn: the taps go to the card. */
@@ -1530,7 +1530,7 @@ html {
   flex-direction: column;
   gap: 0.15rem;
   padding: 0 0.25rem;
-  color: var(--mo-on-surface-variant);
+  color: var(--mo-sys-color-on-surface-variant);
   font-size: 0.875rem;
   line-height: 1.45;
 }
@@ -1546,7 +1546,7 @@ html {
 
 .editor-text .ProseMirror > h2[data-look] {
   margin-block: 2.5rem 0.75rem;
-  color: var(--mo-on-surface);
+  color: var(--mo-sys-color-on-surface);
   font-weight: 500;
   letter-spacing: -0.025em;
   line-height: 1.25;
@@ -1573,14 +1573,14 @@ html {
 .editor-text .ProseMirror > [data-look~='section-intro'],
 .editor-text .ProseMirror > [data-look~='page-intro'] {
   max-width: 52ch;
-  color: var(--mo-on-surface-variant);
+  color: var(--mo-sys-color-on-surface-variant);
   font-size: 1.125rem;
   line-height: 1.75rem;
 }
 
 .editor-text .ProseMirror > [data-look~='page-section-intro'] {
   max-width: 52ch;
-  color: var(--mo-on-surface-variant);
+  color: var(--mo-sys-color-on-surface-variant);
   font-size: 1.0625rem;
   line-height: 1.5;
 }
@@ -1593,7 +1593,7 @@ html {
 
 .editor-text .ProseMirror > [data-look~='about'][data-look~='rest'],
 .editor-text .ProseMirror > [data-look~='note'] {
-  color: var(--mo-on-surface-variant);
+  color: var(--mo-sys-color-on-surface-variant);
 }
 
 .editor-text .ProseMirror > [data-look~='note'] {
@@ -1602,7 +1602,7 @@ html {
 }
 
 .editor-text .ProseMirror > [data-look~='small-note'] {
-  color: var(--mo-on-surface-variant);
+  color: var(--mo-sys-color-on-surface-variant);
   font-size: 0.95rem;
   line-height: 1.5;
 }
@@ -1616,7 +1616,7 @@ html {
 
 .editor-text .ProseMirror > [data-look='hero-intro'] {
   max-width: 40ch;
-  color: var(--mo-on-surface-variant);
+  color: var(--mo-sys-color-on-surface-variant);
   font-size: 1.125rem;
   line-height: 1.625;
 }
@@ -1666,7 +1666,7 @@ html {
 
 .editor-spaced .ProseMirror > p:has(> br:only-child) {
   margin-block: 0;
-  border-radius: var(--mo-shape-small);
+  border-radius: var(--mo-sys-shape-corner-small);
   padding-inline: 0;
   padding-block: 0.25rem;
   font-size: 0.875rem;
@@ -1675,7 +1675,7 @@ html {
 
 @media (prefers-reduced-motion: no-preference) {
   .editor-spaced .ProseMirror > p:has(> br:only-child) {
-    transition: line-height var(--motion-spatial-fast);
+    transition: line-height var(--mo-sys-motion-spring-fast-spatial);
   }
 }
 
@@ -1737,14 +1737,14 @@ dialog {
   max-width: 22ch;
   font-size: var(--theme-title-size);
   line-height: var(--theme-title-leading);
-  font-weight: var(--type-display-small-weight);
-  letter-spacing: var(--type-display-small-tracking);
+  font-weight: var(--mo-sys-typescale-display-small-weight);
+  letter-spacing: var(--mo-sys-typescale-display-small-tracking);
 }
 @media (width >= theme(--breakpoint-medium)) {
   .editor-text .ProseMirror > h1:first-child {
     font-size: var(--theme-title-size-large);
-    font-weight: var(--type-display-medium-weight);
-    letter-spacing: var(--type-display-medium-tracking);
+    font-weight: var(--mo-sys-typescale-display-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-display-medium-tracking);
   }
 }
 
@@ -1766,7 +1766,7 @@ dialog {
 
 .editor-text .inline-video-title {
   margin: 0;
-  color: var(--mo-on-surface-variant);
+  color: var(--mo-sys-color-on-surface-variant);
 }
 
 /* Buttons typed in place: the label is typed on the button itself, which has the width of its text; the default buttons shown while the block has none of its own. */
@@ -1854,7 +1854,7 @@ dialog {
   min-height: 3rem;
   min-width: 3rem;
   padding-inline: 0.5rem 0.75rem;
-  border-radius: var(--mo-shape-full);
+  border-radius: var(--mo-sys-shape-corner-full);
 }
 .selection-bar-all .checkbox-box {
   margin: 0;
@@ -1879,134 +1879,134 @@ dialog {
    4dp"), on the vertical rhythm only: the space between stacked sections (space-y, the margins and padding above and below, the gap of a
    column), from 12 px up. Small gaps (4 and 8 px, between a part and its label) and everything at the sides stay (horizontal padding does
    not change with density, owner rule). Where the 8 px gap between targets matters (M3: "targets separated by 8dp of space or more") it is
-   below the range. In the page and post editing area --mo-density-layout is the theme's own step, so nothing changes there. */
+   below the range. In the page and post editing area --mo-sys-density-layout is the theme's own step, so nothing changes there. */
 .space-y-3 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-space-150) + var(--mo-density-layout) * var(--mo-density-step));
+  margin-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .space-y-4 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-space-200) + var(--mo-density-layout) * var(--mo-density-step));
+  margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .space-y-5 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-space-250) + var(--mo-density-layout) * var(--mo-density-step));
+  margin-block-end: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .space-y-6 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-space-300) + var(--mo-density-layout) * var(--mo-density-step));
+  margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .space-y-8 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-space-400) + var(--mo-density-layout) * var(--mo-density-step));
+  margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .space-y-10 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-space-500) + var(--mo-density-layout) * var(--mo-density-step));
+  margin-block-end: calc(var(--mo-ref-space-500) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .mb-3:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-space-150) + var(--mo-density-layout) * var(--mo-density-step));
+  margin-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .mb-4:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-space-200) + var(--mo-density-layout) * var(--mo-density-step));
+  margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .mb-5:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-space-250) + var(--mo-density-layout) * var(--mo-density-step));
+  margin-block-end: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .mb-6:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-space-300) + var(--mo-density-layout) * var(--mo-density-step));
+  margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .mb-8:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-space-400) + var(--mo-density-layout) * var(--mo-density-step));
+  margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .mb-10:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-space-500) + var(--mo-density-layout) * var(--mo-density-step));
+  margin-block-end: calc(var(--mo-ref-space-500) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .mt-3:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-start: calc(var(--mo-space-150) + var(--mo-density-layout) * var(--mo-density-step));
+  margin-block-start: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .mt-4:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-start: calc(var(--mo-space-200) + var(--mo-density-layout) * var(--mo-density-step));
+  margin-block-start: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .mt-5:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-start: calc(var(--mo-space-250) + var(--mo-density-layout) * var(--mo-density-step));
+  margin-block-start: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .mt-6:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-start: calc(var(--mo-space-300) + var(--mo-density-layout) * var(--mo-density-step));
+  margin-block-start: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .mt-8:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-start: calc(var(--mo-space-400) + var(--mo-density-layout) * var(--mo-density-step));
+  margin-block-start: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .mt-10:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-start: calc(var(--mo-space-500) + var(--mo-density-layout) * var(--mo-density-step));
+  margin-block-start: calc(var(--mo-ref-space-500) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .pt-3:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-start: calc(var(--mo-space-150) + var(--mo-density-layout) * var(--mo-density-step));
+  padding-block-start: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .pt-4:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-start: calc(var(--mo-space-200) + var(--mo-density-layout) * var(--mo-density-step));
+  padding-block-start: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .pt-5:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-start: calc(var(--mo-space-250) + var(--mo-density-layout) * var(--mo-density-step));
+  padding-block-start: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .pt-6:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-start: calc(var(--mo-space-300) + var(--mo-density-layout) * var(--mo-density-step));
+  padding-block-start: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .pt-8:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-start: calc(var(--mo-space-400) + var(--mo-density-layout) * var(--mo-density-step));
+  padding-block-start: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .pt-10:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-start: calc(var(--mo-space-500) + var(--mo-density-layout) * var(--mo-density-step));
+  padding-block-start: calc(var(--mo-ref-space-500) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .pb-3:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-end: calc(var(--mo-space-150) + var(--mo-density-layout) * var(--mo-density-step));
+  padding-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .pb-4:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-end: calc(var(--mo-space-200) + var(--mo-density-layout) * var(--mo-density-step));
+  padding-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .pb-5:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-end: calc(var(--mo-space-250) + var(--mo-density-layout) * var(--mo-density-step));
+  padding-block-end: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .pb-6:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-end: calc(var(--mo-space-300) + var(--mo-density-layout) * var(--mo-density-step));
+  padding-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .pb-8:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-end: calc(var(--mo-space-400) + var(--mo-density-layout) * var(--mo-density-step));
+  padding-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .pb-10:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-end: calc(var(--mo-space-500) + var(--mo-density-layout) * var(--mo-density-step));
+  padding-block-end: calc(var(--mo-ref-space-500) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .py-3:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='pt-'], [class*='pb-'], [class*='p-0']) {
-  padding-block: calc(var(--mo-space-150) + var(--mo-density-layout) * var(--mo-density-step));
+  padding-block: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .py-4:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='pt-'], [class*='pb-'], [class*='p-0']) {
-  padding-block: calc(var(--mo-space-200) + var(--mo-density-layout) * var(--mo-density-step));
+  padding-block: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .py-5:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='pt-'], [class*='pb-'], [class*='p-0']) {
-  padding-block: calc(var(--mo-space-250) + var(--mo-density-layout) * var(--mo-density-step));
+  padding-block: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .py-6:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='pt-'], [class*='pb-'], [class*='p-0']) {
-  padding-block: calc(var(--mo-space-300) + var(--mo-density-layout) * var(--mo-density-step));
+  padding-block: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .py-8:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='pt-'], [class*='pb-'], [class*='p-0']) {
-  padding-block: calc(var(--mo-space-400) + var(--mo-density-layout) * var(--mo-density-step));
+  padding-block: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .flex-col.gap-3 {
-  row-gap: calc(var(--mo-space-150) + var(--mo-density-layout) * var(--mo-density-step));
+  row-gap: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .flex-col.gap-4 {
-  row-gap: calc(var(--mo-space-200) + var(--mo-density-layout) * var(--mo-density-step));
+  row-gap: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .flex-col.gap-5 {
-  row-gap: calc(var(--mo-space-250) + var(--mo-density-layout) * var(--mo-density-step));
+  row-gap: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .flex-col.gap-6 {
-  row-gap: calc(var(--mo-space-300) + var(--mo-density-layout) * var(--mo-density-step));
+  row-gap: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 .flex-col.gap-8 {
-  row-gap: calc(var(--mo-space-400) + var(--mo-density-layout) * var(--mo-density-step));
+  row-gap: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 /* The screen's own top padding (24 px, 32 px from a medium window up) takes the step too, with its Tailwind classes' own breakpoint. */
 .editor-screen {
-  padding-top: calc(var(--mo-space-300) + var(--mo-density-layout) * var(--mo-density-step));
+  padding-top: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 @media (width >= theme(--breakpoint-medium)) {
   .editor-screen {
-    padding-top: calc(var(--mo-space-400) + var(--mo-density-layout) * var(--mo-density-step));
+    padding-top: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   }
 }
 
@@ -2026,8 +2026,8 @@ dialog {
   margin: 0;
   padding: 0;
   border: 0;
-  background: var(--mo-surface);
-  color: var(--mo-on-surface);
+  background: var(--mo-sys-color-surface);
+  color: var(--mo-sys-color-on-surface);
 }
 .crop-page:focus,
 .block-page:focus {
@@ -2101,25 +2101,25 @@ dialog {
 .crop-view-frame {
   position: absolute;
   box-sizing: border-box;
-  border: 2px solid var(--mo-inverse-on-surface);
-  box-shadow: 0 0 0 1px var(--mo-inverse-surface);
+  border: 2px solid var(--mo-sys-color-inverse-on-surface);
+  box-shadow: 0 0 0 1px var(--mo-sys-color-inverse-surface);
   pointer-events: none;
 }
 /* The part of the image outside the frame is under the theme's scrim, the one its dialogs have behind their container (--dialog-scrim); only the image is, so
    the blank part of the stage keeps the page's colour. */
 .crop-view-shade {
   position: absolute;
-  background: var(--dialog-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-on-surface)) 50%, transparent));
+  background: var(--dialog-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--mo-sys-color-on-surface)) 50%, transparent));
   pointer-events: none;
 }
 .crop-view-frame:focus-visible {
-  outline: 2px solid var(--mo-primary);
+  outline: 2px solid var(--mo-sys-color-primary);
   outline-offset: 4px;
 }
 .crop-view-hint {
   margin: 0;
-  color: var(--mo-on-surface-variant);
-  font-size: var(--type-body-small-size, 0.75rem);
+  color: var(--mo-sys-color-on-surface-variant);
+  font-size: var(--mo-sys-typescale-body-small-size, 0.75rem);
   text-align: center;
 }
 .crop-view-label {
