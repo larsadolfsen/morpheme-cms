@@ -11,6 +11,11 @@
   .block-accordion:not(.block-accordion-segmented) > li:has(> .list-item-expand[open]) {
     background: var(--mo-surface-container);
   }
+  /* No line against an open item: its surface is the edge (the line above it and the line under it). */
+  .block-accordion:not(.block-accordion-segmented) > li:has(> .list-item-expand[open]),
+  .block-accordion:not(.block-accordion-segmented) > li:has(> .list-item-expand[open]) + li {
+    border-top-color: transparent;
+  }
   @media (width >= theme(--breakpoint-medium)) {
     .block-accordion:not(.block-accordion-segmented) {
       --list-expand-open-radius: var(--mo-shape-large);
