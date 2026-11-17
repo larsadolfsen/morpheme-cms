@@ -214,8 +214,8 @@ export function EditableCards({
               aria-label={definition.label}
               data-card={placement.id}
               style={dragging ? { transform: `translate(${drag.dx}px, ${drag.dy}px)` } : undefined}
-              className={`${spanClass(definition.span)} relative rounded-(--block-radius) bg-surface-container-low pb-2 ${
-                dragging ? 'card-dragged z-10 shadow-(--mo-elevation-4-shadow)' : ''
+              className={`${spanClass(definition.span)} relative rounded-(--mo-sys-block-radius) bg-surface-container-low pb-2 ${
+                dragging ? 'card-dragged z-10 shadow-(--mo-sys-elevation-level4-shadow)' : ''
               } ${drag?.over === placement.id ? 'outline-2 outline-primary' : ''}`}
             >
               <div className="flex items-center justify-between gap-2 px-1">

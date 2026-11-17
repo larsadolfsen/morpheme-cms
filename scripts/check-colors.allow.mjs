@@ -64,7 +64,7 @@ export const allow = [
   {
     kind: 'fixed-colour',
     file: /^theme\/styles\/(base|global|ui|cards|tokens\/[a-z]+\/[a-z-]+)\.css$/,
-    line: /^\s*(--mo-elevation-0-shadow: 0 0 #0000|.*\(0 0 #0000)|0 0 #0000/,
+    line: /^\s*(--mo-sys-elevation-level0-shadow: 0 0 #0000|.*\(0 0 #0000)|0 0 #0000/,
     reason: 'no shadow',
   },
   // Status colours: Material 3 has no success or warning role.

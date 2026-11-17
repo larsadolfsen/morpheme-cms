@@ -33,7 +33,7 @@ test("the state layers and the focus ring are the List's own tokens, the corner 
   assert.match(summary, /--list-item-hover-surface/);
   assert.match(summary, /--list-item-focus-indicator-color/);
   assert.match(summary, /outline: 3px solid/);
-  assert.match(ui, /\.list-expand\s*\{[^}]*--list-expand-radius, var\(--mo-shape-large\)/);
+  assert.match(ui, /\.list-expand\s*\{[^}]*--list-expand-radius, var\(--mo-sys-shape-corner-large\)/);
 });
 
 test('the FAQ is drawn on the part, with no accordion rules of its own left', () => {

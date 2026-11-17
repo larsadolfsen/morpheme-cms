@@ -4,17 +4,17 @@
 :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
 .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
-  --icon-button-medium-square-radius: var(--mo-shape-large);
+  --icon-button-medium-square-radius: var(--mo-sys-shape-corner-large);
   /* Icon buttons: 48 by 48 with a 24px icon; standard in on-surface-variant without a container, tonal in the
      secondary container (the cross on a pop-up, as it can stand on an image). */
   --icon-button-size: 3rem;
   --icon-button-icon-size: 1.5rem;
-  --icon-button-standard-text: var(--mo-on-surface-variant);
-  --icon-button-tonal-surface: var(--mo-surface-container-high);
-  --icon-button-tonal-text: var(--mo-on-surface);
+  --icon-button-standard-text: var(--mo-sys-color-on-surface-variant);
+  --icon-button-tonal-surface: var(--mo-sys-color-surface-container-high);
+  --icon-button-tonal-text: var(--mo-sys-color-on-surface);
   --icon-button-outlined-surface: transparent;
-  --icon-button-outlined-text: var(--mo-on-surface-variant);
-  --icon-button-outlined-line: var(--mo-outline);
+  --icon-button-outlined-text: var(--mo-sys-color-on-surface-variant);
+  --icon-button-outlined-line: var(--mo-sys-color-outline);
 }
 @layer components {
   .bottom-sheet-header {

@@ -51,7 +51,7 @@ async function checkNamesView(width, height, page) {
     parts: [...document.querySelectorAll('[data-demo-names="part"]')].map((e) => e.textContent),
     expected: document.querySelector('script[data-blocks]')?.dataset.blocks.split('|').length ?? 0,
     roots: [...document.querySelectorAll('main .block-in-text')].filter(
-      (el) => !el.parentElement.closest('.block-in-text') && !el.matches('.block-list-button, .block-more-button'),
+      (el) => !el.parentElement.closest('.block-in-text') && !el.matches('.block-list-button, .block-more-button, .block-buttons-row'),
     ).length,
     events: [...document.querySelectorAll('[data-demo-names="block"], [data-demo-names="part"]')].filter(
       (e) => getComputedStyle(e).pointerEvents !== 'none',

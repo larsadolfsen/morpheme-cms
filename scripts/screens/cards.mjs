@@ -732,7 +732,7 @@ async function checkCardGutter(width, height) {
     await page.waitForSelector(selector, { timeout: 8000 }).catch(() => {});
     const m = await page.evaluate((sel) => {
       const root = getComputedStyle(document.documentElement);
-      const token = parseFloat(root.getPropertyValue('--mo-grid-gutter')) * parseFloat(root.fontSize);
+      const token = parseFloat(root.getPropertyValue('--mo-sys-grid-gutter')) * parseFloat(root.fontSize);
       const el = document.querySelector(sel);
       const cs = el && getComputedStyle(el);
       return {
@@ -948,7 +948,7 @@ async function checkIconColor(width, height, scheme = 'light') {
       const probe = document.createElement('i');
       document.body.append(probe);
       const colorOf = (role) => {
-        probe.style.color = `var(--mo-${role})`;
+        probe.style.color = `var(--mo-sys-color-${role})`;
         return getComputedStyle(probe).color;
       };
       const chips = [...document.querySelectorAll('[role="group"][aria-label="Icon color"] button')];
@@ -988,7 +988,7 @@ async function checkIconColor(width, height, scheme = 'light') {
   const tile = await page.evaluate(() => {
     const grid = [...document.querySelectorAll('[role="group"][aria-label="Icon"]')].pop();
     const probe = document.createElement('i');
-    probe.style.color = 'var(--mo-secondary)';
+    probe.style.color = 'var(--mo-sys-color-secondary)';
     document.body.append(probe);
     const want = getComputedStyle(probe).color;
     probe.remove();
@@ -1009,7 +1009,7 @@ async function checkIconColor(width, height, scheme = 'light') {
       const probe = document.createElement('i');
       document.body.append(probe);
       const roleColor = (role) => {
-        probe.style.color = `var(--mo-${role})`;
+        probe.style.color = `var(--mo-sys-color-${role})`;
         return getComputedStyle(probe).color;
       };
       const tiles = [...(grid?.querySelectorAll('button:not([aria-pressed="true"])') ?? [])].filter((b) => b.querySelector('svg'));
@@ -1075,10 +1075,10 @@ async function checkIconColor(width, height, scheme = 'light') {
   const drawn = await page.evaluate(() => {
     const row = document.querySelector('.inline-list-row[data-icon-color="secondary"]');
     const probe = document.createElement('i');
-    probe.style.color = 'var(--mo-secondary)';
+    probe.style.color = 'var(--mo-sys-color-secondary)';
     document.body.append(probe);
     const want = getComputedStyle(probe).color;
-    probe.style.color = 'var(--mo-primary)';
+    probe.style.color = 'var(--mo-sys-color-primary)';
     const primary = getComputedStyle(probe).color;
     probe.remove();
     return { row: !!row, icon: row ? getComputedStyle(row.querySelector('.inline-list-slot')).color : null, want, primary };

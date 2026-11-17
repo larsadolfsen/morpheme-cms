@@ -2,16 +2,16 @@
 
 @layer components {
   [data-icon-color='primary'] {
-    --icon-color: var(--mo-primary, var(--block-accent));
+    --icon-color: var(--mo-sys-color-primary, var(--mo-sys-block-accent));
   }
 }
 @layer components {
   [data-icon-color='secondary'] {
-    --icon-color: var(--mo-secondary, var(--block-secondary));
+    --icon-color: var(--mo-sys-color-secondary, var(--mo-sys-block-secondary));
   }
 }
 @layer components {
   [data-icon-color='tertiary'] {
-    --icon-color: var(--mo-tertiary, var(--block-tertiary));
+    --icon-color: var(--mo-sys-color-tertiary, var(--mo-sys-block-tertiary));
   }
 }

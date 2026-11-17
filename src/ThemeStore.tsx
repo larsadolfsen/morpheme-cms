@@ -40,7 +40,7 @@ export const themeHref = (id: string) => `#appearance/themes/${id}`;
 
 /** A theme's image (its theme.json's icon), where a row has its icon. */
 export function ThemeImage({ src }: { src: string }) {
-  return <img src={src} alt="" className="size-9 shrink-0 rounded-(--block-radius-small)" />;
+  return <img src={src} alt="" className="size-9 shrink-0 rounded-(--mo-sys-block-radius-small)" />;
 }
 
 /** The store's themes for a screen: null while they are read, 'failed' when they could not be. */

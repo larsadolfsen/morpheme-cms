@@ -2,6 +2,6 @@
 
 @layer components {
   .menu-divider {
-    --divider-color: var(--menu-divider, var(--block-line));
+    --divider-color: var(--menu-divider, var(--mo-sys-block-line));
   }
 }

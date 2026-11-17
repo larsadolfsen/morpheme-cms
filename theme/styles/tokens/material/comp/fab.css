@@ -4,31 +4,31 @@
 :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
 .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
-  --fab-shadow: var(--mo-elevation-3-shadow);
-  --fab-hover-shadow: var(--mo-elevation-4-shadow);
+  --fab-shadow: var(--mo-sys-elevation-level3-shadow);
+  --fab-hover-shadow: var(--mo-sys-elevation-level4-shadow);
   /* FABs: 56px high with large corners, the medium (80px) large increased, the large (96px) extra-large; the third
      elevation, the fourth when pointed at, a state layer. The secondary
-     container is the theme's (--mo-surface-container-high, as everywhere here). */
-  --fab-radius: var(--mo-shape-large);
-  --fab-medium-radius: var(--mo-shape-large-increased);
-  --fab-large-radius: var(--mo-shape-extra-large);
-  --fab-primary-hover: color-mix(in srgb, var(--mo-on-primary) 8%, var(--mo-primary));
-  --fab-secondary-container-surface: var(--mo-surface-container-high);
-  --fab-secondary-container-text: var(--mo-on-surface);
-  --fab-secondary-container-hover: color-mix(in srgb, var(--mo-on-surface) 8%, var(--mo-surface-container-high));
-  --fab-menu-close-radius: var(--mo-shape-full);
+     container is the theme's (--mo-sys-color-surface-container-high, as everywhere here). */
+  --fab-radius: var(--mo-sys-shape-corner-large);
+  --fab-medium-radius: var(--mo-sys-shape-corner-large-increased);
+  --fab-large-radius: var(--mo-sys-shape-corner-extra-large);
+  --fab-primary-hover: color-mix(in srgb, var(--mo-sys-color-on-primary) 8%, var(--mo-sys-color-primary));
+  --fab-secondary-container-surface: var(--mo-sys-color-surface-container-high);
+  --fab-secondary-container-text: var(--mo-sys-color-on-surface);
+  --fab-secondary-container-hover: color-mix(in srgb, var(--mo-sys-color-on-surface) 8%, var(--mo-sys-color-surface-container-high));
+  --fab-menu-close-radius: var(--mo-sys-shape-corner-full);
 }
 @layer components {
   .fab-menu-list {
-    --fab-radius: var(--mo-shape-full);
-    --fab-primary-container-surface: var(--mo-surface-container-high);
-    --fab-primary-container-text: var(--mo-on-surface);
-    --fab-primary-container-hover: color-mix(in srgb, var(--mo-on-surface) 8%, var(--mo-surface-container-high));
+    --fab-radius: var(--mo-sys-shape-corner-full);
+    --fab-primary-container-surface: var(--mo-sys-color-surface-container-high);
+    --fab-primary-container-text: var(--mo-sys-color-on-surface);
+    --fab-primary-container-hover: color-mix(in srgb, var(--mo-sys-color-on-surface) 8%, var(--mo-sys-color-surface-container-high));
   }
 }
 /* In the navigation drawer: at the top, in the secondary container, lowered (as in a Google app): M3's lowered FAB, at
    the first elevation and the second when pointed at. */
 .navigation-drawer > .extended-fab {
-  --fab-shadow: var(--mo-elevation-1-shadow);
-  --fab-hover-shadow: var(--mo-elevation-2-shadow);
+  --fab-shadow: var(--mo-sys-elevation-level1-shadow);
+  --fab-hover-shadow: var(--mo-sys-elevation-level2-shadow);
 }

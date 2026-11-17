@@ -53,7 +53,7 @@
   };
 
   // What a block draws beside itself in the text (its "more" button): it has the block's space, but it is not a block of its own.
-  const EXTRA = '.block-list-button, .block-more-button';
+  const EXTRA = '.block-list-button, .block-more-button, .block-buttons-row';
 
   const read = () => {
     const q = new URLSearchParams(location.search);
@@ -131,16 +131,16 @@
         top: '0',
         left: '0',
         padding: '0 0.375rem',
-        borderRadius: 'var(--mo-shape-extra-small)',
-        border: '1px solid var(--mo-outline)',
-        fontSize: 'var(--type-label-medium-size)',
-        lineHeight: 'var(--type-label-medium-line-height)',
-        fontWeight: 'var(--type-label-medium-weight)',
-        letterSpacing: 'var(--type-label-medium-tracking)',
+        borderRadius: 'var(--mo-sys-shape-corner-extra-small)',
+        border: '1px solid var(--mo-sys-color-outline)',
+        fontSize: 'var(--mo-sys-typescale-label-medium-size)',
+        lineHeight: 'var(--mo-sys-typescale-label-medium-line-height)',
+        fontWeight: 'var(--mo-sys-typescale-label-medium-weight)',
+        letterSpacing: 'var(--mo-sys-typescale-label-medium-tracking)',
         whiteSpace: 'nowrap',
         pointerEvents: 'none',
-        background: t.block ? 'var(--mo-inverse-surface)' : 'var(--mo-surface-container-highest)',
-        color: t.block ? 'var(--mo-inverse-on-surface)' : 'var(--mo-on-surface)',
+        background: t.block ? 'var(--mo-sys-color-inverse-surface)' : 'var(--mo-sys-color-surface-container-highest)',
+        color: t.block ? 'var(--mo-sys-color-inverse-on-surface)' : 'var(--mo-sys-color-on-surface)',
       });
       chip.dataset.demoNames = t.block ? 'block' : 'part';
       items.push({ chip, block: t.block, x: r.left + scrollX, y: r.top + scrollY, w: r.width });

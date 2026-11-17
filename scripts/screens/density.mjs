@@ -44,7 +44,7 @@ async function checkDensitySetting(width, height) {
   await page.close();
 }
 
-/** The parts read density (theme/styles/ui.css): at Large, Medium and Small a button, a chip, a segmented button and a text field are 4 px taller or lower (the chip 2 px a side), a list row follows the data-heavy step, a target keeps its size (an invisible area of at least --mo-target, 48 on a phone and 44 on a computer), a part in the page editing area or in a row that picks the density does not change, and a menu stays at Medium. */
+/** The parts read density (theme/styles/ui.css): at Large, Medium and Small a button, a chip, a segmented button and a text field are 4 px taller or lower (the chip 2 px a side), a list row follows the data-heavy step, a target keeps its size (an invisible area of at least --mo-sys-target-size, 48 on a phone and 44 on a computer), a part in the page editing area or in a row that picks the density does not change, and a menu stays at Medium. */
 async function checkDensityParts(width, height, touch) {
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${width}px density parts: ${e.message}`));
@@ -73,7 +73,7 @@ async function checkDensityParts(width, height, touch) {
             const after = parseFloat(getComputedStyle(part, '::after').height);
             got[`${where.dataset.where}/${part.dataset.part}`] = [Math.round(box * 100) / 100, Number.isNaN(after) ? 0 : after];
           }
-        got.target = parseFloat(getComputedStyle(root).getPropertyValue('--mo-target'));
+        got.target = parseFloat(getComputedStyle(root).getPropertyValue('--mo-sys-target-size'));
         host.remove();
         root.removeAttribute('data-density');
         return got;
@@ -82,7 +82,7 @@ async function checkDensityParts(width, height, touch) {
     );
   const [large, medium, small] = [await measure('1'), await measure('0'), await measure('-1')];
   const target = medium.target;
-  if (target !== (touch ? 48 : 44)) problems.push(`${width}px density parts: --mo-target is ${target}, not ${touch ? 48 : 44}`);
+  if (target !== (touch ? 48 : 44)) problems.push(`${width}px density parts: --mo-sys-target-size is ${target}, not ${touch ? 48 : 44}`);
   const expect = (what, ok) => ok || problems.push(`${width}px density parts: ${what}`);
   for (const part of ['button', 'chip', 'segment', 'field']) {
     const key = `screen/${part}`;
@@ -97,7 +97,7 @@ async function checkDensityParts(width, height, touch) {
     large['screen/row'][0] - medium['screen/row'][0] === 4 && medium['screen/row'][0] - small['screen/row'][0] === 4,
   );
   expect(`a list row at Small is ${small['screen/row'][0]} px, below the target ${target}`, small['screen/row'][0] >= target);
-  // A target keeps its size: the part or its invisible area is at least --mo-target, at every step.
+  // A target keeps its size: the part or its invisible area is at least --mo-sys-target-size, at every step.
   for (const [name, m] of [
     ['Large', large],
     ['Medium', medium],
@@ -315,9 +315,9 @@ async function checkDensity(width, height) {
         const root = document.documentElement;
         if (attr === null) root.removeAttribute('data-density');
         else root.setAttribute('data-density', attr);
-        root.style.setProperty('--mo-density-base', base);
+        root.style.setProperty('--mo-sys-density-base', base);
         const probe = document.createElement('div');
-        probe.style.height = 'calc(52px + var(--mo-density) * var(--mo-density-step))';
+        probe.style.height = 'calc(52px + var(--mo-sys-density) * var(--mo-sys-density-step))';
         document.body.append(probe);
         const style = getComputedStyle(root);
         // A variable's text is not resolved (clamp(…)): a margin of 1px per step is, and may be negative.
@@ -326,17 +326,17 @@ async function checkDensity(width, height) {
           return parseFloat(getComputedStyle(probe).marginLeft);
         };
         const got = {
-          all: step('--mo-density'),
-          layout: step('--mo-density-layout'),
-          focus: step('--mo-density-focus'),
+          all: step('--mo-sys-density'),
+          layout: step('--mo-sys-density-layout'),
+          focus: step('--mo-sys-density-focus'),
           row: 0,
-          space: style.getPropertyValue('--mo-space-100').trim(),
+          space: style.getPropertyValue('--mo-ref-space-100').trim(),
         };
         probe.style.marginLeft = '';
         got.row = probe.getBoundingClientRect().height;
         probe.remove();
         root.removeAttribute('data-density');
-        root.style.removeProperty('--mo-density-base');
+        root.style.removeProperty('--mo-sys-density-base');
         return got;
       },
       [attr, base],

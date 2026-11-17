@@ -16,7 +16,7 @@ export default function Expand({ view }: { view: ExpandView }) {
   return (
     <>
       <BlockHead view={view} />
-      <MoreRows cut={cut} label={view.showMore} className={inText}>
+      <MoreRows cut={cut} label={view.showMore} className={inText} after={<ListButton button={view.button} className={inText} />}>
         <div className={inText}>
           <Accordion
             rows={view.rows}
@@ -28,7 +28,6 @@ export default function Expand({ view }: { view: ExpandView }) {
           />
         </div>
       </MoreRows>
-      <ListButton button={view.button} className={inText} />
     </>
   );
 }

@@ -7,9 +7,9 @@
   /* Toolbars (M3 Expressive): in a surface container, docked without a line or blur, floating with full corners and
      the third elevation;
      vibrant in the primary colour. */
-  --toolbar-standard-surface: var(--mo-surface-container);
+  --toolbar-standard-surface: var(--mo-sys-color-surface-container);
   --toolbar-docked-line-width: 0;
   --toolbar-docked-backdrop: none;
   --toolbar-floating-line: transparent;
-  --toolbar-floating-radius: var(--mo-shape-full);
+  --toolbar-floating-radius: var(--mo-sys-shape-corner-full);
 }

@@ -11,16 +11,16 @@
      after 16px (M3's 48px target around it). */
   --text-field-height: 3.5rem;
   --text-field-padding: 1rem;
-  --text-field-radius: var(--mo-shape-extra-small);
+  --text-field-radius: var(--mo-sys-shape-corner-extra-small);
   --text-field-outlined-surface: transparent;
-  --text-field-outlined-line: var(--mo-outline);
-  --text-field-outlined-hover-line: var(--mo-on-surface);
-  --text-field-outlined-focus-line: var(--mo-primary);
-  --text-field-filled-surface: var(--mo-surface-container-highest);
-  --text-field-filled-line: var(--mo-on-surface-variant);
-  --text-field-filled-hover-line: var(--mo-on-surface);
-  --text-field-filled-focus-line: var(--mo-primary);
-  --text-field-label-surface: var(--mo-surface);
-  --text-field-error: var(--mo-error);
+  --text-field-outlined-line: var(--mo-sys-color-outline);
+  --text-field-outlined-hover-line: var(--mo-sys-color-on-surface);
+  --text-field-outlined-focus-line: var(--mo-sys-color-primary);
+  --text-field-filled-surface: var(--mo-sys-color-surface-container-highest);
+  --text-field-filled-line: var(--mo-sys-color-on-surface-variant);
+  --text-field-filled-hover-line: var(--mo-sys-color-on-surface);
+  --text-field-filled-focus-line: var(--mo-sys-color-primary);
+  --text-field-label-surface: var(--mo-sys-color-surface);
+  --text-field-error: var(--mo-sys-color-error);
   --text-field-disabled-opacity: 0.38;
 }

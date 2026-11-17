@@ -5,7 +5,7 @@
     --slider-track-thickness: var(--slider-track-height, 0.375rem);
     --slider-handle-length: var(--slider-handle-height, 1.25rem);
     --slider-room: var(--slider-height, 2.75rem);
-    --slider-track-corner: var(--slider-track-radius, var(--mo-shape-full));
+    --slider-track-corner: var(--slider-track-radius, var(--mo-sys-shape-corner-full));
     --slider-icon-length: 1rem;
   }
 }
@@ -13,27 +13,27 @@
 @layer components {
   .slider-small {
     --slider-track-thickness: var(--slider-small-track-height, 0.75rem);
-    --slider-track-corner: var(--slider-small-track-radius, var(--slider-track-radius, var(--mo-shape-full)));
+    --slider-track-corner: var(--slider-small-track-radius, var(--slider-track-radius, var(--mo-sys-shape-corner-full)));
   }
 }
 @layer components {
   .slider-medium {
     --slider-track-thickness: var(--slider-medium-track-height, 1.5rem);
-    --slider-track-corner: var(--slider-medium-track-radius, var(--slider-track-radius, var(--mo-shape-full)));
+    --slider-track-corner: var(--slider-medium-track-radius, var(--slider-track-radius, var(--mo-sys-shape-corner-full)));
     --slider-icon-length: var(--slider-medium-icon-size, 1rem);
   }
 }
 @layer components {
   .slider-large {
     --slider-track-thickness: var(--slider-large-track-height, 2.25rem);
-    --slider-track-corner: var(--slider-large-track-radius, var(--slider-track-radius, var(--mo-shape-full)));
+    --slider-track-corner: var(--slider-large-track-radius, var(--slider-track-radius, var(--mo-sys-shape-corner-full)));
     --slider-icon-length: var(--slider-large-icon-size, 1.25rem);
   }
 }
 @layer components {
   .slider-xlarge {
     --slider-track-thickness: var(--slider-xlarge-track-height, 3.5rem);
-    --slider-track-corner: var(--slider-xlarge-track-radius, var(--slider-track-radius, var(--mo-shape-full)));
+    --slider-track-corner: var(--slider-xlarge-track-radius, var(--slider-track-radius, var(--mo-sys-shape-corner-full)));
     --slider-icon-length: var(--slider-xlarge-icon-size, 1.75rem);
   }
 }

@@ -1243,7 +1243,7 @@ async function checkSelectionBox() {
       const segmented = own !== r;
       const probe = document.createElement('div');
       probe.style.background = segmented
-        ? 'var(--list-segmented-selected-surface, var(--mo-secondary-container))'
+        ? 'var(--list-segmented-selected-surface, var(--mo-sys-color-secondary-container))'
         : 'var(--list-item-selected-surface)';
       probe.style.borderRadius = segmented ? 'var(--list-segmented-selected-radius)' : 'var(--list-item-selected-radius)';
       own.appendChild(probe);

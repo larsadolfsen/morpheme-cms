@@ -18,7 +18,7 @@ test('a part that drops its density term fails', () => {
 test('a focused part, a horizontal padding and a text size that read density fail', () => {
   const f = real();
   f['theme/styles/ui.css'] +=
-    '\n.menu-item { min-height: calc(3rem + var(--mo-density) * var(--mo-density-step)); }\n.x {\npadding-inline: calc(1rem + var(--mo-density) * 1px);\nfont-size: calc(1rem + var(--mo-density) * 1px);\n}\n';
+    '\n.menu-item { min-height: calc(3rem + var(--mo-sys-density) * var(--mo-sys-density-step)); }\n.x {\npadding-inline: calc(1rem + var(--mo-sys-density) * 1px);\nfont-size: calc(1rem + var(--mo-sys-density) * 1px);\n}\n';
   const out = findProblems(f).join('\n');
   assert.match(out, /menu item .* focused part/);
   assert.match(out, /horizontal padding never follows density/);

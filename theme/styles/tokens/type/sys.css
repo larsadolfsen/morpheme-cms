@@ -3,11 +3,11 @@
 @layer utilities {
   .mo-type-lead {
     /* The space of a lead paragraph in a text (.prose, base.css): 24px, on the 4dp grid. */
-    --prose-space: 1.5rem;
+    --mo-sys-prose-space: 1.5rem;
   }
 }
 @layer utilities {
   .\[\&\>p\:first-child\]\:mo-type-lead > p:first-child {
-    --prose-space: 1.5rem;
+    --mo-sys-prose-space: 1.5rem;
   }
 }

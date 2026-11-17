@@ -13,7 +13,7 @@
     height: 0;
     margin: 0;
     border: 0;
-    border-top: var(--divider-thickness, 1px) solid var(--divider-color, var(--block-line));
+    border-top: var(--divider-thickness, 1px) solid var(--divider-color, var(--mo-sys-block-line));
   }
   .divider-inset {
     margin-inline-start: var(--divider-inset, 1rem);
@@ -26,7 +26,7 @@
     width: 0;
     height: auto;
     border-top: 0;
-    border-inline-start: var(--divider-thickness, 1px) solid var(--divider-color, var(--block-line));
+    border-inline-start: var(--divider-thickness, 1px) solid var(--divider-color, var(--mo-sys-block-line));
   }
   .divider-vertical.divider-inset {
     margin: var(--divider-inset, 1rem) 0 0;
