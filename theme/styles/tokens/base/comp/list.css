@@ -6,7 +6,7 @@
 @layer components {
   .theme-post-list {
     --mo-comp-list-item-image-size: 5.5rem;
-    --mo-comp-list-item-image-radius: var(--mo-comp-theme-post-picture-radius);
+    --mo-comp-list-item-image-radius: var(--mo-comp-theme-post-picture-radius, var(--mo-sys-shape-corner-small));
   }
 }
 @layer components {

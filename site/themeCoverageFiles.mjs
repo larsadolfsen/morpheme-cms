@@ -17,6 +17,7 @@ const MATERIAL_FILES = [
   'ui.css',
   'divider.css',
   'badge.css',
+  'snackbar.css',
   'tooltip.css',
   'checkbox.css',
   'switch.css',

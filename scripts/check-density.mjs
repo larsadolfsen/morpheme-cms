@@ -25,7 +25,7 @@ export const PARTS = [
 /** Focused single-task parts: never denser than Medium, so they read neither --mo-sys-density nor --mo-sys-density-layout. */
 export const FOCUSED = [
   { name: 'menu item', file: 'theme/styles/ui.css', selector: '.menu-item' },
-  { name: 'snackbar', file: 'theme/styles/ui.css', selector: '.snackbar' },
+  { name: 'snackbar', file: 'theme/styles/snackbar.css', selector: '.snackbar' },
 ];
 
 /** Files that may set the steps themselves. */
@@ -100,6 +100,7 @@ export function readStyles(root) {
     );
   for (const f of [
     'theme/styles/ui.css',
+    'theme/styles/snackbar.css',
     'theme/styles/checkbox.css',
     'theme/styles/switch.css',
     'theme/styles/radio-button.css',

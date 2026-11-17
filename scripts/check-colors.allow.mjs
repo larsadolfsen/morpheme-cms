@@ -67,6 +67,13 @@ export const allow = [
     line: /^\s*(--mo-sys-elevation-level0-shadow: 0 0 #0000|.*\(0 0 #0000)|0 0 #0000/,
     reason: 'no shadow',
   },
+  // The @property registry: the default of a colour token has to be a literal (an initial-value cannot hold a var()), see docs/theme-token-files.md.
+  {
+    kind: 'fixed-colour',
+    file: /^theme\/styles\/tokens\/[a-z]+\/registry\.css$/,
+    line: /^\s*initial-value: /,
+    reason: 'the default of a registered colour token: a literal, so a faulty theme value falls back to it',
+  },
   // Status colours: Material 3 has no success or warning role.
   {
     kind: 'fixed-colour',
