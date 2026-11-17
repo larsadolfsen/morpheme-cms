@@ -12,7 +12,7 @@ import { partOf, partPieces, themeCoverage } from './themeCoverage.mjs';
 const stylesDir = new URL('../theme/styles/', import.meta.url);
 const baseCss = readFileSync(new URL('base.css', stylesDir), 'utf-8');
 // ui.css and the files its parts moved into (docs/superpowers/plans/2026-11-16-css-split.md).
-const uiCss = ['ui.css', 'divider.css'].map((f) => readFileSync(new URL(f, stylesDir), 'utf-8')).join('\n');
+const uiCss = ['ui.css', 'divider.css', 'badge.css'].map((f) => readFileSync(new URL(f, stylesDir), 'utf-8')).join('\n');
 const componentsCss = readFileSync(new URL('components.css', stylesDir), 'utf-8');
 const globalCss = readFileSync(new URL('global.css', stylesDir), 'utf-8');
 const materialCss = [baseCss, uiCss, componentsCss, globalCss].join('\n');

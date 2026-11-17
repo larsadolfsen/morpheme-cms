@@ -7,6 +7,8 @@
 @import './ui.css';
 /* The Divider (.divider, its inset and vertical kinds). */
 @import './divider.css';
+/* The Badge (.badge, its dot and number, the anchor on an icon). */
+@import './badge.css';
 /* The cards (Card, the Cards and Price cards blocks), the card grid and the Carousel. */
 @import './cards.css';
 @import './type.css';
