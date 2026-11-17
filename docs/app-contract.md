@@ -1,6 +1,6 @@
 # App contract
 
-The contract is the set of rules between the editor and an app. `APP_API` in `lib/contracts.mjs` holds its version. An app in the store says which version it is written to in its `api` field.
+The contract is the set of rules between the editor and an app. `APP_API` in `lib/contracts.mjs` holds its version. An app in the store says which version it is written to in its `api` field. `APP_API` is 6.
 
 ## App types with one active app
 
@@ -23,7 +23,7 @@ One `app.json` sits in each app folder.
 
 | Key | Type | Required | Meaning |
 |---|---|---|---|
-| `api` | `4` or `5` | yes | The contract the app is written to. |
+| `api` | `6` | yes | The contract the app is written to. |
 | `label` | string | yes | The app's name, in English. |
 | `publisher` | string | yes | Who made the app. |
 | `license` | SPDX string | yes | The app's license. |
@@ -152,7 +152,8 @@ Apps written to contract 2 or 3 build and run as before, and the editor shows ea
 ## Contract 5: `role` and `mcp`
 
 Contract 5 is contract 4 with three more optional keys in `app.json`. Everything else is as in contract 4: the same files,
-places, hooks and sandbox. The editor reads contracts 4 and 5 (`APP_APIS` in `lib/contracts.mjs`); `APP_API` is 5.
+places, hooks and sandbox. Contract 6 has the same keys; it changes only the names of the design tokens (see below). The editor
+reads contract 6 only (`APP_APIS` in `lib/contracts.mjs`); `APP_API` is 6.
 
 | Key | Type | Required | Meaning |
 |---|---|---|---|
@@ -162,7 +163,7 @@ places, hooks and sandbox. The editor reads contracts 4 and 5 (`APP_APIS` in `li
 
 Rules:
 
-- Contract 4 fails on `role` and `mcp` as unknown keys. They belong to contract 5 only.
+- A manifest below contract 5 fails on `role` and `mcp` as unknown keys. They belong to contract 5 and up.
 - `mcp.server` is https, with a host that is a name: no port, no user info, no IP address.
 - `mcp.tools` is required and not empty. Each name matches `^[a-z0-9_-]+$` and is listed once.
 - `mcp.auth: "token"` needs a settings field named `token` with `"secret": true`.
@@ -178,12 +179,17 @@ data only: a request template and a mapping. The Worker makes the requests, to t
 owner's key sealed in D1. The app has no code for it. The shape, the host rules, the credit saved with an image and the
 checks are in `docs/superpowers/specs/2026-11-11-media-providers.md`.
 
-### How long contract 4 stays accepted
+## Contract 6: the design tokens' names
 
-Contract 4 stays accepted for as long as the store has an app written to it, and at least through the whole 0.x series. It is
-removed only in a release that says so in its changeset, never before `1.0.0`, and never while a connector or plugin the
-owner installed still needs it. Apps move to contract 5 with their next version (`1.1.0`): a version is for ever, so a
-published contract 4 app is not rewritten.
+Contract 6 renames every design token that is not Tailwind's to Material 3's pattern: `--mo-ref-*`, `--mo-sys-*` and
+`--mo-comp-<component>-*`. The old names stop working with no alias, so a theme or an app that writes one, in CSS or in a
+a Tailwind class that holds a `var()` of one, must use the new one. `docs/theme-token-files.md` has the folders and the table of
+every old and new name. No key or file of `app.json` changes.
+
+`THEME_API` and `APP_API` are 6. The editor reads contract 6 only, and the store offers a CMS at 6 only apps and themes
+written to 6, so an app or a theme written to 4 or 5 is not offered, and an installed one is refused with
+`The key "api" must be 6.`, until its author publishes a new version that uses the new names. A published version is for
+ever, so it is not rewritten.
 
 ## Contract 3: `@app/self`
 
@@ -207,7 +213,7 @@ Apps written to contract 2 build and run as before. Contract 3 only adds `@app/s
 ## The theme's UI components by name
 
 An app draws with the theme's parts (`@theme/ui/…`, `@theme/blocks/…`), by Material 3's names. Two have new names; the old
-ones stay as aliases of the same part while `THEME_API` is 5, so an app or a theme written with them works as before.
+ones stay as aliases of the same part until a later `THEME_API` removes them, so an app or a theme written with them works as before.
 
 | Import (Material 3's name) | Old name, kept as an alias | Material 3 |
 | :--- | :--- | :--- |
@@ -216,7 +222,7 @@ ones stay as aliases of the same part while `THEME_API` is 5, so an app or a the
 | `@theme/blocks/Panel` | — | An outlined card; the name Panel stays |
 
 A theme that draws its own bar or menu still does it in `ui/TopAppBar.tsx` and `ui/ExposedDropdownMenu.tsx` while
-`THEME_API` is 5; the new names lead to the theme's file, else the standard theme's.
+the aliases stay; the new names lead to the theme's file, else the standard theme's.
 
 ## Slots
 
@@ -267,7 +273,7 @@ An app with blocks can bring a test page: `check-page.md` in the app's folder, n
 - `check:screens` and `check:themes` (which runs the screens with each theme) load each installed app's test page as a temporary page that exists only in the run's memory (the texts the editor is given). It is never a file in the site's folder, never saved to the site's repository and never published. Every failure is reported under the app's name (`app <id> (check-page.md): …`). Core blocks keep the system's own test page; a theme has none.
 - The page may hold only the app's own blocks (the folders in `blocks/` with an `index.tsx`). A block of another type, a missing front matter or a page with no block fails the check under the app's name. A block of the app that the page leaves out only gets a warning.
 - An app with blocks and no `check-page.md` is not broken by that: its blocks are inserted with their default values, and the run prints a warning that names the app (`warning: app <id>: no check-page.md …`).
-- The file is optional and nothing that exists changes meaning, so it needs no step in `APP_API` (it stays 5; an addition is not a break). The code is `lib/appCheckPage.mjs`.
+- The file is optional and nothing that exists changes meaning, so it needs no step in `APP_API` (it stays 6; an addition is not a break). The code is `lib/appCheckPage.mjs`.
 
 ## Blocks typed in place (`inline`)
 
@@ -282,7 +288,7 @@ An app's block opts in with two things: `inline` in its `index.tsx` and an `Inli
 
 The demo has a working example: the app `demo/src/apps/inline-example/` and its block `tickets` (`index.tsx` with `inline`, `Inline.tsx`, `View.tsx`, `viewOf.ts`, `load.ts`). `check:screens` opens it on a phone (375 px) and a computer (1280 px) and types in it.
 
-This opens nothing to the sandbox. A block is a `full` place that runs in the editor, as `View.tsx` does; hooks and after-build steps still import only the three modules of *Imports*, and the sandbox that runs them (QuickJS) is unchanged. It is not a change of contract: no key and no file an app has today changes meaning, so `APP_API` stays 5 and apps written to contract 4 or 5 work as before. (`APP_API` rises only when an app written to the one before stops working.)
+This opens nothing to the sandbox. A block is a `full` place that runs in the editor, as `View.tsx` does; hooks and after-build steps still import only the three modules of *Imports*, and the sandbox that runs them (QuickJS) is unchanged. It is not a change of contract: no key and no file an app has today changes meaning, so `APP_API` stays 6 and apps written to contract 6 work as before. (`APP_API` rises only when an app written to the one before stops working.)
 
 ### The definition
 
