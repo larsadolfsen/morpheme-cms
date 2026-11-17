@@ -8,8 +8,9 @@
       stands, the room before the name, and its colour ticked
     --checkbox-label-weight, --checkbox-supporting-color   the name and the line under it
     --checkbox-error   a wrong one's box, the ring round it and the line under it (else the text field's error)
-  Moved here from ui.css with its rules unchanged and in their order; imported by base.css right after ui.css, in the same layer. No other rule sets
-  the same property on these parts at the same specificity, so the position does not change what wins (docs/superpowers/plans/2026-11-16-css-split.md).
+  Moved here from ui.css with its rules unchanged and in their order, in the same layer. Unlike the other parts it is imported by base.css BEFORE ui.css:
+  the list's selection box (theme/ui/List.tsx) is a .checkbox and a .list-item-select-box, and the list's rules, still in ui.css, set display and
+  align-items at the same specificity; they came after .checkbox and must still win (docs/superpowers/plans/2026-11-16-css-split.md).
 */
 @layer components {
   /* Checkboxes (m3.material.io/components/checkbox): the box beside its name, the browser's own in the accent. */
