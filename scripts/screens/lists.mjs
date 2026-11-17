@@ -4,7 +4,7 @@ import { clickPreview, openEditor, virtualFile } from '../built-site.mjs';
 import { BUILT_PAGE, LIST_PAGE, block, browser, has, problems, shots, site } from './support/context.mjs';
 import { barTools, liveLists, onTestPage, openStyleMenu, pressInsert, pressMore, pressTool, ratioOf } from './support/shared.mjs';
 
-/** The rows of a List, List - Expand and FAQ are Material's: no list marker (list-style, ::marker), in the editor and in the Preview (where the page's text style, prose, must not reach them) and on the site. */
+/** The rows of a List and List - Expand are Material's: no list marker (list-style, ::marker), in the editor and in the Preview (where the page's text style, prose, must not reach them) and on the site. */
 async function checkListMarkers(width) {
   const path = BUILT_PAGE;
   const markers = () =>
@@ -124,7 +124,7 @@ async function checkListLeftEdge(width) {
   await page.close();
 }
 
-/** The setting Columns of List, List - Expand and FAQ list (standard/columns.ts): on (the default, and what a block from before has) the rows sit in as many columns as fit the list's
+/** The setting Columns of List, List and List - Expand (standard/columns.ts): on (the default, and what a block from before has) the rows sit in as many columns as fit the list's
  * width, at least 344px each, never more than three; off (`data-columns="one"`) one column at most 720px wide. In the editor and in the Preview, at 375, 768 and 1280. */
 async function checkListColumns(width) {
   const label = `${width}px list columns`;
@@ -139,8 +139,8 @@ async function checkListColumns(width) {
     block('list', { columns: false, items: rows }),
     block('expand', { items: rows }),
     block('expand', { columns: false, items: rows }),
-    block('faq', { items: rows.map((r) => ({ question: r.title, answer: r.text })) }),
-    block('faq', { columns: false, items: rows.map((r) => ({ question: r.title, answer: r.text })) }),
+    block('expand', { design: 'segmented', faq: true, items: rows }),
+    block('expand', { design: 'segmented', faq: true, columns: false, items: rows }),
   ].join('\n\n');
   const measure = () =>
     [...document.querySelectorAll('ul.block-list, ul.block-accordion')].map((ul) => {
@@ -247,11 +247,13 @@ async function checkChevronRows(width) {
         { title: 'Three', text: 'Third' },
       ],
     }),
-    block('faq', {
+    block('expand', {
+      design: 'segmented',
+      faq: true,
       items: [
-        { question: 'Why?', answer: 'Because.' },
-        { question: 'Who?', answer: 'Me.' },
-        { question: 'How?', answer: 'Well.' },
+        { title: 'Why?', text: 'Because.' },
+        { title: 'Who?', text: 'Me.' },
+        { title: 'How?', text: 'Well.' },
       ],
     }),
   ].join('\n\n');
@@ -1211,13 +1213,13 @@ async function checkChecklistMarks() {
   }
 }
 
-/** The List "expand" kind on the built site (the FAQ on /blocks/), 375 and 1280 px: a <ul class="list list-expand"> of <li><details name><summary> items (a row of 48 px or more, a corner of 16 px on the list), the closed caret has no container and the open one turns over and gets one while the headline keeps its colour (Material's "List - Expand" tokens), one row open at a time, Space on the focused summary opens it and the focus ring is 3 px, nothing scrolls sideways. */
+/** The List "expand" kind on the built site (the List - Expand marked as a FAQ on /blocks/), 375 and 1280 px: a <ul class="list list-expand"> of <li><details name><summary> items (a row of 48 px or more, a corner of 16 px on the list), the closed caret has no container and the open one turns over and gets one while the headline keeps its colour (Material's "List - Expand" tokens), one row open at a time, Space on the focused summary opens it and the focus ring is 3 px, nothing scrolls sideways. */
 async function checkExpandList(width, height) {
   const label = `${width}px List expand`;
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   if (!(await onTestPage(page, label))) return page.close();
-  // The segmented design (the FAQ and the segmented List - Expand) has the 16 px corner on its list; the plain design is the rows on the page, and
+  // The segmented design (the segmented List - Expand) has the 16 px corner on its list; the plain design is the rows on the page, and
   // edge to edge on a phone with no corner (checkListLeftEdge), so it is not the one measured here.
   const list = page.locator('ul.list.list-expand.block-accordion-segmented:has(> li:nth-child(2))').first();
   if (!(await list.count())) {

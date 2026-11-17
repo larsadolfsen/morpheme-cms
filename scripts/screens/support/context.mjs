@@ -134,7 +134,7 @@ const builtPages = existsSync(join(ROOT, 'src/content/pages'))
       .sort()
   : [];
 export const BUILT_PAGE = `src/content/pages/${builtPages.includes('about.md') ? 'about.md' : (builtPages[0] ?? 'about.md')}`;
-/** A page's text with a List, a List - Expand and an FAQ, for the checks of their rows: a site's page need not have them. */
+/** A page's text with a List and a List - Expand (one marked as a FAQ), for the checks of their rows: a site's page need not have them. */
 export const block = (name, props) => `<div data-block="${name}" data-props="${JSON.stringify(props).replaceAll('"', '&quot;')}"></div>`;
 export const LIST_PAGE = [
   '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n',
@@ -145,7 +145,7 @@ export const LIST_PAGE = [
     ],
   }),
   block('expand', { items: [{ title: 'Row', text: 'Text' }] }),
-  block('faq', { items: [{ question: 'Why?', answer: 'Because.' }] }),
+  block('expand', { design: 'segmented', faq: true, items: [{ title: 'Why?', text: 'Because.' }] }),
 ].join('\n\n');
 /** A page's text of our own for the checks that put a section on a heading: a site's page need not have one. */
 export const PAGE_SOURCE = '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n## Tinted\n\nTinted text.\n';

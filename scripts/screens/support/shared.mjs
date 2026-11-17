@@ -264,15 +264,6 @@ export const inlineBlocks = [
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true, start: 3 },
   { name: 'pricecards', hint: 'Prices with what is included.', add: 'Add price card', surface: true, field: 'name' },
   { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
-  {
-    name: 'faq',
-    hint: 'Questions that expand to answers.',
-    add: 'Add question',
-    field: 'question',
-    open: true,
-    surface: true,
-    listButton: true,
-  },
   // An app's block (the demo's Inline example app): typed in place from its own Inline.tsx, not from the editor's list of views.
   { name: 'tickets', hint: 'Rows with a heading and a text, typed where they stand.', add: 'Add ticket' },
   // (Only a site that has the demo's app: another site does not have the block.)
