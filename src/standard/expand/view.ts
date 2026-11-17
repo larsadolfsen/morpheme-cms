@@ -3,6 +3,7 @@
 // and the text button under the last row. In the editor: viewOf; on the site: load.ts.
 import { siteT } from '../../i18n';
 import { oneLine } from '../../../lib/one-line.mjs';
+import { markdownNow } from '../../../lib/markdown';
 import { sharedIn } from '../../shared';
 import listShared from '../list/shared';
 
@@ -13,6 +14,7 @@ import { withRows } from '../rows/rows.mjs';
 import { headOf, type HeadView } from '../head';
 import { columnsOf, type ColumnsView } from '../columns';
 import { leadingOf, listSettings, type ListRow, type ListRowProps, type ListView } from '../list/view';
+import type { PageRowView } from '../accordion/view';
 import { shownAt } from '../../images';
 import { libraryAltPart } from '../../imageAlt.mjs';
 import { iconColorOf } from '../../iconColor';
@@ -31,6 +33,9 @@ export type FoldRow = {
   link?: string;
   buttons?: { label: string; href: string }[];
 };
+
+/** A row of the folding list the theme draws (theme/blocks/accordion/Accordion.tsx): a row with its text as HTML, or a page's row ("Accordion", PageRow). */
+export type AccordionRow = FoldRow | { label: string; page: PageRowView };
 
 export type ExpandView = HeadView &
   ColumnsView &
@@ -69,6 +74,8 @@ export const expandOf = (
   props: Record<string, any>,
   showMore: string = listShared.values.showMore as string,
   imageOf: (src: string) => { src: string; alt?: string } = (src) => ({ src }),
+  /** A row's text as HTML: the editor's (markdownNow) or, by default, paragraphs; the site renders the Markdown in load.ts. */
+  htmlOf: (text: string) => string = paragraphs,
 ): ExpandView => {
   const items = ((props.items ?? []) as ListRowProps[]).map((r) => ({ ...r, leading: props.leading })) as ListRow[];
   return {
@@ -79,7 +86,7 @@ export const expandOf = (
     items,
     rows: items.map((r) => ({
       label: r.title,
-      html: paragraphs(r.text ?? ''),
+      html: htmlOf(r.text ?? ''),
       ...leadingOf(r as ListRowProps, r.title ?? '', imageOf),
       icon: !isKind(r.leading) && r.icon ? r.icon : undefined,
       iconColor: !isKind(r.leading) && r.icon ? iconColorOf(r.iconColor) : undefined,
@@ -93,9 +100,14 @@ export const expandOf = (
 
 /** In the editor a row with a page and no text of its own says it shows the beginning of the page's text. */
 export const viewOf: ViewOf<ExpandView> = (props, data) => {
-  const view = expandOf(withRows(props, editorRows(props, data)), sharedIn(data.site, 'list', listShared.values).showMore, (src) => ({
-    src: shownAt(src),
-    ...libraryAltPart(data.libraryAlt?.(src)),
-  }));
+  const view = expandOf(
+    withRows(props, editorRows(props, data)),
+    sharedIn(data.site, 'list', listShared.values).showMore,
+    (src) => ({
+      src: shownAt(src),
+      ...libraryAltPart(data.libraryAlt?.(src)),
+    }),
+    markdownNow,
+  );
   return { ...view, rows: view.rows.map((r) => (!r.html && r.href ? { ...r, html: `<p>${siteT.blocks.accordion.opening}</p>` } : r)) };
 };

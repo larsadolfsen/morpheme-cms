@@ -1183,7 +1183,7 @@ async function checkChangeTo(width, height) {
   await opener.click();
   await page.waitForTimeout(200);
   const level = await menuRows();
-  const want = 'Change type,List - Expand,Steps,FAQ list,Cards,Table';
+  const want = 'Change type,List - Expand,Steps,Cards,Table';
   if (level.join() !== want) problems.push(`${label}: Change type's level is ${level.join(', ')}, not ${want}`);
   // The header of the level has the swap icon of the row (not a back arrow) and says where it goes.
   const header = page.locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ }).first();
@@ -1255,7 +1255,7 @@ async function checkChangeTo(width, height) {
   if (!(await page.locator('.inline-list').count()) || !(await hasIcon()))
     problems.push(`${label}: Table → List did not give the List with its icon`);
   if (JSON.stringify(await rows('title')) !== was) problems.push(`${label}: Table → List has ${JSON.stringify(await rows('title'))}`);
-  // Kept data is never on the site: the Steps of the system's test page (the demo's Blocks page) keep a card's subhead and a FAQ answer on their
+  // Kept data is never on the site: the Steps of the system's test page (the demo's Blocks page) keep a card's subhead and a List - Expand's Markdown on their
   // first step, as Change type leaves them, and the page shows neither.
   if (await onTestPage(page, label)) {
     const html = await page.content();
@@ -1380,7 +1380,7 @@ async function checkPageLeftEdge(width) {
       );
   if (!['accordion', 'links'].every((h) => h in editorPads))
     problems.push(`${label}: the Accordion and the Link collection have no row to measure (${Object.keys(editorPads)})`);
-  const lefts = ['accordion', 'faq list'].map((h) => editorPads[h]?.left);
+  const lefts = ['accordion', 'list - expand as a faq'].map((h) => editorPads[h]?.left);
   if (!near(lefts[0], lefts[1], 1))
     problems.push(`${label}: the Accordion's titles are ${lefts[0]} px in, Questions and answers' ${lefts[1]} px`);
   for (const cursor of [false, true]) {

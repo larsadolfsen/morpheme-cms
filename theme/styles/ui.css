@@ -2359,7 +2359,7 @@
     padding: 0 var(--mo-comp-list-expand-padding-inline, 1rem)
       var(--list-expand-body-padding-bottom, var(--mo-comp-list-expand-padding-block, 0.875rem));
   }
-  /* Opening and closing glide where the browser can animate ::details-content (else faq/script.ts does it); none with reduced motion. */
+  /* Opening and closing glide where the browser can animate ::details-content (else accordion/script.ts does it); none with reduced motion. */
   @media (prefers-reduced-motion: no-preference) {
     .list-expand {
       interpolate-size: allow-keywords;

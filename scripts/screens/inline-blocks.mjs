@@ -219,11 +219,7 @@ async function checkListDesigns(width, height) {
   }
 }
 /** `surface`: the item is a card with a container of its own, so it has a background colour. `start`: how many empty, faded items a new block starts with (the first active; typing in one makes the first item, and the others go). */
-async function checkInlineBlock(
-  width,
-  height,
-  { name, hint, add, surface, noEdit, rowLink, listButton, field = 'title', open, start = 1 },
-) {
+async function checkInlineBlock(width, height, { name, hint, add, surface, noEdit, rowLink, field = 'title', open, start = 1 }) {
   const label = `${width}px inline ${name}`;
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
@@ -462,33 +458,6 @@ async function checkInlineBlock(
   if (noEdit)
     for (const name of ['Link', 'Edit'])
       if (one.bar.some((b) => b.label === name)) problems.push(`${label}: the toolbar has "${name}" although the block has no settings`);
-  // A text button under the whole list (the FAQ's): while the block is active its text is typed in a field under `Add` with a slot for its
-  // page; it shows as the site draws it when the block is not active, and an empty field takes it away.
-  if (listButton) {
-    const field = page.locator('.inline-faq-button [data-field="button"]');
-    if ((await field.count()) !== 1) problems.push(`${label}: no field for the button under the list in the active block`);
-    else {
-      if ((await page.locator('.inline-faq-button .inline-list-slot').count()) !== 1)
-        problems.push(`${label}: no slot for the page of the button under the list`);
-      await field.click();
-      await page.keyboard.type('More questions');
-      await page.waitForTimeout(300);
-      await page.click('.ProseMirror p');
-      await page.waitForTimeout(300);
-      const shown = await page.locator('.site-block-inline .block-list-button').allTextContents();
-      if (shown.map((x) => x.trim()).join() !== 'More questions')
-        problems.push(`${label}: the button under the list is "${shown}" when the block is not active, not "More questions"`);
-      // At the field's left end: a block pointed at shows its row over its top right, which covers the middle of the field.
-      await page.click('.site-block-inline [data-field="question"]', { position: { x: 8, y: 8 } });
-      await page.locator('.inline-faq-button [data-field="button"]').fill('');
-      await page.waitForTimeout(300);
-      await page.click('.ProseMirror p');
-      await page.waitForTimeout(300);
-      if (await page.locator('.site-block-inline .block-list-button').count())
-        problems.push(`${label}: the button under the list is still there after its text was cleared`);
-      await page.click('.site-block-inline [data-field="question"]', { position: { x: 8, y: 8 } });
-    }
-  }
   // A row's link (List and List - Expand alike, owner, 16 Nov 2026): the link slot at the end of the active row and the toolbar's Link, no text row of
   // its own at the bottom of the row and no text button typed there; the slot opens the row's sheet, which has the page.
   if (rowLink) {
@@ -738,13 +707,12 @@ async function checkSteps(width, height) {
 }
 
 /** Pasting lines into an empty item makes one item each (spec 2026-11-14-paste-and-change-to-design.md, section 2): in List, List - Expand,
- * FAQ list, Cards and Steps, three lines pasted into the empty block make three items with those titles (a tab gives the second field its
+ * Cards and Steps, three lines pasted into the empty block make three items with those titles (a tab gives the second field its
  * text), the cursor in the last field of the last; a paste with a `#` line is left as it is; a paste into an empty item after Add below
  * makes items there and keeps the items before; Ctrl+Z gives the block back as it was before the paste. */
 const pasteBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', first: 'title', second: 'text', last: 'text' },
   { name: 'expand', hint: 'Rows that open to show more.', first: 'title', second: 'text', last: 'text' },
-  { name: 'faq', hint: 'Questions that expand to answers.', first: 'question', second: 'answer', last: 'answer' },
   { name: 'cards', hint: 'Cards that link to pages.', first: 'title', second: 'text', last: 'text' },
   { name: 'steps', hint: 'Numbered steps.', first: 'title', second: 'text', last: 'text' },
 ];

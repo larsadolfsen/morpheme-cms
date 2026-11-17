@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import { blockHtml } from '../lib/blocks.mjs';
 import { firstEmptyRow, leaveOut, withoutEmptyRows } from './emptyRows.mjs';
 
-// The blocks as the registry describes them: List and Segmented have required rows, Faq does not; Notice has no rows.
+// The blocks as the registry describes them: List and List - Expand have required rows, Gallery does not; Notice has no rows.
 const facts = {
   list: { key: 'items', required: true, name: 'List', word: 'row', items: 'rows' },
   expand: { key: 'items', required: true, name: 'List - Expand', word: 'row', items: 'rows' },
-  faq: { key: 'items', required: false, name: 'FAQ list', word: 'question', items: 'questions' },
+  gallery: { key: 'items', required: false, name: 'Gallery', word: 'image', items: 'images' },
 };
 const describe = (type) => facts[type] ?? null;
 const page = (...blocks) => ['# Title', ...blocks.map((b) => blockHtml(b.type, b.props)), 'Text'].join('\n\n');
@@ -46,8 +46,8 @@ test('a block with no row at all, whose rows are required, counts as one empty r
 });
 
 test('rows that are not required: no row is nothing, empty rows are left out', () => {
-  assert.equal(leaveOut(describe, 'faq', {}), undefined);
-  assert.deepEqual(leaveOut(describe, 'faq', { items: [{ title: '' }] }), { items: [] });
+  assert.equal(leaveOut(describe, 'gallery', {}), undefined);
+  assert.deepEqual(leaveOut(describe, 'gallery', { items: [{ title: '' }] }), { items: [] });
 });
 
 test('a block without rows (Notice) or a hidden block is never asked about', () => {
@@ -59,12 +59,12 @@ test('each empty row of the page is left out, the rest of the text is untouched'
   const text = page(
     { type: 'list', props: { items: [{ title: 'A' }, { title: '' }], heading: 'H' } },
     { type: 'expand', props: { items: [{ title: '' }] } },
-    { type: 'faq', props: { items: [{ title: 'Q' }, { title: '' }] } },
+    { type: 'gallery', props: { items: [{ title: 'Q' }, { title: '' }] } },
     { type: 'expand', props: { hidden: true } },
   );
   const out = withoutEmptyRows(describe, text);
   assert.equal(rows(out, 0), blockHtml('list', { items: [{ title: 'A' }], heading: 'H' }));
-  assert.equal(rows(out, 1), blockHtml('faq', { items: [{ title: 'Q' }] }));
+  assert.equal(rows(out, 1), blockHtml('gallery', { items: [{ title: 'Q' }] }));
   assert.equal(rows(out, 2), blockHtml('expand', { hidden: true }));
   assert.ok(out.startsWith('# Title') && out.endsWith('Text'));
   assert.equal(withoutEmptyRows(describe, out), out);

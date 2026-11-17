@@ -121,7 +121,7 @@ export function styleProblems(text, dir = join(root, 'src/standard')) {
 export const blockPages = {
   buttons: { title: 'Buttons', kind: 'basic', types: ['buttons'], via: '@theme/ui/Button' },
   cards: { title: 'Cards', kind: 'basic', types: ['cards', 'notice'], via: '@theme/ui/Card' },
-  lists: { title: 'Lists', kind: 'basic', types: ['list', 'expand', 'faq'], via: '@theme/ui/List' },
+  lists: { title: 'Lists', kind: 'basic', types: ['list', 'expand'], via: '@theme/ui/List' },
   steps: { title: 'Steps', kind: 'basic', types: ['steps'], via: '<ol' },
   tables: { title: 'Tables', kind: 'basic', types: ['table', 'cookies'], via: '<table' },
   testimonials: { title: 'Testimonials', kind: 'special', types: ['testimonials'] },

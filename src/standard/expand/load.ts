@@ -3,6 +3,7 @@
 // page is missing is left out. The link's text is plain (`Read more`, without the row's heading). One open at a
 // time in each list (its own group, by its place in the text).
 import { standard } from '@site/standard';
+import { markdownHtml } from '../../../lib/inline';
 import { imageOf } from '../load';
 import type { Load } from '../view';
 import { loadRows } from '../rows/load';
@@ -16,7 +17,10 @@ export const load: Load<ExpandView> = async (all, { index, texts, preview }) => 
   const view = expandOf(withRows(all, found), texts.showMore ?? shared.values.showMore, imageOf);
   const rows = (
     await Promise.all(
-      view.rows.map(async (row): Promise<FoldRow | null> => {
+      view.rows.map(async (row, i): Promise<FoldRow | null> => {
+        // The row's text is Markdown (bold, italic, links, lists), made as the answers of the FAQ list were.
+        const text = view.items[i]?.text?.trim();
+        if (text) return { ...row, html: await markdownHtml(text) };
         if (row.html || !row.href) return row;
         const opening = await standard.pageOpening(row.href, preview);
         return opening === undefined ? null : { ...row, html: `<p>${opening.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</p>` };

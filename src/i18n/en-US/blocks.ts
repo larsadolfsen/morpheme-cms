@@ -41,30 +41,6 @@ export const blocks = {
   /** A block's head (standard/head.ts): the label above its heading and the subheading under it. */
   subheading: 'Subheading',
   subheadingHint: 'Shown under the heading.',
-  faq: {
-    label: 'FAQ list',
-    hint: 'Questions that expand to answers.',
-    items: 'Questions',
-    item: 'question',
-    question: 'Question',
-    answer: 'Answer',
-    only: 'Only one open',
-    onlyToggle: ['On', 'Off'] as [string, string],
-    onlyHint: 'Opening a question closes the open one.',
-    button: 'Button label',
-    buttonHint: 'A text button under the last question. If empty, there is no button.',
-    buttonHref: 'Button page',
-    /** The button typed in place under the questions: the empty field's text. */
-    buttonPlaceholder: 'Button label',
-    /** A question typed in place: the add button, the faded question of an empty block, the floating toolbar, a question's place for screen readers. */
-    addQuestion: 'Add question',
-    newQuestion: 'New question',
-    questionOf: (n: number, total: number) => `Question ${n} of ${total}`,
-    addAbove: 'Add above',
-    addBelow: 'Add below',
-    questionMenu: 'Question',
-    questionSettings: 'Question settings',
-  },
   /** "List - Expand" (standard/expand/). */
   expand: {
     label: 'List - Expand',
@@ -79,6 +55,9 @@ export const blocks = {
     only: 'Only one open',
     onlyToggle: ['On', 'Off'] as [string, string],
     onlyHint: 'Opening a row closes the open one.',
+    faq: 'Mark as FAQ',
+    faqToggle: ['On', 'Off'] as [string, string],
+    faqHint: 'Tells search engines that the rows are questions and answers, so they can show them under your page.',
     /** The link in an open row, without the row's heading (in the site's language). */
     readMore: 'Read more',
     /** The link in an open row (in the site’s language). */

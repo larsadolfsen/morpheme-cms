@@ -1,6 +1,6 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
-/* "Questions and answers": rows that fold out, one open at a time (faq/Accordion.tsx). */
+/* "Questions and answers": rows that fold out, one open at a time (accordion/Accordion.tsx). */
 @layer components {
   .block-accordion {
     /* The rows' padding follows the block: 20px, 32px from medium (the List "expand" kind, ui/List.tsx, is drawn by ui.css). */

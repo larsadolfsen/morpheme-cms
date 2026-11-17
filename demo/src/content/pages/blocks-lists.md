@@ -156,11 +156,11 @@ With `Maximum rows`, only the first rows show and a text button shows the rest.
 
 <div data-block="expand" data-props="{&quot;from&quot;:&quot;testimonials&quot;,&quot;howMany&quot;:3,&quot;button&quot;:&quot;Show all&quot;,&quot;design&quot;:&quot;segmented&quot;}"></div>
 
-## FAQ list
+## List - Expand as a FAQ
 
-Questions that unfold to reveal the answer, ready for Google to show in search results.
+With `Mark as FAQ` the rows are questions and answers, ready for Google to show in search results. An answer can have bold, italic, links and lists.
 
-<div data-block="faq" data-props="{&quot;items&quot;:[{&quot;question&quot;:&quot;Can I use a block more than once on a page?&quot;,&quot;answer&quot;:&quot;Yes. Each copy has its own content.&quot;},{&quot;question&quot;:&quot;Can I turn a block off?&quot;,&quot;answer&quot;:&quot;Yes, under Block settings. It can’t be added again until you turn it back on.&quot;}]}"></div>
+<div data-block="expand" data-props="{&quot;design&quot;:&quot;segmented&quot;,&quot;faq&quot;:true,&quot;items&quot;:[{&quot;title&quot;:&quot;Can I use a block more than once on a page?&quot;,&quot;text&quot;:&quot;Yes. Each copy has its own content.&quot;},{&quot;title&quot;:&quot;Can I turn a block off?&quot;,&quot;text&quot;:&quot;Yes, under Block settings. It can’t be added again until you turn it back on.&quot;}]}"></div>
 
 ## Check list
 
