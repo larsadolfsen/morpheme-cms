@@ -2,7 +2,19 @@
 // Run: node --test scripts/ci-changes.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { isDocsOnly, needsStarterDemo, isLight, checkLevel, screensAreas, verdict, HEAVY, FILTERED, LIGHT_SKIPPED } from './ci-changes.mjs';
+import {
+  isDocsOnly,
+  needsStarterDemo,
+  isLight,
+  checkLevel,
+  screensAreas,
+  verdict,
+  outcome,
+  isSuperseded,
+  HEAVY,
+  FILTERED,
+  LIGHT_SKIPPED,
+} from './ci-changes.mjs';
 
 test('docs-only: skills, docs, changeset and root notes', () => {
   assert.equal(isDocsOnly(['.claude/skills/checks/SKILL.md', 'docs/superpowers/plans/x.md', '.changeset/a-b.md', 'CLAUDE.md']), true);
@@ -243,6 +255,43 @@ test('verdict: a pull request into a feature branch runs the light jobs and is g
   assert.equal(verdict(ok, false, true, light).length, LIGHT_SKIPPED.length);
 });
 
+const OLD = 'aaa111';
+const NEW = 'bbb222';
+const buildCancelled = { ...ok, build: { result: 'cancelled' }, screens: { result: 'skipped' }, demo: { result: 'skipped' } };
+const o = (needs, docsOnly = false, run = OLD, current = OLD) => outcome(needs, docsOnly, true, false, run, current).state;
+
+test('outcome: success, failure, and skipped on docs-only do not depend on the heads', () => {
+  assert.equal(o(ok), 'success');
+  assert.equal(o(ok, false, OLD, NEW), 'success');
+  assert.equal(o({ ...ok, screens: { result: 'failure' } }), 'failure');
+  assert.equal(o({ ...ok, screens: { result: 'failure' } }, false, OLD, NEW), 'failure');
+  assert.equal(o(skipHeavy, true), 'success');
+  assert.equal(o(skipHeavy, false), 'failure', 'a job skipped wrongly is a failure');
+});
+test('outcome: cancelled with a newer head is cancelled (green)', () => {
+  assert.equal(o(buildCancelled, false, OLD, NEW), 'cancelled');
+  assert.equal(o({ ...ok, static: { result: 'cancelled' } }, false, OLD, NEW), 'cancelled');
+});
+test('outcome: cancelled on the same head is red (manual cancel, lost runner, timeout)', () => {
+  assert.equal(o(buildCancelled, false, OLD, OLD), 'failure');
+  assert.equal(o({ ...ok, static: { result: 'cancelled' } }, false, OLD, OLD), 'failure');
+});
+test('outcome: cancelled and the head lookup failed is red', () => {
+  assert.equal(o(buildCancelled, false, OLD, ''), 'failure');
+  assert.equal(o(buildCancelled, false, '', NEW), 'failure');
+  assert.equal(outcome(buildCancelled, false).state, 'failure', 'no heads given');
+});
+test('outcome: cancelled with another job failed is red, also with a newer head', () => {
+  assert.equal(o({ ...buildCancelled, static: { result: 'failure' } }, false, OLD, NEW), 'failure');
+  assert.equal(o({ ...ok, changes: { result: 'cancelled' }, static: { result: 'failure' } }, false, OLD, NEW), 'failure');
+});
+test('isSuperseded: only two known, different shas', () => {
+  assert.equal(isSuperseded(OLD, NEW), true);
+  assert.equal(isSuperseded(OLD, OLD), false);
+  assert.equal(isSuperseded(OLD, ''), false);
+  assert.equal(isSuperseded('', NEW), false);
+  assert.equal(isSuperseded(), false);
+});
 test('screensAreas: the full level and the Release PR run every unit, whatever changed', () => {
   assert.equal(screensAreas(['src/Library.tsx'], 'main', 'merge-0.18-into-main-1'), 'all');
   assert.equal(screensAreas(['src/Library.tsx'], '', ''), 'all');

@@ -41,12 +41,13 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 # A new push to a pull request cancels that pull request's older queued and running Check runs, so only its newest head is
 # checked. The group is per pull request (its number), so runs on different pull requests never cancel each other; the
 # Release PR is a pull request like the others. The workflow has no push trigger, so a push to main or a version line is
 # never cancelled here (github.ref is only the fallback for an event without a pull request). In a cancelled run the job
-# check still runs (if: always()) and fails on that old head only; the PM looks at the newest head's run.
+# check still runs (if: always()) and reports the cancel as cancelled, not red, only when the pull request's head is no longer this run's head (scripts/ci-changes.mjs, outcome); any other cancel stays red; the PM looks at the newest head's run.
 concurrency:
   group: check-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -192,7 +193,7 @@ jobs:
       - run: npm run check:starter -- --screens --shard ${{ matrix.shard }}/${{ strategy.job-total }}
 
   # The one status check that is required: green when static and changes are green and every heavy job is green, or skipped on a
-  # docs-only pull request (a failed, cancelled or wrongly skipped one fails it; scripts/ci-changes.mjs).
+  # docs-only pull request (a failed or wrongly skipped one fails it, a run cancelled because a newer push replaced its head does not, any other cancel does; scripts/ci-changes.mjs).
   check:
     if: always()
     needs: [changes, static, build, screens, screens-extra, demo, starter]
@@ -204,6 +205,11 @@ jobs:
           DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
           STARTER_DEMO: ${{ needs.changes.outputs.starter_demo }}
           LIGHT: ${{ needs.changes.outputs.light }}
+          GH_TOKEN: ${{ github.token }}
+          RUN_HEAD: ${{ github.event.pull_request.head.sha }}
         run: |
           echo "$NEEDS"
-          echo "$NEEDS" | node scripts/ci-changes.mjs verdict "$DOCS_ONLY" "$STARTER_DEMO" "$LIGHT"
+          # The pull request's head now. A failed lookup leaves it empty, and an empty head is never "superseded": the run stays red.
+          CURRENT_HEAD=$(gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}" --jq .head.sha || true)
+          echo "run head $RUN_HEAD, current head ${CURRENT_HEAD:-unknown}"
+          echo "$NEEDS" | node scripts/ci-changes.mjs verdict "$DOCS_ONLY" "$STARTER_DEMO" "$LIGHT" "$RUN_HEAD" "$CURRENT_HEAD"
