@@ -1,0 +1,51 @@
+# Tailwind batch T15: The last Tailwind-named reads, repointed
+
+Spec for one build session and one pull request into `0.18`. Part of `2026-11-16-move-away-from-tailwind.md` (the plan) and
+`2026-11-18-tailwind-batches.md` (the order). Owner, 18 Nov: "Remove Tailwind", on the 0.18 line, inside contract 6.
+
+| | |
+| :-- | :-- |
+| **When** | After the CSS split has finished and T05 (`src/ui.tsx`) has merged. |
+| **Must merge first** | the CSS split, T01, T05 |
+| **Others wait for it** | T16 |
+| **Size** | small |
+
+## Goal
+
+Point every read of a Tailwind-named property at the `--mo-` name it aliases, so T16 only deletes dead lines.
+
+## What to do
+
+- `var(--font-sans)` (17 reads) → a `--mo-ref-…` font family token (the Tokens session's name; if none exists, add `--mo-ref-typeface-plain` or the rename table's pattern, and say so); declared once in `tokens/base/ref.css` (it is today's `@theme inline` value) and in `tokens/material/ref.css` for Material's value.
+- `var(--radius-panel)` (6 reads, `src/editor.css` and others) → the `--mo-sys-…` name it aliases (`--radius`'s successor); `var(--color-…)` (4 reads: `src/ui.tsx`, three lines) → `var(--mo-sys-color-…)`; the 17 `text-<role>` utility uses that still exist (none after T05–T09; verify) → `mo-type-<role>`.
+- Record every rename in `scripts/renamed-tokens.json` (`check:token-names`).
+- `--breakpoint-*`: no reader is left after T03 and T10: say so (paste `git grep`).
+
+## Files it touches
+
+- `theme/styles/tokens/base/ref.css`, `tokens/material/ref.css`, `theme/styles/base.css`, `src/editor.css`, `src/ui.tsx`, `scripts/renamed-tokens.json`
+
+## Proof that the rendered result is identical
+
+1. After this batch `git grep -n -E 'var\(--(color-|text-|radius-panel|font-sans|breakpoint-|shadow-soft|ease-soft)' -- theme src lib pages defaults` is empty (paste it).
+2. The computed value of every custom property on every element of the demo, light and dark, before and after: identical (the Tokens session's proof, in `docs/theme-token-files.md`).
+3. `compare-styles` demo and starter: 0 differences; `check:token-names`, `check:css-tokens`.
+
+## Changeset
+
+Empty.
+
+## Checks
+
+`npm run check`.
+
+## Rules for every batch
+
+- Start with the `developer` skill, read `CLAUDE.md`, load `checks`. A brainstorm is over for this work: the owner said "Remove Tailwind" (18 Nov); this batch is built, as specified here and nothing else.
+- **One pull request into `0.18`**, one logical change, the rendered result identical. Check in with the PM first (`ready: <branch>, <what changed>, local check green`) and push only on "your slot" (`developer` §3a). Never merge your own pull request. At most two Tailwind batches are in CI at once; the PM keeps the order (`2026-11-18-tailwind-batches.md`).
+- **Components line:** *existing; moved as they were; Material 3 pages not read, a pure migration changes no design.* A batch that adds layout helpers (T04) says: *none: layout helpers, not components.* No new component, no screen-specific variant (`developer` hard rule). A cluster of utilities that draws a surface or a control is not turned into a new component: it keeps its look in a named part rule, and the PR lists it under **Surfaces** for the PM (the owner decides later whether it becomes a theme component).
+- Name the Modern Web Guidance guides you read in the PR text (`css-layout`, `css`, `responsive-design` for a batch that writes CSS). Logical properties (`inline-size`, `margin-inline`, `padding-block`) and `gap`, as the guide says; a physical property only where the old utility was physical on purpose.
+- After T01 exists: lower `scripts/tailwind-allowlist.json` in the same PR by exactly the uses the batch removed, and say the numbers in the PR text.
+- A token the batch adds follows `docs/css-tokens.md`: `--mo-ref-*`, `--mo-sys-*` or `--mo-comp-<component>-*`, a token one place reads is declared there, nothing unprefixed on `:root`.
+- English only (replies, PR text, commits). Short report to the PM: link and head sha.
+- **Do not touch `theme/styles/ui.css`, `base.css`, `blocks.css`, `components.css` or `global.css` while the CSS split is moving them** unless the batch says "after the split". The PM tells the batch session when the split has finished.
