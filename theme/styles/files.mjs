@@ -7,6 +7,8 @@
 export const UI_PART_FILES = [
   'divider.css',
   'badge.css',
+  'loading-indicator.css',
+  'progress-indicators.css',
   'snackbar.css',
   'tooltip.css',
   'checkbox.css', // before ui.css in base.css: the list's selection box is a .checkbox, and the list's rules (in ui.css) must win over it
