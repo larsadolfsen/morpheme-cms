@@ -3,7 +3,7 @@
    (docs/superpowers/plans/2026-11-16-css-split.md). */
 @layer components {
   /* With the bar of "Mobile menu" under the header (MobileNav.astro), a link to a part of a page stops below both. */
-  @media (width < theme(--breakpoint-large)) {
+  @media (width < 75rem) {
     html:has([data-mobile-nav]) {
       scroll-padding-top: 9.25rem;
     }
@@ -41,7 +41,7 @@
   .page-with-side > .page-side {
     margin-top: 3rem;
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .page-with-side {
       display: grid;
       grid-template-columns: minmax(0, 1fr) var(--mo-comp-theme-side-width);
@@ -70,7 +70,7 @@
     font-weight: var(--mo-sys-typescale-display-small-weight);
     letter-spacing: var(--mo-sys-typescale-display-small-tracking);
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .theme-title {
       font-size: var(--mo-comp-theme-title-size-large, var(--mo-sys-typescale-display-medium-size));
       font-weight: var(--mo-sys-typescale-display-medium-weight);

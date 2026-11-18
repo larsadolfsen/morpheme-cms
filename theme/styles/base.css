@@ -315,7 +315,7 @@
     font-weight: var(--mo-sys-typescale-headline-large-weight);
     letter-spacing: var(--mo-sys-typescale-headline-large-tracking);
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .block-place > h2,
     .block-place > .block-head > h2 {
       font-size: var(--mo-sys-typescale-display-medium-size);
@@ -326,7 +326,7 @@
   }
   /* Cards placed in the page's full width (a front-page section, PageBlock.astro): three in a row on a computer, as
    there is room for (in the text, two). */
-  @media (width >= theme(--breakpoint-expanded)) {
+  @media (width >= 52.5rem) {
     .block-place .block-cards {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }

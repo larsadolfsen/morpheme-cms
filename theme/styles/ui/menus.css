@@ -300,7 +300,7 @@
   .menu:has(.menu-submenu:not([popover])) {
     overflow: visible;
   }
-  @media (width < theme(--breakpoint-medium)) {
+  @media (width < 37.5rem) {
     /* No room beside it on a phone: under its item, a little in, as a popover flips when it has no room. */
     .menu-submenu:not([popover]) {
       top: calc(100% + var(--menu-submenu-gap, 0.25rem));

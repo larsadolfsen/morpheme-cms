@@ -80,7 +80,7 @@
   /* On a phone the practical links are two equal columns of the grid (compact: 4 columns, 2 each) with the grid's gutter between,
      in reading order across, then down (the document order, so the tab order and a screen reader follow what is seen). The
      rows keep their height and target (the item's 3rem). From the medium width the list is one column as before. */
-  @media (width < theme(--breakpoint-medium)) {
+  @media (width < 37.5rem) {
     .md-footer-column > .md-footer-list {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -110,7 +110,7 @@
   }
   /* Room under the footer's last line for the FAB, or for the bar at the bottom of the screen: in the footer instead of
    under the page (site-action.css), so the footer reaches the bar. */
-  @media (width < theme(--breakpoint-medium)) {
+  @media (width < 37.5rem) {
     body:has(.theme-action-bar):has(.md-footer) {
       padding-bottom: 0;
     }

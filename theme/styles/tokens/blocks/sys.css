@@ -115,7 +115,7 @@
   --mo-sys-block-section-padding: 1.5rem;
   --mo-sys-block-section-margin: 2rem;
 }
-@media (width >= theme(--breakpoint-medium)) {
+@media (width >= 37.5rem) {
   :where(:root) {
     --mo-sys-block-gutter: 1.5rem;
   }
