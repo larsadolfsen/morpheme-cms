@@ -75,7 +75,15 @@ const manifestOf = (version, extra = {}) => ({
  * notifications. `checks`: a commit's check run by its id ('success' | 'failure'; none: no run yet), `forbidden`: GitHub answers
  * the check runs with 403, `commitFails`: from which commit on `commitFiles` throws.
  */
-function world({ range = '0.1.0', latest = '0.1.1', manifestExtra = {}, lock = true, contracts = 6, items = [] } = {}) {
+function world({
+  range = '0.1.0',
+  latest = '0.1.1',
+  manifestExtra = {},
+  lock = true,
+  contracts = 6,
+  items = [],
+  catalog = { apps: [], themes: [] },
+} = {}) {
   const files = {
     'wrangler.jsonc': '{\n  "build": {\n    "command": "npm run check && npm run build",\n  },\n}\n',
     'package.json': JSON.stringify({ name: 'site', dependencies: { [PACKAGE]: range } }, null, 2) + '\n',
@@ -107,6 +115,7 @@ function world({ range = '0.1.0', latest = '0.1.1', manifestExtra = {}, lock = t
     latest,
     readCount: 0,
     items,
+    catalog,
   };
   w.env = { GITHUB_PUBLISH_TOKEN: 'token', PUSH: w.kv };
   w.deps = {
@@ -115,6 +124,7 @@ function world({ range = '0.1.0', latest = '0.1.1', manifestExtra = {}, lock = t
       return { head: `head${w.commits.length}`, texts: paths.map((p) => files[p]) };
     },
     readStoreItems: async () => w.items,
+    storeCatalog: async () => w.catalog,
     commitFiles: async (env, head, headline, changes) => {
       if (w.failure && w.commits.length >= (w.commitFails ?? 0)) throw w.failure;
       for (const { path, text } of changes) files[path] = text;
@@ -488,54 +498,64 @@ for (const [what, patch] of [
   expect(Array.isArray(status?.notes) && status.notes.length === 0, 'en forudgivelse gav noter');
 }
 
-// 13. The contract hold: a version whose contracts a theme or an app from the store is not written to is not taken by itself.
+// 13. The contract hold: a version is taken only when the store lists every installed store theme and app for its contracts.
 {
-  const record = JSON.stringify({ version: '1.3.0', ref: '1.3.0', files: [{ path: 'theme.json', oid: 'abc' }] }, null, 2);
-  const venus = { kind: 'theme', id: 'venus', record, manifest: JSON.stringify({ name: 'Venus', version: '1.3.0' }) };
-  const mailchimp = { kind: 'app', id: 'mailchimp', record, manifest: JSON.stringify({ api: 6, version: '2.0.0' }) };
-  const own = { kind: 'app', id: 'sara', record: null, manifest: JSON.stringify({ api: 6 }) };
+  const record = (version) => JSON.stringify({ version, ref: version, files: [{ path: 'theme.json', oid: 'abc' }] }, null, 2);
+  const venus = { kind: 'theme', id: 'venus', record: record('1.3.0'), manifest: JSON.stringify({ name: 'Venus', version: '1.3.0' }) };
+  const mailchimp = { kind: 'app', id: 'mailchimp', record: record('2.0.0'), manifest: JSON.stringify({ api: 5, version: '2.0.0' }) };
+  const own = { kind: 'app', id: 'sara', record: null, manifest: JSON.stringify({ api: 5 }) };
+  const listed = { apps: [{ id: 'mailchimp', version: '2.0.0' }], themes: [{ id: 'venus', version: '1.3.0' }] };
+  const problemOf = (w) => stored(w.kv, 'cms:checked')?.problem;
 
-  const held = world({ contracts: 7, items: [venus, own] });
+  const held = world({ items: [venus, own], catalog: { apps: [], themes: [{ id: 'venus', version: '1.4.0' }] } });
   await checkForUpdate(held.env, held.deps, T0);
-  const problem = stored(held.kv, 'cms:checked')?.problem;
-  expect(held.commits.length === 0 && stored(held.kv, 'cms:update') === null, 'a version a store theme is not written to was taken');
-  expect(problem?.kind === 'contract' && problem.detail === 'theme venus', `the hold was recorded as ${JSON.stringify(problem)}`);
+  expect(
+    held.commits.length === 0 && stored(held.kv, 'cms:update') === null,
+    'a version the store does not list the installed theme for was taken',
+  );
+  expect(
+    problemOf(held)?.kind === 'contract' && problemOf(held).detail === 'theme venus',
+    `the hold was recorded as ${JSON.stringify(problemOf(held))}`,
+  );
   expect(stored(held.kv, 'cms:checked')?.latest === '0.1.1', 'the held check did not keep latest');
 
-  const app = world({ contracts: 7, items: [mailchimp] });
+  const app = world({ items: [mailchimp], catalog: { apps: [], themes: [] } });
   await checkForUpdate(app.env, app.deps, T0);
   expect(
-    app.commits.length === 0 && stored(app.kv, 'cms:checked')?.problem?.detail === 'app mailchimp',
-    'a store app written to 6 did not hold 7',
+    app.commits.length === 0 && problemOf(app)?.detail === 'app mailchimp',
+    'a store app the store does not list for the contract was taken',
   );
 
-  const ownOnly = world({ contracts: 7, items: [own] });
-  await checkForUpdate(ownOnly.env, ownOnly.deps, T0);
-  expect(ownOnly.commits.length === 1 && !stored(ownOnly.kv, 'cms:checked')?.problem, 'a site’s own app (no store.json) was held');
+  const silent = world({ items: [venus], catalog: null });
+  await checkForUpdate(silent.env, silent.deps, T0);
+  expect(
+    silent.commits.length === 0 && problemOf(silent)?.kind === 'contract' && /could not confirm/.test(problemOf(silent).detail),
+    `a silent store was recorded as ${JSON.stringify(problemOf(silent))}`,
+  );
 
-  const same = world({ contracts: 6, items: [venus, mailchimp] });
-  await checkForUpdate(same.env, same.deps, T0);
-  expect(same.commits.length === 1, 'a version with the same contracts was held');
+  const ok = world({ items: [venus, mailchimp, own], catalog: listed });
+  await checkForUpdate(ok.env, ok.deps, T0);
+  expect(ok.commits.length === 1 && !problemOf(ok), 'a version the store lists every installed release for was held');
+
+  const ownOnly = world({ items: [own], catalog: null });
+  let asked = false;
+  ownOnly.deps.storeCatalog = async () => void (asked = true);
+  await checkForUpdate(ownOnly.env, ownOnly.deps, T0);
+  expect(ownOnly.commits.length === 1 && !asked, 'a site with only its own app was held, or asked the store');
 
   const unreadable = world({ items: [venus] });
   const fetch = unreadable.deps.fetch;
   unreadable.deps.fetch = async (url, init) =>
     String(url).endsWith('.tgz') ? new Response(tarball({ 'package/CHANGELOG.md': CHANGELOG })) : fetch(url, init);
   await checkForUpdate(unreadable.env, unreadable.deps, T0);
-  expect(
-    unreadable.commits.length === 0 && stored(unreadable.kv, 'cms:checked')?.problem?.kind === 'unreachable',
-    'unreadable contracts were taken on a guess',
-  );
+  expect(unreadable.commits.length === 0 && problemOf(unreadable)?.kind === 'unreachable', 'unreadable contracts were taken on a guess');
 
   const failing = world({ items: [venus] });
   failing.deps.readStoreItems = async () => {
     throw new Error('github');
   };
   await checkForUpdate(failing.env, failing.deps, T0);
-  expect(
-    failing.commits.length === 0 && stored(failing.kv, 'cms:checked')?.problem?.kind === 'unreachable',
-    'an unreadable site was taken',
-  );
+  expect(failing.commits.length === 0 && problemOf(failing)?.kind === 'unreachable', 'an unreadable site was taken');
 }
 
 // 14. No GitHub token: nothing is done, and the check says why (the KV is there to keep it). No KV: nothing, and no error.

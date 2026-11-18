@@ -52,3 +52,30 @@ export async function handleStore(request, env, _ctx, ask = fetch) {
   if (cache) headers['cache-control'] = cache;
   return new Response(res.body, { status: 200, headers });
 }
+
+/**
+ * The store's catalog for the contracts of a CMS version, for the Worker's own update (nobody is signed in): `{ apps, themes }` with the
+ * releases written to them, or null when the site has no key or the store cannot be asked or does not answer. One call for each app contract.
+ * @param {Record<string, any>} env @param {{ theme: number, apps: number[] }} contracts @param {typeof fetch} [ask]
+ */
+export async function catalogFor(env, contracts, ask = fetch) {
+  const found = await storeKey(env).catch(() => null);
+  if (!found) return null;
+  const base = env.MORPHEME_STORE_URL ?? STORE_URL;
+  const out = { apps: [], themes: [] };
+  for (const app of contracts.apps) {
+    let json;
+    try {
+      const res = await ask(`${base}/store/catalog?app=${app}&theme=${contracts.theme}`, {
+        headers: { authorization: `Bearer ${found.key}` },
+      });
+      json = res.status === 200 ? await res.json() : null;
+    } catch {
+      return null;
+    }
+    if (!Array.isArray(json?.apps) || !Array.isArray(json?.themes)) return null;
+    out.apps.push(...json.apps.map(({ id, version }) => ({ id, version })));
+    out.themes.push(...json.themes.map(({ id, version }) => ({ id, version })));
+  }
+  return out;
+}

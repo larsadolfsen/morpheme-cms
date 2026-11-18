@@ -31,21 +31,24 @@ Lowering the peer floor first would let Sara's site take 0.18.0 that night. Her 
 - Before `startUpdate`, the Worker reads `lib/contracts.mjs` from the version's npm tarball (`THEME_API`, `APP_APIS`, or `APP_API`
   in an older one) and the apps' and themes' folders on the site (only `store.json` and `app.json` / `theme.json`). A version the
   contracts of an installed store theme or app do not accept is not taken: `cms:checked` gets
-  `{ kind: 'contract', detail: '<theme|app> <id>', item, id, has, needs }`. A site's own app (no `store.json`, for example
+  `{ kind: 'contract', detail: '<theme|app> <id>[: could not confirm]', item, id, why, needs }`. A site's own app (no `store.json`, for example
   Sara's `sara`) is never held. A version whose contracts cannot be read, or a site whose folders cannot be read, is not taken
   either (`unreachable`, tried again the next night): never on a guess.
 - The silent returns are recorded (decision 8 of the store auto-updates design): no `GITHUB_PUBLISH_TOKEN` gives
   `{ kind: 'no-token' }`. With no KV binding nothing can be kept, and `cmsStatus` already says `kv: false` to the page.
 - Tests: `scripts/check-cms-update.mjs` (run by `npm run check:worker`, cases 13 and 14) with fixture store records.
 
-### What the build session found that the task did not say (changes PR 1)
+### The theme's contract is not recorded on the site (CTO ruling, 18 Nov)
 
-**The contract of an installed theme is not written on the site.** `store.json` has `version`, `ref` and `files` only
-(`StoreRecord` in `src/store.ts`), and `theme.json` has no `api`. An app's `app.json` has `api` (contract 4 and later). So the Worker
-cannot read "the contract of a theme" from its store record. What PR 1 does instead: an installed store theme (or an app with no
-`api`) is taken to be written to the contract of the CMS the site runs now, because the store offers only what the running CMS
-reads. The hold then fires when the version's contract differs from the running one. This holds Sara's site (running 0.16, theme
-contract 5, 0.18.0 is 6) and is stricter than needed for a theme that was already re-released.
+`store.json` has `version`, `ref` and `files` only, and `theme.json` has no `api`. So the Worker does not assume a contract. The store
+records every release's contract (`releases.api` in `morpheme-appstore`), and its catalog is filtered by it. For each theme and app
+installed from the store (its `store.json`: the folder's id and `version`), the Worker asks the store's catalog (`<store>/store/catalog?app=<n>&theme=<m>`,
+with the site's key, as `worker/store.js` does for the editor) for the **next version's** contracts. An installed `id@version` that is not
+in it is **held**. The store silent (no key, an error, no answer) is held too, with the reason "could not confirm": never assumed compatible.
+A site's own app has no `store.json` and is never held. The store is asked only when the site has something from the store.
+
+**Later, a separate PR (not here):** write the release's `api` into `store.json` on install (`src/store.ts`), so the Worker can compare it
+without asking the store.
 
 ## PR 2: start screen
 
@@ -65,9 +68,9 @@ A blocked update (`needs-npm`, `contract`, `cannot-write`, a missing token or KV
 ## Open
 
 - **Sizes:** PR 1 about 150 lines of code and test; PR 2 one notice and its texts; PR 3 a package change and fixtures.
-- **A theme's contract is not recorded** (above). A lasting fix is for the installer to write `api` into `store.json`
-  (`src/store.ts`, the store's catalog already has it); then the hold can compare the real number. Not in these three PRs; the CTO
-  decides.
+- **The catalog is read as `id@version` pairs.** The build session could not read `morpheme-appstore`: it is assumed (from `src/store.ts`) that the
+  catalog's `apps[]` and `themes[]` carry `id` and `version`, that the site's folder name is that `id`, and that the catalog lists the
+  releases written to the asked contracts (not only the newest). A wrong assumption holds more, never less. Not run against the real store.
 - **Only the newest version is looked at.** If `latest` is held, an older compatible version is not taken instead. Not changed here.
 - **The Update button** (`POST /api/cms/update`) is the owner's own action and is not held by the contract rule.
 - **Real lockfiles for PR 3:** the lockfiles of Sara's site and `morpheme-website` are not in this repository; the owner or the CTO

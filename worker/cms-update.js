@@ -12,7 +12,6 @@ import { cms as cmsDa } from '../src/i18n/da-DK/cms';
 import { withCiBuild } from '../lib/build-command.mjs';
 import { addToLock, NeedsNpm } from '../lib/lockfile.mjs';
 import { contractHold, parseContracts } from '../lib/contractHold.mjs';
-import { APP_APIS, THEME_API } from '../lib/contracts.mjs';
 import { checkDue, compareVersions, managedVersion, nextVersion, PACKAGE, siteZone, watchStep } from '../lib/cms-version.mjs';
 import { withInstallDefaults } from '../lib/npmrc.mjs';
 import { fileFromTar, gunzip, sectionsBetween } from '../lib/changelog.mjs';
@@ -22,6 +21,7 @@ import { GitHubError } from './files.js';
 import { commitFiles, readFiles, readStoreItems } from './github.js';
 import { json } from './not-found.js';
 import { notifyAll } from './push.js';
+import { catalogFor } from './store.js';
 import { mayEdit } from './session.js';
 
 /** The version this Worker itself runs. */
@@ -35,7 +35,15 @@ const NPM = 'https://registry.npmjs.org';
 const NPM_NAME = '@morphemecms%2fcms';
 const BUILD_APP = 'cloudflare-workers-and-pages';
 
-const defaultDeps = { readFiles, readStoreItems, commitFiles, fetch: (...args) => fetch(...args), notify: notifyAll, mayEdit };
+const defaultDeps = {
+  readFiles,
+  readStoreItems,
+  storeCatalog: catalogFor,
+  commitFiles,
+  fetch: (...args) => fetch(...args),
+  notify: notifyAll,
+  mayEdit,
+};
 
 /** The site's language for the commits: its own, else the same language, else Danish. */
 const siteTexts = () => {
@@ -102,9 +110,9 @@ async function tell(env, deps, key, version, error) {
 }
 
 /**
- * The theme or app installed from the store that the version cannot run (see contractHold), or null. The version's contracts are
- * read from the lib/contracts.mjs in its npm tarball; throws when the tarball, the contracts or the site's folders cannot be read, so
- * a version is never taken on a guess.
+ * The theme or app installed from the store that the version cannot be shown to run (see contractHold), or null. The version's contracts are
+ * read from the lib/contracts.mjs in its npm tarball and the store says which releases are written to them; throws when the tarball, the
+ * contracts or the site's folders cannot be read, and the store being silent holds: a version is never taken on a guess.
  */
 async function heldByContract(env, deps, version) {
   const manifest = await getJson(deps, `${NPM}/${NPM_NAME}/${version}`);
@@ -113,7 +121,9 @@ async function heldByContract(env, deps, version) {
   const next = parseContracts(fileFromTar(await gunzip(new Uint8Array(await res.arrayBuffer())), 'package/lib/contracts.mjs'));
   if (!next) throw new Error('contracts');
   const items = await deps.readStoreItems(env, { apps: config.apps.folder, themes: config.themes });
-  return contractHold(items, next, { theme: THEME_API, apps: [...APP_APIS] });
+  // The store says which releases are written to the next contracts; it is asked only when the site has something from the store.
+  const fromStore = items.some((x) => x.record);
+  return contractHold(items, fromStore ? await deps.storeCatalog(env, next) : null, next);
 }
 
 const putJson = (kv, key, value) => kv.put(key, JSON.stringify(value));
@@ -196,10 +206,10 @@ export async function checkForUpdate(env, deps = defaultDeps, now = Date.now()) 
     if (held)
       return record({
         kind: 'contract',
-        detail: `${held.kind} ${held.id}`,
+        detail: `${held.kind} ${held.id}${held.why === 'could-not-confirm' ? ': could not confirm' : ''}`,
         item: held.kind,
         id: held.id,
-        has: held.has,
+        why: held.why,
         needs: held.needs,
       });
   } catch {
