@@ -1,6 +1,6 @@
 # Every class and every custom property starts with `mo-`, inside contract 7 (plan)
 
-Status: **direction decided by the owner, 18 November 2026**; one question open (below, *Names saved in content*). Written by the CTO for
+Status: **decided by the owner, 18 November 2026** (the names saved in content too, below). Written by the CTO for
 the PM, who hands each PR to a build session. It is part of 0.18.2 (the Tailwind removal, `2026-11-18-tailwind-batches.md`) and of
 its contract raise to 7 (T16). The work goes into `feature/tailwind`, like the Tailwind batches.
 
@@ -72,27 +72,31 @@ names everywhere: CSS, `className` and `class` strings, `querySelector` and `cla
 | **M3** | The theme's UI components (`theme/ui/`, `theme/styles/ui/`, their hooks and runtime values). The card and list files are included: cards and lists are merged. | T10, T13 to T15 | large |
 | **M4** | The blocks (`theme/blocks/`, `theme/styles/blocks/`, `src/standard/`, `block-*` → `mo-block-*`). | T11, T12 | large |
 | **M5** | The site shell, layouts, templates, components, `defaults/`, `site/`, `pages/`, section colours (`.text-section-*`; also `CLAUDE.md`'s rule text). | T11, T12 | medium |
-| **M6** | The names saved in content (below). | the owner's answer, M1 | small |
+| **M6** | The names saved in content (below): the editor and the site, the repository's content, and the update's rewrite. | M1 | medium |
 | **M7** | The permanent check: the ratchet at zero, no allowlist but the libraries' names; `check:css-tokens` also fails on a read of an unprefixed name; `check:themes` and `check:content` run it on a site's themes and apps. With T17. | M2 to M6 | small |
 
 **T16 waits for M2 to M6**, so contract 7 is one raise. Its changeset and note say both what stopped working (utilities, `theme()`,
 `@theme`) and which names changed (the map). M-PRs share the Tailwind batches' CI lane: at most two of either in CI at once, and an M-PR
 never runs at the same time as the Tailwind batch that edits its files.
 
-## Names saved in content (open question)
+## Names saved in content (decided)
 
 Six class names are written into a site's Markdown by the editor: `body-small`, `body-large`, `label-medium`, `color-accent`,
 `color-muted` and the former `block-eyebrow` (`lib/body-size.mjs`, `lib/text-sizes.mjs`, `lib/text-colors.mjs`, `lib/eyebrow.mjs`). The demo
 has 89, `demo/src/content/pages/typography.md` most of them. Sara's content has none of ours (one `calendly-inline-widget`). M6 makes the
-editor write the new names (`mo-type-body-small`, `mo-has-accent-color` …) and the site read only them. A site's existing pages then need
-their `class` attributes rewritten once, the way `lib/migrate-content.mjs` rewrote `block-eyebrow` in 0.17: only the attribute, never a
-word of text, idempotent.
+editor write the new names (`mo-type-body-small`, `mo-has-accent-color` …) and the site read only them.
 
-**Recommendation:** the nightly update to 0.18.2 rewrites those attributes in the same commit as the version, and undoes them with it if
-the build fails. This is an exception to "an update never touches content". It is an exception because only the markup's class name
-changes, never the owner's words.
-**Other options:** the owner runs it per site from the start screen. Or the site keeps reading the old six names until a migration before
-1.0, which keeps old names alive meanwhile.
+**The owner's decision, 18 November: "fix them in tailwind".** They are fixed in the Tailwind release itself (0.18.2, contract 7), not
+left for a later migration and not kept as old names:
+
+- **The repository's own content** (the demo, the starter, the docs' examples) is rewritten in M6, in the same PR as the code.
+- **A site's existing pages** are rewritten by the nightly update that takes 0.18.2, in the same commit as the version
+  (`worker/cms-update.js`, with `lib/migrate-content.mjs`'s rules, which rewrote `block-eyebrow` in 0.17): only the `class` attribute,
+  never a word of text, idempotent, and undone with the version if the build fails. This is the one exception to "an update never touches
+  content", because only the markup's class name changes, never the owner's words. A site that takes 0.18.2 by `npm install` instead
+  runs `npx morpheme migrate`, which does the same rewrite; the release note says so.
+- **Tests:** the rewrite's table is M1's map for these six names. A test rewrites a fixture page with all six, and leaves a page that
+  already has the new names unchanged. A test of the update proves the version and the rewrite land in one commit and are undone together.
 
 ## The gate (added to the Tailwind gate)
 
