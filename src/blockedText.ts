@@ -1,9 +1,11 @@
 // The sentence for a reason the site can't update itself (cmsBlocked.mjs), in the editor's language; used by the start screen's notice
 // (BlockedUpdateNotice.tsx) and the Morpheme page (CmsPage.tsx). Exports Blocked and blockedText.
 import { t } from './i18n';
-import type { blockedUpdate } from './cmsBlocked.mjs';
 
-export type Blocked = NonNullable<ReturnType<typeof blockedUpdate>>;
+export type Blocked =
+  | { kind: 'no-token' | 'no-kv' }
+  | { kind: 'cannot-write' | 'needs-npm'; version: string }
+  | { kind: 'contract'; version: string; item: 'theme' | 'app'; id: string; sure: boolean };
 
 /** The sentence for a reason. */
 export function blockedText(b: Blocked): string {

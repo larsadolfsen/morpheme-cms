@@ -15,7 +15,7 @@ export function BlockedUpdateNotice() {
     let live = true;
     fetch('/api/cms', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : null))
-      .then((status) => live && setBlocked(blockedUpdate(status)))
+      .then((status) => live && setBlocked(blockedUpdate(status) as Blocked | null))
       .catch(() => {});
     return () => {
       live = false;
