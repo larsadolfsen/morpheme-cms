@@ -145,8 +145,7 @@ new job `next-line` is in it. On a line the job `release` (Release PR, `latest`,
 so a line opens no Release PR and nothing of it can reach `latest`. `next-line` runs `changeset version --snapshot next` in its own checkout
 (nothing committed), then `scripts/publish-next.mjs`, then `npm stage publish --tag next-<line>`. It stages only, as `next` does: the owner approves on npmjs.com.
 
-- **Tag scheme: `next` stays for `main` alone; a line uses `next-<line>`** (`next-0.18`, `next-0.19`). Why: `staging-follows-next.yml`
-  and `morpheme-staging` (its own Worker checks npm's `next` every hour and calls its deploy hook) read `next` and must see only what `main` stages; with one shared tag the line that merged last would win, and three lines run at
+- **Tag scheme: `next` stays for `main` alone; a line uses `next-<line>`** (`next-0.18`, `next-0.19`). Why: `morpheme-staging` (its own Worker checks npm's `next` every hour and calls its deploy hook) read `next` and must see only what `main` stages; with one shared tag the line that merged last would win, and three lines run at
   once. A site pins the exact version (`0.18.0-next-<timestamp>`), so it needs no tag; the tag is for finding the newest one
   (`npm view @morphemecms/cms@next-0.18 version`). `latest` is never used.
 - **The version** is the changeset snapshot as today, `X.Y.Z-next-<14 digits>`; unique (the jobs share the group `publish-next`, one at a time) and

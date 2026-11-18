@@ -132,7 +132,7 @@ test('starter/demo: a script that the jobs use runs', () => {
 test('starter/demo: a static-only check script, a test file and another workflow are skipped', () => {
   assert.equal(needsStarterDemo(['scripts/check-language.mjs', 'scripts/web-allowlist.json', 'scripts/check-density.mjs']), false);
   assert.equal(needsStarterDemo(['src/store.test.mjs', 'lib/blocks.test.mjs', 'scripts/starter-gitattributes.test.mjs']), false);
-  assert.equal(needsStarterDemo(['.github/workflows/publish.yml', '.github/workflows/staging-follows-next.yml']), false);
+  assert.equal(needsStarterDemo(['.github/workflows/publish.yml', '.github/workflows/cache-fill.yml']), false);
   // The workflow that only fills the caches (cache-fill.yml) builds nothing the starter or the demo job reads.
   assert.equal(needsStarterDemo(['.github/workflows/cache-fill.yml']), false);
   assert.equal(needsStarterDemo(['.github/workflows/daily-full.yml']), false);
