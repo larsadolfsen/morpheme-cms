@@ -5,6 +5,8 @@
 /* The Checkbox comes before ui.css on purpose: the list's selection box (List.tsx) is a .checkbox and a .list-item-select-box, and the list's rules, still
    in ui.css, must keep winning over .checkbox's display and alignment, as they did when both were in ui.css, the checkbox's first. */
 @import './checkbox.css';
+/* The Chips and the chip sets come before ui.css for the same reason: a chip set in the search view is also .search-view-filters (Search.tsx), whose rules in ui.css set margin and padding at the same specificity and must win. */
+@import './chips.css';
 /* The theme's UI components, as Material 3 names them (buttons, icon buttons), and the standard blocks of the editor,
    in this site's design (their variables below). */
 @import './ui.css';
