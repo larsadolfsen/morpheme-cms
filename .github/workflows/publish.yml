@@ -1,7 +1,9 @@
 # On each push to main: Changesets keeps the "Release @morphemecms/cms" pull request open, and when that pull request
 # has been merged, the new version is staged on npm for latest; once the owner has approved it on npmjs.com (2FA), it
 # gets the tag v<version> and a GitHub release, and morpheme-staging is rebuilt. While changesets are pending, a
-# test version (X.Y.Z-next-<time>) is staged for next. npm's trusted publishing trusts this one file and lets it only
+# test version (X.Y.Z-next-<time>) is staged for next. A push to a version line's branch (0.18, 0.19 ...) stages a test version
+# of that line under its own tag next-<line> (job next-line; scripts/publish-next.mjs), never next and never latest, and
+# opens no Release PR: only main releases. npm's trusted publishing trusts this one file and lets it only
 # stage (npm stage publish): no key, and nothing reaches npm without the owner's approval.
 # The "next" job only stages and ends: it never waits for the approval, so it holds no runner slot and a newer push
 # cannot cancel a wait. Rebuilding morpheme-staging for an approved next version is the job of
@@ -11,7 +13,7 @@ name: Publish
 
 on:
   push:
-    branches: [main]
+    branches: [main, '0.[0-9]+']
 
 permissions:
   contents: write
@@ -20,6 +22,8 @@ permissions:
 
 jobs:
   release:
+    # Only main has a Release PR and a latest; a version line only stages (job next-line).
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     # One at a time; the jobs that wait for an approval do not hold it.
     concurrency: release
@@ -104,3 +108,33 @@ jobs:
           v=$(node -p "require('./package.json').version")
           if [ "$v" = "$(git show HEAD:package.json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")" ]; then exit 0; fi
           npm stage publish --tag next
+
+  # A version line (0.18, 0.19 ...): stages its pending changesets as X.Y.0-next-<time> under the tag next-<line>. Stages only,
+  # like `next`: nothing is tagged, no GitHub release, no latest, and the owner approves it on npmjs.com.
+  next-line:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    # Shares the group with `next`: one stage at a time, so two versions never get the same second.
+    concurrency:
+      group: publish-next
+      cancel-in-progress: false
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: npm install -g npm@^11.15.0
+      - run: npm ci --no-audit --no-fund
+      - id: base
+        run: echo "version=$(git show HEAD:package.json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")" >> "$GITHUB_OUTPUT"
+      # Only in this checkout: nothing is committed.
+      - run: npx changeset version --snapshot next
+      - id: plan
+        run: node scripts/publish-next.mjs
+        env:
+          BRANCH: ${{ github.ref_name }}
+          BASE: ${{ steps.base.outputs.version }}
+      - if: steps.plan.outputs.action == 'stage'
+        run: npm stage publish --tag "${{ steps.plan.outputs.tag }}"
