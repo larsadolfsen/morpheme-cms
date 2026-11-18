@@ -1422,7 +1422,7 @@
     letter-spacing: var(--mo-sys-typescale-body-small-tracking);
   }
 
-  /* A check list in a text (`- [ ]`, "Check list" in the editor): Phosphor's check icon in place of the bullet, in the theme's primary
+  /* A check list in a text (`- [ ]`, "Check list" in the editor): Material Symbols' check icon (`check`, the owner's icon rule) in place of the bullet, in the theme's primary
      colour when the item is checked, dimmed when not (the editor draws the same, src/editor.css). The box is the <input>, drawn as the icon. */
   .prose ul.contains-task-list {
     list-style: none;
@@ -1441,9 +1441,9 @@
     margin: 0;
     align-self: center;
     background-color: var(--mo-sys-block-accent);
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E")
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960'%3E%3Cpath d='M378-246 154-470l43-43 181 181 384-384 43 43-427 427Z'/%3E%3C/svg%3E")
       center / contain no-repeat;
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E")
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960'%3E%3Cpath d='M378-246 154-470l43-43 181 181 384-384 43 43-427 427Z'/%3E%3C/svg%3E")
       center / contain no-repeat;
   }
   .prose li.task-list-item > input[type='checkbox']:not(:checked) {
