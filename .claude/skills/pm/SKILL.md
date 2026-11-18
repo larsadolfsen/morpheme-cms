@@ -71,7 +71,7 @@ line once, and the line goes into `main` once, when it is released):
    merge into the line, the PM merges the line into every open feature branch (never the other way), so no feature drifts far from
    its line.
 5. **The feature into its line, once.** When every piece is merged, the PM opens one pull request from the feature branch into the
-   line: the full check green, the proofs the feature's plan asks for (for a pure move, `npx morpheme compare-html` showing nothing
+   line: the full check green (CI gives a pull request from a `feature/*` head into a version line the full level by itself, `level=full`), the proofs the feature's plan asks for (for a pure move, `npx morpheme compare-html` showing nothing
    changed) and, for a change the owner can see, the owner's approval of the whole feature with its screenshots (section 4). Its
    changesets are the pieces' changesets. Then the PM deletes the feature branch.
 6. **The line into `main`, once.** A line's branch is merged into `main` when the owner has said go for its release (section 7), not
@@ -193,8 +193,8 @@ PM did not start) or one that is blocked on a question. Before archiving, it put
 ## 6. CI
 
 **Check levels** (skill `checks`, *What CI runs*; owner, 18 Nov 2026: "test less, but the important things"): the feature check for a
-piece into a feature branch, the full check once a day on each feature branch, the line check into a line, the full check for a
-feature branch into its line and for a line into `main`. Until the CI plan (`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A) is
+piece into a feature branch, the full check once a day on each feature branch, the line check into a line (a fix or a one-pull-request feature), the full check for a
+feature branch into its line (CI: a `feature/*` head into a line is `level=full`) and for a line into `main`. Until the CI plan (`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A) is
 built, the levels are the ones the `checks` skill describes today; `check.yml` runs only on pull requests into `main` and the version
 lines, so the PM opens no feature branch before that plan's pull request 1 (checks on `feature/**`) is merged. The CI plan is the PM's
 first build task.

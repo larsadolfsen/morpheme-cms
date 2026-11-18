@@ -236,6 +236,17 @@ test('level: feature/** is feature, 0.* lines are line, main is full', () => {
   for (const b of ['0.17', '0.18', '0.19', '0.20']) assert.equal(checkLevel(b, 'fix/a'), 'line', b);
   assert.equal(checkLevel('main', 'merge-0.18-into-main-1'), 'full');
 });
+test('level: by head and base: feature into line is full, feature into feature is feature, fix into line is line, line into main is full', () => {
+  assert.equal(checkLevel('0.18', 'feature/build-check-speed'), 'full');
+  assert.equal(isLight('0.18', 'feature/build-check-speed'), false);
+  assert.equal(screensAreas(['src/a.tsx'], '0.18', 'feature/build-check-speed'), 'all');
+  assert.equal(formatScope(['src/a.tsx'], '0.18', 'feature/build-check-speed'), 'all');
+  assert.equal(checkLevel('feature/css-split', 'feature/css-split-part-2'), 'feature');
+  assert.equal(checkLevel('0.18', 'fix/a'), 'line');
+  assert.equal(checkLevel('0.18', 'features/a'), 'line');
+  assert.equal(checkLevel('main', 'merge-0.18-into-main-1'), 'full');
+  assert.equal(checkLevel('0.18'), 'line');
+});
 test('level: unknown or empty base, the Release PR and odd names fall back to full', () => {
   for (const b of [
     '',
