@@ -4,13 +4,15 @@ Status: one plan since 18 November 2026 (owner: "merge the CI plan with what we 
 18 November (owner approved: "test less, but the important things") and the build-speed plan of 15 November (planned with the owner:
 all eight options). Their decisions are unchanged; what is new is the shared building blocks, which are built once and used by both.
 
+**Both tracks are built in 0.18** (owner, 18 November 2026: "ask the PM to implement it in 0.18").
+
 Two tracks, one goal: **a change reaches the owner sooner**, as a green check on a pull request (track A) and as a live page after a save
 (track B).
 
 | Track | What | When |
 | :--- | :--- | :--- |
-| A. CI | the checks on pull requests: check levels, build once, touched areas | now, the 0.18 PM's build tasks (pull request 1 is #920) |
-| B. Site builds | a save on a site goes live sooner: content lane, kept outputs, faster install, incremental builds | its release on the roadmap (*Build speed*); batch 1's site part may go out before it |
+| A. CI | the checks on pull requests: check levels, build once, touched areas | 0.18 (pull request 1 is #920) |
+| B. Site builds | a save on a site goes live sooner: content lane, kept outputs, faster install, incremental builds | 0.18 (owner, 18 November 2026); batch 1's site part may go out before it |
 
 ## The shared building blocks
 
