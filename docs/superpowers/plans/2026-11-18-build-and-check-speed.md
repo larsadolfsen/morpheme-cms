@@ -65,12 +65,12 @@ version line runs the light check (`static` and the 8 shards), about 8 minutes. 
 ### The pull requests, in this order
 
 1. **Checks on feature branches.** Done: #920 (18 November). `check.yml` also runs on pull requests into `feature/**`; `ci-changes.mjs` gives the level from the
-   base (`feature`, `line`, `full`) and its test covers each. Until PR 3, the feature level runs what the light check runs today. The PM
+   base (`feature`, `line`, `full`) and its test covers each. The feature level runs the core set and the touched areas since PR 3. The PM
    opens no feature branch before this is merged.
 2. **Build once, cache Chromium.** One job builds the editor and the demo and uploads them; the screens, `screens-extra`, `demo` and
    starter jobs download them instead of building. The Playwright browser is cached (`~/.cache/ms-playwright`, keyed on the Playwright
    version). Proof: the same run, timed before and after.
-3. **Touched areas and the core set.** A map from source paths to the screens' area files (`scripts/screens/*.mjs`), kept next to
+3. **Touched areas and the core set.** Built (see *A3 as built*). A map from source paths to the screens' area files (`scripts/screens/*.mjs`), kept next to
    them and tested (every source folder maps to an area or to "all"), and a fixed core list of units that always run. The feature and
    line levels run the core set and the mapped areas; a path the map does not know runs all shards.
 4. **Starter smoke test.** `check:starter --smoke`: the starter packs and builds, and the editor opens, edits, saves and publishes on it.
@@ -84,6 +84,52 @@ Each pull request updates the `checks` skill's *What CI runs* to what it built, 
 disabled or deleted to save time: a unit leaves a level only by being outside the core set and outside the touched areas.
 
 A2 uses building blocks 1 and 3; A3 builds block 2.
+
+### A3 as built (touched areas and the core set)
+
+Built in `lib/affected.mjs` (the engine, tested in `lib/affected.test.mjs`, reusable by track B with its own rules),
+`scripts/screens/support/areas.mjs` (the map, `AREAS`, `CORE_UNITS`; tested in `scripts/screens-areas.test.mjs`), `--areas` in the runner
+(`scripts/editor-screens.mjs`) and `areas=` from `scripts/ci-changes.mjs` into each `screens` shard of `check.yml`. The rules are in the `checks` skill, *Built (PR 3)*.
+Track B reuses `select(paths, rules)` from `lib/affected.mjs`; it does not build on the screens rules.
+
+**What the map does with the real history.** The map was run over the 514 non-merge commits of the first-parent history of 0.18 (18 November 2026,
+`origin/0.18`, each commit is one pull request):
+
+| Selection | Commits | Share |
+| :--- | :--- | :--- |
+| every area (`all`: a shared part such as `theme/styles/`, `src/editor.css`, `src/i18n/`, `src/ui.tsx`, `lib/`, or an unknown path) | 393 | 76 % |
+| the core set only (`none`: docs, tests, the Worker, the static-only checks, changesets) | 94 | 18 % |
+| the core set and named areas | 27 | 5 % |
+
+**It includes what a change really needs.** An objective check: when a commit changed an area's own unit file (`scripts/screens/<area>.mjs`)
+besides other source, the author's change needed that area. 28 such commits exist; in all 28 the map selects that area (or all). Examples, all from
+the history of 0.18:
+
+| Commit | Changed (besides changesets and docs) | Map selects |
+| :--- | :--- | :--- |
+| afd2a605 Skip the Lists units on a site without the Lists page | `scripts/screens/lists.mjs` | `lists` |
+| 068b66e1 checkBlockHandleCorner measures every block kind | `scripts/screens/block-bar.mjs`, `lists.mjs` | `block-bar,lists` |
+| 3b71bdbe A mouse click in a card's headline is not taken by the row | release notes, `scripts/screens/cards.mjs`, `choice-groups.mjs` and more | `block-bar,cards,choice-groups,lists,page-rows,start-screens` |
+| 919ca2b4 Leave out a form section with no field | `src/EntryForm.tsx`, `src/formSectionList.mjs` | `forms,sheets` |
+| 1f2e59f9 The new-edition card gets its elevation | release notes, `src/UpdatesNotice.tsx` | `start-screens` |
+| 37e492c7 Lists in columns: dividers and corners | `scripts/screens/lists.mjs`, `theme/styles/blocks.css` | all (the theme's CSS) |
+| e2dd9fe5 Lists: Show more and the text button on one row | `demo/public/demo-names.js`, `scripts/screens/demo-names.mjs` | all (`demo/public/`) |
+| 141af984 Fix CodeQL alerts: safe image and link sources | `lib/safe-url.mjs`, `scripts/screens/sheets.mjs` | all (`lib/`) |
+| 67033e81 Rewrite the documents that overlap the cards and lists plan | docs and changesets | core set only |
+| 2bce24ea Text measure check: a plain List is full width on compact screens | `scripts/check-text-measure.mjs` (run by `screens-extra`) | core set only |
+| 339e27f0 List settings: clearer labels | `src/i18n/`, release notes | all (texts show on every screen) |
+| b328d830 Move the Person, Icon list, Facts, Table and Badge rules into theme/styles | `theme/styles/base.css` | all |
+
+**The honest limit.** The 0.18 history is mostly CSS splits, token renames and text changes, which can show on any screen, so three quarters of its pull
+requests still run every unit. The map saves work for docs, Worker, test-only and static-check pull requests (the core set only) and for changes that
+stay in one area's files. It does not narrow `theme/styles/` or `src/editor.css`: no unit is organised by component, so a rule there would be a guess.
+A later pull request may split such a file by area; until then a path that can show anywhere runs everything.
+
+**Sharding with a selection.** The selected units are spread over the same 8 shards (shard K runs every 8th selected unit), so a selection of 46
+units (`files,sheets`: 6 core units and 40 of the 357 others) gives shards of 6, 6, 6, 6, 6, 6, 5 and 5 units, against about 45 each for all 363. The
+matrix still has 8 jobs, so each job still installs and builds; shrinking the matrix with the selection waits for A2 (build once), which rewrites the same jobs.
+
+**Timing (a representative light run).** TIMING_PLACEHOLDER
 
 ## Track B. Site builds: a save goes live sooner
 
