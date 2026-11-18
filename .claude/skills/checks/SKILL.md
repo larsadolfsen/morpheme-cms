@@ -37,6 +37,10 @@ uploads one tarball, the artifact `build` (`.morpheme/demo/site` and `node_modul
 as before. `starter` has no build to take (it packs the package and builds the starter itself), so it does not wait for `build`. The steps
 every job shares are the local action `.github/actions/prepare` (Node, `npm ci`, the artifact, Chromium). Chromium is cached in
 `~/.cache/ms-playwright`, keyed on the Playwright version; a hit skips the download and only the system libraries are installed with apt.
+The job `build` keeps its tarball in Actions' cache under `scripts/ci-build-key.mjs`'s key (`lib/outputKey.mjs`: the hash of every tracked file
+the build can read, except `docs/`, `.claude/`, `.agents/`, `.changeset/` and `staging-watcher/`, and the Node major version; never file times) and
+builds only on a miss, which happens on the first run of a pull request that changes an input; a push that changes none (docs, a changeset) and a
+re-run take the kept build. A root `.npmrc` (`prefer-offline`, no audit, no fund) makes `npm ci` use the npm cache first.
 A failed `build` leaves its jobs skipped, which the verdict turns red. The levels, `scripts/ci-changes.mjs` and the verdict are unchanged.
 
 Not built yet: the core set and touched areas (PR 3), the starter smoke test (PR 4), the daily

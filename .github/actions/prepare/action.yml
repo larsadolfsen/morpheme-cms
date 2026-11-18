@@ -16,7 +16,7 @@ runs:
       with:
         node-version: 24
         cache: npm
-    - run: npm ci --no-audit --no-fund
+    - run: npm ci
       shell: bash
     # One tarball made by the job build: .morpheme/demo/site (its node_modules is a link, packed as a link, to this checkout's
     # node_modules at the same path in every job) and node_modules/@morphemecms/cms (the package copy that check:demo imports).
