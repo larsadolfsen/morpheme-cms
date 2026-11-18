@@ -18,7 +18,7 @@ export const allow = [
   },
   { file: /base\.css$/, line: /^border-radius: 0\.3em/, reason: 'inline code: its corners follow the text size, not a step' },
   {
-    file: /global\.css$|ui\.css$|checkbox\.css$/,
+    file: /global\.css$|ui\.css$|checkbox\.css$|material\/fields\.css$/,
     line: /^border-radius: (2px|0\.1875rem)/,
     reason: "the checkbox's own 2px square corner (M3: 2dp), and the error ring's 3px over it",
   },
