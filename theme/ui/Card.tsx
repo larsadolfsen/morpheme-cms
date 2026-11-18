@@ -1,10 +1,18 @@
 // A card (m3.material.io/components/cards, .card in ../styles/ui/card.css): the surface a block or an app's block is, with
-// what is on it (`children`: the block's own heading, text, image …). Its kind (`kind`: outlined, the default,
-// elevated or filled) is Material's name; how each looks is the theme's, and so is its elevation (lifted when it is
-// a link pointed at, and `dragged`: while it is dragged to another place). With `href` the whole card is a link (Link:
-// on the site; in the editor only drawn), else the element `as` (a <div>, a <section>, an <article>, an <aside>, a <figure> or an
-// <li>). `className` after its own classes (the block's: its layout and what is on it); the rest (aria-…, id, data-…)
-// on it. An Astro component without React gives an element the same classes with cardClass.
+// what is on it. Its kind (`kind`: outlined, the default, elevated or filled) is Material's name; how each looks is the theme's, and
+// so is its elevation (at rest, lifted when it is a link pointed at, and `dragged`: while it is dragged to another place).
+//
+// What is on it, drawn in Material 3's order (Cards, Guidelines, Anatomy): `media` (an image or a video, edge to edge at the top) or
+// `icon`, then `headline`, `subhead`, `supporting` (the text), `children` (what the block puts there: a table, a price list, "can also
+// contain other components") and `actions` (the buttons, in the action area at the bottom). A card with none of these draws its
+// `children` as they are, as before (the block's own heading, text, image …), and `media` as `true` says that the first of them is a
+// CardMedia (no padding, the image to the card's edge).
+//
+// With `href` the whole card is a link (Link: on the site; in the editor only drawn), with `as="button"` it is a button, else the element
+// `as` (a <div>, a <section>, an <article>, an <aside>, a <figure> or an <li>). Material 3, Cards, Accessibility: "An action shouldn't be
+// placed on an actionable surface", so a card with `actions` is neither: the types allow one or the other. `className` after its own
+// classes (the block's: its layout); the rest (aria-…, id, data-…) on it. An Astro component without React gives an element the same
+// classes with cardClass.
 import type { HTMLAttributes, ReactNode } from 'react';
 import { Link } from '@morphemecms/cms/src/standard/view';
 import { Svg } from '@morphemecms/cms/src/icon';
@@ -27,38 +35,84 @@ export function CardMedia({ ratio, className, children }: { ratio?: number; clas
   );
 }
 
+type Element = 'div' | 'section' | 'article' | 'aside' | 'figure' | 'li';
+
+type Common = Omit<HTMLAttributes<HTMLElement>, 'className' | 'children'> & {
+  kind?: CardKind;
+  dragged?: boolean;
+  /** Selected (a choice among cards, as in the Library): a check mark on it and the selected surface (Material 3's Selection: "a check mark icon, a checkbox component, a change in surface color, or a combination"). */
+  selected?: boolean;
+  /** The image or the video at the top (a CardMedia or an <img>), edge to edge. `true`: the first of `children` is a CardMedia (no padding). */
+  media?: ReactNode;
+  /** An icon at the top (Material 3: 24 dp, in the primary colour), inside the card's padding. */
+  icon?: ReactNode;
+  /** The headline: the subject of the card (title-large). `headingLevel` makes it a heading of that level. */
+  headline?: ReactNode;
+  headingLevel?: 2 | 3 | 4 | 5 | 6;
+  /** The subhead under the headline: a byline or a place (label-small). */
+  subhead?: ReactNode;
+  /** The supporting text: an article's summary, a description (body-medium). */
+  supporting?: ReactNode;
+  className?: string;
+  children?: ReactNode;
+  [data: `data-${string}`]: string | undefined;
+};
+
+export type CardProps = Common &
+  (
+    | { href?: string; as?: Element | 'button'; actions?: never }
+    /** The action area: its buttons, text buttons first (Material 3: Buttons, Icon buttons). Never with `href` or `as="button"`. */
+    | { href?: undefined; as?: Element; actions?: ReactNode }
+  );
+
 export default function Card({
   kind,
   dragged,
   media,
+  icon,
+  headline,
+  headingLevel,
+  subhead,
+  supporting,
+  actions,
   selected,
   as: Box = 'div',
   href,
   className,
   children,
   ...rest
-}: Omit<HTMLAttributes<HTMLElement>, 'className' | 'children'> & {
-  kind?: CardKind;
-  dragged?: boolean;
-  /** Its first part is a CardMedia: no padding, the image to the card's edge. */
-  media?: boolean;
-  /** Selected (a choice among cards, as in the Library): a check mark on it and the selected surface (Material 3's Selection: "a check mark icon, a checkbox component, a change in surface color, or a combination"). */
-  selected?: boolean;
-  as?: 'div' | 'section' | 'article' | 'aside' | 'figure' | 'li' | 'button';
-  href?: string;
-  className?: string;
-  children: ReactNode;
-  [data: `data-${string}`]: string | undefined;
-}) {
-  const classes = [cardClass(kind, { dragged, media, selected }), className].filter(Boolean).join(' ');
+}: CardProps) {
+  const slotMedia = media !== undefined && media !== null && media !== false && media !== true;
+  const parts = slotMedia || icon || headline || subhead || supporting || actions;
+  const classes = [cardClass(kind, { dragged, media: media === true || slotMedia, selected }), className].filter(Boolean).join(' ');
+  const Headline = headingLevel ? (`h${headingLevel}` as const) : 'div';
+  const body = icon || headline || subhead || supporting || children || actions;
+  // The text, what the block put there and the action area, in Material 3's order, one after the other.
+  const content = parts ? (
+    <>
+      {slotMedia && <div className="card-media-slot">{media}</div>}
+      {body && (
+        <div className="card-body">
+          {icon && <div className="card-icon">{icon}</div>}
+          {headline && <Headline className="card-headline">{headline}</Headline>}
+          {subhead && <div className="card-subhead">{subhead}</div>}
+          {supporting && <div className="card-supporting">{supporting}</div>}
+          {children && <div className="card-content">{children}</div>}
+          {actions && <div className="card-actions">{actions}</div>}
+        </div>
+      )}
+    </>
+  ) : (
+    children
+  );
   return href === undefined ? (
     <Box className={classes} {...(Box === 'button' ? { type: 'button' as const } : {})} {...rest}>
-      {children}
+      {content}
       {selected && <Svg name="check" size={18} className="card-check" />}
     </Box>
   ) : (
     <Link href={href} className={classes} {...rest}>
-      {children}
+      {content}
     </Link>
   );
 }

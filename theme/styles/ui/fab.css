@@ -99,12 +99,26 @@
     color: var(--fab-secondary-text, var(--mo-sys-color-on-secondary));
   }
   .fab-secondary:hover {
-    background: var(--fab-secondary-hover, color-mix(in srgb, var(--mo-sys-color-on-secondary) 8%, var(--mo-sys-color-secondary)));
+    background: var(
+      --fab-secondary-hover,
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-secondary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-secondary)
+      )
+    );
   }
   .fab-secondary:active {
     background: var(
       --fab-secondary-pressed,
-      var(--fab-secondary-hover, color-mix(in srgb, var(--mo-sys-color-on-secondary) 8%, var(--mo-sys-color-secondary)))
+      var(
+        --fab-secondary-hover,
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-secondary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-secondary)
+        )
+      )
     );
   }
   .fab-tertiary {
@@ -112,12 +126,26 @@
     color: var(--fab-tertiary-text, var(--mo-sys-color-on-tertiary));
   }
   .fab-tertiary:hover {
-    background: var(--fab-tertiary-hover, color-mix(in srgb, var(--mo-sys-color-on-tertiary) 8%, var(--mo-sys-color-tertiary)));
+    background: var(
+      --fab-tertiary-hover,
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-tertiary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-tertiary)
+      )
+    );
   }
   .fab-tertiary:active {
     background: var(
       --fab-tertiary-pressed,
-      var(--fab-tertiary-hover, color-mix(in srgb, var(--mo-sys-color-on-tertiary) 8%, var(--mo-sys-color-tertiary)))
+      var(
+        --fab-tertiary-hover,
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-tertiary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-tertiary)
+        )
+      )
     );
   }
   .fab-primary-container {
@@ -127,7 +155,11 @@
   .fab-primary-container:hover {
     background: var(
       --mo-comp-fab-primary-container-hover,
-      color-mix(in srgb, var(--mo-sys-color-on-primary-container) 8%, var(--mo-sys-color-primary-container))
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-primary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-primary-container)
+      )
     );
   }
   .fab-primary-container:active {
@@ -135,7 +167,11 @@
       --fab-primary-container-pressed,
       var(
         --mo-comp-fab-primary-container-hover,
-        color-mix(in srgb, var(--mo-sys-color-on-primary-container) 8%, var(--mo-sys-color-primary-container))
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-primary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-primary-container)
+        )
       )
     );
   }
@@ -146,7 +182,11 @@
   .fab-secondary-container:hover {
     background: var(
       --mo-comp-fab-secondary-container-hover,
-      color-mix(in srgb, var(--mo-sys-color-on-secondary-container) 8%, var(--mo-sys-color-secondary-container))
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-secondary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-secondary-container)
+      )
     );
   }
   .fab-secondary-container:active {
@@ -154,7 +194,11 @@
       --fab-secondary-container-pressed,
       var(
         --mo-comp-fab-secondary-container-hover,
-        color-mix(in srgb, var(--mo-sys-color-on-secondary-container) 8%, var(--mo-sys-color-secondary-container))
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-secondary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-secondary-container)
+        )
       )
     );
   }
@@ -165,7 +209,11 @@
   .fab-tertiary-container:hover {
     background: var(
       --fab-tertiary-container-hover,
-      color-mix(in srgb, var(--mo-sys-color-on-tertiary-container) 8%, var(--mo-sys-color-tertiary-container))
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-tertiary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-tertiary-container)
+      )
     );
   }
   .fab-tertiary-container:active {
@@ -173,7 +221,11 @@
       --fab-tertiary-container-pressed,
       var(
         --fab-tertiary-container-hover,
-        color-mix(in srgb, var(--mo-sys-color-on-tertiary-container) 8%, var(--mo-sys-color-tertiary-container))
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-tertiary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-tertiary-container)
+        )
       )
     );
   }

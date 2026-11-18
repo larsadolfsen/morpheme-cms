@@ -25,13 +25,12 @@
     --list-item-supporting-size, --list-item-supporting-line-height, --list-item-overline-size,
     --list-item-overline-line-height, --list-item-trailing-supporting-size   the other texts' size
     --list-item-supporting-text, --mo-comp-list-item-trailing-text, --list-item-overline-text   their colours
-    --mo-comp-list-item-hover-text, --mo-comp-list-item-hover-surface   an item that links or is a choice, pointed at
+    --mo-comp-list-item-hover-surface   an item that links or is a choice, pointed at (only the state layer: its text and icons do not change)
     --mo-comp-list-item-pressed-surface (else the hover surface), --mo-comp-list-item-focus-surface (else the pressed one),
     --mo-comp-list-item-focus-indicator-color (the 3dp ring inside a focused item; else the accent),
-    --mo-comp-list-item-hover-icon-color (the leading icon and what trails it, pointed at; else the item's text
-    colour for the leading icon, the hover text for what trails), --mo-comp-list-item-hover-trailing-shift (what trails it moves
-    aside when pointed at; 0 for not)
-    --mo-comp-list-list-item-selected-container-color, --mo-comp-list-list-item-selected-label-text-color, --mo-comp-list-item-selected-weight, --mo-comp-list-item-disabled-opacity
+    --mo-comp-list-item-dragged-surface, -dragged-shadow, -dragged-radius   dragged (List `dragged`)
+    --mo-comp-list-item-columns-gap   the two columns of an item with `columns` (M3's content slot)
+    --mo-comp-list-list-item-selected-container-color, --mo-comp-list-list-item-selected-label-text-color, --mo-comp-list-item-disabled-opacity
     --mo-comp-list-list-item-leading-icon-color, --mo-comp-list-item-leading-icon-selected-color (ListItemLeadingIcon's `selected`)
     --mo-comp-list-item-icon-size   the icons that lead and trail an item
     --mo-comp-list-item-leading-size (what leads an item of its own, for an inset divider)
@@ -129,7 +128,7 @@
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       align-items: baseline;
-      column-gap: 1.5rem;
+      column-gap: var(--mo-comp-list-item-columns-gap, 1.5rem);
     }
   }
   .list-item-headline {
@@ -148,7 +147,6 @@
   }
   .list-item-trailing {
     color: var(--mo-comp-list-item-trailing-text, var(--mo-sys-block-muted));
-    transition: transform var(--mo-sys-motion-spring-default-spatial);
   }
   /* An item that is tapped (a button: the editor's rows) is as one that links. */
   button.list-item-container {
@@ -156,23 +154,10 @@
     text-align: start;
     cursor: pointer;
   }
+  /* Pointed at: M3's hover state layer (the text's colour at 0.08) and nothing else: the text, the icons and what trails the item stay where and as
+     they are (no colour change, no shift: not in the tokens; owner, 18 Nov 2026, plan step 5). */
   :is(a, button:enabled).list-item-container:hover {
     background: var(--mo-comp-list-item-hover-surface, transparent);
-    color: var(--mo-comp-list-item-hover-text, var(--mo-sys-block-accent));
-  }
-  :is(a, button:enabled).list-item-container:hover .list-item-trailing {
-    transform: translateX(var(--mo-comp-list-item-hover-trailing-shift, 3px));
-    color: var(--mo-comp-list-item-hover-icon-color, var(--mo-comp-list-item-hover-text, var(--mo-sys-block-accent)));
-  }
-  :is(a, button:enabled).list-item-container:hover .list-item-leading-icon {
-    color: var(--mo-comp-list-item-hover-icon-color, inherit);
-  }
-  /* A selected item keeps its colours when pointed at: its text and its icons. */
-  :is(a, button:enabled).list-item-container.list-item-selected:hover {
-    color: var(--mo-comp-list-list-item-selected-label-text-color, var(--mo-sys-block-accent));
-  }
-  :is(a, button:enabled).list-item-container.list-item-selected:hover :is(.list-item-leading-icon, .list-item-trailing) {
-    color: inherit;
   }
   /* Focused (by the keyboard): M3's focus layer (--mo-comp-list-item-focus-surface, else the pressed one) and its focus
      indicator: 3dp, inside the item. A choice's row has them while its control has the focus. */
@@ -280,7 +265,6 @@
   }
   .list-item-with-control:not(.list-item-disabled):hover {
     background: var(--mo-comp-list-item-hover-surface, transparent);
-    color: var(--mo-comp-list-item-hover-text, var(--mo-sys-block-accent));
   }
   .list-item-with-control:not(.list-item-disabled):has(:focus-visible) {
     background: var(
@@ -478,9 +462,6 @@
     .list-item-expand:has(> .list-item-expand-summary:hover) {
       background: var(--mo-comp-list-item-hover-surface, transparent);
     }
-    .list-item-expand-summary:hover {
-      color: var(--mo-comp-list-item-hover-text, var(--mo-sys-block-accent));
-    }
   }
   .list-item-expand:has(> .list-item-expand-summary:focus-visible) {
     background: var(
@@ -526,10 +507,7 @@
   /* Selected, and disabled. */
   .list-item-selected {
     background: var(--mo-comp-list-list-item-selected-container-color, transparent);
-    color: var(--mo-comp-list-list-item-selected-label-text-color, var(--mo-sys-block-accent));
-  }
-  .list-item-selected .list-item-headline {
-    font-weight: var(--mo-comp-list-item-selected-weight, 500);
+    color: var(--mo-comp-list-list-item-selected-label-text-color, var(--mo-sys-color-on-secondary-container));
   }
   .list-item-selected :is(.list-item-leading-icon, .list-item-supporting, .list-item-overline, .list-item-trailing),
   .list-item-selected .list-item-trailing-supporting {
@@ -557,17 +535,44 @@
       linear-gradient(var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent)) 0 0),
       var(--mo-comp-list-list-item-selected-container-color, transparent);
   }
+  /* Dragged (M3's dragged state, List - Common): the item lifts to level 4 (8 dp) under the 0.16 state layer, with the selected item's 16 dp corners; a segmented
+     item carries its own surface (the <li>), so the lift is on the <li> there. */
+  .list-item-dragged {
+    cursor: grabbing;
+    background: var(--mo-comp-list-item-dragged-surface, var(--mo-sys-state-mo-dragged-layer));
+    box-shadow: var(--mo-comp-list-item-dragged-shadow, var(--mo-sys-elevation-level4-shadow));
+    --mo-comp-list-item-shape: var(
+      --mo-comp-list-item-dragged-radius,
+      var(--mo-comp-list-item-selected-radius, var(--mo-comp-list-list-item-container-shape, 0))
+    );
+  }
+  .list-item-dragged.list-item-selected {
+    background:
+      linear-gradient(var(--mo-comp-list-item-dragged-surface, var(--mo-sys-state-mo-dragged-layer)) 0 0),
+      var(--mo-comp-list-list-item-selected-container-color, transparent);
+  }
+  .list-segmented > li:has(> .list-item-dragged, > .list-item-multi-action > .list-item-dragged) {
+    background: var(--mo-comp-list-list-item-segmented-container-color, var(--mo-sys-block-tint));
+    box-shadow: var(--mo-comp-list-item-dragged-shadow, var(--mo-sys-elevation-level4-shadow));
+    --mo-comp-list-item-shape: var(
+      --mo-comp-list-item-dragged-radius,
+      var(--mo-comp-list-segmented-selected-radius, var(--mo-sys-shape-corner-large))
+    );
+  }
+  .list-segmented > li > .list-item-dragged {
+    box-shadow: none;
+  }
   /* The open one's icon, where the item is not drawn selected (ListItemLeadingIcon's `selected`: the editor's open part). */
   .list-item-leading-icon-selected {
     color: var(
       --mo-comp-list-item-leading-icon-selected-color,
-      var(--mo-comp-list-list-item-selected-label-text-color, var(--mo-sys-block-accent))
+      var(--mo-comp-list-list-item-selected-label-text-color, var(--mo-sys-color-on-secondary-container))
     );
   }
   /* Disabled: what is in it faded (its choice fades by itself), an item that is tapped (a button) too. */
   .list-item-disabled > :not(.list-item-control),
   button.list-item-container:disabled > * {
-    opacity: var(--mo-comp-list-item-disabled-opacity, 0.6);
+    opacity: var(--mo-comp-list-item-disabled-opacity, var(--mo-sys-state-disabled-state-layer-opacity));
   }
   button.list-item-container:disabled,
   .list-item-disabled .list-item-content {
@@ -624,13 +629,19 @@
   }
   .list-segmented > li > :is(a, button:enabled).list-item-container:hover,
   .list-segmented > li > .list-item-with-control:not(.list-item-disabled):hover {
-    background: var(--mo-comp-list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent));
+    background: var(
+      --mo-comp-list-segmented-hover-surface,
+      color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+    );
   }
   .list-segmented > li > :is(a, button:enabled).list-item-container:active,
   .list-segmented > li > .list-item-with-control:not(.list-item-disabled):active {
     background: var(
       --mo-comp-list-segmented-pressed-surface,
-      var(--mo-comp-list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent))
+      var(
+        --mo-comp-list-segmented-hover-surface,
+        color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+      )
     );
   }
   .list-segmented > li > :is(a, button:enabled).list-item-container:focus-visible,
@@ -640,7 +651,10 @@
       --mo-comp-list-item-focus-surface,
       var(
         --mo-comp-list-segmented-pressed-surface,
-        var(--mo-comp-list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent))
+        var(
+          --mo-comp-list-segmented-hover-surface,
+          color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+        )
       )
     );
   }
@@ -648,12 +662,18 @@
     border-radius: inherit;
   }
   .list-segmented > li > .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:hover) {
-    background: var(--mo-comp-list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent));
+    background: var(
+      --mo-comp-list-segmented-hover-surface,
+      color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+    );
   }
   .list-segmented > li > .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:active) {
     background: var(
       --mo-comp-list-segmented-pressed-surface,
-      var(--mo-comp-list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent))
+      var(
+        --mo-comp-list-segmented-hover-surface,
+        color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+      )
     );
   }
   /* A disabled item on its own surface (M3 Expressive: a faint layer of the text's colour). */

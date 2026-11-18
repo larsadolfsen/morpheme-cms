@@ -28,7 +28,7 @@
     }
   }
   .button-text:focus-visible {
-    background: color-mix(in srgb, var(--mo-sys-color-primary) 10%, transparent);
+    background: color-mix(in srgb, var(--mo-sys-color-primary) calc(var(--mo-sys-state-focus-state-layer-opacity) * 100%), transparent);
   }
   /* A text button reaches 48px for a finger, above and below it. */
   .button-text {
@@ -71,7 +71,7 @@
   }
   .block-arrow-link:active,
   .block-testimonial-more:active {
-    background: color-mix(in srgb, var(--mo-sys-color-primary) 10%, transparent);
+    background: color-mix(in srgb, var(--mo-sys-color-primary) calc(var(--mo-sys-state-pressed-state-layer-opacity) * 100%), transparent);
   }
   .block-testimonial-more {
     cursor: pointer;
@@ -87,7 +87,11 @@
     background: var(--mo-sys-state-mo-hover-layer);
   }
   .chip-elevated:hover {
-    background: color-mix(in srgb, var(--mo-sys-color-on-surface) 8%, var(--chip-elevated-surface, var(--mo-sys-block-surface)));
+    background: color-mix(
+      in srgb,
+      var(--mo-sys-color-on-surface) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+      var(--chip-elevated-surface, var(--mo-sys-block-surface))
+    );
   }
   .chip-filter:is([aria-pressed='true'], [aria-current='page']) {
     padding-left: 0.5rem;

@@ -27,7 +27,7 @@
     background: var(--mo-comp-navigation-bar-container-color, var(--mo-sys-block-surface));
     box-shadow:
       inset 0 1px 0 var(--mo-comp-navigation-bar-line, var(--mo-sys-block-line)),
-      var(--navigation-bar-shadow, var(--mo-sys-elevation-level0-shadow));
+      var(--navigation-bar-shadow, var(--mo-sys-elevation-level2-rest-shadow));
   }
   .navigation-bar-item {
     display: flex;
@@ -73,12 +73,18 @@
     height: 1.5rem;
   }
   .navigation-bar-item:hover .navigation-bar-icon {
-    background: var(--mo-comp-navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent));
+    background: var(
+      --mo-comp-navigation-bar-indicator-hover,
+      color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+    );
   }
   .navigation-bar-item:active .navigation-bar-icon {
     background: var(
       --navigation-bar-indicator-pressed,
-      var(--mo-comp-navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent))
+      var(
+        --mo-comp-navigation-bar-indicator-hover,
+        color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+      )
     );
   }
   .navigation-bar-item[aria-current] .navigation-bar-icon {
@@ -145,12 +151,18 @@
     left: 0.75rem;
   }
   .navigation-bar-start .navigation-bar-item:hover .navigation-bar-indicator {
-    background: var(--mo-comp-navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent));
+    background: var(
+      --mo-comp-navigation-bar-indicator-hover,
+      color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+    );
   }
   .navigation-bar-start .navigation-bar-item:active .navigation-bar-indicator {
     background: var(
       --navigation-bar-indicator-pressed,
-      var(--mo-comp-navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent))
+      var(
+        --mo-comp-navigation-bar-indicator-hover,
+        color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+      )
     );
   }
   .navigation-bar-start .navigation-bar-item[aria-current] .navigation-bar-indicator {
@@ -196,12 +208,18 @@
       left: 0.75rem;
     }
     .navigation-bar-auto .navigation-bar-item:hover .navigation-bar-indicator {
-      background: var(--mo-comp-navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent));
+      background: var(
+        --mo-comp-navigation-bar-indicator-hover,
+        color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+      );
     }
     .navigation-bar-auto .navigation-bar-item:active .navigation-bar-indicator {
       background: var(
         --navigation-bar-indicator-pressed,
-        var(--mo-comp-navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent))
+        var(
+          --mo-comp-navigation-bar-indicator-hover,
+          color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+        )
       );
     }
     .navigation-bar-auto .navigation-bar-item[aria-current] .navigation-bar-indicator {

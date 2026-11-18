@@ -10,7 +10,11 @@
       var(--mo-sys-shape-corner-none);
   }
   .text-field-filled .text-field-container:hover {
-    background: color-mix(in srgb, var(--mo-sys-color-on-surface) 8%, var(--mo-sys-color-surface-container-highest));
+    background: color-mix(
+      in srgb,
+      var(--mo-sys-color-on-surface) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+      var(--mo-sys-color-surface-container-highest)
+    );
   }
   .text-field-filled .text-field-container:has(> .text-field-input:focus) {
     box-shadow: inset 0 -2px 0 var(--mo-sys-color-primary);
@@ -74,7 +78,7 @@
     outline-offset: 2px;
   }
   .checkbox-box:has(.checkbox-input:disabled) {
-    opacity: 0.38;
+    opacity: var(--mo-sys-state-disabled-state-layer-opacity);
   }
 
   /* An M3 switch (its variables above): a round state layer (40px) around the handle when pointed at, in the primary
@@ -103,7 +107,7 @@
   }
   .switch .switch-input:enabled:checked:focus-visible + .switch-handle::before,
   .switch .switch-input:enabled:checked:active + .switch-handle::before {
-    background: color-mix(in srgb, var(--mo-sys-color-primary) 10%, transparent);
+    background: color-mix(in srgb, var(--mo-sys-color-primary) calc(var(--mo-sys-state-pressed-state-layer-opacity) * 100%), transparent);
   }
   .switch:hover .switch-input:enabled:not(:checked) + .switch-handle,
   .switch-input:enabled:active:not(:checked) + .switch-handle {
@@ -145,7 +149,7 @@
     border-radius: var(--mo-sys-shape-corner-full);
   }
   .radio-button-box:has(.radio-button-input:disabled) {
-    opacity: 0.38;
+    opacity: var(--mo-sys-state-disabled-state-layer-opacity);
   }
 
   /* An M3 slider's value: label large in its pill. */

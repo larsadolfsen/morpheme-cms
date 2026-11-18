@@ -22,13 +22,14 @@
   --mo-sys-elevation-level5-shadow:
     0 4px 4px color-mix(in srgb, var(--mo-sys-color-shadow) 30%, transparent),
     0 8px 12px 6px color-mix(in srgb, var(--mo-sys-color-shadow) 15%, transparent);
-  /* M3 shows elevation by colour: the theme's parts have no shadow at rest. Only the FAB (below) and the lift when a part
-     is pointed at or dragged have one. */
-  --mo-sys-elevation-level1-rest-shadow: var(--mo-sys-elevation-level0-shadow);
-  --mo-sys-elevation-level2-rest-shadow: var(--mo-sys-elevation-level0-shadow);
-  --mo-sys-elevation-level3-rest-shadow: var(--mo-sys-elevation-level0-shadow);
-  --mo-sys-elevation-level4-rest-shadow: var(--mo-sys-elevation-level0-shadow);
-  --mo-sys-elevation-level5-rest-shadow: var(--mo-sys-elevation-level0-shadow);
+  /* Resting shadows are on (owner, 18 Nov 2026: "Follow the token: 1dp shadow at rest"): a part on level N shows level N's shadow at
+     rest, as M3's token page prints (m3.material.io/styles/elevation/tokens), and the same one when it is lifted a level higher. A theme
+     turns resting shadows off by pointing these at --mo-sys-elevation-level0-shadow. */
+  --mo-sys-elevation-level1-rest-shadow: var(--mo-sys-elevation-level1-shadow);
+  --mo-sys-elevation-level2-rest-shadow: var(--mo-sys-elevation-level2-shadow);
+  --mo-sys-elevation-level3-rest-shadow: var(--mo-sys-elevation-level3-shadow);
+  --mo-sys-elevation-level4-rest-shadow: var(--mo-sys-elevation-level4-shadow);
+  --mo-sys-elevation-level5-rest-shadow: var(--mo-sys-elevation-level5-shadow);
   /* M3's corner radius scale (m3.material.io/styles/shape/corner-radius-scale), its ten steps named for how round a
      corner is. Every corner in the theme is one of them: a part's variable below maps it to its step, as M3's component
      tokens do, also one corner at a time (a sheet's top, the inner corners of a split button or a menu's groups).

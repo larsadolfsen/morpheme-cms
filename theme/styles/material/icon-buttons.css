@@ -31,16 +31,28 @@
   }
   @media (hover: hover) {
     .icon-button-tonal:hover {
-      background: color-mix(in srgb, var(--mo-sys-color-on-surface) 8%, var(--mo-sys-color-surface-container-high));
+      background: color-mix(
+        in srgb,
+        var(--mo-sys-color-on-surface) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-surface-container-high)
+      );
     }
   }
   /* On a snackbar (the inverse surface): the state layers in its colours. */
   .snackbar .button-text:focus-visible {
-    background: color-mix(in srgb, var(--mo-sys-color-inverse-primary) 10%, transparent);
+    background: color-mix(
+      in srgb,
+      var(--mo-sys-color-inverse-primary) calc(var(--mo-sys-state-focus-state-layer-opacity) * 100%),
+      transparent
+    );
   }
   @media (hover: hover) {
     .snackbar .icon-button-standard:hover {
-      background: color-mix(in srgb, var(--mo-sys-color-inverse-on-surface) 8%, transparent);
+      background: color-mix(
+        in srgb,
+        var(--mo-sys-color-inverse-on-surface) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        transparent
+      );
       color: var(--mo-sys-color-inverse-on-surface);
     }
   }

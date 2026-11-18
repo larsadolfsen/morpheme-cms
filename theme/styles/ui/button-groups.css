@@ -166,14 +166,20 @@
     height: var(--segmented-button-icon-size, 1.125rem);
   }
   .segmented-button-segment:not(:disabled):hover {
-    background: var(--segmented-button-hover, color-mix(in srgb, currentColor 8%, transparent));
+    background: var(
+      --segmented-button-hover,
+      color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+    );
   }
   .segmented-button-segment[aria-pressed='true'] {
     background: var(--mo-comp-outlined-segmented-button-selected-container-color, var(--mo-sys-block-tint));
     color: var(--mo-comp-outlined-segmented-button-selected-label-text-color, var(--mo-sys-block-text));
   }
   .segmented-button-segment[aria-pressed='true']:not(:disabled):hover {
-    background: var(--mo-comp-segmented-button-selected-hover, color-mix(in srgb, var(--mo-sys-block-text) 8%, var(--mo-sys-block-tint)));
+    background: var(
+      --mo-comp-segmented-button-selected-hover,
+      color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), var(--mo-sys-block-tint))
+    );
   }
   .segmented-button-segment:disabled {
     opacity: 0.45;

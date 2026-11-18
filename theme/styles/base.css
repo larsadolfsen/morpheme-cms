@@ -90,10 +90,13 @@
     background: var(--mo-sys-color-primary);
     color: var(--mo-sys-color-on-primary);
   }
+  /* The one focus ring of every part (owner, 18 Nov 2026): primary, 3dp thick, 2dp from the part, on the part's own corner. M3's
+     component tokens print the focus indicator in `secondary`: a deviation, docs/material-deviations.md, F1 (WCAG 2.2, 1.4.11 needs 3:1,
+     and a site's Secondary cannot promise it). A part with its own ring (an inset one, a handle's) says why beside its rule. */
   :focus-visible {
-    outline: 2px solid var(--mo-sys-color-primary);
-    outline-offset: 3px;
-    border-radius: 6px;
+    outline: 3px solid var(--mo-sys-color-primary);
+    outline-offset: 2px;
+    border-radius: inherit;
   }
   h1,
   h2,
@@ -343,7 +346,7 @@
 
   /* Boxes side by side ("Links", an app's boxes): the site's panels (outlined cards, ui.css, without a shadow), with
    more room on a computer and the heading of a section in it. */
-  .block-panels .block-panel-title {
+  .block-panels :is(.block-panel-title, .block-panel .card-headline) {
     font-size: var(--mo-sys-typescale-headline-small-size);
     line-height: var(--mo-sys-typescale-headline-small-line-height);
     font-weight: var(--mo-sys-typescale-headline-small-weight);

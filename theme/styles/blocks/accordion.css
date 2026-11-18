@@ -100,7 +100,7 @@
     column-gap: 0.5rem;
     margin-block-end: calc((1.25rem - var(--mo-comp-button-medium-container-height, 3rem)) / 2);
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .block-row-text {
       font-size: var(--mo-sys-typescale-body-large-size);
       line-height: var(--mo-sys-typescale-body-large-line-height);

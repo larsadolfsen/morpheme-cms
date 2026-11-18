@@ -1,34 +1,37 @@
 /*
-  Cards (Card.tsx, cardClass; m3.material.io/components/cards): the surface a block or an app's block is, .card with its
-  kind, .card-elevated (on the surface with its shadow), .card-filled (on the tint) or .card-outlined (on the surface
-  with a thin edge); a card that is a link is an <a class="card …">, the whole card the link, lifted and tinted when pointed at or focused;
-  .card-dragged while it is dragged to another place. What is on it (its icon, heading, text, image) is the block's
-  own (block-…).
-    --mo-comp-card-radius, --mo-comp-card-padding   its corners and the room inside it (16px, as Material 3's)
-    --mo-comp-card-gap                      the editor's small step for a block's row and handle (8px); the room between cards is --mo-sys-grid-gutter (16px, 24px from medium)
-    --mo-comp-card-media-gap, --mo-comp-card-subhead-gap, --mo-comp-card-text-gap, --mo-comp-card-action-gap   inside a "Cards" card (blocks.css): the media to the
-                                    headline (16px), the headline to the subhead (4px), to the text (8px), the text to the link or buttons (16px)
-    --card-hover-layer, --card-focus-layer   the state layer of a card that links, in its text's colour: pointed at 8%,
-                                    focused 10% (opacity)
-    --card-<kind>-surface, --card-<kind>-line, --card-<kind>-shadow   each kind's surface, its edge (a 1px line inside
-                                    it, transparent for none) and its shadow (0 0 #0000 for none): elevated level 1,
-                                    filled and outlined level 0
-    --card-<kind>-hover-shadow      a card that is a link (an elevated one: a button too), pointed at: elevated level 2, filled and outlined level 1 (a
-                                    theme that sets only the one at rest keeps it); pressed, as at rest
-    --card-<kind>-dragged-shadow    dragged: elevated level 4, filled and outlined level 3
-  Set here by the kind and the state, not by a theme: --mo-comp-card-shadow, the shadow a card has now (a block that draws
-  the card's edge itself, .block-card, takes it).
-
-  Moved here from ui.css with its rules unchanged and in their order; imported by base.css where ui.css was (docs/superpowers/plans/2026-11-16-css-split.md).
+  Card (Card.tsx, cardClass; m3.material.io/components/cards, read 18 Nov 2026: Overview, Specs, Guidelines, Accessibility): the surface a block or an
+  app's block is, .card with its kind, .card-elevated (level 1, `surface-container-low`), .card-filled (level 0, `surface-container-highest`) or
+  .card-outlined (level 0, `surface`, a 1dp `outline-variant` edge); a card that is a link is an <a class="card …">, a tappable one a
+  <button class="card …">, the whole card the action: the state layer (hover 0.08, focus 0.1, dragged 0.16: the global state opacities), one
+  elevation level up when pointed at, and the ripple. .card-dragged while it is dragged to another place.
+  What is on it, in M3's order (Guidelines, Anatomy): .card-media-slot (image, video, edge to edge) or .card-icon (24dp, primary), then in
+  .card-body the .card-headline (title-large), .card-subhead (label-small), .card-supporting (body-medium), the block's .card-content and the
+  .card-actions (the buttons). What a block puts on a card without these (its icon, heading, text, image) is the block's own (block-…).
+  The tokens, M3's names where Specs prints one, else ours under --mo-comp-card-; each one the --mo-sys-* token as its fallback:
+    --mo-comp-card-radius, --mo-comp-card-padding   its corners and the room inside it (12dp, 16dp: Specs, Measurements)
+    --mo-comp-card-gap                              the editor's small step for a block's row and handle (8px); the room between cards is --mo-sys-grid-gutter
+    --mo-comp-card-media-gap, --mo-comp-card-subhead-gap, --mo-comp-card-text-gap, --mo-comp-card-action-gap   the media to the headline (16dp), the
+                                    headline to the subhead (4dp), to the supporting text and the content (8dp), the text to the buttons (16dp); M3 is silent
+    --mo-comp-card-headline-* / -subhead-* / -supporting-* (-size, -line-height, -weight, -tracking, -color), --mo-comp-card-icon-color / -icon-size
+    --mo-comp-<kind>-card-container-color, --mo-comp-outlined-card-outline-color, --mo-comp-outlined-card-focus-outline-color
+    the states by kind and the shadows: tokens/ui/comp/card.css
 */
 @layer components {
+  .card {
+    display: block;
+    border-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
+    padding: var(--mo-comp-card-padding, var(--mo-ref-space-200));
+  }
+  .card[hidden] {
+    display: none;
+  }
   a.card {
     color: inherit;
     text-decoration: none;
   }
-  /* Each kind at its level (M3's): at rest, also while pressed or with focus; a link pointed at, one level higher; and
-     dragged. */
-  :where(a.card) {
+  /* Each kind at its level (M3's, tokens/ui/comp/card.css): at rest, also while pressed or with focus; a link pointed at, one level higher;
+     and dragged. */
+  :where(:is(a, button).card) {
     transition: box-shadow 0.3s var(--mo-sys-block-ease-quick);
   }
   button.card {
@@ -39,5 +42,167 @@
     text-align: start;
     cursor: pointer;
   }
-  /* A card across all the columns on compact only, one column from medium. */
+  /* The state layer (M3's): a card that is a link or a button, tinted in its text's colour over the whole card in its shape, 0.08 when pointed at
+     and 0.1 with focus from the keyboard; a card that is dragged 0.16 (Specs: hover, focus, pressed and dragged state layer opacity). It is under the
+     ripple (the ripple is the last in the card) and does not take a click. */
+  :is(a, button).card::before,
+  .card-dragged::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: currentColor;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--mo-sys-motion-spring-default-effects);
+  }
+  @media (hover: hover) {
+    :is(a, button:enabled).card:hover::before {
+      opacity: var(--card-hover-layer, var(--mo-sys-state-hover-state-layer-opacity));
+    }
+  }
+  :is(a, button:enabled).card:focus-visible::before {
+    opacity: var(--card-focus-layer, var(--mo-sys-state-focus-state-layer-opacity));
+  }
+  .card-dragged {
+    position: relative;
+    cursor: grabbing;
+  }
+  .card-dragged::before {
+    opacity: var(--mo-comp-card-dragged-state-layer-opacity, var(--mo-sys-state-dragged-state-layer-opacity));
+  }
+  .card-elevated {
+    background: var(--card-elevated-surface, var(--mo-sys-elevation-level1-color));
+    box-shadow:
+      inset 0 0 0 1px var(--card-elevated-line, transparent),
+      var(--mo-comp-card-shadow);
+  }
+  .card-filled {
+    background: var(--mo-comp-filled-card-container-color, var(--mo-sys-color-surface-container-highest, var(--mo-sys-block-tint)));
+    box-shadow:
+      inset 0 0 0 1px var(--mo-comp-card-filled-line, transparent),
+      var(--mo-comp-card-shadow);
+  }
+  .card-outlined {
+    background: var(--mo-comp-outlined-card-container-color, var(--mo-sys-elevation-level0-color));
+    box-shadow:
+      inset 0 0 0 1px var(--mo-comp-outlined-card-outline-color, var(--mo-sys-block-line)),
+      var(--mo-comp-card-shadow);
+  }
+  /* A card with media (CardMedia, or the `media` prop): the image to the card's edge, no padding, in the card's corners. */
+  .card-with-media {
+    position: relative;
+    padding: 0;
+    overflow: hidden;
+  }
+  .card-media {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    border-radius: inherit;
+  }
+  /* The card clips the slot to its corners (overflow: hidden); the slot's top corners are the card's too, its bottom ones below. */
+  .card-media-slot {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    border-start-start-radius: inherit;
+    border-start-end-radius: inherit;
+  }
+  /* With text under it the media is its own rounded rectangle: its bottom corners are the card's radius (deviation CM1, owner 16 Nov 2026). */
+  .card-media-slot:has(+ .card-body) {
+    border-end-start-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
+    border-end-end-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
+  }
+  .card-media > picture,
+  .card-media-slot > picture {
+    display: contents;
+  }
+  .card-media img,
+  .card-media-slot > img,
+  .card-media-slot > picture img,
+  .card-media-slot > video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* What is on a card, in M3's order (Guidelines, Anatomy). Under media the text has the card's padding (the media is the card's edge to edge);
+     without it the card's own padding is the text's. Each part after the first has its gap above it. */
+  .card-body {
+    display: flex;
+    flex-direction: column;
+  }
+  .card-with-media > .card-body {
+    padding: var(--mo-comp-card-media-gap, var(--mo-ref-space-200)) var(--mo-comp-card-padding, var(--mo-ref-space-200))
+      var(--mo-comp-card-padding, var(--mo-ref-space-200));
+  }
+  .card-body > :not(:first-child) {
+    margin-top: var(--mo-comp-card-text-gap, var(--mo-ref-space-100));
+  }
+  .card-icon {
+    display: flex;
+    color: var(--mo-comp-card-icon-color, var(--mo-sys-color-primary));
+  }
+  .card-icon > svg {
+    width: var(--mo-comp-card-icon-size, 1.5rem);
+    height: var(--mo-comp-card-icon-size, 1.5rem);
+  }
+  .card-icon + * {
+    margin-top: var(--mo-comp-card-media-gap, var(--mo-ref-space-200));
+  }
+  .card-headline {
+    margin: 0;
+    font-size: var(--mo-comp-card-headline-size, var(--mo-sys-typescale-title-large-size));
+    line-height: var(--mo-comp-card-headline-line-height, var(--mo-sys-typescale-title-large-line-height));
+    font-weight: var(--mo-comp-card-headline-weight, var(--mo-sys-typescale-title-large-weight));
+    letter-spacing: var(--mo-comp-card-headline-tracking, var(--mo-sys-typescale-title-large-tracking));
+    color: var(--mo-comp-card-headline-color, inherit);
+  }
+  .card-body > .card-headline:not(:first-child) {
+    margin-top: var(--mo-comp-card-media-gap, var(--mo-ref-space-200));
+  }
+  .card-icon + .card-headline {
+    margin-top: var(--mo-comp-card-media-gap, var(--mo-ref-space-200));
+  }
+  .card-body > .card-subhead {
+    margin-top: var(--mo-comp-card-subhead-gap, var(--mo-ref-space-50));
+    font-size: var(--mo-comp-card-subhead-size, var(--mo-sys-typescale-label-small-size));
+    line-height: var(--mo-comp-card-subhead-line-height, var(--mo-sys-typescale-label-small-line-height));
+    font-weight: var(--mo-comp-card-subhead-weight, var(--mo-sys-typescale-label-small-weight));
+    letter-spacing: var(--mo-comp-card-subhead-tracking, var(--mo-sys-typescale-label-small-tracking));
+    color: var(--mo-comp-card-subhead-color, var(--mo-sys-block-muted));
+  }
+  .card-supporting {
+    font-size: var(--mo-comp-card-supporting-size, var(--mo-sys-typescale-body-medium-size));
+    line-height: var(--mo-comp-card-supporting-line-height, var(--mo-sys-typescale-body-medium-line-height));
+    font-weight: var(--mo-comp-card-supporting-weight, var(--mo-sys-typescale-body-medium-weight));
+    letter-spacing: var(--mo-comp-card-supporting-tracking, var(--mo-sys-typescale-body-medium-tracking));
+    color: var(--mo-comp-card-supporting-color, var(--mo-sys-block-muted));
+  }
+  /* The action area (M3: buttons, icon buttons, selection controls): in a row at the bottom of the card, the card's height taken up above it. */
+  .card-body > .card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mo-ref-space-100);
+    margin-top: auto;
+    padding-top: var(--mo-comp-card-action-gap, var(--mo-ref-space-200));
+  }
+  /* Selected (Material 3's Selection page: "a check mark icon, a checkbox component, a change in surface color, or a
+     combination"): the selected surface and a check mark. The only ring is the focus ring. */
+  .card-selected {
+    position: relative;
+    background: var(--card-selected-surface, var(--mo-sys-color-secondary-container));
+    color: var(--card-selected-text, var(--mo-sys-color-on-secondary-container));
+  }
+  .card-check {
+    position: absolute;
+    inset-block-start: 8px;
+    inset-inline-end: 8px;
+    box-sizing: content-box;
+    padding: 3px;
+    border-radius: 50%;
+    background: var(--mo-sys-color-primary);
+    color: var(--mo-sys-color-on-primary);
+  }
 }

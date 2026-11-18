@@ -45,7 +45,10 @@
       color var(--mo-sys-motion-spring-default-effects);
   }
   .tab:hover {
-    background: var(--tab-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent));
+    background: var(
+      --tab-hover-surface,
+      color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+    );
     color: var(--tab-hover-text, var(--mo-sys-block-text));
   }
   .tab:focus-visible {
@@ -104,7 +107,13 @@
     justify-content: center;
   }
   :is(.tabs-primary, .tabs-secondary) .tab:active {
-    background: var(--tab-pressed-surface, var(--tab-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent)));
+    background: var(
+      --tab-pressed-surface,
+      var(
+        --tab-hover-surface,
+        color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+      )
+    );
   }
   :is(.tabs-primary, .tabs-secondary) .tab:is(:disabled, [aria-disabled='true']) {
     opacity: var(--tab-disabled-opacity, 0.45);

@@ -151,12 +151,26 @@
     color: var(--fab-secondary-text, var(--mo-sys-color-on-secondary));
   }
   .fab-menu-secondary > .fab-menu-button[aria-expanded='true']:hover {
-    background: var(--fab-secondary-hover, color-mix(in srgb, var(--mo-sys-color-on-secondary) 8%, var(--mo-sys-color-secondary)));
+    background: var(
+      --fab-secondary-hover,
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-secondary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-secondary)
+      )
+    );
   }
   .fab-menu-secondary > .fab-menu-button[aria-expanded='true']:active {
     background: var(
       --fab-secondary-pressed,
-      var(--fab-secondary-hover, color-mix(in srgb, var(--mo-sys-color-on-secondary) 8%, var(--mo-sys-color-secondary)))
+      var(
+        --fab-secondary-hover,
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-secondary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-secondary)
+        )
+      )
     );
   }
   .fab-menu-tertiary > .fab-menu-button[aria-expanded='true'] {
@@ -164,12 +178,26 @@
     color: var(--fab-tertiary-text, var(--mo-sys-color-on-tertiary));
   }
   .fab-menu-tertiary > .fab-menu-button[aria-expanded='true']:hover {
-    background: var(--fab-tertiary-hover, color-mix(in srgb, var(--mo-sys-color-on-tertiary) 8%, var(--mo-sys-color-tertiary)));
+    background: var(
+      --fab-tertiary-hover,
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-tertiary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-tertiary)
+      )
+    );
   }
   .fab-menu-tertiary > .fab-menu-button[aria-expanded='true']:active {
     background: var(
       --fab-tertiary-pressed,
-      var(--fab-tertiary-hover, color-mix(in srgb, var(--mo-sys-color-on-tertiary) 8%, var(--mo-sys-color-tertiary)))
+      var(
+        --fab-tertiary-hover,
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-tertiary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-tertiary)
+        )
+      )
     );
   }
   @media (prefers-reduced-motion: reduce) {

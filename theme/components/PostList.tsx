@@ -36,7 +36,7 @@ export default function PostList({
     <>
       <List
         dividers="none"
-        className={['theme-post-list grid gap-x-6', columns === 2 && 'expanded:grid-cols-2', className].filter(Boolean).join(' ')}
+        className={['theme-post-list', columns === 2 && 'theme-post-list-columns', className].filter(Boolean).join(' ')}
         data-random-posts={random ? count : undefined}
       >
         {posts.map((post, i) => (
@@ -54,12 +54,12 @@ export default function PostList({
                   sizes={`(min-width: ${BREAKPOINTS.medium}px) 128px, 88px`}
                 />
               ) : (
-                <span className="list-item-image theme-post-picture bg-surface-container-high" />
+                <span className="list-item-image theme-post-picture theme-post-picture-empty" />
               )
             }
-            overline={<PostMeta post={post} as="span" />}
-            headline={<h3 className="mo-type-title-medium m-0">{post.title}</h3>}
-            supporting={post.description ? <span className="line-clamp-2">{post.description}</span> : undefined}
+            subhead={<PostMeta post={post} as="span" />}
+            headline={<h3 className="theme-post-title">{post.title}</h3>}
+            supporting={post.description ? <span className="theme-post-excerpt">{post.description}</span> : undefined}
           />
         ))}
       </List>

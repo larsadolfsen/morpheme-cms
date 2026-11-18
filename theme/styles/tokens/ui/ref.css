@@ -10,24 +10,43 @@
     --mo-sys-elevation-level0-shadow … --mo-sys-elevation-level5-shadow                   the level's shadow; level 0 is no shadow (0 0 #0000, so it can
                                                      stand in a list of shadows)
     --mo-sys-elevation-level0-color … --mo-sys-elevation-level5-color   the level's colour (the site's surface-container colours)
-    --mo-sys-elevation-level1-rest-shadow … -5-rest-shadow      the shadow a part shows at rest on that level; a theme turns resting
-                                                     shadows off here and keeps the lift, which reads --mo-elevation-N-shadow
+    --mo-sys-elevation-level1-rest-shadow … -5-rest-shadow      the shadow a part shows at rest on that level: level N's own shadow (owner, 18 Nov
+                                                     2026); a theme turns resting shadows off here and keeps the lift, which reads
+                                                     --mo-sys-elevation-levelN-shadow
   At rest (the shadow reads --mo-elevation-N-rest-shadow), pointed at (hover), pressed and dragged (the lift reads
   --mo-elevation-N-shadow), by Material 3; with focus a part is as at rest:
     level 0  filled, tonal and outlined buttons, icon buttons, filled and outlined cards, chips (not elevated), a
-             standard side sheet, the top app bar, the navigation bar and rail, the
-             search bar, a plain tooltip
+             standard side sheet, the top app bar, the navigation rail, a plain tooltip, a disabled switch and slider handle
     level 1  elevated buttons and chips, elevated cards, bottom sheets, a modal side sheet and navigation drawer, the
              handles of switches and sliders; pointed at: filled and tonal buttons (a toggle too), filled and outlined
              cards that are links, a chosen filter chip
-    level 2  menus, a rich tooltip, a modal navigation rail, the top app bar once the page scrolls under it; pointed
-             at: elevated buttons, chips and cards
-    level 3  FABs (and the FAB menu's actions), dialogs (a bottom sheet as one), date and time pickers, the search view,
-             a snackbar, a floating toolbar; dragged: filled and outlined cards
+    level 2  menus, a rich tooltip, a modal navigation rail, the navigation bar, a docked toolbar, the top app bar once
+             the page scrolls under it; pointed at: elevated buttons, chips and cards
+    level 3  FABs (and the FAB menu's close button), dialogs (a bottom sheet as one), date and time pickers, the search bar
+             and view, a snackbar, a floating toolbar; dragged: filled and outlined cards
     level 4  pointed at: FABs; dragged: elevated cards, chips
     level 5  none of the parts by default (M3's highest level, for a theme's own use)
-  Pressed, a part is as at rest: only pointing at it lifts it. Disabled, a button has no shadow.
+  Pressed, a part is as at rest: only pointing at it lifts it. Disabled, a button, a switch handle and a slider handle have no shadow.
+  Every level above is M3's, read on its elevation token page and each part's Specs page (18 Nov 2026, step 1 of the cards and lists plan).
 */
+/* ---- State layers ----
+  M3's state opacities (m3.material.io/foundations/interaction/states/state-layers, token set "State opacities"): the fixed
+  opacity of the layer a state draws over a part, in the colour of the part's content. Every part reads these and writes no number
+  of its own (--mo-sys-state-mo-hover-layer and --mo-sys-state-mo-pressed-layer, tokens/material/sys.css, are made from them).
+    --mo-sys-state-hover-state-layer-opacity      pointed at, 0.08
+    --mo-sys-state-focus-state-layer-opacity      focused, 0.1
+    --mo-sys-state-pressed-state-layer-opacity    pressed, 0.1
+    --mo-sys-state-dragged-state-layer-opacity    dragged, 0.16
+    --mo-sys-state-disabled-state-layer-opacity   disabled content, 0.38
+  A part's own value that is not in the set (a disabled chip's edge, 0.12) is the part's, in its token file.
+*/
+:where(:root) {
+  --mo-sys-state-hover-state-layer-opacity: 0.08;
+  --mo-sys-state-focus-state-layer-opacity: 0.1;
+  --mo-sys-state-pressed-state-layer-opacity: 0.1;
+  --mo-sys-state-dragged-state-layer-opacity: 0.16;
+  --mo-sys-state-disabled-state-layer-opacity: 0.38;
+}
 :where(:root) {
   --mo-sys-elevation-level0-shadow: 0 0 #0000;
   --mo-sys-elevation-level1-shadow:

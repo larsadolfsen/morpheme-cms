@@ -183,10 +183,18 @@
     color: var(--mo-sys-color-on-secondary-container);
   }
   .navigation-drawer-row[data-active]:has(> .navigation-drawer-item:hover) {
-    background: color-mix(in srgb, var(--mo-sys-color-on-secondary-container) 8%, var(--mo-sys-color-secondary-container));
+    background: color-mix(
+      in srgb,
+      var(--mo-sys-color-on-secondary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+      var(--mo-sys-color-secondary-container)
+    );
   }
   .navigation-drawer-row[data-active]:has(> .navigation-drawer-item:focus-visible) {
-    background: color-mix(in srgb, var(--mo-sys-color-on-secondary-container) 10%, var(--mo-sys-color-secondary-container));
+    background: color-mix(
+      in srgb,
+      var(--mo-sys-color-on-secondary-container) calc(var(--mo-sys-state-pressed-state-layer-opacity) * 100%),
+      var(--mo-sys-color-secondary-container)
+    );
   }
   .navigation-drawer-toggle {
     margin-right: 0.25rem;

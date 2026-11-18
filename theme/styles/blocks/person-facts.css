@@ -120,7 +120,7 @@
     color: var(--mo-sys-block-text);
   }
   .block-table-grid:focus-visible {
-    outline: 3px solid var(--mo-sys-block-accent);
+    outline: 3px solid var(--mo-sys-color-primary);
     outline-offset: 2px;
   }
   .block-table-grid :is(th, td) {
@@ -158,14 +158,23 @@
   }
   @media (hover: hover) {
     .block-table-grid tbody tr:hover {
-      background: var(--mo-sys-state-mo-hover-layer, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent));
+      background: var(
+        --mo-sys-state-mo-hover-layer,
+        color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+      );
     }
     /* The state layer over the stripe, so a striped row stays striped under the pointer. */
     .block-table-grid[data-striped] tbody tr:nth-child(even):hover {
       background:
         linear-gradient(
-          var(--mo-sys-state-mo-hover-layer, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent)),
-          var(--mo-sys-state-mo-hover-layer, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent))
+          var(
+            --mo-sys-state-mo-hover-layer,
+            color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+          ),
+          var(
+            --mo-sys-state-mo-hover-layer,
+            color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+          )
         ),
         var(--mo-sys-block-stripe);
     }

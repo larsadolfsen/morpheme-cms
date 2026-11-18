@@ -175,7 +175,10 @@
   }
   @media (hover: hover) {
     .button-tonal:hover {
-      background: var(--mo-comp-button-tonal-hover, color-mix(in srgb, var(--mo-sys-block-text) 8%, var(--mo-sys-block-tint)));
+      background: var(
+        --mo-comp-button-tonal-hover,
+        color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), var(--mo-sys-block-tint))
+      );
       box-shadow: var(--button-tonal-hover-shadow, var(--button-tonal-shadow, var(--mo-sys-elevation-level1-shadow)));
     }
   }
@@ -219,7 +222,10 @@
   }
   @media (hover: hover) {
     .button-text:hover {
-      background: var(--mo-comp-button-text-hover, color-mix(in srgb, var(--mo-sys-block-accent) 8%, transparent));
+      background: var(
+        --mo-comp-button-text-hover,
+        color-mix(in srgb, var(--mo-sys-block-accent) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+      );
     }
   }
 
@@ -232,7 +238,10 @@
   }
   @media (hover: hover) {
     .button-filled[aria-pressed='false']:hover {
-      background: var(--mo-comp-button-toggle-hover, color-mix(in srgb, var(--mo-sys-block-text) 8%, var(--mo-sys-block-tint)));
+      background: var(
+        --mo-comp-button-toggle-hover,
+        color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), var(--mo-sys-block-tint))
+      );
       box-shadow: var(--mo-sys-elevation-level1-shadow);
     }
   }
@@ -261,7 +270,11 @@
     .button-tonal[aria-pressed='true']:hover {
       background: var(
         --button-tonal-selected-hover,
-        color-mix(in srgb, var(--mo-sys-color-on-secondary) 10%, var(--mo-sys-color-secondary))
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-secondary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-secondary)
+        )
       );
     }
   }
@@ -336,7 +349,11 @@
   }
   @media (hover: hover) {
     .icon-button-standard:hover {
-      background: color-mix(in srgb, currentColor 8%, var(--mo-comp-icon-button-standard-surface, transparent));
+      background: color-mix(
+        in srgb,
+        currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-comp-icon-button-standard-surface, transparent)
+      );
     }
   }
   /* Filled: the main action, in the accent. */
@@ -358,7 +375,11 @@
   }
   @media (hover: hover) {
     .icon-button-tonal:hover {
-      background: color-mix(in srgb, currentColor 8%, var(--mo-comp-icon-button-tonal-container-color, var(--mo-sys-block-tint)));
+      background: color-mix(
+        in srgb,
+        currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-comp-icon-button-tonal-container-color, var(--mo-sys-block-tint))
+      );
     }
   }
   /* Outlined: with a thin edge. */
@@ -386,7 +407,10 @@
   }
   @media (hover: hover) {
     .icon-button-filled[aria-pressed='false']:hover {
-      background: var(--mo-comp-button-toggle-hover, color-mix(in srgb, var(--mo-sys-block-text) 8%, var(--mo-sys-block-tint)));
+      background: var(
+        --mo-comp-button-toggle-hover,
+        color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), var(--mo-sys-block-tint))
+      );
     }
   }
   .icon-button-filled[aria-pressed='true'] {
@@ -418,7 +442,11 @@
   }
   @media (hover: hover) {
     .icon-button-tonal[aria-pressed='true']:hover {
-      background: color-mix(in srgb, currentColor 8%, var(--icon-button-tonal-selected-surface, var(--mo-sys-color-secondary-container)));
+      background: color-mix(
+        in srgb,
+        currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--icon-button-tonal-selected-surface, var(--mo-sys-color-secondary-container))
+      );
     }
   }
   .icon-button-outlined[aria-pressed='true'] {

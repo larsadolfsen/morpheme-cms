@@ -6,9 +6,4 @@
   body {
     background: var(--mo-sys-color-surface);
   }
-  :focus-visible {
-    outline: 3px solid var(--mo-sys-color-primary);
-    outline-offset: 2px;
-    border-radius: var(--mo-sys-shape-corner-extra-small);
-  }
 }

@@ -42,7 +42,7 @@ export default function List({
             id={t.anchor}
             data-tags={t.categories.join(' ')}
             leadingAvatar={t.image ? { src: t.image.src } : ([...t.name.trim()][0]?.toLocaleUpperCase() ?? '')}
-            overline={t.context || undefined}
+            subhead={t.context || undefined}
             headline={t.name}
             supporting={t.quote.join(' ')}
             lines={t.context ? 3 : 2}

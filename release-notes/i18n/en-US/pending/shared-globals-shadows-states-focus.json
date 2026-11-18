@@ -1,0 +1,7 @@
+{
+  "id": "shared-globals-shadows-states-focus",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Resting shadows",
+  "text": "Raised parts are easier to tell from the page. Menus, sheets, dialogs, the navigation bar and elevated cards show their shadow even before you point at them. Everything else looks as before."
+}
