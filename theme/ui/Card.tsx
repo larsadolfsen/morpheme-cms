@@ -86,18 +86,21 @@ export default function Card({
   const parts = slotMedia || icon || headline || subhead || supporting || actions;
   const classes = [cardClass(kind, { dragged, media: media === true || slotMedia, selected }), className].filter(Boolean).join(' ');
   const Headline = headingLevel ? (`h${headingLevel}` as const) : 'div';
+  const body = icon || headline || subhead || supporting || children || actions;
   // The text, what the block put there and the action area, in Material 3's order, one after the other.
   const content = parts ? (
     <>
       {slotMedia && <div className="card-media-slot">{media}</div>}
-      <div className="card-body">
-        {icon && <div className="card-icon">{icon}</div>}
-        {headline && <Headline className="card-headline">{headline}</Headline>}
-        {subhead && <div className="card-subhead">{subhead}</div>}
-        {supporting && <div className="card-supporting">{supporting}</div>}
-        {children && <div className="card-content">{children}</div>}
-        {actions && <div className="card-actions">{actions}</div>}
-      </div>
+      {body && (
+        <div className="card-body">
+          {icon && <div className="card-icon">{icon}</div>}
+          {headline && <Headline className="card-headline">{headline}</Headline>}
+          {subhead && <div className="card-subhead">{subhead}</div>}
+          {supporting && <div className="card-supporting">{supporting}</div>}
+          {children && <div className="card-content">{children}</div>}
+          {actions && <div className="card-actions">{actions}</div>}
+        </div>
+      )}
     </>
   ) : (
     children

@@ -22,6 +22,9 @@
     border-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
     padding: var(--mo-comp-card-padding, var(--mo-ref-space-200));
   }
+  .card[hidden] {
+    display: none;
+  }
   a.card {
     color: inherit;
     text-decoration: none;
@@ -103,6 +106,11 @@
     display: block;
     width: 100%;
     overflow: hidden;
+  }
+  /* With text under it the media is its own rounded rectangle: its bottom corners are the card's radius (deviation CM1, owner 16 Nov 2026). */
+  .card-media-slot:has(+ .card-body) {
+    border-end-start-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
+    border-end-end-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
   }
   .card-media > picture,
   .card-media-slot > picture {

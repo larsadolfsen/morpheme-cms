@@ -12,7 +12,7 @@ import Buttons from '@theme/blocks/buttons/Buttons';
 import Button from '@theme/ui/Button';
 import Carousel from '@theme/ui/Carousel';
 import Video from '@theme/blocks/video/View';
-import Card, { cardKinds, type CardKind } from '@theme/ui/Card';
+import Card, { CardMedia as MediaBox, cardKinds, type CardKind } from '@theme/ui/Card';
 
 /** The image of a card cut to the part the owner chose (crop.mjs: percent of the image from the left, from the top, its width and height): wider than its box and moved. */
 const cutStyle = ([x, y, w]: number[]) => ({
@@ -57,6 +57,31 @@ export function CardMedia({ card }: { card: LinkCard }) {
   );
 }
 
+/** The `media` of a card's props (Card.tsx): the image cut to the part the owner chose, or the video with its play button, edge to edge at the
+ * top; nothing for an icon (it is the card's `icon`) or none. */
+function mediaOf(card: LinkCard) {
+  if (card.media === 'image' && card.image) {
+    const [w, h] = card.ratio ? card.ratio.split(':').map(Number) : [3, 2];
+    return (
+      <MediaBox ratio={w && h ? w / h : 3 / 2}>
+        <img
+          style={card.image.crop ? cutStyle(card.image.crop) : undefined}
+          src={card.image.src}
+          srcSet={card.image.srcset}
+          sizes={card.image.srcset ? sizes : undefined}
+          width={card.image.width}
+          height={card.image.height}
+          alt={card.image.alt ?? ''}
+          loading="lazy"
+          decoding="async"
+        />
+      </MediaBox>
+    );
+  }
+  if (card.media === 'video' && card.video) return <Video view={card.video} />;
+  return undefined;
+}
+
 export default function LinkCards({
   items,
   more,
@@ -80,30 +105,28 @@ export default function LinkCards({
   const colored = type === 'filled' && color ? `block-cards-${color}` : undefined;
   const say = siteT.blocks.cards;
   const cardOf = (card: LinkCard) => {
-    const inside = (
-      <>
-        <CardMedia card={card} />
-        <span className="block-card-title">{card.title}</span>
-        {card.subhead && <span className="block-card-subhead">{card.subhead}</span>}
-        {card.text && <span className="block-card-text">{card.text}</span>}
-        {card.href && (
-          <span className="block-card-more">
-            {more}
-            <Svg name="arrow-right" size={18} className="block-card-arrow" />
-          </span>
-        )}
-        {!card.href && card.buttons.length > 0 && (
-          <span className="block-card-actions">
-            <Buttons buttons={card.buttons} />
-          </span>
-        )}
-      </>
-    );
-    // A card without a page is not a link (and may have buttons).
-    return (
-      <Card kind={type} href={card.href || undefined} className="block-card">
-        {inside}
+    const parts = {
+      kind: type,
+      className: 'block-card',
+      media: mediaOf(card),
+      icon:
+        card.media === 'icon' && card.icon ? (
+          <Svg name={card.icon} size={24} className="block-card-icon" iconColor={card.iconColor} />
+        ) : undefined,
+      headline: card.title,
+      subhead: card.subhead || undefined,
+      supporting: card.text || undefined,
+    };
+    // A card with a page is one link, the whole card, with `more` at its end; one without is not a link and may have buttons.
+    return card.href ? (
+      <Card {...parts} href={card.href}>
+        <span className="block-card-more">
+          {more}
+          <Svg name="arrow-right" size={18} className="block-card-arrow" />
+        </span>
       </Card>
+    ) : (
+      <Card {...parts} actions={card.buttons.length > 0 ? <Buttons buttons={card.buttons} /> : undefined} />
     );
   };
   if (phone === 'carousel' && items.length >= 2)

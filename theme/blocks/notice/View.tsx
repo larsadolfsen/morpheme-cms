@@ -7,8 +7,12 @@ import Card from '@theme/ui/Card';
 
 export default function Notice({ view }: { view: NoticeView }) {
   return (
-    <Card as="aside" kind="filled" className={useInText('block-notice')} data-until={view.until ?? undefined}>
-      <p dangerouslySetInnerHTML={{ __html: view.html }} />
-    </Card>
+    <Card
+      as="aside"
+      kind="filled"
+      className={useInText('block-notice')}
+      data-until={view.until ?? undefined}
+      supporting={<p dangerouslySetInnerHTML={{ __html: view.html }} />}
+    />
   );
 }
