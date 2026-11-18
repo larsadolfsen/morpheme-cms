@@ -2,6 +2,8 @@
    `utilities`, so a utility class still wins over `.prose`. Material's rules sit in the last layer, fallback: a theme's own unlayered rules beat them, whatever their specificity. */
 @layer theme, base, components, prose, utilities, fallback;
 @import 'tailwindcss';
+/* The reset (the rules of Tailwind's preflight, in our own file), in the layer base, before every rule that builds on it. */
+@import './reset.css';
 /* The theme's UI components, as Material 3 names them (buttons, icon buttons, the menus, the lists …), one file for each part, imported in
    the order their rules had in the file ui.css was before the split (docs/theme-css-split.md); and the standard blocks of the editor, in this
    site's design (their variables below). */
