@@ -60,7 +60,7 @@ const s = (names) => new RegExp(`^src/(?:${names})\\.(?:tsx?|mjs|css)$`);
 /** @type {Array<[RegExp, string[] | 'all' | 'none']>} */
 export const RULES = [
   // The workflow and what decides the checks: a mistake in them must not hide itself.
-  [/^\.github\/workflows\/check\.yml$/, 'all'],
+  [/^\.github\/(workflows\/check\.yml|actions\/.+)$/, 'all'],
   [/^scripts\/ci-changes(\.test)?\.mjs$/, 'all'],
   [/^scripts\/(editor-screens|built-site|core-blocks-page|spacing-grid\.allow)\.mjs$/, 'all'],
   [/^scripts\/screens\/(support\/|order\.txt$)/, 'all'],
