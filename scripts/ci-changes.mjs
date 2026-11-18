@@ -4,7 +4,7 @@
 //   node scripts/ci-changes.mjs classify <head ref> [<base>]  the same, and also starter_demo=true|false (whether `starter` and `demo` must run)
 //                                                      level=feature|line|full (from the base branch), and light=true|false (the feature and line levels: the light check)
 //                                                      and areas=all|none|<area>,<area> (the screens areas the light check runs besides the core set; scripts/screens/support/areas.mjs)
-//   node scripts/ci-changes.mjs verdict <docs_only> [<starter_demo> [<light>]]  reads `needs` (JSON, as Actions gives it) on stdin; exits 1 when `check` must be red
+//   node scripts/ci-changes.mjs verdict <docs_only> [<starter_demo> [<light> [<run head sha> <current head sha>]]]  reads `needs` (JSON, as Actions gives it) on stdin; exits 1 when `check` must be red; prints cancelled=true and exits 0 when a newer push (the two head shas differ) cancelled the run
 import { argv, stdin, exit } from 'node:process';
 import { areasArg } from './screens/support/areas.mjs';
 
@@ -154,6 +154,32 @@ export function verdict(needs, docsOnly, starterDemo = true, light = false) {
   return problems;
 }
 
+/**
+ * Whether a newer push replaced this run's head. True only when both shas are known and differ; an empty or missing sha (a
+ * failed lookup) is never "superseded", so when in doubt the run stays red.
+ * @param {string} [runHead] github.event.pull_request.head.sha of this run
+ * @param {string} [currentHead] the pull request's head sha now, as the API gives it
+ */
+export function isSuperseded(runHead = '', currentHead = '') {
+  return Boolean(runHead && currentHead && runHead !== currentHead);
+}
+
+/**
+ * What the job `check` reports. `cancelled` only when the run is really superseded by a newer push (isSuperseded) and some job is
+ * cancelled and none failed (the jobs after a cancelled one are skipped, which is no problem of its own). Any other cancel (a
+ * manual cancel, a lost runner, a timeout) on the current head, a failed job, or a failed head lookup is a `failure`.
+ * @param {string} [runHead]
+ * @param {string} [currentHead]
+ * @returns {{state: 'success'|'cancelled'|'failure', problems: string[]}}
+ */
+export function outcome(needs, docsOnly, starterDemo = true, light = false, runHead = '', currentHead = '') {
+  const problems = verdict(needs, docsOnly, starterDemo, light);
+  if (!problems.length) return { state: 'success', problems };
+  const results = Object.values(needs ?? {}).map((n) => n?.result);
+  const cancelled = results.includes('cancelled') && !results.includes('failure') && isSuperseded(runHead, currentHead);
+  return { state: cancelled ? 'cancelled' : 'failure', problems };
+}
+
 async function readStdin() {
   let text = '';
   for await (const chunk of stdin) text += chunk;
@@ -174,7 +200,21 @@ if (import.meta.url === `file://${argv[1]}`) {
     console.log(`light=${isLight(argv[4] ?? '', arg)}`);
     console.log(`areas=${screensAreas(paths, argv[4] ?? '', arg)}`);
   } else if (mode === 'verdict') {
-    const problems = verdict(JSON.parse(input), arg === 'true', argv[4] !== 'false', argv[5] === 'true');
+    const { state, problems } = outcome(
+      JSON.parse(input),
+      arg === 'true',
+      argv[4] !== 'false',
+      argv[5] === 'true',
+      argv[6] ?? '',
+      argv[7] ?? '',
+    );
+    if (state === 'cancelled') {
+      console.log('cancelled=true');
+      console.log(
+        'Cancelled: a newer push superseded this run (its head is no longer the head of the pull request). Look at the newest head.',
+      );
+      exit(0);
+    }
     for (const p of problems) console.log(`FAIL ${p}`);
     if (problems.length) exit(1);
     console.log(

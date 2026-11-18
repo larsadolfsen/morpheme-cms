@@ -11,7 +11,7 @@ Announce "Using checks". Run every command from the root of this repository, on 
 ## What CI runs
 
 **The direction (owner, 18 Nov 2026): test less, but always the important things.** Plan:
-`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A. The levels below are the target; PR 1 (levels), PR 2 (build once, cached Chromium) and PR 3 (core set and touched areas) are built (what runs today is in the next table and below), PR 4, 5 and 6 are not yet.
+`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A. The levels below are the target; PR 1 (levels), PR 2 (build once, cached Chromium) and PR 3 (core set and touched areas) and PR 8 (shards balanced by time) are built (what runs today is in the next table and below), PR 4, 5, 6 and the other new ones are not yet.
 
 | Merge | Check |
 | :--- | :--- |
@@ -58,11 +58,25 @@ A failed `build` leaves its jobs skipped, which the verdict turns red. The level
   areas; none is skipped, disabled or deleted.
 - **In CI** the job `changes` prints `areas=all|none|<area>,<area>` (`screensAreas` in `scripts/ci-changes.mjs`; `all` for the full level,
   the Release PR, an empty diff, an unknown path and any error) and each `screens` shard runs `npm run check:screens:shard -- K/8 --areas <areas>`.
-  The selected units are spread over the 8 shards, so shard K runs every 8th selected unit. An `--areas` value the runner cannot read (an
+  The selected units are spread over the 8 shards (by their measured time since PR 8, below). An `--areas` value the runner cannot read (an
   unknown area, a missing core unit) runs every unit.
 - **Locally**, `npm run check:screens:shard -- K/N --areas files,sheets [--list]` runs or lists one part of a selection; `--areas none` is the
   core set alone. **A new unit goes in its area's file and is in the selection of that area automatically**; a new area file needs its name in
   `AREAS` and a rule (the test fails until it has both). A change to the screens harness (`scripts/screens/support/`, `scripts/editor-screens.mjs`) runs everything.
+
+**Built (PR 8, shards balanced by time).** The selected units are dealt to the shards by their measured time, not by number, so the slowest
+shard sets a shorter wall time (`scripts/screens/support/balance.mjs`, tested in `scripts/screens-balance.test.mjs`).
+
+- **Where the times come from.** The runner prints `unit N name: S s` for each unit it runs. `scripts/screens/unit-times.json` keeps the times
+  of the last full run (every unit, all shards). `node scripts/refresh-unit-times.mjs <the logs of the 8 screens jobs> --from "<run>"` rewrites
+  it and prints the shard count the same times suggest (`--target <seconds>`, default 240) and each shard's time for 4 to 12 shards. Never edit
+  the file by hand; refresh it after a full run (a version line into `main`) or when units were added or got much slower.
+- **The deal.** The selected units (all of them, or the core set and the touched areas) are taken slowest first, each to the shard with the
+  least time so far (ties go to the lowest shard), so it is the same on every run and in every shard. A unit with no time (a new one) gets the
+  average of the file. Every selected unit runs in exactly one shard and together the shards run all of them, with or without `--areas`.
+- **When in doubt.** A missing, unreadable or empty times file deals by number (`index % N` among the selected units), as before. A time never
+  skips, disables or deletes a unit. A change to the times file or the refresh script runs no extra unit (`areas.mjs`, rule `none`).
+- **The number of shards** is the matrix of the `screens` job in `check.yml`; choose it from the refresh script's table, not by hand.
 
 Not built yet: the starter smoke test (PR 4), the daily
 full run on feature branches (PR 5), `next` builds from a version line (PR 6).
@@ -93,7 +107,7 @@ changeset, `npm run check`) always runs. The first job `changes` decides from `g
 `release-notes/` and `CHANGELOG.md` are never skipped (`check:release-notes`, the notes tests and the editor's build read them), and
 neither are the Release PR, an empty diff or any other path: when in doubt, everything runs. There is no `paths-ignore`, because
 `check` must always report. It is green when `static` and `changes` are green and each heavy job is green, or skipped on a
-docs-only pull request, or (`screens-extra`, `demo`, `starter`) on a pull request into a version line; a failed, cancelled or wrongly skipped job makes it red. To put a folder on the list, first find which
+docs-only pull request, or (`screens-extra`, `demo`, `starter`) on a pull request into a version line; a failed or wrongly skipped job makes it red. To put a folder on the list, first find which
 checks read it (`grep` the scripts and tests) and change the list and its test in `scripts/ci-changes.mjs` only.
 
 **`starter` and `demo` are also skipped when no changed file can affect them** (`needsStarterDemo` in `scripts/ci-changes.mjs`; the job
@@ -107,7 +121,12 @@ and `static` run on every pull request that is not docs-only (`screens-extra` no
 to the skip list, first `grep` that neither job reads it (the list's comment says how), and change the list and its test only.
 
 A new push to a pull request cancels that pull request's older queued and running `Check` runs (`concurrency` in
-`check.yml`); only the newest head's run counts.
+`check.yml`); only the newest head's run counts. `check` does not report a run as failed when a newer push cancelled it: it looks up the pull request's current head
+(`gh api repos/<repo>/pulls/<n> --jq .head.sha`, token with `pull-requests: read`) and compares it with this run's
+`github.event.pull_request.head.sha`. Only when a job is cancelled, none failed and the two heads differ, `outcome` in
+`scripts/ci-changes.mjs` says `cancelled`: the job prints `cancelled=true` and ends without red. A cancel on the same head (a manual
+cancel, a lost runner, a timeout), a failed lookup, a job that really failed (also next to a cancelled one) and a job skipped wrongly
+are all still red: when in doubt it stays red.
 
 ## The commands
 
