@@ -5,7 +5,7 @@
     --mo-comp-loading-indicator-active-indicator-size, --mo-comp-loading-indicator-shape-size, --mo-comp-loading-indicator-active-indicator-color, --loading-indicator-duration
     --loading-indicator-container, --loading-indicator-contained-colour
   Moved here from ui.css with its rules and keyframes unchanged and in their order; imported by base.css right after ui.css, in the same layer.
-  The reduced-motion rules of the loading indicator and the progress indicators (one @layer fallback block, shared with the tooltip's) stay in ui.css.
+  The reduced-motion rules of the loading indicator and the progress indicators (one @layer fallback block, shared with the tooltip's) are in reduced-motion.css.
   (docs/superpowers/plans/2026-11-16-css-split.md).
 */
 @layer components {

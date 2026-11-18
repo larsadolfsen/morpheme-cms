@@ -49,13 +49,13 @@ export const allow = [
   },
   {
     kind: 'fixed-colour',
-    file: /^(theme\/blocks\/testimonials\/Testimonial\.tsx|theme\/styles\/blocks\.css)$/,
+    file: /^(theme\/blocks\/testimonials\/Testimonial\.tsx|theme\/styles\/blocks(\/[a-z-]+)?\.css)$/,
     line: /mask-?[iI]mage|0 0 #0000/,
     reason: 'a mask fades by alpha only; #000 is its opaque stop; #0000 is no shadow',
   },
   {
     kind: 'fixed-colour',
-    file: /^theme\/styles\/blocks\.css$/,
+    file: /^theme\/styles\/blocks(\/[a-z-]+)?\.css$/,
     line: /video-facade|^\s*(background: #000|color: #fff|background: linear-gradient\(to bottom, rgb|filter: drop-shadow|text-shadow)/,
     reason: 'the video still: white title and play button over a black shade on an image, whatever the theme',
   },
