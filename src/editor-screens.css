@@ -56,10 +56,7 @@
     position: relative;
     min-block-size: 0;
     flex: 1;
-    background-color: var(--mo-sys-color-outline-variant);
-    @supports (color: color-mix(in lab, red, red)) {
-      background-color: color-mix(in oklab, var(--mo-sys-color-outline-variant) 40%, transparent);
-    }
+    background-color: color-mix(in oklab, var(--mo-sys-color-outline-variant) 40%, transparent);
   }
   .mo-editor-preview-stage {
     position: absolute;
@@ -609,7 +606,6 @@
     justify-content: center;
     transition-property: opacity;
     transition-duration: var(--mo-sys-motion-spring-default-effects-duration);
-    transition-timing-function: var(--motion-ease);
   }
   .mo-editor-media-tile-mark-on {
     opacity: 1;
