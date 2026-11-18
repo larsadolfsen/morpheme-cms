@@ -483,11 +483,32 @@ Expected savings are for a content save on a site like Sara's (about 100 pages a
      and on every plan.
 4. Only new or changed images go through sharp. `check:screens` and the image checks still see the same `srcset`.
 
+   **As built (18 November 2026, 0.18).** Step 1 is still open: nobody has run a Cloudflare build that prints whether
+   `node_modules/.astro/` survives `npm clean-install`, so the first route above (a cache folder) is not built. What works
+   without the build cache is built instead: step 2 and step 3's second route. `lib/variant-record.mjs` writes
+   `public/images/_variants.json`, which maps each output (`_r/…`, `_s/…`, `_video/…`) to a key of the source's content hash
+   and the sizes and quality it was made with; the site serves it. `responsive-images` and `video-thumbnails` keep an output
+   whose file exists and key matches, else fetch it from the live site when the live record has the same key
+   (`MORPHEME_LIVE_URL`, which `ci-build` sets to `https://<domain>` unless it is already set), else sharp makes it. A fetch
+   that fails or is not an image falls back to sharp, so every doubt gives the old result. The manifest and its `srcset`
+   are unchanged; `scripts/responsive-images.test.mjs` compares them and the files byte for byte. Image parallelism is untouched (batch 3).
+
 #### Batch 3. Images are made in parallel (about 20–25 s when all images are made)
 
 - `responsive-images` today awaits one image after another. It runs the images through a small pool sized by
   `os.availableParallelism()` (sharp's own threads counted), so the first build of a site, a cleared cache and a big
   upload are faster. Same outputs, byte for byte; a test compares them.
+
+**As built (18 November 2026, 0.18).** `scripts/responsive-images.mjs` makes each image in a function (`make`) and runs them through a small
+pool: `MORPHEME_IMAGE_JOBS`, else `floor(os.availableParallelism() / sharp.concurrency())`, at most 8, at least 1 (`sharp.concurrency()` is
+sharp's own thread count per image, so the two are not multiplied). Each image returns its manifest entry and its record entries; they are
+put together in the order of the file list and the record is written with sorted keys, so the manifest, the record and every file are the same
+whatever order the images finish in. The record's keys and the live-site route (batch 2) are unchanged. `scripts/responsive-images.test.mjs`
+compares one at a time with four at a time (files, manifest and record byte for byte). Measured on 60 made-up 2400 × 1600 JPEGs, nothing kept
+(4 cores, sharp concurrency 1): 1 at a time 42.4–43.3 s, 2 at a time 21.4–22.6 s, 4 at a time 11.3–11.5 s, so about 3.8 times faster on 4 cores.
+On Workers Builds Free (2 vCPU) expect about half the time, not a quarter. An incremental build, where every variant is kept, makes no images
+and gains nothing. **Not done: the video stills.** There are few, and their time is the network (YouTube, Vimeo), not sharp, so a pool is not a
+clear win.
 
 #### Batch 4. Cloudflare makes the image sizes, through the site's Worker (about 42 s, the whole image step)
 
@@ -523,6 +544,10 @@ Worker", which ours is (`run_worker_first`). A transformation made by the Worker
   checks. Measure on the test site before and after.
 - Look at the site's 543 packages: what the site's `package.json` installs that only the editor's local checks need
   (Playwright and the like) moves to what `check:screens` installs on demand. Measure, then decide.
+- **Built (B5).** `starter/.npmrc` and the CMS update (`lib/npmrc.mjs`, used by `worker/cms-update.js`) add the three lines once, keep the
+  site's own lines and write nothing when they are there. Not measured: a Cloudflare test site cannot be reached from the build session, so the
+  seconds saved are unmeasured. The starter already leaves Playwright out (`scripts/starter.mjs`); nothing else in its `package.json` is only for local checks
+  (see the pull request for the sizes), so nothing moved.
 
 #### Batch 6. The editor's client bundle is not built on every save (about 10–13 s) — decided: built in the package, 0.18.2
 
@@ -546,6 +571,45 @@ Worker", which ours is (`run_worker_first`). A transformation made by the Worker
 - Check before: no render-time code shares state between pages that the build reads at the end (the module caches in
   `site/images.mjs`, `site/autolinks.mjs` and `site/pageColors.ts` are read-once caches and warnings, which is fine);
   the after-build steps read `dist/`, not memory. `compare-html` on the demo: the same HTML with and without the flag.
+
+**Tried 18 Nov 2026: left off.** `experimental: { parallelPrerender: true }` in `astro.mjs`, Astro 7.4.8, measured on the demo (37
+pages) and on a synthetic site of 1027 pages (the demo with its 10 posts copied 99 times each, in a scratch folder, not committed).
+The build works with the flag on both.
+
+**Why the HTML differs.** The React ids (`useId`, `_r72R_2_`) start with a prefix that `@astrojs/react` takes from a counter of the
+page (`context.js`: one counter per page render, +1 for every React component the page renders). The counter is not shared between
+pages, so a page's ids do not depend on which worker renders it. They depend on the order in which the page's own React components
+reach the counter, and a page renders its components concurrently, so the order follows the timing. Without the flag the timing is
+the same every run (3 of 3 builds identical); with 3 workers it moved on one page (`/blocks/lists/`: `_r72R_` against `_r70R_`; the
+same page with the ids normalised is identical). Is it harmless? In both builds the ids are unique on the page and every
+`aria-controls` points to an id on the page (3 ids, 3 references, none dangling), because an id and the attribute that names it come
+from the same render. Three builds with the flag on were identical to each other. So it is cosmetic: a changed number, not a broken
+link. The components that call `useId` and render on a site are `theme/blocks/MoreRows.tsx` (Show more), `theme/blocks/accordion/Accordion.tsx`
+and the theme's `List`, `Menu`, `Search`, `TextField`, `ChoiceGroup`, `ExposedDropdownMenu`, `FabMenu`, `SplitButton`, `BottomSheet`
+and `Tooltip`; only a page that renders several of them in one page, such as the Lists demo, can shift.
+
+**Measured** (1027 pages, 3 runs each, `taskset` to the vCPUs, the demo's `astro build`, no after-build; the step "generating
+static routes" and the whole build):
+
+| vCPUs (workers with the flag) | | Generating routes, 3 runs | Whole build, 3 runs |
+| :--- | :--- | :--- | :--- |
+| 4 (3 workers, Cloudflare Paid) | without | 12.3, 12.0, 11.6 s | 33.3, 33.5, 31.7 s |
+| | with | 7.9, 7.9, 8.3 s | 30.1, 28.5, 29.9 s |
+| 2 (1 worker, Cloudflare Free) | without | 11.7, 16.0, 15.4 s | 39.6, 40.6, 40.7 s |
+| | with | 22.0, 14.3, 20.3 s | 49.2, 39.8, 46.7 s |
+
+With 3 workers the route step is about 4 s (33 %) faster and the whole build about 3 s (10 %). With 1 worker there is no gain and the
+builds are slower and noisier (the worker is started for nothing). `compare-html`: 4 vCPU, without against with: 1 of 1026 pages
+differs (`/blocks/lists/`, the ids above); 2 vCPU, without against with: all 1026 the same (one worker keeps the order). The
+output of a site therefore depends on the number of vCPUs of the machine that builds it.
+
+**Recommendation: leave it off.** The output is not the same on every machine, and the gain is about 3 s of a build that is about
+30 s here and minutes on the real site, on the Paid plan only. Turning it on only on 4 or more vCPUs
+(`parallelPrerender: os.availableParallelism() >= 4`) would keep the Free plan unchanged, but it makes the HTML differ between
+machines and weakens the "same HTML" proof that batch 8 (incremental builds) and `compare-html` rely on. Retry when
+`@astrojs/react` gives each island a prefix that does not depend on the order (or Astro keeps the order), and measure on the test
+site first. The shared module caches (`site/images.mjs`, `site/autolinks.mjs`, `site/pageColors.ts`) were not the cause, and the
+after-build steps are untouched by the flag.
 
 #### Batch 8. Incremental builds (up to about 6 s) — verify first, after batch 2
 

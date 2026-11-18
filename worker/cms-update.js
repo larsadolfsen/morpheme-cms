@@ -9,8 +9,10 @@
 import { config } from '@site/config';
 import { cms as cmsEn } from '../src/i18n/en-US/cms';
 import { cms as cmsDa } from '../src/i18n/da-DK/cms';
+import { withCiBuild } from '../lib/build-command.mjs';
 import { addToLock, NeedsNpm } from '../lib/lockfile.mjs';
 import { checkDue, compareVersions, managedVersion, nextVersion, PACKAGE, siteZone, watchStep } from '../lib/cms-version.mjs';
+import { withInstallDefaults } from '../lib/npmrc.mjs';
 import { fileFromTar, gunzip, sectionsBetween } from '../lib/changelog.mjs';
 import { imageKey, notesFromTar, parseImagePath, withImageUrls } from '../lib/releaseNotes.mjs';
 import pkg from '../package.json';
@@ -25,6 +27,8 @@ export const RUNNING = pkg.version;
 
 const PACKAGE_JSON = 'package.json';
 const LOCK = 'package-lock.json';
+const WRANGLER = 'wrangler.jsonc';
+const NPMRC = '.npmrc';
 const NPM = 'https://registry.npmjs.org';
 const NPM_NAME = '@morphemecms%2fcms';
 const BUILD_APP = 'cloudflare-workers-and-pages';
@@ -53,24 +57,36 @@ const written = (value, original) => JSON.stringify(value, null, 2) + (original?
 
 /** The files' texts parsed, and the branch's head. */
 async function readSite(env, deps) {
-  const { head, texts } = await deps.readFiles(env, [PACKAGE_JSON, LOCK]);
+  const names = [PACKAGE_JSON, LOCK, WRANGLER, NPMRC];
+  const { head, texts } = await deps.readFiles(env, names);
+  const text = (name) => texts[names.indexOf(name)];
   return {
     head,
     texts,
     packageJson: texts[0] ? JSON.parse(texts[0]) : null,
     lock: typeof texts[1] === 'string' ? JSON.parse(texts[1]) : null,
+    wrangler: text(WRANGLER),
+    npmrc: text(NPMRC),
   };
 }
 
-/** The files with `version` of the package in them, as changes for one commit. */
-async function filesFor(env, deps, site, version) {
+/** The files with `version` of the package in them, as changes for one commit; for an update (`withExtras`) also the build command moved to `morpheme ci-build` and the .npmrc's install lines, when they are not there. */
+async function filesFor(env, deps, site, version, withExtras = true) {
   const manifest = await getJson(deps, `${NPM}/${NPM_NAME}/${version}`);
   if (!site.lock) throw new NeedsNpm('package-lock.json is missing.');
   const out = addToLock(site.packageJson, site.lock, manifest);
-  return [
+  const changes = [
     { path: PACKAGE_JSON, text: written(out.packageJson, site.texts[0]) },
     { path: LOCK, text: written(out.lock, site.texts[1]) },
   ];
+  if (!withExtras) return changes;
+  // A site whose build command is not `npx morpheme ci-build` is moved to it with the update (once: it then needs no change).
+  const wrangler = withCiBuild(site.wrangler);
+  if (wrangler !== null) changes.push({ path: WRANGLER, text: wrangler });
+  // A site's .npmrc gets the install lines it lacks (once; its own lines stay).
+  const npmrc = withInstallDefaults(site.npmrc);
+  if (npmrc !== (site.npmrc ?? null)) changes.push({ path: NPMRC, text: npmrc });
+  return changes;
 }
 
 /** Sends the notification in both languages; its text is the English sentence. */
@@ -186,7 +202,7 @@ async function checkOf(env, deps, sha, now) {
 /** The update written back to the version it came from, committed. Returns the commit's id. */
 async function undoCommit(env, deps, update) {
   const site = await readSite(env, deps);
-  const changes = await filesFor(env, deps, site, update.from);
+  const changes = await filesFor(env, deps, site, update.from, false);
   return deps.commitFiles(env, site.head, siteTexts().commitUndo(update.to), changes);
 }
 
