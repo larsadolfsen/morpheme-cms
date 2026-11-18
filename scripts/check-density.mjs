@@ -23,7 +23,7 @@ export const PARTS = [
   { name: 'text field', file: 'theme/styles/ui.css', selector: '.text-field', reads: '--mo-sys-density-layout' },
   {
     name: 'choice group row',
-    file: 'theme/styles/button-groups.css',
+    file: 'theme/styles/ui.css',
     selector: '.choice-group-list .list-item-container',
     reads: '--mo-sys-density',
   },
