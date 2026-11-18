@@ -1,6 +1,6 @@
 # Migrating a theme or an app away from Tailwind
 
-For authors of themes and apps. The CMS stops building Tailwind in 0.18.1, together with contract 7. A theme or an app
+For authors of themes and apps. The CMS stops building Tailwind in 0.18.2, together with contract 7. A theme or an app
 written to contract 7 uses no utility class, no `theme()`, no `@theme`, no `@apply` and no `@source`. This page says what
 to write instead. Everything on it can be done now: it works with the 0.18.0 CMS (contract 6) as well, so a theme or an app
 released at 6 without utilities needs only its contract number changed for 7.
