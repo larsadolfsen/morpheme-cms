@@ -33,17 +33,17 @@ npm view @morphemecms/cms dist-tags --json
 - Test versions of a line (`next-0.18`, `next-0.19`) are not a release step: they come from merges into a line's branch, never from this skill, and
   `latest` and `next` are untouched by them. Only a merge into `main` moves `next`, which is what staging follows (below).
 - Staging: the newest `Workers Builds: morpheme-staging` check on staging's `main` (or the newest build of the Worker
-  `morpheme-staging`: Cloudflare connector, read-only - list builds). It must be newer than the newest `next` publish and
-  must have succeeded; where possible, also load staging's page and check that it answers. Stop, and ask nothing, if it
-  failed ("Staging's newest build failed: <link>; fix main first"), if it is older than the newest `next` publish
-  ("Staging has not built <version> yet"), or if none is found: tell the owner what is blocked (for example, that the `next`
-  version still needs approval on npmjs.com).
+  `morpheme-staging`: Cloudflare connector, read-only - list builds). **Phase 1 stops unless that build succeeded on exactly the
+  `-next-` build of the release commit** (the `next` publish made from the commit the Release PR is built on), and it is newer than
+  that publish; where possible, also load staging's page and check that it answers. Otherwise stop and ask nothing: tell the owner what
+  is blocked ("Staging's newest build failed: <link>; fix main first", "Staging has not built <version> yet", or that the `next`
+  version still needs approval on npmjs.com). Never say so in the question instead.
 - Staging's channel, set by staging's app CMS-version (the same rule as `scripts/cms-channel.mjs` there): read
   `gh api repos/larsadolfsen/morpheme-staging/contents/src/data/apps.json -H "Accept: application/vnd.github.raw"`.
   If its `installed` list has `cms-version`, the channel is `channel` in `src/data/apps/cms-version.json` (same call);
   else, or if that file is missing or has no `channel`, it is `next`.
-  If it is `released`, staging shows the released version, not this one: say so in the question below
-  ("Staging shows the released version, so X.Y.Z is not tried there").
+  If it is `released`, staging shows the released version, not this one: stop (the release was never seen on staging) and tell the
+  owner staging must follow `next` before a release is asked.
 
 - Can sites update themselves? A site's Worker takes a new minor or patch by editing `package.json` and
   `package-lock.json` only (`worker/cms-update.js`, `addToLock` in `lib/lockfile.mjs`); when the lockfile does not already satisfy
