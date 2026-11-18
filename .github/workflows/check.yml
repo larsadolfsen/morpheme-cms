@@ -10,6 +10,8 @@
 # merge-0.18-into-main-N) and the Release PR run EVERYTHING; nothing reaches npm `next` or the owner without a full run. The job
 # `changes` prints light=true|false (scripts/ci-changes.mjs isLight); any error gives light=false, so everything runs. The changeset
 # check stays on every pull request. The rule lives in .claude/skills/checks, "What CI runs". The changeset is compared with the pull request's own base branch. Free here: the repository is public.
+# BUILD ONCE (plan PR 2): the job `build` runs npm run build once; screens, screens-extra and demo unpack its artifact instead of building,
+# and Chromium comes from a cache (.github/actions/prepare). starter packs the package itself and builds nothing from it.
 # The slow parts run side by side as jobs of their own (the run takes about as long as the slowest), and the job named check
 # only waits for them all: it is the status check that main's branch protection and the PM look at, and it is green only
 # when every other job is green. The editor's screens are split into as many parts as the matrix of the screens job lists
@@ -101,9 +103,31 @@ jobs:
       # each of its pages the same after a save in the editor.
       - run: npm run check
 
+  # The editor and the demo built once (npm run build) for the jobs that read them: screens, screens-extra and demo unpack this one
+  # tarball instead of each running npm run build. It runs when any of them can (not on a docs-only pull request). Nothing is
+  # skipped: each of those jobs still runs all of its checks, and a failed build makes them skipped, which `check` turns red.
+  build:
+    needs: changes
+    if: needs.changes.outputs.docs_only != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/prepare
+      - run: npm run build
+      # A tarball, not a list of files: it keeps the link .morpheme/demo/site/node_modules and the file modes.
+      - run: tar -czf "$RUNNER_TEMP/build.tgz" .morpheme/demo/site node_modules/@morphemecms/cms
+      - uses: actions/upload-artifact@v5
+        with:
+          name: build
+          path: ${{ runner.temp }}/build.tgz
+          compression-level: 0
+          retention-days: 1
+          overwrite: true
+          if-no-files-found: error
+
   # Every screen of the editor on the built demo, on a phone and on a computer, in parts that run side by side.
   screens:
-    needs: changes
+    needs: [changes, build]
     if: needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
     strategy:
@@ -112,46 +136,36 @@ jobs:
         shard: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: ./.github/actions/prepare
         with:
-          node-version: 24
-          cache: npm
-      - run: npm ci --no-audit --no-fund
-      - run: npm run build
-      # If apt is down, the runner's own libraries are used and only the browser is downloaded.
-      - run: npx playwright install --with-deps chromium || npx playwright install chromium
+          build: 'true'
+          browser: 'true'
       - run: npm run check:screens:shard -- ${{ matrix.shard }}/${{ strategy.job-total }}
 
   # The checks that run once over the whole built demo (saving twice, unlisted pages, the preview).
   screens-extra:
-    needs: changes
+    needs: [changes, build]
     if: needs.changes.outputs.docs_only != 'true' && needs.changes.outputs.light != 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: ./.github/actions/prepare
         with:
-          node-version: 24
-          cache: npm
-      - run: npm ci --no-audit --no-fund
-      - run: npm run build
-      - run: npx playwright install --with-deps chromium || npx playwright install chromium
+          build: 'true'
+          browser: 'true'
       - run: npm run check:screens:extra
 
   # The demo built with the standard theme.
   demo:
-    needs: changes
+    needs: [changes, build]
     if: needs.changes.outputs.docs_only != 'true' && needs.changes.outputs.starter_demo != 'false' && needs.changes.outputs.light != 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      # The package copy that check:demo imports comes from the job build (npm run build makes it).
+      - uses: ./.github/actions/prepare
         with:
-          node-version: 24
-          cache: npm
-      - run: npm ci --no-audit --no-fund
-      # The demo's own build (npm run build) makes the package copy that check:demo imports.
-      - run: npm run build
+          build: 'true'
       - run: npm run check:demo
 
   # The starter as a new site with the package from npm pack: its own checks (with check:worker) and its build.
@@ -167,19 +181,17 @@ jobs:
         shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      # The starter packs the package and builds the starter itself, so it has no build to take from the job build.
+      - uses: ./.github/actions/prepare
         with:
-          node-version: 24
-          cache: npm
-      - run: npm ci --no-audit --no-fund
-      - run: npx playwright install --with-deps chromium || npx playwright install chromium
+          browser: 'true'
       - run: npm run check:starter -- --screens --shard ${{ matrix.shard }}/${{ strategy.job-total }}
 
   # The one status check that is required: green when static and changes are green and every heavy job is green, or skipped on a
   # docs-only pull request (a failed, cancelled or wrongly skipped one fails it; scripts/ci-changes.mjs).
   check:
     if: always()
-    needs: [changes, static, screens, screens-extra, demo, starter]
+    needs: [changes, static, build, screens, screens-extra, demo, starter]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

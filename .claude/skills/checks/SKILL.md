@@ -11,7 +11,7 @@ Announce "Using checks". Run every command from the root of this repository, on 
 ## What CI runs
 
 **The direction (owner, 18 Nov 2026): test less, but always the important things.** Plan:
-`docs/superpowers/plans/2026-11-18-ci-check-levels.md`. The levels below are the target; PR 1 of the plan is built (what runs today is in the next table), PR 2-6 are not yet.
+`docs/superpowers/plans/2026-11-18-ci-check-levels.md`. The levels below are the target; PR 1 and 2 of the plan are built (what runs today is in the next table and below), PR 3-6 are not yet.
 
 | Merge | Check |
 | :--- | :--- |
@@ -31,11 +31,19 @@ Announce "Using checks". Run every command from the root of this repository, on 
 | `main`, and the Release PR from any base | `full` | everything |
 | anything else, an empty base, an error in the selection | `full` | everything (when in doubt, run) |
 
-Not built yet: build once and cached Chromium (PR 2), the core set and touched areas (PR 3), the starter smoke test (PR 4), the daily
+**Built (PR 2, build once, cache Chromium).** The job `build` (not on a docs-only pull request) runs `npm ci` and `npm run build` once and
+uploads one tarball, the artifact `build` (`.morpheme/demo/site` and `node_modules/@morphemecms/cms`, 18 MB, kept 1 day). `screens`,
+`screens-extra` and `demo` need `build`; each runs `npm ci` (they still need `node_modules`), unpacks the tarball and runs its checks
+as before. `starter` has no build to take (it packs the package and builds the starter itself), so it does not wait for `build`. The steps
+every job shares are the local action `.github/actions/prepare` (Node, `npm ci`, the artifact, Chromium). Chromium is cached in
+`~/.cache/ms-playwright`, keyed on the Playwright version; a hit skips the download and only the system libraries are installed with apt.
+A failed `build` leaves its jobs skipped, which the verdict turns red. The levels, `scripts/ci-changes.mjs` and the verdict are unchanged.
+
+Not built yet: the core set and touched areas (PR 3), the starter smoke test (PR 4), the daily
 full run on feature branches (PR 5), `next` builds from a version line (PR 6).
 
 Always tested, at every level: Prettier, types, `npm run check` (language, tokens, colours, rules), the changeset, the build, the core
-screens and the screens of what changed. Every browser job uses one shared build and a cached Chromium.
+screens and the screens of what changed. Every job that reads the build uses the one shared build, and every browser job a cached Chromium (PR 2).
 
 `.github/workflows/check.yml` runs on every pull request into `main`, `0.17`, `0.18`, `0.19` and `feature/**`, in two sizes (owner, 16 Nov 2026: a
 merge into a version line shows on the demo within minutes). Its job `check` waits for the jobs and must be green on the current head
