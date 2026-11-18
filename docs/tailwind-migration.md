@@ -138,6 +138,21 @@ Colours of a state come from the state layers (`--mo-sys-state-mo-hover-layer`, 
 - Prove that nothing moved: build before and after and compare the pages. A change of margins is the one thing to watch:
   `space-y-*` becomes `gap`, which is the same space with another mechanism.
 
+## The `mo-` names
+
+Contract 7 also gives every class and custom property of ours the `mo-` prefix, so a theme or app migrates once. The pattern is
+[`class-names.md`](class-names.md): `.card` becomes `.mo-card`, `.card-body` becomes `.mo-card__body`, a state becomes `mo-is-<word>`, a block part
+becomes `mo-block-<type>__<part>`, and a hook or runtime value becomes `--mo-comp-<component>-<name>`. No old name stays.
+
+The map of every name is `docs/superpowers/plans/mo-names/map.json` in this repository (`npm run mo-names:map` makes it again): `classes` and
+`properties` map each old name to its `new` name, with the rule that made it and how many places define and use it. A name with
+`"status": "question"` has no new name yet; the owner decides it, and the map changes when the owner does. To migrate:
+
+1. Search your CSS, `.tsx` and `.astro` files for each class and `--` name your code defines or reads that has no `mo-`.
+2. Look it up in the map and write the new name everywhere: stylesheets, `class` and `className`, `classList`, `querySelector` and `closest`.
+3. Keep the classes of other libraries (`ProseMirror*`, an embed's own) as they are.
+4. `npm run check:mo-names` counts what is left in this repository; the migration is done when every count in your own folder is zero.
+
 ## Contract 7
 
 `THEME_API` and `APP_API` become 7 and `APP_APIS` is `[7]` ([`app-contract.md`](app-contract.md), *Contract 7*). A theme or an
