@@ -205,16 +205,18 @@ Order: (a) the `data-site-theme` attribute and the baseline, in one pull request
 
 ## 7. Shadows at rest (decided) and the proposed build pull requests
 
-**Shadows (rows 16 and 17), owner: "Yes, add shadows to those three."** _(Superseded by the cards and lists plan (18 Nov 2026): resting shadows are on at every level, `--mo-sys-elevation-levelN-rest-shadow` is `--mo-sys-elevation-levelN-shadow`; the next sentence, the decision of 13 November, no longer holds, and the menu, dialog and snackbar keep their levels.)_ Parts at rest keep colour-only elevation: record it in `docs/material-deviations.md` with the M3 quote ("Resting level" lists elevated cards, buttons and chips at level 1, and so on, on `/styles/elevation/tokens`; we show those levels by colour). The menu (level 2), the dialog (level 3) and the snackbar (level 3, from `@material/web`; the M3 pages print no level for it) get the Material theme's two-layer shadow (`--mo-elevation-2-shadow`, `-3-`). The fallback shadows in `ui.css` 106 to 116 become Material's too (they now equal `global.css`), and colour sweep 12 is corrected. Build: set the three parts' `box-shadow` from the level tokens in `ui.css`, delete the soft fallback values, add the two deviation lines; check with the screens (a menu, a dialog and a snackbar open) and `check:colors`.
+**Shadows (rows 16 and 17): moved to 0.19 Cards and lists** (owner, 17 November 2026). The decision of 13 November (parts at
+rest keep colour-only elevation, only the menu, the dialog and the snackbar get a shadow) is replaced: every part rests at its
+M3 level with its shadow, through one global rule. `docs/superpowers/specs/2026-11-17-list-to-cards-design.md`, step 1.
 
-**Proposed build pull requests** (each its own pull request, in this order; fix sizes from section 2):
+**Proposed build pull requests** (each its own pull request, in this order; fix sizes from section 2). Pull requests 4 (shadows), 9
+(disabled and hover values) and 11 (type) moved to 0.19 Cards and lists on 17 November 2026; the numbers of the others are kept:
 
 | # | Pull request | Rows | Size |
 | - | ------------ | ---- | ---- |
-| 1 | Deviations doc: the lines of section 3 (rest shadows, icons 20, table rule, settle times), colour sweep 12 corrected | 16, 17, 3, 18 | small |
+| 1 | Deviations doc: the lines of section 3 (icons 20, table rule, settle times), colour sweep 12 corrected | 3, 18 | small |
 | 2 | Button and icon button sizes at M3 (section 6): step (a) the `data-site-theme` attribute and the size baseline, step (b) the sizes and `.button-medium`, step (c) Venus checked | 1, 2, 3, 4 | large, three steps |
 | 3 | Icons: text fields and the select's arrow to 24, the FAB menu's close icon to 20 | 5 | small |
-| 4 | Shadows: menu, dialog, snackbar, and the fallback shadows | 16, 17 | small |
 | 5 | Hint full stops: remove them from single sentences in `en-US`, `da-DK` and `defaults/collections.ts`, with the check | 28 | medium |
 | 6 | Hidden: fix the demo's two texts; rename "Hide from search engines" to "No index" and add "No follow" (a product change with its own release note and a CLAUDE.md line) | 26 | medium |
 | 7 | Table: no code; align `docs/superpowers/specs/2026-11-13-table-md2-design.md` (corner medium 12dp) | none | small |
@@ -225,4 +227,4 @@ Order: (a) the `data-site-theme` attribute and the baseline, in one pull request
 | 12 | Spacing: the fractional rem values | 13 | small |
 | 13 | Words: "canceled", On/Off wording, then the long and passive texts | 24, 25, 27 | large, many small edits |
 
-**Open questions: none.** Questions 1 to 7 are decided, and so are the two that came after: Danish full stops (yes, same rule as English; the owner's choice, M3's page is English-only) and the menu and list icons (keep 20, the Expressive size; the baseline 24 is printed beside it, section "Icons"). One confirm line remains: the snackbar's shadow level 3, which M3 does not print (it comes from `@material/web`).
+**Open questions: none.** Questions 1 to 7 are decided, and so are the two that came after: Danish full stops (yes, same rule as English; the owner's choice, M3's page is English-only) and the menu and list icons (keep 20, the Expressive size; the baseline 24 is printed beside it, section "Icons"). The snackbar's shadow level (3, from `@material/web`; M3 prints none) moved to 0.19 with the shadows.
