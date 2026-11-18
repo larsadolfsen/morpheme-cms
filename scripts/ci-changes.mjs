@@ -84,7 +84,7 @@ const FEATURE_BRANCH = /^feature\/\S+$/;
 export const LIGHT_SKIPPED = ['screens-extra', 'demo', 'starter'];
 
 /**
- * The check level of a pull request, from its base branch (plan 2026-11-18-ci-check-levels.md):
+ * The check level of a pull request, from its base branch (plan 2026-11-18-build-and-check-speed.md):
  * `feature/**` -> `feature`, `0.*` version lines -> `line`, `main` -> `full`. When in doubt, `full`: an empty or unknown base,
  * the Release PR, or anything else, so everything runs.
  * @param {string} [base] the pull request's base branch
