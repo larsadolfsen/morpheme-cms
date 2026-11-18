@@ -12,23 +12,23 @@ import { UI_PART_FILES, MATERIAL_FILES } from '../theme/styles/files.mjs';
 
 /** The parts that must read density: where their rule is, and which variable of the three groups they read. */
 export const PARTS = [
-  { name: 'button', file: 'theme/styles/buttons.css', selector: '.button', reads: '--mo-sys-density-layout' },
-  { name: 'chip', file: 'theme/styles/chips.css', selector: '.chip', reads: '--mo-sys-density-layout' },
+  { name: 'button', file: 'theme/styles/ui/buttons.css', selector: '.button', reads: '--mo-sys-density-layout' },
+  { name: 'chip', file: 'theme/styles/ui/chips.css', selector: '.chip', reads: '--mo-sys-density-layout' },
   {
     name: 'segmented button',
-    file: 'theme/styles/button-groups.css',
+    file: 'theme/styles/ui/button-groups.css',
     selector: '.segmented-button-segment',
     reads: '--mo-sys-density-layout',
   },
-  { name: 'text field', file: 'theme/styles/text-field.css', selector: '.text-field', reads: '--mo-sys-density-layout' },
+  { name: 'text field', file: 'theme/styles/ui/text-field.css', selector: '.text-field', reads: '--mo-sys-density-layout' },
   {
     name: 'choice group row',
     file: 'theme/styles/ui.css',
     selector: '.choice-group-list .list-item-container',
     reads: '--mo-sys-density',
   },
-  { name: 'list item', file: 'theme/styles/list.css', selector: '.list-item-container', reads: '--mo-sys-density' },
-  { name: 'setting row', file: 'theme/styles/switch.css', selector: '.setting-list > .setting-row', reads: '--mo-sys-density-layout' },
+  { name: 'list item', file: 'theme/styles/ui/list.css', selector: '.list-item-container', reads: '--mo-sys-density' },
+  { name: 'setting row', file: 'theme/styles/ui/switch.css', selector: '.setting-list > .setting-row', reads: '--mo-sys-density-layout' },
   {
     name: 'table cell',
     file: 'theme/styles/blocks/person-facts.css',
@@ -40,8 +40,8 @@ export const PARTS = [
 
 /** Focused single-task parts: never denser than Medium, so they read neither --mo-sys-density nor --mo-sys-density-layout. */
 export const FOCUSED = [
-  { name: 'menu item', file: 'theme/styles/menus.css', selector: '.menu-item' },
-  { name: 'snackbar', file: 'theme/styles/snackbar.css', selector: '.snackbar' },
+  { name: 'menu item', file: 'theme/styles/ui/menus.css', selector: '.menu-item' },
+  { name: 'snackbar', file: 'theme/styles/ui/snackbar.css', selector: '.snackbar' },
 ];
 
 /** Files that may set the steps themselves. */
