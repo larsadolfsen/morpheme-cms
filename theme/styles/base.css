@@ -346,7 +346,7 @@
 
   /* Boxes side by side ("Links", an app's boxes): the site's panels (outlined cards, ui.css, without a shadow), with
    more room on a computer and the heading of a section in it. */
-  .block-panels .block-panel-title {
+  .block-panels :is(.block-panel-title, .block-panel .card-headline) {
     font-size: var(--mo-sys-typescale-headline-small-size);
     line-height: var(--mo-sys-typescale-headline-small-line-height);
     font-weight: var(--mo-sys-typescale-headline-small-weight);

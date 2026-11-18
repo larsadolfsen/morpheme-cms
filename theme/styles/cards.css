@@ -196,6 +196,19 @@
   .block-card.card-outlined {
     border-color: var(--mo-comp-outlined-card-outline-color, var(--mo-sys-block-line));
   }
+  /* A card of the Cards block on the Card's parts (LinkCards.tsx): its text fills the card, so the link at the end and the buttons are at the bottom
+     and the cards of a row are as high as the tallest. */
+  .block-card > .card-body {
+    flex: 1;
+  }
+  .block-card > .card-body > .card-content {
+    margin-top: auto;
+    padding-top: var(--mo-comp-card-action-gap, 1rem);
+  }
+  .block-card .card-content > .block-card-more {
+    margin-top: 0;
+    padding-top: 0;
+  }
   /* An icon without a colour of its own (`iconColor`) is the text colour, as a row's icon is (Text in the editor's Icon color); v0.16.0 drew it in the accent. */
   .block-card-icon {
     color: var(--mo-sys-block-text);
@@ -230,6 +243,7 @@
     background: var(--mo-sys-block-tint);
     aspect-ratio: 3 / 2;
   }
+  .block-card .card-media img,
   .block-card-picture img {
     display: block;
     width: 100%;
@@ -402,7 +416,7 @@
     a.block-card:hover .block-card-arrow {
       translate: 0.25rem 0;
     }
-    a.block-card:hover .block-card-picture img {
+    a.block-card:hover :is(.block-card-picture, .card-media) img {
       scale: 1.03;
     }
   }
@@ -470,6 +484,27 @@
     /* The price is as large as the card has room for (cqi). */
     container-type: inline-size;
   }
+  /* On the Card's parts (pricecards/View.tsx): the text fills the card so the buttons are at the bottom, in the card's width; the label is the card's
+     icon part, the price its subhead (in the price's own type). */
+  .block-plan > .card-body {
+    flex: 1;
+  }
+  .block-plan .card-icon > .block-plan-badge {
+    margin-bottom: 0;
+  }
+  .block-plan .card-subhead > .block-plan-price {
+    margin: 0;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+  }
+  .block-plan .block-plan-amount {
+    color: var(--mo-sys-block-text);
+  }
+  .block-plan .card-actions > .block-plan-buttons {
+    flex: 1 1 100%;
+  }
   .block-plan-featured {
     box-shadow: inset 0 0 0 2px var(--mo-sys-block-accent);
   }
@@ -527,9 +562,17 @@
     text-align: center;
     line-height: 1.25;
   }
+  /* A related post's card (components/PostCard.tsx) is as high as its row; the 404 page's suggestion is at most 42rem wide. */
+  .post-card {
+    height: 100%;
+  }
+  .not-found-suggestion {
+    max-width: 42rem;
+  }
   @media (prefers-reduced-motion: reduce) {
     .block-card,
     .block-card-arrow,
+    .block-card .card-media img,
     .block-card-picture img {
       transition: none;
     }

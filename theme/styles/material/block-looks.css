@@ -22,7 +22,7 @@
 
   /* Panels and the cards of testimonials and prices: outlined, filled and elevated cards (their variables above). A
      list in a panel reaches out to its sides, so its items' text is in line with the panel's. */
-  .block-panel > .list {
+  :is(.block-panel, .block-panel > .card-body > .card-content) > .list {
     margin-inline: -1rem;
   }
   /* No quotation mark: a glyph of the font, not one of the theme's icons. */

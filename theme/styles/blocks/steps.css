@@ -18,6 +18,12 @@
     line-height: var(--mo-sys-typescale-body-large-line-height);
     font-weight: var(--mo-sys-typescale-body-large-weight);
     letter-spacing: var(--mo-sys-typescale-body-large-tracking);
+    /* The text is the card's supporting text, in the notice's own type and colour. */
+    --mo-comp-card-supporting-size: var(--mo-sys-typescale-body-large-size);
+    --mo-comp-card-supporting-line-height: var(--mo-sys-typescale-body-large-line-height);
+    --mo-comp-card-supporting-weight: var(--mo-sys-typescale-body-large-weight);
+    --mo-comp-card-supporting-tracking: var(--mo-sys-typescale-body-large-tracking);
+    --mo-comp-card-supporting-color: inherit;
   }
 
   /* "Steps": numbered steps along a line (steps/StepList.tsx). */

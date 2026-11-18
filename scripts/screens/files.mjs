@@ -319,7 +319,10 @@ async function checkLibraryAlt() {
   const page = await browser.newPage({ locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   if (!(await onTestPage(page, label))) return page.close();
-  const card = await page.locator('.block-card-picture img[src$="andromeda.webp"]').first().getAttribute('alt');
+  const card = await page
+    .locator('.block-card-picture img[src$="andromeda.webp"], .block-card .card-media img[src$="andromeda.webp"]')
+    .first()
+    .getAttribute('alt');
   if (card !== 'The Andromeda galaxy among thousands of stars')
     problems.push(`${label}: the Cards image has alt "${card}", expected the Library's text for it`);
   const about = await page.goto(new URL('/about/', site).href).catch(() => null);
