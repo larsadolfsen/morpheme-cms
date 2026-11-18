@@ -2,6 +2,8 @@
    (--mo-sys-block-radius, --mo-sys-block-radius-small, --mo-sys-block-shadow). Only what is the editor's alone is here. Low specificity
    (:where), so a theme's :root wins. */
 @reference '../theme/styles/base.css';
+/* The layout classes, until base.css imports them (batch T11 removes this line). */
+@import '../theme/styles/layout.css';
 
 /* Density (theme/styles/base.css) reaches the editor's own screens, not the page and post editing area: what is typed in place
    there keeps the theme's own step (--mo-sys-density-base) at every choice, as on the site, so a block is drawn as it will be. The

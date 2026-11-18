@@ -42,8 +42,10 @@ test('every file in files.mjs exists and base.css imports it', () => {
 });
 
 test('every CSS file of this folder is imported by base.css, except base.css and global.css', () => {
+  // layout.css (batch T04) is imported by src/editor.css until batch T11 imports it from base.css and removes it from this list.
+  const notYet = ['base.css', 'global.css', 'layout.css'];
   const here = [
-    ...readdirSync(new URL('./', import.meta.url)).filter((f) => f.endsWith('.css') && !['base.css', 'global.css'].includes(f)),
+    ...readdirSync(new URL('./', import.meta.url)).filter((f) => f.endsWith('.css') && !notYet.includes(f)),
     ...readdirSync(new URL('./blocks/', import.meta.url)).map((f) => `blocks/${f}`),
     ...readdirSync(new URL('./ui/', import.meta.url)).map((f) => `ui/${f}`),
   ];

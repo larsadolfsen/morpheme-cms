@@ -26,6 +26,13 @@
   --mo-sys-shape-corner-full: 9999px;
   /* The corners of something smaller in or beside a panel: an image in a list, a row in a menu, an icon's square. */
   --mo-sys-radius-small: 1rem;
+  /* M3's breakpoints (m3.material.io/foundations/layout/breakpoints) as plain lengths: the same four as `--breakpoint-*` below and as
+     lib/breakpoints.mjs (lib/breakpoints.test.mjs checks that they agree). Not registered with @property: a registered length computes
+     to px, and the Preview (previewBreakpoints.ts) reads the rem. A @media cannot read a custom property, so this is the table's home. */
+  --mo-ref-breakpoint-medium: 37.5rem;
+  --mo-ref-breakpoint-expanded: 52.5rem;
+  --mo-ref-breakpoint-large: 75rem;
+  --mo-ref-breakpoint-extra-large: 100rem;
 }
 @theme inline {
   --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
