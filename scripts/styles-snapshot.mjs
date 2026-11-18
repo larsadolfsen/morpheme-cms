@@ -98,7 +98,12 @@ for (const [width, height] of VIEWPORTS) {
     // A screen that loads another page while it is read (a navigation) gets a fresh editor and one more try; then it is a problem.
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
-        await snapshotScreen(page, width, hash);
+        // A screen that does not finish in a minute is a failed try (a page that stops answering must not stop the run).
+        let timer;
+        await Promise.race([
+          snapshotScreen(page, width, hash),
+          new Promise((_, reject) => (timer = setTimeout(() => reject(new Error('the screen did not finish in 60 s')), 60000))),
+        ]).finally(() => clearTimeout(timer));
         break;
       } catch (error) {
         await page.close().catch(() => {});

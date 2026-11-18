@@ -172,6 +172,8 @@ export async function settled(page) {
           } catch {}
         }
         requestAnimationFrame(() => requestAnimationFrame(done));
+        // A page that is not drawn (no frame) must not wait for ever.
+        setTimeout(done, 2000);
       }),
   );
   await page.waitForTimeout(100);
