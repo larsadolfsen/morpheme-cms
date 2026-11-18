@@ -6,8 +6,8 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { UI_PART_FILES, OTHER_BASE_FILES } from './files.mjs';
 
 const base = readFileSync(new URL('./base.css', import.meta.url), 'utf8');
-/** The CSS files base.css imports from this folder (the token files under tokens/ are listed by their folders). */
-const imported = [...base.matchAll(/@import\s+'\.\/([^'/]+\.css)';/g)].map((m) => m[1]);
+/** The CSS files base.css imports from this folder or from blocks/ (the token files under tokens/ are listed by their folders). */
+const imported = [...base.matchAll(/@import\s+'\.\/((?:blocks\/)?[^'/]+\.css)';/g)].map((m) => m[1]);
 
 test('the lists have no file twice', () => {
   const all = [...UI_PART_FILES, ...OTHER_BASE_FILES];
@@ -34,7 +34,10 @@ test('every file in files.mjs exists and base.css imports it', () => {
 });
 
 test('every CSS file of this folder is imported by base.css, except base.css and global.css', () => {
-  const here = readdirSync(new URL('./', import.meta.url)).filter((f) => f.endsWith('.css') && !['base.css', 'global.css'].includes(f));
+  const here = [
+    ...readdirSync(new URL('./', import.meta.url)).filter((f) => f.endsWith('.css') && !['base.css', 'global.css'].includes(f)),
+    ...readdirSync(new URL('./blocks/', import.meta.url)).map((f) => `blocks/${f}`),
+  ];
   assert.deepEqual(
     here.filter((f) => !imported.includes(f)),
     [],

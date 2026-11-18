@@ -1,4 +1,4 @@
-// A navigation drawer (m3.material.io/components/navigation-drawer, .navigation-drawer in ../styles/ui.css), at the
+// A navigation drawer (m3.material.io/components/navigation-drawer, .navigation-drawer in ../styles/navigation-drawer.css), at the
 // start edge (at the end edge with navigationDrawerEndClass; navigationDrawerBleedClass for one that springs in): the site's pages in a panel over the page (components/MobileMenu.tsx, and a theme's own menu), over its
 // scrim (navigationDrawerScrimClass). Its pages are items (NavigationDrawerItem, `active`: the open page or the one
 // holding it), an item with sub-pages is a row (NavigationDrawerRow) with the button that unfolds them after it

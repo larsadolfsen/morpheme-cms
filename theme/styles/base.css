@@ -13,6 +13,8 @@
 /* The theme's UI components, as Material 3 names them (buttons, icon buttons), and the standard blocks of the editor,
    in this site's design (their variables below). */
 @import './ui.css';
+/* The Navigation drawer (modal and standard) comes right after ui.css, where its rules sat in it: before the Divider, which its section divider is also (a .divider, whose margin the drawer's rule, of higher specificity, outranks). */
+@import './navigation-drawer.css';
 /* The Divider (.divider, its inset and vertical kinds). */
 @import './divider.css';
 /* The Badge (.badge, its dot and number, the anchor on an icon). */
@@ -50,10 +52,14 @@
 @import './cards.css';
 @import './type.css';
 @import './blocks.css';
+/* The Person, Icon list, Facts, Table and Badge blocks (moved out of blocks.css; they come right after it, in the same layer). */
+@import './blocks/person-facts.css';
 /* The designs of the lists (List, List - Expand): Default and Card. */
 @import './lists.css';
-/* The theme's variables and the classes the standard theme's components use with them. */
-@import './components.css';
+/* The classes the standard theme's site shell uses with the theme's variables: the logo and post list, the action bar, the page. */
+@import './site-logo-post.css';
+@import './site-action.css';
+@import './site-page.css';
 @import './tokens/base/comp/card.css';
 @import './tokens/base/comp/carousel.css';
 @import './tokens/base/comp/chip.css';
@@ -289,7 +295,7 @@
 
   /* Motion.
    [data-reveal]: sections fade up once when scrolled into view (packages/editor/theme/scripts/motion.ts).
-   The top of a page stands still from the first paint; from another page of the site it fades in (components.css).
+   The top of a page stands still from the first paint; from another page of the site it fades in (site-page.css).
    Off for visitors who prefer reduced motion, and with the calm motion scheme ("Motion", data-motion-scheme). */
   @media (prefers-reduced-motion: no-preference) {
     .js:not([data-motion-scheme='calm']) [data-reveal] {
