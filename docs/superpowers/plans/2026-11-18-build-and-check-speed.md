@@ -179,7 +179,27 @@ re-run of run 44258369589 (head `2169576`, attempt 2) after attempt 1 had filled
 does `.github/actions/prepare` with the browser (the same keys as `check.yml`: npm's cache by the lock file, Chromium by the Playwright version) and
 saves the caches on that branch, where a pull request into it can read them. It builds nothing and has read-only permissions; a merge into a
 feature branch is a push, so it costs one extra run, free here. The build is not kept this way: a pull request's inputs rarely equal the
-branch's. How it was checked, and the numbers of a pull request that restores them, are in the pull request.
+branch's.
+
+**Proof that a pull request into the branch restores them** (#937, the sync of 0.18, the first pull request into `feature/build-check-speed`
+after the merge of #931; run 44268511487, head `fcb3e2c`). Cache-fill ran on the merge push (run 44266560124, 58 s, 08:23 UTC), saved the caches,
+and the pull request's jobs read them:
+
+- `build` job, `setup-node` (npm cache): `Cache restored from key: node-cache-Linux-x64-npm-f6ecbaac…` (174 MB, 2.7 s), then at the end
+  `Cache hit occurred on the primary key … not saving cache`; `npm ci` took 12 s.
+- A `screens` job (shard 3), the post step of the browser cache: `Cache hit occurred on the primary key playwright-Linux-1.65.0, not saving cache`,
+  and the same for `node-cache-Linux-x64-npm-f6ecbaac…`.
+- The kept build: `Cache not found for input keys: build-f7b8009e…` in the `build` job (expected, this pull request's inputs differ from the branch's),
+  followed by `Cache saved with key: build-f7b8009e…`.
+
+**What it gave in time.** The set-up of a `screens` shard (`prepare`: `npm ci`, the unpack, Chromium) was 25–45 s in five of six shards read and
+2m58s in one, with both caches restored. That is the same as the cold runs of #928 (26–45 s, and one shard of 4–6 minutes), so restoring the caches
+saves nothing that shows in the step times: the download was a small part of the set-up, and what remains (`npm ci` from the restored cache, the
+system libraries from apt, the unpack) is what takes the rest. The one slow shard in each run is therefore not the browser download. The caches
+are worth keeping for the network (one download of Chromium and of npm's cache per branch instead of per run), not for the minutes. **Open item** (owner of
+the next pull request that touches `prepare`: A12, CI slots from measured cost, or a later one): the slow `prepare` shard is still unexplained. Time
+`prepare`'s steps separately (apt, `npm ci`, the unpack, the browser; the composite action reports one step today), and look at the apt step
+(`playwright install --with-deps`), which runs on a hit too.
 
 Built in `lib/affected.mjs` (the engine, tested in `lib/affected.test.mjs`, reusable by track B with its own rules),
 `scripts/screens/support/areas.mjs` (the map, `AREAS`, `CORE_UNITS`; tested in `scripts/screens-areas.test.mjs`), `--areas` in the runner
