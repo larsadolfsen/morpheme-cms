@@ -49,16 +49,5 @@
     color: var(--mo-comp-icon-color);
   }
 
-  @media (width >= theme(--breakpoint-medium)) {
-  }
-  .block-checklist.block-in-text {
-    margin-block: 1rem;
-  }
-  .block-checklist:not(.block-plan-features):has(> :nth-child(6)) {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(16rem, calc(50% - 1rem))), 1fr));
-    column-gap: 2rem;
-  }
-
   /* ---- end of "Checklist" and "Price cards" ---- */
 }
