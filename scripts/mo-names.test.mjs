@@ -5,8 +5,8 @@ import { compare } from './check-mo-names.mjs';
 
 test('scanCss finds unprefixed class definitions, declared and read properties; mo- names, keyframes and escaped Tailwind selectors are not counted', () => {
   const s = scanCss(`
-    .card-body, .mo-card .card-check:hover { --card-gap: 1px; padding: var(--card-pad, var(--mo-sys-x)); }
-    .mo-ok { --mo-comp-card-gap: 1px; }
+    .card-body, .mo-card .card-check:hover { --card-sample: 1px; padding: var(--card-pad, var(--mo-sys-x)); }
+    .mo-ok { --mo-comp-card-sample: 1px; }
     .medium\\:flex { color: red; }
     @keyframes spin { from { opacity: 0 } }
     .ProseMirror p { margin: 0 }
@@ -14,7 +14,7 @@ test('scanCss finds unprefixed class definitions, declared and read properties; 
     :root { --tw-ring: 1; --color-x: red; }
   `);
   assert.deepEqual([...s.classDefs.keys()].sort(), ['card-body', 'card-check']);
-  assert.deepEqual([...s.declared.keys()], ['--card-gap']);
+  assert.deepEqual([...s.declared.keys()], ['--card-sample']);
   assert.deepEqual([...s.read.keys()], ['--card-pad']);
 });
 
