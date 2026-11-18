@@ -21,6 +21,8 @@ import postcss from 'postcss';
 const root = fileURLToPath(new URL('..', import.meta.url));
 export const ORIGINS = ['base', 'ui', 'blocks', 'lists', 'cards', 'type', 'material'];
 const TOKENS = 'theme/styles/tokens';
+/** Plain tokens that stay unregistered on purpose: the breakpoint table (lib/breakpoints.mjs) is read in rem by the Preview, and a registered length computes to px. */
+const PLAIN = /^--mo-ref-breakpoint-/;
 
 /** The CSS type a literal default has, with the value to write as `initial-value`: `{ syntax, value }`, or null when the token is not registered. @param {string} v */
 export function typeOf(v) {
@@ -120,6 +122,7 @@ export async function registry() {
   const colors = await standardColors();
   const byOrigin = Object.fromEntries(ORIGINS.map((o) => [o, []]));
   for (const [name, byO] of Object.entries(found)) {
+    if (PLAIN.test(name)) continue;
     const origin = ORIGINS.find((o) => byO[o]);
     const roots = byO[origin].filter((d) => d.rootRule);
     if (roots.length !== 1 || relative(roots[0].value)) continue;

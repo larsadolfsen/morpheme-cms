@@ -26,7 +26,7 @@ export function shortcutRows(): ShortcutRow[] {
 /** Shows the list: a page on a phone (below the medium width, 37.5rem), the dialog from medium. */
 export function showShortcuts() {
   setShortcutRows(shortcutRows());
-  if (matchMedia('(max-width: 37.4375rem)').matches) location.hash = '#shortcuts';
+  if (matchMedia('(width < 37.5rem)').matches) location.hash = '#shortcuts';
   else openShortcuts();
 }
 
