@@ -1,6 +1,0 @@
-{
-  "id": "cards-click-hover-row",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "A click on a card's headline edits that card, not the buttons above it"
-}

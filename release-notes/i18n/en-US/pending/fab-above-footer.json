@@ -1,6 +1,0 @@
-{
-  "id": "fab-above-footer",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "The add button moves up when the footer is beneath it, so the footer links are never covered"
-}

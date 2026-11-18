@@ -1,7 +1,0 @@
-{
-  "id": "block-settings-pane",
-  "kind": "paragraph",
-  "mark": "improvement",
-  "title": "Indstillingsrude",
-  "text": "Siden bliver stående, mens du ændrer noget. Indstillinger for blokke, sektioner, links, lister, widgets og omdirigeringer åbner i en rude til højre, og det gør en fils detaljer også. Ændringer af en blok gælder med det samme, og Fortryd tager én tilbage. På en telefon er det stadig en side."
-}
