@@ -241,7 +241,7 @@ deploy or run `wrangler` against the live Cloudflare account itself.
 ## 7. Releases
 
 **Plan the release.** When the line looks ready, say so and say what the Release PR will contain: the changesets, the release notes and
-the peer bumps, checked as Phase 1 of the `release` skill does. Then wait. Only the owner releases, with `/release` and an explicit yes.
+the peer bumps, checked as Phase 1 of the `release` skill does. Then wait. Only the owner releases, with `/release` and an explicit yes. Before planning the release question, the PM first asks the owner to approve the `next` test version on npmjs.com, checks staging as Phase 1 of the `release` skill says, and only then plans the release question; it never asks for a release that staging has not built.
 
 **While the owner releases.** From the owner's `/release` (or a request to release a version) until the Release PR is merged, the PM
 does the release steps that are its job. The line goes into `main` (section 2); every merge to `main` makes the Changesets bot rebuild

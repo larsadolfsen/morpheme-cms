@@ -10,6 +10,12 @@ phase is a gate: a failure stops here and is reported with its output verbatim. 
 bump a version by hand, never merge anything but the Release PR, never retry a failed publish. Design:
 `docs/superpowers/specs/2026-11-03-development-flow-and-releases-design.md` (section 4).
 
+**Standing owner rule, 18 Nov 2026: "Never release a product that hasn't been seen on staging."** Before anyone asks the owner
+for a release (Phase 2), the exact build that would be released must already have run on `morpheme-staging`. The way: merging into
+`main` stages a test version under the npm tag `next`; the owner approves it on npmjs.com; staging (channel `next`) builds on it on
+Cloudflare; the PM verifies that build and, where it can, that staging's page loads (Phase 1). A Release PR whose version was never
+seen on staging is never merged, even with a yes in the conversation earlier.
+
 Every command shown to the owner starts with `cd C:/Users/adolf/Documents/Interstellar/morpheme-cms && `.
 
 ## Phase 1 - Take stock (read-only)
@@ -26,9 +32,12 @@ npm view @morphemecms/cms dist-tags --json
 - Owner-visible changes: the Release PR must contain `release-notes/i18n/*/<version>.json` for them (notes have no screenshots); if it does not, say so in the question below.
 - Test versions of a line (`next-0.18`, `next-0.19`) are not a release step: they come from merges into a line's branch, never from this skill, and
   `latest` and `next` are untouched by them. Only a merge into `main` moves `next`, which is what staging follows (below).
-- Staging: the newest build of the Worker `morpheme-staging` (Cloudflare connector, read-only - list builds). Stop if it
-  failed ("Staging's newest build failed: <link>; fix main first"). If it is older than the newest `next` publish, or
-  none is found, say so in the question below instead of stopping.
+- Staging: the newest `Workers Builds: morpheme-staging` check on staging's `main` (or the newest build of the Worker
+  `morpheme-staging`: Cloudflare connector, read-only - list builds). It must be newer than the newest `next` publish and
+  must have succeeded; where possible, also load staging's page and check that it answers. Stop, and ask nothing, if it
+  failed ("Staging's newest build failed: <link>; fix main first"), if it is older than the newest `next` publish
+  ("Staging has not built <version> yet"), or if none is found: tell the owner what is blocked (for example, that the `next`
+  version still needs approval on npmjs.com).
 - Staging's channel, set by staging's app CMS-version (the same rule as `scripts/cms-channel.mjs` there): read
   `gh api repos/larsadolfsen/morpheme-staging/contents/src/data/apps.json -H "Accept: application/vnd.github.raw"`.
   If its `installed` list has `cms-version`, the channel is `channel` in `src/data/apps/cms-version.json` (same call);
@@ -50,8 +59,9 @@ npm view @morphemecms/cms dist-tags --json
 
 ## Phase 2 - Ask
 
-Question box, one question: "Release X.Y.Z to every site?" with the notes and the staging line in the question text.
-Options: "Release X.Y.Z", "Not now". Asked every time, also when a standing go-ahead to merge exists. Skipped or
+Only after Phase 1 has proved that staging built this version (the staging rule above): never ask before. Question box, one
+question: "Release X.Y.Z to every site?" with the notes and the staging result (the build's link and that it succeeded) in the
+question text. Options: "Release X.Y.Z", "Not now". Asked every time, also when a standing go-ahead to merge exists. Skipped or
 "Not now": stop, change nothing.
 
 ## Phase 3 - Merge
