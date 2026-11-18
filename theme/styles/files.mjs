@@ -14,6 +14,7 @@ export const UI_PART_FILES = [
   'checkbox.css', // before ui.css in base.css: the list's selection box is a .checkbox, and the list's rules (in ui.css) must win over it
   'switch.css',
   'radio-button.css',
+  'slider.css',
 ];
 
 /** The other CSS files base.css imports, which are not parts of ui.css. */

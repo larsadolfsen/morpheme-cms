@@ -1,4 +1,4 @@
-// A slider (m3.material.io/components/sliders, .slider in ../styles/ui.css): a value chosen between `min` and `max`
+// A slider (m3.material.io/components/sliders, .slider in ../styles/slider.css): a value chosen between `min` and `max`
 // (`value`; the standard slider, its active track from the start), in steps of `step` with a stop at each (`stops`),
 // from the middle (`centered`: the active track from the middle to the handle, for a value below and above a middle
 // one), or a range (`range`, its start and end, with two handles that cannot pass each other; `handleLabels` says what
