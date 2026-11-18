@@ -30,6 +30,7 @@ export const THEME_PARTS = [
   { id: 'Slider', group: 'ui', prefixes: ['slider'] },
   { id: 'Divider', group: 'ui', prefixes: ['divider'] },
   { id: 'SideSheet', group: 'ui', prefixes: ['side-sheet'] },
+  { id: 'Avatar', group: 'ui', prefixes: ['avatar'] },
   { id: 'Badge', group: 'ui', prefixes: ['badge'] },
   { id: 'LoadingIndicator', group: 'ui', prefixes: ['loading-indicator'] },
   { id: 'LinearProgressIndicator', group: 'ui', prefixes: ['linear-progress-indicator'] },

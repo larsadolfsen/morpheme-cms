@@ -345,7 +345,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
      not in a field.
   3. **The page frame around the text, switched on or off.** A `Show the website around the text` toggle in the top bar
      draws the header and footer in place, and the page's width and side column. It is off on a phone. It replaces the use of
-     `Preview` for layout, which stays for the real page.
+     `Preview` for layout, which stays for the real page. _(Superseded by the cards and lists plan, 18 Nov 2026, step 7 in 0.19: the Preview goes, and the builder shows the page at M3's window sizes, viewports, so the page's frame and layout are seen in the builder itself.)_
 - **Cost:** step 1 changes the first thing every owner sees in the form and touches the `title`/H1 link; step 3 draws the
   site's header and footer inside the editor, which the theme's `editor/previews.tsx` already does for the header and footer
   screens. The demo and every theme must show the same page (`check:themes`, `check:demo`).
@@ -381,6 +381,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
 
 ### 17. Cards
 
+- **Superseded by the cards and lists plan (18 Nov 2026, `plans/2026-11-17-cards-and-lists-0-19.md`) for how a card is built:** `Card` takes the M3 MVP props, `media` (image, video, icon), `headline`, `subhead`, `supporting` and `actions` (never with `href`), and keeps today's functions (the kinds, `href`, `as`, `selected` with its check mark, `dragged`, `children`, `className`). Its tokens are M3's per kind (filled `surface-container-highest`, elevated at rest on level 1 with its shadow, outlined focus line `on-surface`; the state layers and the one focus ring are the shared globals), and every card of the site moves onto it without Tailwind. The fields and decisions below stay as the owner's wording of what a card holds; where the filled card's "Surface" below says `surface-container`, the card's token is `surface-container-highest`. The editor's cards keep their content as `children` and change only their look; they move to the props with the special type. In 0.19 the collection lets lists and cards turn into each other.
 - **Evidence:** Cards (`standard/cards`, `theme/blocks/cards/LinkCards.tsx`) is outlined link cards with a `Design` (Text,
   Icon, Image) and a `Background` (surface or accent); Price cards, Testimonials (a slider) and the blog post card
   (`theme/components/PostCard.tsx`) are separate. The theme's surface kinds are Material's three: Outlined, Filled and
@@ -403,7 +404,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   is built.
 - **Every card works in every theme (owner, 11 November, our philosophy):** the set of designs is fixed and every theme
   must style all of them, so a card never lacks a design when the theme changes and no fallback is needed. The theme
-  decides how each design looks: its colours, borders, shadow, corner radius and button widths. A colour such as
+  decides how each design looks: its colours, borders, shadow, corner radius and button widths (changed 18 Nov 2026: the shadow comes from the card's elevation level, which is on at rest, and a part never writes its own shadow). A colour such as
   Primary container is right for Material; another theme draws the same named colour in its own way. The theme's styling is applied to
   the card, never stored in it. A theme that leaves a design unstyled fails `check:themes`.
 - **Media field:** the top of a card is one `Media` field, with the choice Icon, Image or Video, like the icon field of a
@@ -418,7 +419,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   first one active; only the active card shows its empty fields; the next card is always shown empty and faded (decision
   14); the floating menu has `Add above`, `Add below`, `Move up` and `Move down`; settings sit in the side panel on
   desktop and in the bottom sheet on a phone. `Design` is in the panel.
-- **Dynamic cards:** as dynamic lists (finding 16): a Card block takes its cards from a dynamic list, is named `Dynamic
+- **Dynamic cards** (taken over by the collection of the cards and lists plan, step 6, 0.19, 18 Nov 2026): as dynamic lists (finding 16): a Card block takes its cards from a dynamic list, is named `Dynamic
   card`, and the owner picks which list field fills which part of the card. The field set of a card list is the one above.
   The blog post card becomes a dynamic Card; Blog posts need no special card.
 - **Migration:** Cards with Design Image, Icon and Text become Card with a Media field of Image or Icon, or none;
@@ -765,7 +766,7 @@ contract is needed, only a `slots` field in `AppDefinition`.
    the site shows them (step 1). **A page's head is its H1, with no top image (owner, 14 Nov 2026,
    `2026-11-14-no-page-top-image-design.md`)**; a post's head is unchanged. **The optional frame with the site's header and footer (step 3) is dropped (owner,
    11 November):** `Preview` already shows the page with the site's own header, footer and layout at each window size, so a
-   frame in the editor would only repeat it. `Preview` stays, with one change (owner, 11 November): it opens full screen, hiding
+   frame in the editor would only repeat it. `Preview` stays (superseded by the cards and lists plan, 18 Nov 2026: in 0.19 viewports in the builder replace it), with one change (owner, 11 November): it opens full screen, hiding
    everything else in the editor, with a close button (a Material 3 full-screen dialog), instead of in a sheet beside the
    page. **The sizes (owner, 11 November):** the full-screen Preview shows the breakpoints like the device toolbar of
    Chrome's developer tools: a bar across the top marks Material 3's five window sizes (`compact`, `medium`, `expanded`,

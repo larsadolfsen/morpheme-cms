@@ -10,11 +10,38 @@ Announce "Using checks". Run every command from the root of this repository, on 
 
 ## What CI runs
 
-`.github/workflows/check.yml` runs on every pull request into `main`, `0.17`, `0.18` and `0.19`, in two sizes (owner, 16 Nov 2026: a
+**The direction (owner, 18 Nov 2026): test less, but always the important things.** Plan:
+`docs/superpowers/plans/2026-11-18-ci-check-levels.md`. The levels below are the target; PR 1 of the plan is built (what runs today is in the next table), PR 2-6 are not yet.
+
+| Merge | Check |
+| :--- | :--- |
+| A piece into `feature/<name>` | **Feature check:** `static`, the build, the **core screens** (the editor opens, a page saves and publishes, the theme builds) and the screens areas the change touches. No full shards, no `starter`. |
+| Every feature branch, once a day | The full check, so a break shows within a day. |
+| A feature branch or a single pull request into a version line | **Line check:** `static`, the core screens, the touched areas, `demo` and the starter **smoke test** (the site builds; open, edit, save, publish). |
+| A version line into `main` (its release) and the Release PR | **Full check:** everything, with all starter shards. |
+
+**Built (PR 1, checks on feature branches).** `check.yml` runs on pull requests into `main`, `0.17`, `0.18`, `0.19` and `feature/**`.
+`checkLevel(base, head)` in `scripts/ci-changes.mjs` gives the level from the base branch (the job `changes` prints `level=` beside
+`light=`); it is tested for each level and the fallback in `scripts/ci-changes.test.mjs`:
+
+| Base branch | Level | What runs today |
+| :--- | :--- | :--- |
+| `feature/**` | `feature` | the light check: `static` and the 8 `screens` shards (as the line level, until PR 3) |
+| `0.*` (a version line) | `line` | the light check, as below (`demo` and the starter smoke test come in PR 4) |
+| `main`, and the Release PR from any base | `full` | everything |
+| anything else, an empty base, an error in the selection | `full` | everything (when in doubt, run) |
+
+Not built yet: build once and cached Chromium (PR 2), the core set and touched areas (PR 3), the starter smoke test (PR 4), the daily
+full run on feature branches (PR 5), `next` builds from a version line (PR 6).
+
+Always tested, at every level: Prettier, types, `npm run check` (language, tokens, colours, rules), the changeset, the build, the core
+screens and the screens of what changed. Every browser job uses one shared build and a cached Chromium.
+
+`.github/workflows/check.yml` runs on every pull request into `main`, `0.17`, `0.18`, `0.19` and `feature/**`, in two sizes (owner, 16 Nov 2026: a
 merge into a version line shows on the demo within minutes). Its job `check` waits for the jobs and must be green on the current head
 before the PM merges.
 
-- **Light check, base is a version line** (`0.17`, `0.18`, `0.19`; not the Release PR): `changes`, `static` (Prettier, language, the
+- **Light check, base is a version line or a feature branch** (`0.17`, `0.18`, `0.19`, `feature/**`; not the Release PR): `changes`, `static` (Prettier, language, the
   changeset, `npm run check`) and `check:screens` in its 8 shards. About 8 minutes (median of the shards 8.0, longest 10.9). It skips
   `check:screens:extra`, `check:demo` and `check:starter` (the 4 starter shards take a median of 14.2 minutes, the longest 19.8). The
   PM may merge into a version line on a green light `check`.

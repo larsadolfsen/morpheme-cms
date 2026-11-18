@@ -8,6 +8,7 @@ export const UI_PART_FILES = [
   'navigation-drawer.css', // right after ui.css in base.css, before divider.css: its section divider is a .divider too
   'text-field.css', // right after ui.css in base.css: the icon buttons in ui.css lose to its rules, and menus.css and pickers.css come after it
   'divider.css',
+  'avatar.css', // right before badge.css in base.css: no other rule matches an .avatar
   'badge.css',
   'loading-indicator.css',
   'progress-indicators.css',

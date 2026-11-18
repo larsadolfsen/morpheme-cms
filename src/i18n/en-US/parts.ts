@@ -746,6 +746,7 @@ export const parts = {
     cardsAndLists: {
       title: 'Cards and lists',
       card: "A surface with what belongs together: outlined, elevated, or filled, also while it's dragged. The whole card can be a link.",
+      avatar: "A round mark with a letter or an image, 40 dp across. It leads a list item, and it's the thumbnail of a card.",
       list: 'Items under each other on 1, 2, or 3 lines, with an icon, an avatar, an image, a video, a choice, text, and an arrow, with or without lines between them, or each on its own surface. An item can do something when tapped, have actions beside it, and have its text side by side on a wide screen.',
       kinds: { elevated: 'Elevated', filled: 'Filled', outlined: 'Outlined' },
       link: 'Outlined, a link',
