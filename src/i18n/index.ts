@@ -19,6 +19,7 @@ import { appTexts as appFiles, texts } from '@site/texts';
 import { daDK } from './da-DK';
 import { enUS, type Messages } from './en-US';
 import { translate } from '../../lib/translate.mjs';
+import { setEditorDocumentLang } from '../../lib/documentLang.mjs';
 
 export type { Messages };
 
@@ -131,4 +132,5 @@ export function localeName(code: Locale, inLanguage: Locale = code): string {
   }
 }
 
-if (typeof document !== 'undefined') document.documentElement.lang = locale;
+// The editor's language goes into <html lang> on the editor's own pages only; a site page keeps the site's language its layout wrote.
+if (typeof document !== 'undefined') setEditorDocumentLang(document, location.pathname, locale);

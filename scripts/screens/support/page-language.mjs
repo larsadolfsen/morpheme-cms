@@ -1,5 +1,6 @@
 /** The language a site page really renders: the `lang` of the `<html>` the server sent. The live `document.documentElement.lang` is not the page's
- * language: the site's client script (src/i18n/index.ts) rewrites it to the browser's locale, while the texts stay in the site's language. */
+ * language only if nothing rewrites it; the site's client script (src/i18n/index.ts) must leave it alone on a site page (lib/documentLang.mjs), and
+ * `pageLanguage` fails when the live attribute differs from the served one. */
 export function htmlLang(html) {
   const tag = /<html\b[^>]*>/i.exec(String(html))?.[0] ?? '';
   return (
@@ -16,6 +17,7 @@ export async function pageLanguage(page) {
   const served = htmlLang(await (await page.request.get(page.url())).text());
   return {
     lang: served,
+    live,
     where: `the <html lang> the server sent for ${page.url()}; the live document.documentElement.lang is "${live}"`,
   };
 }
