@@ -19,6 +19,7 @@ import FrameParts from './FrameParts';
 import { Preview } from './ui';
 import {
   SiteButton,
+  SiteAvatar,
   SiteCard,
   SiteCheckbox,
   SiteChip,
@@ -417,6 +418,14 @@ function CardParts() {
                 <p className="mt-1 text-on-surface-variant">{say.text}</p>
               </SiteCard>
             ))}
+          </div>
+        </Preview>
+      </Part>
+      <Part name="Avatar" use={say.avatar}>
+        <Preview>
+          <div className="flex items-center gap-4 p-4">
+            <SiteAvatar>{lists.letter}</SiteAvatar>
+            <SiteAvatar image={{ src: exampleImage }} />
           </div>
         </Preview>
       </Part>

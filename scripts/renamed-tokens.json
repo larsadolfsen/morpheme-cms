@@ -745,5 +745,8 @@
   "--theme-post-picture-radius": "--mo-comp-theme-post-picture-radius",
   "--theme-title-size": "--mo-comp-theme-title-size",
   "--theme-title-leading": "--mo-comp-theme-title-leading",
-  "--theme-title-size-large": "--mo-comp-theme-title-size-large"
+  "--theme-title-size-large": "--mo-comp-theme-title-size-large",
+  "--list-item-avatar-size": "--mo-comp-avatar-size",
+  "--list-item-avatar-surface": "--mo-comp-avatar-container-color",
+  "--list-item-avatar-text": "--mo-comp-avatar-label-text-color"
 }

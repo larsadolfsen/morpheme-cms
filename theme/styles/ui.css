@@ -71,6 +71,7 @@
 */
 /* The classes in the CMS's own code (this package, also from node_modules/, where Tailwind does not look by itself);
    the names in the icon packs' maps (MATERIAL_SYMBOLS, LUCIDE, site/icons.mjs) and the tests' examples are not classes. */
+@import './tokens/ui/comp/avatar.css';
 @import './tokens/ui/comp/badge.css';
 @import './tokens/ui/comp/button.css';
 @import './tokens/ui/comp/carousel.css';
@@ -897,7 +898,7 @@
   .list-item-container (an <a> when it links, a <button> when it is
   tapped, else a <div>; not .list-item, which is Tailwind's display: list-item)
   with what leads it (.list-item-leading: anything, or .list-item-leading-icon, .list-item-leading-avatar with
-  .list-item-avatar, .list-item-leading-image with .list-item-image, .list-item-leading-video with .list-item-video),
+  .avatar (Avatar.tsx; avatar.css), .list-item-leading-image with .list-item-image, .list-item-leading-video with .list-item-video),
   .list-item-content (a <label> for a choice) with .list-item-overline, .list-item-headline and .list-item-supporting,
   and what trails it (.list-item-trailing-supporting, .list-item-trailing: an icon, an arrow); .list-item-two-line or
   .list-item-three-line by its lines; .list-item-columns with its headline and supporting text side by side on a wide
@@ -927,7 +928,7 @@
     --mo-comp-list-list-item-leading-icon-color, --mo-comp-list-item-leading-icon-selected-color (ListItemLeadingIcon's `selected`)
     --mo-comp-list-item-icon-size   the icons that lead and trail an item
     --mo-comp-list-item-leading-size (what leads an item of its own, for an inset divider)
-    --list-item-avatar-size, --list-item-avatar-surface, --list-item-avatar-text, --mo-comp-list-item-image-size,
+    --mo-comp-avatar-size (the avatar's own tokens: avatar.css), --mo-comp-list-item-image-size,
     --mo-comp-list-item-image-radius, --list-item-video-width, --list-item-video-height   the leading kinds
     --mo-comp-list-segmented-gap, --mo-comp-list-segmented-radius (the list's corners), --mo-comp-list-segmented-inner-radius,
     --mo-comp-list-segmented-hover-radius, --mo-comp-list-segmented-pressed-radius, --mo-comp-list-segmented-selected-radius,
@@ -1153,18 +1154,6 @@
   :is(.list-item-leading-icon, .list-item-trailing) > svg {
     width: var(--mo-comp-list-item-icon-size, 1.5rem);
     height: var(--mo-comp-list-item-icon-size, 1.5rem);
-  }
-  .list-item-avatar {
-    display: grid;
-    width: var(--list-item-avatar-size, 2.5rem);
-    height: var(--list-item-avatar-size, 2.5rem);
-    place-items: center;
-    border-radius: var(--mo-sys-shape-corner-full);
-    background: var(--list-item-avatar-surface, var(--mo-sys-color-primary-container));
-    color: var(--list-item-avatar-text, var(--mo-sys-color-on-primary-container));
-    font-weight: 500;
-    line-height: 1;
-    object-fit: cover;
   }
   .list-item-image {
     width: var(--mo-comp-list-item-image-size, 3.5rem);

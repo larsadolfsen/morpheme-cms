@@ -1,7 +1,9 @@
-# The CMS's checks on each pull request into main or into the 0.17, 0.18 or 0.19 integration branch (package.json's check,
+# The CMS's checks on each pull request into main, into the 0.17, 0.18 or 0.19 integration branch or into a feature branch (feature/**) (package.json's check,
 # check:screens, check:demo and check:starter), and that it has a changeset (.claude/skills/changesets), so each branch can always be
 # released.
 #
+# LEVELS (scripts/ci-changes.mjs checkLevel: feature/** -> feature, 0.* -> line, main -> full; unknown base -> full). Until PR 3 of
+# docs/superpowers/plans/2026-11-18-ci-check-levels.md the feature level runs exactly what the line level runs (the light check).
 # TWO SIZES (owner, 16 Nov 2026: a merge into a version line shows on the demo within minutes). A pull request whose base is a version
 # line (0.17, 0.18, 0.19; not the Release PR) gets the LIGHT check: changes, static and the 8 screens shards (about 8 minutes). It skips
 # screens-extra, demo and starter (the starter shards take 14 to 20 minutes). A pull request into main (the merge of a version line,
@@ -32,7 +34,7 @@ name: Check
 
 on:
   pull_request:
-    branches: [main, '0.17', '0.18', '0.19']
+    branches: [main, '0.17', '0.18', '0.19', 'feature/**']
 
 permissions:
   contents: read
@@ -53,6 +55,7 @@ jobs:
     outputs:
       docs_only: ${{ steps.diff.outputs.docs_only }}
       starter_demo: ${{ steps.diff.outputs.starter_demo }}
+      level: ${{ steps.diff.outputs.level }}
       light: ${{ steps.diff.outputs.light }}
     steps:
       - uses: actions/checkout@v5
@@ -70,6 +73,7 @@ jobs:
             echo 'git diff failed: running everything'
             echo 'docs_only=false' >> "$GITHUB_OUTPUT"
             echo 'starter_demo=true' >> "$GITHUB_OUTPUT"
+            echo 'level=full' >> "$GITHUB_OUTPUT"
             echo 'light=false' >> "$GITHUB_OUTPUT"
           fi
 

@@ -121,7 +121,7 @@ Checked and fine: `autocomplete` is set in 18 places, `inputMode` in 11, `field-
 Checked and fine: no positive `tabindex` (0 places); `:focus-visible` in 83 places; `prefers-reduced-motion` in 51;
 every `<img>` in the blocks has `alt`, `width` and `height` (`theme/blocks/*`, `theme/components/PopupView.tsx:25`).
 A1 should be confirmed with `check:screens`' focus checks before it is called clean; this audit read the CSS, not the
-rendered result.
+rendered result. (Changed 18 Nov 2026, cards and lists plan, step 1: the replacement indicator of a part is now one shared ring, `--mo-sys-color-primary`, 3dp, offset 2dp, `border-radius: inherit` (deviation FR1, One focus ring, in primary), so the parts of the cards and lists steps no longer carry their own; a part with its own inset ring, such as the list's -3dp, keeps its component's offset as a component variable. The search view's field keeps its own 2dp ring, deviation A1.)
 
 ### 3.5 Performance
 
@@ -150,7 +150,7 @@ classes are about the window, so the page grid should stay on `@media`; `@contai
 and 8 already do. `auto-fit` would let the column count float between M3's counts. Recommended: keep our grid as it is;
 use `@container` and subgrid only inside a component (for example aligned card titles), never to change the page's
 columns. We lose nothing; we also gain nothing on the page grid, so the cost-benefit is small. This is the one conflict
-where the recommendation is to follow our rule.
+where the recommendation is to follow our rule. (Changed 18 Nov 2026: cards and lists plan, step 6, 0.19: the collection, where lists and cards turn into each other, switches by a container query on its own width at M3's 600 dp, `@container collection (inline-size >= 37.5rem)`, which is `@container` inside a component as recommended here; the page's grid stays on `@media`.)
 
 ## 4. Conflicts at a glance
 
