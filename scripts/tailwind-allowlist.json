@@ -295,10 +295,6 @@
   "src/topBarSlot.tsx": {
     "utilities": 6
   },
-  "src/ui.tsx": {
-    "utilities": 657,
-    "constants": 38
-  },
   "src/UpdatesNotice.tsx": {
     "utilities": 56
   },
