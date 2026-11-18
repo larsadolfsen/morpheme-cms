@@ -70,12 +70,24 @@ A blocked update (`needs-npm`, `contract`, `cannot-write`, a missing token or KV
 `check:screens` unit in its area's file. `cmsView.mjs` today lists only `unreachable`, `cannot-write` and `not-managed` as problems;
 `needs-npm` and `contract` are added.
 
-## PR 3: peers and the test
+## PR 3: peers and the test (built)
 
-- Lower each peer floor to the lowest version the CMS needs: `^6.1.5 || ^7.1.0` for `postcss-selector-parser` if the tests pass
-  on 7.1.6 (the build session shows the run).
-- `scripts/peer-ranges.test.mjs` runs the real `addToLock` on fixture lockfiles (versions only: no content, no customer's name)
-  from the previous release's starter and from real sites, and fails on any `NeedsNpm`. Lands after PR 1 is merged.
+- **The floor:** `postcss-selector-parser` is `^6.1.5 || ^7.1.0` in `peerDependencies` (and in the lock's root entry); `devDependencies` and the
+  `overrides` keep `^7.2.0` (the version this repository develops on). The tests ran on 7.1.6, 7.1.0 and 6.1.5: the whole unit suite
+  (2675 tests) and the demo's build on 7.1.6, the `site/` tests (156) on each of the three. The other peer ranges are not lowered: nothing
+  shows that a site has a version under them, and the new test reads every peer against the lockfiles.
+- **The test** (`scripts/peer-ranges.test.mjs`): the real `addToLock` on every lockfile in `scripts/fixtures/locks/`, which are cut to versions
+  only (`scripts/lock-versions.mjs`: the CMS and its peers, `version` and nothing else). Today: the real lockfiles `npm install` makes from the
+  0.14.2 starter (CMS 0.16.0) and the 0.17.0 starter, and the 0.17.0 one with `postcss-selector-parser` at 7.1.6, the state the CTO found in
+  Sara's site and `morpheme-website`. It fails on any `NeedsNpm` (shown: with the old floor it fails with "needs postcss-selector-parser
+  ^6.1.5 || ^7.2.0; the site has 7.1.6"). A negative control runs the released manifests of 0.16.0, 0.17.0 and 0.18.0 (`scripts/fixtures/manifests/`) on
+  the 7.1.6 lockfile and expects `NeedsNpm`: that is the cause, kept as a test that the test can fail.
+- **Not done, needs the owner or the CTO:** the lockfiles of Sara's site and `morpheme-website` themselves. They are not in this repository.
+  Cut each with `node scripts/lock-versions.mjs <package-lock.json> > scripts/fixtures/locks/<name>.json` and add the file: the test reads
+  every file in the folder. The 7.1.6 lockfile here is the starter's lock with that one version set, not a real site's.
+- **What this does not fix:** sites already on 0.16.0 to 0.18.0 still have `^7.2.0` in the version they run, and the released 0.16.0 to 0.18.0 manifests still
+  say `^7.2.0`. A site with 7.1.6 can take the next release (which has the new floor) by the nightly check, but not 0.17.0 or 0.18.0:
+  those need `npm install` once. The CTO decides whether to release a patch of the lower line.
 
 ## Open
 
