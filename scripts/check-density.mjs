@@ -27,7 +27,7 @@ export const PARTS = [
     selector: '.choice-group-list .list-item-container',
     reads: '--mo-sys-density',
   },
-  { name: 'list item', file: 'theme/styles/ui.css', selector: '.list-item-container', reads: '--mo-sys-density' },
+  { name: 'list item', file: 'theme/styles/list.css', selector: '.list-item-container', reads: '--mo-sys-density' },
   { name: 'setting row', file: 'theme/styles/switch.css', selector: '.setting-list > .setting-row', reads: '--mo-sys-density-layout' },
   {
     name: 'table cell',
@@ -113,6 +113,7 @@ export function readStyles(root) {
   const tokenFolder = {
     'ui.css': 'ui',
     'text-field.css': 'ui',
+    'list.css': 'ui',
     'blocks.css': 'blocks',
     'person-facts.css': 'blocks',
     'base.css': 'base',

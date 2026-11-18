@@ -6,8 +6,10 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { UI_PART_FILES, OTHER_BASE_FILES, MATERIAL_FILES } from './files.mjs';
 
 const base = readFileSync(new URL('./base.css', import.meta.url), 'utf8');
-/** The CSS files base.css imports from this folder or from blocks/ (the token files under tokens/ are listed by their folders). */
-const imported = [...base.matchAll(/@import\s+'\.\/((?:blocks\/)?[^'/]+\.css)';/g)].map((m) => m[1]);
+const ui = readFileSync(new URL('./ui.css', import.meta.url), 'utf8');
+const importsOf = (text) => [...text.matchAll(/@import\s+'\.\/((?:blocks\/)?[^'/]+\.css)';/g)].map((m) => m[1]);
+/** The CSS files base.css imports from this folder or from blocks/ (the token files under tokens/ are listed by their folders), and ui.css, which imports the UI parts. */
+const imported = [...importsOf(base), ...importsOf(ui)];
 
 test('the lists have no file twice', () => {
   const all = [...UI_PART_FILES, ...OTHER_BASE_FILES];
@@ -17,8 +19,14 @@ test('the lists have no file twice', () => {
   );
 });
 
+test('ui.css imports exactly the files of UI_PART_FILES, in order, and no rule of its own', () => {
+  assert.deepEqual(importsOf(ui), UI_PART_FILES);
+  assert.ok(importsOf(base).includes('ui.css'), 'base.css must import ui.css');
+  assert.ok(!/^\s*[.:#a-z\[@][^@\n]*\{/m.test(ui.replace(/\/\*[\s\S]*?\*\//g, '')), 'ui.css holds imports only');
+});
+
 test('every CSS file base.css imports is in files.mjs', () => {
-  const listed = new Set([...UI_PART_FILES, ...OTHER_BASE_FILES]);
+  const listed = new Set(['ui.css', ...UI_PART_FILES, ...OTHER_BASE_FILES]);
   assert.deepEqual(
     imported.filter((f) => !listed.has(f)),
     [],
@@ -29,7 +37,7 @@ test('every CSS file base.css imports is in files.mjs', () => {
 test('every file in files.mjs exists and base.css imports it', () => {
   for (const f of [...UI_PART_FILES, ...OTHER_BASE_FILES]) {
     assert.ok(existsSync(new URL(`./${f}`, import.meta.url)), `${f} does not exist`);
-    assert.ok(imported.includes(f), `${f} is not imported by base.css`);
+    assert.ok(imported.includes(f), `${f} is not imported by base.css or ui.css`);
   }
 });
 

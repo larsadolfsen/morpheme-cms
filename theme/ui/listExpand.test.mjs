@@ -8,17 +8,17 @@ import test from 'node:test';
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
 const list = read('./List.tsx');
-const ui = read('../styles/ui.css');
+const ui = read('../styles/list.css');
 const blocks = read('../styles/blocks.css');
 const accordion = read('../blocks/accordion/Accordion.tsx');
 const script = read('../blocks/accordion/script.ts');
 
-test('every class of a folding item has a rule in ui.css', () => {
+test('every class of a folding item has a rule in list.css', () => {
   const classes = new Set(list.match(/\blist-(?:item-)?expand[a-z-]*/g));
   for (const c of ['list-expand', 'list-item-expand', 'list-item-expand-summary', 'list-item-expand-icon', 'list-item-expand-body']) {
     assert.ok(classes.has(c), `List.tsx gives no ${c}`);
   }
-  for (const c of classes) assert.match(ui, new RegExp(`\\.${c}\\b`), `ui.css has no rule for .${c}`);
+  for (const c of classes) assert.match(ui, new RegExp(`\\.${c}\\b`), `list.css has no rule for .${c}`);
 });
 
 test('the item is a details with its summary as the item (keyboard and screen readers)', () => {

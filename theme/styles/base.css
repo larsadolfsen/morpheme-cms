@@ -2,63 +2,10 @@
 @plugin '@tailwindcss/typography';
 /* Material's rules sit in the last layer, fallback: a theme's own unlayered rules beat them, whatever their specificity. */
 @layer theme, base, components, utilities, fallback;
-/* The Checkbox comes before ui.css on purpose: the list's selection box (List.tsx) is a .checkbox and a .list-item-select-box, and the list's rules, still
-   in ui.css, must keep winning over .checkbox's display and alignment, as they did when both were in ui.css, the checkbox's first. */
-@import './checkbox.css';
-/* The Chips and the chip sets come before ui.css for the same reason: a chip set in the search view is also .search-view-filters (Search.tsx), whose rules in ui.css set margin and padding at the same specificity and must win. */
-@import './chips.css';
-/* The Dialog and the Lightbox come before ui.css too: the date picker's and the time picker's dialogs are also .dialog-modal (DatePicker.tsx, TimePicker.tsx), and the picker rules in ui.css set the same properties at the same specificity and must win. */
-@import './dialog.css';
-@import './lightbox.css';
-/* The Buttons and the Icon buttons come before ui.css, where they stood in it, after the files above: a part made of a button (the list's and the search view's buttons, the pickers') sets the same properties at the same specificity and its rules, still in ui.css, must keep winning over them. */
-@import './buttons.css';
-/* The theme's UI components, as Material 3 names them (buttons, icon buttons), and the standard blocks of the editor,
-   in this site's design (their variables below). */
+/* The theme's UI components, as Material 3 names them (buttons, icon buttons, the menus, the lists …), one file for each part, imported in
+   the order their rules had in the file ui.css was before the split (docs/theme-css-split.md); and the standard blocks of the editor, in this
+   site's design (their variables below). */
 @import './ui.css';
-/* The Navigation drawer (modal and standard) comes right after ui.css, where its rules sat in it: before the Divider, which its section divider is also (a .divider, whose margin the drawer's rule, of higher specificity, outranks). */
-@import './navigation-drawer.css';
-/* The Text field (the field, its label, supporting text and icons). It comes right after ui.css: the buttons it holds (the clear and show-password icon buttons, in ui.css) must lose to its rules, as before, and the exposed dropdown menu and the pickers (menus.css, pickers.css) set a field's parts after it. */
-@import './text-field.css';
-/* The FAB, the button groups (with the segmented button and the choice group) and the split button with the FAB menu come right after ui.css, in
-   their old order, before the Radio button: the choice group's list (.radio-group .choice-group-list) sets the same gap as .radio-group, and
-   .radio-group came after it in the old ui.css, so radio-button.css must still come after button-groups.css. The FAB menu's button is also a .fab. */
-@import './fab.css';
-@import './button-groups.css';
-@import './fab-menu.css';
-/* The Divider (.divider, its inset and vertical kinds). */
-@import './divider.css';
-/* The Badge (.badge, its dot and number, the anchor on an icon). */
-@import './avatar.css';
-@import './badge.css';
-/* The Loading indicator and the Progress indicators (linear and circular). */
-@import './loading-indicator.css';
-@import './progress-indicators.css';
-/* The Snackbar (the stack that holds them and the message). */
-@import './snackbar.css';
-/* The Tooltip (plain and rich, anchored to what it is about). */
-@import './tooltip.css';
-/* The Switch (with its setting row) and the Radio button. */
-@import './switch.css';
-@import './radio-button.css';
-/* The Slider. */
-@import './slider.css';
-/* The Bottom sheet and the Side sheet. */
-@import './bottom-sheet.css';
-@import './side-sheet.css';
-/* The Tabs. */
-@import './tabs.css';
-/* The Top app bar. */
-@import './top-app-bar.css';
-/* The Menus (the menu, its items and groups, the dropdown menu, the exposed dropdown menu). */
-@import './menus.css';
-@import './navigation-bar.css';
-@import './navigation-rail.css';
-@import './search.css';
-@import './toolbar.css';
-@import './pickers.css';
-/* The ripple, then the reduced-motion rules that several parts share (the loading and progress indicators, the tooltip, the card, the ripple). */
-@import './ripple.css';
-@import './reduced-motion.css';
 /* The cards (Card, the Cards and Price cards blocks), the card grid and the Carousel. */
 @import './cards.css';
 @import './type.css';
@@ -100,6 +47,11 @@
 @import './tokens/base/registry.css';
 @import './tokens/base/ref.css';
 @import './tokens/base/sys.css';
+/* The classes in the CMS's own code (this package, also from node_modules/, where Tailwind does not look by itself);
+   the names in the icon packs' maps (MATERIAL_SYMBOLS, LUCIDE, site/icons.mjs) and the tests' examples are not classes. */
+@source '../..';
+@source not '../../site/icons.mjs';
+@source not '../../**/*.test.mjs';
 /* Follow the system by default (Modern Web Guidance, dark-mode-toggle: the base stays `light dark`); a picked mode pins it. */
 @layer fallback {
   :root {
