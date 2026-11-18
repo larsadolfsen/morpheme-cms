@@ -22,6 +22,8 @@
 /* The Switch (with its setting row) and the Radio button. */
 @import './switch.css';
 @import './radio-button.css';
+/* The Slider. */
+@import './slider.css';
 /* The cards (Card, the Cards and Price cards blocks), the card grid and the Carousel. */
 @import './cards.css';
 @import './type.css';
