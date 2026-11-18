@@ -821,149 +821,10 @@
     transform: translateX(3px);
   }
 
-  /* An invitation, a filled card (.card in ui.css): an image, a heading and a text, and buttons under each other
-     (e.g. an app's booking block); on a computer the three side by side. */
-  .block-cta {
-    display: grid;
-    gap: 1.5rem;
-  }
-  .block-cta.block-in-text {
-    margin-block: 2.5rem;
-  }
-  .block-cta-picture {
-    width: 5rem;
-    height: 5rem;
-    border-radius: var(--mo-sys-block-radius-small);
-    object-fit: cover;
-    object-position: 50% 20%;
-  }
-  .block-cta-title {
-    margin: 0;
-    font-size: var(--mo-sys-typescale-headline-small-size);
-    line-height: var(--mo-sys-typescale-headline-small-line-height);
-    font-weight: var(--mo-sys-typescale-headline-small-weight);
-    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
-  }
-  .block-cta-text {
-    margin-top: 0.5rem;
-    max-width: 48ch;
-    color: var(--mo-sys-block-muted);
-  }
-  .block-cta-buttons {
-    display: grid;
-    gap: 0.625rem;
-  }
-
-  /* Prices: the big ones as cards side by side, and the others as a list, a row each with the name and
-     its details to the left and the price to the right, with a text under it. */
-  .block-prices {
-    display: grid;
-    gap: 1rem;
-  }
-  .block-prices.block-in-text {
-    margin-block: 2.5rem;
-  }
-  /* A small fact in a light pill (the duration), its icon in the accent. */
-  .block-tag {
-    display: inline-flex;
-    flex-shrink: 0;
-    align-items: center;
-    gap: 0.375rem;
-    margin-top: 0.25rem;
-    border-radius: var(--mo-sys-block-control-radius);
-    background: var(--mo-sys-block-tint);
-    padding: 0.25rem 0.75rem;
-    font-size: var(--mo-sys-typescale-label-large-size);
-    line-height: var(--mo-sys-typescale-label-large-line-height);
-    font-weight: var(--mo-sys-typescale-label-large-weight);
-    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
-  }
-  .block-tag svg {
-    color: var(--mo-sys-block-accent);
-  }
-  .block-price-list {
-    margin: 0;
-    border: 1px solid var(--mo-sys-block-line);
-    border-radius: var(--mo-sys-block-radius);
-    padding: 0 1.5rem;
-    list-style: none;
-  }
-  .block-price-row {
-    display: grid;
-    gap: 0.25rem 1.5rem;
-    padding-block: 1.25rem;
-  }
-  .block-price-row + .block-price-row {
-    border-top: 1px solid var(--mo-sys-block-line);
-  }
-  .block-price-row-name {
-    font-size: var(--mo-sys-typescale-title-medium-size);
-    line-height: var(--mo-sys-typescale-title-medium-line-height);
-    font-weight: var(--mo-sys-typescale-title-medium-weight);
-    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
-    color: inherit;
-    text-decoration: none;
-  }
-  a.block-price-row-name:hover {
-    color: var(--mo-sys-block-accent);
-  }
-  .block-price-row-text {
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    font-weight: var(--mo-sys-typescale-body-medium-weight);
-    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
-    color: var(--mo-sys-block-muted);
-  }
-  .block-price-row-note {
-    margin-top: 0.25rem;
-    max-width: 60ch;
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    font-weight: var(--mo-sys-typescale-body-medium-weight);
-    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
-    color: var(--mo-sys-block-muted);
-  }
-  .block-price-row-price {
-    font-size: var(--mo-sys-typescale-headline-small-size);
-    line-height: var(--mo-sys-typescale-headline-small-line-height);
-    font-weight: var(--mo-sys-typescale-headline-small-weight);
-    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
-    font-variant-numeric: tabular-nums;
-  }
-  .block-price-row-price > span {
-    display: block;
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    font-weight: var(--mo-sys-typescale-body-medium-weight);
-    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
-    color: var(--mo-sys-block-muted);
-  }
-  /* A quiet text with an icon before it (the terms under the prices). */
-  .block-terms {
-    display: flex;
-    gap: 0.625rem;
-    margin-top: 1rem;
-    max-width: 70ch;
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    font-weight: var(--mo-sys-typescale-body-medium-weight);
-    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
-    color: var(--mo-sys-block-muted);
-  }
-  .block-terms svg {
-    flex-shrink: 0;
-    margin-top: 0.125rem;
-  }
   @media (width >= theme(--breakpoint-medium)) {
     .block-buttons {
       flex-direction: row;
       flex-wrap: wrap;
-    }
-    .block-price-row {
-      grid-template-columns: 1fr auto;
-    }
-    .block-price-row-price {
-      text-align: right;
     }
   }
   @media (width >= theme(--breakpoint-medium)) {
@@ -979,34 +840,6 @@
       font-weight: var(--mo-sys-typescale-body-large-weight);
       letter-spacing: var(--mo-sys-typescale-body-large-tracking);
     }
-    .block-cta {
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      align-items: center;
-      gap: 2.5rem;
-    }
-    .block-cta-picture {
-      grid-column: span 2;
-      width: 7rem;
-      height: 7rem;
-    }
-    .block-cta-body {
-      grid-column: span 6;
-    }
-    .block-cta-buttons {
-      grid-column: span 4;
-    }
-    .block-cta-title {
-      font-size: var(--mo-sys-typescale-headline-medium-size);
-      line-height: var(--mo-sys-typescale-headline-medium-line-height);
-      font-weight: var(--mo-sys-typescale-headline-medium-weight);
-      letter-spacing: var(--mo-sys-typescale-headline-medium-tracking);
-    }
-    .block-prices {
-      gap: 1.25rem;
-    }
-    .block-price-list {
-      padding-inline: 2rem;
-    }
   }
   .block-checklist.block-in-text {
     margin-block: 1rem;
@@ -1015,11 +848,6 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, max(16rem, calc(50% - 1rem))), 1fr));
     column-gap: 2rem;
-  }
-  .block-buttons.block-plan-buttons {
-    flex-direction: column;
-    margin-top: auto;
-    padding-top: 1.5rem;
   }
 
   /* ---- end of "Checklist" and "Price cards" ---- */
