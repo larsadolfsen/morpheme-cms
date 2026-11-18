@@ -196,8 +196,9 @@ and the pull request's jobs read them:
 2m58s in one, with both caches restored. That is the same as the cold runs of #928 (26–45 s, and one shard of 4–6 minutes), so restoring the caches
 saves nothing that shows in the step times: the download was a small part of the set-up, and what remains (`npm ci` from the restored cache, the
 system libraries from apt, the unpack) is what takes the rest. The one slow shard in each run is therefore not the browser download. The caches
-are worth keeping for the network (one download of Chromium and of npm's cache per branch instead of per run), not for the minutes. A finding
-for the next pull request that touches `prepare`: time its steps separately (the composite action reports one step), and look at the apt step
+are worth keeping for the network (one download of Chromium and of npm's cache per branch instead of per run), not for the minutes. **Open item** (owner of
+the next pull request that touches `prepare`: A12, CI slots from measured cost, or a later one): the slow `prepare` shard is still unexplained. Time
+`prepare`'s steps separately (apt, `npm ci`, the unpack, the browser; the composite action reports one step today), and look at the apt step
 (`playwright install --with-deps`), which runs on a hit too.
 
 Built in `lib/affected.mjs` (the engine, tested in `lib/affected.test.mjs`, reusable by track B with its own rules),
