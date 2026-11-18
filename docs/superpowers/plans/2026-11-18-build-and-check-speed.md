@@ -510,7 +510,11 @@ Expected savings are for a content save on a site like Sara's (about 100 pages a
 - Look at the site's 543 packages: what the site's `package.json` installs that only the editor's local checks need
   (Playwright and the like) moves to what `check:screens` installs on demand. Measure, then decide.
 
-#### Batch 6. The editor's client bundle is not built on every save (about 10–13 s) — needs a design
+#### Batch 6. The editor's client bundle is not built on every save (about 10–13 s) — decided: built in the package, 0.18.2
+
+**Decided** (owner, 18 November 2026: "2", then "Options 2 in 18.2"): the second way below, in **0.18.2** after Tailwind (0.18.1), on
+`feature/editor-prebuilt`. Design and pull requests: `docs/superpowers/specs/2026-11-18-editor-prebuilt-design.md`. The first way is not built.
+
 
 - 12.8 s of `astro build` is Vite's client bundle, mostly the editor (chunks over 500 kB). A content save does not change
   it. Two ways, to be weighed in a short spec first:
