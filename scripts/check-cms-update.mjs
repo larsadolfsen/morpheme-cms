@@ -77,6 +77,7 @@ const manifestOf = (version, extra = {}) => ({
  */
 function world({ range = '0.1.0', latest = '0.1.1', manifestExtra = {}, lock = true } = {}) {
   const files = {
+    'wrangler.jsonc': '{\n  "build": {\n    "command": "npm run check && npm run build",\n  },\n}\n',
     'package.json': JSON.stringify({ name: 'site', dependencies: { [PACKAGE]: range } }, null, 2) + '\n',
     'package-lock.json':
       JSON.stringify(
@@ -157,6 +158,11 @@ const post = (version) =>
     entry.version === '0.1.1' && entry.resolved === manifestOf('0.1.1').dist.tarball && entry.integrity === 'sha512-0.1.1',
     'the lock did not get the resolved and integrity of 0.1.1',
   );
+  expect(
+    w.files['wrangler.jsonc'].includes('"command": "npx morpheme ci-build"') &&
+      w.commits[0].changes.some((c) => c.path === 'wrangler.jsonc'),
+    'the update did not move the build command to morpheme ci-build',
+  );
   expect(w.files['package.json'].endsWith('}\n') && w.files['package-lock.json'].endsWith('}\n'), 'the files did not end with a newline');
   const update = stored(w.kv, 'cms:update');
   expect(
@@ -176,6 +182,7 @@ const post = (version) =>
   w.checks.c1 = 'failure';
   await watchUpdate(w.env, w.deps, T0 + 2 * MINUTE);
   expect(w.commits.length === 2 && w.commits[1].headline === commitUndo('0.1.1'), 'en fejlet opdatering blev ikke fortrudt med en commit');
+  expect(!w.commits[1].changes.some((c) => c.path === 'wrangler.jsonc'), 'the undo wrote wrangler.jsonc again');
   expect(JSON.parse(w.files['package.json']).dependencies[PACKAGE] === '0.1.0', 'fortrydelsen skrev ikke 0.1.0 tilbage');
   expect(
     JSON.parse(w.files['package-lock.json']).packages[`node_modules/${PACKAGE}`].integrity === 'sha512-0.1.0',
