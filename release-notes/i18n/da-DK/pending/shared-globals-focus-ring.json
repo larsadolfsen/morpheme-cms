@@ -1,7 +1,0 @@
-{
-  "id": "shared-globals-focus-ring",
-  "kind": "paragraph",
-  "mark": "improvement",
-  "title": "Fokusring",
-  "text": "Du kan se, hvor tastaturet er. Alle dele viser den samme ring i din primærfarve, 3 dp tyk, når du når dem med Tab. Hover, tryk og deaktiveret ser ud som før."
-}

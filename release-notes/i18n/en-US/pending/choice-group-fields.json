@@ -1,7 +1,0 @@
-{
-  "id": "choice-group-fields",
-  "kind": "paragraph",
-  "mark": "improvement",
-  "title": "Style choices",
-  "text": "Choices like a button’s style no longer squeeze together in a narrow sheet. When they don’t fit on one line, they show as a list, one per row, and the button style shows a small sample of each. Short choices stay side by side."
-}

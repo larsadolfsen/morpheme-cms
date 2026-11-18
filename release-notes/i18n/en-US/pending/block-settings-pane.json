@@ -1,7 +1,0 @@
-{
-  "id": "block-settings-pane",
-  "kind": "paragraph",
-  "mark": "improvement",
-  "title": "Settings pane",
-  "text": "The page stays in view while you change things. Block, section, link, list, widget and redirect settings open in a pane at the right, and so do a file’s details. Block changes apply at once, and Undo takes one back. On a phone they stay a page."
-}

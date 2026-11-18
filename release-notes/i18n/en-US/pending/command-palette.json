@@ -1,7 +1,0 @@
-{
-  "id": "command-palette",
-  "kind": "paragraph",
-  "mark": "feature",
-  "title": "Command palette",
-  "text": "Finding a screen or a page no longer means clicking through menus. Press Ctrl+K, or the search icon in the top bar, type a name and press Enter to go there. What you picked last comes first, and it stays in this browser."
-}

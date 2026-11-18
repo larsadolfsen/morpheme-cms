@@ -1,7 +1,0 @@
-{
-  "id": "crop-view",
-  "kind": "paragraph",
-  "mark": "feature",
-  "title": "Crop view",
-  "text": "A small frame made it hard to place an image. Tap an image, choose Crop, and drag or pinch the image in a view of its own; the part outside the frame is darkened. Aspect ratio sets the frame, and Original shows the whole image."
-}

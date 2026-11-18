@@ -1,6 +1,0 @@
-{
-  "id": "list-columns-container-query",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "A list row keeps its headline and text under each other in a narrow column, and puts them side by side only when the row is wide"
-}

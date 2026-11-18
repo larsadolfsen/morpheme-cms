@@ -1,7 +1,0 @@
-{
-  "id": "saves-go-live-sooner",
-  "kind": "paragraph",
-  "mark": "improvement",
-  "title": "Rettelser går hurtigere live",
-  "text": "En rettelse når din hjemmeside cirka et minut hurtigere, fordi en opbygning, der kun ændrer indhold, springer kodetjekkene over. Næste Morpheme-opdatering flytter din hjemmeside til den hurtigere opbygning af sig selv. En ny Morpheme-version kører stadig alle tjek."
-}
