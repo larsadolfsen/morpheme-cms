@@ -257,6 +257,36 @@ shards are quicker than these. The time outside that step (`npm ci`, the build a
 three quarters of the pull requests in the history of 0.18 still select every unit, so the gain on a real run is smaller than the table.
 The CI timing of the whole check (before and after, same pull request) is read from the first runs of this pull request and A2's against the numbers above.
 
+### A7 as built (`static` reads the build, Prettier on changed files, tsc build info)
+
+- **`static` does not build.** `npm run check` is now `format:check`, `check:source` (every check up to `check:types`), `npm run build`, `check:built`
+  (`check:site-types`, `check:editor`), in the order it had. In CI `static` needs `build` and unpacks the same tarball the screens jobs use
+  (`.github/actions/prepare`, `build: 'true'`), so it runs `check:source` and `check:built` and no `npm run build`. The build is made from the same head by the job `build` (or
+  its kept build of the same input hash), and its content check (`check-content`) runs inside `npm run build`, so nothing is checked less. A docs-only pull request has no `build` job; there
+  `static` runs `npm run build` itself, as before. A failed `build` skips `static`, and `check` reads a skipped `static` as red.
+- **Prettier on the changed files.** `formatScope` in `scripts/ci-changes.mjs` (the job `changes` prints `format=all|changed`; tested). `changed` at the feature and
+  line levels: `git diff --name-only --diff-filter=d origin/<base>...HEAD` piped to `prettier --check --ignore-unknown`. `all` (`npm run format:check`) at the full
+  level, for the Release PR, an empty diff, any error, and when Prettier's own inputs change (`.prettierrc*`, `.prettierignore`, `.editorconfig`, `package.json`,
+  `package-lock.json`, `check.yml`).
+- **tsc build info.** `npm run check:types` writes `.morpheme/tsc/types.tsbuildinfo` (`--incremental --tsBuildInfoFile`). `static` restores it from the Actions cache by
+  `scripts/ci-tsc-key.mjs` (`lib/outputKey.mjs` over TypeScript's version, `tsconfig.types.json`, `package.json`, `package-lock.json`, the Node major): the key is the prefix, so a
+  change to any of them starts cold. A changed source file is not in the key: the info holds a hash of every file it read and tsc compares them itself.
+  `cache-fill.yml` writes the same info on each push to a feature branch or version line, so a pull request into it restores a warm one.
+  Checked: with a warm info, a new syntax error in a file is reported, and gone when the file is removed; a cold run and a warm one give the same result.
+
+**Measured (local, this development container, one run each, 18 November 2026; Node 22, TypeScript 7.0.2, `npm ci` done).** The CI run times are added from the first runs of this pull request.
+
+| Step | Before | After |
+| :--- | :--- | :--- |
+| Prettier, every file | 18.4 s | 0.9 s on the 9 files of this pull request's diff (`changed`) |
+| `npm run build` inside `static` | 32 s | 0 (the artifact is unpacked) |
+| `check:types`, cold info | 0.8 s | 0.8 s |
+| `check:types`, warm info | 0.8 s | 0.4 s |
+
+TypeScript 7 is so fast that the build info saves only about 0.4 s; the cache is kept as asked and costs almost nothing, but it is not where the time is.
+The saving in `static` is the second build (about 30 s of runner time, more on a CI runner) and Prettier over every file. `static` now waits for `build`, so its wall time
+is `build` plus the rest, still shorter than the screens shards that also wait for `build`.
+
 ### A11 as built (`npm run check:fast`)
 
 `npm run check:fast` (`scripts/check-fast.mjs` runs, `scripts/check-fast-plan.mjs` decides; tests: `scripts/check-fast-plan.test.mjs`). It finds the base

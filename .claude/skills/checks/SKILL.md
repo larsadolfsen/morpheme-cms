@@ -11,7 +11,7 @@ Announce "Using checks". Run every command from the root of this repository, on 
 ## What CI runs
 
 **The direction (owner, 18 Nov 2026): test less, but always the important things.** Plan:
-`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A. The levels below are the target; PR 1 (levels), PR 2 (build once, cached Chromium) and PR 3 (core set and touched areas) and PR 8 (shards balanced by time) are built (what runs today is in the next table and below), PR 4, 5, 6 and the other new ones are not yet.
+`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A. The levels below are the target; PR 1 (levels), PR 2 (build once, cached Chromium) and PR 3 (core set and touched areas), PR 8 (shards balanced by time) and A7 (`static` reads the build) are built (what runs today is in the next table and below), PR 4, 5, 6 and the other new ones are not yet.
 
 | Merge | Check |
 | :--- | :--- |
@@ -82,6 +82,14 @@ shard sets a shorter wall time (`scripts/screens/support/balance.mjs`, tested in
 - **When in doubt.** A missing, unreadable or empty times file deals by number (`index % N` among the selected units), as before. A time never
   skips, disables or deletes a unit. A change to the times file or the refresh script runs no extra unit (`areas.mjs`, rule `none`).
 - **The number of shards** is the matrix of the `screens` job in `check.yml`; choose it from the refresh script's table, not by hand.
+
+**Built (A7, `static` reads the build).** `static` needs `build` and unpacks its artifact: it runs `npm run check:source` (the checks of `npm run check` before the
+build, types included) and `npm run check:built` (`check:site-types`, `check:editor`) and does not run `npm run build` again; a docs-only pull request has no `build`, so
+`static` builds there. `npm run check` is unchanged for a local run (`format:check`, `check:source`, `build`, `check:built`). At the feature and line levels Prettier checks only
+the files the pull request changed against its base (`formatScope` in `scripts/ci-changes.mjs`, `format=changed` from the job `changes`); the full level, the Release PR, an
+empty diff, any error and a change to Prettier's settings or packages (`.prettierrc*`, `.prettierignore`, `.editorconfig`, `package.json`, `package-lock.json`, `check.yml`)
+check every file. `npm run check:types` keeps `.morpheme/tsc/types.tsbuildinfo`; `static` restores it from the cache under the key of `scripts/ci-tsc-key.mjs` (TypeScript, `tsconfig.types.json`,
+the lock file, Node), and tsc itself compares the source files, so a cold run and a warm one give the same result.
 
 Not built yet: the starter smoke test (PR 4), the daily
 full run on feature branches (PR 5), `next` builds from a version line (PR 6).

@@ -7,7 +7,7 @@
 # set-up as the jobs of check.yml (the local action .github/actions/prepare, so the keys are the same) and saves the caches, so the next pull request
 # into the branch restores them.
 #
-# It does nothing else: no build (a pull request's inputs rarely equal the branch's, so a kept build would almost never hit), no check, no write
+# It does nothing else (besides tsc's build info, A7): no build (a pull request's inputs rarely equal the branch's, so a kept build would almost never hit), no check, no write
 # permission. A push to a branch runs it once, an extra run beside check.yml's (free in this public repository; a merge into a feature branch is a push).
 name: Fill caches
 
@@ -32,3 +32,14 @@ jobs:
       - uses: ./.github/actions/prepare
         with:
           browser: 'true'
+      # tsc's build info (A7): the same key as the job `static` of check.yml (scripts/ci-tsc-key.mjs), so a pull request into this branch restores it and tsc
+      # re-reads only what changed. This run only writes the info; a type error here is the pull request's check to report, not this workflow's.
+      - id: tsc
+        run: node scripts/ci-tsc-key.mjs >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: .morpheme/tsc
+          key: tsc-${{ steps.tsc.outputs.key }}-${{ github.sha }}
+          restore-keys: tsc-${{ steps.tsc.outputs.key }}-
+      - run: npm run check:types
+        continue-on-error: true

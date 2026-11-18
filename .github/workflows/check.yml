@@ -11,6 +11,8 @@
 # merge-0.18-into-main-N) and the Release PR run EVERYTHING; nothing reaches npm `next` or the owner without a full run. The job
 # `changes` prints light=true|false (scripts/ci-changes.mjs isLight); any error gives light=false, so everything runs. The changeset
 # check stays on every pull request. The rule lives in .claude/skills/checks, "What CI runs". The changeset is compared with the pull request's own base branch. Free here: the repository is public.
+# STATIC READS THE BUILD (plan A7): the job `static` takes the build of the job `build` instead of building again (a docs-only pull request, which has no
+# `build`, builds in `static`), Prettier checks only the changed files at the light levels, and tsc keeps its build info in the cache.
 # BUILD ONCE (plan PR 2): the job `build` runs npm run build once (and not at all when the hash of its inputs matches a kept build); screens,
 # screens-extra and demo unpack its artifact instead of building, and Chromium comes from a cache (.github/actions/prepare). starter packs the package itself and builds nothing from it.
 # The slow parts run side by side as jobs of their own (the run takes about as long as the slowest), and the job named check
@@ -62,6 +64,7 @@ jobs:
       level: ${{ steps.diff.outputs.level }}
       light: ${{ steps.diff.outputs.light }}
       areas: ${{ steps.diff.outputs.areas }}
+      format: ${{ steps.diff.outputs.format }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -81,21 +84,43 @@ jobs:
             echo 'level=full' >> "$GITHUB_OUTPUT"
             echo 'light=false' >> "$GITHUB_OUTPUT"
             echo 'areas=all' >> "$GITHUB_OUTPUT"
+            echo 'format=all' >> "$GITHUB_OUTPUT"
           fi
 
-  # Prettier, the language and unit tests, types, the demo built and each of its pages the same after a save, and the changeset.
+  # Prettier, the language and unit tests, types, the demo (built once by the job `build`, not again here) and each of its pages the same after a
+  # save, and the changeset. The build is the one the job `build` made from this same head (artifact `build`), so `npm run build` is not run
+  # twice; a docs-only pull request has no `build` job, so static builds there itself, as `npm run check` does. A failed `build` skips this
+  # job, which `check` turns red. Prettier checks only the changed files at the light levels (`format` from the job `changes`) and
+  # everything at the full level; tsc keeps its build info in the cache under a key made of what tsc cannot see change (scripts/ci-tsc-key.mjs).
   static:
+    needs: [changes, build]
+    if: ${{ !cancelled() && needs.changes.result == 'success' && (needs.build.result == 'success' || needs.changes.outputs.docs_only == 'true') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
         with:
           # changeset status compares with origin/<the pull request's base branch>.
           fetch-depth: 0
-      - uses: actions/setup-node@v5
+      - uses: ./.github/actions/prepare
         with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
+          build: ${{ needs.changes.outputs.docs_only != 'true' && 'true' || 'false' }}
+      - id: tsc
+        run: node scripts/ci-tsc-key.mjs >> "$GITHUB_OUTPUT"
+      # The info is restored from the newest cache with the same key prefix (same TypeScript, options and lock file); tsc compares the hash of
+      # every source file with the info itself, so a stale info cannot hide an error, and a cold run gives the same result.
+      - uses: actions/cache@v4
+        with:
+          path: .morpheme/tsc
+          key: tsc-${{ steps.tsc.outputs.key }}-${{ github.sha }}
+          restore-keys: tsc-${{ steps.tsc.outputs.key }}-
+      - name: Prettier on every file
+        if: needs.changes.outputs.format != 'changed'
+        run: npm run format:check
+      - name: Prettier on the files the pull request changed
+        if: needs.changes.outputs.format == 'changed'
+        env:
+          BASE: ${{ github.base_ref }}
+        run: git diff --name-only -z --diff-filter=d "origin/$BASE...HEAD" | xargs -0 -r npx prettier --check --ignore-unknown --no-error-on-unmatched-pattern
       # Danish text only in the language files; scripts/check-language.mjs.
       - run: npm run check:language
       # The language check's and the text lookup's own tests.
@@ -103,9 +128,13 @@ jobs:
       - name: The pull request has a changeset
         if: github.head_ref != 'changeset-release/main' # The Release PR turns the changesets into CHANGELOG.md.
         run: npx changeset status --since=origin/${{ github.base_ref }}
-      # Prettier, the unit tests, the package's types, the demo built (its content checked by the editor's rules) and
-      # each of its pages the same after a save in the editor.
-      - run: npm run check
+      # The language, tokens, colours and rules, the unit tests and the package's types (npm run check without Prettier and the build).
+      - run: npm run check:source
+      - name: The demo built (a docs-only pull request has no build to take)
+        if: needs.changes.outputs.docs_only == 'true'
+        run: npm run build
+      # The demo's types and each of its pages the same after a save in the editor.
+      - run: npm run check:built
 
   # The editor and the demo built once (npm run build) for the jobs that read them: screens, screens-extra and demo unpack this one
   # tarball instead of each running npm run build. It runs when any of them can (not on a docs-only pull request). Nothing is
