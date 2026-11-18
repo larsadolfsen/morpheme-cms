@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { openEditor } from '../built-site.mjs';
-import { ROOT, browser, has, problems, shots, site } from './support/context.mjs';
+import { ROOT, blocksOf, browser, has, problems, shots, site } from './support/context.mjs';
 import { onTestPage, pressInsert } from './support/shared.mjs';
 
 /** The Image grid typed in place: `Add images` asks for several images of the Library (a tap selects, the button under them says how many it adds), puts them in the block as picked images, and a tap on an image opens its sheet with the text of its own, which the card then has as its alt text. */
@@ -399,6 +399,8 @@ async function checkCardsCarousel(width, height) {
   if (!(await root.count())) return (problems.push(`${label}: no Cards carousel on the Blocks page`), page.close());
   await root.scrollIntoViewIfNeeded();
   await page.waitForTimeout(500);
+  // The page is in the site's language, whatever the browser's: the expected texts are the site's own, from its language files.
+  const say = blocksOf(await page.evaluate(() => document.documentElement.lang)).cards;
   const m = await root.evaluate((el) => {
     const row = el.querySelector('[data-carousel-items]');
     const items = [...el.querySelectorAll('[data-carousel-item]')];
@@ -438,11 +440,11 @@ async function checkCardsCarousel(width, height) {
     if (m.radius !== '28px') problems.push(`${label}: the card's corners are ${m.radius}, not 28px`);
     if (m.dots !== m.items) problems.push(`${label}: ${m.dots} dots for ${m.items} cards`);
     if (!m.region) problems.push(`${label}: the carousel has no label`);
-    if (m.itemLabels.join() !== m.itemLabels.map((_, i) => `${i + 1} of ${m.items}`).join())
-      problems.push(`${label}: the cards are labelled "${m.itemLabels}", not "n of ${m.items}"`);
+    if (m.itemLabels.join() !== m.itemLabels.map((_, i) => say.slideOf(i + 1, m.items)).join())
+      problems.push(`${label}: the cards are labelled "${m.itemLabels}", not "${say.slideOf('n', m.items)}"`);
     if (m.pageOverflow) problems.push(`${label}: the page scrolls sideways`);
     const button = root.locator('[data-cards-show-all]');
-    if ((await button.textContent())?.trim() !== 'Show all') problems.push(`${label}: the button is not "Show all"`);
+    if ((await button.textContent())?.trim() !== say.showAll) problems.push(`${label}: the button is not "${say.showAll}"`);
     await button.click();
     await page.waitForTimeout(300);
     const open = await root.evaluate((el) => ({
@@ -452,7 +454,7 @@ async function checkCardsCarousel(width, height) {
       pressed: el.querySelector('[data-cards-show-all]').getAttribute('aria-expanded'),
       focus: document.activeElement === el.querySelector('[data-cards-show-all]'),
     }));
-    if (!open.expanded || open.grid !== 'grid' || open.text !== 'Show fewer' || open.pressed !== 'true' || !open.focus)
+    if (!open.expanded || open.grid !== 'grid' || open.text !== say.showFewer || open.pressed !== 'true' || !open.focus)
       problems.push(`${label}: "Show all" did not stack the cards in place with focus kept (${JSON.stringify(open)})`);
     await button.click();
     await page.waitForTimeout(300);

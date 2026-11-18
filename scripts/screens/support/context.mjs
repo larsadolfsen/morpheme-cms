@@ -39,6 +39,23 @@ export const {
   blocks: daBlocks,
 } = texts;
 
+// The same messages in English, for a check that reads the site's own texts: the site's page is in the site's language (`<html lang>`), not the
+// browser's, so a check on a site page picks its expected texts with `blocksOf(lang)` instead of writing them in one language.
+const enDir = fileURLToPath(new URL('../../../src/i18n/en-US/', import.meta.url));
+const enBundled = await build({
+  stdin: { contents: "export { blocks } from './blocks.ts';", resolveDir: enDir, loader: 'ts' },
+  bundle: true,
+  format: 'esm',
+  platform: 'neutral',
+  write: false,
+  logLevel: 'silent',
+});
+export const { blocks: enBlocks } = await import(
+  `data:text/javascript;base64,${Buffer.from(enBundled.outputFiles[0].text).toString('base64')}`
+);
+/** The block messages in a page's language (its `<html lang>`: `da-DK`, `en-US`, else English). */
+export const blocksOf = (lang) => (String(lang).toLowerCase().startsWith('da') ? daBlocks : enBlocks);
+
 // The theme's springs (lib/motion.ts, TypeScript too): what the bar's slide and fade must last and follow.
 const motionBundle = await build({
   entryPoints: [fileURLToPath(new URL('../../../lib/motion.ts', import.meta.url))],
