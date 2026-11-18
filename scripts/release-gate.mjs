@@ -4,12 +4,14 @@
 //   node scripts/release-gate.mjs           in publish.yml, job `release`, step `stage`, before `npm stage publish --tag latest`
 //   node scripts/release-gate.mjs --check   in check.yml, job `release-gate`, on the Release PR (branch changeset-release/main) only
 //
-// Both run the same two checks, in a checkout whose HEAD is the Release PR's merge commit (a pull_request run checks out the merge of the PR
+// Both run the same checks, in a checkout whose HEAD is the Release PR's merge commit (a pull_request run checks out the merge of the PR
 // into main, so HEAD^1 is the main commit that is about to be released; after the merge HEAD^1 is the same commit):
 //   (a) `npm view @morphemecms/cms@next gitHead` equals HEAD^1. The Release PR adds only the version and the changelog, so the `next` build
 //       of that main commit is the code that will be `latest`.
-//   (b) GET <STAGING_URL>/__staging/version answers 200 with the exact installed version as plain text (trimmed; written at build time, served by morpheme-staging's Worker, which answers
-//       200 only when its home page and /editor/ render).
+//   (b) GET <STAGING_URL>/__staging/version answers 200 with the exact installed version as plain text (trimmed; written at build time by
+//       morpheme-staging). A static file proves the build and the deploy, not that pages render, so also:
+//   (c) GET <STAGING_URL>/ and GET <STAGING_URL>/editor/ each answer 200 (the editor may answer its sign-in page). Redirects are whatever
+//       fetch does by itself. Each failure is its own problem line naming the URL and the status.
 // The staging address is the repository variable STAGING_URL (Settings > Secrets and variables > Actions > Variables), for example
 // https://staging.example.com. It is not kept in the repository; an empty one fails the gate with a clear message.
 import { execFileSync } from 'node:child_process';
@@ -17,6 +19,7 @@ import { fileURLToPath } from 'node:url';
 
 export const PACKAGE = '@morphemecms/cms';
 export const VERSION_PATH = '/__staging/version';
+export const PAGE_PATHS = ['/', '/editor/'];
 
 /**
  * @param {{
@@ -45,6 +48,12 @@ export async function gate({ parent, npmView, fetch: fetchFn, stagingUrl = '' })
     }
     const stagingProblem = await checkStaging(fetchFn, stagingUrl, nextVersion);
     if (stagingProblem) problems.push(stagingProblem);
+    if (stagingUrl.trim()) {
+      for (const path of PAGE_PATHS) {
+        const pageProblem = await checkPage(fetchFn, `${stagingUrl.trim().replace(/\/+$/, '')}${path}`);
+        if (pageProblem) problems.push(pageProblem);
+      }
+    }
   }
   return { ok: problems.length === 0, problems };
 }
@@ -69,6 +78,17 @@ async function checkStaging(fetchFn, stagingUrl, nextVersion) {
   }
   if (running !== nextVersion) return notRunning(`it runs ${running || 'an unknown version'}`);
   return '';
+}
+
+/** @returns {Promise<string>} the problem, or an empty string */
+async function checkPage(fetchFn, url) {
+  let response;
+  try {
+    response = await fetchFn(url, { signal: AbortSignal.timeout(30_000) });
+  } catch (error) {
+    return `staging page ${url} did not answer: ${error?.message ?? error}`;
+  }
+  return response.status === 200 ? '' : `staging page ${url} answered ${response.status}, must be 200`;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
