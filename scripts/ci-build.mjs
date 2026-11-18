@@ -25,7 +25,8 @@ function installedVersion() {
  * @param {typeof globalThis.fetch} [o.fetch]
  * @param {NodeJS.ProcessEnv} [o.env] MORPHEME_LIVE_URL, when set, is the address the live commit is read from instead of `https://<domain>`
  * @param {string} [o.cmsVersion] the installed @morphemecms/cms version (default: this package's)
- * @returns {Promise<{ lane: 'content' | 'full', reason: string, paths: string[] | null }>} any doubt gives the full lane.
+ * @returns {Promise<{ lane: 'content' | 'full', reason: string, paths: string[] | null, siteUrl?: string }>} siteUrl: the live address (also the one
+ *   the build takes unchanged image sizes from), when the config is known; any doubt gives the full lane.
  */
 export async function decideLane({ cwd, fetch = globalThis.fetch, env = process.env, cmsVersion = installedVersion() }) {
   let settings;
@@ -43,15 +44,16 @@ export async function decideLane({ cwd, fetch = globalThis.fetch, env = process.
   } catch {
     return { ...laneFor(null, settings, 'site config unknown'), paths: null };
   }
+  const siteUrl = env.MORPHEME_LIVE_URL ? env.MORPHEME_LIVE_URL.trim().replace(/\/+$/, '') : 'https://' + config.domain;
   const { paths, reason } = await changedSinceLive({
-    siteUrl: env.MORPHEME_LIVE_URL ? env.MORPHEME_LIVE_URL.trim().replace(/\/+$/, '') : 'https://' + config.domain,
+    siteUrl,
     cms: cmsVersion,
     cwd,
     fetch,
     branch: env.WORKERS_CI_BRANCH,
     repoBranch: config.repo.branch,
   });
-  return { ...laneFor(paths, settings, reason), paths };
+  return { ...laneFor(paths, settings, reason), paths, siteUrl };
 }
 
 /** Runs a command with the output shown and stops the build with its exit code when it fails. */
@@ -64,7 +66,7 @@ function step(tool, args, env = process.env) {
 
 async function main() {
   const cwd = process.cwd();
-  const { lane, reason, paths } = await decideLane({ cwd });
+  const { lane, reason, paths, siteUrl } = await decideLane({ cwd });
   console.log(`ci-build: ${lane} lane — ${reason}`);
   if (lane === 'full') {
     step('npm', ['run', 'check']);
@@ -75,7 +77,9 @@ async function main() {
     step('npm', ['run', 'check:editor']);
   }
   const head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd, encoding: 'utf8' }).trim();
-  step('npm', ['run', 'build'], { ...process.env, MORPHEME_CONTENT_CHECKED: head });
+  // The live site serves the image sizes and video stills of the last build; the build takes the unchanged ones from it
+  // (lib/variant-record.mjs); siteUrl is the live address decideLane used, so MORPHEME_LIVE_URL, when set, wins.
+  step('npm', ['run', 'build'], { ...process.env, MORPHEME_CONTENT_CHECKED: head, ...(siteUrl ? { MORPHEME_LIVE_URL: siteUrl } : {}) });
 }
 
 /**
