@@ -146,7 +146,7 @@ export const RULES = [
 
   // Everything the build, the package and the site are made of.
   [/^(pages|site|defaults|icons|starter|bin|scripts)\//, 'all'],
-  [/^(astro\.mjs|client\.d\.ts|package\.json|package-lock\.json|wrangler\.jsonc|tsconfig\.types\.json)$/, 'all'],
+  [/^(astro\.mjs|client\.d\.ts|package\.json|package-lock\.json|\.npmrc|wrangler\.jsonc|tsconfig\.types\.json)$/, 'all'],
 ];
 
 /**

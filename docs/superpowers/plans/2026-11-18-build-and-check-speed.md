@@ -121,6 +121,58 @@ no times, or unreadable ones, deal by number as before.
   selected run is shorter by design).
 
 
+#### A2: what is built and what it measured
+
+Built in two pull requests: #924 (build once, cache Chromium) and a second one (the output key and the faster install).
+
+- **Build once** (#924). The job `build` runs `npm ci` and `npm run build` once and uploads one tarball (`.morpheme/demo/site` and
+  `node_modules/@morphemecms/cms`, 18 MB); `screens`, `screens-extra` and `demo` unpack it. `starter` builds nothing from the demo (it packs
+  the package itself), so it only gets the Chromium cache. The shared steps are `.github/actions/prepare`.
+- **Block 1, outputs kept by their inputs.** `lib/outputKey.mjs` (test: `lib/outputKey.test.mjs`) makes the key from the paths and bytes of
+  the inputs and a few values; no file times. `scripts/ci-build-key.mjs` applies it to every tracked file except `docs/`, `.claude/`,
+  `.agents/`, `.changeset/` and `staging-watcher/`, plus the Node major version. The job `build` keeps its tarball in Actions' cache under
+  that key and builds only on a miss. A cache is read only by the same pull request (and the default branch), so it hits on a push that
+  changes no input (docs, a changeset) and on a re-run; the first run of a pull request that changes an input always builds. Track B's
+  batches 2 and 6 use the same function with their own inputs.
+- **Block 3, a faster install.** A root `.npmrc` with `prefer-offline`, `audit=false` and `fund=false` (not shipped; a site gets its own
+  from the starter in track B, batch 5). The browser is installed only in the jobs that run screens (`screens`, `screens-extra`, `starter`)
+  and cached in `~/.cache/ms-playwright`, keyed on the Playwright version.
+
+**Measured, #924** (light level, `static` and the 8 `screens` shards; before: run 44245479828 on a pull request into `0.18`, after: run
+44252865810, head `46ffd52`, the Chromium cache cold):
+
+| | Before | After |
+| :--- | :--- | :--- |
+| Whole run, wall-clock | 10m44s | 13m19s |
+| `static` | 1m57s | 2m04s |
+| `build` (new) | none | 56 s |
+| `screens`, 8 shards added up | 71.0 min | 70.9 min |
+| Set-up of a shard before its tests (`npm ci`, build, Chromium) | 45–87 s, outliers up to 3m47s | 31–62 s, two outliers 3m19s and 3m50s |
+
+It is not faster: the build now runs alone before the shards, and the cold cache left the Chromium outliers in place.
+
+**Measured, #928** (the output key and `.npmrc`; same light level, all 8 shards). The cold run, run 44255749452 (head `9aac220`), against the
+re-run of run 44258369589 (head `2169576`, attempt 2) after attempt 1 had filled the caches:
+
+| | Cold (first run) | Re-run, caches filled |
+| :--- | :--- | :--- |
+| Whole run, wall-clock | 14m41s | 11m09s |
+| `build` job | 1m05s (builds) | 7 s (kept-build hit: `prepare`, `npm run build` and `tar` skipped) |
+| `screens`, 8 shards added up | 70.5 min | 67.7 min |
+| Set-up of a shard (`prepare`: `npm ci`, unpack, Chromium) | 29–45 s, one shard 5m49s | 26–42 s, one shard 4m01s |
+| `npm ci` in `static` | 15 s | 15 s |
+
+- **The kept build works:** on a re-run the key matched and the build cost 7 s instead of about 1 minute.
+- **`.npmrc` made no difference to `npm ci`:** 14–15 s in `static` before (#924), with the `.npmrc` cold, and with it warm. The old flags
+  `--no-audit --no-fund` were already passed, and `setup-node` already restores npm's cache; the file keeps the three settings in one place.
+- **The Chromium cache cannot be seen in the step times:** the composite action reports one step, and the set-up of seven shards was 26–42 s
+  cold and warm. One shard in each run still took 4–6 minutes in `prepare`, so the slow installs are not (only) the browser download.
+  Whether the cache is hit is not proven by this; a `cache-hit` line in the log would prove it.
+- **A cache is not shared between pull requests.** Actions caches are scoped to the pull request's own ref and the default branch, and
+  `check.yml` never runs on a branch (only on pull requests), so a first run always starts cold. A workflow that runs on push to
+  `feature/**` and `0.*` and fills the caches is the fix (third A2 pull request).
+- The re-run is 4 minutes faster than the first run mostly because the build and the slowest installs were cheaper; the shard tests vary by
+  several minutes between runs (shard 2: 6m15s now, 6m24s cold), so one run is not a benchmark.
 ### A3 as built (touched areas and the core set)
 
 Built in `lib/affected.mjs` (the engine, tested in `lib/affected.test.mjs`, reusable by track B with its own rules),
