@@ -3,7 +3,7 @@
 // `changeset version --snapshot next`, and it can be run by hand as a dry run (see below). It publishes nothing.
 //
 // The tags (docs/superpowers/plans/2026-11-18-build-and-check-speed.md, "A6 as built"):
-//  - `main` stages under `next`, as always; staging-follows-next.yml and morpheme-staging follow only that tag.
+//  - `main` stages under `next`, as always; morpheme-staging follows only that tag (its own Worker checks npm hourly).
 //  - a version line's branch (`0.18`, `0.19` ...) stages under `next-<line>` (`next-0.18`), never under `next` and never `latest`, so
 //    three lines running together do not fight over one tag.
 // The version string is `<X.Y.Z>-next-<timestamp>` for both (changeset's snapshot), unique and sorted by its time. For a line it must

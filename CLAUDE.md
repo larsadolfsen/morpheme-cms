@@ -46,6 +46,9 @@ release without the owner's explicit yes in the conversation. That means:
   page).
 - Never create a version tag or a GitHub release, never run `release:version`, and never edit the `version` in
   `package.json` or `CHANGELOG.md` by hand.
+- Never release a product that hasn't been seen on staging (owner rule, 18 Nov 2026). The exact build that would be
+  released must already have run on `morpheme-staging` before anyone asks the owner for a release; a Release PR whose
+  version was never seen on staging is never merged, even with an earlier yes (skill `release`, Phases 1 and 2).
 
 Merging an ordinary pull request only stages a test version under the npm tag `next`, and the owner decides about that
 version too. An agent that thinks a release is due says so to the owner and waits. When the owner says `/release`, the

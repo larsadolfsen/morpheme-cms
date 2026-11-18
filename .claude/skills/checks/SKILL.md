@@ -50,7 +50,7 @@ as before. `starter` has no build to take (it packs the package and builds the s
 every job shares are the local action `.github/actions/prepare` (Node, `npm ci`, the artifact, Chromium). Chromium is cached in
 `~/.cache/ms-playwright`, keyed on the Playwright version; a hit skips the download and only the system libraries are installed with apt.
 The job `build` keeps its tarball in Actions' cache under `scripts/ci-build-key.mjs`'s key (`lib/outputKey.mjs`: the hash of every tracked file
-the build can read, except `docs/`, `.claude/`, `.agents/`, `.changeset/` and `staging-watcher/`, and the Node major version; never file times) and
+the build can read, except `docs/`, `.claude/`, `.agents/`, and `.changeset/`, and the Node major version; never file times) and
 builds only on a miss, which happens on the first run of a pull request that changes an input; a push that changes none (docs, a changeset) and a
 re-run take the kept build. A root `.npmrc` (`prefer-offline`, no audit, no fund) makes `npm ci` use the npm cache first.
 An Actions cache is read only by the branch that saved it, the default branch and a pull request into its base branch, and `check.yml` runs only on pull
@@ -145,7 +145,7 @@ checks read it (`grep` the scripts and tests) and change the list and its test i
 
 **`starter` and `demo` are also skipped when no changed file can affect them** (`needsStarterDemo` in `scripts/ci-changes.mjs`; the job
 `changes` prints `starter_demo=false`). Both jobs work on the package as it ships (`starter` packs it, `demo` builds the editor and the
-demo), so only paths that neither reads are skipped: docs, `.claude/`, `.agents/`, changesets, the other workflows, `staging-watcher/`,
+demo), so only paths that neither reads are skipped: docs, `.claude/`, `.agents/`, changesets, the other workflows,
 `*.test.*` files and the static-only check scripts and allowlists (`check-language`, `check-phosphor`, `check-web`, `check-editor-colors`,
 `check-colors`, `check-css-values`, `check-density`, `phosphor-allowlist.json`, `web-allowlist.json`). Everything else runs them: `src/`,
 `theme/`, `lib/`, `pages/`, `site/`, `worker/`, `bin/`, `defaults/`, `starter/`, `demo/`, `release-notes/`, `package.json`, the lock file,

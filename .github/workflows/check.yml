@@ -24,7 +24,7 @@
 #
 # A pull request that changes only files that neither `starter` nor `demo` read also skips those two (the 4 starter shards and the
 # demo): the job `changes` prints starter_demo=false, and scripts/ci-changes.mjs (needsStarterDemo) lists what is safe to skip
-# (docs, tests, .claude/, .agents/, changesets, the other workflows, staging-watcher/ and the static-only check scripts); the
+# (docs, tests, .claude/, .agents/, changesets, the other workflows and the static-only check scripts); the
 # workflow, ci-changes.mjs, the Release PR, an empty diff and any other path run them (when in doubt, run). `screens`,
 # `screens-extra` and `static` are not affected.
 #
@@ -264,11 +264,29 @@ jobs:
           browser: 'true'
       - run: npm run check:starter -- --smoke
 
+  # THE RELEASE GATE (owner, 18 Nov 2026): on the Release PR only (branch changeset-release/main), red until npm's `next` was built from the code
+  # being released and staging runs it (scripts/release-gate.mjs --check; publish.yml runs the same before latest is staged). On every other
+  # pull request it is skipped. It needs no build and no `changes`; `check` waits for it. STAGING_URL is a repository variable.
+  release-gate:
+    if: github.event_name == 'pull_request' && github.head_ref == 'changeset-release/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # The pull request's merge commit; its first parent is the main commit being released.
+          fetch-depth: 2
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - run: node scripts/release-gate.mjs --check
+        env:
+          STAGING_URL: ${{ vars.STAGING_URL }}
+
   # The one status check that is required: green when static and changes are green and every heavy job is green, or skipped on a
   # docs-only pull request (a failed or wrongly skipped one fails it, a run cancelled because a newer push replaced its head does not, any other cancel does; scripts/ci-changes.mjs).
   check:
     if: always()
-    needs: [changes, static, build, screens, screens-extra, demo, starter, starter-smoke]
+    needs: [changes, static, build, screens, screens-extra, demo, starter, starter-smoke, release-gate]
     runs-on: ubuntu-latest
     # statuses: write only for the daily run's mark on the branch's head (scripts/daily-full.mjs); nothing else is written.
     permissions:
