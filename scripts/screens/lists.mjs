@@ -2,7 +2,17 @@ import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { clickPreview, openEditor, virtualFile } from '../built-site.mjs';
 import { BUILT_PAGE, LIST_PAGE, ROOT, block, browser, has, problems, shots, site } from './support/context.mjs';
-import { barTools, liveLists, onTestPage, openStyleMenu, pressInsert, pressMore, pressTool, ratioOf } from './support/shared.mjs';
+import {
+  animationsSettled,
+  barTools,
+  liveLists,
+  onTestPage,
+  openStyleMenu,
+  pressInsert,
+  pressMore,
+  pressTool,
+  ratioOf,
+} from './support/shared.mjs';
 
 /** The rows of a List and List - Expand are Material's: no list marker (list-style, ::marker), in the editor and in the Preview (where the page's text style, prose, must not reach them) and on the site. */
 async function checkListMarkers(width) {
@@ -103,6 +113,7 @@ async function checkListLeftEdge(width) {
   };
   if (await onTestPage(page, label)) {
     await page.waitForSelector('main .prose ul.block-list');
+    await animationsSettled(page);
     verify('on the site', await page.evaluate(measure, 'main .prose'));
     // Edge to edge, the layer of a Default list's row has square corners, also pointed at (owner, 16 Nov 2026: "No border radius when full width").
     if (width < 600) {
@@ -119,7 +130,7 @@ async function checkListLeftEdge(width) {
   await openEditor(page, site, { [BUILT_PAGE]: LIST_PAGE });
   await page.goto(`${site}/editor/#${BUILT_PAGE}`);
   await page.waitForSelector('.ProseMirror ul.block-list', { timeout: 30_000 });
-  await page.evaluate(() => document.fonts.ready);
+  await animationsSettled(page);
   verify('in the editor', await page.evaluate(measure, '.ProseMirror'));
   await page.close();
 }
