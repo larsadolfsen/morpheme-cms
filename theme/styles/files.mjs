@@ -24,6 +24,7 @@ export const UI_PART_FILES = [
   'top-app-bar.css',
   'menus.css',
   'navigation-bar.css',
+  'navigation-rail.css',
 ];
 
 /** The other CSS files base.css imports, which are not parts of ui.css. */
