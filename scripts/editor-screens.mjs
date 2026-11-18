@@ -36,6 +36,7 @@ import {
 } from './screens/support/context.mjs';
 import { coreSite } from './screens/support/shared.mjs';
 import { AREAS, CORE_UNITS } from './screens/support/areas.mjs';
+import { assignShards, readTimes } from './screens/support/balance.mjs';
 
 /** Each area's file, in alphabetical order (support/ is a folder, so it is not one of them). */
 const areaDir = new URL('./screens/', import.meta.url);
@@ -77,17 +78,24 @@ function selectedUnits() {
 }
 const selected = selectedUnits();
 
-/** One part of the checks that a shard runs whole or leaves out: the units are numbered in the order above (a selection keeps each
- * unit's number), a shard runs those with index % N = K - 1, counted among the selected units when there is a selection, so each
- * selected unit runs in exactly one shard and together the shards run all of them. */
-let unitNumber = 0;
-let selectedIndex = 0;
-for (const u of units) {
+/** One part of the checks that a shard runs whole or leaves out. The units are numbered in the order above (a selection keeps each
+ * unit's number). The selected units (all of them without a selection) are dealt to the shards by their measured time
+ * (scripts/screens/unit-times.json, support/balance.mjs), or by index % N when there are no times, so each selected unit runs in
+ * exactly one shard and together the shards run all of them. */
+const chosen = units.filter((u) => !selected || selected.has(u));
+const times = readTimes();
+const dealt = assignShards(
+  chosen.map((u) => u.name),
+  SHARDS,
+  times,
+);
+const shardOf = new Map(chosen.map((u, i) => [u, dealt[i]]));
+if (SHARDS > 1) console.log(times ? 'Units dealt to the shards by their measured time.' : 'No unit times: units dealt to the shards by number.');
+const numbers = new Map(units.map((u, i) => [u, i]));
+for (const u of chosen) {
   const { name, run } = u;
-  const number = unitNumber++;
-  if (selected && !selected.has(u)) continue;
-  const index = selected ? selectedIndex++ : number;
-  if (ONLY ? name !== ONLY : index % SHARDS !== SHARD - 1) continue;
+  const number = numbers.get(u);
+  if (ONLY ? name !== ONLY : shardOf.get(u) !== SHARD - 1) continue;
   if (LIST_ONLY) {
     console.log(`UNIT ${number} ${name}`);
     continue;

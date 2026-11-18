@@ -68,6 +68,8 @@ export const RULES = [
   [/^scripts\/screens-areas\.test\.mjs$/, 'all'],
   // An area's own file: that area.
   ...AREAS.map((a) => [new RegExp(`^scripts/screens/${a}\\.mjs$`), [a]]),
+  // The measured times and the script that refreshes them only decide which shard runs a unit, never which units run.
+  [/^scripts\/(screens\/unit-times\.json|refresh-unit-times\.mjs)$/, 'none'],
   [/^scripts\/screens\//, 'all'], // a file there that is no area yet
   // Tests run in `static` (npm test), never in a screens unit.
   [/\.test\.(mjs|js|ts|tsx)$/, 'none'],
