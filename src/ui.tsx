@@ -973,7 +973,7 @@ export function Notice({
     <SiteCard
       kind="filled"
       role={role}
-      className={onClose ? 'mo-editor-gapped mo-editor-notice mo-editor-notice-closable' : 'mo-editor-gapped mo-editor-notice'}
+      className={onClose ? 'mo-editor-gapped-100 mo-editor-notice mo-editor-notice-closable' : 'mo-editor-gapped-100 mo-editor-notice'}
     >
       <p className="mo-editor-notice-title">{title}</p>
       <div className="mo-editor-notice-text">{children}</div>
@@ -1169,7 +1169,7 @@ export function Checkbox({
 export function FieldGroup({ label, hint, children }: { label: string; hint?: ReactNode; children: ReactNode }) {
   const id = useId();
   return (
-    <div role="group" aria-labelledby={id} className={`${siteCardClass('outlined')} mo-editor-rhythm mo-editor-field-group`}>
+    <div role="group" aria-labelledby={id} className={`${siteCardClass('outlined')} mo-editor-rhythm-250 mo-editor-field-group`}>
       <h3 id={id} className="mo-editor-field-group-title">
         {label}
       </h3>
@@ -1435,7 +1435,7 @@ export function FoldItem({
       truncate
       actions={tools && <span className="mo-keep mo-editor-fold-tools">{tools}</span>}
     >
-      {open && <div className="mo-editor-rhythm editor-reveal mo-editor-fold-body">{children}</div>}
+      {open && <div className="mo-editor-rhythm-200 editor-reveal mo-editor-fold-body">{children}</div>}
     </ListItem>
   );
 }
@@ -1759,7 +1759,7 @@ export function ChipField({
     />
   );
   return (
-    <div className="mo-editor-gapped mo-editor-chip-field">
+    <div className="mo-editor-gapped-100 mo-editor-chip-field">
       {chips.length > 0 && (
         <div className="mo-editor-chips">
           {chips.map((w) => (
@@ -2406,7 +2406,7 @@ export function MenuRow<T extends string>({
 
 /** The fields of a sheet, between SheetTitle and SheetActions, scrolled when there are many. */
 export function SheetBody({ onSubmit, children }: { onSubmit?: (e: FormEvent<HTMLFormElement>) => void; children: ReactNode }) {
-  const className = 'mo-editor-rhythm mo-editor-sheet-body';
+  const className = 'mo-editor-rhythm-250 mo-editor-sheet-body';
   return onSubmit ? (
     <form className={className} onSubmit={onSubmit}>
       {children}
@@ -2521,13 +2521,13 @@ export function ColorsPreview({ colors, title }: { colors: Record<string, string
     '--mo-comp-button-filled-label-text-color': 'var(--mo-sys-color-on-primary)',
   } as CSSProperties;
   return (
-    <div style={vars} aria-label={title} role="img" className="mo-editor-rhythm mo-editor-colors-preview">
+    <div style={vars} aria-label={title} role="img" className="mo-editor-rhythm-150 mo-editor-colors-preview">
       <p className="mo-type-body-large mo-editor-colors-preview-heading">{p.heading}</p>
       <p className="mo-editor-colors-preview-hint">{p.text}</p>
       <p>
         <span className="link">{p.link}</span>
       </p>
-      <div className="mo-editor-gapped mo-editor-colors-preview-card">
+      <div className="mo-editor-gapped-100 mo-editor-colors-preview-card">
         <p className="mo-editor-colors-preview-text">{p.card}</p>
         <p className="mo-editor-colors-preview-box">{p.box}</p>
       </div>
@@ -2929,7 +2929,7 @@ export function FoldSection({
           </button>
         )}
       </h2>
-      <div id={`${id}-body`} hidden={!open} className="mo-editor-rhythm editor-reveal mo-editor-section-body">
+      <div id={`${id}-body`} hidden={!open} className="mo-editor-rhythm-300 editor-reveal mo-editor-section-body">
         {children}
       </div>
     </section>
@@ -3122,7 +3122,7 @@ export function SharePreview({ image, domain, title, description }: { image: str
         className={`mo-editor-share-preview-image ${tall ? 'mo-editor-share-preview-image-tall' : ''}`}
         onLoad={(e) => setTall(e.currentTarget.naturalHeight >= e.currentTarget.naturalWidth)}
       />
-      <figcaption className="mo-editor-gapped mo-editor-share-preview-text">
+      <figcaption className="mo-editor-gapped-25 mo-editor-share-preview-text">
         <span className="mo-truncate mo-editor-share-preview-domain">{domain}</span>
         <span className="mo-clamp-2 mo-editor-share-preview-title">{title}</span>
         <span className="mo-clamp-2 mo-editor-share-preview-description">{description}</span>
@@ -3271,7 +3271,7 @@ export function SideSheet({
       backLabel={backLabel}
       className="editor-reveal mo-editor-selection-sheet"
     >
-      <div className="mo-editor-rhythm mo-editor-selection-sheet-body">{children}</div>
+      <div className="mo-editor-rhythm-250 mo-editor-selection-sheet-body">{children}</div>
     </SiteSideSheet>
   );
 }
@@ -3816,11 +3816,11 @@ export function FormColumns({
 }) {
   // On a wide computer screen (large) each of the right column's parts on the theme's outlined card.
   const carded = useAtLeast('large') && cards;
-  const right = `mo-editor-rhythm mo-editor-screen-column ${carded ? siteCardClass('outlined') : ''} ${sticky ? 'mo-editor-screen-column-sticky' : ''}`;
+  const right = `mo-editor-rhythm-300 mo-editor-screen-column ${carded ? siteCardClass('outlined') : ''} ${sticky ? 'mo-editor-screen-column-sticky' : ''}`;
   return (
     <div className={`mo-stack mo-editor-screen-layout ${pane ? '' : 'mo-editor-screen-grid'}`}>
       {first && <div className={`${right} ${side ? 'mo-editor-screen-row-first' : 'mo-editor-screen-row-span'}`}>{first}</div>}
-      <div className="mo-editor-rhythm mo-editor-screen-main">{main}</div>
+      <div className="mo-editor-rhythm-300 mo-editor-screen-main">{main}</div>
       {side && <div className={`${right} ${first ? 'mo-editor-screen-row-second' : 'mo-editor-screen-row-span'}`}>{side}</div>}
       {pane && (
         <div className="editor-section-pane mo-editor-section-pane">

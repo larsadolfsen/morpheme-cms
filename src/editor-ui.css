@@ -5,11 +5,23 @@
 @layer utilities {
   /* Space between the children, as the old space-y-* did it (the same margins at zero specificity, so a child's own margin rule still wins).
      mo-editor-gapped keeps its gap; mo-editor-rhythm also takes the person's density step (the rule after this layer). */
-  :where(.mo-editor-gapped > :not(:last-child)) {
-    margin-block: 0 var(--mo-comp-editor-gapped-space);
+  :where(.mo-editor-gapped-25 > :not(:last-child)) {
+    margin-block: 0 var(--mo-ref-space-25);
   }
-  :where(.mo-editor-rhythm > :not(:last-child)) {
-    margin-block: 0 var(--mo-comp-editor-rhythm-space);
+  :where(.mo-editor-gapped-100 > :not(:last-child)) {
+    margin-block: 0 var(--mo-ref-space-100);
+  }
+  :where(.mo-editor-rhythm-150 > :not(:last-child)) {
+    margin-block: 0 var(--mo-ref-space-150);
+  }
+  :where(.mo-editor-rhythm-200 > :not(:last-child)) {
+    margin-block: 0 var(--mo-ref-space-200);
+  }
+  :where(.mo-editor-rhythm-250 > :not(:last-child)) {
+    margin-block: 0 var(--mo-ref-space-250);
+  }
+  :where(.mo-editor-rhythm-300 > :not(:last-child)) {
+    margin-block: 0 var(--mo-ref-space-300);
   }
 
   /* The focus ring of a control that has no outline: two dp of the primary colour, on a light gap where the old ring-offset was used. */
@@ -78,12 +90,9 @@
   }
   .mo-editor-field-count {
     margin-block-start: var(--mo-ref-space-50);
-    text-align: end;
+    text-align: right;
     font-size: var(--mo-sys-typescale-body-small-size);
     line-height: var(--mo-sys-typescale-body-small-line-height);
-  }
-  .mo-editor-field-group {
-    --mo-comp-editor-rhythm-space: var(--mo-ref-space-250);
   }
   .mo-editor-field-group-title {
     font-weight: 600;
@@ -120,9 +129,6 @@
   }
 
   /* Notice, empty note, problem note. */
-  .mo-editor-notice {
-    --mo-comp-editor-gapped-space: var(--mo-ref-space-100);
-  }
   .mo-editor-notice-closable {
     position: relative;
     padding-inline-end: var(--mo-ref-space-700);
@@ -333,7 +339,6 @@
 
   /* The preview of a colour scheme (ColorsPreview). */
   .mo-editor-colors-preview {
-    --mo-comp-editor-rhythm-space: var(--mo-ref-space-150);
     border-radius: var(--mo-sys-shape-corner-large);
     border: 1px solid var(--mo-sys-color-outline-variant);
     background-color: var(--mo-sys-color-surface);
@@ -353,7 +358,6 @@
     line-height: var(--mo-sys-typescale-body-medium-line-height);
   }
   .mo-editor-colors-preview-card {
-    --mo-comp-editor-gapped-space: var(--mo-ref-space-100);
     border-radius: var(--mo-sys-shape-corner-medium);
     border: 1px solid var(--mo-sys-color-outline-variant);
     background-color: var(--mo-sys-color-surface-container-lowest);
@@ -445,7 +449,6 @@
     padding-inline-end: var(--mo-ref-space-75);
   }
   .mo-editor-fold-body {
-    --mo-comp-editor-rhythm-space: var(--mo-ref-space-200);
     padding-inline: var(--mo-ref-space-200);
     padding-block-start: var(--mo-ref-space-50);
     padding-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
@@ -463,9 +466,6 @@
   .mo-editor-sheet-search {
     margin-inline: var(--mo-ref-space-250);
     margin-block-end: var(--mo-ref-space-100);
-  }
-  .mo-editor-chip-field {
-    --mo-comp-editor-gapped-space: var(--mo-ref-space-100);
   }
   .mo-editor-choice-tile-image {
     aspect-ratio: 1 / 1;
@@ -570,7 +570,6 @@
 
   /* Sheets: the body, a list in a sheet, a group's title, its links and its actions. */
   .mo-editor-sheet-body {
-    --mo-comp-editor-rhythm-space: var(--mo-ref-space-250);
     min-block-size: 0;
     flex: 1;
     overflow-y: auto;
@@ -675,7 +674,7 @@
     border-radius: var(--mo-sys-block-radius-small);
     padding-inline: var(--mo-ref-space-150);
     padding-block: 1.125rem;
-    text-align: start;
+    text-align: left;
     font-weight: 600;
     transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -687,7 +686,6 @@
     }
   }
   .mo-editor-section-body {
-    --mo-comp-editor-rhythm-space: var(--mo-ref-space-300);
     padding-block-start: var(--mo-ref-space-100);
     padding-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   }
@@ -806,7 +804,6 @@
     object-position: 50% 20%;
   }
   .mo-editor-share-preview-text {
-    --mo-comp-editor-gapped-space: var(--mo-ref-space-25);
     border: 0 solid var(--mo-sys-color-outline-variant);
     border-block-start-width: 1px;
     padding-inline: var(--mo-ref-space-200);
@@ -872,10 +869,6 @@
     --mo-comp-stack-gap: var(--mo-ref-space-300);
     row-gap: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   }
-  .mo-editor-screen-column,
-  .mo-editor-screen-main {
-    --mo-comp-editor-rhythm-space: var(--mo-ref-space-300);
-  }
   .mo-editor-screen-main {
     min-inline-size: 0;
   }
@@ -915,9 +908,6 @@
     top: 2rem;
     max-block-size: calc(100dvh - 3rem);
     align-self: flex-start;
-  }
-  .mo-editor-selection-sheet-body {
-    --mo-comp-editor-rhythm-space: var(--mo-ref-space-250);
   }
   .mo-editor-section-list {
     --mo-comp-stack-gap: var(--mo-ref-space-50);
@@ -1086,7 +1076,7 @@
 /* The vertical rhythm follows the person's density step (the rules at the end of editor.css, which keyed on the old space-y-* classes): a gap of
    12 px or more between stacked parts takes the step, and a child with a margin of its own keeps it. Not in the layer, as the old rules were.
    The classes at the end of the list are the parts of this file that had a margin class (my-, mb-, m-0) before and so were left out. */
-.mo-editor-rhythm
+.mo-editor-rhythm-150
   > :not(
     :last-child,
     :has(+ [data-fold-section]),
@@ -1109,7 +1099,82 @@
     .mo-editor-section-pane-caption,
     .mo-editor-section-pane-title
   ) {
-  margin-block-end: calc(var(--mo-comp-editor-rhythm-space) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  margin-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+}
+.mo-editor-rhythm-200
+  > :not(
+    :last-child,
+    :has(+ [data-fold-section]),
+    [class*='my-'],
+    [class*='mb-'],
+    [class*='m-0'],
+    .mo-editor-field-label,
+    .mo-editor-field-hint,
+    .mo-editor-swatches-title,
+    .mo-editor-sheet-chips,
+    .mo-editor-sheet-search,
+    .mo-editor-choice-hint,
+    .mo-editor-section,
+    .mo-editor-score,
+    .mo-editor-main-drawer-header-divider,
+    .mo-editor-main-drawer-divider,
+    .mo-editor-sheet-phone,
+    .mo-editor-group-title,
+    .mo-editor-section-list,
+    .mo-editor-section-pane-caption,
+    .mo-editor-section-pane-title
+  ) {
+  margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+}
+.mo-editor-rhythm-250
+  > :not(
+    :last-child,
+    :has(+ [data-fold-section]),
+    [class*='my-'],
+    [class*='mb-'],
+    [class*='m-0'],
+    .mo-editor-field-label,
+    .mo-editor-field-hint,
+    .mo-editor-swatches-title,
+    .mo-editor-sheet-chips,
+    .mo-editor-sheet-search,
+    .mo-editor-choice-hint,
+    .mo-editor-section,
+    .mo-editor-score,
+    .mo-editor-main-drawer-header-divider,
+    .mo-editor-main-drawer-divider,
+    .mo-editor-sheet-phone,
+    .mo-editor-group-title,
+    .mo-editor-section-list,
+    .mo-editor-section-pane-caption,
+    .mo-editor-section-pane-title
+  ) {
+  margin-block-end: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+}
+.mo-editor-rhythm-300
+  > :not(
+    :last-child,
+    :has(+ [data-fold-section]),
+    [class*='my-'],
+    [class*='mb-'],
+    [class*='m-0'],
+    .mo-editor-field-label,
+    .mo-editor-field-hint,
+    .mo-editor-swatches-title,
+    .mo-editor-sheet-chips,
+    .mo-editor-sheet-search,
+    .mo-editor-choice-hint,
+    .mo-editor-section,
+    .mo-editor-score,
+    .mo-editor-main-drawer-header-divider,
+    .mo-editor-main-drawer-divider,
+    .mo-editor-sheet-phone,
+    .mo-editor-group-title,
+    .mo-editor-section-list,
+    .mo-editor-section-pane-caption,
+    .mo-editor-section-pane-title
+  ) {
+  margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
 
 /* The same parts inside a stack that is still written with space-y-* (the parts of src/ not yet moved off Tailwind): the rules at the end of
