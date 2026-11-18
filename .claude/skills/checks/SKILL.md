@@ -10,6 +10,19 @@ Announce "Using checks". Run every command from the root of this repository, on 
 
 ## What CI runs
 
+**The direction (owner, 18 Nov 2026): test less, but always the important things.** Plan:
+`docs/superpowers/plans/2026-11-18-ci-check-levels.md`. Until its pull requests are merged, CI runs as the rest of this section says.
+
+| Merge | Check |
+| :--- | :--- |
+| A piece into `feature/<name>` | **Feature check:** `static`, the build, the **core screens** (the editor opens, a page saves and publishes, the theme builds) and the screens areas the change touches. No full shards, no `starter`. |
+| Every feature branch, once a day | The full check, so a break shows within a day. |
+| A feature branch or a single pull request into a version line | **Line check:** `static`, the core screens, the touched areas, `demo` and the starter **smoke test** (the site builds; open, edit, save, publish). |
+| A version line into `main` (its release) and the Release PR | **Full check:** everything, with all starter shards. |
+
+Always tested, at every level: Prettier, types, `npm run check` (language, tokens, colours, rules), the changeset, the build, the core
+screens and the screens of what changed. Every browser job uses one shared build and a cached Chromium.
+
 `.github/workflows/check.yml` runs on every pull request into `main`, `0.17`, `0.18` and `0.19`, in two sizes (owner, 16 Nov 2026: a
 merge into a version line shows on the demo within minutes). Its job `check` waits for the jobs and must be green on the current head
 before the PM merges.
