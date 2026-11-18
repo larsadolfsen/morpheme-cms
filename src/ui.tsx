@@ -607,7 +607,7 @@ export function DateTimeField({
   const [day = '', time = ''] = value.split('T');
   const join = (d: string, h: string) => (d ? `${d}T${h || '00:00'}` : '');
   return (
-    <div className="editor-date-time-field">
+    <div className="mo-editor-date-time-field">
       <DatePicker id={id} {...field} value={day} onChange={(d) => onChange(join(d, time))} />
       <TimePicker id={`${id}-time`} value={time.slice(0, 5)} onChange={(h) => onChange(join(day, h))} />
     </div>
@@ -667,7 +667,7 @@ function hexOf({ h, s, v }: Hsv): string {
 
 const clamp = (n: number) => Math.min(1, Math.max(0, n));
 // The edge of a swatch: grey, so a light and a dark colour both show on a light and a dark sheet.
-const swatchEdge = 'editor-swatch-edge';
+const swatchEdge = 'mo-editor-swatch-edge';
 const percent = (n: number) => `${Math.round(n * 100)} %`;
 
 /** The colour as text, to type or paste (with or without #, also three digits). What is typed is taken
@@ -684,7 +684,7 @@ function ColorText({ id, value, label, onChange }: { id: string; value: string; 
     <SiteTextField
       id={id}
       aria-label={label}
-      className="mo-fill editor-hex-input"
+      className="mo-fill mo-editor-hex-input"
       error={wrong ? t.common.notAColor : undefined}
       value={typed}
       spellCheck={false}
@@ -723,8 +723,8 @@ function drag(onMove: (x: number, y: number) => void) {
 }
 
 // A field to drag in (the colour sheet's shades and hues, the colour wheel), and the round thumb on it.
-const ring = 'editor-drag-field';
-const thumb = 'editor-drag-thumb';
+const ring = 'mo-editor-drag-field';
+const thumb = 'mo-editor-drag-thumb';
 
 /** What is in the sheet a colour is picked in (ColorField): a field with its shades (saturation across,
  * brightness up) and a bar with the hues, both to drag in or move with the arrow keys; what it was and
@@ -775,7 +775,7 @@ function ColorSheet({
           aria-valuemax={100}
           aria-valuenow={Math.round(hsv.s * 100)}
           aria-valuetext={s.shadeValue(percent(hsv.s), percent(hsv.v))}
-          className={`editor-shade-field ${ring}`}
+          className={`mo-editor-shade-field ${ring}`}
           style={{ background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, hsl(${hsv.h} 100% 50%))` }}
           {...drag((x, y) => setHsv((c) => ({ ...c, s: x, v: 1 - y })))}
           onKeyDown={(e) =>
@@ -788,7 +788,7 @@ function ColorSheet({
           }
         >
           <span
-            className={`${thumb} editor-shade-thumb`}
+            className={`${thumb} mo-editor-shade-thumb`}
             style={{ left: `${hsv.s * 100}%`, top: `${(1 - hsv.v) * 100}%`, background: color }}
           />
         </div>
@@ -799,7 +799,7 @@ function ColorSheet({
           aria-valuemin={0}
           aria-valuemax={360}
           aria-valuenow={Math.round(hsv.h)}
-          className={`editor-hue-field ${ring}`}
+          className={`mo-editor-hue-field ${ring}`}
           style={{ background: 'linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)' }}
           {...drag((x) => setHsv((c) => ({ ...c, h: x * 360 })))}
           onKeyDown={(e) =>
@@ -811,22 +811,31 @@ function ColorSheet({
             })
           }
         >
-          <span className={`${thumb} editor-hue-thumb`} style={{ left: `${(hsv.h / 360) * 100}%`, background: `hsl(${hsv.h} 100% 50%)` }} />
+          <span
+            className={`${thumb} mo-editor-hue-thumb`}
+            style={{ left: `${(hsv.h / 360) * 100}%`, background: `hsl(${hsv.h} 100% 50%)` }}
+          />
         </div>
-        <div className="mo-row mo-row-start editor-color-row">
-          <div className={`mo-keep editor-color-compare ${swatchEdge}`}>
-            <span role="img" aria-label={s.before} title={s.before} className="editor-color-compare-half" style={{ background: value }} />
-            <span role="img" aria-label={s.after} title={s.after} className="editor-color-compare-half" style={{ background: color }} />
+        <div className="mo-row mo-row-start mo-editor-color-row">
+          <div className={`mo-keep mo-editor-color-compare ${swatchEdge}`}>
+            <span
+              role="img"
+              aria-label={s.before}
+              title={s.before}
+              className="mo-editor-color-compare-half"
+              style={{ background: value }}
+            />
+            <span role="img" aria-label={s.after} title={s.after} className="mo-editor-color-compare-half" style={{ background: color }} />
           </div>
           <ColorText id={`${id}-sheet`} label={s.code} value={color} onChange={take} />
         </div>
         {!!swatches?.length && (
           <div>
-            <h3 className="editor-swatches-title">{s.swatches}</h3>
-            <div role="group" aria-label={s.swatches} className="mo-grid editor-swatch-grid">
+            <h3 className="mo-editor-swatches-title">{s.swatches}</h3>
+            <div role="group" aria-label={s.swatches} className="mo-grid mo-editor-swatch-grid">
               {swatches.map((c) => (
                 <ChoiceTile key={c} selected={c === color} label={c} onClick={() => take(c)}>
-                  <span className={`editor-swatch ${swatchEdge}`} style={{ background: c }} />
+                  <span className={`mo-editor-swatch ${swatchEdge}`} style={{ background: c }} />
                 </ChoiceTile>
               ))}
             </div>
@@ -880,13 +889,13 @@ export function ColorField({
   const [opened, setOpened] = useState(0);
   const close = () => dialog.current?.close();
   return (
-    <div className="mo-row mo-row-start editor-color-row">
+    <div className="mo-row mo-row-start mo-editor-color-row">
       <button
         type="button"
         aria-haspopup="dialog"
         aria-label={t.common.pickColor(label)}
         title={t.common.pickColor(label)}
-        className={`editor-color-button ${swatchEdge}`}
+        className={`mo-editor-color-button ${swatchEdge}`}
         style={{ background: value }}
         onClick={() => {
           setOpened((n) => n + 1);
@@ -901,7 +910,7 @@ export function ColorField({
         tabIndex={-1}
         aria-label={label}
         onClick={(e) => e.target === dialog.current && close()}
-        className="editor-focus-quiet"
+        className="mo-editor-focus-quiet"
       >
         {opened > 0 && (
           <ColorSheet key={opened} id={id} title={label} value={value} swatches={swatches} onChange={onChange} onClose={close} />
@@ -917,13 +926,13 @@ export function Label({ htmlFor, children, hint }: { htmlFor?: string; children:
   return (
     <>
       {htmlFor ? (
-        <label htmlFor={htmlFor} className="editor-field-label editor-field-label-block">
+        <label htmlFor={htmlFor} className="mo-editor-field-label mo-editor-field-label-block">
           {children}
         </label>
       ) : (
-        <p className="editor-field-label">{children}</p>
+        <p className="mo-editor-field-label">{children}</p>
       )}
-      {hint && <span className="editor-field-hint">{hint}</span>}
+      {hint && <span className="mo-editor-field-hint">{hint}</span>}
     </>
   );
 }
@@ -931,7 +940,7 @@ export function Label({ htmlFor, children, hint }: { htmlFor?: string; children:
 /** Small muted text under a field or a part: what it does, what happens. */
 export function SupportingText({ id, children, className = '' }: { id?: string; children: ReactNode; className?: string }) {
   return (
-    <span id={id} className={`editor-supporting-text ${className}`}>
+    <span id={id} className={`mo-editor-supporting-text ${className}`}>
       {children}
     </span>
   );
@@ -940,7 +949,7 @@ export function SupportingText({ id, children, className = '' }: { id?: string; 
 /** The close button in the top end corner of a card that can be closed (a Notice, the first-run card): the
  * card must be `relative`. */
 export function CloseButton({ onClick }: { onClick: () => void }) {
-  return <IconButton icon={X} label={t.common.close} onClick={onClick} className="editor-close-button" />;
+  return <IconButton icon={X} label={t.common.close} onClick={onClick} className="mo-editor-close-button" />;
 }
 
 /** A message at the top of a screen about what it shows (an earlier version of a page): the theme's filled card with a
@@ -964,10 +973,10 @@ export function Notice({
     <SiteCard
       kind="filled"
       role={role}
-      className={onClose ? 'editor-gapped editor-notice editor-notice-closable' : 'editor-gapped editor-notice'}
+      className={onClose ? 'mo-editor-gapped mo-editor-notice mo-editor-notice-closable' : 'mo-editor-gapped mo-editor-notice'}
     >
-      <p className="editor-notice-title">{title}</p>
-      <div className="editor-notice-text">{children}</div>
+      <p className="mo-editor-notice-title">{title}</p>
+      <div className="mo-editor-notice-text">{children}</div>
       {action}
       {onClose && <CloseButton onClick={onClose} />}
     </SiteCard>
@@ -993,7 +1002,7 @@ export function SearchBar({
     <SiteSearchBar
       label={label}
       placeholder={t.common.search}
-      className={`editor-search-field ${className}`}
+      className={`mo-editor-search-field ${className}`}
       ref={inputRef}
       value={value}
       onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
@@ -1051,8 +1060,8 @@ export function SearchRow({
   className?: string;
 }) {
   return (
-    <div className={`editor-search-row ${className}`}>
-      <SearchBar {...search} className="editor-search-fill" />
+    <div className={`mo-editor-search-row ${className}`}>
+      <SearchBar {...search} className="mo-editor-search-fill" />
       {[sort, filter, date, seo, view].map(
         (tool, i) =>
           tool && (
@@ -1113,12 +1122,12 @@ export function FormField({
       </Label>
       {children}
       {problem && (
-        <p id={problem.id} className="editor-field-problem">
+        <p id={problem.id} className="mo-editor-field-problem">
           {problem.text}.
         </p>
       )}
       {count && (
-        <p className={`editor-field-count ${count.length > count.max ? 'editor-accent-text' : 'editor-muted-text'}`}>
+        <p className={`mo-editor-field-count ${count.length > count.max ? 'mo-editor-accent-text' : 'mo-editor-muted-text'}`}>
           {count.length} / {count.max}
         </p>
       )}
@@ -1160,8 +1169,8 @@ export function Checkbox({
 export function FieldGroup({ label, hint, children }: { label: string; hint?: ReactNode; children: ReactNode }) {
   const id = useId();
   return (
-    <div role="group" aria-labelledby={id} className={`${siteCardClass('outlined')} editor-rhythm editor-field-group`}>
-      <h3 id={id} className="editor-field-group-title">
+    <div role="group" aria-labelledby={id} className={`${siteCardClass('outlined')} mo-editor-rhythm mo-editor-field-group`}>
+      <h3 id={id} className="mo-editor-field-group-title">
         {label}
       </h3>
       {hint && <SupportingText>{hint}</SupportingText>}
@@ -1174,7 +1183,7 @@ export function FieldGroup({ label, hint, children }: { label: string; hint?: Re
  * was made), or `muted` (what is made elsewhere, as a page's address from its title). */
 export function ShownValue({ id, icon, muted, children }: { id?: string; icon?: Icon; muted?: boolean; children: ReactNode }) {
   return (
-    <p id={id} className={`mo-row editor-choice-row ${muted ? 'editor-muted-text' : ''}`}>
+    <p id={id} className={`mo-row mo-editor-choice-row ${muted ? 'mo-editor-muted-text' : ''}`}>
       {icon && <LeadingIcon icon={icon} />}
       <span className="mo-fill">{children}</span>
     </p>
@@ -1291,7 +1300,7 @@ export function IconPicker({
   const loading = searching && !all;
   return (
     <div id={id}>
-      <div className="mo-row editor-choice-row">
+      <div className="mo-row mo-editor-choice-row">
         {/* The icon, or a plus while there is none: the round control of the rows (SlotButton); a tap opens the icons. */}
         <SlotButton
           label={value ? t.forms.changeIcon : t.forms.pickIcon}
@@ -1305,7 +1314,7 @@ export function IconPicker({
         <span className="mo-fill mo-truncate">{chosen ? chosen.label : value ? iconLabel(value) : t.forms.noIconYet}</span>
       </div>
       {open && (
-        <div id={grid} className="editor-reveal editor-icon-picker-panel">
+        <div id={grid} className="editor-reveal mo-editor-icon-picker-panel">
           {onSearch && (
             <TextField
               type="search"
@@ -1320,7 +1329,7 @@ export function IconPicker({
             />
           )}
           {onSearch && (
-            <div className="editor-icon-picker-search">
+            <div className="mo-editor-icon-picker-search">
               <ChipSet label={t.forms.iconCategory} scroll>
                 {[
                   ['', t.forms.iconCategories.suggested] as const,
@@ -1340,7 +1349,7 @@ export function IconPicker({
               </ChipSet>
             </div>
           )}
-          <div role="group" aria-label={label} data-icon-grid data-icon-color={iconColor} className="editor-icon-picker-grid">
+          <div role="group" aria-label={label} data-icon-grid data-icon-color={iconColor} className="mo-editor-icon-picker-grid">
             {hits.slice(0, shown).map((o) => (
               <ChoiceTile
                 key={o.value || 'none'}
@@ -1351,19 +1360,19 @@ export function IconPicker({
                   if (!startOpen) setOpen(false);
                 }}
               >
-                {o.value ? icon(o.value, 24) : <X size={20} className="editor-muted-text" />}
+                {o.value ? icon(o.value, 24) : <X size={20} className="mo-editor-muted-text" />}
               </ChoiceTile>
             ))}
           </div>
           {hits.length > shown && (
-            <div ref={more} className="editor-icon-picker-more">
+            <div ref={more} className="mo-editor-icon-picker-more">
               <Button kind="text" size="small" onClick={() => setShown((n) => n + PAGE)}>
                 {t.forms.showMoreIcons}
               </Button>
             </div>
           )}
           {searching && !loading && hits.every((o) => !o.value) && (
-            <p role="status" className="editor-icon-picker-status">
+            <p role="status" className="mo-editor-icon-picker-status">
               {t.forms.noIconsFound}
             </p>
           )}
@@ -1378,8 +1387,8 @@ const PAGE = 100;
  * and with `onRemove` (when it may be left out) the button that takes it away. */
 export function ImagePick({ id, src, onPick, onRemove }: { id?: string; src?: string; onPick: () => void; onRemove?: () => void }) {
   return (
-    <div className="mo-row editor-image-pick">
-      {safeImageSrc(src) && <img src={safeImageSrc(src)} alt="" className="mo-keep editor-image-pick-thumb" />}
+    <div className="mo-row mo-editor-image-pick">
+      {safeImageSrc(src) && <img src={safeImageSrc(src)} alt="" className="mo-keep mo-editor-image-pick-thumb" />}
       <Button id={id} kind="outlined" size="small" onClick={onPick}>
         {src ? t.forms.changeImage : t.forms.pickImage}
       </Button>
@@ -1421,12 +1430,12 @@ export function FoldItem({
     <ListItem
       onClick={onToggle}
       aria-expanded={open}
-      leading={<CaretRight size={14} className={`mo-keep editor-fold-arrow ${open ? 'editor-fold-arrow-open' : ''}`} />}
+      leading={<CaretRight size={14} className={`mo-keep mo-editor-fold-arrow ${open ? 'mo-editor-fold-arrow-open' : ''}`} />}
       headline={title}
       truncate
-      actions={tools && <span className="mo-keep editor-fold-tools">{tools}</span>}
+      actions={tools && <span className="mo-keep mo-editor-fold-tools">{tools}</span>}
     >
-      {open && <div className="editor-rhythm editor-reveal editor-fold-body">{children}</div>}
+      {open && <div className="mo-editor-rhythm editor-reveal mo-editor-fold-body">{children}</div>}
     </ListItem>
   );
 }
@@ -1514,7 +1523,7 @@ export function usePickTools(all: Pickable[], keep: string) {
     ),
     filter: filters.length > 0 && <Filters title={t.library.filter} selected={chosen.length > 0} groups={filters} />,
     chips: chosen.length > 0 && (
-      <div className="mo-keep editor-sheet-chips">
+      <div className="mo-keep mo-editor-sheet-chips">
         {chosen.map((c) => (
           <InputChip key={c.key} removeLabel={t.library.removeFilter(c.label)} onRemove={c.clear}>
             {c.label}
@@ -1565,7 +1574,7 @@ export function MultiChoice({
   const shown = many ? tools.arrange(found) : found;
   return (
     <>
-      <div className="editor-chips">
+      <div className="mo-editor-chips">
         {value.map((v) => (
           <InputChip key={v} removeLabel={t.forms.removeOne(labelOf(v))} onRemove={() => toggle(v)}>
             {labelOf(v)}
@@ -1597,7 +1606,7 @@ export function MultiChoice({
               label={t.common.searchIn(label)}
               sort={tools.sort}
               filter={tools.filter}
-              className="mo-keep editor-sheet-search"
+              className="mo-keep mo-editor-sheet-search"
             />
             {tools.chips}
           </>
@@ -1623,7 +1632,7 @@ export function MultiChoice({
 export function ArrowLink({
   href,
   onClick,
-  className = 'editor-accent-text',
+  className = 'mo-editor-accent-text',
   children,
 }: {
   href: string;
@@ -1632,7 +1641,7 @@ export function ArrowLink({
   children: ReactNode;
 }) {
   return (
-    <a href={href} className={`editor-arrow-link ${className}`} onClick={onClick}>
+    <a href={href} className={`mo-editor-arrow-link ${className}`} onClick={onClick}>
       {children}
       <ArrowRight size={14} />
     </a>
@@ -1750,9 +1759,9 @@ export function ChipField({
     />
   );
   return (
-    <div className="editor-gapped editor-chip-field">
+    <div className="mo-editor-gapped mo-editor-chip-field">
       {chips.length > 0 && (
-        <div className="editor-chips">
+        <div className="mo-editor-chips">
           {chips.map((w) => (
             <InputChip key={w} removeLabel={t.forms.removeOne(w)} onRemove={() => remove(w)}>
               {w}
@@ -1802,7 +1811,7 @@ export function ChoiceTile({
       kind="outlined"
       shape="square"
       selected={selected}
-      className="editor-choice-tile-image"
+      className="mo-editor-choice-tile-image"
       onClick={onClick}
     />
   );
@@ -1908,16 +1917,16 @@ export function ChoiceCards<T extends string>({
   const name = useId();
   return (
     <fieldset>
-      <legend className="editor-field-label">{label}</legend>
-      {hint && <SupportingText className="editor-choice-hint">{hint}</SupportingText>}
-      <div className="mo-grid editor-choice-cards">
+      <legend className="mo-editor-field-label">{label}</legend>
+      {hint && <SupportingText className="mo-editor-choice-hint">{hint}</SupportingText>}
+      <div className="mo-grid mo-editor-choice-cards">
         {options.map(({ value: v, label: text, icon: Glyph, disabled }) => {
           const chosen = v === value;
           return (
             <label
               key={v}
-              className={`${siteCardClass('outlined')} editor-choice-card ${
-                disabled ? 'editor-choice-card-disabled' : chosen ? 'editor-choice-card-chosen' : 'editor-choice-card-idle'
+              className={`${siteCardClass('outlined')} mo-editor-choice-card ${
+                disabled ? 'mo-editor-choice-card-disabled' : chosen ? 'mo-editor-choice-card-chosen' : 'mo-editor-choice-card-idle'
               }`}
             >
               <input
@@ -1931,7 +1940,7 @@ export function ChoiceCards<T extends string>({
               />
               {Glyph && <Glyph size={32} aria-hidden="true" />}
               <span>{text}</span>
-              {chosen && <Check size={16} weight="bold" aria-hidden="true" className="editor-choice-card-check" />}
+              {chosen && <Check size={16} weight="bold" aria-hidden="true" className="mo-editor-choice-card-check" />}
             </label>
           );
         })}
@@ -1945,7 +1954,7 @@ export function ChoiceCards<T extends string>({
 
 /** The classes of the rows under a row in a list (a submenu): the theme's list, indented along a line, the text a little
  * lighter. */
-export const subListClass = `${siteListClass} editor-sub-list`;
+export const subListClass = `${siteListClass} mo-editor-sub-list`;
 
 /** What a row looks like besides the theme's list item: `accent`, a row that does something (Log out), in the accent
  * colour; `delete`, the row that deletes what a screen shows, alone in a Group at the bottom, in the middle in the error
@@ -1953,10 +1962,10 @@ export const subListClass = `${siteListClass} editor-sub-list`;
  * little lighter. */
 export type RowTone = 'accent' | 'delete' | 'muted' | 'sub';
 const toneClass: Record<RowTone, string> = {
-  accent: 'editor-accent-text',
-  delete: 'editor-row-delete',
-  muted: 'editor-muted-text',
-  sub: 'editor-row-sub',
+  accent: 'mo-editor-accent-text',
+  delete: 'mo-editor-row-delete',
+  muted: 'mo-editor-muted-text',
+  sub: 'mo-editor-row-sub',
 };
 
 /** A row in a list (Group, listClass): the theme's list item (Material 3's ListItem), with the editor's icons. A link
@@ -2006,7 +2015,7 @@ export function ListItem({
       ? (item.leading.props as { icon?: Icon; selected?: boolean; children?: ReactNode })
       : null;
   if (made) {
-    icon = made.icon ?? ((made.children || <span className="editor-icon-placeholder" />) as ReactElement<{ size?: number }>);
+    icon = made.icon ?? ((made.children || <span className="mo-editor-icon-placeholder" />) as ReactElement<{ size?: number }>);
     iconSelected = made.selected;
     item.leading = undefined;
   }
@@ -2244,11 +2253,11 @@ export function Menu({
           sheet.current?.close()
         }
         onClose={(e) => e.target === e.currentTarget && onClose()}
-        className="editor-focus-quiet"
+        className="mo-editor-focus-quiet"
       >
         <SheetTitle title={label} onClose={() => sheet.current?.close()} />
         <SheetList div>
-          <SiteMenu role="menu" aria-label={label} className="editor-menu-full">
+          <SiteMenu role="menu" aria-label={label} className="mo-editor-menu-full">
             {children}
           </SiteMenu>
         </SheetList>
@@ -2260,7 +2269,7 @@ export function Menu({
       ref={menu}
       role="menu"
       aria-label={label}
-      className="editor-menu dropdown-menu-menu editor-focus-quiet"
+      className="editor-menu dropdown-menu-menu mo-editor-focus-quiet"
       popover="manual"
       data-menu-attached={attached ? '' : undefined}
       data-menu-popup={popup}
@@ -2397,7 +2406,7 @@ export function MenuRow<T extends string>({
 
 /** The fields of a sheet, between SheetTitle and SheetActions, scrolled when there are many. */
 export function SheetBody({ onSubmit, children }: { onSubmit?: (e: FormEvent<HTMLFormElement>) => void; children: ReactNode }) {
-  const className = 'editor-rhythm editor-sheet-body';
+  const className = 'mo-editor-rhythm mo-editor-sheet-body';
   return onSubmit ? (
     <form className={className} onSubmit={onSubmit}>
       {children}
@@ -2410,13 +2419,13 @@ export function SheetBody({ onSubmit, children }: { onSubmit?: (e: FormEvent<HTM
 /** The choices of a sheet (Option), scrolled when there are many: a list, or with `div` groups of them
  * (SheetGroupTitle). */
 export function SheetList({ div, children }: { div?: boolean; children: ReactNode }) {
-  const className = 'editor-sheet-list';
+  const className = 'mo-editor-sheet-list';
   return div ? <div className={className}>{children}</div> : <ul className={className}>{children}</ul>;
 }
 
 /** The small heading over some of the choices in a sheet (Fixed pages, Pages). */
 export function SheetGroupTitle({ children }: { children: ReactNode }) {
-  return <h3 className="editor-sheet-group-title">{children}</h3>;
+  return <h3 className="mo-editor-sheet-group-title">{children}</h3>;
 }
 
 /** A link at the bottom of a sheet, under its choices and the theme's divider, to make something new elsewhere (Create
@@ -2433,7 +2442,7 @@ export function SheetLink({
   return (
     <div className="mo-keep">
       <SiteDivider />
-      <div className="editor-sheet-link">
+      <div className="mo-editor-sheet-link">
         <SiteButton kind="text" href={href} icon={<Plus />} onClick={onClick}>
           {children}
         </SiteButton>
@@ -2464,9 +2473,9 @@ export function SheetActions({
   return (
     <div className="mo-keep">
       <SiteDivider />
-      <div className="mo-row editor-sheet-actions">
+      <div className="mo-row mo-editor-sheet-actions">
         {start}
-        <Button kind="outlined" className="editor-push-end" onClick={onCancel}>
+        <Button kind="outlined" className="mo-editor-push-end" onClick={onCancel}>
           {cancel ?? t.common.cancel}
         </Button>
         <Button disabled={disabled} onClick={onDone}>
@@ -2488,7 +2497,7 @@ export function Preview({ children }: { children: ReactNode }) {
     <div
       role="region"
       aria-label={t.common.preview}
-      className="site-block-preview not-prose editor-block-preview"
+      className="site-block-preview not-prose mo-editor-block-preview"
       onClickCapture={(e) => {
         if ((e.target as HTMLElement).closest('a[href]')) e.preventDefault();
       }}
@@ -2512,20 +2521,20 @@ export function ColorsPreview({ colors, title }: { colors: Record<string, string
     '--mo-comp-button-filled-label-text-color': 'var(--mo-sys-color-on-primary)',
   } as CSSProperties;
   return (
-    <div style={vars} aria-label={title} role="img" className="editor-rhythm editor-colors-preview">
-      <p className="mo-type-body-large editor-colors-preview-heading">{p.heading}</p>
-      <p className="editor-colors-preview-hint">{p.text}</p>
+    <div style={vars} aria-label={title} role="img" className="mo-editor-rhythm mo-editor-colors-preview">
+      <p className="mo-type-body-large mo-editor-colors-preview-heading">{p.heading}</p>
+      <p className="mo-editor-colors-preview-hint">{p.text}</p>
       <p>
         <span className="link">{p.link}</span>
       </p>
-      <div className="editor-gapped editor-colors-preview-card">
-        <p className="editor-colors-preview-text">{p.card}</p>
-        <p className="editor-colors-preview-box">{p.box}</p>
+      <div className="mo-editor-gapped mo-editor-colors-preview-card">
+        <p className="mo-editor-colors-preview-text">{p.card}</p>
+        <p className="mo-editor-colors-preview-box">{p.box}</p>
       </div>
       {/* The secondary and tertiary colours, which a harmony on the colour wheel places. */}
-      <div className="mo-grid editor-colors-preview-pair">
-        <p className="editor-colors-preview-secondary">{p.secondary}</p>
-        <p className="editor-colors-preview-tertiary">{p.tertiary}</p>
+      <div className="mo-grid mo-editor-colors-preview-pair">
+        <p className="mo-editor-colors-preview-secondary">{p.secondary}</p>
+        <p className="mo-editor-colors-preview-tertiary">{p.tertiary}</p>
       </div>
       <span className="button button-filled button-small">{p.button}</span>
     </div>
@@ -2535,9 +2544,9 @@ export function ColorsPreview({ colors, title }: { colors: Record<string, string
 /** A few colours side by side in small circles, read out together as `label` (a variant's colours, ChoiceRow). */
 export function ColorSwatches({ colors, label }: { colors: string[]; label: string }) {
   return (
-    <span role="img" aria-label={label} className="mo-keep editor-color-dots">
+    <span role="img" aria-label={label} className="mo-keep mo-editor-color-dots">
       {colors.map((color, i) => (
-        <span key={i} className="editor-color-dot" style={{ background: color }} />
+        <span key={i} className="mo-editor-color-dot" style={{ background: color }} />
       ))}
     </span>
   );
@@ -2569,7 +2578,7 @@ export function ColorTiles({ colors, label }: { colors: ColorTile[]; label: stri
     <>
       <ul
         aria-label={label}
-        className={`editor-color-tiles ${swatchEdge}`}
+        className={`mo-editor-color-tiles ${swatchEdge}`}
         style={{ gridTemplateColumns: `repeat(${colors.length}, minmax(0, 1fr))` }}
       >
         {colors.map(({ color, name, disabled, locked, onChange, onLock }, i) => {
@@ -2582,10 +2591,10 @@ export function ColorTiles({ colors, label }: { colors: ColorTile[]; label: stri
             '--icon-button-standard-selected-text': text,
           } as CSSProperties;
           return (
-            <li key={name} className="mo-stack editor-color-tile" style={vars}>
-              <span className="editor-color-tile-name">{name}</span>
-              <span className="mo-truncate editor-color-tile-value">{color}</span>
-              <span className="editor-color-tile-actions">
+            <li key={name} className="mo-stack mo-editor-color-tile" style={vars}>
+              <span className="mo-editor-color-tile-name">{name}</span>
+              <span className="mo-truncate mo-editor-color-tile-value">{color}</span>
+              <span className="mo-editor-color-tile-actions">
                 {onChange && (
                   <IconButton
                     icon={PencilSimple}
@@ -2618,7 +2627,7 @@ export function ColorTiles({ colors, label }: { colors: ColorTile[]; label: stri
         tabIndex={-1}
         aria-label={tile?.name}
         onClick={(e) => e.target === dialog.current && close()}
-        className="editor-focus-quiet"
+        className="mo-editor-focus-quiet"
       >
         {editing.opened > 0 && tile?.onChange && (
           <ColorSheet
@@ -2729,7 +2738,7 @@ export function ColorWheel({
           })}
       aria-label={label}
       aria-disabled={disabled || undefined}
-      className={`editor-wheel ${swatchEdge} ${free ? 'editor-drag-free' : ring}`}
+      className={`mo-editor-wheel ${swatchEdge} ${free ? 'mo-editor-drag-free' : ring}`}
       style={{ background: `radial-gradient(closest-side, ${middle}, transparent), conic-gradient(${[...edge, edge[0]].join(', ')})` }}
       {...handlers}
       onKeyDown={free ? undefined : keys}
@@ -2748,7 +2757,7 @@ export function ColorWheel({
             'aria-valuetext': dot.color,
             onKeyDown: dotKeys(i),
           })}
-          className={`${thumb} editor-wheel-dot ${i ? 'editor-wheel-dot-small' : 'editor-wheel-dot-large'} ${free ? 'editor-wheel-dot-focus' : ''}`}
+          className={`${thumb} mo-editor-wheel-dot ${i ? 'mo-editor-wheel-dot-small' : 'mo-editor-wheel-dot-large'} ${free ? 'mo-editor-wheel-dot-focus' : ''}`}
           style={{
             left: `${(dot.x + 1) * 50}%`,
             top: `${(dot.y + 1) * 50}%`,
@@ -2768,7 +2777,7 @@ export function ColorWheel({
  * "Icon packs"): in the row's colour, as its own icons. */
 export function IconSwatches({ icons, label }: { icons: string[]; label: string }) {
   return (
-    <span role="img" aria-label={label} className="mo-keep editor-icon-dots">
+    <span role="img" aria-label={label} className="mo-keep mo-editor-icon-dots">
       {icons.map((file, i) => (
         <SvgFile key={i} file={file} />
       ))}
@@ -2801,9 +2810,9 @@ export function ChoiceRow({
       headline={headline}
       supporting={supporting}
       trailing={
-        <span className="mo-row editor-choice-row">
+        <span className="mo-row mo-editor-choice-row">
           {trailing}
-          <Check size={20} className={`mo-keep ${selected ? 'editor-accent-text' : 'editor-invisible'}`} />
+          <Check size={20} className={`mo-keep ${selected ? 'mo-editor-accent-text' : 'mo-editor-invisible'}`} />
         </span>
       }
     />
@@ -2823,7 +2832,7 @@ export const plainListClass = siteListClasses('standard');
 /** The small heading over a Group, and over what stands as one (the themes on Account): in Material 3's title small, as
  * written (not in capitals, Material 2's subheader), muted as a group's heading in a sheet (SheetGroupTitle). */
 export function GroupTitle({ children }: { children: ReactNode }) {
-  return <h2 className="mo-type-title-small editor-group-title">{children}</h2>;
+  return <h2 className="mo-type-title-small mo-editor-group-title">{children}</h2>;
 }
 
 /** The theme's ripple on every part the editor draws that is pressed (its buttons, rows, chips …), as on the site:
@@ -2834,7 +2843,7 @@ export const startRipples = siteRipples;
  * as big as the text, before what it is. */
 export function LoadingIndicator({ children }: { children: ReactNode }) {
   return (
-    <span className="editor-loading">
+    <span className="mo-editor-loading">
       <SiteLoadingIndicator label="" aria-hidden style={inText} />
       {children}
     </span>
@@ -2851,7 +2860,7 @@ const inText = {
 /** What a list or a screen says when it has nothing to show (No …), or while it is fetched (`busy`,
  * with the LoadingIndicator: Loading…): grey, in the middle. `item`: as an item of a list. */
 export function EmptyNote({ item, busy, children }: { item?: boolean; busy?: boolean; children: ReactNode }) {
-  const className = 'editor-empty-note';
+  const className = 'mo-editor-empty-note';
   const text = busy ? <LoadingIndicator>{children}</LoadingIndicator> : children;
   return item ? <li className={className}>{text}</li> : <p className={className}>{text}</p>;
 }
@@ -2860,7 +2869,7 @@ export function EmptyNote({ item, busy, children }: { item?: boolean; busy?: boo
  * not be read. `alert`: read by screen readers as soon as it is shown. */
 export function ProblemNote({ alert, children }: { alert?: boolean; children: ReactNode }) {
   return (
-    <div role={alert ? 'alert' : undefined} className="editor-problem-note">
+    <div role={alert ? 'alert' : undefined} className="mo-editor-problem-note">
       {children}
     </div>
   );
@@ -2869,7 +2878,7 @@ export function ProblemNote({ alert, children }: { alert?: boolean; children: Re
 /** A heading over fields in a form (Other fields, SEO); `first` at the top of a column, without the space
  * above it on a wide screen. */
 export function FormHeading({ first, children }: { first?: boolean; children: ReactNode }) {
-  return <h2 className={`mo-type-title-large editor-form-heading ${first ? 'editor-form-heading-first' : ''}`}>{children}</h2>;
+  return <h2 className={`mo-type-title-large mo-editor-form-heading ${first ? 'mo-editor-form-heading-first' : ''}`}>{children}</h2>;
 }
 
 /** A section of a long form that folds in and out (the sections of a page; Material 3 has no accordion, so it has its
@@ -2896,11 +2905,11 @@ export function FoldSection({
   const id = useId();
   if (fixed) open = true;
   return (
-    <section ref={ref} aria-labelledby={`${id}-title`} data-fold-section="" className="editor-fold-section">
+    <section ref={ref} aria-labelledby={`${id}-title`} data-fold-section="" className="mo-editor-fold-section">
       <h2>
         {fixed ? (
-          <span id={`${id}-title`} className="mo-type-title-large editor-fold-title">
-            <span className="mo-fill editor-fold-title-text">{title}</span>
+          <span id={`${id}-title`} className="mo-type-title-large mo-editor-fold-title">
+            <span className="mo-fill mo-editor-fold-title-text">{title}</span>
           </span>
         ) : (
           <button
@@ -2908,15 +2917,19 @@ export function FoldSection({
             id={`${id}-title`}
             aria-expanded={open}
             aria-controls={`${id}-body`}
-            className="mo-type-title-large editor-fold-toggle"
+            className="mo-type-title-large mo-editor-fold-toggle"
             onClick={onToggle}
           >
-            <span className="mo-fill editor-fold-title-text">{title}</span>
-            <CaretDown size={20} aria-hidden="true" className={`mo-keep editor-section-arrow ${open ? 'editor-arrow-flipped' : ''}`} />
+            <span className="mo-fill mo-editor-fold-title-text">{title}</span>
+            <CaretDown
+              size={20}
+              aria-hidden="true"
+              className={`mo-keep mo-editor-section-arrow ${open ? 'mo-editor-arrow-flipped' : ''}`}
+            />
           </button>
         )}
       </h2>
-      <div id={`${id}-body`} hidden={!open} className="editor-rhythm editor-reveal editor-section-body">
+      <div id={`${id}-body`} hidden={!open} className="mo-editor-rhythm editor-reveal mo-editor-section-body">
         {children}
       </div>
     </section>
@@ -2926,7 +2939,7 @@ export function FoldSection({
 /** Rows in the theme's segmented list, under a small heading: the start screen, the lists. Never with a note under it. */
 export function Group({ title, children }: { title?: string; children: ReactNode }) {
   return (
-    <section className="editor-section">
+    <section className="mo-editor-section">
       {title && <GroupTitle>{title}</GroupTitle>}
       <ul className={listClass}>{children}</ul>
     </section>
@@ -2944,19 +2957,19 @@ export type Check = { ok: boolean; text: string; fix?: string };
 // The ring's colours for each status, as whole class names (so Tailwind finds them).
 const statusTones = {
   good: {
-    fill: 'editor-check-good-fill',
-    stroke: 'editor-check-good-stroke',
-    text: 'editor-check-good-text',
+    fill: 'mo-editor-check-good-fill',
+    stroke: 'mo-editor-check-good-stroke',
+    text: 'mo-editor-check-good-text',
   },
   average: {
-    fill: 'editor-check-average-fill',
-    stroke: 'editor-check-average-stroke',
-    text: 'editor-check-average-text',
+    fill: 'mo-editor-check-average-fill',
+    stroke: 'mo-editor-check-average-stroke',
+    text: 'mo-editor-check-average-text',
   },
   bad: {
-    fill: 'editor-check-bad-fill',
-    stroke: 'editor-check-bad-stroke',
-    text: 'editor-check-bad-text',
+    fill: 'mo-editor-check-bad-fill',
+    stroke: 'mo-editor-check-bad-stroke',
+    text: 'mo-editor-check-bad-text',
   },
 };
 
@@ -2970,8 +2983,8 @@ const toneOf = (score: number) => statusTones[score >= 90 ? 'good' : score >= 50
 export function ScoreRing({ score, label, onClick }: { score: number; label: string; onClick?: () => void }) {
   const tone = toneOf(score);
   return (
-    <span role="img" aria-label={label} onClick={onClick} className="mo-keep editor-score-ring">
-      <svg viewBox="0 0 36 36" aria-hidden="true" className="editor-score-ring-svg">
+    <span role="img" aria-label={label} onClick={onClick} className="mo-keep mo-editor-score-ring">
+      <svg viewBox="0 0 36 36" aria-hidden="true" className="mo-editor-score-ring-svg">
         <circle cx="18" cy="18" r="15.9155" className={tone.fill} />
         <circle
           cx="18"
@@ -2985,7 +2998,7 @@ export function ScoreRing({ score, label, onClick }: { score: number; label: str
           className={tone.stroke}
         />
       </svg>
-      <span aria-hidden="true" className={`editor-score-ring-value ${tone.text}`}>
+      <span aria-hidden="true" className={`mo-editor-score-ring-value ${tone.text}`}>
         {score}
       </span>
     </span>
@@ -3034,9 +3047,9 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
   }, [seen, score]);
   const mark = (ok: boolean) =>
     ok ? (
-      <span aria-hidden="true" className="mo-keep editor-check-good-dot" />
+      <span aria-hidden="true" className="mo-keep mo-editor-check-good-dot" />
     ) : (
-      <svg aria-hidden="true" viewBox="0 0 12 12" className="mo-keep editor-check-bad-mark">
+      <svg aria-hidden="true" viewBox="0 0 12 12" className="mo-keep mo-editor-check-bad-mark">
         <path d="M6 1 11.5 11H.5Z" />
       </svg>
     );
@@ -3055,9 +3068,9 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
         aria-expanded={shown}
         leading={mark(item.ok)}
         headline={text}
-        trailing={<CaretDown size={18} className={`mo-keep editor-fold-arrow ${shown ? 'editor-arrow-flipped' : ''}`} />}
+        trailing={<CaretDown size={18} className={`mo-keep mo-editor-fold-arrow ${shown ? 'mo-editor-arrow-flipped' : ''}`} />}
       >
-        {shown && <p className="editor-reveal editor-check-fix">{item.fix}</p>}
+        {shown && <p className="editor-reveal mo-editor-check-fix">{item.fix}</p>}
       </ListItem>
     ) : (
       <ListItem key={item.text} leading={mark(item.ok)} headline={text} />
@@ -3066,9 +3079,9 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
   // The ring: its circle is 2πr = 100 long (r = 15.9155), so the score is how much of it is drawn.
   return (
     <div>
-      <div className="mo-stack editor-score">
-        <div ref={ring} className="editor-score-ring-large">
-          <svg viewBox="0 0 36 36" aria-hidden="true" className="editor-score-ring-svg">
+      <div className="mo-stack mo-editor-score">
+        <div ref={ring} className="mo-editor-score-ring-large">
+          <svg viewBox="0 0 36 36" aria-hidden="true" className="mo-editor-score-ring-svg">
             <circle cx="18" cy="18" r="15.9155" className={tone.fill} />
             <circle
               cx="18"
@@ -3079,14 +3092,14 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
               strokeLinecap="round"
               pathLength={100}
               strokeDasharray={`${seen ? score : 0} 100`}
-              className={`editor-score-arc ${seen && score > 0 ? '' : 'editor-score-arc-hidden'} ${tone.stroke}`}
+              className={`mo-editor-score-arc ${seen && score > 0 ? '' : 'mo-editor-score-arc-hidden'} ${tone.stroke}`}
             />
           </svg>
-          <span aria-hidden="true" className={`mo-type-display-small editor-score-ring-value-large ${tone.text}`}>
+          <span aria-hidden="true" className={`mo-type-display-small mo-editor-score-ring-value-large ${tone.text}`}>
             {shown}
           </span>
         </div>
-        {title && <h3 className="mo-type-title-large editor-score-title">{title}</h3>}
+        {title && <h3 className="mo-type-title-large mo-editor-score-title">{title}</h3>}
         <span className="mo-visually-hidden">{t.common.check.score(good.length, items.length)}</span>
       </div>
       {bad.length > 0 && <Group title={`${t.common.check.notOk} (${bad.length})`}>{bad.map(row)}</Group>}
@@ -3102,17 +3115,17 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
 export function SharePreview({ image, domain, title, description }: { image: string; domain: string; title: string; description: string }) {
   const [tall, setTall] = useState(false);
   return (
-    <figure aria-label={t.forms.sharePreview} className={`${siteCardClass('outlined')} editor-share-preview`}>
+    <figure aria-label={t.forms.sharePreview} className={`${siteCardClass('outlined')} mo-editor-share-preview`}>
       <img
         src={safeImageSrc(image)}
         alt=""
-        className={`editor-share-preview-image ${tall ? 'editor-share-preview-image-tall' : ''}`}
+        className={`mo-editor-share-preview-image ${tall ? 'mo-editor-share-preview-image-tall' : ''}`}
         onLoad={(e) => setTall(e.currentTarget.naturalHeight >= e.currentTarget.naturalWidth)}
       />
-      <figcaption className="editor-gapped editor-share-preview-text">
-        <span className="mo-truncate editor-share-preview-domain">{domain}</span>
-        <span className="mo-clamp-2 editor-share-preview-title">{title}</span>
-        <span className="mo-clamp-2 editor-share-preview-description">{description}</span>
+      <figcaption className="mo-editor-gapped mo-editor-share-preview-text">
+        <span className="mo-truncate mo-editor-share-preview-domain">{domain}</span>
+        <span className="mo-clamp-2 mo-editor-share-preview-title">{title}</span>
+        <span className="mo-clamp-2 mo-editor-share-preview-description">{description}</span>
       </figcaption>
     </figure>
   );
@@ -3137,13 +3150,13 @@ export function ImageCarousel({ label, images }: { label: string; images: { src:
             <button
               type="button"
               aria-haspopup="dialog"
-              className="editor-carousel-tile"
+              className="mo-editor-carousel-tile"
               onClick={() => {
                 setShown(x);
                 sheet.current?.showModal();
               }}
             >
-              <img src={x.src} alt={x.label} loading="lazy" className="editor-carousel-image" />
+              <img src={x.src} alt={x.label} loading="lazy" className="mo-editor-carousel-image" />
             </button>
           ),
         }))}
@@ -3157,7 +3170,7 @@ export function ImageCarousel({ label, images }: { label: string; images: { src:
         <SheetTitle title={shown?.label ?? ''} onClose={() => sheet.current?.close()} />
         {shown && (
           <SheetBody>
-            <img src={shown.src} alt={shown.label} className="editor-lightbox-image" />
+            <img src={shown.src} alt={shown.label} className="mo-editor-lightbox-image" />
           </SheetBody>
         )}
       </BottomSheet>
@@ -3256,9 +3269,9 @@ export function SideSheet({
       onClose={onClose}
       onBack={onBack}
       backLabel={backLabel}
-      className="editor-reveal editor-selection-sheet"
+      className="editor-reveal mo-editor-selection-sheet"
     >
-      <div className="editor-rhythm editor-selection-sheet-body">{children}</div>
+      <div className="mo-editor-rhythm mo-editor-selection-sheet-body">{children}</div>
     </SiteSideSheet>
   );
 }
@@ -3283,16 +3296,16 @@ export function SectionList({
 }) {
   return (
     <nav aria-label={title}>
-      <ul className="mo-stack editor-section-list">
+      <ul className="mo-stack mo-editor-section-list">
         {items.map(({ id, label, badge }) => (
           <li key={id}>
             <button
               type="button"
               aria-current={id === value ? 'location' : undefined}
               onClick={() => onChange(id)}
-              className="section-list-item mo-row editor-section-list-link"
+              className="section-list-item mo-row mo-editor-section-list-link"
             >
-              <span className="editor-section-list-label">{label}</span>
+              <span className="mo-editor-section-list-label">{label}</span>
               {badge ? <SiteBadge count={badge === true ? undefined : badge} /> : null}
             </button>
           </li>
@@ -3308,9 +3321,9 @@ export function SectionList({
  * scrolls. Its place is FormColumns' `pane`, against the window's end edge; below large it is not drawn. */
 export function SectionPane({ caption, title, children }: { caption: string; title: string; children: ReactNode }) {
   return (
-    <div className={`${siteCardClass('outlined')} editor-section-pane-card`}>
-      <p className="section-pane-caption editor-section-pane-caption">{caption}</p>
-      <h2 className="section-pane-title editor-section-pane-title">{title}</h2>
+    <div className={`${siteCardClass('outlined')} mo-editor-section-pane-card`}>
+      <p className="section-pane-caption mo-editor-section-pane-caption">{caption}</p>
+      <h2 className="section-pane-title mo-editor-section-pane-title">{title}</h2>
       {children}
     </div>
   );
@@ -3381,16 +3394,16 @@ export function MainDrawer({
 // `footer` is the bottom slot: the destinations' box grows to fill the rail, and the slot (the last child in it) is pushed to its end.
 function MainRail({ label, onOpen, footer, children }: { label: string; onOpen: () => void; footer?: ReactNode; children: ReactNode }) {
   return (
-    <aside className="editor-main-rail-frame">
+    <aside className="editor-main-rail-frame mo-editor-main-rail-frame">
       <SiteNavigationRail
         label={label}
         menuLabel={t.library.openMenu}
         expanded={false}
         onExpandedChange={onOpen}
-        className="editor-main-rail"
+        className="editor-main-rail mo-editor-main-rail"
       >
         {children}
-        {footer && <div className="editor-main-footer">{footer}</div>}
+        {footer && <div className="mo-editor-main-footer">{footer}</div>}
       </SiteNavigationRail>
     </aside>
   );
@@ -3405,11 +3418,11 @@ function MainRail({ label, onOpen, footer, children }: { label: string; onOpen: 
 function MainDrawerMenuButton({ onClick, header }: { onClick: () => void; header?: ReactNode }) {
   return (
     <>
-      <div className="editor-main-drawer-header">
+      <div className="editor-main-drawer-header mo-editor-main-drawer-header">
         <div className="mo-fill">{header}</div>
-        <MenuButton label={t.library.closeMenu} open onClick={onClick} className="editor-main-drawer-close" />
+        <MenuButton label={t.library.closeMenu} open onClick={onClick} className="mo-editor-main-drawer-close" />
       </div>
-      <SiteDivider kind="middle-inset" className="editor-main-drawer-header-divider" />
+      <SiteDivider kind="middle-inset" className="mo-editor-main-drawer-header-divider" />
     </>
   );
 }
@@ -3418,11 +3431,11 @@ function MainDrawerMenuButton({ onClick, header }: { onClick: () => void; header
 // the theme's divider) is pushed to the bottom.
 function MainDrawerBody({ label, footer, children }: { label: string; footer?: ReactNode; children: ReactNode }) {
   return (
-    <nav aria-label={label} className="editor-main-drawer-nav">
+    <nav aria-label={label} className="mo-editor-main-drawer-nav">
       <div>{children}</div>
       {footer && (
-        <div className="editor-main-footer">
-          <SiteDivider kind="middle-inset" className="editor-main-drawer-divider" />
+        <div className="mo-editor-main-footer">
+          <SiteDivider kind="middle-inset" className="mo-editor-main-drawer-divider" />
           {footer}
         </div>
       )}
@@ -3451,10 +3464,10 @@ function StandardMainDrawer({
 }) {
   if (!open) return null;
   return (
-    <aside className="editor-main-drawer-frame">
+    <aside className="mo-editor-main-drawer-frame">
       <SiteNavigationDrawer
         variant="standard"
-        className="editor-main-drawer-panel editor-main-drawer-panel-full"
+        className="editor-main-drawer-panel mo-editor-main-drawer-panel mo-editor-main-drawer-panel-full"
         onKeyDown={(e: KeyboardEvent<HTMLDivElement>) => {
           if (e.key === 'Escape' && onEscape?.()) e.preventDefault();
         }}
@@ -3522,7 +3535,7 @@ function ModalMainDrawer({
     >
       <SiteNavigationDrawer
         variant="modal"
-        className="editor-main-drawer-panel"
+        className="editor-main-drawer-panel mo-editor-main-drawer-panel"
         onKeyDown={(e: KeyboardEvent<HTMLDivElement>) => {
           escaped.current = false;
           if (e.key === 'Escape' && onEscape?.()) {
@@ -3772,7 +3785,7 @@ export function TabPanel({ id, value, className = '', children }: { id: string; 
       id={`${id}-panel`}
       aria-labelledby={`${id}-tab-${value}`}
       tabIndex={0}
-      className={`editor-focus-quiet-visible ${className}`}
+      className={`mo-editor-focus-quiet-visible ${className}`}
     >
       {children}
     </div>
@@ -3803,15 +3816,15 @@ export function FormColumns({
 }) {
   // On a wide computer screen (large) each of the right column's parts on the theme's outlined card.
   const carded = useAtLeast('large') && cards;
-  const right = `editor-rhythm editor-screen-column ${carded ? siteCardClass('outlined') : ''} ${sticky ? 'editor-screen-column-sticky' : ''}`;
+  const right = `mo-editor-rhythm mo-editor-screen-column ${carded ? siteCardClass('outlined') : ''} ${sticky ? 'mo-editor-screen-column-sticky' : ''}`;
   return (
-    <div className={`mo-stack editor-screen-layout ${pane ? '' : 'editor-screen-grid'}`}>
-      {first && <div className={`${right} ${side ? 'editor-screen-row-first' : 'editor-screen-row-span'}`}>{first}</div>}
-      <div className="editor-rhythm editor-screen-main">{main}</div>
-      {side && <div className={`${right} ${first ? 'editor-screen-row-second' : 'editor-screen-row-span'}`}>{side}</div>}
+    <div className={`mo-stack mo-editor-screen-layout ${pane ? '' : 'mo-editor-screen-grid'}`}>
+      {first && <div className={`${right} ${side ? 'mo-editor-screen-row-first' : 'mo-editor-screen-row-span'}`}>{first}</div>}
+      <div className="mo-editor-rhythm mo-editor-screen-main">{main}</div>
+      {side && <div className={`${right} ${first ? 'mo-editor-screen-row-second' : 'mo-editor-screen-row-span'}`}>{side}</div>}
       {pane && (
-        <div className="editor-section-pane">
-          <div className="editor-section-pane-inner">{pane}</div>
+        <div className="editor-section-pane mo-editor-section-pane">
+          <div className="mo-editor-section-pane-inner">{pane}</div>
         </div>
       )}
     </div>
@@ -3833,7 +3846,7 @@ export function LeadingIcon({ icon: Glyph, selected = false, children }: { icon?
  * corners of a field, beside its row's first two lines, as an icon; the image a page's colours came from ("Colors" ›
  * "Pages"). `alt` empty when the row's text says what it is. */
 export function LeadingImage({ src, alt = '' }: { src: string; alt?: string }) {
-  return <img src={safeImageSrc(src)} alt={alt} loading="lazy" className="editor-token-image" />;
+  return <img src={safeImageSrc(src)} alt={alt} loading="lazy" className="mo-editor-token-image" />;
 }
 
 /** What a design token is, for the sample of it before its row ("Parts" › "Values", Tokens.tsx). */
@@ -3846,15 +3859,15 @@ export type TokenKind = 'shape' | 'elevation' | 'font' | 'color';
  * colour (color). Material 3 has none; the editor's own. */
 export function LeadingToken({ kind, value, weight }: { kind: TokenKind; value: string; weight?: string }) {
   return (
-    <span className="editor-token-sample" aria-hidden="true">
-      {kind === 'shape' && <span className="editor-token-shape" style={{ borderTopLeftRadius: value }} />}
-      {kind === 'elevation' && <span className="editor-token-elevation" style={{ boxShadow: value }} />}
+    <span className="mo-editor-token-sample" aria-hidden="true">
+      {kind === 'shape' && <span className="mo-editor-token-shape" style={{ borderTopLeftRadius: value }} />}
+      {kind === 'elevation' && <span className="mo-editor-token-elevation" style={{ boxShadow: value }} />}
       {kind === 'font' && (
-        <span className="editor-token-font" style={{ fontFamily: value, fontWeight: weight }}>
+        <span className="mo-editor-token-font" style={{ fontFamily: value, fontWeight: weight }}>
           Aa
         </span>
       )}
-      {kind === 'color' && <span className="editor-token-color" style={{ background: value }} />}
+      {kind === 'color' && <span className="mo-editor-token-color" style={{ background: value }} />}
     </span>
   );
 }
@@ -3873,7 +3886,7 @@ export function TopAppBar({ children }: { children: ReactNode }) {
     return () => removeEventListener('scroll', check);
   }, []);
   return (
-    <SiteAppBar className="editor-app-bar-inset" data-stuck={stuck || undefined}>
+    <SiteAppBar className="mo-editor-app-bar-inset" data-stuck={stuck || undefined}>
       {children}
     </SiteAppBar>
   );
@@ -3884,7 +3897,7 @@ export function TopAppBar({ children }: { children: ReactNode }) {
 export function Dialog({ ref, className, children, ...rest }: DialogHTMLAttributes<HTMLDialogElement> & { ref?: Ref<HTMLDialogElement> }) {
   return (
     <dialog ref={ref} className={[siteDialogModalClass, className].filter(Boolean).join(' ')} {...rest}>
-      <SiteDialog className="editor-dialog-padding">{children}</SiteDialog>
+      <SiteDialog className="mo-editor-dialog-padding">{children}</SiteDialog>
     </dialog>
   );
 }
@@ -3922,7 +3935,7 @@ export function BottomSheet({
   return (
     <dialog
       ref={own}
-      className={[sheet, 'editor-sheet', 'editor-sheet-phone', panel && 'editor-side-panel', className].filter(Boolean).join(' ')}
+      className={[sheet, 'editor-sheet', 'mo-editor-sheet-phone', panel && 'editor-side-panel', className].filter(Boolean).join(' ')}
       {...rest}
     >
       <div className={siteBottomSheetContainerClass()} data-wide={panel ? 'side-sheet' : undefined}>
@@ -3980,13 +3993,13 @@ export function PageFrame({ html, width, title, part }: { html: string; width: n
   };
   const height = part ? (cut ? cut.top + cut.height : width) : size.height / scale;
   return (
-    <div ref={box} className="editor-block-preview-frame" style={part ? { height: (cut?.height ?? 0) * scale } : undefined}>
+    <div ref={box} className="mo-editor-block-preview-frame" style={part ? { height: (cut?.height ?? 0) * scale } : undefined}>
       {size.width > 0 && (
         <iframe
           title={title}
           srcDoc={html}
           sandbox="allow-same-origin"
-          className="editor-block-preview-iframe"
+          className="mo-editor-block-preview-iframe"
           style={{ width, height, top: -(cut?.top ?? 0) * scale, transform: `translateX(-50%) scale(${scale})` }}
           onLoad={part ? (e) => measure(e.currentTarget) : undefined}
         />
@@ -4114,7 +4127,14 @@ export function SheetTitle({ title, onClose }: { title: string; onClose: () => v
   };
 
   return (
-    <div ref={top} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} className="mo-keep editor-sheet-handle">
+    <div
+      ref={top}
+      onPointerDown={down}
+      onPointerMove={move}
+      onPointerUp={up}
+      onPointerCancel={up}
+      className="mo-keep mo-editor-sheet-handle"
+    >
       <SiteBottomSheetHeader
         headline={title}
         closeLabel={t.common.close}
@@ -4156,7 +4176,7 @@ function ChoiceSheet<T extends string>({
   return (
     <BottomSheet ref={dialog} aria-label={title} onClick={(e) => e.target === dialog.current && close()} onClose={() => setQuery('')}>
       <SheetTitle title={title} onClose={close} />
-      {search && <SearchBar value={query} onChange={setQuery} label={search} className="mo-keep editor-sheet-search" />}
+      {search && <SearchBar value={query} onChange={setQuery} label={search} className="mo-keep mo-editor-sheet-search" />}
       <SheetList>
         {!shown.length && <EmptyNote item>{t.common.noMatch}</EmptyNote>}
         {shown.map((o, i) => (
@@ -4175,9 +4195,9 @@ function ChoiceSheet<T extends string>({
               }}
             >
               {o.detail ? (
-                <span className="editor-choice-detail">
+                <span className="mo-editor-choice-detail">
                   <span className="mo-fill">{o.label}</span>
-                  <span className="mo-keep editor-choice-detail-value">{o.detail}</span>
+                  <span className="mo-keep mo-editor-choice-detail-value">{o.detail}</span>
                 </span>
               ) : (
                 o.label
@@ -4277,7 +4297,7 @@ export function Filters({
       <BottomSheet
         ref={dialog}
         tabIndex={-1}
-        className="editor-focus-quiet"
+        className="mo-editor-focus-quiet"
         aria-label={title}
         onClick={(e) => e.target === dialog.current && close()}
         onClose={(e) => {
@@ -4306,7 +4326,7 @@ export function Filters({
                   </ul>
                 )}
                 {unfolded && (
-                  <ul className={lone ? '' : 'editor-choice-sublist'}>
+                  <ul className={lone ? '' : 'mo-editor-choice-sublist'}>
                     {g.options.map((o, i) => (
                       <Fragment key={o.value}>
                         {o.group && o.group !== g.options[i - 1]?.group && (
@@ -4328,7 +4348,7 @@ export function Filters({
         {clearAll && onClearAll && (
           <div className="mo-keep">
             <SiteDivider />
-            <div className="mo-row mo-row-end editor-sheet-footer">
+            <div className="mo-row mo-row-end mo-editor-sheet-footer">
               <Button kind="text" disabled={!selected} onClick={onClearAll}>
                 {clearAll}
               </Button>
@@ -4354,7 +4374,7 @@ export function PhoneField({ code, onCode, children }: { code: string; onCode: (
   );
   const name = region ? countryName(region) : code;
   return (
-    <div className="editor-phone-row">
+    <div className="mo-editor-phone-row">
       <div className="mo-keep">
         <ChoiceField
           aria-haspopup="dialog"
@@ -4366,7 +4386,7 @@ export function PhoneField({ code, onCode, children }: { code: string; onCode: (
           }}
         >
           {region && <span aria-hidden="true">{flagOf(region)}</span>}
-          <span className="editor-phone-code">{code}</span>
+          <span className="mo-editor-phone-code">{code}</span>
         </ChoiceField>
       </div>
       <div className="mo-fill">{children}</div>
@@ -4427,7 +4447,7 @@ function ChoiceMenu<T extends string>({
           toggle(e.currentTarget, true);
         }}
       >
-        <span lang={chosen?.lang} className={`mo-fill mo-truncate ${chosen ? '' : 'editor-placeholder-value'}`}>
+        <span lang={chosen?.lang} className={`mo-fill mo-truncate ${chosen ? '' : 'mo-editor-placeholder-value'}`}>
           {chosen ? chosen.label : empty}
         </span>
       </ChoiceField>
@@ -4475,7 +4495,7 @@ export function Select<T extends string>({
   if (href)
     return (
       <ChoiceField id={id} href={href} arrow={CaretRight} {...field}>
-        <span lang={chosen?.lang} className={`mo-fill mo-truncate ${chosen ? '' : 'editor-placeholder-value'}`}>
+        <span lang={chosen?.lang} className={`mo-fill mo-truncate ${chosen ? '' : 'mo-editor-placeholder-value'}`}>
           {chosen ? chosen.label : empty}
         </span>
       </ChoiceField>
@@ -4491,7 +4511,7 @@ export function Select<T extends string>({
           dialog.current?.querySelector('[aria-pressed="true"]')?.scrollIntoView({ block: 'center' });
         }}
       >
-        <span lang={chosen?.lang} className={`mo-fill mo-truncate ${chosen ? '' : 'editor-placeholder-value'}`}>
+        <span lang={chosen?.lang} className={`mo-fill mo-truncate ${chosen ? '' : 'mo-editor-placeholder-value'}`}>
           {chosen ? chosen.label : empty}
         </span>
       </ChoiceField>
@@ -4525,7 +4545,7 @@ export function PickListItem({
       aria-haspopup="dialog"
       headline={title}
       trailing={
-        <span lang={lang} className="mo-truncate editor-trailing-text">
+        <span lang={lang} className="mo-truncate mo-editor-trailing-text">
           {chosen}
         </span>
       }

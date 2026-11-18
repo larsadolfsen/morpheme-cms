@@ -865,6 +865,12 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
+    "src/editor-ui.css": {
+      "classDefs": 0,
+      "markup": 0,
+      "propsDeclared": 0,
+      "propsRead": 2
+    },
     "src/editor.css": {
       "classDefs": 506,
       "markup": 0,
@@ -915,7 +921,7 @@
     },
     "src/ui.tsx": {
       "classDefs": 0,
-      "markup": 91,
+      "markup": 37,
       "propsDeclared": 4,
       "propsRead": 0
     },
