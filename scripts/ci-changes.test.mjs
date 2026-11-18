@@ -2,7 +2,19 @@
 // Run: node --test scripts/ci-changes.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { isDocsOnly, needsStarterDemo, isLight, checkLevel, screensAreas, verdict, outcome, isSuperseded, HEAVY, FILTERED, LIGHT_SKIPPED } from './ci-changes.mjs';
+import {
+  isDocsOnly,
+  needsStarterDemo,
+  isLight,
+  checkLevel,
+  screensAreas,
+  verdict,
+  outcome,
+  isSuperseded,
+  HEAVY,
+  FILTERED,
+  LIGHT_SKIPPED,
+} from './ci-changes.mjs';
 
 test('docs-only: skills, docs, changeset and root notes', () => {
   assert.equal(isDocsOnly(['.claude/skills/checks/SKILL.md', 'docs/superpowers/plans/x.md', '.changeset/a-b.md', 'CLAUDE.md']), true);

@@ -200,10 +200,19 @@ if (import.meta.url === `file://${argv[1]}`) {
     console.log(`light=${isLight(argv[4] ?? '', arg)}`);
     console.log(`areas=${screensAreas(paths, argv[4] ?? '', arg)}`);
   } else if (mode === 'verdict') {
-    const { state, problems } = outcome(JSON.parse(input), arg === 'true', argv[4] !== 'false', argv[5] === 'true', argv[6] ?? '', argv[7] ?? '');
+    const { state, problems } = outcome(
+      JSON.parse(input),
+      arg === 'true',
+      argv[4] !== 'false',
+      argv[5] === 'true',
+      argv[6] ?? '',
+      argv[7] ?? '',
+    );
     if (state === 'cancelled') {
       console.log('cancelled=true');
-      console.log('Cancelled: a newer push superseded this run (its head is no longer the head of the pull request). Look at the newest head.');
+      console.log(
+        'Cancelled: a newer push superseded this run (its head is no longer the head of the pull request). Look at the newest head.',
+      );
       exit(0);
     }
     for (const p of problems) console.log(`FAIL ${p}`);
