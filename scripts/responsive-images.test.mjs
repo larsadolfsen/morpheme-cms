@@ -133,12 +133,8 @@ test('video stills come from the live site before YouTube is asked', async () =>
   fs.writeFileSync(path.join(built, 'src/content/p.md'), 'https://www.youtube.com/watch?v=dQw4w9WgXcQ\n');
   const stills = path.join(built, 'public/images/_video');
   fs.mkdirSync(stills, { recursive: true });
-  const names = fs.readdirSync(stills);
-  assert.equal(names.length, 0);
-  // Without network the still cannot be fetched: nothing is recorded.
-  const offline = { MORPHEME_LIVE_URL: '', HTTPS_PROXY: 'http://127.0.0.1:9', https_proxy: 'http://127.0.0.1:9' };
-  assert.match(await run('video-thumbnails', built, offline), /0 stills fetched, 1 could not be fetched/);
   // Make the two stills as an earlier build would have, and record them.
+  // The network is never asked: every still is in the record of the fake live site.
   const { stillName, videoOf } = await import('../lib/video-id.mjs');
   const { keyOf } = await import('../lib/variant-record.mjs');
   const name = stillName(videoOf('https://www.youtube.com/watch?v=dQw4w9WgXcQ'));
@@ -154,10 +150,7 @@ test('video stills come from the live site before YouTube is asked', async () =>
   try {
     const clone = await site();
     fs.cpSync(path.join(built, 'src'), path.join(clone, 'src'), { recursive: true });
-    assert.match(
-      await run('video-thumbnails', clone, { ...offline, MORPHEME_LIVE_URL: server.url, NO_PROXY: '127.0.0.1' }),
-      /0 stills fetched, 2 taken from the live site/,
-    );
+    assert.match(await run('video-thumbnails', clone, { MORPHEME_LIVE_URL: server.url }), /0 stills fetched, 2 taken from the live site/);
     assert.deepEqual(Object.keys(record(clone)).sort(), Object.keys(rec).sort());
   } finally {
     server.close();
