@@ -27,8 +27,8 @@
   }
   .mo-editor-nav-note {
     padding: var(--mo-ref-space-200);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-nav-rail-row {
@@ -42,8 +42,8 @@
   }
   .mo-editor-nav-hint {
     padding-block: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-nav-search-demo {
@@ -58,7 +58,7 @@
     margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   }
   .mo-editor-nav-search-results {
-    border-radius: 0.75rem;
+    border-radius: var(--mo-sys-shape-corner-medium);
     background-color: var(--mo-sys-color-surface-container-high);
     padding-block: var(--mo-ref-space-100);
   }
@@ -161,7 +161,7 @@
   .mo-editor-field-item-toggle > svg {
     transition-property: transform, translate, scale, rotate;
     transition-duration: var(--mo-sys-motion-spring-default-spatial-duration);
-    transition-timing-function: var(--motion-ease);
+    transition-timing-function: var(--mo-sys-ease);
   }
   .mo-editor-field-item-toggle-open > svg {
     rotate: 180deg;
@@ -202,8 +202,8 @@
   }
   .mo-editor-app-list-meta {
     display: block;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-app-list-heading {
@@ -232,8 +232,8 @@
   }
   .mo-editor-brand-hint {
     margin-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-brand-column {
@@ -247,7 +247,7 @@
     display: flex;
     align-items: center;
     gap: var(--mo-ref-space-125);
-    border-radius: 1rem;
+    border-radius: var(--mo-sys-shape-corner-large);
     border-style: solid;
     border-width: 1px;
     border-color: var(--mo-sys-color-outline-variant);
@@ -275,7 +275,7 @@
   .mo-editor-brand-icon {
     inline-size: var(--mo-ref-space-800);
     block-size: var(--mo-ref-space-800);
-    border-radius: 1rem;
+    border-radius: var(--mo-sys-shape-corner-large);
     box-shadow: var(--mo-sys-panel-shadow);
   }
   .mo-editor-brand-icon-drawing {
@@ -290,8 +290,8 @@
     gap: var(--mo-ref-space-100);
   }
   .mo-editor-comm-example-name {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-comm-examples {
@@ -347,7 +347,7 @@
     margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   }
   .mo-editor-parts-chip-image {
-    border-radius: 0.75rem;
+    border-radius: var(--mo-sys-shape-corner-medium);
     background-size: cover;
     background-position: center;
     padding: var(--mo-ref-space-200);
@@ -458,13 +458,13 @@
     block-size: 28px;
     align-items: center;
     justify-content: center;
-    border-radius: calc(infinity * 1px);
+    border-radius: var(--mo-sys-shape-corner-full);
     border-style: solid;
     border-width: 1px;
     border-color: var(--mo-comp-google-icon-ring);
     background-color: var(--mo-comp-google-icon-fill);
-    font-size: 0.75rem;
-    line-height: 1rem;
+    font-size: var(--mo-sys-typescale-body-small-size);
+    line-height: var(--mo-sys-typescale-body-small-line-height);
     color: var(--mo-comp-google-icon-letter);
   }
   .mo-editor-search-site-text {
@@ -472,8 +472,8 @@
   }
   .mo-editor-search-site-name {
     display: block;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
     color: var(--mo-comp-google-site);
   }
   .mo-editor-search-crumbs-row {
@@ -482,8 +482,8 @@
     gap: var(--mo-ref-space-50);
   }
   .mo-editor-search-crumbs {
-    font-size: 0.75rem;
-    line-height: 1rem;
+    font-size: var(--mo-sys-typescale-body-small-size);
+    line-height: var(--mo-sys-typescale-body-small-line-height);
     color: var(--mo-comp-google-text);
   }
   .mo-editor-search-menu-end {
@@ -504,7 +504,7 @@
   }
   .mo-editor-search-description {
     margin-block-start: var(--mo-ref-space-50);
-    font-size: 0.875rem;
+    font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: 22px;
     color: var(--mo-comp-google-text);
   }
@@ -525,8 +525,8 @@
     margin-block-end: var(--mo-ref-space-100);
   }
   .mo-editor-contain-example-label {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-contain-carousel-label {
@@ -569,7 +569,7 @@
     position: relative;
     block-size: 40rem;
     overflow: hidden;
-    border-radius: 0.75rem;
+    border-radius: var(--mo-sys-shape-corner-medium);
     border-style: solid;
     border-width: 1px;
     border-color: var(--mo-sys-color-outline-variant);
@@ -674,8 +674,8 @@
   }
   /* BlockDialog.tsx */
   .mo-editor-block-dialog-note {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
   }
   .mo-editor-block-dialog-list {
     margin-inline: -0.75rem;
@@ -701,7 +701,7 @@
     margin-inline: auto;
     max-block-size: 6rem;
     max-inline-size: 100%;
-    border-radius: 0.75rem;
+    border-radius: var(--mo-sys-shape-corner-medium);
     object-fit: contain;
   }
   @media (width >= 37.5rem) {

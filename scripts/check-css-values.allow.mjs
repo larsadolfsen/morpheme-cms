@@ -2,6 +2,12 @@
 // the file, the line's text and the reason. Keep it small: a new entry is reviewed.
 export const allow = [
   {
+    file: /editor-forms\.css$/,
+    line: /^(font-size: 20px|line-height: (22|26)px|letter-spacing: -0\.025em)/,
+    reason:
+      "the search result preview draws Google's own result at Google's own pixel sizes, and the logo preview draws the name at the site logo's tracking; neither is a step of the scale",
+  },
+  {
     file: /base\.css$|blocks(\/[a-z-]+)?\.css$|tokens\/(base|blocks)\/sys\.css$/,
     line: /^--mo-sys-(radius|radius-small|block-radius|block-radius-small|block-control-radius): /,
     reason: 'the fallback corners for a theme that sets no steps (global.css sets the ten steps and maps these to them)',
