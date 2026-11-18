@@ -35,4 +35,12 @@ export const UI_PART_FILES = [
 export const SITE_SHELL_FILES = ['site-logo-post.css', 'site-action.css', 'site-page.css'];
 
 /** The other CSS files base.css imports, which are not parts of ui.css. */
-export const OTHER_BASE_FILES = ['ui.css', 'cards.css', 'type.css', 'blocks.css', 'lists.css', ...SITE_SHELL_FILES];
+export const OTHER_BASE_FILES = [
+  'ui.css',
+  'cards.css',
+  'type.css',
+  'blocks.css',
+  'blocks/person-facts.css',
+  'lists.css',
+  ...SITE_SHELL_FILES,
+];
