@@ -30,6 +30,7 @@ export const UI_PART_FILES = [
   'pickers.css',
   'fab.css',
   'button-groups.css',
+  'fab-menu.css',
 ];
 
 /** The other CSS files base.css imports, which are not parts of ui.css. */

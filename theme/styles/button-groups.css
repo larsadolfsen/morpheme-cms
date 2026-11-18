@@ -1,4 +1,9 @@
 /*
+  The buttons that do more than one thing (../ui/ButtonGroup.tsx, SegmentedButton.tsx, ChoiceGroup.tsx, SplitButton.tsx, FabMenu.tsx),
+  named as Material 3 names them. They are made of the buttons and the FABs above (their classes), so they take their
+  variables (--button-*, --fab-*) where it is the same thing; what is here is what they add. A theme changes it with
+  these variables, and with rules on the classes where a variable is not enough.
+
   Button group (ButtonGroup, buttonGroupClass): .button-group with its kind, .button-group-standard (apart) or
   .button-group-connected (joined, the corners between them small, larger with the buttons' size); in it .button and
   .icon-button in any size and shape, a toggle with aria-pressed in its look off and on (the buttons' above); in a
