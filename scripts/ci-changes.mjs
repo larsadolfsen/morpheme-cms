@@ -52,7 +52,7 @@ const NO_STARTER_DEMO = [
   /^\.claude\/.+/,
   /^\.agents\/.+/,
   /^\.changeset\/.+/,
-  /^\.github\/workflows\/(publish|staging-follows-next)\.yml$/,
+  /^\.github\/workflows\/(publish|staging-follows-next|cache-fill)\.yml$/,
   /^staging-watcher\/.+/,
   /\.test\.(mjs|js|ts|tsx)$/,
   /^scripts\/(check-language|check-phosphor|check-web|check-editor-colors|check-colors|check-colors\.allow|check-css-values|check-css-values\.allow|check-density)\.mjs$/,
