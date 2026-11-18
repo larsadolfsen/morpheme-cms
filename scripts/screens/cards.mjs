@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { openEditor } from '../built-site.mjs';
 import { ROOT, blocksOf, browser, has, problems, shots, site } from './support/context.mjs';
 import { onTestPage, pressInsert } from './support/shared.mjs';
+import { pageLanguage } from './support/page-language.mjs';
 
 /** The Image grid typed in place: `Add images` asks for several images of the Library (a tap selects, the button under them says how many it adds), puts them in the block as picked images, and a tap on an image opens its sheet with the text of its own, which the card then has as its alt text. */
 async function checkImageGridAdd(width, height) {
@@ -399,8 +400,10 @@ async function checkCardsCarousel(width, height) {
   if (!(await root.count())) return (problems.push(`${label}: no Cards carousel on the Blocks page`), page.close());
   await root.scrollIntoViewIfNeeded();
   await page.waitForTimeout(500);
-  // The page is in the site's language, whatever the browser's: the expected texts are the site's own, from its language files.
-  const say = blocksOf(await page.evaluate(() => document.documentElement.lang)).cards;
+  // The page is in the site's language, whatever the browser's: the expected texts are the site's own, from its language files. The language is the
+  // served `<html lang>`: the live attribute is rewritten to the browser's locale by the site's client script.
+  const { lang, where } = await pageLanguage(page);
+  const say = blocksOf(lang).cards;
   const m = await root.evaluate((el) => {
     const row = el.querySelector('[data-carousel-items]');
     const items = [...el.querySelectorAll('[data-carousel-item]')];
@@ -441,10 +444,14 @@ async function checkCardsCarousel(width, height) {
     if (m.dots !== m.items) problems.push(`${label}: ${m.dots} dots for ${m.items} cards`);
     if (!m.region) problems.push(`${label}: the carousel has no label`);
     if (m.itemLabels.join() !== m.itemLabels.map((_, i) => say.slideOf(i + 1, m.items)).join())
-      problems.push(`${label}: the cards are labelled "${m.itemLabels}", not "${say.slideOf('n', m.items)}"`);
+      problems.push(
+        `${label}: the cards are labelled "${m.itemLabels}", not "${say.slideOf('n', m.items)}" (the page's language is "${lang}", read from ${where})`,
+      );
     if (m.pageOverflow) problems.push(`${label}: the page scrolls sideways`);
     const button = root.locator('[data-cards-show-all]');
-    if ((await button.textContent())?.trim() !== say.showAll) problems.push(`${label}: the button is not "${say.showAll}"`);
+    const shown = (await button.textContent())?.trim();
+    if (shown !== say.showAll)
+      problems.push(`${label}: the button says "${shown}", not "${say.showAll}" (the page's language is "${lang}", read from ${where})`);
     await button.click();
     await page.waitForTimeout(300);
     const open = await root.evaluate((el) => ({
@@ -455,7 +462,9 @@ async function checkCardsCarousel(width, height) {
       focus: document.activeElement === el.querySelector('[data-cards-show-all]'),
     }));
     if (!open.expanded || open.grid !== 'grid' || open.text !== say.showFewer || open.pressed !== 'true' || !open.focus)
-      problems.push(`${label}: "Show all" did not stack the cards in place with focus kept (${JSON.stringify(open)})`);
+      problems.push(
+        `${label}: "Show all" did not stack the cards in place with focus kept, or the button did not say "${say.showFewer}" (${JSON.stringify(open)}; the page's language is "${lang}", read from ${where})`,
+      );
     await button.click();
     await page.waitForTimeout(300);
     if (await root.evaluate((el) => el.hasAttribute('data-expanded'))) problems.push(`${label}: "Show fewer" did not return the carousel`);

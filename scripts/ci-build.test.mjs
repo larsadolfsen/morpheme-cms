@@ -45,7 +45,9 @@ function commitContent(dir) {
   git(dir, 'commit', '-q', '-m', 'content');
 }
 
-const serve = (commit) => async () => ({ status: 200, json: async () => ({ commit }) });
+const serve = (commit) => async () => ({ status: 200, json: async () => ({ commit, cms: '0.18.0' }) });
+
+const CMS = '0.18.0';
 
 function cleanup(dir) {
   process.chdir(start);
@@ -56,7 +58,7 @@ test('an unreadable build.json gives the full lane', async () => {
   const { dir, live } = site({ 'src/data/build.json': '{ not json' });
   try {
     commitContent(dir);
-    const result = await decideLane({ cwd: dir, fetch: serve(live), env: {} });
+    const result = await decideLane({ cwd: dir, fetch: serve(live), env: {}, cmsVersion: CMS });
     assert.equal(result.lane, 'full');
     assert.match(result.reason, /build\.json unreadable/);
     assert.equal(result.paths, null);
@@ -69,7 +71,7 @@ test('the content lane turned off gives the full lane', async () => {
   const { dir, live } = site({ 'src/data/build.json': JSON.stringify({ contentLane: false, paidBuilds: false }) });
   try {
     commitContent(dir);
-    const result = await decideLane({ cwd: dir, fetch: serve(live), env: {} });
+    const result = await decideLane({ cwd: dir, fetch: serve(live), env: {}, cmsVersion: CMS });
     assert.equal(result.lane, 'full');
     assert.equal(result.reason, 'turned off in the editor');
   } finally {
@@ -81,9 +83,66 @@ test('a content-only diff gives the content lane with its paths', async () => {
   const { dir, live } = site({ 'README.md': 'x' });
   try {
     commitContent(dir);
-    const result = await decideLane({ cwd: dir, fetch: serve(live), env: {} });
-    assert.equal(result.lane, 'content');
+    const result = await decideLane({ cwd: dir, fetch: serve(live), env: {}, cmsVersion: CMS });
+    assert.equal(result.lane, 'content', result.reason);
     assert.deepEqual(result.paths, ['src/content/a.md']);
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('the installed CMS version differing from the live one gives the full lane', async () => {
+  const { dir, live } = site({ 'README.md': 'x' });
+  try {
+    commitContent(dir);
+    const result = await decideLane({ cwd: dir, fetch: serve(live), env: {}, cmsVersion: '0.18.1' });
+    assert.equal(result.lane, 'full');
+    assert.match(result.reason, /CMS version changed/);
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('a live version.json without cms gives the full lane', async () => {
+  const { dir, live } = site({ 'README.md': 'x' });
+  try {
+    commitContent(dir);
+    const old = async () => ({ status: 200, json: async () => ({ commit: live }) });
+    const result = await decideLane({ cwd: dir, fetch: old, env: {}, cmsVersion: CMS });
+    assert.equal(result.lane, 'full');
+    assert.match(result.reason, /live CMS version unknown/);
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('the live commit is read from the domain', async () => {
+  const { dir, live } = site({ 'README.md': 'x' });
+  try {
+    commitContent(dir);
+    const urls = [];
+    const fetch = async (url) => (urls.push(String(url)), serve(live)());
+    await decideLane({ cwd: dir, fetch, env: {}, cmsVersion: CMS });
+    assert.deepEqual(urls, ['https://example.com/editor/version.json']);
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('MORPHEME_LIVE_URL is read instead of the domain, without a closing slash', async () => {
+  const { dir, live } = site({ 'README.md': 'x' });
+  try {
+    commitContent(dir);
+    const urls = [];
+    const fetch = async (url) => (urls.push(String(url)), serve(live)());
+    const result = await decideLane({
+      cwd: dir,
+      fetch,
+      env: { MORPHEME_LIVE_URL: 'https://site.example.workers.dev/' },
+      cmsVersion: CMS,
+    });
+    assert.deepEqual(urls, ['https://site.example.workers.dev/editor/version.json']);
+    assert.equal(result.lane, 'content', result.reason);
   } finally {
     cleanup(dir);
   }

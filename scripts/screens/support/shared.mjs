@@ -282,6 +282,20 @@ export const inlineSingles = [
   { name: 'video', hint: 'A YouTube or Vimeo video.', field: 'title', text: 'My film', slot: false },
 ];
 
+/** Waits until every animation and transition that ends has ended, and the fonts are loaded, so a check reads the settled geometry (a slower runner would catch the spring `transition: padding` of a button, or a row's layer, half way). Looping ones (`iterations: Infinity`, a spinner) are left running, as they never finish; new animations that start while it waits are waited for too. Nothing is skipped or loosened: a check measures the same, once the page is at rest. */
+export async function animationsSettled(page) {
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    for (let round = 0; round < 10; round++) {
+      const running = document.getAnimations().filter((a) => a.effect?.getComputedTiming().iterations !== Infinity);
+      if (!running.length) break;
+      await Promise.all(running.map((a) => a.finished.catch(() => {})));
+      // One frame, so a transition that the end of this one starts has begun and is in the next round.
+      await new Promise((resolve) => requestAnimationFrame(() => resolve()));
+    }
+  });
+}
+
 /** Opens the system's test page (the Blocks page of core-blocks-page.mjs, on a temporary copy of the site), which these checks measure. It is built on first use, so it is there on any site. */
 export async function onTestPage(page, label) {
   const { site: testSite } = await serveCoreTestSite();
