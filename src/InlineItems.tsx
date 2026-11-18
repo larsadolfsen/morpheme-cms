@@ -123,7 +123,7 @@ export function InlineIcon({
   );
 }
 
-/** The folding of a row of a block that folds (Questions and answers, Segmented list), for the props of its theme row: the row is open while it is
+/** The folding of a row of a block that folds (Questions and answers, List - Expand), for the props of its theme row: the row is open while it is
  * the active one unless the owner folded it with the chevron (`folds`, a view state). A tap on the chevron, 48 dp wide and as high as the row's
  * head, or Enter or Space on the focused head, opens or closes it; a tap on the typed title types (and opens a row the chevron closed); a tap on
  * the head elsewhere keeps its meaning (nothing is folded). */

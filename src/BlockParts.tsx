@@ -425,7 +425,7 @@ function CardParts() {
           {/* The page is Surface, so the segmented list's rows are on the surface container here (the theme's default, Surface, is for a list on a higher container). */}
           <div
             className="grid items-start gap-4 p-4 expanded:grid-cols-2"
-            style={{ '--list-segmented-surface': 'var(--mo-surface-container)' } as CSSProperties}
+            style={{ '--mo-comp-list-list-item-segmented-container-color': 'var(--mo-sys-color-surface-container)' } as CSSProperties}
           >
             <SiteCard>
               <SiteList>

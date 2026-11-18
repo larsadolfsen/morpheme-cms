@@ -1,112 +1,10 @@
-/*
-  Material is every theme's fallback: its rules that set more than custom properties sit in @layer fallback (declared last in
-  base.css), so a theme's own unlayered rules win over them, whatever the specificity. Custom properties stay unlayered.
-
-  The look of the standard blocks (their fields: packages/editor/src/standard/; their markup: blocks/ in this theme), on
-  the site and in the editor, in the standard theme. Every colour, shape and motion comes from a CSS variable, which a
-  theme sets to its own design in its own CSS:
-
-    :root { --block-accent: var(--mo-primary); --block-radius: 1.5rem; }
-
-  Without them, the blocks take the site's colour roles (the values below) and have a plain look of their own. Sizes and spacing are
-  the blocks' own, in rem; their text has the site's font. Every theme imports this file into its CSS
-  (styles/global.css: the standard theme's, another theme's …), which the editor uses too.
-
-    --block-text       text
-    --block-muted      quieter text (an answer, a step's text)
-    --block-accent     the one colour: a notice's edge, the step numbers, an open row, the play button,
-                       a card's icon and link
-    --block-accent-hover  the accent of a filled button pointed at (ui.css)
-    --block-on-accent  text on the accent (the step numbers, a filled button)
-    --block-primary, --block-secondary, --block-tertiary  the colours of a section (with --block-on-… for the text on them;
-                       the theme's own primary, secondary and tertiary colours)
-    --block-surface    a raised surface (the rows that fold out, the cards)
-    --block-tint       a light background (a notice, a video before it is played)
-    --block-stripe     a quieter background than the tint, for every second row of a striped table
-    --block-line       lines between rows and along the steps, the edge of a card
-    --block-radius     the corners of a panel
-    --block-radius-small  the corners of something smaller in or beside a panel (an image in a list, a row, a badge's
-                       square, a step on a time line)
-    --block-control-radius  the corners of a button and a tag (a pill when large)
-    --block-shadow     the shadow of a raised panel
-    --block-section-padding, --block-section-margin  the space inside, and above and below, a coloured section of a text
-                       (.text-section: a panel the width of the text column, on --block-surface, --block-primary, --block-secondary or --block-tertiary; on those colours
-                       the blocks in it get inverted variables: text, accent and line on-accent, surface and tint a veil of it)
-    --block-ease       the easing of motion (else the motion scheme's, --motion-ease)
-    --block-ease-quick the easing of a quick change of state (a colour, an arrow that turns or moves; else the motion
-                       scheme's, --motion-ease-quick)
-    --block-hero-shade, --block-hero-on-shade  (optional) the colour an image behind a section's text is darkened with,
-                       and the text's on it; without them the text's colour and the surface's
-    --block-page-width, --block-gutter  the page's container (its width, gutters included, and its gutter at the
-                       side), whose left edge the text starts at: how far a section across the whole width reaches out
-                       of the text to the window's edges, and where its content starts again (the standard theme's
-                       Container.astro: 72rem, 1rem and 1.5rem from the medium width)
-
-  How things move is the site's motion scheme (Material 3's, chosen under "Appearance" › "Motion"; lib/motion.ts), which
-  Base.astro writes into the <head> as springs, each its duration and curve, for `transition` and `animation`:
-    --motion-spatial-fast, --motion-spatial, --motion-spatial-slow   something that moves, grows or changes shape
-    --motion-effects-fast, --motion-effects, --motion-effects-slow   a colour, a shadow, something that fades
-    --motion-spatial-fast-duration … --motion-effects-slow-duration   each one's duration alone, for what must last as
-                       long as it (a visibility that waits for it, a display … allow-discrete)
-    --motion-ease, --motion-ease-quick   the default spatial and effects curves alone, for a duration of one's own
-  Without them (a page without Base.astro's <head>), the values below: the standard scheme's lengths with Material's
-  standard curve.
-
-  A site sets the class `js` on <html> as early as it can (this site: Base.astro): then a long
-  testimonial is cut with "Read more" from the start; without it, the whole text is shown.
-  The mark before the name on a testimonial (.block-testimonial-mark) is the site's own: it is not shown
-  until the site gives it a look (the standard theme: an avatar with the name's first letter, its data-initial; another:
-  its logo).
-*/
-:where(:root) {
-  --block-text: var(--mo-on-surface);
-  --block-muted: var(--mo-on-surface-variant);
-  --block-accent: var(--mo-primary);
-  --block-accent-hover: color-mix(in srgb, var(--mo-on-primary) 8%, var(--mo-primary));
-  --block-on-accent: var(--mo-on-primary);
-  --block-primary: var(--mo-primary);
-  --block-on-primary: var(--mo-on-primary);
-  --block-secondary: var(--mo-secondary);
-  --block-on-secondary: var(--mo-on-secondary);
-  --block-tertiary: var(--mo-tertiary);
-  --block-on-tertiary: var(--mo-on-tertiary);
-  --block-surface: var(--mo-surface-container-lowest);
-  --block-tint: var(--mo-surface-container-high);
-  --block-stripe: var(--mo-surface-container);
-  --block-line: var(--mo-outline-variant);
-  --block-radius: 0.75rem;
-  --block-radius-small: 1rem;
-  --block-control-radius: 0.5rem;
-  --block-shadow: 0 1px 3px color-mix(in srgb, var(--mo-shadow) 12%, transparent);
-  --motion-spatial-fast: 230ms cubic-bezier(0.2, 0, 0, 1);
-  --motion-spatial: 320ms cubic-bezier(0.2, 0, 0, 1);
-  --motion-spatial-slow: 490ms cubic-bezier(0.2, 0, 0, 1);
-  --motion-effects-fast: 150ms cubic-bezier(0.2, 0, 0, 1);
-  --motion-effects: 240ms cubic-bezier(0.2, 0, 0, 1);
-  --motion-effects-slow: 330ms cubic-bezier(0.2, 0, 0, 1);
-  --motion-spatial-fast-duration: 230ms;
-  --motion-spatial-duration: 320ms;
-  --motion-spatial-slow-duration: 490ms;
-  --motion-effects-fast-duration: 150ms;
-  --motion-effects-duration: 240ms;
-  --motion-effects-slow-duration: 330ms;
-  /* Tailwind's transition-colors, transition-opacity … without a duration of their own: the default effects spring. */
-  --default-transition-duration: var(--motion-effects-duration);
-  --default-transition-timing-function: var(--motion-ease-quick, cubic-bezier(0.2, 0, 0, 1));
-  --block-ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
-  --block-ease-quick: var(--motion-ease-quick, cubic-bezier(0.2, 0, 0, 1));
-  --block-page-width: 72rem;
-  --block-gutter: 1rem;
-  --block-section-padding: 1.5rem;
-  --block-section-margin: 2rem;
-}
-@media (width >= theme(--breakpoint-medium)) {
-  :where(:root) {
-    --block-gutter: 1.5rem;
-  }
-}
-
 /* In a site's layer of components, so the site's utilities (a margin on the steps) win over them. */
+@import './tokens/blocks/comp/card.css';
+@import './tokens/blocks/comp/grid.css';
+@import './tokens/blocks/comp/icon.css';
+@import './tokens/blocks/comp/list.css';
+@import './tokens/blocks/registry.css';
+@import './tokens/blocks/sys.css';
 @layer components {
   /* A block in the text of a page: the space above and below it. */
   .block-in-text {
@@ -115,34 +13,28 @@
 
   /* A section of a page's or post's text with a colour, an image or the whole width of the window (lib/text-sections.mjs,
      RichText.astro): a panel the width of the text column, from its heading to the next (its first and last parts' margins: at
-     the end of the file). The colours are Surface and the theme's Primary, Secondary and Tertiary (--block-primary and the
-     like, with their text colours --block-on-primary …). A section from before Tint is Surface, and Accent is Primary. */
+     the end of the file). The colours are Surface and the theme's Primary, Secondary and Tertiary (--mo-sys-block-primary and the
+     like, with their text colours --mo-sys-block-on-primary …). A section from before Tint is Surface, and Accent is Primary. */
   .text-section {
-    margin-block: var(--block-section-margin) 0;
-    border-radius: var(--block-radius);
-    padding: var(--block-section-padding);
+    margin-block: var(--mo-sys-block-section-margin) 0;
+    border-radius: var(--mo-sys-block-radius);
+    padding: var(--mo-sys-block-section-padding);
     /* The space below belongs inside the colour: it runs down to the next section, or to the end of the text. */
-    padding-block-end: calc(var(--block-section-padding) + var(--block-section-margin));
+    padding-block-end: calc(var(--mo-sys-block-section-padding) + var(--mo-sys-block-section-margin));
   }
   .text-section-surface {
-    background: var(--block-surface);
-    box-shadow: var(--block-shadow);
+    background: var(--mo-sys-block-surface);
+    box-shadow: var(--mo-sys-block-shadow);
   }
   /* An image behind the section (<img class="text-section-image"> first in it, RichText.astro): it fills the panel, darkened
-     from below with the section's colour (Surface: --block-surface; none: --block-hero-shade, the text's colour unless the theme
-     sets it) so the text on it can be read. Without a colour the text is --block-hero-on-shade, the surface's. */
+     from below with the section's colour (Surface: --mo-sys-block-surface; none: --mo-sys-block-hero-shade, the text's colour unless the theme
+     sets it) so the text on it can be read. Without a colour the text is --mo-sys-block-hero-on-shade, the surface's. */
   .text-section-picture {
-    --section-fill: var(--block-hero-shade, var(--block-text));
-    --section-on-fill: var(--block-hero-on-shade, var(--block-surface));
-    --section-shade: var(--section-fill);
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    background: var(--section-fill);
+    background: var(--mo-sys-section-fill);
     box-shadow: none;
-  }
-  .text-section-picture.text-section-surface {
-    --section-shade: var(--block-surface);
   }
   .text-section-picture::before {
     content: '';
@@ -151,9 +43,9 @@
     z-index: -1;
     background: linear-gradient(
       to top,
-      color-mix(in srgb, var(--section-shade) 85%, transparent),
-      color-mix(in srgb, var(--section-shade) 55%, transparent) 70%,
-      color-mix(in srgb, var(--section-shade) 40%, transparent)
+      color-mix(in srgb, var(--mo-sys-section-shade) 85%, transparent),
+      color-mix(in srgb, var(--mo-sys-section-shade) 55%, transparent) 70%,
+      color-mix(in srgb, var(--mo-sys-section-shade) 40%, transparent)
     );
   }
   .text-section-image {
@@ -166,41 +58,45 @@
     object-fit: cover;
     border-radius: 0;
   }
-  .text-section-primary {
-    --section-fill: var(--block-primary);
-    --section-on-fill: var(--block-on-primary);
-    --section-container: var(--mo-primary-container, var(--block-tint));
-    --section-on-container: var(--mo-on-primary-container, var(--block-text));
-  }
-  .text-section-secondary {
-    --section-fill: var(--block-secondary);
-    --section-on-fill: var(--block-on-secondary);
-    --section-container: var(--mo-secondary-container, var(--block-tint));
-    --section-on-container: var(--mo-on-secondary-container, var(--block-text));
-  }
-  .text-section-tertiary {
-    --section-fill: var(--block-tertiary);
-    --section-on-fill: var(--block-on-tertiary);
-    --section-container: var(--mo-tertiary-container, var(--block-tint));
-    --section-on-container: var(--mo-on-tertiary-container, var(--block-text));
-  }
   /* Across the whole width of the window (`width` full): without corners; it reaches out of the text to the window's edges, from
-     where the text starts at the left of the page's container (--block-page-width, --block-gutter), and its content stays in the text
+     where the text starts at the left of the page's container (--mo-sys-block-page-width, --mo-sys-block-gutter), and its content stays in the text
      column from there (the rule below). The page is clipped at the window's edges while it has one (100vw is a
      scrollbar wider). */
   .text-section-full {
-    --section-inset: calc(max(0px, (100vw - var(--block-page-width)) / 2) + var(--block-gutter));
     width: 100vw;
     /* min-width wins over a max-width: a page's text column limits what is in it to a readable width with a utility. */
     min-width: 100vw;
-    margin-left: calc(-1 * var(--section-inset));
+    margin-left: calc(-1 * var(--mo-sys-section-inset));
     border-radius: 0;
-    padding-inline: var(--section-inset);
+    padding-inline: var(--mo-sys-section-inset);
   }
   /* Only the background is the whole width: the content stays in the page's text column, as the text outside a section does (the
-     page's text keeps its paragraphs and headings at 66ch, PageLayout.astro; blocks, not-prose, span the container). */
+     page's text keeps its paragraphs and headings at the text measure, PageLayout.astro; blocks, not-prose, span the container). */
   .text-section-full > :not(.not-prose, .text-section-image) {
-    max-width: 66ch;
+    max-width: var(--mo-sys-block-text-measure-max);
+    min-width: min(var(--mo-sys-block-text-measure-min), 100%);
+  }
+  /* Blocks of plain text rows (owner, 16 Nov 2026). Steps is one column at most --mo-sys-block-list-measure-max (720px) wide, left aligned
+     with the paragraph above it. The rows of a List, Segmented list (and its accordion rows), Blog posts as a list and Testimonials
+     list are columns at least --mo-sys-block-list-column-min wide, as many as fit in the list's own width: one column below two of them
+     (it is narrower than 720px, so it is never wider), two columns from 720px (a tablet's page), three from 1080px, never more in the page container
+     (1104px). It follows the list's width, not the window's (Modern Web Guidance, `responsive-design`). Wide visual blocks
+     (Cards, Image grid, Video, Carousel, Price cards, Table, Hero) keep the container's width. */
+  .block-steps {
+    max-width: var(--mo-sys-block-list-measure-max);
+  }
+  .list.block-list:not([data-columns='one']),
+  .list.block-accordion:not([data-columns='one']),
+  .list.block-testimonial-rows:not([data-columns='one']),
+  .block-posts-rows:not([data-columns='one']) .theme-post-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(var(--mo-sys-block-list-column-min), 100%), 1fr));
+    align-items: start;
+    column-gap: var(--mo-sys-grid-gutter);
+  }
+  /* The setting Columns is off (data-columns="one", standard/columns.ts): one column, at most as wide as Steps. */
+  :is(.block-list, .block-accordion, .block-testimonial-rows, .block-posts-rows)[data-columns='one'] {
+    max-width: var(--mo-sys-block-list-measure-max);
   }
   body:has(.text-section-full) {
     overflow-x: clip;
@@ -210,66 +106,40 @@
      (--section-…): the blocks in it get the variables swapped (below), and a variable cannot swap with another on the
      same element. */
   :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) {
-    --section-accent: var(--section-fill);
-    --section-on-accent: var(--section-on-fill);
-    --section-text: var(--block-text);
-    --section-surface: var(--block-surface);
-    background: var(--section-accent);
-    color: var(--section-on-accent);
-    --tw-prose-body: var(--section-on-accent);
-    --tw-prose-headings: var(--section-on-accent);
-    --tw-prose-lead: var(--section-on-accent);
-    --tw-prose-links: var(--section-on-accent);
-    --tw-prose-bold: var(--section-on-accent);
-    --tw-prose-counters: var(--section-on-accent);
-    --tw-prose-bullets: var(--section-on-accent);
-    --tw-prose-hr: var(--section-on-accent);
-    --tw-prose-quotes: var(--section-on-accent);
-    --tw-prose-quote-borders: var(--section-on-accent);
-    --tw-prose-captions: var(--section-on-accent);
-    --tw-prose-code: var(--section-on-accent);
-  }
-  /* The blocks in it read as an inverted theme on the accent: text, lines and the accent itself are the text-on-primary
-     colour, a surface is a veil of it, and what was text-on-primary (a filled button's label, a step number) is the
-     accent. Dark mode follows, as the variables do. */
-  :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
-  /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
-  .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
-    --block-text: var(--section-on-accent);
-    --block-muted: var(--section-on-accent);
-    --block-accent: var(--section-on-accent);
-    --block-accent-hover: color-mix(in srgb, var(--section-on-accent) 88%, var(--section-accent));
-    --block-on-accent: var(--section-accent);
-    --block-surface: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
-    --block-tint: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
-    --block-stripe: color-mix(in srgb, var(--section-on-accent) 7%, transparent);
-    --block-line: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
-    --block-shadow: none;
-    /* A section with its image behind the text is darkened with the section's own text colour, in its own surface. */
-    --block-hero-shade: var(--section-text);
-    --block-hero-on-shade: var(--section-surface);
+    background: var(--mo-sys-section-accent);
+    color: var(--mo-sys-section-on-accent);
+    --tw-prose-body: var(--mo-sys-section-on-accent);
+    --tw-prose-headings: var(--mo-sys-section-on-accent);
+    --tw-prose-lead: var(--mo-sys-section-on-accent);
+    --tw-prose-links: var(--mo-sys-section-on-accent);
+    --tw-prose-bold: var(--mo-sys-section-on-accent);
+    --tw-prose-counters: var(--mo-sys-section-on-accent);
+    --tw-prose-bullets: var(--mo-sys-section-on-accent);
+    --tw-prose-hr: var(--mo-sys-section-on-accent);
+    --tw-prose-quotes: var(--mo-sys-section-on-accent);
+    --tw-prose-quote-borders: var(--mo-sys-section-on-accent);
+    --tw-prose-captions: var(--mo-sys-section-on-accent);
+    --tw-prose-code: var(--mo-sys-section-on-accent);
   }
 
   /* "Notice": a short notice in a box with the accent along its left edge (notice/). */
   .block-notice {
-    border-left: 4px solid var(--block-accent);
-    font-size: var(--type-body-large-size);
-    line-height: var(--type-body-large-line-height);
-    font-weight: var(--type-body-large-weight);
-    letter-spacing: var(--type-body-large-tracking);
+    border-left: 4px solid var(--mo-sys-block-accent);
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
   }
 
   /* "Steps": numbered steps along a line (steps/StepList.tsx). */
   .block-steps {
-    --block-step-gap: 2.5rem;
     position: relative;
-    max-width: 48rem;
   }
   .block-steps.block-in-text {
     margin-block: 2.5rem;
   }
   .block-steps > :not(:last-child) {
-    margin-bottom: var(--block-step-gap);
+    margin-bottom: var(--mo-sys-block-step-gap);
   }
   /* The line joins a number to the next number and goes no further: each step but the last draws it from its number's middle to the
      next number's middle (the step's own height, the gap, and half a number). */
@@ -277,10 +147,10 @@
     content: '';
     position: absolute;
     top: 1.5rem;
-    bottom: calc(-1 * var(--block-step-gap) - 1.5rem);
+    bottom: calc(-1 * var(--mo-sys-block-step-gap) - 1.5rem);
     inset-inline-start: 1.5rem;
     width: 1px;
-    background: var(--block-line);
+    background: var(--mo-sys-block-line);
   }
   .block-step {
     position: relative;
@@ -294,52 +164,54 @@
     height: 3rem;
     flex-shrink: 0;
     place-items: center;
-    border-radius: var(--mo-shape-full);
-    background: var(--block-accent);
-    color: var(--block-on-accent);
-    font-size: var(--type-title-medium-size);
-    line-height: var(--type-title-medium-line-height);
-    font-weight: var(--type-title-medium-weight);
-    letter-spacing: var(--type-title-medium-tracking);
+    border-radius: var(--mo-sys-shape-corner-full);
+    background: var(--mo-sys-block-accent);
+    color: var(--mo-sys-block-on-accent);
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    line-height: var(--mo-sys-typescale-title-medium-line-height);
+    font-weight: var(--mo-sys-typescale-title-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
     font-variant-numeric: tabular-nums;
   }
   /* The heading's first line is centred on the number: the body starts (number height - line height) / 2 down. */
   .block-step-body {
-    padding-top: calc((3rem - var(--type-title-large-line-height)) / 2);
+    padding-top: calc((3rem - var(--mo-sys-typescale-title-large-line-height)) / 2);
   }
   .block-step-title {
-    font-size: var(--type-title-large-size);
-    line-height: var(--type-title-large-line-height);
-    font-weight: var(--type-title-large-weight);
-    letter-spacing: var(--type-title-large-tracking);
+    font-size: var(--mo-sys-typescale-title-large-size);
+    line-height: var(--mo-sys-typescale-title-large-line-height);
+    font-weight: var(--mo-sys-typescale-title-large-weight);
+    letter-spacing: var(--mo-sys-typescale-title-large-tracking);
   }
   .block-step-text {
     margin-top: 0.375rem;
     max-width: 50ch;
-    color: var(--block-muted);
-  }
-
-  /* "Questions and answers": rows that fold out, one open at a time (faq/Accordion.tsx). */
-  .block-accordion {
-    max-width: 48rem;
-    /* The rows' padding follows the block: 20px, 32px from medium (the List "expand" kind, ui/List.tsx, is drawn by ui.css). */
-    --list-expand-padding-inline: 1.25rem;
+    color: var(--mo-sys-block-muted);
   }
   .block-accordion-lead {
     flex-shrink: 0;
-    color: var(--block-muted);
+    color: var(--mo-sys-block-muted);
   }
   /* The text button under the last row of "Segmented list" and "FAQ list" (ListButton.tsx). */
   .block-list-button {
     margin-top: 0.5rem;
-    /* A text button has no container at rest, so its label stands in from its edge by the button's side padding (Material's
-       12dp): the button moves out by that much and its label lines up with the list's edge. */
-    margin-inline-start: calc(-1 * var(--button-text-padding, 1rem));
+    /* A text button has no container at rest, so its label stands in from its edge by the button's side padding: the button moves out by that much and its label lines up with the list's edge. */
+    margin-inline-start: calc(-1 * var(--mo-comp-button-text-padding, 1rem));
   }
   /* `Max rows` of "Segmented list" (MoreRows.tsx, segmented/more.ts): without script all rows show and the button is hidden; with
      script (data-cut) the rows after the first ones are hidden until the button shows them. The last row left has no line under it. */
-  .block-more:not([data-cut]) > .block-more-button {
+  .block-more:not([data-cut]) .block-more-button {
     display: none;
+  }
+  /* `Show more` and the text button under the last row (`button`) stand on one row (.block-buttons-row: flex, wrapping): the row carries the spacing above and the
+     pull out by a text button's side padding, so the buttons themselves have none. */
+  .block-more > .block-buttons-row {
+    margin-top: 0.5rem;
+    margin-inline-start: calc(-1 * var(--mo-comp-button-text-padding, 1rem));
+    gap: 0;
+  }
+  .block-more > .block-buttons-row > .block-list-button {
+    margin: 0;
   }
   .block-more[data-cut] [data-extra],
   .block-more[data-cut] li:has(> [data-extra]) {
@@ -347,12 +219,12 @@
   }
   /* An answer as it was written: paragraphs and lists apart, links in the accent. */
   .block-accordion-answer {
-    max-width: 60ch;
-    font-size: var(--type-body-large-size);
-    line-height: var(--type-body-large-line-height);
-    font-weight: var(--type-body-large-weight);
-    letter-spacing: var(--type-body-large-tracking);
-    color: var(--block-muted);
+    max-width: var(--mo-sys-block-text-measure-max);
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
+    color: var(--mo-sys-block-muted);
   }
   .block-accordion-answer * + * {
     margin-top: 0.75em;
@@ -369,11 +241,11 @@
     margin-top: 0.25em;
   }
   .block-accordion-answer strong {
-    color: var(--block-text);
+    color: var(--mo-sys-block-text);
     font-weight: 600;
   }
   .block-accordion-answer a {
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
     font-weight: 500;
     text-decoration: underline;
     text-decoration-thickness: 1px;
@@ -406,13 +278,13 @@
     margin-top: 1rem;
   }
   .block-message[data-failed] {
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
   }
 
   /* A link in a block's text: in the accent, underlined, thicker when
      pointed at. */
   .block-link {
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
     font-weight: 500;
     text-decoration: underline;
     text-decoration-thickness: 1px;
@@ -427,7 +299,7 @@
     align-items: center;
     gap: 0.5rem;
     font-weight: 500;
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
     text-decoration: none;
   }
 
@@ -442,11 +314,11 @@
   /* In the editor's drawing: random posts, of how many; under all of them, how many more there are. */
   .block-posts-note {
     margin: 0 0 1rem;
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-    color: var(--block-muted);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
   }
   .block-posts-more {
     margin: 1rem 0 0;
@@ -466,10 +338,10 @@
   }
   /* In a drawing in the editor, when there is nothing to show. */
   .block-empty {
-    border-radius: var(--block-radius);
-    background: var(--block-tint);
+    border-radius: var(--mo-sys-block-radius);
+    background: var(--mo-sys-block-tint);
     padding: 1.5rem;
-    color: var(--block-muted);
+    color: var(--mo-sys-block-muted);
   }
 
   /* "Testimonial cards": testimonials to leaf through (testimonials/Slider.tsx, a carousel: ui.css). */
@@ -510,11 +382,11 @@
     display: block;
     height: 2.5rem;
     margin-bottom: -1rem;
-    font-size: var(--type-display-large-size);
-    line-height: var(--type-display-large-line-height);
-    font-weight: var(--type-display-large-weight);
-    letter-spacing: var(--type-display-large-tracking);
-    color: var(--block-accent);
+    font-size: var(--mo-sys-typescale-display-large-size);
+    line-height: var(--mo-sys-typescale-display-large-line-height);
+    font-weight: var(--mo-sys-typescale-display-large-weight);
+    letter-spacing: var(--mo-sys-typescale-display-large-tracking);
+    color: var(--mo-sys-block-accent);
   }
   .block-testimonial-tags {
     display: flex;
@@ -523,17 +395,17 @@
     gap: 0.5rem;
   }
   .block-testimonial-tags .chip {
-    font-size: var(--type-label-large-size);
-    line-height: var(--type-label-large-line-height);
-    font-weight: var(--type-label-large-weight);
-    letter-spacing: var(--type-label-large-tracking);
+    font-size: var(--mo-sys-typescale-label-large-size);
+    line-height: var(--mo-sys-typescale-label-large-line-height);
+    font-weight: var(--mo-sys-typescale-label-large-weight);
+    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
   }
   .block-testimonial-text {
-    margin: var(--card-text-gap, 0.5rem) 0 0;
-    font-size: var(--type-body-large-size);
-    line-height: var(--type-body-large-line-height);
-    font-weight: var(--type-body-large-weight);
-    letter-spacing: var(--type-body-large-tracking);
+    margin: var(--mo-comp-card-text-gap, 0.5rem) 0 0;
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
   }
   .block-testimonial-text > * {
     margin: 0;
@@ -542,7 +414,7 @@
     margin-bottom: 0.75rem;
   }
   .block-testimonial-context {
-    color: var(--block-muted);
+    color: var(--mo-sys-block-muted);
   }
   .block-testimonial-short {
     display: -webkit-box;
@@ -561,18 +433,18 @@
     padding: 0;
     background: none;
     font: inherit;
-    font-size: var(--type-label-large-size);
-    line-height: var(--type-label-large-line-height);
-    font-weight: var(--type-label-large-weight);
-    letter-spacing: var(--type-label-large-tracking);
-    color: var(--block-accent);
+    font-size: var(--mo-sys-typescale-label-large-size);
+    line-height: var(--mo-sys-typescale-label-large-line-height);
+    font-weight: var(--mo-sys-typescale-label-large-weight);
+    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
+    color: var(--mo-sys-block-accent);
     text-decoration: none;
   }
   .block-testimonial-more[hidden] {
     display: none;
   }
   .block-testimonial-more svg {
-    transition: transform var(--motion-spatial);
+    transition: transform var(--mo-sys-motion-spring-default-spatial);
   }
   .block-testimonial-more[aria-expanded='true'] svg {
     transform: rotate(180deg);
@@ -582,7 +454,7 @@
     align-items: center;
     gap: 0.75rem;
     margin-top: auto;
-    padding-top: var(--card-action-gap, 1rem);
+    padding-top: var(--mo-comp-card-action-gap, 1rem);
     font-weight: 500;
   }
   .block-testimonial-mark {
@@ -593,7 +465,7 @@
     width: 2.5rem;
     height: 2.5rem;
     flex-shrink: 0;
-    border-radius: var(--mo-shape-full);
+    border-radius: var(--mo-sys-shape-corner-full);
     object-fit: cover;
   }
   .js [data-clamp] {
@@ -611,12 +483,12 @@
   /* "Accordion": a row's text, the link to its page and links to more specific pages under it
      (accordion/PageRow.tsx). */
   .block-row-text {
-    max-width: 60ch;
-    font-size: var(--type-body-large-size);
-    line-height: var(--type-body-large-line-height);
-    font-weight: var(--type-body-large-weight);
-    letter-spacing: var(--type-body-large-tracking);
-    color: var(--block-muted);
+    max-width: var(--mo-sys-block-text-measure-max);
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
+    color: var(--mo-sys-block-muted);
   }
   .block-row-links {
     display: flex;
@@ -625,155 +497,11 @@
     gap: 0.75rem 1.5rem;
     margin-top: 1rem;
   }
-  /* Text buttons under a row's text (faq/Accordion.tsx, accordion/PageRow.tsx): the same shift, so their labels line up with the text above. */
+  /* Text buttons under a row's text (accordion/Accordion.tsx, accordion/PageRow.tsx): the same shift, so their labels line up with the text above. */
   .block-row-links:has(> .button-text) {
-    margin-inline-start: calc(-1 * var(--button-text-padding, 1rem));
+    margin-inline-start: calc(-1 * var(--mo-comp-button-text-padding, 1rem));
     column-gap: 0.5rem;
-    margin-block-end: calc((1.25rem - var(--button-height, 3rem)) / 2);
-  }
-
-  /* "Cards": Material 3's cards (.card in ui.css: outlined, filled or elevated), each with an icon, an image, a video or nothing at
-     the top and either a link (the whole card) or buttons, two side by side from small screens (cards/LinkCards.tsx). */
-  .block-cards {
-    display: grid;
-    gap: var(--card-gap, 0.5rem);
-    padding: 0;
-    list-style: none;
-  }
-  .block-card {
-    display: flex;
-    height: 100%;
-    flex-direction: column;
-    /* Its edge a border (the outlined card's line, none on the others), so an image at the top stays inside it. */
-    border: 1px solid transparent;
-    /* The card's shadow as it is now (ui.css: at rest, pointed at, dragged), without its line. */
-    box-shadow: var(--card-shadow, 0 0 #0000);
-    color: inherit;
-    /* The same with a page (a link, as the site has links) and without one (not a link). */
-    font-weight: 500;
-    text-decoration: none;
-    transition:
-      border-color var(--motion-effects),
-      box-shadow var(--motion-effects);
-  }
-  .block-card.card-outlined {
-    border-color: var(--card-outlined-line, var(--block-line));
-  }
-  /* An icon without a colour of its own (`iconColor`) is the text colour, as a row's icon is (Text in the editor's Icon color); v0.16.0 drew it in the accent. */
-  .block-card-icon {
-    color: var(--block-text);
-  }
-  /* A video at the top fills it as an image does, with its play button. */
-  .block-card-video {
-    display: block;
-    margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0;
-    overflow: hidden;
-    border-radius: calc(var(--card-radius, var(--block-radius)) - 1px) calc(var(--card-radius, var(--block-radius)) - 1px) 0 0;
-  }
-  /* The action area: its buttons in a row at the bottom of the card. */
-  .block-card-actions {
-    display: flex;
-    margin-top: auto;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    padding-top: var(--card-action-gap, 1rem);
-  }
-  /* The image fills the top of the card, out to its edges. */
-  .block-card-picture {
-    display: block;
-    margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0;
-    overflow: hidden;
-    border-radius: calc(var(--card-radius, var(--block-radius)) - 1px) calc(var(--card-radius, var(--block-radius)) - 1px) 0 0;
-    background: var(--block-tint);
-    aspect-ratio: 3 / 2;
-  }
-  .block-card-picture img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: scale var(--motion-spatial-slow);
-  }
-  .block-card-title {
-    margin-top: var(--card-media-gap, 1rem);
-    font-size: var(--type-title-large-size);
-    line-height: var(--type-title-large-line-height);
-    font-weight: var(--type-title-large-weight);
-    letter-spacing: var(--type-title-large-tracking);
-  }
-  /* Only text: the heading at the top. */
-  .block-card-title:first-child {
-    margin-top: 0;
-  }
-  .block-card-text {
-    margin-top: var(--card-text-gap, 0.5rem);
-    color: var(--block-muted);
-  }
-  .block-card-more {
-    display: inline-flex;
-    margin-top: auto;
-    align-items: center;
-    gap: 0.5rem;
-    padding-top: var(--card-action-gap, 1rem);
-    font-weight: 500;
-    color: var(--block-accent);
-  }
-  .block-card-arrow {
-    transition: translate var(--motion-spatial);
-  }
-  /* "Cards" on a phone as a carousel (`phone`, LinkCards.tsx): Material 3's uncontained layout (m3.material.io/components/carousel), which M3 gives to
-     text-heavy items. Below 600 px the cards are swiped sideways: items 8 dp apart, 8 dp above and below (room for an elevated card's shadow),
-     corners of 28 dp, the first 16 dp from the screen's edge, the next one peeking in; `Show all` under the dots turns it into the stacked cards
-     in place (data-expanded, set by script.ts). From 600 px the cards are the grid, with no dots and no button. */
-  .block-cards-carousel .block-card {
-    border-radius: var(--carousel-item-radius, var(--mo-shape-extra-large, 1.75rem));
-  }
-  .block-cards-show-all {
-    display: none;
-  }
-  @media (width < theme(--breakpoint-medium)) {
-    .block-cards-carousel .carousel-items {
-      overflow-x: auto;
-      gap: var(--card-gap, 0.5rem);
-      padding-block: 0.5rem;
-      padding-inline: 1rem;
-      scroll-padding-inline: 1rem;
-    }
-    .block-cards-carousel .carousel-item {
-      width: 85%;
-    }
-    .js .block-cards-show-all {
-      display: flex;
-      justify-content: center;
-      padding: 0.25rem;
-    }
-    .block-cards-carousel[data-expanded] .carousel-items {
-      display: grid;
-      overflow-x: visible;
-      margin: 0;
-      padding-inline: 0;
-      scroll-padding-inline: 0;
-    }
-    .block-cards-carousel[data-expanded] .carousel-item {
-      width: auto;
-    }
-    .block-cards-carousel[data-expanded] .carousel-indicator {
-      display: none;
-    }
-  }
-  @media (width >= theme(--breakpoint-medium)) {
-    .block-cards-carousel .carousel-items {
-      display: grid;
-      overflow-x: visible;
-      gap: var(--card-gap, 0.5rem);
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .block-cards-carousel .carousel-item {
-      width: auto;
-    }
-    .block-cards-carousel .carousel-indicator {
-      display: none;
-    }
+    margin-block-end: calc((1.25rem - var(--mo-comp-button-medium-container-height, 3rem)) / 2);
   }
   /* The subhead: the small line under the headline (a byline, a date, a place). */
   /* "Image grid" (blocks/imagegrid/View.tsx): the tag filter over the staggered grid (.image-grid in ui.css), the text under an image on its card. The filter
@@ -793,15 +521,15 @@
   }
   .block-imagegrid-clear {
     padding: 0 0.75rem;
-    min-height: var(--mo-target, 2.75rem);
+    min-height: var(--mo-sys-target-size, 2.75rem);
     border: 0;
     background: none;
-    color: var(--mo-primary);
+    color: var(--mo-sys-color-primary);
     font: inherit;
     cursor: pointer;
   }
   .block-imagegrid-empty {
-    color: var(--block-muted);
+    color: var(--mo-sys-block-muted);
   }
   .block-imagegrid-count {
     position: absolute;
@@ -810,121 +538,17 @@
     overflow: hidden;
     clip-path: inset(50%);
   }
-  @media (width >= theme(--breakpoint-medium)) {
-    .block-imagegrid-grid[data-columns='2'] {
-      --grid-columns: 2;
-    }
-    .block-imagegrid-grid[data-columns='3'] {
-      --grid-columns: 3;
-    }
-    .block-imagegrid-grid[data-columns='4'] {
-      --grid-columns: 4;
-    }
-  }
   .block-imagegrid-grid > li[hidden] {
     display: none;
   }
-  .card-text {
-    display: block;
-    padding: var(--card-media-gap, 1rem) var(--card-padding, 1rem) var(--card-padding, 1rem);
-  }
-  .card-subhead,
-  .card-supporting {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .card-subhead {
-    -webkit-line-clamp: 1;
-    font-size: var(--type-label-medium-size, 0.75rem);
-    line-height: var(--type-label-medium-line-height, 1rem);
-    color: var(--block-muted);
-  }
-  .card-supporting {
-    -webkit-line-clamp: 2;
-    margin-top: var(--card-subhead-gap, 0.25rem);
-    font-size: var(--type-body-medium-size, 0.875rem);
-    line-height: var(--type-body-medium-line-height, 1.25rem);
-  }
-  .block-card-subhead {
-    margin-top: var(--card-subhead-gap, 0.25rem);
-    font-size: var(--type-body-medium-size, 0.875rem);
-    line-height: var(--type-body-medium-line-height, 1.25rem);
-    color: var(--block-muted);
-  }
-  /* A list's row icon and arrow are the row heading's colour (the block's text, which a coloured section swaps to its on-colour), as the
-     section's other text is; only the supporting line stays the quieter --block-muted. A row icon with its own colour (below) keeps it. */
-  .block-list {
-    --list-item-leading-icon-color: var(--block-text);
-    --list-item-trailing-text: var(--block-text);
-    /* A segmented list stands on the page, which is Surface: its rows on Surface would vanish, so the block's are on the surface container (the
-       theme's default is M3's Surface, for a list on a higher container; owner, 15 Nov 2026, docs/material-deviations.md SV12). */
-    --list-segmented-surface: var(--mo-surface-container);
-  }
-  /* The color of an icon in a row or a card (`iconColor`, src/iconColor.ts): one of the theme's color roles; without one, the text colour (Text in the editor). */
-  [data-icon-color='primary'] {
-    --list-item-leading-icon-color: var(--mo-primary, var(--block-accent));
-    --icon-color: var(--mo-primary, var(--block-accent));
-  }
-  [data-icon-color='secondary'] {
-    --list-item-leading-icon-color: var(--mo-secondary, var(--block-secondary));
-    --icon-color: var(--mo-secondary, var(--block-secondary));
-  }
-  [data-icon-color='tertiary'] {
-    --list-item-leading-icon-color: var(--mo-tertiary, var(--block-tertiary));
-    --icon-color: var(--mo-tertiary, var(--block-tertiary));
-  }
   .block-accordion-lead[data-icon-color],
   .block-card .block-card-icon[data-icon-color] {
-    color: var(--icon-color);
-  }
-  /* A filled card on one of Material's containers ("Cards", `color`): the primary, secondary or tertiary container, its text and icon in the
-     colour that is read on it. Without a colour it is the surface container (--card-filled-surface, below). A theme that has no container
-     role has the block's own colours. */
-  :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary) .block-card {
-    --card-filled-line: transparent;
-  }
-  .block-cards-primary .block-card {
-    --card-filled-surface: var(--mo-primary-container, var(--block-primary));
-    color: var(--mo-on-primary-container, var(--block-on-primary));
-    /* What is read on the container (a text button, its icon, a video's title and play button, which read --block-text and --block-accent) follows it, also in a section on a colour, where these roles are swapped. */
-    --mo-on-surface: var(--mo-on-primary-container, var(--block-on-primary));
-    --mo-on-surface-variant: var(--mo-on-primary-container, var(--block-on-primary));
-    --mo-primary: var(--mo-on-primary-container, var(--block-on-primary));
-    --block-text: var(--mo-on-primary-container, var(--block-on-primary));
-    --block-muted: var(--mo-on-primary-container, var(--block-on-primary));
-    --block-accent: var(--mo-on-primary-container, var(--block-on-primary));
-  }
-  .block-cards-secondary .block-card {
-    --card-filled-surface: var(--mo-secondary-container, var(--block-secondary));
-    color: var(--mo-on-secondary-container, var(--block-on-secondary));
-    /* What is read on the container (a text button, its icon, a video's title and play button, which read --block-text and --block-accent) follows it, also in a section on a colour, where these roles are swapped. */
-    --mo-on-surface: var(--mo-on-secondary-container, var(--block-on-secondary));
-    --mo-on-surface-variant: var(--mo-on-secondary-container, var(--block-on-secondary));
-    --mo-primary: var(--mo-on-secondary-container, var(--block-on-secondary));
-    --block-text: var(--mo-on-secondary-container, var(--block-on-secondary));
-    --block-muted: var(--mo-on-secondary-container, var(--block-on-secondary));
-    --block-accent: var(--mo-on-secondary-container, var(--block-on-secondary));
-  }
-  .block-cards-tertiary .block-card {
-    --card-filled-surface: var(--mo-tertiary-container, var(--block-tertiary));
-    color: var(--mo-on-tertiary-container, var(--block-on-tertiary));
-    /* What is read on the container (a text button, its icon, a video's title and play button, which read --block-text and --block-accent) follows it, also in a section on a colour, where these roles are swapped. */
-    --mo-on-surface: var(--mo-on-tertiary-container, var(--block-on-tertiary));
-    --mo-on-surface-variant: var(--mo-on-tertiary-container, var(--block-on-tertiary));
-    --mo-primary: var(--mo-on-tertiary-container, var(--block-on-tertiary));
-    --block-text: var(--mo-on-tertiary-container, var(--block-on-tertiary));
-    --block-muted: var(--mo-on-tertiary-container, var(--block-on-tertiary));
-    --block-accent: var(--mo-on-tertiary-container, var(--block-on-tertiary));
-  }
-  :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary)
-    :is(.block-card-icon, .block-card-text, .block-card-subhead, .block-card-more) {
-    color: inherit;
+    color: var(--mo-comp-icon-color);
   }
   /* A panel (Panel.tsx): an outlined card (.card in ui.css) for a block that is one box (e.g. an app's about
      or price block), with an icon, a heading and a text at the top, and parts under a line. */
   .block-panel {
-    color: var(--block-text);
+    color: var(--mo-sys-block-text);
   }
   .block-panel.block-in-text + .block-panel.block-in-text {
     margin-top: 1rem;
@@ -932,18 +556,18 @@
   .block-panel-icon {
     display: block;
     margin-bottom: 1rem;
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
   }
   .block-panel-title {
     margin: 0;
-    font-size: var(--type-title-large-size);
-    line-height: var(--type-title-large-line-height);
-    font-weight: var(--type-title-large-weight);
-    letter-spacing: var(--type-title-large-tracking);
+    font-size: var(--mo-sys-typescale-title-large-size);
+    line-height: var(--mo-sys-typescale-title-large-line-height);
+    font-weight: var(--mo-sys-typescale-title-large-weight);
+    letter-spacing: var(--mo-sys-typescale-title-large-tracking);
   }
   .block-panel-text {
     margin-top: 0.4rem;
-    color: var(--block-muted);
+    color: var(--mo-sys-block-muted);
   }
   .block-panel > .block-arrow-link {
     margin-top: 1rem;
@@ -962,15 +586,15 @@
   .block-panels {
     display: grid;
     /* Two side by side where there is room for 17rem each, never more. */
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, max(17rem, calc(50% - 0.5rem))), 1fr));
-    gap: var(--card-gap, 0.5rem);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(17rem, calc(50% - var(--mo-sys-grid-gutter) / 2))), 1fr));
+    gap: var(--mo-sys-grid-gutter);
   }
   .block-panels.block-in-text {
     margin-block: 2.5rem;
   }
   /* Boxes with values to copy: side by side only where each has room for its values with their buttons. */
   .block-panels:has(.block-copy-rows) {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, max(23rem, calc(50% - 0.5rem))), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(23rem, calc(50% - var(--mo-sys-grid-gutter) / 2))), 1fr));
   }
   /* "Links": a box's heading linking to its page, and its pages under it in a list (.list in ui.css). */
   .block-panel-title a {
@@ -978,7 +602,7 @@
     text-decoration: none;
   }
   .block-panel-title a:hover {
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
   }
   .block-panel > .list {
     margin-top: 1rem;
@@ -986,9 +610,8 @@
   /* "Points with icon": a list without dividers (.list in ui.css, points/PointList.tsx), its items side by side where
      there is room for 16rem each. Nothing in it is tapped, so its icons start where the text around it does. */
   .block-points {
-    --list-item-padding-inline: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
     column-gap: 1.5rem;
   }
   .block-points.block-in-text {
@@ -1000,13 +623,13 @@
     align-items: flex-start;
   }
   .block-checklist .list-item-leading {
-    max-height: var(--list-item-headline-line-height, 1lh);
+    max-height: var(--mo-comp-list-item-headline-line-height, 1lh);
   }
   /* An image with a heading, a text and buttons, beside it where there is room for 22rem each, else under it
      (e.g. an app's address block). */
   .block-media {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
     align-items: center;
     gap: 1.5rem 3rem;
   }
@@ -1014,23 +637,23 @@
     display: block;
     width: 100%;
     aspect-ratio: 4 / 3;
-    border-radius: var(--block-radius);
+    border-radius: var(--mo-sys-block-radius);
     object-fit: cover;
   }
   .block-media-title {
     margin: 0;
-    font-size: var(--type-headline-small-size);
-    line-height: var(--type-headline-small-line-height);
-    font-weight: var(--type-headline-small-weight);
-    letter-spacing: var(--type-headline-small-tracking);
+    font-size: var(--mo-sys-typescale-headline-small-size);
+    line-height: var(--mo-sys-typescale-headline-small-line-height);
+    font-weight: var(--mo-sys-typescale-headline-small-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
   }
   .block-media-text {
     margin: 1rem 0 0;
     font-style: normal;
-    font-size: var(--type-body-large-size);
-    line-height: var(--type-body-large-line-height);
-    font-weight: var(--type-body-large-weight);
-    letter-spacing: var(--type-body-large-tracking);
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
   }
   .block-media-body > .block-buttons {
     margin-top: 1.5rem;
@@ -1044,7 +667,7 @@
     margin: 0;
   }
   .block-copy-rows dt {
-    color: var(--block-muted);
+    color: var(--mo-sys-block-muted);
   }
   .block-copy-rows dd {
     margin: 0;
@@ -1066,10 +689,10 @@
   }
   .block-copy-value {
     white-space: nowrap;
-    font-size: var(--type-headline-small-size);
-    line-height: var(--type-headline-small-line-height);
-    font-weight: var(--type-headline-small-weight);
-    letter-spacing: var(--type-headline-small-tracking);
+    font-size: var(--mo-sys-typescale-headline-small-size);
+    line-height: var(--mo-sys-typescale-headline-small-line-height);
+    font-weight: var(--mo-sys-typescale-headline-small-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
     font-variant-numeric: tabular-nums;
   }
   .block-panel > .block-buttons-row {
@@ -1084,7 +707,7 @@
     display: inline-block;
     margin-right: 0.5rem;
     vertical-align: -0.2em;
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
   }
 
   /* Steps that go from free to the full price, each more coloured than the one before (`--step`, a share of the
@@ -1104,30 +727,30 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    border-radius: var(--block-radius-small);
-    background: color-mix(in srgb, var(--block-accent) var(--step, 0%), var(--block-tint));
+    border-radius: var(--mo-sys-block-radius-small);
+    background: color-mix(in srgb, var(--mo-sys-block-accent) var(--step, 0%), var(--mo-sys-block-tint));
     padding: 1.25rem;
   }
   .block-timeline > li:last-child {
-    background: var(--block-accent);
-    color: var(--block-on-accent);
+    background: var(--mo-sys-block-accent);
+    color: var(--mo-sys-block-on-accent);
   }
   .block-timeline-when {
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-    color: var(--block-muted);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
   }
   .block-timeline > li:last-child .block-timeline-when {
     color: inherit;
     opacity: 0.9;
   }
   .block-timeline-value {
-    font-size: var(--type-title-large-size);
-    line-height: var(--type-title-large-line-height);
-    font-weight: var(--type-title-large-weight);
-    letter-spacing: var(--type-title-large-tracking);
+    font-size: var(--mo-sys-typescale-title-large-size);
+    line-height: var(--mo-sys-typescale-title-large-line-height);
+    font-weight: var(--mo-sys-typescale-title-large-weight);
+    letter-spacing: var(--mo-sys-typescale-title-large-tracking);
   }
   @media (width >= theme(--breakpoint-medium)) {
     .block-timeline {
@@ -1142,26 +765,26 @@
       padding: 1.5rem;
     }
     .block-timeline > li:first-child {
-      border-start-start-radius: var(--block-radius);
-      border-end-start-radius: var(--block-radius);
+      border-start-start-radius: var(--mo-sys-block-radius);
+      border-end-start-radius: var(--mo-sys-block-radius);
     }
     .block-timeline > li:last-child {
-      border-start-end-radius: var(--block-radius);
-      border-end-end-radius: var(--block-radius);
+      border-start-end-radius: var(--mo-sys-block-radius);
+      border-end-end-radius: var(--mo-sys-block-radius);
     }
     .block-timeline-value {
       margin-top: 1.5rem;
-      font-size: var(--type-headline-small-size);
-      line-height: var(--type-headline-small-line-height);
-      font-weight: var(--type-headline-small-weight);
-      letter-spacing: var(--type-headline-small-tracking);
+      font-size: var(--mo-sys-typescale-headline-small-size);
+      line-height: var(--mo-sys-typescale-headline-small-line-height);
+      font-weight: var(--mo-sys-typescale-headline-small-weight);
+      letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
     }
   }
 
   /* A part of a panel under a line (over the part's own margin and padding: a list, the facts). */
   .block-panel > .block-panel-part {
     margin-top: 1.25rem;
-    border-top: 1px solid var(--block-line);
+    border-top: 1px solid var(--mo-sys-block-line);
     padding-top: 1.25rem;
   }
   /* Only on phones and tablets (a block a site shows beside the text on a computer). */
@@ -1181,24 +804,24 @@
     width: 3.5rem;
     height: 3.5rem;
     flex-shrink: 0;
-    border-radius: var(--block-radius-small);
+    border-radius: var(--mo-sys-block-radius-small);
     object-fit: cover;
     object-position: 50% 20%;
   }
   .block-person-name {
     display: block;
-    font-size: var(--type-title-medium-size);
-    line-height: var(--type-title-medium-line-height);
-    font-weight: var(--type-title-medium-weight);
-    letter-spacing: var(--type-title-medium-tracking);
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    line-height: var(--mo-sys-typescale-title-medium-line-height);
+    font-weight: var(--mo-sys-typescale-title-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
   }
   .block-person-role {
     display: block;
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-    color: var(--block-muted);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
   }
 
   /* A list with an icon in the accent before each line. */
@@ -1208,10 +831,10 @@
     margin: 0;
     padding: 0;
     list-style: none;
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   .block-icon-list > li {
     display: flex;
@@ -1221,7 +844,7 @@
   .block-icon-list svg {
     flex-shrink: 0;
     margin-top: 0.05rem;
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
   }
 
   /* Facts side by side, each a quiet name over its value, the last one to the right (a duration and a
@@ -1233,11 +856,11 @@
     margin: 0;
   }
   .block-facts dt {
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-    color: var(--block-muted);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
   }
   .block-facts dd {
     margin: 0.15rem 0 0;
@@ -1247,10 +870,10 @@
     text-align: right;
   }
   .block-facts-amount {
-    font-size: var(--type-title-large-size);
-    line-height: var(--type-title-large-line-height);
-    font-weight: var(--type-title-large-weight);
-    letter-spacing: var(--type-title-large-tracking);
+    font-size: var(--mo-sys-typescale-title-large-size);
+    line-height: var(--mo-sys-typescale-title-large-line-height);
+    font-weight: var(--mo-sys-typescale-title-large-weight);
+    letter-spacing: var(--mo-sys-typescale-title-large-tracking);
     font-variant-numeric: tabular-nums;
   }
 
@@ -1263,13 +886,13 @@
   .block-table table {
     width: 100%;
     border-collapse: collapse;
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   .block-table :is(th, td) {
-    border-bottom: 1px solid var(--block-line);
+    border-bottom: 1px solid var(--mo-sys-block-line);
     text-align: left;
     vertical-align: top;
   }
@@ -1277,35 +900,32 @@
   /* "Table": Material 3 has no table component, so the dimensions are Material 2's data table (m2.material.io/components/data-tables:
      rows 52 dp and the header row 56 dp, 16 dp of space at the sides of a cell, a header name in a medium weight, a 1 dp outline,
      no elevation, a row's background on hover) and everything else is Material 3's: the body and label type scales, the surface container
-     (header), the outline variant (container and dividers), the cards' own corner radius (--card-radius) and the theme's hover state layer. The box is a region the
+     (header), the outline variant (container and dividers), the cards' own corner radius (--mo-comp-card-radius) and the theme's hover state layer. The box is a region the
      keyboard can scroll (a focus ring in the accent); a table with many columns scrolls instead of crushing them. */
   .block-table-grid {
-    --card-padding: 0;
-    --card-outlined-surface: transparent;
-    --card-outlined-line: transparent;
-    border: 1px solid var(--block-line);
-    border-radius: var(--card-radius, var(--block-radius));
-    color: var(--block-text);
+    border: 1px solid var(--mo-sys-block-line);
+    border-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
+    color: var(--mo-sys-block-text);
   }
   .block-table-grid:focus-visible {
-    outline: 3px solid var(--block-accent);
+    outline: 3px solid var(--mo-sys-block-accent);
     outline-offset: 2px;
   }
   .block-table-grid :is(th, td) {
     min-width: 6rem;
-    /* A table is data-heavy: its rows read --mo-density (base.css), 4 px a step from 52 dp (Large 56, Small 48, a theme's -2 and -3: 44 and 40). */
-    height: calc(3.25rem + var(--mo-density) * var(--mo-density-step));
+    /* A table is data-heavy: its rows read --mo-sys-density (base.css), 4 px a step from 52 dp (Large 56, Small 48, a theme's -2 and -3: 44 and 40). */
+    height: calc(3.25rem + var(--mo-sys-density) * var(--mo-sys-density-step));
     padding: 0.5rem 1rem;
     vertical-align: middle;
     font-weight: inherit;
   }
   .block-table-grid thead th {
-    height: calc(3.5rem + var(--mo-density) * var(--mo-density-step));
-    background: var(--block-tint);
-    font-size: var(--type-label-large-size);
-    line-height: var(--type-label-large-line-height);
-    font-weight: var(--type-label-large-weight);
-    letter-spacing: var(--type-label-large-tracking);
+    height: calc(3.5rem + var(--mo-sys-density) * var(--mo-sys-density-step));
+    background: var(--mo-sys-block-tint);
+    font-size: var(--mo-sys-typescale-label-large-size);
+    line-height: var(--mo-sys-typescale-label-large-line-height);
+    font-weight: var(--mo-sys-typescale-label-large-weight);
+    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
   }
   /* A column's alignment (view.ts): numbers right, text left, or the owner's choice. */
   .block-table-grid :is(th, td).block-table-left {
@@ -1320,22 +940,22 @@
   .block-table-grid tr:last-child :is(th, td) {
     border-bottom: 0;
   }
-  /* "Striped rows": every second body row in the quieter --block-stripe (the header keeps the tint). */
+  /* "Striped rows": every second body row in the quieter --mo-sys-block-stripe (the header keeps the tint). */
   .block-table-grid[data-striped] tbody tr:nth-child(even) {
-    background: var(--block-stripe);
+    background: var(--mo-sys-block-stripe);
   }
   @media (hover: hover) {
     .block-table-grid tbody tr:hover {
-      background: var(--mo-hover, color-mix(in srgb, var(--block-text) 8%, transparent));
+      background: var(--mo-sys-state-mo-hover-layer, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent));
     }
     /* The state layer over the stripe, so a striped row stays striped under the pointer. */
     .block-table-grid[data-striped] tbody tr:nth-child(even):hover {
       background:
         linear-gradient(
-          var(--mo-hover, color-mix(in srgb, var(--block-text) 8%, transparent)),
-          var(--mo-hover, color-mix(in srgb, var(--block-text) 8%, transparent))
+          var(--mo-sys-state-mo-hover-layer, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent)),
+          var(--mo-sys-state-mo-hover-layer, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent))
         ),
-        var(--block-stripe);
+        var(--mo-sys-block-stripe);
     }
   }
 
@@ -1346,33 +966,33 @@
     height: 3.5rem;
     flex-shrink: 0;
     place-content: center;
-    border-radius: calc(var(--block-radius-small) - 0.25rem);
-    background: var(--block-tint);
-    color: var(--block-accent);
+    border-radius: calc(var(--mo-sys-block-radius-small) - 0.25rem);
+    background: var(--mo-sys-block-tint);
+    color: var(--mo-sys-block-accent);
     text-align: center;
     line-height: 1.1;
   }
   .block-badge > span {
-    font-size: var(--type-label-small-size);
-    line-height: var(--type-label-small-line-height);
-    font-weight: var(--type-label-small-weight);
-    letter-spacing: var(--type-label-small-tracking);
+    font-size: var(--mo-sys-typescale-label-small-size);
+    line-height: var(--mo-sys-typescale-label-small-line-height);
+    font-weight: var(--mo-sys-typescale-label-small-weight);
+    letter-spacing: var(--mo-sys-typescale-label-small-tracking);
   }
   .block-badge > strong {
-    font-size: var(--type-title-medium-size);
-    line-height: var(--type-title-medium-line-height);
-    font-weight: var(--type-title-medium-weight);
-    letter-spacing: var(--type-title-medium-tracking);
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    line-height: var(--mo-sys-typescale-title-medium-line-height);
+    font-weight: var(--mo-sys-typescale-title-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
     font-variant-numeric: tabular-nums;
   }
   .block-with-badge {
     display: flex;
     align-items: flex-start;
     gap: 1rem;
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   .block-with-badge > p {
     margin: 0;
@@ -1384,13 +1004,11 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    --card-radius: var(--block-radius-small);
-    --card-padding: 0.85rem 1.1rem 0.85rem 0.85rem;
-    font-size: var(--type-body-large-size);
-    line-height: var(--type-body-large-line-height);
-    font-weight: var(--type-body-large-weight);
-    letter-spacing: var(--type-body-large-tracking);
-    transition: box-shadow var(--motion-effects);
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
+    transition: box-shadow var(--mo-sys-motion-spring-default-effects);
   }
   .block-link-row.block-in-text {
     margin-block: 1.75rem;
@@ -1400,11 +1018,8 @@
   }
   .block-link-row-arrow {
     flex-shrink: 0;
-    color: var(--block-accent);
-    transition: transform var(--motion-spatial);
-  }
-  a.block-link-row:hover {
-    --card-outlined-line: var(--block-accent);
+    color: var(--mo-sys-block-accent);
+    transition: transform var(--mo-sys-motion-spring-default-spatial);
   }
   a.block-link-row:hover .block-link-row-arrow {
     transform: translateX(3px);
@@ -1422,21 +1037,21 @@
   .block-cta-picture {
     width: 5rem;
     height: 5rem;
-    border-radius: var(--block-radius-small);
+    border-radius: var(--mo-sys-block-radius-small);
     object-fit: cover;
     object-position: 50% 20%;
   }
   .block-cta-title {
     margin: 0;
-    font-size: var(--type-headline-small-size);
-    line-height: var(--type-headline-small-line-height);
-    font-weight: var(--type-headline-small-weight);
-    letter-spacing: var(--type-headline-small-tracking);
+    font-size: var(--mo-sys-typescale-headline-small-size);
+    line-height: var(--mo-sys-typescale-headline-small-line-height);
+    font-weight: var(--mo-sys-typescale-headline-small-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
   }
   .block-cta-text {
     margin-top: 0.5rem;
     max-width: 48ch;
-    color: var(--block-muted);
+    color: var(--mo-sys-block-muted);
   }
   .block-cta-buttons {
     display: grid;
@@ -1452,28 +1067,6 @@
   .block-prices.block-in-text {
     margin-block: 2.5rem;
   }
-  .block-price-cards {
-    display: grid;
-    gap: var(--card-gap, 0.5rem);
-  }
-  /* A big price, an elevated card (.card in ui.css). */
-  .block-price-card {
-    display: flex;
-    flex-direction: column;
-  }
-  .block-price-card-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-  .block-price-card-title {
-    margin: 0;
-    font-size: var(--type-headline-small-size);
-    line-height: var(--type-headline-small-line-height);
-    font-weight: var(--type-headline-small-weight);
-    letter-spacing: var(--type-headline-small-tracking);
-  }
   /* A small fact in a light pill (the duration), its icon in the accent. */
   .block-tag {
     display: inline-flex;
@@ -1481,61 +1074,21 @@
     align-items: center;
     gap: 0.375rem;
     margin-top: 0.25rem;
-    border-radius: var(--block-control-radius);
-    background: var(--block-tint);
+    border-radius: var(--mo-sys-block-control-radius);
+    background: var(--mo-sys-block-tint);
     padding: 0.25rem 0.75rem;
-    font-size: var(--type-label-large-size);
-    line-height: var(--type-label-large-line-height);
-    font-weight: var(--type-label-large-weight);
-    letter-spacing: var(--type-label-large-tracking);
+    font-size: var(--mo-sys-typescale-label-large-size);
+    line-height: var(--mo-sys-typescale-label-large-line-height);
+    font-weight: var(--mo-sys-typescale-label-large-weight);
+    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
   }
   .block-tag svg {
-    color: var(--block-accent);
-  }
-  .block-price-amount {
-    margin-top: 1.5rem;
-    font-size: var(--type-display-medium-size);
-    line-height: var(--type-display-medium-line-height);
-    font-weight: var(--type-display-medium-weight);
-    letter-spacing: var(--type-display-medium-tracking);
-    font-variant-numeric: tabular-nums;
-  }
-  .block-price-unit {
-    margin-top: var(--card-subhead-gap, 0.25rem);
-    color: var(--block-muted);
-  }
-  /* A punch card's offer in a price card, a filled card with smaller corners. */
-  .block-price-extra {
-    margin-top: 1.5rem;
-    --card-radius: var(--block-radius-small);
-    --card-padding: 1rem;
-  }
-  .block-price-extra-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 500;
-  }
-  .block-price-extra-title svg {
-    color: var(--block-accent);
-  }
-  .block-price-extra-text {
-    margin-top: var(--card-subhead-gap, 0.25rem);
-    color: var(--block-muted);
-  }
-  .block-price-extra-text strong {
-    color: var(--block-text);
-    font-weight: 500;
-    font-variant-numeric: tabular-nums;
-  }
-  .block-price-card > .block-arrow-link {
-    align-self: flex-start;
-    margin-top: var(--card-action-gap, 1rem);
+    color: var(--mo-sys-block-accent);
   }
   .block-price-list {
     margin: 0;
-    border: 1px solid var(--block-line);
-    border-radius: var(--block-radius);
+    border: 1px solid var(--mo-sys-block-line);
+    border-radius: var(--mo-sys-block-radius);
     padding: 0 1.5rem;
     list-style: none;
   }
@@ -1545,49 +1098,49 @@
     padding-block: 1.25rem;
   }
   .block-price-row + .block-price-row {
-    border-top: 1px solid var(--block-line);
+    border-top: 1px solid var(--mo-sys-block-line);
   }
   .block-price-row-name {
-    font-size: var(--type-title-medium-size);
-    line-height: var(--type-title-medium-line-height);
-    font-weight: var(--type-title-medium-weight);
-    letter-spacing: var(--type-title-medium-tracking);
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    line-height: var(--mo-sys-typescale-title-medium-line-height);
+    font-weight: var(--mo-sys-typescale-title-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
     color: inherit;
     text-decoration: none;
   }
   a.block-price-row-name:hover {
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
   }
   .block-price-row-text {
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-    color: var(--block-muted);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
   }
   .block-price-row-note {
     margin-top: 0.25rem;
     max-width: 60ch;
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-    color: var(--block-muted);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
   }
   .block-price-row-price {
-    font-size: var(--type-headline-small-size);
-    line-height: var(--type-headline-small-line-height);
-    font-weight: var(--type-headline-small-weight);
-    letter-spacing: var(--type-headline-small-tracking);
+    font-size: var(--mo-sys-typescale-headline-small-size);
+    line-height: var(--mo-sys-typescale-headline-small-line-height);
+    font-weight: var(--mo-sys-typescale-headline-small-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
     font-variant-numeric: tabular-nums;
   }
   .block-price-row-price > span {
     display: block;
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-    color: var(--block-muted);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
   }
   /* A quiet text with an icon before it (the terms under the prices). */
   .block-terms {
@@ -1595,32 +1148,20 @@
     gap: 0.625rem;
     margin-top: 1rem;
     max-width: 70ch;
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-    color: var(--block-muted);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
   }
   .block-terms svg {
     flex-shrink: 0;
     margin-top: 0.125rem;
   }
-
-  @media (hover: hover) {
-    a.block-card:hover .block-card-arrow {
-      translate: 0.25rem 0;
-    }
-    a.block-card:hover .block-card-picture img {
-      scale: 1.03;
-    }
-  }
   @media (width >= theme(--breakpoint-medium)) {
     .block-buttons {
       flex-direction: row;
       flex-wrap: wrap;
-    }
-    .block-cards {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .block-price-row {
       grid-template-columns: 1fr auto;
@@ -1631,25 +1172,21 @@
   }
   @media (width >= theme(--breakpoint-medium)) {
     .block-row-text {
-      font-size: var(--type-body-large-size);
-      line-height: var(--type-body-large-line-height);
-      font-weight: var(--type-body-large-weight);
-      letter-spacing: var(--type-body-large-tracking);
-    }
-    .block-accordion {
-      --list-expand-padding-inline: 2rem;
+      font-size: var(--mo-sys-typescale-body-large-size);
+      line-height: var(--mo-sys-typescale-body-large-line-height);
+      font-weight: var(--mo-sys-typescale-body-large-weight);
+      letter-spacing: var(--mo-sys-typescale-body-large-tracking);
     }
     .block-accordion-answer {
-      font-size: var(--type-body-large-size);
-      line-height: var(--type-body-large-line-height);
-      font-weight: var(--type-body-large-weight);
-      letter-spacing: var(--type-body-large-tracking);
+      font-size: var(--mo-sys-typescale-body-large-size);
+      line-height: var(--mo-sys-typescale-body-large-line-height);
+      font-weight: var(--mo-sys-typescale-body-large-weight);
+      letter-spacing: var(--mo-sys-typescale-body-large-tracking);
     }
     .block-cta {
       grid-template-columns: repeat(12, minmax(0, 1fr));
       align-items: center;
       gap: 2.5rem;
-      --card-padding: 3rem;
     }
     .block-cta-picture {
       grid-column: span 2;
@@ -1663,171 +1200,33 @@
       grid-column: span 4;
     }
     .block-cta-title {
-      font-size: var(--type-headline-medium-size);
-      line-height: var(--type-headline-medium-line-height);
-      font-weight: var(--type-headline-medium-weight);
-      letter-spacing: var(--type-headline-medium-tracking);
+      font-size: var(--mo-sys-typescale-headline-medium-size);
+      line-height: var(--mo-sys-typescale-headline-medium-line-height);
+      font-weight: var(--mo-sys-typescale-headline-medium-weight);
+      letter-spacing: var(--mo-sys-typescale-headline-medium-tracking);
     }
     .block-prices {
       gap: 1.25rem;
     }
-    .block-price-cards {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .block-price-card {
-      --card-padding: 2rem;
-    }
-    .block-price-card-title {
-      font-size: var(--type-headline-medium-size);
-      line-height: var(--type-headline-medium-line-height);
-      font-weight: var(--type-headline-medium-weight);
-      letter-spacing: var(--type-headline-medium-tracking);
-    }
-    .block-price-amount {
-      font-size: var(--type-display-large-size);
-      line-height: var(--type-display-large-line-height);
-      font-weight: var(--type-display-large-weight);
-      letter-spacing: var(--type-display-large-tracking);
-    }
     .block-price-list {
       padding-inline: 2rem;
     }
-  }
-  /* ---- "Checklist" and "Price cards" ---- */
-
-  /* "Checklist" (checklist/Checks.tsx), and what is included on a price card: a list without dividers (.list in
-     ui.css), a check before each line; with six or more (not on a card), two columns where there is room for 16rem
-     each, never more. Nothing in it is tapped, so it is spaced as a bulleted or numbered list in the text (half a
-     line between its lines, not the height of a list item one taps), and its checks start where the text around it
-     does. */
-  .block-checklist {
-    --list-item-min-height: auto;
-    --list-item-padding-block: 0.25em;
-    --list-item-padding-inline: 0;
   }
   .block-checklist.block-in-text {
     margin-block: 1rem;
   }
   .block-checklist:not(.block-plan-features):has(> :nth-child(6)) {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, max(16rem, calc(50% - 1rem))), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(16rem, calc(50% - 1rem))), 1fr));
     column-gap: 2rem;
-  }
-
-  /* "Price cards" (pricecards/View.tsx): the cards side by side, as many columns as there are cards where the block has
-     room for them (it is a container: two from 34rem, three from 40rem, four from 56rem; four two by two before that),
-     else under each other. Each card an outlined card (.card in ui.css): its name, its price large with what it is for
-     beside it, its text, what is included under a line (.block-checklist) and its button at the bottom in the card's
-     width, so the buttons of cards side by side are in line; the highlighted one with an edge in the accent and its
-     label in a pill in the accent over its name. */
-  .block-plans {
-    container-type: inline-size;
-  }
-  .block-plans.block-in-text {
-    margin-block: 2.5rem;
-  }
-  .block-plans-list {
-    display: grid;
-    gap: var(--card-gap, 0.5rem);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  @container (width >= 34rem) {
-    .block-plans-2,
-    .block-plans-4 {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  @container (width >= 40rem) {
-    .block-plans-3 {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-  @container (width >= 56rem) {
-    .block-plans-4 {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-  .block-plan {
-    display: flex;
-    flex-direction: column;
-    color: var(--block-text);
-    /* The price is as large as the card has room for (cqi). */
-    container-type: inline-size;
-  }
-  .block-plan-featured {
-    box-shadow: inset 0 0 0 2px var(--block-accent);
-  }
-  .block-plan-badge {
-    align-self: flex-start;
-    margin-bottom: 0.75rem;
-    border-radius: var(--block-control-radius);
-    background: var(--block-accent);
-    color: var(--block-on-accent);
-    padding: 0.25rem 0.75rem;
-    font-size: var(--type-label-medium-size);
-    line-height: var(--type-label-medium-line-height);
-    font-weight: var(--type-label-medium-weight);
-    letter-spacing: var(--type-label-medium-tracking);
-  }
-  .block-plan-name {
-    margin: 0;
-    font-size: var(--type-title-large-size);
-    line-height: var(--type-title-large-line-height);
-    font-weight: var(--type-title-large-weight);
-    letter-spacing: var(--type-title-large-tracking);
-  }
-  .block-plan-price {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.25rem 0.5rem;
-    margin: 1rem 0 0;
-  }
-  .block-plan-amount {
-    font-size: clamp(var(--type-headline-small-size), 16cqi, var(--type-display-small-size));
-    line-height: var(--type-headline-large-line-height);
-    font-weight: var(--type-headline-large-weight);
-    letter-spacing: var(--type-headline-large-tracking);
-    font-variant-numeric: tabular-nums;
-  }
-  .block-plan-unit {
-    color: var(--block-muted);
-  }
-  .block-plan-text {
-    margin: 0.75rem 0 0;
-    color: var(--block-muted);
-  }
-  .block-plan-features {
-    --list-item-padding-block: 0.25rem;
-    margin-top: 1.5rem;
-    border-top: 1px solid var(--block-line);
-    padding-top: 0.5rem;
   }
   .block-buttons.block-plan-buttons {
     flex-direction: column;
     margin-top: auto;
     padding-top: 1.5rem;
   }
-  /* A narrow card: a long text on its button goes onto two lines rather than out of the card. */
-  .block-plan-buttons .button {
-    padding-block: 0.75rem;
-    padding-inline: 1rem;
-    white-space: normal;
-    text-align: center;
-    line-height: 1.25;
-  }
 
   /* ---- end of "Checklist" and "Price cards" ---- */
-
-  @media (prefers-reduced-motion: reduce) {
-    .block-card,
-    .block-card-arrow,
-    .block-card-picture img {
-      transition: none;
-    }
-  }
 }
 
 @layer fallback {
@@ -1852,9 +1251,9 @@
     aspect-ratio: 16 / 9;
     margin-block: 2em;
     padding: 1.5rem;
-    border-radius: var(--card-radius, var(--block-radius));
-    background: var(--block-tint);
-    color: var(--block-text);
+    border-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
+    background: var(--mo-sys-block-tint);
+    color: var(--mo-sys-block-text);
     text-align: center;
     text-decoration: none;
   }
@@ -1869,9 +1268,16 @@
     margin-block: 0;
     border-radius: 0;
   }
+  /* The played video (the iframe that takes the link's place, Base.astro) keeps the still's box: the text's margin around an iframe and its corners
+     (.prose iframe, base.css and global.css) would make the card grow when the video starts. */
+  .prose .block-card-video iframe {
+    display: block;
+    margin-block: 0;
+    border-radius: 0;
+  }
   .prose .video-facade svg {
-    color: var(--block-accent);
-    transition: transform var(--motion-spatial);
+    color: var(--mo-sys-block-accent);
+    transition: transform var(--mo-sys-motion-spring-default-spatial);
   }
   .prose .video-facade:hover svg {
     transform: scale(1.08);
@@ -1881,10 +1287,10 @@
     display: -webkit-box;
     max-width: 40ch;
     overflow: hidden;
-    font-size: var(--type-title-medium-size);
-    line-height: var(--type-title-medium-line-height);
-    font-weight: var(--type-title-medium-weight);
-    letter-spacing: var(--type-title-medium-tracking);
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    line-height: var(--mo-sys-typescale-title-medium-line-height);
+    font-weight: var(--mo-sys-typescale-title-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -1928,10 +1334,10 @@
     filter: drop-shadow(0 2px 8px rgb(0 0 0 / 0.5));
   }
   .video-facade-still .video-facade-title {
-    font-size: var(--type-title-small-size);
-    line-height: var(--type-title-small-line-height);
-    font-weight: var(--type-title-small-weight);
-    letter-spacing: var(--type-title-small-tracking);
+    font-size: var(--mo-sys-typescale-title-small-size);
+    line-height: var(--mo-sys-typescale-title-small-line-height);
+    font-weight: var(--mo-sys-typescale-title-small-weight);
+    letter-spacing: var(--mo-sys-typescale-title-small-tracking);
     color: #fff;
     text-shadow: 0 1px 3px rgb(0 0 0 / 0.8);
   }
@@ -1941,10 +1347,10 @@
       height: 4.5rem;
     }
     .video-facade-still .video-facade-title {
-      font-size: var(--type-title-medium-size);
-      line-height: var(--type-title-medium-line-height);
-      font-weight: var(--type-title-medium-weight);
-      letter-spacing: var(--type-title-medium-tracking);
+      font-size: var(--mo-sys-typescale-title-medium-size);
+      line-height: var(--mo-sys-typescale-title-medium-line-height);
+      font-weight: var(--mo-sys-typescale-title-medium-weight);
+      letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
     }
   }
 
@@ -1967,18 +1373,18 @@
     margin-top: 0.75rem;
   }
   .prose .label-medium {
-    font-size: var(--type-label-medium-size);
-    line-height: var(--type-label-medium-line-height);
-    font-weight: var(--type-label-medium-weight);
-    letter-spacing: var(--type-label-medium-tracking);
-    color: var(--block-accent);
+    font-size: var(--mo-sys-typescale-label-medium-size);
+    line-height: var(--mo-sys-typescale-label-medium-line-height);
+    font-weight: var(--mo-sys-typescale-label-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-label-medium-tracking);
+    color: var(--mo-sys-block-accent);
   }
   .block-head > .block-subheading {
-    font-size: var(--type-title-large-size);
-    line-height: var(--type-title-large-line-height);
-    font-weight: var(--type-title-large-weight);
-    letter-spacing: var(--type-title-large-tracking);
-    color: var(--block-muted);
+    font-size: var(--mo-sys-typescale-title-large-size);
+    line-height: var(--mo-sys-typescale-title-large-line-height);
+    font-weight: var(--mo-sys-typescale-title-large-weight);
+    letter-spacing: var(--mo-sys-typescale-title-large-tracking);
+    color: var(--mo-sys-block-muted);
   }
 
   /* A label above a heading in a text (packages/editor/lib/eyebrow.mjs): a block's label, with the heading's space above
@@ -1998,22 +1404,22 @@
   /* The text styles of a text: "Body medium" is the plain paragraph (and a paragraph stored as body-medium);
    "Body large" (lib/body-large.mjs) and "Body small" (lib/body-size.mjs) are Material 3's body-large and body-small roles. */
   .prose .body-large {
-    font-size: var(--type-body-large-size);
-    line-height: var(--type-body-large-line-height);
-    font-weight: var(--type-body-large-weight);
-    letter-spacing: var(--type-body-large-tracking);
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
   }
   .prose .body-medium {
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   .prose .body-small {
-    font-size: var(--type-body-small-size);
-    line-height: var(--type-body-small-line-height);
-    font-weight: var(--type-body-small-weight);
-    letter-spacing: var(--type-body-small-tracking);
+    font-size: var(--mo-sys-typescale-body-small-size);
+    line-height: var(--mo-sys-typescale-body-small-line-height);
+    font-weight: var(--mo-sys-typescale-body-small-weight);
+    letter-spacing: var(--mo-sys-typescale-body-small-tracking);
   }
 
   /* A check list in a text (`- [ ]`, "Check list" in the editor): Phosphor's check icon in place of the bullet, in the theme's primary
@@ -2034,14 +1440,14 @@
     height: 1.25em;
     margin: 0;
     align-self: center;
-    background-color: var(--block-accent);
+    background-color: var(--mo-sys-block-accent);
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E")
       center / contain no-repeat;
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E")
       center / contain no-repeat;
   }
   .prose li.task-list-item > input[type='checkbox']:not(:checked) {
-    background-color: color-mix(in srgb, var(--block-accent) 35%, transparent);
+    background-color: color-mix(in srgb, var(--mo-sys-block-accent) 35%, transparent);
   }
 
   /* A word or more in one of the site's colours, in a text (packages/editor/lib/text-colors.mjs, the colour button in the
@@ -2050,11 +1456,11 @@
    is in the text's style (.prose), whose colours of bold text and links it goes over. */
   .color-accent,
   .color-accent :is(strong, em, a) {
-    color: var(--block-accent);
+    color: var(--mo-sys-block-accent);
   }
   .color-muted,
   .color-muted :is(strong, em, a) {
-    color: var(--block-muted);
+    color: var(--mo-sys-block-muted);
   }
 
   /* A word in the accent's or the quiet text's colour (above) on a section with the accent as its background would not

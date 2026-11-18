@@ -2,7 +2,7 @@
 // Run: node --test scripts/ci-changes.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { isDocsOnly, verdict, HEAVY } from './ci-changes.mjs';
+import { isDocsOnly, needsStarterDemo, isLight, verdict, HEAVY, FILTERED, LIGHT_SKIPPED } from './ci-changes.mjs';
 
 test('docs-only: skills, docs, changeset and root notes', () => {
   assert.equal(isDocsOnly(['.claude/skills/checks/SKILL.md', 'docs/superpowers/plans/x.md', '.changeset/a-b.md', 'CLAUDE.md']), true);
@@ -71,4 +71,137 @@ test('verdict: static skipped, changes failed or a job missing is red', () => {
   assert.ok(verdict({ ...ok, static: { result: 'skipped' } }, true).length);
   assert.ok(verdict({ ...ok, changes: { result: 'failure' } }, false).length);
   assert.ok(verdict({}, false).length);
+});
+
+test('starter/demo: docs-only and a changeset alone are skipped', () => {
+  assert.equal(needsStarterDemo(['docs/a.md', '.claude/skills/checks/SKILL.md', 'CLAUDE.md']), false);
+  assert.equal(needsStarterDemo(['.changeset/a-b.md']), false);
+  assert.equal(needsStarterDemo(['.changeset/a-b.md', '.changeset/config.json']), false);
+});
+test('starter/demo: release notes and the changelog run (the editor build bundles them)', () => {
+  assert.equal(needsStarterDemo(['release-notes/i18n/en-US/pending/a.json', '.changeset/a.md']), true);
+  assert.equal(needsStarterDemo(['CHANGELOG.md']), true);
+});
+test('starter/demo: a src/, theme/, lib/, starter/, demo/, worker/, pages/ or bin/ change runs', () => {
+  for (const p of [
+    'src/store.ts',
+    'theme/ui/Button.tsx',
+    'lib/blocks.mjs',
+    'starter/src/site/worker.js',
+    'demo/src/content/pages/a.md',
+    'worker/index.js',
+    'pages/index.astro',
+    'bin/morpheme.mjs',
+    'defaults/texts.ts',
+    'site/a.ts',
+  ])
+    assert.equal(needsStarterDemo([p, '.changeset/a.md']), true, p);
+});
+test('starter/demo: a script that the jobs use runs', () => {
+  for (const p of [
+    'scripts/check-starter.mjs',
+    'scripts/starter.mjs',
+    'scripts/demo-build.mjs',
+    'scripts/check-demo.mjs',
+    'scripts/editor-screens.mjs',
+    'scripts/check-worker.mjs',
+    'scripts/fixtures/old-blocks.md',
+    'scripts/release-notes-pending.mjs',
+    'scripts/some-new-script.mjs',
+  ])
+    assert.equal(needsStarterDemo([p]), true, p);
+});
+test('starter/demo: a static-only check script, a test file and another workflow are skipped', () => {
+  assert.equal(needsStarterDemo(['scripts/check-language.mjs', 'scripts/web-allowlist.json', 'scripts/check-density.mjs']), false);
+  assert.equal(needsStarterDemo(['src/store.test.mjs', 'lib/blocks.test.mjs', 'scripts/starter-gitattributes.test.mjs']), false);
+  assert.equal(needsStarterDemo(['.github/workflows/publish.yml', 'staging-watcher/index.js']), false);
+});
+test('starter/demo: package.json, the lock file, wrangler.jsonc and the root config run', () => {
+  for (const p of ['package.json', 'package-lock.json', 'wrangler.jsonc', 'astro.mjs', 'tsconfig.types.json', '.gitattributes', 'LICENSE'])
+    assert.equal(needsStarterDemo([p]), true, p);
+});
+test('starter/demo: a workflow or ci-changes change runs everything, even beside docs', () => {
+  assert.equal(needsStarterDemo(['docs/a.md', '.github/workflows/check.yml']), true);
+  assert.equal(needsStarterDemo(['scripts/ci-changes.mjs']), true);
+  assert.equal(needsStarterDemo(['scripts/ci-changes.test.mjs', '.changeset/a.md']), true);
+});
+test('starter/demo: an empty diff, the Release PR and a path with .. run', () => {
+  assert.equal(needsStarterDemo([]), true);
+  assert.equal(needsStarterDemo(['', '\n']), true);
+  assert.equal(needsStarterDemo(['.changeset/a.md'], 'changeset-release/main'), true);
+  assert.equal(needsStarterDemo(['docs/../src/a.ts']), true);
+});
+test('starter/demo: one path that runs makes the whole pull request run', () => {
+  assert.equal(needsStarterDemo(['docs/a.md', 'scripts/check-language.mjs', 'src/a.ts']), true);
+});
+
+const skipFiltered = { ...ok, ...Object.fromEntries(FILTERED.map((n) => [n, { result: 'skipped' }])) };
+test('verdict: starter and demo skipped by the filter is green, the others must still pass', () => {
+  assert.deepEqual(verdict(skipFiltered, false, false), []);
+  assert.equal(verdict({ ...skipFiltered, screens: { result: 'skipped' } }, false, false).length, 1);
+  assert.equal(verdict({ ...skipFiltered, 'screens-extra': { result: 'failure' } }, false, false).length, 1);
+});
+test('verdict: starter or demo failed or cancelled is red when the filter let them run or skipped them', () => {
+  for (const r of ['failure', 'cancelled']) {
+    assert.equal(verdict({ ...ok, starter: { result: r } }, false, true).length, 1);
+    assert.equal(verdict({ ...skipFiltered, demo: { result: r } }, false, false).length, 1);
+  }
+});
+test('verdict: starter or demo skipped although the filter said run is red', () => {
+  assert.equal(verdict(skipFiltered, false, true).length, FILTERED.length);
+  assert.equal(verdict(skipFiltered, false).length, FILTERED.length);
+});
+
+// The light check: a pull request into a version line skips screens-extra, demo and starter; main and the Release PR run everything.
+const skipLight = { ...ok, ...Object.fromEntries(LIGHT_SKIPPED.map((n) => [n, { result: 'skipped' }])) };
+test('light: the base decides, 0.17, 0.18 and 0.19 are light, main is not', () => {
+  for (const b of ['0.17', '0.18', '0.19', '0.20']) assert.equal(isLight(b, 'fix/a'), true, b);
+  assert.equal(isLight('main', 'merge-0.18-into-main-1'), false);
+  assert.equal(isLight('main', 'fix/a'), false);
+});
+test('light: the Release PR, an empty or unknown base is not light (when in doubt, run)', () => {
+  assert.equal(isLight('main', 'changeset-release/main'), false);
+  assert.equal(isLight('0.18', 'changeset-release/main'), false);
+  for (const b of ['', undefined, '0.18.1', 'release/0.18', 'x0.18', '0.18\nmain']) assert.equal(isLight(b, 'fix/a'), false, String(b));
+  assert.equal(isLight(), false);
+});
+test('light: only screens-extra, demo and starter are skipped, the screens shards still run', () => {
+  assert.deepEqual(LIGHT_SKIPPED.toSorted(), ['demo', 'screens-extra', 'starter']);
+  assert.ok(!LIGHT_SKIPPED.includes('screens') && !LIGHT_SKIPPED.includes('static'));
+});
+test('verdict base 0.18: light with the three jobs skipped is green', () => assert.deepEqual(verdict(skipLight, false, true, true), []));
+test('verdict base main: the same skipped jobs are red, everything must pass', () => {
+  assert.equal(verdict(skipLight, false, true, false).length, LIGHT_SKIPPED.length);
+  assert.deepEqual(verdict(ok, false, true, false), []);
+});
+test('verdict base 0.18: a light job that ran anyway is red (decision disagrees)', () => {
+  assert.equal(verdict(ok, false, true, true).length, LIGHT_SKIPPED.length);
+});
+test('verdict base 0.18: a skipped screens shard job, a failed or cancelled job is red', () => {
+  assert.equal(verdict({ ...skipLight, screens: { result: 'skipped' } }, false, true, true).length, 1);
+  for (const r of ['failure', 'cancelled']) {
+    assert.equal(verdict({ ...skipLight, screens: { result: r } }, false, true, true).length, 1);
+    assert.equal(verdict({ ...skipLight, static: { result: r } }, false, true, true).length, 1);
+    assert.equal(verdict({ ...skipLight, demo: { result: r } }, false, true, true).length, 1);
+  }
+});
+test('verdict: docs-only is green on both bases', () => {
+  assert.deepEqual(verdict(skipHeavy, true, true, true), []);
+  assert.deepEqual(verdict(skipHeavy, true, true, false), []);
+});
+test('verdict: light and the starter/demo filter together are green', () => {
+  assert.deepEqual(verdict(skipLight, false, false, true), []);
+});
+test('verdict: the Release PR (base main, not light) must have run everything', () => {
+  const light = isLight('main', 'changeset-release/main');
+  assert.equal(verdict(skipLight, false, true, light).length, LIGHT_SKIPPED.length);
+  assert.deepEqual(verdict(ok, false, true, light), []);
+});
+test('verdict: an empty diff on base 0.18 is light (it still runs the screens shards)', () => {
+  assert.equal(isDocsOnly([], 'fix/a'), false);
+  assert.deepEqual(verdict(skipLight, false, needsStarterDemo([]), isLight('0.18', 'fix/a')), []);
+});
+test('verdict: a classification error (light missing or unknown) runs everything', () => {
+  // The workflow passes light='' when `changes` printed nothing: the CLI reads only the exact word `true`.
+  assert.equal(verdict(skipLight, false, true, '' === 'true').length, LIGHT_SKIPPED.length);
 });

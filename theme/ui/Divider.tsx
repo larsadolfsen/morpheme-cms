@@ -1,4 +1,4 @@
-// A divider (m3.material.io/components/divider, .divider in ../styles/ui.css): a thin line between groups of
+// A divider (m3.material.io/components/divider, .divider in ../styles/divider.css): a thin line between groups of
 // content, an <hr> (a separator to screen readers). Its kind (`kind`): 'full-width' (from edge to edge, the
 // default), 'inset' (in from the start, as far as the text of a list's items with something before them) or
 // 'middle-inset' (in from both sides); `vertical`: a line from top to bottom between things side by side

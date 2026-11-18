@@ -18,33 +18,33 @@ const say = t.parts.tokens;
 const back = { href: '#developer/parts', label: t.common.parts.editorParts };
 
 /** A token: its CSS variable, its name here, and for a part's own the token or the value ui.css gives it when the theme
- * does not set it (its `var(--chip-radius, var(--block-control-radius))`). */
+ * does not set it (its `var(--mo-comp-filter-chip-container-shape, var(--mo-sys-block-control-radius))`). */
 type Token = { token: string; label: string; fallback?: string };
 
 const shape: Token[] = [
-  { token: '--radius', label: say.shape.radius },
-  { token: '--radius-small', label: say.shape.radiusSmall },
-  { token: '--block-radius', label: say.shape.blockRadius },
-  { token: '--block-radius-small', label: say.shape.blockRadiusSmall },
-  { token: '--block-control-radius', label: say.shape.blockControlRadius },
-  { token: '--theme-picture-radius', label: say.shape.imageRadius },
-  { token: '--theme-post-picture-radius', label: say.shape.postImageRadius },
-  { token: '--theme-logo-tile-radius', label: say.shape.logoTileRadius },
+  { token: '--mo-sys-radius', label: say.shape.radius },
+  { token: '--mo-sys-radius-small', label: say.shape.radiusSmall },
+  { token: '--mo-sys-block-radius', label: say.shape.blockRadius },
+  { token: '--mo-sys-block-radius-small', label: say.shape.blockRadiusSmall },
+  { token: '--mo-sys-block-control-radius', label: say.shape.blockControlRadius },
+  { token: '--mo-comp-theme-picture-radius', label: say.shape.imageRadius },
+  { token: '--mo-comp-theme-post-picture-radius', label: say.shape.postImageRadius },
+  { token: '--mo-comp-theme-logo-tile-radius', label: say.shape.logoTileRadius },
 ];
 
 // The UI parts' corners, with what ui.css gives each when the theme does not set it.
 const parts: Token[] = [
-  { token: '--button-radius', label: say.parts.button, fallback: '--block-control-radius' },
-  { token: '--chip-radius', label: say.parts.chip, fallback: '--block-control-radius' },
-  { token: '--text-field-radius', label: say.parts.textField, fallback: '--block-control-radius' },
-  { token: '--card-radius', label: say.parts.card, fallback: '--block-radius' },
-  { token: '--menu-radius', label: say.parts.menu, fallback: '--block-radius-small' },
-  { token: '--dialog-radius', label: say.parts.dialog, fallback: '--block-radius' },
-  { token: '--bottom-sheet-radius', label: say.parts.bottomSheet, fallback: '--block-radius' },
-  { token: '--side-sheet-radius', label: say.parts.sideSheet, fallback: '--block-radius' },
-  { token: '--fab-radius', label: say.parts.fab, fallback: '--block-radius-small' },
-  { token: '--snackbar-radius', label: say.parts.snackbar, fallback: '1rem' },
-  { token: '--search-bar-radius', label: say.parts.searchBar, fallback: '--block-control-radius' },
+  { token: '--mo-comp-button-medium-container-shape-round', label: say.parts.button, fallback: '--mo-sys-block-control-radius' },
+  { token: '--mo-comp-filter-chip-container-shape', label: say.parts.chip, fallback: '--mo-sys-block-control-radius' },
+  { token: '--mo-comp-text-field-radius', label: say.parts.textField, fallback: '--mo-sys-block-control-radius' },
+  { token: '--mo-comp-card-radius', label: say.parts.card, fallback: '--mo-sys-block-radius' },
+  { token: '--mo-comp-menu-container-shape', label: say.parts.menu, fallback: '--mo-sys-block-radius-small' },
+  { token: '--mo-comp-dialog-container-shape', label: say.parts.dialog, fallback: '--mo-sys-block-radius' },
+  { token: '--mo-comp-sheet-bottom-docked-container-shape', label: say.parts.bottomSheet, fallback: '--mo-sys-block-radius' },
+  { token: '--mo-comp-sheet-side-docked-container-shape', label: say.parts.sideSheet, fallback: '--mo-sys-block-radius' },
+  { token: '--mo-comp-fab-container-shape', label: say.parts.fab, fallback: '--mo-sys-block-radius-small' },
+  { token: '--mo-comp-snackbar-container-shape', label: say.parts.snackbar, fallback: '1rem' },
+  { token: '--mo-comp-search-bar-container-shape', label: say.parts.searchBar, fallback: '--mo-sys-block-control-radius' },
 ];
 
 // Material 3's elevation levels (ui.css, which every theme has, set to the theme's own look).
@@ -54,33 +54,41 @@ const LEVELS = [0, 1, 2, 3, 4, 5];
 // ui.css gives it when the theme does not set it (Material 3's level, the list under "Elevation" in ui.css). Only the
 // parts with a variable of their own; the others are always level 0.
 const shadows: Token[] = [
-  { token: '--panel-shadow', label: say.elevation.shadow },
-  { token: '--block-shadow', label: say.elevation.blockShadow },
-  { token: '--button-filled-shadow', label: say.partShadows.buttonFilled, fallback: '--mo-elevation-0-shadow' },
-  { token: '--button-tonal-shadow', label: say.partShadows.buttonTonal, fallback: '--mo-elevation-0-shadow' },
-  { token: '--button-elevated-shadow', label: say.partShadows.buttonElevated, fallback: '--mo-elevation-1-shadow' },
-  { token: '--chip-elevated-shadow', label: say.partShadows.chipElevated, fallback: '--mo-elevation-1-shadow' },
-  { token: '--card-filled-shadow', label: say.partShadows.cardFilled, fallback: '--mo-elevation-0-shadow' },
-  { token: '--card-outlined-shadow', label: say.partShadows.cardOutlined, fallback: '--mo-elevation-0-shadow' },
-  { token: '--card-elevated-shadow', label: say.partShadows.cardElevated, fallback: '--mo-elevation-1-shadow' },
-  { token: '--switch-handle-shadow', label: say.partShadows.switchHandle, fallback: '--mo-elevation-1-shadow' },
-  { token: '--slider-handle-shadow', label: say.partShadows.sliderHandle, fallback: '--mo-elevation-1-shadow' },
-  { token: '--menu-shadow', label: say.partShadows.menu, fallback: '--mo-elevation-2-shadow' },
-  { token: '--tooltip-rich-shadow', label: say.partShadows.tooltipRich, fallback: '--mo-elevation-2-shadow' },
-  { token: '--dialog-shadow', label: say.partShadows.dialog, fallback: '--mo-elevation-3-shadow' },
-  { token: '--bottom-sheet-shadow', label: say.partShadows.bottomSheet, fallback: '--mo-elevation-1-shadow' },
-  { token: '--bottom-sheet-shadow-large', label: say.partShadows.bottomSheetLarge, fallback: '--mo-elevation-3-shadow' },
-  { token: '--side-sheet-shadow', label: say.partShadows.sideSheet, fallback: '--mo-elevation-1-shadow' },
-  { token: '--navigation-drawer-shadow', label: say.partShadows.navigationDrawer, fallback: '--mo-elevation-1-shadow' },
-  { token: '--navigation-bar-shadow', label: say.partShadows.navigationBar, fallback: '--mo-elevation-0-shadow' },
-  { token: '--navigation-rail-modal-shadow', label: say.partShadows.navigationRailModal, fallback: '--mo-elevation-2-shadow' },
-  { token: '--top-app-bar-stuck-shadow', label: say.partShadows.topAppBarStuck, fallback: '--mo-elevation-2-shadow' },
-  { token: '--fab-shadow', label: say.partShadows.fab, fallback: '--mo-elevation-3-shadow' },
-  { token: '--toolbar-floating-shadow', label: say.partShadows.toolbarFloating, fallback: '--mo-elevation-3-shadow' },
-  { token: '--search-bar-shadow', label: say.partShadows.searchBar, fallback: '--mo-elevation-0-shadow' },
-  { token: '--search-view-shadow', label: say.partShadows.searchView, fallback: '--mo-elevation-3-shadow' },
-  { token: '--snackbar-shadow', label: say.partShadows.snackbar, fallback: '--mo-elevation-3-shadow' },
-  { token: '--button-toggle-selected-shadow', label: say.partShadows.buttonToggleSelected, fallback: '--mo-elevation-0-shadow' },
+  { token: '--mo-sys-panel-shadow', label: say.elevation.shadow },
+  { token: '--mo-sys-block-shadow', label: say.elevation.blockShadow },
+  {
+    token: '--mo-comp-button-filled-container-elevation',
+    label: say.partShadows.buttonFilled,
+    fallback: '--mo-sys-elevation-level0-shadow',
+  },
+  { token: '--button-tonal-shadow', label: say.partShadows.buttonTonal, fallback: '--mo-sys-elevation-level0-shadow' },
+  { token: '--button-elevated-shadow', label: say.partShadows.buttonElevated, fallback: '--mo-sys-elevation-level1-shadow' },
+  { token: '--chip-elevated-shadow', label: say.partShadows.chipElevated, fallback: '--mo-sys-elevation-level1-shadow' },
+  { token: '--card-filled-shadow', label: say.partShadows.cardFilled, fallback: '--mo-sys-elevation-level0-shadow' },
+  { token: '--card-outlined-shadow', label: say.partShadows.cardOutlined, fallback: '--mo-sys-elevation-level0-shadow' },
+  {
+    token: '--mo-comp-elevated-card-container-elevation',
+    label: say.partShadows.cardElevated,
+    fallback: '--mo-sys-elevation-level1-shadow',
+  },
+  { token: '--switch-handle-shadow', label: say.partShadows.switchHandle, fallback: '--mo-sys-elevation-level1-shadow' },
+  { token: '--slider-handle-shadow', label: say.partShadows.sliderHandle, fallback: '--mo-sys-elevation-level1-shadow' },
+  { token: '--mo-comp-menu-container-elevation', label: say.partShadows.menu, fallback: '--mo-sys-elevation-level2-shadow' },
+  { token: '--tooltip-rich-shadow', label: say.partShadows.tooltipRich, fallback: '--mo-sys-elevation-level2-shadow' },
+  { token: '--dialog-shadow', label: say.partShadows.dialog, fallback: '--mo-sys-elevation-level3-shadow' },
+  { token: '--bottom-sheet-shadow', label: say.partShadows.bottomSheet, fallback: '--mo-sys-elevation-level1-shadow' },
+  { token: '--bottom-sheet-shadow-large', label: say.partShadows.bottomSheetLarge, fallback: '--mo-sys-elevation-level3-shadow' },
+  { token: '--side-sheet-shadow', label: say.partShadows.sideSheet, fallback: '--mo-sys-elevation-level1-shadow' },
+  { token: '--navigation-drawer-shadow', label: say.partShadows.navigationDrawer, fallback: '--mo-sys-elevation-level1-shadow' },
+  { token: '--navigation-bar-shadow', label: say.partShadows.navigationBar, fallback: '--mo-sys-elevation-level0-shadow' },
+  { token: '--navigation-rail-modal-shadow', label: say.partShadows.navigationRailModal, fallback: '--mo-sys-elevation-level2-shadow' },
+  { token: '--top-app-bar-stuck-shadow', label: say.partShadows.topAppBarStuck, fallback: '--mo-sys-elevation-level2-shadow' },
+  { token: '--mo-comp-fab-shadow', label: say.partShadows.fab, fallback: '--mo-sys-elevation-level3-shadow' },
+  { token: '--toolbar-floating-shadow', label: say.partShadows.toolbarFloating, fallback: '--mo-sys-elevation-level3-shadow' },
+  { token: '--search-bar-shadow', label: say.partShadows.searchBar, fallback: '--mo-sys-elevation-level0-shadow' },
+  { token: '--search-view-shadow', label: say.partShadows.searchView, fallback: '--mo-sys-elevation-level3-shadow' },
+  { token: '--snackbar-shadow', label: say.partShadows.snackbar, fallback: '--mo-sys-elevation-level3-shadow' },
+  { token: '--button-toggle-selected-shadow', label: say.partShadows.buttonToggleSelected, fallback: '--mo-sys-elevation-level0-shadow' },
   // Pointed at (hover) and dragged, as ui.css draws them: their own variable, else the part's at rest, else the level.
   ...[
     ['--button-filled', say.partShadows.buttonFilled, 1],
@@ -95,39 +103,39 @@ const shadows: Token[] = [
   ].map(([part, label, level]) => ({
     token: `${part}-hover-shadow`,
     label: say.partShadows.hovered(label as string),
-    fallback: `var(${part}-shadow, var(--mo-elevation-${level}-shadow))`,
+    fallback: `var(${part}-shadow, var(--mo-sys-elevation-level${level}-shadow))`,
   })),
   {
     token: '--chip-selected-hover-shadow',
     label: say.partShadows.hovered(say.partShadows.chipSelected),
-    fallback: '--mo-elevation-1-shadow',
+    fallback: '--mo-sys-elevation-level1-shadow',
   },
-  { token: '--chip-dragged-shadow', label: say.partShadows.dragged(say.partShadows.chip), fallback: '--mo-elevation-4-shadow' },
+  { token: '--chip-dragged-shadow', label: say.partShadows.dragged(say.partShadows.chip), fallback: '--mo-sys-elevation-level4-shadow' },
   {
     token: '--card-filled-dragged-shadow',
     label: say.partShadows.dragged(say.partShadows.cardFilled),
-    fallback: '--mo-elevation-3-shadow',
+    fallback: '--mo-sys-elevation-level3-shadow',
   },
   {
     token: '--card-outlined-dragged-shadow',
     label: say.partShadows.dragged(say.partShadows.cardOutlined),
-    fallback: '--mo-elevation-3-shadow',
+    fallback: '--mo-sys-elevation-level3-shadow',
   },
   {
     token: '--card-elevated-dragged-shadow',
     label: say.partShadows.dragged(say.partShadows.cardElevated),
-    fallback: '--mo-elevation-4-shadow',
+    fallback: '--mo-sys-elevation-level4-shadow',
   },
 ];
 
 const typeface: Token = { token: '--font-sans', label: say.type.typeface };
 
 /** Material 3's type scale (m3.material.io/styles/typography/type-scale-tokens, ui.css): its five roles, each in three
- * sizes, largest first, each a set of variables (--type-display-large-size, -line-height, -weight, -tracking). */
+ * sizes, largest first, each a set of variables (--mo-sys-typescale-display-large-size, -line-height, -weight, -tracking). */
 type Role = keyof typeof say.type.roles;
 type Size = keyof typeof say.type.sizes;
 const typeScale: { role: Role; size: Size; token: string }[] = (Object.keys(say.type.roles) as Role[]).flatMap((role) =>
-  (Object.keys(say.type.sizes) as Size[]).map((size) => ({ role, size, token: `--type-${role}-${size}` })),
+  (Object.keys(say.type.sizes) as Size[]).map((size) => ({ role, size, token: `--mo-sys-typescale-${role}-${size}` })),
 );
 
 /** A length in px ("3.5625rem" is "57px" with 16px text, "-0.015625rem" "-0.25px"); anything else as it is. */
@@ -148,7 +156,7 @@ function typeValues(token: string, style: CSSStyleDeclaration, rootSize: number)
   );
 }
 
-const colors: Token[] = colorFields.map((f) => ({ token: `--mo-${f.name}`, label: f.label }));
+const colors: Token[] = colorFields.map((f) => ({ token: `--mo-sys-color-${f.name}`, label: f.label }));
 
 const groups: { kind: TokenKind; title: string; tokens: Token[] }[] = [{ kind: 'color', title: say.groups.color, tokens: colors }];
 
@@ -257,7 +265,7 @@ function shadowRows() {
     probe.style.boxShadow = css;
     return getComputedStyle(probe).boxShadow;
   };
-  const levels = LEVELS.map((n) => drawn(`var(--mo-elevation-${n}-shadow)`));
+  const levels = LEVELS.map((n) => drawn(`var(--mo-sys-elevation-level${n}-shadow)`));
   const none = drawn('none');
   const own = new Map<string, Token[]>();
   const onLevel: Token[][] = LEVELS.map(() => []);
@@ -270,8 +278,8 @@ function shadowRows() {
   probe.remove();
   return [
     ...LEVELS.map((n) => ({
-      key: `--mo-elevation-${n}-shadow`,
-      sample: `var(--mo-elevation-${n}-shadow)`,
+      key: `--mo-sys-elevation-level${n}-shadow`,
+      sample: `var(--mo-sys-elevation-level${n}-shadow)`,
       title: say.elevation.level(n),
       uses: onLevel[n].map((x) => x.label),
     })),

@@ -20,6 +20,7 @@ import { binOf } from './bin.mjs';
 import { buildOutDir } from './build-out.mjs';
 import { openEditor, serveBuilt } from './built-site.mjs';
 import { blockHtml } from '../lib/blocks.mjs';
+import { demoBlocksTestBody } from './demo-blocks.mjs';
 
 const ROOT = `${process.cwd()}/`;
 const PAGE = 'src/content/pages/contrast-test.md';
@@ -195,17 +196,19 @@ function unique(records, view) {
   return [...map.values()];
 }
 
-// The test page: the Blocks page on each section colour, one after the other.
-// (The site's own Blocks page if it has one, else the demo's, which the package carries: a site is not the demo.)
+// The test page: the Blocks pages on each section colour, one after the other.
+// (The site's own Blocks pages if it has them, else the demo's, which the package carries: a site is not the demo.)
 const siteBlocks = join(ROOT, 'src/content/pages/blocks.md');
-const blocksText = readFileSync(
-  existsSync(siteBlocks) ? siteBlocks : fileURLToPath(new URL('../demo/src/content/pages/blocks.md', import.meta.url)),
-  'utf8',
-);
-const body = blocksText.replace(/^---[\s\S]*?---\n/, '');
-// Every kind of button (Material's five), whatever the Blocks page shows.
+const sitePages = join(ROOT, 'src/content/pages');
+const hasComponentPages = existsSync(sitePages) && readdirSync(sitePages).some((f) => /^blocks-.+\.md$/.test(f));
+const body = hasComponentPages
+  ? demoBlocksTestBody(sitePages)
+  : existsSync(siteBlocks)
+    ? readFileSync(siteBlocks, 'utf8').replace(/^---[\s\S]*?---\n/, '')
+    : demoBlocksTestBody();
+// Every kind of button the block offers, whatever the Blocks page shows.
 const kinds = `## Button kinds\n\n${blockHtml('buttons', {
-  items: ['filled', 'tonal', 'elevated', 'outlined', 'text'].map((kind) => ({
+  items: ['filled', 'tonal', 'outlined', 'text'].map((kind) => ({
     label: kind,
     to: 'page',
     href: '/about/',

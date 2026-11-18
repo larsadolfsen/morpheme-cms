@@ -242,7 +242,7 @@ function Tile({
         <span
           aria-hidden="true"
           data-tile-mark={selected ? 'on' : 'off'}
-          className={`absolute top-0 left-0 flex size-12 items-center justify-center transition-opacity duration-(--motion-effects-duration) ease-(--motion-ease) ${
+          className={`absolute top-0 left-0 flex size-12 items-center justify-center transition-opacity duration-(--mo-sys-motion-spring-default-effects-duration) ease-(--motion-ease) ${
             selecting
               ? 'opacity-100'
               : 'pointer-events-none opacity-0 group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100'

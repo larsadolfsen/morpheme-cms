@@ -2,15 +2,15 @@
 // have it, two tags show the images with both (AND), a tag that would leave nothing is disabled, `Clear tags` brings every image back, the chosen
 // tags are in the address (#tags=…) and come back on a reload, and a tap on a card opens the lightbox on that image among the images shown, with
 // Next, Previous and Escape working and the focus back on the card. Run on the built site: npm run build, then
-// `cd .morpheme/demo/site && node ../../../scripts/check-imagegrid.mjs` (the demo's Blocks page has the grids).
+// `cd .morpheme/demo/site && node ../../../scripts/check-imagegrid.mjs` (the demo's Image grid page, /blocks/image-grid/, has the grids).
 import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { chromium } from 'playwright';
 import { serveBuilt } from './built-site.mjs';
 
 const DIST = resolve(process.cwd(), process.argv[2] ?? 'dist');
-if (!existsSync(join(DIST, 'blocks/index.html'))) {
-  console.log('The site has no Blocks page with an image grid: skipped.');
+if (!existsSync(join(DIST, 'blocks/image-grid/index.html'))) {
+  console.log('The site has no Image grid page (/blocks/image-grid/) with an image grid: skipped.');
   process.exit(0);
 }
 const problems = [];
@@ -22,10 +22,10 @@ async function run(width, height) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const label = `${width}px`;
-  await page.goto(`${site}/blocks/`);
+  await page.goto(`${site}/blocks/image-grid/`);
   const root = page.locator('[data-imagegrid]:has([data-imagegrid-filter])').first();
   if (!(await root.count())) {
-    problems.push(`${label}: no image grid with a filter on the Blocks page`);
+    problems.push(`${label}: no image grid with a filter on the Image grid page`);
     await page.close();
     return;
   }

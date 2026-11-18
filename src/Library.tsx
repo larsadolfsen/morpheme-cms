@@ -1726,7 +1726,9 @@ function TreeRows({
               href={item.href || undefined}
               tone={item.href ? undefined : 'muted'}
               // Indented a step under the item it is under, in the editor's segmented lists.
-              style={depth ? { paddingInlineStart: `calc(var(--list-segmented-padding-inline, 1rem) + ${depth * 1.25}rem)` } : undefined}
+              style={
+                depth ? { paddingInlineStart: `calc(var(--mo-comp-list-segmented-padding-inline, 1rem) + ${depth * 1.25}rem)` } : undefined
+              }
               leading={ring?.(item)}
               headline={item.title}
               supporting={

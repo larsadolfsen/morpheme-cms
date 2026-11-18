@@ -1,0 +1,7 @@
+{
+  "id": "token-contract-6",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Tema- og appkontrakt",
+  "text": "Temaer og apps lavet til niveau 5 virker ikke, før deres udviklere opdaterer dem, fordi designtokens har fået nye navne fra Material 3. Butik viser kun temaer og apps på niveau 6, så opdater, når de kommer. Udviklere: THEME_API og APP_API er 6, se docs/theme-token-files.md."
+}

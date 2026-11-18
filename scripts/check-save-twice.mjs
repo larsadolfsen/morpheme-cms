@@ -214,7 +214,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       return false;
     },
   );
-  for (const name of opened ? ['Save draft', 'Publish'] : []) {
+  for (const name of opened ? ['Save', 'Publish'] : []) {
     await type(` ${name}`);
     const before = repo.answered.length;
     await page.getByRole('button', { name, exact: true }).click();
@@ -229,9 +229,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     await page.goto(`${site}/editor/#${post}`);
     await page.waitForSelector('[contenteditable=true]', { timeout: 15_000 }).catch(() => fail.push(`${name} did not open in the editor`));
     await type(' one');
-    await press('Save draft', `${name}: Save draft`);
+    await press('Save', `${name}: Save`);
     await type(' two');
-    await press('Save draft', `${name}: Save draft again`);
+    await press('Save', `${name}: Save again`);
     await type(' three');
     await press('Publish', `${name}: Publish`);
     const saved = repo.read(post) ?? '';
@@ -239,7 +239,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       fail.push(`${name} was not saved as not on the blog: ${JSON.stringify(saved.slice(0, 200))}`);
   }
 
-  // A new page, the tab hidden after a few words (the Worker makes the draft page file), then Save draft twice and Publish.
+  // A new page, the tab hidden after a few words (the Worker makes the draft page file), then Save twice and Publish.
   await page.goto(`${site}/editor/#new/pages`);
   await page.waitForSelector('[contenteditable=true]');
   await type('From us to you');
@@ -247,10 +247,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   if (![...repo.written.keys()].some((k) => k.startsWith('src/content/pages/') && k.includes('new-page')))
     fail.push('the autosave made no page file');
   await type(' more');
-  await press('Save draft', 'Save draft after the tab was hidden');
+  await press('Save', 'Save after the tab was hidden');
   await type(' again');
   await leave();
-  await press('Save draft', 'Save draft again after the tab was hidden');
+  await press('Save', 'Save again after the tab was hidden');
   await type(' three');
   await press('Publish', 'Publish');
 

@@ -1,7 +1,7 @@
 // The messages at the bottom of the screen (snackbars), the same in the editor (notify in App.tsx) and on
 // the site (a new version of a page, PageLayout.astro): in the middle, the newest lowest and the ones before
 // it moved up. Their look and place are the theme's Snackbar (.snackbar-stack and .snackbar in
-// packages/editor/theme/styles/ui.css). The editor's are drawn here, a text and links; the site's are drawn by
+// theme/styles/snackbar.css). The editor's are drawn here, a text and links; the site's are drawn by
 // the theme's part (packages/editor/theme/ui/Snackbar.tsx, with its action and close button) and shown with
 // the element the message carries (ui/snackbar.script.ts).
 //

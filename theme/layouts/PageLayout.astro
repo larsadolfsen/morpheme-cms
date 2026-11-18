@@ -3,9 +3,9 @@
 // with the block src/data/side.json chooses in a column beside it (sideBlock) when its template is a sidebar one
 // (`template`, lib/page-template.mjs: the theme's "templates"), and the booking prompt across the page when the text ends
 // with it. The wrapper carries data-template, so a theme can style a template; `full` is drawn like `single` here.
-// Width: with a column beside it the text is 66ch wide, blocks and all; without one (single, full) the text column is the
-// container's width, its blocks (not-prose) span it, and its other parts (paragraphs, headings) keep 66ch. Its first
-// paragraph is the lead (type-lead, ui.css: the --type-lead-* tokens), muted and 52ch wide.
+// Width: with a column beside it the text is the text measure wide (--mo-sys-block-text-measure-min to -max, blocks.css), blocks and all; without one (single, full) the text column is the
+// container's width, its blocks (not-prose) span it, and its other parts (paragraphs, headings) keep it. Its first
+// paragraph is the lead (mo-type-lead, ui.css: the --type-lead-* tokens), muted and 52ch wide.
 // data-editor marks what the editor's preview fills in with what is in its form ("Preview",
 // packages/editor/src/pagePreview.tsx): the heading, the text, and the booking prompt at the end.
 // A page whose H1 has section settings (the marker before it, lib/section-marker.mjs: a colour, an image behind it or the whole width) draws the heading and the text up to the
@@ -64,13 +64,13 @@ const h1Color = h1Settings ? h1Settings.color : null;
 // An H1 section with a colour has a background: it starts right under the navigation bar, with no space above it.
 const h1Background = Boolean(h1Settings?.color);
 const end = endBlock(html);
-// The questions in the text's "Questions and answers" blocks (not the hidden ones), for the structured data
-// (an FAQPage, packages/editor/site/schema.ts); the answers as HTML, as on the page (the block's load.ts).
+// The rows of the text's "List - Expand" blocks marked as a FAQ (`faq`, not the hidden ones), for the structured data (an FAQPage, packages/editor/site/schema.ts): the
+// heading is the question and the text the answer as HTML, as on the page (the block's load.ts). A "FAQ list" from before is read as one (FORMER in lib/blocks.mjs).
 const questions = await Promise.all(
-  splitBlocks(html, ['faq'])
-    .flatMap((b) => (b.type === 'faq' ? ((b.props.items ?? []) as { question?: string; answer?: string }[]) : []))
-    .filter((q) => q.question?.trim() && q.answer?.trim())
-    .map(async (q) => ({ question: q.question!.trim(), answer: await markdownHtml(q.answer!) })),
+  splitBlocks(html, ['expand'])
+    .flatMap((b) => (b.type === 'expand' && b.props.faq === true ? ((b.props.items ?? []) as { title?: string; text?: string }[]) : []))
+    .filter((q) => q.title?.trim() && q.text?.trim())
+    .map(async (q) => ({ question: q.title!.trim(), answer: await markdownHtml(q.text!) })),
 );
 // A new version of a page (/new/…, packages/editor/site/noindex.mjs): a message at the bottom when the page opens
 // (the theme's Snackbar, shown by ui/snackbar.script.ts with time to read the links) links to the current
@@ -91,8 +91,8 @@ const side =
 // the text stays whole in its grid and the panel holds the heading only.
 const { intro, rest } = h1Settings && !side ? introOf(sideText) : { intro: '', rest: sideText };
 const textClass = side
-  ? 'prose max-w-[66ch]'
-  : 'prose max-w-none [&>:not(.not-prose)]:max-w-[66ch] [&>p:first-child]:type-lead [&>p:first-child]:text-on-surface-variant [&>p:first-child]:max-w-[52ch]';
+  ? 'prose max-w-[var(--mo-sys-block-text-measure-max)] min-w-[min(var(--mo-sys-block-text-measure-min),100%)]'
+  : 'prose max-w-none [&>:not(.not-prose)]:max-w-[var(--mo-sys-block-text-measure-max)] [&>:not(.not-prose,.text-section-full)]:min-w-[min(var(--mo-sys-block-text-measure-min),100%)] [&>p:first-child]:mo-type-lead [&>p:first-child]:text-on-surface-variant [&>p:first-child]:max-w-[52ch]';
 ---
 
 <Base

@@ -28,7 +28,9 @@ export function cardDesignProblems(css) {
       problems.push(`the card design "${design}" (.card-${design}) has no background`);
   }
   for (const color of CARD_COLORS) {
-    if (!bodies(css, `block-cards-${color}`).some((b) => /--card-filled-surface\s*:|(^|[;\s])background(-color)?\s*:/.test(b)))
+    if (
+      !bodies(css, `block-cards-${color}`).some((b) => /--mo-comp-filled-card-container-color\s*:|(^|[;\s])background(-color)?\s*:/.test(b))
+    )
       problems.push(`the filled card color "${color}" (.block-cards-${color}) has no surface`);
   }
   return problems;

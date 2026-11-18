@@ -1,0 +1,6 @@
+{
+  "id": "focus-on-section",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "In the page text, the focus frame sits round the section or block you are in, not the whole editor"
+}

@@ -9,9 +9,8 @@ import InlineTable from './InlineTable';
 import InlineNotice from './InlineNotice';
 import InlineVideo from './InlineVideo';
 import InlineSteps from './InlineSteps';
-import InlineSegmented from './InlineSegmented';
+import InlineExpand from './InlineExpand';
 import InlineButtons from './InlineButtons';
-import InlineFaq from './InlineFaq';
 import InlinePriceCards from './InlinePriceCards';
 import InlineTestimonials from './InlineTestimonials';
 import InlinePosts from './InlinePosts';
@@ -53,9 +52,8 @@ export const inlineViews: Record<string, ComponentType<InlineViewProps>> = {
   notice: InlineNotice,
   video: InlineVideo,
   steps: InlineSteps,
-  segmented: InlineSegmented,
+  expand: InlineExpand,
   buttons: InlineButtons,
-  faq: InlineFaq,
   pricecards: InlinePriceCards,
   testimonials: InlineTestimonials,
   posts: InlinePosts,
