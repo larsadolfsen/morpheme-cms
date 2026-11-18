@@ -6,14 +6,14 @@
   }
 }
 @layer components {
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .image-grid {
       --mo-comp-grid-columns: 3;
     }
   }
 }
 @layer components {
-  @media (width >= theme(--breakpoint-large)) {
+  @media (width >= 75rem) {
     .image-grid {
       --mo-comp-grid-columns: 4;
     }

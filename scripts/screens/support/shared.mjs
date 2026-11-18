@@ -230,24 +230,24 @@ export async function checkSavedLabel(page, width) {
   const label = `${width}px label on any line (saved page)`;
   const labelNow = () =>
     page.evaluate(() => {
-      const el = document.querySelector('.ProseMirror p.label-medium');
+      const el = document.querySelector('.ProseMirror p.mo-type-label-medium');
       return el ? { text: el.textContent, size: getComputedStyle(el).fontSize } : null;
     });
   const path = BUILT_PAGE;
   const text =
-    '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<p class="label-medium">Opening hours</p>\n\nMonday to Friday.\n';
+    '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<p class="mo-type-label-medium">Opening hours</p>\n\nMonday to Friday.\n';
   await openEditor(page, site, { [path]: text });
   await page.goto(`${site}/editor/#${path}`);
-  await page.waitForSelector('.ProseMirror p.label-medium', { timeout: 30_000 });
+  await page.waitForSelector('.ProseMirror p.mo-type-label-medium', { timeout: 30_000 });
   const inEditor = await labelNow();
   if (!inEditor || inEditor.size !== '12px')
     problems.push(`${label}: a saved lone label is not a label in the editor (${JSON.stringify(inEditor)})`);
   await clickPreview(page);
   await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
-  await frame.waitForSelector('[data-editor="text"] .label-medium', { timeout: 30_000 });
+  await frame.waitForSelector('[data-editor="text"] .mo-type-label-medium', { timeout: 30_000 });
   const drawn = await frame.evaluate(() => {
-    const el = document.querySelector('[data-editor="text"] .label-medium');
+    const el = document.querySelector('[data-editor="text"] .mo-type-label-medium');
     const next = el.nextElementSibling;
     return { size: getComputedStyle(el).fontSize, gap: next ? next.getBoundingClientRect().top - el.getBoundingClientRect().bottom : -1 };
   });

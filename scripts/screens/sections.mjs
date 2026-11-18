@@ -206,14 +206,14 @@ async function checkFullSection() {
   await phone.close();
 }
 
-/** A label above a heading (`<p class="label-medium">`, lib/eyebrow.mjs) on the demo's front page, About and App store pages, at 375, 768 and 1280 px, light and dark: the label sits 8 px above its heading
+/** A label above a heading (`<p class="mo-type-label-medium">`, lib/eyebrow.mjs) on the demo's front page, About and App store pages, at 375, 768 and 1280 px, light and dark: the label sits 8 px above its heading
  * (0.5rem, the same everywhere), so the space of the section the heading belongs to never comes between them (the front page puts the label in the section after it, Home.astro). */
 async function checkLabelGap() {
   const labelGap = 8;
   // Only the demo has these pages and labels: a site without them (the starter) has nothing to measure.
   const probe = await browser.newPage({ locale: 'en-US' });
   const response = await probe.goto(new URL('/about/', site).href).catch(() => null);
-  const hasLabels = !!response && response.status() < 400 && (await probe.locator('main .label-medium').count()) > 0;
+  const hasLabels = !!response && response.status() < 400 && (await probe.locator('main .mo-type-label-medium').count()) > 0;
   await probe.close();
   if (!hasLabels) return;
   for (const width of [375, 768, 1280])
@@ -228,7 +228,7 @@ async function checkLabelGap() {
         }
         const gaps = await page.evaluate(() => {
           const headings = [...document.querySelectorAll('h1, h2, h3')];
-          return [...document.querySelectorAll('main .label-medium')].map((el) => {
+          return [...document.querySelectorAll('main .mo-type-label-medium')].map((el) => {
             const heading = headings.find((h) => el.compareDocumentPosition(h) & Node.DOCUMENT_POSITION_FOLLOWING);
             return {
               text: el.textContent,

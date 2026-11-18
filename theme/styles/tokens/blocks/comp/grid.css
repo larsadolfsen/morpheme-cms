@@ -1,21 +1,21 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
 @layer components {
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .block-imagegrid-grid[data-columns='2'] {
       --mo-comp-grid-columns: 2;
     }
   }
 }
 @layer components {
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .block-imagegrid-grid[data-columns='3'] {
       --mo-comp-grid-columns: 3;
     }
   }
 }
 @layer components {
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .block-imagegrid-grid[data-columns='4'] {
       --mo-comp-grid-columns: 4;
     }

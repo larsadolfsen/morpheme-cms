@@ -194,7 +194,7 @@
      container without the attribute (hand-written ones: Calendly's, and the editor's sheets), is a dialog in the middle of
      the screen: the rules below, which the other two values keep out of with :where(:not(:has(...))) so their
      specificity stays what it was. 'side-sheet' and 'sheet' follow after the standard sheet's rules. */
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .bottom-sheet:where(:not(:has(> [data-wide='side-sheet'], > [data-wide='sheet']))) {
       inset: 0;
       height: min(88dvh, 52rem);
@@ -291,7 +291,7 @@
      of the screen, full height, without handle, resize, collapse and close buttons, and with every part shown whatever
      its state (but hidden stays hidden). 'sheet': stays at the bottom, --bottom-sheet-margin-wide from the sides and the
      top. */
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .bottom-sheet-standard[data-wide='side-sheet'] {
       inset-block: 0;
       inset-inline: auto 0;
@@ -334,7 +334,7 @@
      the end of the screen, full height, over its scrim, without the drag handle; bottomSheet() slides it in from the end.
      'sheet': stays a bottom sheet (with its handle), --bottom-sheet-max-width wide at most and --bottom-sheet-margin-wide
      from the sides and the top; bottomSheet() slides it up. */
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .bottom-sheet:has(> [data-wide='side-sheet']) {
       inset: 0 0 0 auto;
       width: var(--side-sheet-width, 22.5rem);
