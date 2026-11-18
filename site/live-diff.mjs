@@ -25,20 +25,22 @@ function git(cwd, args, timeout = GIT_TIMEOUT) {
 
 /**
  * @param {object} o
- * @param {string} o.siteUrl the live site, `https://<domain>`
+ * @param {string} o.siteUrl the live site, `https://<domain>` (or MORPHEME_LIVE_URL), without a closing slash
  * @param {string} o.cwd the repository
  * @param {typeof globalThis.fetch} [o.fetch]
  * @param {string} [o.branch] the branch being built (WORKERS_CI_BRANCH; undefined outside Cloudflare)
+ * @param {string} [o.cms] the installed @morphemecms/cms version; when given, a live version.json with another or no `cms` gives no list
  * @param {string} o.repoBranch the site's own branch (repo.branch in its config)
  * @param {number} [o.gitTimeout] milliseconds a git call may take (default 60 s)
  * @returns {Promise<{ paths: string[] | null, reason: string, live: string | null }>}
  */
-export async function changedSinceLive({ siteUrl, cwd, fetch = globalThis.fetch, branch, repoBranch, gitTimeout }) {
+export async function changedSinceLive({ siteUrl, cwd, fetch = globalThis.fetch, branch, repoBranch, gitTimeout, cms }) {
   if (branch && branch !== repoBranch) {
     return { paths: null, reason: 'branch preview', live: null };
   }
 
   let live;
+  let liveCms;
   try {
     const res = await fetch(siteUrl + '/editor/version.json', { signal: AbortSignal.timeout(5000) });
     if (res.status !== 200) {
@@ -46,11 +48,18 @@ export async function changedSinceLive({ siteUrl, cwd, fetch = globalThis.fetch,
     }
     const body = await res.json();
     live = body?.commit;
+    liveCms = body?.cms;
     if (typeof live !== 'string' || !/^[0-9a-f]{40}$/.test(live)) {
       return { paths: null, reason: 'live commit unknown', live: null };
     }
   } catch {
     return { paths: null, reason: 'live commit unknown', live: null };
+  }
+
+  // A CMS installed at build time (or by an update) is invisible to the git diff, so a new one takes the full lane.
+  if (cms !== undefined && liveCms !== cms) {
+    const reason = typeof liveCms === 'string' ? `CMS version changed: ${liveCms} to ${cms}` : 'live CMS version unknown';
+    return { paths: null, reason, live };
   }
 
   try {

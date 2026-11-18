@@ -3,21 +3,31 @@
 // Exposes decideLane; running the file does the build. Depends on lib/build-lane.mjs, site/live-diff.mjs, step-command.mjs.
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, realpathSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BUILD_SETTINGS_PATH, readBuildSettings } from '../lib/build-settings.mjs';
 import { laneFor } from '../lib/build-lane.mjs';
 import { changedSinceLive } from '../site/live-diff.mjs';
 import { stepCommand } from './step-command.mjs';
 
+/** The version of this package, the CMS the site has installed. */
+function installedVersion() {
+  try {
+    return JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'package.json'), 'utf8')).version;
+  } catch {
+    return undefined;
+  }
+}
+
 /**
  * @param {object} o
  * @param {string} o.cwd the site's root; must be the working directory too, as the site config is loaded from there
  * @param {typeof globalThis.fetch} [o.fetch]
- * @param {NodeJS.ProcessEnv} [o.env]
+ * @param {NodeJS.ProcessEnv} [o.env] MORPHEME_LIVE_URL, when set, is the address the live commit is read from instead of `https://<domain>`
+ * @param {string} [o.cmsVersion] the installed @morphemecms/cms version (default: this package's)
  * @returns {Promise<{ lane: 'content' | 'full', reason: string, paths: string[] | null }>} any doubt gives the full lane.
  */
-export async function decideLane({ cwd, fetch = globalThis.fetch, env = process.env }) {
+export async function decideLane({ cwd, fetch = globalThis.fetch, env = process.env, cmsVersion = installedVersion() }) {
   let settings;
   try {
     const file = join(cwd, BUILD_SETTINGS_PATH);
@@ -29,12 +39,13 @@ export async function decideLane({ cwd, fetch = globalThis.fetch, env = process.
   try {
     // Loaded as check-content.mjs does, from the site's root (siteConfig.mjs reads the working directory).
     ({ config } = await import('../site/siteConfig.mjs'));
-    if (!config?.domain || !config?.repo?.branch) throw new Error('no domain or branch');
+    if (!(env.MORPHEME_LIVE_URL || config?.domain) || !config?.repo?.branch) throw new Error('no address or branch');
   } catch {
     return { ...laneFor(null, settings, 'site config unknown'), paths: null };
   }
   const { paths, reason } = await changedSinceLive({
-    siteUrl: 'https://' + config.domain,
+    siteUrl: env.MORPHEME_LIVE_URL ? env.MORPHEME_LIVE_URL.trim().replace(/\/+$/, '') : 'https://' + config.domain,
+    cms: cmsVersion,
     cwd,
     fetch,
     branch: env.WORKERS_CI_BRANCH,
