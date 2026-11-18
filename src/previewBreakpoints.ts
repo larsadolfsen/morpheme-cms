@@ -1,16 +1,16 @@
 // The window sizes the Preview (pagePreview.tsx) offers: the breakpoints the site and its theme have, read from
-// the page in the frame (the theme's `--breakpoint-*` on :root, theme/styles/base.css), so a theme with other breakpoints
+// the page in the frame (the theme's `--mo-ref-breakpoint-*` on :root, theme/styles/tokens/base/ref.css), so a theme with other breakpoints
 // shows its own; lib/breakpoints.mjs (Material 3's) is what a page without them gets. Also the page's height at each size.
 import { BREAKPOINTS, type Breakpoint } from '../lib/breakpoints.mjs';
 
 export const SIZES: Breakpoint[] = ['compact', 'medium', 'expanded', 'large', 'extraLarge'];
 
-/** The CSS name of each size's variable (`--breakpoint-extra-large`). */
+/** The CSS name of each size's variable (`--mo-ref-breakpoint-extra-large`). */
 const VARIABLE: Record<Exclude<Breakpoint, 'compact'>, string> = {
-  medium: '--breakpoint-medium',
-  expanded: '--breakpoint-expanded',
-  large: '--breakpoint-large',
-  extraLarge: '--breakpoint-extra-large',
+  medium: '--mo-ref-breakpoint-medium',
+  expanded: '--mo-ref-breakpoint-expanded',
+  large: '--mo-ref-breakpoint-large',
+  extraLarge: '--mo-ref-breakpoint-extra-large',
 };
 
 /** Where each size begins, in px: the page's own (a variable in rem or px) or, where it has none, Material 3's. */
