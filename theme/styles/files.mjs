@@ -18,6 +18,8 @@ export const UI_PART_FILES = [
   'switch.css',
   'radio-button.css',
   'slider.css',
+  'bottom-sheet.css',
+  'side-sheet.css',
 ];
 
 /** The other CSS files base.css imports, which are not parts of ui.css. */
