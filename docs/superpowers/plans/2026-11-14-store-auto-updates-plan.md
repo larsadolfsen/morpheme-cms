@@ -18,7 +18,7 @@ Order: PR 1 first. PR 2 and PR 4 can run in parallel after it. PR 3 needs PR 2. 
 ## PR 2 · morpheme-cms · The Worker takes store updates
 
 - New `worker/store-update.js`, same shape as `worker/cms-update.js` (I/O injected as `deps`, state in KV `PUSH`, no pending
-  promise in module memory): `checkStoreUpdates` (hourly, from `scheduled` in `worker/index.js`), `watchStoreUpdate` (each
+  promise in module memory): `checkStoreUpdates` (once a night with the CMS's `dailyCheck`, from `scheduled` in `worker/index.js`), `watchStoreUpdate` (each
   minute, shares `watchStep` and `checkOf`; one slot with the CMS update), `undoStoreUpdate`, the log `store:log`.
 - Uses `storeKey`, `GITHUB_PUBLISH_TOKEN`, `readFolder`/`readFiles`, `commitFiles`, `blobId`, `lib/storeUpdate.mjs`.
   Fetches only files whose blob id differs. Catalog with `If-None-Match`; `ETag` kept in KV.
@@ -75,7 +75,15 @@ Read `docs/superpowers/specs/2026-11-04-store-connection-design.md` there first;
 
 ## Roadmap
 
-- Recommended: PR 1 to 5 in 0.18 (the `0.18` branch, `minor`), because Sara's site is blocked now; `widened()` shown before
-  install, withdrawn-version handling in the store's UI and the history's polish in 0.22.
-- If the owner keeps all of it in 0.22: nothing above changes except where the branch is cut.
+Owner, 18 November 2026: **in 0.19, after the cards collection** (step 6). The spec's section *The owner's decisions* holds the nine
+answers; each PR builds its part of them:
+
+- PR 2: nightly, not hourly; content and data never written; changed files hold that one update; tells the store when it undoes a
+  version; the warning when the token or the KV binding is missing.
+- PR 3: the start screen's cards (new permissions to accept, a held update, the warning) and the notes after an update; Check now
+  lists the waiting versions with their notes and installs on *Install*.
+- PR 4: the store holds a major for 24 hours, then rolls it out over 7 days by each site's fixed place, and pauses the rollout when
+  a site reports an undo; it refuses a version without a release note.
+- PR 6: the rules text (decision 9). The platform's installer sets `GITHUB_PUBLISH_TOKEN` and the KV binding
+  (`morpheme-website/docs/platform.md`).
 - 0.23: when *storage for apps* and *apps that provide to apps* add `needs` keys, `widened()` learns them (one test each).

@@ -1,7 +1,7 @@
 # The editor pre-built in the package (design)
 
 Status: decided by the owner on 18 November 2026 ("2", then "Options 2 in 18.2"): batch B6 of
-`docs/superpowers/plans/2026-11-18-build-and-check-speed.md` is built as option 2, in **0.18.2**, after Tailwind is gone (0.18.1). The
+`docs/superpowers/plans/2026-11-18-build-and-check-speed.md` is built as option 2, in **0.18.3**, after Tailwind is gone (0.18.2). The
 technical design below is the CTO's; the open points in section 7 are for the PR sessions to prove.
 
 ## 1. Why
@@ -51,7 +51,7 @@ when it opens. Then nothing in either build depends on a page's text, and a cont
 
 **What a theme or an app may import from the CMS** becomes a public list (the shared modules in the import map: React, `standard/view`,
 `icon`, `i18n`, the theme UI parts through `themeUi`), checked by a script (`check:themes` and the apps' sandbox check): an import outside
-it fails. That is the new contract: `THEME_API` and `APP_API` 8 (0.18.1 is 7), with Venus and the store's apps adjusted in
+it fails. That is the new contract: `THEME_API` and `APP_API` 8 (0.18.2 is 7), with Venus and the store's apps adjusted in
 `morpheme-apps` in the same release.
 
 **The editor's version** (`/editor/version.json`, the reload of an editor left open) becomes the package's editor fingerprint and the
@@ -68,7 +68,7 @@ build use the two builds. The screens checks run against the built editor, as th
 | Theme, app, icon pack or `src/site/` | nothing | a few seconds | as today |
 | CMS update | nothing (the new package's) | a few seconds | as today |
 
-## 5. The pull requests (on `feature/editor-prebuilt`, cut from the 0.18.2 line)
+## 5. The pull requests (on `feature/editor-prebuilt`, cut from the 0.18.3 line)
 
 1. **Proof.** A spike that builds the editor with `@site/*` and `@theme/*` external, a tiny site module and an import map, opens the demo
    editor in Chromium and saves a page; it proves React is one instance (hooks work across the two builds) and measures both builds.
