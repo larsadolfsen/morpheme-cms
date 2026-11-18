@@ -8,13 +8,19 @@
 // (<img />), the hash in the name of a bundled file (/_astro/…), and the number of an island's prefix, which counts the
 // React components on the page before it. The scripts Astro bundles (type="module") are left out: what they do is
 // checked in a browser. Says the first place each page differs.
+// --ignore-classes: the structure must be the same, but the class attribute is left out of the comparison (a batch of the move away from
+// Tailwind renames classes: scripts/compare-styles.mjs then proves the look did not change).
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
 const ROOT = `${process.cwd()}/`;
-const [before, after = 'dist'] = process.argv.slice(2).map((d) => resolve(ROOT, d));
+const IGNORE_CLASSES = process.argv.includes('--ignore-classes');
+const [before, after = 'dist'] = process.argv
+  .slice(2)
+  .filter((a) => a !== '--ignore-classes')
+  .map((d) => resolve(ROOT, d));
 if (!before || !existsSync(before) || !existsSync(after)) {
-  console.error('Usage: npx morpheme compare-html <built site before> [built site after, else dist]');
+  console.error('Usage: npx morpheme compare-html [--ignore-classes] <built site before> [built site after, else dist]');
   process.exit(1);
 }
 
@@ -29,7 +35,7 @@ const attributes = (tag) =>
     const seen = new Set();
     const list = [...attrs.matchAll(/\s([^\s=]+)(?:="([^"]*)")?/g)]
       .map(([, n, v]) => [n.toLowerCase(), v])
-      .filter(([n, v]) => !(n === 'class' && !v) && !n.startsWith('data-astro-cid-') && !seen.has(n) && seen.add(n))
+      .filter(([n, v]) => !(n === 'class' && (IGNORE_CLASSES || !v)) && !n.startsWith('data-astro-cid-') && !seen.has(n) && seen.add(n))
       .map(([n, v]) => [
         n,
         n === 'style'
