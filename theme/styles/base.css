@@ -49,6 +49,8 @@
 /* The cards (Card, the Cards and Price cards blocks), the card grid and the Carousel. */
 @import './cards.css';
 @import './type.css';
+/* The Buttons, Link, Form, Blog posts and Filters blocks' own rules (moved out of blocks.css); they come before it, in the same layer: blocks/buttons-links.css says why. */
+@import './blocks/buttons-links.css';
 @import './blocks.css';
 /* The Person, Icon list, Facts, Table and Badge blocks (moved out of blocks.css; they come right after it, in the same layer). */
 @import './blocks/person-facts.css';
