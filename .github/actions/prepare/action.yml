@@ -1,0 +1,55 @@
+# The steps every browser or build-reading job of check.yml starts with (after actions/checkout): Node and npm ci, optionally the
+# built demo from the job `build`, optionally the Playwright browser from a cache. Plan: docs/superpowers/plans/2026-11-18-build-and-check-speed.md, PR 2.
+name: Prepare a check job
+description: Node, npm ci, the demo built once by the job build, and Chromium from a cache.
+inputs:
+  build:
+    description: "'true' to unpack the built demo and the package copy that the job `build` uploaded (after npm ci, which would remove the copy)."
+    default: 'false'
+  browser:
+    description: "'true' to restore Chromium from the cache (keyed on the Playwright version) and install what is missing."
+    default: 'false'
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v5
+      with:
+        node-version: 24
+        cache: npm
+    # Timing (plan A12): each shell step prints its own seconds at the end, so a slow `prepare` shows
+    # which step it was in the log (a composite action reports no time for its inner steps in the job's step list).
+    - run: |
+        t=$SECONDS
+        npm ci
+        echo "prepare timing: npm ci $((SECONDS - t))s"
+      shell: bash
+    # One tarball made by the job build: .morpheme/demo/site (its node_modules is a link, packed as a link, to this checkout's
+    # node_modules at the same path in every job) and node_modules/@morphemecms/cms (the package copy that check:demo imports).
+    - if: inputs.build == 'true'
+      uses: actions/download-artifact@v5
+      with:
+        name: build
+        path: ${{ runner.temp }}/build
+    - if: inputs.build == 'true'
+      run: |
+        t=$SECONDS
+        tar -xzf "$RUNNER_TEMP/build/build.tgz"
+        echo "prepare timing: unpack $((SECONDS - t))s"
+      shell: bash
+    - if: inputs.browser == 'true'
+      id: playwright
+      run: echo "version=$(node -p "require('playwright/package.json').version")" >> "$GITHUB_OUTPUT"
+      shell: bash
+    - if: inputs.browser == 'true'
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+    # With the browser cached only the system libraries are installed (apt). If apt is down, the runner's own libraries are used and
+    # only the browser is downloaded.
+    - if: inputs.browser == 'true'
+      run: |
+        t=$SECONDS
+        npx playwright install --with-deps chromium || npx playwright install chromium
+        echo "prepare timing: playwright install (apt and browser) $((SECONDS - t))s"
+      shell: bash

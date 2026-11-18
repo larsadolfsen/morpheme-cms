@@ -16,15 +16,15 @@ test('The checks that run once belong to shard 1, and to a run with no shard', (
   assert.equal(shardOf(['--shard', '3/3']), 3);
 });
 
-// The shards K/N of the screens check together hold every unit exactly once (needs the built demo, `npm run build`, and a browser to list them).
+// The shards K/N of the screens check together hold every unit exactly once (needs the built demo, `npm run build`; listing launches no browser).
 const site = new URL('../.morpheme/demo/site/', import.meta.url);
 const bin = new URL('../bin/morpheme.mjs', import.meta.url).pathname;
 const listed = (...args) => {
-  const { stdout, status } = spawnSync(process.execPath, [bin, 'check:screens', '--list', ...args], {
+  const { stdout, stderr, status } = spawnSync(process.execPath, [bin, 'check:screens', '--list', ...args], {
     cwd: site.pathname,
     encoding: 'utf8',
   });
-  assert.equal(status, 0, 'the list is printed');
+  assert.equal(status, 0, `the list is printed (status ${status})\nstdout:\n${stdout}\nstderr:\n${stderr}`);
   return stdout.split('\n').filter((l) => l.startsWith('UNIT '));
 };
 test(

@@ -21,8 +21,22 @@
 // scripts/screens/order.txt (the units as they were numbered when the file was split; never edit it: a unit that is not in it is
 // numbered after those that are, in the order of the files), so a shard K/N keeps the same units from run to run.
 import { readFileSync, readdirSync } from 'node:fs';
-import { LIST_ONLY, ONLY, SHARD, SHARDS, browser, fallbackIcon, fallbackOn, opened, problems, server } from './screens/support/context.mjs';
+import {
+  AREAS_ARG,
+  LIST_ONLY,
+  ONLY,
+  SHARD,
+  SHARDS,
+  browser,
+  fallbackIcon,
+  fallbackOn,
+  opened,
+  problems,
+  server,
+} from './screens/support/context.mjs';
 import { coreSite } from './screens/support/shared.mjs';
+import { AREAS, CORE_UNITS } from './screens/support/areas.mjs';
+import { assignShards, readTimes } from './screens/support/balance.mjs';
 
 /** Each area's file, in alphabetical order (support/ is a folder, so it is not one of them). */
 const areaDir = new URL('./screens/', import.meta.url);
@@ -30,8 +44,12 @@ const files = readdirSync(areaDir)
   .filter((f) => f.endsWith('.mjs'))
   .sort();
 const units = [];
-const unit = (name, run) => units.push({ name, run });
-for (const file of files) (await import(new URL(file, areaDir).href)).register(unit);
+let area = '';
+const unit = (name, run) => units.push({ name, run, area });
+for (const file of files) {
+  area = file.replace(/\.mjs$/, '');
+  (await import(new URL(file, areaDir).href)).register(unit);
+}
 
 // The units of the first numbering keep their place (the order of order.txt); the others follow, in the order they were registered.
 const frozen = new Map(
@@ -43,12 +61,42 @@ const frozen = new Map(
 const place = (u) => frozen.get(u.name) ?? Infinity;
 units.sort((a, b) => (place(a) === place(b) ? 0 : place(a) < place(b) ? -1 : 1));
 
-/** One part of the checks that a shard runs whole or leaves out: the units are numbered in the order above, a shard runs
- * those with number % N = K - 1, so each unit runs in exactly one shard and together the shards run all of them. */
-let unitNumber = 0;
-for (const { name, run } of units) {
-  const number = unitNumber++;
-  if (ONLY ? name !== ONLY : number % SHARDS !== SHARD - 1) continue;
+/** The units a selection (--areas) keeps: the core units and the units of the named areas. Null runs everything: no --areas, `all`, or
+ * a selection that cannot be read (an unknown area, a core unit that does not exist), as the job `changes` does when in doubt. */
+function selectedUnits() {
+  if (AREAS_ARG === null || AREAS_ARG === 'all') return null;
+  const wanted = AREAS_ARG === 'none' ? [] : AREAS_ARG.split(',');
+  const known = new Set(units.map((u) => u.name));
+  const bad = [...wanted.filter((a) => !AREAS.includes(a)), ...CORE_UNITS.filter((n) => !known.has(n))];
+  if (!AREAS_ARG || bad.length) {
+    console.log(`The selection "${AREAS_ARG}" cannot be read (${bad.join(', ') || 'empty'}): every unit runs.`);
+    return null;
+  }
+  const keep = new Set(units.filter((u) => CORE_UNITS.includes(u.name) || wanted.includes(u.area)));
+  console.log(`Selection: core set and ${wanted.length ? wanted.join(', ') : 'no area'}: ${keep.size} of ${units.length} units.`);
+  return keep;
+}
+const selected = selectedUnits();
+
+/** One part of the checks that a shard runs whole or leaves out. The units are numbered in the order above (a selection keeps each
+ * unit's number). The selected units (all of them without a selection) are dealt to the shards by their measured time
+ * (scripts/screens/unit-times.json, support/balance.mjs), or by index % N when there are no times, so each selected unit runs in
+ * exactly one shard and together the shards run all of them. */
+const chosen = units.filter((u) => !selected || selected.has(u));
+const times = readTimes();
+const dealt = assignShards(
+  chosen.map((u) => u.name),
+  SHARDS,
+  times,
+);
+const shardOf = new Map(chosen.map((u, i) => [u, dealt[i]]));
+if (SHARDS > 1)
+  console.log(times ? 'Units dealt to the shards by their measured time.' : 'No unit times: units dealt to the shards by number.');
+const numbers = new Map(units.map((u, i) => [u, i]));
+for (const u of chosen) {
+  const { name, run } = u;
+  const number = numbers.get(u);
+  if (ONLY ? name !== ONLY : shardOf.get(u) !== SHARD - 1) continue;
   if (LIST_ONLY) {
     console.log(`UNIT ${number} ${name}`);
     continue;
@@ -58,7 +106,7 @@ for (const { name, run } of units) {
   console.log(`unit ${number} ${name}: ${Math.round((Date.now() - started) / 1000)} s`);
 }
 
-await browser.close();
+await browser?.close();
 server.close();
 if (coreSite) (await coreSite).server.close();
 for (const [name, places] of fallbackOn) {
