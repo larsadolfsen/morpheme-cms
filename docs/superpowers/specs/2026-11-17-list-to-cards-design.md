@@ -1,9 +1,8 @@
 # 0.19 Cards and lists (design)
 
-Status: brainstorm with the owner, 17 November 2026; names and base corrected on 18 November against `origin/0.18`.
-**Waiting for the owner's approval as a whole**, with the plan
-`docs/superpowers/plans/2026-11-17-cards-and-lists-0-19.md`. Section 9 holds the last decisions. No code. Roadmap: `docs/superpowers/plans/2026-11-14-roadmap-0-18-to-0-24.md`,
-*0.19 Cards and lists*.
+Status: **approved by the owner on 18 November 2026** with the plan `docs/superpowers/plans/2026-11-17-cards-and-lists-0-19.md`,
+which holds the decisions of 18 November (cards and lists in 0.18, the MVP, today's functions kept, the releases). Where this
+spec and the plan differ, the plan wins.
 
 It started from the owner's question: "According to M3, a list item may change into a card on larger screens. Should cards
 and lists basically be the same objects but different design?" The owner's answer, in the talk: Material 3's card and list
