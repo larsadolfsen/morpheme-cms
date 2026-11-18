@@ -101,11 +101,13 @@
     overflow: hidden;
     border-radius: inherit;
   }
-  /* The card clips the slot to its corners (overflow: hidden), so the slot has none of its own. */
+  /* The card clips the slot to its corners (overflow: hidden); the slot's top corners are the card's too, its bottom ones below. */
   .card-media-slot {
     display: block;
     width: 100%;
     overflow: hidden;
+    border-start-start-radius: inherit;
+    border-start-end-radius: inherit;
   }
   /* With text under it the media is its own rounded rectangle: its bottom corners are the card's radius (deviation CM1, owner 16 Nov 2026). */
   .card-media-slot:has(+ .card-body) {
