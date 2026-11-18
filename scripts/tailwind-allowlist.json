@@ -104,8 +104,7 @@
     "utilities": 12
   },
   "src/editor.css": {
-    "reference": 1,
-    "tw": 17
+    "reference": 1
   },
   "src/EditorFooter.tsx": {
     "utilities": 3
@@ -418,19 +417,14 @@
   },
   "theme/layouts/PageLayout.astro": {
     "utilities": 5,
-    "constants": 3
+    "constants": 2
   },
   "theme/layouts/PostLayout.astro": {
     "utilities": 11,
-    "constants": 9
+    "constants": 8
   },
   "theme/styles/base.css": {
-    "plugin": 1,
-    "source": 3,
-    "tw": 14
-  },
-  "theme/styles/blocks/text-section.css": {
-    "tw": 12
+    "source": 3
   },
   "theme/styles/tokens/base/ref.css": {
     "themeAt": 2

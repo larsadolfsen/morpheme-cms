@@ -2,6 +2,14 @@
 // a new entry is reviewed. `todo` entries are a cause group that has its own fix pull request; the fix removes them.
 const any = /./;
 export const allow = [
+  // The text style's keys and code blocks: the typography plugin's own greys, kept as they were (batch T13); a later, visible change moves them to roles.
+  {
+    kind: 'fixed-colour',
+    file: /^theme\/styles\/tokens\/base\/comp\/prose\.css$/,
+    line: /--mo-comp-prose-(kbd|kbd-shadows|pre-code|pre-bg):/,
+    reason:
+      "the plugin's fixed greys for keys and code blocks, the same in light and dark; the move to roles is a later, visible change (plan T13)",
+  },
   // The editor's own look of other products.
   {
     kind: 'fixed-colour',
