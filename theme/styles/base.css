@@ -73,13 +73,14 @@
 @import './blocks/text-section.css';
 @import './blocks.css';
 /* The blocks moved out of blocks.css come right after it, in the same layer and in the order their rules had in it: Steps, Accordion, Buttons and links, Testimonial, Panel,
-   Person (with Icon list, Facts, Table and Badge), then Call to action and Prices. */
+   Person (with Icon list, Facts, Table and Badge), Link row, then Call to action and Prices. */
 @import './blocks/steps.css';
 @import './blocks/accordion.css';
 @import './blocks/buttons-links.css';
 @import './blocks/testimonial.css';
 @import './blocks/panel.css';
 @import './blocks/person-facts.css';
+@import './blocks/link-row.css';
 @import './blocks/cta-prices.css';
 /* The fallback layer of blocks.css (prose, the video facade, the heading parts, the colours, the text alignment), moved out as it was: right before the lists. */
 @import './blocks/prose.css';

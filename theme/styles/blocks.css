@@ -49,33 +49,6 @@
     color: var(--mo-comp-icon-color);
   }
 
-  /* A quiet link that is one row, an outlined card (.card in ui.css) with smaller corners: a badge or an icon, a text
-     and an arrow, its edge in the accent when pointed at. */
-  .block-link-row {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    font-size: var(--mo-sys-typescale-body-large-size);
-    line-height: var(--mo-sys-typescale-body-large-line-height);
-    font-weight: var(--mo-sys-typescale-body-large-weight);
-    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
-    transition: box-shadow var(--mo-sys-motion-spring-default-effects);
-  }
-  .block-link-row.block-in-text {
-    margin-block: 1.75rem;
-  }
-  .block-link-row-text {
-    flex: 1;
-  }
-  .block-link-row-arrow {
-    flex-shrink: 0;
-    color: var(--mo-sys-block-accent);
-    transition: transform var(--mo-sys-motion-spring-default-spatial);
-  }
-  a.block-link-row:hover .block-link-row-arrow {
-    transform: translateX(3px);
-  }
-
   @media (width >= theme(--breakpoint-medium)) {
   }
   .block-checklist.block-in-text {
