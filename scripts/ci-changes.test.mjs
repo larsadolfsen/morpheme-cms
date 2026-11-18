@@ -2,7 +2,7 @@
 // Run: node --test scripts/ci-changes.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { isDocsOnly, needsStarterDemo, isLight, verdict, HEAVY, FILTERED, LIGHT_SKIPPED } from './ci-changes.mjs';
+import { isDocsOnly, needsStarterDemo, isLight, checkLevel, verdict, HEAVY, FILTERED, LIGHT_SKIPPED } from './ci-changes.mjs';
 
 test('docs-only: skills, docs, changeset and root notes', () => {
   assert.equal(isDocsOnly(['.claude/skills/checks/SKILL.md', 'docs/superpowers/plans/x.md', '.changeset/a-b.md', 'CLAUDE.md']), true);
@@ -204,4 +204,41 @@ test('verdict: an empty diff on base 0.18 is light (it still runs the screens sh
 test('verdict: a classification error (light missing or unknown) runs everything', () => {
   // The workflow passes light='' when `changes` printed nothing: the CLI reads only the exact word `true`.
   assert.equal(verdict(skipLight, false, true, '' === 'true').length, LIGHT_SKIPPED.length);
+});
+
+// The levels: the base branch gives feature, line or full; anything unknown is full (when in doubt, run).
+test('level: feature/** is feature, 0.* lines are line, main is full', () => {
+  for (const b of ['feature/css-split', 'feature/a/b']) assert.equal(checkLevel(b, 'fix/a'), 'feature', b);
+  for (const b of ['0.17', '0.18', '0.19', '0.20']) assert.equal(checkLevel(b, 'fix/a'), 'line', b);
+  assert.equal(checkLevel('main', 'merge-0.18-into-main-1'), 'full');
+});
+test('level: unknown or empty base, the Release PR and odd names fall back to full', () => {
+  for (const b of [
+    '',
+    undefined,
+    'feature',
+    'feature/',
+    'features/a',
+    'xfeature/a',
+    'feature/a b',
+    'feature/a\nmain',
+    '0.18.1',
+    'release/0.18',
+    'develop',
+  ])
+    assert.equal(checkLevel(b, 'fix/a'), 'full', String(b));
+  assert.equal(checkLevel(), 'full');
+  assert.equal(checkLevel('feature/a', 'changeset-release/main'), 'full');
+  assert.equal(checkLevel('0.18', 'changeset-release/main'), 'full');
+});
+test('level: feature and line are light (same jobs as today), full is not', () => {
+  assert.equal(isLight('feature/css-split', 'fix/a'), true);
+  assert.equal(isLight('0.18', 'fix/a'), true);
+  assert.equal(isLight('main', 'fix/a'), false);
+  assert.equal(isLight('develop', 'fix/a'), false);
+});
+test('verdict: a pull request into a feature branch runs the light jobs and is green', () => {
+  const light = isLight('feature/css-split', 'fix/a');
+  assert.deepEqual(verdict(skipLight, false, true, light), []);
+  assert.equal(verdict(ok, false, true, light).length, LIGHT_SKIPPED.length);
 });

@@ -2,7 +2,7 @@
 // Depends on node:process only; tested by scripts/ci-changes.test.mjs.
 //   node scripts/ci-changes.mjs docs-only <head ref>   reads the changed paths (one per line) on stdin and prints docs_only=true|false
 //   node scripts/ci-changes.mjs classify <head ref> [<base>]  the same, and also starter_demo=true|false (whether `starter` and `demo` must run)
-//                                                      and light=true|false (a pull request into a version line: the light check)
+//                                                      level=feature|line|full (from the base branch), and light=true|false (the feature and line levels: the light check)
 //   node scripts/ci-changes.mjs verdict <docs_only> [<starter_demo> [<light>]]  reads `needs` (JSON, as Actions gives it) on stdin; exits 1 when `check` must be red
 import { argv, stdin, exit } from 'node:process';
 
@@ -74,20 +74,37 @@ export function needsStarterDemo(paths, headRef = '') {
   return !changed.every((p) => !p.includes('..') && NO_STARTER_DEMO.some((re) => re.test(p)));
 }
 
-/** A version line's branch (`0.18`): its pull requests run the light check; `main` and anything else run everything. */
+/** A version line's branch (`0.18`): its pull requests get the line check. */
 const VERSION_LINE = /^0\.\d+$/;
+/** A feature branch (`feature/css-split`): its pull requests get the feature check. */
+const FEATURE_BRANCH = /^feature\/\S+$/;
 /** The heavy jobs a light check skips; the 8 `screens` shards still run. They run in full on a pull request into `main`. */
 export const LIGHT_SKIPPED = ['screens-extra', 'demo', 'starter'];
 
 /**
- * Whether the pull request gets the light check: its base is a version line and it is not the Release PR. When in doubt, false
- * (an empty or unknown base, `main`, the Release PR): everything runs.
+ * The check level of a pull request, from its base branch (plan 2026-11-18-ci-check-levels.md):
+ * `feature/**` -> `feature`, `0.*` version lines -> `line`, `main` -> `full`. When in doubt, `full`: an empty or unknown base,
+ * the Release PR, or anything else, so everything runs.
+ * @param {string} [base] the pull request's base branch
+ * @param {string} [headRef]
+ * @returns {'feature' | 'line' | 'full'}
+ */
+export function checkLevel(base = '', headRef = '') {
+  if (headRef === RELEASE_BRANCH) return 'full';
+  const b = String(base ?? '').trim();
+  if (FEATURE_BRANCH.test(b) && b === base) return 'feature';
+  if (VERSION_LINE.test(b) && b === base) return 'line';
+  return 'full';
+}
+
+/**
+ * Whether the pull request gets the light check (the `feature` and `line` levels). Until PR 3 of the plan the feature level runs
+ * exactly what the light check runs for a line. When in doubt, false: everything runs.
  * @param {string} [base] the pull request's base branch
  * @param {string} [headRef]
  */
 export function isLight(base = '', headRef = '') {
-  if (headRef === RELEASE_BRANCH) return false;
-  return VERSION_LINE.test(base.trim());
+  return checkLevel(base, headRef) !== 'full';
 }
 
 /** The jobs that are skipped on a docs-only pull request. `static` and `changes` always run. */
@@ -136,6 +153,7 @@ if (import.meta.url === `file://${argv[1]}`) {
     const docsOnly = isDocsOnly(paths, arg);
     console.log(`docs_only=${docsOnly}`);
     console.log(`starter_demo=${!docsOnly && needsStarterDemo(paths, arg)}`);
+    console.log(`level=${checkLevel(argv[4] ?? '', arg)}`);
     console.log(`light=${isLight(argv[4] ?? '', arg)}`);
   } else if (mode === 'verdict') {
     const problems = verdict(JSON.parse(input), arg === 'true', argv[4] !== 'false', argv[5] === 'true');
