@@ -32,6 +32,9 @@ jobs:
       staged: ${{ steps.stage.outputs.version }}
     steps:
       - uses: actions/checkout@v5
+        with:
+          # The release gate reads the first parent of the Release PR's merge commit.
+          fetch-depth: 2
       - uses: actions/setup-node@v5
         with:
           node-version: 24
@@ -50,11 +53,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # No changesets pending: the Release PR was merged (or nothing changed). Stage its version unless npm has it.
+      # THE RELEASE GATE (owner, 18 Nov 2026): latest is staged only when npm's `next` was built from exactly this code and staging runs that
+      # `next` version (scripts/release-gate.mjs). It only checks; if it fails, nothing is staged. Only this step stages latest, so the
+      # `next` jobs never run it. STAGING_URL is a repository variable.
       - id: stage
         if: steps.changesets.outputs.hasChangesets == 'false'
+        env:
+          STAGING_URL: ${{ vars.STAGING_URL }}
         run: |
           v=$(node -p "require('./package.json').version")
           if npm view "@morphemecms/cms@$v" version >/dev/null 2>&1; then exit 0; fi
+          node scripts/release-gate.mjs
           npm stage publish --tag latest
           echo "version=$v" >> "$GITHUB_OUTPUT"
 

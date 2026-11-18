@@ -396,3 +396,9 @@ test('an unknown level is the full one (when in doubt, run)', () => {
   assert.deepEqual(verdict(ok, false, true, 'nonsense'), []);
   assert.equal(verdict(lineOk, false, true, 'nonsense').length, 3);
 });
+
+test('verdict: the release gate is skipped outside the Release PR and green on it; a failed or cancelled gate is red', () => {
+  assert.deepEqual(verdict({ ...ok, 'release-gate': { result: 'skipped' } }, false), []);
+  assert.deepEqual(verdict({ ...ok, 'release-gate': { result: 'success' } }, false), []);
+  for (const r of ['failure', 'cancelled']) assert.equal(verdict({ ...ok, 'release-gate': { result: r } }, false).length, 1, r);
+});

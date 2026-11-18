@@ -200,6 +200,10 @@ export function verdict(needs, docsOnly, starterDemo = true, level = 'full') {
     const expected = skip ? 'skipped' : 'success';
     if (r !== expected) problems.push(`${name}: ${r ?? 'missing'}, must be ${expected}`);
   }
+  // The release gate runs on the Release PR only (skipped elsewhere): a failed or cancelled gate is red. Absent in older `needs`: ignored.
+  const gate = result('release-gate');
+  if (gate !== undefined && gate !== 'success' && gate !== 'skipped')
+    problems.push(`release-gate: ${gate}, must be success (or skipped outside the Release PR)`);
   return problems;
 }
 
