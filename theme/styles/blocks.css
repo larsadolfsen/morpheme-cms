@@ -3,6 +3,7 @@
 @import './tokens/blocks/comp/grid.css';
 @import './tokens/blocks/comp/icon.css';
 @import './tokens/blocks/comp/list.css';
+@import './tokens/blocks/registry.css';
 @import './tokens/blocks/sys.css';
 @layer components {
   /* A block in the text of a page: the space above and below it. */

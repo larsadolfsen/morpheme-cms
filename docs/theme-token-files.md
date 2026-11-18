@@ -55,6 +55,32 @@ In each folder:
 3. Write it on the selector it needs (`:root`, a section, a class), in the same `@layer` and `@media` as a rule would be.
    Nothing unprefixed on `:root` (`docs/css-tokens.md`).
 4. A new file is imported by its folder's stylesheet.
+5. A `--mo-sys-*` or `--mo-ref-*` token with a plain default (one literal on `:root`: a colour, a length in `px` or `rem`, a number, a
+   time) is registered: run `node scripts/gen-token-registry.mjs`, then Prettier (`check:token-registry` fails when the files are out of date).
+   A `--mo-comp-*` token that only points at one sys token is read with that token as its fallback, `var(--mo-comp-x, var(--mo-sys-y))`.
+
+## Registered tokens
+
+A theme that writes a faulty value, `--mo-sys-color-primary: banana` or `--mo-sys-shape-corner-large: 3 apples`, must still draw a
+valid page. A `var(--x, fallback)` cannot do it: the faulty value is a valid custom property, so its fallback never applies and the
+property that reads it becomes invalid (black text, a 0 radius, no background). `@property` can: a token registered with a syntax drops
+a value that does not fit and keeps its `initial-value`.
+
+`theme/styles/tokens/<origin>/registry.css` (written by `scripts/gen-token-registry.mjs`, never by hand) registers 148 tokens of
+the origins `base`, `ui`, `blocks` and `material`, and the 45 colour roles `colorsCss` writes into the page. Each is `inherits: true`
+with its default as `initial-value`:
+
+- The default is the literal in the token's `:root` rule in the first folder that declares it (base, ui, blocks, lists, cards, type,
+  material), so a theme that imports only `base.css` never gets Material's value. A colour role's default is the standard colours' light
+  value (`defaultColors`).
+- A length is written in `px`: `initial-value` cannot hold `rem` or `em` (the whole rule is dropped).
+- Not registered: a token whose value is a `var()`, an expression (`calc()`, `clamp()`), a list, a shadow, an easing, a font family, a
+  bare `0` (a number or a length), a font-relative or percentage unit (a registered length resolves where it is declared, not where it is
+  read), or a token some file writes a value the syntax would reject (`auto`, `none`).
+- What the default is for a theme that writes a faulty value: light mode's value for a colour (also in dark mode), and the first value of
+  a token that a media query changes (the grid gutter is 16px, not 24px, when a theme's value is faulty on a wide screen). A faulty
+  value in a token that is not registered (one that points at another token) is not caught; the token it points at is.
+- A registered length reads in `px` (`getPropertyValue` gives `24px`, not `1.5rem`), and a registered colour in `rgb()` or `color()`.
 
 ## Renamed tokens
 

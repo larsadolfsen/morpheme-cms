@@ -1,0 +1,7 @@
+{
+  "id": "token-contract-6",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Theme and app contract",
+  "text": "Themes and apps made for level 5 stop working until their authors update them, because the design tokens have new Material 3 names. The Store offers only level 6 themes and apps, so update when they appear. Authors: THEME_API and APP_API are 6, see docs/theme-token-files.md."
+}

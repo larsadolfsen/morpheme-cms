@@ -2,11 +2,47 @@
 @plugin '@tailwindcss/typography';
 /* Material's rules sit in the last layer, fallback: a theme's own unlayered rules beat them, whatever their specificity. */
 @layer theme, base, components, utilities, fallback;
+/* The Checkbox comes before ui.css on purpose: the list's selection box (List.tsx) is a .checkbox and a .list-item-select-box, and the list's rules, still
+   in ui.css, must keep winning over .checkbox's display and alignment, as they did when both were in ui.css, the checkbox's first. */
+@import './checkbox.css';
+/* The Chips and the chip sets come before ui.css for the same reason: a chip set in the search view is also .search-view-filters (Search.tsx), whose rules in ui.css set margin and padding at the same specificity and must win. */
+@import './chips.css';
+/* The Dialog and the Lightbox come before ui.css too: the date picker's and the time picker's dialogs are also .dialog-modal (DatePicker.tsx, TimePicker.tsx), and the picker rules in ui.css set the same properties at the same specificity and must win. */
+@import './dialog.css';
+@import './lightbox.css';
 /* The theme's UI components, as Material 3 names them (buttons, icon buttons), and the standard blocks of the editor,
    in this site's design (their variables below). */
 @import './ui.css';
 /* The Divider (.divider, its inset and vertical kinds). */
 @import './divider.css';
+/* The Badge (.badge, its dot and number, the anchor on an icon). */
+@import './badge.css';
+/* The Loading indicator and the Progress indicators (linear and circular). */
+@import './loading-indicator.css';
+@import './progress-indicators.css';
+/* The Snackbar (the stack that holds them and the message). */
+@import './snackbar.css';
+/* The Tooltip (plain and rich, anchored to what it is about). */
+@import './tooltip.css';
+/* The Switch (with its setting row) and the Radio button. */
+@import './switch.css';
+@import './radio-button.css';
+/* The Slider. */
+@import './slider.css';
+/* The Bottom sheet and the Side sheet. */
+@import './bottom-sheet.css';
+@import './side-sheet.css';
+/* The Tabs. */
+@import './tabs.css';
+/* The Top app bar. */
+@import './top-app-bar.css';
+/* The Menus (the menu, its items and groups, the dropdown menu, the exposed dropdown menu). */
+@import './menus.css';
+@import './navigation-bar.css';
+@import './navigation-rail.css';
+@import './search.css';
+@import './toolbar.css';
+@import './pickers.css';
 /* The cards (Card, the Cards and Price cards blocks), the card grid and the Carousel. */
 @import './cards.css';
 @import './type.css';
@@ -20,6 +56,7 @@
 @import './tokens/base/comp/chip.css';
 @import './tokens/base/comp/list.css';
 @import './tokens/base/comp/toolbar.css';
+@import './tokens/base/registry.css';
 @import './tokens/base/ref.css';
 @import './tokens/base/sys.css';
 /* Follow the system by default (Modern Web Guidance, dark-mode-toggle: the base stays `light dark`); a picked mode pins it. */

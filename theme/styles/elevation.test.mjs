@@ -1,8 +1,9 @@
 // Checks the tonal elevation tokens and rules of the base theme (spec: tonal elevation, Material 3).
-// Reads theme/styles/ui.css and cards.css (and later global.css) as text; no browser, no build.
+// Reads theme/styles/ui.css, cards.css and the files of UI_PART_FILES (and later global.css) as text; no browser, no build.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { UI_PART_FILES } from './files.mjs';
 
 const read = (name) => readFileSync(new URL(name, import.meta.url), 'utf8');
 import { readdirSync } from 'node:fs';
@@ -15,8 +16,9 @@ const withTokens = (name, origin) =>
       .sort()
       .map((f) => read(`./tokens/${origin}/${f}`)),
   ].join('\n');
-// The card rules are in cards.css (moved out of ui.css), so the text is both files, each with its token files.
-const uiCss = withTokens('./ui.css', 'ui') + withTokens('./cards.css', 'cards');
+// The card rules are in cards.css and the other parts' in the files of UI_PART_FILES (moved out of ui.css, theme/styles/files.mjs,
+// docs/superpowers/plans/2026-11-16-css-split.md), so the text is those files, each with its token files.
+const uiCss = withTokens('./ui.css', 'ui') + withTokens('./cards.css', 'cards') + UI_PART_FILES.map((f) => read(`./${f}`)).join('');
 
 const count = (text, part) => text.split(part).length - 1;
 

@@ -1,0 +1,6 @@
+{
+  "id": "token-faulty-values",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A theme with a faulty colour, size or time no longer breaks the page"
+}

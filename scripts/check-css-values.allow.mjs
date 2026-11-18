@@ -18,7 +18,7 @@ export const allow = [
   },
   { file: /base\.css$/, line: /^border-radius: 0\.3em/, reason: 'inline code: its corners follow the text size, not a step' },
   {
-    file: /global\.css$|ui\.css$/,
+    file: /global\.css$|ui\.css$|checkbox\.css$/,
     line: /^border-radius: (2px|0\.1875rem)/,
     reason: "the checkbox's own 2px square corner (M3: 2dp), and the error ring's 3px over it",
   },
@@ -28,7 +28,7 @@ export const allow = [
     reason: 'optical roundness: the container corner minus its padding or border',
   },
   {
-    file: /ui\.css$/,
+    file: /ui\.css$|menus\.css$/,
     line: /^--mo-comp-menu-item-radius, calc|^border-radius: var\(--mo-comp-menu-item-radius, calc/,
     reason: 'a menu item inside the container: the container corner minus its padding',
   },

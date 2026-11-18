@@ -8,24 +8,25 @@
 // Run by npm run check. A deliberate exception is an entry of EXEMPT with its reason.
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { UI_PART_FILES } from '../theme/styles/files.mjs';
 
 /** The parts that must read density: where their rule is, and which variable of the three groups they read. */
 export const PARTS = [
   { name: 'button', file: 'theme/styles/ui.css', selector: '.button', reads: '--mo-sys-density-layout' },
-  { name: 'chip', file: 'theme/styles/ui.css', selector: '.chip', reads: '--mo-sys-density-layout' },
+  { name: 'chip', file: 'theme/styles/chips.css', selector: '.chip', reads: '--mo-sys-density-layout' },
   { name: 'segmented button', file: 'theme/styles/ui.css', selector: '.segmented-button-segment', reads: '--mo-sys-density-layout' },
   { name: 'text field', file: 'theme/styles/ui.css', selector: '.text-field', reads: '--mo-sys-density-layout' },
   { name: 'choice group row', file: 'theme/styles/ui.css', selector: '.choice-group-list .list-item-container', reads: '--mo-sys-density' },
   { name: 'list item', file: 'theme/styles/ui.css', selector: '.list-item-container', reads: '--mo-sys-density' },
-  { name: 'setting row', file: 'theme/styles/ui.css', selector: '.setting-list > .setting-row', reads: '--mo-sys-density-layout' },
+  { name: 'setting row', file: 'theme/styles/switch.css', selector: '.setting-list > .setting-row', reads: '--mo-sys-density-layout' },
   { name: 'table cell', file: 'theme/styles/blocks.css', selector: '.block-table-grid :is(th, td)', reads: '--mo-sys-density' },
   { name: 'table header', file: 'theme/styles/blocks.css', selector: '.block-table-grid thead th', reads: '--mo-sys-density' },
 ];
 
 /** Focused single-task parts: never denser than Medium, so they read neither --mo-sys-density nor --mo-sys-density-layout. */
 export const FOCUSED = [
-  { name: 'menu item', file: 'theme/styles/ui.css', selector: '.menu-item' },
-  { name: 'snackbar', file: 'theme/styles/ui.css', selector: '.snackbar' },
+  { name: 'menu item', file: 'theme/styles/menus.css', selector: '.menu-item' },
+  { name: 'snackbar', file: 'theme/styles/snackbar.css', selector: '.snackbar' },
 ];
 
 /** Files that may set the steps themselves. */
@@ -100,6 +101,7 @@ export function readStyles(root) {
     );
   for (const f of [
     'theme/styles/ui.css',
+    ...UI_PART_FILES.map((f) => `theme/styles/${f}`),
     'theme/styles/blocks.css',
     'theme/styles/base.css',
     'theme/styles/global.css',
