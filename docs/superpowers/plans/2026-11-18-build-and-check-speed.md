@@ -529,6 +529,24 @@ Expected savings are for a content save on a site like Sara's (about 100 pages a
   `site/images.mjs`, `site/autolinks.mjs` and `site/pageColors.ts` are read-once caches and warnings, which is fine);
   the after-build steps read `dist/`, not memory. `compare-html` on the demo: the same HTML with and without the flag.
 
+**Tried 18 Nov 2026: not turned on.** The demo (37 pages, 4 vCPU, Astro 7.4.8) built with and without
+`experimental: { parallelPrerender: true }` in `astro.mjs`; the build works with the flag, but `compare-html` finds the HTML
+is not the same: 1 of 36 pages (`/blocks/lists/`) differs. The difference is React's `useId` value (`_r72R_` without the
+flag, `_r70R_` with it). A second build without the flag is identical to the first, so the ids are stable today and the
+flag is what changes them: the counter is shared by the pages one worker renders, so a page's ids depend on which worker
+renders it and in which order. Two builds of the same content with the flag could differ page by page, which breaks the
+"same HTML" proof and any incremental build (batch 8) that compares output.
+
+| Demo, 37 pages | Without | With the flag |
+| :--- | :--- | :--- |
+| Render step (`Completed in`) | 2.08 s | 3.07 s |
+| `[build]` total | 15.99 s | 15.14 s |
+
+The demo is too small to gain (workers start for 37 pages); the plan's 3 s is for 150 pages. The shared module caches
+(`site/images.mjs`, `site/autolinks.mjs`, `site/pageColors.ts`) were not the cause. Retry when the ids no longer depend
+on the render order (an `identifierPrefix` per page in the React renderer, or a later Astro) and measure on the test
+site (152 pages).
+
 #### Batch 8. Incremental builds (up to about 6 s) — verify first, after batch 2
 
 - Depends on batch 2's verification: Astro's cache is `node_modules/.astro/`; if `npm clean-install` removes it, this
