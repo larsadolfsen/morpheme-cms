@@ -71,13 +71,15 @@ line once, and the line goes into `main` once, when it is released):
    merge into the line, the PM merges the line into every open feature branch (never the other way), so no feature drifts far from
    its line.
 5. **The feature into its line, once.** When every piece is merged, the PM opens one pull request from the feature branch into the
-   line: the full check green, the proofs the feature's plan asks for (for a pure move, `npx morpheme compare-html` showing nothing
+   line: the full check green (CI gives a pull request from a `feature/*` head into a version line the full level by itself, `level=full`), the proofs the feature's plan asks for (for a pure move, `npx morpheme compare-html` showing nothing
    changed) and, for a change the owner can see, the owner's approval of the whole feature with its screenshots (section 4). Its
    changesets are the pieces' changesets. Then the PM deletes the feature branch.
 6. **The line into `main`, once.** A line's branch is merged into `main` when the owner has said go for its release (section 7), not
-   piece by piece. The test versions (`next`) the owner tries on `morpheme-staging` are built from the line's own branch. Until the
-   publish workflow can build a `next` version from a line's branch (`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A, its pull
-   request 6), the PM merges the line into `main` only when the owner asks for a test version, and says so in its report.
+   piece by piece. A merge into the line's branch stages a test version of the line
+   (`0.18.0-next-<time>`) under the npm tag `next-0.18` (`publish.yml`, job `next-line`; plan A6 as built). The owner approves it on npmjs.com; a
+   site pins the exact version, and only `main` moves `next` (which `morpheme-staging` follows). The PM never merges a line into `main` to get a test version. **First stage:** after the
+   first merge into a line, read the run of *Publish* for that merge (job `next-line`, step *plan* says `stage 0.18.0-next-…
+   under "next-0.18"`), tell the owner to approve it, and check `npm view @morphemecms/cms dist-tags --json` shows `next-0.18` and `next` unchanged.
 
 **Two version lines at the same time.** When two lines run together (for example `0.18` and `0.19`), each line has its own PM and
 its own branch, and each PM merges only into its own branch and its features. After each merge into the earlier line, the later
@@ -191,17 +193,35 @@ PM did not start) or one that is blocked on a question. Before archiving, it put
 ## 6. CI
 
 **Check levels** (skill `checks`, *What CI runs*; owner, 18 Nov 2026: "test less, but the important things"): the feature check for a
-piece into a feature branch, the full check once a day on each feature branch, the line check into a line, the full check for a
-feature branch into its line and for a line into `main`. Until the CI plan (`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A) is
+piece into a feature branch, the full check once a day on each feature branch, the line check into a line (a fix or a one-pull-request feature), the full check for a
+feature branch into its line (CI: a `feature/*` head into a line is `level=full`) and for a line into `main`. Until the CI plan (`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A) is
 built, the levels are the ones the `checks` skill describes today; `check.yml` runs only on pull requests into `main` and the version
 lines, so the PM opens no feature branch before that plan's pull request 1 (checks on `feature/**`) is merged. The CI plan is the PM's
 first build task.
 
-**CI slots** (owner rules, 15 and 16 Nov 2026). A PM keeps at most 3 of its own pull requests in CI at a time, a `Check` run queued or
-running; a fourth gets its slot only when one has finished (merged, or its `check` finished). When several PMs run in this repository,
-each keeps to 3, and a PM asks the other PMs to hold new pull requests when the runner queue is long (`gh api
-"repos/larsadolfsen/morpheme-cms/actions/runs?status=queued"` shows it). Why: one `Check` run is about 19 jobs and about 20 run at once,
-so more only queues. A session pushes, re-runs or merges its base into its pull request only when the PM says "your slot"; it may merge
+**The morning read of the feature branches** (daily full run; plan A5, skill `checks`). Every morning, before anything else, read the `daily-full` commit status on each open
+feature branch's head, one call per branch:
+
+```
+for b in $(gh api "repos/larsadolfsen/morpheme-cms/git/matching-refs/heads/feature/" --jq '.[].ref|ltrimstr("refs/heads/")'); do
+  echo "$b: $(gh api "repos/larsadolfsen/morpheme-cms/commits/$b/statuses" --jq '[.[]|select(.context=="daily-full")][0]|if .==null then "no mark yet" else "\(.state) \(.description) \(.target_url)" end')"
+done
+```
+
+`success` is green. `failure`: read the run (`target_url`), find the piece that broke it and have its session fix it in a pull request into the feature branch; the branch is not run again
+until it has a new head (to re-run one by hand: *Run workflow* on `Check` for that branch, level `full`). `no mark yet` on a branch with new commits means the run is still going, was cancelled
+(tomorrow it runs again) or the limit of 6 a day left it for tomorrow. A branch cut before the daily run existed gets no run (a `422` in the `Daily full run` workflow) until the line is merged into it.
+
+**CI slots** (owner rules, 15 and 16 Nov 2026; numbers re-set from measured cost on 18 Nov, plan A12). A PM keeps at most 4 of its own
+pull requests in CI at a time, a `Check` run queued or running, when their runs are the light ones (a pull request into a feature branch or a
+version line); a pull request whose run is the full level (into `main`, the Release PR, or a run started by hand with level `full`) counts as 2.
+A pull request that would go over gets its slot only when one has finished (merged, or its `check` finished). When several PMs run in this
+repository, each keeps to this, and a PM asks the other PMs to hold new pull requests when the runner queue is long (`gh api
+"repos/larsadolfsen/morpheme-cms/actions/runs?status=queued"` shows it). Why: a light `Check` run is now 11-12 jobs, about 70 runner-minutes
+and about 10 minutes (it was about 19 jobs and 135 runner-minutes at the full level), and the runner starts about 20 jobs at once. Of 27 recent
+light runs, 3 or 4 overlapped in 13 and all but 3 waited at most a minute for a runner (the 3 waited 4-6 minutes). Four light runs fit; a full
+run needs about twice the room. If the queue shows more than 2 runs waiting for over 2 minutes, go back to 3 until it shortens, and measure again.
+A session pushes, re-runs or merges its base into its pull request only when the PM says "your slot"; it may merge
 the base locally and run `npm run check`, but it does not push. The PM counts the active runs with the `queued` call above and
 `status=in_progress`, and gives the next slot when a pull request merges or goes red and is sent back. A push that supersedes a run is
 cancelled by `concurrency` (only the newest head counts). The PM may cancel a run it queued itself when a slot is needed (owner, 15
