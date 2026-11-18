@@ -28,6 +28,8 @@ export const UI_PART_FILES = [
   'search.css',
   'toolbar.css',
   'pickers.css',
+  'fab.css',
+  'button-groups.css',
 ];
 
 /** The other CSS files base.css imports, which are not parts of ui.css. */

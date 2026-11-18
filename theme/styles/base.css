@@ -43,6 +43,8 @@
 @import './search.css';
 @import './toolbar.css';
 @import './pickers.css';
+@import './fab.css';
+@import './button-groups.css';
 /* The cards (Card, the Cards and Price cards blocks), the card grid and the Carousel. */
 @import './cards.css';
 @import './type.css';
