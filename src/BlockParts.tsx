@@ -453,7 +453,7 @@ function CardParts() {
               <SiteList aria-label={lists.lines}>
                 <SiteListItem href="" headline={one} trailingSupporting={lists.trailing} />
                 <SiteListItem href="" headline={one} supporting={say.supporting} trailingIcon="caret-right" />
-                <SiteListItem href="" overline={lists.overline} headline={one} supporting={say.supporting} trailingIcon="caret-right" />
+                <SiteListItem href="" subhead={lists.overline} headline={one} supporting={say.supporting} trailingIcon="caret-right" />
                 <SiteListItem
                   href=""
                   lines={3}

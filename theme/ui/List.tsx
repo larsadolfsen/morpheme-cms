@@ -1,10 +1,10 @@
 // A list (m3.material.io/components/lists, .list in ../styles/ui/list.css): items under each other (List, a <ul>), each
-// (ListItem, an <li>) with what leads it, its headline, evt. an overline over it (`overline`) and a supporting text
+// (ListItem, an <li>) with what leads it, its headline, evt. its subhead over it (`subhead`, M3's overline, label small) and a supporting text
 // under it (`supporting`), and what trails it. Its kind (`kind`: standard, the default, the items on what the list
 // stands on, or segmented, M3 Expressive's, each item on its own surface with a small gap between them) and its dividers
 // (`dividers`: full-width, the default for a standard list, inset, from where the items' text starts, middle-inset or
 // none) are Material's. An item has one, two or three lines (`lines`): with a supporting text two (also when the text
-// is empty, so the items of a list are alike), with an overline too three; a supporting text of two lines needs
+// is empty, so the items of a list are alike), with a subhead too three; a supporting text of two lines needs
 // `lines={3}`. What leads it: `leading` (anything: an icon, an image, a block's own), or Material's leading
 // kinds, an icon (`leadingIcon`), an avatar (`leadingAvatar`: a letter or an image), an image (`leadingImage`) or a
 // video's thumbnail (`leadingVideo`). What trails it: a trailing supporting text (`trailingSupporting`: a number, a
@@ -79,8 +79,11 @@ export const listClasses = (
  * action's state (pointed at, pressed). Never an <li> of its own: the <li> holds it. */
 export const listItemMultiActionClass = 'list-item-multi-action';
 
-/** A list item's classes: its lines' (true is two lines), and selected or disabled. */
-export const listItemClass = (lines: boolean | ListItemLines = 1, state: { selected?: boolean; disabled?: boolean } = {}) => {
+/** A list item's classes: its lines' (true is two lines), and selected, disabled or dragged. */
+export const listItemClass = (
+  lines: boolean | ListItemLines = 1,
+  state: { selected?: boolean; disabled?: boolean; dragged?: boolean } = {},
+) => {
   const n = lines === true ? 2 : lines === false ? 1 : lines;
   return [
     'list-item-container',
@@ -88,6 +91,7 @@ export const listItemClass = (lines: boolean | ListItemLines = 1, state: { selec
     n === 3 && 'list-item-three-line',
     state.selected && 'list-item-selected',
     state.disabled && 'list-item-disabled',
+    state.dragged && 'list-item-dragged',
   ]
     .filter(Boolean)
     .join(' ');
@@ -179,7 +183,7 @@ export function ListItem({
   leadingVideo,
   leadingMedia,
   li,
-  overline,
+  subhead,
   headline,
   supporting,
   trailingSupporting,
@@ -189,6 +193,7 @@ export function ListItem({
   lines,
   selected,
   disabled,
+  dragged,
   presentation,
   truncate,
   columns,
@@ -218,7 +223,8 @@ export function ListItem({
   leadingMedia?: ReactNode;
   /** Attributes of the item's <li> (hidden, data-…): the rest go on the item. */
   li?: HTMLAttributes<HTMLLIElement>;
-  overline?: ReactNode;
+  /** The small line over the headline (M3's overline; a card draws the same prop under its headline). */
+  subhead?: ReactNode;
   headline: ReactNode;
   supporting?: ReactNode;
   trailingSupporting?: ReactNode;
@@ -228,6 +234,8 @@ export function ListItem({
   lines?: ListItemLines;
   selected?: boolean;
   disabled?: boolean;
+  /** Dragged to another place (M3's dragged state: level 4 shadow, the 16 % state layer, the selected corners). */
+  dragged?: boolean;
   presentation?: boolean;
   truncate?: boolean;
   columns?: boolean;
@@ -260,8 +268,7 @@ export function ListItem({
     selectable ? onSelectDrag : undefined,
   );
   const shown = (v: ReactNode) => v != null && v !== '';
-  const n: ListItemLines =
-    lines ?? (overline != null && supporting !== undefined ? 3 : supporting !== undefined || overline != null ? 2 : 1);
+  const n: ListItemLines = lines ?? (subhead != null && supporting !== undefined ? 3 : supporting !== undefined || subhead != null ? 2 : 1);
   const at = control?.at ?? (control?.type === 'switch' ? 'trailing' : 'leading');
 
   // The choice: the theme's part, named by the headline and described by the supporting text, without a name of its own.
@@ -322,7 +329,7 @@ export function ListItem({
   const cut = truncate ? ' truncate' : '';
   const text = (
     <>
-      {shown(overline) && <span className="list-item-overline">{overline}</span>}
+      {shown(subhead) && <span className="list-item-overline">{subhead}</span>}
       {/* Ids only for a choice, which they name and describe. */}
       <span id={control && `${id}-headline`} className={`list-item-headline${cut}`}>
         {headline}
@@ -358,7 +365,7 @@ export function ListItem({
     </>
   );
   const classes = [
-    listItemClass(n, { selected, disabled }),
+    listItemClass(n, { selected, disabled, dragged }),
     control && 'list-item-with-control',
     columns && 'list-item-columns',
     press && 'list-item-selectable',
