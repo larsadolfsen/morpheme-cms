@@ -69,7 +69,7 @@ changeset, `npm run check`) always runs. The first job `changes` decides from `g
 `release-notes/` and `CHANGELOG.md` are never skipped (`check:release-notes`, the notes tests and the editor's build read them), and
 neither are the Release PR, an empty diff or any other path: when in doubt, everything runs. There is no `paths-ignore`, because
 `check` must always report. It is green when `static` and `changes` are green and each heavy job is green, or skipped on a
-docs-only pull request, or (`screens-extra`, `demo`, `starter`) on a pull request into a version line; a failed, cancelled or wrongly skipped job makes it red. To put a folder on the list, first find which
+docs-only pull request, or (`screens-extra`, `demo`, `starter`) on a pull request into a version line; a failed or wrongly skipped job makes it red. To put a folder on the list, first find which
 checks read it (`grep` the scripts and tests) and change the list and its test in `scripts/ci-changes.mjs` only.
 
 **`starter` and `demo` are also skipped when no changed file can affect them** (`needsStarterDemo` in `scripts/ci-changes.mjs`; the job
@@ -83,7 +83,9 @@ and `static` run on every pull request that is not docs-only (`screens-extra` no
 to the skip list, first `grep` that neither job reads it (the list's comment says how), and change the list and its test only.
 
 A new push to a pull request cancels that pull request's older queued and running `Check` runs (`concurrency` in
-`check.yml`); only the newest head's run counts.
+`check.yml`); only the newest head's run counts. `check` does not report the cancelled run as a failure: when some job is cancelled
+and none failed (the jobs after it are skipped), `outcome` in `scripts/ci-changes.mjs` says `cancelled`, and the job prints
+`cancelled=true` and ends without red. A job that really failed, also next to a cancelled one, and a job skipped wrongly are still red.
 
 ## The commands
 

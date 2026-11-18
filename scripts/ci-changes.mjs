@@ -3,7 +3,7 @@
 //   node scripts/ci-changes.mjs docs-only <head ref>   reads the changed paths (one per line) on stdin and prints docs_only=true|false
 //   node scripts/ci-changes.mjs classify <head ref> [<base>]  the same, and also starter_demo=true|false (whether `starter` and `demo` must run)
 //                                                      level=feature|line|full (from the base branch), and light=true|false (the feature and line levels: the light check)
-//   node scripts/ci-changes.mjs verdict <docs_only> [<starter_demo> [<light>]]  reads `needs` (JSON, as Actions gives it) on stdin; exits 1 when `check` must be red
+//   node scripts/ci-changes.mjs verdict <docs_only> [<starter_demo> [<light>]]  reads `needs` (JSON, as Actions gives it) on stdin; exits 1 when `check` must be red; prints cancelled=true and exits 0 when a newer push cancelled the run
 import { argv, stdin, exit } from 'node:process';
 
 /** The Release PR (changesets into CHANGELOG.md and the version) always runs everything. */
@@ -137,6 +137,20 @@ export function verdict(needs, docsOnly, starterDemo = true, light = false) {
   return problems;
 }
 
+/**
+ * What the job `check` reports. `cancelled` when a newer push cancelled the run: some job is cancelled and none failed (the jobs
+ * downstream of a cancelled one are skipped, which is no problem of its own). A job that really failed makes it `failure`, also
+ * next to a cancelled one; with no cancelled job every verdict problem is a failure.
+ * @returns {{state: 'success'|'cancelled'|'failure', problems: string[]}}
+ */
+export function outcome(needs, docsOnly, starterDemo = true, light = false) {
+  const problems = verdict(needs, docsOnly, starterDemo, light);
+  if (!problems.length) return { state: 'success', problems };
+  const results = Object.values(needs ?? {}).map((n) => n?.result);
+  const state = results.includes('cancelled') && !results.includes('failure') ? 'cancelled' : 'failure';
+  return { state, problems };
+}
+
 async function readStdin() {
   let text = '';
   for await (const chunk of stdin) text += chunk;
@@ -156,7 +170,12 @@ if (import.meta.url === `file://${argv[1]}`) {
     console.log(`level=${checkLevel(argv[4] ?? '', arg)}`);
     console.log(`light=${isLight(argv[4] ?? '', arg)}`);
   } else if (mode === 'verdict') {
-    const problems = verdict(JSON.parse(input), arg === 'true', argv[4] !== 'false', argv[5] === 'true');
+    const { state, problems } = outcome(JSON.parse(input), arg === 'true', argv[4] !== 'false', argv[5] === 'true');
+    if (state === 'cancelled') {
+      console.log('cancelled=true');
+      console.log('Cancelled: a newer push superseded this run. Look at the newest head.');
+      exit(0);
+    }
     for (const p of problems) console.log(`FAIL ${p}`);
     if (problems.length) exit(1);
     console.log(

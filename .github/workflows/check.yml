@@ -45,7 +45,7 @@ permissions:
 # checked. The group is per pull request (its number), so runs on different pull requests never cancel each other; the
 # Release PR is a pull request like the others. The workflow has no push trigger, so a push to main or a version line is
 # never cancelled here (github.ref is only the fallback for an event without a pull request). In a cancelled run the job
-# check still runs (if: always()) and fails on that old head only; the PM looks at the newest head's run.
+# check still runs (if: always()) and reports the cancel as cancelled, not red (scripts/ci-changes.mjs, outcome); the PM looks at the newest head's run.
 concurrency:
   group: check-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -188,7 +188,7 @@ jobs:
       - run: npm run check:starter -- --screens --shard ${{ matrix.shard }}/${{ strategy.job-total }}
 
   # The one status check that is required: green when static and changes are green and every heavy job is green, or skipped on a
-  # docs-only pull request (a failed, cancelled or wrongly skipped one fails it; scripts/ci-changes.mjs).
+  # docs-only pull request (a failed or wrongly skipped one fails it, a run cancelled by a newer push does not; scripts/ci-changes.mjs).
   check:
     if: always()
     needs: [changes, static, build, screens, screens-extra, demo, starter]

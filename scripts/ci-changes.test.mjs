@@ -2,7 +2,7 @@
 // Run: node --test scripts/ci-changes.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { isDocsOnly, needsStarterDemo, isLight, checkLevel, verdict, HEAVY, FILTERED, LIGHT_SKIPPED } from './ci-changes.mjs';
+import { isDocsOnly, needsStarterDemo, isLight, checkLevel, verdict, outcome, HEAVY, FILTERED, LIGHT_SKIPPED } from './ci-changes.mjs';
 
 test('docs-only: skills, docs, changeset and root notes', () => {
   assert.equal(isDocsOnly(['.claude/skills/checks/SKILL.md', 'docs/superpowers/plans/x.md', '.changeset/a-b.md', 'CLAUDE.md']), true);
@@ -241,4 +241,17 @@ test('verdict: a pull request into a feature branch runs the light jobs and is g
   const light = isLight('feature/css-split', 'fix/a');
   assert.deepEqual(verdict(skipLight, false, true, light), []);
   assert.equal(verdict(ok, false, true, light).length, LIGHT_SKIPPED.length);
+});
+
+test('outcome: success, failure, skipped on docs-only, cancelled by a newer push, cancelled with another job failed', () => {
+  assert.equal(outcome(ok, false).state, 'success');
+  assert.equal(outcome({ ...ok, screens: { result: 'failure' } }, false).state, 'failure');
+  assert.equal(outcome(skipHeavy, true).state, 'success');
+  assert.equal(outcome(skipHeavy, false).state, 'failure', 'a job skipped wrongly is a failure');
+  // a newer push: build cancelled, the jobs after it skipped
+  const cancelled = { ...ok, build: { result: 'cancelled' }, screens: { result: 'skipped' }, demo: { result: 'skipped' } };
+  assert.equal(outcome(cancelled, false).state, 'cancelled');
+  assert.equal(outcome({ ...ok, static: { result: 'cancelled' } }, false).state, 'cancelled');
+  assert.equal(outcome({ ...cancelled, static: { result: 'failure' } }, false).state, 'failure');
+  assert.equal(outcome({ ...ok, changes: { result: 'cancelled' }, static: { result: 'failure' } }, false).state, 'failure');
 });
