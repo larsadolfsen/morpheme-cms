@@ -1,6 +1,0 @@
-{
-  "id": "carousel-container-query",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "A carousel in a narrow column or a side sheet shows as many items as fit its own width"
-}

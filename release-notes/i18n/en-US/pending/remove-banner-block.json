@@ -1,6 +1,0 @@
-{
-  "id": "remove-banner-block",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "The Banner block is gone; use a section with a heading, text and Buttons instead"
-}

@@ -1,6 +1,0 @@
-{
-  "id": "files-image-full-screen",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "On a phone, a file in Files opens as a page of its own with a back arrow, the image at the top, and Previous and Next to move to the next file"
-}

@@ -1,6 +1,0 @@
-{
-  "id": "palette-editor-actions",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "The search finds the actions of the text and the block you are in, such as Bold or Add row below, and runs them"
-}

@@ -1,7 +1,0 @@
-{
-  "id": "list-columns-setting",
-  "kind": "paragraph",
-  "mark": "feature",
-  "title": "List columns",
-  "text": "Long lists can be easier to read in one column. In the settings of a List, Segmented list, FAQ list, Accordion, Blog posts list or Testimonials list, turn Columns off to keep the rows in one column. Turned on, rows sit in as many columns as fit, as before."
-}

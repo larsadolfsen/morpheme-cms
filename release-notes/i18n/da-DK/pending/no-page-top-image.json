@@ -1,7 +1,0 @@
-{
-  "id": "no-page-top-image",
-  "kind": "paragraph",
-  "mark": "improvement",
-  "title": "Sidens overskrift",
-  "text": "Sidens hovedoverskrift har ikke længere et baggrundsbillede, så alle sidens billeder står i teksten. Farve og bredde ligger stadig i Sektionsindstillinger, og blogindlæg beholder deres billede øverst."
-}

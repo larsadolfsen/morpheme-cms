@@ -1,7 +1,0 @@
-{
-  "id": "command-palette",
-  "kind": "paragraph",
-  "mark": "feature",
-  "title": "Kommandopalette",
-  "text": "Du skal ikke klikke dig gennem menuerne for at finde en skærm eller en side. Tryk Ctrl+K eller på søgeikonet øverst, skriv et navn, og tryk Enter for at gå derhen. Det, du valgte sidst, står først og bliver i denne browser."
-}

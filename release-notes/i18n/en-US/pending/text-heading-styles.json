@@ -1,7 +1,0 @@
-{
-  "id": "text-heading-styles",
-  "kind": "paragraph",
-  "mark": "improvement",
-  "title": "Text headings",
-  "text": "Every heading level in a text has its own size. Headings, quotes and the smallest headings now use the theme’s text styles, in the editor and on the site. Heading 2 to 4 stay as they were."
-}
