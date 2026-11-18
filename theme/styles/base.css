@@ -13,6 +13,8 @@
 /* The theme's UI components, as Material 3 names them (buttons, icon buttons), and the standard blocks of the editor,
    in this site's design (their variables below). */
 @import './ui.css';
+/* The Navigation drawer (modal and standard) comes right after ui.css, where its rules sat in it: before the Divider, which its section divider is also (a .divider, whose margin the drawer's rule, of higher specificity, outranks). */
+@import './navigation-drawer.css';
 /* The Text field (the field, its label, supporting text and icons). It comes right after ui.css: the buttons it holds (the clear and show-password icon buttons, in ui.css) must lose to its rules, as before, and the exposed dropdown menu and the pickers (menus.css, pickers.css) set a field's parts after it. */
 @import './text-field.css';
 /* The Divider (.divider, its inset and vertical kinds). */
@@ -49,6 +51,8 @@
 @import './cards.css';
 @import './type.css';
 @import './blocks.css';
+/* The Person, Icon list, Facts, Table and Badge blocks (moved out of blocks.css; they come right after it, in the same layer). */
+@import './blocks/person-facts.css';
 /* The designs of the lists (List, List - Expand): Default and Card. */
 @import './lists.css';
 /* The classes the standard theme's site shell uses with the theme's variables: the logo and post list, the action bar, the page. */
