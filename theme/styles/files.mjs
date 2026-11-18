@@ -65,6 +65,7 @@ export const OTHER_BASE_FILES = [
   'blocks/accordion.css',
   'blocks/buttons-links.css',
   'blocks/testimonial.css',
+  'blocks/row.css',
   'blocks/panel.css',
   'blocks/person-facts.css',
   'blocks/cta-prices.css',

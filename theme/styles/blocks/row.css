@@ -1,0 +1,49 @@
+/*
+  The Image grid block's own rules: its filter, count, clear button and empty text (.block-imagegrid-*). The row's text and links
+  (.block-row-text, .block-row-links) are in accordion.css. Moved here from blocks.css with their rules
+  unchanged and in the order they had (docs/superpowers/plans/2026-11-16-css-split.md). Imported by base.css right after blocks.css,
+  in the same layer (components). Collision check: the only equal-specificity rule left behind in blocks.css after these is
+  `.block-row-text` in the medium-width @media (the CTA and prices run), which sets the same four type values the plain rule here sets,
+  so it makes no difference that it now comes first. Stays in blocks.css: the rule that joins `.block-accordion-lead[data-icon-color]`
+  and `.block-card .block-card-icon[data-icon-color]` in one selector (it serves the accordion too), and `.block-in-text`.
+*/
+@layer components {
+  /* The subhead: the small line under the headline (a byline, a date, a place). */
+  /* "Image grid" (blocks/imagegrid/View.tsx): the tag filter over the staggered grid (.image-grid in ui.css), the text under an image on its card. The filter
+     and its count are drawn hidden and shown by script.ts; the columns can be set to 2, 3 or 4 on a computer (data-columns). */
+  .block-imagegrid-filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .block-imagegrid-filter[hidden],
+  .block-imagegrid-count[hidden],
+  .block-imagegrid-empty[hidden],
+  .block-imagegrid-clear[hidden] {
+    display: none;
+  }
+  .block-imagegrid-clear {
+    padding: 0 0.75rem;
+    min-height: var(--mo-sys-target-size, 2.75rem);
+    border: 0;
+    background: none;
+    color: var(--mo-sys-color-primary);
+    font: inherit;
+    cursor: pointer;
+  }
+  .block-imagegrid-empty {
+    color: var(--mo-sys-block-muted);
+  }
+  .block-imagegrid-count {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .block-imagegrid-grid > li[hidden] {
+    display: none;
+  }
+}

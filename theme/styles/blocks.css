@@ -6,44 +6,6 @@
     margin-block: 2.5rem;
   }
 
-  /* The subhead: the small line under the headline (a byline, a date, a place). */
-  /* "Image grid" (blocks/imagegrid/View.tsx): the tag filter over the staggered grid (.image-grid in ui.css), the text under an image on its card. The filter
-     and its count are drawn hidden and shown by script.ts; the columns can be set to 2, 3 or 4 on a computer (data-columns). */
-  .block-imagegrid-filter {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-  }
-  .block-imagegrid-filter[hidden],
-  .block-imagegrid-count[hidden],
-  .block-imagegrid-empty[hidden],
-  .block-imagegrid-clear[hidden] {
-    display: none;
-  }
-  .block-imagegrid-clear {
-    padding: 0 0.75rem;
-    min-height: var(--mo-sys-target-size, 2.75rem);
-    border: 0;
-    background: none;
-    color: var(--mo-sys-color-primary);
-    font: inherit;
-    cursor: pointer;
-  }
-  .block-imagegrid-empty {
-    color: var(--mo-sys-block-muted);
-  }
-  .block-imagegrid-count {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-  .block-imagegrid-grid > li[hidden] {
-    display: none;
-  }
   .block-accordion-lead[data-icon-color],
   .block-card .block-card-icon[data-icon-color] {
     color: var(--mo-comp-icon-color);
