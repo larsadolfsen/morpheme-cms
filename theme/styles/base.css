@@ -62,6 +62,15 @@
 /* The cards (Card, the Cards and Price cards blocks), the card grid and the Carousel. */
 @import './cards.css';
 @import './type.css';
+/* In a site's layer of components, so the site's utilities (a margin on the steps) win over them: the blocks' tokens, which came first in blocks.css, still come before every block rule. */
+@import './tokens/blocks/comp/card.css';
+@import './tokens/blocks/comp/grid.css';
+@import './tokens/blocks/comp/icon.css';
+@import './tokens/blocks/comp/list.css';
+@import './tokens/blocks/registry.css';
+@import './tokens/blocks/sys.css';
+/* The text sections and what the text of a page shares (the head of blocks.css, moved out as it was: it comes right BEFORE blocks.css, in the same layer, so every block rule still comes after it). */
+@import './blocks/text-section.css';
 @import './blocks.css';
 /* The blocks moved out of blocks.css come right after it, in the same layer and in the order their rules had in it: Steps, Accordion, Buttons and links, Testimonial, Panel,
    Person (with Icon list, Facts, Table and Badge), then Call to action and Prices. */

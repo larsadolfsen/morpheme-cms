@@ -59,6 +59,7 @@ export const OTHER_BASE_FILES = [
   'ui.css',
   'cards.css',
   'type.css',
+  'blocks/text-section.css',
   'blocks.css',
   'blocks/steps.css',
   'blocks/accordion.css',
