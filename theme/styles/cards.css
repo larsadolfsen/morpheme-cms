@@ -129,13 +129,13 @@
     width: 100%;
     scroll-snap-stop: always;
   }
-  @media (width < theme(--breakpoint-medium)) {
+  @media (width < 37.5rem) {
     .carousel-full-screen .carousel-item-mask {
       border-radius: var(--mo-comp-carousel-full-screen-radius, 0);
       clip-path: none;
     }
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .carousel-full-screen .carousel-items {
       margin: 0;
     }
@@ -163,7 +163,7 @@
   .image-grid > .grid-span-full {
     column-span: all;
   }
-  @media (width < theme(--breakpoint-medium)) {
+  @media (width < 37.5rem) {
     .image-grid > .grid-span-compact {
       column-span: all;
     }
@@ -288,7 +288,7 @@
   .block-cards-show-all {
     display: none;
   }
-  @media (width < theme(--breakpoint-medium)) {
+  @media (width < 37.5rem) {
     .block-cards-carousel .carousel-items {
       overflow-x: auto;
       gap: var(--mo-comp-card-gap, 0.5rem);
@@ -318,7 +318,7 @@
       display: none;
     }
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .block-cards-carousel .carousel-items {
       display: grid;
       overflow-x: visible;
@@ -420,7 +420,7 @@
       scale: 1.03;
     }
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .block-cards {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }

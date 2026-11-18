@@ -118,7 +118,7 @@
     );
     background: var(--mo-comp-segmented-button-surface, var(--mo-sys-block-surface));
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .segmented-button {
       display: inline-grid;
     }
@@ -240,7 +240,7 @@
     display: flex;
     width: 100%;
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .choice-group-measure,
     .choice-group-buttons {
       max-width: var(--choice-group-max-width, 30rem);

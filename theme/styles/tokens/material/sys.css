@@ -109,14 +109,14 @@
 :root[data-theme='dark'] {
   --mo-sys-panel-shadow: var(--mo-sys-elevation-level1-rest-shadow);
 }
-@media (width >= theme(--breakpoint-medium)) {
+@media (width >= 37.5rem) {
   :root {
     --mo-sys-grid-margin: 1.5rem;
     --mo-sys-grid-gutter: 1.5rem;
     --mo-sys-grid-layout-columns: 8;
   }
 }
-@media (width >= theme(--breakpoint-large)) {
+@media (width >= 75rem) {
   :root {
     --mo-sys-grid-layout-columns: 12;
   }

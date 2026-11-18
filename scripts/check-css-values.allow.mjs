@@ -8,6 +8,12 @@ export const allow = [
       'the old text-sm, text-xs, rounded-xl, rounded-2xl and rounded-full (calc(infinity * 1px)) of the large screens, moved as they were (Tailwind batch T06: the same look first, the type roles and corner steps in the M3 pass, T13)',
   },
   {
+    file: /(^|\/)styles\/prose\.css$/,
+    line: /^(font-size|line-height|border-radius): /,
+    reason:
+      "the text style's sizes, line heights and corners are the typography plugin's own values, kept as they were (batch T13); Material 3 tuning of the text is a later, visible change (plan, decision 6)",
+  },
+  {
     file: /base\.css$|blocks(\/[a-z-]+)?\.css$|tokens\/(base|blocks)\/sys\.css$/,
     line: /^--mo-sys-(radius|radius-small|block-radius|block-radius-small|block-control-radius): /,
     reason: 'the fallback corners for a theme that sets no steps (global.css sets the ten steps and maps these to them)',

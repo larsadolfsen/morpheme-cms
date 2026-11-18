@@ -30,7 +30,7 @@
   }
 }
 @layer components {
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .block-price-card {
       --mo-comp-card-padding: 2rem;
     }
