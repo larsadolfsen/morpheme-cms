@@ -1,5 +1,5 @@
 // "Parts" › "Values" (#developer/parts/values): the theme's design tokens, as the theme in use sets them, to see them in one
-// place: the corners, one row for each size the theme uses (the theme's base, base.css and components.css, which every
+// place: the corners, one row for each size the theme uses (the theme's base, base.css and the site shell's files, which every
 // theme has, and its UI parts', ui.css: each part's own variable, else the one ui.css gives it instead), named by
 // Material 3's corner radius scale where the size is one of its steps, with what has it under; the shadows, one row for
 // each of Material 3's elevation levels (ui.css, set by the theme to its own look) with what has it under (the theme's
@@ -80,12 +80,12 @@ const shadows: Token[] = [
   { token: '--bottom-sheet-shadow-large', label: say.partShadows.bottomSheetLarge, fallback: '--mo-sys-elevation-level3-shadow' },
   { token: '--side-sheet-shadow', label: say.partShadows.sideSheet, fallback: '--mo-sys-elevation-level1-shadow' },
   { token: '--navigation-drawer-shadow', label: say.partShadows.navigationDrawer, fallback: '--mo-sys-elevation-level1-shadow' },
-  { token: '--navigation-bar-shadow', label: say.partShadows.navigationBar, fallback: '--mo-sys-elevation-level0-shadow' },
+  { token: '--navigation-bar-shadow', label: say.partShadows.navigationBar, fallback: '--mo-sys-elevation-level2-shadow' },
   { token: '--navigation-rail-modal-shadow', label: say.partShadows.navigationRailModal, fallback: '--mo-sys-elevation-level2-shadow' },
   { token: '--top-app-bar-stuck-shadow', label: say.partShadows.topAppBarStuck, fallback: '--mo-sys-elevation-level2-shadow' },
   { token: '--mo-comp-fab-shadow', label: say.partShadows.fab, fallback: '--mo-sys-elevation-level3-shadow' },
   { token: '--toolbar-floating-shadow', label: say.partShadows.toolbarFloating, fallback: '--mo-sys-elevation-level3-shadow' },
-  { token: '--search-bar-shadow', label: say.partShadows.searchBar, fallback: '--mo-sys-elevation-level0-shadow' },
+  { token: '--search-bar-shadow', label: say.partShadows.searchBar, fallback: '--mo-sys-elevation-level3-shadow' },
   { token: '--search-view-shadow', label: say.partShadows.searchView, fallback: '--mo-sys-elevation-level3-shadow' },
   { token: '--snackbar-shadow', label: say.partShadows.snackbar, fallback: '--mo-sys-elevation-level3-shadow' },
   { token: '--button-toggle-selected-shadow', label: say.partShadows.buttonToggleSelected, fallback: '--mo-sys-elevation-level0-shadow' },

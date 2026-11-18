@@ -1,4 +1,4 @@
-// What a time picker shows when it is open (m3.material.io/components/time-pickers, .time-picker in ../styles/ui.css),
+// What a time picker shows when it is open (m3.material.io/components/time-pickers, .time-picker in ../styles/ui/pickers.css),
 // drawn for the time and what is shown (`view`, `selecting`, `hour`, `minute`): one drawing for the site, where
 // timePicker.script.ts draws it in the time picker's <dialog> (TimePicker.tsx) each time something changes and does
 // what it is told by the data-time-picker-… attributes, and for the editor, which only draws it. Built on the theme's

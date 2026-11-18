@@ -1,4 +1,4 @@
-// A FAB menu (m3.material.io/components/fab-menu, .fab-menu in ../styles/ui.css): the theme's FAB (its classes,
+// A FAB menu (m3.material.io/components/fab-menu, .fab-menu in ../styles/ui/fab-menu.css): the theme's FAB (its classes,
 // fabClass: `icon`, a name or an icon, its name `label`, its size `size`, any of the FAB sizes, and its colour
 // `fabKind`, any of the FAB colours, the menu's `kind` filled if it has none) that opens two to six related actions
 // above it (`items`, each the theme's ExtendedFab: its icon and label, with `href` a link), the last nearest the FAB.

@@ -64,7 +64,11 @@
   --mo-sys-block-text: var(--mo-sys-color-on-surface);
   --mo-sys-block-muted: var(--mo-sys-color-on-surface-variant);
   --mo-sys-block-accent: var(--mo-sys-color-primary);
-  --mo-sys-block-accent-hover: color-mix(in srgb, var(--mo-sys-color-on-primary) 8%, var(--mo-sys-color-primary));
+  --mo-sys-block-accent-hover: color-mix(
+    in srgb,
+    var(--mo-sys-color-on-primary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+    var(--mo-sys-color-primary)
+  );
   --mo-sys-block-on-accent: var(--mo-sys-color-on-primary);
   --mo-sys-block-primary: var(--mo-sys-color-primary);
   --mo-sys-block-on-primary: var(--mo-sys-color-on-primary);

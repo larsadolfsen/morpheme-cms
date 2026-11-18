@@ -5,6 +5,7 @@
 import { createServer } from 'node:http';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { extname, join } from 'node:path';
+import { pathInside } from './static-path.mjs';
 import { chromium } from 'playwright';
 
 const dist = join(process.cwd(), 'dist');
@@ -17,7 +18,8 @@ const TYPES = {
   '.woff2': 'font/woff2',
 };
 const server = createServer((req, res) => {
-  let file = join(dist, decodeURIComponent(req.url.split('?')[0]));
+  let file = pathInside(dist, req.url);
+  if (!file) return void res.writeHead(404).end();
   if (existsSync(file) && statSync(file).isDirectory()) file = join(file, 'index.html');
   if (!existsSync(file)) return void res.writeHead(404).end();
   res.writeHead(200, { 'content-type': TYPES[extname(file)] ?? 'application/octet-stream' }).end(readFileSync(file));

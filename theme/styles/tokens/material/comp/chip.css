@@ -17,7 +17,11 @@
   --mo-comp-chip-hover-line: var(--mo-sys-color-outline-variant);
   --mo-comp-chip-hover-text: var(--mo-sys-color-on-surface-variant);
   --mo-comp-filter-chip-flat-selected-container-color: var(--mo-sys-color-secondary-container);
-  --mo-comp-chip-selected-hover: color-mix(in srgb, var(--mo-sys-color-on-secondary-container) 8%, var(--mo-sys-color-secondary-container));
+  --mo-comp-chip-selected-hover: color-mix(
+    in srgb,
+    var(--mo-sys-color-on-secondary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+    var(--mo-sys-color-secondary-container)
+  );
   --mo-comp-filter-chip-selected-label-text-color: var(--mo-sys-color-on-secondary-container);
   --mo-comp-chip-selected-check: block;
 }

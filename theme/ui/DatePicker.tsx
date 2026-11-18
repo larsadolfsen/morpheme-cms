@@ -1,4 +1,4 @@
-// A date picker (m3.material.io/components/date-pickers, .date-picker in ../styles/ui.css): a text field to type a
+// A date picker (m3.material.io/components/date-pickers, .date-picker in ../styles/ui/pickers.css): a text field to type a
 // date in (in the site's language's order, 02.11.2026), with a calendar button that opens the picker
 // (DatePickerContainer.tsx), and what a form sends, the day as ISO (2026-11-02), in a hidden input named `name` (and,
 // with `range`, the last day in one named `endName`). `kind`: docked (the picker opens under the field) or modal (in a

@@ -233,3 +233,41 @@ test('a fetch that stalls past the timeout gives the full lane', async () => {
     }
   }
 });
+
+test('a different installed CMS version gives no list (the full lane)', async () => {
+  const dir = repo();
+  try {
+    const a = commit(dir, 'README.md', 'x');
+    commit(dir, 'src/content/a.md', 'y');
+    const result = await changedSinceLive({ ...site, cwd: dir, cms: '0.18.1', fetch: serve({ commit: a, cms: '0.18.0' }) });
+    assert.equal(result.paths, null);
+    assert.match(result.reason, /CMS version changed: 0\.18\.0 to 0\.18\.1/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('a live version.json with no cms gives no list (a site built before it was recorded)', async () => {
+  const dir = repo();
+  try {
+    const a = commit(dir, 'README.md', 'x');
+    commit(dir, 'src/content/a.md', 'y');
+    const result = await changedSinceLive({ ...site, cwd: dir, cms: '0.18.1', fetch: serve({ commit: a }) });
+    assert.equal(result.paths, null);
+    assert.match(result.reason, /live CMS version unknown/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('the same installed CMS version keeps the list', async () => {
+  const dir = repo();
+  try {
+    const a = commit(dir, 'README.md', 'x');
+    commit(dir, 'src/content/a.md', 'y');
+    const result = await changedSinceLive({ ...site, cwd: dir, cms: '0.18.1', fetch: serve({ commit: a, cms: '0.18.1' }) });
+    assert.deepEqual(result.paths, ['src/content/a.md']);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

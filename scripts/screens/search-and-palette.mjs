@@ -1,5 +1,6 @@
 import { openEditor } from '../built-site.mjs';
-import { browser, problems, site } from './support/context.mjs';
+import { PACK, browser, problems, site } from './support/context.mjs';
+import { acornProblem } from './support/icon-pack.mjs';
 import { pressInsert } from './support/shared.mjs';
 
 /** The theme's search view driven by React (theme/ui/Search.tsx, SearchView; the command palette's view, spec docs/superpowers/specs/2026-11-13-command-palette-and-context-menus-design.md,
@@ -867,11 +868,11 @@ async function checkIconSearch(width, height) {
     .getByRole('button', { name: 'Suggested', exact: true })
     .tap()
     .catch(() => {});
-  // Owner rule: Phosphor's own icons are in the search only when Phosphor is the icon pack in use (acorn: Material Symbols has none of that name).
+  // Owner rule: Phosphor's own icons are in the search only when Phosphor is the icon pack in use (acorn: Material Symbols has none of that name); with Phosphor in use, the search finds it.
   await search.fill('acorn');
   await page.waitForTimeout(1500);
-  if (await picker.getByRole('button', { name: 'acorn', exact: true }).count())
-    problems.push(`${label}: the search "acorn" found Phosphor's acorn, but Material Symbols is the icon pack in use`);
+  const acorn = acornProblem(PACK, label, (await picker.getByRole('button', { name: 'acorn', exact: true }).count()) > 0);
+  if (acorn) problems.push(acorn);
   await search.fill('arrow back');
   await hit.waitFor({ timeout: 8000 }).catch(() => {});
   await hit.tap().catch(() => {});

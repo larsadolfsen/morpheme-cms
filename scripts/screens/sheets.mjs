@@ -1757,7 +1757,7 @@ async function checkVideoChangeLink(width, height = 800) {
     if (await save2.count()) await save2.first().click();
     await page.waitForTimeout(900);
     const src = await stillSrc();
-    if (!src || src.includes('i.ytimg.com') || src.includes('/_video/'))
+    if (!src || hostOf(src) === 'i.ytimg.com' || src.includes('/_video/'))
       problems.push(`${label}: the frame draws "${src}", not the chosen thumbnail`);
     await page.screenshot({ path: join(shots, `video-thumbnail-${width}.png`) });
   }
@@ -1789,4 +1789,13 @@ export function register(unit) {
   for (const width of [375, 768, 1280]) unit(`checkListAndRedirectPanes ${width}`, () => checkListAndRedirectPanes(width));
   for (const width of [375, 768, 1280]) unit(`checkLinkAndItemPanes ${width}`, () => checkLinkAndItemPanes(width));
   for (const width of [375, 768, 1280]) unit(`checkBlockSettingsPane ${width}`, () => checkBlockSettingsPane(width));
+}
+
+// The host of an address, '' for one that is only a path.
+function hostOf(address) {
+  try {
+    return new URL(address, 'http://localhost').hostname;
+  } catch {
+    return '';
+  }
 }

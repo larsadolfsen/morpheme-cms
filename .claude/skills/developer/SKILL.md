@@ -51,7 +51,7 @@ Every pull request, whatever the change:
 - You report the link and the head sha to the PM and leave the merge to it. Never merge your own pull request, and never
   ask the owner to merge it (`CLAUDE.md`, *Pull requests go to the PM*).
 - A change the owner can see (the editor or the site) gets before and after screenshots of every changed screen in a
-  comment on your own pull request: the `pm` skill, *Screenshots in the pull request* says how. A change nobody sees
+  comment on your own pull request: *Screenshots in the pull request* below says how. A change nobody sees
   needs none.
 - A change to one component is checked on that component's demo page (`/blocks/<component>/`), not on all of them (`checks`).
 - When `origin/<base>` moves, merge it into your branch (never a rebase, amend or force-push on a branch that is
@@ -60,13 +60,44 @@ Every pull request, whatever the change:
 - You push your own branch only: never `main`, `0.18` or `0.19`, and never with force. A session whose push is denied tells the PM and does not work around it.
 - A change that needs a new screens check adds its unit to its area's file, `scripts/screens/<area>.mjs` (skill `checks`), never to `scripts/editor-screens.mjs` (the runner) and never to `scripts/screens/order.txt`.
 
+## 3b. Screenshots in the pull request
+
+Moved here from the `pm` skill on 18 Nov 2026 (the sessions take them; the PM opens and reports them, `pm` skill section 4).
+One comment on the pull request, headed with what changed, for every screen the
+change touched: a before and an after, each on a phone and a computer, in English, light theme, at
+`deviceScaleFactor: 2`, in every state the change touched (open menu, error, empty, selected). Take them from the built
+branch (`npm run build`; `openEditor` and `serveBuilt` in `scripts/built-site.mjs` open the editor without a login) and,
+for *before*, from `main` the same way. Put a short caption under each image. The images never go into the shipped
+package or into the pull request's own diff.
+
+**How the images get into the comment.** The GitHub tools cannot upload an image, so the images
+travel in git:
+
+1. Take the PNGs into a folder outside the repository checkout, for example the scratchpad.
+2. Make an orphan branch named `pr-screenshots/<pull request number>` (`git checkout --orphan`, `git rm -rf .`, add the PNGs
+   under `shots/`, commit, `git push -u origin`). An orphan branch shares no history with `main`, so nothing reaches the
+   package or the pull request's diff.
+3. In the comment, link each image as
+   `![caption](https://github.com/<owner>/<repo>/blob/pr-screenshots/<number>/shots/<file>.png?raw=true)`.
+4. After the pull request is merged or closed, delete the branch.
+
+*Checked 14 Nov 2026 (pull request #632):* a pushed orphan branch and a comment with this link work, and GitHub renders the
+comment as an `<img>` of the link. Not yet checked: that the owner's browser shows the image in this private repository.
+The first session that adds screenshots looks at the comment, and if the image does not show, it tries another way that
+leaves nothing in the shipped package. It then tells the PM exactly what worked, and the PM has this section updated.
+
 ## 3a. Check in when ready to merge
 
 Owner rule, 15 Nov 2026. When the change is finished and `npm run check` is green locally (which checks to run before a push: skill `checks`, *What to run before a push*), do not push, open a pull request
 or re-run CI on your own. Send the PM one message, `ready: <branch>, <what changed>, local check green`, and wait. Only on
 the PM's "your slot" do you push (or merge `origin/<base>` and push, or open the pull request), then report the link and
 the head sha once `check` is green. While you wait you may merge the base locally and run `npm run check`; never the full `check:screens` (skill `checks`). The first push
-of a new session follows the same rule: check in first. The PM keeps the order (`pm` skill, *Ready queue and CI slots*).
+of a new session follows the same rule: check in first. The PM keeps the order (`pm` skill, section 5, *Ready queue*, and section 6, *CI slots*).
+
+## 3c. While you work: `npm run check:fast`
+
+Run `npm run check:fast` while you build (after each step): it runs only the checks your changed files can break and prints what it skipped
+(skill `checks`, *While you work*); it adds the screens core set to a change that reaches the build, so it can take longer than `npm run check` there: use `-- --screens none` for the quick mode. It is not the gate: `npm run check` is what you run before the push (section 3a), and CI runs the rest.
 
 ## 4. The owner's standing design rules
 
@@ -103,7 +134,7 @@ for the topic through the npm script, and name the guides you read in the pull r
 
 Owner rule, 15 Nov: "We follow the best practices in modern web from Google." Where a guide covers behaviour, markup, accessibility or performance, we follow it; Material 3 still decides how things look and are named. A real conflict between the two goes to the PM, as below.
 
-**Priority order** (owner, 15 Nov 2026; `pm` skill, *The order of priority*): 1 Modern web, 2 Material 3 Expressive, 3 Material 3, 4 Material 2 with Material 3 styling, 5 self-made; the lower number wins. Decide with it yourself. Stop and tell the PM only when the answer would be priority 5 (nothing from 1 to 4 covers it).
+**Priority order** (owner, 15 Nov 2026; `pm` skill, section 1, *The order of priority*): 1 Modern web, 2 Material 3 Expressive, 3 Material 3, 4 Material 2 with Material 3 styling, 5 self-made; the lower number wins. Decide with it yourself. Stop and tell the PM only when the answer would be priority 5 (nothing from 1 to 4 covers it).
 
 Order of authority: the owner's rules, Material 3 and the theme components through `ui.tsx` win over the guidance. When a
 guide conflicts with one of them, you do not decide: stop, and send the PM the conflict (what the guide says, what our
@@ -142,6 +173,7 @@ are `…/specs`, `…/guidelines` and `…/accessibility` under the same address
 | Grid (`.image-grid`, `.grid-span-full`; tokens `--mo-comp-grid-columns`, `--mo-sys-grid-gutter`, `--mo-sys-grid-margin`, `--mo-sys-grid-layout-columns`) | cards of different heights in columns, no holes; on any page of the editor and the site; `docs/theme-grid.md` | [grids](https://m3.material.io/foundations/layout/grids-spacing/grids) |
 | `Carousel` (`ui.tsx` `ImageCarousel`) | a scrolling row of images or cards | [carousel](https://m3.material.io/components/carousel/overview) |
 | `Divider` | separates content | [divider](https://m3.material.io/components/divider/overview) |
+| `Avatar` (`SiteAvatar`) | a round mark with a letter or an image: a list item's leading avatar, a card's thumbnail; M3 has no page of its own (Lists, Specs, *Leading avatar*) | [lists](https://m3.material.io/components/lists/specs) |
 | `Badge` | a count or dot on another part | [badges](https://m3.material.io/components/badges/overview) |
 | `Dialog` (`ui.tsx` `Dialog`, `ask.tsx`) | a question or a task that interrupts | [dialogs](https://m3.material.io/components/dialogs/overview) |
 | `BottomSheet` (`ui.tsx` `BottomSheet`, `ActionSheet`) | extra content or actions at the bottom on a phone, and the Save bar | [bottom-sheets](https://m3.material.io/components/bottom-sheets/overview) |

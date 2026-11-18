@@ -1,4 +1,4 @@
-// Tabs (m3.material.io/components/tabs, .tabs and .tab in ../styles/ui.css): a row of tabs (Tabs), the open one
+// Tabs (m3.material.io/components/tabs, .tabs and .tab in ../styles/ui/tabs.css): a row of tabs (Tabs), the open one
 // `selected`. Their kind (`kind`) is Material's: `primary` (the main views under the top app bar: each tab's icon over
 // its label, or beside it with `inline`, and the indicator under the label) or `secondary` (views within a part of the
 // page: the label, evt. with its icon beside it, and the indicator under the whole tab), each with the divider under the

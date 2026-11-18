@@ -1,4 +1,4 @@
-// An exposed dropdown menu (m3.material.io/components/menus, .exposed-dropdown-menu in ../styles/ui.css): a field that
+// An exposed dropdown menu (m3.material.io/components/menus, .exposed-dropdown-menu in ../styles/ui/menus.css): a field that
 // shows the chosen one of a few choices (`options`, each its `value` and `label`, evt. `disabled`) and opens a menu of
 // them, with its name (`label`), a line under it (`supporting`) or what is wrong with it (`error`). As Material's, it
 // is the theme's text field (TextField.tsx: its kind, `kind`, outlined by default or filled, its classes and its look)

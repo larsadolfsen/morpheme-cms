@@ -54,7 +54,7 @@ Rule (owner, 2026-11-13): every icon is 24dp unless the component's M3 page prin
 
 | # | Where | What we have | What Material says (source) | Fix | Recorded |
 | - | ----- | ------------ | --------------------------- | --- | -------- |
-| 8 | 61 `text-sm`, 6 `text-xs`, 5 `text-base`, 63 `font-medium`, 6 `font-semibold` in `src/` and `theme/` | A loose size with a loose weight | m3.material.io/styles/typography/type-scale-tokens: a role sets size, line height, weight and tracking together. Only 12 role classes are used | large | partly (CSS sweep 9) |
+| 8 | 61 `text-sm`, 6 `text-xs`, 5 `text-base`, 63 `font-medium`, 6 `font-semibold` in `src/` and `theme/` | A loose size with a loose weight | m3.material.io/styles/typography/type-scale-tokens: a role sets size, line height, weight and tracking together. Only 12 role classes are used | large | partly (CSS sweep 9). Tailwind goes in 0.18.1 (`plans/2026-11-16-move-away-from-tailwind.md`); the card and list files are already plain CSS from the cards and lists plan, 18 Nov 2026 |
 | 9 | 14px text inherits the page's 0.5px tracking: 326 elements at 14/20/400 with 0.5, 100 at 14/20/500 with 0.5, 204 at 14/20/500 with 0 | wrong tracking | Body medium is 14/20/400 with 0.25; label large and title small 14/20/500 with 0.1 | small | no |
 | 10 | Weight 600 on headings and labels (about 150 elements: "Main menu" 22/28/600, "Preview", list titles) | 600 | Baseline roles are weight 400 and 500; the label roles have a prominent weight of 700 (type page). M3 also has 15 emphasized styles with a higher weight; their weights could not be read (the page's token table did not parse), so the 600 is listed as in no baseline role, not as in no style | small | no |
 | 11 | Small buttons (152 measured) | line height 14px | Label large line height 20 | small | no |
@@ -70,8 +70,8 @@ Rule (owner, 2026-11-13): every icon is 24dp unless the component's M3 page prin
 
 | # | Where | What we have | What Material says (source) | Fix | Recorded |
 | - | ----- | ------------ | --------------------------- | --- | -------- |
-| 14 | Disabled parts (`opacity` in `ui.css`): button 60%, icon button 35%, segmented 45%, date-picker day 35%, dropdown icon 60% | 35 to 60% | Button and icon button pages, Disabled: label and icon 38%, container 10% | small | no (the entry on placeholders is another thing) |
-| 15 | Search bar hover (`--search-bar-hover`) | 4% | state-layers page: hover 8% | small | no |
+| 14 | Disabled parts (`opacity` in `ui.css`): button 60%, icon button 35%, segmented 45%, date-picker day 35%, dropdown icon 60% | 35 to 60% | Button and icon button pages, Disabled: label and icon 38%, container 10% | small | no (the entry on placeholders is another thing). Changed 18 Nov 2026 (cards and lists plan, step 1): the 0.38 is the global `--mo-sys-state-disabled-state-layer-opacity`; every component reads it instead of a written number |
+| 15 | Search bar hover (`--search-bar-hover`) | 4% | state-layers page: hover 8% | small | no. Changed 18 Nov 2026 (cards and lists plan, step 1): the 8% is the global `--mo-sys-state-hover-state-layer-opacity` 0.08 (focus and pressed 0.1, dragged 0.16); every component reads the five globals instead of a written 8%, 10% or 38% |
 
 Equal and not listed: 70 uses of 8%, 15 of 10%, 4 of 12% (the rest are the recorded section colours); the status, PageSpeed, Google and picker colours are recorded (colour sweep 1 to 9).
 
@@ -80,7 +80,7 @@ Equal and not listed: 70 uses of 8%, 15 of 10%, 4 of 12% (the rest are the recor
 | # | Where | What we have | What Material says (source) | Fix | Recorded |
 | - | ----- | ------------ | --------------------------- | --- | -------- |
 | 16 | The fallback shadows in `ui.css` 106 to 116, used by every theme that sets none: key shadow 6 to 9%, big negative spread | softer than Material | The M3 elevation page prints each level's height (1, 3, 6, 8, 12dp) and which parts rest at it, but no shadow values. The two-layer shadows in `global.css` 29 to 38 are `@material/web`'s (`elevation/internal/_elevation.scss`); the fallback should be the same ones | small | out of date: colour sweep 12 says the Material theme's shadows are "softer"; they are Material's; decided (owner): Material's, section 7 |
-| 17 | Parts at rest in the Material theme (`--mo-elevation-N-rest-shadow` all 0, only the FAB has a shadow) | colour only | m3.material.io/styles/elevation/tokens, resting level 1: elevated button, elevated card, elevated chip, modal bottom sheet, side sheet and drawer. 2: menu, navigation bar, rich tooltip, toolbar, scrolled app bar. 3: dialog, FAB, extended FAB, search, date and time pickers | medium | decided (owner), section 7 |
+| 17 | Parts at rest in the Material theme (`--mo-elevation-N-rest-shadow` all 0, only the FAB has a shadow) | colour only | m3.material.io/styles/elevation/tokens, resting level 1: elevated button, elevated card, elevated chip, modal bottom sheet, side sheet and drawer. 2: menu, navigation bar, rich tooltip, toolbar, scrolled app bar. 3: dialog, FAB, extended FAB, search, date and time pickers | medium | decided (owner), section 7. **Superseded by the cards and lists plan (18 Nov 2026): resting shadows are on at every level**, `--mo-sys-elevation-levelN-rest-shadow` is `--mo-sys-elevation-levelN-shadow` (owner: "Follow the token: 1dp shadow at rest"); a part names its level and never writes its own shadow; each part on level 1 or higher is checked against its M3 token page |
 
 ### Motion (owner rule: springs only)
 
@@ -135,7 +135,7 @@ Not offenders, checked against what M3 prints: no "please", "sorry" or "oops" (g
 
 Add these (after the owner agrees), and correct entry 12 of the colour sweep.
 
-1. **No shadow at rest in the Material theme** (row 17): M3 gives elevated cards, menus, dialogs and the like a resting level 1 to 3; we show those by colour only, and use a shadow for the FAB, for lifting and for dragging. Why: flat, quiet pages and the section-colour rule (deviation 2).
+1. **No shadow at rest in the Material theme** (row 17; Superseded by the cards and lists plan (18 Nov 2026): dropped, resting shadows are on at every level, so this line is not added): M3 gives elevated cards, menus, dialogs and the like a resting level 1 to 3; we show those by colour only, and use a shadow for the FAB, for lifting and for dragging. Why: flat, quiet pages and the section-colour rule (deviation 2).
 2. **Elevation values**: replace colour sweep 12 with: "The Material theme's shadows are Material's (checked 2026-11-13). The fallback shadows in `ui.css` are softer; used by themes that do not set their own." (or fix row 16 and delete the sentence).
 3. **Icon button 48px** (row 3): add the XS and medium sizes (36 and 60) if they are meant, with the 48px target as the reason.
 4. **Data tables:** record the rule, not a deviation: "A data table keeps Material 2's structure and behaviour (row 52, header 56, padding 16, sort, alignment, pagination) and takes its look from M3 tokens (medium corner, surface container header, outline variant dividers, 8% hover, type roles). Owner decision 2026-11-13."
@@ -158,7 +158,7 @@ One check: extend **`check:css-values`** (`scripts/check-css-values.mjs`). It al
 ## 5. Questions for the owner
 
 1. **Button sizes (rows 1 to 3): decided by the owner:** "Yes, match Material 3 sizes. That should not change size on themes that have their own sizes." The default theme (Material) buttons and icon buttons move to M3's sizes and padding; a theme that sets its own sizes keeps them. The plan is in section 6.
-2. **Shadows at rest (row 17): decided by the owner:** "Yes, add shadows to those three." Parts at rest stay colour-only; the menu, the dialog and the snackbar, which float over the page, get Material's two-layer shadow: menu level 2, dialog level 3 (the M3 elevation page: resting level 2 lists the menu, level 3 the modal dialog). The snackbar: the M3 snackbar page names a "container elevation" token but prints no level, and the elevation page's resting list does not name the snackbar, so the level could not be read there; `@material/web`'s snackbar token is level 3, which is used.
+2. **Shadows at rest (row 17): decided by the owner:** "Yes, add shadows to those three." **(Superseded by the cards and lists plan (18 Nov 2026) for the resting shadows: the owner decided "Follow the token: 1dp shadow at rest"; resting shadows are on at every level, `--mo-sys-elevation-levelN-rest-shadow` equals `--mo-sys-elevation-levelN-shadow`, and "colour-only at rest" below no longer holds.)** Parts at rest stay colour-only; the menu, the dialog and the snackbar, which float over the page, get Material's two-layer shadow: menu level 2, dialog level 3 (the M3 elevation page: resting level 2 lists the menu, level 3 the modal dialog). The snackbar: the M3 snackbar page names a "container elevation" token but prints no level, and the elevation page's resting list does not name the snackbar, so the level could not be read there; `@material/web`'s snackbar token is level 3, which is used.
 3. **Icon sizes (row 5): decided by the owner:** every icon is 24dp unless the component's own M3 page prints another size, quoted in the section "Icons" above; no split is recommended beyond what those pages print. To do: text field icons and the select's arrow to 24, the FAB menu's close icon to 20.
 4. **Footer links (row 6): decided by the owner:** 48px, implemented in its own pull request (not in this one).
 5. **Table block: decided by the owner:** adapt it to MD3 styles (structure from Material 2, look from M3 tokens). Nothing is left to change in the Table block today; see "Data tables".
@@ -205,24 +205,26 @@ Order: (a) the `data-site-theme` attribute and the baseline, in one pull request
 
 ## 7. Shadows at rest (decided) and the proposed build pull requests
 
-**Shadows (rows 16 and 17), owner: "Yes, add shadows to those three."** Parts at rest keep colour-only elevation: record it in `docs/material-deviations.md` with the M3 quote ("Resting level" lists elevated cards, buttons and chips at level 1, and so on, on `/styles/elevation/tokens`; we show those levels by colour). The menu (level 2), the dialog (level 3) and the snackbar (level 3, from `@material/web`; the M3 pages print no level for it) get the Material theme's two-layer shadow (`--mo-elevation-2-shadow`, `-3-`). The fallback shadows in `ui.css` 106 to 116 become Material's too (they now equal `global.css`), and colour sweep 12 is corrected. Build: set the three parts' `box-shadow` from the level tokens in `ui.css`, delete the soft fallback values, add the two deviation lines; check with the screens (a menu, a dialog and a snackbar open) and `check:colors`.
+**Shadows (rows 16 and 17): moved to 0.19 Cards and lists** (owner, 17 November 2026). The decision of 13 November (parts at
+rest keep colour-only elevation, only the menu, the dialog and the snackbar get a shadow) is replaced: every part rests at its
+M3 level with its shadow, through one global rule. `docs/superpowers/specs/2026-11-17-list-to-cards-design.md`, step 1.
 
-**Proposed build pull requests** (each its own pull request, in this order; fix sizes from section 2):
+**Proposed build pull requests** (each its own pull request, in this order; fix sizes from section 2). Pull requests 4 (shadows), 9
+(disabled and hover values) and 11 (type) moved to 0.19 Cards and lists on 17 November 2026; the numbers of the others are kept:
 
 | # | Pull request | Rows | Size |
 | - | ------------ | ---- | ---- |
-| 1 | Deviations doc: the lines of section 3 (rest shadows, icons 20, table rule, settle times), colour sweep 12 corrected | 16, 17, 3, 18 | small |
+| 1 | Deviations doc: the lines of section 3 (icons 20, table rule, settle times), colour sweep 12 corrected | 3, 18 | small |
 | 2 | Button and icon button sizes at M3 (section 6): step (a) the `data-site-theme` attribute and the size baseline, step (b) the sizes and `.button-medium`, step (c) Venus checked | 1, 2, 3, 4 | large, three steps |
 | 3 | Icons: text fields and the select's arrow to 24, the FAB menu's close icon to 20 | 5 | small |
-| 4 | Shadows: menu, dialog, snackbar, and the fallback shadows | 16, 17 | small |
 | 5 | Hint full stops: remove them from single sentences in `en-US`, `da-DK` and `defaults/collections.ts`, with the check | 28 | medium |
 | 6 | Hidden: fix the demo's two texts; rename "Hide from search engines" to "No index" and add "No follow" (a product change with its own release note and a CLAUDE.md line) | 26 | medium |
 | 7 | Table: no code; align `docs/superpowers/specs/2026-11-13-table-md2-design.md` (corner medium 12dp) | none | small |
 | 8 | Motion: the five hand-written animations, the fallback `--motion-*`, and the settle times | 18, 19, 20 | small |
-| 9 | Disabled and hover values: 38% and 10%, search bar hover 8%; the check rule | 14, 15 | small |
+| 9 | Disabled and hover values: 38% and 10%, search bar hover 8%; the check rule (changed 18 Nov 2026: done as the five global state opacities of step 1 of the cards and lists plan) | 14, 15 | small |
 | 10 | Tap targets: the parts screen and field editors (the footer links are already their own pull request) | 7 | medium |
-| 11 | Type: loose Tailwind sizes and weights to the role classes, the inherited tracking, weight 600, small button and label line heights; screen by screen | 8 to 12 | large |
+| 11 | Type: loose Tailwind sizes and weights to the role classes, the inherited tracking, weight 600, small button and label line heights; screen by screen (changed 18 Nov 2026: belongs to the move away from Tailwind, 0.18.1) | 8 to 12 | large |
 | 12 | Spacing: the fractional rem values | 13 | small |
 | 13 | Words: "canceled", On/Off wording, then the long and passive texts | 24, 25, 27 | large, many small edits |
 
-**Open questions: none.** Questions 1 to 7 are decided, and so are the two that came after: Danish full stops (yes, same rule as English; the owner's choice, M3's page is English-only) and the menu and list icons (keep 20, the Expressive size; the baseline 24 is printed beside it, section "Icons"). One confirm line remains: the snackbar's shadow level 3, which M3 does not print (it comes from `@material/web`).
+**Open questions: none.** Questions 1 to 7 are decided, and so are the two that came after: Danish full stops (yes, same rule as English; the owner's choice, M3's page is English-only) and the menu and list icons (keep 20, the Expressive size; the baseline 24 is printed beside it, section "Icons"). The snackbar's shadow level (3, from `@material/web`; M3 prints none) moved to 0.19 with the shadows.

@@ -7,13 +7,13 @@ import { fileURLToPath } from 'node:url';
 import { STANDARD_THEME, themeFolder } from './theme.mjs';
 import { THEME_PARTS } from './themeParts.mjs';
 import { themeCoverage } from './themeCoverage.mjs';
-import { UI_PART_FILES } from '../theme/styles/files.mjs';
+import { UI_PART_FILES, SITE_SHELL_FILES, MATERIAL_FILES as MATERIAL_LOOK_FILES } from '../theme/styles/files.mjs';
 
 /**
  * Material's CSS files that carry the parts' classes, in this order: base, ui, the files its parts moved into (theme/styles/files.mjs, docs/superpowers/plans/2026-11-16-css-split.md),
  * components, global.
  */
-const MATERIAL_FILES = ['base.css', 'ui.css', ...UI_PART_FILES, 'components.css', 'global.css'];
+const MATERIAL_FILES = ['base.css', 'ui.css', ...UI_PART_FILES, ...SITE_SHELL_FILES, 'global.css', ...MATERIAL_LOOK_FILES];
 
 /** A relative `@import './x.css';`, `@import "../x.css";` or `@import url(./x.css);`. */
 const IMPORT = /@import\s+(?:url\(\s*)?(['"]?)(\.{1,2}\/[^'")\s;]+)\1\s*\)?[^;]*;/g;

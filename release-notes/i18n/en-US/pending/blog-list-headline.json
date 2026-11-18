@@ -1,0 +1,6 @@
+{
+  "id": "blog-list-headline",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Post titles in the blog list use the same text size as other lists"
+}

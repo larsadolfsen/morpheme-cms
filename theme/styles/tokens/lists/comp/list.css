@@ -30,7 +30,7 @@
   }
 }
 @layer components {
-  @media (width < theme(--breakpoint-medium)) {
+  @media (width < 37.5rem) {
     .block-list:not(.list-segmented) {
       --mo-comp-list-item-padding-inline: var(--mo-sys-block-list-layer-room);
       /* Edge to edge, a row's layer has no rounded corners, at rest, pointed at, pressed or selected (owner, 16 Nov 2026: "No border radius when full width"). */
@@ -42,7 +42,7 @@
   }
 }
 @layer components {
-  @media (width < theme(--breakpoint-medium)) {
+  @media (width < 37.5rem) {
     .block-accordion:not(.block-accordion-segmented) {
       --mo-comp-list-expand-padding-inline: var(--mo-sys-block-list-layer-room);
       /* Edge to edge, an open item's colour has square corners too. */

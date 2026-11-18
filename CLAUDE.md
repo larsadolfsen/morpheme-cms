@@ -14,6 +14,7 @@ in one place only, so never work from memory of a skill.
 | `checks` | you choose which checks to run before a push, or a CI job fails |
 | `material-3` | a spec or a change touches anything outside the editor's own workspace, or deviates from Material 3 |
 | `pm` | the owner makes the session the project manager (`/pm <version>`), or the orchestrator merges while no PM runs |
+| `cto` | the owner makes the session the CTO, or asks where the product, the code, the process or the roadmap should go next |
 | `release` | the owner says `/release`, or asks to release, publish to `latest` or ship a version |
 
 ## How we work
@@ -68,7 +69,8 @@ rules in the `pm` skill.
 
 ### Roles
 
-Every developer session (build, fix or docs) loads the `developer` skill first. An orchestrator breaks a task down, delegates it to Claude subagents (the first choice when the task needs the repo's
+The **CTO** (skill `cto`) finds out and decides with the owner what happens in the future, writes the specs and plans, and decides
+itself whether and when it writes code; the **PM** (skill `pm`) runs the work. Every developer session (build, fix or docs) loads the `developer` skill first. An orchestrator breaks a task down, delegates it to Claude subagents (the first choice when the task needs the repo's
 rules) or, for mechanical code with a precise specification, to the Developer (Ollama, `qwen3.8:27b` at
 `http://127.0.0.1:11434`, local only), then reviews, tests and integrates. Claude in the cloud (claude.ai/code) runs when
 the PC is off and uses subagents for code.

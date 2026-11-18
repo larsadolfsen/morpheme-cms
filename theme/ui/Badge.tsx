@@ -1,4 +1,4 @@
-// A badge (m3.material.io/components/badges, .badge in ../styles/badge.css): a small dot (without `count`: something new)
+// A badge (m3.material.io/components/badges, .badge in ../styles/ui/badge.css): a small dot (without `count`: something new)
 // or a number (`count`, more than `max` shown as "999+"), on what it is about (`children`: an icon or an icon button,
 // at its top end corner, .badge-anchor) or by itself after a label (a navigation drawer's item). The badge is only seen:
 // what it says is read by screen readers from `label` (e.g. "3 nye beskeder"), or, on an icon button, from the button's

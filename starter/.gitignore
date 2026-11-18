@@ -12,4 +12,5 @@ Thumbs.db
 public/images/_r/
 public/images/_s/
 public/images/_video/
+public/images/_variants.json
 src/data/image-manifest.json

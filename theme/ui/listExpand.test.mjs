@@ -3,22 +3,24 @@
 // <details>/<summary> (keyboard and screen readers from the browser), the FAQ is drawn on it and no longer by rules of its own, and
 // the script that glides it finds the part's classes. `check:screens` measures the real thing (375 and 1280 px).
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import test from 'node:test';
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
 const list = read('./List.tsx');
-const ui = read('../styles/ui.css');
-const blocks = read('../styles/blocks.css');
+const ui = read('../styles/ui/list.css');
+const blocks = readdirSync(new URL('../styles/blocks/', import.meta.url))
+  .map((f) => read(`../styles/blocks/${f}`))
+  .join('\n');
 const accordion = read('../blocks/accordion/Accordion.tsx');
 const script = read('../blocks/accordion/script.ts');
 
-test('every class of a folding item has a rule in ui.css', () => {
+test('every class of a folding item has a rule in list.css', () => {
   const classes = new Set(list.match(/\blist-(?:item-)?expand[a-z-]*/g));
   for (const c of ['list-expand', 'list-item-expand', 'list-item-expand-summary', 'list-item-expand-icon', 'list-item-expand-body']) {
     assert.ok(classes.has(c), `List.tsx gives no ${c}`);
   }
-  for (const c of classes) assert.match(ui, new RegExp(`\\.${c}\\b`), `ui.css has no rule for .${c}`);
+  for (const c of classes) assert.match(ui, new RegExp(`\\.${c}\\b`), `list.css has no rule for .${c}`);
 });
 
 test('the item is a details with its summary as the item (keyboard and screen readers)', () => {
@@ -50,7 +52,7 @@ test('the FAQ is drawn on the part, with no accordion rules of its own left', ()
     '.block-accordion-body',
     '.block-accordion-title',
   ]) {
-    assert.ok(!blocks.includes(old), `blocks.css still has ${old}`);
+    assert.ok(!blocks.includes(old), `the blocks' CSS still has ${old}`);
   }
 });
 

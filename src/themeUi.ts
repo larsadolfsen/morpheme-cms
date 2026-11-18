@@ -83,6 +83,7 @@ export { sideSheetClass as siteSideSheetDialogClass } from '@theme/ui/SideSheet'
 export { sideSheet as siteSideSheet, standardSideSheet as siteStandardSideSheet } from '@theme/ui/sideSheetControl';
 /** The theme's communication parts, for "Parts" › "UI components" (CommunicationParts.tsx). */
 export { default as SiteBadge } from '@theme/ui/Badge';
+export { default as SiteAvatar, avatarClass as siteAvatarClass } from '@theme/ui/Avatar';
 export { default as SiteLoadingIndicator } from '@theme/ui/LoadingIndicator';
 export {
   LinearProgressIndicator as SiteLinearProgressIndicator,

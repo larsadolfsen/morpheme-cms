@@ -15,5 +15,9 @@
   --mo-comp-snackbar-padding-block: 0.875rem;
   --mo-comp-snackbar-backdrop: none;
   --mo-comp-snackbar-action-label-text-color: var(--mo-sys-color-inverse-primary);
-  --mo-comp-snackbar-action-hover: color-mix(in srgb, var(--mo-sys-color-inverse-primary) 8%, transparent);
+  --mo-comp-snackbar-action-hover: color-mix(
+    in srgb,
+    var(--mo-sys-color-inverse-primary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+    transparent
+  );
 }

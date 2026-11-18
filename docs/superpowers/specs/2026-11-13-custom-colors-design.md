@@ -121,7 +121,7 @@ M3 does not say how a custom color may be used. Read in the code, the three are 
 
 Secondary and Tertiary are **never text**, and a cream Secondary stays cream: nothing adjusts them for the page background.
 Large text and graphics need 3:1 (M3, *Color contrast*). The list focus ring also uses Secondary today (`--list-item-focus-indicator-color`
-in `global.css`), but it is not a choice anyone makes; it is the one open question (section 10).
+in `global.css`), but it is not a choice anyone makes; it was the one open question (section 10). Closed 18 Nov 2026 by the cards and lists plan: one focus ring for every part in `--mo-sys-color-primary`.
 
 Measured with the WCAG formula against the light Surface (tone 98) and the dark Surface (tone 6): fills with text always pass
 (5.65:1 or more for the nine colors of section 9). What can fail is **Primary as text on the light Surface** (#F34E3D 3.34, #2589D8 3.53,
@@ -255,7 +255,9 @@ Decided by the owner in chat, 2026-11-13 (all eight questions of the first draft
    silent change and not a block (5.4).
 10. **Buttons** are **Fix** and **Keep** (active verbs, as M3's rule and `CLAUDE.md` say).
 
-**The one open question (with a recommendation): the list focus ring.** The theme draws the 3 dp ring inside a focused list item in
+**Closed 18 Nov 2026 (cards and lists plan, step 1; owner approved the plan): the focus ring is Primary, for every part, not only the list.** `--mo-sys-color-primary`, 3 dp, offset 2 dp, `border-radius: inherit`; a deviation from M3's `secondary`, because WCAG 2.2, 1.4.11 needs 3:1 and a site's Secondary can give 1.15:1 (deviation FR1, One focus ring, in primary). This is option A below. A part with its own inset ring keeps its component's offset (the list's -3 dp) as a component variable.
+
+**The one open question (with a recommendation; closed, see above): the list focus ring.** The theme draws the 3 dp ring inside a focused list item in
 Secondary (`--list-item-focus-indicator-color: var(--mo-secondary)`, `theme/styles/global.css`; used at `theme/styles/ui.css` for the
 list item's outline). Nobody chooses it, and a cream Secondary gives it 1.15:1, below the 3:1 a focus indicator needs (WCAG 2.2, 1.4.11 non-text
 contrast; the theme already holds control borders to 3:1, `docs/material-deviations.md` #4). I have not re-read M3's list page for its
@@ -277,14 +279,14 @@ custom colors are also left out.
 ## 12. Build plan (small pull requests into `0.17`, in order)
 
 Step A has no open decision and can start as soon as the owner has read this spec; each later step starts when the one before it is
-merged. Only the list focus ring line in B waits for the owner's answer to the open question.
+merged. Only the list focus ring line in B waited for the owner's answer; it is answered (18 Nov 2026: Primary, option A).
 
 - **A. Engine** (`lib/dynamic-colors.ts`): `harmony: 'custom'`, `schemeOf` branch, exact colors, the on-color rule, `primaryProblem()`
   (Primary below 4.5:1 as text, with numbers), `fixedTone()` (the nearest passing tone), `lowOnPage()` (below 3:1 on Surface in light or
   dark), `dynamicProblems`, the unit tests with the three palettes. No UI. Empty changeset.
 - **B. File, picker and theme**: `Colors.tsx` `fileOf`/`colorsOf`, `kept`, `lowContrast` skip, `checkSite.ts`, `completeColors`; the icon color
   picker offers Secondary and Tertiary only above 3:1 and a saved low icon color gets its warning (`src/iconColor.ts`, the field, texts in
-  `src/i18n/*/blocks.ts`); the list focus ring, once the owner answers (recommended: delete the `global.css` line); `docs/app-contract.md`
+  `src/i18n/*/blocks.ts`); the list focus ring (closed 18 Nov 2026: Primary, built with the cards and lists plan's step 1 as the one focus ring of every part); `docs/app-contract.md`
   note; `bundle.test.mjs` green. Changeset `patch`.
 - **C. Screen**: the chip, three tiles with pens, no lock, three draggable dots (`ColorWheel`, `wheelColorAt`), Primary's question `Notice`
   with Fix/Keep, the adjusted list and kept warning, the low-contrast note by Secondary and Tertiary, Save blocked while the question is open, texts in English and Danish,

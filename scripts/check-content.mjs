@@ -38,6 +38,7 @@ import { buildSettingsProblems } from './build-settings-problems.mjs';
 import { textProblems } from './text-problems.mjs';
 import { notesOf, releaseProblems } from './releases.mjs';
 import { alreadyChecked } from './already-checked.mjs';
+import { usesCiBuild, BUILD_COMMAND } from '../lib/build-command.mjs';
 import { oldPreviewWarnings } from '../lib/previewAddress.mjs';
 import { readFields, splitFrontmatter } from '../src/frontmatter.mjs';
 
@@ -275,3 +276,9 @@ if (result.problems.length) {
   process.exit(1);
 }
 console.log(`${result.files} files and ${result.blocks} blocks follow the editor's rules.`);
+
+// A site whose build command is not `npx morpheme ci-build` takes the full lane on every save; the CMS update moves it once. Said, never a stop.
+if (existsSync(join(root, 'wrangler.jsonc')) && !usesCiBuild(readFileSync(join(root, 'wrangler.jsonc'), 'utf8')))
+  console.warn(
+    `Warning: wrangler.jsonc's build command is not "${BUILD_COMMAND}", so every save takes the full lane. The next CMS update changes it; or change it now.`,
+  );

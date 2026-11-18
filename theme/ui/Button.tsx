@@ -1,4 +1,4 @@
-// A button (m3.material.io/components/buttons, .button in ../styles/ui.css): a label, an icon before it (`icon`) and
+// A button (m3.material.io/components/buttons, .button in ../styles/ui/buttons.css): a label, an icon before it (`icon`) and
 // evt. one after it (`trailingIcon`, the arrow; each its name, or in the editor an icon already made; its class button-trailing-icon, so a theme can hide or move it). Its
 // kind (`kind`: filled, the default, tonal, elevated, outlined or text), its size (`size`: xsmall, small, medium, the
 // default, large or xlarge) and its shape (`shape`: round, the default, or square) are Material's names; how each looks

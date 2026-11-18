@@ -13,12 +13,12 @@ stylesheet. Each stylesheet imports its own token files, so a theme that imports
 
 | Folder | Imported by | What is in it |
 | :--- | :--- | :--- |
-| `tokens/ui/` | `ui.css` | the UI components' defaults: type scale, elevation levels, the parts' own variables |
+| `tokens/ui/` | `ui.css` | the UI components' defaults: type scale, elevation levels, M3's state opacities, the parts' own variables |
 | `tokens/blocks/` | `blocks.css` | the blocks' variables (`--block-*`, `--motion-*`, `--section-*`) |
 | `tokens/cards/` | `cards.css` | the card tokens of the Cards CSS (`cards.css`) |
 | `tokens/lists/` | `lists.css` | the list tokens of the Lists CSS (`lists.css`) |
 | `tokens/type/` | `type.css` | the type classes' own tokens (the lead's `--mo-sys-prose-space`) |
-| `tokens/base/` | `base.css` | what every theme has: spacing, density, the Tailwind `@theme` names, `--panel-*`, `--theme-*` (from `components.css`, then `base.css`) |
+| `tokens/base/` | `base.css` | what every theme has: spacing, density, the Tailwind `@theme` names, `--panel-*`, `--theme-*` (from the site shell's files, then `base.css`) |
 | `tokens/material/` | `global.css` | the standard theme's look, Material 3: its colours' swaps, shape steps, elevation values, grid, state layers |
 
 Material's tokens stay out of `base.css`: a theme that imports only `base.css` must not get Material's values.
@@ -66,7 +66,7 @@ valid page. A `var(--x, fallback)` cannot do it: the faulty value is a valid cus
 property that reads it becomes invalid (black text, a 0 radius, no background). `@property` can: a token registered with a syntax drops
 a value that does not fit and keeps its `initial-value`.
 
-`theme/styles/tokens/<origin>/registry.css` (written by `scripts/gen-token-registry.mjs`, never by hand) registers 148 tokens of
+`theme/styles/tokens/<origin>/registry.css` (written by `scripts/gen-token-registry.mjs`, never by hand) registers 153 tokens of
 the origins `base`, `ui`, `blocks` and `material`, and the 45 colour roles `colorsCss` writes into the page. Each is `inherits: true`
 with its default as `initial-value`:
 

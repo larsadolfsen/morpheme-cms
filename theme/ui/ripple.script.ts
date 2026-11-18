@@ -1,5 +1,5 @@
 // The ripple, Material 3's pressed state (m3.material.io/foundations/interaction/states/applying-states, .ripple in
-// ../styles/ui.css): pressed, a part grows a wave of its content's colour from where it was pressed (from its middle with
+// ../styles/ui/ripple.css): pressed, a part grows a wave of its content's colour from where it was pressed (from its middle with
 // the keyboard) until the wave covers it, and the wave fades when it is let go. On the parts that are pressed (PARTS),
 // in the part's shape or, on a navigation item, its active indicator's; not on one that cannot be used. A touch waits a
 // moment first, so a finger that scrolls the page does not ripple. One listener on the document, so it also works on
