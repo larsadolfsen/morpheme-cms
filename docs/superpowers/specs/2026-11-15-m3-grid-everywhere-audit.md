@@ -206,8 +206,10 @@ is out of scope** (owner, 15 Nov): places that need a fixed side column or an un
 | Cards block, blog lists | Full width on a phone, CSS columns above, gutter from token | M | Yes, High |
 | Image grid block, media grid | Counts 2 / 4 / 6 and gutter from token (already CSS columns) | M | Yes, High |
 | Price cards | Count by window instead of block width, or leave (container queries) | M | Yes, High |
-| Panels, points, media, checklist | `auto-fit` blocks: leave until a block needs it | L | Yes, High |
-| Post text column, carousels, pickers, lists | Leave (*Would not change*, below) | none | No |
+| Panels, points, media, checklist | `auto-fit` blocks: leave until a block needs it (changed 18 Nov 2026: cards and lists plan, step 4 moves the panels onto the theme grid with the other cards; see below) | L | Yes, High |
+| Post text column, carousels, pickers, lists | Leave (*Would not change*, below; the lists' look changes in step 5 of the cards and lists plan, not their layout) | none | No |
+
+**Superseded by the cards and lists plan (18 Nov 2026, `plans/2026-11-17-cards-and-lists-0-19.md`) for the cards.** Step 4 of the plan moves every card of the site onto the theme grid (G1), without Tailwind, together with `Card`'s M3 props: *Cards*, *Price cards*, *Notice*, *Table*, *Cookie list*, *Links* and the panels, *Image grid* (`ImageTile`), *Testimonials*, related posts (`PostCard.tsx`) and the 404 page. So the rows above that say price cards, panels or the cards block are left or counted by their own width no longer hold for 0.18: they go onto the grid in step 4. In 0.19 the collection (step 6) sets the count of cards beside each other: "2 cards side by side from 600 dp, 3 from 840 dp" (design `2026-11-17-list-to-cards-design.md`, 9.9), which replaces the "3 does not divide 8" objection of section 2 for cards in a collection. The editor's cards keep their content as `children` and change only their look.
 
 **Would not change:** the breakpoints (already M3's); the spacing scale (already M3's); the 72rem page width and the
 reading measures (M3 prints none); the generic and cards carousel widths (M3 carousel rules, not the layout grid);

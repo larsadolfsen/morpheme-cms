@@ -18,6 +18,8 @@ table's dimensions (`theme/styles/blocks.css`, `.block-table-grid`: row 52 dp, h
 no elevation, hover state) and M3 for everything else (type scales, surface container for the header, outline variant, small
 shape, state layer). This proposal keeps that split: MD2 says what a table does, the M3 tokens say how it looks.
 
+(Changed 18 Nov 2026: cards and lists plan. Step 4 moves the Table block's frame onto `Card`, outlined, without Tailwind, so the box takes M3's card tokens (12 dp corner, 1 dp `outline-variant`, level 0), not MD2's 4 dp corner listed under *Container* below; the row's hover reads M3's global `--mo-sys-state-hover-state-layer-opacity` (0.08), not a written number. The MD2 dimensions inside the box stay.)
+
 ## What MD2 defines
 
 Read on 2026-11-13 from m2.material.io/components/data-tables (Usage, Anatomy, Behavior, Specs) and its Web page
