@@ -78,3 +78,115 @@
     }
   }
 }
+
+/* The page's parts (theme/components/Container.astro, Section.astro, PageHeader.astro, PageHeading.astro, PageSection.astro, SectionHeading.tsx,
+   TextSection.astro, home/Text.astro, Markdown.astro, EndBlock.astro, ArrowLink.tsx): the container with the page's gutters, the space above a
+   section, the headings and intros, a text after its heading. In @layer utilities, where the utility classes they replace sat. Written with Modern
+   Web Guidance's guides css-layout, css and responsive-design. */
+@layer utilities {
+  /* The page's width, 1152 dp, with the side gutters (--mo-comp-theme-page-gutter: 16 dp, 24 dp from 600 dp). Every full-width block uses it. */
+  .mo-container {
+    margin-inline: auto;
+    max-inline-size: 72rem;
+    padding-inline: var(--mo-comp-theme-page-gutter);
+  }
+  .mo-section {
+    padding-block-start: var(--mo-comp-theme-section-space);
+  }
+  .mo-section__panel {
+    margin-block: 0;
+    padding-block-end: var(--mo-sys-block-section-padding);
+  }
+  .mo-section__intro,
+  .mo-page-section__intro,
+  .mo-page-header__intro {
+    max-inline-size: 52ch;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-section__intro,
+  .mo-page-section__intro {
+    margin-block-start: 0.75rem;
+  }
+  .mo-page-header {
+    padding-block-start: 2rem;
+  }
+  .mo-page-header__title {
+    max-inline-size: 18ch;
+  }
+  .mo-page-header__intro {
+    margin-block-start: 1rem;
+  }
+  .mo-page-heading__title {
+    margin-block-start: 0.75rem;
+    max-inline-size: 22ch;
+  }
+  /* The link back to the parent page or the blog, above a title. */
+  .mo-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  @media (hover: hover) {
+    .mo-back-link:hover {
+      color: var(--mo-sys-color-primary);
+    }
+  }
+  /* A Markdown text (Markdown.astro) keeps to the text's measure; after a heading it has space above. */
+  .mo-markdown {
+    max-inline-size: var(--mo-sys-block-text-measure-max);
+    min-inline-size: min(var(--mo-sys-block-text-measure-min), 100%);
+  }
+  .mo-text-after-heading {
+    margin-block-start: 1.5rem;
+  }
+  /* The text's first paragraph as the lead (the same as mo-type-lead). */
+  .mo-text-lead > p:first-child {
+    font-size: var(--mo-sys-typescale-lead-size);
+    line-height: var(--mo-sys-typescale-lead-line-height);
+    font-weight: var(--mo-sys-typescale-lead-weight);
+    letter-spacing: var(--mo-sys-typescale-lead-tracking);
+  }
+  .mo-end-block {
+    margin-block-start: 5rem;
+  }
+  .mo-arrow-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: var(--mo-sys-color-primary);
+  }
+  @media (width >= 37.5rem) {
+    .mo-container {
+      padding-inline: var(--mo-comp-theme-page-gutter-large);
+    }
+    .mo-section {
+      padding-block-start: var(--mo-comp-theme-section-space-large);
+    }
+    .mo-page-header {
+      padding-block-start: 3.5rem;
+    }
+    .mo-page-header__intro {
+      font-size: var(--mo-sys-typescale-title-large-size);
+      line-height: var(--mo-sys-typescale-title-large-line-height);
+      font-weight: var(--mo-sys-typescale-title-large-weight);
+      letter-spacing: var(--mo-sys-typescale-title-large-tracking);
+    }
+    .mo-page-section__title {
+      font-size: var(--mo-sys-typescale-display-small-size);
+      line-height: var(--mo-sys-typescale-display-small-line-height);
+      font-weight: var(--mo-sys-typescale-display-small-weight);
+      letter-spacing: var(--mo-sys-typescale-display-small-tracking);
+    }
+    .mo-section-heading {
+      font-size: var(--mo-sys-typescale-display-medium-size);
+      line-height: var(--mo-sys-typescale-display-medium-line-height);
+      font-weight: var(--mo-sys-typescale-display-medium-weight);
+      letter-spacing: var(--mo-sys-typescale-display-medium-tracking);
+    }
+    .mo-end-block {
+      margin-block-start: 7rem;
+    }
+  }
+}

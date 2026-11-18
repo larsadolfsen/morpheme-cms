@@ -24,14 +24,20 @@ const categories = await getCategories();
 
 <Base {...seo} title={title} description={description} crumbs={activeCategory ? [{ name: 'Blog', href: '/blog/' }] : []}>
   <PageHeader title={title} intro={intro}>
-    <nav aria-label={siteT.theme.tags} class="-mx-4 mt-8 medium:mx-0">
-      <ul class="flex gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none] medium:flex-wrap medium:overflow-visible medium:px-0">
-        <li class="shrink-0">
-          <Chip kind="filter" href="/blog/" label={siteT.theme.allPosts} selected={!activeCategory} className="shrink-0" />
+    <nav aria-label={siteT.theme.tags} class="mo-blog-tags">
+      <ul class="mo-blog-tags__list">
+        <li class="mo-blog-tags__item">
+          <Chip kind="filter" href="/blog/" label={siteT.theme.allPosts} selected={!activeCategory} className="mo-blog-tags__item" />
         </li>
         {categories.map((c) => (
-          <li class="shrink-0">
-            <Chip kind="filter" href={`/blog/tags/${c.slug}/`} label={c.name} selected={activeCategory === c.slug} className="shrink-0" />
+          <li class="mo-blog-tags__item">
+            <Chip
+              kind="filter"
+              href={`/blog/tags/${c.slug}/`}
+              label={c.name}
+              selected={activeCategory === c.slug}
+              className="mo-blog-tags__item"
+            />
           </li>
         ))}
       </ul>

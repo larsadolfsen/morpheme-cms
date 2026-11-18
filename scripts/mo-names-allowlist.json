@@ -1057,27 +1057,15 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "theme/components/BlogIndex.astro": {
+    "theme/components/BlogPosts.tsx": {
       "classDefs": 0,
       "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "theme/components/BlogPosts.astro": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/components/BlogPosts.tsx": {
-      "classDefs": 0,
-      "markup": 5,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "theme/components/CookieConsent.astro": {
       "classDefs": 0,
-      "markup": 7,
+      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -1089,7 +1077,7 @@
     },
     "theme/components/Footer.astro": {
       "classDefs": 0,
-      "markup": 15,
+      "markup": 13,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -1113,17 +1101,11 @@
     },
     "theme/components/PageHeader.astro": {
       "classDefs": 0,
-      "markup": 3,
+      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "theme/components/PageHeading.astro": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/components/PageSection.astro": {
       "classDefs": 0,
       "markup": 1,
       "propsDeclared": 0,
@@ -1137,18 +1119,6 @@
     },
     "theme/components/PopupButton.tsx": {
       "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/components/PopupView.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/components/PostAuthor.astro": {
-      "classDefs": 0,
       "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
@@ -1161,7 +1131,7 @@
     },
     "theme/components/PostHeader.astro": {
       "classDefs": 0,
-      "markup": 6,
+      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -1171,27 +1141,9 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "theme/components/RelatedPosts.astro": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "theme/components/RichText.astro": {
       "classDefs": 0,
       "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/components/Section.astro": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/components/TextSection.astro": {
-      "classDefs": 0,
-      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },

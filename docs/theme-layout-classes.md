@@ -2,8 +2,7 @@
 
 `theme/styles/layout.css` (layer `utilities`, tokens in `theme/styles/tokens/layout/comp/`) holds a small set of named layout helpers, the
 vocabulary of plan `docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md` §3.2. Each class sets layout only, with logical properties, `gap`
-and tokens: never colour, shape, type or state (those belong to the part). `theme/styles/layout.test.mjs` fails on anything else. Until `base.css`
-imports the file (batch T11), `src/editor.css` imports it.
+and tokens: never colour, shape, type or state (those belong to the part). `theme/styles/layout.test.mjs` fails on anything else. `base.css` imports the file, so every theme has it.
 
 | Class | Declarations | Token |
 | :-- | :-- | :-- |

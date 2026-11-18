@@ -20,19 +20,15 @@ interface Props {
 }
 const { title, intro, class: className, id, color, label } = Astro.props;
 const Panel = color ? 'div' : Fragment;
-const panel = color ? { class: `text-section text-section-${color} my-0 pb-(--mo-sys-block-section-padding)` } : {};
+const panel = color ? { class: `text-section text-section-${color} mo-section__panel` } : {};
 ---
 
-<Container
-  class:list={['pt-(--mo-comp-theme-section-space) medium:pt-(--mo-comp-theme-section-space-large)', className]}
-  aria-labelledby={title && id ? id : undefined}
-  data-reveal
->
+<Container class:list={['mo-section', className]} aria-labelledby={title && id ? id : undefined} data-reveal>
   <Panel {...panel}>
     {label && <Markdown body={eyebrowHtml(label)} />}
     {title && <SectionHeading id={id} text={title} />}
     {intro && (
-      <p class="mo-type-body-large mt-3 max-w-[52ch] text-on-surface-variant">
+      <p class="mo-type-body-large mo-section__intro">
         <Inline text={intro} />
       </p>
     )}

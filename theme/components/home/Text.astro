@@ -10,5 +10,5 @@ const { heading, body, sectionColor, class: className, lead, label } = Astro.pro
 ---
 
 <Section title={heading} class={className} color={sectionColor} label={label}>
-  <Markdown body={body} class:list={[heading && 'mt-6', lead && '[&>p:first-child]:mo-type-lead']} />
+  <Markdown body={body} class:list={[heading && 'mo-text-after-heading', lead && 'mo-text-lead']} />
 </Section>

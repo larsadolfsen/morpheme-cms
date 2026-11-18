@@ -5,8 +5,8 @@ The theme's 16 type styles (Material 3's 15 type roles and the lead) are plain c
 `-line-height`, `-weight`, `-tracking`), which the theme sets in `theme/styles/tokens/ui/ref.css`. The classes sit in `@layer utilities`, in
 alphabetical order, where Tailwind's `@utility` rules were.
 
-`mo-type-lead` also sets `--mo-sys-prose-space: 1.5rem`. Two spellings Tailwind wrote are kept for the markup that still uses them, and go with it:
-`[&>p:first-child]:mo-type-lead` and `medium:mo-type-…` (`type.css`, last rules).
+`mo-type-lead` also sets `--mo-sys-prose-space: 1.5rem`. One spelling Tailwind wrote is kept for the markup that still uses it (`theme/templates/Home.astro`, `theme/layouts/PageLayout.astro`), and goes with it:
+`[&>p:first-child]:mo-type-lead` (`type.css`, last rule).
 
 The demo's page `/typography/` shows every style with its class name and the size, line height, tracking and weight read from the computed style
 (`demo/src/content/pages/typography.md`, `demo/public/demo-type.js`). `theme/styles/typescale.test.mjs` checks the tokens against Material 3's table

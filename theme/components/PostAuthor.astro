@@ -11,10 +11,10 @@ interface Props {
 const { name, role, portrait } = Astro.props;
 ---
 
-<div class="flex items-center gap-3">
-  {portrait && <Img src={portrait} alt="" loading="eager" class="size-11 rounded-full object-cover object-[50%_20%]" sizes="44px" />}
-  <div class="leading-snug">
-    <span class="block font-medium">{name}</span>
-    {role && <span class="block mo-type-body-medium text-on-surface-variant">{role}</span>}
+<div class="mo-row mo-post-author">
+  {portrait && <Img src={portrait} alt="" loading="eager" class="mo-post-author__portrait" sizes="44px" />}
+  <div class="mo-post-author__text">
+    <span class="mo-post-author__name">{name}</span>
+    {role && <span class="mo-type-body-medium mo-post-author__role">{role}</span>}
   </div>
 </div>
