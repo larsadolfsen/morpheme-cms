@@ -5,7 +5,7 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | Class | Uses | CSS | Write instead |
 | :-- | --: | :-- | :-- |
 | `flex` | 157 | `display: flex;` | `mo-row` (or `display: flex` in the part's rule) |
-| `text-on-surface-variant` | 133 | `color: var(--mo-sys-color-on-surface-variant);` | `.mo-muted`, or `color: var(--mo-sys-color-on-surface-variant)` in the part's rule |
+| `text-on-surface-variant` | 133 | `color: var(--mo-sys-color-on-surface-variant);` | `color: var(--mo-sys-color-on-surface-variant)` in the part's own rule (no class) |
 | `items-center` | 71 | `align-items: center;` | `mo-row` (default) |
 | `shrink-0` | 71 | `flex-shrink: 0;` | `mo-keep` |
 | `text-sm` | 64 | `font-size: var(--text-sm); line-height: var(--tw-leading, var(--text-sm--line-height));` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
@@ -69,9 +69,9 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `focus:outline-none` | 7 | `--tw-outline-style: none; outline-style: none;` | `:focus` selector in the part's rule |
 | `font-semibold` | 7 | `--tw-font-weight: var(--font-weight-semibold); font-weight: var(--font-weight-semibold); } @property --tw-font-weight { syntax: "*"; inherits: false;` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
 | `gap-1.5` | 7 | `gap: calc(var(--spacing) * 1.5);` | `gap` through `--mo-comp-row-gap`, `--mo-comp-stack-gap` or `--mo-comp-grid-gap`, else the part's rule |
-| `max-w-full` | 7 | `max-width: 100%;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `max-w-full` | 7 | `max-width: 100%;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
 | `medium:px-6` | 7 | `@media (width >= 37.5rem) { .medium:px-6 { padding-inline: calc(var(--spacing) * 6); }` | `@media (width >= 37.5rem)` in the part's rule, with the replacement of `px-6` |
-| `min-h-0` | 7 | `min-height: 0px;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `min-h-0` | 7 | `min-height: 0px;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `mx-5` | 7 | `margin-inline: calc(var(--spacing) * 5);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `py-3` | 7 | `padding-block: calc(var(--spacing) * 3);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `sticky` | 7 | `position: sticky;` | the part's rule (`position`, `inset-*`, `z-index`, `overflow`) |
@@ -81,9 +81,9 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `break-words` | 6 | `overflow-wrap: break-word;` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
 | `contents` | 6 | `display: contents;` | `mo-contents` |
 | `gap-8` | 6 | `gap: calc(var(--spacing) * 8);` | `gap` through `--mo-comp-row-gap`, `--mo-comp-stack-gap` or `--mo-comp-grid-gap`, else the part's rule |
-| `h-16` | 6 | `height: calc(var(--spacing) * 16);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `h-16` | 6 | `height: calc(var(--spacing) * 16);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `items-end` | 6 | `align-items: flex-end;` | `mo-row-end` |
-| `max-w-sm` | 6 | `max-width: var(--container-sm);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `max-w-sm` | 6 | `max-width: var(--container-sm);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
 | `overflow-y-auto` | 6 | `overflow-y: auto;` | the part's rule (`position`, `inset-*`, `z-index`, `overflow`) |
 | `p-2` | 6 | `padding: calc(var(--spacing) * 2);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `pt-8` | 6 | `padding-top: calc(var(--spacing) * 8);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
@@ -92,10 +92,10 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `space-y-10` | 6 | `:where(.space-y-10 > :not(:last-child)) { --tw-space-y-reverse: 0; margin-block-start: calc(calc(var(--spacing) * 10) * var(--tw-space-y-reverse)); margin-block-end: calc(calc(var(--spacing)` | `mo-stack` (`gap`) |
 | `text-on-surface` | 6 | `color: var(--mo-sys-color-on-surface);` | the part's rule reads the colour role, `var(--mo-sys-color-*)` |
 | `text-xs` | 6 | `font-size: var(--text-xs); line-height: var(--tw-leading, var(--text-xs--line-height));` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
-| `w-[20.5rem]` | 6 | `width: 20.5rem;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `w-[20.5rem]` | 6 | `width: 20.5rem;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
 | `bg-surface-container-lowest` | 5 | `background-color: var(--mo-sys-color-surface-container-lowest);` | the part's rule reads the colour role, `var(--mo-sys-color-*)` |
 | `hover:text-primary` | 5 | `@media (hover: hover) { .hover:text-primary:hover { color: var(--mo-sys-color-primary); }` | `:hover` selector in the part's rule |
-| `max-w-none` | 5 | `max-width: none;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `max-w-none` | 5 | `max-width: none;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
 | `mt-auto` | 5 | `margin-top: auto;` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `pr-1.5` | 5 | `padding-right: calc(var(--spacing) * 1.5);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `rounded-(--mo-sys-block-radius-small)` | 5 | `border-radius: var(--mo-sys-block-radius-small);` | the part's shape, elevation or state tokens (`--mo-sys-shape-*`, `--mo-sys-elevation-*`) |
@@ -125,13 +125,13 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `pt-4` | 4 | `padding-top: calc(var(--spacing) * 4);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `px-(--mo-sys-grid-margin)` | 4 | `padding-inline: var(--mo-sys-grid-margin);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `rounded-(--mo-comp-theme-picture-radius)` | 4 | `border-radius: var(--mo-comp-theme-picture-radius);` | the part's shape, elevation or state tokens (`--mo-sys-shape-*`, `--mo-sys-elevation-*`) |
-| `size-10` | 4 | `width: calc(var(--spacing) * 10); height: calc(var(--spacing) * 10);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `size-10` | 4 | `width: calc(var(--spacing) * 10); height: calc(var(--spacing) * 10);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `transition-colors` | 4 | `transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to; transition-timing-fun` | the motion tokens in the part's rule |
 | `z-10` | 4 | `z-index: 10;` | the part's rule (`position`, `inset-*`, `z-index`, `overflow`) |
 | `[--mo-comp-card-padding:1rem_0_0.5rem]` | 3 | `--mo-comp-card-padding: 1rem 0 0.5rem;` | the part's rule; a custom property is set on the part's class |
-| `aspect-[16/10]` | 3 | `aspect-ratio: 16/10;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `aspect-[3/2]` | 3 | `aspect-ratio: 3/2;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `aspect-square` | 3 | `aspect-ratio: 1 / 1;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `aspect-[16/10]` | 3 | `aspect-ratio: 16/10;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `aspect-[3/2]` | 3 | `aspect-ratio: 3/2;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `aspect-square` | 3 | `aspect-ratio: 1 / 1;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `border-b` | 3 | `border-bottom-style: var(--tw-border-style); border-bottom-width: 1px; } @property --tw-border-style { syntax: "*"; inherits: false; initial-value: solid;` | the part's rule reads the colour role, `var(--mo-sys-color-*)` |
 | `expanded:hidden` | 3 | `@media (width >= 52.5rem) { .expanded:hidden { display: none; }` | `@media (width >= 52.5rem)` in the part's rule, with the replacement of `hidden` |
 | `focus-visible:ring-2` | 3 | `--tw-ring-shadow: var(--tw-ring-inset, ) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), va` | `:focus-visible` selector in the part's rule |
@@ -141,19 +141,19 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `gap-5` | 3 | `gap: calc(var(--spacing) * 5);` | `gap` through `--mo-comp-row-gap`, `--mo-comp-stack-gap` or `--mo-comp-grid-gap`, else the part's rule |
 | `gap-x-6` | 3 | `column-gap: calc(var(--spacing) * 6);` | `gap` through `--mo-comp-row-gap`, `--mo-comp-stack-gap` or `--mo-comp-grid-gap`, else the part's rule |
 | `grid-cols-2` | 3 | `grid-template-columns: repeat(2, minmax(0, 1fr));` | `mo-grid` with `--mo-comp-grid-columns`, or `.image-grid`; else the part's rule |
-| `h-80` | 3 | `height: calc(var(--spacing) * 80);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `h-80` | 3 | `height: calc(var(--spacing) * 80);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `inline-block` | 3 | `display: inline-block;` | the part's own rule |
 | `justify-between` | 3 | `justify-content: space-between;` | `mo-row-between` |
 | `last:mb-0` | 3 | `margin-bottom: 0px;` | the part's own rule |
-| `max-w-[22ch]` | 3 | `max-width: 22ch;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-w-[52ch]` | 3 | `max-width: 52ch;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-w-md` | 3 | `max-width: var(--container-md);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `max-w-[22ch]` | 3 | `max-width: 22ch;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `max-w-[52ch]` | 3 | `max-width: 52ch;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `max-w-md` | 3 | `max-width: var(--container-md);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
 | `medium:gap-6` | 3 | `@media (width >= 37.5rem) { .medium:gap-6 { gap: calc(var(--spacing) * 6); }` | `@media (width >= 37.5rem)` in the part's rule, with the replacement of `gap-6` |
 | `medium:hidden` | 3 | `@media (width >= 37.5rem) { .medium:hidden { display: none; }` | `@media (width >= 37.5rem)` in the part's rule, with the replacement of `hidden` |
 | `medium:mt-12` | 3 | `@media (width >= 37.5rem) { .medium:mt-12 { margin-top: calc(var(--spacing) * 12); }` | `@media (width >= 37.5rem)` in the part's rule, with the replacement of `mt-12` |
 | `medium:mt-16` | 3 | `@media (width >= 37.5rem) { .medium:mt-16 { margin-top: calc(var(--spacing) * 16); }` | `@media (width >= 37.5rem)` in the part's rule, with the replacement of `mt-16` |
 | `medium:pt-14` | 3 | `@media (width >= 37.5rem) { .medium:pt-14 { padding-top: calc(var(--spacing) * 14); }` | `@media (width >= 37.5rem)` in the part's rule, with the replacement of `pt-14` |
-| `min-h-dvh` | 3 | `min-height: 100dvh;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `min-h-dvh` | 3 | `min-height: 100dvh;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `overflow-x-auto` | 3 | `overflow-x: auto;` | the part's rule (`position`, `inset-*`, `z-index`, `overflow`) |
 | `p-6` | 3 | `padding: calc(var(--spacing) * 6);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `pb-[env(safe-area-inset-bottom)]` | 3 | `padding-bottom: env(safe-area-inset-bottom);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
@@ -164,11 +164,11 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `py-4` | 3 | `padding-block: calc(var(--spacing) * 4);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `rounded-panel` | 3 | `border-radius: var(--mo-sys-radius);` | the part's shape, elevation or state tokens (`--mo-sys-shape-*`, `--mo-sys-elevation-*`) |
 | `self-start` | 3 | `align-self: flex-start;` | `mo-row` / `mo-stack` and modifiers, else the part's rule |
-| `size-12` | 3 | `width: calc(var(--spacing) * 12); height: calc(var(--spacing) * 12);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `size-16` | 3 | `width: calc(var(--spacing) * 16); height: calc(var(--spacing) * 16);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `size-6` | 3 | `width: calc(var(--spacing) * 6); height: calc(var(--spacing) * 6);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `size-7` | 3 | `width: calc(var(--spacing) * 7); height: calc(var(--spacing) * 7);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `size-8` | 3 | `width: calc(var(--spacing) * 8); height: calc(var(--spacing) * 8);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `size-12` | 3 | `width: calc(var(--spacing) * 12); height: calc(var(--spacing) * 12);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `size-16` | 3 | `width: calc(var(--spacing) * 16); height: calc(var(--spacing) * 16);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `size-6` | 3 | `width: calc(var(--spacing) * 6); height: calc(var(--spacing) * 6);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `size-7` | 3 | `width: calc(var(--spacing) * 7); height: calc(var(--spacing) * 7);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `size-8` | 3 | `width: calc(var(--spacing) * 8); height: calc(var(--spacing) * 8);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `text-(--mo-comp-google-text)` | 3 | `color: var(--mo-comp-google-text);` | the part's rule reads the colour role, `var(--mo-sys-color-*)` |
 | `text-2xl` | 3 | `font-size: var(--text-2xl); line-height: var(--tw-leading, var(--text-2xl--line-height));` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
 | `touch-none` | 3 | `touch-action: none;` | the part's own rule |
@@ -195,27 +195,27 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `expanded:grid-cols-12` | 2 | `@media (width >= 52.5rem) { .expanded:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }` | `@media (width >= 52.5rem)` in the part's rule, with the replacement of `grid-cols-12` |
 | `grid-cols-[repeat(auto-fill,minmax(3rem,1fr))]` | 2 | `grid-template-columns: repeat(auto-fill,minmax(3rem,1fr));` | `mo-grid` with `--mo-comp-grid-columns`, or `.image-grid`; else the part's rule |
 | `group-hover:text-primary` | 2 | `@media (hover: hover) { :is(:where(.group):hover .group-hover:text-primary) { color: var(--mo-sys-color-primary); }` | `:has()`, `[aria-*]` or `[data-*]` state selector in the part's rule |
-| `h-10` | 2 | `height: calc(var(--spacing) * 10);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `h-12` | 2 | `height: calc(var(--spacing) * 12);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `h-auto` | 2 | `height: auto;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `h-dvh` | 2 | `height: 100dvh;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `h-full` | 2 | `height: 100%;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `h-10` | 2 | `height: calc(var(--spacing) * 10);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `h-12` | 2 | `height: calc(var(--spacing) * 12);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `h-auto` | 2 | `height: auto;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `h-dvh` | 2 | `height: 100dvh;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `h-full` | 2 | `height: 100%;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `hover:bg-surface-container-high` | 2 | `@media (hover: hover) { .hover:bg-surface-container-high:hover { background-color: var(--mo-sys-color-surface-container-high); }` | `:hover` selector in the part's rule |
 | `large:block` | 2 | `@media (width >= 75rem) { .large:block { display: block; }` | `@media (width >= 75rem)` in the part's rule, with the replacement of `block` |
 | `leading-snug` | 2 | `--tw-leading: var(--leading-snug); line-height: var(--leading-snug); } @property --tw-leading { syntax: "*"; inherits: false;` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
 | `leading-tight` | 2 | `--tw-leading: var(--leading-tight); line-height: var(--leading-tight); } @property --tw-leading { syntax: "*"; inherits: false;` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
 | `left-0` | 2 | `left: 0px;` | the part's rule (`position`, `inset-*`, `z-index`, `overflow`) |
-| `max-h-[45dvh]` | 2 | `max-height: 45dvh;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-w-48` | 2 | `max-width: calc(var(--spacing) * 48);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-w-prose` | 2 | `max-width: 65ch;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-w-xs` | 2 | `max-width: var(--container-xs);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `max-h-[45dvh]` | 2 | `max-height: 45dvh;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `max-w-48` | 2 | `max-width: calc(var(--spacing) * 48);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `max-w-prose` | 2 | `max-width: 65ch;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `max-w-xs` | 2 | `max-width: var(--container-xs);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
 | `medium:aspect-[16/9]` | 2 | `@media (width >= 37.5rem) { .medium:aspect-[16/9] { aspect-ratio: 16/9; }` | `@media (width >= 37.5rem)` in the part's rule, with the replacement of `aspect-[16/9]` |
 | `medium:block` | 2 | `@media (width >= 37.5rem) { .medium:block { display: block; }` | `@media (width >= 37.5rem)` in the part's rule, with the replacement of `block` |
 | `medium:gap-3` | 2 | `@media (width >= 37.5rem) { .medium:gap-3 { gap: calc(var(--spacing) * 3); }` | `@media (width >= 37.5rem)` in the part's rule, with the replacement of `gap-3` |
 | `medium:items-start` | 2 | `@media (width >= 37.5rem) { .medium:items-start { align-items: flex-start; }` | `@media (width >= 37.5rem)` in the part's rule, with the replacement of `items-start` |
 | `medium:pt-16` | 2 | `@media (width >= 37.5rem) { .medium:pt-16 { padding-top: calc(var(--spacing) * 16); }` | `@media (width >= 37.5rem)` in the part's rule, with the replacement of `pt-16` |
 | `medium:w-auto` | 2 | `@media (width >= 37.5rem) { .medium:w-auto { width: auto; }` | `@media (width >= 37.5rem)` in the part's rule, with the replacement of `w-auto` |
-| `min-h-9` | 2 | `min-height: calc(var(--spacing) * 9);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `min-h-9` | 2 | `min-height: calc(var(--spacing) * 9);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `motion-reduce:transition-none` | 2 | `@media (prefers-reduced-motion: reduce) { .motion-reduce:transition-none { transition-property: none; }` | the part's own rule |
 | `mr-auto` | 2 | `margin-right: auto;` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `mt-10` | 2 | `margin-top: calc(var(--spacing) * 10);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
@@ -238,15 +238,15 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `scroll-mt-24` | 2 | `scroll-margin-top: calc(var(--spacing) * 24);` | the part's own rule |
 | `select-none` | 2 | `-webkit-user-select: none; user-select: none;` | the part's own rule |
 | `shadow-soft` | 2 | `--tw-shadow: var(--mo-sys-panel-shadow); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow); } @property -` | the part's shape, elevation or state tokens (`--mo-sys-shape-*`, `--mo-sys-elevation-*`) |
-| `size-11` | 2 | `width: calc(var(--spacing) * 11); height: calc(var(--spacing) * 11);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `size-20` | 2 | `width: calc(var(--spacing) * 20); height: calc(var(--spacing) * 20);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `size-11` | 2 | `width: calc(var(--spacing) * 11); height: calc(var(--spacing) * 11);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `size-20` | 2 | `width: calc(var(--spacing) * 20); height: calc(var(--spacing) * 20);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `top-2` | 2 | `top: calc(var(--spacing) * 2);` | the part's rule (`position`, `inset-*`, `z-index`, `overflow`) |
 | `tracking-tight` | 2 | `--tw-tracking: var(--tracking-tight); letter-spacing: var(--tracking-tight); } @property --tw-tracking { syntax: "*"; inherits: false;` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
 | `transition-opacity` | 2 | `transition-property: opacity; transition-timing-function: var(--tw-ease, var(--mo-sys-default-transition-timing-function)); transition-duration: var(--tw-duration, var(--mo-sys-default-transition-duration` | the motion tokens in the part's rule |
 | `underline` | 2 | `text-decoration-line: underline;` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
 | `uppercase` | 2 | `text-transform: uppercase;` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
-| `w-[36rem]` | 2 | `width: 36rem;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `w-9` | 2 | `width: calc(var(--spacing) * 9);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `w-[36rem]` | 2 | `width: 36rem;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `w-9` | 2 | `width: calc(var(--spacing) * 9);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
 | `-me-[calc((var(--mo-comp-icon-button-width)-1.5rem)/2)]` | 1 | `margin-inline-end: calc(calc((var(--mo-comp-icon-button-width) - 1.5rem) / 2) * -1);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `-ml-2` | 1 | `margin-left: calc(var(--spacing) * -2);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `-ms-2.5` | 1 | `margin-inline-start: calc(var(--spacing) * -2.5);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
@@ -281,9 +281,9 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `*:min-w-48` | 1 | `:is(.*:min-w-48 > *) { min-width: calc(var(--spacing) * 48);` | the part's own rule |
 | `align-middle` | 1 | `vertical-align: middle;` | the part's own rule |
 | `aria-[current=location]:text-primary` | 1 | `color: var(--mo-sys-color-primary);` | `:has()`, `[aria-*]` or `[data-*]` state selector in the part's rule |
-| `aspect-[1.91/1]` | 1 | `aspect-ratio: 1.91/1;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `aspect-[3/4]` | 1 | `aspect-ratio: 3/4;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `aspect-[4/3]` | 1 | `aspect-ratio: 4/3;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `aspect-[1.91/1]` | 1 | `aspect-ratio: 1.91/1;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `aspect-[3/4]` | 1 | `aspect-ratio: 3/4;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `aspect-[4/3]` | 1 | `aspect-ratio: 4/3;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `basis-full` | 1 | `flex-basis: 100%;` | the part's own rule |
 | `bg-(--mo-comp-editor-status-good)` | 1 | `background-color: var(--mo-comp-editor-status-good);` | the part's rule reads the colour role, `var(--mo-sys-color-*)` |
 | `bg-(--mo-comp-google-background)` | 1 | `background-color: var(--mo-comp-google-background);` | the part's rule reads the colour role, `var(--mo-sys-color-*)` |
@@ -365,12 +365,12 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `group-hover:scale-[1.03]` | 1 | `@media (hover: hover) { :is(:where(.group):hover .group-hover:scale-[1.03]) { scale: 1.03; }` | `:has()`, `[aria-*]` or `[data-*]` state selector in the part's rule |
 | `group-hover:translate-x-0.5` | 1 | `@media (hover: hover) { :is(:where(.group):hover .group-hover:translate-x-0.5) { --tw-translate-x: calc(var(--spacing) * 0.5); translate: var(--tw-translate-x) var(--tw-translate-y); } } @pr` | `:has()`, `[aria-*]` or `[data-*]` state selector in the part's rule |
 | `group-hover:visible` | 1 | `@media (hover: hover) { :is(:where(.group):hover .group-hover:visible) { visibility: visible; }` | `:has()`, `[aria-*]` or `[data-*]` state selector in the part's rule |
-| `h-11` | 1 | `height: calc(var(--spacing) * 11);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `h-160` | 1 | `height: calc(var(--spacing) * 160);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `h-4` | 1 | `height: calc(var(--spacing) * 4);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `h-48` | 1 | `height: calc(var(--spacing) * 48);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `h-8` | 1 | `height: calc(var(--spacing) * 8);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `h-9` | 1 | `height: calc(var(--spacing) * 9);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `h-11` | 1 | `height: calc(var(--spacing) * 11);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `h-160` | 1 | `height: calc(var(--spacing) * 160);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `h-4` | 1 | `height: calc(var(--spacing) * 4);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `h-48` | 1 | `height: calc(var(--spacing) * 48);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `h-8` | 1 | `height: calc(var(--spacing) * 8);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `h-9` | 1 | `height: calc(var(--spacing) * 9);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `has-focus-visible:outline-2` | 1 | `outline-style: var(--tw-outline-style); outline-width: 2px; } @property --tw-outline-style { syntax: "*"; inherits: false; initial-value: solid;` | `:has()`, `[aria-*]` or `[data-*]` state selector in the part's rule |
 | `has-focus-visible:outline-offset-2` | 1 | `outline-offset: 2px;` | `:has()`, `[aria-*]` or `[data-*]` state selector in the part's rule |
 | `has-focus-visible:outline-primary` | 1 | `outline-color: var(--mo-sys-color-primary);` | `:has()`, `[aria-*]` or `[data-*]` state selector in the part's rule |
@@ -403,24 +403,24 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `list-none` | 1 | `list-style-type: none;` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
 | `marker:text-primary` | 1 | `.marker:text-primary ::marker { color: var(--mo-sys-color-primary); } .marker:text-primary::marker { color: var(--mo-sys-color-primary); } .marker:text-primary ::-webkit-details-marker { col` | the part's own rule |
 | `max-expanded:sr-only` | 1 | `@media (width < 52.5rem) { .max-expanded:sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border` | the part's own rule |
-| `max-h-[50dvh]` | 1 | `max-height: 50dvh;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-h-[calc(100dvh-1.5rem)]` | 1 | `max-height: calc(100dvh - 1.5rem);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-h-[calc(100dvh-2*var(--mo-sys-section-pane-gap))]` | 1 | `max-height: calc(100dvh - 2 * var(--mo-sys-section-pane-gap));` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-h-[calc(100dvh-3rem)]` | 1 | `max-height: calc(100dvh - 3rem);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-h-24` | 1 | `max-height: calc(var(--spacing) * 24);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `max-h-[50dvh]` | 1 | `max-height: 50dvh;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `max-h-[calc(100dvh-1.5rem)]` | 1 | `max-height: calc(100dvh - 1.5rem);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `max-h-[calc(100dvh-2*var(--mo-sys-section-pane-gap))]` | 1 | `max-height: calc(100dvh - 2 * var(--mo-sys-section-pane-gap));` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `max-h-[calc(100dvh-3rem)]` | 1 | `max-height: calc(100dvh - 3rem);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `max-h-24` | 1 | `max-height: calc(var(--spacing) * 24);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `max-medium:hidden` | 1 | `@media (width < 37.5rem) { .max-medium:hidden { display: none; }` | the part's own rule |
-| `max-w-[18ch]` | 1 | `max-width: 18ch;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-w-[45rem]` | 1 | `max-width: 45rem;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-w-[500px]` | 1 | `max-width: 500px;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-w-[75ch]` | 1 | `max-width: 75ch;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-w-[var(--mo-sys-block-text-measure-max)]` | 1 | `max-width: var(--mo-sys-block-text-measure-max);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-w-2xl` | 1 | `max-width: var(--container-2xl);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-w-3xl` | 1 | `max-width: var(--container-3xl);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-w-5xl` | 1 | `max-width: var(--container-5xl);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-w-64` | 1 | `max-width: calc(var(--spacing) * 64);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-w-6xl` | 1 | `max-width: var(--container-6xl);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-w-72` | 1 | `max-width: calc(var(--spacing) * 72);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `max-w-80` | 1 | `max-width: calc(var(--spacing) * 80);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `max-w-[18ch]` | 1 | `max-width: 18ch;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `max-w-[45rem]` | 1 | `max-width: 45rem;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `max-w-[500px]` | 1 | `max-width: 500px;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `max-w-[75ch]` | 1 | `max-width: 75ch;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `max-w-[var(--mo-sys-block-text-measure-max)]` | 1 | `max-width: var(--mo-sys-block-text-measure-max);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `max-w-2xl` | 1 | `max-width: var(--container-2xl);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `max-w-3xl` | 1 | `max-width: var(--container-3xl);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `max-w-5xl` | 1 | `max-width: var(--container-5xl);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `max-w-64` | 1 | `max-width: calc(var(--spacing) * 64);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `max-w-6xl` | 1 | `max-width: var(--container-6xl);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `max-w-72` | 1 | `max-width: calc(var(--spacing) * 72);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `max-w-80` | 1 | `max-width: calc(var(--spacing) * 80);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
 | `medium:-mx-6` | 1 | `@media (width >= 37.5rem) { .medium:-mx-6 { margin-inline: calc(var(--spacing) * -6); }` | `@media (width >= 37.5rem)` in the part's rule, with the replacement of `-mx-6` |
 | `medium:aspect-auto` | 1 | `@media (width >= 37.5rem) { .medium:aspect-auto { aspect-ratio: auto; }` | `@media (width >= 37.5rem)` in the part's rule, with the replacement of `aspect-auto` |
 | `medium:bottom-6` | 1 | `@media (width >= 37.5rem) { .medium:bottom-6 { bottom: calc(var(--spacing) * 6); }` | `@media (width >= 37.5rem)` in the part's rule, with the replacement of `bottom-6` |
@@ -462,11 +462,11 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `min-[600px]:ms-0` | 1 | `@media (width >= 600px) { .min-[600px]:ms-0 { margin-inline-start: 0px; }` | `@media (width >= 37.5rem)` in the part's rule |
 | `min-[600px]:order-none` | 1 | `@media (width >= 600px) { .min-[600px]:order-none { order: 0; }` | `@media (width >= 37.5rem)` in the part's rule |
 | `min-[600px]:pb-0` | 1 | `@media (width >= 600px) { .min-[600px]:pb-0 { padding-bottom: 0px; }` | `@media (width >= 37.5rem)` in the part's rule |
-| `min-h-(--top-app-bar-height,4rem)` | 1 | `min-height: var(--top-app-bar-height,4rem);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `min-h-11` | 1 | `min-height: calc(var(--spacing) * 11);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `min-h-14` | 1 | `min-height: calc(var(--spacing) * 14);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `min-h-full` | 1 | `min-height: 100%;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `min-w-[min(var(--mo-sys-block-text-measure-min),100%)]` | 1 | `min-width: min(var(--mo-sys-block-text-measure-min), 100%);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `min-h-(--top-app-bar-height,4rem)` | 1 | `min-height: var(--top-app-bar-height,4rem);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `min-h-11` | 1 | `min-height: calc(var(--spacing) * 11);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `min-h-14` | 1 | `min-height: calc(var(--spacing) * 14);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `min-h-full` | 1 | `min-height: 100%;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `min-w-[min(var(--mo-sys-block-text-measure-min),100%)]` | 1 | `min-width: min(var(--mo-sys-block-text-measure-min), 100%);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `ml-5` | 1 | `margin-left: calc(var(--spacing) * 5);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `mr-1` | 1 | `margin-right: var(--spacing);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `mr-2` | 1 | `margin-right: calc(var(--spacing) * 2);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
@@ -529,11 +529,11 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `scroll-mt-[calc(1rem+env(safe-area-inset-top))]` | 1 | `scroll-margin-top: calc(1rem + env(safe-area-inset-top));` | the part's own rule |
 | `scroll-mt-[calc(5rem+env(safe-area-inset-top))]` | 1 | `scroll-margin-top: calc(5rem + env(safe-area-inset-top));` | the part's own rule |
 | `select-all` | 1 | `-webkit-user-select: all; user-select: all;` | the part's own rule |
-| `size-[28px]` | 1 | `width: 28px; height: 28px;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `size-28` | 1 | `width: calc(var(--spacing) * 28); height: calc(var(--spacing) * 28);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `size-3` | 1 | `width: calc(var(--spacing) * 3); height: calc(var(--spacing) * 3);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `size-4` | 1 | `width: calc(var(--spacing) * 4); height: calc(var(--spacing) * 4);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `size-9` | 1 | `width: calc(var(--spacing) * 9); height: calc(var(--spacing) * 9);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `size-[28px]` | 1 | `width: 28px; height: 28px;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `size-28` | 1 | `width: calc(var(--spacing) * 28); height: calc(var(--spacing) * 28);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `size-3` | 1 | `width: calc(var(--spacing) * 3); height: calc(var(--spacing) * 3);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `size-4` | 1 | `width: calc(var(--spacing) * 4); height: calc(var(--spacing) * 4);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `size-9` | 1 | `width: calc(var(--spacing) * 9); height: calc(var(--spacing) * 9);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `space-y-0.5` | 1 | `:where(.space-y-0.5 > :not(:last-child)) { --tw-space-y-reverse: 0; margin-block-start: calc(calc(var(--spacing) * 0.5) * var(--tw-space-y-reverse)); margin-block-end: calc(calc(var(--spacin` | `mo-stack` (`gap`) |
 | `space-y-8` | 1 | `:where(.space-y-8 > :not(:last-child)) { --tw-space-y-reverse: 0; margin-block-start: calc(calc(var(--spacing) * 8) * var(--tw-space-y-reverse)); margin-block-end: calc(calc(var(--spacing) *` | `mo-stack` (`gap`) |
 | `text-(--mo-comp-google-date)` | 1 | `color: var(--mo-comp-google-date);` | the part's rule reads the colour role, `var(--mo-sys-color-*)` |
@@ -560,13 +560,13 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `transform-gpu` | 1 | `transform: translateZ(0) var(--tw-rotate-x, ) var(--tw-rotate-y, ) var(--tw-rotate-z, ) var(--tw-skew-x, ) var(--tw-skew-y, );` | the part's own rule |
 | `transition-[stroke-dasharray]` | 1 | `transition-property: stroke-dasharray; transition-timing-function: var(--tw-ease, var(--mo-sys-default-transition-timing-function)); transition-duration: var(--tw-duration, var(--default-transition` | the motion tokens in the part's rule |
 | `underline-offset-4` | 1 | `text-underline-offset: 4px;` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
-| `w-[calc(100%+1.5rem)]` | 1 | `width: calc(100% + 1.5rem);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `w-1` | 1 | `width: var(--spacing);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `w-11` | 1 | `width: calc(var(--spacing) * 11);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `w-24` | 1 | `width: calc(var(--spacing) * 24);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `w-8` | 1 | `width: calc(var(--spacing) * 8);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `w-max` | 1 | `width: max-content;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
-| `w-px` | 1 | `width: 1px;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `w-[calc(100%+1.5rem)]` | 1 | `width: calc(100% + 1.5rem);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `w-1` | 1 | `width: var(--spacing);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `w-11` | 1 | `width: calc(var(--spacing) * 11);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `w-24` | 1 | `width: calc(var(--spacing) * 24);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `w-8` | 1 | `width: calc(var(--spacing) * 8);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `w-max` | 1 | `width: max-content;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
+| `w-px` | 1 | `width: 1px;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |
 | `whitespace-pre-line` | 1 | `white-space: pre-line;` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
 | `z-[42]` | 1 | `z-index: 42;` | the part's rule (`position`, `inset-*`, `z-index`, `overflow`) |
 | `z-[43]` | 1 | `z-index: 43;` | the part's rule (`position`, `inset-*`, `z-index`, `overflow`) |
@@ -581,4 +581,4 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `pointer-events-none` | consts only | `pointer-events: none;` | the part's own rule |
 | `shadow-[0_0_0_1px_rgb(0_0_0/0.3),0_2px_6px_rgb(0_0_0/0.3)]` | consts only | `--tw-shadow: 0 0 0 1px var(--tw-shadow-color, rgb(0 0 0/0.3)), 0 2px 6px var(--tw-shadow-color, rgb(0 0 0/0.3)); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-rin` | the part's shape, elevation or state tokens (`--mo-sys-shape-*`, `--mo-sys-elevation-*`) |
 | `text-(--mo-sys-color-error)` | consts only | `color: var(--mo-sys-color-error);` | the part's rule reads the colour role, `var(--mo-sys-color-*)` |
-| `w-[22.5rem]` | consts only | `width: 22.5rem;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
+| `w-[22.5rem]` | consts only | `width: 22.5rem;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (a centred width: `mo-center` with `--mo-comp-center-measure` set on the element; the width of text: `--mo-sys-block-text-measure-min` and `-max`) |

@@ -6,8 +6,7 @@ to write instead. Everything on it can be done now: it works with the 0.18.0 CMS
 released at 6 without utilities needs only its contract number changed for 7.
 
 The class-by-class table is in [`tailwind-migration-classes.md`](tailwind-migration-classes.md) (578 classes, search it).
-The layout classes are `mo-row`, `mo-stack` and the others below; their reference is `docs/theme-layout-classes.md`, which
-lands with the vocabulary. The contract is in [`app-contract.md`](app-contract.md), *Contract 7*.
+The layout classes are `mo-row`, `mo-stack` and the others below; their reference is [`theme-layout-classes.md`](theme-layout-classes.md). The contract is in [`app-contract.md`](app-contract.md), *Contract 7*.
 
 ## Why
 
@@ -47,9 +46,9 @@ right-to-left language.
 | `grid`, `grid-cols-*`, `col-*`, `medium:grid-cols-*` | `mo-grid` with `--mo-comp-grid-columns` (`mo-grid-2` …), or `.image-grid` for card grids; subgrid where cards align their insides |
 | `space-y-*` | `mo-stack` (`gap`). Same space, different mechanism: no margin on the first or last child |
 | `m*`, `p*` | the part's own padding and margin in `--mo-ref-space-*`, with logical properties |
-| `w-*`, `h-*`, `size-*`, `min-*`, `max-*` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio`; `max-w-3xl` becomes `--mo-measure` of the text style |
+| `w-*`, `h-*`, `size-*`, `min-*`, `max-*` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio`; a centred maximum width is `mo-center` with `--mo-comp-center-measure` set on the element, and the width of text is `--mo-sys-block-text-measure-min` and `-max` |
 | `text-sm`, `text-xs`, `text-title-large`, `font-*`, `leading-*` | a `mo-type-*` class, or `font` from `--mo-sys-typescale-*` in the part's rule |
-| `text-*`, `bg-*`, `border-*` colours | the part's rule reads `var(--mo-sys-color-*)`; `text-on-surface-variant` becomes `.mo-muted` |
+| `text-*`, `bg-*`, `border-*` colours | the part's rule reads `var(--mo-sys-color-*)`; `text-on-surface-variant` becomes `color: var(--mo-sys-color-on-surface-variant)` in the part's own rule (no class) |
 | `relative`, `absolute`, `inset-*`, `sticky`, `z-*`, `overflow-*` | the part's rule |
 | `rounded-*`, `border`, `shadow-*` | the part's shape and elevation tokens (`--mo-sys-shape-*`, `--mo-sys-elevation-*`) |
 | `hover:`, `focus-visible:`, `group-*:`, `has-*:`, `aria-*:`, `data-*:` | CSS state selectors, below |
@@ -87,7 +86,7 @@ reads a component token that you override on the element that needs another valu
 | `mo-fill` | `flex: 1 1 0; min-inline-size: 0` |
 | `mo-keep` | `flex-shrink: 0` |
 | `mo-truncate`, `mo-clamp-2` | one line with an ellipsis; two lines with an ellipsis |
-| `mo-center` | `margin-inline: auto` and a maximum inline size from `--mo-measure` |
+| `mo-center` | `margin-inline: auto` and a maximum inline size from `--mo-comp-center-measure`, which you set on the element |
 | `mo-cover` | `object-fit: cover; inline-size: 100%; block-size: 100%` |
 | `mo-visually-hidden` | hidden for the eye, read by a screen reader |
 | `mo-hidden`, `mo-contents` | `display: none`; `display: contents` |
