@@ -2,8 +2,9 @@
 # check:screens, check:demo and check:starter), and that it has a changeset (.claude/skills/changesets), so each branch can always be
 # released.
 #
-# LEVELS (scripts/ci-changes.mjs checkLevel: feature/** -> feature, 0.* -> line, main -> full; unknown base -> full). Until PR 3 of
-# docs/superpowers/plans/2026-11-18-ci-check-levels.md the feature level runs exactly what the line level runs (the light check).
+# LEVELS (scripts/ci-changes.mjs checkLevel: feature/** -> feature, 0.* -> line, main -> full; unknown base -> full). The feature and
+# line levels run the core screens units and the units of the areas the diff touches (`areas` below; scripts/screens/support/areas.mjs);
+# the full level runs every unit.
 # TWO SIZES (owner, 16 Nov 2026: a merge into a version line shows on the demo within minutes). A pull request whose base is a version
 # line (0.17, 0.18, 0.19; not the Release PR) gets the LIGHT check: changes, static and the 8 screens shards (about 8 minutes). It skips
 # screens-extra, demo and starter (the starter shards take 14 to 20 minutes). A pull request into main (the merge of a version line,
@@ -57,6 +58,7 @@ jobs:
       starter_demo: ${{ steps.diff.outputs.starter_demo }}
       level: ${{ steps.diff.outputs.level }}
       light: ${{ steps.diff.outputs.light }}
+      areas: ${{ steps.diff.outputs.areas }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -75,6 +77,7 @@ jobs:
             echo 'starter_demo=true' >> "$GITHUB_OUTPUT"
             echo 'level=full' >> "$GITHUB_OUTPUT"
             echo 'light=false' >> "$GITHUB_OUTPUT"
+            echo 'areas=all' >> "$GITHUB_OUTPUT"
           fi
 
   # Prettier, the language and unit tests, types, the demo built and each of its pages the same after a save, and the changeset.
@@ -120,7 +123,8 @@ jobs:
       - run: npm run build
       # If apt is down, the runner's own libraries are used and only the browser is downloaded.
       - run: npx playwright install --with-deps chromium || npx playwright install chromium
-      - run: npm run check:screens:shard -- ${{ matrix.shard }}/${{ strategy.job-total }}
+      # --areas: `all` (the full level, or in doubt), `none` (the core units only) or the touched areas besides the core units.
+      - run: npm run check:screens:shard -- ${{ matrix.shard }}/${{ strategy.job-total }} --areas "${{ needs.changes.outputs.areas || 'all' }}"
 
   # The checks that run once over the whole built demo (saving twice, unlisted pages, the preview).
   screens-extra:

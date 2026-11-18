@@ -3,8 +3,10 @@
 //   node scripts/ci-changes.mjs docs-only <head ref>   reads the changed paths (one per line) on stdin and prints docs_only=true|false
 //   node scripts/ci-changes.mjs classify <head ref> [<base>]  the same, and also starter_demo=true|false (whether `starter` and `demo` must run)
 //                                                      level=feature|line|full (from the base branch), and light=true|false (the feature and line levels: the light check)
+//                                                      and areas=all|none|<area>,<area> (the screens areas the light check runs besides the core set; scripts/screens/support/areas.mjs)
 //   node scripts/ci-changes.mjs verdict <docs_only> [<starter_demo> [<light>]]  reads `needs` (JSON, as Actions gives it) on stdin; exits 1 when `check` must be red
 import { argv, stdin, exit } from 'node:process';
+import { areasArg } from './screens/support/areas.mjs';
 
 /** The Release PR (changesets into CHANGELOG.md and the version) always runs everything. */
 export const RELEASE_BRANCH = 'changeset-release/main';
@@ -98,13 +100,28 @@ export function checkLevel(base = '', headRef = '') {
 }
 
 /**
- * Whether the pull request gets the light check (the `feature` and `line` levels). Until PR 3 of the plan the feature level runs
- * exactly what the light check runs for a line. When in doubt, false: everything runs.
+ * Whether the pull request gets the light check (the `feature` and `line` levels). When in doubt, false: everything runs.
  * @param {string} [base] the pull request's base branch
  * @param {string} [headRef]
  */
 export function isLight(base = '', headRef = '') {
   return checkLevel(base, headRef) !== 'full';
+}
+
+/**
+ * The screens units a pull request runs, as `--areas` takes it: `all` (every unit: the full level, the Release PR, an empty diff, a path
+ * no rule knows, or any error here) or the areas to run besides the core set (`none`: only the core set). The full level is always `all`.
+ * @param {string[]} paths
+ * @param {string} [base] the pull request's base branch
+ * @param {string} [headRef]
+ */
+export function screensAreas(paths, base = '', headRef = '') {
+  try {
+    if (!isLight(base, headRef) || headRef === RELEASE_BRANCH) return 'all';
+    return areasArg(paths.map((p) => p.trim()).filter(Boolean));
+  } catch {
+    return 'all';
+  }
 }
 
 /** The jobs that are skipped on a docs-only pull request. `static` and `changes` always run. */
@@ -155,6 +172,7 @@ if (import.meta.url === `file://${argv[1]}`) {
     console.log(`starter_demo=${!docsOnly && needsStarterDemo(paths, arg)}`);
     console.log(`level=${checkLevel(argv[4] ?? '', arg)}`);
     console.log(`light=${isLight(argv[4] ?? '', arg)}`);
+    console.log(`areas=${screensAreas(paths, argv[4] ?? '', arg)}`);
   } else if (mode === 'verdict') {
     const problems = verdict(JSON.parse(input), arg === 'true', argv[4] !== 'false', argv[5] === 'true');
     for (const p of problems) console.log(`FAIL ${p}`);
