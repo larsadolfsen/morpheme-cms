@@ -41,7 +41,10 @@ export const OTHER_BASE_FILES = [
   'cards.css',
   'type.css',
   'blocks.css',
+  'blocks/imagegrid.css',
   'blocks/person-facts.css',
+  'blocks/link-row.css',
+  'blocks/checklist.css',
   'lists.css',
   ...SITE_SHELL_FILES,
 ];

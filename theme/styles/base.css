@@ -50,8 +50,13 @@
 @import './cards.css';
 @import './type.css';
 @import './blocks.css';
+/* The Image grid's filter, count and hidden items (moved out of blocks.css; they come right after it, in the same layer). */
+@import './blocks/imagegrid.css';
 /* The Person, Icon list, Facts, Table and Badge blocks (moved out of blocks.css; they come right after it, in the same layer). */
 @import './blocks/person-facts.css';
+/* The Link row and the Checklist's rules in the text (moved out of blocks.css; they come after the person and facts blocks, as they did). */
+@import './blocks/link-row.css';
+@import './blocks/checklist.css';
 /* The designs of the lists (List, List - Expand): Default and Card. */
 @import './lists.css';
 /* The classes the standard theme's site shell uses with the theme's variables: the logo and post list, the action bar, the page. */

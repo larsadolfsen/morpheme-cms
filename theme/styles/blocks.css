@@ -504,43 +504,6 @@
     margin-block-end: calc((1.25rem - var(--mo-comp-button-medium-container-height, 3rem)) / 2);
   }
   /* The subhead: the small line under the headline (a byline, a date, a place). */
-  /* "Image grid" (blocks/imagegrid/View.tsx): the tag filter over the staggered grid (.image-grid in ui.css), the text under an image on its card. The filter
-     and its count are drawn hidden and shown by script.ts; the columns can be set to 2, 3 or 4 on a computer (data-columns). */
-  .block-imagegrid-filter {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-  }
-  .block-imagegrid-filter[hidden],
-  .block-imagegrid-count[hidden],
-  .block-imagegrid-empty[hidden],
-  .block-imagegrid-clear[hidden] {
-    display: none;
-  }
-  .block-imagegrid-clear {
-    padding: 0 0.75rem;
-    min-height: var(--mo-sys-target-size, 2.75rem);
-    border: 0;
-    background: none;
-    color: var(--mo-sys-color-primary);
-    font: inherit;
-    cursor: pointer;
-  }
-  .block-imagegrid-empty {
-    color: var(--mo-sys-block-muted);
-  }
-  .block-imagegrid-count {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-  .block-imagegrid-grid > li[hidden] {
-    display: none;
-  }
   .block-accordion-lead[data-icon-color],
   .block-card .block-card-icon[data-icon-color] {
     color: var(--mo-comp-icon-color);
@@ -794,33 +757,6 @@
     }
   }
 
-  /* A quiet link that is one row, an outlined card (.card in ui.css) with smaller corners: a badge or an icon, a text
-     and an arrow, its edge in the accent when pointed at. */
-  .block-link-row {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    font-size: var(--mo-sys-typescale-body-large-size);
-    line-height: var(--mo-sys-typescale-body-large-line-height);
-    font-weight: var(--mo-sys-typescale-body-large-weight);
-    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
-    transition: box-shadow var(--mo-sys-motion-spring-default-effects);
-  }
-  .block-link-row.block-in-text {
-    margin-block: 1.75rem;
-  }
-  .block-link-row-text {
-    flex: 1;
-  }
-  .block-link-row-arrow {
-    flex-shrink: 0;
-    color: var(--mo-sys-block-accent);
-    transition: transform var(--mo-sys-motion-spring-default-spatial);
-  }
-  a.block-link-row:hover .block-link-row-arrow {
-    transform: translateX(3px);
-  }
-
   /* An invitation, a filled card (.card in ui.css): an image, a heading and a text, and buttons under each other
      (e.g. an app's booking block); on a computer the three side by side. */
   .block-cta {
@@ -1007,14 +943,6 @@
     .block-price-list {
       padding-inline: 2rem;
     }
-  }
-  .block-checklist.block-in-text {
-    margin-block: 1rem;
-  }
-  .block-checklist:not(.block-plan-features):has(> :nth-child(6)) {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(16rem, calc(50% - 1rem))), 1fr));
-    column-gap: 2rem;
   }
   .block-buttons.block-plan-buttons {
     flex-direction: column;
