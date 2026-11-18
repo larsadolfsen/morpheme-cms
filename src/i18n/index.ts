@@ -19,6 +19,7 @@ import { appTexts as appFiles, texts } from '@site/texts';
 import { daDK } from './da-DK';
 import { enUS, type Messages } from './en-US';
 import { translate } from '../../lib/translate.mjs';
+import { setEditorLang } from '../../lib/htmlLang.mjs';
 
 export type { Messages };
 
@@ -131,4 +132,5 @@ export function localeName(code: Locale, inLanguage: Locale = code): string {
   }
 }
 
-if (typeof document !== 'undefined') document.documentElement.lang = locale;
+// Only the editor (/editor/) announces the browser's language; a site page keeps the lang its server rendered.
+if (typeof document !== 'undefined') setEditorLang(document, locale, location.pathname);
