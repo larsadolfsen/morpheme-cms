@@ -1,0 +1,7 @@
+{
+  "id": "shared-globals-focus-ring",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Focus ring",
+  "text": "You can see where the keyboard is. Every part shows the same ring in your primary colour, 3 dp thick, when you reach it with Tab. Hover, press and disabled states keep their look."
+}

@@ -22,10 +22,22 @@
 :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
 .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
-  /* State layers: on-surface (or primary) over the element, 8% pointed at, 10% pressed. */
-  --mo-sys-state-mo-hover-layer: color-mix(in srgb, var(--mo-sys-color-on-surface) 8%, transparent);
-  --mo-sys-state-mo-pressed-layer: color-mix(in srgb, var(--mo-sys-color-on-surface) 10%, transparent);
-  --mo-sys-color-primary-hover: color-mix(in srgb, var(--mo-sys-color-primary) 8%, transparent);
+  /* State layers: on-surface (or primary) over the element, at M3's state opacities (hover 0.08, pressed 0.1; tokens/ui/ref.css). */
+  --mo-sys-state-mo-hover-layer: color-mix(
+    in srgb,
+    var(--mo-sys-color-on-surface) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+    transparent
+  );
+  --mo-sys-state-mo-pressed-layer: color-mix(
+    in srgb,
+    var(--mo-sys-color-on-surface) calc(var(--mo-sys-state-pressed-state-layer-opacity) * 100%),
+    transparent
+  );
+  --mo-sys-color-primary-hover: color-mix(
+    in srgb,
+    var(--mo-sys-color-primary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+    transparent
+  );
   /* The shade over the page behind a dialog, a sheet and the navigation drawer. */
   --mo-sys-color-scrim-overlay: color-mix(in srgb, var(--mo-sys-color-scrim) 32%, transparent);
   --mo-sys-radius: var(--mo-sys-shape-corner-medium);

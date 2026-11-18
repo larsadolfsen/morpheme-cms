@@ -430,6 +430,17 @@ Source: `theme/ui/Search.tsx` (`SearchView`), `theme/styles/ui.css` (`.search-vi
 - **Which M3.** The segmented list (SV12) is M3 Expressive: the Lists specs print it as "M3 --" and "M3 Expressive Available"; none of the sources above show it in the baseline.
 - **Date:** 2026-11-15 (owner approved the deviations above, 15 Nov 2026). **PR:** #749.
 
+## The focus ring (step 1 of the cards and lists plan)
+
+Source: `theme/styles/base.css` (`:focus-visible`). Read 18 Nov 2026 on m3.material.io (Playwright): the Specs pages of cards, buttons, chips, lists, menus, navigation bar and rail, and `/foundations/interaction/states/state-layers` and `/foundations/interaction/states/applying-states`.
+
+### FR1. One focus ring for every part, in `primary`
+
+- **Material:** every component's Specs page prints its focus indicator as colour `Secondary` (for example *Elevated card focus indicator color*: `#625B71`), thickness `3dp` and offset `2dp`.
+- **We do:** one ring for every part, `--mo-sys-color-primary`, 3dp thick, 2dp from the part, with `border-radius: inherit` (`base.css`, the one `:focus-visible` rule). The part rules that draw a ring of their own (the checkbox, switch and radio inputs, the slider's handle, the table block, the list's inset ring) write the same three values, or say why they differ: the list keeps its own offset of -3dp, inside, as the Lists specs print it.
+- **Why:** a site's Secondary is a theme colour and can be close to the page, so it cannot promise the 3:1 that WCAG 2.2, 1.4.11 (Non-text Contrast) asks of a focus indicator. Owner approved, 18 Nov 2026 ("One focus ring"; plan `docs/superpowers/plans/2026-11-17-cards-and-lists-0-19.md`, step 1). It closes the open question of `docs/superpowers/specs/2026-11-13-custom-colors-design.md`.
+- **Date:** 2026-11-18. **PR:** the step 1 pull request.
+
 ## Focus ring on the search view's field (A1 of the Modern Web Guidance audit)
 
 Source: `theme/styles/ui.css` (`.search-view-header`, `.search-view-input`). Read 15 Nov 2026 on m3.material.io (Playwright): `/components/search/overview`, `/specs`, `/guidelines` and `/accessibility`.

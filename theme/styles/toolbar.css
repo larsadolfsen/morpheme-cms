@@ -27,6 +27,8 @@
       max(var(--toolbar-docked-padding-block, 0.75rem), env(safe-area-inset-bottom));
     border-top: var(--mo-comp-toolbar-docked-line-width, 1px) solid var(--mo-comp-toolbar-docked-line, var(--mo-sys-block-line));
     backdrop-filter: var(--mo-comp-toolbar-docked-backdrop, blur(16px));
+    /* Level 2 at rest (M3 elevation tokens: "Toolbar" 2; Toolbars, Specs: docked bottom-app-bar container elevation 2). */
+    box-shadow: var(--mo-sys-elevation-level2-rest-shadow);
   }
   /* Floating: a pill over the page with its shadow, across or down. */
   .toolbar-floating {

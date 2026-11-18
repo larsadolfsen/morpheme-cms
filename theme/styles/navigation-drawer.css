@@ -189,11 +189,17 @@
   }
   /* State layers (as the theme's other items): the item's own colour over it, 8% pointed at, 10% focused or pressed. */
   .navigation-drawer-item:hover {
-    background: var(--navigation-drawer-item-hover, color-mix(in srgb, currentColor 8%, transparent));
+    background: var(
+      --navigation-drawer-item-hover,
+      color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+    );
   }
   .navigation-drawer-item:focus-visible,
   .navigation-drawer-item:active {
-    background: var(--navigation-drawer-item-pressed, color-mix(in srgb, currentColor 10%, transparent));
+    background: var(
+      --navigation-drawer-item-pressed,
+      color-mix(in srgb, currentColor calc(var(--mo-sys-state-pressed-state-layer-opacity) * 100%), transparent)
+    );
   }
   .navigation-drawer-item:focus-visible {
     outline-offset: -2px;
@@ -204,11 +210,19 @@
     font-weight: var(--navigation-drawer-item-active-weight, 700);
   }
   .navigation-drawer-item[data-active]:hover {
-    background: color-mix(in srgb, currentColor 8%, var(--navigation-drawer-item-active-surface, var(--mo-sys-color-secondary-container)));
+    background: color-mix(
+      in srgb,
+      currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+      var(--navigation-drawer-item-active-surface, var(--mo-sys-color-secondary-container))
+    );
   }
   .navigation-drawer-item[data-active]:focus-visible,
   .navigation-drawer-item[data-active]:active {
-    background: color-mix(in srgb, currentColor 10%, var(--navigation-drawer-item-active-surface, var(--mo-sys-color-secondary-container)));
+    background: color-mix(
+      in srgb,
+      currentColor calc(var(--mo-sys-state-pressed-state-layer-opacity) * 100%),
+      var(--navigation-drawer-item-active-surface, var(--mo-sys-color-secondary-container))
+    );
   }
   /* Sections: a label (title small, 56dp high) over the items; the divider is in every section and shown only in one that
      follows another, edge to edge (it takes the drawer's inset back). */

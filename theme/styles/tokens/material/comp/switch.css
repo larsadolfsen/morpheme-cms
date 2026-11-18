@@ -20,5 +20,5 @@
   --mo-comp-switch-selected-handle-color: var(--mo-sys-color-on-primary);
   --mo-comp-switch-unselected-icon-color: var(--mo-sys-color-surface-container-highest);
   --mo-comp-switch-selected-icon-color: var(--mo-sys-color-on-primary-container);
-  --mo-comp-switch-disabled-opacity: 0.38;
+  --mo-comp-switch-disabled-opacity: var(--mo-sys-state-disabled-state-layer-opacity);
 }

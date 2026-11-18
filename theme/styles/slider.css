@@ -232,10 +232,13 @@
     pointer-events: auto;
     cursor: grab;
   }
+  /* A slider that cannot be moved: its handle has no shadow (M3 Sliders, Specs: disabled handle elevation level 0). */
   .slider-input:disabled::-webkit-slider-thumb {
+    box-shadow: var(--mo-sys-elevation-level0-shadow);
     cursor: default;
   }
   .slider-input:disabled::-moz-range-thumb {
+    box-shadow: var(--mo-sys-elevation-level0-shadow);
     cursor: default;
   }
   .slider-input:enabled:active::-webkit-slider-thumb {
@@ -247,11 +250,11 @@
     cursor: grabbing;
   }
   .slider-input:focus-visible::-webkit-slider-thumb {
-    outline: 2px solid var(--mo-sys-block-accent);
+    outline: 3px solid var(--mo-sys-color-primary);
     outline-offset: 2px;
   }
   .slider-input:focus-visible::-moz-range-thumb {
-    outline: 2px solid var(--mo-sys-block-accent);
+    outline: 3px solid var(--mo-sys-color-primary);
     outline-offset: 2px;
   }
   /* The value over its handle (the end's; a range's first, the start's; a centered one's below the middle, at the

@@ -1,0 +1,7 @@
+{
+  "id": "shared-globals-shadows-states-focus",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Skygger i hvile",
+  "text": "Hævede dele står tydeligere frem fra siden. Menuer, ark, dialoger, navigationslinjen og hævede kort viser deres skygge, også før du peger på dem. Alt andet ser ud som før."
+}
