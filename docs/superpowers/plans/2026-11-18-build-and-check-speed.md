@@ -483,6 +483,16 @@ Expected savings are for a content save on a site like Sara's (about 100 pages a
      and on every plan.
 4. Only new or changed images go through sharp. `check:screens` and the image checks still see the same `srcset`.
 
+   **As built (18 November 2026, 0.18).** Step 1 is still open: nobody has run a Cloudflare build that prints whether
+   `node_modules/.astro/` survives `npm clean-install`, so the first route above (a cache folder) is not built. What works
+   without the build cache is built instead: step 2 and step 3's second route. `lib/variant-record.mjs` writes
+   `public/images/_variants.json`, which maps each output (`_r/…`, `_s/…`, `_video/…`) to a key of the source's content hash
+   and the sizes and quality it was made with; the site serves it. `responsive-images` and `video-thumbnails` keep an output
+   whose file exists and key matches, else fetch it from the live site when the live record has the same key
+   (`MORPHEME_LIVE_URL`, which `ci-build` sets to `https://<domain>` unless it is already set), else sharp makes it. A fetch
+   that fails or is not an image falls back to sharp, so every doubt gives the old result. The manifest and its `srcset`
+   are unchanged; `scripts/responsive-images.test.mjs` compares them and the files byte for byte. Image parallelism is untouched (batch 3).
+
 #### Batch 3. Images are made in parallel (about 20–25 s when all images are made)
 
 - `responsive-images` today awaits one image after another. It runs the images through a small pool sized by

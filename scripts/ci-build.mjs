@@ -15,7 +15,7 @@ import { stepCommand } from './step-command.mjs';
  * @param {string} o.cwd the site's root; must be the working directory too, as the site config is loaded from there
  * @param {typeof globalThis.fetch} [o.fetch]
  * @param {NodeJS.ProcessEnv} [o.env]
- * @returns {Promise<{ lane: 'content' | 'full', reason: string, paths: string[] | null }>} any doubt gives the full lane.
+ * @returns {Promise<{ lane: 'content' | 'full', reason: string, paths: string[] | null, siteUrl?: string }>} siteUrl: the live site, when the config is known; any doubt gives the full lane.
  */
 export async function decideLane({ cwd, fetch = globalThis.fetch, env = process.env }) {
   let settings;
@@ -40,7 +40,7 @@ export async function decideLane({ cwd, fetch = globalThis.fetch, env = process.
     branch: env.WORKERS_CI_BRANCH,
     repoBranch: config.repo.branch,
   });
-  return { ...laneFor(paths, settings, reason), paths };
+  return { ...laneFor(paths, settings, reason), paths, siteUrl: 'https://' + config.domain };
 }
 
 /** Runs a command with the output shown and stops the build with its exit code when it fails. */
@@ -53,7 +53,7 @@ function step(tool, args, env = process.env) {
 
 async function main() {
   const cwd = process.cwd();
-  const { lane, reason, paths } = await decideLane({ cwd });
+  const { lane, reason, paths, siteUrl } = await decideLane({ cwd });
   console.log(`ci-build: ${lane} lane — ${reason}`);
   if (lane === 'full') {
     step('npm', ['run', 'check']);
@@ -64,7 +64,10 @@ async function main() {
     step('npm', ['run', 'check:editor']);
   }
   const head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd, encoding: 'utf8' }).trim();
-  step('npm', ['run', 'build'], { ...process.env, MORPHEME_CONTENT_CHECKED: head });
+  // The live site serves the image sizes and video stills of the last build; the build takes the unchanged ones from it
+  // (lib/variant-record.mjs). MORPHEME_LIVE_URL, when set, wins.
+  const live = process.env.MORPHEME_LIVE_URL ?? siteUrl;
+  step('npm', ['run', 'build'], { ...process.env, MORPHEME_CONTENT_CHECKED: head, ...(live ? { MORPHEME_LIVE_URL: live } : {}) });
 }
 
 /**
