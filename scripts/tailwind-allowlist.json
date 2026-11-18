@@ -104,7 +104,6 @@
     "utilities": 12
   },
   "src/editor.css": {
-    "theme": 17,
     "reference": 1,
     "tw": 17
   },
@@ -426,100 +425,18 @@
     "constants": 9
   },
   "theme/styles/base.css": {
-    "theme": 2,
     "plugin": 1,
     "source": 3,
     "tw": 14
   },
-  "theme/styles/blocks/buttons-links.css": {
-    "theme": 1
-  },
-  "theme/styles/blocks/cta-prices.css": {
-    "theme": 2
-  },
-  "theme/styles/blocks/panel.css": {
-    "theme": 2
-  },
-  "theme/styles/blocks/prose.css": {
-    "theme": 1
-  },
   "theme/styles/blocks/text-section.css": {
     "tw": 12
-  },
-  "theme/styles/cards.css": {
-    "theme": 6
-  },
-  "theme/styles/material/block-looks.css": {
-    "theme": 1
-  },
-  "theme/styles/material/footer.css": {
-    "theme": 2
-  },
-  "theme/styles/material/navigation.css": {
-    "theme": 2
-  },
-  "theme/styles/site-action.css": {
-    "theme": 2
-  },
-  "theme/styles/site-page.css": {
-    "theme": 3
-  },
-  "theme/styles/tokens/base/comp/card.css": {
-    "theme": 1
-  },
-  "theme/styles/tokens/base/comp/list.css": {
-    "theme": 1
   },
   "theme/styles/tokens/base/ref.css": {
     "themeAt": 2
   },
-  "theme/styles/tokens/base/sys.css": {
-    "theme": 1
-  },
-  "theme/styles/tokens/blocks/comp/card.css": {
-    "theme": 1
-  },
-  "theme/styles/tokens/blocks/comp/grid.css": {
-    "theme": 3
-  },
-  "theme/styles/tokens/blocks/sys.css": {
-    "theme": 1
-  },
-  "theme/styles/tokens/cards/comp/card.css": {
-    "theme": 1
-  },
-  "theme/styles/tokens/cards/comp/grid.css": {
-    "theme": 2
-  },
-  "theme/styles/tokens/material/comp/card.css": {
-    "theme": 1
-  },
   "theme/styles/tokens/material/ref.css": {
     "themeAt": 1
-  },
-  "theme/styles/tokens/material/sys.css": {
-    "theme": 2
-  },
-  "theme/styles/tokens/ui/comp/icon-button.css": {
-    "theme": 1
-  },
-  "theme/styles/tokens/ui/comp/side-sheet.css": {
-    "theme": 1
-  },
-  "theme/styles/ui/bottom-sheet.css": {
-    "theme": 3
-  },
-  "theme/styles/ui/button-groups.css": {
-    "theme": 2
-  },
-  "theme/styles/ui/lightbox.css": {
-    "theme": 2
-  },
-  "theme/styles/ui/menus.css": {
-    "theme": 1
-  },
-  "theme/styles/ui/snackbar.css": {
-    "theme": 1
   },
   "theme/templates/Home.astro": {
     "utilities": 10

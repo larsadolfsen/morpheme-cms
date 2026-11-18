@@ -50,7 +50,7 @@
   --mo-comp-theme-title-leading: var(--mo-sys-typescale-display-small-line-height);
   --mo-comp-theme-title-size-large: var(--mo-sys-typescale-display-medium-size);
 }
-@media (width >= theme(--breakpoint-medium)) {
+@media (width >= 37.5rem) {
   :root {
     --mo-comp-theme-title-leading: var(--mo-sys-typescale-display-medium-line-height);
   }

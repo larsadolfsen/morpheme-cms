@@ -213,7 +213,7 @@
     font-weight: var(--mo-sys-typescale-title-large-weight);
     letter-spacing: var(--mo-sys-typescale-title-large-tracking);
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .block-timeline {
       grid-auto-columns: 1fr;
       grid-auto-flow: column;
@@ -249,7 +249,7 @@
     padding-top: 1.25rem;
   }
   /* Only on phones and tablets (a block a site shows beside the text on a computer). */
-  @media (width >= theme(--breakpoint-expanded)) {
+  @media (width >= 52.5rem) {
     .block-small-screens {
       display: none;
     }

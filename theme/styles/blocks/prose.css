@@ -114,7 +114,7 @@
     color: #fff;
     text-shadow: 0 1px 3px rgb(0 0 0 / 0.8);
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .prose .video-facade-still svg {
       width: 4.5rem;
       height: 4.5rem;

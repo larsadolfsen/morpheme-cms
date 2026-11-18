@@ -10,7 +10,7 @@
   }
 }
 @layer components {
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .theme-post-list {
       --mo-comp-list-item-image-size: 8rem;
     }

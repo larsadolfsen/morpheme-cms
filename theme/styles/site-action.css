@@ -17,12 +17,12 @@
   .bottom-sheet-standard.theme-action-bar ~ .bottom-sheet-standard.theme-action-bar {
     display: none;
   }
-  @media (width < theme(--breakpoint-medium)) {
+  @media (width < 37.5rem) {
     body:has(.theme-action-bar) {
       padding-bottom: 6rem;
     }
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .bottom-sheet-standard.theme-action-bar {
       display: none;
     }
