@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import postcss from 'postcss';
 
-const names = ['base', 'ui', 'blocks', 'site-logo-post', 'site-action', 'site-page', 'global'];
+const names = ['base', 'ui', 'blocks', 'site-logo-post', 'site-action', 'site-page', 'global', 'material/footer'];
 const roots = Object.fromEntries(
   names.map((name) => [name, postcss.parse(readFileSync(new URL(`../theme/styles/${name}.css`, import.meta.url), 'utf8'))]),
 );

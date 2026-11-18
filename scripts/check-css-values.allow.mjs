@@ -50,7 +50,7 @@ export const allow = [
       "a crop handle's 3px corner and 1.5px line, the app icon's 22px corner (the icon's own shape, as on a phone's home screen) and a 3px line: not steps of a scale",
   },
   {
-    file: /blocks(\/[a-z-]+)?\.css$|ui\.css$|cards\.css$|global\.css$|base\.css$|site-logo-post\.css$|site-action\.css$|site-page\.css$|text-field\.css$/,
+    file: /blocks(\/[a-z-]+)?\.css$|ui\.css$|cards\.css$|global\.css$|material\/[a-z-]+\.css$|base\.css$|site-logo-post\.css$|site-action\.css$|site-page\.css$|text-field\.css$/,
     line: /^(font-size|line-height|letter-spacing)\b/,
     reason: 'not yet moved to the type scale: tracked for the next pull request of the shape and type sweep',
   },

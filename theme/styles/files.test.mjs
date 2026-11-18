@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { UI_PART_FILES, OTHER_BASE_FILES } from './files.mjs';
+import { UI_PART_FILES, OTHER_BASE_FILES, MATERIAL_FILES } from './files.mjs';
 
 const base = readFileSync(new URL('./base.css', import.meta.url), 'utf8');
 /** The CSS files base.css imports from this folder or from blocks/ (the token files under tokens/ are listed by their folders). */
@@ -43,4 +43,12 @@ test('every CSS file of this folder is imported by base.css, except base.css and
     [],
     'a CSS file nothing imports',
   );
+});
+
+test('global.css imports exactly the files of MATERIAL_FILES, in order, and they exist', () => {
+  const global = readFileSync(new URL('./global.css', import.meta.url), 'utf8');
+  const importedByGlobal = [...global.matchAll(/@import\s+'\.\/(material\/[^']+\.css)';/g)].map((m) => m[1]);
+  assert.deepEqual(importedByGlobal, MATERIAL_FILES);
+  for (const f of MATERIAL_FILES) assert.ok(existsSync(new URL(`./${f}`, import.meta.url)), `${f} does not exist`);
+  assert.ok(!imported.some((f) => f.startsWith('material/')), 'base.css must never import a material/ file');
 });

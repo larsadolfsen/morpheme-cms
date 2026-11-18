@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import postcss from 'postcss';
 import selectorParser from 'postcss-selector-parser';
 import { THEME_PARTS, NOT_PARTS } from './themeParts.mjs';
-import { UI_PART_FILES, SITE_SHELL_FILES } from '../theme/styles/files.mjs';
+import { UI_PART_FILES, SITE_SHELL_FILES, MATERIAL_FILES } from '../theme/styles/files.mjs';
 import { partOf, partPieces, themeCoverage } from './themeCoverage.mjs';
 
 const stylesDir = new URL('../theme/styles/', import.meta.url);
@@ -16,7 +16,8 @@ const baseCss = readFileSync(new URL('base.css', stylesDir), 'utf-8');
 const uiCss = ['ui.css', ...UI_PART_FILES].map((f) => readFileSync(new URL(f, stylesDir), 'utf-8')).join('\n');
 // components.css, split into the site shell's files (theme/styles/files.mjs).
 const componentsCss = SITE_SHELL_FILES.map((f) => readFileSync(new URL(f, stylesDir), 'utf-8')).join('\n');
-const globalCss = readFileSync(new URL('global.css', stylesDir), 'utf-8');
+// global.css and the files its rules moved into (theme/styles/files.mjs).
+const globalCss = ['global.css', ...MATERIAL_FILES].map((f) => readFileSync(new URL(f, stylesDir), 'utf-8')).join('\n');
 const materialCss = [baseCss, uiCss, componentsCss, globalCss].join('\n');
 
 function getUiCssClasses() {
