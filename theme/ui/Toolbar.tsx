@@ -1,4 +1,4 @@
-// A toolbar (m3.material.io/components/toolbars, M3 Expressive; .toolbar in ../styles/toolbar.css): a row of actions (icon
+// A toolbar (m3.material.io/components/toolbars, M3 Expressive; .toolbar in ../styles/ui/toolbar.css): a row of actions (icon
 // buttons, buttons), docked (`kind`: docked, the default: the whole width at the bottom of the screen, as the site's bar
 // on a phone, components/ActionBar.astro) or floating (a pill over the page), in its colour
 // (`color`: standard, the surface, the default, or vibrant, the accent), across or, floating, `vertical`. A floating one

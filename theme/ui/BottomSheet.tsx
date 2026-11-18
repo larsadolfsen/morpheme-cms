@@ -1,4 +1,4 @@
-// A bottom sheet (m3.material.io/components/bottom-sheets, .bottom-sheet in ../styles/bottom-sheet.css): its container, with the
+// A bottom sheet (m3.material.io/components/bottom-sheets, .bottom-sheet in ../styles/ui/bottom-sheet.css): its container, with the
 // drag handle, the header (the headline, `headline` with its id `headlineId`, the supporting text under it and evt. the
 // close button, `closeLabel`), what it shows (`children`, filling the rest; what stands in place of a frame while it
 // loads has bottomSheetCoverClass) and evt. a footer (`footer`). Its kind (`kind`) is Material's:

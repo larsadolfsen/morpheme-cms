@@ -14,8 +14,7 @@ import {
   fallbackAt,
   missingIcon,
   opened,
-  phosphorGlyph,
-  phosphorProblem,
+  phosphorProblems,
   problems,
   settingsRows,
   shots,
@@ -711,7 +710,7 @@ export function register(unit) {
               (e) => e.querySelector('path, rect, circle')?.getAttribute('d') ?? e.innerHTML.slice(0, 40),
             ),
           }));
-          for (const d of new Set(state.phosphor)) if (phosphorGlyph(d)) problems.push(phosphorProblem(`${width}px #${hash}`, d));
+          for (const d of new Set(state.phosphor)) problems.push(...phosphorProblems(`${width}px #${hash}`, d));
           // No sheet from the bottom starts taller than --bottom-sheet-start-max-height (half the screen, Material 3), on a phone.
           if (width < 600) {
             const tooTall = await page.evaluate(() => {

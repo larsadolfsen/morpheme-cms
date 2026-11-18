@@ -1,4 +1,4 @@
-// A dialog (m3.material.io/components/dialogs, .dialog in ../styles/dialog.css): Material's basic dialog. Full-screen dialogs are not
+// A dialog (m3.material.io/components/dialogs, .dialog in ../styles/ui/dialog.css): Material's basic dialog. Full-screen dialogs are not
 // in the theme (owner, 14 Nov 2026: a full screen is a page with a back arrow, not a dialog).
 // Its container. With only `children` it is the container alone, with what is in it (a
 //   pop-up's box, PopupView.tsx; the date and time pickers); the cookie question is such a dialog that is not modal

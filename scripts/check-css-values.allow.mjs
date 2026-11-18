@@ -18,7 +18,7 @@ export const allow = [
   },
   { file: /base\.css$/, line: /^border-radius: 0\.3em/, reason: 'inline code: its corners follow the text size, not a step' },
   {
-    file: /global\.css$|ui\.css$|checkbox\.css$/,
+    file: /global\.css$|ui\.css$|checkbox\.css$|material\/fields\.css$/,
     line: /^border-radius: (2px|0\.1875rem)/,
     reason: "the checkbox's own 2px square corner (M3: 2dp), and the error ring's 3px over it",
   },
@@ -50,7 +50,7 @@ export const allow = [
       "a crop handle's 3px corner and 1.5px line, the app icon's 22px corner (the icon's own shape, as on a phone's home screen) and a 3px line: not steps of a scale",
   },
   {
-    file: /blocks(\/[a-z-]+)?\.css$|ui\.css$|cards\.css$|global\.css$|base\.css$|site-logo-post\.css$|site-action\.css$|site-page\.css$/,
+    file: /blocks(\/[a-z-]+)?\.css$|ui\.css$|cards\.css$|global\.css$|material\/[a-z-]+\.css$|base\.css$|site-logo-post\.css$|site-action\.css$|site-page\.css$|text-field\.css$/,
     line: /^(font-size|line-height|letter-spacing)\b/,
     reason: 'not yet moved to the type scale: tracked for the next pull request of the shape and type sweep',
   },
