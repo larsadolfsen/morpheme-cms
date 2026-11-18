@@ -10,6 +10,8 @@
 /* The Dialog and the Lightbox come before ui.css too: the date picker's and the time picker's dialogs are also .dialog-modal (DatePicker.tsx, TimePicker.tsx), and the picker rules in ui.css set the same properties at the same specificity and must win. */
 @import './dialog.css';
 @import './lightbox.css';
+/* The Buttons and the Icon buttons come before ui.css, where they stood in it, after the files above: a part made of a button (the list's and the search view's buttons, the pickers') sets the same properties at the same specificity and its rules, still in ui.css, must keep winning over them. */
+@import './buttons.css';
 /* The theme's UI components, as Material 3 names them (buttons, icon buttons), and the standard blocks of the editor,
    in this site's design (their variables below). */
 @import './ui.css';
