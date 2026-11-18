@@ -1,24 +1,24 @@
 # Tailwind batch T02: The migration guide for theme and app authors
 
-Spec for one build session and one pull request into `0.18`. Part of `2026-11-16-move-away-from-tailwind.md` (the plan) and
-`2026-11-18-tailwind-batches.md` (the order). Owner, 18 Nov: "Remove Tailwind", on the 0.18 line, inside contract 6.
+Spec for one build session and one pull request into `main`. Part of `2026-11-16-move-away-from-tailwind.md` (the plan) and
+`2026-11-18-tailwind-batches.md` (the order). Owner, 18 Nov: Tailwind ships as 0.18.1, with contract 7, patch changesets, into `main` after the owner releases 0.18.0.
 
 | | |
 | :-- | :-- |
-| **When** | Can start now, in any free slot. Docs only: CI skips the heavy jobs. |
+| **When** | Starts when the PM says, in any free slot. Docs only: CI skips the heavy jobs. |
 | **Must merge first** | none (the names of T04 are fixed in plan §3.2; if T04 changes one, T04 updates this guide) |
 | **Others wait for it** | nothing |
 | **Size** | small |
 
 ## Goal
 
-Write the table authors will use, before the break, so `morpheme-apps` (`venus`, the apps) can start migrating in parallel.
+Write the table authors will use, before the break, so `morpheme-apps` (`venus`, the apps) can start migrating in parallel (it ships with the break, in 0.18.1).
 
 ## What to do
 
 - New `docs/tailwind-migration.md`: why (one dependency less, one naming system), what stops working (a utility class, `medium:`-style variants, `theme()`, `@theme`, `@apply`, `@source`, `--tw-*`, the typography plugin's classes other than `prose` and `not-prose`), what to write instead, by family (plan §3.3), the vocabulary (`mo-row`, `mo-stack`, `mo-grid`, `mo-fill`, `mo-keep`, `mo-truncate`, `mo-clamp-2`, `mo-center`, `mo-cover`, `mo-visually-hidden`, `mo-hidden`, `mo-contents` and their modifiers; plan §3.2), the breakpoint table (`37.5rem` medium, `52.5rem` expanded, `75rem` large, `100rem` extra large, written as `@media (width >= 37.5rem)`; dp, rem and the Material 3 window class), the state variants as CSS (`:hover`, `:focus-visible`, `:has()`, `[data-open]`), and how to check (`check:themes`, `check:tailwind` in this repository, the same counts in an app repository with `tailwind:inventory`).
 - New `docs/tailwind-migration-classes.md`: Appendix A of the plan, every class with its CSS and its replacement (the 578 rows), as a table to search.
-- `docs/app-contract.md`, section *Contract 6*: one paragraph: contract 6 also ends Tailwind (no utility, `theme()` or `@theme` in a theme or an app), no second bump.
+- `docs/app-contract.md`: a section *Contract 7* (written now as the announcement, effective when T16 merges): no utility, `theme()` or `@theme` in a theme or an app written to 7; contract 7 replaces 6 in `APP_APIS`; the migration is `docs/tailwind-migration.md`.
 
 ## Files it touches
 
@@ -30,7 +30,7 @@ Docs only: no proof of a rendered result. Each family rule is checked against th
 
 ## Changeset
 
-Empty.
+Empty (or `patch` if the PM asks).
 
 ## Checks
 
@@ -38,8 +38,9 @@ Empty.
 
 ## Rules for every batch
 
-- Start with the `developer` skill, read `CLAUDE.md`, load `checks`. A brainstorm is over for this work: the owner said "Remove Tailwind" (18 Nov); this batch is built, as specified here and nothing else.
-- **One pull request into `0.18`**, one logical change, the rendered result identical. Check in with the PM first (`ready: <branch>, <what changed>, local check green`) and push only on "your slot" (`developer` §3a). Never merge your own pull request. At most two Tailwind batches are in CI at once; the PM keeps the order (`2026-11-18-tailwind-batches.md`).
+- Start with the `developer` skill, read `CLAUDE.md`, load `checks`. A brainstorm is over for this work: the owner said Tailwind ships as 0.18.1 (18 Nov); this batch is built, as specified here and nothing else, **when the PM says**: no build session starts before the owner has released 0.18.0.
+- **One pull request into `main`** (the 0.18.1 work goes into `main` after the owner releases 0.18.0), one logical change, the rendered result identical. Check in with the PM first (`ready: <branch>, <what changed>, local check green`) and push only on "your slot" (`developer` §3a). Never merge your own pull request. At most two Tailwind batches are in CI at once; the PM keeps the order (`2026-11-18-tailwind-batches.md`). Changeset level: **`patch` or empty, never `minor` or `major`** (the release is 0.18.1).
+- **A merge into `main` is also flowed into `0.19`** (the 0.19 PM merges `main` into `0.19`, a merge commit, never a rebase, the same day) for every batch that touches `src/` or `theme/`; the batch says its freeze window.
 - **Components line:** *existing; moved as they were; Material 3 pages not read, a pure migration changes no design.* A batch that adds layout helpers (T04) says: *none: layout helpers, not components.* No new component, no screen-specific variant (`developer` hard rule). A cluster of utilities that draws a surface or a control is not turned into a new component: it keeps its look in a named part rule, and the PR lists it under **Surfaces** for the PM (the owner decides later whether it becomes a theme component).
 - Name the Modern Web Guidance guides you read in the PR text (`css-layout`, `css`, `responsive-design` for a batch that writes CSS). Logical properties (`inline-size`, `margin-inline`, `padding-block`) and `gap`, as the guide says; a physical property only where the old utility was physical on purpose.
 - After T01 exists: lower `scripts/tailwind-allowlist.json` in the same PR by exactly the uses the batch removed, and say the numbers in the PR text.

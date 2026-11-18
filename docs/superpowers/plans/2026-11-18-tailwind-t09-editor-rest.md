@@ -1,7 +1,7 @@
 # Tailwind batch T09: Editor, part 5: the remaining 63 small files
 
-Spec for one build session and one pull request into `0.18`. Part of `2026-11-16-move-away-from-tailwind.md` (the plan) and
-`2026-11-18-tailwind-batches.md` (the order). Owner, 18 Nov: "Remove Tailwind", on the 0.18 line, inside contract 6.
+Spec for one build session and one pull request into `main`. Part of `2026-11-16-move-away-from-tailwind.md` (the plan) and
+`2026-11-18-tailwind-batches.md` (the order). Owner, 18 Nov: Tailwind ships as 0.18.1, with contract 7, patch changesets, into `main` after the owner releases 0.18.0.
 
 | | |
 | :-- | :-- |
@@ -22,6 +22,7 @@ Replace the 309 utility uses of 63 editor file(s) with the vocabulary of T04 or 
 - **Surfaces and controls:** where a cluster draws a background with a radius or a border, or is a pointer target, keep its look in a named part rule, do not invent a component, and list each under **Surfaces** in the PR (file, line, what it is, the closest theme component). About 24 static class attributes in the editor do this today; the PM asks the owner.
 - Dynamic class strings (`className={…}` built from state, 361 in `src/`): keep the logic, change only the class names.
 - This is the last editor slice: after it `git grep` finds no utility in `src/`; paste `tailwind:inventory` for `src/` (expect 0 uses).
+- **Flow into 0.19, the same day:** when this PR is merged into `main`, the 0.19 PM merges `main` into `0.19` (a merge commit, never a rebase), resolves conflicts in the files above and the import block of `src/editor.css`, runs `npm run check` on `0.19` and pushes on its own slot. **Freeze window:** from this batch's `ready:` until that merge, no PR into `0.19` or `main` touches the files listed above; the PM announces it, and a PR that must touch one waits or is rebased onto the merged slice by merging `main` into it.
 
 
 ## Files it touches
@@ -37,7 +38,7 @@ Replace the 309 utility uses of 63 editor file(s) with the vocabulary of T04 or 
 
 ## Changeset
 
-Empty.
+Empty (or `patch` if the PM asks).
 
 ## Checks
 
@@ -45,8 +46,9 @@ Empty.
 
 ## Rules for every batch
 
-- Start with the `developer` skill, read `CLAUDE.md`, load `checks`. A brainstorm is over for this work: the owner said "Remove Tailwind" (18 Nov); this batch is built, as specified here and nothing else.
-- **One pull request into `0.18`**, one logical change, the rendered result identical. Check in with the PM first (`ready: <branch>, <what changed>, local check green`) and push only on "your slot" (`developer` §3a). Never merge your own pull request. At most two Tailwind batches are in CI at once; the PM keeps the order (`2026-11-18-tailwind-batches.md`).
+- Start with the `developer` skill, read `CLAUDE.md`, load `checks`. A brainstorm is over for this work: the owner said Tailwind ships as 0.18.1 (18 Nov); this batch is built, as specified here and nothing else, **when the PM says**: no build session starts before the owner has released 0.18.0.
+- **One pull request into `main`** (the 0.18.1 work goes into `main` after the owner releases 0.18.0), one logical change, the rendered result identical. Check in with the PM first (`ready: <branch>, <what changed>, local check green`) and push only on "your slot" (`developer` §3a). Never merge your own pull request. At most two Tailwind batches are in CI at once; the PM keeps the order (`2026-11-18-tailwind-batches.md`). Changeset level: **`patch` or empty, never `minor` or `major`** (the release is 0.18.1).
+- **A merge into `main` is also flowed into `0.19`** (the 0.19 PM merges `main` into `0.19`, a merge commit, never a rebase, the same day) for every batch that touches `src/` or `theme/`; the batch says its freeze window.
 - **Components line:** *existing; moved as they were; Material 3 pages not read, a pure migration changes no design.* A batch that adds layout helpers (T04) says: *none: layout helpers, not components.* No new component, no screen-specific variant (`developer` hard rule). A cluster of utilities that draws a surface or a control is not turned into a new component: it keeps its look in a named part rule, and the PR lists it under **Surfaces** for the PM (the owner decides later whether it becomes a theme component).
 - Name the Modern Web Guidance guides you read in the PR text (`css-layout`, `css`, `responsive-design` for a batch that writes CSS). Logical properties (`inline-size`, `margin-inline`, `padding-block`) and `gap`, as the guide says; a physical property only where the old utility was physical on purpose.
 - After T01 exists: lower `scripts/tailwind-allowlist.json` in the same PR by exactly the uses the batch removed, and say the numbers in the PR text.
