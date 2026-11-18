@@ -106,6 +106,38 @@ docs pull requests:
 
 A2 and A7 use building blocks 1 and 3; A3 and A8 build on block 2; A11 uses block 2 for "the tests next to the changed files".
 
+### A5 as built (the daily full run on feature branches)
+
+Files: `.github/workflows/daily-full.yml` (the schedule), `check.yml` (a `workflow_dispatch` entry and the mark), `scripts/daily-full.mjs` (the decisions),
+tested in `scripts/daily-full.test.mjs`.
+
+- **How the full level runs on a branch with no pull request: one definition, by dispatch.** `check.yml` gained `workflow_dispatch` (input `level`, only `full`). The
+  scheduled workflow does not repeat any job: it dispatches `check.yml` on each chosen branch. Why not `workflow_call`: a called workflow checks out the *caller's*
+  sha, so every checkout of the jobs would need a `ref:` input; a dispatch runs the branch's own copy of `check.yml` on the branch's own head, and no job changed.
+  On a dispatch the job `changes` prints the full level without a diff (the same output as its "git diff failed" fallback: `level=full`, everything runs, all starter
+  shards, Prettier on every file); `static` skips the changeset check (no base branch); the job `check` marks the head instead of reading a pull request's head.
+- **The mark: the commit status `daily-full`** on the head the run tested (`github.sha`), written by the job `check` with `gh api repos/<repo>/statuses/<sha>`:
+  `success` when every job passed, `failure` otherwise, with the run's link as its target. One call reads it:
+  `gh api repos/larsadolfsen/morpheme-cms/commits/<branch>/statuses --jq '[.[]|select(.context=="daily-full")][0]|{state,description,target_url}'`
+  (newest first). The `pm` skill has the morning command for every feature branch.
+- **Decisions (`pick`, pure):** a branch is run when it is `feature/**`, has a commit `main` lacks, its head has **no** `daily-full` status yet and no full run is queued or
+  running. A head with a green *or red* `daily-full` is not run again: it has not changed since (a push makes a new head with no status). At most 6 runs a day, oldest
+  push first; the rest wait for tomorrow. `daily-full.yml` has its own concurrency group (one dispatcher at a time) and `check.yml`'s group for a dispatch is the
+  branch's ref, so one run per branch and a pull request's runs never cancel it.
+- **A cancel is not a red mark.** `markState` returns no state when a job was cancelled and none failed (a manual cancel, a lost runner, a timeout): `check` writes no status,
+  and tomorrow's run starts again. A failed job, or a job skipped that must run, is `failure`.
+- **Cost.** One full run is about 135 runner minutes (see above). At most 6 runs a day is at most about 810 runner minutes a day, and only on a day a branch has a new head.
+  The repository is public, so Actions minutes are free; the only price is the shared queue, and the dispatcher runs at 02:17 UTC (after the Danish evening, before the morning).
+  Branches that did not change cost nothing (the dispatcher itself is one 20-second job). The PM's CI slots (`pm` skill, section 6) do not count these runs.
+- **Permissions.** `daily-full.yml`: `contents: read`, `statuses: read`, `actions: write` (needed only to dispatch `check.yml`; the script names no other workflow, and a test
+  fails if it names another, or a merge, tag, release or publish endpoint). `check.yml`'s job `check`: `statuses: write` beside `contents: read` and `pull-requests: read`; no other job has it.
+  Nothing here merges, publishes, tags or releases; the dispatched run is `check.yml`, which publishes nothing.
+- **Limits, to know.** (1) A scheduled workflow runs only from the default branch, so `daily-full.yml` starts working when it is in `main` (at the next release), or by hand
+  (*Run workflow* on `daily-full`, from a branch that has it) before. (2) A dispatch runs the branch's own `check.yml`: a feature branch cut before this change has no
+  `workflow_dispatch` there and the dispatch fails (HTTP 422; the run of `daily-full` shows it) until the PM merges its line into it, which the PM does after each merge anyway.
+  (3) Nothing was run against GitHub to test this; the decisions are unit-tested and both files parse. **First check (the PM):** after this reaches `main`, run `daily-full` by hand
+  once and see `dispatch check.yml level=full on feature/…`, then the status on that head when the run ends.
+
 ### A6 as built (test versions from a version line)
 
 `publish.yml` runs on pushes to `main` and to a line's branch (`0.[0-9]+`: `0.17`, `0.18`, `0.19`, later lines). npm trusts only this one file, so the

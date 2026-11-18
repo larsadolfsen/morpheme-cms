@@ -40,6 +40,16 @@ name: Check
 on:
   pull_request:
     branches: [main, '0.17', '0.18', '0.19', 'feature/**']
+  # THE DAILY FULL RUN (plan A5): .github/workflows/daily-full.yml dispatches this workflow on a feature branch's head with level=full. It is the same
+  # jobs, so there is one definition of the checks: the job `changes` prints the full level (no base branch, no diff), `static` skips the changeset
+  # check (the branch has no pull request into a line), and the job `check` writes the commit status `daily-full` on the head (scripts/daily-full.mjs).
+  workflow_dispatch:
+    inputs:
+      level:
+        description: 'Only full: every job runs, and the head gets the commit status daily-full.'
+        type: choice
+        options: [full]
+        default: full
 
 permissions:
   contents: read
@@ -73,18 +83,19 @@ jobs:
         env:
           BASE: ${{ github.base_ref }}
           HEAD_REF: ${{ github.head_ref }}
+          EVENT: ${{ github.event_name }}
         run: |
-          if git diff --name-only "origin/$BASE...HEAD" > changed.txt; then
-            cat changed.txt
-            node scripts/ci-changes.mjs classify "$HEAD_REF" "$BASE" < changed.txt | tee -a "$GITHUB_OUTPUT"
-          else
-            echo 'git diff failed: running everything'
+          if [ "$EVENT" = workflow_dispatch ] || ! git diff --name-only "origin/$BASE...HEAD" > changed.txt; then
+            echo "$EVENT without a diff to read: running everything"
             echo 'docs_only=false' >> "$GITHUB_OUTPUT"
             echo 'starter_demo=true' >> "$GITHUB_OUTPUT"
             echo 'level=full' >> "$GITHUB_OUTPUT"
             echo 'light=false' >> "$GITHUB_OUTPUT"
             echo 'areas=all' >> "$GITHUB_OUTPUT"
             echo 'format=all' >> "$GITHUB_OUTPUT"
+          else
+            cat changed.txt
+            node scripts/ci-changes.mjs classify "$HEAD_REF" "$BASE" < changed.txt | tee -a "$GITHUB_OUTPUT"
           fi
 
   # Prettier, the language and unit tests, types, the demo (built once by the job `build`, not again here) and each of its pages the same after a
@@ -126,7 +137,7 @@ jobs:
       # The language check's and the text lookup's own tests.
       - run: node --test lib/danish.test.mjs lib/translate.test.mjs
       - name: The pull request has a changeset
-        if: github.head_ref != 'changeset-release/main' # The Release PR turns the changesets into CHANGELOG.md.
+        if: github.event_name == 'pull_request' && github.head_ref != 'changeset-release/main' # The Release PR turns the changesets into CHANGELOG.md; the daily run has no base.
         run: npx changeset status --since=origin/${{ github.base_ref }}
       # The language, tokens, colours and rules, the unit tests and the package's types (npm run check without Prettier and the build).
       - run: npm run check:source
@@ -243,9 +254,31 @@ jobs:
     if: always()
     needs: [changes, static, build, screens, screens-extra, demo, starter]
     runs-on: ubuntu-latest
+    # statuses: write only for the daily run's mark on the branch's head (scripts/daily-full.mjs); nothing else is written.
+    permissions:
+      contents: read
+      pull-requests: read
+      statuses: write
     steps:
       - uses: actions/checkout@v5
-      - env:
+      # The daily full run (plan A5): mark the head tested with the commit status daily-full, then stop. success or failure only; a cancelled run
+      # writes nothing (the next day's run tries again), so a cancel is never a red mark.
+      - name: Mark the branch head (daily run)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          NEEDS: ${{ toJson(needs) }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "$NEEDS"
+          STATE=$(echo "$NEEDS" | node scripts/daily-full.mjs mark)
+          echo "daily-full on ${{ github.sha }}: ${STATE:-no mark (cancelled)}"
+          if [ -n "$STATE" ]; then
+            gh api "repos/${{ github.repository }}/statuses/${{ github.sha }}" -f state="$STATE" -f context=daily-full \
+              -f description="Full check of $GITHUB_REF_NAME, $(date -u +%F)" -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          fi
+          [ "$STATE" != failure ]
+      - if: github.event_name == 'pull_request'
+        env:
           NEEDS: ${{ toJson(needs) }}
           DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
           STARTER_DEMO: ${{ needs.changes.outputs.starter_demo }}
