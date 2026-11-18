@@ -12,7 +12,15 @@ import { activeTheme, installedThemes } from '@morphemecms/cms/site/theme.mjs';
 import { binOf } from './bin.mjs';
 import { buildOutDir } from './build-out.mjs';
 import { checkSide } from './check-side.mjs';
+import { forwarded, shardOf } from './theme-shards.mjs';
 import { cardDesignProblems, cssIn } from './card-designs.mjs';
+
+// --shard K/N and --only <unit> go on to the screens check (editor-screens.mjs), so each theme's screens can be run in parts (the parts of
+// a theme are disjoint and together are all of them). The checks that run once, not once for each unit (the columns beside the text,
+// the card designs, the content check), run in the first shard only; with no --shard everything runs, as before.
+const args = process.argv.slice(2);
+const FIRST = shardOf(args) === 1;
+const SCREEN_ARGS = forwarded(args);
 
 const ROOT = `${process.cwd()}/`;
 const file = join(ROOT, 'src/data/theme.json');
@@ -32,22 +40,22 @@ Kolonnen ved siden af teksten med temaet ${theme}:`);
   }
 };
 try {
-  side(activeTheme());
+  if (FIRST) side(activeTheme());
   for (const theme of others) {
     console.log(`\nTemaet ${theme}:`);
     writeFileSync(file, `${JSON.stringify({ theme }, null, 2)}\n`);
     const out = buildOutDir(ROOT, `theme-${theme}`);
     try {
-      run(process.execPath, [fileURLToPath(new URL('check-content.mjs', import.meta.url))]);
+      if (FIRST) run(process.execPath, [fileURLToPath(new URL('check-content.mjs', import.meta.url))]);
       run(process.execPath, [binOf('astro'), 'build', '--outDir', out]);
       // Every card design is styled by the theme (Outlined, Filled, Elevated and the filled colors), so a card never lacks one.
-      const cards = cardDesignProblems(cssIn(out));
+      const cards = FIRST ? cardDesignProblems(cssIn(out)) : [];
       if (cards.length) {
         console.error(cards.map((p) => `  ${p}`).join('\n'));
         throw new Error(`${theme}: a card design is not styled`);
       }
-      run(process.execPath, [fileURLToPath(new URL('editor-screens.mjs', import.meta.url)), out]);
-      checkSide(ROOT);
+      run(process.execPath, [fileURLToPath(new URL('editor-screens.mjs', import.meta.url)), out, ...SCREEN_ARGS]);
+      if (FIRST) checkSide(ROOT);
     } catch {
       failed.push(theme);
     } finally {
