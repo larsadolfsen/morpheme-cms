@@ -36,6 +36,8 @@
 @import './tabs.css';
 /* The Top app bar. */
 @import './top-app-bar.css';
+/* The Menus (the menu, its items and groups, the dropdown menu, the exposed dropdown menu). */
+@import './menus.css';
 /* The cards (Card, the Cards and Price cards blocks), the card grid and the Carousel. */
 @import './cards.css';
 @import './type.css';
