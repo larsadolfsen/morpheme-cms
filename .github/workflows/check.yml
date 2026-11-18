@@ -6,8 +6,9 @@
 # line levels run the core screens units and the units of the areas the diff touches (`areas` below; scripts/screens/support/areas.mjs);
 # the full level runs every unit.
 # TWO SIZES (owner, 16 Nov 2026: a merge into a version line shows on the demo within minutes). A pull request whose base is a version
-# line (0.17, 0.18, 0.19; not the Release PR) gets the LIGHT check: changes, static and the 8 screens shards (about 8 minutes). It skips
-# screens-extra, demo and starter (the starter shards take 14 to 20 minutes). A pull request into main (the merge of a version line,
+# line (0.17, 0.18, 0.19; not the Release PR) gets the LINE check: changes, static, the 8 screens shards, demo and the starter SMOKE TEST
+# (job starter-smoke, plan A4). It skips screens-extra and the 4 starter shards (14 to 20 minutes). A pull request into a feature branch gets the
+# FEATURE check, which also skips demo and the smoke test. A pull request into main (the merge of a version line,
 # merge-0.18-into-main-N) and the Release PR run EVERYTHING; nothing reaches npm `next` or the owner without a full run. The job
 # `changes` prints light=true|false (scripts/ci-changes.mjs isLight); any error gives light=false, so everything runs. The changeset
 # check stays on every pull request. The rule lives in .claude/skills/checks, "What CI runs". The changeset is compared with the pull request's own base branch. Free here: the repository is public.
@@ -33,7 +34,7 @@
 # the notes tests and the editor's build read them. `static` runs on every pull request. There is no workflow-level paths-ignore:
 # the job `check` is the required status check and must always report. It is green when `static` and `changes` are green and each
 # heavy job is green, or skipped on a docs-only pull request (demo and starter also when starter_demo is false; screens-extra, demo and
-# starter also when light is true, a pull request into a version line); a failed, cancelled or wrongly skipped job makes it red
+# starter and starter-smoke by the level: scripts/ci-changes.mjs SKIPPED_AT); a failed, cancelled or wrongly skipped job makes it red
 # (scripts/ci-changes.mjs, tested in scripts/ci-changes.test.mjs; the rule is in .claude/skills/checks, "What CI runs").
 name: Check
 
@@ -219,7 +220,8 @@ jobs:
   # The demo built with the standard theme.
   demo:
     needs: [changes, build]
-    if: needs.changes.outputs.docs_only != 'true' && needs.changes.outputs.starter_demo != 'false' && needs.changes.outputs.light != 'true'
+    # The line level runs it (plan A4); the feature level skips it.
+    if: needs.changes.outputs.docs_only != 'true' && needs.changes.outputs.starter_demo != 'false' && (needs.changes.outputs.light != 'true' || needs.changes.outputs.level == 'line')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -248,11 +250,24 @@ jobs:
           browser: 'true'
       - run: npm run check:starter -- --screens --shard ${{ matrix.shard }}/${{ strategy.job-total }}
 
+  # The starter smoke test (the line level, plan A4): the same pack, install, checks and build as the shards, then only the editor's core screens
+  # on the starter's content and a page edited, saved twice and published (scripts/check-starter.mjs --smoke). The full level runs the 4 shards instead.
+  starter-smoke:
+    needs: changes
+    if: needs.changes.outputs.docs_only != 'true' && needs.changes.outputs.starter_demo != 'false' && needs.changes.outputs.level == 'line'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/prepare
+        with:
+          browser: 'true'
+      - run: npm run check:starter -- --smoke
+
   # The one status check that is required: green when static and changes are green and every heavy job is green, or skipped on a
   # docs-only pull request (a failed or wrongly skipped one fails it, a run cancelled because a newer push replaced its head does not, any other cancel does; scripts/ci-changes.mjs).
   check:
     if: always()
-    needs: [changes, static, build, screens, screens-extra, demo, starter]
+    needs: [changes, static, build, screens, screens-extra, demo, starter, starter-smoke]
     runs-on: ubuntu-latest
     # statuses: write only for the daily run's mark on the branch's head (scripts/daily-full.mjs); nothing else is written.
     permissions:
@@ -282,7 +297,7 @@ jobs:
           NEEDS: ${{ toJson(needs) }}
           DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
           STARTER_DEMO: ${{ needs.changes.outputs.starter_demo }}
-          LIGHT: ${{ needs.changes.outputs.light }}
+          LEVEL: ${{ needs.changes.outputs.level }}
           GH_TOKEN: ${{ github.token }}
           RUN_HEAD: ${{ github.event.pull_request.head.sha }}
         run: |
@@ -290,4 +305,4 @@ jobs:
           # The pull request's head now. A failed lookup leaves it empty, and an empty head is never "superseded": the run stays red.
           CURRENT_HEAD=$(gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}" --jq .head.sha || true)
           echo "run head $RUN_HEAD, current head ${CURRENT_HEAD:-unknown}"
-          echo "$NEEDS" | node scripts/ci-changes.mjs verdict "$DOCS_ONLY" "$STARTER_DEMO" "$LIGHT" "$RUN_HEAD" "$CURRENT_HEAD"
+          echo "$NEEDS" | node scripts/ci-changes.mjs verdict "$DOCS_ONLY" "$STARTER_DEMO" "$LEVEL" "$RUN_HEAD" "$CURRENT_HEAD"

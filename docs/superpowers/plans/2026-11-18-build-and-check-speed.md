@@ -73,7 +73,7 @@ version line runs the light check (`static` and the 8 shards), about 8 minutes. 
 3. **Touched areas and the core set.** Built (see *A3 as built*). A map from source paths to the screens' area files (`scripts/screens/*.mjs`), kept next to
    them and tested (every source folder maps to an area or to "all"), and a fixed core list of units that always run. The feature and
    line levels run the core set and the mapped areas; a path the map does not know runs all shards.
-4. **Starter smoke test.** `check:starter --smoke`: the starter packs and builds, and the editor opens, edits, saves and publishes on it.
+4. **Starter smoke test.** Built (see *A4 as built*). `check:starter --smoke`: the starter packs and builds, and the editor opens, edits, saves and publishes on it.
    The line level runs the smoke test; the full level keeps all 4 shards.
 5. **Daily full run on feature branches.** A scheduled workflow runs the full check on each open `feature/*` branch once a day and
    marks the branch's last commit; the PM reads it every morning.
@@ -361,6 +361,35 @@ One deliberate narrowing, from the brief ("no full run"): when the change reache
 Read it with care. For docs the saving is 12 times. For a CSS change `check:fast` is **slower** than `npm run check`, because it also runs the screens core
 set (136 s here), which `npm run check` does not; the work it adds is the screens check CI runs, and its static part is the same 25 s or less. A
 shared CSS file reaches every area, so no area narrowing helps there; a change inside one area's files (`src/Library.tsx`: `files,sheets`) runs 6 core units and the units of those areas.
+
+### A4 as built (the starter smoke test)
+
+- **`check:starter --smoke`** (`scripts/check-starter.mjs`). It does everything the shards do before their screens: the package is packed, installed in a copy of the
+  starter, the site's own `npm run check` and the migrate checks run, and `npm run build` builds it. Then, instead of the screens in shards, it runs the screens' core set
+  on the starter's content (`check:screens --areas none`: all 258 screens open, a page is edited and Save commits it) and `scripts/check-save-twice.mjs` from the installed
+  package (a page is edited, saved twice and published, and a real concurrent edit is still refused). The editor's opening, editing, saving and publishing on the starter are
+  therefore all covered; what the smoke test leaves to the full level is the other 350 units on the starter's content.
+- **The job `starter-smoke`** (one job, no matrix, not waiting for `build`: the starter packs the package itself) runs at the **line level only**. The line level also runs `demo`,
+  as the levels table asked. `SKIPPED_AT` in `scripts/ci-changes.mjs` says what each level skips (`feature`: `screens-extra`, `demo`, `starter`, `starter-smoke`; `line`: `screens-extra`,
+  `starter`; `full`: `starter-smoke`), and the verdict reads the level (`feature|line|full`, no longer the light flag), so a job that ran where its level skips it, or was skipped where it
+  must run, is red. An empty or unknown level is `full`. `starter-smoke` is also skipped when `starter_demo` is false, as `starter` and `demo` are.
+- **Nothing is dropped.** The full level (`main`, the Release PR, an unknown base) still runs the 4 `starter` shards and every other job it ran, and it does not run the smoke test
+  because the shards contain all of it (the same pack, install, check, build and every screen). The feature level runs what it ran. Only the line level runs more than before
+  (`demo` and `starter-smoke`).
+
+**Measured** (18 November 2026). Locally, this development container, one run: `node scripts/check-starter.mjs --smoke` took **4 min 41 s** (pack, install, the site's check and build about
+2 min; the 6 core units 1 min 55 s, `screens 390` 54 s; `check-save-twice` the rest). CI numbers, from the plan's own table (full run of #888): a starter shard takes 14 to 17 minutes (median 14.2 on
+the light runs, longest 19.8), because each shard repeats the same set-up and then runs about a quarter of the 363 screens units.
+
+**Not measured in CI, and why.** The line-level `check` job cannot be timed by this pull request: its base is `feature/build-check-speed`, which is the feature level, and the feature level
+runs neither `demo` nor the smoke test. The line level's wall time is the slowest of `static`, the 8 `screens` shards, `demo` and `starter-smoke`, which run side by side after `build`; before, it was
+the slowest of the `screens` shards (7 to 11 minutes; 10m44s to 14m41s whole run in #924 and #928). The smoke test (about 5 minutes here, a CI runner is slower) and `demo` (about 1 minute) sit under the
+screens shards, so the line level's time should not move much; the first pull request into `0.18` after this merges gives the number. The comparison to write then: the whole run and the `starter-smoke` job against
+the 8 shards of the same run, and the old line-level run of the same size.
+
+**Open.** (1) The line-level CI times above. (2) The smoke test does not run when the level is `feature`; the daily full run (A5) is what covers a feature branch's starter. (3) `check:starter --smoke`
+needs a browser, so a local run needs Chromium installed (`CHROMIUM_PATH` for another one); in this container the Playwright of the starter wants Chromium 1254 and only 1243 is installed, so the local run used
+`CHROMIUM_PATH`.
 
 ## Track B. Site builds: a save goes live sooner
 

@@ -1,7 +1,10 @@
 // Checks the starter (starter/) as a site: the package as npm would give it (npm pack), installed in a copy of the
 // starter in a folder of its own, which then must pass its checks (npm run check) and build (npm run build); with
 // --screens, also every screen of the editor (check:screens, with Playwright at this repository's version). It takes a
-// few minutes and needs npm's registry. Run: node packages/editor/scripts/check-starter.mjs [--screens]
+// few minutes and needs npm's registry. Run: node scripts/check-starter.mjs [--screens [--shard K/N] | --smoke]
+// --smoke (the line level of CI, plan A4): the same pack, install, checks and build, then only what a new site must do in the editor:
+// the editor opens every screen on the starter's content (the screens' core set, --areas none) and a page is edited, saved twice
+// and published (scripts/check-save-twice.mjs). The full level runs all the screens in shards instead (--screens).
 import { execFileSync, spawnSync } from 'node:child_process';
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -84,8 +87,9 @@ npmRun(site, 'run', 'build');
   expect('check:content after migrate', morpheme('check:content'), 0);
   rmSync(fixture);
 }
+const browser = process.argv.includes('--screens') || process.argv.includes('--smoke');
 const playwright = createRequire(join(pkgDir, 'package.json'))('playwright/package.json').version;
-npmRun(site, 'install', '--no-save', `playwright@${playwright}`, ...(process.argv.includes('--screens') ? [] : ['--ignore-scripts']));
+npmRun(site, 'install', '--no-save', `playwright@${playwright}`, ...(browser ? [] : ['--ignore-scripts']));
 // The scripts the package ships run from node_modules, where Node cannot run TypeScript: the screens check loads its
 // texts, then stops at the folder it is given having no built site (no browser needed). Any other stop is a failure.
 const probe = spawnSync(process.execPath, ['node_modules/@morphemecms/cms/bin/morpheme.mjs', 'check:screens', join(dir, 'no-such-dist')], {
@@ -99,4 +103,10 @@ if (!`${probe.stdout}${probe.stderr}`.includes('There is no built site')) {
 // --shard K/N (with --screens): only part K of N of the screens (scripts/editor-screens.mjs), so CI runs the parts side by side.
 const shard = process.argv.indexOf('--shard') >= 0 ? ['--', '--shard', process.argv[process.argv.indexOf('--shard') + 1]] : [];
 if (process.argv.includes('--screens')) npmRun(site, 'run', 'check:screens', ...shard);
+// The smoke test: the core screens, then a page is edited, saved twice and published, on the built starter (its own folder is the
+// site the script serves). The package ships both scripts.
+if (process.argv.includes('--smoke') && !process.argv.includes('--screens')) {
+  npmRun(site, 'run', 'check:screens', '--', '--areas', 'none');
+  run(site, process.execPath, ['node_modules/@morphemecms/cms/scripts/check-save-twice.mjs']);
+}
 console.log(`The starter works as a site with the package from npm pack (${site}).`);

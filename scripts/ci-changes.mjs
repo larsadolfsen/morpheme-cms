@@ -5,7 +5,7 @@
 //                                                      level=feature|line|full (from the base branch), and light=true|false (the feature and line levels: the light check)
 //                                                      and areas=all|none|<area>,<area> (the screens areas the light check runs besides the core set; scripts/screens/support/areas.mjs)
 //                                                      and format=all|changed (whether Prettier checks every file or only the changed ones; see formatScope)
-//   node scripts/ci-changes.mjs verdict <docs_only> [<starter_demo> [<light> [<run head sha> <current head sha>]]]  reads `needs` (JSON, as Actions gives it) on stdin; exits 1 when `check` must be red; prints cancelled=true and exits 0 when a newer push (the two head shas differ) cancelled the run
+//   node scripts/ci-changes.mjs verdict <docs_only> [<starter_demo> [<level: feature|line|full> [<run head sha> <current head sha>]]]  reads `needs` (JSON, as Actions gives it) on stdin; exits 1 when `check` must be red; prints cancelled=true and exits 0 when a newer push (the two head shas differ) cancelled the run
 import { argv, stdin, exit } from 'node:process';
 import { areasArg } from './screens/support/areas.mjs';
 
@@ -81,8 +81,21 @@ export function needsStarterDemo(paths, headRef = '') {
 const VERSION_LINE = /^0\.\d+$/;
 /** A feature branch (`feature/css-split`): its pull requests get the feature check. */
 const FEATURE_BRANCH = /^feature\/\S+$/;
-/** The heavy jobs a light check skips; the 8 `screens` shards still run. They run in full on a pull request into `main`. */
-export const LIGHT_SKIPPED = ['screens-extra', 'demo', 'starter'];
+/** The heavy jobs the feature level skips; the 8 `screens` shards still run. They run in full on a pull request into `main`. */
+export const LIGHT_SKIPPED = ['screens-extra', 'demo', 'starter', 'starter-smoke'];
+/**
+ * The heavy jobs each level skips (plan A4). The line level runs `demo` and `starter-smoke` (the starter packs, builds, and the editor opens,
+ * edits, saves and publishes on it) and skips the 4 `starter` shards and `screens-extra`; the full level runs everything but the smoke
+ * test, which its 4 starter shards already contain.
+ */
+export const SKIPPED_AT = {
+  feature: LIGHT_SKIPPED,
+  line: ['screens-extra', 'starter'],
+  full: ['starter-smoke'],
+};
+
+/** A level as `verdict` takes it: the word, or the old light flag (`true` is the feature level, `false` the full one). Unknown: full. */
+const levelOf = (light) => (light === true ? 'feature' : light in SKIPPED_AT ? light : 'full');
 
 /**
  * The check level of a pull request, from its base branch (plan 2026-11-18-build-and-check-speed.md):
@@ -158,9 +171,9 @@ export function formatScope(paths, base = '', headRef = '') {
 }
 
 /** The jobs that are skipped on a docs-only pull request. `static` and `changes` always run. */
-export const HEAVY = ['screens', 'screens-extra', 'demo', 'starter'];
+export const HEAVY = ['screens', 'screens-extra', 'demo', 'starter', 'starter-smoke'];
 /** The heavy jobs that are also skipped when no changed file can affect them (needsStarterDemo is false). */
-export const FILTERED = ['demo', 'starter'];
+export const FILTERED = ['demo', 'starter', 'starter-smoke'];
 
 /**
  * The problems that make the job `check` red: empty means green. A job that ran must be green. A heavy job is skipped on a
@@ -169,10 +182,12 @@ export const FILTERED = ['demo', 'starter'];
  * @param {Record<string, {result?: string}>} needs
  * @param {boolean} docsOnly
  * @param {boolean} [starterDemo] whether `starter` and `demo` had to run
- * @param {boolean} [light] a pull request into a version line: screens-extra, demo and starter are skipped
+ * @param {'feature'|'line'|'full'|boolean} [level] the check level (SKIPPED_AT says what it skips); `true` is the feature level, `false` or
+ *   anything unknown the full one
  * @returns {string[]}
  */
-export function verdict(needs, docsOnly, starterDemo = true, light = false) {
+export function verdict(needs, docsOnly, starterDemo = true, level = 'full') {
+  const skipped = SKIPPED_AT[levelOf(level)];
   const problems = [];
   const result = (name) => needs?.[name]?.result;
   for (const name of ['changes', 'static']) {
@@ -180,7 +195,7 @@ export function verdict(needs, docsOnly, starterDemo = true, light = false) {
   }
   for (const name of HEAVY) {
     const r = result(name);
-    const skip = docsOnly || (light && LIGHT_SKIPPED.includes(name)) || (FILTERED.includes(name) && !starterDemo);
+    const skip = docsOnly || skipped.includes(name) || (FILTERED.includes(name) && !starterDemo);
     const expected = skip ? 'skipped' : 'success';
     if (r !== expected) problems.push(`${name}: ${r ?? 'missing'}, must be ${expected}`);
   }
@@ -205,8 +220,8 @@ export function isSuperseded(runHead = '', currentHead = '') {
  * @param {string} [currentHead]
  * @returns {{state: 'success'|'cancelled'|'failure', problems: string[]}}
  */
-export function outcome(needs, docsOnly, starterDemo = true, light = false, runHead = '', currentHead = '') {
-  const problems = verdict(needs, docsOnly, starterDemo, light);
+export function outcome(needs, docsOnly, starterDemo = true, level = 'full', runHead = '', currentHead = '') {
+  const problems = verdict(needs, docsOnly, starterDemo, level);
   if (!problems.length) return { state: 'success', problems };
   const results = Object.values(needs ?? {}).map((n) => n?.result);
   const cancelled = results.includes('cancelled') && !results.includes('failure') && isSuperseded(runHead, currentHead);
@@ -238,7 +253,7 @@ if (import.meta.url === `file://${argv[1]}`) {
       JSON.parse(input),
       arg === 'true',
       argv[4] !== 'false',
-      argv[5] === 'true',
+      argv[5] === 'true' ? 'feature' : (argv[5] ?? 'full'),
       argv[6] ?? '',
       argv[7] ?? '',
     );
@@ -254,8 +269,8 @@ if (import.meta.url === `file://${argv[1]}`) {
     console.log(
       arg === 'true'
         ? 'Green: docs-only pull request, heavy jobs skipped on purpose.'
-        : argv[5] === 'true'
-          ? 'Green: light check for a pull request into a version line (screens-extra, demo and starter run when it is merged into main), every other job passed.'
+        : argv[5] === 'true' || argv[5] === 'feature' || argv[5] === 'line'
+          ? 'Green: light check for a pull request into a version line or a feature branch (what its level skips runs when it is merged into main), every other job passed.'
           : argv[4] === 'false'
             ? 'Green: starter and demo skipped on purpose (no changed file can affect them), every other job passed.'
             : 'Green: every job passed.',
