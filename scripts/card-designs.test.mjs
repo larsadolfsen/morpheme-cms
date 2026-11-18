@@ -4,12 +4,13 @@ import { test } from 'node:test';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { MATERIAL_FILES } from '../theme/styles/files.mjs';
 import { cardDesignProblems, cssIn } from './card-designs.mjs';
 
 // The stylesheets and their token files (theme/styles/tokens/, docs/theme-token-files.md).
 const styles = new URL('../theme/styles/', import.meta.url);
 const css = [
-  ...['ui.css', 'blocks.css', 'blocks/person-facts.css', 'cards.css', 'global.css'],
+  ...['ui.css', 'blocks.css', 'blocks/person-facts.css', 'cards.css', 'global.css', ...MATERIAL_FILES],
   ...readdirSync(new URL('tokens/', styles), { recursive: true })
     .filter((f) => f.endsWith('.css'))
     .map((f) => `tokens/${f}`),

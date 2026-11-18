@@ -34,6 +34,9 @@ export const UI_PART_FILES = [
 /** The site shell's files, what components.css held (the logo and post list, the action bar, the page), in the order base.css imports them. */
 export const SITE_SHELL_FILES = ['site-logo-post.css', 'site-action.css', 'site-page.css'];
 
+/** The files global.css imports after its own rules' place (what global.css held, the Material theme's look), relative to theme/styles/, in the order it imports them. Never imported by base.css: a theme that imports only base.css must not get Material's values. */
+export const MATERIAL_FILES = ['material/footer.css'];
+
 /** The other CSS files base.css imports, which are not parts of ui.css. */
 export const OTHER_BASE_FILES = [
   'ui.css',
