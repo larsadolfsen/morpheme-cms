@@ -83,7 +83,7 @@ const unchanged = [
   'background: var(--mo-comp-top-app-bar-surface, color-mix(in oklab, var(--mo-sys-color-surface) 85%, transparent));',
   'background: var(--mo-comp-search-bar-container-color, var(--mo-sys-block-surface));',
   'background: var(--mo-comp-navigation-bar-container-color, var(--mo-sys-block-surface));',
-  'background: var(--mo-comp-filled-card-container-color, var(--mo-sys-block-tint));',
+  'background: var(--mo-comp-filled-card-container-color, var(--mo-sys-color-surface-container-highest, var(--mo-sys-block-tint)));',
   'background: var(--mo-comp-switch-unselected-handle-color, var(--mo-sys-block-surface));',
 ];
 

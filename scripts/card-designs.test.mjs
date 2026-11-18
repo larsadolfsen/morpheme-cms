@@ -4,14 +4,14 @@ import { test } from 'node:test';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { MATERIAL_FILES, OTHER_BASE_FILES } from '../theme/styles/files.mjs';
+import { MATERIAL_FILES, OTHER_BASE_FILES, UI_PART_FILES } from '../theme/styles/files.mjs';
 import { cardDesignProblems, cssIn } from './card-designs.mjs';
 
 // The stylesheets and their token files (theme/styles/tokens/, docs/theme-token-files.md).
 const styles = new URL('../theme/styles/', import.meta.url);
 const css = [
   // the blocks/ files come from the list the stylesheets are read by (theme/styles/files.mjs).
-  ...['ui.css', 'cards.css', 'global.css', ...OTHER_BASE_FILES.filter((f) => f.startsWith('blocks')), ...MATERIAL_FILES],
+  ...['ui.css', 'cards.css', 'global.css', ...UI_PART_FILES, ...OTHER_BASE_FILES.filter((f) => f.startsWith('blocks')), ...MATERIAL_FILES],
   ...readdirSync(new URL('tokens/', styles), { recursive: true })
     .filter((f) => f.endsWith('.css'))
     .map((f) => `tokens/${f}`),
