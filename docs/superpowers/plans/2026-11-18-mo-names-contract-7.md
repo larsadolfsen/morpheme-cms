@@ -1,7 +1,7 @@
 # Every class and every custom property starts with `mo-`, inside contract 7 (plan)
 
 Status: **direction decided by the owner, 18 November 2026**; one question open (below, *Names saved in content*). Written by the CTO for
-the PM, who hands each PR to a build session. It is part of 0.18.1 (the Tailwind removal, `2026-11-18-tailwind-batches.md`) and of
+the PM, who hands each PR to a build session. It is part of 0.18.2 (the Tailwind removal, `2026-11-18-tailwind-batches.md`) and of
 its contract raise to 7 (T16). The work goes into `feature/tailwind`, like the Tailwind batches.
 
 The owner's words, 18 November:
@@ -59,7 +59,7 @@ attributes (not names this plan covers).
 
 ## The pull requests
 
-Each one goes into `feature/tailwind`, has a `patch` or empty changeset (the 0.18.1 rule), and proves the rendered result identical with
+Each one goes into `feature/tailwind`, has a `patch` or empty changeset (the 0.18.2 rule), and proves the rendered result identical with
 T01's tools: `compare-styles` of the demo and the starter (all pages, four widths, light and dark, every section colour; class
 attributes may differ, computed styles may not), `compare-html --ignore-classes`, and the editor's `styles-snapshot`. Each renames its
 names everywhere: CSS, `className` and `class` strings, `querySelector` and `classList` in `script.ts` and `lib/`, the checks in
@@ -88,7 +88,7 @@ editor write the new names (`mo-type-body-small`, `mo-has-accent-color` …) and
 their `class` attributes rewritten once, the way `lib/migrate-content.mjs` rewrote `block-eyebrow` in 0.17: only the attribute, never a
 word of text, idempotent.
 
-**Recommendation:** the nightly update to 0.18.1 rewrites those attributes in the same commit as the version, and undoes them with it if
+**Recommendation:** the nightly update to 0.18.2 rewrites those attributes in the same commit as the version, and undoes them with it if
 the build fails. This is an exception to "an update never touches content". It is an exception because only the markup's class name
 changes, never the owner's words.
 **Other options:** the owner runs it per site from the start screen. Or the site keeps reading the old six names until a migration before
@@ -96,13 +96,13 @@ changes, never the owner's words.
 
 ## The gate (added to the Tailwind gate)
 
-0.18.1 is not released until, besides the Tailwind gate in `2026-11-18-tailwind-batches.md`, these read only the new names:
+0.18.2 is not released until, besides the Tailwind gate in `2026-11-18-tailwind-batches.md`, these read only the new names:
 
 - `morpheme-apps`: Venus (about 140 class reads and 25 property reads in its CSS, 78 distinct names) and the apps. Their PM migrates
   them **once, from M1's map**: A1 and A2 of the Tailwind gate wait for M1, so nothing is migrated twice.
 - `morpheme-staging`: its copy of Venus (about 130 reads) follows the store.
 - Sara's own app `sara` (`src/apps/sara/`, about 54 reads; a site's own app is not in the store): a PR in her repository before her site
-  takes 0.18.1. Her installed Venus follows the store.
+  takes 0.18.2. Her installed Venus follows the store.
 
 ## What stays
 
