@@ -7,7 +7,7 @@
     --mo-comp-plain-tooltip-container-color, -text, -radius, -padding, -font-size, -weight, -max-width
     --tooltip-rich-surface, -text, -subhead, -subhead-weight, -radius, -padding, -line, -shadow, -max-width
   Moved here from ui.css with its rules unchanged; imported by base.css right after ui.css, in the same layer. Only the reduced-motion
-  `.tooltip { transition: none }` stays in ui.css (it shares a list with the progress indicators, in @layer fallback). No other rule sets
+  `.tooltip { transition: none }` is in reduced-motion.css (it shares a list with the progress indicators, in @layer fallback). No other rule sets
   the same property on a tooltip at the same specificity, so the position does not change what wins
   (docs/superpowers/plans/2026-11-16-css-split.md).
 */

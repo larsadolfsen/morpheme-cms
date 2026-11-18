@@ -34,6 +34,8 @@ export const UI_PART_FILES = [
   'fab.css',
   'button-groups.css',
   'fab-menu.css',
+  'ripple.css', // last of the parts: the ripple was last in ui.css
+  'reduced-motion.css', // the @layer fallback blocks several parts share, after the ripple
 ];
 
 /** The site shell's files, what components.css held (the logo and post list, the action bar, the page), in the order base.css imports them. */

@@ -55,6 +55,9 @@
 @import './search.css';
 @import './toolbar.css';
 @import './pickers.css';
+/* The ripple, then the reduced-motion rules that several parts share (the loading and progress indicators, the tooltip, the card, the ripple). */
+@import './ripple.css';
+@import './reduced-motion.css';
 /* The cards (Card, the Cards and Price cards blocks), the card grid and the Carousel. */
 @import './cards.css';
 @import './type.css';
