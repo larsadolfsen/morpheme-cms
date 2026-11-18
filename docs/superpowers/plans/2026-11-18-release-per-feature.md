@@ -25,7 +25,7 @@ The owner's words, 18 November:
 4. **The merge into `main` stages the release.** The PM merges the feature (full check green). The publish workflow makes the version
    from its changesets, commits the version and `CHANGELOG.md` to `main`, and stages it on npm as `latest`.
 5. **The owner releases.** Nothing reaches a site until the owner approves the staged version on npmjs.com with 2FA, as today. The sites'
-   update check then takes it.
+   update check then takes it (or the auto-update, below).
 6. **One at a time.** The PM merges the next feature into `main` only after the owner has approved (or rejected) the staged version,
    and says so in its report. So there is never more than one version waiting.
 
@@ -79,4 +79,6 @@ Nothing is written to GitHub. Guarded by four points (owner, "1-4 then"):
 
 - **A rejected version:** when the owner rejects a staged version on npm, the next merge makes the next version number; the rejected one
   is never published (npm versions are never reused). The rejected feature is fixed on its branch and reviewed again.
-- **Sara's site and the other sites** take `latest` by their update check; nothing changes there.
+- **The sites:** today a site's owner updates the CMS by hand (Sara is on 0.16.0). The auto-update spec
+  (`specs/2026-11-18-auto-update-design.md`, being written) decides how a released version reaches them. This plan's lines fit it: a
+  release inside the site's line (same contract) can go in by itself, a new line (a raised contract) asks the site's owner.
