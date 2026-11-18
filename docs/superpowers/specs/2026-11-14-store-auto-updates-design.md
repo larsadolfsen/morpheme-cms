@@ -1,6 +1,7 @@
 # Theme and app updates without anyone signed in
 
-Status: spec for the owner's decision (14 Nov 2026). Plan: `docs/superpowers/plans/2026-11-14-store-auto-updates-plan.md`.
+Status: **decided by the owner, 18 Nov 2026** (the nine open decisions, at the end; they win over the sections above
+where these differ, and the PR that builds a part rewrites its section). Plan: `docs/superpowers/plans/2026-11-14-store-auto-updates-plan.md`.
 
 ## The decision and the problem
 
@@ -202,24 +203,36 @@ polish. 0.23 (*App platform*) adds nothing here, except that "apps provide to ap
 a version of every store theme and app written to the new contract. Otherwise a site on auto-update takes the new CMS first and
 has a theme that no longer fits. The rule goes in the `release` skill; it costs one check.
 
-## Open decisions for the owner
+## The owner's decisions (18 November 2026)
 
-Each with my recommendation, in plain words.
+Asked one at a time; the owner's words in quotes.
 
-1. **An app version that asks for more permission** (a new host, a new cookie, more access): hold it until you say yes, or
-   apply it like any other? *Recommendation: hold.* It is the one thing you agreed to at install. Until you answer, it holds.
-2. **A major version, any delay?** You chose "all updates". Apply a major right away, or after it has been in the store for
-   24 hours so a withdrawn release is caught? *Recommendation: 24 hours for a major only.* Patches and minors go at once.
-3. **A theme or app the site changed by hand:** hold the update and say so, or write over the changes? *Recommendation: hold.*
-   An overwrite loses work that no one can approve. Git keeps it, but only an expert finds it.
-4. **When:** the core into 0.18 now, the rest in 0.22? *Recommendation: yes*, because of Sara's site.
-5. **How often:** every hour (the CMS's own rhythm) with a *Check now* button? *Recommendation: yes.* A push from the store
-   adds risk for a gain of minutes.
-6. **Release notes required** for every new version (the release script refuses without), and a major's note must say what
-   breaks? *Recommendation: yes.* People now read it without asking.
-7. **After *Go back*:** skip only that version, or stop updating that item until you switch it on? *Recommendation: skip only
-   that version.* A freeze is forgotten and the site falls behind again.
-8. **Sites without the GitHub token or the KV binding** keep today's update on open. *Recommendation: yes, and show a line on
-   the page that says what to add to update without signing in.*
-9. **The rules text:** rewrite `Appbutikken` (a major is no longer held) in the same release. *Recommendation: yes*, so the
-   rules and the code never disagree.
+1. **An app version that asks for more permission is held.** The editor's start screen shows a card that asks the owner to accept
+   the app's new terms and the permissions it asks for (a new host, a new cookie, more access); only the owner's yes installs it.
+   ("A, hold it, but then show [it] on the front page. I need to be asked to accept the new terms and the new permissions.")
+2. **A major version rolls out slowly.** It waits 24 hours in the store, then reaches the sites over 7 days: each site has a fixed
+   place in the order (from its store id), so about a seventh of the sites get it each day. When a site undoes the version (its build
+   failed), it tells the store, the store pauses the rollout and tells the publisher; the other sites stay on the working version.
+   A patch or a minor goes at once. ("What I really mostly want is a slow rollout of major versions … You decide the time period.")
+3. **An update never touches the site's content or data.** It replaces only the theme's or app's own files (code and look); pages,
+   posts, images, settings and the data an app keeps on the site are never written. A version that drops a feature leaves that
+   feature's data in place, unused, and a later version can use it again. A store item's folder is never changed on the site (the
+   site's own changes go in its own app); if the Worker finds changed files there anyway, it holds that one update and says so on the
+   start screen. ("An update should never write over site content … It may add features and it may discontinue features, but it
+   should never overwrite data.")
+4. **When: in 0.19, after the cards collection** (step 6 of `plans/2026-11-17-cards-and-lists-0-19.md`). Not in 0.18.
+5. **How often: once a night,** at the hour the CMS updates itself (`dailyCheck` in `worker/cms-update.js`, the site's own time zone),
+   not every hour, **plus Check now**.
+6. **Release notes are required** for every version (the release script and the store refuse a version without one); a major's
+   note says which features were added and which were removed. The note shows on the start screen after the update. **Check now**
+   lists the themes and apps with a waiting version, each with its note, and installs them only when the owner presses
+   *Install*; a major can be installed this way before the rollout reaches the site.
+7. **After Go back, only that version is skipped;** the next version is taken as usual.
+8. **A site without `GITHUB_PUBLISH_TOKEN` or the KV binding** keeps today's update when someone signs in, and the start screen
+   warns that the site cannot update by itself and says what to add in Cloudflare. The installer that sets up a site (the Deploy
+   button, the platform) sets both, so only removing one by hand turns the nightly update off.
+9. **The rules text is rewritten** (*Appbutikken* in `morpheme-website/docs/rules.md`: a major is no longer held) in the same
+   release as the code.
+
+Not changed (owner, 18 November: "keep the old rules"): a store app's server code runs in the sandbox, Morpheme's too, and a site's
+own app is trusted (`plans/2026-11-15-app-platform-0-23.md`, decisions 2 and 16).

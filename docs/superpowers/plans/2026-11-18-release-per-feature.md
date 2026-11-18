@@ -1,25 +1,53 @@
-# A release per feature (plan)
+# A release per feature, inside version lines (plan)
 
-Status: approved by the owner on 18 November 2026 ("Approve"), proposed by the owner ("all feature branches when merged into main is
-sent to npm") with the CTO's recommendation. **Takes effect after 0.18.2**: 0.18.0, 0.18.1 and 0.18.2 finish as planned.
+Status: **approved by the owner, 18 November 2026** ("yes"), revised with the owner the same day. It replaces the version of this plan the owner approved earlier the
+same day ("Approve"), which had no version lines and a test version on npm per feature. **Takes effect after 0.18.2**: 0.18.0, 0.18.1
+and 0.18.2 finish as planned. The demo editor (below) can start at once.
+
+The owner's words, 18 November:
+
+- "I still want major releases such as 0.18, but I want the feature releases into it one at a time."
+- "We don't have to merge them to npm" (no test version on npm per feature).
+- "I want fast turnarounds and releases." Then "Approve" for a release per feature inside its line.
+- "So I can review on demo": the demo's editor without sign-in, guarded by four points ("1-4 then").
 
 ## The flow
 
-1. **A feature** is a branch from `main`, `feature/<name>`, with its pull requests merged into it (skill `pm`, section 2). A single fix
-   is one pull request into `main`.
-2. **A test version per feature.** Each push to a feature branch stages a test version on npm, tag `next-<feature>` (the mechanism of the
-   CI plan's A6 for version lines, `scripts/publish-next.mjs`). The owner tries it on `morpheme-staging` and says yes; for a change the
-   owner can see, that yes is the approval of the whole feature (skill `pm`, section 4).
-3. **The merge into `main` is the release.** The PM merges the feature (full check green). The publish workflow then makes the version
-   from the feature's changesets (a feature `minor`, a fix `patch`; never `major` below 1.0), commits the version and the changelog to
-   `main`, and stages it on npm as `latest`.
-4. **The owner releases.** Nothing reaches a site until the owner approves the staged version on npmjs.com with 2FA, as today. Then the
-   workflow (or the PM, per the `release` skill) checks that `latest` is the version, and the sites' update check takes it.
-5. **No version lines and no Release PR** after 0.18.2. The roadmap becomes an ordered list of features.
+1. **A line is an area of the roadmap** (0.19 the collection, 0.20 lists and data …). Its first feature is released as `0.19.0`, each
+   next feature as `0.19.1`, `0.19.2` … The line changes when the roadmap moves to its next area. A feature that raises the contract
+   for themes or apps (`THEME_API`, `APP_API`) starts the next line.
+2. **A feature** is a branch from `main`, `feature/<name>`, with its pull requests merged into it (skill `pm`, section 2). A single fix
+   is one pull request into `main` and is released the same way. There are no line branches.
+3. **The owner reviews the feature on the demo.** Cloudflare builds a Preview of the demo for the feature branch. The PM sends the owner
+   its link; the owner opens the site and the editor there (the demo editor, below) and says yes. That yes approves the feature (skill
+   `pm`, section 4). No test version goes to npm. The one exception: a feature that changes saving, sign-in or the Worker's GitHub
+   path is also put on `morpheme-staging` as a test version (`next`), where the owner signs in for real.
+4. **The merge into `main` stages the release.** The PM merges the feature (full check green). The publish workflow makes the version
+   from its changesets, commits the version and `CHANGELOG.md` to `main`, and stages it on npm as `latest`.
+5. **The owner releases.** Nothing reaches a site until the owner approves the staged version on npmjs.com with 2FA, as today. The sites'
+   update check then takes it, at night (`worker/cms-update.js`).
+6. **One at a time.** The PM merges the next feature into `main` only after the owner has approved (or rejected) the staged version,
+   and says so in its report. So there is never more than one version waiting.
 
-Why (owner and CTO, 18 November): small releases that are easy to trace; a finished feature reaches the sites in days instead of when a
-whole line is done; no line branches to merge forward; the owner keeps the final say twice, on staging before the merge and on npm
-before the sites.
+Why (owner and CTO, 18 November): the big releases stay as the roadmap's areas, a finished feature reaches the sites in days, the owner
+reviews every feature where it can be seen (site and editor) before its merge and approves every release on npm before the sites get it.
+
+## The demo editor without sign-in
+
+On the demo and on every Preview of it, `/editor/` opens without signing in. It reads the demo's made-up content from the built site, as
+`scripts/editor-screens.mjs` does with Playwright today; a save works and stays in the browser; a reset brings back the demo's content.
+Nothing is written to GitHub. Guarded by four points (owner, "1-4 then"):
+
+1. **Not in the package.** Only the demo's build (`scripts/demo-build.mjs`, not in the package) adds it, for example as a service worker
+   that answers the editor's calls to the Worker (session, files, saves) from the built site's files and keeps saves in the browser
+   (IndexedDB). The package has no code path that skips sign-in and no setting that turns one on.
+2. **A check stops it.** `check:starter` fails when the editor of a site built from the starter opens without sign-in.
+3. **The demo has nothing to lose.** Made-up content, no keys, saves in the browser only. The GitHub sign-in key that the Worker
+   `morpheme-demo` has today (`GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`: it sends a visitor to GitHub, which then refuses the demo's
+   address) is removed in Cloudflare's dashboard.
+4. **Only the owner gets in.** Cloudflare Access in front of `morpheme-demo`'s `workers.dev` address and its Preview addresses, allowing
+   the owner's email only (Workers › `morpheme-demo` › Settings › Domains & Routes). A job that ever reads the deployed demo uses an
+   Access service token; today's checks run on a local build and need none.
 
 ## What stays
 
@@ -28,27 +56,28 @@ before the sites.
 - The changesets and the release notes per change (skills `changesets`, `release-notes`); a release's notes are those of its feature.
 - The full check on everything into `main` (skill `checks`).
 
-## The pull requests (after 0.18.2 is released)
+## The pull requests
 
-1. **Test versions from feature branches.** `publish.yml` stages `next-<feature>` on a push to `feature/**` (the job of A6, with the
-   feature's name as the tag; a name npm does not accept is made safe and the mapping is tested). The staging site can be pointed at a
-   feature's version.
-2. **The release on merge.** On a push to `main`, the job `release` no longer opens a Release PR: it runs `release:version`, commits
-   the version and `CHANGELOG.md` to `main` as the workflow's bot ("Version X.Y.Z"), and stages `latest`; the job `latest` then makes the
-   tag and the GitHub release as today. A push that is the workflow's own version commit stages nothing. A merge with no changeset
-   (docs only, an empty changeset) makes no version.
-3. **The skills and `CLAUDE.md`.** `CLAUDE.md`, *Only the owner releases a new version* (the steps, not the rule: no Release PR; a merge
-   into `main` stages a release; the owner approves on npm); `pm` (no version lines; a feature is approved on its test version before its
-   merge; one merge into `main` at a time, each a release); `changesets` (no line table; a feature `minor`, a fix `patch`); `release`
-   (the owner's approval on npm and the checks after it; no Release PR phase); `checks` (the levels without lines).
-4. **The roadmap and the lines.** The roadmap's lines after 0.18.2 become an ordered list of features; the `0.19` branch's open work
-   (owner, 17 November: merge it first if possible) is merged into `main` or moved onto feature branches; the line branches are deleted
-   when empty.
+1. **The demo editor** (can start now, a feature into `0.18`): points 1 and 2 above, PR 1 a proof that the editor opens and saves on a
+   Preview. Points 3 and 4 are the owner's, in the dashboard; the PM tells the owner when the editor is merged.
+2. **The release on merge** (after 0.18.2 is released). On a push to `main`, the job `release` no longer opens a Release PR: it runs
+   `release:version`, commits the version and `CHANGELOG.md` to `main` as the workflow's bot ("Version X.Y.Z"), and stages `latest`; the
+   job `latest` then makes the tag and the GitHub release as today. A push that is the workflow's own version commit stages nothing. A
+   merge with no changeset (docs only, an empty changeset) makes no version. The test version `next` is staged from a feature branch
+   only on demand (the exception in step 3 of the flow).
+3. **The skills and `CLAUDE.md`.** `CLAUDE.md`: *Only the owner releases a new version* (the steps, not the rule: no Release PR; a merge
+   into `main` stages a release; the owner approves on npm) and *Reports to the owner are short* (the PM sends the Preview link of every
+   feature, also for the editor, once the demo editor is merged); `pm` (a feature is approved on its Preview before its merge; one
+   merge into `main` at a time, each a release); `changesets` (the first feature of a line `minor`, every other feature and fix
+   `patch`; never `major` below 1.0); `release` (the owner's approval on npm and the checks after it; no Release PR phase); `checks`
+   (the levels without line branches).
+4. **The roadmap and the branches.** The roadmap's sections after 0.18.2 stay the lines, each an ordered list of features; the `0.19`
+   branch's open work (owner, 17 November: merge it first if possible) is merged into `main` or moved onto feature branches; the line
+   branches are deleted when empty.
 
 ## Open points for the PRs
 
-- **Two releases at once:** if two features merge in a row before the owner approves the first, two versions are staged. The PM merges
-  the next feature into `main` only after the owner has approved (or rejected) the staged version, and says so in its report.
 - **A rejected version:** when the owner rejects a staged version on npm, the next merge makes the next version number; the rejected one
-  is never published (npm versions are never reused).
-- **Sara's site and the other sites** take `latest` by their update check; nothing changes there.
+  is never published (npm versions are never reused). The rejected feature is fixed on its branch and reviewed again.
+- **The sites** take the CMS's newest `latest` by themselves, once a night (`worker/cms-update.js`); nothing changes there. Themes and
+  apps follow `specs/2026-11-14-store-auto-updates-design.md`.
