@@ -12,8 +12,10 @@ export const UI_PART_FILES = [
   'snackbar.css',
   'tooltip.css',
   'checkbox.css', // before ui.css in base.css: the list's selection box is a .checkbox, and the list's rules (in ui.css) must win over it
+  'chips.css', // before ui.css in base.css, like the Checkbox: a chip set is also .search-view-filters, whose rules (in ui.css) must win over it
   'switch.css',
   'radio-button.css',
+  'slider.css',
 ];
 
 /** The other CSS files base.css imports, which are not parts of ui.css. */
