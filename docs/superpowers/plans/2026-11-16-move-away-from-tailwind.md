@@ -1,9 +1,9 @@
 # Moving the CMS away from Tailwind: plan
 
-Status: plan, 16 Nov 2026; corrected 18 Nov 2026 against `0.18` at `f7d4a9ee` (see *State on 18 Nov*). Written in brainstorm sessions: no code, no builds, no checks run. The counts in §1 are from
+Status: plan, 16 Nov 2026; corrected 18 Nov 2026 against `0.18` at `f7d4a9ee` (see *State on 18 Nov*); **release set by the owner on 18 Nov: Tailwind ships as 0.18.1** (see *Release as 0.18.1*, §5). Written in brainstorm sessions: no code, no builds, no checks run. The counts in §1 are from
 `git grep` or a script on `origin/0.18` at `f7d4a9ee` (`package.json` says `0.17.0`, the released line; the work is on the `0.18` branch, which was merged into `main` in #888, so a `next` is staged).
 Owner direction, decided and not reopened: in the long run the CMS has no Tailwind. Reasons: one dependency less, one naming system (`--mo-` for every shared custom property), and the priority order of
-`developer` §4a (1 Modern web, 2 M3 Expressive, 3 M3, 4 M2 with M3 styling, 5 self-made). Not 0.18.
+`developer` §4a (1 Modern web, 2 M3 Expressive, 3 M3, 4 M2 with M3 styling, 5 self-made). Release: 0.18.1 (owner, 18 Nov; on 16 Nov the owner had said not 0.18.0, which is still true: 0.18.1 is the patch after it).
 
 ## State on 18 Nov: what changed since this plan was merged
 
@@ -16,26 +16,28 @@ This section replaces the *Revision 16 Nov* that stood here (the `--mo-` rename 
 | CSS split | not in the plan | **Moving.** `ui.css` is 2,798 lines (7,821 before), `blocks.css` 1,493, `components.css` 181; 22 part files in `theme/styles/` are listed in `theme/styles/files.mjs` and imported by `base.css` (PRs #893 to #908 so far); buttons and text fields come last (`plans/2026-11-16-css-split.md`). The `theme()` calls are now spread over 28 files, 15 of them token files. |
 | Where the Tailwind wiring is | `base.css`, `ui.css`, `global.css` | `@theme` is in `theme/styles/tokens/base/ref.css` (`inline` 110, `static` 4) and `tokens/material/ref.css` (`inline` 1); `@plugin` in `base.css:2`; `@source` in `ui.css:97-99` (it goes when `ui.css` is deleted: the split must carry it, see §6 PR 10). The `@theme` right-hand sides already point at the `--mo-sys-*` names. |
 | The 129 Tailwind names | "not renamed, deleted with `@theme`" | Still true, each allowlisted with a reason in `scripts/css-tokens-allowlist.json` that names this plan. Reads of them outside `@theme`: `var(--font-sans)` 17, `var(--radius-panel)` 6, `var(--color-…)` 4 (`src/ui.tsx:365,1922,1923`); the `--text-*` alias is no longer read by any `var()`, only by the 17 `text-<role>` utility uses. |
+| Release | 0.21 to deprecate, 0.23 to remove | **0.18.1** (owner, 18 Nov). `v0.17.0` is the last tag; 0.18 is merged into `main` (#888) but not released, so 0.18.0 comes first and is the owner's. The two-line path is gone: there is no deprecation line, and the warnings and the migration guide ship in the same release as the break (§5). |
 | Contract numbers | "raise both to 6 in 0.23" | 6 is taken. The removal is a second break (a utility class stops working) and raises both contracts to **7** (§5). |
 | Open question "who renames" | the Tokens session, after PR 10 | Answered. Still open: who reads the old token names and the utilities in `venus` and the store apps (§1.9), which now is one question about two breaks. |
 | Tokens that one block reads | PM rule (16 Nov) | Now the repository's rule (`docs/css-tokens.md`: "A token only one block uses is declared on that block"), checked by `check:css-tokens --report`. §3.2 follows it. |
 
-## Decisions for the owner (six, each with my recommendation)
+## Decisions for the owner (seven, each with my recommendation)
 
-Decided since the plan was merged, so no longer open: the `--mo-ref/sys/comp` rename comes first and has no aliases (owner, 16 Nov; done); component tokens are `--mo-comp-*` (done); the type classes are plain CSS (done).
+Decided: the release is 0.18.1 (owner, 18 Nov); the `--mo-ref/sys/comp` rename comes first and has no aliases (done); component tokens are `--mo-comp-*` (done); the type classes are plain CSS (done).
+What 0.18.1 changes in the plan: the editor can no longer wait for 0.20; the deprecation line is gone; and a patch is taken by every site on its own (below), so installed themes and apps become a release gate.
 
-1. **Which version line, in how many steps, and the contract number.** Recommend two lines: *deprecate* in 0.21 (the CMS itself is migrated; a theme or app that uses a Tailwind class, `theme()` or `@theme` gets a warning; Tailwind is
-   still installed; contracts stay 6) and *remove* in 0.23 (packages gone, `THEME_API` and `APP_API` go from 6 to **7**, `APP_APIS` becomes `[6, 7]`). Why: 0.20 redraws every editor screen, and rewriting the editor's 2,201 utility uses
-   at the same time would conflict with it; 0.21 is the look line; 0.23 is the app platform line, which already touches `APP_API`. 0.19 is cut and is Lists and data.
-2. **Breakpoints.** Recommend literal values in `@media`, written once per value from the one token table, with a check that every literal equals a table value (§2). Container queries only for new components and where a component (not the window)
-   decides the layout. Not `@custom-media` now. Why: it is the only option that works in any theme or app stylesheet with no build change and keeps "identical output" provable.
-3. **Installed themes and store apps.** Utility classes work today only because Tailwind scans their files; after removal they silently do nothing. Recommend one line of warnings (0.21), no frozen "compat utilities" file, and Appendix A as the
-   migration guide. Why: a compat file keeps Tailwind's naming alive for another line, which the owner has ruled out. I could not look at `venus` or any app (§1.9), so the real exposure is unknown; looking is step zero.
-4. **Names of the layout classes.** Recommend the prefix `mo-` on classes too (`mo-row`, `mo-stack`, `mo-grid`), as `mo-type-*` already is. Why: a theme styles its own `.row` and `.stack`, and layering only protects against that for Material's rules.
-5. **The editor's `src/` is 86% of the work** (2,201 of 2,559 uses, in 99 files; `src/ui.tsx` alone 617). Recommend it moves after 0.20's screens settle, with the same small vocabulary plus component CSS in the editor's own files.
-   Why: 0.20 rewrites those same screens, so doing both at once means every PR conflicts.
-6. **Same result first, better later.** Recommend every step keeps the rendered result identical (including the typography plugin's odd spaces and Tailwind's reset), and that M3 tuning is a separate, visible change. Why: it is the only way
-   a pure migration can be proven; it needs a new tool (§6, PR 1), because `compare-html` compares class names and cannot prove an identical look when class names change.
+1. **How 0.18.1 is cut.** Recommend: it starts only after the owner has released 0.18.0 and the CSS split is finished; every pull request goes into `main` with a **`patch`** changeset (never `minor`: a `minor` would make the Release PR 0.19.0, which is the cut Lists and data line); each merge stages a `next`, so staging
+   tries every step; the owner releases 0.18.1 with `/release` when the gate (2) is met. Why: after 0.18.0 `main` is the 0.18 line, and `patch` is the only level that gives 0.18.1. A new branch adds a merge-forward for nothing.
+2. **The gate: installed themes and apps are migrated before the release.** A site's Worker updates itself to a new minor or patch (`worker/cms-update.js`), so 0.18.1 reaches every site at once, and a theme or app that still uses a utility class then loses its styling without a message.
+   Recommend a hard gate: 0.18.1 is not released until `morpheme-apps` (`venus`, the apps), `morpheme-staging` and `morpheme-website` pass the no-Tailwind check and are re-released at contract 7. Why: there is no deprecation line to warn in; the gate is the warning.
+   It needs the three repositories attached to a session now, to count their real use (§1.9); I could not.
+3. **Contract 7 only, no compat file.** Recommend `THEME_API` and `APP_API` become 7 and `APP_APIS` becomes `[7]`, as the token rename did (`[6]`), with no compat stylesheet. Why: it is the precedent the owner set for 6, and a frozen utility file keeps Tailwind's naming alive.
+   Ask the owner: **release 0.18.0 and 0.18.1 as a pair, days apart?** Recommend yes: authors then migrate once to 7 (tokens and Tailwind, one guide), instead of twice in two weeks.
+4. **The editor's `src/` is 86% of the uses** (2,201 of 2,559, 99 files; `src/ui.tsx` alone 617) and now runs beside the 0.19 line, which is editor work too (a tree diff of `0.19` against `0.18` shows 324 changed files in `src/` and `theme/`, 60 of them `.tsx`; the clone is shallow, so this includes `0.18`'s newer changes).
+   Recommend: small slices (about 25 files each), each merged into `main` and flowed into `0.19` by the 0.19 PM the same day, and a short freeze window per slice that the PM announces. Why: the alternative, waiting for 0.20, is no longer on the table; short slices keep a conflict to one slice.
+5. **Names of the layout classes.** Recommend the prefix `mo-` on classes too (`mo-row`, `mo-stack`, `mo-grid`), as `mo-type-*` already is. Why: a theme's own `.row` or `.stack` must not collide.
+6. **Breakpoints.** Recommend literal values in `@media` plus a check that every literal equals the token table (§2). Why: it works in any theme or app stylesheet with no build change and keeps "identical output" provable. Not `@custom-media` now.
+7. **Same result first, better later.** Recommend every step keeps the rendered result identical and that M3 tuning of text spaces is a separate, visible change. Why: only then can a migration be proven; it needs a computed-style compare (§6, PR 1), because `compare-html` compares class names.
 
 ## 1. Inventory
 
@@ -339,29 +341,34 @@ What breaks, for whom:
 
 | Who | Today | After removal | Mitigation |
 | :-- | :-- | :-- | :-- |
-| An installed theme that uses utility classes in its components | works: the site's Tailwind scans `src/themes` | classes do nothing, silently | warning in the theme check from 0.21; migration guide = Appendix A; `THEME_API` 7 so the store stops offering such a theme (it offers only themes written to the contract the editor has) |
-| A theme that uses `theme(--breakpoint-…)`, `@theme`, `@apply`, `@utility` in its CSS | works | the CSS fails to build or is dropped | the same warning; `check:themes` fails on them in 0.23 |
+| An installed theme that uses utility classes in its components | works: the site's Tailwind scans `src/themes` | classes do nothing, silently | the theme check warns in 0.18.1 itself (no earlier release exists to carry a warning), so the protection is the gate (decision 2); migration guide = Appendix A; `THEME_API` 7 so the store stops offering such a theme (it offers only themes written to the contract the editor has) |
+| A theme that uses `theme(--breakpoint-…)`, `@theme`, `@apply`, `@utility` in its CSS | works | the CSS fails to build or is dropped | `check:themes` fails on them in 0.18.1 |
 | A theme with `medium:` variants | works | silent | as above |
 | A theme using `prose` | works | works (class kept) | none |
-| An app's blocks with utility classes (`View.tsx`) | works | silent | `APP_API` 7; apps written to 6 keep running (`APP_APIS` is `[6]` today and becomes `[6, 7]`) but a utility does nothing; the app gets the same warning in the editor's app problems (`src/AppProblems.tsx`) |
-| A site's own content with utility classes in HTML | works | silent | `check:content` warns from 0.21 |
+| An app's blocks with utility classes (`View.tsx`) | works | silent | `APP_API` 7; apps written to 6 keep running (`APP_APIS` is `[6]` today and becomes `[7]` (decision 3), so an app at 6 is offered by the store only after it is re-released, and one already installed runs but a utility does nothing; the app gets the same warning in the editor's app problems (`src/AppProblems.tsx`) |
+| A site's own content with utility classes in HTML | works | silent | `check:content` warns in 0.18.1 |
 | A site's `package.json` | lists the 3 packages and the Prettier plugin | extra, unused packages | harmless; the starter stops listing them (`starter/package.json`, `.prettierrc.json`); the upgrade tests use `scripts/fixtures/starter-0.14.2.package.json` and must still pass |
 | A site's `.prettierrc.json` | `prettier-plugin-tailwindcss` with `tailwindStylesheet` into `@morphemecms/cms/theme/styles/global.css` | the plugin sorts classes by its default order: harmless | none |
 
-`THEME_API` and `APP_API` (`lib/contracts.mjs`, re-exported by `src/store.ts`): **raise both from 6 to 7 in the removal line** (0.23). 6 is the token rename: it is in 0.18, which was merged into `main` (#888) and is staged as `next`, but not released, so no site is on it yet. The contract text says "Raised when a theme written to the one before no longer works": a theme with a
+`THEME_API` and `APP_API` (`lib/contracts.mjs`, re-exported by `src/store.ts`): **raise both from 6 to 7 in 0.18.1.** 6 is the token rename: it is in 0.18, which was merged into `main` (#888) and is staged as `next`, but not released, so no site is on it yet. The contract text says "Raised when a theme written to the one before no longer works": a theme with a
 utility class no longer works. This is not a `major` change of the package (the changesets skill never allows `major`): the changeset is `minor`, with the contract change in the note.
-Version line: deprecate in **0.21**, remove in **0.23** (decision 1). Never 0.18 (owner), and not 0.19 (Lists and data, already cut).
+Version line: **0.18.1** (owner, 18 Nov), all pull requests `patch`, never `minor` or `major` (the changesets skill: never `major`; a `minor` would make the Release PR 0.19.0, and 0.19 is the cut Lists and data line).
+
+### Release as 0.18.1
+
+1. **Preconditions (not this plan's work):** the owner releases 0.18.0; the CSS split is finished (`plans/2026-11-16-css-split.md`); the three repositories are attached and counted (decision 2).
+2. **The work** is the PR list of §6 (1, 2, 3 to 6, 7, 8, 9, 10, 11), each into `main` with a `patch` changeset; `main` stages a `next` after each merge, so staging (`morpheme-staging`, which follows `next` unless its CMS-version app says `released`) runs the migration step by step, and a problem shows there, not on a customer's site.
+3. **In parallel, `morpheme-apps`/`morpheme-staging`/`morpheme-website`:** their own PRs move every utility, `theme()` and `@theme` out of `venus` and the apps, and re-release them at contract 7 (the PM of those repositories; the migration guide is Appendix A and the vocabulary of §3).
+4. **The gate** (decision 2): the no-Tailwind check passes in all three repositories and the apps and themes are re-released at 7 and offered by the store; then the PM asks the owner (`pm` skill, phase 4) and the owner runs `/release`. An agent never releases.
+5. **After:** the patch reaches sites by the Worker's self-update (it removes peer dependencies, so it should not trigger the `needs-npm` stop that a raised peer did in 0.15.0: a lockfile that satisfied the old peers satisfies fewer; the first `next` on staging confirms it). If a site shows broken styling, the owner can point `latest` back to 0.18.0; that is the owner's step, never an agent's.
 
 What the release note must say (it is for theme and app authors, so the note goes to the store's developer notes as well as `release-notes/`; the `release-notes` skill decides the form): which
-classes stop working (the Appendix A table link), the new class vocabulary and the literal breakpoint table, that `prose` and `not-prose` still work, that `THEME_API` and `APP_API` are 7, and
-that a theme or app written to 6 that uses no utility, `theme()` or `@theme` is unchanged. For site owners: nothing changes on screen.
-
-Deprecation path in order: 0.21 warnings + vocabulary available + CMS code migrated (Tailwind still installed); 0.22 nothing (store line); 0.23 packages removed, contracts 7, `check:themes` fails
-on a utility or `theme()`.
+classes stop working (the Appendix A table link), the new class vocabulary and the literal breakpoint table, that `prose` and `not-prose` still work, that `THEME_API` and `APP_API` are 7 (and that 6 was the token rename of 0.18.0), and
+that a theme or app written to 6 that uses no utility, `theme()` or `@theme` needs only its contract number changed. For site owners: nothing changes on screen.
 
 ## 6. Sequence and size
 
-Each pull request is one logical change, keeps the rendered result identical, and leaves `check` green. Size: small, medium or large (files and risk, not hours). Proof tools are in PR 1.
+Each pull request is one logical change, keeps the rendered result identical, leaves `check` green and carries a `patch` changeset (0.18.1). Size: small, medium or large (files and risk, not hours). Proof tools are in PR 1.
 
 | # | PR | Files it touches | Checks | Size |
 | :-- | :-- | :-- | :-- | :-- |
@@ -380,18 +387,21 @@ Each pull request is one logical change, keeps the rendered result identical, an
 | 11 | **The permanent check.** `check:tailwind` goes from ratchet to zero: fails on `@import 'tailwindcss'`, `@theme`, `@utility`, `@plugin`, `@apply`, `@source`, `@reference`, `theme(--`, `--tw-`, a `class` string containing a token from the frozen utility list (Appendix A's 578 names, plus the families `^(flex|grid|gap|p[xytblrse]?|m[xytblrse]?|space-[xy]|text-(xs|sm|base|lg|xl)|…)-` and variants `^(medium|expanded|large|extra-large|hover|focus|focus-visible|group-[\w-]+|has-[\w-]+|min-\[|max-\[)\:` and `-\[` arbitrary values) in a `.tsx`, `.astro` or `.md`; runs in `npm run check`, so CI's `static` job runs it; the allowlist is empty | `scripts/check-tailwind.mjs` (it extends `check-css-tokens.mjs`, which already knows `--tw-` and the `@theme` namespaces), its test, `package.json`, skills (`developer` §4a, `checks`) | `npm run check` | small |
 
 PRs 3 to 6 may run in parallel by folder (`theme/` and `src/` do not share files). Between 3 and 10 both systems live side by side, which is why the ratchet exists: a new utility in new code fails it.
-Order, as the owner asked: rename (0, done), the CSS split (S), then proof tools (1), breakpoints (2), layout classes (3-6), text styles (7, 8), the last Tailwind-named reads (9), removing the packages (10), the permanent check (11). PR 1 touches only `scripts/` and `docs`, so it does not wait for S.
+Order, as the owner asked: rename (0, done), the CSS split (S), then proof tools (1), breakpoints (2), layout classes (3-6), text styles (7, 8), the last Tailwind-named reads (9), removing the packages (10), the permanent check (11). PR 1 touches only `scripts/` and `docs`, so it does not wait for S (but, being 0.18.1 work, it merges after 0.18.0 is released, or waits as a reviewed branch).
+The release itself (gate, owner's `/release`) is §5, *Release as 0.18.1*.
 
 ## 7. Risks
 
-1. **The editor is 85% of the work** and is still being redrawn in 0.20. Mitigation: it moves after 0.20 (decision 5); `src/` slices are mechanical and reviewable by `compare-styles`.
+1. **The editor is 86% of the work** and runs beside the 0.19 line, which edits the same screens. Mitigation: slices of about 25 files, each flowed into `0.19` the same day, announced freeze windows (decision 4); `compare-styles` proves each slice.
 2. **Silent breakage of installed themes and apps** (§5), size unknown because those repositories were not attached. Mitigation: attach them now and count before the owner chooses the removal line.
 3. **Preflight and prose are invisible dependencies.** Mitigation: computed-style comparison on every element, not eyeballing; the prose fixture; the preflight-free proof build in PR 8.
 4. **Cascade order.** Tailwind's `@layer` order and `utilities` winning over `components` is relied on (`base.css:4`, the comment at the end of `blocks.css`); a changed layer order shifts results without any error. Mitigation: the layer list stays `theme, base, components, utilities, fallback` until PR 10, and `compare-styles` runs in every step.
 5. **`space-y-*` becoming `gap` is not byte-identical in margins** (the first child, a hidden child, collapsing). Mitigation: the comparison catches it; where the box model differs, the part gets a rule instead of a `mo-stack`.
 6. **A second proof tool to build and trust** (`compare-styles`: font loading, animations, `data-reveal` and the motion scripts must be frozen to compare). Mitigation: PR 1 is its own pull request, proven on a no-op and on one known one-pixel change before anything depends on it.
 7. **The CSS split is moving the files under every CSS step.** PRs 2, 3 and 7 edit the same rules the split moves, and `theme()` sits in 28 files. Mitigation: they wait for S; PR 2 is a script that can be re-run after a conflict.
-8. **Two contract breaks for the same authors.** 6 (tokens, staged as `next`) and then 7 (Tailwind). Mitigation: the warnings of 0.21 and the migration guide go out before 7; if the owner wants one break, 7 can wait until 6 has been out for a line.
+8. **Two contract breaks for the same authors, days apart** (6 with 0.18.0, 7 with 0.18.1). Mitigation: release them as a pair and give authors one guide (decision 3).
+9. **A patch is taken by every site on its own** (`worker/cms-update.js`), so a theme or app that still uses a utility loses its styling at once. Mitigation: the gate (decision 2), `next` on staging for every step, and the owner's option to point `latest` back.
+10. **0.18.1 starts only after 0.18.0 is released,** which only the owner decides; until then the PRs wait as reviewed branches, and the CSS split and the token work stay in 0.18.0.
 
 Not done here: no code, no build, no check; `morpheme-apps`, `morpheme-staging`, `morpheme-website` not read; web.dev and caniuse not reachable.
 
