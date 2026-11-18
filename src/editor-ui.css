@@ -1,0 +1,1137 @@
+/* The editor's parts of src/ui.tsx: the rules the markup used to get from utility classes, now named after what the element is (batch T05 of
+   plan 2026-11-16-move-away-from-tailwind.md). Layout is the vocabulary of theme/styles/layout.css (mo-row, mo-stack, mo-fill …); what is left is
+   here. Everything sits in @layer utilities, where the utilities were, so the cascade against the theme's parts and src/editor.css does not change.
+   Logical properties, gap and the theme's tokens; a physical property only where the old class was physical on purpose. */
+@layer utilities {
+  /* Space between the children, as the old space-y-* did it (the same margins at zero specificity, so a child's own margin rule still wins).
+     editor-gapped keeps its gap; editor-rhythm also takes the person's density step (the rule after this layer). */
+  :where(.editor-gapped > :not(:last-child)) {
+    margin-block: 0 var(--mo-comp-editor-gapped-space);
+  }
+  :where(.editor-rhythm > :not(:last-child)) {
+    margin-block: 0 var(--mo-comp-editor-rhythm-space);
+  }
+
+  /* The focus ring of a control that has no outline: two dp of the primary colour, on a light gap where the old ring-offset was used. */
+  :is(.editor-drag-field, .editor-color-button):focus-visible {
+    box-shadow:
+      0 0 0 2px #fff,
+      0 0 0 4px var(--mo-sys-color-primary);
+    outline-style: none;
+  }
+  :is(.editor-fold-toggle, .editor-section-list-link):focus-visible {
+    box-shadow: 0 0 0 2px var(--mo-sys-color-primary);
+    outline-style: none;
+  }
+  .editor-focus-quiet:focus,
+  .editor-focus-quiet-visible:focus-visible {
+    outline-style: none;
+  }
+
+  /* A grid's children may shrink below their content (the theme's base rule for .grid, which the old markup used). */
+  :is(
+      .editor-date-time-field,
+      .editor-swatch-grid,
+      .editor-icon-picker-grid,
+      .editor-choice-cards,
+      .editor-colors-preview-pair,
+      .editor-color-tiles,
+      .editor-score-ring-value,
+      .editor-score-ring-value-large
+    )
+    > * {
+    min-inline-size: 0;
+  }
+
+  /* Text, field labels and hints. */
+  .editor-muted-text {
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .editor-accent-text {
+    color: var(--mo-sys-color-primary);
+  }
+  .editor-field-label {
+    margin-block-end: var(--mo-ref-space-50);
+    font-weight: 500;
+  }
+  .editor-field-label-block {
+    display: block;
+  }
+  .editor-field-hint {
+    display: block;
+    margin-block-end: var(--mo-ref-space-100);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .editor-supporting-text {
+    display: block;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .editor-field-problem {
+    margin-block-start: var(--mo-ref-space-50);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-primary);
+  }
+  .editor-field-count {
+    margin-block-start: var(--mo-ref-space-50);
+    text-align: end;
+    font-size: var(--mo-sys-typescale-body-small-size);
+    line-height: var(--mo-sys-typescale-body-small-line-height);
+  }
+  .editor-field-group {
+    --mo-comp-editor-rhythm-space: var(--mo-ref-space-250);
+  }
+  .editor-field-group-title {
+    font-weight: 600;
+  }
+  .editor-search-field {
+    min-inline-size: 0;
+  }
+  .editor-search-fill {
+    flex: 1;
+  }
+  .editor-search-row {
+    display: flex;
+    gap: var(--mo-ref-space-100);
+  }
+  .editor-choice-row {
+    --mo-comp-row-gap: var(--mo-ref-space-150);
+  }
+  .editor-push-end {
+    margin-inline-start: auto;
+  }
+  .editor-invisible {
+    visibility: hidden;
+  }
+  .editor-arrow-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--mo-ref-space-50);
+    font-weight: 500;
+  }
+  @media (hover: hover) {
+    .editor-arrow-link:hover {
+      text-decoration-line: underline;
+    }
+  }
+
+  /* Notice, empty note, problem note. */
+  .editor-notice {
+    --mo-comp-editor-gapped-space: var(--mo-ref-space-100);
+  }
+  .editor-notice-closable {
+    position: relative;
+    padding-inline-end: var(--mo-ref-space-700);
+  }
+  .editor-notice-title {
+    font-weight: 500;
+    color: var(--mo-sys-color-primary);
+  }
+  .editor-notice-text {
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+  }
+  .editor-close-button {
+    position: absolute;
+    inset-inline-end: var(--mo-ref-space-50);
+    inset-block-start: var(--mo-ref-space-50);
+  }
+  .editor-empty-note {
+    padding-block: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-inline: var(--mo-ref-space-200);
+    text-align: center;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .editor-problem-note {
+    overflow-wrap: break-word;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-primary);
+  }
+  .editor-loading {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--mo-ref-space-100);
+  }
+  .editor-icon-placeholder {
+    display: block;
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+  }
+
+  /* The date and time field, the colour field and the colour sheet. */
+  .editor-date-time-field {
+    display: grid;
+    gap: var(--mo-ref-space-150);
+  }
+  @media (width >= 37.5rem) {
+    .editor-date-time-field {
+      grid-template-columns: 1fr auto;
+    }
+  }
+  /* The edge of a swatch: grey, so a light and a dark colour both show on a light and a dark sheet. */
+  .editor-swatch-edge {
+    border: 1px solid rgb(128 128 128 / 0.45);
+  }
+  .editor-hex-input {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  }
+  .editor-drag-field {
+    touch-action: none;
+  }
+  .editor-drag-free {
+    touch-action: none;
+  }
+  .editor-drag-thumb {
+    pointer-events: none;
+    position: absolute;
+    translate: -50% -50%;
+    border-radius: var(--mo-sys-shape-corner-full);
+    border: 3px solid #fff;
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.3),
+      0 2px 6px rgb(0 0 0 / 0.3);
+  }
+  .editor-shade-field {
+    position: relative;
+    block-size: 12rem;
+    border-radius: var(--mo-sys-block-radius);
+  }
+  .editor-shade-thumb {
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+  }
+  .editor-hue-field {
+    position: relative;
+    margin-inline: var(--mo-ref-space-200);
+    block-size: 2rem;
+    border-radius: var(--mo-sys-shape-corner-full);
+  }
+  .editor-hue-thumb {
+    inset-block-start: 50%;
+    inline-size: 2rem;
+    block-size: 2rem;
+  }
+  .editor-color-row {
+    --mo-comp-row-gap: var(--mo-ref-space-150);
+  }
+  .editor-color-compare {
+    display: flex;
+    block-size: 2.75rem;
+    inline-size: 6rem;
+    overflow: hidden;
+    border-radius: var(--mo-sys-block-radius-small);
+  }
+  .editor-color-compare-half {
+    flex: 1;
+  }
+  .editor-swatches-title {
+    margin-block-end: var(--mo-ref-space-100);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: 500;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .editor-swatch-grid {
+    --mo-comp-grid-columns: 6;
+    --mo-comp-grid-gap: var(--mo-ref-space-100);
+  }
+  .editor-swatch {
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+    border-radius: var(--mo-sys-shape-corner-full);
+  }
+  .editor-color-button {
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    flex-shrink: 0;
+    border-radius: var(--mo-sys-shape-corner-full);
+    transition-property: transform, translate, scale, rotate;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  @media (hover: hover) {
+    .editor-color-button:hover {
+      scale: 105%;
+    }
+  }
+  .editor-wheel {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    inline-size: 100%;
+    max-inline-size: 18rem;
+    border-radius: var(--mo-sys-shape-corner-full);
+  }
+  .editor-wheel-dot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .editor-wheel-dot-small {
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+  }
+  .editor-wheel-dot-large {
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+  }
+  .editor-wheel-dot-focus:focus-visible {
+    box-shadow:
+      0 0 0 2px #fff,
+      0 0 0 4px var(--mo-sys-color-primary),
+      0 0 0 1px rgb(0 0 0 / 0.3),
+      0 2px 6px rgb(0 0 0 / 0.3);
+    outline-style: none;
+  }
+  .editor-color-dots {
+    display: flex;
+    gap: var(--mo-ref-space-75);
+  }
+  .editor-color-dot {
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+    border-radius: var(--mo-sys-shape-corner-full);
+    border: 1px solid var(--mo-sys-color-outline-variant);
+  }
+  .editor-icon-dots {
+    display: flex;
+    gap: var(--mo-ref-space-100);
+  }
+  .editor-color-tiles {
+    display: grid;
+    overflow: hidden;
+    border-radius: var(--mo-sys-block-radius);
+  }
+  .editor-color-tile {
+    --mo-comp-stack-gap: var(--mo-ref-space-50);
+    min-inline-size: 0;
+    padding: var(--mo-ref-space-150);
+  }
+  .editor-color-tile-name {
+    display: block;
+    overflow-wrap: break-word;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: 500;
+  }
+  .editor-color-tile-value {
+    display: block;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    text-transform: uppercase;
+  }
+  .editor-color-tile-actions {
+    display: flex;
+    margin-block-start: auto;
+    margin-inline-start: calc(var(--mo-ref-space-100) * -1);
+  }
+
+  /* The preview of a colour scheme (ColorsPreview). */
+  .editor-colors-preview {
+    --mo-comp-editor-rhythm-space: var(--mo-ref-space-150);
+    border-radius: var(--mo-sys-shape-corner-large);
+    border: 1px solid var(--mo-sys-color-outline-variant);
+    background-color: var(--mo-sys-color-surface);
+    padding: var(--mo-ref-space-200);
+    color: var(--mo-sys-color-on-surface);
+  }
+  .editor-colors-preview-heading {
+    font-weight: 500;
+  }
+  .editor-colors-preview-hint {
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .editor-colors-preview-text {
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+  }
+  .editor-colors-preview-card {
+    --mo-comp-editor-gapped-space: var(--mo-ref-space-100);
+    border-radius: var(--mo-sys-shape-corner-medium);
+    border: 1px solid var(--mo-sys-color-outline-variant);
+    background-color: var(--mo-sys-color-surface-container-lowest);
+    padding: var(--mo-ref-space-150);
+  }
+  .editor-colors-preview-box,
+  .editor-colors-preview-secondary,
+  .editor-colors-preview-tertiary {
+    border-radius: var(--mo-sys-shape-corner-small);
+    padding-inline: var(--mo-ref-space-150);
+    padding-block: var(--mo-ref-space-100);
+  }
+  .editor-colors-preview-box {
+    background-color: var(--mo-sys-color-surface-container-high);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: 500;
+    color: var(--mo-sys-color-primary);
+  }
+  .editor-colors-preview-pair {
+    --mo-comp-grid-columns: 2;
+    --mo-comp-grid-gap: var(--mo-ref-space-100);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: 500;
+  }
+  .editor-colors-preview-secondary {
+    background-color: var(--mo-sys-color-secondary-container);
+    color: var(--mo-sys-color-on-secondary-container);
+  }
+  .editor-colors-preview-tertiary {
+    background-color: var(--mo-sys-color-tertiary-container);
+    color: var(--mo-sys-color-on-tertiary-container);
+  }
+  .editor-block-preview {
+    border: 1.5px dashed var(--mo-sys-color-outline-variant);
+    padding: var(--mo-ref-space-100);
+  }
+
+  /* The icon picker, the image pick, a fold of the form (FoldItem) and the chips. */
+  .editor-icon-picker-panel,
+  .editor-icon-picker-search,
+  .editor-icon-picker-grid,
+  .editor-icon-picker-more,
+  .editor-icon-picker-status {
+    margin-block-start: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
+  .editor-icon-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(3rem, 1fr));
+    gap: var(--mo-ref-space-100);
+  }
+  .editor-icon-picker-more {
+    display: flex;
+    justify-content: center;
+  }
+  .editor-icon-picker-status {
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .editor-image-pick {
+    --mo-comp-row-gap: var(--mo-ref-space-200);
+  }
+  .editor-image-pick-thumb {
+    inline-size: 5rem;
+    block-size: 5rem;
+    border-radius: var(--mo-sys-block-radius);
+    object-fit: cover;
+  }
+  .editor-fold-arrow,
+  .editor-section-arrow {
+    color: var(--mo-sys-color-on-surface-variant);
+    transition-property: transform, translate, scale, rotate;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .editor-section-arrow {
+      transition-property: none;
+    }
+  }
+  .editor-fold-arrow-open {
+    rotate: 90deg;
+  }
+  .editor-arrow-flipped {
+    rotate: 180deg;
+  }
+  .editor-fold-tools {
+    display: flex;
+    padding-inline-end: var(--mo-ref-space-75);
+  }
+  .editor-fold-body {
+    --mo-comp-editor-rhythm-space: var(--mo-ref-space-200);
+    padding-inline: var(--mo-ref-space-200);
+    padding-block-start: var(--mo-ref-space-50);
+    padding-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
+  .editor-sheet-chips,
+  .editor-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mo-ref-space-100);
+  }
+  .editor-sheet-chips {
+    margin-inline: var(--mo-ref-space-250);
+    margin-block-end: var(--mo-ref-space-100);
+  }
+  .editor-sheet-search {
+    margin-inline: var(--mo-ref-space-250);
+    margin-block-end: var(--mo-ref-space-100);
+  }
+  .editor-chip-field {
+    --mo-comp-editor-gapped-space: var(--mo-ref-space-100);
+  }
+  .editor-choice-tile-image {
+    aspect-ratio: 1 / 1;
+    block-size: auto;
+    inline-size: 100%;
+  }
+  .editor-choice-hint {
+    margin-block-end: var(--mo-ref-space-100);
+  }
+  .editor-choice-cards {
+    --mo-comp-grid-columns: 4;
+    --mo-comp-grid-gap: var(--mo-ref-space-100);
+  }
+  .editor-choice-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--mo-ref-space-100);
+    padding-inline: var(--mo-ref-space-150);
+    padding-block: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    text-align: center;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: 500;
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  .editor-choice-card:has(*:focus-visible) {
+    outline: 2px solid var(--mo-sys-color-primary);
+    outline-offset: 2px;
+  }
+  .editor-choice-card-disabled {
+    cursor: default;
+    opacity: 50%;
+  }
+  .editor-choice-card-chosen {
+    cursor: pointer;
+    color: var(--mo-sys-color-on-secondary-container);
+    --mo-comp-outlined-card-container-color: var(--mo-sys-color-secondary-container);
+  }
+  .editor-choice-card-idle {
+    cursor: pointer;
+  }
+  @media (hover: hover) {
+    .editor-choice-card-idle:hover {
+      --mo-comp-outlined-card-container-color: var(--mo-sys-color-surface-container-high);
+    }
+  }
+  .editor-choice-card-check {
+    position: absolute;
+    inset-block-start: var(--mo-ref-space-100);
+    inset-inline-end: var(--mo-ref-space-100);
+    color: var(--mo-sys-color-primary);
+  }
+
+  /* Lists and rows. */
+  .editor-sub-list {
+    margin-inline-start: var(--mo-ref-space-250);
+    border: 0 solid var(--mo-sys-color-outline-variant);
+    border-inline-start-width: 1px;
+  }
+  .editor-row-delete {
+    justify-content: center;
+    text-align: center;
+    font-weight: 500;
+    color: var(--mo-sys-color-error);
+  }
+  .editor-row-sub {
+    color: color-mix(in oklab, var(--mo-sys-color-on-surface) 80%, transparent);
+  }
+  .editor-menu-full {
+    inline-size: 100%;
+    max-inline-size: none;
+  }
+  .editor-choice-detail {
+    display: flex;
+    gap: var(--mo-ref-space-150);
+  }
+  .editor-choice-detail-value {
+    font-variant-numeric: tabular-nums;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .editor-choice-sublist {
+    padding-inline-start: var(--mo-ref-space-150);
+  }
+  .editor-trailing-text {
+    min-inline-size: 0;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .editor-placeholder-value {
+    opacity: 60%;
+  }
+  .editor-phone-row {
+    display: flex;
+    gap: var(--mo-ref-space-100);
+  }
+  .editor-phone-code {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Sheets: the body, a list in a sheet, a group's title, its links and its actions. */
+  .editor-sheet-body {
+    --mo-comp-editor-rhythm-space: var(--mo-ref-space-250);
+    min-block-size: 0;
+    flex: 1;
+    overflow-y: auto;
+    padding-inline: var(--mo-sys-grid-margin);
+    padding-block-start: var(--mo-ref-space-100);
+    padding-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
+  .editor-sheet-list {
+    min-block-size: 0;
+    flex: 1;
+    overflow-y: auto;
+    padding-inline: var(--mo-ref-space-100);
+    padding-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
+  .editor-sheet-group-title {
+    padding-inline: var(--mo-ref-space-150);
+    padding-block-start: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-block-end: var(--mo-ref-space-50);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: 500;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .editor-sheet-link {
+    padding-block: var(--mo-ref-space-100);
+    padding-inline: var(--mo-ref-space-100);
+  }
+  .editor-sheet-actions {
+    padding-inline: var(--mo-sys-grid-margin);
+    padding-block: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
+  .editor-sheet-footer {
+    padding-inline: var(--mo-ref-space-250);
+    padding-block: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
+  .editor-sheet-handle {
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  @media (width >= 37.5rem) {
+    .editor-sheet-handle {
+      touch-action: auto;
+      -webkit-user-select: auto;
+      user-select: auto;
+    }
+  }
+  @media (width < 37.5rem) {
+    .editor-sheet-phone {
+      margin-block: 0;
+    }
+  }
+  .editor-dialog-padding {
+    padding: var(--mo-ref-space-300);
+  }
+  .editor-group-title {
+    margin-block-end: var(--mo-ref-space-100);
+    padding-inline: var(--mo-ref-space-200);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .editor-form-heading {
+    padding-block-start: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    font-weight: 600;
+  }
+  .editor-form-heading-first {
+    padding-block-start: var(--mo-ref-space-200);
+  }
+  @media (width >= 75rem) {
+    .editor-form-heading-first {
+      padding-block-start: 0;
+    }
+  }
+
+  /* A section of a page (FoldSection) and the checks (CheckList, ScoreRing). */
+  .editor-fold-section {
+    scroll-margin-block-start: calc(5rem + env(safe-area-inset-top));
+    border: 0 solid var(--mo-sys-color-outline-variant);
+    border-block-end-width: 1px;
+  }
+  .editor-fold-section:has(+ [data-fold-section]) {
+    margin-block-end: 0;
+  }
+  [data-fold-section] + .editor-fold-section {
+    margin-block-start: 0;
+  }
+  .editor-fold-title {
+    display: flex;
+    min-block-size: 3.5rem;
+    align-items: center;
+    padding-block: 1.125rem;
+    font-weight: 600;
+  }
+  .editor-fold-title-text {
+    text-box: trim-both cap alphabetic;
+  }
+  .editor-fold-toggle {
+    margin-inline: calc(var(--mo-ref-space-150) * -1);
+    display: flex;
+    inline-size: calc(100% + 1.5rem);
+    align-items: center;
+    gap: var(--mo-ref-space-150);
+    border-radius: var(--mo-sys-block-radius-small);
+    padding-inline: var(--mo-ref-space-150);
+    padding-block: 1.125rem;
+    text-align: start;
+    font-weight: 600;
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  @media (hover: hover) {
+    .editor-fold-toggle:hover {
+      background-color: var(--mo-sys-color-surface-container-high);
+    }
+  }
+  .editor-section-body {
+    --mo-comp-editor-rhythm-space: var(--mo-ref-space-300);
+    padding-block-start: var(--mo-ref-space-100);
+    padding-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
+  .editor-section {
+    margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
+  .editor-check-good-fill {
+    fill: var(--mo-comp-editor-status-good-surface);
+  }
+  .editor-check-good-stroke {
+    stroke: var(--mo-comp-editor-status-good);
+  }
+  .editor-check-good-text {
+    color: var(--mo-comp-editor-status-good-text);
+  }
+  .editor-check-average-fill {
+    fill: var(--mo-comp-editor-status-average-surface);
+  }
+  .editor-check-average-stroke {
+    stroke: var(--mo-comp-editor-status-average);
+  }
+  .editor-check-average-text {
+    color: var(--mo-comp-editor-status-average-text);
+  }
+  .editor-check-bad-fill {
+    fill: var(--mo-comp-editor-status-bad-surface);
+  }
+  .editor-check-bad-stroke {
+    stroke: var(--mo-comp-editor-status-bad);
+  }
+  .editor-check-bad-text {
+    color: var(--mo-comp-editor-status-bad-text);
+  }
+  .editor-check-good-dot {
+    margin-inline: var(--mo-ref-space-25);
+    inline-size: 0.75rem;
+    block-size: 0.75rem;
+    border-radius: var(--mo-sys-shape-corner-full);
+    background-color: var(--mo-comp-editor-status-good);
+  }
+  .editor-check-bad-mark {
+    inline-size: 1rem;
+    block-size: 1rem;
+    fill: var(--mo-comp-editor-status-bad);
+  }
+  .editor-check-fix {
+    padding-inline: var(--mo-ref-space-200);
+    padding-inline-start: 2.75rem;
+    padding-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .editor-score {
+    --mo-comp-stack-gap: var(--mo-ref-space-150);
+    row-gap: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    align-items: center;
+    margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
+  .editor-score-ring {
+    position: relative;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+  }
+  .editor-score-ring-large {
+    position: relative;
+    inline-size: 7rem;
+    block-size: 7rem;
+  }
+  .editor-score-ring-svg {
+    inline-size: 100%;
+    block-size: 100%;
+    rotate: -90deg;
+  }
+  .editor-score-ring-value,
+  .editor-score-ring-value-large {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .editor-score-ring-value {
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: 500;
+  }
+  .editor-score-arc {
+    transition-property: stroke-dasharray;
+    transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    transition-duration: 1200ms;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .editor-score-arc {
+      transition-property: none;
+    }
+  }
+  .editor-score-arc-hidden {
+    opacity: 0%;
+  }
+  .editor-score-title {
+    font-weight: 500;
+  }
+
+  /* The share preview, the carousel and the lightbox. */
+  .editor-share-preview {
+    max-inline-size: 500px;
+    overflow: hidden;
+    padding: 0;
+  }
+  .editor-share-preview-image {
+    aspect-ratio: 1.91 / 1;
+    inline-size: 100%;
+    background-color: color-mix(in oklab, var(--mo-sys-color-outline-variant) 50%, transparent);
+    object-fit: cover;
+  }
+  .editor-share-preview-image-tall {
+    object-position: 50% 20%;
+  }
+  .editor-share-preview-text {
+    --mo-comp-editor-gapped-space: var(--mo-ref-space-25);
+    border: 0 solid var(--mo-sys-color-outline-variant);
+    border-block-start-width: 1px;
+    padding-inline: var(--mo-ref-space-200);
+    padding-block: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
+  .editor-share-preview-domain {
+    display: block;
+    font-size: var(--mo-sys-typescale-body-small-size);
+    line-height: var(--mo-sys-typescale-body-small-line-height);
+    letter-spacing: calc(var(--mo-sys-typescale-body-small-size) * 0.025);
+    text-transform: uppercase;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .editor-share-preview-title {
+    font-weight: 600;
+  }
+  .editor-share-preview-description {
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .editor-carousel-tile {
+    display: block;
+    aspect-ratio: 3 / 4;
+    inline-size: 100%;
+    overflow: hidden;
+    border: 1px solid var(--mo-sys-color-outline-variant);
+    background-color: var(--mo-sys-color-surface-container-lowest);
+  }
+  .editor-carousel-image {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    object-position: top;
+  }
+  .editor-lightbox-image {
+    margin-inline: auto;
+    inline-size: 100%;
+    max-inline-size: 24rem;
+    border: 1px solid var(--mo-sys-color-outline-variant);
+  }
+  .editor-block-preview-frame {
+    position: relative;
+    min-block-size: 0;
+    flex: 1;
+    overflow: hidden;
+    border: 0 solid var(--mo-sys-color-outline-variant);
+    border-block-start-width: 1px;
+    background-color: color-mix(in oklab, var(--mo-sys-color-outline-variant) 40%, transparent);
+  }
+  /* The block's page is drawn on white, as the site draws it. */
+  .editor-block-preview-iframe {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform-origin: top;
+    border: 0 solid;
+    background-color: #fff;
+  }
+
+  /* The screen (Screen.tsx's columns), the side sheet beside it and the section list. */
+  .editor-screen-layout {
+    --mo-comp-stack-gap: var(--mo-ref-space-300);
+    row-gap: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
+  .editor-screen-column,
+  .editor-screen-main {
+    --mo-comp-editor-rhythm-space: var(--mo-ref-space-300);
+  }
+  .editor-screen-main {
+    min-inline-size: 0;
+  }
+  @media (width >= 75rem) {
+    .editor-screen-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 22rem;
+      grid-template-rows: auto 1fr;
+      align-items: flex-start;
+      column-gap: 2rem;
+    }
+    .editor-screen-column {
+      grid-column-start: 2;
+    }
+    .editor-screen-column-sticky {
+      position: sticky;
+      top: 2rem;
+    }
+    .editor-screen-main {
+      grid-column-start: 1;
+      grid-row: span 2 / span 2;
+      grid-row-start: 1;
+    }
+    .editor-screen-row-first {
+      grid-row-start: 1;
+    }
+    .editor-screen-row-second {
+      grid-row-start: 2;
+    }
+    .editor-screen-row-span {
+      grid-row: span 2 / span 2;
+      grid-row-start: 1;
+    }
+  }
+  .editor-selection-sheet {
+    position: sticky;
+    top: 2rem;
+    max-block-size: calc(100dvh - 3rem);
+    align-self: flex-start;
+  }
+  .editor-selection-sheet-body {
+    --mo-comp-editor-rhythm-space: var(--mo-ref-space-250);
+  }
+  .editor-section-list {
+    --mo-comp-stack-gap: var(--mo-ref-space-50);
+    margin: 0;
+    list-style-type: none;
+    padding: 0;
+  }
+  .editor-section-list-link {
+    inline-size: 100%;
+    border-radius: var(--mo-sys-block-radius-small);
+    padding-inline: var(--mo-ref-space-100);
+    padding-block: var(--mo-ref-space-100);
+    text-align: start;
+    color: var(--mo-sys-color-on-surface-variant);
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  @media (hover: hover) {
+    .editor-section-list-link:hover {
+      color: var(--mo-sys-color-on-surface);
+    }
+  }
+  .editor-section-list-link[aria-current='location'] {
+    color: var(--mo-sys-color-primary);
+  }
+  .editor-section-list-label {
+    min-inline-size: 0;
+  }
+  .editor-section-pane-card {
+    max-block-size: calc(100dvh - 2 * var(--mo-sys-section-pane-gap));
+    overflow-y: auto;
+  }
+  .editor-section-pane-caption {
+    margin: 0;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .editor-section-pane-title {
+    margin: 0;
+    margin-block-end: var(--mo-ref-space-150);
+    color: var(--mo-sys-color-on-surface);
+  }
+  .editor-section-pane {
+    display: none;
+  }
+  @media (width >= 75rem) {
+    .editor-section-pane {
+      position: absolute;
+      inset-block: 0;
+      inset-inline-end: 0;
+      z-index: 10;
+      display: block;
+      inline-size: var(--mo-sys-section-pane-width);
+      padding-inline-end: var(--mo-sys-section-pane-gap);
+    }
+    .editor-section-pane-inner {
+      position: sticky;
+      top: var(--mo-sys-section-pane-gap);
+      margin-block-start: var(--mo-sys-section-pane-gap);
+    }
+  }
+
+  /* The main menu: the rail's frame, the drawer's frame and panel. */
+  .editor-main-rail-frame {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    block-size: 100dvh;
+    flex-shrink: 0;
+    align-self: flex-start;
+    background-color: var(--mo-comp-navigation-rail-surface, var(--mo-sys-color-surface));
+    padding-block-start: env(safe-area-inset-top);
+  }
+  .editor-main-rail {
+    block-size: 100%;
+  }
+  .editor-main-rail .navigation-rail-items {
+    flex: 1;
+  }
+  .editor-main-footer {
+    margin-block-start: auto;
+  }
+  .editor-main-drawer-header {
+    display: flex;
+    min-block-size: var(--top-app-bar-height, 4rem);
+    align-items: center;
+    gap: var(--mo-ref-space-50);
+    padding: var(--navigation-drawer-item-padding, 0 1rem);
+    padding-block: 0;
+    padding-inline-start: 0;
+  }
+  .editor-main-drawer-close {
+    margin-inline-end: calc((var(--mo-comp-icon-button-width) - 1.5rem) / 2 * -1);
+  }
+  .editor-main-drawer-header-divider {
+    margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
+  .editor-main-drawer-divider {
+    margin-block: var(--mo-ref-space-200);
+  }
+  .editor-main-drawer-nav {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+  .editor-main-drawer-frame {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    block-size: 100dvh;
+    flex-shrink: 0;
+    align-self: flex-start;
+    overflow-y: auto;
+  }
+  .editor-main-drawer-panel {
+    padding-block-start: env(safe-area-inset-top);
+  }
+  .editor-main-drawer-panel-full {
+    min-block-size: 100%;
+  }
+  .editor-app-bar-inset {
+    padding-block-start: env(safe-area-inset-top);
+  }
+
+  /* A design token's sample (Developer › Parts). */
+  .editor-token-image {
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    border-radius: var(--mo-sys-block-radius-small);
+    background-color: var(--mo-sys-color-surface-container-high);
+    object-fit: cover;
+  }
+  .editor-token-sample {
+    display: flex;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    align-items: center;
+    justify-content: center;
+  }
+  .editor-token-shape {
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    border: 0 solid var(--mo-sys-color-primary);
+    border-block-start-width: 2px;
+    border-inline-start-width: 2px;
+    background-color: var(--mo-sys-color-surface-container-high);
+  }
+  .editor-token-elevation {
+    inline-size: 2rem;
+    block-size: 2rem;
+    border-radius: var(--mo-sys-block-radius);
+    background-color: var(--mo-sys-color-surface-container-lowest);
+  }
+  .editor-token-font {
+    font-size: 150%;
+    line-height: 1;
+  }
+  .editor-token-color {
+    inline-size: 2rem;
+    block-size: 2rem;
+    border-radius: var(--mo-sys-shape-corner-full);
+    border: 1px solid var(--mo-sys-color-outline-variant);
+  }
+}
+
+/* The vertical rhythm follows the person's density step (the rules at the end of editor.css, which keyed on the old space-y-* classes): a gap of
+   12 px or more between stacked parts takes the step, and a child with a margin of its own keeps it. Not in the layer, as the old rules were.
+   The classes at the end of the list are the parts of this file that had a margin class (my-, mb-, m-0) before and so were left out. */
+.editor-rhythm
+  > :not(
+    :last-child,
+    :has(+ [data-fold-section]),
+    [class*='my-'],
+    [class*='mb-'],
+    [class*='m-0'],
+    .editor-field-label,
+    .editor-field-hint,
+    .editor-swatches-title,
+    .editor-sheet-chips,
+    .editor-sheet-search,
+    .editor-choice-hint,
+    .editor-section,
+    .editor-score,
+    .editor-main-drawer-header-divider,
+    .editor-main-drawer-divider,
+    .editor-sheet-phone,
+    .editor-group-title,
+    .editor-section-list,
+    .editor-section-pane-caption,
+    .editor-section-pane-title
+  ) {
+  margin-block-end: calc(var(--mo-comp-editor-rhythm-space) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+}
+
+/* The same parts inside a stack that is still written with space-y-* (the parts of src/ not yet moved off Tailwind): the rules at the end of
+   editor.css leave out a child whose class has my-, mb- or m-0, and these classes no longer have one. revert-layer gives such a child the
+   margin the layer gave it (its own, or the stack's plain gap), as before. Goes with the last of those stacks. */
+:is(.space-y-3, .space-y-4, .space-y-5, .space-y-6, .space-y-8, .space-y-10)
+  > :is(
+    .editor-field-label,
+    .editor-field-hint,
+    .editor-swatches-title,
+    .editor-sheet-chips,
+    .editor-sheet-search,
+    .editor-choice-hint,
+    .editor-section,
+    .editor-score,
+    .editor-main-drawer-header-divider,
+    .editor-main-drawer-divider,
+    .editor-sheet-phone,
+    .editor-group-title,
+    .editor-section-list,
+    .editor-section-pane-caption,
+    .editor-section-pane-title
+  ):not(:last-child) {
+  margin-block-end: revert-layer;
+}
