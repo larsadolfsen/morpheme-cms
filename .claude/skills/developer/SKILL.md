@@ -94,6 +94,11 @@ the PM's "your slot" do you push (or merge `origin/<base>` and push, or open the
 the head sha once `check` is green. While you wait you may merge the base locally and run `npm run check`; never the full `check:screens` (skill `checks`). The first push
 of a new session follows the same rule: check in first. The PM keeps the order (`pm` skill, section 5, *Ready queue*, and section 6, *CI slots*).
 
+## 3c. While you work: `npm run check:fast`
+
+Run `npm run check:fast` while you build (after each step): it runs only the checks your changed files can break and prints what it skipped
+(skill `checks`, *While you work*); it adds the screens core set to a change that reaches the build, so it can take longer than `npm run check` there: use `-- --screens none` for the quick mode. It is not the gate: `npm run check` is what you run before the push (section 3a), and CI runs the rest.
+
 ## 4. The owner's standing design rules
 
 Short forms, for a developer to know before reading the specs. A rule changes only where it lives.

@@ -257,6 +257,29 @@ shards are quicker than these. The time outside that step (`npm ci`, the build a
 three quarters of the pull requests in the history of 0.18 still select every unit, so the gain on a real run is smaller than the table.
 The CI timing of the whole check (before and after, same pull request) is read from the first runs of this pull request and A2's against the numbers above.
 
+### A11 as built (`npm run check:fast`)
+
+`npm run check:fast` (`scripts/check-fast.mjs` runs, `scripts/check-fast-plan.mjs` decides; tests: `scripts/check-fast-plan.test.mjs`). It finds the base
+branch (the remote `main`, `0.*` or `feature/**` the branch is fewest commits ahead of, or `--base <ref>`), takes the changed paths (committed,
+staged, unstaged, untracked) and runs: Prettier on the changed files; the static checks whose inputs changed (a check leaves the plan only when no
+changed path is one it reads); the unit tests in the folder of a changed file or whose text names a changed path or file; `tsc` when a changed
+file is in its `include`; and, when the build reads a changed path (`needsStarterDemo`), the build, `check:site-types`, `check:editor` and the
+screens core set plus the touched areas (`areasArg`). It prints what it ran, what it skipped and why, and that CI and `npm run check` are the gate.
+When in doubt, everything: an unknown path (no rule in `areas.mjs`), a `..` path, no base branch, no changes, and a package or config file.
+One deliberate narrowing, from the brief ("no full run"): when the change reaches every area, the screens run the core set only, the plan lists
+"the units of every area" as skipped with the reason, and `--screens all` runs them. `--screens none` is the quick mode: the same plan without the screens (core set too), listed as skipped. `npm run check` is unchanged.
+
+**Measured** (18 November 2026, this development container, one run each, nothing else running; `--base HEAD` so only the one change counts):
+
+| Change | `check:fast` | `npm run check` |
+| :--- | :--- | :--- |
+| Docs only (a line in `docs/theme-grid.md`) | 9 s (format, language, token-names, density) | 111 s |
+| CSS only (a comment line in `theme/styles/ui.css`; every area, so the core set) | about 190 s (1 s format, 2 s language, 6 s token names, 12 s web, 28 s build, 136 s core screens, the rest under 5 s; 9 test files in under 1 s) | 110 s |
+
+Read it with care. For docs the saving is 12 times. For a CSS change `check:fast` is **slower** than `npm run check`, because it also runs the screens core
+set (136 s here), which `npm run check` does not; the work it adds is the screens check CI runs, and its static part is the same 25 s or less. A
+shared CSS file reaches every area, so no area narrowing helps there; a change inside one area's files (`src/Library.tsx`: `files,sheets`) runs 6 core units and the units of those areas.
+
 ## Track B. Site builds: a save goes live sooner
 
 From the build-speed plan of 15 November 2026 (planned with the owner, a brainstorm session; the owner chose all eight options). Each
