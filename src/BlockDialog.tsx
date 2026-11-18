@@ -693,7 +693,7 @@ export function useBlockDialog(
   const blockFields = block && (
     <>
       {block?.edit && (
-        <p className="text-sm">
+        <p className="mo-editor-block-dialog-note">
           <EditLink edit={block.edit} />
         </p>
       )}
@@ -715,7 +715,7 @@ export function useBlockDialog(
       {block!.type === IMAGE && crop && !data.page && !!values.src && (
         // The aspect ratio is one row: its value and an arrow; it opens the crop view over the sheet, and Save there brings the new ratio and crop
         // back here (the sheet's own Save keeps them in the page: one change, one Save).
-        <ul className="-mx-3">
+        <ul className="mo-editor-block-dialog-list">
           <ListItem
             headline={t.media.crop.ratio}
             count={String(values.format ?? '') || t.media.crop.original}
@@ -758,7 +758,9 @@ export function useBlockDialog(
               </>
             ),
           children: (
-            <div className="space-y-5">{open.step === 'row' ? rowFields : open.step === 'section' ? sectionSettings : blockFields}</div>
+            <div className="mo-editor-block-dialog-fields">
+              {open.step === 'row' ? rowFields : open.step === 'section' ? sectionSettings : blockFields}
+            </div>
           ),
         }
       : null,
@@ -812,10 +814,10 @@ export function useBlockDialog(
                   />
                 )
               }
-              className="mx-5 mb-2 shrink-0"
+              className="mo-keep mo-editor-block-dialog-search"
             />
             {shownGroup && (
-              <div className="mx-5 mb-2 flex shrink-0 flex-wrap gap-2">
+              <div className="mo-keep mo-editor-block-dialog-filters">
                 <InputChip removeLabel={t.library.removeFilter(shownGroup)} onRemove={() => setGroup('')}>
                   {shownGroup}
                 </InputChip>
@@ -849,11 +851,7 @@ export function useBlockDialog(
         {open?.step === 'alt' && (
           <>
             <SheetBody>
-              <img
-                src={shownAt(String(values.src ?? ''))}
-                alt=""
-                className="mx-auto max-h-24 max-w-full rounded-xl object-contain medium:max-h-40"
-              />
+              <img src={shownAt(String(values.src ?? ''))} alt="" className="mo-editor-block-dialog-image" />
               <FieldList fields={altFields} value={values} onChange={(v) => setValues(v as BlockProps)} />
             </SheetBody>
             <SheetActions
@@ -881,18 +879,18 @@ export function useBlockDialog(
           }}
         >
           <TopAppBar>
-            <div className="flex h-16 items-center gap-1 px-2">
+            <div className="mo-editor-block-dialog-bar">
               <IconButton icon="arrow-left" label={t.common.backTo(back || t.forms.text)} onClick={() => void leave()} />
-              <h1 id={headingId} className="min-w-0 flex-1 truncate text-title-large">
+              <h1 id={headingId} className="mo-fill mo-truncate mo-editor-block-dialog-title">
                 {title}
               </h1>
             </div>
           </TopAppBar>
           <main className="block-page-main">
-            <div className="space-y-5">{open.step === 'section' ? sectionSettings : blockFields}</div>
+            <div className="mo-editor-block-dialog-fields">{open.step === 'section' ? sectionSettings : blockFields}</div>
           </main>
           <ActionSheet label={t.common.saveChanges}>
-            <div className="flex justify-end gap-2">
+            <div className="mo-editor-block-dialog-actions">
               <Button kind="filled" onClick={() => (open.step === 'section' ? saveSection() : save(open.type))}>
                 {open.step === 'fields' && open.isNew ? t.blocks.insert : t.common.save}
               </Button>

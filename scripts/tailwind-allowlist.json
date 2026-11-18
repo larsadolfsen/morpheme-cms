@@ -36,9 +36,6 @@
   "src/AppInfoTab.tsx": {
     "utilities": 11
   },
-  "src/AppList.tsx": {
-    "utilities": 48
-  },
   "src/AppNotificationSwitches.tsx": {
     "utilities": 3
   },
@@ -54,18 +51,8 @@
   "src/Assistants.tsx": {
     "utilities": 21
   },
-  "src/BlockDialog.tsx": {
-    "utilities": 31
-  },
-  "src/BlockParts.tsx": {
-    "utilities": 45,
-    "constants": 11
-  },
   "src/BlockSettings.tsx": {
     "utilities": 26
-  },
-  "src/BrandForm.tsx": {
-    "utilities": 48
   },
   "src/CmsPage.tsx": {
     "utilities": 23
@@ -73,14 +60,8 @@
   "src/Colors.tsx": {
     "utilities": 19
   },
-  "src/CommunicationParts.tsx": {
-    "utilities": 44
-  },
   "src/Consents.tsx": {
     "utilities": 4
-  },
-  "src/ContainmentParts.tsx": {
-    "utilities": 39
   },
   "src/CoverageBadge.tsx": {
     "utilities": 4
@@ -113,9 +94,6 @@
   },
   "src/EntryForm.tsx": {
     "utilities": 24
-  },
-  "src/fields.tsx": {
-    "utilities": 50
   },
   "src/FileView.tsx": {
     "utilities": 9
@@ -177,13 +155,6 @@
   "src/MorphemeConnection.tsx": {
     "utilities": 2
   },
-  "src/NavigationParts.tsx": {
-    "utilities": 33,
-    "constants": 4
-  },
-  "src/NavigationRestParts.tsx": {
-    "utilities": 54
-  },
   "src/NewListDialog.tsx": {
     "utilities": 8
   },
@@ -242,9 +213,6 @@
   },
   "src/Screen.tsx": {
     "utilities": 123
-  },
-  "src/SearchPreview.tsx": {
-    "utilities": 53
   },
   "src/SectionSettings.tsx": {
     "utilities": 1

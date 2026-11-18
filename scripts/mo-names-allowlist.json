@@ -387,7 +387,7 @@
     },
     "src/AppList.tsx": {
       "classDefs": 0,
-      "markup": 10,
+      "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -411,13 +411,13 @@
     },
     "src/BlockDialog.tsx": {
       "classDefs": 0,
-      "markup": 6,
+      "markup": 4,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "src/BlockParts.tsx": {
       "classDefs": 0,
-      "markup": 14,
+      "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -429,7 +429,7 @@
     },
     "src/BrandForm.tsx": {
       "classDefs": 0,
-      "markup": 9,
+      "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -453,7 +453,7 @@
     },
     "src/CommunicationParts.tsx": {
       "classDefs": 0,
-      "markup": 12,
+      "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -465,7 +465,7 @@
     },
     "src/ContainmentParts.tsx": {
       "classDefs": 0,
-      "markup": 13,
+      "markup": 6,
       "propsDeclared": 0,
       "propsRead": 1
     },
@@ -657,13 +657,13 @@
     },
     "src/NavigationParts.tsx": {
       "classDefs": 0,
-      "markup": 10,
+      "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "src/NavigationRestParts.tsx": {
       "classDefs": 0,
-      "markup": 11,
+      "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -747,7 +747,7 @@
     },
     "src/SearchPreview.tsx": {
       "classDefs": 0,
-      "markup": 2,
+      "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -879,7 +879,7 @@
     },
     "src/fields.tsx": {
       "classDefs": 0,
-      "markup": 4,
+      "markup": 3,
       "propsDeclared": 0,
       "propsRead": 0
     },
