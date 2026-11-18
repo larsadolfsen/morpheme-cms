@@ -175,6 +175,12 @@ re-run of run 44258369589 (head `2169576`, attempt 2) after attempt 1 had filled
   several minutes between runs (shard 2: 6m15s now, 6m24s cold), so one run is not a benchmark.
 ### A3 as built (touched areas and the core set)
 
+**The cache-fill workflow** (third pull request of A2). `.github/workflows/cache-fill.yml` runs on push to `feature/**` and `0.*` (and by hand),
+does `.github/actions/prepare` with the browser (the same keys as `check.yml`: npm's cache by the lock file, Chromium by the Playwright version) and
+saves the caches on that branch, where a pull request into it can read them. It builds nothing and has read-only permissions; a merge into a
+feature branch is a push, so it costs one extra run, free here. The build is not kept this way: a pull request's inputs rarely equal the
+branch's. How it was checked, and the numbers of a pull request that restores them, are in the pull request.
+
 Built in `lib/affected.mjs` (the engine, tested in `lib/affected.test.mjs`, reusable by track B with its own rules),
 `scripts/screens/support/areas.mjs` (the map, `AREAS`, `CORE_UNITS`; tested in `scripts/screens-areas.test.mjs`), `--areas` in the runner
 (`scripts/editor-screens.mjs`) and `areas=` from `scripts/ci-changes.mjs` into each `screens` shard of `check.yml`. The rules are in the `checks` skill, *Built (PR 3)*.

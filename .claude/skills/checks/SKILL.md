@@ -41,6 +41,11 @@ The job `build` keeps its tarball in Actions' cache under `scripts/ci-build-key.
 the build can read, except `docs/`, `.claude/`, `.agents/`, `.changeset/` and `staging-watcher/`, and the Node major version; never file times) and
 builds only on a miss, which happens on the first run of a pull request that changes an input; a push that changes none (docs, a changeset) and a
 re-run take the kept build. A root `.npmrc` (`prefer-offline`, no audit, no fund) makes `npm ci` use the npm cache first.
+An Actions cache is read only by the branch that saved it, the default branch and a pull request into its base branch, and `check.yml` runs only on pull
+requests, so every pull request started with cold caches (npm's cache and Chromium). `.github/workflows/cache-fill.yml` runs on every push to
+`feature/**` and `0.*` (each merge into it, plus `workflow_dispatch`), does the same set-up as the jobs (`.github/actions/prepare`, so the same keys), and saves the
+caches for the next pull request into that branch. It builds and checks nothing and has `contents: read`. Not kept this way: the build (a pull request's
+inputs rarely equal the branch's), so the kept build still hits only on a re-run.
 A failed `build` leaves its jobs skipped, which the verdict turns red. The levels, `scripts/ci-changes.mjs` and the verdict are unchanged.
 
 **Built (PR 3, touched areas and the core set).** The feature and line levels run the 8 `screens` shards on the **core set** plus the
