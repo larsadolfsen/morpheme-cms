@@ -13,7 +13,7 @@ import { UI_PART_FILES } from '../theme/styles/files.mjs';
 /** The parts that must read density: where their rule is, and which variable of the three groups they read. */
 export const PARTS = [
   { name: 'button', file: 'theme/styles/ui.css', selector: '.button', reads: '--mo-sys-density-layout' },
-  { name: 'chip', file: 'theme/styles/ui.css', selector: '.chip', reads: '--mo-sys-density-layout' },
+  { name: 'chip', file: 'theme/styles/chips.css', selector: '.chip', reads: '--mo-sys-density-layout' },
   { name: 'segmented button', file: 'theme/styles/ui.css', selector: '.segmented-button-segment', reads: '--mo-sys-density-layout' },
   { name: 'text field', file: 'theme/styles/ui.css', selector: '.text-field', reads: '--mo-sys-density-layout' },
   { name: 'choice group row', file: 'theme/styles/ui.css', selector: '.choice-group-list .list-item-container', reads: '--mo-sys-density' },
