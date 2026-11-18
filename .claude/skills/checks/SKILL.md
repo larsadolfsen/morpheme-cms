@@ -155,6 +155,19 @@ are all still red: when in doubt it stays red.
 | `cd .morpheme/demo/site && node ../../../scripts/measure-speed.mjs` | by hand, after `npm run build`, when a speed claim or a performance fix needs numbers (a few minutes, not in CI or `npm run check`; the numbers depend on the machine, so compare runs on the same one) | LCP, CLS, TBT, long tasks, long animation frames and the INP of scripted interactions (open menu, open a sheet, type, scroll, search) on the site's key pages and the editor's key screens, on a phone (375 px, CPU 4x) and a computer. `--runs N`, `--profile mobile\|desktop`, `--only <text>`, `--json <file>`; `CHROMIUM_PATH` for another Chromium. Baseline and method: `docs/performance-baseline.md`. |
 | `npm run check:contrast` | by hand, after `npm run build`, when colours or blocks changed (about 4 minutes per theme, not in CI) | WCAG AA contrast of every block's text, icons and control borders on each section colour, on the site and typed in place in the editor, light and dark, phone and computer. `--all` runs every installed theme; `CONTRAST_DENSITY=-1` checks the editor at Small density. |
 
+## While you work: `npm run check:fast`
+
+Added 18 Nov 2026 (plan `docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, A11). Run `npm run check:fast` after each step while you
+work. It compares the files you changed with the base branch (found by itself, or `--base <ref>`) and runs only what they can break: Prettier on
+the changed files, the static checks whose inputs changed, the unit tests in the folder of a changed file or naming it, `tsc`, and, when the
+build reads a changed file, the build, `check:editor` and the screens **core set plus the units of the touched areas**
+(`scripts/check-fast-plan.mjs`, over `isDocsOnly` and `needsStarterDemo` of `scripts/ci-changes.mjs` and `areasArg` of the screens map). It prints
+what it ran and what it skipped and why. A path nothing knows, a package or config file, no base branch and any error run everything
+(`--dry-run` prints the plan only). When the change reaches every screens area (a shared file such as `theme/styles/` or `src/ui.tsx`) it runs
+the core set only and says so; `--screens all` runs every unit.
+
+`check:fast` is **not the gate**. `npm run check` stays what you run before the last push, and CI runs the full check.
+
 ## What to run before a push
 
 Before a push a session runs `npm run check` and only the screens units that cover what it changed: `npm run check:screens:shard -- K/N --list`
