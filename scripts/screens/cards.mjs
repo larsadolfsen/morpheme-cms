@@ -400,7 +400,8 @@ async function checkCardsCarousel(width, height) {
   await root.scrollIntoViewIfNeeded();
   await page.waitForTimeout(500);
   // The page is in the site's language, whatever the browser's: the expected texts are the site's own, from its language files.
-  const say = blocksOf(await page.evaluate(() => document.documentElement.lang)).cards;
+  const lang = await page.evaluate(() => document.documentElement.lang);
+  const say = blocksOf(lang).cards;
   const m = await root.evaluate((el) => {
     const row = el.querySelector('[data-carousel-items]');
     const items = [...el.querySelectorAll('[data-carousel-item]')];
@@ -444,7 +445,9 @@ async function checkCardsCarousel(width, height) {
       problems.push(`${label}: the cards are labelled "${m.itemLabels}", not "${say.slideOf('n', m.items)}"`);
     if (m.pageOverflow) problems.push(`${label}: the page scrolls sideways`);
     const button = root.locator('[data-cards-show-all]');
-    if ((await button.textContent())?.trim() !== say.showAll) problems.push(`${label}: the button is not "${say.showAll}"`);
+    const shown = (await button.textContent())?.trim();
+    if (shown !== say.showAll)
+      problems.push(`${label}: the button says "${shown}", not "${say.showAll}" (the page's language is "${lang}")`);
     await button.click();
     await page.waitForTimeout(300);
     const open = await root.evaluate((el) => ({
@@ -455,7 +458,9 @@ async function checkCardsCarousel(width, height) {
       focus: document.activeElement === el.querySelector('[data-cards-show-all]'),
     }));
     if (!open.expanded || open.grid !== 'grid' || open.text !== say.showFewer || open.pressed !== 'true' || !open.focus)
-      problems.push(`${label}: "Show all" did not stack the cards in place with focus kept (${JSON.stringify(open)})`);
+      problems.push(
+        `${label}: "Show all" did not stack the cards in place with focus kept, or the button did not say "${say.showFewer}" (${JSON.stringify(open)})`,
+      );
     await button.click();
     await page.waitForTimeout(300);
     if (await root.evaluate((el) => el.hasAttribute('data-expanded'))) problems.push(`${label}: "Show fewer" did not return the carousel`);
