@@ -4,7 +4,16 @@ import { readFileSync } from 'node:fs';
 import { CONTEXT, MAX_PER_DAY, isFeatureBranch, markState, pick } from './daily-full.mjs';
 
 const ok = { result: 'success' };
-const green = { changes: ok, static: ok, build: ok, screens: ok, 'screens-extra': ok, demo: ok, starter: ok };
+const green = {
+  changes: ok,
+  static: ok,
+  build: ok,
+  screens: ok,
+  'screens-extra': ok,
+  demo: ok,
+  starter: ok,
+  'starter-smoke': { result: 'skipped' },
+};
 
 test('isFeatureBranch: only feature/**', () => {
   assert.equal(isFeatureBranch('feature/css-split'), true);

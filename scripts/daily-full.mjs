@@ -29,7 +29,7 @@ export function isFeatureBranch(name = '') {
  * @returns {'success'|'failure'|null}
  */
 export function markState(needs) {
-  if (!verdict(needs, false, true, false).length) return 'success';
+  if (!verdict(needs, false, true, 'full').length) return 'success';
   const results = Object.values(needs ?? {}).map((n) => n?.result);
   if (results.includes('cancelled') && !results.includes('failure')) return null;
   return 'failure';
