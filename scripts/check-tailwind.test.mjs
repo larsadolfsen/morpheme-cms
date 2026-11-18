@@ -8,7 +8,9 @@ import { ROOT, scanTree } from './tailwind-inventory.mjs';
 const allowed = { 'src/A.tsx': { utilities: 3, theme: 1 } };
 
 test('counted keeps only the counted keys of the files that have any', () => {
-  assert.deepEqual(counted({ 'a.tsx': { utilities: 2, prose: 1, constants: 0 }, 'b.css': { prose: 4 } }), { 'a.tsx': { utilities: 2 } });
+  assert.deepEqual(counted({ 'a.tsx': { utilities: 2, typographyClass: 1, constants: 0 }, 'b.css': { typographyClass: 4 } }), {
+    'a.tsx': { utilities: 2 },
+  });
 });
 
 test('the same or lower counts pass', () => {

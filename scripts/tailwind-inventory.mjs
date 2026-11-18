@@ -2,13 +2,13 @@
 //   node scripts/tailwind-inventory.mjs [--json] [--files]
 // It asks Tailwind's own design system (`tailwindcss`, installed until batch T16) which string in the markup is a valid utility, with the
 // repository's `@theme` blocks loaded, so a word like `flex` in a comment is not counted but `rounded-(--block-radius)` is. It counts
-//   - utility uses in class attributes (`class="…"`, `className="…"`, `className={…}`, `class:list={…}`, and a class built by code in the attribute),
-//   - utility uses in strings of constants (a `.ts`, `.mjs` or `.js` file, or a string outside a class attribute in markup), reported apart,
+//   - utility uses in class attributes (the class, className and class:list attributes, also a class built by code inside their braces),
+//   - utility uses in strings of constants (in a .ts, .mjs or .js file, or outside the attributes in markup), reported apart,
 //   - `theme(--…)` uses, `@theme`, `@plugin`, `@source`, `@reference` and `@apply` in CSS, `--tw-` declarations, and `prose` in class attributes,
 // per folder, per file, per family and per variant. `--json` prints it as JSON, `--files` adds every file's counts to the text.
 // `scripts/check-tailwind.mjs` (the ratchet) reads the same counts through `scanTree`.
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -36,7 +36,8 @@ export async function loadDesignSystem(root = ROOT) {
   if (designSystem) return designSystem;
   const require = createRequire(join(root, 'package.json'));
   const { __unstable__loadDesignSystem: load } = await import('tailwindcss');
-  const themes = ['base', 'material']
+  const themes = readdirSync(join(root, 'theme/styles/tokens'))
+    .sort()
     .map((origin) => join(root, `theme/styles/tokens/${origin}/ref.css`))
     .filter(existsSync)
     .map((f) => readFileSync(f, 'utf8'))
@@ -231,7 +232,7 @@ const FAMILIES = [
   ['sizing', /^-?(w|h|size|min-w|min-h|max-w|max-h|aspect)($|-)/],
   [
     'typography',
-    /^(text|font|leading|tracking|line-clamp|truncate|whitespace|break|uppercase|lowercase|capitalize|normal-case|italic|not-italic|underline|no-underline|overline|line-through|decoration|underline-offset|align|indent|list|prose|not-prose|antialiased|tabular-nums|hyphens)($|-)/,
+    /^(text|font|leading|tracking|line-clamp|truncate|whitespace|break|uppercase|lowercase|capitalize|normal-case|italic|not-italic|underline|no-underline|overline|line-through|decoration|underline-offset|align|indent|list|antialiased|tabular-nums|hyphens)($|-)/,
   ],
   ['colour, background, border', /^(bg|from|via|to|fill|stroke|accent|caret|border|divide|outline|ring|rounded|color-scheme|scheme)($|-)/],
   ['effects, filters', /^(shadow|opacity|blur|backdrop|brightness|contrast|drop-shadow|grayscale|saturate|mix-blend|bg-blend|filter)($|-)/],
@@ -268,7 +269,7 @@ const cssCounts = (source) => {
 };
 
 /** One file: the class names found in its class attributes and in its string constants, and what it counts of the rest.
- * Gives { attributes: [names], constants: [names], prose, css: {…} } once the valid names are known (see scanTree). */
+ * Gives { attributes: [names], constants: [names], typographyClass, css: {…} } once the valid names are known (see scanTree). */
 function read(file, source) {
   const ext = file.split('.').pop();
   const out = { attributes: [], constants: [], css: null };
@@ -284,7 +285,7 @@ function read(file, source) {
 }
 
 /** Scans the tree. Gives { files: { path: counts }, uses: [{ file, name, where }] }; the counts of one file are
- * `utilities` (class attributes), `constants` (strings), `prose` and the CSS counts (`theme`, `themeAt`, `plugin`, `source`, `reference`, `apply`, `tw`). */
+ * `utilities` (class attributes), `constants` (strings), `typographyClass` (prose) and the CSS counts (`theme`, `themeAt`, `plugin`, `source`, `reference`, `apply`, `tw`). */
 export async function scanTree(root = ROOT, list = trackedFiles(root), filesRoot = root) {
   // `filesRoot`: where the files are read from, when it is not the repository (a test's made-up tree); Tailwind's design system is always the repository's.
   const reads = list.map((file) => [file, read(file, readFileSync(join(filesRoot, file), 'utf8'))]);
@@ -294,15 +295,15 @@ export async function scanTree(root = ROOT, list = trackedFiles(root), filesRoot
   const files = {};
   const uses = [];
   for (const [file, r] of reads) {
-    const isProse = (w) => w === 'prose' || w === 'not-prose' || /^prose-/.test(w);
+    const isProse = (w) => /^(not-)?prose(-|$)/.test(w);
     // `prose` is counted apart (the plugin's classes go with batch T13), so it is not a utility use here.
     const attribute = r.attributes.flatMap(tokens).filter((w) => valid.get(w) && !isProse(w));
     const constant = r.constants
       .map(tokens)
       .filter((words) => looksLikeClasses(words, valid))
       .flat();
-    const prose = r.attributes.flatMap(tokens).filter((w) => w === 'prose' || /^prose-/.test(w)).length;
-    const counts = { utilities: attribute.length, constants: constant.length, prose, ...(r.css ?? {}) };
+    const typographyClass = r.attributes.flatMap(tokens).filter((w) => /^prose(-|$)/.test(w)).length;
+    const counts = { utilities: attribute.length, constants: constant.length, typographyClass, ...(r.css ?? {}) };
     if (Object.values(counts).some(Boolean)) files[file] = counts;
     for (const name of attribute) uses.push({ file, name, where: 'attribute' });
     for (const name of constant) uses.push({ file, name, where: 'constant' });
@@ -354,7 +355,7 @@ export function report({ files, uses }) {
       reference: sum('reference'),
       apply: sum('apply'),
       twDeclarations: sum('tw'),
-      prose: sum('prose'),
+      typographyClass: sum('typographyClass'),
     },
     folders,
     families: tally(all, (u) => [familyOf(splitVariants(u.name).utility)]),
@@ -376,7 +377,7 @@ export function format(r, withFiles) {
     `theme(--…) uses: ${t.themeFunction} in ${t.themeFunctionFiles} files`,
     `@theme ${t.theme}, @plugin ${t.plugin}, @source ${t.source}, @reference ${t.reference}, @apply ${t.apply}`,
     `--tw- declarations: ${t.twDeclarations}`,
-    `prose in class attributes: ${t.prose}`,
+    `prose in class attributes: ${t.typographyClass}`,
     '',
     'Per folder (utilities, constants, theme(), --tw-):',
   ];

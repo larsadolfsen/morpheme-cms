@@ -3,7 +3,7 @@
 //   node scripts/compare-styles.mjs --snapshots <folder before> <folder after>
 // <before> and <after> are two built sites (a folder each, like `npx astro build --outDir <folder>`; the editor's /editor/ is left out, its screens are
 // compared by `--snapshots`). It opens every page of <before> in both, at 375, 700, 900 and 1300 px, light and dark, and on each section colour (the
-// `text-section-<colour>` class of every section is swapped to surface, primary, secondary and tertiary in turn), with animations, `data-reveal`
+// `…section-<colour>` class of every section is swapped to surface, primary, secondary and tertiary in turn), with animations, `data-reveal`
 // and motion frozen and the fonts loaded. For every element in document order it compares the computed style of about 60 properties (type, spacing,
 // colour, border, display, position, size) and the bounding box. The structure must be the same (the same tags in the same order); the class
 // attributes may differ. It reports the first element that differs in each case, with its selector path and the property, and exits 1.
@@ -287,20 +287,20 @@ async function compareSites(beforeDir, afterDir, { only, limit, all }) {
     return { page, context };
   };
   const grab = (page) => page.evaluate(capture, { properties: PROPERTIES, skip: [...SKIP] });
+  // The class of a section's colour ends in `section-<colour>` (the rename to mo- names does not change that), so it is found by its ending.
   const withColor = (page, color) =>
     page.evaluate(
       ([c, all]) => {
-        for (const e of document.querySelectorAll('.text-section')) {
-          e.classList.remove(...all.map((x) => `text-section-${x}`));
-          e.classList.add(`text-section-${c}`);
-        }
+        const ending = new RegExp(`section-(${all.join('|')})$`);
+        for (const e of document.querySelectorAll('[class*="section-"]'))
+          for (const name of [...e.classList]) if (ending.test(name)) e.classList.replace(name, name.replace(ending, `section-${c}`));
       },
       [color, SECTION_COLORS],
     );
   for (const address of pages) {
     for (const width of WIDTHS) {
       const [x, y] = [await open(a.site, width, address), await open(b.site, width, address)];
-      const sections = await x.page.evaluate(() => document.querySelectorAll('.text-section').length);
+      const sections = await x.page.evaluate(() => document.querySelectorAll('[class*="section-"]').length);
       for (const scheme of SCHEMES) {
         await Promise.all([x.page, y.page].map((p) => p.emulateMedia({ colorScheme: scheme, reducedMotion: 'reduce' })));
         for (const color of sections ? SECTION_COLORS : [null]) {
