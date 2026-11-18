@@ -28,12 +28,12 @@ the rendered result is identical, its changeset, its checks and what must merge 
 | [T07](2026-11-18-tailwind-t07-editor-forms.md) | Editor, part 3: navigation, forms and block parts | T01, T04 | large |
 | [T08](2026-11-18-tailwind-t08-editor-settings.md) | Editor, part 4: settings and tools | T01, T04 | large |
 | [T09](2026-11-18-tailwind-t09-editor-rest.md) | Editor, part 5: the remaining 63 small files | T01, T04 | medium |
-| [T10](2026-11-18-tailwind-t10-theme-fn-literals.md) | `theme()` to literal widths | the CSS split, T03 (the check accepts the literals) | medium |
-| [T11](2026-11-18-tailwind-t11-theme-components.md) | `theme/components/` (266 uses) and the import of the vocabulary | the CSS split, T01, T04, T10 | large |
-| [T12](2026-11-18-tailwind-t12-theme-pages.md) | `theme/layouts`, `theme/templates`, `defaults`, `site` and the editor preview (92 uses) | the CSS split, T01, T04, T11 | medium |
-| [T13](2026-11-18-tailwind-t13-prose-own-css.md) | `prose` in our own CSS | the CSS split, T01 | medium |
-| [T14](2026-11-18-tailwind-t14-reset.md) | Our own reset (Tailwind's preflight) | the CSS split, T01 | medium |
-| [T15](2026-11-18-tailwind-t15-last-tailwind-names.md) | The last Tailwind-named reads, repointed | the CSS split, T01, T05 | small |
+| [T10](2026-11-18-tailwind-t10-theme-fn-literals.md) | `theme()` to literal widths | the CSS split, cards and lists steps 1 to 5, T03 (the check accepts the literals) | medium |
+| [T11](2026-11-18-tailwind-t11-theme-components.md) | `theme/components/` (253 uses) and the import of the vocabulary | the CSS split, cards and lists steps 1 to 5, T01, T04, T10 | large |
+| [T12](2026-11-18-tailwind-t12-theme-pages.md) | `theme/layouts`, `theme/templates`, `defaults`, `site` and the editor preview (78 uses) | the CSS split, cards and lists steps 1 to 5, T01, T04, T11 | medium |
+| [T13](2026-11-18-tailwind-t13-prose-own-css.md) | `prose` in our own CSS | the CSS split, cards and lists steps 1 to 5, T01 | medium |
+| [T14](2026-11-18-tailwind-t14-reset.md) | Our own reset (Tailwind's preflight) | the CSS split, cards and lists steps 1 to 5, T01 | medium |
+| [T15](2026-11-18-tailwind-t15-last-tailwind-names.md) | The last Tailwind-named reads, repointed | the CSS split, cards and lists steps 1 to 5, T01, T05 | small |
 | [T16](2026-11-18-tailwind-t16-remove-tailwind.md) | Remove Tailwind and raise the contract to 7 | T05 to T09, T11 to T15 | large (wide, shallow) |
 | [T17](2026-11-18-tailwind-t17-permanent-check.md) | The permanent check (the ratchet goes to zero) | T16 | small |
 
@@ -44,10 +44,19 @@ Waves, two at a time, in this priority order, once 0.18.0 is released and the PM
 1. **First pair (they touch neither `ui.css` nor `base.css`):** **T01** (proof tools, progress meter, the utility and `--tw-` ratchet) and **T04** (the vocabulary: new files plus one line in `src/editor.css`).
 2. **Next free slots:** **T03** (breakpoint tokens and the width check; small), then **T02** (the migration guide, docs only, so `morpheme-apps` can migrate in parallel).
 3. **When T01 and T04 have merged, and while the CSS split is still moving:** the editor slices **T05** (`src/ui.tsx`, 617 uses), **T06**, **T07**, **T08**, **T09**, two at a time. They touch only `src/` and their own `src/editor-<area>.css`; the one shared line is an `@import` at the end of the import block of `src/editor.css`.
-4. **After the CSS split's last PR and the `base.css` cleanup** (the split carries the three `@source` lines of `ui.css` to `base.css`; the PM tells the split session): **T10** (`theme()` to literals), then **T11** (`theme/components`, and the import of the vocabulary into `base.css`), then **T12** (layouts, templates, `defaults`, `site`). **T13** (`prose`), **T14** (reset) and **T15** (the last Tailwind-named reads, after T05) run beside them two at a time.
+4. **After the CSS split's last PR, the `base.css` cleanup and steps 1 to 5 of the cards-and-lists plan** (`2026-11-17-cards-and-lists-0-19.md`, in 0.18.0) (the split carries the three `@source` lines of `ui.css` to `base.css`; the PM tells the split session): **T10** (`theme()` to literals), then **T11** (`theme/components`, and the import of the vocabulary into `base.css`), then **T12** (layouts, templates, `defaults`, `site`). **T13** (`prose`), **T14** (reset) and **T15** (the last Tailwind-named reads, after T05) run beside them two at a time.
 5. **T16** (remove Tailwind, contract 7) when every other batch has merged and `tailwind:inventory` shows nothing left but the wiring. **T17** (the permanent check) right after. The owner releases 0.18.1 when the gate (below) is met.
 
 Until the split finishes nothing but T10 to T15 touches `theme/styles/ui.css`, `base.css`, `blocks.css`, `components.css`, `global.css`, and T10 to T15 wait for it; T01 to T09 never touch them.
+
+## The card and list files are not in these batches (PM, 18 Nov)
+
+Cards and lists (steps 1 to 5 of `2026-11-17-cards-and-lists-0-19.md`, PR #886) go into 0.18.0 in plain CSS without Tailwind, so the batches drop their files; the list is the plan's section *The card and list files (taken out of the Tailwind batches)*, and every spec repeats it in its rules. On `origin/0.18` at `b328d830` (18 Nov) the effect on the counts is small, because the card and list blocks and `theme/ui` parts already have no utility class:
+
+- **Utility uses taken out: 27** (2,559 → **2,532** left for the batches; `theme/` and `defaults/` 358 → **331**): `theme/components/PostCard.tsx` 7 and `PostList.tsx` 6 (T11: 266 → **253** uses, 28 → **26** files) and the suggestion card of `theme/templates/NotFound.astro` 14 (T12: 92 → **78** uses; `NotFound.astro` keeps 2, `mt-8 medium:mt-12` on its `Container`). Every other card and list file (`theme/ui/Card.tsx`, `List.tsx`, `ImageTile.tsx`; the card and list blocks) has 0 utility uses today.
+- **`theme()` and CSS:** the card and list CSS (`cards.css` 6 `theme()`, `lists.css` 2, the `tokens/*/comp/card.css` and `comp/list.css` and the cards' and lists' token files, and the card and list rules of `blocks.css` and `global.css`) is rewritten by steps 1 to 5. T10 skips these files and reports any that still hold a `theme()` after step 5; T13 touches the `prose` rules only; T14 and T15 wait for step 5 because they edit `base.css` and the token files.
+- **Still the batches' work:** `ChoiceGroup`, `Search`, `ActionBar` (no utility uses today; their CSS may hold a `theme()` that T10 converts), `defaults/popup.tsx` (T12) and all of `src/` (T05 to T09, unchanged: 2,201 uses).
+- **New order constraint:** T10 to T15 now wait for the CSS split **and** steps 1 to 5; T01 to T09 are not affected (they touch no card or list file).
 
 ## Editor slices: how each flows into 0.19, and the freeze windows
 

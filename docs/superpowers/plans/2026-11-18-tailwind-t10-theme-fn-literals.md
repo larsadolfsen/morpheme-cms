@@ -5,8 +5,8 @@ Spec for one build session and one pull request into `main`. Part of `2026-11-16
 
 | | |
 | :-- | :-- |
-| **When** | After the CSS split has finished (it edits `ui.css`, `base.css`, `blocks.css`, `components.css`, `global.css` and the part files). The part for finished files could start earlier if the PM allows. |
-| **Must merge first** | the CSS split, T03 (the check accepts the literals) |
+| **When** | After the CSS split has finished (it edits `ui.css`, `base.css`, `blocks.css`, `components.css`, `global.css` and the part files) and after steps 1 to 5 of the cards-and-lists plan have merged (they rewrite the card and list CSS without `theme()`). The part for finished files could start earlier if the PM allows. |
+| **Must merge first** | the CSS split, cards and lists steps 1 to 5, T03 (the check accepts the literals) |
 | **Others wait for it** | T11, T12 |
 | **Size** | medium |
 
@@ -16,7 +16,7 @@ Replace the 72 `theme(--…)` calls with the values they already compile to.
 
 ## What to do
 
-- A one-off script (not committed) replaces `theme(--breakpoint-medium)` with `37.5rem`, `-expanded` with `52.5rem`, `-large` with `75rem` (63, 4, 4 uses) and `theme(--container-3xl)` (1 use, `src/editor.css`) with `48rem`, in the 28 files that hold one (`git grep -l 'theme(--' -- theme src`). Re-run it after a conflict; do not merge by hand.
+- A one-off script (not committed) replaces `theme(--breakpoint-medium)` with `37.5rem`, `-expanded` with `52.5rem`, `-large` with `75rem` (63, 4, 4 uses) and `theme(--container-3xl)` (1 use, `src/editor.css`) with `48rem`, in the files that hold one when the batch starts (`git grep -l 'theme(--' -- theme src`: 28 files on 18 Nov, **minus the card and list files** that steps 1 to 5 rewrite: `cards.css` 6, `lists.css` 2, the `tokens/*/comp/card.css` and `comp/list.css` files, the cards' and lists' token files and the card and list rules of `blocks.css` and `global.css`; the script skips them, and the batch reports any that still hold a `theme()` after step 5). Re-run it after a conflict; do not merge by hand.
 - The two off-table literals of `src/editor.css` (`73.5rem`, `599.98px`): `599.98px` becomes `(width < 37.5rem)`; `73.5rem` is the column's own width plus the button (a layout value, not a window class): give it a reason in the allowlist of `site/breakpoints.mjs` or a token.
 - `@reference '../theme/styles/base.css'` in `src/editor.css` stays (T16 removes it).
 
@@ -49,4 +49,5 @@ Empty (or `patch` if the PM asks).
 - After T01 exists: lower `scripts/tailwind-allowlist.json` in the same PR by exactly the uses the batch removed, and say the numbers in the PR text.
 - A token the batch adds follows `docs/css-tokens.md`: `--mo-ref-*`, `--mo-sys-*` or `--mo-comp-<component>-*`, a token one place reads is declared there, nothing unprefixed on `:root`.
 - English only (replies, PR text, commits). Short report to the PM: link and head sha.
+- **The card and list files are not a Tailwind batch's work** (owner, 18 Nov: cards and lists, steps 1 to 5 of `2026-11-17-cards-and-lists-0-19.md`, go into 0.18.0 in plain CSS; the PM took them out of these batches): `theme/ui/Card.tsx`, `List.tsx`, `ImageTile.tsx`, `Avatar.tsx`; the site's cards (`theme/blocks/cards/LinkCards.tsx` and `View.tsx`, `pricecards/View.tsx`, `notice/View.tsx`, `table/View.tsx`, `cookies/View.tsx`, `Panel.tsx`, `imagegrid/View.tsx`, `testimonials/Testimonial.tsx`, `theme/components/PostCard.tsx`, the card in `theme/templates/NotFound.astro`) and lists (`list/Rows.tsx`, `points/PointList.tsx`, `checklist/Checks.tsx`, `links/LinkGroups.tsx`, `testimonials/List.tsx` and `View.tsx`, `accordion/Accordion.tsx`, `theme/components/PostList.tsx`); `theme/styles/cards.css`, `lists.css`, `avatar.css`, the card and list rules in `blocks.css` (or their files under `theme/styles/blocks/`) and in `global.css`, and the token files `theme/styles/tokens/*/comp/card.css` and `comp/list.css` (with the cards' and lists' own token files). **Do not edit them.** If one still holds a Tailwind class or a `theme()` when the batch starts, the batch reports it to the PM instead of fixing it. Still the batches' work: `ChoiceGroup`, `Search`, `ActionBar`, `defaults/popup.tsx` and all of `src/`.
 - **Do not touch `theme/styles/ui.css`, `base.css`, `blocks.css`, `components.css` or `global.css` while the CSS split is moving them** unless the batch says "after the split". The PM tells the batch session when the split has finished.
