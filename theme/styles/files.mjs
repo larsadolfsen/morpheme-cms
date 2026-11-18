@@ -28,6 +28,8 @@ export const UI_PART_FILES = [
   'search.css',
   'toolbar.css',
   'pickers.css',
+  'ripple.css', // last of the parts: the ripple was last in ui.css
+  'reduced-motion.css', // the @layer fallback blocks several parts share, after the ripple
 ];
 
 /** The other CSS files base.css imports, which are not parts of ui.css. */
