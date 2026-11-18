@@ -97,7 +97,7 @@ of a new session follows the same rule: check in first. The PM keeps the order (
 ## 3c. While you work: `npm run check:fast`
 
 Run `npm run check:fast` while you build (after each step): it runs only the checks your changed files can break and prints what it skipped
-(skill `checks`, *While you work*). It is not the gate: `npm run check` is what you run before the push (section 3a), and CI runs the rest.
+(skill `checks`, *While you work*); it adds the screens core set to a change that reaches the build, so it can take longer than `npm run check` there: use `-- --screens none` for the quick mode. It is not the gate: `npm run check` is what you run before the push (section 3a), and CI runs the rest.
 
 ## 4. The owner's standing design rules
 

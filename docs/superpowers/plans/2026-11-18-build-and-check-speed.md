@@ -267,7 +267,7 @@ file is in its `include`; and, when the build reads a changed path (`needsStarte
 screens core set plus the touched areas (`areasArg`). It prints what it ran, what it skipped and why, and that CI and `npm run check` are the gate.
 When in doubt, everything: an unknown path (no rule in `areas.mjs`), a `..` path, no base branch, no changes, and a package or config file.
 One deliberate narrowing, from the brief ("no full run"): when the change reaches every area, the screens run the core set only, the plan lists
-"the units of every area" as skipped with the reason, and `--screens all` runs them. `npm run check` is unchanged.
+"the units of every area" as skipped with the reason, and `--screens all` runs them. `--screens none` is the quick mode: the same plan without the screens (core set too), listed as skipped. `npm run check` is unchanged.
 
 **Measured** (18 November 2026, this development container, one run each, nothing else running; `--base HEAD` so only the one change counts):
 

@@ -3,6 +3,7 @@
 // `npm run check` before the last push are. Plan docs/superpowers/plans/2026-11-18-build-and-check-speed.md, A11.
 //   npm run check:fast                    base branch found by itself (the closest of origin/main, origin/0.*, origin/feature/*)
 //   npm run check:fast -- --base <ref>    compare against <ref>
+//   npm run check:fast -- --screens none  the quick mode: leave the screens (core set too) to CI and `npm run check:screens`
 //   npm run check:fast -- --screens all   run the screens units of every area, not only the core set, when the change reaches every area
 //   npm run check:fast -- --dry-run       print the plan and run nothing
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -64,6 +65,12 @@ const plan = planFast(paths, {
   baseKnown: Boolean(base),
 });
 const wantAll = opt('--screens') === 'all';
+if (opt('--screens') === 'none') {
+  const i = plan.run.findIndex((r) => r.id === 'screens');
+  if (i >= 0)
+    (plan.skipped.push({ id: 'screens', why: 'left out by --screens none: CI runs them, and so does `npm run check:screens`' }),
+      plan.run.splice(i, 1));
+}
 
 console.log(`check:fast against ${base || '(no base branch found: everything runs)'}: ${paths.length} changed files.`);
 console.log('\nRuns:');

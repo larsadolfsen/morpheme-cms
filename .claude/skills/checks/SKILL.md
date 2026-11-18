@@ -166,6 +166,11 @@ what it ran and what it skipped and why. A path nothing knows, a package or conf
 (`--dry-run` prints the plan only). When the change reaches every screens area (a shared file such as `theme/styles/` or `src/ui.tsx`) it runs
 the core set only and says so; `--screens all` runs every unit.
 
+**It is not always quicker than `npm run check`.** On a change that reaches the build (a CSS file, `src/`, `theme/`), `check:fast` adds the screens core set
+(about 2 minutes) that `npm run check` does not run, so a CSS-only change took about 190 s against 110 s. It is quicker for docs, skills, tests and the Worker. For
+the quick mode while you iterate on a build-reaching change, run `npm run check:fast -- --screens none` (everything else, no screens); run the screens
+(without `--screens none`) before you hand the change over.
+
 `check:fast` is **not the gate**. `npm run check` stays what you run before the last push, and CI runs the full check.
 
 ## What to run before a push
