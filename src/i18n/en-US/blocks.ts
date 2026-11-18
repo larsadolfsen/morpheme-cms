@@ -145,7 +145,7 @@ export const blocks = {
     addAbove: 'Add above',
     addBelow: 'Add below',
     row: 'Row',
-    rowSettings: 'List settings',
+    rowSettings: 'Row settings',
     link: 'Link',
     addRow: 'Add list row',
     newRow: 'New row',
@@ -155,8 +155,8 @@ export const blocks = {
     design: 'Design',
     designPlain: 'Plain',
     designSegmented: 'Segmented',
-    /** What leads a row: its icon, an avatar, a square image or a landscape image (chosen for each row). */
-    leading: 'Leading',
+    /** What leads the rows, one choice for the block as the media of Cards: an icon, an avatar, a square image or a landscape image. */
+    leading: 'Media',
     leadingIcon: 'Icon',
     leadingAvatar: 'Avatar',
     leadingSquare: 'Square image',
@@ -164,7 +164,7 @@ export const blocks = {
     image: 'Image',
     maxRows: 'Maximum rows',
     maxRowsHint: 'How many rows show at first. A button under them shows the rest. If empty, all rows show.',
-    showMore: 'Button label (show more)',
+    showMore: 'Show more label',
     showMoreText: 'Show more',
     button: 'Button label',
     buttonHint: 'A text button under the last row. If empty, there is no button.',
