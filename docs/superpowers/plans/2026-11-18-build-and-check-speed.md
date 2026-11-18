@@ -129,7 +129,19 @@ A later pull request may split such a file by area; until then a path that can s
 units (`files,sheets`: 6 core units and 40 of the 357 others) gives shards of 6, 6, 6, 6, 6, 6, 5 and 5 units, against about 45 each for all 363. The
 matrix still has 8 jobs, so each job still installs and builds; shrinking the matrix with the selection waits for A2 (build once), which rewrites the same jobs.
 
-**Timing (a representative light run).** TIMING_PLACEHOLDER
+**Timing (a representative light run).** Measured on one machine (this development container, Chromium 1243, a built demo), the `check:screens` step of shard 1 of 8 only, one run each, 18 November 2026:
+
+| Run (shard 1/8) | Units in the shard | Wall time |
+| :--- | :--- | :--- |
+| Before: every unit (the light check today) | 46 | 8 min 20 s |
+| After: a pull request that touches `src/Library.tsx` (`--areas files,sheets`: 46 of 363 units) | 6 | 2 min 11 s |
+| After: a pull request that touches nothing a unit reads (`--areas none`, the core set alone) | 1 | 1 min 8 s |
+
+So the screens step of a shard falls to about a quarter for a one-area change and to about an eighth for a docs, Worker or test-only change that still runs `static`. Read it with care:
+it is one shard of eight on one machine, not a CI run; shard 1 also holds `screens 390` (68 s) and the one-time global icon checks, so the shortest
+shards are quicker than these. The time outside that step (`npm ci`, the build and the Chromium install, about 1 to 4 minutes in each of the 8 jobs) is unchanged, and
+three quarters of the pull requests in the history of 0.18 still select every unit, so the gain on a real run is smaller than the table.
+The CI timing of the whole check (before and after, same pull request) is measured once A2 has merged, because A2 changes the same jobs.
 
 ## Track B. Site builds: a save goes live sooner
 
