@@ -6,7 +6,7 @@ Spec for one build session and one pull request into `main`. Part of `2026-11-16
 | | |
 | :-- | :-- |
 | **When** | After every other batch has merged and `check:tailwind` counts are zero except the wiring. |
-| **Must merge first** | T05 to T09, T11 to T15 |
+| **Must merge first** | T05 to T09, T11 to T15, M2 to M6 (`2026-11-18-mo-names-contract-7.md`; the changeset and note also name the renamed classes and properties) |
 | **Others wait for it** | T17 |
 | **Size** | large (wide, shallow) |
 
