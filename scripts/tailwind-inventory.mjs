@@ -42,7 +42,7 @@ export async function loadDesignSystem(root = ROOT) {
     .filter(existsSync)
     .map((f) => readFileSync(f, 'utf8'))
     .join('\n');
-  const css = `@import 'tailwindcss';\n@plugin '@tailwindcss/typography';\n${themes}`;
+  const css = `@import 'tailwindcss';\n${themes}`;
   designSystem = await load(css, {
     base: join(root, 'theme/styles'),
     loadStylesheet: async (id, base) => {
@@ -200,6 +200,7 @@ const without = (source, spans) => {
 };
 
 const tokens = (text) => text.split(/\s+/).filter(Boolean);
+const isProse = (w) => /^(not-)?prose(-|$)/.test(w);
 /** A string of constants counts only when every name in it is a utility and the string looks like classes (a lone `block` or `hidden` is a word). */
 const looksLikeClasses = (words, valid) =>
   words.length > 0 && words.every((w) => valid.get(w)) && (words.length > 1 || /[-:[\]/]/.test(words[0]));
@@ -295,11 +296,10 @@ export async function scanTree(root = ROOT, list = trackedFiles(root), filesRoot
   const files = {};
   const uses = [];
   for (const [file, r] of reads) {
-    const isProse = (w) => /^(not-)?prose(-|$)/.test(w);
-    // `prose` is counted apart (the plugin's classes go with batch T13), so it is not a utility use here.
+    // `prose` is our own rules since T13 (not a utility, not Tailwind's): it is counted apart, and left out of a string of constants before the string is judged.
     const attribute = r.attributes.flatMap(tokens).filter((w) => valid.get(w) && !isProse(w));
     const constant = r.constants
-      .map(tokens)
+      .map((s) => tokens(s).filter((w) => !isProse(w)))
       .filter((words) => looksLikeClasses(words, valid))
       .flat();
     const typographyClass = r.attributes.flatMap(tokens).filter((w) => /^prose(-|$)/.test(w)).length;

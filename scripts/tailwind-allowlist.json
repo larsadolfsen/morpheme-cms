@@ -105,8 +105,7 @@
   },
   "src/editor.css": {
     "theme": 17,
-    "reference": 1,
-    "tw": 17
+    "reference": 1
   },
   "src/EditorFooter.tsx": {
     "utilities": 3
@@ -419,17 +418,15 @@
   },
   "theme/layouts/PageLayout.astro": {
     "utilities": 5,
-    "constants": 3
+    "constants": 2
   },
   "theme/layouts/PostLayout.astro": {
     "utilities": 11,
-    "constants": 9
+    "constants": 8
   },
   "theme/styles/base.css": {
     "theme": 2,
-    "plugin": 1,
-    "source": 3,
-    "tw": 14
+    "source": 3
   },
   "theme/styles/blocks/buttons-links.css": {
     "theme": 1
@@ -442,9 +439,6 @@
   },
   "theme/styles/blocks/prose.css": {
     "theme": 1
-  },
-  "theme/styles/blocks/text-section.css": {
-    "tw": 12
   },
   "theme/styles/cards.css": {
     "theme": 6

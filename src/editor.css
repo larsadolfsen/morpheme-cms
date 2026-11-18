@@ -236,17 +236,17 @@
 }
 
 .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary']) {
-  --tw-prose-body: var(--mo-sys-section-on);
-  --tw-prose-headings: var(--mo-sys-section-on);
-  --tw-prose-bold: var(--mo-sys-section-on);
-  --tw-prose-links: var(--mo-sys-section-on);
-  --tw-prose-bullets: var(--mo-sys-section-on);
-  --tw-prose-counters: var(--mo-sys-section-on);
-  --tw-prose-code: var(--mo-sys-section-on);
-  --tw-prose-quotes: var(--mo-sys-section-on);
-  --tw-prose-quote-borders: var(--mo-sys-section-on);
-  --tw-prose-captions: var(--mo-sys-section-on);
-  --tw-prose-hr: var(--mo-sys-section-on);
+  --mo-comp-prose-body: var(--mo-sys-section-on);
+  --mo-comp-prose-headings: var(--mo-sys-section-on);
+  --mo-comp-prose-bold: var(--mo-sys-section-on);
+  --mo-comp-prose-links: var(--mo-sys-section-on);
+  --mo-comp-prose-bullets: var(--mo-sys-section-on);
+  --mo-comp-prose-counters: var(--mo-sys-section-on);
+  --mo-comp-prose-code: var(--mo-sys-section-on);
+  --mo-comp-prose-quotes: var(--mo-sys-section-on);
+  --mo-comp-prose-quote-borders: var(--mo-sys-section-on);
+  --mo-comp-prose-captions: var(--mo-sys-section-on);
+  --mo-comp-prose-hr: var(--mo-sys-section-on);
   --mo-sys-section-accent: var(--mo-sys-section-fill);
   --mo-sys-section-on-accent: var(--mo-sys-section-on);
   background: var(--mo-sys-section-fill);
@@ -363,12 +363,12 @@
 }
 
 .editor-text .ProseMirror > [data-section-picture]:not([data-section-color]) {
-  --tw-prose-body: var(--mo-sys-section-picture-on-fill);
-  --tw-prose-headings: var(--mo-sys-section-picture-on-fill);
-  --tw-prose-bold: var(--mo-sys-section-picture-on-fill);
-  --tw-prose-links: var(--mo-sys-section-picture-on-fill);
-  --tw-prose-bullets: var(--mo-sys-section-picture-on-fill);
-  --tw-prose-counters: var(--mo-sys-section-picture-on-fill);
+  --mo-comp-prose-body: var(--mo-sys-section-picture-on-fill);
+  --mo-comp-prose-headings: var(--mo-sys-section-picture-on-fill);
+  --mo-comp-prose-bold: var(--mo-sys-section-picture-on-fill);
+  --mo-comp-prose-links: var(--mo-sys-section-picture-on-fill);
+  --mo-comp-prose-bullets: var(--mo-sys-section-picture-on-fill);
+  --mo-comp-prose-counters: var(--mo-sys-section-picture-on-fill);
   --mo-sys-section-accent: var(--mo-sys-section-picture-fill);
   --mo-sys-section-on-accent: var(--mo-sys-section-picture-on-fill);
   color: var(--mo-sys-section-picture-on-fill);
