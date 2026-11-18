@@ -1,6 +1,7 @@
 # 0.19 Cards and lists (design)
 
-Status: brainstorm with the owner, 17 November 2026. **Waiting for the owner's approval as a whole**, with the plan
+Status: brainstorm with the owner, 17 November 2026; names and base corrected on 18 November against `origin/0.18`.
+**Waiting for the owner's approval as a whole**, with the plan
 `docs/superpowers/plans/2026-11-17-cards-and-lists-0-19.md`. Section 9 holds the last decisions. No code. Roadmap: `docs/superpowers/plans/2026-11-14-roadmap-0-18-to-0-24.md`,
 *0.19 Cards and lists*.
 
@@ -12,45 +13,37 @@ item made one to one, and every card and list built on them; nothing stays out.
 
 - **Follow the M3 token.** Where a token prints a value, that value is used.
 - **No invented tokens; use the globals.** A part reads the global tokens. **If it does not fit, ask the owner.**
-- **Names.** Every global is `--mo-` and M3's system token name (`md.sys.color.secondary` is `--mo-color-secondary`).
-- **Component variables, for a customizer.** The owner will build a customizer that changes things per component. Each value
-  of a component is one variable, `--<component>-<M3 part>-<property>`, named after M3's component token where M3 has one
-  (`md.comp.elevated-card.container.color` is `--card-elevated-container-color`), falling back to a global
-  (`var(--card-padding, var(--mo-space-200))`). Where M3 prints none, the name follows the same pattern and the spec marks it
-  "ours, M3 silent".
+- **Names.** M3's three tiers with `md` written `mo`: `--mo-ref-*`, `--mo-sys-*`, `--mo-comp-*` (`md.sys.color.secondary` is
+  `--mo-sys-color-secondary`). Built in 0.18 (`plans/2026-11-16-token-rename-table.md`).
+- **Component tokens, for a customizer.** The owner will build a customizer that changes things per component. Each value of a
+  component is one `--mo-comp-<component>-*` token: M3's component token name where a specs page prints one
+  (`md.comp.filled-card.container.color` is `--mo-comp-filled-card-container-color`), ours under the same prefix where M3 is
+  silent (the token-rename plan's kind O), falling back to a `--mo-sys-*` global.
+- **One file per component** (the 0.18 split: `cards.css`, `lists.css`); a part two components share has its own file.
 - **M3 Expressive** where a component has it (Lists), else baseline (Cards have no Expressive variant: the four card pages
   were searched; "expressive" appears only for the container transform of "hero moments").
 - **Standard and reusable.** One rule for all parts, reused; no special case for one component.
-- **Tailwind goes** (section 7).
+- **No Tailwind:** it goes in 0.18.1, before 0.19 (section 7).
 
-## 2. Step 0: M3's names for the globals
+## 2. Step 0: done in 0.18
 
-Every global becomes `--mo-` and M3's system token name; a clean break (no aliases). It replaces the colour names of
-`plans/2026-11-08-md3-color-variable-names.md` (colours named without M3's `color.` group).
-
-| M3 system token | Today | Step 0 | Uses today |
-| :--- | :--- | :--- | :--- |
-| `md.sys.color.*` | `--mo-secondary` | `--mo-color-secondary` | 673 in 14 files |
-| `md.sys.shape.corner.*` | `--mo-shape-medium` | `--mo-shape-corner-medium` | 189 in 8 files |
-| `md.sys.elevation.level*` | `--mo-elevation-1-…` | `--mo-elevation-level1-…` | 265 in 10 files |
-| `md.sys.state.*` | none (step 1) | `--mo-state-hover-state-layer-opacity` … | new |
-| spacing `space100` … | `--mo-space-100` | unchanged | 63 in 4 files |
-
-Themes (Venus in `morpheme-apps`, whose `scripts/variable-names.test.mjs` checks the names) and apps that set the old names
-break: `THEME_API` and `APP_API` go up, and the release note lists the old and new names.
+The rename to M3's names (`--mo-ref-*`, `--mo-sys-*`, `--mo-comp-*`, contract 6) is built on `0.18` (#874–#885) and the CSS is
+split into one file per component (`plans/2026-11-16-css-split.md`). This spec uses those names. The counts of 17 November
+were taken on `main` and are dropped.
 
 ## 3. Step 1: the shared globals
 
 - **Shadows at rest: on, at every level** (owner: "Follow the token: 1dp shadow at rest"; then "one global rule"). Each
-  `--mo-elevation-levelN-rest-shadow` is that level's shadow. A part names its level and never writes its own shadow. The
+  `--mo-sys-elevation-levelN-rest-shadow` is `--mo-sys-elevation-levelN-shadow`. A part names its level and never writes its own shadow. The
   card's own shadow variables go. Every part on level 1 or higher is checked against its own M3 token page in the same pull
   request. It replaces the M3 audit's decision of 13 November (colour-only elevation at rest).
 - **State opacities: M3's five, as globals.** m3.material.io/foundations/interaction/states/state-layers, token set *State
   opacities*: hover 0.08, focus 0.1, pressed 0.1, dragged 0.16, disabled 0.38. Every part reads them instead of a written
-  number. A component's own value that is not in the set (the outlined card's disabled outline, 0.12) is the component's,
+  number; the state-layer colours of 0.18 (`--mo-sys-state-mo-hover-layer`, `-pressed-`) are made from them. Names: M3's,
+  `--mo-sys-state-hover-state-layer-opacity` and so on. A component's own value that is not in the set (the outlined card's disabled outline, 0.12) is the component's,
   from its token table.
 - **One focus ring** for every part, 3 dp, offset 2 dp, following the focused part's own corner (`border-radius: inherit`).
-  Its colour is `--mo-color-primary` (section 9, 1). A component's own offset from its token table (the list's −3 dp, inside) is a
+  Its colour is `--mo-sys-color-primary` (section 9, 1). A component's own offset from its token table (the list's −3 dp, inside) is a
   component variable.
 
 ## 4. Step 2: Avatar
@@ -64,6 +57,8 @@ leading avatar and the card's thumbnail. List tokens: 40 dp, circular, `primary-
 ## 5. Steps 3 and 4: Card
 
 ### 5.1 M3 against ours
+
+"Ours" was measured on `main` on 17 November; step 3's pull request measures it again on its base.
 
 Read on m3.material.io/components/cards (Overview, Specs with the token tables opened and previews hidden, Guidelines,
 Accessibility). The token values are the baseline scheme's; written here as roles. Elevation in dp is the level (0, 1, 3, 6,
@@ -87,11 +82,11 @@ Accessibility). The token values are the baseline scheme's; written here as role
   medium is the same 16 px). Subhead **label-small**, supporting text **body-medium**, meta **label-small**: the list item's
   M3 tokens. Recorded in `docs/material-deviations.md` as our choice where M3 is silent.
 - **Spacing:** the global M3 spacing steps, today's values, through component variables (section 1): padding
-  `--mo-space-200` (M3's 16 dp), media to headline `--mo-space-200`, headline to subhead `--mo-space-50`, to supporting text
-  `--mo-space-100`, text to actions `--mo-space-200`. The gaps are "ours, M3 silent". Today's `--card-media-gap`,
-  `--card-subhead-gap`, `--card-text-gap`, `--card-action-gap` are renamed to the pattern.
-- **Today's `--card-*` variables** are renamed to M3's names (`--card-elevated-container-color` …); themes that set them
-  break (`THEME_API`).
+  `--mo-ref-space-200` (M3's 16 dp), media to headline `--mo-ref-space-200`, headline to subhead `--mo-ref-space-50`, to
+  supporting text `--mo-ref-space-100`, text to actions `--mo-ref-space-200`. The gaps are "ours, M3 silent". The tokens are 0.18's `--mo-comp-card-media-gap`,
+  `-subhead-gap`, `-text-gap`, `-action-gap`, `--mo-comp-card-padding`.
+- **The card's tokens** use M3's names where the specs page prints them (0.18 has `--mo-comp-elevated-card-container-elevation`,
+  `--mo-comp-filled-card-container-color`, `--mo-comp-outlined-card-outline-color`; the rest follow the same rule).
 - **A link card or a card with actions, never both** (M3 Cards, Accessibility: "An action shouldn't be placed on an
   actionable surface"). `Card`'s types make both impossible.
 - **The anatomy as named props**, the same names as `ListItem` where they mean the same:
@@ -126,6 +121,10 @@ M3 Lists has an Expressive variant (Specs: "Baseline lists … Not recommended. 
 
 ### 6.1 Where ours differs from the tokens (follow the token)
 
+"Ours" was measured on `main` on 17 November; `0.18` has moved on (the *Design* setting, plain and segmented; the *Columns*
+setting; List - Expand; 62 `--mo-comp-list-*` tokens). Step 5's pull request measures it again on its base and keeps this
+table's M3 column.
+
 | Part | M3 token | Ours |
 | :--- | :--- | :--- |
 | Height, one / two / three lines | 56 / 72 / 88 dp | 48 px minimum and padding |
@@ -152,18 +151,12 @@ remove the hover shift and the weight (not in the tokens); `columns` and `trunca
   card as its subhead (under it).
 - The blog list's headline (today title-medium) follows the list token (body-large).
 
-## 7. Tailwind goes
+## 7. Tailwind: gone in 0.18.1
 
-About 1,700 utility uses in 243 files, 156 window-width variants (`medium:` …), `@tailwindcss/typography` (`prose`, the page's
-own text), the packages `tailwindcss`, `@tailwindcss/vite`, the typography and Prettier plugins. Owner, 17 November:
-
-1. From now on, new or changed code uses no Tailwind.
-2. Steps 3 to 6 write their CSS without it, with container queries (Modern web guidance, `form-factor-adaptation`: "Use
-   container queries instead of viewport-width media queries for component layout").
-3. A last step replaces `prose` with the theme's own text styles, rewrites what is left, removes the packages and raises
-   `THEME_API` and `APP_API`.
-
-It takes over the M3 audit's pull request 11 (type).
+Owner, 18 November: the CSS split and the token files are done in 0.18; 0.18.1 moves away from Tailwind
+(`plans/2026-11-16-move-away-from-tailwind.md` on `0.18`: utilities, `prose`, the breakpoints as `--mo-` tokens, the packages).
+0.19 starts after it: plain CSS in the component files, container queries where a part adapts to its space (Modern web
+guidance, `form-factor-adaptation`). The M3 audit's type pull request 11 belongs to that plan.
 
 ## 8. Steps 6 and 7
 
@@ -223,7 +216,7 @@ previews; Google's result preview stays). Needs a design, after Tailwind is gone
 Owner, 17 November: "Lists are more simple. Not all cards should be convertible. No need to ask me." The session decided the
 rest; the owner approves the whole with the plan (`plans/2026-11-17-cards-and-lists-0-19.md`).
 
-1. **Focus ring:** `--mo-color-primary`, a deviation quoting M3's `secondary` token and WCAG 2.2, 1.4.11 (a site's Secondary can
+1. **Focus ring:** `--mo-sys-color-primary`, a deviation quoting M3's `secondary` token and WCAG 2.2, 1.4.11 (a site's Secondary can
    give 1.15:1; `specs/2026-11-13-custom-colors-design.md`). Modern web comes before M3.
 2. **Buttons** (owner): one is a single-action item; several are an expanding item with each a nested single-action item.
 3. **Chips and sliders** (owner): they do not belong in a list. A collection whose cards have them offers Cards only.
@@ -235,7 +228,9 @@ rest; the owner approves the whole with the plan (`plans/2026-11-17-cards-and-li
    inside another component and the editor's settings rows use `Card` and `ListItem` but do not convert.
 9. **Looks:** standard list (segmented where a block offers it); the block's card kind, default outlined; the description on
    cards; 2 cards side by side from 600 dp, 3 from 840 dp; each block's own image shape.
-10. **Branches:** the `0.19` branch (the old *Lists and data*, 202 commits) becomes `0.20`; a new `0.19` is cut from `0.18`.
+10. **Branches** (owner, 17 November: "merge the 0.19 branches first if possible"): the open `0.19` pull requests, then `0.19`
+    into `main` after `0.18`, then a new `0.19` from `main`. If that is not possible, `0.19` becomes `0.20` and a new `0.19`
+    is cut from `0.18`.
 11. **Other documents** keep their numbers until they are next changed; the roadmap's note says to add one.
 
 ## 10. Sources read
