@@ -755,6 +755,19 @@
   }
 }
 
+/* The base layer gives every child of a .grid min-width: 0 (theme/styles/base.css); a part that draws a grid keeps it. */
+@layer base {
+  .mo-editor-comm-progress > *,
+  .mo-editor-comm-tooltips > *,
+  .mo-editor-parts-cards > *,
+  .mo-editor-parts-lists > *,
+  .mo-editor-contain-dialogs > *,
+  .mo-editor-nav-field-pair > *,
+  .mo-editor-parts-field-grid > * {
+    min-inline-size: 0;
+  }
+}
+
 @keyframes mo-editor-pulse {
   50% {
     opacity: 0.5;
