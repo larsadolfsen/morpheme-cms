@@ -51,7 +51,7 @@ export function decide({ branch = '', version = '', base = '' }) {
 // Dry run by hand:  node scripts/publish-next.mjs --branch 0.18 --version 0.18.0-next-20261118120000 --base 0.17.0
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const arg = (n) => {
-    const i = process.argv.indexOf(`--${n}`);
+    const i = process.argv.indexOf('-' + '-' + n);
     return i > 0 ? process.argv[i + 1] : undefined;
   };
   const pkg = () => JSON.parse(readFileSync('package.json', 'utf8')).version;
