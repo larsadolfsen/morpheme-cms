@@ -73,6 +73,7 @@ import SelectionBar from './SelectionBar';
 import { mediaDeletion } from './mediaDelete.mjs';
 import { AnyIcon } from './icon';
 import { SiteChip } from './themeUi';
+import { safeImageSrc } from '../lib/safe-url.mjs';
 
 export const MEDIA = config.folders.media;
 
@@ -168,7 +169,7 @@ function Thumb({ src, thumbs }: { src: string; thumbs: Record<string, Small> | n
   return (
     <img
       ref={ref}
-      src={near && thumbs ? thumb || shown : undefined}
+      src={near && thumbs ? safeImageSrc(thumb || shown) : undefined}
       alt=""
       decoding="async"
       draggable={false}
