@@ -47,6 +47,8 @@
 @import './cards.css';
 @import './type.css';
 @import './blocks.css';
+/* The Person, Icon list, Facts, Table and Badge blocks (moved out of blocks.css; they come right after it, in the same layer). */
+@import './blocks/person-facts.css';
 /* The designs of the lists (List, List - Expand): Default and Card. */
 @import './lists.css';
 /* The theme's variables and the classes the standard theme's components use with them. */

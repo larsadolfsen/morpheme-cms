@@ -31,4 +31,4 @@ export const UI_PART_FILES = [
 ];
 
 /** The other CSS files base.css imports, which are not parts of ui.css. */
-export const OTHER_BASE_FILES = ['ui.css', 'cards.css', 'type.css', 'blocks.css', 'lists.css', 'components.css'];
+export const OTHER_BASE_FILES = ['ui.css', 'cards.css', 'type.css', 'blocks.css', 'blocks/person-facts.css', 'lists.css', 'components.css'];
