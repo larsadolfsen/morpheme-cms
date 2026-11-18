@@ -1,0 +1,232 @@
+/*
+  Split button (SplitButton, splitButtonClass): .split-button, the main action (.button, .split-button-leading) and
+  joined to it the arrow (.button, .split-button-trailing, aria-expanded, its .split-button-arrow turned while the menu
+  is open), and the theme's .menu (.split-button-menu) under it, at its end; in the Button's five sizes, the arrow's
+  button as wide as the button is high.
+    --split-button-gap, --split-button-menu-gap
+    --mo-comp-split-button-medium-inner-corner-corner-size (up to medium), --mo-comp-split-button-large-inner-corner-corner-size, --mo-comp-split-button-xlarge-inner-corner-corner-size
+  FAB menu (FabMenu, fabMenuClass): .fab-menu with its colour set, .fab-menu-primary, .fab-menu-secondary or
+  .fab-menu-tertiary; its .fab in any size and colour (.fab-menu-button, aria-expanded: .fab-menu-icon, or while open
+  the close button: .fab-menu-close-icon, the close size and corners and the set's filled colour, the FAB's
+  --fab-<colour>-… variables) and .fab-menu-list above it at its end, each action an .extended-fab (.fab-menu-item) in
+  the set's container colour (.fab-primary-container …). It keeps the place of a medium or large FAB while that is the
+  smaller close button.
+    --fab-menu-gap, --fab-menu-item-gap, --fab-menu-close-size, --mo-comp-fab-menu-close-radius, --fab-menu-close-icon-size
+  Moved here from ui.css with its rules unchanged and in their order; imported by base.css right after ui.css, in the same layer. No other rule sets
+  the same property on these parts at the same specificity, so the position does not change what wins (docs/superpowers/plans/2026-11-16-css-split.md).
+*/
+@layer components {
+  /* Split buttons (m3.material.io/components/split-button): the main action and its arrow, joined. */
+  .split-button {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    gap: var(--split-button-gap, 0.125rem);
+  }
+  .split-button > .split-button-leading {
+    border-start-end-radius: var(--mo-comp-split-button-inner);
+    border-end-end-radius: var(--mo-comp-split-button-inner);
+  }
+  /* The arrow's button as wide as the button is high, in each size. */
+  .split-button > .split-button-trailing {
+    width: var(--mo-comp-button-box);
+    padding: 0;
+    border-start-start-radius: var(--mo-comp-split-button-inner);
+    border-end-start-radius: var(--mo-comp-split-button-inner);
+  }
+  .split-button > .split-button-trailing[aria-expanded='true'] {
+    border-radius: var(--mo-sys-shape-corner-full);
+  }
+  .split-button-arrow {
+    transition: rotate var(--mo-sys-motion-spring-default-spatial);
+  }
+  [aria-expanded='true'] > .split-button-arrow {
+    rotate: 180deg;
+  }
+  .split-button-menu {
+    position: absolute;
+    top: calc(100% + var(--split-button-menu-gap, 0.25rem));
+    inset-inline-end: 0;
+    z-index: 20;
+    transition:
+      opacity var(--mo-sys-motion-spring-default-effects),
+      translate var(--mo-sys-motion-spring-fast-spatial);
+  }
+  .split-button-menu[hidden] {
+    display: none;
+  }
+  @starting-style {
+    .split-button-menu {
+      opacity: 0;
+      translate: 0 -0.25rem;
+    }
+  }
+
+  /* FAB menu (m3.material.io/components/fab-menu): the FAB, and its actions above it. */
+  .fab-menu {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-end;
+  }
+  /* The place of the FAB that opened it, while that is the smaller close button (its bottom end stays where it was). */
+  .fab-menu:has(> .fab-medium) {
+    min-width: var(--fab-medium-size, 5rem);
+    min-height: var(--fab-medium-size, 5rem);
+  }
+  .fab-menu:has(> .fab-large) {
+    min-width: var(--fab-large-size, 6rem);
+    min-height: var(--fab-large-size, 6rem);
+  }
+  /* Above the close button, which stands at the bottom end. */
+  .fab-menu-list {
+    position: absolute;
+    bottom: calc(var(--fab-menu-close-size, var(--fab-size, 3.5rem)) + var(--fab-menu-gap, 0.5rem));
+    inset-inline-end: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--fab-menu-item-gap, 0.25rem);
+  }
+  .fab-menu-list[hidden] {
+    display: none;
+  }
+  .fab-menu-list > li {
+    transition:
+      opacity var(--mo-sys-motion-spring-default-effects),
+      translate var(--mo-sys-motion-spring-default-spatial);
+  }
+  @starting-style {
+    .fab-menu-list > li {
+      opacity: 0;
+      translate: 0 0.75rem;
+    }
+  }
+  /* The one nearest the FAB first. */
+  .fab-menu-list > li:nth-last-child(2) {
+    transition-delay: 30ms;
+  }
+  .fab-menu-list > li:nth-last-child(3) {
+    transition-delay: 60ms;
+  }
+  .fab-menu-list > li:nth-last-child(4) {
+    transition-delay: 90ms;
+  }
+  .fab-menu-list > li:nth-last-child(n + 5) {
+    transition-delay: 120ms;
+  }
+  .fab-menu-button {
+    transition:
+      box-shadow var(--mo-sys-motion-spring-default-effects),
+      background-color var(--mo-sys-motion-spring-default-effects),
+      color var(--mo-sys-motion-spring-default-effects),
+      height var(--mo-sys-motion-spring-default-spatial),
+      min-width var(--mo-sys-motion-spring-default-spatial),
+      border-radius var(--mo-sys-motion-spring-default-spatial);
+  }
+  /* Open, the FAB of any size is the close button: round, in the FAB's size, in the set's filled colour. */
+  .fab-menu-button[aria-expanded='true'] {
+    height: var(--fab-menu-close-size, var(--fab-size, 3.5rem));
+    min-width: var(--fab-menu-close-size, var(--fab-size, 3.5rem));
+    border-radius: var(--mo-comp-fab-menu-close-radius, calc(var(--fab-menu-close-size, var(--fab-size, 3.5rem)) / 2));
+  }
+  .fab-menu-button[aria-expanded='true'] > svg {
+    width: var(--fab-menu-close-icon-size, var(--fab-icon-size, 1.5rem));
+    height: var(--fab-menu-close-icon-size, var(--fab-icon-size, 1.5rem));
+  }
+  .fab-menu-primary > .fab-menu-button[aria-expanded='true'] {
+    background: var(--fab-primary-surface, var(--mo-sys-block-accent));
+    color: var(--fab-primary-text, var(--mo-sys-block-on-accent));
+  }
+  .fab-menu-primary > .fab-menu-button[aria-expanded='true']:hover {
+    background: var(--mo-comp-fab-primary-hover, var(--mo-sys-block-accent-hover));
+  }
+  .fab-menu-primary > .fab-menu-button[aria-expanded='true']:active {
+    background: var(--fab-primary-pressed, var(--mo-comp-fab-primary-hover, var(--mo-sys-block-accent-hover)));
+  }
+  .fab-menu-secondary > .fab-menu-button[aria-expanded='true'] {
+    background: var(--fab-secondary-surface, var(--mo-sys-color-secondary));
+    color: var(--fab-secondary-text, var(--mo-sys-color-on-secondary));
+  }
+  .fab-menu-secondary > .fab-menu-button[aria-expanded='true']:hover {
+    background: var(
+      --fab-secondary-hover,
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-secondary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-secondary)
+      )
+    );
+  }
+  .fab-menu-secondary > .fab-menu-button[aria-expanded='true']:active {
+    background: var(
+      --fab-secondary-pressed,
+      var(
+        --fab-secondary-hover,
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-secondary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-secondary)
+        )
+      )
+    );
+  }
+  .fab-menu-tertiary > .fab-menu-button[aria-expanded='true'] {
+    background: var(--fab-tertiary-surface, var(--mo-sys-color-tertiary));
+    color: var(--fab-tertiary-text, var(--mo-sys-color-on-tertiary));
+  }
+  .fab-menu-tertiary > .fab-menu-button[aria-expanded='true']:hover {
+    background: var(
+      --fab-tertiary-hover,
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-tertiary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-tertiary)
+      )
+    );
+  }
+  .fab-menu-tertiary > .fab-menu-button[aria-expanded='true']:active {
+    background: var(
+      --fab-tertiary-pressed,
+      var(
+        --fab-tertiary-hover,
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-tertiary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-tertiary)
+        )
+      )
+    );
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fab-menu-button {
+      transition: none;
+    }
+  }
+  .fab-menu-button > .fab-menu-close-icon {
+    display: none;
+    transition: rotate var(--mo-sys-motion-spring-default-spatial);
+  }
+  .fab-menu-button[aria-expanded='true'] > .fab-menu-icon {
+    display: none;
+  }
+  .fab-menu-button[aria-expanded='true'] > .fab-menu-close-icon {
+    display: block;
+  }
+  @starting-style {
+    .fab-menu-button[aria-expanded='true'] > .fab-menu-close-icon {
+      rotate: -90deg;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .split-button-menu,
+    .split-button-arrow,
+    .fab-menu-list > li,
+    .fab-menu-button > .fab-menu-close-icon {
+      transition: none;
+    }
+  }
+}

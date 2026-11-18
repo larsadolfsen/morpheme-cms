@@ -1,4 +1,4 @@
-// A search (m3.material.io/components/search, .search in ../styles/search.css): the search bar (its leading icon,
+// A search (m3.material.io/components/search, .search in ../styles/ui/search.css): the search bar (its leading icon,
 // `leadingIcon`, the theme's magnifying glass if it has none, the placeholder, `label`, and what stands after it,
 // `trailing`: icon buttons, an avatar) and the search view it opens (a <dialog>: over the whole screen on a phone, docked
 // where the bar is from the medium breakpoint), with the button back (`backLabel`), the field (a role="combobox"), the button that

@@ -1,4 +1,4 @@
-// A navigation bar (m3.material.io/components/navigation-bar, .navigation-bar in ../styles/navigation-bar.css): the few main
+// A navigation bar (m3.material.io/components/navigation-bar, .navigation-bar in ../styles/ui/navigation-bar.css): the few main
 // destinations side by side at the bottom of a phone's screen (NavigationBar, a <nav> with its name, `label`), each
 // (NavigationBarItem) with its icon and its label, the open one (`selected`, aria-current) with the indicator behind its
 // icon, and evt. a badge on the icon (`badge`: true for a dot, else the number it shows; the theme's Badge). Where the

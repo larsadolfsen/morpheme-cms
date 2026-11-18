@@ -1,4 +1,4 @@
-// A navigation rail (m3.material.io/components/navigation-rail, M3 Expressive; .navigation-rail in ../styles/navigation-rail.css):
+// A navigation rail (m3.material.io/components/navigation-rail, M3 Expressive; .navigation-rail in ../styles/ui/navigation-rail.css):
 // the main destinations down the side of a larger screen (NavigationRail, a <nav> with its name, `label`), collapsed
 // (each destination's icon over its label) or expanded (`expanded`: the icon and the label side by side), with its menu
 // button at the top (`menuLabel`, which expands and collapses it: on the site navigationRail.script.ts) and evt. the

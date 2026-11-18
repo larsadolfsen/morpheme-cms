@@ -39,7 +39,7 @@ test('the theme draws the setting as data-columns="one" on the list, and the CSS
   const theme = '../../theme';
   for (const f of ['blocks/list/Rows.tsx', 'blocks/accordion/Accordion.tsx', 'blocks/testimonials/List.tsx', 'blocks/posts/View.tsx'])
     assert.match(read(`${theme}/${f}`), /data-columns=\{/, `${f} does not draw data-columns`);
-  const css = read(`${theme}/styles/blocks.css`);
+  const css = read(`${theme}/styles/blocks/text-section.css`);
   assert.match(css, /\[data-columns='one'\]/);
   assert.match(css, /:not\(\[data-columns='one'\]\)/);
 });

@@ -1,5 +1,5 @@
 // FABs (m3.material.io/components/floating-action-button and …/extended-fab, .fab and .extended-fab in
-// ../styles/ui.css): the screen's main action, an icon (Fab, its name read by screen readers) or an icon and its label
+// ../styles/ui/fab.css): the screen's main action, an icon (Fab, its name read by screen readers) or an icon and its label
 // (ExtendedFab, only the icon while `collapsed`, data-collapsed: while the page scrolls down). Its size (`size`) and its
 // colour (`kind`) are Material 3 Expressive's: a FAB is `fab` (the default), `medium` or `large` (the small FAB is
 // deprecated), an extended FAB `small` (the default), `medium` or `large`, each with its own type style; the colours are

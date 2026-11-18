@@ -92,7 +92,7 @@ Steps 1 to 5 rewrite these files in plain CSS; T11 and the block batches drop th
 - **The site's lists:** `theme/blocks/list/Rows.tsx`, `theme/blocks/points/PointList.tsx`, `theme/blocks/checklist/Checks.tsx`,
   `theme/blocks/links/LinkGroups.tsx`, `theme/blocks/testimonials/List.tsx` and `View.tsx`, `theme/blocks/accordion/Accordion.tsx`,
   `theme/components/PostList.tsx`.
-- **CSS:** `theme/styles/cards.css`, `theme/styles/lists.css`, `theme/styles/avatar.css` (new), the card and list rules in
+- **CSS:** `theme/styles/cards.css`, `theme/styles/lists.css`, `theme/styles/ui/avatar.css` (new), the card and list rules in
   `blocks.css` (or their files under `theme/styles/blocks/` once the split has moved them) and in `global.css` (the Material look
   of card, panel, notice, testimonial and accordion), and the token files `theme/styles/tokens/*/comp/card.css` and
   `tokens/*/comp/list.css`.

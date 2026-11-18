@@ -1,4 +1,4 @@
-// A side sheet (m3.material.io/components/side-sheets, .side-sheet in ../styles/side-sheet.css): more about what is on the
+// A side sheet (m3.material.io/components/side-sheets, .side-sheet in ../styles/ui/side-sheet.css): more about what is on the
 // screen, at its side. Its container, with the header (the headline, `headline` with its id `headlineId`, and the
 // close button, `closeLabel`, and what it does in the editor, `onClose`; none without it), what it shows (`children`, scrolling when it is long) and evt. its
 // actions at the bottom (`actions`: buttons). Its kind (`kind`): 'standard', beside what it is about on the page, an
