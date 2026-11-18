@@ -1,0 +1,708 @@
+{
+  "version": "0.18.0",
+  "date": "2026-11-18",
+  "notes": [
+    {
+      "id": "block-icons-widgets",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Block icons",
+      "text": "Block buttons are easier to tell from other plus and gear buttons. Insert block on the text toolbar shows the widgets icon with a plus, and Block settings shows it with a small cog. Add tag and site settings keep their own icons."
+    },
+    {
+      "id": "buttons-no-elevated",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Button styles",
+      "text": "Buttons no longer look flat and gray on the page. Pick Filled, Tonal, Outlined or Text under Settings › Variant. Elevated is gone; buttons that used it show as Tonal, and morpheme migrate saves them that way."
+    },
+    {
+      "id": "card-images",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Card images",
+      "text": "Cards no longer cut every image to 3:2. Set Image aspect ratio in the Cards block’s settings, and every card follows it; crop each card’s image to choose its part."
+    },
+    {
+      "id": "cards-same-parts",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Cards",
+      "text": "Cards look the same everywhere. Cards, Price cards, Notice, Image grid, related posts and the 404 page’s suggestion share one card design: image, title, a small subhead, then text and buttons. Cards you have already made keep their content."
+    },
+    {
+      "id": "change-to-list-blocks",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Change type",
+      "text": "A block no longer has to be built again to get another look. Open the block’s ⋮ menu, choose Change type and pick another list block, or a Table. Titles and texts move over, and icons, images and links are kept for when you change back."
+    },
+    {
+      "id": "command-palette",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Command palette",
+      "text": "Finding a screen or a page no longer means clicking through menus. Press Ctrl+K, or the search icon in the top bar, type a name and press Enter to go there. What you picked last comes first, and it stays in this browser."
+    },
+    {
+      "id": "crop-view",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Crop view",
+      "text": "A small frame made it hard to place an image. Tap an image, choose Crop, and drag or pinch the image in a view of its own; the part outside the frame is darkened. Aspect ratio sets the frame, and Original shows the whole image."
+    },
+    {
+      "id": "page-discard-button",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Discard",
+      "text": "A wrong edit no longer costs you the page. Press Discard at the start of the bottom bar to throw away your changes and a saved draft. The page goes back to its published version, after you confirm."
+    },
+    {
+      "id": "shared-globals-focus-ring",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Focus ring",
+      "text": "You can see where the keyboard is. Every part shows the same ring in your primary colour, 3 dp thick, when you reach it with Tab. Hover, press and disabled states keep their look."
+    },
+    {
+      "id": "image-tools-bar",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Image tools",
+      "text": "Everything for an image is in one place. Tap an image in the text, and the toolbar shows Change image, Crop, Alt text and Remove. Move up and Move down stay in the row above the image."
+    },
+    {
+      "id": "footer-theme-toggle",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Light and dark",
+      "text": "Visitors can pick the look they like. The footer has a Theme setting with Light, Auto and Dark. Auto follows the system, and the pick is remembered."
+    },
+    {
+      "id": "list-columns-setting",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "List columns",
+      "text": "Long lists can be easier to read in one column. In the settings of a List, Segmented list, FAQ list, Accordion, Blog posts list or Testimonials list, turn Columns off to keep the rows in one column. Turned on, rows sit in as many columns as fit, as before."
+    },
+    {
+      "id": "list-expand-design",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "List design",
+      "text": "A list can sit on the page or on cards. Open Edit on a List or a List - Expand and choose Design: Default or Card. A Segmented list from before is now a List with the Card design, or a List - Expand, and looks as it did."
+    },
+    {
+      "id": "no-page-top-image",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Page headings",
+      "text": "A page’s main heading no longer has a background image, so a page’s images are all in its text. Its colour and width stay in Section settings, and blog posts keep their image at the top."
+    },
+    {
+      "id": "paste-lines-as-items",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Paste a list",
+      "text": "A list copied from a document no longer lands as one long line. Paste it into an empty List, Steps, Segmented list, FAQ list, Cards or Table, and each line becomes an item; tabs split a table’s cells. A paste with headings stays as it is."
+    },
+    {
+      "id": "shared-globals-shadows-states-focus",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Resting shadows",
+      "text": "Raised parts are easier to tell from the page. Menus, sheets, dialogs, the navigation bar and elevated cards show their shadow even before you point at them. Everything else looks as before."
+    },
+    {
+      "id": "saves-go-live-sooner",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Saves go live sooner",
+      "text": "A save reaches your site about a minute sooner, because a build that changes only content skips the code checks. The next Morpheme update moves your site to this faster build by itself. A new Morpheme version still runs every check."
+    },
+    {
+      "id": "search-view-m3",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Search view",
+      "text": "Finding things is quicker. Press Search and your recent searches wait under the field. Filter chips narrow results to Actions, Pages, Posts, Images or Files, and each result shows an icon or an image."
+    },
+    {
+      "id": "block-settings-pane",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Settings pane",
+      "text": "The page stays in view while you change things. Block, section, link, list, widget and redirect settings open in a pane at the right, and so do a file’s details. Block changes apply at once, and Undo takes one back. On a phone they stay a page."
+    },
+    {
+      "id": "rail-look",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Site menu",
+      "text": "The menu on a phone is no wider than its items need. The button at its top closes it with a menu icon, and the panel has a new background colour. Items and sub-pages stay as they were."
+    },
+    {
+      "id": "choice-group-fields",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Style choices",
+      "text": "Choices like a button’s style no longer squeeze together in a narrow sheet. When they don’t fit on one line, they show as a list, one per row, and the button style shows a small sample of each. Short choices stay side by side."
+    },
+    {
+      "id": "text-heading-styles",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Text headings",
+      "text": "Every heading level in a text has its own size. Headings, quotes and the smallest headings now use the theme’s text styles, in the editor and on the site. Heading 2 to 4 stay as they were."
+    },
+    {
+      "id": "text-measure",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Text width",
+      "text": "Long lines are hard to read. Paragraphs and headings are 40 to 60 characters wide. The rows of lists, accordions and Blog posts lists sit in as many columns as fit, up to three, and Steps is at most 720 pixels wide. Cards, images and tables keep the full page width."
+    },
+    {
+      "id": "token-contract-6",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Theme and app contract",
+      "text": "Themes and apps made for level 5 stop working until their authors update them, because the design tokens have new Material 3 names. The Store offers only level 6 themes and apps, so update when they appear. Authors: THEME_API and APP_API are 6, see docs/theme-token-files.md."
+    },
+    {
+      "id": "no-focus-on-page-open",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A block’s page and Crop open with no focus ring on the back arrow"
+    },
+    {
+      "id": "card-text-optional",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A card’s text is optional"
+    },
+    {
+      "id": "carousel-container-query",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A carousel in a narrow column or a side sheet shows as many items as fit its own width"
+    },
+    {
+      "id": "cards-click-hover-row",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A click on a card's headline edits that card, not the buttons above it"
+    },
+    {
+      "id": "label-heading-gap",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A label sits close above its heading on the front page"
+    },
+    {
+      "id": "list-leading",
+      "kind": "line",
+      "mark": "feature",
+      "text": "A List and a List - Expand can lead its rows with an avatar, a square image or a landscape image"
+    },
+    {
+      "id": "list-full-width",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A List in the plain design is full width on a phone: a pressed row reaches the screen edge"
+    },
+    {
+      "id": "list-columns-container-query",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A list row keeps its headline and text under each other in a narrow column, and puts them side by side only when the row is wide"
+    },
+    {
+      "id": "list-row-edge",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A List starts its icons and text on the same left edge as the text above it"
+    },
+    {
+      "id": "number-field-words",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A number field says Enter a number when what you type is not a number"
+    },
+    {
+      "id": "content-always-open",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A page or post opens with only Content open, and Content no longer folds"
+    },
+    {
+      "id": "dialog-initial-focus",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A pop-up on the site opens with no ring on its first button"
+    },
+    {
+      "id": "one-list-editor",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A Segmented list edits its rows like a List, with the link icon at the end of the row"
+    },
+    {
+      "id": "video-change-link",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A selected video has Change link in the toolbar"
+    },
+    {
+      "id": "sheet-no-focus-on-open",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A side sheet opens with no focus ring on a field"
+    },
+    {
+      "id": "user-invalid-text-field",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A text field shows what is wrong only after you leave it, with the fix under the field"
+    },
+    {
+      "id": "token-faulty-values",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A theme with a faulty colour, size or time no longer breaks the page"
+    },
+    {
+      "id": "card-video-keeps-box",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A video in a card keeps its size when you play it, so the card no longer grows"
+    },
+    {
+      "id": "alt-sheet-caret",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "After you add an image and its Alt text sheet closes, the cursor stays after the image"
+    },
+    {
+      "id": "alt-text-sheet",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "After you choose an image, you’re asked for its alt text right away"
+    },
+    {
+      "id": "open-row-room",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "An open row of an accordion has less room under its text, and is round on all four corners"
+    },
+    {
+      "id": "one-settings-icon",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Block, section and image settings share one icon, and the pencil only opens a list to edit"
+    },
+    {
+      "id": "button-label-variant",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Button text is called Button label, and the style of buttons and cards is called Variant"
+    },
+    {
+      "id": "cards-gutter-gap",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Cards, price cards and panels have more room between them, the same as the image grid"
+    },
+    {
+      "id": "files-filter-clear-all",
+      "kind": "line",
+      "mark": "feature",
+      "text": "Clear all in the Files filter sheet removes every filter at once"
+    },
+    {
+      "id": "list-labels",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Clearer labels in the list settings: Media, Row settings and Show more label"
+    },
+    {
+      "id": "sheet-close-hide-wording",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Closing a sheet with changes asks whether to keep them in the page"
+    },
+    {
+      "id": "platform-real-names",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Cloudflare and GitHub parts use their real names, such as R2 bucket, Cloudflare API token, Workers Paid and R2 caching and builds"
+    },
+    {
+      "id": "continue-no-close",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Continue where you left off has no close button, and stays on the start screen"
+    },
+    {
+      "id": "anchor-positioned-menus",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Dropdown menus stay inside the window and never cover their button"
+    },
+    {
+      "id": "cards-no-empty-subhead",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Elevated cards always have their shadow, and cards in the editor show no empty Subheading row until you tap into them"
+    },
+    {
+      "id": "button-xsmall-32",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Extra small buttons are lower, as Material 3 Expressive says"
+    },
+    {
+      "id": "sheet-grid-margin",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Fields and buttons in a bottom sheet line up with the page behind it"
+    },
+    {
+      "id": "standard-field-names",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Fields use their standard names, such as Alt text, Primary keyword, Subheading, Maximum rows and the Lightbox labels"
+    },
+    {
+      "id": "web-guidance-small-findings",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Form controls and scrollbars follow your system’s light or dark scheme, and sheets fit the screen on a phone"
+    },
+    {
+      "id": "sheet-close-hide-wording-hide",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Hide and Show are the words for a block you keep off the page"
+    },
+    {
+      "id": "list-buttons-row",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "In a list with a row limit, Show more and the button under the list stand on one row, and an open row of a plain List - Expand has a background"
+    },
+    {
+      "id": "post-meta-one-line",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "In a post list on a phone, the date and reading time stay on one line in longer languages"
+    },
+    {
+      "id": "post-meta-gap",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "In Blog posts, the date sits close over each post’s title"
+    },
+    {
+      "id": "menu-type-ahead",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "In the editor's menus, a letter goes to the next item that starts with it"
+    },
+    {
+      "id": "focus-on-section",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "In the page text, the focus frame sits round the section or block you are in, not the whole editor"
+    },
+    {
+      "id": "lists-expressive-states",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "List rows show a soft layer when pointed at, with rounder corners when pressed, instead of changing colour and moving"
+    },
+    {
+      "id": "list-columns-look",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Lists in columns have lines only between their rows, and the right corners on a wide screen"
+    },
+    {
+      "id": "standard-feature-names",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Lists, Home page, Checklist and the Components screen use their standard names, and the link sheet saves with Save"
+    },
+    {
+      "id": "editor-text-width",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "On a computer, the editor’s screens are as wide as the text on your site"
+    },
+    {
+      "id": "files-image-full-screen",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "On a phone, a file in Files opens as a page of its own with a back arrow, the image at the top, and Previous and Next to move to the next file"
+    },
+    {
+      "id": "notifications-page",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "On a phone, Notifications is a page with a back arrow"
+    },
+    {
+      "id": "save-bar-bottom-sheet",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "On a phone, Save in a block’s page and in Crop looks the same as Save on the page"
+    },
+    {
+      "id": "section-settings-page",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "On a phone, Section settings is a page with a back arrow"
+    },
+    {
+      "id": "footer-two-columns",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "On a phone, the footer's links are in two columns"
+    },
+    {
+      "id": "brand-buttons-change",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "On Logo and favicon, the buttons say Change logo, Change favicon and Create from logo"
+    },
+    {
+      "id": "brand-buttons-below",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "On Logo and favicon, the buttons sit under the logo and the favicon with shorter texts"
+    },
+    {
+      "id": "files-date-in-filter",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "On the Files page, the date is a group in the filter"
+    },
+    {
+      "id": "dashboard-edit-below",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "On the start screen, Edit dashboard is a button below the widgets, not a pencil in the top bar"
+    },
+    {
+      "id": "blog-list-headline",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Post titles in the blog list use the same text size as other lists"
+    },
+    {
+      "id": "preview-in-the-bar",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Preview is on the text toolbar, View on the website is in More, and Ctrl+S saves the page"
+    },
+    {
+      "id": "preview-as-page",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Preview opens as a page with a back arrow, and back returns to the form with your changes"
+    },
+    {
+      "id": "devices-preview-icon",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Preview shows a monitor with a phone everywhere in the editor"
+    },
+    {
+      "id": "price-cards-subhead",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Price cards show the price and its unit in the card’s subhead under the name"
+    },
+    {
+      "id": "palette-polish",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Search lists the keyboard shortcuts, can clear your recent actions, and forgets them when you log out"
+    },
+    {
+      "id": "search-docked-radius",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Search results under the search bar have smaller corners"
+    },
+    {
+      "id": "search-segmented-list",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Search suggestions and results are rows on their own surfaces with small gaps"
+    },
+    {
+      "id": "seo-standard-names",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "SEO fields use their standard names: Meta title, Meta description, Canonical URL, Open Graph image, title and description, and Excerpt"
+    },
+    {
+      "id": "dashboard-widget-span",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Start screen cards sit in two columns on a phone, and a widget can be full width or one column"
+    },
+    {
+      "id": "steps-heading-aligned",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Steps: headings line up with numbers and the line stops at the last one"
+    },
+    {
+      "id": "switches-on-off",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Switches and their status say On and Off, and a switch label names the setting"
+    },
+    {
+      "id": "text-button-padding",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Text buttons have the same side padding as the other buttons"
+    },
+    {
+      "id": "fab-above-footer",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The add button moves up when the footer is beneath it, so the footer links are never covered"
+    },
+    {
+      "id": "chevron-opens-row",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The arrow on a row of a Segmented list or Questions and answers opens and closes the row in the editor"
+    },
+    {
+      "id": "remove-banner-block",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The Banner block is gone; use a section with a heading, text and Buttons instead"
+    },
+    {
+      "id": "accordion-name",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The block Expandable list is called Accordion"
+    },
+    {
+      "id": "block-row-in-outline",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The block's buttons sit inside its dotted outline, show when you point at a block, and no longer push the block down"
+    },
+    {
+      "id": "favicon-name",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The browser tab icon is called Favicon, under Business › Logo and favicon"
+    },
+    {
+      "id": "checklist-material-mark",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The check mark of a check list is a Material Symbols check, on the site and in the editor"
+    },
+    {
+      "id": "sidebar-name",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The column beside the text is called Sidebar, with Left sidebar and Right sidebar as page layouts"
+    },
+    {
+      "id": "block-handle-top-left",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The drag handle of a block is in its top left corner, and shows only on the active block"
+    },
+    {
+      "id": "select-one-verb",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The editor says Select, not Pick or Choose, when you select something"
+    },
+    {
+      "id": "url-everywhere",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The editor says URL, not address, for a web address, such as Other URL and Copy URL"
+    },
+    {
+      "id": "faq-is-list-expand",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The FAQ list is now a List - Expand with the setting Mark as FAQ, and a row's text can have bold, italic, links and lists"
+    },
+    {
+      "id": "google-preview-light-dark",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The Google preview and the SEO score follow the editor’s light or dark choice"
+    },
+    {
+      "id": "focus-indicators",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The icon button in a row of the editor shows a clear ring when you reach it with the keyboard"
+    },
+    {
+      "id": "card-media-bottom-corners",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The image or video at the top of a card has rounded bottom corners"
+    },
+    {
+      "id": "list-menu-768",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The List menu button on a list’s page opens its menu on a medium-width window"
+    },
+    {
+      "id": "even-edges-line",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The page editor’s text and blocks start on the same left edge"
+    },
+    {
+      "id": "palette-editor-actions",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The search finds the actions of the text and the block you are in, such as Bold or Add row below, and runs them"
+    },
+    {
+      "id": "flat-select-circle",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The select circle on a block has no shadow and looks like part of the block's dotted outline"
+    },
+    {
+      "id": "dashboard-cards-gap",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The start screen's cards pack in columns with no empty space under a short card"
+    },
+    {
+      "id": "video-thumbnail",
+      "kind": "line",
+      "mark": "feature",
+      "text": "Video has a Thumbnail field for your own image"
+    },
+    {
+      "id": "cms-update-at-night",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Your site looks for a new version of Morpheme once a day, at night, instead of every hour"
+    }
+  ]
+}

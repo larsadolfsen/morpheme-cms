@@ -1,5 +1,159 @@
 # @morphemecms/cms
 
+## 0.18.0
+
+### Minor Changes
+
+- 31a0e26: After you choose an image, a short sheet asks for its alt text right away, with Skip and Save; the toolbar's Alt text opens the same sheet for an image in the text.
+- 430a506: The theme's app bar and text field menu have Material 3's names: `@theme/ui/AppBar` and `@theme/ui/TextFieldMenu`. The old names, `TopAppBar` and `ExposedDropdownMenu`, stay as aliases while THEME_API is 4, so apps and themes work as before.
+- f8d6fdc: A button in Buttons, Cards and Price cards is Filled, Tonal, Outlined or Text; Elevated is no longer a choice, and a saved Elevated button is drawn as Tonal.
+- aaa6698: A Cards block has one Image aspect ratio for its cards' images (3:2 as before), and a card's image has the image tools in the toolbar: Change image, Crop, Alt text and Remove.
+- b9636b4: The theme's Card follows Material 3's anatomy: it draws `media` or an `icon`, a `headline`, a `subhead`, `supporting` text and `actions` in M3's order. Filled cards sit on the highest surface container, a dragged card gets its state layer, and an outlined card's edge turns `on-surface` with focus. The card's rules and tokens move to `theme/styles/ui/card.css`.
+- d2ecb08: Change to in a block's ⋮ menu turns a List, Segmented list, Steps, FAQ list or Cards into another of them; titles and texts move over, and what the new block can't show is kept for changing back.
+- 91fe1f5: Change to includes the Table: a list block becomes a Table of its titles and texts, and a Table becomes a list block; changing back brings icons, links, the header row and the other columns back.
+- 2800d3e: Choices like a button's style no longer squeeze together in a narrow sheet: they show as a list with a small sample of each style when they don't fit on one line
+- c21567e: The theme has a choice group: a few choices side by side as joined buttons when they fit, else a list of radio buttons with a small sample of each look
+- 24be550: A command palette: Ctrl+K, or the search icon in the top bar, finds a screen or a page by name and goes there
+- 77ac8b2: Crop opens a view of its own: the whole image with a frame of the chosen aspect ratio, the part outside the frame darkened, and zoom by pinch, wheel or slider. In an image's settings, Format is now an Aspect ratio row that opens the same view.
+- c2dee20: The theme's Dialog has no full-screen kind any more: a full screen is a page with a back arrow. `THEME_API` is 5. A theme or an app that draws `<Dialog kind="full-screen">`, imports `dialogFullScreenModalClass`, or styles `dialog-full-screen` must move to a page or a basic dialog. The lightbox looks as before.
+- 93cbab7: The FAQ list is a List - Expand: a List - Expand has the setting Mark as FAQ, which puts its rows in the page's structured data as questions and answers, and the text of a row is Markdown (bold, italic, links and lists). A FAQ list from before opens as a List - Expand with the design Segmented and Mark as FAQ on, with its questions and answers kept
+- 5f3822c: The Files filter sheet has a Clear all button
+- a8e97e4: The footer has a Theme setting with Light, Auto and Dark: Auto follows the system, and your pick is remembered
+- f37945a: Tapping an image in the text selects it, and the toolbar shows its tools: Change image, Crop, Alt text and Remove. Move up and Move down stay in the row above it, and on a computer the tap still opens the image's settings beside the page.
+- 6054db9: List, Segmented list, FAQ list, Accordion, Blog posts and Testimonials as a list have a Columns setting: on (as before) the rows sit in as many columns as fit, off gives one column.
+- 83fe32a: The Segmented list is now a List or a List - Expand with the design Segmented: both lists have a Design setting, Plain or Segmented, and pages from before open and look as they did
+- 8785cdb: On a computer a block's side sheet changes the page at once, with no Save or Cancel: Undo takes a change back, Remove is in the block's menu, and a new block goes in at once with its sheet open beside it.
+- 7b9e60e: A page's main heading no longer has a background image: Section settings on the Main heading keep Color and Width only, an image left in an old page is ignored, and the front-page Banner migration leaves a Banner with its image behind the text as a Banner. H2 sections, the share image and blog posts' images are unchanged.
+- d08b5db: Discard button in the page form's bar: it throws away a page's changes since it was published.
+- 6aef269: The command palette also finds the text's and the active block's actions, such as Bold, a heading style or Add row below, and runs them in the text
+- 83be25b: A spreadsheet's lines, or a document's table, pasted into an empty Table make its rows and cells.
+- 455bb53: Lines pasted into an empty item of a List, Steps, Segmented list, FAQ list or Cards make one item each; a tab in a line splits its title and text.
+- 5dde7b7: On a phone a block’s settings open on a page of their own, with the back arrow and the block’s name at the top and Save at the bottom; what you typed in them comes back after a reload ("Restore your unsaved changes?").
+- 2ddea4e: Preview is on the text's toolbar of a page or post, and View on the website is in the toolbar's More menu; Ctrl+S (⌘S) saves the page at once.
+- 14ad3a3: The old Banner block is removed. A page that still has one no longer shows it; use a section with a heading, text and Buttons instead.
+- f261f66: Saves go live sooner: every site builds on the content lane, and a new CMS version still takes the full lane
+- 673dd03: The docked search view's results container has the 12dp corners of Material 3's contained style.
+- 516d207: The search view's suggestions and results are rows on their own surfaces with small gaps, as in Material 3's segmented list.
+- 0fdf9a9: The search view follows Material 3: a filled search bar, recent searches you can run again or remove, filter chips, results with icons or image previews under group names, and a last row that shows all results.
+- d0f9a54: A page's text is 40 to 60 characters wide,; the rows of lists and accordions are in up to three columns of at least 344px; Steps is at most 720px wide.
+- 6b26081: THEME_API and APP_API are 6: every design token that is not Tailwind's has a Material 3 name (`--mo-ref-*`, `--mo-sys-*`, `--mo-comp-*`), the old names stop working, and apps and themes written to contract 4 or 5 are not offered by the store until re-released. Components: theme tokens, app and theme contracts.
+- cbf5326: A theme that writes a faulty value for a colour, size or time token (`--mo-sys-color-primary: banana`) no longer breaks the page: 148 `--mo-sys-*` and `--mo-ref-*` tokens and the 45 colour roles are registered with `@property` and keep today's default, and the comp tokens that point at one sys token are read with it as their fallback. Components: theme tokens.
+- 15c700b: The tokens of the buttons, icon buttons, split buttons, FABs, segmented buttons, toolbars and the top app bar follow Material 3's naming (`--mo-comp-button-filled-container-color`, `--mo-comp-icon-button-small-icon-size`), and the old names (`--button-filled-surface`, `--icon-button-icon-size` …) stop working.
+- 97a05f7: The tokens of the cards, lists, chips, carousel and grid follow Material 3's naming (`--mo-comp-list-list-item-container-color`, `--mo-comp-filter-chip-container-height`), and the old names (`--card-filled-surface`, `--list-item-radius` …) stop working.
+- e7ce895: The tokens of the text fields, checkboxes, radio buttons, switches, sliders, search and the date and time pickers follow Material 3's naming (`--mo-comp-switch-selected-track-color`, `--mo-comp-outlined-text-field-outline-color`), and the old names (`--switch-track-surface`, `--text-field-outlined-line` …) stop working.
+- d55a705: The tokens of the navigation (bar, rail, drawer), menus, dialogs, snackbars, tooltips, badges, progress and loading indicators, sheets and dividers follow Material 3's naming (`--mo-comp-navigation-bar-container-color`, `--mo-comp-menu-container-color`), and the old names (`--navigation-bar-surface`, `--menu-surface` …) stop working.
+- 7f997e9: The standard theme's own tokens (the logo, the post list, the home and blog first sections, the side panel) and the editor's (the section frame, the status colours, the menu, the drawer header, the search-result preview) follow the same pattern (`--mo-comp-theme-logo-tile`, `--mo-comp-editor-status-good`), and the old names (`--theme-logo-tile`, `--editor-status-good` …) stop working.
+- bb58893: The theme's colour, shape, elevation, state, motion, type scale, spacing, density, grid, block and section tokens follow Material 3's naming (`--mo-sys-color-primary`, `--mo-sys-shape-corner-large`, `--mo-ref-space-100`), and the old names (`--mo-primary`, `--mo-shape-large`, `--block-text` …) stop working.
+- b697fdc: A selected video has Change link in the toolbar, which opens its sheet with the link ready to be replaced; the slot over the video is gone.
+- 85e6d5c: The Video block has a Thumbnail field: choose your own image to show before the video plays, instead of the one from the video link.
+
+### Patch Changes
+
+- 5423a03: The block "Expandable list" is called Accordion, the web's name for rows that open and close.
+- 4c10195: After you put in an image and its Alt text sheet closes, the cursor stays after the image instead of sometimes jumping back to the start of the text.
+- f49670b: The editor's menus and tooltips are placed by the browser (CSS anchor positioning), so they stay at their button and inside the window when you scroll or resize.
+- 28cb580: Tooltips are placed by the browser's CSS anchor positioning where it is available: over the button, under it near the top of the window, and always inside the window, with the same look as before.
+- 75eba17: Add the Avatar component to the theme (`theme/ui/Avatar.tsx`, `avatar.css`): a round letter or image, used by the list item's leading avatar. Its look is unchanged; the old `--list-item-avatar-*` tokens are now `--mo-comp-avatar-*`.
+- f261f66: Image sizes are made several at a time, so a site's first build, a cleared cache or a big upload of images builds faster.
+- f261f66: A new site starts with an `.npmrc` that makes the install on the build faster (`prefer-offline`, no audit, no fund), and the CMS update adds the same lines to an existing site's `.npmrc`, keeping its own lines.
+- 66ac7f8: The drag handle of a block is in the top left corner of its frame, on every block.
+- 205096e: Insert block and Block settings use one icon family built on Material Symbols' widgets: widgets with a plus to add a block, widgets with a small cog for a block's settings.
+- aa517a4: The active block's action row sits inside the block's dotted outline (Card corners and padding) and shows on hover over the block without moving the page; opening it no longer pushes the block down. Its buttons and Add list row use the theme's icon button and text button.
+- 8347c30: From 600 dp a block's settings, a List row's settings and the Block settings details open in a pane beside the page, not in a dialog.
+- b9636b4: The blog list's titles use the list's text size, and the site's lists draw without Tailwind classes
+- 8f97d99: On Logo and favicon, the buttons sit on their own row under the logo and the favicon, and say Select new logo, Select new favicon and Create favicon from logo.
+- 3951c91: On Logo and favicon, the buttons say Change logo, Change favicon and Create from logo
+- f261f66: Saves build faster: image sizes and video stills that did not change are taken from the live site instead of being made again.
+- 9bcbdd5: A button's text field is called Button label and the styles of buttons, cards and the image grid's cards are called Variant, as Material 3 names them. The Blog posts block keeps Design for list or newest large.
+- 67d4efb: Extra small buttons are 32 dp high, as Material 3 Expressive says
+- eb13ea9: The image or video at the top of a card has rounded bottom corners, as in Material 3's Cards page.
+- c015895: A card's text is optional: a card can be its headline alone, with no empty text area on the site or in the editor.
+- e7534c9: A video in a card keeps the size of its still when it is played, so the card no longer grows.
+- 3b71bdb: A click on a card's headline in a row of cards edits that card, also when the block's action row would lie over it.
+- b21be92: Cards, Price cards, Panels and Related posts are 16 px apart on a phone and 24 px apart from a tablet, the same as the Image grid.
+- ab3e02b: Elevated cards always have their Material 3 shadow, and a card in the page editor has no empty Subheading row until you tap into it.
+- b9636b4: Cards, Price cards, Notice, Image grid, related posts and the 404 page's suggestion are drawn by the same card parts, with the subhead in small label text.
+- 2d9170e: A carousel in a narrow column or a side sheet now shows as many items as fit its own width, not the window's.
+- 3d6e878: Change to is in the editor's action registry as one action per block (block.change-to-<type>), so the command palette can find it.
+- 254dd5b: Change to is now Change type in a block's ⋮ menu, and the submenu's header has the same icon and takes you back to the menu.
+- 92e477f: The check mark of a check list is drawn from Material Symbols (`check`), on the site and in the editor, in place of Phosphor's
+- b26dc30: In the editor, the arrow on a row of a Segmented list or Questions and answers opens and closes the row.
+- 67c635b: The small samples beside the choices of a list are smaller buttons, so they fit their rows
+- 359326d: A site takes a new version of Morpheme once a day, at night in its own time zone, instead of checking every hour.
+- 59c62ce: A page or post opens with only Content open: Content no longer folds, and every other section starts folded on every screen.
+- b7febfb: The start screen's "Continue where you left off" card no longer has a close button; remove it with Edit dashboard instead.
+- eea0230: A check keeps every shared theme value a `--mo-` token and stops an app or theme from redeclaring a name the CMS declares.
+- fbcad07: The cards on the start screen pack like the Library's media grid, with no empty space under a short card.
+- 550ccc8: On the start screen, Edit dashboard is a text button below the widgets instead of a pencil in the top bar.
+- 4d77fc7: Start screen widgets can declare a span, and the start screen shows two columns of cards on a phone.
+- 73a201a: Preview uses the monitor with a phone icon everywhere in the editor
+- bd434e4: A pop-up or dialog on the site opens with the focus on the dialog itself, so no button looks chosen.
+- 4bf85ca: On a computer, the editor's screens are as wide as the text on the site, centred, so the start screen, lists and settings no longer stretch across the whole window.
+- 45a2c38: In the page editor the text and the blocks share one left edge, with a 16 dp margin on a phone, and a block's dotted frame hangs outside it
+- b837a9a: The add button of a list moves up when the footer is beneath it, so the footer links are never covered.
+- ff2d410: The browser tab icon is called Favicon, its real name: Business › Logo and favicon, with the hint "The icon in the browser tab".
+- e90509e: From 600 dp a file's details in Files and a consent record open in a pane beside the page, not in a dialog or on a page of their own.
+- 5cc067e: On the Files page, the date choice moves into the filter, so the search row has only search, sort and filter.
+- 585858d: On a phone, a file in Files opens as a subpage of Files with a back arrow, the file name and Download in the top bar, instead of a full-screen dialog; Back returns to the list at the same place.
+- 51bf4da: On a phone, a file in Files opens full screen with the image at the top, Download in the top bar and Previous and Next under the fields
+- ac80038: The select circle on a block is flat and part of the block's dotted outline
+- 8b05493: The icon button in a row of the editor shows a clear ring when you reach it with the keyboard.
+- ecdb3fd: The focus in the page text shows on the section the cursor is in, or on the block in focus, instead of a frame round the whole editor.
+- dd87aa2: On a phone, the footer's links are in two columns
+- a7e850f: The Google preview and the SEO score colours use light-dark(), so they follow the editor's light or dark choice.
+- a5c4f2a: A site that uses the Phosphor icon pack now draws the editor's Search, Settings, Customize and More icons from the pack instead of from Material Symbols.
+- 99ec9d4: A block just put in takes its first row once the insert dialog has closed, not after a 1.5 s guess
+- c946f52: A label above a heading on the front page sits close above it, with the same small space as in a text.
+- c271d27: From 600 dp the link of a text, a profile link and a menu item open in a pane beside the page, not in a dialog.
+- e2dd9fe: In a List or List - Expand with a row limit, the Show more button and the text button under the list stand on one row, and an open item of a plain List - Expand has a background
+- 6be5b94: A list row with columns keeps its headline and text under each other in a narrow column or a side sheet, and puts them side by side only when the row itself is wide.
+- 37e492c: Lists in columns have the right dividers and corners: a plain List - Expand has a line between its rows only, none above the first row and none against an open item, and a segmented list has the list's corners on its first and last rows
+- 339e27f: The labels of the list settings are clearer: the media choice of List and List - Expand is called Media (as in Cards), the sheet of a row is Row settings, and the text of the Show more button is Show more label
+- 12000f9: The List menu button on a list's page opens its menu on a medium-width window.
+- 33cf67d: A List without a box starts its rows' icons and text on the page's left edge, not one more 16 dp in
+- bbcf4cd: From 600 dp a list's settings, the name of a new list, a widget's settings, an app's add-on and a redirect open in a pane beside the page, not in a dialog.
+- b9636b4: Lists follow Material 3 Expressive: a row shows only its state layer when pointed at, with rounder corners when pressed, focused or dragged
+- 48ccf27: In the editor's menus, a letter goes to the next item that starts with it
+- 1d43664: The grid tokens are called `--mo-grid-margin`, `--mo-grid-gutter` and `--mo-grid-layout-columns`, like every shared theme value; the old names are gone.
+- a488189: The site's menu drawer is a native dialog, so the browser keeps the page behind it still and the focus in it, with the same look and motion.
+- 53673a1: A tap outside a dialog, a bottom sheet, the search view or a pop-up closes it with the browser's own light dismiss, and keeps the same motion.
+- 17fe413: A block's page and the crop page no longer show a focus ring on the back arrow when they open; Tab still reaches it first.
+- 583cfdc: On a phone the notifications are a page with a back arrow, not a side sheet.
+- 85e00f6: A number field says "Enter a number." when what you type is not a number.
+- e74b4f4: `morpheme migrate` removes the background image left in a page's main heading marker, and `check:editor` lists such a page as one to migrate instead of failing the site's build
+- c83037a: A Segmented list is edited like a List: the link icon at the end of the row, the same texts and the same Add list row button
+- bebeeea: Settings buttons share one icon: tune for the settings of a block, a section or an image, and the pencil only for opening a list to edit
+- 5e10ace: An open row of an accordion has the same room under its text as above its heading, the text lines up with the title in the editor, and the open row is round on all four corners.
+- cfb6421: The search has a Keyboard shortcuts list and a Clear recent actions action, and signing out forgets the recent actions
+- eda1e6b: Cloudflare and GitHub parts keep their real names in English and Danish: R2 bucket, R2 location, Cloudflare API token, Workers Paid, KV namespace, the website's Worker, R2 caching and builds, and GitHub token.
+- 3097999: In the Blog posts block, the date and reading time sit directly over each post's title instead of a line above it.
+- 501440e: In a post list on a phone, the date and reading time stay on one line in longer languages such as Danish.
+- 9b536fe: The Preview of a page or post opens as a page of the editor, with the top bar's back arrow and the window sizes under it, instead of a full-screen dialog. Back returns to the form where you were, with your unsaved changes.
+- 7287071: The site's menu on a phone is as wide as its items need, with a new background colour and a menu button at its top.
+- 141af98: The editor draws an image or a link only from an address it knows is safe: a path on the site, an http(s) address, or an image made in the editor.
+- d7fc26c: On a phone, Save in a block's page and in the crop view is in the same bottom sheet as the page's Save, lined up with the fields
+- 12617a7: Fix: the editor's Settings and Customize icons now have an entry in every icon pack's map, so a theme with the Phosphor pack draws them.
+- 44f53e2: On a phone, a section's settings are a page with a back arrow and Save at the bottom, not a sheet.
+- d5555d4: From 600 dp a section's settings open in a pane at the right of the editor, beside the page, not in a dialog.
+- 42bb086: The editor and the theme's pickers say Select, Material 3's verb, wherever they said Pick or Choose for selecting something.
+- 0dfe126: The SEO and sharing fields use their standard names: Meta title, Meta description, Canonical URL, Open Graph image, Open Graph title and Open Graph description. The short description is now the Excerpt.
+- b9636b4: Parts on an elevation level show its shadow at rest, state layers read Material 3's five opacities, and every part has one focus ring.
+- 1379864: Closing a sheet with changes asks "Keep your changes?" with Discard and Keep, and the block's visibility button says Hide and Show, and a hidden block Hidden.
+- 3e02507: Fields and buttons in a bottom sheet line up with the fields on the page behind it.
+- 46ddea3: A side sheet opens with no focus ring on a field or button.
+- 7e98ab7: The column beside the text of the pages is called Sidebar, the web's name for it and the one its stored value already uses. Side column and Left and Right side panel become Sidebar, Left sidebar and Right sidebar.
+- b9636b4: The Cards, Price cards, Notice, Image grid and related-post cards, and the 404 page's suggestion, are drawn by the theme's Card parts: the same card look everywhere, with the media's bottom corners rounded as before.
+- 88bbc7b: Features use one standard name each: Lists, Default pages, Home page and Checklist; the link sheet saves with Save; and the Components screen names Material 3's components and tokens.
+- fbc429f: Fields use their standard names: Alt text, Primary keyword, Subheading, Label text and Supporting text, the Lightbox labels, Center column, Maximum rows, Expand, Registration number and Type.
+- 6162f81: In the Steps block, a step's heading lines up with its number, and the line joins one number to the next and stops at the last.
+- 468cc74: A switch and the status it gives say On and Off everywhere, as Material 3 names them. The switch label names the setting, such as Promotion or Internal links, and no longer says Activated.
+- f8d6fdc: A text button has the same side padding as the other buttons.
+- 1e09623: A text's headings, quotes and Heading 1, 5 and 6 use the theme's type styles, so every level has its own size.
+- 7315f21: The theme check follows the icon pack a theme declares, and `morpheme check:themes` accepts `--shard K/N`.
+- aa8692a: The editor says URL wherever it said address for a web address: the page and post URL, the redirects, the social profile URL, the link sheet's Other URL and the assistants' connector URL. An email address stays an email address.
+- 555cdef: A text field shows what is wrong with it only after you leave it, and says what to fix under the field.
+- 4b7f820: The site and the editor follow the system's light or dark scheme in form controls and scrollbars, Enter that confirms an IME composition no longer triggers an action, and sheets fit the visible screen on a phone.
+
 ## 0.17.0
 
 ### Minor Changes
