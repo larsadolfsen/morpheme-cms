@@ -13,7 +13,7 @@ with Playwright named in the description (skill `material-3`).
 | Release | What |
 | :--- | :--- |
 | **0.18** | Steps 1 to 5: the shared globals, `Avatar`, `Card`, `List` and `ListItem`, and the site's cards and lists moved to them. It rides on 0.18's contract raise to 6 (the token rename): no extra raise. |
-| **0.18.1** | Away from Tailwind (`plans/2026-11-16-move-away-from-tailwind.md` and its batches T01–T17 on `claude/tailwind-batches`), **without** the card and list files: 0.18 has already written them in plain CSS. |
+| **0.18.1** | Away from Tailwind (`plans/2026-11-16-move-away-from-tailwind.md`, batches T01–T17 in `plans/2026-11-18-tailwind-batches.md`; contract 7, patch changesets, into `main` after the owner releases 0.18.0), **without** the card and list files below: 0.18 has already written them in plain CSS. |
 | **0.19** | Step 6, the collection (lists and cards turn into each other), and step 7, viewports in the builder. |
 
 ## What 0.18 already has
@@ -79,6 +79,25 @@ their content as `children` and change nothing but their look; they move to the 
 - The hover shift and the selected weight go (not in the tokens). The blog list's headline follows the token (body-large).
 - The site's lists move with it, without Tailwind: *List*, *Points*, *Checklist*, *Links*, *Testimonials* (list layout), the FAQ,
   the blog list (`PostList.tsx`). The editor's lists change only their look.
+
+## The card and list files (taken out of the Tailwind batches)
+
+Steps 1 to 5 rewrite these files in plain CSS; T11 and the block batches drop them. Counted on `origin/0.18`, 18 November.
+
+- **Components:** `theme/ui/Card.tsx`, `theme/ui/List.tsx`, `theme/ui/ImageTile.tsx`, `theme/ui/Avatar.tsx` (new).
+- **The site's cards:** `theme/blocks/cards/LinkCards.tsx` (and the block's `View.tsx`), `theme/blocks/pricecards/View.tsx`,
+  `theme/blocks/notice/View.tsx`, `theme/blocks/table/View.tsx`, `theme/blocks/cookies/View.tsx`, `theme/blocks/Panel.tsx`,
+  `theme/blocks/imagegrid/View.tsx`, `theme/blocks/testimonials/Testimonial.tsx`, `theme/components/PostCard.tsx`,
+  `theme/templates/NotFound.astro` (its card only).
+- **The site's lists:** `theme/blocks/list/Rows.tsx`, `theme/blocks/points/PointList.tsx`, `theme/blocks/checklist/Checks.tsx`,
+  `theme/blocks/links/LinkGroups.tsx`, `theme/blocks/testimonials/List.tsx` and `View.tsx`, `theme/blocks/accordion/Accordion.tsx`,
+  `theme/components/PostList.tsx`.
+- **CSS:** `theme/styles/cards.css`, `theme/styles/lists.css`, `theme/styles/avatar.css` (new), the card and list rules in
+  `blocks.css` (or their files under `theme/styles/blocks/` once the split has moved them) and in `global.css` (the Material look
+  of card, panel, notice, testimonial and accordion), and the token files `theme/styles/tokens/*/comp/card.css` and
+  `tokens/*/comp/list.css`.
+- **Not in steps 1 to 5** (they keep their Tailwind for the batches): the lists inside other components (`theme/ui/ChoiceGroup.tsx`,
+  `theme/ui/Search.tsx`, `theme/components/ActionBar.astro`, `defaults/popup.tsx`) and every editor file (`src/`).
 
 ## Step 6 (0.19). The collection
 
