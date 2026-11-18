@@ -1,4 +1,4 @@
-// A card (m3.material.io/components/cards, .card in ../styles/ui.css): the surface a block or an app's block is, with
+// A card (m3.material.io/components/cards, .card in ../styles/card.css): the surface a block or an app's block is, with
 // what is on it (`children`: the block's own heading, text, image …). Its kind (`kind`: outlined, the default,
 // elevated or filled) is Material's name; how each looks is the theme's, and so is its elevation (lifted when it is
 // a link pointed at, and `dragged`: while it is dragged to another place). With `href` the whole card is a link (Link:
