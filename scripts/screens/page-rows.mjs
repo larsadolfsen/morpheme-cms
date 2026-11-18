@@ -863,7 +863,7 @@ async function checkLabelOnAnyLine(width) {
   const rowNames = () => page.locator('[role=menu] [role^=menuitem]:visible').evaluateAll((rows) => rows.map((x) => x.textContent.trim()));
   const labelNow = () =>
     page.evaluate(() => {
-      const el = document.querySelector('.ProseMirror p.label-medium');
+      const el = document.querySelector('.ProseMirror p.mo-type-label-medium');
       return el
         ? { text: el.textContent, size: getComputedStyle(el).fontSize, tops: [...el.parentElement.children].map((c) => c.tagName) }
         : null;

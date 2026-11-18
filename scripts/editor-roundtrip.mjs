@@ -193,7 +193,7 @@ const frontSections = async (body, parts) => [
     '<div data-align="center"></div>',
     'A centred **line**',
     '<div data-align="right"></div>',
-    '<p class="body-small">Small and right</p>',
+    '<p class="mo-type-body-small">Small and right</p>',
     '<div data-align="center"></div>',
     '### Centred subheading',
     'Plain.',
@@ -206,7 +206,7 @@ const frontSections = async (body, parts) => [
   const ok =
     saved.trim() === alignSample &&
     html.includes('<p class="text-align-center">A centred') &&
-    html.includes('<p class="body-small text-align-right">') &&
+    html.includes('<p class="mo-type-body-small text-align-right">') &&
     html.includes('<h3 class="text-align-center"') &&
     !html.includes('data-align');
   if (!ok) {
