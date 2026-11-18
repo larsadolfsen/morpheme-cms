@@ -33,6 +33,6 @@
   (colorPairs in @site/colors). Everything here uses them by name.
 */
 :root {
-  /* How far a carousel reaches out to the edges of a phone's screen (ui.css): Container.astro's gutter there (px-4). */
-  --mo-comp-carousel-bleed: 1rem;
+  /* How far a carousel reaches out to the edges of a phone's screen (ui.css): the page's gutter there (--mo-comp-theme-page-gutter, Container.astro). */
+  --mo-comp-carousel-bleed: var(--mo-comp-theme-page-gutter);
 }

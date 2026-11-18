@@ -25,22 +25,22 @@ export default function PostMeta({
       className={[
         // The overline is one line (Material 3 Lists): it never wraps, and with a longer language (for example Danish dates and reading times)
         // in a narrow row it tightens the gaps and, as a last resort, shortens the reading time with an ellipsis.
-        inOverline ? 'flex min-w-0 flex-nowrap items-center gap-x-1' : 'flex flex-wrap items-center gap-x-2',
-        !inOverline && 'mo-type-body-medium text-on-surface-variant',
+        'mo-post-meta',
+        inOverline ? 'mo-is-overline' : 'mo-type-body-medium mo-is-body',
         className,
       ]
         .filter(Boolean)
         .join(' ')}
     >
-      <time dateTime={post.date} className={inOverline ? 'shrink-0' : undefined}>
+      <time dateTime={post.date} className={inOverline ? 'mo-keep' : undefined}>
         {post.dateText}
       </time>
-      <span aria-hidden="true" className={inOverline ? 'shrink-0' : undefined}>
+      <span aria-hidden="true" className={inOverline ? 'mo-keep' : undefined}>
         ·
       </span>
-      <span className={inOverline ? 'inline-flex min-w-0 items-center gap-0.5' : 'inline-flex items-center gap-1'}>
-        <Svg name="clock" size={inOverline ? 12 : 15} className={inOverline ? 'shrink-0' : undefined} />
-        <span className={inOverline ? 'truncate' : undefined}>{siteT.theme.readingTime(post.minutes)}</span>
+      <span className="mo-post-meta__duration">
+        <Svg name="clock" size={inOverline ? 12 : 15} className={inOverline ? 'mo-keep' : undefined} />
+        <span className={inOverline ? 'mo-truncate' : undefined}>{siteT.theme.readingTime(post.minutes)}</span>
       </span>
       {tags && tags.length > 0 && (
         <>
@@ -49,7 +49,7 @@ export default function PostMeta({
             {tags.map((tag, i) => (
               <Fragment key={tag.href}>
                 {i > 0 && ', '}
-                <a href={tag.href} className="underline hover:text-primary">
+                <a href={tag.href} className="mo-post-meta__tag">
                   {tag.label}
                 </a>
               </Fragment>

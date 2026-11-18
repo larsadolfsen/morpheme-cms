@@ -136,7 +136,7 @@
     }
   }
   .mo-editor-updates-notice {
-    margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
     --mo-comp-card-padding: 0;
     --mo-comp-elevated-card-container-elevation: var(--mo-sys-elevation-level1-shadow);
   }
@@ -197,7 +197,7 @@
     flex-wrap: wrap;
     justify-content: flex-end;
     gap: var(--mo-ref-space-100);
-    padding-block-start: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-block-start: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-updates-notice-apps {
     border-block-start: 1px solid var(--mo-sys-color-outline-variant);
@@ -238,10 +238,10 @@
       margin-block-start: 0;
       margin-block-end: var(--mo-ref-space-300);
     }
-    padding-block: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-block: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-selection-dividers > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
   :where(.mo-editor-selection-kind > :not(:last-child)) {
     margin-block-start: 0;
@@ -270,7 +270,7 @@
     margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-selection-sheets > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
   .mo-editor-selection-sheet-label {
     padding-inline: var(--mo-ref-space-100);
@@ -441,7 +441,7 @@
   }
   .mo-editor-screen-search-bar {
     margin-inline: var(--mo-ref-space-100);
-    margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
     display: flex;
     @media (width >= 37.5rem) {
       display: none;
@@ -462,7 +462,7 @@
     }
   }
   .mo-editor-screen-heading {
-    margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
     min-inline-size: 0;
     align-items: center;
     column-gap: var(--mo-ref-space-100);
@@ -508,7 +508,7 @@
   }
   .mo-editor-library-theme-head {
     --mo-comp-row-gap: var(--mo-ref-space-200);
-    margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
     padding-inline: var(--mo-ref-space-200);
   }
   .mo-editor-library-theme-icon {
@@ -525,23 +525,23 @@
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-library-section {
-    margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
   }
   .mo-editor-library-inset {
     padding-inline: var(--mo-ref-space-200);
   }
   .mo-editor-library-toolbar {
-    margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
   .mo-editor-library-filters {
     margin-block-start: calc(var(--mo-ref-space-100) * -1);
-    margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
     display: flex;
     flex-wrap: wrap;
     gap: var(--mo-ref-space-100);
   }
   .mo-editor-library-empty {
-    margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
     padding-inline: var(--mo-ref-space-50);
     color: var(--mo-sys-color-on-surface-variant);
   }
@@ -553,7 +553,7 @@
     padding-inline: var(--mo-ref-space-200);
   }
   .mo-editor-library-apps > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-250);
   }
   .mo-editor-library-row-actions {
     display: flex;
@@ -667,17 +667,17 @@
     background-color: var(--mo-sys-color-surface);
   }
   .mo-editor-media-count {
-    margin-block-start: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-start: var(--mo-comp-editor-rhythm-150);
     display: flex;
   }
   .mo-editor-media-chips {
-    margin-block-start: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-start: var(--mo-comp-editor-rhythm-150);
     display: flex;
     flex-wrap: wrap;
     gap: var(--mo-ref-space-100);
   }
   .mo-editor-media-group {
-    margin-block-start: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-start: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-media-group-title {
     margin-block-end: var(--mo-ref-space-100);
@@ -692,7 +692,7 @@
     display: flex;
     justify-content: flex-end;
     background-color: var(--mo-sys-color-surface-container-low);
-    padding-block: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-block: var(--mo-comp-editor-rhythm-150);
   }
   .mo-editor-media-providers {
     display: flex;
@@ -734,7 +734,7 @@
     margin-block-end: var(--mo-ref-space-200);
   }
   .mo-editor-media-details > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-media-file-tools {
     position: sticky;

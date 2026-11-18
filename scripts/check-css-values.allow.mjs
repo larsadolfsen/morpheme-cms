@@ -66,4 +66,10 @@ export const allow = [
     line: /^(font-size|line-height|letter-spacing)\b/,
     reason: 'not yet moved to the type scale: tracked for the next pull request of the shape and type sweep',
   },
+  {
+    file: /^theme\/styles\/site-(blog|header)\.css$/,
+    line: /^(line-height: 1\.(25|375)|border-radius: calc\(infinity \* 1px\))$/,
+    reason:
+      "moved as it was from the utility classes leading-tight, leading-snug and rounded-full (batch T11, a pure migration): the line height of a wrapper whose parts set their own, and a portrait's full circle; the shape and type sweep takes them to the scales",
+  },
 ];
