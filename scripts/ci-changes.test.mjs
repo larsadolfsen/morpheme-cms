@@ -2,7 +2,7 @@
 // Run: node --test scripts/ci-changes.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { isDocsOnly, needsStarterDemo, isLight, checkLevel, verdict, HEAVY, FILTERED, LIGHT_SKIPPED } from './ci-changes.mjs';
+import { isDocsOnly, needsStarterDemo, isLight, checkLevel, screensAreas, verdict, HEAVY, FILTERED, LIGHT_SKIPPED } from './ci-changes.mjs';
 
 test('docs-only: skills, docs, changeset and root notes', () => {
   assert.equal(isDocsOnly(['.claude/skills/checks/SKILL.md', 'docs/superpowers/plans/x.md', '.changeset/a-b.md', 'CLAUDE.md']), true);
@@ -241,4 +241,22 @@ test('verdict: a pull request into a feature branch runs the light jobs and is g
   const light = isLight('feature/css-split', 'fix/a');
   assert.deepEqual(verdict(skipLight, false, true, light), []);
   assert.equal(verdict(ok, false, true, light).length, LIGHT_SKIPPED.length);
+});
+
+test('screensAreas: the full level and the Release PR run every unit, whatever changed', () => {
+  assert.equal(screensAreas(['src/Library.tsx'], 'main', 'merge-0.18-into-main-1'), 'all');
+  assert.equal(screensAreas(['src/Library.tsx'], '', ''), 'all');
+  assert.equal(screensAreas(['src/Library.tsx'], 'unknown', ''), 'all');
+  assert.equal(screensAreas(['src/Library.tsx'], '0.18', 'changeset-release/main'), 'all');
+});
+test('screensAreas: the feature and line levels run the touched areas', () => {
+  assert.equal(screensAreas(['src/Library.tsx', '.changeset/a.md\n'], '0.18', 'x'), 'files,sheets');
+  assert.equal(screensAreas(['src/Library.tsx'], 'feature/css-split', 'x'), 'files,sheets');
+  assert.equal(screensAreas(['worker/index.js'], '0.18', 'x'), 'none');
+});
+test('screensAreas: in doubt, everything', () => {
+  assert.equal(screensAreas([], '0.18', 'x'), 'all');
+  assert.equal(screensAreas(['new-folder/a.js'], '0.18', 'x'), 'all');
+  assert.equal(screensAreas(['src/ui.tsx'], '0.18', 'x'), 'all');
+  assert.equal(screensAreas(null, '0.18', 'x'), 'all'); // an error inside: caught
 });

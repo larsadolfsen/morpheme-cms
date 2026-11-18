@@ -63,9 +63,13 @@ export const LIST_ONLY = args.includes('--list');
 // --only name runs the one unit of that name, whatever its number (to try a single check on a site), instead of a shard.
 const onlyAt = args.indexOf('--only');
 export const ONLY = onlyAt >= 0 ? args[onlyAt + 1] : null;
+// --areas a,b,c runs the core units (scripts/screens/support/areas.mjs) and the units of those areas, spread over the shards; --areas none runs
+// the core units only; --areas all, or no --areas, runs every unit. A selection that cannot be read runs everything (editor-screens.mjs).
+const areasAt = args.indexOf('--areas');
+export const AREAS_ARG = areasAt >= 0 ? (args[areasAt + 1] ?? '') : null;
 export const DIST = resolve(
   ROOT,
-  args.find((a, i) => !a.startsWith('--') && args[i - 1] !== '--shard' && args[i - 1] !== '--only') ?? 'dist',
+  args.find((a, i) => !a.startsWith('--') && !['--shard', '--only', '--areas'].includes(args[i - 1])) ?? 'dist',
 );
 if (!existsSync(join(DIST, 'editor/index.html'))) {
   console.error(`There is no built site in ${DIST}. Run npm run build first.`);
