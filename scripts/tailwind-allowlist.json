@@ -141,9 +141,6 @@
   "src/Keywords.tsx": {
     "utilities": 4
   },
-  "src/Library.tsx": {
-    "utilities": 74
-  },
   "src/Licenses.tsx": {
     "utilities": 19
   },
@@ -158,9 +155,6 @@
   },
   "src/MarkdownEditor.tsx": {
     "utilities": 19
-  },
-  "src/Media.tsx": {
-    "utilities": 96
   },
   "src/MediaAlt.tsx": {
     "utilities": 3
@@ -225,9 +219,6 @@
     "utilities": 26,
     "constants": 7
   },
-  "src/PreviewScreen.tsx": {
-    "utilities": 58
-  },
   "src/Redirects.tsx": {
     "utilities": 16
   },
@@ -240,9 +231,6 @@
   "src/ReleaseNoteSection.tsx": {
     "utilities": 4
   },
-  "src/Screen.tsx": {
-    "utilities": 123
-  },
   "src/SearchPreview.tsx": {
     "utilities": 53
   },
@@ -254,10 +242,6 @@
   },
   "src/SelectionBar.tsx": {
     "utilities": 1
-  },
-  "src/SelectionParts.tsx": {
-    "utilities": 64,
-    "constants": 4
   },
   "src/SeoScores.tsx": {
     "utilities": 8
@@ -298,9 +282,6 @@
   "src/ui.tsx": {
     "utilities": 657,
     "constants": 38
-  },
-  "src/UpdatesNotice.tsx": {
-    "utilities": 56
   },
   "src/VersionLinePage.tsx": {
     "utilities": 6
