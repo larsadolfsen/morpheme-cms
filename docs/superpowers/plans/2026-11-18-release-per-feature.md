@@ -1,6 +1,6 @@
 # A release per feature, inside version lines (plan)
 
-Status: **draft**, revised with the owner on 18 November 2026. It replaces the version of this plan the owner approved earlier the
+Status: **approved by the owner, 18 November 2026** ("yes"), revised with the owner the same day. It replaces the version of this plan the owner approved earlier the
 same day ("Approve"), which had no version lines and a test version on npm per feature. **Takes effect after 0.18.2**: 0.18.0, 0.18.1
 and 0.18.2 finish as planned. The demo editor (below) can start at once.
 
