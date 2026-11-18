@@ -106,7 +106,7 @@ for (const u of chosen) {
   console.log(`unit ${number} ${name}: ${Math.round((Date.now() - started) / 1000)} s`);
 }
 
-await browser.close();
+await browser?.close();
 server.close();
 if (coreSite) (await coreSite).server.close();
 for (const [name, places] of fallbackOn) {
