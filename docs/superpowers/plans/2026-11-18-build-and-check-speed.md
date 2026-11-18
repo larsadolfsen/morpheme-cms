@@ -1,13 +1,100 @@
-# 0.26 Build speed: the release plan
+# Build and check speed: one plan
 
-> **Status:** planned with the owner, 15 November 2026 (a brainstorm session: nothing is built). The owner chose all
-> eight options below and the release number 0.26, after the roadmap's 0.25. Each batch gets its own pull request; a
-> batch marked **verify first** starts with the check it names and stops if the check fails.
+Status: one plan since 18 November 2026 (owner: "merge the CI plan with what we planned to optimize build speed"). It joins the CI plan of
+18 November (owner approved: "test less, but the important things") and the build-speed plan of 15 November (planned with the owner:
+all eight options). Their decisions are unchanged; what is new is the shared building blocks, which are built once and used by both.
+
+**Both tracks are built in 0.18** (owner, 18 November 2026: "ask the PM to implement it in 0.18").
+
+Two tracks, one goal: **a change reaches the owner sooner**, as a green check on a pull request (track A) and as a live page after a save
+(track B).
+
+| Track | What | When |
+| :--- | :--- | :--- |
+| A. CI | the checks on pull requests: check levels, build once, touched areas | 0.18 (pull request 1 is #920) |
+| B. Site builds | a save on a site goes live sooner: content lane, kept outputs, faster install, incremental builds | 0.18 (owner, 18 November 2026); batch 1's site part may go out before it |
+
+## The shared building blocks
+
+Built once, by whichever track needs them first, and used by both. Each is a small module in `lib/` with its own test. A2 means track A's pull request 2, B2 track B's batch 2.
+
+1. **Outputs kept by their inputs.** An output (the editor's built bundle, the image sizes, the video stills, a check's build) is stored
+   with a key made of the hash of everything it is made from, and reused when the key matches; never by file times (a fresh clone gives
+   every file a new time). Track A keeps them in GitHub Actions' cache and artifacts (A2); track B in the build cache or the live site
+   (B2, B6). One key function, so both agree on what "unchanged" means.
+2. **What a change affects.** One map from changed paths to what they affect: the screens areas a pull request runs (A3), the lane of a
+   site build (B1: content or full) and the pages an incremental build renders (B8). An unknown path affects everything, in both
+   tracks.
+3. **A faster install.** `npm ci` with the cache and no network checks (`prefer-offline`, no audit, no fund), and the browser for the
+   screens check installed only where screens run, cached (A2, B5).
+4. **Measure before and after.** Every pull request of either track measures what it speeds up (a CI run or a site build), before and
+   after, and writes the numbers into this plan.
+
+## Track A. CI: test less, but the important things
+
+The levels are in the `checks` skill, *What CI runs*; feature branches in the `pm` skill, section 2.
+
+### Where the time goes today (the full run of #888)
+
+The full run of #888 (merge of 0.18 into `main`, run 44215891251, 18 November) took 18 minutes and about 135 runner-minutes:
+
+| Job | Time each | Note |
+| :--- | :--- | :--- |
+| `starter`, 4 shards | 14–17 min | the long pole; it runs the editor's screens again on the starter site |
+| `screens`, 8 shards | 6–8 min | |
+| `screens-extra` | 4 min | |
+| `static` | 2.5 min | `npm run check` 2 min |
+| `demo` | 1 min | |
+
+Every browser job repeats `npm ci` and `npm run build` (about 35 s) and installs Chromium (15 s to almost 4 min). A pull request into a
+version line runs the light check (`static` and the 8 shards), about 8 minutes. `check.yml` runs only on pull requests into `main`,
+`0.17`, `0.18` and `0.19`.
+
+### The levels (the target)
+
+| Merge | Check | Aim |
+| :--- | :--- | :--- |
+| A piece into `feature/<name>` | `static`, build, core screens, touched areas | 3–4 min |
+| Each feature branch, daily | full | |
+| Into a version line | `static`, core screens, touched areas, `demo`, starter smoke | 5–6 min |
+| A line into `main`, the Release PR | full, all starter shards | about 9 min after PR 2 and 4 |
+
+**Always:** Prettier, types, `npm run check`, the changeset, the build, the core screens, the screens of what changed. When in doubt
+(an unknown path, an error in the selection), everything runs, as `scripts/ci-changes.mjs` does today.
+
+### The pull requests, in this order
+
+1. **Checks on feature branches.** Done: #920 (18 November). `check.yml` also runs on pull requests into `feature/**`; `ci-changes.mjs` gives the level from the
+   base (`feature`, `line`, `full`) and its test covers each. Until PR 3, the feature level runs what the light check runs today. The PM
+   opens no feature branch before this is merged.
+2. **Build once, cache Chromium.** One job builds the editor and the demo and uploads them; the screens, `screens-extra`, `demo` and
+   starter jobs download them instead of building. The Playwright browser is cached (`~/.cache/ms-playwright`, keyed on the Playwright
+   version). Proof: the same run, timed before and after.
+3. **Touched areas and the core set.** A map from source paths to the screens' area files (`scripts/screens/*.mjs`), kept next to
+   them and tested (every source folder maps to an area or to "all"), and a fixed core list of units that always run. The feature and
+   line levels run the core set and the mapped areas; a path the map does not know runs all shards.
+4. **Starter smoke test.** `check:starter --smoke`: the starter packs and builds, and the editor opens, edits, saves and publishes on it.
+   The line level runs the smoke test; the full level keeps all 4 shards.
+5. **Daily full run on feature branches.** A scheduled workflow runs the full check on each open `feature/*` branch once a day and
+   marks the branch's last commit; the PM reads it every morning.
+6. **Test versions from a version line.** The publish workflow stages a `next` build from a version line's branch (for example
+   `0.18.0-next-…` from `0.18`), so the line goes into `main` only at its release (`pm` skill).
+
+Each pull request updates the `checks` skill's *What CI runs* to what it built, and `scripts/ci-changes.test.mjs`. No test is skipped,
+disabled or deleted to save time: a unit leaves a level only by being outside the core set and outside the touched areas.
+
+A2 uses building blocks 1 and 3; A3 builds block 2.
+
+## Track B. Site builds: a save goes live sooner
+
+From the build-speed plan of 15 November 2026 (planned with the owner, a brainstorm session; the owner chose all eight options). Each
+batch gets its own pull request; a batch marked **verify first** starts with the check it names and stops if the check fails. B1 and B8
+use building block 2, B2 and B6 block 1, B5 block 3.
 
 **Goal:** a save in the editor is live sooner. Today a save on saravafaiblom.dk takes **3 min 41 s** from the start of
 Cloudflare's build to the end; this plan aims at about **1 min 45 s**.
 
-## What a build spends its time on today
+### What a build spends its time on today
 
 Measured from saravafaiblom.dk's build of 12 November 2026 (Workers Builds, `@morphemecms/cms` 0.16.0, 135 content
 files, 152 pages, 100 images, 5 videos). The save changed 3 files on the site.
@@ -45,15 +132,15 @@ Facts the plan rests on (read 15 November 2026):
   when its `cacheKey` from `getStaticPaths()` and the hash of its module graph match the last build; the cache is in
   `cacheDir`, `node_modules/.astro/`; off when `build.concurrency` > 1; middleware changes do not invalidate).
 
-## The batches
+### The batches
 
 Expected savings are for a content save on a site like Sara's (about 100 pages and 100 images) with no new images.
 
-### Batch 1. Every site takes the content lane (about 55–60 s)
+#### Batch 1. Every site takes the content lane (about 55–60 s)
 
 - **Now, outside the release, in `Sarashjemmesidedata`:** `wrangler.jsonc`'s `build.command` becomes
   `"npx morpheme ci-build"`, as in the starter. One-line change; her pinned 0.16.0 has `ci-build`. The PM may hand it out
-  before 0.26.
+  before the release.
 - **In the CMS:** a site whose build command is not `npx morpheme ci-build` is moved to it once by the CMS update (the
   same place that writes the version in `package.json`), and `check:content` warns while it is not.
 - **The full lane when the CMS changed, even without a commit** (owner, 15 November 2026). Today the lane follows the git
@@ -77,7 +164,7 @@ Expected savings are for a content save on a site like Sara's (about 100 pages a
   address until her launch; staging gets the address it is served at. A test covers both. Sara's PR is
   saravafaiblom/Sarashjemmesidedata#19 (merged).
 
-### Batch 2. Image sizes and video stills are kept between builds (about 40 s) — verify first
+#### Batch 2. Image sizes and video stills are kept between builds (about 40 s) — verify first
 
 1. **Verify:** a build on a test site (`morpheme-staging`, or a branch build of the demo Worker) prints whether
    `node_modules/.astro/` holds what the last build left there when `ci-build` starts. Write the result in this plan.
@@ -93,13 +180,13 @@ Expected savings are for a content save on a site like Sara's (about 100 pages a
      and on every plan.
 4. Only new or changed images go through sharp. `check:screens` and the image checks still see the same `srcset`.
 
-### Batch 3. Images are made in parallel (about 20–25 s when all images are made)
+#### Batch 3. Images are made in parallel (about 20–25 s when all images are made)
 
 - `responsive-images` today awaits one image after another. It runs the images through a small pool sized by
   `os.availableParallelism()` (sharp's own threads counted), so the first build of a site, a cleared cache and a big
   upload are faster. Same outputs, byte for byte; a test compares them.
 
-### Batch 4. Cloudflare can make the image sizes (about 42 s, the whole image step)
+#### Batch 4. Cloudflare can make the image sizes (about 42 s, the whole image step)
 
 - A site setting (Settings › Developer › Caching and builds, next to R2 caching): **Image sizes by Cloudflare**,
   a switch, `On` / `Off`, off by default. When on, `Img.astro` and the Markdown image plugin write `srcset` addresses of
@@ -112,7 +199,7 @@ Expected savings are for a content save on a site like Sara's (about 100 pages a
   untouched (`run_worker_first` is on).
 - Batches 2 and 3 stay for sites without it and for the share images and video stills.
 
-### Batch 5. A faster install (about 5–10 s)
+#### Batch 5. A faster install (about 5–10 s)
 
 - Workers Builds runs `npm clean-install` itself. The starter (and the CMS update, for existing sites) adds an `.npmrc`
   with `prefer-offline=true`, `audit=false` and `fund=false`, so npm uses the restored cache and skips the network
@@ -120,7 +207,7 @@ Expected savings are for a content save on a site like Sara's (about 100 pages a
 - Look at the site's 543 packages: what the site's `package.json` installs that only the editor's local checks need
   (Playwright and the like) moves to what `check:screens` installs on demand. Measure, then decide.
 
-### Batch 6. The editor's client bundle is not built on every save (about 10–13 s) — needs a design
+#### Batch 6. The editor's client bundle is not built on every save (about 10–13 s) — needs a design
 
 - 12.8 s of `astro build` is Vite's client bundle, mostly the editor (chunks over 500 kB). A content save does not change
   it. Two ways, to be weighed in a short spec first:
@@ -131,7 +218,7 @@ Expected savings are for a content save on a site like Sara's (about 100 pages a
 - Also: split the editor's chunks (`import()` per screen), which the Vite warning asks for, and which makes the editor
   open faster too.
 
-### Batch 7. Parallel prerendering (about 3 s on 4 vCPU)
+#### Batch 7. Parallel prerendering (about 3 s on 4 vCPU)
 
 - `experimental.parallelPrerender: true` in `astro.mjs`. Rendering is 6.7 s for 152 pages; on Paid (3 workers) this
   saves about 3 s, on Free (1 worker) about nothing. It pays off more on bigger sites.
@@ -139,7 +226,7 @@ Expected savings are for a content save on a site like Sara's (about 100 pages a
   `site/images.mjs`, `site/autolinks.mjs` and `site/pageColors.ts` are read-once caches and warnings, which is fine);
   the after-build steps read `dist/`, not memory. `compare-html` on the demo: the same HTML with and without the flag.
 
-### Batch 8. Incremental builds (up to about 6 s) — verify first, after batch 2
+#### Batch 8. Incremental builds (up to about 6 s) — verify first, after batch 2
 
 - Depends on batch 2's verification: Astro's cache is `node_modules/.astro/`; if `npm clean-install` removes it, this
   batch is dropped (or waits for Cloudflare to restore the cache after the install).
@@ -151,9 +238,9 @@ Expected savings are for a content save on a site like Sara's (about 100 pages a
 - A check that builds the demo fully and incrementally after a scripted change and compares with `compare-html`, so a
   missing input in the digest fails CI instead of leaving a stale page.
 
-## Order and what the release gives
+### Order and what the release gives
 
-1. Batch 1 (Sara's line now; the CMS part in 0.26).
+1. Batch 1 (Sara's line now; the CMS part in the release).
 2. Batch 2's verification, then batches 2 and 3.
 3. Batches 4, 5 and 7, independent of each other.
 4. Batch 6's spec, then its build.
