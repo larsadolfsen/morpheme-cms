@@ -12,6 +12,8 @@
 @import './cards.css';
 @import './type.css';
 @import './prose.css';
+/* The layout classes (docs/theme-layout-classes.md): mo-row, mo-stack, mo-grid … */
+@import './layout.css';
 /* In a site's layer of components, so the site's utilities (a margin on the steps) win over them: the blocks' tokens come before every block rule. */
 @import './tokens/blocks/comp/card.css';
 @import './tokens/blocks/comp/grid.css';
@@ -41,6 +43,11 @@
 @import './site-logo-post.css';
 @import './site-action.css';
 @import './site-page.css';
+/* The header, the footer, the cookie banner and pop-up, and the blog's parts: the layout the utility classes of theme/components gave them. */
+@import './site-header.css';
+@import './site-footer.css';
+@import './site-popups.css';
+@import './site-blog.css';
 @import './tokens/base/comp/card.css';
 @import './tokens/base/comp/carousel.css';
 @import './tokens/base/comp/chip.css';
@@ -279,6 +286,7 @@
   /* The site's logo (public/logo.svg), colored by background-color via a mask. */
   .logo-mark {
     display: inline-block;
+    flex-shrink: 0;
     -webkit-mask: url('/logo.svg') center / contain no-repeat;
     mask: url('/logo.svg') center / contain no-repeat;
   }

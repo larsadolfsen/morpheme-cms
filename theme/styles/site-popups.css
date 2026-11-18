@@ -1,0 +1,106 @@
+/* The cookie banner (theme/components/CookieConsent.astro) and the pop-up (PopupView.tsx, PopupButton.tsx): where they stand and the space between
+   their parts. Their look is the dialog's (ui/dialog.css). In @layer utilities, where the utility classes they replace sat, so the dialog's own rules
+   lose to them as before. Written with Modern Web Guidance's guides css-layout, css and responsive-design. */
+@layer utilities {
+  /* The banner: at the bottom of a phone's screen across it, from 600 dp a card at the bottom start. 42 sits under the open menu (45). */
+  .mo-cookie {
+    position: fixed;
+    inset-inline: 0.75rem;
+    inset-block-end: 0.75rem;
+    z-index: 42;
+    max-block-size: calc(100dvh - 1.5rem);
+    max-inline-size: 28rem;
+    overflow-y: auto;
+    padding: 1.25rem;
+  }
+  .mo-cookie__text {
+    margin-block-start: 0.5rem;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-cookie__link {
+    color: var(--mo-sys-color-primary);
+    text-decoration-line: underline;
+    text-underline-offset: 4px;
+  }
+  .mo-cookie__choices {
+    margin-block-start: 1rem;
+  }
+  /* The space between the categories. */
+  :where(.mo-cookie__choices > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: 0.75rem;
+  }
+  .mo-cookie__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.625rem;
+    margin-block-start: 1rem;
+  }
+  .mo-cookie__actions > * {
+    min-inline-size: 0;
+  }
+  .mo-cookie__choose {
+    margin-block-start: 0.75rem;
+  }
+  .mo-cookie__save {
+    inline-size: 100%;
+    margin-block-start: 0.625rem;
+  }
+  .mo-cookie__id {
+    margin-block-start: 0.75rem;
+    word-break: break-all;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  @media (width >= 37.5rem) {
+    .mo-cookie {
+      inset-inline: auto;
+      inset-block-end: 1.5rem;
+      inset-inline-start: 1.5rem;
+      padding: 1.5rem;
+    }
+  }
+
+  .mo-popup {
+    position: relative;
+    overflow: hidden;
+  }
+  /* The close button, at the top end of the picture or the text. */
+  .mo-popup__close {
+    position: absolute;
+    inset-block-start: 0.75rem;
+    inset-inline-end: 0.75rem;
+    z-index: 10;
+  }
+  .mo-popup__image {
+    display: block;
+    inline-size: 100%;
+    aspect-ratio: 3 / 2;
+    background-color: var(--mo-sys-color-surface-container-high);
+    object-fit: cover;
+  }
+  .mo-popup__body {
+    padding: 1.5rem;
+  }
+  /* A title with no picture above it keeps clear of the close button. */
+  .mo-popup__title.mo-has-close-space {
+    padding-inline-end: 3rem;
+  }
+  .mo-popup__text {
+    margin-block-start: 0.75rem;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-popup__buttons {
+    margin-block-start: 1.5rem;
+  }
+  .mo-popup__button {
+    inline-size: 100%;
+  }
+  @media (width >= 37.5rem) {
+    .mo-popup__body {
+      padding: 2rem;
+    }
+    .mo-popup__button {
+      inline-size: auto;
+    }
+  }
+}

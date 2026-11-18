@@ -24,15 +24,15 @@ const contactLinks = [
 ---
 
 <footer class="md-footer" data-editor="footer">
-  <Container as="div" class="grid gap-10 medium:gap-6 py-12 expanded:grid-cols-12 medium:py-16">
-    <div class="expanded:col-span-5">
-      <LogoMark class="block h-12 w-11 bg-primary" />
+  <Container as="div" class="mo-footer__grid">
+    <div class="mo-footer__about">
+      <LogoMark class="mo-footer__mark" />
       <p class="md-footer-name">{site.name}</p>
       <p class="md-footer-text" data-editor="footer-text">
         {footer.text}
       </p>
     </div>
-    <div class="expanded:col-span-4">
+    <div class="mo-footer__contact">
       <p class="md-footer-heading" data-editor="footer-contact-heading">
         {footer.contactHeading}
       </p>
@@ -54,7 +54,7 @@ const contactLinks = [
         ))}
       </ul>
     </div>
-    <div class="md-footer-column expanded:col-span-3">
+    <div class="md-footer-column mo-footer__links">
       <slot name="footer-column">
         <p class="md-footer-heading" data-editor="footer-links-heading">
           {footer.linksHeading}
@@ -70,12 +70,12 @@ const contactLinks = [
         </ul>
       </slot>
     </div>
-    <div class="md-footer-bottom expanded:col-span-12">
+    <div class="md-footer-bottom mo-footer__bottom">
       <span>
         © {new Date().getFullYear()} {site.name}
         {site.cvr && <> · CVR {site.cvr}</>}
       </span>
-      <div class="flex flex-wrap items-center gap-2">
+      <div class="mo-row mo-row-wrap">
         {banner && (
           <button type="button" data-cookie-settings class="button button-text">
             <Icon name="cookie" size={18} />

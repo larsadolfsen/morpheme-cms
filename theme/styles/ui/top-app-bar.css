@@ -18,8 +18,8 @@
     --top-app-bar-medium-headline-font-size, --top-app-bar-medium-subtitle-font-size, --top-app-bar-medium-padding-bottom
     --top-app-bar-large-headline-font-size, --top-app-bar-large-subtitle-font-size, --top-app-bar-large-padding-bottom
     --top-app-bar-avatar-size   an image among the trailing elements
-  Moved here from ui.css with its rules unchanged and in their order, in the same layer, imported by base.css after tabs.css. A bar also carries Tailwind utilities
-  (the header's `group/header sticky top-0 z-[43]`), which win by layer; the tabs in a bar are styled in tabs.css (docs/superpowers/plans/2026-11-16-css-split.md).
+  Moved here from ui.css with its rules unchanged and in their order, in the same layer, imported by base.css after tabs.css. A bar also carries part rules in @layer utilities
+  (the header's `mo-header`, site-header.css), which win by layer; the tabs in a bar are styled in tabs.css (docs/superpowers/plans/2026-11-16-css-split.md).
 */
 @layer components {
   /* Top app bar (m3.material.io/components/top-app-bar). */

@@ -67,3 +67,25 @@
     line-clamp: 2;
   }
 }
+
+/* The logo's layout (Logo.astro): the tile and the text in a row, the name and the role. In @layer utilities, where the utility classes they
+   replace sat. */
+@layer utilities {
+  .mo-logo {
+    --mo-comp-row-gap: 0.625rem;
+  }
+  /* The mark in the accent colour, when the caller gives no other. */
+  .mo-logo-mark-primary {
+    background-color: var(--mo-sys-color-primary);
+  }
+  .mo-logo__text {
+    line-height: 1.25;
+  }
+  .mo-logo__name {
+    display: block;
+    letter-spacing: -0.025em;
+  }
+  .mo-logo__role {
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+}

@@ -43,7 +43,15 @@ export const UI_PART_FILES = [
 ];
 
 /** The site shell's files, what components.css held (the logo and post list, the action bar, the page), in the order base.css imports them. */
-export const SITE_SHELL_FILES = ['site-logo-post.css', 'site-action.css', 'site-page.css'];
+export const SITE_SHELL_FILES = [
+  'site-logo-post.css',
+  'site-action.css',
+  'site-page.css',
+  'site-header.css',
+  'site-footer.css',
+  'site-popups.css',
+  'site-blog.css',
+];
 
 /** The files global.css imports after its own rules' place (what global.css held, the Material theme's look), relative to theme/styles/, in the order it imports them. Never imported by base.css: a theme that imports only base.css must not get Material's values. */
 export const MATERIAL_FILES = [
@@ -64,6 +72,7 @@ export const OTHER_BASE_FILES = [
   'cards.css',
   'type.css',
   'prose.css',
+  'layout.css',
   'blocks/text-section.css',
   'blocks/steps.css',
   'blocks/accordion.css',
