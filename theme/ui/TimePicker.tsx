@@ -1,4 +1,4 @@
-// A time picker (m3.material.io/components/time-pickers, .time-picker in ../styles/ui.css): a text field to type a time
+// A time picker (m3.material.io/components/time-pickers, .time-picker in ../styles/pickers.css): a text field to type a time
 // of day in (as the site's language writes it, 14.30 in Danish; `timeFormat`: 24h, the default, or 12h, 2.30 PM, with
 // AM and PM in the picker), with a clock button that opens the picker (TimePickerContainer.tsx: the dial, and the
 // input mode) in a dialog in the middle of the screen, and what a form sends, the time as hh:mm (14:30), in a hidden
