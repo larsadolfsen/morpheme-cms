@@ -19,6 +19,7 @@ This section replaces the *Revision 16 Nov* that stood here (the `--mo-` rename 
 | Release | 0.21 to deprecate, 0.23 to remove | **0.18.1** (owner, 18 Nov, confirmed in words, after the PM had also put "remove it on the 0.18 line inside contract 6" to the owner). `v0.17.0` is the last tag; 0.18 is merged into `main` (#888) but not released, so 0.18.0 comes first and is the owner's, and the Tailwind work goes into `main` after it. There is no deprecation line: the warnings, the migration guide and the gate ship with the break (§5). |
 | Contract numbers | "raise both to 6 in 0.23" | 6 is the token rename in 0.18.0. The removal is a second break (a utility class stops working) and raises both contracts to **7**, with `APP_APIS = [7]` (batch T16). |
 | Open question "who renames" | the Tokens session, after PR 10 | Answered. Still open: who reads the old token names and the utilities in `venus` and the store apps (§1.9), which now is one question about two breaks. |
+| Cards and lists (new, PM, 18 Nov) | not in the plan | Steps 1 to 5 of `2026-11-17-cards-and-lists-0-19.md` (PR #886) go into 0.18.0 in plain CSS; their files are taken out of the batches (`2026-11-18-tailwind-batches.md`, *The card and list files …*): 27 of the 2,559 utility uses (`PostCard.tsx` 7, `PostList.tsx` 6, the card of `NotFound.astro` 14), so 2,532 are left; T10 to T15 wait for those steps as well as for the CSS split. |
 | Tokens that one block reads | PM rule (16 Nov) | Now the repository's rule (`docs/css-tokens.md`: "A token only one block uses is declared on that block"), checked by `check:css-tokens --report`. §3.2 follows it. |
 
 ## Decisions for the owner
@@ -388,12 +389,12 @@ Superseded on 18 Nov by one spec per batch (the owner: Tailwind ships as 0.18.1,
 | [T07](2026-11-18-tailwind-t07-editor-forms.md) | Editor, part 3: navigation, forms and block parts | T01, T04 | large |
 | [T08](2026-11-18-tailwind-t08-editor-settings.md) | Editor, part 4: settings and tools | T01, T04 | large |
 | [T09](2026-11-18-tailwind-t09-editor-rest.md) | Editor, part 5: the remaining 63 small files | T01, T04 | medium |
-| [T10](2026-11-18-tailwind-t10-theme-fn-literals.md) | `theme()` to literal widths | the CSS split, T03 (the check accepts the literals) | medium |
-| [T11](2026-11-18-tailwind-t11-theme-components.md) | `theme/components/` (266 uses) and the import of the vocabulary | the CSS split, T01, T04, T10 | large |
-| [T12](2026-11-18-tailwind-t12-theme-pages.md) | `theme/layouts`, `theme/templates`, `defaults`, `site` and the editor preview (92 uses) | the CSS split, T01, T04, T11 | medium |
-| [T13](2026-11-18-tailwind-t13-prose-own-css.md) | `prose` in our own CSS | the CSS split, T01 | medium |
-| [T14](2026-11-18-tailwind-t14-reset.md) | Our own reset (Tailwind's preflight) | the CSS split, T01 | medium |
-| [T15](2026-11-18-tailwind-t15-last-tailwind-names.md) | The last Tailwind-named reads, repointed | the CSS split, T01, T05 | small |
+| [T10](2026-11-18-tailwind-t10-theme-fn-literals.md) | `theme()` to literal widths | the CSS split, cards and lists steps 1 to 5, T03 (the check accepts the literals) | medium |
+| [T11](2026-11-18-tailwind-t11-theme-components.md) | `theme/components/` (253 uses) and the import of the vocabulary | the CSS split, cards and lists steps 1 to 5, T01, T04, T10 | large |
+| [T12](2026-11-18-tailwind-t12-theme-pages.md) | `theme/layouts`, `theme/templates`, `defaults`, `site` and the editor preview (78 uses) | the CSS split, cards and lists steps 1 to 5, T01, T04, T11 | medium |
+| [T13](2026-11-18-tailwind-t13-prose-own-css.md) | `prose` in our own CSS | the CSS split, cards and lists steps 1 to 5, T01 | medium |
+| [T14](2026-11-18-tailwind-t14-reset.md) | Our own reset (Tailwind's preflight) | the CSS split, cards and lists steps 1 to 5, T01 | medium |
+| [T15](2026-11-18-tailwind-t15-last-tailwind-names.md) | The last Tailwind-named reads, repointed | the CSS split, cards and lists steps 1 to 5, T01, T05 | small |
 | [T16](2026-11-18-tailwind-t16-remove-tailwind.md) | Remove Tailwind and raise the contract to 7 | T05 to T09, T11 to T15 | large (wide, shallow) |
 | [T17](2026-11-18-tailwind-t17-permanent-check.md) | The permanent check (the ratchet goes to zero) | T16 | small |
 
