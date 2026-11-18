@@ -45,7 +45,11 @@ test('Material Symbols in use: a Phosphor glyph is a finding (as strict as befor
   assert.equal(found.length, 1);
   assert.match(found[0], /drawn as a Phosphor glyph .* while Material Symbols is the icon pack in use/);
   assert.deepEqual(glyphProblems(MATERIAL, '/about/', MATERIAL_TAG, 'M501-540Z'), []);
-  assert.deepEqual(glyphProblems(MATERIAL, '/about/', PHOSPHOR_TAG, D, () => true), [], 'an allowed own glyph is not a finding');
+  assert.deepEqual(
+    glyphProblems(MATERIAL, '/about/', PHOSPHOR_TAG, D, () => true),
+    [],
+    'an allowed own glyph is not a finding',
+  );
   assert.equal(glyphProblems('lucide', '/about/', PHOSPHOR_TAG, D).length, 1, 'any pack but Phosphor');
 });
 

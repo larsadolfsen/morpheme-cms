@@ -1,7 +1,18 @@
 import { constants, inflateSync } from 'node:zlib';
 import { openEditor, removeVirtualFile, virtualFile } from '../built-site.mjs';
 import { toolWidth } from '../../src/textBar.mjs';
-import { DEFAULT_SCHEME, PACK, PACK_FOLDER, ROOT, SPRINGS, browser, isMotionScheme, problems, site, springCss } from './support/context.mjs';
+import {
+  DEFAULT_SCHEME,
+  PACK,
+  PACK_FOLDER,
+  ROOT,
+  SPRINGS,
+  browser,
+  isMotionScheme,
+  problems,
+  site,
+  springCss,
+} from './support/context.mjs';
 import { previewReference } from './support/icon-pack.mjs';
 import { barTools, menusSettled, openStyleMenu, pressInsert } from './support/shared.mjs';
 

@@ -94,8 +94,7 @@ export const phosphorGlyph = (d) => !PHOSPHOR_OK.some((ok) => d.startsWith(ok.d)
 export const PACK = iconPack();
 export const PACK_FOLDER = packFolder(PACK);
 /** The problems of one Phosphor glyph (its first path `d`) found in the editor's DOM: none while Phosphor is the pack in use. */
-export const phosphorProblems = (where, d) =>
-  glyphProblems(PACK, where, '<svg viewBox="0 0 256 256">', d, (x) => !phosphorGlyph(x));
+export const phosphorProblems = (where, d) => glyphProblems(PACK, where, '<svg viewBox="0 0 256 256">', d, (x) => !phosphorGlyph(x));
 
 export const fallbackIcon = (name) =>
   `the icon "${name}" is from the whole of Material Symbols or Phosphor (not in the icon pack): give it an icon in each pack's map if it is to stay`;

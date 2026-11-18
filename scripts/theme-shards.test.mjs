@@ -20,16 +20,23 @@ test('The checks that run once belong to shard 1, and to a run with no shard', (
 const site = new URL('../.morpheme/demo/site/', import.meta.url);
 const bin = new URL('../bin/morpheme.mjs', import.meta.url).pathname;
 const listed = (...args) => {
-  const { stdout, status } = spawnSync(process.execPath, [bin, 'check:screens', '--list', ...args], { cwd: site.pathname, encoding: 'utf8' });
+  const { stdout, status } = spawnSync(process.execPath, [bin, 'check:screens', '--list', ...args], {
+    cwd: site.pathname,
+    encoding: 'utf8',
+  });
   assert.equal(status, 0, 'the list is printed');
   return stdout.split('\n').filter((l) => l.startsWith('UNIT '));
 };
-test('--list with the shards K/N together covers every unit exactly once', { skip: !existsSync(new URL('dist/editor/index.html', site)) && 'the demo is not built' }, () => {
-  const all = listed();
-  assert.ok(all.length > 50);
-  for (const shards of [2, 3, 8]) {
-    const parts = Array.from({ length: shards }, (_, k) => listed('--shard', `${k + 1}/${shards}`)).flat();
-    assert.equal(new Set(parts).size, parts.length, `${shards} shards: no unit twice`);
-    assert.deepEqual([...parts].sort(), [...all].sort(), `${shards} shards: every unit`);
-  }
-});
+test(
+  '--list with the shards K/N together covers every unit exactly once',
+  { skip: !existsSync(new URL('dist/editor/index.html', site)) && 'the demo is not built' },
+  () => {
+    const all = listed();
+    assert.ok(all.length > 50);
+    for (const shards of [2, 3, 8]) {
+      const parts = Array.from({ length: shards }, (_, k) => listed('--shard', `${k + 1}/${shards}`)).flat();
+      assert.equal(new Set(parts).size, parts.length, `${shards} shards: no unit twice`);
+      assert.deepEqual([...parts].sort(), [...all].sort(), `${shards} shards: every unit`);
+    }
+  },
+);
